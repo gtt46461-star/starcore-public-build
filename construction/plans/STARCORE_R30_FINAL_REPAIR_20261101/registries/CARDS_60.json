@@ -1,0 +1,5364 @@
+[
+  {
+    "id": "FR-B00-01",
+    "batch": "B00",
+    "title": "固定运行源码、方案和签名身份",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "construction/r30-repair/BASELINE.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "main是交付索引，不能把main树当运行源码",
+        "change": "记录b225ab2、sourceTree、APK hash、签名口径、当前57/44方案sha与设备报告jobId",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B00-01"
+        ]
+      },
+      {
+        "path": "construction/r30-repair/SOURCE_AUDIT.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "源码存在与运行完成容易混淆",
+        "change": "引用1201文件/24318方法/312事务点全量索引，逐项区分静态信号、复现缺陷、自然证据",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B00-01"
+        ]
+      }
+    ],
+    "steps": [
+      "锁定b225ab204db043b347f9d76d6c5c1376fd9a2590，核对CURRENT_FINAL_PLAN仍指向同版；后续源码漂移先重新对齐。",
+      "记录两证书APK及当前设备证书，不迁密钥；先完成现有版本复编和基本启动验证。"
+    ],
+    "tests": [
+      "源码/报告/APK安装身份互证；基线复编失败给出原错误，不删除依赖绕过。"
+    ],
+    "acceptance": "基线和哈希清单可复核；明确原APK、拟施工代码和目标设备三个身份。",
+    "rollback": "只恢复源码基线，不改设备旧数据。",
+    "previous_fix_mapping": "FIX-01/FIX-21",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B00-02",
+    "batch": "B00",
+    "title": "逐文件动作与跨文件所有权登记",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "construction/r30-repair/FILE_OWNERS.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "共享Runtime/Schema/报告文件有并发覆盖风险",
+        "change": "每个文件登记卡、方法范围、前驱、schemaOwner、读写Owner及验证出口",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B00-02"
+        ]
+      },
+      {
+        "path": "construction/r30-repair/METHOD_CHANGE_MAP.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "泛称改引擎不能准确施工",
+        "change": "对齐包内每卡file_action，带原方法行号和blob SHA；新增方法明确ADD",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B00-02"
+        ]
+      }
+    ],
+    "steps": [
+      "全1201Java文件已作语法/调用扫描；对关键链做语义审查并登记，不将静态未告警当成无缺陷。",
+      "RuntimeR27、SchemaR27、EvolutionLoopR27由每批一个集成Owner串行修改；其余无共享文件的叶子实现才可并行。"
+    ],
+    "tests": [
+      "所有MODIFY目标存在；所有方法锚点可定位；重复文件写者在同批有唯一合并顺序。"
+    ],
+    "acceptance": "60卡所有源文件与方法可定位，新增文件不伪装成已有实现。",
+    "rollback": "恢复本卡登记元数据，不覆盖其他卡源码。",
+    "previous_fix_mapping": "FIX-22",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B00-03",
+    "batch": "B00",
+    "title": "保全历史训练和已有效功能",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "construction/r30-repair/PROTECTED_BEHAVIOR.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "1832项有账本但复核回执0",
+        "change": "把历史快速筛劣、PIT、唯一REAL/结算、原模型恢复、29图、覆盖安装列为保护项",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B00-03"
+        ]
+      },
+      {
+        "path": "construction/r30-repair/LEGACY_1832_CROSSWALK.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "新功能可能静默挤掉旧能力",
+        "change": "沿原1832/299逐项保留、适配或明确不适用；禁止批量写VERIFIED",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B00-03"
+        ]
+      }
+    ],
+    "steps": [
+      "用现有工具读取原保全ledger，冻结旧模型/教师/原子/训练输入的引用与恢复位置。",
+      "已有历史筛劣与真实资产运行路径保持可用；改造前保存可复验基线。"
+    ],
+    "tests": [
+      "迁移/取消/重启后受保护artifact哈希和引用可恢复；旧高分不继承未证实Future。"
+    ],
+    "acceptance": "每个受保护行为有基线和回归入口，未验证项保留未验证。",
+    "rollback": "还原对应旧实现和指针，不清模型或整个App数据。",
+    "previous_fix_mapping": "FIX-22",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B00-04",
+    "batch": "B00",
+    "title": "冻结研究角色、单位和资格合同",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "construction/r30-repair/CONTRACTS.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "研究/确认/Future混用，工作游标被当日历期",
+        "change": "固定角色、概率目标、单位、窗口、alpha连续性、热表与受保护引用合同",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B00-04"
+        ]
+      },
+      {
+        "path": "construction/r30-repair/GATE_AUTHORITY.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "GateV2R29.ENABLED=false但报告可能把它当真实授权门禁",
+        "change": "列出当前R27_GATE_V1真实签证链与R29_GATE_V2旁路评估，定义新合同启用的先决证据",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B00-04"
+        ]
+      }
+    ],
+    "steps": [
+      "冻结TRAIN/SELECT/ONLINE_RESEARCH/CONFIRM/FUTURE/SYNTHETIC语义；确认标签只展示，不回流共享优化。",
+      "保留单位置固定K3；研究可多位置围号但最终动作不得改成多位置REAL。",
+      "新资格合同若启用，只作用于重新登记的新实验；旧证据、旧alpha与旧证书合同不重写。"
+    ],
+    "tests": [
+      "跨角色读写反证；同一policy、gateVersion、selector、sourceABI逐键一致。"
+    ],
+    "acceptance": "合同指纹和样本单位可复核；工程、研究与自然质量三个验收层独立。",
+    "rollback": "维持原Gate继续保护，关闭新合同路由而非关闭研究。",
+    "previous_fix_mapping": "FIX-11/FIX-17",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B01-01",
+    "batch": "B01",
+    "title": "修复诊断空探针空指针",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java",
+        "action": "MODIFY",
+        "scope": "capabilityRows",
+        "problem": "PR非空但所有gain为null时bestGainProbe返回null，PR.get(null).gain在770行崩溃",
+        "change": "用bg!=null判断存在可评分探针；无增益时保留NA，不补0，不改原统计公式",
+        "anchors": [
+          {
+            "type": "UpgradeDiagnosisSU2",
+            "method": "capabilityRows",
+            "signature": "Diagnosis D",
+            "lines": [
+              762,
+              835
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "f1dbe7e4ab22a628bdae3a3ed67c4f3cbff97bb2aace5d5d77035f4ff39f598a",
+        "file_merge_order": [
+          "FR-B01-01"
+        ]
+      }
+    ],
+    "steps": [
+      "应用B01诊断补丁中的本文件hunk。",
+      "将空探针、空快照、有效探针和损坏输入分别分类；原始手机输入缺失时不宣称已复现手机同一数据。"
+    ],
+    "tests": [
+      "空CONTMAT探针复现基线NPE，修后可导出；16份原诊断MD/JSON逐字节一致。"
+    ],
+    "acceptance": "空探针不再崩溃、原有效输入输出保持一致。",
+    "rollback": "回退单hunk并保留可重放输入，不删探针。",
+    "previous_fix_mapping": "FIX-02",
+    "prepared_patches": [
+      "B01_diagnostic_truth.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B01-02",
+    "batch": "B01",
+    "title": "导出诊断失败阶段和错误链",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+        "action": "MODIFY",
+        "scope": "report",
+        "problem": "当前catch仅输出异常类，无法定位parse/diagnose/render阶段",
+        "change": "拆阶段，输出最多12个本产品栈帧与输入hash；不在报告读取时建表或生成诊断",
+        "anchors": [
+          {
+            "type": "DiagnosisStoreSU2",
+            "method": "report",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              77,
+              88
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "6586acdf994f47749c8ec5b6c62a121c188abebe16bf3c5451b32de11b22e407",
+        "file_merge_order": [
+          "FR-B01-02"
+        ]
+      }
+    ],
+    "steps": [
+      "应用report完整替换代码；读取原su2_diag_snapshot并保留不可变原件。",
+      "报告JSON添加failureStage/errorChain/snapshotHash，文本显示首个产品栈；不输出凭据或整个模型payload。"
+    ],
+    "tests": [
+      "注入读取、解析、诊断、MD渲染、JSON渲染错误；导出其他章节仍可继续。"
+    ],
+    "acceptance": "失败可指到具体阶段、文件方法与原输入，不再只有NullPointerException。",
+    "rollback": "保留只读错误降级；原诊断输入不变。",
+    "previous_fix_mapping": "FIX-02",
+    "prepared_patches": [
+      "B01_diagnostic_truth.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B01-03",
+    "batch": "B01",
+    "title": "修正诊断指标映射",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRulesR30.java",
+        "action": "MODIFY",
+        "scope": "rules",
+        "problem": "WRITER_HARD挂在M11训练新鲜度，实际是写事务治理",
+        "change": "映射M07及后台写预算子项；M11只测最老训练积压；统计规则不得与授证绑定",
+        "anchors": [
+          {
+            "type": "DiagnosisRulesR30",
+            "method": "rules",
+            "signature": "",
+            "lines": [
+              25,
+              124
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "0f4897401e2013603520431092a98bb5a5e5bf2018c7a5d398313f366100766f",
+        "file_merge_order": [
+          "FR-B01-03"
+        ]
+      }
+    ],
+    "steps": [
+      "应用单行映射补丁并逐条对照44指标元数据。",
+      "对16条现有规则和新来源错误规则分别报覆盖，不用16条100%表示所有缺陷均覆盖。"
+    ],
+    "tests": [
+      "错误M11映射的回归输入应失败；writerHard>0同时定位operation及M07。"
+    ],
+    "acceptance": "每条诊断指向正确指标、卡、代码和验证动作。",
+    "rollback": "恢复诊断投影版本，保留原测量。",
+    "previous_fix_mapping": "FIX-01",
+    "prepared_patches": [
+      "B01_diagnostic_truth.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B01-04",
+    "batch": "B01",
+    "title": "统一44指标与12章事实对象",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricDefinitionsR29.java",
+        "action": "MODIFY",
+        "scope": "全部定义与版本适配",
+        "problem": "旧报告仍definitionVersion=R29.1和旧卡号",
+        "change": "新增R30元数据适配层，旧原件只读保留，当前注册表唯一",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "167476e62079c1b1d2e04fb7a0014e64b60c0e8882d4b78cb6c75a2121f10d27",
+        "file_merge_order": [
+          "FR-B01-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+        "action": "MODIFY",
+        "scope": "全部评估方法",
+        "problem": "42项缺数与已有实测事实脱节",
+        "change": "所有测量读取同一个捕获对象，缺失/失败/未部署分开，不用0替代null",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "af05db2d08e999cec9212a0e8fea6a1665bacf106be4508a657645516dc030ca",
+        "file_merge_order": [
+          "FR-B01-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "action": "MODIFY",
+        "scope": "全部章节投影",
+        "problem": "12章结构齐全但未逐功能解释",
+        "change": "增加同一事实的当前状态、窗口、分母、阻断链和修补卡；旧章节标签明确历史",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "78a535358cd67b6694de10c5550068a0b50a2e5759f795069f864f12be40da7c",
+        "file_merge_order": [
+          "FR-B01-04"
+        ]
+      }
+    ],
+    "steps": [
+      "先构建统一MetricResult字段合同，再改投影，不能各章分别重算同一指标。",
+      "把三态当前存活、窗口SLO、自然质量分列；Gate输入和影子摘要不同窗口必须列明。"
+    ],
+    "tests": [
+      "同快照44总表/12章/图表相同指标值及分母一致；没有数据保持null。"
+    ],
+    "acceptance": "M32冲突为0，所有INCOMPLETE/UNKNOWN有具体取证动作。",
+    "rollback": "回退投影层，不重写历史评价结果。",
+    "previous_fix_mapping": "FIX-01",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B01-05",
+    "batch": "B01",
+    "title": "补齐逐图、逐矩阵、逐能力和前次报告对比",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "action": "MODIFY",
+        "scope": "rowsets/metrics",
+        "problem": "旧限量字段省略结果原因，逐对象统计不足",
+        "change": "导出对象总量、显示量、遗漏量、完整索引与原件位置；大字段采用hash引用",
+        "anchors": [
+          {
+            "type": "ReportSnapshotR30",
+            "method": "metrics",
+            "signature": "Query q,long at",
+            "lines": [
+              86,
+              106
+            ]
+          },
+          {
+            "type": "ReportSnapshotR30",
+            "method": "rowsets",
+            "signature": "Query q",
+            "lines": [
+              107,
+              137
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "2dfb38a9bcb05d76cf5b72432dacd6428697d1a152ecf4aef53682deb9010360",
+        "file_merge_order": [
+          "FR-B01-05",
+          "FR-B03-02",
+          "FR-B05-01"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java",
+        "action": "MODIFY",
+        "scope": "load/chaptersR30",
+        "problem": "摘要缺前次jobId对比",
+        "change": "读取上次成功摘要，按同版本/同对象/同角色比较，重复jobId去重",
+        "anchors": [
+          {
+            "type": "ReportDataR27",
+            "method": "load",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              20,
+              79
+            ]
+          },
+          {
+            "type": "ReportDataR27",
+            "method": "chaptersR30",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              86,
+              86
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "3ed5d7386cd13fb0c1ba22df214c5a3cbb9f9812bda00cb0a1ac0c3467182e9d",
+        "file_merge_order": [
+          "FR-B01-05",
+          "FR-B07-03",
+          "FR-B09-05"
+        ]
+      },
+      {
+        "path": "construction/r30-repair/REPORT_OBJECT_SCHEMA.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "页面是否可开、算法是否有效混用",
+        "change": "固定implemented/callable/inputAvailable/produced/consumed/effective六状态",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B01-05"
+        ]
+      }
+    ],
+    "steps": [
+      "29旧图、18新图、20矩阵、82能力分别逐对象输出，带代码与分析产物链接。",
+      "96项检测执行率与产品通过率分开，别名缺陷按根因聚类。"
+    ],
+    "tests": [
+      "重复B快照不当第三时段；跨进程累计计数不直接相减；部分展示不替代全分母。"
+    ],
+    "acceptance": "用户能从任何对象看到“现在行不行、缺什么、改哪里、如何验证”。",
+    "rollback": "保留旧摘要及新schema版本，不丢原报告。",
+    "previous_fix_mapping": "FIX-01/FIX-18",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B02-01",
+    "batch": "B02",
+    "title": "防止写锁遥测旋转丢数与失败丢窗口",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java",
+        "action": "MODIFY",
+        "scope": "record/rotate",
+        "problem": "record未与rotate同锁，窗口交换可漏记",
+        "change": "只在数据库锁外的极短内存区同步record与rotate；不在该监视器下请求DB",
+        "anchors": [
+          {
+            "type": "WriterHoldLedgerR30",
+            "method": "record",
+            "signature": "String operation,boolean critical,long waitMs,long holdMs,boolean failed",
+            "lines": [
+              63,
+              85
+            ]
+          },
+          {
+            "type": "WriterHoldLedgerR30",
+            "method": "rotate",
+            "signature": "",
+            "lines": [
+              164,
+              169
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "799bb643c746f70f075b331b80256a487de62203510dc957cac7b84f11096965",
+        "file_merge_order": [
+          "FR-B02-01"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java",
+        "action": "MODIFY",
+        "scope": "maybeFlush",
+        "problem": "先rotate再写库，catch后未保留closed，注释所称重试不成立",
+        "change": "使用单飞AtomicBoolean和一个有界pending快照；原窗口主键幂等重试；成功后才清pending",
+        "anchors": [
+          {
+            "type": "HoldLedgerFlushR30",
+            "method": "maybeFlush",
+            "signature": "DbStore store",
+            "lines": [
+              26,
+              46
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "59c7895e289ab4f273022dd914d5fa5f0d414bf197361592a6e9ef45ce194c7f",
+        "file_merge_order": [
+          "FR-B02-01"
+        ]
+      }
+    ],
+    "steps": [
+      "应用B02遥测补丁。",
+      "区分进程内重试保全与进程死亡窗口未知；不能宣称未落库遥测可跨进程无损。",
+      "开口分位桶显示>30000ms，不把Long.MAX_VALUE当真实耗时；窗口汇总用直方图合同。"
+    ],
+    "tests": [
+      "16万次并发record/rotate总数无损；首次DB写拒绝后重试保留原12条和新3条；主线程和DB锁顺序不反转。"
+    ],
+    "acceptance": "遥测重试不丢数/重复计数，开口桶不显示9e18ms。",
+    "rollback": "保留pending原件，撤回展示/刷新调度，不清历史遥测。",
+    "previous_fix_mapping": "FIX-04",
+    "prepared_patches": [
+      "B02_writer_telemetry_retry.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B02-02",
+    "batch": "B02",
+    "title": "定位并优化FTRL事务内慢点",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchAdaptiveLearnerStoreR811.java",
+        "action": "MODIFY",
+        "scope": "updateFromStrictOos/tailMatchesPreState/targetCompatible/matches",
+        "problem": "61.581秒长锁；编码已在锁外，不能重复提出无效搬移",
+        "change": "给事务内读尾/查重/BLOB插入/事件钩子分段计时；用真实EXPLAIN检查索引；原artifact+learned原子性保留",
+        "anchors": [
+          {
+            "type": "ResearchAdaptiveLearnerStoreR811",
+            "method": "updateFromStrictOos",
+            "signature": "DbStore store,String targetIssue",
+            "lines": [
+              29,
+              190
+            ]
+          },
+          {
+            "type": "ResearchAdaptiveLearnerStoreR811",
+            "method": "tailMatchesPreState",
+            "signature": "SQLiteDatabase db,String targetIssue,String expectedPreStateHash",
+            "lines": [
+              351,
+              370
+            ]
+          },
+          {
+            "type": "ResearchAdaptiveLearnerStoreR811",
+            "method": "targetCompatible",
+            "signature": "SQLiteDatabase db,String artifactType,String issue,String expectedHash",
+            "lines": [
+              373,
+              388
+            ]
+          },
+          {
+            "type": "ResearchAdaptiveLearnerStoreR811",
+            "method": "matches",
+            "signature": "SQLiteDatabase db,ResearchArtifactCodecR811.Artifact artifact,String hash",
+            "lines": [
+              390,
+              411
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "5269face2938d4a6d9bc38b9cc76eb34d33838fb487b8bc7955604162d00f0e1",
+        "file_merge_order": [
+          "FR-B02-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeEventHooksR926.java",
+        "action": "MODIFY",
+        "scope": "learnedWithinTransaction",
+        "problem": "事务内串接事件与Batch34归档可能放大写量",
+        "change": "检查事件写和触发器级联，核心学习回执在本事务；可重算展示外移outbox，不把核心证据拆成两提交",
+        "anchors": [
+          {
+            "type": "RuntimeEventHooksR926",
+            "method": "learnedWithinTransaction",
+            "signature": "SQLiteDatabase db,String issue,String source,String learningIdentity,String preStateHash,String postStateHash,String trainedUntil,String detail",
+            "lines": [
+              157,
+              204
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "80f44f57d23d3363c9c1c78ad829bc152efad4cbce4727d63b288f81c5b55b63",
+        "file_merge_order": [
+          "FR-B02-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/Batch34RuntimeRepositoryR930.java",
+        "action": "MODIFY",
+        "scope": "全部learned写入链",
+        "problem": "可能存在重复归档和大payload修订",
+        "change": "按learningIdentity去重并记录字节/影响行；payload引用化需保存原字节及哈希",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "b3f3fd52aa087bee98b5a934861504f0ae045202f87a76f3a2d2a09fc910453b",
+        "file_merge_order": [
+          "FR-B02-02"
+        ]
+      }
+    ],
+    "steps": [
+      "必须用实际大库与模型测出最慢子段，不能凭operation名字归因。",
+      "先加/复用匹配查询索引并测读写代价；若大blob确为瓶颈，再设计stage/CAS发布且原读者兼容。",
+      "不拆掉B09 atomic linear学习合同。"
+    ],
+    "tests": [
+      "同输入、同模型、同并发下长锁复测；原件checksum与唯一学习回执一致；回滚/磁盘满不产生半个学习状态。"
+    ],
+    "acceptance": "后台hold目标50ms硬200ms，关键wait P95≤200ms；若仍失败，保留准确原因。",
+    "rollback": "恢复原发布指针与artifact加载路径，不回滚已结算账。",
+    "previous_fix_mapping": "FIX-04",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B02-03",
+    "batch": "B02",
+    "title": "移出旧结算解释与保留重计算",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/LegacyPredrawContextBridgeR915.java",
+        "action": "MODIFY",
+        "scope": "settleDraw/settlementInput",
+        "problem": "事务内读取、格式化Teacher大文本和计算解释hash",
+        "change": "锁外准备不可变解释输入，短事务复核原predraw/draw/hash后唯一插入；原结算不等展示",
+        "anchors": [
+          {
+            "type": "LegacyPredrawContextBridgeR915",
+            "method": "settleDraw",
+            "signature": "final DbStore store,final Models.Draw draw",
+            "lines": [
+              176,
+              232
+            ]
+          },
+          {
+            "type": "LegacyPredrawContextBridgeR915",
+            "method": "settlementInput",
+            "signature": "SQLiteDatabase db,Models.Draw draw",
+            "lines": [
+              265,
+              281
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "0f321dfaee7243dce171cf948099c6d2c84762023b8a4cde541092b998a54eee",
+        "file_merge_order": [
+          "FR-B02-03"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "action": "MODIFY",
+        "scope": "execute",
+        "problem": "R26_RETENTION把多个fold/prune放同一长事务",
+        "change": "改成可恢复维护阶段，每片核心游标+结果原子；保留实时优先",
+        "anchors": [
+          {
+            "type": "RuntimeCoordinatorR26",
+            "method": "execute",
+            "signature": "Claim c,BudgetTokenSU1 budget",
+            "lines": [
+              204,
+              277
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "044b9b89c2e8bd62feeb9c1aad178f58bcac4572ec7f2469e48b95ac0a97e4f3",
+        "file_merge_order": [
+          "FR-B02-03",
+          "FR-B03-03",
+          "FR-B03-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionR26.java",
+        "action": "MODIFY",
+        "scope": "prune",
+        "problem": "全批多表DELETE/聚合不可界定",
+        "change": "逐表有限键范围与阶段cursor，不按固定行数假设耗时；受保护引用不删",
+        "anchors": [
+          {
+            "type": "RetentionR26",
+            "method": "prune",
+            "signature": "SQLiteDatabase db,long seq",
+            "lines": [
+              14,
+              62
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "4c9d4b08cfb4da8c5740f2d88fced081a0810b18cb638c869b277938a044457f",
+        "file_merge_order": [
+          "FR-B02-03",
+          "FR-B10-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/RetentionRulesSU2.java",
+        "action": "MODIFY",
+        "scope": "foldDecisions/pruneResearchGenomes",
+        "problem": "折叠与删除跨阶段可能双计或漏计",
+        "change": "折叠幂等键+高水位与源删除在安全同事务；必须恢复原充分统计",
+        "anchors": [
+          {
+            "type": "RetentionRulesSU2",
+            "method": "foldDecisions",
+            "signature": "SQLiteDatabase db,long currentSequence,long now",
+            "lines": [
+              27,
+              49
+            ]
+          },
+          {
+            "type": "RetentionRulesSU2",
+            "method": "pruneResearchGenomes",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              51,
+              56
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "5103bf93069ef8780753562c303df0af674fb192dc385f123d4dcc1207514211",
+        "file_merge_order": [
+          "FR-B02-03"
+        ]
+      }
+    ],
+    "steps": [
+      "使用准备/复核/提交协议，解释展示与核心结算Owner分开。",
+      "维护每次最多一个有界片；取消后保留阶段，不整段重跑产生重复增量。"
+    ],
+    "tests": [
+      "相同issue解释首次写哈希一致；维护中断任意片后汇总总量与不中断一致。"
+    ],
+    "acceptance": "R919/R26头部超限消除；保护资产、历史统计不丢失。",
+    "rollback": "停止新维护片，原统计/源行引用仍可恢复。",
+    "previous_fix_mapping": "FIX-04/FIX-20",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B02-04",
+    "batch": "B02",
+    "title": "实时事件身份和时间线校正",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineR30.java",
+        "action": "MODIFY",
+        "scope": "Row/elapsed/summarize",
+        "problem": "80,042,119ms异常分段可能混历史/实时事件",
+        "change": "添加事件模式/实例合同，LIVE/BACKFILL/REPLAY分开；跨boot、负差、重复实例单列",
+        "anchors": [
+          {
+            "type": "IssueTimelineR30$Row",
+            "method": "<init>",
+            "signature": "String issue",
+            "lines": [
+              80,
+              80
+            ]
+          },
+          {
+            "type": "IssueTimelineR30$Row",
+            "method": "set",
+            "signature": "Stage s,Long wallMs,Long monoMs,String bootId",
+            "lines": [
+              81,
+              81
+            ]
+          },
+          {
+            "type": "IssueTimelineR30$Row",
+            "method": "wall",
+            "signature": "Stage s",
+            "lines": [
+              82,
+              82
+            ]
+          },
+          {
+            "type": "IssueTimelineR30$Row",
+            "method": "elapsed",
+            "signature": "Stage from,Stage to",
+            "lines": [
+              84,
+              89
+            ]
+          },
+          {
+            "type": "IssueTimelineR30$Row",
+            "method": "freezeMarginMs",
+            "signature": "",
+            "lines": [
+              91,
+              94
+            ]
+          },
+          {
+            "type": "IssueTimelineR30",
+            "method": "summarize",
+            "signature": "List<Row> rows",
+            "lines": [
+              98,
+              135
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "5f14a140b4dc25f3d140898b8832f592fa1bfb55bd67b92fb00753c002083e57",
+        "file_merge_order": [
+          "FR-B02-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java",
+        "action": "MODIFY",
+        "scope": "全部阶段写入",
+        "problem": "仅issue首次时间可能跨实例串接",
+        "change": "绑定原始trace/boot实例，合法第一次到达且同事件求差；保留墙钟对账",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "749edbe39db2e191143622041cd32a53dfafe7b69bd6171efc27cab8202a807a",
+        "file_merge_order": [
+          "FR-B02-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "action": "MODIFY",
+        "scope": "全部抓取/倒计时触发路径",
+        "problem": "写拒绝与倒计时恢复不清晰",
+        "change": "抓取单飞、1s计划节拍与失败退避分列；倒计时用单调钟校正原截止，不在UI驱动后台真相",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "d00a7fed6e3a74ef8b6471893c3a4c508e27210277d959165b04a17a24f6a59c",
+        "file_merge_order": [
+          "FR-B02-04",
+          "FR-B02-05",
+          "FR-B03-05"
+        ]
+      }
+    ],
+    "steps": [
+      "每期串起response、validation、drawCommit、settlement、nextFreeze。",
+      "抓取阶段错误不累加成丢期数，网络耗时与写锁等待分别报告。"
+    ],
+    "tests": [
+      "历史回补/实时并存、改墙钟、跨进程/boot、重复响应、断网恢复；不剪裁异常来达标。"
+    ],
+    "acceptance": "时差语义正确，异常有来源；M03/M04按受支持真实LIVE样本重测。",
+    "rollback": "恢复旧时间线原件，撤回新投影不改已冻结预测。",
+    "previous_fix_mapping": "FIX-05",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B02-05",
+    "batch": "B02",
+    "title": "关键落库、结算和下一期冻结的幂等贯通",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "action": "MODIFY",
+        "scope": "runWrite/runTransaction",
+        "problem": "多个旧写者与实时deadline竞争",
+        "change": "关键写优先名单按实测操作复核，事务内禁等待/训练；失败必须回传可重试原因",
+        "anchors": [
+          {
+            "type": "DatabaseCoordinator",
+            "method": "runWrite",
+            "signature": "String operation,WriteCallable<T> task,T fallback",
+            "lines": [
+              610,
+              737
+            ]
+          },
+          {
+            "type": "DatabaseCoordinator",
+            "method": "runWrite",
+            "signature": "String operation,final WriteRunnable task",
+            "lines": [
+              862,
+              874
+            ]
+          },
+          {
+            "type": "DatabaseCoordinator",
+            "method": "runTransaction",
+            "signature": "final String operation,final String targetIssue,final String idempotencyKey,final TransactionCallable<T> task,final T fallback",
+            "lines": [
+              885,
+              910
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "a9ed86a1cba55d43ee77e44fb639209aabfe20bdcd44ce0813699dfecbd1990f",
+        "file_merge_order": [
+          "FR-B02-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/BusinessReconcilerR36.java",
+        "action": "MODIFY",
+        "scope": "全部对账/投递",
+        "problem": "抓取成功不等结算和训练投递成功",
+        "change": "主提交中唯一结算/持久outbox/时间线水位，提交后触发下一期",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "4ce6fef13c1df306b01aeee4757de1c423c71d87ba4ec3fc206b14d29cf7ada1",
+        "file_merge_order": [
+          "FR-B02-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "action": "MODIFY",
+        "scope": "全部正式结算入口",
+        "problem": "可能被解释/研究旁支拖累",
+        "change": "保持唯一结算Owner和已冻结对象幂等；无原冻结记审计缺失，不补赛前票",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "38eb92ae71a0e09ee4bb7b3252a5c0ec2b51022e4dc5e5b18d8c0330ac85ecb0",
+        "file_merge_order": [
+          "FR-B02-05",
+          "FR-B05-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "action": "MODIFY",
+        "scope": "LiveTask",
+        "problem": "下一期冻结可能在研究重计算之后错过窗口",
+        "change": "只消费已准备的不可变候选，源revision+截止+ABI在短提交复核",
+        "anchors": [
+          {
+            "type": "RuntimeR27$LiveTask",
+            "method": "id",
+            "signature": "",
+            "lines": [
+              250,
+              250
+            ]
+          },
+          {
+            "type": "RuntimeR27$LiveTask",
+            "method": "step",
+            "signature": "ResearchPoolR27.Worker w",
+            "lines": [
+              251,
+              262
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "ce5740d0d39e3e7f1ec6824614348713ee258535a92b8a46a600e4a423c71d2b",
+        "file_merge_order": [
+          "FR-B02-05",
+          "FR-B03-04",
+          "FR-B04-05",
+          "FR-B06-02",
+          "FR-B07-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FetchBackoffR30.java",
+        "action": "VERIFY_AND_KEEP",
+        "scope": "tryBegin/end/nextDelayMs",
+        "problem": "原单飞与退避已有实现；长延迟不能直接归因为抓取节奏",
+        "change": "保留1/2/4/8/15s退避与4s超时合同，核对所有请求路径finally释放；仅发现违规才增量修补",
+        "anchors": [
+          {
+            "type": "FetchBackoffR30",
+            "method": "tryBegin",
+            "signature": "",
+            "lines": [
+              28,
+              32
+            ]
+          },
+          {
+            "type": "FetchBackoffR30",
+            "method": "end",
+            "signature": "boolean success",
+            "lines": [
+              34,
+              37
+            ]
+          },
+          {
+            "type": "FetchBackoffR30",
+            "method": "nextDelayMs",
+            "signature": "boolean haveCurrentDraw,long msUntilNextDeadline",
+            "lines": [
+              44,
+              53
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "afeca954fe4a40bbcba05ffcd0a9624636cf7580c84eda771070850916b0cdfd",
+        "file_merge_order": [
+          "FR-B02-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "action": "MODIFY",
+        "scope": "fetchLoop/抓取finally",
+        "problem": "抓取、补抓、后台重启可能共享在途状态",
+        "change": "逐入口核对FETCH_R30并只保留一个实际请求Owner；记录请求/成功/提交/outbox不同阶段，不改健康节奏",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "d00a7fed6e3a74ef8b6471893c3a4c508e27210277d959165b04a17a24f6a59c",
+        "file_merge_order": [
+          "FR-B02-04",
+          "FR-B02-05",
+          "FR-B03-05"
+        ]
+      }
+    ],
+    "steps": [
+      "先保证核心draw/settlement/outbox，再逐个旁支；跨文件不增加第二真实结算Owner。",
+      "每期有REAL/SHADOW/合法弃权/故障缺口明确终态，影子每期覆盖纳入全分母。"
+    ],
+    "tests": [
+      "重复/乱序开奖、事务回滚、边界截止、服务重启；同issue REAL与结算最多一次。"
+    ],
+    "acceptance": "M03≤5s/M04≤1s，M05健康场景≥99.5%；小窗口不冒充24h验收。",
+    "rollback": "撤新候选路由，保留既有合法主链与全部结算账。",
+    "previous_fix_mapping": "FIX-05/FIX-17",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B02-06",
+    "batch": "B02",
+    "title": "跨文件批次原子性与组合守卫",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+        "action": "MODIFY",
+        "scope": "Batch/submit/execute",
+        "problem": "before字段可被后续helper覆盖；整逻辑batch不能内部切成独立提交",
+        "change": "新增guardBefore组合API；保存原fence再附加source/消费守卫；只在任务计算边界分片",
+        "anchors": [
+          {
+            "type": "ResearchWriteQueueR27$Batch",
+            "method": "add",
+            "signature": "String sql,Object... args",
+            "lines": [
+              35,
+              35
+            ]
+          },
+          {
+            "type": "ResearchWriteQueueR27$Batch",
+            "method": "isEmpty",
+            "signature": "",
+            "lines": [
+              36,
+              36
+            ]
+          },
+          {
+            "type": "ResearchWriteQueueR27",
+            "method": "submit",
+            "signature": "String operation,Batch batch,java.util.function.BooleanSupplier cancelled",
+            "lines": [
+              46,
+              46
+            ]
+          },
+          {
+            "type": "ResearchWriteQueueR27",
+            "method": "submit",
+            "signature": "String operation,Batch batch,java.util.function.BooleanSupplier cancelled,boolean freezeWrite",
+            "lines": [
+              50,
+              73
+            ]
+          },
+          {
+            "type": "ResearchWriteQueueR27",
+            "method": "execute",
+            "signature": "SQLiteDatabase db,Batch batch,String operation",
+            "lines": [
+              80,
+              85
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "83540cb7d111b76a31f00e38f41bb27a836af54a348700439fa55deb4536de54",
+        "file_merge_order": [
+          "FR-B02-06"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CommitEnvelopeR30R1.java",
+        "action": "ADD",
+        "scope": "完整新增类",
+        "problem": "提交失败时内存状态可能领先落库游标",
+        "change": "用CAS单飞信封，RETRY不发布、SOURCE_CONFLICT丢计算重建；已提交状态防御复制",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B02-06"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContractR30R1.java",
+        "action": "ADD",
+        "scope": "完整新增类",
+        "problem": "跨模块输入、角色与revision身份不够明确",
+        "change": "不可变输入合同，role/窗口/source/ABI参与hash，未来及确认数据不得驱动研究处方",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B02-06"
+        ]
+      }
+    ],
+    "steps": [
+      "应用B02守卫补丁；逐个核对旧.before赋值的最终Owner，不能只改API不改调用。",
+      "SQL、artifact、游标、消费回执属于一个逻辑提交；大对象需stage+发布合同，不在队列按500行强拆。"
+    ],
+    "tests": [
+      "原fence失败、新guard失败、源revision改变、异常重试、两个线程并发提交；未提交状态不可见。"
+    ],
+    "acceptance": "原子性、幂等和守卫没有被跨文件helper覆盖；每阶段只有一个可见发布点。",
+    "rollback": "关闭新信封路由，恢复最后成功提交状态，不重复消耗标签。",
+    "previous_fix_mapping": "FIX-04/FIX-19",
+    "prepared_patches": [
+      "B02_atomic_step_guards.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B03-01",
+    "batch": "B03",
+    "title": "唯一schemaOwner增加研究物化表",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "action": "MODIFY",
+        "scope": "ensure",
+        "problem": "新增研究表不能由报告/页面临时创建",
+        "change": "在既有唯一writer里幂等执行ResearchSchemaR30R1.DDL，迁移前后校验",
+        "anchors": [
+          {
+            "type": "SchemaR27",
+            "method": "ensure",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              73,
+              98
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "a9be5a2b116922f478554fff3e0d990ff53e433d278e0bd94118458a2d0cc305",
+        "file_merge_order": [
+          "FR-B03-01",
+          "FR-B10-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java",
+        "action": "ADD",
+        "scope": "完整新增类",
+        "problem": "需要分析产物/处方/消费/图缓存/任务事实的最少物理存储",
+        "change": "只新增6表+索引/不可变消费触发器；16逻辑视图复用原表，不额外造16套真相",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B03-01"
+        ]
+      }
+    ],
+    "steps": [
+      "应用B03 schema补丁，旧库已有行不清理。",
+      "schema readiness先于任何新任务/新页面；失败维持BLOCKED_SCHEMA，不能在readonly中补表。"
+    ],
+    "tests": [
+      "连续执行两次DDL、升级中断、老库、磁盘满；SQLite完整性及原行数不变。"
+    ],
+    "acceptance": "新表幂等可恢复且只有一个schema writer。",
+    "rollback": "保持原schema和原数据可用；新增表停止消费，不DROP保护数据。",
+    "previous_fix_mapping": "FIX-03/FIX-12",
+    "prepared_patches": [
+      "B03_typed_progress_schema.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B03-02",
+    "batch": "B03",
+    "title": "57任务分清工作单位与日历新鲜度",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskProgressR30R1.java",
+        "action": "ADD",
+        "scope": "完整新增类",
+        "problem": "phase/gen/policy游标被当开奖序号会产生错误滞后",
+        "change": "区分workCursor、knownLatest、pending、oldestPendingOrdinal、commitClockOrdinal；M11与M12不同",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B03-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeReportR26.java",
+        "action": "MODIFY",
+        "scope": "taskLivenessR30",
+        "problem": "schema无pending/last_committed_seq导致全UNKNOWN",
+        "change": "改读新typed progress来源；旧字段缺失保持未知，不能统一max(cursor差)推断",
+        "anchors": [
+          {
+            "type": "RuntimeReportR26",
+            "method": "taskLivenessR30",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              161,
+              181
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "61358ab2b73ca5ba7b9a27146091d5b0fbb45724d6b5508b5bb70b8e89529610",
+        "file_merge_order": [
+          "FR-B03-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "action": "MODIFY",
+        "scope": "taskLiveness/rowsets",
+        "problem": "只读不存在字段，57项无可判事实",
+        "change": "连接typed task事实与Owner表，逐任务报告单位、依赖与源时间",
+        "anchors": [
+          {
+            "type": "ReportSnapshotR30",
+            "method": "rowsets",
+            "signature": "Query q",
+            "lines": [
+              107,
+              137
+            ]
+          },
+          {
+            "type": "ReportSnapshotR30",
+            "method": "taskLiveness",
+            "signature": "Object raw,String latest,Object total",
+            "lines": [
+              148,
+              151
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "2dfb38a9bcb05d76cf5b72432dacd6428697d1a152ecf4aef53682deb9010360",
+        "file_merge_order": [
+          "FR-B01-05",
+          "FR-B03-02",
+          "FR-B05-01"
+        ]
+      }
+    ],
+    "steps": [
+      "r27-evolution使用PHASE，atomnet使用POSITION_SAMPLE，ABI/校准用POLICY，chart/health用TIME_TICK。",
+      "57原入口逐项标ACTIVE/DELEGATED/BLOCKED/WAITING，委托项指向实际Owner。"
+    ],
+    "tests": [
+      "phase18460与calendar1200不相减；等新输入无误报；有pending五期不提交告警；最老训练源滞后单列。"
+    ],
+    "acceptance": "活跃任务事实可判或逐对象说明缺源；不把UNKNOWN计健康0。",
+    "rollback": "退回只读UNKNOWN而非猜测；原任务继续运行。",
+    "previous_fix_mapping": "FIX-03",
+    "prepared_patches": [
+      "B03_typed_progress_schema.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B03-03",
+    "batch": "B03",
+    "title": "任务提交与真实进度原子记录",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "action": "MODIFY",
+        "scope": "record/loop",
+        "problem": "事后另写任务receipt可能BUSY失败，不能视为主任务提交事实",
+        "change": "主产物batch内写typed progress；record仅写调度/错误观测；失败不提前刷新完成水位",
+        "anchors": [
+          {
+            "type": "ResearchPoolR27",
+            "method": "loop",
+            "signature": "Worker w",
+            "lines": [
+              86,
+              118
+            ]
+          },
+          {
+            "type": "ResearchPoolR27",
+            "method": "record",
+            "signature": "String id,Outcome o,Throwable failure",
+            "lines": [
+              137,
+              163
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "e80ba04df767f5130b537c3aa70fa5f50a9c9f4cc1b5bd309ca13815b0a85f05",
+        "file_merge_order": [
+          "FR-B03-03",
+          "FR-B03-04",
+          "FR-B03-05",
+          "FR-B07-04",
+          "FR-B08-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "action": "MODIFY",
+        "scope": "execute/任务提交路径",
+        "problem": "不同任务游标与源时间混在一列",
+        "change": "各任务返回明确ProgressFacts，只有本批产物提交才更新完成源/commitClock",
+        "anchors": [
+          {
+            "type": "RuntimeCoordinatorR26",
+            "method": "execute",
+            "signature": "Claim c,BudgetTokenSU1 budget",
+            "lines": [
+              204,
+              277
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "044b9b89c2e8bd62feeb9c1aad178f58bcac4572ec7f2469e48b95ac0a97e4f3",
+        "file_merge_order": [
+          "FR-B02-03",
+          "FR-B03-03",
+          "FR-B03-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "action": "ADD",
+        "scope": "拟增任务事实追加接口",
+        "problem": "新的研究任务同样需绑定真实提交",
+        "change": "新增任务事实helper必须组合原before，不覆盖原lease/fence",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B03-03",
+          "FR-B07-02",
+          "FR-B07-04",
+          "FR-B07-05",
+          "FR-B08-05"
+        ]
+      }
+    ],
+    "steps": [
+      "每个任务先登记单位/输入语义，再接入产物同事务更新；禁止增加空心心跳来伪造进度。",
+      "B07将继续扩展同一个新Store文件；本批只添加任务事实接口，B07增量合并。"
+    ],
+    "tests": [
+      "产物提交失败但调度receipt成功时不能显示训练完成；跨进程重启恢复pending。"
+    ],
+    "acceptance": "任务完成事实由相同提交产生，调度记录与产物水位可对账。",
+    "rollback": "保留旧产物和typed事实版本，不双写两个权威游标。",
+    "previous_fix_mapping": "FIX-03",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B03-04",
+    "batch": "B03",
+    "title": "有界重试和状态发布协议",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "action": "MODIFY",
+        "scope": "submit/EvolutionTask/DatasetTask/AtomNetTask",
+        "problem": "submit while循环可长期占研究worker；evo先变内存再提交有失败恢复风险",
+        "change": "逐任务使用CommitEnvelope保存prepared step；一次提交预算200ms后返回RETRY；失败恢复同一原始状态，成功才发布",
+        "anchors": [
+          {
+            "type": "RuntimeR27",
+            "method": "submit",
+            "signature": "ResearchPoolR27.Worker w,String op,ResearchWriteQueueR27.Batch b",
+            "lines": [
+              57,
+              59
+            ]
+          },
+          {
+            "type": "RuntimeR27$DatasetTask",
+            "method": "id",
+            "signature": "",
+            "lines": [
+              63,
+              63
+            ]
+          },
+          {
+            "type": "RuntimeR27$DatasetTask",
+            "method": "step",
+            "signature": "ResearchPoolR27.Worker w",
+            "lines": [
+              64,
+              81
+            ]
+          },
+          {
+            "type": "RuntimeR27$EvolutionTask",
+            "method": "id",
+            "signature": "",
+            "lines": [
+              86,
+              86
+            ]
+          },
+          {
+            "type": "RuntimeR27$EvolutionTask",
+            "method": "step",
+            "signature": "ResearchPoolR27.Worker w",
+            "lines": [
+              87,
+              125
+            ]
+          },
+          {
+            "type": "RuntimeR27$AtomNetTask",
+            "method": "id",
+            "signature": "",
+            "lines": [
+              343,
+              343
+            ]
+          },
+          {
+            "type": "RuntimeR27$AtomNetTask",
+            "method": "step",
+            "signature": "ResearchPoolR27.Worker w",
+            "lines": [
+              344,
+              344
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "ce5740d0d39e3e7f1ec6824614348713ee258535a92b8a46a600e4a423c71d2b",
+        "file_merge_order": [
+          "FR-B02-05",
+          "FR-B03-04",
+          "FR-B04-05",
+          "FR-B06-02",
+          "FR-B07-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "action": "MODIFY",
+        "scope": "loop/next",
+        "problem": "一个任务写重试可饿死其他任务",
+        "change": "重试记notBefore且让出worker；prepared step有界，取消/源冲突可恢复",
+        "anchors": [
+          {
+            "type": "ResearchPoolR27",
+            "method": "loop",
+            "signature": "Worker w",
+            "lines": [
+              86,
+              118
+            ]
+          },
+          {
+            "type": "ResearchPoolR27",
+            "method": "next",
+            "signature": "",
+            "lines": [
+              123,
+              134
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "e80ba04df767f5130b537c3aa70fa5f50a9c9f4cc1b5bd309ca13815b0a85f05",
+        "file_merge_order": [
+          "FR-B03-03",
+          "FR-B03-04",
+          "FR-B03-05",
+          "FR-B07-04",
+          "FR-B08-05"
+        ]
+      }
+    ],
+    "steps": [
+      "不能把submit简单改成return false让旧调用者继续发布；必须先逐Owner改成提交后发布。",
+      "Evolution恢复完整snapshot+RNG+pending列表；dataset/cache绑定同一版本；AtomNet原copy-before-compute保留。"
+    ],
+    "tests": [
+      "每个阶段注入BUSY/取消/SQLite异常后与不中断轨迹一致；其他活跃任务持续获服务。"
+    ],
+    "acceptance": "单次worker占用有界、重复学习0、失败不跳阶段。",
+    "rollback": "恢复最近成功数据库快照，不保留领先内存状态。",
+    "previous_fix_mapping": "FIX-19/FIX-04",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B03-05",
+    "batch": "B03",
+    "title": "公平持续运行与息屏任务恢复",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "action": "MODIFY",
+        "scope": "任务优先级/claim",
+        "problem": "不能用缺字段推断卡住并盲目提升",
+        "change": "基于typed pending/依赖分派，实时优先且研究有最小服务份额",
+        "anchors": [
+          {
+            "type": "RuntimeCoordinatorR26",
+            "method": "claim",
+            "signature": "",
+            "lines": [
+              97,
+              120
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "044b9b89c2e8bd62feeb9c1aad178f58bcac4572ec7f2469e48b95ac0a97e4f3",
+        "file_merge_order": [
+          "FR-B02-03",
+          "FR-B03-03",
+          "FR-B03-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "action": "MODIFY",
+        "scope": "narrow/next/start/close",
+        "problem": "有CPU占用不代表有效服务",
+        "change": "统计有效提交/CPU成本，热/资源限制明示；不忙等、不仅充电闲时运行",
+        "anchors": [
+          {
+            "type": "ResearchPoolR27",
+            "method": "start",
+            "signature": "",
+            "lines": [
+              75,
+              84
+            ]
+          },
+          {
+            "type": "ResearchPoolR27",
+            "method": "narrow",
+            "signature": "long now",
+            "lines": [
+              121,
+              121
+            ]
+          },
+          {
+            "type": "ResearchPoolR27",
+            "method": "next",
+            "signature": "",
+            "lines": [
+              123,
+              134
+            ]
+          },
+          {
+            "type": "ResearchPoolR27",
+            "method": "close",
+            "signature": "",
+            "lines": [
+              191,
+              199
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "e80ba04df767f5130b537c3aa70fa5f50a9c9f4cc1b5bd309ca13815b0a85f05",
+        "file_merge_order": [
+          "FR-B03-03",
+          "FR-B03-04",
+          "FR-B03-05",
+          "FR-B07-04",
+          "FR-B08-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "action": "MODIFY",
+        "scope": "生命周期/看门狗入口",
+        "problem": "重启请求多、实际恢复和缺口不透明",
+        "change": "恢复持久任务与租约，退出/强停缺口审计；厂商强停不伪装能后台一直跑",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "d00a7fed6e3a74ef8b6471893c3a4c508e27210277d959165b04a17a24f6a59c",
+        "file_merge_order": [
+          "FR-B02-04",
+          "FR-B02-05",
+          "FR-B03-05"
+        ]
+      }
+    ],
+    "steps": [
+      "调度研究优先级不依赖正式确认结果；预算只用研究角色证据。",
+      "长时间WAIT_INPUT不误报；长期pending没提交按五期告警。"
+    ],
+    "tests": [
+      "前台/息屏/切后台/进程杀死/低内存回收；已投递任务最终唯一完成。"
+    ],
+    "acceptance": "原活跃能力持续有真实提交，所有缺口可解释。",
+    "rollback": "回退公平队列版本，保留所有outbox与租约证据。",
+    "previous_fix_mapping": "FIX-19/FIX-21",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B04-01",
+    "batch": "B04",
+    "title": "神经预处理、梯度、发布水位分列",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+        "action": "MODIFY",
+        "scope": "Samples/work/report",
+        "problem": "TRAIN标签掩盖仍在MATERIALIZE；trainedThrough可只是输入边界",
+        "change": "增加displayPhase、inputBoundary、weightsTrainedThrough/publicationReady和明确计数scope；不破坏旧codec字段",
+        "anchors": [
+          {
+            "type": "AtomNetSessionR30$Samples",
+            "method": "get",
+            "signature": "int sample",
+            "lines": [
+              11,
+              11
+            ]
+          },
+          {
+            "type": "AtomNetSessionR30",
+            "method": "work",
+            "signature": "Samples samples",
+            "lines": [
+              40,
+              70
+            ]
+          },
+          {
+            "type": "AtomNetSessionR30",
+            "method": "report",
+            "signature": "",
+            "lines": [
+              110,
+              120
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "bea4b2c349b9f2342dbfdcbf3890c25896204c663378536b22efa32d67c5f35a",
+        "file_merge_order": [
+          "FR-B04-01",
+          "FR-B04-02",
+          "FR-B04-03"
+        ]
+      }
+    ],
+    "steps": [
+      "应用B04补丁中的Session hunk；旧trainedThrough保留兼容但标明旧语义。",
+      "训练是否进步同时记录数据、梯度、验证、发布四个阶段；不能凭样本准备数显示变强。"
+    ],
+    "tests": [
+      "初始缓存→首梯度→首epoch→ONLINE全过程；旧checkpoint恢复不失位置游标。"
+    ],
+    "acceptance": "梯度0时不得显示权重训练完成；每期10位置的独立样本与重复访问分开。",
+    "rollback": "恢复旧显示适配器和兼容codec，保留新字段版本。",
+    "previous_fix_mapping": "FIX-07",
+    "prepared_patches": [
+      "B04_neural_prefetch_and_truth.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B04-02",
+    "batch": "B04",
+    "title": "单批64样本预取与输入完整性",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
+        "action": "MODIFY",
+        "scope": "samples",
+        "problem": "每样本一个Cursor，64梯度批可能产生64次查询",
+        "change": "一个参数化IN查询预取当前≤64索引，检查形状/finite/缺失；保留函数式Samples兼容",
+        "anchors": [
+          {
+            "type": "AtomNetStoreR30",
+            "method": "samples",
+            "signature": "SQLiteDatabase ro,AtomNetSessionR30 session",
+            "lines": [
+              42,
+              50
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "4b85f94c340b6db861e3a9698444ffb21b82edac34ad11bafb0639152b13b61d",
+        "file_merge_order": [
+          "FR-B04-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+        "action": "MODIFY",
+        "scope": "work",
+        "problem": "训练/评估/FILL依赖逐个样本查询",
+        "change": "每个真实计算批前调用prefetch，计算全部在writer外；不无界缓存全部历史特征",
+        "anchors": [
+          {
+            "type": "AtomNetSessionR30",
+            "method": "work",
+            "signature": "Samples samples",
+            "lines": [
+              40,
+              70
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "bea4b2c349b9f2342dbfdcbf3890c25896204c663378536b22efa32d67c5f35a",
+        "file_merge_order": [
+          "FR-B04-01",
+          "FR-B04-02",
+          "FR-B04-03"
+        ]
+      }
+    ],
+    "steps": [
+      "应用B04 Store与Session联合补丁，必须一起编译。",
+      "只读同一个不可变dataset_hash；缺样本在更新前拒绝；预取顺序不改变训练shuffle/RNG。"
+    ],
+    "tests": [
+      "同样本逐个读取与批量读取更新字节一致；64索引只开一Cursor；缺一行/错blob/NaN拒绝。"
+    ],
+    "acceptance": "吞吐提升可实测，数值/更新顺序不变、内存有界。",
+    "rollback": "恢复Samples默认prefetch空实现与旧loader，不清样本。",
+    "previous_fix_mapping": "FIX-07/FIX-09",
+    "prepared_patches": [
+      "B04_neural_prefetch_and_truth.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B04-03",
+    "batch": "B04",
+    "title": "完整优化器续训及标签隔离",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+        "action": "MODIFY",
+        "scope": "encode/decode/online",
+        "problem": "不能只凭checkpoint存在判全状态恢复",
+        "change": "原Adam/RNG/dropout/shuffle/replay/position/partialIssue一体保存并验证",
+        "anchors": [
+          {
+            "type": "AtomNetSessionR30",
+            "method": "online",
+            "signature": "AtomNetTrainerR27.Sample sample,String issue,long ordinal,int position",
+            "lines": [
+              96,
+              105
+            ]
+          },
+          {
+            "type": "AtomNetSessionR30",
+            "method": "encode",
+            "signature": "",
+            "lines": [
+              121,
+              133
+            ]
+          },
+          {
+            "type": "AtomNetSessionR30",
+            "method": "decode",
+            "signature": "byte[] bytes,String hash",
+            "lines": [
+              134,
+              150
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "bea4b2c349b9f2342dbfdcbf3890c25896204c663378536b22efa32d67c5f35a",
+        "file_merge_order": [
+          "FR-B04-01",
+          "FR-B04-02",
+          "FR-B04-03"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java",
+        "action": "MODIFY",
+        "scope": "encode/decode",
+        "problem": "旧部分状态不可当完整续训成功",
+        "change": "兼容原字节；缺字段保留旧对象并明确需重训，不静默初始化优化器",
+        "anchors": [
+          {
+            "type": "ModelArtifactR29",
+            "method": "encode",
+            "signature": "",
+            "lines": [
+              35,
+              54
+            ]
+          },
+          {
+            "type": "ModelArtifactR29",
+            "method": "decode",
+            "signature": "byte[] bytes,String expectedHash",
+            "lines": [
+              56,
+              87
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "6b3e6e79a23284a458eb218478aa3348b5c38466fad4a07aa00fc2eac6c5646b",
+        "file_merge_order": [
+          "FR-B04-03"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java",
+        "action": "MODIFY",
+        "scope": "online/持有验证状态",
+        "problem": "EVAL_ONLINE_HOLD影响学习率/回滚，须明确是开发验证还是正式确认",
+        "change": "改名标注DEVELOPMENT_VALIDATION；正式CONFIRM/FUTURE受保护标签不回流共享优化器",
+        "anchors": [
+          {
+            "type": "AtomNetTrainerR27",
+            "method": "online",
+            "signature": "Sample s",
+            "lines": [
+              67,
+              77
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "d55800da020e21ab3a514f8a23475c1c7130914203113d89c2a9579feb918d14",
+        "file_merge_order": [
+          "FR-B04-03"
+        ]
+      }
+    ],
+    "steps": [
+      "保持原codec ABI或明确新outer ABI并提供逐字节备份；角色改变不能只改字符串绕过守卫。",
+      "中断P04/P09、shuffle中间、验证前后逐一复验。"
+    ],
+    "tests": [
+      "真实类连续运行vs每64样本decode恢复，后续更新一致；改确认标签不改研究输出。"
+    ],
+    "acceptance": "注册容差内全状态一致、重复消费0、正式角色污染0。",
+    "rollback": "回到最近兼容完整artifact，旧原件保持可恢复。",
+    "previous_fix_mapping": "FIX-09",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B04-04",
+    "batch": "B04",
+    "title": "真实10×10概率面准备和发布",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "action": "MODIFY",
+        "scope": "step/forecast",
+        "problem": "尚无已发布模型面，模型准备/冻结deadline容易混淆",
+        "change": "只对ready模型发布不可变权重引用；trained/input/available时点和source revision统一",
+        "anchors": [
+          {
+            "type": "AtomNetRuntimeR30",
+            "method": "step",
+            "signature": "RuntimeR27 rt,ResearchPoolR27.Worker w",
+            "lines": [
+              11,
+              58
+            ]
+          },
+          {
+            "type": "AtomNetRuntimeR30",
+            "method": "forecast",
+            "signature": "ResearchPoolR27.Worker w,AtomNetSessionR30 state,ReplayDatasetR27 recent",
+            "lines": [
+              70,
+              103
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "562ade6660d38a48a5dc831d550e8606c9befa6566168db404fabb86e7c054ba",
+        "file_merge_order": [
+          "FR-B04-04",
+          "FR-B08-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR30.java",
+        "action": "MODIFY",
+        "scope": "predict",
+        "problem": "排名分数不能称概率",
+        "change": "只接真实网络10类输出，验证归一化、target与可用时间；不能用均匀面冒充训练结果",
+        "anchors": [
+          {
+            "type": "ModelSurfaceProviderR30",
+            "method": "predict",
+            "signature": "Pit pit,FrozenModelRef model",
+            "lines": [
+              38,
+              44
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "6695fd26064f74e576d59f5a5a6da59fc8a48ac85208632b8ad007b25c30c019",
+        "file_merge_order": [
+          "FR-B04-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+        "action": "MODIFY",
+        "scope": "surface",
+        "problem": "artifact/surface必须同版本可追溯",
+        "change": "原件及概率面原子提交，hash/ABI/源边界与发布水位一致",
+        "anchors": [
+          {
+            "type": "ModelSurfaceStoreR30",
+            "method": "surface",
+            "signature": "ResearchWriteQueueR27.Batch b,ModelSurfaceProviderR30.Surface s,ModelSurfaceProviderR30.FrozenModelRef ref",
+            "lines": [
+              16,
+              19
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "4a7605681eb69bfb4369bcfc1ede418de5fec9d13104dc54a3d25ced75c4938f",
+        "file_merge_order": [
+          "FR-B04-04",
+          "FR-B04-05",
+          "FR-B08-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/NumberRankerAdapterR30.java",
+        "action": "VERIFY_AND_KEEP",
+        "scope": "probabilities",
+        "problem": "NumberQ原方案已统一到真实number head，不能另造一套排名权重",
+        "change": "保留直接pClass、finite/归一化校验与ReplayEvaluator排序；新面接入后逐位一致性回归",
+        "anchors": [
+          {
+            "type": "NumberRankerAdapterR30",
+            "method": "probabilities",
+            "signature": "AtomNetR27 net,double[] inputs",
+            "lines": [
+              7,
+              10
+            ]
+          },
+          {
+            "type": "NumberRankerAdapterR30",
+            "method": "probabilities",
+            "signature": "AtomNetR27.Out output",
+            "lines": [
+              11,
+              17
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "8b8496861082ff777b168c0c7e20078dd976479b33c1d0cfcfcf6470a65d34c8",
+        "file_merge_order": [
+          "FR-B04-04"
+        ]
+      }
+    ],
+    "steps": [
+      "先完成历史预训练，再进入每期10位置在线阶段；输入迟到或模型过期明确BLOCKED。",
+      "输出二元p_hit与number_class分布不同目标，不能互替。"
+    ],
+    "tests": [
+      "真实权重前向、错ABI/错target/迟到model/不足历史、source修改；校验sum与finite。"
+    ],
+    "acceptance": "真实10位置面可复算，发布不领先成功训练提交。",
+    "rollback": "停新模型引用并保留最后合法面，不伪造可用概率。",
+    "previous_fix_mapping": "FIX-08",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B04-05",
+    "batch": "B04",
+    "title": "I08与策略冻结真实消费闭环",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI08NeuralRepresentationR27.java",
+        "action": "MODIFY",
+        "scope": "generate/mutate",
+        "problem": "model_surface叶子可能因模型未就绪全部阻断",
+        "change": "保留family旧能力，只有合法模型面可用时提案；缺依赖原因可查",
+        "anchors": [
+          {
+            "type": "IdeaI08NeuralRepresentationR27",
+            "method": "generate",
+            "signature": "StatsR27.SplitMix r,IdeaFamilyR27.Context ctx",
+            "lines": [
+              12,
+              17
+            ]
+          },
+          {
+            "type": "IdeaI08NeuralRepresentationR27",
+            "method": "mutate",
+            "signature": "PolicySpecR27 p,StatsR27.SplitMix r,IdeaFamilyR27.Context ctx",
+            "lines": [
+              18,
+              20
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "5886c23344596855be4d8d6e39bd89b1a59e9e7a147fc02a8c61deeb9bdaaa53",
+        "file_merge_order": [
+          "FR-B04-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+        "action": "MODIFY",
+        "scope": "消费记录与report",
+        "problem": "0调用不能显示100%匹配",
+        "change": "调用必须匹配真实policy/target/model/probability/frozen_at；统计0/0为null",
+        "anchors": [
+          {
+            "type": "ModelSurfaceStoreR30",
+            "method": "report",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              77,
+              87
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "4a7605681eb69bfb4369bcfc1ede418de5fec9d13104dc54a3d25ced75c4938f",
+        "file_merge_order": [
+          "FR-B04-04",
+          "FR-B04-05",
+          "FR-B08-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+        "action": "MODIFY",
+        "scope": "bindModelSurfaces/modelSurface",
+        "problem": "缓存可能把过期面混到新目标",
+        "change": "键含模型、ABI、目标与源版本；历史重放只用时点合法冻结面",
+        "anchors": [
+          {
+            "type": "FeatureCacheR27",
+            "method": "bindModelSurfaces",
+            "signature": "ModelSurfaceProviderR30.Source source",
+            "lines": [
+              19,
+              19
+            ]
+          },
+          {
+            "type": "FeatureCacheR27",
+            "method": "modelSurface",
+            "signature": "int row,int position",
+            "lines": [
+              20,
+              20
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "b0c3072c8c03cedbf9130bb47a365b504c41c0b4d58f8b251248b31e82d45552",
+        "file_merge_order": [
+          "FR-B04-05",
+          "FR-B08-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "action": "MODIFY",
+        "scope": "LiveTask",
+        "problem": "真实模型消费必须与同一期冻结提交一致",
+        "change": "消费回执和freeze同事务，缺面不自动补均匀值",
+        "anchors": [
+          {
+            "type": "RuntimeR27$LiveTask",
+            "method": "id",
+            "signature": "",
+            "lines": [
+              250,
+              250
+            ]
+          },
+          {
+            "type": "RuntimeR27$LiveTask",
+            "method": "step",
+            "signature": "ResearchPoolR27.Worker w",
+            "lines": [
+              251,
+              262
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "ce5740d0d39e3e7f1ec6824614348713ee258535a92b8a46a600e4a423c71d2b",
+        "file_merge_order": [
+          "FR-B02-05",
+          "FR-B03-04",
+          "FR-B04-05",
+          "FR-B06-02",
+          "FR-B07-04"
+        ]
+      }
+    ],
+    "steps": [
+      "按model_surface实际叶子位置计required_count，不用有一条调用就标全匹配。",
+      "从真实消费到下一期结算/校准的来源链可追。"
+    ],
+    "tests": [
+      "一个/多个模型叶子、跨位置、重复冻结、过期面、缺artifact、相同概率错hash。"
+    ],
+    "acceptance": "适用消费100%匹配或明确BLOCKED；自然得分另行验证。",
+    "rollback": "回退新叶子候选，原family预测/历史训练继续。",
+    "previous_fix_mapping": "FIX-08",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B05-01",
+    "batch": "B05",
+    "title": "确认负结果与不足结果准确展示",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ConfirmationViewR30R1.java",
+        "action": "ADD",
+        "scope": "完整新增类",
+        "problem": "DONE/verified0可能是正常未胜对照，不能按登记故障处理",
+        "change": "区分未计算、完成但证据不足、正常负结果、已验证待注册、已注册",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B05-01"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "action": "MODIFY",
+        "scope": "rowsets confirmation",
+        "problem": "只导出verified看不到真实reason",
+        "change": "限量导出result_json及其hash/引用，展示状态/原因与配对下界",
+        "anchors": [
+          {
+            "type": "ReportSnapshotR30",
+            "method": "rowsets",
+            "signature": "Query q",
+            "lines": [
+              107,
+              137
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "2dfb38a9bcb05d76cf5b72432dacd6428697d1a152ecf4aef53682deb9010360",
+        "file_merge_order": [
+          "FR-B01-05",
+          "FR-B03-02",
+          "FR-B05-01"
+        ]
+      }
+    ],
+    "steps": [
+      "应用B05补丁；只对verified=1且待登记的任务检查注册推进。",
+      "现有两条DONE0先读原result.reason，若负结果如实保留，不改为通过。"
+    ],
+    "tests": [
+      "正常负结果、INSUFFICIENT、正结果等待slot、注册完成和旧代重复证据。"
+    ],
+    "acceptance": "负结果不会被强改verified，也不会被无故反复重新确认。",
+    "rollback": "回退展示，不重算消耗过的确认预算。",
+    "previous_fix_mapping": "FIX-10",
+    "prepared_patches": [
+      "B05_confirmation_negative_evidence.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B05-02",
+    "batch": "B05",
+    "title": "确认原件、曝光预算与唯一注册",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+        "action": "MODIFY",
+        "scope": "evaluate/read",
+        "problem": "同块重复查询或语义改变不能重复授证",
+        "change": "保持不可变包、原控制与readout；身份不符拒绝；结果仅由外部确认器产生",
+        "anchors": [
+          {
+            "type": "FrozenConfirmationR30",
+            "method": "evaluate",
+            "signature": "Task task,EvalContextR27 ctx,HoldoutLedgerR27 ledger,Evidence evidence",
+            "lines": [
+              98,
+              127
+            ]
+          },
+          {
+            "type": "FrozenConfirmationR30",
+            "method": "read",
+            "signature": "Task task,Policy policy,EvalContextR27 ctx,HoldoutLedgerR27 ledger,Evidence evidence",
+            "lines": [
+              129,
+              145
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "b54600ee0d4e9974befa4eef61451f54c7185524462dbe284940fa576c107c27",
+        "file_merge_order": [
+          "FR-B05-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+        "action": "MODIFY",
+        "scope": "freeze/complete/nextRegistration/register/generationReport",
+        "problem": "正结果注册/代际引用必须幂等，旧结果可能复用错代",
+        "change": "确认完成/正结果注册各一步，原task_key唯一；旧代结果仅标历史，不计新改善",
+        "anchors": [
+          {
+            "type": "FrozenConfirmationStoreR30",
+            "method": "freeze",
+            "signature": "ResearchWriteQueueR27.Batch batch,FrozenConfirmationR30.Task task,ReplayDatasetR27 data",
+            "lines": [
+              28,
+              35
+            ]
+          },
+          {
+            "type": "FrozenConfirmationStoreR30",
+            "method": "complete",
+            "signature": "ResearchWriteQueueR27.Batch batch,FrozenConfirmationR30.Task task,FrozenConfirmationR30.Result result",
+            "lines": [
+              120,
+              129
+            ]
+          },
+          {
+            "type": "FrozenConfirmationStoreR30",
+            "method": "nextRegistration",
+            "signature": "SQLiteDatabase ro",
+            "lines": [
+              130,
+              134
+            ]
+          },
+          {
+            "type": "FrozenConfirmationStoreR30",
+            "method": "register",
+            "signature": "FrozenConfirmationR30.Task task,String abi,int cap",
+            "lines": [
+              135,
+              148
+            ]
+          },
+          {
+            "type": "FrozenConfirmationStoreR30",
+            "method": "generationReport",
+            "signature": "ResearchWriteQueueR27.Batch batch,SQLiteDatabase ro,int generation,FrozenConfirmationR30.Task task,FrozenConfirmationR30.Result result",
+            "lines": [
+              151,
+              176
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "6484b21c77c1f7872e0cc87ca5d8d56abb3150fe20e3abba9fdb2a796cdff4f5",
+        "file_merge_order": [
+          "FR-B05-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ConfirmReadStoreR30.java",
+        "action": "MODIFY",
+        "scope": "全部确认预留/恢复方法",
+        "problem": "预留后死亡不等于允许再看",
+        "change": "预留/结果恢复有明确缺失终态，未保留原outcome不能重看",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "dfe1f66ccb37d069629e363490b9064fe9b70a61f18346f06cf7cad1f98e3a26",
+        "file_merge_order": [
+          "FR-B05-02"
+        ]
+      }
+    ],
+    "steps": [
+      "确认与进化选择完全隔离；不让图表筛选结果回流H_CONFIRM。",
+      "新选择器组合必须新确认，父证书不能继承。"
+    ],
+    "tests": [
+      "预留后杀进程、结果落库前后杀进程、错dataset/seed/generation、重复登记。"
+    ],
+    "acceptance": "曝光不重复、有效正结果可登记、负结果完整保留。",
+    "rollback": "冻结新晋升，保留原confirm ledger与原包。",
+    "previous_fix_mapping": "FIX-10/FIX-11",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B05-03",
+    "batch": "B05",
+    "title": "资格缺期4实验逐项恢复或封段",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+        "action": "MODIFY",
+        "scope": "plan/推进与重建",
+        "problem": "连续前缀停在MISSING_OPPORTUNITY，等待新数据不能越过",
+        "change": "导出逐实验缺口、原边界与恢复来源；仅恢复原始不可变predraw；无原件依原合同保守退役/封段",
+        "anchors": [
+          {
+            "type": "QualificationInboxR29",
+            "method": "plan",
+            "signature": "SequentialQualificationR27.State s,List<Row> rows,long latestOrdinal,int max",
+            "lines": [
+              72,
+              74
+            ]
+          },
+          {
+            "type": "QualificationInboxR29",
+            "method": "plan",
+            "signature": "SequentialQualificationR27.State s,List<Row> rows,long latestOrdinal,int max,long firstOrdinal",
+            "lines": [
+              75,
+              105
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "31182b8628be76939303fe626485000891f933040b83b1e66865438ab02b15cd",
+        "file_merge_order": [
+          "FR-B05-03"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "action": "MODIFY",
+        "scope": "实时冻结/结算",
+        "problem": "所有日历机会必须有明确终态",
+        "change": "原冻结/合法事前弃权/故障缺失分开，不能赛后补SKIP",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "0d150194fbb8d0758ef7501c7657eb5fdcaf02bbc3a7f96a39c1802451f04188",
+        "file_merge_order": [
+          "FR-B05-03",
+          "FR-B05-04",
+          "FR-B06-06"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+        "action": "MODIFY",
+        "scope": "预算/累计状态",
+        "problem": "重新登记可能错误重置历史alpha",
+        "change": "原e-process和预算永久连续；新实验身份与退役原因可追",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "a5634e3c2ef81cd11307d304ec86b7bf384488c71935180dd87b3aed81f29a9c",
+        "file_merge_order": [
+          "FR-B05-03"
+        ]
+      }
+    ],
+    "steps": [
+      "4实验含2控制和2ACTIVE逐项排查，不能把0 pendingDraw当成无缺口。",
+      "同期开奖去重；恢复原件后重算连续前缀；无原件不伪造历史贡献。"
+    ],
+    "tests": [
+      "真原件恢复、确认缺原件、ACT缺开奖、冲突、重新启动；重建前后alpha一致。"
+    ],
+    "acceptance": "每个阻断有具体处置且合法链持续推进；未处置不自动跳过。",
+    "rollback": "封存受影响链并保留证据，其余健康研究不受影响。",
+    "previous_fix_mapping": "FIX-06",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B05-04",
+    "batch": "B05",
+    "title": "对齐报告旁路门禁与实际签证合同",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/GateV2R29.java",
+        "action": "MODIFY",
+        "scope": "ENABLED/evaluate/evidence/record",
+        "problem": "ENABLED=false且只写would_issue，不能直接代表真实授证",
+        "change": "报告明确旁路状态；修Gate输入窗口hash/分母与影子摘要对账；不得简单把常量改true",
+        "anchors": [
+          {
+            "type": "GateV2R29",
+            "method": "evaluate",
+            "signature": "Evidence e",
+            "lines": [
+              85,
+              138
+            ]
+          },
+          {
+            "type": "GateV2R29",
+            "method": "evidence",
+            "signature": "SQLiteDatabase ro,String id,long latestOrdinal",
+            "lines": [
+              157,
+              182
+            ]
+          },
+          {
+            "type": "GateV2R29",
+            "method": "record",
+            "signature": "ResearchWriteQueueR27.Batch b,Evidence e,Verdict v",
+            "lines": [
+              185,
+              188
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "9003fa5f3a2a36b1152df06ba652bf5b196d464a5447473adbc6a748c2ee6269",
+        "file_merge_order": [
+          "FR-B05-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "action": "MODIFY",
+        "scope": "evaluate/choose",
+        "problem": "当前R27_GATE_V1是真实签证合同且有250 ACT/连败≤6等门槛",
+        "change": "旧合同保持不可变；若采用新R30质量合同，新增版本化新实验证据绑定，不重写旧成绩",
+        "anchors": [
+          {
+            "type": "CertificateGateR27",
+            "method": "evaluate",
+            "signature": "Evidence e",
+            "lines": [
+              31,
+              45
+            ]
+          },
+          {
+            "type": "CertificateGateR27",
+            "method": "choose",
+            "signature": "List<Evidence> active",
+            "lines": [
+              52,
+              61
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "067741d21f991118f9c659c38e2314fee21ce20d5c5323fa5f545150350cdb52",
+        "file_merge_order": [
+          "FR-B05-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "action": "MODIFY",
+        "scope": "certify",
+        "problem": "签证、主链选择与报告旁路可能不一致",
+        "change": "以experiment绑定gateVersion选择唯一权威评估器，报告同时列inputHash/时刻/阈值",
+        "anchors": [
+          {
+            "type": "LiveShadowsR27",
+            "method": "certify",
+            "signature": "RuntimeR27 rt,ResearchPoolR27.Worker w,long latestOrd",
+            "lines": [
+              206,
+              251
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "0d150194fbb8d0758ef7501c7657eb5fdcaf02bbc3a7f96a39c1802451f04188",
+        "file_merge_order": [
+          "FR-B05-03",
+          "FR-B05-04",
+          "FR-B06-06"
+        ]
+      }
+    ],
+    "steps": [
+      "21/61摘要与V2 failing列表hitRate差异必须先对齐输入再判断实现问题。",
+      "新合同生效需正/负对照与撤销测试；所有门禁成立才走真实链，不以达到点命中率越线授权。"
+    ],
+    "tests": [
+      "同证据两门禁并列，不混分母；旧证书在新合同下不自动有效；未注册新selector不得REAL。"
+    ],
+    "acceptance": "质量合同、报告和真实签证明确一致，没有旁路报告假装已启用。",
+    "rollback": "停用新合同路由，保留原Gate及历史预算/证书。",
+    "previous_fix_mapping": "FIX-11/FIX-17",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B05-05",
+    "batch": "B05",
+    "title": "唯一REAL、撤销与真实结算隔离",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "action": "MODIFY",
+        "scope": "全部真实授权入口",
+        "problem": "新增研究/图表不能增加第二REAL路径",
+        "change": "只消费当前有效证书、selector、冻结与源引用；所有首阻断和完整阻断导出",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "160d2203723ad2bb12c0165b98524bf400b2566861a0e86a978810fb6e4837d0",
+        "file_merge_order": [
+          "FR-B05-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+        "action": "MODIFY",
+        "scope": "全部撤销传播",
+        "problem": "0撤销记录不等于撤销功能已通过",
+        "change": "对依赖失效建受影响图，撤销到Gate拒绝有真实时延",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "8e3c79e8a3b9e8ce3bdb1955069285d1a4a43654ff04a5d3a9ad919f41fd6377",
+        "file_merge_order": [
+          "FR-B05-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DecisionExplanationStoreR30.java",
+        "action": "MODIFY",
+        "scope": "全部解释落库",
+        "problem": "解释与原Gate允许/拒绝可能脱节",
+        "change": "记录原Gate结果与各证据引用，不用解释对象自行授权",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "134f5991db92ae6ec7b4078edd55cad1a27389a28d841ce7e3834a3c09989a3c",
+        "file_merge_order": [
+          "FR-B05-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "action": "MODIFY",
+        "scope": "正式/影子统计边界",
+        "problem": "影子不能混入真实命中与资金",
+        "change": "按原REAL唯一意向/结算键统计，影子模拟独立",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "38eb92ae71a0e09ee4bb7b3252a5c0ec2b51022e4dc5e5b18d8c0330ac85ecb0",
+        "file_merge_order": [
+          "FR-B02-05",
+          "FR-B05-05"
+        ]
+      }
+    ],
+    "steps": [
+      "先用明确夹具正对照贯通合法路径，再等自然资产达标，不能用夹具代替自然资产。",
+      "一目标期单位置固定K3真实意向唯一；撤销不得靠APK回滚替代。"
+    ],
+    "tests": [
+      "合法、过期、错ABI、错selector、无冻结、撤销、重复开奖/恢复。"
+    ],
+    "acceptance": "合法闭环、非法全拒绝、真实/影子分开、撤销目标≤5s。",
+    "rollback": "撤销新资产引用，原合法结算不可改写。",
+    "previous_fix_mapping": "FIX-17",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B06-01",
+    "batch": "B06",
+    "title": "矩阵静态接线与运行效果分列",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java",
+        "action": "MODIFY",
+        "scope": "report",
+        "problem": "20方法反射成功即TRACEABLE，而19来源不可读",
+        "change": "应用补丁分staticBindingStatus/runtimeSnapshotStatus/qualityStatus，不把静态1当有效",
+        "anchors": [
+          {
+            "type": "MatrixRegistryStoreR30",
+            "method": "report",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              10,
+              33
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "6c7f105be669f7af85c71a1196ee75a7ae777a4b894cd7d4676f38caebf44cfb",
+        "file_merge_order": [
+          "FR-B06-01"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR30.java",
+        "action": "MODIFY",
+        "scope": "Definition/all",
+        "problem": "多数algorithmConsumer只是PERSISTENCE_AND_DIAGNOSTICS",
+        "change": "为每kind登记真实张量合同、生产事件、算法消费者，旧反射信息单独保留",
+        "anchors": [
+          {
+            "type": "MatrixRegistryR30$Definition",
+            "method": "<init>",
+            "signature": "String id,String ns,String kind,String producer,String method,String consumer,List<String> methods,String table,String scope,String algorithm",
+            "lines": [
+              15,
+              17
+            ]
+          },
+          {
+            "type": "MatrixRegistryR30$Definition",
+            "method": "json",
+            "signature": "",
+            "lines": [
+              18,
+              18
+            ]
+          },
+          {
+            "type": "MatrixRegistryR30",
+            "method": "all",
+            "signature": "",
+            "lines": [
+              27,
+              27
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "cc6a058d8b560dc4dc3229cfcc4c9d53af947274814091d0f6eba3952d5428ea",
+        "file_merge_order": [
+          "FR-B06-01"
+        ]
+      }
+    ],
+    "steps": [
+      "19个R930对象与1个SU2对象保持原id；不能用r952的237行冒充20矩阵成功。",
+      "所有缺源/缺产出/缺消费/未证有效的原因分别显示。"
+    ],
+    "tests": [
+      "源表缺失、空表、有产出无消费、有消费无增益、静态方法缺失。"
+    ],
+    "acceptance": "矩阵实际状态不会因方法存在被标成全部通过。",
+    "rollback": "回退投影版本，保留原矩阵与注册原件。",
+    "previous_fix_mapping": "FIX-12",
+    "prepared_patches": [
+      "B06_matrix_static_runtime_separation.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B06-02",
+    "batch": "B06",
+    "title": "恢复矩阵唯一schema与真实生产入口",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchEvolutionStoreR930.java",
+        "action": "MODIFY",
+        "scope": "ensureSchema/putSnapshot",
+        "problem": "源代码有建表/存储，但全树未找到外部直接静态生产调用",
+        "change": "补明确的schemaOwner及生产调度入口，不在报告中补空表；putSnapshot通过现有writer",
+        "anchors": [
+          {
+            "type": "ResearchEvolutionStoreR930",
+            "method": "ensureSchema",
+            "signature": "final DbStore store",
+            "lines": [
+              41,
+              57
+            ]
+          },
+          {
+            "type": "ResearchEvolutionStoreR930",
+            "method": "putSnapshot",
+            "signature": "final DbStore store,final MatrixSnapshotFeedbackR930.CommonSnapshot snapshot,final long nowMs",
+            "lines": [
+              211,
+              264
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "078a9b99c445a6e414b9e1e7358556ab0b3dbe42195e4268422ed207b00f45db",
+        "file_merge_order": [
+          "FR-B06-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/MatrixSnapshotFeedbackR930.java",
+        "action": "MODIFY",
+        "scope": "CommonSnapshot/FrozenMatrix/CaptureRecord",
+        "problem": "19类型张量不能用一种统计数组换名生成",
+        "change": "每kind维度/输入/PIT/hash/可用性合同；无合法来源保持BLOCKED",
+        "anchors": [
+          {
+            "type": "MatrixSnapshotFeedbackR930$FrozenMatrix",
+            "method": "<init>",
+            "signature": "MatrixKind kind,String targetIssue,String maxSourceIssue,long frozenAtMs,String inputStage,String graphHash,String inputHash,String modelHash,List<MatrixCell> cells",
+            "lines": [
+              108,
+              145
+            ]
+          },
+          {
+            "type": "MatrixSnapshotFeedbackR930$FrozenMatrix",
+            "method": "cell",
+            "signature": "int row,int column",
+            "lines": [
+              147,
+              147
+            ]
+          },
+          {
+            "type": "MatrixSnapshotFeedbackR930$FrozenMatrix",
+            "method": "valuesWithMissingAsZero",
+            "signature": "",
+            "lines": [
+              149,
+              155
+            ]
+          },
+          {
+            "type": "MatrixSnapshotFeedbackR930$FrozenMatrix",
+            "method": "presentCells",
+            "signature": "",
+            "lines": [
+              157,
+              163
+            ]
+          },
+          {
+            "type": "MatrixSnapshotFeedbackR930$CaptureRecord",
+            "method": "<init>",
+            "signature": "CaptureStage stage,String targetIssue,String maxSourceIssue,long frozenAtMs,String freezeHash,String inputHash,int expectedRows,int capturedRows,int missingRows,long costNs,String payloadHash",
+            "lines": [
+              180,
+              204
+            ]
+          },
+          {
+            "type": "MatrixSnapshotFeedbackR930$CaptureRecord",
+            "method": "complete",
+            "signature": "",
+            "lines": [
+              206,
+              206
+            ]
+          },
+          {
+            "type": "MatrixSnapshotFeedbackR930$CaptureRecord",
+            "method": "coverage",
+            "signature": "",
+            "lines": [
+              207,
+              207
+            ]
+          },
+          {
+            "type": "MatrixSnapshotFeedbackR930$CommonSnapshot",
+            "method": "<init>",
+            "signature": "String targetIssue,String maxSourceIssue,long frozenAtMs,String graphHash,String inputHash,String bundleHash,CaptureBundle capture,List<FrozenMatrix> matrices,Set<MatrixKind> requiredKinds",
+            "lines": [
+              270,
+              325
+            ]
+          },
+          {
+            "type": "MatrixSnapshotFeedbackR930$CommonSnapshot",
+            "method": "require",
+            "signature": "MatrixKind kind",
+            "lines": [
+              327,
+              331
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "a9eb46502a37701aa9f152b9e5614f94b74484537080cfd7b529fc1bcffb81fb",
+        "file_merge_order": [
+          "FR-B06-02",
+          "FR-B06-03"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "action": "MODIFY",
+        "scope": "新增MatrixProductionTask及注册点",
+        "problem": "旧矩阵无持续生产Owner",
+        "change": "按事件类型注册有界生产任务，实时预测不等大矩阵；依赖缺失有具体原因",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "ce5740d0d39e3e7f1ec6824614348713ee258535a92b8a46a600e4a423c71d2b",
+        "file_merge_order": [
+          "FR-B02-05",
+          "FR-B03-04",
+          "FR-B04-05",
+          "FR-B06-02",
+          "FR-B07-04"
+        ]
+      }
+    ],
+    "steps": [
+      "参考20矩阵计算合同清单逐类接原源；动态反射可能不在静态索引中，需运行回执证明实际调用。",
+      "输入、计算锁外，快照与cursor短事务提交；不双写原Root与独立库。"
+    ],
+    "tests": [
+      "每kind合法/缺依赖/错时点/恢复场景；源revision变化不发布过期张量。"
+    ],
+    "acceptance": "每活跃kind有真实生产回执，未启用kind有可定位依赖；不空造20行。",
+    "rollback": "停新任务，原源/注册/模型引用保持可恢复。",
+    "previous_fix_mapping": "FIX-12",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B06-03",
+    "batch": "B06",
+    "title": "矩阵真实消费与反事实效果验证",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/MatrixSnapshotFeedbackR930.java",
+        "action": "MODIFY",
+        "scope": "settle/FeedbackState",
+        "problem": "存储/展示不等算法消费",
+        "change": "对教师、误差、跨位、动作效用等建立具体消费与变化记录；只影响合法下一期研究",
+        "anchors": [
+          {
+            "type": "MatrixSnapshotFeedbackR930",
+            "method": "settle",
+            "signature": "CommonSnapshot snapshot,SettlementLabel label,String effectiveFromIssue",
+            "lines": [
+              406,
+              452
+            ]
+          },
+          {
+            "type": "MatrixSnapshotFeedbackR930$FeedbackState",
+            "method": "<init>",
+            "signature": "String stateId,String trainedUntilIssue,int updates,double[][] fast,double[][] slow",
+            "lines": [
+              462,
+              476
+            ]
+          },
+          {
+            "type": "MatrixSnapshotFeedbackR930$FeedbackState",
+            "method": "initial",
+            "signature": "String stateId",
+            "lines": [
+              478,
+              481
+            ]
+          },
+          {
+            "type": "MatrixSnapshotFeedbackR930$FeedbackState",
+            "method": "update",
+            "signature": "FeedbackDelta delta,double fastRate,double slowRate",
+            "lines": [
+              483,
+              502
+            ]
+          },
+          {
+            "type": "MatrixSnapshotFeedbackR930$FeedbackState",
+            "method": "correction",
+            "signature": "int row,int column,String targetIssue",
+            "lines": [
+              504,
+              510
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "a9eb46502a37701aa9f152b9e5614f94b74484537080cfd7b529fc1bcffb81fb",
+        "file_merge_order": [
+          "FR-B06-02",
+          "FR-B06-03"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixSnapshotSU2.java",
+        "action": "MODIFY",
+        "scope": "capture/support",
+        "problem": "因子/教师checkpoint与日历期不同",
+        "change": "保留checkpoint序列身份、inputThrough和可用时间，不伪装目标期",
+        "anchors": [
+          {
+            "type": "MatrixSnapshotSU2$Factor",
+            "method": "support",
+            "signature": "AtomStreamSU2 stream,int position,int mask",
+            "lines": [
+              16,
+              24
+            ]
+          },
+          {
+            "type": "MatrixSnapshotSU2",
+            "method": "capture",
+            "signature": "CommitteeSU2 committee,ModelReplaySU2.Library lib,long through",
+            "lines": [
+              39,
+              65
+            ]
+          },
+          {
+            "type": "MatrixSnapshotSU2",
+            "method": "support",
+            "signature": "List<Factor> factors,AtomStreamSU2 stream,int position,int mask",
+            "lines": [
+              71,
+              71
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "11c7ac43bcf44fe7c4068139438cbc7ddd304ad5f08fc3b33649882ecba762a7",
+        "file_merge_order": [
+          "FR-B06-03"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixStoreSU2.java",
+        "action": "MODIFY",
+        "scope": "save/maintain/report",
+        "problem": "SU2快照0时可能没有可用genome或未运行",
+        "change": "逐项解释缺genome/缺训练/缺source；生产→support消费→结算评分可联结",
+        "anchors": [
+          {
+            "type": "MatrixStoreSU2",
+            "method": "save",
+            "signature": "SQLiteDatabase db,String key,long through,MatrixSnapshotSU2.Data data,long now",
+            "lines": [
+              13,
+              17
+            ]
+          },
+          {
+            "type": "MatrixStoreSU2",
+            "method": "maintain",
+            "signature": "DbStore store,String target",
+            "lines": [
+              19,
+              54
+            ]
+          },
+          {
+            "type": "MatrixStoreSU2",
+            "method": "report",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              57,
+              73
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "0c54a6e6e0de3ec6f4ec6a2b292bf75731641a2bed7aac4c431d876d7c28fb3a",
+        "file_merge_order": [
+          "FR-B06-03"
+        ]
+      }
+    ],
+    "steps": [
+      "各矩阵输出映射T04/T05/T06/T09等实际研究动作，不能全部只写报告。",
+      "因果/反事实矩阵只给有对照的研究证据，相关性不标因果已证明。"
+    ],
+    "tests": [
+      "移除各矩阵的配对对照，实际消费者引用和策略变更回执；负结果保留。"
+    ],
+    "acceptance": "产出/消费/变化/增益四层齐全或明确未知，未证收益不标effective。",
+    "rollback": "撤新消费路由，原矩阵数据和旧有效算法保留。",
+    "previous_fix_mapping": "FIX-12/FIX-13",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B06-04",
+    "batch": "B06",
+    "title": "原子/分子目录到可执行贡献闭环",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "action": "MODIFY",
+        "scope": "atomsStep/derivedStep",
+        "problem": "25350目录原子/176评分/46465分子属于不同集合",
+        "change": "用namespace与compiled/inputAvailable/consumed区分，不强行要求数量相等",
+        "anchors": [
+          {
+            "type": "AtomWorldR27",
+            "method": "atomsStep",
+            "signature": "RuntimeR27 rt,ResearchPoolR27.Worker w",
+            "lines": [
+              19,
+              39
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "64e3ffeb3e3861f85898b0d6cb1987ddc514fb93aede70af657ec1043b6ffcce",
+        "file_merge_order": [
+          "FR-B06-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomScoreR27.java",
+        "action": "MODIFY",
+        "scope": "贡献评分",
+        "problem": "研究段得分与未来有效性混淆",
+        "change": "同日历期/同目标的加入移除配对；输出分块区间与成本，角色明示",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "ffa0ebbfe2cf9a23a0fb8633972caf39cbea31096f2987e186a7e350f87b8ac1",
+        "file_merge_order": [
+          "FR-B06-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DerivedAtomR27.java",
+        "action": "MODIFY",
+        "scope": "生成和评分",
+        "problem": "组合数量不等协同增益",
+        "change": "对分子与单体同窗比较，测冗余与复杂度；新生与旧受保护引用分开",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "14c80bb47e46c309a53e82e280f5523b5313ee753388a6cb15a4e2313394964e",
+        "file_merge_order": [
+          "FR-B06-04"
+        ]
+      }
+    ],
+    "steps": [
+      "保留历史快速筛劣；无效对象停止新优先采样但旧依赖不删除。",
+      "新组件必须通过类型/PIT/shape/预算合同，不任意数学式当策略。"
+    ],
+    "tests": [
+      "有益/无效/有害/缺失/重复组件；移除对照的目标一致。"
+    ],
+    "acceptance": "原子贡献实际改变下一代研究输入，且有新子代和验证回执。",
+    "rollback": "回退采样分布，原目录与模型依赖不丢。",
+    "previous_fix_mapping": "FIX-13",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B06-05",
+    "batch": "B06",
+    "title": "82能力与原教师F23恢复",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityRegistryR30.java",
+        "action": "MODIFY",
+        "scope": "all",
+        "problem": "可执行/受阻/有效状态未分清",
+        "change": "逐对象定义运行入口与数据依赖，统计有效性单独给证据",
+        "anchors": [
+          {
+            "type": "CapabilityRegistryR30",
+            "method": "all",
+            "signature": "",
+            "lines": [
+              19,
+              34
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "70ef6e0bc66edd62cc3c9e43132951c851ed5e53ad329e467a4652371ed9dd67",
+        "file_merge_order": [
+          "FR-B06-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityRegistryStoreR30.java",
+        "action": "MODIFY",
+        "scope": "report",
+        "problem": "缺少完整生产/消费水位",
+        "change": "对82项读取真实回执，显示运行时长、源水位、产物数、质量支持",
+        "anchors": [
+          {
+            "type": "CapabilityRegistryStoreR30",
+            "method": "report",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              13,
+              52
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "33816a509e490cd5b2e4f36bf753a3f329be62f9016bb4c1c2ac1db2e5870ae7",
+        "file_merge_order": [
+          "FR-B06-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java",
+        "action": "MODIFY",
+        "scope": "bindLegacyTeacher/build",
+        "problem": "F23原教师未绑定",
+        "change": "只接原教师合法输出和ABI，不用无关核/随机数占位；不可用保持具体BLOCKED",
+        "anchors": [
+          {
+            "type": "FamilyRegistryR26",
+            "method": "bindLegacyTeacher",
+            "signature": "Map<String, String> binding,ModelReplaySU2.Adapter adapter",
+            "lines": [
+              9,
+              9
+            ]
+          },
+          {
+            "type": "FamilyRegistryR26",
+            "method": "build",
+            "signature": "String id",
+            "lines": [
+              10,
+              30
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "e9928ae9b578ff400439f9f98bde6b5f1b3f00cdbdb135ae486dbd50a877667a",
+        "file_merge_order": [
+          "FR-B06-05"
+        ]
+      }
+    ],
+    "steps": [
+      "F01–24、E01–16、I00–20、1模型、20矩阵全部登记；数量正确不自动有效。",
+      "同类重复机制聚类，但保留原已验证能力与可恢复对象。"
+    ],
+    "tests": [
+      "教师缺失/兼容/错ABI；82对象任何一个未知都不被汇总成有效0或100%。"
+    ],
+    "acceptance": "用户能逐个看到已实现、可执行、是否运行、是否消费、是否有效。",
+    "rollback": "恢复原教师绑定或受阻状态，不删原有效功能。",
+    "previous_fix_mapping": "FIX-16",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B06-06",
+    "batch": "B06",
+    "title": "校准、概率目标和支持域",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+        "action": "MODIFY",
+        "scope": "拟合与评估取行",
+        "problem": "两项ECE/BSS未达标，rolling必须严格早于被评价标签",
+        "change": "prior-only校准，冻结拟合截止与支持范围；超支持域明确拒绝",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "0ad8ee0f426b6cf064b5c875dce3ca78930779f21b0708d7d84b3a04363b8461",
+        "file_merge_order": [
+          "FR-B06-06",
+          "FR-B08-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+        "action": "MODIFY",
+        "scope": "全部指标计算",
+        "problem": "等宽/等质量ECE及BSS目标可能混淆",
+        "change": "并列样本分母、支持箱覆盖、BSS参考与区间；二元K3和十分类分开",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "5e8dd87f1536d4e3e2bea135d6cd0b51ec5518960408cd40ba285c4d157a175a",
+        "file_merge_order": [
+          "FR-B06-06"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "action": "MODIFY",
+        "scope": "calibrate",
+        "problem": "校准拟合存在不等Q05通过",
+        "change": "输出原概率与校准后概率对照；只用合法旧标签，不能追调正式确认段",
+        "anchors": [
+          {
+            "type": "LiveShadowsR27",
+            "method": "calibrate",
+            "signature": "RuntimeR27 rt,ResearchPoolR27.Worker w",
+            "lines": [
+              312,
+              349
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "0d150194fbb8d0758ef7501c7657eb5fdcaf02bbc3a7f96a39c1802451f04188",
+        "file_merge_order": [
+          "FR-B05-03",
+          "FR-B05-04",
+          "FR-B06-06"
+        ]
+      }
+    ],
+    "steps": [
+      "先修数据/目标/时序，再比较Platt/收缩等开发方案；复杂校准器不自动更好。",
+      "Q05仍按原R30门槛，不能靠换基率或删困难样本变成通过。"
+    ],
+    "tests": [
+      "完美/失准/小样本/域外/迟到标签/重复期；原始两策略可复算前后proper score。"
+    ],
+    "acceptance": "时间违规0；达标才标校准合格，校准不等预测优势。",
+    "rollback": "恢复最后合法校准器或拒绝缺支持动作，保留原概率。",
+    "previous_fix_mapping": "FIX-15",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B07-01",
+    "batch": "B07",
+    "title": "机器可读研究证据和配对贡献核心",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGainR30R1.java",
+        "action": "ADD",
+        "scope": "完整新增类",
+        "problem": "多位置/多策略可能虚增独立样本，重复选窗造高分",
+        "change": "日历期聚类、预先固定块、缺口/尾块披露；分析合同hash含块长/最小样本/统计法",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B07-01"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchAdviceR30R1.java",
+        "action": "ADD",
+        "scope": "完整新增类",
+        "problem": "图表只给统计，没有可执行处方",
+        "change": "只有研究角色与完整支持的负贡献才生成PRUNE_COMPONENT；正贡献仅KEEP_FOR_CONFIRMATION",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B07-01"
+        ]
+      }
+    ],
+    "steps": [
+      "应用B07核心补丁；区间为研究描述用途，不能授REAL证书。",
+      "计算with组件与without组件的同结果多分类Brier差，不能比较各自不同K3事件的二元Brier当成同一目标。"
+    ],
+    "tests": [
+      "重复期、错窗口、正式角色、缺块、尾块、零/正/负增益；更改分析参数必须改变合同身份。"
+    ],
+    "acceptance": "真实分析结果能形成受约束处方；未知不出伪处方。",
+    "rollback": "停新处方产生，保留所有已提交研究原件。",
+    "previous_fix_mapping": "FIX-13/FIX-14",
+    "prepared_patches": [
+      "B07_paired_research_receipts.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B07-02",
+    "batch": "B07",
+    "title": "分析、处方、消费和图缓存同事务",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "action": "EXTEND_NEW_FILE",
+        "scope": "paired/consume",
+        "problem": "新增链路可能多writer或部分提交",
+        "change": "分析run/measure/proposal/chart同一现有writer；消费与新子代/游标同batch；源revision/fence组合守卫",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B03-03",
+          "FR-B07-02",
+          "FR-B07-04",
+          "FR-B07-05",
+          "FR-B08-05"
+        ]
+      }
+    ],
+    "steps": [
+      "应用完整Store关键代码并合并B03任务事实接口，不用整文件覆盖其前序增量。",
+      "角色/输入/candidate/分析合同hash进身份，proposal被消费一次；同一输入重复执行不增加自然样本。"
+    ],
+    "tests": [
+      "分析写成功但proposal写失败全回滚；消费后cursor失败全回滚；源版本冲突不发布。"
+    ],
+    "acceptance": "输入→分析→处方→实际子代→消费回执可追溯，无半条链。",
+    "rollback": "冻结新proposal消费，不删证据或重置已消费状态。",
+    "previous_fix_mapping": "FIX-14/FIX-19",
+    "prepared_patches": [
+      "B07_paired_research_receipts.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B07-03",
+    "batch": "B07",
+    "title": "16逻辑研究表适配现有来源",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "construction/r30-repair/RESEARCH_TABLE_CONTRACTS.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "不能新增16套互相矛盾的数据库真相",
+        "change": "映射T01–T16到既有特征/预测/回执表和6个新物化表，固定字段/公式/单位/Owner",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B07-03"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java",
+        "action": "MODIFY",
+        "scope": "query/load",
+        "problem": "当前统计查询与机器研究输入未区分",
+        "change": "提供索引化只读视图，限量展示仍能链接完整机读来源",
+        "anchors": [
+          {
+            "type": "ReportDataR27",
+            "method": "load",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              20,
+              79
+            ]
+          },
+          {
+            "type": "ReportDataR27",
+            "method": "query",
+            "signature": "String id",
+            "lines": [
+              96,
+              115
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "3ed5d7386cd13fb0c1ba22df214c5a3cbb9f9812bda00cb0a1ac0c3467182e9d",
+        "file_merge_order": [
+          "FR-B01-05",
+          "FR-B07-03",
+          "FR-B09-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+        "action": "MODIFY",
+        "scope": "受保护引用与新表保留登记",
+        "problem": "分析源被清理后无法复算或破坏未完成任务",
+        "change": "把run/proposal/consume依赖加入保护图，未消费与正式证据引用不得删",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "5d3b1a97012b91001b57dde9aba14da807669ffa74db68ffad9d5f1b16c5fa27",
+        "file_merge_order": [
+          "FR-B07-03",
+          "FR-B10-02"
+        ]
+      }
+    ],
+    "steps": [
+      "每个逻辑表有生产者、消费者、更新事件、角色、空值和验收。",
+      "不从UI图上抄数字训练；训练器读取原机读向量/概率/误差与hash。"
+    ],
+    "tests": [
+      "随机抽取表中一行可追到输入与输出；清理未完成研究源必须被保护。"
+    ],
+    "acceptance": "16表均有明确用途和运行责任，统计展示与算法数据同源。",
+    "rollback": "停新视图，保留原数据源与引用保护。",
+    "previous_fix_mapping": "FIX-12/FIX-13/FIX-14",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B07-04",
+    "batch": "B07",
+    "title": "研究任务分片、进度和恢复",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "action": "MODIFY",
+        "scope": "新增ResearchStudyTask及注册点",
+        "problem": "新分析不能阻塞实时链或无限重算整段",
+        "change": "每片一个准备单元/组件，缓存计算状态与源hash；按typed progress恢复",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "ce5740d0d39e3e7f1ec6824614348713ee258535a92b8a46a600e4a423c71d2b",
+        "file_merge_order": [
+          "FR-B02-05",
+          "FR-B03-04",
+          "FR-B04-05",
+          "FR-B06-02",
+          "FR-B07-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "action": "MODIFY",
+        "scope": "register/next",
+        "problem": "新增任务不得双Owner或独占worker",
+        "change": "仅在schemaReady后注册一次，使用原研究线程池和writer，不创建第二自旋调度",
+        "anchors": [
+          {
+            "type": "ResearchPoolR27",
+            "method": "register",
+            "signature": "Task t",
+            "lines": [
+              69,
+              69
+            ]
+          },
+          {
+            "type": "ResearchPoolR27",
+            "method": "next",
+            "signature": "",
+            "lines": [
+              123,
+              134
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "e80ba04df767f5130b537c3aa70fa5f50a9c9f4cc1b5bd309ca13815b0a85f05",
+        "file_merge_order": [
+          "FR-B03-03",
+          "FR-B03-04",
+          "FR-B03-05",
+          "FR-B07-04",
+          "FR-B08-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "action": "EXTEND_NEW_FILE",
+        "scope": "研究任务cursor接口",
+        "problem": "处方分析失败后需从最后提交点恢复",
+        "change": "增加run工作游标和输入pin；提交cursor与产物同事务",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B03-03",
+          "FR-B07-02",
+          "FR-B07-04",
+          "FR-B07-05",
+          "FR-B08-05"
+        ]
+      }
+    ],
+    "steps": [
+      "ReplayEvaluator当前selectTrace是整段API；大窗口必须做有界runner/缓存状态，不在每片重放整个历史。",
+      "向existing研究分片预算接入，预算超限返回prepared RETRY而非while占住线程。"
+    ],
+    "tests": [
+      "在任意组件/样本分片杀进程后与不中断产物一致；不得重复消耗确认标签。"
+    ],
+    "acceptance": "分析持续有进展，旧训练/预测不被饿死，内存与每片耗时可控。",
+    "rollback": "撤新研究任务注册，已提交run/处方保留。",
+    "previous_fix_mapping": "FIX-19",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B07-05",
+    "batch": "B07",
+    "title": "反证控制与失败机制记忆",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationR30.java",
+        "action": "MODIFY",
+        "scope": "step/summary/控制统计",
+        "problem": "2个全管线零误授证不能证明误授证率很低",
+        "change": "扩大独立重复，记录分母、CI、预算和检出功效；与自然角色隔离",
+        "anchors": [
+          {
+            "type": "NullPipelineSimulationR30",
+            "method": "step",
+            "signature": "",
+            "lines": [
+              27,
+              33
+            ]
+          },
+          {
+            "type": "NullPipelineSimulationR30",
+            "method": "summary",
+            "signature": "",
+            "lines": [
+              76,
+              94
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "b1ad335fc3a52a1e167f1b25af09529ce5b4556ae2cab9b57ad9132452f8510c",
+        "file_merge_order": [
+          "FR-B07-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullEvolutionR27.java",
+        "action": "MODIFY",
+        "scope": "控制流水线",
+        "problem": "控制计算量/筛选预算必须同池公平",
+        "change": "使用同创造/选择流程与固定预算，明确合成不能授REAL",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "3c29e1be14827a021bfc59f8c9d2d0213418c29b113f600e0b63b033bc73cd3f",
+        "file_merge_order": [
+          "FR-B07-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "action": "EXTEND_NEW_FILE",
+        "scope": "反证/失败记忆视图",
+        "problem": "同一失败机制可能反复换名消耗资源",
+        "change": "按机制/输入/角色/预算版本存反证，后续提案引用，不永久删除整个家族",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B03-03",
+          "FR-B07-02",
+          "FR-B07-04",
+          "FR-B07-05",
+          "FR-B08-05"
+        ]
+      }
+    ],
+    "steps": [
+      "空信号、标签打乱、已知34/37/40%合成优势分别检验机制。",
+      "研究预算和正式alpha记录独立，不能因控制输赢选择性停止或隐藏失败。"
+    ],
+    "tests": [
+      "候选换名不绕过行为去重；合成结果不能进入自然样本和证书表。"
+    ],
+    "acceptance": "Q08报告有效分母和不确定性；失败记忆实际减少重复消耗且保留可复验新机制。",
+    "rollback": "停止控制任务不影响真实观察；原模拟输出全部保留。",
+    "previous_fix_mapping": "FIX-11/FIX-14",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B08-01",
+    "batch": "B08",
+    "title": "原子剔除研究→精确子代的完整示范链",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DirectedResearchPolicyR30R1.java",
+        "action": "ADD",
+        "scope": "完整新增类",
+        "problem": "按统计名字随意改AST无法证明测过同一个子代",
+        "change": "预先生成明确counterfactual AST；只支持声明的add/mix/sub移除；hash完全一致才物化",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B08-01"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedComponentStudyR30R1.java",
+        "action": "ADD",
+        "scope": "完整新增类",
+        "problem": "不同K3二元命中事件直接比较Brier会混目标",
+        "change": "在H_SELECT对同位置同真实号码做归一化十分类Brier配对，产出处方和原始块",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B08-01"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "action": "MODIFY",
+        "scope": "stepBirth/stepGate/snapshot/restore",
+        "problem": "新处方可能绕过出生门或确认反馈回流",
+        "change": "只接受研究角色处方入待生队列，仍跑合同/行为/预算gate；消费receipt与pending/游标同提交",
+        "anchors": [
+          {
+            "type": "EvolutionLoopR27",
+            "method": "stepBirth",
+            "signature": "",
+            "lines": [
+              160,
+              201
+            ]
+          },
+          {
+            "type": "EvolutionLoopR27",
+            "method": "stepGate",
+            "signature": "",
+            "lines": [
+              203,
+              232
+            ]
+          },
+          {
+            "type": "EvolutionLoopR27",
+            "method": "snapshot",
+            "signature": "",
+            "lines": [
+              487,
+              519
+            ]
+          },
+          {
+            "type": "EvolutionLoopR27",
+            "method": "restore",
+            "signature": "String json,Config cfg,FeatureCacheR27 cache,Sink sink,Clock clock",
+            "lines": [
+              521,
+              563
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "1c574ba07ac91efd900d29ed1ff02fbe659b9edf149e9d3de29ed36a4fd80580",
+        "file_merge_order": [
+          "FR-B08-01",
+          "FR-B08-03",
+          "FR-B08-05"
+        ]
+      }
+    ],
+    "steps": [
+      "应用B08两新增类；先在任务外准备反事实，再按B07有界runner执行。",
+      "正式确认只读展示，不进入stepBirth选择；每个处方有原parent、component和measured child hash。",
+      "不能把样例整段evaluate直接放实时回调；接分片/预算后再启用全量。"
+    ],
+    "tests": [
+      "测过子代A但消费B必须拒绝；父代AST不变；非法移除/常量空壳拒绝；事务回滚不标CONSUMED。"
+    ],
+    "acceptance": "至少一条真实“测量→处方→新AST→出生门→配对确认”链可复算；无收益仍如实失败。",
+    "rollback": "关闭新处方operator，保留原创造器、父代和历史筛劣。",
+    "previous_fix_mapping": "FIX-14",
+    "prepared_patches": [
+      "B08_measured_counterfactual_operator.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B08-02",
+    "batch": "B08",
+    "title": "短期结构、跨位与集合交集研究",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructureGeneratorRegistryR30.java",
+        "action": "MODIFY",
+        "scope": "六类generate/mutate",
+        "problem": "现有结构生成器不等发现了可用优势窗口",
+        "change": "接结构研究状态和支持域；窗口选择用过去，下一期结构目标事前定义",
+        "anchors": [
+          {
+            "type": "StructureGeneratorRegistryR30$Generator",
+            "method": "generate",
+            "signature": "StatsR27.SplitMix r,Context ctx",
+            "lines": [
+              17,
+              21
+            ]
+          },
+          {
+            "type": "StructureGeneratorRegistryR30$Generator",
+            "method": "mutate",
+            "signature": "PolicySpecR27 parent,StatsR27.SplitMix r,Context ctx",
+            "lines": [
+              22,
+              24
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "23df335435c8395f3995d7942bee8ad64c91d9d95f216491b06c543418059754",
+        "file_merge_order": [
+          "FR-B08-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+        "action": "MODIFY",
+        "scope": "regime/cross/crossCond/transition",
+        "problem": "历史描述标量不能当下一期结构概率",
+        "change": "新增有语义的过去特征与可用时间，目标结构标签开奖后才可得",
+        "anchors": [
+          {
+            "type": "FeatureCacheR27",
+            "method": "transition",
+            "signature": "int tp,int lag",
+            "lines": [
+              152,
+              164
+            ]
+          },
+          {
+            "type": "FeatureCacheR27",
+            "method": "cross",
+            "signature": "int src,int lag",
+            "lines": [
+              167,
+              172
+            ]
+          },
+          {
+            "type": "FeatureCacheR27",
+            "method": "crossCond",
+            "signature": "int src,int tp",
+            "lines": [
+              175,
+              187
+            ]
+          },
+          {
+            "type": "FeatureCacheR27",
+            "method": "regime",
+            "signature": "int w",
+            "lines": [
+              225,
+              234
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "b0c3072c8c03cedbf9130bb47a365b504c41c0b4d58f8b251248b31e82d45552",
+        "file_merge_order": [
+          "FR-B04-05",
+          "FR-B08-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java",
+        "action": "MODIFY",
+        "scope": "完整集合策略实现",
+        "problem": "交集过少可能被随机补号或无证据缩减",
+        "change": "保留每次集合来源/支持/缩减损失，最终合法单位置K3或明确弃权",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "cbc7b889bfa617ee8fce4c40e58266560174f29cba05d96c0944aa4fcc9bdc37",
+        "file_merge_order": [
+          "FR-B08-02"
+        ]
+      },
+      {
+        "path": "construction/r30-repair/STRUCTURE_STUDY_CONTRACT.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "准确无误抓窗口不能用后验选好段验证",
+        "change": "固定coarse结构目标、8/32/128/512候选窗、训练/校准/前向验证、基线与失败条件",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B08-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI13SelectorOnlyR27.java",
+        "action": "MODIFY",
+        "scope": "generate",
+        "problem": "新的状态研究不能绕过原选时选位确认",
+        "change": "将研究支持域形成的新selector仍转为完整新policy身份，经原出生/行为/独立确认门",
+        "anchors": [
+          {
+            "type": "IdeaI13SelectorOnlyR27",
+            "method": "generate",
+            "signature": "StatsR27.SplitMix r,IdeaFamilyR27.Context ctx",
+            "lines": [
+              12,
+              20
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "2d55131e2500c725e0951dbc4604c743debe8f440ca0a58d66d194105cb7c5ad",
+        "file_merge_order": [
+          "FR-B08-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SelectorPolicyR30.java",
+        "action": "VERIFY_AND_KEEP",
+        "scope": "combine/registeredRate",
+        "problem": "当前规则已有事前身份绑定，新研究接入不得借旧证书",
+        "change": "保留H_SELECT估计率与QUANTILE/RANDOM执行语义，注册率与实际率分列；新组合重新确认",
+        "anchors": [
+          {
+            "type": "SelectorPolicyR30",
+            "method": "combine",
+            "signature": "PolicySpecR27 base,int position,PolicySpecR27.Rule rule,double threshold,double rate,EvalContextR27 context,PolicySpecR27.Meta provenance",
+            "lines": [
+              10,
+              36
+            ]
+          },
+          {
+            "type": "SelectorPolicyR30",
+            "method": "registeredRate",
+            "signature": "PolicySpecR27 spec",
+            "lines": [
+              39,
+              42
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "8dc4e1af9778d6a0e7c840c89c30982ffa0c645a3570cce43700d841ede3c54b",
+        "file_merge_order": [
+          "FR-B08-02"
+        ]
+      }
+    ],
+    "steps": [
+      "实现R01–R04计算：粗结构分类/条件概率、下一期误差、跨位兼容、集合支持链。",
+      "先比较简单平滑条件模型与原结构核；只有时间隔离proper score/配对效用改善才增加复杂度。",
+      "多位置研究不放宽真实单位置K3，交集大小不足3必须按原弃权合同。"
+    ],
+    "tests": [
+      "改未来标签不改原窗口；对随机控制同预算跑；逐层缩减的覆盖与损失可复算。"
+    ],
+    "acceptance": "结构输入/预测/消费者/下一期结果成闭环，不把冷热/遗漏图当预测证明。",
+    "rollback": "恢复原结构策略及弃权行为，保留研究原件。",
+    "previous_fix_mapping": "FIX-14",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B08-03",
+    "batch": "B08",
+    "title": "专家、家族、变异和融合的贡献反馈",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java",
+        "action": "MODIFY",
+        "scope": "propose",
+        "problem": "专家文字输出不等可执行策略",
+        "change": "绑定失败簇→假设→AST→原子来源→原对子照；记录拒绝原因和后续贡献",
+        "anchors": [
+          {
+            "type": "ExpertProposalsR27",
+            "method": "propose",
+            "signature": "String expert,IdeaFamilyR27.Context ctx,StatsR27.SplitMix r",
+            "lines": [
+              28,
+              60
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "ac74623dbd5e33bb9e12c12beb7a5a772c8ef892096804eee738476e680d780d",
+        "file_merge_order": [
+          "FR-B08-03"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MutationOpsR27.java",
+        "action": "MODIFY",
+        "scope": "mutate/attempt",
+        "problem": "随机常数变动不能算新机制",
+        "change": "研究贡献决定合法剪枝/窗口/输入/结构候选，保留随机探索份额",
+        "anchors": [
+          {
+            "type": "MutationOpsR27",
+            "method": "mutate",
+            "signature": "PolicySpecR27 parent,String op,StatsR27.SplitMix r,IdeaFamilyR27.Context ctx,Contribution contribution",
+            "lines": [
+              22,
+              29
+            ]
+          },
+          {
+            "type": "MutationOpsR27",
+            "method": "attempt",
+            "signature": "PolicySpecR27 parent,String op,StatsR27.SplitMix r,IdeaFamilyR27.Context ctx,Contribution contribution,FailureProfileR30 profile",
+            "lines": [
+              31,
+              123
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "e0e52e3d32507e60923fd2f30dc31518bda5eced41806ad08788b03908be7408",
+        "file_merge_order": [
+          "FR-B08-03"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionOpsR27.java",
+        "action": "MODIFY",
+        "scope": "fuse",
+        "problem": "单体高分不等融合有益",
+        "change": "用同错区域/覆盖重叠/独立增益选互补父代，组合新身份重新确认",
+        "anchors": [
+          {
+            "type": "FusionOpsR27",
+            "method": "fuse",
+            "signature": "List<PolicySpecR27> archive,EvalContextR27 ctx,StatsR27.SplitMix r,int gen",
+            "lines": [
+              15,
+              61
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "db000ad09e04120535c953325c47a97808f6328896ca048c5129164480699075",
+        "file_merge_order": [
+          "FR-B08-03"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "action": "MODIFY",
+        "scope": "stepBirth/stepHalving/stepMigrateAblate",
+        "problem": "存活率和活动数不能代表变强",
+        "change": "预算按研究贡献/多样性/成本，正式确认收益只用于晋升报告不回流共享选择",
+        "anchors": [
+          {
+            "type": "EvolutionLoopR27",
+            "method": "stepBirth",
+            "signature": "",
+            "lines": [
+              160,
+              201
+            ]
+          },
+          {
+            "type": "EvolutionLoopR27",
+            "method": "stepHalving",
+            "signature": "",
+            "lines": [
+              276,
+              329
+            ]
+          },
+          {
+            "type": "EvolutionLoopR27",
+            "method": "stepMigrateAblate",
+            "signature": "",
+            "lines": [
+              374,
+              402
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "1c574ba07ac91efd900d29ed1ff02fbe659b9edf149e9d3de29ed36a4fd80580",
+        "file_merge_order": [
+          "FR-B08-01",
+          "FR-B08-03",
+          "FR-B08-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
+        "action": "MODIFY",
+        "scope": "族接口/研究提案合同",
+        "problem": "13业务思路族增强需要机读贡献接口，不能只扩大名字数量",
+        "change": "为实际族实现保留原生成ABI，增加可选研究产物引用；每族列输入/新机制/子代/成本/反证，缺研究输入不伪造能力",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "bccf3298cdfe271ffab928486a098d2e952dcc4297dc56ee8bad2fe243f1f175",
+        "file_merge_order": [
+          "FR-B08-03"
+        ]
+      }
+    ],
+    "steps": [
+      "实现R05/R07–R12：失败处方、分子协同、行为簇、专家信用、算子成本、父子配对、融合互补。",
+      "所有研究提案经原BirthGate，保证类型/PIT/时延/非重复；少数高质量冠军优于海量空壳。"
+    ],
+    "tests": [
+      "同名改常数不新增机制数；负贡献不晋升；融合不继承证书；持久谱系与子代hash一致。"
+    ],
+    "acceptance": "每种创造动作都能追到研究依据和独立验证，未变强不能报verified。",
+    "rollback": "停新提案通道，不删除原有效族/专家/创造能力。",
+    "previous_fix_mapping": "FIX-14/FIX-16",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B08-04",
+    "batch": "B08",
+    "title": "校准、模型消费与漂移研究",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+        "action": "MODIFY",
+        "scope": "研究支持域输出",
+        "problem": "单一ECE无法驱动有针对性的研究",
+        "change": "输出按状态/置信度的失准与域外分布，收缩/重训处方限研究角色",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "0ad8ee0f426b6cf064b5c875dce3ca78930779f21b0708d7d84b3a04363b8461",
+        "file_merge_order": [
+          "FR-B06-06",
+          "FR-B08-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "action": "MODIFY",
+        "scope": "在线/回放状态报告",
+        "problem": "训练忙碌不等有效学习，遗忘可能损害旧能力",
+        "change": "记录梯度→概率面→冻结调用及新旧状态分块得分；同源对照后才调研究回放/遗忘",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "562ade6660d38a48a5dc831d550e8606c9befa6566168db404fabb86e7c054ba",
+        "file_merge_order": [
+          "FR-B04-04",
+          "FR-B08-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+        "action": "MODIFY",
+        "scope": "消费链证据",
+        "problem": "模型有checkpoint但没有实际调用时图仍可能好看",
+        "change": "R14完整展示准备/训练/发布/消费/冻结/结算断点，不补调用",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "4a7605681eb69bfb4369bcfc1ede418de5fec9d13104dc54a3d25ced75c4938f",
+        "file_merge_order": [
+          "FR-B04-04",
+          "FR-B04-05",
+          "FR-B08-04"
+        ]
+      }
+    ],
+    "steps": [
+      "实现R13–R15；漂移由输入变化与proper score变化分开判断，不凭连输几期直接重置模型。",
+      "正式确认/资格数据不能被工作台交互拿去调参。"
+    ],
+    "tests": [
+      "输入漂移无性能退化、性能退化无输入漂移、缺支持域、旧能力回退、错模型hash。"
+    ],
+    "acceptance": "有证据驱动的合法研究处方，原有效模型不会因噪声被随意清空。",
+    "rollback": "恢复最后合法研究/模型配置，保留完整优化器状态。",
+    "previous_fix_mapping": "FIX-08/FIX-09/FIX-15",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B08-05",
+    "batch": "B08",
+    "title": "预算、失败记忆与端到端信用",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "action": "MODIFY",
+        "scope": "任务资源统计与分派",
+        "problem": "CPU占用高而有效产出为0无法指导优化",
+        "change": "按独立机制有效出生/完成确认/成本记录研究预算，不把忙等计能力",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "e80ba04df767f5130b537c3aa70fa5f50a9c9f4cc1b5bd309ca13815b0a85f05",
+        "file_merge_order": [
+          "FR-B03-03",
+          "FR-B03-04",
+          "FR-B03-05",
+          "FR-B07-04",
+          "FR-B08-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "action": "MODIFY",
+        "scope": "opWeights/familySurvivors/研究提案接口",
+        "problem": "反复失败机制可能持续换名消耗",
+        "change": "行为簇与反证记忆影响新研究预算，探索份额固定且保护有效资产",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "1c574ba07ac91efd900d29ed1ff02fbe659b9edf149e9d3de29ed36a4fd80580",
+        "file_merge_order": [
+          "FR-B08-01",
+          "FR-B08-03",
+          "FR-B08-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "action": "EXTEND_NEW_FILE",
+        "scope": "预算/反证/端到端视图",
+        "problem": "贡献不能追到最终主链效果",
+        "change": "R16–R18联结analysis→proposal→child→confirmation→experiment→certificate→REAL→settlement",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B03-03",
+          "FR-B07-02",
+          "FR-B07-04",
+          "FR-B07-05",
+          "FR-B08-05"
+        ]
+      }
+    ],
+    "steps": [
+      "所有统计分母有namespace/role/window；探索成本与正式质量收益分别报告。",
+      "“一代比一代强”落成冠军晋升合同，探索子代允许失败，生产冠军不能随意被劣质父代替换。"
+    ],
+    "tests": [
+      "反证重复机制降额而新机制仍获探索；没有证书时端到端图明确停在资格。"
+    ],
+    "acceptance": "预算变化有消费回执，质量产出和失败都能解释，不承诺自然优势必出现。",
+    "rollback": "回退预算版本，保留每一份反证和资产引用。",
+    "previous_fix_mapping": "FIX-14/FIX-19",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B09-01",
+    "batch": "B09",
+    "title": "登记18个研究图的算法合同",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java",
+        "action": "ADD",
+        "scope": "完整新增类",
+        "problem": "缺少图→分析算法→消费者→验收定义",
+        "change": "R01–R18固定id/输入measure/consumer/verification，分3组每组6图",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B09-01"
+        ]
+      }
+    ],
+    "steps": [
+      "应用图合同补丁；每图对应研究数据合同和B08计算Owner。",
+      "旧29图保留，18新图独立工作台；不把登记18个名字当18算法已运行。"
+    ],
+    "tests": [
+      "18唯一id、3×6组、每图消费者和验证字段完整；未产出显示具体等待项。"
+    ],
+    "acceptance": "所有图都回答分析什么、怎样影响算法、如何验证收益。",
+    "rollback": "隐藏新入口不影响旧29图与后台研究。",
+    "previous_fix_mapping": "FIX-18",
+    "prepared_patches": [
+      "B09_research_graph_contracts.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B09-02",
+    "batch": "B09",
+    "title": "有界图帧、张量切片与单快照读取",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+        "action": "ADD",
+        "scope": "完整新增类",
+        "problem": "同页多SELECT可能读不同提交，复杂图超120点会抛异常",
+        "change": "单个SELECT读取本组六最新已提交frame；payload≤256KiB，点/边≤120；大矩阵按事前固定切片分页",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B09-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchVisualDataR82.java",
+        "action": "MODIFY",
+        "scope": "Panel/Dashboard传输合同",
+        "problem": "已有MAX_POINTS=120、MAX_EDGES=120、Dashboard40不能随意超过",
+        "change": "保持边界或新增明确分页结构，不暴力加大上限；完整机读分析与展示截取分开",
+        "anchors": [
+          {
+            "type": "ResearchVisualDataR82$Panel",
+            "method": "<init>",
+            "signature": "String page,String title,String kind,String source,String window,String note,String status,List<Point> points,List<Edge> edges,List<Double> refs,List<String> series",
+            "lines": [
+              43,
+              47
+            ]
+          },
+          {
+            "type": "ResearchVisualDataR82$Panel",
+            "method": "<init>",
+            "signature": "String page,String title,String kind,String source,String window,long ignoredN,String note,String status,List<Point> points,List<Edge> edges",
+            "lines": [
+              48,
+              50
+            ]
+          },
+          {
+            "type": "ResearchVisualDataR82$Panel",
+            "method": "<init>",
+            "signature": "String page,String title,String kind,String source,String window,String note,String status,List<Point> points,List<Edge> edges",
+            "lines": [
+              51,
+              55
+            ]
+          },
+          {
+            "type": "ResearchVisualDataR82$Dashboard",
+            "method": "<init>",
+            "signature": "String page,String status,String asOfIssue,String exactCandidate,String candidateKey,String dataVersion,String sourceVersion,String note,List<Panel> panels",
+            "lines": [
+              61,
+              63
+            ]
+          },
+          {
+            "type": "ResearchVisualDataR82$Dashboard",
+            "method": "<init>",
+            "signature": "String page,String status,String asOfIssue,String exactCandidate,String candidateKey,String dataVersion,String sourceVersion,String note,String snapshotId,long generatedAt,List<Panel> panels",
+            "lines": [
+              64,
+              69
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "61ca338a1b28f98aedc290e518958feff0b401c4526ed44aaa08b81350bec280",
+        "file_merge_order": [
+          "FR-B09-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+        "action": "MODIFY",
+        "scope": "POINTS_PER_PAGE_R30",
+        "problem": "静态分页常量500与传输120上限不一致，存在潜在超限风险",
+        "change": "改用MAX_POINTS；是否实际触发另用运行证据判断",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "e96455d47638b094bb12bc2c833a198709dbd303ab5821d749273608936c72bb",
+        "file_merge_order": [
+          "FR-B09-02"
+        ]
+      }
+    ],
+    "steps": [
+      "R06预置帧读取实际配对贡献；其他帧必须由对应B08算法提交，不生成演示数据。",
+      "图帧hash、run、dataset、role和输入水位明确；跨图窗口不同时禁止做同窗聚合结论。"
+    ],
+    "tests": [
+      "错hash/超字节/超点数/超边数/坏JSON/缺表/取消/并发更新；一图坏不关闭全页。"
+    ],
+    "acceptance": "有界、可取消、来源一致且不误称已有效。",
+    "rollback": "回退新reader，分析原件与旧图继续。",
+    "previous_fix_mapping": "FIX-18",
+    "prepared_patches": [
+      "B09_research_graph_contracts.patch",
+      "B09_research_workbench_entry.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B09-03",
+    "batch": "B09",
+    "title": "手机研究工作台与生命周期",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
+        "action": "ADD",
+        "scope": "完整新增类",
+        "problem": "一页塞47图会超容量并阻塞加载",
+        "change": "3个分组、每组六图、后台只读加载、5s取消、离页取消、明确数据/消费/效益状态",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B09-03"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+        "action": "MODIFY",
+        "scope": "onCreate",
+        "problem": "用户找不到新的真实研究分析入口",
+        "change": "增加研究工作台按钮，原29图入口和工具保留",
+        "anchors": [
+          {
+            "type": "ChartsActivityR83",
+            "method": "onCreate",
+            "signature": "Bundle state",
+            "lines": [
+              52,
+              81
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "eccf359d8da7ca583fb1b1ff0b6df6c95d752ff86dbb3bb7bbd1169c5e12a080",
+        "file_merge_order": [
+          "FR-B09-03"
+        ]
+      },
+      {
+        "path": "app/src/main/AndroidManifest.xml",
+        "action": "MODIFY",
+        "scope": "ResearchWorkbenchActivity声明",
+        "problem": "新Activity必须显式注册且不外部导出",
+        "change": "新增android:exported=false声明；不新增权限",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "f733310a2d0d5d238e2306b18377608ec73b314344b37bb4ba5df95d6c586767",
+        "file_merge_order": [
+          "FR-B09-03"
+        ]
+      }
+    ],
+    "steps": [
+      "应用完整B09入口补丁；图表打开只读，不触发额外训练或REAL。",
+      "点击对象查看对应处方和证据引用；如果未来添加研究动作按钮，只投递幂等研究请求，不能改生产参数。"
+    ],
+    "tests": [
+      "三组切换/横竖屏/返回/快速重复刷新/取消/低内存；后台研究不受影响。"
+    ],
+    "acceptance": "手机可打开18图分组且逐图说明状态；没有分析产物就如实显示未产出。",
+    "rollback": "隐藏新按钮/Activity，原页面不受影响。",
+    "previous_fix_mapping": "FIX-18",
+    "prepared_patches": [
+      "B09_research_workbench_entry.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B09-04",
+    "batch": "B09",
+    "title": "旧29图语义与真实资金纠偏",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+        "action": "MODIFY",
+        "scope": "actionCandles/algorithmBoard/bestAlgorithmCurve/calibration",
+        "problem": "资金K线源为探索+影子，事后最佳曲线有选择偏差",
+        "change": "影子模拟资金明确改名；REAL只读真实唯一结算；榜单分角色，事后榜与事前冠军曲线区分",
+        "anchors": [
+          {
+            "type": "ChartsRepositoryR83",
+            "method": "actionCandles",
+            "signature": "SQLiteDatabase db,CancellationSignal cancel",
+            "lines": [
+              86,
+              119
+            ]
+          },
+          {
+            "type": "ChartsRepositoryR83",
+            "method": "calibration",
+            "signature": "SQLiteDatabase db,CancellationSignal cancel",
+            "lines": [
+              222,
+              245
+            ]
+          },
+          {
+            "type": "ChartsRepositoryR83",
+            "method": "algorithmBoard",
+            "signature": "SQLiteDatabase db,CancellationSignal cancel",
+            "lines": [
+              420,
+              443
+            ]
+          },
+          {
+            "type": "ChartsRepositoryR83",
+            "method": "bestAlgorithmCurve",
+            "signature": "SQLiteDatabase db,CancellationSignal cancel",
+            "lines": [
+              445,
+              479
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "3097ec677cb207e81e4655471b789d0cef286bd6481dd3e9d7de2eaaafa501aa",
+        "file_merge_order": [
+          "FR-B09-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+        "action": "MODIFY",
+        "scope": "bss/rolling/trainHoldout/mainline/atoms",
+        "problem": "旧轮换模型图不能冒充新十位置模型效果",
+        "change": "按ABI/model_hash/position/角色分层；计数标窗口，已验证改善0不画成变强",
+        "anchors": [
+          {
+            "type": "ChartCacheR27",
+            "method": "bss",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              168,
+              174
+            ]
+          },
+          {
+            "type": "ChartCacheR27",
+            "method": "rolling",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              175,
+              182
+            ]
+          },
+          {
+            "type": "ChartCacheR27",
+            "method": "trainHoldout",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              183,
+              193
+            ]
+          },
+          {
+            "type": "ChartCacheR27",
+            "method": "mainline",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              202,
+              209
+            ]
+          },
+          {
+            "type": "ChartCacheR27",
+            "method": "atoms",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              230,
+              236
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "cf209389817cfad6f88662be7b85e11bd2e2202665f4b20a6ea7da56f9055fde",
+        "file_merge_order": [
+          "FR-B09-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+        "action": "VERIFY_THEN_CONDITIONAL_MODIFY",
+        "scope": "onCreate/onResume/主线程数据库路径",
+        "problem": "需核对当前UI延迟，不能预判主线程就是已测慢锁根因",
+        "change": "先以Trace/StrictMode定位；已异步路径保留，仅证实阻塞时移到取消可恢复后台任务并保留生命周期epoch",
+        "anchors": [
+          {
+            "type": "MainActivity",
+            "method": "onCreate",
+            "signature": "Bundle savedInstanceState",
+            "lines": [
+              468,
+              535
+            ]
+          },
+          {
+            "type": "MainActivity",
+            "method": "onResume",
+            "signature": "",
+            "lines": [
+              668,
+              686
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "9ddac6537742e602708ea464c716cf7395f52cf49348220e41751f40cadb52be",
+        "file_merge_order": [
+          "FR-B09-04"
+        ]
+      }
+    ],
+    "steps": [
+      "套用标签纠正hunk，再完成完整源/分母/角色解释。",
+      "冷热/遗漏/号码K线保留作数据描述，参与研究时必须走独立特征/验证合同。"
+    ],
+    "tests": [
+      "无REAL时资金图不得显示真实盈利；事后挑最佳有明确标识；新旧模型不混线。"
+    ],
+    "acceptance": "29旧图逐一裁决与报告一致，不丢已有有效显示。",
+    "rollback": "只回退显示层，不改历史真实结算。",
+    "previous_fix_mapping": "FIX-18",
+    "prepared_patches": [
+      "B09_research_graph_contracts.patch"
+    ],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B09-05",
+    "batch": "B09",
+    "title": "47图与报告、研究动作的联合验收",
+    "priority": "P1",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportChartsR30.java",
+        "action": "MODIFY",
+        "scope": "panels/evolution/capabilities",
+        "problem": "原2新图仅登记/配对概览，不能覆盖全部研究用途",
+        "change": "联结工作台18图索引，分别报告静态、运行、消费、质量",
+        "anchors": [
+          {
+            "type": "ReportChartsR30",
+            "method": "evolution",
+            "signature": "ReportR27.R30Input in",
+            "lines": [
+              14,
+              40
+            ]
+          },
+          {
+            "type": "ReportChartsR30",
+            "method": "capabilities",
+            "signature": "ReportR27.R30Input in",
+            "lines": [
+              41,
+              54
+            ]
+          },
+          {
+            "type": "ReportChartsR30",
+            "method": "panels",
+            "signature": "ReportR27.R30Input in",
+            "lines": [
+              55,
+              55
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "d07cbf0279db9be9bab9800644cf678fe6282cf56379abd4eb3dec36210ef575",
+        "file_merge_order": [
+          "FR-B09-05"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java",
+        "action": "MODIFY",
+        "scope": "load/chaptersR30",
+        "problem": "缺少逐图源对象与产物/动作链接",
+        "change": "导出47图schema与每图最新frame/run、显示点数/完整行数、处方消费及收益证据",
+        "anchors": [
+          {
+            "type": "ReportDataR27",
+            "method": "load",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              20,
+              79
+            ]
+          },
+          {
+            "type": "ReportDataR27",
+            "method": "chaptersR30",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              86,
+              86
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "3ed5d7386cd13fb0c1ba22df214c5a3cbb9f9812bda00cb0a1ac0c3467182e9d",
+        "file_merge_order": [
+          "FR-B01-05",
+          "FR-B07-03",
+          "FR-B09-05"
+        ]
+      },
+      {
+        "path": "construction/r30-repair/CHART_ACCEPTANCE_47.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "截图通过不等算法有效",
+        "change": "逐图4状态+来源数据+动作消费+对照结果，保存真实Android截图索引",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B09-05"
+        ]
+      }
+    ],
+    "steps": [
+      "运行47×空/不足/有效分析/读错四状态；完整机读分析不限于展示120点。",
+      "每图至少能指向真实计算产物与消费者；未有效可通过展示工程，但不能关闭质量验收。"
+    ],
+    "tests": [
+      "图/报告/DB同快照分母一致；重复图不重复计样本；缺分析禁止演示线替代。"
+    ],
+    "acceptance": "用户能逐图看明白是否有用以及为什么，工程和收益两种结论分开。",
+    "rollback": "保留旧可读图和所有原分析结果。",
+    "previous_fix_mapping": "FIX-18/FIX-22",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B10-01",
+    "batch": "B10",
+    "title": "真实空间归因与预算",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+        "action": "MODIFY",
+        "scope": "全部普查入口",
+        "problem": "当前总占用26.52GB，不能只看draws5000",
+        "change": "按主库/旧备份/快照/归档/模型及采样时刻列字节，读取page/freelist与大表payload",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "ad8be39b6a339495b96eae5eebf6f2b10be98b2acc5ba31e4c8636ce052c9092",
+        "file_merge_order": [
+          "FR-B10-01"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+        "action": "MODIFY",
+        "scope": "保留预算策略",
+        "problem": "库大小与活跃数据/空闲页/临时副本混淆",
+        "change": "热表行数、总磁盘、受保护引用与临时复制预算分别管理；预留恢复空间",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "53722821457cb5a510d5f565fbe149609db6920e6f357fcf5514a9776a5d8e4e",
+        "file_merge_order": [
+          "FR-B10-01"
+        ]
+      }
+    ],
+    "steps": [
+      "先测根因再回收；主库约9GB、快照8.32GB、新备份8.23GB逐项核验时刻。",
+      "不能靠清App数据或禁用训练让磁盘变小。"
+    ],
+    "tests": [
+      "大库/多备份/低可用空间/空闲页多的情形；普查截断要报告。"
+    ],
+    "acceptance": "每个大项有责任Owner、保留/清理条件和恢复证据。",
+    "rollback": "停止清理，保留已验证旧源，不重复复制扩大占用。",
+    "previous_fix_mapping": "FIX-20",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B10-02",
+    "batch": "B10",
+    "title": "5000热期与引用安全归档",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+        "action": "MODIFY",
+        "scope": "ensureProtected/step/归档与删除",
+        "problem": "仅开奖热表受限但研究修订/标签/模型可能无限积累",
+        "change": "保护所有未完成任务、确认、证书、父代引用；无引用可重算派生页有界归档/删除",
+        "anchors": [
+          {
+            "type": "ResearchRetentionStoreR30",
+            "method": "ensureProtected",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              23,
+              50
+            ]
+          },
+          {
+            "type": "ResearchRetentionStoreR30",
+            "method": "step",
+            "signature": "DbStore store,RuntimeCoordinatorR26.Claim claim",
+            "lines": [
+              119,
+              128
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "5d3b1a97012b91001b57dde9aba14da807669ffa74db68ffad9d5f1b16c5fa27",
+        "file_merge_order": [
+          "FR-B07-03",
+          "FR-B10-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionR26.java",
+        "action": "MODIFY",
+        "scope": "prune",
+        "problem": "删除源行前需证明充分统计和原件可恢复",
+        "change": "逐页checksum/hash归档并复验，再原子切引用；删除不在长事务整库进行",
+        "anchors": [
+          {
+            "type": "RetentionR26",
+            "method": "prune",
+            "signature": "SQLiteDatabase db,long seq",
+            "lines": [
+              14,
+              62
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "4c9d4b08cfb4da8c5740f2d88fced081a0810b18cb638c869b277938a044457f",
+        "file_merge_order": [
+          "FR-B02-03",
+          "FR-B10-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
+        "action": "MODIFY",
+        "scope": "各表保留合同",
+        "problem": "新增6表与16逻辑视图需纳入生命周期",
+        "change": "按对象角色与依赖保留，非按同一个created_at粗暴清理全部",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "f1dd234a3c059b24d53edab8158c229a38fc21e4ee5315db23fe4d7ef29ad261",
+        "file_merge_order": [
+          "FR-B10-02"
+        ]
+      }
+    ],
+    "steps": [
+      "draws≤5000，受保护证据可超热窗但总目录需预算与可追溯归档。",
+      "明确归档对象总盘仍计入预算，不能只把文件搬目录冒充压缩。"
+    ],
+    "tests": [
+      "引用未归零不得删、坏归档拒删、任意页中断恢复、充分统计不双计。"
+    ],
+    "acceptance": "空间稳定受控且历史训练/确认/证书原件可恢复。",
+    "rollback": "回到原源和引用指针，未验证归档不接管。",
+    "previous_fix_mapping": "FIX-20",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B10-03",
+    "batch": "B10",
+    "title": "导出快照生命周期、取消与重建",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "action": "MODIFY",
+        "scope": "全部导出任务阶段",
+        "problem": "小ZIP背后仍保留8GB快照；重导出可能重复全库复制",
+        "change": "同一不可变job复建复用来源，临时snapshot成功确认后按引用释放；默认ZIP≤20MiB或明确分卷",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "74c6e1b4251812f600c5ab0041259cdb1d5685b8f23365238ada8a1319e51266",
+        "file_merge_order": [
+          "FR-B10-03"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportTaskControlR69.java",
+        "action": "MODIFY",
+        "scope": "取消与阶段控制",
+        "problem": "取消可能未传播到底层长读/文件遍历/压缩",
+        "change": "取消信号贯穿SQLite/native/IO阶段，≤2s释放，无半成品被当完整",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "c5c9e787350f3ef2848311abc6b59209eb053f223ca1e6a44ae2d9d9df4db5c2",
+        "file_merge_order": [
+          "FR-B10-03"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/SourceReadLeaseR82.java",
+        "action": "MODIFY",
+        "scope": "acquire/close",
+        "problem": "快照/切库与读者lease需一致",
+        "change": "短读及时释放，取消中断等待；离线源交换仅在显式安全阶段",
+        "anchors": [
+          {
+            "type": "SourceReadLeaseR82",
+            "method": "acquire",
+            "signature": "Context context,File database,CancellationSignal cancel",
+            "lines": [
+              22,
+              26
+            ]
+          },
+          {
+            "type": "SourceReadLeaseR82",
+            "method": "acquire",
+            "signature": "File database",
+            "lines": [
+              27,
+              27
+            ]
+          },
+          {
+            "type": "SourceReadLeaseR82",
+            "method": "acquire",
+            "signature": "File database,CancellationSignal cancel",
+            "lines": [
+              28,
+              28
+            ]
+          },
+          {
+            "type": "SourceReadLeaseR82",
+            "method": "acquire",
+            "signature": "File database,java.util.function.BooleanSupplier continuing,long maxWaitMs",
+            "lines": [
+              30,
+              33
+            ]
+          },
+          {
+            "type": "SourceReadLeaseR82",
+            "method": "acquire",
+            "signature": "File database,boolean exclusive,CancellationSignal cancel,java.util.function.BooleanSupplier continuing,long maxWaitMs",
+            "lines": [
+              38,
+              65
+            ]
+          },
+          {
+            "type": "SourceReadLeaseR82",
+            "method": "close",
+            "signature": "",
+            "lines": [
+              66,
+              71
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "508642fd214a60a228c4c0f127d264a42000c3766bcf4d23b85f8da410bdbb34",
+        "file_merge_order": [
+          "FR-B10-03"
+        ]
+      }
+    ],
+    "steps": [
+      "保留完整索引和机读字段，原始二进制按需另取；不因省体积隐瞒未导出的原件。",
+      "原job状态未完成不重复发起第二全库copy；空间预检失败明确。"
+    ],
+    "tests": [
+      "导出各阶段取消/ENOSPC/杀进程/重建；临时副本不无限叠加，原件不损坏。"
+    ],
+    "acceptance": "导出完整性/产品质量分别显示，默认体积及取消符合原指标。",
+    "rollback": "保留可恢复job元数据和原快照引用，不删受保护源。",
+    "previous_fix_mapping": "FIX-20",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B10-04",
+    "batch": "B10",
+    "title": "覆盖安装、备份和迁移并发控制",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+        "action": "MODIFY",
+        "scope": "升级/恢复入口",
+        "problem": "新备份8.23GB与旧备份可共同占满磁盘",
+        "change": "避免每次打开重复备份，记录已验证恢复点；不同签名/来源路径不得混用",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "5deaa12e31fd8fd97766fd91572cd4664dba13c31660cf41584ea0a051949a49",
+        "file_merge_order": [
+          "FR-B10-04"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "action": "MODIFY",
+        "scope": "ensure/readiness",
+        "problem": "旧Root/研究/legacy初始化互相等待会拖慢首启",
+        "change": "每个域唯一Owner与依赖有向无环；报告critical/research/legacy的实际阶段与失败",
+        "anchors": [
+          {
+            "type": "SchemaR27",
+            "method": "ensure",
+            "signature": "SQLiteDatabase db",
+            "lines": [
+              73,
+              98
+            ]
+          }
+        ],
+        "anchor_scope": "EXACT_EXISTING_METHOD_OR_NESTED_TYPE",
+        "base_sha256": "a9be5a2b116922f478554fff3e0d990ff53e433d278e0bd94118458a2d0cc305",
+        "file_merge_order": [
+          "FR-B03-01",
+          "FR-B10-04"
+        ]
+      },
+      {
+        "path": "construction/r30-repair/B11_CUTOVER_DECISION.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "大库不等原R30条件分库已触发",
+        "change": "只在原三项真机条件全满足时采用原B11方案，否则NOT_REQUIRED",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B10-04"
+        ]
+      }
+    ],
+    "steps": [
+      "现有用户数据必须覆盖保全；不盲目把当前缺schema通过readonly创建空表“修好”。",
+      "原R30分库三条件需24h+头部R27写者+切片后仍失败，本次未证实就不启动切库。"
+    ],
+    "tests": [
+      "旧库覆盖/失败回退/二次启动/备份空间不足/schema错ABI/并发读lease。"
+    ],
+    "acceptance": "启动/迁移可恢复且没有反复大副本；原签名口径安装。",
+    "rollback": "恢复已验证旧库与路由，保留新原件等待复查。",
+    "previous_fix_mapping": "FIX-20/FIX-21",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B10-05",
+    "batch": "B10",
+    "title": "存储与并发故障矩阵",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "construction/r30-repair/FAULT_MATRIX.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "旧CI14格不自动覆盖新研究表/消费链",
+        "change": "扩展BUSY、FULL、CANCEL、KILL、CORRUPT、SOURCE_CHANGE×新关键阶段，逐格真实回执",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B10-05"
+        ]
+      },
+      {
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/R30FaultMatrixTest.java",
+        "action": "MODIFY",
+        "scope": "新增研究链与存储阶段故障用例",
+        "problem": "新增处方/消费/快照生命周期尚无Android注入验证",
+        "change": "保留原14格，新增场景逐格验证无半发布、无重复学习、无错授证",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "c6c771aa6516c4fa003238835d1f5fa99b2399eb62e3a64a296eb6f5b7281bf7",
+        "file_merge_order": [
+          "FR-B10-05"
+        ]
+      }
+    ],
+    "steps": [
+      "故障注入只针对测试DB/测试设备夹具，不把控制信号写入自然资格。",
+      "故障后重启再跑，比较原artifact/行数/hash/游标和真实意向。"
+    ],
+    "tests": [
+      "每格有触发证据而非仅“测试调用成功”；自动审查未通过不得标PASS。"
+    ],
+    "acceptance": "新旧事务不变量、恢复与错误解释均有证据。",
+    "rollback": "关闭注入标志，恢复隔离测试原件；不触及生产自然成绩。",
+    "previous_fix_mapping": "FIX-20/FIX-22",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B11-01",
+    "batch": "B11",
+    "title": "全源码编译、既有回归与47图Android验证",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "app/build.gradle",
+        "action": "MODIFY",
+        "scope": "构建/校验任务与原身份保护",
+        "problem": "主机纯Java测试不等Android/NDK/ABI集成通过",
+        "change": "接新回归与lint；原Java17/SDK36/NDK/JNI/签名身份保护不绕过",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "3ec9832e98ff3196b3d8790b2bd13856d255c42c307d7366848549628734bd5c",
+        "file_merge_order": [
+          "FR-B11-01"
+        ]
+      },
+      {
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/R30ChartsAndroidTest.java",
+        "action": "MODIFY",
+        "scope": "47图及工作台生命周期",
+        "problem": "原48截图不能证明新增18图可用",
+        "change": "保留旧图场景，新工作台三组各4数据状态，截图与frame hash对应",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "23a5c11561337ddff95be0135b65d26bf4beb41b4c47392007e4cc74b24ad605",
+        "file_merge_order": [
+          "FR-B11-01"
+        ]
+      },
+      {
+        "path": "construction/r30-repair/INTEGRATION_RECEIPT.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "parse-only容易被误称编译完成",
+        "change": "分别记录git apply、全源parse、HOST、Android compile、instrumentation、device、natural结果",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B11-01"
+        ]
+      }
+    ],
+    "steps": [
+      "所有60卡代码合并后跑完整构建与旧回归，解决跨文件类型/迁移冲突。",
+      "不得把本包11补丁直接称已完成60卡；未预写部分必须按对应卡真实实现。"
+    ],
+    "tests": [
+      "原17项Android回归、旧故障矩阵、模型/资格/保全测试、新47图与工作台生命周期。"
+    ],
+    "acceptance": "实际Android编译及回归有当前commit证据；新增错误0，旧基线明确。",
+    "rollback": "回退对应未通过卡，保持上一已验证检查点可安装。",
+    "previous_fix_mapping": "FIX-21/FIX-22",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B11-02",
+    "batch": "B11",
+    "title": "V2353A前台、息屏与72小时实测",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "construction/r30-repair/DEVICE_RUNS.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "现有physicalDevice=NOT_RUN",
+        "change": "记录型号/Android/进程/温度/电量/磁盘/前后台、每期机会和提交水位",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B11-02"
+        ]
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java",
+        "action": "MODIFY",
+        "scope": "运行窗口汇总",
+        "problem": "瞬时HEALTHY不代表窗口SLO通过",
+        "change": "活性、窗口时延/覆盖、系统退出、研究完成和质量分别显示",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": "ecbd68d1b389f773bdae6c71a2029226b7b4c455dc77ed905030ec169a79123a",
+        "file_merge_order": [
+          "FR-B11-02"
+        ]
+      }
+    ],
+    "steps": [
+      "前台60min、息屏6h、连续24h与72h，包含旧库覆盖和新安装场景。",
+      "厂商强停/低内存/应用崩溃分列；已投递恢复，未冻结缺口不补票。"
+    ],
+    "tests": [
+      "M03≤5s/M04≤1s/M05健康≥99.5%/M07≤200ms，任务无无故饿死，磁盘预算受控。"
+    ],
+    "acceptance": "目标设备工程指标有真实窗口分母与原日志，不用模拟器替代。",
+    "rollback": "恢复上一稳定版和可恢复数据，不伪造长测。",
+    "previous_fix_mapping": "FIX-21",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B11-03",
+    "batch": "B11",
+    "title": "自然高质量资产与主链效果独立验收",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "construction/r30-repair/NATURAL_QUALITY.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "有工程功能不等找到了真实稳定优势",
+        "change": "逐Q01–Q08记录预登记政策、窗口/独立期、ACT、序贯/稳定/校准/对照/资产数",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B11-03"
+        ]
+      },
+      {
+        "path": "construction/r30-repair/MAINLINE_EFFECT.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "候选高分不等真实应用效果",
+        "change": "实际合格资产→证书→selector→Gate→REAL→唯一结算的来源及真实成绩",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B11-03"
+        ]
+      }
+    ],
+    "steps": [
+      "目标自然ACT≥34%，优先≥37%，频率目标≥15%且不补配额；完整质量合同必须成立。",
+      "没有真实优势时继续研究/观察并如实报告工程完成质量未达，不能保证通过。",
+      "生产冠军只在独立验证改善后替换；探索子代可失败，失败用于合法研究记忆。"
+    ],
+    "tests": [
+      "所有自然原始冻结可复核；同期开奖/多位置不虚增样本；影子和合成不计真实。"
+    ],
+    "acceptance": "有≥1个真实达标资产才宣称质量产出；无资产如实为0。",
+    "rollback": "撤新失效资产引用，保护已真实有效冠军及历史账。",
+    "previous_fix_mapping": "FIX-11/FIX-17",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  },
+  {
+    "id": "FR-B11-04",
+    "batch": "B11",
+    "title": "最终源码、APK、方案与证据交付",
+    "priority": "P0",
+    "files": [
+      {
+        "path": "construction/r30-repair/FINAL.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "只改版本号/文档无法验收软件",
+        "change": "60卡真实diff/测试/设备/质量状态与每批构建回执汇总，唯一最终入口",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B11-04"
+        ]
+      },
+      {
+        "path": "construction/r30-repair/DELIVERY.json",
+        "action": "ADD",
+        "scope": "完整新增文件",
+        "problem": "源码、APK、签名口径需互证",
+        "change": "输出可安装APK、source commit/tree hash、APK hash、签名指纹、方案版本和已知未达项",
+        "anchors": [],
+        "anchor_scope": "CLASS_OR_FIELD_SCOPE; complete baseline methods in source_audit/methods.jsonl; newly proposed methods are ADD",
+        "base_sha256": null,
+        "file_merge_order": [
+          "FR-B11-04"
+        ]
+      }
+    ],
+    "steps": [
+      "每批软件检查点先编可安装APK并升级实际未占用versionCode；版本号不是功能完成证据。",
+      "最终保持公有软件包名和已装证书口径，不复制私有密钥到公共库。",
+      "用户要求上传时再同步唯一入口与完整解压内容，本次设计交付不假称已推仓库。"
+    ],
+    "tests": [
+      "覆盖安装首启/二启、源码复编身份、文件hash、无缺件、60卡状态无凭空DONE。"
+    ],
+    "acceptance": "完整成品与工程/质量证据可复核；未完成明确列出，不能冒称完美。",
+    "rollback": "保留上一可安装APK和对应源码/数据恢复点。",
+    "previous_fix_mapping": "FIX-22",
+    "prepared_patches": [],
+    "execution_status": "DESIGN_NOT_EXECUTED_IN_ANDROID",
+    "dependency_policy": "按批次DAG与本卡文件所有权；同文件同批串行，合并前跑联合不变量"
+  }
+]

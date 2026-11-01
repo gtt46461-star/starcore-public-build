@@ -1,0 +1,146 @@
+[
+  {
+    "id": "T01",
+    "title": "数据与标签血缘",
+    "fields": "dataset_hash,issue,available_at,label_at,role,revision,input_hash",
+    "formula": "迟到率=晚于冻结标签数/到达标签数；PIT违规单列",
+    "source": "采集/标签现有表与analysis_run",
+    "frequency": "每输入提交",
+    "consumer": "训练合法性/复现"
+  },
+  {
+    "id": "T02",
+    "title": "样本特征支持域",
+    "fields": "feature/ABI,窗口,缺失/finite/支持数,分布版本",
+    "formula": "null_rate=缺失/应有；多位置不作独立期",
+    "source": "既有FeatureCache/输入样本",
+    "frequency": "每不可变输入批",
+    "consumer": "特征过滤与域外拒绝"
+  },
+  {
+    "id": "T03",
+    "title": "事前预测与结构落地",
+    "fields": "policy,target,prob_vector,structure,freeze_hash,actual",
+    "formula": "同目标proper loss；预测必须先于标签",
+    "source": "原predraw/冻结+标签只读join",
+    "frequency": "每结算",
+    "consumer": "R01–R04"
+  },
+  {
+    "id": "T04",
+    "title": "失败机制样本",
+    "fields": "failure_key,role,condition,expected,observed,cost",
+    "formula": "失败覆盖数/合法应测期；机制hash去重",
+    "source": "既有failure与research_measure",
+    "frequency": "每研究失败",
+    "consumer": "R02/R05/R17"
+  },
+  {
+    "id": "T05",
+    "title": "原子配对贡献",
+    "fields": "run,component,without_hash,期块,Δ,CI,n",
+    "formula": "Δ=L_without−L_with；同一期同一目标",
+    "source": "research_measure(kind=ATOM_PAIRED_GAIN)",
+    "frequency": "每分析run",
+    "consumer": "测得移除处方"
+  },
+  {
+    "id": "T06",
+    "title": "分子协同与复杂度",
+    "fields": "A,B,AB,none,synergy,cost,blocks",
+    "formula": "Synergy=Gain_AB−Gain_A−Gain_B",
+    "source": "research_measure(kind=MOLECULE_SYNERGY)",
+    "frequency": "每组合研究批",
+    "consumer": "R07组合/冗余修剪"
+  },
+  {
+    "id": "T07",
+    "title": "族与行为指纹",
+    "fields": "family,mechanism,probe_hash,behavior_hash,diversity",
+    "formula": "重复率=同probe近同输出/新候选；机制覆盖",
+    "source": "原family/genome+research_measure",
+    "frequency": "每候选",
+    "consumer": "R08行为去重"
+  },
+  {
+    "id": "T08",
+    "title": "专家到AST处方",
+    "fields": "expert,proposal,parent,child,admission,reason",
+    "formula": "可执行落地率=合法AST子代/提案；不计文本条数",
+    "source": "proposal+consume+原policy",
+    "frequency": "每提案/消费",
+    "consumer": "R05/R09"
+  },
+  {
+    "id": "T09",
+    "title": "算子与父子预算",
+    "fields": "operator,parent,child,cpu,paired_gain,window",
+    "formula": "效益与CPU分列，固定成本桶；不造综合神分",
+    "source": "research_measure+原generation",
+    "frequency": "每代真实提交",
+    "consumer": "R10研究预算"
+  },
+  {
+    "id": "T10",
+    "title": "融合互补证据",
+    "fields": "parents,weights_fit_cutoff,error_corr,child,new_contract",
+    "formula": "同目标残差相关；Δ_fused vs same-budget baseline",
+    "source": "原fusion+research_measure",
+    "frequency": "每融合候选",
+    "consumer": "R12新身份融合"
+  },
+  {
+    "id": "T11",
+    "title": "神经训练与消费链",
+    "fields": "input_boundary,materialized,grad_visits,trained_through,artifact,surface,call",
+    "formula": "计数按position sample/访问/独立期分列；模型消费率=合法调用/应调用",
+    "source": "AtomNet/ModelSurface原表+run",
+    "frequency": "每训练/发布/调用",
+    "consumer": "R14/R15"
+  },
+  {
+    "id": "T12",
+    "title": "校准支持与风险",
+    "fields": "target,fit_cutoff,bin,n,mean_p,hit,BSS_ref",
+    "formula": "ECE=Σ(n_b/N)|mean_p−hit_b|；BSS=1−BS/BS_ref",
+    "source": "原CalibrationRows与measure",
+    "frequency": "每合法校准更新",
+    "consumer": "R13与门禁支持"
+  },
+  {
+    "id": "T13",
+    "title": "确认/未来/资格证据",
+    "fields": "frozen_id,role,ACT,hit,logE,alpha,gateVersion,status,reason",
+    "formula": "hit/ACT、ACT/机会；区间仅描述；正式授证沿注册合同",
+    "source": "原frozen_confirm/experiment/eprocess/certificate",
+    "frequency": "每提交",
+    "consumer": "R11/R18只读与授证"
+  },
+  {
+    "id": "T14",
+    "title": "研究任务活性与公平",
+    "fields": "task,work_unit,cursor,pending,oldest_input,commit_clock,cpu",
+    "formula": "积压年龄=当前日历期−最老pending期；无pending为null",
+    "source": "task_progress+原调度遥测",
+    "frequency": "同主产物batch",
+    "consumer": "M11/M12/R16"
+  },
+  {
+    "id": "T15",
+    "title": "处方消费与增量效果",
+    "fields": "run,proposal,child,receipt,analysis_contract,followup",
+    "formula": "消费闭环率=唯一已消费/可消费；有效性另行独立评估",
+    "source": "analysis_run/proposal/consume/chart_cache",
+    "frequency": "每分析/消费原子提交",
+    "consumer": "不留空心图/空心处方"
+  },
+  {
+    "id": "T16",
+    "title": "自然资产主链与资源成本",
+    "fields": "policy,certificate,selector,REAL,settlement,payout,cost,abstention",
+    "formula": "净结果=实际结算收入−实际成本；预测命中与经济收益分列",
+    "source": "原唯一REAL/结算账本+消费链只读join",
+    "frequency": "每实际结算",
+    "consumer": "R18最终效果；无真实赔付不计算经济盈利"
+  }
+]

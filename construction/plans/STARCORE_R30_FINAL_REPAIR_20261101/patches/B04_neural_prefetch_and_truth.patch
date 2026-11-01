@@ -1,0 +1,103 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java
+@@ -7,9 +7,9 @@
+  * Every phase, position cursor, shuffle, Adam, dropout RNG and replay sample survives a lossless checkpoint.
+  * The R29 codec is an inner optimizer container only; this outer ABI/owner never overwrites a legacy model. */
+ public final class AtomNetSessionR30 {
+     public static final String ABI = AtomNetR27.POSITION_INPUT_ABI, OWNER = "ATOMNET_TEN_R30";
+-    public interface Samples { AtomNetTrainerR27.Sample get(int sample); }
++    public interface Samples { AtomNetTrainerR27.Sample get(int sample); default void prefetch(int[] indices) { } }
+     public final String datasetHash;
+     public final int trainCount, selectCount, holdoutCount, input;
+     public final long observedThroughOrdinal;
+     public final String observedThrough;
+@@ -41,8 +41,9 @@
+         receipts.clear(); long start=System.nanoTime(); int n=0;
+         if ("TRAIN".equals(phase)) {
+             if(order==null) shuffle();
+             n=Math.min(AtomNetTrainerR27.BATCH,trainCount-offset);
++            samples.prefetch(Arrays.copyOfRange(order,offset,offset+n));
+             double[][] x=new double[n][];int[] y=new int[n],c=new int[n];
+             for(int k=0;k<n;k++){AtomNetTrainerR27.Sample s=samples.get(order[offset+k]);x[k]=s.x;y[k]=s.y;c[k]=s.cls;if(epoch==0)ftrl.update(Arrays.copyOf(s.x,7),s.y);}
+             int total=AtomNetTrainerR27.MAX_EPOCHS*((trainCount+63)/64);
+             lastLr=AtomNetTrainerR27.LR_MIN+.5*(AtomNetTrainerR27.LR0-AtomNetTrainerR27.LR_MIN)*(1+Math.cos(Math.PI*step/(double)total));
+@@ -51,9 +52,9 @@
+         } else if(phase.startsWith("EVAL_")) {
+             int from="EVAL_TRAIN".equals(phase)?0:trainCount;
+             int count="EVAL_TRAIN".equals(phase)?trainCount:selectCount;
+             if("EVAL_HOLD".equals(phase)||"EVAL_ONLINE_HOLD".equals(phase)){from+=selectCount;count=holdoutCount;}
+-            n=Math.min(64,count-offset);
++            n=Math.min(64,count-offset);int[] indices=new int[n];for(int k=0;k<n;k++)indices[k]=from+offset+k;samples.prefetch(indices);
+             for(int k=0;k<n;k++) {
+                 AtomNetTrainerR27.Sample s=samples.get(from+offset+k);double p=trainer.net.predict(s.x);
+                 if("EVAL_SELECT".equals(phase)&&epoch==0)ftrl.update(Arrays.copyOf(s.x,7),s.y);
+                 loss.add(-Math.log(Math.max(1e-12,s.y==1?p:1-p)));brier+=(p-s.y)*(p-s.y);
+@@ -61,9 +62,9 @@
+             offset+=n;
+             if(offset==count) finishEvaluation();
+         } else if("FILL".equals(phase)) {
+             int from=Math.max(0,trainCount+selectCount-AtomNetTrainerR27.REPLAY);
+-            n=Math.min(64,trainCount+selectCount-from-fillOffset);
++            n=Math.min(64,trainCount+selectCount-from-fillOffset);int[] indices=new int[n];for(int k=0;k<n;k++)indices[k]=from+fillOffset+k;samples.prefetch(indices);
+             for(int k=0;k<n;k++)trainer.remember(samples.get(from+fillOffset+k));fillOffset+=n;
+             if(from+fillOffset==trainCount+selectCount){phase="ONLINE";completeIssue=observedThrough;onlineObservedOrdinal=observedThroughOrdinal;}
+         }
+         trainingMs+=(System.nanoTime()-start)/1_000_000L;units++;return n;
+@@ -115,8 +116,15 @@
+         r.put("samplesPerSecond",materializeMs>0?materializedSamples*1000.0/materializeMs:null);
+         r.put("trainingSamplesProcessed",pretrainSamples);r.put("trainingMs",trainingMs);r.put("epoch",(long)epoch);r.put("phaseOffset",(long)offset);
+         r.put("onlineSamples",trainer.onlineSteps);r.put("completeIssue",completeIssue);r.put("partialIssue",partialIssue);r.put("nextPosition",(long)nextPosition);
+         r.put("trainedThrough",completeIssue.isEmpty()?observedThrough:trainedThrough());r.put("trainedThroughOrdinal",trainedThroughOrdinal());
++        int materializeEnd=com.ethk3.novaonepro.AtomReplayR27.MIN_ROWS+(trainCount+selectCount+holdoutCount)/10;
++        r.put("displayPhase",cachePeriod<materializeEnd?"MATERIALIZE":phase);
++        r.put("inputBoundary",observedThrough);r.put("legacyTrainedThroughIsInputBoundary",completeIssue.isEmpty());
++        r.put("weightsTrainedThrough",ready()?trainedThrough():null);
++        r.put("weightsTrainedThroughOrdinal",ready()?trainedThroughOrdinal():null);
++        r.put("publicationReady",ready());r.put("primaryTrainingSamplesCommitted",pretrainSamples+trainer.onlineSteps);
++        r.put("trainingCounterScope","PRETRAIN_VISITS_PLUS_NEW_ONLINE_POSITIONS;EXCLUDES_REPLAY_VISITS;NOT_INDEPENDENT_ISSUES");
+         r.put("status",materializedSamples>0?"MEASURED":"INSUFFICIENT");r.put("quality","NO_NATURAL_QUALITY_CLAIM");return r;
+     }
+     public byte[] encode(){
+         try{
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java
+@@ -39,16 +39,32 @@
+     public static void sample(ResearchWriteQueueR27.Batch b,String dataset,int index,String issue,int position,double[] x,int y,int cls){
+         b.add("INSERT OR IGNORE INTO r30_atomnet_sample VALUES(?,?,?,?,?,?,?)",dataset,index,issue,position,features(x),y,cls);
+     }
+     public static AtomNetSessionR30.Samples samples(SQLiteDatabase ro,AtomNetSessionR30 session){
+-        return index->{try(Cursor c=ro.rawQuery("SELECT issue,position,features,hit,number_class FROM r30_atomnet_sample WHERE dataset_hash=? AND sample_index=?",new String[]{session.datasetHash,Integer.toString(index)})){
+-            if(!c.moveToFirst())throw new IllegalStateException("R30_TRAIN_SAMPLE_MISSING:"+index);
+-            byte[] blob=c.getBlob(2);if(blob.length!=session.input*8)throw new IllegalStateException("R30_TRAIN_SAMPLE_SHAPE");double[] x=new double[session.input];
+-            try(DataInputStream in=new DataInputStream(new ByteArrayInputStream(blob))){for(int i=0;i<x.length;i++)x[i]=in.readDouble();}
+-            catch(IOException e){throw new IllegalStateException(e);}
+-            return new AtomNetTrainerR27.Sample(x,c.getInt(3),c.getInt(4),AtomNetSessionR30.eventKey(c.getString(0),c.getInt(1)));
+-        }};
++        return new AtomNetSessionR30.Samples(){
++            final Map<Integer,AtomNetTrainerR27.Sample> prepared=new HashMap<>();
++            public void prefetch(int[] indices){
++                if(indices.length>64)throw new IllegalArgumentException("R30_SAMPLE_PREFETCH_BOUND");
++                prepared.clear();if(indices.length==0)return;
++                LinkedHashSet<Integer> unique=new LinkedHashSet<>();for(int i:indices){if(i<0)throw new IllegalArgumentException("R30_SAMPLE_INDEX");unique.add(i);}
++                StringBuilder sql=new StringBuilder("SELECT sample_index,issue,position,features,hit,number_class FROM r30_atomnet_sample WHERE dataset_hash=? AND sample_index IN (");
++                String[] args=new String[unique.size()+1];args[0]=session.datasetHash;int at=1;
++                for(int i:unique){if(at>1)sql.append(',');sql.append('?');args[at++]=Integer.toString(i);}sql.append(')');
++                try(Cursor c=ro.rawQuery(sql.toString(),args)){while(c.moveToNext())prepared.put(c.getInt(0),decode(c));}
++                if(prepared.size()!=unique.size())throw new IllegalStateException("R30_TRAIN_SAMPLE_MISSING_IN_PREFETCH");
++            }
++            AtomNetTrainerR27.Sample decode(Cursor c){
++                byte[] blob=c.getBlob(3);if(blob.length!=session.input*8)throw new IllegalStateException("R30_TRAIN_SAMPLE_SHAPE");
++                double[] x=new double[session.input];try(DataInputStream in=new DataInputStream(new ByteArrayInputStream(blob))){for(int i=0;i<x.length;i++){x[i]=in.readDouble();if(!Double.isFinite(x[i]))throw new IllegalStateException("R30_TRAIN_SAMPLE_NONFINITE");}}
++                catch(IOException e){throw new IllegalStateException(e);}
++                return new AtomNetTrainerR27.Sample(x,c.getInt(4),c.getInt(5),AtomNetSessionR30.eventKey(c.getString(1),c.getInt(2)));
++            }
++            public AtomNetTrainerR27.Sample get(int index){
++                AtomNetTrainerR27.Sample s=prepared.get(index);if(s==null){prefetch(new int[]{index});s=prepared.get(index);}return s;
++            }
++        };
+     }
++
+     public static AtomNetSessionR30 restore(SQLiteDatabase ro){
+         try(Cursor c=ro.rawQuery("SELECT feature_abi,state_hash,artifact,dataset_hash,trained_through FROM r29_model_checkpoint WHERE owner=?",new String[]{AtomNetSessionR30.OWNER})){
+             if(!c.moveToFirst())return null;if(!AtomNetSessionR30.ABI.equals(c.getString(0)))throw new IllegalStateException("R30_TRAIN_FEATURE_ABI");
+             AtomNetSessionR30 state=AtomNetSessionR30.decode(c.getBlob(2),c.getString(1));

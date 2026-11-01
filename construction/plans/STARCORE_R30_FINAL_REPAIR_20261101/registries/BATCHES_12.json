@@ -1,0 +1,221 @@
+[
+  {
+    "batch": "B00",
+    "title": "基线与合同",
+    "cards": [
+      "FR-B00-01",
+      "FR-B00-02",
+      "FR-B00-03",
+      "FR-B00-04"
+    ],
+    "predecessors": [],
+    "person_days": "2–3",
+    "owner_rule": "每批集成Owner唯一；同文件按卡顺序串行；不同文件且合同已冻结可并行",
+    "entry": "前驱证据通过，源revision与schema合同冻结",
+    "exit": "本批功能/故障回归+真实Android构建检查点；未满足不填DONE"
+  },
+  {
+    "batch": "B01",
+    "title": "诊断与统一事实",
+    "cards": [
+      "FR-B01-01",
+      "FR-B01-02",
+      "FR-B01-03",
+      "FR-B01-04",
+      "FR-B01-05"
+    ],
+    "predecessors": [
+      "B00"
+    ],
+    "person_days": "3–5",
+    "owner_rule": "每批集成Owner唯一；同文件按卡顺序串行；不同文件且合同已冻结可并行",
+    "entry": "前驱证据通过，源revision与schema合同冻结",
+    "exit": "本批功能/故障回归+真实Android构建检查点；未满足不填DONE"
+  },
+  {
+    "batch": "B02",
+    "title": "writer与实时主链",
+    "cards": [
+      "FR-B02-01",
+      "FR-B02-02",
+      "FR-B02-03",
+      "FR-B02-04",
+      "FR-B02-05",
+      "FR-B02-06"
+    ],
+    "predecessors": [
+      "B01"
+    ],
+    "person_days": "7–10",
+    "owner_rule": "每批集成Owner唯一；同文件按卡顺序串行；不同文件且合同已冻结可并行",
+    "entry": "前驱证据通过，源revision与schema合同冻结",
+    "exit": "本批功能/故障回归+真实Android构建检查点；未满足不填DONE"
+  },
+  {
+    "batch": "B03",
+    "title": "任务原子进度与恢复",
+    "cards": [
+      "FR-B03-01",
+      "FR-B03-02",
+      "FR-B03-03",
+      "FR-B03-04",
+      "FR-B03-05"
+    ],
+    "predecessors": [
+      "B02"
+    ],
+    "person_days": "5–8",
+    "owner_rule": "每批集成Owner唯一；同文件按卡顺序串行；不同文件且合同已冻结可并行",
+    "entry": "前驱证据通过，源revision与schema合同冻结",
+    "exit": "本批功能/故障回归+真实Android构建检查点；未满足不填DONE"
+  },
+  {
+    "batch": "B04",
+    "title": "神经训练与实际消费",
+    "cards": [
+      "FR-B04-01",
+      "FR-B04-02",
+      "FR-B04-03",
+      "FR-B04-04",
+      "FR-B04-05"
+    ],
+    "predecessors": [
+      "B03"
+    ],
+    "person_days": "5–8",
+    "owner_rule": "每批集成Owner唯一；同文件按卡顺序串行；不同文件且合同已冻结可并行",
+    "entry": "前驱证据通过，源revision与schema合同冻结",
+    "exit": "本批功能/故障回归+真实Android构建检查点；未满足不填DONE"
+  },
+  {
+    "batch": "B05",
+    "title": "确认与资格授权",
+    "cards": [
+      "FR-B05-01",
+      "FR-B05-02",
+      "FR-B05-03",
+      "FR-B05-04",
+      "FR-B05-05"
+    ],
+    "predecessors": [
+      "B03"
+    ],
+    "person_days": "5–8",
+    "owner_rule": "每批集成Owner唯一；同文件按卡顺序串行；不同文件且合同已冻结可并行",
+    "entry": "前驱证据通过，源revision与schema合同冻结",
+    "exit": "本批功能/故障回归+真实Android构建检查点；未满足不填DONE"
+  },
+  {
+    "batch": "B06",
+    "title": "矩阵原子及能力原件",
+    "cards": [
+      "FR-B06-01",
+      "FR-B06-02",
+      "FR-B06-03",
+      "FR-B06-04",
+      "FR-B06-05",
+      "FR-B06-06"
+    ],
+    "predecessors": [
+      "B03"
+    ],
+    "person_days": "6–10",
+    "owner_rule": "每批集成Owner唯一；同文件按卡顺序串行；不同文件且合同已冻结可并行",
+    "entry": "前驱证据通过，源revision与schema合同冻结",
+    "exit": "本批功能/故障回归+真实Android构建检查点；未满足不填DONE"
+  },
+  {
+    "batch": "B07",
+    "title": "研究证据与消费回执",
+    "cards": [
+      "FR-B07-01",
+      "FR-B07-02",
+      "FR-B07-03",
+      "FR-B07-04",
+      "FR-B07-05"
+    ],
+    "predecessors": [
+      "B04",
+      "B06"
+    ],
+    "person_days": "6–10",
+    "owner_rule": "每批集成Owner唯一；同文件按卡顺序串行；不同文件且合同已冻结可并行",
+    "entry": "前驱证据通过，源revision与schema合同冻结",
+    "exit": "本批功能/故障回归+真实Android构建检查点；未满足不填DONE"
+  },
+  {
+    "batch": "B08",
+    "title": "处方变异融合与创造",
+    "cards": [
+      "FR-B08-01",
+      "FR-B08-02",
+      "FR-B08-03",
+      "FR-B08-04",
+      "FR-B08-05"
+    ],
+    "predecessors": [
+      "B07"
+    ],
+    "person_days": "8–14",
+    "owner_rule": "每批集成Owner唯一；同文件按卡顺序串行；不同文件且合同已冻结可并行",
+    "entry": "前驱证据通过，源revision与schema合同冻结",
+    "exit": "本批功能/故障回归+真实Android构建检查点；未满足不填DONE"
+  },
+  {
+    "batch": "B09",
+    "title": "18新图及29旧图",
+    "cards": [
+      "FR-B09-01",
+      "FR-B09-02",
+      "FR-B09-03",
+      "FR-B09-04",
+      "FR-B09-05"
+    ],
+    "predecessors": [
+      "B08"
+    ],
+    "person_days": "4–7",
+    "owner_rule": "每批集成Owner唯一；同文件按卡顺序串行；不同文件且合同已冻结可并行",
+    "entry": "前驱证据通过，源revision与schema合同冻结",
+    "exit": "本批功能/故障回归+真实Android构建检查点；未满足不填DONE"
+  },
+  {
+    "batch": "B10",
+    "title": "存储导出及迁移",
+    "cards": [
+      "FR-B10-01",
+      "FR-B10-02",
+      "FR-B10-03",
+      "FR-B10-04",
+      "FR-B10-05"
+    ],
+    "predecessors": [
+      "B00",
+      "B02",
+      "B03"
+    ],
+    "person_days": "5–9",
+    "owner_rule": "每批集成Owner唯一；同文件按卡顺序串行；不同文件且合同已冻结可并行",
+    "entry": "前驱证据通过，源revision与schema合同冻结",
+    "exit": "本批功能/故障回归+真实Android构建检查点；未满足不填DONE"
+  },
+  {
+    "batch": "B11",
+    "title": "集成真机自然验收",
+    "cards": [
+      "FR-B11-01",
+      "FR-B11-02",
+      "FR-B11-03",
+      "FR-B11-04"
+    ],
+    "predecessors": [
+      "B05",
+      "B09",
+      "B10"
+    ],
+    "person_days": "9–16",
+    "owner_rule": "每批集成Owner唯一；同文件按卡顺序串行；不同文件且合同已冻结可并行",
+    "entry": "前驱证据通过，源revision与schema合同冻结",
+    "exit": "本批功能/故障回归+真实Android构建检查点；未满足不填DONE"
+  }
+]

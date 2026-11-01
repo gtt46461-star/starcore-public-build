@@ -1,0 +1,27 @@
+{
+  "baseline": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+  "rules": [
+    "retain original unique writer/REAL/settlement and current thresholds",
+    "no posthoc freeze, duplicate settlement or alpha reset",
+    "models/optimizer/cursor/RNG restored together",
+    "keep 29 original charts; add 18 research charts in three groups",
+    "same existing R27 signing identity and increasing version for device upgrade",
+    "source input/PIT and formal role isolation",
+    "no device data deletion"
+  ],
+  "baselineFileHashes": {
+    "app/src/main/java/com/ethk3/novaonepro/DbStore.java": "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",
+    "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java": "160d2203723ad2bb12c0165b98524bf400b2566861a0e86a978810fb6e4837d0",
+    "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java": "38eb92ae71a0e09ee4bb7b3252a5c0ec2b51022e4dc5e5b18d8c0330ac85ecb0",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterSU2.java": "e3625ddf0815343d54ac19daba96a78f9ded2a7d837f05ece321fb60f447a0a9",
+    "app/src/main/java/com/ethk3/novaonepro/AppConfig.java": "76600928570ce1dfb2425304202af3ae7b6d6045f4519c3b0ef0df76472b31e9"
+  },
+  "plannedOwnerChangesRequireRegisteredScope": true,
+  "regressionEntryPoints": [
+    "R27QualityTest.h15MainlineRedLines",
+    "tools/r30/ci_build.sh",
+    "tools/r30/run_android_regression.sh",
+    "tools/r30/run_fault_matrix.sh"
+  ],
+  "repairRuntimeAcceptance": "PENDING"
+}

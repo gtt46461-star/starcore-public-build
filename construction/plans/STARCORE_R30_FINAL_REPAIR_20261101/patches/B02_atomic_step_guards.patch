@@ -1,0 +1,82 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java
+@@ -33,8 +33,14 @@
+     public static final class Batch {
+         public final List<Op> ops = new ArrayList<>(); public DatabaseCoordinator.WriteCallable<Integer> before, after;
+         public Batch add(String sql, Object... args) { ops.add(new Op(sql, args)); return this; }
+         public boolean isEmpty() { return ops.isEmpty() && before == null && after == null; }
++        /** Compose preconditions; a later helper must not overwrite the original fence. */
++        public Batch guardBefore(DatabaseCoordinator.WriteCallable<Integer> guard) {
++            if(guard==null)throw new IllegalArgumentException("R30_BATCH_GUARD_REQUIRED");
++            final DatabaseCoordinator.WriteCallable<Integer> prior=before;
++            before=db->{if(prior!=null){Integer r=prior.call(db);if(r==null||r!=0)return r;}return guard.call(db);};return this;
++        }
+     }
+ 
+     public void setNextDeadline(long wallMs) { nextDeadline = wallMs; }
+     public long nextDeadline() { return nextDeadline; }
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/CommitEnvelopeR30R1.java
+@@ -0,0 +1,23 @@
++package com.ethk3.novaonepro.strategyv2;
++
++/** One prepared logical step. Caller publishes only the state returned after atomic commit success. */
++public final class CommitEnvelopeR30R1 {
++    public enum Outcome { COMMITTED, RETRY_LATER, SOURCE_CONFLICT }
++    public interface AtomicSink { Outcome commit(String stepId,long fence,long revision,byte[] immutableNextState); }
++    private final String id;private final long fence,revision;private final byte[] next;
++    private final java.util.concurrent.atomic.AtomicInteger state=new java.util.concurrent.atomic.AtomicInteger();
++    public CommitEnvelopeR30R1(String id,long fence,long revision,byte[] next){
++        this.id=ResearchContractR30R1.sha(id);if(fence<0||revision<0||next==null)throw new IllegalArgumentException("STEP_FENCE");
++        this.fence=fence;this.revision=revision;this.next=next.clone();
++    }
++    public Outcome attempt(AtomicSink sink){
++        int current=state.get();if(current==2)return Outcome.COMMITTED;if(current==3)return Outcome.SOURCE_CONFLICT;
++        if(!state.compareAndSet(0,1))return Outcome.RETRY_LATER;
++        try {
++            Outcome result=java.util.Objects.requireNonNull(sink.commit(id,fence,revision,next.clone()));
++            state.set(result==Outcome.COMMITTED?2:result==Outcome.SOURCE_CONFLICT?3:0);return result;
++        } catch(RuntimeException|Error failure){state.set(0);throw failure;}
++    }
++    public byte[] publishedState(){if(state.get()!=2)throw new IllegalStateException("UNCOMMITTED_STATE");return next.clone();}
++    public String id(){return id;}
++}
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContractR30R1.java
+@@ -0,0 +1,36 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import java.nio.charset.StandardCharsets;
++import java.security.MessageDigest;
++import java.util.Objects;
++
++/** Immutable research identity. This object can never grant REAL authority. */
++public final class ResearchContractR30R1 {
++    public enum Role { TRAIN, SELECT, ONLINE_RESEARCH, CONFIRM, FUTURE, SYNTHETIC }
++    public final String datasetHash, policyHash, abi, sourceCommit, inputHash;
++    public final Role role;
++    public final long fromOrdinal, throughOrdinal, availableAt, sourceRevision;
++
++    public ResearchContractR30R1(String dataset, String policy, String abi, String source,
++            String input, Role role, long from, long through, long available, long revision) {
++        this.datasetHash=sha(dataset); this.policyHash=sha(policy); this.inputHash=sha(input);
++        if(abi==null||abi.isEmpty()||source==null||!source.matches("[0-9a-f]{40}"))
++            throw new IllegalArgumentException("RESEARCH_IDENTITY");
++        if(from<0||through<from||available<0||revision<0)throw new IllegalArgumentException("RESEARCH_BOUNDARY");
++        this.abi=abi;sourceCommit=source;this.role=Objects.requireNonNull(role);
++        fromOrdinal=from;throughOrdinal=through;availableAt=available;sourceRevision=revision;
++    }
++    public void requireAdvice(long targetOrdinal,long preparedAt) {
++        if(role!=Role.TRAIN&&role!=Role.SELECT&&role!=Role.ONLINE_RESEARCH)
++            throw new IllegalStateException("FORMAL_OR_SYNTHETIC_LABELS_CANNOT_DRIVE_RESEARCH_ADVICE");
++        if(throughOrdinal>=targetOrdinal||availableAt>preparedAt)
++            throw new IllegalStateException("RESEARCH_ADVICE_PIT");
++    }
++    public String key(String consumerVersion) {
++        if(consumerVersion==null||consumerVersion.isEmpty())throw new IllegalArgumentException("CONSUMER_VERSION");
++        return hash(datasetHash+'|'+policyHash+'|'+abi+'|'+sourceCommit+'|'+inputHash+'|'+role.name()
++                +'|'+fromOrdinal+'|'+throughOrdinal+'|'+availableAt+'|'+sourceRevision+'|'+consumerVersion);
++    }
++    public static String sha(String s){if(s==null||!s.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("SHA256_REQUIRED");return s;}
++    public static String hash(String s){try{byte[] b=MessageDigest.getInstance("SHA-256").digest(s.getBytes(StandardCharsets.UTF_8));StringBuilder x=new StringBuilder();for(byte v:b)x.append(String.format(java.util.Locale.ROOT,"%02x",v&255));return x.toString();}catch(java.security.NoSuchAlgorithmException e){throw new AssertionError(e);}}
++}

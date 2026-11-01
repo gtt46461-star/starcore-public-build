@@ -1,0 +1,72 @@
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/DirectedResearchPolicyR30R1.java
+@@ -0,0 +1,36 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import java.util.*;
++
++/** Exact counterfactual candidate. It must be measured before any prescription may materialize it. */
++public final class DirectedResearchPolicyR30R1 {
++    private DirectedResearchPolicyR30R1(){}
++    public static PolicySpecR27 withoutChild(PolicySpecR27 original,String path,int generation){
++        if(path==null||!path.matches("root(?:/[0-9]+)+"))throw new IllegalArgumentException("PRUNING_PATH_REQUIRES_CHILD");
++        PolicySpecR27 p=PolicySpecR27.parse(original.fullJson());String[] parts=path.split("/");
++        PolicyAstR27.Node parent=p.ast;for(int i=1;i<parts.length-1;i++){int slot=Integer.parseInt(parts[i]);if(slot>=parent.kids.length)throw new IllegalArgumentException("PRUNING_PATH");parent=parent.kids[slot];}
++        int slot=Integer.parseInt(parts[parts.length-1]);
++        if(parent.kids.length!=2||slot>1||!(parent.op.equals("add")||parent.op.equals("mix")||parent.op.equals("sub")))
++            throw new IllegalArgumentException("PRUNING_REQUIRES_DECLARED_ADDITIVE_COUNTERFACTUAL");
++        PolicyAstR27.Node replacement=parent.kids[1-slot];
++        if(parent.op.equals("sub")&&slot==0)replacement=PolicyAstR27.op("neg",replacement);
++        List<PolicyAstR27.Node> nodes=PolicyAstR27.nodes(p.ast);int parentIndex=-1;
++        for(int i=0;i<nodes.size();i++)if(nodes.get(i)==parent){parentIndex=i;break;}
++        if(parentIndex<0)throw new IllegalStateException("PRUNING_PARENT_NOT_FOUND");
++        PolicyAstR27.Node ast=PolicyAstR27.replace(p.ast,parentIndex,replacement);
++        PolicyAstR27.type(ast);String bad=PolicyAstR27.rangeAndCausality(ast);if(bad!=null)throw new IllegalArgumentException(bad);
++        PolicySpecR27 result=p.withAst(ast,new PolicySpecR27.Meta(p.meta==null?"I09":p.meta.idea,"MEASURED_PRUNE",Collections.singletonList(p.policyHash()),generation,0,"COUNTERFACTUAL_PREPARED:"+path));
++        if(result.policyHash().equals(p.policyHash()))throw new IllegalArgumentException("PRUNING_NO_CHANGE");return result;
++    }
++    public static PolicySpecR27 materialize(ResearchAdviceR30R1 advice,ResearchContractR30R1 source,
++            PolicySpecR27 original,String measuredCounterfactualJson,String measuredCounterfactualHash,int generation,long target,long preparedAt){
++        source.requireAdvice(target,preparedAt);
++        if(advice.action!=ResearchAdviceR30R1.Action.PRUNE_COMPONENT||!advice.parentPolicy.equals(original.policyHash())
++                ||!advice.evidenceKey.equals(source.key("PAIRED_COMPONENT_ADVICE_V1|"+advice.analysisContractHash)))throw new IllegalStateException("PRUNING_EVIDENCE_IDENTITY");
++        PolicySpecR27 child=PolicySpecR27.parse(measuredCounterfactualJson);
++        PolicySpecR27 expected=withoutChild(original,advice.componentPath,generation);
++        if(!child.policyHash().equals(ResearchContractR30R1.sha(measuredCounterfactualHash))||!child.policyHash().equals(expected.policyHash()))
++            throw new IllegalStateException("UNMEASURED_COUNTERFACTUAL_SUBSTITUTION");
++        return child.withMeta(new PolicySpecR27.Meta(child.meta==null?"I09":child.meta.idea,"MEASURED_PRUNE",Collections.singletonList(original.policyHash()),generation,0,"PROPOSAL:"+advice.proposalId+";"+advice.reason));
++    }
++}
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedComponentStudyR30R1.java
+@@ -0,0 +1,30 @@
++package com.ethk3.novaonepro.strategyv2;
++
++/** Complete H_SELECT analytical computation. Scheduling and the existing atomic writer remain external owners. */
++public final class PairedComponentStudyR30R1 {
++    public static final class Product {
++        public final PolicySpecR27 counterfactual;public final ResearchGainR30R1.Estimate gain;public final ResearchAdviceR30R1 advice;
++        Product(PolicySpecR27 p,ResearchGainR30R1.Estimate e,ResearchAdviceR30R1 a){counterfactual=p;gain=e;advice=a;}
++    }
++    private PairedComponentStudyR30R1(){}
++    public static Product evaluate(ResearchContractR30R1 contract,PolicySpecR27 parent,String path,
++            EvalContextR27 context,double frozenTemperature,int generation,int blockPeriods,long target,long preparedAt){
++        contract.requireAdvice(target,preparedAt);
++        if(contract.role!=ResearchContractR30R1.Role.SELECT||!contract.policyHash.equals(parent.policyHash())||!contract.datasetHash.equals(context.data.datasetHash))throw new IllegalArgumentException("STUDY_ROLE_OR_DATASET");
++        int from=context.split.selectFrom,to=context.split.selectTo;
++        if(from>=to||contract.fromOrdinal!=context.data.ordinals[from]||contract.throughOrdinal!=context.data.ordinals[to-1])throw new IllegalArgumentException("STUDY_REGISTERED_WINDOW");
++        PolicySpecR27 without=DirectedResearchPolicyR30R1.withoutChild(parent,path,generation);
++        ReplayEvaluatorR27.Trace with=ReplayEvaluatorR27.selectTraceWithProbabilities(parent,context,frozenTemperature);
++        ReplayEvaluatorR27.Trace removed=ReplayEvaluatorR27.selectTraceWithProbabilities(without,context,frozenTemperature);
++        ResearchGainR30R1 gain=new ResearchGainR30R1(contract.fromOrdinal,contract.throughOrdinal,blockPeriods,4,200);
++        // Multiclass Brier pairs compare the same outcome even when the two policies choose different K3 sets.
++        for(int t=from;t<to;t++){
++            if(with.skipped[t]||removed.skipped[t]||with.probabilityRows[t]==null||removed.probabilityRows[t]==null)continue;
++            double a=0,b=0;int actual=context.data.draws[t][parent.position-1]-1;
++            for(int k=0;k<10;k++){double y=k==actual?1:0;a+=Math.pow(with.probabilityRows[t][k]-y,2);b+=Math.pow(removed.probabilityRows[t][k]-y,2);}
++            // Divide by two: normalized 10-class Brier is bounded in [0,1]. Candidate=with component.
++            gain.add(context.data.ordinals[t],b/2,a/2);
++        }
++        ResearchGainR30R1.Estimate e=gain.estimate();return new Product(without,e,ResearchAdviceR30R1.component(contract,path,e,target,preparedAt));
++    }
++}

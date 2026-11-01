@@ -1,0 +1,785 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRulesR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRulesR30.java
+@@ -23,9 +23,9 @@
+         return new Rule(id,metric,field,source,card,file,method,mode,problem,repair,collect,verification);
+     }
+     public static List<Rule> rules() {
+         return Collections.unmodifiableList(Arrays.asList(
+-            r("WRITER_HARD","M11","writerHardViolations","r30_writer_hold.over_hard","R30-B01-04",
++            r("WRITER_HARD","M07","writerHardViolations","r30_writer_hold.over_hard","R30-B01-04",
+               "strategyv2/ResearchWriteQueueR27","submit",Mode.VIOLATION_COUNT,
+               "写锁窗口存在硬超限；按窗口的 operation 定位实际写者",
+               "读取 writerWindows.operation/critical，按 B01-04 的幂等分片模板拆对应操作；计算移到事务外，保留写队列与实时优先级",
+               "在目标设备运行实际写者并收集 WriterHoldLedgerR30.record 的窗口、operation、count 和 hold/wait 分位数",
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java
+@@ -763,12 +763,13 @@
+         Snapshot S = D.S; Map<String, ProbeSum> PR = D.probes; Map<String, TrackSum> TR = D.tracks; String NA = T.get("NA");
+         Set<String> codes = new HashSet<>(); for (Finding f : D.findings) codes.add(f.code);
+         List<Map<String, String>> rows = new ArrayList<>();
+         java.util.function.Function<String, String> pproj = fam -> { ProbeSum p = PR.get(fam); return p != null && p.a15 > 0 ? fill("C.proj.rate", "proj", projText(p.h15, p.a15)) : T.get("C.proj.same"); };
+-        if (!PR.isEmpty()) {
+-            String bg = bestGainProbe(PR);
++        String bg = bestGainProbe(PR);
++        if (bg != null) {
+             String st = codes.contains("S1") ? "neck" : !D.informative.isEmpty() ? "ok" : "watch";
+-            row(rows, "C.probe", st, fill("C.probe.ev", "fam", bg, "gain", snum(PR.get(bg).gain, 3), "lo", snum(PR.get(bg).lo, 3)),
++            ProbeSum measured = PR.get(bg);
++            row(rows, "C.probe", st, fill("C.probe.ev", "fam", bg, "gain", snum(measured.gain, 3), "lo", snum(measured.lo, 3)),
+                 st.equals("neck") ? T.get("C.probe.next.neck") : T.get("C.probe.next.ok"), pproj.apply(bg), T.get("C.verify.probe"));
+         } else row(rows, "C.probe", "na", NA, NA, NA, NA);
+         if (S.contmat != null) {
+             boolean ok = S.contmat[1] > 0;
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java
+@@ -74,17 +74,29 @@
+     }
+ 
+     /** The report export (read-only snapshot connection): {UPGRADE_DIAGNOSIS.md, UPGRADE_DIAGNOSIS.json}. */
+     public static String[] report(SQLiteDatabase db) {
++        String snap=null, stage="READ_SNAPSHOT";
+         try {
+-            String snap = null;
+-            try (Cursor c = db.rawQuery("SELECT snapshot FROM su2_diag_snapshot ORDER BY report_sequence DESC LIMIT 1", null)) { if (c.moveToFirst()) snap = c.getString(0); }
+-            if (snap == null) return UpgradeDiagnosisSU2.unavailableR30("INSUFFICIENT","su2_diag_snapshot 可读但没有已存快照；原信息探针尚未产生诊断");
+-            UpgradeDiagnosisSU2.Diagnosis D = UpgradeDiagnosisSU2.diagnose(UpgradeDiagnosisSU2.parse(snap));
+-            UpgradeDiagnosisSU2.Ledger L = loadLedger(db);
+-            return new String[]{UpgradeDiagnosisSU2.renderR30(D, L), UpgradeDiagnosisSU2.toJsonR30(D, L)};
+-        } catch (RuntimeException failure) {
+-            return UpgradeDiagnosisSU2.unavailableR30("UNKNOWN","诊断来源读取失败："+failure.getClass().getSimpleName());
++            try (Cursor c=db.rawQuery("SELECT snapshot FROM su2_diag_snapshot ORDER BY report_sequence DESC LIMIT 1",null)) { if(c.moveToFirst())snap=c.getString(0); }
++            if(snap==null)return UpgradeDiagnosisSU2.unavailableR30("INSUFFICIENT","su2_diag_snapshot 可读但没有已存快照；原信息探针尚未产生诊断");
++            stage="PARSE_SNAPSHOT";UpgradeDiagnosisSU2.Snapshot parsed=UpgradeDiagnosisSU2.parse(snap);
++            stage="DIAGNOSE";UpgradeDiagnosisSU2.Diagnosis diagnosis=UpgradeDiagnosisSU2.diagnose(parsed);
++            stage="READ_LEDGER";UpgradeDiagnosisSU2.Ledger ledger=loadLedger(db);
++            stage="RENDER_MARKDOWN";String md=UpgradeDiagnosisSU2.renderR30(diagnosis,ledger);
++            stage="RENDER_JSON";return new String[]{md,UpgradeDiagnosisSU2.toJsonR30(diagnosis,ledger)};
++        } catch(RuntimeException failure) {
++            String fingerprint=failure.getClass().getName();
++            List<Object> chain=new ArrayList<>();
++            for(StackTraceElement frame:failure.getStackTrace()) {
++                if(frame.getClassName().startsWith("com.ethk3.novaonepro."))chain.add(frame.toString());
++                if(chain.size()==12)break;
++            }
++            String reason="诊断来源读取失败："+fingerprint+"；stage="+stage+"；"+(chain.isEmpty()?"NO_PRODUCT_FRAME":chain.get(0));
++            String[] result=UpgradeDiagnosisSU2.unavailableR30("UNKNOWN",reason);
++            @SuppressWarnings("unchecked") Map<String,Object> json=new LinkedHashMap<>((Map<String,Object>)JsonR27.parse(result[1]));
++            json.put("failureStage",stage);json.put("errorChain",chain);json.put("snapshotHash",snap==null?null:HashingSU1.text(snap));
++            result[1]=JsonR27.write(json)+"\n";return result;
+         }
+     }
+ 
+     // ------------------------------------------------------------------------------------------------ sufficient statistics
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java
+@@ -59,9 +59,9 @@
+     private static final ConcurrentHashMap<String, Stat> STATS = new ConcurrentHashMap<>();
+     private static final AtomicLong WINDOW_START_MS = new AtomicLong(System.currentTimeMillis());
+ 
+     /** 调用方：DatabaseCoordinator.runWrite 的 finally（已释放写锁之后）。任何异常都被吞掉，诊断不能改变业务结果。 */
+-    public static void record(String operation, boolean critical, long waitMs, long holdMs, boolean failed) {
++    public static synchronized void record(String operation, boolean critical, long waitMs, long holdMs, boolean failed) {
+         try {
+             String key = normalize(operation, critical);
+             Stat s = STATS.get(key);
+             if (s == null) {
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java
+@@ -20,30 +20,32 @@
+     public static final String INSERT = "INSERT OR REPLACE INTO r30_writer_hold(window_start,window_end,operation,critical,count,hold_p50,hold_p95,hold_p99,"
+             + "hold_max,wait_p95,wait_max,over_budget,over_hard,failures) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+     public static final String PRUNE = "DELETE FROM r30_writer_hold WHERE window_end<?";
+     private static volatile long lastFlush;
++    private static final java.util.concurrent.atomic.AtomicBoolean FLUSHING=new java.util.concurrent.atomic.AtomicBoolean();
++    private static volatile Pending pending;
++    private static final class Pending {
++        final long start,end;final List<WriterHoldLedgerR30.Stat> rows;
++        Pending(long start,long end,List<WriterHoldLedgerR30.Stat> rows){this.start=start;this.end=end;this.rows=rows;}
++    }
+     private HoldLedgerFlushR30() {}
+ 
+     public static void maybeFlush(DbStore store) {
+-        long now = System.currentTimeMillis();
+-        if (now - lastFlush < PERIOD_MS) return;
+-        lastFlush = now;
+-        final long start = WriterHoldLedgerR30.windowStartMs();
+-        final List<WriterHoldLedgerR30.Stat> closed = WriterHoldLedgerR30.rotate();
+-        if (closed.isEmpty()) return;
++        long now=System.currentTimeMillis();
++        if(now-lastFlush<PERIOD_MS||!FLUSHING.compareAndSet(false,true))return;
+         try {
+-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R30_WRITER_HOLD_FLUSH", db -> {
++            if(now-lastFlush<PERIOD_MS)return;
++            lastFlush=now;
++            if(pending==null){long start=WriterHoldLedgerR30.windowStartMs();List<WriterHoldLedgerR30.Stat> rows=WriterHoldLedgerR30.rotate();if(rows.isEmpty())return;pending=new Pending(start,now,rows);}
++            final Pending closed=pending;
++            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R30_WRITER_HOLD_FLUSH",db->{
+                 db.execSQL(DDL);
+-                for (WriterHoldLedgerR30.Stat s : closed) {
+-                    db.execSQL(INSERT, new Object[] {start, now, s.operation, s.critical ? 1 : 0, s.count(), nz(s.holdP(0.5)), nz(s.holdP(0.95)),
+-                            nz(s.holdP(0.99)), s.holdMax(), nz(s.waitP(0.95)), s.waitMax(), s.overBudget(), s.overHard(), s.failures()});
+-                }
+-                db.execSQL(PRUNE, new Object[] {now - RETAIN_MS});
+-                return 0;
++                for(WriterHoldLedgerR30.Stat s:closed.rows)db.execSQL(INSERT,new Object[]{closed.start,closed.end,s.operation,s.critical?1:0,s.count(),nz(s.holdP(0.5)),nz(s.holdP(0.95)),nz(s.holdP(0.99)),s.holdMax(),nz(s.waitP(0.95)),s.waitMax(),s.overBudget(),s.overHard(),s.failures()});
++                db.execSQL(PRUNE,new Object[]{closed.end-RETAIN_MS});return 0;
+             });
+-        } catch (RuntimeException busy) {
+-            android.util.Log.w("STARCORE_R30", "writer hold ledger deferred", busy);
+-        }
++            pending=null; // ONLY after a successful atomic write; retry keeps the same idempotent window key.
++        }catch(RuntimeException busy){android.util.Log.w("STARCORE_R30","writer hold ledger pending retained",busy);}
++        finally{FLUSHING.set(false);}
+     }
+ 
+     private static Long nz(long v) { return v < 0 ? null : v; }
+ 
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java
+@@ -33,8 +33,14 @@
+     public static final class Batch {
+         public final List<Op> ops = new ArrayList<>(); public DatabaseCoordinator.WriteCallable<Integer> before, after;
+         public Batch add(String sql, Object... args) { ops.add(new Op(sql, args)); return this; }
+         public boolean isEmpty() { return ops.isEmpty() && before == null && after == null; }
++        /** Compose preconditions; a later helper must not overwrite the original fence. */
++        public Batch guardBefore(DatabaseCoordinator.WriteCallable<Integer> guard) {
++            if(guard==null)throw new IllegalArgumentException("R30_BATCH_GUARD_REQUIRED");
++            final DatabaseCoordinator.WriteCallable<Integer> prior=before;
++            before=db->{if(prior!=null){Integer r=prior.call(db);if(r==null||r!=0)return r;}return guard.call(db);};return this;
++        }
+     }
+ 
+     public void setNextDeadline(long wallMs) { nextDeadline = wallMs; }
+     public long nextDeadline() { return nextDeadline; }
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/CommitEnvelopeR30R1.java
+@@ -0,0 +1,23 @@
++package com.ethk3.novaonepro.strategyv2;
++
++/** One prepared logical step. Caller publishes only the state returned after atomic commit success. */
++public final class CommitEnvelopeR30R1 {
++    public enum Outcome { COMMITTED, RETRY_LATER, SOURCE_CONFLICT }
++    public interface AtomicSink { Outcome commit(String stepId,long fence,long revision,byte[] immutableNextState); }
++    private final String id;private final long fence,revision;private final byte[] next;
++    private final java.util.concurrent.atomic.AtomicInteger state=new java.util.concurrent.atomic.AtomicInteger();
++    public CommitEnvelopeR30R1(String id,long fence,long revision,byte[] next){
++        this.id=ResearchContractR30R1.sha(id);if(fence<0||revision<0||next==null)throw new IllegalArgumentException("STEP_FENCE");
++        this.fence=fence;this.revision=revision;this.next=next.clone();
++    }
++    public Outcome attempt(AtomicSink sink){
++        int current=state.get();if(current==2)return Outcome.COMMITTED;if(current==3)return Outcome.SOURCE_CONFLICT;
++        if(!state.compareAndSet(0,1))return Outcome.RETRY_LATER;
++        try {
++            Outcome result=java.util.Objects.requireNonNull(sink.commit(id,fence,revision,next.clone()));
++            state.set(result==Outcome.COMMITTED?2:result==Outcome.SOURCE_CONFLICT?3:0);return result;
++        } catch(RuntimeException|Error failure){state.set(0);throw failure;}
++    }
++    public byte[] publishedState(){if(state.get()!=2)throw new IllegalStateException("UNCOMMITTED_STATE");return next.clone();}
++    public String id(){return id;}
++}
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContractR30R1.java
+@@ -0,0 +1,36 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import java.nio.charset.StandardCharsets;
++import java.security.MessageDigest;
++import java.util.Objects;
++
++/** Immutable research identity. This object can never grant REAL authority. */
++public final class ResearchContractR30R1 {
++    public enum Role { TRAIN, SELECT, ONLINE_RESEARCH, CONFIRM, FUTURE, SYNTHETIC }
++    public final String datasetHash, policyHash, abi, sourceCommit, inputHash;
++    public final Role role;
++    public final long fromOrdinal, throughOrdinal, availableAt, sourceRevision;
++
++    public ResearchContractR30R1(String dataset, String policy, String abi, String source,
++            String input, Role role, long from, long through, long available, long revision) {
++        this.datasetHash=sha(dataset); this.policyHash=sha(policy); this.inputHash=sha(input);
++        if(abi==null||abi.isEmpty()||source==null||!source.matches("[0-9a-f]{40}"))
++            throw new IllegalArgumentException("RESEARCH_IDENTITY");
++        if(from<0||through<from||available<0||revision<0)throw new IllegalArgumentException("RESEARCH_BOUNDARY");
++        this.abi=abi;sourceCommit=source;this.role=Objects.requireNonNull(role);
++        fromOrdinal=from;throughOrdinal=through;availableAt=available;sourceRevision=revision;
++    }
++    public void requireAdvice(long targetOrdinal,long preparedAt) {
++        if(role!=Role.TRAIN&&role!=Role.SELECT&&role!=Role.ONLINE_RESEARCH)
++            throw new IllegalStateException("FORMAL_OR_SYNTHETIC_LABELS_CANNOT_DRIVE_RESEARCH_ADVICE");
++        if(throughOrdinal>=targetOrdinal||availableAt>preparedAt)
++            throw new IllegalStateException("RESEARCH_ADVICE_PIT");
++    }
++    public String key(String consumerVersion) {
++        if(consumerVersion==null||consumerVersion.isEmpty())throw new IllegalArgumentException("CONSUMER_VERSION");
++        return hash(datasetHash+'|'+policyHash+'|'+abi+'|'+sourceCommit+'|'+inputHash+'|'+role.name()
++                +'|'+fromOrdinal+'|'+throughOrdinal+'|'+availableAt+'|'+sourceRevision+'|'+consumerVersion);
++    }
++    public static String sha(String s){if(s==null||!s.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("SHA256_REQUIRED");return s;}
++    public static String hash(String s){try{byte[] b=MessageDigest.getInstance("SHA-256").digest(s.getBytes(StandardCharsets.UTF_8));StringBuilder x=new StringBuilder();for(byte v:b)x.append(String.format(java.util.Locale.ROOT,"%02x",v&255));return x.toString();}catch(java.security.NoSuchAlgorithmException e){throw new AssertionError(e);}}
++}
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java
+@@ -72,8 +72,9 @@
+ 
+     public static void ensure(SQLiteDatabase db) {
+         if (!db.inTransaction()) throw new IllegalStateException("R27_WRITER_REQUIRED");
+         for (String sql : DDL) db.execSQL(sql);
++        for (String sql : ResearchSchemaR30R1.DDL) db.execSQL(sql);
+         ensureCertificateVersionR30(db);
+         for(String sql:DecisionExplanationStoreR30.DDL)db.execSQL(sql);
+         CertificateRevocationR30.ensure(db);
+         db.execSQL(HoldoutLedgerR27.CONFIRM_DDL); // R30-B03-03: durable reservation before confirmation reads
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java
+@@ -0,0 +1,19 @@
++package com.ethk3.novaonepro.strategyv2;
++
++/** Additive DDL only. Invoke from SchemaR27.ensure's existing writer, never from a report read. */
++public final class ResearchSchemaR30R1 {
++    private ResearchSchemaR30R1(){}
++    public static final int REVISION=1;
++    public static final String[] DDL={
++      "CREATE TABLE IF NOT EXISTS r30r1_analysis_run(run_id TEXT PRIMARY KEY,dataset_hash TEXT NOT NULL,policy_hash TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN ('TRAIN','SELECT','ONLINE_RESEARCH','CONFIRM','FUTURE','SYNTHETIC')),source_commit TEXT NOT NULL,source_revision INTEGER NOT NULL,from_ordinal INTEGER NOT NULL,through_ordinal INTEGER NOT NULL,contract_hash TEXT NOT NULL,status TEXT NOT NULL,summary_json TEXT NOT NULL,recorded_at INTEGER NOT NULL,CHECK(from_ordinal<=through_ordinal))",
++      "CREATE TABLE IF NOT EXISTS r30r1_research_measure(run_id TEXT NOT NULL,measure_key TEXT NOT NULL,kind TEXT NOT NULL,parent_hash TEXT NOT NULL,block_id TEXT NOT NULL,from_ordinal INTEGER NOT NULL,to_ordinal INTEGER NOT NULL,evaluated_calendar_issues INTEGER NOT NULL CHECK(evaluated_calendar_issues>=0),mean_gain REAL,lower95 REAL,upper95 REAL,payload_json TEXT NOT NULL,PRIMARY KEY(run_id,measure_key),FOREIGN KEY(run_id) REFERENCES r30r1_analysis_run(run_id),CHECK(from_ordinal<=to_ordinal),CHECK(lower95 IS NULL OR upper95 IS NULL OR lower95<=upper95))",
++      "CREATE TABLE IF NOT EXISTS r30r1_proposal(proposal_id TEXT PRIMARY KEY,run_id TEXT NOT NULL,parent_hash TEXT NOT NULL,kind TEXT NOT NULL,payload_json TEXT NOT NULL,payload_hash TEXT NOT NULL,state TEXT NOT NULL CHECK(state IN ('READY','CONSUMED','REJECTED','STALE')),reason TEXT NOT NULL,created_at INTEGER NOT NULL,FOREIGN KEY(run_id) REFERENCES r30r1_analysis_run(run_id))",
++      "CREATE TABLE IF NOT EXISTS r30r1_consume(proposal_id TEXT PRIMARY KEY,child_policy_hash TEXT NOT NULL,source_generation INTEGER NOT NULL,consumer_version TEXT NOT NULL,receipt_hash TEXT NOT NULL,consumed_at INTEGER NOT NULL,FOREIGN KEY(proposal_id) REFERENCES r30r1_proposal(proposal_id))",
++      "CREATE TABLE IF NOT EXISTS r30r1_chart_cache(view_id TEXT NOT NULL,frame_id TEXT NOT NULL,run_id TEXT NOT NULL,payload_json TEXT NOT NULL,payload_hash TEXT NOT NULL,updated_at INTEGER NOT NULL,PRIMARY KEY(view_id,frame_id),FOREIGN KEY(run_id) REFERENCES r30r1_analysis_run(run_id))",
++      "CREATE TABLE IF NOT EXISTS r30r1_task_progress(task_id TEXT PRIMARY KEY,owner_version TEXT NOT NULL,work_unit TEXT NOT NULL,work_cursor INTEGER NOT NULL,known_latest INTEGER NOT NULL,pending INTEGER,oldest_pending_ordinal INTEGER,last_commit_clock_ordinal INTEGER,completed_input_ordinal INTEGER,fence INTEGER NOT NULL,session_id TEXT NOT NULL,updated_at INTEGER NOT NULL,CHECK(work_cursor>=0 AND known_latest>=work_cursor),CHECK(pending IS NULL OR pending>=0))",
++      "CREATE INDEX IF NOT EXISTS r30r1_proposal_ready ON r30r1_proposal(state,created_at,proposal_id)",
++      "CREATE INDEX IF NOT EXISTS r30r1_measure_parent ON r30r1_research_measure(parent_hash,kind,from_ordinal)",
++      "CREATE INDEX IF NOT EXISTS r30r1_chart_latest ON r30r1_chart_cache(view_id,updated_at DESC)",
++      "CREATE TRIGGER IF NOT EXISTS r30r1_consume_immutable BEFORE UPDATE ON r30r1_consume BEGIN SELECT RAISE(ABORT,'RESEARCH_CONSUMPTION_IMMUTABLE'); END"
++    };
++}
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskProgressR30R1.java
+@@ -0,0 +1,21 @@
++package com.ethk3.novaonepro.strategyv2;
++
++/** Work cursor, source watermark and commit clock are different units. */
++public final class TaskProgressR30R1 {
++    public enum Unit { ISSUE, POSITION_SAMPLE, GENERATION, PHASE, POLICY, TIME_TICK }
++    public enum State { UNKNOWN, BLOCKED_DEPENDENCY, IDLE_WAITING_INPUT, RUNNING, BACKLOG, STALLED }
++    public final Unit unit;public final long cursor,latest,pending,oldestPendingOrdinal,commitClockOrdinal;
++    public TaskProgressR30R1(Unit unit,long cursor,long latest,long pending,long oldest,long committedClock){
++        this.unit=java.util.Objects.requireNonNull(unit);this.cursor=cursor;this.latest=latest;this.pending=pending;oldestPendingOrdinal=oldest;commitClockOrdinal=committedClock;
++        if(cursor<0||latest<cursor||pending<0||oldest< -1||committedClock< -1)throw new IllegalArgumentException("TASK_PROGRESS_UNITS");
++        if(pending==0&&oldest!=-1)throw new IllegalArgumentException("TASK_EMPTY_HAS_OLDEST");
++    }
++    public State state(long observedCalendarOrdinal,boolean dependency,boolean running){
++        if(dependency)return State.BLOCKED_DEPENDENCY;
++        if(pending==0)return State.IDLE_WAITING_INPUT;
++        if(commitClockOrdinal<0||observedCalendarOrdinal<commitClockOrdinal)return State.UNKNOWN;
++        if(observedCalendarOrdinal-commitClockOrdinal>=5)return State.STALLED;
++        return running?State.RUNNING:State.BACKLOG;
++    }
++    public Long oldestLag(long observedCalendarOrdinal){return pending==0?null:oldestPendingOrdinal<0||observedCalendarOrdinal<oldestPendingOrdinal?null:observedCalendarOrdinal-oldestPendingOrdinal;}
++}
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java
+@@ -7,9 +7,9 @@
+  * Every phase, position cursor, shuffle, Adam, dropout RNG and replay sample survives a lossless checkpoint.
+  * The R29 codec is an inner optimizer container only; this outer ABI/owner never overwrites a legacy model. */
+ public final class AtomNetSessionR30 {
+     public static final String ABI = AtomNetR27.POSITION_INPUT_ABI, OWNER = "ATOMNET_TEN_R30";
+-    public interface Samples { AtomNetTrainerR27.Sample get(int sample); }
++    public interface Samples { AtomNetTrainerR27.Sample get(int sample); default void prefetch(int[] indices) { } }
+     public final String datasetHash;
+     public final int trainCount, selectCount, holdoutCount, input;
+     public final long observedThroughOrdinal;
+     public final String observedThrough;
+@@ -41,8 +41,9 @@
+         receipts.clear(); long start=System.nanoTime(); int n=0;
+         if ("TRAIN".equals(phase)) {
+             if(order==null) shuffle();
+             n=Math.min(AtomNetTrainerR27.BATCH,trainCount-offset);
++            samples.prefetch(Arrays.copyOfRange(order,offset,offset+n));
+             double[][] x=new double[n][];int[] y=new int[n],c=new int[n];
+             for(int k=0;k<n;k++){AtomNetTrainerR27.Sample s=samples.get(order[offset+k]);x[k]=s.x;y[k]=s.y;c[k]=s.cls;if(epoch==0)ftrl.update(Arrays.copyOf(s.x,7),s.y);}
+             int total=AtomNetTrainerR27.MAX_EPOCHS*((trainCount+63)/64);
+             lastLr=AtomNetTrainerR27.LR_MIN+.5*(AtomNetTrainerR27.LR0-AtomNetTrainerR27.LR_MIN)*(1+Math.cos(Math.PI*step/(double)total));
+@@ -51,9 +52,9 @@
+         } else if(phase.startsWith("EVAL_")) {
+             int from="EVAL_TRAIN".equals(phase)?0:trainCount;
+             int count="EVAL_TRAIN".equals(phase)?trainCount:selectCount;
+             if("EVAL_HOLD".equals(phase)||"EVAL_ONLINE_HOLD".equals(phase)){from+=selectCount;count=holdoutCount;}
+-            n=Math.min(64,count-offset);
++            n=Math.min(64,count-offset);int[] indices=new int[n];for(int k=0;k<n;k++)indices[k]=from+offset+k;samples.prefetch(indices);
+             for(int k=0;k<n;k++) {
+                 AtomNetTrainerR27.Sample s=samples.get(from+offset+k);double p=trainer.net.predict(s.x);
+                 if("EVAL_SELECT".equals(phase)&&epoch==0)ftrl.update(Arrays.copyOf(s.x,7),s.y);
+                 loss.add(-Math.log(Math.max(1e-12,s.y==1?p:1-p)));brier+=(p-s.y)*(p-s.y);
+@@ -61,9 +62,9 @@
+             offset+=n;
+             if(offset==count) finishEvaluation();
+         } else if("FILL".equals(phase)) {
+             int from=Math.max(0,trainCount+selectCount-AtomNetTrainerR27.REPLAY);
+-            n=Math.min(64,trainCount+selectCount-from-fillOffset);
++            n=Math.min(64,trainCount+selectCount-from-fillOffset);int[] indices=new int[n];for(int k=0;k<n;k++)indices[k]=from+fillOffset+k;samples.prefetch(indices);
+             for(int k=0;k<n;k++)trainer.remember(samples.get(from+fillOffset+k));fillOffset+=n;
+             if(from+fillOffset==trainCount+selectCount){phase="ONLINE";completeIssue=observedThrough;onlineObservedOrdinal=observedThroughOrdinal;}
+         }
+         trainingMs+=(System.nanoTime()-start)/1_000_000L;units++;return n;
+@@ -115,8 +116,15 @@
+         r.put("samplesPerSecond",materializeMs>0?materializedSamples*1000.0/materializeMs:null);
+         r.put("trainingSamplesProcessed",pretrainSamples);r.put("trainingMs",trainingMs);r.put("epoch",(long)epoch);r.put("phaseOffset",(long)offset);
+         r.put("onlineSamples",trainer.onlineSteps);r.put("completeIssue",completeIssue);r.put("partialIssue",partialIssue);r.put("nextPosition",(long)nextPosition);
+         r.put("trainedThrough",completeIssue.isEmpty()?observedThrough:trainedThrough());r.put("trainedThroughOrdinal",trainedThroughOrdinal());
++        int materializeEnd=com.ethk3.novaonepro.AtomReplayR27.MIN_ROWS+(trainCount+selectCount+holdoutCount)/10;
++        r.put("displayPhase",cachePeriod<materializeEnd?"MATERIALIZE":phase);
++        r.put("inputBoundary",observedThrough);r.put("legacyTrainedThroughIsInputBoundary",completeIssue.isEmpty());
++        r.put("weightsTrainedThrough",ready()?trainedThrough():null);
++        r.put("weightsTrainedThroughOrdinal",ready()?trainedThroughOrdinal():null);
++        r.put("publicationReady",ready());r.put("primaryTrainingSamplesCommitted",pretrainSamples+trainer.onlineSteps);
++        r.put("trainingCounterScope","PRETRAIN_VISITS_PLUS_NEW_ONLINE_POSITIONS;EXCLUDES_REPLAY_VISITS;NOT_INDEPENDENT_ISSUES");
+         r.put("status",materializedSamples>0?"MEASURED":"INSUFFICIENT");r.put("quality","NO_NATURAL_QUALITY_CLAIM");return r;
+     }
+     public byte[] encode(){
+         try{
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java
+@@ -39,16 +39,32 @@
+     public static void sample(ResearchWriteQueueR27.Batch b,String dataset,int index,String issue,int position,double[] x,int y,int cls){
+         b.add("INSERT OR IGNORE INTO r30_atomnet_sample VALUES(?,?,?,?,?,?,?)",dataset,index,issue,position,features(x),y,cls);
+     }
+     public static AtomNetSessionR30.Samples samples(SQLiteDatabase ro,AtomNetSessionR30 session){
+-        return index->{try(Cursor c=ro.rawQuery("SELECT issue,position,features,hit,number_class FROM r30_atomnet_sample WHERE dataset_hash=? AND sample_index=?",new String[]{session.datasetHash,Integer.toString(index)})){
+-            if(!c.moveToFirst())throw new IllegalStateException("R30_TRAIN_SAMPLE_MISSING:"+index);
+-            byte[] blob=c.getBlob(2);if(blob.length!=session.input*8)throw new IllegalStateException("R30_TRAIN_SAMPLE_SHAPE");double[] x=new double[session.input];
+-            try(DataInputStream in=new DataInputStream(new ByteArrayInputStream(blob))){for(int i=0;i<x.length;i++)x[i]=in.readDouble();}
+-            catch(IOException e){throw new IllegalStateException(e);}
+-            return new AtomNetTrainerR27.Sample(x,c.getInt(3),c.getInt(4),AtomNetSessionR30.eventKey(c.getString(0),c.getInt(1)));
+-        }};
++        return new AtomNetSessionR30.Samples(){
++            final Map<Integer,AtomNetTrainerR27.Sample> prepared=new HashMap<>();
++            public void prefetch(int[] indices){
++                if(indices.length>64)throw new IllegalArgumentException("R30_SAMPLE_PREFETCH_BOUND");
++                prepared.clear();if(indices.length==0)return;
++                LinkedHashSet<Integer> unique=new LinkedHashSet<>();for(int i:indices){if(i<0)throw new IllegalArgumentException("R30_SAMPLE_INDEX");unique.add(i);}
++                StringBuilder sql=new StringBuilder("SELECT sample_index,issue,position,features,hit,number_class FROM r30_atomnet_sample WHERE dataset_hash=? AND sample_index IN (");
++                String[] args=new String[unique.size()+1];args[0]=session.datasetHash;int at=1;
++                for(int i:unique){if(at>1)sql.append(',');sql.append('?');args[at++]=Integer.toString(i);}sql.append(')');
++                try(Cursor c=ro.rawQuery(sql.toString(),args)){while(c.moveToNext())prepared.put(c.getInt(0),decode(c));}
++                if(prepared.size()!=unique.size())throw new IllegalStateException("R30_TRAIN_SAMPLE_MISSING_IN_PREFETCH");
++            }
++            AtomNetTrainerR27.Sample decode(Cursor c){
++                byte[] blob=c.getBlob(3);if(blob.length!=session.input*8)throw new IllegalStateException("R30_TRAIN_SAMPLE_SHAPE");
++                double[] x=new double[session.input];try(DataInputStream in=new DataInputStream(new ByteArrayInputStream(blob))){for(int i=0;i<x.length;i++){x[i]=in.readDouble();if(!Double.isFinite(x[i]))throw new IllegalStateException("R30_TRAIN_SAMPLE_NONFINITE");}}
++                catch(IOException e){throw new IllegalStateException(e);}
++                return new AtomNetTrainerR27.Sample(x,c.getInt(4),c.getInt(5),AtomNetSessionR30.eventKey(c.getString(1),c.getInt(2)));
++            }
++            public AtomNetTrainerR27.Sample get(int index){
++                AtomNetTrainerR27.Sample s=prepared.get(index);if(s==null){prefetch(new int[]{index});s=prepared.get(index);}return s;
++            }
++        };
+     }
++
+     public static AtomNetSessionR30 restore(SQLiteDatabase ro){
+         try(Cursor c=ro.rawQuery("SELECT feature_abi,state_hash,artifact,dataset_hash,trained_through FROM r29_model_checkpoint WHERE owner=?",new String[]{AtomNetSessionR30.OWNER})){
+             if(!c.moveToFirst())return null;if(!AtomNetSessionR30.ABI.equals(c.getString(0)))throw new IllegalStateException("R30_TRAIN_FEATURE_ABI");
+             AtomNetSessionR30 state=AtomNetSessionR30.decode(c.getBlob(2),c.getString(1));
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ConfirmationViewR30R1.java
+@@ -0,0 +1,12 @@
++package com.ethk3.novaonepro.strategyv2;
++
++/** verified=false is not necessarily a malfunction: a completed negative control comparison is valid evidence. */
++public final class ConfirmationViewR30R1 {
++    private ConfirmationViewR30R1(){}
++    public static String state(String taskState,String resultStatus,boolean verified,long registeredAt){
++        if(!"DONE".equals(taskState))return "PENDING_COMPUTATION";
++        if(!"COMPLETED".equals(resultStatus))return "COMPLETED_WITH_INSUFFICIENT_EVIDENCE";
++        if(!verified)return "COMPLETED_NO_VERIFIED_IMPROVEMENT";
++        return registeredAt>0?"VERIFIED_AND_REGISTERED":"VERIFIED_WAITING_REGISTRATION";
++    }
++}
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java
+@@ -107,9 +107,9 @@
+     static void rowsets(Query q){
+         q.rows("qualification","r27_eprocess",new String[]{"policy_hash","global_index","n","acts","hits","last_ordinal","state"},null,32,null,256);
+         q.rows("certificates","r27_certificate",new String[]{"policy_hash","status","gate_version","evidence_digest","issued_at","expires_at"},null,32,null,256);
+         q.rows("evolution","r27_generation",new String[]{"generation","loop","dataset_hash","champion_hash","births","rejected","no_op","duplicates","survivors","paired_lcb","verified","detail_json","finished_at"},q.has("r27_generation","generation")?"generation DESC":null,20,null,65536);
+-        q.rows("confirmation","r30_frozen_confirm",new String[]{"task_key","policy_hash","state","verified","registration_state","registered_at"},null,20,null,256);
++        q.rows("confirmation","r30_frozen_confirm",new String[]{"task_key","policy_hash","state","verified","registration_state","registered_at","result_json"},null,20,null,65536);
+         q.rows("writerWindows","r30_writer_hold",new String[]{"window_start","operation","critical","count","hold_p95","hold_max","wait_p95","over_hard"},q.has("r30_writer_hold","window_start")?"window_start DESC":null,40,null,256);
+         q.rows("timeline","r30_issue_timeline",new String[]{"issue","boot_id","wall_source_published","wall_first_observed","wall_validated","wall_draw_committed","wall_settled","wall_next_requested","wall_next_prepared","wall_next_frozen","wall_next_deadline","mono_first_observed","mono_validated","mono_draw_committed","mono_settled","mono_next_requested","mono_next_prepared","mono_next_frozen","outcome","updated_at"},null,40,null,256);
+         q.rows("tasks","r26_task",new String[]{"task_id","lane","status","blocked_reason","wait_kind","wait_detail","pending","last_committed_seq","cursor","steps","last_cpu_ms"},null,100,null,512);
+         q.rows("qualificationConflicts","r29_qual_conflict",new String[]{"experiment_id","target_ordinal","kind","detail","detected_at","resolved_at"},null,20,null,512);
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java
+@@ -28,7 +28,11 @@
+             r.put("bindingReason",links?null:"DECLARED_PRODUCER_OR_CONSUMER_METHOD_UNAVAILABLE");r.put("qualityEffective",null);
+             if(n!=null&&n>0)recorded++;rows.add(r);
+         }
+         Map<String,Object> result=new LinkedHashMap<>();result.put("rows",rows);result.put("registeredObjects",(long)rows.size());result.put("r930NativeKinds",19L);result.put("su2FactorTeacherBundles",1L);result.put("verifiedBindings",linked);result.put("traceableRatio",linked/(double)rows.size());result.put("objectsWithRetainedSnapshots",recorded);
+-        result.put("status",linked==rows.size()?"TRACEABLE":"UNVERIFIED_BINDINGS");result.put("scope","EXISTING_MATRIX_OBJECTS_AND_RETAINED_WATERMARKS");return result;
++        result.put("staticBindingStatus",linked==rows.size()?"TRACEABLE":"UNVERIFIED_BINDINGS");
++        result.put("runtimeSnapshotStatus",nativeUnavailable!=null||su2Unavailable!=null?"BLOCKED_SOURCE":recorded==0?"NO_RETAINED_PRODUCTION":"RECORDED_UNVALIDATED");
++        result.put("qualityStatus","UNKNOWN_NOT_VALIDATED");
++        result.put("status",nativeUnavailable!=null||su2Unavailable!=null?"BLOCKED_SOURCE":recorded==rows.size()?"RECORDED_UNVALIDATED":"INCOMPLETE_PRODUCTION");
++        result.put("scope","EXISTING_MATRIX_OBJECTS_AND_RETAINED_WATERMARKS");return result;
+     }
+ }
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGainR30R1.java
+@@ -0,0 +1,46 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import java.util.*;
++
++/** Fixed, predeclared calendar blocks. Descriptive research evidence, never a certificate test. */
++public final class ResearchGainR30R1 {
++    private final long from, to; private final int blockSize,minimumBlocks,minimumIssues;
++    private final TreeMap<Long,Double> differences=new TreeMap<>();
++    public ResearchGainR30R1(long from,long to,int blockSize,int minBlocks,int minIssues){
++        if(from<0||to<from||blockSize<1||minBlocks<2||minIssues<1)throw new IllegalArgumentException("GAIN_WINDOW");
++        this.from=from;this.to=to;this.blockSize=blockSize;minimumBlocks=minBlocks;minimumIssues=minIssues;
++    }
++    public void add(long issueOrdinal,double baselineLoss,double candidateLoss){
++        if(issueOrdinal<from||issueOrdinal>to||!Double.isFinite(baselineLoss)||!Double.isFinite(candidateLoss)
++                ||baselineLoss<0||baselineLoss>1||candidateLoss<0||candidateLoss>1)throw new IllegalArgumentException("GAIN_OBSERVATION");
++        // One calendar issue, already clustered over positions/components. Never count 100 cells as 100 issues.
++        if(differences.putIfAbsent(issueOrdinal,baselineLoss-candidateLoss)!=null)
++            throw new IllegalStateException("DUPLICATE_CALENDAR_ISSUE");
++    }
++    public static final class Estimate {
++        public final long fromOrdinal,throughOrdinal;
++        public final int blockSize,observedCalendarIssues,evaluatedIssues,completeBlocks,incompleteBlocks,incompleteFullBlocks,excludedTailIssues,missingIssues;
++        public final Double meanBlockGain,lower95,upper95;
++        public final String analysisContractHash;
++        public final String status="DESCRIPTIVE_RESEARCH_ONLY";
++        Estimate(long from,long to,int size,int minBlocks,int minIssues,int n,int evaluated,int blocks,int incomplete,int incompleteFull,int tail,int missing,Double mean,Double lower,Double upper){fromOrdinal=from;throughOrdinal=to;blockSize=size;observedCalendarIssues=n;evaluatedIssues=evaluated;completeBlocks=blocks;incompleteBlocks=incomplete;incompleteFullBlocks=incompleteFull;excludedTailIssues=tail;missingIssues=missing;meanBlockGain=mean;lower95=lower;upper95=upper;analysisContractHash=ResearchContractR30R1.hash("PAIRED_BLOCK_V1|"+from+'|'+to+'|'+size+'|'+minBlocks+'|'+minIssues+"|TAIL=EXCLUDE_FIXED_REMAINDER|LOSS=MULTICLASS_BRIER_HALF|STAT=MEAN_BLOCK_T95_DESCRIPTIVE");}
++        public boolean supported(){return lower95!=null&&upper95!=null;}
++    }
++    public Estimate estimate(){
++        List<Double> means=new ArrayList<>();int incomplete=0,incompleteFull=0,tail=0,completeIssues=0;
++        for(long start=from;start<=to;){
++            long remaining=to-start+1;int expected=(int)Math.min((long)blockSize,remaining);
++            double sum=0;int n=0;for(int j=0;j<expected;j++){Double d=differences.get(start+j);if(d!=null){sum+=d;n++;}}
++            // Partial final blocks are disclosed and excluded using the registered rule, never their score.
++            if(expected==blockSize&&n==expected){means.add(sum/n);completeIssues+=n;}else {incomplete++;if(expected==blockSize)incompleteFull++;else tail=expected;}
++            if(remaining<=blockSize)break;start+=blockSize;
++        }
++        long planned=to-from+1;int missing=(int)Math.min(Integer.MAX_VALUE,planned-differences.size());
++        if(means.size()<minimumBlocks||completeIssues<minimumIssues)
++            return new Estimate(from,to,blockSize,minimumBlocks,minimumIssues,differences.size(),completeIssues,means.size(),incomplete,incompleteFull,tail,missing,null,null,null);
++        double mean=0;for(double x:means)mean+=x;mean/=means.size();double ss=0;for(double x:means)ss+=(x-mean)*(x-mean);
++        double se=Math.sqrt(ss/(means.size()-1)/means.size()),t=critical95(means.size()-1);
++        return new Estimate(from,to,blockSize,minimumBlocks,minimumIssues,differences.size(),completeIssues,means.size(),incomplete,incompleteFull,tail,missing,mean,mean-t*se,mean+t*se);
++    }
++    static double critical95(int df){double[] t={0,12.706,4.303,3.182,2.776,2.571,2.447,2.365,2.306,2.262,2.228,2.201,2.179,2.160,2.145,2.131,2.120,2.110,2.101,2.093,2.086,2.080,2.074,2.069,2.064,2.060,2.056,2.052,2.048,2.045,2.042};if(df<1)throw new IllegalArgumentException("DF");return df<t.length?t[df]:2.042;}
++}
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchAdviceR30R1.java
+@@ -0,0 +1,21 @@
++package com.ethk3.novaonepro.strategyv2;
++
++/** A research prescription requires measured evidence and never confers live eligibility. */
++public final class ResearchAdviceR30R1 {
++    public enum Action { NONE, PRUNE_COMPONENT, KEEP_FOR_CONFIRMATION }
++    public final String proposalId,evidenceKey,parentPolicy,componentPath,reason,analysisContractHash;
++    public final Action action;
++    private ResearchAdviceR30R1(ResearchContractR30R1 c,String component,ResearchGainR30R1.Estimate e,Action action,String reason){
++        analysisContractHash=e.analysisContractHash;evidenceKey=c.key("PAIRED_COMPONENT_ADVICE_V1|"+analysisContractHash);parentPolicy=c.policyHash;componentPath=component;this.action=action;this.reason=reason;
++        proposalId=ResearchContractR30R1.hash(evidenceKey+'|'+component+'|'+action.name());
++    }
++    public static ResearchAdviceR30R1 component(ResearchContractR30R1 c,String component,ResearchGainR30R1.Estimate e,long target,long preparedAt){
++        c.requireAdvice(target,preparedAt);if(component==null||!component.matches("root(?:/[0-9]+)*"))throw new IllegalArgumentException("COMPONENT_PATH");
++        if(e.fromOrdinal!=c.fromOrdinal||e.throughOrdinal!=c.throughOrdinal)throw new IllegalArgumentException("GAIN_CONTRACT_WINDOW_MISMATCH");
++        // estimate compares candidate-with-component to otherwise-identical baseline-without-component.
++        if(!e.supported()||e.missingIssues>0||e.incompleteFullBlocks>0)return new ResearchAdviceR30R1(c,component,e,Action.NONE,"INSUFFICIENT_OR_INCOMPLETE_PAIRED_RESEARCH");
++        if(e.upper95<0)return new ResearchAdviceR30R1(c,component,e,Action.PRUNE_COMPONENT,"COMPONENT_HARMFUL_IN_REGISTERED_RESEARCH_BLOCKS");
++        if(e.lower95>0)return new ResearchAdviceR30R1(c,component,e,Action.KEEP_FOR_CONFIRMATION,"RESEARCH_GAIN_ONLY_REQUIRES_NEW_INDEPENDENT_CONFIRMATION");
++        return new ResearchAdviceR30R1(c,component,e,Action.NONE,"PAIRED_RESEARCH_INTERVAL_CONTAINS_ZERO");
++    }
++}
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java
+@@ -0,0 +1,35 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import android.database.Cursor;
++import android.database.sqlite.SQLiteDatabase;
++import java.util.*;
++
++/** One existing research writer commits the analytical result, proposal and cache frame together. */
++public final class ResearchStoreR30R1 {
++    private ResearchStoreR30R1(){}
++    public static ResearchWriteQueueR27.Batch paired(ResearchContractR30R1 c,ResearchGainR30R1.Estimate e,
++            ResearchAdviceR30R1 advice,String measuredCounterfactualJson,String measuredCounterfactualHash,long now){
++        if(!advice.evidenceKey.equals(c.key("PAIRED_COMPONENT_ADVICE_V1|"+e.analysisContractHash)))throw new IllegalStateException("ANALYSIS_RECEIPT_IDENTITY");
++        PolicySpecR27 without=PolicySpecR27.parse(measuredCounterfactualJson);
++        if(!without.policyHash().equals(ResearchContractR30R1.sha(measuredCounterfactualHash)))throw new IllegalStateException("ANALYSIS_CANDIDATE_HASH");
++        String run=c.key("PAIRED_COMPONENT_ANALYSIS_V1|"+e.analysisContractHash+'|'+advice.componentPath);Map<String,Object> summary=new LinkedHashMap<>();
++        summary.put("status",e.status);summary.put("observedCalendarIssues",(long)e.observedCalendarIssues);summary.put("evaluatedIssues",(long)e.evaluatedIssues);summary.put("completeBlocks",(long)e.completeBlocks);summary.put("incompleteBlocks",(long)e.incompleteBlocks);summary.put("incompleteFullBlocks",(long)e.incompleteFullBlocks);summary.put("excludedTailIssues",(long)e.excludedTailIssues);summary.put("missingIssues",(long)e.missingIssues);summary.put("mean",e.meanBlockGain);summary.put("lower95",e.lower95);summary.put("upper95",e.upper95);
++        ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();
++        b.guardBefore(db->SchemaR27.liveSourceRevision(db)==c.sourceRevision&&SchemaR27.liveSourceTriggersValid(db)?0:-1);
++        b.add("INSERT OR IGNORE INTO r30r1_analysis_run VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",run,c.datasetHash,c.policyHash,c.role.name(),c.sourceCommit,c.sourceRevision,c.fromOrdinal,c.throughOrdinal,e.analysisContractHash,"COMMITTED",JsonR27.write(summary),now);
++        b.add("INSERT OR IGNORE INTO r30r1_research_measure VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",run,advice.componentPath,"ATOM_PAIRED_GAIN",c.policyHash,"REGISTERED_CALENDAR_BLOCKS",c.fromOrdinal,c.throughOrdinal,e.evaluatedIssues,e.meanBlockGain,e.lower95,e.upper95,JsonR27.write(summary));
++        if(advice.action==ResearchAdviceR30R1.Action.PRUNE_COMPONENT){Map<String,Object> p=new LinkedHashMap<>();p.put("componentPath",advice.componentPath);p.put("candidate",measuredCounterfactualJson);p.put("candidateHash",measuredCounterfactualHash);p.put("evidenceKey",advice.evidenceKey);
++            String payload=JsonR27.write(p);b.add("INSERT OR IGNORE INTO r30r1_proposal VALUES(?,?,?,?,?,?,?,?,?)",advice.proposalId,run,c.policyHash,advice.action.name(),payload,ResearchContractR30R1.hash(payload),"READY",advice.reason,now);}
++        Map<String,Object> frame=new LinkedHashMap<>(summary);frame.put("viewId","R06");frame.put("runId",run);frame.put("role",c.role.name());frame.put("parentHash",c.policyHash);frame.put("componentPath",advice.componentPath);frame.put("proposalId",advice.proposalId);frame.put("advice",advice.action.name());frame.put("reason",advice.reason);frame.put("researchOnly",true);
++        String payload=JsonR27.write(frame),hash=ResearchContractR30R1.hash(payload);
++        b.add("INSERT OR IGNORE INTO r30r1_chart_cache VALUES(?,?,?,?,?,?)","R06",hash,run,payload,hash,now);return b;
++    }
++    /** Invoke on the SAME batch that writes the child policy, pending generation and evolution cursor. */
++    public static void consume(ResearchWriteQueueR27.Batch batch,String proposal,String child,int generation,String consumer,long now){
++        ResearchContractR30R1.sha(proposal);ResearchContractR30R1.sha(child);
++        batch.guardBefore(db->{try(Cursor c=db.rawQuery("SELECT state FROM r30r1_proposal WHERE proposal_id=?",new String[]{proposal})){return c.moveToFirst()&&"READY".equals(c.getString(0))?0:-1;}});
++        String receipt=ResearchContractR30R1.hash(proposal+'|'+child+'|'+generation+'|'+consumer);
++        batch.add("INSERT INTO r30r1_consume VALUES(?,?,?,?,?,?)",proposal,child,generation,consumer,receipt,now);
++        batch.add("UPDATE r30r1_proposal SET state='CONSUMED' WHERE proposal_id=? AND state='READY'",proposal);
++    }
++}
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/DirectedResearchPolicyR30R1.java
+@@ -0,0 +1,36 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import java.util.*;
++
++/** Exact counterfactual candidate. It must be measured before any prescription may materialize it. */
++public final class DirectedResearchPolicyR30R1 {
++    private DirectedResearchPolicyR30R1(){}
++    public static PolicySpecR27 withoutChild(PolicySpecR27 original,String path,int generation){
++        if(path==null||!path.matches("root(?:/[0-9]+)+"))throw new IllegalArgumentException("PRUNING_PATH_REQUIRES_CHILD");
++        PolicySpecR27 p=PolicySpecR27.parse(original.fullJson());String[] parts=path.split("/");
++        PolicyAstR27.Node parent=p.ast;for(int i=1;i<parts.length-1;i++){int slot=Integer.parseInt(parts[i]);if(slot>=parent.kids.length)throw new IllegalArgumentException("PRUNING_PATH");parent=parent.kids[slot];}
++        int slot=Integer.parseInt(parts[parts.length-1]);
++        if(parent.kids.length!=2||slot>1||!(parent.op.equals("add")||parent.op.equals("mix")||parent.op.equals("sub")))
++            throw new IllegalArgumentException("PRUNING_REQUIRES_DECLARED_ADDITIVE_COUNTERFACTUAL");
++        PolicyAstR27.Node replacement=parent.kids[1-slot];
++        if(parent.op.equals("sub")&&slot==0)replacement=PolicyAstR27.op("neg",replacement);
++        List<PolicyAstR27.Node> nodes=PolicyAstR27.nodes(p.ast);int parentIndex=-1;
++        for(int i=0;i<nodes.size();i++)if(nodes.get(i)==parent){parentIndex=i;break;}
++        if(parentIndex<0)throw new IllegalStateException("PRUNING_PARENT_NOT_FOUND");
++        PolicyAstR27.Node ast=PolicyAstR27.replace(p.ast,parentIndex,replacement);
++        PolicyAstR27.type(ast);String bad=PolicyAstR27.rangeAndCausality(ast);if(bad!=null)throw new IllegalArgumentException(bad);
++        PolicySpecR27 result=p.withAst(ast,new PolicySpecR27.Meta(p.meta==null?"I09":p.meta.idea,"MEASURED_PRUNE",Collections.singletonList(p.policyHash()),generation,0,"COUNTERFACTUAL_PREPARED:"+path));
++        if(result.policyHash().equals(p.policyHash()))throw new IllegalArgumentException("PRUNING_NO_CHANGE");return result;
++    }
++    public static PolicySpecR27 materialize(ResearchAdviceR30R1 advice,ResearchContractR30R1 source,
++            PolicySpecR27 original,String measuredCounterfactualJson,String measuredCounterfactualHash,int generation,long target,long preparedAt){
++        source.requireAdvice(target,preparedAt);
++        if(advice.action!=ResearchAdviceR30R1.Action.PRUNE_COMPONENT||!advice.parentPolicy.equals(original.policyHash())
++                ||!advice.evidenceKey.equals(source.key("PAIRED_COMPONENT_ADVICE_V1|"+advice.analysisContractHash)))throw new IllegalStateException("PRUNING_EVIDENCE_IDENTITY");
++        PolicySpecR27 child=PolicySpecR27.parse(measuredCounterfactualJson);
++        PolicySpecR27 expected=withoutChild(original,advice.componentPath,generation);
++        if(!child.policyHash().equals(ResearchContractR30R1.sha(measuredCounterfactualHash))||!child.policyHash().equals(expected.policyHash()))
++            throw new IllegalStateException("UNMEASURED_COUNTERFACTUAL_SUBSTITUTION");
++        return child.withMeta(new PolicySpecR27.Meta(child.meta==null?"I09":child.meta.idea,"MEASURED_PRUNE",Collections.singletonList(original.policyHash()),generation,0,"PROPOSAL:"+advice.proposalId+";"+advice.reason));
++    }
++}
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedComponentStudyR30R1.java
+@@ -0,0 +1,30 @@
++package com.ethk3.novaonepro.strategyv2;
++
++/** Complete H_SELECT analytical computation. Scheduling and the existing atomic writer remain external owners. */
++public final class PairedComponentStudyR30R1 {
++    public static final class Product {
++        public final PolicySpecR27 counterfactual;public final ResearchGainR30R1.Estimate gain;public final ResearchAdviceR30R1 advice;
++        Product(PolicySpecR27 p,ResearchGainR30R1.Estimate e,ResearchAdviceR30R1 a){counterfactual=p;gain=e;advice=a;}
++    }
++    private PairedComponentStudyR30R1(){}
++    public static Product evaluate(ResearchContractR30R1 contract,PolicySpecR27 parent,String path,
++            EvalContextR27 context,double frozenTemperature,int generation,int blockPeriods,long target,long preparedAt){
++        contract.requireAdvice(target,preparedAt);
++        if(contract.role!=ResearchContractR30R1.Role.SELECT||!contract.policyHash.equals(parent.policyHash())||!contract.datasetHash.equals(context.data.datasetHash))throw new IllegalArgumentException("STUDY_ROLE_OR_DATASET");
++        int from=context.split.selectFrom,to=context.split.selectTo;
++        if(from>=to||contract.fromOrdinal!=context.data.ordinals[from]||contract.throughOrdinal!=context.data.ordinals[to-1])throw new IllegalArgumentException("STUDY_REGISTERED_WINDOW");
++        PolicySpecR27 without=DirectedResearchPolicyR30R1.withoutChild(parent,path,generation);
++        ReplayEvaluatorR27.Trace with=ReplayEvaluatorR27.selectTraceWithProbabilities(parent,context,frozenTemperature);
++        ReplayEvaluatorR27.Trace removed=ReplayEvaluatorR27.selectTraceWithProbabilities(without,context,frozenTemperature);
++        ResearchGainR30R1 gain=new ResearchGainR30R1(contract.fromOrdinal,contract.throughOrdinal,blockPeriods,4,200);
++        // Multiclass Brier pairs compare the same outcome even when the two policies choose different K3 sets.
++        for(int t=from;t<to;t++){
++            if(with.skipped[t]||removed.skipped[t]||with.probabilityRows[t]==null||removed.probabilityRows[t]==null)continue;
++            double a=0,b=0;int actual=context.data.draws[t][parent.position-1]-1;
++            for(int k=0;k<10;k++){double y=k==actual?1:0;a+=Math.pow(with.probabilityRows[t][k]-y,2);b+=Math.pow(removed.probabilityRows[t][k]-y,2);}
++            // Divide by two: normalized 10-class Brier is bounded in [0,1]. Candidate=with component.
++            gain.add(context.data.ordinals[t],b/2,a/2);
++        }
++        ResearchGainR30R1.Estimate e=gain.estimate();return new Product(without,e,ResearchAdviceR30R1.component(contract,path,e,target,preparedAt));
++    }
++}
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java
+@@ -0,0 +1,34 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import java.util.*;
++
++/** Each view has a real analytical product and a named research consumer. No view itself mutates REAL state. */
++public final class ResearchGraphSpecsR30R1 {
++    public static final class Spec {
++        public final String id,title,kind,measure,consumer,verification;public final int group;
++        Spec(String id,String title,String kind,int group,String measure,String consumer,String verification){this.id=id;this.title=title;this.kind=kind;this.group=group;this.measure=measure;this.consumer=consumer;this.verification=verification;}
++    }
++    private static Spec s(String id,String title,String kind,int group,String measure,String consumer,String verification){return new Spec(id,title,kind,group,measure,consumer,verification);}
++    public static final List<Spec> ALL=Collections.unmodifiableList(Arrays.asList(
++      s("R01","多尺度结构状态与可用窗口","HEATMAP",0,"STRUCTURE_STATE","StructureGeneratorRegistryR30","固定窗口条件收益，禁止后验挑窗"),
++      s("R02","结构预测与下一期落地误差","LINES",0,"STRUCTURE_FORECAST_ERROR","FailureProfileR30","事前结构概率与结算误差配对"),
++      s("R03","号码位置兼容与跨位结构","GRAPH",0,"POSITION_COMPATIBILITY","IdeaI04CrossPositionR27","移除跨位输入的独立增益"),
++      s("R04","多位置围号交集与缩减证据","STACK",0,"SET_INTERSECTION_SUPPORT","SetIntersectionPolicyR30","候选集合→单位置K3，支持不足弃权"),
++      s("R05","失败簇→假设→可执行子代","GRAPH",0,"FAILURE_PRESCRIPTION","ExpertProposalsR27","实际子代hash与后续确认回执"),
++      s("R06","原子条件边际贡献","BAR",0,"ATOM_PAIRED_GAIN","MutationOpsR27","同日历期分块配对及角色隔离"),
++      s("R07","分子协同与冗余贡献","HEATMAP",1,"MOLECULE_SYNERGY","DerivedAtomR27","组合优于各单体且复杂度受控"),
++      s("R08","思路族行为差异与机制覆盖","GRAPH",1,"BEHAVIOR_DIVERSITY","BirthGateR27","固定probe集行为hash及错误相关"),
++      s("R09","专家处方落地与归因","BAR",1,"EXPERT_EXECUTABLE_CREDIT","ExpertProposalsR27","提案→AST→确认，文字不计产出"),
++      s("R10","变异算子增益与计算成本","LINES",1,"OPERATOR_GAIN_COST","EvolutionLoopR27","研究算子预算改变及未来独立验证"),
++      s("R11","父子同期配对收益与确认","LINE",1,"PARENT_CHILD_PAIRED","FrozenConfirmationR30","负结果保留，确认结果不回流进化选择"),
++      s("R12","融合互补与共同失败区域","HEATMAP",1,"FUSION_COMPLEMENTARITY","FusionOpsR27","组合新身份新确认，不继承父证书"),
++      s("R13","置信度失准与支持域风险","RELIABILITY",2,"CALIBRATION_SUPPORT","CalibrationRowsR27","prior-only拟合、域外拒绝、BSS并列"),
++      s("R14","梯度→概率面→策略消费","GRAPH",2,"MODEL_CONSUMPTION_CHAIN","IdeaI08NeuralRepresentationR27","输入/梯度/发布水位及冻结消费逐键对应"),
++      s("R15","状态漂移、遗忘与回放价值","LINES",2,"DRIFT_REPLAY_VALUE","AtomNetRuntimeR30","新旧模型同期评估及回滚对照"),
++      s("R16","研究探索预算与有效产出","STACK",2,"RESEARCH_BUDGET","ResearchPoolR27","不忙等，按研究角色分配并保留探索份额"),
++      s("R17","失败机制记忆与重复消耗","GRAPH",2,"FAILED_MECHANISM_MEMORY","EvolutionLoopR27","重复反证减少且有保护资产不被误淘汰"),
++      s("R18","研究动作到主链效果全链","GRAPH",2,"END_TO_END_RECEIPTS","DecisionGateEngine","研究→新资产→资格→唯一REAL→结算，不跳门禁")
++    ));
++    private ResearchGraphSpecsR30R1(){}
++    public static List<Spec> group(int group){if(group<0||group>2)throw new IllegalArgumentException("RESEARCH_GRAPH_GROUP");List<Spec>x=new ArrayList<>();for(Spec s:ALL)if(s.group==group)x.add(s);return Collections.unmodifiableList(x);}
++}
+--- a/app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java
+@@ -30,9 +30,9 @@
+         List<int[]> draws = draws(db, cancel, drawIssues);
+         out.add(safe("全部算法逐期实盘榜", () -> r27AlgorithmBoard(db, cancel)));
+         out.add(safe("算法实盘排行榜", () -> algorithmBoard(db, cancel)));
+         out.add(safe("最佳算法累计命中率", () -> bestAlgorithmCurve(db, cancel)));
+-        out.add(safe("出手资金K线", () -> actionCandles(db, cancel)));
++        out.add(safe("影子探索模拟资金K线（非REAL账本）", () -> actionCandles(db, cancel)));
+         out.add(safe("全部预测命中率走势", () -> hitTrend(db, cancel, false)));
+         out.add(safe("出手命中率走势", () -> hitTrend(db, cancel, true)));
+         out.add(safe("第" + position + "位置号码K线", () -> numberCandles(draws, drawIssues, position)));
+         out.add(safe("第" + position + "位置号码轨迹", () -> numberLine(draws, drawIssues, position)));
+--- a/app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java
+@@ -106,7 +106,7 @@
+             return new Panel(PAGE,String.valueOf(panel.get("title")),String.valueOf(panel.get("kind")),String.valueOf(panel.get("source")),window,note,String.valueOf(panel.get("status")),points,null,refs,series);
+         }catch(RuntimeException malformed){return new Panel(PAGE,id,"STATUS","r30-charts/snapshot","","快照图读取失败："+malformed.getClass().getSimpleName()+"；不按0处理。","READ_ERROR",null,null);}
+     }
+     /** R30-B02-05: one panel page holds at most this many points (the most recent ones); older points stay in the cache. */
+-    static final int POINTS_PER_PAGE_R30 = 500;
++    static final int POINTS_PER_PAGE_R30 = MAX_POINTS;
+     static double d(Object o) { return o instanceof Number ? ((Number) o).doubleValue() : Double.NaN; }
+ }
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java
+@@ -0,0 +1,50 @@
++package com.ethk3.novaonepro;
++
++import android.database.Cursor;
++import android.database.sqlite.SQLiteDatabase;
++import android.os.CancellationSignal;
++import android.os.OperationCanceledException;
++import java.util.*;
++import com.ethk3.novaonepro.strategyv2.*;
++import static com.ethk3.novaonepro.ResearchVisualDataR82.*;
++
++/** A single SELECT captures the latest frame for all six views. This class is strictly read-only. */
++final class ResearchWorkbenchRepositoryR30R1 {
++    private ResearchWorkbenchRepositoryR30R1(){}
++    static List<Panel> load(SQLiteDatabase db,int group,CancellationSignal cancel){
++        List<ResearchGraphSpecsR30R1.Spec> specs=ResearchGraphSpecsR30R1.group(group);Map<String,Panel> found=new HashMap<>();
++        String[] args=new String[specs.size()];StringBuilder marks=new StringBuilder();for(int i=0;i<args.length;i++){args[i]=specs.get(i).id;if(i>0)marks.append(',');marks.append('?');}
++        String sql="SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN ("+marks+") AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6";
++        String error=null;
++        try(Cursor c=db.rawQuery(sql,args,cancel)){
++            while(c.moveToNext())for(ResearchGraphSpecsR30R1.Spec spec:specs)if(spec.id.equals(c.getString(0))){
++                try{String payload=c.getString(1);if(payload==null||payload.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>262144)throw new IllegalStateException("FRAME_BYTE_BUDGET");if(!ResearchContractR30R1.hash(payload).equals(c.getString(2)))throw new IllegalStateException("FRAME_HASH_MISMATCH");
++                    @SuppressWarnings("unchecked") Map<String,Object> frame=(Map<String,Object>)JsonR27.parse(payload);
++                    found.put(spec.id,panel(spec,frame,c.getString(3),c.getString(4),c.getLong(5),c.getString(6)));
++                }catch(RuntimeException malformed){found.put(spec.id,missing(spec,"READ_ERROR",malformed.getClass().getSimpleName()+":"+String.valueOf(malformed.getMessage())));}
++            }
++        }catch(OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException missing){error=missing.getClass().getSimpleName();}
++        List<Panel> out=new ArrayList<>();for(ResearchGraphSpecsR30R1.Spec spec:specs)out.add(found.containsKey(spec.id)?found.get(spec.id):missing(spec,error==null?"WAITING_ANALYSIS":"BLOCKED_SOURCE",error==null?"尚无已提交分析产物；不能以统计行数代替分析":error));return out;
++    }
++    static Panel missing(ResearchGraphSpecsR30R1.Spec s,String status,String reason){return new Panel("research-workbench",s.id+" "+s.title,"STATUS","r30r1_chart_cache/"+s.measure,"",reason+"\n消费者："+s.consumer+"\n验收："+s.verification,status,null,null);}
++    static double number(Object x){return x instanceof Number&&Double.isFinite(((Number)x).doubleValue())?((Number)x).doubleValue():Double.NaN;}
++    @SuppressWarnings("unchecked") static Panel panel(ResearchGraphSpecsR30R1.Spec s,Map<String,Object> f,String dataset,String role,long through,String run){
++        List<Point> points=new ArrayList<>();List<Edge> edges=new ArrayList<>();
++        if("R06".equals(s.id)&&f.containsKey("mean")){
++            long n=f.get("evaluatedIssues") instanceof Number?((Number)f.get("evaluatedIssues")).longValue():-1;
++            points.add(new Point(String.valueOf(f.get("componentPath")),number(f.get("mean")),number(f.get("lower95")),number(f.get("upper95")),n,"研究配对贡献；"+f.get("reason")+"；proposal="+f.get("proposalId")));
++        }else{
++            Object raw=f.get("points");if(!(raw instanceof List))return missing(s,"INSUFFICIENT_ANALYSIS_FRAME","缺少points；生产者须输出对象级分析结果");
++            if(((List<?>)raw).size()>MAX_POINTS)throw new IllegalArgumentException("RESEARCH_FRAME_REQUIRES_PAGINATION");
++            for(Object row:(List<?>)raw){Map<String,Object> p=(Map<String,Object>)row;long n=p.get("n") instanceof Number?((Number)p.get("n")).longValue():-1;
++                double[] stack=null;if(p.get("stack") instanceof List){List<?> v=(List<?>)p.get("stack");if(v.size()>12)throw new IllegalArgumentException("RESEARCH_SERIES_LIMIT");stack=new double[v.size()];for(int i=0;i<stack.length;i++)stack[i]=number(v.get(i));}
++                points.add(new Point(String.valueOf(p.get("label")),number(p.get("value")),number(p.get("lower")),number(p.get("upper")),n,String.valueOf(p.get("details")),number(p.get("open")),number(p.get("expected")),stack));
++            }
++            if(f.get("edges") instanceof List){List<?> rows=(List<?>)f.get("edges");if(rows.size()>MAX_EDGES)throw new IllegalArgumentException("RESEARCH_EDGE_PAGINATION");for(Object row:rows){Map<?,?> e=(Map<?,?>)row;edges.add(new Edge(String.valueOf(e.get("from")),String.valueOf(e.get("to")),String.valueOf(e.get("label"))));}}
++        }
++        List<String> series=new ArrayList<>();if(f.get("series") instanceof List)for(Object x:(List<?>)f.get("series"))series.add(String.valueOf(x));
++        String note="用途："+s.measure+"\n算法消费者："+s.consumer+"\n实效验收："+s.verification+"\n角色="+role+"；run="+run+"；dataset="+dataset+"。研究图不授予REAL资格。";
++        boolean any=false;for(Point p:points)any|=Double.isFinite(p.value);if("GRAPH".equals(s.kind))any=!points.isEmpty();
++        return new Panel("research-workbench",s.id+" "+s.title,s.kind,"r30r1_research_measure/"+s.measure,"输入截至ordinal="+through,note,any?"MEASURED_RESEARCH_ONLY":"INSUFFICIENT",points,edges,Collections.singletonList(0.0),series);
++    }
++}
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java
+@@ -0,0 +1,40 @@
++package com.ethk3.novaonepro;
++
++import android.app.Activity;
++import android.database.sqlite.SQLiteDatabase;
++import android.graphics.Color;
++import android.os.*;
++import android.widget.*;
++import com.ethk3.novaonepro.r952.ResearchChartViewR82;
++import java.io.File;
++import java.util.*;
++import java.util.concurrent.*;
++import static com.ethk3.novaonepro.ResearchVisualDataR82.*;
++
++/** Three groups of six research views. Opening a chart never starts training or grants a certificate. */
++@android.annotation.SuppressLint("SetTextI18n")
++public final class ResearchWorkbenchActivityR30R1 extends Activity {
++    private final ExecutorService worker=Executors.newSingleThreadExecutor();private final Handler ui=new Handler(Looper.getMainLooper());
++    private CancellationSignal cancellation;private Future<?> future;private Runnable timeout;
++    private LinearLayout content;private TextView status;private long epoch;private int group;
++    TextView text(String s,int size){TextView t=new TextView(this);t.setText(s);t.setTextSize(size);t.setTextColor(Color.rgb(225,237,246));t.setPadding(16,12,16,12);return t;}
++    @Override protected void onCreate(Bundle state){super.onCreate(state);if(state!=null)group=state.getInt("group",0);group=Math.max(0,Math.min(2,group));
++        LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setBackgroundColor(Color.rgb(11,23,39));root.addView(text("研究工作台 · 18个研究图",21));
++        root.addView(text("分析产物→算法动作→独立确认→主链证据。未产出、未消费和未证明有效分别显示。",13));
++        LinearLayout tabs=new LinearLayout(this);String[] names={"结构与归因","创造与融合","质量与应用"};for(int i=0;i<3;i++){final int id=i;Button b=new Button(this);b.setText(names[i]);b.setOnClickListener(v->{group=id;load();});tabs.addView(b,new LinearLayout.LayoutParams(0,-2,1));}root.addView(tabs);
++        status=text("等待读取已提交分析……",13);root.addView(status);ScrollView scroll=new ScrollView(this);content=new LinearLayout(this);content.setOrientation(LinearLayout.VERTICAL);scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));setContentView(root);
++    }
++    @Override protected void onStart(){super.onStart();load();}
++    @Override protected void onStop(){cancel();super.onStop();}
++    @Override protected void onDestroy(){cancel();worker.shutdownNow();ui.removeCallbacksAndMessages(null);super.onDestroy();}
++    @Override protected void onSaveInstanceState(Bundle out){out.putInt("group",group);super.onSaveInstanceState(out);}
++    private void cancel(){epoch++;if(cancellation!=null)cancellation.cancel();if(future!=null)future.cancel(true);if(timeout!=null)ui.removeCallbacks(timeout);}
++    private void load(){cancel();final long request=epoch;final int selectedGroup=group;final CancellationSignal signal=new CancellationSignal();cancellation=signal;timeout=signal::cancel;ui.postDelayed(timeout,5000);status.setText("读取已提交研究快照……");
++        future=worker.submit(()->{List<Panel> panels=null;String failure=null;
++            try{File file=getApplicationContext().getDatabasePath(AppConfig.DB_NAME);if(!file.isFile())throw new IllegalStateException("数据库尚未建立");
++                try(SourceReadLeaseR82 lease=SourceReadLeaseR82.acquire(getApplicationContext(),file,signal);SQLiteDatabase db=SQLiteDatabase.openDatabase(file.getAbsolutePath(),null,SQLiteDatabase.OPEN_READONLY)){panels=ResearchWorkbenchRepositoryR30R1.load(db,selectedGroup,signal);}
++            }catch(OperationCanceledException cancelled){failure="读取已取消或超过5秒；研究任务继续按原调度运行。";}catch(RuntimeException|java.io.IOException error){failure="研究视图读取失败："+error.getClass().getSimpleName();}
++            final List<Panel> ready=panels;final String message=failure;ui.post(()->{if(request!=epoch||isFinishing())return;if(timeout!=null)ui.removeCallbacks(timeout);content.removeAllViews();if(ready==null){status.setText(message);return;}status.setText("本组"+ready.size()+"图；页面只读，数据状态逐图显示。");for(Panel p:ready){content.addView(text(p.title,17));content.addView(text(p.status+" · "+p.window+"\n"+p.note,12));if(!"STATUS".equals(p.kind))content.addView(new ResearchChartViewR82(this,p));}});
++        });
++    }
++}
+--- a/app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java
+@@ -69,8 +69,10 @@
+         tools.setText("R27 工具：导入历史CSV / 旧研究链开关 / 重试隔离任务");
+         tools.setAllCaps(false);
+         tools.setOnClickListener(v -> toolsR27());
+         root.addView(tools);
++        Button workbench=new Button(this);workbench.setText("研究工作台：结构 / 创造 / 质量 18图");
++        workbench.setOnClickListener(v->startActivity(new Intent(this,ResearchWorkbenchActivityR30R1.class)));root.addView(workbench);
+         status = text("正在读取……", 13, muted);
+         root.addView(status);
+         ScrollView scroll = new ScrollView(this);
+         charts = new LinearLayout(this);
+--- a/app/src/main/AndroidManifest.xml
++++ b/app/src/main/AndroidManifest.xml
+@@ -103,6 +103,7 @@
+             android:stopWithTask="false" />
+ 
+         <activity android:name=".MatrixBrowserActivityR82" android:exported="false" />
+         <activity android:name=".ChartsActivityR83" android:exported="false" />
++        <activity android:name=".ResearchWorkbenchActivityR30R1" android:exported="false" />
+     </application>
+ </manifest>

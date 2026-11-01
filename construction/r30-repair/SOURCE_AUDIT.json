@@ -1,0 +1,83 @@
+{
+  "source": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+  "mainJavaFiles": 1201,
+  "actualFileHashMismatches": 0,
+  "declaredMethods": 24318,
+  "declaredTransactionSites": 312,
+  "sourceIndexBinding": "SYNTAX_ONLY_NOT_TYPE_RESOLVED",
+  "methodAnchorsChecked": 191,
+  "methodAnchorMismatches": 0,
+  "scope": "source identity checked locally; supplied semantic findings retain individual evidence level, not all-method semantic proof",
+  "semanticFindings": [
+    {
+      "id": "F01",
+      "evidence_strength": "HOST_REPRODUCED",
+      "anchor": "UpgradeDiagnosisSU2.capabilityRows",
+      "finding": "空有效gain探针NPE；不是手机同一输入的证明",
+      "card": "FR-B01-01"
+    },
+    {
+      "id": "F02",
+      "evidence_strength": "SOURCE_CONFIRMED",
+      "anchor": "HoldLedgerFlushR30.maybeFlush",
+      "finding": "catch未保留已旋转窗口",
+      "card": "FR-B02-01"
+    },
+    {
+      "id": "F03",
+      "evidence_strength": "SOURCE_CONFIRMED",
+      "anchor": "WriterHoldLedgerR30.record/rotate",
+      "finding": "并发旋转与记录未统一互斥",
+      "card": "FR-B02-01"
+    },
+    {
+      "id": "F04",
+      "evidence_strength": "REPORT_OBSERVED",
+      "anchor": "ResearchAdaptiveLearnerStoreR811",
+      "finding": "61.581s慢锁；具体子段待测，编码已在事务外",
+      "card": "FR-B02-02"
+    },
+    {
+      "id": "F05",
+      "evidence_strength": "SOURCE_CONFIRMED",
+      "anchor": "ResearchWriteQueueR27.Batch.before",
+      "finding": "helper可覆盖守卫；逐调用点需核验",
+      "card": "FR-B02-06"
+    },
+    {
+      "id": "F06",
+      "evidence_strength": "SOURCE_CONFIRMED",
+      "anchor": "AtomNetSessionR30.report",
+      "finding": "输入边界与权重训练水位需分开",
+      "card": "FR-B04-01"
+    },
+    {
+      "id": "F07",
+      "evidence_strength": "SOURCE_CONFIRMED",
+      "anchor": "LiveShadowsR27.certify",
+      "finding": "R27_GATE_V1权威，V2 disabled",
+      "card": "FR-B05-04"
+    },
+    {
+      "id": "F08",
+      "evidence_strength": "REPORT_OBSERVED",
+      "anchor": "MatrixRegistryStoreR30",
+      "finding": "静态绑定与缺源runtime状态混淆",
+      "card": "FR-B06-01"
+    },
+    {
+      "id": "F09",
+      "evidence_strength": "SOURCE_CONFIRMED",
+      "anchor": "ChartsRepositoryR83.actionCandles",
+      "finding": "影子/探索模拟资金标签易误读REAL",
+      "card": "FR-B09-04"
+    },
+    {
+      "id": "F10",
+      "evidence_strength": "MISSING_INPUT",
+      "anchor": "FrozenConfirmationStoreR30.result_json",
+      "finding": "verified0需按reason判断，非自动注册故障",
+      "card": "FR-B05-01"
+    }
+  ]
+}

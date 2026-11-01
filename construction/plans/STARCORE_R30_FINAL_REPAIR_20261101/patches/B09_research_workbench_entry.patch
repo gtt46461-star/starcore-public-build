@@ -1,0 +1,119 @@
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java
+@@ -0,0 +1,50 @@
++package com.ethk3.novaonepro;
++
++import android.database.Cursor;
++import android.database.sqlite.SQLiteDatabase;
++import android.os.CancellationSignal;
++import android.os.OperationCanceledException;
++import java.util.*;
++import com.ethk3.novaonepro.strategyv2.*;
++import static com.ethk3.novaonepro.ResearchVisualDataR82.*;
++
++/** A single SELECT captures the latest frame for all six views. This class is strictly read-only. */
++final class ResearchWorkbenchRepositoryR30R1 {
++    private ResearchWorkbenchRepositoryR30R1(){}
++    static List<Panel> load(SQLiteDatabase db,int group,CancellationSignal cancel){
++        List<ResearchGraphSpecsR30R1.Spec> specs=ResearchGraphSpecsR30R1.group(group);Map<String,Panel> found=new HashMap<>();
++        String[] args=new String[specs.size()];StringBuilder marks=new StringBuilder();for(int i=0;i<args.length;i++){args[i]=specs.get(i).id;if(i>0)marks.append(',');marks.append('?');}
++        String sql="SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN ("+marks+") AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6";
++        String error=null;
++        try(Cursor c=db.rawQuery(sql,args,cancel)){
++            while(c.moveToNext())for(ResearchGraphSpecsR30R1.Spec spec:specs)if(spec.id.equals(c.getString(0))){
++                try{String payload=c.getString(1);if(payload==null||payload.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>262144)throw new IllegalStateException("FRAME_BYTE_BUDGET");if(!ResearchContractR30R1.hash(payload).equals(c.getString(2)))throw new IllegalStateException("FRAME_HASH_MISMATCH");
++                    @SuppressWarnings("unchecked") Map<String,Object> frame=(Map<String,Object>)JsonR27.parse(payload);
++                    found.put(spec.id,panel(spec,frame,c.getString(3),c.getString(4),c.getLong(5),c.getString(6)));
++                }catch(RuntimeException malformed){found.put(spec.id,missing(spec,"READ_ERROR",malformed.getClass().getSimpleName()+":"+String.valueOf(malformed.getMessage())));}
++            }
++        }catch(OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException missing){error=missing.getClass().getSimpleName();}
++        List<Panel> out=new ArrayList<>();for(ResearchGraphSpecsR30R1.Spec spec:specs)out.add(found.containsKey(spec.id)?found.get(spec.id):missing(spec,error==null?"WAITING_ANALYSIS":"BLOCKED_SOURCE",error==null?"尚无已提交分析产物；不能以统计行数代替分析":error));return out;
++    }
++    static Panel missing(ResearchGraphSpecsR30R1.Spec s,String status,String reason){return new Panel("research-workbench",s.id+" "+s.title,"STATUS","r30r1_chart_cache/"+s.measure,"",reason+"\n消费者："+s.consumer+"\n验收："+s.verification,status,null,null);}
++    static double number(Object x){return x instanceof Number&&Double.isFinite(((Number)x).doubleValue())?((Number)x).doubleValue():Double.NaN;}
++    @SuppressWarnings("unchecked") static Panel panel(ResearchGraphSpecsR30R1.Spec s,Map<String,Object> f,String dataset,String role,long through,String run){
++        List<Point> points=new ArrayList<>();List<Edge> edges=new ArrayList<>();
++        if("R06".equals(s.id)&&f.containsKey("mean")){
++            long n=f.get("evaluatedIssues") instanceof Number?((Number)f.get("evaluatedIssues")).longValue():-1;
++            points.add(new Point(String.valueOf(f.get("componentPath")),number(f.get("mean")),number(f.get("lower95")),number(f.get("upper95")),n,"研究配对贡献；"+f.get("reason")+"；proposal="+f.get("proposalId")));
++        }else{
++            Object raw=f.get("points");if(!(raw instanceof List))return missing(s,"INSUFFICIENT_ANALYSIS_FRAME","缺少points；生产者须输出对象级分析结果");
++            if(((List<?>)raw).size()>MAX_POINTS)throw new IllegalArgumentException("RESEARCH_FRAME_REQUIRES_PAGINATION");
++            for(Object row:(List<?>)raw){Map<String,Object> p=(Map<String,Object>)row;long n=p.get("n") instanceof Number?((Number)p.get("n")).longValue():-1;
++                double[] stack=null;if(p.get("stack") instanceof List){List<?> v=(List<?>)p.get("stack");if(v.size()>12)throw new IllegalArgumentException("RESEARCH_SERIES_LIMIT");stack=new double[v.size()];for(int i=0;i<stack.length;i++)stack[i]=number(v.get(i));}
++                points.add(new Point(String.valueOf(p.get("label")),number(p.get("value")),number(p.get("lower")),number(p.get("upper")),n,String.valueOf(p.get("details")),number(p.get("open")),number(p.get("expected")),stack));
++            }
++            if(f.get("edges") instanceof List){List<?> rows=(List<?>)f.get("edges");if(rows.size()>MAX_EDGES)throw new IllegalArgumentException("RESEARCH_EDGE_PAGINATION");for(Object row:rows){Map<?,?> e=(Map<?,?>)row;edges.add(new Edge(String.valueOf(e.get("from")),String.valueOf(e.get("to")),String.valueOf(e.get("label"))));}}
++        }
++        List<String> series=new ArrayList<>();if(f.get("series") instanceof List)for(Object x:(List<?>)f.get("series"))series.add(String.valueOf(x));
++        String note="用途："+s.measure+"\n算法消费者："+s.consumer+"\n实效验收："+s.verification+"\n角色="+role+"；run="+run+"；dataset="+dataset+"。研究图不授予REAL资格。";
++        boolean any=false;for(Point p:points)any|=Double.isFinite(p.value);if("GRAPH".equals(s.kind))any=!points.isEmpty();
++        return new Panel("research-workbench",s.id+" "+s.title,s.kind,"r30r1_research_measure/"+s.measure,"输入截至ordinal="+through,note,any?"MEASURED_RESEARCH_ONLY":"INSUFFICIENT",points,edges,Collections.singletonList(0.0),series);
++    }
++}
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java
+@@ -0,0 +1,40 @@
++package com.ethk3.novaonepro;
++
++import android.app.Activity;
++import android.database.sqlite.SQLiteDatabase;
++import android.graphics.Color;
++import android.os.*;
++import android.widget.*;
++import com.ethk3.novaonepro.r952.ResearchChartViewR82;
++import java.io.File;
++import java.util.*;
++import java.util.concurrent.*;
++import static com.ethk3.novaonepro.ResearchVisualDataR82.*;
++
++/** Three groups of six research views. Opening a chart never starts training or grants a certificate. */
++@android.annotation.SuppressLint("SetTextI18n")
++public final class ResearchWorkbenchActivityR30R1 extends Activity {
++    private final ExecutorService worker=Executors.newSingleThreadExecutor();private final Handler ui=new Handler(Looper.getMainLooper());
++    private CancellationSignal cancellation;private Future<?> future;private Runnable timeout;
++    private LinearLayout content;private TextView status;private long epoch;private int group;
++    TextView text(String s,int size){TextView t=new TextView(this);t.setText(s);t.setTextSize(size);t.setTextColor(Color.rgb(225,237,246));t.setPadding(16,12,16,12);return t;}
++    @Override protected void onCreate(Bundle state){super.onCreate(state);if(state!=null)group=state.getInt("group",0);group=Math.max(0,Math.min(2,group));
++        LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setBackgroundColor(Color.rgb(11,23,39));root.addView(text("研究工作台 · 18个研究图",21));
++        root.addView(text("分析产物→算法动作→独立确认→主链证据。未产出、未消费和未证明有效分别显示。",13));
++        LinearLayout tabs=new LinearLayout(this);String[] names={"结构与归因","创造与融合","质量与应用"};for(int i=0;i<3;i++){final int id=i;Button b=new Button(this);b.setText(names[i]);b.setOnClickListener(v->{group=id;load();});tabs.addView(b,new LinearLayout.LayoutParams(0,-2,1));}root.addView(tabs);
++        status=text("等待读取已提交分析……",13);root.addView(status);ScrollView scroll=new ScrollView(this);content=new LinearLayout(this);content.setOrientation(LinearLayout.VERTICAL);scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));setContentView(root);
++    }
++    @Override protected void onStart(){super.onStart();load();}
++    @Override protected void onStop(){cancel();super.onStop();}
++    @Override protected void onDestroy(){cancel();worker.shutdownNow();ui.removeCallbacksAndMessages(null);super.onDestroy();}
++    @Override protected void onSaveInstanceState(Bundle out){out.putInt("group",group);super.onSaveInstanceState(out);}
++    private void cancel(){epoch++;if(cancellation!=null)cancellation.cancel();if(future!=null)future.cancel(true);if(timeout!=null)ui.removeCallbacks(timeout);}
++    private void load(){cancel();final long request=epoch;final int selectedGroup=group;final CancellationSignal signal=new CancellationSignal();cancellation=signal;timeout=signal::cancel;ui.postDelayed(timeout,5000);status.setText("读取已提交研究快照……");
++        future=worker.submit(()->{List<Panel> panels=null;String failure=null;
++            try{File file=getApplicationContext().getDatabasePath(AppConfig.DB_NAME);if(!file.isFile())throw new IllegalStateException("数据库尚未建立");
++                try(SourceReadLeaseR82 lease=SourceReadLeaseR82.acquire(getApplicationContext(),file,signal);SQLiteDatabase db=SQLiteDatabase.openDatabase(file.getAbsolutePath(),null,SQLiteDatabase.OPEN_READONLY)){panels=ResearchWorkbenchRepositoryR30R1.load(db,selectedGroup,signal);}
++            }catch(OperationCanceledException cancelled){failure="读取已取消或超过5秒；研究任务继续按原调度运行。";}catch(RuntimeException|java.io.IOException error){failure="研究视图读取失败："+error.getClass().getSimpleName();}
++            final List<Panel> ready=panels;final String message=failure;ui.post(()->{if(request!=epoch||isFinishing())return;if(timeout!=null)ui.removeCallbacks(timeout);content.removeAllViews();if(ready==null){status.setText(message);return;}status.setText("本组"+ready.size()+"图；页面只读，数据状态逐图显示。");for(Panel p:ready){content.addView(text(p.title,17));content.addView(text(p.status+" · "+p.window+"\n"+p.note,12));if(!"STATUS".equals(p.kind))content.addView(new ResearchChartViewR82(this,p));}});
++        });
++    }
++}
+--- a/app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java
+@@ -69,8 +69,10 @@
+         tools.setText("R27 工具：导入历史CSV / 旧研究链开关 / 重试隔离任务");
+         tools.setAllCaps(false);
+         tools.setOnClickListener(v -> toolsR27());
+         root.addView(tools);
++        Button workbench=new Button(this);workbench.setText("研究工作台：结构 / 创造 / 质量 18图");
++        workbench.setOnClickListener(v->startActivity(new Intent(this,ResearchWorkbenchActivityR30R1.class)));root.addView(workbench);
+         status = text("正在读取……", 13, muted);
+         root.addView(status);
+         ScrollView scroll = new ScrollView(this);
+         charts = new LinearLayout(this);
+--- a/app/src/main/AndroidManifest.xml
++++ b/app/src/main/AndroidManifest.xml
+@@ -103,6 +103,7 @@
+             android:stopWithTask="false" />
+ 
+         <activity android:name=".MatrixBrowserActivityR82" android:exported="false" />
+         <activity android:name=".ChartsActivityR83" android:exported="false" />
++        <activity android:name=".ResearchWorkbenchActivityR30R1" android:exported="false" />
+     </application>
+ </manifest>

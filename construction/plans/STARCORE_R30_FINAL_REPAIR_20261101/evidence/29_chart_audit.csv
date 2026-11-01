@@ -1,0 +1,30 @@
+﻿id,name,source,observed_evidence,required_upgrade,repair_cards
+status,研究状态/同报告快照,ChartsRepositoryR27.headlineSnapshotR30；commonMetrics,有效证书0；当前研究状态可展示，不能代表资产有效,展示三条独立状态：服务、研究推进、质量；点击进入阻断链,FIX-01/03
+p01_three_scores,三类成绩并列,ChartCacheR27.threeScores；replay_score/live_frozen/eprocess,两影子未来21/61和14/55；不宜用回放39–42%代替未来,并列每策略三个角色、ACT分母、独立期与选择偏差说明,FIX-01/11
+p02_generation_holdout,每代冠军留出：主/打乱/随机,ChartCacheR27.generationHoldout；r27_generation,最近冠军线多数HOLDOUT_UNAVAILABLE；verifiedGenerations=0,新确认回执联结当前代，旧循环留出降为研究历史；不复用一段证据重复画改善,FIX-10/11
+p03_evolution_events,每代进化事件,ChartCacheR27.evolutionEvents；r27_generation,有出生/淘汰事件，不是质量提升,事件联结operator、失败处方、可编译产物和后续确认结果,FIX-14
+p04_seven_counters,进化七计数累计,ChartCacheR27.sevenCounters；generation/r26_evolution,最新窗口attempts5248、unique4970、verifiedImprovements0；不是总库189855,各计数写明统计轮和起止；增加有效资产/CPU成本，不把累计活动画成智慧,FIX-14/19
+p05_lineage,父子谱系最近60条,ChartCacheR27.lineage；lineage/policy/replay,谱系有记录，确认提升未成立,关联父母、算子、行为差、确认段和拒绝原因；筛选旧证据不得授证,FIX-10/14
+p06_idea_survival,思路族存活率,ChartCacheR27.ideaSurvival；r27_policy,当前幸存思路I11/I13/I16；仅研究存活,增加按族独立机制数、确认收益、成本；存活为0不直接宣判永远无信号,FIX-14/19
+p07_funnel,淘汰漏斗,ChartCacheR27.funnel；generation/shadow/eprocess/certificate,有候选但qualified=0、ACTIVE证书0,每层分母和拒绝首因；点击未晋升原因；不能把记录出生当有效产出,FIX-11/14
+p08_bss,深度学习A：累计BSS及区间,ChartCacheR27.bss；brier_pair FUTURE ATOMNET,新十位置模型尚无消费；旧ATOMNET/轮换位置数据不能冒充新模型,按ABI、model_hash、position分层；十位置按期聚类；少样本不画有效提升线,FIX-07/08/15
+p09_rolling200,深度学习B：滚动200 Brier,ChartCacheR27.rolling；r27_brier_pair,波动图可诊断，当前不能证明新模型效果,增加固定窗口、噪声带来源、样本角色；不依曲线高低临时挑窗晋升,FIX-15
+p10_train_holdout_loss,深度学习C：训练/留出损失,ChartCacheR27.trainHoldout；r27_atomnet_epoch,新模型epoch0、gradient0；尚无新训练曲线,拆预处理/梯度/验证阶段；训练与多分类/二元目标、ABI分别标注,FIX-07/09
+p11_eprocess,序贯进度,ChartCacheR27.eprocess；r27_eprocess,2个ACTIVE仍ACCUMULATING；4实验缺期阻断,显示连续cursor、缺口ordinal、alpha、真实阈值；不只显示进度百分比,FIX-06/11
+p12_mainline_weight,主链算法参与权重,ChartCacheR27.mainline；ResearchMainlineContributionAuditR922,没有已证明新资产进入主链；权重0应显示阻断原因,证书→selector→Gate→REAL→结算逐键追溯；不得强行补权重,FIX-17
+p13_runtime_health,研究运行健康,ChartCacheR27.health；CPU/task/generation/wait/opportunity,57活性UNKNOWN、11未运行入口；CPU占比约47.9%不代表有效学习,显示pending、last_commit、期数滞后、依赖/等新期/无运行分类,FIX-03/04/19
+p14_atom_scores,原子回放评分分布,ChartCacheR27.atoms；r27_atom_score,176评分行；贡献表部分样例下界负；目录数不是有效数,按原子机制与来源分层，接贡献表驱动生成采样；H_SELECT有效≠自然有效,FIX-13
+p15_paired_improvement_r30,逐代配对提升/独立确认,ReportChartsR30.evolution；同报告快照,2确认DONE但verified0；已验证代数0,同时显示未绘制/证据复用/登记待办；配对原件可重算才画有效提升,FIX-10/11
+p16_capability_coverage_r30,能力覆盖与阻塞,ReportChartsR30.capabilities；82对象注册,24家族16专家21思路1模型20矩阵；F23缺教师；effective未知,六层状态分别画；可执行和有效绝不合并,FIX-12/16
+r83_algorithm_all,全部算法逐期实盘榜,ChartsRepositoryR83.r27AlgorithmBoard,观察池有1151独立期；不是全部REAL实盘,明确改称冻结影子/REAL分栏；记录全池与展示截取分母,FIX-18
+r83_algorithm_rank,算法实盘排行榜,ChartsRepositoryR83.algorithmBoard,旧来源与新R27榜口径不同，不能跨榜挑最高,统一policy/learner身份、角色与窗口；样本不足不按裸命中率排第一,FIX-18
+r83_best_curve,最佳算法累计命中,ChartsRepositoryR83.bestAlgorithmCurve,事后最佳选择存在幸存者偏差；本轮未证明选中版本事前固定,保存选择规则和选中时刻，事前固定冠军曲线与事后榜分开,FIX-18/17
+r83_action_candles,出手资金K线,ChartsRepositoryR83.actionCandles；exploration与shadow join,源码读取探索动作+影子hit_label；不是实际REAL资金账,标明影子模拟资金；真实资金仅从REAL唯一结算读取实际赔率/成本,FIX-18
+r83_all_hit,全部预测命中率走势,ChartsRepositoryR83.hitTrend(false),全部预测与ACT不同分母，不能代替出手效果,显示冻结总量、合法样本、独立期、未结算与缺口,FIX-18
+r83_act_hit,出手命中率走势,ChartsRepositoryR83.hitTrend(true),ACT可能含旧影子/探索源；不等于REAL,角色过滤器由权威事件字段决定；同期与全日历覆盖并列,FIX-18
+r83_number_candles,当前所选位置号码K线,ChartsRepositoryR83.numberCandles；最多600开奖,描述历史号码，K线形态不能直接称预测信号,仅作描述；若算法使用，改为过去窗口特征并经过T01/T02验证,FIX-18/14
+r83_number_line,当前所选位置号码轨迹,ChartsRepositoryR83.numberLine；draws,可作数据排查，尚无独立预测收益证据,标注位置/期范围/断点；任何结构判断必须另立事前模型,FIX-18
+r83_omission_heat,号码遗漏热力图,ChartsRepositoryR83.omissionHeat；draws,遗漏事实可计算，不能推出号码将补出,可用于研究特征，明确间隔与缺失区别；做增量贡献对照,FIX-13/18
+r83_hot_cold,当前所选位置冷热号,ChartsRepositoryR83.hotCold；draws,频率描述有用，但冷热≠未来概率,窗口事前冻结；平滑/基率与置信度分列；不直接按热度授证,FIX-14/18
+r83_calibration,预测概率校准,ChartsRepositoryR83.calibration；旧概率来源,新R27两项Q05失败，旧图来源不能互替,按目标事件、模型ABI、role合并索引；每bin支持与时间隔离可见,FIX-15/18
+r83_brier20,短期波动参考：滚动20期Brier,ChartsRepositoryR83.networkBrier（R27加载时改名）,源码已降为参考；不能判断越学越准,保留参考标识，不自动影响selector或模型晋升,FIX-18
