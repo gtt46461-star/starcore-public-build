@@ -20,6 +20,7 @@ public final class MutationOpsR27 {
     public interface Contribution { double lossIncreaseWithout(PolicySpecR27 spec, int nodeIndex); }
 
     public static PolicySpecR27 mutate(PolicySpecR27 parent, String op, StatsR27.SplitMix r, IdeaFamilyR27.Context ctx, Contribution contribution) {
+        if(op.equals("M_PRUNE")&&ctx!=null&&ctx.research!=null){ctx.research.begin();PolicySpecR27 measured=ctx.research.measuredPrune(parent,ctx.generation);if(measured!=null)return measured;}
         FailureProfileR30 profile = FailureProfileR30.forParent(parent,ctx);
         for (int attempt = 0; attempt < 8; attempt++) {
             PolicySpecR27 child = attempt(parent,op,r,ctx,contribution,profile);
