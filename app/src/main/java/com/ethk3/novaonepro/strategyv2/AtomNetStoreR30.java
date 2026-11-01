@@ -66,7 +66,7 @@ public final class AtomNetStoreR30 {
     }
 
     public static AtomNetSessionR30 restore(SQLiteDatabase ro){
-        try(Cursor c=ro.rawQuery("SELECT feature_abi,state_hash,artifact,dataset_hash,trained_through FROM r29_model_checkpoint WHERE owner=?",new String[]{AtomNetSessionR30.OWNER})){
+        try(Cursor c=ro.rawQuery("SELECT feature_abi,state_hash,artifact,dataset_hash,trained_through FROM r29_model_checkpoint WHERE owner IN (?,?) ORDER BY CASE WHEN owner=? THEN 0 ELSE 1 END LIMIT 1",new String[]{AtomNetSessionR30.OWNER,AtomNetSessionR30.LEGACY_OWNER,AtomNetSessionR30.OWNER})){
             if(!c.moveToFirst())return null;if(!AtomNetSessionR30.ABI.equals(c.getString(0)))throw new IllegalStateException("R30_TRAIN_FEATURE_ABI");
             AtomNetSessionR30 state=AtomNetSessionR30.decode(c.getBlob(2),c.getString(1));
             if(!state.datasetHash.equals(c.getString(3))||!(state.completeIssue.isEmpty()?state.observedThrough:state.trainedThrough()).equals(c.getString(4)))throw new IllegalStateException("R30_TRAIN_CHECKPOINT_CURSOR");return state;
@@ -75,7 +75,7 @@ public final class AtomNetStoreR30 {
     public static void checkpoint(ResearchWriteQueueR27.Batch b,AtomNetSessionR30 state,long now){
         byte[] bytes=state.encode();
         // Exact old bytes/checksum are archived before the first outer-format migration, in an existing immutable table.
-        b.add("INSERT OR IGNORE INTO r29_legacy_model_checkpoint(owner,artifact_hash,artifact,trained_through,online_steps,learning_rate,last_check_logloss,archived_at,reason) SELECT owner,state_hash,artifact,trained_through,-1,-1,NULL,?,'R30_REPAIR_ORIGINAL_OUTER_V1_BYTES_EXACT; SIDE_COUNTERS_UNKNOWN_SEE_ORIGINAL_ARTIFACT' FROM r29_model_checkpoint WHERE owner=? AND substr(artifact,1,4)=x'30A70001'",now,AtomNetSessionR30.OWNER);
+        b.add("INSERT OR IGNORE INTO r29_legacy_model_checkpoint(owner,artifact_hash,artifact,trained_through,online_steps,learning_rate,last_check_logloss,archived_at,reason) SELECT owner,state_hash,artifact,trained_through,-1,-1,NULL,?,'R30_REPAIR_ORIGINAL_OUTER_V1_BYTES_EXACT; SIDE_COUNTERS_UNKNOWN_SEE_ORIGINAL_ARTIFACT' FROM r29_model_checkpoint old WHERE owner IN (?,?) AND substr(artifact,1,4)=x'30A70001' AND NOT EXISTS(SELECT 1 FROM r29_legacy_model_checkpoint saved WHERE saved.owner=old.owner AND saved.artifact_hash=old.state_hash)",now,AtomNetSessionR30.OWNER,AtomNetSessionR30.LEGACY_OWNER);
         String identity=StatsR27.sha256(bytes);long work=state.materializedSamples+state.pretrainSamples+state.trainer.onlineSteps;
         long materializeTotal=(long)state.trainCount+state.selectCount+state.holdoutCount;
         Long pending=state.materializedSamples<materializeTotal?materializeTotal-state.materializedSamples:state.phase.equals("TRAIN")?(long)Math.max(0,state.trainCount-state.offset):null; // Current known sample queue only; no invented future early-stop visits.

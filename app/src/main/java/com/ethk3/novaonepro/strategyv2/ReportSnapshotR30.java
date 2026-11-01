@@ -107,7 +107,7 @@ public final class ReportSnapshotR30 {
         q.add("activeCertificates",active&&q.has("r27_certificate","policy_hash","status","gate_version","issued_at","expires_at")?"(SELECT count(*) FROM r27_certificate k JOIN r27_live_shadow s ON s.policy_hash=k.policy_hash JOIN r27_eprocess e ON e.policy_hash=k.policy_hash WHERE s.status='ACTIVE' AND e.state='"+SequentialQualificationR27.QUALIFIED+"' AND k.status='ACTIVE' AND k.gate_version='"+CertificateGateR27.GATE_VERSION+"' AND k.issued_at<="+READ_CLOCK+" AND k.expires_at>"+READ_CLOCK+")":"NULL",true);
         q.add("evolutionAttempts",q.has("r26_evolution")?"(SELECT count(*) FROM r26_evolution)":"NULL",true);
         q.add("confirmedPackets",q.has("r30_frozen_confirm","state","verified")?"(SELECT count(*) FROM r30_frozen_confirm WHERE state='DONE' AND verified=1)":"NULL",true);
-        q.add("modelCheckpoints",q.has("r29_model_checkpoint","owner")?"(SELECT count(*) FROM r29_model_checkpoint WHERE owner IN ('ATOMNET_TEN_R30','ATOMNET_FTRL'))":"NULL",true);
+        q.add("modelCheckpoints",q.has("r29_model_checkpoint","owner")?"(SELECT count(*) FROM r29_model_checkpoint WHERE owner IN ('ATOMNET_TEN_R30','ATOMNET_TEN_R30_REPAIR1','ATOMNET_FTRL'))":"NULL",true);
         q.add("birthRejections",q.has("r27_generation","rejected")?"(SELECT coalesce(sum(rejected),0) FROM r27_generation)":"NULL",true);
         q.add("writerHardViolations",q.has("r30_writer_hold","over_hard")?"(SELECT coalesce(sum(over_hard),0) FROM r30_writer_hold)":"NULL",true);
         q.add("openQualificationConflicts",q.has("r29_qual_conflict","resolved_at")?"(SELECT count(*) FROM r29_qual_conflict WHERE resolved_at=0)":"NULL",true);

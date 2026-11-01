@@ -7,7 +7,7 @@ import java.util.*;
  * Every phase, position cursor, shuffle, Adam, dropout RNG and replay sample survives a lossless checkpoint.
  * The R29 codec is an inner optimizer container only; this outer ABI/owner never overwrites a legacy model. */
 public final class AtomNetSessionR30 {
-    public static final String ABI = AtomNetR27.POSITION_INPUT_ABI, OWNER = "ATOMNET_TEN_R30";
+    public static final String ABI = AtomNetR27.POSITION_INPUT_ABI, LEGACY_OWNER="ATOMNET_TEN_R30", OWNER = "ATOMNET_TEN_R30_REPAIR1";
     public interface Samples { AtomNetTrainerR27.Sample get(int sample); default void prefetch(int[] indices) { } }
     public final String datasetHash;
     public final int trainCount, selectCount, holdoutCount, input;

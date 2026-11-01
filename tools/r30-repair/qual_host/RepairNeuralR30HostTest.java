@@ -1,0 +1,33 @@
+package com.ethk3.novaonepro.strategyv2;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import java.sql.*;
+import java.util.*;
+public final class RepairNeuralR30HostTest {
+    static final class Db extends SQLiteDatabase {long queries;Db(Connection c){super(c);}@Override public Cursor rawQuery(String sql,String[] args){if(sql.contains("FROM r30_atomnet_sample"))queries++;return super.rawQuery(sql,args);}}
+    interface Work{void run()throws Exception;}
+    static void need(boolean ok,String reason){if(!ok)throw new AssertionError(reason);}
+    static void tx(Db db,Work work)throws Exception{db.jdbc.setAutoCommit(false);try{work.run();db.jdbc.commit();}catch(Exception|Error failure){db.jdbc.rollback();throw failure;}finally{db.jdbc.setAutoCommit(true);}}
+    static AtomNetSessionR30 state(){return new AtomNetSessionR30("HOST_SYNTHETIC_DATASET","000000000999",999,12,80,40,20);}
+    static AtomNetTrainerR27.Sample sample(int i){int position=i%10+1;return new AtomNetTrainerR27.Sample(AtomNetR27.positionedInput(new double[]{i/140.,i%3/3.},position),i%3==0?1:0,i%10,AtomNetSessionR30.eventKey(String.format(Locale.ROOT,"%012d",100+i/10),position));}
+    static void rejected(Work work,String reason)throws Exception{try{work.run();throw new AssertionError(reason);}catch(IllegalStateException|IllegalArgumentException|android.database.sqlite.SQLiteException expected){}}
+    public static void main(String[] args)throws Exception{
+        Class.forName("org.sqlite.JDBC");try(Connection c=DriverManager.getConnection("jdbc:sqlite::memory:")){
+            Db db=new Db(c);for(String ddl:AtomNetStoreR30.DDL)db.execSQL(ddl);db.execSQL(ModelArtifactR29.DDL);db.execSQL(ModelArtifactR29.LEGACY_DDL);db.execSQL(ModelArtifactR29.LEGACY_NO_UPDATE);db.execSQL(ModelArtifactR29.LEGACY_NO_DELETE);for(String ddl:ResearchSchemaR30R1.DDL)db.execSQL(ddl);for(String ddl:SchemaR27.DDL)if(ddl.startsWith("CREATE TABLE IF NOT EXISTS r27_chart_cache("))db.execSQL(ddl);
+            AtomNetSessionR30 baseline=state();ResearchWriteQueueR27.Batch input=new ResearchWriteQueueR27.Batch();for(int i=0;i<140;i++){AtomNetTrainerR27.Sample s=sample(i);AtomNetStoreR30.sample(input,baseline.datasetHash,i,String.format(Locale.ROOT,"%012d",100+i/10),i%10+1,s.x,s.y,s.cls);}tx(db,()->ResearchWriteQueueR27.execute(db,input,"HOST_PREPARED_INPUT"));
+            AtomNetSessionR30.Samples loader=AtomNetStoreR30.samples(db,baseline);int[] indices=new int[64];for(int i=0;i<64;i++)indices[i]=63-i;loader.prefetch(indices);need(db.queries==1,"64 samples one actual SQLite query");for(int i:indices)need(Arrays.equals(sample(i).x,loader.get(i).x),"batch order/value exact");need(db.queries==1,"prefetched gets do not open cursors");
+            AtomNetSessionR30 batched=state();baseline.work(RepairNeuralR30HostTest::sample);batched.work(AtomNetStoreR30.samples(db,batched));need(Arrays.equals(baseline.trainer.net.encode(),batched.trainer.net.encode())&&baseline.trainer.rng.state==batched.trainer.rng.state&&Arrays.equals(baseline.ftrl.z,batched.ftrl.z),"prefetch changes neither optimizer nor RNG/FTRL update order");
+            rejected(()->loader.prefetch(new int[65]),"65 input indices accepted");long queries=db.queries;rejected(()->loader.prefetch(new int[]{120}),"formal confirm row accepted");need(queries==db.queries,"formal role rejected before query");
+            db.execSQL("DELETE FROM r30_atomnet_sample WHERE sample_index=10");rejected(()->loader.prefetch(new int[]{10,12}),"missing input accepted");db.execSQL("UPDATE r30_atomnet_sample SET features=x'00' WHERE sample_index=11");rejected(()->loader.prefetch(new int[]{11}),"bad shape accepted");double[] invalid=sample(12).x.clone();invalid[0]=Double.NaN;db.execSQL("UPDATE r30_atomnet_sample SET features=? WHERE sample_index=12",new Object[]{AtomNetStoreR30.features(invalid)});rejected(()->loader.prefetch(new int[]{12}),"nonfinite input accepted");db.execSQL("UPDATE r30_atomnet_sample SET position=2 WHERE sample_index=0");rejected(()->loader.prefetch(new int[]{0}),"wrong position identity accepted");
+            byte[] v2=baseline.encode(),original=Arrays.copyOf(v2,v2.length-2);java.nio.ByteBuffer.wrap(original).putInt(0x30A70001);String originalHash=StatsR27.sha256(original);db.execSQL("INSERT INTO r29_model_checkpoint VALUES(?,?,?,?,?,?,?)",new Object[]{AtomNetSessionR30.LEGACY_OWNER,AtomNetSessionR30.ABI,baseline.datasetHash,baseline.observedThrough,originalHash,original,1});
+            ResearchWriteQueueR27.Batch next=new ResearchWriteQueueR27.Batch();AtomNetStoreR30.checkpoint(next,baseline,2);
+            rejected(()->tx(db,()->{ResearchWriteQueueR27.execute(db,next,"MIGRATION_FAULT");throw new IllegalStateException("HOST_SYNTHETIC_ROLLBACK");}),"migration failure missing");
+            try(Cursor old=db.rawQuery("SELECT state_hash FROM r29_model_checkpoint",null)){need(old.moveToFirst()&&originalHash.equals(old.getString(0)),"failed migration keeps original checkpoint");}
+            tx(db,()->ResearchWriteQueueR27.execute(db,next,"MIGRATION_RETRY"));tx(db,()->ResearchWriteQueueR27.execute(db,next,"MIGRATION_DUPLICATE"));
+            try(Cursor preserved=db.rawQuery("SELECT artifact_hash,artifact,count(*) FROM r29_legacy_model_checkpoint",null)){need(preserved.moveToFirst()&&originalHash.equals(preserved.getString(0))&&Arrays.equals(original,preserved.getBlob(1))&&preserved.getLong(2)==1,"original outer format bytes exactly archived once");}
+            try(Cursor oldApk=db.rawQuery("SELECT artifact FROM r29_model_checkpoint WHERE owner=?",new String[]{AtomNetSessionR30.LEGACY_OWNER})){need(oldApk.moveToFirst()&&Arrays.equals(original,oldApk.getBlob(0)),"original APK still reads exact V1 checkpoint under its original owner");}
+            rejected(()->db.execSQL("DELETE FROM r29_legacy_model_checkpoint"),"protected archive deleted");need(Arrays.equals(baseline.trainer.net.encode(),AtomNetStoreR30.restore(db).trainer.net.encode()),"successful model migration preserves full optimizer");
+            System.out.println("REPAIR_NEURAL_NATIVE_SQLITE_HOST_PASS one_query_for_64=1 prefetch_optimizer_rng_order_identical=1 formal_indices_rejected_before_read=1 missing_shape_nan_position_rejected=1 old_outer_bytes_exact_immutable_archive=1 migration_rollback_retry=1 no_duplicate_archive=1 HOST_SYNTHETIC_NOT_ANDROID_OR_NATURAL_QUALITY");
+        }
+    }
+}

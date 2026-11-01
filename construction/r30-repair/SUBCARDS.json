@@ -150,7 +150,8 @@
         "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvalContextR27.java",
         "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ModelSurfaceTest.java",
         "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java",
-        "tools/r30/qual_host/ModelSurfaceR30HostTest.java"
+        "tools/r30/qual_host/ModelSurfaceR30HostTest.java",
+        "tools/r30/qual_host/TenPositionR30HostTest.java"
       ],
       "reason": "神经模型只从原TRAIN/SELECT和事前登记的新ONLINE_RESEARCH时间窗学习；保留原确认段，不以改名来读取正式标签。开发验证改用SELECT原输入；完整优化器/游标继续恢复，旧outer原始字节迁移前归档到已有不可变legacy checkpoint表。研究窗口登记复用6表之一analysis_run，非分析完成或自然质量证明。真实64行预取与模型消费缺失/过期/错误哈希用原生SQLite反证。先登记后施工。"
     }
