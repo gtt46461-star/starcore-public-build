@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 import java.util.*;
 
 public final class RepairNeuralR30Test {
-    static AtomNetSessionR30 fixture(){return new AtomNetSessionR30("fixture","000000000999",999,12,80,40,20);}
+    static AtomNetSessionR30 fixture(){return new AtomNetSessionR30(HashingSU1.text("fixture"),"000000000999",999,12,80,40,20);}
     @Test public void preparedSamplesAreNotGradientOrPublishedWeights(){
         AtomNetSessionR30 s=fixture();s.materializedSamples=30;
         Map<String,Object> initial=s.report();assertEquals("MATERIALIZE",initial.get("displayPhase"));assertEquals(0L,initial.get("primaryTrainingSamplesCommitted"));assertNull(initial.get("weightsTrainedThrough"));assertEquals(false,initial.get("publicationReady"));
