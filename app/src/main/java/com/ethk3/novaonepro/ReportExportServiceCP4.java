@@ -245,6 +245,10 @@ public final class ReportExportServiceCP4 extends Service {
                     ReportMemberPlanCP12.append(members,r27Report.getName(),r27Report.getName(),ReportArchiveCP4.hash(r27Report,active),r27Report.length());
                     // R30 primary report: capture once, then serialize the identical twelve chapters twice.
                     java.util.Map<String,Object> r30Source=(java.util.Map<String,Object>)com.ethk3.novaonepro.strategyv2.JsonR27.parse(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536));
+                    r30Source.put("reportJobId",job.jobId);r30Source.put("snapshotSha256",job.snapshotSha);
+                    File r30Previous=new File(new File(getFilesDir(),"r30"),"last_successful_report_summary.json");
+                    if(r30Previous.isFile())try{r30Source.put("previousSuccessfulReport",com.ethk3.novaonepro.strategyv2.JsonR27.parse(ReportJobJournalCP12.readAtomic(r30Previous,1024*1024)));}
+                    catch(Exception unreadablePrevious){java.util.Map<String,Object> previousFailure=new java.util.LinkedHashMap<>();previousFailure.put("readStatus","UNKNOWN_PREVIOUS_SUMMARY_UNREADABLE");previousFailure.put("failureType",unreadablePrevious.getClass().getSimpleName());r30Source.put("previousSuccessfulReport",previousFailure);}
                     active.checkpoint();android.os.CancellationSignal r30ReadCancellation=new android.os.CancellationSignal();active.readCancellationR30=r30ReadCancellation;
                     java.util.List<java.util.Map<String,Object>> r30Chapters;
                     try{r30Chapters=com.ethk3.novaonepro.strategyv2.ReportR29.chapters(copy,r30Source,r30ReadCancellation);}finally{active.readCancellationR30=null;}
@@ -254,6 +258,9 @@ public final class ReportExportServiceCP4 extends Service {
                     try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r30Markdown),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.ReportR27.markdownR30(r30Chapters));}
                     ReportMemberPlanCP12.append(members,r30Json.getName(),r30Json.getName(),ReportArchiveCP4.hash(r30Json,active),r30Json.length());
                     ReportMemberPlanCP12.append(members,r30Markdown.getName(),r30Markdown.getName(),ReportArchiveCP4.hash(r30Markdown,active),r30Markdown.length());
+                    File r30SummaryCandidate=new File(directory,"R30_SUCCESSFUL_SUMMARY_CANDIDATE.json");
+                    ReportJobJournalCP12.writeAtomic(r30SummaryCandidate,com.ethk3.novaonepro.strategyv2.JsonR27.write(r30Chapters.get(11).get("successfulSummaryCandidate")));
+                    ReportMemberPlanCP12.append(members,r30SummaryCandidate.getName(),r30SummaryCandidate.getName(),ReportArchiveCP4.hash(r30SummaryCandidate,active),r30SummaryCandidate.length());
                     File r26Identities=new File(directory,"R26_POLICY_IDENTITIES.jsonl");
                     com.ethk3.novaonepro.strategyv2.PolicyIdentityLedgerR26.export(copy,r26Identities,job.snapshotSha,request.optBoolean("includeRawEvidence",false),active::checkpoint);
                     ReportMemberPlanCP12.append(members,r26Identities.getName(),r26Identities.getName(),ReportArchiveCP4.hash(r26Identities,active),r26Identities.length());
@@ -329,6 +336,7 @@ public final class ReportExportServiceCP4 extends Service {
         ReportPublicationCP12.enforceQuota(journal.root(),directory,job.publishedQuotaBytes);   // R13-P34: the quota existed but was never called
         ReportJobJournalCP12.writeAtomic(new File(directory,"published.json"),pointer.toString());
         journal.transition(job,ReportJobJournalCP12.Stage.READY_TO_SHARE,System.currentTimeMillis());
+        recordSuccessfulSummaryR30(job,directory);
         // The sealed verified ZIP is now the durable delivery. Remove redundant private parts only
         // after its hash and publication identity have been checked; legacy multipart stays intact.
         try{ReportPublicationCP12.cleanRaw(directory,job.publishedDir);}catch(IOException cleanup){job.lastReason="REPORT_RAW_CLEANUP_PENDING";journal.checkpoint(job,System.currentTimeMillis());android.util.Log.w("ReportExportCP12","Published evidence remains valid; private raw cleanup will retry",cleanup);}
@@ -337,9 +345,24 @@ public final class ReportExportServiceCP4 extends Service {
         if(job.mode.equals("RETENTION_PAGE")){RetentionArchiveProtocolCP12.Receipt receipt=RetentionArchiveIoCP12.readReceipt(new File(getFilesDir(),"retention-replies-cp12/"+job.requestId+".receipt"));if(!receipt.page.requestId.equals(job.requestId))throw new IOException("RETENTION_REPLY_IDENTITY");return;}
         active.enter("VERIFYING",120000);JSONObject pointer=new JSONObject(ReportJobJournalCP12.readAtomic(new File(directory,"published.json"),4096));
         if(!pointer.getString("jobId").equals(job.jobId)||!pointer.getString("relativeDir").equals(job.publishedDir))throw new IOException("REPORT_PUBLISH_IDENTITY");
-        if(ReportPublicationCP12.verifyPublishedZip(directory,active))return;
+        if(ReportPublicationCP12.verifyPublishedZip(directory,active)){recordSuccessfulSummaryR30(job,directory);return;}
         ReportArchiveVerifierCP12.Receipt proof=ReportArchiveVerifierCP12.verify(ReportArchiveVerifierCP12.inside(directory,job.publishedDir),job.jobId,ReportArchiveVerifierCP12.nativeDecoder(NATIVE_BUDGET),active,null);
         if(!proof.manifestSha256.equals(job.manifestSha)||!proof.manifestSha256.equals(pointer.getString("manifestSha256")))throw new IOException("REPORT_PUBLISH_HASH");ReportPublicationCP12.delivery(directory);
+    }
+    @SuppressWarnings("unchecked") private void recordSuccessfulSummaryR30(ReportJobJournalCP12.Job job,File directory){
+        try{
+            File candidate=new File(directory,"R30_SUCCESSFUL_SUMMARY_CANDIDATE.json");if(!candidate.isFile())return;
+            java.util.Map<String,Object> summary=(java.util.Map<String,Object>)com.ethk3.novaonepro.strategyv2.JsonR27.parse(ReportJobJournalCP12.readAtomic(candidate,1024*1024));
+            if(!job.jobId.equals(summary.get("jobId"))||!job.snapshotSha.equals(summary.get("snapshotSha256")))throw new IOException("R30_SUMMARY_PUBLISHED_IDENTITY");
+            File destination=new File(new File(getFilesDir(),"r30"),"last_successful_report_summary.json");
+            if(destination.isFile()){
+                java.util.Map<String,Object> old=(java.util.Map<String,Object>)com.ethk3.novaonepro.strategyv2.JsonR27.parse(ReportJobJournalCP12.readAtomic(destination,1024*1024));
+                if(job.jobId.equals(old.get("jobId")))return;
+                if(old.get("publishedAt") instanceof Number&&((Number)old.get("publishedAt")).longValue()>job.updatedWallMs)return;
+            }
+            summary.put("publicationStatus","READY_TO_SHARE_VERIFIED_ZIP");summary.put("publishedManifestSha256",job.manifestSha);summary.put("publishedAt",job.updatedWallMs);
+            ReportJobJournalCP12.writeAtomic(destination,com.ethk3.novaonepro.strategyv2.JsonR27.write(summary));
+        }catch(Exception failure){android.util.Log.w("ReportExportCP12","Verified ZIP remains published; R30 summary persistence requires retry",failure);}
     }
     private static boolean isActive(ReportJobJournalCP12.Job job){return !(job.stage.equals("READY_TO_SHARE")||job.stage.equals("RETENTION_READY")||job.stage.equals("CANCELLED")||job.stage.equals("FAILED"));}
     private static JSONObject loadRequest(File root,String id)throws Exception{return new JSONObject(ReportJobJournalCP12.readAtomic(new File(root,"requests/"+id+".json"),65536));}

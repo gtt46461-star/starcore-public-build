@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "R30_REPAIR_OBJECT_INDEX_1",
+  "registered": {
+    "legacyCharts": 29,
+    "researchCharts": 18,
+    "matrices": 20,
+    "capabilities": 82
+  },
+  "states": {
+    "implemented": "boolean or null; null means unmeasured/unavailable, never false or 0",
+    "callable": "boolean or null; null means unmeasured/unavailable, never false or 0",
+    "inputAvailable": "boolean or null; null means unmeasured/unavailable, never false or 0",
+    "produced": "boolean or null; null means unmeasured/unavailable, never false or 0",
+    "consumed": "boolean or null; null means unmeasured/unavailable, never false or 0",
+    "effective": "boolean or null; null means unmeasured/unavailable, never false or 0"
+  },
+  "coverage": "Each registered ID appears once; total/shown/omitted metadata coverage is separate from sample payload coverage and product pass rate",
+  "largePayload": "bounded display plus exact persisted hash when available; otherwise explicit null hash and source locator. Original snapshot inclusion follows rawEvidenceIncluded, never implied by a reference.",
+  "comparison": "only two distinct successfully published jobs with distinct snapshot SHA256 and identical source/definition version, object and role. Duplicate jobs/snapshots add no period. PROCESS_LIFETIME counters never subtracted."
+}

@@ -176,8 +176,10 @@ public final class ReportR27 {
     /** R30 chapters consume one detached read view; formatting performs no database reads. */
     public static final class R30Input {
         public final Map<String,Object> facts,watermark,data; public final List<String> errors;
+        public final List<Map<String,Object>> metricResults;
         public R30Input(Map<String,Object> facts,Map<String,Object> watermark,Map<String,Object> data,List<String> errors){
             this.facts=freezeMap(facts);this.watermark=freezeMap(watermark);this.data=freezeMap(data);this.errors=java.util.Collections.unmodifiableList(new ArrayList<>(errors));
+            this.metricResults=MetricEvaluatorR29.evaluateR30(this);
         }
     }
     @SuppressWarnings("unchecked") static Object freezeR30(Object x){

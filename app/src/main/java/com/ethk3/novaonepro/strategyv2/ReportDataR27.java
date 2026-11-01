@@ -84,6 +84,29 @@ public final class ReportDataR27 {
     public static Map<String,Object> capabilityInventoryR30(SQLiteDatabase db){return CapabilityRegistryStoreR30.report(db);}
 
     public static List<Map<String,Object>> chaptersR30(SQLiteDatabase db){return ReportR29.chapters(db);}
+    /** Summary candidates become previous evidence only after the verified export is published. */
+    public static Map<String,Object> successfulSummaryR30(ReportR27.R30Input in){
+        Map<String,Object> out=new LinkedHashMap<>();out.put("schemaVersion","R30_REPAIR_SUCCESSFUL_SUMMARY_1");out.put("definitionVersion",MetricDefinitionsR29.CURRENT_VERSION);
+        out.put("sourceCommit",in.watermark.get("sourceCommit"));out.put("jobId",in.watermark.get("reportJobId"));out.put("snapshotSha256",snapshotHashR30(in));
+        List<Object> objects=new ArrayList<>();for(Map<String,Object> metric:in.metricResults){Map<String,Object> row=new LinkedHashMap<>();for(String key:new String[]{"metricId","role","population","value","numerator","denominator","sampleCount","status","unit"})row.put(key,metric.get(key));row.put("objectId",metric.get("metricId"));row.put("objectKind","METRIC");row.put("counterScope","PERSISTED_SNAPSHOT_OR_EXPLICIT_MEASUREMENT");objects.add(row);}
+        Map<String,Object> index=MetricEvaluatorR29.map(in.data.get("objectIndex"));for(String category:new String[]{"legacyCharts","researchCharts","matrices","capabilities"}){
+            Object rows=MetricEvaluatorR29.map(index.get(category)).get("objects");if(rows instanceof List)for(Object raw:(List<?>)rows){Map<String,Object> row=new LinkedHashMap<>();Map<String,Object> object=MetricEvaluatorR29.map(raw);for(String key:new String[]{"objectId","objectKind","implemented","callable","inputAvailable","produced","consumed","effective","retainedCount"})row.put(key,object.get(key));row.put("role","STATIC_BINDING_AND_PERSISTED_ARTIFACT");objects.add(row);}
+        }out.put("objects",objects);return ReportR27.freezeMap(out);
+    }
+    static Object snapshotHashR30(ReportR27.R30Input in){Map<String,Object> source=MetricEvaluatorR29.map(in.watermark.get("sourceManifest"));for(String key:new String[]{"snapshotSha256","snapshotSha","snapshot_sha256","snapshotHash"})if(source.get(key)!=null)return source.get(key);return null;}
+    public static Map<String,Object> compareSuccessfulR30(ReportR27.R30Input in){return compareSuccessfulR30(successfulSummaryR30(in),MetricEvaluatorR29.map(in.data.get("previousSuccessfulReport")));}
+    public static Map<String,Object> compareSuccessfulR30(Map<String,Object> current,Map<String,Object> previous){
+        Map<String,Object> out=new LinkedHashMap<>();out.put("schemaVersion","R30_REPAIR_COMPARISON_1");out.put("currentJobId",current.get("jobId"));out.put("previousJobId",previous.get("jobId"));out.put("independentPeriodsAdded",0);
+        String blocked=previous.isEmpty()?"NO_PREVIOUS_SUCCESSFUL_REPORT":current.get("jobId")==null||previous.get("jobId")==null?"UNKNOWN_JOB_ID":current.get("jobId").equals(previous.get("jobId"))?"DUPLICATE_JOB_NOT_NEW_PERIOD":!java.util.Objects.equals(current.get("sourceCommit"),previous.get("sourceCommit"))||!java.util.Objects.equals(current.get("definitionVersion"),previous.get("definitionVersion"))?"INCOMPARABLE_SOURCE_OR_DEFINITION_VERSION":current.get("snapshotSha256")==null||previous.get("snapshotSha256")==null?"UNKNOWN_SNAPSHOT_IDENTITY":current.get("snapshotSha256").equals(previous.get("snapshotSha256"))?"SAME_SNAPSHOT_NOT_NEW_PERIOD":null;
+        if(blocked!=null){out.put("status",blocked);out.put("action","只比较同源码/同定义/同对象/同角色的两个已成功发布且身份不同的快照；重复B不算第三时段");return out;}
+        Map<String,Map<String,Object>> prior=new LinkedHashMap<>();Object old=previous.get("objects");if(old instanceof List)for(Object x:(List<?>)old){Map<String,Object> row=MetricEvaluatorR29.map(x);prior.put(compareKeyR30(row),row);}
+        List<Object> changes=new ArrayList<>();Object now=current.get("objects");if(now instanceof List)for(Object x:(List<?>)now){Map<String,Object> row=MetricEvaluatorR29.map(x),before=prior.get(compareKeyR30(row));if(before==null)continue;
+            Map<String,Object> change=new LinkedHashMap<>();change.put("objectId",row.get("objectId"));change.put("objectKind",row.get("objectKind"));change.put("role",row.get("role"));change.put("previous",before);change.put("current",row);
+            boolean comparable=java.util.Objects.equals(row.get("population"),before.get("population"))&&java.util.Objects.equals(row.get("unit"),before.get("unit"))&&!"PROCESS_LIFETIME".equals(row.get("counterScope"))&&!"PROCESS_LIFETIME".equals(before.get("counterScope"));
+            Number a=MetricEvaluatorR29.number(before.get("value")),b=MetricEvaluatorR29.number(row.get("value"));change.put("delta",comparable&&a!=null&&b!=null?b.doubleValue()-a.doubleValue():null);change.put("deltaMeaning","描述性快照变化；窗口分母/来源见原件，不能推断趋势或质量改善");changes.add(change);
+        }out.put("status","COMPARABLE_TWO_SUCCESSFUL_SNAPSHOTS");out.put("independentPeriodsAdded",1);out.put("objects",changes);out.put("productEffectClaim",false);return out;
+    }
+    static String compareKeyR30(Map<String,Object> row){return row.get("objectKind")+"|"+row.get("objectId")+"|"+row.get("role");}
     /** Preserved R27 attachment API. The primary R30 report uses chaptersR30 and its detached read view. */
     public static List<Map<String, Object>> chapters(SQLiteDatabase db) {
         ReportR27.Input in = load(db); if (in.previous == null) in.previous = previousSummary; List<Map<String, Object>> out = new ArrayList<>();

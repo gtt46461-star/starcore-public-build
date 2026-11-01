@@ -44,4 +44,112 @@ public final class MetricEvaluatorR29 {
         return out;
     }
     private static String cardMetrics(int card) { return MetricCardMapR29.VALUES[card-1]; }
+
+    /** One detached fact object per current metric; historical evaluate() is deliberately unchanged. */
+    public static List<Map<String,Object>> evaluateR30(ReportR27.R30Input in) {
+        List<Map<String,Object>> out=new ArrayList<>();
+        for(Map<String,Object> definition:MetricDefinitionsR29.currentR30()) {
+            String id=(String)definition.get("id");Map<String,Object> r=new LinkedHashMap<>(definition);
+            r.put("status",in.errors.isEmpty()?"INSUFFICIENT":"UNKNOWN_CAPTURE_FAILED");r.put("value",null);
+            r.put("numerator",null);r.put("denominator",null);r.put("sampleCount",null);
+            r.put("population","SOURCE_NOT_YET_MEASURED");r.put("role","ENGINEERING".equals(definition.get("kind"))?"ENGINEERING":"FUTURE");
+            r.put("sourceSnapshot",in.watermark);r.put("timeRange",in.watermark.get("factsReadAt"));
+            r.put("uncertainty",null);r.put("gateAuthority",CertificateGateR27.GATE_VERSION);
+            r.put("missingReason","缺少同版本、同角色的测量原件："+definition.get("measurementSource"));
+            r.put("nextTrigger","采集 "+definition.get("measurementSource")+"；按 "+definition.get("repairCardIds")+" 验证，禁止用编译通过代替");
+            r.put("evidenceRefs",java.util.Collections.singletonList(definition.get("measurementSource")));
+            if(in.errors.isEmpty())currentMeasurement(in,id,r);
+            out.add(ReportR27.freezeMap(r));
+        }
+        return java.util.Collections.unmodifiableList(out);
+    }
+    @SuppressWarnings("unchecked") static Map<String,Object> map(Object x){return x instanceof Map?(Map<String,Object>)x:java.util.Collections.emptyMap();}
+    static Number number(Object x){return x instanceof Number&&Double.isFinite(((Number)x).doubleValue())?(Number)x:null;}
+    static long count(Object x){Number n=number(x);return n==null?-1:n.longValue();}
+    static List<?> rows(ReportR27.R30Input in,String key){Object x=in.data.get(key);return x instanceof List?(List<?>)x:java.util.Collections.emptyList();}
+    static void observed(Map<String,Object> r,Object value,Object numerator,Object denominator,long samples,String population,String status,String reason){
+        r.put("value",value);r.put("numerator",numerator);r.put("denominator",denominator);r.put("sampleCount",samples<0?null:samples);r.put("population",population);r.put("status",status);r.put("missingReason",reason);
+    }
+    static void source(ReportR27.R30Input in,Map<String,Object> r,String... keys){Map<String,Object> sources=new LinkedHashMap<>();for(String key:keys)sources.put(key,in.data.containsKey(key)?in.data.get(key):in.facts.get(key));r.put("observations",sources);}
+    static String zeroState(Number value){return value==null?"INSUFFICIENT":value.doubleValue()>0?"FAIL":"RECORDED_UNVALIDATED";}
+    static void currentMeasurement(ReportR27.R30Input in,String id,Map<String,Object> r){
+        switch(id){
+            case "M01": case "M02": {
+                Map<String,Probe> p=ReportR29.probes(map(in.data.get("baselineIdentity")).isEmpty()?null:map(in.data.get("baselineIdentity")),map(in.data.get("legacyPreservation")).isEmpty()?null:map(in.data.get("legacyPreservation")));
+                Probe x=p.get(id);if(x!=null)observed(r,x.value,x.numerator,x.denominator,x.samples,x.population,x.status,x.reason);
+                source(in,r,"baselineIdentity","legacyPreservation");break;
+            }
+            case "M03":case "M04":case "M05":timeline(in,id,r);break;
+            case "M06": {
+                Number n=number(in.facts.get("duplicateRealIssues"));observed(r,n,n,in.facts.get("realRows"),count(in.facts.get("realRows")),"ORIGINAL_REAL_LEDGER_ONLY",zeroState(n),n==null?"原REAL账不可读；不能用影子行替代":"仅原REAL逐期唯一性；正式结算唯一键仍需原结算账联合回执");break;
+            }
+            case "M07":writer(in,r);break;
+            case "M10":source(in,r,"outbox","qualificationReceipts","qualificationConflicts");break;
+            case "M11":case "M12": {
+                Map<String,Object> live=map(in.data.get("taskLiveness")),summary=map(live.get("summary"));source(in,r,"taskLiveness","tasks");
+                Number n=number(summary.get(id.equals("M12")?"m12":"oldestBacklogIssues"));
+                if(n!=null)observed(r,n,null,summary.get("tasks"),count(summary.get("tasks")),"READY_CALENDAR_ISSUE_TASKS",n.doubleValue()>(id.equals("M12")?0:5)?"FAIL":"RECORDED_UNVALIDATED","有类型的任务窗口；等待新数据、依赖、工作项单位分列，未运行场景另验");break;
+            }
+            case "M15":source(in,r,"draws","storage","retentionRun","retentionArchives");break;
+            case "M17":source(in,r,"objectIndex");break;
+            case "M18":source(in,r,"pit","pitViolations");r.put("missingReason","PIT拒绝记录不等于泄漏；需当前/未来标签扰动原件，注入与产品来源分列");break;
+            case "M19":source(in,r,"confirmation","confirmationReservations");break;
+            case "M20":source(in,r,"checkpoints","abi","neuralTraining");break;
+            case "M21":source(in,r,"birthRejects","policyObjects");break;
+            case "M22": {
+                Number n=number(in.facts.get("behaviorDuplicates"));if(n!=null)observed(r,n,n,n,n.longValue(),"PERSISTED_BEHAVIOR_DUPLICATE_LEDGER","RECORDED_UNVALIDATED","原账全量计数；结构/参数去重及生成链一致性需分别复算");break;
+            }
+            case "M23": {
+                List<?> all=rows(in,"capabilities");long executable=0;for(Object x:all)if(Boolean.TRUE.equals(map(x).get("executable")))executable++;
+                if(!all.isEmpty())observed(r,executable,executable,all.size(),all.size(),"STATIC_DECLARED_HANDLERS_NOT_RUNTIME_EFFECT",executable==all.size()?"RECORDED_UNVALIDATED":"BLOCKED","可调用绑定与输入可用、真实产出、被消费、有效性分别记录，禁止由此推出质量");source(in,r,"capabilities");break;
+            }
+            case "M24":source(in,r,"modelCalls","checkpoints","modelSurfaceRows");break;
+            case "M25":source(in,r,"objectIndex","matrices","nativeMatrixRows","su2MatrixRows");break;
+            case "M26":source(in,r,"calibration");break;
+            case "M27": {
+                Number n=number(in.facts.get("openQualificationConflicts"));source(in,r,"qualificationConflicts","qualification");
+                if(n!=null)observed(r,n,n,in.facts.get("qualificationReceipts"),count(in.facts.get("qualificationReceipts")),"CURRENT_QUALIFICATION_CONFLICT_LEDGER",zeroState(n),"未解决冲突数；全局序号、预算不重置与连续游标需联合原件");break;
+            }
+            case "M28":case "M30":source(in,r,"decisions","unsafeDecisionMismatches");if(count(in.facts.get("unsafeDecisionMismatches"))>0)observed(r,in.facts.get("unsafeDecisionMismatches"),null,null,count(in.facts.get("decisionRecords")),"ORIGINAL_REAL_AUTHORITY_COMPARISON","FAIL","原授权比逐项解释更宽；保持唯一原授权，必须逐期修复和复测");break;
+            case "M29":source(in,r,"confirmation");break;
+            case "M31": {
+                Map<String,Object> d=DiagnosisRulesR30.evaluate(in.facts,in.data,in.watermark,in.errors);source(in,r,"upgradeSnapshots","upgradeState");
+                Number a=number(d.get("actionableRules")),n=number(d.get("expectedRules"));if(a!=null&&n!=null&&n.longValue()>0)observed(r,a.doubleValue()/n.doubleValue(),a,n,n.longValue(),"DIAGNOSTIC_RULE_ACTION_COVERAGE","RECORDED_UNVALIDATED","行动字段覆盖，不能代替诊断结论正确性及修复验收");break;
+            }
+            case "M32":observed(r,0,0,44,44,"SINGLE_IMMUTABLE_METRIC_OBJECT_PER_CAPTURE","RECORDED_UNVALIDATED","12章与同源图引用同一MetricResult；跨设备UI对照和历史缓存必须另验，不算真机PASS");break;
+            case "M35":source(in,r,"revocations","revocationEvents");break;
+            case "M36":case "Q08":source(in,r,"syntheticControl");r.put("role","SYNTHETIC");r.put("missingReason","原合成对照可复算性与多轮功效区间单独验收；合成不计入自然质量");break;
+            case "Q01": {
+                Number hits=number(in.facts.get("futureHits")),acts=number(in.facts.get("futureActs"));source(in,r,"qualification");
+                if(hits!=null&&acts!=null&&acts.longValue()>0)observed(r,hits.doubleValue()/acts.doubleValue(),hits,acts,acts.longValue(),"ACTIVE_EXPERIMENT_FUTURE_ACT_ROWS_NOT_INDEPENDENT_ISSUES","DESCRIPTIVE_ONLY","多策略重叠期不能合并为独立样本或证明自然质量；按每个预登记策略原件验证Q01");break;
+            }
+            case "Q02": {
+                source(in,r,"realRows","activeCertificates");if(count(in.facts.get("realRows"))==0&&count(in.facts.get("activeCertificates"))==0){r.put("status","NOT_DEPLOYED");r.put("missingReason","当前没有原REAL行且没有有效ACTIVE证书；FUTURE_ACT_RATE与正式REAL频率分列");}break;
+            }
+            case "Q03":source(in,r,"qualification","certificates");break;
+            case "Q04":source(in,r,"qualification");r.put("missingReason","需事前固定块规则及逐策略同角色日历块；不从本次展示子集事后挑好窗口");break;
+            case "Q05":source(in,r,"calibration");break;
+            case "Q06":source(in,r,"evolution","confirmation","ablation");break;
+            case "Q07": {
+                Number n=number(in.facts.get("activeCertificates"));if(n!=null)observed(r,n,n,in.facts.get("qualifiedExperiments"),count(in.facts.get("qualifiedExperiments")),"CURRENT_R27_GATE_V1_ACTIVE_CERTIFICATES","RECORDED_UNVALIDATED",n.longValue()==0?"当前有效证书为0；不隐去负结果、不补配额，Q01/03/04/05逐资产独立验收":"当前原门禁证书计数；Q01/03/04/05逐资产质量还需独立原件");source(in,r,"certificates");break;
+            }
+            default:break; // Device, migration and export receipts are unavailable in the database read view.
+        }
+    }
+    static void writer(ReportR27.R30Input in,Map<String,Object> r){
+        double max=Double.NEGATIVE_INFINITY;long n=0,failures=0;boolean knownFailures=true;List<Object> windows=new ArrayList<>();
+        for(Object x:rows(in,"writerWindows")){Map<String,Object> row=map(x);if(count(row.get("critical"))!=1)continue;windows.add(row);Number wait=number(row.get("wait_p95"));if(wait!=null)max=Math.max(max,wait.doubleValue());long c=count(row.get("count"));if(c>=0)n+=c;long f=count(row.get("failures"));if(f<0)knownFailures=false;else failures+=f;}
+        r.put("observations",windows);r.put("windowDefinition","captured critical writer windows; bounded display with total/omitted index");
+        if(Double.isFinite(max)&&n>0)observed(r,max,knownFailures?failures:null,n,n,"CRITICAL_WRITER_WAIT_MS",max>200||knownFailures&&failures>0?"FAIL":"RECORDED_UNVALIDATED",knownFailures?"窗口最大wait_p95及真实失败数；完整24h/SLO覆盖另验":"旧窗口缺failures，不能把缺失写成0，不能宣称24h失败0");
+    }
+    static void timeline(ReportR27.R30Input in,String id,Map<String,Object> r){
+        List<IssueTimelineR30.Row> live=new ArrayList<>();long untyped=0;
+        for(Object x:rows(in,"timeline")){Map<String,Object> row=map(x);if(!"LIVE".equals(row.get("event_role"))){untyped++;continue;}
+            IssueTimelineR30.Row value=new IssueTimelineR30.Row(String.valueOf(row.get("issue")));
+            for(IssueTimelineR30.Stage stage:IssueTimelineR30.Stage.values()){String k=stage.name().toLowerCase(java.util.Locale.ROOT);Number wall=number(row.get("wall_"+k)),mono=number(row.get("mono_"+k));Object boot=row.get("boot_"+k);value.set(stage,wall==null?null:wall.longValue(),mono==null?null:mono.longValue(),boot instanceof String?(String)boot:null);}live.add(value);
+        }
+        Map<String,Object> summary=IssueTimelineR30.summarize(live);r.put("observations",summary);r.put("legacyOrNonLiveRowsExcluded",untyped);r.put("windowDefinition","captured LIVE event instances; same-boot monotonic duration, calendar denominator separate");
+        if(id.equals("M05")){Map<String,Object> s=map(summary.get("M05"));Number v=number(s.get("coverage"));if(v!=null)observed(r,v,s.get("frozenAtLeast5sBefore"),s.get("periodsWithDeadline"),count(s.get("periodsWithDeadline")),"LIVE_WITH_DECLARED_DEADLINE",v.doubleValue()<0.995?"FAIL":"RECORDED_UNVALIDATED","LIVE已记录截止期窗口；漏记事件的完整日历分母和受支持设备场景仍需核对");}
+        else {Map<String,Object> a=map(summary.get(id.equals("M03")?"request_to_frozen":"observe_to_settled"));Number v=number(a.get("p95"));if(v!=null){Number other=id.equals("M03")?number(map(summary.get("settled_to_frozen")).get("p95")):v;double max=other==null?v.doubleValue():Math.max(v.doubleValue(),other.doubleValue());observed(r,max,null,a.get("n"),count(a.get("n")),"SAME_BOOT_LIVE_EVENT_INSTANCES",max>(id.equals("M03")?5000:1000)?"FAIL":"RECORDED_UNVALIDATED","原分段P95；缺阶段与跨重启数量分别保留，不以墙钟替代单调钟");}}
+    }
 }

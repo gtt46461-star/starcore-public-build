@@ -9,7 +9,7 @@ public final class ReportChartsR30 {
     static Map<String,Object> point(String label,Object value,String detail){Map<String,Object> p=new LinkedHashMap<>();p.put("label",label);p.put("value",value);p.put("lower",null);p.put("upper",null);p.put("n",-1L);p.put("details",detail);return p;}
     static Map<String,Object> panel(ReportR27.R30Input in,String id,String title,String kind,String source,String note,List<Object> points){
         Map<String,Object> m=new LinkedHashMap<>();m.put("id",id);m.put("title",title);m.put("kind",kind);m.put("source",source);m.put("window","报告快照期号 "+in.watermark.get("latestIssue"));m.put("note",note);m.put("points",points);
-        m.put("status",points.isEmpty()?"INSUFFICIENT":"READY");m.put("snapshotWatermark",in.watermark);Map<String,Object> common=new LinkedHashMap<>();for(String key:COMMON)common.put(key,in.facts.get(key));m.put("commonMetrics",common);return m;
+        m.put("status",points.isEmpty()?"INSUFFICIENT":"READY");m.put("snapshotWatermark",in.watermark);Map<String,Object> common=new LinkedHashMap<>();for(String key:COMMON)common.put(key,in.facts.get(key));m.put("commonMetrics",common);m.put("metricResults",in.metricResults);m.put("metricRegistryVersion",MetricDefinitionsR29.CURRENT_VERSION);return m;
     }
     @SuppressWarnings("unchecked") public static Map<String,Object> evolution(ReportR27.R30Input in){
         List<Object> points=new ArrayList<>();Set<String> tasks=new HashSet<>();Object raw=in.data.get("evolution");int drawn=0,conflicts=0,reused=0,verified=0;
