@@ -61,7 +61,7 @@ jobs:
           ram-size: 4096M
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
-          script: bash tools/r30/run_upgrade_drill.sh $(find candidate -name '*.apk' -print -quit) EXISTING_R27 CURRENT_R30_107 evidence/r30/current107-upgrade
+          script: bash tools/r30-repair/prepare_emulator.sh && bash tools/r30/run_upgrade_drill.sh $(find candidate -name '*.apk' -print -quit) EXISTING_R27 CURRENT_R30_107 evidence/r30/current107-upgrade
       - uses: actions/upload-artifact@v4
         if: always()
         with:
