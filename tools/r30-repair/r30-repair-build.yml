@@ -135,7 +135,7 @@ jobs:
           ram-size: 4096M
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
-          script: adb root && adb wait-for-device && adb install $(find candidate -name '*.apk' -print -quit) && adb install -t $(find androidtest -name '*.apk' -print -quit) && python3 scripts/probe_r13_startup.py --installed && bash tools/r30-repair/run_android_regression.sh evidence/r30/android-regression && bash tools/r30/run_fault_matrix.sh evidence/r30/fault-matrix
+          script: adb root && adb wait-for-device && adb install $(find candidate -name '*.apk' -print -quit) && adb install -t $(find androidtest -name '*.apk' -print -quit) && python3 scripts/probe_r13_startup.py --installed && bash tools/r30-repair/run_android_regression.sh evidence/r30/android-regression && bash tools/r30/run_fault_matrix.sh evidence/r30/fault-matrix && bash tools/r30-repair/run_research_fault_matrix.sh evidence/r30/research-fault-matrix
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -143,6 +143,7 @@ jobs:
           path: |
             evidence/r30/android-regression/
             evidence/r30/fault-matrix/
+            evidence/r30/research-fault-matrix/
             startup-evidence/
   upgrade:
     needs: build

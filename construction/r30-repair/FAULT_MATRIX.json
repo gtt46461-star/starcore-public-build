@@ -1,0 +1,79 @@
+{
+  "original14": "RETAINED_UNMODIFIED_RUNNER_AND_ALL_CELLS",
+  "researchCells": [
+    {
+      "stage": "analysis",
+      "fault": "BUSY",
+      "status": "IMPLEMENTED_ANDROID_EXECUTION_PENDING"
+    },
+    {
+      "stage": "analysis",
+      "fault": "FULL",
+      "status": "IMPLEMENTED_ANDROID_EXECUTION_PENDING"
+    },
+    {
+      "stage": "analysis",
+      "fault": "CANCEL",
+      "status": "IMPLEMENTED_ANDROID_EXECUTION_PENDING"
+    },
+    {
+      "stage": "analysis",
+      "fault": "KILL",
+      "status": "IMPLEMENTED_ANDROID_EXECUTION_PENDING"
+    },
+    {
+      "stage": "analysis",
+      "fault": "CORRUPT",
+      "status": "IMPLEMENTED_ANDROID_EXECUTION_PENDING"
+    },
+    {
+      "stage": "analysis",
+      "fault": "SOURCE_CHANGE",
+      "status": "IMPLEMENTED_ANDROID_EXECUTION_PENDING"
+    },
+    {
+      "stage": "consume",
+      "fault": "BUSY",
+      "status": "IMPLEMENTED_ANDROID_EXECUTION_PENDING"
+    },
+    {
+      "stage": "consume",
+      "fault": "FULL",
+      "status": "IMPLEMENTED_ANDROID_EXECUTION_PENDING"
+    },
+    {
+      "stage": "consume",
+      "fault": "CANCEL",
+      "status": "IMPLEMENTED_ANDROID_EXECUTION_PENDING"
+    },
+    {
+      "stage": "consume",
+      "fault": "KILL",
+      "status": "IMPLEMENTED_ANDROID_EXECUTION_PENDING"
+    },
+    {
+      "stage": "consume",
+      "fault": "CORRUPT",
+      "status": "IMPLEMENTED_ANDROID_EXECUTION_PENDING"
+    },
+    {
+      "stage": "consume",
+      "fault": "SOURCE_CHANGE",
+      "status": "IMPLEMENTED_ANDROID_EXECUTION_PENDING"
+    }
+  ],
+  "source": "Test APK only; production numerical algorithms unchanged",
+  "invariants": [
+    "Original ResearchWriteQueue and DatabaseCoordinator transaction owner",
+    "Analysis/measure/proposal/frame atomic; child/original birth gate/consume/cursor atomic",
+    "Actual Android busy writer and SQLiteFullException",
+    "Actual SIGKILL before commit and same sandbox recovery",
+    "Stale original input or corrupt payload remains blocked; never erase evidence",
+    "No certificate, formal exposure or REAL authorization from synthetic tests"
+  ],
+  "androidTest": "com.ethk3.novaonepro.strategyv2.RepairResearchFaultAndroidTest#faultCell",
+  "driver": "tools/r30-repair/run_research_fault_matrix.sh",
+  "acceptance": "Each cell needs actual Android result and trigger log; compilation alone is not pass",
+  "physicalDevice": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN"
+}
