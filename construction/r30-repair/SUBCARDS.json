@@ -486,6 +486,16 @@
         "tools/r30-repair/Q08_PRODUCTION_RESULT.json"
       ],
       "reason": "先登记：返修versionCode577311001高于已装107；同包且仅原R27签名，安全CI原loader保持原样。仅构建源分支引用和返修验收脚本适配；旧全门禁保留，新真实native/Android测试追加。20次Q08原始结果和源码范围保留，不称自然质量。"
+    },
+    {
+      "id": "FR-B09-02-display-bound",
+      "card": "FR-B09-02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchFrameBoundR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairResearchFrameBoundR30Test.java"
+      ],
+      "reason": "先登记：代码审查发现完整专家/模型原件可能超过UI262144字节预算。保留research_measure完整机读frame，图缓存只写同run的有界显示投影，至多120点/180边及显式细节省略/原件hash；显示截断不改变分析或消费输入。"
     }
   ]
 }
