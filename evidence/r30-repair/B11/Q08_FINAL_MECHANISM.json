@@ -2721,7 +2721,7 @@
   "status": "MEASURED",
   "uncertaintyScope": "Synthetic independent repeats under the declared budget only; not a natural false-certificate rate",
   "workBudget": "40 births x 3 generations x 6000 frozen future periods per independent null repeat; original pipeline",
-  "sourceScope": "Actual compiled algorithms at1342b77b with original per-file hashes retained;3 later report/projection-only changes explicitly listed. No final whole-source Q08 rerun claimed; no forecast, optimizer or qualification-threshold changes since registered20-trial run.",
+  "sourceScope": "Registered20-trial compiled algorithms at1342b77b with original algorithm hashes retained. Three later hashed report/projection changes and a separately disclosed original-writer failure-propagation repair are not represented as a final whole-source Q08 rerun. Numerical forecast/optimizer/qualification thresholds unchanged.",
   "algorithmSourceSha256": {
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/AlphaLedgerSU1.java": "00fce7cc665d809b190312bab63fe9b1e33ddf639fb815d9b2df4b02f7afff06",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/ArchiveStoreSU1.java": "2e8eab1cec331fa54de0579bad9a757da72d7a024c4cadaec96c986ee7d09d87",
@@ -3108,5 +3108,11 @@
       "currentHash": "d4c197b1ed28e2be36647755e732cab3f4c783d8c372f4e80077fcc44ceeb320",
       "change": "Read-only scope description dynamically reports actual registered repair-task count3; numerical summary already3"
     }
-  ]
+  ],
+  "laterTransactionFailureRepair": {
+    "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+    "currentHash": "82956257d0eb192fb419e15792ca8a15c01ef0ae3325b71fe5898cd1c83fa42f",
+    "scope": "Original writer/transaction/commit ordering unchanged. Preserve true body SQLiteFull as primary when rollback/cleanup fails; real COMMIT-only failures remain propagated. Native actual complete coordinator red→green plus full344unit/lint/Androidtestcompile pass. Not a numerical forecast/optimizer/qualification-threshold change.",
+    "evidence": "evidence/r30-repair/B11/SQLITE_FULL_PRIMARY_RED_GREEN.json"
+  }
 }
