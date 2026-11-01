@@ -12,7 +12,7 @@ import sun.misc.Unsafe;
 /** Calls the production calibration task on real SQLite with explicitly synthetic FUTURE receipts. */
 public final class CalibrationR30HostTest {
     static void require(boolean ok,String why){if(!ok)throw new AssertionError(why);}
-    static String issue(int n){return String.format(java.util.Locale.ROOT,"20261030%04d",n);}
+    static String issue(int n){return String.format(java.util.Locale.ROOT,"202610%02d%04d",30+(n-1)/1440,1+(n-1)%1440);}
     static long count(SQLiteDatabase db,String sql){try(Cursor c=db.rawQuery(sql,null)){return c.moveToFirst()?c.getLong(0):0;}}
     @SuppressWarnings("unchecked")static Map<String,Object> cached(SQLiteDatabase db,String policy){try(Cursor c=db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id='calibration-r30' AND key=?",new String[]{policy})){require(c.moveToFirst(),"Q05_CACHE_MISSING");return(Map<String,Object>)JsonR27.parse(c.getString(0));}}
     public static void main(String[] args)throws Exception{
@@ -29,13 +29,13 @@ public final class CalibrationR30HostTest {
             double[] p=new double[10];Arrays.fill(p,.1);
             for(String owner:new String[]{"calibration-a","calibration-b"}){
                 db.execSQL("INSERT INTO r27_live_shadow(policy_hash,spec_json,temperature,bias,global_index,status,reason,promoted_at,updated_at) VALUES(?,?,1,?,?,'ACTIVE','HOST',1,1)",new Object[]{owner,spec.fullJson(),new byte[80],owner.endsWith("a")?1:2});
-                for(int i=600;i<=1000;i++){
-                    long ordinal=data.ordinals[i-1],open=1_000_000L+i*60_000L;int actual=data.draws[i-1][0],hit=actual<=3?1:0;
+                for(int i=1100;i<=1500;i++){
+                    long ordinal=TargetIssueResolver.sequenceOrdinalSU1(issue(i)),open=1_000_000L+i*60_000L;int actual=(i-1)%10+1,hit=actual<=3?1:0;
                     db.execSQL("INSERT INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at,hit,settled_at) VALUES(?,?,?,1,?,1,2,3,1,'FROZEN',?,?,?,?)",new Object[]{owner,ordinal,issue(i),StoreR27.pack(p),open-5000,open,hit,open+1000});
                 }
             }
-            db.execSQL("UPDATE r27_live_frozen SET probabilities=? WHERE policy_hash='calibration-a' AND target_issue=?",new Object[]{new byte[0],issue(1000)});
-            db.execSQL("UPDATE r27_live_frozen SET target_ordinal=target_ordinal+20000 WHERE policy_hash='calibration-a' AND target_issue=?",new Object[]{issue(998)});
+            db.execSQL("UPDATE r27_live_frozen SET probabilities=? WHERE policy_hash='calibration-a' AND target_issue=?",new Object[]{new byte[0],issue(1500)});
+            db.execSQL("UPDATE r27_live_frozen SET target_ordinal=target_ordinal+20000 WHERE policy_hash='calibration-a' AND target_issue=?",new Object[]{issue(1498)});
             Field f=Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);Unsafe u=(Unsafe)f.get(null);
             RuntimeR27 rt=(RuntimeR27)u.allocateInstance(RuntimeR27.class);ResearchPoolR27 pool=(ResearchPoolR27)u.allocateInstance(ResearchPoolR27.class);AtomicBoolean fail=new AtomicBoolean(false);
             ResearchWriteQueueR27 writes=new ResearchWriteQueueR27((op,batch)->{

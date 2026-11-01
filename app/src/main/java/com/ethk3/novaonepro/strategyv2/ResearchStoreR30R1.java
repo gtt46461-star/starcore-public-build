@@ -59,4 +59,58 @@ public final class ResearchStoreR30R1 {
         }
     }
     static long calendar(SQLiteDatabase db){String issue=RuntimeR27.latestIssue(db);return issue==null?-1:com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1(issue);}
+    public static ResearchWriteQueueR27.Batch paired(ResearchContractR30R1 c,ResearchGainR30R1.Estimate e,
+            ResearchAdviceR30R1 advice,String measuredCounterfactualJson,String measuredCounterfactualHash,long now){
+        if(!advice.evidenceKey.equals(c.key("PAIRED_COMPONENT_ADVICE_V1|"+e.analysisContractHash)))throw new IllegalStateException("ANALYSIS_RECEIPT_IDENTITY");
+        PolicySpecR27 without=PolicySpecR27.parse(measuredCounterfactualJson);
+        if(!without.policyHash().equals(ResearchContractR30R1.sha(measuredCounterfactualHash)))throw new IllegalStateException("ANALYSIS_CANDIDATE_HASH");
+        String run=c.key("PAIRED_COMPONENT_ANALYSIS_V1|"+e.analysisContractHash+'|'+advice.componentPath);Map<String,Object> summary=new LinkedHashMap<>();
+        summary.put("sourceContract",PairedReplayRunnerR30R1.contractJson(c));summary.put("counterfactualHash",measuredCounterfactualHash);summary.put("componentPath",advice.componentPath);summary.put("status",e.status);summary.put("observedCalendarIssues",(long)e.observedCalendarIssues);summary.put("evaluatedIssues",(long)e.evaluatedIssues);summary.put("completeBlocks",(long)e.completeBlocks);summary.put("incompleteBlocks",(long)e.incompleteBlocks);summary.put("incompleteFullBlocks",(long)e.incompleteFullBlocks);summary.put("excludedTailIssues",(long)e.excludedTailIssues);summary.put("missingIssues",(long)e.missingIssues);summary.put("mean",e.meanBlockGain);summary.put("lower95",e.lower95);summary.put("upper95",e.upper95);
+        ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();
+        b.guardBefore(db->SchemaR27.liveSourceRevision(db)==c.sourceRevision&&SchemaR27.liveSourceTriggersValid(db)?0:-1);
+        b.add("INSERT OR IGNORE INTO r30r1_analysis_run VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",run,c.datasetHash,c.policyHash,c.role.name(),c.sourceCommit,c.sourceRevision,c.fromOrdinal,c.throughOrdinal,e.analysisContractHash,"COMMITTED",JsonR27.write(summary),now);
+        b.add("INSERT OR IGNORE INTO r30r1_research_measure VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",run,advice.componentPath,"ATOM_PAIRED_GAIN",c.policyHash,"REGISTERED_CALENDAR_BLOCKS",c.fromOrdinal,c.throughOrdinal,e.evaluatedIssues,e.meanBlockGain,e.lower95,e.upper95,JsonR27.write(summary));
+        if(advice.action==ResearchAdviceR30R1.Action.PRUNE_COMPONENT){Map<String,Object> p=new LinkedHashMap<>();p.put("componentPath",advice.componentPath);p.put("candidate",measuredCounterfactualJson);p.put("candidateHash",measuredCounterfactualHash);p.put("evidenceKey",advice.evidenceKey);p.put("analysisContractHash",e.analysisContractHash);
+            String payload=JsonR27.write(p);b.add("INSERT OR IGNORE INTO r30r1_proposal VALUES(?,?,?,?,?,?,?,?,?)",advice.proposalId,run,c.policyHash,advice.action.name(),payload,ResearchContractR30R1.hash(payload),"READY",advice.reason,now);}
+        Map<String,Object> frame=new LinkedHashMap<>(summary);frame.put("viewId","R06");frame.put("runId",run);frame.put("role",c.role.name());frame.put("parentHash",c.policyHash);frame.put("componentPath",advice.componentPath);frame.put("proposalId",advice.proposalId);frame.put("advice",advice.action.name());frame.put("reason",advice.reason);frame.put("researchOnly",true);
+        String payload=JsonR27.write(frame),hash=ResearchContractR30R1.hash(payload);
+        b.add("INSERT OR IGNORE INTO r30r1_chart_cache VALUES(?,?,?,?,?,?)","R06",hash,run,payload,hash,now);return b;
+    }
+    public static ResearchWriteQueueR27.Batch paired(PairedReplayRunnerR30R1 runner,long now){
+        if(!runner.complete())throw new IllegalStateException("INCOMPLETE_STUDY_CANNOT_PUBLISH");
+        ResearchGainR30R1 g=runner.gain();ResearchGainR30R1.Estimate e=g.estimate();ResearchAdviceR30R1 advice=runner.advice();ResearchContractR30R1 c=runner.contract;
+        ResearchWriteQueueR27.Batch b=paired(c,e,advice,runner.without.fullJson(),runner.without.policyHash(),now);
+        String run=c.key("PAIRED_COMPONENT_ANALYSIS_V1|"+e.analysisContractHash+'|'+advice.componentPath);
+        Map<String,Object> details=new LinkedHashMap<>();details.put("checkpoint",runner.snapshot());details.put("blocks",g.blocks());details.put("sourceContract",PairedReplayRunnerR30R1.contractJson(c));details.put("mean",e.meanBlockGain);details.put("lower95",e.lower95);details.put("upper95",e.upper95);details.put("status",e.status);details.put("counterfactualHash",runner.without.policyHash());details.put("componentPath",runner.path);details.put("parent",runner.parent.fullJson());details.put("supported",e.supported());details.put("missingIssues",e.missingIssues);details.put("completeBlocks",e.completeBlocks);details.put("excludedTailIssues",e.excludedTailIssues);details.put("evaluatedIssues",e.evaluatedIssues);
+        b.add("UPDATE r30r1_analysis_run SET summary_json=? WHERE run_id=?",JsonR27.write(details),run);
+        b.add("UPDATE r30r1_research_measure SET payload_json=? WHERE run_id=? AND measure_key=?",JsonR27.write(details),run,runner.path);
+        int count=g.blocks().size();if(count>0&&count<=64){List<String> cols=new ArrayList<>();double[][] values=new double[1][count];long[][] support=new long[1][count];for(int i=0;i<count;i++){Map<String,Object> block=g.blocks().get(i);cols.add("block:"+block.get("fromOrdinal"));Object mean=block.get("meanGain");if(mean instanceof Number){values[0][i]=((Number)mean).doubleValue();support[0][i]=((Number)block.get("presentIssues")).longValue();}}
+            MatrixTensorR30R1.Tensor tensor=new MatrixTensorR30R1.Tensor("COUNTERFACTUAL",c.role.name(),c.datasetHash,c.policyHash,runnerIssue(c.throughOrdinal),runnerIssue(c.throughOrdinal+1),c.sourceRevision,Collections.singletonList(runner.path),cols,values,support,details);MatrixTensorR30R1.append(b,tensor,now);
+            Map<String,Object> receipt=new LinkedHashMap<>();receipt.put("status","PRODUCED");receipt.put("matrixId","R930:COUNTERFACTUAL");receipt.put("matrixHash",tensor.hash);receipt.put("runId",run);receipt.put("role",c.role.name());receipt.put("sourceRevision",c.sourceRevision);receipt.put("exactMeasuredChildHash",runner.without.policyHash());receipt.put("qualityEffective",null);
+            b.add("INSERT OR REPLACE INTO r27_chart_cache VALUES(?,?,?,?)",MatrixResearchR30R1.PANEL,"COUNTERFACTUAL",JsonR27.write(receipt),now);
+        }return b;
+    }
+    static String runnerIssue(long ordinal){return com.ethk3.novaonepro.TargetIssueResolver.fromSequenceOrdinalSU1(ordinal);}
+
+    public static final class StaleResearch extends IllegalStateException {StaleResearch(){super("RESEARCH_CONSUME_STALE");}}
+    public static final class Ready {public final String proposal;public final PolicySpecR27 child;Ready(String proposal,PolicySpecR27 child){this.proposal=proposal;this.child=child;}}
+    @SuppressWarnings("unchecked") public static List<Ready> ready(SQLiteDatabase db,EvalContextR27 ctx,int generation,int limit){
+        List<Ready> out=new ArrayList<>();long revision=SchemaR27.liveSourceRevision(db);
+        try(Cursor c=db.rawQuery("SELECT p.proposal_id,p.payload_json,p.payload_hash,r.summary_json FROM r30r1_proposal p JOIN r30r1_analysis_run r ON r.run_id=p.run_id WHERE p.state='READY' AND p.kind='PRUNE_COMPONENT' AND r.role='SELECT' AND r.status='COMMITTED' AND r.dataset_hash=? AND r.source_revision=? ORDER BY p.created_at,p.proposal_id LIMIT "+Math.min(4,Math.max(0,limit)),new String[]{ctx.data.datasetHash,String.valueOf(revision)})){
+            while(c.moveToNext()){
+                if(!StatsR27.sha256(c.getString(1)).equals(c.getString(2)))throw new IllegalStateException("PROPOSAL_PAYLOAD_HASH");Map<String,Object> p=(Map<String,Object>)JsonR27.parse(c.getString(1)),summary=(Map<String,Object>)JsonR27.parse(c.getString(3));ResearchContractR30R1 source=PairedReplayRunnerR30R1.contractParse((Map<?,?>)summary.get("sourceContract"));source.requireAdvice(ctx.data.ordinals[ctx.data.size()-1]+1,System.currentTimeMillis());
+                PolicySpecR27 parent=PolicySpecR27.parse((String)summary.get("parent")),child=PolicySpecR27.parse((String)p.get("candidate"));String path=(String)p.get("componentPath");
+                if(!source.policyHash.equals(parent.policyHash())||!child.policyHash().equals(p.get("candidateHash"))||!child.policyHash().equals(DirectedResearchPolicyR30R1.withoutChild(parent,path,generation).policyHash()))throw new IllegalStateException("UNMEASURED_COUNTERFACTUAL_SUBSTITUTION");
+                out.add(new Ready(c.getString(0),child.withMeta(new PolicySpecR27.Meta(child.meta==null?"I09":child.meta.idea,"MEASURED_PRUNE",Collections.singletonList(parent.policyHash()),generation,0,"PROPOSAL:"+c.getString(0)))));
+            }
+        }return out;
+    }
+    /** Invoke on the SAME batch that writes the child policy, pending generation and evolution cursor. */
+    public static void consume(ResearchWriteQueueR27.Batch batch,String proposal,String child,int generation,String consumer,long now){
+        ResearchContractR30R1.sha(proposal);ResearchContractR30R1.sha(child);
+        batch.guardBefore(db->{try(Cursor c=db.rawQuery("SELECT p.state,p.payload_json,p.payload_hash,r.role,r.source_revision FROM r30r1_proposal p JOIN r30r1_analysis_run r ON r.run_id=p.run_id WHERE p.proposal_id=?",new String[]{proposal})){if(!c.moveToFirst()||!"READY".equals(c.getString(0))||SchemaR27.liveSourceRevision(db)!=c.getLong(4))throw new StaleResearch();if(!"SELECT".equals(c.getString(3))||!StatsR27.sha256(c.getString(1)).equals(c.getString(2)))return -1;Object p=JsonR27.parse(c.getString(1));return p instanceof Map&&child.equals(((Map<?,?>)p).get("candidateHash"))?0:-1;}});
+        String receipt=ResearchContractR30R1.hash(proposal+'|'+child+'|'+generation+'|'+consumer);
+        batch.add("INSERT INTO r30r1_consume VALUES(?,?,?,?,?,?)",proposal,child,generation,consumer,receipt,now);
+        batch.add("UPDATE r30r1_proposal SET state='CONSUMED' WHERE proposal_id=? AND state='READY'",proposal);
+    }
 }

@@ -48,7 +48,7 @@ public final class RuntimeR27 implements AutoCloseable {
         pool = new ResearchPoolR27(store, session, ResearchPoolR27.defaultThreads());
         pool.register(new DatasetTask()); pool.register(new LiveTask()); pool.register(new EvolutionTask()); pool.register(new AbiTask());
         pool.register(new AtomsTask()); pool.register(new AtomNetTask()); pool.register(new CalibrationTask()); pool.register(new ChartTask());
-        pool.register(new MatrixProductionTask()); pool.register(new LegacyExportTask()); pool.register(new HealthTask());
+        pool.register(new ResearchStudyTask()); pool.register(new MatrixProductionTask()); pool.register(new LegacyExportTask()); pool.register(new HealthTask());
         active = this;
     }
     public void start() { pool.start(); }
@@ -126,8 +126,11 @@ public final class RuntimeR27 implements AutoCloseable {
                 confirmTask = FrozenConfirmationStoreR30.task(w.ro,loop.pendingConfirmation.key);
                 confirmResult = FrozenConfirmationStoreR30.result(w.ro,confirmTask.key);
             }
+            if(stepBefore==2)loop.directedResearch=ResearchStoreR30R1.ready(w.ro,loop.context(),loop.generation,4);
+            if(stepBefore==3)loop.revalidateResearchAdmissions(w.ro);
             loop.step();
             ResearchWriteQueueR27.Batch b = sink.batch;
+            if(stepBefore==3)loop.commitResearchAdmissions(b,System.currentTimeMillis());
             if (stepBefore == 8 && loop.confirmationDispatched) FrozenConfirmationStoreR30.freeze(b,loop.pendingConfirmation,loop.context().data);
             if (confirmResult != null) FrozenConfirmationStoreR30.generationReport(b,w.ro,genBefore,confirmTask,confirmResult);
             b.add("INSERT OR REPLACE INTO r27_evolution_cursor(loop,generation,step,dataset_hash,rng_state,snapshot,updated_at) VALUES(?,?,?,?,?,?,?)", LOOP, loop.generation, loop.step, selectedData.datasetHash, loop.rng.state, loop.snapshot(), System.currentTimeMillis());
@@ -135,7 +138,7 @@ public final class RuntimeR27 implements AutoCloseable {
                 final List<Object[]> promos = sink.promotions;
                 b.guardBefore(db -> { for (Object[] p : promos) { PolicySpecR27 s = (PolicySpecR27) p[0]; StoreR27.insertShadow(db, s, (Double) p[1], (String) p[3], semanticAbi(s), s.policyHash(), s.policyHash()); } return 0; });
             }
-            submit(w, "EVOLUTION_STEP_" + EvolutionLoopR27.STEPS[stepBefore], b);
+            try{submit(w, "EVOLUTION_STEP_" + EvolutionLoopR27.STEPS[stepBefore], b);}catch(RuntimeException stale){boolean benign=false;for(Throwable cause=stale;cause!=null&&cause.getCause()!=cause;cause=cause.getCause())if(cause instanceof ResearchStoreR30R1.StaleResearch)benign=true;if(benign)return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT:RESEARCH_SOURCE_RETRY",(long)committed.generation*10+committed.step,-1);throw stale;}
             synchronized(RuntimeR27.this){evoData=selectedData;evoCache=selectedCache;evo=loop;if(pendingCache==selectedCache){pendingCache=null;pendingData=null;}}
             if (stepBefore == 9) refreshObservers(w, loop);
             if (stepBefore == 9) registerConfirmed(w,loop.cfg.liveCap);
@@ -356,6 +359,10 @@ public final class RuntimeR27 implements AutoCloseable {
     }
 
     // ------------------------------------------------------------------ r27-atoms (R27-043/044) and r27-atomnet (R27-033/034/036)
+    final class ResearchStudyTask implements ResearchPoolR27.Task {
+        public String id(){return "r27-study-r1";}
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w)throws Exception{return ResearchStudyTaskR30R1.step(RuntimeR27.this,w);}
+    }
     final class MatrixProductionTask implements ResearchPoolR27.Task {
         public String id(){return "r27-matrices-r1";}
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w)throws Exception{return MatrixResearchR30R1.step(RuntimeR27.this,w);}

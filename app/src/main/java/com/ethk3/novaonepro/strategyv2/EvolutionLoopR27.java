@@ -56,7 +56,7 @@ public final class EvolutionLoopR27 {
         transient ReplayEvaluatorR27.Trace trace;
         public String island() { return island; } public double selectU() { return u; } public String hash() { return spec.policyHash(); }
     }
-    static final class Pending { PolicySpecR27 spec; String state = "NEW", reason = ""; int[] sig; double tau = Double.NaN; boolean structural; transient ReplayEvaluatorR27.Trace trace; }
+    static final class Pending { PolicySpecR27 spec; String state = "NEW", reason = "",researchProposal; int[] sig; double tau = Double.NaN; boolean structural; transient ReplayEvaluatorR27.Trace trace; }
 
     // ------------------------------------------------------------------ state
     public final Config cfg; private Sink sink; private final Clock clock;
@@ -67,6 +67,12 @@ public final class EvolutionLoopR27 {
     public final List<Member> population = new ArrayList<>();
     public final EliteArchiveR27 archive = new EliteArchiveR27();
     private List<Pending> pending = new ArrayList<>();
+    List<ResearchStoreR30R1.Ready> directedResearch=Collections.emptyList();
+    void revalidateResearchAdmissions(android.database.sqlite.SQLiteDatabase db){for(Pending p:pending)if(p.researchProposal!=null){try(android.database.Cursor c=db.rawQuery("SELECT p.state,r.source_revision FROM r30r1_proposal p JOIN r30r1_analysis_run r ON r.run_id=p.run_id WHERE p.proposal_id=?",new String[]{p.researchProposal})){if(!c.moveToFirst()||!"READY".equals(c.getString(0))||SchemaR27.liveSourceRevision(db)!=c.getLong(1)){p.state="RESEARCH_STALE";p.reason="SOURCE_OR_PROPOSAL_CHANGED_BEFORE_ORIGINAL_GATE";}}}}
+    void commitResearchAdmissions(ResearchWriteQueueR27.Batch batch,long now){for(Pending p:pending)if(p.researchProposal!=null){
+        if("BORN".equals(p.state))ResearchStoreR30R1.consume(batch,p.researchProposal,p.spec.policyHash(),generation,"ORIGINAL_BIRTH_GATE_R30_REPAIR1",now);
+        else batch.add("UPDATE r30r1_proposal SET state=?,reason=? WHERE proposal_id=? AND state='READY'","RESEARCH_STALE".equals(p.state)?"STALE":"REJECTED",p.state+":"+p.reason,p.researchProposal);
+    }}
     public PolicySpecR27 champion, previousChampion; public double championTau = 1, previousTau = 1;
     public final List<PolicySpecR27> live = new ArrayList<>(); public final Map<String, Double> liveTau = new HashMap<>();
     public final NullEvolutionR27 nullEvolution = new NullEvolutionR27();
@@ -193,9 +199,11 @@ public final class EvolutionLoopR27 {
             String e = ExpertProposalsR27.EXPERTS[rng.nextInt(16)][0];
             for (ExpertProposalsR27.Proposal p : ExpertProposalsR27.propose(e, ic, rng)) { sink.expert(p, generation); if (p.spec != null) births.add(p.spec); }
         }
+        for(ResearchStoreR30R1.Ready r:directedResearch)births.add(r.child);
         // Fill any rounding/operator shortfall from generators so every generation has the configured size.
         while (births.size() < total) births.add(FAMILIES[1 + rng.nextInt(familyCount)].propose(rng, ic));
-        for (PolicySpecR27 s : births) { Pending p = new Pending(); p.spec = s; p.structural = s != null && (s.meta == null || MutationOpsR27.structural(s.meta.operator)); pending.add(p); }
+        for (PolicySpecR27 s : births) { Pending p = new Pending(); p.spec = s; p.structural = s != null && (s.meta == null || MutationOpsR27.structural(s.meta.operator)); for(ResearchStoreR30R1.Ready r:directedResearch)if(s!=null&&s.policyHash().equals(r.child.policyHash())){p.researchProposal=r.proposal;break;}pending.add(p); }
+        directedResearch=Collections.emptyList();
         count("attempts", births.size());
         genStats.put("births", (long) births.size());
     }
@@ -205,6 +213,7 @@ public final class EvolutionLoopR27 {
         Set<String> seenThisGen = new HashSet<>();
         int rejected = 0, noop = 0, dup = 0, structural = 0; Map<String, Integer> reasons = new LinkedHashMap<>();
         for (Pending p : pending) {
+            if("RESEARCH_STALE".equals(p.state)){rejected++;continue;}
             BirthGateR27.Verdict contract = BirthGateR27.candidateContract(p.spec);
             if (!contract.ok) {
                 p.state = "REJECTED"; p.reason = contract.detail; rejected++;
@@ -501,7 +510,7 @@ public final class EvolutionLoopR27 {
         for (Map.Entry<Integer, EliteArchiveR27.Elite> e : archive.snapshot().entrySet()) { Map<String, Object> x = new LinkedHashMap<>(); x.put("cell", (long) e.getKey()); x.put("spec", e.getValue().spec.fullJson()); x.put("u", e.getValue().u); x.put("tau", e.getValue().tau); arc.add(x); }
         s.put("archive", arc);
         List<Object> pend = new ArrayList<>();
-        for (Pending p : pending) { Map<String, Object> x = new LinkedHashMap<>(); x.put("spec", pendingSpecJson(p)); x.put("state", p.state); x.put("reason", p.reason); x.put("tau", fin(p.tau)); x.put("structural", p.structural); pend.add(x); }
+        for (Pending p : pending) { Map<String, Object> x = new LinkedHashMap<>(); x.put("spec", pendingSpecJson(p)); x.put("state", p.state); x.put("reason", p.reason); x.put("tau", fin(p.tau)); x.put("structural", p.structural);x.put("researchProposal",p.researchProposal); pend.add(x); }
         s.put("pending", pend);
         List<Object> lv = new ArrayList<>(); for (PolicySpecR27 p : live) { Map<String, Object> x = new LinkedHashMap<>(); x.put("spec", p.fullJson()); x.put("tau", liveTau.get(p.policyHash())); lv.add(x); }
         s.put("live", lv);
@@ -558,7 +567,7 @@ public final class EvolutionLoopR27 {
             Map<String, Object> x = (Map<String, Object>) o; Pending p = new Pending(); p.spec = spec(x.get("spec")); p.state = (String) x.get("state"); p.reason = (String) x.get("reason");
             if(validated!=null){Pending original=validated.pending.get(l.pending.size());if(!java.util.Objects.equals(pendingSpecJson(original),pendingSpecJson(p)))throw new IllegalStateException("R30_PRIVATE_FORK_PENDING");p.sig=original.sig==null?null:original.sig.clone();p.trace=original.trace;}
             else if ("BORN".equals(p.state)) { BirthGateR27.Verdict v = l.gate.check(p.spec); p.sig = v.ok ? v.signature : new int[0]; }
-            p.tau = x.get("tau") == null ? Double.NaN : JsonR27.num(x.get("tau")); p.structural = (Boolean) x.get("structural"); l.pending.add(p);
+            p.tau = x.get("tau") == null ? Double.NaN : JsonR27.num(x.get("tau")); p.structural = (Boolean) x.get("structural");p.researchProposal=x.get("researchProposal") instanceof String?(String)x.get("researchProposal"):null; l.pending.add(p);
         }
         for (Object o : (List<Object>) s.get("live")) { Map<String, Object> x = (Map<String, Object>) o; PolicySpecR27 sp = spec(x.get("spec")); l.live.add(sp); l.liveTau.put(sp.policyHash(), JsonR27.num(x.get("tau"))); }
         for (Map.Entry<String, Object> e : ((Map<String, Object>) s.get("counters")).entrySet()) l.counters.get(e.getKey())[0] = ((Number) e.getValue()).longValue();

@@ -67,7 +67,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
     }
     public ResearchWriteQueueR27 writes() { return writes; }
     public ExecutorService compute() { return compute; }
-    public synchronized void register(Task t) { tasks.add(t); running.put(t.id(), false); }
+    public synchronized void register(Task t) { for(Task existing:tasks)if(existing.id().equals(t.id()))throw new IllegalArgumentException("DUPLICATE_RESEARCH_OWNER:"+t.id());tasks.add(t); running.put(t.id(), false); }
     public void setResource(String r) { resource = r; }
     public void setThermalLimit(int workers, String reason) { parallelismLimit = Math.max(1, Math.min(size, workers)); thermalReason = reason; }
     public int workerLimit() { return parallelismLimit; }

@@ -321,6 +321,7 @@ public final class LiveShadowsR27 {
         int calibrationAt=Math.min(rt.calibrationIndexR30,Math.max(0,calibrationPolicies.size()-1));
         List<Shadow> calibrationSlice=calibrationPolicies.isEmpty()?java.util.Collections.emptyList():calibrationPolicies.subList(calibrationAt,calibrationAt+1);
         for (Shadow s : calibrationSlice) {
+            final long calibrationRevision=SchemaR27.liveSourceRevision(w.ro);
             List<CalibrationRowsR27.Row> rows = new ArrayList<>();
             ReplayEvaluatorR27.Trace tr = ctx.selectTrace(s.spec, s.tau);
             for (int t = ctx.split.selectFrom; t < ctx.split.selectTo; t++) if (!tr.skipped[t])
@@ -337,7 +338,6 @@ public final class LiveShadowsR27 {
                     rows.add(new CalibrationRowsR27.Row(c.getString(0), "FUTURE", frozen ? c.getLong(6) : 0, c.getLong(7), score, frozen ? c.getInt(5) : -1, s.spec.position, frozen && c.getInt(5) >= 0, true,canonicalOrdinal));
                 }
             }
-            final long calibrationRevision=SchemaR27.liveSourceRevision(w.ro);
             CalibrationRowsR27.Result r = CalibrationRowsR27.fitRolling(rows);
             if(calibrationRevision>=0)b.guardBefore(db->{if(SchemaR27.liveSourceRevision(db)!=calibrationRevision)throw new IllegalStateException("CALIBRATION_SOURCE_CHANGED");return 0;});
             b.add("INSERT OR REPLACE INTO r27_calibration(policy_hash,method,fit_source,fit_rows,validation_rows,excluded_late,excluded_gap,a,b,ece,ece_by_stratum,state,reason,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",

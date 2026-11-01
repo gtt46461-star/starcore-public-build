@@ -21,7 +21,7 @@ public final class AtomWorldR27 {
         if (d == null || evo == null) return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-evolution)", 0, -1);
         SplitR27 sp = evo.context().split;
         if (!d.datasetHash.equals(rt.frameDataset)) {
-            synchronized (rt) { rt.frameDataset = d.datasetHash; rt.frameCursor = 0; int n = sp.holdoutTo; rt.frameValues = new double[n][]; rt.framePresent = new boolean[n][]; rt.frameHit = new int[n]; rt.framePos = new int[n]; rt.frameActual = new int[n]; rt.frameIssue = new String[n]; }
+            synchronized (rt) { rt.frameDataset = d.datasetHash; rt.frameCursor = 0; int n = sp.selectTo; rt.frameValues = new double[n][]; rt.framePresent = new boolean[n][]; rt.frameHit = new int[n]; rt.framePos = new int[n]; rt.frameActual = new int[n]; rt.frameIssue = new String[n]; }
         }
         if (rt.frameCursor < rt.frameValues.length) {
             int from = rt.frameCursor, to = Math.min(rt.frameValues.length, from + CHUNK);
@@ -48,6 +48,8 @@ public final class AtomWorldR27 {
             b.add("INSERT OR REPLACE INTO r27_atom_score(atom_id,atom_index,dataset_hash,n_select,gain_select,lcb_select,ucb_select,n_holdout,gain_holdout,lcb_holdout,missing_rate,state,derived,definition,computed_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,0,'',?)",
                     GenesisSchemaRegistryR915.atoms().get(a).id, a, d.datasetHash, s.nSelect, f(s.select.mean), f(s.select.lcb(StatsR27.Z95)), f(s.select.ucb(StatsR27.Z95)), s.nHoldout, f(s.holdout.mean), f(s.holdout.lcb(StatsR27.Z95)), s.missingRate(), s.state, now);
         }
+        Map<String,Object> census=new LinkedHashMap<>();census.put("catalogNamespace","GENESIS_R915_DIRECTORY");census.put("catalogObjects",GenesisSchemaRegistryR915.atoms().size());census.put("scoredNamespace","R27_EXECUTABLE_BINARY_K3_ATOMS");census.put("scorableObjects",el.length);census.put("committedScoreObjects",states.size());census.put("sampleRole","H_TRAIN_AND_H_SELECT_ONLY");census.put("preparedRows",rt.frameValues.length);census.put("formalRowsRead",0L);census.put("actualConsumer","RuntimeR27.leafWeights -> IdeaFamilyR27.Grow.pick");census.put("effective",null);census.put("scope","CATALOGUE_SCORE_AND_MOLECULE_SETS_HAVE_DISTINCT_IDENTITIES");
+        b.add("INSERT OR REPLACE INTO r27_chart_cache VALUES('atoms','namespace-inventory',?,?)",JsonR27.write(census),now);
         RuntimeR27.submit(w, "ATOM_SCORES", b);
         synchronized (rt.atomStates) { rt.atomStates.clear(); rt.atomStates.putAll(states); }
     }
@@ -60,7 +62,7 @@ public final class AtomWorldR27 {
             c.contributionStats=DerivedAtomR27.pairedContribution(c.subtree,programs,evo.context());c.contribution=c.contributionStats.mean();
             if (!(c.contribution > 0)||!(c.contributionStats.lower95()>0)) { why.append(c.id()).append(":contribution=").append(c.contribution).append(";"); continue; }
             int[] rows = {evo.context().split.selectFrom + 1, evo.context().split.selectTo - 1};
-            if (!DerivedAtomR27.leakFree(c.subtree, evo.context().data.tail(3000), 1, new int[] {1500, 2900}, 27)) { why.append(c.id()).append(":LEAK;"); continue; }
+            if (!DerivedAtomR27.leakFree(c.subtree, evo.context().data.tail(3000), 1, new int[] {Math.max(1,Math.min(2999,evo.context().data.size()-1)/2),Math.max(1,Math.min(2999,evo.context().data.size()-1))}, 27)) { why.append(c.id()).append(":LEAK;"); continue; }
             if (best == null || c.contribution * c.frequency > best.contribution * best.frequency) best = c;
         }
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long now = System.currentTimeMillis();

@@ -104,6 +104,7 @@ public final class FeatureCacheR27 {
     double[] freq(int src, int w) {
         int n = t(); double[] v = nan(); int[] count = new int[10];
         for (int t = 0; t < n; t++) {
+            if((t&31)==0)CooperativeContinuationR26.poll();
             int len = Math.min(w, t);
             if (len > 0) for (int k = 0; k < 10; k++) v[t * 10 + k] = count[k] / (double) len;
             count[data.draws[t][src - 1] - 1]++;
@@ -116,6 +117,7 @@ public final class FeatureCacheR27 {
     double[] decay(int src, int halfLife) {
         int n = t(); double[] v = nan(); double[] s = new double[10]; double lambda = Math.pow(0.5, 1.0 / halfLife), mass = 0;
         for (int t = 0; t < n; t++) {
+            if((t&31)==0)CooperativeContinuationR26.poll();
             if (mass > 0) for (int k = 0; k < 10; k++) v[t * 10 + k] = s[k] / mass;
             for (int k = 0; k < 10; k++) s[k] *= lambda;
             mass = mass * lambda + 1;
@@ -137,6 +139,7 @@ public final class FeatureCacheR27 {
         int n = t(); double[] v = nan(); int[] last = new int[10]; Arrays.fill(last, -1);
         double[] g = new double[10];
         for (int t = 0; t < n; t++) {
+            if((t&31)==0)CooperativeContinuationR26.poll();
             if (t > 0) {
                 for (int k = 0; k < 10; k++) g[k] = last[k] < 0 ? 1.0 : Math.min(1.0, (t - last[k]) / 100.0);
                 if (!rank) for (int k = 0; k < 10; k++) v[t * 10 + k] = g[k];
@@ -163,6 +166,7 @@ public final class FeatureCacheR27 {
         for (double[] row : c) Arrays.fill(row, 1.0);
         double[] tot = new double[10]; Arrays.fill(tot, 10.0);
         for (int t = 0; t < n; t++) {
+            if((t&31)==0)CooperativeContinuationR26.poll();
             if (data.consecutive(t, lag)) {
                 int x = data.draws[t - lag][tp - 1] - 1;
                 for (int k = 0; k < 10; k++) v[t * 10 + k] = c[x][k] / tot[x];
@@ -186,6 +190,7 @@ public final class FeatureCacheR27 {
         for (double[] row : c) Arrays.fill(row, 1.0);
         double[] tot = new double[10]; Arrays.fill(tot, 10.0);
         for (int t = 0; t < n; t++) {
+            if((t&31)==0)CooperativeContinuationR26.poll();
             if (data.consecutive(t, 1)) {
                 int x = data.draws[t - 1][src - 1] - 1;
                 for (int k = 0; k < 10; k++) v[t * 10 + k] = c[x][k] / tot[x];
@@ -209,6 +214,7 @@ public final class FeatureCacheR27 {
     double[] parity(int src, int w, boolean odd) {
         int n = t(); double[] v = nan(); int cls1 = 0; // count of class-1 rows in window
         for (int t = 0; t < n; t++) {
+            if((t&31)==0)CooperativeContinuationR26.poll();
             int len = Math.min(w, t);
             if (len > 0) for (int k = 1; k <= 10; k++) { boolean c = odd ? (k & 1) == 1 : k > 5; double share = cls1 / (double) len; v[t * 10 + k - 1] = c ? share : 1 - share; }
             int x = data.draws[t][src - 1]; if (odd ? (x & 1) == 1 : x > 5) cls1++;
@@ -234,6 +240,7 @@ public final class FeatureCacheR27 {
     double[] regime(int w) {
         int n = t(); double[] v = nan(); int[] rep = new int[n]; int sum = 0, len = 0;
         for (int t = 0; t < n; t++) {
+            if((t&31)==0)CooperativeContinuationR26.poll();
             if (len > 0) for (int k = 0; k < 10; k++) v[t * 10 + k] = sum / (10.0 * len);
             if (data.consecutive(t, 1)) { int r = 0; for (int p = 0; p < 10; p++) if (data.draws[t][p] == data.draws[t - 1][p]) r++; rep[t] = r; sum += r; len++; }
             else rep[t] = -1;
@@ -247,10 +254,12 @@ public final class FeatureCacheR27 {
     double[] knn(int tp, int w, int k) {
         int n = t(); double[] v = nan(); int col = tp - 1;
         for (int t = w; t < n; t++) {
+            CooperativeContinuationR26.poll();
             if (!data.consecutive(t, w)) continue;
             int from = Math.max(w, t - 1000);
             int[] dist = new int[Math.max(0, t - from)]; int[] at = new int[dist.length]; int m = 0;
             for (int s = from; s < t; s++) {
+                if((s&31)==0)CooperativeContinuationR26.poll();
                 if (!data.consecutive(s, w)) continue;
                 int d = 0; for (int j = 1; j <= w; j++) if (data.draws[s - j][col] != data.draws[t - j][col]) d++;
                 dist[m] = d; at[m] = s; m++;

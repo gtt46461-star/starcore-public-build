@@ -22,7 +22,7 @@ public final class TaskProgressR30R1 {
     public static java.util.Map<String,Object> summarize(Object scheduled,Object committed,long calendar){
         java.util.Map<String,java.util.Map<String,Object>> owners=index(scheduled,"task_id"),facts=index(committed,"task_id");
         java.util.List<Object> rows=new java.util.ArrayList<>();long stalled=0,unknown=0,maxLag=0,trainingUnknown=0;
-        for(ResearchTaskRegistryR30R1.Entry entry:ResearchTaskRegistryR30R1.ENTRIES.values()){
+        for(ResearchTaskRegistryR30R1.Entry entry:ResearchTaskRegistryR30R1.all().values()){
             java.util.Map<String,Object> owner=owners.get(entry.id),fact=facts.get(entry.id),row=new java.util.LinkedHashMap<>();
             row.put("taskId",entry.id);row.put("owner",entry.owner);row.put("workUnit",entry.unit.name());row.put("inputSemantics",entry.input);row.put("trainingOwner",entry.training);
             String reason=owner==null?"WAITING_REGISTRATION":String.valueOf(owner.get("blocked_reason"));String status=owner==null?"":String.valueOf(owner.get("status"));
@@ -38,8 +38,8 @@ public final class TaskProgressR30R1 {
             if(entry.training){if(state==State.UNKNOWN||n(fact==null?null:fact.get("pending"))>0&&lag==null)trainingUnknown++;if(lag!=null)maxLag=Math.max(maxLag,lag);}
             rows.add(row);
         }
-        java.util.Map<String,Object> summary=new java.util.LinkedHashMap<>();summary.put("tasks",rows.size());summary.put("stalled",stalled);summary.put("unknown",unknown);summary.put("m12",unknown>0?null:stalled);summary.put("oldestBacklogIssues",trainingUnknown>0?null:maxLag);summary.put("observedOldestBacklogIssues",maxLag);summary.put("trainingTasksWithUnknownSource",trainingUnknown);
-        java.util.Map<String,Object> result=new java.util.LinkedHashMap<>();result.put("version",ResearchTaskRegistryR30R1.VERSION);result.put("tasks",rows);result.put("summary",summary);result.put("scope","57 original entrances; artifact transaction facts only. Work units never subtracted from calendar. Missing facts remain UNKNOWN.");return result;
+        java.util.Map<String,Object> summary=new java.util.LinkedHashMap<>();summary.put("tasks",rows.size());summary.put("originalEntrances",57);summary.put("additionalRepairTasks",ResearchTaskRegistryR30R1.ADDITIONAL.size());summary.put("stalled",stalled);summary.put("unknown",unknown);summary.put("m12",unknown>0?null:stalled);summary.put("oldestBacklogIssues",trainingUnknown>0?null:maxLag);summary.put("observedOldestBacklogIssues",maxLag);summary.put("trainingTasksWithUnknownSource",trainingUnknown);
+        java.util.Map<String,Object> result=new java.util.LinkedHashMap<>();result.put("version",ResearchTaskRegistryR30R1.VERSION);result.put("tasks",rows);result.put("summary",summary);result.put("scope","57 original entrances plus 2 repair tasks; artifact transaction facts only. Work units never subtracted from calendar. Missing facts remain UNKNOWN.");return result;
     }
     private static long n(Object value){return value instanceof Number?((Number)value).longValue():-1;}
     @SuppressWarnings("unchecked") private static java.util.Map<String,java.util.Map<String,Object>> index(Object rows,String key){java.util.Map<String,java.util.Map<String,Object>> result=new java.util.LinkedHashMap<>();if(rows instanceof java.util.List)for(Object item:(java.util.List<?>)rows)if(item instanceof java.util.Map){java.util.Map<String,Object> row=(java.util.Map<String,Object>)item;result.put(String.valueOf(row.get(key)),row);}return result;}

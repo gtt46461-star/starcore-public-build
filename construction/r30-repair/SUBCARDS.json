@@ -212,6 +212,47 @@
         "tools/r30-repair/run_matrix_host.py"
       ],
       "reason": "先登记：原SchemaR27唯一writer恢复R930已声明13张旧证据表；新增R1设计物化表仍为6，但需明确恢复旧声明物理表的实际增量。新张量按kind原维度/角色/source/hash合同保存真实payload，不将所有矩阵换名为10x10。原位置号码legacy矩阵原API保留。原池单有界轮转任务，缺源kind具体BLOCKED，不伪造完整20份。"
+    },
+    {
+      "id": "FR-B07-04-a",
+      "card": "FR-B07-04",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedReplayRunnerR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTaskRegistryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+      ],
+      "reason": "先登记：原池一次256个实际样本的双臂研究runner，optimizer bias/配对概率损失/cursor与源pin持久化于原cache，恢复不重读正式确认。原子/PIT矢量计算锁外协作yield；typed pending用于原R26有限公平boost，不盗取R27任务。"
+    },
+    {
+      "id": "FR-B07-01-a",
+      "card": "FR-B07-01",
+      "files": [
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairPairedResearchR30Test.java",
+        "tools/r30-repair/qual_host/RepairResearchR30HostTest.java",
+        "tools/r30-repair/run_research_host.py"
+      ],
+      "reason": "先登记：真实双臂runner与原生产replay逐概率比较，逐片序列化恢复；配对analysis/proposal/frame/cursor故障全回滚，消费错child/角色/revision拒绝。"
+    },
+    {
+      "id": "FR-B08-01-a",
+      "card": "FR-B08-01",
+      "files": [
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairDirectedResearchR30Test.java"
+      ],
+      "reason": "先登记：测过子代与落地子代同hash，原birth gate和行为去重保留；消费回执只在真实BORN连同子代和游标同提交。"
+    },
+    {
+      "id": "FR-B07-04-b",
+      "card": "FR-B07-04",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskProgressR30R1.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairTaskProgressR30Test.java"
+      ],
+      "reason": "先登记：原57入口保留，另加2个真实任务；报告总数59明确原始和新增命名空间，缺facts仍UNKNOWN；更新断言验证新增Owner也不被漏计。"
     }
   ]
 }

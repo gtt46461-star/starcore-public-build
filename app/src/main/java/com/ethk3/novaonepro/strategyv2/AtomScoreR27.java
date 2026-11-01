@@ -20,7 +20,7 @@ public final class AtomScoreR27 {
         Contribution(StatsR27.Moments values,long pairs){gains=values;comparisons=pairs;}
         public double mean(){return gains.n>0?gains.mean:Double.NaN;}
         public double lower95(){return gains.lcb(StatsR27.Z95_ONE_SIDED);}
-        public Map<String,Object> json(){Map<String,Object> m=new LinkedHashMap<>();m.put("periods",gains.n);m.put("pairedComparisons",comparisons);m.put("mean",gains.n>0?gains.mean:null);m.put("lower95",fin(lower95()));m.put("source","H_SELECT_SAME_PERIOD_PAIRED_BRIER");m.put("status",gains.n<2?"INSUFFICIENT":"MEASURED");return m;}
+        public Map<String,Object> json(){Map<String,Object> m=new LinkedHashMap<>();m.put("periods",gains.n);m.put("pairedComparisons",comparisons);m.put("mean",gains.n>0?gains.mean:null);m.put("lower95",fin(lower95()));m.put("target","BINARY_K3_SAME_ORIGINAL_ACTION");m.put("intervalScope","LEGACY_FAST_RESEARCH_SCREEN_NOT_NATURAL_QUALITY");m.put("source","H_SELECT_SAME_PERIOD_PAIRED_BRIER");m.put("status",gains.n<2?"INSUFFICIENT":"MEASURED");return m;}
     }
     public static double pairedBrier(double with,double without,int hit){return (without-hit)*(without-hit)-(with-hit)*(with-hit);}
 

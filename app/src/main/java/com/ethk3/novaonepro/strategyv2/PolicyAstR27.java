@@ -149,6 +149,7 @@ public final class PolicyAstR27 {
         return values;
     }
     private static double[] evalNode(Node n,FeatureCacheR27 f,int tp) {
+        CooperativeContinuationR26.poll();
         int len = f.data.size() * 10;
         if (n.op.equals("c")) { double[] v = new double[len]; Arrays.fill(v, n.param); return v; }
         if (LEAVES.containsKey(n.op)) {
@@ -200,6 +201,7 @@ public final class PolicyAstR27 {
     /** mode 0 rank/9, 1 z-score, 2 softmax(temperature). A row with any NaN stays NaN. */
     private static void rowWise(double[] x, double[] v, int mode, double temperature) {
         for (int t = 0; t < x.length / 10; t++) {
+            if((t&31)==0)CooperativeContinuationR26.poll();
             int o = t * 10; boolean bad = false;
             for (int j = 0; j < 10; j++) if (Double.isNaN(x[o + j])) bad = true;
             if (bad) { for (int j = 0; j < 10; j++) v[o + j] = Double.NaN; continue; }

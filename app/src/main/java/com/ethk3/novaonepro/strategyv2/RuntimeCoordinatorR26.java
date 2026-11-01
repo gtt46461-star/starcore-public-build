@@ -129,14 +129,10 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
      * pending/last_committed_seq facts every task is UNKNOWN, so nothing is boosted (no guessed stall). */
     private Claim claimStalledR30(){
         final long latest=latestSequence();if(latest<0)return null;
-        if(stallFactsCheckedR30==0||System.currentTimeMillis()-stallFactsCheckedR30>600_000L){
-            Set<String> columns=new HashSet<>();try(Cursor c=store.readable().rawQuery("PRAGMA table_info(r26_task)",null)){while(c.moveToNext())columns.add(c.getString(1));}
-            stallFactsR30=columns.contains("pending")&&columns.contains("last_committed_seq");stallFactsCheckedR30=System.currentTimeMillis();
-        }
-        if(!stallFactsR30)return null;
+        if(!ResearchStoreR30R1.ready(store.readable()))return null;
         return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_TASK_CLAIM",db->{
             long now=System.currentTimeMillis();
-            try(Cursor c=db.rawQuery("SELECT task_id,fence,cursor,lane,status,coalesce(blocked_reason,''),pending,last_committed_seq FROM r26_task WHERE status IN ('READY','YIELDED','BLOCKED') AND lease_until<=? ORDER BY last_served,task_id",new String[]{String.valueOf(now)})){
+            try(Cursor c=db.rawQuery("SELECT t.task_id,t.fence,t.cursor,t.lane,t.status,coalesce(t.blocked_reason,''),p.pending,p.last_commit_clock_ordinal FROM r26_task t JOIN r30r1_task_progress p ON p.task_id=t.task_id WHERE t.lane<>'R27' AND t.status IN ('READY','YIELDED','BLOCKED') AND t.lease_until<=? AND t.next_at<=? AND p.pending IS NOT NULL AND p.last_commit_clock_ordinal IS NOT NULL AND p.owner_version=? ORDER BY t.last_served,t.task_id",new String[]{String.valueOf(now),String.valueOf(now),ResearchTaskRegistryR30R1.VERSION})){
                 while(c.moveToNext()){
                     String reason=c.getString(5);long seq=c.getLong(7);
                     TaskLivenessR30.State st=TaskLivenessR30.classify(c.getLong(6),seq<0?-1:Math.max(0,latest-seq),reason.startsWith("DEPENDENCY")||reason.startsWith("WAITING_"),reason.contains("WAITING_NEW_DRAW"),false);
