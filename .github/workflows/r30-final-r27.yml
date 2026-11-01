@@ -1,4 +1,4 @@
-name: STARCORE R30 FINAL EXISTING_R27 (existing identity only)
+name: STARCORE R30 REPAIR1 EXISTING_R27 (existing identity only)
 on:
   push:
     branches: ['construction/r27-20261028']
@@ -7,7 +7,7 @@ permissions:
   contents: write
   actions: read
 concurrency:
-  group: r30-final-EXISTING_R27-${{ github.sha }}
+  group: r30-repair1-EXISTING_R27-${{ github.sha }}
   cancel-in-progress: false
 jobs:
   build:
@@ -72,10 +72,10 @@ jobs:
       - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
       - name: Exact-source complete gates and signed candidates
         run: |
-          timeout 45s git fetch --no-tags origin construction/r30-20261031
-          git merge-base --is-ancestor HEAD origin/construction/r30-20261031
+          timeout 45s git fetch --no-tags origin construction/r30-repair-20261101
+          git merge-base --is-ancestor HEAD origin/construction/r30-repair-20261101
           [ -n "${DUOQU_API_KEY:-}" ] || { echo FINAL_API_CONFIGURATION_UNAVAILABLE; exit 1; }
-          bash tools/r30/ci_build.sh
+          bash tools/r30-repair/ci_build.sh
           ./gradlew --no-daemon :app:lintDebug
           python3 tools/r30/package_final.py --lane EXISTING_R27 --expected-source '${{ steps.request.outputs.source }}'
           ./gradlew --no-daemon -q -Pr30Instrumentation=true :app:assembleDebugAndroidTest
@@ -84,20 +84,21 @@ jobs:
           cp app/build/outputs/apk/androidTest/debug/*.apk r30-androidtest/
       - uses: actions/upload-artifact@v4
         with:
-          name: R30-R27-FINAL-CANDIDATE
+          name: R30-REPAIR1-R27-FINAL-CANDIDATE
           path: r30-final/
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
-          name: R30-R27-ANDROIDTEST
+          name: R30-REPAIR1-R27-ANDROIDTEST
           path: r30-androidtest/
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: R30-R27-HOST-EVIDENCE
+          name: R30-REPAIR1-R27-HOST-EVIDENCE
           path: |
             evidence/r30/ci/
+            evidence/r30-repair/ci/
             app/build/test-results/
             app/build/reports/
   emulator:
@@ -114,11 +115,11 @@ jobs:
           java-version: '17'
       - uses: actions/download-artifact@v4
         with:
-          name: R30-R27-FINAL-CANDIDATE
+          name: R30-REPAIR1-R27-FINAL-CANDIDATE
           path: candidate
       - uses: actions/download-artifact@v4
         with:
-          name: R30-R27-ANDROIDTEST
+          name: R30-REPAIR1-R27-ANDROIDTEST
           path: androidtest
       - name: Enable emulator acceleration
         run: |
@@ -134,11 +135,11 @@ jobs:
           ram-size: 4096M
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
-          script: adb root && adb wait-for-device && adb install $(find candidate -name '*.apk' -print -quit) && adb install -t $(find androidtest -name '*.apk' -print -quit) && python3 scripts/probe_r13_startup.py --installed && bash tools/r30/run_android_regression.sh evidence/r30/android-regression && bash tools/r30/run_fault_matrix.sh evidence/r30/fault-matrix
+          script: adb root && adb wait-for-device && adb install $(find candidate -name '*.apk' -print -quit) && adb install -t $(find androidtest -name '*.apk' -print -quit) && python3 scripts/probe_r13_startup.py --installed && bash tools/r30-repair/run_android_regression.sh evidence/r30/android-regression && bash tools/r30/run_fault_matrix.sh evidence/r30/fault-matrix
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: R30-R27-ANDROID-EVIDENCE
+          name: R30-REPAIR1-R27-ANDROID-EVIDENCE
           path: |
             evidence/r30/android-regression/
             evidence/r30/fault-matrix/
@@ -161,7 +162,7 @@ jobs:
           java-version: '17'
       - uses: actions/download-artifact@v4
         with:
-          name: R30-R27-FINAL-CANDIDATE
+          name: R30-REPAIR1-R27-FINAL-CANDIDATE
           path: candidate
       - uses: android-actions/setup-android@v3
         with:
@@ -185,7 +186,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: R30-R27-UPGRADE-${{ matrix.checkpoint }}
+          name: R30-REPAIR1-R27-UPGRADE-${{ matrix.checkpoint }}
           path: |
             evidence/r30/upgrade-EXISTING_R27-${{ matrix.checkpoint }}/
             startup-evidence/
