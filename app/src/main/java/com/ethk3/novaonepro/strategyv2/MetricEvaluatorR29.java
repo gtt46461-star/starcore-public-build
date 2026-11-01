@@ -103,7 +103,7 @@ public final class MetricEvaluatorR29 {
                 List<?> all=rows(in,"capabilities");long executable=0;for(Object x:all)if(Boolean.TRUE.equals(map(x).get("executable")))executable++;
                 if(!all.isEmpty())observed(r,executable,executable,all.size(),all.size(),"STATIC_DECLARED_HANDLERS_NOT_RUNTIME_EFFECT",executable==all.size()?"RECORDED_UNVALIDATED":"BLOCKED","可调用绑定与输入可用、真实产出、被消费、有效性分别记录，禁止由此推出质量");source(in,r,"capabilities");break;
             }
-            case "M24":source(in,r,"modelCalls","checkpoints","modelSurfaceRows");break;
+            case "M24":{source(in,r,"modelCalls","checkpoints","modelSurfaceRows","modelConsumption");Map<String,Object> census=map(in.data.get("modelConsumption"));Number ratio=number(census.get("matchingRatio"));r.put("observations",census);if("FAIL".equals(census.get("status")))observed(r,ratio,census.get("applicableMatchedCalls"),census.get("expectedCallsFromActualAstPositions"),count(census.get("expectedCallsFromActualAstPositions")),"RETAINED_FROZEN_MODEL_POSITIONS_FROM_ACTUAL_AST","FAIL","原策略需要的位置与同一次冻结的model/source/probability回执不匹配");else if(ratio!=null)observed(r,ratio,census.get("applicableMatchedCalls"),census.get("expectedCallsFromActualAstPositions"),count(census.get("expectedCallsFromActualAstPositions")),"RETAINED_FROZEN_MODEL_POSITIONS_FROM_ACTUAL_AST","RECORDED_UNVALIDATED","同一只读事务内的完整结构匹配；原件重算、设备效果与自然质量另验");else if("BLOCKED".equals(census.get("status"))){r.put("status","BLOCKED");r.put("missingReason","没有适用冻结消费，保留缺面/来源阻断；0/0不显示100%");}break;}
             case "M25":source(in,r,"objectIndex","matrices","nativeMatrixRows","su2MatrixRows");break;
             case "M26":source(in,r,"calibration");break;
             case "M27": {

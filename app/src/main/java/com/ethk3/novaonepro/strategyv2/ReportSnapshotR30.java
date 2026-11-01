@@ -73,6 +73,8 @@ public final class ReportSnapshotR30 {
             List<CapabilityRegistryR30.Definition> definitions=CapabilityRegistryR30.all();facts.put("registeredCapabilities",(long)definitions.size());List<Object> capabilities=new ArrayList<>();for(CapabilityRegistryR30.Definition def:definitions){Map<String,Object> row=new LinkedHashMap<>(def.json());row.put("effective",null);row.put("availabilityScope","CODE_AND_CURRENT_BINDINGS_SEPARATE_FROM_STATISTICAL_SNAPSHOT");row.put("evidenceState","SEPARATE_PERSISTED_SOURCE_REQUIRED");capabilities.add(row);}data.put("capabilities",capabilities);
             cachedViews(data);
             timelineViewsR30(data);
+            if(own){Map<String,Object> consumption=new LinkedHashMap<>(ModelSurfaceStoreR30.report(db));consumption.put("snapshotScope","SAME_PUBLIC_READ_ONLY_REPORT_TRANSACTION");data.put("modelConsumption",consumption);}
+            else {Map<String,Object> unavailable=new LinkedHashMap<>();unavailable.put("status","UNKNOWN_ATOMIC_READ_VIEW_UNAVAILABLE");unavailable.put("reason","Full AST/source consumption census requires the public read-only transaction available on API35+; bounded excerpts are not a full denominator");data.put("modelConsumption",unavailable);}
             long taskCalendar=-1;try{if(values.get("latestIssue") instanceof String)taskCalendar=TargetIssueResolver.sequenceOrdinalSU1((String)values.get("latestIssue"));}catch(RuntimeException invalid){}
             data.put("taskLiveness",TaskProgressR30R1.summarize(data.get("tasks"),data.get("typedTaskProgress"),taskCalendar));
             data.put("objectIndex",ReportObjectIndexR30.build(facts,watermark,data));

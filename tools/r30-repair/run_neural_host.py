@@ -11,4 +11,4 @@ with tempfile.TemporaryDirectory(prefix='repair-neural-host-') as temporary:
     cp=os.pathsep.join(map(str,[shim,test,classes,jdbc,sdk]))
     run(['java','-Xmx768m','-cp',cp,'com.ethk3.novaonepro.strategyv2.RepairNeuralR30HostTest'])
     for mode in ['valid','missing','target','race']:run(['java','-Xmx768m','-cp',cp,'com.ethk3.novaonepro.strategyv2.ModelSurfaceR30HostTest',mode])
-    run(['java','-Xmx768m','-cp',cp,'com.ethk3.novaonepro.strategyv2.TenPositionR30HostTest'])
+    for stop in [4,5,9]:run(['java','-Xmx768m','-Dr30.host.stopPosition='+str(stop),'-cp',cp,'com.ethk3.novaonepro.strategyv2.TenPositionR30HostTest'])
