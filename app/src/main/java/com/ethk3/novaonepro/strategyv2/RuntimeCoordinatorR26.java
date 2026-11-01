@@ -28,6 +28,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     }
     public RuntimeCoordinatorR26(DbStore store){this.store=Objects.requireNonNull(store);worker=new Thread(this::run,"starcore-r26-continuous-research");worker.setDaemon(true);synchronized(RuntimeCoordinatorR26.class){RuntimeCoordinatorR26 previous=active;if(previous!=null)previous.close();active=this;}worker.start();}
     static void bindBackgroundClaim(Claim claim){WRITING_CLAIM.set(claim);}
+    static Claim currentClaimR30(){return WRITING_CLAIM.get();}
     public static void recordOwnedArtifactR30(SQLiteDatabase db,String operation){ResearchStoreR30R1.afterOwnedArtifact(db,operation,WRITING_CLAIM.get());}
     /** Pause signal for numerical continuation workers. R27-005: the minutes-long realtime-analysis pressure gate is
      * no longer a pause reason; only stop, real resources and the millisecond settlement write window are. */
@@ -77,6 +78,10 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             // R27.1: tasks quarantined only by the fixed continuation-quantum bug get their normal retry back.
             db.execSQL("UPDATE r26_task SET status='READY',wait_kind='',error_count=0,error_window_start=0,next_at=0 WHERE status='QUARANTINED' AND task_id IN (SELECT task_id FROM r27_task_error WHERE message='R26_CONTINUATION_QUANTUM' OR (message LIKE 'F01_WRITE_FAILED%' AND stack LIKE '%CP3_DB_BUSY_DEADLINE%'))");RuntimeSchemaR26.bindCapabilitySource(db,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);long now=System.currentTimeMillis();
             // A new process has a new monotonic epoch. Leases remain wall-clock bounded and fenced.
+            java.util.List<Object> interrupted=new java.util.ArrayList<>();
+            try(Cursor previous=db.rawQuery("SELECT session_id,heartbeat,state FROM r26_session WHERE user_enabled=1 ORDER BY heartbeat DESC LIMIT 16",null)){while(previous.moveToNext()){java.util.Map<String,Object> gap=new java.util.LinkedHashMap<>();gap.put("sessionId",previous.getString(0));gap.put("lastPersistedHeartbeat",previous.getLong(1));gap.put("previousState",previous.getString(2));gap.put("recoveredAt",now);gap.put("unobservedIntervalMs",Math.max(0,now-previous.getLong(1)));gap.put("cause","UNKNOWN_PROCESS_OR_SERVICE_GAP_NOT_PROVEN_CONTINUOUS");interrupted.add(gap);}}
+            java.util.Map<String,Object> recovery=new java.util.LinkedHashMap<>();recovery.put("version","R30_REPAIR_LIFECYCLE_1");recovery.put("newSession",owner);recovery.put("recoveredAt",now);recovery.put("interruptedSessions",interrupted);recovery.put("scope","Observed persisted gaps only. OEM force stop and killed-process time are not service uptime; resume uses durable artifacts and invalidates prior leases.");
+            db.execSQL("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r30-lifecycle','last-recovery',?,?)",new Object[]{JsonR27.write(recovery),now});
             db.execSQL("UPDATE r26_session SET state='INTERRUPTED',user_enabled=0 WHERE user_enabled=1");
             db.execSQL("UPDATE r26_task SET status='YIELDED',lease_until=0,fence=fence+1,owner=NULL WHERE status='RUNNING'");
             db.execSQL("INSERT OR REPLACE INTO r26_session VALUES(?,1,?,'RUNNING',?,coalesce((SELECT actual_progress FROM r26_session WHERE session_id=?),0))",new Object[]{owner,String.valueOf(now-SystemClock.elapsedRealtime()),now,owner});

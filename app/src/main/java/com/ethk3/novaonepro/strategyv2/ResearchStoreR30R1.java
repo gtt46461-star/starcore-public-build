@@ -16,6 +16,7 @@ public final class ResearchStoreR30R1 {
         }
     }
     public static boolean ready(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('r30r1_analysis_run','r30r1_research_measure','r30r1_proposal','r30r1_consume','r30r1_chart_cache','r30r1_task_progress')",null)){return c.moveToFirst()&&c.getLong(0)==6;}}
+    public static void appendOwnedProgress(ResearchWriteQueueR27.Batch batch,long calendar,Facts facts){RuntimeCoordinatorR26.Claim claim=RuntimeCoordinatorR26.currentClaimR30();if(claim!=null)appendProgress(batch,claim.task,claim.owner,claim.fence,calendar,facts);}
     public static void appendProgress(ResearchWriteQueueR27.Batch batch,String task,String session,long fence,long calendar,Facts facts){
         // Progress first, then the original final source/deadline guard; both are in the same transaction.
         final com.ethk3.novaonepro.DatabaseCoordinator.WriteCallable<Integer> original=batch.after;
@@ -33,10 +34,6 @@ public final class ResearchStoreR30R1 {
     public static void afterOwnedArtifact(SQLiteDatabase db,String operation,RuntimeCoordinatorR26.Claim claim){
         if(claim==null||!ResearchTaskRegistryR30R1.ENTRIES.containsKey(claim.task)||operation.contains("TASK_RECEIPT")||operation.contains("THREAD_CPU")||operation.contains("CLAIM")||operation.contains("WRITE_WAIT")||!ready(db))return;
         String task=claim.task;String query=null;
-        if((task.equals("r27-chart-cache")&&operation.equals("R27_CHART_CACHE"))||(task.equals("r27-health")&&operation.equals("R27_HEALTH"))){
-            String panel=task.equals("r27-health")?"health":"r27";
-            try(Cursor tick=db.rawQuery("SELECT max(updated_at),count(*) FROM r27_chart_cache WHERE panel_id=?",new String[]{panel})){if(tick.moveToFirst()&&!tick.isNull(0)){long at=tick.getLong(0);commitProgress(db,task,claim.owner,claim.fence,calendar(db),new Facts(at/1000,at/1000,0L,null,null,HashingSU1.fields(task,at,tick.getLong(1))));}}return;
-        }
         if(task.equals("r27-live")&&operation.equals("R27_LIVE_SETTLE"))query="SELECT min(through_ordinal),group_concat(policy_hash||':'||through_ordinal,'|') FROM (SELECT policy_hash,through_ordinal FROM r27_live_shadow WHERE status IN ('ACTIVE','OBSERVE') ORDER BY policy_hash)";
         else if(task.equals("r27-atoms")&&operation.equals("R27_ATOM_SCORES"))query="SELECT coalesce(sum(n_select),0),group_concat(atom_id||':'||dataset_hash||':'||computed_at,'|') FROM (SELECT atom_id,dataset_hash,computed_at,n_select FROM r27_atom_score ORDER BY atom_id)";
         else if(task.equals("r27-abi")&&(operation.equals("R27_SEMANTIC_ABI")||operation.equals("R27_LEGACY_ABI_CONTINUITY")))query="SELECT count(*),group_concat(policy_hash||':'||fingerprint,'|') FROM (SELECT policy_hash,fingerprint FROM r27_semantic_fingerprint ORDER BY policy_hash,build)";
@@ -56,6 +53,7 @@ public final class ResearchStoreR30R1 {
             if(task.equals("r27-replay-dataset")){cursor=com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1(c.getString(0));completed=cursor;pending=at<0?null:Math.max(0,at-cursor-RuntimeR27.REFRESH_NEW_ROWS+1);}
             else if(task.equals("live-model-training")||task.equals("legacy-replay")||task.equals("r27-live")){completed=cursor;pending=at<0?null:Math.max(0,at-cursor);if(pending!=null&&pending>0)oldest=cursor+1;}
             else if(task.equals("r27-atomnet")){AtomNetSessionR30 state=AtomNetStoreR30.restore(db);if(state==null)return;cursor=state.pretrainSamples+state.trainer.onlineSteps;completed=state.ready()?state.trainedThroughOrdinal():null;pending=null;}
+            if(task.equals("r27-evolution"))pending=1L;
             long latest=(task.equals("live-model-training")||task.equals("legacy-replay")||task.equals("r27-live")||task.equals("r27-replay-dataset"))&&at>=0?Math.max(cursor,at):cursor;
             commitProgress(db,task,claim.owner,claim.fence,at,new Facts(cursor,latest,pending,oldest,completed,HashingSU1.text(c.getString(1))));
         }

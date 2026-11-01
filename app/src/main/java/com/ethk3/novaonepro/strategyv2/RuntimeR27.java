@@ -372,7 +372,8 @@ public final class RuntimeR27 implements AutoCloseable {
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
             if (System.currentTimeMillis() - lastBuilt < 30_000) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);
             ResearchWriteQueueR27.Batch b = ChartCacheR27.build(w.ro, RuntimeR27.this);
-            submit(w, "CHART_CACHE", b); lastBuilt = System.currentTimeMillis();
+            long preparedAt=System.currentTimeMillis();ResearchStoreR30R1.appendOwnedProgress(b,ResearchStoreR30R1.calendar(w.ro),new ResearchStoreR30R1.Facts(preparedAt/1000,preparedAt/1000,0L,null,null,HashingSU1.text("CHART_CACHE|"+preparedAt)));
+            submit(w, "CHART_CACHE", b); lastBuilt = preparedAt;
             return ResearchPoolR27.Outcome.progress(b.ops.size(), lastBuilt / 1000);
         }
     }
@@ -435,6 +436,7 @@ public final class RuntimeR27 implements AutoCloseable {
             Map<String, Object> m = new LinkedHashMap<>(); m.put("stuck", (long) stuck); m.put("neverRun", (long) never); m.put("checkedAt", preparedAt);
             m.put("workerLimit", (long) pool.workerLimit()); m.put("thermalReason", pool.thermalReason());
             b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('health','summary',?,?)", JsonR27.write(m), preparedAt);
+            ResearchStoreR30R1.appendOwnedProgress(b,ResearchStoreR30R1.calendar(w.ro),new ResearchStoreR30R1.Facts(preparedAt/1000,preparedAt/1000,0L,null,null,HashingSU1.text("HEALTH|"+preparedAt)));
             submit(w, "HEALTH", b);
             last=preparedAt;lastSize=nextSize;assetsCached=nextAssetsCached;q08=nextQ08;fetchFlushed.clear();fetchFlushed.putAll(nextFetchFlushed);
             return ResearchPoolR27.Outcome.progress(1, preparedAt / 1000);
