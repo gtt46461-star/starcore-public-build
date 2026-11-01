@@ -765,6 +765,7 @@ public final class DatabaseCoordinator {
                 boolean owns = !db.inTransaction();
                 long beginNanos=-1L,bodyNanos=-1L,endNanos=-1L;
                 String outcome=owns?"BEGIN_FAILED":"EXTERNAL_ENTER_FAILED";
+                Throwable transactionFailure=null;
                 try {
                     if (owns) {
                         long started=System.nanoTime();
@@ -786,6 +787,9 @@ public final class DatabaseCoordinator {
                         }
                         outcome=owns?"COMMIT_PENDING":"EXTERNAL_SUCCESS";
                         return result;
+                    } catch (Exception | Error failure) {
+                        transactionFailure=failure;
+                        throw failure;
                     } finally {
                         bodyNanos=Math.max(0L,System.nanoTime()-bodyStarted);
                         try {
@@ -797,13 +801,38 @@ public final class DatabaseCoordinator {
                                     outcome=successful?"COMMITTED_POSTCHECK_FAILED":"ROLLED_BACK";
                                     if (successful) TransactionSchemaCacheR941.afterCommit(schemaScope);
                                     if (successful) outcome="COMMITTED";
+                                } catch (RuntimeException | Error cleanup) {
+                                    // SQLITE_FULL may already have rolled back natively. Keep that
+                                    // original body failure when endTransaction then fails to roll back.
+                                    if(transactionFailure==null){transactionFailure=cleanup;throw cleanup;}
+                                    if(transactionFailure!=cleanup)transactionFailure.addSuppressed(cleanup);
                                 } finally { endNanos=Math.max(0L,System.nanoTime()-endStarted); }
                             }
-                        } finally { TransactionSchemaCacheR941.leave(schemaScope); }
+                        } finally {
+                            try { TransactionSchemaCacheR941.leave(schemaScope); }
+                            catch (RuntimeException | Error cleanup) {
+                                if(transactionFailure==null){transactionFailure=cleanup;throw cleanup;}
+                                if(transactionFailure!=cleanup)transactionFailure.addSuppressed(cleanup);
+                            }
+                        }
                     }
+                } catch (Exception | Error failure) {
+                    transactionFailure=failure;
+                    throw failure;
                 } finally {
-                    try{RuntimeResourceAuditR927.transactionTimingR75(operation,owns,
-                            beginNanos,bodyNanos,endNanos,outcome);}finally{continuationCritical.close();}
+                    try {
+                        RuntimeResourceAuditR927.transactionTimingR75(operation,owns,
+                                beginNanos,bodyNanos,endNanos,outcome);
+                    } catch (RuntimeException | Error cleanup) {
+                        if(transactionFailure==null){transactionFailure=cleanup;throw cleanup;}
+                        if(transactionFailure!=cleanup)transactionFailure.addSuppressed(cleanup);
+                    } finally {
+                        try { continuationCritical.close(); }
+                        catch (RuntimeException | Error cleanup) {
+                            if(transactionFailure==null)throw cleanup;
+                            if(transactionFailure!=cleanup)transactionFailure.addSuppressed(cleanup);
+                        }
+                    }
                 }
             }
         };

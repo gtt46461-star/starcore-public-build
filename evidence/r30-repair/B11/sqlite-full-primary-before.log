@@ -1,0 +1,27 @@
+/workspace/starcore-r30-repair/tools/r30-repair/qual_host/RepairCommitFailureR30HostTest.java:7: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/workspace/starcore-r30-repair/tools/r30-repair/qual_host/RepairCommitFailureR30HostTest.java:69: warning: Unsafe is internal proprietary API and may be removed in a future release
+            SQLiteDatabase db=new SQLiteDatabase(connection);Field uf=Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);Unsafe unsafe=(Unsafe)uf.get(null);DatabaseCoordinator coordinator=(DatabaseCoordinator)unsafe.allocateInstance(DatabaseCoordinator.class);
+                                                                      ^
+/workspace/starcore-r30-repair/tools/r30-repair/qual_host/RepairCommitFailureR30HostTest.java:69: warning: Unsafe is internal proprietary API and may be removed in a future release
+            SQLiteDatabase db=new SQLiteDatabase(connection);Field uf=Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);Unsafe unsafe=(Unsafe)uf.get(null);DatabaseCoordinator coordinator=(DatabaseCoordinator)unsafe.allocateInstance(DatabaseCoordinator.class);
+                                                                                                                                        ^
+/workspace/starcore-r30-repair/tools/r30-repair/qual_host/RepairCommitFailureR30HostTest.java:69: warning: Unsafe is internal proprietary API and may be removed in a future release
+            SQLiteDatabase db=new SQLiteDatabase(connection);Field uf=Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);Unsafe unsafe=(Unsafe)uf.get(null);DatabaseCoordinator coordinator=(DatabaseCoordinator)unsafe.allocateInstance(DatabaseCoordinator.class);
+                                                                                                                                                       ^
+4 warnings
+BASELINE_REAL_NATIVE_COMMIT_FAILURE_REPRODUCED false_success=true committed_rows=0 telemetry_called_while_writer_locked=true
+Exception in thread "main" java.lang.AssertionError: rollback cleanup must not replace original SQLITE_FULL: android.database.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (cannot commit - no transaction is active)
+	at com.ethk3.novaonepro.RepairCommitFailureR30HostTest.need(RepairCommitFailureR30HostTest.java:10)
+	at com.ethk3.novaonepro.RepairCommitFailureR30HostTest.atomicFailures(RepairCommitFailureR30HostTest.java:45)
+	at com.ethk3.novaonepro.RepairCommitFailureR30HostTest.main(RepairCommitFailureR30HostTest.java:80)
+Traceback (most recent call last):
+  File "/tmp/repair-full-original-coordinator-kuy0hhvr/run_commit_failure_review.py", line 37, in <module>
+    run(['java','-Xmx512m','-cp',os.pathsep.join(map(str,[platform,directory,test,classes,jdbc,sdk])),'com.ethk3.novaonepro.RepairCommitFailureR30HostTest',mode])
+  File "/tmp/repair-full-original-coordinator-kuy0hhvr/run_commit_failure_review.py", line 6, in run
+    def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['java', '-Xmx512m', '-cp', '/tmp/repair-actual-commit-odmkago3/platform:/tmp/repair-actual-commit-odmkago3/production:/tmp/repair-actual-commit-odmkago3/test:/workspace/starcore-r30-repair/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/work/r29/deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar', 'com.ethk3.novaonepro.RepairCommitFailureR30HostTest', 'fixed']' returned non-zero exit status 1.

@@ -669,6 +669,58 @@
         "tools/r30-repair/publish_verified.py"
       ],
       "reason": "先登记：CI41351748149实际通过原17项及116截图，新工作台在finally中finish后立即assert线程shutdown失败，且可能遮盖前一原始失败。等待真实onDestroy并检查executor终止，保留原错误+cleanup suppressed；失败也拉取已有截图。成功发布时加入188实际PNG及校验JSON公开证据ZIP，方便合法下载复核，不接触密钥。"
+    },
+    {
+      "id": "FR-B11-01-android-insufficient-matrix-fixture",
+      "card": "FR-B11-01",
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30RepairChartsAndroidTest.java"
+      ],
+      "reason": "先登记（并行代理只读发现、parent核对确认）：INSUFFICIENT夹具清空points却保留R01/R07非空matrixRows/Columns，实际Panel构造拒绝MATRIX_AXIS_CELL_SHAPE并投影READ_ERROR，与预期不足冲突，旧finally可能掩盖主失败。只在不足合成夹具同时清除矩阵轴并重算hash，保留生产形状校验和不足断言，不改真实分析产物。"
+    },
+    {
+      "id": "FR-B02-06-preserve-original-full-through-cleanup",
+      "card": "FR-B02-06",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "tools/r30-repair/qual_host/RepairCommitFailureR30HostTest.java"
+      ],
+      "reason": "先登记：原OriginalSqliteFullFixtureR30HostTest实际证实SQLITE_FULL error13自动回滚后cleanup rollback可能抛error1；生产atomicCallableF01原finally可用cleanup错误覆盖原body FULL，违背原异常保留及故障解释要求。仅在原同一事务Owner内保留body主异常、将cleanup错误作为suppressed；正常body的真实COMMIT错误仍必须原样传播/回滚，绝不新增writer/成功点/改变资格数值。扩展原实际SQLite生产coordinator异常回归，Android12格继续严格检查外层保留真实FULL。"
+    },
+    {
+      "id": "FR-B10-05-repeatable-android-fault-scope",
+      "card": "FR-B10-05",
+      "files": [
+        "tools/r30-repair/run_research_fault_matrix.sh"
+      ],
+      "reason": "先登记：并行审查确认固定research-local/GITHUB_RUN_ID会在同模拟器第二次调用复用已提交夹具，造成BUSY holder id7重复或absent误失败。每次driver生成有界唯一invocation ID，同一cell的KILL arm/recover仍共用scope；不删库、不卸载、不放宽真实故障。"
+    },
+    {
+      "id": "FR-B11-01-real-emulator-adb-transport-readiness",
+      "card": "FR-B11-01",
+      "files": [
+        "tools/r30-repair/prepare_emulator.sh",
+        "tools/r30-repair/r30-repair-build.yml"
+      ],
+      "reason": "先登记：CI41352596771在任何APK安装/测试前实际adb root报unable to connect for root: closed/device offline，属于模拟器传输启动竞态。增加有界就绪/原adb root重试并验证emulator+boot_completed+uid0后才运行原全套，不跳过root/断言/场景，不操作实机。upgrade同样用已就绪root环境，签名loader字节不变。"
+    },
+    {
+      "id": "FR-B10-05-exact-android-research-chain-proof",
+      "card": "FR-B10-05",
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/RepairResearchFaultAndroidTest.java"
+      ],
+      "reason": "先登记：并行审查发现恢复后只计proposal/frame/child/cursor数量不足以证明matrix和measure未半发布。补实际paired run+typed run两条COMMITTED、原measure→proposal→COUNTERFACTUAL matrix→R06 frame的精确run join；消费期再核对exact child/CONSUMED/原谱系与r26尝试及cursor数据集。加强断言，不改生产交易/原14格。"
+    },
+    {
+      "id": "FR-B11-01-actual-public-unit-summary",
+      "card": "FR-B11-01",
+      "files": [
+        "tools/r30-repair/ci_build.sh",
+        "tools/r30-repair/publish_verified.py",
+        "tools/r30-repair/r30-repair-build.yml"
+      ],
+      "reason": "先登记：临时工件域被proxy403且不绕过，需公开可核验的实际单测分母。原全量完成后只读取真实JUnit XML汇总source/tests/failures/errors/skipped，打印并保存；发布器对准确source及零失败/零跳过复核并随公开证据ZIP交付。不增加替代测试或虚拟通过数，不删除旧lint基线。"
     }
   ]
 }

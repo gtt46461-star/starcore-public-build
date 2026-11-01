@@ -5,6 +5,15 @@ cd "$(dirname "$0")/../.."
 bash tools/r30/ci_build.sh
 repair_log=evidence/r30-repair/ci
 mkdir -p "$repair_log"
+python3 - <<'PY'
+import json,pathlib,subprocess,xml.etree.ElementTree as ET
+files=sorted(pathlib.Path('app/build/test-results/testDebugUnitTest').glob('TEST-*.xml'));assert files,'NO_ACTUAL_JUNIT_XML'
+totals={k:sum(int(ET.parse(f).getroot().get(k,'0')) for f in files) for k in ('tests','failures','errors','skipped')}
+assert totals['tests']>0 and totals['failures']==totals['errors']==totals['skipped']==0,totals
+record={'sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'source':'ACTUAL_GRADLE_JUNIT_XML','xmlSuites':len(files),**totals,'scope':'HOST_UNIT_NOT_ANDROID_PHYSICAL_OR_NATURAL'}
+pathlib.Path('evidence/r30-repair/ci/unit-summary.json').write_text(json.dumps(record,indent=2)+'\n')
+print('R30_REPAIR_ACTUAL_UNIT_SUMMARY '+json.dumps(record))
+PY
 repair_deps=$(mktemp -d)
 trap 'rm -rf "$repair_deps"' EXIT
 export SQLITE_JDBC="$repair_deps/sqlite-jdbc.jar"

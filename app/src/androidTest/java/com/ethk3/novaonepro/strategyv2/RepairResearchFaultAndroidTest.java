@@ -58,8 +58,18 @@ public final class RepairResearchFaultAndroidTest {
         if(stage.equals("analysis")){assertEquals(0,count(s,"research_matrix_snapshot_r930"));assertEquals(0,n(s.readable(),"SELECT count(*) FROM r30r1_research_measure WHERE kind!='INPUT_INVALIDATION'"));assertEquals(0,count(s,"r30r1_chart_cache"));}
         assertEquals(0,count(s,"r27_certificate"));assertEquals(0,count(s,"r27_holdout_exposure"));
     }
-    static void complete(DbStore s,String stage){
-        assertEquals(1,count(s,"r30r1_proposal"));assertEquals(1,count(s,"r30r1_chart_cache"));
+    static void complete(DbStore s,String stage,Fixture fixture){
+        assertEquals(2,n(s.readable(),"SELECT count(*) FROM r30r1_analysis_run WHERE status='COMMITTED'"));
+        assertEquals(1,count(s,"r30r1_proposal"));assertEquals(1,count(s,"r30r1_chart_cache"));assertEquals(1,count(s,"research_matrix_snapshot_r930"));
+        assertEquals(1,n(s.readable(),"SELECT count(*) FROM research_matrix_snapshot_r930 m JOIN r30r1_proposal p ON p.run_id=m.analysis_run_id JOIN r30r1_research_measure a ON a.run_id=p.run_id AND a.kind='ATOM_PAIRED_GAIN' JOIN r30r1_chart_cache f ON f.run_id=p.run_id AND f.view_id='R06' WHERE m.kind='COUNTERFACTUAL'"));
+        if(stage.equals("consume")){
+            String child=fixture.runner.without.policyHash(),parent=fixture.runner.parent.policyHash();
+            assertEquals(1,n(s.readable(),"SELECT count(*) FROM r30r1_consume c JOIN r30r1_proposal p ON p.proposal_id=c.proposal_id JOIN r27_policy k ON k.policy_hash=c.child_policy_hash WHERE c.child_policy_hash='"+child+"' AND p.state='CONSUMED' AND k.state='BORN'"));
+            assertEquals(1,n(s.readable(),"SELECT count(*) FROM r30r1_research_measure WHERE kind='RESEARCH_SOURCE_CONSUMPTION' AND parent_hash='"+child+"'"));
+            assertTrue(n(s.readable(),"SELECT count(*) FROM r27_lineage WHERE child_hash='"+child+"' AND parent_hash='"+parent+"'")>0);
+            assertEquals(1,n(s.readable(),"SELECT count(*) FROM r26_evolution WHERE policy_hash='"+child+"'"));
+            assertEquals(1,n(s.readable(),"SELECT count(*) FROM r27_evolution_cursor WHERE loop='"+LOOP+"' AND dataset_hash='"+fixture.ctx.data.datasetHash+"'"));
+        }
         assertEquals(stage.equals("analysis")?0:1,count(s,"r30r1_consume"));assertEquals(stage.equals("analysis")?0:1,count(s,"r27_policy"));assertEquals(stage.equals("analysis")?0:1,count(s,"r27_evolution_cursor"));
         assertEquals(0,count(s,"r27_certificate"));assertEquals(0,count(s,"r27_holdout_exposure"));
     }
@@ -105,7 +115,7 @@ public final class RepairResearchFaultAndroidTest {
                     try{write(s,"R30_REPAIR_CORRUPT_GUARD",batch);fail("payload hash must fail");}catch(RuntimeException expected){assertTrue(expected.toString(),message(expected,"R27_WRITE_PRECONDITION"));}absent(s,stage);blocked=true;
                 }
             }
-            if(!blocked){write(s,"R30_REPAIR_FAULT_RETRY",batch);complete(s,stage);if(stage.equals("analysis")){write(s,"R30_REPAIR_FAULT_IDEMPOTENT_RETRY",batch);complete(s,stage);}else{try{write(s,"R30_REPAIR_FAULT_REPEATED_CONSUME",batch);fail("duplicate consumption required rejection");}catch(RuntimeException expected){assertTrue(ResearchStoreR30R1.stale(expected));}complete(s,stage);}}
+            if(!blocked){write(s,"R30_REPAIR_FAULT_RETRY",batch);complete(s,stage,f);if(stage.equals("analysis")){write(s,"R30_REPAIR_FAULT_IDEMPOTENT_RETRY",batch);complete(s,stage,f);}else{try{write(s,"R30_REPAIR_FAULT_REPEATED_CONSUME",batch);fail("duplicate consumption required rejection");}catch(RuntimeException expected){assertTrue(ResearchStoreR30R1.stale(expected));}complete(s,stage,f);}}
             marker("R30_REPAIR_FAULT_CELL|"+stage+'|'+fault+"|ACTUAL_ANDROID_SQLITE_ORIGINAL_WRITER|"+(blocked?"BLOCKED_REQUIRES_VALID_ORIGINAL_SOURCE":"RECOVERED_EXACTLY_ONCE")+"|NO_HALF_CHAIN_NO_REAL_NO_FORMAL_LABELS|SYNTHETIC_ONLY|PASS");
         }finally{s.close();}
     }
