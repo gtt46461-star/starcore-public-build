@@ -112,7 +112,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
                         else {
                             if(current==null){current=new PreparedTaskR30R1(t,w,claim);synchronized(this){prepared.put(t.id(),current);}}
                             current.claim=claim;
-                            try{o=current.slice();}finally{if(current.done()){current.close();synchronized(this){prepared.remove(t.id());}}}
+                            try{o=current.slice();}finally{recordResearchCost(t.id(),current.lastCpuNanos);if(current.done()){current.close();synchronized(this){prepared.remove(t.id());}}}
                         }
                     }
                 } catch (Throwable e) { failure = e; }
@@ -224,5 +224,8 @@ public final class ResearchPoolR27 implements AutoCloseable {
         connections.clear();
     }
     public boolean isClosed() { return closed; }
+    private final java.util.Map<String,long[]> researchCpu=new java.util.LinkedHashMap<>();
+    private void recordResearchCost(String task,long cpu){synchronized(researchCpu){long[] v=researchCpu.computeIfAbsent(task,k->new long[2]);v[0]+=Math.max(0,cpu);v[1]++;}}
+    public java.util.List<java.util.Map<String,Object>> researchCosts(){java.util.List<java.util.Map<String,Object>> out=new java.util.ArrayList<>();synchronized(researchCpu){for(java.util.Map.Entry<String,long[]> e:researchCpu.entrySet()){java.util.Map<String,Object> r=new java.util.LinkedHashMap<>();r.put("task",e.getKey());r.put("session",session);r.put("actualContinuationCpuNs",e.getValue()[0]);r.put("quanta",e.getValue()[1]);r.put("scope","PROCESS_OBSERVED_TASK_CPU_EXCLUDES_WRITER_AND_UNOBSERVED_PROCESSES_NOT_PER_POLICY_CPU");out.add(r);}}return out;}
     public String session() { return session; }
 }

@@ -91,6 +91,7 @@ public final class DerivedAtomR27 {
 
     /** A random molecule (2–4 leaves, depth ≤ 2) over the given kinds. */
     public static PolicyAstR27.Node molecule(String[] kinds, int tp, StatsR27.SplitMix r, IdeaFamilyR27.Context ctx) {
+        if(ctx!=null&&ctx.research!=null){PolicyAstR27.Node measured=ctx.research.molecule(r);if(measured!=null)return measured;}
         int k = 2 + r.nextInt(3); PolicyAstR27.Node[] a = new PolicyAstR27.Node[k];
         for (int i = 0; i < k; i++) a[i] = PolicyAstR27.op("zscore", IdeaFamilyR27.Grow.leaf(IdeaFamilyR27.Grow.pick(kinds, ctx, r), tp, r));
         // Combination depth ≤ 2 over the atoms (docs/07 7.2): (a∘b), ((a∘b)∘c), ((a∘b)∘(c∘d)).

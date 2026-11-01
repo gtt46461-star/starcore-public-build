@@ -15,12 +15,14 @@ public final class FusionOpsR27 {
     public static PolicySpecR27 fuse(List<PolicySpecR27> archive, EvalContextR27 ctx, StatsR27.SplitMix r, int gen) {
         if (archive.size() < 2) return null;
         PolicySpecR27 first = archive.get(r.nextInt(archive.size()));
+        if(SetIntersectionPolicyR30.exact(first))return null;
         FailureProfileR30 profile = ctx.failureProfile(first);
         int tp = first.position; List<PolicySpecR27> members = new ArrayList<>(); members.add(first);
         int want = 2 + r.nextInt(4);
         for (int attempt = 0; attempt < 24 && members.size() < want; attempt++) {
-            PolicySpecR27 c = archive.get(r.nextInt(archive.size())); boolean ok = true;
-            for (PolicySpecR27 m : members) if (m.policyHash().equals(c.policyHash()) || Math.abs(ctx.correlation(m, c, tp)) >= MAX_CORRELATION) { ok = false; break; }
+            PolicySpecR27 c = archive.get(r.nextInt(archive.size())); boolean ok = c.position==tp&&!SetIntersectionPolicyR30.exact(c);
+            if(!ok)continue;
+            for (PolicySpecR27 m : members) if (m.policyHash().equals(c.policyHash()) || !FusionStudyR30R1.pair(m,c,ctx).complementary()) { ok = false; break; }
             if (ok) members.add(c);
         }
         if (members.size() < 2) return null;
@@ -52,12 +54,12 @@ public final class FusionOpsR27 {
             for (int at : leaves) {
                 PolicySpecR27.Meta m = new PolicySpecR27.Meta("I11","F_STACK",parents,gen,r.state,reason + "；repairNode=" + at);
                 PolicySpecR27 child = new PolicySpecR27(PolicyAstR27.replace(first.ast,at,ast),tp,first.rule,first.threshold,first.rate,1.0,true,first.lr,first.forget,m);
-                if (FailureProfileR30.legal(child)) return child;
+                if (FailureProfileR30.legal(child)&&FusionStudyR30R1.improvesEveryParent(members,child,ctx)) return child;
             }
         }
         PolicySpecR27.Meta m = new PolicySpecR27.Meta("I11","F_STACK",parents,gen,r.state,reason + "；repairNode=WHOLE_PROGRAM");
         PolicySpecR27 child = new PolicySpecR27(ast,tp,first.rule,first.threshold,first.rate,1.0,true,first.lr,first.forget,m);
-        return FailureProfileR30.legal(child) ? child : null;
+        return FailureProfileR30.legal(child)&&FusionStudyR30R1.improvesEveryParent(members,child,ctx) ? child : null;
     }
 
     static PolicySpecR27 weighted(List<PolicySpecR27> members, double[] w, PolicySpecR27 first) {

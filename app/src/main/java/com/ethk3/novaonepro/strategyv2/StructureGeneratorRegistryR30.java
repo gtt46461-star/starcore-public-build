@@ -1,10 +1,12 @@
 package com.ethk3.novaonepro.strategyv2;
+import java.util.List;
 
 /** Six executable structure generators. They share the existing policy format, birth gate and qualification path. */
 public final class StructureGeneratorRegistryR30 {
     private StructureGeneratorRegistryR30() {}
     public static final IdeaFamilyR27[] ALL = {new WindowDifference(), new PositionRotation(), new GapRebound(),
             new NeighborTransition(), new ParitySizeState(), new ConditionalIntersection()};
+    static PolicyAstR27.Node researchWindow(PolicyAstR27.Node ast,int window){List<PolicyAstR27.Node> nodes=PolicyAstR27.nodes(ast);for(int i=nodes.size()-1;i>=0;i--){PolicyAstR27.Node n=nodes.get(i);int slot=MutationOpsR27.windowed(n);if(slot>=0){int[] args=n.ints.clone();args[slot]=window;ast=PolicyAstR27.replace(ast,i,PolicyAstR27.leaf(n.op,args));}}return ast;}
     static final int[] W = {8, 32, 128, 512};
     static PolicyAstR27.Node z(PolicyAstR27.Node node) { return PolicyAstR27.op("zscore", node); }
 
@@ -16,6 +18,7 @@ public final class StructureGeneratorRegistryR30 {
         protected abstract PolicyAstR27.Node program(int position, StatsR27.SplitMix r);
         public PolicySpecR27 generate(StatsR27.SplitMix r, Context ctx) {
             int tp = position(r, ctx); PolicyAstR27.Node ast = program(tp, r);
+            if(ctx!=null&&ctx.research!=null){int window=ctx.research.window(r,0);if(window>0)ast=researchWindow(ast,window);}
             return Grow.spec(ast, tp, r, IdeaFamilyR27.meta(id(), "GENERATE", ctx == null ? 0 : ctx.generation, r.state,
                     nameZh() + "：第" + tp + "位；" + ast.toString()));
         }

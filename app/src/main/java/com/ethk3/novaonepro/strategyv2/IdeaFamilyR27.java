@@ -15,7 +15,9 @@ public interface IdeaFamilyR27 {
     PolicySpecR27 generate(StatsR27.SplitMix rng, Context ctx);
     /** Main-pool proposal boundary: generators must return complete contracts with their own provenance. */
     default PolicySpecR27 propose(StatsR27.SplitMix rng, Context ctx) {
+        if(ctx!=null&&ctx.research!=null)ctx.research.begin();
         PolicySpecR27 spec = generate(rng, ctx);
+        if(ctx!=null&&ctx.research!=null)spec=ctx.research.annotate(spec);
         List<String> violations;
         try { violations = PolicyContractR30.violations(spec); }
         catch (RuntimeException malformed) { throw new IllegalStateException("R30_GENERATOR_CONTRACT:" + id() + ":MALFORMED_PROGRAM", malformed); }
@@ -42,6 +44,7 @@ public interface IdeaFamilyR27 {
         public List<PolicyAstR27.Node> derivedLeaves = Collections.emptyList();
         /** Current dataset's role-checked evaluator; selectors and repair profiles use H_TRAIN/H_SELECT only. */
         public EvalContextR27 evaluation;
+        public ResearchContextR30R1 research;
     }
 
     static PolicySpecR27.Meta meta(String idea, String op, int gen, long seed, String reason, String... parents) {

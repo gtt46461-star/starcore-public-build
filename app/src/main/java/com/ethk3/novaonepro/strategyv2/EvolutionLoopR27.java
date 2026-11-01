@@ -67,8 +67,10 @@ public final class EvolutionLoopR27 {
     public final List<Member> population = new ArrayList<>();
     public final EliteArchiveR27 archive = new EliteArchiveR27();
     private List<Pending> pending = new ArrayList<>();
+    ResearchContextR30R1 researchContext;
     List<ResearchStoreR30R1.Ready> directedResearch=Collections.emptyList();
     void revalidateResearchAdmissions(android.database.sqlite.SQLiteDatabase db){for(Pending p:pending)if(p.researchProposal!=null){try(android.database.Cursor c=db.rawQuery("SELECT p.state,r.source_revision,r.source_commit,r.summary_json FROM r30r1_proposal p JOIN r30r1_analysis_run r ON r.run_id=p.run_id WHERE p.proposal_id=?",new String[]{p.researchProposal})){if(!c.moveToFirst()||!"READY".equals(c.getString(0))||ResearchInputPinR30R1.invalid(db,ctx.data.datasetHash)||ResearchInputPinR30R1.revision(db,ctx.data.datasetHash)!=c.getLong(1)||!ResearchStoreR30R1.currentSource(c.getString(2),c.getString(3))){p.state="RESEARCH_STALE";p.reason="SOURCE_OR_PROPOSAL_CHANGED_BEFORE_ORIGINAL_GATE";}}}}
+    void stageResearchHypotheses(ResearchWriteQueueR27.Batch b,long now){if(researchContext==null)return;for(Pending p:pending)if(p.researchProposal==null)p.researchProposal=ResearchContextR30R1.stage(b,p.spec,ctx.data.datasetHash,researchContext.revision,now);}
     void commitResearchAdmissions(ResearchWriteQueueR27.Batch batch,long now){for(Pending p:pending)if(p.researchProposal!=null){
         if("BORN".equals(p.state))ResearchStoreR30R1.consume(batch,p.researchProposal,p.spec.policyHash(),generation,"ORIGINAL_BIRTH_GATE_R30_REPAIR1",now);
         else batch.add("UPDATE r30r1_proposal SET state=?,reason=? WHERE proposal_id=? AND state='READY'","RESEARCH_STALE".equals(p.state)?"STALE":"REJECTED",p.state+":"+p.reason,p.researchProposal);
@@ -159,7 +161,7 @@ public final class EvolutionLoopR27 {
         IdeaFamilyR27.Context c = new IdeaFamilyR27.Context();
         c.generation = generation; c.maxDepth = gateMaxDepth; c.champion = champion; c.archive = archive.members(); c.legacySeeds = legacySeeds;
         c.leafWeight = leafWeight; c.derivedLeaves = derivedLeaves;
-        c.evaluation = ctx;
+        c.evaluation = ctx;c.research=researchContext;
         Member ch = find(champion); c.championActRate = ch == null ? 0.15 : Math.max(0.01, ch.actRate);
         c.failureCluster = failureCluster();
         return c;
