@@ -463,6 +463,16 @@
         "tools/r30-repair/run_android_regression.sh"
       ],
       "reason": "先登记：47项四场景188实际Activity截图，旧29与新18均保留；新图调用生产计算/原DB读取，缺正式原件仍INSUFFICIENT，不能假造有效曲线。截图夹具明确SYNTHETIC不作收益验收。每页仅6容器，测试快速切换、已取消读取和退出线程释放，独立testAPK/启动隔离。R08反例按真实TRAIN探针修正角色并精确断言输入边界。"
+    },
+    {
+      "id": "FR-B10-01-physical-attribution",
+      "card": "FR-B10-01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/test/java/com/ethk3/novaonepro/RepairStorageCensusR30Test.java"
+      ],
+      "reason": "先登记：实际物理普查保留旧9聚合分类，附主库/备份/快照/归档/模型细分与Owner、采样开始结束、截断/不可读/深度原因；有界top8不保留20万路径。完整快照导出page/freelist实际数，无表扫描猜空间。只读归因，不删保护数据。"
     }
   ]
 }

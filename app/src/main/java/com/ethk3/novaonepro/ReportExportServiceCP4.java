@@ -229,7 +229,7 @@ public final class ReportExportServiceCP4 extends Service {
                     }
                     File inventory=ReportDiagnosticEvidenceR64.writeFileInventory(getFilesDir().getParentFile(),directory,active);
                     // R13-P31: byte census by category on the first page of every report
-                    File census=new File(directory,"STORAGE_CENSUS.txt");try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(census),StandardCharsets.UTF_8)){w.write(StorageCensusSU2.measure(getFilesDir().getParentFile()).line());w.write('\n');}
+                    File census=new File(directory,"STORAGE_CENSUS.txt");try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(census),StandardCharsets.UTF_8)){w.write(StorageCensusSU2.measure(getFilesDir().getParentFile()).line());w.write('\n');w.write(com.ethk3.novaonepro.strategyv2.JsonR27.write(StorageCensusSU2.sqliteSpace(copy)));w.write('\n');}
                     ReportMemberPlanCP12.append(members,census.getName(),census.getName(),ReportArchiveCP4.hash(census,active),census.length());
                     File r26Report=new File(directory,"R26_REPORT.json");
                     try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r26Report),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.RuntimeReportR26.json(copy,new org.json.JSONObject(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536))));}
