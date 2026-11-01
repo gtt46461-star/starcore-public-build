@@ -1,0 +1,32 @@
+{
+  "version": "R30_REPAIR_STRUCTURE_STUDY1",
+  "windows": [
+    8,
+    32,
+    128,
+    512
+  ],
+  "coarseTargets": [
+    "ODD_BINARY",
+    "BIG_BINARY",
+    "SAME_POSITION_REPEAT_BINARY"
+  ],
+  "source": "strictly earlier canonical rows; no current/confirm/future labels as research input",
+  "estimator": "fixed Laplace/Beta(1,1) smoothing; all predeclared windows retained",
+  "researchRole": "TRAIN/SELECT or preregistered ONLINE_RESEARCH only",
+  "evaluation": "same target prequential proper loss; positions clustered by calendar issue; fixed64 period blocks; missing and tail disclosed",
+  "baselines": {
+    "ODD_BINARY": 0.5,
+    "BIG_BINARY": 0.5,
+    "SAME_POSITION_REPEAT_BINARY": 0.1
+  },
+  "failure": "missing/support<minimum/nonfinite/source revision change -> UNKNOWN/BLOCKED; no selected favourable window",
+  "intersection": {
+    "sourceA": "target-position short-window original K3",
+    "sourceB": "two neighbour positions long-window original K3",
+    "rule": "exact intersection; fewer than3 -> explicit abstention; no random filling",
+    "target": "one position fixed K3",
+    "readout": "HARD_INTERSECTION_K3_V1 no bias or temperature adaptation"
+  },
+  "naturalQuality": "NOT_PROVEN_BY_RESEARCH_OR_COMPILATION"
+}

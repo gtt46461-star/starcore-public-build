@@ -146,7 +146,7 @@ public final class LiveShadowsR27 {
                     if (!violations.isEmpty()) { pitViolationsR30(b, s.id, target, violations, "LIVE");ModelSurfaceStoreR30.calls(b,s.id,s.spec,target,cache,modelPrepared,false,"POLICY_PIT:"+String.join(",",violations));continue; }
                 }
                 b.add("INSERT OR IGNORE INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at) VALUES(?,?,?,?,?,?,?,?,?,?,CAST(strftime('%s','now') AS INTEGER)*1000+CAST(substr(strftime('%f','now'),4,3) AS INTEGER),?)",
-                        s.id, target, targetIssue, s.spec.position, StoreR27.pack(p), n1, n2, n3, act, ok ? "FROZEN" : "SKIPPED_GAP", deadline);
+                        s.id, target, targetIssue, s.spec.position, StoreR27.pack(p), n1, n2, n3, act, ok ? "FROZEN" : SetIntersectionPolicyR30.exact(s.spec)?"ABSTAIN_SET_SUPPORT":"SKIPPED_GAP", deadline);
                 ModelSurfaceStoreR30.calls(b,s.id,s.spec,target,cache,modelPrepared,ok,"POLICY_PREDICTION_UNAVAILABLE");
                 if (ok) frozen++; acted += act;
             }

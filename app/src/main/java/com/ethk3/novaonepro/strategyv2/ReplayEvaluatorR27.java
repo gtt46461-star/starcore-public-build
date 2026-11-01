@@ -112,6 +112,7 @@ public final class ReplayEvaluatorR27 {
     /** Fits the softmax temperature on H_TRAIN rows by grid search on log-loss (bias held at zero). */
     public static double fitTemperature(PolicySpecR27 spec, double[] scores, int[][] labels, int trainFrom, int trainTo) {
         checkEvolutionRangeR30(trainTo);
+        if(SetIntersectionPolicyR30.exact(spec))return 1;
         if (!spec.fitTemperature) return spec.temperature;
         double best = spec.temperature, bestLoss = Double.POSITIVE_INFINITY; double[] z = new double[10], p = new double[10];
         for (double mult : TEMPERATURES) {
@@ -144,7 +145,7 @@ public final class ReplayEvaluatorR27 {
         for (int t = 0; t < to; t++) {
             if((t&31)==0)CooperativeContinuationR26.poll();
             if (!standardize(scores, t, z)) continue;
-            softmax(z, temperature, tr.bias, p);
+            if(SetIntersectionPolicyR30.exact(spec))System.arraycopy(scores,t*10,p,0,10);else softmax(z, temperature, tr.bias, p);
             int y = labels[t][tp] - 1;
             if (t >= from) {
                 top3(p, order);

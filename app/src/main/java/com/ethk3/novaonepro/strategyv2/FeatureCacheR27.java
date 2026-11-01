@@ -46,7 +46,7 @@ public final class FeatureCacheR27 {
 
     /** Leaf kinds; the int parameters are documented per kind. Every kind is PREDRAW_HISTORY (rows &lt; t). */
     public static final String[] KINDS = {"freq", "fdecay", "freqnb", "gap", "gaprank", "meangap", "trans1", "trans2", "cross", "crosscond",
-            "repeat", "neighbor", "oddeven", "bigsmall", "sumbucket", "regime", "knn", "family", "model_surface", "randu"};
+            "repeat", "neighbor", "oddeven", "bigsmall", "sumbucket", "regime", "knn", "family", "model_surface", "set_intersection", "randu"};
 
     /** @param tp target position 1..10 the policy predicts. */
     public double[] leaf(String kind, int tp, int a, int b) {
@@ -60,7 +60,7 @@ public final class FeatureCacheR27 {
     }
 
     static boolean targetDependent(String kind) {
-        switch (kind) { case "trans1": case "trans2": case "crosscond": case "repeat": case "sumbucket": case "knn": case "family": return true; default: return false; }
+        switch (kind) { case "trans1": case "trans2": case "crosscond": case "repeat": case "sumbucket": case "knn": case "family": case "set_intersection": return true; default: return false; }
     }
 
     /** Test/ABI hook: replaces one leaf kind's implementation (used by H11 to simulate a changed operator). */
@@ -73,6 +73,7 @@ public final class FeatureCacheR27 {
         synchronized (this) { o = overrides.get(kind); }
         if (o != null) return o.compute(this, tp, a, b);
         switch (kind) {
+            case "set_intersection": return exactIntersection(tp,a,b);
             case "freq": return freq(a, b);
             case "fdecay": return decay(a, b);
             case "freqnb": return neighborFreq(a, b);
@@ -99,6 +100,12 @@ public final class FeatureCacheR27 {
 
     private int t() { return data.size(); }
     private double[] nan() { double[] v = new double[t() * 10]; Arrays.fill(v, Double.NaN); return v; }
+
+    double[] exactIntersection(int position,int shortWindow,int longWindow){
+        double[] out=nan();if(!PolicyAstR27.pos(position)||!PolicyAstR27.window(shortWindow)||!PolicyAstR27.window(longWindow)||shortWindow>=longWindow)throw new IllegalArgumentException("SET_SOURCE_CONTRACT");
+        double[] a=leaf("freq",position,position,shortWindow),b=leaf("freqnb",position,position,longWindow);
+        for(int row=longWindow;row<data.size();row++){if((row&31)==0)CooperativeContinuationR26.poll();if(!data.consecutive(row,longWindow))continue;int mask=SetIntersectionPolicyR30.mask(a,row*10)&SetIntersectionPolicyR30.mask(b,row*10);if(Integer.bitCount(mask)!=3)continue;for(int k=0;k<10;k++)out[row*10+k]=(mask&(1<<k))!=0?1.0/3:0;}return out;
+    }
 
     /** freq(src,W): share of rows in [t-W,t) where number n sat at position src. */
     double[] freq(int src, int w) {

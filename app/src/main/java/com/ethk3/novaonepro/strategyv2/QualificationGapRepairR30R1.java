@@ -72,7 +72,7 @@ public final class QualificationGapRepairR30R1 {
     static String predrawHash(Cursor c){return HashingSU1.fields("R30_ORIGINAL_PREDRAW",c.getString(1),Long.toString(c.getLong(2)),c.getString(3),Integer.toString(c.getInt(4)),StatsR27.sha256(c.getBlob(5)),Integer.toString(c.getInt(6)),Integer.toString(c.getInt(7)),Integer.toString(c.getInt(8)),Integer.toString(c.getInt(9)),c.getString(10),Long.toString(c.getLong(11)),Long.toString(c.getLong(12)));}
     static boolean legalOriginal(Cursor c){
         if(!"BEFORE_ORIGINAL_DELETE".equals(c.getString(15))||!com.ethk3.novaonepro.TargetIssueResolver.isValid(c.getString(3))||com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1(c.getString(3))!=c.getLong(2))return false;
-        String status=c.getString(10);if(!status.equals("FROZEN"))return (status.equals("DEADLINE_MISSED")||status.equals("SKIPPED_GAP"))&&c.getInt(9)==0;
+        String status=c.getString(10);if(!status.equals("FROZEN"))return (status.equals("DEADLINE_MISSED")||status.equals("SKIPPED_GAP")||status.equals("ABSTAIN_SET_SUPPORT"))&&c.getInt(9)==0;
         if(c.getLong(11)<=0||c.getLong(12)-c.getLong(11)<LiveShadowsR27.FREEZE_MARGIN_MS||c.getInt(4)<1||c.getInt(4)>10||c.getBlob(5)==null||c.getBlob(5).length!=80)return false;
         int a=c.getInt(6),b=c.getInt(7),d=c.getInt(8);if(a<1||b<1||d<1||a>10||b>10||d>10||a==b||a==d||b==d||c.getInt(9)<0||c.getInt(9)>1)return false;
         double sum=0;for(double p:StoreR27.unpack(c.getBlob(5))){if(!Double.isFinite(p)||p<0||p>1)return false;sum+=p;}return Math.abs(sum-1)<=1e-9;

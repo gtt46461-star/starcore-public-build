@@ -22,6 +22,7 @@ public final class PolicyContractR30 {
             catch (IllegalArgumentException typeError) { v.add("PROGRAM_" + typeError.getMessage()); }
             String rc = PolicyAstR27.rangeAndCausality(s.ast);
             if (rc != null) v.add("PROGRAM_" + rc);
+            for(PolicyAstR27.Node n:PolicyAstR27.nodes(s.ast))if(n.op.equals("set_intersection")&&n!=s.ast)v.add("SET_INTERSECTION_MUST_BE_DECLARED_ROOT_READOUT");
             int dataLeaves = 0;
             for (PolicyAstR27.Node n : PolicyAstR27.nodes(s.ast)) if (n.leaf() && !"c".equals(n.op)) dataLeaves++;
             if (dataLeaves == 0) v.add("PROGRAM_NO_DATA_LEAF");
@@ -39,6 +40,7 @@ public final class PolicyContractR30 {
         if (!finite(s.temperature) || s.temperature < 0.05 || s.temperature > 20) v.add("READOUT_TEMPERATURE:" + s.temperature);
         if (!finite(s.lr) || s.lr < 0 || s.lr > 1) v.add("UPDATER_LR:" + s.lr);
         if (!finite(s.forget) || s.forget < 0 || s.forget > 1) v.add("UPDATER_FORGET:" + s.forget);
+        if(SetIntersectionPolicyR30.exact(s)&&(s.lr!=0||s.forget!=0||s.fitTemperature||s.temperature!=1||s.rule!=PolicySpecR27.Rule.ALWAYS))v.add("SET_INTERSECTION_READOUT_UPDATER_CONTRACT");
         if (s.meta == null) v.add("PROVENANCE_MISSING");
         else {
             if (blank(s.meta.idea)) v.add("PROVENANCE_IDEA");

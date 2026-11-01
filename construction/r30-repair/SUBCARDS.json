@@ -291,6 +291,20 @@
         "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30DiagnosisRulesTest.java"
       ],
       "reason": "先登记：诊断action优先指向本返修FR-Bxx施工卡，旧R30-Bxx只保留legacyCard供历史追溯；实际typed pending/校准/模型来源更新，避免用户把历史方案误当当前待施工。"
+    },
+    {
+      "id": "FR-B08-02-a",
+      "card": "FR-B08-02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicySpecR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyContractR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationGapRepairR30R1.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairSetIntersectionR30Test.java"
+      ],
+      "reason": "先登记：原I14的mix不是真交集。新增独立硬交集leaf/readout，保留旧AST/softmax/SGD数学与hash不变；只读取事前短窗本位和长窗邻位源，两原K3交集不足3明确弃权，不补号、不靠bias越过集合。不嵌套改义、LR/forget=0，后续仍经原gate/独立确认；弃权写入原机会账，不改变资格数学。"
     }
   ]
 }

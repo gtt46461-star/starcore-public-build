@@ -1,27 +1,20 @@
 package com.ethk3.novaonepro.strategyv2;
+import java.util.*;
 
-/**
- * R30-B04-04 思路族 I14：集合交叉（现行“多集合×多位置交叉、固定 Rank1/K3”方法的可进化表达）。
- * 生成的打分程序：mix(α, freq(p, w1), freqnb(p, w2))，w1 < w2 取自 FeatureCacheR27.WINDOWS；两叶子类型同为 PROB（合同可通过）。
- * 它只是候选生成器：出生后与所有策略同样过 PolicyContractR30、观察、序贯资格与证书门，不享有任何豁免。
- */
+/** Actual intersection of two independently sourced past K3 sets. Old mix-based I14 policies keep their original ABI. */
 public final class SetIntersectionPolicyR30 implements IdeaFamilyR27 {
-    static final int[] W = {8, 32, 128, 512};
-    public String id() { return "I14"; }
-    public String nameZh() { return "集合交叉族"; }
-    public String coreIdea() { return "同位置短窗频率与邻位置长窗频率的交叉"; }
-    static int gen(IdeaFamilyR27.Context ctx) { return ctx == null ? 0 : ctx.generation; }
-
-    public PolicySpecR27 generate(StatsR27.SplitMix r, IdeaFamilyR27.Context ctx) {
-        int tp = IdeaFamilyR27.Grow.pos(r);
-        int i = r.nextInt(W.length - 1), j = i + 1 + r.nextInt(W.length - 1 - i);
-        double alpha = 0.2 + 0.6 * r.nextDouble();
-        PolicyAstR27.Node ast = PolicyAstR27.op("mix", alpha, PolicyAstR27.leaf("freq", tp, W[i]), PolicyAstR27.leaf("freqnb", tp, W[j]));
-        return IdeaFamilyR27.Grow.spec(ast, tp, r, IdeaFamilyR27.meta(id(), "GENERATE", gen(ctx), r.state,
-                "集合交叉：第" + tp + "位 近" + W[i] + "期频率 × 邻位近" + W[j] + "期频率，α=" + String.format(java.util.Locale.ROOT, "%.2f", alpha)));
-    }
-
-    public PolicySpecR27 mutate(PolicySpecR27 p, StatsR27.SplitMix r, IdeaFamilyR27.Context ctx) {
-        return IdeaFamilyR27.Grow.swapLeaf(p, new String[] {"freq", "freqnb", "fdecay"}, id(), gen(ctx), ctx, r);
-    }
+ static final int[] W={8,32,128,512};
+ public String id(){return "I14";}public String nameZh(){return "集合交叉族";}public String coreIdea(){return "事前本位短窗K3与两邻位长窗K3精确相交；不足3弃权";}
+ static int gen(IdeaFamilyR27.Context c){return c==null?0:c.generation;}
+ public PolicySpecR27 generate(StatsR27.SplitMix r,IdeaFamilyR27.Context c){int tp=IdeaFamilyR27.Grow.pos(r),i=r.nextInt(W.length-1),j=i+1+r.nextInt(W.length-i-1);return spec(tp,W[i],W[j],IdeaFamilyR27.meta(id(),"GENERATE",gen(c),r.state,"事前集合：本位近"+W[i]+"期 × 两邻位近"+W[j]+"期；只接受精确K3交集；不足3明确弃权"));}
+ static PolicySpecR27 spec(int tp,int shortWindow,int longWindow,PolicySpecR27.Meta meta){return new PolicySpecR27(PolicyAstR27.leaf("set_intersection",shortWindow,longWindow),tp,PolicySpecR27.Rule.ALWAYS,0,1,1,false,0,0,meta);}
+ public PolicySpecR27 mutate(PolicySpecR27 p,StatsR27.SplitMix r,IdeaFamilyR27.Context c){PolicySpecR27 fresh=generate(r,c);return fresh.withMeta(new PolicySpecR27.Meta(id(),"SET_SOURCE_WINDOW",Collections.singletonList(p.policyHash()),gen(c),r.state,"改变事前集合源窗口的新身份；原集合/旧策略保留；新资格重新确认"));}
+ public static boolean exact(PolicySpecR27 p){return p!=null&&p.ast!=null&&p.ast.op.equals("set_intersection");}
+ static int mask(double[] values,int offset){int[] order=new int[10];double[] p=new double[10];for(int k=0;k<10;k++){p[k]=values[offset+k];if(!Double.isFinite(p[k]))return 0;}ReplayEvaluatorR27.top3(p,order);return (1<<order[0])|(1<<order[1])|(1<<order[2]);}
+ public static Map<String,Object> support(FeatureCacheR27 cache,int row,int position,int shortWindow,int longWindow){
+  if(row<0||row>=cache.data.size()||position<1||position>10||!PolicyAstR27.window(shortWindow)||!PolicyAstR27.window(longWindow)||shortWindow>=longWindow)throw new IllegalArgumentException("SET_SOURCE_CONTRACT");
+  Map<String,Object> out=new LinkedHashMap<>();out.put("targetOrdinal",cache.data.ordinals[row]);out.put("position",position);out.put("sourcePositions",Arrays.asList(position,position==1?10:position-1,position==10?1:position+1));out.put("shortWindow",shortWindow);out.put("longWindow",longWindow);out.put("inputThroughOrdinal",row==0?null:cache.data.ordinals[row-1]);out.put("availabilityContract","STRICTLY_EARLIER_CANONICAL_ROWS");out.put("availableAt",null);
+  int a=0,b=0;if(row>=longWindow&&cache.data.consecutive(row,longWindow)){a=mask(cache.leaf("freq",position,position,shortWindow),row*10);b=mask(cache.leaf("freqnb",position,position,longWindow),row*10);}
+  int intersection=a&b;out.put("sourceAMask",a);out.put("sourceBMask",b);out.put("intersectionMask",intersection);out.put("sourceCandidates",Integer.bitCount(a|b));out.put("intersectionCandidates",Integer.bitCount(intersection));out.put("reduction",Integer.bitCount(a|b)-Integer.bitCount(intersection));out.put("status",a==0||b==0?"BLOCKED_HISTORY_OR_GAP":Integer.bitCount(intersection)==3?"SUPPORTED_K3":"ABSTAIN_INTERSECTION_LT3");out.put("filledNumbers",0);out.put("coverageLoss",null);out.put("coverageLossReason","REQUIRES_SAME_TARGET_RESEARCH_PAIRING_NOT_ASSUMED");return Collections.unmodifiableMap(out);
+ }
 }

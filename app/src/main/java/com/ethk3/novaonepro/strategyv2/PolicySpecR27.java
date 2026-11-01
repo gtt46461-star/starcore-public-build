@@ -47,10 +47,10 @@ public final class PolicySpecR27 {
         TreeSet<String> leaves = new TreeSet<>(); TreeSet<Long> windows = new TreeSet<>();
         for (PolicyAstR27.Node n : PolicyAstR27.nodes(ast)) if (n.leaf() && !n.op.equals("c")) {
             leaves.add(n.op);
-            switch (n.op) { case "freq": case "freqnb": case "meangap": case "oddeven": case "bigsmall": windows.add((long) n.ints[1]); break; case "regime": windows.add((long) n.ints[0]); break; default: break; }
+            switch (n.op) { case "freq": case "freqnb": case "meangap": case "oddeven": case "bigsmall": windows.add((long) n.ints[1]); break; case "set_intersection":windows.add((long)n.ints[0]);windows.add((long)n.ints[1]);break; case "regime": windows.add((long) n.ints[0]); break; default: break; }
         }
         Map<String, Object> m = new LinkedHashMap<>();
-        m.put("leaves", new ArrayList<Object>(leaves)); m.put("windows", new ArrayList<Object>(windows)); m.put("missing", "SKIPPED_GAP");
+        m.put("leaves", new ArrayList<Object>(leaves)); m.put("windows", new ArrayList<Object>(windows)); m.put("missing",SetIntersectionPolicyR30.exact(this)?"ABSTAIN_SET_SUPPORT_OR_HISTORY_GAP":"SKIPPED_GAP");
         return m;
     }
 
@@ -59,9 +59,9 @@ public final class PolicySpecR27 {
         root.put("schema", SCHEMA);
         root.put("inputs", inputs());
         Map<String, Object> model = new LinkedHashMap<>(); model.put("ast", ast.toString()); root.put("model", model);
-        Map<String, Object> readout = new LinkedHashMap<>(); readout.put("temperature", temperature); readout.put("fitTemperature", fitTemperature); readout.put("surface", "TARGET_POSITION_SOFTMAX_OTHERS_UNIFORM"); root.put("readout", readout);
+        Map<String, Object> readout = new LinkedHashMap<>(); readout.put("temperature", temperature); readout.put("fitTemperature", fitTemperature); readout.put("surface",SetIntersectionPolicyR30.exact(this)?"TARGET_POSITION_HARD_INTERSECTION_K3_V1":"TARGET_POSITION_SOFTMAX_OTHERS_UNIFORM"); root.put("readout", readout);
         Map<String, Object> sel = new LinkedHashMap<>(); sel.put("position", (long) position); sel.put("rule", rule.name()); sel.put("threshold", threshold); sel.put("rate", rate); sel.put("k", 3L); root.put("selector", sel);
-        Map<String, Object> up = new LinkedHashMap<>(); up.put("lr", lr); up.put("forget", forget); up.put("rule", "PER_NUMBER_BIAS_SGD_V1"); root.put("updater", up);
+        Map<String, Object> up = new LinkedHashMap<>(); up.put("lr", lr); up.put("forget", forget); up.put("rule",SetIntersectionPolicyR30.exact(this)?"NO_UPDATE_FIXED_CONDITIONAL_SET_V1":"PER_NUMBER_BIAS_SGD_V1"); root.put("updater", up);
         return root;
     }
 
