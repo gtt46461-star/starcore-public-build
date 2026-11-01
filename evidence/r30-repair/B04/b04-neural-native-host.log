@@ -1,0 +1,43 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/workspace/starcore-r30-repair/tools/r30/qual_host/ModelSurfaceR30HostTest.java:10: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/workspace/starcore-r30-repair/tools/r30/qual_host/TenPositionR30HostTest.java:13: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/workspace/starcore-r30-repair/tools/r30/qual_host/ModelSurfaceR30HostTest.java:33: warning: Unsafe is internal proprietary API and may be removed in a future release
+            Field f=Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);Unsafe u=(Unsafe)f.get(null);
+                    ^
+/workspace/starcore-r30-repair/tools/r30/qual_host/ModelSurfaceR30HostTest.java:33: warning: Unsafe is internal proprietary API and may be removed in a future release
+            Field f=Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);Unsafe u=(Unsafe)f.get(null);
+                                                                                     ^
+/workspace/starcore-r30-repair/tools/r30/qual_host/ModelSurfaceR30HostTest.java:33: warning: Unsafe is internal proprietary API and may be removed in a future release
+            Field f=Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);Unsafe u=(Unsafe)f.get(null);
+                                                                                               ^
+/workspace/starcore-r30-repair/tools/r30/qual_host/TenPositionR30HostTest.java:45: warning: Unsafe is internal proprietary API and may be removed in a future release
+            Field field=Unsafe.class.getDeclaredField("theUnsafe");field.setAccessible(true);Unsafe u=(Unsafe)field.get(null);
+                        ^
+/workspace/starcore-r30-repair/tools/r30/qual_host/TenPositionR30HostTest.java:45: warning: Unsafe is internal proprietary API and may be removed in a future release
+            Field field=Unsafe.class.getDeclaredField("theUnsafe");field.setAccessible(true);Unsafe u=(Unsafe)field.get(null);
+                                                                                             ^
+/workspace/starcore-r30-repair/tools/r30/qual_host/TenPositionR30HostTest.java:45: warning: Unsafe is internal proprietary API and may be removed in a future release
+            Field field=Unsafe.class.getDeclaredField("theUnsafe");field.setAccessible(true);Unsafe u=(Unsafe)field.get(null);
+                                                                                                       ^
+8 warnings
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Exception in thread "main" android.database.sqlite.SQLiteException: [SQLITE_CONSTRAINT_TRIGGER] A RAISE function within a trigger fired, causing the SQL statement to abort (R29_LEGACY_MODEL_IMMUTABLE)
+	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:21)
+	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:16)
+	at com.ethk3.novaonepro.strategyv2.RepairNeuralR30HostTest.lambda$main$11(RepairNeuralR30HostTest.java:28)
+	at com.ethk3.novaonepro.strategyv2.RepairNeuralR30HostTest.rejected(RepairNeuralR30HostTest.java:13)
+	at com.ethk3.novaonepro.strategyv2.RepairNeuralR30HostTest.main(RepairNeuralR30HostTest.java:28)
+Traceback (most recent call last):
+  File "/workspace/starcore-r30-repair/tools/r30-repair/run_neural_host.py", line 12, in <module>
+    run(['java','-Xmx768m','-cp',cp,'com.ethk3.novaonepro.strategyv2.RepairNeuralR30HostTest'])
+  File "/workspace/starcore-r30-repair/tools/r30-repair/run_neural_host.py", line 5, in run
+    def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['java', '-Xmx768m', '-cp', '/tmp/repair-neural-host-ky6qbdbi/shim:/tmp/repair-neural-host-ky6qbdbi/test:/workspace/starcore-r30-repair/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/work/r29/deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar', 'com.ethk3.novaonepro.strategyv2.RepairNeuralR30HostTest']' returned non-zero exit status 1.
