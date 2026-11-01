@@ -14,6 +14,8 @@ public final class ResearchSchemaR30R1 {
       "CREATE INDEX IF NOT EXISTS r30r1_proposal_ready ON r30r1_proposal(state,created_at,proposal_id)",
       "CREATE INDEX IF NOT EXISTS r30r1_measure_parent ON r30r1_research_measure(parent_hash,kind,from_ordinal)",
       "CREATE INDEX IF NOT EXISTS r30r1_chart_latest ON r30r1_chart_cache(view_id,updated_at DESC)",
+      "CREATE TRIGGER IF NOT EXISTS r30r1_collection_no_update BEFORE UPDATE ON r30r1_analysis_run WHEN OLD.status='ONLINE_MODEL_ROLE_REGISTERED' BEGIN SELECT RAISE(ABORT,'RESEARCH_COLLECTION_CONTRACT_IMMUTABLE'); END",
+      "CREATE TRIGGER IF NOT EXISTS r30r1_collection_no_delete BEFORE DELETE ON r30r1_analysis_run WHEN OLD.status='ONLINE_MODEL_ROLE_REGISTERED' BEGIN SELECT RAISE(ABORT,'RESEARCH_COLLECTION_CONTRACT_IMMUTABLE'); END",
       "CREATE TRIGGER IF NOT EXISTS r30r1_consume_immutable BEFORE UPDATE ON r30r1_consume BEGIN SELECT RAISE(ABORT,'RESEARCH_CONSUMPTION_IMMUTABLE'); END"
     };
 }

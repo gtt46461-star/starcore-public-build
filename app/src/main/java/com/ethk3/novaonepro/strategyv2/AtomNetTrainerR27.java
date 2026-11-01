@@ -76,12 +76,14 @@ public final class AtomNetTrainerR27 {
         return loss;
     }
 
-    /** Periodic holdout check with rollback (docs/06 6.3-5). Returns true when a rollback happened. */
-    public boolean check(List<Sample> holdoutBlock) {
-        double[] h = evaluate(net, holdoutBlock); sinceCheck = 0;
+    /** Compatibility adapter: callers must supply development data, never formal sealed evaluation labels. */
+    public boolean check(List<Sample> developmentBlock) {return checkDevelopment(developmentBlock,ResearchContractR30R1.Role.SELECT);}
+    public boolean checkDevelopment(List<Sample> developmentBlock,ResearchContractR30R1.Role role) {
+        if(role!=ResearchContractR30R1.Role.TRAIN&&role!=ResearchContractR30R1.Role.SELECT&&role!=ResearchContractR30R1.Role.ONLINE_RESEARCH)throw new IllegalArgumentException("FORMAL_OR_SYNTHETIC_LABELS_CANNOT_ADAPT_MODEL");
+        double[] h = evaluate(net, developmentBlock); sinceCheck = 0;
         boolean degrade = Double.isFinite(lastCheckLogloss) && h[0] > lastCheckLogloss + 2 * Math.max(h[2], lastCheckSe);
         if (degrade) { net = AtomNetR27.decode(checkpoint); onlineLr *= 0.5; events.add("ROLLBACK_DEGRADED logloss=" + h[0] + " previous=" + lastCheckLogloss); return true; }
-        lastCheckLogloss = h[0]; lastCheckSe = h[2]; checkpoint = net.encode(); epochs.add(new Epoch(nextEpochReceipt++, SplitR27.HOLDOUT, h[0], h[1]));
+        lastCheckLogloss = h[0]; lastCheckSe = h[2]; checkpoint = net.encode(); epochs.add(new Epoch(nextEpochReceipt++, "DEVELOPMENT_VALIDATION", h[0], h[1]));
         return false;
     }
 }

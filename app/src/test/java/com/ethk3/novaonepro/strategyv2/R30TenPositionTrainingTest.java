@@ -52,7 +52,7 @@ public class R30TenPositionTrainingTest {
         byte[] checkpoint=s.trainer.net.encode();s.trainer.checkpoint=checkpoint;s.trainer.lastCheckLogloss=0;s.trainer.lastCheckSe=0;
         s.trainer.sinceCheck=10L*AtomNetTrainerR27.CHECK_EVERY-10;double lr=s.trainer.onlineLr;
         for(int p=1;p<=10;p++)s.online(new AtomNetTrainerR27.Sample(AtomNetR27.positionedInput(new double[]{.2,.7},p),0,p-1,AtomNetSessionR30.eventKey("000000001000",p)),"000000001000",1000,p);
-        assertEquals("EVAL_ONLINE_HOLD",s.phase);s=copy(s);
+        assertEquals("EVAL_ONLINE_DEVELOPMENT_VALIDATION",s.phase);s=copy(s);
         while(!s.ready()){assertTrue(s.work(R30TenPositionTrainingTest::sample)<=64);s=copy(s);}
         assertArrayEquals(checkpoint,s.trainer.net.encode());assertEquals(lr*.5,s.trainer.onlineLr,0);
         assertEquals("000000001000",s.completeIssue);assertEquals(10,s.trainer.onlineSteps);assertEquals(0,s.trainer.sinceCheck);

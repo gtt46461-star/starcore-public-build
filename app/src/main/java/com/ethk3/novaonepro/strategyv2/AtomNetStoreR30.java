@@ -40,14 +40,31 @@ public final class AtomNetStoreR30 {
         b.add("INSERT OR IGNORE INTO r30_atomnet_sample VALUES(?,?,?,?,?,?,?)",dataset,index,issue,position,features(x),y,cls);
     }
     public static AtomNetSessionR30.Samples samples(SQLiteDatabase ro,AtomNetSessionR30 session){
-        return index->{try(Cursor c=ro.rawQuery("SELECT issue,position,features,hit,number_class FROM r30_atomnet_sample WHERE dataset_hash=? AND sample_index=?",new String[]{session.datasetHash,Integer.toString(index)})){
-            if(!c.moveToFirst())throw new IllegalStateException("R30_TRAIN_SAMPLE_MISSING:"+index);
-            byte[] blob=c.getBlob(2);if(blob.length!=session.input*8)throw new IllegalStateException("R30_TRAIN_SAMPLE_SHAPE");double[] x=new double[session.input];
-            try(DataInputStream in=new DataInputStream(new ByteArrayInputStream(blob))){for(int i=0;i<x.length;i++)x[i]=in.readDouble();}
-            catch(IOException e){throw new IllegalStateException(e);}
-            return new AtomNetTrainerR27.Sample(x,c.getInt(3),c.getInt(4),AtomNetSessionR30.eventKey(c.getString(0),c.getInt(1)));
-        }};
+        return new AtomNetSessionR30.Samples(){
+            final Map<Integer,AtomNetTrainerR27.Sample> prepared=new HashMap<>();
+            public void prefetch(int[] indices){
+                if(indices.length>64)throw new IllegalArgumentException("R30_SAMPLE_PREFETCH_BOUND");
+                prepared.clear();if(indices.length==0)return;
+                LinkedHashSet<Integer> unique=new LinkedHashSet<>();for(int i:indices){if(i<0||i>=session.trainCount+session.selectCount)throw new IllegalArgumentException("R30_SAMPLE_PROTECTED_OR_OUTSIDE_RESEARCH_SPLITS");unique.add(i);}
+                StringBuilder sql=new StringBuilder("SELECT sample_index,issue,position,features,hit,number_class FROM r30_atomnet_sample WHERE dataset_hash=? AND sample_index IN (");
+                String[] args=new String[unique.size()+1];args[0]=session.datasetHash;int at=1;
+                for(int i:unique){if(at>1)sql.append(',');sql.append('?');args[at++]=Integer.toString(i);}sql.append(')');
+                try(Cursor c=ro.rawQuery(sql.toString(),args)){while(c.moveToNext())prepared.put(c.getInt(0),decode(c));}
+                if(prepared.size()!=unique.size())throw new IllegalStateException("R30_TRAIN_SAMPLE_MISSING_IN_PREFETCH");
+            }
+            AtomNetTrainerR27.Sample decode(Cursor c){
+                byte[] blob=c.getBlob(3);if(blob.length!=session.input*8)throw new IllegalStateException("R30_TRAIN_SAMPLE_SHAPE");
+                double[] x=new double[session.input];try(DataInputStream in=new DataInputStream(new ByteArrayInputStream(blob))){for(int i=0;i<x.length;i++){x[i]=in.readDouble();if(!Double.isFinite(x[i]))throw new IllegalStateException("R30_TRAIN_SAMPLE_NONFINITE");}}
+                catch(IOException e){throw new IllegalStateException(e);}
+                int position=c.getInt(2),hit=c.getInt(4),number=c.getInt(5);if(position<1||position>10||hit<0||hit>1||number<0||number>9||position!=Math.floorMod(c.getInt(0),10)+1)throw new IllegalStateException("R30_TRAIN_SAMPLE_IDENTITY");
+                return new AtomNetTrainerR27.Sample(x,hit,number,AtomNetSessionR30.eventKey(c.getString(1),position));
+            }
+            public AtomNetTrainerR27.Sample get(int index){
+                AtomNetTrainerR27.Sample s=prepared.get(index);if(s==null){prefetch(new int[]{index});s=prepared.get(index);}return s;
+            }
+        };
     }
+
     public static AtomNetSessionR30 restore(SQLiteDatabase ro){
         try(Cursor c=ro.rawQuery("SELECT feature_abi,state_hash,artifact,dataset_hash,trained_through FROM r29_model_checkpoint WHERE owner=?",new String[]{AtomNetSessionR30.OWNER})){
             if(!c.moveToFirst())return null;if(!AtomNetSessionR30.ABI.equals(c.getString(0)))throw new IllegalStateException("R30_TRAIN_FEATURE_ABI");
@@ -57,6 +74,12 @@ public final class AtomNetStoreR30 {
     }
     public static void checkpoint(ResearchWriteQueueR27.Batch b,AtomNetSessionR30 state,long now){
         byte[] bytes=state.encode();
+        // Exact old bytes/checksum are archived before the first outer-format migration, in an existing immutable table.
+        b.add("INSERT OR IGNORE INTO r29_legacy_model_checkpoint(owner,artifact_hash,artifact,trained_through,online_steps,learning_rate,last_check_logloss,archived_at,reason) SELECT owner,state_hash,artifact,trained_through,-1,-1,NULL,?,'R30_REPAIR_ORIGINAL_OUTER_V1_BYTES_EXACT; SIDE_COUNTERS_UNKNOWN_SEE_ORIGINAL_ARTIFACT' FROM r29_model_checkpoint WHERE owner=? AND substr(artifact,1,4)=x'30A70001'",now,AtomNetSessionR30.OWNER);
+        String identity=StatsR27.sha256(bytes);long work=state.materializedSamples+state.pretrainSamples+state.trainer.onlineSteps;
+        long materializeTotal=(long)state.trainCount+state.selectCount+state.holdoutCount;
+        Long pending=state.materializedSamples<materializeTotal?materializeTotal-state.materializedSamples:state.phase.equals("TRAIN")?(long)Math.max(0,state.trainCount-state.offset):null; // Current known sample queue only; no invented future early-stop visits.
+        ResearchStoreR30R1.appendOwnedProgress(b,-1,new ResearchStoreR30R1.Facts(work,work,pending,null,state.ready()?state.trainedThroughOrdinal():null,identity));
         b.add("INSERT OR REPLACE INTO r29_model_checkpoint(owner,feature_abi,dataset_hash,trained_through,state_hash,artifact,updated_at) VALUES(?,?,?,?,?,?,?)",AtomNetSessionR30.OWNER,AtomNetSessionR30.ABI,state.datasetHash,state.completeIssue.isEmpty()?state.observedThrough:state.trainedThrough(),StatsR27.sha256(bytes),bytes,now);
         b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('atomnet','ten-position-r30',?,?)",JsonR27.write(state.report()),now);
         for(AtomNetTrainerR27.Epoch e:state.receipts)b.add("INSERT OR IGNORE INTO r27_atomnet_epoch VALUES(?,?,?,?,?,?)","R30_"+state.datasetHash.substring(0,16),e.epoch,e.split,Double.isFinite(e.logloss)?e.logloss:null,Double.isFinite(e.brier)?e.brier:null,now);

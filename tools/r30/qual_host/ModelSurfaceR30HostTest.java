@@ -43,9 +43,9 @@ public final class ModelSurfaceR30HostTest {
                 AtomNetSessionR30 state=new AtomNetSessionR30(data.datasetHash,issue(99),latest-1,182,10,10,0);
                 AtomReplayR27.Frame train=AtomReplayR27.build(data,70,72);
                 while(!state.ready())state.work(index->{int pos=index%10+1;return new AtomNetTrainerR27.Sample(AtomNetR27.positionedInput(AtomReplayR27.features(train.values[index],train.present[index],true),pos),train.hit[index],train.actual[index]-1,AtomNetSessionR30.eventKey(data.issues[70+index/10],pos));});
-                rt.atomSessionR30=state;
+                rt.publishAtomStateR30(state);
                 if(mode.equals("target"))rt.atomSessionR30=new AtomNetSessionR30(data.datasetHash,issue(101),latest+1,182,10,10,0);
-                if(mode.equals("target")){rt.atomSessionR30.phase="ONLINE";rt.atomSessionR30.completeIssue=issue(101);}
+                if(mode.equals("target")){rt.atomSessionR30.phase="ONLINE";rt.atomSessionR30.completeIssue=issue(101);rt.publishAtomStateR30(rt.atomSessionR30);}
             }
             LiveShadowsR27.freeze(rt,worker,issue(100),latest,deadline,"('ACTIVE')",true);
             Map<String,Object> report=ModelSurfaceStoreR30.report(db);

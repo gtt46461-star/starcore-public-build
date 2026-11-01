@@ -34,6 +34,9 @@ public final class RuntimeR27 implements AutoCloseable {
     FtrlR27 atomFtrl; String atomTrainedThrough = "";
 
     int calibrationIndexR30;
+    static final class AtomPublicationR30 {final AtomNetSessionR30 state;final ModelSurfaceProviderR30.FrozenModelRef model;AtomPublicationR30(AtomNetSessionR30 state,ModelSurfaceProviderR30.FrozenModelRef model){this.state=state;this.model=model;}}
+    volatile AtomPublicationR30 atomPublicationR30;
+    void publishAtomStateR30(AtomNetSessionR30 state){ModelSurfaceProviderR30.FrozenModelRef ref=state.ready()?new ModelSurfaceProviderR30.FrozenModelRef(state.trainer.net.encode(),state.trainedThroughOrdinal(),System.currentTimeMillis()):null;atomPublicationR30=new AtomPublicationR30(state,ref);atomSessionR30=state;}
     volatile AtomNetSessionR30 atomSessionR30; ReplayDatasetR27 atomDataR30; long atomUnitsR30;
 
     private static volatile RuntimeR27 active;

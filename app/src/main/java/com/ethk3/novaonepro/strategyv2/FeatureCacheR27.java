@@ -16,13 +16,22 @@ public final class FeatureCacheR27 {
     private final Map<String, double[]> cache;
     private long computed, hits;
     private volatile ModelSurfaceProviderR30.Source modelSurfaces=ModelSurfaceProviderR30.NONE;
-    public void bindModelSurfaces(ModelSurfaceProviderR30.Source source){modelSurfaces=source==null?ModelSurfaceProviderR30.NONE:source;synchronized(this){cache.keySet().removeIf(k->k.startsWith("model_surface|"));}}
-    public ModelSurfaceProviderR30.Surface modelSurface(int row,int position){return modelSurfaces.at(row,position);}
+    private volatile long modelSourceVersion;
+    private final Map<Integer,String> modelHistoryHashes=new LinkedHashMap<Integer,String>(128,.75f,true){protected boolean removeEldestEntry(Map.Entry<Integer,String> e){return size()>128;}};
+    public void bindModelSurfaces(ModelSurfaceProviderR30.Source source){synchronized(this){modelSurfaces=source==null?ModelSurfaceProviderR30.NONE:source;modelSourceVersion++;cache.keySet().removeIf(k->k.startsWith("model_surface|"));}}
+    public long modelSourceVersion(){return modelSourceVersion;}
+    public ModelSurfaceProviderR30.Surface modelSurface(int row,int position){return checkedSurface(modelSurfaces,row,position);}
+    private ModelSurfaceProviderR30.Surface checkedSurface(ModelSurfaceProviderR30.Source source,int row,int position){
+        if(row<0||row>=data.size()||position<1||position>10)return null;ModelSurfaceProviderR30.Surface s=source.at(row,position);if(s==null)return null;
+        if(s.targetOrdinal!=data.ordinals[row]||s.position!=position||s.trainedThroughOrdinal>=s.targetOrdinal)return null;
+        String expected;synchronized(modelHistoryHashes){expected=modelHistoryHashes.get(row);}if(expected==null){expected=ModelSurfaceProviderR30.historyHash(data,row);synchronized(modelHistoryHashes){modelHistoryHashes.put(row,expected);}}
+        return expected.equals(s.historyHash)?s:null;
+    }
     public String modelBlockReason(int row,int position){return modelSurfaces.reason(row,position);}
     public void maskMissingModelRows(double[] values,int positions){
-        for(int t=0;t<data.size();t++)for(int p=1;p<=10;p++)if((positions&(1<<(p-1)))!=0&&modelSurfaces.at(t,p)==null){Arrays.fill(values,t*10,t*10+10,Double.NaN);break;}
+        for(int t=0;t<data.size();t++)for(int p=1;p<=10;p++)if((positions&(1<<(p-1)))!=0&&modelSurface(t,p)==null){Arrays.fill(values,t*10,t*10+10,Double.NaN);break;}
     }
-    private double[] modelSurfaceValues(int position){double[] out=nan();ModelSurfaceProviderR30.Source snapshot=modelSurfaces;for(int t=0;t<data.size();t++){ModelSurfaceProviderR30.Surface s=snapshot.at(t,position);if(s!=null)System.arraycopy(s.probabilities(),0,out,t*10,10);}return out;}
+    private double[] modelSurfaceValues(int position){double[] out=nan();ModelSurfaceProviderR30.Source snapshot=modelSurfaces;for(int t=0;t<data.size();t++){ModelSurfaceProviderR30.Surface s=checkedSurface(snapshot,t,position);CooperativeContinuationR26.poll();if(s!=null)System.arraycopy(s.probabilities(),0,out,t*10,10);}return out;}
 
 
     public FeatureCacheR27(ReplayDatasetR27 data) { this(data, 48); }
@@ -42,7 +51,7 @@ public final class FeatureCacheR27 {
     /** @param tp target position 1..10 the policy predicts. */
     public double[] leaf(String kind, int tp, int a, int b) {
         if (!targetDependent(kind)) tp = 0;
-        String key = kind + '|' + tp + '|' + a + '|' + b;
+        String key = kind + '|' + tp + '|' + a + '|' + b+(kind.equals("model_surface")?"|"+AtomNetSessionR30.ABI+"|"+modelSourceVersion:"");
         synchronized (this) { double[] v = cache.get(key); if (v != null) { hits++; return v; } }
         // Computed outside the lock so research threads never serialize on one long leaf.
         double[] v = compute(kind, tp, a, b);

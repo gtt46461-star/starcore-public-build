@@ -20,7 +20,7 @@ public final class ResearchStoreR30R1 {
     public static void appendProgress(ResearchWriteQueueR27.Batch batch,String task,String session,long fence,long calendar,Facts facts){
         // Progress first, then the original final source/deadline guard; both are in the same transaction.
         final com.ethk3.novaonepro.DatabaseCoordinator.WriteCallable<Integer> original=batch.after;
-        batch.after=db->{commitProgress(db,task,session,fence,calendar,facts);return original==null?0:original.call(db);};
+        batch.after=db->{commitProgress(db,task,session,fence,calendar<0?calendar(db):calendar,facts);return original==null?0:original.call(db);};
     }
     public static void commitProgress(SQLiteDatabase db,String task,String session,long fence,long calendar,Facts facts){
         if(!db.inTransaction())throw new IllegalStateException("TYPED_PROGRESS_REQUIRES_ARTIFACT_TRANSACTION");

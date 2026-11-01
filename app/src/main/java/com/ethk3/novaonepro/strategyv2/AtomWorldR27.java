@@ -131,7 +131,7 @@ public final class AtomWorldR27 {
                     if (!restored.datasetHash.equals(c.getString(2)) || !restored.trainedThrough.equals(c.getString(3))) throw new IllegalStateException("R29_MODEL_CURSOR_MISMATCH");
                     // CP04 artifacts lack this receipt counter. Recover its lower bound from immutable database rows.
                     try (Cursor epochs = w.ro.rawQuery("SELECT coalesce(max(epoch),-1)+1 FROM r27_atomnet_epoch WHERE run_id=?", new String[] {restored.datasetHash.substring(0,16)})) {
-                        if (epochs.moveToFirst()) restored.trainer.nextEpochReceipt = Math.max(restored.trainer.nextEpochReceipt, epochs.getInt(0));
+                        if (epochs.moveToFirst()) restored.recoverReceiptCursorFromPersistence(epochs.getInt(0));
                     }
                     rt.atomNet = restored.trainer; rt.atomFtrl = restored.ftrl; rt.atomTrainedThrough = restored.trainedThrough; rt.atomNetDataset = restored.datasetHash;
                     return ResearchPoolR27.Outcome.idle("CHECKPOINT_RESTORED;NO_TRAINING_YET", restored.trainer.onlineSteps, -1);
@@ -153,7 +153,7 @@ public final class AtomWorldR27 {
         List<AtomNetTrainerR27.Sample> train = samples(rt, sp.trainFrom, sp.trainTo), select = samples(rt, sp.selectFrom, sp.selectTo), hold = samples(rt, sp.holdoutFrom, sp.holdoutTo);
         if (train.isEmpty()) return;
         AtomNetTrainerR27 tr = new AtomNetTrainerR27(train.get(0).x.length, 27);
-        long t0 = System.currentTimeMillis(); tr.pretrain(train, select); tr.check(hold);
+        long t0 = System.currentTimeMillis(); tr.pretrain(train, select); tr.checkDevelopment(select,ResearchContractR30R1.Role.SELECT);
         String run = d.datasetHash.substring(0, 16); long now = System.currentTimeMillis();
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
         for (AtomNetTrainerR27.Epoch e : tr.epochs) b.add("INSERT OR REPLACE INTO r27_atomnet_epoch(run_id,epoch,split,logloss,brier,recorded_at) VALUES(?,?,?,?,?,?)", run, e.epoch, e.split, e.logloss, e.brier, now);
@@ -202,7 +202,7 @@ public final class AtomWorldR27 {
             tr.online(new AtomNetTrainerR27.Sample(x, y, fr.actual[0] - 1, recent.issues[t])); f.update(java.util.Arrays.copyOf(x, 7), y);
             trainedThrough = recent.issues[t]; units++;
             if (tr.sinceCheck >= AtomNetTrainerR27.CHECK_EVERY && rt.frameValues != null) {
-                SplitR27 sp = rt.evo.context().split; boolean rolled = tr.check(samples(rt, Math.max(sp.selectFrom, sp.holdoutTo - SplitR27.BLOCK), sp.holdoutTo));
+                SplitR27 sp = rt.evo.context().split; boolean rolled = tr.checkDevelopment(samples(rt,sp.selectFrom,sp.selectTo),ResearchContractR30R1.Role.SELECT);
                 b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('atomnet','last_check',?,?)", JsonR27.write(java.util.Collections.<String, Object>singletonMap("event", rolled ? "ROLLBACK_DEGRADED" : "CHECK_OK")), now);
                 for (AtomNetTrainerR27.Epoch e : tr.epochs) b.add("INSERT OR REPLACE INTO r27_atomnet_epoch(run_id,epoch,split,logloss,brier,recorded_at) VALUES(?,?,?,?,?,?)", rt.atomNetDataset.substring(0, 16), e.epoch, e.split, e.logloss, e.brier, now);
             }

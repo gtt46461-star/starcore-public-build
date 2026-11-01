@@ -7,12 +7,18 @@ public final class ModelSurfaceProviderR30 {
     private ModelSurfaceProviderR30(){}
     public static final int HISTORY_ROWS=480;
     public static final class FrozenModelRef {
-        public final String modelHash; public final long trainedThroughOrdinal,availableAt;
+        public final String modelHash,weightsHash; public final long trainedThroughOrdinal,availableAt;
+        public final boolean legacyWeightsOnlyIdentity;
         private final byte[] weights;
-        public FrozenModelRef(byte[] weights,long through,long available){
-            this.weights=weights.clone();modelHash=StatsR27.sha256(this.weights);trainedThroughOrdinal=through;availableAt=available;
-            AtomNetR27.decode(this.weights);if(available<=0)throw new IllegalArgumentException("MODEL_AVAILABILITY_UNKNOWN");
+        public FrozenModelRef(byte[] weights,long through,long available){this(weights,through,available,null);}
+        private FrozenModelRef(byte[] weights,long through,long available,String original){
+            this.weights=weights.clone();weightsHash=StatsR27.sha256(this.weights);trainedThroughOrdinal=through;availableAt=available;
+            String descriptor=HashingSU1.fields("R30_REPAIR_MODEL_REF_1",weightsHash,AtomNetSessionR30.ABI,Long.toString(through),Long.toString(available));
+            legacyWeightsOnlyIdentity=original!=null&&original.equals(weightsHash);modelHash=original==null?descriptor:original;
+            if(original!=null&&!original.equals(descriptor)&&!legacyWeightsOnlyIdentity)throw new Blocked("ARTIFACT_IDENTITY_MISMATCH");
+            try{ModelArtifactR29.network(this.weights);}catch(java.io.IOException invalid){throw new Blocked("INVALID_MODEL_ARTIFACT");}if(available<=0||through<0)throw new IllegalArgumentException("MODEL_AVAILABILITY_UNKNOWN");
         }
+        static FrozenModelRef archived(String hash,byte[] bytes,long through,long available){return new FrozenModelRef(bytes,through,available,hash);}
         public byte[] weights(){return weights.clone();}
     }
     public static final class Pit {

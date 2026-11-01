@@ -35,7 +35,12 @@ public class R30ModelSurfaceTest {
     }
     @Test public void i08ActuallyProposesModelLeavesAndRetainsFamilyCapability(){
         IdeaI08NeuralRepresentationR27 family=new IdeaI08NeuralRepresentationR27();StatsR27.SplitMix r=new StatsR27.SplitMix(30);int models=0,legacy=0;
-        for(int i=0;i<1000;i++){PolicySpecR27 p=family.generate(r,new IdeaFamilyR27.Context());assertTrue(PolicyContractR30.violations(p).toString(),PolicyContractR30.violations(p).isEmpty());if(p.ast.modelPositions!=0)models++;else legacy++;}
+        IdeaFamilyR27.Context unavailable=new IdeaFamilyR27.Context();for(int i=0;i<100;i++)assertEquals(0,family.generate(r,unavailable).ast.modelPositions);
+        ReplayDatasetR27 data=ReplayDatasetR27.synthetic(3000,14,null);FeatureCacheR27 cache=new FeatureCacheR27(data);SplitR27 split=SplitR27.of(data,null);int row=split.selectTo-1;
+        Map<Long,ModelSurfaceProviderR30.Surface> available=new HashMap<>();ModelSurfaceProviderR30.FrozenModelRef ref=new ModelSurfaceProviderR30.FrozenModelRef(new AtomNetR27(12,7).encode(),data.ordinals[row]-1,10000);
+        for(int pos=1;pos<=10;pos++)available.put(ModelSurfaceProviderR30.key(row,pos),ModelSurfaceProviderR30.predict(new ModelSurfaceProviderR30.Pit(data.ordinals[row],data.ordinals[row]-1,pos,ModelSurfaceProviderR30.historyHash(data,row),AtomNetR27.positionedInput(new double[]{.2,.8},pos),19000,20000,20000,30000),ref));
+        cache.bindModelSurfaces(ModelSurfaceProviderR30.source(available,Collections.emptyMap()));IdeaFamilyR27.Context ready=new IdeaFamilyR27.Context();ready.evaluation=new EvalContextR27(cache,split,null);
+        for(int i=0;i<1000;i++){PolicySpecR27 p=family.generate(r,ready);assertTrue(PolicyContractR30.violations(p).toString(),PolicyContractR30.violations(p).isEmpty());if(p.ast.modelPositions!=0)models++;else legacy++;}
         assertTrue(models>=400);assertTrue(legacy>=400);assertEquals(ModelSurfaceProviderR30.goldenHash(),ModelSurfaceProviderR30.goldenHash());
         System.out.println("R30_I08|MODEL_PROPOSALS="+models+"|FAMILY_PROPOSALS="+legacy+"|NO_UNAVAILABLE_MODEL_BIRTH_CLAIM");
     }

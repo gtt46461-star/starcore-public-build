@@ -9,13 +9,14 @@ public final class IdeaI08NeuralRepresentationR27 implements IdeaFamilyR27 {
     public String nameZh() { return "神经表示族"; }
     public String coreIdea() { return "让网络/家族模型自己学特征"; }
     static int gen(IdeaFamilyR27.Context ctx) { return ctx == null ? 0 : ctx.generation; }
+    static boolean modelReady(IdeaFamilyR27.Context ctx,int position){return ctx!=null&&ctx.evaluation!=null&&ctx.evaluation.cache.modelSurface(ctx.evaluation.split.selectTo-1,position)!=null;}
     public PolicySpecR27 generate(StatsR27.SplitMix r, IdeaFamilyR27.Context ctx) {
         int tp = IdeaFamilyR27.Grow.pos(r);
-        PolicyAstR27.Node ast = PolicyAstR27.op("zscore", IdeaFamilyR27.Grow.leaf(r.chance(.5)?"model_surface":"family", tp, r));
+        PolicyAstR27.Node ast = PolicyAstR27.op("zscore", IdeaFamilyR27.Grow.leaf(modelReady(ctx,tp)&&r.chance(.5)?"model_surface":"family", tp, r));
         if (r.chance(0.4)) ast = PolicyAstR27.op("ema", IdeaFamilyR27.Grow.round(0.1 + 0.8 * r.nextDouble()), ast);
         return IdeaFamilyR27.Grow.spec(ast, tp, r, IdeaFamilyR27.meta(id(), "GENERATE", gen(ctx), r.state, "AtomNet十位置模型概率面/保留R26家族核；缺少合法模型明确BLOCKED"));
     }
     public PolicySpecR27 mutate(PolicySpecR27 p, StatsR27.SplitMix r, IdeaFamilyR27.Context ctx) {
-        return IdeaFamilyR27.Grow.swapLeaf(p, KINDS, id(), gen(ctx), ctx, r);
+        return IdeaFamilyR27.Grow.swapLeaf(p, modelReady(ctx,p.position)?KINDS:new String[]{"family"}, id(), gen(ctx), ctx, r);
     }
 }

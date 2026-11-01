@@ -19,7 +19,7 @@ public final class EvalContextR27 {
     }
 
     public double[] scores(PolicySpecR27 s) {
-        String k = data.datasetHash + "|" + s.ast.toString() + "@" + s.position; // R30-B03-06: a new dataset never hits old scores
+        String k = data.datasetHash + "|" + s.ast.toString() + "@" + s.position+(s.ast.modelPositions!=0?"|MODEL_SOURCE_"+cache.modelSourceVersion():""); // R30-B03-06: a new dataset never hits old scores
         synchronized (scoreMemo) { double[] v = scoreMemo.get(k); if (v != null) return v; }
         double[] v = PolicyAstR27.eval(s.ast, cache, s.position); // outside the lock: parallel replay threads
         synchronized (scoreMemo) { scoreMemo.put(k, v); }

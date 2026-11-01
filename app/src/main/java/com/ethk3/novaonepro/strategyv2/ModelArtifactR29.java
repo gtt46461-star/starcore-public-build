@@ -26,13 +26,17 @@ public final class ModelArtifactR29 {
     public final AtomNetTrainerR27 trainer;
     public final FtrlR27 ftrl;
     public final String datasetHash, trainedThrough;
+    public boolean receiptCursorRequiresPersistenceRecovery;
+    public java.util.Map<String,Object> continuationIntegrity(){java.util.Map<String,Object> r=new java.util.LinkedHashMap<>();r.put("numericOptimizerState","FULLY_PERSISTED_WEIGHTS_ADAM_RNG_REPLAY_FTRL");r.put("receiptCursor",receiptCursorRequiresPersistenceRecovery?"REQUIRES_EXISTING_DATABASE_LOWER_BOUND":"PERSISTED");r.put("missingOptimizerInitializationAllowed",false);return r;}
 
     public ModelArtifactR29(AtomNetTrainerR27 trainer, FtrlR27 ftrl, String datasetHash, String trainedThrough) {
         if (trainer == null || ftrl == null || datasetHash == null || trainedThrough == null) throw new IllegalArgumentException("R29_MODEL_STATE_REQUIRED");
         this.trainer = trainer; this.ftrl = ftrl; this.datasetHash = datasetHash; this.trainedThrough = trainedThrough;
     }
 
+    public void recoverReceiptCursorFromPersistence(int next){if(next<0)throw new IllegalArgumentException("RECEIPT_CURSOR_LOWER_BOUND");trainer.nextEpochReceipt=Math.max(trainer.nextEpochReceipt,next);receiptCursorRequiresPersistenceRecovery=false;}
     public byte[] encode() {
+        if(receiptCursorRequiresPersistenceRecovery)throw new IllegalStateException("LEGACY_RECEIPT_CURSOR_REQUIRES_EXISTING_DB_RECOVERY");
         try {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream(); DataOutputStream out = new DataOutputStream(bytes);
             out.writeInt(MAGIC); out.writeUTF(ABI); out.writeUTF(datasetHash); out.writeUTF(trainedThrough);
@@ -82,7 +86,7 @@ public final class ModelArtifactR29 {
             for (double[] a : new double[][] {f.z, f.n, f.w}) for (int i = 0; i < a.length; i++) a[i] = finite(in.readDouble());
             for (double value : f.n) if (value < 0) throw new IOException("negative accumulator");
             if (in.read() != -1) throw new IOException("trailing bytes");
-            return new ModelArtifactR29(tr, f, dataset, through);
+            ModelArtifactR29 result=new ModelArtifactR29(tr,f,dataset,through);result.receiptCursorRequiresPersistenceRecovery=version==LEGACY_MAGIC;return result;
         } catch (IOException | RuntimeException failure) { throw new IllegalArgumentException("R29_MODEL_DECODE", failure); }
     }
 

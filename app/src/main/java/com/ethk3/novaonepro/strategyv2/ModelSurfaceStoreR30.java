@@ -14,6 +14,7 @@ public final class ModelSurfaceStoreR30 {
         "CREATE TABLE IF NOT EXISTS r30_model_call(call_key TEXT PRIMARY KEY,policy_hash TEXT NOT NULL,model_hash TEXT,target_ordinal INTEGER NOT NULL,position INTEGER NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,probability_hash TEXT,required_count INTEGER NOT NULL,called_at INTEGER NOT NULL,frozen_at INTEGER)"
     };
     public static void surface(ResearchWriteQueueR27.Batch b,ModelSurfaceProviderR30.Surface s,ModelSurfaceProviderR30.FrozenModelRef ref){
+        if(ref!=null&&(!ref.modelHash.equals(s.modelHash)||ref.trainedThroughOrdinal!=s.trainedThroughOrdinal||ref.availableAt!=s.modelAvailableAt))throw new ModelSurfaceProviderR30.Blocked("SURFACE_ARTIFACT_VERSION_MISMATCH");
         if(ref!=null)b.add("INSERT OR IGNORE INTO r30_model_artifact VALUES(?,?,?,?,?)",ref.modelHash,AtomNetSessionR30.ABI,ref.weights(),ref.trainedThroughOrdinal,ref.availableAt);
         b.add("INSERT OR IGNORE INTO r30_model_surface VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",s.targetOrdinal,s.position,s.modelHash,s.historyHash,StoreR27.pack(s.probabilities()),s.probabilityHash,s.trainedThroughOrdinal,s.modelAvailableAt,s.featureThroughOrdinal,s.featureAvailableAt,s.preparedAt,s.frozenAt,s.deadlineAt);
     }
@@ -24,13 +25,17 @@ public final class ModelSurfaceStoreR30 {
     }
     static Prepared archived(SQLiteDatabase ro,ReplayDatasetR27 data){
         Prepared p=new Prepared();if(data.size()==0)return p;
+        Map<String,ModelSurfaceProviderR30.FrozenModelRef> verifiedModels=new LinkedHashMap<String,ModelSurfaceProviderR30.FrozenModelRef>(16,.75f,true){protected boolean removeEldestEntry(Map.Entry<String,ModelSurfaceProviderR30.FrozenModelRef> e){return size()>16;}};
         Map<Long,Integer> indices=new HashMap<>();Map<Integer,String> hashes=new HashMap<>();for(int i=0;i<data.size();i++)indices.put(data.ordinals[i],i);
-        try(Cursor c=ro.rawQuery("SELECT s.target_ordinal,s.position,s.model_hash,s.history_hash,s.probabilities,s.probability_hash,s.trained_through_ordinal,s.model_available_at,s.feature_through_ordinal,s.feature_available_at,s.prepared_at,s.frozen_at,s.deadline_at FROM r30_model_surface s JOIN r30_model_artifact a ON a.model_hash=s.model_hash WHERE s.target_ordinal>=? AND s.target_ordinal<=? ORDER BY s.frozen_at ASC",new String[]{Long.toString(data.ordinals[0]),Long.toString(data.ordinals[data.size()-1])})){
+        try(Cursor c=ro.rawQuery("SELECT s.target_ordinal,s.position,s.model_hash,s.history_hash,s.probabilities,s.probability_hash,s.trained_through_ordinal,s.model_available_at,s.feature_through_ordinal,s.feature_available_at,s.prepared_at,s.frozen_at,s.deadline_at,a.feature_abi,a.weights,a.trained_through_ordinal,a.available_at FROM r30_model_surface s JOIN r30_model_artifact a ON a.model_hash=s.model_hash WHERE s.target_ordinal>=? AND s.target_ordinal<=? ORDER BY s.frozen_at ASC",new String[]{Long.toString(data.ordinals[0]),Long.toString(data.ordinals[data.size()-1])})){
             while(c.moveToNext()){
                 Integer row=indices.get(c.getLong(0));if(row==null)continue;int position=c.getInt(1);long key=ModelSurfaceProviderR30.key(row,position);if(p.rows.containsKey(key))continue;
                 String hash=hashes.get(row);if(hash==null){hash=ModelSurfaceProviderR30.historyHash(data,row);hashes.put(row,hash);}
                 if(!hash.equals(c.getString(3))){p.blocked.put(key,"ARCHIVED_HISTORY_MISMATCH");continue;}
                 try{
+                    if(!AtomNetSessionR30.ABI.equals(c.getString(13)))throw new ModelSurfaceProviderR30.Blocked("ARCHIVED_FEATURE_ABI");
+                    ModelSurfaceProviderR30.FrozenModelRef original=verifiedModels.get(c.getString(2));if(original==null){original=ModelSurfaceProviderR30.FrozenModelRef.archived(c.getString(2),c.getBlob(14),c.getLong(15),c.getLong(16));verifiedModels.put(original.modelHash,original);}
+                    if(original.trainedThroughOrdinal!=c.getLong(6)||original.availableAt!=c.getLong(7))throw new ModelSurfaceProviderR30.Blocked("ARCHIVED_ARTIFACT_BOUNDARY_MISMATCH");
                     ModelSurfaceProviderR30.Surface s=ModelSurfaceProviderR30.archived(c.getString(2),hash,StoreR27.unpack(c.getBlob(4)),c.getLong(0),c.getLong(6),c.getLong(7),c.getLong(8),c.getLong(9),position,c.getLong(10),c.getLong(11),c.getLong(12));
                     if(!s.probabilityHash.equals(c.getString(5)))throw new ModelSurfaceProviderR30.Blocked("ARCHIVED_PROBABILITY_HASH");
                     p.rows.put(key,s);
@@ -42,10 +47,9 @@ public final class ModelSurfaceStoreR30 {
     public static void bindHistorical(SQLiteDatabase ro,FeatureCacheR27 cache){archived(ro,cache.data).bind(cache);}
     static Prepared prepareLive(RuntimeR27 rt,ResearchPoolR27.Worker w,FeatureCacheR27 cache,long deadline){
         Prepared p=archived(w.ro,cache.data);int row=cache.data.size()-1;
-        AtomNetSessionR30 state=rt.atomSessionR30;String unavailable=state==null?"ATOMNET_NOT_TRAINED":!state.ready()?"ATOMNET_CHECKPOINT_NOT_READY":null;
+        RuntimeR27.AtomPublicationR30 publication=rt.atomPublicationR30;AtomNetSessionR30 state=publication==null?null:publication.state;String unavailable=state==null?"ATOMNET_NOT_TRAINED":!state.ready()||publication.model==null?"ATOMNET_CHECKPOINT_NOT_READY":null;
         if(unavailable!=null){for(int pos=1;pos<=10;pos++)p.blocked.put(ModelSurfaceProviderR30.key(row,pos),unavailable);p.bind(cache);return p;}
-        long available=System.currentTimeMillis();
-        ModelSurfaceProviderR30.FrozenModelRef ref=new ModelSurfaceProviderR30.FrozenModelRef(state.trainer.net.encode(),state.trainedThroughOrdinal(),available);
+        ModelSurfaceProviderR30.FrozenModelRef ref=publication.model;
         AtomReplayR27.Frame frame=AtomReplayR27.build(cache.data,row,row+1);String history=ModelSurfaceProviderR30.historyHash(cache.data,row);
         for(int pos=1;pos<=10;pos++){
             long key=ModelSurfaceProviderR30.key(row,pos);if(p.rows.containsKey(key))continue;
@@ -79,9 +83,17 @@ public final class ModelSurfaceStoreR30 {
         try{
             long matched=count(db,"SELECT count(*) FROM r30_model_call WHERE status='MATCHED'"),blocked=count(db,"SELECT count(*) FROM r30_model_call WHERE status='BLOCKED'");
             long orphan=count(db,"SELECT count(*) FROM r30_model_call c LEFT JOIN r27_live_frozen f ON f.policy_hash=c.policy_hash AND f.target_ordinal=c.target_ordinal AND f.status='FROZEN' WHERE c.status='MATCHED' AND (f.policy_hash IS NULL OR c.frozen_at<>f.frozen_at OR NOT EXISTS(SELECT 1 FROM r30_model_artifact a WHERE a.model_hash=c.model_hash) OR NOT EXISTS(SELECT 1 FROM r30_model_surface s WHERE s.target_ordinal=c.target_ordinal AND s.position=c.position AND s.model_hash=c.model_hash AND s.probability_hash=c.probability_hash))");
-            long missing=count(db,"SELECT count(*) FROM r27_live_frozen f JOIN r27_live_shadow s ON s.policy_hash=f.policy_hash WHERE f.status='FROZEN' AND s.spec_json LIKE '%model_surface%' AND (SELECT count(*) FROM r30_model_call c WHERE c.policy_hash=f.policy_hash AND c.target_ordinal=f.target_ordinal AND c.status='MATCHED')<>coalesce((SELECT max(required_count) FROM r30_model_call c WHERE c.policy_hash=f.policy_hash AND c.target_ordinal=f.target_ordinal AND c.status='MATCHED'),1)");
-            m.put("matchedCalls",matched);m.put("blockedCalls",blocked);m.put("orphanCalls",orphan);m.put("missingCalls",missing);m.put("matchingRatio",matched>0?(matched-orphan)/(double)matched:null);
-            m.put("status",orphan+missing>0?"FAIL":matched>0?"MATCHED":blocked>0?"BLOCKED":"INSUFFICIENT");m.put("quality","MODEL_CONSUMPTION_ONLY_NO_QUALITY_CLAIM");
+            long expected=0,applicable=0,invalidSpecs=0;
+            try(Cursor policies=db.rawQuery("SELECT policy_hash,spec_json FROM r27_live_shadow WHERE spec_json LIKE '%model_surface%'",null)){while(policies.moveToNext()){
+                PolicySpecR27 policy;try{policy=PolicySpecR27.parse(policies.getString(1));}catch(RuntimeException invalid){invalidSpecs++;continue;}
+                int mask=policy.ast.modelPositions,n=Integer.bitCount(mask);if(n==0)continue;String id=policies.getString(0);
+                try(Cursor totals=db.rawQuery("SELECT count(*) FROM r27_live_frozen WHERE policy_hash=? AND status='FROZEN'",new String[]{id})){if(totals.moveToFirst())expected+=n*totals.getLong(0);}
+                String sql="SELECT count(*) FROM (SELECT DISTINCT f.target_ordinal,c.position FROM r27_live_frozen f JOIN r30_model_call c ON c.policy_hash=f.policy_hash AND c.target_ordinal=f.target_ordinal AND c.frozen_at=f.frozen_at WHERE f.policy_hash=? AND f.status='FROZEN' AND c.status='MATCHED' AND c.required_count="+n+" AND c.position BETWEEN 1 AND 10 AND ("+mask+" & (1 << (c.position-1)))<>0 AND EXISTS(SELECT 1 FROM r30_model_artifact a WHERE a.model_hash=c.model_hash AND a.feature_abi=?) AND EXISTS(SELECT 1 FROM r30_model_surface s WHERE s.target_ordinal=c.target_ordinal AND s.position=c.position AND s.model_hash=c.model_hash AND s.probability_hash=c.probability_hash))";
+                try(Cursor valid=db.rawQuery(sql,new String[]{id,AtomNetSessionR30.ABI})){if(valid.moveToFirst())applicable+=valid.getLong(0);}
+            }}
+            long missing=Math.max(0,expected-applicable),extra=Math.max(0,matched-applicable);
+            m.put("matchedCalls",matched);m.put("applicableMatchedCalls",applicable);m.put("expectedCallsFromActualAstPositions",expected);m.put("blockedCalls",blocked);m.put("orphanCalls",orphan);m.put("unexpectedOrRepeatedCalls",extra);m.put("missingCalls",missing);m.put("invalidPolicySpecs",invalidSpecs);m.put("matchingRatio",expected>0&&invalidSpecs==0?applicable/(double)expected:null);
+            m.put("status",orphan+missing+extra>0?"FAIL":invalidSpecs>0?"UNKNOWN_INVALID_SOURCE":expected>0?"MATCHED":blocked>0?"BLOCKED":"INSUFFICIENT");m.put("quality","MODEL_CONSUMPTION_ONLY_NO_QUALITY_CLAIM");
             List<Object> reasons=new ArrayList<>();try(Cursor c=db.rawQuery("SELECT reason,count(*) FROM r30_model_call WHERE status='BLOCKED' GROUP BY reason ORDER BY count(*) DESC LIMIT 20",null)){while(c.moveToNext()){Map<String,Object> r=new LinkedHashMap<>();r.put("reason",c.getString(0));r.put("count",c.getLong(1));reasons.add(r);}}m.put("blockedReasons",reasons);
         }catch(RuntimeException unavailable){m.put("status","INSUFFICIENT");m.put("reason",unavailable.getClass().getSimpleName());}return m;
     }
