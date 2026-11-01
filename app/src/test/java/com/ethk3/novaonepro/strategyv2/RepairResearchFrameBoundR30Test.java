@@ -2,4 +2,11 @@ package com.ethk3.novaonepro.strategyv2;
 import java.util.*;import java.nio.charset.StandardCharsets;import org.junit.Test;import static org.junit.Assert.*;
 public final class RepairResearchFrameBoundR30Test {
  @Test public void fullMachineEvidenceStaysExactWhileDisplayIsBoundedAndExplicit(){Map<String,Object> full=new LinkedHashMap<>();full.put("viewId","R05");full.put("runId",StatsR27.sha256("synthetic"));List<Object> points=new ArrayList<>();String large=String.join("",Collections.nCopies(10000,"合成机读原件"));for(int i=0;i<120;i++){Map<String,Object> p=new LinkedHashMap<>();p.put("label","object"+i);p.put("value",i%2==0?-.2:.1);p.put("n",256);p.put("details",large);points.add(p);}full.put("points",points);full.put("sourceRecords",Collections.singletonList(large));String before=JsonR27.write(full);Map<String,Object> projection=ResearchFrameBoundR30R1.project(full);assertEquals(before,JsonR27.write(full));assertTrue(JsonR27.write(projection).getBytes(StandardCharsets.UTF_8).length<=262144);assertEquals(120,((List<?>)projection.get("points")).size());assertEquals(0,projection.get("displayOmittedPoints"));assertEquals(120,projection.get("displayDetailsClipped"));assertEquals(StatsR27.sha256(before),projection.get("fullMachineFrameSha256"));assertEquals(-.2,((Number)((Map<?,?>)((List<?>)projection.get("points")).get(0)).get("value")).doubleValue(),0);}
+ @Test public void same120EdgeBudgetAsActualPhoneReaderPreservesFullEvidence(){
+  Map<String,Object> full=new LinkedHashMap<>();full.put("points",Collections.emptyList());List<Object> edges=new ArrayList<>();
+  for(int i=0;i<120;i++){Map<String,Object> edge=new LinkedHashMap<>();edge.put("from","a"+i);edge.put("to","b"+i);edge.put("label","actual-original-edge");edges.add(edge);}full.put("edges",edges);
+  assertEquals(120,((List<?>)ResearchFrameBoundR30R1.project(full).get("edges")).size());edges.add(edges.get(0));String original=JsonR27.write(full);
+  try{ResearchFrameBoundR30R1.project(full);fail("121 edges must require explicit pagination before storing an unreadable frame");}catch(IllegalStateException expected){assertEquals("RESEARCH_FRAME_EDGE_PAGINATION_REQUIRED",expected.getMessage());}
+  assertEquals(original,JsonR27.write(full));
+ }
 }

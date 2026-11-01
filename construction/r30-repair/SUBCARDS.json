@@ -641,6 +641,15 @@
         "construction/r30-repair/FAULT_MATRIX.json"
       ],
       "reason": "先登记：逐卡复核发现原14格保留但新分析/消费链Android故障矩阵缺失。新增6故障×2阶段共12格，真实SQLite/原writer/实际批次回滚和SIGKILL重启，不替换旧14格；发布器必须验证12新格。合成故障输入与自然/物理设备结论分开。"
+    },
+    {
+      "id": "FR-B09-02-exact-120-edge-contract",
+      "card": "FR-B09-02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchFrameBoundR30R1.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairResearchFrameBoundR30Test.java"
+      ],
+      "reason": "先登记：联合合同复核发现生产帧投影允许180边，但原方案和实际手机读取上限都是120，会产生已存帧却无法显示。生产投影统一120，超限明确要求分页，完整原机读证据不变；验证120通过121拒绝且不改原件。"
     }
   ]
 }

@@ -26,6 +26,7 @@ public final class RepairResearchFaultAndroidTest {
     static void write(DbStore s,String op,ResearchWriteQueueR27.Batch b){
         s.coordinatorForResearchR952().runAtomicWriteOrThrowF01(op,db->{ResearchWriteQueueR27.execute(db,b,op);return 0;});
     }
+    static boolean message(Throwable t,String text){for(Throwable x=t;x!=null;x=x.getCause()){if(String.valueOf(x.getMessage()).contains(text))return true;if(x==x.getCause())break;}return false;}
     static boolean caused(Throwable t,Class<?> type){for(Throwable x=t;x!=null;x=x.getCause()){if(type.isInstance(x))return true;if(x==x.getCause())break;}return false;}
     static final class Fixture {
         final EvalContextR27 ctx;final PairedReplayRunnerR30R1 runner;final ResearchWriteQueueR27.Batch analysis;final DbStore store;
@@ -101,7 +102,7 @@ public final class RepairResearchFaultAndroidTest {
                     try{ResearchStoreR30R1.paired(f.runner.contract,f.runner.gain().estimate(),f.runner.advice(),f.runner.parent.fullJson(),f.runner.without.policyHash(),10);fail("mismatched exact measured child must fail");}catch(IllegalStateException expected){assertEquals("ANALYSIS_CANDIDATE_HASH",expected.getMessage());}absent(s,stage);
                 }else{
                     s.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R30_REPAIR_FAULT_CORRUPT_PAYLOAD",db->{db.execSQL("UPDATE r30r1_proposal SET payload_json=payload_json||' '");return 0;});
-                    try{write(s,"R30_REPAIR_CORRUPT_GUARD",batch);fail("payload hash must fail");}catch(RuntimeException expected){assertTrue(expected.toString(),expected.getMessage().contains("R27_WRITE_PRECONDITION")||expected.getCause()!=null);}absent(s,stage);blocked=true;
+                    try{write(s,"R30_REPAIR_CORRUPT_GUARD",batch);fail("payload hash must fail");}catch(RuntimeException expected){assertTrue(expected.toString(),message(expected,"R27_WRITE_PRECONDITION"));}absent(s,stage);blocked=true;
                 }
             }
             if(!blocked){write(s,"R30_REPAIR_FAULT_RETRY",batch);complete(s,stage);if(stage.equals("analysis")){write(s,"R30_REPAIR_FAULT_IDEMPOTENT_RETRY",batch);complete(s,stage);}else{try{write(s,"R30_REPAIR_FAULT_REPEATED_CONSUME",batch);fail("duplicate consumption required rejection");}catch(RuntimeException expected){assertTrue(ResearchStoreR30R1.stale(expected));}complete(s,stage);}}
