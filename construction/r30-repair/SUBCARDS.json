@@ -332,6 +332,16 @@
         "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairBehaviorBirthR30Test.java"
       ],
       "reason": "先登记：同代BORN后才加入群体注册，原gate没有比较本代尚未提交的兄弟候选。补本代同位置决策Jaccard>=原0.95去重（全部不出手视为同一行为），真实重复对写原genStats/游标与generation明细，不用名字/数量冒充新机制。不同实际目标位置的ACT决策不因本地比较误合并。"
+    },
+    {
+      "id": "FR-B10-01-a",
+      "card": "FR-B10-01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+        "tools/r30-repair/qual_host/RepairInputPinR30HostTest.java",
+        "tools/r30-repair/run_input_pin_host.py"
+      ],
+      "reason": "先登记：原六表内保存不可变压缩数据集/角色边界与实际捕获revision；独立新增触发器记录原输入更正/范围内回填失效，不改旧live六触发器或旧表列数。新head和存储清理不重复启动相同冻结研究，保护原始可重放输入。源变化/触发器/hash错误拒绝提交。实际SQLite更正竞态、保留、恢复、旧版DDL检查。"
     }
   ]
 }
