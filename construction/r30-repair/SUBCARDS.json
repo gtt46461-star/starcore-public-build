@@ -473,6 +473,19 @@
         "app/src/test/java/com/ethk3/novaonepro/RepairStorageCensusR30Test.java"
       ],
       "reason": "先登记：实际物理普查保留旧9聚合分类，附主库/备份/快照/归档/模型细分与Owner、采样开始结束、截断/不可读/深度原因；有界top8不保留20万路径。完整快照导出page/freelist实际数，无表扫描猜空间。只读归因，不删保护数据。"
+    },
+    {
+      "id": "FR-B11-04-same-identity-ci",
+      "card": "FR-B11-04",
+      "files": [
+        "release/release_manifest.json",
+        "tools/r30/package_final.py",
+        "tools/r30-repair/ci_build.sh",
+        "tools/r30-repair/r30-repair-build.yml",
+        "tools/r30-repair/run_android_regression.sh",
+        "tools/r30-repair/Q08_PRODUCTION_RESULT.json"
+      ],
+      "reason": "先登记：返修versionCode577311001高于已装107；同包且仅原R27签名，安全CI原loader保持原样。仅构建源分支引用和返修验收脚本适配；旧全门禁保留，新真实native/Android测试追加。20次Q08原始结果和源码范围保留，不称自然质量。"
     }
   ]
 }
