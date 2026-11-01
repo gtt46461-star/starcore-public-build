@@ -58,6 +58,8 @@ public final class CooperativeContinuationR26<T> implements AutoCloseable,Budget
         try{awaitPermit();}catch(InterruptedException stopped){Thread.currentThread().interrupt();throw new BudgetTokenSU1.Yield("R26_CONTINUATION_CANCELLED");}
     }
     public static void poll(){CooperativeContinuationR26<?> task=CURRENT.get();if(task!=null)task.checkpoint();}
+    /** A rejected prepared write yields its current quantum, retaining the exact batch on its private stack. */
+    public static void yieldPreparedWrite(){CooperativeContinuationR26<?> task=CURRENT.get();if(task==null)throw new IllegalStateException("R30_PREPARED_RETRY_REQUIRES_CONTINUATION");if(task.criticalDepth!=0)throw new IllegalStateException("R30_YIELD_INSIDE_WRITER");task.endNanos=0;task.checkpoint();}
     public static boolean installed(){return CURRENT.get()!=null;}
     /** Acquired after the writer lock: no waiting/yield is allowed while a DB transaction or lock is held. */
     public static final class Critical implements AutoCloseable {private final CooperativeContinuationR26<?> task;private Critical(CooperativeContinuationR26<?> task){this.task=task;if(task!=null)task.criticalDepth++;}public void close(){if(task!=null)task.criticalDepth--;}}

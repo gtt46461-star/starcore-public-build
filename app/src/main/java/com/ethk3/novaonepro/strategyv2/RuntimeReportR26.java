@@ -159,25 +159,12 @@ public final class RuntimeReportR26 {
     /** R30-B01-05 第4章 任务活性：每个 r26_task 按 TaskLivenessR30.classify 判定；缺少事实的字段传 -1（UNKNOWN，不当作正常）。
      * pending 取任务自报的 pending 列、提交游标取 last_committed_seq 列；当前 schema 无这两列时整列为 -1。 */
     static JSONObject taskLivenessR30(SQLiteDatabase db)throws JSONException{
-        JSONObject out=new JSONObject().put("chapter","4 任务活性").put("rule","TaskLivenessR30.classify: UNKNOWN<-pending/periodsSinceCommit 未知; STALLED<-pending>0 且>="+TaskLivenessR30.STALL_PERIODS+"期无提交");
-        Set<String> columns=new HashSet<>();
-        try(Cursor c=db.rawQuery("PRAGMA table_info(r26_task)",null)){while(c.moveToNext())columns.add(c.getString(1));}
-        if(columns.isEmpty())return out.put("status","INSUFFICIENT").put("reason","r26_task 尚未创建");
-        long latest=-1;
-        try(Cursor c=db.rawQuery("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){if(c.moveToFirst())latest=com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1(c.getString(0));}catch(RuntimeException noDraws){latest=-1;}
-        String pending=columns.contains("pending")?"pending":"-1",committed=columns.contains("last_committed_seq")?"last_committed_seq":"-1",wait=columns.contains("wait_kind")?"coalesce(wait_kind,'')||' '||coalesce(wait_detail,'')":"''";
-        JSONArray tasks=new JSONArray(),unknown=new JSONArray();List<TaskLivenessR30.State> states=new ArrayList<>();
-        try(Cursor c=db.rawQuery("SELECT task_id,status,coalesce(blocked_reason,''),"+pending+","+committed+","+wait+" FROM r26_task ORDER BY task_id",null)){while(c.moveToNext()){
-            String reason=c.getString(2),waiting=c.getString(5);long pend=c.getLong(3),seq=c.getLong(4),since=seq<0||latest<0?-1:Math.max(0,latest-seq);
-            boolean dependency=reason.startsWith("DEPENDENCY")||reason.startsWith("WAITING_"),newDraw=reason.contains("WAITING_NEW_DRAW")||waiting.contains("WAITING_NEW_DRAW");
-            TaskLivenessR30.State st=TaskLivenessR30.classify(pend,since,dependency,newDraw,"RUNNING".equals(c.getString(1)));states.add(st);
-            tasks.put(new JSONObject().put("taskId",c.getString(0)).put("state",st.name()).put("pending",pend<0?JSONObject.NULL:(Object)pend).put("periodsSinceCommit",since<0?JSONObject.NULL:(Object)since).put("blockedReason",reason));
-            if(st==TaskLivenessR30.State.UNKNOWN)unknown.put(c.getString(0));
-        }}
-        Map<String,Object> summary=TaskLivenessR30.summarize(states.toArray(new TaskLivenessR30.State[0]));
-        JSONObject sum=new JSONObject();for(Map.Entry<String,Object> e:summary.entrySet())sum.put(e.getKey(),e.getValue()==null?JSONObject.NULL:e.getValue());
-        return out.put("status",unknown.length()>0?"INSUFFICIENT":"MEASURED").put("tasks",tasks).put("unknownTasks",unknown).put("summary",sum).put("m12",sum.get("m12"))
-                .put("missingFacts",new JSONArray().put(columns.contains("pending")?"":"r26_task.pending").put(columns.contains("last_committed_seq")?"":"r26_task.last_committed_seq"));
+        ReportR27.R30Input capture=ReportSnapshotR30.capture(db);
+        Object fact=capture.data.get("taskLiveness");
+        if(!(fact instanceof Map))return new JSONObject().put("status","UNKNOWN_SOURCE_MISSING").put("captureErrors",new JSONArray(capture.errors));
+        JSONObject out=new JSONObject(JsonR27.write(fact));JSONObject sum=out.getJSONObject("summary");
+        JSONArray unknown=new JSONArray();JSONArray tasks=out.getJSONArray("tasks");for(int i=0;i<tasks.length();i++)if("UNKNOWN".equals(tasks.getJSONObject(i).getString("state")))unknown.put(tasks.getJSONObject(i).get("taskId"));
+        return out.put("chapter","4 任务活性").put("status",unknown.length()>0?"INSUFFICIENT":"MEASURED").put("unknownTasks",unknown).put("m12",sum.get("m12"));
     }
     public static String render(SQLiteDatabase db){return ReportR27.summaryR30(ReportDataR27.chaptersR30(db));}
     public static String renderLegacy(SQLiteDatabase db){

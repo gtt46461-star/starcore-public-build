@@ -73,6 +73,7 @@ public final class SchemaR27 {
     public static void ensure(SQLiteDatabase db) {
         if (!db.inTransaction()) throw new IllegalStateException("R27_WRITER_REQUIRED");
         for (String sql : DDL) db.execSQL(sql);
+        for (String sql : ResearchSchemaR30R1.DDL) db.execSQL(sql);
         ensureCertificateVersionR30(db);
         for(String sql:DecisionExplanationStoreR30.DDL)db.execSQL(sql);
         CertificateRevocationR30.ensure(db);

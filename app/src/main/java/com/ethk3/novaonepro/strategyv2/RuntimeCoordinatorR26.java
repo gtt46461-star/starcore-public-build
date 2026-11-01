@@ -28,6 +28,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     }
     public RuntimeCoordinatorR26(DbStore store){this.store=Objects.requireNonNull(store);worker=new Thread(this::run,"starcore-r26-continuous-research");worker.setDaemon(true);synchronized(RuntimeCoordinatorR26.class){RuntimeCoordinatorR26 previous=active;if(previous!=null)previous.close();active=this;}worker.start();}
     static void bindBackgroundClaim(Claim claim){WRITING_CLAIM.set(claim);}
+    public static void recordOwnedArtifactR30(SQLiteDatabase db,String operation){ResearchStoreR30R1.afterOwnedArtifact(db,operation,WRITING_CLAIM.get());}
     /** Pause signal for numerical continuation workers. R27-005: the minutes-long realtime-analysis pressure gate is
      * no longer a pause reason; only stop, real resources and the millisecond settlement write window are. */
     static boolean hasCriticalPressure(){RuntimeCoordinatorR26 a=active;return a!=null&&(a.cancelled||a.resourceBlocked!=null)||SettlementExecutionGateR819.isActive();}

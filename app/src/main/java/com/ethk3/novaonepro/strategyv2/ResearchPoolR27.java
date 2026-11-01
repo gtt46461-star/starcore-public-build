@@ -47,6 +47,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
     private final DbStore store; private final String session; private final ResearchWriteQueueR27 writes;
     private final List<Task> tasks = new ArrayList<>(); private final Map<String, Boolean> running = new HashMap<>();
     private final Map<String, Long> notBefore = new HashMap<>();
+    private final Map<String,PreparedTaskR30R1> prepared = new HashMap<>();
     private final List<Thread> threads = new ArrayList<>(); private final List<SQLiteDatabase> connections = new ArrayList<>();
     private volatile boolean closed; private volatile String resource;
     private volatile int parallelismLimit = 2; private volatile String thermalReason = "NORMAL";
@@ -104,17 +105,40 @@ public final class ResearchPoolR27 implements AutoCloseable {
                     try (Cursor c = w.ro.rawQuery("SELECT status FROM r26_task WHERE task_id=?", new String[] {t.id()})) {
                         quarantined = c.moveToFirst() && WaitKindR27.QUARANTINED.equals(c.getString(0));
                     }
-                    if (!quarantined) o = t.step(w);
+                    if (!quarantined) {
+                        PreparedTaskR30R1 current; synchronized(this){current=prepared.get(t.id());}
+                        RuntimeCoordinatorR26.Claim claim=claimPrepared(t.id(),current);
+                        if(claim==null){o=Outcome.idle("DEPENDENCY(ACTIVE_SCHEMA_SESSION_OR_TASK_LEASE)",0,-1);}
+                        else {
+                            if(current==null){current=new PreparedTaskR30R1(t,w,claim);synchronized(this){prepared.put(t.id(),current);}}
+                            current.claim=claim;
+                            try{o=current.slice();}finally{if(current.done()){current.close();synchronized(this){prepared.remove(t.id());}}}
+                        }
+                    }
                 } catch (Throwable e) { failure = e; }
                 finally { active.decrementAndGet(); synchronized (this) { running.put(t.id(), false); } }
                 if (quarantined) { synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + 5000); } continue; }
                 slices++;
                 record(t.id(), o, failure);
-                if (o == null || o.units == 0) synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + (failure != null ? 5000 : 1000)); }
+                if (o == null || o.units == 0) synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + (failure != null ? 5000 : o!=null&&"COOPERATIVE_PREPARED_STEP".equals(o.reason)?25:1000)); }
             } catch (Throwable unexpected) { android.util.Log.w("STARCORE_R27", "worker " + w.name, unexpected); sleep(500); }
             long now = SystemClock.elapsedRealtime();
             if (now - flushed > 15_000) { flushCpu(w.name, android.os.Debug.threadCpuTimeNanos() - cpuStart, now - wallStart, slices); flushed = now; }
         }
+    }
+
+    private RuntimeCoordinatorR26.Claim claimPrepared(String id,PreparedTaskR30R1 current){
+        return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R30_PREPARED_TASK_CLAIM",db->{
+            if(!ResearchStoreR30R1.ready(db))return null;
+            long now=System.currentTimeMillis();
+            try(Cursor c=db.rawQuery("SELECT 1 FROM r26_session WHERE session_id=? AND user_enabled=1 AND state='RUNNING'",new String[]{session})){if(!c.moveToFirst())return null;}
+            long fence,cursor;String owner,status;long until;
+            try(Cursor c=db.rawQuery("SELECT fence,cursor,owner,status,lease_until FROM r26_task WHERE task_id=?",new String[]{id})){if(!c.moveToFirst())return null;fence=c.getLong(0);cursor=c.getLong(1);owner=c.getString(2);status=c.getString(3);until=c.getLong(4);}
+            if(current!=null){if(!session.equals(owner)||fence!=current.claim.fence)throw new IllegalStateException("R30_PREPARED_OWNER_CHANGED");}
+            else {if("QUARANTINED".equals(status)||until>now&&!session.equals(owner))return null;fence++;}
+            db.execSQL("UPDATE r26_task SET owner=?,fence=?,status='RUNNING',lease_until=? WHERE task_id=?",new Object[]{session,fence,now+30000,id});
+            return new RuntimeCoordinatorR26.Claim(id,session,fence,cursor,"R27");
+        });
     }
 
     /** Freeze window or active P0 work: the pool runs with one worker (R27.2). */
@@ -151,10 +175,9 @@ public final class ResearchPoolR27 implements AutoCloseable {
                             new Object[] {e[0], e[1], q ? WaitKindR27.QUARANTINED : "BLOCKED", q ? WaitKindR27.QUARANTINED : wait.kind, wait.detail, wait.blockedReason(), wait.kind, now, now, id});
                 } else {
                     boolean progress = wait.kind.equals(WaitKindR27.PROGRESS);
-                    db.execSQL("UPDATE r26_task SET status=?,wait_kind=?,wait_detail=?,blocked_reason=?,wait_since=CASE WHEN wait_kind=? THEN wait_since ELSE ? END,last_served=?,"
-                            + "cursor=CASE WHEN ?>cursor THEN ? ELSE cursor END,last_progress=CASE WHEN ? THEN ? ELSE last_progress END,steps=steps+?,first_progress_at=CASE WHEN first_progress_at=0 AND ? THEN ? ELSE first_progress_at END WHERE task_id=? AND status<>?",
-                            new Object[] {progress ? "YIELDED" : "BLOCKED", wait.kind, wait.detail, wait.blockedReason(), wait.kind, now, now,
-                                    o.cursor, o.cursor, progress ? 1 : 0, now, progress ? 1 : 0, progress ? 1 : 0, now, id, WaitKindR27.QUARANTINED});
+                    boolean parked=o!=null&&"COOPERATIVE_PREPARED_STEP".equals(o.reason);
+                    db.execSQL("UPDATE r26_task SET status=?,lease_until=?,wait_kind=?,wait_detail=?,blocked_reason=?,wait_since=CASE WHEN wait_kind=? THEN wait_since ELSE ? END,last_served=? WHERE task_id=? AND owner=? AND status<>?",
+                            new Object[] {parked?"RUNNING":progress?"YIELDED":"BLOCKED",parked?now+30000:0,wait.kind,wait.detail,wait.blockedReason(),wait.kind,now,now,id,session,WaitKindR27.QUARANTINED});
                 }
                 return 0;
             });
@@ -190,10 +213,13 @@ public final class ResearchPoolR27 implements AutoCloseable {
     /** Cancel token first, then wait up to 10 s for workers, then close read-only connections (R27-009). */
     @Override public void close() {
         closed = true;
+        synchronized(this){for(PreparedTaskR30R1 task:prepared.values())task.close();}
         for (Thread t : threads) t.interrupt();
         long deadline = SystemClock.elapsedRealtime() + 10_000;
         for (Thread t : threads) { long left = deadline - SystemClock.elapsedRealtime(); if (left > 0) try { t.join(left); } catch (InterruptedException e) { Thread.currentThread().interrupt(); } }
         compute.shutdownNow();
+        while(!CooperativeContinuationR26.awaitOwnerStopped("r30-r27:"+session,1000))android.util.Log.w("STARCORE_R30","waiting for prepared workers before closing their read connections");
+        synchronized(this){prepared.clear();}
         for (SQLiteDatabase c : connections) try { c.close(); } catch (RuntimeException ignored) { }
         connections.clear();
     }

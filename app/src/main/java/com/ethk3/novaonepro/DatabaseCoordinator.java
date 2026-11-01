@@ -778,6 +778,7 @@ public final class DatabaseCoordinator {
                     try {
                         com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.checkThreadFence(db);
                         T result = task.call(db);
+                        com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.recordOwnedArtifactR30(db,operation);
                         com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.checkThreadFence(db);
                         if (owns) {
                             db.setTransactionSuccessful();

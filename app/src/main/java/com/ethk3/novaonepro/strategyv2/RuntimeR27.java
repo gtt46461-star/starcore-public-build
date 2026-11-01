@@ -55,7 +55,16 @@ public final class RuntimeR27 implements AutoCloseable {
     static String latestIssue(SQLiteDatabase ro) { try (Cursor c = ro.rawQuery("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1", null)) { return c.moveToFirst() ? c.getString(0) : null; } }
     static long latestOpen(SQLiteDatabase ro) { try (Cursor c = ro.rawQuery("SELECT open_time FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1", null)) { return c.moveToFirst() ? c.getLong(0) : 0; } }
     static void submit(ResearchPoolR27.Worker w, String op, ResearchWriteQueueR27.Batch b) throws InterruptedException {
-        while (!w.writes().submit(op, b, w::cancelled)) { if (w.cancelled()) throw new InterruptedException("R27_CANCELLED"); Thread.sleep(50); }
+        StringBuilder identity=new StringBuilder(op);
+        for(ResearchWriteQueueR27.Op row:b.ops){identity.append('|').append(row.sql);if(row.args!=null)for(Object arg:row.args)identity.append('|').append(arg instanceof byte[]?StatsR27.sha256((byte[])arg):String.valueOf(arg));}
+        byte[] preparedIdentity=HashingSU1.text(identity.toString()).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        CommitEnvelopeR30R1 envelope=new CommitEnvelopeR30R1(HashingSU1.text(op+"|"+new String(preparedIdentity,java.nio.charset.StandardCharsets.UTF_8)),0,0,preparedIdentity);
+        for(;;){
+            if(w.cancelled())throw new InterruptedException("R27_CANCELLED");
+            CommitEnvelopeR30R1.Outcome outcome=envelope.attempt((id,fence,revision,state)->w.writes().submit(op,b,w::cancelled)?CommitEnvelopeR30R1.Outcome.COMMITTED:CommitEnvelopeR30R1.Outcome.RETRY_LATER);
+            if(outcome==CommitEnvelopeR30R1.Outcome.COMMITTED){envelope.publishedState();return;}
+            CooperativeContinuationR26.yieldPreparedWrite();
+        }
     }
 
     // ------------------------------------------------------------------ r27-replay-dataset (R27-013/016)
@@ -86,16 +95,18 @@ public final class RuntimeR27 implements AutoCloseable {
         public String id() { return "r27-evolution"; }
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
             if (evoCache == null) return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-replay-dataset)", 0, -1);
-            if (evo == null) {
-                EvolutionLoopR27 restored = restoreOrCreate(w);
-                ConfirmReadStoreR30.restore(w.ro, restored.ledger());
-                evo = restored;
-            }
-            if (evo.step == 1 && pendingCache != null) { evoData = pendingData; evoCache = pendingCache; pendingData = null; pendingCache = null; evo.rebind(evoCache); }
-            evo.executor = pool.compute(); evo.serialWhile = () -> pool.narrow(System.currentTimeMillis()); evo.leafWeight = leafWeights(); evo.derivedLeaves = derived;
-            String birthIssue = evoData.issues[evoData.size() - 1];
+            EvolutionLoopR27 committed=evo;
+            if(committed==null){committed=restoreOrCreate(w);ConfirmReadStoreR30.restore(w.ro,committed.ledger());}
+            EvolutionLoopR27 loop=committed.preparedForkR30();
+            // Never expose a learner draft or a newly rebound dataset before its artifact transaction succeeds.
+            final FeatureCacheR27 selectedCache=loop.step==1&&pendingCache!=null?pendingCache:evoCache;
+            final ReplayDatasetR27 selectedData=selectedCache.data;
+            if(loop.context().cache!=selectedCache)loop.rebind(selectedCache);
+            ConfirmReadStoreR30.restore(w.ro,loop.ledger());
+            loop.executor=null;loop.serialWhile=()->true;loop.leafWeight=leafWeights();loop.derivedLeaves=derived;
+            String birthIssue = selectedData.issues[selectedData.size() - 1];
             StoreR27.EvolutionSink sink = new StoreR27.EvolutionSink(LOOP, birthIssue);
-            EvolutionLoopR27 loop = evo; loop.setSink(sink);
+            loop.setSink(sink);
             loop.sourceCommit = BuildConfig.SOURCE_COMMIT_R26;
             ConfirmReadStoreR30.bind(w, loop.ledger());
             int stepBefore = loop.step, genBefore = loop.generation;
@@ -112,12 +123,13 @@ public final class RuntimeR27 implements AutoCloseable {
             ResearchWriteQueueR27.Batch b = sink.batch;
             if (stepBefore == 8 && loop.confirmationDispatched) FrozenConfirmationStoreR30.freeze(b,loop.pendingConfirmation,loop.context().data);
             if (confirmResult != null) FrozenConfirmationStoreR30.generationReport(b,w.ro,genBefore,confirmTask,confirmResult);
-            b.add("INSERT OR REPLACE INTO r27_evolution_cursor(loop,generation,step,dataset_hash,rng_state,snapshot,updated_at) VALUES(?,?,?,?,?,?,?)", LOOP, loop.generation, loop.step, evoData.datasetHash, loop.rng.state, loop.snapshot(), System.currentTimeMillis());
+            b.add("INSERT OR REPLACE INTO r27_evolution_cursor(loop,generation,step,dataset_hash,rng_state,snapshot,updated_at) VALUES(?,?,?,?,?,?,?)", LOOP, loop.generation, loop.step, selectedData.datasetHash, loop.rng.state, loop.snapshot(), System.currentTimeMillis());
             if (!sink.promotions.isEmpty()) {
                 final List<Object[]> promos = sink.promotions;
                 b.guardBefore(db -> { for (Object[] p : promos) { PolicySpecR27 s = (PolicySpecR27) p[0]; StoreR27.insertShadow(db, s, (Double) p[1], (String) p[3], semanticAbi(s), s.policyHash(), s.policyHash()); } return 0; });
             }
             submit(w, "EVOLUTION_STEP_" + EvolutionLoopR27.STEPS[stepBefore], b);
+            synchronized(RuntimeR27.this){evoData=selectedData;evoCache=selectedCache;evo=loop;if(pendingCache==selectedCache){pendingCache=null;pendingData=null;}}
             if (stepBefore == 9) refreshObservers(w, loop);
             if (stepBefore == 9) registerConfirmed(w,loop.cfg.liveCap);
             if (stepBefore == 9 && genBefore % 50 == 49) derivedDue = true;
@@ -279,7 +291,7 @@ public final class RuntimeR27 implements AutoCloseable {
     }
 
     /** Live dataset + placeholder for the next target (family streams continue from the previous cache). */
-    synchronized FeatureCacheR27 liveCacheWithPlaceholder(ResearchPoolR27.Worker w, long latestOrd) {
+    FeatureCacheR27 liveCacheWithPlaceholder(ResearchPoolR27.Worker w, long latestOrd) {
         // Read the bounded source snapshot before reusing a stream: a backfill or correction can change
         // an older row without adding a new head. Incremental numerical state is reused only for an exact prefix.
         ReplayDatasetR27 fresh = StoreR27.loadDataset(w.ro, DATASET_ROWS);
@@ -325,7 +337,7 @@ public final class RuntimeR27 implements AutoCloseable {
         if (b != null) w.writes().submit("R27_CACHE_REBUILD", b, w::cancelled);
         return n;
     }
-    synchronized void ensureGolden() throws Exception {
+    void ensureGolden() throws Exception {
         if (golden != null) return;
         try (InputStream in = store.contextForR26().getAssets().open(SemanticAbiR27.GOLDEN_ASSET)) { golden = SemanticAbiR27.readGolden(in, true); }
         goldenCache = new FeatureCacheR27(golden, 64);
@@ -375,15 +387,17 @@ public final class RuntimeR27 implements AutoCloseable {
         public String id() { return "r27-health"; }
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
             if (System.currentTimeMillis() - last < 60_000) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);
-            last = System.currentTimeMillis(); w.writes().flush();
+            final long preparedAt=System.currentTimeMillis();w.writes().flush();
+            final Map<String,Long> nextFetchFlushed=new HashMap<>(fetchFlushed);
+            final boolean nextAssetsCached=true;long nextSize=lastSize;
+            NullPipelineSimulationR30 nextQ08=q08==null?NullPipelineSimulationStoreR30.load(w.ro,BuildConfig.SOURCE_COMMIT_R26):NullPipelineSimulationR30.restore(q08.snapshot());
             ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
-            if(q08==null)q08=NullPipelineSimulationStoreR30.load(w.ro,BuildConfig.SOURCE_COMMIT_R26);
             long q08Deadline=System.nanoTime()+100_000_000L;
-            for(int units=0;units<64&&!q08.complete()&&System.nanoTime()<q08Deadline;units++){
-                if(!q08.cheapWorkPending()&&pool.narrow(System.currentTimeMillis()))break;
-                q08.step(); // one checkpointable unit, no database writer is held during computation
+            for(int units=0;units<64&&!nextQ08.complete()&&System.nanoTime()<q08Deadline;units++){
+                if(!nextQ08.cheapWorkPending()&&pool.narrow(System.currentTimeMillis()))break;
+                nextQ08.step(); // one checkpointable unit, no database writer is held during computation
             }
-            NullPipelineSimulationStoreR30.checkpoint(b,q08,last);
+            NullPipelineSimulationStoreR30.checkpoint(b,nextQ08,preparedAt);
             if (!assetsCached) {
                 // R27-053/054: build identity, card registry, source audit and R26→R27 merge status packaged as assets.
                 for (String name : new String[] {"build-identity", "r27_cards", "source-audit", "merge-status"}) {
@@ -392,34 +406,35 @@ public final class RuntimeR27 implements AutoCloseable {
                         java.io.ByteArrayOutputStream buf = new java.io.ByteArrayOutputStream(); byte[] chunk = new byte[8192]; int k; while ((k = in.read(chunk)) > 0) buf.write(chunk, 0, k);
                         payload = buf.toString("UTF-8"); JsonR27.parse(payload);
                     } catch (Exception missing) { Map<String, Object> m = new LinkedHashMap<>(); m.put("status", "INSUFFICIENT"); m.put("reason", "asset r27/" + name + ".json unavailable: " + missing.getClass().getSimpleName()); payload = JsonR27.write(m); }
-                    b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('asset',?,?,?)", name, payload, last);
+                    b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('asset',?,?,?)", name, payload, preparedAt);
                 }
                 Map<String, Object> runtime = new LinkedHashMap<>(); runtime.put("sourceCommit", BuildConfig.SOURCE_COMMIT_R26); runtime.put("versionCode", (long) BuildConfig.VERSION_CODE); runtime.put("versionName", BuildConfig.VERSION_NAME);
-                b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('asset','runtime-identity',?,?)", JsonR27.write(runtime), last);
+                b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('asset','runtime-identity',?,?)", JsonR27.write(runtime), preparedAt);
                 // R29-001/002: measured baseline identity and the preserved requirement ledger (read by ReportR29).
-                b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r29','baseline-identity',?,?)", JsonR27.write(BaselineIdentityR29.describe(store.contextForR26())), last);
-                b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r29','legacy-preservation',?,?)", JsonR27.write(LegacyContinuityR27.preservation(store.contextForR26())), last);
-                assetsCached = true;
+                b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r29','baseline-identity',?,?)", JsonR27.write(BaselineIdentityR29.describe(store.contextForR26())), preparedAt);
+                b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r29','legacy-preservation',?,?)", JsonR27.write(LegacyContinuityR27.preservation(store.contextForR26())), preparedAt);
+                
             }
             // R27-048: fetch write-rejection causes since process start (absolute counts per process; delta-added).
             for (Map.Entry<String, long[]> e : com.ethk3.novaonepro.FetchLedgerR925.rejectCountsR27().entrySet()) {
-                long prev = fetchFlushed.getOrDefault(e.getKey(), 0L), delta = e.getValue()[0] - prev;
+                long prev = nextFetchFlushed.getOrDefault(e.getKey(), 0L), delta = e.getValue()[0] - prev;
                 if (delta <= 0) continue;
                 b.add("INSERT OR IGNORE INTO r27_fetch_reject(reason,count,last_issue,last_at) VALUES(?,0,NULL,?)", e.getKey(), e.getValue()[1]);
                 b.add("UPDATE r27_fetch_reject SET count=count+?,last_at=? WHERE reason=?", delta, e.getValue()[1], e.getKey());
-                fetchFlushed.put(e.getKey(), e.getValue()[0]);
+                nextFetchFlushed.put(e.getKey(), e.getValue()[0]);
             }
             // R27-047: database size and the largest tables (measurement every hour). Archival of old-chain tables is
             // gated on the legacy switch being off after the observation period; history stays queryable.
-            if (last - lastSize > 3_600_000L) { lastSize = last; b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('retention','db_size',?,?)", JsonR27.write(dbSize(w.ro)), last); }
+            if (preparedAt - lastSize > 3_600_000L) { nextSize = preparedAt; b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('retention','db_size',?,?)", JsonR27.write(dbSize(w.ro)), preparedAt); }
             // wait_since bookkeeping for alarms is maintained by receipts; here we only stamp alarms for the report.
-            List<WaitKindR27.Health> h = health(w.ro, last); int stuck = 0, never = 0;
+            List<WaitKindR27.Health> h = health(w.ro, preparedAt); int stuck = 0, never = 0;
             for (WaitKindR27.Health x : h) { if (x.stuck) stuck++; if (x.neverRun) never++; }
-            Map<String, Object> m = new LinkedHashMap<>(); m.put("stuck", (long) stuck); m.put("neverRun", (long) never); m.put("checkedAt", last);
+            Map<String, Object> m = new LinkedHashMap<>(); m.put("stuck", (long) stuck); m.put("neverRun", (long) never); m.put("checkedAt", preparedAt);
             m.put("workerLimit", (long) pool.workerLimit()); m.put("thermalReason", pool.thermalReason());
-            b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('health','summary',?,?)", JsonR27.write(m), last);
+            b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('health','summary',?,?)", JsonR27.write(m), preparedAt);
             submit(w, "HEALTH", b);
-            return ResearchPoolR27.Outcome.progress(1, last / 1000);
+            last=preparedAt;lastSize=nextSize;assetsCached=nextAssetsCached;q08=nextQ08;fetchFlushed.clear();fetchFlushed.putAll(nextFetchFlushed);
+            return ResearchPoolR27.Outcome.progress(1, preparedAt / 1000);
         }
     }
 

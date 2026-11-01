@@ -520,6 +520,17 @@ public final class EvolutionLoopR27 {
 
     @SuppressWarnings("unchecked")
     public static EvolutionLoopR27 restore(String json, Config cfg, FeatureCacheR27 cache, Sink sink, Clock clock) {
+        return restoreInternal(json,cfg,cache,sink,clock,null);
+    }
+    /** Only a validated in-memory instance can enter this path. Public restore retains full birth/replay checks. */
+    EvolutionLoopR27 preparedForkR30() {
+        EvolutionLoopR27 copy=restoreInternal(snapshot(),cfg,ctx.cache,null,clock,this);
+        copy.legacySeeds=new ArrayList<>(legacySeeds);copy.derivedLeaves=new ArrayList<>(derivedLeaves);copy.leafWeight=new HashMap<>(leafWeight);
+        copy.gate.copyValidatedRegistrationsR30(gate);
+        copy.lastRecord=new LinkedHashMap<>(lastRecord);return copy;
+    }
+    @SuppressWarnings("unchecked")
+    private static EvolutionLoopR27 restoreInternal(String json,Config cfg,FeatureCacheR27 cache,Sink sink,Clock clock,EvolutionLoopR27 validated) {
         Map<String, Object> s = (Map<String, Object>) JsonR27.parse(json);
         EvolutionLoopR27 l = new EvolutionLoopR27(cfg, cache, sink, clock);
         if (s.get("sourceCommit") instanceof String) l.sourceCommit=(String)s.get("sourceCommit");
@@ -537,14 +548,16 @@ public final class EvolutionLoopR27 {
         for (Object o : (List<Object>) s.get("population")) {
             Map<String, Object> x = (Map<String, Object>) o; Member m = new Member(); m.spec = spec(x.get("spec")); m.tau = JsonR27.num(x.get("tau")); m.island = (String) x.get("island");
             // Behavior signatures are not persisted (size); they are recomputed deterministically on restore.
-            BirthGateR27.Verdict v = l.gate.check(m.spec); m.sig = v.ok ? v.signature : new int[0];
-            l.population.add(m); l.gate.register(m.hash(), m.sig);
+            if(validated==null){BirthGateR27.Verdict v = l.gate.check(m.spec); m.sig = v.ok ? v.signature : new int[0];}
+            else {Member original=null;for(Member candidate:validated.population)if(candidate.hash().equals(m.hash())){original=candidate;break;}if(original==null)throw new IllegalStateException("R30_PRIVATE_FORK_IDENTITY");m.sig=original.sig==null?null:original.sig.clone();m.u=original.u;m.lcb=original.lcb;m.hr=original.hr;m.actRate=original.actRate;m.brier=original.brier;m.cell=original.cell;m.trace=original.trace;}
+            l.population.add(m); if(m.sig!=null)l.gate.register(m.hash(), m.sig);
         }
-        for (Member m : l.population) l.refresh(m);
+        if(validated==null)for (Member m : l.population) l.refresh(m);
         for (Object o : (List<Object>) s.get("archive")) { Map<String, Object> x = (Map<String, Object>) o; l.archive.put((int) JsonR27.num(x.get("cell")), new EliteArchiveR27.Elite(spec(x.get("spec")), JsonR27.num(x.get("u")), JsonR27.num(x.get("tau")))); }
         for (Object o : (List<Object>) s.get("pending")) {
             Map<String, Object> x = (Map<String, Object>) o; Pending p = new Pending(); p.spec = spec(x.get("spec")); p.state = (String) x.get("state"); p.reason = (String) x.get("reason");
-            if ("BORN".equals(p.state)) { BirthGateR27.Verdict v = l.gate.check(p.spec); p.sig = v.ok ? v.signature : new int[0]; }
+            if(validated!=null){Pending original=validated.pending.get(l.pending.size());if(!java.util.Objects.equals(pendingSpecJson(original),pendingSpecJson(p)))throw new IllegalStateException("R30_PRIVATE_FORK_PENDING");p.sig=original.sig==null?null:original.sig.clone();p.trace=original.trace;}
+            else if ("BORN".equals(p.state)) { BirthGateR27.Verdict v = l.gate.check(p.spec); p.sig = v.ok ? v.signature : new int[0]; }
             p.tau = x.get("tau") == null ? Double.NaN : JsonR27.num(x.get("tau")); p.structural = (Boolean) x.get("structural"); l.pending.add(p);
         }
         for (Object o : (List<Object>) s.get("live")) { Map<String, Object> x = (Map<String, Object>) o; PolicySpecR27 sp = spec(x.get("spec")); l.live.add(sp); l.liveTau.put(sp.policyHash(), JsonR27.num(x.get("tau"))); }

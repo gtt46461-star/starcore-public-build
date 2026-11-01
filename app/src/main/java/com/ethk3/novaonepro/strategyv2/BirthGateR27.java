@@ -98,6 +98,7 @@ public final class BirthGateR27 {
     public void register(String policyHash, int[] sig) { signatures.put(policyHash, sig); exact.put(Arrays.hashCode(sig) * 31L + sig.length, policyHash); }
     public void unregister(String policyHash) { signatures.remove(policyHash); }
     public int registered() { return signatures.size(); }
+    void copyValidatedRegistrationsR30(BirthGateR27 source){for(Map.Entry<String,int[]> e:source.signatures.entrySet())register(e.getKey(),e.getValue().clone());}
     public int[] signatureOf(String policyHash) { return signatures.get(policyHash); }
 
     /** Sorted (row, K3) codes for acting rows in the probe. */
