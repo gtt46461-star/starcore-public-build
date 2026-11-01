@@ -79,7 +79,7 @@ public final class ChartCacheR27 {
 
     static Map<String, Object> generationHoldout(SQLiteDatabase db) {
         List<Object> pts = new ArrayList<>();
-        try (Cursor c = db.rawQuery("SELECT generation,champion_holdout_hr,null_champion_holdout_hr,i00_champion_holdout_hr,verified FROM r27_generation WHERE loop='MAIN' ORDER BY generation DESC LIMIT 120", null)) {
+        try (Cursor c = db.rawQuery("SELECT generation,champion_holdout_hr,null_champion_holdout_hr,i00_champion_holdout_hr,verified FROM r27_generation WHERE loop='"+RuntimeR27.LOOP+"' ORDER BY generation DESC LIMIT 120", null)) {
             while (c.moveToNext()) {
                 Map<String, Object> p = pt("G" + c.getLong(0), c.isNull(1) ? null : c.getDouble(1), null, null, 1, "第" + c.getLong(0) + "代：主冠军留出 " + pct(c.isNull(1) ? Double.NaN : c.getDouble(1)) + "；打乱标签 " + pct(c.isNull(2) ? Double.NaN : c.getDouble(2)) + "；随机基线 " + pct(c.isNull(3) ? Double.NaN : c.getDouble(3)) + (c.getInt(4) == 1 ? "；VERIFIED" : "；未验证"));
                 p.put("open", c.isNull(2) ? null : c.getDouble(2)); p.put("expected", c.isNull(3) ? null : c.getDouble(3)); pts.add(0, p);
@@ -92,7 +92,7 @@ public final class ChartCacheR27 {
     @SuppressWarnings("unchecked")
     static Map<String, Object> evolutionEvents(SQLiteDatabase db) {
         List<Object> pts = new ArrayList<>();
-        try (Cursor c = db.rawQuery("SELECT generation,births,rejected,no_op,duplicates,retired,survivors,verified FROM r27_generation WHERE loop='MAIN' ORDER BY generation DESC LIMIT 60", null)) {
+        try (Cursor c = db.rawQuery("SELECT generation,births,rejected,no_op,duplicates,retired,survivors,verified FROM r27_generation WHERE loop='"+RuntimeR27.LOOP+"' ORDER BY generation DESC LIMIT 60", null)) {
             while (c.moveToNext()) {
                 Map<String, Object> p = pt("G" + c.getLong(0), (double) c.getLong(1), null, null, c.getLong(1),
                         "出生" + c.getLong(1) + "；拒绝" + c.getLong(2) + "；NO_OP" + c.getLong(3) + "；重复" + c.getLong(4) + "；淘汰" + c.getLong(5) + "；存活" + c.getLong(6) + "；晋升" + c.getInt(7));
@@ -106,7 +106,7 @@ public final class ChartCacheR27 {
     @SuppressWarnings("unchecked")
     static Map<String, Object> sevenCounters(SQLiteDatabase db) {
         List<Object> pts = new ArrayList<>();
-        try (Cursor c = db.rawQuery("SELECT generation,detail_json FROM r27_generation WHERE loop='MAIN' ORDER BY generation DESC LIMIT 120", null)) {
+        try (Cursor c = db.rawQuery("SELECT generation,detail_json FROM r27_generation WHERE loop='"+RuntimeR27.LOOP+"' ORDER BY generation DESC LIMIT 120", null)) {
             while (c.moveToNext()) {
                 Map<String, Object> d = (Map<String, Object>) JsonR27.parse(c.getString(1)); Map<String, Object> cs = (Map<String, Object>) d.get("counters"); if (cs == null) continue;
                 List<Object> v = new ArrayList<>(); StringBuilder s = new StringBuilder();
@@ -149,7 +149,7 @@ public final class ChartCacheR27 {
 
     static Map<String, Object> funnel(SQLiteDatabase db) {
         long r0 = 0, r1 = 0, r2 = 0, surv = 0;
-        try (Cursor c = db.rawQuery("SELECT detail_json FROM r27_generation WHERE loop='MAIN' ORDER BY generation DESC LIMIT 1", null)) {
+        try (Cursor c = db.rawQuery("SELECT detail_json FROM r27_generation WHERE loop='"+RuntimeR27.LOOP+"' ORDER BY generation DESC LIMIT 1", null)) {
             if (c.moveToFirst()) { Object f = ((Map<?, ?>) JsonR27.parse(c.getString(0))).get("funnel"); if (f instanceof List && ((List<?>) f).size() == 4) { List<?> l = (List<?>) f; r0 = ((Number) l.get(0)).longValue(); r1 = ((Number) l.get(1)).longValue(); r2 = ((Number) l.get(2)).longValue(); surv = ((Number) l.get(3)).longValue(); } }
         }
         long pop = count(db, "SELECT count(*) FROM r27_policy WHERE state='ACTIVE'"), live = count(db, "SELECT count(*) FROM r27_live_shadow WHERE status IN ('ACTIVE','ACTIVE_REPAIR1')"),
@@ -169,7 +169,7 @@ public final class ChartCacheR27 {
         double[][] f = pairs(db, "FUTURE", "ATOMNET", 20000); int[] y = new int[f[1].length]; for (int i = 0; i < y.length; i++) y[i] = (int) f[1][i];
         List<BrierSkillR27.Point> c = BrierSkillR27.cumulative(f[0], y); List<Object> pts = new ArrayList<>(); int stride = Math.max(1, c.size() / 110);
         for (int i = 0; i < c.size(); i += stride) { BrierSkillR27.Point p = c.get(i); Map<String, Object> m = pt("#" + (p.index + 1), p.bss, p.low, p.high, p.index + 1, "累计BSS " + p.bss + "；95%带 " + p.low + "—" + p.high + "；EWMA " + p.ewma); pts.add(m); }
-        Map<String, Object> m = panel("", "LINE", "r27_brier_pair(FUTURE, ATOMNET)", "FUTURE样本 " + f[0].length + (f[0].length < BrierSkillR27.MIN_N ? "（<200：样本不足，不画线）" : ""), "BSS=1−Brier模型/Brier(常数0.30)。置信带整体在0以上才说明比“随便猜30%”更准；含0=还看不出区别；在0以下=更差。结论：" + BrierSkillR27.verdict(c), pts);
+        Map<String, Object> m = panel("", "LINE", "r27_brier_pair(FUTURE, ATOMNET legacy rotating ABI only)", "FUTURE样本 " + f[0].length + (f[0].length < BrierSkillR27.MIN_N ? "（<200：样本不足，不画线）" : ""), "仅旧轮换ABI，十位置R30_P01..P10分层结果见R14/R15，不拼为同一独立样本。BSS=1−Brier模型/Brier(常数0.30)。置信带整体在0以上才说明比“随便猜30%”更准；含0=还看不出区别；在0以下=更差。结论：" + BrierSkillR27.verdict(c), pts);
         m.put("refs", list(0.0)); return m;
     }
     static Map<String, Object> rolling(SQLiteDatabase db) {
@@ -178,7 +178,7 @@ public final class ChartCacheR27 {
         int[] y = new int[f[1].length]; for (int i = 0; i < y.length; i++) y[i] = (int) f[1][i];
         List<double[]> r = BrierSkillR27.rolling(f[0], y, Math.max(1, (f[0].length - 199) / 100), 27); List<Object> pts = new ArrayList<>();
         for (double[] x : r) pts.add(pt("#" + (long) (x[0] + 1), x[1], x[2], x[3], 200, "滚动200期Brier " + x[1] + "；无预测能力模型95%波动带 " + x[2] + "—" + x[3]));
-        return panel("", "LINE", "r27_brier_pair(" + src + ")", "样本" + f[0].length, "竖线=同样概率下“无预测能力”时的95%波动带。曲线落在带内=波动只是噪声；超出带子才有意义。旧“滚动20期”图降级为短期波动参考。", pts);
+        return panel("", "LINE", "r27_brier_pair(" + src + ")", "样本" + f[0].length, "原ATOMNET旧轮换ABI；R30各位置不混线。竖线=同样概率下“无预测能力”时的95%波动带。曲线落在带内=波动只是噪声；超出带子才有意义。旧“滚动20期”图降级为短期波动参考。", pts);
     }
     static Map<String, Object> trainHoldout(SQLiteDatabase db) {
         List<Object> pts = new ArrayList<>(); String run = null;
@@ -187,9 +187,9 @@ public final class ChartCacheR27 {
             Map<Long, double[]> by = new java.util.TreeMap<>();
             while (c.moveToNext()) { double[] v = by.computeIfAbsent(c.getLong(0), k -> new double[] {Double.NaN, Double.NaN, Double.NaN}); String s = c.getString(1); v[s.equals("H_TRAIN") ? 0 : s.equals("H_SELECT") ? 1 : 2] = c.getDouble(2); }
             for (Map.Entry<Long, double[]> e : by.entrySet()) { double[] v = e.getValue(); boolean over = Double.isFinite(v[0]) && Double.isFinite(v[1]) && v[1] - v[0] > 0.02;
-                Map<String, Object> p = pt("E" + e.getKey(), f(v[0]), null, null, 1, "训练 " + v[0] + "；挑选(H_SELECT) " + v[1] + "；留出 " + v[2] + (over ? "；差值>0.02 过拟合" : "")); p.put("stack", list(f(v[0]), f(v[1]), f(v[2]))); if (over) p.put("flag", "RED"); pts.add(p); }
+                Map<String, Object> p = pt("E" + e.getKey(), f(v[0]), null, null, 1, "训练 " + v[0] + "；挑选(H_SELECT) " + v[1] + "；开发验证SELECT/旧留出来源另见split " + v[2] + (over ? "；差值>0.02 过拟合" : "")); p.put("stack", list(f(v[0]), f(v[1]), f(v[2]))); if (over) p.put("flag", "RED"); pts.add(p); }
         }
-        Map<String, Object> m = panel("", "LINES", "r27_atomnet_epoch", run == null ? "尚未预训练" : "run " + run, "训练损失降、留出不降=过拟合（差值>0.02标红）。", pts); m.put("series", list("训练", "挑选", "留出")); return m;
+        Map<String, Object> m = panel("", "LINES", "r27_atomnet_epoch", run == null ? "尚未预训练" : "run " + run, "按run隔离；R30_十位置当前第三线为原SELECT开发验证，旧run第三线来自原H_HOLD，不能混称独立确认。差值>0.02只作开发诊断。", pts); m.put("series", list("训练", "挑选", "开发验证/旧留出（按run）")); return m;
     }
     static Map<String, Object> eprocess(SQLiteDatabase db) {
         List<Object> pts = new ArrayList<>();
@@ -214,8 +214,8 @@ public final class ChartCacheR27 {
         try (Cursor c = db.rawQuery("SELECT cpu_ms,wall_ms FROM r26_service_total ORDER BY rowid DESC LIMIT 1", null)) { if (c.moveToFirst()) { cpu += c.getLong(0); wall += c.getLong(1); threads++; } } catch (RuntimeException ignored) { }
         double share = wall <= 0 ? Double.NaN : cpu / wall;
         int stuck = 0, never = 0; for (WaitKindR27.Health h : RuntimeR27.health(db, now)) { if (h.stuck) stuck++; if (h.neverRun) never++; }
-        long gens = count(db, "SELECT count(*) FROM r27_generation WHERE loop='MAIN' AND finished_at>" + (now - 86_400_000L));
-        Object p95 = null; try (Cursor c = db.rawQuery("SELECT detail_json FROM r27_generation WHERE loop='MAIN' ORDER BY generation DESC LIMIT 1", null)) { if (c.moveToFirst()) p95 = ((Map<?, ?>) JsonR27.parse(c.getString(0))).get("candidateReplayP95Ms"); }
+        long gens = count(db, "SELECT count(*) FROM r27_generation WHERE loop='"+RuntimeR27.LOOP+"' AND finished_at>" + (now - 86_400_000L));
+        Object p95 = null; try (Cursor c = db.rawQuery("SELECT detail_json FROM r27_generation WHERE loop='"+RuntimeR27.LOOP+"' ORDER BY generation DESC LIMIT 1", null)) { if (c.moveToFirst()) p95 = ((Map<?, ?>) JsonR27.parse(c.getString(0))).get("candidateReplayP95Ms"); }
         long waits = count(db, "SELECT coalesce(sum(waits_over_200ms),0) FROM r27_write_wait WHERE hour_start>" + (now - 3_600_000L));
         long freezeAll = count(db, "SELECT coalesce(sum(scheduled),0) FROM r27_opportunity WHERE recorded_at>" + (now - 86_400_000L)), missed = count(db, "SELECT coalesce(sum(deadline_missed),0) FROM r27_opportunity WHERE recorded_at>" + (now - 86_400_000L));
         pts.add(pt("CPU/线程", f(threads == 0 ? Double.NaN : share), null, null, threads, "研究线程CPU/墙钟（" + threads + "个线程，最近2分钟）=" + pct(share) + "；目标≥50%×线程数"));
@@ -232,7 +232,7 @@ public final class ChartCacheR27 {
         try (Cursor c = db.rawQuery("SELECT state,count(*),min(n_select),max(n_select) FROM r27_atom_score GROUP BY state ORDER BY state", null)) {
             while (c.moveToNext()) pts.add(pt(c.getString(0), (double) c.getLong(1), null, null, c.getLong(1), c.getString(0) + "：" + c.getLong(1) + "项；回放样本 " + c.getLong(2) + "—" + c.getLong(3)));
         }
-        return panel("", "BAR", "r27_atom_score", "165项可评分原子+派生", "USEFUL=挑选段与留出段下界都>0；NEUTRAL=区间含0；HARMFUL=上界<0；MASKED=缺失>10%；DERIVED=派生原子。", pts);
+        return panel("", "BAR", "r27_atom_score", "165项可评分原子+派生", "旧原子评分状态，仅保留历史角色，不当作本轮独立确认；新配对研究见R06。历史USEFUL=挑选段与留出段下界都>0；NEUTRAL=区间含0；HARMFUL=上界<0；MASKED=缺失>10%；DERIVED=派生原子。", pts);
     }
 
     static long count(SQLiteDatabase db, String sql) { try (Cursor c = db.rawQuery(sql, null)) { return c.moveToFirst() ? c.getLong(0) : 0; } catch (RuntimeException e) { return 0; } }

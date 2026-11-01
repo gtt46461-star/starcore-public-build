@@ -21,8 +21,8 @@ public final class RepairNeuralR30Test {
         byte[] before=s.trainer.net.encode();for(ResearchContractR30R1.Role forbidden:new ResearchContractR30R1.Role[]{ResearchContractR30R1.Role.CONFIRM,ResearchContractR30R1.Role.FUTURE,ResearchContractR30R1.Role.SYNTHETIC})try{s.trainer.checkDevelopment(Collections.singletonList(R30TenPositionTrainingTest.sample(1)),forbidden);fail(forbidden.name());}catch(IllegalArgumentException expected){}
         assertArrayEquals(before,s.trainer.net.encode());
     }
-    @Test public void oldOuterRestoresFullNumericStateAndNamesUnknownValidationOrigin(){
-        AtomNetSessionR30 old=fixture();old.work(R30TenPositionTrainingTest::sample);byte[] current=old.encode();byte[] v1=Arrays.copyOf(current,current.length-2);java.nio.ByteBuffer.wrap(v1).putInt(0x30A70001);byte[] original=v1.clone();
+    @Test public void oldOuterRestoresFullNumericStateAndNamesUnknownValidationOrigin()throws Exception{
+        AtomNetSessionR30 old=fixture();old.work(R30TenPositionTrainingTest::sample);byte[] v1;try(java.io.InputStream in=getClass().getResourceAsStream("/r30-repair-legacy-v1.bin")){assertNotNull(in);v1=in.readAllBytes();}byte[] original=v1.clone();assertEquals(0x30A70001,java.nio.ByteBuffer.wrap(v1).getInt());
         AtomNetSessionR30 restored=AtomNetSessionR30.decode(v1,StatsR27.sha256(v1));assertArrayEquals(old.trainer.net.encode(),restored.trainer.net.encode());assertEquals(old.trainer.rng.state,restored.trainer.rng.state);assertEquals(old.ftrl.updates,restored.ftrl.updates);assertEquals(old.offset,restored.offset);assertTrue(restored.legacyValidationOriginUnknown);assertTrue(restored.needsValidationRoleMigration);assertArrayEquals(original,v1);
         restored.work(R30TenPositionTrainingTest::sample);assertFalse(restored.needsValidationRoleMigration);assertTrue(restored.legacyValidationOriginUnknown);
     }

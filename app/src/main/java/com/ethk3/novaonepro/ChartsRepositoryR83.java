@@ -113,8 +113,8 @@ final class ChartsRepositoryR83 {
                     issues.get(i) + "—" + issues.get(end - 1) + "：" + (end - i) + "次出手，中" + wins + "，本根盈亏 "
                             + fmt(equity - open) + "，累计 " + fmt(equity), open));
         }
-        return new Panel(PAGE, "出手资金K线（每" + per + "次出手一根）", "CANDLE", ExplorationLaneR83.TABLE, "最近" + pnl.size() + "次已结算出手",
-                "按单注 命中+" + AppConfig.WIN_NET_PROFIT + " / 未中-" + AppConfig.MISS_LOSS + " 累计。K线持续走低说明当前出手在亏钱，应少跟或不跟；"
+        return new Panel(PAGE, "影子模拟资金K线（每" + per + "次出手一根）", "CANDLE", ExplorationLaneR83.TABLE, "最近" + pnl.size() + "次已结算探索影子；非REAL",
+                "探索影子按固定单注模拟，未联结唯一REAL结算，不能代表真实账户资金。命中+" + AppConfig.WIN_NET_PROFIT + " / 未中-" + AppConfig.MISS_LOSS + " 累计。K线持续走低说明当前出手在亏钱，应少跟或不跟；"
                         + "持续走高且样本够多才有参考价值。累计 " + fmt(equity) + "。", points.isEmpty() ? "EMPTY_NEEDS_SETTLED_ACTIONS" : "READY", points, null);
     }
 
@@ -295,8 +295,8 @@ final class ChartsRepositoryR83 {
             brier /= window;
             points.add(new Point(issues.get(i), brier, Double.NaN, Double.NaN, window, "截至" + issues.get(i) + "近20期Brier " + fmt(brier) + "（随机基线0.21）"));
         }
-        return new Panel(PAGE, "深度学习训练误差（滚动20期Brier，越低越好）", "LINE", AtomicToolWorldR943.CONTEXT, "最近" + rows.size() + "期已结算",
-                "神经网络每期赛前概率的真实误差。曲线持续下降并低于0.21，才说明它在越学越准；上升说明在退化。", points.isEmpty() ? "EMPTY_NEEDS_20_SETTLED" : "READY", points, null);
+        return new Panel(PAGE, "旧ABI神经预测误差（滚动20期Brier）", "LINE", AtomicToolWorldR943.CONTEXT, "最近" + rows.size() + "期已结算",
+                "仅旧AtomicToolWorld冻结K3二元概率；不混入R30十位置模型。20期为描述窗口，0.21为常数0.30参照；曲线下降不能证明自然优势或训练有效。新模型逐hash链与独立配对见R14/R15。", points.isEmpty() ? "EMPTY_NEEDS_20_SETTLED" : "READY", points, null);
     }
 
     private static Panel lineage(SQLiteDatabase db, CancellationSignal cancel) {
@@ -429,17 +429,17 @@ final class ChartsRepositoryR83 {
                 double[] w = wilson(k, n);
                 double needed = BREAK_EVEN + 1.96 * Math.sqrt(BASELINE * (1 - BASELINE) / n);
                 String name = c.getString(1) == null || c.getString(1).isEmpty() ? c.getString(0) : c.getString(1);
-                String verdict = w[0] > BREAK_EVEN ? "已显著优于保本" : "仍在随机波动范围内";
-                points.add(new Point(shortName(name), k / (double) n, w[0], w[1], n, name + "｜" + c.getString(2) + "\n实盘 " + k + "/" + n + " = "
-                        + pct(k / (double) n) + "，95%区间 " + pct(w[0]) + "–" + pct(w[1]) + "\n在" + n + "期样本下需≥" + pct(needed) + "才算真优于保本30.3%；结论："
+                String verdict = w[0] > BREAK_EVEN ? "描述区间下沿高于保本；未经多重选择校正" : "描述区间未高于保本";
+                points.add(new Point(shortName(name), k / (double) n, w[0], w[1], n, name + "｜" + c.getString(2) + "\n原主链冻结观察 " + k + "/" + n + " = "
+                        + pct(k / (double) n) + "，95%区间 " + pct(w[0]) + "–" + pct(w[1]) + "\n在" + n + "期样本下需≥" + pct(needed) + "为旧描述性正态参照；不授资格，结论："
                         + verdict + (c.getInt(5) > 0 ? "\n挑选时的历史开发回放：" + c.getInt(5) + "期 " + pct(c.getDouble(6)) + "（用于挑选，不作证明；与实盘差距即过拟合程度）" : "\n挑选时的历史开发回放：该旧算法未登记回放期数（R908旧记录缺字段，不是0命中）")
                         + "\n120期需≥" + pct(BREAK_EVEN + 1.96 * Math.sqrt(0.21 / 120)) + "，300期需≥" + pct(BREAK_EVEN + 1.96 * Math.sqrt(0.21 / 300))));
             }
         }
         points.sort((a, b) -> Double.compare(b.value, a.value));
-        return new Panel(PAGE, "旧版R908算法实盘榜（仅主链冻结过的）", "BAR", DbHelper.TABLE_R908_ALGORITHM_PREDRAW, algorithms + "个算法",
+        return new Panel(PAGE, "旧R908冻结观察事后榜（非REAL资金榜）", "BAR", DbHelper.TABLE_R908_ALGORITHM_PREDRAW, algorithms + "个算法",
                 "旧链R908：只有被主链当期选中并冻结的算法才有记录，所以期数少；全部算法的逐期成绩看上一张图。每根柱是一个算法的真实命中率，竖线是95%区间。同时观察" + algorithms
-                        + "个算法时，最好的那个短期偏高是正常现象，只有区间下沿高于30.3%才是真优势。", points.isEmpty() ? "EMPTY" : "READY", points, null);
+                        + "个算法时存在选择偏差，逐项95%区间不是同时区间。按原status逐项显示；不与新R30角色合并，不作证书或真实盈利证明。", points.isEmpty() ? "EMPTY" : "READY", points, null);
     }
 
     private static Panel bestAlgorithmCurve(SQLiteDatabase db, CancellationSignal cancel) {
@@ -473,8 +473,8 @@ final class ChartsRepositoryR83 {
                         "截至" + issues.get(i) + "累计" + k + "/" + (i + 1) + "=" + pct(k / (double) (i + 1)) + "，区间下沿" + pct(w[0])));
             }
         }
-        return new Panel(PAGE, "最佳算法累计命中率：" + shortName(name), "LINE", DbHelper.TABLE_R908_ALGORITHM_PREDRAW, points.isEmpty() ? "" : "共" + points.get(points.size() - 1).n + "期",
-                "选出当前实盘命中率最高的算法，看它随期数增加是稳在高位还是回落到30%。区间下沿越过30.3%并保持，才说明它是真的。",
+        return new Panel(PAGE, "事后最佳累计命中率：" + shortName(name), "LINE", DbHelper.TABLE_R908_ALGORITHM_PREDRAW, points.isEmpty() ? "" : "共" + points.get(points.size() - 1).n + "期",
+                "按同一批已结算结果事后挑最高者，存在选择偏差；不是事前冠军曲线，不证明自然优势或REAL盈利。保留原曲线供诊断；有效性仍需冻结新身份后的独立确认。",
                 points.isEmpty() ? "EMPTY_NEEDS_20_SETTLED" : "READY", points, null);
     }
 
