@@ -211,7 +211,7 @@ public final class EvolutionLoopR27 {
     void stepGate() {
         Set<String> existing = new HashSet<>(); for (Member m : population) existing.add(m.hash());
         Set<String> seenThisGen = new HashSet<>();
-        List<Pending> bornThisGeneration=new ArrayList<>();List<Object> localBehaviorDuplicates=new ArrayList<>();
+        List<Pending> bornThisGeneration=new ArrayList<>();List<Object> localBehaviorDuplicates=new ArrayList<>();int localBehaviorDuplicatesTotal=0;
         int rejected = 0, noop = 0, dup = 0, structural = 0; Map<String, Integer> reasons = new LinkedHashMap<>();
         for (Pending p : pending) {
             if("RESEARCH_STALE".equals(p.state)){rejected++;continue;}
@@ -234,13 +234,13 @@ public final class EvolutionLoopR27 {
             String d = gate.duplicateOf(v.signature);double localSimilarity=Double.NaN;
             if(d==null)for(Pending sibling:bornThisGeneration)if(sibling.spec.position==p.spec.position||sibling.sig.length==0&&v.signature.length==0){double similarity=BirthGateR27.jaccard(sibling.sig,v.signature);if(similarity>=BirthGateR27.DUPLICATE_JACCARD){d=sibling.spec.policyHash();localSimilarity=similarity;break;}}
             if (d != null) { p.state = "DUPLICATE_BEHAVIOR"; p.reason = "JACCARD>=0.95:" + d; dup++;
-                if(Double.isFinite(localSimilarity)&&localBehaviorDuplicates.size()<256){Map<String,Object> receipt=new LinkedHashMap<>();receipt.put("keptPolicy",d);receipt.put("droppedPolicy",h);receipt.put("similarity",localSimilarity);receipt.put("stage","BIRTH_SAME_GENERATION");receipt.put("datasetHash",ctx.data.datasetHash);receipt.put("probeScope","ORIGINAL_BIRTH_GATE_PROBE_SAME_TARGET_OR_BOTH_NO_ACT");receipt.put("signatureHash",StatsR27.sha256(Arrays.toString(v.signature)));localBehaviorDuplicates.add(receipt);}continue; }
+                if(Double.isFinite(localSimilarity))localBehaviorDuplicatesTotal++;if(Double.isFinite(localSimilarity)&&localBehaviorDuplicates.size()<256){Map<String,Object> receipt=new LinkedHashMap<>();receipt.put("keptPolicy",d);receipt.put("droppedPolicy",h);receipt.put("similarity",localSimilarity);receipt.put("droppedPosition",p.spec.position);receipt.put("stage","BIRTH_SAME_GENERATION");receipt.put("datasetHash",ctx.data.datasetHash);receipt.put("probeScope","ORIGINAL_BIRTH_GATE_PROBE_SAME_TARGET_OR_BOTH_NO_ACT");receipt.put("signatureHash",StatsR27.sha256(Arrays.toString(v.signature)));localBehaviorDuplicates.add(receipt);}continue; }
             p.state = "BORN";bornThisGeneration.add(p); if (p.structural) structural++;
             sink.policy(p.spec, "BORN", p.spec.meta == null ? "" : p.spec.meta.reason, generation, ctx.data.datasetHash);
             if (p.spec.meta != null) for (String parent : p.spec.meta.parents) sink.lineage(h, parent, role(p.spec.meta.operator), p.spec.meta.operator, generation);
         }
         count("uniquePolicies", seenThisGen.size()); count("structuralCandidates", structural); count("behaviorNovel", pending.size() - rejected - noop - dup);
-        genStats.put("rejected", (long) rejected); genStats.put("noOp", (long) noop); genStats.put("duplicates", (long) dup); genStats.put("rejectReasons", new LinkedHashMap<String, Object>(reasons));genStats.put("sameGenerationBehaviorDuplicates",localBehaviorDuplicates);
+        genStats.put("rejected", (long) rejected); genStats.put("noOp", (long) noop); genStats.put("duplicates", (long) dup); genStats.put("rejectReasons", new LinkedHashMap<String, Object>(reasons));genStats.put("sameGenerationBehaviorDuplicates",localBehaviorDuplicates);genStats.put("sameGenerationBehaviorDuplicatesTotal",localBehaviorDuplicatesTotal);genStats.put("sameGenerationBehaviorDuplicatesOmitted",Math.max(0,localBehaviorDuplicatesTotal-localBehaviorDuplicates.size()));
     }
 
     /** Malformed rejected proposals have no valid policy identity; retain their reason in the cursor/generation,
