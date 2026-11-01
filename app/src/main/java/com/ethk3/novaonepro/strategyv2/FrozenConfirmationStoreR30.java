@@ -99,13 +99,13 @@ public final class FrozenConfirmationStoreR30 {
             public void save(FrozenConfirmationR30.Task task, FrozenConfirmationR30.Policy policy, ReplayEvaluatorR27.Trace trace) {
                 String text = encode(task,trace); // materialize and hash outside the database transaction
                 ResearchWriteQueueR27.Batch batch = new ResearchWriteQueueR27.Batch();
-                batch.before = db -> {
+                batch.guardBefore(db -> {
                     try (Cursor c = db.rawQuery("SELECT 1 FROM r30_confirm_read WHERE policy_hash=? AND dataset_hash=? AND block_id=?",
                             new String[]{policy.experimentId,policy.evaluationDatasetHash,Long.toString(task.block)})) {
                         if (!c.moveToFirst()) throw new IllegalStateException("R30_CONFIRM_TRACE_WITHOUT_COMMITTED_RESERVATION");
                     }
                     return 0;
-                };
+                });
                 batch.add("INSERT INTO r30_confirm_trace(experiment_id,policy_hash,dataset_hash,block_id,temperature,trace_json,trace_hash,recorded_at) VALUES(?,?,?,?,?,?,?,?)",
                         policy.experimentId,policy.policyHash,task.datasetHash,task.block,policy.temperature,text,StatsR27.sha256(text),System.currentTimeMillis());
                 if (!policy.control) {
@@ -135,14 +135,14 @@ public final class FrozenConfirmationStoreR30 {
     public static ResearchWriteQueueR27.Batch register(FrozenConfirmationR30.Task task, String abi, int cap) {
         PolicySpecR27 spec = task.champion.spec(); String reason = "INDEPENDENT_CONFIRMATION:" + task.key;
         ResearchWriteQueueR27.Batch batch = new ResearchWriteQueueR27.Batch();
-        batch.before = db -> {
+        batch.guardBefore(db -> {
             boolean exists;
             try (Cursor c = db.rawQuery("SELECT 1 FROM r27_live_shadow WHERE policy_hash=?",new String[]{spec.policyHash()})) { exists = c.moveToFirst(); }
             if (!exists) try (Cursor c = db.rawQuery("SELECT count(*) FROM r27_live_shadow WHERE status='ACTIVE'",null)) {
                 if (c.moveToFirst() && c.getLong(0) >= cap) throw new IllegalStateException("R30_CONFIRM_WAIT_SLOT");
             }
             StoreR27.insertShadow(db,spec,task.champion.temperature,reason,abi,spec.policyHash(),spec.policyHash()); return 0;
-        };
+        });
         batch.add("UPDATE r30_frozen_confirm SET registered_at=?,registration_state='REGISTERED' WHERE task_key=? AND registered_at=0",System.currentTimeMillis(),task.key);
         return batch;
     }

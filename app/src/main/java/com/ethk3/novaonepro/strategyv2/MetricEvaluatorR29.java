@@ -137,10 +137,11 @@ public final class MetricEvaluatorR29 {
         }
     }
     static void writer(ReportR27.R30Input in,Map<String,Object> r){
-        double max=Double.NEGATIVE_INFINITY;long n=0,failures=0;boolean knownFailures=true;List<Object> windows=new ArrayList<>();
-        for(Object x:rows(in,"writerWindows")){Map<String,Object> row=map(x);if(count(row.get("critical"))!=1)continue;windows.add(row);Number wait=number(row.get("wait_p95"));if(wait!=null)max=Math.max(max,wait.doubleValue());long c=count(row.get("count"));if(c>=0)n+=c;long f=count(row.get("failures"));if(f<0)knownFailures=false;else failures+=f;}
+        double max=Double.NEGATIVE_INFINITY;long n=0,failures=0;boolean knownFailures=true,openUpper=false;List<Object> windows=new ArrayList<>();
+        for(Object x:rows(in,"writerWindows")){Map<String,Object> row=map(x);if(count(row.get("critical"))!=1)continue;windows.add(row);Number wait=number(row.get("wait_p95"));if(wait!=null){if(wait.longValue()==Long.MAX_VALUE)openUpper=true;else max=Math.max(max,wait.doubleValue());}Object raw=row.get("histogram_json");if(raw instanceof String)try{Map<String,Object> hist=map(JsonR27.parse((String)raw));Object buckets=hist.get("waitCounts");if(buckets instanceof List){long total=0,before=0;List<?> b=(List<?>)buckets;for(int i=0;i<b.size();i++){long v=count(b.get(i));if(v>=0){total+=v;if(i<b.size()-1)before+=v;}}if(total>0&&Math.ceil(total*0.95)>before)openUpper=true;}}catch(RuntimeException unreadable){r.put("histogramReadStatus","UNKNOWN_MALFORMED_STORED_HISTOGRAM");}long c=count(row.get("count"));if(c>=0)n+=c;long f=count(row.get("failures"));if(f<0)knownFailures=false;else failures+=f;}
         r.put("observations",windows);r.put("windowDefinition","captured critical writer windows; bounded display with total/omitted index");
         if(Double.isFinite(max)&&n>0)observed(r,max,knownFailures?failures:null,n,n,"CRITICAL_WRITER_WAIT_MS",max>200||knownFailures&&failures>0?"FAIL":"RECORDED_UNVALIDATED",knownFailures?"窗口最大wait_p95及真实失败数；完整24h/SLO覆盖另验":"旧窗口缺failures，不能把缺失写成0，不能宣称24h失败0");
+        if(openUpper){observed(r,null,knownFailures?failures:null,n,n,"CRITICAL_WRITER_WAIT_MS","FAIL","P95落在>30000ms开口桶；保持真实失败，以区间表达，不显示Long.MAX_VALUE为实测耗时");r.put("lowerExclusiveMs",30000L);r.put("upperInclusiveMs",null);}
     }
     static void timeline(ReportR27.R30Input in,String id,Map<String,Object> r){
         List<IssueTimelineR30.Row> live=new ArrayList<>();long untyped=0;

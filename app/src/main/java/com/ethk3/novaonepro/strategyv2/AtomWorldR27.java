@@ -232,7 +232,7 @@ public final class AtomWorldR27 {
                 byte[] state = new ModelArtifactR29(tr, f, rt.atomNetDataset, trainedThrough).encode();
                 for (String model : new String[] {"ATOMNET", "FTRL"}) forecast.add("INSERT OR IGNORE INTO r29_atomnet_forecast VALUES(?,?,?,?,?,?,?)",
                         target, model, StatsR27.sha256(state), trainedThrough, ModelArtifactR29.ABI, frozenAt, deadline);
-                forecast.before = tx -> System.currentTimeMillis() < deadline - LiveShadowsR27.FREEZE_MARGIN_MS ? 0 : -1;
+                forecast.guardBefore(tx -> System.currentTimeMillis() < deadline - LiveShadowsR27.FREEZE_MARGIN_MS ? 0 : -1);
                 forecast.after = forecast.before;
             }
         }

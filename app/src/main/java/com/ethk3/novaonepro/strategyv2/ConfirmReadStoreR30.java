@@ -27,7 +27,7 @@ public final class ConfirmReadStoreR30 {
 
     static ResearchWriteQueueR27.Batch reservation(HoldoutLedgerR27.ConfirmRead read) {
         ResearchWriteQueueR27.Batch batch = new ResearchWriteQueueR27.Batch();
-        batch.before = db -> {
+        batch.guardBefore(db -> {
             String[] exact = {read.policyHash, read.datasetHash, Long.toString(read.block)};
             try (Cursor c = db.rawQuery("SELECT 1 FROM r30_confirm_read WHERE policy_hash=? AND dataset_hash=? AND block_id=?", exact)) {
                 if (c.moveToFirst()) throw reused(read);
@@ -37,7 +37,7 @@ public final class ConfirmReadStoreR30 {
                 if (c.moveToFirst()) throw reused(read);
             }
             return 0;
-        };
+        });
         batch.add("INSERT INTO r30_confirm_read(policy_hash,dataset_hash,block_id,range_from,range_to,read_at,control) VALUES(?,?,?,?,?,?,?)",
                 read.policyHash, read.datasetHash, read.block, read.from, read.to, read.readAt, read.control ? 1 : 0);
         return batch;

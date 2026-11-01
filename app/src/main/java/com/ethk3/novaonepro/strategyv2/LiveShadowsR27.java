@@ -154,11 +154,11 @@ public final class LiveShadowsR27 {
             // deadline checks, so the writer transaction stays a short freeze write.
             drainReplayPitViolationsR30(b);
             final long dl = deadline;
-            b.before = db -> {
+            b.guardBefore(db -> {
                 if (sourceRevision!=SchemaR27.liveSourceRevision(db) || sourceSchema!=SchemaR27.liveSourceSchemaVersion(db)
                         || !sameDrawHead(db, latestIssue, dl)) throw new IllegalStateException("R30_FREEZE_SOURCE_CHANGED");
                 return System.currentTimeMillis() < dl - FREEZE_MARGIN_MS ? 0 : -1;
-            };
+            });
             b.after = b.before; // Both the source and the original 5 s margin must still hold before commit.
             if (opportunity) b.add("INSERT OR REPLACE INTO r27_opportunity(target_ordinal,target_issue,scheduled,frozen,acted,settled,deadline_missed,recorded_at) VALUES(?,?,?,?,?,0,0,?)", target, targetIssue, todo.size(), frozen, acted, System.currentTimeMillis());
             try { while (!w.writes().submit(opportunity ? "LIVE_FREEZE" : "OBSERVE_FREEZE", b, w::cancelled, true)) { if (w.cancelled()) return 0; Thread.sleep(20); } return todo.size(); }
@@ -298,8 +298,8 @@ public final class LiveShadowsR27 {
                     final String child = StatsR27.sha256(s.id + "|ABI_REBIRTH|" + build); final Shadow sh = s;
                     b.add("UPDATE r27_live_shadow SET status='ABI_CHANGED_EVIDENCE_FROZEN',reason=?,updated_at=? WHERE policy_hash=?", "first diff " + r.firstDiffIssue + " " + r.firstDiffField, t, s.id);
                     b.add("INSERT OR IGNORE INTO r27_lineage(child_hash,parent_hash,role,operator,generation,created_at,origin) VALUES(?,?,'ABI_REBIRTH','ABI_REBIRTH',-1,?,'R27_LIVE')", child, s.id, t);
-                    b.before = db -> { StoreR27.insertShadow(db, sh.spec, sh.tau, "ABI_REBIRTH from " + sh.id, rt.semanticAbi(sh.spec), child, sh.spec.policyHash());
-                        if (!"ACTIVE".equals(sh.status)) db.execSQL("UPDATE r27_live_shadow SET status=? WHERE policy_hash=?", new Object[] {sh.status, child}); return 0; };
+                    b.guardBefore(db -> { StoreR27.insertShadow(db, sh.spec, sh.tau, "ABI_REBIRTH from " + sh.id, rt.semanticAbi(sh.spec), child, sh.spec.policyHash());
+                        if (!"ACTIVE".equals(sh.status)) db.execSQL("UPDATE r27_live_shadow SET status=? WHERE policy_hash=?", new Object[] {sh.status, child}); return 0; });
                 }
             }
             RuntimeR27.submit(w, "SEMANTIC_ABI", b); units++;

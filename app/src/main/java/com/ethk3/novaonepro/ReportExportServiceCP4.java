@@ -58,6 +58,7 @@ public final class ReportExportServiceCP4 extends Service {
             DatabaseCoordinator coordinator=DatabaseCoordinator.peek();if(coordinator!=null){observation.put("dbWaitMs",coordinator.lastDbLockWaitMs());observation.put("dbWaitMaxMs",coordinator.longestDbLockWaitMs());observation.put("researchSchemaReady",coordinator.isR811ResearchSchemaReady());ReportJobJournalCP12.collectObservation(root,id,observation,"schemaStartupSummary",()->coordinator.startupSchemaSummary());}observation.put("realtimePressure",RealtimePressureGateR811.isUnderPressure());ReportJobJournalCP12.collectObservation(root,id,observation,"fetchWriteError",()->FetchLedgerR925.reportWriteErrorObservationCP12());
             // R27.3: where every app thread is right now (a stalled business loop names its blocking frame).
             ReportJobJournalCP12.collectObservation(root,id,observation,"threadStacks",ReportExportServiceCP4::threadStacksR27);
+            ReportJobJournalCP12.collectObservation(root,id,observation,"ftrlWritePhases",()->com.ethk3.novaonepro.strategyv2.JsonR27.write(FtrlWriteTraceR30.snapshot()));
             RealtimePressureGateR811.Snapshot pressure=RealtimePressureGateR811.snapshot();
             observation.put("analysisDepth",pressure.analysisDepth).put("settlementDepth",pressure.settlementDepth)
                     .put("quietForMs",pressure.quietForMs).put("settlementExecutionActive",SettlementExecutionGateR819.isActive());

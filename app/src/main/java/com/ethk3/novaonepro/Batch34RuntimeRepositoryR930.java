@@ -482,13 +482,17 @@ public final class Batch34RuntimeRepositoryR930 {
             String postStateHash,
             String trainedUntil) {
         requireTransaction(db, "R930_LEARNED_TRANSACTION_REQUIRED");
-        if (!fastSchemaReady(db) || safe(issue).length() == 0) return;
+        long phaseStarted=FtrlWriteTraceR30.start();
+        try {
+        boolean ready=fastSchemaReady(db);FtrlWriteTraceR30.field("learnedLinkSchemaReady",ready);
+        if (!ready || safe(issue).length() == 0) return;
         String payload = V51ChecksumEngine.sha256(
                 "R930_LEARNED|" + safe(issue) + "|" + safe(source) + "|"
                         + safe(learningIdentity) + "|" + safe(preStateHash) + "|"
                         + safe(postStateHash) + "|" + safe(trainedUntil));
         appendEvidence(db, issue, "LEARNED_EXACTLY_ONCE_LINK", payload,
                 "source=" + safe(source) + "|trained_until=" + safe(trainedUntil));
+        }finally{FtrlWriteTraceR30.end(FtrlWriteTraceR30.Phase.LEARNED_LINK_APPEND,phaseStarted);}
     }
 
     public static CaptureSummary captureSummary(SQLiteDatabase db) {
@@ -850,11 +854,12 @@ public final class Batch34RuntimeRepositoryR930 {
         cv.put("payload_hash", normalized);
         cv.put("detail", trim(detail, 1200));
         cv.put("created_at", System.currentTimeMillis());
-        db.insertWithOnConflict(
+        long inserted=db.insertWithOnConflict(
                 Batch34SchemaR930.TABLE_EVIDENCE_LINK,
                 null,
                 cv,
                 SQLiteDatabase.CONFLICT_IGNORE);
+        if("LEARNED_EXACTLY_ONCE_LINK".equals(type))FtrlWriteTraceR30.field("learnedLinkAffectedRows",inserted>=0?1:0);
     }
 
     private static CaptureResult failure(

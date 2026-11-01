@@ -34,6 +34,12 @@ public final class ResearchWriteQueueR27 {
         public final List<Op> ops = new ArrayList<>(); public DatabaseCoordinator.WriteCallable<Integer> before, after;
         public Batch add(String sql, Object... args) { ops.add(new Op(sql, args)); return this; }
         public boolean isEmpty() { return ops.isEmpty() && before == null && after == null; }
+        /** Compose preconditions; a later helper must not overwrite the original fence. */
+        public Batch guardBefore(DatabaseCoordinator.WriteCallable<Integer> guard) {
+            if(guard==null)throw new IllegalArgumentException("R30_BATCH_GUARD_REQUIRED");
+            final DatabaseCoordinator.WriteCallable<Integer> prior=before;
+            before=db->{if(prior!=null){Integer r=prior.call(db);if(r==null||r<0)return -1;}Integer result=guard.call(db);return result==null?-1:result;};return this;
+        }
     }
 
     public void setNextDeadline(long wallMs) { nextDeadline = wallMs; }

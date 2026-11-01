@@ -97,7 +97,7 @@ public final class AtomNetRuntimeR30 {
             }
         }
         final String sourceIssue=recent.issues[recent.size()-1];
-        batch.before=tx->LiveShadowsR27.sameDrawHead(tx,sourceIssue,deadline)&&System.currentTimeMillis()<deadline-LiveShadowsR27.FREEZE_MARGIN_MS&&revision==SchemaR27.liveSourceRevision(tx)&&schema==SchemaR27.liveSourceSchemaVersion(tx)&&SchemaR27.liveSourceTriggersValid(tx)?0:-1;
+        batch.guardBefore(tx->LiveShadowsR27.sameDrawHead(tx,sourceIssue,deadline)&&System.currentTimeMillis()<deadline-LiveShadowsR27.FREEZE_MARGIN_MS&&revision==SchemaR27.liveSourceRevision(tx)&&schema==SchemaR27.liveSourceSchemaVersion(tx)&&SchemaR27.liveSourceTriggersValid(tx)?0:-1);
         batch.after=batch.before;
         try{RuntimeR27.submit(w,"ATOMNET_R30_FORECAST",batch);}catch(IllegalStateException late){if(!QualificationInboxR29.precondition(late))throw late;}
     }

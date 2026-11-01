@@ -177,7 +177,9 @@ public final class RuntimeEventHooksR926 {
             throw new IllegalArgumentException("B09_POST_STATE_HASH_INVALID");
         if (!safe(issue).equals(safe(trainedUntil)))
             throw new IllegalArgumentException("B09_TRAINED_UNTIL_MISMATCH");
-        RuntimeEventLedgerR926.appendWithinTransaction(
+        long eventStarted=FtrlWriteTraceR30.start();
+        try {
+        boolean inserted=RuntimeEventLedgerR926.appendWithinTransaction(
                 db,
                 RuntimeEventLedgerR926.Event.of(
                         issue,
@@ -193,6 +195,9 @@ public final class RuntimeEventHooksR926 {
                                 + "|detail=" + trim(detail, 1000),
                         safe(source),
                         "LEARNED|" + safe(issue) + '|' + safe(source) + '|' + learningIdentity));
+        FtrlWriteTraceR30.field("learnedEventInserted",inserted);
+        }finally{FtrlWriteTraceR30.end(FtrlWriteTraceR30.Phase.RUNTIME_EVENT_APPEND,eventStarted);}
+
         Batch34RuntimeRepositoryR930.recordLearnedWithinTransaction(
                 db,
                 issue,

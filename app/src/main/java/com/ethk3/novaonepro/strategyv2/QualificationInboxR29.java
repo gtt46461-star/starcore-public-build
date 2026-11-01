@@ -187,7 +187,7 @@ public final class QualificationInboxR29 {
             return b;
         }
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
-        b.before = db -> {
+        b.guardBefore(db -> {
             try (Cursor c = db.rawQuery("SELECT last_ordinal,n FROM r27_eprocess WHERE policy_hash=?", new String[] {id})) {
                 if (!c.moveToFirst() || c.getLong(0) != expectLast || c.getLong(1) != expectN) return -1; // another step won: commit nothing
             }
@@ -205,7 +205,7 @@ public final class QualificationInboxR29 {
             db.execSQL("INSERT OR IGNORE INTO r29_qual_cursor(experiment_id,blocked_ordinal,blocked_reason,updated_at) VALUES(?,?,?,?)", new Object[] {id, p.blockedOrdinal, p.block, now});
             db.execSQL("UPDATE r29_qual_cursor SET blocked_ordinal=?,blocked_reason=?,consumed_total=consumed_total+?,updated_at=? WHERE experiment_id=?", new Object[] {p.blockedOrdinal, p.block, p.consumed.size(), now, id});
             return 0;
-        };
+        });
         return b;
     }
 
@@ -243,7 +243,7 @@ public final class QualificationInboxR29 {
         final String oldJson = JsonR27.write(old.json()), oldCert = cert; final long expectLast = old.lastOrdinal, expectN = old.n; final long now = System.currentTimeMillis();
         final String keepState = SequentialQualificationR27.QUALIFIED.equals(old.state) || SequentialQualificationR27.NOT_BETTER.equals(old.state) ? SequentialQualificationR27.ACCUMULATING : old.state;
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
-        b.before = db -> {
+        b.guardBefore(db -> {
             try (Cursor c = db.rawQuery("SELECT last_ordinal,n FROM r27_eprocess WHERE policy_hash=?", new String[] {id})) {
                 if (!c.moveToFirst() || c.getLong(0) != expectLast || c.getLong(1) != expectN) return -1;
             }
@@ -254,7 +254,7 @@ public final class QualificationInboxR29 {
             // A certificate issued on the old state is revoked until the rebuilt state earns it again.
             db.execSQL("UPDATE r27_certificate SET status='REVOKED_REBUILD' WHERE policy_hash=? AND status='ACTIVE'", new Object[] {id});
             return 0;
-        };
+        });
         try { return sink.commit("R29_QUAL_REBUILD", b); }
         catch (IllegalStateException cas) { if (!precondition(cas)) throw cas; return false; }
     }

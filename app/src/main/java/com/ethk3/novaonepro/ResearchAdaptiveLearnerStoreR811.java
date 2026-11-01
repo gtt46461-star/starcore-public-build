@@ -92,7 +92,10 @@ public final class ResearchAdaptiveLearnerStoreR811 {
             return UpdateResult.fail("B09_LEARNING_HASH_INVALID");
 
         final long updates = update.updates;
-        DatabaseCoordinator.TransactionResult<Boolean> tx =
+        DatabaseCoordinator.TransactionResult<Boolean> tx;
+        try(FtrlWriteTraceR30.Trace trace=FtrlWriteTraceR30.open(targetIssue,learningIdentity,encoded.length)) {
+            FtrlWriteTraceR30.field("queryPlans",ftrlQueryPlansR30(store.readable()));
+            tx =
                 store.coordinatorR36()
                         .runTransaction(
                                 "R811_FTRL_ARTIFACT_B09_ATOMIC",
@@ -125,12 +128,15 @@ public final class ResearchAdaptiveLearnerStoreR811 {
                                                 "status",
                                                 "RESEARCH_ONLY_SHADOW_LOADABLE_B09_ATOMIC");
                                         values.put("created_at", TimeSourceR811.wallNowMs());
-                                        long row =
+                                        long insertStarted=FtrlWriteTraceR30.start();long row;
+                                        try { row =
                                                 db.insertWithOnConflict(
                                                         "v57_research_artifact_r811",
                                                         null,
                                                         values,
                                                         SQLiteDatabase.CONFLICT_IGNORE);
+                                        }finally{FtrlWriteTraceR30.end(FtrlWriteTraceR30.Phase.ARTIFACT_INSERT,insertStarted);}
+                                        FtrlWriteTraceR30.field("artifactInsertAffectedRows",row>=0?1:0);
                                         boolean artifactDurable =
                                                 row >= 0L || matches(db, artifact, hash);
                                         if (!artifactDurable)
@@ -159,6 +165,8 @@ public final class ResearchAdaptiveLearnerStoreR811 {
                                     }
                                 },
                                 Boolean.FALSE);
+            trace.outcome(tx.success?tx.replay?"COMMITTED_REPLAY":"COMMITTED":"ROLLED_BACK_OR_REJECTED");
+        } // The writer has returned/released before bounded telemetry publication acquires its monitor.
         Existing durable = existingForIssue(store, targetIssue);
         if (!tx.success
                 || durable == null
@@ -347,9 +355,20 @@ public final class ResearchAdaptiveLearnerStoreR811 {
         }
     }
 
+    private static volatile java.util.List<Object> ftrlQueryPlansCachedR30;
+    /** Exact existing query/index plans sampled outside the write transaction; no DDL or new owner. */
+    static java.util.List<Object> ftrlQueryPlansR30(SQLiteDatabase db){
+        java.util.List<Object> cached=ftrlQueryPlansCachedR30;if(cached!=null)return cached;
+        java.util.List<Object> out=new java.util.ArrayList<>();
+        String[] queries={"SELECT trained_until_issue,artifact_hash FROM v57_research_artifact_r811 WHERE artifact_type='FTRL_SHADOW' ORDER BY trained_until_issue DESC,created_at DESC LIMIT 1","SELECT artifact_hash FROM v57_research_artifact_r811 WHERE artifact_type='FTRL_SHADOW' AND trained_until_issue='000000000000'","SELECT artifact_hash,feature_schema_hash FROM v57_research_artifact_r811 WHERE artifact_type='FTRL_SHADOW' AND trained_until_issue='000000000000'"};
+        for(int i=0;i<queries.length;i++){java.util.Map<String,Object> row=new LinkedHashMap<>();row.put("query",i);java.util.List<Object> details=new java.util.ArrayList<>();try(Cursor c=db.rawQuery("EXPLAIN QUERY PLAN "+queries[i],null)){while(c.moveToNext()&&details.size()<8)details.add(c.getString(3));row.put("status","OBSERVED_CURRENT_DATABASE_QUERY_PLAN");row.put("details",details);}catch(RuntimeException failure){row.put("status","UNKNOWN_PLAN_READ_FAILED");row.put("failureType",failure.getClass().getSimpleName());}out.add(row);}
+        cached=java.util.Collections.unmodifiableList(out);ftrlQueryPlansCachedR30=cached;return cached;
+    }
+
     /** Commit-time compare-and-swap for the linear FTRL chain. */
     private static boolean tailMatchesPreState(
             SQLiteDatabase db, String targetIssue, String expectedPreStateHash) {
+        long phaseStarted=FtrlWriteTraceR30.start();
         Cursor cursor = null;
         try {
             cursor =
@@ -366,12 +385,14 @@ public final class ResearchAdaptiveLearnerStoreR811 {
             return tailHash.equals(expectedPreStateHash);
         } finally {
             if (cursor != null) cursor.close();
+            FtrlWriteTraceR30.end(FtrlWriteTraceR30.Phase.TAIL_READ,phaseStarted);
         }
     }
 
     /** No issue may hold two different FTRL artifacts even though legacy schema lacks that UNIQUE. */
     private static boolean targetCompatible(
             SQLiteDatabase db, String artifactType, String issue, String expectedHash) {
+        long phaseStarted=FtrlWriteTraceR30.start();
         Cursor cursor = null;
         try {
             cursor =
@@ -384,11 +405,13 @@ public final class ResearchAdaptiveLearnerStoreR811 {
             return true;
         } finally {
             if (cursor != null) cursor.close();
+            FtrlWriteTraceR30.end(FtrlWriteTraceR30.Phase.TARGET_DEDUP,phaseStarted);
         }
     }
 
     private static boolean matches(
             SQLiteDatabase db, ResearchArtifactCodecR811.Artifact artifact, String hash) {
+        long phaseStarted=FtrlWriteTraceR30.start();
         Cursor cursor = null;
         try {
             cursor =
@@ -407,6 +430,7 @@ public final class ResearchAdaptiveLearnerStoreR811 {
             return found;
         } finally {
             if (cursor != null) cursor.close();
+            FtrlWriteTraceR30.end(FtrlWriteTraceR30.Phase.MATCH_READ,phaseStarted);
         }
     }
 

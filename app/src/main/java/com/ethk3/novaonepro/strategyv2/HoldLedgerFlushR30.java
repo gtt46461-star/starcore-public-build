@@ -16,36 +16,38 @@ public final class HoldLedgerFlushR30 {
     public static final String DDL = "CREATE TABLE IF NOT EXISTS r30_writer_hold(window_start INTEGER NOT NULL,window_end INTEGER NOT NULL,"
             + "operation TEXT NOT NULL,critical INTEGER NOT NULL,count INTEGER NOT NULL,hold_p50 INTEGER,hold_p95 INTEGER,hold_p99 INTEGER,"
             + "hold_max INTEGER NOT NULL,wait_p95 INTEGER,wait_max INTEGER NOT NULL,over_budget INTEGER NOT NULL,over_hard INTEGER NOT NULL,"
-            + "failures INTEGER NOT NULL,PRIMARY KEY(window_start,operation,critical))";
+            + "failures INTEGER NOT NULL,histogram_json TEXT,process_session TEXT,PRIMARY KEY(window_start,operation,critical))";
     public static final String INSERT = "INSERT OR REPLACE INTO r30_writer_hold(window_start,window_end,operation,critical,count,hold_p50,hold_p95,hold_p99,"
-            + "hold_max,wait_p95,wait_max,over_budget,over_hard,failures) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            + "hold_max,wait_p95,wait_max,over_budget,over_hard,failures,histogram_json,process_session) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
     public static final String PRUNE = "DELETE FROM r30_writer_hold WHERE window_end<?";
     private static volatile long lastFlush;
+    private static final java.util.concurrent.atomic.AtomicBoolean FLUSHING=new java.util.concurrent.atomic.AtomicBoolean();
+    private static volatile Pending pending;
+    private static final class Pending {
+        final long start,end;final List<WriterHoldLedgerR30.Stat> rows;
+        Pending(long start,long end,List<WriterHoldLedgerR30.Stat> rows){this.start=start;this.end=end;this.rows=rows;}
+    }
     private HoldLedgerFlushR30() {}
 
     public static void maybeFlush(DbStore store) {
-        long now = System.currentTimeMillis();
-        if (now - lastFlush < PERIOD_MS) return;
-        lastFlush = now;
-        final long start = WriterHoldLedgerR30.windowStartMs();
-        final List<WriterHoldLedgerR30.Stat> closed = WriterHoldLedgerR30.rotate();
-        if (closed.isEmpty()) return;
+        long now=System.currentTimeMillis();
+        if(now-lastFlush<PERIOD_MS||!FLUSHING.compareAndSet(false,true))return;
         try {
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R30_WRITER_HOLD_FLUSH", db -> {
+            if(now-lastFlush<PERIOD_MS)return;
+            lastFlush=now;
+            if(pending==null){long start=WriterHoldLedgerR30.windowStartMs();List<WriterHoldLedgerR30.Stat> rows=WriterHoldLedgerR30.rotate();if(rows.isEmpty())return;pending=new Pending(start,now,rows);}
+            final Pending closed=pending;
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R30_WRITER_HOLD_FLUSH",db->{
                 db.execSQL(DDL);
-                for (WriterHoldLedgerR30.Stat s : closed) {
-                    db.execSQL(INSERT, new Object[] {start, now, s.operation, s.critical ? 1 : 0, s.count(), nz(s.holdP(0.5)), nz(s.holdP(0.95)),
-                            nz(s.holdP(0.99)), s.holdMax(), nz(s.waitP(0.95)), s.waitMax(), s.overBudget(), s.overHard(), s.failures()});
-                }
-                db.execSQL(PRUNE, new Object[] {now - RETAIN_MS});
-                return 0;
+                for(WriterHoldLedgerR30.Stat s:closed.rows)db.execSQL(INSERT,new Object[]{closed.start,closed.end,s.operation,s.critical?1:0,s.count(),nz(s.holdP(0.5)),nz(s.holdP(0.95)),nz(s.holdP(0.99)),s.holdMax(),nz(s.waitP(0.95)),s.waitMax(),s.overBudget(),s.overHard(),s.failures(),JsonR27.write(s.histogram()),WriterHoldLedgerR30.PROCESS_SESSION});
+                db.execSQL(PRUNE,new Object[]{closed.end-RETAIN_MS});return 0;
             });
-        } catch (RuntimeException busy) {
-            android.util.Log.w("STARCORE_R30", "writer hold ledger deferred", busy);
-        }
+            pending=null; // ONLY after a successful atomic write; retry keeps the same idempotent window key.
+        }catch(RuntimeException busy){android.util.Log.w("STARCORE_R30","writer hold ledger pending retained",busy);}
+        finally{FLUSHING.set(false);}
     }
 
-    private static Long nz(long v) { return v < 0 ? null : v; }
+    private static Long nz(long v) { return v < 0||v==Long.MAX_VALUE ? null : v; }
 
     /** 报告第3章：最近24小时后台超时操作（按超硬限次数降序，最多50行）。 */
     public static final String REPORT_TOP =

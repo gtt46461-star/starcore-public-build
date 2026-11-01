@@ -115,7 +115,7 @@ public final class RuntimeR27 implements AutoCloseable {
             b.add("INSERT OR REPLACE INTO r27_evolution_cursor(loop,generation,step,dataset_hash,rng_state,snapshot,updated_at) VALUES(?,?,?,?,?,?,?)", LOOP, loop.generation, loop.step, evoData.datasetHash, loop.rng.state, loop.snapshot(), System.currentTimeMillis());
             if (!sink.promotions.isEmpty()) {
                 final List<Object[]> promos = sink.promotions;
-                b.before = db -> { for (Object[] p : promos) { PolicySpecR27 s = (PolicySpecR27) p[0]; StoreR27.insertShadow(db, s, (Double) p[1], (String) p[3], semanticAbi(s), s.policyHash(), s.policyHash()); } return 0; };
+                b.guardBefore(db -> { for (Object[] p : promos) { PolicySpecR27 s = (PolicySpecR27) p[0]; StoreR27.insertShadow(db, s, (Double) p[1], (String) p[3], semanticAbi(s), s.policyHash(), s.policyHash()); } return 0; });
             }
             submit(w, "EVOLUTION_STEP_" + EvolutionLoopR27.STEPS[stepBefore], b);
             if (stepBefore == 9) refreshObservers(w, loop);
@@ -199,7 +199,7 @@ public final class RuntimeR27 implements AutoCloseable {
         ranked.sort((a, b) -> a.u != b.u ? Double.compare(b.u, a.u) : a.hash().compareTo(b.hash()));
         final int generation = loop.generation - 1;
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
-        b.before = db -> {
+        b.guardBefore(db -> {
             Map<String,String> confirmation = QualificationInboxR29.confirmationQueueR30(db);
             Map<String,EvolutionLoopR27.Member> keep = explorationR30(ranked,confirmation);
             List<String> retire = new ArrayList<>();
@@ -220,7 +220,7 @@ public final class RuntimeR27 implements AutoCloseable {
                         new Object[]{OBSERVE,m.tau,"EXPLORATION_H_SELECT_G"+generation,t,e.getKey(),OBSERVE_RETIRED});
             }
             return 0;
-        };
+        });
         submit(w, "OBSERVERS", b);
     }
 
@@ -272,8 +272,8 @@ public final class RuntimeR27 implements AutoCloseable {
             if (have) continue;
             final double tau = (Double) c[2]; final String id = StatsR27.sha256(status + "|" + spec.policyHash());
             ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
-            b.before = db -> { StoreR27.insertShadow(db, spec, tau, status + ":same-period negative control", semanticAbi(spec), id, spec.policyHash());
-                db.execSQL("UPDATE r27_live_shadow SET status=? WHERE policy_hash=?", new Object[] {status, id}); db.execSQL("UPDATE r27_eprocess SET state='CONTROL_NOT_ELIGIBLE' WHERE policy_hash=?", new Object[] {id}); return 0; };
+            b.guardBefore(db -> { StoreR27.insertShadow(db, spec, tau, status + ":same-period negative control", semanticAbi(spec), id, spec.policyHash());
+                db.execSQL("UPDATE r27_live_shadow SET status=? WHERE policy_hash=?", new Object[] {status, id}); db.execSQL("UPDATE r27_eprocess SET state='CONTROL_NOT_ELIGIBLE' WHERE policy_hash=?", new Object[] {id}); return 0; });
             submit(w, "LIVE_CONTROL", b);
         }
     }

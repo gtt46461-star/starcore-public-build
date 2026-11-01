@@ -21,6 +21,8 @@ import java.util.concurrent.atomic.AtomicLongArray;
  */
 public final class WriterHoldLedgerR30 {
     public static final String VERSION = "R30_WRITER_HOLD_LEDGER_V1";
+    public static final String HISTOGRAM_VERSION="R30_HISTOGRAM_16_OPEN_UPPER_V1";
+    public static final String PROCESS_SESSION=java.util.UUID.randomUUID().toString();
     /** 后台写事务持有写锁的目标上限；超过即记 overBudget，用于B01切片清单。 */
     public static final long BACKGROUND_HOLD_BUDGET_MS = 50L;
     /** 后台写事务硬上限；超过记 overHard，B01验收要求24h内此类为0。 */
@@ -53,6 +55,11 @@ public final class WriterHoldLedgerR30 {
         public long failures() { return failures.get(); }
         public long holdP(double q) { return percentile(holdHist, q); }
         public long waitP(double q) { return percentile(waitHist, q); }
+        public Map<String,Object> histogram(){
+            Map<String,Object> out=new LinkedHashMap<>();List<Object> bounds=new ArrayList<>(),holds=new ArrayList<>(),waits=new ArrayList<>();
+            for(int i=0;i<BOUNDS.length;i++){bounds.add(BOUNDS[i]==Long.MAX_VALUE?null:BOUNDS[i]);holds.add(holdHist.get(i));waits.add(waitHist.get(i));}
+            out.put("version",HISTOGRAM_VERSION);out.put("upperInclusiveMs",bounds);out.put("lastBucketLowerExclusiveMs",30000L);out.put("holdCounts",holds);out.put("waitCounts",waits);out.put("processSession",PROCESS_SESSION);out.put("durability","FLUSHED_WINDOWS_ONLY; unflushed memory is UNKNOWN after process death");return out;
+        }
         public double holdMean() { long n = count.get(); return n == 0 ? 0 : holdSum.get() / (double) n; }
     }
 
@@ -60,7 +67,7 @@ public final class WriterHoldLedgerR30 {
     private static final AtomicLong WINDOW_START_MS = new AtomicLong(System.currentTimeMillis());
 
     /** 调用方：DatabaseCoordinator.runWrite 的 finally（已释放写锁之后）。任何异常都被吞掉，诊断不能改变业务结果。 */
-    public static void record(String operation, boolean critical, long waitMs, long holdMs, boolean failed) {
+    public static synchronized void record(String operation, boolean critical, long waitMs, long holdMs, boolean failed) {
         try {
             String key = normalize(operation, critical);
             Stat s = STATS.get(key);
@@ -183,10 +190,12 @@ public final class WriterHoldLedgerR30 {
         m.put("overBudget50ms", s.overBudget());
         m.put("overHard200ms", s.overHard());
         m.put("failures", s.failures());
+        m.put("holdP95Interval",interval(s.holdP(0.95)));m.put("waitP95Interval",interval(s.waitP(0.95)));m.put("histogram",s.histogram());m.put("processSession",PROCESS_SESSION);
         return m;
     }
 
-    private static Long nullIfNone(long v) { return v < 0 ? null : v; }
+    private static Long nullIfNone(long v) { return v < 0||v==Long.MAX_VALUE ? null : v; }
+    static Map<String,Object> interval(long value){Map<String,Object> out=new LinkedHashMap<>();out.put("lowerExclusiveMs",value==Long.MAX_VALUE?30000L:null);out.put("upperInclusiveMs",nullIfNone(value));out.put("openUpper",value==Long.MAX_VALUE);out.put("available",value>=0);return out;}
 
     /** 仅测试使用。 */
     static void resetForTest() { STATS.clear(); WINDOW_START_MS.set(System.currentTimeMillis()); }
