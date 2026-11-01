@@ -87,12 +87,16 @@ public final class AtomNetRuntimeR30 {
         RuntimeR27.AtomPublicationR30 publication=rt.atomPublicationR30;if(publication==null||publication.state!=state||publication.model==null)return;
         ModelSurfaceProviderR30.FrozenModelRef modelRef=publication.model;
         String modelHash=modelRef.modelHash;long at=System.currentTimeMillis();ResearchWriteQueueR27.Batch batch=new ResearchWriteQueueR27.Batch();
+        OnlineResearchWindowR30R1.Window researchWindow=OnlineResearchWindowR30R1.find(w.ro,state.datasetHash,targetOrdinal);
+        ModelSurfaceProviderR30.FrozenModelRef previous=researchWindow==null?null:ModelReplayStudyR30R1.previous(w.ro,modelRef,targetOrdinal,at);
         for(int i=0;i<10;i++){
             if(frame.values[i]==null) return;
             double[] x=AtomNetR27.positionedInput(AtomReplayR27.features(frame.values[i],frame.present[i],true),i+1);
             AtomNetR27.Out prediction=state.trainer.net.forward(x,null);
             long preparedAt=System.currentTimeMillis();
-            ModelSurfaceProviderR30.Surface surface=ModelSurfaceProviderR30.predict(new ModelSurfaceProviderR30.Pit(targetOrdinal,recent.ordinals[recent.size()-1],i+1,ModelSurfaceProviderR30.historyHash(slot,slot.size()-1),x,preparedAt,preparedAt,preparedAt,deadline),modelRef);
+            ModelSurfaceProviderR30.Pit pit=new ModelSurfaceProviderR30.Pit(targetOrdinal,recent.ordinals[recent.size()-1],i+1,ModelSurfaceProviderR30.historyHash(slot,slot.size()-1),x,preparedAt,preparedAt,preparedAt,deadline);
+            ModelSurfaceProviderR30.Surface surface=ModelSurfaceProviderR30.predict(pit,modelRef);
+            ModelReplayStudyR30R1.append(batch,researchWindow,pit,surface,previous);
             ModelSurfaceStoreR30.surface(batch,surface,i==0?modelRef:null);
             List<Object> p=new ArrayList<>();for(double value:surface.probabilities())p.add(value);
             batch.add("INSERT OR IGNORE INTO r30_atomnet_forecast VALUES(?,?,?,?,?,?,?,?)",target,i+1,modelHash,state.trainedThroughOrdinal(),JsonR27.write(p),prediction.pHit,at,deadline);
