@@ -35,7 +35,7 @@ public final class R30ChartsAndroidTest {
         try(Cursor c=store.readable().rawQuery("SELECT panel_id,key,payload_json,updated_at FROM r27_chart_cache",null)){while(c.moveToNext())if(keys().contains(c.getString(0)))originals.add(new Object[]{c.getString(0),c.getString(1),c.getString(2),c.getLong(3)});}
         int saved=0;
         try{
-            for(String scenario:new String[]{"READY","EMPTY","READ_ERROR"}){
+            for(String scenario:new String[]{"READY","EMPTY","INSUFFICIENT","READ_ERROR"}){
                 Map<String,Object> facts=m("registeredCapabilities",3L,"qualifiedExperiments",0L),mark=m("latestIssue","SYNTHETIC_SCREENSHOT_ONLY","factsSha256","SYNTHETIC_"+scenario);
                 Map<String,Object> holdout=m("taskKey","SYNTHETIC_SCREENSHOT_ONLY","datasetHash","synthetic","confirmationOutsideEvolution",true,"status","COMPLETED","verified",true,"pairedLcbVsPrevious",.02);
                 Map<String,Object> generation=m("generation",1L,"loop","MAIN","dataset_hash","synthetic","paired_lcb",.02,"verified",1L,"detail_json",JsonR27.write(m("holdout",holdout)));
@@ -59,7 +59,7 @@ public final class R30ChartsAndroidTest {
                     instrumentation.runOnMainSync(()->{try{Field f=ChartsActivityR83.class.getDeclaredField("status");f.setAccessible(true);actualStatus.set(((TextView)f.get(activity)).getText().toString());}catch(Exception error){throw new AssertionError(error);}});
                     assertEquals("headline +14 R27 +2 R30 +12 retained R83 panels in "+scenario+"; status="+actualStatus.get(),29,count.get());
                     instrumentation.runOnMainSync(()->{for(int retained=17;retained<29;retained++)assertTrue("original R83 panel retained",cards(activity).getChildAt(retained) instanceof LinearLayout);});
-                    for(int index=1;index<=16;index++){
+                    for(int index=0;index<29;index++){
                         final int child=index;instrumentation.runOnMainSync(()->{LinearLayout list=cards(activity);View card=list.getChildAt(child);assertTrue("each panel must render its actual card, not an error fallback",card instanceof LinearLayout);((ScrollView)list.getParent()).scrollTo(0,card.getTop());});
                         instrumentation.waitForIdleSync();SystemClock.sleep(150);
                         Bitmap bitmap=instrumentation.getUiAutomation().takeScreenshot();assertNotNull("screenshot "+scenario+index,bitmap);
@@ -67,7 +67,7 @@ public final class R30ChartsAndroidTest {
                     }
                 }finally{instrumentation.runOnMainSync(activity::finish);instrumentation.waitForIdleSync();}
             }
-            assertEquals(48,saved);System.out.println("R30_ANDROID_CHARTS|ACTUAL_ACTIVITY|14_LEGACY_PLUS_2_NEW|READY_EMPTY_READ_ERROR|48_SCREENSHOTS|SYNTHETIC_CACHES_RESTORED|NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE|PASS");
+            assertEquals(116,saved);System.out.println("R30_ANDROID_CHARTS|ACTUAL_ACTIVITY|29_REGISTERED_OBJECTS|FOUR_DISPLAY_SCENARIOS|116_SCREENSHOTS|SYNTHETIC_CACHES_RESTORED|NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE|PASS");
         }finally{
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R30_CHART_SCREENSHOT_RESTORE",db->{for(String key:keys())db.execSQL("DELETE FROM r27_chart_cache WHERE panel_id=?",new Object[]{key});for(Object[] row:originals)db.execSQL("INSERT INTO r27_chart_cache VALUES(?,?,?,?)",row);return 0;});store.close();
         }
