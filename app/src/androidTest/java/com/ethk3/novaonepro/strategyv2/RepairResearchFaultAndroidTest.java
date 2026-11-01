@@ -53,9 +53,9 @@ public final class RepairResearchFaultAndroidTest {
     }
     static void absent(DbStore s,String stage){
         assertEquals(0,count(s,"r30r1_consume"));assertEquals(0,count(s,"r27_policy"));assertEquals(0,count(s,"r27_evolution_cursor"));
-        assertEquals(stage.equals("analysis")?0:1,count(s,"r30r1_analysis_run")-n(s.readable(),"SELECT count(*) FROM r30r1_analysis_run WHERE status='INPUT_DATASET_PINNED'"));
+        assertEquals(stage.equals("analysis")?0:2,count(s,"r30r1_analysis_run")-n(s.readable(),"SELECT count(*) FROM r30r1_analysis_run WHERE status='INPUT_DATASET_PINNED'"));
         assertEquals(stage.equals("analysis")?0:1,count(s,"r30r1_proposal"));
-        if(stage.equals("analysis")){assertEquals(0,n(s.readable(),"SELECT count(*) FROM r30r1_research_measure WHERE kind!='INPUT_INVALIDATION'"));assertEquals(0,count(s,"r30r1_chart_cache"));}
+        if(stage.equals("analysis")){assertEquals(0,count(s,"research_matrix_snapshot_r930"));assertEquals(0,n(s.readable(),"SELECT count(*) FROM r30r1_research_measure WHERE kind!='INPUT_INVALIDATION'"));assertEquals(0,count(s,"r30r1_chart_cache"));}
         assertEquals(0,count(s,"r27_certificate"));assertEquals(0,count(s,"r27_holdout_exposure"));
     }
     static void complete(DbStore s,String stage){

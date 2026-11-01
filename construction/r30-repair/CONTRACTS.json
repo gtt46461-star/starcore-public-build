@@ -34,13 +34,14 @@
     "newResearchPhysicalTables": 6
   },
   "neuralRepair": {
-    "outerFormat": "0x30A70002, existing complete inner optimizer ABI retained",
+    "outerFormat": "0x30A70003; reads legacy V1/V2; complete original inner optimizer ABI retained",
     "owner": "ATOMNET_TEN_R30_REPAIR1",
     "legacyOwner": "ATOMNET_TEN_R30 remains byte-for-byte readable by old APK",
     "restore": "read repair owner first; otherwise restore exact full legacy state; no reset of weights/Adam/RNG/replay/position",
     "oldValidation": "unknown provenance retained; current development validation uses original SELECT only; no relabeling CONFIRM",
     "onlineLearning": "new immutable future collection contract in existing analysis_run, excludes in-flight issue, checks actual first observation after registration",
     "archive": "existing immutable r29_legacy_model_checkpoint, exact old bytes; side counters -1 explicitly unknown, canonical original artifact retained",
-    "publication": "one immutable source/model reference created after successful commit and reused by probability preparation, never a reference to mutable draft"
+    "publication": "one immutable source/model reference created after successful commit and reused by probability preparation, never a reference to mutable draft",
+    "replayPolicy": "Default UNIFORM_63; OLD48_RECENT15 only preregistered supported negative ONLINE study, >=4 full64-issue blocks and>=200 calendar issues; no formal label feedback"
   }
 }

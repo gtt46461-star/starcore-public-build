@@ -1,0 +1,29 @@
+{
+  "card": "FR-B10-04",
+  "decision": "NOT_RUN_NO_PHYSICAL_TRIGGER_DATA",
+  "triggerSatisfied": null,
+  "conditions": [
+    {
+      "id": 1,
+      "definition": "critical=1 max(wait_p95)>200ms in original >=24h physical dataset",
+      "value": null,
+      "status": "NOT_RUN"
+    },
+    {
+      "id": 2,
+      "definition": "at least3 of top5 over_hard background operations start R27_ in the same window",
+      "value": null,
+      "status": "NOT_RUN"
+    },
+    {
+      "id": 3,
+      "definition": "those exact operations still fail after registered B01 slicing and B09 remeasurement",
+      "value": null,
+      "status": "NOT_RUN"
+    }
+  ],
+  "cutoverEnabled": false,
+  "notRequiredWithoutData": false,
+  "reason": "原三项真机条件尚未实测；继续使用原唯一writer。不因数据库大就擅自启用分库，不删除原数据。",
+  "sourceDecision": "construction/r30/B11_DECISION.json"
+}
