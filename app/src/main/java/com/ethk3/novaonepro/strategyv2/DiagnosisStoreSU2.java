@@ -75,15 +75,27 @@ public final class DiagnosisStoreSU2 {
 
     /** The report export (read-only snapshot connection): {UPGRADE_DIAGNOSIS.md, UPGRADE_DIAGNOSIS.json}. */
     public static String[] report(SQLiteDatabase db) {
+        String snap=null, stage="READ_SNAPSHOT";
         try {
-            String snap = null;
-            try (Cursor c = db.rawQuery("SELECT snapshot FROM su2_diag_snapshot ORDER BY report_sequence DESC LIMIT 1", null)) { if (c.moveToFirst()) snap = c.getString(0); }
-            if (snap == null) return UpgradeDiagnosisSU2.unavailableR30("INSUFFICIENT","su2_diag_snapshot 可读但没有已存快照；原信息探针尚未产生诊断");
-            UpgradeDiagnosisSU2.Diagnosis D = UpgradeDiagnosisSU2.diagnose(UpgradeDiagnosisSU2.parse(snap));
-            UpgradeDiagnosisSU2.Ledger L = loadLedger(db);
-            return new String[]{UpgradeDiagnosisSU2.renderR30(D, L), UpgradeDiagnosisSU2.toJsonR30(D, L)};
-        } catch (RuntimeException failure) {
-            return UpgradeDiagnosisSU2.unavailableR30("UNKNOWN","诊断来源读取失败："+failure.getClass().getSimpleName());
+            try (Cursor c=db.rawQuery("SELECT snapshot FROM su2_diag_snapshot ORDER BY report_sequence DESC LIMIT 1",null)) { if(c.moveToFirst())snap=c.getString(0); }
+            if(snap==null)return UpgradeDiagnosisSU2.unavailableR30("INSUFFICIENT","su2_diag_snapshot 可读但没有已存快照；原信息探针尚未产生诊断");
+            stage="PARSE_SNAPSHOT";UpgradeDiagnosisSU2.Snapshot parsed=UpgradeDiagnosisSU2.parse(snap);
+            stage="DIAGNOSE";UpgradeDiagnosisSU2.Diagnosis diagnosis=UpgradeDiagnosisSU2.diagnose(parsed);
+            stage="READ_LEDGER";UpgradeDiagnosisSU2.Ledger ledger=loadLedger(db);
+            stage="RENDER_MARKDOWN";String md=UpgradeDiagnosisSU2.renderR30(diagnosis,ledger);
+            stage="RENDER_JSON";return new String[]{md,UpgradeDiagnosisSU2.toJsonR30(diagnosis,ledger)};
+        } catch(RuntimeException failure) {
+            String fingerprint=failure.getClass().getName();
+            List<Object> chain=new ArrayList<>();
+            for(StackTraceElement frame:failure.getStackTrace()) {
+                if(frame.getClassName().startsWith("com.ethk3.novaonepro."))chain.add(frame.toString());
+                if(chain.size()==12)break;
+            }
+            String reason="诊断来源读取失败："+fingerprint+"；stage="+stage+"；"+(chain.isEmpty()?"NO_PRODUCT_FRAME":chain.get(0));
+            String[] result=UpgradeDiagnosisSU2.unavailableR30("UNKNOWN",reason);
+            @SuppressWarnings("unchecked") Map<String,Object> json=new LinkedHashMap<>((Map<String,Object>)JsonR27.parse(result[1]));
+            json.put("failureStage",stage);json.put("errorChain",chain);json.put("snapshotHash",snap==null?null:HashingSU1.text(snap));
+            result[1]=JsonR27.write(json)+"\n";return result;
         }
     }
 

@@ -24,7 +24,7 @@ public final class DiagnosisRulesR30 {
     }
     public static List<Rule> rules() {
         return Collections.unmodifiableList(Arrays.asList(
-            r("WRITER_HARD","M11","writerHardViolations","r30_writer_hold.over_hard","R30-B01-04",
+            r("WRITER_HARD","M07","writerHardViolations","r30_writer_hold.over_hard","R30-B01-04",
               "strategyv2/ResearchWriteQueueR27","submit",Mode.VIOLATION_COUNT,
               "写锁窗口存在硬超限；按窗口的 operation 定位实际写者",
               "读取 writerWindows.operation/critical，按 B01-04 的幂等分片模板拆对应操作；计算移到事务外，保留写队列与实时优先级",

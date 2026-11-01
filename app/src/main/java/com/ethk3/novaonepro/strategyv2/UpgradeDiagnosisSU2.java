@@ -764,10 +764,11 @@ public final class UpgradeDiagnosisSU2 {
         Set<String> codes = new HashSet<>(); for (Finding f : D.findings) codes.add(f.code);
         List<Map<String, String>> rows = new ArrayList<>();
         java.util.function.Function<String, String> pproj = fam -> { ProbeSum p = PR.get(fam); return p != null && p.a15 > 0 ? fill("C.proj.rate", "proj", projText(p.h15, p.a15)) : T.get("C.proj.same"); };
-        if (!PR.isEmpty()) {
-            String bg = bestGainProbe(PR);
+        String bg = bestGainProbe(PR);
+        if (bg != null) {
             String st = codes.contains("S1") ? "neck" : !D.informative.isEmpty() ? "ok" : "watch";
-            row(rows, "C.probe", st, fill("C.probe.ev", "fam", bg, "gain", snum(PR.get(bg).gain, 3), "lo", snum(PR.get(bg).lo, 3)),
+            ProbeSum measured = PR.get(bg);
+            row(rows, "C.probe", st, fill("C.probe.ev", "fam", bg, "gain", snum(measured.gain, 3), "lo", snum(measured.lo, 3)),
                 st.equals("neck") ? T.get("C.probe.next.neck") : T.get("C.probe.next.ok"), pproj.apply(bg), T.get("C.verify.probe"));
         } else row(rows, "C.probe", "na", NA, NA, NA, NA);
         if (S.contmat != null) {
