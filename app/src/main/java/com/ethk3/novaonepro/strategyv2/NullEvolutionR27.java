@@ -55,7 +55,7 @@ public final class NullEvolutionR27 {
         Map<String,Object> logical = new LinkedHashMap<>(lastGeneration);
         for(String key:new String[]{"replayMs","candidateReplayP95Ms","startedAt","finishedAt"})logical.remove(key);
         m.put("acceptedBirths",(long)births); m.put("survivors",(long)survivors); m.put("lastGeneration",logical);
-        m.put("naturalQualityEligible",false); return m;
+        m.put("naturalQualityEligible",false);m.put("role","SYNTHETIC");m.put("canGrantREAL",false);m.put("formalOutcomesUsedForSelection",0L);m.put("budgetOwner","ORIGINAL_RESEARCH_POOL"); return m;
     }
     public String snapshot() {
         if (fullSnapshot == null) return null;

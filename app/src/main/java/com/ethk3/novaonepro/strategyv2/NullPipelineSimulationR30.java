@@ -9,7 +9,7 @@ import java.util.Map;
 /** Q08 synthetic experiments only. Uses the actual evolution and qualification engines. Each work unit is one
  * power trial, one native evolution step, or one frozen FUTURE replay; state is serializable between units. */
 public final class NullPipelineSimulationR30 {
-    public static final int POWER_REPS=20, POWER_PERIODS=5000, NULL_TRIALS=3, WARM_ROWS=3000, FUTURE_ROWS=6000;
+    public static final int POWER_REPS=20, POWER_PERIODS=5000, NULL_TRIALS=20, WARM_ROWS=3000, FUTURE_ROWS=6000;
     public static final double[] EDGES={0.34,0.37,0.40};
     private int powerRate, powerRep, trial;
     private long powerRng=7;
@@ -17,12 +17,14 @@ public final class NullPipelineSimulationR30 {
     private String loopSnapshot, auditSnapshot;
     private transient EvolutionLoopR27 loop;
     private transient NullEvolutionR27 audit;
-    private final String sourceCommit;
+    private final String sourceCommit;private final int targetNullTrials;private final boolean legacyTrialIndices;
     public NullPipelineSimulationR30() { this("HOST_UNBOUND"); }
-    public NullPipelineSimulationR30(String sourceCommit) { this.sourceCommit=sourceCommit; }
+    public NullPipelineSimulationR30(String sourceCommit) { this(sourceCommit,NULL_TRIALS,false); }
+    public NullPipelineSimulationR30(String sourceCommit,int trials){this(sourceCommit,trials,false);}
+    private NullPipelineSimulationR30(String sourceCommit,int trials,boolean legacy){if(trials<1||trials>1000)throw new IllegalArgumentException("Q08_REGISTERED_TRIAL_BUDGET");this.sourceCommit=sourceCommit;targetNullTrials=trials;legacyTrialIndices=legacy;}
     public String sourceCommit() { return sourceCommit; }
 
-    public boolean complete() { return powerRate==EDGES.length && trial==NULL_TRIALS; }
+    public boolean complete() { return powerRate==EDGES.length && trial==targetNullTrials; }
     public boolean cheapWorkPending() { return powerRate<EDGES.length; }
     public boolean step() {
         if(complete())return false;
@@ -66,7 +68,7 @@ public final class NullPipelineSimulationR30 {
         ReplayDatasetR27 warm=engine.context().data,raw=ReplayDatasetR27.synthetic(WARM_ROWS+FUTURE_ROWS,8200+trial,new int[0]);
         int[][] joined=raw.draws.clone();for(int t=0;t<WARM_ROWS;t++)joined[t]=warm.draws[t].clone();ReplayDatasetR27 future=raw.withDraws(joined);
         ReplayEvaluatorR27.Trace trace=ReplayEvaluatorR27.run(frozen,new FeatureCacheR27(future),future.draws,tau,WARM_ROWS,future.size());
-        SequentialQualificationR27.State state=new SequentialQualificationR27.State("Q08_NULL_"+trial,trial+1,SelectorPolicyR30.registeredRate(frozen));
+        SequentialQualificationR27.State state=new SequentialQualificationR27.State("Q08_NULL_"+trial,legacyTrialIndices?trial+1:1,SelectorPolicyR30.registeredRate(frozen));
         for(int t=WARM_ROWS;t<future.size()&&SequentialQualificationR27.ACCUMULATING.equals(state.state);t++)state.observe(future.ordinals[t],!trace.skipped[t]&&trace.act[t],trace.hit[t]>0);
         row.put("status","MEASURED");row.put("policyHash",frozen.policyHash());row.put("temperature",tau);row.put("frozenThrough",warm.ordinals[WARM_ROWS-1]);
         row.put("futureFrom",future.ordinals[WARM_ROWS]);row.put("futurePeriods",state.n);row.put("qualification",state.json());
@@ -75,7 +77,7 @@ public final class NullPipelineSimulationR30 {
     }
     public Map<String,Object> summary() {
         Map<String,Object> out=new LinkedHashMap<>();out.put("metric","Q08");out.put("status",complete()?"MEASURED":"RUNNING");
-        out.put("sourceCommit",sourceCommit);
+        out.put("sourceCommit",sourceCommit);out.put("protocol",legacyTrialIndices?"LEGACY_Q08_3_INDEX_BY_TRIAL":"R30_REPAIR_Q08_INDEPENDENT_INDEX1_V2");out.put("plannedNullTrials",targetNullTrials);out.put("completedNullTrials",nullRuns.size());out.put("productionTrialBudget",NULL_TRIALS);out.put("workBudget", "40 births x 3 generations x 6000 frozen future periods per independent null repeat; original pipeline");out.put("earlyStoppingRule","FIXED_REGISTERED_TRIAL_COUNT_NO_STOP_AFTER_FAVOURABLE_RESULT");
         out.put("evidenceLevel","SYNTHETIC_MECHANISM_TEST");out.put("naturalQualityEligible",false);out.put("mainAlphaBudgetSpent",false);
         out.put("powerIndex","index 1 in each independent synthetic experiment; no shared real budget");
         List<Object> groups=new ArrayList<>();
@@ -84,23 +86,24 @@ public final class NullPipelineSimulationR30 {
             for(Map<String,Object> r:power)if(((Number)r.get("trueHitProbability")).doubleValue()==edge){reps++;if(Boolean.TRUE.equals(r.get("detected")))detected.add(((Number)r.get("periods")).longValue());
                 else if(SequentialQualificationR27.NOT_BETTER.equals(r.get("state")))notBetter++;else censored++;}
             Collections.sort(detected);Map<String,Object> g=new LinkedHashMap<>();g.put("trueHitProbability",edge);g.put("experiments",(long)reps);g.put("detected",(long)detected.size());
-            g.put("notBetter",(long)notBetter);g.put("censoredAt5000",(long)censored);g.put("detectionPeriods",detected);
+            g.put("detectionProbabilityInterval95",binomial(detected.size(),reps));g.put("notBetter",(long)notBetter);g.put("censoredAt5000",(long)censored);g.put("detectionPeriods",detected);
             g.put("medianDetectedPeriods",detected.isEmpty()?null:detected.get((detected.size()-1)/2));g.put("p95DetectedPeriods",detected.isEmpty()?null:detected.get(Math.min(detected.size()-1,(int)Math.ceil(detected.size()*0.95)-1)));groups.add(g);
         }
         out.put("power",groups);out.put("fullPipelineTrials",new ArrayList<>(nullRuns));long eligible=0,falseQualified=0;
         for(Map<String,Object> row:nullRuns){if("MEASURED".equals(row.get("status")))eligible++;if(Boolean.TRUE.equals(row.get("falseSequentialQualification")))falseQualified++;}
         out.put("eligibleNullCandidates",eligible);out.put("falseSequentialQualifications",eligible==0?null:falseQualified);
-        out.put("nullEvidenceStatus",eligible==0?"INSUFFICIENT":"MEASURED");return out;
+        out.put("nullEvidenceStatus",eligible==0?"INSUFFICIENT":"MEASURED");out.put("falseQualificationGivenEligibleInterval95",binomial(falseQualified,eligible));out.put("falseQualificationPerCompletedPipelineInterval95",binomial(falseQualified,nullRuns.size()));out.put("noEligibleCandidates",nullRuns.size()-eligible);out.put("uncertaintyScope","Synthetic independent repeats under the declared budget only; not a natural false-certificate rate");out.put("originalAlphaReset",false);return out;
     }
+    static Map<String,Object> binomial(long hits,long n){Map<String,Object> m=new LinkedHashMap<>();m.put("events",hits);m.put("independentReplicates",n);if(n<=0){m.put("rate",null);m.put("lower95",null);m.put("upper95",null);m.put("status","INSUFFICIENT");return m;}double[] ci=StatsR27.wilson(hits,n,StatsR27.Z95);m.put("rate",hits/(double)n);m.put("lower95",ci[0]);m.put("upper95",ci[1]);m.put("method","WILSON_TWO_SIDED_95_DESCRIPTIVE");m.put("oneSided95ZeroEventUpper",hits==0?1-Math.pow(.05,1.0/n):null);m.put("status","DESCRIPTIVE_SYNTHETIC_ONLY");return m;}
     public String snapshot() {
-        Map<String,Object> m=new LinkedHashMap<>();m.put("version",1L);m.put("powerRate",(long)powerRate);m.put("powerRep",(long)powerRep);m.put("powerRng",powerRng);
+        Map<String,Object> m=new LinkedHashMap<>();m.put("version",2L);m.put("targetNullTrials",targetNullTrials);m.put("legacyTrialIndices",legacyTrialIndices);m.put("powerRate",(long)powerRate);m.put("powerRep",(long)powerRep);m.put("powerRng",powerRng);
         m.put("sourceCommit",sourceCommit);
         m.put("trial",(long)trial);m.put("power",power);m.put("nullRuns",nullRuns);m.put("loopSnapshot",loopSnapshot);m.put("auditSnapshot",auditSnapshot);return JsonR27.write(m);
     }
     @SuppressWarnings("unchecked") public static NullPipelineSimulationR30 restore(String text) {
         if(text==null)return new NullPipelineSimulationR30();Map<String,Object> m=(Map<String,Object>)JsonR27.parse(text);
-        NullPipelineSimulationR30 state=new NullPipelineSimulationR30(m.get("sourceCommit") instanceof String ? (String)m.get("sourceCommit") : "HOST_UNBOUND");
-        if(JsonR27.num(m.get("version"))!=1)throw new IllegalArgumentException("R30_Q08_CHECKPOINT_VERSION");
+        int version=(int)JsonR27.num(m.get("version"));if(version!=1&&version!=2)throw new IllegalArgumentException("R30_Q08_CHECKPOINT_VERSION");
+        NullPipelineSimulationR30 state=new NullPipelineSimulationR30(m.get("sourceCommit") instanceof String ? (String)m.get("sourceCommit") : "HOST_UNBOUND",version==1?3:((Number)m.get("targetNullTrials")).intValue(),version==1||Boolean.TRUE.equals(m.get("legacyTrialIndices")));
         state.powerRate=(int)JsonR27.num(m.get("powerRate"));state.powerRep=(int)JsonR27.num(m.get("powerRep"));state.powerRng=((Number)m.get("powerRng")).longValue();state.trial=(int)JsonR27.num(m.get("trial"));
         for(Object row:(List<Object>)m.get("power"))state.power.add((Map<String,Object>)row);for(Object row:(List<Object>)m.get("nullRuns"))state.nullRuns.add((Map<String,Object>)row);
         state.loopSnapshot=(String)m.get("loopSnapshot");state.auditSnapshot=(String)m.get("auditSnapshot");return state;

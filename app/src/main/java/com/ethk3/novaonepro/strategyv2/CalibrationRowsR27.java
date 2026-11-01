@@ -121,12 +121,24 @@ public final class CalibrationRowsR27 {
         r.quality.put("measurementSource","PRIOR_ORDINAL_PLATT_ON_H_SELECT_ONLY_FUTURE_READ_ONLY");
         r.quality.put("target","BINARY_K3_MEMBERSHIP");r.quality.put("fitRole","H_SELECT");r.quality.put("validationRole","FUTURE_READ_ONLY");r.quality.put("formalLabelsUsedForFit",0L);
         r.quality.put("rawSameRows",CalibrationR30.evaluate(raw,y,raw.length,10,0,1));
+        r.quality.put("pairedCalendarBlocks",calibrationBlocks(r.evaluations));
         r.quality.put("unsupportedRows",(long)p.length-supported);r.quality.put("qualifiedOpportunities",(long)totalFuture);r.quality.put("withoutFitRows",(long)totalFuture-p.length);
         r.quality.put("qualityScope","FROZEN_RESEARCH_CALIBRATOR_DIAGNOSTIC_NOT_PREDICTIVE_ADVANTAGE");
         r.quality.put("status",p.length<CalibrationR30.MIN_SAMPLES?"INSUFFICIENT":"MEASURED");
         r.state=p.length>=VALIDATION?"FITTED":"COLLECTING";r.reason=p.length>=VALIDATION?"ROLLING_PLATT_PRIOR_ORDINAL_EMBARGO1_VALIDATED_FUTURE":INSUFFICIENT_ROWS+"(fit="+r.fitRows+"/120,validation="+p.length+"/120)";
         return r;
     }
+
+    /** Fixed 64-calendar blocks, positions clustered first; missing/head/tail blocks are disclosed, never scored as zero. */
+    static Map<String,Object> calibrationBlocks(List<Evaluation> evaluations){
+        Map<String,Object> out=new LinkedHashMap<>();out.put("method","FIXED_CALENDAR64_T95_DESCRIPTIVE_BSS_PER_BLOCK");out.put("role","FUTURE_READ_ONLY");out.put("notForModelSelection",true);
+        java.util.TreeMap<Long,double[]> issues=new java.util.TreeMap<>();for(Evaluation e:evaluations){double[] row=issues.computeIfAbsent(e.ordinal,k->new double[4]);row[0]+=(e.probability-e.hit)*(e.probability-e.hit);row[1]+=(e.rawProbability-e.hit)*(e.rawProbability-e.hit);row[2]+=(CalibrationR30.BASE-e.hit)*(CalibrationR30.BASE-e.hit);row[3]++;}
+        out.put("positionRows",evaluations.size());out.put("calendarIssues",issues.size());List<Object> blocks=new ArrayList<>();StatsR27.Moments calibrated=new StatsR27.Moments(),raw=new StatsR27.Moments();int incomplete=0;
+        if(!issues.isEmpty())for(long start=Math.floorDiv(issues.firstKey(),64)*64;start<=issues.lastKey();start+=64){double[] sums=new double[3];int n=0;for(int i=0;i<64;i++){double[] row=issues.get(start+i);if(row!=null){n++;for(int k=0;k<3;k++)sums[k]+=row[k]/row[3];}}Map<String,Object> b=new LinkedHashMap<>();b.put("fromOrdinal",start);b.put("throughOrdinal",start+63);b.put("observedIssues",n);b.put("expectedIssues",64);b.put("included",n==64);if(n==64&&sums[2]>0){double a=1-sums[0]/sums[2],r=1-sums[1]/sums[2];calibrated.add(a);raw.add(r);b.put("calibratedBss",a);b.put("rawBss",r);}else{incomplete++;b.put("calibratedBss",null);b.put("rawBss",null);}blocks.add(b);}
+        out.put("blocks",blocks);out.put("completeBlocks",calibrated.n);out.put("incompleteBlocks",incomplete);out.put("analysisContractHash",StatsR27.sha256("Q05_BINARY_K3_0.30_CALENDAR64_MEAN_BLOCK_BSS_T95_V1|"+(issues.isEmpty()?"EMPTY":issues.firstKey()+"|"+issues.lastKey())));
+        out.put("calibratedBssBlockInterval95",blockInterval(calibrated));out.put("rawBssBlockInterval95",blockInterval(raw));out.put("intervalScope","Mean BSS of complete fixed blocks, descriptive; all-row Q05 point values above retain every valid evaluation including unsupported samples");return out;
+    }
+    static Map<String,Object> blockInterval(StatsR27.Moments values){Map<String,Object> m=new LinkedHashMap<>();m.put("blocks",values.n);if(values.n<4){m.put("mean",null);m.put("lower95",null);m.put("upper95",null);m.put("status","INSUFFICIENT_FIXED_BLOCKS");}else{double width=ResearchGainR30R1.critical95((int)values.n-1)*Math.sqrt(values.variance()/values.n);m.put("mean",values.mean);m.put("lower95",values.mean-width);m.put("upper95",values.mean+width);m.put("status","DESCRIPTIVE_RESEARCH_DIAGNOSTIC_ONLY");}return m;}
 
     static double sigmoid(double z) { return 1 / (1 + Math.exp(-StatsR27.clamp(z, -30, 30))); }
 

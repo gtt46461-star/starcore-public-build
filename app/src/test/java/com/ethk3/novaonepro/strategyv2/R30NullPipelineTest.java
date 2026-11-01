@@ -33,7 +33,7 @@ public final class R30NullPipelineTest {
         R27TestSupport.log("R30_FULL_NULL_PIPELINE "+JsonR27.write(straight.json()));
     }
     @SuppressWarnings("unchecked") @Test public void powerAndFullPipelineQualificationHaveRecoverableSyntheticReceipts() {
-        NullPipelineSimulationR30 straight=new NullPipelineSimulationR30(),resumed=new NullPipelineSimulationR30();int work=0;
+        NullPipelineSimulationR30 straight=new NullPipelineSimulationR30("HOST_EXPLICIT_THREE_REPEAT_REGRESSION",3),resumed=new NullPipelineSimulationR30("HOST_EXPLICIT_THREE_REPEAT_REGRESSION",3);int work=0;
         while(!straight.complete()){
             assertTrue(straight.step());assertTrue(resumed.step());work++;
             resumed=NullPipelineSimulationR30.restore(resumed.snapshot());
