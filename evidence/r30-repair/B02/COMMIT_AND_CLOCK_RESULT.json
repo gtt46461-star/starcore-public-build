@@ -1,0 +1,24 @@
+{
+  "baselineCommit": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+  "actualCommitFailure": {
+    "old": "native COMMIT deferred FK fails; returned success=true with actual rows0, ledger while original writer locked",
+    "fixed": "returns failure, actual rollback rows0; healthy actual rows1; ledger after writer release",
+    "evidence": "b02-actual-commit-failure-native-host.log",
+    "scope": "actual production coordinator sources + native SQLite + bounded HOST Android/DbHelper/ledger observer adapters"
+  },
+  "legacyCompatibility": {
+    "failedPrototype": "b02-timeline-legacy-migration-native-host.log",
+    "actualFailure": "SQLite refuses previous APK index DDL on a view even with IF NOT EXISTS; prototype cancelled, no APK delivered",
+    "finalApproach": "keep original physical table+API, event receipts in existing indexed cache namespaces; zero extra telemetry physical tables",
+    "evidence": "b02-timeline-cache-savepoint-native-host.log"
+  },
+  "androidJavaFocusedBeforeStorageFinalization": {
+    "log": "b02-events-android-junit.log",
+    "suites": 13,
+    "tests": 61,
+    "failures": 0
+  },
+  "physicalDevice": "NOT_RUN",
+  "actualLargeDbTiming": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN"
+}

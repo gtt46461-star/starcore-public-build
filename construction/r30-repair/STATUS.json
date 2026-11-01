@@ -112,9 +112,9 @@
       "id": "FR-B02-03",
       "batch": "B02",
       "title": "移出旧结算解释与保留重计算",
-      "status": "SOURCE_AND_NATIVE_SQLITE_HOST_PASS_ANDROID_COMPILE_PENDING",
-      "implementationCommit": null,
-      "androidAcceptance": "NOT_RUN_FOR_REPAIR",
+      "status": "IMPLEMENTED_ANDROID_JAVA_AND_NATIVE_SQLITE_HOST_PASS_DEVICE_PENDING",
+      "implementationCommit": "dd2788dd + 869aef78",
+      "androidAcceptance": "CURRENT_REPAIR_INSTRUMENTATION_NOT_RUN",
       "naturalQuality": "NOT_PROVEN",
       "hostEvidence": "evidence/r30-repair/B02/b02-retention-native-host.log"
     },
@@ -122,19 +122,23 @@
       "id": "FR-B02-04",
       "batch": "B02",
       "title": "实时事件身份和时间线校正",
-      "status": "NOT_STARTED",
+      "status": "EVENT_CLOCK_AND_COMMIT_FAILURE_IMPLEMENTED_FINAL_NAMESPACE_COMPILE_PENDING",
       "implementationCommit": null,
-      "androidAcceptance": "NOT_RUN_FOR_REPAIR",
-      "naturalQuality": "NOT_PROVEN"
+      "androidAcceptance": "CURRENT_REPAIR_INSTRUMENTATION_NOT_RUN",
+      "naturalQuality": "NOT_PROVEN",
+      "hostEvidence": "evidence/r30-repair/B02/",
+      "limitation": "M03/M04/M05真实设备窗口未测，不用HOST或编译代替SLO。"
     },
     {
       "id": "FR-B02-05",
       "batch": "B02",
       "title": "关键落库、结算和下一期冻结的幂等贯通",
-      "status": "NOT_STARTED",
+      "status": "EVENT_CLOCK_AND_COMMIT_FAILURE_IMPLEMENTED_FINAL_NAMESPACE_COMPILE_PENDING",
       "implementationCommit": null,
-      "androidAcceptance": "NOT_RUN_FOR_REPAIR",
-      "naturalQuality": "NOT_PROVEN"
+      "androidAcceptance": "CURRENT_REPAIR_INSTRUMENTATION_NOT_RUN",
+      "naturalQuality": "NOT_PROVEN",
+      "hostEvidence": "evidence/r30-repair/B02/",
+      "limitation": "M03/M04/M05真实设备窗口未测，不用HOST或编译代替SLO。"
     },
     {
       "id": "FR-B02-06",
@@ -776,6 +780,6 @@
   "all60Complete": false,
   "engineeringAndNaturalAcceptanceSeparate": true,
   "currentBatch": "B02",
-  "updatedAt": "2026-11-01T12:03:07.269970+00:00",
+  "updatedAt": "2026-11-01T13:39:51.375557+00:00",
   "completionPolicy": "No overall100% or DONE from patch application; Android Java/JUnit/HOST is separate from current APK instrumentation, Vivo long run and natural quality."
 }

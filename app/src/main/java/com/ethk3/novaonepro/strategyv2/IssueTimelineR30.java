@@ -42,14 +42,14 @@ public final class IssueTimelineR30 {
             + "boot_next_requested TEXT,boot_next_prepared TEXT,boot_next_frozen TEXT,"
             + "outcome TEXT NOT NULL DEFAULT 'OPEN',updated_at INTEGER NOT NULL)";
     public static final String INDEX = "CREATE INDEX IF NOT EXISTS r30_issue_timeline_updated ON r30_issue_timeline(updated_at)";
-    public static final String EVENT_TABLE="r30_issue_timeline_event_r1";
-    /** Separate additive telemetry objects; the original per-issue timeline is retained as historical evidence. */
-    public static final String EVENT_DDL=DDL.replace("r30_issue_timeline(",EVENT_TABLE+"(")
-        .replace("issue TEXT PRIMARY KEY,boot_id TEXT NOT NULL,","event_id TEXT PRIMARY KEY,issue TEXT NOT NULL,event_role TEXT NOT NULL CHECK(event_role IN ('LIVE','BACKFILL','REPLAY','UNKNOWN')),event_kind TEXT NOT NULL CHECK(event_kind IN ('DRAW','PREDICTION')),source_trace TEXT NOT NULL,source_issue TEXT,source_draw_hash TEXT,draw_hash TEXT,duplicate_marks INTEGER NOT NULL DEFAULT 0,event_started_wall INTEGER NOT NULL,durable_wall INTEGER,durable_mono INTEGER,durable_boot TEXT,durable_stage TEXT,timing_boundary TEXT,boot_id TEXT NOT NULL,");
-    public static final String EVENT_INDEX="CREATE INDEX IF NOT EXISTS r30_issue_event_identity ON "+EVENT_TABLE+"(issue,event_kind,event_role,wall_draw_committed,updated_at)";
-    public static final String EVENT_ACTIVE_INDEX="CREATE INDEX IF NOT EXISTS r30_issue_event_active_window ON "+EVENT_TABLE+"(event_started_wall,event_id) WHERE event_kind='PREDICTION' OR wall_draw_committed IS NOT NULL";
-    /** 先插入空行（不存在时）。 */
-    public static final String SQL_ENSURE = "INSERT OR IGNORE INTO r30_issue_timeline(issue,boot_id,updated_at) VALUES(?,?,?)";
+    public static final String EVENT_TABLE="r27_chart_cache",EVENT_NAMESPACE="r30-timeline-r1:";
+    public static final String EVENT_RAW_PANEL=EVENT_NAMESPACE+"RAW",EVENT_DRAW_PANEL=EVENT_NAMESPACE+"DRAW",EVENT_PRED_PANEL=EVENT_NAMESPACE+"PRED",EVENT_HEAD_PANEL=EVENT_NAMESPACE+"HEAD";
+    public static final String SQL_ENSURE="INSERT OR IGNORE INTO r30_issue_timeline(issue,boot_id,updated_at) VALUES(?,?,?)";
+    /** Called only by the original SchemaR27 writer; no new telemetry physical table. */
+    public static void ensureEventSchema(android.database.sqlite.SQLiteDatabase db){
+        if(!db.inTransaction())throw new IllegalStateException("R30_TIMELINE_SCHEMA_WRITER_REQUIRED");
+        db.execSQL(DDL);db.execSQL(INDEX);db.execSQL("CREATE INDEX IF NOT EXISTS r30_timeline_cache_window ON r27_chart_cache(panel_id,updated_at,key)");
+    }
 
     /** 列名白名单（不拼接调用方字符串）。 */
     static String wallColumn(Stage s) { return "wall_" + s.name().toLowerCase(java.util.Locale.ROOT); }
