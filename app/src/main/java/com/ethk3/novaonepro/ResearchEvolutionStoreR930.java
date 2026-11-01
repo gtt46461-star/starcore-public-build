@@ -34,20 +34,21 @@ public final class ResearchEvolutionStoreR930 {
     public static final boolean MAY_CREATE_REAL = false;
 
 
+    private static final Map<SQLiteDatabase,Boolean> READY=Collections.synchronizedMap(new java.util.WeakHashMap<SQLiteDatabase,Boolean>());
     private ResearchEvolutionStoreR930() {}
 
     public static void ensureSchema(final DbStore store) {
         if (store == null) throw new IllegalArgumentException("R930_STORE_REQUIRED");
+        SQLiteDatabase handle=store.readable();if(Boolean.TRUE.equals(READY.get(handle)))return;
         // The original schema owner runs on the original writer. Never hold a Java monitor while waiting for it.
-                Boolean ok = store.coordinatorR36().runAtomicWrite("R930_EVOLUTION_SCHEMA",
+                Boolean ok = store.coordinatorR36().runAtomicWriteOrThrowF01("R930_EVOLUTION_SCHEMA",
                     new DatabaseCoordinator.WriteCallable<Boolean>() {
                         @Override public Boolean call(SQLiteDatabase db) {
                             com.ethk3.novaonepro.strategyv2.SchemaR27.ensure(db);
                             return Boolean.TRUE;
                         }
-                    }, Boolean.FALSE);
-            if (!Boolean.TRUE.equals(ok))
-                throw new IllegalStateException("R930_EVOLUTION_SCHEMA_FAILED");
+                    });
+            if (!Boolean.TRUE.equals(ok))throw new IllegalStateException("R930_EVOLUTION_SCHEMA_FAILED");READY.put(handle,Boolean.TRUE);
     }
 
     public static void createSchema(SQLiteDatabase db) {
@@ -209,14 +210,13 @@ public final class ResearchEvolutionStoreR930 {
         return Boolean.TRUE.equals(result);
     }
 
-    public static boolean putSnapshot(final DbStore store,
-            final MatrixSnapshotFeedbackR930.CommonSnapshot snapshot, final long nowMs) {
-        if (snapshot == null || nowMs <= 0L)
-            throw new IllegalArgumentException("R930_SNAPSHOT_PERSIST_INPUT");
-        ensureSchema(store);
-        Boolean result = store.coordinatorR36().runAtomicWrite("R930_MATRIX_SNAPSHOT_PUT",
-                new DatabaseCoordinator.WriteCallable<Boolean>() {
-                    @Override public Boolean call(SQLiteDatabase db) {
+    public static boolean putSnapshot(final DbStore store,final MatrixSnapshotFeedbackR930.CommonSnapshot snapshot,final long nowMs){
+        if(snapshot==null||nowMs<=0)throw new IllegalArgumentException("R930_SNAPSHOT_PERSIST_INPUT");ensureSchema(store);
+        return store.coordinatorR36().runAtomicWriteOrThrowF01("R930_MATRIX_SNAPSHOT_PUT",db->putSnapshotInTransaction(db,snapshot,nowMs));
+    }
+    /** Original writer callback, also exercised on native SQLite. A conflict must abort every capture and matrix row. */
+    public static boolean putSnapshotInTransaction(SQLiteDatabase db,MatrixSnapshotFeedbackR930.CommonSnapshot snapshot,long nowMs){
+        if(!db.inTransaction()||snapshot==null||nowMs<=0)throw new IllegalStateException("R930_SNAPSHOT_ORIGINAL_TRANSACTION_REQUIRED");
                         for (MatrixSnapshotFeedbackR930.CaptureRecord record
                                 : snapshot.capture.stages.values()) {
                             ContentValues values = new ContentValues();
@@ -234,8 +234,9 @@ public final class ResearchEvolutionStoreR930 {
                             values.put("payload_hash", record.payloadHash);
                             values.put("complete", record.complete() ? 1 : 0);
                             values.put("created_at", nowMs);
-                            if (db.insertWithOnConflict(T_CAPTURE, null, values,
-                                    SQLiteDatabase.CONFLICT_IGNORE) < 0L) return Boolean.FALSE;
+                            if (db.insertWithOnConflict(T_CAPTURE, null, values,SQLiteDatabase.CONFLICT_IGNORE)<0L){
+                                try(Cursor c=db.rawQuery("SELECT capture_hash,payload_hash FROM "+T_CAPTURE+" WHERE target_issue=? AND stage=? AND freeze_hash=?",new String[]{record.targetIssue,record.stage.name(),record.freezeHash})){if(!c.moveToFirst()||!record.captureHash.equals(c.getString(0))||!record.payloadHash.equals(c.getString(1)))throw new IllegalStateException("R930_CAPTURE_KEY_CONFLICT");}
+                            }
                         }
                         for (MatrixSnapshotFeedbackR930.FrozenMatrix matrix
                                 : snapshot.matrices.values()) {
@@ -254,15 +255,14 @@ public final class ResearchEvolutionStoreR930 {
                             values.put("present_cells", matrix.presentCells());
                             values.put("payload_json",matrix.payloadJsonR30());values.put("producer_version","R930_LEGACY_POSITION_NUMBER_V1");
                             values.put("created_at", nowMs);
-                            if (db.insertWithOnConflict(T_MATRIX, null, values,
-                                    SQLiteDatabase.CONFLICT_IGNORE) < 0L) return Boolean.FALSE;
+                            if(db.insertWithOnConflict(T_MATRIX,null,values,SQLiteDatabase.CONFLICT_IGNORE)<0L){
+                                try(Cursor c=db.rawQuery("SELECT matrix_hash,payload_json FROM "+T_MATRIX+" WHERE snapshot_hash=? AND kind=?",new String[]{snapshot.snapshotHash,matrix.kind.name()})){if(!c.moveToFirst()||!matrix.matrixHash.equals(c.getString(0))||!c.isNull(1)&&!matrix.payloadJsonR30().equals(c.getString(1)))throw new IllegalStateException("R930_MATRIX_KEY_CONFLICT");}
+                                db.execSQL("UPDATE "+T_MATRIX+" SET payload_json=?,producer_version=? WHERE matrix_hash=? AND payload_json IS NULL",new Object[]{matrix.payloadJsonR30(),"R930_LEGACY_POSITION_NUMBER_V1",matrix.matrixHash});
+                            }
                         }
                         event(db, "COMMON_MATRIX_SNAPSHOT", snapshot.targetIssue,
                                 snapshot.snapshotHash, "RECORDED", "COMMON_FREEZE_PASS", nowMs);
-                        return Boolean.TRUE;
-                    }
-                }, Boolean.FALSE);
-        return Boolean.TRUE.equals(result);
+                        return true;
     }
 
     public static boolean putAblation(final DbStore store,
