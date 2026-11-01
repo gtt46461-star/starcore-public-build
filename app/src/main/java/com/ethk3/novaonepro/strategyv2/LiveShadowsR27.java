@@ -15,11 +15,11 @@ import java.util.Map;
  * shuffled-label champion) are frozen exactly like shadows. */
 public final class LiveShadowsR27 {
     private LiveShadowsR27() {}
-    static final String LIVE_STATES = "('ACTIVE','CONTROL_I00','CONTROL_NULL')";
+    static final String LIVE_STATES = "('ACTIVE','ACTIVE_REPAIR1','CONTROL_I00','CONTROL_NULL')";
     /** R27.4: observers are the current best evolved candidates frozen every period next to the shadows. They have no
      * e-process, global index or certificate, so they never spend α and never reach the mainline; they only make every
      * strategy's real per-period record visible (docs/01: FUTURE evidence is collected, qualification is unchanged). */
-    static final String OBSERVE_STATES = "('" + RuntimeR27.OBSERVE + "')";
+    static final String OBSERVE_STATES = "('OBSERVE','OBSERVE_REPAIR1')";
 
     /** R29 r29_policy_defaults.freeze_margin_ms: a FUTURE freeze must be committed at least 5 s before the draw. */
     public static final long FREEZE_MARGIN_MS = 5000;
@@ -303,7 +303,7 @@ public final class LiveShadowsR27 {
                     b.add("UPDATE r27_live_shadow SET status='ABI_CHANGED_EVIDENCE_FROZEN',reason=?,updated_at=? WHERE policy_hash=?", "first diff " + r.firstDiffIssue + " " + r.firstDiffField, t, s.id);
                     b.add("INSERT OR IGNORE INTO r27_lineage(child_hash,parent_hash,role,operator,generation,created_at,origin) VALUES(?,?,'ABI_REBIRTH','ABI_REBIRTH',-1,?,'R27_LIVE')", child, s.id, t);
                     b.guardBefore(db -> { StoreR27.insertShadow(db, sh.spec, sh.tau, "ABI_REBIRTH from " + sh.id, rt.semanticAbi(sh.spec), child, sh.spec.policyHash());
-                        if (!"ACTIVE".equals(sh.status)) db.execSQL("UPDATE r27_live_shadow SET status=? WHERE policy_hash=?", new Object[] {sh.status, child}); return 0; });
+                        if (!RepairCompatibilityR30R1.active(sh.status)) db.execSQL("UPDATE r27_live_shadow SET status=? WHERE policy_hash=?", new Object[] {sh.status, child}); return 0; });
                 }
             }
             RuntimeR27.submit(w, "SEMANTIC_ABI", b); units++;

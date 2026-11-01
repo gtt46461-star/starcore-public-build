@@ -77,8 +77,8 @@ public final class BirthGateR27 {
             if (tr.skipped[t]) {
                 // A declared abstention has complete, checked inputs but no K3 forecast. It is not missing input.
                 if(SetIntersectionPolicyR30.exact(spec)&&t>=spec.ast.ints[1]&&cache.data.consecutive(t,spec.ast.ints[1])){
-                    java.util.Map<String,Object> support=SetIntersectionPolicyR30.support(cache,t,spec.position,spec.ast.ints[0],spec.ast.ints[1]);
-                    if("ABSTAIN_INTERSECTION_LT3".equals(support.get("status"))&&Integer.valueOf(0).equals(support.get("filledNumbers")))available++;
+                    java.util.Map<String,Object> support=SetIntersectionPolicyR30.support(spec,cache,t);
+                    if(("ABSTAIN_INTERSECTION_LT3".equals(support.get("status"))||"ABSTAIN_CONDITION".equals(support.get("status")))&&Integer.valueOf(0).equals(support.get("filledNumbers")))available++;
                 }
                 continue;
             }

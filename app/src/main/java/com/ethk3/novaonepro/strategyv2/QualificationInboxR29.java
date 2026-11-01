@@ -39,7 +39,7 @@ public final class QualificationInboxR29 {
      * Values are base-policy identities so exploration cannot spend another slot on the same policy. */
     public static Map<String,String> confirmationQueueR30(SQLiteDatabase db) {
         Map<String,String> pending = new LinkedHashMap<>();
-        try (Cursor c = db.rawQuery("SELECT s.policy_hash,coalesce(nullif(s.base_policy,''),s.policy_hash) FROM r27_live_shadow s JOIN r27_eprocess e ON e.policy_hash=s.policy_hash WHERE e.global_index>0 AND s.status IN ('ACTIVE','OBSERVE','OBSERVE_RETIRED') AND e.state NOT IN (?,?) ORDER BY e.global_index,s.policy_hash",
+        try (Cursor c = db.rawQuery("SELECT s.policy_hash,coalesce(nullif(s.base_policy,''),s.policy_hash) FROM r27_live_shadow s JOIN r27_eprocess e ON e.policy_hash=s.policy_hash WHERE e.global_index>0 AND s.status IN ('ACTIVE','ACTIVE_REPAIR1','OBSERVE','OBSERVE_RETIRED','OBSERVE_REPAIR1','OBSERVE_REPAIR1_RETIRED') AND e.state NOT IN (?,?) ORDER BY e.global_index,s.policy_hash",
                 new String[]{SequentialQualificationR27.QUALIFIED,SequentialQualificationR27.NOT_BETTER})) {
             while (c.moveToNext()) pending.put(c.getString(0),c.getString(1));
         }
@@ -201,7 +201,7 @@ public final class QualificationInboxR29 {
             if(!p.consumed.isEmpty())QualificationGapRepairR30R1.markReplayWithin(db,id,p.consumed.get(0).row.ordinal,s.lastOrdinal);
             if (SequentialQualificationR27.QUALIFIED.equals(s.state)) db.execSQL(StoreR27.R26_EVOLUTION_QUALIFIED, new Object[] {id});
             if (SequentialQualificationR27.NOT_BETTER.equals(s.state))
-                db.execSQL("UPDATE r27_live_shadow SET status='RETIRED_TO_ARCHIVE',reason='SEQUENTIAL_TEST_NOT_BETTER_THAN_TARGET',updated_at=? WHERE policy_hash=? AND status='ACTIVE'", new Object[] {now, id});
+                db.execSQL("UPDATE r27_live_shadow SET status='RETIRED_TO_ARCHIVE',reason='SEQUENTIAL_TEST_NOT_BETTER_THAN_TARGET',updated_at=? WHERE policy_hash=? AND status IN ('ACTIVE','ACTIVE_REPAIR1')", new Object[] {now, id});
             if (BLOCK_CONFLICT.equals(p.block))
                 db.execSQL("INSERT OR IGNORE INTO r29_qual_conflict(experiment_id,target_ordinal,kind,receipt_digest,observed_digest,detail,detected_at) VALUES(?,?,'RESULT_CONFLICT',NULL,?,?,?)",
                         new Object[] {id, p.blockedOrdinal, p.conflictDigest, p.conflictDetail, now});

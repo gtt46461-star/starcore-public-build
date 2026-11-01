@@ -79,6 +79,8 @@ public final class StructureGeneratorRegistryR30 {
             }
             return best;
         }
+        @Override public PolicySpecR27 generate(StatsR27.SplitMix r,Context ctx){int tp=position(r,ctx);return SetIntersectionPolicyR30.conditional(tp,32,128,IdeaFamilyR27.meta(id(),"GENERATE",ctx==null?0:ctx.generation,r.state,"Predraw repeat condition and exact short/neighbor K3 intersection; explicit abstention without fill"));}
+        @Override public PolicySpecR27 mutate(PolicySpecR27 parent,StatsR27.SplitMix r,Context ctx){PolicySpecR27 fresh=generate(r,ctx);return fresh.withMeta(new PolicySpecR27.Meta(id(),"SET_CONDITION_SOURCE",java.util.Collections.singletonList(parent.policyHash()),ctx==null?0:ctx.generation,r.state,"New conditional set identity, independent confirmation required"));}
         protected PolicyAstR27.Node program(int tp, StatsR27.SplitMix r) {
             PolicyAstR27.Node intersect = PolicyAstR27.op("min", z(PolicyAstR27.leaf("freq", tp, 32)), z(PolicyAstR27.leaf("freqnb", tp, 128)));
             return PolicyAstR27.op("if", PolicyAstR27.leaf("regime", 128), PolicyAstR27.constant(0.1), intersect, z(PolicyAstR27.leaf("freq", tp, 128)));

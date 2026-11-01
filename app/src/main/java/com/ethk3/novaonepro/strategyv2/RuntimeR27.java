@@ -21,6 +21,7 @@ public final class RuntimeR27 implements AutoCloseable {
     // Evolution dataset snapshot (rebound only between generations).
     volatile ReplayDatasetR27 evoData; volatile FeatureCacheR27 evoCache; volatile ReplayDatasetR27 pendingData; volatile FeatureCacheR27 pendingCache;
     volatile EvolutionLoopR27 evo;
+    volatile String recoveredLegacyCursor;
     // Live dataset grows by appending; family streams continue incrementally.
     ReplayDatasetR27 liveData; FeatureCacheR27 liveCache;
     /** R30-B03-04 live feature cache key: (dataset hash, trained through, feature ABI); positions share one cache. */
@@ -145,6 +146,8 @@ public final class RuntimeR27 implements AutoCloseable {
             if(stepBefore==3)loop.revalidateResearchAdmissions(w.ro);
             loop.step();
             ResearchWriteQueueR27.Batch b = sink.batch;
+            final String preservedLegacy=recoveredLegacyCursor;
+            if(preservedLegacy!=null){String id=StatsR27.sha256("LEGACY_CURSOR_RECOVERY|"+preservedLegacy);Map<String,Object> original=new LinkedHashMap<>();original.put("originalSnapshot",preservedLegacy);original.put("reason","Original input snapshot unavailable after tail movement; preserve models/RNG/exposure and restart development at boundary; do not reconstruct old formal outcomes");b.add("INSERT OR IGNORE INTO r30r1_analysis_run VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",id,selectedData.datasetHash,StatsR27.sha256("LEGACY_CURSOR_RECOVERY"),"SELECT",BuildConfig.SOURCE_COMMIT_R26,0,0,0,StatsR27.sha256(preservedLegacy),"LEGACY_CURSOR_BOUNDARY_RECOVERY",JsonR27.write(original),System.currentTimeMillis());}
             final long inputRevision=ResearchInputPinR30R1.revision(w.ro,selectedData.datasetHash);
             b.guardBefore(db->{ResearchInputPinR30R1.require(db,selectedData.datasetHash,inputRevision);return 0;});
             if(ResearchInputPinR30R1.invalid(w.ro,committed.context().data.datasetHash)){
@@ -162,6 +165,7 @@ public final class RuntimeR27 implements AutoCloseable {
                 b.guardBefore(db -> { for (Object[] p : promos) { PolicySpecR27 s = (PolicySpecR27) p[0]; StoreR27.insertShadow(db, s, (Double) p[1], (String) p[3], semanticAbi(s), s.policyHash(), s.policyHash()); } return 0; });
             }
             try{submit(w, "EVOLUTION_STEP_" + EvolutionLoopR27.STEPS[stepBefore], b);}catch(RuntimeException stale){boolean benign=false;for(Throwable cause=stale;cause!=null&&cause.getCause()!=cause;cause=cause.getCause())if(cause instanceof ResearchStoreR30R1.StaleResearch)benign=true;if(benign)return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT:RESEARCH_SOURCE_RETRY",(long)committed.generation*10+committed.step,-1);throw stale;}
+            if(preservedLegacy!=null&&preservedLegacy.equals(recoveredLegacyCursor))recoveredLegacyCursor=null;
             synchronized(RuntimeR27.this){evoData=selectedData;evoCache=selectedCache;evo=loop;if(pendingCache==selectedCache){pendingCache=null;pendingData=null;}}
             if (stepBefore == 9) refreshObservers(w, loop);
             if (stepBefore == 9) registerConfirmed(w,loop.cfg.liveCap);
@@ -219,7 +223,7 @@ public final class RuntimeR27 implements AutoCloseable {
     // ------------------------------------------------------------------ R27.4 observers (every strategy runs every period)
     /** Best evolved candidates (by H_SELECT score) frozen and settled every period as observers. */
     public static final int OBSERVE_CAP = 24;
-    public static final String OBSERVE = "OBSERVE", OBSERVE_RETIRED = "OBSERVE_RETIRED";
+    public static final String OBSERVE = "OBSERVE_REPAIR1", OBSERVE_RETIRED = "OBSERVE_REPAIR1_RETIRED";
     public static String observerId(String policyHash) { return StatsR27.sha256(OBSERVE + "|" + policyHash); }
 
     /** Rank only the exploration segment. The immutable FUTURE queue owns its slots until a terminal
@@ -248,14 +252,14 @@ public final class RuntimeR27 implements AutoCloseable {
             Map<String,String> confirmation = QualificationInboxR29.confirmationQueueR30(db);
             Map<String,EvolutionLoopR27.Member> keep = explorationR30(ranked,confirmation);
             List<String> retire = new ArrayList<>();
-            try (Cursor c = db.rawQuery("SELECT policy_hash FROM r27_live_shadow WHERE status=?",new String[]{OBSERVE})) {
+            try (Cursor c = db.rawQuery("SELECT policy_hash FROM r27_live_shadow WHERE status IN ('OBSERVE','OBSERVE_REPAIR1')",null)) {
                 while (c.moveToNext()) { String id=c.getString(0); if (!keep.containsKey(id) && !confirmation.containsKey(id)) retire.add(id); }
             }
             long t = System.currentTimeMillis();
-            for (String id : retire) db.execSQL("UPDATE r27_live_shadow SET status=?,reason=?,updated_at=? WHERE policy_hash=? AND status=?",
-                    new Object[]{OBSERVE_RETIRED,"LEFT_EXPLORATION_G"+generation,t,id,OBSERVE});
-            for (String id : confirmation.keySet()) db.execSQL("UPDATE r27_live_shadow SET status=?,reason=?,updated_at=? WHERE policy_hash=? AND status=?",
-                    new Object[]{OBSERVE,"CONFIRMATION_QUEUE_PROTECTED",t,id,OBSERVE_RETIRED});
+            for (String id : retire) db.execSQL("UPDATE r27_live_shadow SET status=CASE status WHEN 'OBSERVE' THEN 'OBSERVE_RETIRED' ELSE 'OBSERVE_REPAIR1_RETIRED' END,reason=?,updated_at=? WHERE policy_hash=? AND status IN ('OBSERVE','OBSERVE_REPAIR1')",
+                    new Object[]{"LEFT_EXPLORATION_G"+generation,t,id});
+            for (String id : confirmation.keySet()) db.execSQL("UPDATE r27_live_shadow SET status=CASE status WHEN 'OBSERVE_RETIRED' THEN 'OBSERVE' ELSE 'OBSERVE_REPAIR1' END,reason=?,updated_at=? WHERE policy_hash=? AND status IN ('OBSERVE_RETIRED','OBSERVE_REPAIR1_RETIRED')",
+                    new Object[]{"CONFIRMATION_QUEUE_PROTECTED",t,id});
             for (Map.Entry<String, EvolutionLoopR27.Member> e : keep.entrySet()) {
                 EvolutionLoopR27.Member m = e.getValue();
                 // Re-entering exploration resumes its own row, outside the alpha-spending sequence.
@@ -275,9 +279,11 @@ public final class RuntimeR27 implements AutoCloseable {
             if (c.moveToFirst()) {
                 try { return EvolutionLoopR27.restore(c.getString(0), cfg, evoCache, null, System::currentTimeMillis); }
                 catch (RuntimeException mismatch) {
-                    // Dataset changed mid-generation (e.g. reinstall): the generation restarts at step 1; nothing registered twice
-                    // because registrations are keyed by policy hash.
-                    android.util.Log.w("STARCORE_R27", "evolution cursor restart", mismatch);
+                    if(!evoCache.data.datasetHash.equals(c.getString(1))){
+                        EvolutionLoopR27 recovered=RepairCompatibilityR30R1.restoreBoundary(c.getString(0),cfg,evoCache,null,System::currentTimeMillis);
+                        recoveredLegacyCursor=c.getString(0);return recovered;
+                    }
+                    throw mismatch; // A damaged cursor must not silently discard the exposure ledger or models.
                 }
             }
         }

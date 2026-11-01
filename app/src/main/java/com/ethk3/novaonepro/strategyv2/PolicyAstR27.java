@@ -24,7 +24,7 @@ public final class PolicyAstR27 {
             {"freq", 2, Type.PROB}, {"fdecay", 2, Type.PROB}, {"freqnb", 2, Type.PROB}, {"gap", 1, Type.RISK}, {"gaprank", 1, Type.RISK},
             {"meangap", 2, Type.RISK}, {"trans1", 0, Type.PROB}, {"trans2", 0, Type.PROB}, {"cross", 2, Type.FLAG}, {"crosscond", 1, Type.PROB},
             {"repeat", 0, Type.FLAG}, {"neighbor", 1, Type.FLAG}, {"oddeven", 2, Type.PROB}, {"bigsmall", 2, Type.PROB}, {"sumbucket", 0, Type.PROB},
-            {"regime", 1, Type.RISK}, {"knn", 2, Type.PROB}, {"family", 1, Type.PROB}, {"model_surface",1,Type.PROB}, {"set_intersection",2,Type.FLAG}, {"randu", 1, Type.SCORE}};
+            {"regime", 1, Type.RISK}, {"knn", 2, Type.PROB}, {"family", 1, Type.PROB}, {"model_surface",1,Type.PROB}, {"set_intersection",2,Type.FLAG}, {"set_intersection_when_repeat",2,Type.FLAG}, {"randu", 1, Type.SCORE}};
         for (Object[] l : leaves) LEAVES.put((String) l[0], new Object[] {l[1], l[2]});
         for (String u : new String[] {"neg", "abs", "log1p", "sqrt", "sigmoid", "tanh", "rank", "zscore", "lagdiff"}) ARITY.put(u, 1);
         for (String b : new String[] {"add", "sub", "mul", "div", "max", "min"}) ARITY.put(b, 2);
@@ -121,7 +121,7 @@ public final class PolicyAstR27 {
     public static String rangeAndCausality(Node n) {
         if (hasParam(n.op) && (!Double.isFinite(n.param) || Math.abs(n.param) > 1000)) return "RANGE:PARAM:" + n.op;
         switch (n.op) {
-            case "set_intersection": if(!window(n.ints[0])||!window(n.ints[1])||n.ints[0]>=n.ints[1])return "RANGE:SET_SOURCE_WINDOWS";break;
+            case "set_intersection_when_repeat": case "set_intersection": if(!window(n.ints[0])||!window(n.ints[1])||n.ints[0]>=n.ints[1])return "RANGE:SET_SOURCE_WINDOWS";break;
             case "softmax": if (n.param < 0.05 || n.param > 20) return "RANGE:TEMPERATURE"; break;
             case "ema": case "mix": if (n.param < 0 || n.param > 1) return "RANGE:ALPHA"; break;
             case "freq": case "freqnb": case "meangap": case "oddeven": case "bigsmall": if (!pos(n.ints[0]) || !window(n.ints[1])) return "RANGE:" + n.op; break;
@@ -260,6 +260,7 @@ public final class PolicyAstR27 {
     public static String describe(Node n) {
         switch (n.op) {
             case "c": return num(n.param);
+            case "set_intersection_when_repeat": return "过去128期重复状态>0.1时的精确交集；条件不满足或不足3弃权";
             case "set_intersection": return "本位近"+n.ints[0]+"期与两邻位近"+n.ints[1]+"期K3精确交集(不足3弃权)";
             case "freq": return "第" + n.ints[0] + "位近" + n.ints[1] + "期频率";
             case "fdecay": return "第" + n.ints[0] + "位衰减频率(半衰期" + n.ints[1] + ")";

@@ -92,7 +92,7 @@ public final class StoreR27 {
             promotions.add(new Object[] {spec, tau, generation, reason});
             batch.add(R26_EVOLUTION_VERIFIED, "R27:" + loop + ":" + spec.policyHash());
         }
-        public void demote(String hash, String reason) { demotions.add(new String[] {hash, reason}); batch.add("UPDATE r27_live_shadow SET status='RETIRED_TO_ARCHIVE',reason=?,updated_at=? WHERE policy_hash=? AND status='ACTIVE'", reason, System.currentTimeMillis(), hash); }
+        public void demote(String hash, String reason) { demotions.add(new String[] {hash, reason}); batch.add("UPDATE r27_live_shadow SET status='RETIRED_TO_ARCHIVE',reason=?,updated_at=? WHERE policy_hash=? AND status IN ('ACTIVE','ACTIVE_REPAIR1')", reason, System.currentTimeMillis(), hash); }
         public void expert(ExpertProposalsR27.Proposal p, int generation) {
             batch.add("INSERT OR IGNORE INTO r27_expert_proposal(generation,expert,proposal_json,policy_hash,recorded_at) VALUES(?,?,?,?,?)", generation, p.expert, p.json(), p.spec == null ? null : p.spec.policyHash(), System.currentTimeMillis());
         }
@@ -122,8 +122,8 @@ public final class StoreR27 {
         db.execSQL("INSERT INTO r29_qual_calendar(experiment_id,first_ordinal,registered_at,origin) VALUES(?,?,?,'REGISTERED_BEFORE_FUTURE')",
                 new Object[] {id, firstOrdinal, now});
         double rate = SelectorPolicyR30.registeredRate(spec);
-        db.execSQL("INSERT INTO r27_live_shadow(policy_hash,spec_json,temperature,bias,global_index,status,reason,promoted_at,updated_at,through_ordinal,base_policy,semantic_abi) VALUES(?,?,?,?,?,'ACTIVE',?,?,?,-1,?,?)",
-                new Object[] {id, spec.fullJson(), tau, pack(new double[10]), index, reason, now, now, basePolicy, semanticAbi});
+        db.execSQL("INSERT INTO r27_live_shadow(policy_hash,spec_json,temperature,bias,global_index,status,reason,promoted_at,updated_at,through_ordinal,base_policy,semantic_abi) VALUES(?,?,?,?,?,?,?, ?,?,-1,?,?)",
+                new Object[] {id, spec.fullJson(), tau, pack(new double[10]), index, RepairCompatibilityR30R1.activeStatus(spec), reason, now, now, basePolicy, semanticAbi});
         SequentialQualificationR27.State s = new SequentialQualificationR27.State(id, index, rate);
         db.execSQL("INSERT OR IGNORE INTO r27_eprocess(policy_hash,global_index,alpha,log_e_up,log_e_down,n,acts,hits,sum_u,sum_u2,last_ordinal,state,target_rate,updated_at) VALUES(?,?,?,0,0,0,0,0,0,0,-1,?,?,?)",
                 new Object[] {id, index, s.alpha, SequentialQualificationR27.ACCUMULATING, rate, now});

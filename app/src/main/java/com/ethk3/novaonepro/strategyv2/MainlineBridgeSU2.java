@@ -100,7 +100,7 @@ public final class MainlineBridgeSU2 {
      * unsettled row of a shadow with an unexpired ACTIVE certificate and a QUALIFIED FUTURE e-process qualifies;
      * the (policy_hash, target_ordinal) key allows at most one row per period. */
     public static final String R27_INTENT_SQL = "SELECT f.position,f.n1,f.n2,f.n3,f.act,f.probabilities,f.status FROM r27_live_frozen f JOIN r27_certificate k ON k.policy_hash=f.policy_hash JOIN r27_live_shadow s ON s.policy_hash=f.policy_hash JOIN r27_eprocess e ON e.policy_hash=f.policy_hash"
-            + " WHERE f.policy_hash=? AND f.target_ordinal=? AND f.hit=-1 AND k.status='ACTIVE' AND k.expires_at>? AND s.status='ACTIVE' AND e.state=? AND k.gate_version='"+CertificateGateR27.GATE_VERSION+"'";
+            + " WHERE f.policy_hash=? AND f.target_ordinal=? AND f.hit=-1 AND k.status='ACTIVE' AND k.expires_at>? AND s.status IN ('ACTIVE','ACTIVE_REPAIR1') AND e.state=? AND k.gate_version='"+CertificateGateR27.GATE_VERSION+"'";
 
     /** Read-only projection for the R30 explanation. Absent sources remain unknown, separate from failed gates. */
     public static final class ProjectionR30 {
@@ -125,7 +125,7 @@ public final class MainlineBridgeSU2 {
             try(Cursor c=db.rawQuery("SELECT k.status,k.gate_version,k.issued_at,k.expires_at,s.base_policy,s.spec_json,s.semantic_abi,s.status,e.state FROM r27_live_shadow s LEFT JOIN r27_certificate k ON k.policy_hash=s.policy_hash LEFT JOIN r27_eprocess e ON e.policy_hash=s.policy_hash WHERE s.policy_hash=?",new String[]{choice})) {
                 if(c.moveToFirst()) {
                     out.certificate=c.isNull(0)?"":choice;out.sources.put("certificateStatus",c.getString(0));out.sources.put("gateVersion",c.getString(1));out.sources.put("expiresAt",c.isNull(3)?null:c.getLong(3));
-                    out.certificateActive="ACTIVE".equals(c.getString(0))&&CertificateGateR27.GATE_VERSION.equals(c.getString(1))&&c.getLong(2)<=now&&c.getLong(3)>now&&"ACTIVE".equals(c.getString(7))&&SequentialQualificationR27.QUALIFIED.equals(c.getString(8));
+                    out.certificateActive="ACTIVE".equals(c.getString(0))&&CertificateGateR27.GATE_VERSION.equals(c.getString(1))&&c.getLong(2)<=now&&c.getLong(3)>now&&RepairCompatibilityR30R1.active(c.getString(7))&&SequentialQualificationR27.QUALIFIED.equals(c.getString(8));
                     PolicySpecR27 spec=PolicySpecR27.parse(c.getString(5));out.modelHash=spec.policyHash();
                     boolean fingerprint=false;try(Cursor a=db.rawQuery("SELECT 1 FROM r27_semantic_fingerprint WHERE policy_hash=? AND build=? AND length(fingerprint)>0 AND length(operator_abi)>0",new String[]{choice,BuildConfig.SOURCE_COMMIT_R26})){fingerprint=a.moveToFirst();}
                     out.modelAvailable=out.modelHash.equals(c.getString(4))&&!c.isNull(6)&&!c.getString(6).isEmpty()&&fingerprint;

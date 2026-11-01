@@ -149,7 +149,7 @@ public final class FrozenConfirmationStoreR30 {
             if(registered>0)return 0; // Exactly the original registration; never allocate another global index on retry.
             String experiment=spec.policyHash();boolean exists=false;
             try(Cursor current=db.rawQuery("SELECT status,updated_at FROM r27_live_shadow WHERE policy_hash=?",new String[]{experiment})){if(current.moveToFirst()){exists=true;if(QualificationGapRepairR30R1.SEALED.equals(current.getString(0))){if(task.frozenAt<=current.getLong(1))throw new IllegalStateException("R30_CONFIRM_NEW_PACKET_REQUIRED_AFTER_SEALED_SEGMENT");experiment=StatsR27.sha256("R30_REPAIR_NEW_FUTURE_SEGMENT|"+spec.policyHash()+"|"+task.key);exists=false;}}}
-            if(!exists)try(Cursor c=db.rawQuery("SELECT count(*) FROM r27_live_shadow WHERE status='ACTIVE'",null)){if(c.moveToFirst()&&c.getLong(0)>=cap)throw new IllegalStateException("R30_CONFIRM_WAIT_SLOT");}
+            if(!exists)try(Cursor c=db.rawQuery("SELECT count(*) FROM r27_live_shadow WHERE status IN ('ACTIVE','ACTIVE_REPAIR1')",null)){if(c.moveToFirst()&&c.getLong(0)>=cap)throw new IllegalStateException("R30_CONFIRM_WAIT_SLOT");}
             StoreR27.insertShadow(db,spec,task.champion.temperature,reason,abi,experiment,spec.policyHash());
             db.execSQL("UPDATE r30_frozen_confirm SET registered_at=?,registration_state='REGISTERED',registration_experiment_id=? WHERE task_key=? AND registered_at=0",new Object[]{System.currentTimeMillis(),experiment,task.key});return 0;
         });
@@ -169,7 +169,7 @@ public final class FrozenConfirmationStoreR30 {
             holdout.put("sourceGeneration",(long)task.generation); holdout.put("reason","PREVIOUSLY_CONFIRMED_IMMUTABLE_EVIDENCE");
         }
         record.put("holdout",holdout);
-        record.put("live",count(ro,"SELECT count(*) FROM r27_live_shadow WHERE status='ACTIVE'"));
+        record.put("live",count(ro,"SELECT count(*) FROM r27_live_shadow WHERE status IN ('ACTIVE','ACTIVE_REPAIR1')"));
         Map<String,Object> counters = new LinkedHashMap<>((Map<String,Object>)record.get("counters"));
         String countSql = result.verified ? "SELECT count(*) FROM r30_frozen_confirm WHERE verified=1 OR task_key=?" : "SELECT count(*) FROM r30_frozen_confirm WHERE verified=1";
         try (Cursor c = ro.rawQuery(countSql,result.verified ? new String[]{task.key} : null)) {

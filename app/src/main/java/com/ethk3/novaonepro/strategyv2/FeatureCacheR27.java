@@ -46,7 +46,7 @@ public final class FeatureCacheR27 {
 
     /** Leaf kinds; the int parameters are documented per kind. Every kind is PREDRAW_HISTORY (rows &lt; t). */
     public static final String[] KINDS = {"freq", "fdecay", "freqnb", "gap", "gaprank", "meangap", "trans1", "trans2", "cross", "crosscond",
-            "repeat", "neighbor", "oddeven", "bigsmall", "sumbucket", "regime", "knn", "family", "model_surface", "set_intersection", "randu"};
+            "repeat", "neighbor", "oddeven", "bigsmall", "sumbucket", "regime", "knn", "family", "model_surface", "set_intersection", "set_intersection_when_repeat", "randu"};
 
     /** @param tp target position 1..10 the policy predicts. */
     public double[] leaf(String kind, int tp, int a, int b) {
@@ -60,7 +60,7 @@ public final class FeatureCacheR27 {
     }
 
     static boolean targetDependent(String kind) {
-        switch (kind) { case "trans1": case "trans2": case "crosscond": case "repeat": case "sumbucket": case "knn": case "family": case "set_intersection": return true; default: return false; }
+        switch (kind) { case "trans1": case "trans2": case "crosscond": case "repeat": case "sumbucket": case "knn": case "family": case "set_intersection": case "set_intersection_when_repeat": return true; default: return false; }
     }
 
     /** Test/ABI hook: replaces one leaf kind's implementation (used by H11 to simulate a changed operator). */
@@ -74,6 +74,7 @@ public final class FeatureCacheR27 {
         if (o != null) return o.compute(this, tp, a, b);
         switch (kind) {
             case "set_intersection": return exactIntersection(tp,a,b);
+            case "set_intersection_when_repeat": {double[] out=exactIntersection(tp,a,b),state=leaf("regime",tp,0,128);for(int row=0;row<data.size();row++)if(row<Math.max(128,b)||!data.consecutive(row,Math.max(128,b))||!Double.isFinite(state[row*10])||state[row*10]<=.1)java.util.Arrays.fill(out,row*10,row*10+10,Double.NaN);return out;}
             case "freq": return freq(a, b);
             case "fdecay": return decay(a, b);
             case "freqnb": return neighborFreq(a, b);

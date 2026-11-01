@@ -21,7 +21,7 @@ public final class ReportDataR27 {
     public static ReportR27.Input load(SQLiteDatabase db) {
         ReportR27.Input in = new ReportR27.Input(); long now = System.currentTimeMillis();
         if (!table(db, "r27_migration")) return in;
-        try (Cursor c = db.rawQuery("SELECT s.policy_hash,s.status,s.spec_json,s.base_policy,e.acts,e.hits,e.n,e.log_e_up,e.alpha,e.state,e.sum_u,e.sum_u2 FROM r27_live_shadow s LEFT JOIN r27_eprocess e ON e.policy_hash=s.policy_hash WHERE s.status IN ('ACTIVE','CONTROL_I00','CONTROL_NULL') ORDER BY s.global_index", null)) {
+        try (Cursor c = db.rawQuery("SELECT s.policy_hash,s.status,s.spec_json,s.base_policy,e.acts,e.hits,e.n,e.log_e_up,e.alpha,e.state,e.sum_u,e.sum_u2 FROM r27_live_shadow s LEFT JOIN r27_eprocess e ON e.policy_hash=s.policy_hash WHERE s.status IN ('ACTIVE','ACTIVE_REPAIR1','CONTROL_I00','CONTROL_NULL') ORDER BY s.global_index", null)) {
             while (c.moveToNext()) {
                 ReportR27.Shadow s = new ReportR27.Shadow(); s.id = c.getString(0); s.status = c.getString(1);
                 try { s.describe = PolicySpecR27.parse(c.getString(2)).describeZh(); } catch (RuntimeException e) { s.describe = "spec unreadable"; }
@@ -72,7 +72,7 @@ public final class ReportDataR27 {
         try (Cursor c = db.rawQuery("SELECT policy_hash,old_build,new_build,result,first_diff_issue,first_diff_field,checked_at FROM r27_abi_continuity ORDER BY checked_at DESC LIMIT 64", null)) {
             while (c.moveToNext()) { Map<String, Object> r = new LinkedHashMap<>(); r.put("policy", c.getString(0)); r.put("oldBuild", c.getString(1)); r.put("newBuild", c.getString(2)); r.put("result", c.getString(3)); r.put("firstDiffIssue", c.getString(4)); r.put("firstDiffField", c.getString(5)); in.abi.add(r); }
         }
-        in.pendingAbiChecks = ChartCacheR27.count(db, "SELECT count(*) FROM r27_live_shadow s WHERE s.status IN ('ACTIVE','CONTROL_I00','CONTROL_NULL') AND NOT EXISTS(SELECT 1 FROM r27_semantic_fingerprint f WHERE f.policy_hash=s.policy_hash AND f.build='" + BuildConfig.SOURCE_COMMIT_R26 + "')");
+        in.pendingAbiChecks = ChartCacheR27.count(db, "SELECT count(*) FROM r27_live_shadow s WHERE s.status IN ('ACTIVE','ACTIVE_REPAIR1','CONTROL_I00','CONTROL_NULL') AND NOT EXISTS(SELECT 1 FROM r27_semantic_fingerprint f WHERE f.policy_hash=s.policy_hash AND f.build='" + BuildConfig.SOURCE_COMMIT_R26 + "')");
         in.r26ArchivedBySourceAbi = ChartCacheR27.count(db, "SELECT count(*) FROM r26_live_model WHERE status='BLOCKED_NUMERICAL_ABI_PRESERVED'");
         in.legacyBlocked = ChartCacheR27.count(db, "SELECT count(*) FROM r26_legacy_runtime WHERE status='BLOCKED_NUMERICAL_ABI_PRESERVED'");
         return in;

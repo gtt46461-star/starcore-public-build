@@ -59,7 +59,7 @@ public final class ChartCacheR27 {
 
     static Map<String, Object> threeScores(SQLiteDatabase db) {
         List<Object> pts = new ArrayList<>(); int k = 0; double nMean = 0;
-        try (Cursor c = db.rawQuery("SELECT s.policy_hash,s.spec_json,s.status,s.base_policy FROM r27_live_shadow s WHERE s.status IN ('ACTIVE','CONTROL_I00','CONTROL_NULL') ORDER BY s.global_index LIMIT 40", null)) {
+        try (Cursor c = db.rawQuery("SELECT s.policy_hash,s.spec_json,s.status,s.base_policy FROM r27_live_shadow s WHERE s.status IN ('ACTIVE','ACTIVE_REPAIR1','CONTROL_I00','CONTROL_NULL') ORDER BY s.global_index LIMIT 40", null)) {
             while (c.moveToNext()) {
                 String id = c.getString(0), base = c.getString(3); double rep = Double.NaN, hold = Double.NaN; long fn = 0, fh = 0;
                 try (Cursor r = db.rawQuery("SELECT split,hits,n_act FROM r27_replay_score WHERE policy_hash=? ORDER BY computed_at DESC", new String[] {base.isEmpty() ? id : base})) {
@@ -152,7 +152,7 @@ public final class ChartCacheR27 {
         try (Cursor c = db.rawQuery("SELECT detail_json FROM r27_generation WHERE loop='MAIN' ORDER BY generation DESC LIMIT 1", null)) {
             if (c.moveToFirst()) { Object f = ((Map<?, ?>) JsonR27.parse(c.getString(0))).get("funnel"); if (f instanceof List && ((List<?>) f).size() == 4) { List<?> l = (List<?>) f; r0 = ((Number) l.get(0)).longValue(); r1 = ((Number) l.get(1)).longValue(); r2 = ((Number) l.get(2)).longValue(); surv = ((Number) l.get(3)).longValue(); } }
         }
-        long pop = count(db, "SELECT count(*) FROM r27_policy WHERE state='ACTIVE'"), live = count(db, "SELECT count(*) FROM r27_live_shadow WHERE status='ACTIVE'"),
+        long pop = count(db, "SELECT count(*) FROM r27_policy WHERE state='ACTIVE'"), live = count(db, "SELECT count(*) FROM r27_live_shadow WHERE status IN ('ACTIVE','ACTIVE_REPAIR1')"),
                 qual = count(db, "SELECT count(*) FROM r27_eprocess WHERE state='" + SequentialQualificationR27.QUALIFIED + "'"), cert = count(db, "SELECT count(*) FROM r27_certificate WHERE status='ACTIVE'");
         List<Object> pts = new ArrayList<>();
         Object[][] steps = {{"R0", r0}, {"R1", r1}, {"R2", r2}, {"存活", surv}, {"种群", pop}, {"影子池", live}, {"资格", qual}, {"证书", cert}};
@@ -241,7 +241,7 @@ public final class ChartCacheR27 {
     /** R27-053 RANKING: FUTURE hit rate of the Rank1/2/3 numbers of each shadow's frozen surface. */
     static Map<String, Object> ranking(SQLiteDatabase db) {
         Map<String, Object> out = new LinkedHashMap<>(); List<Object> rows = new ArrayList<>();
-        try (Cursor c = db.rawQuery("SELECT policy_hash FROM r27_live_shadow WHERE status IN ('ACTIVE','CONTROL_I00','CONTROL_NULL')", null)) {
+        try (Cursor c = db.rawQuery("SELECT policy_hash FROM r27_live_shadow WHERE status IN ('ACTIVE','ACTIVE_REPAIR1','CONTROL_I00','CONTROL_NULL')", null)) {
             while (c.moveToNext()) {
                 String id = c.getString(0); long[] hit = new long[3]; long n = 0;
                 try (Cursor f = db.rawQuery("SELECT f.position,f.probabilities,d.n1,d.n2,d.n3,d.n4,d.n5,d.n6,d.n7,d.n8,d.n9,d.n10 FROM r27_live_frozen f JOIN draws d ON d.issue=f.target_issue AND d.dirty=0 WHERE f.policy_hash=? AND f.status='FROZEN' ORDER BY f.target_ordinal DESC LIMIT 2000", new String[] {id})) {

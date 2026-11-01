@@ -101,15 +101,15 @@ public final class ReportSnapshotR30 {
         for(String[] count:counts)q.count(count[0],count[1]);
         q.add("timelineEvents",q.has("r27_chart_cache","panel_id","key")?"(SELECT count(*) FROM r27_chart_cache WHERE panel_id IN ('"+IssueTimelineR30.EVENT_RAW_PANEL+"','"+IssueTimelineR30.EVENT_DRAW_PANEL+"','"+IssueTimelineR30.EVENT_PRED_PANEL+"'))":"NULL",true);
         boolean active=q.has("r27_live_shadow","policy_hash","status")&&q.has("r27_eprocess","policy_hash","global_index","state","n","acts","hits");
-        String join=" FROM r27_eprocess e JOIN r27_live_shadow s ON s.policy_hash=e.policy_hash WHERE s.status='ACTIVE' AND e.global_index>0";
+        String join=" FROM r27_eprocess e JOIN r27_live_shadow s ON s.policy_hash=e.policy_hash WHERE s.status IN ('ACTIVE','ACTIVE_REPAIR1') AND e.global_index>0";
         q.add("qualifiedExperiments",active?"(SELECT count(*)"+join+" AND e.state='"+SequentialQualificationR27.QUALIFIED+"')":"NULL",true);
         q.add("maxFuturePeriods",active?"(SELECT coalesce(max(e.n),0)"+join+")":"NULL",true);
         q.add("bestFutureHr",active?"(SELECT max(CASE WHEN e.acts>0 THEN 1.0*e.hits/e.acts END)"+join+")":"NULL",true);
         boolean receipts=active&&q.has("r29_qual_receipt","experiment_id","target_issue","act","hit");
-        String rjoin=" FROM r29_qual_receipt r JOIN r27_live_shadow s ON s.policy_hash=r.experiment_id JOIN r27_eprocess e ON e.policy_hash=s.policy_hash WHERE s.status='ACTIVE' AND e.global_index>0";
+        String rjoin=" FROM r29_qual_receipt r JOIN r27_live_shadow s ON s.policy_hash=r.experiment_id JOIN r27_eprocess e ON e.policy_hash=s.policy_hash WHERE s.status IN ('ACTIVE','ACTIVE_REPAIR1') AND e.global_index>0";
         for(String[] value:new String[][]{{"futurePeriods","count(*)"},{"futureActs","coalesce(sum(r.act),0)"},{"futureHits","coalesce(sum(CASE WHEN r.act=1 AND r.hit=1 THEN 1 ELSE 0 END),0)"},{"independentFutureIssues","count(DISTINCT r.target_issue)"}})q.add(value[0],receipts?"(SELECT "+value[1]+rjoin+")":"NULL",true);
         q.add("receiptStateMismatches",receipts?"(SELECT count(*)"+join+" AND e.n<>(SELECT count(*) FROM r29_qual_receipt r WHERE r.experiment_id=e.policy_hash))":"NULL",true);
-        q.add("activeCertificates",active&&q.has("r27_certificate","policy_hash","status","gate_version","issued_at","expires_at")?"(SELECT count(*) FROM r27_certificate k JOIN r27_live_shadow s ON s.policy_hash=k.policy_hash JOIN r27_eprocess e ON e.policy_hash=k.policy_hash WHERE s.status='ACTIVE' AND e.state='"+SequentialQualificationR27.QUALIFIED+"' AND k.status='ACTIVE' AND k.gate_version='"+CertificateGateR27.GATE_VERSION+"' AND k.issued_at<="+READ_CLOCK+" AND k.expires_at>"+READ_CLOCK+")":"NULL",true);
+        q.add("activeCertificates",active&&q.has("r27_certificate","policy_hash","status","gate_version","issued_at","expires_at")?"(SELECT count(*) FROM r27_certificate k JOIN r27_live_shadow s ON s.policy_hash=k.policy_hash JOIN r27_eprocess e ON e.policy_hash=k.policy_hash WHERE s.status IN ('ACTIVE','ACTIVE_REPAIR1') AND e.state='"+SequentialQualificationR27.QUALIFIED+"' AND k.status='ACTIVE' AND k.gate_version='"+CertificateGateR27.GATE_VERSION+"' AND k.issued_at<="+READ_CLOCK+" AND k.expires_at>"+READ_CLOCK+")":"NULL",true);
         q.add("evolutionAttempts",q.has("r26_evolution")?"(SELECT count(*) FROM r26_evolution)":"NULL",true);
         q.add("confirmedPackets",q.has("r30_frozen_confirm","state","verified")?"(SELECT count(*) FROM r30_frozen_confirm WHERE state='DONE' AND verified=1)":"NULL",true);
         q.add("modelCheckpoints",q.has("r29_model_checkpoint","owner")?"(SELECT count(*) FROM r29_model_checkpoint WHERE owner IN ('ATOMNET_TEN_R30','ATOMNET_TEN_R30_REPAIR1','ATOMNET_FTRL'))":"NULL",true);

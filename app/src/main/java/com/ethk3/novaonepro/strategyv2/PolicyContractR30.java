@@ -22,7 +22,7 @@ public final class PolicyContractR30 {
             catch (IllegalArgumentException typeError) { v.add("PROGRAM_" + typeError.getMessage()); }
             String rc = PolicyAstR27.rangeAndCausality(s.ast);
             if (rc != null) v.add("PROGRAM_" + rc);
-            for(PolicyAstR27.Node n:PolicyAstR27.nodes(s.ast))if(n.op.equals("set_intersection")&&n!=s.ast)v.add("SET_INTERSECTION_MUST_BE_DECLARED_ROOT_READOUT");
+            for(PolicyAstR27.Node n:PolicyAstR27.nodes(s.ast))if(n.op.startsWith("set_intersection")&&n!=s.ast)v.add("SET_INTERSECTION_MUST_BE_DECLARED_ROOT_READOUT");
             int dataLeaves = 0;
             for (PolicyAstR27.Node n : PolicyAstR27.nodes(s.ast)) if (n.leaf() && !"c".equals(n.op)) dataLeaves++;
             if (dataLeaves == 0) v.add("PROGRAM_NO_DATA_LEAF");
