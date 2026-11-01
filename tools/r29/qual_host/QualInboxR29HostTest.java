@@ -235,12 +235,18 @@ public final class QualInboxR29HostTest {
             for (int o = 1; o <= 120; o++) if (o != 100) w.draw(db, o);
             for (int i = 0; i < 3; i++) pass(db, s, 120);
             GateV2R29.Evidence e = GateV2R29.evidence(db, w.id, 120);
-            long acts = 0, settled = 0, hits = 0; for (int o = 1; o <= 120; o++) if ((o < 50 || o > 59) && w.act(o)) { acts++; if (o != 100) { settled++; if (w.hit(o)) hits++; } }
+            long acts = 0, settled = 0, hits = 0; for (int o = 1; o <= 120; o++) if ((o < 50 || o > 59) && w.act(o)) { acts++; if (o < 50) { settled++; if (w.hit(o)) hits++; } } // the first absent immutable opportunity stops the consumed formal prefix at49
             GateV2R29.Verdict v = GateV2R29.evaluate(e); ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); GateV2R29.record(b, e, v); s.commit("V2", b);
-            boolean ok = e.opportunities == 120 && e.actDecisions == acts && e.settledActs == settled && e.hits == hits && e.pendingActs == (w.act(100) ? 1 : 0)
+            boolean ok = e.opportunities == 120 && e.actDecisions == acts && e.settledActs == settled && e.hits == hits && e.pendingActs == 0 && scalar(db,"SELECT count(*) FROM r29_qual_receipt")==49 && scalar(db,"SELECT blocked_ordinal FROM r29_qual_cursor")==50
                     && Math.abs(e.p[0] - 0.3) < 1e-12 && !v.wouldIssue && scalar(db, "SELECT count(*) FROM r29_gate_v2 WHERE would_issue=0") == 1
                     && "NOT_DEPLOYED".equals(((Map<?, ?>) v.sections.get("frequency")).get("Q02"));
             check("Q8_GATE_V2_EVIDENCE", ok, "opportunities=" + e.opportunities + " actDecisions=" + e.actDecisions + "/" + acts + " settled=" + e.settledActs + " pending=" + e.pendingActs + " failing=" + v.failing);
+            // Restore the ORIGINAL frozen fixtures and canonical outcome; no postdraw prediction is invented.
+            for(int o=50;o<=59;o++)w.freezeRow(db,o,-1);w.draw(db,100);
+            for(int i=0;i<3;i++)pass(db,s,120);
+            GateV2R29.Evidence restored=GateV2R29.evidence(db,w.id,120);long allActs=0,allHits=0;for(int o=1;o<=120;o++)if(w.act(o)){allActs++;if(w.hit(o))allHits++;}
+            check("Q8_ORIGINAL_GAP_RESTORATION_UPDATES_READONLY_DENOMINATOR",scalar(db,"SELECT count(*) FROM r29_qual_receipt")==120&&restored.opportunities==120&&restored.actDecisions==allActs&&restored.settledActs==allActs&&restored.hits==allHits&&!GateV2R29.ENABLED&&!GateV2R29.evaluate(restored).wouldIssue,"only original opportunity restoration reopens contiguous formal evidence; V2 remains report-only");
+
         }
         // Q9 Entirely absent frozen opportunities must stop the cursor, even if a later row is already settled.
         {

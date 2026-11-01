@@ -21,7 +21,7 @@ public final class FreezeSourceR30HostTest {
             try(Statement s=c.createStatement()) {
                 s.execute("CREATE TABLE draws(issue TEXT PRIMARY KEY,n1 INT,n2 INT,n3 INT,n4 INT,n5 INT,n6 INT,n7 INT,n8 INT,n9 INT,n10 INT,dirty INT,open_time INT,fetch_time INT DEFAULT 0)");
                 s.execute(HistoryImportR27.DDL);
-                s.execute("CREATE TABLE r27_live_shadow(policy_hash TEXT,spec_json TEXT,temperature REAL,status TEXT,global_index INT)");
+                s.execute("CREATE TABLE r27_live_shadow(policy_hash TEXT,spec_json TEXT,temperature REAL,status TEXT,global_index INT,semantic_abi TEXT NOT NULL DEFAULT '')");
                 s.execute("CREATE TABLE r27_live_frozen(policy_hash TEXT,target_ordinal INT,target_issue TEXT,position INT,probabilities BLOB,n1 INT,n2 INT,n3 INT,act INT,status TEXT,frozen_at INT,deadline_at INT,PRIMARY KEY(policy_hash,target_ordinal))");
                 s.execute("CREATE TABLE r27_opportunity(target_ordinal INT PRIMARY KEY,target_issue TEXT,scheduled INT,frozen INT,acted INT,settled INT,deadline_missed INT,recorded_at INT)");
             }
@@ -35,7 +35,7 @@ public final class FreezeSourceR30HostTest {
                 c.commit();c.setAutoCommit(true);System.out.println("SCHEMA_ENSURE_TWICE_PRESERVES_EXISTING_DRAWS_AND_REVISION");return;
             }
             PolicySpecR27 spec=new PolicySpecR27(PolicyAstR27.leaf("freq",1,32),1,PolicySpecR27.Rule.ALWAYS,0,0,1,false,0.01,0.01,new PolicySpecR27.Meta("I01","TEST",Collections.emptyList(),0,1,"race"));
-            try(PreparedStatement p=c.prepareStatement("INSERT INTO r27_live_shadow VALUES(?,?,1,'ACTIVE',1)")){p.setString(1,"fixture");p.setString(2,spec.fullJson());p.executeUpdate();}
+            try(PreparedStatement p=c.prepareStatement("INSERT INTO r27_live_shadow(policy_hash,spec_json,temperature,status,global_index) VALUES(?,?,1,'ACTIVE',1)")){p.setString(1,"fixture");p.setString(2,spec.fullJson());p.executeUpdate();}
             long open;try(Statement st=c.createStatement();ResultSet r=st.executeQuery("SELECT open_time FROM draws WHERE issue='"+issue(100)+"'")){r.next();open=r.getLong(1);}
             final boolean race=args.length==0, correction=args.length>0 && args[0].equals("correction");
             final boolean imported=args.length>0 && args[0].equals("import"), missing=args.length>0 && args[0].equals("missing");

@@ -84,7 +84,8 @@ public final class FrozenConfirmationR30HostTest {
                 Runtime.getRuntime().halt(0);
             }
             for (String ddl:FrozenConfirmationStoreR30.DDL)db.execSQL(ddl); // additive/idempotent restoration
-            String cursor=text(c,"SELECT snapshot FROM r27_evolution_cursor WHERE loop='MAIN'");
+            String cursor=text(c,"SELECT snapshot FROM r27_evolution_cursor WHERE loop='"+RuntimeR27.LOOP+"'");
+            require(cursor!=null,"CURRENT_ORIGINAL_OWNER_CURSOR_MISSING:"+RuntimeR27.LOOP);
             EvolutionLoopR27 loop=EvolutionLoopR27.restore(cursor,config(),new FeatureCacheR27(data()),new StoreR27.EvolutionSink(RuntimeR27.LOOP,"202610310001"),()->1L);
             require(loop.step==9&&loop.confirmationDispatched,"DISPATCH_NOT_RESTORED");
             ConfirmReadStoreR30.restore(db,loop.ledger());ConfirmReadStoreR30.bind(worker,loop.ledger());

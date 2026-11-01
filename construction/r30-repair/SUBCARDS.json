@@ -576,6 +576,48 @@
         "tools/r30-repair/ci_build.sh"
       ],
       "reason": "先登记：第二轮CI实际失败于原写锁SQL夹具14参数，生产已按B02增加histogram/session为16参数。显式补NULL未知直方图和合成session，并额外验证旧14命名列写法兼容，不删除T01–T06。CI失败打印实际末段日志方便定位，所有门禁仍失败即停。"
+    },
+    {
+      "id": "FR-B11-01-current-loop-native-fixture",
+      "card": "FR-B11-01",
+      "files": [
+        "tools/r30/qual_host/FrozenConfirmationR30HostTest.java"
+      ],
+      "reason": "先登记：完整原生回归复现冻结确认恢复测试写RuntimeR27.LOOP却硬读MAIN，返修为保护旧游标已用MAIN_REPAIR1，故读空并NPE。测试按同一真实Owner常量读取且明确检查非空，保留全部真实JVM中断/缓存原件/预算/注册断言，不回退隔离命名空间。"
+    },
+    {
+      "id": "FR-B11-01-gapped-v2-readonly-fixture",
+      "card": "FR-B11-01",
+      "files": [
+        "tools/r29/qual_host/QualInboxR29HostTest.java"
+      ],
+      "reason": "先登记：原生完整旧套件Q8仍将缺冻结50–59之后的已结算物理行计入V2正式已消费分母。方案已要求正式证据仅原连续收据，当前实际为前49期19ACT。夹具按已声明缺口解析计算前缀，并增加恢复原冻结及真实开奖后全120期收据/分母恢复断言；GateV2仍关闭，不放宽任何门槛。"
+    },
+    {
+      "id": "FR-B11-01-freeze-fixture-schema",
+      "card": "FR-B11-01",
+      "files": [
+        "tools/r30/qual_host/FreezeSourceR30HostTest.java"
+      ],
+      "reason": "先登记：原完整冻结原生夹具自行建5列shadow表，缺生产新读取的semantic_abi，实测SQL失败。补实际nullable/空未知ABI字段并改命名列insert；测试只冻结研究行，空ABI绝不授证，原source竞态/更正/导入/删除/trigger篡改/真实deadline断言全部保留。"
+    },
+    {
+      "id": "FR-B09-03-mobile-plot-priority",
+      "card": "FR-B09-03",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30RepairChartsAndroidTest.java"
+      ],
+      "reason": "先登记：实际frame的run/dataset/模型配对长详情可达多屏，原界面把全部详情放在图前，遮住手机首屏图形。改为中文状态/窗口/实际图优先，原完整口径与hash保留在来源详情按钮；退出时关闭对话框。Android截图按实际图View位置滚动，验证真实图进入viewport，缺原件仍明确不足。"
+    },
+    {
+      "id": "FR-B06-01-null-consumption-report",
+      "card": "FR-B06-01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java",
+        "tools/r30/qual_host/CapabilityRegistryR30HostTest.java"
+      ],
+      "reason": "先登记：原完整能力原生测试在空库复现实际生产NPE：三重条件表达式把未知消费Boolean null拆箱。改显式TRUE/FALSE/null分支，缺源仍UNKNOWN不置0；原82对象/坏checkpoint/孤儿缓存/未证明有效断言保留，并验证20缺源矩阵消费均null。"
     }
   ]
 }
