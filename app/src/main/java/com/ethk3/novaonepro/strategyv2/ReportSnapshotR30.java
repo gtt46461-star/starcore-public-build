@@ -159,7 +159,7 @@ public final class ReportSnapshotR30 {
                 if(kind=='N')parsed=null;else if(kind=='X'){Map<String,Object> clipped=new LinkedHashMap<>();clipped.put("status","TRUNCATED_REFERENCE_ONLY");clipped.put("bytes",Long.parseLong(value));clipped.put("source",table+"."+fields.get(i));parsed=clipped;}
                 else{String text=new String(hex(value),StandardCharsets.UTF_8);if(kind=='I')parsed=Long.valueOf(text);else if(kind=='R'){try{double number=Double.parseDouble(text);parsed=Double.isFinite(number)?number:null;}catch(NumberFormatException invalid){Map<String,Object> bad=new LinkedHashMap<>();bad.put("status","INVALID_STORED_NUMERIC");bad.put("source",table+"."+fields.get(i));bad.put("storedText",text);parsed=bad;}}else parsed=text;}
                 row.put(fields.get(i),parsed);
-                if(parsed instanceof String&&(fields.get(i).endsWith("_json")||fields.get(i).equals("snapshot")))row.put(fields.get(i)+"_sha256",HashingSU1.text((String)parsed));
+                if(parsed instanceof String&&(fields.get(i).endsWith("_json")||fields.get(i).equals("snapshot")))row.put(fields.get(i)+"_inline_sha256",HashingSU1.text((String)parsed));
                 if(kind=='X'){@SuppressWarnings("unchecked") Map<String,Object> ref=(Map<String,Object>)parsed;ref.put("sha256",null);ref.put("hashReason","CONTENT_NOT_READ_IN_BOUNDED_DISPLAY; use persisted *_hash or exact snapshot identity and primary key");ref.put("payloadIncludedByThisRow",false);}
             }out.add(row);
         }return out;
