@@ -54,7 +54,8 @@ public final class StorageCensusSU2 {
     public static Census measure(File appDataDir) {
         Census c = new Census();c.sampleStartedAt=System.currentTimeMillis(); for (String k : CATEGORIES) c.bytes.put(k, 0L);
         PriorityQueue<Entry> top = new PriorityQueue<>(8, Comparator.comparingLong(a -> a.bytes));
-        Deque<Object[]> stack = new ArrayDeque<>(); stack.push(new Object[]{appDataDir, "", 0});
+        File canonicalRoot;try{canonicalRoot=appDataDir.getCanonicalFile();}catch(java.io.IOException|SecurityException unresolved){c.truncated=true;c.incompleteReasons.add("ROOT_CANONICAL_PATH_UNRESOLVED");c.sampleFinishedAt=System.currentTimeMillis();return c;}
+        Deque<Object[]> stack = new ArrayDeque<>(); stack.push(new Object[]{canonicalRoot, "", 0});
         while (!stack.isEmpty()) {
             Object[] it = stack.pop(); File f = (File) it[0]; String rel = (String) it[1]; int depth = (Integer) it[2];
             if(Thread.currentThread().isInterrupted()){c.truncated=true;c.incompleteReasons.add("CANCELLED");break;}

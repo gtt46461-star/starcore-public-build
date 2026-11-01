@@ -555,6 +555,17 @@
         "tools/r30-repair/publish_verified.py"
       ],
       "reason": "先登记：原签名CI全部build/Android/CP06+CP16覆盖回滚再升级成功后才发布同源同证书APK。校验188真实截图索引和所有升级数据保全pass，公开小型交付回执与永久下载；无用户数据/模型/密钥发布，Vivo72h与自然质量明确未证明。"
+    },
+    {
+      "id": "FR-B10-01-canonical-root-proof",
+      "card": "FR-B10-01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+        "app/src/test/java/com/ethk3/novaonepro/RepairStorageCensusR30Test.java",
+        "release/release_manifest.json",
+        "evidence/r30-repair/B11/Q08_FINAL_MECHANISM.json"
+      ],
+      "reason": "先登记：实际编译类+临时目录原生文件复现根别名13字节被漏计为0/INCOMPLETE。只规范化普查根一次，子目录链接仍拒绝，无法解析根明确不完整；新增真实root alias反例。后续候选002高于001，最终算法包未变，保留20次完整Q08算法源哈希边界。"
     }
   ]
 }
