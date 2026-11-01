@@ -135,7 +135,7 @@ jobs:
           ram-size: 4096M
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
-          script: adb root && adb wait-for-device && adb install $(find candidate -name '*.apk' -print -quit) && adb install -t $(find androidtest -name '*.apk' -print -quit) && python3 scripts/probe_r13_startup.py --installed && bash tools/r30-repair/run_android_regression.sh evidence/r30/android-regression && bash tools/r30/run_fault_matrix.sh evidence/r30/fault-matrix && bash tools/r30-repair/run_research_fault_matrix.sh evidence/r30/research-fault-matrix
+          script: bash tools/r30-repair/prepare_emulator.sh && adb install $(find candidate -name '*.apk' -print -quit) && adb install -t $(find androidtest -name '*.apk' -print -quit) && python3 scripts/probe_r13_startup.py --installed && bash tools/r30-repair/run_android_regression.sh evidence/r30/android-regression && bash tools/r30/run_fault_matrix.sh evidence/r30/fault-matrix && bash tools/r30-repair/run_research_fault_matrix.sh evidence/r30/research-fault-matrix
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -183,7 +183,7 @@ jobs:
           ram-size: 4096M
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
-          script: bash tools/r30/run_upgrade_drill.sh $(find candidate -name '*.apk' -print -quit) EXISTING_R27 ${{ matrix.checkpoint }} evidence/r30/upgrade-EXISTING_R27-${{ matrix.checkpoint }}
+          script: bash tools/r30-repair/prepare_emulator.sh && bash tools/r30/run_upgrade_drill.sh $(find candidate -name '*.apk' -print -quit) EXISTING_R27 ${{ matrix.checkpoint }} evidence/r30/upgrade-EXISTING_R27-${{ matrix.checkpoint }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -211,6 +211,10 @@ jobs:
         with:
           pattern: R30-REPAIR1-R27-UPGRADE-*
           path: verified-upgrades
+      - uses: actions/download-artifact@v4
+        with:
+          name: R30-REPAIR1-R27-HOST-EVIDENCE
+          path: verified-host
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -222,4 +226,4 @@ jobs:
       - name: Publish only the exact independently verified same-certificate candidate
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 tools/r30-repair/publish_verified.py --source '${{ needs.build.outputs.source }}' --candidate verified-candidate --android verified-android --upgrades verified-upgrades
+        run: python3 tools/r30-repair/publish_verified.py --source '${{ needs.build.outputs.source }}' --candidate verified-candidate --android verified-android --upgrades verified-upgrades --host verified-host
