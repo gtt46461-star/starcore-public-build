@@ -104,7 +104,7 @@
         "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
         "tools/r30-repair/run_writer_host.py"
       ],
-      "reason": "原按issue唯一时间线历史只读保留；新增一张事件实例遥测表，由原SchemaR27唯一创建，与六张研究物化表分属遥测/研究合同，不新增业务写者。DRAW绑定原HTTP request+drawHash，PREDICTION绑定原attempt，角色LIVE/BACKFILL/REPLAY分开。原R925响应账加实际接收单调钟和clock scope，由其原SchemaRevisionR925创建。禁止用墙钟回算单调钟；真实内核boot ID不可读则进程范围保守降级。原事务内仅补遥测，不改变正式结算/REAL/资格/冻结Owner，负差、跨boot、重复及缺失不剪裁。先登记后施工。提交后时间只在实际COMMIT和原写者返回后采样，以有界pending由原遥测任务重试落库；未落库遇进程死亡保持UNKNOWN。源码审计发现核心结算endTransaction异常被吞，会错误返回success；依B02-05改为回传失败，与既有R36事务规则一致，不改变正式结算数学。"
+      "reason": "原按issue唯一时间线升级成事件实例存储；同一原schemaOwner事务复制并逐列EXCEPT验证原字段，原表名保留兼容视图及INSTEAD OF触发器，物理表净增0，保持方案总共只新增6张研究物化表。旧API读写仅作用LEGACY_MIXED原件，不能污染新LIVE/BACKFILL事件。DRAW绑定原HTTP request+drawHash，PREDICTION绑定原attempt，实际响应单调钟持久化且不由墙钟倒推；实际kernel boot不可读则进程范围保守降级。提交后时间在实际COMMIT返回且释放原writer后采样，有界pending由原遥测任务重试，进程死亡未落库保持UNKNOWN。原结算endTransaction异常不再吞掉。原业务数学、REAL与资格Owner不改。先登记后施工；迁移/回滚/旧SQL兼容必须由原生SQLite测试核验。"
     },
     {
       "id": "FR-B02-05-a",
