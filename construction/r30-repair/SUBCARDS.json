@@ -75,6 +75,15 @@
         "app/src/test/java/com/ethk3/novaonepro/FtrlWriteTraceR30Test.java"
       ],
       "reason": "给原FTRL事务加线程局部定长分段计时，事务结束后才发布有界进程遥测，不在数据库锁内请求遥测监视器。原事件与artifact同事务、索引所有权不改。EXPLAIN在事务外只读采集既有索引的真实计划；报告进程观察与SQLite同快照/24h验收区分。缺真实大库和设备复测不声称达标。先登记后施工。"
+    },
+    {
+      "id": "FR-B02-03-a",
+      "card": "FR-B02-03",
+      "files": [
+        "tools/r30-repair/qual_host/RepairRetentionR30HostTest.java",
+        "tools/r30-repair/run_retention_host.py"
+      ],
+      "reason": "在实际生产类和原生SQLite中验证固定源键集的折叠、原充分统计、同事务回滚/重试、单阶段恢复以及保护模型原件；HOST不替代Android设备。旧prune API保留全循环兼容，生产任务每次只做一个维护阶段并在同事务持久化阶段。先登记后施工。"
     }
   ]
 }
