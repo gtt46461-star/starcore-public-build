@@ -53,5 +53,5 @@ public final class ReportChartsR30 {
         Object total=in.facts.get("registeredCapabilities");if(!(total instanceof Number)||((Number)total).longValue()!=rows||unknown>0)out.put("status","UNKNOWN_INCOMPLETE_REGISTRY");return out;
     }
     public static List<Map<String,Object>> panels(ReportR27.R30Input in){return Arrays.asList(evolution(in),capabilities(in));}
-    public static Map<String,Object> packet(ReportR27.R30Input in){List<Map<String,Object>> panels=panels(in);Map<String,Object> out=new LinkedHashMap<>();out.put("version","R30_CHART_SNAPSHOT_1");out.put("snapshotWatermark",in.watermark);out.put("commonMetrics",panels.get(0).get("commonMetrics"));out.put("panels",panels);return out;}
+    public static Map<String,Object> packet(ReportR27.R30Input in){List<Map<String,Object>> panels=panels(in);Map<String,Object> out=new LinkedHashMap<>();out.put("version","R30_CHART_SNAPSHOT_1");out.put("snapshotWatermark",in.watermark);out.put("commonMetrics",panels.get(0).get("commonMetrics"));out.put("panels",panels);out.put("researchWorkbench",in.data.get("objectIndex") instanceof Map?((Map<?,?>)in.data.get("objectIndex")).get("researchCharts"):null);out.put("researchFrameIndex",in.data.get("repairFrameIndex"));out.put("chartTotalContract",47);out.put("mountedViewLimit",40);return out;}
 }
