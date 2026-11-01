@@ -1,5 +1,5 @@
 """CI only: publish the exact R27-signed candidate after all dependent jobs succeeded."""
-import argparse,hashlib,json,os,pathlib,re,subprocess
+import argparse,hashlib,json,os,pathlib,re,subprocess,zipfile
 p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--candidate',type=pathlib.Path,required=True);p.add_argument('--android',type=pathlib.Path,required=True);p.add_argument('--upgrades',type=pathlib.Path,required=True);a=p.parse_args()
 def run(cmd):return subprocess.check_output(list(map(str,cmd)),text=True)
 def unique(root,name):
@@ -26,5 +26,16 @@ tag='r30-repair1-'+str(row['versionCode'])+'-'+a.source[:12]
 notes=out/'RELEASE_NOTES.md';notes.write_text('R30返修候选，原R27证书，同包覆盖升级。\n\n源码：'+a.source+'\n\n47项四显示场景188截图、原14故障格和新研究链12故障格，以及CP06/CP16覆盖→回滚→再升级的数据保全已在Android模拟器通过。缺少原始分析或收益证据的图仍显示不足。\n\nV2353A/72小时、原用户大库重测与自然质量尚未证明，不能视为百分百质量闭环。原51项lint基线保留，新lint错误必须为0。\n')
 repo=os.environ.get('GITHUB_REPOSITORY','gtt46461-star/starcore-public-build')
 files=[apk,out/'delivery.json',out/'SHA256SUMS.txt',out/'public-certificate.txt',out/'ACCEPTANCE.json']
+# Public delivery evidence contains only synthetic Activity PNGs and validated receipt JSONs.
+# No logs, databases, credentials or signing material are included.
+gallery=sorted(a.android.rglob('*.png'));assert len(gallery)==188
+proof_zip=out/'ANDROID_ACCEPTANCE_EVIDENCE.zip'
+with zipfile.ZipFile(proof_zip,'w',compression=zipfile.ZIP_DEFLATED) as bundle:
+ for file in gallery:bundle.write(file,'android/'+str(file.relative_to(a.android)))
+ for name in ('repair-chart-acceptance.json','regression.json','matrix.json','research-fault-matrix.json','states.json'):
+  for file in a.android.rglob(name):bundle.write(file,'android/'+str(file.relative_to(a.android)))
+ for file in a.upgrades.rglob('*.json'):
+  if file.name in ('upgrade.json','rollback.json','reupgrade.json'):bundle.write(file,'upgrade/'+str(file.relative_to(a.upgrades)))
+files.append(proof_zip)
 subprocess.run(['gh','release','create',tag,*map(str,files),'--repo',repo,'--target',a.source,'--title','STARCORE R30 返修 '+str(row['versionCode']),'--notes-file',str(notes)],check=True)
 print(json.dumps({'release':'https://github.com/'+repo+'/releases/tag/'+tag,'apk':'https://github.com/'+repo+'/releases/download/'+tag+'/'+apk.name,'source':a.source},ensure_ascii=False))

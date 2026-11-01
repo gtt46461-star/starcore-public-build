@@ -659,6 +659,16 @@
         "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskProgressR30R1.java"
       ],
       "reason": "先登记：对照真实DbStore冷启动仅critical域，新增研究故障夹具消费原EvolutionSink还依赖r26_evolution，必须按原RuntimeSchemaR26 owner先初始化，不依赖测试执行顺序；另修报告scope字符串遗留plus2与真实ADDITIONAL.size3不一致，数字统计原本正确。"
+    },
+    {
+      "id": "FR-B11-01-actual-android-exit-and-reviewable-gallery",
+      "card": "FR-B11-01",
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30RepairChartsAndroidTest.java",
+        "tools/r30-repair/run_android_regression.sh",
+        "tools/r30-repair/publish_verified.py"
+      ],
+      "reason": "先登记：CI41351748149实际通过原17项及116截图，新工作台在finally中finish后立即assert线程shutdown失败，且可能遮盖前一原始失败。等待真实onDestroy并检查executor终止，保留原错误+cleanup suppressed；失败也拉取已有截图。成功发布时加入188实际PNG及校验JSON公开证据ZIP，方便合法下载复核，不接触密钥。"
     }
   ]
 }

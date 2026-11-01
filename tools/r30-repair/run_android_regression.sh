@@ -19,8 +19,10 @@ adb shell am force-stop "$app_id"
 adb logcat -c
 adb shell am instrument -w -r -e class com.ethk3.novaonepro.R30RepairChartsAndroidTest -e r30Sandbox "repair-chart-${GITHUB_RUN_ID:-local}" "$app_id.test/com.ethk3.novaonepro.R30FaultAndroidRunner" > "$out/workbench.txt" 2>&1
 adb logcat -d -v threadtime > "$out/workbench-logcat.txt"
+pull_status=0
+adb pull "/sdcard/Android/data/$app_id/files/r30-repair-chart-regression" "$out/workbench-screenshots" > "$out/workbench-pull.txt" 2>&1 || pull_status=$?
 grep -Fq 'OK (1 test' "$out/workbench.txt" || { cat "$out/workbench.txt"; exit 1; }
-adb pull "/sdcard/Android/data/$app_id/files/r30-repair-chart-regression" "$out/workbench-screenshots" > "$out/workbench-pull.txt" 2>&1
+[[ $pull_status == 0 ]] || { cat "$out/workbench-pull.txt"; exit 1; }
 python3 - "$out" <<'PY'
 import pathlib,json,hashlib,sys,subprocess
 root=pathlib.Path(sys.argv[1]);images=sorted((root/'workbench-screenshots').rglob('*.png'));assert len(images)==72,len(images)
