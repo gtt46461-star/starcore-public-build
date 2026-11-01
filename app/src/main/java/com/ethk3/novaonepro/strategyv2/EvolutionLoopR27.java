@@ -70,7 +70,7 @@ public final class EvolutionLoopR27 {
     ResearchContextR30R1 researchContext;
     List<ResearchStoreR30R1.Ready> directedResearch=Collections.emptyList();
     void revalidateResearchAdmissions(android.database.sqlite.SQLiteDatabase db){for(Pending p:pending)if(p.researchProposal!=null){try(android.database.Cursor c=db.rawQuery("SELECT p.state,r.source_revision,r.source_commit,r.summary_json FROM r30r1_proposal p JOIN r30r1_analysis_run r ON r.run_id=p.run_id WHERE p.proposal_id=?",new String[]{p.researchProposal})){if(!c.moveToFirst()||!"READY".equals(c.getString(0))||ResearchInputPinR30R1.invalid(db,ctx.data.datasetHash)||ResearchInputPinR30R1.revision(db,ctx.data.datasetHash)!=c.getLong(1)||!ResearchStoreR30R1.currentSource(c.getString(2),c.getString(3))){p.state="RESEARCH_STALE";p.reason="SOURCE_OR_PROPOSAL_CHANGED_BEFORE_ORIGINAL_GATE";}}}}
-    void stageResearchHypotheses(ResearchWriteQueueR27.Batch b,long now){if(researchContext==null)return;for(Pending p:pending)if(p.researchProposal==null)p.researchProposal=ResearchContextR30R1.stage(b,p.spec,ctx.data.datasetHash,researchContext.revision,now);}
+    void stageResearchHypotheses(ResearchWriteQueueR27.Batch b,long now){if(researchContext==null)return;researchContext.appendBudgetReceipt(b,generation,ctx.data.ordinals[ctx.split.selectFrom],ctx.data.ordinals[ctx.split.selectTo-1]);for(Pending p:pending)if(p.researchProposal==null)p.researchProposal=ResearchContextR30R1.stage(b,p.spec,ctx.data.datasetHash,researchContext.revision,now);}
     void commitResearchAdmissions(ResearchWriteQueueR27.Batch batch,long now){for(Pending p:pending)if(p.researchProposal!=null){
         if("BORN".equals(p.state))ResearchStoreR30R1.consume(batch,p.researchProposal,p.spec.policyHash(),generation,"ORIGINAL_BIRTH_GATE_R30_REPAIR1",now);
         else batch.add("UPDATE r30r1_proposal SET state=?,reason=? WHERE proposal_id=? AND state='READY'","RESEARCH_STALE".equals(p.state)?"STALE":"REJECTED",p.state+":"+p.reason,p.researchProposal);
@@ -169,14 +169,15 @@ public final class EvolutionLoopR27 {
 
     void stepBirth() {
         IdeaFamilyR27.Context ic = ideaContext(); int total = cfg.births;
+        if(researchContext!=null)opWeights=researchContext.weights(opWeights);
         // Every registered main family gets the minimum; a bonus (≤4× minimum) follows recent survivors.
         int familyCount = FAMILIES.length - 1;
         int minTotal = cfg.minPerFamily * familyCount, bonusPool = Math.max(0, Math.min(total / 4, total - minTotal));
-        int survivors = 0; for (int v : familySurvivors.values()) survivors += v;
+        int survivors = 0; Map<String,Integer> researchCredit=new HashMap<>();for(IdeaFamilyR27 family:FAMILIES){int credit=researchContext==null?0:researchContext.familyCredit(family.id());researchCredit.put(family.id(),credit);survivors+=credit;}
         List<PolicySpecR27> births = new ArrayList<>();
         for (int f = 1; f < FAMILIES.length; f++) {
             int n = cfg.minPerFamily;
-            if (survivors > 0) n += Math.min(cfg.minPerFamily * 4, (int) Math.round(bonusPool * familySurvivors.getOrDefault(FAMILIES[f].id(), 0) / (double) survivors));
+            if (survivors > 0) n += Math.min(cfg.minPerFamily * 4, (int) Math.round(bonusPool * researchCredit.getOrDefault(FAMILIES[f].id(), 0) / (double) survivors));
             for (int i = 0; i < n; i++) births.add(FAMILIES[f].propose(rng, ic));
         }
         // Experts can propose a complete new program without a surviving parent. Reserve their requested share

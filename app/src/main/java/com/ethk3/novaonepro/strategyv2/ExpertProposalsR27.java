@@ -15,17 +15,21 @@ public final class ExpertProposalsR27 {
         {"E13", "稳定性与漂移"}, {"E14", "资源与编译"}, {"E15", "资格与主链"}, {"E16", "诊断与复现实验"}};
 
     public static final class Proposal {
+        public java.util.Map<String,Object> sourceInputs=java.util.Collections.emptyMap();
         public final String expert, failureCluster, hypothesis, structuralChange, mechanism, refutation; public final PolicySpecR27 spec;
         Proposal(String e, String c, String h, String s, String m, String r, PolicySpecR27 spec) { expert = e; failureCluster = c; hypothesis = h; structuralChange = s; mechanism = m; refutation = r; this.spec = spec; }
         public String json() {
             java.util.Map<String, Object> m = new java.util.LinkedHashMap<>();
             m.put("expert", expert); m.put("failureCluster", failureCluster); m.put("hypothesis", hypothesis); m.put("structuralChange", structuralChange);
-            m.put("mechanism", mechanism); m.put("refutation", refutation); m.put("policyHash", spec == null ? null : spec.policyHash());
+            m.put("sourceInputs",sourceInputs);m.put("executableAst",spec==null?null:spec.ast.toString());m.put("researchSourceRuns",spec==null?java.util.Collections.emptyList():ResearchContextR30R1.references(spec));m.put("mechanism", mechanism); m.put("refutation", refutation); m.put("policyHash", spec == null ? null : spec.policyHash());
             return JsonR27.write(m);
         }
     }
 
     public static List<Proposal> propose(String expert, IdeaFamilyR27.Context ctx, StatsR27.SplitMix r) {
+        if(ctx.research!=null)ctx.research.begin();List<Proposal> out=proposeInternal(expert,ctx,r);List<Proposal> result=new ArrayList<>();for(Proposal p:out){PolicySpecR27 spec=ctx.research==null?p.spec:ctx.research.annotate(p.spec);Proposal bound=new Proposal(p.expert,p.failureCluster,p.hypothesis,p.structuralChange,p.mechanism,p.refutation,spec);java.util.Map<String,Object> evidence=new java.util.LinkedHashMap<>();evidence.put("role","SELECT");evidence.put("datasetHash",ctx.evaluation==null?null:ctx.evaluation.data.datasetHash);evidence.put("failureProfile",ctx.champion==null?null:FailureProfileR30.forParent(ctx.champion,ctx).json());evidence.put("parentHash",ctx.champion==null?null:ctx.champion.policyHash());evidence.put("status",ctx.champion==null?"EXPLORATORY_HYPOTHESIS_WITHOUT_PARENT_FAILURE_PROOF":"DEVELOPMENT_FAILURE_HYPOTHESIS_NOT_QUALITY_PROOF");bound.sourceInputs=java.util.Collections.unmodifiableMap(evidence);result.add(bound);}return result;
+    }
+    private static List<Proposal> proposeInternal(String expert, IdeaFamilyR27.Context ctx, StatsR27.SplitMix r) {
         PolicySpecR27 champ = ctx.champion; int g = ctx.generation;
         String cluster = ctx.failureCluster == null || ctx.failureCluster.isEmpty() ? "NONE" : ctx.failureCluster;
         int tp = champ == null ? IdeaFamilyR27.Grow.pos(r) : champ.position;
@@ -37,7 +41,7 @@ public final class ExpertProposalsR27 {
                 if (ctx.legacySeeds.isEmpty()) return audit(expert, cluster, "旧资产种子为空：缺少原状态时记UNKNOWN，不捏造复现");
                 PolicySpecR27 seed = ctx.legacySeeds.get(r.nextInt(ctx.legacySeeds.size()));
                 return one(expert, cluster, "旧高分若可复现，应在回放上保持", "导入旧资产程序", "原执行器逐期一致", refute, seed.withMeta(meta(expert, g, r, "旧资产复现", seed)));
-            case "E03": ast = PolicyAstR27.op("if", PolicyAstR27.leaf("regime", 512), PolicyAstR27.constant(0.1), base.ast, PolicyAstR27.op("zscore", PolicyAstR27.leaf("trans1"))); hyp = "全局弱但特定重复体制下有结构"; change = "加入状态窗口门控"; mech = "体制内条件分布不同"; break;
+            case "E03": ast = PolicyAstR27.op("if", PolicyAstR27.leaf("regime",ctx.research==null?512:ctx.research.window(r,512)), PolicyAstR27.constant(0.1), base.ast, PolicyAstR27.op("zscore", PolicyAstR27.leaf("trans1"))); hyp = "全局弱但特定重复体制下有结构"; change = "加入状态窗口门控"; mech = "体制内条件分布不同"; break;
             case "E04": ast = PolicyAstR27.op("sub", PolicyAstR27.op("zscore", PolicyAstR27.leaf("freq", tp, 32)), PolicyAstR27.op("zscore", PolicyAstR27.leaf("freq", tp, 2048))); hyp = "短长尺度意见相反时短期偏离回归"; change = "短长窗口差分"; mech = "多尺度回归"; break;
             case "E05": ast = PolicyAstR27.op("add", PolicyAstR27.op("zscore", base.ast), PolicyAstR27.op("zscore", PolicyAstR27.leaf("crosscond", 1 + (tp % 10)))); hyp = "相邻位置上期号码影响本位"; change = "加入跨位置条件转移项"; mech = "跨位置依赖"; break;
             case "E06": ast = PolicyAstR27.op("rank", base.ast); hyp = "三元组丢失源于分数尺度不稳"; change = "排名化整体分数"; mech = "集合评分稳健化"; break;
@@ -46,8 +50,7 @@ public final class ExpertProposalsR27 {
             case "E09": ast = PolicyAstR27.op("if", PolicyAstR27.leaf("regime", 128), PolicyAstR27.constant(0.1), base.ast, PolicyAstR27.op("neg", PolicyAstR27.op("zscore", base.ast))); hyp = "特定状态反复失误"; change = "失败状态下反向残差分支"; mech = "定向残差修复"; break;
             case "E10":
                 if (ctx.archive.size() < 2) return audit(expert, cluster, "档案成员不足2个，无法互补融合");
-                PolicySpecR27 a = ctx.archive.get(r.nextInt(ctx.archive.size())), b = ctx.archive.get(r.nextInt(ctx.archive.size()));
-                ast = PolicyAstR27.op("mix", 0.5, PolicyAstR27.op("zscore", a.ast), PolicyAstR27.op("zscore", b.ast)); hyp = "低相关专家互补"; change = "两成员等权融合"; mech = "互补降低共同失误"; base = a; break;
+                if(ctx.evaluation==null)return audit(expert,cluster,"缺少同目标配对评价输入");PolicySpecR27 fused=FusionOpsR27.fuse(ctx.archive,ctx.evaluation,r,g);if(fused==null)return audit(expert,cluster,"同目标残差或配对增益证据不足，融合未产出");return one(expert,cluster,"同目标父代互补研究", "TRAIN拟合的新融合身份", "原SELECT同期proper增益",refute,fused.withMeta(new PolicySpecR27.Meta("EXPERT:E10","EXPERT_PROPOSAL",fused.meta.parents,g,r.state,fused.meta.reason)));
             case "E11": return one(expert, cluster, "子代从零学习过慢", "继承父代更新器并加大学习率", "状态迁移", refute,
                     base.withUpdater(Math.min(0.2, base.lr * 2 + 0.005), base.forget, meta(expert, g, r, "学习状态迁移：学习率加倍", base)));
             case "E12": return one(expert, cluster, "高分高频窗口反而低命中", "提高出手阈值", "选择后校准", refute,
