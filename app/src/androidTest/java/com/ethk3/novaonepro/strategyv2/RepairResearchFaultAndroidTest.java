@@ -31,7 +31,7 @@ public final class RepairResearchFaultAndroidTest {
     static final class Fixture {
         final EvalContextR27 ctx;final PairedReplayRunnerR30R1 runner;final ResearchWriteQueueR27.Batch analysis;final DbStore store;
         Fixture(DbStore s){
-            store=s;s.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R30_REPAIR_FAULT_SCHEMA",db->{SchemaR27.ensure(db);db.execSQL("CREATE TABLE IF NOT EXISTS r30_repair_fault_disk(id INTEGER PRIMARY KEY,payload BLOB)");return 0;});
+            store=s;s.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R30_REPAIR_FAULT_SCHEMA",db->{RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);db.execSQL("CREATE TABLE IF NOT EXISTS r30_repair_fault_disk(id INTEGER PRIMARY KEY,payload BLOB)");return 0;});
             ReplayDatasetR27 raw=ReplayDatasetR27.synthetic(6000,841,new int[0]).planted(.85,842);List<ReplayDatasetR27.Row> rows=new ArrayList<>();long start=TargetIssueResolver.sequenceOrdinalSU1("202610240001");
             for(int i=0;i<raw.size();i++)rows.add(new ReplayDatasetR27.Row(TargetIssueResolver.fromSequenceOrdinalSU1(start+i),start+i,raw.draws[i]));
             ReplayDatasetR27 data=ReplayDatasetR27.of(rows);ctx=new EvalContextR27(new FeatureCacheR27(data),SplitR27.of(data,null),null);

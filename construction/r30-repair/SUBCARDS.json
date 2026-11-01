@@ -650,6 +650,15 @@
         "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairResearchFrameBoundR30Test.java"
       ],
       "reason": "先登记：联合合同复核发现生产帧投影允许180边，但原方案和实际手机读取上限都是120，会产生已存帧却无法显示。生产投影统一120，超限明确要求分页，完整原机读证据不变；验证120通过121拒绝且不改原件。"
+    },
+    {
+      "id": "FR-B11-01-new-android-fixture-schema-and-scope",
+      "card": "FR-B11-01",
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/RepairResearchFaultAndroidTest.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskProgressR30R1.java"
+      ],
+      "reason": "先登记：对照真实DbStore冷启动仅critical域，新增研究故障夹具消费原EvolutionSink还依赖r26_evolution，必须按原RuntimeSchemaR26 owner先初始化，不依赖测试执行顺序；另修报告scope字符串遗留plus2与真实ADDITIONAL.size3不一致，数字统计原本正确。"
     }
   ]
 }
