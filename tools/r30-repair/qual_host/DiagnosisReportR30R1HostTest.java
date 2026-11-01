@@ -13,6 +13,7 @@ public final class DiagnosisReportR30R1HostTest {
             SQLiteDatabase db=new SQLiteDatabase(connection);
             Map<String,Object> missing=report(db);need("READ_SNAPSHOT".equals(missing.get("failureStage")),"real missing SQLite source");need(missing.get("snapshotHash")==null,"no fabricated input hash");
             db.execSQL("CREATE TABLE su2_diag_snapshot(report_sequence INTEGER PRIMARY KEY,snapshot TEXT)");
+            db.execSQL("CREATE TABLE su2_diag_state(singleton INTEGER PRIMARY KEY,ledger_text TEXT)");
             need(!report(db).containsKey("failureStage"),"readable empty table is insufficient, not failed");
             String input="SU2DIAG\t1\ndataset\tSYNTHETIC_STAGE_TEST\nseq\t2000\nprobe\tCONTMAT\t-\t\n";
             db.execSQL("INSERT INTO su2_diag_snapshot VALUES(1,?)",new Object[]{input});

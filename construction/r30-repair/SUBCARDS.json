@@ -17,6 +17,26 @@
         "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30DiagnosisRulesTest.java"
       ],
       "reason": "对真实writerHard诊断增加必须映射M07且不能误归M11的原JUnit反例，验证度量口径修复。"
+    },
+    {
+      "id": "FR-B01-04-a",
+      "card": "FR-B01-04",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportChartsR30.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairReportFactsR30Test.java"
+      ],
+      "reason": "在不可变R30Input捕获边界只构造一次当前44指标，12章、图表共用相同MetricResult；旧R29评价API只读保留。增加反例验证空源、失败、负证据、分母和版本不混用。先登记后施工。"
+    },
+    {
+      "id": "FR-B01-05-a",
+      "card": "FR-B01-05",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairReportIndexR30Test.java"
+      ],
+      "reason": "完整索引由只读原始注册表生成，29旧图18研究图20矩阵82能力逐项保留六状态与来源。上次摘要仅在已验证ZIP发布READY_TO_SHARE后原子保存，按jobId去重，同版本对象角色才比较；不读写签名材料、不新增数据库写者。先登记后施工。"
     }
   ]
 }
