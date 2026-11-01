@@ -198,6 +198,7 @@ public final class QualificationInboxR29 {
                         new Object[] {id, x.row.ordinal, x.row.issue, x.act ? 1 : 0, x.act ? (x.hit ? 1 : 0) : -1, x.u, x.digest, x.stateAfter, now});
             db.execSQL("UPDATE r27_eprocess SET log_e_up=?,log_e_down=?,n=?,acts=?,hits=?,sum_u=?,sum_u2=?,last_ordinal=?,state=?,updated_at=? WHERE policy_hash=?",
                     new Object[] {s.logUp, s.logDown, s.n, s.acts, s.hits, s.sumU, s.sumU2, s.lastOrdinal, s.state, now, id});
+            if(!p.consumed.isEmpty())QualificationGapRepairR30R1.markReplayWithin(db,id,p.consumed.get(0).row.ordinal,s.lastOrdinal);
             if (SequentialQualificationR27.QUALIFIED.equals(s.state)) db.execSQL(StoreR27.R26_EVOLUTION_QUALIFIED, new Object[] {id});
             if (SequentialQualificationR27.NOT_BETTER.equals(s.state))
                 db.execSQL("UPDATE r27_live_shadow SET status='RETIRED_TO_ARCHIVE',reason='SEQUENTIAL_TEST_NOT_BETTER_THAN_TARGET',updated_at=? WHERE policy_hash=? AND status='ACTIVE'", new Object[] {now, id});

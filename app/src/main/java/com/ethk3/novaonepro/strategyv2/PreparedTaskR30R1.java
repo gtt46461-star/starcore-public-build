@@ -8,7 +8,7 @@ final class PreparedTaskR30R1 implements AutoCloseable {
     volatile RuntimeCoordinatorR26.Claim claim;
     PreparedTaskR30R1(ResearchPoolR27.Task task,ResearchPoolR27.Worker worker,RuntimeCoordinatorR26.Claim claim){
         this.task=task;this.worker=worker;this.claim=claim;
-        continuation=new CooperativeContinuationR26<>("starcore-r30-prepared-"+task.id(),()->task.step(worker),()->worker.cancelled(),()->RuntimeCoordinatorR26.bindBackgroundClaim(this.claim),()->android.os.SystemClock.currentThreadTimeMillis()*1000000L,"r30-r27:"+claim.owner);
+        continuation=new CooperativeContinuationR26<>("starcore-r30-prepared-"+task.id(),()->{android.os.Process.setThreadPriority(ResearchPoolR27.BACKGROUND_PRIORITY);return task.step(worker);},()->worker.cancelled(),()->RuntimeCoordinatorR26.bindBackgroundClaim(this.claim),()->android.os.SystemClock.currentThreadTimeMillis()*1000000L,"r30-r27:"+claim.owner);
     }
     ResearchPoolR27.Outcome slice()throws Exception{
         CooperativeContinuationR26.Slice<ResearchPoolR27.Outcome> slice=continuation.slice(200);

@@ -307,7 +307,7 @@ public final class R27QualityTest {
         String evo = new String(Files.readAllBytes(new File(dir, "EvolutionLoopR27.java").toPath()), "UTF-8");
         assertTrue("replay is serial while P0 runs", evo.contains("if (executor == null || (serialWhile != null && serialWhile.getAsBoolean()))"));
         String rt = new String(Files.readAllBytes(new File(dir, "RuntimeR27.java").toPath()), "UTF-8");
-        assertTrue("evolution also honors the pool's thermal/P0/deadline guard", rt.contains("evo.serialWhile = () -> pool.narrow(System.currentTimeMillis());"));
+        assertTrue("evolution also honors the pool's thermal/P0/deadline guard", rt.contains("loop.serialWhile=()->pool.narrow(System.currentTimeMillis());")&&rt.contains("loop.executor=null;"));
         R27TestSupport.log("R27_2_RESEARCH_PRIORITY_PASS");
     }
 

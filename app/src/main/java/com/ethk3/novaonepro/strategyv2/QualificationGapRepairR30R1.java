@@ -9,6 +9,10 @@ import java.util.*;
 public final class QualificationGapRepairR30R1 {
     private QualificationGapRepairR30R1(){}
     public static final String PANEL="r30-qualification-gap",SEALED="SEALED_MISSING_OPPORTUNITY";
+    private static final java.util.concurrent.atomic.AtomicLong FAILURES=new java.util.concurrent.atomic.AtomicLong();private static volatile String lastFailureType;
+    public static void observeFailure(RuntimeException failure){lastFailureType=failure.getClass().getName();FAILURES.incrementAndGet();android.util.Log.w("STARCORE_R30","qualification original archive unavailable; original gap stays blocking: "+lastFailureType);}
+    public static Map<String,Object> failureObservation(){Map<String,Object> m=new LinkedHashMap<>();m.put("scope","CURRENT_PROCESS_OBSERVATION_NOT_DB_SNAPSHOT_NOT_UPTIME");m.put("failures",FAILURES.get());m.put("lastFailureType",lastFailureType);m.put("effect","Original gap remains blocking; archive failure cannot synthesize a forecast or authorize REAL");return m;}
+    static void markReplayWithin(SQLiteDatabase db,String experiment,long originalOrdinal,long through){String key=experiment+"|"+originalOrdinal;String original=text(db,"SELECT payload_json FROM r27_chart_cache WHERE panel_id=? AND key=?",PANEL,key);if(original==null)return;try{Map<String,Object> receipt=new LinkedHashMap<>(MetricEvaluatorR29.map(JsonR27.parse(original)));if(!"ORIGINAL_RESTORED_REPLAY_PENDING".equals(receipt.get("status")))return;receipt.put("status","ORIGINAL_RESTORED_CONTIGUOUS_PREFIX_ADVANCED");receipt.put("replayedThroughOrdinal",through);receipt.put("replayedAt",System.currentTimeMillis());db.execSQL("UPDATE r27_chart_cache SET payload_json=?,updated_at=? WHERE panel_id=? AND key=? AND payload_json=?",new Object[]{JsonR27.write(receipt),System.currentTimeMillis(),PANEL,key,original});}catch(RuntimeException invalid){observeFailure(invalid);}}
     static final String ARCHIVE="r30_keep_r27_live_frozen";
     static final String COLUMNS="policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at,hit,settled_at";
     static final int SLICE=64;

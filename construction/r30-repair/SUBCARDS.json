@@ -170,6 +170,16 @@
         "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java"
       ],
       "reason": "逐实验在既有不可变保全归档中每片64行查找原始predraw，持久保存扫描高水位和原件引用；原件恢复保持原值并由原连续消费者重放，无原件只封存受影响实验且原globalIndex/alpha/账本不改。归档不可读或缺证明则明确UNKNOWN，不能赛后造SKIP。控制新段使用新事前身份及递增全局预算序号。报告新增逐实验缺口处置与权威输入摘要，原GateV1阈值不变，V2仍仅would_issue。先登记后施工。"
+    },
+    {
+      "id": "FR-B03-05-b",
+      "card": "FR-B03-05",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedTaskR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java"
+      ],
+      "reason": "B05扩展回归发现原优先级测试仍引用evo公开实例的旧字符串。改为检查真实私有loop的同一narrow守卫，生产prepared任务自身显式设置原R27后台优先级；原R26 continuation hook不改。原测试不删、不放宽P0/deadline/thermal行为，保留失败日志。先登记后施工。"
     }
   ]
 }

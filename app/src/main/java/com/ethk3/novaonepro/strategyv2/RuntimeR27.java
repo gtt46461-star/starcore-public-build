@@ -110,7 +110,7 @@ public final class RuntimeR27 implements AutoCloseable {
             final ReplayDatasetR27 selectedData=selectedCache.data;
             if(loop.context().cache!=selectedCache)loop.rebind(selectedCache);
             ConfirmReadStoreR30.restore(w.ro,loop.ledger());
-            loop.executor=null;loop.serialWhile=()->true;loop.leafWeight=leafWeights();loop.derivedLeaves=derived;
+            loop.executor=null;loop.serialWhile=()->pool.narrow(System.currentTimeMillis());loop.leafWeight=leafWeights();loop.derivedLeaves=derived;
             String birthIssue = selectedData.issues[selectedData.size() - 1];
             StoreR27.EvolutionSink sink = new StoreR27.EvolutionSink(LOOP, birthIssue);
             loop.setSink(sink);
@@ -273,7 +273,7 @@ public final class RuntimeR27 implements AutoCloseable {
             w.writes().setNextDeadline(deadline);
             long units = LiveShadowsR27.settle(RuntimeR27.this, w, latestOrd);
             units += LiveShadowsR27.qualify(RuntimeR27.this, w, latestOrd);
-            units += QualificationGapRepairR30R1.step(w.ro,(operation,batch)->{submit(w,operation,batch);return true;});
+            try{units+=QualificationGapRepairR30R1.step(w.ro,(operation,batch)->{submit(w,operation,batch);return true;});}catch(RuntimeException sourceFailure){QualificationGapRepairR30R1.observeFailure(sourceFailure);}
             ensureControls(w);
             units += LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline);
             units += LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline, LiveShadowsR27.OBSERVE_STATES, false);
