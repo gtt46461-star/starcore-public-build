@@ -70,6 +70,7 @@ public final class ChartsActivityR83 extends Activity {
         tools.setAllCaps(false);
         tools.setOnClickListener(v -> toolsR27());
         root.addView(tools);
+        Button research=new Button(this);research.setText("研究工作台 · 18图（每组6图）");research.setOnClickListener(v->startActivity(new android.content.Intent(this,ResearchWorkbenchActivityR30R1.class)));root.addView(research);
         status = text("正在读取……", 13, muted);
         root.addView(status);
         ScrollView scroll = new ScrollView(this);

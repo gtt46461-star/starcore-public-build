@@ -78,23 +78,5 @@ public final class ModelSurfaceStoreR30 {
         }
     }
     static long count(SQLiteDatabase db,String sql){try(Cursor c=db.rawQuery(sql,null)){if(!c.moveToFirst())throw new IllegalStateException("MODEL_METRIC_UNAVAILABLE");return c.getLong(0);}}
-    public static Map<String,Object> report(SQLiteDatabase db){
-        Map<String,Object> m=new LinkedHashMap<>();
-        try{
-            long matched=count(db,"SELECT count(*) FROM r30_model_call WHERE status='MATCHED'"),blocked=count(db,"SELECT count(*) FROM r30_model_call WHERE status='BLOCKED'");
-            long orphan=count(db,"SELECT count(*) FROM r30_model_call c LEFT JOIN r27_live_frozen f ON f.policy_hash=c.policy_hash AND f.target_ordinal=c.target_ordinal AND f.status='FROZEN' WHERE c.status='MATCHED' AND (f.policy_hash IS NULL OR c.frozen_at<>f.frozen_at OR NOT EXISTS(SELECT 1 FROM r30_model_artifact a WHERE a.model_hash=c.model_hash) OR NOT EXISTS(SELECT 1 FROM r30_model_surface s WHERE s.target_ordinal=c.target_ordinal AND s.position=c.position AND s.model_hash=c.model_hash AND s.probability_hash=c.probability_hash))");
-            long expected=0,applicable=0,invalidSpecs=0;
-            try(Cursor policies=db.rawQuery("SELECT policy_hash,spec_json FROM r27_live_shadow WHERE spec_json LIKE '%model_surface%'",null)){while(policies.moveToNext()){
-                PolicySpecR27 policy;try{policy=PolicySpecR27.parse(policies.getString(1));}catch(RuntimeException invalid){invalidSpecs++;continue;}
-                int mask=policy.ast.modelPositions,n=Integer.bitCount(mask);if(n==0)continue;String id=policies.getString(0);
-                try(Cursor totals=db.rawQuery("SELECT count(*) FROM r27_live_frozen WHERE policy_hash=? AND status='FROZEN'",new String[]{id})){if(totals.moveToFirst())expected+=n*totals.getLong(0);}
-                String sql="SELECT count(*) FROM (SELECT DISTINCT f.target_ordinal,c.position FROM r27_live_frozen f JOIN r30_model_call c ON c.policy_hash=f.policy_hash AND c.target_ordinal=f.target_ordinal AND c.frozen_at=f.frozen_at WHERE f.policy_hash=? AND f.status='FROZEN' AND c.status='MATCHED' AND c.required_count="+n+" AND c.position BETWEEN 1 AND 10 AND ("+mask+" & (1 << (c.position-1)))<>0 AND EXISTS(SELECT 1 FROM r30_model_artifact a WHERE a.model_hash=c.model_hash AND a.feature_abi=?) AND EXISTS(SELECT 1 FROM r30_model_surface s WHERE s.target_ordinal=c.target_ordinal AND s.position=c.position AND s.model_hash=c.model_hash AND s.probability_hash=c.probability_hash))";
-                try(Cursor valid=db.rawQuery(sql,new String[]{id,AtomNetSessionR30.ABI})){if(valid.moveToFirst())applicable+=valid.getLong(0);}
-            }}
-            long missing=Math.max(0,expected-applicable),extra=Math.max(0,matched-applicable);
-            m.put("matchedCalls",matched);m.put("applicableMatchedCalls",applicable);m.put("expectedCallsFromActualAstPositions",expected);m.put("blockedCalls",blocked);m.put("orphanCalls",orphan);m.put("unexpectedOrRepeatedCalls",extra);m.put("missingCalls",missing);m.put("invalidPolicySpecs",invalidSpecs);m.put("matchingRatio",expected>0&&invalidSpecs==0?applicable/(double)expected:null);
-            m.put("status",orphan+missing+extra>0?"FAIL":invalidSpecs>0?"UNKNOWN_INVALID_SOURCE":expected>0?"MATCHED":blocked>0?"BLOCKED":"INSUFFICIENT");m.put("quality","MODEL_CONSUMPTION_ONLY_NO_QUALITY_CLAIM");
-            List<Object> reasons=new ArrayList<>();try(Cursor c=db.rawQuery("SELECT reason,count(*) FROM r30_model_call WHERE status='BLOCKED' GROUP BY reason ORDER BY count(*) DESC LIMIT 20",null)){while(c.moveToNext()){Map<String,Object> r=new LinkedHashMap<>();r.put("reason",c.getString(0));r.put("count",c.getLong(1));reasons.add(r);}}m.put("blockedReasons",reasons);
-        }catch(RuntimeException unavailable){m.put("status","INSUFFICIENT");m.put("reason",unavailable.getClass().getSimpleName());}return m;
-    }
+    public static Map<String,Object> report(SQLiteDatabase db){return ModelConsumptionCensusR30R1.report(db);}
 }

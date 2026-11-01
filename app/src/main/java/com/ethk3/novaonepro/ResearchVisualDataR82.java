@@ -36,11 +36,13 @@ public final class ResearchVisualDataR82 {
     }
     public static final class Panel {
         public final String page,title,kind,source,window,note,status;
+        public final List<String> matrixRows,matrixColumns;
         public final List<Point> points;
         public final List<Edge> edges;
         /** R27: horizontal reference lines (e.g. 30% baseline, luck ceiling) and series legend names. */
         public final List<Double> refs; public final List<String> series;
         public Panel(String page,String title,String kind,String source,String window,String note,String status,List<Point> points,List<Edge> edges,List<Double> refs,List<String> series) {
+            matrixRows=Collections.emptyList();matrixColumns=Collections.emptyList();
             this.page=safe(page);this.title=safe(title);this.kind=safe(kind);this.source=safe(source);
             this.window=safe(window);this.note=safe(note);this.status=safe(status);
             this.points=bounded(points,MAX_POINTS);this.edges=bounded(edges,MAX_EDGES);this.refs=bounded(refs,8);this.series=bounded(series,12);
@@ -49,10 +51,12 @@ public final class ResearchVisualDataR82 {
             this(page,title,kind,source,window,note,status,points,edges);
         }
         public Panel(String page,String title,String kind,String source,String window,String note,String status,List<Point> points,List<Edge> edges) {
+            matrixRows=Collections.emptyList();matrixColumns=Collections.emptyList();
             this.page=safe(page);this.title=safe(title);this.kind=safe(kind);this.source=safe(source);
             this.window=safe(window);this.note=safe(note);this.status=safe(status);
             this.points=bounded(points,MAX_POINTS);this.edges=bounded(edges,MAX_EDGES);this.refs=Collections.emptyList();this.series=Collections.emptyList();
         }
+        public Panel(Panel p,List<String> rows,List<String> columns){this.page=p.page;this.title=p.title;this.kind=p.kind;this.source=p.source;this.window=p.window;this.note=p.note;this.status=p.status;this.points=p.points;this.edges=p.edges;this.refs=p.refs;this.series=p.series;this.matrixRows=bounded(rows,120);this.matrixColumns=bounded(columns,120);if(!matrixRows.isEmpty()&&!matrixColumns.isEmpty()&&matrixRows.size()*matrixColumns.size()!=points.size())throw new IllegalArgumentException("MATRIX_AXIS_CELL_SHAPE");}
     }
     public static final class Dashboard {
         public final String page,status,asOfIssue,exactCandidate,candidateKey,dataVersion,sourceVersion,note,snapshotId;
