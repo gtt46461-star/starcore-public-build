@@ -251,7 +251,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         }
         if(!c.task.equals("retention")&&!store.coordinatorForResearchR952().isR811ResearchSchemaReady()){c.reason("WAITING_LEGACY_RESEARCH_SCHEMA:"+ResearchSchemaCoordinatorR926.summary());return 0;}
         // A persisted event cursor prevents repeated maintenance over unchanged evidence.
-        if(c.cursor>=seq)return 0;budget.checkpointOrYield();
+        if(c.cursor>=seq&&!c.task.equals("retention"))return 0;budget.checkpointOrYield();
         switch(c.task){
             case "kernel":KernelTransitionSU1.ensure(store,seq);break;
             case "shadow-recover":LiveShadowLoopSU1.recover(store,8);break;
@@ -265,14 +265,30 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             case "archive":ArchiveStoreSU1.maintain(store);break;
             case "diagnosis":MatrixStoreSU2.maintain(store,target);DiagnosisStoreSU2.maintain(store,target);break;
             case "retention":{
-                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_RETENTION",db->{requireFence(db,c);ResearchRetentionStoreR30.ensureProtected(db);RetentionRulesSU2.foldDecisions(db,seq+1,System.currentTimeMillis());RetentionRulesSU2.pruneResearchGenomes(db);RetentionR26.prune(db,seq+1);return 0;});
-                ResearchRetentionR30.Result retained=ResearchRetentionStoreR30.step(store,c);c.reason(retained.state);
-                if(retained.state.equals("MORE_RECOMPUTABLE_WORK"))return Math.max(1,retained.filesDeleted);
-                break;
+                return retentionStepR30(c,budget,seq);
             }
             case "daily-close":store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_DAILY_CLOSE",db->{requireFence(db,c);LiveShadowLoopSU1.closeDays(db,Integer.parseInt(latest.issue.substring(0,8)));return 0;});break;
             default:throw new IllegalStateException("R26_UNKNOWN_TASK:"+c.task);
         }
         c.completedEventCursor=seq;return 1;
+    }
+    /** One recoverable maintenance phase per service slice, never all old maintenance inside one writer. */
+    private long retentionStepR30(Claim claim,BudgetTokenSU1 budget,long latest)throws Exception{
+        SQLiteDatabase read=store.readable();try(Cursor c=read.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r27_chart_cache'",null)){if(!c.moveToFirst()){claim.reason("WAITING_R27_RETENTION_CHECKPOINT_SCHEMA");return 0;}}
+        RetentionR26.Checkpoint checkpoint=RetentionR26.checkpoint(read);if(checkpoint.phase==0&&checkpoint.lastCompletedSequence>=latest){claim.reason("WAITING_NEW_DRAW");return 0;}
+        long cycle=checkpoint.phase==0?latest:checkpoint.cycleSequence;
+        final RetentionRulesSU2.PreparedFold fold=checkpoint.phase==0?RetentionRulesSU2.prepareFold(read,cycle+1):null;
+        budget.checkpointOrYield();
+        if(checkpoint.phase==RetentionR26.PHASES_R30_REPAIR+2){ResearchRetentionR30.Result result=ResearchRetentionStoreR30.step(store,claim);claim.reason(result.state);if(result.state.equals("MORE_RECOMPUTABLE_WORK"))return Math.max(1,result.filesDeleted);}
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_RETENTION_PHASE_"+checkpoint.phase,db->{
+            requireFence(db,claim);RetentionR26.Checkpoint current=RetentionR26.checkpoint(db);if(!Objects.equals(checkpoint.original,current.original))throw new IllegalStateException("R30_RETENTION_PHASE_SOURCE_CHANGED");
+            ResearchRetentionStoreR30.ensureProtected(db);
+            if(checkpoint.phase==0)RetentionRulesSU2.commitFold(db,fold,System.currentTimeMillis());
+            else if(checkpoint.phase==1)RetentionRulesSU2.pruneResearchGenomes(db);
+            else if(checkpoint.phase<RetentionR26.PHASES_R30_REPAIR+2)RetentionR26.pruneStep(db,cycle+1,checkpoint.phase-2);
+            RetentionR26.commitCheckpoint(db,checkpoint,cycle,fold==null?null:fold.stepHash,fold==null?-1:fold.throughOrdinal);return 0;
+        });
+        // Legacy task cursor is a work counter here; typed progress in B03 separates it from the calendar.
+        claim.completedEventCursor=claim.cursor+1;claim.reason("COOPERATIVE_RETENTION_PHASE:"+checkpoint.phase);return 1;
     }
 }

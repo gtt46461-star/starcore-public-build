@@ -173,40 +173,47 @@ public final class LegacyPredrawContextBridgeR915 {
      * Idempotently materializes actual Teacher/matrix attribution after Production settlement.
      * This never edits the immutable pre-draw row and never invokes a predictor.
      */
-    public static int settleDraw(final DbStore store,final Models.Draw draw) {
-        if(store==null||draw==null||!draw.isValid())return 0;
+    public static int settleDraw(final DbStore store,final Models.Draw sourceDraw) {
+        if(store==null||sourceDraw==null||!sourceDraw.isValid())return 0;
+        final Models.Draw draw=sourceDraw.copy();
+        final SettlementInput input=settlementInput(store.readable(),draw);
+        if(input==null)return Integer.valueOf(0);
+        final Row predraw=read(store.readable(),draw.issue);
+        String status=predraw==null?"NO_PREDRAW_CONTEXT":"ATTRIBUTED_EXACT_DRAW";
+        String predrawHash=predraw==null?"":predraw.recordHash;
+        String attribution;
+        String feedback;
+        if(predraw==null){
+            attribution="机械结算="+(input.hit==1?"HIT":"MISS")+"｜实际="+two(input.actual)
+                    +"｜赛前K3="+input.k3+"｜Teacher/矩阵缺失原因=PREDRAW_CONTEXT_ROW_MISSING";
+            feedback="反哺未执行｜原因=没有同一期赛前Teacher/矩阵冻结行；核心结算不受影响";
+        }else if(input.hit==1){
+            attribution="结构命中｜实际"+two(input.actual)+"∈赛前K3("+input.k3+")"
+                    +"｜Teacher="+clip(predraw.teacher,260)+"｜趋势="+clip(predraw.trend,180)
+                    +"｜形态="+clip(predraw.shape,180)+"｜关系="+clip(predraw.relation,220)
+                    +"｜量化="+input.quantitative;
+            feedback="教师反哺=命中样本进入下一期可靠度与结构贡献审计；只更新t+1以后状态，"
+                    +"不把本期开奖倒灌成本期赛前理由；命中也不自动证明Teacher因果有效";
+        }else{
+            attribution="结构未中｜实际"+two(input.actual)+"∉赛前K3("+input.k3+")"
+                    +"｜反推="+clip(predraw.reverse,300)+"｜Teacher="+clip(predraw.teacher,220)
+                    +"｜关系="+clip(predraw.relation,220)+"｜量化="+input.quantitative;
+            feedback="教师反哺=未中样本进入下一期失败向量；审计Teacher反证、第三边界、"
+                    +"熵风险、动作稳定性、窗口共识和跨位支持，只允许影响t+1以后学习状态";
+        }
+        String drawHash=DrawHashR36.sha256V2(draw);
+        String record=V51ChecksumEngine.sha256("R919_LEGACY_POST|"+draw.issue+'|'
+                +predrawHash+'|'+drawHash+'|'+input.actual+'|'+input.hit+'|'
+                +status+'|'+attribution+'|'+feedback);
         Integer changed=store.coordinatorR36().runWrite("R919_LEGACY_CONTEXT_SETTLEMENT",
                 new DatabaseCoordinator.WriteCallable<Integer>() {
                     @Override public Integer call(SQLiteDatabase db) {
-                        ensureSchema(db);SettlementInput input=settlementInput(db,draw);
-                        if(input==null)return Integer.valueOf(0);
-                        Row predraw=read(db,draw.issue);
-                        String status=predraw==null?"NO_PREDRAW_CONTEXT":"ATTRIBUTED_EXACT_DRAW";
-                        String predrawHash=predraw==null?"":predraw.recordHash;
-                        String attribution;
-                        String feedback;
-                        if(predraw==null){
-                            attribution="机械结算="+(input.hit==1?"HIT":"MISS")+"｜实际="+two(input.actual)
-                                    +"｜赛前K3="+input.k3+"｜Teacher/矩阵缺失原因=PREDRAW_CONTEXT_ROW_MISSING";
-                            feedback="反哺未执行｜原因=没有同一期赛前Teacher/矩阵冻结行；核心结算不受影响";
-                        }else if(input.hit==1){
-                            attribution="结构命中｜实际"+two(input.actual)+"∈赛前K3("+input.k3+")"
-                                    +"｜Teacher="+clip(predraw.teacher,260)+"｜趋势="+clip(predraw.trend,180)
-                                    +"｜形态="+clip(predraw.shape,180)+"｜关系="+clip(predraw.relation,220)
-                                    +"｜量化="+input.quantitative;
-                            feedback="教师反哺=命中样本进入下一期可靠度与结构贡献审计；只更新t+1以后状态，"
-                                    +"不把本期开奖倒灌成本期赛前理由；命中也不自动证明Teacher因果有效";
-                        }else{
-                            attribution="结构未中｜实际"+two(input.actual)+"∉赛前K3("+input.k3+")"
-                                    +"｜反推="+clip(predraw.reverse,300)+"｜Teacher="+clip(predraw.teacher,220)
-                                    +"｜关系="+clip(predraw.relation,220)+"｜量化="+input.quantitative;
-                            feedback="教师反哺=未中样本进入下一期失败向量；审计Teacher反证、第三边界、"
-                                    +"熵风险、动作稳定性、窗口共识和跨位支持，只允许影响t+1以后学习状态";
-                        }
-                        String drawHash=DrawHashR36.sha256V2(draw);
-                        String record=V51ChecksumEngine.sha256("R919_LEGACY_POST|"+draw.issue+'|'
-                                +predrawHash+'|'+drawHash+'|'+input.actual+'|'+input.hit+'|'
-                                +status+'|'+attribution+'|'+feedback);
+                        ensureSchema(db);
+                        SettlementInput current=settlementInput(db,draw);
+                        if(current==null||current.position!=input.position||current.actual!=input.actual||current.hit!=input.hit||!current.k3.equals(input.k3)||!current.quantitative.equals(input.quantitative))
+                            throw new IllegalStateException("R919_EXPLANATION_SOURCE_CHANGED");
+                        String currentPredraw="";try(Cursor c=db.rawQuery("SELECT record_hash FROM "+TABLE+" WHERE target_issue=? LIMIT 1",new String[]{draw.issue})){if(c.moveToFirst())currentPredraw=safe(c.getString(0));}
+                        if(!currentPredraw.equals(predrawHash))throw new IllegalStateException("R919_EXPLANATION_PREDRAW_CHANGED");
                         Cursor old=null;try{old=db.rawQuery("SELECT record_hash FROM "+POST_TABLE
                                 +" WHERE target_issue=? LIMIT 1",new String[]{draw.issue});
                             if(old.moveToFirst()){
