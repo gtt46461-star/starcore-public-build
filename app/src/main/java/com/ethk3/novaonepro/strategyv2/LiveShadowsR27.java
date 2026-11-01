@@ -337,7 +337,9 @@ public final class LiveShadowsR27 {
                     rows.add(new CalibrationRowsR27.Row(c.getString(0), "FUTURE", frozen ? c.getLong(6) : 0, c.getLong(7), score, frozen ? c.getInt(5) : -1, s.spec.position, frozen && c.getInt(5) >= 0, true,canonicalOrdinal));
                 }
             }
+            final long calibrationRevision=SchemaR27.liveSourceRevision(w.ro);
             CalibrationRowsR27.Result r = CalibrationRowsR27.fitRolling(rows);
+            if(calibrationRevision>=0)b.guardBefore(db->{if(SchemaR27.liveSourceRevision(db)!=calibrationRevision)throw new IllegalStateException("CALIBRATION_SOURCE_CHANGED");return 0;});
             b.add("INSERT OR REPLACE INTO r27_calibration(policy_hash,method,fit_source,fit_rows,validation_rows,excluded_late,excluded_gap,a,b,ece,ece_by_stratum,state,reason,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     s.id, r.method, r.fitSource, r.fitRows, r.validationRows, r.excludedLate, r.excludedGap, f(r.a), f(r.b), f(r.ece), JsonR27.write(r.eceByStratum), r.state, r.reason, System.currentTimeMillis());
             Map<String,Object> quality=new LinkedHashMap<>(r.quality);quality.put("policyHash",s.id);quality.put("datasetHash",ctx.data.datasetHash);quality.put("state",r.state);quality.put("reason",r.reason);

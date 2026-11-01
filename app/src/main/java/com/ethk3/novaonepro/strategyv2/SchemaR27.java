@@ -75,6 +75,7 @@ public final class SchemaR27 {
         if (!db.inTransaction()) throw new IllegalStateException("R27_WRITER_REQUIRED");
         for (String sql : DDL) db.execSQL(sql);
         for (String sql : ResearchSchemaR30R1.DDL) db.execSQL(sql);
+        ResearchEvolutionStoreR930.createSchema(db); // restore the 13 baseline-declared legacy evidence tables, same owner/writer
         ensureCertificateVersionR30(db);
         for(String sql:DecisionExplanationStoreR30.DDL)db.execSQL(sql);
         CertificateRevocationR30.ensure(db);

@@ -146,6 +146,14 @@ public final class MatrixSnapshotFeedbackR930 {
 
         public MatrixCell cell(int row, int column) { return cells[row][column]; }
 
+        /** Preserve the actual legacy cells; their position-number semantics are not a typed teacher/premise tensor. */
+        public String payloadJsonR30(){
+            java.util.Map<String,Object> payload=new java.util.LinkedHashMap<>();payload.put("schema","R930_LEGACY_POSITION_NUMBER_V1");payload.put("kind",kind.name());payload.put("shape","position:10,number:10");
+            java.util.List<Object> rows=new java.util.ArrayList<>();for(int r=0;r<POSITIONS;r++)for(int c=0;c<NUMBERS;c++){
+                MatrixCell x=cells[r][c];java.util.Map<String,Object> m=new java.util.LinkedHashMap<>();m.put("row",r);m.put("column",c);m.put("present",x.present);m.put("value",x.value);m.put("support",x.support);m.put("quality",x.quality);m.put("latencyNs",x.latencyNs);m.put("pitPass",x.pitPass);m.put("sourceHash",x.sourceNodeHash);rows.add(m);
+            }payload.put("cells",rows);return com.ethk3.novaonepro.strategyv2.JsonR27.write(payload);
+        }
+
         public double[][] valuesWithMissingAsZero() {
             double[][] output = new double[POSITIONS][NUMBERS];
             for (int row = 0; row < POSITIONS; row++)

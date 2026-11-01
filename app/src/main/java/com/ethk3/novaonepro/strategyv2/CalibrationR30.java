@@ -22,6 +22,10 @@ public final class CalibrationR30 {
     public static Map<String, Object> evaluate(double[] p, int[] y, int n, int bins, double supportLo, double supportHi) {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("n", n);
+        m.put("target","BINARY_K3_MEMBERSHIP");m.put("baselineProbability",BASE);m.put("baselineMethod","CONSTANT_0.30_ON_IDENTICAL_LABELS");
+        boolean valid=p!=null&&y!=null&&n>=0&&n<=p.length&&n<=y.length&&bins>0;
+        if(valid)for(int i=0;i<n;i++)valid&=Double.isFinite(p[i])&&p[i]>=0&&p[i]<=1&&(y[i]==0||y[i]==1);
+        if(!valid){m.put("status","INVALID_INPUT");m.put("eceEqualMass",null);m.put("eceEqualWidth",null);m.put("brier",null);m.put("bss",null);m.put("supportCoverage",null);m.put("q05Pass",null);return m;}
         if (n <= 0) { m.put("eceEqualMass", null); m.put("brier", null); m.put("bss", null); m.put("supportCoverage", null); m.put("q05Pass", null); return m; }
         double brier = 0, brierBase = 0; int inSupport = 0;
         for (int i = 0; i < n; i++) {
@@ -36,6 +40,7 @@ public final class CalibrationR30 {
         m.put("eceEqualMass", ece);
         m.put("eceEqualWidth", StatsR27.ece(p, y, n, bins));
         m.put("brier", brier);
+        m.put("baselineBrier",brierBase);m.put("interval",null);m.put("intervalReason","TEMPORAL_BLOCKS_REQUIRED_NO_IID_INTERVAL_ASSUMED");
         m.put("bss", bss);
         m.put("supportCoverage", coverage);
         m.put("q05Pass", n < MIN_SAMPLES ? null : (Object) (ece <= 0.04 && coverage >= 0.90));

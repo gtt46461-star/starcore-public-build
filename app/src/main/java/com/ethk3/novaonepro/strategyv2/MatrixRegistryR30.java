@@ -15,7 +15,7 @@ public final class MatrixRegistryR30 {
         private Definition(String id,String ns,String kind,String producer,String method,String consumer,List<String> methods,String table,String scope,String algorithm){
             this.id=id;namespace=ns;this.kind=kind;producerClass=producer;producerMethod=method;consumerClass=consumer;consumerMethods=Collections.unmodifiableList(new ArrayList<>(methods));this.table=table;outputScope=scope;algorithmConsumer=algorithm;
         }
-        public Map<String,Object> json(){Map<String,Object> m=new LinkedHashMap<>();m.put("id",id);m.put("namespace",namespace);m.put("kind",kind);m.put("producerClass",producerClass);m.put("producerMethod",producerMethod);m.put("consumerClass",consumerClass);m.put("consumerMethods",consumerMethods);m.put("sourceTable",table);m.put("outputScope",outputScope);m.put("algorithmConsumer",algorithmConsumer);return m;}
+        public Map<String,Object> json(){Map<String,Object> m=new LinkedHashMap<>();m.put("id",id);m.put("namespace",namespace);m.put("kind",kind);m.put("producerClass",producerClass);m.put("producerMethod",producerMethod);m.put("consumerClass",consumerClass);m.put("consumerMethods",consumerMethods);m.put("sourceTable",table);m.put("outputScope",outputScope);m.put("algorithmConsumer",algorithmConsumer);if(namespace.equals("R930")){m.put("typedContract",MatrixTensorR30R1.contract(kind));m.put("typedProducer","RuntimeR27.MatrixProductionTask / MatrixResearchR30R1.build");m.put("legacyShape","POSITION_10_NUMBER_10");m.put("productionEvent","NEW_IMMUTABLE_SELECT_DATASET_OR_STUDENT");}return m;}
     }
     private static final List<Definition> DEFINITIONS;
     static{

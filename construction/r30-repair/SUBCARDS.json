@@ -180,6 +180,38 @@
         "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java"
       ],
       "reason": "B05扩展回归发现原优先级测试仍引用evo公开实例的旧字符串。改为检查真实私有loop的同一narrow守卫，生产prepared任务自身显式设置原R27后台优先级；原R26 continuation hook不改。原测试不删、不放宽P0/deadline/thermal行为，保留失败日志。先登记后施工。"
+    },
+    {
+      "id": "FR-B06-06-a",
+      "card": "FR-B06-06",
+      "files": [
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30CalibrationTest.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairCalibrationRoleR30Test.java",
+        "tools/r30/qual_host/CalibrationR30HostTest.java"
+      ],
+      "reason": "先登记：校准拟合仅原H_SELECT REPLAY；正式FUTURE只评价。原Q05无BSS通过门槛，保留ECE和支持覆盖门槛并如实报告BSS；同窗原概率/校准概率及无效行分母并列。实际反例扰动所有正式标签不得影响任一拟合器。"
+    },
+    {
+      "id": "FR-B06-05-a",
+      "card": "FR-B06-05",
+      "files": [
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairLegacyTeacherR30Test.java"
+      ],
+      "reason": "先登记：F23原VM teacher资产/state/ABI绑定验证与原子发布，错绑定不能覆盖现有有效原教师；公开hash不涉及密钥。"
+    },
+    {
+      "id": "FR-B06-02-a",
+      "card": "FR-B06-02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixTensorR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTaskRegistryR30R1.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairMatrixR30Test.java",
+        "tools/r30-repair/qual_host/RepairMatrixR30HostTest.java",
+        "tools/r30-repair/run_matrix_host.py"
+      ],
+      "reason": "先登记：原SchemaR27唯一writer恢复R930已声明13张旧证据表；新增R1设计物化表仍为6，但需明确恢复旧声明物理表的实际增量。新张量按kind原维度/角色/source/hash合同保存真实payload，不将所有矩阵换名为10x10。原位置号码legacy矩阵原API保留。原池单有界轮转任务，缺源kind具体BLOCKED，不伪造完整20份。"
     }
   ]
 }

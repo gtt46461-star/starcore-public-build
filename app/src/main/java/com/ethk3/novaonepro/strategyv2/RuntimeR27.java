@@ -48,7 +48,7 @@ public final class RuntimeR27 implements AutoCloseable {
         pool = new ResearchPoolR27(store, session, ResearchPoolR27.defaultThreads());
         pool.register(new DatasetTask()); pool.register(new LiveTask()); pool.register(new EvolutionTask()); pool.register(new AbiTask());
         pool.register(new AtomsTask()); pool.register(new AtomNetTask()); pool.register(new CalibrationTask()); pool.register(new ChartTask());
-        pool.register(new LegacyExportTask()); pool.register(new HealthTask());
+        pool.register(new MatrixProductionTask()); pool.register(new LegacyExportTask()); pool.register(new HealthTask());
         active = this;
     }
     public void start() { pool.start(); }
@@ -356,6 +356,11 @@ public final class RuntimeR27 implements AutoCloseable {
     }
 
     // ------------------------------------------------------------------ r27-atoms (R27-043/044) and r27-atomnet (R27-033/034/036)
+    final class MatrixProductionTask implements ResearchPoolR27.Task {
+        public String id(){return "r27-matrices-r1";}
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w)throws Exception{return MatrixResearchR30R1.step(RuntimeR27.this,w);}
+    }
+
     final class AtomsTask implements ResearchPoolR27.Task {
         public String id() { return "r27-atoms"; }
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception { return AtomWorldR27.atomsStep(RuntimeR27.this, w); }

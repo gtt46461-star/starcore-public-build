@@ -40,7 +40,7 @@ public final class CalibrationRowsR27 {
             if (!row.identityMatches) { r.identityDrift++; continue; }
             if (!row.evaluationPresent || row.hit < 0) { r.excludedGap++; continue; }
             if (row.source.equals("FUTURE") && (row.frozenAt <= 0 || row.frozenAt >= row.openTime)) { r.excludedLate++; continue; }
-            if (fit.size() < FIT) { fit.add(row); continue; }
+            if (fit.size() < FIT) { if ("REPLAY".equals(row.source)) fit.add(row); continue; }
             if (embargo < EMBARGO) { embargo++; continue; }
             if (row.source.equals("FUTURE") && val.size() < VALIDATION) val.add(row);
         }
@@ -67,9 +67,9 @@ public final class CalibrationRowsR27 {
     }
 
     public static final class Evaluation {
-        public final long ordinal,fitThroughOrdinal;public final int position,hit,fitRows;public final double probability,supportLo,supportHi;public final boolean supported;public final String fitHash;
-        Evaluation(Row row,long through,int count,double p,double lo,double hi,String hash){ordinal=row.ordinal;fitThroughOrdinal=through;position=row.position;hit=row.hit;fitRows=count;probability=p;supportLo=lo;supportHi=hi;supported=p>=lo&&p<=hi;fitHash=hash;}
-        public Map<String,Object> json(){Map<String,Object> m=new LinkedHashMap<>();m.put("ordinal",ordinal);m.put("fitThroughOrdinal",fitThroughOrdinal);m.put("fitRows",(long)fitRows);m.put("position",(long)position);m.put("p",probability);m.put("hit",(long)hit);m.put("supportLo",supportLo);m.put("supportHi",supportHi);m.put("supported",supported);m.put("fitHash",fitHash);return m;}
+        public final long ordinal,fitThroughOrdinal;public final int position,hit,fitRows;public final double probability,rawProbability,supportLo,supportHi;public final boolean supported;public final String fitHash;
+        Evaluation(Row row,long through,int count,double p,double lo,double hi,String hash){ordinal=row.ordinal;fitThroughOrdinal=through;position=row.position;hit=row.hit;fitRows=count;probability=p;rawProbability=row.score;supportLo=lo;supportHi=hi;supported=p>=lo&&p<=hi;fitHash=hash;}
+        public Map<String,Object> json(){Map<String,Object> m=new LinkedHashMap<>();m.put("ordinal",ordinal);m.put("fitThroughOrdinal",fitThroughOrdinal);m.put("fitRows",(long)fitRows);m.put("position",(long)position);m.put("p",probability);m.put("rawProbability",rawProbability);m.put("hit",(long)hit);m.put("supportLo",supportLo);m.put("supportHi",supportHi);m.put("supported",supported);m.put("fitHash",fitHash);m.put("fitRole","H_SELECT");m.put("evaluationRole","FUTURE_READ_ONLY");m.put("actionSupported",supported);return m;}
     }
     /** Production rolling Platt: every validation row uses only the most recent 120 earlier qualified rows,
      * with the original one-period embargo. Input order, duplicate rows, or later labels cannot move its cutoff. */
@@ -94,7 +94,7 @@ public final class CalibrationRowsR27 {
         for(int i=0;i<all.size();i++){
             Row row=all.get(i);if(!row.source.equals("FUTURE"))continue;
             if(futureSeen++<Math.max(0,totalFuture-5000))continue;
-            while(cursor<i&&all.get(cursor).ordinal<row.ordinal-EMBARGO){prior.addLast(all.get(cursor++));while(prior.size()>FIT)prior.removeFirst();}
+            while(cursor<i&&all.get(cursor).ordinal<row.ordinal-EMBARGO){Row candidate=all.get(cursor++);if("REPLAY".equals(candidate.source))prior.addLast(candidate);while(prior.size()>FIT)prior.removeFirst();}
             r.fitRows=Math.max(r.fitRows,prior.size());if(prior.size()<FIT)continue;
             List<Row> fit=new ArrayList<>(prior);long through=fit.get(fit.size()-1).ordinal;
             if(through>=row.ordinal-EMBARGO)throw new IllegalStateException("R30_CALIBRATION_FUTURE_FIT");
@@ -106,9 +106,9 @@ public final class CalibrationRowsR27 {
             for(Row q:fit){sources.add(q.source);double fp=sigmoid(ab[0]*q.score+ab[1]);lo=Math.min(lo,fp);hi=Math.max(hi,fp);identity.append('|').append(q.ordinal).append(':').append(q.position).append(':').append(Double.toHexString(q.score)).append(':').append(q.hit);}
             r.a=ab[0];r.b=ab[1];r.evaluations.add(new Evaluation(row,through,fit.size(),p,lo,hi,StatsR27.sha256(identity.toString())));
         }
-        r.validationRows=r.evaluations.size();r.fitSource=String.join("+",sources);double[] p=new double[r.validationRows];int[] y=new int[p.length];long supported=0;
+        r.validationRows=r.evaluations.size();r.fitSource=String.join("+",sources);double[] p=new double[r.validationRows],raw=new double[r.validationRows];int[] y=new int[p.length];long supported=0;
         Map<Integer,List<Integer>> strata=new java.util.TreeMap<>();
-        for(int i=0;i<p.length;i++){Evaluation e=r.evaluations.get(i);p[i]=e.probability;y[i]=e.hit;if(e.supported)supported++;strata.computeIfAbsent(e.position,k->new ArrayList<>()).add(i);}
+        for(int i=0;i<p.length;i++){Evaluation e=r.evaluations.get(i);p[i]=e.probability;raw[i]=e.rawProbability;y[i]=e.hit;if(e.supported)supported++;strata.computeIfAbsent(e.position,k->new ArrayList<>()).add(i);}
         r.ece=p.length==0?Double.NaN:StatsR27.ece(p,y,p.length,10);
         for(Map.Entry<Integer,List<Integer>> stratum:strata.entrySet()){double[] pp=new double[stratum.getValue().size()];int[] yy=new int[pp.length];for(int i=0;i<pp.length;i++){int at=stratum.getValue().get(i);pp[i]=p[at];yy[i]=y[at];}r.eceByStratum.put("position"+stratum.getKey(),StatsR27.ece(pp,yy,pp.length,10));}
         double lo=p.length==0?Double.NaN:r.evaluations.get(0).supportLo,hi=p.length==0?Double.NaN:r.evaluations.get(0).supportHi;
@@ -118,7 +118,11 @@ public final class CalibrationRowsR27 {
         r.quality.put("q05Pass",p.length<CalibrationR30.MIN_SAMPLES?null:((Number)r.quality.get("eceEqualMass")).doubleValue()<=.04&&coverage>=.90);
         r.quality.put("fitRowsPerEvaluation",(long)FIT);r.quality.put("embargoPeriods",(long)EMBARGO);r.quality.put("temporalRowsChecked",(long)p.length);r.quality.put("temporalViolations",0L);
         r.quality.put("excludedLate",(long)r.excludedLate);r.quality.put("excludedGap",(long)r.excludedGap);r.quality.put("excludedInvalid",(long)r.excludedInvalid);r.quality.put("excludedConflicts",(long)r.excludedConflicts);r.quality.put("excludedDuplicates",(long)r.excludedDuplicates);r.quality.put("windowLimit",5000L);
-        r.quality.put("measurementSource","PRIOR_ORDINAL_PLATT_ON_H_SELECT_AND_FUTURE_RECEIPTS");
+        r.quality.put("measurementSource","PRIOR_ORDINAL_PLATT_ON_H_SELECT_ONLY_FUTURE_READ_ONLY");
+        r.quality.put("target","BINARY_K3_MEMBERSHIP");r.quality.put("fitRole","H_SELECT");r.quality.put("validationRole","FUTURE_READ_ONLY");r.quality.put("formalLabelsUsedForFit",0L);
+        r.quality.put("rawSameRows",CalibrationR30.evaluate(raw,y,raw.length,10,0,1));
+        r.quality.put("unsupportedRows",(long)p.length-supported);r.quality.put("qualifiedOpportunities",(long)totalFuture);r.quality.put("withoutFitRows",(long)totalFuture-p.length);
+        r.quality.put("qualityScope","FROZEN_RESEARCH_CALIBRATOR_DIAGNOSTIC_NOT_PREDICTIVE_ADVANTAGE");
         r.quality.put("status",p.length<CalibrationR30.MIN_SAMPLES?"INSUFFICIENT":"MEASURED");
         r.state=p.length>=VALIDATION?"FITTED":"COLLECTING";r.reason=p.length>=VALIDATION?"ROLLING_PLATT_PRIOR_ORDINAL_EMBARGO1_VALIDATED_FUTURE":INSUFFICIENT_ROWS+"(fit="+r.fitRows+"/120,validation="+p.length+"/120)";
         return r;

@@ -30,5 +30,6 @@ public final class ResearchTaskRegistryR30R1 {
         ENTRIES=Collections.unmodifiableMap(all);
     }
     private static void add(Map<String,Entry> all,String ids,TaskProgressR30R1.Unit unit,boolean training,String input){for(String id:ids.split(" ")){if(all.put(id,new Entry(id,id.startsWith("r27-")?"RuntimeR27":"RuntimeCoordinatorR26",unit,training,input))!=null)throw new IllegalStateException(id);}}
-    public static Entry require(String id){Entry entry=ENTRIES.get(id);if(entry==null)throw new IllegalArgumentException("UNREGISTERED_TYPED_TASK:"+id);return entry;}
+    public static final Map<String,Entry> ADDITIONAL=Collections.singletonMap("r27-matrices-r1",new Entry("r27-matrices-r1","RuntimeR27",TaskProgressR30R1.Unit.PHASE,false,"one typed matrix; dependency observations never advance artifact progress"));
+    public static Entry require(String id){Entry entry=ENTRIES.get(id);if(entry==null)entry=ADDITIONAL.get(id);if(entry==null)throw new IllegalArgumentException("UNREGISTERED_TYPED_TASK:"+id);return entry;}
 }

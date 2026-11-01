@@ -33,27 +33,21 @@ public final class ResearchEvolutionStoreR930 {
     public static final String T_EVENT = "research_evolution_event_r930";
     public static final boolean MAY_CREATE_REAL = false;
 
-    private static final java.util.WeakHashMap<SQLiteDatabase,Boolean> READY=new java.util.WeakHashMap<SQLiteDatabase,Boolean>();
-    private static final Object SCHEMA_LOCK = new Object();
 
     private ResearchEvolutionStoreR930() {}
 
     public static void ensureSchema(final DbStore store) {
         if (store == null) throw new IllegalArgumentException("R930_STORE_REQUIRED");
-        synchronized (SCHEMA_LOCK) {
-            SQLiteDatabase handle=store.readable();
-            if(READY.containsKey(handle))return;
+        // The original schema owner runs on the original writer. Never hold a Java monitor while waiting for it.
                 Boolean ok = store.coordinatorR36().runAtomicWrite("R930_EVOLUTION_SCHEMA",
                     new DatabaseCoordinator.WriteCallable<Boolean>() {
                         @Override public Boolean call(SQLiteDatabase db) {
-                            createSchema(db);
+                            com.ethk3.novaonepro.strategyv2.SchemaR27.ensure(db);
                             return Boolean.TRUE;
                         }
                     }, Boolean.FALSE);
             if (!Boolean.TRUE.equals(ok))
                 throw new IllegalStateException("R930_EVOLUTION_SCHEMA_FAILED");
-            READY.put(handle,Boolean.TRUE);
-        }
     }
 
     public static void createSchema(SQLiteDatabase db) {
@@ -148,6 +142,13 @@ public final class ResearchEvolutionStoreR930 {
         db.execSQL("CREATE TABLE IF NOT EXISTS " + T_EVENT + "("
                 + "event_hash TEXT PRIMARY KEY NOT NULL,event_type TEXT NOT NULL,entity_id TEXT NOT NULL,"
                 + "entity_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,created_at INTEGER NOT NULL)");
+        addMatrixColumn(db,"payload_json","TEXT");addMatrixColumn(db,"role","TEXT");
+        addMatrixColumn(db,"source_revision","INTEGER");addMatrixColumn(db,"producer_version","TEXT");
+    }
+
+    private static void addMatrixColumn(SQLiteDatabase db,String name,String type){
+        try(Cursor c=db.rawQuery("PRAGMA table_info("+T_MATRIX+")",null)){while(c.moveToNext())if(name.equals(c.getString(1)))return;}
+        db.execSQL("ALTER TABLE "+T_MATRIX+" ADD COLUMN "+name+" "+type);
     }
 
     public static boolean putAdmission(final DbStore store,
@@ -251,6 +252,7 @@ public final class ResearchEvolutionStoreR930 {
                             values.put("bundle_hash", snapshot.bundleHash);
                             values.put("model_hash", matrix.modelHash);
                             values.put("present_cells", matrix.presentCells());
+                            values.put("payload_json",matrix.payloadJsonR30());values.put("producer_version","R930_LEGACY_POSITION_NUMBER_V1");
                             values.put("created_at", nowMs);
                             if (db.insertWithOnConflict(T_MATRIX, null, values,
                                     SQLiteDatabase.CONFLICT_IGNORE) < 0L) return Boolean.FALSE;

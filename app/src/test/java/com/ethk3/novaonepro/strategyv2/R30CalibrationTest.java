@@ -23,10 +23,10 @@ public class R30CalibrationTest {
         CalibrationRowsR27.Result future=CalibrationRowsR27.fitRolling(changed);
         for(int i=0;i<a.evaluations.size();i++){
             CalibrationRowsR27.Evaluation x=a.evaluations.get(i),z=future.evaluations.get(i);assertTrue(x.fitThroughOrdinal<x.ordinal-1);assertEquals(120,x.fitRows);
-            if(x.ordinal<=450){assertEquals(x.probability,z.probability,0);assertEquals(x.fitHash,z.fitHash);}
+            {assertEquals(x.probability,z.probability,0);assertEquals(x.fitHash,z.fitHash);}
         }
         assertEquals(0L,a.quality.get("temporalViolations"));assertTrue(a.quality.containsKey("eceEqualMass"));assertTrue(a.quality.containsKey("eceEqualWidth"));assertTrue(a.quality.containsKey("supportCoverage"));
-        System.out.println("R30_CALIBRATION|500_ROLLING_FUTURE_EVALUATIONS|120_PRIOR_ROWS_EMBARGO1|CURRENT_AND_FUTURE_LABEL_PERTURBATION_PASS");
+        System.out.println("R30_CALIBRATION|500_ROLLING_FUTURE_EVALUATIONS|120_PRIOR_ROWS_EMBARGO1|ALL_FORMAL_LABEL_PERTURBATION_NO_FIT_CHANGE_PASS");
     }
     @Test public void identicalConstantProbabilityHistogramsDoNotAcquireOrderDependentBinJitter(){
         List<CalibrationRowsR27.Row> source=new ArrayList<>();
