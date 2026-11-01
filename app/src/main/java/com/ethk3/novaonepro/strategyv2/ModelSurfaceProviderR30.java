@@ -8,14 +8,14 @@ public final class ModelSurfaceProviderR30 {
     public static final int HISTORY_ROWS=480;
     public static final class FrozenModelRef {
         public final String modelHash,weightsHash; public final long trainedThroughOrdinal,availableAt;
-        public final boolean legacyWeightsOnlyIdentity;
+        public final boolean legacyWeightsOnlyIdentity;public final String learningProtocol;
         private final byte[] weights;
         public FrozenModelRef(byte[] weights,long through,long available){this(weights,through,available,null);}
         private FrozenModelRef(byte[] weights,long through,long available,String original){
             this.weights=weights.clone();weightsHash=StatsR27.sha256(this.weights);trainedThroughOrdinal=through;availableAt=available;
-            String descriptor=HashingSU1.fields("R30_REPAIR_MODEL_REF_1",weightsHash,AtomNetSessionR30.ABI,Long.toString(through),Long.toString(available));
-            legacyWeightsOnlyIdentity=original!=null&&original.equals(weightsHash);modelHash=original==null?descriptor:original;
-            if(original!=null&&!original.equals(descriptor)&&!legacyWeightsOnlyIdentity)throw new Blocked("ARTIFACT_IDENTITY_MISMATCH");
+            String descriptor=HashingSU1.fields("R30_REPAIR_MODEL_REF_2",weightsHash,AtomNetSessionR30.ABI,AtomNetSessionR30.LEARNING_PROTOCOL,Long.toString(through),Long.toString(available));String priorDescriptor=HashingSU1.fields("R30_REPAIR_MODEL_REF_1",weightsHash,AtomNetSessionR30.ABI,Long.toString(through),Long.toString(available));
+            legacyWeightsOnlyIdentity=original!=null&&original.equals(weightsHash);learningProtocol=legacyWeightsOnlyIdentity?"LEGACY_WEIGHTS_ONLY_ORIGIN_UNKNOWN":original!=null&&original.equals(priorDescriptor)?"LEGACY_UNIFORM_63":AtomNetSessionR30.LEARNING_PROTOCOL;modelHash=original==null?descriptor:original;
+            if(original!=null&&!original.equals(descriptor)&&!original.equals(priorDescriptor)&&!legacyWeightsOnlyIdentity)throw new Blocked("ARTIFACT_IDENTITY_MISMATCH");
             try{ModelArtifactR29.network(this.weights);}catch(java.io.IOException invalid){throw new Blocked("INVALID_MODEL_ARTIFACT");}if(available<=0||through<0)throw new IllegalArgumentException("MODEL_AVAILABILITY_UNKNOWN");
         }
         static FrozenModelRef archived(String hash,byte[] bytes,long through,long available){return new FrozenModelRef(bytes,through,available,hash);}
@@ -78,7 +78,7 @@ public final class ModelSurfaceProviderR30 {
     }
     /** ABI probe exercises real inference, not absent historical models or synthetic quality. */
     public static String goldenHash(){
-        AtomNetR27 n=new AtomNetR27(12,30);StringBuilder b=new StringBuilder("R30_MODEL_SURFACE_ABI_V1");
+        AtomNetR27 n=new AtomNetR27(12,30);StringBuilder b=new StringBuilder("R30_MODEL_SURFACE_ABI_V2|").append(AtomNetSessionR30.LEARNING_PROTOCOL);
         for(int i=0;i<64;i++){double[] x=AtomNetR27.positionedInput(new double[]{i/64.,(i%7)/7.},i%10+1);for(double p:NumberRankerAdapterR30.probabilities(n,x))b.append('|').append(Double.toHexString(p));}
         return StatsR27.sha256(b.toString());
     }

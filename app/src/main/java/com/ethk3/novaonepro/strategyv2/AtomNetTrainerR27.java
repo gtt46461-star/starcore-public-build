@@ -64,13 +64,14 @@ public final class AtomNetTrainerR27 {
     void remember(Sample s) { buffer.add(s); if (buffer.size() > REPLAY) buffer.remove(0); }
 
     /** One online step for a newly settled sample (experience replay). Returns the batch loss. */
-    public double online(Sample s) {
+    public double online(Sample s) {return online(s,false);}
+    public double online(Sample s,boolean preserveOlderReplay) {
         // R30-B03-05: an event already in the replay buffer is never learned a second time.
         if (s.issue != null) for (Sample q : buffer) if (s.issue.equals(q.issue)) throw new IllegalStateException("R30_DUPLICATE_LEARNING:" + s.issue);
         int extra = Math.min(BATCH - 1, buffer.size());
         double[][] xs = new double[extra + 1][]; int[] y = new int[extra + 1], c = new int[extra + 1];
         xs[0] = s.x; y[0] = s.y; c[0] = s.cls;
-        for (int k = 1; k <= extra; k++) { Sample q = buffer.get(rng.nextInt(buffer.size())); xs[k] = q.x; y[k] = q.y; c[k] = q.cls; }
+        for (int k = 1; k <= extra; k++) { int at;if(preserveOlderReplay&&buffer.size()>1){int split=buffer.size()/2;at=k<=Math.min(extra-1,extra*48/63)?rng.nextInt(split):split+rng.nextInt(buffer.size()-split);}else at=rng.nextInt(buffer.size());Sample q = buffer.get(at); xs[k] = q.x; y[k] = q.y; c[k] = q.cls; }
         double loss = net.trainBatch(xs, y, c, onlineLr, rng);
         remember(s); onlineSteps++; sinceCheck++;
         return loss;

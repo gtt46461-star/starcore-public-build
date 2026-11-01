@@ -72,10 +72,11 @@ public final class AtomNetStoreR30 {
             if(!state.datasetHash.equals(c.getString(3))||!(state.completeIssue.isEmpty()?state.observedThrough:state.trainedThrough()).equals(c.getString(4)))throw new IllegalStateException("R30_TRAIN_CHECKPOINT_CURSOR");return state;
         }
     }
-    public static void checkpoint(ResearchWriteQueueR27.Batch b,AtomNetSessionR30 state,long now){
+    public static void checkpoint(ResearchWriteQueueR27.Batch b,AtomNetSessionR30 state,long now){checkpointWithIdentity(b,state,now);}
+    public static String checkpointWithIdentity(ResearchWriteQueueR27.Batch b,AtomNetSessionR30 state,long now){
         byte[] bytes=state.encode();
         // Exact old bytes/checksum are archived before the first outer-format migration, in an existing immutable table.
-        b.add("INSERT OR IGNORE INTO r29_legacy_model_checkpoint(owner,artifact_hash,artifact,trained_through,online_steps,learning_rate,last_check_logloss,archived_at,reason) SELECT owner,state_hash,artifact,trained_through,-1,-1,NULL,?,'R30_REPAIR_ORIGINAL_OUTER_V1_BYTES_EXACT; SIDE_COUNTERS_UNKNOWN_SEE_ORIGINAL_ARTIFACT' FROM r29_model_checkpoint old WHERE owner IN (?,?) AND substr(artifact,1,4)=x'30A70001' AND NOT EXISTS(SELECT 1 FROM r29_legacy_model_checkpoint saved WHERE saved.owner=old.owner AND saved.artifact_hash=old.state_hash)",now,AtomNetSessionR30.OWNER,AtomNetSessionR30.LEGACY_OWNER);
+        b.add("INSERT OR IGNORE INTO r29_legacy_model_checkpoint(owner,artifact_hash,artifact,trained_through,online_steps,learning_rate,last_check_logloss,archived_at,reason) SELECT owner,state_hash,artifact,trained_through,-1,-1,NULL,?,'R30_REPAIR_ORIGINAL_OUTER_V1_V2_BYTES_EXACT; SIDE_COUNTERS_UNKNOWN_SEE_ORIGINAL_ARTIFACT' FROM r29_model_checkpoint old WHERE owner IN (?,?) AND substr(artifact,1,4) IN (x'30A70001',x'30A70002') AND NOT EXISTS(SELECT 1 FROM r29_legacy_model_checkpoint saved WHERE saved.owner=old.owner AND saved.artifact_hash=old.state_hash)",now,AtomNetSessionR30.OWNER,AtomNetSessionR30.LEGACY_OWNER);
         String identity=StatsR27.sha256(bytes);long work=state.materializedSamples+state.pretrainSamples+state.trainer.onlineSteps;
         long materializeTotal=(long)state.trainCount+state.selectCount+state.holdoutCount;
         Long pending=null;if(state.materializedSamples<materializeTotal)pending=Long.valueOf(materializeTotal-state.materializedSamples);else if(state.phase.equals("TRAIN"))pending=Long.valueOf(Math.max(0,state.trainCount-state.offset)); // Current known sample queue only; no invented future early-stop visits.
@@ -83,5 +84,6 @@ public final class AtomNetStoreR30 {
         b.add("INSERT OR REPLACE INTO r29_model_checkpoint(owner,feature_abi,dataset_hash,trained_through,state_hash,artifact,updated_at) VALUES(?,?,?,?,?,?,?)",AtomNetSessionR30.OWNER,AtomNetSessionR30.ABI,state.datasetHash,state.completeIssue.isEmpty()?state.observedThrough:state.trainedThrough(),StatsR27.sha256(bytes),bytes,now);
         b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('atomnet','ten-position-r30',?,?)",JsonR27.write(state.report()),now);
         for(AtomNetTrainerR27.Epoch e:state.receipts)b.add("INSERT OR IGNORE INTO r27_atomnet_epoch VALUES(?,?,?,?,?,?)","R30_"+state.datasetHash.substring(0,16),e.epoch,e.split,Double.isFinite(e.logloss)?e.logloss:null,Double.isFinite(e.brier)?e.brier:null,now);
+        return identity;
     }
 }

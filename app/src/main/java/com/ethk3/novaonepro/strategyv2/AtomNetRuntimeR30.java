@@ -26,7 +26,7 @@ public final class AtomNetRuntimeR30 {
         if(d==null){d=AtomNetStoreR30.dataset(w.ro,saved.datasetHash);rt.atomDataR30=d;}
         // Copy before computing: no failed/cancelled write can mutate the committed/published learner.
         byte[] previous=saved.encode();AtomNetSessionR30 next=AtomNetSessionR30.decode(previous,StatsR27.sha256(previous));
-        ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();long now=System.currentTimeMillis();int n=0;
+        ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();long now=System.currentTimeMillis();int n=0;ModelReplayStudyR30R1.ReplayDecision replayDecision=null;
         int end=AtomReplayR27.MIN_ROWS+(next.trainCount+next.selectCount+next.holdoutCount)/10;
         if(next.cachePeriod<end){
             long begin=System.nanoTime();int from=next.cachePeriod;
@@ -56,9 +56,10 @@ public final class AtomNetRuntimeR30 {
             double[] x=AtomNetR27.positionedInput(AtomReplayR27.features(frame.values[p],frame.present[p],true),p+1);
             settle(b,w,recent.issues[t],p+1,frame.hit[p],now);
             final String collectionRun=collected.id;b.guardBefore(db->{if(sourceRevision<0||SchemaR27.liveSourceRevision(db)!=sourceRevision||!SchemaR27.liveSourceTriggersValid(db))return -1;try(Cursor invalid=db.rawQuery("SELECT 1 FROM r30r1_research_measure WHERE run_id=? AND kind='INPUT_INVALIDATION' LIMIT 1",new String[]{collectionRun})){return invalid.moveToFirst()?-1:0;}});
+            replayDecision=ModelReplayStudyR30R1.allocateReplay(w.ro,next,b);
             next.online(new AtomNetTrainerR27.Sample(x,frame.hit[p],frame.actual[p]-1,AtomNetSessionR30.eventKey(recent.issues[t],p+1)),recent.issues[t],recent.ordinals[t],p+1);n=1;
         }
-        AtomNetStoreR30.checkpoint(b,next,System.currentTimeMillis());try{RuntimeR27.submit(w,"ATOMNET_R30_SLICE",b);}catch(IllegalStateException changed){if(QualificationInboxR29.precondition(changed))return ResearchPoolR27.Outcome.idle("DEPENDENCY(NEURAL_SOURCE_CHANGED_PREPARED_RETRY)",saved.trainer.onlineSteps,-1);throw changed;}
+        String stateIdentity=AtomNetStoreR30.checkpointWithIdentity(b,next,System.currentTimeMillis());ModelReplayStudyR30R1.recordReplayDecision(b,next,replayDecision,stateIdentity);try{RuntimeR27.submit(w,"ATOMNET_R30_SLICE",b);}catch(IllegalStateException changed){if(QualificationInboxR29.precondition(changed))return ResearchPoolR27.Outcome.idle("DEPENDENCY(NEURAL_SOURCE_CHANGED_PREPARED_RETRY)",saved.trainer.onlineSteps,-1);throw changed;}
         rt.publishAtomStateR30(next);
         if(next.ready())forecast(rt,w,next,StoreR27.loadDataset(w.ro,AtomReplayR27.HISTORY+64));
         return ResearchPoolR27.Outcome.progress(n,++rt.atomUnitsR30);
