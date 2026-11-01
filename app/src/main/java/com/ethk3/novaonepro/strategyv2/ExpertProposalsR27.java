@@ -46,14 +46,17 @@ public final class ExpertProposalsR27 {
             case "E05": ast = PolicyAstR27.op("add", PolicyAstR27.op("zscore", base.ast), PolicyAstR27.op("zscore", PolicyAstR27.leaf("crosscond", 1 + (tp % 10)))); hyp = "相邻位置上期号码影响本位"; change = "加入跨位置条件转移项"; mech = "跨位置依赖"; break;
             case "E06": ast = PolicyAstR27.op("rank", base.ast); hyp = "三元组丢失源于分数尺度不稳"; change = "排名化整体分数"; mech = "集合评分稳健化"; break;
             case "E07": ast = PolicyAstR27.op("mix", 0.5, PolicyAstR27.op("zscore", base.ast), PolicyAstR27.op("zscore", PolicyAstR27.leaf("family", 20))); hyp = "现有特征不能区分成败"; change = "加入片段检索家族表征"; mech = "F20表征"; break;
-            case "E08": ast = IdeaFamilyR27.Grow.tree(MutationOpsR27.ALL_KINDS, tp, 4, true, ctx, r); hyp = "参数变异无进展需结构重写"; change = "重写完整Typed-AST"; mech = "符号结构搜索"; break;
-            case "E09": ast = PolicyAstR27.op("if", PolicyAstR27.leaf("regime", 128), PolicyAstR27.constant(0.1), base.ast, PolicyAstR27.op("neg", PolicyAstR27.op("zscore", base.ast))); hyp = "特定状态反复失误"; change = "失败状态下反向残差分支"; mech = "定向残差修复"; break;
+            case "E08": if(ctx.research!=null){PolicySpecR27 guided=ctx.research.premiseHypothesis(ctx,r);if(guided!=null)return one(expert,cluster,"Machine premise and reverse-association research", "Typed causal input combination", "Refutable research hypothesis",refute,guided);}
+                ast = IdeaFamilyR27.Grow.tree(MutationOpsR27.ALL_KINDS, tp, 4, true, ctx, r); hyp = "参数变异无进展需结构重写"; change = "重写完整Typed-AST"; mech = "符号结构搜索"; break;
+            case "E09": if(ctx.research!=null){PolicySpecR27 guided=ctx.research.residualHypothesis(base,ctx,r);if(guided!=null)return one(expert,cluster,"Actual class residual", "Causal frequency smoothing hypothesis", "Residual-driven research",refute,guided);}
+                ast = PolicyAstR27.op("if", PolicyAstR27.leaf("regime", 128), PolicyAstR27.constant(0.1), base.ast, PolicyAstR27.op("neg", PolicyAstR27.op("zscore", base.ast))); hyp = "特定状态反复失误"; change = "失败状态下反向残差分支"; mech = "定向残差修复"; break;
             case "E10":
                 if (ctx.archive.size() < 2) return audit(expert, cluster, "档案成员不足2个，无法互补融合");
-                if(ctx.evaluation==null)return audit(expert,cluster,"缺少同目标配对评价输入");PolicySpecR27 fused=FusionOpsR27.fuse(ctx.archive,ctx.evaluation,r,g);if(fused==null)return audit(expert,cluster,"同目标残差或配对增益证据不足，融合未产出");return one(expert,cluster,"同目标父代互补研究", "TRAIN拟合的新融合身份", "原SELECT同期proper增益",refute,fused.withMeta(new PolicySpecR27.Meta("EXPERT:E10","EXPERT_PROPOSAL",fused.meta.parents,g,r.state,fused.meta.reason)));
+                if(ctx.evaluation==null)return audit(expert,cluster,"缺少同目标配对评价输入");PolicySpecR27 fused=FusionOpsR27.fuse(ctx.archive,ctx.evaluation,r,g,ctx.research);if(fused==null)return audit(expert,cluster,"同目标残差或配对增益证据不足，融合未产出");return one(expert,cluster,"同目标父代互补研究", "TRAIN拟合的新融合身份", "原SELECT同期proper增益",refute,fused.withMeta(new PolicySpecR27.Meta("EXPERT:E10","EXPERT_PROPOSAL",fused.meta.parents,g,r.state,fused.meta.reason)));
             case "E11": return one(expert, cluster, "子代从零学习过慢", "继承父代更新器并加大学习率", "状态迁移", refute,
                     base.withUpdater(Math.min(0.2, base.lr * 2 + 0.005), base.forget, meta(expert, g, r, "学习状态迁移：学习率加倍", base)));
-            case "E12": return one(expert, cluster, "高分高频窗口反而低命中", "提高出手阈值", "选择后校准", refute,
+            case "E12": if(ctx.research!=null){PolicySpecR27 guided=ctx.research.calibrationHypothesis(base,ctx,r);if(guided!=null)return one(expert,cluster,"Actual SELECT confidence error", "New frozen readout identity", "Research calibration hypothesis",refute,guided);}
+                return one(expert, cluster, "高分高频窗口反而低命中", "提高出手阈值", "选择后校准", refute,
                     base.withSelector(base.position, PolicySpecR27.Rule.MARGIN, Math.min(0.3, base.threshold + 0.03), 0, meta(expert, g, r, "校准与门控：阈值+0.03", base)));
             case "E13": ast = PolicyAstR27.op("ema", 0.3, base.ast); hyp = "最差块/连挂退化来自分数抖动"; change = "分数指数平滑"; mech = "稳定性"; break;
             default: return audit(expert, cluster, expert.equals("E01") ? "出生门已强制因果滞后≥1与PIT泄漏测试；无越界程序" : expert.equals("E14") ? "成本门：单期预测≤5ms、状态≤4MiB" : expert.equals("E15") ? "资格只由FUTURE序贯检验给出" : "任务健康由wait_kind枚举诊断");

@@ -44,16 +44,17 @@ public final class MatrixResearchR30R1 {
             ReplayEvaluatorR27.Trace trace=ReplayEvaluatorR27.selectTraceWithProbabilities(policy,ctx,ctx.temperature(policy));
             rows="STUDENT_ERROR".equals(kind)?Collections.singletonList(policy.policyHash()):Arrays.asList("LOW_PREDRAW_CONFIDENCE","MEDIUM_PREDRAW_CONFIDENCE","HIGH_PREDRAW_CONFIDENCE");
             cols="STUDENT_ERROR".equals(kind)?Arrays.asList("K3_HIT","K3_MISS","TEN_CLASS_BRIER"):"FEEDBACK".equals(kind)?Arrays.asList("K3_HIT","K3_MISS"):labels("actualNumber",10);
+            double[] confidenceSum=new double[3];long[] confidenceN=new long[3];
             v=new double[rows.size()][cols.size()];n=new long[rows.size()][cols.size()];
             for(int t=from;t<to;t++)if(!trace.skipped[t]){
                 double[] probabilities=trace.probabilityRows[t];if(probabilities==null)continue;
-                int condition=trace.pHit[t]<.30?0:trace.pHit[t]<.45?1:2,actual=d.draws[t][policy.position-1]-1;
+                int condition=trace.pHit[t]<.30?0:trace.pHit[t]<.45?1:2,actual=d.draws[t][policy.position-1]-1;confidenceSum[condition]+=trace.pHit[t];confidenceN[condition]++;
                 if("STUDENT_ERROR".equals(kind)){v[0][trace.hit[t]==1?0:1]++;n[0][0]++;n[0][1]++;double loss=0;for(int j=0;j<10;j++){double e=probabilities[j]-(j==actual?1:0);loss+=.5*e*e;}v[0][2]+=loss;n[0][2]++;}
                 else if("FEEDBACK".equals(kind)){v[condition][trace.hit[t]==1?0:1]++;n[condition][0]++;n[condition][1]++;}
                 else for(int j=0;j<10;j++){v[condition][j]+=(j==actual?1:0)-probabilities[j];n[condition][j]++;}
             }
             for(int r=0;r<v.length;r++)for(int c=0;c<v[r].length;c++)if(n[r][c]>0)v[r][c]/=n[r][c];
-            more.put("estimator","STUDENT_ERROR".equals(kind)?"SAME_TARGET_HIT_MISS_AND_NORMALIZED_TEN_CLASS_BRIER":"FEEDBACK".equals(kind)?"PREDRAW_CONFIDENCE_CONDITIONED_K3_ERROR":"PREDRAW_CONFIDENCE_CONDITIONED_TEN_CLASS_RESIDUAL");more.put("position",policy.position);more.put("conditionScope","FROZEN_BEFORE_LABEL_FROM_CAUSAL_REPLAY");
+            more.put("estimator","STUDENT_ERROR".equals(kind)?"SAME_TARGET_HIT_MISS_AND_NORMALIZED_TEN_CLASS_BRIER":"FEEDBACK".equals(kind)?"PREDRAW_CONFIDENCE_CONDITIONED_K3_ERROR":"PREDRAW_CONFIDENCE_CONDITIONED_TEN_CLASS_RESIDUAL");List<Object> confidenceMeans=new ArrayList<>();for(int bin=0;bin<3;bin++)confidenceMeans.add(confidenceN[bin]==0?null:confidenceSum[bin]/confidenceN[bin]);more.put("confidenceBinMeanProbability",confidenceMeans);more.put("position",policy.position);more.put("conditionScope","FROZEN_BEFORE_LABEL_FROM_CAUSAL_REPLAY");
         }else return null;
         return new MatrixTensorR30R1.Tensor(kind,"SELECT",d.datasetHash,policy==null?StatsR27.sha256("SOURCE_ONLY"):policy.policyHash(),through,target,revision,rows,cols,v,n,more);
     }

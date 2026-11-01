@@ -11,6 +11,7 @@ public final class IdeaI13SelectorOnlyR27 implements IdeaFamilyR27 {
     static int gen(IdeaFamilyR27.Context ctx) { return ctx == null ? 0 : ctx.generation; }
     public PolicySpecR27 generate(StatsR27.SplitMix r, IdeaFamilyR27.Context ctx) {
         PolicySpecR27 base = ctx != null && !ctx.archive.isEmpty() ? ctx.archive.get(r.nextInt(ctx.archive.size())) : null;
+        if(base!=null&&ctx!=null&&ctx.research!=null){PolicySpecR27 guided=ctx.research.calibrationHypothesis(base,ctx,r);if(guided==null)guided=ctx.research.actionHypothesis(base,ctx,r);if(guided!=null)return guided;}
         if (base == null) {
             int tp = IdeaFamilyR27.Grow.pos(r);
             PolicySpecR27 seed = IdeaFamilyR27.Grow.spec(IdeaFamilyR27.Grow.tree(KINDS, tp, 2, true, ctx, r), tp, r, IdeaFamilyR27.meta(id(), "GENERATE", gen(ctx), r.state, "出手选择：基础打分"));

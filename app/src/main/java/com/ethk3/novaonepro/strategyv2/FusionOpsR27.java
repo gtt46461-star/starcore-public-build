@@ -12,7 +12,9 @@ public final class FusionOpsR27 {
     public static final double MAX_CORRELATION = 0.6;
     static final double[] WEIGHT_GRID = {0, 0.5, 1, 2};
 
-    public static PolicySpecR27 fuse(List<PolicySpecR27> archive, EvalContextR27 ctx, StatsR27.SplitMix r, int gen) {
+    public static PolicySpecR27 fuse(List<PolicySpecR27> archive,EvalContextR27 ctx,StatsR27.SplitMix r,int gen){return fuse(archive,ctx,r,gen,null);}
+    public static PolicySpecR27 fuse(List<PolicySpecR27> archive, EvalContextR27 ctx, StatsR27.SplitMix r, int gen,ResearchContextR30R1 research) {
+        if(research!=null){research.begin();archive=research.fusionParents(archive,r);}
         if (archive.size() < 2) return null;
         PolicySpecR27 first = archive.get(r.nextInt(archive.size()));
         if(SetIntersectionPolicyR30.exact(first))return null;
@@ -54,12 +56,12 @@ public final class FusionOpsR27 {
             for (int at : leaves) {
                 PolicySpecR27.Meta m = new PolicySpecR27.Meta("I11","F_STACK",parents,gen,r.state,reason + "；repairNode=" + at);
                 PolicySpecR27 child = new PolicySpecR27(PolicyAstR27.replace(first.ast,at,ast),tp,first.rule,first.threshold,first.rate,1.0,true,first.lr,first.forget,m);
-                if (FailureProfileR30.legal(child)&&FusionStudyR30R1.improvesEveryParent(members,child,ctx)) return child;
+                if (FailureProfileR30.legal(child)&&FusionStudyR30R1.improvesEveryParent(members,child,ctx)) return research==null?child:research.annotate(child);
             }
         }
         PolicySpecR27.Meta m = new PolicySpecR27.Meta("I11","F_STACK",parents,gen,r.state,reason + "；repairNode=WHOLE_PROGRAM");
         PolicySpecR27 child = new PolicySpecR27(ast,tp,first.rule,first.threshold,first.rate,1.0,true,first.lr,first.forget,m);
-        return FailureProfileR30.legal(child)&&FusionStudyR30R1.improvesEveryParent(members,child,ctx) ? child : null;
+        return FailureProfileR30.legal(child)&&FusionStudyR30R1.improvesEveryParent(members,child,ctx) ? (research==null?child:research.annotate(child)) : null;
     }
 
     static PolicySpecR27 weighted(List<PolicySpecR27> members, double[] w, PolicySpecR27 first) {

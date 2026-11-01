@@ -6,7 +6,7 @@ public final class SetIntersectionPolicyR30 implements IdeaFamilyR27 {
  static final int[] W={8,32,128,512};
  public String id(){return "I14";}public String nameZh(){return "集合交叉族";}public String coreIdea(){return "事前本位短窗K3与两邻位长窗K3精确相交；不足3弃权";}
  static int gen(IdeaFamilyR27.Context c){return c==null?0:c.generation;}
- public PolicySpecR27 generate(StatsR27.SplitMix r,IdeaFamilyR27.Context c){int tp=IdeaFamilyR27.Grow.pos(r),i=r.nextInt(W.length-1),j=i+1+r.nextInt(W.length-i-1);return spec(tp,W[i],W[j],IdeaFamilyR27.meta(id(),"GENERATE",gen(c),r.state,"事前集合：本位近"+W[i]+"期 × 两邻位近"+W[j]+"期；只接受精确K3交集；不足3明确弃权"));}
+ public PolicySpecR27 generate(StatsR27.SplitMix r,IdeaFamilyR27.Context c){int tp=IdeaFamilyR27.Grow.pos(r);if(c!=null&&c.research!=null)tp=c.research.position(r,tp);int i=r.nextInt(W.length-1),j=i+1+r.nextInt(W.length-i-1);return spec(tp,W[i],W[j],IdeaFamilyR27.meta(id(),"GENERATE",gen(c),r.state,"事前集合：本位近"+W[i]+"期 × 两邻位近"+W[j]+"期；只接受精确K3交集；不足3明确弃权"));}
  static PolicySpecR27 spec(int tp,int shortWindow,int longWindow,PolicySpecR27.Meta meta){return new PolicySpecR27(PolicyAstR27.leaf("set_intersection",shortWindow,longWindow),tp,PolicySpecR27.Rule.ALWAYS,0,1,1,false,0,0,meta);}
  public PolicySpecR27 mutate(PolicySpecR27 p,StatsR27.SplitMix r,IdeaFamilyR27.Context c){PolicySpecR27 fresh=generate(r,c);return fresh.withMeta(new PolicySpecR27.Meta(id(),"SET_SOURCE_WINDOW",Collections.singletonList(p.policyHash()),gen(c),r.state,"改变事前集合源窗口的新身份；原集合/旧策略保留；新资格重新确认"));}
  public static boolean exact(PolicySpecR27 p){return p!=null&&p.ast!=null&&(p.ast.op.equals("set_intersection")||p.ast.op.equals("set_intersection_when_repeat"));}

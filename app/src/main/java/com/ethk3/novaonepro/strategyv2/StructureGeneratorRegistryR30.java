@@ -14,7 +14,7 @@ public final class StructureGeneratorRegistryR30 {
         private final String id, name, idea; private final String[] kinds;
         Generator(String id, String name, String idea, String... kinds) { this.id = id; this.name = name; this.idea = idea; this.kinds = kinds; }
         public String id() { return id; } public String nameZh() { return name; } public String coreIdea() { return idea; }
-        protected int position(StatsR27.SplitMix r, Context ctx) { return Grow.pos(r); }
+        protected int position(StatsR27.SplitMix r, Context ctx) {int seed=Grow.pos(r);return ctx!=null&&ctx.research!=null?ctx.research.position(r,seed):seed;}
         protected abstract PolicyAstR27.Node program(int position, StatsR27.SplitMix r);
         public PolicySpecR27 generate(StatsR27.SplitMix r, Context ctx) {
             int tp = position(r, ctx); PolicyAstR27.Node ast = program(tp, r);
