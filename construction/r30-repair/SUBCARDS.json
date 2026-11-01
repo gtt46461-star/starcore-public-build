@@ -65,6 +65,16 @@
         "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairCommitGuardsR30Test.java"
       ],
       "reason": "逐个.before回调按原最终Owner改组合guardBefore调用，保留原lease/source/deadline/confirm条件和同事务DML，防止后调用覆盖；对null守卫采取拒绝，保持非负回调的旧成功语义。增加并发提交、失败、角色/PIT、不可变状态反例。先登记后施工。"
+    },
+    {
+      "id": "FR-B02-02-a",
+      "card": "FR-B02-02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/FtrlWriteTraceR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/test/java/com/ethk3/novaonepro/FtrlWriteTraceR30Test.java"
+      ],
+      "reason": "给原FTRL事务加线程局部定长分段计时，事务结束后才发布有界进程遥测，不在数据库锁内请求遥测监视器。原事件与artifact同事务、索引所有权不改。EXPLAIN在事务外只读采集既有索引的真实计划；报告进程观察与SQLite同快照/24h验收区分。缺真实大库和设备复测不声称达标。先登记后施工。"
     }
   ]
 }
