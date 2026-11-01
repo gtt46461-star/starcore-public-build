@@ -1,0 +1,22 @@
+{
+  "subcards": [
+    {
+      "id": "FR-B01-02-a",
+      "card": "FR-B01-02",
+      "files": [
+        "tools/r30-repair/qual_host/DiagnosisReportR30R1HostTest.java",
+        "tools/r30-repair/run_diagnosis_host.py",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java"
+      ],
+      "reason": "按方案五个阶段注入真实错误并验证只读错误降级；线程局部测试钩子默认null，无生产调用，所有回调均在既有report读取函数内，不新增writer/训练/授权。补至多8层因果类型和总计12产品帧，隐藏原异常消息/原始payload；损坏头分类为PARSE_SNAPSHOT失败，原16有效输入输出保持。新增HOST测试用实际生产类字节码、原JDBC SQLite适配器及实际原生SQLite，不冒充Android设备。先登记后施工。"
+    },
+    {
+      "id": "FR-B01-03-a",
+      "card": "FR-B01-03",
+      "files": [
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30DiagnosisRulesTest.java"
+      ],
+      "reason": "对真实writerHard诊断增加必须映射M07且不能误归M11的原JUnit反例，验证度量口径修复。"
+    }
+  ]
+}
