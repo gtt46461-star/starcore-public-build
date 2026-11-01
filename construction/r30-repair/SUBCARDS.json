@@ -38,6 +38,33 @@
         "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java"
       ],
       "reason": "完整索引由只读原始注册表生成，29旧图18研究图20矩阵82能力逐项保留六状态与来源。上次摘要仅在已验证ZIP发布READY_TO_SHARE后原子保存，按jobId去重，同版本对象角色才比较；不读写签名材料、不新增数据库写者。先登记后施工。成功摘要候选属于小型已验证元数据，raw清理白名单保留供磁盘写失败后的发布恢复重试，不保留额外数据库副本。"
+    },
+    {
+      "id": "FR-B02-01-a",
+      "card": "FR-B02-01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairWriterLedgerR30Test.java",
+        "tools/r30-repair/run_writer_host.py"
+      ],
+      "reason": "由原唯一SchemaR27.ensure增补原遥测表的直方图JSON和进程会话字段；不新增数据库或第二写者。开口分位桶以区间表达，数值列null，实际max仍保留。原生和HOST测试分别标注范围。先登记后施工。"
+    },
+    {
+      "id": "FR-B02-06-a",
+      "card": "FR-B02-06",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ConfirmReadStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairCommitGuardsR30Test.java"
+      ],
+      "reason": "逐个.before回调按原最终Owner改组合guardBefore调用，保留原lease/source/deadline/confirm条件和同事务DML，防止后调用覆盖；对null守卫采取拒绝，保持非负回调的旧成功语义。增加并发提交、失败、角色/PIT、不可变状态反例。先登记后施工。"
     }
   ]
 }
