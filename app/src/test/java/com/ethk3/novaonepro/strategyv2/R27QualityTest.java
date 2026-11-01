@@ -379,9 +379,10 @@ public final class R27QualityTest {
         assertTrue(rt.contains("LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline, LiveShadowsR27.OBSERVE_STATES, false)"));
         assertTrue(rt.contains("if (stepBefore == 9) refreshObservers(w, loop);"));
         // Certification, calibration and the mainline intent still read ACTIVE shadows only.
-        assertTrue(live.contains("for (Shadow s : shadows(w.ro, \"('ACTIVE')\"))"));
-        assertEquals(LiveShadowsR27.LIVE_STATES, "('ACTIVE','CONTROL_I00','CONTROL_NULL')");
+        assertTrue(live.contains("for (Shadow s : shadows(w.ro, \"('ACTIVE','ACTIVE_REPAIR1')\"))"));
+        assertEquals(LiveShadowsR27.LIVE_STATES, "('ACTIVE','ACTIVE_REPAIR1','CONTROL_I00','CONTROL_NULL')");
         assertFalse(MainlineBridgeSU2.R27_INTENT_SQL.contains("OBSERVE"));
+        assertFalse(LiveShadowsR27.LIVE_STATES.contains("OBSERVE"));
         assertNotEquals(RuntimeR27.observerId("p"), "p");
         R27TestSupport.log("R27_4_OBSERVERS_PASS cap=" + RuntimeR27.OBSERVE_CAP);
     }

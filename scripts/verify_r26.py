@@ -2,6 +2,7 @@
 """Independent R26 protocol/math regression and real additive SQLite DDL checks."""
 from pathlib import Path
 import hashlib,json,re,sqlite3,subprocess,time,shutil,tempfile
+from host_product_classpath import product_classpath
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'build/r26';OUT.mkdir(parents=True,exist_ok=True)
 
@@ -18,7 +19,8 @@ def main():
     sources += [prod/'r952'/n for n in ['AtomEvaluatorCP4.java','AtomWindowCP4.java','MemoryBudgetCP4.java','MatrixMetricsCP11.java','StrictCanonicalJson.java']]
     sources += [ROOT/'tools/strategy_su2/tests'/name for name in ['R26KernelTest.java','R26FamiliesTest.java','R26ExpertTest.java','R26RecoveryTest.java','R26EvidenceTest.java','R26FrozenSurfaceTest.java','R26ChunkedCheckpointTest.java','R26CapabilityServiceTest.java','R26ForecastSnapshotTest.java','R26FamilyMechanismTest.java','R26IncumbentBudgetTest.java','R26F08MechanismTest.java','R26F20MechanismTest.java','R26WarmSeedTest.java','R26TensorMechanismTest.java','R26FragmentDiagnosticsTest.java','R26MatchingDiagnosticsTest.java','R26NeuralDiagnosticsTest.java','R26StructuredDiagnosticsTest.java','R26SparseDiagnosticsTest.java','R26DurationDiagnosticsTest.java','R26StatisticalDiagnosticsTest.java','R26SuffixDiagnosticsTest.java','R26RetrievalDiagnosticsTest.java','R26RelationStatisticsTest.java','R26SymbolicDiagnosticsTest.java','R26ResidualDiagnosticsTest.java','R26DistillationDiagnosticsTest.java']]
     classes=OUT/'classes';classes.mkdir(exist_ok=True)
-    run('compile',['java','com.sun.tools.javac.Main','-encoding','UTF-8','-d',classes]+sources)
+    run('compile',['java','com.sun.tools.javac.Main','-encoding','UTF-8','-cp',product_classpath(ROOT),'-d',classes]+sources)
+    classes=product_classpath(ROOT,classes)
     log=run('kernels',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26KernelTest']);assert 'R26_KERNEL_PASS' in log
     run('experts',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26ExpertTest'])
     run('recovery',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26RecoveryTest'])

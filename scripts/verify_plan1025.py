@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import subprocess
 import time
+from host_product_classpath import product_classpath
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / 'tools/strategy_su2'
@@ -36,7 +37,7 @@ def main():
     sources += [prod / 'r952' / name for name in ['AtomEvaluatorCP4.java', 'AtomWindowCP4.java', 'MemoryBudgetCP4.java', 'MatrixMetricsCP11.java', 'StrictCanonicalJson.java']]
     sources += list((BASE / 'tests').glob('*.java'))
     classes = logs / 'classes'; classes.mkdir(exist_ok=True)
-    compiled = run('production_compile', ['java', 'com.sun.tools.javac.Main', '-source', '17', '-target', '17', '-encoding', 'UTF-8', '-d', classes] + sources)
+    compiled = run('production_compile', ['java', 'com.sun.tools.javac.Main', '-source', '17', '-target', '17', '-encoding', 'UTF-8', '-cp', product_classpath(ROOT), '-d', classes] + sources)
     ok = compiled and ok
     fixtures = BASE / 'fixtures'
     tests = [
@@ -62,7 +63,7 @@ def main():
         tests.append(('ModelEvolutionR16Test', ['r13_worlds'], 'R16_JAVA_FOUNDRY_PASS'))
     if compiled:
         for name, paths, marker in tests:
-            ok = run(name, ['java', '-Xmx1600m', '-cp', classes, 'com.ethk3.novaonepro.strategyv2.' + name] + [fixtures / p for p in paths], marker) and ok
+            ok = run(name, ['java', '-Xmx1600m', '-cp', product_classpath(ROOT,classes), 'com.ethk3.novaonepro.strategyv2.' + name] + [fixtures / p for p in paths], marker) and ok
     report = {'status': 'PASS' if ok else 'FAIL', 'scope': 'Current production Java and SQLite, independent plan fixtures; physical-device endurance and natural forward efficacy require separate evidence', 'evolution_executed': args.evolution, 'source_sha256': {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sources}, 'checks': results}
     (logs / 'verification.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
     return 0 if ok else 1

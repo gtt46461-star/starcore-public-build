@@ -496,6 +496,38 @@
         "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairResearchFrameBoundR30Test.java"
       ],
       "reason": "先登记：代码审查发现完整专家/模型原件可能超过UI262144字节预算。保留research_measure完整机读frame，图缓存只写同run的有界显示投影，至多120点/180边及显式细节省略/原件hash；显示截断不改变分析或消费输入。"
+    },
+    {
+      "id": "FR-B11-01-original-harness-dependencies",
+      "card": "FR-B11-01",
+      "files": [
+        "scripts/host_product_classpath.py",
+        "scripts/verify_strategy_su1.py",
+        "scripts/verify_plan1025.py",
+        "scripts/verify_r26.py"
+      ],
+      "reason": "先登记：首轮安全CI实际失败于旧纯Java编译清单按import字符串漏掉新增依赖。保留原全部待编源码和原14/17/R26测试，编译/运行classpath补已通过Android编译的当前应用依赖及SDK类型；独立Python黄金比较不变，无跳过门禁。类路径不存在明确失败。"
+    },
+    {
+      "id": "FR-B08-02-golden-new-operators",
+      "card": "FR-B08-02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/OperatorGoldenR27.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java"
+      ],
+      "reason": "先登记：全量旧回归发现新硬交集leaf未接入原OperatorGolden采样，生产ABI任务会因参数数目错误失败。为新leaf提供真实合法32/128窗口，保持所有旧operator采样与数学。观察者角色断言按新ACTIVE_REPAIR1影子命名空间扩展，并继续排除所有OBSERVE，原REAL权威不改。"
+    },
+    {
+      "id": "FR-B11-01-declared-contract-fixtures",
+      "card": "FR-B11-01",
+      "files": [
+        "tools/strategy_su2/tests/R26ExpertTest.java",
+        "tools/strategy_su2/tests/R26FamiliesTest.java",
+        "tools/strategy_su2/tests/R26WarmSeedTest.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30FailureRepairTest.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30IdeaFamilyContractTest.java"
+      ],
+      "reason": "先登记：旧F23合成夹具缺新增必填asset/scope合同，补合法显式合成身份，不放宽生产绑定守卫。原F_STACK测试使用不同目标父代、原E10测试无评价输入，本方案要求明确拒绝，断言改为精确0/审计；同目标有实际配对收益的正例继续由RepairFusionStudy原测试覆盖，所有其他算子/专家要求保留。"
     }
   ]
 }

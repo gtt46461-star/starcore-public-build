@@ -102,7 +102,7 @@ public final class R30FailureRepairTest {
                 assertTrue(child.meta.reason,child.meta.reason.contains("failureProfile="));
                 if (PolicyContractR30.violations(child).isEmpty()) valid++;
             }
-            assertTrue(op + " produced no meaningful sample",n >= 20); proposed.put(op,n);
+            if(op.equals("F_STACK"))assertEquals("Different target parents must not be fused",0,n);else assertTrue(op + " produced no meaningful sample",n >= 20); proposed.put(op,n);
         }
         assertTrue(valid / (double)produced >= 0.99);
         R27TestSupport.log("R30_REPAIR_CONTRACT attempts=" + attempted + " proposed=" + produced + " valid=" + valid + " notProposed=" + (attempted-produced) + " perOperator=" + proposed);

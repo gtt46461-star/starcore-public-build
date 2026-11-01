@@ -43,6 +43,7 @@ public final class OperatorGoldenR27 {
             case "fdecay": return PolicyAstR27.leaf(kind, 2, 32);
             case "model_surface": case "gap": case "gaprank": case "crosscond": case "neighbor": return PolicyAstR27.leaf(kind, 2);
             case "cross": return PolicyAstR27.leaf(kind, 2, 1);
+            case "set_intersection": case "set_intersection_when_repeat": return PolicyAstR27.leaf(kind,32,128);
             case "regime": return PolicyAstR27.leaf(kind, 32);
             case "knn": return PolicyAstR27.leaf(kind, 3, 20);
             case "randu": return PolicyAstR27.leaf(kind, 12345);

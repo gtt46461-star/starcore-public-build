@@ -2,6 +2,7 @@
 """Test the deployed Java kernels, independent Python parity, and production SQLite DDL."""
 from pathlib import Path
 import json, os, subprocess, sys, time, shutil
+from host_product_classpath import product_classpath
 ROOT=Path(__file__).resolve().parents[1]
 HOST=ROOT/'tools/strategy_su1'
 REPORT=ROOT/'build/strategy_su1-verification.json'
@@ -28,11 +29,12 @@ def main():
     r952=ROOT/'app/src/main/java/com/ethk3/novaonepro/r952'
     sources += [r952/n for n in ['AtomEvaluatorCP4.java','AtomWindowCP4.java','MemoryBudgetCP4.java','MatrixMetricsCP11.java','StrictCanonicalJson.java']]
     sources += list((HOST/'reference/java/com/ethk3/novaonepro/strategyv2').glob('*Test.java'))
-    compiled=run('deployed_java_compile',['java','com.sun.tools.javac.Main','-source','17','-target','17','-d',classes]+sources)
+    deps=product_classpath(ROOT)
+    compiled=run('deployed_java_compile',['java','com.sun.tools.javac.Main','-source','17','-target','17','-cp',deps,'-d',classes]+sources)
     okay=compiled and okay
     if compiled:
         for name in ['ProgramTreeSU1Test','TypedProgramTest','PairedEvidenceTest','NullBaselineTest','ProductionKernelSU1Test','AdvancedContractsSU1Test','TrainingParitySU1Test','AuditControlsSU1Test','RelGraphContractsSU1Test','RelGraphParitySU1Test','ModelAblationsSU1Test','ResearchFailureSU1Test','TrainingFidelitySU1Test','ProductionR13Test']:
-            okay=run(name,['java','-Dsu1.parity.dir='+str(parity_dir),'-cp',classes,'com.ethk3.novaonepro.strategyv2.'+name],HOST) and okay
+            okay=run(name,['java','-Dsu1.parity.dir='+str(parity_dir),'-cp',product_classpath(ROOT,classes),'com.ethk3.novaonepro.strategyv2.'+name],HOST) and okay
     okay=run('python_schema_learning_and_null_suites',[sys.executable,'-m','unittest','discover','-s','reference/python','-p','test_*.py','-v'],HOST) and okay
     okay=run('python_replay_and_creation_suites',[sys.executable,'-m','unittest','discover','-s','reference/replay','-p','test_*.py','-v'],HOST) and okay
     REPORT.parent.mkdir(exist_ok=True);REPORT.write_text(json.dumps({'status':'PASS' if okay else 'FAIL','scope':'deployed pure Java source + independent Python and SQLite; Android/physical device and natural prediction qualification are separate','checks':results},ensure_ascii=False,indent=2)+'\n')

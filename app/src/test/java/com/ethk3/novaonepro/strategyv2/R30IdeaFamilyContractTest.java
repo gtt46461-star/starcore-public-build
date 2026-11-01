@@ -49,7 +49,8 @@ public final class R30IdeaFamilyContractTest {
                 else { assertTrue(proposal.expert, PolicyContractR30.violations(proposal.spec).isEmpty()); executable.merge(expert[0], 1, Integer::sum); }
             }
         }
-        assertEquals(12, executable.size()); assertEquals(4, audits.size());
+        assertEquals(11, executable.size()); assertEquals(5, audits.size());
+        assertFalse("E10 without same-target evaluation must not fabricate fusion",executable.containsKey("E10"));assertEquals(100,audits.get("E10").intValue());
         for (int n : executable.values()) assertEquals(100, n);
         R27TestSupport.log("R30_EXPERT_CONTRACT executable=" + executable + " audits=" + audits);
         PolicySpecR27 bad = new PolicySpecR27(null, 1, PolicySpecR27.Rule.ALWAYS, 0, 0, 1, false, 0, 0, null);
