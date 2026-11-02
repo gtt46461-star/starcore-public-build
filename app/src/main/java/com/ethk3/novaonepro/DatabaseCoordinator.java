@@ -379,6 +379,12 @@ public final class DatabaseCoordinator {
                 if (criticalStampReason.startsWith("MATCH")) {
                     verifyCriticalTables(existingDb);
                     if (initializer != null) initializer.run(existingDb);
+                    // Initializers run before re-stamping: if one changed the schema, the
+                    // second compatibility check below refuses to certify unknown drift.
+                    if ("MATCH_R30_PIN_DRAW_ADDITION".equals(criticalStampReason)) {
+                        verifyCriticalTables(existingDb);
+                        restampVerifiedPinAdditionR30(existingDb, critical);
+                    }
                     criticalSchemaReady.set(true);
                     criticalSchemaStage = "READY_VERIFIED_R926_CRITICAL_STAMP_" + criticalStampReason;
                     criticalSchemaCompletedAt = System.currentTimeMillis();
@@ -473,6 +479,20 @@ public final class DatabaseCoordinator {
                 throw new IllegalStateException(lastError, e);
             }
         }
+    }
+
+    /** Called only under the shared writer guard; stamp and evidence checks are atomic. */
+    static void restampVerifiedPinAdditionR30(SQLiteDatabase db, SchemaDomainCoordinatorR926.Contract critical) {
+        if (!WRITE_LOCK_CP3.isHeldByCurrentThread()) throw new IllegalStateException("R30_STAMP_WRITER_REQUIRED");
+        db.beginTransaction();
+        try {
+            if (!"MATCH_R30_PIN_DRAW_ADDITION".equals(SchemaDomainCoordinatorR926.matchReason(db, critical)))
+                throw new IllegalStateException("R30_STAMP_COMPATIBILITY_CHANGED");
+            SchemaDomainCoordinatorR926.verifyAndStamp(db, critical);
+            if (!"MATCH".equals(SchemaDomainCoordinatorR926.matchReason(db, critical)))
+                throw new IllegalStateException("R30_STAMP_POSTCHECK_FAILED");
+            db.setTransactionSuccessful();
+        } finally { db.endTransaction(); }
     }
 
     /**

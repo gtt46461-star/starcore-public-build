@@ -57,7 +57,9 @@ public final class SchemaStampReasonAndroidTest {
     }
 
     @Test public void report003SchemaReproducesLegacyStampWithoutMigration() throws Exception {
-        try (SQLiteDatabase db = SQLiteDatabase.create(null);
+        java.io.File fixture = java.io.File.createTempFile("r30-stamp-", ".db",
+                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getContext().getCacheDir());
+        try (SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(fixture, null);
              java.io.InputStream in = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
                      .getContext().getAssets().open("r30_report_003_critical_schema.json")) {
             java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
@@ -77,6 +79,39 @@ public final class SchemaStampReasonAndroidTest {
                 db.execSQL("INSERT INTO " + SchemaDomainCoordinatorR926.TABLE_JOURNAL + "(domain,revision,step_id,status) VALUES('CRITICAL',6,?,'COMPLETED')", new Object[]{step});
             assertEquals("MATCH_R30_PIN_DRAW_ADDITION", SchemaDomainCoordinatorR926.matchReason(db,c));
             SchemaDomainCoordinatorR926.verifyObjects(db,c);
+            assertFalse(snapshotMatches(fixture, c));
+            try (DatabaseCoordinator.WriterGuardCP3 guard = DatabaseCoordinator.acquireWriterGuardCP3()) {
+                DatabaseCoordinator.restampVerifiedPinAdditionR30(db,c);
+            }
+            assertEquals("MATCH", SchemaDomainCoordinatorR926.matchReason(db,c));
+            assertTrue(snapshotMatches(fixture, c));
+            // The next cold decision is the ordinary stamp fast path and does no backup.
+            assertEquals("MATCH", SchemaDomainCoordinatorR926.matchReason(db,c));
+            java.io.File[] backups = fixture.getParentFile().listFiles((dir,name) -> name.startsWith(fixture.getName()+".r926."));
+            assertNotNull(backups);
+            assertEquals(0, backups.length);
+            db.execSQL("CREATE INDEX unknown_stamp_drift ON draws(issue)");
+            assertFalse(SchemaDomainCoordinatorR926.matches(db,c));
+            assertFalse(snapshotMatches(fixture, c));
+            try (DatabaseCoordinator.WriterGuardCP3 guard = DatabaseCoordinator.acquireWriterGuardCP3()) {
+                try { DatabaseCoordinator.restampVerifiedPinAdditionR30(db,c); fail("unknown drift stamped"); }
+                catch (IllegalStateException expected) { assertEquals("R30_STAMP_COMPATIBILITY_CHANGED",expected.getMessage()); }
+            }
+            db.execSQL("DROP INDEX unknown_stamp_drift");
+            db.execSQL("DROP TRIGGER r30r1_pin_draws_insert");
+            db.execSQL("CREATE TRIGGER r30r1_pin_draws_insert AFTER INSERT ON draws BEGIN SELECT 1; END");
+            assertFalse(SchemaDomainCoordinatorR926.matches(db,c));
+            assertFalse(snapshotMatches(fixture, c));
+        } finally { SQLiteDatabase.deleteDatabase(fixture); }
+    }
+
+    private static boolean snapshotMatches(java.io.File fixture, SchemaDomainCoordinatorR926.Contract c) {
+        try (SQLiteDatabase snapshot = SQLiteDatabase.openDatabase(fixture.getPath(), null, SQLiteDatabase.OPEN_READONLY);
+             ReportReadContextCP4 report = new ReportReadContextCP4(snapshot,"fixture",
+                     "0000000000000000000000000000000000000000000000000000000000000000",1L,
+                     new ReportReadContextCP4.RuntimeObservationCP4("{}"),
+                     new ReportReadContextCP4.SourceManifestCP4("{}"),new android.os.CancellationSignal(),8L*1024*1024)) {
+            return SchemaDomainCoordinatorR926.matchesSnapshotCP4(report,snapshot,c);
         }
     }
 }
