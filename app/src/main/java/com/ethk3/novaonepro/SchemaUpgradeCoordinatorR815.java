@@ -55,6 +55,9 @@ public final class SchemaUpgradeCoordinatorR815 {
 
     private SchemaUpgradeCoordinatorR815() {}
 
+    // Only currently free space is safe to promise: allocatableBytes may include
+    // cache eviction, which must not be triggered by a database recovery attempt.
+    @android.annotation.SuppressLint("UsableSpace")
     public static Result prepareAndVerify(Context context, DbHelper helper) {
         if (context == null || helper == null)
             return new Result(false,"SAFE_DB_RECOVERY",null,"",false,false,false,"ARGUMENT_NULL","","");
