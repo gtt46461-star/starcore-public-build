@@ -1,11 +1,11 @@
-# STARCORE R30 实现与验收入口
+# STARCORE R30 返修实施与验收入口
 
-当前候选版本：`577310106 / R30-FINAL-2026.10.31-106`。应用源码在 [construction/r30-20261031](https://github.com/gtt46461-star/starcore-public-build/tree/construction/r30-20261031)，真实进度见 [STATUS.md](construction/r30/STATUS.md)、[FINAL.json](construction/r30/FINAL.json)、[BUILD_PROGRESS.json](construction/r30/BUILD_PROGRESS.json)。
+当前方案为 [R30 最终返修方案](construction/plans/STARCORE_R30_FINAL_REPAIR_20261101/README.md)，60卡、12批次 B00–B11。实际施工在 construction/r30-repair-20261101 分支。
 
-B00–B08的48张施工卡已完成工程检查，B09源码已实现，B10正进行最终交付验证。106版完整本地269项单测/70XML零失败、零错误、零跳过，lint没有新增错误，原51项基线及7项未匹配保留；原冻结适配器已恢复原字节，新增SU2只读校验位于独立R30类。Android测试真实投递原看门狗广播通过，测试库原收据迁移域补齐后已重新编译。历史失败完整保留。
+002版已停止作为最终交付推荐：人工查看正确定位后的R03截图，发现100节点超过旧64节点绘图预算，页面显示 IllegalArgumentException；旧测试没有检查onDraw兜底错误。真实失败见 [人工复核记录](evidence/r30-repair/B11/MANUAL_002_GALLERY_REJECTION.json)。不得将旧188PNG数量/CI绿色当作全部图已正确绘制。
 
-103版两证书四项CP06/CP16覆盖—回退—再覆盖均通过，但不替代106版最终验收。仅使用既有R13官方与R27证书执行最终相同源码完整CI；两边实际Android17项、48张图表截图、14格故障及四项升级演练全部通过后才统一发布两份release APK。当前暂无最终APK直链。
+正在构建003：保留旧图64节点合同，新研究图显式允许有界120节点；截图检查真实绘制次数和原始绘图异常。R12用已有配对残差补齐热图轴，数值与研究消费者不改。003将重新运行全部原门禁、单测、188图、26故障格及CP06/CP16/当前R30-107三代九步覆盖升级；通过并独立查看公开实际图片后才推荐新的APK。
 
-V2353A前台60分钟、息屏6小时、连续72小时没有设备，均为NOT_RUN；Q01–Q07自然质量证据不足。B11三项真机触发条件未知，切库未启用，未宣称100%全指标验收。
+原R27签名loader保持原字节，不生成新密钥，代理不读取或上传签名私钥。DecisionGateEngine、SettlementEngine、SequentialQualificationR27与原51项lint基线保持原字节。
 
-方案：[STARCORE_R30_FINAL_20261031](construction/plans/STARCORE_R30_FINAL_20261031/README.md)，57张卡含B11两张条件卡、44指标，只读方案树未变。
+Vivo V2353A 72小时、原约26GB用户库性能/空间及自然Q01–Q07/主链效果仍未验收，不宣称60卡百分百闭环。逐卡范围见 [STATUS](construction/r30-repair/STATUS.json)；不可变方案目录不改。
