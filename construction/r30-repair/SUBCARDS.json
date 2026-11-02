@@ -733,6 +733,67 @@
         "tools/r30-repair/reverify_gallery.py"
       ],
       "reason": "先登记：C7全部门禁成功后独立下载人工检查确认READY-R01/R02/R03 PNG哈希完全相同，画面均R01；生产R02/R03分别LINES/GRAPH，说明截图定位/实际帧提交未同步。补真实布局/可见标题或plot/帧提交等待及关键不同图截图差异断言，重新对同一a94公开APK进行单独Android图库验证。产品main/source/signature/APK字节不变；明确appSource=a94与testSource修复commit分离，不改或禁用源/签名守卫。公开证据仅在新图库真实通过后更正。"
+    },
+    {
+      "id": "FR-B11-04-final-public-delivery-evidence",
+      "card": "FR-B11-04",
+      "files": [
+        "CURRENT_FINAL_PLAN.md",
+        "construction/r30-repair/STATUS.json",
+        "construction/r30-repair/STATUS.md",
+        "construction/r30-repair/FINAL.json",
+        "construction/r30-repair/DELIVERY.json",
+        "construction/r30-repair/ALL60_EVIDENCE.json",
+        "construction/r30-repair/INTEGRATION_RECEIPT.json",
+        "construction/r30-repair/CHART_ACCEPTANCE_47.json",
+        "construction/r30-repair/FAULT_MATRIX.json",
+        "evidence/r30-repair/B11/FINAL_ENGINEERING_CI.json",
+        "evidence/r30-repair/B11/FINAL_CURRENT107_UPGRADE.json",
+        "evidence/r30-repair/B11/FINAL_PUBLIC_VERIFICATION.json",
+        "evidence/r30-repair/B11/FINAL_GALLERY_REVERIFICATION.json",
+        "evidence/r30-repair/B11/PROTECTED_AUTHORITIES_FINAL.json",
+        "evidence/r30-repair/B11/INTEGRATION_ATTEMPTS_REAL_FAILURES.json"
+      ],
+      "reason": "先登记最终回执：只依据已发布精确a94 APK、C7真实344单测/26故障/CP06/CP16及额外107升级回执、独立HTTP/证书验证和实际重采图库证据更新60卡工程范围及公开下载。保留每卡未直接覆盖/真机72h/原26GB大库/自然Q01-Q07边界，不按提交或测试数声称60卡100%完成，不改不可变方案/产品源码/原51lint基线。图库未实际通过前不写最终通过。"
+    },
+    {
+      "id": "FR-B09-03-actual-r03-graph-render-budget",
+      "card": "FR-B09-03",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ChartGeometryR82.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchChartViewR82.java",
+        "app/src/test/java/com/ethk3/novaonepro/ChartGeometryR82Test.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30GalleryCaptureR30.java",
+        "tools/r30-repair/r30-repair-build.yml",
+        "app/build.gradle",
+        "release/",
+        "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
+        "verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java",
+        "app/build/generated/",
+        "tools/r30-repair/KNOWN_002_RENDER_FAILURE.md",
+        "evidence/r30-repair/B11/MANUAL_002_GALLERY_REJECTION.json"
+      ],
+      "reason": "先登记真实产品失败：41363199715补验拍对位置后人工发现R03画内IllegalArgumentException；实际100个position-number节点超过旧ChartGeometryR82.graph64节点预算，错误被原onDraw本图兜底吞掉导致测试假绿。保留旧3参geometry64合同及旧图预算，新研究图显式有界≤120节点渲染、拒绝121，不删完整machineframe；对真实drawCount/lastFailure加入测试检查，不以截图不同或catch兜底当绘图成功。递增577311003，重新冻结真实编译身份并跑全CI/188图/26faults/三代升级，原原R27loader不变、数值权威不变。"
+    },
+    {
+      "id": "FR-B11-01-003-three-baseline-and-actual-draw-public-gate",
+      "card": "FR-B11-01",
+      "files": [
+        "tools/r30/UPGRADE_BASELINES.json",
+        "tools/r30-repair/r30-repair-build.yml",
+        "tools/r30-repair/publish_verified.py"
+      ],
+      "reason": "先登记：003需对同一新APK重验CP06/CP16/当前107三代九步，将已独立验过的107公开原R27 APK基线追加到原4条而不替换任何旧行，在同一主CI并行跑三代。发布器严格要求九回执、真实nativeDrawing次数及lastDrawingFailure为空、R01/R02/R03正确实际帧互异；不再仅计截图数。已知002实际绘图失败公开注明，签名loader原块不变，原故障26格仍全跑。"
+    },
+    {
+      "id": "FR-B09-02-r12-actual-paired-heatmap-axes",
+      "card": "FR-B09-02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairObservatoryR30Test.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30RepairChartsAndroidTest.java"
+      ],
+      "reason": "先登记人工真实图发现R12合同HEATMAP却因生产frame缺轴而降为BAR。对已有真实同目标父策略对残差相关points只补1×N热图行列身份，不改任何值/配对算法/消费者/资格；全量原pair仍保留机读，缺pair仍BLOCKED。不造对角或对称数值。原HOST专项验证轴形状，Android在有真实R12 pair的READY场景必须HEATMAP且实际draw成功。"
     }
   ]
 }

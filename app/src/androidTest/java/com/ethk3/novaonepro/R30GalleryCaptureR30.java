@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import com.ethk3.novaonepro.r952.ResearchChartViewR82;
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.util.Arrays;
@@ -111,8 +112,11 @@ final class R30GalleryCaptureR30 {
         try {
             Map<String,Object> after=geometry(instrumentation,target);
             assertEquals("target geometry must remain stable across screen capture",before,after);
+            AtomicReference<Map<String,Object>> drawing=new AtomicReference<>();
+            onMain(instrumentation,()->drawing.set(target.chart==null?null:drawingState(target)));
             String hash=pixelHash(bitmap);
             after.put("frameSync",frameSync);after.put("settleMs",300);
+            after.put("nativeDrawing",drawing.get());
             after.put("pixelSha256",hash);after.put("screenshotWidth",bitmap.getWidth());after.put("screenshotHeight",bitmap.getHeight());
             return new Frame(bitmap,after,hash);
         }catch(Exception|Error failure){bitmap.recycle();throw failure;}
@@ -149,6 +153,7 @@ final class R30GalleryCaptureR30 {
                 assertTrue("requested chart must be visible",target.chart.getGlobalVisibleRect(chart)&&Rect.intersects(viewport,chart));
                 int minimum=Math.min(target.chart.getHeight(),Math.max(1,viewport.height()/5));
                 assertTrue("visible chart area must be meaningful",chart.height()>=minimum);
+                drawingState(target);
             }
             Map<String,Object> values=new LinkedHashMap<>();
             values.put("title",target.expectedTitle);values.put("scrollY",target.scroll.getScrollY());
@@ -157,6 +162,19 @@ final class R30GalleryCaptureR30 {
             values.put("visibleChart",target.chart==null?null:rect(chart));snapshot.set(values);
         });
         return snapshot.get();
+    }
+
+    private static Map<String,Object> drawingState(Target target) {
+        try {
+            Field count=ResearchChartViewR82.class.getDeclaredField("drawCount");count.setAccessible(true);
+            Field last=ResearchChartViewR82.class.getDeclaredField("lastDrawingFailure");last.setAccessible(true);
+            long draws=count.getLong(target.chart);RuntimeException failure=(RuntimeException)last.get(target.chart);
+            assertTrue("actual native onDraw must run for "+target.expectedTitle,draws>0);
+            if(failure!=null)throw new AssertionError("actual native drawing failed for "+target.expectedTitle
+                +": "+failure.getClass().getName()+": "+String.valueOf(failure.getMessage()),failure);
+            Map<String,Object> state=new LinkedHashMap<>();state.put("drawCount",draws);state.put("lastDrawingFailure",null);
+            return state;
+        }catch(ReflectiveOperationException failure){throw new AssertionError("native drawing state unavailable",failure);}
     }
 
     private static java.util.List<Integer> rect(Rect value) {

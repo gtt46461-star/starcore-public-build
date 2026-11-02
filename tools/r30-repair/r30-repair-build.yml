@@ -31,6 +31,22 @@ jobs:
         with:
           ref: ${{ steps.request.outputs.source }}
           fetch-depth: 0
+      - name: Mark the known 002 render failure in its public release records
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release edit r30-repair1-577311002-a94ee9dae4e0 --repo "$GITHUB_REPOSITORY" --notes-file tools/r30-repair/KNOWN_002_RENDER_FAILURE.md
+          mkdir -p /tmp/r30-old002
+          gh release download r30-repair1-577311002-a94ee9dae4e0 --repo "$GITHUB_REPOSITORY" --dir /tmp/r30-old002 --pattern ACCEPTANCE.json
+          python3 - <<'PYTHON'
+          import json,pathlib
+          p=pathlib.Path('/tmp/r30-old002/ACCEPTANCE.json');o=json.loads(p.read_text())
+          o['isFinalRecommendedApk']=False
+          o['galleryManualContentAcceptance']='REJECTED_R03_ACTUAL_DRAW_FAILURE_AFTER_CORRECT_CAPTURE'
+          o['knownProductFailure']='R03 100 position-number nodes exceed old graph geometry64 node budget; onDraw fallback displayed IllegalArgumentException. Mechanical screenshot checks do not establish successful drawing.'
+          p.write_text(json.dumps(o,ensure_ascii=False,indent=2)+'\n')
+          PYTHON
+          gh release upload r30-repair1-577311002-a94ee9dae4e0 /tmp/r30-old002/ACCEPTANCE.json --repo "$GITHUB_REPOSITORY" --clobber
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -131,6 +147,7 @@ jobs:
           api-level: 34
           arch: x86_64
           target: default
+          profile: pixel_4
           disable-animations: true
           ram-size: 4096M
           heap-size: 512M
@@ -152,7 +169,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        checkpoint: [CP06, CP16]
+        checkpoint: [CP06, CP16, CURRENT_R30_107]
     steps:
       - uses: actions/checkout@v4
         with:
