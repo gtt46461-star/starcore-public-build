@@ -1,0 +1,88 @@
+name: R30 009 complete ZIP delivery
+'on':
+  push:
+    branches: ['delivery/r30-009-single-zip-20261102']
+    paths: ['.github/workflows/r30-009-single-zip.yml']
+permissions:
+  contents: write
+concurrency:
+  group: r30-009-single-zip-delivery
+  cancel-in-progress: false
+jobs:
+  verified-single-zip:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Assemble the seven verified files without rebuilding the APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64, hashlib, json, os, pathlib, shutil, urllib.request, zipfile
+          payload = json.loads(r'''{"metadata":[{"filename":"STARCORE-R30-REPAIR1-EXISTING_R27-5237b265a27f.apk","date_time":[2026,11,2,10,10,16],"compress_type":8,"create_system":3,"create_version":20,"extract_version":20,"reserved":0,"flag_bits":0,"volume":0,"internal_attr":0,"external_attr":2172649472,"extra_b64":"","comment_b64":"","sha256":"da42eaf3f6458bbf78ef256cfbe5667e29a18a51a94a02730a1d2f46b9c05749","bytes":28060658},{"filename":"安装说明.txt","date_time":[2026,11,2,10,25,48],"compress_type":8,"create_system":3,"create_version":20,"extract_version":20,"reserved":0,"flag_bits":2048,"volume":0,"internal_attr":0,"external_attr":2172649472,"extra_b64":"","comment_b64":"","sha256":"72f55888b8b3ba7b12adbb3ed6ff0e17b17aae0db6d5e329a9578a4ab375f312","bytes":523},{"filename":"ACCEPTANCE.json","date_time":[2026,11,2,10,10,14],"compress_type":8,"create_system":3,"create_version":20,"extract_version":20,"reserved":0,"flag_bits":0,"volume":0,"internal_attr":0,"external_attr":2172649472,"extra_b64":"","comment_b64":"","sha256":"a4becef1ce9c2e1001bdaaf61efa951241dd68db35251d5701b598b6f159f245","bytes":3436},{"filename":"delivery.json","date_time":[2026,11,2,10,10,14],"compress_type":8,"create_system":3,"create_version":20,"extract_version":20,"reserved":0,"flag_bits":0,"volume":0,"internal_attr":0,"external_attr":2172649472,"extra_b64":"","comment_b64":"","sha256":"0a5f082650e253cf083d14a7a9f677293c8ab7444aa55603b86d048d3343b08f","bytes":1149},{"filename":"public-certificate.txt","date_time":[2026,11,2,10,10,16],"compress_type":8,"create_system":3,"create_version":20,"extract_version":20,"reserved":0,"flag_bits":0,"volume":0,"internal_attr":0,"external_attr":2172649472,"extra_b64":"","comment_b64":"","sha256":"6f9947fe7165ca174f7c6fe49f76537c4e975e65cf5f27cc351ff89aa6daafc9","bytes":1380},{"filename":"SHA256SUMS.txt","date_time":[2026,11,2,10,10,16],"compress_type":8,"create_system":3,"create_version":20,"extract_version":20,"reserved":0,"flag_bits":0,"volume":0,"internal_attr":0,"external_attr":2172649472,"extra_b64":"","comment_b64":"","sha256":"48996e9cdc37286819e9083024051279fc6ff72523dbda1006991d955197b803","bytes":215},{"filename":"INDEPENDENT_VERIFICATION.json","date_time":[2026,11,2,10,10,18],"compress_type":8,"create_system":3,"create_version":20,"extract_version":20,"reserved":0,"flag_bits":0,"volume":0,"internal_attr":0,"external_attr":2172649472,"extra_b64":"","comment_b64":"","sha256":"97c2fd7189d4de02c18a5c5c8482739060e55e10f6d5f477cbec24f17ab26bf2","bytes":3971}],"inline":{"安装说明.txt":"U1RBUkNPUkUgUjMwIOi/lOS/rjAwOQrniYjmnKzlj7fvvJo1NzczMTEwMDkKCuino+WOi+WQjuaJk+W8gOWMheWGhSBBUEvvvIzpgJrov4fns7vnu5/lronoo4Xlmajopobnm5bljp8gUjI3IOW6lOeUqOOAggoKQVBLIFNIQS0yNTbvvJpkYTQyZWFmM2Y2NDU4YmJmNzhlZjI1NmNmYmU1NjY3ZTI5YTE4YTUxYTk0YTAyNzMwYTFkMmY0NmI5YzA1NzQ5CuWOn1IyN+ivgeS5piBTSEEtMjU277yaZDhkOGNlZTdmNDA2MjY3YjJiZjE4ZmM5YWVmMGM2YWI3NjA0MjNjZjIwNWNjZDY2MTNkZDQ0MDg1YmNjNzRlNwrmupDnoIHmj5DkuqTvvJo1MjM3YjI2NWEyN2ZlNWFkMjdmZDg0MjkwMWM0NDVkNWY4YzI3NzQ5CuWujOaVtENJ77yaaHR0cHM6Ly9naXRodWIuY29tL2d0dDQ2NDYxLXN0YXIvc3RhcmNvcmUtcHVibGljLWJ1aWxkL2FjdGlvbnMvcnVucy80MTQyMDc4NTM3MAoK5bey6YCa6L+H5qih5ouf5Zmo5LiO5LiJ57uE6KaG55uW5Y2H57qn6aqM5pS244CC5Y6f5omL5py65LiOOS42NkdC5Y6f5bqT5bCa5pyq5a6e5rWL44CCCg==","INDEPENDENT_VERIFICATION.json":"ewogICJzb3VyY2VDb21taXQiOiAiNTIzN2IyNjVhMjdmZTVhZDI3ZmQ4NDI5MDFjNDQ1ZDVmOGMyNzc0OSIsCiAgImNpUnVuSWQiOiA0MTQyMDc4NTM3MCwKICAiY2lDb25jbHVzaW9uIjogInN1Y2Nlc3MiLAogICJpbmRlcGVuZGVudERvd25sb2FkZWRBcnRpZmFjdFZlcmlmaWNhdGlvbiI6ICJQQVNTIiwKICAiZmlsZXMiOiBbCiAgICB7CiAgICAgICJmaWxlIjogIkFDQ0VQVEFOQ0UuanNvbiIsCiAgICAgICJieXRlcyI6IDM0MzYsCiAgICAgICJzaGEyNTYiOiAiYTRiZWNlZjFjZTljMmUxMDAxYmRhYWY2MWVmYTk1MTI0MWRkNjhkYjM1MjUxZDU3MDFiNTk4YjZmMTU5ZjI0NSIKICAgIH0sCiAgICB7CiAgICAgICJmaWxlIjogIkFORFJPSURfQUNDRVBUQU5DRV9FVklERU5DRS56aXAiLAogICAgICAiYnl0ZXMiOiA0MDI5MTc4MSwKICAgICAgInNoYTI1NiI6ICI0NDg4Yzc5YmQ1M2ViODNiNzEyNGU5NDJjYWI1M2ZiM2M5OWQyZmM4NWU0ODY5ODc5MzExZDVlN2MxY2Q4NDcxIgogICAgfSwKICAgIHsKICAgICAgImZpbGUiOiAiZGVsaXZlcnkuanNvbiIsCiAgICAgICJieXRlcyI6IDExNDksCiAgICAgICJzaGEyNTYiOiAiMGE1ZjA4MjY1MGUyNTNjZjA4M2QxNGE3YTlmNjc3MjkzYzhhYjc0NDRhYTU1NjAzYjg2ZDA0OGQzMzQzYjA4ZiIKICAgIH0sCiAgICB7CiAgICAgICJmaWxlIjogInB1YmxpYy1jZXJ0aWZpY2F0ZS50eHQiLAogICAgICAiYnl0ZXMiOiAxMzgwLAogICAgICAic2hhMjU2IjogIjZmOTk0N2ZlNzE2NWNhMTc0ZjdjNmZlNDlmNzY1MzdjNGU5NzVlNjVjZjVmMjdjYzM1MWZmODlhYTZkYWFmYzkiCiAgICB9LAogICAgewogICAgICAiZmlsZSI6ICJTSEEyNTZTVU1TLnR4dCIsCiAgICAgICJieXRlcyI6IDIxNSwKICAgICAgInNoYTI1NiI6ICI0ODk5NmU5Y2RjMzcyODY4MTllOTA4MzAyNDA1MTI3OWZjNmZmNzI1MjNkYmRhMTAwNjk5MWQ5NTUxOTdiODAzIgogICAgfSwKICAgIHsKICAgICAgImZpbGUiOiAiU1RBUkNPUkUtUjMwLVJFUEFJUjEtRVhJU1RJTkdfUjI3LTUyMzdiMjY1YTI3Zi5hcGsiLAogICAgICAiYnl0ZXMiOiAyODA2MDY1OCwKICAgICAgInNoYTI1NiI6ICJkYTQyZWFmM2Y2NDU4YmJmNzhlZjI1NmNmYmU1NjY3ZTI5YTE4YTUxYTk0YTAyNzMwYTFkMmY0NmI5YzA1NzQ5IgogICAgfQogIF0sCiAgInBhY2thZ2VCYWRnaW5nIjogInBhY2thZ2U6IG5hbWU9J2NvbS5zdGFyY29yZS5yZXNlYXJjaC5yMTMnIHZlcnNpb25Db2RlPSc1NzczMTEwMDknIHZlcnNpb25OYW1lPSdSMzAtUkVQQUlSMS0yMDI2LjExLjAyLTAwOScgcGxhdGZvcm1CdWlsZFZlcnNpb25OYW1lPScxNicgcGxhdGZvcm1CdWlsZFZlcnNpb25Db2RlPSczNicgY29tcGlsZVNka1ZlcnNpb249JzM2JyBjb21waWxlU2RrVmVyc2lvbkNvZGVuYW1lPScxNiciLAogICJjZXJ0aWZpY2F0ZVNoYTI1NiI6ICJkOGQ4Y2VlN2Y0MDYyNjdiMmJmMThmYzlhZWYwYzZhYjc2MDQyM2NmMjA1Y2NkNjYxM2RkNDQwODViY2M3NGU3IiwKICAiaG9zdFRlc3RzIjogewogICAgInNvdXJjZUNvbW1pdCI6ICI1MjM3YjI2NWEyN2ZlNWFkMjdmZDg0MjkwMWM0NDVkNWY4YzI3NzQ5IiwKICAgICJzb3VyY2UiOiAiQUNUVUFMX0dSQURMRV9KVU5JVF9YTUwiLAogICAgInhtbFN1aXRlcyI6IDk3LAogICAgInRlc3RzIjogMzUxLAogICAgImZhaWx1cmVzIjogMCwKICAgICJlcnJvcnMiOiAwLAogICAgInNraXBwZWQiOiAwLAogICAgInNjb3BlIjogIkhPU1RfVU5JVF9OT1RfQU5EUk9JRF9QSFlTSUNBTF9PUl9OQVRVUkFMIgogIH0sCiAgInNjaGVtYVN0YW1wQW5kcm9pZEFjY2VwdGFuY2UiOiB7CiAgICAic291cmNlQ29tbWl0IjogIjUyMzdiMjY1YTI3ZmU1YWQyN2ZkODQyOTAxYzQ0NWQ1ZjhjMjc3NDkiLAogICAgInJlc3VsdCI6ICJQQVNTIiwKICAgICJhbmRyb2lkVGVzdHMiOiAzLAogICAgIm91dHB1dFNoYTI1NiI6ICJmM2QwMjM2MDcyZTgzYmE1NDBmOTRjZWFiMmZiMTg2ZDRkMzhkNmExMTI1Njg0NjViNTUzYmY0NTE0MzM0OTNhIiwKICAgICJzY29wZSI6ICJBbmRyb2lkIFNRTGl0ZSByZXBvcnQgc2NoZW1hIGZpeHR1cmU7IGxpdmUgYW5kIHJlYWRvbmx5IHNuYXBzaG90IGFmdGVyIGd1YXJkZWQgcmVzdGFtcDsgdW5rbm93biBkcmlmdCByZWplY3RlZDsgbm90IHRoZSB1c2VyIDkuNjZHQiBkYXRhYmFzZSIKICB9LAogICJ1aVJlcG9ydCI6IHsKICAgICJzb3VyY2VDb21taXQiOiAiNTIzN2IyNjVhMjdmZTVhZDI3ZmQ4NDI5MDFjNDQ1ZDVmOGMyNzc0OSIsCiAgICAicmVzdWx0IjogIlBBU1MiLAogICAgImVudmlyb25tZW50IjogIkRJU1BPU0FCTEVfQU5EUk9JRF9FTVVMQVRPUiIsCiAgICAiZW50cnkiOiAiTWFpbkFjdGl2aXR5IHByb2R1Y3Rpb24gZXhwb3J0IGJ1dHRvbiBhbmQgbWVudSIsCiAgICAiam9iSWQiOiAiNTQ3YTA5MjliN2Q0NjBlNTczNGI5MTRlMDNhMGM4MTgwZTRiYmFjZWJhZmVhY2UyNjgwOGFiM2M0ZWFlMzZmYyIsCiAgICAiemlwQnl0ZXMiOiAxMDEwNzA3NSwKICAgICJ6aXBTaGEyNTYiOiAiOTM4YmVhYmUxY2E0ZjExZjI3NmJmMmJlN2I0ZDQyN2ZlZjUwZjZkYmQzNTgxMjQyYTkyMTcxOTg4ZTFkNTEzZiIsCiAgICAiZW50cnlDb3VudCI6IDQzLAogICAgInJlcXVpcmVkTm9uZW1wdHlNZW1iZXJzIjogewogICAgICAiRElBR05PU1RJQ19TQ09QRS5qc29uIjogewogICAgICAgICJieXRlcyI6IDIxNTEwNTM0LAogICAgICAgICJzaGEyNTYiOiAiZWJhZTBmYTY0MmEzODEyYTNkNWZjOWM5OTZkMGQ1Mjc3ZTQ3ODk3ZTE2ZDQ0YjlmMzg3MGRmZjZiNzEyZTY2NyIKICAgICAgfSwKICAgICAgIlIzMF9SRVBPUlQuanNvbiI6IHsKICAgICAgICAiYnl0ZXMiOiA3MzE5MzE1LAogICAgICAgICJzaGEyNTYiOiAiMzRmMTQxODRkMWEwZjlkMjczNGU2MjU0M2Q3MWQyZTkyYWFkNjkxOTgyYzEzNjdhMjRlOGE2MjJiNDc1NzQ3NyIKICAgICAgfSwKICAgICAgIlIzMF9SRVBPUlQubWQiOiB7CiAgICAgICAgImJ5dGVzIjogNTc4MTIwMSwKICAgICAgICAic2hhMjU2IjogImZhNjU1ZmRmMWIwZWJjNmYxZjJiMDA3ZWZlNTNlMzRiNjU2NTdiYTgxZjkxMWI5ODRjMDllYmVmMTk3ZDRiMjAiCiAgICAgIH0sCiAgICAgICJzb3VyY2UtbWFuaWZlc3QuanNvbiI6IHsKICAgICAgICAiYnl0ZXMiOiA0MDc0LAogICAgICAgICJzaGEyNTYiOiAiNTQ5NmZjYWUwNDdiNWFmMjI3NjZkNjE3ZDkzMTI4ZGRkMzVkOGU2ODE2ODg5YWIzMWQwMWZhYjgyYzQ1YTI2ZCIKICAgICAgfSwKICAgICAgInJ1bnRpbWUtb2JzZXJ2YXRpb24uanNvbiI6IHsKICAgICAgICAiYnl0ZXMiOiAzMTUwLAogICAgICAgICJzaGEyNTYiOiAiYzdhY2NmMGIyNDc0NzE5OWY1NjdhYTY2M2FiYmE4NTUxY2RlNGZhM2Q2ZGRlNWM2MDNjYmQwNWQ4NDNhYTlhOSIKICAgICAgfQogICAgfSwKICAgICJyZXNlYXJjaFNjaGVtYVJlYWR5IjogdHJ1ZSwKICAgICJzY2hlbWFTdGFydHVwU3VtbWFyeSI6ICJjcml0aWNhbD1SRUFEWUAzMjA4bXMvZXJyb3I9fGNyaXRpY2FsU3RhbXA9RklOR0VSUFJJTlRfTUlTTUFUQ0h8cmVzZWFyY2g9UkVBRFl8cmVzZWFyY2hPd25lckVycm9yPXxsZWdhY3k9Tk9UX1NUQVJURURAMG1zL2Vycm9yPSIsCiAgICAiZXZpZGVuY2VDb21wbGV0ZSI6IHRydWUsCiAgICAiY2hlY2tzQ29tcGxldGUiOiB0cnVlLAogICAgImFsbENoZWNrc1Bhc3NlZCI6IGZhbHNlLAogICAgInBoeXNpY2FsRGV2aWNlIjogIk5PVF9SVU4iLAogICAgInVzZXI5NjU2NjQ3NjgwQnl0ZURhdGFiYXNlIjogIk5PVF9SVU4iLAogICAgIm5hdHVyYWxRdWFsaXR5IjogIk5PVF9QUk9WRU4iCiAgfSwKICAiZ2FsbGVyeVBuZ3MiOiAxODgsCiAgImZhdWx0Q2VsbHMiOiAyNiwKICAidXBncmFkZURyaWxscyI6IFsKICAgICJDUDA2IiwKICAgICJDUDE2IiwKICAgICJDVVJSRU5UX1IzMF8xMDciCiAgXSwKICAicGh5c2ljYWxEZXZpY2UiOiAiTk9UX1JVTiIsCiAgIm9yaWdpbmFsVXNlcjk2NTY2NDc2ODBCeXRlRGF0YWJhc2UiOiAiTk9UX1JVTiIKfQo="},"zipSha256":"9ced09e05f73a468970d2524fc1e3883469e51ff99c7cf59bd0c945a3387d2ef","zipBytes":15807045}''')
+          root = pathlib.Path(os.environ["RUNNER_TEMP"]) / "starcore-009-single-zip"
+          root.mkdir()
+          base = "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311009-5237b265a27f/"
+          for item in payload["metadata"]:
+              name = item["filename"]
+              target = root / name
+              if name in payload["inline"]:
+                  target.write_bytes(base64.b64decode(payload["inline"][name], validate=True))
+              else:
+                  with urllib.request.urlopen(base + name, timeout=60) as response, target.open("wb") as stream:
+                      shutil.copyfileobj(response, stream)
+              data = target.read_bytes()
+              assert len(data) == item["bytes"], name + ": size mismatch"
+              assert hashlib.sha256(data).hexdigest() == item["sha256"], name + ": hash mismatch"
+          acceptance = json.loads((root / "ACCEPTANCE.json").read_text())
+          assert acceptance["sourceCommit"] == "5237b265a27fe5ad27fd842901c445d5f8c27749"
+          assert acceptance["versionCode"] == 577311009
+          assert acceptance["certificateSha256"] == "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7"
+          output = root / "STARCORE_R30_009_COMPLETE.zip"
+          with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+              for item in payload["metadata"]:
+                  info = zipfile.ZipInfo(item["filename"], tuple(item["date_time"]))
+                  for key in ["compress_type", "create_system", "create_version", "extract_version", "reserved", "flag_bits", "volume", "internal_attr", "external_attr"]:
+                      setattr(info, key, item[key])
+                  info.extra = base64.b64decode(item["extra_b64"])
+                  info.comment = base64.b64decode(item["comment_b64"])
+                  archive.writestr(info, (root / item["filename"]).read_bytes(), compresslevel=9)
+          with zipfile.ZipFile(output) as archive:
+              assert archive.testzip() is None
+              assert len(archive.infolist()) == 7
+              for item in payload["metadata"]:
+                  assert hashlib.sha256(archive.read(item["filename"])).hexdigest() == item["sha256"]
+          sha = hashlib.sha256(output.read_bytes()).hexdigest()
+          sha_file = root / "STARCORE_R30_009_COMPLETE.zip.sha256"
+          sha_file.write_text(sha + "  " + output.name + "\n")
+          print(json.dumps({"file": output.name, "bytes": output.stat().st_size, "sha256": sha, "sameAsLocalVerifiedArchive": sha == payload["zipSha256"], "allSevenPayloadHashesMatch": True}))
+          
+          PY
+      - name: Add the complete ZIP to the existing 009 release
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release upload r30-repair1-577311009-5237b265a27f --repo "$GITHUB_REPOSITORY" "$RUNNER_TEMP/starcore-009-single-zip/STARCORE_R30_009_COMPLETE.zip" "$RUNNER_TEMP/starcore-009-single-zip/STARCORE_R30_009_COMPLETE.zip.sha256"
+      - name: Download the public single-file URL and verify it
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --show-error --location --retry 3 --retry-delay 3 --max-time 90 --output "$RUNNER_TEMP/starcore-009-single-zip/download-readback.zip" "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311009-5237b265a27f/STARCORE_R30_009_COMPLETE.zip"
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, zipfile
+          root = pathlib.Path(os.environ["RUNNER_TEMP"]) / "starcore-009-single-zip"
+          actual = root / "download-readback.zip"
+          expected = (root / "STARCORE_R30_009_COMPLETE.zip.sha256").read_text().split()[0]
+          assert hashlib.sha256(actual.read_bytes()).hexdigest() == expected
+          with zipfile.ZipFile(actual) as archive:
+              assert archive.testzip() is None
+              assert len(archive.infolist()) == 7
+              apk = archive.read("STARCORE-R30-REPAIR1-EXISTING_R27-5237b265a27f.apk")
+              assert len(apk) == 28060658
+              assert hashlib.sha256(apk).hexdigest() == "da42eaf3f6458bbf78ef256cfbe5667e29a18a51a94a02730a1d2f46b9c05749"
+          print(json.dumps({"unauthenticatedReleaseDownload": "PASS", "zipCrc": "PASS", "payloadApkHash": "PASS", "zipBytes": actual.stat().st_size, "zipSha256": expected}))
+          
+          PY
+          echo "Complete ZIP: https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311009-5237b265a27f/STARCORE_R30_009_COMPLETE.zip" >> "$GITHUB_STEP_SUMMARY"
