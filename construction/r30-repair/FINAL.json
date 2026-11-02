@@ -1,0 +1,1733 @@
+{
+  "schema": "R30_REPAIR003_FINAL_SCOPE_V1",
+  "updatedAt": "2026-11-02T00:58:46.953815+00:00",
+  "plan": "R30-REPAIR-FINAL-20261101",
+  "cards": 60,
+  "batches": 12,
+  "applicationSourceCommit": "63ad6291711db607fd604443b4f50492882f09e8",
+  "verificationSourceCommit": "63ad6291711db607fd604443b4f50492882f09e8",
+  "delivery": "construction/r30-repair/DELIVERY.json",
+  "all60CardEvidence": "construction/r30-repair/ALL60_EVIDENCE.json",
+  "engineering": {
+    "applicationSourceCommit": "63ad6291711db607fd604443b4f50492882f09e8",
+    "verificationSourceCommit": "63ad6291711db607fd604443b4f50492882f09e8",
+    "ci": {
+      "runId": 41365268452,
+      "runUrl": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41365268452",
+      "status": "completed",
+      "conclusion": "success",
+      "requestCommit": "b555d4f187e339f2af3c3c4a9a47746b9a9503d1",
+      "runAttempt": 1,
+      "updatedAt": "2026-11-02T00:50:42Z",
+      "sourceCommit": "63ad6291711db607fd604443b4f50492882f09e8",
+      "observedAt": "2026-11-02T00:52:05.882Z",
+      "jobs": [
+        {
+          "id": 125023984093,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 125031221781,
+          "name": "emulator",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 125031221794,
+          "name": "upgrade (CURRENT_R30_107)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 125031221812,
+          "name": "upgrade (CP16)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 125031221906,
+          "name": "upgrade (CP06)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 125036047171,
+          "name": "publish",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "reports": [
+        "build-summary.json",
+        "emulator-summary.json",
+        "upgrade-summary.json"
+      ],
+      "release": {
+        "id": 430964872,
+        "url": "https://github.com/gtt46461-star/starcore-public-build/releases/tag/r30-repair1-577311003-63ad6291711d",
+        "tag": "r30-repair1-577311003-63ad6291711d",
+        "targetCommit": "63ad6291711db607fd604443b4f50492882f09e8",
+        "publishedAt": "2026-11-02T00:50:39Z",
+        "draft": false,
+        "assets": [
+          {
+            "id": 700003289,
+            "name": "ACCEPTANCE.json",
+            "bytes": 1411,
+            "digest": "sha256:50993802126b6436d1f5d628b24a48d7364a9fa81fe8460d6255a9bb15d46e5c",
+            "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311003-63ad6291711d/ACCEPTANCE.json"
+          },
+          {
+            "id": 700003308,
+            "name": "ANDROID_ACCEPTANCE_EVIDENCE.zip",
+            "bytes": 40312810,
+            "digest": "sha256:65b42d974b96ded2739d48122b87aed57915a61dfbe16dac2ce7fa33727d256a",
+            "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311003-63ad6291711d/ANDROID_ACCEPTANCE_EVIDENCE.zip"
+          },
+          {
+            "id": 700003297,
+            "name": "delivery.json",
+            "bytes": 1149,
+            "digest": "sha256:5acfca25ab04dd966bf2e6cafa74f201e2416fced6a589409dcdfff319300c62",
+            "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311003-63ad6291711d/delivery.json"
+          },
+          {
+            "id": 700003291,
+            "name": "public-certificate.txt",
+            "bytes": 1380,
+            "digest": "sha256:6f9947fe7165ca174f7c6fe49f76537c4e975e65cf5f27cc351ff89aa6daafc9",
+            "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311003-63ad6291711d/public-certificate.txt"
+          },
+          {
+            "id": 700003290,
+            "name": "SHA256SUMS.txt",
+            "bytes": 215,
+            "digest": "sha256:ffa36813f97eff78f65f53f8a1cbad4e709830dd8547e87d1556a78355a4cc0b",
+            "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311003-63ad6291711d/SHA256SUMS.txt"
+          },
+          {
+            "id": 700003294,
+            "name": "STARCORE-R30-REPAIR1-EXISTING_R27-63ad6291711d.apk",
+            "bytes": 28059273,
+            "digest": "sha256:06d1117811aecf54793d4c164123d77105ecd3dc9f9bcdcde52f4f9b01dd8531",
+            "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311003-63ad6291711d/STARCORE-R30-REPAIR1-EXISTING_R27-63ad6291711d.apk"
+          }
+        ]
+      },
+      "known002History": "R03 actual 100 nodes exceeded legacy 64; onDraw fallback was falsely accepted before nativeDrawing checks",
+      "independentVisualReview": "Pending parent public-PNG review",
+      "physicalDevice72h": "NOT_RUN",
+      "naturalQuality": "NOT_PROVEN"
+    },
+    "actualUnit": {
+      "sourceCommit": "63ad6291711db607fd604443b4f50492882f09e8",
+      "source": "ACTUAL_GRADLE_JUNIT_XML",
+      "xmlSuites": 96,
+      "tests": 347,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "scope": "HOST_UNIT_NOT_ANDROID_PHYSICAL_OR_NATURAL"
+    },
+    "nativeChecks": [
+      "diagnosis",
+      "writer",
+      "retention",
+      "timeline",
+      "commit_failure",
+      "progress",
+      "neural",
+      "qualification",
+      "input_pin",
+      "matrix",
+      "research",
+      "observatory",
+      "snapshot"
+    ],
+    "nativeCheckCount": 13,
+    "android": {
+      "repo": "gtt46461-star/starcore-public-build",
+      "runId": 41365268452,
+      "sourceCommit": "63ad6291711db607fd604443b4f50492882f09e8",
+      "emulatorJobId": 125031221781,
+      "emulatorConclusion": "success",
+      "publishJobId": 125036047171,
+      "publishConclusion": "success",
+      "observedAt": "2026-11-02T00:50:51.366Z",
+      "actualMarkers": [
+        "R30_ANDROID_REGRESSION:foldback:PASS",
+        "R30_ANDROID_REGRESSION:snapshot:PASS",
+        "R30_ANDROID_REGRESSION:retention:PASS",
+        "R30_ANDROID_REGRESSION:wait:PASS",
+        "R30_ANDROID_REGRESSION:revocation:PASS",
+        "R30_ANDROID_REGRESSION:decision-positive:PASS",
+        "R30_ANDROID_REGRESSION:decision-expired:PASS",
+        "R30_ANDROID_REGRESSION:decision-missing-freeze:PASS",
+        "R30_ANDROID_REGRESSION:decision-existing-real:PASS",
+        "R30_ANDROID_REGRESSION:decision-user-off:PASS",
+        "R30_ANDROID_REGRESSION:charts:PASS",
+        "R30_ANDROID_REGRESSION|17_TESTS_11_INDEPENDENT_PROCESSES|116_ACTUAL_ACTIVITY_SCREENSHOTS|NOT_PHYSICAL_OR_NATURAL|PASS",
+        "R30_REPAIR_ANDROID|47_REGISTERED_OBJECTS_4_DISPLAY_SCENARIOS_188_SCREENSHOTS|ORIGINAL_17_PLUS_REPAIR_1_TESTS|MISSING_EVIDENCE_EXPLICIT|NOT_PHYSICAL_OR_NATURAL|PASS",
+        "R30_FAULT_MATRIX_PROGRESS:foreground-fetch_timeout:PASS",
+        "R30_FAULT_MATRIX_PROGRESS:foreground-draw_conflict:PASS",
+        "R30_FAULT_MATRIX_PROGRESS:foreground-kill_settlement:PASS",
+        "R30_FAULT_MATRIX_PROGRESS:foreground-kill_freeze:PASS",
+        "R30_FAULT_MATRIX_PROGRESS:foreground-sqlite_full:PASS",
+        "R30_FAULT_MATRIX_PROGRESS:foreground-clock_rollback:PASS",
+        "R30_FAULT_MATRIX_PROGRESS:foreground-service_stop:PASS",
+        "R30_FAULT_MATRIX_PROGRESS:background-fetch_timeout:PASS",
+        "R30_FAULT_MATRIX_PROGRESS:background-draw_conflict:PASS",
+        "R30_FAULT_MATRIX_PROGRESS:background-kill_settlement:PASS",
+        "R30_FAULT_MATRIX_PROGRESS:background-kill_freeze:PASS",
+        "R30_FAULT_MATRIX_PROGRESS:background-sqlite_full:PASS",
+        "R30_FAULT_MATRIX_PROGRESS:background-clock_rollback:PASS",
+        "R30_FAULT_MATRIX_PROGRESS:background-service_stop:PASS",
+        "R30_FAULT_MATRIX|14_ACTUAL_EMULATOR_CELLS|NO_PHYSICAL_OR_NATURAL_CLAIM|PASS",
+        "R30_REPAIR_FAULT_PROGRESS:analysis:BUSY:PASS",
+        "R30_REPAIR_FAULT_PROGRESS:analysis:FULL:PASS",
+        "R30_REPAIR_FAULT_PROGRESS:analysis:CANCEL:PASS",
+        "R30_REPAIR_FAULT_PROGRESS:analysis:KILL:PASS",
+        "R30_REPAIR_FAULT_PROGRESS:analysis:CORRUPT:PASS",
+        "R30_REPAIR_FAULT_PROGRESS:analysis:SOURCE_CHANGE:PASS",
+        "R30_REPAIR_FAULT_PROGRESS:consume:BUSY:PASS",
+        "R30_REPAIR_FAULT_PROGRESS:consume:FULL:PASS",
+        "R30_REPAIR_FAULT_PROGRESS:consume:CANCEL:PASS",
+        "R30_REPAIR_FAULT_PROGRESS:consume:KILL:PASS",
+        "R30_REPAIR_FAULT_PROGRESS:consume:CORRUPT:PASS",
+        "R30_REPAIR_FAULT_PROGRESS:consume:SOURCE_CHANGE:PASS",
+        "R30_REPAIR_RESEARCH_FAULTS|12_ACTUAL_ANDROID_CELLS|PASS"
+      ],
+      "registeredObjects": 47,
+      "displayScenarios": 4,
+      "screenshots": 188,
+      "baselineFaultCells": 14,
+      "repairResearchFaultCells": 12,
+      "totalFaultCells": 26,
+      "baselineRegression": "17 tests / 11 independent processes",
+      "workbenchRegression": "1 test / 72 screenshots checked by strict driver",
+      "nativeDrawingAssertions": "PASS: exact-source instrumentation checks actual onDraw; publisher validated all non-null nativeDrawing counts > 0 and lastDrawingFailure null",
+      "known002History": "R03 actual 100 nodes exceeded legacy 64; onDraw fallback was falsely accepted before nativeDrawing checks",
+      "physicalDevice72h": "NOT_RUN",
+      "naturalQuality": "NOT_PROVEN",
+      "criticalR01R02R03NativeDrawings": "PASS: all three nativeDrawing receipts non-null and frame hashes distinct",
+      "releaseUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/tag/r30-repair1-577311003-63ad6291711d",
+      "independentVisualReview": "Parent will inspect public R03/R12 PNGs; no pixel-perfect claim"
+    },
+    "gallery": {
+      "status": "PASS_REAL_CAPTURE_PRESENT_CHART_NATIVE_DRAW_CHECKS_AND_RECORDED_MANUAL_SAMPLE",
+      "appSource": "63ad6291711db607fd604443b4f50492882f09e8",
+      "testSource": "63ad6291711db607fd604443b4f50492882f09e8",
+      "runId": 41365268452,
+      "apkSha256": "06d1117811aecf54793d4c164123d77105ecd3dc9f9bcdcde52f4f9b01dd8531",
+      "registeredObjects": 47,
+      "scenarios": [
+        "READY",
+        "EMPTY",
+        "INSUFFICIENT",
+        "READ_ERROR"
+      ],
+      "objectScenarioDenominator": 188,
+      "acceptedVisualObjectScenarios": 188,
+      "actualResearchStateRows": 72,
+      "actualResearchDrawStates": [
+        {
+          "id": "R01",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R02",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R03",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R04",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R05",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R06",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R07",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R08",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R09",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R10",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R11",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R12",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R13",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R14",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R15",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R16",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R17",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R18",
+          "scenario": "READY",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R01",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R02",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R03",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R04",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R05",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R06",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R07",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R08",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R09",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R10",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R11",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R12",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R13",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R14",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R15",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R16",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R17",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        },
+        {
+          "id": "R18",
+          "scenario": "INSUFFICIENT",
+          "drawCount": 1,
+          "lastDrawingFailure": null
+        }
+      ],
+      "R03": {
+        "actualPoints": 100,
+        "capture": {
+          "cardHeight": 1274,
+          "cardTop": 2554,
+          "frameSync": "API29_FRAME_COMMIT",
+          "nativeDrawing": {
+            "drawCount": 1,
+            "lastDrawingFailure": null
+          },
+          "pixelSha256": "94e45cba478c45d15c42b0840ce9e70dc7b571c31049ed6013a90a3973f2f6e4",
+          "screenshotHeight": 2280,
+          "screenshotWidth": 1080,
+          "scrollY": 2554,
+          "settleMs": 300,
+          "title": "R03 号码位置兼容与跨位结构",
+          "viewport": [
+            0,
+            497,
+            1080,
+            2148
+          ],
+          "visibleCard": [
+            0,
+            497,
+            1080,
+            1771
+          ],
+          "visibleChart": [
+            0,
+            704,
+            1080,
+            1639
+          ],
+          "visibleTitle": [
+            0,
+            497,
+            1080,
+            584
+          ]
+        },
+        "manualReview": "PARENT_CONFIRMED_SUCCESS"
+      },
+      "R12": {
+        "actualPairedPoints": 1,
+        "capture": {
+          "cardHeight": 1082,
+          "cardTop": 5602,
+          "frameSync": "API29_FRAME_COMMIT",
+          "nativeDrawing": {
+            "drawCount": 1,
+            "lastDrawingFailure": null
+          },
+          "pixelSha256": "2ffdac46fcf02047bd8b158c761eb28321dda9f00e42f879b7c053807a87ee14",
+          "screenshotHeight": 2280,
+          "screenshotWidth": 1080,
+          "scrollY": 5033,
+          "settleMs": 300,
+          "title": "R12 融合互补与共同失败区域",
+          "viewport": [
+            0,
+            497,
+            1080,
+            2148
+          ],
+          "visibleCard": [
+            0,
+            1066,
+            1080,
+            2148
+          ],
+          "visibleChart": [
+            0,
+            1273,
+            1080,
+            2016
+          ],
+          "visibleTitle": [
+            0,
+            1066,
+            1080,
+            1153
+          ]
+        },
+        "axes": "1×N_HEATMAP_ASSERTED_BY_EXACT_SOURCE_ANDROID_TEST",
+        "manualReview": "PARENT_CONFIRMED_SUCCESS"
+      },
+      "allExistingChartViewsAlsoCheckedBySourcePinnedNativeDrawingAssertions": true,
+      "independentManualReview": {
+        "status": "PASS_ACTUAL_R03_GRAPH_AND_R12_HEATMAP_REVIEWED",
+        "reviewedIds": [
+          "READY-R03.png",
+          "READY-R12.png",
+          "READY-R02.png",
+          "READY-R01.png",
+          "EMPTY-R04.png",
+          "INSUFFICIENT-R13.png",
+          "READ_ERROR-R08.png",
+          "READY-28.png",
+          "READY-01.png"
+        ],
+        "count": 9,
+        "reviewMethod": "Actual unedited public ZIP PNGs viewed individually with view_image",
+        "findings": {
+          "READY-R03.png": "100 original nodes visibly rendered, no draw-error fallback; dense overview labels overlap, not a guarantee of every-label readability or pixel-perfect UI",
+          "READY-R12.png": "Actual 1xN paired residual heatmap with row and column identities, no BAR fallback",
+          "READY-R02.png": "Distinct multi-series structure error lines",
+          "READY-R01.png": "Distinct multiscale heatmap",
+          "EMPTY-R04.png": "Waiting for committed analysis, no fabricated result",
+          "INSUFFICIENT-R13.png": "Insufficient evidence and no drawable sample explicitly retained",
+          "READ_ERROR-R08.png": "Read error retains original data",
+          "READY-28.png": "Original legacy source missing/read-error is visible; not accepted as a real rolling Brier curve",
+          "READY-01.png": "Synthetic legacy triple panel present; synthetic not natural quality"
+        },
+        "reviewedSha256": {
+          "READY-R03.png": "c452d5a89c3effe4aa8b5d303dc49cc0bcc641ade5fea8341e8bdbb7604b4688",
+          "READY-R12.png": "686583a86280fe2ee6ed0c25032c0bb8f179781606ce25716679d96710d36a7f",
+          "READY-R02.png": "15a6d3e7467bdbe8be1175f74a490cef52ae4e9472e3b71238a7168ba320972a",
+          "READY-R01.png": "e2b60b758ff76d328056706a725e0bd466a892c1b54db2f4ba798d3b73a959df",
+          "EMPTY-R04.png": "dfa1c29f3108e09b67c4e0174b1faced248dee47dc94ad217cee9e3ab074601c",
+          "INSUFFICIENT-R13.png": "58a839ecef39c8c425d5a85c29866fe3d41f95c3f2f4dd9b84a346b2f42f0ee0",
+          "READ_ERROR-R08.png": "4bc34a6bb5730c210f4038152f1a5db21f322aa4870e305733557fc18f6e8b8a",
+          "READY-28.png": "67808e734360f431894bc73b9fc48f2ab7bca94340e29f22de13998908592be2",
+          "READY-01.png": "11afce37728f58803ea56c8dbb5441832d89cafeafd81eaa871603afc72ab606"
+        },
+        "doesNotClaimAll188WereManuallyReviewed": true,
+        "physicalDevice": "NOT_RUN",
+        "naturalQuality": "NOT_PROVEN",
+        "reviewedAt": "2026-11-02T00:53:31.228467+00:00"
+      },
+      "manualReviewScope": {
+        "reviewedIds": [
+          "READY-R03.png",
+          "READY-R12.png",
+          "READY-R02.png",
+          "READY-R01.png",
+          "EMPTY-R04.png",
+          "INSUFFICIENT-R13.png",
+          "READ_ERROR-R08.png",
+          "READY-28.png",
+          "READY-01.png"
+        ],
+        "count": 9,
+        "doesNotClaimUnlistedImagesWereManuallyReviewed": true,
+        "scope": "Parent actually viewed R03/R12 and only the other explicitly recorded sampled targets."
+      },
+      "acceptedVisualCountMeaning": "Target scenes captured with visible identity/frame and successful onDraw for present chart views; manual coverage is only manualReviewScope.",
+      "allREADYScenesContainRealCurves": false,
+      "evidenceURL": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311003-63ad6291711d/ANDROID_ACCEPTANCE_EVIDENCE.zip",
+      "archiveSha256": "65b42d974b96ded2739d48122b87aed57915a61dfbe16dac2ce7fa33727d256a",
+      "missingOriginalSourcePolicy": "Explicit missing/insufficient; synthetic measured state is not natural efficacy.",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "NOT_PROVEN"
+    },
+    "faults": {
+      "appSource": "63ad6291711db607fd604443b4f50492882f09e8",
+      "runId": 41365268452,
+      "apkSha256": "06d1117811aecf54793d4c164123d77105ecd3dc9f9bcdcde52f4f9b01dd8531",
+      "original14": {
+        "source": "63ad6291711db607fd604443b4f50492882f09e8",
+        "environment": "ANDROID_EMULATOR",
+        "physicalDevice": "NOT_RUN",
+        "naturalQuality": "NOT_PROVEN",
+        "cells": [
+          {
+            "fault": "fetch_timeout",
+            "visibility": "foreground",
+            "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+          },
+          {
+            "fault": "draw_conflict",
+            "visibility": "foreground",
+            "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+          },
+          {
+            "fault": "kill_settlement",
+            "visibility": "foreground",
+            "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+          },
+          {
+            "fault": "kill_freeze",
+            "visibility": "foreground",
+            "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+          },
+          {
+            "fault": "sqlite_full",
+            "visibility": "foreground",
+            "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+          },
+          {
+            "fault": "clock_rollback",
+            "visibility": "foreground",
+            "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+          },
+          {
+            "fault": "service_stop",
+            "visibility": "foreground",
+            "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+          },
+          {
+            "fault": "fetch_timeout",
+            "visibility": "background",
+            "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+          },
+          {
+            "fault": "draw_conflict",
+            "visibility": "background",
+            "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+          },
+          {
+            "fault": "kill_settlement",
+            "visibility": "background",
+            "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+          },
+          {
+            "fault": "kill_freeze",
+            "visibility": "background",
+            "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+          },
+          {
+            "fault": "sqlite_full",
+            "visibility": "background",
+            "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+          },
+          {
+            "fault": "clock_rollback",
+            "visibility": "background",
+            "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+          },
+          {
+            "fault": "service_stop",
+            "visibility": "background",
+            "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+          }
+        ],
+        "conflictRecovery": "HARD_BLOCK_AWAITING_VERIFIED_CANONICAL; never automatically erase conflicting evidence",
+        "serviceStop": "actual system force-stop then explicit user reopen; no automatic restart claim",
+        "wallClockFault": "actual rooted-emulator OS rollback and restoration through AlarmManager shell, two real wall/monotonic samples; restored before original-deadline recovery",
+        "signingKeysRead": false,
+        "productModelsDeleted": false
+      },
+      "research12": [
+        {
+          "stage": "analysis",
+          "fault": "BUSY",
+          "pass": true,
+          "scope": "research-41365268452-1-086ffdb3b67a-analysis-BUSY",
+          "outputSha256": "686fd8fed61cf25a3adc1627be7b38dd576f39c7c2111b1c5d512512674df8e7",
+          "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+        },
+        {
+          "stage": "analysis",
+          "fault": "FULL",
+          "pass": true,
+          "scope": "research-41365268452-1-086ffdb3b67a-analysis-FULL",
+          "outputSha256": "287e4eb047c7b5e12514e428c1a6f68eb8d765ae10028b1b422a82ec64c27348",
+          "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+        },
+        {
+          "stage": "analysis",
+          "fault": "CANCEL",
+          "pass": true,
+          "scope": "research-41365268452-1-086ffdb3b67a-analysis-CANCEL",
+          "outputSha256": "9f0427f1e21a26a58db5eacb4bbdd795a59ba4f9fe407d91c049838167a0f948",
+          "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+        },
+        {
+          "stage": "analysis",
+          "fault": "KILL",
+          "pass": true,
+          "scope": "research-41365268452-1-086ffdb3b67a-analysis-KILL",
+          "outputSha256": "02d1a1a18a1d0137114351f93a059cb92a726df3191d485189dc99a1d85263ab",
+          "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+        },
+        {
+          "stage": "analysis",
+          "fault": "CORRUPT",
+          "pass": true,
+          "scope": "research-41365268452-1-086ffdb3b67a-analysis-CORRUPT",
+          "outputSha256": "48a46550572b1c0ea50101d312e4e614bbe896f5d5e361cccec995de33e8da8f",
+          "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+        },
+        {
+          "stage": "analysis",
+          "fault": "SOURCE_CHANGE",
+          "pass": true,
+          "scope": "research-41365268452-1-086ffdb3b67a-analysis-SOURCE_CHANGE",
+          "outputSha256": "feb6f8c241875a37d85c2206959f88261700bb27c1dfb6a5609fcfccb3d10bd3",
+          "outcome": "EXPECTED_BLOCK_PRESERVE_ORIGINALS"
+        },
+        {
+          "stage": "consume",
+          "fault": "BUSY",
+          "pass": true,
+          "scope": "research-41365268452-1-086ffdb3b67a-consume-BUSY",
+          "outputSha256": "88f0703e5789d92f32b366ee176411a3116ed64cec40f281f9731b274b5ad2ee",
+          "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+        },
+        {
+          "stage": "consume",
+          "fault": "FULL",
+          "pass": true,
+          "scope": "research-41365268452-1-086ffdb3b67a-consume-FULL",
+          "outputSha256": "598e12d052a793c3865b012b50b293a87033081249effaaf9c9d62432d53cf9f",
+          "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+        },
+        {
+          "stage": "consume",
+          "fault": "CANCEL",
+          "pass": true,
+          "scope": "research-41365268452-1-086ffdb3b67a-consume-CANCEL",
+          "outputSha256": "be0b77c42eec69930a21a0edddac821acc04df3cb4622a345bb4b07c828f72aa",
+          "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+        },
+        {
+          "stage": "consume",
+          "fault": "KILL",
+          "pass": true,
+          "scope": "research-41365268452-1-086ffdb3b67a-consume-KILL",
+          "outputSha256": "ba66cec71fdcba0513c3dce0ee7029736c309434831c9e262345a4f0125b8f5c",
+          "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+        },
+        {
+          "stage": "consume",
+          "fault": "CORRUPT",
+          "pass": true,
+          "scope": "research-41365268452-1-086ffdb3b67a-consume-CORRUPT",
+          "outputSha256": "ae923746a4529179285241c841ade1bc545826f8594d8be5aabbe318b3f4a137",
+          "outcome": "EXPECTED_BLOCK_PRESERVE_ORIGINALS"
+        },
+        {
+          "stage": "consume",
+          "fault": "SOURCE_CHANGE",
+          "pass": true,
+          "scope": "research-41365268452-1-086ffdb3b67a-consume-SOURCE_CHANGE",
+          "outputSha256": "81617d4c1486f53f289d7aba07d17c4a54dcfd3365ba4c10d276a6e2a4913cb1",
+          "outcome": "EXPECTED_BLOCK_PRESERVE_ORIGINALS"
+        }
+      ],
+      "researchRecovered": 9,
+      "researchExpectedBlocked": 3,
+      "passedExpectedOutcomes": 26,
+      "scope": "Actual Android emulator expected outcomes; conflict/source/corrupt input can remain intentionally blocked."
+    },
+    "upgrades": {
+      "appSource": "63ad6291711db607fd604443b4f50492882f09e8",
+      "runId": 41365268452,
+      "apkSha256": "06d1117811aecf54793d4c164123d77105ecd3dc9f9bcdcde52f4f9b01dd8531",
+      "families": [
+        "CP06",
+        "CP16",
+        "CURRENT_R30_107"
+      ],
+      "stepsPerFamily": 3,
+      "actualStepCount": 9,
+      "records": [
+        {
+          "baseline": "CP16",
+          "step": "reupgrade",
+          "zipMember": "upgrade/R30-REPAIR1-R27-UPGRADE-CP16/evidence/r30/upgrade-EXISTING_R27-CP16/reupgrade.json",
+          "record": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "EXISTING_R27-CP16-reupgrade",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4358,
+            "afterDrawCount": 4363,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [
+              {
+                "table": "r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_dataset",
+                "column": "payload",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_sample",
+                "column": "features",
+                "originalNonemptyBlobRows": 2910,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_keep_r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              }
+            ],
+            "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+            "qualificationBudgets": [],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          }
+        },
+        {
+          "baseline": "CP16",
+          "step": "rollback",
+          "zipMember": "upgrade/R30-REPAIR1-R27-UPGRADE-CP16/evidence/r30/upgrade-EXISTING_R27-CP16/rollback.json",
+          "record": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "EXISTING_R27-CP16-rollback",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4358,
+            "afterDrawCount": 4360,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [
+              {
+                "table": "r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_dataset",
+                "column": "payload",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_sample",
+                "column": "features",
+                "originalNonemptyBlobRows": 2910,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_keep_r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              }
+            ],
+            "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+            "qualificationBudgets": [],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          }
+        },
+        {
+          "baseline": "CP16",
+          "step": "upgrade",
+          "zipMember": "upgrade/R30-REPAIR1-R27-UPGRADE-CP16/evidence/r30/upgrade-EXISTING_R27-CP16/upgrade.json",
+          "record": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "EXISTING_R27-CP16-upgrade",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4355,
+            "afterDrawCount": 4358,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [],
+            "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+            "qualificationBudgets": [],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          }
+        },
+        {
+          "baseline": "CURRENT_R30_107",
+          "step": "reupgrade",
+          "zipMember": "upgrade/R30-REPAIR1-R27-UPGRADE-CURRENT_R30_107/evidence/r30/upgrade-EXISTING_R27-CURRENT_R30_107/reupgrade.json",
+          "record": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "EXISTING_R27-CURRENT_R30_107-reupgrade",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4355,
+            "afterDrawCount": 4360,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [
+              {
+                "table": "r27_live_frozen",
+                "column": "probabilities",
+                "originalNonemptyBlobRows": 18,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r29_legacy_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 2,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_dataset",
+                "column": "payload",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_sample",
+                "column": "features",
+                "originalNonemptyBlobRows": 13770,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_keep_r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 2,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              }
+            ],
+            "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+            "qualificationBudgets": [
+              {
+                "policyHashSha256": "45f267d83877727c3334fa18160023b4cd50f1a0a8122f3a50b26837ee8a6df4",
+                "preservedIndexAndCumulativeN": true
+              },
+              {
+                "policyHashSha256": "81aaa5feaee30aaa8ec7a4859649f0500a8d1375d7f9cdf32ad35612a48d21bd",
+                "preservedIndexAndCumulativeN": true
+              }
+            ],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          }
+        },
+        {
+          "baseline": "CURRENT_R30_107",
+          "step": "rollback",
+          "zipMember": "upgrade/R30-REPAIR1-R27-UPGRADE-CURRENT_R30_107/evidence/r30/upgrade-EXISTING_R27-CURRENT_R30_107/rollback.json",
+          "record": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "EXISTING_R27-CURRENT_R30_107-rollback",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4355,
+            "afterDrawCount": 4360,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [
+              {
+                "table": "r27_live_frozen",
+                "column": "probabilities",
+                "originalNonemptyBlobRows": 18,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r29_legacy_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 2,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_dataset",
+                "column": "payload",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_sample",
+                "column": "features",
+                "originalNonemptyBlobRows": 13770,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_keep_r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 2,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              }
+            ],
+            "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+            "qualificationBudgets": [
+              {
+                "policyHashSha256": "45f267d83877727c3334fa18160023b4cd50f1a0a8122f3a50b26837ee8a6df4",
+                "preservedIndexAndCumulativeN": true
+              },
+              {
+                "policyHashSha256": "81aaa5feaee30aaa8ec7a4859649f0500a8d1375d7f9cdf32ad35612a48d21bd",
+                "preservedIndexAndCumulativeN": true
+              }
+            ],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          }
+        },
+        {
+          "baseline": "CURRENT_R30_107",
+          "step": "upgrade",
+          "zipMember": "upgrade/R30-REPAIR1-R27-UPGRADE-CURRENT_R30_107/evidence/r30/upgrade-EXISTING_R27-CURRENT_R30_107/upgrade.json",
+          "record": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "EXISTING_R27-CURRENT_R30_107-upgrade",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4355,
+            "afterDrawCount": 4355,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [
+              {
+                "table": "r27_live_frozen",
+                "column": "probabilities",
+                "originalNonemptyBlobRows": 5,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_dataset",
+                "column": "payload",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_sample",
+                "column": "features",
+                "originalNonemptyBlobRows": 600,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              }
+            ],
+            "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+            "qualificationBudgets": [
+              {
+                "policyHashSha256": "45f267d83877727c3334fa18160023b4cd50f1a0a8122f3a50b26837ee8a6df4",
+                "preservedIndexAndCumulativeN": true
+              },
+              {
+                "policyHashSha256": "81aaa5feaee30aaa8ec7a4859649f0500a8d1375d7f9cdf32ad35612a48d21bd",
+                "preservedIndexAndCumulativeN": true
+              }
+            ],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          }
+        },
+        {
+          "baseline": "CP06",
+          "step": "reupgrade",
+          "zipMember": "upgrade/R30-REPAIR1-R27-UPGRADE-CP06/evidence/r30/upgrade-EXISTING_R27-CP06/reupgrade.json",
+          "record": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "EXISTING_R27-CP06-reupgrade",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4356,
+            "afterDrawCount": 4360,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [
+              {
+                "table": "r27_live_frozen",
+                "column": "probabilities",
+                "originalNonemptyBlobRows": 4,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_dataset",
+                "column": "payload",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_sample",
+                "column": "features",
+                "originalNonemptyBlobRows": 5700,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_keep_r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              }
+            ],
+            "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+            "qualificationBudgets": [
+              {
+                "policyHashSha256": "f641e0184391f9ba896e4620036846c25d6e86c45339823f94929c81c2f94a0a",
+                "preservedIndexAndCumulativeN": true
+              }
+            ],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          }
+        },
+        {
+          "baseline": "CP06",
+          "step": "rollback",
+          "zipMember": "upgrade/R30-REPAIR1-R27-UPGRADE-CP06/evidence/r30/upgrade-EXISTING_R27-CP06/rollback.json",
+          "record": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "EXISTING_R27-CP06-rollback",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4356,
+            "afterDrawCount": 4360,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [
+              {
+                "table": "r27_live_frozen",
+                "column": "probabilities",
+                "originalNonemptyBlobRows": 4,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_dataset",
+                "column": "payload",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_sample",
+                "column": "features",
+                "originalNonemptyBlobRows": 5700,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_keep_r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              }
+            ],
+            "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+            "qualificationBudgets": [
+              {
+                "policyHashSha256": "f641e0184391f9ba896e4620036846c25d6e86c45339823f94929c81c2f94a0a",
+                "preservedIndexAndCumulativeN": true
+              }
+            ],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          }
+        },
+        {
+          "baseline": "CP06",
+          "step": "upgrade",
+          "zipMember": "upgrade/R30-REPAIR1-R27-UPGRADE-CP06/evidence/r30/upgrade-EXISTING_R27-CP06/upgrade.json",
+          "record": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "EXISTING_R27-CP06-upgrade",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4356,
+            "afterDrawCount": 4356,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [],
+            "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+            "qualificationBudgets": [],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          }
+        }
+      ],
+      "doNotSumRepeatedDrawsOrVacuouslyClaimUnobservedModelRows": true,
+      "physicalDevice": "NOT_RUN"
+    },
+    "lint": {
+      "newIssues": 0,
+      "originalBaselineIssues": 51,
+      "baselineByteIdentical": true,
+      "evidenceScope": "Successful exact-source complete fail-fast original CI plus unchanged baseline hash"
+    },
+    "physicalV2353A72h": "NOT_RUN",
+    "originalUser26GBDatabase": "NOT_RUN",
+    "naturalQuality": "NOT_PROVEN"
+  },
+  "publicDelivery": {
+    "schema": "STARCORE_R30_REPAIR003_PUBLIC_DELIVERY_V1",
+    "updatedAt": "2026-11-02T00:58:46.953815+00:00",
+    "plan": "R30-REPAIR-FINAL-20261101",
+    "apk": "STARCORE-R30-REPAIR1-EXISTING_R27-63ad6291711d.apk",
+    "bytes": 28059273,
+    "sha256": "06d1117811aecf54793d4c164123d77105ecd3dc9f9bcdcde52f4f9b01dd8531",
+    "package": "com.starcore.research.r13",
+    "versionCode": 577311003,
+    "versionName": "R30-REPAIR1-2026.11.01-003",
+    "certificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+    "sourceCommit": "63ad6291711db607fd604443b4f50492882f09e8",
+    "sourceTree": "52de69126ea78962c45dab691f97cb2b5aa26c5f",
+    "sourceArchive": "https://github.com/gtt46461-star/starcore-public-build/archive/63ad6291711db607fd604443b4f50492882f09e8.zip",
+    "signingIdentity": "EXISTING_R27_CI_NOT_OFFICIAL_R13",
+    "officialR13Upgrade": "BLOCKED_SIGNING_KEY",
+    "installation": "EMULATOR_COVER_INSTALL_ROLLBACK_REUPGRADE_PASS",
+    "startup": "EMULATOR_FIRST_AND_SECOND_START_PASS",
+    "physicalDevice": "NOT_RUN",
+    "naturalQuality": "NOT_PROVEN",
+    "overall": "PUBLIC003_ENGINEERING_DELIVERY_WITH_EXPLICIT_UNVERIFIED_ACCEPTANCE",
+    "lane": "EXISTING_R27",
+    "artifactRole": "REPAIR_CANDIDATE_SAME_R27_SIGNER_ANDROID_AND_UPGRADE_VERIFIED",
+    "applicationSourceCommit": "63ad6291711db607fd604443b4f50492882f09e8",
+    "applicationSourceTree": "52de69126ea78962c45dab691f97cb2b5aa26c5f",
+    "applicationMainTree": "98530b2a9f00eae3bcded06dfade36ce9697b89f",
+    "verificationSourceCommit": "63ad6291711db607fd604443b4f50492882f09e8",
+    "apkSha256": "06d1117811aecf54793d4c164123d77105ecd3dc9f9bcdcde52f4f9b01dd8531",
+    "directDownload": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311003-63ad6291711d/STARCORE-R30-REPAIR1-EXISTING_R27-63ad6291711d.apk",
+    "release": "https://github.com/gtt46461-star/starcore-public-build/releases/tag/r30-repair1-577311003-63ad6291711d",
+    "evidenceDownload": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311003-63ad6291711d/ANDROID_ACCEPTANCE_EVIDENCE.zip",
+    "evidenceArchiveSha256": "65b42d974b96ded2739d48122b87aed57915a61dfbe16dac2ce7fa33727d256a",
+    "publication": {
+      "releaseURL": "https://github.com/gtt46461-star/starcore-public-build/releases/tag/r30-repair1-577311003-63ad6291711d",
+      "releaseId": 430964872,
+      "tag": "r30-repair1-577311003-63ad6291711d",
+      "sourceCommit": "63ad6291711db607fd604443b4f50492882f09e8",
+      "apkURL": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311003-63ad6291711d/STARCORE-R30-REPAIR1-EXISTING_R27-63ad6291711d.apk",
+      "evidenceURL": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311003-63ad6291711d/ANDROID_ACCEPTANCE_EVIDENCE.zip",
+      "apkAssetId": 700003294,
+      "evidenceAssetId": 700003308,
+      "assets": [
+        {
+          "id": 700003289,
+          "name": "ACCEPTANCE.json",
+          "bytes": 1411,
+          "digest": "sha256:50993802126b6436d1f5d628b24a48d7364a9fa81fe8460d6255a9bb15d46e5c",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311003-63ad6291711d/ACCEPTANCE.json"
+        },
+        {
+          "id": 700003308,
+          "name": "ANDROID_ACCEPTANCE_EVIDENCE.zip",
+          "bytes": 40312810,
+          "digest": "sha256:65b42d974b96ded2739d48122b87aed57915a61dfbe16dac2ce7fa33727d256a",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311003-63ad6291711d/ANDROID_ACCEPTANCE_EVIDENCE.zip"
+        },
+        {
+          "id": 700003297,
+          "name": "delivery.json",
+          "bytes": 1149,
+          "digest": "sha256:5acfca25ab04dd966bf2e6cafa74f201e2416fced6a589409dcdfff319300c62",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311003-63ad6291711d/delivery.json"
+        },
+        {
+          "id": 700003291,
+          "name": "public-certificate.txt",
+          "bytes": 1380,
+          "digest": "sha256:6f9947fe7165ca174f7c6fe49f76537c4e975e65cf5f27cc351ff89aa6daafc9",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311003-63ad6291711d/public-certificate.txt"
+        },
+        {
+          "id": 700003290,
+          "name": "SHA256SUMS.txt",
+          "bytes": 215,
+          "digest": "sha256:ffa36813f97eff78f65f53f8a1cbad4e709830dd8547e87d1556a78355a4cc0b",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311003-63ad6291711d/SHA256SUMS.txt"
+        },
+        {
+          "id": 700003294,
+          "name": "STARCORE-R30-REPAIR1-EXISTING_R27-63ad6291711d.apk",
+          "bytes": 28059273,
+          "digest": "sha256:06d1117811aecf54793d4c164123d77105ecd3dc9f9bcdcde52f4f9b01dd8531",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311003-63ad6291711d/STARCORE-R30-REPAIR1-EXISTING_R27-63ad6291711d.apk"
+        }
+      ]
+    },
+    "independentPublicHTTP200": true,
+    "agentReadOrUploadedPrivateSigningKey": false,
+    "newSigningKeyCreated": false,
+    "unit": {
+      "sourceCommit": "63ad6291711db607fd604443b4f50492882f09e8",
+      "source": "ACTUAL_GRADLE_JUNIT_XML",
+      "xmlSuites": 96,
+      "tests": 347,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "scope": "HOST_UNIT_NOT_ANDROID_PHYSICAL_OR_NATURAL"
+    },
+    "androidRegressionTests": 18,
+    "originalAndroidTests": 17,
+    "workbenchAndroidTests": 1,
+    "registeredCharts": 47,
+    "displayScenarios": 4,
+    "acceptedVisualObjectScenarios": 188,
+    "faultCells": 26,
+    "researchRecoveryCells": 9,
+    "researchExpectedBlockedCells": 3,
+    "upgradeBaselines": [
+      "CP06",
+      "CP16",
+      "CURRENT_R30_107"
+    ],
+    "upgradeSteps": 9,
+    "noUninstall": true,
+    "fullCiRun": 41365268452,
+    "lint": {
+      "newIssues": 0,
+      "originalBaselineIssues": 51,
+      "baselineByteIdentical": true,
+      "evidenceScope": "Successful exact-source complete fail-fast original CI plus unchanged baseline hash"
+    },
+    "physicalV2353A72h": "NOT_RUN",
+    "originalUser26GBDatabase": "NOT_RUN",
+    "naturalMainlineEffect": "NOT_PROVEN",
+    "all60Complete": false,
+    "fullCardEvidence": "construction/r30-repair/ALL60_EVIDENCE.json"
+  },
+  "historical002DoubleFalseGreen": {
+    "firstIssue": {
+      "code": "ORIGINAL_READY_R01_R02_R03_CAPTURED_SAME_R01_FRAME",
+      "status": "ORIGINAL_GALLERY_REJECTED_POSITION_FIXED_ONLY_IN_SUPPLEMENTAL_RUN",
+      "originalAppSource": "a94ee9dae4e0165f8b2b340bbcb23f4be3a8743f",
+      "originalMainRun": 41357264729,
+      "originalArchiveSha256": "0903334eeb7626fc62feeb332cf205114fd5e3b0b356534d3348985f8fa3c0a6",
+      "duplicateEvidence": [
+        {
+          "file": "READY-R01.png",
+          "sha256": "9c45c542fd0f68ec478dcf1cd913040914effc17429f8d37cf23021d69695ae5"
+        },
+        {
+          "file": "READY-R02.png",
+          "sha256": "9c45c542fd0f68ec478dcf1cd913040914effc17429f8d37cf23021d69695ae5"
+        },
+        {
+          "file": "READY-R03.png",
+          "sha256": "9c45c542fd0f68ec478dcf1cd913040914effc17429f8d37cf23021d69695ae5"
+        }
+      ],
+      "capturePositionSupplementRun": 41363199715,
+      "capturePositionOnlyResult": "188 distinct-target frames captured; this is not successful drawing acceptance",
+      "supplementArchiveSha256": "2dcdb8d804ea66e0a014bf2ee8da241ef88cfdd99c69428c11924a3bf45cd200"
+    },
+    "secondIssue": {
+      "code": "ACTUAL_R03_GRAPH_NODE_BUDGET64_VS100_DRAW_FALLBACK",
+      "status": "REJECTED",
+      "summaryStatus": "ACTUAL_R03_GRAPH_NODE_BUDGET64_VS100_DRAW_FALLBACK/REJECTED",
+      "appSource": "a94ee9dae4e0165f8b2b340bbcb23f4be3a8743f",
+      "testSource": "f8c080cc70ec431189a61613a4c1b00f89ee4085",
+      "runId": 41363199715,
+      "rawCIConclusion": "success",
+      "independentActualScreenshotReviewOverridesCIGreen": true,
+      "actualVisibleError": "本图绘制失败：IllegalArgumentException",
+      "actualR03DisplayPoints": 100,
+      "historicalGraphNodeBudget": 64,
+      "rootCause": "Actual100 position-number graph nodes exceed original ChartGeometryR82.graph64 budget; onDraw catches RuntimeException and draws failure fallback, while capture checked target/frame identity only.",
+      "historicalSourceAnchors": [
+        {
+          "appSource": "a94ee9dae4e0165f8b2b340bbcb23f4be3a8743f",
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ChartGeometryR82.java",
+          "fact": "MAX_NODES=64; graph throws GRAPH_NODE_BUDGET when names.size()>MAX_NODES"
+        },
+        {
+          "appSource": "a94ee9dae4e0165f8b2b340bbcb23f4be3a8743f",
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchChartViewR82.java",
+          "fact": "onDraw catches RuntimeException and paints 本图绘制失败; graph passes all panel point names"
+        }
+      ],
+      "proof": {
+        "screenshot": "/workspace/work/r30-final-delivery/corrected/evidence/android/evidence/r30/android-regression/workbench-screenshots/READY-R03.png",
+        "screenshotSha256": "c5685f030d2f55c0628992a07ab2f723fb75b88594896436043551593ff89c44",
+        "states": "/workspace/work/r30-final-delivery/corrected/evidence/android/evidence/r30/android-regression/workbench-screenshots/states.json",
+        "readyR03State": {
+          "actualStatus": "MEASURED_RESEARCH_ONLY",
+          "analysisOriginalStatus": "MEASURED_RESEARCH_ONLY",
+          "capture": {
+            "cardHeight": 1274,
+            "cardTop": 2554,
+            "frameSync": "API29_FRAME_COMMIT",
+            "pixelSha256": "779fa6ddc5ae09f5e4770717edd9dd369889363a4661c260b43da2760c839926",
+            "screenshotHeight": 2280,
+            "screenshotWidth": 1080,
+            "scrollY": 2554,
+            "settleMs": 300,
+            "title": "R03 号码位置兼容与跨位结构",
+            "viewport": [
+              0,
+              497,
+              1080,
+              2148
+            ],
+            "visibleCard": [
+              0,
+              497,
+              1080,
+              1771
+            ],
+            "visibleChart": [
+              0,
+              704,
+              1080,
+              1639
+            ],
+            "visibleTitle": [
+              0,
+              497,
+              1080,
+              584
+            ]
+          },
+          "displayPoints": 100,
+          "id": "R03",
+          "quality": "NOT_PROVEN",
+          "scenario": "READY",
+          "source": "r30r1_research_measure/POSITION_COMPATIBILITY"
+        },
+        "supplementContext": "/workspace/work/r30-final-delivery/corrected/evidence/android/gallery-verification-context.json",
+        "supplementRunSummary": "/workspace/work/r30/gallery-monitor/final-summary.json",
+        "publicArchiveSha256": "2dcdb8d804ea66e0a014bf2ee8da241ef88cfdd99c69428c11924a3bf45cd200",
+        "archiveMeaning": "Correct visible target positioning/frame commit only; rejected as drawing acceptance"
+      },
+      "reviewerActuallyViewedR03Png": true,
+      "onDrawExceptionFallbackCountsAsSuccessfulDrawing": false,
+      "distinctScreenshotIdentityCountsAsSuccessfulDrawing": false,
+      "requiresProductSourceFixAndNew003Apk": true
+    },
+    "old002Artifact": {
+      "apk": "STARCORE-R30-REPAIR1-EXISTING_R27-a94ee9dae4e0.apk",
+      "lane": "EXISTING_R27",
+      "sourceCommit": "a94ee9dae4e0165f8b2b340bbcb23f4be3a8743f",
+      "versionCode": 577311002,
+      "certificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+      "sha256": "cd46dd5b287d051e6968e96c57998608a1d9d50d69d64b1e61cecb98c12593ae",
+      "bytes": 28059055,
+      "versionName": "R30-REPAIR1-2026.11.01-002",
+      "package": "com.starcore.research.r13",
+      "sourceTree": "9e84abaa84089e14c69319e19ee99ccb65b4b3b4",
+      "mainSourceTree": "32c9e59c0c2c21216ce52db4d16c444bb112c8cc",
+      "apkURL": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311002-a94ee9dae4e0/STARCORE-R30-REPAIR1-EXISTING_R27-a94ee9dae4e0.apk",
+      "releaseURL": "https://github.com/gtt46461-star/starcore-public-build/releases/tag/r30-repair1-577311002-a94ee9dae4e0",
+      "sourceArchiveURL": "https://github.com/gtt46461-star/starcore-public-build/archive/a94ee9dae4e0165f8b2b340bbcb23f4be3a8743f.zip",
+      "publicDownload": "HTTP200_INDEPENDENTLY_RECORDED",
+      "independentVerification": "/workspace/work/r30-final-delivery/INDEPENDENT_VERIFICATION.json",
+      "independentlyReadLocalApkSha256ByDraftReviewer": "cd46dd5b287d051e6968e96c57998608a1d9d50d69d64b1e61cecb98c12593ae",
+      "localApkSha256MatchesCIAndCurrent107": true,
+      "privateSigningKeyAccessed": false,
+      "artifactRole": "HISTORICAL_PUBLIC_002_WITH_CONFIRMED_RENDER_DEFECT",
+      "recommendation": "WITHDRAWN_NOT_FINAL",
+      "knownProductRenderFailureRequiresRebuilt003APK": true
+    },
+    "old002FinalRecommendation": "WITHDRAWN",
+    "rawGreenDoesNotEraseManualRejection": true
+  },
+  "Q08HistoricalMechanismScope": {
+    "historicalAlgorithmSource": "1342b77b0c3ffeb73e68d892fee93987dc4a4129",
+    "actual003AppSource": "63ad6291711db607fd604443b4f50492882f09e8",
+    "historicalSourceHashSnapshotFileCount": 355,
+    "independentCompleteSyntheticPipelines": 20,
+    "eligibleCandidates": 20,
+    "falseQualifications": 0,
+    "interval95": {
+      "events": 0,
+      "independentReplicates": 20,
+      "lower95": 0.0,
+      "method": "WILSON_TWO_SIDED_95_DESCRIPTIVE",
+      "oneSided95ZeroEventUpper": 0.13910834066826516,
+      "rate": 0.0,
+      "status": "DESCRIPTIVE_SYNTHETIC_ONLY",
+      "upper95": 0.16112515805281938
+    },
+    "actual003WholeSourceTwentyRepeatRerun": false,
+    "repeatedExecutionsDoNotBecome40IndependentReplicates": true,
+    "indexedSourceHashDifferences": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java",
+        "historicalTestedSha256": "e778191aa673e1f91f588b7f1e302e582af611c4772bc5425120e3f13b10c6f9",
+        "actual003Sha256": "2a73699c1b4bc6ac3c0ece6f9c82448d2888678306c2e2da7504e42009987b16",
+        "reason": "Read-only unknown Boolean report fix; unknown remains null."
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchFrameBoundR30R1.java",
+        "historicalTestedSha256": "fe52126f53440b4ff6d9bf5e4e6265f05346ec568eaf96b2e023f7888e51e052",
+        "actual003Sha256": "474240701350b67212e12b41f36f8678b206d6ed359b5203cea5a814e5d6ece2",
+        "reason": "Display projection edge bound agrees with original120 reader; complete machine evidence retained."
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "historicalTestedSha256": "774307b6ebb6a5085f4a4438ee2b09d560fe7677a432bb2a53c6c2a6b03551d3",
+        "actual003Sha256": "aad89f2c94c63e88354bffc2226aa16000296708e1a0c203b9292fbd645230da",
+        "reason": "R12 existing real paired values receive1×N display axis identity; no values/pair calculations/consumer/qualification changes."
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskProgressR30R1.java",
+        "historicalTestedSha256": "7e90555992f3c96d37b4318f23c7792ef8bb5c643486dafe0907a01d2aa00839",
+        "actual003Sha256": "d4c197b1ed28e2be36647755e732cab3f4c783d8c372f4e80077fcc44ceeb320",
+        "reason": "Read-only registered task-count scope description."
+      }
+    ],
+    "renderClassesOutsideHistoricalHashSet": [
+      "app/src/main/java/com/ethk3/novaonepro/r952/ChartGeometryR82.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchChartViewR82.java"
+    ],
+    "presentationChanges": "Research graph120/legacy64, actual draw observation, R12 existing paired values1×N axes; no forecast/optimizer/qualification-gate mathematical change claimed.",
+    "naturalQuality": "NOT_PROVEN"
+  },
+  "all60Complete": false,
+  "completionPercentage": null,
+  "classificationSummary": {
+    "denominator": 60,
+    "basis": "ONE_SOURCE_BOUND_SCOPED_DISPOSITION_PER_CARD_NOT_TEST_COUNTS",
+    "categories": [
+      {
+        "id": "BASELINE_CONTRACT_RECORDS_EVIDENCED",
+        "label": "基线与合同记录已核对",
+        "count": 4,
+        "cardIds": [
+          "FR-B00-01",
+          "FR-B00-02",
+          "FR-B00-03",
+          "FR-B00-04"
+        ]
+      },
+      {
+        "id": "SOURCE_IMPLEMENTATION_OR_OWNER_ADAPTATION_WITH_SCOPED_ENGINEERING_EVIDENCE",
+        "label": "003工程实现或Owner适配有范围内证据",
+        "count": 53,
+        "cardIds": [
+          "FR-B01-01",
+          "FR-B01-02",
+          "FR-B01-03",
+          "FR-B01-04",
+          "FR-B01-05",
+          "FR-B02-01",
+          "FR-B02-02",
+          "FR-B02-03",
+          "FR-B02-04",
+          "FR-B02-05",
+          "FR-B02-06",
+          "FR-B03-01",
+          "FR-B03-02",
+          "FR-B03-03",
+          "FR-B03-04",
+          "FR-B03-05",
+          "FR-B04-01",
+          "FR-B04-02",
+          "FR-B04-03",
+          "FR-B04-04",
+          "FR-B04-05",
+          "FR-B05-01",
+          "FR-B05-02",
+          "FR-B05-03",
+          "FR-B05-04",
+          "FR-B05-05",
+          "FR-B06-01",
+          "FR-B06-02",
+          "FR-B06-03",
+          "FR-B06-04",
+          "FR-B06-05",
+          "FR-B06-06",
+          "FR-B07-01",
+          "FR-B07-02",
+          "FR-B07-03",
+          "FR-B07-04",
+          "FR-B07-05",
+          "FR-B08-01",
+          "FR-B08-02",
+          "FR-B08-03",
+          "FR-B08-04",
+          "FR-B08-05",
+          "FR-B09-01",
+          "FR-B09-02",
+          "FR-B09-03",
+          "FR-B09-04",
+          "FR-B09-05",
+          "FR-B10-01",
+          "FR-B10-02",
+          "FR-B10-03",
+          "FR-B10-04",
+          "FR-B10-05",
+          "FR-B11-01"
+        ]
+      },
+      {
+        "id": "PHYSICAL_ACCEPTANCE_NOT_RUN",
+        "label": "真机验收未运行",
+        "count": 1,
+        "cardIds": [
+          "FR-B11-02"
+        ]
+      },
+      {
+        "id": "NATURAL_ACCEPTANCE_NOT_PROVEN",
+        "label": "自然质量未证明",
+        "count": 1,
+        "cardIds": [
+          "FR-B11-03"
+        ]
+      },
+      {
+        "id": "PUBLIC003_DELIVERY_INDEPENDENTLY_VERIFIED_WITH_SCOPED_LIMITS",
+        "label": "003公开交付身份独立核验，范围边界保留",
+        "count": 1,
+        "cardIds": [
+          "FR-B11-04"
+        ]
+      }
+    ],
+    "categoryIsFullProductAcceptance": false
+  },
+  "remaining": [
+    "Vivo V2353A foreground/screen-off/72h real windows and original logs",
+    "Original user approximately26GB database performance/storage/FTRL subphase/EXPLAIN and cancellation remeasurement",
+    "Natural preregistered Q01-Q07 and qualified-asset→certificate→selector→Gate→REAL→unique settlement effect",
+    "Additional card-specific Android scenarios without direct coverage remain explicitly listed in ALL60_EVIDENCE.json"
+  ],
+  "preservedNegativeResults": {
+    "brierSkillScore": -0.4301036,
+    "Q05": "FAIL_IN_DECLARED_SYNTHETIC_CALIBRATION_FIXTURE",
+    "source": "evidence/r30-repair/B06/b08-final-matrix-schema-calibration-native.log"
+  },
+  "scopeRule": "Actual engineering and rendering evidence do not establish physical-device SLO, natural advantage, or every plan clause."
+}

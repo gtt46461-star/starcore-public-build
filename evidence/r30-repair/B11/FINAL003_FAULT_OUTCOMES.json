@@ -1,0 +1,190 @@
+{
+  "appSource": "63ad6291711db607fd604443b4f50492882f09e8",
+  "runId": 41365268452,
+  "apkSha256": "06d1117811aecf54793d4c164123d77105ecd3dc9f9bcdcde52f4f9b01dd8531",
+  "original14": {
+    "source": "63ad6291711db607fd604443b4f50492882f09e8",
+    "environment": "ANDROID_EMULATOR",
+    "physicalDevice": "NOT_RUN",
+    "naturalQuality": "NOT_PROVEN",
+    "cells": [
+      {
+        "fault": "fetch_timeout",
+        "visibility": "foreground",
+        "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+      },
+      {
+        "fault": "draw_conflict",
+        "visibility": "foreground",
+        "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+      },
+      {
+        "fault": "kill_settlement",
+        "visibility": "foreground",
+        "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+      },
+      {
+        "fault": "kill_freeze",
+        "visibility": "foreground",
+        "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+      },
+      {
+        "fault": "sqlite_full",
+        "visibility": "foreground",
+        "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+      },
+      {
+        "fault": "clock_rollback",
+        "visibility": "foreground",
+        "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+      },
+      {
+        "fault": "service_stop",
+        "visibility": "foreground",
+        "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+      },
+      {
+        "fault": "fetch_timeout",
+        "visibility": "background",
+        "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+      },
+      {
+        "fault": "draw_conflict",
+        "visibility": "background",
+        "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+      },
+      {
+        "fault": "kill_settlement",
+        "visibility": "background",
+        "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+      },
+      {
+        "fault": "kill_freeze",
+        "visibility": "background",
+        "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+      },
+      {
+        "fault": "sqlite_full",
+        "visibility": "background",
+        "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+      },
+      {
+        "fault": "clock_rollback",
+        "visibility": "background",
+        "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+      },
+      {
+        "fault": "service_stop",
+        "visibility": "background",
+        "mechanics": "ANDROID_EMULATOR_MECHANICS_PASS"
+      }
+    ],
+    "conflictRecovery": "HARD_BLOCK_AWAITING_VERIFIED_CANONICAL; never automatically erase conflicting evidence",
+    "serviceStop": "actual system force-stop then explicit user reopen; no automatic restart claim",
+    "wallClockFault": "actual rooted-emulator OS rollback and restoration through AlarmManager shell, two real wall/monotonic samples; restored before original-deadline recovery",
+    "signingKeysRead": false,
+    "productModelsDeleted": false
+  },
+  "research12": [
+    {
+      "stage": "analysis",
+      "fault": "BUSY",
+      "pass": true,
+      "scope": "research-41365268452-1-086ffdb3b67a-analysis-BUSY",
+      "outputSha256": "686fd8fed61cf25a3adc1627be7b38dd576f39c7c2111b1c5d512512674df8e7",
+      "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+    },
+    {
+      "stage": "analysis",
+      "fault": "FULL",
+      "pass": true,
+      "scope": "research-41365268452-1-086ffdb3b67a-analysis-FULL",
+      "outputSha256": "287e4eb047c7b5e12514e428c1a6f68eb8d765ae10028b1b422a82ec64c27348",
+      "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+    },
+    {
+      "stage": "analysis",
+      "fault": "CANCEL",
+      "pass": true,
+      "scope": "research-41365268452-1-086ffdb3b67a-analysis-CANCEL",
+      "outputSha256": "9f0427f1e21a26a58db5eacb4bbdd795a59ba4f9fe407d91c049838167a0f948",
+      "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+    },
+    {
+      "stage": "analysis",
+      "fault": "KILL",
+      "pass": true,
+      "scope": "research-41365268452-1-086ffdb3b67a-analysis-KILL",
+      "outputSha256": "02d1a1a18a1d0137114351f93a059cb92a726df3191d485189dc99a1d85263ab",
+      "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+    },
+    {
+      "stage": "analysis",
+      "fault": "CORRUPT",
+      "pass": true,
+      "scope": "research-41365268452-1-086ffdb3b67a-analysis-CORRUPT",
+      "outputSha256": "48a46550572b1c0ea50101d312e4e614bbe896f5d5e361cccec995de33e8da8f",
+      "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+    },
+    {
+      "stage": "analysis",
+      "fault": "SOURCE_CHANGE",
+      "pass": true,
+      "scope": "research-41365268452-1-086ffdb3b67a-analysis-SOURCE_CHANGE",
+      "outputSha256": "feb6f8c241875a37d85c2206959f88261700bb27c1dfb6a5609fcfccb3d10bd3",
+      "outcome": "EXPECTED_BLOCK_PRESERVE_ORIGINALS"
+    },
+    {
+      "stage": "consume",
+      "fault": "BUSY",
+      "pass": true,
+      "scope": "research-41365268452-1-086ffdb3b67a-consume-BUSY",
+      "outputSha256": "88f0703e5789d92f32b366ee176411a3116ed64cec40f281f9731b274b5ad2ee",
+      "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+    },
+    {
+      "stage": "consume",
+      "fault": "FULL",
+      "pass": true,
+      "scope": "research-41365268452-1-086ffdb3b67a-consume-FULL",
+      "outputSha256": "598e12d052a793c3865b012b50b293a87033081249effaaf9c9d62432d53cf9f",
+      "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+    },
+    {
+      "stage": "consume",
+      "fault": "CANCEL",
+      "pass": true,
+      "scope": "research-41365268452-1-086ffdb3b67a-consume-CANCEL",
+      "outputSha256": "be0b77c42eec69930a21a0edddac821acc04df3cb4622a345bb4b07c828f72aa",
+      "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+    },
+    {
+      "stage": "consume",
+      "fault": "KILL",
+      "pass": true,
+      "scope": "research-41365268452-1-086ffdb3b67a-consume-KILL",
+      "outputSha256": "ba66cec71fdcba0513c3dce0ee7029736c309434831c9e262345a4f0125b8f5c",
+      "outcome": "ROLLBACK_THEN_EXACT_RECOVERY"
+    },
+    {
+      "stage": "consume",
+      "fault": "CORRUPT",
+      "pass": true,
+      "scope": "research-41365268452-1-086ffdb3b67a-consume-CORRUPT",
+      "outputSha256": "ae923746a4529179285241c841ade1bc545826f8594d8be5aabbe318b3f4a137",
+      "outcome": "EXPECTED_BLOCK_PRESERVE_ORIGINALS"
+    },
+    {
+      "stage": "consume",
+      "fault": "SOURCE_CHANGE",
+      "pass": true,
+      "scope": "research-41365268452-1-086ffdb3b67a-consume-SOURCE_CHANGE",
+      "outputSha256": "81617d4c1486f53f289d7aba07d17c4a54dcfd3365ba4c10d276a6e2a4913cb1",
+      "outcome": "EXPECTED_BLOCK_PRESERVE_ORIGINALS"
+    }
+  ],
+  "researchRecovered": 9,
+  "researchExpectedBlocked": 3,
+  "passedExpectedOutcomes": 26,
+  "scope": "Actual Android emulator expected outcomes; conflict/source/corrupt input can remain intentionally blocked."
+}

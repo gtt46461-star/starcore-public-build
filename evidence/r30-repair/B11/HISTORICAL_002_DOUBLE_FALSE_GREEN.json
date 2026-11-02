@@ -1,0 +1,135 @@
+{
+  "firstIssue": {
+    "code": "ORIGINAL_READY_R01_R02_R03_CAPTURED_SAME_R01_FRAME",
+    "status": "ORIGINAL_GALLERY_REJECTED_POSITION_FIXED_ONLY_IN_SUPPLEMENTAL_RUN",
+    "originalAppSource": "a94ee9dae4e0165f8b2b340bbcb23f4be3a8743f",
+    "originalMainRun": 41357264729,
+    "originalArchiveSha256": "0903334eeb7626fc62feeb332cf205114fd5e3b0b356534d3348985f8fa3c0a6",
+    "duplicateEvidence": [
+      {
+        "file": "READY-R01.png",
+        "sha256": "9c45c542fd0f68ec478dcf1cd913040914effc17429f8d37cf23021d69695ae5"
+      },
+      {
+        "file": "READY-R02.png",
+        "sha256": "9c45c542fd0f68ec478dcf1cd913040914effc17429f8d37cf23021d69695ae5"
+      },
+      {
+        "file": "READY-R03.png",
+        "sha256": "9c45c542fd0f68ec478dcf1cd913040914effc17429f8d37cf23021d69695ae5"
+      }
+    ],
+    "capturePositionSupplementRun": 41363199715,
+    "capturePositionOnlyResult": "188 distinct-target frames captured; this is not successful drawing acceptance",
+    "supplementArchiveSha256": "2dcdb8d804ea66e0a014bf2ee8da241ef88cfdd99c69428c11924a3bf45cd200"
+  },
+  "secondIssue": {
+    "code": "ACTUAL_R03_GRAPH_NODE_BUDGET64_VS100_DRAW_FALLBACK",
+    "status": "REJECTED",
+    "summaryStatus": "ACTUAL_R03_GRAPH_NODE_BUDGET64_VS100_DRAW_FALLBACK/REJECTED",
+    "appSource": "a94ee9dae4e0165f8b2b340bbcb23f4be3a8743f",
+    "testSource": "f8c080cc70ec431189a61613a4c1b00f89ee4085",
+    "runId": 41363199715,
+    "rawCIConclusion": "success",
+    "independentActualScreenshotReviewOverridesCIGreen": true,
+    "actualVisibleError": "本图绘制失败：IllegalArgumentException",
+    "actualR03DisplayPoints": 100,
+    "historicalGraphNodeBudget": 64,
+    "rootCause": "Actual100 position-number graph nodes exceed original ChartGeometryR82.graph64 budget; onDraw catches RuntimeException and draws failure fallback, while capture checked target/frame identity only.",
+    "historicalSourceAnchors": [
+      {
+        "appSource": "a94ee9dae4e0165f8b2b340bbcb23f4be3a8743f",
+        "path": "app/src/main/java/com/ethk3/novaonepro/r952/ChartGeometryR82.java",
+        "fact": "MAX_NODES=64; graph throws GRAPH_NODE_BUDGET when names.size()>MAX_NODES"
+      },
+      {
+        "appSource": "a94ee9dae4e0165f8b2b340bbcb23f4be3a8743f",
+        "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchChartViewR82.java",
+        "fact": "onDraw catches RuntimeException and paints 本图绘制失败; graph passes all panel point names"
+      }
+    ],
+    "proof": {
+      "screenshot": "/workspace/work/r30-final-delivery/corrected/evidence/android/evidence/r30/android-regression/workbench-screenshots/READY-R03.png",
+      "screenshotSha256": "c5685f030d2f55c0628992a07ab2f723fb75b88594896436043551593ff89c44",
+      "states": "/workspace/work/r30-final-delivery/corrected/evidence/android/evidence/r30/android-regression/workbench-screenshots/states.json",
+      "readyR03State": {
+        "actualStatus": "MEASURED_RESEARCH_ONLY",
+        "analysisOriginalStatus": "MEASURED_RESEARCH_ONLY",
+        "capture": {
+          "cardHeight": 1274,
+          "cardTop": 2554,
+          "frameSync": "API29_FRAME_COMMIT",
+          "pixelSha256": "779fa6ddc5ae09f5e4770717edd9dd369889363a4661c260b43da2760c839926",
+          "screenshotHeight": 2280,
+          "screenshotWidth": 1080,
+          "scrollY": 2554,
+          "settleMs": 300,
+          "title": "R03 号码位置兼容与跨位结构",
+          "viewport": [
+            0,
+            497,
+            1080,
+            2148
+          ],
+          "visibleCard": [
+            0,
+            497,
+            1080,
+            1771
+          ],
+          "visibleChart": [
+            0,
+            704,
+            1080,
+            1639
+          ],
+          "visibleTitle": [
+            0,
+            497,
+            1080,
+            584
+          ]
+        },
+        "displayPoints": 100,
+        "id": "R03",
+        "quality": "NOT_PROVEN",
+        "scenario": "READY",
+        "source": "r30r1_research_measure/POSITION_COMPATIBILITY"
+      },
+      "supplementContext": "/workspace/work/r30-final-delivery/corrected/evidence/android/gallery-verification-context.json",
+      "supplementRunSummary": "/workspace/work/r30/gallery-monitor/final-summary.json",
+      "publicArchiveSha256": "2dcdb8d804ea66e0a014bf2ee8da241ef88cfdd99c69428c11924a3bf45cd200",
+      "archiveMeaning": "Correct visible target positioning/frame commit only; rejected as drawing acceptance"
+    },
+    "reviewerActuallyViewedR03Png": true,
+    "onDrawExceptionFallbackCountsAsSuccessfulDrawing": false,
+    "distinctScreenshotIdentityCountsAsSuccessfulDrawing": false,
+    "requiresProductSourceFixAndNew003Apk": true
+  },
+  "old002Artifact": {
+    "apk": "STARCORE-R30-REPAIR1-EXISTING_R27-a94ee9dae4e0.apk",
+    "lane": "EXISTING_R27",
+    "sourceCommit": "a94ee9dae4e0165f8b2b340bbcb23f4be3a8743f",
+    "versionCode": 577311002,
+    "certificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+    "sha256": "cd46dd5b287d051e6968e96c57998608a1d9d50d69d64b1e61cecb98c12593ae",
+    "bytes": 28059055,
+    "versionName": "R30-REPAIR1-2026.11.01-002",
+    "package": "com.starcore.research.r13",
+    "sourceTree": "9e84abaa84089e14c69319e19ee99ccb65b4b3b4",
+    "mainSourceTree": "32c9e59c0c2c21216ce52db4d16c444bb112c8cc",
+    "apkURL": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-repair1-577311002-a94ee9dae4e0/STARCORE-R30-REPAIR1-EXISTING_R27-a94ee9dae4e0.apk",
+    "releaseURL": "https://github.com/gtt46461-star/starcore-public-build/releases/tag/r30-repair1-577311002-a94ee9dae4e0",
+    "sourceArchiveURL": "https://github.com/gtt46461-star/starcore-public-build/archive/a94ee9dae4e0165f8b2b340bbcb23f4be3a8743f.zip",
+    "publicDownload": "HTTP200_INDEPENDENTLY_RECORDED",
+    "independentVerification": "/workspace/work/r30-final-delivery/INDEPENDENT_VERIFICATION.json",
+    "independentlyReadLocalApkSha256ByDraftReviewer": "cd46dd5b287d051e6968e96c57998608a1d9d50d69d64b1e61cecb98c12593ae",
+    "localApkSha256MatchesCIAndCurrent107": true,
+    "privateSigningKeyAccessed": false,
+    "artifactRole": "HISTORICAL_PUBLIC_002_WITH_CONFIRMED_RENDER_DEFECT",
+    "recommendation": "WITHDRAWN_NOT_FINAL",
+    "knownProductRenderFailureRequiresRebuilt003APK": true
+  },
+  "old002FinalRecommendation": "WITHDRAWN",
+  "rawGreenDoesNotEraseManualRejection": true
+}
