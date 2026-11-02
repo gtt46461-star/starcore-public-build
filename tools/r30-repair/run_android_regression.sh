@@ -4,6 +4,7 @@ out=${1:?evidence directory required}
 mkdir -p "$out"
 serial=$(adb get-serialno)
 [[ "$serial" == emulator-* ]] && [[ $(adb shell getprop ro.kernel.qemu | tr -d '\r') == 1 ]] || { echo EMULATOR_REQUIRED; exit 1; }
+python3 tools/r30-repair/probe_ui_report.py --out "$out/ui-report"
 # Keep all prior non-gallery Android scenarios, with the expanded old gallery count checked below.
 baseline_copy=$(mktemp)
 trap 'rm -f "$baseline_copy"' EXIT
@@ -17,6 +18,12 @@ bash "$baseline_copy" "$out/original"
 app_id=com.starcore.research.r13
 adb shell am instrument -w -r -e class com.ethk3.novaonepro.SchemaStampReasonAndroidTest -e r30Sandbox "stamp-${GITHUB_RUN_ID:-local}" "$app_id.test/com.ethk3.novaonepro.R30FaultAndroidRunner" > "$out/schema-stamp-reason.txt" 2>&1
 grep -Fq 'OK (3 tests' "$out/schema-stamp-reason.txt" || { cat "$out/schema-stamp-reason.txt"; exit 1; }
+python3 - "$out" <<'PY'
+import hashlib,json,pathlib,subprocess,sys
+p=pathlib.Path(sys.argv[1]);raw=(p/'schema-stamp-reason.txt').read_bytes()
+receipt={'sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'result':'PASS','androidTests':3,'outputSha256':hashlib.sha256(raw).hexdigest(),'scope':'Android SQLite report schema fixture; live and readonly snapshot after guarded restamp; unknown drift rejected; not the user 9.66GB database'}
+(p/'schema-stamp-acceptance.json').write_text(json.dumps(receipt,indent=2)+'\n')
+PY
 adb shell am force-stop "$app_id"
 adb logcat -c
 adb shell am instrument -w -r -e class com.ethk3.novaonepro.R30RepairChartsAndroidTest -e r30Sandbox "repair-chart-${GITHUB_RUN_ID:-local}" "$app_id.test/com.ethk3.novaonepro.R30FaultAndroidRunner" > "$out/workbench.txt" 2>&1

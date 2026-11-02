@@ -10,6 +10,16 @@ expected='d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7';sdk=
 certificate=run([sdk/'apksigner','verify','--verbose','--print-certs',apk]);assert re.search(r'Signer #1 certificate SHA-256 digest: ([0-9a-f]{64})',certificate).group(1)==expected==row['certificateSha256']
 badging=run([sdk/'aapt','dump','badging',apk]).splitlines()[0];assert "name='com.starcore.research.r13'" in badging and "versionCode='"+str(row['versionCode'])+"'" in badging
 unit_file=unique(a.host,'unit-summary.json');unit=json.loads(unit_file.read_text());assert unit['sourceCommit']==a.source and unit['tests']>0 and unit['failures']==unit['errors']==unit['skipped']==0
+stamp_file=unique(a.android,'schema-stamp-acceptance.json');stamp=json.loads(stamp_file.read_text());assert stamp['sourceCommit']==a.source and stamp['result']=='PASS' and stamp['androidTests']==3
+stamp_log=unique(a.android,'schema-stamp-reason.txt');assert hashlib.sha256(stamp_log.read_bytes()).hexdigest()==stamp['outputSha256']
+ui_report_file=unique(a.android,'ui-report-acceptance.json');ui_report=json.loads(ui_report_file.read_text());assert ui_report['sourceCommit']==a.source and ui_report['result']=='PASS' and ui_report['zipBytes']>0 and ui_report['entryCount']>10 and ui_report['researchSchemaReady'] is True
+ui_zip=unique(a.android,'UI_EXPORTED_FULL_REPORT.zip');assert ui_zip.stat().st_size==ui_report['zipBytes'] and hashlib.sha256(ui_zip.read_bytes()).hexdigest()==ui_report['zipSha256']
+with zipfile.ZipFile(ui_zip) as archive:
+ assert archive.testzip() is None and len(archive.infolist())==ui_report['entryCount']
+ assert json.loads(archive.read('source-manifest.json'))['sourceCommit']==a.source
+ assert json.loads(archive.read('runtime-observation.json'))['researchSchemaReady'] is True
+ for name in ('DIAGNOSTIC_SCOPE.json','R30_REPORT.json','R30_REPORT.md','source-manifest.json','runtime-observation.json'):assert len(archive.read(name))>0
+assert ui_report['evidenceComplete'] is True and ui_report['checksComplete'] is True
 charts=json.loads(unique(a.android,'repair-chart-acceptance.json').read_text());assert charts['sourceCommit']==a.source and charts['screenshots']==188 and charts['registeredObjects']==47
 fault=json.loads(unique(a.android,'matrix.json').read_text());assert fault['source']==a.source and len(fault['cells'])==14
 research_fault=json.loads(unique(a.android,'research-fault-matrix.json').read_text());assert research_fault['sourceCommit']==a.source and research_fault['result']=='PASS' and len(research_fault['cells'])==12
@@ -33,6 +43,8 @@ out=a.candidate;row.update(artifactRole='REPAIR_CANDIDATE_SAME_R27_SIGNER_ANDROI
 receipt={'sourceCommit':a.source,'package':'com.starcore.research.r13','versionCode':row['versionCode'],'certificateSha256':expected,'apkSha256':row['sha256'],'registeredCharts':47,'displayScenarios':4,'actualActivityScreenshots':188,'chartStateScope':'Real production synthetic analysis or explicit missing original sources; no fake effective result','faultMatrixCells':14,'repairResearchFaultCells':12,'upgradeDrills':['CP06','CP16','CURRENT_R30_107'],'noUninstall':True,'signerLoader':'ORIGINAL_R27_UNCHANGED','signingKeyReadOrUploadedByAgent':False,'physicalV2353A72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','knownLintBaseline':'51 original errors filtered by unchanged baseline; zero new lint errors required'}
 (out/'ACCEPTANCE.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
 receipt['actualJUnitXmlSummary']=unit
+receipt['schemaStampAndroidAcceptance']=stamp
+receipt['productionUiReportExport']=ui_report
 tag='r30-repair1-'+str(row['versionCode'])+'-'+a.source[:12]
 notes=out/'RELEASE_NOTES.md';notes.write_text('R30返修候选，原R27证书，同包覆盖升级。\n\n源码：'+a.source+'\n\n47项四显示场景188截图、原14故障格和新研究链12故障格，以及CP06/CP16/当前R30-107覆盖→回滚→再升级的数据保全已在Android模拟器通过。缺少原始分析或收益证据的图仍显示不足。\n\nV2353A/72小时、原用户大库重测与自然质量尚未证明，不能视为百分百质量闭环。原51项lint基线保留，新lint错误必须为0。\n')
 repo=os.environ.get('GITHUB_REPOSITORY','gtt46461-star/starcore-public-build')
@@ -49,6 +61,9 @@ assert all(hashlib.sha256(f.read_bytes()).hexdigest()==hashes[f.name] and f.read
 proof_zip=out/'ANDROID_ACCEPTANCE_EVIDENCE.zip'
 with zipfile.ZipFile(proof_zip,'w',compression=zipfile.ZIP_DEFLATED) as bundle:
  bundle.write(unit_file,'host/unit-summary.json')
+ bundle.write(stamp_file,'android/schema-stamp-acceptance.json')
+ bundle.write(stamp_log,'android/schema-stamp-reason.txt')
+ bundle.write(ui_report_file,'android/ui-report-acceptance.json')
  for file in gallery:bundle.write(file,'android/'+str(file.relative_to(a.android)))
  for name in ('repair-chart-acceptance.json','regression.json','matrix.json','research-fault-matrix.json','states.json'):
   for file in a.android.rglob(name):bundle.write(file,'android/'+str(file.relative_to(a.android)))
