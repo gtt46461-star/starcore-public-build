@@ -58,7 +58,7 @@ public final class SchemaStampReasonAndroidTest {
 
     @Test public void report003SchemaReproducesLegacyStampWithoutMigration() throws Exception {
         java.io.File fixture = java.io.File.createTempFile("r30-stamp-", ".db",
-                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getContext().getCacheDir());
+                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getTargetContext().getCacheDir());
         try (SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(fixture, null);
              java.io.InputStream in = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
                      .getContext().getAssets().open("r30_report_003_critical_schema.json")) {
