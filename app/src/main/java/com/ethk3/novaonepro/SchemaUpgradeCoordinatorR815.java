@@ -219,24 +219,33 @@ public final class SchemaUpgradeCoordinatorR815 {
         if (destination.exists()) throw new IOException("BACKUP_DESTINATION_EXISTS");
         File temp = new File(destination.getParentFile(), destination.getName() + ".copying");
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        try (FileInputStream in = new FileInputStream(source);
-             FileOutputStream out = new FileOutputStream(temp, false)) {
-            byte[] buffer = new byte[BUFFER_SIZE];
-            int count;
-            while (true) {
-                if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("BACKUP_COPY_INTERRUPTED");
-                count = in.read(buffer);
-                if (count == -1) break;
-                if (count == 0) continue;
-                digest.update(buffer, 0, count);
-                out.write(buffer, 0, count);
+        // Only the file created by this invocation may be cleaned up. A pre-existing
+        // temporary file can belong to a previous recovery attempt and is left intact.
+        if (!temp.createNewFile()) throw new IOException("BACKUP_TEMP_EXISTS");
+        try {
+            try (FileInputStream in = new FileInputStream(source);
+                 FileOutputStream out = new FileOutputStream(temp, false)) {
+                byte[] buffer = new byte[BUFFER_SIZE];
+                int count;
+                while (true) {
+                    if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("BACKUP_COPY_INTERRUPTED");
+                    count = in.read(buffer);
+                    if (count == -1) break;
+                    if (count == 0) continue;
+                    digest.update(buffer, 0, count);
+                    out.write(buffer, 0, count);
+                }
+                out.getFD().sync();
             }
-            out.getFD().sync();
+            if (!temp.renameTo(destination)) throw new IOException("BACKUP_RENAME_FAILED");
+            StringBuilder result = new StringBuilder(64);
+            for (byte b : digest.digest()) result.append(String.format(java.util.Locale.ROOT, "%02x", b & 0xff));
+            return result.toString();
+        } catch (Exception | Error failure) {
+            if (temp.exists() && !temp.delete())
+                failure.addSuppressed(new IOException("BACKUP_TEMP_CLEANUP_FAILED"));
+            throw failure;
         }
-        if (!temp.renameTo(destination)) throw new IOException("BACKUP_RENAME_FAILED");
-        StringBuilder result = new StringBuilder(64);
-        for (byte b : digest.digest()) result.append(String.format(java.util.Locale.ROOT, "%02x", b & 0xff));
-        return result.toString();
     }
 
     private static void copyReplace(File source,File destination)throws IOException{

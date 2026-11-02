@@ -72,7 +72,33 @@ public class SchemaBackupSpaceR815Test {
             worker.join();
             assertTrue(failure.get() instanceof java.io.InterruptedIOException);
             assertFalse(Files.exists(backup));
+            assertFalse(Files.exists(dir.resolve("backup.copying")));
             assertArrayEquals(bytes, Files.readAllBytes(source));
+        } finally {
+            try (java.util.stream.Stream<Path> files = Files.list(dir)) {
+                files.forEach(p -> { try { Files.deleteIfExists(p); } catch (java.io.IOException e) { throw new RuntimeException(e); } });
+            }
+            Files.deleteIfExists(dir);
+        }
+    }
+
+    @Test public void leavesPreexistingTemporaryAndBackupUntouched() throws Exception {
+        Path dir = Files.createTempDirectory("r926-existing-test");
+        try {
+            Path source=dir.resolve("source"), backup=dir.resolve("backup"), temp=dir.resolve("backup.copying"), previous=dir.resolve("previous.bak");
+            Files.write(source, new byte[]{1,2,3});
+            Files.write(temp, new byte[]{7,8});
+            Files.write(previous, new byte[]{9,10});
+            try {
+                SchemaUpgradeCoordinatorR815.copyAndSyncWithHash(source.toFile(),backup.toFile());
+                fail("accepted a pre-existing temporary file");
+            } catch (java.io.IOException expected) {
+                assertEquals("BACKUP_TEMP_EXISTS", expected.getMessage());
+            }
+            assertArrayEquals(new byte[]{7,8}, Files.readAllBytes(temp));
+            assertArrayEquals(new byte[]{9,10}, Files.readAllBytes(previous));
+            assertArrayEquals(new byte[]{1,2,3}, Files.readAllBytes(source));
+            assertFalse(Files.exists(backup));
         } finally {
             try (java.util.stream.Stream<Path> files = Files.list(dir)) {
                 files.forEach(p -> { try { Files.deleteIfExists(p); } catch (java.io.IOException e) { throw new RuntimeException(e); } });
