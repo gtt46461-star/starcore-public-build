@@ -251,6 +251,7 @@ public final class DatabaseCoordinator {
     private volatile long lastDbLockWaitMs, longestDbLockWaitMs;
     private volatile String lastOperation = "", lastError = "", lastTransactionHash = "";
     private volatile String criticalSchemaStage = "NOT_STARTED", criticalSchemaError = "";
+    private volatile String criticalStampReason = "NOT_CHECKED";
     private volatile long criticalSchemaStartedAt, criticalSchemaCompletedAt, criticalSchemaCostMs;
     private volatile String legacySchemaStage = "NOT_STARTED", legacySchemaError = "";
     private volatile long legacySchemaStartedAt, legacySchemaCompletedAt, legacySchemaCostMs;
@@ -374,11 +375,12 @@ public final class DatabaseCoordinator {
                             "CP12_CRITICAL_CANONICAL_REASON_V1",
                             x -> com.ethk3.novaonepro.r952.CanonicalSchemaCP12.installReasons(x));
                 }
-                if (SchemaDomainCoordinatorR926.matches(existingDb, critical)) {
+                criticalStampReason = SchemaDomainCoordinatorR926.matchReason(existingDb, critical);
+                if (criticalStampReason.startsWith("MATCH")) {
                     verifyCriticalTables(existingDb);
                     if (initializer != null) initializer.run(existingDb);
                     criticalSchemaReady.set(true);
-                    criticalSchemaStage = "READY_VERIFIED_R926_CRITICAL_STAMP";
+                    criticalSchemaStage = "READY_VERIFIED_R926_CRITICAL_STAMP_" + criticalStampReason;
                     criticalSchemaCompletedAt = System.currentTimeMillis();
                     criticalSchemaCostMs = Math.max(0L, criticalSchemaCompletedAt - started);
                     return;
@@ -536,6 +538,7 @@ public final class DatabaseCoordinator {
                 + criticalSchemaCostMs
                 + "ms/error="
                 + safe(criticalSchemaError)
+                + "|criticalStamp=" + safe(criticalStampReason)
                 + "|research="
                 + (r811ResearchSchemaReady.get() ? "READY" : ResearchSchemaCoordinatorR926.summary())
                 + "|researchOwnerError=" + safe(researchSchemaErrorR80)

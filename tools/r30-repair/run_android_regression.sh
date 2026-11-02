@@ -15,6 +15,8 @@ pathlib.Path(sys.argv[1]).write_text(source)
 PY
 bash "$baseline_copy" "$out/original"
 app_id=com.starcore.research.r13
+adb shell am instrument -w -r -e class com.ethk3.novaonepro.SchemaStampReasonAndroidTest -e r30Sandbox "stamp-${GITHUB_RUN_ID:-local}" "$app_id.test/com.ethk3.novaonepro.R30FaultAndroidRunner" > "$out/schema-stamp-reason.txt" 2>&1
+grep -Fq 'OK (3 tests' "$out/schema-stamp-reason.txt" || { cat "$out/schema-stamp-reason.txt"; exit 1; }
 adb shell am force-stop "$app_id"
 adb logcat -c
 adb shell am instrument -w -r -e class com.ethk3.novaonepro.R30RepairChartsAndroidTest -e r30Sandbox "repair-chart-${GITHUB_RUN_ID:-local}" "$app_id.test/com.ethk3.novaonepro.R30FaultAndroidRunner" > "$out/workbench.txt" 2>&1

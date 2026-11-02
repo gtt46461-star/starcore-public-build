@@ -8,6 +8,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.security.MessageDigest;
+import java.util.UUID;
 
 /**
  * R926 same-user_version migration owner (class name retained for binary/source compatibility).
@@ -20,6 +23,7 @@ import java.io.IOException;
 public final class SchemaUpgradeCoordinatorR815 {
     private static final Object LOCK = new Object();
     private static final int BUFFER_SIZE = 32768;
+    private static final long BACKUP_SPACE_MARGIN = 128L * 1024L * 1024L;
     private static volatile String lastRestoreError = "";
 
     public static final class Result {
@@ -59,6 +63,8 @@ public final class SchemaUpgradeCoordinatorR815 {
             File backup=null;
             String backupHash="";
             boolean checkpointed=false;
+            boolean backupVerified=false;
+            boolean migrationStarted=false;
             DatabaseBackupManifestR926 before=null;
             try {
                 db=helper.getWritableDatabase();
@@ -69,17 +75,25 @@ public final class SchemaUpgradeCoordinatorR815 {
                 File database=context.getDatabasePath(AppConfig.DB_NAME);
                 if (database==null || !database.isFile() || database.length()<=0L)
                     throw new IllegalStateException("DATABASE_FILE_MISSING");
-                before=DatabaseBackupManifestR926.capture(db,database);
+                // Refuse before the costly capture/copy when even the backup plus a small
+                // filesystem margin cannot fit. A later ENOSPC is still handled as failure.
+                requireBackupSpace(database.length(), database.getParentFile().getUsableSpace());
+                before=DatabaseBackupManifestR926.capture(db,database,false);
                 // No live writer may remain while the filesystem copy is made.
                 helper.close();
-                backup=new File(database.getParentFile(),database.getName()+".r926."+ReleaseManifestR926.VERSION_CODE+".bak");
-                copyAndSync(database,backup);
+                // Never replace a prior recovery point, even on repeated failed starts.
+                backup=new File(database.getParentFile(),database.getName()+".r926."
+                        +ReleaseManifestR926.VERSION_CODE+"."+UUID.randomUUID()+".bak");
+                String sourceHash=copyAndSyncWithHash(database,backup);
+                before=before.withDatabaseSha256(sourceHash);
                 backupHash=DatabaseBackupManifestR926.sha256File(backup);
                 if (before.databaseSha256.length()==64 && !backupHash.equals(before.databaseSha256))
                     throw new IllegalStateException("BACKUP_SOURCE_HASH_MISMATCH");
                 verifyBackupFile(backup,before);
                 before.writeNextTo(backup);
+                backupVerified=true;
 
+                migrationStarted=true;
                 db=helper.getWritableDatabase();
                 final SQLiteDatabase migrationDb=db;
                 final SchemaDomainCoordinatorR926.Contract critical=SchemaDomainCoordinatorR926.criticalContract();
@@ -101,13 +115,26 @@ public final class SchemaUpgradeCoordinatorR815 {
                 return new Result(true,"READY",backup,backupHash,true,true,false,
                         "R926_SAME_VERSION_JOURNAL|HISTORY="+verification.summary(),before.snapshotHash,after.snapshotHash);
             } catch (Throwable failure) {
-                boolean restored=restoreVerifiedBackup(context,helper,backup,backupHash);
-                String restoreDetail = restored ? "" : "|RESTORE_ERROR=" + safe(lastRestoreError);
+                // Never replace the live database because backup creation or verification
+                // failed. Restore is possible only after a verified backup and attempted DDL.
+                boolean restored=backupVerified && migrationStarted
+                        && restoreVerifiedBackup(context,helper,backup,backupHash);
+                String restoreDetail = restored ? "" : (!backupVerified || !migrationStarted
+                        ? "|RESTORE_NOT_ATTEMPTED_NO_VERIFIED_MIGRATION_BACKUP"
+                        : "|RESTORE_ERROR=" + safe(lastRestoreError));
                 return new Result(false,"SAFE_DB_RECOVERY",backup,backupHash,checkpointed,false,restored,
                         failure.getClass().getSimpleName()+':'+safe(failure.getMessage())+restoreDetail,
                         before==null?"":before.snapshotHash,"");
             }
         }
+    }
+
+    static void requireBackupSpace(long databaseBytes, long usableBytes) {
+        if (databaseBytes <= 0 || usableBytes < 0 || usableBytes < BACKUP_SPACE_MARGIN
+                || databaseBytes > usableBytes - BACKUP_SPACE_MARGIN)
+            throw new IllegalStateException("R926_BACKUP_INSUFFICIENT_SPACE|databaseBytes="
+                    + databaseBytes + "|usableBytes=" + usableBytes
+                    + "|marginBytes=" + BACKUP_SPACE_MARGIN);
     }
 
     public static boolean restoreVerifiedBackup(Context context, DbHelper helper, File backup, String expectedSha256) {
@@ -185,6 +212,31 @@ public final class SchemaUpgradeCoordinatorR815 {
         copyReplace(source,temp);
         if(destination.exists()&&!destination.delete())throw new IOException("DESTINATION_REPLACE_DELETE_FAILED");
         if(!temp.renameTo(destination)){copyReplace(temp,destination);if(!temp.delete())throw new IOException("TEMP_DELETE_FAILED");}
+    }
+
+    /** Hash the closed source as it is copied, then independently re-read the backup. */
+    static String copyAndSyncWithHash(File source, File destination) throws Exception {
+        if (destination.exists()) throw new IOException("BACKUP_DESTINATION_EXISTS");
+        File temp = new File(destination.getParentFile(), destination.getName() + ".copying");
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        try (FileInputStream in = new FileInputStream(source);
+             FileOutputStream out = new FileOutputStream(temp, false)) {
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int count;
+            while (true) {
+                if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("BACKUP_COPY_INTERRUPTED");
+                count = in.read(buffer);
+                if (count == -1) break;
+                if (count == 0) continue;
+                digest.update(buffer, 0, count);
+                out.write(buffer, 0, count);
+            }
+            out.getFD().sync();
+        }
+        if (!temp.renameTo(destination)) throw new IOException("BACKUP_RENAME_FAILED");
+        StringBuilder result = new StringBuilder(64);
+        for (byte b : digest.digest()) result.append(String.format(java.util.Locale.ROOT, "%02x", b & 0xff));
+        return result.toString();
     }
 
     private static void copyReplace(File source,File destination)throws IOException{

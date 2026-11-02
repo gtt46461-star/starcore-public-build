@@ -76,13 +76,21 @@ public final class DatabaseBackupManifestR926 {
     }
 
     public static DatabaseBackupManifestR926 capture(SQLiteDatabase db, File databaseFile) throws Exception {
+        return capture(db, databaseFile, true);
+    }
+
+    static DatabaseBackupManifestR926 capture(SQLiteDatabase db, File databaseFile, boolean hashFile) throws Exception {
         if (db == null || !db.isOpen()) throw new IllegalArgumentException("R926_BACKUP_CAPTURE_DB_NOT_OPEN");
         LinkedHashMap<String, TableDigest> digests = new LinkedHashMap<String, TableDigest>();
         String[] tables = historicalTables();
         for (String table : tables) digests.put(table, digestTable(db, table, null));
         return new DatabaseBackupManifestR926(
-                userVersion(db), databaseFile != null && databaseFile.isFile() ? sha256File(databaseFile) : "",
+                userVersion(db), hashFile && databaseFile != null && databaseFile.isFile() ? sha256File(databaseFile) : "",
                 databaseFile == null ? "" : databaseFile.getAbsolutePath(), System.currentTimeMillis(), digests);
+    }
+
+    DatabaseBackupManifestR926 withDatabaseSha256(String sha256) {
+        return new DatabaseBackupManifestR926(userVersion, sha256, databasePath, capturedAt, tables);
     }
 
     /** Re-hash target using the exact pre-migration column set. */

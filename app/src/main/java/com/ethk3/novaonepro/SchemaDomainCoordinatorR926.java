@@ -239,18 +239,43 @@ public final class SchemaDomainCoordinatorR926 {
     }
 
     public static boolean matches(SQLiteDatabase db, Contract contract) {
-        if (db == null || contract == null) return false;
+        return matchReason(db, contract).startsWith("MATCH");
+    }
+
+    /** Records which existing stamp check failed; never treats missing evidence as ready. */
+    public static String matchReason(SQLiteDatabase db, Contract contract) {
+        if (db == null || contract == null) return "ARGUMENT_MISSING";
         Cursor c = null;
         try {
             c = db.rawQuery("SELECT revision,contract_hash,fingerprint,state FROM " + TABLE_DOMAIN
                     + " WHERE domain=?", new String[] {contract.domain});
-            if (!c.moveToFirst()) return false;
-            if (c.getInt(0) != contract.revision) return false;
-            if (!contract.contractHash.equals(c.getString(1))) return false;
-            if (!"READY".equals(c.getString(3))) return false;
-            return fingerprint(db, contract).equals(c.getString(2));
-        } catch (RuntimeException unavailable) { return false; }
+            if (!c.moveToFirst()) return "STAMP_MISSING";
+            if (c.getInt(0) != contract.revision) return "REVISION_MISMATCH";
+            if (!contract.contractHash.equals(c.getString(1))) return "CONTRACT_MISMATCH";
+            if (!"READY".equals(c.getString(3))) return "STATE_NOT_READY";
+            String stored = c.getString(2);
+            if (fingerprint(db, contract).equals(stored)) return "MATCH";
+            if (DOMAIN_CRITICAL.equals(contract.domain)
+                    && completeCriticalJournal(db, contract)
+                    && com.ethk3.novaonepro.strategyv2.ResearchInputPinR30R1.triggersValid(db)
+                    && fingerprintWithoutResearchPinDrawTriggers(db, contract).equals(stored))
+                return "MATCH_R30_PIN_DRAW_ADDITION";
+            return "FINGERPRINT_MISMATCH";
+        } catch (RuntimeException unavailable) { return "STAMP_UNREADABLE"; }
         finally { if (c != null) c.close(); }
+    }
+
+    private static boolean completeCriticalJournal(SQLiteDatabase db, Contract contract) {
+        try (Cursor c = db.rawQuery("SELECT COUNT(*), SUM(CASE WHEN status<>'COMPLETED' THEN 1 ELSE 0 END) FROM "
+                + TABLE_JOURNAL + " WHERE domain=? AND revision=?",
+                new String[]{contract.domain, String.valueOf(contract.revision)})) {
+            if (!c.moveToFirst() || c.getLong(0) == 0 || c.getLong(1) != 0) return false;
+        }
+        for (String step : new String[]{"F02_SETTLEMENT_RECOVERY_AUDIT_V1", "CP12_CRITICAL_CANONICAL_REASON_V1",
+                "R815_CRITICAL_SCHEMA", "R906_CRITICAL_SCHEMA", "R925_CRITICAL_SCHEMA", "R926_EVENT_LEDGER_SCHEMA",
+                "R35_SCHEMA", "R36_SCHEMA", "R811_CRITICAL_SCHEMA", "V51_RUNTIME_SCHEMA", "B03_RUNTIME_SCHEMA",
+                "R26_FEEDBACK_SCHEMA"}) if (!stepComplete(db, contract, step)) return false;
+        return true;
     }
 
     public static void verifyAndStamp(SQLiteDatabase db, Contract contract) {
@@ -400,6 +425,14 @@ public final class SchemaDomainCoordinatorR926 {
     }
 
     public static String fingerprint(SQLiteDatabase db, Contract contract) {
+        return fingerprint(db, contract, false);
+    }
+
+    private static String fingerprintWithoutResearchPinDrawTriggers(SQLiteDatabase db, Contract contract) {
+        return fingerprint(db, contract, true);
+    }
+
+    private static String fingerprint(SQLiteDatabase db, Contract contract, boolean excludeResearchPinDrawTriggers) {
         if (db == null || contract == null) return "";
         Set<String> wanted = new HashSet<String>(Arrays.asList(contract.objects));
         ArrayList<String> rows = new ArrayList<String>();
@@ -445,6 +478,9 @@ public final class SchemaDomainCoordinatorR926 {
                 String name = safe(c.getString(1));
                 String table = safe(c.getString(2));
                 if (!wanted.contains(name) && !wanted.contains(table)) continue;
+                if (excludeResearchPinDrawTriggers && "trigger".equals(safe(c.getString(0)))
+                        && "draws".equals(table)
+                        && ("r30r1_pin_draws_insert".equals(name) || "r30r1_pin_draws_update".equals(name))) continue;
                 rows.add(safe(c.getString(0)) + '|' + name + '|' + table + '|' + safe(c.getString(3)));
             }
         } finally { c.close(); }
