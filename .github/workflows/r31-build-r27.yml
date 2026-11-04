@@ -141,6 +141,27 @@ jobs:
           assert totals['tests']>0 and totals['failures']==totals['errors']==totals['skipped']==0,totals
           (pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-evidence/unit-summary.json').write_text(json.dumps({'scope':'HOST_UNIT_NOT_ANDROID_OR_NATURAL','suites':len(files),**totals},indent=2)+'\n')
           PY
+      - name: Preserve exact signed APK bytes for validation with gates still pending
+        env:
+          R31_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/r31-evidence/validation-apks"
+          for r31_variant in release debug; do
+            r31_apk=$(find "app/build/outputs/apk/$r31_variant" -maxdepth 1 -name '*.apk' -print -quit)
+            test -n "$r31_apk"
+            python3 tools/r31/verify_baseline.py --require-clean --apk "$r31_apk" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --expected-cert-sha256 "$R31_EXPECTED_CERT_SHA256" --output "$RUNNER_TEMP/r31-evidence/validation-apks/$r31_variant-identity.json"
+            cp "$r31_apk" "$RUNNER_TEMP/r31-evidence/validation-apks/STARCORE-R31-validation-$r31_variant.apk"
+          done
+          r31_test_apk=$(find app/build/outputs/apk/androidTest/debug -name '*.apk' -print -quit)
+          test -n "$r31_test_apk"
+          cp "$r31_test_apk" "$RUNNER_TEMP/r31-evidence/validation-apks/STARCORE-R31-instrumentation-only.apk"
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,subprocess
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-evidence/validation-apks'
+          d={'scope':'ACTUAL_SIGNED_VALIDATION_BYTES_NOT_FINAL_ENGINEERING_RELEASE','source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'required_remaining':['all legacy native host gates','Android integration jobs','physical device fault matrix','24h and72h real device run'],'natural_quality':'NOT_PROVEN','apks':{f.name:{'bytes':f.stat().st_size,'sha256':hashlib.sha256(f.read_bytes()).hexdigest()} for f in p.glob('*.apk')}}
+          (p/'VALIDATION-BOUNDARY.json').write_text(json.dumps(d,indent=2)+'\n')
+          PY
       - name: Existing production-bytecode and native SQLite host regressions
         run: |
           set -euo pipefail
@@ -155,8 +176,11 @@ jobs:
           rm -rf "$RUNNER_TEMP/r31-host-source/app/build"
           ln -s "$GITHUB_WORKSPACE/app/build" "$RUNNER_TEMP/r31-host-source/app/build"
           cd "$RUNNER_TEMP/r31-host-source"
-          for check in diagnosis writer retention timeline commit_failure progress neural qualification input_pin matrix research observatory snapshot; do
-            python3 "tools/r30-repair/run_$check""_host.py" > "$RUNNER_TEMP/r31-evidence/repair-$check.log" 2>&1
+          trap 'r31_status=$?; echo "FAILED_HOST_CHECK:${r31_check:-SETUP}"; for r31_log in "$RUNNER_TEMP"/r31-evidence/repair-*.log; do if [ -f "$r31_log" ]; then echo "FAILED_CHECK_LOG:$r31_log"; tail -n 100 "$r31_log"; fi; done; exit "$r31_status"' ERR
+          for r31_check in diagnosis writer retention timeline commit_failure progress neural qualification input_pin matrix research observatory snapshot; do
+            echo "R31_HOST_START:$r31_check"
+            python3 "tools/r30-repair/run_$r31_check""_host.py" > "$RUNNER_TEMP/r31-evidence/repair-$r31_check.log" 2>&1
+            echo "R31_HOST_PASS:$r31_check"
           done
       - name: Inspect actual signed bytes and package an explicit build candidate
         env:
@@ -280,13 +304,13 @@ jobs:
           adb install -r -t "$(find candidate -name '*-androidTest.apk' -print -quit)"
           adb shell am force-stop com.starcore.research.r13
           adb logcat -c
-          adb shell am instrument -w -r -e r30Sandbox "r31-ci-$GITHUB_RUN_ID" -e class com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner > "$out/r31-protocol.txt" 2>&1
+          adb shell am instrument -w -r -e r30Sandbox "r31-ci-$GITHUB_RUN_ID" -e class com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest,com.ethk3.novaonepro.R31StorageProtocolInstrumentedTest com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner > "$out/r31-protocol.txt" 2>&1
           adb logcat -d -v threadtime > "$out/r31-protocol-logcat.txt"
           python3 - "$out" <<'PY'
           import hashlib,json,pathlib,re,subprocess,sys
           out=pathlib.Path(sys.argv[1]);raw=(out/'r31-protocol.txt').read_bytes();text=raw.decode()
           found=re.search(r'OK \((\d+) tests?\)',text)
-          assert found and int(found.group(1))>0 and 'FAILURES!!!' not in text and 'INSTRUMENTATION_FAILED' not in text,'R31_ACTUAL_INSTRUMENTATION_FAILED'
+          assert found and int(found.group(1))==8 and 'FAILURES!!!' not in text and 'INSTRUMENTATION_FAILED' not in text,'R31_ACTUAL_INSTRUMENTATION_FAILED'
           record={'sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'scope':'ACTUAL_ANDROID_EMULATOR_DEBUG_INSTRUMENTATION','tests':int(found.group(1)),'result':'PASS','apiLevel':subprocess.check_output(['adb','shell','getprop','ro.build.version.sdk'],text=True).strip(),'serial':subprocess.check_output(['adb','get-serialno'],text=True).strip(),'physicalDevice':'NOT_RUN','device24h':'NOT_RUN','device72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','outputSha256':hashlib.sha256(raw).hexdigest()}
           (out/'r31-protocol-receipt.json').write_text(json.dumps(record,indent=2)+'\n')
           PY
