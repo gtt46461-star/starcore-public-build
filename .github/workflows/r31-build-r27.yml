@@ -121,6 +121,7 @@ jobs:
         run: |
           set -euo pipefail
           # Use committed identities. Do not invoke ci_build.sh/rebind_identity.py or PUSH_REF.
+          trap 'r31_status=$?; for r31_log in "$RUNNER_TEMP"/r31-evidence/*.log; do if [ -f "$r31_log" ]; then echo "FAILED_CHECK_LOG:$r31_log"; tail -n 120 "$r31_log"; fi; done; exit "$r31_status"' ERR
           python3 scripts/r926_release_manifest.py --check
           python3 scripts/r967_semantic_identity.py --check
           python3 scripts/test_r13_production_ddl.py
