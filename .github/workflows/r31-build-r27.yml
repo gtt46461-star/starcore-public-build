@@ -661,7 +661,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
   protocol-log-audit:
-    if: ${{ contains(github.event.head_commit.message, '[R31_PROTOCOL_LOGS]') }}
+    if: ${{ contains(github.event.head_commit.message, '[R31_PROTOCOL_LOGS]') && !contains(github.event.head_commit.message, '[R31_HOST_LOGS]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -820,5 +820,82 @@ jobs:
         with:
           name: R31-VALIDATION-ANDROID-${{ matrix.api }}-${{ needs.build.outputs.source }}
           path: ${{ runner.temp }}/r31-validation-android-${{ matrix.api }}/
+          if-no-files-found: error
+          retention-days: 90
+
+
+  host-log-audit:
+    if: ${{ contains(github.event.head_commit.message, '[R31_HOST_LOGS]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/r31-build-request.json
+      - id: host_request
+        run: |
+          python3 - <<'PY'
+          import json,os,re
+          r=json.load(open('.github/r31-build-request.json'))
+          assert r['sourceBranch']=='construction/r31-final-20261104'
+          assert re.fullmatch('[a-f0-9]{40}',r['source'])
+          assert type(r['hostRunId']) is int and r['hostRunId']>0
+          assert r['hostArtifactName']=='R31-EXISTING_R27-HOST-EVIDENCE-'+r['source']
+          assert re.fullmatch('sha256:[a-f0-9]{64}',r['hostArtifactDigest'])
+          assert all(re.fullmatch('repair-[A-Za-z0-9_-]+[.]log',x) for x in r['failedLogs'])
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              for key,value in [('source',r['source']),('run',r['hostRunId']),('artifact',r['hostArtifactName'])]:
+                  f.write(key+'='+str(value)+'\n')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.host_request.outputs.artifact }}
+          run-id: ${{ steps.host_request.outputs.run }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          path: ${{ runner.temp }}/r31-host-original-input
+      - name: Read original failure logs and validation identity only
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,re,xml.etree.ElementTree as ET
+          request=json.load(open('.github/r31-build-request.json'))
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-host-original-input'
+          boundaries=list(root.rglob('VALIDATION-BOUNDARY.json'));assert len(boundaries)==1
+          evidence=boundaries[0].parent.parent.resolve();assert evidence.is_relative_to(root.resolve())
+          out=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-host-readonly-audit';out.mkdir()
+          def scrub(text):
+              text=re.sub(r'(?i)((?:api[_-]?key|password|token)\s*[=:]\s*)[^\s,;]+',r'\1[REDACTED]',text)
+              return re.sub(r'(?i)Bearer\s+[^\s]+','Bearer [REDACTED]',text)
+          records=[]
+          for name in request['failedLogs']:
+              found=list(evidence.rglob(name));assert len(found)==1,(name,len(found))
+              p=found[0];raw=p.read_bytes();assert len(raw)<=8*1024*1024
+              clean=scrub(raw.decode(errors='replace'));(out/name).write_text(clean)
+              records.append({'name':name,'originalBytes':len(raw),'originalSha256':hashlib.sha256(raw).hexdigest()})
+              print('R31_HOST_LOG_BEGIN|'+name)
+              for line in clean.splitlines()[-80:]:print('R31_HOST_LOG_LINE|'+line)
+          for p in sorted(evidence.rglob('*.json')):
+              if p.parent.name=='validation-apks' or 'unit' in p.name.lower():
+                  raw=p.read_bytes()
+                  if len(raw)<=2*1024*1024:
+                      value=json.loads(raw);print('R31_ACTUAL_JSON|'+json.dumps({'path':str(p.relative_to(evidence)),'value':value},sort_keys=True))
+          counts={'tests':0,'failures':0,'errors':0,'skipped':0,'suites':0};failures=[]
+          for p in sorted(evidence.rglob('TEST-*.xml')):
+              r=ET.parse(p).getroot();counts['suites']+=1
+              for key in ('tests','failures','errors','skipped'):counts[key]+=int(r.get(key,'0'))
+              for case in r.findall('testcase'):
+                  for failure in case.findall('failure')+case.findall('error'):
+                      failures.append({'class':case.get('classname'),'test':case.get('name'),'message':scrub(failure.get('message','')),'stack':scrub(failure.text or '').splitlines()[:12]})
+          print('R31_ORIGINAL_UNIT_COUNTS|'+json.dumps(counts,sort_keys=True))
+          for failure in failures:print('R31_ORIGINAL_UNIT_FAILURE|'+json.dumps(failure,sort_keys=True))
+          for p in sorted((evidence/'validation-apks').glob('*.apk')):
+              raw=p.read_bytes();print('R31_ACTUAL_APK_HASH|'+json.dumps({'file':p.name,'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()},sort_keys=True))
+          (out/'READ-ONLY-RECEIPT.json').write_text(json.dumps({'scope':'ORIGINAL_FAILED_GATE_ARTIFACT_READ_ONLY_NO_NEW_TEST_NO_FINAL_ACCEPTANCE','source':request['source'],'originalRun':request['hostRunId'],'logs':records,'unitCounts':counts,'failures':failures,'physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN'},indent=2)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: R31-ORIGINAL-HOST-FAILURES-${{ steps.host_request.outputs.source }}
+          path: ${{ runner.temp }}/r31-host-readonly-audit/
           if-no-files-found: error
           retention-days: 90
