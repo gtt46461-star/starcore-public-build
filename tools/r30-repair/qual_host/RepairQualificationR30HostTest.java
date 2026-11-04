@@ -31,7 +31,12 @@ public final class RepairQualificationR30HostTest {
         Class.forName("org.sqlite.JDBC");Path file=Files.createTempFile("repair-qualification-",".db");
         try{
             connection=DriverManager.getConnection("jdbc:sqlite:"+file);db=new SQLiteDatabase(connection);
-            for(String ddl:SchemaR27.DDL)if(ddl.startsWith("CREATE TABLE"))db.execSQL(ddl);for(String ddl:QualificationInboxR29.DDL)db.execSQL(ddl);db.execSQL("CREATE TABLE draws(issue TEXT PRIMARY KEY,dirty INT,n1 INT,n2 INT,n3 INT,n4 INT,n5 INT,n6 INT,n7 INT,n8 INT,n9 INT,n10 INT)");
+            db.execSQL("CREATE TABLE draws(issue TEXT PRIMARY KEY,dirty INT,n1 INT,n2 INT,n3 INT,n4 INT,n5 INT,n6 INT,n7 INT,n8 INT,n9 INT,n10 INT)");
+            // Use the production startup order and full readiness contract, including indexes.
+            connection.setAutoCommit(false);
+            try{RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);connection.commit();}
+            catch(Exception|Error failure){connection.rollback();throw failure;}
+            finally{connection.setAutoCommit(true);}
             for(int period=1;period<=4;period++){Object[] values=new Object[12];values[0]=issue(period);values[1]=0;for(int p=0;p<10;p++)values[p+2]=(p+period-1)%10+1;db.execSQL("INSERT INTO draws VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",values);}
             String recovered=experiment("HOST_RECOVER_ORIGINAL",1,"ACTIVE");
             connection.setAutoCommit(false);ResearchRetentionStoreR30.ensureProtected(db);connection.commit();connection.setAutoCommit(true);

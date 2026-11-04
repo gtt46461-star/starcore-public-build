@@ -10,7 +10,7 @@ HOST=ROOT/'tools/r31/memory_host'
 OUT=ROOT/os.environ.get('R31_MEMORY_OUTPUT','verification/r31/memory')
 BASELINE='5237b265a27fe5ad27fd842901c445d5f8c27749'
 NAMES=['MemoryBudgetR31','SharedFeatureStoreR31','BoundedResearchExecutorR31','FeatureCacheR27','PolicyAstR27','ReplayDatasetR27','EvalContextR27','BirthGateR27','ReplayEvaluatorR27']
-DEPENDENCIES=['PitGuardR30','EvolutionLoopR27','NullEvolutionR27','NullPipelineSimulationR30','SetIntersectionPolicyR30']
+DEPENDENCIES=['PitGuardR30','EvolutionLoopR27','NullEvolutionR27','NullPipelineSimulationR30','SetIntersectionPolicyR30','OperatorGoldenR27']
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
@@ -43,7 +43,9 @@ def main():
         original=run([java,'-Xmx512m','-cp',current_cp,'org.junit.runner.JUnitCore','com.ethk3.novaonepro.strategyv2.R27LeakageTest','com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest'],'original-pit-model-junit.log')
         original_count=int(re.search(r'OK \((\d+) tests\)',original).group(1))
         old=[]
-        for name in ['FeatureCacheR27','PolicyAstR27','ReplayDatasetR27','ReplayEvaluatorR27']:
+        # The negative control must use its own golden consumer: the current scoped
+        # consumer cannot link against the baseline AST, which predates scoped scores.
+        for name in ['FeatureCacheR27','PolicyAstR27','ReplayDatasetR27','ReplayEvaluatorR27','OperatorGoldenR27']:
             path=temp/'baseline-source/com/ethk3/novaonepro/strategyv2'/(name+'.java');path.parent.mkdir(parents=True,exist_ok=True)
             path.write_bytes(subprocess.check_output(['git','show',BASELINE+':'+str((SOURCE/(name+'.java')).relative_to(ROOT))],cwd=ROOT));old.append(path)
         run([javac,'-cp',cp,'-d',baseline,*old,HOST/'FeatureGoldenR31Host.java'],'baseline-javac.log')

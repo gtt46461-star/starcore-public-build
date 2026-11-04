@@ -1,0 +1,31 @@
+{
+  "scope": "TWO_EXACT_HOST_REGRESSIONS_REPAIRED_NO_PRODUCTION_CHANGE",
+  "source_base": "de9a30834025c18ce291c241a722abe437717539",
+  "source_state": "UNCOMMITTED_ONLY_TOOLS_AND_FIXTURE_REPAIR",
+  "qualification": {
+    "state": "PASS",
+    "original_error": "SchemaPendingR31 missingr26_evolution; old fixture skipped production startup and indexes",
+    "change": "Only fixture startup: canonical draws then RuntimeSchemaR26.ensure and SchemaR27.ensure under transaction; all assertions retained",
+    "command": "SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_qualification_host.py",
+    "log": "qualification-repaired.log"
+  },
+  "memory": {
+    "state": "HOST_PASS",
+    "newJUnit": 55,
+    "originalPitModelJUnit": 6,
+    "goldenFingerprints": 52,
+    "protectedGoldenMatch": true,
+    "change": "Compile baseline OperatorGolden from the same fixed5237 as baseline AST; explicit current consumer dependency; no fingerprint, numeric or baseline expectation changes",
+    "command": "R31_MEMORY_OUTPUT=verification/r31/p02/host-integration-followup/memory-current python3 tools/r31/verify_memory.py",
+    "receipt": "memory-current/RECEIPT.json"
+  },
+  "recorded_at": "2026-11-04T18:07:52.931892+00:00",
+  "logs": {
+    "memory-repaired.log": "7997f0353067ad380d238f267ed184b25b4bc76871f8342ca4d719d9795171e7",
+    "qualification-repaired.log": "4ef603470c87fdf375e186c46559aa230c8de31b5a9d70f5d081b170fe8202ee",
+    "qualification-original-failure.log": "59e4bbd47ba2094f987d23f83ab6d7b0d0efafee97df1e4ebe04bc97aca3960a"
+  },
+  "whole24HOST": "NOT_COMPLETED_BY_THIS_RECEIPT",
+  "physical_device": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN"
+}
