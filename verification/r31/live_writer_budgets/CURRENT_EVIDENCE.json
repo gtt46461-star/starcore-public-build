@@ -1,0 +1,109 @@
+{
+  "schema": "R31_LIVE_NAMED_PRODUCERS_SCOPE_BOUND_EVIDENCE_1",
+  "status": "NAMED_PRODUCER_NATIVE_HOST_PASS_NOT_ANDROID_NOT_FULL_B02",
+  "receipt": "runs/20261104T174330Z/receipt.json",
+  "production_commit": "5d1da3156a7900816aa0f580e34c18fabf5ef322",
+  "base_commit": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
+  "branch": "construction/r31-live-writer-budgets-20261104",
+  "owned_source_sha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java": "bd77b7a974afdc95b65f34f0f3aca4d4e0db949058d1cad71c7fe91b6480da9b",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java": "c9562be588dfb38bf588797c1b4a10ec8d8a0330a692b85fbaaf44765aaa0c8d"
+  },
+  "support_jar_sha256": "892e5be7feb3609755c6746ea080644fd19427a90f8d9ab8493c964af1f01fa8",
+  "runner_sha256": "f64d7d35244da2171bcc4c65acb33d5dc0c344f468b18b5350f9cb65657e2295",
+  "harness_sha256": "32d96767d520726a98fb59e7abaec94ac64449231ba4304c1148dcd516a7c592",
+  "sqlite_adapter_sha256": "8185f92d19ba5dd193a33f0a45a89e709109ef057df526e4fb89e93c989e6351",
+  "case_first_observation": {
+    "baseline-settle": {
+      "bindCap": 262144,
+      "frames": 1,
+      "maxAllSqlIncludingBeginEnd": 332,
+      "maxBindBytes": 17470,
+      "maxDirectChangedRows": 323,
+      "over": true,
+      "test": "BASELINE_BUDGET_COUNTEREXAMPLE"
+    },
+    "baseline-pending": {
+      "bindCap": 262144,
+      "frames": 1,
+      "maxAllSqlIncludingBeginEnd": 268,
+      "maxBindBytes": 11582,
+      "maxDirectChangedRows": 259,
+      "over": true,
+      "test": "BASELINE_BUDGET_COUNTEREXAMPLE"
+    },
+    "baseline-consume": {
+      "bindCap": 262144,
+      "frames": 1,
+      "maxAllSqlIncludingBeginEnd": 267,
+      "maxBindBytes": 51953,
+      "maxDirectChangedRows": 299,
+      "over": true,
+      "test": "BASELINE_BUDGET_COUNTEREXAMPLE"
+    },
+    "baseline-resolve": {
+      "bindCap": 262144,
+      "frames": 1,
+      "maxAllSqlIncludingBeginEnd": 13,
+      "maxBindBytes": 838,
+      "maxDirectChangedRows": 131,
+      "over": true,
+      "test": "BASELINE_BUDGET_COUNTEREXAMPLE"
+    },
+    "new-settle": {
+      "bindCap": 262144,
+      "frames": 14,
+      "maxAllSqlIncludingBeginEnd": 37,
+      "maxBindBytes": 3722,
+      "maxDirectChangedRows": 27,
+      "over": false,
+      "test": "NEW_PHYSICAL_BUDGET"
+    },
+    "new-pending": {
+      "bindCap": 262144,
+      "frames": 16,
+      "maxAllSqlIncludingBeginEnd": 31,
+      "maxBindBytes": 1694,
+      "maxDirectChangedRows": 17,
+      "over": false,
+      "test": "NEW_PHYSICAL_BUDGET"
+    },
+    "new-consume": {
+      "bindCap": 262144,
+      "frames": 19,
+      "maxAllSqlIncludingBeginEnd": 28,
+      "maxBindBytes": 4281,
+      "maxDirectChangedRows": 20,
+      "over": false,
+      "test": "NEW_PHYSICAL_BUDGET"
+    },
+    "new-resolve": {
+      "bindCap": 262144,
+      "frames": 16,
+      "maxAllSqlIncludingBeginEnd": 23,
+      "maxBindBytes": 961,
+      "maxDirectChangedRows": 9,
+      "over": false,
+      "test": "NEW_PHYSICAL_BUDGET"
+    }
+  },
+  "native_fault_assertions": [
+    "CHECK every_qualification_prefix_rollback_then_reentry_exact",
+    "CHECK every_settlement_missing_draw_and_resolution_slice_before_after_rollback_reentry",
+    "CHECK cancel_before_mid_transaction_and_late_owner_cannot_advance_prefix",
+    "CHECK settlement_pending_and_resolution_cancel_and_late_owner_no_receipt_advance",
+    "CHECK source_CAS_and_nonact_late_draw_schema_missing_no_DDL_and_typed_resource_dependency",
+    "CHECK committed_diagnostic_failure_never_duplicates_receipt_or_math",
+    "LIVE_BUDGET_NATIVE_HOST_PASS assertions=27766 scope=CONTROLLED_NATIVE_SQLITE_NOT_ANDROID_NOT_NATURAL_QUALITY"
+  ],
+  "physical_native_frames": 4500,
+  "native_sql_transaction_timing_only_ms": {
+    "p99": 4.640335,
+    "max": 36.565304
+  },
+  "android_writer_hold_slo": "NOT_RUN_NOT_PROVEN",
+  "gradle": "NOT_RUN",
+  "device": "NOT_RUN",
+  "full_B02": "NOT_COMPLETE",
+  "p03": "NOT_OPENED"
+}

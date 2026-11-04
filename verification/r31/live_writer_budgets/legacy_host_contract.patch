@@ -1,0 +1,40 @@
+diff --git a/tools/r29/qual_host/QualInboxR29HostTest.java b/tools/r29/qual_host/QualInboxR29HostTest.java
+--- a/tools/r29/qual_host/QualInboxR29HostTest.java
++++ b/tools/r29/qual_host/QualInboxR29HostTest.java
+@@ -208,9 +208,10 @@
+             long[] k = new long[1]; s.commit("LIVE_SETTLE", LiveShadowsR27.settleBatch(db, 30, k));
+             SequentialQualificationR27.State a = StoreR27.readEprocess(db, w.id), b2 = StoreR27.readEprocess(db, w.id);
+             List<QualificationInboxR29.Row> rows = QualificationInboxR29.rows(db, w.id, -1, 300);
+-            QualificationInboxR29.Plan p1 = QualificationInboxR29.plan(a, rows, 30, 256), p2 = QualificationInboxR29.plan(b2, rows, 30, 256);
++            QualificationInboxR29.Plan p1 = QualificationInboxR29.plan(a, rows, 30, 16), p2 = QualificationInboxR29.plan(b2, rows, 30, 16);
+             boolean first = s.commit("A", QualificationInboxR29.step(w.id, a, p1, -1, 0)); boolean second;
+             try { second = s.commit("B", QualificationInboxR29.step(w.id, b2, p2, -1, 0)); } catch (IllegalStateException cas) { second = !QualificationInboxR29.precondition(cas); }
++            pass(db, s, 30); // Finish the remaining original opportunities through bounded production prefixes.
+             check("Q6_STALE_STEP_COMMITS_NOTHING", first && !second && invariants(db, w.id) == null && same(StoreR27.readEprocess(db, w.id), w.reference()) == null,
+                     "first=" + first + " second=" + second + " receipts=" + scalar(db, "SELECT count(*) FROM r29_qual_receipt"));
+         }
+diff --git a/tools/r30/qual_host/SettleChunkR30HostTest.java b/tools/r30/qual_host/SettleChunkR30HostTest.java
+--- a/tools/r30/qual_host/SettleChunkR30HostTest.java
++++ b/tools/r30/qual_host/SettleChunkR30HostTest.java
+@@ -66,9 +66,9 @@
+             SQLiteDatabase ref = world(seed); legacy(ref, ORDINALS);
+             SQLiteDatabase a = world(seed); long[] k = new long[1];
+             List<ResearchWriteQueueR27.Batch> chunks = LiveShadowsR27.settleChunks(a, ORDINALS, k, LiveShadowsR27.SETTLE_CHUNK_R30);
+-            long outcome = 0; boolean sized = chunks.size() == 4;
+-            for (ResearchWriteQueueR27.Batch c : chunks) { long n = 0; for (ResearchWriteQueueR27.Op op : c.ops) if (op.sql.startsWith("UPDATE r27_live_frozen")) n++; outcome += n; sized &= n == 160; }
+-            check("S1_640_ROWS_FOUR_CHUNKS_seed" + seed, sized && outcome == 640 && k[0] == 640, "chunks=" + chunks.size() + " rows=" + outcome);
++            long outcome = 0; boolean sized = chunks.size() == (640 + LiveShadowsR27.SETTLE_CHUNK_R30 - 1) / LiveShadowsR27.SETTLE_CHUNK_R30;
++            for (ResearchWriteQueueR27.Batch c : chunks) { long n = 0; for (ResearchWriteQueueR27.Op op : c.ops) if (op.sql.startsWith("UPDATE r27_live_frozen")) n++; outcome += n; sized &= n > 0 && n <= LiveShadowsR27.SETTLE_CHUNK_R30; }
++            check("S1_640_ROWS_BOUNDED_PHYSICAL_CHUNKS_seed" + seed, sized && outcome == 640 && k[0] == 640, "chunks=" + chunks.size() + " rows=" + outcome);
+             for (ResearchWriteQueueR27.Batch c : chunks) commit(a, c, false);
+             check("S2_EQUALS_PRE_R30_seed" + seed, dump(a).equals(dump(ref)), "settled=" + scalar(a, "SELECT count(*) FROM r27_live_frozen WHERE hit>=0"));
+
+@@ -80,7 +80,7 @@
+             long[] k2 = new long[1]; List<ResearchWriteQueueR27.Batch> resume = LiveShadowsR27.settleChunks(b, ORDINALS, k2, LiveShadowsR27.SETTLE_CHUNK_R30);
+             for (ResearchWriteQueueR27.Batch c : resume) commit(b, c, false);
+             long[] k3 = new long[1]; LiveShadowsR27.settleChunks(b, ORDINALS, k3, LiveShadowsR27.SETTLE_CHUNK_R30);
+-            check("S3_KILL_AFTER_CHUNK2_RESUMES_ONCE_seed" + seed, died && afterDeath == 160 && k2[0] == 480 && k3[0] == 0 && dump(b).equals(dump(ref)),
++            check("S3_KILL_AFTER_CHUNK2_RESUMES_ONCE_seed" + seed, died && afterDeath == LiveShadowsR27.SETTLE_CHUNK_R30 && k2[0] == 640 - LiveShadowsR27.SETTLE_CHUNK_R30 && k3[0] == 0 && dump(b).equals(dump(ref)),
+                     "settledAfterDeath=" + afterDeath + " resumed=" + k2[0] + " leftover=" + k3[0]);
+         }
+         System.out.println("R30_SETTLE|SUMMARY|" + (FAIL.isEmpty() ? "OK" : "FAILED " + FAIL));

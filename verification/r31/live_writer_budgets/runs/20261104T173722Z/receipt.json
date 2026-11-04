@@ -1,0 +1,2027 @@
+{
+  "schema": "R31_LIVE_PRODUCER_PHYSICAL_NATIVE_1",
+  "started_utc": "2026-11-04T17:37:22.474443+00:00",
+  "base_commit": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
+  "branch": "construction/r31-live-writer-budgets-20261104",
+  "owned_source_sha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java": "bd77b7a974afdc95b65f34f0f3aca4d4e0db949058d1cad71c7fe91b6480da9b",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java": "c9562be588dfb38bf588797c1b4a10ec8d8a0330a692b85fbaaf44765aaa0c8d"
+  },
+  "support_jar_sha256": "892e5be7feb3609755c6746ea080644fd19427a90f8d9ab8493c964af1f01fa8",
+  "sdk_sha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a",
+  "jdbc_sha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa",
+  "support_jar_origin": "/tmp/r31-p02-012-actual-android-support/classes.jar",
+  "private_execution_workspace": "/tmp/r31-live-physical-native-bfimgc05",
+  "runner_sha256": "2170bb982cfd7921d7703c44d8938510af5272cf7315e7ec9ac225b41860b232",
+  "harness_sha256": "31969c1aa655619793156d947f23ab2190ad10413f58b1fe029ab7aabfbab5da",
+  "sqlite_adapter_sha256": "a49e921d1b8fd8d75e7da06bbe18a59b7d2dd94285b96013094da9d3f390367a",
+  "gradle": "NOT_RUN",
+  "mutable_main_worktree_classes_used": false,
+  "android_device": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN",
+  "commands": [
+    {
+      "name": "platform-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-g",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/android.jar:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar",
+        "-d",
+        "/tmp/r31-live-physical-native-bfimgc05/platform",
+        "/tmp/r31-live-physical-native-bfimgc05/platform-source/android/database/Cursor.java",
+        "/tmp/r31-live-physical-native-bfimgc05/platform-source/android/content/ContentValues.java",
+        "/tmp/r31-live-physical-native-bfimgc05/platform-source/android/database/sqlite/SQLiteOpenHelper.java",
+        "/tmp/r31-live-physical-native-bfimgc05/platform-source/android/database/sqlite/SQLiteDatabase.java",
+        "/tmp/r31-live-physical-native-bfimgc05/platform-source/android/database/sqlite/SQLiteException.java",
+        "/tmp/r31-live-physical-native-bfimgc05/platform-source/android/database/sqlite/SQLiteDatabaseLockedException.java",
+        "/tmp/r31-live-physical-native-bfimgc05/platform-source/android/content/Context.java",
+        "/tmp/r31-live-physical-native-bfimgc05/platform-source/android/app/Application.java",
+        "/tmp/r31-live-physical-native-bfimgc05/platform-source/android/os/SystemClock.java",
+        "/tmp/r31-live-physical-native-bfimgc05/platform-source/android/os/Looper.java",
+        "/tmp/r31-live-physical-native-bfimgc05/platform-source/android/os/Process.java",
+        "/tmp/r31-live-physical-native-bfimgc05/platform-source/android/util/Log.java"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "platform-compile.log.gz",
+      "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "frames": "platform-compile.frames.json.gz"
+    },
+    {
+      "name": "baseline-production-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-g",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/android.jar:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar",
+        "-sourcepath",
+        "/tmp/r31-live-physical-native-bfimgc05/empty-sourcepath",
+        "-d",
+        "/tmp/r31-live-physical-native-bfimgc05/baseline-classes",
+        "/tmp/r31-live-physical-native-bfimgc05/baseline-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "/tmp/r31-live-physical-native-bfimgc05/baseline-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "baseline-production-compile.log.gz",
+      "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "frames": "baseline-production-compile.frames.json.gz"
+    },
+    {
+      "name": "baseline-harness-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-g",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/baseline-classes:/tmp/r31-live-physical-native-bfimgc05/baseline-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "-d",
+        "/tmp/r31-live-physical-native-bfimgc05/baseline-test",
+        "/workspace/r31-live-writer-budgets/verification/r31/live_writer_budgets/LiveBudgetHostR31.java"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "baseline-harness-compile.log.gz",
+      "uncompressed_sha256": "1a51d80ae18c914d148fa4a71b8007be84db14c922820c92fc32a15d12158e77",
+      "frames": "baseline-harness-compile.frames.json.gz"
+    },
+    {
+      "name": "new-production-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-g",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/android.jar:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar",
+        "-sourcepath",
+        "/tmp/r31-live-physical-native-bfimgc05/empty-sourcepath",
+        "-d",
+        "/tmp/r31-live-physical-native-bfimgc05/new-classes",
+        "/tmp/r31-live-physical-native-bfimgc05/new-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "/tmp/r31-live-physical-native-bfimgc05/new-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "new-production-compile.log.gz",
+      "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "frames": "new-production-compile.frames.json.gz"
+    },
+    {
+      "name": "new-harness-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-g",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "-d",
+        "/tmp/r31-live-physical-native-bfimgc05/new-test",
+        "/workspace/r31-live-writer-budgets/verification/r31/live_writer_budgets/LiveBudgetHostR31.java"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "new-harness-compile.log.gz",
+      "uncompressed_sha256": "1a51d80ae18c914d148fa4a71b8007be84db14c922820c92fc32a15d12158e77",
+      "frames": "new-harness-compile.frames.json.gz"
+    },
+    {
+      "name": "baseline-settle",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/baseline-classes:/tmp/r31-live-physical-native-bfimgc05/baseline-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "baseline-settle",
+        "/tmp/r31-live-physical-native-bfimgc05/baseline-fixtures"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "log": "baseline-settle.log.gz",
+      "uncompressed_sha256": "98f1cc131ec8d0dac0d204f34ec21e9c911f34eb791f0ec3ffe8f5ce9c9ebccc",
+      "frames": "baseline-settle.frames.json.gz"
+    },
+    {
+      "name": "baseline-pending",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/baseline-classes:/tmp/r31-live-physical-native-bfimgc05/baseline-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "baseline-pending",
+        "/tmp/r31-live-physical-native-bfimgc05/baseline-fixtures"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "log": "baseline-pending.log.gz",
+      "uncompressed_sha256": "e6330d41790f51663b227c7497934f63fbebfb5eeda69cbf814bd06e5d3fd1fb",
+      "frames": "baseline-pending.frames.json.gz"
+    },
+    {
+      "name": "baseline-consume",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/baseline-classes:/tmp/r31-live-physical-native-bfimgc05/baseline-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "baseline-consume",
+        "/tmp/r31-live-physical-native-bfimgc05/baseline-fixtures"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "log": "baseline-consume.log.gz",
+      "uncompressed_sha256": "65d050b75cf5bcce7f21059b613b21d22154599f5c2d0f6f0a89d64f73c4a2cb",
+      "frames": "baseline-consume.frames.json.gz"
+    },
+    {
+      "name": "baseline-resolve",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/baseline-classes:/tmp/r31-live-physical-native-bfimgc05/baseline-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "baseline-resolve",
+        "/tmp/r31-live-physical-native-bfimgc05/baseline-fixtures"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "log": "baseline-resolve.log.gz",
+      "uncompressed_sha256": "377baf4ea13dc6680bb5eccc11e4f282293b6053a93a84bb2e7d31798db6bd0c",
+      "frames": "baseline-resolve.frames.json.gz"
+    },
+    {
+      "name": "new-settle",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "settle",
+        "/tmp/r31-live-physical-native-bfimgc05/new-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "new-settle.log.gz",
+      "uncompressed_sha256": "efce76df4102b1ecd9d378b5f40728bad3c9730d68ac490e90efecda5a05c9f5",
+      "frames": "new-settle.frames.json.gz"
+    },
+    {
+      "name": "new-pending",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "pending",
+        "/tmp/r31-live-physical-native-bfimgc05/new-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "new-pending.log.gz",
+      "uncompressed_sha256": "9329ef5bc41e0b1965bd232c519014163c897e5d78c0988f71513fcd39c036bd",
+      "frames": "new-pending.frames.json.gz"
+    },
+    {
+      "name": "new-consume",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "consume",
+        "/tmp/r31-live-physical-native-bfimgc05/new-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "new-consume.log.gz",
+      "uncompressed_sha256": "b98958b1758e097de6f4b6d76836714ca09ef44475d44d3a35af827d3bc2845a",
+      "frames": "new-consume.frames.json.gz"
+    },
+    {
+      "name": "new-resolve",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "resolve",
+        "/tmp/r31-live-physical-native-bfimgc05/new-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "new-resolve.log.gz",
+      "uncompressed_sha256": "19f893bc4af15b82526db46b65685edef80de859659bea790b4a9617b0ff0c5a",
+      "frames": "new-resolve.frames.json.gz"
+    },
+    {
+      "name": "new-faults",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "faults",
+        "/tmp/r31-live-physical-native-bfimgc05/new-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "new-faults.log.gz",
+      "uncompressed_sha256": "b4d1e79e10fa8cb666c37c687d9ee6e94518794373852c3dc20c1643d4bb29cd",
+      "frames": "new-faults.frames.json.gz"
+    },
+    {
+      "name": "new-real-jvm-halt",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "halt",
+        "/tmp/r31-live-physical-native-bfimgc05/halt-fixture"
+      ],
+      "exit_code": 73,
+      "expected_exit_code": 73,
+      "log": "new-real-jvm-halt.log.gz",
+      "uncompressed_sha256": "e287acb5f32b97e16eea8cf946a89c929f32f50d47483a567e4edfc119b0e425",
+      "frames": "new-real-jvm-halt.frames.json.gz"
+    },
+    {
+      "name": "new-fresh-jvm-resume",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "resume",
+        "/tmp/r31-live-physical-native-bfimgc05/halt-fixture"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "new-fresh-jvm-resume.log.gz",
+      "uncompressed_sha256": "e61e92db0b3db51295fbc5b174b18cb9b685270c5aaabd57c5f40c0df58cca9c",
+      "frames": "new-fresh-jvm-resume.frames.json.gz"
+    },
+    {
+      "name": "new-real-jvm-halt-settle",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "halt-settle",
+        "/tmp/r31-live-physical-native-bfimgc05/halt-fixture"
+      ],
+      "exit_code": 73,
+      "expected_exit_code": 73,
+      "log": "new-real-jvm-halt-settle.log.gz",
+      "uncompressed_sha256": "8923971924a6c3cd891389f406b41774ab4b4b8bc39ddd78c458507b779451c6",
+      "frames": "new-real-jvm-halt-settle.frames.json.gz"
+    },
+    {
+      "name": "new-fresh-jvm-resume-settle",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "resume-settle",
+        "/tmp/r31-live-physical-native-bfimgc05/halt-fixture"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "new-fresh-jvm-resume-settle.log.gz",
+      "uncompressed_sha256": "e30850597497b7e723b2e6483a3d2e6f4fd3a67f6f7d042ebe8d1d28e1d79c86",
+      "frames": "new-fresh-jvm-resume-settle.frames.json.gz"
+    },
+    {
+      "name": "new-real-jvm-halt-pending",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "halt-pending",
+        "/tmp/r31-live-physical-native-bfimgc05/halt-fixture"
+      ],
+      "exit_code": 73,
+      "expected_exit_code": 73,
+      "log": "new-real-jvm-halt-pending.log.gz",
+      "uncompressed_sha256": "225205b5448dadf4185d189b280fb1d49a30fcc373056e998a4c208d11938c3b",
+      "frames": "new-real-jvm-halt-pending.frames.json.gz"
+    },
+    {
+      "name": "new-fresh-jvm-resume-pending",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "resume-pending",
+        "/tmp/r31-live-physical-native-bfimgc05/halt-fixture"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "new-fresh-jvm-resume-pending.log.gz",
+      "uncompressed_sha256": "5543e2bd0a5989bbb86e73d82eedd043a84ea79c0c6a0e78262c24de680fbbf8",
+      "frames": "new-fresh-jvm-resume-pending.frames.json.gz"
+    },
+    {
+      "name": "new-real-jvm-halt-resolve",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "halt-resolve",
+        "/tmp/r31-live-physical-native-bfimgc05/halt-fixture"
+      ],
+      "exit_code": 73,
+      "expected_exit_code": 73,
+      "log": "new-real-jvm-halt-resolve.log.gz",
+      "uncompressed_sha256": "0388d64fea40149baf6f2ab4a32e425c3888ce955e3890e0801f1aafc7d36f70",
+      "frames": "new-real-jvm-halt-resolve.frames.json.gz"
+    },
+    {
+      "name": "new-fresh-jvm-resume-resolve",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "resume-resolve",
+        "/tmp/r31-live-physical-native-bfimgc05/halt-fixture"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "new-fresh-jvm-resume-resolve.log.gz",
+      "uncompressed_sha256": "a749ded6edbecdea45911bbd21788c71107c41e8cffc7d0fd03bacb41b48f523",
+      "frames": "new-fresh-jvm-resume-resolve.frames.json.gz"
+    },
+    {
+      "name": "existing-original-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-g",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "-d",
+        "/tmp/r31-live-physical-native-bfimgc05/existing-test-classes-original",
+        "/tmp/r31-live-physical-native-bfimgc05/existing-tests-original/QualInboxR29HostTest.java",
+        "/tmp/r31-live-physical-native-bfimgc05/existing-tests-original/SettleChunkR30HostTest.java",
+        "/tmp/r31-live-physical-native-bfimgc05/existing-tests-original/PendingDrawR30HostTest.java"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "existing-original-compile.log.gz",
+      "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "frames": "existing-original-compile.frames.json.gz"
+    },
+    {
+      "name": "existing-original-qualification-old-prefix-contract",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/existing-test-classes-original:/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.QualInboxR29HostTest"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "log": "existing-original-qualification-old-prefix-contract.log.gz",
+      "uncompressed_sha256": "b55b5b20ee432eb58d551e76b78502945f7044b4b77198a83d8cdf0ccbe34012",
+      "frames": "existing-original-qualification-old-prefix-contract.frames.json.gz"
+    },
+    {
+      "name": "existing-original-settlement-old-160-contract",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/existing-test-classes-original:/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.SettleChunkR30HostTest"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "log": "existing-original-settlement-old-160-contract.log.gz",
+      "uncompressed_sha256": "64b45131d6d72a25cd43eb53f71b332638958c36b4a45e2fe0ac28dc3b343d02",
+      "frames": "existing-original-settlement-old-160-contract.frames.json.gz"
+    },
+    {
+      "name": "existing-bounded-contract-adapted-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-g",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "-d",
+        "/tmp/r31-live-physical-native-bfimgc05/existing-test-classes-bounded-contract-adapted",
+        "/tmp/r31-live-physical-native-bfimgc05/existing-tests-bounded-contract-adapted/QualInboxR29HostTest.java",
+        "/tmp/r31-live-physical-native-bfimgc05/existing-tests-bounded-contract-adapted/SettleChunkR30HostTest.java",
+        "/tmp/r31-live-physical-native-bfimgc05/existing-tests-bounded-contract-adapted/PendingDrawR30HostTest.java"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "existing-bounded-contract-adapted-compile.log.gz",
+      "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "frames": "existing-bounded-contract-adapted-compile.frames.json.gz"
+    },
+    {
+      "name": "existing-bounded-contract-QualInboxR29HostTest",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/existing-test-classes-bounded-contract-adapted:/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.QualInboxR29HostTest"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "existing-bounded-contract-QualInboxR29HostTest.log.gz",
+      "uncompressed_sha256": "13ed118b289c3d7894f1350eb34bc16acd8d4762fc26a1cdb00d3069fe7ca7d0",
+      "frames": "existing-bounded-contract-QualInboxR29HostTest.frames.json.gz"
+    },
+    {
+      "name": "existing-bounded-contract-SettleChunkR30HostTest",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/existing-test-classes-bounded-contract-adapted:/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.SettleChunkR30HostTest"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "existing-bounded-contract-SettleChunkR30HostTest.log.gz",
+      "uncompressed_sha256": "6642a4fb6e7c24305947d51104547872c8e38d78f9c9ea8d3304379f91676aae",
+      "frames": "existing-bounded-contract-SettleChunkR30HostTest.frames.json.gz"
+    },
+    {
+      "name": "existing-bounded-contract-PendingDrawR30HostTest",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-physical-native-bfimgc05/existing-test-classes-bounded-contract-adapted:/tmp/r31-live-physical-native-bfimgc05/platform:/tmp/r31-live-physical-native-bfimgc05/new-classes:/tmp/r31-live-physical-native-bfimgc05/new-test:/tmp/r31-live-physical-native-bfimgc05/fixed-support.jar:/tmp/r31-live-physical-native-bfimgc05/sqlite-jdbc.jar:/tmp/r31-live-physical-native-bfimgc05/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PendingDrawR30HostTest"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "existing-bounded-contract-PendingDrawR30HostTest.log.gz",
+      "uncompressed_sha256": "2ef7273c615581462c691891da5f0c404b285c9719b6e2e57dbb77b318de49e7",
+      "frames": "existing-bounded-contract-PendingDrawR30HostTest.frames.json.gz"
+    }
+  ],
+  "results": [
+    {
+      "name": "baseline-settle",
+      "observations": [
+        {
+          "bindCap": 262144,
+          "frames": 1,
+          "maxAllSqlIncludingBeginEnd": 332,
+          "maxBindBytes": 17470,
+          "maxDirectChangedRows": 323,
+          "over": true,
+          "test": "BASELINE_BUDGET_COUNTEREXAMPLE"
+        }
+      ]
+    },
+    {
+      "name": "baseline-pending",
+      "observations": [
+        {
+          "bindCap": 262144,
+          "frames": 1,
+          "maxAllSqlIncludingBeginEnd": 268,
+          "maxBindBytes": 11582,
+          "maxDirectChangedRows": 259,
+          "over": true,
+          "test": "BASELINE_BUDGET_COUNTEREXAMPLE"
+        }
+      ]
+    },
+    {
+      "name": "baseline-consume",
+      "observations": [
+        {
+          "bindCap": 262144,
+          "frames": 1,
+          "maxAllSqlIncludingBeginEnd": 267,
+          "maxBindBytes": 51953,
+          "maxDirectChangedRows": 299,
+          "over": true,
+          "test": "BASELINE_BUDGET_COUNTEREXAMPLE"
+        }
+      ]
+    },
+    {
+      "name": "baseline-resolve",
+      "observations": [
+        {
+          "bindCap": 262144,
+          "frames": 1,
+          "maxAllSqlIncludingBeginEnd": 13,
+          "maxBindBytes": 838,
+          "maxDirectChangedRows": 131,
+          "over": true,
+          "test": "BASELINE_BUDGET_COUNTEREXAMPLE"
+        }
+      ]
+    },
+    {
+      "name": "new-settle",
+      "observations": [
+        {
+          "bindCap": 262144,
+          "frames": 14,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 3722,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 13,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 0,
+          "maxAllSqlIncludingBeginEnd": 0,
+          "maxBindBytes": 0,
+          "maxDirectChangedRows": 0,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ]
+    },
+    {
+      "name": "new-pending",
+      "observations": [
+        {
+          "bindCap": 262144,
+          "frames": 16,
+          "maxAllSqlIncludingBeginEnd": 31,
+          "maxBindBytes": 1694,
+          "maxDirectChangedRows": 17,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 27,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 3722,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 11,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 0,
+          "maxAllSqlIncludingBeginEnd": 0,
+          "maxBindBytes": 0,
+          "maxDirectChangedRows": 0,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ]
+    },
+    {
+      "name": "new-consume",
+      "observations": [
+        {
+          "bindCap": 262144,
+          "frames": 19,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 0,
+          "maxAllSqlIncludingBeginEnd": 0,
+          "maxBindBytes": 0,
+          "maxDirectChangedRows": 0,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ]
+    },
+    {
+      "name": "new-resolve",
+      "observations": [
+        {
+          "bindCap": 262144,
+          "frames": 16,
+          "maxAllSqlIncludingBeginEnd": 23,
+          "maxBindBytes": 961,
+          "maxDirectChangedRows": 9,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 11,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 0,
+          "maxAllSqlIncludingBeginEnd": 0,
+          "maxBindBytes": 0,
+          "maxDirectChangedRows": 0,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ]
+    },
+    {
+      "name": "new-faults",
+      "observations": [
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 55,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 28,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 3,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 3722,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 5,
+          "maxAllSqlIncludingBeginEnd": 31,
+          "maxBindBytes": 2758,
+          "maxDirectChangedRows": 19,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 3,
+          "maxAllSqlIncludingBeginEnd": 23,
+          "maxBindBytes": 2587,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 3,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 3722,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 3,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 1555,
+          "maxDirectChangedRows": 15,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 2,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4123,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 19,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 27,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 54,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 27,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ]
+    },
+    {
+      "name": "new-fresh-jvm-resume",
+      "observations": [
+        {
+          "bindCap": 262144,
+          "frames": 18,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 19,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ]
+    },
+    {
+      "name": "new-fresh-jvm-resume-settle",
+      "observations": [
+        {
+          "bindCap": 262144,
+          "frames": 26,
+          "maxAllSqlIncludingBeginEnd": 35,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 25,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ]
+    },
+    {
+      "name": "new-fresh-jvm-resume-pending",
+      "observations": [
+        {
+          "bindCap": 262144,
+          "frames": 53,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ]
+    },
+    {
+      "name": "new-fresh-jvm-resume-resolve",
+      "observations": [
+        {
+          "bindCap": 262144,
+          "frames": 26,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ]
+    }
+  ],
+  "status": "NAMED_PRODUCER_NATIVE_HOST_PASS_NOT_ANDROID_NOT_FULL_B02",
+  "source_changed_during_run": [],
+  "limitations": [
+    "Controlled bootstrap and synthetic predraw rows are mechanics fixtures, never natural prediction/evidence or a user DB.",
+    "Protocol/support executes fixed actual Android app classes on host platform adapters; no Android scheduling/WAL latency/24h/72h acceptance.",
+    "Each frame includes CAS/read/DML/fence/progress/receipt and binds, with transaction duration. These are native host transaction timings, not Android writer hold SLO.",
+    "Freeze/certify large payloads and legacy qualification rebuild remain explicit separate debts."
+  ],
+  "finished_utc": "2026-11-04T17:39:10.693814+00:00"
+}
