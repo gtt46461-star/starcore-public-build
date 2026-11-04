@@ -8,7 +8,7 @@ import java.util.Map;
 
 /** Q08 synthetic experiments only. Uses the actual evolution and qualification engines. Each work unit is one
  * power trial, one native evolution step, or one frozen FUTURE replay; state is serializable between units. */
-public final class NullPipelineSimulationR30 {
+public final class NullPipelineSimulationR30 implements AutoCloseable {
     public static final int POWER_REPS=20, POWER_PERIODS=5000, NULL_TRIALS=20, WARM_ROWS=3000, FUTURE_ROWS=6000;
     public static final double[] EDGES={0.34,0.37,0.40};
     private int powerRate, powerRep, trial;
@@ -17,6 +17,12 @@ public final class NullPipelineSimulationR30 {
     private String loopSnapshot, auditSnapshot;
     private transient EvolutionLoopR27 loop;
     private transient NullEvolutionR27 audit;
+    private transient FeatureCacheR27 ownedCacheR31;
+    private final Object lifecycleR31=new Object();
+    private boolean stepActiveR31,closeRequestedR31;
+    private void releaseEngineR31(){EvolutionLoopR27 prior=loop;FeatureCacheR27 cache=ownedCacheR31;loop=null;audit=null;ownedCacheR31=null;try{if(prior!=null)prior.close();}finally{if(cache!=null)cache.close();}}
+    /** Snapshot fields remain available; only this simulation's transient workspace is retired. */
+    @Override public void close(){boolean release;synchronized(lifecycleR31){closeRequestedR31=true;release=!stepActiveR31;}if(release)releaseEngineR31();}
     private final String sourceCommit;private final int targetNullTrials;private final boolean legacyTrialIndices;
     public NullPipelineSimulationR30() { this("HOST_UNBOUND"); }
     public NullPipelineSimulationR30(String sourceCommit) { this(sourceCommit,NULL_TRIALS,false); }
@@ -27,11 +33,15 @@ public final class NullPipelineSimulationR30 {
     public boolean complete() { return powerRate==EDGES.length && trial==targetNullTrials; }
     public boolean cheapWorkPending() { return powerRate<EDGES.length; }
     public boolean step() {
+        synchronized(lifecycleR31){if(closeRequestedR31)throw new java.util.concurrent.CancellationException("R31_Q08_CLOSED");if(stepActiveR31)throw new IllegalStateException("R31_Q08_STEP_IN_FLIGHT");stepActiveR31=true;}
+        try {
         if(complete())return false;
         if(powerRate<EDGES.length){powerTrial();return true;}
         EvolutionLoopR27 engine=engine();
         if(engine.generation<3){engine.step();loopSnapshot=engine.snapshot();auditSnapshot=JsonR27.write(audit.json());return true;}
-        qualifyFrozen(engine);trial++;loop=null;audit=null;loopSnapshot=null;auditSnapshot=null;return true;
+        qualifyFrozen(engine);trial++;releaseEngineR31();loopSnapshot=null;auditSnapshot=null;return true;
+        }catch(RuntimeException|Error failed){releaseEngineR31();throw failed;}
+        finally{boolean release;synchronized(lifecycleR31){stepActiveR31=false;release=closeRequestedR31;}if(release)releaseEngineR31();}
     }
     private void powerTrial() {
         double edge=EDGES[powerRate];StatsR27.SplitMix rng=new StatsR27.SplitMix(0);rng.state=powerRng;
@@ -54,6 +64,7 @@ public final class NullPipelineSimulationR30 {
         audit=new NullEvolutionR27();if(auditSnapshot!=null)audit.restoreFull(auditSnapshot);
         EvolutionLoopR27.Config cfg=new EvolutionLoopR27.Config();cfg.births=40;cfg.minPerFamily=1;cfg.nullControl=false;cfg.i00PerGeneration=0;cfg.seed=9300+trial;
         FeatureCacheR27 cache=new FeatureCacheR27(warm());
+        ownedCacheR31=cache;
         loop=loopSnapshot==null?new EvolutionLoopR27(cfg,cache,audit.countingSink(),()->0L):EvolutionLoopR27.restore(loopSnapshot,cfg,cache,audit.countingSink(),()->0L);
         loop.legacySeeds=Collections.singletonList(neutralSeed());return loop;
     }
@@ -67,13 +78,15 @@ public final class NullPipelineSimulationR30 {
         PolicySpecR27 frozen=PolicySpecR27.parse(selected.spec.fullJson());double tau=selected.tau;
         ReplayDatasetR27 warm=engine.context().data,raw=ReplayDatasetR27.synthetic(WARM_ROWS+FUTURE_ROWS,8200+trial,new int[0]);
         int[][] joined=raw.draws.clone();for(int t=0;t<WARM_ROWS;t++)joined[t]=warm.draws[t].clone();ReplayDatasetR27 future=raw.withDraws(joined);
-        ReplayEvaluatorR27.Trace trace=ReplayEvaluatorR27.run(frozen,new FeatureCacheR27(future),future.draws,tau,WARM_ROWS,future.size());
+        try(FeatureCacheR27 futureCache=new FeatureCacheR27(future)) {
+        ReplayEvaluatorR27.Trace trace=ReplayEvaluatorR27.run(frozen,futureCache,future.draws,tau,WARM_ROWS,future.size());
         SequentialQualificationR27.State state=new SequentialQualificationR27.State("Q08_NULL_"+trial,legacyTrialIndices?trial+1:1,SelectorPolicyR30.registeredRate(frozen));
         for(int t=WARM_ROWS;t<future.size()&&SequentialQualificationR27.ACCUMULATING.equals(state.state);t++)state.observe(future.ordinals[t],!trace.skipped[t]&&trace.act[t],trace.hit[t]>0);
         row.put("status","MEASURED");row.put("policyHash",frozen.policyHash());row.put("temperature",tau);row.put("frozenThrough",warm.ordinals[WARM_ROWS-1]);
         row.put("futureFrom",future.ordinals[WARM_ROWS]);row.put("futurePeriods",state.n);row.put("qualification",state.json());
         row.put("falseSequentialQualification",SequentialQualificationR27.QUALIFIED.equals(state.state));
         row.put("endpoint","SEQUENTIAL_EVIDENCE; controls never receive a REAL certificate");nullRuns.add(row);
+        }
     }
     public Map<String,Object> summary() {
         Map<String,Object> out=new LinkedHashMap<>();out.put("metric","Q08");out.put("status",complete()?"MEASURED":"RUNNING");

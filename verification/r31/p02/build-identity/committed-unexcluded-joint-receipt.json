@@ -1,0 +1,117 @@
+{
+  "scope": "P02_COMMITTED_UNEXCLUDED_PRODUCTION_AND_ANDROID_TEST_COMPILE_PLUS_FULL_HOST_UNIT_NOT_APK_OR_DEVICE",
+  "source_commit": "e96e11cc850672549863a6290b40350fa5248a08",
+  "command": [
+    "bash",
+    "./gradlew",
+    "--no-daemon",
+    "--max-workers=4",
+    "-Pr30Instrumentation=true",
+    ":app:compileDebugJavaWithJavac",
+    ":app:compileDebugAndroidTestJavaWithJavac",
+    ":app:testDebugUnitTest",
+    ":app:verifyFinalR31BuildIdentity"
+  ],
+  "excluded_tasks": [],
+  "started_utc": "2026-11-04T12:24:24.834385+00:00",
+  "completed_utc": "2026-11-04T12:25:46.397034+00:00",
+  "exit_code": 1,
+  "test_task_reached": true,
+  "junit": {
+    "tests": 428,
+    "failures": 17,
+    "errors": 0,
+    "skipped": 0
+  },
+  "failures": [
+    {
+      "suite": "app/build/test-results/testDebugUnitTest/TEST-com.ethk3.novaonepro.strategyv2.R30FailureRepairTest.xml",
+      "test": "measuredFailureDrivesActualWindowMutationAndFamilyRepair",
+      "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+    },
+    {
+      "suite": "app/build/test-results/testDebugUnitTest/TEST-com.ethk3.novaonepro.strategyv2.R30IdeaFamilyContractTest.xml",
+      "test": "thirteenFamiliesHaveCompleteProposalsAndRealBirthRecords",
+      "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+    },
+    {
+      "suite": "app/build/test-results/testDebugUnitTest/TEST-com.ethk3.novaonepro.strategyv2.R27LeakageTest.xml",
+      "test": "everyLeafKindIsPointInTime",
+      "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+    },
+    {
+      "suite": "app/build/test-results/testDebugUnitTest/TEST-com.ethk3.novaonepro.strategyv2.R31BoundedReplayTest.xml",
+      "test": "capacityWaitIsBoundedAndKeepsAllCandidatesForRetry",
+      "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+    },
+    {
+      "suite": "app/build/test-results/testDebugUnitTest/TEST-com.ethk3.novaonepro.strategyv2.R31BoundedReplayTest.xml",
+      "test": "all128CandidatesReplayWithTwoHelpersAndMatchSerialExactly",
+      "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+    },
+    {
+      "suite": "app/build/test-results/testDebugUnitTest/TEST-com.ethk3.novaonepro.strategyv2.R30UnifiedEvaluatorTest.xml",
+      "test": "deterministicAndDatasetKeyed",
+      "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+    },
+    {
+      "suite": "app/build/test-results/testDebugUnitTest/TEST-com.ethk3.novaonepro.strategyv2.R30PitReplayInjectionTest.xml",
+      "test": "injectedTrainedThroughTargetIsRejectedAndRecorded",
+      "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+    },
+    {
+      "suite": "app/build/test-results/testDebugUnitTest/TEST-com.ethk3.novaonepro.strategyv2.R27EvolutionTest.xml",
+      "test": "plantedSignalIsFoundAndVerifiedWithin50Generations",
+      "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+    },
+    {
+      "suite": "app/build/test-results/testDebugUnitTest/TEST-com.ethk3.novaonepro.strategyv2.R27EvolutionTest.xml",
+      "test": "killAfterEveryStepAndResume",
+      "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+    },
+    {
+      "suite": "app/build/test-results/testDebugUnitTest/TEST-com.ethk3.novaonepro.strategyv2.R27EvolutionTest.xml",
+      "test": "noSignalRarelyClaimsImprovement",
+      "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+    },
+    {
+      "suite": "app/build/test-results/testDebugUnitTest/TEST-com.ethk3.novaonepro.strategyv2.R30PolicyContractTest.xml",
+      "test": "completeCandidateIsBornAndExplicitControlRemainsExecutable",
+      "message": "org.junit.ComparisonFailure: expected:<[BORN]> but was:<[REJECTED]>"
+    },
+    {
+      "suite": "app/build/test-results/testDebugUnitTest/TEST-com.ethk3.novaonepro.strategyv2.R27QualityTest.xml",
+      "test": "h15MainlineRedLines",
+      "message": "org.junit.ComparisonFailure: original main-chain body changed: app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java expected:<[a978b689f0c6d5eafcab5279bf18794e7e573f6f2cf59a74985a55f22822693f]> but was:<[f571e7503c40ecfe38dcdfefe4f97725c46f4394b188d640462a35bd6881015d]>"
+    },
+    {
+      "suite": "app/build/test-results/testDebugUnitTest/TEST-com.ethk3.novaonepro.strategyv2.R27QualityTest.xml",
+      "test": "h11ChangedFdecayChangesOnlyItsPolicies",
+      "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+    },
+    {
+      "suite": "app/build/test-results/testDebugUnitTest/TEST-com.ethk3.novaonepro.strategyv2.R27QualityTest.xml",
+      "test": "h10UiOnlyChangeIsEquivalent",
+      "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+    },
+    {
+      "suite": "app/build/test-results/testDebugUnitTest/TEST-com.ethk3.novaonepro.strategyv2.R30StructureRegistryTest.xml",
+      "test": "realMainBirthLoopProducesEveryNewFamily",
+      "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+    },
+    {
+      "suite": "app/build/test-results/testDebugUnitTest/TEST-com.ethk3.novaonepro.strategyv2.R30NullPipelineTest.xml",
+      "test": "powerAndFullPipelineQualificationHaveRecoverableSyntheticReceipts",
+      "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+    },
+    {
+      "suite": "app/build/test-results/testDebugUnitTest/TEST-com.ethk3.novaonepro.strategyv2.R30NullPipelineTest.xml",
+      "test": "sameFullEvolutionPipelineResumesItsControlState",
+      "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+    }
+  ],
+  "log_sha256": "5d2e473b9ef6e8ce86689e8b4cca0d4c3f815ad92af41c7cefecc185438fe633",
+  "android_execution": "NOT_RUN",
+  "physical_device": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN"
+}

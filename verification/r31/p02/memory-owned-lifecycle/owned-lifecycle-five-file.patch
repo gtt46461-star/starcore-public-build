@@ -1,0 +1,312 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java
+index 5313ca3f..697ebc5f 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java
+@@ -18,7 +18,7 @@ import java.util.Set;
+  * R30: selection and adaptation read H_TRAIN/H_SELECT only. Immutable comparison packets are evaluated by
+  * FrozenConfirmationR30 outside this loop; the same original paired tests against the previous, I00 and
+  * shuffled-label champions govern the independent verdict. No verdict feeds back into evolutionary selection. */
+-public final class EvolutionLoopR27 {
++public final class EvolutionLoopR27 implements AutoCloseable {
+     public static final String[] STEPS = {"", "DATASET", "BIRTH", "GATE", "REPLAY", "HALVING", "HOLDOUT", "RECORD", "PROMOTE", "MIGRATE_ABLATE"};
+ 
+     public static final class Config {
+@@ -63,6 +63,17 @@ public final class EvolutionLoopR27 {
+     /** The Android runtime binds a fresh per-step sink (one atomic batch per step). */
+     public void setSink(Sink s) { sink = s; }
+     private EvalContextR27 ctx; private BirthGateR27 gate; private final HoldoutLedgerR27 ledger = new HoldoutLedgerR27();
++    private final Object lifecycleR31=new Object();
++    private int activeUsesR31;
++    private boolean closeRequestedR31,resourcesClosingR31,resourcesClosedR31;
++    private void enterUseR31(){synchronized(lifecycleR31){if(closeRequestedR31)throw new java.util.concurrent.CancellationException("R31_EVOLUTION_CLOSED");activeUsesR31++;}}
++    private EvalContextR27 reserveCloseR31(){if(!closeRequestedR31||activeUsesR31!=0||resourcesClosingR31||resourcesClosedR31)return null;resourcesClosingR31=true;return ctx;}
++    private void closeContextR31(EvalContextR27 release){if(release==null)return;try{release.close();synchronized(lifecycleR31){resourcesClosedR31=true;}}finally{synchronized(lifecycleR31){resourcesClosingR31=false;}}}
++    private void leaveUseR31(){EvalContextR27 release;synchronized(lifecycleR31){if(activeUsesR31<1)throw new IllegalStateException("R31_EVOLUTION_SCOPE_ACCOUNTING");activeUsesR31--;release=reserveCloseR31();}closeContextR31(release);}
++    /** The caller owns the supplied FeatureCache; only this loop's context is retired here.
++     * Accepted helper bodies retain their scope until their actual finally exits. */
++    @Override public void close(){EvalContextR27 release;synchronized(lifecycleR31){closeRequestedR31=true;release=reserveCloseR31();}closeContextR31(release);}
++    public boolean resourcesClosedR31(){synchronized(lifecycleR31){return resourcesClosedR31;}}
+     public int generation, step = 1; public final StatsR27.SplitMix rng;
+     public final List<Member> population = new ArrayList<>();
+     public final EliteArchiveR27 archive = new EliteArchiveR27();
+@@ -105,16 +116,20 @@ public final class EvolutionLoopR27 {
+ 
+     private void bind(FeatureCacheR27 cache) {
+         SplitR27 split = SplitR27.of(cache.data, ledger.degradedBlocks());
+-        ctx = new EvalContextR27(cache, split, null);
+-        gate = new BirthGateR27(cache, split.trainTo); gate.setMaxDepth(gateMaxDepth);
+-        for (Member m : population) if (m.sig != null) gate.register(m.hash(), m.sig,m.spec.position);
++        EvalContextR27 next=new EvalContextR27(cache,split,null);BirthGateR27 nextGate;
++        try{nextGate=new BirthGateR27(cache,split.trainTo);nextGate.setMaxDepth(gateMaxDepth);for(Member m:population)if(m.sig!=null)nextGate.register(m.hash(),m.sig,m.spec.position);}
++        catch(RuntimeException|Error failed){next.close();throw failed;}
++        EvalContextR27 previous=ctx;ctx=next;gate=nextGate;if(previous!=null)previous.close();
+     }
+     /** daily-close: rebinding to a new dataset happens only between generations (step 1). */
+     public void rebind(FeatureCacheR27 cache) {
++        enterUseR31();try {
+         if (step != 1) throw new IllegalStateException("R27_REBIND_MID_GENERATION");
++        synchronized(lifecycleR31){if(activeUsesR31!=1)throw new IllegalStateException("R31_EVOLUTION_REBIND_WHILE_BUSY");}
+         bind(cache);
+         bestSelectSeen = Double.NEGATIVE_INFINITY; generationsWithoutSelectImprovement = 0;
+         for (Member m : population) { m.trace = null; m.tau = ctx.temperature(m.spec); refresh(m); }
++        }finally{leaveUseR31();}
+     }
+     /** A corrected development input cannot complete its old generation. No exposure, model, RNG or alpha is reset. */
+     void restartInvalidDevelopmentInput(){pending.clear();directedResearch=Collections.emptyList();pendingConfirmation=null;confirmationDispatched=false;step=1;generation++;}
+@@ -131,8 +146,10 @@ public final class EvolutionLoopR27 {
+     public void runGeneration() { do step(); while (step != 1); }
+ 
+     public void step() {
++        enterUseR31();try {
+         Integer previousLimit = ReplayEvaluatorR27.enterEvolutionR30(ctx.split.selectTo);
+         try { stepInsideEvolution(); } finally { ReplayEvaluatorR27.leaveEvolutionR30(previousLimit); }
++        }finally{leaveUseR31();}
+     }
+ 
+     private void stepInsideEvolution() {
+@@ -271,6 +288,9 @@ public final class EvolutionLoopR27 {
+     public final List<Long> candidateReplayMs = new ArrayList<>();
+ 
+     void stepReplay() {
++        enterUseR31();try{stepReplayOwnedR31();}finally{leaveUseR31();}
++    }
++    private void stepReplayOwnedR31() {
+         long t0 = System.nanoTime(); candidateReplayMs.clear();
+         List<Pending> born = new ArrayList<>(); for (Pending p : pending) if (p.state.equals("BORN")) born.add(p);
+         // A parent continuation already owns its compute permit. The configured serial mode stays on that
+@@ -288,9 +308,11 @@ public final class EvolutionLoopR27 {
+                         Pending candidate = born.get(submitted);
+                         try {
+                             inFlight.addLast(executor.submit(() -> {
++                                enterUseR31();try {
+                                 Integer previousLimit = ReplayEvaluatorR27.enterEvolutionR30(ctx.split.selectTo);
+                                 try { ExecutionBudgetR26.poll(); return calculateReplayR31(candidate); }
+                                 finally { ReplayEvaluatorR27.leaveEvolutionR30(previousLimit); }
++                                }finally{leaveUseR31();}
+                             }));
+                             submitted++;
+                         } catch (java.util.concurrent.RejectedExecutionException capacity) {
+@@ -602,14 +624,17 @@ public final class EvolutionLoopR27 {
+     /** Only a validated in-memory instance can enter this path. Public restore retains full birth/replay checks. */
+     EvolutionLoopR27 preparedForkR30() {
+         EvolutionLoopR27 copy=restoreInternal(snapshot(),cfg,ctx.cache,null,clock,this);
++        try {
+         copy.legacySeeds=new ArrayList<>(legacySeeds);copy.derivedLeaves=new ArrayList<>(derivedLeaves);copy.leafWeight=new HashMap<>(leafWeight);
+         copy.gate.copyValidatedRegistrationsR30(gate);
+         copy.lastRecord=new LinkedHashMap<>(lastRecord);return copy;
++        }catch(RuntimeException|Error failed){copy.close();throw failed;}
+     }
+     @SuppressWarnings("unchecked")
+     private static EvolutionLoopR27 restoreInternal(String json,Config cfg,FeatureCacheR27 cache,Sink sink,Clock clock,EvolutionLoopR27 validated) {
+         Map<String, Object> s = (Map<String, Object>) JsonR27.parse(json);
+         EvolutionLoopR27 l = new EvolutionLoopR27(cfg, cache, sink, clock);
++        boolean restoredR31=false;try {
+         if (s.get("sourceCommit") instanceof String) l.sourceCommit=(String)s.get("sourceCommit");
+         l.generation = (int) JsonR27.num(s.get("generation")); l.step = (int) JsonR27.num(s.get("step")); l.rng.state = ((Number) s.get("rng")).longValue();
+         for (Map.Entry<String, Object> e : ((Map<String, Object>) s.get("ledger")).entrySet()) for (Object h : (List<Object>) e.getValue()) l.ledger.restore(Long.parseLong(e.getKey()), (String) h);
+@@ -649,7 +674,8 @@ public final class EvolutionLoopR27 {
+             l.confirmationDispatched = Boolean.TRUE.equals(s.get("confirmationDispatched"));
+         }
+         l.genStats.putAll((Map<String, Object>) s.get("genStats")); l.startedAt = ((Number) s.get("startedAt")).longValue();
+-        return l;
++        restoredR31=true;return l;
++        }finally{if(!restoredR31)l.close();}
+     }
+     static PolicySpecR27 spec(Object o) { return o == null ? null : PolicySpecR27.parse((String) o); }
+     @SuppressWarnings("unchecked") static int[] ints(Object o) { if (o == null) return null; List<Object> l = (List<Object>) o; int[] a = new int[l.size()]; for (int i = 0; i < a.length; i++) a[i] = (int) JsonR27.num(l.get(i)); return a; }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/NullEvolutionR27.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/NullEvolutionR27.java
+index 6208d8d2..52d5c705 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/NullEvolutionR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/NullEvolutionR27.java
+@@ -25,13 +25,13 @@ public final class NullEvolutionR27 {
+         if (families != EvolutionLoopR27.FAMILIES) throw new IllegalArgumentException("R30_CONTROL_REQUIRES_MAIN_FAMILY_REGISTRY");
+         lastSeed = rng.nextLong();
+         ReplayDatasetR27 permuted = ReplayEvaluatorR27.shuffledDataset(cache.data,split.trainFrom,split.selectTo,lastSeed);
+-        FeatureCacheR27 controlCache = new FeatureCacheR27(permuted);
+         EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.births = Math.max(1,n); cfg.minPerFamily = 0;
+         cfg.nullControl = false; cfg.i00PerGeneration = 0; cfg.populationCap = popCap; cfg.seed = lastSeed;
+         cfg.expertShare = n < 10 ? 0 : 0.10;
+         ControlSink sink = new ControlSink();
+-        EvolutionLoopR27 loop = fullSnapshot == null ? new EvolutionLoopR27(cfg,controlCache,sink,() -> 0L) :
+-                EvolutionLoopR27.restore(fullSnapshot,cfg,controlCache,sink,() -> 0L);
++        try(FeatureCacheR27 controlCache=new FeatureCacheR27(permuted);
++            EvolutionLoopR27 loop=fullSnapshot==null?new EvolutionLoopR27(cfg,controlCache,sink,()->0L):
++                    EvolutionLoopR27.restore(fullSnapshot,cfg,controlCache,sink,()->0L)) {
+         List<PolicySpecR27> seeds = new ArrayList<>(seedAssets);
+         if (fullSnapshot == null) {
+             for (SuccessiveHalvingR27.Candidate c : population) seeds.add(c.spec);
+@@ -48,6 +48,7 @@ public final class NullEvolutionR27 {
+             c.select = ReplayScoreR27.of(SplitR27.SELECT,trace,loop.context().split.selectFrom,loop.context().split.selectTo); population.add(c);
+         }
+         survivors = population.size(); return champion;
++        }
+     }
+     public Map<String,Object> json() {
+         Map<String,Object> m = new LinkedHashMap<>(); m.put("mode","SYNTHETIC_SHUFFLED_TRAIN_SELECT_SEQUENCE");
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationR30.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationR30.java
+index 37b5ce4c..93eb85a4 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationR30.java
+@@ -8,7 +8,7 @@ import java.util.Map;
+ 
+ /** Q08 synthetic experiments only. Uses the actual evolution and qualification engines. Each work unit is one
+  * power trial, one native evolution step, or one frozen FUTURE replay; state is serializable between units. */
+-public final class NullPipelineSimulationR30 {
++public final class NullPipelineSimulationR30 implements AutoCloseable {
+     public static final int POWER_REPS=20, POWER_PERIODS=5000, NULL_TRIALS=20, WARM_ROWS=3000, FUTURE_ROWS=6000;
+     public static final double[] EDGES={0.34,0.37,0.40};
+     private int powerRate, powerRep, trial;
+@@ -17,6 +17,12 @@ public final class NullPipelineSimulationR30 {
+     private String loopSnapshot, auditSnapshot;
+     private transient EvolutionLoopR27 loop;
+     private transient NullEvolutionR27 audit;
++    private transient FeatureCacheR27 ownedCacheR31;
++    private final Object lifecycleR31=new Object();
++    private boolean stepActiveR31,closeRequestedR31;
++    private void releaseEngineR31(){EvolutionLoopR27 prior=loop;FeatureCacheR27 cache=ownedCacheR31;loop=null;audit=null;ownedCacheR31=null;try{if(prior!=null)prior.close();}finally{if(cache!=null)cache.close();}}
++    /** Snapshot fields remain available; only this simulation's transient workspace is retired. */
++    @Override public void close(){boolean release;synchronized(lifecycleR31){closeRequestedR31=true;release=!stepActiveR31;}if(release)releaseEngineR31();}
+     private final String sourceCommit;private final int targetNullTrials;private final boolean legacyTrialIndices;
+     public NullPipelineSimulationR30() { this("HOST_UNBOUND"); }
+     public NullPipelineSimulationR30(String sourceCommit) { this(sourceCommit,NULL_TRIALS,false); }
+@@ -27,11 +33,15 @@ public final class NullPipelineSimulationR30 {
+     public boolean complete() { return powerRate==EDGES.length && trial==targetNullTrials; }
+     public boolean cheapWorkPending() { return powerRate<EDGES.length; }
+     public boolean step() {
++        synchronized(lifecycleR31){if(closeRequestedR31)throw new java.util.concurrent.CancellationException("R31_Q08_CLOSED");if(stepActiveR31)throw new IllegalStateException("R31_Q08_STEP_IN_FLIGHT");stepActiveR31=true;}
++        try {
+         if(complete())return false;
+         if(powerRate<EDGES.length){powerTrial();return true;}
+         EvolutionLoopR27 engine=engine();
+         if(engine.generation<3){engine.step();loopSnapshot=engine.snapshot();auditSnapshot=JsonR27.write(audit.json());return true;}
+-        qualifyFrozen(engine);trial++;loop=null;audit=null;loopSnapshot=null;auditSnapshot=null;return true;
++        qualifyFrozen(engine);trial++;releaseEngineR31();loopSnapshot=null;auditSnapshot=null;return true;
++        }catch(RuntimeException|Error failed){releaseEngineR31();throw failed;}
++        finally{boolean release;synchronized(lifecycleR31){stepActiveR31=false;release=closeRequestedR31;}if(release)releaseEngineR31();}
+     }
+     private void powerTrial() {
+         double edge=EDGES[powerRate];StatsR27.SplitMix rng=new StatsR27.SplitMix(0);rng.state=powerRng;
+@@ -54,6 +64,7 @@ public final class NullPipelineSimulationR30 {
+         audit=new NullEvolutionR27();if(auditSnapshot!=null)audit.restoreFull(auditSnapshot);
+         EvolutionLoopR27.Config cfg=new EvolutionLoopR27.Config();cfg.births=40;cfg.minPerFamily=1;cfg.nullControl=false;cfg.i00PerGeneration=0;cfg.seed=9300+trial;
+         FeatureCacheR27 cache=new FeatureCacheR27(warm());
++        ownedCacheR31=cache;
+         loop=loopSnapshot==null?new EvolutionLoopR27(cfg,cache,audit.countingSink(),()->0L):EvolutionLoopR27.restore(loopSnapshot,cfg,cache,audit.countingSink(),()->0L);
+         loop.legacySeeds=Collections.singletonList(neutralSeed());return loop;
+     }
+@@ -67,13 +78,15 @@ public final class NullPipelineSimulationR30 {
+         PolicySpecR27 frozen=PolicySpecR27.parse(selected.spec.fullJson());double tau=selected.tau;
+         ReplayDatasetR27 warm=engine.context().data,raw=ReplayDatasetR27.synthetic(WARM_ROWS+FUTURE_ROWS,8200+trial,new int[0]);
+         int[][] joined=raw.draws.clone();for(int t=0;t<WARM_ROWS;t++)joined[t]=warm.draws[t].clone();ReplayDatasetR27 future=raw.withDraws(joined);
+-        ReplayEvaluatorR27.Trace trace=ReplayEvaluatorR27.run(frozen,new FeatureCacheR27(future),future.draws,tau,WARM_ROWS,future.size());
++        try(FeatureCacheR27 futureCache=new FeatureCacheR27(future)) {
++        ReplayEvaluatorR27.Trace trace=ReplayEvaluatorR27.run(frozen,futureCache,future.draws,tau,WARM_ROWS,future.size());
+         SequentialQualificationR27.State state=new SequentialQualificationR27.State("Q08_NULL_"+trial,legacyTrialIndices?trial+1:1,SelectorPolicyR30.registeredRate(frozen));
+         for(int t=WARM_ROWS;t<future.size()&&SequentialQualificationR27.ACCUMULATING.equals(state.state);t++)state.observe(future.ordinals[t],!trace.skipped[t]&&trace.act[t],trace.hit[t]>0);
+         row.put("status","MEASURED");row.put("policyHash",frozen.policyHash());row.put("temperature",tau);row.put("frozenThrough",warm.ordinals[WARM_ROWS-1]);
+         row.put("futureFrom",future.ordinals[WARM_ROWS]);row.put("futurePeriods",state.n);row.put("qualification",state.json());
+         row.put("falseSequentialQualification",SequentialQualificationR27.QUALIFIED.equals(state.state));
+         row.put("endpoint","SEQUENTIAL_EVIDENCE; controls never receive a REAL certificate");nullRuns.add(row);
++        }
+     }
+     public Map<String,Object> summary() {
+         Map<String,Object> out=new LinkedHashMap<>();out.put("metric","Q08");out.put("status",complete()?"MEASURED":"RUNNING");
+diff --git a/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27EvolutionTest.java b/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27EvolutionTest.java
+index a7fc18c9..a9a85a28 100644
+--- a/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27EvolutionTest.java
++++ b/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27EvolutionTest.java
+@@ -32,10 +32,11 @@ public class R27EvolutionTest {
+     @Test public void plantedSignalIsFoundAndVerifiedWithin50Generations() {
+         ReplayDatasetR27 d = ReplayDatasetR27.synthetic(5000, 11, new int[] {700, 1900}).planted(0.4, 5);
+         Counter c = new Counter(); EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.births = 64; cfg.seed = 6;
+-        EvolutionLoopR27 loop = new EvolutionLoopR27(cfg, new FeatureCacheR27(d), c, () -> 0L);
++        try(FeatureCacheR27 cache=new FeatureCacheR27(d);EvolutionLoopR27 loop=new EvolutionLoopR27(cfg,cache,c,()->0L)) {
+         int g = 0; while (g < 50 && !(c.verified > 0 && c.bestHoldout >= 0.36)) { loop.runGeneration(); c.confirm(loop); g++; }
+         assertTrue("verified=" + c.verified + " bestHoldout=" + c.bestHoldout, c.verified > 0 && c.bestHoldout >= 0.36);
+         R27TestSupport.log("H06_PASS generations=" + g + " verified=" + c.verified + " championHoldoutHR=" + c.bestHoldout + " champion=" + loop.champion.ast);
++        }
+     }
+ 
+     @Test public void noSignalRarelyClaimsImprovement() {
+@@ -43,9 +44,10 @@ public class R27EvolutionTest {
+         for (int r = 0; r < runs; r++) {
+             ReplayDatasetR27 d = ReplayDatasetR27.synthetic(3000, 1000 + r, new int[] {1000});
+             Counter c = new Counter(); EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.births = 32; cfg.seed = 77 + r; cfg.i00PerGeneration = 4;
+-            EvolutionLoopR27 loop = new EvolutionLoopR27(cfg, new FeatureCacheR27(d), c, () -> 0L);
++            try(FeatureCacheR27 cache=new FeatureCacheR27(d);EvolutionLoopR27 loop=new EvolutionLoopR27(cfg,cache,c,()->0L)) {
+             for (int g = 0; g < 3; g++) { loop.runGeneration(); c.confirm(loop); }
+             verified += c.verified; comparisons += c.comparisons; if (c.verified > 0) runsWithAny++;
++            }
+         }
+         double rate = verified / (double) Math.max(1, comparisons);
+         R27TestSupport.log("H07 runs=" + runs + " comparisons=" + comparisons + " verified=" + verified + " rate=" + rate + " runsWithAnyVerified=" + runsWithAny);
+@@ -56,17 +58,22 @@ public class R27EvolutionTest {
+     @Test public void killAfterEveryStepAndResume() {
+         ReplayDatasetR27 d = ReplayDatasetR27.synthetic(3000, 42, new int[] {900});
+         FeatureCacheR27 cache = new FeatureCacheR27(d);
++        EvolutionLoopR27 a=null,b=null;FeatureCacheR27 resumedCache=null;
++        try {
+         EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.births = 24; cfg.seed = 9; cfg.i00PerGeneration = 3;
+         R27BirthGateTest.Recorder straight = new R27BirthGateTest.Recorder();
+-        EvolutionLoopR27 a = new EvolutionLoopR27(cfg, cache, straight, () -> 0L);
++        a = new EvolutionLoopR27(cfg, cache, straight, () -> 0L);
+         for (int i = 0; i < 18; i++) a.step();
+         R27BirthGateTest.Recorder resumed = new R27BirthGateTest.Recorder();
+-        EvolutionLoopR27 b = new EvolutionLoopR27(cfg, cache, resumed, () -> 0L);
++        b = new EvolutionLoopR27(cfg, cache, resumed, () -> 0L);
+         Map<String, Integer> cursor = new LinkedHashMap<>();
+         for (int i = 0; i < 18; i++) {
+             b.step();
+             String snap = b.snapshot();          // persisted cursor (process killed here)
+-            b = EvolutionLoopR27.restore(snap, cfg, new FeatureCacheR27(d), resumed, () -> 0L);
++            b.close();if(resumedCache!=null){resumedCache.close();resumedCache=null;}
++            FeatureCacheR27 nextCache=new FeatureCacheR27(d);
++            try{b=EvolutionLoopR27.restore(snap,cfg,nextCache,resumed,()->0L);resumedCache=nextCache;}
++            catch(RuntimeException|Error failed){nextCache.close();throw failed;}
+             cursor.merge(b.generation + ":" + b.step, 1, Integer::sum);
+         }
+         assertEquals(2, b.generation); assertEquals(1, b.step);
+@@ -78,5 +85,6 @@ public class R27EvolutionTest {
+         for (Map.Entry<String, Integer> e : births.entrySet()) assertEquals("duplicate " + e.getKey(), 1, (int) e.getValue());
+         for (int v : cursor.values()) assertEquals(1, v); // cursor strictly advanced
+         R27TestSupport.log("H12_PASS steps=18 events=" + resumed.events.size() + " uniqueBirthsAndEdges=" + births.size());
++        }finally{try{if(b!=null)b.close();}finally{try{if(resumedCache!=null)resumedCache.close();}finally{try{if(a!=null)a.close();}finally{cache.close();}}}}
+     }
+ }
+diff --git a/app/src/test/java/com/ethk3/novaonepro/strategyv2/R30NullPipelineTest.java b/app/src/test/java/com/ethk3/novaonepro/strategyv2/R30NullPipelineTest.java
+index 43721708..bd496378 100644
+--- a/app/src/test/java/com/ethk3/novaonepro/strategyv2/R30NullPipelineTest.java
++++ b/app/src/test/java/com/ethk3/novaonepro/strategyv2/R30NullPipelineTest.java
+@@ -15,7 +15,8 @@ public final class R30NullPipelineTest {
+         assertArrayEquals(a,b);assertEquals(data.ordinals[0],shuffled.ordinals[0]);
+     }
+     @Test public void sameFullEvolutionPipelineResumesItsControlState() {
+-        ReplayDatasetR27 data=ReplayDatasetR27.synthetic(3000,401,new int[0]);FeatureCacheR27 cache=new FeatureCacheR27(data);SplitR27 split=SplitR27.of(data,null);
++        ReplayDatasetR27 data=ReplayDatasetR27.synthetic(3000,401,new int[0]);SplitR27 split=SplitR27.of(data,null);
++        try(FeatureCacheR27 cache=new FeatureCacheR27(data)) {
+         NullEvolutionR27 straight=new NullEvolutionR27(),resumed=new NullEvolutionR27();
+         straight.seedAssets=Collections.singletonList(NullPipelineSimulationR30.neutralSeed());
+         resumed.seedAssets=straight.seedAssets;
+@@ -31,12 +32,14 @@ public final class R30NullPipelineTest {
+         assertEquals(4L,receipts.get("completedGenerations"));assertTrue(straight.births>0);assertTrue(receipts.containsKey("expertReceipts"));
+         assertFalse(receipts.containsKey("scores:H_HOLDOUT"));
+         R27TestSupport.log("R30_FULL_NULL_PIPELINE "+JsonR27.write(straight.json()));
++        }
+     }
+     @SuppressWarnings("unchecked") @Test public void powerAndFullPipelineQualificationHaveRecoverableSyntheticReceipts() {
+         NullPipelineSimulationR30 straight=new NullPipelineSimulationR30("HOST_EXPLICIT_THREE_REPEAT_REGRESSION",3),resumed=new NullPipelineSimulationR30("HOST_EXPLICIT_THREE_REPEAT_REGRESSION",3);int work=0;
++        try {
+         while(!straight.complete()){
+             assertTrue(straight.step());assertTrue(resumed.step());work++;
+-            resumed=NullPipelineSimulationR30.restore(resumed.snapshot());
++            String saved=resumed.snapshot();resumed.close();resumed=NullPipelineSimulationR30.restore(saved);
+             if(work>200)fail("simulation did not finish within its finite work units");
+         }
+         assertTrue(resumed.complete());assertEquals(JsonR27.write(straight.summary()),JsonR27.write(resumed.summary()));
+@@ -46,5 +49,6 @@ public final class R30NullPipelineTest {
+         List<Object> power=(List<Object>)report.get("power");Map<String,Object> strong=(Map<String,Object>)power.get(2);
+         assertEquals(20L,strong.get("experiments"));assertTrue(((Number)strong.get("detected")).longValue()>=18);
+         R27TestSupport.log("R30_Q08_MEASURED workUnits="+work+" "+JsonR27.write(report));
++        }finally{try{straight.close();}finally{resumed.close();}}
+     }
+ }

@@ -32,10 +32,11 @@ public class R27EvolutionTest {
     @Test public void plantedSignalIsFoundAndVerifiedWithin50Generations() {
         ReplayDatasetR27 d = ReplayDatasetR27.synthetic(5000, 11, new int[] {700, 1900}).planted(0.4, 5);
         Counter c = new Counter(); EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.births = 64; cfg.seed = 6;
-        EvolutionLoopR27 loop = new EvolutionLoopR27(cfg, new FeatureCacheR27(d), c, () -> 0L);
+        try(FeatureCacheR27 cache=new FeatureCacheR27(d);EvolutionLoopR27 loop=new EvolutionLoopR27(cfg,cache,c,()->0L)) {
         int g = 0; while (g < 50 && !(c.verified > 0 && c.bestHoldout >= 0.36)) { loop.runGeneration(); c.confirm(loop); g++; }
         assertTrue("verified=" + c.verified + " bestHoldout=" + c.bestHoldout, c.verified > 0 && c.bestHoldout >= 0.36);
         R27TestSupport.log("H06_PASS generations=" + g + " verified=" + c.verified + " championHoldoutHR=" + c.bestHoldout + " champion=" + loop.champion.ast);
+        }
     }
 
     @Test public void noSignalRarelyClaimsImprovement() {
@@ -43,9 +44,10 @@ public class R27EvolutionTest {
         for (int r = 0; r < runs; r++) {
             ReplayDatasetR27 d = ReplayDatasetR27.synthetic(3000, 1000 + r, new int[] {1000});
             Counter c = new Counter(); EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.births = 32; cfg.seed = 77 + r; cfg.i00PerGeneration = 4;
-            EvolutionLoopR27 loop = new EvolutionLoopR27(cfg, new FeatureCacheR27(d), c, () -> 0L);
+            try(FeatureCacheR27 cache=new FeatureCacheR27(d);EvolutionLoopR27 loop=new EvolutionLoopR27(cfg,cache,c,()->0L)) {
             for (int g = 0; g < 3; g++) { loop.runGeneration(); c.confirm(loop); }
             verified += c.verified; comparisons += c.comparisons; if (c.verified > 0) runsWithAny++;
+            }
         }
         double rate = verified / (double) Math.max(1, comparisons);
         R27TestSupport.log("H07 runs=" + runs + " comparisons=" + comparisons + " verified=" + verified + " rate=" + rate + " runsWithAnyVerified=" + runsWithAny);
@@ -56,17 +58,22 @@ public class R27EvolutionTest {
     @Test public void killAfterEveryStepAndResume() {
         ReplayDatasetR27 d = ReplayDatasetR27.synthetic(3000, 42, new int[] {900});
         FeatureCacheR27 cache = new FeatureCacheR27(d);
+        EvolutionLoopR27 a=null,b=null;FeatureCacheR27 resumedCache=null;
+        try {
         EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.births = 24; cfg.seed = 9; cfg.i00PerGeneration = 3;
         R27BirthGateTest.Recorder straight = new R27BirthGateTest.Recorder();
-        EvolutionLoopR27 a = new EvolutionLoopR27(cfg, cache, straight, () -> 0L);
+        a = new EvolutionLoopR27(cfg, cache, straight, () -> 0L);
         for (int i = 0; i < 18; i++) a.step();
         R27BirthGateTest.Recorder resumed = new R27BirthGateTest.Recorder();
-        EvolutionLoopR27 b = new EvolutionLoopR27(cfg, cache, resumed, () -> 0L);
+        b = new EvolutionLoopR27(cfg, cache, resumed, () -> 0L);
         Map<String, Integer> cursor = new LinkedHashMap<>();
         for (int i = 0; i < 18; i++) {
             b.step();
             String snap = b.snapshot();          // persisted cursor (process killed here)
-            b = EvolutionLoopR27.restore(snap, cfg, new FeatureCacheR27(d), resumed, () -> 0L);
+            b.close();if(resumedCache!=null){resumedCache.close();resumedCache=null;}
+            FeatureCacheR27 nextCache=new FeatureCacheR27(d);
+            try{b=EvolutionLoopR27.restore(snap,cfg,nextCache,resumed,()->0L);resumedCache=nextCache;}
+            catch(RuntimeException|Error failed){nextCache.close();throw failed;}
             cursor.merge(b.generation + ":" + b.step, 1, Integer::sum);
         }
         assertEquals(2, b.generation); assertEquals(1, b.step);
@@ -78,5 +85,6 @@ public class R27EvolutionTest {
         for (Map.Entry<String, Integer> e : births.entrySet()) assertEquals("duplicate " + e.getKey(), 1, (int) e.getValue());
         for (int v : cursor.values()) assertEquals(1, v); // cursor strictly advanced
         R27TestSupport.log("H12_PASS steps=18 events=" + resumed.events.size() + " uniqueBirthsAndEdges=" + births.size());
+        }finally{try{if(b!=null)b.close();}finally{try{if(resumedCache!=null)resumedCache.close();}finally{try{if(a!=null)a.close();}finally{cache.close();}}}}
     }
 }

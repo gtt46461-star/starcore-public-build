@@ -36,8 +36,8 @@ public final class R31SharedFeatureIntegrationTest {
         finally{original.close();changed.close();FeatureCacheR27.trimRegisteredCachesR31();}
     }
     @Test public void cancellationClosesActualHotPathReaderBeforeItCanBeEvicted() throws Exception {
-        AtomicInteger measures=new AtomicInteger();AtomicBoolean preempt=new AtomicBoolean();MemoryBudgetR31.Probe probe=()->{if(measures.incrementAndGet()>=3)preempt.set(true);return new MemoryBudgetR31.Measurement(7,"synthetic",100_000_000,100000,-1,-1,-1,null,System.nanoTime(),0);};MemoryBudgetR31 memory=new MemoryBudgetR31(probe,new MemoryBudgetR31.Config());SharedFeatureStoreR31 store=new SharedFeatureStoreR31(memory,1_000_000);FeatureCacheR27 cache=new FeatureCacheR27(ReplayDatasetR27.synthetic(800,3116,null),8,memory,store);
-        CooperativeContinuationR26<double[]> work=new CooperativeContinuationR26<>("r31-shared-cancel",()->PolicyAstR27.eval(PolicyAstR27.op("zscore",PolicyAstR27.leaf("freq",1,32)),cache,1),preempt::get,null,System::nanoTime,"r31-shared-cancel");
+        MemoryBudgetR31 memory=budget();SharedFeatureStoreR31 store=new SharedFeatureStoreR31(memory,1_000_000);FeatureCacheR27 cache=new FeatureCacheR27(ReplayDatasetR27.synthetic(800,3116,null),8,memory,store);
+        CooperativeContinuationR26<double[]> work=new CooperativeContinuationR26<>("r31-shared-cancel",()->PolicyAstR27.eval(PolicyAstR27.op("zscore",PolicyAstR27.leaf("freq",1,32)),cache,1),()->number(store.snapshot(),"readerLeases")>0,null,System::nanoTime,"r31-shared-cancel");
         try{CooperativeContinuationR26.Slice<double[]> slice=work.slice(200);assertFalse(slice.done);assertEquals(1,number(store.snapshot(),"readerLeases"));assertFalse((Boolean)store.evictTo(0).get("targetReached"));work.close();assertTrue(work.awaitTermination(2000));assertEquals(0,number(store.snapshot(),"readerLeases"));assertTrue((Boolean)store.evictTo(0).get("targetReached"));}
         finally{work.close();assertTrue(work.awaitTermination(2000));cache.close();store.close();}
     }

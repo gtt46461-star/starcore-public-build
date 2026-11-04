@@ -20,6 +20,8 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     private volatile RuntimePowerLeaseR26 powerLease;
     private final MemoryBudgetR31 memoryBudgetR31=MemoryBudgetR31.processBudget();
     private volatile java.util.Map<String,Object> memoryObservationR31=java.util.Collections.emptyMap();
+    private volatile MemoryControlStateR31 memoryControlR31;
+    private volatile long memoryTrimRequestsR31;private volatile String memoryTrimFailureR31;
     private volatile long memoryPressureSinceR31;private long lastOwnerHealthRequestR31,nextMemoryTrimR31;
     private static final String[] SLOTS={"P1","P2","P2","P3"};
     public static final class Claim {
@@ -48,6 +50,60 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     private boolean preempt(){return cancelled||Thread.currentThread().isInterrupted()||resourceBlocked!=null;}
     private final ThermalPolicyR29 thermalR29 = new ThermalPolicyR29();
     private long thermalSampleAtR29; private double thermalHeadroomR29 = Double.NaN;
+    /** Immutable resource observation. Watermarks and an actually denied request are different facts. */
+    public static final class MemoryControlStateR31 {
+        static final long OVERDUE_MS=120_000,RECENT_DENIAL_MS=15_000;
+        public final String heapPressure,optionalAdmissionStatus,optionalWaitEvidence,reason;
+        public final boolean heapLimited,optionalLimited,optionalObservationKnown,optionalCapacityExhausted,recentOptionalDenial,limitParallelism,
+                heapOverTwoMinutes,optionalOverTwoMinutes,constraintOverTwoMinutes,optionalAdmissionRecovered;
+        public final long sampledElapsedMs,sampledProcessNanos,heapSinceElapsedMs,optionalSinceElapsedMs,constraintSinceElapsedMs,
+                heapAgeMs,optionalCapacityAgeMs,constraintAgeMs,optionalRecoveryElapsedMs;
+        public final Long actualDenialEpisodeAgeMs,lastDenialAgeMs;
+        private final java.util.Map<String,Object> data;
+        private MemoryControlStateR31(java.util.Map<String,Object> memory,long elapsed,long processNanos,MemoryControlStateR31 previous){
+            sampledElapsedMs=elapsed;sampledProcessNanos=processNanos;
+            Object pressure=memory.get("pressure");heapPressure=pressure instanceof String?(String)pressure:"UNKNOWN";
+            heapLimited="SOFT".equals(heapPressure)||"EMERGENCY".equals(heapPressure);
+            Object status=memory.get("optionalAdmissionStatus");optionalAdmissionStatus=status instanceof String?(String)status:"UNKNOWN";
+            Long headroom=number(memory,"optionalUnallocatedHeadroomBytes"),since=number(memory,"optionalWaitSinceNanos"),last=number(memory,"optionalLastDeniedAtNanos"),bytes=number(memory,"optionalLastDeniedRequestedBytes");
+            optionalObservationKnown=status instanceof String&&!"UNKNOWN".equals(status)&&memory.get("optionalDenialStillBlocking") instanceof Boolean&&headroom!=null&&headroom>=0;
+            boolean denied=Boolean.TRUE.equals(memory.get("optionalDenialStillBlocking"));
+            boolean validLast=last!=null&&last!=0&&processNanos-last>=0&&bytes!=null&&bytes>0;
+            boolean validEpisode=denied&&validLast&&since!=null&&since!=0&&last-since>=0&&processNanos-since>=0;
+            optionalCapacityExhausted=headroom!=null&&headroom==0;
+            optionalLimited=denied||optionalCapacityExhausted;
+            lastDenialAgeMs=validLast?(processNanos-last)/1_000_000L:null;
+            recentOptionalDenial=denied&&lastDenialAgeMs!=null&&lastDenialAgeMs<=RECENT_DENIAL_MS;
+            actualDenialEpisodeAgeMs=validEpisode?(processNanos-since)/1_000_000L:null;
+            optionalWaitEvidence=denied&&!validLast?"DENIAL_METADATA_INCOMPLETE_OR_PROCESS_CLOCK_MISMATCH":recentOptionalDenial?"RECENT_ACTUAL_DENIAL_LAST_REQUEST_STILL_BLOCKED":denied?"LAST_ACTUAL_DENIED_REQUEST_RECHECK_STILL_BLOCKED_NOT_THREAD_WAIT_PROOF":optionalCapacityExhausted?"ZERO_OPTIONAL_HEADROOM_WITHOUT_ACTIVE_DENIAL_PROOF":optionalObservationKnown?"NO_CURRENT_OPTIONAL_CONSTRAINT":"OPTIONAL_ADMISSION_OBSERVATION_UNKNOWN";
+            heapSinceElapsedMs=heapLimited&&previous!=null&&previous.heapLimited?previous.heapSinceElapsedMs:heapLimited?elapsed:0;
+            optionalSinceElapsedMs=optionalLimited&&previous!=null&&previous.optionalLimited?previous.optionalSinceElapsedMs:optionalLimited?elapsed:0;
+            heapAgeMs=heapLimited?elapsedAge(elapsed,heapSinceElapsedMs):0;
+            optionalCapacityAgeMs=optionalLimited?Math.max(elapsedAge(elapsed,optionalSinceElapsedMs),actualDenialEpisodeAgeMs==null?0:actualDenialEpisodeAgeMs):0;
+            limitParallelism=heapLimited||optionalLimited;
+            constraintSinceElapsedMs=limitParallelism&&previous!=null&&previous.limitParallelism?previous.constraintSinceElapsedMs:limitParallelism?elapsed:0;
+            constraintAgeMs=limitParallelism?Math.max(elapsedAge(elapsed,constraintSinceElapsedMs),Math.max(heapAgeMs,optionalCapacityAgeMs)):0;
+            heapOverTwoMinutes=heapLimited&&heapAgeMs>=OVERDUE_MS;optionalOverTwoMinutes=optionalLimited&&optionalCapacityAgeMs>=OVERDUE_MS;constraintOverTwoMinutes=limitParallelism&&constraintAgeMs>=OVERDUE_MS;
+            boolean knownAvailable="AVAILABLE".equals(optionalAdmissionStatus)&&Boolean.FALSE.equals(memory.get("optionalDenialStillBlocking"))&&headroom!=null&&headroom>0;
+            optionalAdmissionRecovered=previous!=null&&previous.optionalLimited&&!optionalLimited&&knownAvailable;
+            optionalRecoveryElapsedMs=optionalAdmissionRecovered?elapsed:previous==null?0:previous.optionalRecoveryElapsedMs;
+            String failure=memory.get("sampleFailure") instanceof String?(String)memory.get("sampleFailure"):"";
+            reason=!failure.isEmpty()?"MEMORY_MEASUREMENT_UNAVAILABLE":"EMERGENCY".equals(heapPressure)?"MEMORY_EMERGENCY_WATERMARK":"SOFT".equals(heapPressure)?"MEMORY_HEAP_WATERMARK_LIMITED":!optionalObservationKnown?"MEMORY_OPTIONAL_ADMISSION_OBSERVATION_UNKNOWN":optionalLimited?(optionalOverTwoMinutes?"OPTIONAL_MEMORY_ADMISSION_OVER_TWO_MINUTES:":"OPTIONAL_MEMORY_ADMISSION_LIMITED:")+optionalAdmissionStatus:"NORMAL".equals(heapPressure)?"NO_CURRENT_MEMORY_CONSTRAINT":"MEMORY_OBSERVATION_UNKNOWN";
+            java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();out.put("heapPressure",heapPressure);out.put("optionalAdmissionStatus",optionalAdmissionStatus);out.put("optionalAdmissionObservationKnown",optionalObservationKnown);out.put("optionalWaitEvidence",optionalWaitEvidence);out.put("reason",reason);out.put("limitResearchParallelism",limitParallelism);out.put("optionalCapacityExhausted",optionalCapacityExhausted);out.put("recentActualOptionalDenial",recentOptionalDenial);out.put("heapWatermarkPressureAgeMs",heapAgeMs);out.put("heapWatermarkPressureOverTwoMinutes",heapOverTwoMinutes);out.put("optionalAdmissionCapacityAgeMs",optionalCapacityAgeMs);out.put("optionalAdmissionConstraintOverTwoMinutes",optionalOverTwoMinutes);out.put("lastActualDenialAgeMs",lastDenialAgeMs);out.put("actualDenialCapacityEpisodeAgeMs",actualDenialEpisodeAgeMs);out.put("memoryConstraintAgeMs",constraintAgeMs);out.put("memoryConstraintOverTwoMinutes",constraintOverTwoMinutes);out.put("optionalAdmissionRecoveredOnThisObservation",optionalAdmissionRecovered);out.put("lastOptionalAdmissionRecoveryElapsedMs",optionalRecoveryElapsedMs);out.put("recoveryEvidence","CURRENT_MEASURED_ADMISSION_RECHECK_ONLY_NOT_HEAP_RELEASE_OR_MODEL_PROGRESS");out.put("heapReleaseEvidence","NOT_ESTABLISHED_BY_ADMISSION_CONTROL");out.put("sampleElapsedMs",elapsed);out.put("sampleProcessNanos",processNanos);out.put("ageClocks","CONTROLLER_AGES=BOOT_ELAPSED_MS; DENIAL_EPISODE=PROCESS_MONOTONIC_NS; ONLY_DURATIONS_COMBINED");out.put("resumeCondition","Current denied request fits measured admission/headroom; heap latch separately follows <=0.60 and OS lowMemory != true");out.put("actionPolicy","ONE_RESEARCH_WORKER_AND_EXISTING_100MS_QUANTA; BOUNDED_CACHE_TRIM; NO_FORCED_GC_NO_TASK_REVOKE_NO_REALTIME_STOP");data=java.util.Collections.unmodifiableMap(out);
+        }
+        public static MemoryControlStateR31 observe(java.util.Map<String,Object> memory,long elapsedMs,long processNanos,MemoryControlStateR31 previous){return new MemoryControlStateR31(memory,elapsedMs,processNanos,previous);}
+        public java.util.Map<String,Object> asMap(){return data;}
+        private static Long number(java.util.Map<String,Object> memory,String key){Object value=memory.get(key);return value instanceof Number?((Number)value).longValue():null;}
+        private static long elapsedAge(long now,long before){return Math.max(0,now-before);}
+    }
+    /** Small sample consumed even when the health query cannot acquire optional working memory. */
+    MemoryControlStateR31 sampleMemoryControlR31(long elapsedMs){
+        java.util.Map<String,Object> sample=memoryBudgetR31.sample();
+        MemoryControlStateR31 control=MemoryControlStateR31.observe(sample,elapsedMs,System.nanoTime(),memoryControlR31);memoryControlR31=control;
+        memoryPressureSinceR31=control.constraintSinceElapsedMs;
+        java.util.Map<String,Object> observed=new java.util.LinkedHashMap<>(sample);observed.put("runtimeMemoryControl",control.asMap());memoryObservationR31=java.util.Collections.unmodifiableMap(observed);
+        return control;
+    }
     private void resources(){
         long mono=SystemClock.elapsedRealtime();if(mono-resourceChecked<1000)return;resourceChecked=mono;String reason=null;
         android.app.ActivityManager manager=(android.app.ActivityManager)store.contextForR26().getSystemService(android.content.Context.ACTIVITY_SERVICE);
@@ -66,11 +122,12 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         }
         thermalR29.update(thermalStatus,thermalHeadroomR29,mono);
         if(systemLowMemory!=null)memoryBudgetR31.observeSystemLowMemory(systemLowMemory);
-        java.util.Map<String,Object> memory=memoryBudgetR31.sample();memoryObservationR31=memory;
-        String pressure=String.valueOf(memory.get("pressure"));if(!"NORMAL".equals(pressure)){if(memoryPressureSinceR31==0)memoryPressureSinceR31=mono;}else memoryPressureSinceR31=0;
-        if(!"NORMAL".equals(pressure)&&mono>=nextMemoryTrimR31){FeatureCacheR27.trimRegisteredCachesR31();nextMemoryTrimR31=mono+30_000;}
+        MemoryControlStateR31 memoryControl=sampleMemoryControlR31(mono);java.util.Map<String,Object> memory=memoryObservationR31;
+        String pressure=memoryControl.heapPressure;
+        if(memoryControl.limitParallelism&&mono>=nextMemoryTrimR31){memoryTrimRequestsR31++;try{FeatureCacheR27.trimRegisteredCachesR31();memoryTrimFailureR31=null;}catch(RuntimeException failed){Error fatal=FailureDispositionR31.processFatalCause(failed);if(fatal!=null)throw fatal;memoryTrimFailureR31=RuntimeFaultEvidenceR31.clean(failed.getClass().getSimpleName()+":"+failed.getMessage(),192);}nextMemoryTrimR31=mono+30_000;}
         int memoryWorkers=memory.get("recommendedParallelism") instanceof Number?((Number)memory.get("recommendedParallelism")).intValue():1;
-        RuntimeR27 runtime=r27;if(runtime!=null){runtime.pool().setThermalLimit(Math.min(thermalR29.workers,memoryWorkers),thermalR29.reason+"|MEMORY:"+pressure);runtime.pool().setMemoryPressureR31(!"NORMAL".equals(pressure));}
+        if(memoryControl.limitParallelism)memoryWorkers=Math.min(memoryWorkers,1);
+        RuntimeR27 runtime=r27;if(runtime!=null){runtime.pool().setThermalLimit(Math.min(thermalR29.workers,memoryWorkers),thermalR29.reason+"|MEMORY:"+memoryControl.reason);runtime.pool().setMemoryPressureR31(memoryControl.limitParallelism);}
         if("EMERGENCY".equals(pressure))reason="MEMORY_EMERGENCY:"+memory.get("reason")+";resume="+memory.get("resumeCondition");
         if(memory.get("sampleFailure") instanceof String&&!((String)memory.get("sampleFailure")).isEmpty())reason="MEMORY_MEASUREMENT_UNAVAILABLE";
         if(thermalR29.paused())reason=thermalR29.reason;
@@ -179,16 +236,24 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     private volatile String lastHealthControlReasonR31="NOT_REQUESTED",lastHealthControlFailureR31;
     private static final class HealthControlHolderR31{static final BoundedResearchExecutorR31 INSTANCE=new BoundedResearchExecutorR31(1,1024,MemoryBudgetR31.processBudget(),r->{Thread thread=new Thread(r,"starcore-r31-health-controller");thread.setDaemon(true);return thread;});}
     private static BoundedResearchExecutorR31 healthControlExecutorR31(){return HealthControlHolderR31.INSTANCE;}
+    @SuppressWarnings("unchecked") private static java.util.Map<String,Object> memoryControlFactsR31(java.util.Map<String,Object> memory){Object facts=memory.get("runtimeMemoryControl");return facts instanceof java.util.Map?(java.util.Map<String,Object>)facts:java.util.Collections.emptyMap();}
+    private void appendMemoryControlFactsR31(java.util.Map<String,Object> control,java.util.Map<String,Object> memory){
+        java.util.Map<String,Object> facts=memoryControlFactsR31(memory);control.put("memoryControl",facts);
+        control.put("memoryPressureAgeMs",facts.getOrDefault("memoryConstraintAgeMs",0L));control.put("memoryPressureOverTwoMinutes",facts.getOrDefault("memoryConstraintOverTwoMinutes",false));control.put("memoryPressureScope","ANY_OBSERVED_HEAP_WATERMARK_OR_OPTIONAL_ADMISSION_CONSTRAINT_NOT_HEAP_RELEASE");
+        control.put("memoryCacheTrimRequests",memoryTrimRequestsR31);control.put("memoryCacheTrimFailure",memoryTrimFailureR31);control.put("memoryTrimReleaseEvidence","REFERENCE_TRIM_REQUEST_ONLY_NOT_MEASURED_HEAP_RELEASE");
+    }
     public RuntimeHealthSnapshot healthSnapshotR31(){
         RuntimeHealthSnapshot current=healthSnapshotR31;
-        if(current==null)return new RuntimeHealthSnapshot(owner,IssueTimelineWriterR30.bootId(),System.currentTimeMillis(),SystemClock.elapsedRealtime(),isRunning()?"ALIVE_OWNER_RUNNING":"ALIVE_OWNER_DRAINING_OR_STOPPED","UNKNOWN","HEALTH_PROBE_NOT_YET_SAMPLED",null,null,null,0,0,0,ResearchTaskRegistryR30R1.all().size(),0,java.util.Collections.emptyList());
+        if(current==null)current=new RuntimeHealthSnapshot(owner,IssueTimelineWriterR30.bootId(),System.currentTimeMillis(),SystemClock.elapsedRealtime(),isRunning()?"ALIVE_OWNER_RUNNING":"ALIVE_OWNER_DRAINING_OR_STOPPED","UNKNOWN","HEALTH_PROBE_NOT_YET_SAMPLED",null,null,null,0,0,0,ResearchTaskRegistryR30R1.all().size(),0,java.util.Collections.emptyList());
         boolean stale=SystemClock.elapsedRealtime()-current.sampleElapsedMs>10_000;
-        String pressure=String.valueOf(memoryObservationR31.get("pressure"));
-        if(!cancelled&&!stale&&resourceBlocked==null&&!"SOFT".equals(pressure)&&lastHealthControlFailureR31==null)return current;
-        String health=cancelled?"OWNER_DRAINING_OR_STOPPED":current.quarantined>0||current.needsFix>0?"DEGRADED":resourceBlocked!=null?"RESOURCE_PAUSED":"SOFT".equals(pressure)?"RESOURCE_LIMITED":stale?"STALE_HEALTH_OBSERVATION":current.researchHealth;
-        String why=cancelled?"OWNER_STOP_REQUESTED":resourceBlocked!=null?resourceBlocked:stale?"CONTROL_SAMPLE_OLDER_THAN_TWO_TICKS":lastHealthControlFailureR31!=null?lastHealthControlFailureR31:"CURRENT_RESOURCE_OBSERVATION_WITH_CACHED_TASK_FACTS";
+        java.util.Map<String,Object> memory=memoryObservationR31,facts=memoryControlFactsR31(memory);String pressure=String.valueOf(memory.get("pressure"));
+        boolean memoryLimited=Boolean.TRUE.equals(facts.get("limitResearchParallelism"))||"SOFT".equals(pressure);
+        if(!cancelled&&!stale&&resourceBlocked==null&&!memoryLimited&&lastHealthControlFailureR31==null&&facts.isEmpty())return current;
+        boolean memoryUnknown=Boolean.FALSE.equals(facts.get("optionalAdmissionObservationKnown"));
+        String health=cancelled?"OWNER_DRAINING_OR_STOPPED":current.quarantined>0||current.needsFix>0?"DEGRADED":resourceBlocked!=null?"RESOURCE_PAUSED":memoryLimited?"RESOURCE_LIMITED":memoryUnknown?"UNKNOWN_RESOURCE_OBSERVATION":stale?"STALE_HEALTH_OBSERVATION":current.researchHealth;
+        String why=cancelled?"OWNER_STOP_REQUESTED":resourceBlocked!=null?resourceBlocked:memoryLimited||memoryUnknown?String.valueOf(facts.getOrDefault("reason","MEMORY_HEAP_WATERMARK_LIMITED")):stale?"CONTROL_SAMPLE_OLDER_THAN_TWO_TICKS":lastHealthControlFailureR31!=null?lastHealthControlFailureR31:current.reason;
         RuntimeHealthSnapshot merged=new RuntimeHealthSnapshot(owner,current.bootId,current.sampleWallMs,current.sampleElapsedMs,isRunning()?"ALIVE_OWNER_RUNNING":"ALIVE_OWNER_DRAINING_OR_STOPPED",health,why,current.latestSourceOrdinal,current.lastArtifactOrdinal,current.lastArtifactHash,current.quarantined,current.needsFix,current.stalled,stale?Math.max(1,current.unknownTaskCount):current.unknownTaskCount,current.knownPendingTaskCount,current.tasksImmutable);
-        java.util.Map<String,Object> control=new java.util.LinkedHashMap<>();Object previous=current.asMap().get("control");if(previous instanceof java.util.Map)for(java.util.Map.Entry<?,?> entry:((java.util.Map<?,?>)previous).entrySet())control.put(String.valueOf(entry.getKey()),entry.getValue());control.put("memory",memoryObservationR31);control.put("resourceReason",resourceBlocked);control.put("resourceObservedElapsedMs",resourceChecked);control.put("taskFactsAreCached",true);control.put("lastControlAdmissionFailure",lastHealthControlFailureR31);return merged.withControl(control);
+        java.util.Map<String,Object> control=new java.util.LinkedHashMap<>();Object previous=current.asMap().get("control");if(previous instanceof java.util.Map)for(java.util.Map.Entry<?,?> entry:((java.util.Map<?,?>)previous).entrySet())control.put(String.valueOf(entry.getKey()),entry.getValue());control.put("memory",memory);appendMemoryControlFactsR31(control,memory);control.put("resourceReason",resourceBlocked);control.put("resourceObservedElapsedMs",resourceChecked);control.put("taskFactsAreCached",true);control.put("lastControlAdmissionFailure",lastHealthControlFailureR31);return merged.withControl(control);
     }
     public RuntimeHealthSnapshot reconcileResearchHealthR31(String reason){
         synchronized(signal){if(cancelled)return healthSnapshotR31();healthControlRequestsR31++;if(!healthProbePendingR31.compareAndSet(false,true))return healthSnapshotR31();}lastHealthControlReasonR31=RuntimeFaultEvidenceR31.clean(reason,128);
@@ -196,7 +261,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             RuntimeHealthSnapshot observed=captureHealthSnapshotR31(store.readable(),owner,IssueTimelineWriterR30.bootId(),System.currentTimeMillis(),SystemClock.elapsedRealtime(),isRunning()?"ALIVE_OWNER_RUNNING":"ALIVE_OWNER_DRAINING_OR_STOPPED",resourceBlocked);
             healthControlRunsR31++;lastHealthControlFailureR31=null;
             if(!cancelled){try{ResearchPoolR27.recoverOneR31(store,owner);synchronized(signal){signal.notifyAll();}reconcileStalledTasksR31(observed);}catch(RuntimeException controlFailure){lastHealthControlFailureR31=RuntimeFaultEvidenceR31.capture(controlFailure,"HEALTH_CONTROL").category;}}
-            java.util.Map<String,Object> control=new java.util.LinkedHashMap<>();synchronized(signal){control.put("requestCount",healthControlRequestsR31);}control.put("observedControlRuns",healthControlRunsR31);control.put("taskRevocations",healthTaskRevokesR31);control.put("pendingActualDrains",drainingTasksR31.size());control.put("requestReason",lastHealthControlReasonR31);control.put("controlFailure",lastHealthControlFailureR31);control.put("memory",memoryBudgetR31.snapshot());control.put("memoryPressureAgeMs",memoryPressureSinceR31==0?0:Math.max(0,SystemClock.elapsedRealtime()-memoryPressureSinceR31));control.put("memoryPressureOverTwoMinutes",memoryPressureSinceR31!=0&&SystemClock.elapsedRealtime()-memoryPressureSinceR31>=120_000);control.put("executor",healthControlExecutorR31().snapshot());control.put("workingEstimateBasis","128_BOUNDED_ROWS_WITH_CAPPED_TEXT_AND_MAP_ALLOWANCE_NOT_MEASURED_PEAK_OR_SQLITE_NATIVE");control.put("result","OBSERVATION_AND_CONTROL_REQUESTS_ONLY_NOT_RECOVERED_UNTIL_NEW_DURABLE_ARTIFACT");healthSnapshotR31=observed.withControl(control);
+            java.util.Map<String,Object> control=new java.util.LinkedHashMap<>();synchronized(signal){control.put("requestCount",healthControlRequestsR31);}control.put("observedControlRuns",healthControlRunsR31);control.put("taskRevocations",healthTaskRevokesR31);control.put("pendingActualDrains",drainingTasksR31.size());control.put("requestReason",lastHealthControlReasonR31);control.put("controlFailure",lastHealthControlFailureR31);control.put("memory",memoryBudgetR31.snapshot());appendMemoryControlFactsR31(control,memoryObservationR31);control.put("executor",healthControlExecutorR31().snapshot());control.put("workingEstimateBasis","128_BOUNDED_ROWS_WITH_CAPPED_TEXT_AND_MAP_ALLOWANCE_NOT_MEASURED_PEAK_OR_SQLITE_NATIVE");control.put("result","OBSERVATION_AND_CONTROL_REQUESTS_ONLY_NOT_RECOVERED_UNTIL_NEW_DURABLE_ARTIFACT");healthSnapshotR31=observed.withControl(control);
         }catch(RuntimeException sourceFailure){healthSnapshotR31=new RuntimeHealthSnapshot(owner,IssueTimelineWriterR30.bootId(),System.currentTimeMillis(),SystemClock.elapsedRealtime(),isRunning()?"ALIVE_OWNER_RUNNING":"ALIVE_OWNER_DRAINING_OR_STOPPED","UNKNOWN","HEALTH_SOURCE_UNAVAILABLE:"+sourceFailure.getClass().getSimpleName(),null,null,null,0,0,0,ResearchTaskRegistryR30R1.all().size(),0,java.util.Collections.emptyList());
         }catch(Error fatal){lastHealthControlFailureR31="HEALTH_CONTROL_FATAL:"+fatal.getClass().getSimpleName();healthSnapshotR31=new RuntimeHealthSnapshot(owner,IssueTimelineWriterR30.bootId(),System.currentTimeMillis(),SystemClock.elapsedRealtime(),isRunning()?"ALIVE_OWNER_RUNNING":"ALIVE_OWNER_DRAINING_OR_STOPPED","UNKNOWN",lastHealthControlFailureR31,null,null,null,0,0,0,ResearchTaskRegistryR30R1.all().size(),0,java.util.Collections.emptyList());throw fatal;
         }finally{healthProbePendingR31.set(false);}return null;});}catch(java.util.concurrent.RejectedExecutionException capacity){lastHealthControlFailureR31=RuntimeFaultEvidenceR31.clean(capacity.getMessage(),128);healthProbePendingR31.set(false);}
@@ -216,7 +281,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(controlContextR31("R31_HEALTH_R26_DRAINED"),db->{db.execSQL("UPDATE r26_task SET status='READY',wait_kind='HALF_OPEN',blocked_reason='ACTUAL_TASK_COMPUTATION_TERMINATED' WHERE task_id=? AND owner=? AND fence=? AND status='CANCELLING'",new Object[]{old.task,owner,old.fence+1});return 0;});ResearchPoolR27.clearTaskHelperCancellationR31(old);pending.remove();
         }
         RuntimeR27 runtime=r27;
-        if(resourceBlocked!=null)return;
+        if(resourceBlocked!=null||Boolean.TRUE.equals(memoryControlFactsR31(memoryObservationR31).get("limitResearchParallelism")))return;
         for(java.util.Map<String,Object> task:snapshot.tasksImmutable){
             String id=(String)task.get("taskId"),state=(String)task.get("state"),artifact=(String)task.get("lastArtifactHash");long fence=((Number)task.get("fence")).longValue();
             if(!owner.equals(task.get("ownerEpoch")))continue;
@@ -406,7 +471,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             db.execSQL("UPDATE r26_session SET heartbeat=?,actual_progress=actual_progress+? WHERE session_id=?",new Object[]{now,work,owner});return 0;
         });return true;}catch(RuntimeException receipt){if(FailureDispositionR31.classify(receipt).disposition!=FailureDispositionR31.Disposition.STALE_OWNER)android.util.Log.w("STARCORE_R31","R26 task receipt deferred: "+receipt.getClass().getSimpleName());return false;}
     }
-    private volatile RuntimeR27 drainingRuntimeR31;private volatile String stopStateR31="RUNNING";
+    private volatile RuntimeR27 drainingRuntimeR31;private volatile String stopStateR31="RUNNING",stopCacheReleaseFailureR31;
     private void beginStopR31(){
         synchronized(signal){cancelled=true;}RuntimeR27 runtime=r27;drainingRuntimeR31=runtime;r27=null;if(runtime!=null)runtime.close();
         LegacyGenerationR26.cancel(owner);LegacyReplayContinuationR26.cancel(owner);TaskContinuationR26.cancel(owner);
@@ -421,7 +486,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         long end=System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(10);
         boolean r26Stopped=CooperativeContinuationR26.awaitOwnerStopped(owner,Math.max(0,(end-System.nanoTime())/1_000_000L));
         boolean poolStopped=runtime==null||runtime.pool().awaitResourcesTerminatedR31(Math.max(0,(end-System.nanoTime())/1_000_000L));
-        stopStateR31=r26Stopped&&poolStopped?"TERMINATED":"DRAINING_NOT_TERMINATED";
+        stopStateR31=r26Stopped&&poolStopped?"DRAINING_CACHE_RELEASE_PENDING":"DRAINING_NOT_TERMINATED";
         RuntimePowerLeaseR26 lease=powerLease;if(lease!=null)lease.close();
         if(interrupted)Thread.currentThread().interrupt();
         STOP_REAPER_R31.schedule(()->finishStopR31(),100,java.util.concurrent.TimeUnit.MILLISECONDS);
@@ -431,11 +496,16 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         if(worker.isAlive()||healthProbePendingR31.get()||!healthControlExecutorR31().ownerTerminated("health:"+owner)||!CooperativeContinuationR26.awaitOwnerStopped(owner,0)||drainingRuntimeR31!=null&&!drainingRuntimeR31.pool().resourcesTerminatedR31()){
             stopStateR31="DRAINING_NOT_TERMINATED";STOP_REAPER_R31.schedule(()->finishStopR31(),1,java.util.concurrent.TimeUnit.SECONDS);return;
         }
+        try{
+            RuntimeR27 runtime=drainingRuntimeR31;
+            if(runtime!=null&&!runtime.releaseTerminatedCachesR31()){stopStateR31="DRAINING_CACHE_RELEASE_PENDING";STOP_REAPER_R31.schedule(()->finishStopR31(),1,java.util.concurrent.TimeUnit.SECONDS);return;}
+            stopCacheReleaseFailureR31=null;
+        }catch(RuntimeException releaseFailure){Error fatal=FailureDispositionR31.processFatalCause(releaseFailure);if(fatal!=null)throw fatal;stopCacheReleaseFailureR31=RuntimeFaultEvidenceR31.clean(releaseFailure.getClass().getSimpleName()+":"+releaseFailure.getMessage(),256);stopStateR31="DRAINING_CACHE_RELEASE_FAILED";STOP_REAPER_R31.schedule(()->finishStopR31(),1,java.util.concurrent.TimeUnit.SECONDS);return;}
         stopStateR31="TERMINATED";synchronized(RuntimeCoordinatorR26.class){if(active==this)active=null;}if(closeStore)store.close();
     }
     private boolean resourcesTerminatedR31(){return !worker.isAlive()&&!healthProbePendingR31.get()&&healthControlExecutorR31().ownerTerminated("health:"+owner)&&"TERMINATED".equals(stopStateR31);}
     public String stopStateR31(){return stopStateR31;}
-    public java.util.Map<String,Object> stopSnapshotR31(){java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();out.put("owner",owner);out.put("state",stopStateR31);out.put("continuations",ResearchPoolR27.continuationSnapshotsR31(owner));RuntimeR27 runtime=drainingRuntimeR31;if(runtime!=null)out.put("pool",runtime.pool().shutdownSnapshotR31());return out;}
+    public java.util.Map<String,Object> stopSnapshotR31(){java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();out.put("owner",owner);out.put("state",stopStateR31);out.put("cacheReleaseFailure",stopCacheReleaseFailureR31);out.put("cacheReleaseEvidence","OWNED_CACHES_CLOSED_ONLY_AFTER_ACTUAL_WORKER_EXIT_NOT_HEAP_FREE_PROOF");out.put("continuations",ResearchPoolR27.continuationSnapshotsR31(owner));RuntimeR27 runtime=drainingRuntimeR31;if(runtime!=null)out.put("pool",runtime.pool().shutdownSnapshotR31());return out;}
     private void await(long ms){synchronized(signal){try{if(!cancelled)signal.wait(ms);}catch(InterruptedException e){if(!cancelled)Thread.currentThread().interrupt();}}}
     static final long SCHEMA_BATCH_MS=800;
     private long execute(Claim c,BudgetTokenSU1 budget)throws Exception{

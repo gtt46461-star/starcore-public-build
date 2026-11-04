@@ -145,9 +145,93 @@ public final class PolicyAstR27 {
     // ------------------------------------------------------------------ evaluation
     /** Vectorized PIT evaluation for target position tp: returns double[T*10] (NaN = unavailable). */
     public static double[] eval(Node n, FeatureCacheR27 f, int tp) {
+        if(!LEAVES.containsKey(n.op))try(ScopedScoresR31 scores=evalScopedR31(n,f,tp)){return scores.copyForPublicCaller();}
         double[] values=evalNode(n,f,tp);
         if(n.modelPositions!=0){if(LEAVES.containsKey(n.op))values=values.clone();f.maskMissingModelRows(values,n.modelPositions);}
         return values;
+    }
+
+    interface ScoreInputR31 {double at(int index);void copyRow(int row,double[] target);}
+    /** Private evaluation values never escape as a mutable array. Only public compatibility copies do. */
+    static final class ScopedScoresR31 implements AutoCloseable,ScoreInputR31 {
+        private double[] values;private SharedFeatureStoreR31.Reader shared;private ScratchPoolR31 pool;private ScratchBlockR31 block;private boolean closed;
+        private ScopedScoresR31(double[] legacy){values=legacy;}
+        private ScopedScoresR31(SharedFeatureStoreR31.Reader reader){shared=reader;}
+        private ScopedScoresR31(ScratchPoolR31 pool,ScratchBlockR31 block){this.pool=pool;this.block=block;values=block.values;}
+        public double at(int index){open();return shared==null?values[index]:shared.doubleAt(index);}
+        public void copyRow(int row,double[] target){open();if(shared==null)System.arraycopy(values,row*10,target,0,10);else shared.copyRangeTo(row*10,target,0,10);}
+        private void open(){if(closed)throw new IllegalStateException("R31_SCORE_READER_CLOSED");}
+        double[] copyForPublicCaller(){open();double[] copy=new double[shared==null?values.length:shared.length()];if(shared==null)System.arraycopy(values,0,copy,0,copy.length);else shared.copyTo(copy,0);return copy;}
+        static ScopedScoresR31 legacy(double[] values){return new ScopedScoresR31(values);}
+        @Override public void close(){if(!closed){closed=true;values=null;if(shared!=null){shared.close();shared=null;}if(pool!=null){pool.release(block);pool=null;block=null;}}}
+    }
+    private static final class ScratchBlockR31 {final double[] values;final MemoryBudgetR31.Lease lease;final long bytes;boolean busy=true;ScratchBlockR31(double[] values,MemoryBudgetR31.Lease lease,long bytes){this.values=values;this.lease=lease;this.bytes=bytes;}}
+    /** Each busy block has exactly one scope. Idle blocks are reconstructible and pressure-trimmable. */
+    static final class ScratchPoolR31 implements AutoCloseable {
+        private final MemoryBudgetR31 memory;private final int length;private final long capacity;private final java.util.List<ScratchBlockR31> blocks=new java.util.ArrayList<>();private long bytes,pending,allocations,reuses;private boolean closed;
+        ScratchPoolR31(MemoryBudgetR31 memory,int length){this.memory=memory;this.length=length;capacity=Math.max(128,Math.min(16L<<20,((Number)memory.snapshot().get("maxHeapBytes")).longValue()/32));}
+        ScopedScoresR31 borrow(){return borrow(false);}
+        ScopedScoresR31 borrow(boolean critical){
+            CooperativeContinuationR26.poll();long needed=128L+8L*length;
+            synchronized(this){if(closed)throw new java.util.concurrent.CancellationException("R31_AST_SCRATCH_CLOSED");for(ScratchBlockR31 b:blocks)if(!b.busy){b.busy=true;reuses++;return new ScopedScoresR31(this,b);}if(needed>capacity-bytes-pending)throw new MemoryBudgetR31.CapacityWait(MemoryBudgetR31.WaitReason.DECLARED_CAPACITY);pending+=needed;}
+            MemoryBudgetR31.Lease lease=null;boolean adopted=false;
+            try{MemoryBudgetR31.Admission admission=memory.tryAcquire("ast-private-scratch",critical?MemoryBudgetR31.Kind.REALTIME:MemoryBudgetR31.Kind.FEATURE_CACHE,needed,()->Thread.currentThread().isInterrupted());if(!admission.acquired())throw new MemoryBudgetR31.CapacityWait(admission.reason);lease=admission.lease;double[] array=new double[length];lease.allocatedPrimitiveArrayR31(array);lease.closeWhenPrivateBackingCollectedR31(array);ScratchBlockR31 block=new ScratchBlockR31(array,lease,needed);
+                synchronized(this){if(closed)throw new java.util.concurrent.CancellationException("R31_AST_SCRATCH_CLOSED");blocks.add(block);bytes+=needed;allocations++;adopted=true;return new ScopedScoresR31(this,block);}
+            }finally{ synchronized(this){pending-=needed;}if(!adopted&&lease!=null)lease.close();}
+        }
+        synchronized void release(ScratchBlockR31 block){if(!block.busy)throw new IllegalStateException("R31_AST_SCRATCH_DOUBLE_RELEASE");block.busy=false;if(closed){blocks.remove(block);bytes-=block.bytes;block.lease.close();}}
+        synchronized void trimUnused(){java.util.Iterator<ScratchBlockR31> iterator=blocks.iterator();while(iterator.hasNext()){ScratchBlockR31 b=iterator.next();if(!b.busy){iterator.remove();bytes-=b.bytes;b.lease.close();}}}
+        synchronized Map<String,Object> snapshot(){Map<String,Object> out=new java.util.LinkedHashMap<>();int active=0;for(ScratchBlockR31 b:blocks)if(b.busy)active++;out.put("estimatedRetainedBytes",bytes);out.put("pendingAllocationBytes",pending);out.put("byteCapacity",capacity);out.put("blocks",blocks.size());out.put("busyBlocks",active);out.put("allocations",allocations);out.put("reuses",reuses);out.put("actualHeapReleasedBytes",null);return out;}
+        @Override public synchronized void close(){closed=true;trimUnused();}
+    }
+    static ScopedScoresR31 evalScopedR31(Node n,FeatureCacheR27 f,int tp){
+        return evalScopedR31(n,f,tp,false);
+    }
+    static ScopedScoresR31 evalRealtimeScopedR31(Node n,FeatureCacheR27 f,int tp){return evalScopedR31(n,f,tp,true);}
+    private static ScopedScoresR31 evalScopedR31(Node n,FeatureCacheR27 f,int tp,boolean critical){
+        CooperativeContinuationR26.poll();ScopedScoresR31 result=null;ScopedScoresR31[] k=new ScopedScoresR31[n.kids.length];boolean complete=false;
+        try{
+            if(LEAVES.containsKey(n.op)){
+                int a=n.ints.length>0?n.ints[0]:0,b=n.ints.length>1?n.ints[1]:0;if(n.op.equals("regime")){b=a;a=0;}
+                SharedFeatureStoreR31.Reader reader=f.acquireLeafR31(n.op,tp,a,b,critical);result=reader==null?ScopedScoresR31.legacy(f.leafWithPriorityR31(n.op,tp,a,b,critical)):new ScopedScoresR31(reader);
+                if(n.modelPositions!=0){ScopedScoresR31 copy=f.scratchPoolR31().borrow(critical);System.arraycopy(result.values,0,copy.values,0,copy.values.length);result.close();result=copy;}
+            }else{
+                for(int i=0;i<k.length;i++)k[i]=evalScopedR31(n.kids[i],f,tp,critical);
+                result=f.scratchPoolR31().borrow(critical);double[] v=result.values;int len=v.length;double p=n.param;
+                switch(n.op){
+                    case "c":Arrays.fill(v,p);break;
+                    case "neg":for(int i=0;i<len;i++)v[i]=-k[0].at(i);break;
+                    case "abs":for(int i=0;i<len;i++)v[i]=Math.abs(k[0].at(i));break;
+                    case "log1p":for(int i=0;i<len;i++)v[i]=Math.log1p(Math.abs(k[0].at(i)));break;
+                    case "sqrt":for(int i=0;i<len;i++)v[i]=Math.sqrt(Math.abs(k[0].at(i)));break;
+                    case "sigmoid":for(int i=0;i<len;i++)v[i]=1/(1+Math.exp(-k[0].at(i)));break;
+                    case "tanh":for(int i=0;i<len;i++)v[i]=Math.tanh(k[0].at(i));break;
+                    case "add":for(int i=0;i<len;i++)v[i]=k[0].at(i)+k[1].at(i);break;
+                    case "sub":for(int i=0;i<len;i++)v[i]=k[0].at(i)-k[1].at(i);break;
+                    case "mul":for(int i=0;i<len;i++)v[i]=k[0].at(i)*k[1].at(i);break;
+                    case "div":for(int i=0;i<len;i++){double d=k[1].at(i);v[i]=Math.abs(d)<1e-9?0:k[0].at(i)/d;}break;
+                    case "max":for(int i=0;i<len;i++)v[i]=Math.max(k[0].at(i),k[1].at(i));break;
+                    case "min":for(int i=0;i<len;i++)v[i]=Math.min(k[0].at(i),k[1].at(i));break;
+                    case "mix":for(int i=0;i<len;i++)v[i]=p*k[0].at(i)+(1-p)*k[1].at(i);break;
+                    case "if":for(int i=0;i<len;i++)v[i]=k[0].at(i)>k[1].at(i)?k[2].at(i):k[3].at(i);break;
+                    case "rank":rowWiseScopedR31(k[0],v,0,0);break;
+                    case "zscore":rowWiseScopedR31(k[0],v,1,0);break;
+                    case "softmax":rowWiseScopedR31(k[0],v,2,p);break;
+                    case "lagdiff":Arrays.fill(v,Double.NaN);for(int t=1;t<f.data.size();t++)if(f.data.consecutive(t,1))for(int j=0;j<10;j++)v[t*10+j]=k[0].at(t*10+j)-k[0].at((t-1)*10+j);break;
+                    case "ema":double[] e=new double[10];boolean[] init=new boolean[10];for(int t=0;t<f.data.size();t++)for(int j=0;j<10;j++){double x=k[0].at(t*10+j);if(Double.isNaN(x)){v[t*10+j]=init[j]?e[j]:Double.NaN;continue;}e[j]=init[j]?p*x+(1-p)*e[j]:x;init[j]=true;v[t*10+j]=e[j];}break;
+                    default:throw new IllegalArgumentException("R27_AST_EVAL:"+n.op);
+                }
+            }
+            if(n.modelPositions!=0)f.maskMissingModelRows(result.values,n.modelPositions);complete=true;return result;
+        }finally{for(ScopedScoresR31 child:k)if(child!=null)child.close();if(!complete&&result!=null)result.close();}
+    }
+    private static void rowWiseScopedR31(ScoreInputR31 input,double[] v,int mode,double temperature){
+        double[] x=new double[10];for(int t=0;t<v.length/10;t++){if((t&31)==0)CooperativeContinuationR26.poll();input.copyRow(t,x);int o=t*10;boolean bad=false;for(int j=0;j<10;j++)if(Double.isNaN(x[j]))bad=true;
+            if(bad){for(int j=0;j<10;j++)v[o+j]=Double.NaN;continue;}
+            if(mode==0){for(int j=0;j<10;j++){int r=0;for(int i=0;i<10;i++)if(x[i]<x[j]||(x[i]==x[j]&&i<j))r++;v[o+j]=r/9.0;}}
+            else if(mode==1){double m=0,s=0;for(int j=0;j<10;j++)m+=x[j];m/=10;for(int j=0;j<10;j++)s+=(x[j]-m)*(x[j]-m);s=Math.sqrt(s/10);for(int j=0;j<10;j++)v[o+j]=s<1e-12?0:(x[j]-m)/s;}
+            else{double mx=Double.NEGATIVE_INFINITY;for(int j=0;j<10;j++)mx=Math.max(mx,x[j]*temperature);double z=0;for(int j=0;j<10;j++){v[o+j]=Math.exp(x[j]*temperature-mx);z+=v[o+j];}for(int j=0;j<10;j++)v[o+j]/=z;}
+        }
     }
     private static double[] evalNode(Node n,FeatureCacheR27 f,int tp) {
         CooperativeContinuationR26.poll();

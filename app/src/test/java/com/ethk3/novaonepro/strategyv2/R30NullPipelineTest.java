@@ -15,7 +15,8 @@ public final class R30NullPipelineTest {
         assertArrayEquals(a,b);assertEquals(data.ordinals[0],shuffled.ordinals[0]);
     }
     @Test public void sameFullEvolutionPipelineResumesItsControlState() {
-        ReplayDatasetR27 data=ReplayDatasetR27.synthetic(3000,401,new int[0]);FeatureCacheR27 cache=new FeatureCacheR27(data);SplitR27 split=SplitR27.of(data,null);
+        ReplayDatasetR27 data=ReplayDatasetR27.synthetic(3000,401,new int[0]);SplitR27 split=SplitR27.of(data,null);
+        try(FeatureCacheR27 cache=new FeatureCacheR27(data)) {
         NullEvolutionR27 straight=new NullEvolutionR27(),resumed=new NullEvolutionR27();
         straight.seedAssets=Collections.singletonList(NullPipelineSimulationR30.neutralSeed());
         resumed.seedAssets=straight.seedAssets;
@@ -31,12 +32,14 @@ public final class R30NullPipelineTest {
         assertEquals(4L,receipts.get("completedGenerations"));assertTrue(straight.births>0);assertTrue(receipts.containsKey("expertReceipts"));
         assertFalse(receipts.containsKey("scores:H_HOLDOUT"));
         R27TestSupport.log("R30_FULL_NULL_PIPELINE "+JsonR27.write(straight.json()));
+        }
     }
     @SuppressWarnings("unchecked") @Test public void powerAndFullPipelineQualificationHaveRecoverableSyntheticReceipts() {
         NullPipelineSimulationR30 straight=new NullPipelineSimulationR30("HOST_EXPLICIT_THREE_REPEAT_REGRESSION",3),resumed=new NullPipelineSimulationR30("HOST_EXPLICIT_THREE_REPEAT_REGRESSION",3);int work=0;
+        try {
         while(!straight.complete()){
             assertTrue(straight.step());assertTrue(resumed.step());work++;
-            resumed=NullPipelineSimulationR30.restore(resumed.snapshot());
+            String saved=resumed.snapshot();resumed.close();resumed=NullPipelineSimulationR30.restore(saved);
             if(work>200)fail("simulation did not finish within its finite work units");
         }
         assertTrue(resumed.complete());assertEquals(JsonR27.write(straight.summary()),JsonR27.write(resumed.summary()));
@@ -46,5 +49,6 @@ public final class R30NullPipelineTest {
         List<Object> power=(List<Object>)report.get("power");Map<String,Object> strong=(Map<String,Object>)power.get(2);
         assertEquals(20L,strong.get("experiments"));assertTrue(((Number)strong.get("detected")).longValue()>=18);
         R27TestSupport.log("R30_Q08_MEASURED workUnits="+work+" "+JsonR27.write(report));
+        }finally{try{straight.close();}finally{resumed.close();}}
     }
 }

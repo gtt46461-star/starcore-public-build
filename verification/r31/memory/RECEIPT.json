@@ -1,10 +1,11 @@
 {
   "card": "R31-B05-C11",
   "phase": "P02",
-  "state": "CODE_COMPLETE",
+  "state": "BLOCKED",
+  "implementedScope": "MEMORY_ACCOUNTING_SCOPED_CONSUMERS_SOURCE_COMPLETE_TARGETED_HOST_PASS",
   "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
   "inheritedP01Commit": "844a78488f396189c2db98591782b7bb214799d2",
-  "evaluatedAt": "2026-11-04T10:34:04.654553+00:00",
+  "evaluatedAt": "2026-11-04T13:33:18.140426+00:00",
   "sourceCommit": "UNCOMMITTED_P02_ROOT_INTEGRATION_PENDING",
   "actualChanges": {
     "MemoryBudgetR31": [
@@ -14,14 +15,20 @@
       "explicit native capacity config; no Java-derived native hard cap",
       "cancel/grow/actual-holder-finally idempotent leases",
       "OS observation separate from unknown probe",
-      "wrapped process-fatal propagation"
+      "wrapped process-fatal propagation",
+      "only proven allocated primitive payload covered by a post-allocation heap sample stops counting as a future promise; owner ledger remains",
+      "stale-probe allocation race remains conservative",
+      "one bounded cache-pressure reclaim and actual remeasurement; never force GC or subtract dropped refs",
+      "fixed private primitive backing observed collection may close only its own immutable-size declaration; generic working/grow promises retain explicit lifetime",
+      "real optional-denial metadata distinct from heap high-water and from hypothetical last-request recheck"
     ],
     "SharedFeatureStoreR31": [
       "immutable private primitive blocks",
       "dataset/PIT/operator ABI/normalizer/feature key",
       "reader reference count and byte LRU",
       "duplicate publication closes unadopted clone declarations",
-      "no mutable array/model state exposure"
+      "no mutable array/model state exposure",
+      "internal private built-in producer transfers unique backing under pre-allocation admission; generic publication still clones"
     ],
     "BoundedResearchExecutorR31": [
       "2*workers ArrayBlockingQueue plus queued payload byte bound",
@@ -41,29 +48,71 @@
       "close drops only own retained references"
     ],
     "PolicyAstR27": [
-      "rank/zscore/softmax direct-leaf hot path consumes immutable shared reader in 10-element rows",
-      "original arithmetic order retained",
-      "direct model leaf copied before missing-row mask to avoid mutating cached input"
+      "scoped evaluation consumes immutable shared leaf readers",
+      "private intermediate byte-bounded scratch buffers reused only after actual scope close",
+      "public returned arrays remain independent and never recycled",
+      "all operator arithmetic order and per-node model masking retained",
+      "live explicit critical scope reaches output scratch, cold leaves and nested dependencies; history remains optional"
     ],
     "ReplayDatasetR27": [
       "authorized withDraws-only deep-copy of supplied replacement rows; public arrays/append/tail remain residual mutable API"
+    ],
+    "EvalContextR27": [
+      "strong public score memo byte LRU <= min(8MiB,maxHeap/64) plus original 96 entries",
+      "physical output identity accounting prevents duplicate retained-byte declarations",
+      "internal temperature/log-loss/correlation and replay borrow private scoped values without a public output copy",
+      "pressure/close drop memo references only; escaped score arrays are never reused or claimed freed",
+      "concurrent close does not repopulate score/failure memo"
+    ],
+    "BirthGateR27": [
+      "actual RESOURCE_WAIT previously recorded as RANGE:EVAL:CapacityWait now propagates through common scheduler classification",
+      "cancellation/retry/stale-owner/process-fatal do not permanently reject valid candidates",
+      "all AST/quality/K3/cost gates preserved"
+    ],
+    "ReplayEvaluatorR27": [
+      "actual role-checked production replay and live input consumers close scoped scores in finally",
+      "per-pass sorted K3/PIT K3/QUANTILE scratch replaces row allocations without changing ordering or statistical opportunities",
+      "public trace arrays remain independent and are not recycled"
     ]
   },
   "sourceSha256": {
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java": "6a16e27245985fc943da3cb5364972700229610978def973b15b7e812e978324",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SharedFeatureStoreR31.java": "b24a2ec45b86cbc5a9cb23a007b28db51b0dfb57230fbf9e7fd9beace1cced9f",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java": "142fa5adb48b98b3d50cbb8ea09be72a1c11921e56079089630cb7cfd8dee428",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SharedFeatureStoreR31.java": "dcff352e4331766c793c05889fa71629c254c056df242420aec368dad2586ebe",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/BoundedResearchExecutorR31.java": "2f550fb8ad9859bb261aa7be30ecd9baf65ed8a604bd9b6823110b51a901cf81",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java": "1b3ef7e376c6b57ae6ebe322594d2f710c96ea1690afa13f2a8040b67ed30dc9",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java": "51fa14f13879859a327a040fbf2a2a687df4f2c31d6eaabe9657cc08be0e08e6",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java": "c365a385ce3b8d8a7daecabea4535867991b27eccc796f47fa8609705677f218",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java": "ddb7740a1bfec095ef003ae984cfcf9589aac19331c10a63957c22ce9a734507",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java": "72a105392acc6544622717970d70b1584ab115a98207a06b4d8f5a50d1b97d36",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvalContextR27.java": "4143f8221bb34ae45ca08f439d7ccc0f69315ab341864775502a5bb39d74ae87",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java": "f139bd27de284b8077fa6a1682d08b8f865add3ffc3efd02291272408299160c",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java": "f68f8744e567c089aeb1089da88addcde84b6e1c3491bcb3859ad3c89345d94d",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/PitGuardR30.java": "43ef3fddf42828ac8d86aa444cbe16538bf90d13f9ca3ef7df21abe8b9cd3cb2",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java": "997ededc60301bd38a2b382d04b8304ef9de45e265e7b7a954979b899f2c37d2",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullEvolutionR27.java": "082b4391ad133b86fa989e72de1d4d6cea61fc2cd0108ee1f0deeddf1a2c29f3",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationR30.java": "181c7f887aaec3d61256e0d1b304895088f37c84b6c493702e328ae0ba5b7f7f",
     "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31MemoryGovernanceTest.java": "a10b0d35335972be911d70146f48a636912359128022a23bdef971ed5f71f418",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31SharedFeatureIntegrationTest.java": "7514f3f6b5afeb8c0cc57c417887c37f320fc4d322d05a1aed9aba6fee1cd11c",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31SharedFeatureIntegrationTest.java": "034b6e5a2cf786488527fd02f3261a68864cc04767023b36c1818e6f942d73b1",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31AllocatedMemoryLifecycleTest.java": "2662750b4b897cbeb32040b1bcd195976cb70d633bf78e399d1f5b5fe84155be",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31ScopedAstLifecycleTest.java": "fa225a1764e476a734890398b5da808fbb21562bafecde19f139ba3368440eeb",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27LeakageTest.java": "01279d3f02004636b87bb7385d479738ce8b3b446557bbeb59c2d9a7331db6e8",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ModelSurfaceTest.java": "c3d4704ad8f7065bc124275c1093427ade7afd64c7ac260f862653c114309c23",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27TestSupport.java": "b65991b9227f39aec3780d836b1d6d73b13e273a0d19ec099f2df434c873030f",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27BirthGateTest.java": "975749c65e296ad53bdf0e52c0252289836bea91d441bb4e60220948c45dced9",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30PolicyContractTest.java": "fdce8c3ce22de90dfee649f5cd4f43f7a77217a379dd0f93823795d58d93e4dd",
+    "tools/r31/memory_host/FactoryPressureR31Host.java": "e7805ebc962563c4f3a1c2ea643d8852714a757cc07a8781bf8b792a99462784",
     "tools/r31/memory_host/FeatureGoldenR31Host.java": "763451520ebfc38cb87eb1a744b7c351ecf907ddd8e174b69c4b7e49cdaa596e",
+    "tools/r31/memory_host/LiveReserveR31Host.java": "b772efdf632fbb9c888e10fe053fb18f4a794e0ba498f6647fdc1e4d55075320",
     "tools/r31/memory_host/MemoryPidR31Host.java": "9d5e1c6a4fb638f263554ad4268a642386d221d41dfd977240dfd85453320fc8",
-    "tools/r31/verify_memory.py": "0d89912e8f6bc6e5b2364c7f5b10a4dffb421ed27bdd3109c844b7047ba861bb"
+    "tools/r31/verify_memory.py": "2a8cf4c1062561e1410e479ea52a5b95901048d0561b8d3d7ac57a2ca5de7425"
   },
+  "sourceStableDuringVerification": true,
+  "compiledProductionDependencies": [
+    "PitGuardR30",
+    "EvolutionLoopR27",
+    "NullEvolutionR27",
+    "NullPipelineSimulationR30"
+  ],
   "tests": {
-    "newJUnit": 23,
+    "newJUnit": 43,
     "existingPitAndModelJUnit": 6,
     "registeredAtoms": 240,
     "protectedGoldenFingerprints": 52,
@@ -77,20 +126,47 @@
   "hostPidMeasurements": {
     "scope": "ACTUAL_HOST_JVM_PER_PID_NOT_ANDROID_DEVICE",
     "pids": [
-      73278,
-      73297
+      116356,
+      116375
     ],
     "crossPidAdmission": "NOT_COORDINATED",
     "nativeAndroidCalibration": "NOT_RUN"
+  },
+  "factoryPressure": {
+    "scope": "ACTUAL_DEFAULT_RUNTIME_PROBE_512M_HOST_WITH_INJECTED_OS_FLAG",
+    "inputRows": 5000,
+    "candidates": 128,
+    "completeOriginalNineSteps": true,
+    "oldWorkerActuallyTerminated": true,
+    "cursorAndCandidatesPreserved": true,
+    "eventsAndNumericScoresEqualToHealthy": true,
+    "forcedGc": false,
+    "device": "NOT_RUN",
+    "quality": "NOT_EVALUATED"
+  },
+  "liveReserve": {
+    "scope": "ACTUAL_DEFAULT_RUNTIME_PROBE_REAL_HEAP_REGISTERED_HELD_OWNER",
+    "payloadBytes": 343597383,
+    "coldNestedLeafAndScratchCritical": true,
+    "historyStillWaits": true,
+    "forcedGc": false,
+    "device": "NOT_RUN"
   },
   "integration": {
     "androidCompile": "PENDING_ROOT_JOINT",
     "apk": null,
     "nativeCapacities": "CALLER_REGISTERED_STAGE_LIMITS_NOT_DEVICE_CALIBRATION",
-    "javaAdmission": "CONSERVATIVE_HEAP_PLUS_DECLARATIONS_MAY_DOUBLE_COUNT"
+    "javaAdmission": "MEASURED_HEAP_PLUS_UNALLOCATED_PROMISES; PROVEN_PRIMITIVE_PAYLOAD_REQUIRES_FRESH_SAMPLE",
+    "fullUnitSuite": "FAIL_PENDING_ROOT_REBUILD; TARGETED_TESTS_DO_NOT_OVERRIDE_FULL_SUITE"
   },
+  "naturalCapacityWaitEvidence": [
+    "verification/r31/p02/build-identity/committed-unexcluded-joint-receipt.json",
+    "verification/r31/p02/memory-suite-repair/fix5-failure-details.json",
+    "verification/r31/p02/memory-independent-review",
+    "verification/r31/p02/memory-owned-lifecycle"
+  ],
   "uncoveredOwners": [
-    "AST returned score arrays/EvalContext scoreMemo lifecycle",
+    "escaped public score/trace result allocation estimates not fully registered; byte-LRU drops references only",
     "mutable family model state and existing extendFrom shared stream semantics",
     "leaf internal temporary scratch allocations",
     "public ReplayDataset arrays and append/tail row aliasing",
@@ -112,19 +188,32 @@
         "-cp",
         "/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "-d",
-        "/tmp/r31-memory-mrlrbkdn/current",
+        "/tmp/r31-memory-iaezny5r/current",
         "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
         "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/SharedFeatureStoreR31.java",
         "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/BoundedResearchExecutorR31.java",
         "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
         "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
         "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/EvalContextR27.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/PitGuardR30.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/NullEvolutionR27.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationR30.java",
         "/workspace/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31MemoryGovernanceTest.java",
         "/workspace/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31SharedFeatureIntegrationTest.java",
+        "/workspace/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31AllocatedMemoryLifecycleTest.java",
+        "/workspace/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31ScopedAstLifecycleTest.java",
         "/workspace/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27LeakageTest.java",
         "/workspace/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ModelSurfaceTest.java",
         "/workspace/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27TestSupport.java",
+        "/workspace/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27BirthGateTest.java",
+        "/workspace/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/strategyv2/R30PolicyContractTest.java",
+        "/workspace/starcore-public-build/tools/r31/memory_host/FactoryPressureR31Host.java",
         "/workspace/starcore-public-build/tools/r31/memory_host/FeatureGoldenR31Host.java",
+        "/workspace/starcore-public-build/tools/r31/memory_host/LiveReserveR31Host.java",
         "/workspace/starcore-public-build/tools/r31/memory_host/MemoryPidR31Host.java"
       ],
       "log": "javac.log",
@@ -133,12 +222,14 @@
     {
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
-        "-Xmx768m",
+        "-Xmx512m",
         "-cp",
-        "/tmp/r31-memory-mrlrbkdn/current:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-memory-iaezny5r/current:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "org.junit.runner.JUnitCore",
         "com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest",
-        "com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest"
+        "com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest",
+        "com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest",
+        "com.ethk3.novaonepro.strategyv2.R31ScopedAstLifecycleTest"
       ],
       "log": "memory-integration-junit.log",
       "exitCode": 0
@@ -146,9 +237,9 @@
     {
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
-        "-Xmx768m",
+        "-Xmx512m",
         "-cp",
-        "/tmp/r31-memory-mrlrbkdn/current:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-memory-iaezny5r/current:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "org.junit.runner.JUnitCore",
         "com.ethk3.novaonepro.strategyv2.R27LeakageTest",
         "com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest"
@@ -162,10 +253,10 @@
         "-cp",
         "/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "-d",
-        "/tmp/r31-memory-mrlrbkdn/baseline",
-        "/tmp/r31-memory-mrlrbkdn/baseline-source/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
-        "/tmp/r31-memory-mrlrbkdn/baseline-source/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
-        "/tmp/r31-memory-mrlrbkdn/baseline-source/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+        "/tmp/r31-memory-iaezny5r/baseline",
+        "/tmp/r31-memory-iaezny5r/baseline-source/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+        "/tmp/r31-memory-iaezny5r/baseline-source/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
+        "/tmp/r31-memory-iaezny5r/baseline-source/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
         "/workspace/starcore-public-build/tools/r31/memory_host/FeatureGoldenR31Host.java"
       ],
       "log": "baseline-javac.log",
@@ -174,9 +265,9 @@
     {
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
-        "-Xmx768m",
+        "-Xmx512m",
         "-cp",
-        "/tmp/r31-memory-mrlrbkdn/baseline:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-memory-iaezny5r/baseline:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FeatureGoldenR31Host",
         "/workspace/starcore-public-build/app/src/main/assets/r27/golden_512.bin"
       ],
@@ -186,9 +277,9 @@
     {
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
-        "-Xmx768m",
+        "-Xmx512m",
         "-cp",
-        "/tmp/r31-memory-mrlrbkdn/current:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-memory-iaezny5r/current:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FeatureGoldenR31Host",
         "/workspace/starcore-public-build/app/src/main/assets/r27/golden_512.bin"
       ],
@@ -198,9 +289,9 @@
     {
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
-        "-Xmx768m",
+        "-Xmx512m",
         "-cp",
-        "/tmp/r31-memory-mrlrbkdn/current:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-memory-iaezny5r/current:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.MemoryPidR31Host"
       ],
       "log": "actual-host-pid-0.json",
@@ -209,12 +300,47 @@
     {
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
-        "-Xmx768m",
+        "-Xmx512m",
         "-cp",
-        "/tmp/r31-memory-mrlrbkdn/current:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-memory-iaezny5r/current:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.MemoryPidR31Host"
       ],
       "log": "actual-host-pid-1.json",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-memory-iaezny5r/current:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "com.ethk3.novaonepro.strategyv2.FactoryPressureR31Host",
+        "healthy"
+      ],
+      "log": "factory-real-process-healthy.json",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-memory-iaezny5r/current:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "com.ethk3.novaonepro.strategyv2.FactoryPressureR31Host",
+        "resume"
+      ],
+      "log": "factory-real-process-resume.json",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-memory-iaezny5r/current:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveReserveR31Host"
+      ],
+      "log": "live-reserve-actual-heap.json",
       "exitCode": 0
     }
   ]

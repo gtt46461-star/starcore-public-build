@@ -2,6 +2,7 @@ package com.ethk3.novaonepro.strategyv2;
 
 import java.util.*;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 /** Immutable primitive input blocks, scoped to one PID. Mutable model/optimizer objects are not accepted. */
 public final class SharedFeatureStoreR31 implements AutoCloseable {
@@ -49,16 +50,25 @@ public final class SharedFeatureStoreR31 implements AutoCloseable {
     public synchronized Reader acquire(Key key,String readerOwner){Objects.requireNonNull(key);validOwner(readerOwner);if(closed)return null;Entry e=entries.get(key);return e==null?null:pin(e,readerOwner);}
     private Reader pin(Entry entry,String owner){if(readers>=1024)return null;entry.readers++;readers++;return new Reader(this,owner,entry);}
     public Publication publishDoubles(String owner,Key key,double[] values){return publishDoubles(owner,key,values,()->false);}
-    public Publication publishDoubles(String owner,Key key,double[] values,BooleanSupplier cancel){return publish(owner,key,values,Type.DOUBLE,values.length,cancel);}
-    public Publication publishFloats(String owner,Key key,float[] values,BooleanSupplier cancel){return publish(owner,key,values,Type.FLOAT,values.length,cancel);}
-    public Publication publishInts(String owner,Key key,int[] values,BooleanSupplier cancel){return publish(owner,key,values,Type.INT,values.length,cancel);}
-    public Publication publishBytes(String owner,Key key,byte[] values,BooleanSupplier cancel){return publish(owner,key,values,Type.BYTE,values.length,cancel);}
-    private Publication publish(String owner,Key key,Object source,Type type,int length,BooleanSupplier cancel){
+    public Publication publishDoubles(String owner,Key key,double[] values,BooleanSupplier cancel){return publish(owner,key,values,Type.DOUBLE,values.length,cancel,null,false);}
+    public Publication publishFloats(String owner,Key key,float[] values,BooleanSupplier cancel){return publish(owner,key,values,Type.FLOAT,values.length,cancel,null,false);}
+    public Publication publishInts(String owner,Key key,int[] values,BooleanSupplier cancel){return publish(owner,key,values,Type.INT,values.length,cancel,null,false);}
+    public Publication publishBytes(String owner,Key key,byte[] values,BooleanSupplier cancel){return publish(owner,key,values,Type.BYTE,values.length,cancel,null,false);}
+    /** Internal transfer: the built-in feature producer returns a new private array and relinquishes
+     * every mutable reference. General callers must use publishDoubles(), which still clones. */
+    Publication computePrivateDoublesR31(String owner,Key key,int length,Supplier<double[]> producer,BooleanSupplier cancel){
+        return computePrivateDoublesR31(owner,key,length,producer,cancel,false);
+    }
+    Publication computePrivateDoublesR31(String owner,Key key,int length,Supplier<double[]> producer,BooleanSupplier cancel,boolean critical){
+        if(length<0)throw new IllegalArgumentException("R31_FEATURE_LENGTH");
+        return publish(owner,key,null,Type.DOUBLE,length,cancel,Objects.requireNonNull(producer),critical);
+    }
+    private Publication publish(String owner,Key key,Object source,Type type,int length,BooleanSupplier cancel,Supplier<double[]> privateProducer,boolean critical){
         validOwner(owner);Objects.requireNonNull(key);long needed=272L+(long)length*type.width;
         synchronized(this){if(closed)return denied(MemoryBudgetR31.WaitReason.CLOSED_LEASE);Entry existing=entries.get(key);if(existing!=null){if(existing.type!=type||existing.length!=length)throw new IllegalStateException("R31_IMMUTABLE_FEATURE_KEY_COLLISION");Reader reader=pin(existing,owner);return reader==null?denied(MemoryBudgetR31.WaitReason.OWNER_LIMIT):new Publication(reader,MemoryBudgetR31.WaitReason.NONE,false);}if(needed>capacityBytes)return denied(MemoryBudgetR31.WaitReason.DECLARED_CAPACITY);evictLocked(capacityBytes-needed);}
-        MemoryBudgetR31.Admission admission=memory.tryAcquire(owner,MemoryBudgetR31.Kind.FEATURE_CACHE,needed,cancel);if(!admission.acquired())return denied(admission.reason);
+        MemoryBudgetR31.Admission admission=memory.tryAcquire(owner,critical?MemoryBudgetR31.Kind.REALTIME:MemoryBudgetR31.Kind.FEATURE_CACHE,needed,cancel);if(!admission.acquired())return denied(admission.reason);
         Object immutable;
-        try{switch(type){case DOUBLE:immutable=((double[])source).clone();break;case FLOAT:immutable=((float[])source).clone();break;case INT:immutable=((int[])source).clone();break;default:immutable=((byte[])source).clone();}}
+        try{if(privateProducer!=null){double[] produced=Objects.requireNonNull(privateProducer.get());if(produced.length!=length)throw new IllegalStateException("R31_LEAF_LENGTH");immutable=produced;}else switch(type){case DOUBLE:immutable=((double[])source).clone();break;case FLOAT:immutable=((float[])source).clone();break;case INT:immutable=((int[])source).clone();break;default:immutable=((byte[])source).clone();}admission.lease.allocatedPrimitiveArrayR31(immutable);}
         catch(RuntimeException|Error failure){admission.lease.close();throw failure;}
         synchronized(this){
             if(closed){admission.lease.close();return denied(MemoryBudgetR31.WaitReason.CLOSED_LEASE);}

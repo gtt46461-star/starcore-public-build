@@ -1,0 +1,10 @@
+{
+  "scope": "HOST_FIXTURE_AND_SUPPORT_ARTIFACT_DIAGNOSTICS_NOT_PRODUCTION_FAILURES_OR_CARD_COMPLETION",
+  "attempts": [
+    {"log": "first-real-host-helper-claim-FAIL.log", "result": "FAILED_FINAL_FIXTURE_STAGE", "reason": "Host helper submission omitted required bound Claim; production correctly rejected it with R31_STALE_COMPUTE_HELPER_REQUIRES_CLAIM", "durationArgumentMs": 120200, "timerSectionReachedAfterActualWait": true, "completeTimerReceipt": false, "overallPass": false},
+    {"log": "root-bootstrap-support-race-FAIL.log", "result": "SUPPORT_CLASSPATH_UNAVAILABLE_DURING_ROOT_REBUILD", "reason": "Fresh scoped javac encountered NoSuchFileException while root's sole Android bootstrap removed old class files", "productionDefectEstablished": false, "overallPass": false},
+    {"receipt": "short-fixture-contract-pass/RECEIPT.json", "result": "TARGETED_HOST_PASS_WITH_PRIOR_JAR_READONLY_SNAPSHOT", "unitTests": 8, "actualRuntimeAssertions": 23, "timerDurationMs": 10, "twoMinuteEvidence": false, "rootFreshAndroidScope": false}
+  ],
+  "device": "NOT_RUN",
+  "quality": "NOT_EVALUATED"
+}

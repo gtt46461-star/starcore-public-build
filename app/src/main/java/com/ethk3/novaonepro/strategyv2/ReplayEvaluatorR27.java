@@ -104,13 +104,16 @@ public final class ReplayEvaluatorR27 {
             ledger.confirm(experimentId, ctx.data.datasetHash, sp.holdoutBlock, sp.holdoutFrom, sp.holdoutTo, control);
             to = sp.holdoutTo;
         } else throw new IllegalArgumentException("R30_UNKNOWN_ROLE:" + role);
-        return run(spec, ctx.scores(spec), ctx.data, ctx.labels, tau, sp.trainFrom, to,capture);
+        try(PolicyAstR27.ScopedScoresR31 scores=ctx.borrowScoresR31(spec)){return runInputR31(spec,scores,ctx.data,ctx.labels,tau,sp.trainFrom,to,capture);}
     }
 
     public static double[] scores(PolicySpecR27 spec, FeatureCacheR27 f) { return PolicyAstR27.eval(spec.ast, f, spec.position); }
 
     /** Fits the softmax temperature on H_TRAIN rows by grid search on log-loss (bias held at zero). */
     public static double fitTemperature(PolicySpecR27 spec, double[] scores, int[][] labels, int trainFrom, int trainTo) {
+        try(PolicyAstR27.ScopedScoresR31 input=PolicyAstR27.ScopedScoresR31.legacy(scores)){return fitTemperatureScopedR31(spec,input,labels,trainFrom,trainTo);}
+    }
+    static double fitTemperatureScopedR31(PolicySpecR27 spec,PolicyAstR27.ScoreInputR31 scores,int[][] labels,int trainFrom,int trainTo){
         checkEvolutionRangeR30(trainTo);
         if(SetIntersectionPolicyR30.exact(spec))return 1;
         if (!spec.fitTemperature) return spec.temperature;
@@ -119,7 +122,7 @@ public final class ReplayEvaluatorR27 {
             double tau = spec.temperature * mult, loss = 0; int n = 0;
             for (int t = trainFrom; t < trainTo; t++) {
                 if((t&127)==0)CooperativeContinuationR26.poll();
-                if (!standardize(scores, t, z)) continue;
+                if (!standardizeScopedR31(scores, t, z)) continue;
                 softmax(z, tau, null, p);
                 loss -= Math.log(Math.max(1e-12, p[labels[t][spec.position - 1] - 1])); n++;
             }
@@ -130,22 +133,26 @@ public final class ReplayEvaluatorR27 {
 
     /** Full pass: rows [0,to) are processed online; outputs are recorded for rows [from,to). */
     public static Trace run(PolicySpecR27 spec, FeatureCacheR27 f, int[][] labels, double temperature, int from, int to) {
-        return run(spec, scores(spec, f), f.data, labels, temperature, from, to);
+        try(PolicyAstR27.ScopedScoresR31 scores=PolicyAstR27.evalScopedR31(spec.ast,f,spec.position)){return runInputR31(spec,scores,f.data,labels,temperature,from,to,false);}
     }
 
     public static Trace run(PolicySpecR27 spec,double[] scores,ReplayDatasetR27 data,int[][] labels,double temperature,int from,int to){
         return run(spec,scores,data,labels,temperature,from,to,false);
     }
     private static Trace run(PolicySpecR27 spec, double[] scores, ReplayDatasetR27 data, int[][] labels, double temperature, int from, int to,boolean capture) {
+        try(PolicyAstR27.ScopedScoresR31 input=PolicyAstR27.ScopedScoresR31.legacy(scores)){return runInputR31(spec,input,data,labels,temperature,from,to,capture);}
+    }
+    static Trace runScopedR31(PolicySpecR27 spec,PolicyAstR27.ScoreInputR31 scores,ReplayDatasetR27 data,int[][] labels,double temperature,int from,int to){return runInputR31(spec,scores,data,labels,temperature,from,to,false);}
+    private static Trace runInputR31(PolicySpecR27 spec,PolicyAstR27.ScoreInputR31 scores,ReplayDatasetR27 data,int[][] labels,double temperature,int from,int to,boolean capture){
         checkEvolutionRangeR30(to);
         int tp = spec.position - 1; Trace tr = new Trace(data.size(), from, to, spec.position, temperature,capture);
-        double[] z = new double[10], p = new double[10]; int[] order = new int[10];
+        double[] z = new double[10], p = new double[10]; int[] order = new int[10],sortedK3=new int[3],guardK3=new int[3];
         long gate = spec.rule == PolicySpecR27.Rule.RANDOM ? spec.ast.toString().hashCode() * 0x9E3779B97F4A7C15L : 0;
         double[] ring = new double[QUANTILE_WINDOW]; int filled = 0, head = 0;
         for (int t = 0; t < to; t++) {
             if((t&31)==0)CooperativeContinuationR26.poll();
-            if (!standardize(scores, t, z)) continue;
-            if(SetIntersectionPolicyR30.exact(spec))System.arraycopy(scores,t*10,p,0,10);else softmax(z, temperature, tr.bias, p);
+            if (!standardizeScopedR31(scores, t, z)) continue;
+            if(SetIntersectionPolicyR30.exact(spec))scores.copyRow(t,p);else softmax(z, temperature, tr.bias, p);
             int y = labels[t][tp] - 1;
             if (t >= from) {
                 top3(p, order);
@@ -162,9 +169,10 @@ public final class ReplayEvaluatorR27 {
                     }
                     default: act = mass - StatsR27.BASE >= spec.threshold; break;
                 }
-                int[] s = {a, b, c}; Arrays.sort(s);
+                int[] s = sortedK3;s[0]=a;s[1]=b;s[2]=c;Arrays.sort(s);
                 // R30-B03-01: a sample failing the PIT guard stays skipped (not counted); the online state still advances.
-                if (pitReplaySampleR30(spec, data, t, new int[] {s[0] + 1, s[1] + 1, s[2] + 1}, p)) {
+                guardK3[0]=s[0]+1;guardK3[1]=s[1]+1;guardK3[2]=s[2]+1;
+                if (pitReplaySampleR30(spec, data, t, guardK3, p)) {
                 if(tr.probabilityRows!=null)tr.probabilityRows[t]=p.clone();
                 tr.skipped[t] = false; tr.act[t] = act; tr.k3[t * 3] = s[0]; tr.k3[t * 3 + 1] = s[1]; tr.k3[t * 3 + 2] = s[2];
                 boolean h = y == a || y == b || y == c; tr.hit[t] = (byte) (h ? 1 : 0);
@@ -173,7 +181,7 @@ public final class ReplayEvaluatorR27 {
                 if (t == to - 1) System.arraycopy(p, 0, tr.lastProbs, 0, 10);
                 }
             }
-            if (spec.rule == PolicySpecR27.Rule.QUANTILE) { double[] q = new double[10]; System.arraycopy(p, 0, q, 0, 10); int[] o = new int[10]; top3(q, o); ring[head] = q[o[0]] + q[o[1]] + q[o[2]]; head = (head + 1) % QUANTILE_WINDOW; filled = Math.min(QUANTILE_WINDOW, filled + 1); }
+            if (spec.rule == PolicySpecR27.Rule.QUANTILE) { top3(p,order);ring[head] = p[order[0]] + p[order[1]] + p[order[2]]; head = (head + 1) % QUANTILE_WINDOW; filled = Math.min(QUANTILE_WINDOW, filled + 1); }
             // Online update: identical in every segment and in live operation (registered rule).
             for (int k = 0; k < 10; k++) tr.bias[k] = tr.bias[k] * (1 - spec.forget) + spec.lr * ((k == y ? 1 : 0) - p[k]);
         }
@@ -186,7 +194,7 @@ public final class ReplayEvaluatorR27 {
     public static double[] predictNext(PolicySpecR27 spec, FeatureCacheR27 withPlaceholder, double temperature) {
         int last = withPlaceholder.data.size() - 1;
         int[][] labels = withPlaceholder.data.draws;
-        Trace tr = run(spec, withPlaceholder, labels, temperature, last, last + 1);
+        Trace tr;try(PolicyAstR27.ScopedScoresR31 scores=PolicyAstR27.evalRealtimeScopedR31(spec.ast,withPlaceholder,spec.position)){tr=runInputR31(spec,scores,withPlaceholder.data,labels,temperature,last,last+1,false);}
         double[] out = new double[14];
         if (tr.skipped[last]) { Arrays.fill(out, Double.NaN); return out; }
         System.arraycopy(tr.lastProbs, 0, out, 0, 10);
@@ -202,6 +210,9 @@ public final class ReplayEvaluatorR27 {
         double sd = Math.sqrt(v / 10);
         for (int j = 0; j < 10; j++) z[j] = sd < 1e-12 ? 0 : (s[o + j] - m) / sd;
         return true;
+    }
+    static boolean standardizeScopedR31(PolicyAstR27.ScoreInputR31 s,int t,double[] z){
+        int o=t*10;double m=0;for(int j=0;j<10;j++){double x=s.at(o+j);if(Double.isNaN(x)||Double.isInfinite(x))return false;m+=x;}m/=10;double v=0;for(int j=0;j<10;j++){double d=s.at(o+j)-m;v+=d*d;}double sd=Math.sqrt(v/10);for(int j=0;j<10;j++)z[j]=sd<1e-12?0:(s.at(o+j)-m)/sd;return true;
     }
 
     static void softmax(double[] z, double tau, double[] bias, double[] p) {

@@ -1,0 +1,36 @@
+{
+  "format": "R31_OWNER_FENCE_ANDROID_DEFINITION_COMPILE_V1",
+  "observedAtUtc": "2026-11-04T13:45:57.571234+00:00",
+  "source": "app/src/androidTest/java/com/ethk3/novaonepro/R31OwnerFenceProtocolInstrumentedTest.java",
+  "sourceSha256": "6dd0ecf42714f09b34254516d78e5180d6435b84081059b6d1669e2f6c8d09a9",
+  "sourceStableDuringCompile": true,
+  "class": "com.ethk3.novaonepro.R31OwnerFenceProtocolInstrumentedTest",
+  "testCount": 2,
+  "testMethods": [
+    "staleOwnerReceiptsCannotReplaceNewClaimAndCommitIsIdempotent",
+    "independentSqliteWriterContentionReleasesBeforeSameInputRetry"
+  ],
+  "hostJavac": "PASS",
+  "command": [
+    "javac",
+    "-nowarn",
+    "-encoding",
+    "UTF-8",
+    "-cp",
+    "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/tmp/r31-owner-instrumentation-final-9zrlmnfv/core-androidx.test.jar:/tmp/r31-owner-instrumentation-final-9zrlmnfv/junit-androidx.test.ext.jar:/tmp/r31-owner-instrumentation-final-9zrlmnfv/runner-androidx.test.jar:/tmp/r31-owner-instrumentation-final-9zrlmnfv/monitor-androidx.test.jar",
+    "-d",
+    "/tmp/r31-owner-instrumentation-final-9zrlmnfv/compiled",
+    "/workspace/starcore-public-build/app/src/androidTest/java/com/ethk3/novaonepro/R31OwnerFenceProtocolInstrumentedTest.java"
+  ],
+  "AndroidExecution": "NOT_RUN",
+  "runner": "com.ethk3.novaonepro.R30FaultAndroidRunner with explicit r30Sandbox argument",
+  "scope": "Definitions call actual production register/start,claim,retry,receipt,thread-bound fence,idempotent writer and postcommit diagnostic hook; second test uses independent actual Android SQLiteDatabase connection. HOST compilation does not execute Android APIs or establish device PASS.",
+  "deviceContinuous24h": "NOT_RUN",
+  "deviceContinuous72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "productionChanges": [],
+  "existingTestChanges": [],
+  "hostJavacEvidence": "verification/r31/p02/owner-fence-instrumentation/host-javac-final.log",
+  "cleanupContract": "Pool.close is followed by actual resourcesTerminated within6000ms for each pool. Two SQLite test threads are released,joined with finite7000ms deadlines and observed notalive before DbStore.close. Failure does not claim thread termination or close a live ownedconnection. PASS marker is emitted only aftercleanup.",
+  "sqliteBusyContract": "A rejected first attempt is acceptable only atSQLite BEGIN with retryable typed disposition; sameinput retried only afteractual threadexit andfresh receipt readback provesrollback. A Java admission timeout cannot substitute forSQLite contention."
+}

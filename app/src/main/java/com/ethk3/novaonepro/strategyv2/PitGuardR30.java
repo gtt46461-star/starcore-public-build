@@ -1,6 +1,7 @@
 package com.ethk3.novaonepro.strategyv2;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,36 +27,45 @@ public final class PitGuardR30 {
     }
 
     public static List<String> check(Freeze f) {
-        List<String> v = new ArrayList<>();
-        if (f == null) { v.add("NULL_FREEZE"); return v; }
-        if (f.trainedThroughOrdinal >= f.targetOrdinal) v.add("MODEL_SEES_TARGET:" + f.trainedThroughOrdinal + ">=" + f.targetOrdinal);
-        if (f.featureThroughOrdinal >= f.targetOrdinal) v.add("FEATURE_SEES_TARGET:" + f.featureThroughOrdinal + ">=" + f.targetOrdinal);
-        if (f.position < 1 || f.position > 10) v.add("POSITION_RANGE:" + f.position);
-        if (f.k3 == null || f.k3.length != 3) v.add("K3_SIZE");
+        // Replay checks every candidate at every input row. Valid rows need neither a list
+        // nor a temporary seen-array; retain the complete ordered evidence for invalid rows.
+        List<String> v = null;
+        if (f == null) return violation(v, "NULL_FREEZE");
+        if (f.trainedThroughOrdinal >= f.targetOrdinal) v = violation(v, "MODEL_SEES_TARGET:" + f.trainedThroughOrdinal + ">=" + f.targetOrdinal);
+        if (f.featureThroughOrdinal >= f.targetOrdinal) v = violation(v, "FEATURE_SEES_TARGET:" + f.featureThroughOrdinal + ">=" + f.targetOrdinal);
+        if (f.position < 1 || f.position > 10) v = violation(v, "POSITION_RANGE:" + f.position);
+        if (f.k3 == null || f.k3.length != 3) v = violation(v, "K3_SIZE");
         else {
-            boolean[] seen = new boolean[11];
+            int seen = 0;
             for (int n : f.k3) {
-                if (n < 1 || n > 10) { v.add("K3_RANGE:" + n); continue; }
-                if (seen[n]) v.add("K3_DUPLICATE:" + n);
-                seen[n] = true;
+                if (n < 1 || n > 10) { v = violation(v, "K3_RANGE:" + n); continue; }
+                int bit = 1 << n;
+                if ((seen & bit) != 0) v = violation(v, "K3_DUPLICATE:" + n);
+                seen |= bit;
             }
         }
         if (f.probabilities != null) {
-            if (f.probabilities.length != 10) v.add("PROB_LENGTH:" + f.probabilities.length);
+            if (f.probabilities.length != 10) v = violation(v, "PROB_LENGTH:" + f.probabilities.length);
             else {
                 double sum = 0;
                 for (double p : f.probabilities) {
-                    if (Double.isNaN(p) || p < 0 || p > 1) v.add("PROB_RANGE");
+                    if (Double.isNaN(p) || p < 0 || p > 1) v = violation(v, "PROB_RANGE");
                     sum += p;
                 }
-                if (Math.abs(sum - 1.0) > PROB_SUM_TOLERANCE) v.add("PROB_SUM:" + sum);
+                if (Math.abs(sum - 1.0) > PROB_SUM_TOLERANCE) v = violation(v, "PROB_SUM:" + sum);
             }
         }
-        if (f.modelAvailableAt > f.frozenAt) v.add("MODEL_AFTER_FREEZE");
-        if (f.featureAvailableAt > f.frozenAt) v.add("FEATURE_AFTER_FREEZE");
-        if (f.preparedAt > f.frozenAt) v.add("PREPARED_AFTER_FREEZE");
-        if (f.deadlineAt <= 0) v.add("DEADLINE_UNKNOWN");
-        else if (f.frozenAt > f.deadlineAt - MIN_MARGIN_MS) v.add("FREEZE_MARGIN_LT_5000:" + (f.deadlineAt - f.frozenAt));
-        return v;
+        if (f.modelAvailableAt > f.frozenAt) v = violation(v, "MODEL_AFTER_FREEZE");
+        if (f.featureAvailableAt > f.frozenAt) v = violation(v, "FEATURE_AFTER_FREEZE");
+        if (f.preparedAt > f.frozenAt) v = violation(v, "PREPARED_AFTER_FREEZE");
+        if (f.deadlineAt <= 0) v = violation(v, "DEADLINE_UNKNOWN");
+        else if (f.frozenAt > f.deadlineAt - MIN_MARGIN_MS) v = violation(v, "FREEZE_MARGIN_LT_5000:" + (f.deadlineAt - f.frozenAt));
+        return v == null ? Collections.emptyList() : v;
+    }
+
+    private static List<String> violation(List<String> violations, String code) {
+        if (violations == null) violations = new ArrayList<>();
+        violations.add(code);
+        return violations;
     }
 }

@@ -25,13 +25,13 @@ public final class NullEvolutionR27 {
         if (families != EvolutionLoopR27.FAMILIES) throw new IllegalArgumentException("R30_CONTROL_REQUIRES_MAIN_FAMILY_REGISTRY");
         lastSeed = rng.nextLong();
         ReplayDatasetR27 permuted = ReplayEvaluatorR27.shuffledDataset(cache.data,split.trainFrom,split.selectTo,lastSeed);
-        FeatureCacheR27 controlCache = new FeatureCacheR27(permuted);
         EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.births = Math.max(1,n); cfg.minPerFamily = 0;
         cfg.nullControl = false; cfg.i00PerGeneration = 0; cfg.populationCap = popCap; cfg.seed = lastSeed;
         cfg.expertShare = n < 10 ? 0 : 0.10;
         ControlSink sink = new ControlSink();
-        EvolutionLoopR27 loop = fullSnapshot == null ? new EvolutionLoopR27(cfg,controlCache,sink,() -> 0L) :
-                EvolutionLoopR27.restore(fullSnapshot,cfg,controlCache,sink,() -> 0L);
+        try(FeatureCacheR27 controlCache=new FeatureCacheR27(permuted);
+            EvolutionLoopR27 loop=fullSnapshot==null?new EvolutionLoopR27(cfg,controlCache,sink,()->0L):
+                    EvolutionLoopR27.restore(fullSnapshot,cfg,controlCache,sink,()->0L)) {
         List<PolicySpecR27> seeds = new ArrayList<>(seedAssets);
         if (fullSnapshot == null) {
             for (SuccessiveHalvingR27.Candidate c : population) seeds.add(c.spec);
@@ -48,6 +48,7 @@ public final class NullEvolutionR27 {
             c.select = ReplayScoreR27.of(SplitR27.SELECT,trace,loop.context().split.selectFrom,loop.context().split.selectTo); population.add(c);
         }
         survivors = population.size(); return champion;
+        }
     }
     public Map<String,Object> json() {
         Map<String,Object> m = new LinkedHashMap<>(); m.put("mode","SYNTHETIC_SHUFFLED_TRAIN_SELECT_SEQUENCE");

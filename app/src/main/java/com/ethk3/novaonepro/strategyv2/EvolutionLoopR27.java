@@ -18,7 +18,7 @@ import java.util.Set;
  * R30: selection and adaptation read H_TRAIN/H_SELECT only. Immutable comparison packets are evaluated by
  * FrozenConfirmationR30 outside this loop; the same original paired tests against the previous, I00 and
  * shuffled-label champions govern the independent verdict. No verdict feeds back into evolutionary selection. */
-public final class EvolutionLoopR27 {
+public final class EvolutionLoopR27 implements AutoCloseable {
     public static final String[] STEPS = {"", "DATASET", "BIRTH", "GATE", "REPLAY", "HALVING", "HOLDOUT", "RECORD", "PROMOTE", "MIGRATE_ABLATE"};
 
     public static final class Config {
@@ -63,6 +63,17 @@ public final class EvolutionLoopR27 {
     /** The Android runtime binds a fresh per-step sink (one atomic batch per step). */
     public void setSink(Sink s) { sink = s; }
     private EvalContextR27 ctx; private BirthGateR27 gate; private final HoldoutLedgerR27 ledger = new HoldoutLedgerR27();
+    private final Object lifecycleR31=new Object();
+    private int activeUsesR31;
+    private boolean closeRequestedR31,resourcesClosingR31,resourcesClosedR31;
+    private void enterUseR31(){synchronized(lifecycleR31){if(closeRequestedR31)throw new java.util.concurrent.CancellationException("R31_EVOLUTION_CLOSED");activeUsesR31++;}}
+    private EvalContextR27 reserveCloseR31(){if(!closeRequestedR31||activeUsesR31!=0||resourcesClosingR31||resourcesClosedR31)return null;resourcesClosingR31=true;return ctx;}
+    private void closeContextR31(EvalContextR27 release){if(release==null)return;try{release.close();synchronized(lifecycleR31){resourcesClosedR31=true;}}finally{synchronized(lifecycleR31){resourcesClosingR31=false;}}}
+    private void leaveUseR31(){EvalContextR27 release;synchronized(lifecycleR31){if(activeUsesR31<1)throw new IllegalStateException("R31_EVOLUTION_SCOPE_ACCOUNTING");activeUsesR31--;release=reserveCloseR31();}closeContextR31(release);}
+    /** The caller owns the supplied FeatureCache; only this loop's context is retired here.
+     * Accepted helper bodies retain their scope until their actual finally exits. */
+    @Override public void close(){EvalContextR27 release;synchronized(lifecycleR31){closeRequestedR31=true;release=reserveCloseR31();}closeContextR31(release);}
+    public boolean resourcesClosedR31(){synchronized(lifecycleR31){return resourcesClosedR31;}}
     public int generation, step = 1; public final StatsR27.SplitMix rng;
     public final List<Member> population = new ArrayList<>();
     public final EliteArchiveR27 archive = new EliteArchiveR27();
@@ -105,16 +116,20 @@ public final class EvolutionLoopR27 {
 
     private void bind(FeatureCacheR27 cache) {
         SplitR27 split = SplitR27.of(cache.data, ledger.degradedBlocks());
-        ctx = new EvalContextR27(cache, split, null);
-        gate = new BirthGateR27(cache, split.trainTo); gate.setMaxDepth(gateMaxDepth);
-        for (Member m : population) if (m.sig != null) gate.register(m.hash(), m.sig,m.spec.position);
+        EvalContextR27 next=new EvalContextR27(cache,split,null);BirthGateR27 nextGate;
+        try{nextGate=new BirthGateR27(cache,split.trainTo);nextGate.setMaxDepth(gateMaxDepth);for(Member m:population)if(m.sig!=null)nextGate.register(m.hash(),m.sig,m.spec.position);}
+        catch(RuntimeException|Error failed){next.close();throw failed;}
+        EvalContextR27 previous=ctx;ctx=next;gate=nextGate;if(previous!=null)previous.close();
     }
     /** daily-close: rebinding to a new dataset happens only between generations (step 1). */
     public void rebind(FeatureCacheR27 cache) {
+        enterUseR31();try {
         if (step != 1) throw new IllegalStateException("R27_REBIND_MID_GENERATION");
+        synchronized(lifecycleR31){if(activeUsesR31!=1)throw new IllegalStateException("R31_EVOLUTION_REBIND_WHILE_BUSY");}
         bind(cache);
         bestSelectSeen = Double.NEGATIVE_INFINITY; generationsWithoutSelectImprovement = 0;
         for (Member m : population) { m.trace = null; m.tau = ctx.temperature(m.spec); refresh(m); }
+        }finally{leaveUseR31();}
     }
     /** A corrected development input cannot complete its old generation. No exposure, model, RNG or alpha is reset. */
     void restartInvalidDevelopmentInput(){pending.clear();directedResearch=Collections.emptyList();pendingConfirmation=null;confirmationDispatched=false;step=1;generation++;}
@@ -131,8 +146,10 @@ public final class EvolutionLoopR27 {
     public void runGeneration() { do step(); while (step != 1); }
 
     public void step() {
+        enterUseR31();try {
         Integer previousLimit = ReplayEvaluatorR27.enterEvolutionR30(ctx.split.selectTo);
         try { stepInsideEvolution(); } finally { ReplayEvaluatorR27.leaveEvolutionR30(previousLimit); }
+        }finally{leaveUseR31();}
     }
 
     private void stepInsideEvolution() {
@@ -271,6 +288,9 @@ public final class EvolutionLoopR27 {
     public final List<Long> candidateReplayMs = new ArrayList<>();
 
     void stepReplay() {
+        enterUseR31();try{stepReplayOwnedR31();}finally{leaveUseR31();}
+    }
+    private void stepReplayOwnedR31() {
         long t0 = System.nanoTime(); candidateReplayMs.clear();
         List<Pending> born = new ArrayList<>(); for (Pending p : pending) if (p.state.equals("BORN")) born.add(p);
         // A parent continuation already owns its compute permit. The configured serial mode stays on that
@@ -288,9 +308,11 @@ public final class EvolutionLoopR27 {
                         Pending candidate = born.get(submitted);
                         try {
                             inFlight.addLast(executor.submit(() -> {
+                                enterUseR31();try {
                                 Integer previousLimit = ReplayEvaluatorR27.enterEvolutionR30(ctx.split.selectTo);
                                 try { ExecutionBudgetR26.poll(); return calculateReplayR31(candidate); }
                                 finally { ReplayEvaluatorR27.leaveEvolutionR30(previousLimit); }
+                                }finally{leaveUseR31();}
                             }));
                             submitted++;
                         } catch (java.util.concurrent.RejectedExecutionException capacity) {
@@ -602,14 +624,17 @@ public final class EvolutionLoopR27 {
     /** Only a validated in-memory instance can enter this path. Public restore retains full birth/replay checks. */
     EvolutionLoopR27 preparedForkR30() {
         EvolutionLoopR27 copy=restoreInternal(snapshot(),cfg,ctx.cache,null,clock,this);
+        try {
         copy.legacySeeds=new ArrayList<>(legacySeeds);copy.derivedLeaves=new ArrayList<>(derivedLeaves);copy.leafWeight=new HashMap<>(leafWeight);
         copy.gate.copyValidatedRegistrationsR30(gate);
         copy.lastRecord=new LinkedHashMap<>(lastRecord);return copy;
+        }catch(RuntimeException|Error failed){copy.close();throw failed;}
     }
     @SuppressWarnings("unchecked")
     private static EvolutionLoopR27 restoreInternal(String json,Config cfg,FeatureCacheR27 cache,Sink sink,Clock clock,EvolutionLoopR27 validated) {
         Map<String, Object> s = (Map<String, Object>) JsonR27.parse(json);
         EvolutionLoopR27 l = new EvolutionLoopR27(cfg, cache, sink, clock);
+        boolean restoredR31=false;try {
         if (s.get("sourceCommit") instanceof String) l.sourceCommit=(String)s.get("sourceCommit");
         l.generation = (int) JsonR27.num(s.get("generation")); l.step = (int) JsonR27.num(s.get("step")); l.rng.state = ((Number) s.get("rng")).longValue();
         for (Map.Entry<String, Object> e : ((Map<String, Object>) s.get("ledger")).entrySet()) for (Object h : (List<Object>) e.getValue()) l.ledger.restore(Long.parseLong(e.getKey()), (String) h);
@@ -649,7 +674,8 @@ public final class EvolutionLoopR27 {
             l.confirmationDispatched = Boolean.TRUE.equals(s.get("confirmationDispatched"));
         }
         l.genStats.putAll((Map<String, Object>) s.get("genStats")); l.startedAt = ((Number) s.get("startedAt")).longValue();
-        return l;
+        restoredR31=true;return l;
+        }finally{if(!restoredR31)l.close();}
     }
     static PolicySpecR27 spec(Object o) { return o == null ? null : PolicySpecR27.parse((String) o); }
     @SuppressWarnings("unchecked") static int[] ints(Object o) { if (o == null) return null; List<Object> l = (List<Object>) o; int[] a = new int[l.size()]; for (int i = 0; i < a.length; i++) a[i] = (int) JsonR27.num(l.get(i)); return a; }

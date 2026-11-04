@@ -18,6 +18,8 @@ public final class RuntimeR27 implements AutoCloseable {
     public static final int DATASET_ROWS = 5000, REFRESH_NEW_ROWS = 360, LIVE_REBASE_ROWS = 6500;
     public static final String LOOP = "MAIN_REPAIR1"; // MAIN stays readable by the pre-repair APK
     final DbStore store; final ResearchPoolR27 pool;
+    private final HealthTask healthTaskR31;
+    private boolean resourceCachesClosedR31;
     // Evolution dataset snapshot (rebound only between generations).
     volatile ReplayDatasetR27 evoData; volatile FeatureCacheR27 evoCache; volatile ReplayDatasetR27 pendingData; volatile FeatureCacheR27 pendingCache;
     volatile EvolutionLoopR27 evo;
@@ -49,12 +51,31 @@ public final class RuntimeR27 implements AutoCloseable {
         pool = new ResearchPoolR27(store, session, ResearchPoolR27.defaultThreads());
         pool.register(new DatasetTask()); pool.register(new LiveTask()); pool.register(new EvolutionTask()); pool.register(new AbiTask());
         pool.register(new AtomsTask()); pool.register(new AtomNetTask()); pool.register(new CalibrationTask()); pool.register(new ChartTask());
-        pool.register(new ObservatoryTask()); pool.register(new ResearchStudyTask()); pool.register(new MatrixProductionTask()); pool.register(new LegacyExportTask()); pool.register(new HealthTask());
+        healthTaskR31=new HealthTask();
+        pool.register(new ObservatoryTask()); pool.register(new ResearchStudyTask()); pool.register(new MatrixProductionTask()); pool.register(new LegacyExportTask()); pool.register(healthTaskR31);
         active = this;
     }
     public void start() { pool.start(); }
     public ResearchPoolR27 pool() { return pool; }
     @Override public void close() { pool.close(); if (active == this) active = null; }
+
+    /** The coordinator calls this only after its own worker/probe and this entire pool have exited.
+     * Closing a session requests cancellation; it must not recycle shared cache storage while used. */
+    synchronized boolean releaseTerminatedCachesR31() {
+        if(resourceCachesClosedR31)return true;
+        if(!pool.resourcesTerminatedR31())return false;
+        EvolutionLoopR27 loop=evo;
+        if(loop!=null){loop.close();if(!loop.resourcesClosedR31())return false;}
+        if(healthTaskR31.q08!=null){healthTaskR31.q08.close();healthTaskR31.q08=null;}
+        java.util.Set<FeatureCacheR27> caches=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<FeatureCacheR27,Boolean>());
+        for(FeatureCacheR27 cache:new FeatureCacheR27[]{evoCache,pendingCache,liveCache,goldenCache})
+            if(cache!=null&&caches.add(cache))cache.close();
+        evo=null;evoCache=null;pendingCache=null;liveCache=null;goldenCache=null;
+        evoData=null;pendingData=null;liveData=null;golden=null;liveCacheKeyR30="";
+        // This drops owned references. Heap/array reclamation requires an actual later observation.
+        resourceCachesClosedR31=true;
+        return true;
+    }
 
     private FeatureCacheR27 featureCacheR31(ReplayDatasetR27 data,int capacity) {
         FeatureCacheR27 cache=new FeatureCacheR27(data,capacity);

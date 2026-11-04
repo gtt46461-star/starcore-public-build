@@ -1,0 +1,298 @@
+{
+  "schema": "R31_H15_DBSTORE_EXACT_ALLOWANCE_REVIEW_1",
+  "prepared_at_utc": "2026-11-04T12:37:00.863636+00:00",
+  "mode": "READ_ONLY_PRODUCTION_REVIEW_NO_TEST_OR_TOOLS_EDITS_NO_GRADLE",
+  "source_head_at_review": "e96e11cc850672549863a6290b40350fa5248a08",
+  "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+  "baseline_fixture": "construction/STARCORE_R31_FINAL_20261104/baseline_source/app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+  "fixed_planning_baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "old_whole_file_sha256": "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",
+  "new_observed_whole_file_sha256_diagnostic_only": "6e13041570bdb08f7f18fab336f52f1527eabbf4e2964d6f972f4c23173a1a6e",
+  "do_not_replace_old_expected_whole_file_hash": true,
+  "allowed_blocks": [
+    {
+      "id": "ensureRuntimeExtraTablesOnce",
+      "kind": "REPLACE_EXACT_METHOD",
+      "old_signature": "    private void ensureRuntimeExtraTablesOnce(",
+      "new_signature": "    private void ensureRuntimeExtraTablesOnce(",
+      "old_sha256_utf8": "a223b3c729a3c737d3b96f1951c11e33e2983e88449dd57df07fc4849c358e95",
+      "new_sha256_utf8": "2409b93290be41d01c722a73105765e46a14de0b815f315b7e0833fb6e08cf35",
+      "old_lines": {
+        "start_line": 262,
+        "end_line": 277
+      },
+      "new_lines": {
+        "start_line": 315,
+        "end_line": 343
+      },
+      "old_text": "    private void ensureRuntimeExtraTablesOnce(final SQLiteDatabase db) {\n        boolean ready =\n                coordinator.ensureRuntimeSchemaOnce(\n                        new DatabaseCoordinator.SchemaInitializer() {\n                            @Override\n                            public void run(SQLiteDatabase ignored) {\n                                SQLiteDatabase target = db == null ? ignored : db;\n                                ensureRuntimeExtraTables(target);\n                                verifyLegacyRuntimeTablesR363(target);\n                                clearColumnCache();\n                            }\n                        });\n        if (!ready)\n            throw new IllegalStateException(\n                    \"LEGACY_RUNTIME_SCHEMA_NOT_READY|\" + coordinator.startupSchemaSummary());\n    }",
+      "new_text": "    private void ensureRuntimeExtraTablesOnce(final SQLiteDatabase db) {\n        boolean ready =\n                coordinator.ensureRuntimeSchemaOnce(\n                        new LegacySchemaCoordinatorR926.MainChainInitializerR31() {\n                            @Override\n                            public void run(SQLiteDatabase ignored) {\n                                SQLiteDatabase target = db == null ? ignored : db;\n                                ensureRuntimeExtraTables(target);\n                                verifyLegacyRuntimeTablesR363(target);\n                                clearColumnCache();\n                            }\n                            @Override\n                            public void initializeMainChainDefaultsR31(SQLiteDatabase target) {\n                                ensureMainChainDefaultState(target);\n                                String[] keys={\"dbstore_main_chain_version\",\"dbstore_main_chain_candidate_snapshot\",\n                                        \"dbstore_main_chain_reject_bucket\",\"dbstore_main_chain_no_bet_rescue\",\"dbstore_main_chain_scope\"};\n                                String[] values={DBSTORE_MAIN_CHAIN_CLOSED_LOOP_VERSION,TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT,\n                                        TABLE_MAIN_CHAIN_REJECT_BUCKET,\"1\",\"SAVE_READ_REPAIR_ONLY\"};\n                                for(String table:new String[]{TABLE_DYNAMIC_CAUSAL_STATE,DbHelper.TABLE_APP_STATE})\n                                    for(int i=0;i<keys.length;i++)try(Cursor row=target.rawQuery(\"SELECT state_value FROM \"+table+\" WHERE state_key=?\",new String[]{keys[i]})) {\n                                        if(!row.moveToFirst()||!values[i].equals(row.getString(0)))\n                                            throw new DatabaseCoordinator.SchemaPendingR31(\"LEGACY_MAIN_CHAIN_DEFAULTS\",\"MISSING_OR_WRONG_STATE:\"+table+\":\"+keys[i]);\n                                    }\n                            }\n                        });\n        if (!ready)\n            throw new DatabaseCoordinator.SchemaPendingR31(\n                    \"LEGACY_RUNTIME_SCHEMA\", coordinator.startupSchemaSummary());\n    }"
+    },
+    {
+      "id": "ensureMainChainClosedLoopReady",
+      "kind": "REPLACE_EXACT_METHOD",
+      "old_signature": "    private void ensureMainChainClosedLoopReady(",
+      "new_signature": "    private void ensureMainChainClosedLoopReady(",
+      "old_sha256_utf8": "7ec49b539c400db18a8879c8742b744c40cda47fea226c23573fe81719a825a9",
+      "new_sha256_utf8": "da74c0d2a2d4d517b5d2c89405c86990fa0007616efb721f8834609bb4bf7b53",
+      "old_lines": {
+        "start_line": 366,
+        "end_line": 402
+      },
+      "new_lines": {
+        "start_line": 432,
+        "end_line": 436
+      },
+      "old_text": "    private void ensureMainChainClosedLoopReady(SQLiteDatabase db) {\n        if (db == null) {\n            return;\n        }\n        try {\n            execQuiet(\n                    db,\n                    \"CREATE TABLE IF NOT EXISTS \"\n                            + TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT\n                            + \" (_id INTEGER PRIMARY KEY AUTOINCREMENT, snapshot_key TEXT NOT NULL\"\n                            + \" UNIQUE)\");\n            execQuiet(\n                    db,\n                    \"CREATE TABLE IF NOT EXISTS \"\n                            + TABLE_MAIN_CHAIN_REJECT_BUCKET\n                            + \" (_id INTEGER PRIMARY KEY AUTOINCREMENT, bucket_key TEXT NOT NULL\"\n                            + \" UNIQUE)\");\n            ensureMainChainColumns(db, DbHelper.TABLE_DECISIONS);\n            ensureMainChainColumns(db, DbHelper.TABLE_TRADES);\n            ensureMainChainColumns(db, DbHelper.TABLE_SHADOW);\n            ensureMainChainColumns(db, DbHelper.TABLE_FULL_CANDIDATE_SCAN);\n            ensureMainChainColumns(db, DbHelper.TABLE_CANDIDATE_AUDIT);\n            ensureMainChainColumns(db, DbHelper.TABLE_DYNAMIC_CAUSE_CHAIN);\n            ensureMainChainColumns(db, DbHelper.TABLE_DECISION_AUDIT);\n            ensureMainChainColumns(db, DbHelper.TABLE_V20_CLOSED_LOOP);\n            ensureMainChainColumns(db, TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT);\n            ensureMainChainColumns(db, DbHelper.TABLE_REAL_TRADE_LEDGER);\n            ensureMainChainColumns(db, TABLE_ADAPTIVE_JUDGE_SAMPLE);\n            ensureMainChainColumns(db, TABLE_PROMOTION_DOMAIN_SNAPSHOT);\n            ensureMainChainRejectBucketColumns(db);\n            ensureMainChainFactorColumns(db);\n            ensureMainChainIndexes(db);\n            ensureMainChainDefaultState(db);\n            clearColumnCache();\n        } catch (Throwable e) {\n        }\n    }",
+      "new_text": "    private void ensureMainChainClosedLoopReady(SQLiteDatabase db) {\n        // Business persistence observes the real schema. Only the Legacy migration\n        // owner may add objects/columns; pending input must not bootstrap a schema.\n        LegacySchemaCoordinatorR926.requireMainChainClosedLoopReadyR31(db);\n    }"
+    },
+    {
+      "id": "mainChainClosedLoopColumnDefs",
+      "kind": "REPLACE_EXACT_METHOD",
+      "old_signature": "    private String[] mainChainClosedLoopColumnDefs()",
+      "new_signature": "    static String[] mainChainClosedLoopColumnDefs()",
+      "old_sha256_utf8": "34cef5ba6fc8ec3c839d3c3baa9d499db29e9f088619a8e3bc2803fb098a7105",
+      "new_sha256_utf8": "a2dfa1820bafa5fecd022e91cc9ad2ce6855602d0ca117816ea48e09b7c430b2",
+      "old_lines": {
+        "start_line": 410,
+        "end_line": 492
+      },
+      "new_lines": {
+        "start_line": 444,
+        "end_line": 526
+      },
+      "old_text": "    private String[] mainChainClosedLoopColumnDefs() {\n        return new String[] {\n            \"snapshot_key TEXT\",\n            \"candidate_key TEXT\",\n            \"candidate_rank INTEGER DEFAULT 0\",\n            \"realtime_top40_rank INTEGER DEFAULT 0\",\n            \"adaptive_input_flag INTEGER DEFAULT 0\",\n            \"window_state_key TEXT\",\n            \"dynamic_window_state_key TEXT\",\n            \"final_decision_window_state_key TEXT\",\n            \"probability_window_state_key TEXT\",\n            \"cluster_key TEXT\",\n            \"factor_key TEXT\",\n            \"position_need_score REAL DEFAULT 0\",\n            \"number_supply_score REAL DEFAULT 0\",\n            \"coverage_quality REAL DEFAULT 0\",\n            \"third_quality REAL DEFAULT 0\",\n            \"counter_evidence_score REAL DEFAULT 0\",\n            \"similar_sample_count INTEGER DEFAULT 0\",\n            \"similar_hit_rate REAL DEFAULT 0\",\n            \"teacher_status TEXT\",\n            \"teacher_status_class TEXT\",\n            \"teacher_number_status TEXT\",\n            \"teacher_sample_reliability REAL DEFAULT 0\",\n            \"teacher_recent_validity REAL DEFAULT 0\",\n            \"teacher_evidence_contribution REAL DEFAULT 0\",\n            \"teacher_counter_contribution REAL DEFAULT 0\",\n            \"v20_status TEXT\",\n            \"v20_action_advice TEXT\",\n            \"v20_sample_reliability REAL DEFAULT 0\",\n            \"v20_recent_validity REAL DEFAULT 0\",\n            \"v20_evidence_contribution REAL DEFAULT 0\",\n            \"v20_counter_contribution REAL DEFAULT 0\",\n            \"adaptive_status TEXT\",\n            \"shadow_promotion_status TEXT\",\n            \"final_p_before_diagnosis REAL DEFAULT 0\",\n            \"final_p_after_diagnosis REAL DEFAULT 0\",\n            \"gate REAL DEFAULT 0\",\n            \"edge REAL DEFAULT 0\",\n            \"reject_code TEXT\",\n            \"real_probe_allowed INTEGER DEFAULT 0\",\n            \"real_probe_reason TEXT\",\n            \"teacher_as_of_issue TEXT\",\n            \"teacher_issue_lag INTEGER DEFAULT 0\",\n            \"teacher_fresh_by_issue INTEGER DEFAULT 0\",\n            \"teacher_snapshot_created_at INTEGER DEFAULT 0\",\n            \"block_tier TEXT\",\n            \"hard_risk_code TEXT\",\n            \"observe_reason TEXT\",\n            \"probe_eligible INTEGER DEFAULT 0\",\n            \"shadow_probe_eligible INTEGER DEFAULT 0\",\n            \"probe_level TEXT\",\n            \"shadow_settled_count INTEGER DEFAULT 0\",\n            \"shadow_domain_sample INTEGER DEFAULT 0\",\n            \"promotion_wilson_lower_bound REAL DEFAULT 0\",\n            \"promotion_eligibility_reason TEXT\",\n            \"predecision_opportunity INTEGER DEFAULT 0\",\n            \"risk_severity TEXT\",\n            \"hard_block_flag INTEGER DEFAULT 0\",\n            \"hard_block_source TEXT\",\n            \"evidence_source TEXT\",\n            \"evidence_settled_only INTEGER DEFAULT 1\",\n            \"evidence_sample_count INTEGER DEFAULT 0\",\n            \"evidence_hit_count INTEGER DEFAULT 0\",\n            \"evidence_miss_count INTEGER DEFAULT 0\",\n            \"promotion_coarse_domain TEXT\",\n            \"promotion_mid_domain TEXT\",\n            \"promotion_fine_domain TEXT\",\n            \"frequency_floor_required_count INTEGER DEFAULT 0\",\n            \"frequency_floor_target_count INTEGER DEFAULT 0\",\n            \"frequency_floor_actual_count INTEGER DEFAULT 0\",\n            \"frequency_floor_debt_count INTEGER DEFAULT 0\",\n            \"frequency_target_debt_count INTEGER DEFAULT 0\",\n            \"frequency_floor_mandatory INTEGER DEFAULT 0\",\n            \"frequency_floor_no_upper_cap INTEGER DEFAULT 1\",\n            \"frequency_floor_rank_score REAL DEFAULT 0\",\n            \"frequency_floor_version TEXT\",\n            \"bet_source_engine TEXT\",\n            \"decision_gate_version TEXT\",\n            \"field_chain_version TEXT\",\n            \"schema_fix_version TEXT\"\n        };\n    }",
+      "new_text": "    static String[] mainChainClosedLoopColumnDefs() {\n        return new String[] {\n            \"snapshot_key TEXT\",\n            \"candidate_key TEXT\",\n            \"candidate_rank INTEGER DEFAULT 0\",\n            \"realtime_top40_rank INTEGER DEFAULT 0\",\n            \"adaptive_input_flag INTEGER DEFAULT 0\",\n            \"window_state_key TEXT\",\n            \"dynamic_window_state_key TEXT\",\n            \"final_decision_window_state_key TEXT\",\n            \"probability_window_state_key TEXT\",\n            \"cluster_key TEXT\",\n            \"factor_key TEXT\",\n            \"position_need_score REAL DEFAULT 0\",\n            \"number_supply_score REAL DEFAULT 0\",\n            \"coverage_quality REAL DEFAULT 0\",\n            \"third_quality REAL DEFAULT 0\",\n            \"counter_evidence_score REAL DEFAULT 0\",\n            \"similar_sample_count INTEGER DEFAULT 0\",\n            \"similar_hit_rate REAL DEFAULT 0\",\n            \"teacher_status TEXT\",\n            \"teacher_status_class TEXT\",\n            \"teacher_number_status TEXT\",\n            \"teacher_sample_reliability REAL DEFAULT 0\",\n            \"teacher_recent_validity REAL DEFAULT 0\",\n            \"teacher_evidence_contribution REAL DEFAULT 0\",\n            \"teacher_counter_contribution REAL DEFAULT 0\",\n            \"v20_status TEXT\",\n            \"v20_action_advice TEXT\",\n            \"v20_sample_reliability REAL DEFAULT 0\",\n            \"v20_recent_validity REAL DEFAULT 0\",\n            \"v20_evidence_contribution REAL DEFAULT 0\",\n            \"v20_counter_contribution REAL DEFAULT 0\",\n            \"adaptive_status TEXT\",\n            \"shadow_promotion_status TEXT\",\n            \"final_p_before_diagnosis REAL DEFAULT 0\",\n            \"final_p_after_diagnosis REAL DEFAULT 0\",\n            \"gate REAL DEFAULT 0\",\n            \"edge REAL DEFAULT 0\",\n            \"reject_code TEXT\",\n            \"real_probe_allowed INTEGER DEFAULT 0\",\n            \"real_probe_reason TEXT\",\n            \"teacher_as_of_issue TEXT\",\n            \"teacher_issue_lag INTEGER DEFAULT 0\",\n            \"teacher_fresh_by_issue INTEGER DEFAULT 0\",\n            \"teacher_snapshot_created_at INTEGER DEFAULT 0\",\n            \"block_tier TEXT\",\n            \"hard_risk_code TEXT\",\n            \"observe_reason TEXT\",\n            \"probe_eligible INTEGER DEFAULT 0\",\n            \"shadow_probe_eligible INTEGER DEFAULT 0\",\n            \"probe_level TEXT\",\n            \"shadow_settled_count INTEGER DEFAULT 0\",\n            \"shadow_domain_sample INTEGER DEFAULT 0\",\n            \"promotion_wilson_lower_bound REAL DEFAULT 0\",\n            \"promotion_eligibility_reason TEXT\",\n            \"predecision_opportunity INTEGER DEFAULT 0\",\n            \"risk_severity TEXT\",\n            \"hard_block_flag INTEGER DEFAULT 0\",\n            \"hard_block_source TEXT\",\n            \"evidence_source TEXT\",\n            \"evidence_settled_only INTEGER DEFAULT 1\",\n            \"evidence_sample_count INTEGER DEFAULT 0\",\n            \"evidence_hit_count INTEGER DEFAULT 0\",\n            \"evidence_miss_count INTEGER DEFAULT 0\",\n            \"promotion_coarse_domain TEXT\",\n            \"promotion_mid_domain TEXT\",\n            \"promotion_fine_domain TEXT\",\n            \"frequency_floor_required_count INTEGER DEFAULT 0\",\n            \"frequency_floor_target_count INTEGER DEFAULT 0\",\n            \"frequency_floor_actual_count INTEGER DEFAULT 0\",\n            \"frequency_floor_debt_count INTEGER DEFAULT 0\",\n            \"frequency_target_debt_count INTEGER DEFAULT 0\",\n            \"frequency_floor_mandatory INTEGER DEFAULT 0\",\n            \"frequency_floor_no_upper_cap INTEGER DEFAULT 1\",\n            \"frequency_floor_rank_score REAL DEFAULT 0\",\n            \"frequency_floor_version TEXT\",\n            \"bet_source_engine TEXT\",\n            \"decision_gate_version TEXT\",\n            \"field_chain_version TEXT\",\n            \"schema_fix_version TEXT\"\n        };\n    }"
+    },
+    {
+      "id": "mainChainFactorColumnDefs",
+      "kind": "REPLACE_EXACT_METHOD",
+      "old_signature": "    private String[] mainChainFactorColumnDefs()",
+      "new_signature": "    static String[] mainChainFactorColumnDefs()",
+      "old_sha256_utf8": "0bdf44b13a249866fe32d2120f7e452a940c7a1f107391c1852ebb576d1d3195",
+      "new_sha256_utf8": "6559c01f4cb4041ab46f069b31a177d3d516794a9c3454c481297aba4f7d3ab3",
+      "old_lines": {
+        "start_line": 514,
+        "end_line": 537
+      },
+      "new_lines": {
+        "start_line": 548,
+        "end_line": 571
+      },
+      "old_text": "    private String[] mainChainFactorColumnDefs() {\n        return new String[] {\n            \"state_key TEXT\",\n            \"window_state_key TEXT\",\n            \"cluster_key TEXT\",\n            \"factor_key TEXT\",\n            \"factor_id TEXT\",\n            \"factor_name TEXT\",\n            \"sample_count INTEGER DEFAULT 0\",\n            \"recent_sample_count INTEGER DEFAULT 0\",\n            \"hit_count INTEGER DEFAULT 0\",\n            \"miss_count INTEGER DEFAULT 0\",\n            \"hit_rate REAL DEFAULT 0\",\n            \"recent_hit_rate REAL DEFAULT 0\",\n            \"evidence_score REAL DEFAULT 0\",\n            \"anti_evidence_score REAL DEFAULT 0\",\n            \"net_evidence_score REAL DEFAULT 0\",\n            \"sample_reliability REAL DEFAULT 0\",\n            \"recent_validity REAL DEFAULT 0\",\n            \"action_advice TEXT\",\n            \"reject_code TEXT\",\n            \"schema_fix_version TEXT\"\n        };\n    }",
+      "new_text": "    static String[] mainChainFactorColumnDefs() {\n        return new String[] {\n            \"state_key TEXT\",\n            \"window_state_key TEXT\",\n            \"cluster_key TEXT\",\n            \"factor_key TEXT\",\n            \"factor_id TEXT\",\n            \"factor_name TEXT\",\n            \"sample_count INTEGER DEFAULT 0\",\n            \"recent_sample_count INTEGER DEFAULT 0\",\n            \"hit_count INTEGER DEFAULT 0\",\n            \"miss_count INTEGER DEFAULT 0\",\n            \"hit_rate REAL DEFAULT 0\",\n            \"recent_hit_rate REAL DEFAULT 0\",\n            \"evidence_score REAL DEFAULT 0\",\n            \"anti_evidence_score REAL DEFAULT 0\",\n            \"net_evidence_score REAL DEFAULT 0\",\n            \"sample_reliability REAL DEFAULT 0\",\n            \"recent_validity REAL DEFAULT 0\",\n            \"action_advice TEXT\",\n            \"reject_code TEXT\",\n            \"schema_fix_version TEXT\"\n        };\n    }"
+    },
+    {
+      "id": "saveShadowCandidates_four_args",
+      "kind": "REPLACE_EXACT_METHOD",
+      "old_signature": "    public void saveShadowCandidates(\n            String baseIssue,",
+      "new_signature": "    public void saveShadowCandidates(\n            String baseIssue,",
+      "old_sha256_utf8": "6029209478881906bd8319779cc581c5ed9c5f8a49c02db4c9fb5ba716779915",
+      "new_sha256_utf8": "0debeabcdba51832e5ff958602f668c6dc37ed6803619d36eaa0b9d0602fb7c4",
+      "old_lines": {
+        "start_line": 6137,
+        "end_line": 6188
+      },
+      "new_lines": {
+        "start_line": 6171,
+        "end_line": 6224
+      },
+      "old_text": "    public void saveShadowCandidates(\n            String baseIssue,\n            String targetIssue,\n            List<Models.ComboCandidate> candidates,\n            int limit) {\n        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard3 = DatabaseCoordinator.acquireWriterGuardCP3()) {\n            saveMainChainCandidateSnapshot(\n                    baseIssue, targetIssue, candidates, MAIN_CHAIN_REALTIME_TOP40_LIMIT);\n            if (targetIssue == null || targetIssue.length() == 0 || candidates == null) {\n                return;\n            }\n\n            SQLiteDatabase db = writable();\n            ensureRuntimeExtraTablesOnce(db);\n\n            db.beginTransaction();\n\n            try {\n                db.delete(DbHelper.TABLE_SHADOW, \"target_issue=?\", new String[] {targetIssue});\n\n                int max = limit <= 0 ? candidates.size() : Math.min(limit, candidates.size());\n                long now = System.currentTimeMillis();\n\n                for (int i = 0; i < max; i++) {\n                    Models.ComboCandidate c = candidates.get(i);\n\n                    if (c == null || !c.isValidK3()) {\n                        continue;\n                    }\n\n                    attachTeacherMatrixFieldsToCandidate(c);\n                    ensureSafePreDrawPromotionDomain(c);\n\n                    ContentValues cv = comboCandidateToValues(c);\n\n                    cv.put(\n                            \"base_issue\",\n                            baseIssue == null || baseIssue.length() == 0 ? c.baseIssue : baseIssue);\n                    cv.put(\"target_issue\", targetIssue);\n                    cv.put(\"created_at\", now);\n                    cv.put(\"rank_no\", i + 1);\n                    cv.put(\"learned\", 0);\n\n                    insertFiltered(db, DbHelper.TABLE_SHADOW, cv, SQLiteDatabase.CONFLICT_NONE);\n                }\n\n                db.setTransactionSuccessful();\n            } finally {\n                db.endTransaction();\n            }\n        }\n    }",
+      "new_text": "    public void saveShadowCandidates(\n            String baseIssue,\n            String targetIssue,\n            List<Models.ComboCandidate> candidates,\n            int limit) {\n        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard3 = DatabaseCoordinator.acquireWriterGuardCP3()) {\n            saveMainChainCandidateSnapshot(\n                    baseIssue, targetIssue, candidates, MAIN_CHAIN_REALTIME_TOP40_LIMIT);\n            if (targetIssue == null || targetIssue.length() == 0 || candidates == null) {\n                return;\n            }\n\n            SQLiteDatabase db = writable();\n            // The snapshot and SHADOW path share the same read-only contract.\n            // A first business call must not run the lazy Legacy DDL initializer.\n            ensureMainChainClosedLoopReady(db);\n\n            db.beginTransaction();\n\n            try {\n                db.delete(DbHelper.TABLE_SHADOW, \"target_issue=?\", new String[] {targetIssue});\n\n                int max = limit <= 0 ? candidates.size() : Math.min(limit, candidates.size());\n                long now = System.currentTimeMillis();\n\n                for (int i = 0; i < max; i++) {\n                    Models.ComboCandidate c = candidates.get(i);\n\n                    if (c == null || !c.isValidK3()) {\n                        continue;\n                    }\n\n                    attachTeacherMatrixFieldsToCandidate(c);\n                    ensureSafePreDrawPromotionDomain(c);\n\n                    ContentValues cv = comboCandidateToValues(c);\n\n                    cv.put(\n                            \"base_issue\",\n                            baseIssue == null || baseIssue.length() == 0 ? c.baseIssue : baseIssue);\n                    cv.put(\"target_issue\", targetIssue);\n                    cv.put(\"created_at\", now);\n                    cv.put(\"rank_no\", i + 1);\n                    cv.put(\"learned\", 0);\n\n                    insertFiltered(db, DbHelper.TABLE_SHADOW, cv, SQLiteDatabase.CONFLICT_NONE);\n                }\n\n                db.setTransactionSuccessful();\n            } finally {\n                db.endTransaction();\n            }\n        }\n    }"
+    },
+    {
+      "id": "saveMainChainCandidateSnapshot",
+      "kind": "REPLACE_EXACT_METHOD",
+      "old_signature": "    public int saveMainChainCandidateSnapshot(",
+      "new_signature": "    public int saveMainChainCandidateSnapshot(",
+      "old_sha256_utf8": "425e3755d69030761a9ad5ba103bc26939936475ad3ac1eb0034357831e8aa2d",
+      "new_sha256_utf8": "74c60203b67f826e2b1c9015ac7480f45f48ab272633128ee9443ea1ec87d2b2",
+      "old_lines": {
+        "start_line": 6883,
+        "end_line": 6949
+      },
+      "new_lines": {
+        "start_line": 6919,
+        "end_line": 6979
+      },
+      "old_text": "    public int saveMainChainCandidateSnapshot(\n            String baseIssue,\n            String targetIssue,\n            List<Models.ComboCandidate> candidates,\n            int limit) {\n        if (targetIssue == null\n                || targetIssue.length() == 0\n                || candidates == null\n                || candidates.size() == 0) {\n            return 0;\n        }\n        SQLiteDatabase db = writable();\n        ensureMainChainClosedLoopReady(db);\n        int max = limit > 0 ? limit : MAIN_CHAIN_REALTIME_TOP40_LIMIT;\n        if (max > MAIN_CHAIN_CANDIDATE_SNAPSHOT_KEEP) max = MAIN_CHAIN_CANDIDATE_SNAPSHOT_KEEP;\n        int saved = 0;\n        db.beginTransaction();\n        try {\n            for (int i = 0; i < candidates.size() && i < max; i++) {\n                Models.ComboCandidate c = candidates.get(i);\n                if (c == null) continue;\n                if (c.rank <= 0) c.rank = i + 1;\n                c.baseIssue = firstNonEmpty(c.baseIssue, baseIssue, \"\");\n                c.targetIssue = firstNonEmpty(c.targetIssue, targetIssue, \"\");\n                setOptionalIntField(\n                        c,\n                        \"realtimeTop40Rank\",\n                        c.rank <= MAIN_CHAIN_REALTIME_TOP40_LIMIT ? c.rank : 0);\n                setOptionalIntField(\n                        c, \"adaptiveInputFlag\", c.rank <= MAIN_CHAIN_REALTIME_TOP40_LIMIT ? 1 : 0);\n                ContentValues cv = comboCandidateToValues(c);\n                putMainChainClosedLoopValues(cv, c);\n                cv.put(\n                        \"snapshot_key\",\n                        buildMainChainCandidateKey(\n                                targetIssue, c.position, c.n1, c.n2, c.n3, c.k3Mask, c.rank));\n                insertFiltered(\n                        db,\n                        TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT,\n                        cv,\n                        SQLiteDatabase.CONFLICT_REPLACE);\n                insertFiltered(\n                        db,\n                        DbHelper.TABLE_FULL_CANDIDATE_SCAN,\n                        cv,\n                        SQLiteDatabase.CONFLICT_REPLACE);\n                if (c.rank <= MAIN_CHAIN_REALTIME_TOP40_LIMIT) {\n                    insertFiltered(\n                            db,\n                            DbHelper.TABLE_CANDIDATE_AUDIT,\n                            cv,\n                            SQLiteDatabase.CONFLICT_REPLACE);\n                }\n                recordMainChainRejectBucket(\n                        db, c, getStringField(c, \"rejectCode\"), AppConfig.DECISION_SHADOW);\n                saved++;\n            }\n            db.setTransactionSuccessful();\n        } catch (Throwable e) {\n        } finally {\n            try {\n                db.endTransaction();\n            } catch (Throwable ignore) {\n            }\n        }\n        return saved;\n    }",
+      "new_text": "    public int saveMainChainCandidateSnapshot(\n            String baseIssue,\n            String targetIssue,\n            List<Models.ComboCandidate> candidates,\n            int limit) {\n        if (targetIssue == null\n                || targetIssue.length() == 0\n                || candidates == null\n                || candidates.size() == 0) {\n            return 0;\n        }\n        SQLiteDatabase db = writable();\n        ensureMainChainClosedLoopReady(db);\n        int max = limit > 0 ? limit : MAIN_CHAIN_REALTIME_TOP40_LIMIT;\n        if (max > MAIN_CHAIN_CANDIDATE_SNAPSHOT_KEEP) max = MAIN_CHAIN_CANDIDATE_SNAPSHOT_KEEP;\n        int saved = 0;\n        db.beginTransaction();\n        Throwable snapshotFailure=null;\n        try {\n            for (int i = 0; i < candidates.size() && i < max; i++) {\n                Models.ComboCandidate c = candidates.get(i);\n                if (c == null) continue;\n                if (c.rank <= 0) c.rank = i + 1;\n                c.baseIssue = firstNonEmpty(c.baseIssue, baseIssue, \"\");\n                c.targetIssue = firstNonEmpty(c.targetIssue, targetIssue, \"\");\n                setOptionalIntField(\n                        c,\n                        \"realtimeTop40Rank\",\n                        c.rank <= MAIN_CHAIN_REALTIME_TOP40_LIMIT ? c.rank : 0);\n                setOptionalIntField(\n                        c, \"adaptiveInputFlag\", c.rank <= MAIN_CHAIN_REALTIME_TOP40_LIMIT ? 1 : 0);\n                ContentValues cv = comboCandidateToValues(c);\n                putMainChainClosedLoopValues(cv, c);\n                String snapshotKey=buildMainChainCandidateKey(\n                        targetIssue,c.position,c.n1,c.n2,c.n3,c.k3Mask,c.rank);\n                cv.put(\"snapshot_key\",snapshotKey);\n                // The existing audit table has a required natural key. It is a\n                // sidecar identity derived from this actual candidate, not a freeze.\n                cv.put(\"audit_key\",\"MCCA_\"+snapshotKey);\n                insertMainChainRowR31(db,TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT,cv);\n                insertMainChainRowR31(db,DbHelper.TABLE_FULL_CANDIDATE_SCAN,cv);\n                if (c.rank <= MAIN_CHAIN_REALTIME_TOP40_LIMIT) {\n                    insertMainChainRowR31(db,DbHelper.TABLE_CANDIDATE_AUDIT,cv);\n                }\n                recordMainChainRejectBucket(\n                        db, c, getStringField(c, \"rejectCode\"), AppConfig.DECISION_SHADOW);\n                saved++;\n            }\n            db.setTransactionSuccessful();\n        } catch (RuntimeException|Error failed) {\n            snapshotFailure=failed;throw failed;\n        } finally {\n            try {\n                db.endTransaction();\n            } catch (RuntimeException|Error endFailure) {\n                if(snapshotFailure==null)throw endFailure;\n                if(snapshotFailure!=endFailure)snapshotFailure.addSuppressed(endFailure);\n            }\n        }\n        return saved;\n    }"
+    },
+    {
+      "id": "recordMainChainRejectBucket",
+      "kind": "REPLACE_EXACT_METHOD",
+      "old_signature": "    private void recordMainChainRejectBucket(",
+      "new_signature": "    private void recordMainChainRejectBucket(",
+      "old_sha256_utf8": "5202a083c075ca53621ae1bcea791a35aa52eb6dcc0c66b8907f8f1b888e9beb",
+      "new_sha256_utf8": "355740cd3e04c50f085012a4cd33aefddd64f0509e06b20b2ba10281b99e8a40",
+      "old_lines": {
+        "start_line": 6963,
+        "end_line": 7000
+      },
+      "new_lines": {
+        "start_line": 6998,
+        "end_line": 7032
+      },
+      "old_text": "    private void recordMainChainRejectBucket(\n            SQLiteDatabase db, Object obj, String rejectCode, String decision) {\n        if (db == null) return;\n        String code =\n                rejectCode == null || rejectCode.length() == 0 ? REJECT_CODE_NONE : rejectCode;\n        if (code.length() == 0) code = \"PASS_OR_UNKNOWN\";\n        try {\n            String bucketKey = \"MCRB_\" + AppConfig.safeKeyPart(code);\n            ContentValues cv = new ContentValues();\n            cv.put(\"bucket_key\", bucketKey);\n            cv.put(\"reject_code\", code);\n            cv.put(\"sample_count\", 1);\n            cv.put(\"candidate_count\", 1);\n            cv.put(\n                    \"bet_count\",\n                    AppConfig.DECISION_BET.equals(AppConfig.normalizeDecision(decision)) ? 1 : 0);\n            cv.put(\n                    \"shadow_count\",\n                    AppConfig.DECISION_SHADOW.equals(AppConfig.normalizeDecision(decision))\n                            ? 1\n                            : 0);\n            cv.put(\n                    \"hold_count\",\n                    AppConfig.DECISION_HOLD.equals(AppConfig.normalizeDecision(decision)) ? 1 : 0);\n            cv.put(\"avg_final_p\", getDoubleField(obj, \"finalP\"));\n            cv.put(\n                    \"avg_gate\",\n                    maxDouble(\n                            getDoubleField(obj, \"gate\"),\n                            getDoubleField(obj, \"dynamicGate\"),\n                            0.0d,\n                            0.0d));\n            cv.put(\"avg_edge\", getDoubleField(obj, \"edge\"));\n            cv.put(\"updated_at\", System.currentTimeMillis());\n            insertFiltered(db, TABLE_MAIN_CHAIN_REJECT_BUCKET, cv, SQLiteDatabase.CONFLICT_REPLACE);\n        } catch (Throwable e) {\n        }\n    }",
+      "new_text": "    private void recordMainChainRejectBucket(\n            SQLiteDatabase db, Object obj, String rejectCode, String decision) {\n        if (db == null) return;\n        String code =\n                rejectCode == null || rejectCode.length() == 0 ? REJECT_CODE_NONE : rejectCode;\n        if (code.length() == 0) code = \"PASS_OR_UNKNOWN\";\n            String bucketKey = \"MCRB_\" + AppConfig.safeKeyPart(code);\n            ContentValues cv = new ContentValues();\n            cv.put(\"bucket_key\", bucketKey);\n            cv.put(\"reject_code\", code);\n            cv.put(\"sample_count\", 1);\n            cv.put(\"candidate_count\", 1);\n            cv.put(\n                    \"bet_count\",\n                    AppConfig.DECISION_BET.equals(AppConfig.normalizeDecision(decision)) ? 1 : 0);\n            cv.put(\n                    \"shadow_count\",\n                    AppConfig.DECISION_SHADOW.equals(AppConfig.normalizeDecision(decision))\n                            ? 1\n                            : 0);\n            cv.put(\n                    \"hold_count\",\n                    AppConfig.DECISION_HOLD.equals(AppConfig.normalizeDecision(decision)) ? 1 : 0);\n            cv.put(\"avg_final_p\", getDoubleField(obj, \"finalP\"));\n            cv.put(\n                    \"avg_gate\",\n                    maxDouble(\n                            getDoubleField(obj, \"gate\"),\n                            getDoubleField(obj, \"dynamicGate\"),\n                            0.0d,\n                            0.0d));\n            cv.put(\"avg_edge\", getDoubleField(obj, \"edge\"));\n            cv.put(\"updated_at\", System.currentTimeMillis());\n            insertMainChainRowR31(db,TABLE_MAIN_CHAIN_REJECT_BUCKET,cv);\n    }"
+    },
+    {
+      "id": "legacy_schema_flight_fields_and_request",
+      "kind": "REMOVE_EXACT_ADDED_BLOCK",
+      "old_sha256_utf8": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "new_sha256_utf8": "9700350303b079b3059bcc9d1ca4e8bb1eb6f6adb36dc7c555962a9e0ae67be0",
+      "old_text": "",
+      "new_text": "    private static final java.util.Map<DatabaseCoordinator,LegacySchemaFlightR31> LEGACY_SCHEMA_FLIGHTS_R31=\n            new java.util.WeakHashMap<>();\n    private static final class LegacySchemaFlightR31 {\n        volatile java.util.concurrent.Future<?> future;\n        volatile boolean started,exited;\n    }\n\n    /** Called by the background control owner. It only reads or queues migration. */\n    public boolean requestLegacySchemaMigrationR31() {\n        final LegacySchemaFlightR31 flight;\n        synchronized(LEGACY_SCHEMA_FLIGHTS_R31) {\n            LegacySchemaFlightR31 prior=LEGACY_SCHEMA_FLIGHTS_R31.get(coordinator);\n            if(prior!=null) {\n                java.util.concurrent.Future<?> completion=prior.future;\n                // Normal Future completion follows the outer writer Runnable's exit.\n                // Cancellation alone cannot prove a running callback has terminated.\n                if(completion==null||!completion.isDone()||(completion.isCancelled()&&!prior.exited))return false;\n                LEGACY_SCHEMA_FLIGHTS_R31.remove(coordinator);\n            }\n            try {\n                LegacySchemaCoordinatorR926.requireMainChainClosedLoopReadyR31(readable());\n                SchemaDomainCoordinatorR926.Contract contract=SchemaDomainCoordinatorR926.legacyContract();\n                try(Cursor step=readable().rawQuery(\"SELECT status FROM \"+SchemaDomainCoordinatorR926.TABLE_JOURNAL\n                        +\" WHERE domain=? AND revision=? AND step_id=?\",new String[]{contract.domain,\n                        String.valueOf(contract.revision),LegacySchemaCoordinatorR926.MAIN_CHAIN_STEP_R31})) {\n                    if(step.moveToFirst()&&\"COMPLETED\".equals(step.getString(0))\n                            &&SchemaDomainCoordinatorR926.matches(readable(),contract))return false;\n                }\n                coordinator.invalidateLegacyRuntimeSchemaR31(\"LEGACY_MAIN_CHAIN_JOURNAL_PENDING\");\n            } catch(RuntimeException pending) {\n                coordinator.invalidateLegacyRuntimeSchemaR31(pending.getClass().getSimpleName()+\":\"+pending.getMessage());\n            }\n            flight=new LegacySchemaFlightR31();LEGACY_SCHEMA_FLIGHTS_R31.put(coordinator,flight);\n        }\n        try {\n            flight.future=coordinator.submitBackgroundWrite(\"R31_LEGACY_SCHEMA_PREPARE\",db->{\n                flight.started=true;\n                try {\n                    // invalidate above prevents the old in-memory READY flag from\n                    // permanently bypassing a real schema-drift repair.\n                    ensureRuntimeExtraTablesOnce(db);\n                    LegacySchemaCoordinatorR926.requireMainChainClosedLoopReadyR31(db);\n                } finally {flight.exited=true;}\n            });\n            return true;\n        } catch(java.util.concurrent.RejectedExecutionException busy) {\n            synchronized(LEGACY_SCHEMA_FLIGHTS_R31){if(LEGACY_SCHEMA_FLIGHTS_R31.get(coordinator)==flight)LEGACY_SCHEMA_FLIGHTS_R31.remove(coordinator);}\n            return false;\n        } catch(RuntimeException|Error failed) {\n            synchronized(LEGACY_SCHEMA_FLIGHTS_R31){if(LEGACY_SCHEMA_FLIGHTS_R31.get(coordinator)==flight)LEGACY_SCHEMA_FLIGHTS_R31.remove(coordinator);}\n            throw failed;\n        }\n    }\n",
+      "new_lines": {
+        "start_line": 116,
+        "end_line": 169
+      }
+    },
+    {
+      "id": "insertMainChainRowR31",
+      "kind": "REMOVE_EXACT_ADDED_BLOCK",
+      "old_sha256_utf8": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "new_sha256_utf8": "fad504fde7bfdc4df18dfbd7bb909917e467df1aaa89e1b07a6161103904b1e6",
+      "method_sha256_utf8": "8f352d142b330163fd674adaeecdb18b53426bae4f1415194ee2605f1d87507e",
+      "old_text": "",
+      "new_text": "    private void insertMainChainRowR31(SQLiteDatabase db,String table,ContentValues values) {\n        if(insertFiltered(db,table,values,SQLiteDatabase.CONFLICT_REPLACE)<0)\n            throw new IllegalStateException(\"MAIN_CHAIN_SIDECAR_INSERT_FAILED:\"+table);\n    }\n\n",
+      "new_lines": {
+        "start_line": 6981,
+        "end_line": 6984
+      }
+    }
+  ],
+  "inverse_proof": {
+    "all_allowlisted_blocks_unique": true,
+    "exact_inverse_restores_every_baseline_byte": true,
+    "restored_whole_file_sha256": "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",
+    "remaining_unregistered_changes": false
+  },
+  "additional_source_comparisons": {
+    "mainChainClosedLoopColumnDefs": {
+      "body_byte_identical": true,
+      "body_sha256": "b555af867d39dbd10d7b54d27a0a1440fd328bd6035074053121a593aa0d4acb"
+    },
+    "mainChainFactorColumnDefs": {
+      "body_byte_identical": true,
+      "body_sha256": "3c022d45636603cb330dd25753b7fc4d203503e5fe8f6a2ab961c2ceaf36ec6d"
+    },
+    "saveShadowCandidates_only_readiness_changed": true
+  },
+  "protected_methods": {
+    "    private boolean isValidBetDecision(": {
+      "byte_identical": true,
+      "sha256_utf8": "ddd8032783d4b9e426e397c0c23ea13f33f94e501d40cc23a66d59831bc24361",
+      "old_lines": {
+        "start_line": 3896,
+        "end_line": 3934
+      },
+      "new_lines": {
+        "start_line": 3930,
+        "end_line": 3968
+      }
+    },
+    "    private boolean isFieldChainUnsafeRealBetDecision(": {
+      "byte_identical": true,
+      "sha256_utf8": "06e57db06c1a140cd0492f03e5d3b3163e028be471576ef4401e4b8b7e0254ac",
+      "old_lines": {
+        "start_line": 5511,
+        "end_line": 5606
+      },
+      "new_lines": {
+        "start_line": 5545,
+        "end_line": 5640
+      }
+    },
+    "    private double pnlForHitLocal(": {
+      "byte_identical": true,
+      "sha256_utf8": "1233982a1b25033498f3c40bfc8a51959de7bd4e7e5ac54a10d934228d12b2f4",
+      "old_lines": {
+        "start_line": 15410,
+        "end_line": 15422
+      },
+      "new_lines": {
+        "start_line": 15442,
+        "end_line": 15454
+      }
+    },
+    "    private long insertFiltered(": {
+      "byte_identical": true,
+      "sha256_utf8": "43cd1319e4c6389a07843a638d8e374a3a0d29cf548fbbc512623b5ad83b5d1f",
+      "old_lines": {
+        "start_line": 14755,
+        "end_line": 14775
+      },
+      "new_lines": {
+        "start_line": 14787,
+        "end_line": 14807
+      }
+    },
+    "    private ContentValues comboCandidateToValues(": {
+      "byte_identical": true,
+      "sha256_utf8": "a54f2891cd88409a97e7cbb867aacefbd11edffebe4212bdb135c644fa8dc2d4",
+      "old_lines": {
+        "start_line": 6190,
+        "end_line": 6299
+      },
+      "new_lines": {
+        "start_line": 6226,
+        "end_line": 6335
+      }
+    },
+    "    private void putMainChainClosedLoopValues(": {
+      "byte_identical": true,
+      "sha256_utf8": "5b9a875e9f2eef7360226b5f9eb52bf97e70d8647064474620b8e711308ef61e",
+      "old_lines": {
+        "start_line": 6301,
+        "end_line": 6322
+      },
+      "new_lines": {
+        "start_line": 6337,
+        "end_line": 6358
+      }
+    },
+    "    private String buildMainChainCandidateKey(": {
+      "byte_identical": true,
+      "sha256_utf8": "f981d34126fcbaf90085c24f571d14b55a79bf88158d066b38ee645e1b3c8b17",
+      "old_lines": {
+        "start_line": 6876,
+        "end_line": 6881
+      },
+      "new_lines": {
+        "start_line": 6912,
+        "end_line": 6917
+      }
+    }
+  },
+  "protected_complement_negative_controls": {
+    "REAL_trade_admission": {
+      "unregistered_mutation_fails_original_hash": true,
+      "original_anchor": "if(DbHelper.TABLE_TRADES.equals(table))\n            throw new IllegalStateException(\"CP4_TRADE_INSERT_REQUIRES_CANONICAL_OWNER\");",
+      "mutation_sha256": "9d5763ae530d10b527d289108070907a5201c025ec3205d6bec68b7c348a8ccd"
+    },
+    "payout_formula": {
+      "unregistered_mutation_fails_original_hash": true,
+      "original_anchor": "t.pnl = pnlForHitLocal(t.hit == 1);",
+      "mutation_sha256": "8768f582bf66c63b774f7582adc8d8cf82f391f92a6b9048ea881eced07f474d"
+    },
+    "K3_authorization": {
+      "unregistered_mutation_fails_original_hash": true,
+      "original_anchor": "if (!Models.isValidK3Mask(d.k3Mask)) {",
+      "mutation_sha256": "7b22609a17aec4ef902f265924e873d4f03dded11affdf9849ff7a8234873039"
+    }
+  },
+  "native_evidence": {
+    "receipt": "verification/r31/p02/schema_mainchain/runs/20261104T112716Z/receipt.json",
+    "trace": "verification/r31/p02/schema_mainchain/runs/20261104T112716Z/SQL_API_CALLS.tsv",
+    "data_readback": "verification/r31/p02/schema_mainchain/runs/20261104T112716Z/post_run_readonly_data_checks.json",
+    "readme": "verification/r31/p02/schema_mainchain/README.md"
+  },
+  "review_requirements": [
+    "Keep the original old whole-file expected hash.",
+    "Assert every new block is unique and exactly pinned before reversing it; do not generically strip method names.",
+    "Replace each exact new block with its exact pinned old text (or remove only registered additions), then enforce the original whole-file hash.",
+    "Require mutations both in allowed new blocks and in protected complement to fail the guard.",
+    "This review does not itself execute H15, Gradle, or Android and is not full B02/quality acceptance."
+  ]
+}

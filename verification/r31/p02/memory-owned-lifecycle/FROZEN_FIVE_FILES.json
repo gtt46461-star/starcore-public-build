@@ -1,0 +1,62 @@
+{
+  "frozenAtUtc": "2026-11-04T13:38:11.510792+00:00",
+  "scope": "FIVE_FILES_CODE_COMPLETE_OWNED_LIFECYCLE_TESTED_FULL_MATH_STILL_RESOURCE_BLOCKED_NOT_FULL_P02_INTEGRATION_PASS",
+  "filesSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java": "997ededc60301bd38a2b382d04b8304ef9de45e265e7b7a954979b899f2c37d2",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullEvolutionR27.java": "082b4391ad133b86fa989e72de1d4d6cea61fc2cd0108ee1f0deeddf1a2c29f3",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationR30.java": "181c7f887aaec3d61256e0d1b304895088f37c84b6c493702e328ae0ba5b7f7f",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27EvolutionTest.java": "3a303881508b621abf913803b362899aa224647eb8523bb12e03b43b22527643",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30NullPipelineTest.java": "cd968f6eb1614ebd54726aee2addda23edb5240831e7494feeb611ee9aeb562c"
+  },
+  "patchSha256": "7326ee78c077658c705626a556af9993322fc44dbd4b64e959b1cfb3eba103c9",
+  "sourceChangedDuringFinalMathRun": [],
+  "mathematicalAssertions": [
+    {
+      "file": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27EvolutionTest.java",
+      "originalAssertionCount": 11,
+      "currentAssertionCount": 11,
+      "assertionsByteExactIgnoringOnlyLeadingIndent": true,
+      "numericTokensUnchanged": true
+    },
+    {
+      "file": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30NullPipelineTest.java",
+      "originalAssertionCount": 20,
+      "currentAssertionCount": 20,
+      "assertionsByteExactIgnoringOnlyLeadingIndent": true,
+      "numericTokensUnchanged": true
+    }
+  ],
+  "hostLifecycle": {
+    "status": "PASS",
+    "receipt": "owned-fixture-fix1-receipt.json",
+    "originalInvalidNewHarnessFailurePreserved": "OwnedLifecycleHostR31.log"
+  },
+  "boundedReplayOriginalTests": {
+    "tests": 4,
+    "failures": 0,
+    "scope": "Prior fixed11-source snapshot; see RECEIPT.json; does not replace final root integration"
+  },
+  "finalOriginalMathAfterLifecycle": {
+    "R27EvolutionTest": {
+      "tests": 3,
+      "passed": 2,
+      "resourceFailed": 1,
+      "passedMethods": [
+        "plantedSignalIsFoundAndVerifiedWithin50Generations",
+        "killAfterEveryStepAndResume"
+      ],
+      "failedMethod": "noSignalRarelyClaimsImprovement"
+    },
+    "R30NullPipelineTest": {
+      "tests": 3,
+      "passed": 1,
+      "resourceFailed": 2,
+      "failedMethods": [
+        "powerAndFullPipelineQualificationHaveRecoverableSyntheticReceipts",
+        "sameFullEvolutionPipelineResumesItsControlState"
+      ]
+    }
+  },
+  "publicationAndDeviceEvidence": "NOT_RUN",
+  "stageCommitPushByAgent": false
+}

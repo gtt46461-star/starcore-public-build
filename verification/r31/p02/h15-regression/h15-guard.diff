@@ -1,0 +1,112 @@
+diff --git a/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java b/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java
+index f3bac1de..50f24770 100644
+--- a/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java
++++ b/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java
+@@ -137,9 +137,64 @@ public final class R27QualityTest {
+         {"app/src/main/java/com/ethk3/novaonepro/DbStore.java", "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a"},
+     };
+ 
++    /** R31-B03-C03 moves this one research producer to confirmed-draw ingress. Reconstruct
++     * its exact former bytes solely for the original H15 owner hash; no PnL/Gate/REAL code
++     * is excluded from comparison and the expected pre-R31 hash remains unchanged. */
++    static String restoreR31FeedbackExtractionForH15(String source) {
++        String oldCall="                                            com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.feedbackWithinTransaction(db, draw);\n";
++        assertFalse("Core settlement must no longer depend on research feedback",source.contains("RuntimeSchemaR26.feedbackWithinTransaction("));
++        String anchor="                                            RuntimeEventHooksR926.settledWithinTransaction(\n"
++                +"                                                    db, draw.issue, settlementHash, terminalStatus, claim.drawHash);\n"
++                +"                                            SettlementReport report = new SettlementReport();\n";
++        assertEquals("Only the exact registered feedback-extraction site is allowed",1,source.split(java.util.regex.Pattern.quote(anchor),-1).length-1);
++        return source.replace(anchor,anchor.replace("                                            SettlementReport report",oldCall+"                                            SettlementReport report"));
++    }
++
++    /** Each permitted schema/sidecar block is independently pinned; the rest of DbStore
++     * still must reproduce the original 9edd4e0f whole-file hash. The baseline is the
++     * immutable plan fixture, not a replacement production implementation. */
++    static String restoreR31DbSchemaSidecarsForH15(String source,String baseline) {
++        assertEquals("Original DbStore fixture must itself retain the old owner identity",
++                "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",
++                StatsR27.sha256(baseline.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
++        String[][] blocks={
++            {"    private static final java.util.Map<DatabaseCoordinator,LegacySchemaFlightR31> LEGACY_SCHEMA_FLIGHTS_R31=","    public java.io.InputStream openResearchAssetCP12(","7e9b5721810883f8776e5d1dd22339bdf983669e12bcf034b7c7e7bbcdb772f1","INSERTION"},
++            {"    private void ensureRuntimeExtraTablesOnce(final SQLiteDatabase db) {","    private void verifyLegacyRuntimeTablesR363(","6b3f167e263c8bc81ec53ae5746431e3137c8b9077770e7e94f39ca240001cc5","REPLACE"},
++            {"    private void ensureMainChainClosedLoopReady(SQLiteDatabase db) {","    private void ensureMainChainColumns(","97c5e3abe28683190a2c92ba10413490faa5ed9b16b8c87e78e221fe8b3c7158","REPLACE"},
++            {"    public int saveMainChainCandidateSnapshot(","    public int saveRealtimeTop40Candidates(","e83ca46b42aa0b524437a15d4a5dea2ba0f1648eebfe9938bda1cd1a87f74419","REPLACE"},
++            {"    private void recordMainChainRejectBucket(","    private void putFinalVersionFallback(","5ae257ee60cfc081b1baa1ca2296b007e21ef21b31f8723afce780261f476b52","REPLACE"}
++        };
++        for(String[] block:blocks) {
++            int start=source.indexOf(block[0]),end=source.indexOf(block[1],start+block[0].length());
++            assertTrue("Approved block start/end must exist: "+block[0],start>=0&&end>start);
++            assertEquals("Approved block start must be unique",start,source.lastIndexOf(block[0]));
++            assertEquals("Only exact reviewed schema/sidecar bytes are allowed: "+block[0],block[2],
++                    StatsR27.sha256(source.substring(start,end).getBytes(java.nio.charset.StandardCharsets.UTF_8)));
++            String original="\n"; // the inserted flight occupies the original blank separator
++            if(!"INSERTION".equals(block[3])) {
++                int oldStart=baseline.indexOf(block[0]),oldEnd=baseline.indexOf(block[1],oldStart+block[0].length());
++                assertTrue("Original block must exist",oldStart>=0&&oldEnd>oldStart);
++                original=baseline.substring(oldStart,oldEnd);
++            }
++            source=source.substring(0,start)+original+source.substring(end);
++        }
++        for(String method:new String[]{"mainChainClosedLoopColumnDefs","mainChainFactorColumnDefs"}) {
++            String signature="    static String[] "+method+"() {";
++            assertEquals("Only package-static exposure, never a column definition change",1,source.split(java.util.regex.Pattern.quote(signature),-1).length-1);
++            source=source.replace(signature,"    private String[] "+method+"() {");
++        }
++        String oldShadow="            SQLiteDatabase db = writable();\n            ensureRuntimeExtraTablesOnce(db);\n\n            db.beginTransaction();";
++        String newShadow="            SQLiteDatabase db = writable();\n"
++                +"            // The snapshot and SHADOW path share the same read-only contract.\n"
++                +"            // A first business call must not run the lazy Legacy DDL initializer.\n"
++                +"            ensureMainChainClosedLoopReady(db);\n\n            db.beginTransaction();";
++        assertEquals("Only the four-argument SHADOW readiness call is replaced",1,source.split(java.util.regex.Pattern.quote(newShadow),-1).length-1);
++        return source.replace(newShadow,oldShadow);
++    }
++
+     @Test public void h15MainlineRedLines() throws Exception {
+         File root = R27TestSupport.root();
+-        // 1. Original owner bytes must match the baseline after removing the two R30 read-only wrappers.
++        // 1. Original bytes match after the registered R30 wrappers and exact R31 research extraction.
+         for (String[] f : MAINLINE_OWNERS) {
+             byte[] bytes=Files.readAllBytes(new File(root,f[0]).toPath());
+             if(f[0].endsWith("/DecisionGateEngine.java")) {
+@@ -154,7 +209,31 @@ public final class R27QualityTest {
+                 String source=new String(bytes,java.nio.charset.StandardCharsets.UTF_8);
+                 assertEquals("One registered source-revocation delegator",1,source.split("R30_REVOCATION_BEGIN",-1).length-1);
+                 source=source.replaceAll("(?s)    // R30_REVOCATION_BEGIN\\n.*?    // R30_REVOCATION_END\\n\\n", "");
+-                bytes=source.getBytes(java.nio.charset.StandardCharsets.UTF_8);
++                String normalized=restoreR31FeedbackExtractionForH15(source);
++                bytes=normalized.getBytes(java.nio.charset.StandardCharsets.UTF_8);
++                // Negative controls: extraction cannot excuse a formula/Gate change or add a
++                // feedback dependency back into the settlement transaction.
++                String changedPnl=source.replace("double pnl = hit ? AppConfig.WIN_PNL_K3 : AppConfig.MISS_PNL_K3;","double pnl = hit ? AppConfig.WIN_PNL_K3 + 1 : AppConfig.MISS_PNL_K3;");
++                assertNotEquals(source,changedPnl);
++                assertNotEquals("REAL payout mutation must still fail the original owner hash",f[1],StatsR27.sha256(restoreR31FeedbackExtractionForH15(changedPnl).getBytes(java.nio.charset.StandardCharsets.UTF_8)));
++                String changedGate=source.replace("!DecisionGateEngine.b12K3(n1, n2, n3)","false /* illegal K3 gate bypass */");
++                assertNotEquals(source,changedGate);
++                assertNotEquals("K3 authorization mutation must still fail the original owner hash",f[1],StatsR27.sha256(restoreR31FeedbackExtractionForH15(changedGate).getBytes(java.nio.charset.StandardCharsets.UTF_8)));
++                final String core=source;
++                assertThrows(AssertionError.class,()->restoreR31FeedbackExtractionForH15(core+"\ncom.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.feedbackWithinTransaction(db, draw);\n"));
++            }
++            if(f[0].endsWith("/DbStore.java")) {
++                String source=new String(bytes,java.nio.charset.StandardCharsets.UTF_8);
++                String baseline=new String(Files.readAllBytes(new File(root,"construction/STARCORE_R31_FINAL_20261104/baseline_source/"+f[0]).toPath()),java.nio.charset.StandardCharsets.UTF_8);
++                bytes=restoreR31DbSchemaSidecarsForH15(source,baseline).getBytes(java.nio.charset.StandardCharsets.UTF_8);
++                String illegalPnl=source.replace("dcv.put(\"pnl\", t.pnl);","dcv.put(\"pnl\", t.pnl + 1);");
++                assertNotEquals(source,illegalPnl);
++                assertNotEquals("DbStore REAL payout outside the registered blocks stays protected",f[1],
++                        StatsR27.sha256(restoreR31DbSchemaSidecarsForH15(illegalPnl,baseline).getBytes(java.nio.charset.StandardCharsets.UTF_8)));
++                String illegalSidecar=source.replace("cv.put(\"audit_key\",\"MCCA_\"+snapshotKey);","cv.put(\"audit_key\",\"FORGED_\"+snapshotKey);");
++                assertNotEquals(source,illegalSidecar);
++                assertThrows("Pinning a block does not permit arbitrary new side effects",AssertionError.class,
++                        ()->restoreR31DbSchemaSidecarsForH15(illegalSidecar,baseline));
+             }
+             assertEquals("original main-chain body changed: "+f[0],f[1],StatsR27.sha256(bytes));
+         }
+@@ -185,7 +264,7 @@ public final class R27QualityTest {
+         e.sequentialState = SequentialQualificationR27.ACCUMULATING; assertFalse("REPLAY/HOLDOUT never substitute FUTURE evidence", CertificateGateR27.evaluate(e).active);
+         assertNull("no ACTIVE certificate → PRODUCTION_FALLBACK", CertificateGateR27.choose(Collections.<CertificateGateR27.Evidence>emptyList()));
+         assertTrue(CertificateGateR27.VALID_MS > 0);
+-        R27TestSupport.log("H15_JAVA_PASS ownersUnchanged=" + MAINLINE_OWNERS.length + " r27FilesScanned=" + scanned + " noCertificateDenied=" + none.reason);
++        R27TestSupport.log("H15_JAVA_PASS originalOwnerHashesProtected=" + MAINLINE_OWNERS.length + " registeredR31FeedbackExtraction=1 pinnedDbSchemaSidecars=true payoutK3AndUnregisteredSideEffectMutationsRejected=true r27FilesScanned=" + scanned + " noCertificateDenied=" + none.reason);
+     }
+ 
+     // ------------------------------------------------------------------ H16 AtomNet planted vs null

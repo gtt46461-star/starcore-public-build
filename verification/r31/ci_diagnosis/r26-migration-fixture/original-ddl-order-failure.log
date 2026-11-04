@@ -1,0 +1,5 @@
+ORIGINAL_FIXTURE_FAILURE index=10 error=no such table: main.r26_consumption
+SQL=CREATE TRIGGER IF NOT EXISTS r31_feedback_model_receipt AFTER INSERT ON r26_consumption BEGIN INSERT OR IGNORE INTO r31_feedback_receipt(consumer_version,event_id,source_hash,checkpoint_hash,artifact_hash,policy_hash,scope,committed_at) SELECT NEW.policy_hash||'|R26_CHECKPOINT_RECEIPT_V1',e.event_id,e.source_hash,NEW.checkpoint_hash,a.artifact_hash,NEW.policy_hash,NEW.scope,a.created_at FROM r31_feedback_event e JOIN r26_feedback f ON f.event_id=NEW.event_id AND f.source_hash=e.source_hash JOIN r26_checkpoint_artifact a ON a.checkpoint_hash=NEW.checkpoint_hash AND a.trained_through>=e.issue_ordinal WHERE e.kind='DRAW_LABEL_REVEALED' AND e.legacy_event_id=NEW.event_id; END
+Traceback (most recent call last):
+  File "<stdin>", line 6, in <module>
+sqlite3.OperationalError: no such table: main.r26_consumption

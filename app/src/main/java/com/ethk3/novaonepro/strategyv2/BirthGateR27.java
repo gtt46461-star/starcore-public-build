@@ -38,7 +38,7 @@ public final class BirthGateR27 {
     public static Verdict candidateContract(PolicySpecR27 spec) {
         List<String> violations;
         try { violations = PolicyContractR30.violations(spec); }
-        catch (RuntimeException malformed) { return reject(Reason.TYPE, "R30_CONTRACT:MALFORMED_PROGRAM:" + malformed.getClass().getSimpleName()); }
+        catch (RuntimeException malformed) { propagateRuntimeDependencyR31(malformed);return reject(Reason.TYPE, "R30_CONTRACT:MALFORMED_PROGRAM:" + malformed.getClass().getSimpleName()); }
         if (!violations.isEmpty()) {
             StringBuilder codes = new StringBuilder("R30_CONTRACT:");
             for (String code : violations) { if (codes.length() > "R30_CONTRACT:".length()) codes.append(';'); codes.append(code); }
@@ -67,12 +67,13 @@ public final class BirthGateR27 {
         long state = 160L;
         for (PolicyAstR27.Node n : PolicyAstR27.nodes(ast)) if (n.op.equals("family")) state += 64L << 10; else if (n.op.equals("ema")) state += 80;
         if (state > MAX_STATE_BYTES) return reject(Reason.COST, "stateBytes=" + state);
-        long started = System.nanoTime(); double[] s;
-        try { s = PolicyAstR27.eval(ast, cache, spec.position); }
-        catch (RuntimeException e) { return reject(Reason.RANGE, "EVAL:" + e.getClass().getSimpleName() + ":" + e.getMessage()); }
+        long started = System.nanoTime(); PolicyAstR27.ScopedScoresR31 s;
+        try { s = PolicyAstR27.evalScopedR31(ast, cache, spec.position); }
+        catch (RuntimeException e) { propagateRuntimeDependencyR31(e);return reject(Reason.RANGE, "EVAL:" + e.getClass().getSimpleName() + ":" + e.getMessage()); }
+        try(PolicyAstR27.ScopedScoresR31 scoped=s){
         double perPeriodMs = (System.nanoTime() - started) / 1e6 / Math.max(1, cache.data.size());
         if (perPeriodMs > costLimitMs) return reject(Reason.COST, "predictMsPerPeriod=" + perPeriodMs);
-        ReplayEvaluatorR27.Trace tr = ReplayEvaluatorR27.run(spec, s, cache.data, cache.data.draws, spec.temperature, probeFrom, probeTo);
+        ReplayEvaluatorR27.Trace tr = ReplayEvaluatorR27.runScopedR31(spec, s, cache.data, cache.data.draws, spec.temperature, probeFrom, probeTo);
         int available = 0; double[] z = new double[10], p = new double[10];
         for (int t = probeFrom; t < probeTo; t++) {
             if (tr.skipped[t]) {
@@ -84,8 +85,8 @@ public final class BirthGateR27 {
                 continue;
             }
             available++;
-            if (!ReplayEvaluatorR27.standardize(s, t, z)) return reject(Reason.OUTPUT, "NONFINITE_SCORE@" + t);
-            if(SetIntersectionPolicyR30.exact(spec))System.arraycopy(s,t*10,p,0,10);else ReplayEvaluatorR27.softmax(z, spec.temperature, null, p);
+            if (!ReplayEvaluatorR27.standardizeScopedR31(s, t, z)) return reject(Reason.OUTPUT, "NONFINITE_SCORE@" + t);
+            if(SetIntersectionPolicyR30.exact(spec))s.copyRow(t,p);else ReplayEvaluatorR27.softmax(z, spec.temperature, null, p);
             double sum = 0; for (double x : p) { if (!Double.isFinite(x) || x < 0) return reject(Reason.OUTPUT, "PROBABILITY@" + t); sum += x; }
             if (Math.abs(sum - 1) > 1e-9) return reject(Reason.OUTPUT, "SUM@" + t + "=" + sum);
             int a = tr.k3[t * 3], b = tr.k3[t * 3 + 1], c = tr.k3[t * 3 + 2];
@@ -94,6 +95,7 @@ public final class BirthGateR27 {
         if (available < (probeTo - probeFrom) / 2) return reject(Reason.OUTPUT, "AVAILABLE_ROWS=" + available);
         int[] sig = signature(tr);
         return new Verdict(true, null, "predictMsPerPeriod=" + String.format(java.util.Locale.ROOT, "%.4f", perPeriodMs), sig);
+        }
     }
 
     /** Duplicate test against registered behavior (exact hash first, then Jaccard ≥ 0.95 against registered set). */
@@ -127,5 +129,10 @@ public final class BirthGateR27 {
         return inter / (double) (a.length + b.length - inter);
     }
 
+    /** Scheduling/resource state says nothing about a candidate's validity or statistical quality. */
+    private static void propagateRuntimeDependencyR31(RuntimeException failure){
+        Error fatal=FailureDispositionR31.processFatalCause(failure);if(fatal!=null)throw fatal;
+        if(FailureDispositionR31.classify(failure).disposition!=FailureDispositionR31.Disposition.FAULT)throw failure;
+    }
     private static Verdict reject(Reason r, String d) { return new Verdict(false, r, d, null); }
 }
