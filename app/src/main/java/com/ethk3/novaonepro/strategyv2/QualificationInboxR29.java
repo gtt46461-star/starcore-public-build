@@ -343,15 +343,40 @@ public final class QualificationInboxR29 {
 
     private static final String LEGACY_VERSION_R31="R31_APPEND_ONLY_QUALIFICATION_COMPAT_V1";
     private static final int LEGACY_RECEIPTS_PER_COMMIT_R31=8;
+    private static final String LEGACY_STRICT_NO_REPLACE_R31="CREATE TRIGGER IF NOT EXISTS r31_qual_receipt_no_replace BEFORE INSERT ON r29_qual_receipt WHEN EXISTS(SELECT 1 FROM r29_qual_receipt WHERE experiment_id=NEW.experiment_id AND target_ordinal=NEW.target_ordinal) BEGIN SELECT RAISE(ABORT,'R31_QUAL_RECEIPT_IMMUTABLE'); END";
     /** Installed only by the existing startup/schema owner, never by a business entry point. */
     public static String[] legacyReceiptGuardDdlR31(){return new String[]{
             "CREATE TRIGGER IF NOT EXISTS r31_qual_receipt_no_update BEFORE UPDATE ON r29_qual_receipt BEGIN SELECT RAISE(ABORT,'R31_QUAL_RECEIPT_IMMUTABLE'); END",
             "CREATE TRIGGER IF NOT EXISTS r31_qual_receipt_no_delete BEFORE DELETE ON r29_qual_receipt BEGIN SELECT RAISE(ABORT,'R31_QUAL_RECEIPT_IMMUTABLE'); END",
-            "CREATE TRIGGER IF NOT EXISTS r31_qual_receipt_no_replace BEFORE INSERT ON r29_qual_receipt WHEN EXISTS(SELECT 1 FROM r29_qual_receipt WHERE experiment_id=NEW.experiment_id AND target_ordinal=NEW.target_ordinal) BEGIN SELECT RAISE(ABORT,'R31_QUAL_RECEIPT_IMMUTABLE'); END"};}
+            "CREATE TRIGGER IF NOT EXISTS r31_qual_receipt_no_replace BEFORE INSERT ON r29_qual_receipt WHEN EXISTS(SELECT 1 FROM r29_qual_receipt WHERE experiment_id=NEW.experiment_id AND target_ordinal=NEW.target_ordinal) BEGIN SELECT CASE WHEN EXISTS(SELECT 1 FROM r29_qual_receipt WHERE experiment_id=NEW.experiment_id AND target_ordinal=NEW.target_ordinal AND typeof(target_issue)=typeof(NEW.target_issue) AND target_issue IS NEW.target_issue AND typeof(act)=typeof(NEW.act) AND act IS NEW.act AND typeof(hit)=typeof(NEW.hit) AND hit IS NEW.hit AND typeof(u)=typeof(NEW.u) AND u IS NEW.u AND typeof(digest)=typeof(NEW.digest) AND digest IS NEW.digest AND typeof(state_after)=typeof(NEW.state_after) AND state_after IS NEW.state_after AND typeof(consumed_at)=typeof(NEW.consumed_at) AND consumed_at IS NEW.consumed_at) THEN RAISE(IGNORE) ELSE RAISE(ABORT,'R31_QUAL_RECEIPT_IMMUTABLE') END; END"};}
     public static String[][] legacyReceiptGuardObjectsR31(){return new String[][]{{"trigger","r31_qual_receipt_no_update"},{"trigger","r31_qual_receipt_no_delete"},{"trigger","r31_qual_receipt_no_replace"}};}
     private static String canonicalLegacyGuardR31(String sql){return sql==null?"":sql.trim().replaceAll("(?i)\\bIF\\s+NOT\\s+EXISTS\\s+","").replaceAll("\\s+"," ").replaceAll(";+$","").toUpperCase(java.util.Locale.ROOT);}
+    private static void requireLegacyReceiptKeyR31(SQLiteDatabase db) {
+        int keys=0;boolean experiment=false,ordinal=false,shadowedRowid=false;
+        try(Cursor c=db.rawQuery("PRAGMA table_info(r29_qual_receipt)",null)){while(c.moveToNext()){int key=c.getInt(5);if(key>0)keys++;experiment|="experiment_id".equals(c.getString(1))&&key==1;ordinal|="target_ordinal".equals(c.getString(1))&&key==2;shadowedRowid|="rowid".equalsIgnoreCase(c.getString(1));}}
+        if(keys!=2||!experiment||!ordinal||shadowedRowid)throw new DatabaseCoordinator.SchemaPendingR31("R31_LEGACY_QUALIFICATION_PROOF","RECEIPT_PRIMARY_KEY_OR_ROWID_CONTRACT_MISMATCH");
+        try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE type='table' AND name='r29_qual_receipt'",null)){
+            if(!c.moveToFirst()||c.isNull(0)||c.getString(0).toUpperCase(java.util.Locale.ROOT).replaceAll("\\s+"," ").contains("WITHOUT ROWID"))throw new DatabaseCoordinator.SchemaPendingR31("R31_LEGACY_QUALIFICATION_PROOF","RECEIPT_APPEND_WATERMARK_UNAVAILABLE");
+        }
+    }
+    /** Startup migration only. Upgrade the exact known v1 guard; refuse unrelated same-name SQL. */
+    public static void ensureLegacyReceiptGuardsR31(SQLiteDatabase db) {
+        if(db==null||!db.inTransaction())throw new IllegalStateException("R31_QUALIFICATION_RECEIPT_SCHEMA_OWNER_TRANSACTION_REQUIRED");
+        requireLegacyReceiptKeyR31(db);String[][] objects=legacyReceiptGuardObjectsR31();String[] ddl=legacyReceiptGuardDdlR31();boolean upgrade=false;
+        try(Cursor c=db.rawQuery("SELECT type,name,sql FROM sqlite_master WHERE name IN (?,?,?)",new String[]{objects[0][1],objects[1][1],objects[2][1]})) {
+            while(c.moveToNext()){int index=-1;for(int i=0;i<objects.length;i++)if(objects[i][1].equals(c.getString(1)))index=i;
+                if(index<0||!"trigger".equals(c.getString(0)))throw new DatabaseCoordinator.SchemaPendingR31("R31_QUALIFICATION_RECEIPT_MIGRATION","UNEXPECTED_RECEIPT_GUARD_OBJECT");
+                String actual=canonicalLegacyGuardR31(c.getString(2));if(actual.equals(canonicalLegacyGuardR31(ddl[index])))continue;
+                if(index==2&&actual.equals(canonicalLegacyGuardR31(LEGACY_STRICT_NO_REPLACE_R31)))upgrade=true;
+                else throw new DatabaseCoordinator.SchemaPendingR31("R31_QUALIFICATION_RECEIPT_MIGRATION","UNKNOWN_RECEIPT_GUARD_SQL");
+            }
+        }
+        if(upgrade)db.execSQL("DROP TRIGGER r31_qual_receipt_no_replace");
+        for(String sql:ddl)db.execSQL(sql);
+        requireLegacyReceiptGuardsR31(db);
+    }
     public static void requireLegacyReceiptGuardsR31(SQLiteDatabase db) {
-        String[][] objects=legacyReceiptGuardObjectsR31();String[] expected=legacyReceiptGuardDdlR31();int count=0;
+        requireLegacyReceiptKeyR31(db);String[][] objects=legacyReceiptGuardObjectsR31();String[] expected=legacyReceiptGuardDdlR31();int count=0;
         try(Cursor c=db.rawQuery("SELECT name,sql FROM sqlite_master WHERE type='trigger' AND name IN (?,?,?)",new String[]{objects[0][1],objects[1][1],objects[2][1]})){
             while(c.moveToNext()){int index=-1;for(int i=0;i<objects.length;i++)if(objects[i][1].equals(c.getString(0)))index=i;
                 if(index<0||!canonicalLegacyGuardR31(expected[index]).equals(canonicalLegacyGuardR31(c.getString(1))))throw new DatabaseCoordinator.SchemaPendingR31("R31_LEGACY_QUALIFICATION_PROOF","RECEIPT_GUARD_CONTRACT_MISMATCH");count++;
@@ -372,6 +397,7 @@ public final class QualificationInboxR29 {
         }
     }
     private static Object[] legacyReceiptSummaryR31(SQLiteDatabase db,String id){return legacyRecordR31(db,"SELECT count(*),min(target_ordinal),max(target_ordinal) FROM r29_qual_receipt WHERE experiment_id=?",id);}
+    private static long legacyReceiptWatermarkR31(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT coalesce(max(rowid),0) FROM r29_qual_receipt",null)){if(!c.moveToFirst())throw new DatabaseCoordinator.SchemaPendingR31("R31_LEGACY_QUALIFICATION_PROOF","RECEIPT_APPEND_WATERMARK_UNAVAILABLE");return c.getLong(0);}}
     private static Object[] legacyCursorR31(SQLiteDatabase db,String id){return legacyRecordR31(db,"SELECT blocked_ordinal,blocked_reason,consumed_total,cas_retries,updated_at FROM r29_qual_cursor WHERE experiment_id=?",id);}
     private static Object[] legacyCalendarR31(SQLiteDatabase db,String id){return legacyRecordR31(db,"SELECT first_ordinal,registered_at,origin FROM r29_qual_calendar WHERE experiment_id=?",id);}
     private static Object[] legacyCertificateR31(SQLiteDatabase db,String id){return legacyRecordR31(db,"SELECT status,evidence_digest,issued_at,expires_at,gate_version FROM r27_certificate WHERE policy_hash=?",id);}
@@ -437,17 +463,22 @@ public final class QualificationInboxR29 {
     static boolean rebuild(SQLiteDatabase ro,Commit sink,final String id)throws Exception {
         CooperativeContinuationR26.poll();if(!needsRebuild(ro,id))return true;
         final Object[] state=legacyRecordR31(ro,LEGACY_STATE_SQL_R31,id);if(state==null)return false;
+        // Global rowid max uses the table's last-key seek. Immutable old rows plus
+        // this token detect every append; another experiment conservatively retries.
+        final long receiptWatermark=legacyReceiptWatermarkR31(ro);
+        if(receiptWatermark<0||receiptWatermark==Long.MAX_VALUE)throw new LegacyCompatibilityPendingR31("LEGACY_RECEIPT_APPEND_WATERMARK_UNPROVEN",false);
         final Object[] calendar=legacyCalendarR31(ro,id),receipt=legacyReceiptSummaryR31(ro,id),cursor=legacyCursorR31(ro,id),certificate=legacyCertificateR31(ro,id),audit=legacyAuditR31(ro,id);
         final long revision=SchemaR27.liveSourceRevision(ro),now=System.currentTimeMillis();
         LegacyProofR31 proof=legacyProofR31(ro,id,state,calendar,receipt,cursor);
         if(SchemaR27.liveSourceRevision(ro)!=revision)throw new LegacyCompatibilityPendingR31("LEGACY_SOURCE_CHANGED_DURING_PROOF",false);
+        if(legacyReceiptWatermarkR31(ro)!=receiptWatermark)throw new LegacyCompatibilityPendingR31("LEGACY_RECEIPTS_CHANGED_DURING_PROOF",false);
         final boolean verified=proof.reason==null,complete=verified&&proof.missingCount==proof.missing.size();
         final String reason=verified?(complete?BLOCK_NONE:"LEGACY_RECEIPT_EVIDENCE_RESTORING"):proof.reason;
         final String auditKey=LEGACY_VERSION_R31+"|"+HashingSU1.text(JsonR27.write(java.util.Arrays.asList(java.util.Arrays.asList(state),calendar==null?null:java.util.Arrays.asList(calendar))))+"|"+(verified?"VERIFIED_PREFIX":reason);
         final boolean newAudit=audit==null||!auditKey.equals(audit[0]);
         long ordinal=verified&&!proof.missing.isEmpty()?proof.missing.get(0).row.ordinal:state[10] instanceof Number?((Number)state[10]).longValue():-1;
         if(!verified&&!newAudit&&cursor!=null&&reason.equals(cursor[1])&&(certificate==null||!"ACTIVE".equals(certificate[0])))throw new LegacyCompatibilityPendingR31(reason,false);
-        Map<String,Object> original=new LinkedHashMap<>();original.put("version",LEGACY_VERSION_R31);original.put("eprocessColumns","global_index,alpha,target_rate,log_e_up,log_e_down,n,acts,hits,sum_u,sum_u2,last_ordinal,state,updated_at");original.put("originalEprocess",java.util.Arrays.asList(state));original.put("originalCalendar",calendar==null?null:java.util.Arrays.asList(calendar));original.put("originalCursor",cursor==null?null:java.util.Arrays.asList(cursor));original.put("originalReceiptSummary",java.util.Arrays.asList(receipt));original.put("sourceRevisionAtProof",revision);original.put("proofVerdict",verified?"EXACT_ORIGINAL_PREFIX_NUMERICAL_EQUALITY":reason);original.put("action","PRESERVE_ALL_EXISTING_EXPOSURE_AND_RECEIPTS_APPEND_ONLY");
+        Map<String,Object> original=new LinkedHashMap<>();original.put("version",LEGACY_VERSION_R31);original.put("eprocessColumns","global_index,alpha,target_rate,log_e_up,log_e_down,n,acts,hits,sum_u,sum_u2,last_ordinal,state,updated_at");original.put("originalEprocess",java.util.Arrays.asList(state));original.put("originalCalendar",calendar==null?null:java.util.Arrays.asList(calendar));original.put("originalCursor",cursor==null?null:java.util.Arrays.asList(cursor));original.put("originalReceiptSummary",java.util.Arrays.asList(receipt));original.put("receiptAppendWatermarkAtProof",receiptWatermark);original.put("sourceRevisionAtProof",revision);original.put("proofVerdict",verified?"EXACT_ORIGINAL_PREFIX_NUMERICAL_EQUALITY":reason);original.put("action","PRESERVE_ALL_EXISTING_EXPOSURE_AND_RECEIPTS_APPEND_ONLY");
         String certificateJson=null;if(certificate!=null){Map<String,Object> cert=new LinkedHashMap<>();cert.put("originalMetadata",java.util.Arrays.asList(certificate));String gates=QualificationGapRepairR30R1.text(ro,"SELECT gates_json FROM r27_certificate WHERE policy_hash=?",id);cert.put("originalGatesSha256",gates==null?null:HashingSU1.text(gates));cert.put("gatesBytes","PRESERVED_IN_ORIGINAL_CERTIFICATE_ROW");certificateJson=JsonR27.write(cert);}
         final List<Consumed> missing=java.util.Collections.unmodifiableList(new ArrayList<>(proof.missing));
         final List<LegacySourceR31> sources=java.util.Collections.unmodifiableList(new ArrayList<>(proof.missingSources));
@@ -457,7 +488,7 @@ public final class QualificationInboxR29 {
         final String[] guardArgs=guardArguments.toArray(new String[0]);ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();
         b.guardBefore(db->{
             if(verified)requireLegacyReceiptGuardsR31(db);
-            if(!sameRecordR31(state,legacyRecordR31(db,LEGACY_STATE_SQL_R31,id))||!sameRecordR31(calendar,legacyCalendarR31(db,id))||!sameRecordR31(receipt,legacyReceiptSummaryR31(db,id))
+            if(!sameRecordR31(state,legacyRecordR31(db,LEGACY_STATE_SQL_R31,id))||!sameRecordR31(calendar,legacyCalendarR31(db,id))||legacyReceiptWatermarkR31(db)!=receiptWatermark
                     ||!sameRecordR31(cursor,legacyCursorR31(db,id))||!sameRecordR31(certificate,legacyCertificateR31(db,id))||!sameRecordR31(audit,legacyAuditR31(db,id))||SchemaR27.liveSourceRevision(db)!=revision)return -1;
             if(verified&&!missing.isEmpty())try(Cursor c=db.rawQuery(guardSql,guardArgs)) {
                 int i=0;while(c.moveToNext()) {
@@ -476,7 +507,7 @@ public final class QualificationInboxR29 {
         else b.add("UPDATE r29_qual_cursor SET blocked_ordinal=?,blocked_reason=?,updated_at=? WHERE experiment_id=?",ordinal,reason,now,id);
         // Each protected INSERT also evaluates one indexed EXISTS predicate in its trigger.
         long triggerBinds=bindBytesR31("r31_qual_receipt_no_update","r31_qual_receipt_no_delete","r31_qual_receipt_no_replace");
-        requireBudgetR31(b,7+(verified?1:0)+(verified&&!missing.isEmpty()?1+missing.size():0),bindBytesR31(id)*7+(verified?triggerBinds:0)+(verified&&!missing.isEmpty()?bindBytesR31((Object[])guardArgs):0));
+        requireBudgetR31(b,7+(verified?3:0)+(verified&&!missing.isEmpty()?1+missing.size():0),bindBytesR31(id)*7+(verified?triggerBinds:0)+(verified&&!missing.isEmpty()?bindBytesR31((Object[])guardArgs):0));
         try{if(!sink.commit("R29_QUAL_LEGACY_COMPAT",b))return false;}catch(IllegalStateException changed){if(!precondition(changed))throw changed;return false;}
         if(!complete)throw new LegacyCompatibilityPendingR31(reason,true);
         return true;
