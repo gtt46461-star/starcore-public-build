@@ -549,6 +549,14 @@ public final class FeatureCacheR27 implements AutoCloseable {
         }
     }
 
+    /** Explicit live preparation owns the realtime reserve through the complete deep fork,
+     * including codec, model construction/read workspace and private matrix copies. History
+     * keeps extendFrom's optional admissions; no caller/thread retains this priority afterward. */
+    public void extendFromForLiveR31(FeatureCacheR27 older) {
+        Boolean prior=CRITICAL_ALLOCATION_R31.get();CRITICAL_ALLOCATION_R31.set(true);
+        try{extendFrom(older);}finally{if(prior==null)CRITICAL_ALLOCATION_R31.remove();else CRITICAL_ALLOCATION_R31.set(prior);}
+    }
+
     /** Reuses family streams of an older cache whose dataset is a prefix of this one (live incremental path). */
     public void extendFrom(FeatureCacheR27 older) {
         Map<Integer,FamilyStream> parents;synchronized(older){parents=new LinkedHashMap<>(older.streams);}synchronized(this){if(closedR31)throw new java.util.concurrent.CancellationException("R31_FEATURE_CACHE_CLOSED");if(!streams.isEmpty())throw new IllegalStateException("R31_FAMILY_CHILD_ALREADY_INITIALIZED");}

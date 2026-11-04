@@ -419,23 +419,31 @@ public final class RuntimeR27 implements AutoCloseable {
         // an older row without adding a new head. Incremental numerical state is reused only for an exact prefix.
         ReplayDatasetR27 fresh = StoreR27.loadDataset(w.ro, DATASET_ROWS);
         if (fresh.size() == 0 || fresh.ordinals[fresh.size() - 1] != latestOrd) return null;
-        boolean prefix = liveData != null && liveData.size() <= fresh.size();
-        if (prefix) for (int i = 0; i < liveData.size(); i++) {
-            if (liveData.ordinals[i] != fresh.ordinals[i]
-                    || !liveData.issues[i].equals(fresh.issues[i])
-                    || !java.util.Arrays.equals(liveData.draws[i], fresh.draws[i])) { prefix = false; break; }
+        final ReplayDatasetR27 previousData;final FeatureCacheR27 previousCache;
+        synchronized(this){previousData=liveData;previousCache=liveCache;}
+        boolean prefix = previousData != null && previousData.size() <= fresh.size();
+        if (prefix) for (int i = 0; i < previousData.size(); i++) {
+            if (previousData.ordinals[i] != fresh.ordinals[i]
+                    || !previousData.issues[i].equals(fresh.issues[i])
+                    || !java.util.Arrays.equals(previousData.draws[i], fresh.draws[i])) { prefix = false; break; }
         }
-        if (liveData != null && !prefix) {
+        if (previousData != null && !prefix) {
             FeatureCacheR27.REBUILDS_R30.incrementAndGet();
             if (FeatureCacheR27.REBUILD_EVENTS_R30.size() < 256)
                 FeatureCacheR27.REBUILD_EVENTS_R30.add(new Object[] {-1, latestOrd, "LIVE_SOURCE_PREFIX_CHANGED", System.currentTimeMillis()});
         }
-        liveData = fresh;
-        liveCacheKeyR30 = liveData.datasetHash + "|" + latestOrd + "|" + operatorAbiHash;
-        ReplayDatasetR27 withSlot = liveData.append(new ReplayDatasetR27.Row("PLACEHOLDER", latestOrd + 1, new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
+        final String preparedKey=fresh.datasetHash + "|" + latestOrd + "|" + operatorAbiHash;
+        ReplayDatasetR27 withSlot = fresh.append(new ReplayDatasetR27.Row("PLACEHOLDER", latestOrd + 1, new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
         FeatureCacheR27 c = featureCacheR31(withSlot,64);
-        if (prefix && liveCache != null) c.extendFrom(liveCache);
-        liveCache = c;
+        try{
+            if (prefix && previousCache != null) c.extendFromForLiveR31(previousCache);
+            synchronized(this){
+                if(liveData!=previousData||liveCache!=previousCache)throw new java.util.concurrent.CancellationException("R31_STALE_LIVE_CACHE_PREPARATION");
+                liveData=fresh;liveCacheKeyR30=preparedKey;liveCache=c;
+            }
+        }catch(RuntimeException|Error failed){c.close();throw failed;}
+        // r27-live's synchronous prior freeze is finished before it asks for this next cache.
+        if(previousCache!=null)previousCache.close();
         return c;
     }
 

@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+"""Run unchanged numerical assertions in one JVM; separate before/after protected-ABI measurement."""
+from pathlib import Path
+from datetime import datetime,timezone
+import os,json,subprocess,hashlib,re
+ROOT=Path(__file__).resolve().parents[4];OUT=Path(__file__).resolve().parent;BASE='2cdf5939c25aad6dd77632c124a59f17e68b8521'
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def main():
+ gradle=Path(os.environ['GRADLE_USER_HOME']);junit=next(gradle.glob('caches/modules-2/files-2.1/junit/junit/4.13.2/*/*.jar'));hamcrest=next(gradle.glob('caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/*/*.jar'));sdk=Path(os.environ['ANDROID_HOME'])/'platforms/android-36/android.jar';testroot=ROOT/'app/src/test/java/com/ethk3/novaonepro/strategyv2';names=['R27TestSupport','R27ReplayTest','R27LeakageTest','R30ModelSurfaceTest'];paths=[*[testroot/(n+'.java') for n in names],ROOT/'tools/r31/memory_host/FeatureGoldenR31Host.java',Path(__file__).resolve()];before={str(p.relative_to(ROOT)):sha(p) for p in paths};old=subprocess.check_output(['git','show',BASE+':'+str((testroot/'R27ReplayTest.java').relative_to(ROOT))],cwd=ROOT);current=(testroot/'R27ReplayTest.java').read_bytes();assert old.replace(b'live.extendFrom(previous)',b'live.extendFromForLiveR31(previous)')==current,'all original200/190/bit assertions and resources must remain exact except explicit live entrance'
+ commands=[]
+ def run(cmd,log):
+  cmd=list(map(str,cmd));p=subprocess.run(cmd,cwd=ROOT,capture_output=True,text=True,timeout=180);(OUT/log).write_text(p.stdout+p.stderr);commands.append(dict(command=cmd,exitCode=p.returncode,log=log));p.check_returncode();return p.stdout
+ golden={};actualCompared=None;unitCount=None
+ for mode in ['baseline','fixed']:
+  receipt=json.loads((OUT/(mode+'-RECEIPT.json')).read_text());work=Path(receipt['work']);output=work/'numerical-tests';output.mkdir(exist_ok=True);cp=os.pathsep.join(map(str,[work/'production',output,work/'support.jar',junit,hamcrest,sdk]));run(['javac','-sourcepath','','-encoding','UTF-8','-cp',cp,'-d',output,ROOT/'tools/r31/memory_host/FeatureGoldenR31Host.java'],'golden-'+mode+'-javac.log');raw=run(['java','-Xmx512m','-cp',cp,'com.ethk3.novaonepro.strategyv2.FeatureGoldenR31Host',ROOT/'app/src/main/assets/r27/golden_512.bin'],'golden-'+mode+'.log');golden[mode]=json.loads(raw)
+  if mode=='fixed':
+   run(['javac','-sourcepath','','-encoding','UTF-8','-cp',cp,'-d',output,*[testroot/(n+'.java') for n in names]],'original11-javac.log');unit=run(['java','-Xmx512m','-cp',cp,'org.junit.runner.JUnitCore','com.ethk3.novaonepro.strategyv2.R27ReplayTest','com.ethk3.novaonepro.strategyv2.R27LeakageTest','com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest'],'original11-junit.log');unitCount=int(re.search(r'OK \((\d+) tests\)',unit).group(1));actualCompared=int(re.search(r'H02_PASS compared=(\d+) bitIdentical=true',unit).group(1))
+ assert golden['baseline']==golden['fixed'];assert len(golden['fixed'])==52;assert actualCompared>=190;assert before=={str(p.relative_to(ROOT)):sha(p) for p in paths};result=dict(status='TARGETED_HOST_PASS',scope='ORIGINAL_11_REPLAY_PIT_MODEL_TESTS_ONE_JVM_WITH_ALL_200_190_BIT_ASSERTIONS_UNCHANGED;52_BEFORE_AFTER_PROTECTED_GOLDEN_FINGERPRINTS',originalJUnit=unitCount,actualBitCompared=actualCompared,scheduledLiveTargets=200,allOriginalAssertionsRetained=True,onlyOriginalTestEdit='RESOURCE_ENTRANCE_extendFromForLiveR31',goldenFingerprints=len(golden['fixed']),goldenIdentical=True,sourceSha256=before,sourceStableDuringRun=True,explicitGc=False,heapArgument='-Xmx512m_ONLY',gradleIsolationChanges=False,modelTrainingMathChanged=False,commands=commands,device='NOT_RUN',naturalQuality='NOT_EVALUATED');(OUT/'NUMERICAL_RECEIPT.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result))
+if __name__=='__main__':main()

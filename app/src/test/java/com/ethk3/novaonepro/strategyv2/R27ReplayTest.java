@@ -20,7 +20,7 @@ public class R27ReplayTest {
             // Live: only rows < t exist; a placeholder occupies the target slot.
             ReplayDatasetR27 prefix = ReplayDatasetR27.of(rows(d, t)).append(new ReplayDatasetR27.Row("PLACEHOLDER", d.ordinals[t], new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
             FeatureCacheR27 live = new FeatureCacheR27(prefix);
-            try { if (previous != null) live.extendFrom(previous); }
+            try { if (previous != null) live.extendFromForLiveR31(previous); }
             catch (RuntimeException | Error failed) { live.close(); throw failed; }
             FeatureCacheR27 retired = previous; previous = live;
             if (retired != null) retired.close(); // The completed deep fork was the previous owner's last user.

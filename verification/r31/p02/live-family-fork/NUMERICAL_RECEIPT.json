@@ -1,0 +1,117 @@
+{
+  "status": "TARGETED_HOST_PASS",
+  "scope": "ORIGINAL_11_REPLAY_PIT_MODEL_TESTS_ONE_JVM_WITH_ALL_200_190_BIT_ASSERTIONS_UNCHANGED;52_BEFORE_AFTER_PROTECTED_GOLDEN_FINGERPRINTS",
+  "originalJUnit": 11,
+  "actualBitCompared": 200,
+  "scheduledLiveTargets": 200,
+  "allOriginalAssertionsRetained": true,
+  "onlyOriginalTestEdit": "RESOURCE_ENTRANCE_extendFromForLiveR31",
+  "goldenFingerprints": 52,
+  "goldenIdentical": true,
+  "sourceSha256": {
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27TestSupport.java": "b65991b9227f39aec3780d836b1d6d73b13e273a0d19ec099f2df434c873030f",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27ReplayTest.java": "af99109581523cf93130e2195b5d5f92efc2e59bb2e099d252c123a4e2d69eb3",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27LeakageTest.java": "01279d3f02004636b87bb7385d479738ce8b3b446557bbeb59c2d9a7331db6e8",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ModelSurfaceTest.java": "d4d1d40a01bbd46d66db1fa930015a3936a74986d6bcf2ae6735dc53cca14441",
+    "tools/r31/memory_host/FeatureGoldenR31Host.java": "763451520ebfc38cb87eb1a744b7c351ecf907ddd8e174b69c4b7e49cdaa596e",
+    "verification/r31/p02/live-family-fork/regression.py": "a3066cdbe33a0f3cdb07eea85999cdf88803fb9120ac1c59a9be44fd698ae578"
+  },
+  "sourceStableDuringRun": true,
+  "explicitGc": false,
+  "heapArgument": "-Xmx512m_ONLY",
+  "gradleIsolationChanges": false,
+  "modelTrainingMathChanged": false,
+  "commands": [
+    {
+      "command": [
+        "javac",
+        "-sourcepath",
+        "",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/tmp/r31-live-fork-baseline-fw_97oh9/production:/tmp/r31-live-fork-baseline-fw_97oh9/numerical-tests:/tmp/r31-live-fork-baseline-fw_97oh9/support.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-live-fork-baseline-fw_97oh9/numerical-tests",
+        "/workspace/r31-cache-rebuild/tools/r31/memory_host/FeatureGoldenR31Host.java"
+      ],
+      "exitCode": 0,
+      "log": "golden-baseline-javac.log"
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-fork-baseline-fw_97oh9/production:/tmp/r31-live-fork-baseline-fw_97oh9/numerical-tests:/tmp/r31-live-fork-baseline-fw_97oh9/support.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.FeatureGoldenR31Host",
+        "/workspace/r31-cache-rebuild/app/src/main/assets/r27/golden_512.bin"
+      ],
+      "exitCode": 0,
+      "log": "golden-baseline.log"
+    },
+    {
+      "command": [
+        "javac",
+        "-sourcepath",
+        "",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/tmp/r31-live-fork-fixed-_5ce96ya/production:/tmp/r31-live-fork-fixed-_5ce96ya/numerical-tests:/tmp/r31-live-fork-fixed-_5ce96ya/support.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-live-fork-fixed-_5ce96ya/numerical-tests",
+        "/workspace/r31-cache-rebuild/tools/r31/memory_host/FeatureGoldenR31Host.java"
+      ],
+      "exitCode": 0,
+      "log": "golden-fixed-javac.log"
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-fork-fixed-_5ce96ya/production:/tmp/r31-live-fork-fixed-_5ce96ya/numerical-tests:/tmp/r31-live-fork-fixed-_5ce96ya/support.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.FeatureGoldenR31Host",
+        "/workspace/r31-cache-rebuild/app/src/main/assets/r27/golden_512.bin"
+      ],
+      "exitCode": 0,
+      "log": "golden-fixed.log"
+    },
+    {
+      "command": [
+        "javac",
+        "-sourcepath",
+        "",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/tmp/r31-live-fork-fixed-_5ce96ya/production:/tmp/r31-live-fork-fixed-_5ce96ya/numerical-tests:/tmp/r31-live-fork-fixed-_5ce96ya/support.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-live-fork-fixed-_5ce96ya/numerical-tests",
+        "/workspace/r31-cache-rebuild/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27TestSupport.java",
+        "/workspace/r31-cache-rebuild/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27ReplayTest.java",
+        "/workspace/r31-cache-rebuild/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27LeakageTest.java",
+        "/workspace/r31-cache-rebuild/app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ModelSurfaceTest.java"
+      ],
+      "exitCode": 0,
+      "log": "original11-javac.log"
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-live-fork-fixed-_5ce96ya/production:/tmp/r31-live-fork-fixed-_5ce96ya/numerical-tests:/tmp/r31-live-fork-fixed-_5ce96ya/support.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "org.junit.runner.JUnitCore",
+        "com.ethk3.novaonepro.strategyv2.R27ReplayTest",
+        "com.ethk3.novaonepro.strategyv2.R27LeakageTest",
+        "com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest"
+      ],
+      "exitCode": 0,
+      "log": "original11-junit.log"
+    }
+  ],
+  "device": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED"
+}
