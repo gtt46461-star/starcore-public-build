@@ -1,0 +1,5 @@
+/tmp/r31-pin-capacity-admission-v1/source/PinCapacityMeasureR31Host.java:8: error: close() in Db cannot override close() in SQLiteDatabase
+ static final class Db extends SQLiteDatabase implements AutoCloseable {long reads,writes;Db(Connection c){super(c);}@Override public Cursor rawQuery(String s,String[] a){reads++;return super.rawQuery(s,a);}@Override public void execSQL(String s,Object[] a){writes++;super.execSQL(s,a);}@Override public void close()throws Exception{jdbc.close();}}
+                                                                                                                                                                                                                                                                                                                     ^
+  overridden method does not throw Exception
+1 error

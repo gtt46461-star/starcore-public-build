@@ -1,0 +1,115 @@
+{
+  "schema": "R31_CARD_SUBSCOPE_RECEIPT_1",
+  "cards": [
+    "R31-B02-C03",
+    "R31-B05-C02",
+    "R31-B05-C11"
+  ],
+  "phases": [
+    "P01_B02",
+    "P02_B05_FRONT"
+  ],
+  "scope": "Optional immutable research-input pin preparation and publication admission; source journal critical writes are not quota-blocked",
+  "plan_baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "construction_base": "e8786a4b0cd4a42a3cbaf4becb153aa244d72d06",
+  "branch": "construction/r31-pin-capacity-20261104",
+  "status": "CODE_COMPLETE",
+  "whole_card_status": "IMPLEMENTING",
+  "implementation_commit": "PENDING_THIS_COMMIT",
+  "actual_changes": [
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+      "sha256": "c388756218e89d88e6a74e2d8122044e4c94ee9df452772b25512ef7e5838df2",
+      "methods": [
+        "append",
+        "appendAdmitted",
+        "private append with managed Scope and poll"
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PinPublicationR31.java",
+      "sha256": "5c005f03d4a1c5959ab5a8cb5baeb8e55cef03bbc3e24aec014f1e285567fbbe",
+      "methods": [
+        "admit",
+        "preparationBytesR31",
+        "enforceBatch",
+        "Scope.requireActive/close",
+        "reapCollectedPayloadsR31",
+        "snapshotR31"
+      ]
+    }
+  ],
+  "unchanged_inherited_sources": {
+    "ResearchSourceJournalR31.java": "ec31ce289aedba8acac17e5f2dcb40172a42c045821fe52094defb8ff657415e",
+    "PinSnapshotProofR31.java": "32c01cecfb675bbded4a4db802e7b670cd2a55e9236289a0fd703ad19a3a42a8"
+  },
+  "migration_version": {
+    "new_ddl": false,
+    "sqlite_user_version_change": false,
+    "payload_version_unchanged": "R30_REPAIR_INPUT_PIN1",
+    "existing_source_domain_revision": 1,
+    "storage_ledger_reused": "R31_STORAGE_ADMISSION_V1"
+  },
+  "tests": {
+    "command": "python3 tools/r31/verify_pin_capacity.py --support-jar /workspace/r31-shared-bootstrap-30ff-frozen/classes.jar",
+    "latest_receipt": "runs/20261104T212120Z/RECEIPT.json",
+    "source_stability": "ALL_CAPTURED_ORIGIN_SHA256_MATCH_BEFORE_AFTER",
+    "actual_android_support_jar_sha256": "582f7475b43d218c50d34f8f24d4399ae4916b53579807c22c162bd25b7fea56",
+    "production_javac": "PASS_FOUR_FRESH_PRODUCTION_SOURCES_AGAINST_ACTUAL_ANDROID_SUPPORT",
+    "baseline_current_sizes_hash_roles": "PASS_FOUR_5000_10000_LEGAL_CASES",
+    "max_observed_bind_bytes": 110799,
+    "bind_cap_this_jvm": 262144,
+    "direct_batch_tx_reads": 53,
+    "direct_batch_tx_execs": 1,
+    "actual_top_level_before_callbacks": 1,
+    "actual_top_level_after_callbacks": 1,
+    "native_admission": "PASS_53_ASSERTIONS_EXPLICIT_LOGICAL_DISK_FIXTURES_DEFAULT_REAL_MEMORY_PROBE",
+    "native_source_journal": "PASS_3631_ASSERTIONS",
+    "native_original_repair_pin": "PASS_ORIGINAL_3000_ROWS_RAW_ROLES_RETENTION_CORRECTION_ATOMIC_GUARDS",
+    "whole_android_build": "NOT_RUN",
+    "ART": "NOT_RUN",
+    "Runtime_managed_caller_integration": "PENDING_PARENT",
+    "earlier_compile_failure": "RETAINED_runs/20261104T211212Z",
+    "forced_gc": false,
+    "fake_memory_probe": false
+  },
+  "memory_claim": {
+    "basis": "DECLARED_PREPARE_ESTIMATE_PLUS_ACTUAL_HEAP_NATIVE_PSS_RSS_SAMPLING_SEPARATE",
+    "preparation_bytes": "2097152 + rows*4096",
+    "payload_bytes": "4*min(262144,Runtime.maxMemory()/512)+65536",
+    "payload_lifetime": "Until actual weak-reference collection; live escaped batch string is not released by Scope.close",
+    "heap_freed_claimed": false,
+    "native_codec_capacity": "OPEN"
+  },
+  "disk_claim": {
+    "production_normal_hard_bytes": 2147483648,
+    "production_transient_hard_bytes": 4294967296,
+    "free_floor_bytes": 268435456,
+    "new_pin_uses_normal_cap": true,
+    "host_positive_fixture": "EXPLICIT_LOGICAL_BYTES_NOT_ANDROID_PHYSICAL_BLOCK_PROOF",
+    "host_actual_production_negative": "ALLOCATED_BYTES_UNKNOWN_DENIED",
+    "protected_debt": "NEW_OPTIONAL_PIN_BLOCKED_EXISTING_EVIDENCE_AND_CANONICAL_SOURCE_EVENTS_PRESERVED",
+    "other_writer_growth": "OPEN_REGISTERED_WRITERS_ONLY"
+  },
+  "apk": {
+    "status": "NOT_BUILT_IN_THIS_SCOPE",
+    "identity": null,
+    "sha256": null
+  },
+  "device": {
+    "physical": "NOT_RUN",
+    "24h": "NOT_RUN",
+    "72h": "NOT_RUN"
+  },
+  "natural_quality": "NOT_EVALUATED",
+  "remaining": [
+    "Root actual Runtime appendAdmitted Scope submit/retry/finally integration and unpublished FeatureCache cleanup",
+    "Whole Android build and ART new production caller validation",
+    "Actual physical allocated-block/free-space tests",
+    "Source journal retention and optional import-member/online-window fence admission",
+    "Native codec and restored-input return lifetime capacity",
+    "Arbitrary SQL REPLACE source protocol boundary",
+    "Device continuous duration and natural future quality"
+  ],
+  "next": "Root integrates managed caller then whole-source/identity/build and named ART gates; keep whole cards IMPLEMENTING until all required evidence exists"
+}
