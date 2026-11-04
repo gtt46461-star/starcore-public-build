@@ -77,8 +77,9 @@ public final class ObserverPublicationStoreR31 {
             try{
                 if(read.inTransaction())throw new IllegalStateException("R31_OBSERVER_PREPARE_OUTSIDE_WRITER");
                 if(input.closed)throw new CancellationException("R31_OBSERVER_FROZEN_INPUT_CLOSED");
-                check(cancel);requireSchema(read);
-                final long schema=schemaVersion(read);
+                check(cancel);final long schema=schemaVersion(read);
+                Map<String,Object> protection=requireSchema(read);
+                if(schemaVersion(read)!=schema)throw new RosterChanged();
                 final long sourceRevision=SchemaR27.liveSourceRevision(read);
                 if(sourceRevision<0)throw new Dependency("SCHEMA_PENDING:OBSERVER_SOURCE_REVISION");
                 if(ResearchInputPinR30R1.invalid(read,input.dataset))throw new Dependency("R31_OBSERVER_CORRECTED_DATASET_REQUIRED");
@@ -133,7 +134,7 @@ public final class ObserverPublicationStoreR31 {
                 long bind=guardBytes+8192;for(ResearchWriteQueueR27.Op op:prepared.ops)for(Object a:op.args)bind+=a instanceof String?utf8((String)a):a instanceof byte[]?((byte[])a).length:8;
                 grow(memory,32768L+4*bind+256L*(queue.size()+shadows.size()));
                 Map<String,Object> report=new LinkedHashMap<>();report.put("abi",ABI);report.put("rankedMembers",input.ranked.size());report.put("confirmationRows",queue.size());report.put("frozenRelevantShadowRows",shadows.size());report.put("selectedExploration",keep.size());report.put("insertRows",insert);report.put("resumeRows",resume);report.put("retireRows",retire);report.put("restoreProtectedRows",protect);report.put("canonicalRowsUpperBound",insert+resume+retire+protect);report.put("canonicalEncodedRowBytesUpperBound",canonicalBytes);report.put("rowBytesMeaning","ENCODED_ROWS_PLUS_CONSERVATIVE_FIXED_HEADER_ESTIMATE_NOT_PHYSICAL_WAL_GUARANTEE");report.put("sqlOperations",prepared.ops.size());report.put("guardSqlUpperBound",5);report.put("protocolSqlReserve",32);report.put("bindBytesIncludingGuardAndProtocolReserve",bind);report.put("canonicalTriggerAmplification",0);report.put("implicitReplaceDeletes",0);report.put("ddl","NO_NEW_SCHEMA");report.put("androidHoldP99","NOT_MEASURED");report.put("protectedAlphaExposureWrites",0);report.put("sourceContract","COMPLETED_EVOLUTION_CURSOR_EXACT_QUEUE_STATUS_AND_LIVE_SOURCE_REVISION_CAS");
-                envelope=Collections.unmodifiableMap(report);batch=prepared;
+                report.put("retentionSourceProtection",protection);envelope=Collections.unmodifiableMap(report);batch=prepared;
             }catch(RuntimeException|Error failure){memory.close();throw failure;}
         }
         @Override public void close(){if(!closed){closed=true;memory.close();}}
@@ -148,12 +149,24 @@ public final class ObserverPublicationStoreR31 {
     private static boolean sameRows(SQLiteDatabase db,String sql,String[] args,List<String[]> expected){
         try(Cursor cursor=db.rawQuery(sql,args)){int index=0;while(cursor.moveToNext()){if(index>=expected.size())return false;String[] row=expected.get(index++);for(int c=0;c<row.length;c++)if(!Objects.equals(row[c],cursor.getString(c)))return false;}return index==expected.size();}
     }
-    private static void requireSchema(SQLiteDatabase read){
+    private static Map<String,Object> requireSchema(SQLiteDatabase read){
         DatabaseCoordinator.requireSchemaObjectsR31(read,ABI,new String[][]{{"r27_live_shadow","policy_hash,spec_json,temperature,bias,global_index,status,reason,promoted_at,updated_at,through_ordinal,base_policy,semantic_abi"},{"r27_eprocess","policy_hash,global_index,state"},{"r27_evolution_cursor","loop,generation,step,dataset_hash,rng_state,snapshot"}},new String[0][]);
-        // Unknown trigger work cannot be hidden under a one-statement row envelope.
-        try(Cursor c=read.rawQuery("SELECT name FROM sqlite_master WHERE type='trigger' AND tbl_name='r27_live_shadow' LIMIT 1",null)){if(c.moveToFirst())throw new Dependency("R31_OBSERVER_UNREVIEWED_TRIGGER_ENVELOPE:"+c.getString(0));}
+        // Reuse the archive owner's exact builder. Prefix/name matches are never an authentication.
+        String[][] definitions=ResearchRetentionStoreR30.sourceProtectionTriggersR31(read,"r27_live_shadow");
+        boolean installed=ResearchRetentionStoreR30.requireGuardDefinitionsR31(read,definitions,false);
+        java.util.Set<String> known=new java.util.HashSet<>();List<String> payloadColumns=new ArrayList<>();
+        for(String[] definition:definitions){known.add(definition[0]);
+            String sql=definition[1];
+            if(sql.contains(" BEFORE DELETE ON \"r27_live_shadow\" WHEN "))continue; // no DELETE or REPLACE here
+            String event=" BEFORE UPDATE OF ";int start=sql.indexOf(event),end=sql.indexOf(" ON \"r27_live_shadow\" WHEN ",start+event.length());
+            if(start<0||end<0)throw new Dependency("R31_OBSERVER_UNREVIEWED_RETENTION_EVENT:"+definition[0]);
+            for(String column:quotedColumns(sql.substring(start+event.length(),end))){payloadColumns.add(column);if(java.util.Arrays.asList("status","temperature","reason","updated_at").contains(column))throw new Dependency("R31_OBSERVER_RETENTION_UPDATE_COLUMN_INTERSECTION:"+column);}
+        }
+        try(Cursor c=read.rawQuery("SELECT name FROM sqlite_master WHERE type='trigger' AND tbl_name='r27_live_shadow' LIMIT 3",null)){while(c.moveToNext())if(!known.contains(c.getString(0)))throw new Dependency("R31_OBSERVER_UNREVIEWED_TRIGGER_ENVELOPE:"+c.getString(0));}
         try(Cursor c=read.rawQuery("SELECT name,sql FROM sqlite_master WHERE type='index' AND tbl_name='r27_live_shadow' LIMIT 2",null)){while(c.moveToNext())if(!"sqlite_autoindex_r27_live_shadow_1".equals(c.getString(0))||!c.isNull(1))throw new Dependency("R31_OBSERVER_UNREVIEWED_INDEX_ENVELOPE:"+c.getString(0));}
+        Map<String,Object> contract=new LinkedHashMap<>();contract.put("expectedSourceGuards",definitions.length);contract.put("allOwnerGuardsInstalled",installed);contract.put("payloadUpdateColumns",payloadColumns);contract.put("observerChangedColumns",java.util.Arrays.asList("status","temperature","reason","updated_at"));contract.put("updateColumnIntersection",0);contract.put("deleteOrReplaceOperations",0);contract.put("exactOwnerDefinitionsVerified",true);return contract;
     }
+    private static List<String> quotedColumns(String text){List<String> columns=new ArrayList<>();int i=0;while(i<text.length()){if(text.charAt(i++)!='\"')throw new Dependency("R31_OBSERVER_RETENTION_COLUMN_CONTRACT");StringBuilder name=new StringBuilder();boolean closed=false;while(i<text.length()){char c=text.charAt(i++);if(c=='\"'){if(i<text.length()&&text.charAt(i)=='\"'){name.append(c);i++;}else{closed=true;break;}}else name.append(c);}if(!closed)throw new Dependency("R31_OBSERVER_RETENTION_COLUMN_CONTRACT");columns.add(name.toString());if(i<text.length()&&text.charAt(i++)!=',')throw new Dependency("R31_OBSERVER_RETENTION_COLUMN_CONTRACT");}return columns;}
     private static long schemaVersion(SQLiteDatabase db){try(Cursor c=db.rawQuery("PRAGMA schema_version",null)){if(!c.moveToFirst())throw new Dependency("R31_OBSERVER_SCHEMA_VERSION_UNKNOWN");return c.getLong(0);}}
     private static MemoryBudgetR31.Lease admit(String owner,long fence,long bytes,BooleanSupplier cancel){MemoryBudgetR31.Admission admission=MemoryBudgetR31.processBudget().tryAcquire(owner,fence,MemoryBudgetR31.Kind.CHECKPOINT,bytes,cancel);if(!admission.acquired())throw new Dependency("R31_OBSERVER_MEMORY_WAIT:"+admission.reason);return admission.lease;}
     private static void grow(MemoryBudgetR31.Lease memory,long bytes){if(bytes>memory.bytes()){MemoryBudgetR31.Admission admission=memory.grow(bytes-memory.bytes());if(!admission.acquired())throw new Dependency("R31_OBSERVER_MEMORY_WAIT:"+admission.reason);}}
