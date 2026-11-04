@@ -1,38 +1,41 @@
 {
-  "recorded_at": "2026-11-04T18:15:35.970155+00:00",
+  "recorded_at": "2026-11-04T19:40:11.395586+00:00",
   "branch": "construction/r31-final-20261104",
   "report_baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-  "latest_pushed_source": "de9a30834025c18ce291c241a722abe437717539",
+  "latest_pushed_source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
   "active_phase": "P01_GATE_BACKFILL_WITH_EXISTING_P02_INTEGRATION_REVALIDATION",
   "P03_production_started": false,
   "latest_full_unit": {
-    "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+    "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
     "executed": 481,
-    "passed": 480,
-    "failed": 1,
+    "passed": 481,
+    "failed": 0,
     "errors": 0,
     "skipped": 0,
-    "scope": "ACTUAL_COMPLETE_LOCAL_UNEXCLUDED; LOCAL_GENERATED013_HOST_STUB_WAS_NOT_COMMITTED_IN_BA35;DE9_FIXED_COMMIT_PENDING_REMOTE",
-    "receipt": "verification/r31/p02/build-identity/P02_MERGED_PROTOCOLS_COMPATIBILITY_013_COMMITTED_UNEXCLUDED_JOINT.json"
+    "scope": "ACTUAL_FULL_LOCAL_UNEXCLUDED_ALL_UNIT_NO_ISOLATION_OR_THRESHOLD_CHANGES",
+    "receipt": "verification/r31/p02/build-identity/P02_LIVE_FORK_CACHE_DELIVERY_014_COMMITTED_UNEXCLUDED_JOINT.json"
   },
   "active_production_owner": {
     "root": [
-      "MAIN_NO_BUILD_RUNNING;SHARED_SCHEMA_OWNER_ISOLATED_NEXT_CHECKPOINT"
+      "Shared startup schema,Runtime precise integration,DbStore prerequisite hook;sole shared-file owner"
     ],
     "writer_protocol": [
-      "ISOLATED_NEXT_CHECKPOINT_ATOM_PROTOCOL_AND_READERS"
+      "Atom readiness and complete history report reader"
+    ],
+    "continuation_protocol": [
+      "R929 first-capture startup prerequisites and precise readiness diagnosis"
     ],
     "task_runtime": [
-      "ISOLATED_EXPLICIT_LIVE_DEEPFORK_FIX_LAST200_ORIGINAL_TEST"
+      "AtomNet bounded publication and persisted artifact/model reference consumers"
     ],
     "training_continuity": [
-      "ISOLATED_NEXT_CHECKPOINT_EXPOSURE_PRESERVING_QUAL_REBUILD"
+      "ModelStore/Legacy/Foundry prepared publication"
     ],
     "build_baseline": [
-      "ISOLATED_NEXT_CHECKPOINT_HISTORY_IMPORT_PROTOCOL"
+      "History15-case evidence frozen; no production mutation"
     ],
     "baseline_identity": [
-      "ISOLATED_EVOLUTION_PREPARED_PUBLICATION_PROTOCOL"
+      "Evolution3files frozen; capacity/recovery evidence finalizing"
     ]
   },
   "completed_repairs_waiting_joint_validation": [
@@ -47,15 +50,16 @@
     "Legacy writer/qualification/baseline golden threeactual HOST followups independentlyPASS; newfull24NOT_RUN"
   ],
   "next": [
-    "Commit frozen013 actual source/index/identity/evidence, then unexcluded local Java+AndroidTest+allunit+bothlint+identity",
-    "Run existing signer on exact committed013, retain24HOST gates and original10API29/35protocols plus2newfamilyARTtests",
-    "Continue P01 producer protocol and P02 source obligations;P03 NOT_STARTED"
+    "Integrate frozen P01 producer and shared startup migrations in one version; retain original failures",
+    "Repair R929 real startup prerequisite race; rerun unchanged full Android fault matrix on API29/35",
+    "Compile unexcluded whole project and all applicable unit/HOST/Android gates on exact new source before next signed checkpoint",
+    "Keep P03 NOT_STARTED until P01/P02 required integration gates pass"
   ],
   "signing_support_branch": "construction/r27-20261028",
-  "signing_support_head": "6fdf3686495658289174426ce0324f2ea49fc5dc",
-  "last_remote_run": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41883335923",
-  "last_remote_failure": "CI9_ba35_HOST_BUILD_CONFIG_PREFLIGHT23_PRESERVED;CI10_de9_IN_PROGRESS",
-  "workflow_current_scope": "EXACT_SIGNED_VALIDATION_APK_BYTES; ORIGINAL_FAILURES_PRESERVED; API29/35_DISPOSABLE_EMULATOR_INSTALL_AND10_PROTOCOLS; NOT_FINAL_ACCEPTANCE",
+  "signing_support_head": "359594de5ea7049604e5763baa11777c22d6e3b8",
+  "last_remote_run": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067",
+  "last_remote_failure": "CI11_014_FULL_ANDROID_API29_API35_EACH14_FAULT_CELLS_FAIL_R929_SCHEMA_PENDING",
+  "workflow_current_scope": "SIGNED_014_BUILD_AND24HOST_PASS;FULL_ANDROID_FAILED;NOT_FINAL_ACCEPTANCE",
   "device": "NOT_RUN_NO_ADB_DEVICE",
   "initial24h": "NOT_RUN",
   "final72h": "NOT_RUN",
@@ -67,24 +71,6 @@
     "DB/WAL/model/CAS admission not fully integrated",
     "Current APK is a known-failed-gates validation checkpoint; no final accepted product yet"
   ],
-  "current_memory_repair": {
-    "at": "2026-11-04T13:52:44.803831+00:00",
-    "source_state": "3246_FROZEN_PUBLISHED; NEW_REPAIRS_IN_MAIN_AND_ISOLATED_TREES",
-    "whole_Android_Java_bootstrap": "PASS_50_86S_INPUTS_STABLE_4404_ACTUAL_CLASSES",
-    "targeted_memory": "PASS_CURRENT_ANDROID_SUPPORT55_NEW_PLUS6_ORIGINAL_PIT_MODEL_PLUS52_GOLDEN",
-    "actual_runtime_control": "PASS_8_JUNIT_144_ASSERTIONS_120200MS_HOST",
-    "previous_full_unit": "E96_428_TESTS_17_FAILURES_PRESERVED",
-    "fresh_owned_math": "6_TESTS_3_PASS_3_RESOURCE_CAPACITY_FAILURES_PRESERVED",
-    "current_full_unexcluded": "ACTUAL472_TESTS8FAIL0SKIP; 15COMPAT_LINT_ERRORS_EACH_VARIANT",
-    "Android_instrumentation": "ACTUAL_API29_AND35_EACH10RUN9PASS1NULL_OWNER_FAIL",
-    "integration": "FAILED_REMAIN_P02",
-    "device24h": "NOT_RUN",
-    "device72h": "NOT_RUN",
-    "natural_quality": "NOT_PROVEN",
-    "original_math_and_set_contract": "PASS14_INCLUDES_ORIGINAL6_AND_UNCHANGED100X3_H07; SAME512M; NO_COLLECTOR_API",
-    "R26_overdue_recovery": "PASS_ACTUAL120201MS_AND23_CONSUMER_ASSERTIONS_HOST_ONLY",
-    "family_mutable_isolation": "PASS5_FAMILIES10_POSITIONS250500_BIT_VALUES_PARENT_STATE_UNCHANGED_NO_EXTRA_REBUILD"
-  },
   "new_actual_findings": [
     "Fresh per-class JVM still reproduces capacity waits: not only test-class contamination",
     "True owner-close gaps found in internal null research caches and private scratch lease orphan reclamation",
@@ -92,14 +78,6 @@
     "Owned lifecycle patch passes18-step resume and all4 bounded replay tests;100run no-signal/control still failed capacity, not overridden",
     "Prior process-death fixtures must close their now-AutoCloseable old owner before replacement; numerical assertions remain untouched"
   ],
-  "planned_remote_ci6": {
-    "workflow_prepared": "/tmp/r31-ci6-prepared.yml",
-    "exact_source": "PENDING_NEW_SOURCE_COMMIT",
-    "expected_instrumented_tests": 10,
-    "keystore": "EXISTING_R27_SAME_AS_PUBLIC_BASELINE_5237_NO_NEW_KEY",
-    "required_cert_sha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-    "baseline_public_release": "https://github.com/gtt46461-star/starcore-public-build/releases/tag/r30-repair1-577311009-5237b265a27f"
-  },
   "current_phase": "P01",
   "current_phase_ordinal": 2,
   "current_scope": [
@@ -107,36 +85,51 @@
     "P02_EXISTING_SOURCE_INTEGRATION_ONLY"
   ],
   "current_failures": [
-    "Fullba35 unit481/1FAIL:original last200 live/replay deepfork memory admission; actual Runtime.liveCache also lacks live critical allocation scope, repair in isolatedtree",
-    "Fullba35 HOST24 latest21PASS3FAIL; all3 root/writer followups individually PASS, a new combined24 matrix has not run",
-    "CI9 ba35 exact preflight exit23 HOST_BUILD_CONFIG;generated013 missing file fixed and pushedde9;CI10 pending",
-    "B02C02 producer64SQL/bind staging stillOPEN in atoms/history/evolution/model artifacts/source invalidation/legacy-compatible exposure repair",
-    "Physical device24/72NOT_RUN; naturalFUTUREqualityNOT_PROVEN",
-    "F23 actual bound teacher has no constructor budget registration; ReplayDataset lacks real open/availability frame; source-derived owner budget and causal-input contracts under isolated repair, not covered by23built-in fixture"
+    "014 full API29/35: each14 fault cells FAILED in common R929 bundle-capture prerequisites before actual injection; original logs retained",
+    "P01/B02 all-producer protocol OPEN; new source/atom/history/evolution/qualification/F23 are being integrated into a separate later source",
+    "Physical device24h/72h NOT_RUN; natural future quality NOT_PROVEN"
   ],
   "apk_delivery": {
-    "state": "ACTUAL_SIGNED_CHECKPOINT_WITH_FAILED_GATES_NOT_FINAL",
-    "source": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
-    "receipt": "verification/r31/p02/delivery_3246/DELIVERY-RECEIPT.json",
-    "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41867648951/artifacts/13344932363",
-    "contains_013_repairs": false
+    "state": "ACTUAL_SIGNED_014_CHECKPOINT_WITH_FAILED_ANDROID_GATES_NOT_FINAL",
+    "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+    "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+    "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+    "versionCode": 577311014,
+    "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
+    "contains_unmerged_P01_protocols": false
   },
   "android_emulator": {
-    "source": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
+    "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
     "apis": [
       29,
       35
     ],
-    "release_install": "PASS_ACTUAL_ADB",
-    "same_signature_debug_cover": "PASS_ACTUAL_ADB_DISPOSABLE_EMULATOR",
-    "per_api_protocol": {
-      "executed": 10,
-      "passed": 10,
+    "overall": "FAILED",
+    "additional_family_protocols_per_api": {
+      "tests": 2,
+      "passed": 2,
       "failed": 0
     },
-    "family_new_tests": "NOT_INCLUDED_IN_3246;013_PENDING_ACTUAL_EXECUTION",
-    "evidence": "verification/r31/p02/delivery_3246/DELIVERY-RECEIPT.json",
-    "physical_device_equivalence": false
+    "fault_matrix": {
+      "apis": [
+        29,
+        35
+      ],
+      "cells_per_api": 14,
+      "failed_cells_per_api": 14,
+      "injection_stage_reached": false,
+      "common_failure": "R932_BUNDLE_CAPTURE_COMMIT_FAILED -> DEPENDENCY(SCHEMA_PENDING):R929_PLATFORM",
+      "business_write": "R932_BUNDLE_CAPTURE",
+      "commit_outcome": "ROLLED_BACK",
+      "failure_source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+      "raw_logs": [
+        "API29-FULL-ANDROID-FAILED.log",
+        "API35-FULL-ANDROID-FAILED.log"
+      ],
+      "repair_state": "IMPLEMENTING_IN_ISOLATED_NEXT_SOURCE_NOT_IN_014"
+    },
+    "physical_device_equivalence": false,
+    "run": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067"
   },
   "isolated_worktrees": {
     "writer_budget": {
@@ -166,49 +159,149 @@
       ]
     }
   },
-  "latest_local_integrated_commit": "f6f8bbc878aec16190d6dd7f7fd44d63b138d2d9",
+  "latest_local_integrated_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
   "remote_full_unit": {
-    "source": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
-    "executed": 472,
-    "passed": 472,
+    "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+    "executed": 481,
+    "passed": 481,
     "failed": 0,
     "skipped": 0,
-    "scope": "ACTUAL_REMOTE113_JUNIT_XML; DOES_NOT_OVERRIDE_LOCAL8_FAILURES",
-    "receipt": "verification/r31/p02/delivery_3246/DELIVERY-RECEIPT.json"
+    "receipt": "verification/r31/p02/delivery_014/BUILD-SIGN-24HOST-SUCCESS.log",
+    "scope": "ACTUAL_REMOTE_UNEXCLUDED_UNIT_NOT_DEVICE"
   },
-  "latest_pushed_source_link": "https://github.com/gtt46461-star/starcore-public-build/commit/ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+  "latest_pushed_source_link": "https://github.com/gtt46461-star/starcore-public-build/commit/961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
   "execution_gate": "P01_B02_C02_OPEN; EXISTING_P02_SOURCE_UNDER_REVALIDATION; P03_NOT_STARTED",
   "pending_full_unit": {
-    "state": "SOURCE_FROZEN_FOR_COMMIT_AND_RUN",
+    "state": "COMPLETED_PASS481_ZERO_FAILURE_ZERO_SKIP",
     "versionCode": 577311014,
     "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
-    "source": "PENDING014_FREEZE_COMMIT",
+    "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
     "receipt": "verification/r31/p02/build-identity/P02_LIVE_FORK_CACHE_DELIVERY_014_COMMITTED_UNEXCLUDED_JOINT.json"
   },
   "latest_local_build": {
-    "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+    "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
     "java": "PASS",
     "androidTestCompile": "PASS",
     "lintDebug": "PASS",
     "lintRelease": "PASS",
     "finalIdentity": "PASS",
-    "whole": "FAILED_ONE_UNIT",
+    "whole": "PASS_ALL_REQUESTED_UNEXCLUDED_CHECKS_NOT_APK_ASSEMBLY",
     "excluded_tasks": [],
     "product_inputs_changed_during_run": [],
-    "time_seconds": 805
+    "duration_seconds": 729.65
   },
   "latest_full_host": {
-    "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+    "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
     "executed_groups": 24,
-    "initial_passed_groups": 20,
-    "initial_failed_groups": 4,
-    "latest_passed_groups": 21,
-    "latest_failed_groups": 3,
-    "service": "PASS_EXACT_COMMAND_WITH_AUTHORIZED_LOCAL_SOCKET_PERMISSION; INITIAL_DENIAL_KEPT",
-    "receipt": "verification/r31/p02/ba35-host-integration/SUMMARY.json",
-    "three_followup_repairs": "EACH_INDEPENDENTLY_PASS; NOT_NEW_FULL24_CLAIM"
+    "passed_groups": 24,
+    "failed_groups": 0,
+    "skipped_groups": 0,
+    "receipt": "verification/r31/p02/014-host-integration/SUMMARY.json",
+    "scope": "ACTUAL_HOST_NOT_ANDROID_OR_PHYSICAL",
+    "source_inputs_changed": false
   },
   "highest_source_phase": "P02",
   "highest_source_phase_ordinal": 3,
-  "phase_reporting_rule": "Report current unpassed dependency gate separately from highest phase with code changes; starting P02 was not evidence of G01 acceptance."
+  "phase_reporting_rule": "Report current unpassed dependency gate separately from highest phase with code changes; starting P02 was not evidence of G01 acceptance.",
+  "historical_checkpoints": [
+    {
+      "captured_at": "2026-11-04T19:40:11.395586+00:00",
+      "field": "apk_delivery",
+      "prior_record": {
+        "state": "ACTUAL_SIGNED_CHECKPOINT_WITH_FAILED_GATES_NOT_FINAL",
+        "source": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
+        "receipt": "verification/r31/p02/delivery_3246/DELIVERY-RECEIPT.json",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41867648951/artifacts/13344932363",
+        "contains_013_repairs": false
+      }
+    },
+    {
+      "captured_at": "2026-11-04T19:40:11.395586+00:00",
+      "field": "android_emulator",
+      "prior_record": {
+        "source": "de9a30834025c18ce291c241a722abe437717539",
+        "apis": [
+          29,
+          35
+        ],
+        "release_install": "PASS_ACTUAL_ADB",
+        "same_signature_debug_cover": "PASS_ACTUAL_ADB_ON_DISPOSABLE_EMULATOR",
+        "original_protocols_per_api": {
+          "tests": 10,
+          "passed": 10,
+          "failed": 0
+        },
+        "additional_family_protocols_per_api": {
+          "tests": 2,
+          "passed": 2,
+          "failed": 0
+        },
+        "source014": "NOT_RUN_YET",
+        "physical_device_equivalence": false,
+        "run": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41883335923"
+      }
+    },
+    {
+      "captured_at": "2026-11-04T19:40:11.395586+00:00",
+      "field": "latest_full_host",
+      "prior_record": {
+        "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+        "executed_groups": 24,
+        "initial_passed_groups": 20,
+        "initial_failed_groups": 4,
+        "latest_passed_groups": 21,
+        "latest_failed_groups": 3,
+        "service": "PASS_EXACT_COMMAND_WITH_AUTHORIZED_LOCAL_SOCKET_PERMISSION; INITIAL_DENIAL_KEPT",
+        "receipt": "verification/r31/p02/ba35-host-integration/SUMMARY.json",
+        "three_followup_repairs": "EACH_INDEPENDENTLY_PASS; NOT_NEW_FULL24_CLAIM"
+      }
+    },
+    {
+      "captured_at": "2026-11-04T19:40:11.395586+00:00",
+      "field": "remote_full_unit",
+      "prior_record": {
+        "source": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
+        "executed": 472,
+        "passed": 472,
+        "failed": 0,
+        "skipped": 0,
+        "scope": "ACTUAL_REMOTE113_JUNIT_XML; DOES_NOT_OVERRIDE_LOCAL8_FAILURES",
+        "receipt": "verification/r31/p02/delivery_3246/DELIVERY-RECEIPT.json"
+      }
+    },
+    {
+      "captured_at": "2026-11-04T19:40:11.395586+00:00",
+      "field": "current_memory_repair",
+      "prior_record": {
+        "at": "2026-11-04T13:52:44.803831+00:00",
+        "source_state": "3246_FROZEN_PUBLISHED; NEW_REPAIRS_IN_MAIN_AND_ISOLATED_TREES",
+        "whole_Android_Java_bootstrap": "PASS_50_86S_INPUTS_STABLE_4404_ACTUAL_CLASSES",
+        "targeted_memory": "PASS_CURRENT_ANDROID_SUPPORT55_NEW_PLUS6_ORIGINAL_PIT_MODEL_PLUS52_GOLDEN",
+        "actual_runtime_control": "PASS_8_JUNIT_144_ASSERTIONS_120200MS_HOST",
+        "previous_full_unit": "E96_428_TESTS_17_FAILURES_PRESERVED",
+        "fresh_owned_math": "6_TESTS_3_PASS_3_RESOURCE_CAPACITY_FAILURES_PRESERVED",
+        "current_full_unexcluded": "ACTUAL472_TESTS8FAIL0SKIP; 15COMPAT_LINT_ERRORS_EACH_VARIANT",
+        "Android_instrumentation": "ACTUAL_API29_AND35_EACH10RUN9PASS1NULL_OWNER_FAIL",
+        "integration": "FAILED_REMAIN_P02",
+        "device24h": "NOT_RUN",
+        "device72h": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN",
+        "original_math_and_set_contract": "PASS14_INCLUDES_ORIGINAL6_AND_UNCHANGED100X3_H07; SAME512M; NO_COLLECTOR_API",
+        "R26_overdue_recovery": "PASS_ACTUAL120201MS_AND23_CONSUMER_ASSERTIONS_HOST_ONLY",
+        "family_mutable_isolation": "PASS5_FAMILIES10_POSITIONS250500_BIT_VALUES_PARENT_STATE_UNCHANGED_NO_EXTRA_REBUILD"
+      }
+    },
+    {
+      "captured_at": "2026-11-04T19:40:11.395586+00:00",
+      "field": "planned_remote_ci6",
+      "prior_record": {
+        "workflow_prepared": "/tmp/r31-ci6-prepared.yml",
+        "exact_source": "PENDING_NEW_SOURCE_COMMIT",
+        "expected_instrumented_tests": 10,
+        "keystore": "EXISTING_R27_SAME_AS_PUBLIC_BASELINE_5237_NO_NEW_KEY",
+        "required_cert_sha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "baseline_public_release": "https://github.com/gtt46461-star/starcore-public-build/releases/tag/r30-repair1-577311009-5237b265a27f"
+      }
+    }
+  ]
 }
