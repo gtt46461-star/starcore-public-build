@@ -2,6 +2,8 @@ package com.ethk3.novaonepro.strategyv2;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import com.ethk3.novaonepro.SchemaDomainCoordinatorR926;
+import com.ethk3.novaonepro.DatabaseCoordinator;
 import java.util.*;
 
 /** Source corrections revoke authority in their existing writer transaction; evidence and models stay intact. */
@@ -16,6 +18,9 @@ public final class CertificateRevocationR30 {
     };
     /** Called at R27 schema setup and again when the independently scheduled SU2 schema becomes available. */
     public static void ensure(SQLiteDatabase db) {
+        SchemaDomainCoordinatorR926.migrateR31CertificateRevocationProtection(db,CertificateRevocationR30::ensureObjectsR31);
+    }
+    private static void ensureObjectsR31(SQLiteDatabase db) {
         if(!db.inTransaction())throw new IllegalStateException("R30_REVOCATION_WRITER_REQUIRED");
         for(String ddl:DDL)db.execSQL(ddl);
         if(table(db,"r27_certificate"))install(db,"R27");
@@ -43,11 +48,39 @@ public final class CertificateRevocationR30 {
         }else db.execSQL("CREATE TRIGGER IF NOT EXISTS "+prefix+"_reissue AFTER INSERT ON su2_certificate WHEN EXISTS(SELECT 1 FROM r30_revoked_policy p WHERE p.protocol='SU2' AND p.policy_key=NEW.genome_key) BEGIN INSERT OR IGNORE INTO r26_certificate_revocation(certificate_id,reason,revoked_at) SELECT NEW.certificate_id,'R30_SOURCE_REVOKED_POLICY:'||p.cause,"+NOW+" FROM r30_revoked_policy p WHERE p.protocol='SU2' AND p.policy_key=NEW.genome_key; END");
         db.execSQL("CREATE INDEX IF NOT EXISTS "+prefix+"_expires ON "+(protocol.equals("R27")?"r27_certificate(status,expires_at)":"su2_certificate(expires_at)"));
     }
-    static void sourceTrigger(SQLiteDatabase db,String protocol,String name,List<String> fields,String cause) {
+    private static String sourceTriggerSqlR31(SQLiteDatabase db,String protocol,String name,List<String> fields,String cause){
         StringJoiner changed=new StringJoiner(" OR "),key=new StringJoiner("||'|'||");
         for(String field:fields){changed.add("NEW."+field+" IS NOT OLD."+field);key.add("coalesce(CAST(OLD."+field+" AS TEXT),'NULL')||'>'||coalesce(CAST(NEW."+field+" AS TEXT),'NULL')");}
         String body=statements(db,protocol,"OLD.issue",quote(cause),key.toString(),NOW);
-        db.execSQL("CREATE TRIGGER IF NOT EXISTS "+name+" AFTER UPDATE OF "+String.join(",",fields)+" ON draws WHEN "+changed+" BEGIN "+body+" END");
+        return "CREATE TRIGGER IF NOT EXISTS "+name+" AFTER UPDATE OF "+String.join(",",fields)+" ON draws WHEN "+changed+" BEGIN "+body+" END";
+    }
+    static void sourceTrigger(SQLiteDatabase db,String protocol,String name,List<String> fields,String cause){
+        String sql=sourceTriggerSqlR31(db,protocol,name,fields,cause);
+        requireSourceTriggerDefinitionsR31(db,new String[][]{{name,sql}},false);db.execSQL(sql);requireSourceTriggerDefinitionsR31(db,new String[][]{{name,sql}},true);
+    }
+    /** Exact guards for protocols whose real certificate table already exists, before schema installation. */
+    public static String[][] criticalSourceTriggersR31(SQLiteDatabase db){
+        List<String[]> out=new ArrayList<>();if(!table(db,"draws"))return new String[0][];
+        Set<String> present=columns(db,"draws");
+        for(String protocol:new String[]{"R27","SU2"}){
+            if(!table(db,protocol.equals("R27")?"r27_certificate":"su2_certificate"))continue;
+            List<String> semantic=new ArrayList<>(),hashes=new ArrayList<>();
+            for(String name:new String[]{"issue","dirty","open_time","n1","n2","n3","n4","n5","n6","n7","n8","n9","n10"})if(present.contains(name))semantic.add(name);
+            for(String name:new String[]{"draw_hash_v2","draw_hash_version"})if(present.contains(name))hashes.add(name);
+            for(int kind=0;kind<2;kind++){
+                List<String> fields=kind==0?semantic:hashes;if(fields.isEmpty())continue;
+                String name="r30_revoke_"+protocol.toLowerCase(Locale.ROOT)+(kind==0?"_draw_semantics":"_draw_hash"),cause=kind==0?"DRAW_NUMBERS_TIME_OR_STATUS_CHANGED":"DRAW_HASH_CHANGED";
+                out.add(new String[]{name,sourceTriggerSqlR31(db,protocol,name,fields,cause)});
+            }
+        }
+        return out.toArray(new String[0][]);
+    }
+    private static String normalizedTriggerR31(String sql){if(sql==null)return "";String value=sql.trim(),header="CREATE TRIGGER IF NOT EXISTS ";return value.startsWith(header)?"CREATE TRIGGER "+value.substring(header.length()):value;}
+    public static void requireSourceTriggerDefinitionsR31(SQLiteDatabase db,String[][] definitions,boolean requireAll){
+        for(String[] expected:definitions)try(Cursor c=db.rawQuery("SELECT type,sql FROM sqlite_master WHERE name=?",new String[]{expected[0]})){
+            if(!c.moveToFirst()){if(requireAll)throw new DatabaseCoordinator.SchemaPendingR31("R31_CERTIFICATE_REVOCATION","MISSING_SOURCE_GUARD:"+expected[0]);}
+            else if(!"trigger".equals(c.getString(0))||!normalizedTriggerR31(expected[1]).equals(normalizedTriggerR31(c.getString(1))))throw new DatabaseCoordinator.SchemaPendingR31("R31_CERTIFICATE_REVOCATION","EXACT_SOURCE_GUARD_MISMATCH:"+expected[0]);
+        }
     }
     /** Invoked by SettlementEngine's hook from the canonicalizer's already active write transaction. */
     public static void revokeWithin(SQLiteDatabase db,String issue,String cause,String eventKey) {

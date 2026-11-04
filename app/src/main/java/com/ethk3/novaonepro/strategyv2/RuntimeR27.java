@@ -184,16 +184,20 @@ public final class RuntimeR27 implements AutoCloseable {
             ReplayDatasetR27 d = StoreR27.loadDataset(w.ro, DATASET_ROWS);
             if(capturedRevision<0||capturedRevision!=SchemaR27.liveSourceRevision(w.ro))return ResearchPoolR27.Outcome.idle("DEPENDENCY(DATASET_READ_SOURCE_CHANGED)",0,-1);
             if (d.size() < 3 * SplitR27.BLOCK) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS:rows=" + d.size(), d.size(), 3 * SplitR27.BLOCK);
-            FeatureCacheR27 c = featureCacheR31(d,48);
-            ModelSurfaceStoreR30.bindHistorical(w.ro,c);
-            SplitR27 sp = SplitR27.of(d, evo == null ? null : evo.ledger().degradedBlocks());
-            ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
-            b.add("INSERT OR IGNORE INTO r27_replay_dataset(dataset_hash,from_issue,to_issue,rows,segments,split,built_at,build_ms) VALUES(?,?,?,?,?,?,?,?)",
-                    d.datasetHash, d.issues[0], d.issues[d.size() - 1], d.size(), d.segments(), sp.describe(), System.currentTimeMillis(), System.currentTimeMillis() - t0);
-            ResearchInputPinR30R1.append(b,d,capturedRevision,System.currentTimeMillis());
-            submit(w, "REPLAY_DATASET", b,false,d.datasetHash+"|sourceRevision="+capturedRevision);
-            if (evoData == null) { evoData = d; evoCache = c; } else { pendingData = d; pendingCache = c; }
-            return ResearchPoolR27.Outcome.progress(1, d.ordinals[d.size() - 1]);
+            FeatureCacheR27 c = featureCacheR31(d,48);boolean published=false;
+            try{
+                ModelSurfaceStoreR30.bindHistorical(w.ro,c);
+                SplitR27 sp = SplitR27.of(d, evo == null ? null : evo.ledger().degradedBlocks());
+                ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
+                b.add("INSERT OR IGNORE INTO r27_replay_dataset(dataset_hash,from_issue,to_issue,rows,segments,split,built_at,build_ms) VALUES(?,?,?,?,?,?,?,?)",
+                        d.datasetHash, d.issues[0], d.issues[d.size() - 1], d.size(), d.segments(), sp.describe(), System.currentTimeMillis(), System.currentTimeMillis() - t0);
+                try(PinPublicationR31.Scope pin=ResearchInputPinR30R1.appendAdmitted(b,w.ro,store.researchInputRootCP11().getParentFile(),d,capturedRevision,System.currentTimeMillis())){
+                    submit(w, "REPLAY_DATASET", b,false,d.datasetHash+"|sourceRevision="+capturedRevision);
+                }
+                if (evoData == null) { evoData = d; evoCache = c; } else { pendingData = d; pendingCache = c; }
+                published=true;
+                return ResearchPoolR27.Outcome.progress(1, d.ordinals[d.size() - 1]);
+            }finally{if(!published)c.close();}
         }
     }
 

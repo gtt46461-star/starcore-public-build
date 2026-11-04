@@ -59,7 +59,7 @@ public final class SchemaDomainCoordinatorR926 {
         Contract contract = r31ObservationContract();
         prepareRepairIfDrift(db, contract);
         try {
-            runStep(db, contract, "R31_OBSERVATION_V1",
+            runStep(db, contract, "R31_OBSERVATION_V" + contract.revision,
                     com.ethk3.novaonepro.strategyv2.SchemaR27::ensureR31Observations);
             verifyAndStamp(db, contract);
         } catch (RuntimeException failure) {
@@ -118,6 +118,7 @@ public final class SchemaDomainCoordinatorR926 {
         try {
             runStep(db, contract, "R31_ATOM_PUBLICATION_V1",
                     com.ethk3.novaonepro.strategyv2.AtomPublicationStoreR31::ensureSchemaR31);
+            com.ethk3.novaonepro.strategyv2.AtomPublicationStoreR31.requireReadyR31(db);
             verifyAndStamp(db, contract);
         } catch (RuntimeException failure) {
             throw failure;
@@ -144,6 +145,8 @@ public final class SchemaDomainCoordinatorR926 {
         try {
             runStep(db, contract, "R31_HISTORY_IMPORT_V1",
                     com.ethk3.novaonepro.strategyv2.HistoryImportR27::ensureR31PublicationSchema);
+            if (!com.ethk3.novaonepro.strategyv2.HistoryImportR27.publicationSchemaReadyReadOnlyR31(db))
+                throw new DatabaseCoordinator.SchemaPendingR31("R31_HISTORY_IMPORT_MIGRATION", "EXACT_PUBLICATION_SCHEMA_NOT_READY");
             verifyAndStamp(db, contract);
         } catch (RuntimeException failure) {
             throw failure;
@@ -173,6 +176,7 @@ public final class SchemaDomainCoordinatorR926 {
                 com.ethk3.novaonepro.strategyv2.QualificationInboxR29.ensureLegacyReceiptGuardsR31(tx);
                 com.ethk3.novaonepro.strategyv2.QualificationInboxR29.requireLegacyReceiptGuardsR31(tx);
             });
+            com.ethk3.novaonepro.strategyv2.QualificationInboxR29.requireLegacyReceiptGuardsR31(db);
             verifyAndStamp(db, contract);
         } catch (RuntimeException failure) {
             throw failure;
@@ -265,12 +269,56 @@ public final class SchemaDomainCoordinatorR926 {
         try {
             runStep(db, contract, "R31_EVOLUTION_PUBLICATION_V1",
                     com.ethk3.novaonepro.strategyv2.EvolutionPublicationStoreR31::ensureSchemaR31);
+            com.ethk3.novaonepro.strategyv2.EvolutionPublicationStoreR31.requireSchemaR31(db);
             verifyAndStamp(db, contract);
         } catch (RuntimeException failure) {
             throw failure;
         } catch (Exception failure) {
             throw new IllegalStateException("R31_EVOLUTION_PUBLICATION_MIGRATION_FAILED", failure);
         }
+    }
+
+    public static Contract r31AtomNetPublicationContract() {
+        String[][] objects=com.ethk3.novaonepro.strategyv2.AtomNetPublicationR31.schemaObjectsR31();
+        String[] names=new String[objects.length];
+        for(int i=0;i<objects.length;i++){
+            if(objects[i].length!=2||!("table".equals(objects[i][0])||"index".equals(objects[i][0])||"trigger".equals(objects[i][0])))throw new IllegalStateException("R31_ATOMNET_PUBLICATION_SCHEMA_CONTRACT");
+            names[i]=objects[i][1];
+        }
+        return new Contract("RESEARCH_R31_ATOMNET_PUBLICATION",com.ethk3.novaonepro.strategyv2.AtomNetPublicationR31.REVISION,names);
+    }
+    /** Startup migration only; business preparation never creates or repairs schema. */
+    public static void migrateR31AtomNetPublication(SQLiteDatabase db) {
+        if(!db.inTransaction())throw new IllegalStateException("R31_MIGRATION_OWNER_REQUIRED");
+        Contract contract=r31AtomNetPublicationContract();prepareRepairIfDrift(db,contract);
+        try {
+            runStep(db,contract,"R31_ATOMNET_PUBLICATION_V1",com.ethk3.novaonepro.strategyv2.AtomNetPublicationR31::ensureSchemaR31);
+            com.ethk3.novaonepro.strategyv2.AtomNetPublicationR31.requireReady(db);
+            requireExactR31Definitions(db,"R31_ATOMNET_PUBLICATION_MIGRATION",com.ethk3.novaonepro.strategyv2.AtomNetPublicationR31.DDL);
+            verifyAndStamp(db,contract);
+        }catch(RuntimeException failure){throw failure;}
+        catch(Exception failure){throw new IllegalStateException("R31_ATOMNET_PUBLICATION_MIGRATION_FAILED",failure);}
+    }
+
+    public static Contract r31ModelPublicationContract() {
+        String[][] objects=com.ethk3.novaonepro.strategyv2.ModelPublicationR31.schemaObjectsR31();
+        String[] names=new String[objects.length];
+        for(int i=0;i<objects.length;i++){
+            if(objects[i].length!=2||!("table".equals(objects[i][0])||"index".equals(objects[i][0])||"trigger".equals(objects[i][0])))throw new IllegalStateException("R31_MODEL_PUBLICATION_SCHEMA_CONTRACT");
+            names[i]=objects[i][1];
+        }
+        return new Contract("RESEARCH_R31_MODEL_PUBLICATION",com.ethk3.novaonepro.strategyv2.ModelPublicationR31.REVISION,names);
+    }
+    /** Startup migration only; business preparation never creates or repairs schema. */
+    public static void migrateR31ModelPublication(SQLiteDatabase db) {
+        if(!db.inTransaction())throw new IllegalStateException("R31_MIGRATION_OWNER_REQUIRED");
+        Contract contract=r31ModelPublicationContract();prepareRepairIfDrift(db,contract);
+        try {
+            runStep(db,contract,"R31_MODEL_PUBLICATION_V1",com.ethk3.novaonepro.strategyv2.ModelPublicationR31::ensureSchemaR31);
+            com.ethk3.novaonepro.strategyv2.ModelPublicationR31.requireSchemaR31(db);
+            verifyAndStamp(db,contract);
+        }catch(RuntimeException failure){throw failure;}
+        catch(Exception failure){throw new IllegalStateException("R31_MODEL_PUBLICATION_MIGRATION_FAILED",failure);}
     }
 
     public static Contract r31PlatformPrerequisitesContract() {
@@ -309,14 +357,122 @@ public final class SchemaDomainCoordinatorR926 {
     /** Research event/consumer extensions are migrated after the legacy feedback and checkpoint schema. */
     public static void migrateR31Feedback(SQLiteDatabase db) {
         if (!db.inTransaction()) throw new IllegalStateException("R31_MIGRATION_OWNER_REQUIRED");
-        Contract contract=r31FeedbackContract();
+        ensureInfrastructure(db);
+        Contract contract=r31FeedbackContract(), critical=criticalContract();
+        boolean trustedCritical=matchReason(db,critical).startsWith("MATCH");
+        String beforeCritical=fingerprint(db,critical);
+        Set<String> delta=Collections.singleton("r31_feedback_source");
+        String beforeCore=fingerprint(db,critical,false,null,delta);
         prepareRepairIfDrift(db,contract);
         try {
             runStep(db,contract,"R31_FEEDBACK_V1",
                     com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26::ensureR31Feedback);
+            requireExactR31Definitions(db,"R31_FEEDBACK_MIGRATION",
+                    com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.R31_FEEDBACK_DDL);
+            if(!beforeCore.equals(fingerprint(db,critical,false,null,delta)))
+                throw new IllegalStateException("R31_FEEDBACK_CHANGED_UNRELATED_CRITICAL_SCHEMA");
+            String afterCritical=fingerprint(db,critical);
+            if(trustedCritical&&!beforeCritical.equals(afterCritical)) {
+                long now=System.currentTimeMillis();
+                db.execSQL("INSERT OR IGNORE INTO "+TABLE_JOURNAL
+                                +"(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code)"
+                                +" VALUES(?,?,?,'COMPLETED',1,'EXACT_INDEX_DELTA:r31_feedback_source',?,?,?,?, '')",
+                        new Object[]{critical.domain,critical.revision,"R31_FEEDBACK_INDEX_CUTOVER_V1",
+                                beforeCritical,afterCritical,now,now});
+                // The authenticated addition and Critical stamp commit or roll back together.
+                verifyAndStamp(db,critical);
+            }
             verifyAndStamp(db,contract);
         } catch(RuntimeException failure) {throw failure;}
         catch(Exception failure) {throw new IllegalStateException("R31_FEEDBACK_MIGRATION_FAILED",failure);}
+    }
+
+    /** Read-only cold-start barrier: generic Core repair must not authenticate unknown Research attachments. */
+    public static void requireExistingResearchCriticalGuardsR31(SQLiteDatabase db){
+        com.ethk3.novaonepro.strategyv2.ResearchRetentionStoreR30.requireGuardDefinitionsR31(db,
+                com.ethk3.novaonepro.strategyv2.ResearchRetentionStoreR30.criticalProtectionTriggersR31(db),false);
+        if(schemaObjectExists(db,"r31_feedback_source")){
+            for(String expected:com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.R31_FEEDBACK_DDL)
+                if(expected.startsWith("CREATE INDEX IF NOT EXISTS r31_feedback_source "))requireExactR31Definitions(db,"R31_COLD_FEEDBACK_INDEX",new String[]{expected});
+        }
+        com.ethk3.novaonepro.strategyv2.CertificateRevocationR30.requireSourceTriggerDefinitionsR31(db,
+                com.ethk3.novaonepro.strategyv2.CertificateRevocationR30.criticalSourceTriggersR31(db),false);
+        String sourceShape=com.ethk3.novaonepro.strategyv2.ResearchSourceJournalR31.inspectUpgradeR31(db);
+        if(!("EMPTY".equals(sourceShape)||"OLD_EXACT".equals(sourceShape)||"R31_EXACT".equals(sourceShape)))
+            throw new DatabaseCoordinator.SchemaPendingR31("R31_COLD_SOURCE_GUARDS","UNKNOWN_DRAW_OR_HISTORY_TRIGGER_DEFINITION");
+    }
+
+    /** SU2 becomes available in a later schema task: install only its exact source-revocation additions. */
+    public static void migrateR31CertificateRevocationProtection(SQLiteDatabase db,Step install){
+        if(!db.inTransaction())throw new IllegalStateException("R31_REVOCATION_MIGRATION_OWNER_REQUIRED");
+        ensureInfrastructure(db);
+        String[][] guards=com.ethk3.novaonepro.strategyv2.CertificateRevocationR30.criticalSourceTriggersR31(db);
+        com.ethk3.novaonepro.strategyv2.CertificateRevocationR30.requireSourceTriggerDefinitionsR31(db,guards,false);
+        Contract critical=criticalContract();String priorReason=matchReason(db,critical);boolean trustedCritical=priorReason.startsWith("MATCH");
+        if(!trustedCritical&&!"STAMP_MISSING".equals(priorReason))throw new DatabaseCoordinator.SchemaPendingR31("R31_CERTIFICATE_REVOCATION","UNTRUSTED_CRITICAL:"+priorReason);
+        Set<String> delta=new HashSet<>();for(String[] guard:guards)delta.add(guard[0]);
+        String beforeCritical=fingerprint(db,critical),beforeCore=fingerprint(db,critical,false,null,delta);
+        try{
+            install.run(db);
+            com.ethk3.novaonepro.strategyv2.CertificateRevocationR30.requireSourceTriggerDefinitionsR31(db,guards,true);
+            if(!beforeCore.equals(fingerprint(db,critical,false,null,delta)))throw new IllegalStateException("R31_REVOCATION_CHANGED_UNRELATED_CRITICAL_SCHEMA");
+            String afterCritical=fingerprint(db,critical);
+            if(trustedCritical&&!beforeCritical.equals(afterCritical)){
+                long now=System.currentTimeMillis();
+                db.execSQL("INSERT OR IGNORE INTO "+TABLE_JOURNAL
+                                +"(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code)"
+                                +" VALUES(?,?,?,'COMPLETED',1,'EXACT_DRAW_REVOCATION_GUARD_DELTA',?,?,?,?, '')",
+                        new Object[]{critical.domain,critical.revision,"R31_REVOCATION_GUARD_CUTOVER_V1",beforeCritical,afterCritical,now,now});
+                verifyAndStamp(db,critical);
+            }
+        }catch(RuntimeException failure){throw failure;}
+        catch(Exception failure){throw new IllegalStateException("R31_REVOCATION_PROTECTION_MIGRATION_FAILED",failure);}
+    }
+
+    /** Authenticate only the retention owner's exact feedback guard delta, in its existing migration transaction. */
+    public static void migrateR31RetentionProtection(SQLiteDatabase db,Step install){
+        if(!db.inTransaction())throw new IllegalStateException("R31_RETENTION_MIGRATION_OWNER_REQUIRED");
+        ensureInfrastructure(db);
+        String[][] guards=com.ethk3.novaonepro.strategyv2.ResearchRetentionStoreR30.criticalProtectionTriggersR31(db);
+        com.ethk3.novaonepro.strategyv2.ResearchRetentionStoreR30.requireGuardDefinitionsR31(db,guards,false);
+        Contract critical=criticalContract();String priorReason=matchReason(db,critical);
+        boolean trustedCritical=priorReason.startsWith("MATCH");
+        if(!trustedCritical&&!"STAMP_MISSING".equals(priorReason))throw new DatabaseCoordinator.SchemaPendingR31("R31_RETENTION","UNTRUSTED_CRITICAL:"+priorReason);
+        Set<String> delta=new HashSet<>();for(String[] guard:guards)delta.add(guard[0]);
+        String beforeCritical=fingerprint(db,critical),beforeCore=fingerprint(db,critical,false,null,delta);
+        try {
+            install.run(db);
+            com.ethk3.novaonepro.strategyv2.ResearchRetentionStoreR30.requireGuardDefinitionsR31(db,guards,true);
+            if(!beforeCore.equals(fingerprint(db,critical,false,null,delta)))throw new IllegalStateException("R31_RETENTION_CHANGED_UNRELATED_CRITICAL_SCHEMA");
+            String afterCritical=fingerprint(db,critical);
+            if(trustedCritical&&!beforeCritical.equals(afterCritical)){
+                long now=System.currentTimeMillis();
+                db.execSQL("INSERT OR IGNORE INTO "+TABLE_JOURNAL
+                                +"(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code)"
+                                +" VALUES(?,?,?,'COMPLETED',1,'EXACT_FEEDBACK_ARCHIVE_GUARD_DELTA',?,?,?,?, '')",
+                        new Object[]{critical.domain,critical.revision,"R31_RETENTION_GUARD_CUTOVER_V1",beforeCritical,afterCritical,now,now});
+                verifyAndStamp(db,critical);
+            }
+        }catch(RuntimeException failure){throw failure;}
+        catch(Exception failure){throw new IllegalStateException("R31_RETENTION_PROTECTION_MIGRATION_FAILED",failure);}
+    }
+
+    private static void requireExactR31Definitions(SQLiteDatabase db,String operation,String[] definitions) {
+        java.util.regex.Pattern declaration=java.util.regex.Pattern.compile(
+                "^CREATE (?:UNIQUE )?(TABLE|INDEX|TRIGGER|VIEW) IF NOT EXISTS ([A-Za-z0-9_]+)(?:\\s|\\()");
+        for(String expected:definitions) {
+            java.util.regex.Matcher named=declaration.matcher(expected);
+            if(!named.find())throw new IllegalStateException("R31_SCHEMA_DECLARATION_CONTRACT:"+operation);
+            try(Cursor actual=db.rawQuery("SELECT type,sql FROM sqlite_master WHERE name=?",new String[]{named.group(2)})) {
+                if(!actual.moveToFirst()||!named.group(1).toLowerCase(java.util.Locale.ROOT).equals(actual.getString(0))
+                        ||!canonicalR31Definition(expected).equals(canonicalR31Definition(actual.getString(1))))
+                    throw new DatabaseCoordinator.SchemaPendingR31(operation,"EXACT_SCHEMA_DEFINITION_MISMATCH:"+named.group(2));
+            }
+        }
+    }
+
+    private static String canonicalR31Definition(String sql) {
+        return sql==null?"":sql.replace(" IF NOT EXISTS "," ").trim().replaceAll("\\s+"," ");
     }
 
     public static Contract r31TransportTimingContract() {
@@ -740,6 +896,11 @@ public final class SchemaDomainCoordinatorR926 {
 
     private static String fingerprint(SQLiteDatabase db, Contract contract, boolean excludeResearchPinDrawTriggers,
                                       Set<String> declaredDrawTriggerDelta) {
+        return fingerprint(db,contract,excludeResearchPinDrawTriggers,declaredDrawTriggerDelta,null);
+    }
+
+    private static String fingerprint(SQLiteDatabase db, Contract contract, boolean excludeResearchPinDrawTriggers,
+                                      Set<String> declaredDrawTriggerDelta,Set<String> declaredOwnerObjects) {
         if (db == null || contract == null) return "";
         Set<String> wanted = new HashSet<String>(Arrays.asList(contract.objects));
         ArrayList<String> rows = new ArrayList<String>();
@@ -785,6 +946,7 @@ public final class SchemaDomainCoordinatorR926 {
                 String name = safe(c.getString(1));
                 String table = safe(c.getString(2));
                 if (!wanted.contains(name) && !wanted.contains(table)) continue;
+                if (declaredOwnerObjects != null && declaredOwnerObjects.contains(name)) continue;
                 if (excludeResearchPinDrawTriggers && "trigger".equals(safe(c.getString(0)))
                         && "draws".equals(table)
                         && (declaredDrawTriggerDelta != null ? declaredDrawTriggerDelta.contains(name)

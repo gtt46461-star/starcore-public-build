@@ -65,4 +65,33 @@ public final class R31PreparedWriteContractTest {
         DatabaseCoordinator.WriteRejectedR31 full=new DatabaseCoordinator.WriteRejectedR31("DISK_FULL","x","BODY",DatabaseCoordinator.CommitOutcome.ROLLED_BACK,new IllegalStateException("SQLITE_FULL"));
         assertEquals(FailureDispositionR31.Disposition.FATAL,FailureDispositionR31.classify(full).disposition);
     }
+    private static final class TypedProducerFailure extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure {
+        private final String category;
+        TypedProducerFailure(String category,String message,Throwable cause){super(message,cause);this.category=category;}
+        public String failureCategory(){return category;}public String operation(){return "PRODUCER";}
+        public String phase(){return "PREPARE";}public String commitOutcomeName(){return "NOT_SUBMITTED";}
+    }
+    @Test public void typedProducerCategoriesSurviveCoordinatorWrappingWithoutMessageKeywords(){
+        for(String category:new String[]{"DEPENDENCY","INTEGRITY","STALE_OWNER","CANCELLED","TEMP_TIMEOUT","LOCK_BUSY"}){
+            Throwable failure=new IllegalStateException("writer body failed",new TypedProducerFailure(category,"unavailable input",null));
+            assertEquals(category,DatabaseCoordinator.failureCategoryR31(failure));
+            DatabaseCoordinator.WriteRejectedR31 adapted=new DatabaseCoordinator.WriteRejectedR31(DatabaseCoordinator.failureCategoryR31(failure),"production","BODY",DatabaseCoordinator.CommitOutcome.ROLLED_BACK,failure);
+            assertEquals(category,FailureDispositionR31.classify(adapted).category);
+        }
+    }
+    @Test public void typedDependencyDoesNotBecomeLockRetryBecauseOfIncidentalMessage(){
+        Throwable failure=new TypedProducerFailure("DEPENDENCY","database is locked in an old observation",null);
+        assertEquals("DEPENDENCY",DatabaseCoordinator.failureCategoryR31(failure));
+        assertFalse(ResearchWriteQueueR27.writerBusy(failure));
+    }
+    @Test public void nativeDiskFailureCannotBeHiddenByProducerDependency(){
+        Throwable failure=new TypedProducerFailure("DEPENDENCY","no input",new IllegalStateException("SQLITE_FULL: database or disk is full"));
+        assertEquals("DISK_FULL",DatabaseCoordinator.failureCategoryR31(failure));
+        Throwable corrupt=new TypedProducerFailure("DEPENDENCY","no input",new IllegalStateException("SQLITE_CORRUPT"));
+        assertEquals("DB_CORRUPT",DatabaseCoordinator.failureCategoryR31(corrupt));
+    }
+    @Test public void unknownTypedCategoryCannotCreateAnUnspecifiedRetryPolicy(){
+        assertEquals("BUG",DatabaseCoordinator.failureCategoryR31(new TypedProducerFailure("IGNORE_ALL_ERRORS","unavailable input",null)));
+    }
+
 }

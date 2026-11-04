@@ -11,7 +11,7 @@ import com.ethk3.novaonepro.*;
 public final class SchemaR27 {
     private SchemaR27() {}
     public static final int REVISION = 1;
-    public static final int R31_OBSERVATION_REVISION = 1;
+    public static final int R31_OBSERVATION_REVISION = 2;
     public static final int R31_WRITE_REVISION = 1;
     public static final String[] R31_WRITE_DDL = {
         "CREATE TABLE IF NOT EXISTS r31_commit_receipt(commit_key TEXT PRIMARY KEY,payload_hash TEXT NOT NULL,operation TEXT NOT NULL,task_id TEXT NOT NULL,owner_epoch TEXT NOT NULL,fence INTEGER NOT NULL,input_snapshot TEXT NOT NULL,chunk_seq INTEGER NOT NULL,operator_version TEXT NOT NULL,committed_at INTEGER NOT NULL)",
@@ -26,7 +26,7 @@ public final class SchemaR27 {
         "CREATE INDEX IF NOT EXISTS r31_runtime_fault_order ON r31_runtime_fault(last_wall_ms,task_id)",
         "CREATE TABLE IF NOT EXISTS r31_telemetry_counter(owner_epoch TEXT NOT NULL,name TEXT NOT NULL,value INTEGER NOT NULL CHECK(value>=0),updated_at INTEGER NOT NULL,PRIMARY KEY(owner_epoch,name))",
         "CREATE TABLE IF NOT EXISTS r31_task_observation(task_id TEXT PRIMARY KEY,owner_epoch TEXT NOT NULL,fence INTEGER,attempts INTEGER NOT NULL DEFAULT 0,work_cpu_ms INTEGER NOT NULL DEFAULT 0,observed_work_units INTEGER NOT NULL DEFAULT 0,task_receipts_committed INTEGER NOT NULL DEFAULT 0,task_receipts_failed INTEGER NOT NULL DEFAULT 0,last_attempt_elapsed_ms INTEGER NOT NULL,boot_id TEXT NOT NULL,last_artifact_hash TEXT,progress_evidence_status TEXT NOT NULL DEFAULT 'NOT_ARTIFACT_BOUND')",
-        "CREATE TABLE IF NOT EXISTS r31_task_control(task_id TEXT PRIMARY KEY,quarantine_until INTEGER NOT NULL DEFAULT 0,level INTEGER NOT NULL DEFAULT 0,fingerprint TEXT NOT NULL DEFAULT '',half_open_owner TEXT,last_recovery_at INTEGER NOT NULL DEFAULT 0,generation INTEGER NOT NULL DEFAULT 0)",
+        "CREATE TABLE IF NOT EXISTS r31_task_control(task_id TEXT PRIMARY KEY,quarantine_until INTEGER NOT NULL DEFAULT 0,level INTEGER NOT NULL DEFAULT 0,fingerprint TEXT NOT NULL DEFAULT '',half_open_owner TEXT,last_recovery_at INTEGER NOT NULL DEFAULT 0,generation INTEGER NOT NULL DEFAULT 0,quarantine_boot_id TEXT NOT NULL DEFAULT '',quarantine_deadline_elapsed_ms INTEGER NOT NULL DEFAULT 0,fault_rounds INTEGER NOT NULL DEFAULT 0,half_open_fence INTEGER NOT NULL DEFAULT 0,last_success_artifact_hash TEXT,fault_window_boot_id TEXT NOT NULL DEFAULT '',fault_window_elapsed_ms INTEGER NOT NULL DEFAULT 0)",
         "CREATE TABLE IF NOT EXISTS r31_migration(revision INTEGER PRIMARY KEY,applied_at INTEGER NOT NULL,source_commit TEXT NOT NULL)"
     };
     public static final String[] DDL = {
@@ -110,6 +110,7 @@ public final class SchemaR27 {
         db.execSQL(BehaviorSignatureR30.DDL); // R30-B04-02: idempotent duplicate rejection receipts
         for (String sql : ModelSurfaceStoreR30.DDL) db.execSQL(sql);
         for (String sql : AtomNetStoreR30.DDL) db.execSQL(sql);
+        SchemaDomainCoordinatorR926.migrateR31AtomNetPublication(db);
         for (String sql : FrozenConfirmationStoreR30.DDL) db.execSQL(sql);
         column(db,"r30_frozen_confirm","registration_state","TEXT NOT NULL DEFAULT 'PENDING'");
         column(db, "r30_confirm_read", "control", "INTEGER NOT NULL DEFAULT 0");
@@ -131,6 +132,11 @@ public final class SchemaR27 {
     public static void ensureR31Observations(SQLiteDatabase db) {
         if (!db.inTransaction()) throw new IllegalStateException("R31_SCHEMA_WRITER_REQUIRED");
         for (String sql : R31_DDL) db.execSQL(sql);
+        // OBS owns the complete task-control shape. WRITE must not invalidate this domain later.
+        requireKnownTaskControlR31(db, false);
+        for (String[] addition : R31_CONTROL_ADDITIONS)
+            column(db,"r31_task_control",addition[0],addition[1]);
+        requireKnownTaskControlR31(db, true);
         verifyR31ObservationColumns(db);
         db.execSQL("INSERT OR IGNORE INTO r31_migration VALUES(?,?,?)", new Object[] {
                 R31_OBSERVATION_REVISION, System.currentTimeMillis(), BuildConfig.SOURCE_COMMIT_R26});
@@ -139,13 +145,7 @@ public final class SchemaR27 {
     public static void ensureR31WriteProtocol(SQLiteDatabase db) {
         if (!db.inTransaction()) throw new IllegalStateException("R31_SCHEMA_WRITER_REQUIRED");
         for (String sql : R31_WRITE_DDL) db.execSQL(sql);
-        column(db,"r31_task_control","quarantine_boot_id","TEXT NOT NULL DEFAULT ''");
-        column(db,"r31_task_control","quarantine_deadline_elapsed_ms","INTEGER NOT NULL DEFAULT 0");
-        column(db,"r31_task_control","fault_rounds","INTEGER NOT NULL DEFAULT 0");
-        column(db,"r31_task_control","half_open_fence","INTEGER NOT NULL DEFAULT 0");
-        column(db,"r31_task_control","last_success_artifact_hash","TEXT");
-        column(db,"r31_task_control","fault_window_boot_id","TEXT NOT NULL DEFAULT ''");
-        column(db,"r31_task_control","fault_window_elapsed_ms","INTEGER NOT NULL DEFAULT 0");
+        requireKnownTaskControlR31(db, true);
         String[][] required = {
             {"r31_commit_receipt","commit_key,payload_hash,operation,task_id,owner_epoch,fence,input_snapshot,chunk_seq,operator_version,committed_at"},
             {"r31_task_lease","task_id,owner_epoch,fence,boot_id,deadline_elapsed_ms,next_elapsed_ms"},
@@ -164,12 +164,48 @@ public final class SchemaR27 {
                 new Object[] {System.currentTimeMillis()+30_000,IssueTimelineWriterR30.bootId(),android.os.SystemClock.elapsedRealtime()+30_000});
     }
 
+    private static final String[][] R31_CONTROL_ADDITIONS = {
+        {"quarantine_boot_id","TEXT NOT NULL DEFAULT ''"},
+        {"quarantine_deadline_elapsed_ms","INTEGER NOT NULL DEFAULT 0"},
+        {"fault_rounds","INTEGER NOT NULL DEFAULT 0"},
+        {"half_open_fence","INTEGER NOT NULL DEFAULT 0"},
+        {"last_success_artifact_hash","TEXT"},
+        {"fault_window_boot_id","TEXT NOT NULL DEFAULT ''"},
+        {"fault_window_elapsed_ms","INTEGER NOT NULL DEFAULT 0"}
+    };
+
+    /** Accept only the known legacy prefix or the complete shared protocol, without rewriting rows. */
+    private static void requireKnownTaskControlR31(SQLiteDatabase db,boolean complete) {
+        String[] names={"task_id","quarantine_until","level","fingerprint","half_open_owner","last_recovery_at","generation",
+                "quarantine_boot_id","quarantine_deadline_elapsed_ms","fault_rounds","half_open_fence","last_success_artifact_hash","fault_window_boot_id","fault_window_elapsed_ms"};
+        String[] types={"TEXT","INTEGER","INTEGER","TEXT","TEXT","INTEGER","INTEGER","TEXT","INTEGER","INTEGER","INTEGER","TEXT","TEXT","INTEGER"};
+        String[] defaults={null,"0","0","''",null,"0","0","''","0","0","0",null,"''","0"};
+        int count=0;
+        try(Cursor columns=db.rawQuery("PRAGMA table_info(r31_task_control)",null)) {
+            while(columns.moveToNext()) {
+                int i=count++;
+                boolean nullable=i==0||i==4||i==11;
+                if(i>=names.length||!names[i].equals(columns.getString(1))||!types[i].equalsIgnoreCase(columns.getString(2))
+                        ||columns.getInt(3)!=(nullable?0:1)||!java.util.Objects.equals(defaults[i],columns.getString(4))
+                        ||columns.getInt(5)!=(i==0?1:0))
+                    throw new com.ethk3.novaonepro.DatabaseCoordinator.SchemaPendingR31("R31_TASK_CONTROL_MIGRATION","UNKNOWN_COLUMN_CONTRACT");
+            }
+        }
+        if(count<7||(complete&&count!=14))
+            throw new com.ethk3.novaonepro.DatabaseCoordinator.SchemaPendingR31("R31_TASK_CONTROL_MIGRATION","INCOMPLETE_CONTROL_PROTOCOL");
+        try(Cursor definition=db.rawQuery("SELECT sql FROM sqlite_master WHERE type='table' AND name='r31_task_control'",null)) {
+            if(!definition.moveToFirst()||definition.getString(0)==null
+                    ||java.util.regex.Pattern.compile("(?i)\\bCHECK\\s*\\(|\\bFOREIGN\\s+KEY\\b|\\bCOLLATE\\b|\\bWITHOUT\\s+ROWID\\b|\\bSTRICT\\b").matcher(definition.getString(0)).find())
+                throw new com.ethk3.novaonepro.DatabaseCoordinator.SchemaPendingR31("R31_TASK_CONTROL_MIGRATION","UNKNOWN_TABLE_CONSTRAINT");
+        }
+    }
+
     private static void verifyR31ObservationColumns(SQLiteDatabase db) {
         String[][] required = {
             {"r31_runtime_fault", "event_id,task_id,owner_epoch,fence,operation,phase,category,root_fingerprint,minute_bucket,cause_chain_json,stack,stack_hash,last_cause_chain_json,last_stack,last_stack_hash,commit_outcome,boot_id,first_wall_ms,last_wall_ms,first_elapsed_ms,last_elapsed_ms,occurrences,byte_count"},
             {"r31_telemetry_counter", "owner_epoch,name,value,updated_at"},
             {"r31_task_observation", "task_id,owner_epoch,fence,attempts,work_cpu_ms,observed_work_units,task_receipts_committed,task_receipts_failed,last_attempt_elapsed_ms,boot_id,last_artifact_hash,progress_evidence_status"},
-            {"r31_task_control", "task_id,quarantine_until,level,fingerprint,half_open_owner,last_recovery_at,generation"},
+            {"r31_task_control", "task_id,quarantine_until,level,fingerprint,half_open_owner,last_recovery_at,generation,quarantine_boot_id,quarantine_deadline_elapsed_ms,fault_rounds,half_open_fence,last_success_artifact_hash,fault_window_boot_id,fault_window_elapsed_ms"},
             {"r31_migration", "revision,applied_at,source_commit"}
         };
         for (String[] table : required) {

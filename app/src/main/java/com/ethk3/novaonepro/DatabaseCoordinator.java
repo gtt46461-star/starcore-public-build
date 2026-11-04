@@ -483,6 +483,7 @@ public final class DatabaseCoordinator {
                     SchemaDomainCoordinatorR926.criticalContract();
             try {
                 SQLiteDatabase existingDb = writable();
+                SchemaDomainCoordinatorR926.requireExistingResearchCriticalGuardsR31(existingDb);
                 SchemaDomainCoordinatorR926.ensureInfrastructure(existingDb);
                 SchemaDomainCoordinatorR926.runStep(existingDb, critical, "F02_SETTLEMENT_RECOVERY_AUDIT_V1",
                         new SchemaDomainCoordinatorR926.Step() {
@@ -582,6 +583,7 @@ public final class DatabaseCoordinator {
                 criticalSchemaStage = "VERIFY_R811_CRITICAL_SCHEMA";
                 R811SchemaIntegrityVerifier.assertCritical(db);
                 criticalSchemaStage = "STAMP_R926_CRITICAL";
+                SchemaDomainCoordinatorR926.requireExistingResearchCriticalGuardsR31(db);
                 SchemaDomainCoordinatorR926.verifyAndStamp(db, critical);
                 SchemaDomainCoordinatorR926.migrateR31TransportTiming(db);
 
@@ -1577,13 +1579,23 @@ public final class DatabaseCoordinator {
 
     public static String failureCategoryR31(Throwable error) {
         if(error instanceof WriteRejectedR31)return ((WriteRejectedR31)error).category;
-        String deferred="BUG";
+        String deferred="BUG",declared=null;
         java.util.Set<Throwable> visited=Collections.newSetFromMap(new java.util.IdentityHashMap<Throwable,Boolean>());
         for(Throwable cause=error;cause!=null&&visited.size()<32&&visited.add(cause);cause=cause.getCause()) {
             String name=cause.getClass().getSimpleName(),message=String.valueOf(cause.getMessage()).toUpperCase(Locale.ROOT);
             if(name.contains("SQLiteFull")||message.contains("SQLITE_FULL")||message.contains("DATABASE OR DISK IS FULL"))return "DISK_FULL";
             if(name.contains("Corrupt")||message.contains("SQLITE_CORRUPT")||message.contains("DATABASE DISK IMAGE IS MALFORMED"))return "DB_CORRUPT";
             if(name.contains("Constraint")||message.contains("CONSTRAINT FAILED")||message.contains("INTEGRITY_CONFLICT"))return "INTEGRITY";
+            if(declared==null&&cause instanceof com.ethk3.novaonepro.strategyv2.FailureDispositionR31.ClassifiedFailure){
+                String category=((com.ethk3.novaonepro.strategyv2.FailureDispositionR31.ClassifiedFailure)cause).failureCategory();
+                // A producer's typed failure survives wrapping. Incidental message text cannot turn
+                // a dependency/integrity rejection into lock retry; real SQLite fatal errors above win.
+                switch(category==null?"":category){
+                    case "LOCK_BUSY":case "TEMP_TIMEOUT":case "CANCELLED":case "STALE_OWNER":
+                    case "DEPENDENCY":case "DISK_FULL":case "DB_CORRUPT":case "INTEGRITY":case "BUG":declared=category;break;
+                    default:declared="BUG";
+                }
+            }
             if(cause instanceof InterruptedException||cause instanceof java.util.concurrent.CancellationException||message.contains("CANCELLED")||message.contains("WAIT_INTERRUPTED"))deferred="CANCELLED";
             else if(message.contains("STALE_OWNER")||message.contains("STALE_FENCE")||message.contains("FENCE_LOST")||message.contains("OWNER_MISMATCH")||message.startsWith("R31_STALE_")||message.startsWith("R30_PREPARED_OWNER_CHANGED"))deferred="STALE_OWNER";
             else if(name.contains("SQLiteDatabaseLocked")||name.contains("SQLiteTableLocked")||message.contains("DATABASE IS LOCKED")||message.contains("DATABASE TABLE IS LOCKED")||message.contains("CP3_DB_BUSY_")) {
@@ -1594,7 +1606,7 @@ public final class DatabaseCoordinator {
                 if("BUG".equals(deferred))deferred="DEPENDENCY";
             } else if(cause instanceof java.util.concurrent.TimeoutException&&"BUG".equals(deferred))deferred="TEMP_TIMEOUT";
         }
-        return deferred;
+        return declared==null?deferred:declared;
     }
     private static boolean isLocked(Throwable error) {
         if(error instanceof WriteRejectedR31&&((WriteRejectedR31)error).commitOutcome==CommitOutcome.UNKNOWN)return false;

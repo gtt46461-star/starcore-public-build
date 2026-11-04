@@ -3,6 +3,8 @@ package com.ethk3.novaonepro.strategyv2;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.ethk3.novaonepro.DbStore;
+import com.ethk3.novaonepro.SchemaDomainCoordinatorR926;
+import com.ethk3.novaonepro.DatabaseCoordinator;
 import java.io.*;
 import java.util.*;
 
@@ -19,32 +21,124 @@ public final class ResearchRetentionStoreR30 {
     static long schema(SQLiteDatabase db){try(Cursor c=db.rawQuery("PRAGMA schema_version",null)){if(!c.moveToFirst())throw new IllegalStateException("R30_RETENTION_SCHEMA_UNKNOWN");return c.getLong(0);}}
     static boolean exists(SQLiteDatabase db,String table){try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",new String[]{table})){return c.moveToFirst();}}
     static List<String[]> columns(SQLiteDatabase db,String table){List<String[]> out=new ArrayList<>();try(Cursor c=db.rawQuery("PRAGMA table_info("+q(table)+")",null)){while(c.moveToNext())out.add(new String[]{c.getString(1),c.getString(2)==null?"":c.getString(2),c.getString(5)});}return out;}
+    /** The same builder installs and authenticates guards; existing unknown SQL is never repaired by name. */
+    private static LinkedHashMap<String,String> guardsR31(String source,List<String[]> columns,String hash){
+        String target="r30_keep_"+source,prefix=target+"_"+hash.substring(0,12);
+        String now="CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)";
+        StringJoiner names=new StringJoiner(","),values=new StringJoiner(","),clears=new StringJoiner(" OR "),payloadColumns=new StringJoiner(",");
+        for(String[] column:columns){String name=column[0];names.add(q(name));values.add("OLD."+q(name));if(column[1].toUpperCase(Locale.ROOT).contains("BLOB")||name.equals("snapshot")||name.endsWith("_json")){
+            payloadColumns.add(q(name));clears.add("(length(OLD."+q(name)+")>0 AND (NEW."+q(name)+" IS NULL OR length(NEW."+q(name)+")=0))");}}
+        String enabled="(SELECT schema_hash FROM r30_retention_archive_index WHERE source_table="+lit(source)+")="+lit(hash);
+        String body="INSERT INTO "+q(target)+"(__r30_at,__r30_reason,"+names+") VALUES("+now+",REASON,"+values+"); UPDATE r30_retention_archive_index SET retained_rows=retained_rows+1,updated_at="+now+" WHERE source_table="+lit(source)+";";
+        LinkedHashMap<String,String> guards=new LinkedHashMap<>();
+        guards.put(prefix+"_delete","CREATE TRIGGER IF NOT EXISTS "+q(prefix+"_delete")+" BEFORE DELETE ON "+q(source)+" WHEN "+enabled+" BEGIN "+body.replace(",REASON,",","+lit("BEFORE_ORIGINAL_DELETE")+",")+" END");
+        if(payloadColumns.length()>0)guards.put(prefix+"_clear","CREATE TRIGGER IF NOT EXISTS "+q(prefix+"_clear")+" BEFORE UPDATE OF "+payloadColumns+" ON "+q(source)+" WHEN "+enabled+" AND ("+clears+") BEGIN "+body.replace(",REASON,",","+lit("BEFORE_ORIGINAL_PAYLOAD_CLEAR")+",")+" END");
+        for(String action:new String[]{"update","delete"})guards.put(target+"_immutable_"+action,"CREATE TRIGGER IF NOT EXISTS "+q(target+"_immutable_"+action)+" BEFORE "+action.toUpperCase(Locale.ROOT)+" ON "+q(target)+" BEGIN SELECT RAISE(ABORT,'R30_PROTECTED_ARCHIVE_IMMUTABLE'); END");
+        return guards;
+    }
+    private static String columnsHashR31(List<String[]> columns){List<List<String>> metadata=new ArrayList<>();for(String[] column:columns)metadata.add(Arrays.asList(column));return StatsR27.sha256(JsonR27.write(metadata));}
+    private static String normalizedGuardR31(String sql){if(sql==null)return "";String value=sql.trim(),header="CREATE TRIGGER IF NOT EXISTS ";return value.startsWith(header)?"CREATE TRIGGER "+value.substring(header.length()):value;}
+    /** Read-only owner contract used by consumers to distinguish known archive guards from unknown work. */
+    public static String[][] sourceProtectionTriggersR31(SQLiteDatabase db,String source){
+        if(!ResearchRetentionR30.PROTECTED_TABLES.contains(source))throw new IllegalArgumentException("R31_RETENTION_SOURCE_NOT_PROTECTED");
+        if(!exists(db,source))return new String[0][];
+        List<String[]> columns=columns(db,source);
+        LinkedHashMap<String,String> guards=guardsR31(source,columns,columnsHashR31(columns));
+        List<String[]> attached=new ArrayList<>();String archive="r30_keep_"+source;
+        for(Map.Entry<String,String> guard:guards.entrySet())if(!guard.getKey().startsWith(archive+"_immutable_"))attached.add(new String[]{guard.getKey(),guard.getValue()});
+        return attached.toArray(new String[0][]);
+    }
+    /** Return only exact guards attached to Critical's protected feedback table, not archive-table guards. */
+    public static String[][] criticalProtectionTriggersR31(SQLiteDatabase db){return sourceProtectionTriggersR31(db,"r26_feedback");}
+    /** Missing is allowed only before installation; every existing object must have the exact owner SQL. */
+    public static boolean requireGuardDefinitionsR31(SQLiteDatabase db,String[][] definitions,boolean requireAll){
+        boolean complete=true;
+        for(String[] definition:definitions){
+            try(Cursor c=db.rawQuery("SELECT type,sql FROM sqlite_master WHERE name=?",new String[]{definition[0]})){
+                if(!c.moveToFirst()){complete=false;if(requireAll)throw new DatabaseCoordinator.SchemaPendingR31("R31_RETENTION","MISSING_GUARD:"+definition[0]);}
+                else if(!"trigger".equals(c.getString(0))||!normalizedGuardR31(definition[1]).equals(normalizedGuardR31(c.getString(1))))throw new DatabaseCoordinator.SchemaPendingR31("R31_RETENTION","EXACT_GUARD_MISMATCH:"+definition[0]);
+            }
+        }
+        return complete;
+    }
+    private static String archiveDdlR31(String target,List<String[]> columns){
+        StringBuilder sql=new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(q(target)).append("(__r30_id INTEGER PRIMARY KEY AUTOINCREMENT,__r30_at INTEGER NOT NULL,__r30_reason TEXT NOT NULL");
+        for(String[] column:columns)sql.append(',').append(q(column[0]));return sql.append(')').toString();
+    }
+    /** Ignore only SQL layout outside quoted tokens; literals and quoted identifiers remain byte exact. */
+    private static String archiveDefinitionR31(String sql){
+        if(sql==null)return "";String value=sql.trim(),header="CREATE TABLE IF NOT EXISTS ";
+        if(value.startsWith(header))value="CREATE TABLE "+value.substring(header.length());
+        StringBuilder out=new StringBuilder();char quote=0;
+        for(int i=0;i<value.length();i++){
+            char c=value.charAt(i);
+            if(quote!=0){out.append(c);if(c==quote){if(i+1<value.length()&&value.charAt(i+1)==quote){out.append(value.charAt(++i));}else quote=0;}}
+            else if(c=='\''||c=='"'||c=='`'){quote=c;out.append(c);}
+            else if(c=='['){quote=']';out.append(c);}
+            else if(!Character.isWhitespace(c))out.append(c);
+        }
+        return out.toString();
+    }
+    /** An existing archive is evidence. Refuse affinity/constraint drift instead of silently coercing or rebuilding it. */
+    private static void requireArchiveDefinitionR31(SQLiteDatabase db,String target){
+        try(Cursor c=db.rawQuery("SELECT type,name FROM sqlite_master WHERE tbl_name=? AND type IN ('trigger','index') AND name NOT LIKE 'sqlite_%'",new String[]{target})){
+            while(c.moveToNext()){
+                String name=c.getString(1);
+                if(!"trigger".equals(c.getString(0))||!(name.equals(target+"_immutable_update")||name.equals(target+"_immutable_delete")))
+                    throw new DatabaseCoordinator.SchemaPendingR31("R31_RETENTION","UNKNOWN_ARCHIVE_ATTACHMENT:"+target+":"+name);
+            }
+        }
+        List<String[]> payload=new ArrayList<>();int index=0;
+        String[] metadata={"__r30_id","__r30_at","__r30_reason"},types={"INTEGER","INTEGER","TEXT"};
+        try(Cursor c=db.rawQuery("PRAGMA table_info("+q(target)+")",null)){
+            while(c.moveToNext()){
+                String name=c.getString(1),type=c.getString(2)==null?"":c.getString(2).trim().toUpperCase(Locale.ROOT);
+                if(index<3){
+                    if(!metadata[index].equals(name)||!types[index].equals(type)||c.getInt(3)!=(index==0?0:1)||!c.isNull(4)||c.getInt(5)!=(index==0?1:0))
+                        throw new DatabaseCoordinator.SchemaPendingR31("R31_RETENTION","ARCHIVE_METADATA_CONTRACT:"+target+":"+name);
+                }else{
+                    if(name.startsWith("__r30_")||!type.isEmpty()||c.getInt(3)!=0||!c.isNull(4)||c.getInt(5)!=0)
+                        throw new DatabaseCoordinator.SchemaPendingR31("R31_RETENTION","ARCHIVE_STORAGE_CLASS_CONTRACT:"+target+":"+name);
+                    payload.add(new String[]{name,"","0"});
+                }
+                index++;
+            }
+        }
+        if(index<3)throw new DatabaseCoordinator.SchemaPendingR31("R31_RETENTION","ARCHIVE_METADATA_MISSING:"+target);
+        try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE type='table' AND name=?",new String[]{target})){
+            if(!c.moveToFirst()||!archiveDefinitionR31(archiveDdlR31(target,payload)).equals(archiveDefinitionR31(c.getString(0))))
+                throw new DatabaseCoordinator.SchemaPendingR31("R31_RETENTION","EXACT_ARCHIVE_DEFINITION:"+target);
+        }
+    }
     /** Added archive columns have NONE affinity: SQLite storage classes, including full BLOB bytes, are preserved. */
     public static void ensureProtected(SQLiteDatabase db){
+        SchemaDomainCoordinatorR926.migrateR31RetentionProtection(db,ResearchRetentionStoreR30::ensureProtectedObjectsR31);
+    }
+    private static void ensureProtectedObjectsR31(SQLiteDatabase db){
         if(!db.inTransaction())throw new IllegalStateException("R30_RETENTION_EXISTING_WRITER_REQUIRED");
         db.execSQL(INDEX_DDL);db.execSQL(RUN_DDL);db.execSQL(FILE_DDL);
         for(String source:ResearchRetentionR30.PROTECTED_TABLES){
             if(!exists(db,source))continue;List<String[]> columns=columns(db,source);if(columns.isEmpty())throw new IllegalStateException("R30_RETENTION_SOURCE_COLUMNS:"+source);
             String target="r30_keep_"+source;List<List<String>> metadata=new ArrayList<>();for(String[] c:columns)metadata.add(Arrays.asList(c));String encoded=JsonR27.write(metadata);String hash=StatsR27.sha256(encoded);
-            String prefix="r30_keep_"+source+"_"+hash.substring(0,12);boolean hasPayload=false;for(String[] c:columns)hasPayload|=c[1].toUpperCase(Locale.ROOT).contains("BLOB")||c[0].equals("snapshot")||c[0].endsWith("_json");
+            LinkedHashMap<String,String> guards=guardsR31(source,columns,hash);
+            String[][] definitions=new String[guards.size()][];int guardIndex=0;for(Map.Entry<String,String> guard:guards.entrySet())definitions[guardIndex++]=new String[]{guard.getKey(),guard.getValue()};
+            boolean complete=requireGuardDefinitionsR31(db,definitions,false);
+            if(exists(db,target))requireArchiveDefinitionR31(db,target);
             boolean same=false;try(Cursor c=db.rawQuery("SELECT 1 FROM r30_retention_archive_index WHERE source_table=? AND schema_hash=? AND archive_table=?",new String[]{source,hash,target})){same=c.moveToFirst();}
-            if(same&&exists(db,target)){String triggers=lit(prefix+"_delete")+","+lit(target+"_immutable_update")+","+lit(target+"_immutable_delete")+(hasPayload?","+lit(prefix+"_clear"):"");try(Cursor c=db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='trigger' AND name IN ("+triggers+")",null)){if(c.moveToFirst()&&c.getLong(0)==(hasPayload?4:3))continue;}}
+            if(same&&exists(db,target)){
+                Set<String> archived=new HashSet<>();for(String[] column:columns(db,target))archived.add(column[0]);
+                for(String[] column:columns)if(!archived.contains(column[0]))throw new DatabaseCoordinator.SchemaPendingR31("R31_RETENTION","ARCHIVE_DECLARED_COLUMN_MISSING:"+target+":"+column[0]);
+                if(complete)continue;
+            }
             StringBuilder ddl=new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(q(target)).append("(__r30_id INTEGER PRIMARY KEY AUTOINCREMENT,__r30_at INTEGER NOT NULL,__r30_reason TEXT NOT NULL");
             for(String[] column:columns){if(column[0].startsWith("__r30_"))throw new IllegalStateException("R30_RETENTION_RESERVED_COLUMN:"+source);ddl.append(',').append(q(column[0]));}ddl.append(')');db.execSQL(ddl.toString());
             Set<String> archivedColumns=new HashSet<>();for(String[] column:columns(db,target))archivedColumns.add(column[0]);
             for(String[] column:columns)if(!archivedColumns.contains(column[0]))db.execSQL("ALTER TABLE "+q(target)+" ADD COLUMN "+q(column[0]));
-            String now="CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)";
             db.execSQL("INSERT OR IGNORE INTO r30_retention_archive_index(source_table,archive_table,schema_hash,columns_json,retained_rows,updated_at) VALUES(?,?,?,?,0,?)",new Object[]{source,target,hash,encoded,System.currentTimeMillis()});
             db.execSQL("UPDATE r30_retention_archive_index SET schema_hash=?,columns_json=?,updated_at=?,archive_table=? WHERE source_table=? AND (schema_hash<>? OR archive_table<>?)",new Object[]{hash,encoded,System.currentTimeMillis(),target,source,hash,target});
-            StringJoiner names=new StringJoiner(","),values=new StringJoiner(","),clears=new StringJoiner(" OR "),payloadColumns=new StringJoiner(",");
-            for(String[] column:columns){String name=column[0];names.add(q(name));values.add("OLD."+q(name));if(column[1].toUpperCase(Locale.ROOT).contains("BLOB")||name.equals("snapshot")||name.endsWith("_json")){
-                payloadColumns.add(q(name));clears.add("(length(OLD."+q(name)+")>0 AND (NEW."+q(name)+" IS NULL OR length(NEW."+q(name)+")=0))");}}
-            String enabled="(SELECT schema_hash FROM r30_retention_archive_index WHERE source_table="+lit(source)+")="+lit(hash);
-            String body="INSERT INTO "+q(target)+"(__r30_at,__r30_reason,"+names+") VALUES("+now+",REASON,"+values+"); UPDATE r30_retention_archive_index SET retained_rows=retained_rows+1,updated_at="+now+" WHERE source_table="+lit(source)+";";
-            db.execSQL("CREATE TRIGGER IF NOT EXISTS "+q(prefix+"_delete")+" BEFORE DELETE ON "+q(source)+" WHEN "+enabled+" BEGIN "+body.replace(",REASON,",","+lit("BEFORE_ORIGINAL_DELETE")+",")+" END");
-            if(payloadColumns.length()>0)db.execSQL("CREATE TRIGGER IF NOT EXISTS "+q(prefix+"_clear")+" BEFORE UPDATE OF "+payloadColumns+" ON "+q(source)+" WHEN "+enabled+" AND ("+clears+") BEGIN "+body.replace(",REASON,",","+lit("BEFORE_ORIGINAL_PAYLOAD_CLEAR")+",")+" END");
-            db.execSQL("CREATE TRIGGER IF NOT EXISTS "+q(target+"_immutable_update")+" BEFORE UPDATE ON "+q(target)+" BEGIN SELECT RAISE(ABORT,'R30_PROTECTED_ARCHIVE_IMMUTABLE'); END");
-            db.execSQL("CREATE TRIGGER IF NOT EXISTS "+q(target+"_immutable_delete")+" BEFORE DELETE ON "+q(target)+" BEGIN SELECT RAISE(ABORT,'R30_PROTECTED_ARCHIVE_IMMUTABLE'); END");
+            requireArchiveDefinitionR31(db,target);
+            for(String sql:guards.values())db.execSQL(sql);
+            requireGuardDefinitionsR31(db,definitions,true);
         }
         preserveStartupCheckpoint(db);
     }
