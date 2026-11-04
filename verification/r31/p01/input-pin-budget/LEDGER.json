@@ -1,0 +1,140 @@
+{
+  "schema": "R31_CARD_SUBSCOPE_RECEIPT_1",
+  "card": "R31-B02-C02",
+  "phase": "P01",
+  "integration_group": "G01",
+  "scope": "bounded source invalidation / immediate source gates / exact known trigger migration",
+  "plan_baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "construction_base": "de9a30834025c18ce291c241a722abe437717539",
+  "branch": "construction/r31-input-pin-budget-20261104",
+  "status": "CODE_COMPLETE",
+  "whole_card_status": "IMPLEMENTING",
+  "implementation_commit": "PENDING_LOCAL_COMMIT",
+  "actual_changes": [
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSourceJournalR31.java",
+      "sha256": "ec31ce289aedba8acac17e5f2dcb40172a42c045821fe52094defb8ff657415e",
+      "methods": [
+        "ensureSchemaR31",
+        "readySchemaR31",
+        "currentFence",
+        "requireFence",
+        "appendImportMembers",
+        "appendPublishedImport",
+        "affectedSql"
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PinSnapshotProofR31.java",
+      "sha256": "32c01cecfb675bbded4a4db802e7b670cd2a55e9236289a0fd703ad19a3a42a8",
+      "methods": [
+        "prepare",
+        "known",
+        "verified",
+        "TRIM"
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+      "sha256": "cb002a93258836632780748a395bedc1aafaff96e18e02fc6dd0dcf5170bbb63",
+      "methods": [
+        "ensure",
+        "requireReady",
+        "invalid",
+        "runValid",
+        "requireRun",
+        "append",
+        "load",
+        "loadCurrent",
+        "decode"
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+      "sha256": "1c3db81fc3b61aab8f07bece3db38289eb1293610b89affaa77702392eaec2ec",
+      "methods": [
+        "step collection before guard"
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixEvidenceR30R1.java",
+      "sha256": "49afe44914d27f40758368d935862cef9e5766b43fe2b0a7b65407d2c8f0dd77",
+      "methods": [
+        "stored TEMPORAL_PRECEDENCE"
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+      "sha256": "38896cecd7d325f0a8d6a85e2e8c9a0d1331bbdd3e329e20520af41ab5f6655e",
+      "methods": [
+        "step online before guard"
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplayStudyR30R1.java",
+      "sha256": "b5e0494a5ed57fbadaaca9808d36519a59a4294cf57e9ac63b45f8da2b0d8cb0",
+      "methods": [
+        "settle",
+        "allocateReplay",
+        "summary"
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/OnlineResearchWindowR30R1.java",
+      "sha256": "193bc3f8cfafc788775202693f34686de91b0afee65d8a32e4999a0a73933af1",
+      "methods": [
+        "find"
+      ]
+    }
+  ],
+  "shared_integrations_not_owned": [
+    "SchemaDomainCoordinatorR926.migrateR31SourceJournal",
+    "SchemaR27 source migration call",
+    "HistoryImportR27 COMPLETE + precise member events",
+    "RuntimeR27.DatasetTask.loadCurrent"
+  ],
+  "migration": {
+    "source_domain": "RESEARCH_R31_SOURCE_JOURNAL",
+    "revision": 1,
+    "schema_object_count": 24,
+    "sqlite_user_version_change": false,
+    "pin_payload_version": "R30_REPAIR_INPUT_PIN1_UNCHANGED",
+    "legacy_evidence": "PRESERVED"
+  },
+  "verification": {
+    "native_protocol": "PASS_3631_ASSERTIONS",
+    "native_critical_migration": "PASS_43_ASSERTIONS",
+    "original_RepairInputPinR30HostTest": "PASS_UNMODIFIED",
+    "explicit_13_source_compile": "PASS",
+    "all_captured_origins_unchanged": true,
+    "receipt": "runs/20261104T192241Z/RECEIPT.json",
+    "android_build": "NOT_RUN",
+    "unexcluded_suite": "NOT_RUN",
+    "device": "NOT_RUN",
+    "24h": "NOT_RUN",
+    "72h": "NOT_RUN"
+  },
+  "apk": {
+    "status": "NOT_BUILT_BY_THIS_SCOPE",
+    "identity": null,
+    "sha256": null,
+    "download": null
+  },
+  "natural_quality": {
+    "status": "NOT_EVALUATED",
+    "synthetic_test_inputs_are_quality_evidence": false
+  },
+  "remaining": [
+    "Root shared schema and History publication same-version integration plus Android source/identity/whole tests",
+    "Journal/member disk budget and referenced retention/GC not implemented",
+    "Arbitrary SQL REPLACE online correction semantics not established",
+    "Full pin codec working-memory admission/native SQLite accounting not established",
+    "Device/WAL/duration evidence unavailable"
+  ],
+  "next": [
+    "Parent merges source and shared protocol commits without overwriting active owners",
+    "Regenerate call identities only after fixed unified source; compile Android and run unexcluded tests",
+    "Verify complete History event/cutover/readers with actual Android database",
+    "Keep capacity and future quality independent from named native protocol status"
+  ]
+}

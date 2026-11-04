@@ -1,0 +1,314 @@
+{
+  "schema": "R31_SOURCE_PIN_NATIVE_1",
+  "scope": "EXPLICIT_PRODUCTION_SOURCE_AND_FROZEN_SHARED_API_NATIVE_SQLITE_NOT_WHOLE_ANDROID",
+  "started_utc": "2026-11-04T19:15:46.005618+00:00",
+  "work": "/tmp/r31-source-pin-joint-9363slgu",
+  "source_head": "de9a30834025c18ce291c241a722abe437717539",
+  "status": "FAILED",
+  "commands": [
+    {
+      "name": "production-javac",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/workspace/r31-shared-migrations/verification/r31/p01/shared-migration-integration/20261104T184245Z/classes:/tmp/r31-p02-014-actual-android-support/classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-source-pin-joint-9363slgu/production",
+        "/tmp/r31-source-pin-joint-9363slgu/source/production/ResearchSourceJournalR31.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/production/PinSnapshotProofR31.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/production/ResearchInputPinR30R1.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/production/AtomNetRuntimeR30.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/production/MatrixEvidenceR30R1.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/production/MatrixResearchR30R1.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/production/ModelReplayStudyR30R1.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/production/OnlineResearchWindowR30R1.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/production/SchemaDomainCoordinatorR926.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/production/SchemaR27.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/production/QualificationInboxR29.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/production/EvolutionPublicationStoreR31.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/production/EvolutionPublicationSqlR31.java"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.685708,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "plain-platform-javac",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-source-pin-joint-9363slgu/platform",
+        "/tmp/r31-source-pin-joint-9363slgu/source/plain-shim/android/database/Cursor.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/plain-shim/android/database/sqlite/SQLiteDatabase.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/plain-shim/android/database/sqlite/SQLiteDatabaseLockedException.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/plain-shim/android/database/sqlite/SQLiteException.java"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.627385,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "pin-host-javac",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/tmp/r31-source-pin-joint-9363slgu/platform:/tmp/r31-source-pin-joint-9363slgu/production:/workspace/r31-shared-migrations/verification/r31/p01/shared-migration-integration/20261104T184245Z/classes:/tmp/r31-p02-014-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-source-pin-joint-9363slgu/host",
+        "/tmp/r31-source-pin-joint-9363slgu/source/InputPinJournalR31Host.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/RepairInputPinR30HostTest.java"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.123527,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "InputPinJournalR31Host",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-source-pin-joint-9363slgu/host:/tmp/r31-source-pin-joint-9363slgu/platform:/tmp/r31-source-pin-joint-9363slgu/production:/workspace/r31-shared-migrations/verification/r31/p01/shared-migration-integration/20261104T184245Z/classes:/tmp/r31-p02-014-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.InputPinJournalR31Host"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.074292,
+      "stdout_sha256": "60b44caec4b609277ca9717fee61fef5e535a414a1613e0990320e9a04f0fd3a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "RepairInputPinR30HostTest",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-source-pin-joint-9363slgu/host:/tmp/r31-source-pin-joint-9363slgu/platform:/tmp/r31-source-pin-joint-9363slgu/production:/workspace/r31-shared-migrations/verification/r31/p01/shared-migration-integration/20261104T184245Z/classes:/tmp/r31-p02-014-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.RepairInputPinR30HostTest"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.006472,
+      "stdout_sha256": "104a42876d223046a911d0bd1f5d47868bb51fd150f386ed0df2660fac0a35f5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "critical-platform-javac",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/r31-shared-migrations/verification/r31/p01/shared-migration-integration/20261104T184245Z/classes:/tmp/r31-p02-014-actual-android-support/classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-source-pin-joint-9363slgu/critical-platform",
+        "/tmp/r31-source-pin-joint-9363slgu/source/rich-shim/android/content/ContentValues.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/rich-shim/android/database/Cursor.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/rich-shim/android/database/sqlite/SQLiteDatabase.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/rich-shim/android/database/sqlite/SQLiteOpenHelper.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/rich-shim/android/database/sqlite/SQLiteException.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/rich-shim/android/os/SystemClock.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/rich-shim/android/os/Looper.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/rich-shim/android/util/Log.java"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.916669,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "critical-host-javac",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/tmp/r31-source-pin-joint-9363slgu/critical-platform:/tmp/r31-source-pin-joint-9363slgu/production:/workspace/r31-shared-migrations/verification/r31/p01/shared-migration-integration/20261104T184245Z/classes:/tmp/r31-p02-014-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-source-pin-joint-9363slgu/critical-host",
+        "/tmp/r31-source-pin-joint-9363slgu/source/MainChainSchemaR31Host.java",
+        "/tmp/r31-source-pin-joint-9363slgu/source/InputSourceMigrationR31Host.java"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 1.061389,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "6a95d11703e1499909c5de21aeccb353c48c749f8062d1135ee3f011a95cde0c"
+    }
+  ],
+  "sources": [
+    {
+      "origin": "/workspace/r31-input-pin-budget/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSourceJournalR31.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/production/ResearchSourceJournalR31.java",
+      "sha256": "ec31ce289aedba8acac17e5f2dcb40172a42c045821fe52094defb8ff657415e"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/app/src/main/java/com/ethk3/novaonepro/strategyv2/PinSnapshotProofR31.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/production/PinSnapshotProofR31.java",
+      "sha256": "32c01cecfb675bbded4a4db802e7b670cd2a55e9236289a0fd703ad19a3a42a8"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/production/ResearchInputPinR30R1.java",
+      "sha256": "cb002a93258836632780748a395bedc1aafaff96e18e02fc6dd0dcf5170bbb63"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/production/AtomNetRuntimeR30.java",
+      "sha256": "1c3db81fc3b61aab8f07bece3db38289eb1293610b89affaa77702392eaec2ec"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixEvidenceR30R1.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/production/MatrixEvidenceR30R1.java",
+      "sha256": "49afe44914d27f40758368d935862cef9e5766b43fe2b0a7b65407d2c8f0dd77"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/production/MatrixResearchR30R1.java",
+      "sha256": "38896cecd7d325f0a8d6a85e2e8c9a0d1331bbdd3e329e20520af41ab5f6655e"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplayStudyR30R1.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/production/ModelReplayStudyR30R1.java",
+      "sha256": "b5e0494a5ed57fbadaaca9808d36519a59a4294cf57e9ac63b45f8da2b0d8cb0"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/app/src/main/java/com/ethk3/novaonepro/strategyv2/OnlineResearchWindowR30R1.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/production/OnlineResearchWindowR30R1.java",
+      "sha256": "193bc3f8cfafc788775202693f34686de91b0afee65d8a32e4999a0a73933af1"
+    },
+    {
+      "origin": "/workspace/r31-shared-migrations/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/production/SchemaDomainCoordinatorR926.java",
+      "sha256": "3500dcfe1472a904f8e871dec972fde086c825221b9f4b051237257bdd0e3b4b"
+    },
+    {
+      "origin": "/workspace/r31-shared-migrations/app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/production/SchemaR27.java",
+      "sha256": "d54a0bfebf0d3d3bab6a3e935a3a39cc1f88ea8bafeb0ba7c3e65e7334760fc5"
+    },
+    {
+      "origin": "/workspace/r31-live-writer-budgets/app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/production/QualificationInboxR29.java",
+      "sha256": "82ff6210d30e94224bd8757d2eba705362aef8f008aa655e75adb42524c6ffea"
+    },
+    {
+      "origin": "/workspace/r31-evolution-publication-de9/app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionPublicationStoreR31.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/production/EvolutionPublicationStoreR31.java",
+      "sha256": "b8db8f21e8fff4341fc78fe1826b1de540bbaf091b383d88996442bcf415df3b"
+    },
+    {
+      "origin": "/workspace/r31-evolution-publication-de9/app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionPublicationSqlR31.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/production/EvolutionPublicationSqlR31.java",
+      "sha256": "3dc7b0747d3740e08a7aaef34670992359b876f6da854d863cf916318e9d9fbd"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r29/qual_host/shim/android/database/Cursor.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/plain-shim/android/database/Cursor.java",
+      "sha256": "98dc66b94e18cd85d2f270a111392896b4ed5d11d2d1d7947baed2e340f040f4"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/plain-shim/android/database/sqlite/SQLiteDatabase.java",
+      "sha256": "80a2bed95c2e382a461d0e363749510c12b0ceafefd152b6f227009199719ad0"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabaseLockedException.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/plain-shim/android/database/sqlite/SQLiteDatabaseLockedException.java",
+      "sha256": "e17afce73f98be731b31a7d19f895a6df48c90b4f12362a1b5e5b463566a74c9"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/plain-shim/android/database/sqlite/SQLiteException.java",
+      "sha256": "878df09b56099f50a5cd75f2d94a9c0f11d1b49ce9c3cc36e5c66101b47c4b88"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r31/input_pin_host/InputPinJournalR31Host.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/InputPinJournalR31Host.java",
+      "sha256": "4cdbdf78b33e185669c91d657f655733ecfcb38c6e6b95e523c06ee1f493592b"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r30-repair/qual_host/RepairInputPinR30HostTest.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/RepairInputPinR30HostTest.java",
+      "sha256": "85f1fa10604ff71884add42390dea7d525955acc2f2052e732a783d0461e828d"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r31/ddl_host/android/content/ContentValues.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/rich-shim/android/content/ContentValues.java",
+      "sha256": "2f09f41eff886c803ff118108d4aca5c74cc380b3f8324ad0c304281fdbde7e4"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r31/ddl_host/android/database/Cursor.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/rich-shim/android/database/Cursor.java",
+      "sha256": "af1ae7569385c0a5e162d4fbe6cb52b946b7a35275d5c3e7c8baf82ff1442155"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r31/ddl_host/android/database/sqlite/SQLiteDatabase.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/rich-shim/android/database/sqlite/SQLiteDatabase.java",
+      "sha256": "a1e905f5adeb87805acc5a404cc249bcee2770216ab364317456f6a75ea24041"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r31/ddl_host/android/database/sqlite/SQLiteOpenHelper.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/rich-shim/android/database/sqlite/SQLiteOpenHelper.java",
+      "sha256": "2ce33e0cddc38ae027e3ce12336ce96f3a23f70e0937091563d6575a68dbbea9"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/rich-shim/android/database/sqlite/SQLiteException.java",
+      "sha256": "878df09b56099f50a5cd75f2d94a9c0f11d1b49ce9c3cc36e5c66101b47c4b88"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/verification/r31/p02/schema_mainchain/runs/20261104T112314Z/source_snapshot/MainChainSchemaR31Host.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/MainChainSchemaR31Host.java",
+      "sha256": "ac05f4858406ab1bad2d2cab1fcdb438cda6b06b021e2d0f5099cb1a274e3bc1"
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r31/input_pin_host/InputSourceMigrationR31Host.java",
+      "snapshot": "/tmp/r31-source-pin-joint-9363slgu/source/InputSourceMigrationR31Host.java",
+      "sha256": "5b9d563cae2c2409259add1a0ecfe13fc5eceeb180e5f46e41f28e68e57cd9e2"
+    }
+  ],
+  "support_jar": {
+    "path": "/tmp/r31-p02-014-actual-android-support/classes.jar",
+    "sha256": "6c41ea9b5e6a0cf3262dcfaa0379a0b4dd91ba11ca6e238919528a9f01d6df82"
+  },
+  "jdbc": {
+    "path": "/tmp/r31-baseline-deps/sqlite-jdbc.jar",
+    "sha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa"
+  },
+  "shared_api_classes": "/workspace/r31-shared-migrations/verification/r31/p01/shared-migration-integration/20261104T184245Z/classes",
+  "device": "NOT_RUN",
+  "android_whole_build": "NOT_RUN",
+  "natural_quality": "NOT_EVALUATED",
+  "limits": [
+    "The fixed shared API classes supply unrelated protocols; all thirteen modified pin/consumer/Domain/Q/Evolution source inputs override their older classes.",
+    "Host Android adapters replace platform connection/lifecycle only. Source guards, writer batches, migrations, Critical predecessor DDL and SQLite triggers are actual production methods.",
+    "Source/member journal lifecycle and unsupported SQL REPLACE are not established by these tests. Per-source-row write bounds do not certify every upstream bulk writer.",
+    "No APK identity, device duration, or future quality proof is produced here."
+  ],
+  "strict_null_binding_adapter_sha256": "3a1af2785c6b031ea9ffb3921fcebc7d23cd302ac9031133e9952122b958c291",
+  "host_only_adapters": {
+    "android/os/SystemClock.java": "package android.os;public final class SystemClock{public static long elapsedRealtime(){return System.nanoTime()/1000000;}public static long uptimeMillis(){return elapsedRealtime();}public static long currentThreadTimeMillis(){return java.lang.management.ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime()/1000000;}}",
+    "android/os/Looper.java": "package android.os;public final class Looper{public static Looper myLooper(){return null;}public static Looper getMainLooper(){return null;}}",
+    "android/util/Log.java": "package android.util;public final class Log{public static int w(String t,String m){return 0;}public static int w(String t,String m,Throwable e){return 0;}public static int e(String t,String m){return 0;}public static int e(String t,String m,Throwable e){return 0;}public static int d(String t,String m){return 0;}public static int i(String t,String m){return 0;}}"
+  },
+  "failure": "RuntimeError('critical-host-javac failed; original stdout/stderr retained')",
+  "finished_utc": "2026-11-04T19:15:54.603597+00:00"
+}

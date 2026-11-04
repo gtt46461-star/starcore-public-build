@@ -1,0 +1,20 @@
+/tmp/r31-source-pin-joint-9363slgu/source/MainChainSchemaR31Host.java:10: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/tmp/r31-source-pin-joint-9363slgu/source/InputSourceMigrationR31Host.java:20: error: cannot inherit from final Db
+    static final class FailingDb extends MainChainSchemaR31Host.Db {
+                                                               ^
+/tmp/r31-source-pin-joint-9363slgu/source/MainChainSchemaR31Host.java:17: warning: Unsafe is internal proprietary API and may be removed in a future release
+    static final Unsafe UNSAFE;
+                 ^
+/tmp/r31-source-pin-joint-9363slgu/source/MainChainSchemaR31Host.java:18: warning: Unsafe is internal proprietary API and may be removed in a future release
+    static{try{Field field=Unsafe.class.getDeclaredField("theUnsafe");field.setAccessible(true);UNSAFE=(Unsafe)field.get(null);}catch(Exception error){throw new ExceptionInInitializerError(error);}}
+                           ^
+/tmp/r31-source-pin-joint-9363slgu/source/MainChainSchemaR31Host.java:18: warning: Unsafe is internal proprietary API and may be removed in a future release
+    static{try{Field field=Unsafe.class.getDeclaredField("theUnsafe");field.setAccessible(true);UNSAFE=(Unsafe)field.get(null);}catch(Exception error){throw new ExceptionInInitializerError(error);}}
+                                                                                                        ^
+/tmp/r31-source-pin-joint-9363slgu/source/InputSourceMigrationR31Host.java:45: error: ensureLiveSourceRevision(SQLiteDatabase) is not public in SchemaR27; cannot be accessed from outside package
+        db.beginTransaction();try{SchemaR27.ensureLiveSourceRevision(db);criticalSteps(db);if(stamped&&addition)SchemaDomainCoordinatorR926.verifyAndStamp(db,SchemaDomainCoordinatorR926.criticalContract());for(String sql:oldSql())db.execSQL(sql);db.execSQL("CREATE TRIGGER IF NOT EXISTS r30r1_pin_immutable BEFORE UPDATE ON r30r1_analysis_run WHEN OLD.status='INPUT_DATASET_PINNED' BEGIN SELECT RAISE(ABORT,'RESEARCH_INPUT_PIN_IMMUTABLE'); END");if(stamped&&!addition)SchemaDomainCoordinatorR926.verifyAndStamp(db,SchemaDomainCoordinatorR926.criticalContract());db.setTransactionSuccessful();}finally{db.endTransaction();}
+                                           ^
+2 errors
+4 warnings
