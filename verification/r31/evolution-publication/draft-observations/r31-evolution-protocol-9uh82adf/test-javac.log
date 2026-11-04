@@ -1,0 +1,21 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/workspace/r31-evolution-publication-de9/tools/r31/host/R31OwnedRuntimeFixture.java:14: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/workspace/r31-evolution-publication-de9/tools/r31/host/R31OwnedRuntimeFixture.java:30: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Field field = Unsafe.class.getDeclaredField("theUnsafe"); field.setAccessible(true);
+                      ^
+/workspace/r31-evolution-publication-de9/tools/r31/host/R31OwnedRuntimeFixture.java:31: warning: Unsafe is internal proprietary API and may be removed in a future release
+        coordinator = (DatabaseCoordinator) ((Unsafe) field.get(null)).allocateInstance(DatabaseCoordinator.class);
+                                              ^
+/workspace/r31-evolution-publication-de9/tools/r31/evolution_publication_host/EvolutionPublicationProtocolR31Host.java:68: error: diagnosticFaultR31 is not public in DatabaseCoordinator; cannot be accessed from outside package
+     DatabaseCoordinator.diagnosticFaultR31.set(phase->{if("AFTER_COMMIT".equals(phase)){lostAck.incrementAndGet();throw new IllegalStateException("INJECTED_POSTCOMMIT_ACK_DIAGNOSTIC");}});
+                        ^
+/workspace/r31-evolution-publication-de9/tools/r31/evolution_publication_host/EvolutionPublicationProtocolR31Host.java:68: error: DiagnosticFaultR31 is not public in DatabaseCoordinator; cannot be accessed from outside package
+     DatabaseCoordinator.diagnosticFaultR31.set(phase->{if("AFTER_COMMIT".equals(phase)){lostAck.incrementAndGet();throw new IllegalStateException("INJECTED_POSTCOMMIT_ACK_DIAGNOSTIC");}});
+                                                ^
+/workspace/r31-evolution-publication-de9/tools/r31/evolution_publication_host/EvolutionPublicationProtocolR31Host.java:69: error: diagnosticFaultR31 is not public in DatabaseCoordinator; cannot be accessed from outside package
+     try{submit(owner,"EVOLUTION_STEP_ENGINEERING_PUBLISH",prepared[0].publicationBatch());}finally{DatabaseCoordinator.diagnosticFaultR31.remove();}
+                                                                                                                       ^
+3 errors
+3 warnings

@@ -1,0 +1,172 @@
+{
+  "status": "TARGETED_HOST_PASS",
+  "scope": "ACTUAL_OWNER_128_SOURCE_NATIVE_SQLITE_WITH_LABELLED_HOST_PLATFORM_ADAPTERS_NOT_ANDROID_OR_NATURAL",
+  "head": "8a1296f72a707ad63295b753163084be4b5229b2",
+  "dirtyAtRun": true,
+  "baselineSourceCommit": "de9a30834025c18ce291c241a722abe437717539",
+  "capturedAt": "2026-11-04T19:45:20.641051+00:00",
+  "cases": {
+    "baseline": "PASS",
+    "protocol": "PASS",
+    "phases": "PASS",
+    "fault": "PASS",
+    "capacity": "PASS"
+  },
+  "sources": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java": "de83a753f49aceeab225057ebc3593406266d1781b003f58d8b00c1428dc952d",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java": "423ddf1c3dd0061758145cba709096ba8c5680bc0c6ea0f94f2bb50768f32d8f",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionPublicationSqlR31.java": "3dc7b0747d3740e08a7aaef34670992359b876f6da854d863cf916318e9d9fbd",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionPublicationStoreR31.java": "ae0943a12c709c6e7d5bd1968fbe5619bffc96254aeaf3eb33797c8cafeb1968",
+    "tools/r31/evolution_publication_host/EvolutionDiagnosticFaultFixtureR31.java": "be677a58874358ca49d8ece7e007d15a9c71f9cacbad9655e9b3fb2c36f92318",
+    "tools/r31/evolution_publication_host/EvolutionPublicationCapacityR31Host.java": "37bbb0f9a4d3371192be02a126cd343a841f5a8a50d48410ef1e9ee566f9595a",
+    "tools/r31/evolution_publication_host/EvolutionPublicationFaultR31Host.java": "35ad8bc49d65fb1c7e93620204f7a541af350850c834cd335f14be839da808e6",
+    "tools/r31/evolution_publication_host/EvolutionPublicationPhasesR31Host.java": "a93b5de57b9ae3dbc2d94d7f9f69b7136059b7be41318a0879075cc83acc6259",
+    "tools/r31/evolution_publication_host/EvolutionPublicationProtocolR31Host.java": "c3d51e89c6db5406a2cba01befb53bcfea251381732b4c49a772ad6d8fd56e03",
+    "tools/r31/evolution_publication_host/EvolutionPublicationR31Host.java": "3ad770ed1adfd3974ca25c090aa4adf03df898d6b0dfd2f9d19ee6002ea48c8a",
+    "tools/r31/host/R31OwnedRuntimeFixture.java": "6a32a3fbf60a3fc55995ebb757cc48c50b72282ed975f898f1432d20975815bf",
+    "tools/r31/run_evolution_publication_host.py": "cb329f4549077a4e1c6b51c49ed99fea80968cce659e393a7df35e6b415f228c"
+  },
+  "sourceStable": true,
+  "support": "/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar",
+  "supportSha256": "8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0",
+  "sqliteJdbcSha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa",
+  "work": "/tmp/r31-evolution-final-ls8lnnij",
+  "commands": [
+    {
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar",
+        "-d",
+        "/tmp/r31-evolution-final-ls8lnnij/production",
+        "/workspace/r31-evolution-publication-de9/app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+        "/workspace/r31-evolution-publication-de9/app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "/workspace/r31-evolution-publication-de9/app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionPublicationSqlR31.java",
+        "/workspace/r31-evolution-publication-de9/app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionPublicationStoreR31.java"
+      ],
+      "log": "production-javac.log",
+      "exitCode": 0,
+      "realElapsedSeconds": 1.412,
+      "sha256": "27941f057b12f217f30a174adda602a055a5bcb56f7f4ac77299acbd58b7d6f0"
+    },
+    {
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-cp",
+        "/tmp/r31-evolution-final-ls8lnnij/owned-platform/platform:/tmp/r31-evolution-final-ls8lnnij/production:/tmp/r31-evolution-final-ls8lnnij/test:/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-evolution-final-ls8lnnij/test",
+        "/workspace/r31-evolution-publication-de9/tools/r31/host/R31OwnedRuntimeFixture.java",
+        "/workspace/r31-evolution-publication-de9/tools/r31/evolution_publication_host/EvolutionDiagnosticFaultFixtureR31.java",
+        "/workspace/r31-evolution-publication-de9/tools/r31/evolution_publication_host/EvolutionPublicationCapacityR31Host.java",
+        "/workspace/r31-evolution-publication-de9/tools/r31/evolution_publication_host/EvolutionPublicationFaultR31Host.java",
+        "/workspace/r31-evolution-publication-de9/tools/r31/evolution_publication_host/EvolutionPublicationPhasesR31Host.java",
+        "/workspace/r31-evolution-publication-de9/tools/r31/evolution_publication_host/EvolutionPublicationProtocolR31Host.java",
+        "/workspace/r31-evolution-publication-de9/tools/r31/evolution_publication_host/EvolutionPublicationR31Host.java"
+      ],
+      "log": "fixtures-javac.log",
+      "exitCode": 0,
+      "realElapsedSeconds": 1.104,
+      "sha256": "b8bba95e7e82357dd871e4391114c4ab5bf892948ce631bd79d863a8d76dc360"
+    },
+    {
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar",
+        "-d",
+        "/tmp/r31-evolution-final-ls8lnnij/baseline",
+        "/tmp/r31-evolution-final-ls8lnnij/baseline-source/StoreR27.java",
+        "/tmp/r31-evolution-final-ls8lnnij/baseline-source/EvolutionLoopR27.java"
+      ],
+      "log": "original-source-javac.log",
+      "exitCode": 0,
+      "realElapsedSeconds": 1.206,
+      "sha256": "27941f057b12f217f30a174adda602a055a5bcb56f7f4ac77299acbd58b7d6f0"
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-evolution-final-ls8lnnij/owned-platform/platform:/tmp/r31-evolution-final-ls8lnnij/baseline:/tmp/r31-evolution-final-ls8lnnij/test:/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.EvolutionPublicationR31Host"
+      ],
+      "log": "baseline-native.log",
+      "exitCode": 0,
+      "realElapsedSeconds": 7.501,
+      "sha256": "78b71485d303ac5087df60a284094025687661eab50a930292c3edef9a91e8bc"
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-evolution-final-ls8lnnij/owned-platform/platform:/tmp/r31-evolution-final-ls8lnnij/production:/tmp/r31-evolution-final-ls8lnnij/test:/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.EvolutionPublicationProtocolR31Host"
+      ],
+      "log": "protocol-native.log",
+      "exitCode": 0,
+      "realElapsedSeconds": 4.727,
+      "sha256": "25f01c9fcd2f83aef5de9c7565b815af205906329894a17beca280a34e439178"
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-evolution-final-ls8lnnij/owned-platform/platform:/tmp/r31-evolution-final-ls8lnnij/production:/tmp/r31-evolution-final-ls8lnnij/test:/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.EvolutionPublicationPhasesR31Host"
+      ],
+      "log": "phases-native.log",
+      "exitCode": 0,
+      "realElapsedSeconds": 6.411,
+      "sha256": "9a3649b958a2b4f477913a8525f33d48dffc76e6181680455ce63a90f0dfd0b6"
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-evolution-final-ls8lnnij/owned-platform/platform:/tmp/r31-evolution-final-ls8lnnij/production:/tmp/r31-evolution-final-ls8lnnij/test:/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.EvolutionPublicationFaultR31Host"
+      ],
+      "log": "fault-native.log",
+      "exitCode": 0,
+      "realElapsedSeconds": 6.822,
+      "sha256": "223071598586bae91f9b6bd46068be6a3823969aa8b8e78386591980053ecd0a"
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-evolution-final-ls8lnnij/owned-platform/platform:/tmp/r31-evolution-final-ls8lnnij/production:/tmp/r31-evolution-final-ls8lnnij/test:/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.EvolutionPublicationCapacityR31Host"
+      ],
+      "log": "capacity-native.log",
+      "exitCode": 0,
+      "realElapsedSeconds": 6.415,
+      "sha256": "7b03b0de9da966424134126a92405853e55ecfec0f0fe6d7fea3e45965d0785c"
+    }
+  ],
+  "android": "NOT_RUN",
+  "physicalDevice": "NOT_RUN",
+  "continuous24h": "NOT_RUN",
+  "continuous72h": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED",
+  "performanceBoundary": "HOST samples/actual WriterHold/WAL only; no Android P99 certificate",
+  "globalResourceBoundary": "Local private encoded admission and default per-PID memory budget; all-app physical database/index/WAL/shared-model quota remains separately unverified"
+}

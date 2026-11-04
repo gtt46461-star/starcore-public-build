@@ -1,0 +1,16 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java
+@@ -631,6 +631,13 @@
+         public String id() { return "r27-health"; }
+         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
+             final long tickElapsed=android.os.SystemClock.elapsedRealtime();
++            // New private publication scratch only, independent of the evolution business ACK.
++            // At most one <=64-op maintenance batch per actual Health dispatch, before report throttling.
++            ResearchWriteQueueR27.Batch evolutionCleanup=EvolutionPublicationStoreR31.cleanupSlice(w.ro,LOOP,RuntimeCoordinatorR26.currentClaimR30());
++            if(evolutionCleanup!=null){
++                String privatePublication=String.valueOf(evolutionCleanup.ops.get(0).args[0]);
++                submit(w,"EVOLUTION_PRIVATE_SCRATCH_CLEANUP",evolutionCleanup,false,"NEW_PRIVATE_SCRATCH_ONLY|"+privatePublication);
++            }
+             if (lastElapsedR31>0 && tickElapsed>=lastElapsedR31 && tickElapsed-lastElapsedR31<60_000)
+                 return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);
+             // A low-priority owner samples disk outside every SQLite write transaction.

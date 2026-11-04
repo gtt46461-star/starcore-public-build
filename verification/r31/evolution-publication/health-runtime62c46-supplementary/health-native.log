@@ -1,0 +1,18 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+R31_EVOLUTION_ACTUAL_STATES {"BORN":120,"DUPLICATE_BEHAVIOR":1,"REJECTED":7}
+Exception in thread "main" java.lang.NoClassDefFoundError: com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31
+	at com.ethk3.novaonepro.SchemaDomainCoordinatorR926.migrateR31AtomPublication(SchemaDomainCoordinatorR926.java:119)
+	at com.ethk3.novaonepro.strategyv2.SchemaR27.ensure(SchemaR27.java:107)
+	at com.ethk3.novaonepro.strategyv2.R31OwnedRuntimeFixture.lambda$new$0(R31OwnedRuntimeFixture.java:38)
+	at com.ethk3.novaonepro.DatabaseCoordinator.lambda$atomicCallableF01$13(DatabaseCoordinator.java:921)
+	at com.ethk3.novaonepro.DatabaseCoordinator.lambda$runWriteOrThrowF01$2(DatabaseCoordinator.java:755)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:831)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:755)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:900)
+	at com.ethk3.novaonepro.strategyv2.R31OwnedRuntimeFixture.<init>(R31OwnedRuntimeFixture.java:37)
+	at com.ethk3.novaonepro.strategyv2.EvolutionHealthCadenceR31Host.main(EvolutionHealthCadenceR31Host.java:10)
+Caused by: java.lang.ClassNotFoundException: com.ethk3.novaonepro.strategyv2.AtomPublicationStoreR31
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641)
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:525)
+	... 10 more

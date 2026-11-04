@@ -1,0 +1,43 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java
+@@ -194,6 +194,7 @@
+         public String id() { return "r27-evolution"; }
+         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
+             if (evoCache == null) return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-replay-dataset)", 0, -1);
++            final EvolutionPublicationStoreR31.CursorState expectedEvolutionCursor=EvolutionPublicationStoreR31.CursorState.capture(w.ro,LOOP);
+             EvolutionLoopR27 committed=evo;
+             if(committed==null){committed=restoreOrCreate(w);ConfirmReadStoreR30.restore(w.ro,committed.ledger());}
+             EvolutionLoopR27 loop=committed.preparedForkR30();
+@@ -246,7 +247,15 @@
+                 final List<Object[]> promos = sink.promotions;
+                 b.guardBefore(db -> { for (Object[] p : promos) { PolicySpecR27 s = (PolicySpecR27) p[0]; StoreR27.insertShadow(db, s, (Double) p[1], (String) p[3], semanticAbi(s), s.policyHash(), s.policyHash()); } return 0; });
+             }
+-            try{submit(w, "EVOLUTION_STEP_" + EvolutionLoopR27.STEPS[stepBefore], b,false,selectedData.datasetHash+"|generation="+genBefore+"|step="+stepBefore+"|previous="+HashingSU1.text(committed.snapshot()));}catch(RuntimeException stale){boolean benign=false;for(Throwable cause=stale;cause!=null&&cause.getCause()!=cause;cause=cause.getCause())if(cause instanceof ResearchStoreR30R1.StaleResearch)benign=true;if(benign)return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT:RESEARCH_SOURCE_RETRY",(long)committed.generation*10+committed.step,-1);throw stale;}
++            try(EvolutionPublicationStoreR31.Prepared publication=sink.preparePublicationR31(w.ro,RuntimeCoordinatorR26.currentClaimR30(),BuildConfig.SOURCE_COMMIT_R26,expectedEvolutionCursor)){
++                int publicationSlice=0;
++                for(ResearchWriteQueueR27.Batch stage:publication.stagingBatches()){
++                    submit(w,"EVOLUTION_STAGING_"+stepBefore+"_"+publicationSlice,stage,false,publication.id+"|slice="+publicationSlice);
++                    publicationSlice++;
++                }
++                publication.verifyPrepared(w.ro); // Hash/codec verification stays outside the writer.
++                submit(w,"EVOLUTION_STEP_"+EvolutionLoopR27.STEPS[stepBefore],publication.publicationBatch(),false,publication.id);
++            }catch(RuntimeException stale){boolean benign=false;for(Throwable cause=stale;cause!=null&&cause.getCause()!=cause;cause=cause.getCause())if(cause instanceof ResearchStoreR30R1.StaleResearch)benign=true;if(benign)return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT:RESEARCH_SOURCE_RETRY",(long)committed.generation*10+committed.step,-1);throw stale;}
+             if(preservedLegacy!=null&&preservedLegacy.equals(recoveredLegacyCursor))recoveredLegacyCursor=null;
+             synchronized(RuntimeR27.this){evoData=selectedData;evoCache=selectedCache;evo=loop;if(pendingCache==selectedCache){pendingCache=null;pendingData=null;}}
+             if (stepBefore == 9) refreshObservers(w, loop);
+@@ -359,11 +368,12 @@
+         EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.seed = System.currentTimeMillis();
+         try (Cursor c = w.ro.rawQuery("SELECT snapshot,dataset_hash FROM r27_evolution_cursor WHERE loop IN (?,?) ORDER BY CASE loop WHEN ? THEN 0 ELSE 1 END LIMIT 1", new String[] {LOOP,"MAIN",LOOP})) {
+             if (c.moveToFirst()) {
+-                try { return EvolutionLoopR27.restore(c.getString(0), cfg, evoCache, null, System::currentTimeMillis); }
++                final String originalSnapshot=EvolutionPublicationStoreR31.resolveSnapshot(w.ro,c.getString(0));
++                try { return EvolutionLoopR27.restore(originalSnapshot, cfg, evoCache, null, System::currentTimeMillis); }
+                 catch (RuntimeException mismatch) {
+                     if(!evoCache.data.datasetHash.equals(c.getString(1))){
+-                        EvolutionLoopR27 recovered=RepairCompatibilityR30R1.restoreBoundary(c.getString(0),cfg,evoCache,null,System::currentTimeMillis);
+-                        recoveredLegacyCursor=c.getString(0);return recovered;
++                        EvolutionLoopR27 recovered=RepairCompatibilityR30R1.restoreBoundary(originalSnapshot,cfg,evoCache,null,System::currentTimeMillis);
++                        recoveredLegacyCursor=originalSnapshot;return recovered;
+                     }
+                     throw mismatch; // A damaged cursor must not silently discard the exposure ledger or models.
+                 }
