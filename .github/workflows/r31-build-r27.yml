@@ -372,6 +372,10 @@ jobs:
     if: ${{ contains(github.event.head_commit.message, '[R31_ARTIFACT_AUDIT]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      source: ${{ steps.audit_request.outputs.source }}
+      original_run: ${{ steps.audit_request.outputs.validationRunId }}
+      artifact_name: ${{ steps.audit_request.outputs.validationArtifactName }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -401,6 +405,8 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
       - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' > /dev/null
       - uses: actions/download-artifact@v4
         with:
@@ -513,5 +519,93 @@ jobs:
         with:
           name: R31-AUDITED-VALIDATION-${{ steps.audit_request.outputs.source }}
           path: ${{ runner.temp }}/r31-audited-checkpoint/
+          if-no-files-found: error
+          retention-days: 90
+  artifact-audit-android:
+    needs: artifact-audit
+    if: ${{ always() && contains(github.event.head_commit.message, '[R31_ARTIFACT_AUDIT]') && needs['artifact-audit'].result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [29,35]
+    env:
+      R31_VALIDATION_SOURCE: ${{ needs['artifact-audit'].outputs.source }}
+      R31_EMULATOR_API: ${{ matrix.api }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs['artifact-audit'].outputs.source }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs['artifact-audit'].outputs.artifact_name }}
+          run-id: ${{ needs['artifact-audit'].outputs.original_run }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          path: ${{ runner.temp }}/r31-validation-input
+      - name: Enable disposable emulator KVM access
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Prepare bounded install and original10-case protocol execution
+        run: |
+          python3 - <<'PY'
+          import json,os
+          version=json.load(open('release/release_manifest.json'))['versionCode']
+          with open(os.environ['GITHUB_ENV'],'a') as f:f.write('R31_EXPECTED_VERSION_CODE='+str(version)+'\n')
+          PY
+          cat > "$RUNNER_TEMP/r31-validation-emulator.sh" <<'R31_VALIDATION_PROBE'
+          set -euo pipefail
+          out="$RUNNER_TEMP/r31-validation-android-$R31_EMULATOR_API"
+          mkdir -p "$out"
+          inp="$RUNNER_TEMP/r31-validation-input/validation-apks"
+          adb wait-for-device
+          adb install -r "$inp/STARCORE-R31-validation-release.apk" > "$out/release-install.txt" 2>&1
+          grep -Fq 'Success' "$out/release-install.txt"
+          adb shell dumpsys package com.starcore.research.r13 > "$out/release-installed-package.txt"
+          adb install -r "$inp/STARCORE-R31-validation-debug.apk" > "$out/debug-cover-install.txt" 2>&1
+          grep -Fq 'Success' "$out/debug-cover-install.txt"
+          adb install -r "$inp/STARCORE-R31-instrumentation-only.apk" > "$out/test-install.txt" 2>&1
+          grep -Fq 'Success' "$out/test-install.txt"
+          adb shell dumpsys package com.starcore.research.r13 > "$out/debug-installed-package.txt"
+          adb shell am force-stop com.starcore.research.r13
+          adb shell am instrument -w -r -e r30Sandbox "r31-audit-$GITHUB_RUN_ID-$R31_EMULATOR_API" -e class com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest,com.ethk3.novaonepro.R31StorageProtocolInstrumentedTest,com.ethk3.novaonepro.R31OwnerFenceProtocolInstrumentedTest com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner > "$out/protocol.txt" 2>&1
+          python3 - "$out" <<'PY'
+          import datetime,hashlib,json,os,pathlib,re,subprocess,sys
+          p=pathlib.Path(sys.argv[1]);raw=(p/'protocol.txt').read_bytes();text=raw.decode(errors='replace')
+          found=re.search(r'OK \((\d+) tests?\)',text)
+          passed=bool(found and int(found.group(1))==10 and 'FAILURES!!!' not in text and 'INSTRUMENTATION_FAILED' not in text)
+          for kind in ('release','debug'):
+              package=(p/(kind+'-installed-package.txt')).read_text()
+              assert 'versionCode='+os.environ['R31_EXPECTED_VERSION_CODE'] in package
+          receipt={'scope':'ACTUAL_DISPOSABLE_ANDROID_EMULATOR_INSTALL_AND10_ENGINEERING_PROTOCOL_CASES_ON_KNOWN_FAILED_GATE_APK_NOT_FINAL_PRODUCT','observed_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'source':os.environ['R31_VALIDATION_SOURCE'],'api':int(os.environ['R31_EMULATOR_API']),'serial':subprocess.check_output(['adb','get-serialno'],text=True).strip(),'releaseInstall':'PASS_ACTUAL_ADB_SUCCESS','sameSignatureDebugCoverInstall':'PASS_ACTUAL_ADB_SUCCESS_CLEAN_TEST_DEVICE_ONLY','instrumentationCompanionInstall':'PASS_ACTUAL_ADB_SUCCESS','protocolTests':int(found.group(1)) if found else None,'protocolResult':'PASS' if passed else 'FAILED_OR_INCOMPLETE','protocolOutputSha256':hashlib.sha256(raw).hexdigest(),'physicalDevice':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','originalCanonicalFailures':'REMAIN_FAILED; this does not override unit/lint/HOST failures'}
+          (p/'RECEIPT.json').write_text(json.dumps(receipt,indent=2)+'\n')
+          print('R31_EMULATOR_VALIDATION_JSON|'+json.dumps(receipt,sort_keys=True))
+          assert passed,'R31_ACTUAL_PROTOCOL_FAILED'
+          PY
+          R31_VALIDATION_PROBE
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 4096M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+          script: bash "$RUNNER_TEMP/r31-validation-emulator.sh"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R31-VALIDATION-ANDROID-${{ matrix.api }}-${{ needs['artifact-audit'].outputs.source }}
+          path: ${{ runner.temp }}/r31-validation-android-${{ matrix.api }}/
           if-no-files-found: error
           retention-days: 90
