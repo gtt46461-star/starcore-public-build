@@ -139,6 +139,14 @@ public final class R31TaskRuntimeHost {
         Class.forName("org.sqlite.JDBC");File file=new File(args[0]);
         try(Connection connection=DriverManager.getConnection("jdbc:sqlite:"+file)){
             db=new SQLiteDatabase(connection);
+            boolean nullStringRejected=false;
+            try(Cursor ignored=db.rawQuery("SELECT ? IS NULL",new String[]{null})){
+                throw new AssertionError("HOST rawQuery accepted a null String binding rejected by Android");
+            }catch(IllegalArgumentException expected){nullStringRejected=expected.getMessage().contains("index 1 is null");}
+            need(nullStringRejected,"Android bindString rejects null selectionArgs");
+            for(String owner:new String[]{"","null"})try(Cursor row=db.rawQuery("SELECT ? IS NULL",new String[]{owner})){
+                need(row.moveToFirst()&&row.getInt(0)==0,"non-null owner strings must not become SQL NULL");
+            }
             db.execSQL("CREATE TABLE r26_task(task_id TEXT PRIMARY KEY,lane TEXT,mechanism TEXT,status TEXT,owner TEXT,fence INTEGER DEFAULT 0,cursor INTEGER DEFAULT 0,lease_until INTEGER DEFAULT 0,last_served INTEGER DEFAULT 0,error_window_start INTEGER DEFAULT 0,error_count INTEGER DEFAULT 0,wait_kind TEXT DEFAULT '',wait_detail TEXT DEFAULT '',blocked_reason TEXT,wait_since INTEGER DEFAULT 0,registered_at INTEGER DEFAULT 1)");
             db.execSQL("CREATE TABLE r26_session(session_id TEXT PRIMARY KEY,user_enabled INTEGER,state TEXT)");db.execSQL("INSERT INTO r26_session VALUES('owner-A',1,'RUNNING'),('owner-B',1,'RUNNING')");
             db.execSQL("CREATE TABLE r27_task_error(error_id INTEGER PRIMARY KEY,task_id TEXT,error_class TEXT,message TEXT,stack TEXT,recorded_at INTEGER)");

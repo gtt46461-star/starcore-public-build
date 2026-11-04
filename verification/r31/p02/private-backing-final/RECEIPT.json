@@ -1,0 +1,134 @@
+{
+  "status": "SOURCE_FROZEN_TARGETED_PASS_FULL_MULTIGENERATION_FAIL",
+  "capturedAt": "2026-11-04T16:12:33.465941+00:00",
+  "phase": "P02",
+  "cards": [
+    "R31-B05-C11"
+  ],
+  "baselineSource": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "owner": "continuation_protocol",
+  "sourceCommit": "UNCOMMITTED_PARENT_INTEGRATION_PENDING",
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java": "0dc0222c704fc3dd9c6d320e410a6a30c4cfcf3a62d899f5f2c3008331d30efb",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java": "210780fbaee50a87da9f88a21f6e5f9ac191bf496f0f917b84661d39d6b6fc79",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SharedFeatureStoreR31.java": "6899e7c5b8e2223f9013a3b2d184a05ebc935479a185ef7ec540825f8aa3659f"
+  },
+  "sourceUnchangedFromFixedCompile": true,
+  "toolAndTestSha256": {
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31PrivateBackingReuseTest.java": "c36e6ad431cd3449a378bfd8452f7999a2324c9b5799f0c168ff4a847d9946eb",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31FamilyScopeIsolationTest.java": "971b0e14f31e6fed2353aeb74356e205d94a6266da5a602d056448b4f8b21441",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31SharedFeatureIntegrationTest.java": "774d49d3664dc4787725bfc985428a7a71b929bb98f6fd6f74d0907352658b0b",
+    "tools/r31/verify_memory.py": "4cf34c9a12ecc8fd6f12366d994be78bcd8c1531c24ad7ed09fb1d6c8a607c5b"
+  },
+  "compiledSupport": {
+    "actualCompiledCommit": "e056206af83a8fc094b81d97f67a1310b8cc2e46",
+    "actualCompiledDirty": true,
+    "scope": "CURRENT_3_SOURCE_JAVAC_OVERLAY_ON_ACTUAL_ANDROID_UNIT_AND_RUNTIME_CLASSES",
+    "supportJarSha256": "9cc9d814642afbf7e564d07c47d4e1f5412405a48c8368c69aabe6caea5e46b2",
+    "supportClassSha256": {
+      "MemoryBudgetR31": "d7af25df83eb248ebadb779a648abde6a1a1493b3aceddfa30d1cdfa1cdc98ee",
+      "EvolutionLoopR27": "81484711258bc01e7a6876d5340e0e7958267afae25a9c9fd8e1194a4de5d097",
+      "NullEvolutionR27": "34f05eeeadd25783f3552872eeab5b73529ec93c587b0294d53087d3c13d3a38",
+      "NullPipelineSimulationR30": "c3d2520f997c75ab4ac6bec49905f8c8ff10409f0e28d2c2f502215c616e43bf",
+      "BirthGateR27": "f69c2c826267aa03c04a273157b477fce1591d68df91584971204508c99182c7",
+      "SetIntersectionPolicyR30": "df5e5aaded43533290207f75007a35823ad9ef9f2361d0f6d6b638d7b3450288",
+      "EvalContextR27": "1a42117d8d7b2df9c1ee5df6026e4c030275b1f73fa196f289323559c3f238b8",
+      "ReplayEvaluatorR27": "4fb274dd75a7505c33904ccc778fff1d2ddf14b819a8dc0bd23c4db596721d74"
+    },
+    "classpathFile": "support-classpath.txt",
+    "fixedOverlay": "/tmp/r31-private-backing-final/classes"
+  },
+  "actualChanges": {
+    "SharedFeatureStoreR31": [
+      "private built-in immutable backing reused only after evicted entry has zero actual readers",
+      "public publication still clones; escaped raw/model/family arrays never pooled",
+      "entry+idle+working+inflight bytes share original capacity",
+      "full target initialization and real finally for cancellation/duplicate races",
+      "working metadata weakly references actual array; rooted store cannot permanently retain an abandoned private loan"
+    ],
+    "FeatureCacheR27": [
+      "nested private built-ins consume scoped immutable dependency readers",
+      "familyInto writes internal exclusive scoped numeric output without sharing/pooling model state",
+      "same-size family advance retains values after all original prefix checks",
+      "extendFrom model codec plus state/cursors/matrix deep snapshot with parent unchanged",
+      "fork declaration estimates include private workspace graph including unsaved autodiff tape; initial model path remains uncovered"
+    ],
+    "PolicyAstR27": [
+      "scoped internal family consumer uses exclusively borrowed numeric target",
+      "global backing loan actually returns on final score scope close, retaining original per-cache scratch cap",
+      "public eval outputs remain independent; numeric AST and K3 contracts unchanged"
+    ]
+  },
+  "verification": {
+    "targetedJUnit": {
+      "tests": 55,
+      "failures": 0,
+      "log": "all-targeted-junit.log",
+      "controlledProbeUse": "SYNTHETIC_UNIT_OWNERSHIP_AND_ACCOUNTING_NOT_DEVICE_EVIDENCE",
+      "isolatedForcedGc": "ORPHAN_OWNERSHIP_TESTS_ONLY_NOT_DEFAULT_MATHEMATICAL_PATH"
+    },
+    "familyDeepSnapshot": {
+      "families": 5,
+      "positions": 50,
+      "comparedValues": 250500,
+      "bitMismatches": 0,
+      "mutableAliases": false,
+      "parentStateStable": true,
+      "unexpectedRebuilds": 0,
+      "log": "family-isolation.json",
+      "inputRole": "SYNTHETIC_ENGINEERING_NOT_STRATEGY_QUALITY"
+    },
+    "golden": {
+      "fingerprints": 52,
+      "match": true,
+      "currentDefaultRuntimeProbe512m": true,
+      "baselineScope": "ORIGINAL_5237_FOUR_CLASS_NUMERIC_REFERENCE_NO_R31_ADMISSION",
+      "logs": [
+        "baseline-golden.json",
+        "current-golden.json"
+      ]
+    },
+    "originalSix": {
+      "tests": 6,
+      "failures": 3,
+      "actualJvmMaxHeapBytes": 536870912,
+      "probe": "ACTUAL_DEFAULT_PROCESS_BUDGET_FROM_FIXED_ANDROID_RUNTIME_CLASSES",
+      "observer": false,
+      "explicitGc": false,
+      "allOriginalMethodsCountsThresholdsUnchanged": true,
+      "elapsedSeconds": 73.178,
+      "passed": [
+        "H06_original_two_generations",
+        "H12_original_18_steps_kill_resume",
+        "Null_counterfactual_snapshot_restore"
+      ],
+      "failed": [
+        "noSignalRarelyClaimsImprovement",
+        "powerAndFullPipelineQualificationHaveRecoverableSyntheticReceipts",
+        "sameFullEvolutionPipelineResumesItsControlState"
+      ],
+      "actualFailure": "RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY at SetIntersectionPolicyR30.support public raw freq/freqnb path",
+      "log": "original-six-default512.log"
+    },
+    "commandFailures": [
+      {
+        "log": "command-classname-typo.log",
+        "cause": "one JUnit CLI class name used slash instead of dot; corrected rerun55PASS; no product failure suppressed"
+      }
+    ]
+  },
+  "remaining": [
+    "Parent new SetIntersectionPolicyR30 and Evolution failureCluster scoped consumers PENDING; not included in this fixed original-six run",
+    "Parent new MemoryBudget controlled120s recovery source PENDING; this run does not exercise controller/collector",
+    "Initial/rebuilt non-fork FamilyStream model construction and100-column matrix growth lack complete write-before-allocation admission",
+    "Model kernels and other leaf temporaries are not fully registered",
+    "FeatureCache.memorySnapshot pre-existing generic uncoveredOwners labels still conservative; deepfork is scoped coverage, not all model owners",
+    "Actual Android full compile+all unit tests+identity+APK integration pending parent",
+    "No physical device/24h/72h run; no natural future quality result"
+  ],
+  "apk": null,
+  "device": "NOT_RUN",
+  "continuous24h": "NOT_RUN",
+  "continuous72h": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED"
+}

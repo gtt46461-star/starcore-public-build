@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/workspace/starcore-public-build/tools/r31/verify_memory.py", line 88, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/starcore-public-build/tools/r31/verify_memory.py", line 51, in main
+    before=json.loads(run([java,'-Xmx512m','-cp',str(baseline)+os.pathsep+runtime_cp,'com.ethk3.novaonepro.strategyv2.FeatureGoldenR31Host',golden],'baseline-golden.json'))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/starcore-public-build/tools/r31/verify_memory.py", line 32, in run
+    raise RuntimeError(log)
+RuntimeError: baseline-golden.json

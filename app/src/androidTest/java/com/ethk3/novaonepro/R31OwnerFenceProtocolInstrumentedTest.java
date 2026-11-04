@@ -125,6 +125,8 @@ public final class R31OwnerFenceProtocolInstrumentedTest {
                 pool.setResource("INSTRUMENTED_PROTOCOL_CONTROL_ONLY");pool.register(registered);pool.start();
             }
             assertEquals(1,number(store.readable(),"SELECT count(*) FROM r26_task WHERE task_id=? AND lane='R27' AND registered_at>0",task));
+            assertEquals("A newly registered task must exercise the original SQL NULL owner path",1,
+                    number(store.readable(),"SELECT count(*) FROM r26_task WHERE task_id=? AND owner IS NULL",task));
             RuntimeCoordinatorR26.Claim old=claim(store,task,oldOwner);assertNotNull(old);
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
                     context(DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,"R31_TEST_OLD_FENCE_VALID"),

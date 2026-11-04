@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/workspace/starcore-public-build/tools/r31/verify_memory.py", line 88, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/starcore-public-build/tools/r31/verify_memory.py", line 41, in main
+    log=run([java,'-Xmx512m','-cp',current_cp,'org.junit.runner.JUnitCore','com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest','com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest','com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest','com.ethk3.novaonepro.strategyv2.R31ScopedAstLifecycleTest'],'memory-integration-junit.log')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/starcore-public-build/tools/r31/verify_memory.py", line 32, in run
+    raise RuntimeError(log)
+RuntimeError: memory-integration-junit.log

@@ -549,13 +549,17 @@ public final class EvolutionLoopR27 implements AutoCloseable {
     String failureCluster() {
         Member ch = find(champion);
         if (ch == null || ch.trace == null) return "";
-        double[] reg = ctx.cache.leaf("regime", 0, 0, 128); int[] acts = new int[2], hits = new int[2];
+        try(SharedFeatureStoreR31.Reader reader=ctx.cache.acquireLeafR31("regime",0,0,128)){
+        double[] reg = reader==null?ctx.cache.leaf("regime", 0, 0, 128):null; int[] acts = new int[2], hits = new int[2];
         for (int t = ctx.split.selectFrom; t < ctx.split.selectTo; t++) {
-            if (ch.trace.skipped[t] || !ch.trace.act[t] || Double.isNaN(reg[t * 10])) continue;
-            int b = reg[t * 10] > 0.1 ? 1 : 0; acts[b]++; hits[b] += ch.trace.hit[t];
+            if (ch.trace.skipped[t] || !ch.trace.act[t]) continue;
+            double regime=reader==null?reg[t*10]:reader.doubleAt(t*10);
+            if(Double.isNaN(regime))continue;
+            int b = regime > 0.1 ? 1 : 0; acts[b]++; hits[b] += ch.trace.hit[t];
         }
         if (acts[0] < 10 || acts[1] < 10) return "";
         return hits[0] / (double) acts[0] <= hits[1] / (double) acts[1] ? "REGIME_LOW" : "REGIME_HIGH";
+        }
     }
 
     /** docs/05 5.8 automatic stagnation diagnosis; applies the listed automatic responses. */

@@ -1,6 +1,7 @@
 package com.ethk3.novaonepro.strategyv2;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.lang.ref.*;
@@ -29,12 +30,16 @@ public final class FeatureCacheR27 implements AutoCloseable {
     private static final java.util.concurrent.atomic.AtomicLong CACHE_IDS_R31=new java.util.concurrent.atomic.AtomicLong();
     private static final ReferenceQueue<double[]> RAW_QUEUE_R31=new ReferenceQueue<>();
     private static final Map<WeakReference<double[]>,MemoryBudgetR31.Lease> RAW_LEASES_R31=new LinkedHashMap<>();
+    private static final ReferenceQueue<FamilyStream> FAMILY_FORK_QUEUE_R31=new ReferenceQueue<>();
+    private static final Map<WeakReference<FamilyStream>,MemoryBudgetR31.Lease> FAMILY_FORK_LEASES_R31=new LinkedHashMap<>();
     private static final Runnable RAW_RECLAIMER_R31=FeatureCacheR27::reapReleasedArraysR31;
     private static final ThreadLocal<Boolean> CRITICAL_ALLOCATION_R31=new ThreadLocal<>();
+    private static final class BuiltinTargetR31 {final FeatureCacheR27 owner;final double[] values;boolean used;BuiltinTargetR31(FeatureCacheR27 owner,double[] values){this.owner=owner;this.values=values;}}
+    private static final ThreadLocal<BuiltinTargetR31> BUILTIN_TARGET_R31=new ThreadLocal<>();
     private static final class SharedHolderR31 {static final SharedFeatureStoreR31 STORE=new SharedFeatureStoreR31(MemoryBudgetR31.processBudget(),Math.max(272,Math.min(32L<<20,Runtime.getRuntime().maxMemory()/16)));}
     private static final class BuildLockR31 {final ReentrantLock lock=new ReentrantLock();int users;}
     private final Map<String,BuildLockR31> buildLocksR31=new LinkedHashMap<>();
-    public static void reapReleasedArraysR31(){synchronized(RAW_LEASES_R31){Reference<? extends double[]> ref;while((ref=RAW_QUEUE_R31.poll())!=null){MemoryBudgetR31.Lease lease=RAW_LEASES_R31.remove(ref);if(lease!=null)lease.close();}}}
+    public static void reapReleasedArraysR31(){synchronized(RAW_LEASES_R31){Reference<? extends double[]> ref;while((ref=RAW_QUEUE_R31.poll())!=null){MemoryBudgetR31.Lease lease=RAW_LEASES_R31.remove(ref);if(lease!=null)lease.close();}}synchronized(FAMILY_FORK_LEASES_R31){Reference<? extends FamilyStream> ref;while((ref=FAMILY_FORK_QUEUE_R31.poll())!=null){MemoryBudgetR31.Lease lease=FAMILY_FORK_LEASES_R31.remove(ref);if(lease!=null)lease.close();}}}
     private static void trackRawR31(double[] array,MemoryBudgetR31.Lease lease){synchronized(RAW_LEASES_R31){RAW_LEASES_R31.put(new WeakReference<>(array,RAW_QUEUE_R31),lease);}}
     private static long arrayBytesR31(double[] array){return 128L+8L*array.length;}
     private void clearRawR31(){rawMapBytesDropped+=rawBytes;cache.clear();rawBytes=0;}
@@ -42,14 +47,14 @@ public final class FeatureCacheR27 implements AutoCloseable {
     public void bindSharedFeaturesR31(String operatorAbiHash){bindSharedFeaturesR31(sharedR31,operatorAbiHash);}
     public static SharedFeatureStoreR31 processSharedFeatureStoreR31(){return SharedHolderR31.STORE;}
     MemoryBudgetR31 memoryBudgetR31(){return memory;}
-    synchronized PolicyAstR27.ScratchPoolR31 scratchPoolR31(){if(closedR31)throw new java.util.concurrent.CancellationException("R31_FEATURE_CACHE_CLOSED");if(scratchPoolR31==null)scratchPoolR31=new PolicyAstR27.ScratchPoolR31(memory,data.size()*10);return scratchPoolR31;}
+    synchronized PolicyAstR27.ScratchPoolR31 scratchPoolR31(){if(closedR31)throw new java.util.concurrent.CancellationException("R31_FEATURE_CACHE_CLOSED");if(scratchPoolR31==null)scratchPoolR31=new PolicyAstR27.ScratchPoolR31(memory,data.size()*10,sharedR31);return scratchPoolR31;}
     public synchronized Map<String,Object> scratchMemorySnapshotR31(){return scratchPoolR31==null?java.util.Collections.emptyMap():scratchPoolR31.snapshot();}
     public synchronized void bindSharedFeaturesR31(SharedFeatureStoreR31 shared,String operatorAbiHash){if(operatorAbiHash==null||operatorAbiHash.isEmpty())throw new IllegalArgumentException("R31_FEATURE_ABI");if(!operatorAbiHash.equals(featureAbiR31))clearRawR31();this.sharedR31=java.util.Objects.requireNonNull(shared);featureAbiR31=operatorAbiHash;}
     public synchronized Map<String,Object> memorySnapshotR31(){reapReleasedArraysR31();Map<String,Object> out=new LinkedHashMap<>();out.put("rawCacheBytes",rawBytes);out.put("rawCacheCapacityBytes",rawByteCapacity);out.put("rawMapBytesDropped",rawMapBytesDropped);out.put("rawDropEvidence","MAP_REFERENCE_REMOVED_NOT_ACTUAL_HEAP_FREE");out.put("sharedReads",sharedReads);out.put("sharedBuilds",sharedBuilds);out.put("featureAbi",featureAbiR31);out.put("overrideSharedDisabled",!overrides.isEmpty());synchronized(RAW_LEASES_R31){out.put("processRawArrayLeasesAwaitingGc",RAW_LEASES_R31.size());}out.put("sharedStore",sharedR31.snapshot());out.put("coveredOwners",java.util.Arrays.asList("IMMUTABLE_SHARED_FEATURE_BLOCKS_WITH_READER_REFS","PRIVATE_AST_SCRATCH_UNTIL_SCOPE_CLOSE","PUBLIC_SCORE_MEMO_BYTE_LRU_DROP_REFERENCES_ONLY"));out.put("uncoveredOwners",java.util.Arrays.asList("ESCAPED_PUBLIC_SCORE_ARRAYS_NOT_REUSED_OR_DECLARED_FREED","PUBLIC_SCORE_RESULT_ALLOCATION_ESTIMATES_NOT_FULLY_REGISTERED","MUTABLE_FAMILY_MODEL_STATE","LEAF_INTERNAL_TEMPORARY_SCRATCH"));return out;}
     public Map<String,Object> trimUnusedR31(){synchronized(this){clearRawR31();if(scratchPoolR31!=null)scratchPoolR31.trimUnused();}Map<String,Object> result=sharedR31.evictTo(0);reapReleasedArraysR31();return result;}
     public static Map<String,Object> trimRegisteredCachesR31(){return trimRegisteredCachesR31(MemoryBudgetR31.processBudget());}
-    private static Map<String,Object> trimRegisteredCachesR31(MemoryBudgetR31 memory){java.util.List<FeatureCacheR27> caches;synchronized(REGISTERED_R31){caches=new java.util.ArrayList<>(REGISTERED_R31.keySet());}int trimmed=0;for(FeatureCacheR27 cache:caches)if(cache.memory==memory){cache.trimUnusedR31();trimmed++;}if(memory==MemoryBudgetR31.processBudget())SharedHolderR31.STORE.evictTo(0);int scoreContexts=EvalContextR27.trimRegisteredScoresR31(memory);reapReleasedArraysR31();Map<String,Object> out=new LinkedHashMap<>();out.put("registeredCachesTrimmed",trimmed);out.put("scoreContextsTrimmed",scoreContexts);out.put("actualHeapReleasedBytes",null);out.put("evidence","UNPINNED_CACHE_REFERENCES_REMOVED; RAW_ARRAY_LEASES_WAIT_FOR_OBSERVED_GC");return out;}
-    @Override public synchronized void close(){closedR31=true;clearRawR31();if(scratchPoolR31!=null)scratchPoolR31.close();streams.clear();modelHistoryHashes.clear();overrides.clear();reapReleasedArraysR31();}
+    private static Map<String,Object> trimRegisteredCachesR31(MemoryBudgetR31 memory){java.util.List<FeatureCacheR27> caches;synchronized(REGISTERED_R31){caches=new java.util.ArrayList<>(REGISTERED_R31.keySet());}boolean reuse="NORMAL".equals(memory.snapshot().get("pressure"));int trimmed=0;for(FeatureCacheR27 cache:caches)if(cache.memory==memory){if(reuse)cache.sharedR31.recycleUnpinnedR31();else cache.trimUnusedR31();trimmed++;}if(memory==MemoryBudgetR31.processBudget()){if(reuse)SharedHolderR31.STORE.recycleUnpinnedR31();else SharedHolderR31.STORE.evictTo(0);}int scoreContexts=EvalContextR27.trimRegisteredScoresR31(memory);reapReleasedArraysR31();Map<String,Object> out=new LinkedHashMap<>();out.put("registeredCachesTrimmed",trimmed);out.put("scoreContextsTrimmed",scoreContexts);out.put("actualHeapReleasedBytes",null);out.put("evidence",reuse?"PRIVATE_BACKING_RETAINED_FOR_BOUNDED_REUSE; NOT_HEAP_FREE":"UNPINNED_CACHE_REFERENCES_REMOVED; RAW_ARRAY_LEASES_WAIT_FOR_OBSERVED_GC");return out;}
+    @Override public synchronized void close(){closedR31=true;clearRawR31();if(scratchPoolR31!=null)scratchPoolR31.close();for(FamilyStream stream:streams.values())stream.closeForkOwnerR31();streams.clear();modelHistoryHashes.clear();overrides.clear();reapReleasedArraysR31();}
     private volatile ModelSurfaceProviderR30.Source modelSurfaces=ModelSurfaceProviderR30.NONE;
     private volatile long modelSourceVersion;
     private final Map<Integer,String> modelHistoryHashes=new LinkedHashMap<Integer,String>(128,.75f,true){protected boolean removeEldestEntry(Map.Entry<Integer,String> e){return size()>128;}};
@@ -94,7 +99,7 @@ public final class FeatureCacheR27 implements AutoCloseable {
         synchronized (this) { double[] v = cache.get(key); if (v != null) { hits++; return v; } }
         if(closedR31)throw new IllegalStateException("R31_FEATURE_CACHE_CLOSED");
         MemoryBudgetR31.Admission admission=memory.tryAcquire("raw-leaf:"+data.datasetHash.substring(0,16),Boolean.TRUE.equals(CRITICAL_ALLOCATION_R31.get())?MemoryBudgetR31.Kind.REALTIME:MemoryBudgetR31.Kind.FEATURE_CACHE,128L+80L*data.size(),()->Thread.currentThread().isInterrupted());
-        if(!admission.acquired())throw new MemoryBudgetR31.CapacityWait(admission.reason);
+        if(!admission.acquired())throw leafCapacityWaitR31(admission.reason,kind,tp,a,b);
         double[] v;
         try{v=compute(kind,tp,a,b);if(v.length!=data.size()*10)throw new IllegalStateException("R31_LEAF_LENGTH");admission.lease.allocatedPrimitiveArrayR31(v);trackRawR31(v,admission.lease);}
         catch(RuntimeException|Error failure){admission.lease.close();throw failure;}
@@ -113,8 +118,8 @@ public final class FeatureCacheR27 implements AutoCloseable {
         try{
             while(!(locked=build.lock.tryLock(20,TimeUnit.MILLISECONDS)))CooperativeContinuationR26.poll();
             CooperativeContinuationR26.poll();SharedFeatureStoreR31.Reader hit=store.acquire(key,"ast-leaf-reader");if(hit!=null){synchronized(this){sharedReads++;}return hit;}
-            SharedFeatureStoreR31.Publication publication=store.computePrivateDoublesR31("immutable-leaf:"+data.datasetHash.substring(0,16),key,data.size()*10,()->computeBuiltinR31(kind,target,a,b),()->Thread.currentThread().isInterrupted(),Boolean.TRUE.equals(CRITICAL_ALLOCATION_R31.get()));
-            if(!publication.acquired())throw new MemoryBudgetR31.CapacityWait(publication.reason);synchronized(this){sharedBuilds++;}return publication.reader;
+            SharedFeatureStoreR31.Publication publication=store.fillPrivateDoublesR31("immutable-leaf:"+data.datasetHash.substring(0,16),key,data.size()*10,values->computeBuiltinIntoR31(kind,target,a,b,values),()->Thread.currentThread().isInterrupted(),Boolean.TRUE.equals(CRITICAL_ALLOCATION_R31.get()));
+            if(!publication.acquired())throw leafCapacityWaitR31(publication.reason,kind,tp,a,b);synchronized(this){sharedBuilds++;}return publication.reader;
         }catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new java.util.concurrent.CancellationException("R31_FEATURE_READER_INTERRUPTED");}
         finally{if(locked)build.lock.unlock();synchronized(this){if(--build.users==0)buildLocksR31.remove(local,build);}}
     }
@@ -129,18 +134,31 @@ public final class FeatureCacheR27 implements AutoCloseable {
     public synchronized void override(String kind, LeafOverride o) { overrides.put(kind, o); clearRawR31(); }
 
     private double[] compute(String kind, int tp, int a, int b) {
+        BuiltinTargetR31 outer=BUILTIN_TARGET_R31.get();if(outer!=null)BUILTIN_TARGET_R31.remove();
+        try{
         LeafOverride o;
         synchronized (this) { o = overrides.get(kind); }
         if (o != null) return o.compute(this, tp, a, b);
         return computeBuiltinR31(kind,tp,a,b);
+        }finally{if(outer!=null)BUILTIN_TARGET_R31.set(outer);}
     }
+
+    private void computeBuiltinIntoR31(String kind,int tp,int a,int b,double[] target){
+        if(kind.equals("family")||kind.equals("model_surface"))throw new IllegalArgumentException("R31_MUTABLE_MODEL_OUTPUT_NOT_POOLABLE");
+        BuiltinTargetR31 previous=BUILTIN_TARGET_R31.get(),current=new BuiltinTargetR31(this,target);BUILTIN_TARGET_R31.set(current);
+        try{double[] result=computeBuiltinR31(kind,tp,a,b);if(!current.used||result!=target)throw new IllegalStateException("R31_BUILTIN_TARGET_NOT_EXCLUSIVE");}
+        finally{if(previous==null)BUILTIN_TARGET_R31.remove();else BUILTIN_TARGET_R31.set(previous);}
+    }
+    private boolean privateFillR31(){BuiltinTargetR31 target=BUILTIN_TARGET_R31.get();return target!=null&&target.owner==this;}
+    private SharedFeatureStoreR31.Reader privateDependencyR31(String kind,int tp,int a,int b){SharedFeatureStoreR31.Reader reader=acquireLeafR31(kind,tp,a,b);if(reader==null)throw new java.util.concurrent.CancellationException("R31_PRIVATE_INPUT_SOURCE_CHANGED");return reader;}
+    private MemoryBudgetR31.CapacityWait leafCapacityWaitR31(MemoryBudgetR31.WaitReason reason,String kind,int tp,int a,int b){MemoryBudgetR31.CapacityWait wait=new MemoryBudgetR31.CapacityWait(reason);wait.addSuppressed(new IllegalStateException("R31_LEAF_ADMISSION kind="+kind.substring(0,Math.min(48,kind.length()))+" tp="+tp+" a="+a+" b="+b+" rows="+data.size()));return wait;}
 
     // Shared ownership transfer is restricted to new private built-in outputs. A concurrent
     // test/operator override may return an externally aliased array and must never be adopted.
     private double[] computeBuiltinR31(String kind,int tp,int a,int b){
         switch (kind) {
             case "set_intersection": return exactIntersection(tp,a,b);
-            case "set_intersection_when_repeat": {double[] out=exactIntersection(tp,a,b),state=leaf("regime",tp,0,b);for(int row=0;row<data.size();row++)if(row<b||!data.consecutive(row,b)||!Double.isFinite(state[row*10])||state[row*10]<=.1)java.util.Arrays.fill(out,row*10,row*10+10,Double.NaN);return out;}
+            case "set_intersection_when_repeat": {double[] out=exactIntersection(tp,a,b);if(privateFillR31()){try(SharedFeatureStoreR31.Reader state=privateDependencyR31("regime",tp,0,b)){for(int row=0;row<data.size();row++)if(row<b||!data.consecutive(row,b)||!Double.isFinite(state.doubleAt(row*10))||state.doubleAt(row*10)<=.1)java.util.Arrays.fill(out,row*10,row*10+10,Double.NaN);}}else{double[] state=leaf("regime",tp,0,b);for(int row=0;row<data.size();row++)if(row<b||!data.consecutive(row,b)||!Double.isFinite(state[row*10])||state[row*10]<=.1)java.util.Arrays.fill(out,row*10,row*10+10,Double.NaN);}return out;}
             case "freq": return freq(a, b);
             case "fdecay": return decay(a, b);
             case "freqnb": return neighborFreq(a, b);
@@ -166,10 +184,12 @@ public final class FeatureCacheR27 implements AutoCloseable {
     }
 
     private int t() { return data.size(); }
-    private double[] nan() { double[] v = new double[t() * 10]; Arrays.fill(v, Double.NaN); return v; }
+    private double[] leafOutputR31(int length,boolean unavailable){BuiltinTargetR31 target=BUILTIN_TARGET_R31.get();double[] values;if(target!=null&&target.owner==this&&!target.used){if(target.values.length!=length)throw new IllegalStateException("R31_BUILTIN_TARGET_LENGTH");target.used=true;values=target.values;}else values=new double[length];Arrays.fill(values,unavailable?Double.NaN:0.0);return values;}
+    private double[] nan() {return leafOutputR31(t()*10,true);}
 
     double[] exactIntersection(int position,int shortWindow,int longWindow){
         double[] out=nan();if(!PolicyAstR27.pos(position)||!PolicyAstR27.window(shortWindow)||!PolicyAstR27.window(longWindow)||shortWindow>=longWindow)throw new IllegalArgumentException("SET_SOURCE_CONTRACT");
+        if(privateFillR31()){try(SharedFeatureStoreR31.Reader a=privateDependencyR31("freq",position,position,shortWindow);SharedFeatureStoreR31.Reader b=privateDependencyR31("freqnb",position,position,longWindow)){double[] ar=new double[10],br=new double[10];for(int row=longWindow;row<data.size();row++){if((row&31)==0)CooperativeContinuationR26.poll();if(!data.consecutive(row,longWindow))continue;a.copyRangeTo(row*10,ar,0,10);b.copyRangeTo(row*10,br,0,10);int mask=SetIntersectionPolicyR30.mask(ar,0)&SetIntersectionPolicyR30.mask(br,0);if(Integer.bitCount(mask)!=3)continue;for(int k=0;k<10;k++)out[row*10+k]=(mask&(1<<k))!=0?1.0/3:0;}return out;}}
         double[] a=leaf("freq",position,position,shortWindow),b=leaf("freqnb",position,position,longWindow);
         for(int row=longWindow;row<data.size();row++){if((row&31)==0)CooperativeContinuationR26.poll();if(!data.consecutive(row,longWindow))continue;int mask=SetIntersectionPolicyR30.mask(a,row*10)&SetIntersectionPolicyR30.mask(b,row*10);if(Integer.bitCount(mask)!=3)continue;for(int k=0;k<10;k++)out[row*10+k]=(mask&(1<<k))!=0?1.0/3:0;}return out;
     }
@@ -203,7 +223,8 @@ public final class FeatureCacheR27 implements AutoCloseable {
     /** freqnb(src,W): mean occurrence share at the two neighbouring positions of src. */
     double[] neighborFreq(int src, int w) {
         int left = src == 1 ? 10 : src - 1, right = src == 10 ? 1 : src + 1;
-        double[] l = leaf("freq", 0, left, w), r = leaf("freq", 0, right, w), v = new double[l.length];
+        if(privateFillR31()){try(SharedFeatureStoreR31.Reader l=privateDependencyR31("freq",0,left,w);SharedFeatureStoreR31.Reader r=privateDependencyR31("freq",0,right,w)){double[] v=leafOutputR31(l.length(),false);for(int i=0;i<v.length;i++)v[i]=0.5*(l.doubleAt(i)+r.doubleAt(i));return v;}}
+        double[] l = leaf("freq", 0, left, w), r = leaf("freq", 0, right, w), v = leafOutputR31(l.length,false);
         for (int i = 0; i < v.length; i++) v[i] = 0.5 * (l[i] + r[i]);
         return v;
     }
@@ -226,7 +247,8 @@ public final class FeatureCacheR27 implements AutoCloseable {
 
     /** meangap(src,W): mean inter-arrival of n at src within the window, scaled 1/30 and capped at 1. */
     double[] meanGap(int src, int w) {
-        double[] f = leaf("freq", 0, src, w), v = new double[f.length];
+        if(privateFillR31()){try(SharedFeatureStoreR31.Reader f=privateDependencyR31("freq",0,src,w)){double[] v=leafOutputR31(f.length(),false);for(int t=0;t<t();t++){int len=Math.min(w,t);for(int k=0;k<10;k++){double x=f.doubleAt(t*10+k);v[t*10+k]=Double.isNaN(x)?Double.NaN:Math.min(1.0,len/(x*len+1.0)/30.0);}}return v;}}
+        double[] f = leaf("freq", 0, src, w), v = leafOutputR31(f.length,false);
         for (int t = 0; t < t(); t++) {
             int len = Math.min(w, t);
             for (int k = 0; k < 10; k++) { double x = f[t * 10 + k]; v[t * 10 + k] = Double.isNaN(x) ? Double.NaN : Math.min(1.0, len / (x * len + 1.0) / 30.0); }
@@ -353,22 +375,30 @@ public final class FeatureCacheR27 implements AutoCloseable {
      * (see {@link #extendFrom}); the last row of the dataset is never fed to the model, so a live placeholder row
      * cannot leak into any value. */
     double[] family(int tp, int index) {
+        return familyCopyR31(tp,index,null);
+    }
+    void familyIntoR31(int tp,int index,double[] target){if(target.length!=data.size()*10)throw new IllegalArgumentException("R31_FAMILY_OUTPUT_LENGTH");familyCopyR31(tp,index,target);}
+    private double[] familyCopyR31(int tp,int index,double[] target){
         FamilyStream st;
         synchronized (this) { st = streams.get(index); if (st == null) { st = new FamilyStream(index); streams.put(index, st); } }
+        st.beginUseR31();
+        try{
         double[] all;
         try { synchronized (st) { all = st.advance(data); } }
         catch (IllegalStateException prefixChanged) {
             // R30-B03-04: rows [0,fed) changed under a reused stream: rebuild the whole stream from this dataset and record it.
             if (!String.valueOf(prefixChanged.getMessage()).startsWith("R27_FAMILY_STREAM") && !String.valueOf(prefixChanged.getMessage()).startsWith("R30_FAMILY_PREFIX")) throw prefixChanged;
             FamilyStream fresh = new FamilyStream(index);
+            fresh.beginUseR31();st.closeForkOwnerR31();st.endUseR31();st=fresh;
             synchronized (this) { streams.put(index, fresh); }
             REBUILDS_R30.incrementAndGet();
             if (REBUILD_EVENTS_R30.size() < 256) REBUILD_EVENTS_R30.add(new Object[] {index, data.size() == 0 ? -1L : data.ordinals[data.size() - 1], String.valueOf(prefixChanged.getMessage()), System.currentTimeMillis()});
             synchronized (fresh) { all = fresh.advance(data); }
         }
-        int n = t(); double[] v = new double[n * 10];
+        int n = t(); double[] v = target==null?new double[n * 10]:target;
         for (int t = 0; t < n; t++) System.arraycopy(all, t * 100 + (tp - 1) * 10, v, t * 10, 10);
         return v;
+        }finally{st.endUseR31();}
     }
 
     private final Map<Integer, FamilyStream> streams = new java.util.HashMap<>();
@@ -388,6 +418,28 @@ public final class FeatureCacheR27 implements AutoCloseable {
         final float[][] p = new float[10][10]; final float[] st;
         FamilyStream(int index) { this.index = index; model = FamilyRegistryR26.build(String.format(java.util.Locale.ROOT, "F%02d", index)); st = new float[Math.max(1, model.stateWidth())]; }
         int[] lastFedDraw;
+        private final java.util.concurrent.atomic.AtomicInteger activeUsesR31=new java.util.concurrent.atomic.AtomicInteger();
+        private volatile boolean closingR31;
+        private MemoryBudgetR31 forkBudgetR31;private MemoryBudgetR31.Lease forkLeaseR31;private WeakReference<FamilyStream> forkReferenceR31;private int declaredMatrixRowsR31;
+        void beginUseR31(){if(closingR31)throw new java.util.concurrent.CancellationException("R31_FAMILY_OWNER_CLOSED");activeUsesR31.incrementAndGet();if(closingR31){endUseR31();throw new java.util.concurrent.CancellationException("R31_FAMILY_OWNER_CLOSED");}}
+        void endUseR31(){int remaining=activeUsesR31.decrementAndGet();if(remaining<0)throw new IllegalStateException("R31_FAMILY_OWNER_REFERENCE_COUNT");if(remaining==0&&closingR31)releaseForkLeaseR31();}
+        void closeForkOwnerR31(){closingR31=true;if(activeUsesR31.get()==0)releaseForkLeaseR31();}
+        private void releaseForkLeaseR31(){MemoryBudgetR31.Lease lease=forkLeaseR31;if(lease!=null){synchronized(FAMILY_FORK_LEASES_R31){FAMILY_FORK_LEASES_R31.remove(forkReferenceR31);}lease.close();}}
+        private static final class CountOutputR31 extends java.io.OutputStream {long bytes;@Override public void write(int value){bytes++;}@Override public void write(byte[] values,int offset,int length){bytes+=length;}}
+        private static long modelShapeR31(Object root){
+            java.util.IdentityHashMap<Object,Boolean> seen=new java.util.IdentityHashMap<>();java.util.ArrayDeque<Object> pending=new java.util.ArrayDeque<>();pending.add(root);long bytes=0;
+            try{while(!pending.isEmpty()){Object object=pending.removeFirst();if(seen.put(object,Boolean.TRUE)!=null)continue;if(seen.size()>200000)throw new IllegalStateException("R31_FAMILY_MODEL_SHAPE_BOUND");Class<?> type=object.getClass();if(type.isArray()){int length=java.lang.reflect.Array.getLength(object);Class<?> component=type.getComponentType();if(component.isPrimitive()){int width=component==double.class||component==long.class?8:component==int.class||component==float.class?4:component==short.class||component==char.class?2:1;bytes+=32L+(long)width*length;}else{bytes+=32L+8L*length;for(Object value:(Object[])object)if(value!=null)pending.add(value);}continue;}
+                if(object instanceof String){bytes+=64L+2L*((String)object).length();continue;}if(object instanceof Number||object instanceof Boolean||object instanceof Character||object instanceof Enum<?>){bytes+=64;continue;}if(object instanceof Map<?,?>){bytes+=128L+96L*((Map<?,?>)object).size();for(Map.Entry<?,?> e:((Map<?,?>)object).entrySet()){if(e.getKey()!=null)pending.add(e.getKey());if(e.getValue()!=null)pending.add(e.getValue());}continue;}if(object instanceof Collection<?>){bytes+=128L+32L*((Collection<?>)object).size();for(Object value:(Collection<?>)object)if(value!=null)pending.add(value);continue;}
+                if(type.getName().startsWith("java.")||type.getName().startsWith("android."))throw new IllegalStateException("R31_FAMILY_MODEL_SHAPE_UNSUPPORTED:"+type.getName());bytes+=64;for(Class<?> owner=type;owner!=null&&owner!=Object.class;owner=owner.getSuperclass())for(java.lang.reflect.Field field:owner.getDeclaredFields())if(!java.lang.reflect.Modifier.isStatic(field.getModifiers())){bytes+=8;if(!field.getType().isPrimitive()){field.setAccessible(true);Object value=field.get(object);if(value!=null)pending.add(value);}}
+            }return bytes;}catch(IllegalAccessException inaccessible){throw new IllegalStateException("R31_FAMILY_MODEL_SHAPE_INACCESSIBLE",inaccessible);}
+        }
+        FamilyStream forkR31(MemoryBudgetR31 memory){
+            beginUseR31();MemoryBudgetR31.Lease lease=null;boolean adopted=false;
+            try{synchronized(this){CountOutputR31 count=new CountOutputR31();model.write(new java.io.DataOutputStream(count));if(count.bytes>Integer.MAX_VALUE-8)throw new IllegalStateException("R31_FAMILY_FORK_CODEC_TOO_LARGE:F"+index);long estimate=8L*values.length+4L*st.length+400+2*count.bytes+2*modelShapeR31(model)+(64L<<10);MemoryBudgetR31.Admission admission=memory.tryAcquire("family-fork:F"+index,MemoryBudgetR31.Kind.MODEL,estimate,()->Thread.currentThread().isInterrupted());if(!admission.acquired())throw new MemoryBudgetR31.CapacityWait(admission.reason);lease=admission.lease;
+                java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream((int)count.bytes);model.write(new java.io.DataOutputStream(bytes));if(bytes.size()!=count.bytes)throw new java.io.IOException("R31_FAMILY_FORK_CODEC_LENGTH");FamilyStream copy=new FamilyStream(index);java.io.DataInputStream restored=new java.io.DataInputStream(new java.io.ByteArrayInputStream(bytes.toByteArray()));copy.model.read(restored);if(restored.available()!=0)throw new java.io.IOException("R31_FAMILY_FORK_CODEC_TRAILING");System.arraycopy(st,0,copy.st,0,st.length);for(int i=0;i<p.length;i++)System.arraycopy(p[i],0,copy.p[i],0,p[i].length);copy.fed=fed;copy.lastFedOrdinal=lastFedOrdinal;copy.lastFedDraw=lastFedDraw==null?null:lastFedDraw.clone();copy.values=values.clone();copy.checkedFed=checkedFed;copy.checkedHash=checkedHash;copy.verifiedData=null; // Revalidate the retained hash in the child instead of sharing a mutable dataset identity.
+                lease.allocatedPrimitiveArrayR31(copy.values);copy.forkBudgetR31=memory;copy.forkLeaseR31=lease;copy.declaredMatrixRowsR31=copy.values.length/100;copy.forkReferenceR31=new WeakReference<>(copy,FAMILY_FORK_QUEUE_R31);synchronized(FAMILY_FORK_LEASES_R31){if(FAMILY_FORK_LEASES_R31.size()>=4096)throw new MemoryBudgetR31.CapacityWait(MemoryBudgetR31.WaitReason.OWNER_LIMIT);FAMILY_FORK_LEASES_R31.put(copy.forkReferenceR31,lease);}adopted=true;return copy;
+            }}catch(java.io.IOException failure){throw new IllegalStateException("R31_FAMILY_FORK_CODEC:F"+index,failure);}finally{if(!adopted&&lease!=null)lease.close();endUseR31();}
+        }
         int checkedFed; long checkedHash; ReplayDatasetR27 verifiedData; // R30-B03-04: prefix [0,checkedFed) hash at the last 100-row checkpoint
         /** Values for every row of d: prediction at row t uses only rows &lt; t. Rows [0,fed) must be unchanged in d. */
         double[] advance(ReplayDatasetR27 d) {
@@ -402,7 +454,12 @@ public final class FeatureCacheR27 implements AutoCloseable {
             }
             int known = values.length / 100;
             if (known > n) throw new IllegalStateException("R27_FAMILY_STREAM_SHRUNK");
+            if (known == n) return values; // Existing prefix is already fully predicted; weights/cursors stay unchanged.
+            MemoryBudgetR31.Lease overlap=null;
+            if(forkLeaseR31!=null){if(n>declaredMatrixRowsR31){MemoryBudgetR31.Admission grow=forkLeaseR31.grow(800L*(n-declaredMatrixRowsR31));if(!grow.acquired())throw new MemoryBudgetR31.CapacityWait(grow.reason);declaredMatrixRowsR31=n;}MemoryBudgetR31.Admission transientCopy=forkBudgetR31.tryAcquire("family-matrix-copy:F"+index,MemoryBudgetR31.Kind.MODEL,128L+800L*n,()->Thread.currentThread().isInterrupted());if(!transientCopy.acquired())throw new MemoryBudgetR31.CapacityWait(transientCopy.reason);overlap=transientCopy.lease;}
+            try{
             double[] out = java.util.Arrays.copyOf(values, n * 100);
+            if(overlap!=null)overlap.allocatedPrimitiveArrayR31(out);
             for (int t = fed; t < n; t++) {
                 if (t >= known) {
                     if (t == 0) java.util.Arrays.fill(out, 0, 100, Double.NaN);
@@ -417,17 +474,21 @@ public final class FeatureCacheR27 implements AutoCloseable {
             values = out;
             if (fed >= checkedFed + PREFIX_CHECK_EVERY_R30) { checkedFed = fed; checkedHash = prefixHashR30(d, fed); verifiedData = d; }
             return out;
+            }finally{if(overlap!=null)overlap.close();}
         }
     }
 
     /** Reuses family streams of an older cache whose dataset is a prefix of this one (live incremental path). */
     public void extendFrom(FeatureCacheR27 older) {
-        synchronized (older) { for (Map.Entry<Integer, FamilyStream> e : older.streams.entrySet()) synchronized (this) { streams.put(e.getKey(), e.getValue()); } }
+        Map<Integer,FamilyStream> parents;synchronized(older){parents=new LinkedHashMap<>(older.streams);}synchronized(this){if(closedR31)throw new java.util.concurrent.CancellationException("R31_FEATURE_CACHE_CLOSED");if(!streams.isEmpty())throw new IllegalStateException("R31_FAMILY_CHILD_ALREADY_INITIALIZED");}
+        Map<Integer,FamilyStream> copies=new LinkedHashMap<>();boolean adopted=false;
+        try{for(Map.Entry<Integer,FamilyStream> e:parents.entrySet())copies.put(e.getKey(),e.getValue().forkR31(memory));synchronized(this){if(closedR31||!streams.isEmpty())throw new java.util.concurrent.CancellationException("R31_FAMILY_CHILD_CHANGED_DURING_COPY");streams.putAll(copies);adopted=true;}}
+        finally{if(!adopted)for(FamilyStream copy:copies.values())copy.closeForkOwnerR31();}
     }
 
     /** randu(seed): deterministic uniform noise per (t,n) — the I00 random-baseline input, trivially causal. */
     double[] randomUniform(int seed) {
-        int n = t(); double[] v = new double[n * 10];
+        int n = t(); double[] v = leafOutputR31(n*10,false);
         for (int t = 0; t < n; t++) for (int k = 0; k < 10; k++) {
             long z = (data.ordinals[t] * 0x9E3779B97F4A7C15L) ^ ((long) seed * 0xBF58476D1CE4E5B9L) ^ (k * 0x94D049BB133111EBL);
             z = (z ^ (z >>> 30)) * 0xBF58476D1CE4E5B9L; z = (z ^ (z >>> 27)) * 0x94D049BB133111EBL; z ^= z >>> 31;

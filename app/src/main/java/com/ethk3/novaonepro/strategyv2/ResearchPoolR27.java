@@ -80,7 +80,8 @@ public final class ResearchPoolR27 implements AutoCloseable {
     }
     private static final java.util.concurrent.ConcurrentHashMap<String,HelperWorkR31> HELPER_WORK_R31=new java.util.concurrent.ConcurrentHashMap<>();
     public static final long HELPER_DESCRIPTOR_BYTES_R31=512;
-    public static final long HELPER_REPLAY_WORKING_ESTIMATE_R31=RuntimeR27.DATASET_ROWS*10L*(3*Double.BYTES+4*Integer.BYTES);
+    // Primitive payload widths are fixed; BYTES fields require Android API24, while this app supports21.
+    public static final long HELPER_REPLAY_WORKING_ESTIMATE_R31=RuntimeR27.DATASET_ROWS*10L*(3*8L+4*4L);
     private static final java.util.Set<String> CANCELLED_HELPER_GROUPS_R31=java.util.concurrent.ConcurrentHashMap.newKeySet();
     private static String helperGroupR31(RuntimeCoordinatorR26.Claim claim){return claim.owner+"|"+claim.task+"|"+claim.fence;}
     static boolean helpersTerminatedR31(RuntimeCoordinatorR26.Claim claim){String group=helperGroupR31(claim);for(HelperWorkR31 work:HELPER_WORK_R31.values())if(group.equals(work.group))return false;return true;}

@@ -1,0 +1,14 @@
+package com.ethk3.novaonepro.strategyv2;
+
+import java.util.*;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+/** Guard semantics. No artificial clocks and no collector requested by any unit test here. */
+public final class R31OptionalHeapRecoveryTest {
+    @SuppressWarnings("unchecked") private static Map<String,Object> observation(MemoryBudgetR31 b){return (Map<String,Object>)b.snapshot().get("optionalHeapRecovery");}
+    @Test public void customProbeCannotRequestCollector(){MemoryBudgetR31 b=new MemoryBudgetR31(()->new MemoryBudgetR31.Measurement(7,"LABELED_CONTROLLED_FIXTURE",1_000_000,650_000,-1,-1,-1,null,System.nanoTime(),0),new MemoryBudgetR31.Config());assertEquals(MemoryBudgetR31.WaitReason.DECLARED_CAPACITY,b.tryAcquire("optional",MemoryBudgetR31.Kind.RESEARCH,100,()->false).reason);Map<String,Object> r=b.recoverAgedOptionalHeapR31("test-controller",()->true);assertFalse((Boolean)r.get("attempted"));assertEquals("REAL_RUNTIME_PROBE_REQUIRED",r.get("reason"));assertEquals(0L,observation(b).get("attemptCount"));}
+    @Test public void unsafeOrInterruptedWindowNeverRequestsCollector(){MemoryBudgetR31 b=MemoryBudgetR31.processBudget();assertEquals("UNSAFE_BACKGROUND_WINDOW",b.recoverAgedOptionalHeapR31("test-controller",()->false).get("reason"));Thread.currentThread().interrupt();try{assertEquals("CONTROL_THREAD_INTERRUPTED",b.recoverAgedOptionalHeapR31("test-controller",()->true).get("reason"));assertTrue(Thread.currentThread().isInterrupted());}finally{Thread.interrupted();}assertEquals(0L,observation(b).get("attemptCount"));}
+    @Test public void noDenialDoesNotRequestCollectionAndDecisionIsImmutable(){MemoryBudgetR31 b=new MemoryBudgetR31(new MemoryBudgetR31.RuntimeProbe(),new MemoryBudgetR31.Config());Map<String,Object> r=b.recoverAgedOptionalHeapR31("test-controller",()->true);assertEquals("NO_ACTIVE_OPTIONAL_DENIAL",r.get("reason"));assertFalse((Boolean)r.get("attempted"));assertTrue(((Map<?,?>)observation(b).get("lastActualAttempt")).isEmpty());try{r.put("attempted",true);fail();}catch(UnsupportedOperationException expected){}}
+    @Test public void pendingPromisesAndOrdinaryAdmissionNeverRequestCollector(){MemoryBudgetR31 b=new MemoryBudgetR31(new MemoryBudgetR31.RuntimeProbe(),new MemoryBudgetR31.Config());long available=((Number)b.snapshot().get("optionalUnallocatedHeadroomBytes")).longValue();MemoryBudgetR31.Admission owner=b.tryAcquire("test-live-promise",MemoryBudgetR31.Kind.RESEARCH,available-(4L<<20),()->false);assertTrue(owner.acquired());try{assertEquals(MemoryBudgetR31.WaitReason.DECLARED_CAPACITY,b.tryAcquire("test-refused",MemoryBudgetR31.Kind.RESEARCH,16L<<20,()->false).reason);Map<String,Object> r=b.recoverAgedOptionalHeapR31("test-controller",()->true);assertEquals("OPTIONAL_DENIAL_NOT_AGED",r.get("reason"));assertFalse((Boolean)r.get("attempted"));assertEquals(0L,observation(b).get("attemptCount"));assertFalse(owner.lease.isClosed());}finally{owner.lease.close();}}
+}

@@ -1,0 +1,32 @@
+JUnit version 4.13.2
+...............E............................
+Time: 3.729
+There was 1 failure:
+1) duplicatePublicationRaceReleasesEveryUnadoptedCloneDeclaration(com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest)
+java.util.concurrent.ExecutionException: java.lang.AssertionError: java.util.concurrent.BrokenBarrierException
+	at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+	at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+	at com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest.duplicatePublicationRaceReleasesEveryUnadoptedCloneDeclaration(R31SharedFeatureIntegrationTest.java:29)
+	... 32 trimmed
+Caused by: java.lang.AssertionError: java.util.concurrent.BrokenBarrierException
+	at com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest.lambda$duplicatePublicationRaceReleasesEveryUnadoptedCloneDeclaration$2(R31SharedFeatureIntegrationTest.java:27)
+	at com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.readProbe(MemoryBudgetR31.java:178)
+	at com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.acquireOnce(MemoryBudgetR31.java:93)
+	at com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.tryAcquire(MemoryBudgetR31.java:89)
+	at com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.tryAcquire(MemoryBudgetR31.java:86)
+	at com.ethk3.novaonepro.strategyv2.SharedFeatureStoreR31.publish(SharedFeatureStoreR31.java:108)
+	at com.ethk3.novaonepro.strategyv2.SharedFeatureStoreR31.publishDoubles(SharedFeatureStoreR31.java:66)
+	at com.ethk3.novaonepro.strategyv2.SharedFeatureStoreR31.publishDoubles(SharedFeatureStoreR31.java:65)
+	at com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest.lambda$duplicatePublicationRaceReleasesEveryUnadoptedCloneDeclaration$3(R31SharedFeatureIntegrationTest.java:29)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.util.concurrent.BrokenBarrierException
+	at java.base/java.util.concurrent.CyclicBarrier.dowait(CyclicBarrier.java:252)
+	at java.base/java.util.concurrent.CyclicBarrier.await(CyclicBarrier.java:437)
+	... 13 more
+
+FAILURES!!!
+Tests run: 43,  Failures: 1
+

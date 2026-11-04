@@ -95,8 +95,28 @@ def summary():
               'mandatory_closed_cards': counts['DEVICE_PASS'],
               'mandatory_completion_rate': counts['DEVICE_PASS'] / total,
               'device': data['device'], 'natural_quality': data['natural_quality']}
+    current_path = DEST / 'CURRENT_EXECUTION.json'
+    current = json.loads(current_path.read_text()) if current_path.exists() else {}
+    batches = sorted({card['id'].split('-')[1] for card in data['cards']})
+    started = [card for card in data['cards'] if card['status'] != 'NOT_STARTED']
+    result.update(recorded_at=now(), plan_batches=len(batches),
+                  started_cards=len(started), started_is_not_completed=True,
+                  batches_touched=sorted({card['id'].split('-')[1] for card in started}),
+                  current_phase=current.get('current_phase', 'UNKNOWN'),
+                  current_phase_ordinal=current.get('current_phase_ordinal'),
+                  current_scope=current.get('current_scope', []),
+                  latest_pushed_checkpoint=current.get('latest_pushed_source'),
+                  phases={phase: {'cards': sum(c['phase'] == phase for c in data['cards']),
+                                  'states': {state: sum(c['phase'] == phase and c['status'] == state
+                                                       for c in data['cards']) for state in STATES}}
+                          for phase in sorted({c['phase'] for c in data['cards']})})
     print(json.dumps(result, ensure_ascii=False, indent=2))
     (DEST / 'SUMMARY.json').write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
+    progress = dict(result, latest_full_unit=current.get('latest_full_unit'),
+                    apk_delivery=current.get('apk_delivery'),
+                    android_emulator=current.get('android_emulator'),
+                    current_failures=current.get('current_failures', []))
+    (DEST / 'PROGRESS.json').write_text(json.dumps(progress, ensure_ascii=False, indent=2) + '\n')
 
 
 if __name__ == '__main__':

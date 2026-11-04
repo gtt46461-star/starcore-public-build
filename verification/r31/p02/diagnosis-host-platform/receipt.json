@@ -1,0 +1,101 @@
+{
+  "format": "R31_DIAGNOSIS_HOST_PLATFORM_FIX_V1",
+  "recordedAtUtc": "2026-11-04T14:49:02.403568+00:00",
+  "sourceHeadAtReview": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+  "status": "TARGETED_HOST_PASS",
+  "modifiedSourceFiles": {
+    "tools/r30-repair/run_diagnosis_host.py": "fcc7a8be07fc6eb07333d1bc3185912afe7bff6f1d928cfda8a1993e4b7bb122"
+  },
+  "previousRunnerSha256": "106096de05dc90defaffb91b68c836d2942776f570be147067b00c8ee65622b3",
+  "productionSourceChanges": [],
+  "androidTestSourceChanges": [],
+  "originalTestUnchanged": {
+    "path": "tools/r30-repair/qual_host/DiagnosisReportR30R1HostTest.java",
+    "sha256": "4f4e09d3d27aeb28d395d0f05c4ac8bb61e6f0d223fa192c64efd741de8ff761",
+    "baselineBytesEqual2ab": true
+  },
+  "sharedSqliteAdaptersUnchanged": {
+    "tools/r29/qual_host/shim/android/database/Cursor.java": "98dc66b94e18cd85d2f270a111392896b4ed5d11d2d1d7947baed2e340f040f4",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java": "556b5d762c449fee0f7b31b14d4203f1b4973d565a75a74bdd9ea95b425e0001",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabaseLockedException.java": "e17afce73f98be731b31a7d19f895a6df48c90b4f12362a1b5e5b463566a74c9",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java": "878df09b56099f50a5cd75f2d94a9c0f11d1b49ce9c3cc36e5c66101b47c4b88"
+  },
+  "fixedSupport": {
+    "path": "/tmp/r31-diagnosis-2ab-support/classes",
+    "classFiles": 4397,
+    "treeSha256": "f92a5a7490fb013ba5a00c280d8735980dd568186a350ec6686580de1351ecaa",
+    "localGeneratedBuildConfigSourceCommit": "e056206af83a8fc094b81d97f67a1310b8cc2e46",
+    "committedProductionSourceDiff_e056_to_2ab": "EMPTY_FOR_app/src/main_AND_app/build.gradle",
+    "ci7ArtifactByteIdentity": "NOT_ASSERTED; local compiled support snapshot is explicit, not downloaded CI7 classes",
+    "supportManifest": "fixed-support-manifest.json"
+  },
+  "failure": {
+    "reproduced": true,
+    "originalExitCode": 1,
+    "reported": "RuntimeException:Stub! from actual production ReportSnapshot capture",
+    "exactThrowStack": [
+      "android.os.Process.myPid(Process.java:61)",
+      "RuntimeCoordinatorR26.activeHealthObservationR31:143",
+      "ReportSnapshotR30.capture:90",
+      "DiagnosisReportR30R1HostTest.main:36"
+    ],
+    "originalLog": "original-failure.log",
+    "exactStack": "exact-stub-stacks.txt",
+    "throwSiteMethod": "JFR jdk.JavaExceptionThrow with caught exception stack; no production code changes"
+  },
+  "fix": {
+    "platformAdapter": "Generated in runner temporary directory only: android.os.Process.myPid",
+    "mapping": "JDK ProcessHandle.current().pid(), verified positive and within Android int PID range; invalid range fails explicitly",
+    "unchangedMeasurements": "Unmodified production RuntimeProbe measures JVM Runtime heap and actual HOST /proc PSS/RSS; non-ART nativeAllocatedBytes=-1 and absent runtime-owner researchHealth=UNKNOWN stay explicit",
+    "notAdded": [
+      "No fabricated Android heap/native/PSS values",
+      "No SystemClock/Debug/Log catch-all success shim",
+      "No changes to production SQL or report error handling",
+      "No skipped or weakened assertions"
+    ],
+    "classpathOverride": "R30_DIAGNOSIS_CLASSES optionally binds an already compiled immutable complete class directory/JAR"
+  },
+  "verification": {
+    "command": "source /workspace/starcore-environment/activate.sh; R30_DIAGNOSIS_CLASSES=/tmp/r31-diagnosis-2ab-support/classes SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_diagnosis_host.py",
+    "exitCode": 0,
+    "log": "fixed-targeted.log",
+    "originalAssertionsRetained": [
+      "16 legacy diagnostic reports byte-identical",
+      "Six actual failure stages with bounded cause-chain and redacted synthetic messages",
+      "Native SQLite corrupted-header classification and read-only behavior",
+      "Actual production ReportSnapshot SELECT errors empty",
+      "Actual draw count1 and original duplicate REAL issue count1",
+      "Full matrix denominator2 and exact original latest hash",
+      "Actual44 metric objects and12 chapters",
+      "query_only=ON; SQL total_changes and sqlite_master count unchanged"
+    ],
+    "otherNativeScriptsRerun": 0
+  },
+  "recordingPrivacy": {
+    "rawJfrPublished": false,
+    "rawJfrIncludedInDeliveryZip": false,
+    "artifacts": [
+      {
+        "artifact": "original-exception-throws.jfr",
+        "localOnlyPath": "/tmp/r31-diagnosis-2ab-support/original-exception-throws.jfr",
+        "sha256": "21800dc75530d1d8a2068b0add0d843373f74f0a5aeaebf72cb825cd32f4c03e",
+        "published": false
+      },
+      {
+        "artifact": "original-exception-stacks.txt",
+        "localOnlyPath": "/tmp/r31-diagnosis-2ab-support/original-exception-stacks.txt",
+        "sha256": "bdb7c75e891ebfe572c4f3c504299da0ef4e20253cd0a56d8c17c727a621617f",
+        "published": false
+      }
+    ],
+    "publishedEvidence": "Only exact-stub-stacks.txt contains the selected exception stack; no environment or system-property recording is published."
+  },
+  "physicalDevice": "NOT_RUN",
+  "continuous24h": "NOT_RUN",
+  "continuous72h": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED",
+  "remaining": [
+    "Root final compiled identity refresh/commit and CI replay with its fresh complete app classes",
+    "Android API29/API35 instrumentation and physical-device evidence are separate; this host shim does not establish either."
+  ]
+}

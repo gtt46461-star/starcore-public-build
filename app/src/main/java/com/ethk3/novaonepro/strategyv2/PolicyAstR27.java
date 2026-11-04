@@ -165,22 +165,23 @@ public final class PolicyAstR27 {
         static ScopedScoresR31 legacy(double[] values){return new ScopedScoresR31(values);}
         @Override public void close(){if(!closed){closed=true;values=null;if(shared!=null){shared.close();shared=null;}if(pool!=null){pool.release(block);pool=null;block=null;}}}
     }
-    private static final class ScratchBlockR31 {final double[] values;final MemoryBudgetR31.Lease lease;final long bytes;boolean busy=true;ScratchBlockR31(double[] values,MemoryBudgetR31.Lease lease,long bytes){this.values=values;this.lease=lease;this.bytes=bytes;}}
+    private static final class ScratchBlockR31 {final double[] values;final MemoryBudgetR31.Lease lease;final SharedFeatureStoreR31.PrivateWorkingR31 shared;final long bytes;boolean busy=true;ScratchBlockR31(double[] values,MemoryBudgetR31.Lease lease,SharedFeatureStoreR31.PrivateWorkingR31 shared,long bytes){this.values=values;this.lease=lease;this.shared=shared;this.bytes=bytes;}void close(){if(shared!=null)shared.close();else lease.close();}}
     /** Each busy block has exactly one scope. Idle blocks are reconstructible and pressure-trimmable. */
     static final class ScratchPoolR31 implements AutoCloseable {
-        private final MemoryBudgetR31 memory;private final int length;private final long capacity;private final java.util.List<ScratchBlockR31> blocks=new java.util.ArrayList<>();private long bytes,pending,allocations,reuses;private boolean closed;
-        ScratchPoolR31(MemoryBudgetR31 memory,int length){this.memory=memory;this.length=length;capacity=Math.max(128,Math.min(16L<<20,((Number)memory.snapshot().get("maxHeapBytes")).longValue()/32));}
+        private final MemoryBudgetR31 memory;private final SharedFeatureStoreR31 shared;private final int length;private final long capacity;private final java.util.List<ScratchBlockR31> blocks=new java.util.ArrayList<>();private long bytes,pending,allocations,reuses;private boolean closed;
+        ScratchPoolR31(MemoryBudgetR31 memory,int length){this(memory,length,null);}
+        ScratchPoolR31(MemoryBudgetR31 memory,int length,SharedFeatureStoreR31 shared){this.memory=memory;this.shared=shared;this.length=length;capacity=Math.max(128,Math.min(16L<<20,((Number)memory.snapshot().get("maxHeapBytes")).longValue()/32));}
         ScopedScoresR31 borrow(){return borrow(false);}
         ScopedScoresR31 borrow(boolean critical){
             CooperativeContinuationR26.poll();long needed=128L+8L*length;
             synchronized(this){if(closed)throw new java.util.concurrent.CancellationException("R31_AST_SCRATCH_CLOSED");for(ScratchBlockR31 b:blocks)if(!b.busy){b.busy=true;reuses++;return new ScopedScoresR31(this,b);}if(needed>capacity-bytes-pending)throw new MemoryBudgetR31.CapacityWait(MemoryBudgetR31.WaitReason.DECLARED_CAPACITY);pending+=needed;}
-            MemoryBudgetR31.Lease lease=null;boolean adopted=false;
-            try{MemoryBudgetR31.Admission admission=memory.tryAcquire("ast-private-scratch",critical?MemoryBudgetR31.Kind.REALTIME:MemoryBudgetR31.Kind.FEATURE_CACHE,needed,()->Thread.currentThread().isInterrupted());if(!admission.acquired())throw new MemoryBudgetR31.CapacityWait(admission.reason);lease=admission.lease;double[] array=new double[length];lease.allocatedPrimitiveArrayR31(array);lease.closeWhenPrivateBackingCollectedR31(array);ScratchBlockR31 block=new ScratchBlockR31(array,lease,needed);
-                synchronized(this){if(closed)throw new java.util.concurrent.CancellationException("R31_AST_SCRATCH_CLOSED");blocks.add(block);bytes+=needed;allocations++;adopted=true;return new ScopedScoresR31(this,block);}
-            }finally{ synchronized(this){pending-=needed;}if(!adopted&&lease!=null)lease.close();}
+            MemoryBudgetR31.Lease lease=null;SharedFeatureStoreR31.PrivateWorkingR31 working=null;boolean adopted=false;
+            try{double[] array;if(shared!=null){working=shared.borrowPrivateWorkingR31("ast-private-scratch",length,()->Thread.currentThread().isInterrupted(),critical);array=working.exclusiveValuesR31();}else{MemoryBudgetR31.Admission admission=memory.tryAcquire("ast-private-scratch",critical?MemoryBudgetR31.Kind.REALTIME:MemoryBudgetR31.Kind.FEATURE_CACHE,needed,()->Thread.currentThread().isInterrupted());if(!admission.acquired())throw new MemoryBudgetR31.CapacityWait(admission.reason);lease=admission.lease;array=new double[length];lease.allocatedPrimitiveArrayR31(array);lease.closeWhenPrivateBackingCollectedR31(array);}ScratchBlockR31 block=new ScratchBlockR31(array,lease,working,needed);
+                synchronized(this){if(closed)throw new java.util.concurrent.CancellationException("R31_AST_SCRATCH_CLOSED");blocks.add(block);bytes+=needed;if(working==null||working.allocatedBackingR31())allocations++;else reuses++;adopted=true;return new ScopedScoresR31(this,block);}
+            }finally{ synchronized(this){pending-=needed;}if(!adopted){if(working!=null)working.close();else if(lease!=null)lease.close();}}
         }
-        synchronized void release(ScratchBlockR31 block){if(!block.busy)throw new IllegalStateException("R31_AST_SCRATCH_DOUBLE_RELEASE");block.busy=false;if(closed){blocks.remove(block);bytes-=block.bytes;block.lease.close();}}
-        synchronized void trimUnused(){java.util.Iterator<ScratchBlockR31> iterator=blocks.iterator();while(iterator.hasNext()){ScratchBlockR31 b=iterator.next();if(!b.busy){iterator.remove();bytes-=b.bytes;b.lease.close();}}}
+        synchronized void release(ScratchBlockR31 block){if(!block.busy)throw new IllegalStateException("R31_AST_SCRATCH_DOUBLE_RELEASE");block.busy=false;if(closed||block.shared!=null){blocks.remove(block);bytes-=block.bytes;block.close();}}
+        synchronized void trimUnused(){java.util.Iterator<ScratchBlockR31> iterator=blocks.iterator();while(iterator.hasNext()){ScratchBlockR31 b=iterator.next();if(!b.busy){iterator.remove();bytes-=b.bytes;b.close();}}}
         synchronized Map<String,Object> snapshot(){Map<String,Object> out=new java.util.LinkedHashMap<>();int active=0;for(ScratchBlockR31 b:blocks)if(b.busy)active++;out.put("estimatedRetainedBytes",bytes);out.put("pendingAllocationBytes",pending);out.put("byteCapacity",capacity);out.put("blocks",blocks.size());out.put("busyBlocks",active);out.put("allocations",allocations);out.put("reuses",reuses);out.put("actualHeapReleasedBytes",null);return out;}
         @Override public synchronized void close(){closed=true;trimUnused();}
     }
@@ -193,6 +194,7 @@ public final class PolicyAstR27 {
         try{
             if(LEAVES.containsKey(n.op)){
                 int a=n.ints.length>0?n.ints[0]:0,b=n.ints.length>1?n.ints[1]:0;if(n.op.equals("regime")){b=a;a=0;}
+                if(n.op.equals("family")){result=f.scratchPoolR31().borrow(critical);f.familyIntoR31(tp,a,result.values);complete=true;return result;}
                 SharedFeatureStoreR31.Reader reader=f.acquireLeafR31(n.op,tp,a,b,critical);result=reader==null?ScopedScoresR31.legacy(f.leafWithPriorityR31(n.op,tp,a,b,critical)):new ScopedScoresR31(reader);
                 if(n.modelPositions!=0){ScopedScoresR31 copy=f.scratchPoolR31().borrow(critical);System.arraycopy(result.values,0,copy.values,0,copy.values.length);result.close();result=copy;}
             }else{

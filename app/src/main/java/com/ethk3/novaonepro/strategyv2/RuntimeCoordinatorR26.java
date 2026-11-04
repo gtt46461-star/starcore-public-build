@@ -20,6 +20,8 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     private volatile RuntimePowerLeaseR26 powerLease;
     private final MemoryBudgetR31 memoryBudgetR31=MemoryBudgetR31.processBudget();
     private volatile java.util.Map<String,Object> memoryObservationR31=java.util.Collections.emptyMap();
+    private volatile java.util.Map<String,Object> memoryRecoveryDecisionR31=java.util.Collections.emptyMap();
+    private volatile java.util.Map<String,Object> memoryRecoveryAttemptR31=java.util.Collections.emptyMap();
     private volatile MemoryControlStateR31 memoryControlR31;
     private volatile long memoryTrimRequestsR31;private volatile String memoryTrimFailureR31;
     private volatile long memoryPressureSinceR31;private long lastOwnerHealthRequestR31,nextMemoryTrimR31;
@@ -89,7 +91,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             optionalRecoveryElapsedMs=optionalAdmissionRecovered?elapsed:previous==null?0:previous.optionalRecoveryElapsedMs;
             String failure=memory.get("sampleFailure") instanceof String?(String)memory.get("sampleFailure"):"";
             reason=!failure.isEmpty()?"MEMORY_MEASUREMENT_UNAVAILABLE":"EMERGENCY".equals(heapPressure)?"MEMORY_EMERGENCY_WATERMARK":"SOFT".equals(heapPressure)?"MEMORY_HEAP_WATERMARK_LIMITED":!optionalObservationKnown?"MEMORY_OPTIONAL_ADMISSION_OBSERVATION_UNKNOWN":optionalLimited?(optionalOverTwoMinutes?"OPTIONAL_MEMORY_ADMISSION_OVER_TWO_MINUTES:":"OPTIONAL_MEMORY_ADMISSION_LIMITED:")+optionalAdmissionStatus:"NORMAL".equals(heapPressure)?"NO_CURRENT_MEMORY_CONSTRAINT":"MEMORY_OBSERVATION_UNKNOWN";
-            java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();out.put("heapPressure",heapPressure);out.put("optionalAdmissionStatus",optionalAdmissionStatus);out.put("optionalAdmissionObservationKnown",optionalObservationKnown);out.put("optionalWaitEvidence",optionalWaitEvidence);out.put("reason",reason);out.put("limitResearchParallelism",limitParallelism);out.put("optionalCapacityExhausted",optionalCapacityExhausted);out.put("recentActualOptionalDenial",recentOptionalDenial);out.put("heapWatermarkPressureAgeMs",heapAgeMs);out.put("heapWatermarkPressureOverTwoMinutes",heapOverTwoMinutes);out.put("optionalAdmissionCapacityAgeMs",optionalCapacityAgeMs);out.put("optionalAdmissionConstraintOverTwoMinutes",optionalOverTwoMinutes);out.put("lastActualDenialAgeMs",lastDenialAgeMs);out.put("actualDenialCapacityEpisodeAgeMs",actualDenialEpisodeAgeMs);out.put("memoryConstraintAgeMs",constraintAgeMs);out.put("memoryConstraintOverTwoMinutes",constraintOverTwoMinutes);out.put("optionalAdmissionRecoveredOnThisObservation",optionalAdmissionRecovered);out.put("lastOptionalAdmissionRecoveryElapsedMs",optionalRecoveryElapsedMs);out.put("recoveryEvidence","CURRENT_MEASURED_ADMISSION_RECHECK_ONLY_NOT_HEAP_RELEASE_OR_MODEL_PROGRESS");out.put("heapReleaseEvidence","NOT_ESTABLISHED_BY_ADMISSION_CONTROL");out.put("sampleElapsedMs",elapsed);out.put("sampleProcessNanos",processNanos);out.put("ageClocks","CONTROLLER_AGES=BOOT_ELAPSED_MS; DENIAL_EPISODE=PROCESS_MONOTONIC_NS; ONLY_DURATIONS_COMBINED");out.put("resumeCondition","Current denied request fits measured admission/headroom; heap latch separately follows <=0.60 and OS lowMemory != true");out.put("actionPolicy","ONE_RESEARCH_WORKER_AND_EXISTING_100MS_QUANTA; BOUNDED_CACHE_TRIM; NO_FORCED_GC_NO_TASK_REVOKE_NO_REALTIME_STOP");data=java.util.Collections.unmodifiableMap(out);
+            java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();out.put("heapPressure",heapPressure);out.put("optionalAdmissionStatus",optionalAdmissionStatus);out.put("optionalAdmissionObservationKnown",optionalObservationKnown);out.put("optionalWaitEvidence",optionalWaitEvidence);out.put("reason",reason);out.put("limitResearchParallelism",limitParallelism);out.put("optionalCapacityExhausted",optionalCapacityExhausted);out.put("recentActualOptionalDenial",recentOptionalDenial);out.put("heapWatermarkPressureAgeMs",heapAgeMs);out.put("heapWatermarkPressureOverTwoMinutes",heapOverTwoMinutes);out.put("optionalAdmissionCapacityAgeMs",optionalCapacityAgeMs);out.put("optionalAdmissionConstraintOverTwoMinutes",optionalOverTwoMinutes);out.put("lastActualDenialAgeMs",lastDenialAgeMs);out.put("actualDenialCapacityEpisodeAgeMs",actualDenialEpisodeAgeMs);out.put("memoryConstraintAgeMs",constraintAgeMs);out.put("memoryConstraintOverTwoMinutes",constraintOverTwoMinutes);out.put("optionalAdmissionRecoveredOnThisObservation",optionalAdmissionRecovered);out.put("lastOptionalAdmissionRecoveryElapsedMs",optionalRecoveryElapsedMs);out.put("recoveryEvidence","CURRENT_MEASURED_ADMISSION_RECHECK_ONLY_NOT_HEAP_RELEASE_OR_MODEL_PROGRESS");out.put("heapReleaseEvidence","NOT_ESTABLISHED_BY_ADMISSION_CONTROL");out.put("sampleElapsedMs",elapsed);out.put("sampleProcessNanos",processNanos);out.put("ageClocks","CONTROLLER_AGES=BOOT_ELAPSED_MS; DENIAL_EPISODE=PROCESS_MONOTONIC_NS; ONLY_DURATIONS_COMBINED");out.put("resumeCondition","Current denied request fits measured admission/headroom; heap latch separately follows <=0.60 and OS lowMemory != true");out.put("actionPolicy","ONE_RESEARCH_WORKER_AND_EXISTING_100MS_QUANTA; BOUNDED_CACHE_TRIM; CONTROLLED_COLLECTOR_REQUEST_ONLY_AFTER_REAL120S_OPTIONAL_HEAP_WAIT; NO_TASK_REVOKE_NO_REALTIME_STOP");data=java.util.Collections.unmodifiableMap(out);
         }
         public static MemoryControlStateR31 observe(java.util.Map<String,Object> memory,long elapsedMs,long processNanos,MemoryControlStateR31 previous){return new MemoryControlStateR31(memory,elapsedMs,processNanos,previous);}
         public java.util.Map<String,Object> asMap(){return data;}
@@ -101,8 +103,31 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         java.util.Map<String,Object> sample=memoryBudgetR31.sample();
         MemoryControlStateR31 control=MemoryControlStateR31.observe(sample,elapsedMs,System.nanoTime(),memoryControlR31);memoryControlR31=control;
         memoryPressureSinceR31=control.constraintSinceElapsedMs;
-        java.util.Map<String,Object> observed=new java.util.LinkedHashMap<>(sample);observed.put("runtimeMemoryControl",control.asMap());memoryObservationR31=java.util.Collections.unmodifiableMap(observed);
+        java.util.Map<String,Object> observed=new java.util.LinkedHashMap<>(sample);observed.put("runtimeMemoryControl",control.asMap());
+        java.util.Map<String,Object> recovery=new java.util.LinkedHashMap<>();
+        recovery.put("lastDecision",memoryRecoveryDecisionR31==null?java.util.Collections.emptyMap():memoryRecoveryDecisionR31);
+        recovery.put("lastActualAttempt",memoryRecoveryAttemptR31==null?java.util.Collections.emptyMap():memoryRecoveryAttemptR31);
+        recovery.put("evidence","COLLECTOR_REQUEST_AND_ACTUAL_MEASUREMENTS_ONLY; NOT_TASK_PROGRESS_OR_GUARANTEED_HEAP_RELEASE");
+        observed.put("runtimeMemoryRecovery",java.util.Collections.unmodifiableMap(recovery));memoryObservationR31=java.util.Collections.unmodifiableMap(observed);
         return control;
+    }
+    /** Only the background control loop invokes recovery, after a real two-minute wait.
+     * Admission, REALTIME work and the numerical evaluator never request collection. */
+    MemoryControlStateR31 recoverOverdueMemoryR31(MemoryControlStateR31 control){
+        if(!control.optionalOverTwoMinutes)return control;
+        try{
+            java.util.Map<String,Object> result=memoryBudgetR31.recoverAgedOptionalHeapR31(owner,
+                    ()->!cancelled&&!Thread.currentThread().isInterrupted()&&WRITING_CLAIM.get()==null
+                            &&!SettlementExecutionGateR819.isActive()&&!store.readable().inTransaction());
+            memoryRecoveryDecisionR31=result;
+            if(Boolean.TRUE.equals(result.get("attempted")))memoryRecoveryAttemptR31=result;
+        }catch(RuntimeException failed){
+            Error fatal=FailureDispositionR31.processFatalCause(failed);if(fatal!=null)throw fatal;
+            java.util.Map<String,Object> result=new java.util.LinkedHashMap<>();result.put("attempted",false);
+            result.put("outcome","CONTROL_RECOVERY_FAILED");result.put("reason",RuntimeFaultEvidenceR31.clean(failed.getClass().getSimpleName()+":"+failed.getMessage(),192));
+            memoryRecoveryDecisionR31=java.util.Collections.unmodifiableMap(result);
+        }
+        return sampleMemoryControlR31(SystemClock.elapsedRealtime());
     }
     private void resources(){
         long mono=SystemClock.elapsedRealtime();if(mono-resourceChecked<1000)return;resourceChecked=mono;String reason=null;
@@ -123,8 +148,9 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         thermalR29.update(thermalStatus,thermalHeadroomR29,mono);
         if(systemLowMemory!=null)memoryBudgetR31.observeSystemLowMemory(systemLowMemory);
         MemoryControlStateR31 memoryControl=sampleMemoryControlR31(mono);java.util.Map<String,Object> memory=memoryObservationR31;
-        String pressure=memoryControl.heapPressure;
         if(memoryControl.limitParallelism&&mono>=nextMemoryTrimR31){memoryTrimRequestsR31++;try{FeatureCacheR27.trimRegisteredCachesR31();memoryTrimFailureR31=null;}catch(RuntimeException failed){Error fatal=FailureDispositionR31.processFatalCause(failed);if(fatal!=null)throw fatal;memoryTrimFailureR31=RuntimeFaultEvidenceR31.clean(failed.getClass().getSimpleName()+":"+failed.getMessage(),192);}nextMemoryTrimR31=mono+30_000;}
+        memoryControl=recoverOverdueMemoryR31(memoryControl);memory=memoryObservationR31;
+        String pressure=memoryControl.heapPressure;
         int memoryWorkers=memory.get("recommendedParallelism") instanceof Number?((Number)memory.get("recommendedParallelism")).intValue():1;
         if(memoryControl.limitParallelism)memoryWorkers=Math.min(memoryWorkers,1);
         RuntimeR27 runtime=r27;if(runtime!=null){runtime.pool().setThermalLimit(Math.min(thermalR29.workers,memoryWorkers),thermalR29.reason+"|MEMORY:"+memoryControl.reason);runtime.pool().setMemoryPressureR31(memoryControl.limitParallelism);}
@@ -239,6 +265,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     @SuppressWarnings("unchecked") private static java.util.Map<String,Object> memoryControlFactsR31(java.util.Map<String,Object> memory){Object facts=memory.get("runtimeMemoryControl");return facts instanceof java.util.Map?(java.util.Map<String,Object>)facts:java.util.Collections.emptyMap();}
     private void appendMemoryControlFactsR31(java.util.Map<String,Object> control,java.util.Map<String,Object> memory){
         java.util.Map<String,Object> facts=memoryControlFactsR31(memory);control.put("memoryControl",facts);
+        control.put("memoryRecovery",memory.getOrDefault("runtimeMemoryRecovery",java.util.Collections.emptyMap()));
         control.put("memoryPressureAgeMs",facts.getOrDefault("memoryConstraintAgeMs",0L));control.put("memoryPressureOverTwoMinutes",facts.getOrDefault("memoryConstraintOverTwoMinutes",false));control.put("memoryPressureScope","ANY_OBSERVED_HEAP_WATERMARK_OR_OPTIONAL_ADMISSION_CONSTRAINT_NOT_HEAP_RELEASE");
         control.put("memoryCacheTrimRequests",memoryTrimRequestsR31);control.put("memoryCacheTrimFailure",memoryTrimFailureR31);control.put("memoryTrimReleaseEvidence","REFERENCE_TRIM_REQUEST_ONLY_NOT_MEASURED_HEAP_RELEASE");
     }
@@ -315,7 +342,13 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         try(Cursor row=db.rawQuery("SELECT fence,cursor,owner,status FROM r26_task WHERE task_id=?",new String[]{task})){if(!row.moveToFirst())return null;fence=row.getLong(0);cursor=row.getLong(1);beforeOwner=row.getString(2);status=row.getString(3);}
         if(!java.util.Arrays.asList("READY","YIELDED","BLOCKED","RUNNING").contains(status))return null;
         long until=0,next=0;String leaseBoot="";
-        try(Cursor lease=db.rawQuery("SELECT boot_id,deadline_elapsed_ms,next_elapsed_ms FROM r31_task_lease WHERE task_id=? AND owner_epoch IS ? AND fence=?",new String[]{task,beforeOwner,String.valueOf(fence)})){if(lease.moveToFirst()){leaseBoot=lease.getString(0);until=lease.getLong(1);next=lease.getLong(2);}}
+        // Android rawQuery binds each selectionArg with bindString, which rejects null.
+        // A freshly registered task intentionally has no owner; keep that SQL NULL
+        // distinct from both an empty owner and the literal string "null".
+        String leaseOwnerPredicate=beforeOwner==null?"owner_epoch IS NULL":"owner_epoch IS ?";
+        String[] leaseArgs=beforeOwner==null?new String[]{task,String.valueOf(fence)}:
+                new String[]{task,beforeOwner,String.valueOf(fence)};
+        try(Cursor lease=db.rawQuery("SELECT boot_id,deadline_elapsed_ms,next_elapsed_ms FROM r31_task_lease WHERE task_id=? AND "+leaseOwnerPredicate+" AND fence=?",leaseArgs)){if(lease.moveToFirst()){leaseBoot=lease.getString(0);until=lease.getLong(1);next=lease.getLong(2);}}
         if(prepared!=null){
             if(!owner.equals(beforeOwner)||prepared.fence!=fence||!boot.equals(leaseBoot)||until<=mono)throw new IllegalStateException("R31_STALE_PREPARED_LEASE");
         }else if(boot.equals(leaseBoot)&&(until>mono||next>mono))return null;

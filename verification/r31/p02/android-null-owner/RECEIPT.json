@@ -1,0 +1,35 @@
+{
+  "scope": "ACTUAL_NATIVE_SQLITE_PRODUCTION_TASK_PROTOCOL_WITH_ANDROID_STRING_BINDING_PARITY_NOT_ANDROID_RERUN",
+  "observed_at": "2026-11-04T15:50:00.944708+00:00",
+  "baseline_failure_source": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+  "original_android_failure": "verification/r31/p02/delivery_2ab/protocol-failures/RECEIPT.json",
+  "negative_control": {
+    "result": "EXPECTED_FAILURE_REPRODUCED",
+    "command": "R31_RUNTIME_NEGATIVE_CONTROL_COMMIT=2ab54e2b3ad1772b560a15404f0421084d10c5c1 python3 tools/r31/run_task_runtime_host.py",
+    "error": "IllegalArgumentException: the bind value at index 2 is null",
+    "test_oracle": "Original production first claim; HOST rawQuery now matches Android bindString rejection"
+  },
+  "fixed": {
+    "result": "PASS_NATIVE_HOST_ONLY",
+    "assertions": 211,
+    "evidence": "native-task-after-fix/receipt.json",
+    "command": "R31_RUNTIME_OUTPUT=verification/r31/p02/android-null-owner/native-task-after-fix python3 tools/r31/run_task_runtime_host.py",
+    "change": "Use owner_epoch IS NULL without a null selectionArg; preserve non-null IS ? and original owner/fence/boot/elapsed CAS semantics"
+  },
+  "android_rerun": "NOT_RUN_PENDING_EXACT_SOURCE_APK",
+  "physical_device": "NOT_RUN",
+  "24h": "NOT_RUN",
+  "72h": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN",
+  "sources": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java": "013f22fa65c2d88796a2dc0c123986f0c059777f79cd1ffeed679e64b348756b",
+    "app/src/androidTest/java/com/ethk3/novaonepro/R31OwnerFenceProtocolInstrumentedTest.java": "bd5c9f0e41d894a9a19309bcc34ff60c0dbd3eab5d9770e8c634c05ad1c48d2a",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java": "80a2bed95c2e382a461d0e363749510c12b0ceafefd152b6f227009199719ad0",
+    "tools/r31/host/R31TaskRuntimeHost.java": "88127d94d1ffbf1fb1b27994ba54873b1b3019a15674d7f3121af41ab4ab83bf",
+    "tools/r31/run_task_runtime_host.py": "99bcf1715bc6e31c64b4750e6f34ee3033d5a2437486e1e91ccbe3f5cfcdbade"
+  },
+  "logs": {
+    "original-2ab-negative-control.log": "5b075d604cb06f4b59f4d9c84eddb197eb2dac0489ec8796ce211e3822b906d1",
+    "fixed-production-native.log": "449195e9cf5dfcd6abeb5c8748fe2210f8b2300e458e210b170a61124ce36d7b"
+  }
+}

@@ -14,7 +14,7 @@ CLASSES = ROOT / "app/build/intermediates/javac/debug/compileDebugJavaWithJavac/
 SDK = Path(os.environ["ANDROID_HOME"]) / "platforms/android-36/android.jar"
 JDBC = Path(os.environ.get("SQLITE_JDBC", "/tmp/r31-baseline-deps/sqlite-jdbc.jar"))
 HOST_CLASS=os.environ.get("R31_RUNTIME_HOST_CLASS","R31TaskRuntimeHost")
-if HOST_CLASS not in {"R31TaskRuntimeHost","R31RuntimeHealthHost"}:raise ValueError("unsupported host harness")
+if HOST_CLASS not in {"R31TaskRuntimeHost","R31RuntimeHealthHost","R31ResourceRecoveryConsumerHost"}:raise ValueError("unsupported host harness")
 OUTPUT=ROOT/os.environ.get("R31_RUNTIME_OUTPUT","verification/r31/p02/runtime-health" if HOST_CLASS=="R31RuntimeHealthHost" else "verification/r31/p01/task-runtime")
 
 
@@ -67,10 +67,21 @@ with tempfile.TemporaryDirectory(prefix="r31-production-runtime-") as temporary:
     run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", str(SDK) + os.pathsep + str(CLASSES), "-d", platform, *shim_files])
     production_names = ["DatabaseCoordinator", "TransactionSchemaCacheR941", "SchemaDomainCoordinatorR926"]
     production_names += ["strategyv2/" + name for name in ["FailureDispositionR31", "RuntimeFaultEvidenceR31", "WaitKindR27", "SchemaR27", "RuntimeCoordinatorR26", "ResearchPoolR27", "PreparedTaskR30R1", "CooperativeContinuationR26", "ResearchWriteQueueR27","MemoryBudgetR31","BoundedResearchExecutorR31","SharedFeatureStoreR31","FeatureCacheR27","PolicyAstR27","RuntimeSchemaR26","TaskContinuationR26","LegacyGenerationR26","LegacyReplayContinuationR26"]]
-    compiled_hashes={str((MAIN/(name+".java")).relative_to(ROOT)):hashlib.sha256((MAIN/(name+".java")).read_bytes()).hexdigest() for name in production_names}
+    production_paths={name:MAIN/(name+".java") for name in production_names}
+    # An explicit isolated source override supports the recorded Android failure
+    # negative control. It never edits the checkout or becomes an APK input.
+    negative_control=os.environ.get("R31_RUNTIME_NEGATIVE_CONTROL_COMMIT","")
+    if negative_control:
+        if not re.fullmatch(r"[0-9a-f]{40}",negative_control):raise ValueError("negative control requires an exact commit")
+        original=tmp/"negative-control/RuntimeCoordinatorR26.java";original.parent.mkdir()
+        original.write_bytes(subprocess.check_output(["git","show",negative_control+":app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"],cwd=ROOT))
+        production_paths["strategyv2/RuntimeCoordinatorR26"]=original
+    def production_hashes():
+        return {str((MAIN/(name+".java")).relative_to(ROOT)):hashlib.sha256(path.read_bytes()).hexdigest() for name,path in production_paths.items()}
+    compiled_hashes=production_hashes()
     compile_commit=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
-    run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", str(SDK) + os.pathsep + str(CLASSES), "-sourcepath", ROOT / "app/src/main/java", "-d", production, *[MAIN / (name + ".java") for name in production_names]])
-    if compiled_hashes!={str((MAIN/(name+".java")).relative_to(ROOT)):hashlib.sha256((MAIN/(name+".java")).read_bytes()).hexdigest() for name in production_names}:
+    run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", str(SDK) + os.pathsep + str(CLASSES), "-sourcepath", ROOT / "app/src/main/java", "-d", production, *production_paths.values()])
+    if compiled_hashes!=production_hashes():
         raise RuntimeError("production source changed during compilation; rerun with owners frozen")
     classpath = os.pathsep.join(map(str, [platform, production, test, CLASSES, JDBC, SDK]))
     run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", classpath, "-d", test, ROOT / ("tools/r31/host/"+HOST_CLASS+".java")])
@@ -78,7 +89,7 @@ with tempfile.TemporaryDirectory(prefix="r31-production-runtime-") as temporary:
     completed=subprocess.run(command,cwd=ROOT,text=True,capture_output=True)
     print(completed.stdout,end="");print(completed.stderr,end="")
     completed.check_returncode()
-    checks=int(re.search(r"(?:R31_TASK_RUNTIME_HOST_PASS|R31_RUNTIME_HEALTH_HOST_PASS) assertions=(\d+)",completed.stdout).group(1))
+    checks=int(re.search(r"(?:R31_TASK_RUNTIME_HOST_PASS|R31_RUNTIME_HEALTH_HOST_PASS|R31_RESOURCE_RECOVERY_CONSUMER_HOST_PASS) assertions=(\d+)",completed.stdout).group(1))
     classifier_tests=0
     if HOST_CLASS=="R31RuntimeHealthHost":
         gradle=Path(os.environ.get("GRADLE_USER_HOME","/workspace/starcore-environment/gradle-home"))
@@ -91,6 +102,11 @@ with tempfile.TemporaryDirectory(prefix="r31-production-runtime-") as temporary:
         classifier_tests=int(re.search(r"OK \((\d+) tests\)",classified.stdout).group(1))
     receipt={"status":"PASS","scope":"ACTUAL_PRODUCTION_TASK_PROTOCOL_WITH_NATIVE_SQLITE_JDBC_HOST_PLATFORM_AND_CLOCK_ADAPTERS","capturedAt":datetime.now(timezone.utc).isoformat(),"assertions":checks,"command":"source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_task_runtime_host.py","sourceCommitAtCompile":compile_commit,"dirtyAtRun":bool(subprocess.check_output(["git","status","--porcelain"],cwd=ROOT,text=True).strip()),"productionSources":compiled_hashes,"scenarios":["late owner success and failure receipts","boot/elapsed lease and wall-deadline perturbation","100 cancellations without fault budget","six same-root half-open fault rounds","one recovery probe per second","13 parallel actual claims under writer lock held 3 real seconds","actual pool loop retains parent/helper ownership","manual retry waits for actual helper exit","cancelled Future is not actual helper exit","close is bounded and idempotent"],"androidRuntime":"NOT_RUN","physicalDevice":"NOT_RUN","continuous24h":"NOT_RUN","continuous72h":"NOT_RUN","naturalQuality":"NOT_PROVEN","remaining":["Android SQLite/thread integration and device lifecycle matrix","real OS wall-clock/reboot test","device resource/latency/capacity acceptance","full model process-kill recovery matrix"]}
     receipt["harness"]=HOST_CLASS
+    receipt["negativeControlSourceOverride"]=negative_control or None
+    if HOST_CLASS=="R31ResourceRecoveryConsumerHost":
+        receipt["command"]="R31_RUNTIME_HOST_CLASS=R31ResourceRecoveryConsumerHost python3 tools/r31/run_task_runtime_host.py"
+        receipt["scenarios"]=["actual120s denial without clock/probe substitution","actual R26 recovery consumer calls real memory producer","native SQLite transaction, settlement gate, bound claim and cancelled owner prevent collection","one collector request and real post-action admission","receipt in actual R26 report observation; no model/device/quality claim"]
+        receipt["consumerResult"]=json.loads(re.search(r"R31_RESOURCE_RECOVERY_CONSUMER_JSON\|(.+)",completed.stdout).group(1))
     receipt["actualFailureClassifierJUnitTests"]=classifier_tests
     if HOST_CLASS=="R31RuntimeHealthHost":receipt["scenarios"]=["single bounded production SQL snapshot", "13 quarantines immediately degraded", "unknown pending/source/ABI not zero", "per-task stalled detection despite other fresh artifacts", "resource/dependency separation", "actual cached getter and asynchronous bounded control", "same-owner named cancellation and real drain before restart", "immutable DTO and future clock rejection"];receipt["command"]="R31_RUNTIME_HOST_CLASS=R31RuntimeHealthHost python3 tools/r31/run_task_runtime_host.py"
     output=OUTPUT/"receipt.json";output.parent.mkdir(parents=True,exist_ok=True);output.write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+"\n")

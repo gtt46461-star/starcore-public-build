@@ -21,6 +21,11 @@ public class SQLiteDatabase {
         } catch (java.sql.SQLException e) { throw new SQLiteException(e.getMessage()); }
     }
     public Cursor rawQuery(String sql, String[] args) {
+        // SQLiteProgram.bindAllArgsAsStrings calls bindString even for an IS ?
+        // predicate. Android rejects null instead of binding JDBC SQL NULL.
+        if (args != null) for (int i = 0; i < args.length; i++) {
+            if (args[i] == null) throw new IllegalArgumentException("the bind value at index " + (i + 1) + " is null");
+        }
         try (PreparedStatement p = jdbc.prepareStatement(sql)) {
             if (args != null) for (int i = 0; i < args.length; i++) p.setString(i + 1, args[i]);
             List<Object[]> rows = new ArrayList<>(); int columns;

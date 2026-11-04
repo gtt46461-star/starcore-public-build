@@ -11,6 +11,11 @@ import java.util.function.BooleanSupplier;
 /** Per-PID declared working-set admission. Reservations are not measured Java/native/PSS bytes. */
 public final class MemoryBudgetR31 {
     public static final double HIGH_FRACTION=.75, RESUME_FRACTION=.60, EMERGENCY_FRACTION=.90, REALTIME_FRACTION=.15;
+    public static final long OPTIONAL_RECOVERY_AGE_MS=120_000,OPTIONAL_RECOVERY_COOLDOWN_MS=300_000;
+    private static final Object HEAP_RECOVERY_LOCK_R31=new Object();
+    private static boolean heapRecoveryInFlightR31;
+    private static long heapRecoveryLastRequestNanosR31;
+    private static String heapRecoveryOwnerR31;
     public enum Kind {
         REALTIME, CHECKPOINT, RESEARCH, MODEL, FEATURE_CACHE, QUEUED, UI,
         NATIVE_DECODER, NATIVE_BACKUP, NATIVE_BUFFER, NATIVE_SQLITE, NATIVE_BITMAP;
@@ -63,6 +68,8 @@ public final class MemoryBudgetR31 {
         @Override public void close(){budget.release(this);}
     }
     private final Probe probe;private final Config config;
+    private long heapRecoveryRequestsR31,heapRecoverySkippedR31;
+    private Map<String,Object> lastHeapRecoveryAttemptR31=Collections.emptyMap(),lastHeapCollectionR31=Collections.emptyMap();
     private final Set<Lease> leases=new LinkedHashSet<>();
     private final ReferenceQueue<Object> collectedPrivateBackings=new ReferenceQueue<>();private final Map<Reference<?>,Lease> privateBackingOwners=new IdentityHashMap<>();private long collectedPrivateOwners;
     private final EnumMap<Kind,Long> nativeCaps=new EnumMap<>(Kind.class),declaredByKind=new EnumMap<>(Kind.class);
@@ -109,6 +116,99 @@ public final class MemoryBudgetR31 {
         // Dropped cache references are not subtracted from heap. Only a new real observation can
         // make the second (and final) attempt admissible. Never request collection on this path.
         return true;
+    }
+    /** Called only by the background resource controller, outside transactions and realtime windows.
+     * This synchronous collector request has no hard timeout. It is never called from admission,
+     * training or ordinary cache trim. A request is not proof of collection or business progress. */
+    public Map<String,Object> recoverAgedOptionalHeapR31(String controllerOwner,BooleanSupplier safeBackgroundWindow){
+        if(controllerOwner==null||controllerOwner.isEmpty()||controllerOwner.length()>192)throw new IllegalArgumentException("R31_RECOVERY_CONTROLLER_OWNER");
+        Objects.requireNonNull(safeBackgroundWindow);long started=System.nanoTime();
+        String unsafe=unsafeRecoveryWindowR31(safeBackgroundWindow);
+        if(unsafe!=null)return skippedRecoveryR31(controllerOwner,unsafe,started);
+        if(!(probe instanceof RuntimeProbe))return skippedRecoveryR31(controllerOwner,"REAL_RUNTIME_PROBE_REQUIRED",started);
+        Measurement current=readProbe();String ineligible;
+        synchronized(this){if(current!=null)update(current,false);ineligible=recoveryIneligibleR31(System.nanoTime());}
+        if(ineligible!=null)return skippedRecoveryR31(controllerOwner,ineligible,started);
+        String coordinationSkip=null;
+        synchronized(HEAP_RECOVERY_LOCK_R31){
+            if(heapRecoveryInFlightR31)coordinationSkip="COLLECTION_ALREADY_IN_FLIGHT";
+            else if(heapRecoveryLastRequestNanosR31!=0&&System.nanoTime()-heapRecoveryLastRequestNanosR31<OPTIONAL_RECOVERY_COOLDOWN_MS*1_000_000L)coordinationSkip="COLLECTION_COOLDOWN";
+            else{heapRecoveryInFlightR31=true;heapRecoveryOwnerR31=controllerOwner;}
+        }
+        if(coordinationSkip!=null)return skippedRecoveryR31(controllerOwner,coordinationSkip,started);
+        try{
+            // The first observation may have raced with a normal owner release or a new critical window.
+            unsafe=unsafeRecoveryWindowR31(safeBackgroundWindow);
+            if(unsafe!=null)return skippedRecoveryR31(controllerOwner,unsafe,started);
+            current=readProbe();Map<String,Object> before;
+            synchronized(this){if(current!=null)update(current,false);ineligible=recoveryIneligibleR31(System.nanoTime());before=recoveryMeasurementR31();}
+            if(ineligible!=null)return skippedRecoveryR31(controllerOwner,ineligible,started);
+            Map<String,Object> gcBefore=collectorObservationR31();
+            unsafe=unsafeRecoveryWindowR31(safeBackgroundWindow);
+            if(unsafe!=null)return skippedRecoveryR31(controllerOwner,unsafe,started);
+            long requestAt=System.nanoTime();
+            synchronized(HEAP_RECOVERY_LOCK_R31){heapRecoveryLastRequestNanosR31=requestAt;}
+            synchronized(this){heapRecoveryRequestsR31++;}
+            Throwable requestFailure=null;long collectorElapsed;
+            try{Runtime.getRuntime().gc();}
+            catch(RuntimeException failure){RuntimeProbe.rethrowProcessFatal(failure);requestFailure=failure;}
+            finally{collectorElapsed=Math.max(0,System.nanoTime()-requestAt);}
+            current=readProbe();Map<String,Object> after;boolean available;WaitReason stillWaiting;
+            synchronized(this){if(current!=null)update(current,false);after=recoveryMeasurementR31();stillWaiting=optionalRequestStatus();available=sampleFailure.isEmpty()&&current!=null&&stillWaiting==WaitReason.NONE;}
+            Map<String,Object> gcAfter=collectorObservationR31();
+            String outcome=requestFailure!=null?"REQUEST_FAILED":current==null?"MEASUREMENT_UNKNOWN":available?"ADMISSION_AVAILABLE":"CAPACITY_WAIT";
+            String reason=requestFailure!=null?bounded(requestFailure.getClass().getName()+":"+requestFailure.getMessage(),192):available?"CURRENT_REQUEST_FITS_ON_FRESH_MEASUREMENT":current==null?"AFTER_MEASUREMENT_UNAVAILABLE":"STILL_"+stillWaiting+"; LIVE_HEAP_OR_PENDING_PROMISES_OR_SYSTEM_PRESSURE_REMAIN";
+            Map<String,Object> result=new LinkedHashMap<>();result.put("attempted",true);result.put("outcome",outcome);result.put("reason",reason);result.put("controllerOwner",controllerOwner);result.put("requestedAtNanos",requestAt);result.put("collectorCallElapsedNanos",collectorElapsed);result.put("controlElapsedNanos",Math.max(0,System.nanoTime()-started));result.put("before",before);result.put("after",after);result.put("gcBefore",gcBefore);result.put("gcAfter",gcAfter);
+            Long oldCount=longValueR31(gcBefore.get("count")),newCount=longValueR31(gcAfter.get("count"));result.put("gcCountDelta",oldCount!=null&&newCount!=null&&newCount>=oldCount&&Objects.equals(gcBefore.get("basis"),gcAfter.get("basis"))?newCount-oldCount:null);
+            long heapBefore=((Number)before.get("heapUsedBytes")).longValue(),heapAfter=((Number)after.get("heapUsedBytes")).longValue();result.put("observedHeapDecreaseBytes",current==null?null:Math.max(0,heapBefore-heapAfter));result.put("heapDeltaMeaning","OBSERVED_BEFORE_MINUS_AFTER; CONCURRENT_ALLOCATIONS_POSSIBLE; NOT_GC_ATTRIBUTION_OR_OWNER_RELEASE_BYTES");result.put("requestMeaning","RUNTIME_GC_REQUEST_ONLY; COLLECTOR_MAY_IGNORE_OR_COMPLETE_LATER; NO_HARD_TIMEOUT");result.put("businessProgress",false);result.put("capacityDebt",!available);result.put("noBenefitAction",available?"RESUME_ONLY_BY_NORMAL_ADMISSION; BUSINESS_PROGRESS_REQUIRES_DURABLE_ARTIFACT":"KEEP_BUDGETED_RESOURCE_WAIT_AND_CAPACITY_DEBT; DO_NOT_RELEASE_LIVE_OWNERS");result.put("nextAllowedRequestNanos",requestAt+OPTIONAL_RECOVERY_COOLDOWN_MS*1_000_000L);result.put("cooldownNanos",OPTIONAL_RECOVERY_COOLDOWN_MS*1_000_000L);synchronized(this){result.put("attemptCount",heapRecoveryRequestsR31);}
+            Map<String,Object> immutable=Collections.unmodifiableMap(result);synchronized(this){lastHeapRecoveryAttemptR31=immutable;lastHeapCollectionR31=immutable;}return immutable;
+        }finally{synchronized(HEAP_RECOVERY_LOCK_R31){heapRecoveryInFlightR31=false;heapRecoveryOwnerR31=null;}}
+    }
+    private String recoveryIneligibleR31(long now){
+        if(!sampleFailure.isEmpty())return "MEASUREMENT_UNAVAILABLE";
+        if(optionalWaitSince==0||optionalLastDeniedAt==0||optionalLastDeniedKind==null||optionalLastRequestedBytes<=0||optionalRequestStatus()==WaitReason.NONE)return "NO_ACTIVE_OPTIONAL_DENIAL";
+        if(now-optionalWaitSince<0||now-optionalLastDeniedAt<0||optionalLastDeniedAt-optionalWaitSince<0)return "DENIAL_CLOCK_INVALID";
+        if(now-optionalWaitSince<OPTIONAL_RECOVERY_AGE_MS*1_000_000L)return "OPTIONAL_DENIAL_NOT_AGED";
+        if(optionalLastDeniedKind.nativeMemory()||optionalLastDeniedKind==Kind.REALTIME||optionalLastDeniedKind==Kind.CHECKPOINT)return "OPTIONAL_JAVA_HEAP_WAIT_REQUIRED";
+        WaitReason status=optionalRequestStatus();
+        if(status!=WaitReason.DECLARED_CAPACITY&&status!=WaitReason.HEAP_PRESSURE&&status!=WaitReason.EMERGENCY_PRESSURE)return "MEASURED_HEAP_CAPACITY_WAIT_REQUIRED";
+        // If promises alone cannot fit even at heap=0, collecting cannot repair their debt.
+        long cap=(long)(observed.maxHeapBytes*HIGH_FRACTION);long reserved=Math.max((long)Math.ceil(observed.maxHeapBytes*REALTIME_FRACTION),config.realtimePeakBytes);cap=Math.max(0,cap-Math.min(cap,reserved));if(optionalLastDeniedKind!=Kind.UI)cap=Math.max(0,cap-Math.min(cap,config.uiPeakBytes));
+        long pending=0;for(Lease lease:leases)if(!lease.kind.nativeMemory())pending=safeAdd(pending,pendingJavaBytes(lease));
+        if(optionalLastRequestedBytes>Math.max(0,cap-Math.min(Math.max(0,cap),pending)))return "CAPACITY_DEBT_PENDING_PROMISES_OR_OVERSIZED_REQUEST";
+        if(observed.heapUsedBytes<=0||status==WaitReason.EMERGENCY_PRESSURE&&observed.heapUsedBytes<observed.maxHeapBytes*HIGH_FRACTION)return "SYSTEM_PRESSURE_WITHOUT_MEASURED_HEAP_CONSTRAINT";
+        return null;
+    }
+    private Map<String,Object> recoveryMeasurementR31(){
+        long declared=0,pending=0;for(Lease lease:leases)if(!lease.kind.nativeMemory()){declared=safeAdd(declared,lease.bytes);pending=safeAdd(pending,pendingJavaBytes(lease));}
+        Map<String,Object> out=new LinkedHashMap<>();out.put("pid",observed.pid);out.put("sampleAtNanos",observed.observedAtNanos);out.put("heapUsedBytes",observed.heapUsedBytes);out.put("maxHeapBytes",observed.maxHeapBytes);out.put("nativeAllocatedBytes",observed.nativeAllocatedBytes);out.put("pssBytes",observed.pssBytes);out.put("rssBytes",observed.rssBytes);out.put("sampleFailure",sampleFailure);out.put("heapPressure",emergency?"EMERGENCY":softPressure?"SOFT":"NORMAL");out.put("osLowMemory",effectiveLowMemory());out.put("optionalUnallocatedHeadroomBytes",availableJavaBytes(Kind.RESEARCH,false));out.put("declaredJavaWorkingBytes",declared);out.put("pendingJavaAllocationBytes",pending);out.put("activeLeaseCount",leases.size());out.put("privateOwnersClosedAfterObservedCollection",collectedPrivateOwners);out.put("optionalWaitSinceNanos",optionalWaitSince);out.put("optionalLastDeniedAtNanos",optionalLastDeniedAt);out.put("optionalLastDeniedRequestedBytes",optionalLastRequestedBytes);out.put("optionalLastDeniedKind",optionalLastDeniedKind==null?null:optionalLastDeniedKind.name());out.put("currentRequestStatus",optionalRequestStatus().name());return Collections.unmodifiableMap(out);
+    }
+    private Map<String,Object> skippedRecoveryR31(String owner,String reason,long started){
+        Map<String,Object> out=new LinkedHashMap<>();out.put("attempted",false);out.put("outcome","SKIPPED");out.put("reason",reason);out.put("controllerOwner",owner);out.put("controlElapsedNanos",Math.max(0,System.nanoTime()-started));out.put("businessProgress",false);out.put("requestMeaning","NO_COLLECTOR_REQUEST");Map<String,Object> immutable=Collections.unmodifiableMap(out);synchronized(this){heapRecoverySkippedR31++;lastHeapRecoveryAttemptR31=immutable;}return immutable;
+    }
+    private static String unsafeRecoveryWindowR31(BooleanSupplier safe){
+        if(Thread.currentThread().isInterrupted())return "CONTROL_THREAD_INTERRUPTED";
+        String vm=System.getProperty("java.vm.name","");
+        if(vm.equals("Dalvik")||vm.equals("ART"))try{
+            Class<?> looper=Class.forName("android.os.Looper");Object main=looper.getMethod("getMainLooper").invoke(null),current=looper.getMethod("myLooper").invoke(null);if(main!=null&&main==current)return "UI_THREAD_FORBIDDEN";
+        }catch(ReflectiveOperationException|RuntimeException unavailable){RuntimeProbe.rethrowProcessFatal(unavailable);return "UI_THREAD_OBSERVATION_UNAVAILABLE";}
+        try{return safe.getAsBoolean()?null:"UNSAFE_BACKGROUND_WINDOW";}catch(RuntimeException failure){RuntimeProbe.rethrowProcessFatal(failure);return "BACKGROUND_WINDOW_CHECK_FAILED:"+bounded(failure.getClass().getName(),96);}
+    }
+    private static Long longValueR31(Object value){if(value instanceof Number)return ((Number)value).longValue();if(value instanceof String)try{return Long.valueOf((String)value);}catch(NumberFormatException unavailable){}return null;}
+    private static Map<String,Object> collectorObservationR31(){
+        Map<String,Object> out=new LinkedHashMap<>();String vm=System.getProperty("java.vm.name","");
+        try{if(vm.equals("Dalvik")||vm.equals("ART")){
+            Object value=Class.forName("android.os.Debug").getMethod("getRuntimeStats").invoke(null);Map<?,?> stats=value instanceof Map?(Map<?,?>)value:Collections.emptyMap();out.put("basis","ANDROID_ART_RUNTIME_STATS");out.put("count",longValueR31(stats.get("art.gc.gc-count")));out.put("collectionTimeMs",null);Object raw=stats.get("art.gc.gc-time");out.put("collectionTimeRaw",raw==null?null:bounded(String.valueOf(raw),96));out.put("collectionTimeRawUnit","PLATFORM_STAT_FORMAT; NOT_ASSUMED_MILLISECONDS");
+        }else{
+            Object beans=Class.forName("java.lang.management.ManagementFactory").getMethod("getGarbageCollectorMXBeans").invoke(null);Class<?> api=Class.forName("java.lang.management.GarbageCollectorMXBean");long count=0,time=0;boolean known=false;
+            if(beans instanceof List)for(Object bean:(List<?>)beans){long n=((Number)api.getMethod("getCollectionCount").invoke(bean)).longValue(),ms=((Number)api.getMethod("getCollectionTime").invoke(bean)).longValue();if(n>=0){count+=n;known=true;}if(ms>=0)time+=ms;}
+            out.put("basis","HOST_JMX_GARBAGE_COLLECTOR_MXBEANS");out.put("count",known?count:null);out.put("collectionTimeMs",known?time:null);
+        }}catch(ReflectiveOperationException|RuntimeException unavailable){RuntimeProbe.rethrowProcessFatal(unavailable);out.put("basis","UNAVAILABLE");out.put("count",null);out.put("collectionTimeMs",null);out.put("unavailable",bounded(unavailable.getClass().getName(),96));}
+        out.put("status",out.get("count")!=null||out.get("collectionTimeRaw")!=null?"OBSERVED":"UNSUPPORTED_OR_UNKNOWN");return Collections.unmodifiableMap(out);
+    }
+    private Map<String,Object> heapRecoveryObservationR31(){
+        Map<String,Object> out=new LinkedHashMap<>();out.put("scope","PER_PID_EXPLICIT_BACKGROUND_CONTROLLER_ONLY");out.put("minOptionalWaitMs",OPTIONAL_RECOVERY_AGE_MS);out.put("cooldownMs",OPTIONAL_RECOVERY_COOLDOWN_MS);out.put("cooldownNanos",OPTIONAL_RECOVERY_COOLDOWN_MS*1_000_000L);out.put("attemptCount",heapRecoveryRequestsR31);out.put("skippedCount",heapRecoverySkippedR31);out.put("lastDecision",lastHeapRecoveryAttemptR31);out.put("lastActualAttempt",lastHeapCollectionR31);
+        synchronized(HEAP_RECOVERY_LOCK_R31){out.put("inFlight",heapRecoveryInFlightR31);out.put("inFlightControllerOwner",heapRecoveryOwnerR31);out.put("lastProcessRequestNanos",heapRecoveryLastRequestNanosR31);}return Collections.unmodifiableMap(out);
     }
     private synchronized void allocatedPrimitiveArray(Lease lease,Object array){
         if(lease.closed)throw new IllegalStateException("R31_MEMORY_CLOSED_ALLOCATION");
@@ -190,7 +290,7 @@ public final class MemoryBudgetR31 {
     private Map<String,Object> measurementMap(){
         WaitReason optionalStatus=optionalRequestStatus();boolean recheckBlocked=optionalLastDeniedAt!=0&&optionalStatus!=WaitReason.NONE,optionalDenied=optionalWaitSince!=0&&recheckBlocked;
         Map<String,Object> optional=new LinkedHashMap<>();optional.put("optionalAdmissionStatus",optionalDenied?"RESOURCE_WAIT:MEMORY_"+optionalStatus:emergency?"RESOURCE_WAIT:MEMORY_EMERGENCY_PRESSURE":softPressure?"RESOURCE_WAIT:MEMORY_HEAP_PRESSURE":availableJavaBytes(Kind.RESEARCH,false)==0?"RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY":"AVAILABLE");optional.put("optionalWaitSinceNanos",optionalDenied?optionalWaitSince:0);optional.put("optionalLastDeniedAtNanos",optionalLastDeniedAt);optional.put("optionalLastDeniedRequestedBytes",optionalLastRequestedBytes);optional.put("optionalLastDeniedKind",optionalLastDeniedKind==null?null:optionalLastDeniedKind.name());optional.put("optionalLastDeniedReason",optionalLastDeniedReason.name());optional.put("optionalLastDeniedObservedHeapBytes",optionalLastDeniedHeap);optional.put("optionalDenialStillBlocking",optionalDenied);optional.put("optionalLastRequestRecheckBlocked",recheckBlocked);optional.put("optionalUnallocatedHeadroomBytes",availableJavaBytes(Kind.RESEARCH,false));
-        Map<String,Object> out=new LinkedHashMap<>();out.putAll(optional);out.put("scope","PER_PID");out.put("pid",observed.pid);out.put("processName",observed.processName);out.put("crossProcessBudget","NOT_COORDINATED");out.put("coverage","REGISTERED_OWNERS_ONLY_NOT_ALL_APPLICATION_ALLOCATIONS");out.put("maxHeapBytes",observed.maxHeapBytes);out.put("heapUsedBytes",observed.heapUsedBytes);out.put("nativeAllocatedBytes",observed.nativeAllocatedBytes);out.put("pssBytes",observed.pssBytes);out.put("rssBytes",observed.rssBytes);out.put("osLowMemory",effectiveLowMemory());out.put("systemLowMemoryObservedAtNanos",systemLowMemoryObservedAt);out.put("observedAtNanos",observed.observedAtNanos);out.put("nativeObservedAtNanos",observed.nativeObservedAtNanos);out.put("clock","PROCESS_MONOTONIC_NS");out.put("highFraction",HIGH_FRACTION);out.put("resumeFraction",RESUME_FRACTION);out.put("emergencyFraction",EMERGENCY_FRACTION);out.put("realtimeReservedBytes",Math.max((long)Math.ceil(observed.maxHeapBytes*REALTIME_FRACTION),config.realtimePeakBytes));out.put("uiReservedBytes",config.uiPeakBytes);out.put("pressure",emergency?"EMERGENCY":softPressure?"SOFT":"NORMAL");out.put("reason",sampleFailure.isEmpty()?pressureReason:"MEMORY_MEASUREMENT_UNAVAILABLE");out.put("sampleFailure",sampleFailure);out.put("baselineCapacityUnmetObserved",baselineCapacityUnmet);out.put("resumeCondition","heapUsed/maxHeap <= 0.60 AND osLowMemory != true; owners must release actual work");out.put("allowOptionalWork",!softPressure&&sampleFailure.isEmpty()&&!optionalDenied);out.put("recommendedParallelism",softPressure||optionalDenied?1:2);out.put("accounting","ADMISSION_USES_MEASURED_HEAP_PLUS_PENDING_ALLOCATION_PROMISES; PROVEN_ARRAY_PAYLOAD_REQUIRES_POST_ALLOCATION_SAMPLE; NEVER_SUM_HEAP_NATIVE_PSS");return out;
+        Map<String,Object> out=new LinkedHashMap<>();out.putAll(optional);out.put("optionalHeapRecovery",heapRecoveryObservationR31());out.put("scope","PER_PID");out.put("pid",observed.pid);out.put("processName",observed.processName);out.put("crossProcessBudget","NOT_COORDINATED");out.put("coverage","REGISTERED_OWNERS_ONLY_NOT_ALL_APPLICATION_ALLOCATIONS");out.put("maxHeapBytes",observed.maxHeapBytes);out.put("heapUsedBytes",observed.heapUsedBytes);out.put("nativeAllocatedBytes",observed.nativeAllocatedBytes);out.put("pssBytes",observed.pssBytes);out.put("rssBytes",observed.rssBytes);out.put("osLowMemory",effectiveLowMemory());out.put("systemLowMemoryObservedAtNanos",systemLowMemoryObservedAt);out.put("observedAtNanos",observed.observedAtNanos);out.put("nativeObservedAtNanos",observed.nativeObservedAtNanos);out.put("clock","PROCESS_MONOTONIC_NS");out.put("highFraction",HIGH_FRACTION);out.put("resumeFraction",RESUME_FRACTION);out.put("emergencyFraction",EMERGENCY_FRACTION);out.put("realtimeReservedBytes",Math.max((long)Math.ceil(observed.maxHeapBytes*REALTIME_FRACTION),config.realtimePeakBytes));out.put("uiReservedBytes",config.uiPeakBytes);out.put("pressure",emergency?"EMERGENCY":softPressure?"SOFT":"NORMAL");out.put("reason",sampleFailure.isEmpty()?pressureReason:"MEMORY_MEASUREMENT_UNAVAILABLE");out.put("sampleFailure",sampleFailure);out.put("baselineCapacityUnmetObserved",baselineCapacityUnmet);out.put("resumeCondition","heapUsed/maxHeap <= 0.60 AND osLowMemory != true; owners must release actual work");out.put("allowOptionalWork",!softPressure&&sampleFailure.isEmpty()&&!optionalDenied);out.put("recommendedParallelism",softPressure||optionalDenied?1:2);out.put("accounting","ADMISSION_USES_MEASURED_HEAP_PLUS_PENDING_ALLOCATION_PROMISES; PROVEN_ARRAY_PAYLOAD_REQUIRES_POST_ALLOCATION_SAMPLE; NEVER_SUM_HEAP_NATIVE_PSS");return out;
     }
     private static long safeAdd(long a,long b){if(b<0||a>Long.MAX_VALUE-b)throw new IllegalArgumentException("R31_MEMORY_SIZE_OVERFLOW");return a+b;}
     private static String bounded(String text,int limit){return text.substring(0,Math.min(text.length(),limit)).replace('\n',' ').replace('\r',' ');}

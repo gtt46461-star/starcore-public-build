@@ -20,7 +20,9 @@
     "initial_24h": "NOT_RUN",
     "final_72h": "NOT_RUN",
     "observed_devices": [],
-    "blocker": "adb devices -l returned no connected device; /dev/kvm absent"
+    "blocker": "adb devices -l returned no connected device; /dev/kvm absent",
+    "availability_confirmed_by_user": "No connectable real device in this session; keep device acceptance NOT_RUN; continue source/build work.",
+    "confirmation_recorded_at": "2026-11-04T14:14:23.629689+00:00"
   },
   "natural_quality": {
     "state": "NOT_PROVEN",
@@ -83,9 +85,35 @@
           "result": "PASS",
           "tests": 4,
           "evidence": "verification/r31/p00/source-identity-refresh/final-compile-receipt.json"
+        },
+        {
+          "command": "Independent apksigner/aapt/embedded-source audit of actual CI APK bytes",
+          "result": "PASS_APK_IDENTITY_ONLY_FAILED_ENGINEERING_GATES_REMAIN",
+          "evidence": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json"
         }
       ],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -109,7 +137,7 @@
         "本包源提交与source-manifest.json一致，所有实际改动文件有diff和负责批次。",
         "旧要求原文摘要不变，未经实施的状态仍未实施。"
       ],
-      "next_step": "Source build verified at 8faabc2; APK identity and target-device evidence await signed build/physical run.",
+      "next_step": "Current signed checkpoint identity verified; target-device installed identity and required acceptance remain NOT_RUN.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156294+00:00",
@@ -236,7 +264,28 @@
           "evidence": "verification/r31/p00/source-identity-refresh/final-compile-receipt.json"
         }
       ],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -385,7 +434,28 @@
           "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
         }
       ],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -508,9 +578,41 @@
           "evidence": "verification/r31/ci_diagnosis/exact31fea-native/SUMMARY.json",
           "evidence_sha256": "ee84b70fd8de5558b87180749ea4a728a35c239458d8414a64c05b82b43d015f",
           "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
+        },
+        {
+          "command": "Original actual Android10 protocol cases on API29/35",
+          "result": "FAILED_ONE_OF10_EACH_API",
+          "evidence": "verification/r31/p02/delivery_2ab/protocol-failures/RECEIPT.json"
+        },
+        {
+          "command": "R31_RUNTIME_OUTPUT=verification/r31/p02/android-null-owner/native-task-after-fix python3 tools/r31/run_task_runtime_host.py",
+          "result": "PASS_NATIVE_HOST_ONLY",
+          "assertions": 211,
+          "evidence": "verification/r31/p02/android-null-owner/RECEIPT.json"
         }
       ],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -543,7 +645,7 @@
         "24h/72h device soak NOT_RUN",
         "No natural FUTURE/REAL quality proof"
       ],
-      "next_step": "P02 integrated resource/feedback/health work; later owner staging and Android/device validation; no mandatory card closure yet.",
+      "next_step": "Commit current SQL NULL-owner fix with verified identity and rerun exact-source Android protocol; original Android failure not overridden by native HOST pass.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156323+00:00",
@@ -642,7 +744,28 @@
           "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
         }
       ],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -807,7 +930,28 @@
           "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
         }
       ],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -933,7 +1077,28 @@
           "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
         }
       ],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -1064,7 +1229,28 @@
           "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
         }
       ],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -1193,9 +1379,41 @@
           "evidence": "verification/r31/ci_diagnosis/exact31fea-native/SUMMARY.json",
           "evidence_sha256": "ee84b70fd8de5558b87180749ea4a728a35c239458d8414a64c05b82b43d015f",
           "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
+        },
+        {
+          "command": "Original actual Android10 protocol cases on API29/35",
+          "result": "FAILED_ONE_OF10_EACH_API",
+          "evidence": "verification/r31/p02/delivery_2ab/protocol-failures/RECEIPT.json"
+        },
+        {
+          "command": "R31_RUNTIME_OUTPUT=verification/r31/p02/android-null-owner/native-task-after-fix python3 tools/r31/run_task_runtime_host.py",
+          "result": "PASS_NATIVE_HOST_ONLY",
+          "assertions": 211,
+          "evidence": "verification/r31/p02/android-null-owner/RECEIPT.json"
         }
       ],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -1221,7 +1439,7 @@
         "Android process kill and real model/settlement counters NOT_RUN",
         "24h/72h device soak NOT_RUN"
       ],
-      "next_step": "Complete Android production caller integration and device fault injection; durable HOST receipts do not substitute Android evidence.",
+      "next_step": "Commit current SQL NULL-owner fix with verified identity and rerun exact-source Android protocol; original Android failure not overridden by native HOST pass.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156352+00:00",
@@ -1341,7 +1559,28 @@
           "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
         }
       ],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -1592,7 +1831,28 @@
           "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
         }
       ],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -1833,7 +2093,28 @@
           "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
         }
       ],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -2116,9 +2397,36 @@
           ],
           "result": "FAILED",
           "scope": "Actual committed whole Android compile and10 instrumentation-definition compile/identity passed;456 host unit tests with6 actual resource-capacity failures; no exclusions/no source mutation; no APK/device execution"
+        },
+        {
+          "command": "Actual120s R26 consumer+MemoryBudget producer on nativeSQLite HOST fixture",
+          "result": "PASS_HOST_NOT_ANDROID",
+          "assertions": 23,
+          "evidence": "verification/r31/p02/resource-recovery-consumer/receipt.json"
         }
       ],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -2428,7 +2736,28 @@
           "evidenceSha256": "7bd01d7f506d34dfbba74e519fdad65ebda7e804cf6b97637935fe214acda55b"
         }
       ],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -2745,7 +3074,28 @@
         "REALTIME_R31_TIMING:1"
       ],
       "tests": [],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -2850,7 +3200,28 @@
         "REALTIME_R31_TIMING:1"
       ],
       "tests": [],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -2982,7 +3353,28 @@
         "REALTIME_R31_TIMING:1"
       ],
       "tests": [],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -3658,9 +4050,46 @@
           ],
           "result": "FAILED",
           "scope": "Actual committed whole Android compile and10 instrumentation-definition compile/identity passed;456 host unit tests with6 actual resource-capacity failures; no exclusions/no source mutation; no APK/device execution"
+        },
+        {
+          "command": "Actual120s R26 consumer+MemoryBudget producer on nativeSQLite HOST fixture",
+          "result": "PASS_HOST_NOT_ANDROID",
+          "assertions": 23,
+          "evidence": "verification/r31/p02/resource-recovery-consumer/receipt.json"
+        },
+        {
+          "command": "Unchanged original6 math +4 exactset +4 policy contracts; actual512m, original100x3, no explicit collector API",
+          "result": "PASS_TARGETED14_NOT_FULL_CURRENT_SUITE",
+          "evidence": "verification/r31/p02/scoped-set-consumer/MATH-RECEIPT.json"
+        },
+        {
+          "command": "Current frozen source on actual Android4404-class support; memory55 +originalPIT/model6 +golden52",
+          "result": "PASS_TARGETED_HOST_ONLY",
+          "evidence": "verification/r31/p02/scoped-set-consumer/actual-android-targeted/RECEIPT.json"
         }
       ],
-      "apk_identity": null,
+      "apk_identity": {
+        "abis": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86_64"
+        ],
+        "applicationId": "com.starcore.research.r13",
+        "bytes": 28304612,
+        "engineeringAcceptance": "FAILED_GATES_REMAIN",
+        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
+        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
+        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
+        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
+        "variant": "release",
+        "versionCode": 577311011,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
+        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "contains_later_uncommitted_fixes": false
+      },
       "device_evidence": [],
       "acceptance": [
         {
@@ -3706,7 +4135,7 @@
         "Android/physical device fault matrix and24/72h NOT_RUN",
         "Natural FUTURE/REAL quality NOT_PROVEN"
       ],
-      "next_step": "Commit frozen repair and verified identities; run full unexcluded Gradle and10 defined Android instrumented cases; unresolved default512m multi-generation waits remain real failures.",
+      "next_step": "Commit frozen012 source; run complete unexcluded suite/lint/current APK Android protocols; finish ordinary initial/rebuilt model admission and device capacity acceptance. No completion claim from targeted passes.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156423+00:00",
@@ -5872,8 +6301,8 @@
       "signed_apk_independent_identity": "NOT_RUN"
     },
     "P02": {
-      "implementation": "FINAL_RECOVERY_ZIP_UI_CANCEL_PATCH_PENDING_THEN_SOURCE_FREEZE",
-      "joint_build": "NOT_RUN",
+      "implementation": "P02_FROZEN_012_REPAIR_COMMIT_AND_UNEXCLUDED_JOINT",
+      "joint_build": "FAILED_CLEAN_2AB456_UNIT10FAIL_AND_API21_LINT",
       "native_backup_capacity": "REPAIR_IN_PROGRESS_AFTER_ACTUAL_FAILURE",
       "business_gc": "NOT_ENABLED",
       "source_compile": "PASS_ACTUAL_UNEXCLUDED_E056_NO_SOURCE_MUTATION",
@@ -5898,35 +6327,66 @@
         "DB/WAL/model/CAS writer admission not fully integrated",
         "24/72h actual device absent"
       ],
-      "source_commit": "e056206af83a8fc094b81d97f67a1310b8cc2e46",
-      "android_instrumentation_compile": "PASS_ALL_THREE_CLASSES_10_DEFINED_CASES_NOT_EXECUTED",
+      "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+      "android_instrumentation_compile": "PASS_ACTUAL_THREE_CLASSES10_CASES_COMPILED_IN_SIGNED_TEST_APK",
       "full_host_unit": {
-        "source": "e056206af83a8fc094b81d97f67a1310b8cc2e46",
-        "tests": 456,
-        "failures": 6,
-        "errors": 0,
+        "executed": 456,
+        "failed": 10,
         "skipped": 0,
-        "result": "FAILED",
-        "evidence": "verification/r31/p02/build-identity/MEMORY_REPAIR_COMMITTED_UNEXCLUDED_JOINT.json"
+        "source": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "scope": "CLEAN_EXACT_SOURCE_REMOTE_HOST_XML",
+        "receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json"
       },
-      "build_identity": "PASS",
-      "integration": "FAILED_6_REAL_CAPACITY_WAITS",
-      "remote_run": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41842958636",
-      "remote_failure": "R967_GENERATED_IDENTITY_STALE; two actual tracked generated outputs omitted from source checkpoint, being committed; remote tests/APK NOT_RUN",
+      "build_identity": "PASS_INDEPENDENT_APKSIGNER_AAPT_AND_EMBEDDED_SOURCE_2AB",
+      "integration": "FAILED_CONTINUE_REPAIR",
+      "remote_run": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41856826339",
+      "remote_failure": "SIGNED_VALIDATION_APKS_VALID_IDENTITY; ORIGINAL456_UNIT10FAIL_PLUS_LINT; API29/35_PROTOCOL9PASS1FAIL_NULL_OWNER_BIND",
       "memory_repair_checkpoint": {
         "at": "2026-11-04T13:52:44.803831+00:00",
-        "source_state": "FROZEN_REPAIR_PENDING_SOURCE_COMMIT_AND_UNEXCLUDED_JOINT",
-        "whole_Android_Java_bootstrap": "PASS_30_58_SECONDS_NO_SOURCE_MUTATION",
-        "targeted_memory": "PASS_43_PLUS_ORIGINAL6_PLUS52_GOLDEN",
+        "source_state": "FROZEN_CURRENT012; R29_IDENTITY_AND_REAL_CLASS_CALL_INDEX_REFRESHED",
+        "whole_Android_Java_bootstrap": "PASS_50_86S_INPUTS_STABLE_4404_ACTUAL_CLASSES",
+        "targeted_memory": "PASS_CURRENT_ANDROID_SUPPORT55_NEW_PLUS6_ORIGINAL_PIT_MODEL_PLUS52_GOLDEN",
         "actual_runtime_control": "PASS_8_JUNIT_144_ASSERTIONS_120200MS_HOST",
         "previous_full_unit": "E96_428_TESTS_17_FAILURES_PRESERVED",
         "fresh_owned_math": "6_TESTS_3_PASS_3_RESOURCE_CAPACITY_FAILURES_PRESERVED",
-        "current_full_unexcluded": "ACTUAL456_TESTS_6_REAL_CAPACITY_FAILURES",
-        "Android_instrumentation": "10_DEFINITIONS_COMPILED_NOT_EXECUTED",
-        "integration": "FAILED_NOT_RELEASED",
+        "current_full_unexcluded": "NOT_RUN_ON_FROZEN012",
+        "Android_instrumentation": "ACTUAL_API29_AND35_EACH10RUN9PASS1NULL_OWNER_FAIL",
+        "integration": "PENDING_FULL_JOINT_AND_CURRENT_ANDROID; PRIOR_FAILURES_RETAINED",
         "device24h": "NOT_RUN",
         "device72h": "NOT_RUN",
-        "natural_quality": "NOT_PROVEN"
+        "natural_quality": "NOT_PROVEN",
+        "original_math_and_set_contract": "PASS14_INCLUDES_ORIGINAL6_AND_UNCHANGED100X3_H07; SAME512M; NO_COLLECTOR_API",
+        "R26_overdue_recovery": "PASS_ACTUAL120201MS_AND23_CONSUMER_ASSERTIONS_HOST_ONLY",
+        "family_mutable_isolation": "PASS5_FAMILIES10_POSITIONS250500_BIT_VALUES_PARENT_STATE_UNCHANGED_NO_EXTRA_REBUILD"
+      },
+      "android_instrumentation_execution": {
+        "source": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "apis": [
+          29,
+          35
+        ],
+        "release_install": "PASS_ACTUAL_ADB",
+        "same_signature_debug_cover": "PASS_ACTUAL_ADB_CLEAN_DISPOSABLE_EMULATOR",
+        "per_api_protocol": {
+          "executed": 10,
+          "passed": 9,
+          "failed": 1
+        },
+        "evidence": "verification/r31/p02/delivery_2ab/protocol-failures/RECEIPT.json",
+        "physical_device_equivalence": false
+      },
+      "signed_checkpoint": {
+        "state": "ACTUAL_SIGNED_CHECKPOINT_AVAILABLE_WITH_FAILED_GATES_NOT_FINAL",
+        "source": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+        "receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41856826339/artifacts/13337517432",
+        "contains_current_uncommitted_fixes": false
+      },
+      "current012_targeted": {
+        "wholeJava": "verification/r31/p02/build-identity/P02_PRIVATE_POOL_NULL_OWNER_012_BOOTSTRAP_CLASSES_ONLY.json",
+        "memory": "verification/r31/p02/scoped-set-consumer/actual-android-targeted/RECEIPT.json",
+        "mathAndSets": "verification/r31/p02/scoped-set-consumer/MATH-RECEIPT.json",
+        "consumer": "verification/r31/p02/resource-recovery-consumer/receipt.json"
       }
     }
   }

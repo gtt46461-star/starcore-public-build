@@ -1,0 +1,66 @@
+JUnit version 4.13.2
+.R27_HOST|H06_PASS generations=2 verified=1 championHoldoutHR=0.45038167938931295 champion=(ema 0.174 (zscore (family 11)))
+.R27_HOST|H12_PASS steps=18 events=173 uniqueBirthsAndEdges=82
+.E..E.E
+Time: 36.419
+There were 3 failures:
+1) noSignalRarelyClaimsImprovement(com.ethk3.novaonepro.strategyv2.R27EvolutionTest)
+com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.leaf(FeatureCacheR27.java:99)
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.leafWithPriorityR31(FeatureCacheR27.java:107)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:196)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:199)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:199)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:199)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:188)
+	at com.ethk3.novaonepro.strategyv2.BirthGateR27.check(BirthGateR27.java:71)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.restoreInternal(EvolutionLoopR27.java:662)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.restore(EvolutionLoopR27.java:622)
+	at com.ethk3.novaonepro.strategyv2.NullEvolutionR27.generation(NullEvolutionR27.java:34)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.stepHalving(EvolutionLoopR27.java:425)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.stepInsideEvolution(EvolutionLoopR27.java:161)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.step(EvolutionLoopR27.java:151)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.runGeneration(EvolutionLoopR27.java:146)
+	at com.ethk3.novaonepro.strategyv2.R27EvolutionTest.noSignalRarelyClaimsImprovement(R27EvolutionTest.java:48)
+2) powerAndFullPipelineQualificationHaveRecoverableSyntheticReceipts(com.ethk3.novaonepro.strategyv2.R30NullPipelineTest)
+com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.leaf(FeatureCacheR27.java:99)
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.meanGap(FeatureCacheR27.java:242)
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.computeBuiltinR31(FeatureCacheR27.java:161)
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.computeBuiltinIntoR31(FeatureCacheR27.java:146)
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.lambda$acquireLeafImplR31$4(FeatureCacheR27.java:118)
+	at com.ethk3.novaonepro.strategyv2.SharedFeatureStoreR31.publish(SharedFeatureStoreR31.java:122)
+	at com.ethk3.novaonepro.strategyv2.SharedFeatureStoreR31.fillPrivateDoublesR31(SharedFeatureStoreR31.java:77)
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.acquireLeafImplR31(FeatureCacheR27.java:118)
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.acquireLeafR31(FeatureCacheR27.java:109)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:196)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:199)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:199)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:188)
+	at com.ethk3.novaonepro.strategyv2.BirthGateR27.check(BirthGateR27.java:71)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.stepGate(EvolutionLoopR27.java:249)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.stepInsideEvolution(EvolutionLoopR27.java:159)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.step(EvolutionLoopR27.java:151)
+	at com.ethk3.novaonepro.strategyv2.NullPipelineSimulationR30.step(NullPipelineSimulationR30.java:41)
+	at com.ethk3.novaonepro.strategyv2.R30NullPipelineTest.powerAndFullPipelineQualificationHaveRecoverableSyntheticReceipts(R30NullPipelineTest.java:41)
+3) sameFullEvolutionPipelineResumesItsControlState(com.ethk3.novaonepro.strategyv2.R30NullPipelineTest)
+com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27$ScratchPoolR31.borrow(PolicyAstR27.java:178)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:200)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:199)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:188)
+	at com.ethk3.novaonepro.strategyv2.EvalContextR27.borrowScoresR31(EvalContextR27.java:39)
+	at com.ethk3.novaonepro.strategyv2.EvalContextR27.temperature(EvalContextR27.java:53)
+	at com.ethk3.novaonepro.strategyv2.SelectorPolicyR30.combine(SelectorPolicyR30.java:19)
+	at com.ethk3.novaonepro.strategyv2.IdeaI13SelectorOnlyR27.generate(IdeaI13SelectorOnlyR27.java:18)
+	at com.ethk3.novaonepro.strategyv2.IdeaFamilyR27.propose(IdeaFamilyR27.java:19)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.stepBirth(EvolutionLoopR27.java:226)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.stepInsideEvolution(EvolutionLoopR27.java:158)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.step(EvolutionLoopR27.java:151)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.runGeneration(EvolutionLoopR27.java:146)
+	at com.ethk3.novaonepro.strategyv2.NullEvolutionR27.generation(NullEvolutionR27.java:41)
+	at com.ethk3.novaonepro.strategyv2.R30NullPipelineTest.sameFullEvolutionPipelineResumesItsControlState(R30NullPipelineTest.java:25)
+
+FAILURES!!!
+Tests run: 6,  Failures: 3
+

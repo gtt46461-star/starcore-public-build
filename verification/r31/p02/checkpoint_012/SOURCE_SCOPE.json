@@ -1,0 +1,53 @@
+{
+  "capturedAt": "2026-11-04T16:19:42.411755+00:00",
+  "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "parentCheckpoint": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+  "phase": "P02",
+  "versionCode": 577311012,
+  "applicationId": "com.starcore.research.r13",
+  "signaturePolicy": "Existing public5237 R27 certificate d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7 only; never generate/export private key",
+  "productionFiles": {
+    "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java": "ed653db7280b41874bc92f96578c773cf20992c399c0aea989c86e45081be28c",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java": "423ddf1c3dd0061758145cba709096ba8c5680bc0c6ea0f94f2bb50768f32d8f",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java": "210780fbaee50a87da9f88a21f6e5f9ac191bf496f0f917b84661d39d6b6fc79",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java": "494541534d062baab0d622536ee224742f4d9e655cf4d7e6f3b10aaecd1dd495",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java": "0dc0222c704fc3dd9c6d320e410a6a30c4cfcf3a62d899f5f2c3008331d30efb",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java": "8717f593df50000489a96c561cf12ae01c92d284e063153a8c7575949b51781b",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java": "c0cf40b8877eeb6ad6ed4dbbfdb4b1933eb862f8dd211e9b27f22eb2e9793c98",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java": "22123d4d15e6ebdcdc5f57f376e065a6ace9416b7345ee57aee73d44dfa6878d",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SharedFeatureStoreR31.java": "6899e7c5b8e2223f9013a3b2d184a05ebc935479a185ef7ec540825f8aa3659f"
+  },
+  "actualChanges": [
+    "SQL NULL owner now uses IS NULL without an illegal rawQuery String binding; original owner/fence/boot/elapsed semantics retained",
+    "private built-in primitive pool includes idle/working/inflight in original32MiB/M16 cap; no public/mutable model alias reuse",
+    "private family numeric reader and scope exit return buffers only after actual users exit",
+    "FamilyStream deep snapshots preserve optimizer/model/state/PIT with no shared mutable state; same-row read avoids unchanged full-matrix copy",
+    "SetIntersection support and failure-cluster consumers borrow immutable row readers; original K3/intersection/statistics remain",
+    "real120s aged optional Java heap controller recovery is separate from ordinary admission and numerical tests, records GC request/actual observations/capacity debt",
+    "API21 helper estimate now uses same-size numeric primitive widths without API24 constants",
+    "HOST SQLite rawQuery and diagnosis process PID now match actual Android binding/process behavior"
+  ],
+  "evidence": {
+    "wholeAndroidJava": "verification/r31/p02/build-identity/P02_PRIVATE_POOL_NULL_OWNER_012_BOOTSTRAP_CLASSES_ONLY.json",
+    "actualClasses": "verification/r31/p02/build-identity/P02_012_ACTUAL_BOOTSTRAP_SUPPORT.json",
+    "nullOwnerNegativeAndNative": "verification/r31/p02/android-null-owner/RECEIPT.json",
+    "privateBackingAndFamilyIsolation": "verification/r31/p02/private-backing-final/RECEIPT.json",
+    "resourceRecoveryProducer": "verification/r31/p02/resource-recovery/RECEIPT.json",
+    "resourceDebt": "verification/r31/p02/resource-recovery/DEBT_RECEIPT.json",
+    "R26Consumer": "verification/r31/p02/resource-recovery-consumer/receipt.json",
+    "numericalConsumer": "verification/r31/p02/scoped-set-consumer/MATH-RECEIPT.json"
+  },
+  "P03Started": false,
+  "mainlineChoiceCacheGC": "NOT_ENABLED_PROHIBITED_BEFORE_P05_AUTHORITY_SWITCH",
+  "engineering": "PARTIAL_SOURCE_CHECKPOINT_REQUIRED_ACCEPTANCE_OPEN",
+  "naturalQuality": "NOT_PROVEN; historical/synthetic tests do not prove future quality",
+  "physicalDevice": "NOT_RUN_USER_CONFIRMED_UNAVAILABLE",
+  "24h": "NOT_RUN",
+  "72h": "NOT_RUN",
+  "openDebt": [
+    "B02C02 global64op/byte envelope and typed owner staging still not enforced for all producers",
+    "ordinary initial/rebuilt family model/matrix owner pre-admission incomplete",
+    "public ReplayDataset append/tail mutable aliasing awaits owner/input integration",
+    "full unexcluded current tests/lint and exact-source signed APK/Android rerun not yet completed"
+  ]
+}

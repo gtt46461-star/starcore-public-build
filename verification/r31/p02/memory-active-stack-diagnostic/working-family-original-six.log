@@ -1,0 +1,58 @@
+JUnit version 4.13.2
+.R27_HOST|H06_PASS generations=2 verified=1 championHoldoutHR=0.45038167938931295 champion=(ema 0.174 (zscore (family 11)))
+.R27_HOST|H12_PASS steps=18 events=173 uniqueBirthsAndEdges=82
+.E..E.E
+Time: 69.089
+There were 3 failures:
+1) noSignalRarelyClaimsImprovement(com.ethk3.novaonepro.strategyv2.R27EvolutionTest)
+com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.leafCapacityWaitR31(FeatureCacheR27.java:151)
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.leaf(FeatureCacheR27.java:99)
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.leafWithPriorityR31(FeatureCacheR27.java:107)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:197)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:200)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:200)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:189)
+	at com.ethk3.novaonepro.strategyv2.BirthGateR27.check(BirthGateR27.java:71)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.stepGate(EvolutionLoopR27.java:249)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.stepInsideEvolution(EvolutionLoopR27.java:159)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.step(EvolutionLoopR27.java:151)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.runGeneration(EvolutionLoopR27.java:146)
+	at com.ethk3.novaonepro.strategyv2.R27EvolutionTest.noSignalRarelyClaimsImprovement(R27EvolutionTest.java:48)
+	Suppressed: java.lang.IllegalStateException: R31_LEAF_ADMISSION kind=family tp=7 a=12 b=0 rows=3000
+		... 46 more
+2) powerAndFullPipelineQualificationHaveRecoverableSyntheticReceipts(com.ethk3.novaonepro.strategyv2.R30NullPipelineTest)
+com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.leafCapacityWaitR31(FeatureCacheR27.java:151)
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.leaf(FeatureCacheR27.java:99)
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.leafWithPriorityR31(FeatureCacheR27.java:107)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:197)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:200)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:189)
+	at com.ethk3.novaonepro.strategyv2.BirthGateR27.check(BirthGateR27.java:71)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.restoreInternal(EvolutionLoopR27.java:662)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.restore(EvolutionLoopR27.java:622)
+	at com.ethk3.novaonepro.strategyv2.NullPipelineSimulationR30.engine(NullPipelineSimulationR30.java:68)
+	at com.ethk3.novaonepro.strategyv2.NullPipelineSimulationR30.step(NullPipelineSimulationR30.java:40)
+	at com.ethk3.novaonepro.strategyv2.R30NullPipelineTest.powerAndFullPipelineQualificationHaveRecoverableSyntheticReceipts(R30NullPipelineTest.java:41)
+	Suppressed: java.lang.IllegalStateException: R31_LEAF_ADMISSION kind=family tp=1 a=11 b=0 rows=3000
+		... 45 more
+3) sameFullEvolutionPipelineResumesItsControlState(com.ethk3.novaonepro.strategyv2.R30NullPipelineTest)
+com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.leafCapacityWaitR31(FeatureCacheR27.java:151)
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.leaf(FeatureCacheR27.java:99)
+	at com.ethk3.novaonepro.strategyv2.SetIntersectionPolicyR30.support(SetIntersectionPolicyR30.java:19)
+	at com.ethk3.novaonepro.strategyv2.SetIntersectionPolicyR30.support(SetIntersectionPolicyR30.java:14)
+	at com.ethk3.novaonepro.strategyv2.BirthGateR27.check(BirthGateR27.java:82)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.stepGate(EvolutionLoopR27.java:249)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.stepInsideEvolution(EvolutionLoopR27.java:159)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.step(EvolutionLoopR27.java:151)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.runGeneration(EvolutionLoopR27.java:146)
+	at com.ethk3.novaonepro.strategyv2.NullEvolutionR27.generation(NullEvolutionR27.java:41)
+	at com.ethk3.novaonepro.strategyv2.R30NullPipelineTest.sameFullEvolutionPipelineResumesItsControlState(R30NullPipelineTest.java:26)
+	Suppressed: java.lang.IllegalStateException: R31_LEAF_ADMISSION kind=freq tp=0 a=8 b=8 rows=3000
+		... 44 more
+
+FAILURES!!!
+Tests run: 6,  Failures: 3
+
