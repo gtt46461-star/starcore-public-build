@@ -1,0 +1,2705 @@
+ .gitattributes                                     |      2 -
+ .github/workflows/build-apk.yml                    |    283 -
+ .github/workflows/r13.yml                          |    136 +-
+ .github/workflows/r27.yml                          |    191 -
+ .github/workflows/r29.yml                          |     45 -
+ .github/workflows/r30.yml                          |     45 -
+ .gitignore                                         |      2 -
+ CURRENT_FINAL_PLAN.md                              |     15 +-
+ R27_DELIVERY_README_ZH.md                          |    120 -
+ README.md                                          |     23 +-
+ ...226\275\345\267\245\345\205\245\345\217\243.md" |      8 +-
+ app/build.gradle                                   |     33 +-
+ app/build/generated/r967/semantic_manifest.json    |   1837 +-
+ .../novaonepro/ResearchSemanticsGeneratedR967.java |      6 +-
+ app/src/androidTest/AndroidManifest.xml            |      6 -
+ .../assets/r30_report_003_critical_schema.json     |      1 -
+ .../com/ethk3/novaonepro/R30ChartsAndroidTest.java |     74 -
+ .../novaonepro/R30DecisionChainAndroidTest.java    |    159 -
+ .../ethk3/novaonepro/R30FaultAndroidRunner.java    |     44 -
+ .../com/ethk3/novaonepro/R30FaultMatrixTest.java   |    118 -
+ .../novaonepro/R30FoldBackInstrumentedTest.java    |    132 -
+ .../com/ethk3/novaonepro/R30GalleryCaptureR30.java |    190 -
+ .../novaonepro/R30OriginalReceiptFixture.java      |     27 -
+ .../novaonepro/R30RepairChartsAndroidTest.java     |     58 -
+ .../novaonepro/R30ReportSnapshotAndroidTest.java   |     46 -
+ .../R30ResearchRetentionAndroidTest.java           |     34 -
+ .../ethk3/novaonepro/R30WriteQueueAndroidTest.java |     26 -
+ .../novaonepro/SchemaStampReasonAndroidTest.java   |    117 -
+ .../strategyv2/BundledApiDeviceSU1Test.java        |      7 +-
+ .../novaonepro/strategyv2/Plan1025DeviceTest.java  |    103 -
+ .../strategyv2/R26CheckpointDeviceTest.java        |    121 -
+ .../ethk3/novaonepro/strategyv2/R26DeviceTest.java |    195 -
+ .../strategyv2/R26EvidenceDeviceTest.java          |     39 -
+ .../strategyv2/R26PolicyIdentityDeviceTest.java    |     32 -
+ .../strategyv2/R26PublicationDeviceTest.java       |    400 -
+ .../novaonepro/strategyv2/R26ReportDeviceTest.java |     46 -
+ .../strategyv2/R26RuntimeDeviceTest.java           |    120 -
+ .../strategyv2/R26SchemaFingerprintDeviceTest.java |     67 -
+ .../strategyv2/R26SchemaMigrationDeviceTest.java   |     87 -
+ .../novaonepro/strategyv2/R26WriterDeviceTest.java |     25 -
+ .../strategyv2/RepairAnalysisAndroidFixture.java   |     18 -
+ .../strategyv2/RepairResearchFaultAndroidTest.java |    122 -
+ .../strategyv2/ReportMetadataExportDeviceTest.java |     77 -
+ .../strategyv2/SchemaAndLiveSU1Test.java           |      6 -
+ .../strategyv2/Su1AndroidTestRunner.java           |     15 -
+ app/src/main/AndroidManifest.xml                   |      1 -
+ app/src/main/assets/r27/golden_512.bin             |    Bin 9224 -> 0 bytes
+ app/src/main/assets/r29/legacy_preservation.json   |      1 -
+ .../ethk3/novaonepro/AnalysisRequestStoreR36.java  |      3 -
+ .../main/java/com/ethk3/novaonepro/ApiClient.java  |     12 +-
+ .../java/com/ethk3/novaonepro/AtomReplayR27.java   |     87 -
+ .../com/ethk3/novaonepro/AutoFetchService.java     |     76 +-
+ .../novaonepro/Batch34RuntimeRepositoryR930.java   |      9 +-
+ .../novaonepro/CalibrationRuntimeIdentityF04.java  |     15 -
+ .../ethk3/novaonepro/CertifiedPredictionR974.java  |     13 +-
+ .../com/ethk3/novaonepro/ChartsActivityR83.java    |     67 +-
+ .../com/ethk3/novaonepro/ChartsRepositoryR83.java  |    128 +-
+ .../ethk3/novaonepro/CompleteReportFileR927.java   |     14 +-
+ .../novaonepro/DataRetentionGovernorR900.java      |      6 +-
+ .../novaonepro/DatabaseBackupManifestR926.java     |     10 +-
+ .../com/ethk3/novaonepro/DatabaseCoordinator.java  |    147 +-
+ .../main/java/com/ethk3/novaonepro/DbHelper.java   |    342 +-
+ .../main/java/com/ethk3/novaonepro/DbStore.java    |      1 -
+ .../ethk3/novaonepro/DecisionExplanationR30.java   |     80 -
+ .../com/ethk3/novaonepro/DecisionGateEngine.java   |     18 -
+ .../novaonepro/DiagnosticReportProviderR923.java   |      8 +-
+ .../ethk3/novaonepro/DrawCanonicalizerR811.java    |      1 -
+ .../java/com/ethk3/novaonepro/FetchLedgerR925.java |     87 +-
+ .../ethk3/novaonepro/FrozenConsumerRecipeR932.java |      2 +-
+ .../com/ethk3/novaonepro/FtrlWriteTraceR30.java    |     23 -
+ .../novaonepro/LegacyPredrawContextBridgeR915.java |     69 +-
+ .../ethk3/novaonepro/LegacyTeacherOwnerR26.java    |     35 -
+ .../java/com/ethk3/novaonepro/MainActivity.java    |     26 +-
+ .../novaonepro/MatrixSnapshotFeedbackR930.java     |     13 +-
+ .../com/ethk3/novaonepro/ReleaseManifestR926.java  |      8 +-
+ .../novaonepro/ReportAttachmentClosureCP12.java    |     11 +-
+ .../novaonepro/ReportDiagnosticEvidenceR64.java    |     12 +-
+ .../ethk3/novaonepro/ReportDirectoriesCP12.java    |     22 -
+ .../ethk3/novaonepro/ReportExportServiceCP4.java   |    104 +-
+ .../ethk3/novaonepro/ReportInputsLeaseCP12.java    |     41 +-
+ .../com/ethk3/novaonepro/ReportJobJournalCP12.java |      4 +-
+ .../ethk3/novaonepro/ReportMetadataStreamR81.java  |    106 +-
+ .../ethk3/novaonepro/ReportPublicationCP12.java    |     72 +-
+ .../com/ethk3/novaonepro/ReportTaskControlR69.java |     45 +-
+ .../ResearchAdaptiveLearnerStoreR811.java          |     28 +-
+ .../novaonepro/ResearchEvolutionStoreR930.java     |    132 +-
+ .../novaonepro/ResearchLearningContinuityR912.java |      4 -
+ .../novaonepro/ResearchSchemaCoordinatorR926.java  |     31 +-
+ .../ethk3/novaonepro/ResearchVisualDataR82.java    |     21 +-
+ .../novaonepro/RetentionRevisionSchemaCP12.java    |    108 +-
+ .../com/ethk3/novaonepro/RetentionRulesSU2.java    |     38 +-
+ .../ethk3/novaonepro/RuntimeEventHooksR926.java    |      7 +-
+ .../ethk3/novaonepro/RuntimeEventLedgerR926.java   |      1 -
+ .../novaonepro/SchemaDomainCoordinatorR926.java    |    111 +-
+ .../ethk3/novaonepro/SchemaObjectSnapshotR26.java  |     32 -
+ .../com/ethk3/novaonepro/SchemaRevisionR925.java   |      3 -
+ .../novaonepro/SchemaUpgradeCoordinatorR815.java   |     74 +-
+ .../com/ethk3/novaonepro/SettlementEngine.java     |      8 -
+ .../novaonepro/SettlementExecutionGateR819.java    |      5 -
+ .../java/com/ethk3/novaonepro/StallStacksR27.java  |     32 -
+ .../com/ethk3/novaonepro/StarcoreApplication.java  |     11 -
+ .../com/ethk3/novaonepro/StorageCensusSU2.java     |     43 +-
+ .../novaonepro/UnifiedResearchChoiceR932.java      |     59 +-
+ .../ethk3/novaonepro/V51RuntimeOrchestrator.java   |      4 -
+ .../ethk3/novaonepro/r952/ChartGeometryR82.java    |      8 +-
+ .../novaonepro/r952/LongCandidateLifecycleR81.java |      9 +-
+ .../ethk3/novaonepro/r952/LongScaleSummaryR80.java |      9 +-
+ .../novaonepro/r952/MatrixSourceRouterCP12.java    |      7 +-
+ .../novaonepro/r952/PITSnapshotContractR952.java   |      9 -
+ .../novaonepro/r952/ResearchChartViewR82.java      |     39 +-
+ .../r952/ResearchMigrationRegistryR952.java        |     31 +-
+ .../novaonepro/strategyv2/BudgetTokenSU1.java      |     13 +-
+ .../novaonepro/strategyv2/CampaignStateSU1.java    |     30 +-
+ .../novaonepro/strategyv2/CertificateSU2.java      |    126 +-
+ .../strategyv2/EventFrameBuilderSU1.java           |      6 +-
+ .../novaonepro/strategyv2/FamilyF19TensorR26.java  |     75 -
+ .../novaonepro/strategyv2/FamilyF20KernelR26.java  |    127 -
+ .../novaonepro/strategyv2/FamilyF21KernelR26.java  |     37 -
+ .../novaonepro/strategyv2/FeatureCacheR27.java     |    372 -
+ .../novaonepro/strategyv2/FetchBackoffR30.java     |     58 -
+ .../ethk3/novaonepro/strategyv2/FindingsR29.java   |     69 -
+ .../novaonepro/strategyv2/ForecastSnapshotR26.java |     20 -
+ .../strategyv2/FrozenConfirmationR30.java          |    148 -
+ .../novaonepro/strategyv2/FrozenSurfaceR26.java    |     24 -
+ .../strategyv2/FrozenSurfaceStoreR26.java          |     29 -
+ .../com/ethk3/novaonepro/strategyv2/FtrlR27.java   |     34 -
+ .../novaonepro/strategyv2/FusionStudyR30R1.java    |     12 -
+ .../strategyv2/HistoricalReplayEngineSU1.java      |     11 -
+ .../novaonepro/strategyv2/HistoryImportR27.java    |     88 -
+ .../novaonepro/strategyv2/HoldLedgerFlushR30.java  |     66 -
+ .../novaonepro/strategyv2/HoldoutLedgerR27.java    |    118 -
+ .../ethk3/novaonepro/strategyv2/IdeaFamilyR27.java |    115 -
+ .../strategyv2/IdeaI00RandomBaselineR27.java       |     21 -
+ .../strategyv2/IdeaI01FrequencyReversionR27.java   |     20 -
+ .../novaonepro/strategyv2/IdeaI02GapCycleR27.java  |     20 -
+ .../strategyv2/IdeaI03TransitionChainR27.java      |     20 -
+ .../strategyv2/IdeaI04CrossPositionR27.java        |     22 -
+ .../IdeaI05PermutationConsistencyR27.java          |     22 -
+ .../strategyv2/IdeaI06RegimeSwitchR27.java         |     28 -
+ .../strategyv2/IdeaI07FragmentRetrievalR27.java    |     21 -
+ .../strategyv2/IdeaI08NeuralRepresentationR27.java |     22 -
+ .../strategyv2/IdeaI09SymbolicFormulaR27.java      |     20 -
+ .../strategyv2/IdeaI10FailureRepairR27.java        |     26 -
+ .../IdeaI11ComplementaryEnsembleR27.java           |     27 -
+ .../strategyv2/IdeaI12LegacyAssetR27.java          |     26 -
+ .../strategyv2/IdeaI13SelectorOnlyR27.java         |     34 -
+ .../novaonepro/strategyv2/IncumbentLoopSU2.java    |     85 +-
+ .../novaonepro/strategyv2/InformationProbeSU2.java |    198 -
+ .../novaonepro/strategyv2/IslandModelR27.java      |     56 -
+ .../novaonepro/strategyv2/IssueTimelineR30.java    |    154 -
+ .../strategyv2/IssueTimelineWriterR30.java         |    119 -
+ .../com/ethk3/novaonepro/strategyv2/JsonR27.java   |     97 -
+ .../novaonepro/strategyv2/LegacyBootstrapR26.java  |     38 -
+ .../novaonepro/strategyv2/LegacyContinuityR27.java |    126 -
+ .../strategyv2/LegacyPolicyExportR27.java          |     58 -
+ .../strategyv2/LegacyPreferenceTableR26.java       |     19 -
+ .../strategyv2/LegacyPublicationR26.java           |     38 -
+ .../strategyv2/LegacyReplayContinuationR26.java    |     20 -
+ .../novaonepro/strategyv2/LegacyReplayR26.java     |    164 -
+ .../strategyv2/LegacyReplayStateR26.java           |     98 -
+ .../novaonepro/strategyv2/LegalReadoutR26.java     |     11 -
+ .../ethk3/novaonepro/strategyv2/LivePoolR26.java   |     81 -
+ .../ethk3/novaonepro/strategyv2/LiveStateR26.java  |     19 -
+ .../novaonepro/strategyv2/LiveStrategySU2.java     |     15 -
+ .../novaonepro/strategyv2/LogisticRidgeSU2.java    |      6 +-
+ .../novaonepro/strategyv2/MainlineAdapterSU2.java  |      5 +-
+ .../novaonepro/strategyv2/MainlineBridgeSU2.java   |     90 +-
+ .../strategyv2/MatrixConsistencyR27.java           |     39 -
+ .../strategyv2/MatrixRegistryStoreR30.java         |     48 -
+ .../novaonepro/strategyv2/MatrixSnapshotSU2.java   |     78 -
+ .../novaonepro/strategyv2/MatrixStoreSU2.java      |     90 -
+ .../novaonepro/strategyv2/MatrixTensorR30R1.java   |     55 -
+ .../novaonepro/strategyv2/MetricCardMapR29.java    |      3 -
+ .../strategyv2/ModelConsumptionCensusR30R1.java    |     13 -
+ .../novaonepro/strategyv2/ModelEvolutionSU2.java   |    503 +-
+ .../novaonepro/strategyv2/ModelFoundryJobSU2.java  |     66 +-
+ .../novaonepro/strategyv2/ModelGenomeSU2.java      |     88 +-
+ .../novaonepro/strategyv2/ModelLiveLoopSU2.java    |    142 +-
+ .../ethk3/novaonepro/strategyv2/ModelLiveSU2.java  |    119 +-
+ .../ethk3/novaonepro/strategyv2/ModelOpsSU2.java   |     20 +-
+ .../novaonepro/strategyv2/ModelReplaySU2.java      |    147 +-
+ .../strategyv2/ModelReplayStudyR30R1.java          |     22 -
+ .../novaonepro/strategyv2/ModelStateCodecSU2.java  |     27 +-
+ .../ethk3/novaonepro/strategyv2/ModelStoreSU2.java |      9 +-
+ .../strategyv2/ModelSurfaceProviderR30.java        |     85 -
+ .../strategyv2/ModelSurfaceStoreR30.java           |     82 -
+ .../novaonepro/strategyv2/MutationOpsR27.java      |    160 -
+ .../novaonepro/strategyv2/NeuralFamilyR26.java     |     60 -
+ .../novaonepro/strategyv2/NullEvolutionR27.java    |     86 -
+ .../strategyv2/NullPipelineSimulationR30.java      |    111 -
+ .../strategyv2/NullPipelineSimulationStoreR30.java |     21 -
+ .../strategyv2/NumberRankerAdapterR30.java         |     18 -
+ .../novaonepro/strategyv2/OnlineModelsSU2.java     |    150 +-
+ .../strategyv2/OnlineResearchWindowR30R1.java      |     39 -
+ .../novaonepro/strategyv2/OperatorGoldenR27.java   |     59 -
+ .../strategyv2/PairedComponentStudyR30R1.java      |     30 -
+ .../novaonepro/strategyv2/PermutationChainR26.java |     18 -
+ .../novaonepro/strategyv2/PermutationModelR26.java |     42 -
+ .../ethk3/novaonepro/strategyv2/PitGuardR30.java   |     61 -
+ .../novaonepro/strategyv2/PolicyCheckpointR26.java |     14 -
+ .../strategyv2/PolicyIdentityLedgerR26.java        |     37 -
+ .../novaonepro/strategyv2/PolicyIdentityR26.java   |     42 -
+ .../novaonepro/strategyv2/PolicyRuntimeR26.java    |     24 -
+ .../novaonepro/strategyv2/PortfolioFamilyR26.java  |     17 -
+ .../strategyv2/PreparedForecastStoreR26.java       |     24 -
+ .../novaonepro/strategyv2/ProgramModelSU2.java     |      9 +-
+ .../strategyv2/QualificationGapRepairR30R1.java    |     80 -
+ .../strategyv2/QualificationWindowR26.java         |     21 -
+ .../novaonepro/strategyv2/R29FoldBackR30.java      |    110 -
+ .../novaonepro/strategyv2/RealAuthoritySU2.java    |     20 +-
+ .../strategyv2/RepairCompatibilityR30R1.java       |     12 -
+ .../strategyv2/ReplayBurstJobServiceSU1.java       |     87 +-
+ .../strategyv2/ReplayBurstSchedulerSU1.java        |     18 +-
+ .../novaonepro/strategyv2/ReplayEvaluatorR27.java  |    244 -
+ .../novaonepro/strategyv2/ReplayScoreR27.java      |     69 -
+ .../novaonepro/strategyv2/ReplayWorkspaceR26.java  |     74 -
+ .../ethk3/novaonepro/strategyv2/ReportDataR27.java |    142 -
+ .../strategyv2/ReportMetricContractR26.java        |     52 -
+ .../com/ethk3/novaonepro/strategyv2/ReportR27.java |    274 -
+ .../strategyv2/ResearchContractR30R1.java          |     36 -
+ .../strategyv2/ResearchDashboardSU1.java           |      2 -
+ .../strategyv2/ResearchInputPinR30R1.java          |     45 -
+ .../strategyv2/ResearchProvenanceGraphR30R1.java   |     37 -
+ .../novaonepro/strategyv2/ResearchSchemaR30R1.java |     23 -
+ .../novaonepro/strategyv2/ResearchSlotsR29.java    |     14 -
+ .../novaonepro/strategyv2/ResidualFamilyR26.java   |     37 -
+ .../ethk3/novaonepro/strategyv2/RetentionR26.java  |    159 -
+ .../novaonepro/strategyv2/RuntimeReportR26.java    |    181 -
+ .../novaonepro/strategyv2/ScaleEncoderR26.java     |     24 -
+ .../ethk3/novaonepro/strategyv2/ScaleInputR26.java |      8 -
+ .../strategyv2/SelectiveEvidenceSU2.java           |     30 +-
+ .../novaonepro/strategyv2/SelectorPolicyR30.java   |     43 -
+ .../novaonepro/strategyv2/SemanticAbiR27.java      |    121 -
+ .../novaonepro/strategyv2/ServiceTotalsR26.java    |     28 -
+ .../ethk3/novaonepro/strategyv2/SetFamilyR26.java  |     23 -
+ .../strategyv2/SetIntersectionPolicyR30.java       |     22 -
+ .../ethk3/novaonepro/strategyv2/SetReadoutR26.java |      9 -
+ .../novaonepro/strategyv2/ShadowAdmissionR26.java  |     29 -
+ .../ethk3/novaonepro/strategyv2/StageLayerSU2.java |    207 -
+ .../ethk3/novaonepro/strategyv2/StageStoreSU2.java |     63 -
+ .../novaonepro/strategyv2/StageStrategySU2.java    |    214 -
+ .../StatisticalTrainingDiagnosticsR26.java         |     17 -
+ .../StatisticalTrainingStepStoreR26.java           |     40 -
+ .../com/ethk3/novaonepro/strategyv2/StatsR27.java  |     83 -
+ .../com/ethk3/novaonepro/strategyv2/StoreR27.java  |    146 -
+ .../strategyv2/StrategyAssessmentR26.java          |     67 -
+ .../strategyv2/StrategyPolicyIdentityR26.java      |     10 -
+ .../novaonepro/strategyv2/StrategyRuntimeSU1.java  |      1 -
+ .../novaonepro/strategyv2/StrategySchemaSU1.java   |     21 +-
+ .../novaonepro/strategyv2/StrategySchemaSU2.java   |     36 +-
+ .../strategyv2/StructuralProposalR26.java          |     68 -
+ .../strategyv2/StructureGeneratorRegistryR30.java  |     89 -
+ .../novaonepro/strategyv2/StructureStudyR30R1.java |     40 -
+ .../novaonepro/strategyv2/StructureWindowR30.java  |     33 -
+ .../strategyv2/Su2CommitAuthorityR30.java          |     38 -
+ .../strategyv2/SuccessiveHalvingR27.java           |     57 -
+ .../novaonepro/strategyv2/SymbolicFamilyR26.java   |     38 -
+ .../novaonepro/strategyv2/TableCopierR30.java      |    163 -
+ .../novaonepro/strategyv2/TaskLivenessR30.java     |     61 -
+ .../novaonepro/strategyv2/TaskProgressR30R1.java   |     46 -
+ .../novaonepro/strategyv2/TeacherPoolSU2.java      |    127 -
+ .../novaonepro/strategyv2/TemporalModelR26.java    |      3 -
+ .../novaonepro/strategyv2/TemporalResetR26.java    |     19 -
+ .../novaonepro/strategyv2/ThermalPolicyR29.java    |     34 -
+ .../strategyv2/TrainingDiagnosticsR26.java         |     18 -
+ .../strategyv2/TrainingStepStoreR26.java           |     43 -
+ .../novaonepro/strategyv2/UpgradeDiagnosisSU2.java |    940 -
+ .../novaonepro/strategyv2/WarmCandidateR26.java    |     93 -
+ .../novaonepro/strategyv2/WarmModelSeedR26.java    |    104 -
+ .../novaonepro/strategyv2/WriterHoldLedgerR30.java |    202 -
+ .../novaonepro/strategyv2/XiIncumbentSU2.java      |     41 +-
+ app/src/main/res/values/strings.xml                |      2 +-
+ .../com/ethk3/novaonepro/ChartGeometryR82Test.java |     53 -
+ .../ethk3/novaonepro/FtrlWriteTraceR30Test.java    |     15 -
+ .../novaonepro/R30SelectiveScopeIdentityTest.java  |     41 -
+ .../novaonepro/RepairStorageCensusR30Test.java     |     10 -
+ .../novaonepro/SchemaBackupSpaceR815Test.java      |    109 -
+ .../novaonepro/strategyv2/R27BirthGateTest.java    |     93 -
+ .../novaonepro/strategyv2/R27ComponentTest.java    |    107 -
+ .../novaonepro/strategyv2/R27EvolutionTest.java    |     82 -
+ .../novaonepro/strategyv2/R27LeakageTest.java      |     51 -
+ .../novaonepro/strategyv2/R27NullBaselineTest.java |    162 -
+ .../novaonepro/strategyv2/R27QualityTest.java      |    444 -
+ .../ethk3/novaonepro/strategyv2/R27ReplayTest.java |     75 -
+ .../novaonepro/strategyv2/R27SequentialTest.java   |     49 -
+ .../novaonepro/strategyv2/R27TestSupport.java      |     23 -
+ .../novaonepro/strategyv2/R29BaselineTest.java     |     85 -
+ .../novaonepro/strategyv2/R29FindingsTest.java     |     26 -
+ .../ethk3/novaonepro/strategyv2/R29GateV2Test.java |     92 -
+ .../strategyv2/R29ModelArtifactTest.java           |     88 -
+ .../strategyv2/R29ResearchSlotsTest.java           |     34 -
+ .../strategyv2/R29ThermalPolicyTest.java           |     27 -
+ .../novaonepro/strategyv2/R30B04StructureTest.java |     49 -
+ .../strategyv2/R30BehaviorSignatureTest.java       |     84 -
+ .../strategyv2/R30BrierContributionTest.java       |     32 -
+ .../novaonepro/strategyv2/R30CalibrationTest.java  |     54 -
+ .../strategyv2/R30CapabilityRegistryTest.java      |     18 -
+ .../strategyv2/R30CertificateVersionTest.java      |      9 -
+ .../strategyv2/R30ChartSnapshotTest.java           |     26 -
+ .../strategyv2/R30ChunkedWriterTest.java           |     91 -
+ .../strategyv2/R30ConfirmLedgerTest.java           |     40 -
+ .../strategyv2/R30ConfirmPersistenceTest.java      |     54 -
+ .../strategyv2/R30ConfirmationQueueTest.java       |     26 -
+ .../strategyv2/R30DecisionChainTest.java           |     26 -
+ .../strategyv2/R30DecisionTraceTest.java           |     18 -
+ .../strategyv2/R30DiagnosisRulesTest.java          |     38 -
+ .../R30EvolutionConfirmIntegrationTest.java        |     93 -
+ .../strategyv2/R30FailureRepairTest.java           |    110 -
+ .../novaonepro/strategyv2/R30FetchBackoffTest.java |     38 -
+ .../strategyv2/R30HistoryGovernTest.java           |     40 -
+ .../strategyv2/R30IdeaFamilyContractTest.java      |     60 -
+ .../strategyv2/R30IncrementalFeatureTest.java      |     39 -
+ .../strategyv2/R30IssueTimelineTest.java           |     45 -
+ .../strategyv2/R30MatrixRegistryTest.java          |     23 -
+ .../strategyv2/R30MetricEvaluatorTest.java         |     45 -
+ .../novaonepro/strategyv2/R30ModelSurfaceTest.java |     47 -
+ .../novaonepro/strategyv2/R30NullPipelineTest.java |     50 -
+ .../novaonepro/strategyv2/R30NumberRankerTest.java |     27 -
+ .../novaonepro/strategyv2/R30PitGuardTest.java     |     25 -
+ .../strategyv2/R30PitReplayInjectionTest.java      |     33 -
+ .../strategyv2/R30PolicyContractTest.java          |     69 -
+ .../strategyv2/R30ReportSnapshotTest.java          |     21 -
+ .../strategyv2/R30ResearchRetentionTest.java       |     31 -
+ .../strategyv2/R30ResumeTrainingTest.java          |     33 -
+ .../strategyv2/R30SelectorPolicyTest.java          |     46 -
+ .../strategyv2/R30SequentialNullSimTest.java       |     32 -
+ .../strategyv2/R30StructureRegistryTest.java       |     78 -
+ .../novaonepro/strategyv2/R30TaskLivenessTest.java |     23 -
+ .../strategyv2/R30TenPositionTrainingTest.java     |     67 -
+ .../strategyv2/R30ThermalPolicyTest.java           |     34 -
+ .../strategyv2/R30UnifiedEvaluatorTest.java        |     48 -
+ .../strategyv2/R30UpgradeEvidenceTest.java         |     22 -
+ .../novaonepro/strategyv2/R30WriteWaitTest.java    |     25 -
+ .../strategyv2/R30WriterHoldLedgerTest.java        |     70 -
+ .../strategyv2/RepairBehaviorBirthR30Test.java     |      6 -
+ .../strategyv2/RepairCalibrationRoleR30Test.java   |      7 -
+ .../strategyv2/RepairCommitGuardsR30Test.java      |     30 -
+ .../strategyv2/RepairCompatibilityR30Test.java     |      6 -
+ .../strategyv2/RepairConfirmationR30Test.java      |     29 -
+ .../strategyv2/RepairDirectedResearchR30Test.java  |      6 -
+ .../strategyv2/RepairFusionStudyR30Test.java       |      6 -
+ .../strategyv2/RepairIssueTimelineR30Test.java     |     20 -
+ .../strategyv2/RepairLegacyTeacherR30Test.java     |      5 -
+ .../strategyv2/RepairMatrixEvidenceR30Test.java    |      6 -
+ .../novaonepro/strategyv2/RepairMatrixR30Test.java |      7 -
+ .../strategyv2/RepairModelReplayR30Test.java       |     11 -
+ .../novaonepro/strategyv2/RepairNeuralR30Test.java |     39 -
+ .../strategyv2/RepairNullBudgetR30Test.java        |      6 -
+ .../strategyv2/RepairObservatoryR30Test.java       |      8 -
+ .../strategyv2/RepairPairedResearchR30Test.java    |     18 -
+ .../strategyv2/RepairReportFactsR30Test.java       |     36 -
+ .../strategyv2/RepairReportIndexR30Test.java       |     26 -
+ .../RepairResearchFrameBoundR30Test.java           |     12 -
+ .../strategyv2/RepairSetIntersectionR30Test.java   |     10 -
+ .../strategyv2/RepairStructureStudyR30Test.java    |      6 -
+ .../strategyv2/RepairTaskProgressR30Test.java      |     44 -
+ .../strategyv2/RepairWriterLedgerR30Test.java      |     17 -
+ app/src/test/resources/r30-repair-legacy-v1.bin    |    Bin 55356 -> 0 bytes
+ app/src/test/resources/r30-repair-legacy-v1.json   |      8 -
+ .../MANIFEST_SHA256.json                           |   2032 +
+ construction/STARCORE_R31_FINAL_20261104/README.md |     52 +
+ .../STARCORE_R31_FINAL_20261104/START_HERE.html    |   7289 +
+ .../baseline_source/app/build.gradle               |    305 +
+ .../app/src/main/AndroidManifest.xml               |      2 +-
+ .../ethk3/novaonepro/AnalysisRequestStoreR36.java  |   1340 +
+ .../ethk3/novaonepro/AnalysisSingleFlightR36.java  |    426 +
+ .../com/ethk3/novaonepro/AutoFetchService.java     |  18032 +++
+ .../java/com/ethk3/novaonepro/BootReceiver.java    |    433 +
+ .../novaonepro/CanonicalObservationWriterR36.java  |    540 +
+ .../com/ethk3/novaonepro/ChartsActivityR83.java    |      3 +-
+ .../com/ethk3/novaonepro/ChartsRepositoryR27.java  |      0
+ .../com/ethk3/novaonepro/ChartsRepositoryR83.java  |     24 +-
+ .../novaonepro/DataRetentionGovernorR900.java      |    445 +
+ .../com/ethk3/novaonepro/DatabaseCoordinator.java  |   3733 +
+ .../main/java/com/ethk3/novaonepro/DbStore.java    |  22118 +++
+ .../ethk3/novaonepro/OosAfterDrawWriterR35.java    |    174 +
+ .../ethk3/novaonepro/OosAfterDrawWriterR36.java    |    542 +
+ .../novaonepro/ReportArchiveVerifierCP12.java      |    162 +
+ .../java/com/ethk3/novaonepro/ReportBudgetSU2.java |     72 +
+ .../ethk3/novaonepro/ReportExportServiceCP4.java   |    532 +
+ .../ethk3/novaonepro/ReportPublicationCP12.java    |    217 +
+ .../novaonepro/ResearchWorkbenchActivityR30R1.java |      0
+ .../ResearchWorkbenchRepositoryR30R1.java          |      0
+ .../ethk3/novaonepro/RetentionArchiveIoCP12.java   |    166 +
+ .../novaonepro/RetentionRevisionSchemaCP12.java    |    184 +
+ .../novaonepro/RetentionTableRegistryCP12.java     |    462 +
+ .../ethk3/novaonepro/RuntimeEventLedgerR926.java   |    860 +
+ .../novaonepro/SchemaDomainCoordinatorR926.java    |    597 +
+ .../ethk3/novaonepro/ServiceHeartbeatStore.java    |   1645 +
+ .../com/ethk3/novaonepro/SettlementEngine.java     |   2973 +
+ .../ethk3/novaonepro/SettlementTaskStoreR36.java   |   1478 +
+ .../com/ethk3/novaonepro/SourceReadLeaseR82.java   |     72 +
+ .../com/ethk3/novaonepro/StorageCensusSU2.java     |     80 +
+ .../novaonepro/StorageMaintenanceFileR82.java      |    120 +
+ .../novaonepro/StorageMaintenanceServiceR82.java   |     74 +
+ .../novaonepro/strategyv2/AlphaLedgerSU1.java      |     40 +
+ .../novaonepro/strategyv2/ArchiveStoreSU1.java     |    128 +
+ .../novaonepro/strategyv2/ArtifactImportSU1.java   |     22 +
+ .../strategyv2/ArtifactMaintenanceR26.java         |      0
+ .../novaonepro/strategyv2/AtomCatalogSU1.java      |     15 +
+ .../ethk3/novaonepro/strategyv2/AtomLiftSU1.java   |     51 +
+ .../ethk3/novaonepro/strategyv2/AtomNetR27.java    |      0
+ .../novaonepro/strategyv2/AtomNetRuntimeR30.java   |      0
+ .../ethk3/novaonepro/strategyv2/AtomNetSU2.java    |      0
+ .../novaonepro/strategyv2/AtomNetSessionR30.java   |      0
+ .../novaonepro/strategyv2/AtomNetStoreR30.java     |      0
+ .../novaonepro/strategyv2/AtomNetTrainerR27.java   |      0
+ .../ethk3/novaonepro/strategyv2/AtomScoreR27.java  |      0
+ .../ethk3/novaonepro/strategyv2/AtomStreamSU2.java |      0
+ .../ethk3/novaonepro/strategyv2/AtomWorldR27.java  |      0
+ .../strategyv2/AtomWorldScreenerSU1.java           |     21 +
+ .../ethk3/novaonepro/strategyv2/AutoDiffR26.java   |      0
+ .../novaonepro/strategyv2/BaselineIdentityR29.java |      0
+ .../strategyv2/BehaviorSignatureR30.java           |      0
+ .../strategyv2/BehaviorSignatureSU1.java           |     34 +
+ .../ethk3/novaonepro/strategyv2/BirthGateR27.java  |      0
+ .../ethk3/novaonepro/strategyv2/BrierSkillR27.java |      0
+ .../novaonepro/strategyv2/BudgetTokenSU1.java      |     34 +
+ .../strategyv2/CalibrationPipelineSU1.java         |     42 +
+ .../novaonepro/strategyv2/CalibrationR30.java      |      0
+ .../novaonepro/strategyv2/CalibrationRowsR27.java  |      0
+ .../novaonepro/strategyv2/CalibrationSU1.java      |     30 +
+ .../novaonepro/strategyv2/CalibrationSU2.java      |      0
+ .../strategyv2/CampaignAuditSessionSU1.java        |     87 +
+ .../strategyv2/CampaignAuditStoreSU1.java          |     46 +
+ .../novaonepro/strategyv2/CampaignControlsSU1.java |     20 +
+ .../novaonepro/strategyv2/CampaignStateSU1.java    |    132 +
+ .../strategyv2/CapabilityRegistryR30.java          |      0
+ .../strategyv2/CapabilityRegistryStoreR30.java     |      0
+ .../strategyv2/CapabilityServiceR26.java           |      0
+ .../novaonepro/strategyv2/CertificateGateR27.java  |      0
+ .../strategyv2/CertificateRevocationR30.java       |      0
+ .../novaonepro/strategyv2/CertificateSU1.java      |     66 +
+ .../novaonepro/strategyv2/CertificateSU2.java      |    124 +
+ .../ethk3/novaonepro/strategyv2/ChartCacheR27.java |      0
+ .../strategyv2/CheckpointArtifactsR26.java         |      0
+ .../strategyv2/CheckpointManifestR26.java          |      0
+ .../strategyv2/CheckpointPruneGuardR26.java        |      0
+ .../strategyv2/CheckpointReferencesR26.java        |      0
+ .../strategyv2/ChunkedCheckpointR26.java           |      0
+ .../novaonepro/strategyv2/ChunkedWriterR30.java    |      0
+ .../novaonepro/strategyv2/CommitEnvelopeR30R1.java |      0
+ .../novaonepro/strategyv2/CommitteeLiveSU2.java    |      0
+ .../ethk3/novaonepro/strategyv2/CommitteeSU2.java  |      0
+ .../novaonepro/strategyv2/ConfirmReadStoreR30.java |      0
+ .../strategyv2/ConfirmationViewR30R1.java          |      0
+ .../ethk3/novaonepro/strategyv2/ContMatSU2.java    |      0
+ .../strategyv2/CooperativeContinuationR26.java     |      0
+ .../strategyv2/CooperativeInputStreamR26.java      |      0
+ .../strategyv2/CooperativeOutputStreamR26.java     |      0
+ .../novaonepro/strategyv2/CoordinatorTxR30.java    |      0
+ .../novaonepro/strategyv2/CrossoverOpsR27.java     |      0
+ .../novaonepro/strategyv2/CurrentPolicyR26.java    |      0
+ .../novaonepro/strategyv2/DecisionChainR30.java    |      0
+ .../strategyv2/DecisionExplanationStoreR30.java    |      0
+ .../novaonepro/strategyv2/DerivedAtomR27.java      |      0
+ .../strategyv2/DeterministicRandomSU2.java         |     27 +
+ .../novaonepro/strategyv2/DiagnosisRulesR30.java   |      0
+ .../novaonepro/strategyv2/DiagnosisStoreSU2.java   |      0
+ .../novaonepro/strategyv2/DiagnosisTextSU2.java    |      0
+ .../novaonepro/strategyv2/DiagnosticsSU1.java      |     11 +
+ .../strategyv2/DirectedResearchPolicyR30R1.java    |      0
+ .../strategyv2/DirectorLiveFeedbackSU1.java        |     16 +
+ .../strategyv2/DistillationFamilyR26.java          |      0
+ .../novaonepro/strategyv2/EliteArchiveR27.java     |      0
+ .../ethk3/novaonepro/strategyv2/EraManagerSU1.java |     18 +
+ .../novaonepro/strategyv2/EvalContextR27.java      |      0
+ .../strategyv2/EventFrameBuilderSU1.java           |     35 +
+ .../ethk3/novaonepro/strategyv2/EventFrameSU1.java |     35 +
+ .../strategyv2/EvidenceAccumulatorR26.java         |      0
+ .../novaonepro/strategyv2/EvidenceBlockR26.java    |      0
+ .../novaonepro/strategyv2/EvidenceLoopSU1.java     |     63 +
+ .../novaonepro/strategyv2/EvidenceQualitySU1.java  |     52 +
+ .../novaonepro/strategyv2/EvolutionLoopR27.java    |      0
+ .../novaonepro/strategyv2/ExactPermutationR26.java |      0
+ .../novaonepro/strategyv2/ExecutionBudgetR26.java  |      0
+ .../strategyv2/ExpertContinuationR26.java          |      0
+ .../novaonepro/strategyv2/ExpertExperimentR26.java |      0
+ .../novaonepro/strategyv2/ExpertProposalsR27.java  |      0
+ .../novaonepro/strategyv2/ExpertWorkshopR26.java   |      0
+ .../strategyv2/FailureDirectedResearchR26.java     |      0
+ .../novaonepro/strategyv2/FailureProfileR30.java   |      0
+ .../novaonepro/strategyv2/FamilyF01KernelR26.java  |      0
+ .../novaonepro/strategyv2/FamilyF02KernelR26.java  |      0
+ .../novaonepro/strategyv2/FamilyF08KernelR26.java  |      0
+ .../novaonepro/strategyv2/FamilyF09KernelR26.java  |      0
+ .../novaonepro/strategyv2/FamilyF11KernelR26.java  |      0
+ .../novaonepro/strategyv2/FamilyF12KernelR26.java  |      0
+ .../novaonepro/strategyv2/FamilyF18KernelR26.java  |      0
+ .../novaonepro/strategyv2/FamilyF19KernelR26.java  |      0
+ .../novaonepro/strategyv2/FamilyRegistryR26.java   |      0
+ .../novaonepro/strategyv2/FoundryCampaignR26.java  |      0
+ .../strategyv2/FrozenConfirmationStoreR30.java     |      0
+ .../ethk3/novaonepro/strategyv2/FusionOpsR27.java  |      0
+ .../com/ethk3/novaonepro/strategyv2/GateV2R29.java |      0
+ .../novaonepro/strategyv2/GrammarFamilySU1.java    |     35 +
+ .../strategyv2/HistoricalReplayEngineSU1.java      |     66 +
+ .../novaonepro/strategyv2/IncumbentLoopSU2.java    |     61 +
+ .../novaonepro/strategyv2/LegacyGenerationR26.java |      0
+ .../novaonepro/strategyv2/LiveShadowsR27.java      |      0
+ .../novaonepro/strategyv2/MainlineAdapterSU1.java  |     73 +
+ .../novaonepro/strategyv2/MainlineAdapterSU2.java  |     66 +
+ .../novaonepro/strategyv2/MainlineBridgeSU2.java   |    176 +
+ .../novaonepro/strategyv2/MainlinePolicySU2.java   |    137 +
+ .../novaonepro/strategyv2/MatrixEvidenceR30R1.java |      0
+ .../novaonepro/strategyv2/MatrixRegistryR30.java   |      0
+ .../novaonepro/strategyv2/MatrixResearchR30R1.java |      0
+ .../strategyv2/MetricDefinitionsR29.java           |      0
+ .../novaonepro/strategyv2/MetricEvaluatorR29.java  |      0
+ .../novaonepro/strategyv2/ModelArtifactR29.java    |      0
+ .../novaonepro/strategyv2/ModelEvolutionSU2.java   |    669 +
+ .../novaonepro/strategyv2/ModelFoundryJobSU2.java  |     28 +
+ .../novaonepro/strategyv2/ModelGenomeSU2.java      |    178 +
+ .../strategyv2/ModelKernelRegistrySU1.java         |     18 +
+ .../novaonepro/strategyv2/ModelLiveLoopSU2.java    |    173 +
+ .../novaonepro/strategyv2/ModelReplaySU2.java      |    317 +
+ .../novaonepro/strategyv2/OnlineModelsSU2.java     |    493 +
+ .../strategyv2/PairedReplayRunnerR30R1.java        |      0
+ .../ethk3/novaonepro/strategyv2/PolicyAstR27.java  |      0
+ .../novaonepro/strategyv2/PolicyContractR30.java   |      0
+ .../ethk3/novaonepro/strategyv2/PolicySpecR27.java |      0
+ .../novaonepro/strategyv2/PreparedTaskR30R1.java   |      0
+ .../strategyv2/QualificationInboxR29.java          |      0
+ .../novaonepro/strategyv2/ReplayDatasetR27.java    |      0
+ .../novaonepro/strategyv2/ReportChartsR30.java     |      0
+ .../strategyv2/ReportObjectIndexR30.java           |      0
+ .../com/ethk3/novaonepro/strategyv2/ReportR29.java |      0
+ .../novaonepro/strategyv2/ReportSnapshotR30.java   |      0
+ .../novaonepro/strategyv2/ResearchAdviceR30R1.java |      0
+ .../strategyv2/ResearchContextR30R1.java           |      0
+ .../strategyv2/ResearchFrameBoundR30R1.java        |      0
+ .../novaonepro/strategyv2/ResearchGainR30R1.java   |      0
+ .../strategyv2/ResearchGraphSpecsR30R1.java        |      0
+ .../strategyv2/ResearchObservatoryR30R1.java       |      0
+ .../novaonepro/strategyv2/ResearchPoolR27.java     |      0
+ .../strategyv2/ResearchRetentionR30.java           |      0
+ .../strategyv2/ResearchRetentionStoreR30.java      |      0
+ .../novaonepro/strategyv2/ResearchStoreR30R1.java  |      0
+ .../strategyv2/ResearchStudyTaskR30R1.java         |      0
+ .../strategyv2/ResearchTableAdaptersR30R1.java     |      0
+ .../strategyv2/ResearchTaskRegistryR30R1.java      |      0
+ .../strategyv2/ResearchWriteQueueR27.java          |      0
+ .../strategyv2/RuntimeCoordinatorR26.java          |      0
+ .../strategyv2/RuntimePowerLeaseR26.java           |      0
+ .../ethk3/novaonepro/strategyv2/RuntimeR27.java    |      0
+ .../novaonepro/strategyv2/RuntimeSchemaR26.java    |      0
+ .../com/ethk3/novaonepro/strategyv2/SchemaR27.java |      0
+ .../strategyv2/SequentialQualificationR27.java     |      0
+ .../com/ethk3/novaonepro/strategyv2/SplitR27.java  |      0
+ .../novaonepro/strategyv2/TaskContinuationR26.java |      0
+ .../ethk3/novaonepro/strategyv2/WaitKindR27.java   |      0
+ .../novaonepro/strategyv2/XiIncumbentSU2.java      |    204 +
+ .../cards/B00/R31-B00-C01.md                       |     57 +
+ .../cards/B00/R31-B00-C02.md                       |     89 +
+ .../cards/B01/R31-B01-C01.md                       |    103 +
+ .../cards/B01/R31-B01-C02.md                       |     81 +
+ .../cards/B01/R31-B01-C03.md                       |     89 +
+ .../cards/B01/R31-B01-C04.md                       |    135 +
+ .../cards/B02/R31-B02-C01.md                       |     77 +
+ .../cards/B02/R31-B02-C02.md                       |     93 +
+ .../cards/B02/R31-B02-C03.md                       |     91 +
+ .../cards/B03/R31-B03-C01.md                       |     75 +
+ .../cards/B03/R31-B03-C02.md                       |    107 +
+ .../cards/B03/R31-B03-C03.md                       |     89 +
+ .../cards/B04/R31-B04-C01.md                       |     93 +
+ .../cards/B04/R31-B04-C02.md                       |    107 +
+ .../cards/B05/R31-B05-C01.md                       |     57 +
+ .../cards/B05/R31-B05-C02.md                       |     59 +
+ .../cards/B05/R31-B05-C03.md                       |     75 +
+ .../cards/B05/R31-B05-C04.md                       |     61 +
+ .../cards/B05/R31-B05-C05.md                       |     71 +
+ .../cards/B05/R31-B05-C06.md                       |     61 +
+ .../cards/B05/R31-B05-C07.md                       |     75 +
+ .../cards/B05/R31-B05-C08.md                       |     61 +
+ .../cards/B05/R31-B05-C09.md                       |     59 +
+ .../cards/B05/R31-B05-C10.md                       |     61 +
+ .../cards/B05/R31-B05-C11.md                       |    149 +
+ .../cards/B06/R31-B06-C01.md                       |     79 +
+ .../cards/B06/R31-B06-C02.md                       |    105 +
+ .../cards/B06/R31-B06-C03.md                       |     79 +
+ .../cards/B07/R31-B07-C01.md                       |    107 +
+ .../cards/B07/R31-B07-C02.md                       |     93 +
+ .../cards/B07/R31-B07-C03.md                       |     79 +
+ .../cards/B07/R31-B07-C04.md                       |     91 +
+ .../cards/B07/R31-B07-C05.md                       |     77 +
+ .../cards/B07/R31-B07-C06.md                       |    107 +
+ .../cards/B08/R31-B08-C01.md                       |     79 +
+ .../cards/B08/R31-B08-C02.md                       |     93 +
+ .../cards/B08/R31-B08-C03.md                       |     91 +
+ .../cards/B08/R31-B08-C04.md                       |     87 +
+ .../cards/B08/R31-B08-C05.md                       |    101 +
+ .../cards/B09/R31-B09-C01.md                       |     85 +
+ .../cards/B09/R31-B09-C02.md                       |     73 +
+ .../cards/B09/R31-B09-C03.md                       |     75 +
+ .../cards/B09/R31-B09-C04.md                       |     63 +
+ .../cards/B09/R31-B09-C05.md                       |     75 +
+ .../cards/B10/R31-B10-C01.md                       |     91 +
+ .../cards/B10/R31-B10-C02.md                       |     91 +
+ .../cards/B10/R31-B10-C03.md                       |     93 +
+ .../cards/B11/R31-B11-C01.md                       |     81 +
+ .../cards/B11/R31-B11-C02.md                       |     75 +
+ .../cards/B11/R31-B11-C03.md                       |     75 +
+ .../cards/B11/R31-B11-C04.md                       |     71 +
+ .../cards/B12/R31-B12-C01.md                       |     59 +
+ .../cards/B12/R31-B12-C02.md                       |     55 +
+ .../cards/B12/R31-B12-C03.md                       |     55 +
+ .../cards/B12/R31-B12-C04.md                       |     57 +
+ .../cards/B12/R31-B12-C05.md                       |     55 +
+ ...226\275\345\267\245\346\200\273\347\272\262.md" |    125 +
+ ...201\217\344\270\216\344\277\235\345\205\250.md" |     32 +
+ ...256\236\346\226\275\345\215\217\350\256\256.md" |     80 +
+ ...227\250\346\247\233\345\212\237\346\225\210.md" |     64 +
+ ...227\255\347\216\257\344\272\247\347\211\251.md" |     76 +
+ ...234\200\346\261\202\345\257\271\347\205\247.md" |    129 +
+ ...226\207\344\273\266\350\256\276\350\256\241.md" |    435 +
+ ...226\207\344\273\266\350\256\276\350\256\241.md" |    182 +
+ ...226\207\344\273\266\350\256\276\350\256\241.md" |    196 +
+ ...226\207\344\273\266\350\256\276\350\256\241.md" |    575 +
+ .../audit_manifests/charts_audit_facts.json        |     54 +
+ .../charts_chart_source_excerpts.json              |   1144 +
+ .../evidence/audit_manifests/charts_charts.json    |   1867 +
+ .../audit_manifests/charts_design_validation.json  |     20 +
+ .../audit_manifests/charts_metric_coverage_44.json |    618 +
+ .../audit_manifests/charts_research_tables_16.json |    114 +
+ .../charts_source_evidence_manifest.json           |    212 +
+ .../original_dependencies_NOT_EXECUTION.json       |    505 +
+ .../research_new_files_registry.json               |     53 +
+ .../audit_manifests/research_source_manifest.json  |    306 +
+ .../audit_manifests/research_validation.json       |      8 +
+ .../audit_manifests/runtime_source_receipts.json   |    226 +
+ .../audit_manifests/storage_memory_card.json       |    161 +
+ .../audit_manifests/storage_source_manifest.json   |    122 +
+ .../storage_storage_contract_receipt.json          |      8 +
+ .../evidence/derived/README.md                     |     48 +
+ .../evidence/derived/archive_integrity.json        |    979 +
+ .../evidence/derived/archive_members_and_parts.csv |     97 +
+ .../evidence/derived/chapters_12.csv               |     13 +
+ .../evidence/derived/chapters_12.json              |    177 +
+ .../evidence/derived/checks_96.csv                 |   2487 +
+ .../evidence/derived/checks_96.json                |   1154 +
+ .../evidence/derived/draws_5000.csv                |   5001 +
+ .../evidence/derived/draws_5000.json               | 130002 ++++++++++++++++++
+ .../evidence/derived/draws_validation.json         |     18 +
+ .../evidence/derived/evidence_claims.json          |    134 +
+ .../evidence/derived/evidence_findings.md          |     56 +
+ .../evidence/derived/final_review.md               |     70 +
+ .../evidence/derived/input_inventory.json          |    762 +
+ .../evidence/derived/legacy_file_cards_299.csv     |    300 +
+ .../evidence/derived/legacy_requirements_1832.csv  |   2644 +
+ .../evidence/derived/metrics_44.csv                |     45 +
+ .../evidence/derived/metrics_44.json               |   1515 +
+ .../evidence/derived/reproduction_stdout.json      |     19 +
+ .../evidence/derived/runtime_facts.json            |     67 +
+ .../evidence/derived/schema_objects_and_sql.json   |  64136 +++++++++
+ .../evidence/derived/selected_rowsets_83.csv       |     84 +
+ .../evidence/derived/settlement_summary.json       |     19 +
+ .../evidence/derived/settlement_tasks_5519.csv     |   5520 +
+ .../evidence/derived/shadow_observations_73.csv    |     74 +
+ .../evidence/derived/shadow_validation.json        |    954 +
+ .../evidence/derived/storage_facts.json            |     39 +
+ .../evidence/derived/summary.json                  |    100 +
+ .../evidence/derived/table_columns.csv             |  12386 ++
+ .../evidence/derived/table_states.csv              |    211 +
+ .../evidence/derived/tables_713.csv                |    714 +
+ .../evidence/derived/tables_schema.json            |  80408 +++++++++++
+ .../evidence/derived/tasks_60.csv                  |     61 +
+ .../evidence/derived/tasks_60.json                 |   1898 +
+ .../original_report/ARCHIVE_MANIFEST.jsonl         |     98 +
+ .../evidence/original_report/DIAGNOSTIC_SCOPE.json |      1 +
+ .../evidence/original_report/FILE_STATE.jsonl      |    322 +
+ .../original_report/R26_FROZEN_SURFACE.json        |      7 +
+ .../original_report/R26_POLICY_IDENTITIES.jsonl    |     54 +
+ .../evidence/original_report/R26_REPORT.json       |  32128 +++++
+ .../evidence/original_report/R27_REPORT.md         |     45 +
+ .../evidence/original_report/R30_REPORT.json       |      1 +
+ .../evidence/original_report/R30_REPORT.md         |     99 +
+ .../R30_SUCCESSFUL_SUMMARY_CANDIDATE.json          |      1 +
+ .../evidence/original_report/REPORT_DETAILS.txt    |    111 +
+ .../evidence/original_report/STORAGE_CENSUS.txt    |      2 +
+ .../original_report/STRATEGY_MATRICES.json         |      1 +
+ .../original_report/UPGRADE_DIAGNOSIS.json         |      1 +
+ .../evidence/original_report/UPGRADE_DIAGNOSIS.md  |    104 +
+ .../evidence/original_report/attachments.jsonl     |     12 +
+ .../evidence/original_report/catalog-0001.jsonl    |  12342 ++
+ .../evidence/original_report/catalog-0002.jsonl    |   9951 ++
+ .../evidence/original_report/catalog-0003.jsonl    |   1645 +
+ ...1d55302a2afdc393ed688898001542e11b310e85e5e.txt |      6 +
+ ...fb41327e9da87f965ae80aeb4e6cfe78ac1f79efd9b.txt |  15894 +++
+ ...a7d3cdfc008a50ce955eb2818e750dac13f2a7abf3b.txt |     30 +
+ ...b61eb8cbdde8f5a516a25a909ecfb65814ce5173765.txt |   2644 +
+ .../r80-archive-observations.jsonl}                |      0
+ ...83d29d70c68b4d805d81aa4bda41d62fc6eab7193aa.txt |    608 +
+ ...88f47c4be045b63c69d8b426b7232638034f027f931.txt |    122 +
+ ...6d7c8b8f1970f2072040f707652fc3a439c55244255.txt |   2025 +
+ ...5c6bc22cb7ae408bae2e1b410180884254cdc334086.txt |    661 +
+ ...4b0a5d2946ff7f271f14a97436f94107c5313820095.txt |    357 +
+ ...04ad6b71d4ba547d40846b86774d9a56db5d7d0c2e7.txt |    501 +
+ ...d2c25555dfbb450a47f532a9b419c58a562f8120677.txt |    501 +
+ ...b1dfd43481ce94cec77fa7f8aa356006d468b0fb107.txt |     50 +
+ ...2918b0e027c428055855cc01429ce7b6a2861403cf2.txt |     89 +
+ ...08da7593ae2710d8ccb83431c920e512f33a0e0de3e.txt |   2124 +
+ ...c428005600be2881d568a6aac7c696aef8578f35cb8.txt |     66 +
+ ...6e5b434ae275621f585fe4aa22e428906d27ba1bcdc.txt |    501 +
+ ...967cb52f214cc79de40f36f8267e198882bffe95d7e.txt |    132 +
+ ...deb343e4407950bf29c9d99ad9af55cbc0dc5785eb1.txt |    286 +
+ ...bee99dcfa42dd3e1f573f475acf99d6a6bd702eaaea.txt |    215 +
+ ...d7c942b3c8799b544cf088f8a1ad42f9f4293713b50.txt |    266 +
+ .../runtime-observation-crashSummary.txt           |     52 +
+ .../runtime-observation-ftrlWritePhases.txt        |      1 +
+ .../runtime-observation-heartbeatSummary.txt       |      1 +
+ .../runtime-observation-threadStacks.txt           |    689 +
+ .../original_report/runtime-observation.json       |      1 +
+ .../original_report/seed-bundle-observations.jsonl |      1 +
+ ...96a3551a88d20d25ddeb336149ad909a7919c185f3c.txt |   6211 +
+ ...56692919fa13ab043e9d1fb06d9acd44e76d9080fb5.tsv |  29766 ++++
+ .../evidence/original_report/source-manifest.json  |      1 +
+ .../reference/REFERENCE_ONLY_NOT_EXECUTION.md      |    703 +
+ .../reference/STARCORE_R31_REFERENCE_INPUT.zip     |    Bin 0 -> 2098991 bytes
+ .../evidence/review_experiment/all_candidates.csv  |    101 +
+ .../frozen_champion_holdout_predictions.csv        |   2001 +
+ .../evidence/review_experiment/replay_spec.json    |     18 +
+ .../evidence/review_experiment/review_results.json |    162 +
+ .../ledgers/acceptance_config.json                 |     53 +
+ .../ledgers/all_java_1236_review_scope.csv         |   1237 +
+ .../ledgers/card_id_map.json                       |     58 +
+ .../STARCORE_R31_FINAL_20261104/ledgers/cards.json |   6413 +
+ .../ledgers/cards_summary.csv                      |     57 +
+ .../ledgers/charts.json                            |   1867 +
+ .../ledgers/execution_phases.json                  |    187 +
+ .../ledgers/file_change_matrix.csv                 |    123 +
+ .../ledgers/legacy_1832_preservation_map.csv       |   1833 +
+ .../ledgers/metric_coverage_44.csv                 |     45 +
+ .../ledgers/metric_coverage_44.json                |    618 +
+ .../ledgers/package_summary.json                   |     38 +
+ .../ledgers/repository_main_tree_e1413de9.json     |  52378 +++++++
+ .../ledgers/repository_tree_5237b265.json          |  74493 ++++++++++
+ .../ledgers/research_tables_16.json                |    114 +
+ .../ledgers/shared_file_conflicts.csv              |     20 +
+ .../ledgers/source_receipts.json                   |   1902 +
+ .../ledgers/user_requirements_40.csv               |     41 +
+ .../ledgers/user_requirements_40.json              |    897 +
+ .../reference_code/contracts/PACKAGE_MANIFEST.json |     45 +
+ .../reference_code/contracts/README.md             |     79 +
+ .../reference_code/contracts/contracts.py          |    484 +
+ .../contracts/demonstration_results.json           |     26 +
+ .../reference_code/contracts/integration_map.json  |     70 +
+ .../reference_code/contracts/run_examples.py       |     54 +
+ .../reference_code/contracts/schema.sql            |    105 +
+ .../reference_code/contracts/test_contracts.py     |    445 +
+ .../reference_code/contracts/test_results.json     |    137 +
+ .../reference_code/storage/storage_contract.sql    |     17 +
+ .../storage/storage_contract_receipt.json          |      8 +
+ .../storage/verify_storage_contract.py             |     90 +
+ .../tools/run_historical_review.py                 |     94 +
+ .../tools/summarize_evidence.py                    |    164 +
+ .../tools/validate_package.py                      |     71 +
+ .../validation/document_structure.json             |     13 +
+ .../validation/executed_commands.json              |     38 +
+ .../validation/execution_01.log                    |     35 +
+ .../validation/execution_02.log                    |     17 +
+ .../validation/execution_03.log                    |      1 +
+ .../validation/execution_04.log                    |     28 +
+ .../validation/independent_final_review.json       |    157 +
+ .../validation/plan_structure_selfcheck.json       |     15 +
+ .../validation/reproduction_receipt.json           |     10 +
+ ...\273\346\226\271\346\241\210_50\351\241\271.md" |   5341 -
+ ...247\350\257\212\346\226\255\344\271\246_P50.md" |    522 -
+ ...215\207\347\272\247\346\226\271\346\241\210.md" |    285 -
+ construction/plan1025/README.md                    |     44 -
+ construction/plan1025/delivery.json                |    117 -
+ construction/plan1025/final-hotcold.log            |     14 -
+ construction/plan1025/host-storage-30days.json     |    260 -
+ construction/plan1025/implementation.json          |    573 -
+ construction/plan1025/known-validation-gaps.json   |     33 -
+ .../plan1025/plan-kernel-verification.json         |    244 -
+ .../plan1025/production-host-verification.json     |    132 -
+ construction/plan1025/r13_projects.json            |   5027 -
+ construction/plan1025/r13_requirements.csv         |     41 -
+ construction/plan1025/r16-regime-null.log          |     36 -
+ construction/plan1025/source-import.json           |    176 -
+ construction/plan1025/source-reconciliation.json   |    349 -
+ .../registries/r27_cards.json                      |    192 +-
+ .../plans/STARCORE_R28_FINAL_20261029/README.md    |     83 +
+ ...226\275\345\267\245\346\240\270\345\257\271.md" |    105 +
+ ...271\210\350\203\234\347\216\207\344\275\216.md" |     93 +
+ ...236\234\350\257\212\346\226\255\350\241\250.md" |     60 +
+ ...210\240\347\271\201\345\260\261\347\256\200.md" |     73 +
+ ...70\2165\347\247\222\345\207\272\345\217\267.md" |     96 +
+ ...277\233\345\214\226\350\247\202\345\257\237.md" |     82 +
+ ...37\251\351\230\265_\346\240\241\345\207\206.md" |     70 +
+ ...236\234\350\257\212\346\226\255\344\271\246.md" |     55 +
+ ...215\241\344\270\216\346\211\271\346\254\241.md" |    125 +
+ ...234\237\346\234\272\346\265\213\350\257\225.md" |     92 +
+ .../registries/r28_acceptance_metrics.json         |    352 +
+ .../registries/r28_cards.json                      |    709 +
+ .../results/r28_independence_audit.json            |    142 +
+ .../results/r28_report_facts_20261029.json         |    166 +
+ .../tools/r28_generate_registries.py               |    195 +
+ .../tools/r28_independence_audit.py                |    136 +
+ construction/plans/STARCORE_R30_FINAL_20261031.zip |    Bin 0 -> 1131407 bytes
+ .../FINAL_IMPLEMENTATION_SPEC.md                   |   6388 -
+ .../FINAL_PACKAGE_VALIDATION.json                  |     30 -
+ .../MANIFEST_SHA256.json                           |    205 -
+ .../PLAN_COUNTS.json                               |     19 -
+ ...4\230\345\214\226\346\226\271\346\241\210.html" |   6600 -
+ ...267\245\346\226\271\345\277\205\350\257\273.md" |     21 -
+ .../README.md"                                     |      8 -
+ .../cards/FR-B00-01/CARD.md"                       |     58 -
+ .../cards/FR-B00-02/CARD.md"                       |     58 -
+ .../cards/FR-B00-03/CARD.md"                       |     58 -
+ .../cards/FR-B00-04/CARD.md"                       |     59 -
+ .../README.md"                                     |      9 -
+ .../cards/FR-B01-01/CARD.md"                       |     62 -
+ .../cards/FR-B01-01/code/APPLY_NOTE.md"            |      3 -
+ .../strategyv2/UpgradeDiagnosisSU2.java"           |    940 -
+ .../cards/FR-B01-02/CARD.md"                       |     50 -
+ .../cards/FR-B01-02/code/APPLY_NOTE.md"            |      3 -
+ .../novaonepro/strategyv2/DiagnosisStoreSU2.java"  |    316 -
+ .../cards/FR-B01-03/CARD.md"                       |     50 -
+ .../cards/FR-B01-03/code/APPLY_NOTE.md"            |      3 -
+ .../novaonepro/strategyv2/DiagnosisRulesR30.java"  |    171 -
+ .../cards/FR-B01-04/CARD.md"                       |     70 -
+ .../cards/FR-B01-05/CARD.md"                       |     70 -
+ .../README.md"                                     |     10 -
+ .../cards/FR-B02-01/CARD.md"                       |    335 -
+ .../cards/FR-B02-01/code/APPLY_NOTE.md"            |      3 -
+ .../novaonepro/strategyv2/HoldLedgerFlushR30.java" |     65 -
+ .../strategyv2/WriterHoldLedgerR30.java"           |    193 -
+ .../cards/FR-B02-02/CARD.md"                       |     71 -
+ .../cards/FR-B02-03/CARD.md"                       |     82 -
+ .../cards/FR-B02-04/CARD.md"                       |     70 -
+ .../cards/FR-B02-05/CARD.md"                       |    106 -
+ .../cards/FR-B02-06/CARD.md"                       |    281 -
+ .../cards/FR-B02-06/code/APPLY_NOTE.md"            |      3 -
+ .../strategyv2/CommitEnvelopeR30R1.java"           |     23 -
+ .../strategyv2/ResearchContractR30R1.java"         |     36 -
+ .../strategyv2/ResearchWriteQueueR27.java"         |    126 -
+ .../README.md"                                     |      9 -
+ .../cards/FR-B03-01/CARD.md"                       |     89 -
+ .../cards/FR-B03-01/code/APPLY_NOTE.md"            |      3 -
+ .../strategyv2/ResearchSchemaR30R1.java"           |     19 -
+ .../ethk3/novaonepro/strategyv2/SchemaR27.java"    |    166 -
+ .../cards/FR-B03-02/CARD.md"                       |    101 -
+ .../cards/FR-B03-02/code/APPLY_NOTE.md"            |      3 -
+ .../novaonepro/strategyv2/TaskProgressR30R1.java"  |     21 -
+ .../cards/FR-B03-03/CARD.md"                       |     70 -
+ .../cards/FR-B03-04/CARD.md"                       |     58 -
+ .../cards/FR-B03-05/CARD.md"                       |     70 -
+ .../README.md"                                     |      9 -
+ .../cards/FR-B04-01/CARD.md"                       |     50 -
+ .../cards/FR-B04-01/code/APPLY_NOTE.md"            |      3 -
+ .../novaonepro/strategyv2/AtomNetSessionR30.java"  |    159 -
+ .../cards/FR-B04-02/CARD.md"                       |    150 -
+ .../cards/FR-B04-02/code/APPLY_NOTE.md"            |      3 -
+ .../novaonepro/strategyv2/AtomNetSessionR30.java"  |    159 -
+ .../novaonepro/strategyv2/AtomNetStoreR30.java"    |     80 -
+ .../cards/FR-B04-03/CARD.md"                       |     70 -
+ .../cards/FR-B04-04/CARD.md"                       |     82 -
+ .../cards/FR-B04-05/CARD.md"                       |     82 -
+ .../README.md"                                     |      9 -
+ .../cards/FR-B05-01/CARD.md"                       |     82 -
+ .../cards/FR-B05-01/code/APPLY_NOTE.md"            |      3 -
+ .../strategyv2/ConfirmationViewR30R1.java"         |     12 -
+ .../novaonepro/strategyv2/ReportSnapshotR30.java"  |    163 -
+ .../cards/FR-B05-02/CARD.md"                       |     70 -
+ .../cards/FR-B05-03/CARD.md"                       |     70 -
+ .../cards/FR-B05-04/CARD.md"                       |     70 -
+ .../cards/FR-B05-05/CARD.md"                       |     82 -
+ .../README.md"                                     |     10 -
+ .../cards/FR-B06-01/CARD.md"                       |    106 -
+ .../cards/FR-B06-01/code/APPLY_NOTE.md"            |      3 -
+ .../strategyv2/MatrixRegistryStoreR30.java"        |     38 -
+ .../cards/FR-B06-02/CARD.md"                       |     70 -
+ .../cards/FR-B06-03/CARD.md"                       |     70 -
+ .../cards/FR-B06-04/CARD.md"                       |     70 -
+ .../cards/FR-B06-05/CARD.md"                       |     70 -
+ .../cards/FR-B06-06/CARD.md"                       |     70 -
+ .../README.md"                                     |      9 -
+ .../cards/FR-B07-01/CARD.md"                       |    143 -
+ .../cards/FR-B07-01/code/APPLY_NOTE.md"            |      3 -
+ .../strategyv2/ResearchAdviceR30R1.java"           |     21 -
+ .../novaonepro/strategyv2/ResearchGainR30R1.java"  |     46 -
+ .../cards/FR-B07-02/CARD.md"                       |     91 -
+ .../cards/FR-B07-02/code/APPLY_NOTE.md"            |      3 -
+ .../novaonepro/strategyv2/ResearchStoreR30R1.java" |     35 -
+ .../cards/FR-B07-03/CARD.md"                       |     70 -
+ .../cards/FR-B07-04/CARD.md"                       |     70 -
+ .../cards/FR-B07-05/CARD.md"                       |     70 -
+ .../README.md"                                     |      9 -
+ .../cards/FR-B08-01/CARD.md"                       |    155 -
+ .../cards/FR-B08-01/code/APPLY_NOTE.md"            |      3 -
+ .../strategyv2/DirectedResearchPolicyR30R1.java"   |     36 -
+ .../strategyv2/PairedComponentStudyR30R1.java"     |     30 -
+ .../cards/FR-B08-02/CARD.md"                       |    107 -
+ .../cards/FR-B08-03/CARD.md"                       |     94 -
+ .../cards/FR-B08-04/CARD.md"                       |     70 -
+ .../cards/FR-B08-05/CARD.md"                       |     70 -
+ .../README.md"                                     |      9 -
+ .../cards/FR-B09-01/CARD.md"                       |     90 -
+ .../cards/FR-B09-01/code/APPLY_NOTE.md"            |      3 -
+ .../strategyv2/ResearchGraphSpecsR30R1.java"       |     34 -
+ .../cards/FR-B09-02/CARD.md"                       |    252 -
+ .../cards/FR-B09-02/code/APPLY_NOTE.md"            |      3 -
+ .../com/ethk3/novaonepro/ChartsRepositoryR27.java" |    112 -
+ .../ResearchWorkbenchRepositoryR30R1.java"         |     50 -
+ .../cards/FR-B09-03/CARD.md"                       |    363 -
+ .../cards/FR-B09-03/code/APPLY_NOTE.md"            |      3 -
+ .../ResearchWorkbenchActivityR30R1.java"           |     40 -
+ .../cards/FR-B09-04/CARD.md"                       |     74 -
+ .../cards/FR-B09-04/code/APPLY_NOTE.md"            |      3 -
+ .../cards/FR-B09-05/CARD.md"                       |     70 -
+ .../README.md"                                     |      9 -
+ .../cards/FR-B10-01/CARD.md"                       |     58 -
+ .../cards/FR-B10-02/CARD.md"                       |     70 -
+ .../cards/FR-B10-03/CARD.md"                       |     70 -
+ .../cards/FR-B10-04/CARD.md"                       |     70 -
+ .../cards/FR-B10-05/CARD.md"                       |     58 -
+ .../README.md"                                     |      8 -
+ .../cards/FR-B11-01/CARD.md"                       |     70 -
+ .../cards/FR-B11-02/CARD.md"                       |     58 -
+ .../cards/FR-B11-03/CARD.md"                       |     59 -
+ .../cards/FR-B11-04/CARD.md"                       |     59 -
+ .../evidence/20_matrix_objects.csv                 |     21 -
+ .../evidence/22_repair_cards.csv                   |     23 -
+ .../evidence/29_chart_audit.csv                    |     30 -
+ .../evidence/44_metrics_reconciliation.csv         |     45 -
+ .../evidence/57_R30_cards_crosswalk.csv            |     58 -
+ .../evidence/689_database_tables.csv               |    690 -
+ .../evidence/82_capabilities.csv                   |     83 -
+ .../evidence/96_checks_two_snapshots.csv           |   1408 -
+ .../evidence/A_0912_96_checks.json                 |   1058 -
+ .../evidence/A_0912_key_sections.json              |   5931 -
+ .../evidence/B_1113_96_checks.json                 |   1058 -
+ .../evidence/B_1113_key_sections.json              |  41604 ------
+ .../evidence/audit_summary.json                    |    198 -
+ .../evidence/input_identity.json                   |     29 -
+ .../evidence/latest_facts.json                     |  20398 ---
+ .../evidence/recomputed_shadow_intervals.json      |     30 -
+ .../evidence/snapshot_comparison.json              |    160 -
+ .../evidence/source_files_reviewed.json            |    293 -
+ .../patches/ALL_KEY_CODE.patch                     |    785 -
+ .../patches/B01_diagnostic_truth.patch             |     72 -
+ .../patches/B02_atomic_step_guards.patch           |     82 -
+ .../patches/B02_writer_telemetry_retry.patch       |     64 -
+ .../patches/B03_typed_progress_schema.patch        |     58 -
+ .../patches/B04_neural_prefetch_and_truth.patch    |    103 -
+ .../B05_confirmation_negative_evidence.patch       |     28 -
+ .../B06_matrix_static_runtime_separation.patch     |     15 -
+ .../patches/B07_paired_research_receipts.patch     |    111 -
+ .../B08_measured_counterfactual_operator.patch     |     72 -
+ .../patches/B09_research_graph_contracts.patch     |     61 -
+ .../patches/B09_research_workbench_entry.patch     |    119 -
+ .../patches/SERIES.json                            |    107 -
+ .../registries/BATCHES_12.json                     |    221 -
+ .../registries/CARDS_60.json                       |   5364 -
+ .../registries/CHARTS_18.json                      |    236 -
+ .../registries/CONTRACTS.json                      |     30 -
+ .../registries/FILE_ACTIONS.csv                    |   1239 -
+ .../registries/FILE_OWNERS.json                    |   1318 -
+ .../registries/MATRIX_CONTRACTS_20.json            |    662 -
+ .../registries/METHOD_CHANGE_MAP.json              |   4224 -
+ .../registries/OLD_29_CHARTS.json                  |    427 -
+ .../registries/ORIGINAL_57_CROSSWALK.json          |   1127 -
+ .../registries/PRIOR_22_TO_FINAL_60.json           |    133 -
+ .../registries/RESEARCH_TABLE_CONTRACTS_16.json    |    146 -
+ .../source_audit/SEMANTIC_FINDINGS.json            |     72 -
+ .../source_audit/SourceIndex.java                  |     42 -
+ .../source_audit/methods.jsonl                     |  24318 ----
+ .../source_audit/source_inventory.json             |   9610 --
+ .../source_audit/transaction_sites.jsonl           |    312 -
+ .../verification/DiagnosisMinimalProbe.java        |     10 -
+ .../verification/DiagnosisRenderRegression.java    |     19 -
+ .../verification/DiagnosisRenderRegression.log     |      1 -
+ .../verification/HoldFlushRetryTest.java           |     13 -
+ .../verification/HoldFlushRetryTest.log            |      1 -
+ .../verification/README.md                         |     12 -
+ .../verification/ResearchCoreTest.java             |     64 -
+ .../verification/ResearchCoreTest.log              |      1 -
+ .../verification/SchemaDump.java                   |      2 -
+ .../verification/VALIDATION_SCOPE.json             |      7 -
+ .../verification/WriterRotateTest.java             |     13 -
+ .../verification/WriterRotateTest.log              |      1 -
+ .../ethk3/novaonepro/strategyv2/CommitteeSU2.java  |      9 -
+ .../novaonepro/strategyv2/ModelGenomeSU2.java      |      5 -
+ .../verification/core_compile.log                  |      0
+ .../verification/diagnosis_compile.log             |      0
+ .../diagnosis_empty_probe_baseline.log             |      5 -
+ .../verification/diagnosis_minimal_baseline.log    |     75 -
+ .../flush_adapters/android/database/Cursor.java    |      2 -
+ .../android/database/sqlite/SQLiteDatabase.java    |      8 -
+ .../flush_adapters/android/util/Log.java           |      2 -
+ .../com/ethk3/novaonepro/DbStore.java              |      8 -
+ .../verification/patch_apply_check.log             |      0
+ .../verification/patched_parse.log                 |      1 -
+ .../verification/portable_runner.log               |      5 -
+ .../verification/run_host_checks.py                |     53 -
+ .../verification/schema_ddl.sql                    |     10 -
+ .../verification/schema_test.log                   |      1 -
+ .../verification/sql_binding_check.py              |     27 -
+ .../verification/sql_binding_test.log              |      1 -
+ construction/r26/README.md                         |     35 -
+ construction/r26/STATUS.zh.md                      |     91 -
+ construction/r26/acceptance.json                   |   1144 -
+ construction/r26/android-runtime-verification.json |      1 -
+ construction/r26/android36-compile-only.log        |      1 -
+ construction/r26/apk-verification.json             |     13 -
+ construction/r26/baseline-audit.json               |    136 -
+ .../r26/continuation/android36-compile-only.log    |      1 -
+ .../artifact-79-independent-verification.json      |     12 -
+ .../artifact-83-independent-verification.json      |     26 -
+ .../artifact-88-independent-verification.json      |     26 -
+ .../checkpoint-yield-host-verification.json        |     19 -
+ .../continuation/diagnosis-schema-host-parity.json |     44 -
+ .../distillation-training-host-verification.json   |     23 -
+ .../duration-training-host-verification.json       |     45 -
+ .../endurance-102-locked-suspend-failure.json      |     66 -
+ .../endurance-103-six-scenarios-pass.json          |    142 -
+ ...durance-109-six-scenarios-power-lease-pass.json |    225 -
+ .../r26/continuation/endurance-55-failures.json    |     92 -
+ .../continuation/endurance-67-29-bright.json.gz    |    Bin 23633 -> 0 bytes
+ .../continuation/endurance-67-35-bright.json.gz    |    Bin 24893 -> 0 bytes
+ .../continuation/endurance-67-35-locked.json.gz    |    Bin 25214 -> 0 bytes
+ .../continuation/endurance-67-36-bright.json.gz    |    Bin 25180 -> 0 bytes
+ .../continuation/endurance-67-36-locked.json.gz    |    Bin 24749 -> 0 bytes
+ .../r26/continuation/endurance-67-summary.json     |     99 -
+ .../r26/continuation/endurance-68-summary.json     |     95 -
+ .../r26/continuation/endurance-70-summary.json     |     64 -
+ .../endurance-70-telemetry-readback.json           |    386 -
+ .../endurance-78-telemetry-readback.json           |    432 -
+ .../endurance-79-telemetry-readback.json           |    325 -
+ .../endurance-83-preflight-failures.json           |     58 -
+ .../endurance-83-telemetry-readback.json           |     87 -
+ .../endurance-89-telemetry-readback.json           |    220 -
+ .../endurance-92-telemetry-readback.json           |    258 -
+ .../endurance-93-failure-readback.json             |    299 -
+ .../endurance-94-95-observed-failures.json         |    169 -
+ construction/r26/continuation/evidence-power.log   |      3 -
+ .../expert-scale-and-infrastructure-evidence.json  |     19 -
+ .../expert-scale-infrastructure-host.log           |     16 -
+ .../expert-training-host-verification.json         |     32 -
+ ...expert-warm-source-epoch-host-verification.json |     21 -
+ .../r26/continuation/f08-structural-mechanism.json |     30 -
+ .../continuation/f20-android36-compile-only.log    |      1 -
+ .../r26/continuation/f20-mechanism-evidence.json   |     41 -
+ .../r26/continuation/f20-mechanism-host.log        |      2 -
+ .../r26/continuation/f20-plan1025-host.log         |     20 -
+ construction/r26/continuation/f20-r26-host.log     |     16 -
+ construction/r26/continuation/f20-state-sample.bin |    Bin 20415 -> 0 bytes
+ .../continuation/f20-state-sample.identity.json    |      1 -
+ construction/r26/continuation/f20-su1-host.log     |     21 -
+ ...ailure-directed-research-host-verification.json |     34 -
+ .../r26/continuation/family-controls-host.log      |     13 -
+ .../family-controls-mechanism-evidence.log         |      1 -
+ .../r26/continuation/family-controls-native.log    |      1 -
+ .../r26/continuation/family-controls-plan.log      |     20 -
+ .../r26/continuation/family-controls-strategy.log  |     21 -
+ .../r26/continuation/forecast-admission-host.log   |     12 -
+ .../r26/continuation/forecast-admission-native.log |      1 -
+ .../fragment-training-host-verification.json       |     61 -
+ .../continuation/incumbent-owner-migration.json    |     44 -
+ .../legacy-warm-bootstrap-host-verification.json   |     18 -
+ .../matching-training-host-verification.json       |     49 -
+ .../merged-requirements-acceptance.json            |     24 -
+ .../neural-training-host-verification.json         |    101 -
+ .../r26/continuation/next-compile-only.log         |      1 -
+ construction/r26/continuation/next-host.log        |     10 -
+ construction/r26/continuation/next-plan-host.log   |     20 -
+ .../r26/continuation/next-strategy-host.log        |     21 -
+ .../own-storage-android36-compile-only.log         |      1 -
+ construction/r26/continuation/own-storage-host.log |      9 -
+ .../r26/continuation/package-102-independent.json  |     25 -
+ .../r26/continuation/package-114-independent.json  |     23 -
+ .../r26/continuation/package-117-independent.json  |     30 -
+ .../r26/continuation/package-119-independent.json  |     24 -
+ .../r26/continuation/package-120-independent.json  |     24 -
+ .../power-lease-host-verification.json             |     28 -
+ construction/r26/continuation/prior-plan.log       |     20 -
+ construction/r26/continuation/prior-strategy.log   |     21 -
+ .../quality-research-upgrade-plan-20261028.json    |     55 -
+ .../r26-endurance-29-bright-failure.json           |  19498 ---
+ .../r26-endurance-29-locked-failure.json           |  19498 ---
+ .../r26-endurance-35-bright-failure.json           |  19498 ---
+ .../r26-endurance-35-locked-failure.json           |  19498 ---
+ .../r26-endurance-36-bright-failure.json           |  19498 ---
+ .../r26-endurance-36-locked-failure.json           |  19498 ---
+ construction/r26/continuation/r26-host.log         |      8 -
+ .../raw/source100-api29-android-r13.txt.gz         |    Bin 1568 -> 0 bytes
+ ...ce100-api29-r26-bundled-api-environment.json.gz |    Bin 234 -> 0 bytes
+ ...ce100-api29-r26-instrumentation-results.json.gz |    Bin 1363 -> 0 bytes
+ .../source100-api29-r26-runtime-synthetic.json.gz  |    Bin 1346 -> 0 bytes
+ ...00-api29-r26-schema-migration-synthetic.json.gz |    Bin 3514 -> 0 bytes
+ ...e102-29-locked-r26-emulator-environment.json.gz |    Bin 326 -> 0 bytes
+ .../source102-29-locked-r26-owner-logcat.txt.gz    |    Bin 5373 -> 0 bytes
+ ...urce102-29-locked-r26-runtime-synthetic.json.gz |    Bin 12693 -> 0 bytes
+ .../raw/source102-api29-android-r13.txt.gz         |    Bin 1593 -> 0 bytes
+ .../raw/source102-api29-r26-adb-preflight.json.gz  |    Bin 236 -> 0 bytes
+ ...ce102-api29-r26-bundled-api-environment.json.gz |    Bin 234 -> 0 bytes
+ ...ce102-api29-r26-instrumentation-results.json.gz |    Bin 1386 -> 0 bytes
+ .../source102-api29-r26-runtime-synthetic.json.gz  |    Bin 1362 -> 0 bytes
+ ...02-api29-r26-schema-migration-synthetic.json.gz |    Bin 3525 -> 0 bytes
+ .../raw/source103-api29-android-r13.txt.gz         |    Bin 1600 -> 0 bytes
+ .../raw/source103-api29-r26-adb-preflight.json.gz  |    Bin 235 -> 0 bytes
+ ...ce103-api29-r26-bundled-api-environment.json.gz |    Bin 235 -> 0 bytes
+ ...ce103-api29-r26-instrumentation-results.json.gz |    Bin 1393 -> 0 bytes
+ .../source103-api29-r26-runtime-synthetic.json.gz  |    Bin 1370 -> 0 bytes
+ ...03-api29-r26-schema-migration-synthetic.json.gz |    Bin 1678 -> 0 bytes
+ .../raw/source104-api29-android-r13.txt.gz         |    Bin 1644 -> 0 bytes
+ .../raw/source104-api29-r26-adb-preflight.json.gz  |    Bin 234 -> 0 bytes
+ ...ce104-api29-r26-bundled-api-environment.json.gz |    Bin 234 -> 0 bytes
+ ...ce104-api29-r26-instrumentation-results.json.gz |    Bin 1417 -> 0 bytes
+ .../source104-api29-r26-runtime-synthetic.json.gz  |    Bin 1366 -> 0 bytes
+ ...04-api29-r26-schema-migration-synthetic.json.gz |    Bin 3937 -> 0 bytes
+ .../raw/source105-api29-android-r13.txt.gz         |    Bin 1666 -> 0 bytes
+ .../raw/source105-api29-r26-adb-preflight.json.gz  |    Bin 235 -> 0 bytes
+ ...ce105-api29-r26-bundled-api-environment.json.gz |    Bin 234 -> 0 bytes
+ ...ce105-api29-r26-instrumentation-results.json.gz |    Bin 1427 -> 0 bytes
+ .../source105-api29-r26-runtime-synthetic.json.gz  |    Bin 1352 -> 0 bytes
+ ...05-api29-r26-schema-migration-synthetic.json.gz |    Bin 8245 -> 0 bytes
+ ...e109-R26-Endurance-29-BRIGHT-android-r13.txt.gz |    Bin 104 -> 0 bytes
+ ...ndurance-29-BRIGHT-r26-device-idle-state.txt.gz |    Bin 622 -> 0 bytes
+ ...R26-Endurance-29-BRIGHT-r26-owner-logcat.txt.gz |    Bin 972 -> 0 bytes
+ ...-R26-Endurance-29-BRIGHT-r26-power-state.txt.gz |    Bin 2450 -> 0 bytes
+ ...durance-29-BRIGHT-r26-runtime-synthetic.json.gz |    Bin 26143 -> 0 bytes
+ ...e109-R26-Endurance-29-LOCKED-android-r13.txt.gz |    Bin 105 -> 0 bytes
+ ...ndurance-29-LOCKED-r26-device-idle-state.txt.gz |    Bin 624 -> 0 bytes
+ ...R26-Endurance-29-LOCKED-r26-owner-logcat.txt.gz |    Bin 1551 -> 0 bytes
+ ...-R26-Endurance-29-LOCKED-r26-power-state.txt.gz |    Bin 2436 -> 0 bytes
+ ...durance-29-LOCKED-r26-runtime-synthetic.json.gz |    Bin 26548 -> 0 bytes
+ ...e109-R26-Endurance-35-BRIGHT-android-r13.txt.gz |    Bin 104 -> 0 bytes
+ ...ndurance-35-BRIGHT-r26-device-idle-state.txt.gz |    Bin 812 -> 0 bytes
+ ...R26-Endurance-35-BRIGHT-r26-owner-logcat.txt.gz |    Bin 3934 -> 0 bytes
+ ...-R26-Endurance-35-BRIGHT-r26-power-state.txt.gz |    Bin 5881 -> 0 bytes
+ ...durance-35-BRIGHT-r26-runtime-synthetic.json.gz |    Bin 27640 -> 0 bytes
+ ...e109-R26-Endurance-35-LOCKED-android-r13.txt.gz |    Bin 105 -> 0 bytes
+ ...ndurance-35-LOCKED-r26-device-idle-state.txt.gz |    Bin 816 -> 0 bytes
+ ...R26-Endurance-35-LOCKED-r26-owner-logcat.txt.gz |    Bin 4074 -> 0 bytes
+ ...-R26-Endurance-35-LOCKED-r26-power-state.txt.gz |    Bin 5794 -> 0 bytes
+ ...durance-35-LOCKED-r26-runtime-synthetic.json.gz |    Bin 27414 -> 0 bytes
+ ...e109-R26-Endurance-36-BRIGHT-android-r13.txt.gz |    Bin 105 -> 0 bytes
+ ...ndurance-36-BRIGHT-r26-device-idle-state.txt.gz |    Bin 866 -> 0 bytes
+ ...R26-Endurance-36-BRIGHT-r26-owner-logcat.txt.gz |    Bin 6802 -> 0 bytes
+ ...-R26-Endurance-36-BRIGHT-r26-power-state.txt.gz |    Bin 8371 -> 0 bytes
+ ...durance-36-BRIGHT-r26-runtime-synthetic.json.gz |    Bin 26761 -> 0 bytes
+ ...e109-R26-Endurance-36-LOCKED-android-r13.txt.gz |    Bin 104 -> 0 bytes
+ ...ndurance-36-LOCKED-r26-device-idle-state.txt.gz |    Bin 869 -> 0 bytes
+ ...R26-Endurance-36-LOCKED-r26-owner-logcat.txt.gz |    Bin 4828 -> 0 bytes
+ ...-R26-Endurance-36-LOCKED-r26-power-state.txt.gz |    Bin 8782 -> 0 bytes
+ ...durance-36-LOCKED-r26-runtime-synthetic.json.gz |    Bin 27628 -> 0 bytes
+ .../raw/source109-api29-android-r13.txt.gz         |    Bin 1721 -> 0 bytes
+ ...ce109-api29-r26-instrumentation-results.json.gz |    Bin 1476 -> 0 bytes
+ .../source109-api29-r26-runtime-synthetic.json.gz  |    Bin 1391 -> 0 bytes
+ .../raw/source111-api29-android-r13.txt.gz         |    Bin 1769 -> 0 bytes
+ ...ce111-api29-r26-instrumentation-results.json.gz |    Bin 1520 -> 0 bytes
+ .../source111-api29-r26-runtime-synthetic.json.gz  |    Bin 1398 -> 0 bytes
+ .../raw/source114-api29-android-r13.txt.gz         |    Bin 1823 -> 0 bytes
+ ...ce114-api29-r26-instrumentation-results.json.gz |    Bin 1574 -> 0 bytes
+ .../source114-api29-r26-runtime-synthetic.json.gz  |    Bin 1405 -> 0 bytes
+ .../raw/source116-api29-android-r13.txt.gz         |    Bin 2137 -> 0 bytes
+ ...ce116-api29-r26-instrumentation-results.json.gz |    Bin 1673 -> 0 bytes
+ .../source116-api29-r26-runtime-synthetic.json.gz  |    Bin 1387 -> 0 bytes
+ .../raw/source117-api29-android-r13.txt.gz         |    Bin 1917 -> 0 bytes
+ ...ce117-api29-r26-instrumentation-results.json.gz |    Bin 1641 -> 0 bytes
+ .../source117-api29-r26-runtime-synthetic.json.gz  |    Bin 1399 -> 0 bytes
+ .../raw/source119-api29-android-r13.txt.gz         |    Bin 1972 -> 0 bytes
+ ...ce119-api29-r26-instrumentation-results.json.gz |    Bin 1681 -> 0 bytes
+ .../source119-api29-r26-runtime-synthetic.json.gz  |    Bin 1402 -> 0 bytes
+ .../raw/source119-api35-release-runtime.txt.gz     |    Bin 103 -> 0 bytes
+ .../raw/source119-api35-startup.json.gz            |    Bin 2024 -> 0 bytes
+ .../raw/source119-api36-release-runtime.txt.gz     |    Bin 103 -> 0 bytes
+ .../raw/source119-api36-startup.json.gz            |    Bin 1970 -> 0 bytes
+ .../raw/source120-api29-android-r13.txt.gz         |    Bin 1962 -> 0 bytes
+ ...ce120-api29-r26-instrumentation-results.json.gz |    Bin 1676 -> 0 bytes
+ .../source120-api29-r26-runtime-synthetic.json.gz  |    Bin 1397 -> 0 bytes
+ .../raw/source120-api35-release-runtime.txt.gz     |    Bin 102 -> 0 bytes
+ .../raw/source120-api35-startup.json.gz            |    Bin 2106 -> 0 bytes
+ .../raw/source120-api36-release-runtime.txt.gz     |    Bin 103 -> 0 bytes
+ .../raw/source120-api36-startup.json.gz            |    Bin 1832 -> 0 bytes
+ .../continuation/raw/source120-host-cancel.log.gz  |    Bin 156 -> 0 bytes
+ .../raw/source120-host-publication.log.gz          |    Bin 152 -> 0 bytes
+ .../r26/continuation/raw/source120-host-saf.log.gz |    Bin 105 -> 0 bytes
+ .../raw/source120-ui-to-zip-receipt.json.gz        |    Bin 874 -> 0 bytes
+ ...ance-29-BRIGHT-r26-emulator-environment.json.gz |    Bin 326 -> 0 bytes
+ ...R26-Endurance-29-BRIGHT-r26-owner-logcat.txt.gz |    Bin 1285 -> 0 bytes
+ ...durance-29-BRIGHT-r26-runtime-synthetic.json.gz |    Bin 25499 -> 0 bytes
+ ...ance-29-LOCKED-r26-emulator-environment.json.gz |    Bin 326 -> 0 bytes
+ ...R26-Endurance-29-LOCKED-r26-owner-logcat.txt.gz |    Bin 2350 -> 0 bytes
+ ...durance-29-LOCKED-r26-runtime-synthetic.json.gz |    Bin 26391 -> 0 bytes
+ ...ance-35-BRIGHT-r26-emulator-environment.json.gz |    Bin 333 -> 0 bytes
+ ...R26-Endurance-35-BRIGHT-r26-owner-logcat.txt.gz |    Bin 1117 -> 0 bytes
+ ...durance-35-BRIGHT-r26-runtime-synthetic.json.gz |    Bin 27008 -> 0 bytes
+ ...ance-35-LOCKED-r26-emulator-environment.json.gz |    Bin 333 -> 0 bytes
+ ...R26-Endurance-35-LOCKED-r26-owner-logcat.txt.gz |    Bin 966 -> 0 bytes
+ ...durance-35-LOCKED-r26-runtime-synthetic.json.gz |    Bin 26817 -> 0 bytes
+ ...ance-36-BRIGHT-r26-emulator-environment.json.gz |    Bin 333 -> 0 bytes
+ ...R26-Endurance-36-BRIGHT-r26-owner-logcat.txt.gz |    Bin 389 -> 0 bytes
+ ...durance-36-BRIGHT-r26-runtime-synthetic.json.gz |    Bin 27138 -> 0 bytes
+ ...ance-36-LOCKED-r26-emulator-environment.json.gz |    Bin 333 -> 0 bytes
+ ...R26-Endurance-36-LOCKED-r26-owner-logcat.txt.gz |    Bin 390 -> 0 bytes
+ ...durance-36-LOCKED-r26-runtime-synthetic.json.gz |    Bin 27113 -> 0 bytes
+ .../raw/source245e-api29-android-r13.txt.gz        |    Bin 1404 -> 0 bytes
+ ...urce245e-api29-r26-emulator-environment.json.gz |    Bin 326 -> 0 bytes
+ ...e245e-api29-r26-instrumentation-results.json.gz |    Bin 1244 -> 0 bytes
+ .../source245e-api29-r26-runtime-synthetic.json.gz |    Bin 1354 -> 0 bytes
+ ...5e-api29-r26-schema-migration-synthetic.json.gz |    Bin 1446 -> 0 bytes
+ .../raw/source83-29-bright-owner-logcat.txt.gz     |    Bin 1275 -> 0 bytes
+ .../raw/source83-29-bright-runtime.json.gz         |    Bin 24684 -> 0 bytes
+ .../raw/source83-29-locked-owner-logcat.txt.gz     |    Bin 1094 -> 0 bytes
+ .../raw/source83-29-locked-runtime.json.gz         |    Bin 25381 -> 0 bytes
+ .../raw/source83-35-locked-owner-logcat.txt.gz     |    Bin 393 -> 0 bytes
+ .../raw/source83-35-locked-runtime.json.gz         |    Bin 25900 -> 0 bytes
+ .../raw/source83-36-locked-owner-logcat.txt.gz     |    Bin 392 -> 0 bytes
+ .../raw/source83-36-locked-runtime.json.gz         |    Bin 26148 -> 0 bytes
+ .../raw/source83-api29-runtime.json.gz             |    Bin 1120 -> 0 bytes
+ .../continuation/raw/source83-api29-schema.json.gz |    Bin 740 -> 0 bytes
+ .../raw/source83-api35-bright-environment.json.gz  |    Bin 335 -> 0 bytes
+ .../raw/source83-api36-bright-environment.json.gz  |    Bin 335 -> 0 bytes
+ .../raw/source88-api29-instrumentation.txt.gz      |    Bin 643 -> 0 bytes
+ .../raw/source88-api29-runtime.json.gz             |    Bin 1063 -> 0 bytes
+ .../continuation/raw/source88-api29-schema.json.gz |    Bin 2827 -> 0 bytes
+ ...ance-29-BRIGHT-r26-emulator-environment.json.gz |    Bin 326 -> 0 bytes
+ ...R26-Endurance-29-BRIGHT-r26-owner-logcat.txt.gz |    Bin 1388 -> 0 bytes
+ ...durance-29-BRIGHT-r26-runtime-synthetic.json.gz |    Bin 26016 -> 0 bytes
+ ...ance-29-LOCKED-r26-emulator-environment.json.gz |    Bin 326 -> 0 bytes
+ ...R26-Endurance-29-LOCKED-r26-owner-logcat.txt.gz |    Bin 1189 -> 0 bytes
+ ...durance-29-LOCKED-r26-runtime-synthetic.json.gz |    Bin 25920 -> 0 bytes
+ ...ance-35-BRIGHT-r26-emulator-environment.json.gz |    Bin 333 -> 0 bytes
+ ...R26-Endurance-35-BRIGHT-r26-owner-logcat.txt.gz |    Bin 1292 -> 0 bytes
+ ...durance-35-BRIGHT-r26-runtime-synthetic.json.gz |    Bin 27130 -> 0 bytes
+ ...ance-35-LOCKED-r26-emulator-environment.json.gz |    Bin 333 -> 0 bytes
+ ...R26-Endurance-35-LOCKED-r26-owner-logcat.txt.gz |    Bin 751 -> 0 bytes
+ ...durance-35-LOCKED-r26-runtime-synthetic.json.gz |    Bin 26687 -> 0 bytes
+ ...ance-36-BRIGHT-r26-emulator-environment.json.gz |    Bin 333 -> 0 bytes
+ ...R26-Endurance-36-BRIGHT-r26-owner-logcat.txt.gz |    Bin 1867 -> 0 bytes
+ ...durance-36-BRIGHT-r26-runtime-synthetic.json.gz |    Bin 26998 -> 0 bytes
+ ...ance-36-LOCKED-r26-emulator-environment.json.gz |    Bin 333 -> 0 bytes
+ ...R26-Endurance-36-LOCKED-r26-owner-logcat.txt.gz |    Bin 929 -> 0 bytes
+ ...durance-36-LOCKED-r26-runtime-synthetic.json.gz |    Bin 27081 -> 0 bytes
+ .../raw/source89-api29-instrumentation.txt.gz      |    Bin 549 -> 0 bytes
+ .../raw/source89-api29-runtime.json.gz             |    Bin 1368 -> 0 bytes
+ .../continuation/raw/source89-api29-schema.json.gz |    Bin 3690 -> 0 bytes
+ .../raw/source90-api29-instrumentation.txt.gz      |    Bin 733 -> 0 bytes
+ .../raw/source90-api29-runtime.json.gz             |    Bin 1368 -> 0 bytes
+ .../raw/source92-api29-environment.json.gz         |    Bin 326 -> 0 bytes
+ .../raw/source92-api29-instrumentation.txt.gz      |    Bin 370 -> 0 bytes
+ .../raw/source93-api29-android-r13.txt.gz          |    Bin 1463 -> 0 bytes
+ ...rce93-api29-r26-instrumentation-results.json.gz |    Bin 1286 -> 0 bytes
+ .../source93-api29-r26-runtime-synthetic.json.gz   |    Bin 1371 -> 0 bytes
+ ...93-api29-r26-schema-migration-synthetic.json.gz |    Bin 3791 -> 0 bytes
+ .../raw/source94-api29-android-r13.txt.gz          |    Bin 1494 -> 0 bytes
+ ...rce94-api29-r26-bundled-api-environment.json.gz |    Bin 234 -> 0 bytes
+ ...rce94-api29-r26-instrumentation-results.json.gz |    Bin 1321 -> 0 bytes
+ .../source94-api29-r26-runtime-synthetic.json.gz   |    Bin 1366 -> 0 bytes
+ ...94-api29-r26-schema-migration-synthetic.json.gz |    Bin 1249 -> 0 bytes
+ .../raw/source95-api29-android-r13.txt.gz          |    Bin 1516 -> 0 bytes
+ ...rce95-api29-r26-bundled-api-environment.json.gz |    Bin 233 -> 0 bytes
+ ...rce95-api29-r26-instrumentation-results.json.gz |    Bin 1332 -> 0 bytes
+ .../source95-api29-r26-runtime-synthetic.json.gz   |    Bin 1383 -> 0 bytes
+ ...95-api29-r26-schema-migration-synthetic.json.gz |    Bin 3721 -> 0 bytes
+ construction/r26/continuation/recovery.log         |      6 -
+ .../relation-statistics-host-verification.json     |     24 -
+ construction/r26/continuation/renewed-host.log     |     11 -
+ construction/r26/continuation/renewed-native.log   |      1 -
+ construction/r26/continuation/renewed-plan.log     |     17 -
+ construction/r26/continuation/renewed-strategy.log |     21 -
+ .../continuation/report-android36-compile-only.log |      1 -
+ ...report-export-android-directory-alias-host.json |     47 -
+ .../report-export-repair-host-regressions.json     |     26 -
+ .../report-export-repair-public-delivery.json      |     26 -
+ .../report-export-without-rowid-host.json          |     40 -
+ construction/r26/continuation/report-host.log      |      9 -
+ .../residual-training-host-verification.json       |     24 -
+ .../retrieval-training-host-verification.json      |     39 -
+ .../runtime-100-api35-preflight-excerpt.json       |     30 -
+ ...-neural-native-and-api35-preflight-failure.json |     57 -
+ .../runtime-102-protected-diagnosis-pass.json      |    102 -
+ .../r26/continuation/runtime-103-sparse-pass.json  |     60 -
+ .../runtime-104-expert-training-pass.json          |     58 -
+ .../continuation/runtime-105-duration-pass.json    |     48 -
+ .../runtime-109-api29-statistics-power-pass.json   |     36 -
+ .../runtime-111-retrieval-suffix-pass.json         |     35 -
+ .../runtime-114-relation-symbolic-pass.json        |     35 -
+ .../continuation/runtime-116-failure-observed.json |     48 -
+ ...runtime-117-residual-failure-research-pass.json |     36 -
+ .../runtime-119-report-export-pass.json            |     78 -
+ .../runtime-120-report-export-pass.json            |    134 -
+ construction/r26/continuation/runtime-55-pass.json |     22 -
+ .../runtime-62-locked-writer-failure.json          |   1354 -
+ construction/r26/continuation/runtime-62-pass.json |     25 -
+ .../r26/continuation/runtime-63-oom-failure.json   |     24 -
+ .../runtime-67-independent-signature.txt           |     19 -
+ .../runtime-67-locked-first-service-failure.json   |    641 -
+ construction/r26/continuation/runtime-67-pass.json |     28 -
+ construction/r26/continuation/runtime-68-pass.json |     28 -
+ .../continuation/runtime-74-fixture-failure.json   |     22 -
+ .../continuation/runtime-77-fixture-failure.json   |     17 -
+ .../runtime-78-engineering-summary.json            |     49 -
+ ...me-79-29-bright-failure-r26-owner-logcat.txt.gz |    Bin 858 -> 0 bytes
+ ...29-bright-failure-r26-runtime-synthetic.json.gz |    Bin 1437 -> 0 bytes
+ .../runtime-79-29-bright-heap-failure.json         |     26 -
+ .../runtime-79-engineering-summary.json            |     50 -
+ .../runtime-81-r26-emulator-environment.json.gz    |    Bin 264 -> 0 bytes
+ .../runtime-81-r26-runtime-synthetic.json.gz       |    Bin 1119 -> 0 bytes
+ ...ntime-81-r26-schema-migration-synthetic.json.gz |    Bin 3027 -> 0 bytes
+ .../runtime-81-schema-capacity-failure.json        |     45 -
+ .../runtime-82-f20-pass-schema-failure.json        |     42 -
+ .../runtime-82-r26-owner-logcat.txt.gz             |    Bin 4099 -> 0 bytes
+ .../runtime-82-r26-runtime-synthetic.json.gz       |    Bin 1118 -> 0 bytes
+ ...ntime-82-r26-schema-migration-synthetic.json.gz |    Bin 2980 -> 0 bytes
+ .../runtime-83-engineering-summary.json            |    141 -
+ .../runtime-88-warm-pass-schema-failure.json       |     57 -
+ .../r26/continuation/runtime-89-standard-pass.json |     99 -
+ .../runtime-90-null-bind-test-failure.json         |     22 -
+ .../runtime-92-all-selectors-pass.json             |     71 -
+ .../runtime-92-packaged-api-failure.json           |     25 -
+ .../continuation/runtime-93-legacy-warm-pass.json  |     51 -
+ .../continuation/runtime-94-expert-gc-pass.json    |     65 -
+ .../r26/continuation/runtime-95-matching-pass.json |     54 -
+ .../runtime-schema-priority-failure.json           |    367 -
+ .../runtime-serialization-failure.json             |    367 -
+ .../continuation/scale-10000-kernel-retention.json |     21 -
+ .../continuation/scale-10000-kernel-retention.log  |      1 -
+ ...scale-infrastructure-android36-compile-only.log |      1 -
+ .../r26/continuation/schema-count-host.log         |     13 -
+ .../r26/continuation/schema-count-native.log       |      1 -
+ .../schema-exact-census-host-verification.json     |     21 -
+ .../r26/continuation/schema-fix-plan1025-host.log  |     20 -
+ .../r26/continuation/schema-fix-r26-host.log       |     15 -
+ .../r26/continuation/schema-fix-su1-host.log       |     21 -
+ .../schema-infrastructure-fingerprint-parity.log   |     23 -
+ .../schema-infrastructure-membership.log           |      1 -
+ .../schema-query-android36-compile-only.log        |      1 -
+ .../continuation/schema-query-host-evidence.json   |     14 -
+ .../continuation/schema-query-membership-final.log |      1 -
+ .../r26/continuation/schema-query-parity-final.log |     23 -
+ .../r26/continuation/service-telemetry-host.log    |     13 -
+ .../r26/continuation/service-telemetry-native.log  |      1 -
+ .../continuation/single-blob-capacity-failure.log  |      3 -
+ ...e103-R26-Endurance-29-BRIGHT-android-r13.txt.gz |    Bin 105 -> 0 bytes
+ ...R26-Endurance-29-BRIGHT-r26-owner-logcat.txt.gz |    Bin 1248 -> 0 bytes
+ ...durance-29-BRIGHT-r26-runtime-synthetic.json.gz |    Bin 25450 -> 0 bytes
+ ...e103-R26-Endurance-29-LOCKED-android-r13.txt.gz |    Bin 105 -> 0 bytes
+ ...R26-Endurance-29-LOCKED-r26-owner-logcat.txt.gz |    Bin 1274 -> 0 bytes
+ ...durance-29-LOCKED-r26-runtime-synthetic.json.gz |    Bin 25799 -> 0 bytes
+ ...e103-R26-Endurance-35-BRIGHT-android-r13.txt.gz |    Bin 105 -> 0 bytes
+ ...R26-Endurance-35-BRIGHT-r26-owner-logcat.txt.gz |    Bin 4693 -> 0 bytes
+ ...durance-35-BRIGHT-r26-runtime-synthetic.json.gz |    Bin 26854 -> 0 bytes
+ ...e103-R26-Endurance-35-LOCKED-android-r13.txt.gz |    Bin 105 -> 0 bytes
+ ...R26-Endurance-35-LOCKED-r26-owner-logcat.txt.gz |    Bin 4241 -> 0 bytes
+ ...durance-35-LOCKED-r26-runtime-synthetic.json.gz |    Bin 27154 -> 0 bytes
+ ...e103-R26-Endurance-36-BRIGHT-android-r13.txt.gz |    Bin 105 -> 0 bytes
+ ...R26-Endurance-36-BRIGHT-r26-owner-logcat.txt.gz |    Bin 4112 -> 0 bytes
+ ...durance-36-BRIGHT-r26-runtime-synthetic.json.gz |    Bin 26945 -> 0 bytes
+ ...e103-R26-Endurance-36-LOCKED-android-r13.txt.gz |    Bin 105 -> 0 bytes
+ ...R26-Endurance-36-LOCKED-r26-owner-logcat.txt.gz |    Bin 3619 -> 0 bytes
+ ...durance-36-LOCKED-r26-runtime-synthetic.json.gz |    Bin 26870 -> 0 bytes
+ .../sparse-training-host-verification.json         |     65 -
+ .../statistical-training-host-verification.json    |     57 -
+ .../strategy-assessment-host-verification.json     |     35 -
+ .../r26/continuation/streaming-capacity-host.log   |      3 -
+ .../r26/continuation/streaming-compile-only.log    |      1 -
+ construction/r26/continuation/streaming-host.log   |     10 -
+ .../r26/continuation/streaming-plan-host.log       |     20 -
+ .../r26/continuation/streaming-strategy-host.log   |     21 -
+ .../structured-training-host-verification.json     |    123 -
+ .../suffix-statistics-host-verification.json       |     44 -
+ .../symbolic-training-host-verification.json       |     21 -
+ .../tensor-kernel-host-verification.json           |     31 -
+ .../continuation/terminal-feedback-owner-path.json |     29 -
+ construction/r26/continuation/validation.json      |   1697 -
+ .../warm-kernel-host-verification.json             |     29 -
+ construction/r26/continuation/writer-host.log      |     12 -
+ construction/r26/continuation/writer-plan.log      |     20 -
+ construction/r26/continuation/writer-strategy.log  |     21 -
+ construction/r26/expert-graph-host.log             |      6 -
+ construction/r26/family-learning-and-resume.log    |     24 -
+ construction/r26/final-delivery.json               |     24 -
+ construction/r26/final-host-protocols.log          |      6 -
+ construction/r26/legacy-125-asset-audit.json       |     31 -
+ construction/r26/legacy-release-audit.json         |     35 -
+ construction/r26/prior-plan-regression.log         |     20 -
+ construction/r26/prior-strategy-regression.log     |     21 -
+ construction/r26/progress.json                     |    279 -
+ construction/r26/protocol-validation.json          |    148 -
+ construction/r26/public-download-verification.json |      7 -
+ construction/r26/public-version-audit.json         |     66 -
+ construction/r26/source-changes.json               |    413 -
+ construction/r26/statistical-power-probe.json      |    226 -
+ construction/r29/DEVICE_CHECKPOINT06.txt           |     20 -
+ construction/r29/STATUS.md                         |     31 -
+ construction/r29/batches.json                      |    283 -
+ construction/r29/cards.json                        |   2501 -
+ construction/r29/continuation.json                 |     25 -
+ construction/r29/ledger/B00.json                   |    585 -
+ construction/r29/ledger/B01-RECOVERY-04.json       |    177 -
+ construction/r29/ledger/B01-RECOVERY-05.json       |     94 -
+ construction/r29/ledger/B01-RECOVERY-06.json       |     88 -
+ construction/r29/ledger/B02-QUAL-01.json           |     80 -
+ construction/r29/metrics.json                      |   1016 -
+ construction/r30-repair/ALL60_EVIDENCE.json        |  19105 ---
+ construction/r30-repair/B11_CUTOVER_DECISION.json  |     29 -
+ construction/r30-repair/BASELINE.json              |     20 -
+ construction/r30-repair/CHART_ACCEPTANCE_47.json   |   1012 -
+ construction/r30-repair/CONTRACTS.json             |     47 -
+ construction/r30-repair/DELIVERY.json              |    128 -
+ construction/r30-repair/DEVICE_RUNS.json           |     15 -
+ construction/r30-repair/FAULT_MATRIX.json          |    122 -
+ construction/r30-repair/FILE_OWNERS.json           |   1318 -
+ construction/r30-repair/FINAL.json                 |   1733 -
+ construction/r30-repair/GATE_AUTHORITY.json        |     22 -
+ construction/r30-repair/INTEGRATION_RECEIPT.json   |   1853 -
+ construction/r30-repair/LEGACY_1832_CROSSWALK.json |  12835 --
+ construction/r30-repair/MAINLINE_EFFECT.json       |     10 -
+ construction/r30-repair/METHOD_CHANGE_MAP.json     |   4224 -
+ construction/r30-repair/NATURAL_QUALITY.json       |     63 -
+ construction/r30-repair/PROTECTED_BEHAVIOR.json    |     27 -
+ construction/r30-repair/REPORT_OBJECT_SCHEMA.json  |     20 -
+ .../r30-repair/RESEARCH_TABLE_CONTRACTS.json       |    226 -
+ construction/r30-repair/SOURCE_AUDIT.json          |     83 -
+ construction/r30-repair/STATUS.json                |  14040 --
+ construction/r30-repair/STATUS.md                  |     78 -
+ .../r30-repair/STRUCTURE_STUDY_CONTRACT.json       |     32 -
+ construction/r30-repair/SUBCARDS.json              |    812 -
+ construction/r30/B01_OFFENDERS.json                |     23 -
+ construction/r30/B02_04_TX_AUDIT.md                |     12 -
+ construction/r30/B09_PERF.json                     |     55 -
+ construction/r30/B11_DECISION.json                 |     31 -
+ construction/r30/BASELINE.json                     |    493 -
+ construction/r30/BUILD_PROGRESS.json               |    275 -
+ construction/r30/DEVICE_V2353A.json                |     70 -
+ construction/r30/FINAL.json                        |   1307 -
+ construction/r30/QUALITY.json                      |    142 -
+ construction/r30/R29_ARCHIVE.md                    |     15 -
+ construction/r30/ROLLBACK_DRILL.json               |    110 -
+ construction/r30/SCHEDULER_OWNERS.json             |    746 -
+ construction/r30/STATUS.md                         |    263 -
+ construction/r30/SUBCARDS.json                     |    980 -
+ .../B05-01/R30EvolutionConfirmIntegrationTest.java |     39 -
+ evidence/r27/R27-001/card.json                     |     41 -
+ evidence/r27/R27-002/card.json                     |     86 -
+ evidence/r27/R27-003/card.json                     |     51 -
+ evidence/r27/R27-004/card.json                     |     39 -
+ evidence/r27/R27-005/card.json                     |     58 -
+ evidence/r27/R27-006/card.json                     |     59 -
+ evidence/r27/R27-007/card.json                     |     64 -
+ evidence/r27/R27-008/card.json                     |     66 -
+ evidence/r27/R27-009/card.json                     |     39 -
+ evidence/r27/R27-010/card.json                     |     59 -
+ evidence/r27/R27-011/card.json                     |     73 -
+ evidence/r27/R27-012/card.json                     |     46 -
+ evidence/r27/R27-013/card.json                     |     56 -
+ evidence/r27/R27-014/card.json                     |     56 -
+ evidence/r27/R27-015/card.json                     |     64 -
+ evidence/r27/R27-016/card.json                     |     62 -
+ evidence/r27/R27-017/card.json                     |     47 -
+ evidence/r27/R27-018/card.json                     |     51 -
+ evidence/r27/R27-019/card.json                     |     45 -
+ evidence/r27/R27-020/card.json                     |     39 -
+ evidence/r27/R27-021/card.json                     |     59 -
+ evidence/r27/R27-022/card.json                     |     56 -
+ evidence/r27/R27-023/card.json                     |    133 -
+ evidence/r27/R27-024/card.json                     |     49 -
+ evidence/r27/R27-025/card.json                     |     68 -
+ evidence/r27/R27-026/card.json                     |     62 -
+ evidence/r27/R27-027/card.json                     |     53 -
+ evidence/r27/R27-028/card.json                     |     69 -
+ evidence/r27/R27-029/card.json                     |     56 -
+ evidence/r27/R27-030/card.json                     |     58 -
+ evidence/r27/R27-031/card.json                     |     49 -
+ evidence/r27/R27-032/card.json                     |     66 -
+ evidence/r27/R27-033/card.json                     |     72 -
+ evidence/r27/R27-034/card.json                     |     55 -
+ evidence/r27/R27-035/card.json                     |     53 -
+ evidence/r27/R27-036/card.json                     |     47 -
+ evidence/r27/R27-037/card.json                     |     53 -
+ evidence/r27/R27-038/card.json                     |     49 -
+ evidence/r27/R27-039/card.json                     |     45 -
+ evidence/r27/R27-040/card.json                     |     71 -
+ evidence/r27/R27-041/card.json                     |     53 -
+ evidence/r27/R27-042/card.json                     |     70 -
+ evidence/r27/R27-043/card.json                     |     65 -
+ evidence/r27/R27-044/card.json                     |     49 -
+ evidence/r27/R27-045/card.json                     |     53 -
+ evidence/r27/R27-046/card.json                     |     45 -
+ evidence/r27/R27-047/card.json                     |     33 -
+ evidence/r27/R27-048/card.json                     |     45 -
+ evidence/r27/R27-049/card.json                     |     45 -
+ evidence/r27/R27-050/card.json                     |     63 -
+ evidence/r27/R27-051/card.json                     |     59 -
+ evidence/r27/R27-052/card.json                     |     47 -
+ evidence/r27/R27-053/card.json                     |     39 -
+ evidence/r27/R27-054/card.json                     |     55 -
+ evidence/r27/R27-055/card.json                     |    110 -
+ evidence/r27/R27-056/card.json                     |     56 -
+ evidence/r27/R27-057/card.json                     |     45 -
+ evidence/r27/R27-058/card.json                     |     45 -
+ evidence/r27/baseline.json                         |    726 -
+ evidence/r27/cards_table.md                        |     60 -
+ .../r27/device/R27_1029B_REPORT_ANALYSIS_ZH.md     |    212 -
+ .../r27/device/R27_1029D_REPORT_ANALYSIS_ZH.md     |    126 -
+ .../r27/device/R27_1029E_REPORT_ANALYSIS_ZH.md     |     91 -
+ evidence/r27/device/R27_1029_REPORT_ANALYSIS_ZH.md |    121 -
+ evidence/r27/host/build_identity.log               |      1 -
+ evidence/r27/host/h18_compare.log                  |      3 -
+ evidence/r27/host/h18_run.log                      |    117 -
+ evidence/r27/host/junit_r27_local.log              |     43 -
+ evidence/r27/host/migration.log                    |     19 -
+ evidence/r27/host/r27_null_baseline_fresh.json     |    725 -
+ evidence/r27/host/r27_sql_dump.json                |      1 -
+ evidence/r27/host/run_host_tests.log               |     27 -
+ evidence/r27/merge_status.json                     |    169 -
+ evidence/r27/source_audit.json                     |    729 -
+ .../r29/checkpoint04/default-exec-restriction.log  |     14 -
+ evidence/r29/checkpoint04/full-unit-first-pass.log |     74 -
+ .../initial-uncommitted-build-failure.log          |     32 -
+ evidence/r29/checkpoint04/r29-junit.log            |     83 -
+ evidence/r29/checkpoint04/sqlite-faults.log        |     23 -
+ evidence/r29/checkpoint04/sqlite-q1-q14.log        |     22 -
+ evidence/r29/checkpoint05/canonical.log            |    126 -
+ .../r29/checkpoint05/cp04-static-test-failure.log  |    120 -
+ .../r29/checkpoint05/cp04-static-test-failure.xml  |     91 -
+ evidence/r29/checkpoint05/host-summary.json        |     21 -
+ ...thk3.novaonepro.AnalysisSingleFlightR36Test.xml |     12 -
+ ...om.ethk3.novaonepro.Batch3ContractsR929Test.xml |     14 -
+ ...om.ethk3.novaonepro.Batch4ContractsR930Test.xml |     16 -
+ ...om.ethk3.novaonepro.HistoricalSeedAssetTest.xml |      9 -
+ ...om.ethk3.novaonepro.HistoryWatermarkR46Test.xml |     12 -
+ ...com.ethk3.novaonepro.MotifSurfaceParityTest.xml |      8 -
+ ...m.ethk3.novaonepro.MultiHorizonProbeR80Test.xml |     17 -
+ ...hk3.novaonepro.R940RecoveryContinuationTest.xml |      9 -
+ ...3.novaonepro.RetentionRegistryArgumentsTest.xml |     10 -
+ ...com.ethk3.novaonepro.ShadowWaitingUiR45Test.xml |     12 -
+ ....ethk3.novaonepro.SourceProvenanceBuildTest.xml |      9 -
+ ...om.ethk3.novaonepro.TargetIssueResolverTest.xml |      9 -
+ ...nepro.strategyv2.ProductionContractsSU1Test.xml |     13 -
+ ...thk3.novaonepro.strategyv2.R27BirthGateTest.xml |     14 -
+ ...thk3.novaonepro.strategyv2.R27ComponentTest.xml |     16 -
+ ...thk3.novaonepro.strategyv2.R27EvolutionTest.xml |     13 -
+ ....ethk3.novaonepro.strategyv2.R27LeakageTest.xml |     10 -
+ ...3.novaonepro.strategyv2.R27NullBaselineTest.xml |      8 -
+ ....ethk3.novaonepro.strategyv2.R27QualityTest.xml |     44 -
+ ...m.ethk3.novaonepro.strategyv2.R27ReplayTest.xml |     16 -
+ ...hk3.novaonepro.strategyv2.R27SequentialTest.xml |     14 -
+ ...ethk3.novaonepro.strategyv2.R29BaselineTest.xml |     12 -
+ ...ethk3.novaonepro.strategyv2.R29FindingsTest.xml |      8 -
+ ...m.ethk3.novaonepro.strategyv2.R29GateV2Test.xml |     14 -
+ ....novaonepro.strategyv2.R29ModelArtifactTest.xml |     12 -
+ ....novaonepro.strategyv2.R29ResearchSlotsTest.xml |      8 -
+ ....novaonepro.strategyv2.R29ThermalPolicyTest.xml |      9 -
+ evidence/r29/checkpoint05/lint-baseline-status.txt |     11 -
+ evidence/r29/checkpoint05/r26.log                  |     31 -
+ evidence/r29/checkpoint05/r27-host.log             |     27 -
+ evidence/r29/checkpoint05/sqlite-faults.log        |     23 -
+ evidence/r29/checkpoint05/su1.log                  |     21 -
+ evidence/r29/checkpoint05/su2.log                  |     20 -
+ evidence/r29/checkpoint05/targeted.log             |     83 -
+ .../checkpoint05/uncommitted-dependency-guard.log  |     32 -
+ evidence/r29/checkpoint06/sqlite-faults.log        |     24 -
+ evidence/r29/checkpoint06/targeted.log             |     84 -
+ evidence/r29/host/r29_gate_v2_junit.log            |      6 -
+ evidence/r29/host/r29_junit_local.log              |      6 -
+ evidence/r29/host/r29_qual_host.log                |     13 -
+ .../B00/baseline-android-java-compile.log          |     66 -
+ evidence/r30-repair/B00/identity-check.json        |     12 -
+ evidence/r30-repair/B01/RESULT.json                |     55 -
+ .../r30-repair/B01/b01-diagnosis-unit-approved.log |     83 -
+ .../r30-repair/B01/b01-native-report-capture.log   |      9 -
+ evidence/r30-repair/B01/b01-unified-tests.log      |     76 -
+ evidence/r30-repair/B01/b01-unified-tests2.log     |     80 -
+ evidence/r30-repair/B01/diag-baseline-npe.log      |      6 -
+ evidence/r30-repair/B01/diag-fixed-16golden.log    |      2 -
+ evidence/r30-repair/B01/diag-fixed-compile.log     |      1 -
+ .../r30-repair/B02/COMMIT_AND_CLOCK_RESULT.json    |     24 -
+ .../r30-repair/B02/FINAL_NAMESPACE_RESULT.json     |     12 -
+ evidence/r30-repair/B02/FIRST_THREE_RESULT.json    |    460 -
+ .../B02/b02-actual-commit-failure-native-host.log  |     22 -
+ .../r30-repair/B02/b02-events-android-junit.log    |     84 -
+ .../B02/b02-final-namespace-android-junit.log      |     80 -
+ .../b02-final-timeline-host-corrected-window.log   |      6 -
+ .../r30-repair/B02/b02-final-timeline-host.log     |     16 -
+ evidence/r30-repair/B02/b02-first3-all-unit.log    |     80 -
+ .../B02/b02-native-guard-integration.log           |     98 -
+ .../r30-repair/B02/b02-retention-android-junit.log |     80 -
+ .../r30-repair/B02/b02-retention-native-host.log   |      6 -
+ .../b02-timeline-cache-savepoint-native-host.log   |      6 -
+ .../b02-timeline-legacy-migration-native-host.log  |     17 -
+ evidence/r30-repair/B02/b02-writer-native-host.log |      7 -
+ evidence/r30-repair/B03/RESULT.json                |     31 -
+ evidence/r30-repair/B03/b03-android-compile.log    |     32 -
+ evidence/r30-repair/B03/b03-android-junit.log      |     84 -
+ .../B03/b03-clock-regression-native-host.log       |      6 -
+ .../B03/b03-commit-regression-native-host.log      |     22 -
+ .../r30-repair/B03/b03-complete-android-junit.log  |     80 -
+ .../r30-repair/B03/b03-final-android-junit.log     |     92 -
+ .../r30-repair/B03/b03-progress-native-host.log    |      4 -
+ evidence/r30-repair/B04/RESULT.json                |     30 -
+ evidence/r30-repair/B04/b04-android-junit.log      |     80 -
+ .../b04-final-android-junit-corrected-fixture.log  |     77 -
+ .../r30-repair/B04/b04-final-android-junit.log     |     96 -
+ evidence/r30-repair/B04/b04-final-native-host.log  |     56 -
+ evidence/r30-repair/B04/b04-neural-native-host.log |     43 -
+ .../B04/b04-owner-compatible-android-junit.log     |     80 -
+ .../B04/b04-owner-compatible-native-host.log       |     57 -
+ evidence/r30-repair/B05/RESULT.json                |     28 -
+ evidence/r30-repair/B05/b05-android-junit.log      |     95 -
+ .../r30-repair/B05/b05-final-android-junit.log     |     80 -
+ .../B05/b05-final-qualification-native-host.log    |     35 -
+ .../B05/b05-qualification-native-host.log          |     35 -
+ evidence/r30-repair/B06/RESULT.json                |     44 -
+ .../r30-repair/B06/b06-first-android-junit.log     |     79 -
+ .../B06/b06-native-matrix-calibration.log          |     20 -
+ .../B06/b07-native-actual-matrix-producers.log     |     21 -
+ .../b08-final-matrix-schema-calibration-native.log |     22 -
+ .../b08-native-legacy-snapshot-and-su2-upgrade.log |     22 -
+ evidence/r30-repair/B07/RESULT.json                |     51 -
+ .../B07/b07-all-repair-android-junit.log           |     80 -
+ .../r30-repair/B07/b07-first-android-junit.log     |     80 -
+ ...-native-true-process-restart-correct-select.log |      9 -
+ .../B07/b07-native-true-process-restart.log        |      9 -
+ .../b08-final-source-abi-measured-chain-native.log |     10 -
+ .../b08-native-actual-measured-signal-chain.log    |     10 -
+ evidence/r30-repair/B08/RESULT.json                |     54 -
+ .../B08/b08-current-atomic-schema-junit.log        |     77 -
+ .../B08/b08-final-checkpoint-78-junit.log          |     80 -
+ .../b08-set-abstention-gate-corrected-junit.log    |     77 -
+ .../B08/b08-set-and-current-repair-junit.log       |     99 -
+ .../r30-repair/B08/b08-structure-core-80-junit.log |     78 -
+ evidence/r30-repair/B11/CI003_BUILD_SUMMARY.json   |     80 -
+ .../r30-repair/B11/CI003_EMULATOR_SUMMARY.json     |     68 -
+ .../r30-repair/B11/CI003_FINAL_RUN_SUMMARY.json    |    110 -
+ evidence/r30-repair/B11/CI003_UPGRADE_SUMMARY.json |     45 -
+ .../B11/EXACT_RESEARCH_CHAIN_HOST_COMMANDS.json    |     33 -
+ .../r30-repair/B11/FINAL003_FAULT_OUTCOMES.json    |    190 -
+ .../B11/FINAL003_GALLERY_NATIVE_DRAWING.json       |    388 -
+ .../r30-repair/B11/FINAL003_PUBLIC_ACCEPTANCE.json |     39 -
+ .../B11/FINAL003_PUBLIC_VERIFICATION.json          |    569 -
+ .../B11/FINAL003_UPGRADE_THREE_BASELINES.json      |    496 -
+ evidence/r30-repair/B11/FINAL_ENGINEERING_CI.json  |   1291 -
+ .../B11/HISTORICAL_002_DOUBLE_FALSE_GREEN.json     |    135 -
+ .../B11/INTEGRATION_ATTEMPTS_REAL_FAILURES.json    |   1626 -
+ evidence/r30-repair/B11/LATEST_LOCAL_FULL344.json  |     16 -
+ .../B11/MANUAL_002_GALLERY_REJECTION.json          |    416 -
+ evidence/r30-repair/B11/ORIGINAL_NATIVE_FINAL.json |     83 -
+ .../B11/PROTECTED_AUTHORITIES_FINAL003.json        |     22 -
+ evidence/r30-repair/B11/Q08_FINAL_MECHANISM.json   |   3118 -
+ .../B11/Q08_HISTORICAL_20_SCOPE_FOR003.json        |     52 -
+ .../B11/SQLITE_FULL_PRIMARY_RED_GREEN.json         |     18 -
+ .../B11/eea-actual-primary-full-native.log         |     23 -
+ .../B11/exact-research-chain-host-preflight.log    |      2 -
+ .../r30-repair/B11/original-native-final.log.gz    |    Bin 7917 -> 0 bytes
+ .../r30-repair/B11/sqlite-full-primary-after.log   |     17 -
+ .../r30-repair/B11/sqlite-full-primary-before.log  |     27 -
+ evidence/r30-repair/critical-stamp-report-003.json |     19 -
+ .../b00-actual-upgrade/run-41176346773/README.md   |      5 -
+ .../run-41176346773/cp06-install-baseline.txt      |      2 -
+ .../run-41176346773/cp06-install-upgrade.txt       |      2 -
+ .../run-41176346773/cp06-retained-marker.txt       |      1 -
+ .../run-41176346773/cp06-startup.json              |    447 -
+ .../run-41176346773/cp06-upgrade-startup.log       |    102 -
+ .../run-41176346773/cp16-install-baseline.txt      |      2 -
+ .../run-41176346773/cp16-install-upgrade.txt       |      2 -
+ .../run-41176346773/cp16-retained-marker.txt       |      1 -
+ .../run-41176346773/cp16-startup.json              |    452 -
+ .../run-41176346773/cp16-upgrade-startup.log       |    103 -
+ .../b00-actual-upgrade/run-41176921680/README.md   |      3 -
+ .../run-41176921680/cp06-clean-startup.json        |   1598 -
+ .../run-41176921680/cp06-clean-startup.log.gz      |    Bin 1636 -> 0 bytes
+ .../run-41176921680/cp06-install-baseline.txt      |      2 -
+ .../run-41176921680/cp06-install-upgrade.txt       |      2 -
+ .../run-41176921680/cp06-public-certificate.txt    |     19 -
+ .../run-41176921680/cp06-result.txt                |      1 -
+ .../run-41176921680/cp06-retained-marker.txt       |      1 -
+ .../run-41176921680/cp06-upgrade-startup.log.gz    |    Bin 1503 -> 0 bytes
+ .../run-41176921680/cp06-upgrade.json              |     13 -
+ .../run-41176921680/cp16-clean-startup.json        |   1644 -
+ .../run-41176921680/cp16-clean-startup.log.gz      |    Bin 1677 -> 0 bytes
+ .../run-41176921680/cp16-install-baseline.txt      |      2 -
+ .../run-41176921680/cp16-install-upgrade.txt       |      2 -
+ .../run-41176921680/cp16-public-certificate.txt    |     19 -
+ .../run-41176921680/cp16-result.txt                |      1 -
+ .../run-41176921680/cp16-retained-marker.txt       |      1 -
+ .../run-41176921680/cp16-upgrade-startup.log.gz    |    Bin 1511 -> 0 bytes
+ .../run-41176921680/cp16-upgrade.json              |     13 -
+ .../b03-03-b/default-sandbox-bootstrap-failure.log |     14 -
+ .../r30/b03-03-b/final-ff52929/lint-results.txt    |     11 -
+ .../final-ff52929/sql-contract-results.json        |    101 -
+ .../r30/b03-03-b/final-ff52929/sqlite-host.log     |      3 -
+ ....novaonepro.strategyv2.R30ConfirmLedgerTest.xml |      9 -
+ ...onepro.strategyv2.R30ConfirmPersistenceTest.xml |      9 -
+ ...vaonepro.strategyv2.R30UnifiedEvaluatorTest.xml |      8 -
+ evidence/r30/b03-03-b/legacy-budget-before-fix.log |      8 -
+ .../sql-contract-results.json                      |    101 -
+ .../pre-budget-fix-1011d71/unit-lint.log.gz        |    Bin 1850 -> 0 bytes
+ .../pre-budget-fix-1011d71/unit-xml.tar.gz         |    Bin 10657 -> 0 bytes
+ evidence/r30/b03-03-b/sqlite-process-restart.log   |      2 -
+ evidence/r30/b03-04-b/fixed-live-host.log          |      6 -
+ evidence/r30/b03-04-b/freeze-source-guard-host.log |     32 -
+ evidence/r30/b03-04-b/old-backlog-failed.log       |      4 -
+ evidence/r30/b03-04-b/old-correction-failed.log    |      4 -
+ evidence/r30/b03-04-b/old-freeze-race-failed.log   |      4 -
+ .../b03-04-b/partial-guard-correction-failed.log   |      4 -
+ .../r30/b03-04-b/prior-source-unit-summary.json    |    149 -
+ evidence/r30/b03-04-b/source-58b24f9/extra.log     |     29 -
+ evidence/r30/b03-04-b/source-58b24f9/freeze.log    |     24 -
+ ...thk3.novaonepro.AnalysisSingleFlightR36Test.xml |     12 -
+ ...om.ethk3.novaonepro.Batch3ContractsR929Test.xml |     14 -
+ ...om.ethk3.novaonepro.Batch4ContractsR930Test.xml |     16 -
+ ...om.ethk3.novaonepro.HistoricalSeedAssetTest.xml |      9 -
+ ...om.ethk3.novaonepro.HistoryWatermarkR46Test.xml |     12 -
+ ...com.ethk3.novaonepro.MotifSurfaceParityTest.xml |      8 -
+ ...m.ethk3.novaonepro.MultiHorizonProbeR80Test.xml |     17 -
+ ...hk3.novaonepro.R940RecoveryContinuationTest.xml |      9 -
+ ...3.novaonepro.RetentionRegistryArgumentsTest.xml |     10 -
+ ...com.ethk3.novaonepro.ShadowWaitingUiR45Test.xml |     12 -
+ ....ethk3.novaonepro.SourceProvenanceBuildTest.xml |      9 -
+ ...om.ethk3.novaonepro.TargetIssueResolverTest.xml |      9 -
+ ...nepro.strategyv2.ProductionContractsSU1Test.xml |     13 -
+ ...thk3.novaonepro.strategyv2.R27BirthGateTest.xml |     14 -
+ ...thk3.novaonepro.strategyv2.R27ComponentTest.xml |     16 -
+ ...thk3.novaonepro.strategyv2.R27EvolutionTest.xml |     13 -
+ ....ethk3.novaonepro.strategyv2.R27LeakageTest.xml |     10 -
+ ...3.novaonepro.strategyv2.R27NullBaselineTest.xml |      8 -
+ ....ethk3.novaonepro.strategyv2.R27QualityTest.xml |     44 -
+ ...m.ethk3.novaonepro.strategyv2.R27ReplayTest.xml |     16 -
+ ...hk3.novaonepro.strategyv2.R27SequentialTest.xml |     14 -
+ ...ethk3.novaonepro.strategyv2.R29BaselineTest.xml |     12 -
+ ...ethk3.novaonepro.strategyv2.R29FindingsTest.xml |      8 -
+ ...m.ethk3.novaonepro.strategyv2.R29GateV2Test.xml |     14 -
+ ....novaonepro.strategyv2.R29ModelArtifactTest.xml |     12 -
+ ....novaonepro.strategyv2.R29ResearchSlotsTest.xml |      8 -
+ ....novaonepro.strategyv2.R29ThermalPolicyTest.xml |      9 -
+ ....novaonepro.strategyv2.R30ChunkedWriterTest.xml |     12 -
+ ....novaonepro.strategyv2.R30ConfirmLedgerTest.xml |      9 -
+ ...3.novaonepro.strategyv2.R30FetchBackoffTest.xml |      8 -
+ ....novaonepro.strategyv2.R30HistoryGovernTest.xml |      8 -
+ ...onepro.strategyv2.R30IncrementalFeatureTest.xml |      8 -
+ ....novaonepro.strategyv2.R30IssueTimelineTest.xml |      9 -
+ ...ovaonepro.strategyv2.R30MetricEvaluatorTest.xml |      9 -
+ ...ethk3.novaonepro.strategyv2.R30PitGuardTest.xml |      8 -
+ ...onepro.strategyv2.R30PitReplayInjectionTest.xml |      7 -
+ ...novaonepro.strategyv2.R30ResumeTrainingTest.xml |      8 -
+ ...3.novaonepro.strategyv2.R30TaskLivenessTest.xml |      7 -
+ ....novaonepro.strategyv2.R30ThermalPolicyTest.xml |      9 -
+ ...vaonepro.strategyv2.R30UnifiedEvaluatorTest.xml |      8 -
+ ...vaonepro.strategyv2.R30WriterHoldLedgerTest.xml |     12 -
+ evidence/r30/b03-04-b/source-58b24f9/live.log      |      4 -
+ evidence/r30/b03-04-b/source-58b24f9/qual.log      |     24 -
+ evidence/r30/b03-04-b/source-58b24f9/remote-ci.txt |     13 -
+ .../r30/b03-04-b/source-58b24f9/schema-reopen.log  |      2 -
+ evidence/r30/b03-04-b/source-58b24f9/summary.json  |     10 -
+ evidence/r30/b03-04-b/source-58b24f9/unit-lint.log |    123 -
+ .../r30/b03-04-b/source-index-initial-failed.log   |     32 -
+ evidence/r30/b03-05-b/ci-original-failure.log      |      9 -
+ evidence/r30/b03-05-b/qual-after-fixture.log       |     24 -
+ evidence/r30/b04-01/focused-junit.log.gz           |    Bin 633 -> 0 bytes
+ .../r30/b04-01/map-number-fixture-failure.log.gz   |    Bin 867 -> 0 bytes
+ evidence/r30/b04-01/remote-ci.txt                  |     12 -
+ evidence/r30/b04-02/final-compiled-host.log.gz     |    Bin 288 -> 0 bytes
+ evidence/r30/b04-02/focused.log.gz                 |    Bin 1013 -> 0 bytes
+ evidence/r30/b04-02/remote-ci.txt                  |     10 -
+ evidence/r30/b04-02/sqlite-host.log.gz             |    Bin 235 -> 0 bytes
+ .../ci-41181162337/job-124478667348.log.gz         |    Bin 13074 -> 0 bytes
+ evidence/r30/b04-03-04/ci-41181162337/result.json  |      7 -
+ evidence/r30/b04-03/focused-junit.log.gz           |    Bin 937 -> 0 bytes
+ evidence/r30/b04-04/focused-junit.log.gz           |    Bin 210 -> 0 bytes
+ .../b04-05/ci-41181816901/job-124480606920.log.gz  |    Bin 13129 -> 0 bytes
+ evidence/r30/b04-05/ci-41181816901/result.json     |      6 -
+ evidence/r30/b04-05/final-compiled-host.log.gz     |    Bin 249 -> 0 bytes
+ evidence/r30/b04-05/focused.log.gz                 |    Bin 934 -> 0 bytes
+ evidence/r30/b04-05/sqlite-host.log.gz             |    Bin 241 -> 0 bytes
+ .../b04-06/ci-41182470684/job-124482510328.log.gz  |    Bin 13284 -> 0 bytes
+ evidence/r30/b04-06/ci-41182470684/result.json     |      6 -
+ .../first-quota-focused-failed.log.gz              |    Bin 1041 -> 0 bytes
+ .../r30/b04-06/failed-source-b74b6b9/gradle.log.gz |    Bin 2007 -> 0 bytes
+ .../b04-06/failed-source-b74b6b9/unit-xml.tar.gz   |    Bin 12981 -> 0 bytes
+ evidence/r30/b04-06/focused-junit.log.gz           |    Bin 615 -> 0 bytes
+ evidence/r30/b04-06/quota-focused-final.log.gz     |    Bin 923 -> 0 bytes
+ .../b04-07/ci-41183526877/job-124485659179.log.gz  |    Bin 13124 -> 0 bytes
+ evidence/r30/b04-07/ci-41183526877/result.json     |      6 -
+ evidence/r30/b04-07/first-focused-failed.log.gz    |    Bin 1650 -> 0 bytes
+ evidence/r30/b04-07/focused-final.log.gz           |    Bin 1436 -> 0 bytes
+ .../failed-ci-41186348620/job-124493943055.log.gz  |    Bin 8386 -> 0 bytes
+ .../local-pure-kernel-compile-failed.log.gz        |    Bin 558 -> 0 bytes
+ .../r30/b05-01/failed-ci-41186348620/result.json   |      7 -
+ .../qualified-counter-sqlite-failed.log.gz         |    Bin 487 -> 0 bytes
+ .../b05-01/failed-source-0c579ce/unit-lint.log.gz  |    Bin 2048 -> 0 bytes
+ .../b05-01/failed-source-0c579ce/unit-xml.tar.gz   |    Bin 13991 -> 0 bytes
+ .../r30/b05-01/final-actual-compiled-host.log.gz   |    Bin 437 -> 0 bytes
+ evidence/r30/b05-01/final-quality-focused.log.gz   |    Bin 1165 -> 0 bytes
+ evidence/r30/b05-01/final-sqlite-focused.log.gz    |    Bin 431 -> 0 bytes
+ evidence/r30/b05-01/first-sqlite-failed.log.gz     |    Bin 472 -> 0 bytes
+ evidence/r30/b05-01/focused-final.log.gz           |    Bin 212 -> 0 bytes
+ evidence/r30/b05-01/positive-and-resume.log.gz     |    Bin 377 -> 0 bytes
+ .../source-0c579ce-actual-compiled-host.log.gz     |    Bin 427 -> 0 bytes
+ evidence/r30/b05-01/sqlite-restart-final.log.gz    |    Bin 412 -> 0 bytes
+ .../b05-02/actual-compiled-qualification.log.gz    |    Bin 1426 -> 0 bytes
+ evidence/r30/b05-02/actual-compiled-sqlite.log.gz  |    Bin 477 -> 0 bytes
+ .../r30/b05-02/first-report-counter-failed.log.gz  |    Bin 379 -> 0 bytes
+ evidence/r30/b05-02/focused-final.log.gz           |    Bin 3511 -> 0 bytes
+ evidence/r30/b05-02/plan1025-all-pass.log.gz       |    Bin 233 -> 0 bytes
+ evidence/r30/b05-02/positive-resume.log.gz         |    Bin 373 -> 0 bytes
+ evidence/r30/b05-02/q08-host-result.json           |    451 -
+ evidence/r30/b05-02/r26-all-pass.log.gz            |    Bin 342 -> 0 bytes
+ evidence/r30/b05-02/remote-ci.json                 |      9 -
+ evidence/r30/b05-02/sqlite-view-q08-report.log.gz  |    Bin 477 -> 0 bytes
+ evidence/r30/b05-02/su1-all-pass.log.gz            |    Bin 300 -> 0 bytes
+ .../actual-compiled-production-sqlite.log.gz       |    Bin 719 -> 0 bytes
+ .../focused-first-buffer-fixture-failure.log.gz    |    Bin 457 -> 0 bytes
+ evidence/r30/b05-03/focused-four-pass.log.gz       |    Bin 286 -> 0 bytes
+ evidence/r30/b05-03/remote-ci.json                 |      9 -
+ ...te-first-restore-counter-fixture-failure.log.gz |    Bin 374 -> 0 bytes
+ .../sqlite-production-rollback-restart.log.gz      |    Bin 718 -> 0 bytes
+ .../actual-compiled-model-freeze-sqlite.log.gz     |    Bin 974 -> 0 bytes
+ ...cy-model-freeze-and-ten-position-restart.log.gz |    Bin 887 -> 0 bytes
+ evidence/r30/b05-04/focused-four-pass.log.gz       |    Bin 275 -> 0 bytes
+ evidence/r30/b05-04/git-push-normal-retry.txt      |      3 -
+ evidence/r30/b05-04/remote-ci.json                 |      9 -
+ .../actual-compiled-model-freeze-sqlite.log.gz     |    Bin 975 -> 0 bytes
+ .../b05-05/first-runner-classpath-failure.log.gz   |    Bin 633 -> 0 bytes
+ .../b05-05/number-provider-focused-six-pass.log.gz |    Bin 277 -> 0 bytes
+ evidence/r30/b05-05/remote-ci.json                 |      9 -
+ .../actual-compiled-calibration-sqlite.log.gz      |    Bin 805 -> 0 bytes
+ ...nstant-probability-bin-jitter-reproduced.log.gz |    Bin 543 -> 0 bytes
+ .../first-constant-probability-ece-false.log.gz    |    Bin 782 -> 0 bytes
+ evidence/r30/b06-01/focused-five-pass.log.gz       |    Bin 296 -> 0 bytes
+ .../production-calibration-sqlite-pass.log.gz      |    Bin 798 -> 0 bytes
+ evidence/r30/b06-01/remote-ci.json                 |      9 -
+ .../actual-atom-molecule-brier-and-rollback.log.gz |    Bin 336 -> 0 bytes
+ .../r30/b06-02/actual-compiled-brier-sqlite.log.gz |    Bin 343 -> 0 bytes
+ .../failed-commit-advanced-molecule-cursor.log.gz  |    Bin 319 -> 0 bytes
+ .../failed-commit-published-atom-weights.log.gz    |    Bin 318 -> 0 bytes
+ evidence/r30/b06-02/focused-three-pass.log.gz      |    Bin 292 -> 0 bytes
+ evidence/r30/b06-02/remote-ci.json                 |      9 -
+ .../actual-compiled-matrix-registry-sqlite.log.gz  |    Bin 305 -> 0 bytes
+ .../original-matrix-sources-sqlite-pass.log.gz     |    Bin 298 -> 0 bytes
+ evidence/r30/b06-03/remote-ci.json                 |      9 -
+ .../r30/b06-03/twenty-bindings-focused-pass.log.gz |    Bin 209 -> 0 bytes
+ ...tual-compiled-capability-registry-sqlite.log.gz |    Bin 342 -> 0 bytes
+ .../actual-eighty-two-handlers-focused-pass.log.gz |    Bin 209 -> 0 bytes
+ evidence/r30/b06-04/remote-ci.json                 |      9 -
+ ...ained-runtime-and-checkpoint-sqlite-pass.log.gz |    Bin 335 -> 0 bytes
+ ...ctual-compiled-confirmation-queue-sqlite.log.gz |    Bin 323 -> 0 bytes
+ evidence/r30/b07-01/focused.log.gz                 |    Bin 209 -> 0 bytes
+ evidence/r30/b07-01/remote-ci.json                 |      9 -
+ evidence/r30/b07-01/sqlite.log.gz                  |    Bin 316 -> 0 bytes
+ ...tual-compiled-certificate-version-sqlite.log.gz |    Bin 332 -> 0 bytes
+ evidence/r30/b07-02/existing-m4-failure.log.gz     |    Bin 854 -> 0 bytes
+ evidence/r30/b07-02/focused.log.gz                 |    Bin 211 -> 0 bytes
+ evidence/r30/b07-02/initial-m4-failure.log.gz      |    Bin 870 -> 0 bytes
+ evidence/r30/b07-02/migration.log.gz               |    Bin 856 -> 0 bytes
+ .../prep-mixed-inlined-sql-harness-failure.log.gz  |    Bin 798 -> 0 bytes
+ evidence/r30/b07-02/remote-ci.json                 |      9 -
+ evidence/r30/b07-02/sqlite.log.gz                  |    Bin 321 -> 0 bytes
+ .../b07-03/actual-compiled-authority-sqlite.log.gz |    Bin 360 -> 0 bytes
+ ...ual-compiled-decision-explanation-sqlite.log.gz |    Bin 370 -> 0 bytes
+ evidence/r30/b07-03/android-test-compile.log.gz    |    Bin 1790 -> 0 bytes
+ .../authority-initial-tier-fixture-failure.log.gz  |    Bin 386 -> 0 bytes
+ evidence/r30/b07-03/focused.log.gz                 |    Bin 1158 -> 0 bytes
+ .../old-authority-existing-real-failure.log.gz     |    Bin 342 -> 0 bytes
+ .../old-authority-missing-freeze-failure.log.gz    |    Bin 336 -> 0 bytes
+ evidence/r30/b07-03/provenance.json                |      7 -
+ evidence/r30/b07-03/remote-ci.json                 |      9 -
+ evidence/r30/b07-03/sqlite-authority.log.gz        |    Bin 341 -> 0 bytes
+ evidence/r30/b07-03/sqlite-explanation.log.gz      |    Bin 363 -> 0 bytes
+ ...l-compiled-certificate-revocation-sqlite.log.gz |    Bin 448 -> 0 bytes
+ .../b07-04/actual-compiled-producer-sqlite.log.gz  |    Bin 365 -> 0 bytes
+ evidence/r30/b07-04/android-test-compile.log.gz    |    Bin 1771 -> 0 bytes
+ evidence/r30/b07-04/focused.log.gz                 |    Bin 1155 -> 0 bytes
+ .../b07-04/initial-producer-choice-failure.log.gz  |    Bin 342 -> 0 bytes
+ evidence/r30/b07-04/remote-ci.json                 |      9 -
+ evidence/r30/b07-04/sqlite-producer.log.gz         |    Bin 330 -> 0 bytes
+ evidence/r30/b07-04/sqlite-revocation.log.gz       |    Bin 415 -> 0 bytes
+ .../actual-compiled-report-snapshot-sqlite.log.gz  |    Bin 372 -> 0 bytes
+ evidence/r30/b08-01/android-test-compile.log.gz    |    Bin 1774 -> 0 bytes
+ evidence/r30/b08-01/focused-focused.log.gz         |    Bin 210 -> 0 bytes
+ evidence/r30/b08-01/focused-sqlite.log.gz          |    Bin 366 -> 0 bytes
+ evidence/r30/b08-01/remote-ci.json                 |      9 -
+ .../actual-compiled-report-snapshot-sqlite.log.gz  |    Bin 444 -> 0 bytes
+ evidence/r30/b08-02/android-test-compile.log.gz    |    Bin 1773 -> 0 bytes
+ evidence/r30/b08-02/scratch-failure-note.json      |      5 -
+ evidence/r30/b08-02/scratch-focused-fixed.log.gz   |    Bin 218 -> 0 bytes
+ evidence/r30/b08-02/scratch-focused.log.gz         |    Bin 474 -> 0 bytes
+ evidence/r30/b08-02/scratch-sqlite.log.gz          |    Bin 438 -> 0 bytes
+ .../actual-compiled-report-snapshot-sqlite.log.gz  |    Bin 444 -> 0 bytes
+ .../actual-compiled-upgrade-ablation-sqlite.log.gz |    Bin 332 -> 0 bytes
+ evidence/r30/b08-03/android-test-compile.log.gz    |    Bin 1772 -> 0 bytes
+ evidence/r30/b08-03/focused.log.gz                 |    Bin 203 -> 0 bytes
+ evidence/r30/b08-03/legacy-parity.log.gz           |    Bin 686 -> 0 bytes
+ evidence/r30/b08-03/scratch-adapter-note.json      |      5 -
+ evidence/r30/b08-03/scratch-compile.log.gz         |    Bin 178 -> 0 bytes
+ evidence/r30/b08-03/sqlite-ui-final.log.gz         |    Bin 319 -> 0 bytes
+ .../actual-compiled-report-snapshot-sqlite.log.gz  |    Bin 444 -> 0 bytes
+ .../actual-compiled-upgrade-ablation-sqlite.log.gz |    Bin 332 -> 0 bytes
+ .../execution.log.gz                               |    Bin 332 -> 0 bytes
+ ...000000000000000000000000001-delivery-index.json |      1 -
+ ...00000000000000000000002-cancel-receipt-r30.json |      1 -
+ ...00000000000000000000003-cancel-receipt-r30.json |      1 -
+ .../actual-delivery-fixtures-cleaned/receipt.json  |     14 -
+ .../r30/b08-04/actual-delivery/execution.log.gz    |    Bin 333 -> 0 bytes
+ evidence/r30/b08-04/actual-delivery/receipt.json   |     14 -
+ .../r30/b08-04/actual-owner-focused-compile.log.gz |    Bin 325 -> 0 bytes
+ evidence/r30/b08-04/android-test-compile.log.gz    |    Bin 1771 -> 0 bytes
+ evidence/r30/b08-04/delivery-focused-1.log.gz      |    Bin 325 -> 0 bytes
+ evidence/r30/b08-04/delivery-focused-2.log.gz      |    Bin 317 -> 0 bytes
+ evidence/r30/b08-04/delivery-focused-3.log.gz      |    Bin 341 -> 0 bytes
+ evidence/r30/b08-04/focused-fixture-failures.json  |      6 -
+ evidence/r30/b08-04/focused-receipt.json           |     14 -
+ .../r30/b08-04/focused-wrapper-execution.log.gz    |    Bin 348 -> 0 bytes
+ .../r30/b08-04/original-native-host-build.json     |    171 -
+ .../r30/b08-04/remote-ci-failed-41214742293.json   |     10 -
+ .../r30/b08-04/remote-ci-failure-41214742293.log   |      7 -
+ evidence/r30/b08-04/remote-ci.json                 |      8 -
+ .../actual-compiled-report-snapshot-sqlite.log.gz  |    Bin 444 -> 0 bytes
+ .../actual-compiled-retention-sqlite-files.log.gz  |    Bin 379 -> 0 bytes
+ .../actual-compiled-upgrade-ablation-sqlite.log.gz |    Bin 332 -> 0 bytes
+ .../r30/b08-05/actual-owner-final-compile.log.gz   |    Bin 183 -> 0 bytes
+ evidence/r30/b08-05/android-test-compile.log.gz    |    Bin 1768 -> 0 bytes
+ .../gradle-failed.log.gz                           |    Bin 2507 -> 0 bytes
+ .../lint-failed.txt.gz                             |    Bin 1478 -> 0 bytes
+ .../api21-failure-source-230a644/summary.json      |     10 -
+ .../api21-failure-source-230a644/unit-xml.tar.gz   |    Bin 19512 -> 0 bytes
+ evidence/r30/b08-05/failure-notes.json             |      8 -
+ evidence/r30/b08-05/focused-unit-fixed.log.gz      |    Bin 213 -> 0 bytes
+ evidence/r30/b08-05/focused-unit.log.gz            |    Bin 460 -> 0 bytes
+ evidence/r30/b08-05/host-compile.log.gz            |    Bin 897 -> 0 bytes
+ evidence/r30/b08-05/host-sqlite-1.log.gz           |    Bin 333 -> 0 bytes
+ evidence/r30/b08-05/host-sqlite-2.log.gz           |    Bin 369 -> 0 bytes
+ evidence/r30/b08-05/host-sqlite-final.log.gz       |    Bin 373 -> 0 bytes
+ .../b08-05/portable-report-host/execution.log.gz   |    Bin 332 -> 0 bytes
+ ...000000000000000000000000001-delivery-index.json |      1 -
+ ...00000000000000000000002-cancel-receipt-r30.json |      1 -
+ ...00000000000000000000003-cancel-receipt-r30.json |      1 -
+ .../r30/b08-05/portable-report-host/receipt.json   |     14 -
+ evidence/r30/b08-05/remote-ci.json                 |      8 -
+ evidence/r30/b09-01/actual-chart.log.gz            |    Bin 347 -> 0 bytes
+ evidence/r30/b09-01/actual-focused-retry.log.gz    |    Bin 334 -> 0 bytes
+ evidence/r30/b09-01/actual-focused.log.gz          |    Bin 263 -> 0 bytes
+ evidence/r30/b09-01/actual-report.log.gz           |    Bin 444 -> 0 bytes
+ evidence/r30/b09-01/android-compile.log.gz         |    Bin 1771 -> 0 bytes
+ evidence/r30/b09-01/final-focused-unit.log.gz      |    Bin 192 -> 0 bytes
+ evidence/r30/b09-01/remote-ci.json                 |      8 -
+ evidence/r30/b09-02/android-test-compile.log.gz    |    Bin 1769 -> 0 bytes
+ evidence/r30/b09-02/execution-status.json          |     20 -
+ evidence/r30/b09-02/first-compile-failed.log.gz    |    Bin 2594 -> 0 bytes
+ evidence/r30/b09-02/remote-ci.json                 |      8 -
+ evidence/r30/b09-02/second-compile-failed.log.gz   |    Bin 940 -> 0 bytes
+ ...ctual-compiled-qual-rollback-idempotence.log.gz |    Bin 1406 -> 0 bytes
+ evidence/r30/b09-03/android-test-compile.log.gz    |    Bin 1766 -> 0 bytes
+ evidence/r30/b09-03/focused-actual-wait.log.gz     |    Bin 298 -> 0 bytes
+ evidence/r30/b10-01/adb-daemon.log                 |     13 -
+ .../b10-03/android-precommit-guard-failure.log.gz  |    Bin 1050 -> 0 bytes
+ evidence/r30/b10-03/android-test-compile.log.gz    |    Bin 1736 -> 0 bytes
+ .../archived_exact_blob_and_advanced_budget.json   |     30 -
+ evidence/r30/b10-03/corrupt_archive_must_fail.json |     30 -
+ evidence/r30/b10-03/reset_index_must_fail.json     |     30 -
+ evidence/r30/b10-03/verification.json              |     23 -
+ evidence/r30/b10-04/android-test-compile.log.gz    |    Bin 1772 -> 0 bytes
+ .../checkpoint-startup/actual-checkpoint.log.gz    |    Bin 331 -> 0 bytes
+ .../checkpoint-startup/actual-retention.log.gz     |    Bin 387 -> 0 bytes
+ .../b10-04/checkpoint-startup/after-focused.log.gz |    Bin 312 -> 0 bytes
+ .../checkpoint-startup/android-compile.log.gz      |    Bin 1781 -> 0 bytes
+ .../checkpoint-startup/before-failure.log.gz       |    Bin 324 -> 0 bytes
+ evidence/r30/b10-04/checkpoint-startup/before.json |      8 -
+ evidence/r30/b10-04/diagnostic-approval.json       |     12 -
+ .../r30/b10-04/first-final-android-failure.json    |     19 -
+ .../large-cell-copy/actual-large-copy.log.gz       |    Bin 339 -> 0 bytes
+ .../b10-04/large-cell-copy/actual-retention.log.gz |    Bin 386 -> 0 bytes
+ evidence/r30/b10-04/large-cell-copy/after.log.gz   |    Bin 303 -> 0 bytes
+ .../b10-04/large-cell-copy/android-compile.log.gz  |    Bin 1782 -> 0 bytes
+ .../b10-04/large-cell-copy/before-failure.log.gz   |    Bin 354 -> 0 bytes
+ evidence/r30/b10-04/large-cell-copy/focused.json   |     19 -
+ .../installed-sdk-window-config.txt                |      5 -
+ evidence/r30/b10-04/prefs-atomic-read-host.json    |     10 -
+ .../r30/b10-04/probe-reader/host-real-shell.log.gz |    Bin 455 -> 0 bytes
+ .../r30/b10-04/probe-reader/real-102-failure.json  |     11 -
+ .../r30/b10-04/runner-merged-manifest-before.xml   |     55 -
+ .../b10-04/runner-repair/android-compile.log.gz    |    Bin 1777 -> 0 bytes
+ .../runner-repair/default-Su1-merged-manifest.xml  |     55 -
+ .../b10-04/runner-repair/default-manifest.log.gz   |    Bin 1420 -> 0 bytes
+ .../runner-repair/final-R30-merged-manifest.xml    |     55 -
+ .../identity-not-yet-rebound-real-failure.log.gz   |    Bin 815 -> 0 bytes
+ ...05-android-original-receipt-schema-failure.json |     16 -
+ .../b10-04/selective-scope/106-actual-host.log.gz  |    Bin 430 -> 0 bytes
+ ...cards-and10-faults-pass-four-real-failures.json |     33 -
+ .../selective-scope/106-android-compile.log.gz     |    Bin 1785 -> 0 bytes
+ ...-chart-source-lease-isolation-path-failure.json |     13 -
+ .../r30/b10-04/selective-scope/106-focused.log.gz  |    Bin 1688 -> 0 bytes
+ ...riginal-budget-audit-missing-fixture-scope.json |     10 -
+ .../106-original-migration-dependency-failure.json |     11 -
+ ...nal-owner-16-pass-chart-off-by-one-failure.json |     17 -
+ ...-original-schema-fixture-android-compile.log.gz |    Bin 1789 -> 0 bytes
+ .../106-restored-baseline-pin-first-failure.log.gz |    Bin 501 -> 0 bytes
+ .../29-panels-last-four-android-compile.log.gz     |    Bin 1780 -> 0 bytes
+ .../actual-os-clock-android-compile.log.gz         |    Bin 1783 -> 0 bytes
+ .../b10-04-version107-bootstrap.log.gz             |    Bin 419 -> 0 bytes
+ ...n107-fixed-identity-redline-lint-android.log.gz |    Bin 2445 -> 0 bytes
+ ...version107-identity-redline-lint-android.log.gz |    Bin 2619 -> 0 bytes
+ .../selective-scope/before-android-failure.json    |     18 -
+ .../chart-container-android-compile.log.gz         |    Bin 1778 -> 0 bytes
+ .../b10-04/selective-scope/commit-focused.log.gz   |    Bin 410 -> 0 bytes
+ ...3.novaonepro.AnalysisSingleFlightR36Test.xml.gz |    Bin 529 -> 0 bytes
+ ...ethk3.novaonepro.Batch3ContractsR929Test.xml.gz |    Bin 613 -> 0 bytes
+ ...ethk3.novaonepro.Batch4ContractsR930Test.xml.gz |    Bin 715 -> 0 bytes
+ ...ethk3.novaonepro.HistoricalSeedAssetTest.xml.gz |    Bin 432 -> 0 bytes
+ ...ethk3.novaonepro.HistoryWatermarkR46Test.xml.gz |    Bin 471 -> 0 bytes
+ ....ethk3.novaonepro.MotifSurfaceParityTest.xml.gz |    Bin 398 -> 0 bytes
+ ...thk3.novaonepro.MultiHorizonProbeR80Test.xml.gz |    Bin 613 -> 0 bytes
+ ...novaonepro.R30SelectiveScopeIdentityTest.xml.gz |    Bin 464 -> 0 bytes
+ ....novaonepro.R940RecoveryContinuationTest.xml.gz |    Bin 407 -> 0 bytes
+ ...ovaonepro.RetentionRegistryArgumentsTest.xml.gz |    Bin 437 -> 0 bytes
+ ....ethk3.novaonepro.ShadowWaitingUiR45Test.xml.gz |    Bin 473 -> 0 bytes
+ ...hk3.novaonepro.SourceProvenanceBuildTest.xml.gz |    Bin 438 -> 0 bytes
+ ...ethk3.novaonepro.TargetIssueResolverTest.xml.gz |    Bin 399 -> 0 bytes
+ ...ro.strategyv2.ProductionContractsSU1Test.xml.gz |    Bin 583 -> 0 bytes
+ ...3.novaonepro.strategyv2.R27BirthGateTest.xml.gz |    Bin 761 -> 0 bytes
+ ...3.novaonepro.strategyv2.R27ComponentTest.xml.gz |    Bin 1136 -> 0 bytes
+ ...3.novaonepro.strategyv2.R27EvolutionTest.xml.gz |    Bin 624 -> 0 bytes
+ ...hk3.novaonepro.strategyv2.R27LeakageTest.xml.gz |    Bin 432 -> 0 bytes
+ ...ovaonepro.strategyv2.R27NullBaselineTest.xml.gz |    Bin 620 -> 0 bytes
+ ...hk3.novaonepro.strategyv2.R27QualityTest.xml.gz |    Bin 2771 -> 0 bytes
+ ...thk3.novaonepro.strategyv2.R27ReplayTest.xml.gz |    Bin 660 -> 0 bytes
+ ....novaonepro.strategyv2.R27SequentialTest.xml.gz |    Bin 671 -> 0 bytes
+ ...k3.novaonepro.strategyv2.R29BaselineTest.xml.gz |    Bin 548 -> 0 bytes
+ ...k3.novaonepro.strategyv2.R29FindingsTest.xml.gz |    Bin 370 -> 0 bytes
+ ...thk3.novaonepro.strategyv2.R29GateV2Test.xml.gz |    Bin 551 -> 0 bytes
+ ...vaonepro.strategyv2.R29ModelArtifactTest.xml.gz |    Bin 523 -> 0 bytes
+ ...vaonepro.strategyv2.R29ResearchSlotsTest.xml.gz |    Bin 383 -> 0 bytes
+ ...vaonepro.strategyv2.R29ThermalPolicyTest.xml.gz |    Bin 427 -> 0 bytes
+ ...ovaonepro.strategyv2.R30B04StructureTest.xml.gz |    Bin 420 -> 0 bytes
+ ...epro.strategyv2.R30BehaviorSignatureTest.xml.gz |    Bin 499 -> 0 bytes
+ ...epro.strategyv2.R30BrierContributionTest.xml.gz |    Bin 553 -> 0 bytes
+ ...novaonepro.strategyv2.R30CalibrationTest.xml.gz |    Bin 639 -> 0 bytes
+ ...pro.strategyv2.R30CapabilityRegistryTest.xml.gz |    Bin 423 -> 0 bytes
+ ...pro.strategyv2.R30CertificateVersionTest.xml.gz |    Bin 403 -> 0 bytes
+ ...vaonepro.strategyv2.R30ChartSnapshotTest.xml.gz |    Bin 523 -> 0 bytes
+ ...vaonepro.strategyv2.R30ChunkedWriterTest.xml.gz |    Bin 485 -> 0 bytes
+ ...vaonepro.strategyv2.R30ConfirmLedgerTest.xml.gz |    Bin 417 -> 0 bytes
+ ...pro.strategyv2.R30ConfirmPersistenceTest.xml.gz |    Bin 463 -> 0 bytes
+ ...epro.strategyv2.R30ConfirmationQueueTest.xml.gz |    Bin 426 -> 0 bytes
+ ...vaonepro.strategyv2.R30DecisionChainTest.xml.gz |    Bin 366 -> 0 bytes
+ ...vaonepro.strategyv2.R30DecisionTraceTest.xml.gz |    Bin 420 -> 0 bytes
+ ...aonepro.strategyv2.R30DiagnosisRulesTest.xml.gz |    Bin 511 -> 0 bytes
+ ...egyv2.R30EvolutionConfirmIntegrationTest.xml.gz |    Bin 610 -> 0 bytes
+ ...vaonepro.strategyv2.R30FailureRepairTest.xml.gz |    Bin 876 -> 0 bytes
+ ...ovaonepro.strategyv2.R30FetchBackoffTest.xml.gz |    Bin 385 -> 0 bytes
+ ...vaonepro.strategyv2.R30HistoryGovernTest.xml.gz |    Bin 406 -> 0 bytes
+ ...pro.strategyv2.R30IdeaFamilyContractTest.xml.gz |    Bin 611 -> 0 bytes
+ ...pro.strategyv2.R30IncrementalFeatureTest.xml.gz |    Bin 392 -> 0 bytes
+ ...vaonepro.strategyv2.R30IssueTimelineTest.xml.gz |    Bin 404 -> 0 bytes
+ ...aonepro.strategyv2.R30MatrixRegistryTest.xml.gz |    Bin 431 -> 0 bytes
+ ...onepro.strategyv2.R30MetricEvaluatorTest.xml.gz |    Bin 426 -> 0 bytes
+ ...ovaonepro.strategyv2.R30ModelSurfaceTest.xml.gz |    Bin 574 -> 0 bytes
+ ...ovaonepro.strategyv2.R30NullPipelineTest.xml.gz |    Bin 3828 -> 0 bytes
+ ...ovaonepro.strategyv2.R30NumberRankerTest.xml.gz |    Bin 418 -> 0 bytes
+ ...k3.novaonepro.strategyv2.R30PitGuardTest.xml.gz |    Bin 371 -> 0 bytes
+ ...pro.strategyv2.R30PitReplayInjectionTest.xml.gz |    Bin 379 -> 0 bytes
+ ...aonepro.strategyv2.R30PolicyContractTest.xml.gz |    Bin 633 -> 0 bytes
+ ...aonepro.strategyv2.R30ReportSnapshotTest.xml.gz |    Bin 427 -> 0 bytes
+ ...epro.strategyv2.R30ResearchRetentionTest.xml.gz |    Bin 488 -> 0 bytes
+ ...aonepro.strategyv2.R30ResumeTrainingTest.xml.gz |    Bin 388 -> 0 bytes
+ ...aonepro.strategyv2.R30SelectorPolicyTest.xml.gz |    Bin 472 -> 0 bytes
+ ...epro.strategyv2.R30SequentialNullSimTest.xml.gz |    Bin 389 -> 0 bytes
+ ...epro.strategyv2.R30StructureRegistryTest.xml.gz |    Bin 658 -> 0 bytes
+ ...ovaonepro.strategyv2.R30TaskLivenessTest.xml.gz |    Bin 348 -> 0 bytes
+ ...ro.strategyv2.R30TenPositionTrainingTest.xml.gz |    Bin 604 -> 0 bytes
+ ...vaonepro.strategyv2.R30ThermalPolicyTest.xml.gz |    Bin 411 -> 0 bytes
+ ...nepro.strategyv2.R30UnifiedEvaluatorTest.xml.gz |    Bin 427 -> 0 bytes
+ ...onepro.strategyv2.R30UpgradeEvidenceTest.xml.gz |    Bin 485 -> 0 bytes
+ ...3.novaonepro.strategyv2.R30WriteWaitTest.xml.gz |    Bin 560 -> 0 bytes
+ ...nepro.strategyv2.R30WriterHoldLedgerTest.xml.gz |    Bin 503 -> 0 bytes
+ .../failed105-frozen-owner/summary.json            |     10 -
+ .../failed105-frozen-owner/unit.log.gz             |    Bin 1868 -> 0 bytes
+ .../immutable-mask-test-first-failure.log.gz       |    Bin 409 -> 0 bytes
+ ...inal-budget-source-android-compile-fixed.log.gz |    Bin 1790 -> 0 bytes
+ .../original-budget-source-android-compile.log.gz  |    Bin 2142 -> 0 bytes
+ ...ginal-read-lease-fixture-android-compile.log.gz |    Bin 1789 -> 0 bytes
+ .../original-read-lease-fixture-host.log.gz        |    Bin 324 -> 0 bytes
+ .../partial104-incomplete-no-pass.log.gz           |    Bin 1394 -> 0 bytes
+ .../b10-04/selective-scope/partial104-status.json  |     11 -
+ .../preflight-41246526760-installation-failed.json |     11 -
+ .../preflight-41247260265-installation-failed.json |     11 -
+ ...7413-48png-and-two-freeze-pass-full-failed.json |     36 -
+ .../receipt-domain-android-compile.log.gz          |    Bin 1776 -> 0 bytes
+ .../receipt-domain-ci-classpath-host.log.gz        |    Bin 332 -> 0 bytes
+ ...eceipt-domain-first-missing-fixed-window.log.gz |    Bin 596 -> 0 bytes
+ ...in-full-migration-needs-critical-fixture.log.gz |    Bin 600 -> 0 bytes
+ .../selective-scope/receipt-domain-host.log.gz     |    Bin 319 -> 0 bytes
+ ...re-first-unclosed-host-statement-failure.log.gz |    Bin 575 -> 0 bytes
+ ...te-full-fixture-real-two-connection-pass.log.gz |    Bin 312 -> 0 bytes
+ ...n107-all-lint-consumers-fixed-validation.log.gz |    Bin 2194 -> 0 bytes
+ ...sion107-focused5-lint-android-compile-pass.json |     27 -
+ .../b10-04/su2-choice-bridge/actual-host.log.gz    |    Bin 427 -> 0 bytes
+ .../b10-04/su2-choice-bridge/after-focused.log.gz  |    Bin 324 -> 0 bytes
+ .../su2-choice-bridge/android-compile.log.gz       |    Bin 1787 -> 0 bytes
+ .../su2-choice-bridge/before-android-failure.json  |     13 -
+ .../b10-04/su2-choice-bridge/before-failure.log.gz |    Bin 326 -> 0 bytes
+ .../su2-choice-bridge/complete-focused.log.gz      |    Bin 412 -> 0 bytes
+ .../partial-g1-cancelled-no-pass.log.gz            |    Bin 1391 -> 0 bytes
+ .../su2-choice-bridge/partial-g1-status.json       |     13 -
+ .../r30/r30-b03-06/source-89b0d8e/gradle.log.gz    |    Bin 1824 -> 0 bytes
+ .../r30/r30-b03-06/source-89b0d8e/lint-results.txt |     11 -
+ .../r30/r30-b03-06/source-89b0d8e/summary.json     |     54 -
+ .../r30/r30-b03-06/source-89b0d8e/unit-xml.tar.gz  |    Bin 10620 -> 0 bytes
+ .../r30/r30-b04-01/source-9ca89a4/gradle.log.gz    |    Bin 1824 -> 0 bytes
+ .../r30/r30-b04-01/source-9ca89a4/lint-results.txt |     11 -
+ .../r30/r30-b04-01/source-9ca89a4/summary.json     |     54 -
+ .../r30/r30-b04-01/source-9ca89a4/unit-xml.tar.gz  |    Bin 10994 -> 0 bytes
+ .../r30/r30-b04-02/source-de22588/gradle.log.gz    |    Bin 1824 -> 0 bytes
+ .../r30/r30-b04-02/source-de22588/lint-results.txt |     11 -
+ .../r30/r30-b04-02/source-de22588/summary.json     |     56 -
+ .../r30/r30-b04-02/source-de22588/unit-xml.tar.gz  |    Bin 11187 -> 0 bytes
+ .../r30/r30-b04-03/source-612110e/gradle.log.gz    |    Bin 1830 -> 0 bytes
+ .../r30/r30-b04-03/source-612110e/lint-results.txt |     11 -
+ .../source-612110e/sql-contract-results.json       |    101 -
+ .../r30/r30-b04-03/source-612110e/summary.json     |     57 -
+ .../r30/r30-b04-03/source-612110e/unit-xml.tar.gz  |    Bin 11567 -> 0 bytes
+ .../r30/r30-b04-04/source-c24aa69/gradle.log.gz    |    Bin 1821 -> 0 bytes
+ .../r30/r30-b04-04/source-c24aa69/lint-results.txt |     11 -
+ .../r30/r30-b04-04/source-c24aa69/summary.json     |     58 -
+ .../r30/r30-b04-04/source-c24aa69/unit-xml.tar.gz  |    Bin 11625 -> 0 bytes
+ .../r30/r30-b04-05/source-257fa5d/gradle.log.gz    |    Bin 1823 -> 0 bytes
+ .../r30/r30-b04-05/source-257fa5d/lint-results.txt |     11 -
+ .../r30/r30-b04-05/source-257fa5d/summary.json     |     59 -
+ .../r30/r30-b04-05/source-257fa5d/unit-xml.tar.gz  |    Bin 11854 -> 0 bytes
+ .../r30/r30-b04-06/source-3aa4534/gradle.log.gz    |    Bin 1822 -> 0 bytes
+ .../r30/r30-b04-06/source-3aa4534/lint-results.txt |     11 -
+ .../r30/r30-b04-06/source-3aa4534/summary.json     |     60 -
+ .../r30/r30-b04-06/source-3aa4534/unit-xml.tar.gz  |    Bin 12201 -> 0 bytes
+ .../r30/r30-b04-07/source-a5bb357/gradle.log.gz    |    Bin 1823 -> 0 bytes
+ .../r30/r30-b04-07/source-a5bb357/lint-results.txt |     11 -
+ .../r30/r30-b04-07/source-a5bb357/summary.json     |     61 -
+ .../r30/r30-b04-07/source-a5bb357/unit-xml.tar.gz  |    Bin 12843 -> 0 bytes
+ .../r30/r30-b05-01/source-c474170/gradle.log.gz    |    Bin 1822 -> 0 bytes
+ .../r30/r30-b05-01/source-c474170/lint-results.txt |     11 -
+ .../r30/r30-b05-01/source-c474170/summary.json     |     62 -
+ .../r30/r30-b05-01/source-c474170/unit-xml.tar.gz  |    Bin 13105 -> 0 bytes
+ .../r30/r30-b05-02/source-255c24b/gradle.log.gz    |    Bin 1825 -> 0 bytes
+ .../r30/r30-b05-02/source-255c24b/lint-results.txt |     11 -
+ .../r30/r30-b05-02/source-255c24b/summary.json     |     64 -
+ .../r30/r30-b05-02/source-255c24b/unit-xml.tar.gz  |    Bin 16733 -> 0 bytes
+ .../r30/r30-b05-03/source-f7006d6/gradle.log.gz    |    Bin 1826 -> 0 bytes
+ .../r30/r30-b05-03/source-f7006d6/lint-results.txt |     11 -
+ .../r30/r30-b05-03/source-f7006d6/summary.json     |     65 -
+ .../r30/r30-b05-03/source-f7006d6/unit-xml.tar.gz  |    Bin 17116 -> 0 bytes
+ .../r30/r30-b05-04/source-b69c4ff/gradle.log.gz    |    Bin 1822 -> 0 bytes
+ .../r30/r30-b05-04/source-b69c4ff/lint-results.txt |     11 -
+ .../r30/r30-b05-04/source-b69c4ff/summary.json     |     66 -
+ .../r30/r30-b05-04/source-b69c4ff/unit-xml.tar.gz  |    Bin 17303 -> 0 bytes
+ .../r30/r30-b05-05/source-c03fe41/gradle.log.gz    |    Bin 1820 -> 0 bytes
+ .../r30/r30-b05-05/source-c03fe41/lint-results.txt |     11 -
+ .../r30/r30-b05-05/source-c03fe41/summary.json     |     67 -
+ .../r30/r30-b05-05/source-c03fe41/unit-xml.tar.gz  |    Bin 17443 -> 0 bytes
+ .../r30/r30-b06-01/source-53f682d/gradle.log.gz    |    Bin 1827 -> 0 bytes
+ .../r30/r30-b06-01/source-53f682d/lint-results.txt |     11 -
+ .../r30/r30-b06-01/source-53f682d/summary.json     |     68 -
+ .../r30/r30-b06-01/source-53f682d/unit-xml.tar.gz  |    Bin 17780 -> 0 bytes
+ .../r30/r30-b06-02/source-8bd231d/gradle.log.gz    |    Bin 1825 -> 0 bytes
+ .../r30/r30-b06-02/source-8bd231d/lint-results.txt |     11 -
+ .../r30/r30-b06-02/source-8bd231d/summary.json     |     69 -
+ .../r30/r30-b06-02/source-8bd231d/unit-xml.tar.gz  |    Bin 18193 -> 0 bytes
+ .../r30/r30-b06-03/source-df21127/gradle.log.gz    |    Bin 1824 -> 0 bytes
+ .../r30/r30-b06-03/source-df21127/lint-results.txt |     11 -
+ .../r30/r30-b06-03/source-df21127/summary.json     |     69 -
+ .../r30/r30-b06-03/source-df21127/unit-xml.tar.gz  |    Bin 18268 -> 0 bytes
+ .../r30/r30-b06-04/source-15fcb02/gradle.log.gz    |    Bin 1823 -> 0 bytes
+ .../r30/r30-b06-04/source-15fcb02/lint-results.txt |     11 -
+ .../r30/r30-b06-04/source-15fcb02/summary.json     |     70 -
+ .../r30/r30-b06-04/source-15fcb02/unit-xml.tar.gz  |    Bin 18385 -> 0 bytes
+ .../r30/r30-b07-01/source-cf0baef/gradle.log.gz    |    Bin 1822 -> 0 bytes
+ .../r30/r30-b07-01/source-cf0baef/lint-results.txt |     11 -
+ .../r30/r30-b07-01/source-cf0baef/summary.json     |     72 -
+ .../r30/r30-b07-01/source-cf0baef/unit-xml.tar.gz  |    Bin 18550 -> 0 bytes
+ .../r30/r30-b07-02/source-1ceb28b/gradle.log.gz    |    Bin 1831 -> 0 bytes
+ .../r30/r30-b07-02/source-1ceb28b/lint-results.txt |     11 -
+ .../r30/r30-b07-02/source-1ceb28b/summary.json     |     73 -
+ .../r30/r30-b07-02/source-1ceb28b/unit-xml.tar.gz  |    Bin 18642 -> 0 bytes
+ .../r30/r30-b07-03/source-00b3a60/gradle.log.gz    |    Bin 1759 -> 0 bytes
+ .../r30/r30-b07-03/source-00b3a60/lint-results.txt |     11 -
+ .../r30/r30-b07-03/source-00b3a60/summary.json     |     75 -
+ .../r30/r30-b07-03/source-00b3a60/unit-xml.tar.gz  |    Bin 18867 -> 0 bytes
+ .../r30/r30-b07-04/source-3eb79ef/gradle.log.gz    |    Bin 1758 -> 0 bytes
+ .../r30/r30-b07-04/source-3eb79ef/lint-results.txt |     11 -
+ .../r30/r30-b07-04/source-3eb79ef/summary.json     |     75 -
+ .../r30/r30-b07-04/source-3eb79ef/unit-xml.tar.gz  |    Bin 18837 -> 0 bytes
+ .../r30/r30-b08-01/source-24cb748/gradle.log.gz    |    Bin 1760 -> 0 bytes
+ .../r30/r30-b08-01/source-24cb748/lint-results.txt |     11 -
+ .../r30/r30-b08-01/source-24cb748/summary.json     |     76 -
+ .../r30/r30-b08-01/source-24cb748/unit-xml.tar.gz  |    Bin 18973 -> 0 bytes
+ .../r30/r30-b08-02/source-6f5295d/gradle.log.gz    |    Bin 1759 -> 0 bytes
+ .../r30/r30-b08-02/source-6f5295d/lint-results.txt |     11 -
+ .../r30/r30-b08-02/source-6f5295d/summary.json     |     77 -
+ .../r30/r30-b08-02/source-6f5295d/unit-xml.tar.gz  |    Bin 19253 -> 0 bytes
+ .../r30/r30-b08-03/source-bd02aa0/gradle.log.gz    |    Bin 1867 -> 0 bytes
+ .../r30/r30-b08-03/source-bd02aa0/lint-results.txt |     11 -
+ .../r30/r30-b08-03/source-bd02aa0/summary.json     |     78 -
+ .../r30/r30-b08-03/source-bd02aa0/unit-xml.tar.gz  |    Bin 19375 -> 0 bytes
+ .../r30/r30-b08-04/source-89acecd/gradle.log.gz    |    Bin 1759 -> 0 bytes
+ .../r30/r30-b08-04/source-89acecd/lint-results.txt |     11 -
+ .../r30/r30-b08-04/source-89acecd/summary.json     |     78 -
+ .../r30/r30-b08-04/source-89acecd/unit-xml.tar.gz  |    Bin 19375 -> 0 bytes
+ .../r30/r30-b08-05/source-ef13e4f/gradle.log.gz    |    Bin 1867 -> 0 bytes
+ .../r30/r30-b08-05/source-ef13e4f/lint-results.txt |     11 -
+ .../r30/r30-b08-05/source-ef13e4f/summary.json     |     79 -
+ .../r30/r30-b08-05/source-ef13e4f/unit-xml.tar.gz  |    Bin 19549 -> 0 bytes
+ .../r30/r30-b09-01/source-8f46e39/gradle.log.gz    |    Bin 1758 -> 0 bytes
+ .../r30/r30-b09-01/source-8f46e39/lint-results.txt |     11 -
+ .../r30/r30-b09-01/source-8f46e39/summary.json     |     79 -
+ .../r30/r30-b09-01/source-8f46e39/unit-xml.tar.gz  |    Bin 19752 -> 0 bytes
+ .../r30/r30-b09-02/source-a309dce/gradle.log.gz    |    Bin 1759 -> 0 bytes
+ .../r30/r30-b09-02/source-a309dce/lint-results.txt |     11 -
+ .../r30/r30-b09-02/source-a309dce/summary.json     |     79 -
+ .../r30/r30-b09-02/source-a309dce/unit-xml.tar.gz  |    Bin 19765 -> 0 bytes
+ .../r30/r30-b09-03/source-c5228e2/gradle.log.gz    |    Bin 1755 -> 0 bytes
+ .../r30/r30-b09-03/source-c5228e2/lint-results.txt |     11 -
+ .../r30/r30-b09-03/source-c5228e2/summary.json     |     81 -
+ .../r30/r30-b09-03/source-c5228e2/unit-xml.tar.gz  |    Bin 20136 -> 0 bytes
+ .../r30/r30-b10-04/source-1e26c8f/gradle.log.gz    |    Bin 1758 -> 0 bytes
+ .../r30/r30-b10-04/source-1e26c8f/lint-results.txt |     11 -
+ .../r30/r30-b10-04/source-1e26c8f/summary.json     |     81 -
+ .../r30/r30-b10-04/source-1e26c8f/unit-xml.tar.gz  |    Bin 20091 -> 0 bytes
+ .../r30/r30-b10-04/source-588058e/gradle.log.gz    |    Bin 1760 -> 0 bytes
+ .../r30/r30-b10-04/source-588058e/lint-results.txt |     11 -
+ .../r30/r30-b10-04/source-588058e/summary.json     |     81 -
+ .../r30/r30-b10-04/source-588058e/unit-xml.tar.gz  |    Bin 20046 -> 0 bytes
+ .../r30/r30-b10-04/source-640410c/gradle.log.gz    |    Bin 1873 -> 0 bytes
+ .../r30/r30-b10-04/source-640410c/lint-results.txt |     11 -
+ .../r30/r30-b10-04/source-640410c/summary.json     |     81 -
+ .../r30/r30-b10-04/source-640410c/unit-xml.tar.gz  |    Bin 20070 -> 0 bytes
+ .../r30/r30-b10-04/source-ac1365e/gradle.log.gz    |    Bin 1760 -> 0 bytes
+ .../r30/r30-b10-04/source-ac1365e/lint-results.txt |     11 -
+ .../r30/r30-b10-04/source-ac1365e/summary.json     |     81 -
+ .../r30/r30-b10-04/source-ac1365e/unit-xml.tar.gz  |    Bin 20044 -> 0 bytes
+ .../r30/r30-b10-04/source-c0570ff/gradle.log.gz    |    Bin 1762 -> 0 bytes
+ .../r30/r30-b10-04/source-c0570ff/lint-results.txt |     11 -
+ .../r30/r30-b10-04/source-c0570ff/summary.json     |     81 -
+ .../r30/r30-b10-04/source-c0570ff/unit-xml.tar.gz  |    Bin 20118 -> 0 bytes
+ .../r30/r30-b10-04/source-f857f30/gradle.log.gz    |    Bin 1760 -> 0 bytes
+ .../r30/r30-b10-04/source-f857f30/lint-results.txt |     11 -
+ .../r30/r30-b10-04/source-f857f30/summary.json     |     82 -
+ .../r30/r30-b10-04/source-f857f30/unit-xml.tar.gz  |    Bin 20234 -> 0 bytes
+ release/R27_ROLLBACK_PLAN.md                       |     24 -
+ release/r82_training_invalidation.json             |   5138 +-
+ release/r982_source_calls.manifest.json            |      4 +-
+ release/r982_source_calls.tsv.gz                   |    Bin 3191555 -> 2760599 bytes
+ release/release_identity.properties                |      8 +-
+ release/release_manifest.json                      |     10 +-
+ release/research_dependencies_r967.json            |   1607 +-
+ release/strategy_su1_reviewed_inputs.json          |   2249 +-
+ scripts/audit_r26_progress.py                      |     62 -
+ scripts/build_r13.sh                               |     11 +-
+ scripts/generate_strategy_su2_schema.py            |     51 -
+ scripts/host_product_classpath.py                  |      8 -
+ scripts/probe_r13_startup.py                       |     56 +-
+ scripts/probe_r26_report_export.py                 |    152 -
+ scripts/r26_instrumentation_manifest.py            |     20 -
+ scripts/r967_semantic_identity.py                  |      2 -
+ scripts/run_android_r13.sh                         |     62 +-
+ scripts/run_r26_endurance.sh                       |     50 -
+ scripts/run_r26_instrumentation.py                 |     79 -
+ scripts/stage_r26_report_export_repair.py          |     60 -
+ scripts/stage_r26_runtime_117.py                   |     81 -
+ scripts/summarize_r26_runtime.py                   |    112 -
+ scripts/test_plan1025_storage.py                   |     77 -
+ scripts/verify_plan1025.py                         |     73 -
+ scripts/verify_r26.py                              |     99 -
+ scripts/verify_r26_diagnosis_schema.py             |     84 -
+ scripts/verify_r26_emulator_heap.py                |     98 -
+ scripts/verify_strategy_su1.py                     |     14 +-
+ scripts/wait_r13_android_ready.py                  |     52 -
+ tools/r27/R27SqlDump.java                          |     31 -
+ tools/r27/build_identity.py                        |     34 -
+ tools/r27/compare_null_baseline.py                 |     39 -
+ tools/r27/emulator_r27.sh                          |     93 -
+ tools/r27/emulator_receipt.py                      |    143 -
+ tools/r27/make_evidence.py                         |    242 -
+ tools/r27/make_golden.py                           |     18 -
+ tools/r27/run_host_tests.sh                        |     21 -
+ tools/r27/test_r27_migration.py                    |    198 -
+ tools/r29/build_legacy_asset.py                    |     35 -
+ tools/r29/change_ledger.py                         |     34 -
+ tools/r29/ci_build.sh                              |     47 -
+ tools/r29/emulator_smoke.sh                        |     60 -
+ tools/r29/host_checks.py                           |     62 -
+ tools/r29/observe_device.py                        |     83 -
+ tools/r29/package_receipt.py                       |     25 -
+ tools/r29/qual_host/QualInboxR29HostTest.java      |    379 -
+ .../qual_host/shim/android/database/Cursor.java    |     17 -
+ .../android/database/sqlite/SQLiteDatabase.java    |     60 -
+ .../sqlite/SQLiteDatabaseLockedException.java      |      6 -
+ .../android/database/sqlite/SQLiteException.java   |      4 -
+ tools/r29/r29-build.yml                            |    101 -
+ tools/r29/r29-official-build.yml                   |    119 -
+ tools/r29/rebind_identity.py                       |     51 -
+ tools/r29/run_qual_host.sh                         |     10 -
+ tools/r30-repair/KNOWN_002_RENDER_FAILURE.md       |      7 -
+ tools/r30-repair/Q08_PRODUCTION_RESULT.json        |   2726 -
+ tools/r30-repair/ci_build.sh                       |     26 -
+ tools/r30-repair/generate_legacy_fixture.py        |     15 -
+ tools/r30-repair/prepare_emulator.sh               |     27 -
+ tools/r30-repair/probe_ui_report.py                |    164 -
+ tools/r30-repair/publish_verified.py               |     77 -
+ .../qual_host/DiagnosisReportR30R1HostTest.java    |     43 -
+ tools/r30-repair/qual_host/EmitLegacyOuterR30.java |     11 -
+ tools/r30-repair/qual_host/FullNullR30Host.java    |     11 -
+ .../qual_host/RepairCommitFailureR30HostTest.java  |     84 -
+ .../qual_host/RepairInputPinR30HostTest.java       |     15 -
+ .../qual_host/RepairMatrixR30HostTest.java         |     24 -
+ .../qual_host/RepairNeuralR30HostTest.java         |     33 -
+ .../qual_host/RepairObservatoryR30HostTest.java    |     12 -
+ .../qual_host/RepairQualificationR30HostTest.java  |     51 -
+ .../qual_host/RepairResearchR30HostTest.java       |     40 -
+ .../qual_host/RepairRetentionR30HostTest.java      |     59 -
+ .../qual_host/RepairTaskProgressR30HostTest.java   |     30 -
+ .../qual_host/RepairTimelineR30HostTest.java       |     41 -
+ tools/r30-repair/r30-gallery-reverify.yml          |    126 -
+ tools/r30-repair/r30-repair-build.yml              |    246 -
+ tools/r30-repair/reverify_gallery.py               |    174 -
+ tools/r30-repair/run_android_regression.sh         |     43 -
+ tools/r30-repair/run_commit_failure_host.py        |     38 -
+ tools/r30-repair/run_diagnosis_host.py             |     20 -
+ tools/r30-repair/run_full_null.py                  |      9 -
+ tools/r30-repair/run_input_pin_host.py             |     12 -
+ tools/r30-repair/run_matrix_host.py                |     15 -
+ tools/r30-repair/run_neural_host.py                |     14 -
+ tools/r30-repair/run_observatory_host.py           |     12 -
+ tools/r30-repair/run_progress_host.py              |     12 -
+ tools/r30-repair/run_qualification_host.py         |     15 -
+ tools/r30-repair/run_research_fault_matrix.sh      |     42 -
+ tools/r30-repair/run_research_host.py              |     12 -
+ tools/r30-repair/run_retention_host.py             |     14 -
+ tools/r30-repair/run_snapshot_host.py              |     13 -
+ tools/r30-repair/run_timeline_host.py              |     13 -
+ tools/r30-repair/run_writer_host.py                |     50 -
+ tools/r30/UPGRADE_BASELINES.json                   |     51 -
+ tools/r30/baseline_lock.py                         |     17 -
+ tools/r30/check_upgrade_data.py                    |     32 -
+ tools/r30/ci_build.sh                              |    143 -
+ tools/r30/ci_build_r30.sh                          |     27 -
+ tools/r30/emulator_foldback.sh                     |     15 -
+ .../ResearchSemanticsGeneratedR967_HOST_STUB.java  |      6 -
+ tools/r30/host/SqlContractDumpR30.java             |     30 -
+ .../android_api_stub/android/content/Context.java  |      1 -
+ .../android_api_stub/android/database/Cursor.java  |      3 -
+ .../android/database/sqlite/SQLiteDatabase.java    |      5 -
+ .../android/database/sqlite/SQLiteException.java   |      1 -
+ .../android_api_stub/android/os/SystemClock.java   |      1 -
+ .../host/android_api_stub/android/util/Log.java    |      1 -
+ .../com/ethk3/novaonepro/DatabaseCoordinator.java  |      4 -
+ .../com/ethk3/novaonepro/DbStore.java              |      2 -
+ .../ethk3/novaonepro/RealtimePressureGateR811.java |      1 -
+ .../novaonepro/SettlementExecutionGateR819.java    |      1 -
+ .../com/ethk3/novaonepro/strategyv2/StatsR27.java  |     83 -
+ tools/r30/host/junit_shim/HostJUnitRunner.java     |      3 -
+ tools/r30/host/junit_shim/org/junit/Assert.java    |      8 -
+ tools/r30/host/junit_shim/org/junit/Test.java      |      1 -
+ tools/r30/legacy_count.py                          |     11 -
+ tools/r30/offenders.py                             |     16 -
+ tools/r30/ownership_check.py                       |     28 -
+ tools/r30/package_final.py                         |     18 -
+ tools/r30/publish_final.sh                         |     66 -
+ tools/r30/qual_host/BehaviorDedupR30HostTest.java  |     34 -
+ .../qual_host/BrierContributionR30HostTest.java    |     55 -
+ tools/r30/qual_host/CalibrationR30HostTest.java    |     60 -
+ .../qual_host/CapabilityRegistryR30HostTest.java   |     47 -
+ .../CertificateRevocationR30HostTest.java          |     83 -
+ .../qual_host/CertificateVersionR30HostTest.java   |     64 -
+ tools/r30/qual_host/ChartSnapshotR30HostTest.java  |     54 -
+ .../qual_host/CheckpointStartupR30HostTest.java    |     43 -
+ .../r30/qual_host/ConfirmReadStoreR30HostTest.java |     83 -
+ .../qual_host/ConfirmationQueueR30HostTest.java    |     65 -
+ .../qual_host/DecisionExplanationR30HostTest.java  |     53 -
+ tools/r30/qual_host/FreezeSourceR30HostTest.java   |     81 -
+ .../qual_host/FrozenConfirmationR30HostTest.java   |    166 -
+ tools/r30/qual_host/LargeCellCopyR30HostTest.java  |     41 -
+ tools/r30/qual_host/LiveCacheR30HostTest.java      |     55 -
+ tools/r30/qual_host/MatrixRegistryR30HostTest.java |     34 -
+ tools/r30/qual_host/ModelSurfaceR30HostTest.java   |     70 -
+ .../OriginalReadLeaseFixtureR30HostTest.java       |     20 -
+ .../OriginalReceiptSchemaR30HostTest.java          |     47 -
+ .../OriginalSqliteFullFixtureR30HostTest.java      |     30 -
+ tools/r30/qual_host/PendingDrawR30HostTest.java    |     60 -
+ tools/r30/qual_host/RealAuthorityR30HostTest.java  |     83 -
+ tools/r30/qual_host/ReportDeliveryR30HostTest.java |     59 -
+ tools/r30/qual_host/ReportSnapshotR30HostTest.java |     55 -
+ .../qual_host/ResearchRetentionR30HostTest.java    |     70 -
+ tools/r30/qual_host/SelectorRateR30HostTest.java   |     42 -
+ tools/r30/qual_host/SettleChunkR30HostTest.java    |     89 -
+ tools/r30/qual_host/TenPositionR30HostTest.java    |    100 -
+ .../r30/qual_host/UpgradeEvidenceR30HostTest.java  |     37 -
+ .../com/ethk3/novaonepro/DbStore.java              |     11 -
+ .../android/database/sqlite/SQLiteDatabase.java    |     62 -
+ .../android/database/sqlite/SQLiteDatabase.java    |     63 -
+ .../qual_host/report_shim/android/os/Build.java    |      6 -
+ tools/r30/r30-build.yml                            |    191 -
+ tools/r30/r30-official-build.yml                   |    206 -
+ tools/r30/r30-preflight.yml                        |    121 -
+ tools/r30/run_android_regression.sh                |     48 -
+ tools/r30/run_fault_matrix.sh                      |    154 -
+ tools/r30/run_preflight_runtime.sh                 |     57 -
+ tools/r30/run_report_export_host.sh                |     46 -
+ tools/r30/run_upgrade_drill.sh                     |     69 -
+ tools/r30/scan_table_writers.py                    |     40 -
+ tools/r30/sql_contract_tests.py                    |    170 -
+ .../strategyv2/RelGraphParitySU1Test.java          |      2 +-
+ .../strategyv2/TrainingParitySU1Test.java          |      2 +-
+ .../strategy_su1/scripts/build_relgraph_parity.py  |      6 +-
+ .../strategy_su1/scripts/build_training_parity.py  |      7 +-
+ tools/strategy_su2/fixtures/r13_ipm/demote.txt     |     35 -
+ .../fixtures/r13_ipm/expected_summary.json         |     32 -
+ tools/strategy_su2/fixtures/r13_ipm/insample.txt   |     35 -
+ tools/strategy_su2/fixtures/r13_ipm/keep_xi.txt    |     38 -
+ tools/strategy_su2/fixtures/r13_ipm/lowcov.txt     |     35 -
+ tools/strategy_su2/fixtures/r13_ipm/switch.txt     |     36 -
+ tools/strategy_su2/fixtures/r13_parity/BOCPD.P.f32 |    Bin 1998000 -> 0 bytes
+ tools/strategy_su2/fixtures/r13_parity/BOCPD.S.f32 |    Bin 59940 -> 0 bytes
+ tools/strategy_su2/fixtures/r13_parity/HMM.P.f32   |    Bin 1998000 -> 0 bytes
+ tools/strategy_su2/fixtures/r13_parity/HMM.S.f32   |    Bin 59940 -> 0 bytes
+ .../strategy_su2/fixtures/r13_parity/KALMAN.P.f32  |    Bin 1998000 -> 0 bytes
+ .../strategy_su2/fixtures/r13_parity/KALMAN.S.f32  |    Bin 59940 -> 0 bytes
+ .../strategy_su2/fixtures/r13_parity/LOGLIN.P.f32  |    Bin 1998000 -> 0 bytes
+ .../strategy_su2/fixtures/r13_parity/LOGLIN.S.f32  |    Bin 59940 -> 0 bytes
+ tools/strategy_su2/fixtures/r13_parity/MSDIR.P.f32 |    Bin 1998000 -> 0 bytes
+ tools/strategy_su2/fixtures/r13_parity/MSDIR.S.f32 |    Bin 59940 -> 0 bytes
+ .../fixtures/r13_parity/RELBAYES.P.f32             |    Bin 1998000 -> 0 bytes
+ .../fixtures/r13_parity/RELBAYES.S.f32             |    Bin 59940 -> 0 bytes
+ tools/strategy_su2/fixtures/r13_parity/draws.txt   |   4995 -
+ .../strategy_su2/fixtures/r13_parity/genomes.json  |      1 -
+ .../fixtures/r13_parity/xi_reference.txt           |      3 -
+ .../fixtures/r13_worlds/NULL_seed1.txt             |  10000 --
+ .../fixtures/r13_worlds/REGIME_seed1.txt           |  10000 --
+ .../strategy_su2/fixtures/r14_parity/BOCPD.CAL.f32 |   1151 -
+ tools/strategy_su2/fixtures/r14_parity/HMM.CAL.f32 |    693 -
+ .../fixtures/r14_parity/KALMAN.CAL.f32             |    300 -
+ .../fixtures/r14_parity/LOGLIN.CAL.f32             |    570 -
+ .../strategy_su2/fixtures/r14_parity/MSDIR.CAL.f32 |    974 -
+ .../r14_parity/REGIME9000_HMM.CAL_LAST1000.f32     |    Bin 400000 -> 0 bytes
+ .../fixtures/r14_parity/REGIME9000_HMM.P.f32       |    Bin 3600000 -> 0 bytes
+ .../fixtures/r14_parity/REGIME9000_draws.txt       |   9000 --
+ .../fixtures/r14_parity/RELBAYES.CAL.f32           |     96 -
+ .../strategy_su2/fixtures/r14_parity/programs.json |  54068 --------
+ .../fixtures/r14b_atomnet/atoms_sample.f32         |    Bin 1711200 -> 0 bytes
+ .../strategy_su2/fixtures/r14b_atomnet/catalog.txt |    138 -
+ .../strategy_su2/fixtures/r14b_atomnet/cfg1.P.f32  |    Bin 2000000 -> 0 bytes
+ .../strategy_su2/fixtures/r14b_atomnet/cfg1.ST.f32 |    Bin 60000 -> 0 bytes
+ tools/strategy_su2/fixtures/r14b_atomnet/cfg1.txt  |      1 -
+ .../strategy_su2/fixtures/r14b_atomnet/cfg2.P.f32  |    Bin 2000000 -> 0 bytes
+ .../strategy_su2/fixtures/r14b_atomnet/cfg2.ST.f32 |    Bin 60000 -> 0 bytes
+ tools/strategy_su2/fixtures/r14b_atomnet/cfg2.txt  |      1 -
+ .../strategy_su2/fixtures/r14b_atomnet/cfg3.P.f32  |    Bin 2000000 -> 0 bytes
+ .../strategy_su2/fixtures/r14b_atomnet/cfg3.ST.f32 |    Bin 60000 -> 0 bytes
+ tools/strategy_su2/fixtures/r14b_atomnet/cfg3.txt  |      1 -
+ tools/strategy_su2/fixtures/r14b_atomnet/draws.txt |   5000 -
+ .../fixtures/r14b_atomnet/group_sample.f32         |    Bin 99200 -> 0 bytes
+ tools/strategy_su2/fixtures/r14b_atomnet/pairs.txt |      2 -
+ .../fixtures/r14b_atomnet/pairs_sample.f32         |    Bin 24800 -> 0 bytes
+ .../fixtures/r14b_atomnet/sample_t.txt             |     31 -
+ .../fixtures/r14b_worlds/HOTCOLD_seed1.txt         |  10000 --
+ .../fixtures/r14b_worlds/PARITY_seed1.txt          |  10000 --
+ .../fixtures/r15_atomnet/atoms15_sample.f32        |    Bin 399600 -> 0 bytes
+ .../fixtures/r15_atomnet/catalog15.txt             |    277 -
+ tools/strategy_su2/fixtures/r15_atomnet/cfg4.P.f32 |    Bin 2000000 -> 0 bytes
+ .../strategy_su2/fixtures/r15_atomnet/cfg4.ST.f32  |    Bin 60000 -> 0 bytes
+ tools/strategy_su2/fixtures/r15_atomnet/cfg4.txt   |      1 -
+ tools/strategy_su2/fixtures/r15_atomnet/cfg5.P.f32 |    Bin 2000000 -> 0 bytes
+ .../strategy_su2/fixtures/r15_atomnet/cfg5.ST.f32  |    Bin 60000 -> 0 bytes
+ tools/strategy_su2/fixtures/r15_atomnet/cfg5.txt   |      1 -
+ .../strategy_su2/fixtures/r15_atomnet/distill.json |     95 -
+ .../strategy_su2/fixtures/r15_atomnet/sample_t.txt |     37 -
+ .../fixtures/r15_atomnet/states_ind_sample.f32     |    Bin 165760 -> 0 bytes
+ .../fixtures/r15_atomnet/states_raw_sample.f64     |    Bin 331520 -> 0 bytes
+ .../fixtures/r15_atomnet/teacher.P.f32             |   2715 -
+ .../strategy_su2/fixtures/r15_atomnet/teacher.txt  |      4 -
+ tools/strategy_su2/fixtures/r16_contmat/P.f32      |   3512 -
+ tools/strategy_su2/fixtures/r16_contmat/ST.f32     |    Bin 96000 -> 0 bytes
+ tools/strategy_su2/fixtures/r16_contmat/draws.txt  |   8000 --
+ .../strategy_su2/fixtures/r16_contmat/verified.txt |    183 -
+ .../fixtures/r16_diag/REAL_REPORT_543.ledger.txt   |     18 -
+ .../fixtures/r16_diag/REAL_REPORT_543_0.json       |      1 -
+ .../fixtures/r16_diag/REAL_REPORT_543_0.md         |    245 -
+ .../r16_diag/REAL_REPORT_543_0.snapshot.txt        |     85 -
+ .../fixtures/r16_diag/REAL_REPORT_543_1.json       |      1 -
+ .../fixtures/r16_diag/REAL_REPORT_543_1.md         |    212 -
+ .../r16_diag/REAL_REPORT_543_1.snapshot.txt        |     87 -
+ .../fixtures/r16_diag/REAL_REPORT_543_2.json       |      1 -
+ .../fixtures/r16_diag/REAL_REPORT_543_2.md         |    260 -
+ .../r16_diag/REAL_REPORT_543_2.snapshot.txt        |     90 -
+ .../r16_diag/REAL_REPORT_543_SHUFFLED.ledger.txt   |     14 -
+ .../r16_diag/REAL_REPORT_543_SHUFFLED_0.json       |      1 -
+ .../r16_diag/REAL_REPORT_543_SHUFFLED_0.md         |    201 -
+ .../REAL_REPORT_543_SHUFFLED_0.snapshot.txt        |     78 -
+ .../r16_diag/REAL_REPORT_543_SHUFFLED_1.json       |      1 -
+ .../r16_diag/REAL_REPORT_543_SHUFFLED_1.md         |    213 -
+ .../REAL_REPORT_543_SHUFFLED_1.snapshot.txt        |     84 -
+ .../r16_diag/REAL_REPORT_543_SHUFFLED_2.json       |      1 -
+ .../r16_diag/REAL_REPORT_543_SHUFFLED_2.md         |    225 -
+ .../REAL_REPORT_543_SHUFFLED_2.snapshot.txt        |     79 -
+ .../fixtures/r16_diag/WORLD_CROSS.ledger.txt       |     17 -
+ .../fixtures/r16_diag/WORLD_CROSS_0.json           |      1 -
+ .../fixtures/r16_diag/WORLD_CROSS_0.md             |    203 -
+ .../fixtures/r16_diag/WORLD_CROSS_0.snapshot.txt   |     73 -
+ .../fixtures/r16_diag/WORLD_CROSS_1.json           |      1 -
+ .../fixtures/r16_diag/WORLD_CROSS_1.md             |    197 -
+ .../fixtures/r16_diag/WORLD_CROSS_1.snapshot.txt   |     75 -
+ .../fixtures/r16_diag/WORLD_CROSS_2.json           |      1 -
+ .../fixtures/r16_diag/WORLD_CROSS_2.md             |    190 -
+ .../fixtures/r16_diag/WORLD_CROSS_2.snapshot.txt   |     77 -
+ .../fixtures/r16_diag/WORLD_CROSS_3.json           |      1 -
+ .../fixtures/r16_diag/WORLD_CROSS_3.md             |    202 -
+ .../fixtures/r16_diag/WORLD_CROSS_3.snapshot.txt   |     87 -
+ .../fixtures/r16_diag/WORLD_CROSS_4.json           |      1 -
+ .../fixtures/r16_diag/WORLD_CROSS_4.md             |    205 -
+ .../fixtures/r16_diag/WORLD_CROSS_4.snapshot.txt   |     83 -
+ .../fixtures/r16_diag/WORLD_REGIME.ledger.txt      |     29 -
+ .../fixtures/r16_diag/WORLD_REGIME_0.json          |      1 -
+ .../fixtures/r16_diag/WORLD_REGIME_0.md            |    284 -
+ .../fixtures/r16_diag/WORLD_REGIME_0.snapshot.txt  |     81 -
+ .../fixtures/r16_diag/WORLD_REGIME_1.json          |      1 -
+ .../fixtures/r16_diag/WORLD_REGIME_1.md            |    287 -
+ .../fixtures/r16_diag/WORLD_REGIME_1.snapshot.txt  |     83 -
+ .../fixtures/r16_diag/WORLD_REGIME_2.json          |      1 -
+ .../fixtures/r16_diag/WORLD_REGIME_2.md            |    272 -
+ .../fixtures/r16_diag/WORLD_REGIME_2.snapshot.txt  |     85 -
+ .../fixtures/r16_diag/WORLD_REGIME_3.json          |      1 -
+ .../fixtures/r16_diag/WORLD_REGIME_3.md            |    285 -
+ .../fixtures/r16_diag/WORLD_REGIME_3.snapshot.txt  |     88 -
+ .../fixtures/r16_diag/WORLD_REGIME_4.json          |      1 -
+ .../fixtures/r16_diag/WORLD_REGIME_4.md            |    281 -
+ .../fixtures/r16_diag/WORLD_REGIME_4.snapshot.txt  |     98 -
+ tools/strategy_su2/fixtures/r16_probe/blocks.tsv   |     63 -
+ tools/strategy_su2/fixtures/r16_probe/draws.txt    |   4995 -
+ tools/strategy_su2/fixtures/r16_regmem/draws.txt   |   5000 -
+ .../strategy_su2/fixtures/r16_regmem/regmem2.P.f32 |    Bin 2000000 -> 0 bytes
+ .../fixtures/r16_regmem/regmem2.ST.f32             |    Bin 60000 -> 0 bytes
+ tools/strategy_su2/fixtures/r16_regmem/regmem2.txt |      1 -
+ .../strategy_su2/fixtures/r16_regmem/regmem3.P.f32 |    Bin 2000000 -> 0 bytes
+ .../fixtures/r16_regmem/regmem3.ST.f32             |    Bin 60000 -> 0 bytes
+ tools/strategy_su2/fixtures/r16_regmem/regmem3.txt |      1 -
+ .../fixtures/r16_regmem/relmem_mix.P.f32           |    Bin 2000000 -> 0 bytes
+ .../fixtures/r16_regmem/relmem_mix.ST.f32          |    Bin 60000 -> 0 bytes
+ .../fixtures/r16_regmem/relmem_mix.txt             |      1 -
+ .../fixtures/r16_regmem/relmem_rel.P.f32           |    Bin 2000000 -> 0 bytes
+ .../fixtures/r16_regmem/relmem_rel.ST.f32          |    Bin 60000 -> 0 bytes
+ .../fixtures/r16_regmem/relmem_rel.txt             |      1 -
+ .../fixtures/r16_regmem/relmem_src.P.f32           |    Bin 2000000 -> 0 bytes
+ .../fixtures/r16_regmem/relmem_src.ST.f32          |    Bin 60000 -> 0 bytes
+ .../fixtures/r16_regmem/relmem_src.txt             |      1 -
+ tools/strategy_su2/fixtures/r16_stage/F_sample.f64 |    Bin 9120 -> 0 bytes
+ tools/strategy_su2/fixtures/r16_stage/P.f64        |    Bin 48000 -> 0 bytes
+ tools/strategy_su2/fixtures/r16_stage/conf.f64     |    Bin 216000 -> 0 bytes
+ tools/strategy_su2/fixtures/r16_stage/draws.txt    |   9000 --
+ tools/strategy_su2/fixtures/r16_stage/hit.u8       |    Bin 27000 -> 0 bytes
+ tools/strategy_su2/fixtures/r16_stage/sample_t.txt |     12 -
+ tools/strategy_su2/fixtures/r16_stage/st0.f64      |    Bin 72000 -> 0 bytes
+ tools/strategy_su2/fixtures/r16_stage/stages.txt   |      1 -
+ tools/strategy_su2/schema/strategy_su2.sql         |    163 -
+ tools/strategy_su2/stress_storage_30days.py        |     60 -
+ tools/strategy_su2/tests/AtomNetR15Test.java       |    117 -
+ tools/strategy_su2/tests/AtomNetSU2Test.java       |    107 -
+ tools/strategy_su2/tests/CalibrationSU2Test.java   |     41 -
+ tools/strategy_su2/tests/CommitteeLiveSU2Test.java |     62 -
+ tools/strategy_su2/tests/CommitteeSU2Test.java     |     39 -
+ tools/strategy_su2/tests/ContMatSU2Test.java       |     44 -
+ .../tests/FinalEngineHotcoldSU2Test.java           |     33 -
+ .../tests/InformationProbeSU2Test.java             |     56 -
+ tools/strategy_su2/tests/LiveR15Test.java          |     61 -
+ .../strategy_su2/tests/MainlinePolicySU2Test.java  |     34 -
+ .../strategy_su2/tests/MatrixSnapshotSU2Test.java  |     31 -
+ .../strategy_su2/tests/ModelEvolutionR14Test.java  |     55 -
+ .../strategy_su2/tests/ModelEvolutionR14bTest.java |     63 -
+ .../strategy_su2/tests/ModelEvolutionR15Test.java  |     75 -
+ .../strategy_su2/tests/ModelEvolutionR16Test.java  |     68 -
+ .../strategy_su2/tests/ModelEvolutionSU2Test.java  |     41 -
+ tools/strategy_su2/tests/ModelLiveSU2Test.java     |     59 -
+ tools/strategy_su2/tests/NullBaselineTest.java     |     57 -
+ tools/strategy_su2/tests/OnlineModelsSU2Test.java  |     76 -
+ tools/strategy_su2/tests/PairedEvidenceTest.java   |    114 -
+ tools/strategy_su2/tests/ProgramTreeSU1Test.java   |    112 -
+ .../tests/R26CapabilityServiceTest.java            |     17 -
+ .../tests/R26ChunkedCheckpointTest.java            |     25 -
+ .../tests/R26DistillationDiagnosticsTest.java      |     26 -
+ .../tests/R26DurationDiagnosticsTest.java          |     33 -
+ tools/strategy_su2/tests/R26EvidenceTest.java      |     40 -
+ tools/strategy_su2/tests/R26ExpertTest.java        |     43 -
+ tools/strategy_su2/tests/R26F08MechanismTest.java  |     41 -
+ tools/strategy_su2/tests/R26F20MechanismTest.java  |     48 -
+ tools/strategy_su2/tests/R26FamiliesTest.java      |     40 -
+ .../strategy_su2/tests/R26FamilyMechanismTest.java |     35 -
+ .../tests/R26ForecastSnapshotTest.java             |     27 -
+ .../tests/R26FragmentDiagnosticsTest.java          |     36 -
+ tools/strategy_su2/tests/R26FrozenSurfaceTest.java |     18 -
+ .../strategy_su2/tests/R26IncumbentBudgetTest.java |     39 -
+ tools/strategy_su2/tests/R26KernelTest.java        |     43 -
+ .../tests/R26MatchingDiagnosticsTest.java          |     33 -
+ .../tests/R26NeuralDiagnosticsTest.java            |     35 -
+ tools/strategy_su2/tests/R26RecoveryTest.java      |    125 -
+ .../tests/R26RelationStatisticsTest.java           |     29 -
+ .../tests/R26ResidualDiagnosticsTest.java          |     23 -
+ .../tests/R26RetrievalDiagnosticsTest.java         |     30 -
+ .../tests/R26SparseDiagnosticsTest.java            |     46 -
+ .../tests/R26StatisticalDiagnosticsTest.java       |     34 -
+ .../strategy_su2/tests/R26StreamCapacityProbe.java |     11 -
+ .../tests/R26StructuredDiagnosticsTest.java        |     33 -
+ .../tests/R26SuffixDiagnosticsTest.java            |     36 -
+ .../tests/R26SymbolicDiagnosticsTest.java          |     25 -
+ .../strategy_su2/tests/R26TensorMechanismTest.java |     57 -
+ tools/strategy_su2/tests/R26WarmSeedTest.java      |     45 -
+ tools/strategy_su2/tests/RegMemSU2Test.java        |     86 -
+ .../strategy_su2/tests/StageDeploymentSU2Test.java |     63 -
+ tools/strategy_su2/tests/StageLayerSU2Test.java    |     52 -
+ tools/strategy_su2/tests/TypedProgramTest.java     |    124 -
+ .../tests/UpgradeDiagnosisSU2Test.java             |    117 -
+ tools/strategy_su2/tests/XiIncumbentSU2Test.java   |     41 -
+ .../r26/assessment/FailureResearchHost.java        |      9 -
+ verification/r26/assessment/README.md              |     11 -
+ .../r26/assessment/ReportAssessmentHost.java       |      6 -
+ verification/r26/assessment/host.log               |      1 -
+ .../r26/assessment/synthetic-report.json.gz        |    Bin 12586 -> 0 bytes
+ .../r26/checkpoint_yield/CheckpointYield.java      |     45 -
+ .../checkpoint_yield/ExpertTrainingReceipts.java   |     45 -
+ verification/r26/checkpoint_yield/ExpertWarm.java  |     40 -
+ verification/r26/checkpoint_yield/LegacyWarm.java  |     37 -
+ verification/r26/checkpoint_yield/README.md        |     25 -
+ .../r26/checkpoint_yield/StatisticalReceipts.java  |     46 -
+ .../r26/checkpoint_yield/TensorReceipts.java       |     33 -
+ verification/r26/checkpoint_yield/WarmBirth.java   |     43 -
+ .../adapters/android/content/Context.java          |      7 -
+ .../adapters/android/os/SystemClock.java           |      5 -
+ .../com/ethk3/novaonepro/DatabaseCoordinator.java  |     11 -
+ .../adapters/com/ethk3/novaonepro/DbStore.java     |     13 -
+ verification/r26/diagnosis_schema/README.md        |      5 -
+ .../r26/diagnosis_schema/legacy_sql_oracle.json    |    101 -
+ .../r26/distillation_diagnostics/WireParity.java   |      6 -
+ .../r26/distillation_diagnostics/mode-0.bin        |    Bin 8886 -> 0 bytes
+ .../r26/distillation_diagnostics/mode-1.bin        |    Bin 8886 -> 0 bytes
+ .../r26/distillation_diagnostics/mode-2.bin        |    Bin 8886 -> 0 bytes
+ .../r26/duration_diagnostics/F09-state-sample.bin  |    Bin 5484 -> 0 bytes
+ verification/r26/duration_diagnostics/README.md    |      5 -
+ .../r26/duration_diagnostics/WireParity.java       |     18 -
+ .../r26/duration_diagnostics/state-sample.json     |     11 -
+ .../r26/duration_diagnostics/wire-current.log      |      2 -
+ .../r26/duration_diagnostics/wire-prior.log        |      2 -
+ verification/r26/fragment_diagnostics/README.md    |      3 -
+ .../r26/fragment_diagnostics/WireParity.java       |     17 -
+ .../r26/hmm_statistics/F08-state-sample.bin        |    Bin 2527 -> 0 bytes
+ verification/r26/hmm_statistics/README.md          |      7 -
+ verification/r26/hmm_statistics/WireParity.java    |     18 -
+ verification/r26/hmm_statistics/state-sample.json  |     15 -
+ verification/r26/hmm_statistics/wire-current.log   |     11 -
+ verification/r26/hmm_statistics/wire-prior.log     |     11 -
+ verification/r26/matching_diagnostics/README.md    |      3 -
+ .../r26/matching_diagnostics/WireParity.java       |     17 -
+ .../r26/matching_diagnostics/state-sample.bin      |    Bin 80869 -> 0 bytes
+ .../r26/matching_diagnostics/state-sample.json     |     16 -
+ .../r26/neural_diagnostics/F03-state-sample.bin    |    Bin 66222 -> 0 bytes
+ .../r26/neural_diagnostics/F04-state-sample.bin    |    Bin 66222 -> 0 bytes
+ .../r26/neural_diagnostics/F05-state-sample.bin    |    Bin 66222 -> 0 bytes
+ .../r26/neural_diagnostics/F06-state-sample.bin    |    Bin 66222 -> 0 bytes
+ .../r26/neural_diagnostics/F07-state-sample.bin    |    Bin 66222 -> 0 bytes
+ verification/r26/neural_diagnostics/README.md      |      3 -
+ .../r26/neural_diagnostics/WireParity.java         |     19 -
+ .../r26/neural_diagnostics/state-samples.json      |     52 -
+ verification/r26/relation_statistics/kernel.log    |      1 -
+ .../r26/relation_statistics/state-sample.bin       |    Bin 12845 -> 0 bytes
+ .../r26/relation_statistics/state-sample.json      |      8 -
+ .../report_export/ReportMetadataExportHost.java    |     15 -
+ .../r26/residual_diagnostics/WireParity.java       |      5 -
+ verification/r26/residual_diagnostics/kernel.log   |      1 -
+ .../r26/residual_diagnostics/state-sample.bin      |    Bin 243561 -> 0 bytes
+ .../r26/residual_diagnostics/state-sample.json     |      7 -
+ .../r26/residual_diagnostics/wire-parity.log       |      1 -
+ .../r26/retrieval_diagnostics/WireParity.java      |      7 -
+ .../r26/retrieval_diagnostics/state-sample.bin     |    Bin 20638 -> 0 bytes
+ .../r26/retrieval_diagnostics/state-sample.json    |      9 -
+ .../r26/retrieval_diagnostics/wire-parity.log      |      1 -
+ verification/r26/scales/README.md                  |     12 -
+ verification/r26/scales/ScaleWindowRetention.java  |     36 -
+ verification/r26/schema_queries/ExactCensus.java   |     24 -
+ verification/r26/schema_queries/Presence.java      |     16 -
+ verification/r26/schema_queries/README.md          |      9 -
+ .../r26/sparse_diagnostics/F01-state-sample.bin    |    Bin 240946 -> 0 bytes
+ verification/r26/sparse_diagnostics/README.md      |      7 -
+ .../r26/sparse_diagnostics/WireParity.java         |     22 -
+ .../r26/sparse_diagnostics/state-sample.json       |     12 -
+ .../r26/sparse_diagnostics/wire-current.log        |     32 -
+ verification/r26/sparse_diagnostics/wire-prior.log |     32 -
+ .../structured_diagnostics/F02-state-sample.bin    |    Bin 16058 -> 0 bytes
+ .../structured_diagnostics/F18-state-sample.bin    |    Bin 9653 -> 0 bytes
+ verification/r26/structured_diagnostics/README.md  |      3 -
+ .../r26/structured_diagnostics/WireParity.java     |     20 -
+ .../r26/structured_diagnostics/state-samples.json  |     30 -
+ verification/r26/suffix_statistics/WireParity.java |      7 -
+ .../r26/suffix_statistics/state-sample.bin         |    Bin 89708 -> 0 bytes
+ .../r26/suffix_statistics/state-sample.json        |      9 -
+ verification/r26/suffix_statistics/wire-parity.log |      1 -
+ .../r26/symbolic_diagnostics/F13-state.bin         |    Bin 8226 -> 0 bytes
+ .../r26/symbolic_diagnostics/F14-state.bin         |    Bin 8226 -> 0 bytes
+ .../r26/symbolic_diagnostics/WireParity.java       |      5 -
+ verification/r26/symbolic_diagnostics/kernel.log   |      1 -
+ .../r26/symbolic_diagnostics/wire-parity.log       |      1 -
+ verification/r26/tensor/README.md                  |      7 -
+ verification/r26/tensor/state-sample.bin           |    Bin 2306 -> 0 bytes
+ verification/r26/tensor/state-sample.json          |     23 -
+ verification/r26/warm_state/README.md              |      5 -
+ verification/r26/warm_state/WarmRetention.java     |     31 -
+ .../com/ethk3/novaonepro/BuildConfig.java          |      8 +-
+ 2704 files changed, 668326 insertions(+), 590305 deletions(-)

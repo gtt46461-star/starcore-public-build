@@ -1,0 +1,3798 @@
+{
+  "schema": "R31_CONSTRUCTION_EVIDENCE_V1",
+  "created_at": "2026-11-04T08:42:02.153051+00:00",
+  "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "branch": "construction/r31-final-20261104",
+  "plan_manifest_sha256": "13f34908b624c74e2852ce8f944b99f8978348820aab23f83043fab1d72753ce",
+  "state_values": [
+    "NOT_STARTED",
+    "IMPLEMENTING",
+    "CODE_COMPLETE",
+    "BUILD_PASS",
+    "INTEGRATION_PASS",
+    "DEVICE_PASS",
+    "BLOCKED",
+    "FAILED"
+  ],
+  "completion_rule": "Only DEVICE_PASS with every applicable mandatory acceptance evidence closes a card; code/build/integration counts are reported separately.",
+  "device": {
+    "state": "NOT_RUN",
+    "initial_24h": "NOT_RUN",
+    "final_72h": "NOT_RUN",
+    "observed_devices": [],
+    "blocker": "adb devices -l returned no connected device; /dev/kvm absent"
+  },
+  "natural_quality": {
+    "state": "NOT_PROVEN",
+    "future_samples_this_build": 0,
+    "reason": "No prospective run of this APK; historical/SHADOW/synthetic evidence does not establish natural quality."
+  },
+  "cards": [
+    {
+      "id": "R31-B00-C01",
+      "title": "固定报告对应源码和安装身份，继承1832要求与299历史卡",
+      "phase": "P00",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/build.gradle",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "f378c7ae87ff344ff4161e46bb5ef0a6898740e0",
+          "baseline_sha256": "3ec9832e98ff3196b3d8790b2bd13856d255c42c307d7366848549628734bd5c"
+        },
+        {
+          "path": "tools/r31/verify_baseline.py",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "错提交/dirty/签名不符/漏文件分别有明确失败，不能自动改期望摘要过关。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "本包源提交与source-manifest.json一致，所有实际改动文件有diff和负责批次。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "旧要求原文摘要不变，未经实施的状态仍未实施。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "错提交/dirty/签名不符/漏文件分别有明确失败，不能自动改期望摘要过关。",
+        "本包源提交与source-manifest.json一致，所有实际改动文件有diff和负责批次。",
+        "旧要求原文摘要不变，未经实施的状态仍未实施。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156294+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B00-C02",
+      "title": "采集完整原因链和实际提交回执，纠正隔离数量口径",
+      "phase": "P00",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "5df8a0c3d4a6d6c6dd8f5815b960472402bb7e2c",
+          "baseline_sha256": "c3c5d589d80d11f1a38708e5dde008cc1d8d471cbb2534466fc5df73412ed741"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "fb6ae4b882cd90275edde3d040327f088fc0ccce",
+          "baseline_sha256": "19fa944ebfc5da6a1d591f475ceb22966f6ace527d8a2ce7d21f161c5efc7370"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "3d1929f018d7b8f8534ec7aca992cc9bb9ace14f",
+          "baseline_sha256": "9f305389e987df62536ae353cc42ba209f7c43d0b38e159e6a3db037d1425893"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "104574128e51f4a40464f47ea9fcfcab301d143b",
+          "baseline_sha256": "ef9dcebb5c2c4dff815796f37ec8998a3c4764d5909e5aa0b8c2a2b75f9261e5"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "报告回归fixture精确得到R27 total=13/quarantined=13/claimFailure=11/cancel=1/matrixDependency=1；全任务total=60/quarantined=14。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "嵌套busy、owner变更、SQL语法错误、磁盘满、用户取消各注入1次，原因链和类别可区分；不得全部重试或全部隔离。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "错误事件写入故障不会让真实交易回滚；下一次报告显示telemetry_incomplete及丢样数。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "报告回归fixture精确得到R27 total=13/quarantined=13/claimFailure=11/cancel=1/matrixDependency=1；全任务total=60/quarantined=14。",
+        "嵌套busy、owner变更、SQL语法错误、磁盘满、用户取消各注入1次，原因链和类别可区分；不得全部重试或全部隔离。",
+        "错误事件写入故障不会让真实交易回滚；下一次报告显示telemetry_incomplete及丢样数。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156309+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B01-C01",
+      "title": "统一瞬时等待、取消、依赖和真实故障分类",
+      "phase": "P01",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "fb6ae4b882cd90275edde3d040327f088fc0ccce",
+          "baseline_sha256": "19fa944ebfc5da6a1d591f475ceb22966f6ace527d8a2ce7d21f161c5efc7370"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "5df8a0c3d4a6d6c6dd8f5815b960472402bb7e2c",
+          "baseline_sha256": "c3c5d589d80d11f1a38708e5dde008cc1d8d471cbb2534466fc5df73412ed741"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "7b79f8f67cb0f295a9932b0fe8161a9d254afa99",
+          "baseline_sha256": "95580a52ede3e7c1dc4c13032b2fbdb248ae6b41af6f1ea4d09f70d9c75d0fe8"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "655e1c985099ff1450d9a4ba63923b55e4e9b639",
+          "baseline_sha256": "8f3374ca33f773aaa4a48760a2c827d78f96e2418692211a02a323e4e749b42a"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "持实时锁3秒，所有R27任务不新增FAULT、不进入QUARANTINED；锁释放后依公平预算有进展，P0不被R27排队阻塞。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "磁盘满/constraint/损坏异常不被当busy无限重试；用户stop后无继续提交。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "R26、R27、直接研究write、任务claim四入口对同一根异常分类一致。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "持实时锁3秒，所有R27任务不新增FAULT、不进入QUARANTINED；锁释放后依公平预算有进展，P0不被R27排队阻塞。",
+        "磁盘满/constraint/损坏异常不被当busy无限重试；用户stop后无继续提交。",
+        "R26、R27、直接研究write、任务claim四入口对同一根异常分类一致。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156318+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B01-C02",
+      "title": "领取、提交、回执全部使用同一owner/fence并消除旧prepared状态",
+      "phase": "P01",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "5df8a0c3d4a6d6c6dd8f5815b960472402bb7e2c",
+          "baseline_sha256": "c3c5d589d80d11f1a38708e5dde008cc1d8d471cbb2534466fc5df73412ed741"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedTaskR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "bdd9b66c5e94bc2f8398530742d1fa35963bbe6e",
+          "baseline_sha256": "0b51c712f3a754b598d09ed37596aac655fff74fa6aaff9a4188cef7affdc4e3"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "104574128e51f4a40464f47ea9fcfcab301d143b",
+          "baseline_sha256": "ef9dcebb5c2c4dff815796f37ec8998a3c4764d5909e5aa0b8c2a2b75f9261e5"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "注入旧owner失败回执晚于新owner领取：新owner保持RUNNING，旧回执只进入拒收日志。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "在claim后/提交前/提交后receipt前杀进程：恢复只重复计算未提交部分，artifact及cursor恰好一次发布。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "时钟前后跳24小时、重启后同PID复用均不授予旧fence写权。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "busy重试不丢pending batch；owner变更无R30_PREPARED_OWNER_CHANGED无限重试。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "注入旧owner失败回执晚于新owner领取：新owner保持RUNNING，旧回执只进入拒收日志。",
+        "在claim后/提交前/提交后receipt前杀进程：恢复只重复计算未提交部分，artifact及cursor恰好一次发布。",
+        "时钟前后跳24小时、重启后同PID复用均不授予旧fence写权。",
+        "busy重试不丢pending batch；owner变更无R30_PREPARED_OWNER_CHANGED无限重试。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156323+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B01-C03",
+      "title": "有限隔离、半开探测与任务级恢复",
+      "phase": "P01",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "fb6ae4b882cd90275edde3d040327f088fc0ccce",
+          "baseline_sha256": "19fa944ebfc5da6a1d591f475ceb22966f6ace527d8a2ce7d21f161c5efc7370"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "5df8a0c3d4a6d6c6dd8f5815b960472402bb7e2c",
+          "baseline_sha256": "c3c5d589d80d11f1a38708e5dde008cc1d8d471cbb2534466fc5df73412ed741"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "104574128e51f4a40464f47ea9fcfcab301d143b",
+          "baseline_sha256": "ef9dcebb5c2c4dff815796f37ec8998a3c4764d5909e5aa0b8c2a2b75f9261e5"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "3d1929f018d7b8f8534ec7aca992cc9bb9ace14f",
+          "baseline_sha256": "9f305389e987df62536ae353cc42ba209f7c43d0b38e159e6a3db037d1425893"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "虚拟时钟测试每个隔离等级、半开唯一性、成功复位与NEEDS_FIX；时间跳变不导致全部同时放行。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "将13个任务以混合故障隔离：可恢复错误按依赖恢复，真实缺陷保持NEEDS_FIX并报告；不能把“零隔离”作为唯一验收。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "24小时无永久无声停摆；每个pending>0的已满足依赖任务都有有效进展或有精确阻塞证据。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "虚拟时钟测试每个隔离等级、半开唯一性、成功复位与NEEDS_FIX；时间跳变不导致全部同时放行。",
+        "将13个任务以混合故障隔离：可恢复错误按依赖恢复，真实缺陷保持NEEDS_FIX并报告；不能把“零隔离”作为唯一验收。",
+        "24小时无永久无声停摆；每个pending>0的已满足依赖任务都有有效进展或有精确阻塞证据。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156328+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B01-C04",
+      "title": "可中断计算与关闭流程有界，禁止超时后并发替身",
+      "phase": "P01",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "e53d04ed2a1771fb7375c32c1a92d165fc37400c",
+          "baseline_sha256": "f1178afd19a909b9bd003bafff0df94f9c26916d475ec2a07e4b19c77f1713ad"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedTaskR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "bdd9b66c5e94bc2f8398530742d1fa35963bbe6e",
+          "baseline_sha256": "0b51c712f3a754b598d09ed37596aac655fff74fa6aaff9a4188cef7affdc4e3"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "027bcedd0ac5a5e64e2486017f2df7b5f046e10e",
+          "baseline_sha256": "24ce588013e4bcfdd6824bd3e3389d234a6df027f30517a0aa5079f03305e3ee"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "5df8a0c3d4a6d6c6dd8f5815b960472402bb7e2c",
+          "baseline_sha256": "c3c5d589d80d11f1a38708e5dde008cc1d8d471cbb2534466fc5df73412ed741"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "104574128e51f4a40464f47ea9fcfcab301d143b",
+          "baseline_sha256": "ef9dcebb5c2c4dff815796f37ec8998a3c4764d5909e5aa0b8c2a2b75f9261e5"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IncumbentLoopSU2.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "c29906cf9a9facf96919664823a82b7ab5728b12",
+          "baseline_sha256": "329f98455fe6f50cbc87c126d42ddb01643957feb2f1e6691785a0e2a4931447"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/XiIncumbentSU2.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "59295dfa7a2f301e7573a8c25906603fb2e636d7",
+          "baseline_sha256": "b533db11789fa92c65a122358b4eb1145cab17ca9f2ce02a01175567aefa056b"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "模拟永不poll任务：无第二个相同任务实例；P0可继续；stop按钮可用；10秒内显示停止未完成而非虚报已停。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "模拟在writer critical段触发yield：必须拒绝且回滚；任何park不持writer锁。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "长时间压力下线程总数、待执行队列长度、prepared对象数有上限；取消后资源可归还。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "同任务owner/target切换一万次无ABA、双重提交、已关闭connection访问。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "模拟永不poll任务：无第二个相同任务实例；P0可继续；stop按钮可用；10秒内显示停止未完成而非虚报已停。",
+        "模拟在writer critical段触发yield：必须拒绝且回滚；任何park不持writer锁。",
+        "长时间压力下线程总数、待执行队列长度、prepared对象数有上限；取消后资源可归还。",
+        "同任务owner/target切换一万次无ABA、双重提交、已关闭connection访问。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156337+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B02-C01",
+      "title": "写优先级显式化，消除R30操作名漏分",
+      "phase": "P01",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "655e1c985099ff1450d9a4ba63923b55e4e9b639",
+          "baseline_sha256": "8f3374ca33f773aaa4a48760a2c827d78f96e2418692211a02a323e4e749b42a"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "5df8a0c3d4a6d6c6dd8f5815b960472402bb7e2c",
+          "baseline_sha256": "c3c5d589d80d11f1a38708e5dde008cc1d8d471cbb2534466fc5df73412ed741"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "7b79f8f67cb0f295a9932b0fe8161a9d254afa99",
+          "baseline_sha256": "95580a52ede3e7c1dc4c13032b2fbdb248ae6b41af6f1ea4d09f70d9c75d0fe8"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "登记表覆盖所有入口；未分类operation构建失败或运行标UNKNOWN_PRIORITY，不自动当最高级。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "60分钟竞争测试：1Hz轮询+历史回补+研究+报告+保留，关键写无研究排队饿死，研究pending也不无限积压。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "报告列每operation count/waitP95/holdP95/max/overBudget/rolledBack；阈值失败有具体owner文件。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "登记表覆盖所有入口；未分类operation构建失败或运行标UNKNOWN_PRIORITY，不自动当最高级。",
+        "60分钟竞争测试：1Hz轮询+历史回补+研究+报告+保留，关键写无研究排队饿死，研究pending也不无限积压。",
+        "报告列每operation count/waitP95/holdP95/max/overBudget/rolledBack；阈值失败有具体owner文件。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156342+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B02-C02",
+      "title": "数值计算和DDL退出短事务，分片在owner层完成",
+      "phase": "P01",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "104574128e51f4a40464f47ea9fcfcab301d143b",
+          "baseline_sha256": "ef9dcebb5c2c4dff815796f37ec8998a3c4764d5909e5aa0b8c2a2b75f9261e5"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "4cd1f4c5c9af51abcaba5e1899d09ff13f8efa30",
+          "baseline_sha256": "d7965f912f3c4230bb8ea3b34ba058cec1e8139d9c196a312e340e548d731723"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "7b79f8f67cb0f295a9932b0fe8161a9d254afa99",
+          "baseline_sha256": "95580a52ede3e7c1dc4c13032b2fbdb248ae6b41af6f1ea4d09f70d9c75d0fe8"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "b26c7a1b7f31d7a8860c846a92bdf74648acf33c",
+          "baseline_sha256": "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "运行期DDL tracing=0（真实迁移窗口除外）；schema缺失时DEPENDENCY(SCHEMA_PENDING)，不现场CREATE。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "对各大batch在第1片/中间片/最终publish前后杀进程：无半模型、无重复增量、无cursor越过未发布artifact。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "Android实际SQLite测试受保护触发器、WAL和checkpoint并发；host sqlite结果不能代替设备事务时延。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "运行期DDL tracing=0（真实迁移窗口除外）；schema缺失时DEPENDENCY(SCHEMA_PENDING)，不现场CREATE。",
+        "对各大batch在第1片/中间片/最终publish前后杀进程：无半模型、无重复增量、无cursor越过未发布artifact。",
+        "Android实际SQLite测试受保护触发器、WAL和checkpoint并发；host sqlite结果不能代替设备事务时延。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156347+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B02-C03",
+      "title": "区分实际提交与提交后诊断失败，防重复训练/结算",
+      "phase": "P01",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "655e1c985099ff1450d9a4ba63923b55e4e9b639",
+          "baseline_sha256": "8f3374ca33f773aaa4a48760a2c827d78f96e2418692211a02a323e4e749b42a"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "7b79f8f67cb0f295a9932b0fe8161a9d254afa99",
+          "baseline_sha256": "95580a52ede3e7c1dc4c13032b2fbdb248ae6b41af6f1ea4d09f70d9c75d0fe8"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "49c64a81e3df9a4eef05e38e1004ff3e2587a18f",
+          "baseline_sha256": "9468d72cf25a4efa3e600eb188fbc27f8b11980aa8cd28b082f3a43de6cffaa2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "3d1929f018d7b8f8534ec7aca992cc9bb9ace14f",
+          "baseline_sha256": "9f305389e987df62536ae353cc42ba209f7c43d0b38e159e6a3db037d1425893"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "注入afterCommit/timing/Log失败：模型参数、样本计数、结算计数各只变化一次；诊断标红。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "注入commit完成但返回前进程死：重启同commit_key不重复应用；注入commit回滚则能重做。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "不同payload复用commit_key必须报INTEGRITY_CONFLICT，不能INSERT OR IGNORE掩盖。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "注入afterCommit/timing/Log失败：模型参数、样本计数、结算计数各只变化一次；诊断标红。",
+        "注入commit完成但返回前进程死：重启同commit_key不重复应用；注入commit回滚则能重做。",
+        "不同payload复用commit_key必须报INTEGRITY_CONFLICT，不能INSERT OR IGNORE掩盖。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156352+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B03-C01",
+      "title": "抓取与当期入库优先，历史回补不挡下一期准备",
+      "phase": "P02",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "50a81e68748330fb762eb770f739ea83dc9771dd",
+          "baseline_sha256": "c881e116d4735a412cdf8ace515c1a87e2bfb174b0d43a14603ab339e40572fe"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "655e1c985099ff1450d9a4ba63923b55e4e9b639",
+          "baseline_sha256": "8f3374ca33f773aaa4a48760a2c827d78f96e2418692211a02a323e4e749b42a"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "9b20664d822056be9c138c85e3dbc12c75e4ce66",
+          "baseline_sha256": "1e7182d2aa6d1f8d9d6a9b624363e3d97594de4a8c9f98addb64810320222920"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "重复包、乱序包、晚到包、断网30分钟恢复、双来源冲突、HTTP卡住：无重复开奖/结算，最新目标不被历史队列长期阻塞。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "1000次测量给全分布、分母、最差20次原因；不能只打印最近96次来掩盖漏期。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "所有获知draw最终有SETTLED或带明确原因的排除终态，无默默遗漏。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "重复包、乱序包、晚到包、断网30分钟恢复、双来源冲突、HTTP卡住：无重复开奖/结算，最新目标不被历史队列长期阻塞。",
+        "1000次测量给全分布、分母、最差20次原因；不能只打印最近96次来掩盖漏期。",
+        "所有获知draw最终有SETTLED或带明确原因的排除终态，无默默遗漏。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156358+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B03-C02",
+      "title": "冻结只有一个权威提交，快通道不能覆盖已冻结记录",
+      "phase": "P02",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "4d86983b2102305770d1df0877351c65097800b9",
+          "baseline_sha256": "e3bcb8709e3f7541ea7a5de63f1bd9baea21a3cf681ef1834ec7f0d097b068b1"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "dfed1c6fb45d433aa7bcac0ae1786f9d1180ff0e",
+          "baseline_sha256": "93583a73adb4c246157b65bb21dcd2599025f616665b3bf627509fd29398a10d"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "c122bdcb27ad2b19458a07c19ea538d886899550",
+          "baseline_sha256": "75bb8de541d26dfc2de52e423f79cb1cf1e8e5a98b2b4b036df6bcf40f425b73"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "50a81e68748330fb762eb770f739ea83dc9771dd",
+          "baseline_sha256": "c881e116d4735a412cdf8ace515c1a87e2bfb174b0d43a14603ab339e40572fe"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "bd48a6e7fd77c44a8a395a3f3acc47ec598ba73e",
+          "baseline_sha256": "67f3d07d9b7d54e74fc0acda28869cdb08da888156fb5da1177a2138627b5931"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "同一期fast/full竞争、截止前1ms/截止后1ms、first_seen早于open、时钟跳变、模型正在更新：最多一个canonical hash，所有标签使用原hash。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "100%已知实时机会有终端状态；可预测覆盖单列，目标≥99%仅在明确设备/网络/正常资源条件下验收。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "FULL迟到不得改既有canonical；无资格fast路径不得产生REAL。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "超时owner仍活时不能reap并启动第二owner；唯一并发active=1。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "同一期fast/full竞争、截止前1ms/截止后1ms、first_seen早于open、时钟跳变、模型正在更新：最多一个canonical hash，所有标签使用原hash。",
+        "100%已知实时机会有终端状态；可预测覆盖单列，目标≥99%仅在明确设备/网络/正常资源条件下验收。",
+        "FULL迟到不得改既有canonical；无资格fast路径不得产生REAL。",
+        "超时owner仍活时不能reap并启动第二owner；唯一并发active=1。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156364+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B03-C03",
+      "title": "结算、反馈与训练事件解耦，漏冻结不能让研究饿死",
+      "phase": "P02",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "4794bec113110663460d67cb5633b532c9a14804",
+          "baseline_sha256": "38eb92ae71a0e09ee4bb7b3252a5c0ec2b51022e4dc5e5b18d8c0330ac85ecb0"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "bd48a6e7fd77c44a8a395a3f3acc47ec598ba73e",
+          "baseline_sha256": "67f3d07d9b7d54e74fc0acda28869cdb08da888156fb5da1177a2138627b5931"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "9b20664d822056be9c138c85e3dbc12c75e4ce66",
+          "baseline_sha256": "1e7182d2aa6d1f8d9d6a9b624363e3d97594de4a8c9f98addb64810320222920"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "49d30b6c836d1b57846bdb6223437c11e591f463",
+          "baseline_sha256": "1027f5e42e46a849c17666f91d726d29b6bf5cac1a40b88e53b453fa6e3ee518"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "人为清掉某期预测：该期OOS拒绝、draw训练可继续，下一期照常冻结，主链胜率分母不掺入该期。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "同一event重复投递100次，参数更新恰好一次；消费者重启从commit cursor恢复。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "结算工作健康与预测覆盖失败在报告两栏呈现，不能将所有情况归为“后台正常”。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "人为清掉某期预测：该期OOS拒绝、draw训练可继续，下一期照常冻结，主链胜率分母不掺入该期。",
+        "同一event重复投递100次，参数更新恰好一次；消费者重启从commit cursor恢复。",
+        "结算工作健康与预测覆盖失败在报告两栏呈现，不能将所有情况归为“后台正常”。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156369+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B04-C01",
+      "title": "进程内研究健康与服务心跳分离，恢复精确到任务或池",
+      "phase": "P02",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "50a81e68748330fb762eb770f739ea83dc9771dd",
+          "baseline_sha256": "c881e116d4735a412cdf8ace515c1a87e2bfb174b0d43a14603ab339e40572fe"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "53b94b3d7d165576f7c8659656f695feca50914e",
+          "baseline_sha256": "e4bcdc2dcead78cff1a73995285353c9d22edb1a07a4b5c42dfbc40dde7cf68a"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "104574128e51f4a40464f47ea9fcfcab301d143b",
+          "baseline_sha256": "ef9dcebb5c2c4dff815796f37ec8998a3c4764d5909e5aa0b8c2a2b75f9261e5"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "ce4611ffa2bb39114d3fda680e00f98254199386",
+          "baseline_sha256": "e34a09bc8b53f4cc05b12e3690ea3686a5dfb4a5447e454dfc83a49c0219349d"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "服务心跳继续、全部R27隔离：2个control tick内报告DEGRADED，按RT-01恢复，无新进程必要。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "恢复中反复20次start命令：只一个owner、一个pool generation；receipt证明实际恢复。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "pending未知显示UNKNOWN并启动采集，不判健康；依赖确实无新事件则IDLE不误恢复。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "服务心跳继续、全部R27隔离：2个control tick内报告DEGRADED，按RT-01恢复，无新进程必要。",
+        "恢复中反复20次start命令：只一个owner、一个pool generation；receipt证明实际恢复。",
+        "pending未知显示UNKNOWN并启动采集，不判健康；依赖确实无新事件则IDLE不误恢复。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156374+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B04-C02",
+      "title": "后台能力按实际系统限制验收，保留主动会话持续研究",
+      "phase": "P02",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/AndroidManifest.xml",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "e9b34411798e382f377bb1a27bd1b68eb62824d1",
+          "baseline_sha256": "94aef24f5094e0fb2a5f40d3ac239b8d9c27cfb4a8161b4de4907006e41d6d82"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "ce4611ffa2bb39114d3fda680e00f98254199386",
+          "baseline_sha256": "e34a09bc8b53f4cc05b12e3690ea3686a5dfb4a5447e454dfc83a49c0219349d"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "53b94b3d7d165576f7c8659656f695feca50914e",
+          "baseline_sha256": "e4bcdc2dcead78cff1a73995285353c9d22edb1a07a4b5c42dfbc40dde7cf68a"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimePowerLeaseR26.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "ee1776f785a9729f0489a717177abdfd3d057b99",
+          "baseline_sha256": "ee2cd6ecc9672f1d6cdfead7c8d74379ee9b3b2381eb682122281235bc8dc821"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "50a81e68748330fb762eb770f739ea83dc9771dd",
+          "baseline_sha256": "c881e116d4735a412cdf8ace515c1a87e2bfb174b0d43a14603ab339e40572fe"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "V2353A实际设备72小时：亮屏/熄屏/省电/断网/重连/滑掉任务/普通进程kill/force-stop/重启分别测试，并留adb/退出历史/逐期水位。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "用户stop立即停止新抓取和研究提交且不自行复活；普通后台切换保持会话。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "force-stop测试预期为停止且再打开恢复；不得把这个预期当缺陷跳过或虚报100%后台覆盖。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "发生平台限制时报告为OS_RESTRICTED并显示实际缺口，不混入自然胜率样本。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "V2353A实际设备72小时：亮屏/熄屏/省电/断网/重连/滑掉任务/普通进程kill/force-stop/重启分别测试，并留adb/退出历史/逐期水位。",
+        "用户stop立即停止新抓取和研究提交且不自行复活；普通后台切换保持会话。",
+        "force-stop测试预期为停止且再打开恢复；不得把这个预期当缺陷跳过或虚报100%后台覆盖。",
+        "发生平台限制时报告为OS_RESTRICTED并显示实际缺口，不混入自然胜率样本。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156379+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B05-C01",
+      "title": "连续存储普查与准确口径",
+      "phase": "P02",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "a30884dbad4d584cef538176c4f768192be677e9",
+          "baseline_sha256": "bd8812575607e4bff4be751ca084ab9133dd3cdd9953078df6130cd493cbd93f"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageLedgerR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "ST-01：总分类相加与总文件长度相等；detail不重复统计",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "同路径各阶段采样可定位snapshot峰值与清理后稳态",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "无dbstat时显示UNKNOWN/ESTIMATED，不触发错误删除",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "ST-01：总分类相加与总文件长度相等；detail不重复统计",
+        "同路径各阶段采样可定位snapshot峰值与清理后稳态",
+        "无dbstat时显示UNKNOWN/ESTIMATED，不触发错误删除"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156383+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B05-C02",
+      "title": "所有增长来源写前预算准入",
+      "phase": "P02",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "bde3f9f67ccfbdd7e880fef1e9647747756a1153",
+          "baseline_sha256": "01d68d4a6a0afe80384960fb76f1186f5940f71026c06b4e90059c496c32ea56"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "ST-02/ST-03：并发reserve不超限，实际chunk超额停止",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "24h新建产物数量/bytes有上界，保护对象无误删",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "ENOSPC下注/冻结/结算原子性不破坏",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "ST-02/ST-03：并发reserve不超限，实际chunk超额停止",
+        "24h新建产物数量/bytes有上界，保护对象无误删",
+        "ENOSPC下注/冻结/结算原子性不破坏"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156386+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B05-C03",
+      "title": "报告当前作业清理闭环与全物理配额",
+      "phase": "P02",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "86423abaaa38f9fa866799d31ed02b968387dab4",
+          "baseline_sha256": "06c1a4d3f844a53852e7280ebee10186a819c7849d0a547675e7c64f89f910c9"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "268abe3b7bb614557ea0cd4f22102426da969a8a",
+          "baseline_sha256": "6ddf275668f810ed3929c8052973d2bcf2af92d7523470d20915076fc2cfc181"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "882ed1434675e3fd539a357488c4fa3f0c5f67e6",
+          "baseline_sha256": "00c12c7e26c0afdcf4f2c18282e3b6319028593b8da8e6803777ab8e08db8e4f"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "ST-06/ST-07：发布后10分钟不再导出也能清理snapshot；ZIPhash不变",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "损坏ZIP不误删唯一证据；配额超限不得再无限复制",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "对当前版本正常publish路径回归：不重复删除、不制造新故障",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "ST-06/ST-07：发布后10分钟不再导出也能清理snapshot；ZIPhash不变",
+        "损坏ZIP不误删唯一证据；配额超限不得再无限复制",
+        "对当前版本正常publish路径回归：不重复删除、不制造新故障"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156389+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B05-C04",
+      "title": "keep保护机制迁为有界证据生命周期",
+      "phase": "P06",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "ce30df2bec9e72a4bd52ab29328348c15611d145",
+          "baseline_sha256": "5d3b1a97012b91001b57dde9aba14da807669ffa74db68ffad9d5f1b16c5fa27"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "bde3f9f67ccfbdd7e880fef1e9647747756a1153",
+          "baseline_sha256": "01d68d4a6a0afe80384960fb76f1186f5940f71026c06b4e90059c496c32ea56"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "ST-08：每个迁移阶段杀进程无丢失或重复计数",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "R31新写无永久搬家，旧keep逐步有界缩减",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "当前55张空keep也只能经过consumer证明和schema迁移删除",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "ST-08：每个迁移阶段杀进程无丢失或重复计数",
+        "R31新写无永久搬家，旧keep逐步有界缩减",
+        "当前55张空keep也只能经过consumer证明和schema迁移删除"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156394+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B05-C05",
+      "title": "有效资产根引用闭包GC",
+      "phase": "P06",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/EvidenceReachabilityR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageGcR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "ce30df2bec9e72a4bd52ab29328348c15611d145",
+          "baseline_sha256": "5d3b1a97012b91001b57dde9aba14da807669ffa74db68ffad9d5f1b16c5fa27"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "ST-04/ST-05：有根闭包绝不删，无根环可删，pin与GC竞态只有一方成功",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "GC任一步进程死后可恢复，未unlink不能报告释放",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "protected根超限返回BLOCKED_PROTECTED_BYTES并列释放条件",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "ST-04/ST-05：有根闭包绝不删，无根环可删，pin与GC竞态只有一方成功",
+        "GC任一步进程死后可恢复，未unlink不能报告释放",
+        "protected根超限返回BLOCKED_PROTECTED_BYTES并列释放条件"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156397+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B05-C06",
+      "title": "CAS归档STALE_PAGE有界恢复",
+      "phase": "P06",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "c3fe004752f3fe8ad0e6b9b429fb0f5c33e920da",
+          "baseline_sha256": "53722821457cb5a510d5f565fbe149609db6920e6f357fcf5514a9776a5d8e4e"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveIoCP12.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "c32f0f9fac5de62491908cac69dcf3b16ec9e59a",
+          "baseline_sha256": "f0f0cd2010a298e3b65669cfe0049960a9f1657ad3b01dfaf9b89b09541ce4b2"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "ST-09：同页连续100次变化，inflight始终≤1且临时bytes有界",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "稳定后完成归档和prune，版本变化的行从未误删",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "归档状态与文件sha/readback互证",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "ST-09：同页连续100次变化，inflight始终≤1且临时bytes有界",
+        "稳定后完成归档和prune，版本变化的行从未误删",
+        "归档状态与文件sha/readback互证"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156400+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B05-C07",
+      "title": "事件、revision与高基数诊断表有界化",
+      "phase": "P06",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "e4df2d10be4ef6812d662890e3799883eae2687a",
+          "baseline_sha256": "c0eaad5b255f51b4810d857592cd851e750bbf2057639d60f09d73e087f63120"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "c3fe004752f3fe8ad0e6b9b429fb0f5c33e920da",
+          "baseline_sha256": "53722821457cb5a510d5f565fbe149609db6920e6f357fcf5514a9776a5d8e4e"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "7c3a0744f92a6a0200f7c34d384824d3f70513a3",
+          "baseline_sha256": "f1dd234a3c059b24d53edab8158c229a38fc21e4ee5315db23fe4d7ef29ad261"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "ST-11：revision有效版本无误删，孤儿工作持续推进",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "event保留5000期核心事实或对应真实CAS，计数与重建投影一致",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "24h日志总bytes和保留条数有上界",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "ST-11：revision有效版本无误删，孤儿工作持续推进",
+        "event保留5000期核心事实或对应真实CAS，计数与重建投影一致",
+        "24h日志总bytes和保留条数有上界"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156406+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B05-C08",
+      "title": "业务混用chart cache先迁权威再清理",
+      "phase": "P06",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "ce30df2bec9e72a4bd52ab29328348c15611d145",
+          "baseline_sha256": "5d3b1a97012b91001b57dde9aba14da807669ffa74db68ffad9d5f1b16c5fa27"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "30fcc8fac5cb8c437cfc11626689a1d9057f2774",
+          "baseline_sha256": "9f13768271481e60e493a6a63fdd4477c729ab7d0f8f8dbbf507d6e8029b94be"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "ST-10：清理前后同PIT输入决策相同；重启仍保留主链选择",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "任何读取权威值的panel没有被通用cache GC扫到",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "无数据图显原因且不伪造点",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "ST-10：清理前后同PIT输入决策相同；重启仍保留主链选择",
+        "任何读取权威值的panel没有被通用cache GC扫到",
+        "无数据图显原因且不伪造点"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156409+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B05-C09",
+      "title": "WAL与可重用页回收不阻塞实时链",
+      "phase": "P06",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "1e0085c7a7353fb282e6f9d3e2e5b514a1c1fbed",
+          "baseline_sha256": "7e1b13b900dc8214cef1b282c65dc4156d36f4e07ab6eb53e032ea5e260233a5"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageCheckpointR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "ST-14：长reader注入下无无限BUSY循环，WAL恢复有证据",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "压力下实时冻结/结算延迟门不退化",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "常规GC无需充电/熄屏；离线服务不会被自动调用停业务",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "ST-14：长reader注入下无无限BUSY循环，WAL恢复有证据",
+        "压力下实时冻结/结算延迟门不退化",
+        "常规GC无需充电/熄屏；离线服务不会被自动调用停业务"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156413+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B05-C10",
+      "title": "旧库重建与备份删除恢复证明",
+      "phase": "P06",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "a538b13456e9ea438984af685a571e449c860753",
+          "baseline_sha256": "1d09b46b97809367ec7492d879c9b7fd12b089944bc4b0b580345b97eeba2353"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SourceReadLeaseR82.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "3739fb36187b6551475d4624409aeed9ba464371",
+          "baseline_sha256": "508642fd214a60a228c4c0f127d264a42000c3766bcf4d23b85f8da410bdbb34"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "ST-15：每个rename/journal点中断后原库或新库可恢复",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "备份不存在完整恢复证明时删除必拒绝",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "不以quick_check或mtime单独证明数据完整",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "ST-15：每个rename/journal点中断后原库或新库可恢复",
+        "备份不存在完整恢复证明时删除必拒绝",
+        "不以quick_check或mtime单独证明数据完整"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156417+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B05-C11",
+      "title": "Java堆/native/PSS与缓存队列有界治理",
+      "phase": "P02",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "5df8a0c3d4a6d6c6dd8f5815b960472402bb7e2c",
+          "baseline_sha256": "c3c5d589d80d11f1a38708e5dde008cc1d8d471cbb2534466fc5df73412ed741"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "7b79f8f67cb0f295a9932b0fe8161a9d254afa99",
+          "baseline_sha256": "95580a52ede3e7c1dc4c13032b2fbdb248ae6b41af6f1ea4d09f70d9c75d0fe8"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "42c8a99dd082d5e225c2e8962d135cd7f769cfb3",
+          "baseline_sha256": "2c1d11b70e695fbfaee3316b1468952d6dab57156ae7121c036a3992d834a5d8"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "86423abaaa38f9fa866799d31ed02b968387dab4",
+          "baseline_sha256": "06c1a4d3f844a53852e7280ebee10186a819c7849d0a547675e7c64f89f910c9"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExecutionBudgetR26.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "0fbc5f1b61085aed813b203368ec3de85fee7457",
+          "baseline_sha256": "fc7c5065231a6506dcad0e9e0a5aed880950fb4074806a2bcd207da87b452a01"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BoundedResearchExecutorR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SharedFeatureStoreR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "ST-M01许可超额拒绝、异常释放、重复close幂等",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "ST-M02并发1000请求queue与bytes有界，实时线程不被CallerRuns占用，待办无丢失",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "ST-M03 100轮图表进出/取消后heap dominator无Activity/旧session滞留",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "ST-M04同输入64候选共享1输入实例且可变权重互不污染",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "ST-M05 native/FD/DB reader正常及取消后回到基线包络",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "ST-M06 72h OOM=0；对等负载live heap/PSS无持续增长，末24h等负载P95 live heap≤稳定首24h110%且不越动态高水位；未实测NOT_RUN",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "ST-M01许可超额拒绝、异常释放、重复close幂等",
+        "ST-M02并发1000请求queue与bytes有界，实时线程不被CallerRuns占用，待办无丢失",
+        "ST-M03 100轮图表进出/取消后heap dominator无Activity/旧session滞留",
+        "ST-M04同输入64候选共享1输入实例且可变权重互不污染",
+        "ST-M05 native/FD/DB reader正常及取消后回到基线包络",
+        "ST-M06 72h OOM=0；对等负载live heap/PSS无持续增长，末24h等负载P95 live heap≤稳定首24h110%且不越动态高水位；未实测NOT_RUN"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156423+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B06-C01",
+      "title": "保留历史训练并统一冻结输入、角色和数据修订",
+      "phase": "P03",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "49c64a81e3df9a4eef05e38e1004ff3e2587a18f",
+          "baseline_sha256": "9468d72cf25a4efa3e600eb188fbc27f8b11980aa8cd28b082f3a43de6cffaa2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "640c6e35442f46f146a11d329f552e24fa161344",
+          "baseline_sha256": "8a4012187b67e6e1a3f8f0e4fe24313bc606f8cf70dc963e159c3e02216b2ae3"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "650c808ad0c640bc608df48277dbafea8aec3650",
+          "baseline_sha256": "4960989548548fca5b55c1bc20bce3511b4d3e466b4e90459807f85fda54ce11"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "同一固定 5000 期输入的 dataset/role/source hash 在重启、滚动尾窗和同序数据重读后稳定。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "注入缺期、补期、跨日期号和源修订，结果分别为等待/续进/新身份失效，未冻结的旧预测不能补写。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "开发过程读取 CONFIRM/FUTURE 标签即测试失败；报告能列出每个候选训练输入与独立证据边界。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "pin 超预算时研究等待、实时冻结结算继续；删除保护输入应由外键或 pin 校验阻止。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "同一固定 5000 期输入的 dataset/role/source hash 在重启、滚动尾窗和同序数据重读后稳定。",
+        "注入缺期、补期、跨日期号和源修订，结果分别为等待/续进/新身份失效，未冻结的旧预测不能补写。",
+        "开发过程读取 CONFIRM/FUTURE 标签即测试失败；报告能列出每个候选训练输入与独立证据边界。",
+        "pin 超预算时研究等待、实时冻结结算继续；删除保护输入应由外键或 pin 校验阻止。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156429+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B06-C02",
+      "title": "回放增量化与模型、优化器、游标共同提交",
+      "phase": "P03",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "fd50a70ee9f289293137248c5430129530e9422d",
+          "baseline_sha256": "b0375142ce4b772d2474a88ceaa550c7e3a78df85ae20fdcae89a9a4b55ce667"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyGenerationR26.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "90efd28a6af745e367a4106190ca51fedd05c4e0",
+          "baseline_sha256": "c6d11363b6ca4a805dfd0fc2728228139a85d523559c086972dc262afac78bfc"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "16be4f161c0e88ad96986831b60d7da6eff31118",
+          "baseline_sha256": "003e4052141cab479f8faea7fa1c169608af90a8ff5f1957dfca98f90bdbc8eb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "6af85f459a2cf09c25b77b98623d6cc6d32b612f",
+          "baseline_sha256": "ad93eef1ad65956e6e8bd229992e5a7b3e6e35a5b332aea2858faf8d7d25cac1"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayCheckpointR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "对每个断点执行 kill/restart：恢复模型与黄金模型在声明的数值容差内一致，act/K3、后续冻结 hash 必须相同。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "在 artifact 写完但事务未提交、提交后未 publish、重复投递三处注入故障，游标与模型步数不分离。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "记录 CPU 样本吞吐、峰值内存及实时延迟，达到 B01/B02/B12 的性能门后才启用更多家族预算。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "退休候选释放后的堆、native、缓存与磁盘引用均能下降；模型 cache 命中率与实际字节可核对。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "对每个断点执行 kill/restart：恢复模型与黄金模型在声明的数值容差内一致，act/K3、后续冻结 hash 必须相同。",
+        "在 artifact 写完但事务未提交、提交后未 publish、重复投递三处注入故障，游标与模型步数不分离。",
+        "记录 CPU 样本吞吐、峰值内存及实时延迟，达到 B01/B02/B12 的性能门后才启用更多家族预算。",
+        "退休候选释放后的堆、native、缓存与磁盘引用均能下降；模型 cache 命中率与实际字节可核对。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156433+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B06-C03",
+      "title": "AtomNet 十位置完整训练水位与真实发布消费证明",
+      "phase": "P03",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "1c7395ca32e91ed99dd4d184c0034f7266e43046",
+          "baseline_sha256": "0234822de29c8964a508f86dfe53c05a854e32e36ce96f172c33935e4cf4f8a9"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "8d3d2e77e4853dc722b88b1284dcc62737f5f5a1",
+          "baseline_sha256": "6caad00ea8c97864a2dfc5c45d227b4c43c07f4485125100fc327ae28279acf6"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "6af85f459a2cf09c25b77b98623d6cc6d32b612f",
+          "baseline_sha256": "ad93eef1ad65956e6e8bd229992e5a7b3e6e35a5b332aea2858faf8d7d25cac1"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "在位置 1 至 9 任一位置终止，complete/published 仍为上一完整期，重启不得漏/重训位置。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "只有第 10 位置事务成功后完整水位推进；旧 state hash 对应的旧预测始终可重放。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "使用受控非零梯度样本，权重与优化器状态变化且消费者读取同一发布 hash；未消费不得标‘已提升预测’。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "报告中输入期、部分期、完成期、发布期、最后消费期分别可追溯到唯一 receipt。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "在位置 1 至 9 任一位置终止，complete/published 仍为上一完整期，重启不得漏/重训位置。",
+        "只有第 10 位置事务成功后完整水位推进；旧 state hash 对应的旧预测始终可重放。",
+        "使用受控非零梯度样本，权重与优化器状态变化且消费者读取同一发布 hash；未消费不得标‘已提升预测’。",
+        "报告中输入期、部分期、完成期、发布期、最后消费期分别可追溯到唯一 receipt。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156437+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B07-C01",
+      "title": "保留真实家族与算子并建立执行归属清单",
+      "phase": "P04",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "2221f2215ac5cf2406edc2e3c3fafc697b4c8075",
+          "baseline_sha256": "bf395fc72f90961692f0353b96ef7fdd23d83ac8d577e7080349e14c8167dff6"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "c8c1db47136fc9a0799e234cdd8128a2a2cef442",
+          "baseline_sha256": "682c01faeda7a575c80f92a6942f2b9a62dec73255e04acee8221cf1de5365c2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelFoundryJobSU2.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "ebb22cb5504ddcb8eceacdbeae228d4dd44433eb",
+          "baseline_sha256": "56c53346f55645dfa1d38b6b7ad80cff05943354df7fd571d99d184d25dc0615"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveLoopSU2.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "0687b1df9b299b5e15763b0577dcd66fb9376102",
+          "baseline_sha256": "d6f7a74cd35e49d24094414943ef652b7235d32e5683976985d804efc934083e"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertWorkshopR26.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "2fd18bde42ea0bcdfe8340edf79357bcc58dc725",
+          "baseline_sha256": "869c05bed75f01d1f83c2a94917237e454dc61c68fce3bebb4ab90f6efa0ea2f"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "23 个默认家族各自完成可执行与恢复测试，失败一项明确列红，不把支持声明当通过。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "F23 无教师时不可执行、绑定真实教师与 ABI 后可执行；不得静默退回其他模型。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "对同一 model owner 注入双入口，唯一 fence 拒绝第二写者；兼容入口不启动第二数值线程。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "所有家族/专家至少存在‘执行证据’或‘依赖/预算未运行原因’，没有只有名称的绿色能力。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "23 个默认家族各自完成可执行与恢复测试，失败一项明确列红，不把支持声明当通过。",
+        "F23 无教师时不可执行、绑定真实教师与 ABI 后可执行；不得静默退回其他模型。",
+        "对同一 model owner 注入双入口，唯一 fence 拒绝第二写者；兼容入口不启动第二数值线程。",
+        "所有家族/专家至少存在‘执行证据’或‘依赖/预算未运行原因’，没有只有名称的绿色能力。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156443+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B07-C02",
+      "title": "有限 typed AST、前置解析预算与因果行为去重",
+      "phase": "P04",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "5fd534add68b3d08fe9f9f5243bcc709e9bc596c",
+          "baseline_sha256": "a517e967f2cb3204fea8c66024915890f01db69c6ca99169e4b7a2b93d0d395b"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicySpecR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "8e8b9f03a0b0e471395020cb3c5c847c7ee8fa77",
+          "baseline_sha256": "e4407bf7a1e59ac65bbf8414031e64ed202756d1f0182a5fecaa0c9ddb646aa9"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "f9d734127e6b414206d89f7d85495773bc82119d",
+          "baseline_sha256": "dd5a3727fabb15afe3c4acd56abdd8f17f885d7b32c2a55eb2e4581aaec7856b"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "c8c1db47136fc9a0799e234cdd8128a2a2cef442",
+          "baseline_sha256": "682c01faeda7a575c80f92a6942f2b9a62dec73255e04acee8221cf1de5365c2"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "超过字节/节点/深度、错误 arity、NaN/Infinity、未知 op 均受控拒绝，无 StackOverflow/OOM。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "合法旧策略 canonical/hash/预测逐样本一致；改变 updater 或 selector 必须产生不同身份。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "不同位置、不同输入 hash、不同角色的签名不得误判同一证据；重复正式证据仍保持完整引用。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "输入无未来标签且输出始终 10 维有限归一概率与严格单位置 3 个不同号码或明确弃权。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "超过字节/节点/深度、错误 arity、NaN/Infinity、未知 op 均受控拒绝，无 StackOverflow/OOM。",
+        "合法旧策略 canonical/hash/预测逐样本一致；改变 updater 或 selector 必须产生不同身份。",
+        "不同位置、不同输入 hash、不同角色的签名不得误判同一证据；重复正式证据仍保持完整引用。",
+        "输入无未来标签且输出始终 10 维有限归一概率与严格单位置 3 个不同号码或明确弃权。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156449+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B07-C03",
+      "title": "以真实增益和成本驱动的有限创造预算",
+      "phase": "P04",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "c8c1db47136fc9a0799e234cdd8128a2a2cef442",
+          "baseline_sha256": "682c01faeda7a575c80f92a6942f2b9a62dec73255e04acee8221cf1de5365c2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "c881501b131debb0e4acb9333afe68c006bf468f",
+          "baseline_sha256": "e2dfeb729d6319da02c41070bafe4029298d729f21d490e1421d98e4e9e1dfe1"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "b4fb66479f0da97cc10ee60825395fe7d6f09117",
+          "baseline_sha256": "acc11a888c0ed34fc3525095c41de115b6849a16f9dfd1ee340150313768c1f8"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "每个可用家族在预注册研究轮次预算内被探索或有明确依赖原因，不永久饥饿。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "输入重复候选使去重率上升且不增加独特/晋级计数；重复回执不重复加算子信用。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "置入成本极高低增益候选后总预算不突破、实时 SLO 不劣化，研究可逐步继续。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "一次重启前后分配计数/seed/信用一致，非冠军退役能触发真实内存/缓存释放。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "每个可用家族在预注册研究轮次预算内被探索或有明确依赖原因，不永久饥饿。",
+        "输入重复候选使去重率上升且不增加独特/晋级计数；重复回执不重复加算子信用。",
+        "置入成本极高低增益候选后总预算不突破、实时 SLO 不劣化，研究可逐步继续。",
+        "一次重启前后分配计数/seed/信用一致，非冠军退役能触发真实内存/缓存释放。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156454+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B07-C04",
+      "title": "父子同机会比较、嵌套时间验证和诚实代际提升",
+      "phase": "P04",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "c8c1db47136fc9a0799e234cdd8128a2a2cef442",
+          "baseline_sha256": "682c01faeda7a575c80f92a6942f2b9a62dec73255e04acee8221cf1de5365c2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "650c808ad0c640bc608df48277dbafea8aec3650",
+          "baseline_sha256": "4960989548548fca5b55c1bc20bce3511b4d3e466b4e90459807f85fda54ce11"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedReplayRunnerR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "68236d7847ae5ac54b464b93c23ff64c907d8772",
+          "baseline_sha256": "1a938cab8f88f080bf34ea6837dcc1f11e40258405bedc1851e2f9d364d3563f"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "人为对子代提供未来标签，隔离/测试必须检出；禁用未来标签后无法伪造改善。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "父子出手次数不同仍在同机会序列比较；只选子代赢的期应被协议校验拒绝。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "同一确认段重复运行、更名、重启不新增独立证据，不获得新误差预算。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "一条改善声明可反查所有冻结预测、实际结果和选择过程，缺任何关键项只能 PROVISIONAL。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "人为对子代提供未来标签，隔离/测试必须检出；禁用未来标签后无法伪造改善。",
+        "父子出手次数不同仍在同机会序列比较；只选子代赢的期应被协议校验拒绝。",
+        "同一确认段重复运行、更名、重启不新增独立证据，不获得新误差预算。",
+        "一条改善声明可反查所有冻结预测、实际结果和选择过程，缺任何关键项只能 PROVISIONAL。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156459+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B07-C05",
+      "title": "完整工厂检出力、无信号误报与自然数据证据分开验收",
+      "phase": "P04",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "c8c1db47136fc9a0799e234cdd8128a2a2cef442",
+          "baseline_sha256": "682c01faeda7a575c80f92a6942f2b9a62dec73255e04acee8221cf1de5365c2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "2868dbe5d98e90a9b6d66d3b75e34bdc30f96f99",
+          "baseline_sha256": "a5634e3c2ef81cd11307d304ec86b7bf384488c71935180dd87b3aed81f29a9c"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCapabilityExperimentR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "全链 null/power 每次 trial 有配置、seed、完成/失败状态、全部候选数量、证据 hash 和最终门结果。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "缺一个 trial 不标 COMPLETE；故障失败与统计未检出分别计数。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "信号植入/禁用配对实验结果符合预注册功效区间；零假设整体误报上界符合预注册预算。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "任何合成候选无 REAL 权限，不能写入自然未来证据命名空间。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "全链 null/power 每次 trial 有配置、seed、完成/失败状态、全部候选数量、证据 hash 和最终门结果。",
+        "缺一个 trial 不标 COMPLETE；故障失败与统计未检出分别计数。",
+        "信号植入/禁用配对实验结果符合预注册功效区间；零假设整体误报上界符合预注册预算。",
+        "任何合成候选无 REAL 权限，不能写入自然未来证据命名空间。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156480+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B07-C06",
+      "title": "失败归因、短期状态与多位置结构的实质能力升级",
+      "phase": "P04",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "2633d0d3d572051533a893631b54545bd151773d",
+          "baseline_sha256": "69a37502f91294812b6ab3ecb82bcf254831dd4849f3635832e3d6cb00eb931b"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DirectedResearchPolicyR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "89b75865badbafa411e8ed7c137f59c9c1b03dba",
+          "baseline_sha256": "6a5ebf66ce819d71d9b17183bc2dc516fe154daf864ddfc1743106290639190b"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "c881501b131debb0e4acb9333afe68c006bf468f",
+          "baseline_sha256": "e2dfeb729d6319da02c41070bafe4029298d729f21d490e1421d98e4e9e1dfe1"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchHypothesisR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RegimeHypothesisR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "给定六种受控失败各触发对应有来源的研究动作，不能全部落到同一随机变异；无法处理时明确 UNSUPPORTED。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "提供已知短期信号与漂移流，检测/失效率和延迟达到预注册功效区间；无信号流整体误报不越预算。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "构造集合大小 0/1/2/3/4，严格交集算法前三种弃权，其余选 3 个不同号且遵守固定 tie-break。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "故意用未来标签生成状态或用已测 A 子代替换为未测 B，均被拒绝；恢复运行输出与不中断一致。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "新功能只有独立自然未来质量与频率合同共同通过后才能宣称品质达标，工程可运行与自然有效分栏。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "给定六种受控失败各触发对应有来源的研究动作，不能全部落到同一随机变异；无法处理时明确 UNSUPPORTED。",
+        "提供已知短期信号与漂移流，检测/失效率和延迟达到预注册功效区间；无信号流整体误报不越预算。",
+        "构造集合大小 0/1/2/3/4，严格交集算法前三种弃权，其余选 3 个不同号且遵守固定 tie-break。",
+        "故意用未来标签生成状态或用已测 A 子代替换为未测 B，均被拒绝；恢复运行输出与不中断一致。",
+        "新功能只有独立自然未来质量与频率合同共同通过后才能宣称品质达标，工程可运行与自然有效分栏。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156487+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B08-C01",
+      "title": "矩阵缺学生依赖隔离与按 kind 持续推进",
+      "phase": "P04",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "0f9f18a6b3a279a0c8180c2f0c2053997ee93a71",
+          "baseline_sha256": "57e7672da4dfff2af2522aa55bf50100275bc921580ccb8fed8f8e69d3f5fe8a"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR30.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "1976a421573ac8cf7abc2603a78b3de87b73a1de",
+          "baseline_sha256": "6d77536ad9e997532bf0b491b03913e1c6196e3790049056bbc3997e2681e3d8"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "848d984c9029d72ee5eba57e7c9ed170a34484dd",
+          "baseline_sha256": "5b241821c8f2c1e4a63cadfcb5b56e8d51666b73691b8583232e47229336ba12"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "删除/不提供学生策略时，STUDENT_* 显示 WAITING_STUDENT，NUMBER_POSITION_COMPATIBILITY/CROSS_POSITION_FLOW 仍产出。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "依赖未变连续调度 100 次不重复建立 100 条等待作业；学生新发布后等待项恢复。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "非法维度、NaN、源修订不进入成功表；旧有效 tensor 不被全零值覆盖。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "故障注入只影响该 kind，不能让整个 r27-matrices 永久隔离或卡死同轮游标。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "删除/不提供学生策略时，STUDENT_* 显示 WAITING_STUDENT，NUMBER_POSITION_COMPATIBILITY/CROSS_POSITION_FLOW 仍产出。",
+        "依赖未变连续调度 100 次不重复建立 100 条等待作业；学生新发布后等待项恢复。",
+        "非法维度、NaN、源修订不进入成功表；旧有效 tensor 不被全零值覆盖。",
+        "故障注入只影响该 kind，不能让整个 r27-matrices 永久隔离或卡死同轮游标。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156491+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B08-C02",
+      "title": "研究矩阵到公式的 typed 来源与消费闭环",
+      "phase": "P04",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "c881501b131debb0e4acb9333afe68c006bf468f",
+          "baseline_sha256": "e2dfeb729d6319da02c41070bafe4029298d729f21d490e1421d98e4e9e1dfe1"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "848d984c9029d72ee5eba57e7c9ed170a34484dd",
+          "baseline_sha256": "5b241821c8f2c1e4a63cadfcb5b56e8d51666b73691b8583232e47229336ba12"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixEvidenceR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "78f9a73651c964e6b1f41bf8575b59972b5ae147",
+          "baseline_sha256": "b20399575970d7f259b6fa8639ca96fa55b5eaaf405e98be473e72d73ae0c8e2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "c8c1db47136fc9a0799e234cdd8128a2a2cef442",
+          "baseline_sha256": "682c01faeda7a575c80f92a6942f2b9a62dec73255e04acee8221cf1de5365c2"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "挑选任一图表点可追溯 raw rows→research_run→proposal→child→回放/配对结果。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "删掉 UI 缓存再重建不影响矩阵消费者或模型权威数据；有原始值但无 UI 时也可研究。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "源修订/不同 dataset/确认角色值被 read/ready 拒绝。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "禁用指定 sourceRun 的消融实验可度量影响，未证实增益时报告不得标‘研究能力已提升胜率’。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "挑选任一图表点可追溯 raw rows→research_run→proposal→child→回放/配对结果。",
+        "删掉 UI 缓存再重建不影响矩阵消费者或模型权威数据；有原始值但无 UI 时也可研究。",
+        "源修订/不同 dataset/确认角色值被 read/ready 拒绝。",
+        "禁用指定 sourceRun 的消融实验可度量影响，未证实增益时报告不得标‘研究能力已提升胜率’。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156494+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B08-C03",
+      "title": "扩展配对子树、家族和融合研究且不混用置信区间",
+      "phase": "P04",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "99a8f496bb9092b31b1430542c3cb4ea52de9a9f",
+          "baseline_sha256": "b6dea80da23b82e08a240a649de6512c4730ed1449574a02b54f70ab3163f8bb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedReplayRunnerR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "68236d7847ae5ac54b464b93c23ff64c907d8772",
+          "baseline_sha256": "1a938cab8f88f080bf34ea6837dcc1f11e40258405bedc1851e2f9d364d3563f"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGainR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "765e2ae35a3fc13319fe7df10b5e802914f2c46d",
+          "baseline_sha256": "72d273a0ee85dac06bc146ce829e26adf20693b3429c91908fde86672655895f"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyCheckpointR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "包含 family 叶的候选可被 adapter 正确研究或明确 UNSUPPORTED，不再静默缺列。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "中断恢复两边模型状态、bias、游标一致，删除一侧组件不可污染另一侧学习状态。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "MASK_FROZEN 与 RETRAIN_REMOVED 结果分别列出，无法从一种结论宣称另一种因果效果。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "所有开发区间仍显示 DESCRIPTIVE，直接给 CERTIFIED 的测试必须失败。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "包含 family 叶的候选可被 adapter 正确研究或明确 UNSUPPORTED，不再静默缺列。",
+        "中断恢复两边模型状态、bias、游标一致，删除一侧组件不可污染另一侧学习状态。",
+        "MASK_FROZEN 与 RETRAIN_REMOVED 结果分别列出，无法从一种结论宣称另一种因果效果。",
+        "所有开发区间仍显示 DESCRIPTIVE，直接给 CERTIFIED 的测试必须失败。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156500+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B08-C04",
+      "title": "研究产物与消费者接成可验证数值合同",
+      "phase": "P04",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "d5a7b00dd3598a4507ce7851fe9d2ceae991c65d",
+          "baseline_sha256": "9e9b7ea203f5aa6752ffd51d8f042880c83f79d31604da24cf8e67abe0588bc6"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "9f533e4c25cd158b1456559021a57084fa0dea02",
+          "baseline_sha256": "aad89f2c94c63e88354bffc2226aa16000296708e1a0c203b9292fbd645230da"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "848d984c9029d72ee5eba57e7c9ed170a34484dd",
+          "baseline_sha256": "5b241821c8f2c1e4a63cadfcb5b56e8d51666b73691b8583232e47229336ba12"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "以可控有信号fixture证明producer→consumer→新产物hash确实变化；空信号可合法不产出",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "删除/禁用该数值输入的同预算消融可重算；只有真正优于对照才标effective",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "晚标签/错ABI/错revision/错parent/重复consume全被拒且无半成品子代",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "以可控有信号fixture证明producer→consumer→新产物hash确实变化；空信号可合法不产出",
+        "删除/禁用该数值输入的同预算消融可重算；只有真正优于对照才标effective",
+        "晚标签/错ABI/错revision/错parent/重复consume全被拒且无半成品子代"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156505+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B08-C05",
+      "title": "修复T09枚举错配并验收16个逻辑研究表",
+      "phase": "P04",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "e91a12744e07ffd0053b6f346fdf3c711fbb0efd",
+          "baseline_sha256": "aae17903eb75b4c50ecf236459082e9e27730c0c06e3601e027dfe900a3c00ee"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "d5a7b00dd3598a4507ce7851fe9d2ceae991c65d",
+          "baseline_sha256": "9e9b7ea203f5aa6752ffd51d8f042880c83f79d31604da24cf8e67abe0588bc6"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "9f533e4c25cd158b1456559021a57084fa0dea02",
+          "baseline_sha256": "aad89f2c94c63e88354bffc2226aa16000296708e1a0c203b9292fbd645230da"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchMeasureKindR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchMeasureProjectionR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "R10生成OPERATOR_GAIN_COST后T09查到同run/hash，旧filter回归用例先失败后通过",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "16视图SQL在本commit真实schema fixture上可prepare并按页执行",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "未知枚举/错单位不能悄悄按0加入图",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "R10 fixture顶层mean_gain=null但frame.points有实测值时，T09展示正确对象级数值及节点成本；未知perObjectCpuNs仍为UNKNOWN。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "R10生成OPERATOR_GAIN_COST后T09查到同run/hash，旧filter回归用例先失败后通过",
+        "16视图SQL在本commit真实schema fixture上可prepare并按页执行",
+        "未知枚举/错单位不能悄悄按0加入图",
+        "R10 fixture顶层mean_gain=null但frame.points有实测值时，T09展示正确对象级数值及节点成本；未知perObjectCpuNs仍为UNKNOWN。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156509+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B09-C01",
+      "title": "以稳定ID统一47个实际面板合同",
+      "phase": "P06",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "394128add6dfcb0aeb65b1c088dbd0a5dae236b5",
+          "baseline_sha256": "e96455d47638b094bb12bc2c833a198709dbd303ab5821d749273608936c72bb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "818ea3cf1643ce7132db234f155ea2cc4019df81",
+          "baseline_sha256": "68796d48948508223b3a50ac6c5b76a3abb090762df0dd9abb955a03bd89c6b3"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "a270ed186272c0012b727cb4d95d2d0cfe9c5752",
+          "baseline_sha256": "320e4e7ac951770a5e94692a4f9f7bc2e84342d33343d9dee98f22f04b56a9f5"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "注册唯一ID=47；旧图12实际执行而非先执行15再过滤",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "标题改名不改变SQL选择/分组",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "UI/报告/机器表三方ID集合完全相等",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "注册唯一ID=47；旧图12实际执行而非先执行15再过滤",
+        "标题改名不改变SQL选择/分组",
+        "UI/报告/机器表三方ID集合完全相等"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156514+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B09-C02",
+      "title": "隔离慢图读取与生命周期取消",
+      "phase": "P06",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "42c8a99dd082d5e225c2e8962d135cd7f769cfb3",
+          "baseline_sha256": "2c1d11b70e695fbfaee3316b1468952d6dab57156ae7121c036a3992d834a5d8"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "818ea3cf1643ce7132db234f155ea2cc4019df81",
+          "baseline_sha256": "68796d48948508223b3a50ac6c5b76a3abb090762df0dd9abb955a03bd89c6b3"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "1ca89c400b333168c355a1f106a670506f6c8f8d",
+          "baseline_sha256": "9a7ed5af219f2558e97b33bbc7ffff6e714b570ad717a40bb56cb807dc4aaf01"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "一个面板故意SQL阻塞/格式错误，其余面板在预算内可见",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "连续切tab/后台/旋转100次无旧epoch覆盖、BadToken、线程/连接泄漏",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "所有耗时目标由设备P95回执而非代码常量签收",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "一个面板故意SQL阻塞/格式错误，其余面板在预算内可见",
+        "连续切tab/后台/旋转100次无旧epoch覆盖、BadToken、线程/连接泄漏",
+        "所有耗时目标由设备P95回执而非代码常量签收"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156522+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B09-C03",
+      "title": "缓存投影限额与业务真值隔离",
+      "phase": "P06",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "83792f1c8cb7bc433d2eb5b150576c5028d4fd1c",
+          "baseline_sha256": "4a72ec62ee068f7c4877458b46e8c9587659714bb60e61d88b46a9ad9a4c12b2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "394128add6dfcb0aeb65b1c088dbd0a5dae236b5",
+          "baseline_sha256": "e96455d47638b094bb12bc2c833a198709dbd303ab5821d749273608936c72bb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchFrameBoundR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "647e3ff93b9ea976f8a678902c77a84035d903da",
+          "baseline_sha256": "474240701350b67212e12b41f36f8678b206d6ed359b5203cea5a814e5d6ece2"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "清空DISPLAY类别后业务预测/选择/结算结果逐键不变，缓存可重建",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "B10迁移前mainline/choice绝不删除",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "注入大JSON、坏hash、过期ABI时只显示该图失败；不OOM",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "清空DISPLAY类别后业务预测/选择/结算结果逐键不变，缓存可重建",
+        "B10迁移前mainline/choice绝不删除",
+        "注入大JSON、坏hash、过期ABI时只显示该图失败；不OOM"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156525+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B09-C04",
+      "title": "前向榜、校准图、资金图统一证据口径",
+      "phase": "P06",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "818ea3cf1643ce7132db234f155ea2cc4019df81",
+          "baseline_sha256": "68796d48948508223b3a50ac6c5b76a3abb090762df0dd9abb955a03bd89c6b3"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "83792f1c8cb7bc433d2eb5b150576c5028d4fd1c",
+          "baseline_sha256": "4a72ec62ee068f7c4877458b46e8c9587659714bb60e61d88b46a9ad9a4c12b2"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "同一结果数据切换role不会重复累计样本",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "LIMIT从60改20只改变显示，不改变多重检验预算或资格结论",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "旧/新ABI混合fixture不能得单一误导平均值",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "无有效资产可显示0有效资产及完整研究输出，不伪造REAL出手",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "同一结果数据切换role不会重复累计样本",
+        "LIMIT从60改20只改变显示，不改变多重检验预算或资格结论",
+        "旧/新ABI混合fixture不能得单一误导平均值",
+        "无有效资产可显示0有效资产及完整研究输出，不伪造REAL出手"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156530+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B09-C05",
+      "title": "47图与16逻辑表设备回归证据",
+      "phase": "P06",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "42c8a99dd082d5e225c2e8962d135cd7f769cfb3",
+          "baseline_sha256": "2c1d11b70e695fbfaee3316b1468952d6dab57156ae7121c036a3992d834a5d8"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "1ca89c400b333168c355a1f106a670506f6c8f8d",
+          "baseline_sha256": "9a7ed5af219f2558e97b33bbc7ffff6e714b570ad717a40bb56cb807dc4aaf01"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "a270ed186272c0012b727cb4d95d2d0cfe9c5752",
+          "baseline_sha256": "320e4e7ac951770a5e94692a4f9f7bc2e84342d33343d9dee98f22f04b56a9f5"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "47 ID各有至少一个有数据fixture及空/错误状态图证；16视图分页查询通过",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "设备截图数值与导出frame hash指向同一数据；单位/role/期范围不矛盾",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "真实自然数据不足允许不足，但不能用fixture截图声称自然优势",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "47 ID各有至少一个有数据fixture及空/错误状态图证；16视图分页查询通过",
+        "设备截图数值与导出frame hash指向同一数据；单位/role/期范围不矛盾",
+        "真实自然数据不足允许不足，但不能用fixture截图声称自然优势"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156542+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B10-C01",
+      "title": "主链选择从图表缓存迁移到唯一 typed 权威表",
+      "phase": "P05",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "2b6256e9828856d97fc246e99b02e06f409e632b",
+          "baseline_sha256": "f7dfa47966e0b6fef750aca29852f8f74092c0bf66f5c1d6da6b94e3bb8634aa"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "30fcc8fac5cb8c437cfc11626689a1d9057f2774",
+          "baseline_sha256": "9f13768271481e60e493a6a63fdd4477c729ab7d0f8f8dbbf507d6e8029b94be"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterSU2.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "7a4bbec2d476f9bbd9e75c8d23a25ee11a737ad6",
+          "baseline_sha256": "e3625ddf0815343d54ac19daba96a78f9ded2a7d837f05ece321fb60f447a0a9"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "删除旧 mainline chart 投影后 typed 主链仍正确选择，前提是正式切换完成；切换前删除应被保护阻止。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "每个写点故障注入保证两表不分叉；制造分叉时禁止继续授权而不是任取一个。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "并发两个认证者不能创建同一生效期冲突选择；fence 旧写者被拒绝。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "持有合法证书的测试策略能经过真实 DecisionGate 冻结并结算；合成/无证/过期/撤销策略不能进入 REAL。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "删除旧 mainline chart 投影后 typed 主链仍正确选择，前提是正式切换完成；切换前删除应被保护阻止。",
+        "每个写点故障注入保证两表不分叉；制造分叉时禁止继续授权而不是任取一个。",
+        "并发两个认证者不能创建同一生效期冲突选择；fence 旧写者被拒绝。",
+        "持有合法证书的测试策略能经过真实 DecisionGate 冻结并结算；合成/无证/过期/撤销策略不能进入 REAL。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156547+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B10-C02",
+      "title": "审计资格功效与连续败绩风险并版本化新合同",
+      "phase": "P05",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "f1e205530518a0bacc9e69401b8f4aabfef6f201",
+          "baseline_sha256": "9d4b9acbb9db66e07d2adbc0e96d2d990b6fef264c95c4317d8729426cfdda9b"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/GateV2R29.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "a855351a9ecc2b1f35da0c404fd14175cd1ab49d",
+          "baseline_sha256": "29d3650434d9cec975d57666f7330e373d2cc2227fac3869977f750d5d86e29a"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "2868dbe5d98e90a9b6d66d3b75e34bdc30f96f99",
+          "baseline_sha256": "a5634e3c2ef81cd11307d304ec86b7bf384488c71935180dd87b3aed81f29a9c"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceContractR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "DP 在 n=0、p=0/1、n<=6、n=7 的解析值测试通过，精确数可复算；概率只标 iid 单门敏感性。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "当前 V1 constants 与旧 verdict 重放逐条一致，未完成审批/验证的新合同无发证权限。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "新合同全流程误报上界与功效达到预注册目标，未达则继续 OBSERVE/WAIT。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "重启/更名/子代/重复证据不重置 alpha 与暴露；V2 wouldIssue 不能改变 REAL 选择。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "DP 在 n=0、p=0/1、n<=6、n=7 的解析值测试通过，精确数可复算；概率只标 iid 单门敏感性。",
+        "当前 V1 constants 与旧 verdict 重放逐条一致，未完成审批/验证的新合同无发证权限。",
+        "新合同全流程误报上界与功效达到预注册目标，未达则继续 OBSERVE/WAIT。",
+        "重启/更名/子代/重复证据不重置 alpha 与暴露；V2 wouldIssue 不能改变 REAL 选择。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156552+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B10-C03",
+      "title": "合理出手频率、唯一未来证据与撤销闭环",
+      "phase": "P05",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicySpecR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "8e8b9f03a0b0e471395020cb3c5c847c7ee8fa77",
+          "baseline_sha256": "e4407bf7a1e59ac65bbf8414031e64ed202756d1f0182a5fecaa0c9ddb646aa9"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "2b6256e9828856d97fc246e99b02e06f409e632b",
+          "baseline_sha256": "f7dfa47966e0b6fef750aca29852f8f74092c0bf66f5c1d6da6b94e3bb8634aa"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "11c4834048b265b6a5d543f23c1a7e334aa32164",
+          "baseline_sha256": "0d0267151f2d7d0363b774e00ad0504a39a64c45440777fbe6041418a2a3707c"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "30fcc8fac5cb8c437cfc11626689a1d9057f2774",
+          "baseline_sha256": "9f13768271481e60e493a6a63fdd4477c729ab7d0f8f8dbbf507d6e8029b94be"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "同一实验重复输入 100 次只计 1 条未来证据；先学标签再冻结的污染测试必须拒绝。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "出手率低于目标时报告不足与选择器支持域，不伪造 ACT；满足频率但未通过质量门也不标达标。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "截止前冻结有签名、截止后新预测明确拒绝；过期/撤销后不得产生新 REAL 记录。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "集成中用合法测试证书验证真实路径可走通，并单独标测试命名空间；自然合格与否保持独立结论。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "同一实验重复输入 100 次只计 1 条未来证据；先学标签再冻结的污染测试必须拒绝。",
+        "出手率低于目标时报告不足与选择器支持域，不伪造 ACT；满足频率但未通过质量门也不标达标。",
+        "截止前冻结有签名、截止后新预测明确拒绝；过期/撤销后不得产生新 REAL 记录。",
+        "集成中用合法测试证书验证真实路径可走通，并单独标测试命名空间；自然合格与否保持独立结论。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156556+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B11-C01",
+      "title": "逐项接齐44指标及设备证据导入",
+      "phase": "P07",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricDefinitionsR29.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "ea96cc6e0a8c2095d9f1f16408dbef4ff851f9df",
+          "baseline_sha256": "3f78cde47a4809186662ea044dd901f45f48c0f1810b1ac3d310de2f7eb9911f"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "e817eb1f2df62dcdc715c2ee056ab86646ca1169",
+          "baseline_sha256": "9aec2deae27e94557fe950c959555b55109dea586c3797ba4996698a9eaf46e4"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "98aa4a8c34db9ae22750e315df5551e31e9d4ae2",
+          "baseline_sha256": "c7faf5b72876ad0ecbd927419e19432dde4c9ada826217ff06a10b66e9262b8b"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "44项定义/计算/采集/验收全部有覆盖，未知不补数",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "同快照JSON/HTML/图表相同id值/status/denominator逐字段一致",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "每个指标有缺源、零样本、失败、足量成功四类fixture；实际自然质量不足仍可正确报告不足",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "旧报告自称0冲突但含跨源水位冲突fixture被检出；合法不同role/owner范围不误报数值矛盾",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "44项定义/计算/采集/验收全部有覆盖，未知不补数",
+        "同快照JSON/HTML/图表相同id值/status/denominator逐字段一致",
+        "每个指标有缺源、零样本、失败、足量成功四类fixture；实际自然质量不足仍可正确报告不足",
+        "旧报告自称0冲突但含跨源水位冲突fixture被检出；合法不同role/owner范围不误报数值矛盾"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156561+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B11-C02",
+      "title": "报告区分已存在、已运行、已消费与有效",
+      "phase": "P07",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "a270ed186272c0012b727cb4d95d2d0cfe9c5752",
+          "baseline_sha256": "320e4e7ac951770a5e94692a4f9f7bc2e84342d33343d9dee98f22f04b56a9f5"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "e65fc844f9f11bfaf230c51343fc9ca59d728371",
+          "baseline_sha256": "e4138c10656e9d89a11967e8b4e6b72c4ab65daf483fb17809c54eea2d0b5775"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "1e00b0d53f052f807ed69734e3429a1fa54e3433",
+          "baseline_sha256": "90624e78b67571c73784281a80b8330f74761da0bc5d30522d74ec6e9f529150"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "47图、20矩阵及能力注册集合逐项有报告条目，不能只输出总数",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "任务RUNNING但无提交、图有帧但空值、消费成功但无优势三类反例被正确区分",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "所有故障有可追溯修改卡，不伪称诊断规则覆盖100%代表已发现全部缺陷",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "47图、20矩阵及能力注册集合逐项有报告条目，不能只输出总数",
+        "任务RUNNING但无提交、图有帧但空值、消费成功但无优势三类反例被正确区分",
+        "所有故障有可追溯修改卡，不伪称诊断规则覆盖100%代表已发现全部缺陷"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156566+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B11-C03",
+      "title": "有界报告与可取回证据附件",
+      "phase": "P07",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "98aa4a8c34db9ae22750e315df5551e31e9d4ae2",
+          "baseline_sha256": "c7faf5b72876ad0ecbd927419e19432dde4c9ada826217ff06a10b66e9262b8b"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "a270ed186272c0012b727cb4d95d2d0cfe9c5752",
+          "baseline_sha256": "320e4e7ac951770a5e94692a4f9f7bc2e84342d33343d9dee98f22f04b56a9f5"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportChartsR30.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "c9e09ffa81cc9541b167b1260bc49cd5a49080b3",
+          "baseline_sha256": "bfdefa4f638571e2e18349d3e54010da1e41532348bbfc1df221dbfd494942f8"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "故意预算不足时报告完整列出未包含项，指标保持未知而非0",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "所有included附件hash、大小和路径校验通过；所有可复算结论能找到所需原件",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "导出中取消/杀进程/损坏附件不会破坏实时库或删待确认原件",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "故意预算不足时报告完整列出未包含项，指标保持未知而非0",
+        "所有included附件hash、大小和路径校验通过；所有可复算结论能找到所需原件",
+        "导出中取消/杀进程/损坏附件不会破坏实时库或删待确认原件"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156569+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B11-C04",
+      "title": "建立96检查与44指标的显式交叉账",
+      "phase": "P07",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "e65fc844f9f11bfaf230c51343fc9ca59d728371",
+          "baseline_sha256": "e4138c10656e9d89a11967e8b4e6b72c4ab65daf483fb17809c54eea2d0b5775"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricDefinitionsR29.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "ea96cc6e0a8c2095d9f1f16408dbef4ff851f9df",
+          "baseline_sha256": "3f78cde47a4809186662ea044dd901f45f48c0f1810b1ac3d310de2f7eb9911f"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckMetricCrosswalkR31.java",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "check IDs集合与真实注册96一致；44指标全部有独立证据要求",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "任何静态check PASS都不能单独使Q01/Q06/设备指标PASS",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "字节或元数据完整率100%不会显示产品全部通过",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "check IDs集合与真实注册96一致；44指标全部有独立证据要求",
+        "任何静态check PASS都不能单独使Q01/Q06/设备指标PASS",
+        "字节或元数据完整率100%不会显示产品全部通过"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156575+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B12-C01",
+      "title": "覆盖安装与迁移可恢复性联合验收",
+      "phase": "P08",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "4cd1f4c5c9af51abcaba5e1899d09ff13f8efa30",
+          "baseline_sha256": "d7965f912f3c4230bb8ea3b34ba058cec1e8139d9c196a312e340e548d731723"
+        },
+        {
+          "path": "tools/r31/upgrade_matrix.py",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "每个切点杀进程再打开，迁移不丢开奖/模型/证书根、不重复迁移。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "覆盖安装后UI可启动，实时关键schema优先可用，旧历史训练资产可继续读。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "没有30GB原库时该试验项NOT_RUN，使用构造压力库需明确标SIMULATED。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "每个切点杀进程再打开，迁移不丢开奖/模型/证书根、不重复迁移。",
+        "覆盖安装后UI可启动，实时关键schema优先可用，旧历史训练资产可继续读。",
+        "没有30GB原库时该试验项NOT_RUN，使用构造压力库需明确标SIMULATED。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156578+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B12-C02",
+      "title": "统一CI、故障注入与跨批次不可回归测试",
+      "phase": "P08",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": ".github/workflows/r31-verification.yml",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        },
+        {
+          "path": "tools/r31/fault_injection_manifest.json",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "CI失败/跳过准确回传，不存在空测试或只检查类名的PASS。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "新功能前后相同fixture结果可对照，原有效能力无退化。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "全链故障注入后没有重复owner提交、重复结算、越界预测与受保护资产删除。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "CI失败/跳过准确回传，不存在空测试或只检查类名的PASS。",
+        "新功能前后相同fixture结果可对照，原有效能力无退化。",
+        "全链故障注入后没有重复owner提交、重复结算、越界预测与受保护资产删除。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156581+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B12-C03",
+      "title": "24h初测、72h全链与长期容量验证",
+      "phase": "P08",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "tools/r31/collect_device_receipts.py",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        },
+        {
+          "path": "tools/r31/accept_device_receipts.py",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "总纲指标按明确分母与时点复算，所有异常样本保留。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "任务隔离没有永久静默停摆；停止/缺依赖有真实理由，满足恢复条件后推进。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "后两日增量与常态预算合格，或明示BLOCKED，不能发最终通过收据。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "总纲指标按明确分母与时点复算，所有异常样本保留。",
+        "任务隔离没有永久静默停摆；停止/缺依赖有真实理由，满足恢复条件后推进。",
+        "后两日增量与常态预算合格，或明示BLOCKED，不能发最终通过收据。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156587+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B12-C04",
+      "title": "受控退役与大型文件渐进拆分",
+      "phase": "P08",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "tools/r31/retirement_manifest.json",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+          "baseline_state": "EXISTING",
+          "baseline_git_blob": "b26c7a1b7f31d7a8860c846a92bdf74648acf33c",
+          "baseline_sha256": "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "每个删除对象有非活动、无引用、等价替代与恢复说明。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "所有旧能力保全清单仍有可执行实现和测试。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "删除迁移不破坏Schema/Retention/Report注册表和升级路径。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "每个删除对象有非活动、无引用、等价替代与恢复说明。",
+        "所有旧能力保全清单仍有可执行实现和测试。",
+        "删除迁移不破坏Schema/Retention/Report注册表和升级路径。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156591+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    },
+    {
+      "id": "R31-B12-C05",
+      "title": "唯一成品发布收据和APK压缩包交付",
+      "phase": "P08",
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "NOT_STARTED",
+      "baseline_files": [
+        {
+          "path": "tools/r31/package_release.py",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        },
+        {
+          "path": "release/R31_DELIVERY.json",
+          "baseline_state": "PROPOSED_NEW_FILE"
+        }
+      ],
+      "actual_changes": [],
+      "commits": [],
+      "migration_versions": [],
+      "tests": [],
+      "apk_identity": null,
+      "device_evidence": [],
+      "acceptance": [
+        {
+          "contract": "ZIP完整性、成员摘要、APK签名与设备安装身份一致。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "实际下载文件存在且可打开；用户无需在多个同名方案里挑选。",
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        {
+          "contract": "工程通过与自然优势是否证明分栏，不能互相替代。",
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      ],
+      "remaining": [
+        "ZIP完整性、成员摘要、APK签名与设备安装身份一致。",
+        "实际下载文件存在且可打开；用户无需在多个同名方案里挑选。",
+        "工程通过与自然优势是否证明分栏，不能互相替代。"
+      ],
+      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "history": [
+        {
+          "at": "2026-11-04T08:42:02.156594+00:00",
+          "state": "NOT_STARTED",
+          "reason": "Initialized from immutable plan; no inherited completion claims."
+        }
+      ]
+    }
+  ]
+}

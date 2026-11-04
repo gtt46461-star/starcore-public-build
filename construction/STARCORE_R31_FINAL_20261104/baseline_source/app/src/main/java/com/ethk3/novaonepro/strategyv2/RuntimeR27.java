@@ -1,0 +1,514 @@
+package com.ethk3.novaonepro.strategyv2;
+
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import com.ethk3.novaonepro.*;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/** R27 research runtime: the single owner of the R27 research tasks on ResearchPoolR27 (docs/02 2.4: new system is
+ * the Owner; the R26 coordinator keeps the legacy R26 tasks on its own thread). Tasks:
+ * r27-replay-dataset, r27-evolution, r27-live, r27-atoms, r27-atomnet, r27-abi, r27-calibration, r27-chart-cache,
+ * r27-legacy-export, r27-health. Every slice reports a WaitKindR27 reason through the pool. */
+public final class RuntimeR27 implements AutoCloseable {
+    public static final int DATASET_ROWS = 5000, REFRESH_NEW_ROWS = 360, LIVE_REBASE_ROWS = 6500;
+    public static final String LOOP = "MAIN_REPAIR1"; // MAIN stays readable by the pre-repair APK
+    final DbStore store; final ResearchPoolR27 pool;
+    // Evolution dataset snapshot (rebound only between generations).
+    volatile ReplayDatasetR27 evoData; volatile FeatureCacheR27 evoCache; volatile ReplayDatasetR27 pendingData; volatile FeatureCacheR27 pendingCache;
+    volatile EvolutionLoopR27 evo;
+    volatile String recoveredLegacyCursor;
+    // Live dataset grows by appending; family streams continue incrementally.
+    ReplayDatasetR27 liveData; FeatureCacheR27 liveCache;
+    /** R30-B03-04 live feature cache key: (dataset hash, trained through, feature ABI); positions share one cache. */
+    volatile String liveCacheKeyR30 = "";
+    // Golden set and operator ABI (semantic ABI).
+    volatile ReplayDatasetR27 golden; volatile FeatureCacheR27 goldenCache; volatile Map<String, String> operatorAbi; volatile String operatorAbiHash;
+    // Atom replay frame and states.
+    volatile AtomReplayR27.Frame frame; volatile String frameDataset = ""; int frameCursor; double[][] frameValues; boolean[][] framePresent; int[] frameHit, framePos, frameActual; String[] frameIssue;
+    final Map<Integer, String> atomStates = new HashMap<>();
+    volatile AtomNetTrainerR27 atomNet; volatile String atomNetDataset = "";
+    FtrlR27 atomFtrl; String atomTrainedThrough = "";
+
+    int calibrationIndexR30;
+    static final class AtomPublicationR30 {final AtomNetSessionR30 state;final ModelSurfaceProviderR30.FrozenModelRef model;AtomPublicationR30(AtomNetSessionR30 state,ModelSurfaceProviderR30.FrozenModelRef model){this.state=state;this.model=model;}}
+    volatile AtomPublicationR30 atomPublicationR30;
+    void publishAtomStateR30(AtomNetSessionR30 state){ModelSurfaceProviderR30.FrozenModelRef ref=state.ready()?new ModelSurfaceProviderR30.FrozenModelRef(state.trainer.net.encode(),state.trainedThroughOrdinal(),System.currentTimeMillis()):null;atomPublicationR30=new AtomPublicationR30(state,ref);atomSessionR30=state;}
+    volatile AtomNetSessionR30 atomSessionR30; ReplayDatasetR27 atomDataR30; long atomUnitsR30;
+
+    private static volatile RuntimeR27 active;
+    public static RuntimeR27 active() { return active; }
+
+    public RuntimeR27(DbStore store, String session) {
+        this.store = store;
+        CooperativeContinuationR26.threadStartHook = () -> android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        pool = new ResearchPoolR27(store, session, ResearchPoolR27.defaultThreads());
+        pool.register(new DatasetTask()); pool.register(new LiveTask()); pool.register(new EvolutionTask()); pool.register(new AbiTask());
+        pool.register(new AtomsTask()); pool.register(new AtomNetTask()); pool.register(new CalibrationTask()); pool.register(new ChartTask());
+        pool.register(new ObservatoryTask()); pool.register(new ResearchStudyTask()); pool.register(new MatrixProductionTask()); pool.register(new LegacyExportTask()); pool.register(new HealthTask());
+        active = this;
+    }
+    public void start() { pool.start(); }
+    public ResearchPoolR27 pool() { return pool; }
+    @Override public void close() { pool.close(); if (active == this) active = null; }
+
+    static String latestIssue(SQLiteDatabase ro) { try (Cursor c = ro.rawQuery("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1", null)) { return c.moveToFirst() ? c.getString(0) : null; } }
+    static long latestOpen(SQLiteDatabase ro) { try (Cursor c = ro.rawQuery("SELECT open_time FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1", null)) { return c.moveToFirst() ? c.getLong(0) : 0; } }
+    static void submit(ResearchPoolR27.Worker w, String op, ResearchWriteQueueR27.Batch b) throws InterruptedException {
+        submit(w,op,b,false);
+    }
+    static void submit(ResearchPoolR27.Worker w,String op,ResearchWriteQueueR27.Batch b,boolean freezeWrite)throws InterruptedException {
+        StringBuilder identity=new StringBuilder(op);
+        for(ResearchWriteQueueR27.Op row:b.ops){identity.append('|').append(row.sql);if(row.args!=null)for(Object arg:row.args)identity.append('|').append(arg instanceof byte[]?StatsR27.sha256((byte[])arg):String.valueOf(arg));}
+        byte[] preparedIdentity=HashingSU1.text(identity.toString()).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        RuntimeCoordinatorR26.Claim claim=RuntimeCoordinatorR26.currentClaimR30();
+        CommitEnvelopeR30R1 envelope=new CommitEnvelopeR30R1(HashingSU1.text(op+"|"+new String(preparedIdentity,java.nio.charset.StandardCharsets.UTF_8)),claim==null?0:claim.fence,0,preparedIdentity);
+        for(;;){
+            if(w.cancelled())throw new InterruptedException("R27_CANCELLED");
+            CommitEnvelopeR30R1.Outcome outcome=envelope.attempt((id,fence,revision,state)->w.writes().submit(op,b,w::cancelled,freezeWrite)?CommitEnvelopeR30R1.Outcome.COMMITTED:CommitEnvelopeR30R1.Outcome.RETRY_LATER);
+            if(outcome==CommitEnvelopeR30R1.Outcome.COMMITTED){envelope.publishedState();return;}
+            CooperativeContinuationR26.yieldPreparedWrite();
+        }
+    }
+
+    // ------------------------------------------------------------------ r27-replay-dataset (R27-013/016)
+    final class DatasetTask implements ResearchPoolR27.Task {
+        public String id() { return "r27-replay-dataset"; }
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
+            String latest = latestIssue(w.ro); if (latest == null) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS", 0, 0);
+            long latestOrd = TargetIssueResolver.sequenceOrdinalSU1(latest);
+            ReplayDatasetR27 cur = pendingData != null ? pendingData : evoData;
+            if(cur==null){
+                String savedHash=null;
+                try(Cursor x=w.ro.rawQuery("SELECT dataset_hash FROM r27_evolution_cursor WHERE loop IN (?,?) ORDER BY CASE loop WHEN ? THEN 0 ELSE 1 END LIMIT 1",new String[]{LOOP,"MAIN",LOOP})){if(x.moveToFirst())savedHash=x.getString(0);}
+                if(savedHash!=null){ResearchInputPinR30R1.Pin pin=ResearchInputPinR30R1.load(w.ro,savedHash);if(pin!=null){evoData=pin.data;evoCache=new FeatureCacheR27(pin.data);ModelSurfaceStoreR30.bindHistorical(w.ro,evoCache);return ResearchPoolR27.Outcome.progress(1,pin.data.ordinals[pin.data.size()-1]);}}
+            }
+
+            if (cur != null && !ResearchInputPinR30R1.invalid(w.ro,cur.datasetHash) && latestOrd - cur.ordinals[cur.size() - 1] < REFRESH_NEW_ROWS) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", cur.ordinals[cur.size() - 1], latestOrd);
+            long t0 = System.currentTimeMillis();
+            final long capturedRevision=SchemaR27.liveSourceRevision(w.ro);
+            ReplayDatasetR27 d = StoreR27.loadDataset(w.ro, DATASET_ROWS);
+            if(capturedRevision<0||capturedRevision!=SchemaR27.liveSourceRevision(w.ro))return ResearchPoolR27.Outcome.idle("DEPENDENCY(DATASET_READ_SOURCE_CHANGED)",0,-1);
+            if (d.size() < 3 * SplitR27.BLOCK) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS:rows=" + d.size(), d.size(), 3 * SplitR27.BLOCK);
+            FeatureCacheR27 c = new FeatureCacheR27(d);
+            ModelSurfaceStoreR30.bindHistorical(w.ro,c);
+            SplitR27 sp = SplitR27.of(d, evo == null ? null : evo.ledger().degradedBlocks());
+            ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
+            b.add("INSERT OR IGNORE INTO r27_replay_dataset(dataset_hash,from_issue,to_issue,rows,segments,split,built_at,build_ms) VALUES(?,?,?,?,?,?,?,?)",
+                    d.datasetHash, d.issues[0], d.issues[d.size() - 1], d.size(), d.segments(), sp.describe(), System.currentTimeMillis(), System.currentTimeMillis() - t0);
+            ResearchInputPinR30R1.append(b,d,capturedRevision,System.currentTimeMillis());
+            submit(w, "REPLAY_DATASET", b);
+            if (evoData == null) { evoData = d; evoCache = c; } else { pendingData = d; pendingCache = c; }
+            return ResearchPoolR27.Outcome.progress(1, d.ordinals[d.size() - 1]);
+        }
+    }
+
+    // ------------------------------------------------------------------ r27-evolution (R27-021..032)
+    final class EvolutionTask implements ResearchPoolR27.Task {
+        public String id() { return "r27-evolution"; }
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
+            if (evoCache == null) return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-replay-dataset)", 0, -1);
+            EvolutionLoopR27 committed=evo;
+            if(committed==null){committed=restoreOrCreate(w);ConfirmReadStoreR30.restore(w.ro,committed.ledger());}
+            EvolutionLoopR27 loop=committed.preparedForkR30();
+            if(ResearchInputPinR30R1.invalid(w.ro,loop.context().data.datasetHash)){
+                if(pendingCache==null||ResearchInputPinR30R1.invalid(w.ro,pendingCache.data.datasetHash))return ResearchPoolR27.Outcome.idle("DEPENDENCY(CORRECTED_REPLAY_DATASET)",0,-1);
+                // Save the original cursor below before abandoning this invalid development generation. Exposure ledger/RNG/population remain.
+                loop.restartInvalidDevelopmentInput();
+            }
+
+            // Never expose a learner draft or a newly rebound dataset before its artifact transaction succeeds.
+            final FeatureCacheR27 selectedCache=loop.step==1&&pendingCache!=null?pendingCache:evoCache;
+            final ReplayDatasetR27 selectedData=selectedCache.data;
+            if(loop.context().cache!=selectedCache)loop.rebind(selectedCache);
+            ConfirmReadStoreR30.restore(w.ro,loop.ledger());
+            loop.executor=null;loop.serialWhile=()->pool.narrow(System.currentTimeMillis());loop.leafWeight=leafWeights();loop.derivedLeaves=derived;
+            String birthIssue = selectedData.issues[selectedData.size() - 1];
+            StoreR27.EvolutionSink sink = new StoreR27.EvolutionSink(LOOP, birthIssue);
+            loop.setSink(sink);
+            loop.sourceCommit = BuildConfig.SOURCE_COMMIT_R26;
+            ConfirmReadStoreR30.bind(w, loop.ledger());
+            int stepBefore = loop.step, genBefore = loop.generation;
+            // A separate phase on this same worker: confirmation cannot run inside EvolutionLoop.step().
+            FrozenConfirmationR30.Task queued = FrozenConfirmationStoreR30.nextPending(w.ro);
+            if (queued != null) confirmFrozen(w,loop,queued); // at most one durable packet per worker slice, including orphaned cursors
+            FrozenConfirmationR30.Task confirmTask = null;
+            FrozenConfirmationR30.Result confirmResult = null;
+            if (stepBefore == 9 && loop.confirmationDispatched && loop.pendingConfirmation != null) {
+                confirmTask = FrozenConfirmationStoreR30.task(w.ro,loop.pendingConfirmation.key);
+                confirmResult = FrozenConfirmationStoreR30.result(w.ro,confirmTask.key);
+            }
+            if(stepBefore==2){loop.directedResearch=ResearchStoreR30R1.ready(w.ro,loop.context(),loop.generation,4);loop.researchContext=ResearchContextR30R1.read(w.ro,loop.context());}
+            if(stepBefore==3)loop.revalidateResearchAdmissions(w.ro);
+            loop.step();
+            ResearchWriteQueueR27.Batch b = sink.batch;
+            final String preservedLegacy=recoveredLegacyCursor;
+            if(preservedLegacy!=null){String id=StatsR27.sha256("LEGACY_CURSOR_RECOVERY|"+preservedLegacy);Map<String,Object> original=new LinkedHashMap<>();original.put("originalSnapshot",preservedLegacy);original.put("reason","Original input snapshot unavailable after tail movement; preserve models/RNG/exposure and restart development at boundary; do not reconstruct old formal outcomes");b.add("INSERT OR IGNORE INTO r30r1_analysis_run VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",id,selectedData.datasetHash,StatsR27.sha256("LEGACY_CURSOR_RECOVERY"),"SELECT",BuildConfig.SOURCE_COMMIT_R26,0,0,0,StatsR27.sha256(preservedLegacy),"LEGACY_CURSOR_BOUNDARY_RECOVERY",JsonR27.write(original),System.currentTimeMillis());}
+            final long inputRevision=ResearchInputPinR30R1.revision(w.ro,selectedData.datasetHash);
+            b.guardBefore(db->{ResearchInputPinR30R1.require(db,selectedData.datasetHash,inputRevision);return 0;});
+            if(ResearchInputPinR30R1.invalid(w.ro,committed.context().data.datasetHash)){
+                String old=committed.snapshot(),saved=StatsR27.sha256("INVALID_INPUT_CURSOR|"+old);
+                b.add("INSERT OR IGNORE INTO r30r1_analysis_run VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",saved,committed.context().data.datasetHash,StatsR27.sha256("RECOVERY_CURSOR"),"SELECT",BuildConfig.SOURCE_COMMIT_R26,0,committed.context().data.ordinals[0],committed.context().data.ordinals[committed.context().data.size()-1],StatsR27.sha256(old),"INVALID_INPUT_CURSOR_PRESERVED",old,System.currentTimeMillis());
+            }
+
+            if(stepBefore==2)loop.stageResearchHypotheses(b,System.currentTimeMillis());
+            if(stepBefore==3)loop.commitResearchAdmissions(b,System.currentTimeMillis());
+            if (stepBefore == 8 && loop.confirmationDispatched) FrozenConfirmationStoreR30.freeze(b,loop.pendingConfirmation,loop.context().data);
+            if (confirmResult != null) FrozenConfirmationStoreR30.generationReport(b,w.ro,genBefore,confirmTask,confirmResult);
+            b.add("INSERT OR REPLACE INTO r27_evolution_cursor(loop,generation,step,dataset_hash,rng_state,snapshot,updated_at) VALUES(?,?,?,?,?,?,?)", LOOP, loop.generation, loop.step, selectedData.datasetHash, loop.rng.state, loop.snapshot(), System.currentTimeMillis());
+            if (!sink.promotions.isEmpty()) {
+                final List<Object[]> promos = sink.promotions;
+                b.guardBefore(db -> { for (Object[] p : promos) { PolicySpecR27 s = (PolicySpecR27) p[0]; StoreR27.insertShadow(db, s, (Double) p[1], (String) p[3], semanticAbi(s), s.policyHash(), s.policyHash()); } return 0; });
+            }
+            try{submit(w, "EVOLUTION_STEP_" + EvolutionLoopR27.STEPS[stepBefore], b);}catch(RuntimeException stale){boolean benign=false;for(Throwable cause=stale;cause!=null&&cause.getCause()!=cause;cause=cause.getCause())if(cause instanceof ResearchStoreR30R1.StaleResearch)benign=true;if(benign)return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT:RESEARCH_SOURCE_RETRY",(long)committed.generation*10+committed.step,-1);throw stale;}
+            if(preservedLegacy!=null&&preservedLegacy.equals(recoveredLegacyCursor))recoveredLegacyCursor=null;
+            synchronized(RuntimeR27.this){evoData=selectedData;evoCache=selectedCache;evo=loop;if(pendingCache==selectedCache){pendingCache=null;pendingData=null;}}
+            if (stepBefore == 9) refreshObservers(w, loop);
+            if (stepBefore == 9) registerConfirmed(w,loop.cfg.liveCap);
+            if (stepBefore == 9 && genBefore % 50 == 49) derivedDue = true;
+            return ResearchPoolR27.Outcome.progress(1, (long) loop.generation * 10 + loop.step);
+        }
+    }
+    FrozenConfirmationR30.Result confirmFrozen(ResearchPoolR27.Worker w, EvolutionLoopR27 loop, FrozenConfirmationR30.Task task) throws Exception {
+        FrozenConfirmationR30.Result saved = FrozenConfirmationStoreR30.result(w.ro,task.key);
+        if (saved != null) return saved;
+        FrozenConfirmationStoreR30.Writer writer = (op,batch) -> {
+            try { submit(w,op,batch); }
+            catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new IllegalStateException("R30_CONFIRM_WRITE_INTERRUPTED",e); }
+        };
+        FrozenConfirmationR30.Result result;
+        try {
+            EvalContextR27 context = task.datasetHash.equals(loop.context().data.datasetHash) ? loop.context() : FrozenConfirmationStoreR30.context(w.ro,task);
+            result = FrozenConfirmationR30.evaluate(task,context,loop.ledger(),FrozenConfirmationStoreR30.evidence(w.ro,writer));
+        }
+        catch (IllegalStateException failure) {
+            String reason = String.valueOf(failure.getMessage());
+            boolean consumed = false;
+            for (Throwable t = failure; t != null && t.getCause() != t; t = t.getCause())
+                if (String.valueOf(t.getMessage()).contains(HoldoutLedgerR27.CONFIRM_REUSED) || "R30_CONFIRM_BUDGET_EXHAUSTED".equals(t.getMessage()) ||
+                        String.valueOf(t.getMessage()).startsWith("R30_CONFIRM_DATASET_") || "R30_CONFIRM_TRACE_CORRUPT".equals(t.getMessage()) || "R30_CONFIRM_INVALID_CACHED_EVIDENCE".equals(t.getMessage())) consumed = true;
+            if (!consumed) throw failure;
+            // Process death after a reservation but before durable outcomes is missing evidence, never permission
+            // to look again. The independently frozen FUTURE experiment remains separate from this history test.
+            result = FrozenConfirmationR30.unavailable(task,reason);
+        }
+        ResearchWriteQueueR27.Batch batch = new ResearchWriteQueueR27.Batch();
+        FrozenConfirmationStoreR30.complete(batch,task,result);
+        FrozenConfirmationStoreR30.generationReport(batch,w.ro,task.generation,task,result);
+        submit(w,"CONFIRM_RESULT",batch); return result;
+    }
+    void registerConfirmed(ResearchPoolR27.Worker w, int cap) throws Exception {
+        FrozenConfirmationR30.Task task = FrozenConfirmationStoreR30.nextRegistration(w.ro);
+        if (task == null) return;
+        if (!FrozenConfirmationR30.currentSemantics().equals(task.researchSemanticHash)) {
+            ResearchWriteQueueR27.Batch blocked = new ResearchWriteQueueR27.Batch();
+            blocked.add("UPDATE r30_frozen_confirm SET registration_state='BLOCKED_SOURCE_CHANGED' WHERE task_key=? AND registered_at=0",task.key);
+            submit(w,"CONFIRM_REGISTRATION_SOURCE_CHANGED",blocked); return;
+        }
+        if (operatorAbi == null) return;
+        String abi = semanticAbi(task.champion.spec()); // prepare before entering the single database writer
+        try { submit(w,"CONFIRMED_FUTURE_REGISTRATION",FrozenConfirmationStoreR30.register(task,abi,cap)); }
+        catch (IllegalStateException failure) {
+            boolean full = false;
+            for (Throwable t = failure; t != null && t.getCause() != t; t = t.getCause()) if (String.valueOf(t.getMessage()).contains("R30_CONFIRM_WAIT_SLOT")) full = true;
+            if (!full) throw failure; // a full live pool leaves the immutable queued candidate intact
+        }
+    }
+    volatile boolean derivedDue; volatile List<PolicyAstR27.Node> derived = new ArrayList<>();
+
+    // ------------------------------------------------------------------ R27.4 observers (every strategy runs every period)
+    /** Best evolved candidates (by H_SELECT score) frozen and settled every period as observers. */
+    public static final int OBSERVE_CAP = 24;
+    public static final String OBSERVE = "OBSERVE_REPAIR1", OBSERVE_RETIRED = "OBSERVE_REPAIR1_RETIRED";
+    public static String observerId(String policyHash) { return StatsR27.sha256(OBSERVE + "|" + policyHash); }
+
+    /** Rank only the exploration segment. The immutable FUTURE queue owns its slots until a terminal
+     * qualification result, including while a draw is missing or a conflict is being resolved. */
+    static Map<String,EvolutionLoopR27.Member> explorationR30(List<EvolutionLoopR27.Member> ranked, Map<String,String> confirmation) {
+        Map<String,EvolutionLoopR27.Member> keep = new LinkedHashMap<>();
+        int remaining = Math.max(0, OBSERVE_CAP - confirmation.size());
+        java.util.Set<String> protectedBases = new java.util.HashSet<>(confirmation.values());
+        for (EvolutionLoopR27.Member m : ranked) {
+            if (keep.size() >= remaining) break;
+            String id = observerId(m.hash());
+            if (Double.isFinite(m.tau) && !confirmation.containsKey(id) && !protectedBases.contains(m.hash())) keep.put(id,m);
+        }
+        return keep;
+    }
+
+    /** Re-ranking touches exploration only. Read queue membership again inside the same short write
+     * transaction, so a concurrent registration cannot be retired using a stale pre-write snapshot.
+     * This path never creates an e-process/index, resets a qualification cursor or changes a frozen row. */
+    void refreshObservers(ResearchPoolR27.Worker w, EvolutionLoopR27 loop) throws Exception {
+        final List<EvolutionLoopR27.Member> ranked = new ArrayList<>(loop.population);
+        ranked.sort((a, b) -> a.u != b.u ? Double.compare(b.u, a.u) : a.hash().compareTo(b.hash()));
+        final int generation = loop.generation - 1;
+        ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
+        b.guardBefore(db -> {
+            Map<String,String> confirmation = QualificationInboxR29.confirmationQueueR30(db);
+            Map<String,EvolutionLoopR27.Member> keep = explorationR30(ranked,confirmation);
+            List<String> retire = new ArrayList<>();
+            try (Cursor c = db.rawQuery("SELECT policy_hash FROM r27_live_shadow WHERE status IN ('OBSERVE','OBSERVE_REPAIR1')",null)) {
+                while (c.moveToNext()) { String id=c.getString(0); if (!keep.containsKey(id) && !confirmation.containsKey(id)) retire.add(id); }
+            }
+            long t = System.currentTimeMillis();
+            for (String id : retire) db.execSQL("UPDATE r27_live_shadow SET status=CASE status WHEN 'OBSERVE' THEN 'OBSERVE_RETIRED' ELSE 'OBSERVE_REPAIR1_RETIRED' END,reason=?,updated_at=? WHERE policy_hash=? AND status IN ('OBSERVE','OBSERVE_REPAIR1')",
+                    new Object[]{"LEFT_EXPLORATION_G"+generation,t,id});
+            for (String id : confirmation.keySet()) db.execSQL("UPDATE r27_live_shadow SET status=CASE status WHEN 'OBSERVE_RETIRED' THEN 'OBSERVE' ELSE 'OBSERVE_REPAIR1' END,reason=?,updated_at=? WHERE policy_hash=? AND status IN ('OBSERVE_RETIRED','OBSERVE_REPAIR1_RETIRED')",
+                    new Object[]{"CONFIRMATION_QUEUE_PROTECTED",t,id});
+            for (Map.Entry<String, EvolutionLoopR27.Member> e : keep.entrySet()) {
+                EvolutionLoopR27.Member m = e.getValue();
+                // Re-entering exploration resumes its own row, outside the alpha-spending sequence.
+                db.execSQL("INSERT OR IGNORE INTO r27_live_shadow(policy_hash,spec_json,temperature,bias,global_index,status,reason,promoted_at,updated_at,through_ordinal,base_policy,semantic_abi) VALUES(?,?,?,?,0,?,?,?,?,-1,?,'')",
+                        new Object[] {e.getKey(),m.spec.fullJson(),m.tau,StoreR27.pack(new double[10]),OBSERVE,"EXPLORATION_H_SELECT_G"+generation,t,t,m.hash()});
+                db.execSQL("UPDATE r27_live_shadow SET status=?,temperature=?,reason=?,updated_at=? WHERE policy_hash=? AND status=?",
+                        new Object[]{OBSERVE,m.tau,"EXPLORATION_H_SELECT_G"+generation,t,e.getKey(),OBSERVE_RETIRED});
+            }
+            return 0;
+        });
+        submit(w, "OBSERVERS", b);
+    }
+
+    EvolutionLoopR27 restoreOrCreate(ResearchPoolR27.Worker w) {
+        EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.seed = System.currentTimeMillis();
+        try (Cursor c = w.ro.rawQuery("SELECT snapshot,dataset_hash FROM r27_evolution_cursor WHERE loop IN (?,?) ORDER BY CASE loop WHEN ? THEN 0 ELSE 1 END LIMIT 1", new String[] {LOOP,"MAIN",LOOP})) {
+            if (c.moveToFirst()) {
+                try { return EvolutionLoopR27.restore(c.getString(0), cfg, evoCache, null, System::currentTimeMillis); }
+                catch (RuntimeException mismatch) {
+                    if(!evoCache.data.datasetHash.equals(c.getString(1))){
+                        EvolutionLoopR27 recovered=RepairCompatibilityR30R1.restoreBoundary(c.getString(0),cfg,evoCache,null,System::currentTimeMillis);
+                        recoveredLegacyCursor=c.getString(0);return recovered;
+                    }
+                    throw mismatch; // A damaged cursor must not silently discard the exposure ledger or models.
+                }
+            }
+        }
+        EvolutionLoopR27 l = new EvolutionLoopR27(cfg, evoCache, null, System::currentTimeMillis);
+        try (Cursor c = w.ro.rawQuery("SELECT max(generation)+1 FROM r27_generation WHERE loop=?", new String[] {LOOP})) { if (c.moveToFirst() && !c.isNull(0)) l.generation = c.getInt(0); }
+        return l;
+    }
+
+    Map<String, Double> leafWeights() { synchronized (atomStates) { return AtomScoreR27.leafWeights(new HashMap<>(atomStates)); } }
+
+    String semanticAbi(PolicySpecR27 s) { Map<String, String> abi = operatorAbi; return abi == null ? "" : SemanticAbiR27.policyAbi(s, abi); }
+
+    // ------------------------------------------------------------------ r27-live (R27-008/032/040/041/042)
+    final class LiveTask implements ResearchPoolR27.Task {
+        public String id() { return "r27-live"; }
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
+            String latest = latestIssue(w.ro); if (latest == null) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS", 0, 0);
+            long latestOrd = TargetIssueResolver.sequenceOrdinalSU1(latest), deadline = latestOpen(w.ro) + 60_000L;
+            w.writes().setNextDeadline(deadline);
+            long units = LiveShadowsR27.settle(RuntimeR27.this, w, latestOrd);
+            units += LiveShadowsR27.qualify(RuntimeR27.this, w, latestOrd);
+            try{units+=QualificationGapRepairR30R1.step(w.ro,(operation,batch)->{submit(w,operation,batch);return true;});}catch(RuntimeException sourceFailure){QualificationGapRepairR30R1.observeFailure(sourceFailure);}
+            ensureControls(w);
+            units += LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline);
+            units += LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline, LiveShadowsR27.OBSERVE_STATES, false);
+            units += LiveShadowsR27.certify(RuntimeR27.this, w, latestOrd);
+            return units > 0 ? ResearchPoolR27.Outcome.progress(units, latestOrd) : ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", latestOrd, latestOrd);
+        }
+    }
+
+    /** Keeps one I00 and one shuffled-label control frozen every period next to the shadows (same-period negative controls). */
+    void ensureControls(ResearchPoolR27.Worker w) throws Exception {
+        EvolutionLoopR27 l = evo; if (l == null) return;
+        Object[][] controls = {{"CONTROL_I00", l.i00Champion, l.i00Tau}, {"CONTROL_NULL", l.nullEvolution.champion, l.nullEvolution.championTau}};
+        for (Object[] c : controls) {
+            final PolicySpecR27 spec = (PolicySpecR27) c[1]; if (spec == null) continue; final String status = (String) c[0];
+            boolean have; try (Cursor x = w.ro.rawQuery("SELECT 1 FROM r27_live_shadow WHERE status=?", new String[] {status})) { have = x.moveToFirst(); }
+            if (have) continue;
+            final double tau = (Double) c[2];String previousId=StatsR27.sha256(status+"|"+spec.policyHash());String previousStatus=QualificationGapRepairR30R1.text(w.ro,"SELECT status FROM r27_live_shadow WHERE policy_hash=?",previousId);
+            final String id=QualificationGapRepairR30R1.SEALED.equals(previousStatus)?StatsR27.sha256(status+"|"+spec.policyHash()+"|R30_REPAIR_NEW_FUTURE_SEGMENT|"+latestIssue(w.ro)):previousId;
+            ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
+            b.guardBefore(db -> { StoreR27.insertShadow(db, spec, tau, status + ":same-period negative control", semanticAbi(spec), id, spec.policyHash());
+                db.execSQL("UPDATE r27_live_shadow SET status=? WHERE policy_hash=?", new Object[] {status, id}); db.execSQL("UPDATE r27_eprocess SET state='CONTROL_NOT_ELIGIBLE' WHERE policy_hash=?", new Object[] {id}); return 0; });
+            submit(w, "LIVE_CONTROL", b);
+        }
+    }
+
+    /** Live dataset + placeholder for the next target (family streams continue from the previous cache). */
+    FeatureCacheR27 liveCacheWithPlaceholder(ResearchPoolR27.Worker w, long latestOrd) {
+        // Read the bounded source snapshot before reusing a stream: a backfill or correction can change
+        // an older row without adding a new head. Incremental numerical state is reused only for an exact prefix.
+        ReplayDatasetR27 fresh = StoreR27.loadDataset(w.ro, DATASET_ROWS);
+        if (fresh.size() == 0 || fresh.ordinals[fresh.size() - 1] != latestOrd) return null;
+        boolean prefix = liveData != null && liveData.size() <= fresh.size();
+        if (prefix) for (int i = 0; i < liveData.size(); i++) {
+            if (liveData.ordinals[i] != fresh.ordinals[i]
+                    || !liveData.issues[i].equals(fresh.issues[i])
+                    || !java.util.Arrays.equals(liveData.draws[i], fresh.draws[i])) { prefix = false; break; }
+        }
+        if (liveData != null && !prefix) {
+            FeatureCacheR27.REBUILDS_R30.incrementAndGet();
+            if (FeatureCacheR27.REBUILD_EVENTS_R30.size() < 256)
+                FeatureCacheR27.REBUILD_EVENTS_R30.add(new Object[] {-1, latestOrd, "LIVE_SOURCE_PREFIX_CHANGED", System.currentTimeMillis()});
+        }
+        liveData = fresh;
+        liveCacheKeyR30 = liveData.datasetHash + "|" + latestOrd + "|" + operatorAbiHash;
+        ReplayDatasetR27 withSlot = liveData.append(new ReplayDatasetR27.Row("PLACEHOLDER", latestOrd + 1, new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
+        FeatureCacheR27 c = new FeatureCacheR27(withSlot, 64);
+        if (prefix && liveCache != null) c.extendFrom(liveCache);
+        liveCache = c;
+        return c;
+    }
+
+    // ------------------------------------------------------------------ r27-abi (R27-010/011/012)
+    final class AbiTask implements ResearchPoolR27.Task {
+        public String id() { return "r27-abi"; }
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
+            ensureGolden();
+            long units = LegacyContinuityR27.step(store, w.ro, golden, operatorAbiHash, w.writes());
+            units += recordCacheRebuildsR30(w);
+            units += LiveShadowsR27.semanticCheck(RuntimeR27.this, w);
+            return units > 0 ? ResearchPoolR27.Outcome.progress(units, units) : ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);
+        }
+    }
+    /** R30-B03-04: feature-stream rebuilds are recorded in r30_cache_rebuild (append-only diagnostics). */
+    static long recordCacheRebuildsR30(ResearchPoolR27.Worker w) throws Exception {
+        Object[] e; ResearchWriteQueueR27.Batch b = null; int n = 0;
+        while (n < 64 && (e = FeatureCacheR27.REBUILD_EVENTS_R30.poll()) != null) {
+            if (b == null) { b = new ResearchWriteQueueR27.Batch(); b.add("CREATE TABLE IF NOT EXISTS r30_cache_rebuild(id INTEGER PRIMARY KEY AUTOINCREMENT,family_index INTEGER NOT NULL,through_ordinal INTEGER NOT NULL,reason TEXT NOT NULL,recorded_at INTEGER NOT NULL)"); }
+            b.add("INSERT INTO r30_cache_rebuild(family_index,through_ordinal,reason,recorded_at) VALUES(?,?,?,?)", e[0], e[1], e[2], e[3]); n++;
+        }
+        if (b != null) w.writes().submit("R27_CACHE_REBUILD", b, w::cancelled);
+        return n;
+    }
+    void ensureGolden() throws Exception {
+        if (golden != null) return;
+        try (InputStream in = store.contextForR26().getAssets().open(SemanticAbiR27.GOLDEN_ASSET)) { golden = SemanticAbiR27.readGolden(in, true); }
+        goldenCache = new FeatureCacheR27(golden, 64);
+        operatorAbi = OperatorGoldenR27.fingerprints(goldenCache);
+        operatorAbiHash = SemanticAbiR27.operatorSetHash(operatorAbi);
+        store.setState("r27_operator_abi", operatorAbiHash);
+    }
+
+    // ------------------------------------------------------------------ r27-atoms (R27-043/044) and r27-atomnet (R27-033/034/036)
+    final class ObservatoryTask implements ResearchPoolR27.Task {public String id(){return "r27-observatory-r1";}public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w)throws Exception{return ResearchObservatoryR30R1.step(RuntimeR27.this,w);}}
+    final class ResearchStudyTask implements ResearchPoolR27.Task {
+        public String id(){return "r27-study-r1";}
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w)throws Exception{return ResearchStudyTaskR30R1.step(RuntimeR27.this,w);}
+    }
+    final class MatrixProductionTask implements ResearchPoolR27.Task {
+        public String id(){return "r27-matrices-r1";}
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w)throws Exception{return MatrixResearchR30R1.step(RuntimeR27.this,w);}
+    }
+
+    final class AtomsTask implements ResearchPoolR27.Task {
+        public String id() { return "r27-atoms"; }
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception { return AtomWorldR27.atomsStep(RuntimeR27.this, w); }
+    }
+    final class AtomNetTask implements ResearchPoolR27.Task {
+        public String id() { return "r27-atomnet"; }
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception { return AtomWorldR27.atomNetStep(RuntimeR27.this, w); }
+    }
+
+    // ------------------------------------------------------------------ r27-calibration (R27-037/038)
+    final class CalibrationTask implements ResearchPoolR27.Task {
+        public String id() { return "r27-calibration"; }
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception { return LiveShadowsR27.calibrate(RuntimeR27.this, w); }
+    }
+
+    // ------------------------------------------------------------------ r27-chart-cache (R27-049)
+    final class ChartTask implements ResearchPoolR27.Task {
+        long lastBuilt;
+        public String id() { return "r27-chart-cache"; }
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
+            if (System.currentTimeMillis() - lastBuilt < 30_000) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);
+            ResearchWriteQueueR27.Batch b = ChartCacheR27.build(w.ro, RuntimeR27.this);
+            long preparedAt=System.currentTimeMillis();ResearchStoreR30R1.appendOwnedProgress(b,ResearchStoreR30R1.calendar(w.ro),new ResearchStoreR30R1.Facts(preparedAt/1000,preparedAt/1000,0L,null,null,HashingSU1.text("CHART_CACHE|"+preparedAt)));
+            submit(w, "CHART_CACHE", b); lastBuilt = preparedAt;
+            return ResearchPoolR27.Outcome.progress(b.ops.size(), lastBuilt / 1000);
+        }
+    }
+
+    // ------------------------------------------------------------------ r27-legacy-export (R27-019/020)
+    final class LegacyExportTask implements ResearchPoolR27.Task {
+        public String id() { return "r27-legacy-export"; }
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception { return LegacyPolicyExportR27.step(RuntimeR27.this, w); }
+    }
+
+    // ------------------------------------------------------------------ r27-health (R27-006/048)
+    final class HealthTask implements ResearchPoolR27.Task {
+        long last, lastSize; boolean assetsCached; final Map<String, Long> fetchFlushed = new HashMap<>();
+        NullPipelineSimulationR30 q08;
+        public String id() { return "r27-health"; }
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
+            if (System.currentTimeMillis() - last < 60_000) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);
+            final long preparedAt=System.currentTimeMillis();w.writes().flush();
+            final Map<String,Long> nextFetchFlushed=new HashMap<>(fetchFlushed);
+            final boolean nextAssetsCached=true;long nextSize=lastSize;
+            NullPipelineSimulationR30 nextQ08=q08==null?NullPipelineSimulationStoreR30.load(w.ro,BuildConfig.SOURCE_COMMIT_R26):NullPipelineSimulationR30.restore(q08.snapshot());
+            ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
+            long q08Deadline=System.nanoTime()+100_000_000L;
+            for(int units=0;units<64&&!nextQ08.complete()&&System.nanoTime()<q08Deadline;units++){
+                if(!nextQ08.cheapWorkPending()&&pool.narrow(System.currentTimeMillis()))break;
+                nextQ08.step(); // one checkpointable unit, no database writer is held during computation
+            }
+            NullPipelineSimulationStoreR30.checkpoint(b,nextQ08,preparedAt);
+            if (!assetsCached) {
+                // R27-053/054: build identity, card registry, source audit and R26→R27 merge status packaged as assets.
+                for (String name : new String[] {"build-identity", "r27_cards", "source-audit", "merge-status"}) {
+                    String payload;
+                    try (InputStream in = store.contextForR26().getAssets().open("r27/" + name + ".json")) {
+                        java.io.ByteArrayOutputStream buf = new java.io.ByteArrayOutputStream(); byte[] chunk = new byte[8192]; int k; while ((k = in.read(chunk)) > 0) buf.write(chunk, 0, k);
+                        payload = buf.toString("UTF-8"); JsonR27.parse(payload);
+                    } catch (Exception missing) { Map<String, Object> m = new LinkedHashMap<>(); m.put("status", "INSUFFICIENT"); m.put("reason", "asset r27/" + name + ".json unavailable: " + missing.getClass().getSimpleName()); payload = JsonR27.write(m); }
+                    b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('asset',?,?,?)", name, payload, preparedAt);
+                }
+                Map<String, Object> runtime = new LinkedHashMap<>(); runtime.put("sourceCommit", BuildConfig.SOURCE_COMMIT_R26); runtime.put("versionCode", (long) BuildConfig.VERSION_CODE); runtime.put("versionName", BuildConfig.VERSION_NAME);
+                b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('asset','runtime-identity',?,?)", JsonR27.write(runtime), preparedAt);
+                // R29-001/002: measured baseline identity and the preserved requirement ledger (read by ReportR29).
+                b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r29','baseline-identity',?,?)", JsonR27.write(BaselineIdentityR29.describe(store.contextForR26())), preparedAt);
+                b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r29','legacy-preservation',?,?)", JsonR27.write(LegacyContinuityR27.preservation(store.contextForR26())), preparedAt);
+                
+            }
+            // R27-048: fetch write-rejection causes since process start (absolute counts per process; delta-added).
+            for (Map.Entry<String, long[]> e : com.ethk3.novaonepro.FetchLedgerR925.rejectCountsR27().entrySet()) {
+                long prev = nextFetchFlushed.getOrDefault(e.getKey(), 0L), delta = e.getValue()[0] - prev;
+                if (delta <= 0) continue;
+                b.add("INSERT OR IGNORE INTO r27_fetch_reject(reason,count,last_issue,last_at) VALUES(?,0,NULL,?)", e.getKey(), e.getValue()[1]);
+                b.add("UPDATE r27_fetch_reject SET count=count+?,last_at=? WHERE reason=?", delta, e.getValue()[1], e.getKey());
+                nextFetchFlushed.put(e.getKey(), e.getValue()[0]);
+            }
+            // R27-047: database size and the largest tables (measurement every hour). Archival of old-chain tables is
+            // gated on the legacy switch being off after the observation period; history stays queryable.
+            if (preparedAt - lastSize > 3_600_000L) { nextSize = preparedAt; b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('retention','db_size',?,?)", JsonR27.write(dbSize(w.ro)), preparedAt); }
+            // wait_since bookkeeping for alarms is maintained by receipts; here we only stamp alarms for the report.
+            List<WaitKindR27.Health> h = health(w.ro, preparedAt); int stuck = 0, never = 0;
+            for (WaitKindR27.Health x : h) { if (x.stuck) stuck++; if (x.neverRun) never++; }
+            Map<String, Object> m = new LinkedHashMap<>(); m.put("stuck", (long) stuck); m.put("neverRun", (long) never); m.put("checkedAt", preparedAt);
+            m.put("workerLimit", (long) pool.workerLimit()); m.put("thermalReason", pool.thermalReason());
+            b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('health','summary',?,?)", JsonR27.write(m), preparedAt);
+            ResearchStoreR30R1.appendOwnedProgress(b,ResearchStoreR30R1.calendar(w.ro),new ResearchStoreR30R1.Facts(preparedAt/1000,preparedAt/1000,0L,null,null,HashingSU1.text("HEALTH|"+preparedAt)));
+            submit(w, "HEALTH", b);
+            last=preparedAt;lastSize=nextSize;assetsCached=nextAssetsCached;q08=nextQ08;fetchFlushed.clear();fetchFlushed.putAll(nextFetchFlushed);
+            return ResearchPoolR27.Outcome.progress(1, preparedAt / 1000);
+        }
+    }
+
+    public static List<WaitKindR27.Health> health(SQLiteDatabase db, long now) {
+        List<WaitKindR27.Health> out = new ArrayList<>();
+        try (Cursor c = db.rawQuery("SELECT task_id,wait_kind,wait_detail,wait_since,registered_at,cursor,last_progress FROM r26_task", null)) {
+            while (c.moveToNext()) out.add(WaitKindR27.health(c.getString(0), c.getString(1), c.getString(2), c.getLong(3), c.getLong(4), c.getLong(5), c.getLong(6), now));
+        } catch (RuntimeException schemaPending) { }
+        return out;
+    }
+
+    static Map<String, Object> dbSize(SQLiteDatabase db) {
+        Map<String, Object> m = new LinkedHashMap<>(); long pages = 0, size = 0;
+        try (Cursor c = db.rawQuery("PRAGMA page_count", null)) { if (c.moveToFirst()) pages = c.getLong(0); }
+        try (Cursor c = db.rawQuery("PRAGMA page_size", null)) { if (c.moveToFirst()) size = c.getLong(0); }
+        m.put("bytes", pages * size); m.put("targetBytes", 1L << 30);
+        String legacy = "1"; try (Cursor c = db.rawQuery("SELECT state_value FROM app_state WHERE state_key=?", new String[] {com.ethk3.novaonepro.ResearchLearningContinuityR912.R27_LEGACY_SWITCH})) { if (c.moveToFirst()) legacy = c.getString(0); } catch (RuntimeException e) { }
+        m.put("legacyResearchEnabled", legacy); m.put("archival", "1".equals(legacy) ? "PENDING_LEGACY_RETIREMENT(R27-046: parallel observation ≥1440 periods first)" : "ELIGIBLE");
+        Map<String, Object> top = new LinkedHashMap<>();
+        for (String t : new String[] {"research_evolution_event_v41", "r974_model_lineage", "r967_numeric_training_run", "atomic_tool_context_r943", "research_atom_context_r932", "r26_training_step", "r26_progress", "r27_policy", "r27_live_frozen", "r27_replay_score"})
+            try (Cursor c = db.rawQuery("SELECT count(*) FROM " + t, null)) { if (c.moveToFirst()) top.put(t, c.getLong(0)); } catch (RuntimeException absent) { }
+        m.put("rows", top); return m;
+    }
+}

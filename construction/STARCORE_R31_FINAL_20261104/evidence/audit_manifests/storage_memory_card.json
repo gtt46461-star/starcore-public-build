@@ -1,0 +1,161 @@
+{
+  "id": "R31-B05-S11",
+  "batch": "B05",
+  "title": "Java堆/native/PSS与缓存队列有界治理",
+  "issue": "磁盘回收不能解决进程内存；已核实compute队列未设容量、Batch内存累计无容器上限、图表全量panel加载与取消后引用可能滞留，需预算和生命周期闭环",
+  "files": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "methods": [
+        "ResearchPoolR27",
+        "loop",
+        "close",
+        "setResource",
+        "setThermalLimit"
+      ],
+      "operation": "修改",
+      "before": "compute使用无容量LinkedBlockingQueue，准备态持有任务与资源；取消不等于停线程",
+      "after": "注入唯一MemoryBudgetR31，改有界executor；实际停止后释放lease，queued bytes可见；资源等待有恢复与超龄解释",
+      "anchor_lines": [
+        61,
+        66,
+        71,
+        72,
+        86,
+        116,
+        216
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+      "methods": [
+        "Batch.add",
+        "submit"
+      ],
+      "operation": "修改",
+      "before": "ArrayList ops及bind参数在内存中组装",
+      "after": "限制op和bind bytes；大结果分片/CAS指针，保留fence和原子提交",
+      "anchor_lines": [
+        34,
+        35,
+        57,
+        61
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+      "methods": [
+        "load",
+        "onStop",
+        "onDestroy",
+        "render"
+      ],
+      "operation": "修改",
+      "before": "单线程executor反复提交、全量List<Panel>、OOM后降级",
+      "after": "最新generation合并请求，按visible panel分页；取消后remove queued future，退出释放callback/DTO/view引用",
+      "anchor_lines": [
+        30,
+        91,
+        99,
+        105,
+        123,
+        127,
+        147
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "methods": [
+        "publish",
+        "readR27Summary"
+      ],
+      "operation": "修改",
+      "before": "native4MiB及backup32MiB已有预算；summary整体读入ByteArrayOutputStream",
+      "after": "保留单阶段预算并接入全局同时存活许可；summary设明确bytes上限或流式解析，全部异常finally释放",
+      "anchor_lines": [
+        23,
+        205,
+        329,
+        531
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExecutionBudgetR26.java",
+      "methods": [
+        "enter",
+        "leave"
+      ],
+      "operation": "审计调用者",
+      "before": "ThreadLocal token需调用leave解除",
+      "after": "各调用者try/finally配对；线程复用不持有旧session/input",
+      "anchor_lines": [
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+      "methods": [
+        "tryAcquire",
+        "grow",
+        "close",
+        "sample"
+      ],
+      "operation": "新增",
+      "before": "不存在统一内存许可池",
+      "after": "RuntimeCoordinator创建application scoped唯一实例；heap按maxMemory动态软硬水位，native/PSS独立采样且不混加",
+      "anchor_lines": []
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BoundedResearchExecutorR31.java",
+      "methods": [
+        "submit",
+        "cancelQueued",
+        "close"
+      ],
+      "operation": "新增",
+      "before": "无统一queue条数+payload bytes合同",
+      "after": "初始queue容量2*workers；拒绝变持久WAIT，不CallerRuns、不静默丢任务",
+      "anchor_lines": []
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SharedFeatureStoreR31.java",
+      "methods": [
+        "acquire",
+        "release",
+        "evict"
+      ],
+      "operation": "新增",
+      "before": "候选可能重复持有输入和特征",
+      "after": "按dataset/PIT/ABI/version共享不可变块，bytes-LRU加reader lease；可变模型state不共享",
+      "anchor_lines": []
+    }
+  ],
+  "steps": [
+    "先测热启动heap/native/PSS与关键链P99内存增量，maxMemory是Java堆上界而不是PSS上界",
+    "建议heap软0.75M/恢复0.60M/紧急0.90M，预留实时峰值；参数由B12校准，不伪称固定MB已实测",
+    "大数组/解压/batch/candidate/cache在分配前申请许可，取消实际停止后释放；未停线程仍计入占用",
+    "compute/图表刷新队列双重限条数与bytes；durable任务公平续作，Batch分片不能破坏原子fence",
+    "图表按可见页流式读，报告summary有限读取，ThreadLocal/listener/handler/session终结全清理",
+    "与B01统一资源等待/CPU温控：软压缩片继续，严重压力可短暂停并复核，2分钟无恢复报告持有者，禁止无限静默停止或只充电才研究"
+  ],
+  "acceptance": [
+    "ST-M01许可超额拒绝、异常释放、重复close幂等",
+    "ST-M02并发1000请求queue与bytes有界，实时线程不被CallerRuns占用，待办无丢失",
+    "ST-M03 100轮图表进出/取消后heap dominator无Activity/旧session滞留",
+    "ST-M04同输入64候选共享1输入实例且可变权重互不污染",
+    "ST-M05 native/FD/DB reader正常及取消后回到基线包络",
+    "ST-M06 72h OOM=0；对等负载live heap/PSS无持续增长，末24h等负载P95 live heap≤稳定首24h110%且不越动态高水位；未实测NOT_RUN"
+  ],
+  "dependencies": [
+    "B01任务owner/fence/取消完成协议",
+    "B02短事务与资源释放",
+    "B06共享回放输入ABI",
+    "B09图表分页与取消",
+    "B12真机内存/温控/72h"
+  ],
+  "rollback": "先停新增可选大任务保留持久cursor；许可池不能撤回为无限队列；已在运行任务确认结束后再换executor，不能仅cancel就丢其资源账",
+  "status": "DESIGNED_NOT_IMPLEMENTED",
+  "evidence": "storage_design.md第12节；audits/runtime及audits/charts已读取源码；本卡无固定MB设备实测声称"
+}

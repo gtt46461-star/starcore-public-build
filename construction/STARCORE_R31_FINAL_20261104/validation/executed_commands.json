@@ -1,0 +1,38 @@
+[
+  {
+    "command": [
+      "python3",
+      "reference_code/contracts/test_contracts.py"
+    ],
+    "exit_code": 0,
+    "log": "validation/execution_01.log",
+    "scope": "REFERENCE_AND_DIAGNOSTIC_ONLY"
+  },
+  {
+    "command": [
+      "python3",
+      "reference_code/storage/verify_storage_contract.py"
+    ],
+    "exit_code": 0,
+    "log": "validation/execution_02.log",
+    "scope": "REFERENCE_AND_DIAGNOSTIC_ONLY"
+  },
+  {
+    "command": [
+      "python3",
+      "reference_code/contracts/run_examples.py"
+    ],
+    "exit_code": 0,
+    "log": "validation/execution_03.log",
+    "scope": "REFERENCE_AND_DIAGNOSTIC_ONLY"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/run_historical_review.py"
+    ],
+    "exit_code": 0,
+    "log": "validation/execution_04.log",
+    "scope": "REFERENCE_AND_DIAGNOSTIC_ONLY"
+  }
+]

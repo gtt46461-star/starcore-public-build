@@ -1,0 +1,18 @@
+{
+  "experiment": "R31_REVIEW_HISTORICAL_SMOKE_V1",
+  "scope": "Independent diagnostic baseline experiment, not production R27/SU2 model replay; not FUTURE and not REAL evidence",
+  "data": "audits/evidence/draws_5000.csv",
+  "warmup": 240,
+  "select_end_exclusive": 3000,
+  "holdout_end_exclusive": 5000,
+  "families": ["hot_frequency", "cold_frequency", "lag_neighbors", "fixed_1_2_3"],
+  "windows": [20, 60, 120, 240],
+  "positions": [1,2,3,4,5,6,7,8,9,10],
+  "candidate_count": 100,
+  "k": 3,
+  "select_target_frequency": 0.15,
+  "threshold": "85th percentile of prequential SELECT confidence score plus stable time-index tie break; fitted on SELECT only, then frozen",
+  "champion": "highest SELECT Wilson95 lower bound, deterministic candidate id tie break; inspect holdout once, no reselection",
+  "report": "all candidate SELECT/HOLDOUT results, frozen champion row, Wilson intervals descriptive only, evidence limitations",
+  "maximum_loss_streak_sensitivity": {"n":[250,600,1000],"p":[0.30,0.34,0.37,0.40,0.45,0.50],"max_loss_run":6,"model":"iid Bernoulli assumption, exact DP, one-rule pass probability not joint certificate power"}
+}
