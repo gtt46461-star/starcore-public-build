@@ -11,6 +11,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
+    if: ${{ !contains(github.event.head_commit.message, '[R31_ARTIFACT_AUDIT]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 150
     outputs:
@@ -367,3 +368,150 @@ jobs:
           path: |
             evidence/r31/android-${{ matrix.api }}/
             startup-evidence/
+  artifact-audit:
+    if: ${{ contains(github.event.head_commit.message, '[R31_ARTIFACT_AUDIT]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/r31-build-request.json
+      - id: audit_request
+        run: |
+          python3 - <<'PY'
+          import json,os,re
+          r=json.load(open('.github/r31-build-request.json'))
+          assert r['sourceBranch']=='construction/r31-final-20261104'
+          assert re.fullmatch('[a-f0-9]{40}',r['source'])
+          assert type(r['validationRunId']) is int and type(r['validationArtifactId']) is int
+          assert r['validationArtifactName']=='R31-EXISTING_R27-HOST-EVIDENCE-'+r['source']
+          assert re.fullmatch('sha256:[a-f0-9]{64}',r['validationArtifactDigest'])
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+              for key in ('source','validationRunId','validationArtifactName','validationArtifactId','validationArtifactDigest'):
+                  out.write(key+'='+str(r[key])+'\n')
+          PY
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.audit_request.outputs.source }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' > /dev/null
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.audit_request.outputs.validationArtifactName }}
+          run-id: ${{ steps.audit_request.outputs.validationRunId }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          path: ${{ runner.temp }}/r31-validation-input
+      - name: Independently inspect actual APKs and archive the exact source checkpoint
+        env:
+          R31_EXPECTED_SOURCE: ${{ steps.audit_request.outputs.source }}
+          R31_ORIGINAL_RUN: ${{ steps.audit_request.outputs.validationRunId }}
+          R31_ORIGINAL_ARTIFACT: ${{ steps.audit_request.outputs.validationArtifactId }}
+          R31_ORIGINAL_ARTIFACT_DIGEST: ${{ steps.audit_request.outputs.validationArtifactDigest }}
+        run: |
+          set -euo pipefail
+          git diff --exit-code
+          test "$(git rev-parse HEAD)" = "$R31_EXPECTED_SOURCE"
+          git merge-base --is-ancestor 5237b265a27fe5ad27fd842901c445d5f8c27749 HEAD
+          out="$RUNNER_TEMP/r31-audited-checkpoint"
+          mkdir -p "$out"
+          for variant in release debug; do
+            apk="$RUNNER_TEMP/r31-validation-input/validation-apks/STARCORE-R31-validation-$variant.apk"
+            test -f "$apk"
+            python3 tools/r31/verify_baseline.py --require-clean --apk "$apk" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --expected-cert-sha256 d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7 --output "$out/$variant-identity.json"
+          done
+          python3 - <<'PY'
+          import datetime,hashlib,json,os,pathlib,re,shutil,subprocess,zipfile
+          source=os.environ['R31_EXPECTED_SOURCE'];root=pathlib.Path('.')
+          original=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-validation-input'
+          out=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-audited-checkpoint'
+          cert='d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'
+          def sha(p):
+              h=hashlib.sha256()
+              with p.open('rb') as f:
+                  for b in iter(lambda:f.read(1<<20),b''):h.update(b)
+              return h.hexdigest()
+          boundary=json.loads((original/'validation-apks/VALIDATION-BOUNDARY.json').read_text())
+          assert boundary['source']==source
+          unit=json.loads((original/'unit-execution-observation.json').read_text())
+          release=json.loads((root/'release/release_manifest.json').read_text())
+          apks=[]
+          for variant in ('release','debug'):
+              identity=json.loads((out/(variant+'-identity.json')).read_text())
+              assert identity['status']=='PASS' and identity['apk']['status']=='PASS'
+              assert identity['identity']['source_commit']==source
+              assert identity['identity']['source_dirty'] is False
+              a=identity['apk']
+              assert a['embedded_source_dirty'] is False
+              assert a['application_id']=='com.starcore.research.r13'
+              assert a['certificate_sha256']==[cert]
+              assert a['version_code']==release['versionCode'] and a['version_name']==release['versionName']
+              inp=original/'validation-apks'/('STARCORE-R31-validation-'+variant+'.apk')
+              assert sha(inp)==a['sha256'] and inp.stat().st_size==a['bytes']
+              assert boundary['apks'][inp.name]['sha256']==sha(inp)
+              name='STARCORE-R31-'+source[:12]+'-VALIDATION-'+variant+'.apk'
+              shutil.copy2(inp,out/name)
+              apks.append({'file':name,'variant':variant,'source_commit':source,'source_tree':identity['identity']['source_tree'],'applicationId':a['application_id'],'versionCode':a['version_code'],'versionName':a['version_name'],'signatureSha256':cert,'sha256':a['sha256'],'bytes':a['bytes'],'abis':a['abis'],'identity':'PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE','engineeringAcceptance':'FAILED_GATES_REMAIN','installedDeviceCompatibility':'UNKNOWN_INSTALLED_CERT_AND_VERSION'})
+          inp=original/'validation-apks/STARCORE-R31-instrumentation-only.apk'
+          assert inp.is_file()
+          tools=pathlib.Path(os.environ['ANDROID_HOME'])/'build-tools/36.0.0'
+          signature=subprocess.check_output([str(tools/'apksigner'),'verify','--verbose','--print-certs',str(inp)],text=True)
+          fingerprint=re.search(r'Signer #1 certificate SHA-256 digest:\s*([a-fA-F0-9]+)',signature)
+          assert fingerprint and fingerprint.group(1).lower()==cert
+          badging=subprocess.check_output([str(tools/'aapt'),'dump','badging',str(inp)],text=True)
+          assert "package: name='com.starcore.research.r13.test'" in badging
+          assert boundary['apks'][inp.name]['sha256']==sha(inp)
+          companion={'file':'ENGINEERING-TEST-ONLY.apk','applicationId':'com.starcore.research.r13.test','sha256':sha(inp),'signatureSha256':cert,'bytes':inp.stat().st_size,'role':'ISOLATED_INSTRUMENTATION_COMPANION_NOT_MAIN_APPLICATION','deviceExecution':'NOT_RUN'}
+          shutil.copy2(inp,out/'ENGINEERING-TEST-ONLY.apk')
+          ledger=json.loads((root/'construction/r31/EXECUTION_LEDGER.json').read_text())
+          unfinished=[{'id':c['id'],'title':c['title'],'phase':c['phase'],'status':c['status'],'remaining':c['remaining'],'next_step':c['next_step']} for c in ledger['cards'] if c['status']!='DEVICE_PASS']
+          (out/'UNFINISHED-CARDS.json').write_text(json.dumps(unfinished,ensure_ascii=False,indent=2)+'\n')
+          (out/'ORIGINAL-UNIT-RESULT.json').write_text(json.dumps(unit,ensure_ascii=False,indent=2)+'\n')
+          (out/'ORIGINAL-VALIDATION-BOUNDARY.json').write_text(json.dumps(boundary,ensure_ascii=False,indent=2)+'\n')
+          forbidden=subprocess.check_output(['git','ls-files','*.jks','*.p12','*.pfx','*.keystore'],text=True).strip()
+          assert not forbidden,'SIGNING_CONTAINER_TRACKED_NO_SOURCE_EXPORT'
+          source_zip=out/('SOURCE-'+source+'.zip')
+          subprocess.run(['git','archive','--format=zip','--output',str(source_zip),'HEAD'],check=True)
+          notes=('STARCORE R31 SOURCE CHECKPOINT / VALIDATION ONLY\n'
+                 'This is an actual signed build of source '+source+'.\n'
+                 'It is NOT the final accepted R31 product. Engineering gates failed in the original run.\n'
+                 'Current construction phase P02 (B03/B04/B05 front); 18 of56 cards started,0 mandatory closed.\n'
+                 'Original unit result is included verbatim. Native HOST diagnosis and Android API21 lint remain unresolved.\n'
+                 'Android runtime instrumented tests: NOT_RUN. Physical device,24h and72h: NOT_RUN; user has no connectable device.\n'
+                 'Natural future quality: NOT_PROVEN. No historical/synthetic/shadow result grants natural quality.\n'
+                 'The release and debug APKs share public applicationId com.starcore.research.r13 and the original5237 public R30 certificate.\n'
+                 'Coverage install is conditional on the installed certificate/version. No uninstall or database reset is authorized by this package.\n'
+                 'ENGINEERING-TEST-ONLY.apk is an instrumentation companion, not the application.\n'
+                 'Migration contracts are in release/release_manifest.json and construction/r31/EXECUTION_LEDGER.json in the source archive.\n'
+                 'Additive domain migrations have HOST evidence; actual device upgrade/restore remains NOT_RUN.\n'
+                 'Do not delete r27_chart_cache/mainline/choice before P05 typed authority switch.\n'
+                 'Signing private keys, signing cache and GitHub tokens are not part of this archive.\n'
+                 'New private-buffer revisions after this source checkpoint are not included.\n')
+          (out/'DELIVERY-READ-ME.txt').write_text(notes)
+          receipt={'scope':'ACTUAL_SIGNED_APK_CHECKPOINT_WITH_FAILED_ENGINEERING_GATES_NOT_FINAL_PRODUCT','observed_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'source':source,'source_url':'https://github.com/gtt46461-star/starcore-public-build/tree/'+source,'source_archive':source_zip.name,'source_archive_sha256':sha(source_zip),'original_run':int(os.environ['R31_ORIGINAL_RUN']),'original_artifact':int(os.environ['R31_ORIGINAL_ARTIFACT']),'original_artifact_zip_digest_from_GitHub':os.environ['R31_ORIGINAL_ARTIFACT_DIGEST'],'original_unit':unit,'apks':apks,'mandatory_closed_cards':0,'physical_device':'NOT_RUN_USER_CONFIRMED_UNAVAILABLE','24h':'NOT_RUN','72h':'NOT_RUN','natural_quality':'NOT_PROVEN','overall':'FAILED_ENGINEERING_GATES_CONTINUE_REPAIR'}
+          receipt['instrumentation_companion']=companion
+          (out/'DELIVERY-RECEIPT.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
+          bundle=out/('STARCORE-R31-'+source[:12]+'-VALIDATION-FAILED-GATES.zip')
+          members=[p for p in out.iterdir() if p.is_file() and p!=bundle]
+          with zipfile.ZipFile(bundle,'w',zipfile.ZIP_DEFLATED) as z:
+              for p in sorted(members):z.write(p,p.name)
+          with zipfile.ZipFile(bundle) as z:assert z.testzip() is None
+          digest={'file':bundle.name,'sha256':sha(bundle),'bytes':bundle.stat().st_size,'source':source,'engineeringAcceptance':'FAILED_NOT_FINAL_PRODUCT'}
+          (out/'BUNDLE-SHA256.json').write_text(json.dumps(digest,indent=2)+'\n')
+          print('R31_ACTUAL_APK_RECEIPT_JSON|'+json.dumps(receipt,ensure_ascii=False,sort_keys=True))
+          print('R31_ACTUAL_BUNDLE_JSON|'+json.dumps(digest,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R31-AUDITED-VALIDATION-${{ steps.audit_request.outputs.source }}
+          path: ${{ runner.temp }}/r31-audited-checkpoint/
+          if-no-files-found: error
+          retention-days: 90
