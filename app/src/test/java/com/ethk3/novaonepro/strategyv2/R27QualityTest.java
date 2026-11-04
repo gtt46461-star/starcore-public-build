@@ -3,9 +3,14 @@ package com.ethk3.novaonepro.strategyv2;
 import static org.junit.Assert.*;
 
 import com.ethk3.novaonepro.CertificateBundleServiceR929;
+import com.ethk3.novaonepro.DatabaseCoordinator;
+import com.ethk3.novaonepro.RealtimePressureGateR811;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 
 /** docs/12 H10, H11, H13, H14, H15 (Java half; the SQL half is tools/r27/test_r27_migration.py), H16, H17 and the
@@ -269,11 +274,22 @@ public final class R27QualityTest {
         bg.setAccessible(true); crit.setAccessible(true);
         for (String op : new String[] {"R27_EVOLUTION_STEP", "R27_PRIORITY_CLAIM", "R27_WRITE_WAIT", "R27_LIVE_FREEZE", "R26_STRATEGY_STORAGE_UNIT"})
             assertTrue(op + " must be background (yields to critical writers)", (Boolean) bg.invoke(null, op));
-        for (String op : new String[] {"R925_FETCH_BEGIN", "R925_FETCH_PAYLOAD", "R925_FETCH_COMPLETE", "R914_DRAW_HISTORY_BATCH", "R914_DRAW_SAVE_ATOMIC"}) {
+        for (String op : new String[] {"R925_FETCH_BEGIN", "R925_FETCH_PAYLOAD", "R925_FETCH_COMPLETE", "R914_DRAW_SAVE_ATOMIC"}) {
             assertTrue(op + " stays critical", (Boolean) crit.invoke(null, op));
             assertFalse(op + " is not background", (Boolean) bg.invoke(null, op));
         }
-        R27TestSupport.log("R27_1_WRITER_PRIORITY_PASS");
+        // R31-B02-C01: catch-up history is a background slice; current-draw ingest remains critical.
+        assertFalse((Boolean) crit.invoke(null, "R914_DRAW_HISTORY_BATCH"));
+        assertTrue((Boolean) bg.invoke(null, "R914_DRAW_HISTORY_BATCH"));
+        assertEquals(DatabaseCoordinator.WriteClass.RESEARCH_DATA,
+                DatabaseCoordinator.OPERATION_REGISTRY_R31.get("R914_DRAW_HISTORY_BATCH"));
+        for (DatabaseCoordinator.WriteClass kind : DatabaseCoordinator.WriteClass.values()) {
+            boolean expected = kind == DatabaseCoordinator.WriteClass.DRAW_INGEST
+                    || kind == DatabaseCoordinator.WriteClass.LIVE_FREEZE
+                    || kind == DatabaseCoordinator.WriteClass.SETTLEMENT;
+            assertEquals(kind.name(), expected, DatabaseCoordinator.WriteContext.of(kind, "QUALITY_TYPED_ROUTE").critical());
+        }
+        R27TestSupport.log("R31_WRITER_PRIORITY_PASS current_draw_critical=true history_background=true");
     }
 
     // ------------------------------------------------------------------ R27.2 second device report (3b84648, V2353A)
@@ -285,39 +301,111 @@ public final class R27QualityTest {
         assertTrue(ResearchWriteQueueR27.writerBusy(afterAcquire));
         assertFalse(ResearchWriteQueueR27.writerBusy(real));
         assertFalse(ResearchWriteQueueR27.writerBusy(new IllegalStateException("R27_WRITE_PRECONDITION:LIVE_FREEZE")));
+        AtomicInteger attempts = new AtomicInteger(), committed = new AtomicInteger();
+        ResearchWriteQueueR27 queue = new ResearchWriteQueueR27((operation, batch) -> {
+            if (attempts.getAndIncrement() == 0) throw (IllegalStateException) busy;
+            committed.incrementAndGet();
+        }, () -> false);
+        ResearchWriteQueueR27.Batch batch = new ResearchWriteQueueR27.Batch().add("UPDATE host_fixture SET n=n+1");
+        assertFalse("busy submit yields the same prepared work back to its owner", queue.submit("QUALITY_BUSY", batch, () -> false));
+        assertEquals(0, committed.get());
+        assertEquals(1L, ((Number) queue.waitSnapshotR30().get("rejectedOrRequeued")).longValue());
+        assertTrue("retry after the writer is available runs once", queue.submit("QUALITY_BUSY", batch, () -> false));
+        assertEquals(2, attempts.get()); assertEquals(1, committed.get());
+        for (Throwable retry : new Throwable[] {busy, afterAcquire}) {
+            FailureDispositionR31.Decision decision = FailureDispositionR31.classify(retry);
+            assertEquals(FailureDispositionR31.Disposition.RETRY_LATER, decision.disposition);
+            assertFalse("a lock wait must not consume task fault budget", decision.consumesFaultBudget());
+        }
+        ResearchWriteQueueR27 faulty = new ResearchWriteQueueR27((operation, value) -> {
+            throw (IllegalStateException) real;
+        }, () -> false);
+        try { faulty.submit("QUALITY_REAL_FAULT", batch, () -> false); fail("real errors must reach the owner"); }
+        catch (IllegalStateException actual) { assertSame(real, actual); }
+        // Recovery now preserves history and admits one fenced half-open probe, rather than a bulk SQL reset.
+        // Native SQLite behavior is exercised separately by R31TaskRuntimeHost.classificationsAndRecovery().
         File dir = new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/strategyv2");
-        String queue = new String(Files.readAllBytes(new File(dir, "ResearchWriteQueueR27.java").toPath()), "UTF-8");
-        assertTrue("busy writer re-queues instead of throwing", queue.contains("if (!writerBusy(failure)) throw failure;"));
-        String coordinator = new String(Files.readAllBytes(new File(dir, "RuntimeCoordinatorR26.java").toPath()), "UTF-8");
-        assertTrue("R26 slice: busy writer is cooperative", coordinator.contains("ResearchWriteQueueR27.writerBusy(failure))reason=\"COOPERATIVE_WRITER_BUSY\""));
-        assertTrue("startup releases busy-only quarantines", coordinator.contains("message LIKE 'F01_WRITE_FAILED%' AND stack LIKE '%CP3_DB_BUSY_DEADLINE%'"));
-        R27TestSupport.log("R27_2_BUSY_WRITER_PASS");
+        String coordinator = new String(Files.readAllBytes(new File(dir, "RuntimeCoordinatorR26.java").toPath()), "UTF-8").replaceAll("\\s+", "");
+        String pool = new String(Files.readAllBytes(new File(dir, "ResearchPoolR27.java").toPath()), "UTF-8").replaceAll("\\s+", "");
+        String schema = new String(Files.readAllBytes(new File(dir, "SchemaR27.java").toPath()), "UTF-8");
+        assertTrue("R26 dispatch retains the shared recovery controller", coordinator.contains("ResearchPoolR27.recoverOneR31(store,owner);"));
+        assertTrue("half-open recovery retains its CAS rate limiter", pool.contains("RECOVERY_POLL_R31.compareAndSet(last,mono)"));
+        assertTrue("recovery only replaces the selected prior owner/fence", pool.contains("WHEREtask_id=?ANDownerIS?ANDfence=?ANDstatus='QUARANTINED'"));
+        assertTrue("upgrade schedules recovery without erasing inherited faults", schema.contains("INHERITED_PRE_R31_QUARANTINE"));
+        R27TestSupport.log("R31_BUSY_WRITER_PASS queue_sink_and_typed_budget=true native_recovery_separate=true");
     }
 
     @Test public void r27ComputeHelpersRunAtBackgroundPriorityAndNarrowDuringP0() throws Exception {
         File dir = new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/strategyv2");
-        String pool = new String(Files.readAllBytes(new File(dir, "ResearchPoolR27.java").toPath()), "UTF-8");
-        int factory = pool.indexOf("\"starcore-r27-compute\""); assertTrue(factory > 0);
-        String line = pool.substring(pool.lastIndexOf("compute = new ThreadPoolExecutor", factory), factory);
-        assertTrue("compute helpers set the background priority", line.contains("setThreadPriority(BACKGROUND_PRIORITY)"));
-        assertEquals(android.os.Process.THREAD_PRIORITY_BACKGROUND + 1, ResearchPoolR27.BACKGROUND_PRIORITY);
-        // R29 now reserves a slot with CAS rather than the racy check-then-increment string above.
-        // Actual concurrent admission is exercised by R29ResearchSlotsTest (8 contending workers).
-        assertTrue("P0 and deadline still narrow the pool", pool.contains("writes.freezeWindow(now) || ResearchWriteQueueR27.p0Writing()"));
-        String evo = new String(Files.readAllBytes(new File(dir, "EvolutionLoopR27.java").toPath()), "UTF-8");
-        assertTrue("replay is serial while P0 runs", evo.contains("if (executor == null || (serialWhile != null && serialWhile.getAsBoolean()))"));
-        String rt = new String(Files.readAllBytes(new File(dir, "RuntimeR27.java").toPath()), "UTF-8");
-        assertTrue("evolution also honors the pool's thermal/P0/deadline guard", rt.contains("loop.serialWhile=()->pool.narrow(System.currentTimeMillis());")&&rt.contains("loop.executor=null;"));
-        R27TestSupport.log("R27_2_RESEARCH_PRIORITY_PASS");
+        String source = new String(Files.readAllBytes(new File(dir, "ResearchPoolR27.java").toPath()), "UTF-8");
+        ResearchPoolR27 pool = new ResearchPoolR27(null, "quality-helper-" + UUID.randomUUID(), 2);
+        ExecutorService replayExecutor = Executors.newSingleThreadExecutor(r -> {
+            throw new AssertionError("P0 replay must not submit a helper");
+        });
+        try {
+            assertTrue("the actual helper executor remains bounded", pool.compute() instanceof ThreadPoolExecutor);
+            ThreadPoolExecutor helper = (ThreadPoolExecutor) pool.compute();
+            assertEquals(2, helper.getMaximumPoolSize());
+            assertTrue(helper.getQueue().remainingCapacity() > 0 && helper.getQueue().remainingCapacity() < Integer.MAX_VALUE);
+            AtomicBoolean ran = new AtomicBoolean();
+            Thread worker = helper.getThreadFactory().newThread(() -> ran.set(true));
+            assertTrue(worker.isDaemon()); worker.start(); worker.join(1000);
+            assertFalse("the real factory wrapper exits", worker.isAlive()); assertTrue(ran.get());
+            int declaration = source.indexOf("class " + helper.getClass().getSimpleName());
+            assertTrue("check the factory actually returned by the production pool", declaration > 0);
+            int priority = source.indexOf("setThreadPriority(BACKGROUND_PRIORITY)", declaration);
+            int body = source.indexOf("r.run()", declaration);
+            assertTrue("the helper requests background priority before its body", priority > declaration && body > priority);
+            assertEquals(android.os.Process.THREAD_PRIORITY_BACKGROUND + 1, ResearchPoolR27.BACKGROUND_PRIORITY);
+            // The JVM verifies the request hook, not Android's actual OS scheduling priority.
+            long now = System.currentTimeMillis();
+            pool.writes().setNextDeadline(now + 1000);
+            assertTrue("upcoming freezes narrow the actual pool", pool.narrow(now));
+            pool.writes().setNextDeadline(0);
+            pool.setThermalLimit(1, "QUALITY_THERMAL"); assertTrue(pool.narrow(now));
+            pool.setThermalLimit(2, "NORMAL");
+            RealtimePressureGateR811.beginAnalysis();
+            try {
+                assertTrue("P0 narrows the actual pool", pool.narrow(now));
+                EvolutionLoopR27 loop = R30EvolutionConfirmIntegrationTest.evolution();
+                EvolutionLoopR27.Pending pending = new EvolutionLoopR27.Pending();
+                pending.spec = loop.champion; pending.state = "BORN";
+                java.lang.reflect.Field field = EvolutionLoopR27.class.getDeclaredField("pending");
+                field.setAccessible(true); field.set(loop, new ArrayList<>(Collections.singletonList(pending)));
+                loop.executor = replayExecutor; loop.serialWhile = () -> pool.narrow(System.currentTimeMillis());
+                loop.stepReplay();
+                assertNotNull("a real SELECT replay completed serially", pending.trace);
+                assertEquals(1, loop.candidateReplayMs.size());
+            } finally { RealtimePressureGateR811.endAnalysis(); }
+            String runtime = new String(Files.readAllBytes(new File(dir, "RuntimeR27.java").toPath()), "UTF-8").replaceAll("\\s+", "");
+            assertTrue("runtime connects evolution to the pressure guard", runtime.contains("loop.serialWhile=()->pool.narrow(System.currentTimeMillis());"));
+        } finally {
+            replayExecutor.shutdownNow(); assertTrue(replayExecutor.awaitTermination(1, TimeUnit.SECONDS));
+            pool.close(); assertTrue("test leaves no pool resources owned", pool.awaitResourcesTerminatedR31(1000));
+        }
+        R27TestSupport.log("R31_RESEARCH_PRIORITY_PASS bounded_factory_and_P0_serial_replay=true OS_PRIORITY_DEVICE_REQUIRED");
     }
 
     // ------------------------------------------------------------------ R27.3 third device report (3cc41ff, fresh install)
     @Test public void r27BackgroundWritersNeverQueueAheadOfCriticalWriters() throws Exception {
-        String src = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java").toPath()), "UTF-8");
-        int gate = src.indexOf("if (backgroundR909 && !reentrantWriterR914 && criticalBusinessWaitersR914.get() > 0) {");
-        int lock = src.indexOf("if (writeLock.tryLock(Math.min(backgroundR909 ? 10L : 50L, remainingCP3), TimeUnit.MILLISECONDS)) {");
-        assertTrue("background writers wait outside the writer queue while a critical writer waits", gate > 0 && lock > gate && lock - gate < 800);
-        assertTrue(src.indexOf("CP3_DB_BUSY_DEADLINE\")") < gate);
+        AtomicBoolean p0 = new AtomicBoolean(true); AtomicInteger writes = new AtomicInteger();
+        ResearchWriteQueueR27 queue = new ResearchWriteQueueR27((operation, batch) -> writes.incrementAndGet(), p0::get);
+        ResearchWriteQueueR27.Batch batch = new ResearchWriteQueueR27.Batch().add("UPDATE host_fixture SET n=n+1");
+        assertFalse("P0 pressure requeues without entering the write sink", queue.submit("QUALITY_P0", batch, () -> false));
+        assertEquals(0, writes.get());
+        p0.set(false);
+        assertTrue("the retained write advances once after P0 releases", queue.submit("QUALITY_P0", batch, () -> false));
+        assertEquals(1, writes.get());
+        // Audit the actual typed admission hook as well. Native lock/transaction behavior is separately
+        // exercised by R31WriteProtocolHost; these JVM checks do not claim Android latency or OS fairness.
+        String src = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java").toPath()), "UTF-8").replaceAll("\\s+", "");
+        int gate = src.indexOf("if(background&&!reentrant&&criticalBusinessWaitersR914.get()>0&&(!serviceSlot||FREEZE_WAITERS_R31.get()>0))");
+        int lock = src.indexOf("if(writeLock.tryLock(", gate);
+        int deadline = src.lastIndexOf("if(left<=0)thrownewIllegalStateException(\"CP3_DB_BUSY_DEADLINE\");", gate);
+        assertTrue("critical admission and expiry checks precede the sole writer lock", deadline >= 0 && gate > deadline && lock > gate);
+        assertTrue("a bounded aged research slot cannot preempt a freeze",
+                src.contains("FREEZE_WAITERS_R31.get()==0&&now-LAST_RESEARCH_SERVICE_R31.get()>=5000L"));
+        assertEquals(5000, ((Number) DatabaseCoordinator.writeProtocolSnapshotR31().get("researchServiceIntervalMs")).intValue());
         String report = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java").toPath()), "UTF-8");
         assertTrue("report carries app thread stacks", report.contains("collectObservation(root,id,observation,\"threadStacks\",ReportExportServiceCP4::threadStacksR27)"));
         R27TestSupport.log("R27_3_CRITICAL_FIRST_WRITER_PASS");
