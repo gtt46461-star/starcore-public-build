@@ -1,0 +1,11 @@
+CHECKPOINT_STARTUP_BASELINE_RETAINED_WITHOUT_PER_BATCH_ARCHIVE_CHURN
+Exception in thread "main" com.ethk3.novaonepro.DatabaseCoordinator$SchemaPendingR31: SCHEMA_PENDING:R31_RETENTION:UNKNOWN_ARCHIVE_ATTACHMENT:r30_keep_r29_model_checkpoint:host_startup_archive_failure
+	at com.ethk3.novaonepro.strategyv2.ResearchRetentionStoreR30.requireArchiveDefinitionR31(ResearchRetentionStoreR30.java:88)
+	at com.ethk3.novaonepro.strategyv2.ResearchRetentionStoreR30.ensureProtectedObjectsR31(ResearchRetentionStoreR30.java:126)
+	at com.ethk3.novaonepro.SchemaDomainCoordinatorR926.migrateR31RetentionProtection(SchemaDomainCoordinatorR926.java:444)
+	at com.ethk3.novaonepro.strategyv2.ResearchRetentionStoreR30.ensureProtected(ResearchRetentionStoreR30.java:115)
+	at com.ethk3.novaonepro.strategyv2.CheckpointStartupR30HostTest.lambda$main$3(CheckpointStartupR30HostTest.java:31)
+	at com.ethk3.novaonepro.strategyv2.CheckpointStartupR30HostTest.tx(CheckpointStartupR30HostTest.java:9)
+	at com.ethk3.novaonepro.strategyv2.CheckpointStartupR30HostTest.main(CheckpointStartupR30HostTest.java:31)
+Exception in thread "main" java.lang.AssertionError: REAL_REOPEN_FAILED
+	at com.ethk3.novaonepro.strategyv2.CheckpointStartupR30HostTest.main(CheckpointStartupR30HostTest.java:40)

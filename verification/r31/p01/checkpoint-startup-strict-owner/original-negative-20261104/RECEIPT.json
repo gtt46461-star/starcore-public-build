@@ -1,0 +1,105 @@
+{
+  "scope": "ACTUAL_RETENTION_DOMAIN_REVOCATION_NATIVE_SQLITE_HOST_NOT_ANDROID_NOT_DEVICE",
+  "sourceCapturedAt": "2026-11-04T21:30:53.087094+00:00",
+  "head": "2f91a41c2904df4d465158254c090f85be7f16ad",
+  "supportClasses": "/workspace/r31-shared-bootstrap-2f91-frozen/classes.jar",
+  "supportClassesSha256": "e46f65ea8e53b8982e1077a6908600cfab66d690f9c7bc11f501285fc85405c9",
+  "androidJarSha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a",
+  "sqliteJdbcSha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa",
+  "records": [
+    {
+      "label": "compile-native-jdbc-platform",
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/r31-shared-bootstrap-2f91-frozen/classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar",
+        "-d",
+        "/tmp/r31-checkpoint-startup-host-fyrng0wk/platform",
+        "/workspace/r31-checkpoint-startup-host/tools/r29/qual_host/shim/android/database/Cursor.java",
+        "/workspace/r31-checkpoint-startup-host/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java",
+        "/workspace/r31-checkpoint-startup-host/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabaseLockedException.java",
+        "/workspace/r31-checkpoint-startup-host/tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java"
+      ],
+      "exitCode": 0,
+      "monotonicDurationNs": 847712128
+    },
+    {
+      "label": "compile-actual-three-production-owners",
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-proc:none",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/workspace/r31-shared-bootstrap-2f91-frozen/classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-checkpoint-startup-host-fyrng0wk/production",
+        "/workspace/r31-checkpoint-startup-host/verification/r31/p01/checkpoint-startup-strict-owner/original-negative-20261104/source-snapshot/SchemaDomainCoordinatorR926.java",
+        "/workspace/r31-checkpoint-startup-host/verification/r31/p01/checkpoint-startup-strict-owner/original-negative-20261104/source-snapshot/ResearchRetentionStoreR30.java",
+        "/workspace/r31-checkpoint-startup-host/verification/r31/p01/checkpoint-startup-strict-owner/original-negative-20261104/source-snapshot/CertificateRevocationR30.java"
+      ],
+      "exitCode": 0,
+      "monotonicDurationNs": 1075960508
+    },
+    {
+      "label": "compile-original-test-unchanged",
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/tmp/r31-checkpoint-startup-host-fyrng0wk/platform:/tmp/r31-checkpoint-startup-host-fyrng0wk/production:/workspace/r31-shared-bootstrap-2f91-frozen/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-checkpoint-startup-host-fyrng0wk/original",
+        "/workspace/r31-checkpoint-startup-host/tools/r31/checkpoint_startup_host/baseline/CheckpointStartupR30HostTest.java"
+      ],
+      "exitCode": 0,
+      "monotonicDurationNs": 833362766
+    },
+    {
+      "label": "original-test-strict-owner-FAILED",
+      "command": [
+        "java",
+        "-Xmx768m",
+        "-Djava.io.tmpdir=/tmp/r31-checkpoint-startup-host-fyrng0wk/original-databases",
+        "-cp",
+        "/tmp/r31-checkpoint-startup-host-fyrng0wk/original:/tmp/r31-checkpoint-startup-host-fyrng0wk/platform:/tmp/r31-checkpoint-startup-host-fyrng0wk/production:/workspace/r31-shared-bootstrap-2f91-frozen/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.CheckpointStartupR30HostTest"
+      ],
+      "exitCode": 1,
+      "monotonicDurationNs": 751794976
+    }
+  ],
+  "status": "ORIGINAL_TEST_FAILED_EXPECTED_AT_STRICT_GUARD",
+  "criticalStamp": "MUST_REMAIN_MISSING_IN_THIS_MINIMAL_FIXTURE",
+  "androidDevice": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED",
+  "platformSources": {
+    "tools/r29/qual_host/shim/android/database/Cursor.java": "0c81badbc252c30f83eb808f3f9d818a6f9cc43f5d90e7a9feb5c693bafc8dbf",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java": "80a2bed95c2e382a461d0e363749510c12b0ceafefd152b6f227009199719ad0",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabaseLockedException.java": "e17afce73f98be731b31a7d19f895a6df48c90b4f12362a1b5e5b463566a74c9",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java": "878df09b56099f50a5cd75f2d94a9c0f11d1b49ce9c3cc36e5c66101b47c4b88"
+  },
+  "sourceSha256": {
+    "/workspace/r31-shared-migrations/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java": "71722a8582e6eeeb2daf8d16446de145501bf54793819695bc4eaeea74a7a913",
+    "/workspace/r31-shared-migrations/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java": "e26556fdde2b055e51e8f8c7ad748023a4ad7b69a84b412df50ee7e64cc48680",
+    "/workspace/r31-shared-migrations/app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java": "f46c6b02aa86041846c7a91780ac32387d46377d58a9fd254420681b78285756"
+  },
+  "originalTestSha256": "b0d2c9d7c565268db90b5b0ede2def51808fabaa4ada131c40f3fb10e369d09a",
+  "compiledOwnerClassSha256": {
+    "com/ethk3/novaonepro/SchemaDomainCoordinatorR926$Contract.class": "f898688d7ba67c417259e662a2d49f7f184f1c81bbc710e9d221335d233c512e",
+    "com/ethk3/novaonepro/SchemaDomainCoordinatorR926$Step.class": "86d45cda76eb040d8b3a2f52f7a5d3e0ec3072ac97b6ef64d4fabdd0728d3d53",
+    "com/ethk3/novaonepro/SchemaDomainCoordinatorR926.class": "9baa9c79a07d18ae404375f5264388ed3eedff427e45185e3a5d4f517325d314",
+    "com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.class": "ddf2e290bca71ad2d8eceef4fba5e654955286963ac2dd2aacc3cb6aa6ffc7f7",
+    "com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30$1.class": "7aa0460c61682a00703054fbe35fb5839d22d0aa3cb6bc503893b5dd8eb594be",
+    "com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30$Writer.class": "9e57a1910dea16eeb3a256ad08f609cfd8c532210b7dae58efe293f9476c663f",
+    "com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.class": "4a5935848602318430b2f1504a619544da8fc0116c869d5aba4d7728e75b9881"
+  },
+  "sourceOriginsUnchanged": true,
+  "finishedAt": "2026-11-04T21:30:56.809532+00:00"
+}
