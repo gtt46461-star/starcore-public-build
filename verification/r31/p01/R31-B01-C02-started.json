@@ -1,0 +1,11 @@
+{
+  "actual_changes": [],
+  "tests": [],
+  "remaining": [
+    "注入旧owner失败回执晚于新owner领取：新owner保持RUNNING，旧回执只进入拒收日志。",
+    "在claim后/提交前/提交后receipt前杀进程：恢复只重复计算未提交部分，artifact及cursor恰好一次发布。",
+    "时钟前后跳24小时、重启后同PID复用均不授予旧fence写权。",
+    "busy重试不丢pending batch；owner变更无R30_PREPARED_OWNER_CHANGED无限重试。"
+  ],
+  "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet."
+}

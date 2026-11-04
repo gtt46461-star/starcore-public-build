@@ -43,7 +43,7 @@ public final class RuntimeFaultEvidenceR31HostTest {
         String redacted = RuntimeFaultEvidenceR31.clean("api_key=hiddenOne password:hiddenTwo Authorization: Bearer hiddenThree https://alice:hiddenFour@example.test/?token=hiddenFive {\"token\":\"hiddenSix\"}", 4096);
         for (String secret : new String[] {"hiddenOne", "hiddenTwo", "hiddenThree", "hiddenFour", "hiddenFive", "hiddenSix"}) require(!redacted.contains(secret), "credential redacted: " + secret);
         WaitKindR27.Wait wait = WaitKindR27.classify(0, null, new SQLiteFullException("password=hidden"), 0, 1, null, false);
-        require(wait.kind.equals(WaitKindR27.ERROR), "P00 preserves scheduler behavior pending P01");
+        require(wait.kind.equals(WaitKindR27.NEEDS_FIX), "P01 storage-full requires explicit repair, not busy retry");
         require(wait.detail.contains("DISK_FULL") && !wait.detail.contains("hidden"), "summary has safe category");
         require(busy.stackHash.equals(StatsR27.sha256(busy.stack)), "stack identity");
         require(busy.fingerprint.equals(evidence(new SQLiteDatabaseLockedException("database locked")).fingerprint), "same root aggregation identity");

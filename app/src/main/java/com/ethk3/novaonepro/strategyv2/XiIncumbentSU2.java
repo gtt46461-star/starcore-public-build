@@ -37,9 +37,11 @@ public final class XiIncumbentSU2 {
     private static float[][][][] floatBank(int banks,int samples){float[][][][] out=new float[banks][samples][][];for(int e=0;e<banks;e++)for(int t=0;t<samples;t++){ExecutionBudgetR26.poll();out[e][t]=new float[10][10];}return out;}
     private static byte[][][][] rankBank(int banks,int samples){byte[][][][] out=new byte[banks][samples][][];for(int e=0;e<banks;e++)for(int t=0;t<samples;t++){ExecutionBudgetR26.poll();out[e][t]=new byte[10][10];}return out;}
     static float[][][][] experts(int[][] d) {
+        ExecutionBudgetR26.phase("XI_EXPERT_ALLOCATION");
         int T = d.length;
         double[][][][] r64 = doubleBank(6,T);     // 0..4 windows, 5 momentum
         float[][][][] r32 = floatBank(2,T);       // 0 omission, 1 markov
+        ExecutionBudgetR26.phase("XI_EXPERT_FEATURES");
         float[][][] C = new float[T + 1][][];C[0]=new float[10][10];
         for (int t = 0; t < T; t++) { ExecutionBudgetR26.poll(); C[t+1]=new float[10][];for (int p = 0; p < 10; p++) C[t + 1][p] = C[t][p].clone(); for (int p = 0; p < 10; p++) C[t + 1][p][d[t][p] - 1] += 1f; }
         int[] wins = {12, 24, 48, 96, 360};
@@ -59,6 +61,7 @@ public final class XiIncumbentSU2 {
             if (t >= 1) for (int p = 0; p < 10; p++) { float[] row = M[p][d[t - 1][p] - 1]; float s = pairwise10(row); for (int n = 0; n < 10; n++) r32[1][t][p][n] = (row[n] + 1.0f) / (s + 10.0f); }
             else for (int p = 0; p < 10; p++) Arrays.fill(r32[1][t][p], 0.1f);
         }
+        ExecutionBudgetR26.phase("XI_EXPERT_STANDARDIZATION");
         float[][][][] Z = floatBank(8,T);
         int[] map = {0, 1, 2, 3, 4, -1, -2, 5};           // expert -> r64 index, or -1 omission, -2 markov
         for (int e = 0; e < 8; e++) for (int t = 0; t < T; t++) for (int p = 0; p < 10; p++) {
@@ -83,6 +86,7 @@ public final class XiIncumbentSU2 {
 
     public static Result evaluate(int[][] d, int start, int end) {
         int T = d.length; float[][][][] Z = experts(d);
+        ExecutionBudgetR26.phase("XI_RANK_ALLOCATION_AND_SORT");
         // ranks with tie-break toward the lower number
         byte[][][][] rank = rankBank(8,T);
         Integer[] ord = new Integer[10];
@@ -91,6 +95,7 @@ public final class XiIncumbentSU2 {
             Arrays.sort(ord, (a, b) -> Float.compare(z[b] - b * 1e-4f, z[a] - a * 1e-4f));
             for (int r = 0; r < 10; r++) rank[e][t][p][ord[r]] = (byte) r;
         }
+        ExecutionBudgetR26.phase("XI_INTERSECTION_FEATURES");
         Result res = new Result(T);
         int nf = 19; double[][] F = new double[T][nf]; double[] base = new double[T];
         for (int t = 0; t < T; t++) { ExecutionBudgetR26.poll();
@@ -138,6 +143,7 @@ public final class XiIncumbentSU2 {
             f[j++] = avg[0] * (ts / 8);
             f[j++] = avg[0] * (own - other);
         }
+        ExecutionBudgetR26.phase("XI_ROLLING_FEATURES");
         double[][] X = new double[T][nf * 5];
         for (int t = 0; t < T; t++) System.arraycopy(F[t], 0, X[t], 0, nf);
         for (int wi = 0; wi < 4; wi++) { ExecutionBudgetR26.poll();
@@ -153,11 +159,13 @@ public final class XiIncumbentSU2 {
                 }
             }
         }
+        ExecutionBudgetR26.phase("XI_POOL_THRESHOLDS");
         boolean[] pool = new boolean[T];
         for (int t = 30; t < end; t++) { ExecutionBudgetR26.poll(); int lo = Math.max(0, t - 720); pool[t] = base[t] >= ModelReplaySU2.quantileLinear(Arrays.copyOfRange(base, lo, t), 1 - POOL); }
         double keep = Math.min(1.0, COVERAGE / POOL);
         double[] prob = res.prob;
         double[] wt = null, mu = null, sd = null; int lastFit = 0; int D = nf * 5;
+        ExecutionBudgetR26.phase("XI_LOGISTIC_FIT_AND_DECISION");
         for (int t = Math.max(start, WARMUP); t < end; t++) { ExecutionBudgetR26.poll();
             if (!pool[t]) continue;
             if (wt == null || t - lastFit >= RETRAIN) {

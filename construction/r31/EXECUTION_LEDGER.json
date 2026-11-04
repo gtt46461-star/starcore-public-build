@@ -33,7 +33,7 @@
       "title": "固定报告对应源码和安装身份，继承1832要求与299历史卡",
       "phase": "P00",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "CODE_COMPLETE",
+      "status": "BUILD_PASS",
       "baseline_files": [
         {
           "path": "app/build.gradle",
@@ -62,7 +62,9 @@
           ]
         }
       ],
-      "commits": [],
+      "commits": [
+        "8faabc2cbd5fe334730130b2ddb00d6d09ac94ac"
+      ],
       "migration_versions": [],
       "tests": [
         {
@@ -75,6 +77,12 @@
           "result": "PASS",
           "tests": 12,
           "evidence": "verification/r31/baseline_identity/test-receipts.json"
+        },
+        {
+          "command": "Unexcluded compileDebugJavaWithJavac + two selected JUnit classes + verifyFinalR31BuildIdentity",
+          "result": "PASS",
+          "tests": 4,
+          "evidence": "verification/r31/p00/source-identity-refresh/final-compile-receipt.json"
         }
       ],
       "apk_identity": null,
@@ -101,7 +109,7 @@
         "本包源提交与source-manifest.json一致，所有实际改动文件有diff和负责批次。",
         "旧要求原文摘要不变，未经实施的状态仍未实施。"
       ],
-      "next_step": "Commit P00 code and all source identity inputs; execute complete build gates without bootstrap exclusions. APK/device acceptance remains NOT_RUN.",
+      "next_step": "Source build verified at 8faabc2; APK identity and target-device evidence await signed build/physical run.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156294+00:00",
@@ -119,6 +127,12 @@
           "state": "CODE_COMPLETE",
           "receipt": "verification/r31/p00/R31-B00-C01.json",
           "receipt_sha256": "8194e0768a08e2c0b59fd33869b055c697cfffc905f15b01fe2793cc1f5d3b38"
+        },
+        {
+          "at": "2026-11-04T09:16:11.066836+00:00",
+          "state": "BUILD_PASS",
+          "receipt": "verification/r31/p00/R31-B00-C01.json",
+          "receipt_sha256": "4fc8f81b927997fb445da75e6330386742e99ac1704c6d23b6a74eef1cfb67f8"
         }
       ]
     },
@@ -127,7 +141,7 @@
       "title": "采集完整原因链和实际提交回执，纠正隔离数量口径",
       "phase": "P00",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "CODE_COMPLETE",
+      "status": "BUILD_PASS",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
@@ -184,7 +198,9 @@
           ]
         }
       ],
-      "commits": [],
+      "commits": [
+        "8faabc2cbd5fe334730130b2ddb00d6d09ac94ac"
+      ],
       "migration_versions": [
         "RESEARCH_R31_OBSERVATION:1"
       ],
@@ -212,6 +228,12 @@
           "result": "PASS",
           "tests": 4,
           "evidence": "verification/r31/p00/task-status-tests.log"
+        },
+        {
+          "command": "Unexcluded compileDebugJavaWithJavac + two selected JUnit classes + verifyFinalR31BuildIdentity",
+          "result": "PASS",
+          "tests": 4,
+          "evidence": "verification/r31/p00/source-identity-refresh/final-compile-receipt.json"
         }
       ],
       "apk_identity": null,
@@ -238,7 +260,7 @@
         "嵌套busy、owner变更、SQL语法错误、磁盘满、用户取消各注入1次，原因链和类别可区分；不得全部重试或全部隔离。",
         "错误事件写入故障不会让真实交易回滚；下一次报告显示telemetry_incomplete及丢样数。"
       ],
-      "next_step": "Commit P00 code and all source identity inputs; execute complete build gates without bootstrap exclusions. APK/device acceptance remains NOT_RUN.",
+      "next_step": "Source build verified at 8faabc2; APK identity and target-device evidence await signed build/physical run.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156309+00:00",
@@ -256,6 +278,12 @@
           "state": "CODE_COMPLETE",
           "receipt": "verification/r31/p00/R31-B00-C02.json",
           "receipt_sha256": "13bed7519994b31a5c38d10b5744fcd59007055fd4aacfbdde5319370357d4ed"
+        },
+        {
+          "at": "2026-11-04T09:16:11.110424+00:00",
+          "state": "BUILD_PASS",
+          "receipt": "verification/r31/p00/R31-B00-C02.json",
+          "receipt_sha256": "b384c5ce1c295f1b4e3314c191172c12996d6e3ab5547fb8d558ea215e113415"
         }
       ]
     },
@@ -264,7 +292,7 @@
       "title": "统一瞬时等待、取消、依赖和真实故障分类",
       "phase": "P01",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java",
@@ -323,12 +351,18 @@
         "磁盘满/constraint/损坏异常不被当busy无限重试；用户stop后无继续提交。",
         "R26、R27、直接研究write、任务claim四入口对同一根异常分类一致。"
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156318+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T09:16:10.775143+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p01/R31-B01-C01-started.json",
+          "receipt_sha256": "cf59b33cf9a2300c321c035f412a454cfeb19c35fe39ee9620dc79fc8adbfeaf"
         }
       ]
     },
@@ -337,7 +371,7 @@
       "title": "领取、提交、回执全部使用同一owner/fence并消除旧prepared状态",
       "phase": "P01",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
@@ -392,12 +426,18 @@
         "时钟前后跳24小时、重启后同PID复用均不授予旧fence写权。",
         "busy重试不丢pending batch；owner变更无R30_PREPARED_OWNER_CHANGED无限重试。"
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156323+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T09:16:10.815708+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p01/R31-B01-C02-started.json",
+          "receipt_sha256": "7a79e690981fe00d8248bce29f6b145c68105cab06ef92700f23d00e6721bfdf"
         }
       ]
     },
@@ -406,7 +446,7 @@
       "title": "有限隔离、半开探测与任务级恢复",
       "phase": "P01",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java",
@@ -461,12 +501,18 @@
         "将13个任务以混合故障隔离：可恢复错误按依赖恢复，真实缺陷保持NEEDS_FIX并报告；不能把“零隔离”作为唯一验收。",
         "24小时无永久无声停摆；每个pending>0的已满足依赖任务都有有效进展或有精确阻塞证据。"
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156328+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T09:16:10.855361+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p01/R31-B01-C03-started.json",
+          "receipt_sha256": "03e3952f0ab3ff816db9d8c37a5c387aaa18b447eb11768ff06df0fe8d3037ad"
         }
       ]
     },
@@ -475,7 +521,7 @@
       "title": "可中断计算与关闭流程有界，禁止超时后并发替身",
       "phase": "P01",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java",
@@ -554,12 +600,18 @@
         "长时间压力下线程总数、待执行队列长度、prepared对象数有上限；取消后资源可归还。",
         "同任务owner/target切换一万次无ABA、双重提交、已关闭connection访问。"
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156337+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T09:16:10.896786+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p01/R31-B01-C04-started.json",
+          "receipt_sha256": "bde6f8e11b8a2eea81c993421882cb44b6f767e5d330cd64814b7189c8749998"
         }
       ]
     },
@@ -568,7 +620,7 @@
       "title": "写优先级显式化，消除R30操作名漏分",
       "phase": "P01",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
@@ -617,12 +669,18 @@
         "60分钟竞争测试：1Hz轮询+历史回补+研究+报告+保留，关键写无研究排队饿死，研究pending也不无限积压。",
         "报告列每operation count/waitP95/holdP95/max/overBudget/rolledBack；阈值失败有具体owner文件。"
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156342+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T09:16:10.936854+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p01/R31-B02-C01-started.json",
+          "receipt_sha256": "49ec641a21ba457314428976f1058f1acae5ee13bb4ce7250193f244a462446a"
         }
       ]
     },
@@ -631,7 +689,7 @@
       "title": "数值计算和DDL退出短事务，分片在owner层完成",
       "phase": "P01",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
@@ -686,12 +744,18 @@
         "对各大batch在第1片/中间片/最终publish前后杀进程：无半模型、无重复增量、无cursor越过未发布artifact。",
         "Android实际SQLite测试受保护触发器、WAL和checkpoint并发；host sqlite结果不能代替设备事务时延。"
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156347+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T09:16:10.977742+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p01/R31-B02-C02-started.json",
+          "receipt_sha256": "c3a0edcbb8371169606f71d79a647b9dc9bd2876b965cc94d85aca903cbe8488"
         }
       ]
     },
@@ -700,7 +764,7 @@
       "title": "区分实际提交与提交后诊断失败，防重复训练/结算",
       "phase": "P01",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
@@ -755,12 +819,18 @@
         "注入commit完成但返回前进程死：重启同commit_key不重复应用；注入commit回滚则能重做。",
         "不同payload复用commit_key必须报INTEGRITY_CONFLICT，不能INSERT OR IGNORE掩盖。"
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156352+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T09:16:11.023347+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p01/R31-B02-C03-started.json",
+          "receipt_sha256": "ad29cbc204c7ced394d4eae95845d679db5e17533f2148f09e79e8d1cff98949"
         }
       ]
     },

@@ -27,7 +27,16 @@
       "result": "PASS",
       "tests": 12,
       "evidence": "verification/r31/baseline_identity/test-receipts.json"
+    },
+    {
+      "command": "Unexcluded compileDebugJavaWithJavac + two selected JUnit classes + verifyFinalR31BuildIdentity",
+      "result": "PASS",
+      "tests": 4,
+      "evidence": "verification/r31/p00/source-identity-refresh/final-compile-receipt.json"
     }
   ],
-  "next_step": "Commit P00 code and all source identity inputs; execute complete build gates without bootstrap exclusions. APK/device acceptance remains NOT_RUN."
+  "next_step": "Source build verified at 8faabc2; APK identity and target-device evidence await signed build/physical run.",
+  "commits": [
+    "8faabc2cbd5fe334730130b2ddb00d6d09ac94ac"
+  ]
 }

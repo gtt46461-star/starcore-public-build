@@ -1,0 +1,10 @@
+{
+  "actual_changes": [],
+  "tests": [],
+  "remaining": [
+    "持实时锁3秒，所有R27任务不新增FAULT、不进入QUARANTINED；锁释放后依公平预算有进展，P0不被R27排队阻塞。",
+    "磁盘满/constraint/损坏异常不被当busy无限重试；用户stop后无继续提交。",
+    "R26、R27、直接研究write、任务claim四入口对同一根异常分类一致。"
+  ],
+  "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet."
+}

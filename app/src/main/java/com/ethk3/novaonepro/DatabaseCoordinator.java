@@ -8,6 +8,9 @@ import android.database.sqlite.SQLiteDatabaseLockedException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Locale;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -15,10 +18,126 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 /** 星核天枢B03数据库唯一协调器。 唯一职责：连接复用、单写者调度、原子事务、幂等与审计；绝不计算概率、Lane或创建BET。 */
 public final class DatabaseCoordinator {
+    /** One writer and one explicit admission contract; legacy names are adapted below. */
+    public enum WriteClass { DRAW_INGEST, LIVE_FREEZE, SETTLEMENT, RESEARCH_CONTROL,
+        RESEARCH_DATA, RETENTION, REPORT, TELEMETRY, MIGRATION }
+    public enum CommitOutcome { ROLLED_BACK, COMMITTED, COMMITTED_DIAGNOSTIC_FAILED, UNKNOWN }
+
+    public static final class WriteContext {
+        public final WriteClass writeClass;
+        public final String operation;
+        public final long deadlineMonoMs;
+        public final boolean registered;
+        private WriteContext(WriteClass kind,String operation,long deadline,boolean registered) {
+            if(kind==null||safe(operation).isEmpty())throw new IllegalArgumentException("R31_WRITE_CONTEXT_REQUIRED");
+            this.writeClass=kind;this.operation=safe(operation);deadlineMonoMs=deadline;this.registered=registered;
+        }
+        public static WriteContext of(WriteClass kind,String operation) {
+            return new WriteContext(kind,operation,0,true);
+        }
+        public WriteContext withDeadlineMonoMs(long deadline) {
+            if(deadline<=0)throw new IllegalArgumentException("R31_WRITE_DEADLINE_REQUIRED");
+            return new WriteContext(writeClass,operation,deadlineMonoMs==0?deadline:Math.min(deadlineMonoMs,deadline),registered);
+        }
+        static WriteContext legacy(String operation) {
+            String op=safe(operation).toUpperCase(Locale.ROOT);
+            WriteClass kind=OPERATION_REGISTRY_R31.get(op);
+            if(kind==null)for(Map.Entry<String,WriteClass> rule:OPERATION_REGISTRY_R31.entrySet())
+                if(rule.getKey().endsWith("*")&&op.startsWith(rule.getKey().substring(0,rule.getKey().length()-1))){kind=rule.getValue();break;}
+            return new WriteContext(kind==null?WriteClass.RESEARCH_DATA:kind,operation,0,kind!=null);
+        }
+        public boolean critical() { return writeClass==WriteClass.DRAW_INGEST||writeClass==WriteClass.LIVE_FREEZE||writeClass==WriteClass.SETTLEMENT; }
+    }
+    /** Immutable registry. Exact exceptions precede explicitly registered families. Unknown is observable and background. */
+    public static final Map<String,WriteClass> OPERATION_REGISTRY_R31;
+    static {
+        LinkedHashMap<String,WriteClass> registry=new LinkedHashMap<>();
+        registerR31(registry,WriteClass.DRAW_INGEST,"R914_DRAW_SAVE_ATOMIC*","R925_FETCH_BEGIN","R925_FETCH_PAYLOAD","R925_FETCH_COMPLETE");
+        registerR31(registry,WriteClass.LIVE_FREEZE,"R932_BUNDLE_CAPTURE","R932_FREEZE_ONE_RESEARCH_CONSUMER","R36_CANONICAL*","R36_ANALYSIS*","R366_ANALYSIS*","R26_INCUMBENT_FREEZE","R26_LIVE_FREEZE");
+        registerR31(registry,WriteClass.SETTLEMENT,"R914_SETTLEMENT_HANDOFF_CURRENT*","R36_SETTLEMENT*","R811_SETTLEMENT_PROMOTE_CURRENT*","R909_SETTLEMENT_REOPEN_CURRENT*","R905_REOPEN_FALSE_NO_PREDRAW*","R820_SETTLEMENT*","R900_SETTLEMENT*");
+        registerR31(registry,WriteClass.RESEARCH_CONTROL,"R30_PREPARED_TASK_CLAIM","R27_TASK_RECEIPT","R27_TASK_RETRY","R27_PRIORITY_CLAIM","R26_TASK_CLAIM","R26_TASK_RECEIPT","R26_SESSION_STATUS","R26_SESSION_STOP");
+        registerR31(registry,WriteClass.TELEMETRY,"R31_RUNTIME_OBSERVATION","R27_THREAD_CPU","R27_WRITE_WAIT","R30_WRITER_HOLD_FLUSH","R30_TIMELINE_COMMIT_OBSERVATIONS","R927_RESOURCE*");
+        registerR31(registry,WriteClass.MIGRATION,"R26_RUNTIME_SCHEMA","R26_SU2_SCHEMA","R26_STRATEGY_STORAGE_UNIT","R929_PLATFORM_SCHEMA","R930_EVOLUTION_SCHEMA","R932_ABLATION_SCHEMA","R932_D2_REPLAY_SCHEMA","R932_FIXED_WINDOW_SCHEMA","R948_RESEARCH_INTEGRITY_SCHEMA","R958_RESEARCH_SCHEMA_STEP");
+        registerR31(registry,WriteClass.RETENTION,"RETENTION_CP12*","R26_RETENTION_PHASE_*","R26_ARTIFACT_RETENTION","R914_DRAW_HISTORY_TRIM*");
+        registerR31(registry,WriteClass.REPORT,"R27_CHART_CACHE","R27_HEALTH","R27_OBSERVERS");
+        registerR31(registry,WriteClass.RESEARCH_DATA,"R914_DRAW_HISTORY_BATCH","R26_*","R27_*","R36_DEFERRED*","R909_SETTLEMENT_POST_COMMIT_SIDECAR*");
+        OPERATION_REGISTRY_R31=Collections.unmodifiableMap(registry);
+    }
+    private static void registerR31(Map<String,WriteClass> map,WriteClass kind,String... operations) {
+        for(String operation:operations)if(map.put(operation,kind)!=null)throw new IllegalStateException("R31_DUPLICATE_OPERATION:"+operation);
+    }
+    public static final class WriteRejectedR31 extends IllegalStateException
+            implements com.ethk3.novaonepro.strategyv2.FailureDispositionR31.ClassifiedFailure {
+        public final String category,operation,phase;
+        public final CommitOutcome commitOutcome;
+        public WriteRejectedR31(String category,String operation,String phase,CommitOutcome outcome,Throwable cause) {
+            super("F01_WRITE_FAILED|operation="+safe(operation)+"|category="+category+"|phase="+phase+"|commitOutcome="+outcome,cause);
+            this.category=category;this.operation=safe(operation);this.phase=phase;commitOutcome=outcome;
+        }
+        @Override public String failureCategory(){return category;}
+        @Override public String operation(){return operation;}
+        @Override public String phase(){return phase;}
+        @Override public String commitOutcomeName(){return commitOutcome.name();}
+    }
+    public static final class CommitIdentityR31 {
+        public final String commitKey,payloadHash,taskId,ownerEpoch,inputSnapshot,operatorVersion;
+        public final long fence,chunkSeq;
+        public CommitIdentityR31(String key,String payload,String task,String owner,long fence,String input,long sequence,String version) {
+            if(safe(key).isEmpty()||safe(payload).isEmpty()||safe(task).isEmpty()||safe(input).isEmpty()||safe(version).isEmpty()||fence<0||sequence<0)
+                throw new IllegalArgumentException("R31_COMMIT_IDENTITY_REQUIRED");
+            commitKey=key;payloadHash=payload;taskId=task;ownerEpoch=safe(owner);this.fence=fence;inputSnapshot=input;chunkSeq=sequence;operatorVersion=version;
+        }
+    }
+    public static final class CommitResultR31<T> {
+        public final T value;
+        public final boolean replay;
+        public final CommitOutcome outcome;
+        public final Throwable diagnosticFailure;
+        CommitResultR31(T value,boolean replay,CommitOutcome outcome,Throwable diagnosticFailure) {
+            this.value=value;this.replay=replay;this.outcome=outcome;this.diagnosticFailure=diagnosticFailure;
+        }
+    }
+    private static final class AttemptR31 {
+        CommitOutcome outcome=CommitOutcome.UNKNOWN;
+        String phase="ADMISSION";
+        Throwable diagnostic;
+        boolean ownsTransaction,externalTransaction,bodyReturned;
+    }
+    private static final ThreadLocal<AttemptR31> ATTEMPT_R31=new ThreadLocal<>();
+    private static final AtomicLong UNKNOWN_PRIORITY_R31=new AtomicLong(),DIAGNOSTIC_FAILURES_R31=new AtomicLong(),UNKNOWN_COMMITS_R31=new AtomicLong();
+    private static final AtomicLong LAST_RESEARCH_SERVICE_R31=new AtomicLong();
+    private static final AtomicBoolean RESEARCH_SERVICE_SLOT_R31=new AtomicBoolean();
+    private static final AtomicInteger FREEZE_WAITERS_R31=new AtomicInteger();
+    private static volatile String lastDiagnosticR31="",lastUnknownPriorityR31="";
+    interface DiagnosticFaultR31 { void at(String phase); }
+    static final ThreadLocal<DiagnosticFaultR31> diagnosticFaultR31=new ThreadLocal<>();
+    private interface DiagnosticR31 { void run(); }
+    private static void diagnosticR31(AttemptR31 attempt,String phase,DiagnosticR31 diagnostic) {
+        try { diagnostic.run();DiagnosticFaultR31 fault=diagnosticFaultR31.get();if(fault!=null)fault.at(phase); }
+        catch(VirtualMachineError|ThreadDeath|LinkageError fatal){throw fatal;}
+        catch(Throwable failed) {
+            rethrowProcessFatalR31(failed);
+            DIAGNOSTIC_FAILURES_R31.incrementAndGet();lastDiagnosticR31=phase+":"+safeError(failed);
+            if(attempt!=null){if(attempt.diagnostic==null)attempt.diagnostic=failed;else if(attempt.diagnostic!=failed)attempt.diagnostic.addSuppressed(failed);
+                if(attempt.outcome==CommitOutcome.COMMITTED)attempt.outcome=CommitOutcome.COMMITTED_DIAGNOSTIC_FAILED;}
+        }
+    }
+    private static void rethrowProcessFatalR31(Throwable failure) {
+        Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failure);
+        if(fatal!=null)throw fatal;
+    }
+    public static Map<String,Object> writeProtocolSnapshotR31() {
+        Map<String,Object> snapshot=new LinkedHashMap<>();snapshot.put("unknownPriorityCount",UNKNOWN_PRIORITY_R31.get());
+        snapshot.put("lastUnknownPriority",lastUnknownPriorityR31);snapshot.put("diagnosticFailures",DIAGNOSTIC_FAILURES_R31.get());
+        snapshot.put("lastDiagnosticFailure",lastDiagnosticR31);snapshot.put("unknownCommitCount",UNKNOWN_COMMITS_R31.get());
+        snapshot.put("researchServiceIntervalMs",5000);snapshot.put("lastResearchServiceMonoMs",LAST_RESEARCH_SERVICE_R31.get());
+        return Collections.unmodifiableMap(snapshot);
+    }
     private static final ThreadLocal<String> LAST_OWNED_COMMIT_R30=new ThreadLocal<>();
     // R30-B09-02: instrumentation-only callback on its executing thread; absent by default.
     // No product caller. Never wait, sleep, or perform network work from this callback.
@@ -284,7 +403,7 @@ public final class DatabaseCoordinator {
                                 return t;
                             }
                         },
-                        new ThreadPoolExecutor.DiscardOldestPolicy());
+                        new ThreadPoolExecutor.AbortPolicy());
         try {
             backgroundWriter.allowCoreThreadTimeOut(true);
         } catch (Throwable ignore) {
@@ -470,6 +589,7 @@ public final class DatabaseCoordinator {
                 criticalSchemaError = "";
                 lastError = "";
             } catch (Throwable e) {
+            rethrowProcessFatalR31(e);
                 criticalSchemaReady.set(false);
                 criticalSchemaCompletedAt = System.currentTimeMillis();
                 criticalSchemaCostMs = Math.max(0L, criticalSchemaCompletedAt - started);
@@ -613,158 +733,142 @@ public final class DatabaseCoordinator {
         WriteValueF01(T value) { this.value=value; }
     }
     public <T> T runWriteOrThrowF01(final String operation, final WriteCallable<T> task) {
+        return runWriteOrThrowF01(WriteContext.legacy(operation),task);
+    }
+    public <T> T runWriteOrThrowF01(final WriteContext context, final WriteCallable<T> task) {
         if(task==null) throw new IllegalArgumentException("F01_WRITE_TASK_NULL");
         WriteFailureFrameF01 previous=WRITE_FAILURE_F01.get();
+        AttemptR31 previousAttempt=ATTEMPT_R31.get(),attempt=new AttemptR31();
+        attempt.outcome=CommitOutcome.ROLLED_BACK;
         WriteFailureFrameF01 own=new WriteFailureFrameF01();
-        WRITE_FAILURE_F01.set(own);
+        WRITE_FAILURE_F01.set(own);ATTEMPT_R31.set(attempt);
         try {
-            WriteValueF01<T> result=runWrite(operation,new WriteCallable<WriteValueF01<T>>() {
-                @Override public WriteValueF01<T> call(SQLiteDatabase db)throws Exception {
-                    return new WriteValueF01<T>(task.call(db));
-                }
-            },null);
-            if(result==null) throw new IllegalStateException(
-                    "F01_WRITE_FAILED|operation="+safe(operation),own.error);
-            return result.value; // a legitimate task null remains a successful value
+            WriteValueF01<T> result=runWrite(context,db->new WriteValueF01<T>(task.call(db)),null);
+            if(result==null) {
+                if(own.error instanceof WriteRejectedR31)throw (WriteRejectedR31)own.error;
+                throw new WriteRejectedR31(failureCategoryR31(own.error),context.operation,attempt.phase,attempt.outcome,own.error);
+            }
+            return result.value; // null is a legitimate successful callback result
         } finally {
             if(previous==null) WRITE_FAILURE_F01.remove(); else WRITE_FAILURE_F01.set(previous);
+            if(previousAttempt==null)ATTEMPT_R31.remove();else ATTEMPT_R31.set(previousAttempt);
         }
     }
 
     public <T> T runWrite(String operation, WriteCallable<T> task, T fallback) {
-        if (task == null) return fallback;
+        return runWrite(WriteContext.legacy(operation),task,fallback);
+    }
+    public <T> T runWrite(WriteContext context, WriteCallable<T> task, T fallback) {
+        if(task==null)return fallback;
+        if(context==null)throw new IllegalArgumentException("R31_WRITE_CONTEXT_REQUIRED");
         rejectMaintenanceR82();
-        if (android.os.Looper.myLooper() != null
-                && android.os.Looper.myLooper() == android.os.Looper.getMainLooper())
+        if(android.os.Looper.myLooper()!=null&&android.os.Looper.myLooper()==android.os.Looper.getMainLooper())
             throw new IllegalStateException("CP3_DB_WRITE_ON_MAIN_THREAD");
-        final Long scopedDeadlineCP3 = WRITE_DEADLINE_CP3.get();
-        final String opR909 = safe(operation);
-        final boolean criticalBusinessR914 = isCriticalBusinessOperationR914(opR909);
-        // A cold background transaction can exceed 250ms on device. The current draw/claim
-        // waits off-UI in the same fair writer, bounded by 2s and any stricter caller deadline.
-        final long writeDeadlineCP3 = scopedDeadlineCP3 == null
-                ? TimeSourceR811.monoNowMs() + (criticalBusinessR914 ? 2000L : 250L)
-                : scopedDeadlineCP3.longValue();
-        // CP12 owners use domain names rather than the legacy RESEARCH/LEARN prefixes.
-        // Their existing cooperative scope is authoritative for writer priority too.
-        final boolean backgroundR909 = !criticalBusinessR914
-                && (ResearchWorkBudgetR927.isActive() || isBackgroundOperationR909(opR909));
-        final boolean reentrantWriterR914 = writeLock.isHeldByCurrentThread();
-        if (criticalBusinessR914) criticalBusinessWaitersR914.incrementAndGet();
-        else if (backgroundR909 && !reentrantWriterR914) yieldBackgroundForCriticalBusinessR914(writeDeadlineCP3);
+        AttemptR31 previousAttempt=ATTEMPT_R31.get();
+        final AttemptR31 attemptState=previousAttempt==null?new AttemptR31():previousAttempt;
+        if(previousAttempt==null){attemptState.outcome=CommitOutcome.ROLLED_BACK;ATTEMPT_R31.set(attemptState);}
+        final String operation=context.operation;
+        final boolean critical=context.critical(),background=!critical;
+        final boolean reentrant=writeLock.isHeldByCurrentThread();
+        final boolean research=context.writeClass==WriteClass.RESEARCH_CONTROL||context.writeClass==WriteClass.RESEARCH_DATA;
+        long now=TimeSourceR811.monoNowMs();
+        Long scoped=WRITE_DEADLINE_CP3.get();
+        long deadline=now+(critical?2000L:250L);
+        if(context.deadlineMonoMs>0)deadline=Math.min(deadline,context.deadlineMonoMs);
+        if(scoped!=null)deadline=Math.min(deadline,scoped);
+        final long writeDeadline=deadline;
+        if(!context.registered){UNKNOWN_PRIORITY_R31.incrementAndGet();lastUnknownPriorityR31="UNKNOWN_PRIORITY:"+operation;}
+        if(critical)criticalBusinessWaitersR914.incrementAndGet();
+        if(context.writeClass==WriteClass.LIVE_FREEZE)FREEZE_WAITERS_R31.incrementAndGet();
         waitingWriters.incrementAndGet();
-        long started = TimeSourceR811.monoNowMs();
-        long waitStarted = started;
-        boolean locked = false;
+        long started=now,waitStarted=now;
+        boolean serviceSlot=false;
         try {
-            for (int attempt = 0; attempt <= AppConfig.DB_LOCK_RETRY_COUNT; attempt++) {
-                long acquireStartedR927 = TimeSourceR811.monoNowMs();
-                boolean waitRecordedR927 = false;
-                long heldSinceR30=-1,localWaitR30=-1;boolean transactionFailedR30=true;
-                com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.Critical continuationWriteCriticalR26=null;
+            // One aged, prepared research slice may enter the existing fair queue every five seconds.
+            // An expiring freeze always retains precedence. This is admission, never a second writer.
+            if(research&&!reentrant&&FREEZE_WAITERS_R31.get()==0&&now-LAST_RESEARCH_SERVICE_R31.get()>=5000L)
+                serviceSlot=RESEARCH_SERVICE_SLOT_R31.compareAndSet(false,true);
+            for(int retry=0;retry<=AppConfig.DB_LOCK_RETRY_COUNT;retry++) {
+                long acquireStarted=TimeSourceR811.monoNowMs(),heldSince=-1,localWait=-1;
+                boolean locked=false,waitRecorded=false,failed=true;
+                com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.Critical continuation=null;
                 try {
-                    while (true) {
-                        long remainingCP3 = writeDeadlineCP3 - TimeSourceR811.monoNowMs();
-                        if (remainingCP3 <= 0L)
-                            throw new IllegalStateException("CP3_DB_BUSY_DEADLINE");
-                        // R27.3: a background writer never joins the (fair) writer queue while a critical business
-                        // writer waits; it waits outside the queue until its own deadline (device 10.29 04:05:
-                        // R914_DRAW_SAVE_ATOMIC lost its 2 s window behind queued background writers).
-                        if (backgroundR909 && !reentrantWriterR914 && criticalBusinessWaitersR914.get() > 0) {
-                            Thread.sleep(Math.min(4L, remainingCP3));
-                            RuntimeResourceAuditR927.checkpoint("DB_LOCK_WAIT");
-                            ResearchWorkBudgetR927.checkpoint();
-                            continue;
+                    attemptState.phase="WAIT";
+                    while(true) {
+                        if(Thread.currentThread().isInterrupted())throw new InterruptedException("CP3_DB_WAIT_INTERRUPTED");
+                        long left=writeDeadline-TimeSourceR811.monoNowMs();
+                        if(left<=0)throw new IllegalStateException("CP3_DB_BUSY_DEADLINE");
+                        if(background&&!reentrant&&criticalBusinessWaitersR914.get()>0&&(!serviceSlot||FREEZE_WAITERS_R31.get()>0)) {
+                            Thread.sleep(Math.min(4L,left));
+                            RuntimeResourceAuditR927.checkpoint("DB_LOCK_WAIT");ResearchWorkBudgetR927.checkpoint();continue;
                         }
-                        if (writeLock.tryLock(Math.min(backgroundR909 ? 10L : 50L, remainingCP3), TimeUnit.MILLISECONDS)) {
-                            locked = true;
-                            heldSinceR30=TimeSourceR811.monoNowMs();localWaitR30=Math.max(0,heldSinceR30-waitStarted);
-                            // Every writer entry, including legacy non-transaction wrappers, must
-                            // release the sole writer before a numerical continuation may park.
-                            continuationWriteCriticalR26=com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.critical();
-                            if (TimeSourceR811.monoNowMs() >= writeDeadlineCP3)
-                                throw new IllegalStateException("CP3_DB_BUSY_DEADLINE_AFTER_ACQUIRE");
+                        if(writeLock.tryLock(Math.min(background?10L:50L,left),TimeUnit.MILLISECONDS)) {
+                            locked=true;heldSince=TimeSourceR811.monoNowMs();localWait=Math.max(0,heldSince-waitStarted);
+                            continuation=com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.critical();
+                            if(heldSince>=writeDeadline)throw new IllegalStateException("CP3_DB_BUSY_DEADLINE_AFTER_ACQUIRE");
                             break;
                         }
-                        RuntimeResourceAuditR927.checkpoint("DB_LOCK_WAIT");
-                        if(backgroundR909) ResearchWorkBudgetR927.checkpoint();
+                        RuntimeResourceAuditR927.checkpoint("DB_LOCK_WAIT");if(background)ResearchWorkBudgetR927.checkpoint();
                     }
-                    RuntimeResourceAuditR927.lockWait(TimeSourceR811.monoNowMs()-acquireStartedR927);
-                    waitRecordedR927 = true;
-                    locked = true;
-                    lastDbLockWaitMs = localWaitR30>=0?localWaitR30:Math.max(0L,TimeSourceR811.monoNowMs()-waitStarted);
-                    if (lastDbLockWaitMs > longestDbLockWaitMs)
-                        longestDbLockWaitMs = lastDbLockWaitMs;
-                    if (!opR909.startsWith("R927_RESOURCE")) RuntimeResourceAuditR927.checkpoint("DB_LOCK_ACQUIRED");
-                    if (backgroundR909) ResearchWorkBudgetR927.checkpoint();
-                    long bodyStartedR927 = TimeSourceR811.monoNowMs();
-                    boolean bodyCommittedR30 = false;
+                    final long observedWait=TimeSourceR811.monoNowMs()-acquireStarted;
+                    diagnosticR31(attemptState,"LOCK_WAIT",()->RuntimeResourceAuditR927.lockWait(observedWait));waitRecorded=true;
+                    lastDbLockWaitMs=localWait;if(localWait>longestDbLockWaitMs)longestDbLockWaitMs=localWait;
+                    if(!operation.startsWith("R927_RESOURCE"))RuntimeResourceAuditR927.checkpoint("DB_LOCK_ACQUIRED");
+                    if(background)ResearchWorkBudgetR927.checkpoint();
+                    attemptState.phase="BODY";
+                    long bodyStarted=TimeSourceR811.monoNowMs();
                     try {
                         com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.checkThreadFence(writable());
-                        T result = task.call(writable());
-                        transactionFailedR30=result instanceof TransactionResult&&!((TransactionResult<?>)result).success;
-                        recordSuccess(operation, started);
-                        bodyCommittedR30 = true;
+                        T result=task.call(writable());attemptState.bodyReturned=true;
+                        failed=result instanceof TransactionResult&&!((TransactionResult<?>)result).success;
+                        if(!attemptState.ownsTransaction&&!attemptState.externalTransaction)attemptState.outcome=failed?CommitOutcome.ROLLED_BACK:
+                                attemptState.diagnostic==null?CommitOutcome.COMMITTED:CommitOutcome.COMMITTED_DIAGNOSTIC_FAILED;
+                        if(research&&!failed)LAST_RESEARCH_SERVICE_R31.set(TimeSourceR811.monoNowMs());
+                        diagnosticR31(attemptState,"RECORD_SUCCESS",()->recordSuccess(operation,started));
                         return result;
                     } finally {
-                        long bodyMsR30 = TimeSourceR811.monoNowMs()-bodyStartedR927;
-                        RuntimeResourceAuditR927.dbBody(bodyMsR30, backgroundR909);
-                        if(!bodyCommittedR30)transactionFailedR30=true;
+                        final long bodyMs=TimeSourceR811.monoNowMs()-bodyStarted;
+                        diagnosticR31(attemptState,"DB_BODY",()->RuntimeResourceAuditR927.dbBody(bodyMs,background));
                     }
-                } catch (RuntimeResourceAuditR927.BudgetExceeded deadlineR927) {
-                    throw deadlineR927;
-                } catch (ResearchWorkBudgetR927.Yield yieldR927) {
-                    throw yieldR927;
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    lastError = "Interrupted";
-                    WriteFailureFrameF01 failureFrame=WRITE_FAILURE_F01.get();
-                    if(failureFrame!=null)failureFrame.error=e;
+                } catch(RuntimeResourceAuditR927.BudgetExceeded budget){throw budget;}
+                catch(ResearchWorkBudgetR927.Yield yield){throw yield;}
+                catch(InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();lastError="Interrupted";
+                    WriteFailureFrameF01 frame=WRITE_FAILURE_F01.get();if(frame!=null)frame.error=interrupted;
                     return fallback;
-                } catch (VirtualMachineError fatal) {
-                    throw fatal;
-                } catch (ThreadDeath fatal) {
-                    throw fatal;
-                } catch (Throwable e) {
-                    if (!isLocked(e) || attempt >= AppConfig.DB_LOCK_RETRY_COUNT) {
-                        WriteFailureFrameF01 failureFrame=WRITE_FAILURE_F01.get();
-                        if(failureFrame!=null)failureFrame.error=e;
-                        recordError(operation, e, started);
+                } catch(VirtualMachineError|ThreadDeath|LinkageError fatal){throw fatal;}
+                catch(Throwable failure) {
+                    rethrowProcessFatalR31(failure);
+                    // Never retry a body whose COMMIT result is ambiguous. Idempotent owners resolve the receipt first.
+                    if(attemptState.outcome==CommitOutcome.UNKNOWN||!isLocked(failure)||retry>=AppConfig.DB_LOCK_RETRY_COUNT) {
+                        WriteFailureFrameF01 frame=WRITE_FAILURE_F01.get();if(frame!=null)frame.error=failure;
+                        diagnosticR31(attemptState,"RECORD_ERROR",()->recordError(operation,failure,started));
                         return fallback;
                     }
-                    if (locked) {
-                        long fullHoldR30=heldSinceR30<0?-1:TimeSourceR811.monoNowMs()-heldSinceR30;
-                        try {
-                            writeLock.unlock();
-                        } catch (Throwable ignore) {
-                            lastError = "R926_WRITE_UNLOCK_FAILED:" + safeError(ignore);
-                        }
-                        locked = false;
-                        if(!reentrantWriterR914&&fullHoldR30>=0)recordUnlockedWriterR30(opR909,criticalBusinessR914,localWaitR30,fullHoldR30,transactionFailedR30);
-                        heldSinceR30=-1;
-                    }
-                    sleepBackoff(attempt, writeDeadlineCP3);
+                    if(locked){writeLock.unlock();locked=false;final long hold=TimeSourceR811.monoNowMs()-heldSince;final long waited=localWait;
+                        diagnosticR31(attemptState,"WRITER_HOLD",()->recordUnlockedWriterR30(operation,critical,waited,hold,true));}
+                    sleepBackoff(retry,writeDeadline);
                 } finally {
-                    if (!waitRecordedR927) RuntimeResourceAuditR927.lockWait(TimeSourceR811.monoNowMs()-acquireStartedR927);
-                    if (locked) {
-                        long fullHoldR30=heldSinceR30<0?-1:TimeSourceR811.monoNowMs()-heldSinceR30;
+                    try {
+                        if(!waitRecorded){final long waited=TimeSourceR811.monoNowMs()-acquireStarted;diagnosticR31(attemptState,"LOCK_WAIT",()->RuntimeResourceAuditR927.lockWait(waited));}
+                    } finally {
                         try {
-                            writeLock.unlock();
-                        } catch (Throwable ignore) {
-                            lastError = "R926_WRITE_FINALLY_UNLOCK_FAILED:" + safeError(ignore);
+                            if(locked){final long hold=TimeSourceR811.monoNowMs()-heldSince,waited=localWait;final boolean didFail=failed;
+                                try{writeLock.unlock();}finally{if(!reentrant)diagnosticR31(attemptState,"WRITER_HOLD",()->recordUnlockedWriterR30(operation,critical,waited,hold,didFail));}}
+                        } finally {
+                            final com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.Critical closing=continuation;
+                            if(closing!=null)diagnosticR31(attemptState,"WRITER_CONTINUATION_CLOSE",closing::close);
                         }
-                        locked = false;
-                        if(!reentrantWriterR914&&fullHoldR30>=0)recordUnlockedWriterR30(opR909,criticalBusinessR914,localWaitR30,fullHoldR30,transactionFailedR30);
-                        heldSinceR30=-1;
                     }
-                    if(continuationWriteCriticalR26!=null)continuationWriteCriticalR26.close();
                 }
             }
+            return fallback;
         } finally {
-            waitingWriters.decrementAndGet();
-            if (criticalBusinessR914) criticalBusinessWaitersR914.decrementAndGet();
+            waitingWriters.decrementAndGet();if(critical)criticalBusinessWaitersR914.decrementAndGet();
+            if(context.writeClass==WriteClass.LIVE_FREEZE)FREEZE_WAITERS_R31.decrementAndGet();
+            if(serviceSlot)RESEARCH_SERVICE_SLOT_R31.set(false);
+            if(previousAttempt==null)ATTEMPT_R31.remove();
         }
-        return fallback;
     }
     private void recordUnlockedWriterR30(String operation,boolean critical,long wait,long hold,boolean failed){
         if(writeLock.isHeldByCurrentThread())return;
@@ -773,92 +877,137 @@ public final class DatabaseCoordinator {
 
     /** Existing writer lock + actual SQLite transaction. Old fallback API is preserved. */
     public <T> T runAtomicWrite(String operation, final WriteCallable<T> task, T fallback) {
-        if(task==null)return fallback;
-        return runWrite(operation, atomicCallableF01(operation,task), fallback);
+        return runAtomicWrite(WriteContext.legacy(operation),task,fallback);
     }
-    /** This invocation retains its original writer/commit exception as the thrown cause. */
+    public <T> T runAtomicWrite(WriteContext context,final WriteCallable<T> task,T fallback) {
+        if(task==null)return fallback;
+        return runWrite(context,atomicCallableF01(context.operation,task),fallback);
+    }
     public <T> T runAtomicWriteOrThrowF01(String operation, final WriteCallable<T> task) {
+        return runAtomicWriteOrThrowF01(WriteContext.legacy(operation),task);
+    }
+    public <T> T runAtomicWriteOrThrowF01(WriteContext context,final WriteCallable<T> task) {
         if(task==null)throw new IllegalArgumentException("ATOMIC_WRITE_TASK_NULL");
-        return runWriteOrThrowF01(operation, atomicCallableF01(operation,task));
+        return runWriteOrThrowF01(context,atomicCallableF01(context.operation,task));
     }
     private <T> WriteCallable<T> atomicCallableF01(final String operation,final WriteCallable<T> task) {
-        return new WriteCallable<T>() {
-            @Override public T call(SQLiteDatabase db) throws Exception {
-                com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.Critical continuationCritical=com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.critical();
-                boolean owns = !db.inTransaction();
-                long beginNanos=-1L,bodyNanos=-1L,endNanos=-1L;
-                String outcome=owns?"BEGIN_FAILED":"EXTERNAL_ENTER_FAILED";
-                Throwable transactionFailure=null;
+        return atomicCallableF01(operation,task,true);
+    }
+    private <T> WriteCallable<T> atomicCallableF01(final String operation,final WriteCallable<T> task,final boolean automaticArtifact) {
+        return db->{
+            final AttemptR31 attempt=ATTEMPT_R31.get();
+            com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.Critical continuation=com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.critical();
+            boolean owns=!db.inTransaction(),begun=false,successful=false;
+            long beginNanos=-1,bodyNanos=-1,endNanos=-1;
+            Throwable transactionFailure=null;
+            TransactionSchemaCacheR941.Scope schema=null;
+            if(attempt!=null){attempt.ownsTransaction=owns;attempt.externalTransaction=!owns;attempt.phase="BEGIN";}
+            try {
+                if(owns){long start=System.nanoTime();try{db.beginTransaction();begun=true;}finally{beginNanos=Math.max(0,System.nanoTime()-start);}}
+                if(attempt!=null){attempt.phase="BODY";attempt.outcome=CommitOutcome.UNKNOWN;}
+                schema=TransactionSchemaCacheR941.enter(db);
+                long start=System.nanoTime();
                 try {
-                    if (owns) {
-                        long started=System.nanoTime();
-                        try { db.beginTransaction(); }
-                        finally { beginNanos=Math.max(0L,System.nanoTime()-started); }
-                    }
-                    TransactionSchemaCacheR941.Scope schemaScope = TransactionSchemaCacheR941.enter(db);
-                    boolean successful = false;
-                    outcome=owns?"BODY_FAILED":"EXTERNAL_BODY_FAILED";
-                    long bodyStarted=System.nanoTime();
-                    try {
-                        com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.checkThreadFence(db);
-                        T result = task.call(db);
-                        com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.recordOwnedArtifactR30(db,operation);
-                        com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.checkThreadFence(db);
-                        if (owns) {
-                            db.setTransactionSuccessful();
-                            successful = true;
-                        }
-                        outcome=owns?"COMMIT_PENDING":"EXTERNAL_SUCCESS";
-                        return result;
-                    } catch (Exception | Error failure) {
-                        transactionFailure=failure;
-                        throw failure;
-                    } finally {
-                        bodyNanos=Math.max(0L,System.nanoTime()-bodyStarted);
+                    com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.checkThreadFence(db);
+                    T result=task.call(db);
+                    if(automaticArtifact)com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.recordOwnedArtifactR30(db,operation);
+                    com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.checkThreadFence(db);
+                    if(owns){db.setTransactionSuccessful();successful=true;}
+                    return result;
+                } finally {bodyNanos=Math.max(0,System.nanoTime()-start);}
+            } catch(Exception|Error failure){transactionFailure=failure;throw failure;}
+            finally {
+                try {
+                    if(owns&&begun){
+                        if(attempt!=null)attempt.phase="END";
+                        long start=System.nanoTime();
                         try {
-                            if (owns) {
-                                long endStarted=System.nanoTime();
-                                outcome="END_FAILED";
-                                try {
-                                    db.endTransaction();
-                                    outcome=successful?"COMMITTED_POSTCHECK_FAILED":"ROLLED_BACK";
-                                    if (successful) TransactionSchemaCacheR941.afterCommit(schemaScope);
-                                    if (successful) outcome="COMMITTED";
-                                } catch (RuntimeException | Error cleanup) {
-                                    // SQLITE_FULL may already have rolled back natively. Keep that
-                                    // original body failure when endTransaction then fails to roll back.
-                                    if(transactionFailure==null){transactionFailure=cleanup;throw cleanup;}
-                                    if(transactionFailure!=cleanup)transactionFailure.addSuppressed(cleanup);
-                                } finally { endNanos=Math.max(0L,System.nanoTime()-endStarted); }
-                            }
-                        } finally {
-                            try { TransactionSchemaCacheR941.leave(schemaScope); }
-                            catch (RuntimeException | Error cleanup) {
-                                if(transactionFailure==null){transactionFailure=cleanup;throw cleanup;}
-                                if(transactionFailure!=cleanup)transactionFailure.addSuppressed(cleanup);
-                            }
-                        }
+                            db.endTransaction();
+                            if(attempt!=null)attempt.outcome=successful?(attempt.diagnostic==null?CommitOutcome.COMMITTED:CommitOutcome.COMMITTED_DIAGNOSTIC_FAILED):CommitOutcome.ROLLED_BACK;
+                        } catch(RuntimeException|Error endFailure) {
+                            if(attempt!=null)attempt.outcome=CommitOutcome.UNKNOWN;
+                            UNKNOWN_COMMITS_R31.incrementAndGet();
+                            rethrowProcessFatalR31(endFailure);
+                            if(transactionFailure==null){transactionFailure=endFailure;throw endFailure;}
+                            if(transactionFailure!=endFailure)transactionFailure.addSuppressed(endFailure);
+                        } finally {endNanos=Math.max(0,System.nanoTime()-start);}
                     }
-                } catch (Exception | Error failure) {
-                    transactionFailure=failure;
-                    throw failure;
                 } finally {
+                    final TransactionSchemaCacheR941.Scope scope=schema;
                     try {
-                        RuntimeResourceAuditR927.transactionTimingR75(operation,owns,
-                                beginNanos,bodyNanos,endNanos,outcome);
-                    } catch (RuntimeException | Error cleanup) {
-                        if(transactionFailure==null){transactionFailure=cleanup;throw cleanup;}
-                        if(transactionFailure!=cleanup)transactionFailure.addSuppressed(cleanup);
+                        if(owns&&successful&&attempt!=null&&(attempt.outcome==CommitOutcome.COMMITTED||attempt.outcome==CommitOutcome.COMMITTED_DIAGNOSTIC_FAILED))
+                            diagnosticR31(attempt,"AFTER_COMMIT",()->TransactionSchemaCacheR941.afterCommit(scope));
                     } finally {
-                        try { continuationCritical.close(); }
-                        catch (RuntimeException | Error cleanup) {
-                            if(transactionFailure==null)throw cleanup;
-                            if(transactionFailure!=cleanup)transactionFailure.addSuppressed(cleanup);
+                        try { diagnosticR31(attempt,"SCHEMA_LEAVE",()->TransactionSchemaCacheR941.leave(scope)); }
+                        finally {
+                            final long begin=beginNanos,body=bodyNanos,end=endNanos;
+                            final String outcome=attempt==null?"UNKNOWN":attempt.outcome.name();
+                            try { diagnosticR31(attempt,"TRANSACTION_TIMING",()->RuntimeResourceAuditR927.transactionTimingR75(operation,owns,begin,body,end,outcome)); }
+                            finally { diagnosticR31(attempt,"TRANSACTION_CONTINUATION_CLOSE",continuation::close); }
                         }
                     }
                 }
             }
         };
+    }
+
+    /** Receipt and business writes share the same outer transaction. A replay never executes body/guards again. */
+    public <T> CommitResultR31<T> runIdempotentAtomicWriteR31(WriteContext context,CommitIdentityR31 identity,WriteCallable<T> task,T replayValue) {
+        if(context==null||identity==null||task==null)throw new IllegalArgumentException("R31_IDEMPOTENT_ARGUMENT_REQUIRED");
+        AttemptR31 previousAttempt=ATTEMPT_R31.get(),attempt=new AttemptR31();attempt.outcome=CommitOutcome.ROLLED_BACK;
+        WriteFailureFrameF01 previousFailure=WRITE_FAILURE_F01.get(),failure=new WriteFailureFrameF01();
+        ATTEMPT_R31.set(attempt);WRITE_FAILURE_F01.set(failure);
+        final boolean[] replay={false};
+        try {
+            WriteValueF01<T> value=runWrite(context,db->{
+                if(db.inTransaction())throw new IllegalStateException("R31_DEPENDENCY_EXTERNAL_TRANSACTION");
+                return atomicCallableF01(context.operation,tx->{
+                    String existing=receiptPayloadR31(tx,identity.commitKey);
+                    if(existing!=null){requireReceiptPayloadR31(existing,identity.payloadHash);replay[0]=true;return new WriteValueF01<T>(replayValue);}
+                    T result=task.call(tx);
+                    com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.recordOwnedArtifactR30(tx,context.operation);
+                    tx.execSQL("INSERT INTO r31_commit_receipt(commit_key,payload_hash,operation,task_id,owner_epoch,fence,input_snapshot,chunk_seq,operator_version,committed_at) VALUES(?,?,?,?,?,?,?,?,?,?)",
+                            new Object[]{identity.commitKey,identity.payloadHash,context.operation,identity.taskId,identity.ownerEpoch,identity.fence,identity.inputSnapshot,identity.chunkSeq,identity.operatorVersion,System.currentTimeMillis()});
+                    return new WriteValueF01<T>(result);
+                },false).call(db);
+            },null);
+            if(value!=null)return new CommitResultR31<T>(value.value,replay[0],attempt.outcome,attempt.diagnostic);
+            if(attempt.outcome==CommitOutcome.UNKNOWN) {
+                // The connection which failed END is never used as evidence for its own commit.
+                CommitOutcome resolved=resolveCommitReceiptR31(identity);
+                if(resolved==CommitOutcome.COMMITTED)return new CommitResultR31<T>(replayValue,true,
+                        attempt.diagnostic==null?CommitOutcome.COMMITTED:CommitOutcome.COMMITTED_DIAGNOSTIC_FAILED,attempt.diagnostic);
+                attempt.outcome=resolved;
+            }
+            throw new WriteRejectedR31(attempt.outcome==CommitOutcome.UNKNOWN?"DEPENDENCY":failureCategoryR31(failure.error),context.operation,attempt.phase,attempt.outcome,failure.error);
+        } finally {
+            if(previousAttempt==null)ATTEMPT_R31.remove();else ATTEMPT_R31.set(previousAttempt);
+            if(previousFailure==null)WRITE_FAILURE_F01.remove();else WRITE_FAILURE_F01.set(previousFailure);
+        }
+    }
+    private static String receiptPayloadR31(SQLiteDatabase db,String key) {
+        try(Cursor receipt=db.rawQuery("SELECT payload_hash FROM r31_commit_receipt WHERE commit_key=?",new String[]{key})) {
+            return receipt.moveToFirst()?receipt.getString(0):null;
+        }
+    }
+    private static void requireReceiptPayloadR31(String actual,String expected) {
+        if(!expected.equals(actual))throw new IllegalStateException("R31_INTEGRITY_CONFLICT_COMMIT_PAYLOAD");
+    }
+    /** Independent read-only pool. Absence is conclusive only once the original transaction has exited. */
+    public CommitOutcome resolveCommitReceiptR31(CommitIdentityR31 identity) {
+        try {
+            if(helper.getWritableDatabase().inTransaction())return CommitOutcome.UNKNOWN;
+            try(SQLiteDatabase fresh=SQLiteDatabase.openDatabase(app.getDatabasePath(AppConfig.DB_NAME).getPath(),null,SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS)) {
+                String payload=receiptPayloadR31(fresh,identity.commitKey);
+                if(payload!=null){requireReceiptPayloadR31(payload,identity.payloadHash);return CommitOutcome.COMMITTED;}
+                return CommitOutcome.ROLLED_BACK;
+            }
+        } catch(VirtualMachineError|ThreadDeath|LinkageError fatal){throw fatal;}
+        catch(RuntimeException unavailable) {
+            rethrowProcessFatalR31(unavailable);
+            if("INTEGRITY".equals(failureCategoryR31(unavailable)))throw new WriteRejectedR31("INTEGRITY","R31_RECEIPT_READBACK","READBACK",CommitOutcome.UNKNOWN,unavailable);
+            diagnosticR31(ATTEMPT_R31.get(),"RECEIPT_READBACK",()->{throw unavailable;});return CommitOutcome.UNKNOWN;
+        }
     }
 
     public boolean runAtomicWrite(String operation, final WriteRunnable task) {
@@ -871,58 +1020,8 @@ public final class DatabaseCoordinator {
         }, Boolean.FALSE));
     }
 
-    private static boolean isCriticalBusinessOperationR914(String operation) {
-        String op = safe(operation).toUpperCase(java.util.Locale.US);
-        return op.equals("R932_BUNDLE_CAPTURE")
-                || op.equals("R932_FREEZE_ONE_RESEARCH_CONSUMER")
-                || op.startsWith("R914_DRAW_SAVE_ATOMIC")
-                // Draw fetch ledger rows bind each HTTP request to its canonical draw (C029).
-                // A 250ms background slice let research writers reject them on device.
-                || op.equals("R925_FETCH_BEGIN")
-                || op.equals("R925_FETCH_PAYLOAD")
-                || op.equals("R925_FETCH_COMPLETE")
-                || op.equals("R914_DRAW_HISTORY_BATCH")
-                || op.startsWith("R914_SETTLEMENT_HANDOFF_CURRENT")
-                || op.startsWith("R36_CANONICAL")
-                || op.startsWith("R36_ANALYSIS")
-                || op.startsWith("R366_ANALYSIS")
-                || op.startsWith("R36_SETTLEMENT")
-                || op.startsWith("R811_SETTLEMENT_PROMOTE_CURRENT")
-                || op.startsWith("R909_SETTLEMENT_REOPEN_CURRENT")
-                || op.startsWith("R905_REOPEN_FALSE_NO_PREDRAW")
-                || op.startsWith("R820_SETTLEMENT")
-                || op.startsWith("R900_SETTLEMENT");
-    }
-
-    static boolean isBackgroundOperationR909(String operation) {
-        String op = safe(operation).toUpperCase(java.util.Locale.US);
-        // R27 research writes (thread pool + batch queue) yield to critical business writers exactly like R26.
-        return op.startsWith("R26_") || op.startsWith("R27_") || op.indexOf("RESEARCH") >= 0
-                || op.indexOf("DEFERRED") >= 0
-                || op.indexOf("ARTIFACT") >= 0
-                || op.indexOf("EVOLUTION") >= 0
-                || op.indexOf("INVENT") >= 0
-                || op.indexOf("LEARN") >= 0
-                || op.indexOf("BACKTEST") >= 0
-                || op.indexOf("COMPACT") >= 0
-                || op.indexOf("TELEMETRY") >= 0
-                || op.startsWith("R914_DRAW_HISTORY_TRIM")
-                || op.startsWith("RETENTION_CP12")
-                || op.startsWith("R909_SETTLEMENT_POST_COMMIT_SIDECAR");
-    }
-
-    private void yieldBackgroundForCriticalBusinessR914(long writeDeadlineCP3) {
-        long deadline = Math.min(writeDeadlineCP3, TimeSourceR811.monoNowMs() + 350L);
-        while (criticalBusinessWaitersR914.get() > 0
-                && TimeSourceR811.monoNowMs() < deadline) {
-            ResearchWorkBudgetR927.checkpoint();
-            try { Thread.sleep(4L); }
-            catch (InterruptedException interrupted) {
-                Thread.currentThread().interrupt();
-                return;
-            }
-        }
-    }
+    private static boolean isCriticalBusinessOperationR914(String operation) { return WriteContext.legacy(operation).critical(); }
+    static boolean isBackgroundOperationR909(String operation) { return !WriteContext.legacy(operation).critical(); }
 
     public boolean runWrite(String operation, final WriteRunnable task) {
         Boolean ok =
@@ -994,10 +1093,12 @@ public final class DatabaseCoordinator {
             return TransactionResult.ok(
                     value, false, tx.transactionHash, TimeSourceR811.monoNowMs() - started);
         } catch (Throwable e) {
+            rethrowProcessFatalR31(e);
             String auditFailure = "";
             try {
                 appendTransactionAudit(db, tx, "ROLLED_BACK", safeError(e));
             } catch (Throwable auditError) {
+            rethrowProcessFatalR31(auditError);
                 auditFailure = "|AUDIT_FAILED:" + safeError(auditError);
             }
             return TransactionResult.fail(
@@ -1010,6 +1111,7 @@ public final class DatabaseCoordinator {
                 try {
                     db.endTransaction();
                 } catch (Throwable endError) {
+            rethrowProcessFatalR31(endError);
                     throw new IllegalStateException("R926_TX_END_FAILED:" + safeError(endError), endError);
                 }
             }
@@ -1143,6 +1245,7 @@ public final class DatabaseCoordinator {
                                     value, false, tx.transactionHash,
                                     System.currentTimeMillis() - started);
                         } catch (Throwable failure) {
+                            rethrowProcessFatalR31(failure);
                             return TransactionResult.fail(
                                     fallback,
                                     "TX_FAILED:" + safeError(failure),
@@ -1151,7 +1254,8 @@ public final class DatabaseCoordinator {
                         } finally {
                             if (owns && db.inTransaction()) {
                                 try { db.endTransaction();ownCommitObserved[0]=true; }
-                                catch (Throwable endError) {lastError="R926_TX_END_FAILED:"+safeError(endError);throw new IllegalStateException(lastError,endError);}
+                                catch (Throwable endError) {
+            rethrowProcessFatalR31(endError);lastError="R926_TX_END_FAILED:"+safeError(endError);throw new IllegalStateException(lastError,endError);}
                             }
                         }
                     }
@@ -1197,6 +1301,7 @@ public final class DatabaseCoordinator {
                 }
             });
         } catch(RuntimeException writeFailure) {
+            rethrowProcessFatalR31(writeFailure);
             return TransactionResult.fail(fallback,"WRITE_COORDINATION_FAILED:"+safeError(writeFailure),
                     tx.transactionHash,0L,writeFailure);
         }
@@ -1221,10 +1326,12 @@ public final class DatabaseCoordinator {
             return TransactionResult.ok(
                     value, false, tx.transactionHash, TimeSourceR811.monoNowMs() - started);
         } catch (Throwable e) {
+            rethrowProcessFatalR31(e);
             String auditFailure = "";
             try {
                 appendTransactionAudit(db, tx, "ROLLED_BACK", safeError(e));
             } catch (Throwable auditError) {
+            rethrowProcessFatalR31(auditError);
                 auditFailure = "|AUDIT_FAILED:" + safeError(auditError);
             }
             return TransactionResult.fail(
@@ -1238,6 +1345,7 @@ public final class DatabaseCoordinator {
                     db.endTransaction();
                     LAST_OWNED_COMMIT_R30.set(tx.transactionHash);
                 } catch (Throwable endError) {
+            rethrowProcessFatalR31(endError);
                     throw new IllegalStateException("R926_TX_END_FAILED:" + safeError(endError), endError);
                 }
             }
@@ -1403,21 +1511,36 @@ public final class DatabaseCoordinator {
                 db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES('cp12_aggregate_blocker',?,?)",new Object[]{lastError,System.currentTimeMillis()});
                 db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES('cp4_retention_requested','1',?)",new Object[]{System.currentTimeMillis()});
                 db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES('r979_retention_due_at','0',?)",new Object[]{System.currentTimeMillis()});
-            }catch(RuntimeException receiptFailure){lastError+="|BLOCKER_RECEIPT_FAILED:"+safeError(receiptFailure);}
+            }catch(RuntimeException receiptFailure){rethrowProcessFatalR31(receiptFailure);lastError+="|BLOCKER_RECEIPT_FAILED:"+safeError(receiptFailure);}
         }
-        lastRollbackAt = System.currentTimeMillis();
-        rollbackCount++;
+        AttemptR31 attempt=ATTEMPT_R31.get();
+        if(attempt==null||attempt.outcome==CommitOutcome.ROLLED_BACK){lastRollbackAt=System.currentTimeMillis();rollbackCount++;}
     }
 
-    private static boolean isLocked(Throwable e) {
-        Throwable x = e;
-        for (int i = 0; i < 6 && x != null; i++, x = x.getCause()) {
-            if (x instanceof SQLiteDatabaseLockedException) return true;
-            String m = String.valueOf(x.getMessage()).toLowerCase(java.util.Locale.ROOT);
-            if (m.indexOf("database is locked") >= 0 || m.indexOf("database table is locked") >= 0)
-                return true;
+    public static String failureCategoryR31(Throwable error) {
+        if(error instanceof WriteRejectedR31)return ((WriteRejectedR31)error).category;
+        String deferred="BUG";
+        java.util.Set<Throwable> visited=Collections.newSetFromMap(new java.util.IdentityHashMap<Throwable,Boolean>());
+        for(Throwable cause=error;cause!=null&&visited.size()<32&&visited.add(cause);cause=cause.getCause()) {
+            String name=cause.getClass().getSimpleName(),message=String.valueOf(cause.getMessage()).toUpperCase(Locale.ROOT);
+            if(name.contains("SQLiteFull")||message.contains("SQLITE_FULL")||message.contains("DATABASE OR DISK IS FULL"))return "DISK_FULL";
+            if(name.contains("Corrupt")||message.contains("SQLITE_CORRUPT")||message.contains("DATABASE DISK IMAGE IS MALFORMED"))return "DB_CORRUPT";
+            if(name.contains("Constraint")||message.contains("CONSTRAINT FAILED")||message.contains("INTEGRITY_CONFLICT"))return "INTEGRITY";
+            if(cause instanceof InterruptedException||cause instanceof java.util.concurrent.CancellationException||message.contains("CANCELLED")||message.contains("WAIT_INTERRUPTED"))deferred="CANCELLED";
+            else if(message.contains("STALE_OWNER")||message.contains("STALE_FENCE")||message.contains("FENCE_LOST")||message.contains("OWNER_MISMATCH")||message.startsWith("R31_STALE_")||message.startsWith("R30_PREPARED_OWNER_CHANGED"))deferred="STALE_OWNER";
+            else if(name.contains("SQLiteDatabaseLocked")||name.contains("SQLiteTableLocked")||message.contains("DATABASE IS LOCKED")||message.contains("DATABASE TABLE IS LOCKED")||message.contains("CP3_DB_BUSY_")) {
+                if("BUG".equals(deferred))deferred="LOCK_BUSY";
+            } else if(message.contains("DEPENDENCY")||message.contains("SCHEMA_PENDING")||message.contains("NO SUCH TABLE")||message.contains("NO SUCH COLUMN")
+                    ||message.startsWith("MATRIX_ORIGINAL_STUDENT_UNAVAILABLE")||message.startsWith("MISSING_TEACHER")||message.startsWith("R31_COMPUTE_CAPACITY")
+                    ||message.startsWith("R31_CONTINUATION_CANCELLING")||message.startsWith("R31_CONTINUATION_SLICE_IN_FLIGHT")||message.startsWith("R26_UNSLICED_COMPUTATION_CAPACITY")||message.startsWith("R31_PREVIOUS_OWNER_DRAINING")||name.endsWith("CapacityUnavailable")) {
+                if("BUG".equals(deferred))deferred="DEPENDENCY";
+            } else if(cause instanceof java.util.concurrent.TimeoutException&&"BUG".equals(deferred))deferred="TEMP_TIMEOUT";
         }
-        return false;
+        return deferred;
+    }
+    private static boolean isLocked(Throwable error) {
+        if(error instanceof WriteRejectedR31&&((WriteRejectedR31)error).commitOutcome==CommitOutcome.UNKNOWN)return false;
+        return "LOCK_BUSY".equals(failureCategoryR31(error));
     }
 
     private static void sleepBackoff(int attempt, long deadlineMonoMsCP3) {

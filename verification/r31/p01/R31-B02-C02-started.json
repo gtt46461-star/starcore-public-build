@@ -1,0 +1,10 @@
+{
+  "actual_changes": [],
+  "tests": [],
+  "remaining": [
+    "运行期DDL tracing=0（真实迁移窗口除外）；schema缺失时DEPENDENCY(SCHEMA_PENDING)，不现场CREATE。",
+    "对各大batch在第1片/中间片/最终publish前后杀进程：无半模型、无重复增量、无cursor越过未发布artifact。",
+    "Android实际SQLite测试受保护触发器、WAL和checkpoint并发；host sqlite结果不能代替设备事务时延。"
+  ],
+  "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet."
+}

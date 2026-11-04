@@ -6,5 +6,7 @@ public final class ExecutionBudgetR26 {
     public static void enter(BudgetTokenSU1 token){CURRENT.set(token);}
     public static void leave(){CURRENT.remove();}
     public static void poll(){CooperativeContinuationR26.poll();BudgetTokenSU1 token=CURRENT.get();if(token!=null)token.checkpointOrYield();}
+    /** A bounded execution location, not evidence that a durable checkpoint committed. */
+    public static void phase(String name){CooperativeContinuationR26.phase(name);}
     public static BudgetTokenSU1 current(){return CURRENT.get();}
 }

@@ -268,6 +268,10 @@ def verify_apk(root: Path, apk: Path, apksigner: Path, aapt: Path, expected_cert
                 "plan_manifest_sha256", "migration_contract_sha256"):
         if embedded.get(key) != identity[key]:
             errors.append("APK_SOURCE_IDENTITY_MISMATCH:" + key)
+    # A clean inspection checkout cannot make a previously dirty APK publishable.
+    # Missing and mistyped flags carry no proof that the build used clean source.
+    if embedded.get("source_dirty") is not False:
+        errors.append("APK_SOURCE_NOT_PROVEN_CLEAN")
     digest = hashlib.sha256()
     with apk.open("rb") as stream:
         while chunk := stream.read(1024 * 1024):
@@ -276,6 +280,7 @@ def verify_apk(root: Path, apk: Path, apksigner: Path, aapt: Path, expected_cert
     return {"status": "FAIL" if errors else "PASS", "errors": errors,
             "application_id": application_id, "version_code": int(version_code), "version_name": version_name,
             "certificate_sha256": certificates, "sha256": digest.hexdigest(), "bytes": apk.stat().st_size,
+            "embedded_source_dirty": embedded.get("source_dirty"),
             "abis": re.findall(r"'([^']+)'", abis.group(1)) if abis else [],
             "device_installation": "NOT_RUN", "installed_device_certificate_match": "NOT_RUN"}
 

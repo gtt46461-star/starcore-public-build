@@ -12,6 +12,14 @@ public final class SchemaR27 {
     private SchemaR27() {}
     public static final int REVISION = 1;
     public static final int R31_OBSERVATION_REVISION = 1;
+    public static final int R31_WRITE_REVISION = 1;
+    public static final String[] R31_WRITE_DDL = {
+        "CREATE TABLE IF NOT EXISTS r31_commit_receipt(commit_key TEXT PRIMARY KEY,payload_hash TEXT NOT NULL,operation TEXT NOT NULL,task_id TEXT NOT NULL,owner_epoch TEXT NOT NULL,fence INTEGER NOT NULL,input_snapshot TEXT NOT NULL,chunk_seq INTEGER NOT NULL,operator_version TEXT NOT NULL,committed_at INTEGER NOT NULL)",
+        "CREATE INDEX IF NOT EXISTS r31_commit_receipt_task ON r31_commit_receipt(task_id,committed_at)",
+        "CREATE TABLE IF NOT EXISTS r31_task_lease(task_id TEXT PRIMARY KEY,owner_epoch TEXT NOT NULL,fence INTEGER NOT NULL,boot_id TEXT NOT NULL,deadline_elapsed_ms INTEGER NOT NULL,next_elapsed_ms INTEGER NOT NULL DEFAULT 0)",
+        "CREATE TABLE IF NOT EXISTS r31_recovery_clock(singleton INTEGER PRIMARY KEY CHECK(singleton=1),boot_id TEXT NOT NULL,last_recovery_elapsed_ms INTEGER NOT NULL,owner_epoch TEXT NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS r30_cache_rebuild(id INTEGER PRIMARY KEY AUTOINCREMENT,family_index INTEGER NOT NULL,through_ordinal INTEGER NOT NULL,reason TEXT NOT NULL,recorded_at INTEGER NOT NULL)"
+    };
     /** Additive, executed only by the existing startup/migration owner. Never from a fault callback. */
     public static final String[] R31_DDL = {
         "CREATE TABLE IF NOT EXISTS r31_runtime_fault(event_id TEXT PRIMARY KEY,task_id TEXT NOT NULL,owner_epoch TEXT NOT NULL,fence INTEGER,operation TEXT NOT NULL,phase TEXT NOT NULL,category TEXT NOT NULL,root_fingerprint TEXT NOT NULL,minute_bucket INTEGER NOT NULL,cause_chain_json TEXT NOT NULL,stack TEXT NOT NULL,stack_hash TEXT NOT NULL,last_cause_chain_json TEXT NOT NULL,last_stack TEXT NOT NULL,last_stack_hash TEXT NOT NULL,commit_outcome TEXT NOT NULL,boot_id TEXT NOT NULL,first_wall_ms INTEGER NOT NULL,last_wall_ms INTEGER NOT NULL,first_elapsed_ms INTEGER NOT NULL,last_elapsed_ms INTEGER NOT NULL,occurrences INTEGER NOT NULL,byte_count INTEGER NOT NULL CHECK(byte_count>=0),UNIQUE(task_id,owner_epoch,root_fingerprint,minute_bucket))",
@@ -85,6 +93,7 @@ public final class SchemaR27 {
         if (!db.inTransaction()) throw new IllegalStateException("R27_WRITER_REQUIRED");
         for (String sql : DDL) db.execSQL(sql);
         SchemaDomainCoordinatorR926.migrateR31Observations(db);
+        SchemaDomainCoordinatorR926.migrateR31WriteProtocol(db);
         for (String sql : ResearchSchemaR30R1.DDL) db.execSQL(sql);
         if(tableExists(db,"su2_matrix_snapshot"))MatrixStoreSU2.ensureMetadata(db); // existing SU2 ready markers do not imply new additive columns
         ResearchEvolutionStoreR930.createSchema(db); // restore the 13 baseline-declared legacy evidence tables, same owner/writer
@@ -120,6 +129,34 @@ public final class SchemaR27 {
         verifyR31ObservationColumns(db);
         db.execSQL("INSERT OR IGNORE INTO r31_migration VALUES(?,?,?)", new Object[] {
                 R31_OBSERVATION_REVISION, System.currentTimeMillis(), BuildConfig.SOURCE_COMMIT_R26});
+    }
+
+    public static void ensureR31WriteProtocol(SQLiteDatabase db) {
+        if (!db.inTransaction()) throw new IllegalStateException("R31_SCHEMA_WRITER_REQUIRED");
+        for (String sql : R31_WRITE_DDL) db.execSQL(sql);
+        column(db,"r31_task_control","quarantine_boot_id","TEXT NOT NULL DEFAULT ''");
+        column(db,"r31_task_control","quarantine_deadline_elapsed_ms","INTEGER NOT NULL DEFAULT 0");
+        column(db,"r31_task_control","fault_rounds","INTEGER NOT NULL DEFAULT 0");
+        column(db,"r31_task_control","half_open_fence","INTEGER NOT NULL DEFAULT 0");
+        column(db,"r31_task_control","last_success_artifact_hash","TEXT");
+        column(db,"r31_task_control","fault_window_boot_id","TEXT NOT NULL DEFAULT ''");
+        column(db,"r31_task_control","fault_window_elapsed_ms","INTEGER NOT NULL DEFAULT 0");
+        String[][] required = {
+            {"r31_commit_receipt","commit_key,payload_hash,operation,task_id,owner_epoch,fence,input_snapshot,chunk_seq,operator_version,committed_at"},
+            {"r31_task_lease","task_id,owner_epoch,fence,boot_id,deadline_elapsed_ms,next_elapsed_ms"},
+            {"r31_recovery_clock","singleton,boot_id,last_recovery_elapsed_ms,owner_epoch"},
+            {"r30_cache_rebuild","id,family_index,through_ordinal,reason,recorded_at"},
+            {"r31_task_control","quarantine_boot_id,quarantine_deadline_elapsed_ms,fault_rounds,half_open_fence,last_success_artifact_hash,fault_window_boot_id,fault_window_elapsed_ms"}
+        };
+        for (String[] table : required) {
+            java.util.Set<String> names = new java.util.HashSet<>();
+            try (Cursor c = db.rawQuery("PRAGMA table_info(" + table[0] + ")",null)) { while(c.moveToNext()) names.add(c.getString(1)); }
+            for (String name : table[1].split(",")) if (!names.contains(name)) throw new IllegalStateException("R31_WRITE_SCHEMA_CONFLICT:"+table[0]+":"+name);
+        }
+        // Seed a finite recovery schedule for pre-R31 quarantines without clearing historical errors.
+        // Existing R31 rows are not reset by process restart or schema re-entry.
+        if (tableExists(db,"r26_task")) db.execSQL("INSERT OR IGNORE INTO r31_task_control(task_id,quarantine_until,level,fingerprint,quarantine_boot_id,quarantine_deadline_elapsed_ms) SELECT task_id,?,1,'INHERITED_PRE_R31_QUARANTINE',?,? FROM r26_task WHERE status='QUARANTINED'",
+                new Object[] {System.currentTimeMillis()+30_000,IssueTimelineWriterR30.bootId(),android.os.SystemClock.elapsedRealtime()+30_000});
     }
 
     private static void verifyR31ObservationColumns(SQLiteDatabase db) {

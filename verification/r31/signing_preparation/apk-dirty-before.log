@@ -1,0 +1,54 @@
+test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt (test_verify_baseline.ApkInspectionAdapterTest.test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt) ... 
+  test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt (test_verify_baseline.ApkInspectionAdapterTest.test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt) (embedded_source_dirty=True) ... FAIL
+  test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt (test_verify_baseline.ApkInspectionAdapterTest.test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt) (embedded_source_dirty=None) ... FAIL
+  test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt (test_verify_baseline.ApkInspectionAdapterTest.test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt) (embedded_source_dirty='false') ... FAIL
+  test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt (test_verify_baseline.ApkInspectionAdapterTest.test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt) (embedded_source_dirty=0) ... FAIL
+
+======================================================================
+FAIL: test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt (test_verify_baseline.ApkInspectionAdapterTest.test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt) (embedded_source_dirty=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/starcore-public-build/tools/r31/test_verify_baseline.py", line 200, in test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt
+    self.assertEqual("FAIL", result["status"])
+AssertionError: 'FAIL' != 'PASS'
+- FAIL
++ PASS
+
+
+======================================================================
+FAIL: test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt (test_verify_baseline.ApkInspectionAdapterTest.test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt) (embedded_source_dirty=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/starcore-public-build/tools/r31/test_verify_baseline.py", line 200, in test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt
+    self.assertEqual("FAIL", result["status"])
+AssertionError: 'FAIL' != 'PASS'
+- FAIL
++ PASS
+
+
+======================================================================
+FAIL: test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt (test_verify_baseline.ApkInspectionAdapterTest.test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt) (embedded_source_dirty='false')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/starcore-public-build/tools/r31/test_verify_baseline.py", line 200, in test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt
+    self.assertEqual("FAIL", result["status"])
+AssertionError: 'FAIL' != 'PASS'
+- FAIL
++ PASS
+
+
+======================================================================
+FAIL: test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt (test_verify_baseline.ApkInspectionAdapterTest.test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt) (embedded_source_dirty=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/starcore-public-build/tools/r31/test_verify_baseline.py", line 200, in test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt
+    self.assertEqual("FAIL", result["status"])
+AssertionError: 'FAIL' != 'PASS'
+- FAIL
++ PASS
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.005s
+
+FAILED (failures=4)

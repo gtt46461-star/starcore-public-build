@@ -9,7 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,6 +49,10 @@ public final class ResearchPoolR27 implements AutoCloseable {
     private final Map<String,PreparedTaskR30R1> prepared = new HashMap<>();
     private final List<Thread> threads = new ArrayList<>(); private final List<SQLiteDatabase> connections = new ArrayList<>();
     private volatile boolean closed; private volatile String resource;
+    private volatile String shutdownStateR31="RUNNING";
+    private final java.util.concurrent.atomic.AtomicBoolean closeControllerR31=new java.util.concurrent.atomic.AtomicBoolean();
+    private final Map<String,Integer> retryStreakR31=new HashMap<>();
+    private static final java.util.concurrent.ConcurrentHashMap<String,ResearchPoolR27> POOLS_R31=new java.util.concurrent.ConcurrentHashMap<>();
     private volatile int parallelismLimit = 2; private volatile String thermalReason = "NORMAL";
     private final AtomicInteger active = new AtomicInteger();
     public final int size;
@@ -55,13 +60,75 @@ public final class ResearchPoolR27 implements AutoCloseable {
 
     public static final int BACKGROUND_PRIORITY = android.os.Process.THREAD_PRIORITY_BACKGROUND + 1;
     public static int defaultThreads() { int cores = Runtime.getRuntime().availableProcessors(); return Math.max(1, Math.min(2, cores - 1)); }
+    private static final int CONTINUATION_LIMIT_R31=4,HELPER_LIMIT_R31=2;
+    private static final java.util.Map<String,Boolean> COMPUTE_OWNERS_R31=new java.util.LinkedHashMap<>();
+    public static synchronized void installComputeBudgetR31(){
+        if(!CooperativeContinuationR26.hasPermitProvider())CooperativeContinuationR26.installPermitProvider((owner,name)->acquireComputeR31(owner+":"+name,false));
+    }
+    private static CooperativeContinuationR26.ComputePermit acquireComputeR31(String key,boolean helper){
+        synchronized(COMPUTE_OWNERS_R31){
+            if(COMPUTE_OWNERS_R31.containsKey(key))return null;
+            int count=0;for(boolean value:COMPUTE_OWNERS_R31.values())if(value==helper)count++;
+            if(count>=(helper?HELPER_LIMIT_R31:CONTINUATION_LIMIT_R31))return null;
+            COMPUTE_OWNERS_R31.put(key,helper);
+        }
+        java.util.concurrent.atomic.AtomicBoolean released=new java.util.concurrent.atomic.AtomicBoolean();
+        return ()->{if(released.compareAndSet(false,true))synchronized(COMPUTE_OWNERS_R31){COMPUTE_OWNERS_R31.remove(key);}};
+    }
+    private static final java.util.concurrent.ConcurrentHashMap<String,HelperWorkR31> HELPER_WORK_R31=new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.Set<String> CANCELLED_HELPER_GROUPS_R31=java.util.concurrent.ConcurrentHashMap.newKeySet();
+    private static String helperGroupR31(RuntimeCoordinatorR26.Claim claim){return claim.owner+"|"+claim.task+"|"+claim.fence;}
+    static boolean helpersTerminatedR31(RuntimeCoordinatorR26.Claim claim){String group=helperGroupR31(claim);for(HelperWorkR31 work:HELPER_WORK_R31.values())if(group.equals(work.group))return false;return true;}
+    static void cancelTaskHelpersR31(RuntimeCoordinatorR26.Claim claim){
+        String group=helperGroupR31(claim);CANCELLED_HELPER_GROUPS_R31.add(group);
+        for(HelperWorkR31 work:HELPER_WORK_R31.values())if(group.equals(work.group)){
+            if(work.body instanceof java.util.concurrent.Future<?>)((java.util.concurrent.Future<?>)work.body).cancel(true);
+            if(work.executor.remove(work))work.releaseUnstarted();
+        }
+    }
+    static void clearTaskHelperCancellationR31(RuntimeCoordinatorR26.Claim claim){if(helpersTerminatedR31(claim))CANCELLED_HELPER_GROUPS_R31.remove(helperGroupR31(claim));}
+    public static java.util.Map<String,Object> computeBudgetSnapshotR31(){
+        java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();
+        synchronized(COMPUTE_OWNERS_R31){out.put("activeAndParkedOwners",new java.util.ArrayList<>(COMPUTE_OWNERS_R31.keySet()));out.put("count",COMPUTE_OWNERS_R31.size());}
+        java.util.List<Object> helpers=new java.util.ArrayList<>();int queued=0,active=0;
+        for(HelperWorkR31 work:HELPER_WORK_R31.values()){
+            java.util.Map<String,Object> item=new java.util.LinkedHashMap<>();item.put("task",work.claim.task);item.put("owner",work.claim.owner);item.put("fence",work.claim.fence);item.put("phase",work.phase);helpers.add(item);if("QUEUED".equals(work.phase))queued++;else active++;
+        }
+        out.put("helpers",helpers);out.put("queuedHelpers",queued);out.put("activeHelpers",active);out.put("continuationLimit",CONTINUATION_LIMIT_R31);out.put("helperLimit",HELPER_LIMIT_R31);return out;
+    }
+    private static final class HelperWorkR31 implements Runnable {
+        final Runnable body;final CooperativeContinuationR26.ComputePermit permit;final RuntimeCoordinatorR26.Claim claim;
+        final String key,group;final BudgetedHelperExecutorR31 executor;volatile String phase="QUEUED";
+        HelperWorkR31(Runnable body,CooperativeContinuationR26.ComputePermit permit,RuntimeCoordinatorR26.Claim claim,String key,BudgetedHelperExecutorR31 executor){this.body=body;this.permit=permit;this.claim=claim;this.key=key;this.group=helperGroupR31(claim);this.executor=executor;}
+        public void run(){
+            phase="ACTIVE";RuntimeCoordinatorR26.bindBackgroundClaim(claim);
+            try{if(CANCELLED_HELPER_GROUPS_R31.contains(group)){if(body instanceof java.util.concurrent.Future<?>)((java.util.concurrent.Future<?>)body).cancel(false);return;}body.run();}
+            finally{RuntimeCoordinatorR26.unbindBackgroundClaimR31();phase="TERMINATED";HELPER_WORK_R31.remove(key,this);permit.close();}
+        }
+        void releaseUnstarted(){phase="TERMINATED";HELPER_WORK_R31.remove(key,this);permit.close();}
+    }
+    private static final class BudgetedHelperExecutorR31 extends ThreadPoolExecutor{
+        final String owner;
+        BudgetedHelperExecutorR31(int size,String owner){super(size,size,30,TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(2*size),r->{Thread thread=new Thread(()->{try{android.os.Process.setThreadPriority(BACKGROUND_PRIORITY);}catch(RuntimeException unsupported){android.util.Log.w("STARCORE_R31","helper background priority unavailable");}r.run();},"starcore-r31-compute");thread.setDaemon(true);return thread;},new AbortPolicy());this.owner=owner;}
+        @Override public void execute(Runnable command){
+            RuntimeCoordinatorR26.Claim claim=RuntimeCoordinatorR26.currentClaimR30();
+            if(claim==null)throw new RejectedExecutionException("R31_STALE_COMPUTE_HELPER_REQUIRES_CLAIM");
+            String group=helperGroupR31(claim);if(CANCELLED_HELPER_GROUPS_R31.contains(group))throw new RejectedExecutionException("R31_CONTINUATION_CANCELLING");
+            String key=group+":helper:"+java.util.UUID.randomUUID();CooperativeContinuationR26.ComputePermit permit=acquireComputeR31(key,true);
+            if(permit==null)throw new RejectedExecutionException("R31_COMPUTE_CAPACITY_WAIT");
+            HelperWorkR31 work=new HelperWorkR31(command,permit,claim,key,this);HELPER_WORK_R31.put(key,work);
+            try{super.execute(work);}catch(RuntimeException failure){work.releaseUnstarted();throw failure;}
+        }
+        @Override public java.util.List<Runnable> shutdownNow(){java.util.List<Runnable> pending=super.shutdownNow();for(Runnable item:pending)if(item instanceof HelperWorkR31){HelperWorkR31 work=(HelperWorkR31)item;if(work.body instanceof java.util.concurrent.Future<?>)((java.util.concurrent.Future<?>)work.body).cancel(true);work.releaseUnstarted();}return pending;}
+    }
 
     public ResearchPoolR27(DbStore store, String session, int threads) {
         this.store = store; this.session = session; this.size = Math.max(1, threads); this.writes = new ResearchWriteQueueR27(store);
+        installComputeBudgetR31();POOLS_R31.put(session,this);
         // Shared helper executor for data-parallel replay inside one task (evolution REPLAY step).
         // R27.2: the helpers run at the workers' background priority. They used to inherit the default priority and,
         // with up to four of them replaying at once, took the CPU from the realtime analysis thread on device.
-        compute = new ThreadPoolExecutor(size, size, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), r -> { Thread t = new Thread(() -> { try { android.os.Process.setThreadPriority(BACKGROUND_PRIORITY); } catch (Throwable ignored) { } r.run(); }, "starcore-r27-compute"); t.setDaemon(true); return t; });
+        compute = new BudgetedHelperExecutorR31(size,session);
     }
     public ResearchWriteQueueR27 writes() { return writes; }
     public ExecutorService compute() { return compute; }
@@ -72,6 +139,9 @@ public final class ResearchPoolR27 implements AutoCloseable {
     public String thermalReason() { return thermalReason; }
 
     public void start() {
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(RuntimeCoordinatorR26.controlContextR31("R31_REGISTER_RESEARCH_TASKS"),db->{
+            long now=System.currentTimeMillis();for(Task task:tasks)db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism,status,registered_at) VALUES(?,'R27',?,'READY',?)",new Object[]{task.id(),task.id(),now});return 0;
+        });
         String path = store.contextForR26().getDatabasePath(AppConfig.DB_NAME).getPath();
         for (int i = 0; i < size; i++) {
             SQLiteDatabase ro = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY);
@@ -84,72 +154,78 @@ public final class ResearchPoolR27 implements AutoCloseable {
 
     private void loop(Worker w) {
         android.os.Process.setThreadPriority(BACKGROUND_PRIORITY);
-        long cpuStart = android.os.Debug.threadCpuTimeNanos(), wallStart = SystemClock.elapsedRealtime(), flushed = wallStart;
-        long slices = 0;
-        while (!closed) {
-            try {
-                if (resource != null) { sleep(500); continue; }
-                // Freeze guard: the last 3 s before a deadline run with one active research worker (not zero).
-                // R27.2: the same one-worker floor while P0 analysis/settlement runs (device: request→commit P95 20.5 s with
-                // MODEL_BUNDLE_OPEN 10.6 s wall / 0.13 s CPU while every worker ran). Research never drops to zero.
-                int limit = narrow(System.currentTimeMillis()) ? 1 : Math.min(size, parallelismLimit);
-                if (!ResearchSlotsR29.tryEnter(active, limit)) { sleep(100); continue; }
-                Task t;
-                try { t = next(); } catch (Throwable failure) { active.decrementAndGet(); throw failure; }
-                if (t == null) { active.decrementAndGet(); sleep(250); continue; }
-                Outcome o = null; Throwable failure = null;ResourceBudget appliedResourceBudget=null;
-                RuntimeCoordinatorR26.Claim observedClaim = null; String observedPhase = "CLAIM";
-                long attemptCpu = android.os.Debug.threadCpuTimeNanos();
-                boolean quarantined = false;
-                try {
-                    try (Cursor c = w.ro.rawQuery("SELECT status FROM r26_task WHERE task_id=?", new String[] {t.id()})) {
-                        quarantined = c.moveToFirst() && WaitKindR27.QUARANTINED.equals(c.getString(0));
+        long cpuStart=android.os.Debug.threadCpuTimeNanos(),wallStart=SystemClock.elapsedRealtime(),flushed=wallStart,slices=0;
+        while(!closed&&!Thread.currentThread().isInterrupted()){
+            try{
+                CooperativeContinuationR26.reapTerminated();
+                recoverOneR31(store,session);
+                if(resource!=null){sleep(500);continue;}
+                int limit=narrow(System.currentTimeMillis())?1:Math.min(size,parallelismLimit);
+                if(!ResearchSlotsR29.tryEnter(active,limit)){sleep(100);continue;}
+                Task task;
+                try{task=next();}catch(Throwable failure){active.decrementAndGet();throw failure;}
+                if(task==null){active.decrementAndGet();sleep(250);continue;}
+                Outcome outcome=null;Throwable failure=null;ResourceBudget applied=null;RuntimeCoordinatorR26.Claim claim=null;String phase="CLAIM";
+                long cpu=android.os.Debug.threadCpuTimeNanos();PreparedTaskR30R1 current;
+                synchronized(this){current=prepared.get(task.id());}
+                try{
+                    if(current!=null&&current.state()==CooperativeContinuationR26.State.CANCELLING){
+                        if(!current.isTerminated()){outcome=Outcome.idle("DEPENDENCY(DRAINING_NOT_TERMINATED)",current.claim.cursor,-1);synchronized(this){notBefore.put(task.id(),SystemClock.elapsedRealtime()+250);}continue;}
+                        clearTaskHelperCancellationR31(current.claim);synchronized(this){prepared.remove(task.id(),current);}invalidateDraftR31(task.id());current=null;
+                        finishCancelledR31(task.id());
                     }
-                    if (!quarantined) {
-                        PreparedTaskR30R1 current; synchronized(this){current=prepared.get(t.id());}
-                        RuntimeCoordinatorR26.Claim claim=claimPrepared(t.id(),current);
-                        observedClaim = claim;
-                        if(claim==null){o=Outcome.idle("DEPENDENCY(ACTIVE_SCHEMA_SESSION_OR_TASK_LEASE)",0,-1);}
-                        else {
-                            if(current==null){current=new PreparedTaskR30R1(t,w,claim);synchronized(this){prepared.put(t.id(),current);}}
-                            current.claim=claim;
-                            observedPhase = "COMPUTE_OR_PUBLISH";
-                            refreshResourceBudget(w.ro);appliedResourceBudget=resourceBudget;int quantum=appliedResourceBudget.quantums.getOrDefault(t.id(),200);
-                            try{o=current.slice(quantum);}finally{recordResearchCost(t.id(),current.lastCpuNanos);if(current.done()){current.close();synchronized(this){prepared.remove(t.id());}}}
+                    if(current!=null&&current.done()){
+                        current.awaitTermination(50);
+                        if(!current.isTerminated()){outcome=Outcome.idle("DEPENDENCY(RESULT_CLEANUP_PENDING)",current.claim.cursor,-1);synchronized(this){notBefore.put(task.id(),SystemClock.elapsedRealtime()+50);}continue;}
+                        clearTaskHelperCancellationR31(current.claim);synchronized(this){prepared.remove(task.id(),current);}if(current.failedR31){invalidateDraftR31(task.id());finishCancelledR31(task.id());}current=null;
+                    }
+                    ClaimAttempt attempt=claimPrepared(task.id(),current);claim=attempt.claim;phase=attempt.phase;
+                    if(claim==null){outcome=Outcome.idle("DEPENDENCY(ACTIVE_SCHEMA_SESSION_TASK_LEASE_OR_RECOVERY)",0,-1);}
+                    else{
+                        if(current==null){current=new PreparedTaskR30R1(task,w,claim);synchronized(this){prepared.put(task.id(),current);}}
+                        current.claim=claim;phase="COMPUTE_OR_PUBLISH";
+                        refreshResourceBudget(w.ro);applied=resourceBudget;int quantum=applied.quantums.getOrDefault(task.id(),200);
+                        try{outcome=current.slice(quantum);}finally{
+                            recordResearchCost(task.id(),current.lastCpuNanos);
+                            if(current.done()&&!current.failedR31){current.awaitTermination(50);if(current.isTerminated()){clearTaskHelperCancellationR31(current.claim);synchronized(this){prepared.remove(task.id(),current);}}}
                         }
                     }
-                } catch (Throwable e) { failure = e; }
-                finally { active.decrementAndGet(); synchronized (this) { running.put(t.id(), false); } }
-                if (quarantined) { synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + 5000); } continue; }
+                }catch(Throwable error){
+                    failure=error;FailureDispositionR31.Decision d=FailureDispositionR31.classify(error);
+                    if(current!=null&&(d.disposition==FailureDispositionR31.Disposition.STALE_OWNER||d.disposition==FailureDispositionR31.Disposition.CANCELLED||d.disposition==FailureDispositionR31.Disposition.FATAL||current.state()==CooperativeContinuationR26.State.CANCELLING)){current.failedR31=true;current.close();}
+                }finally{active.decrementAndGet();synchronized(this){running.put(task.id(),false);}}
                 slices++;
-                record(t.id(), o, failure,appliedResourceBudget, observedClaim, observedPhase,
-                        Math.max(0, android.os.Debug.threadCpuTimeNanos() - attemptCpu) / 1_000_000L);
-                if (o == null || o.units == 0) synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + (failure != null ? 5000 : o!=null&&"COOPERATIVE_PREPARED_STEP".equals(o.reason)?25:1000)); }
-            } catch (Throwable unexpected) { android.util.Log.w("STARCORE_R27", "worker " + w.name, unexpected); sleep(500); }
-            long now = SystemClock.elapsedRealtime();
-            if (now - flushed > 15_000) { flushCpu(w.name, android.os.Debug.threadCpuTimeNanos() - cpuStart, now - wallStart, slices); flushed = now; }
+                record(task.id(),outcome,failure,applied,claim,phase,Math.max(0,android.os.Debug.threadCpuTimeNanos()-cpu)/1_000_000L);
+                FailureDispositionR31.Decision disposition=failure==null?null:FailureDispositionR31.classify(failure);
+                long delay=outcome!=null&&"COOPERATIVE_PREPARED_STEP".equals(outcome.reason)?25:1000;
+                synchronized(this){
+                    if(disposition!=null&&disposition.disposition==FailureDispositionR31.Disposition.RETRY_LATER){int streak=retryStreakR31.getOrDefault(task.id(),0)+1;retryStreakR31.put(task.id(),streak);delay=FailureDispositionR31.backoffMillis(streak,task.id());}
+                    else if(failure==null&&outcome!=null&&outcome.units>0)retryStreakR31.remove(task.id());
+                    notBefore.put(task.id(),SystemClock.elapsedRealtime()+delay);
+                }
+                Error processFatal=FailureDispositionR31.processFatalCause(failure);if(processFatal!=null)throw processFatal;
+            }catch(VirtualMachineError|ThreadDeath|LinkageError fatal){closed=true;throw fatal;}
+            catch(RuntimeException unexpected){android.util.Log.w("STARCORE_R31","worker control deferred "+w.name+":"+unexpected.getClass().getSimpleName());sleep(500);}
+            long now=SystemClock.elapsedRealtime();if(now-flushed>15_000){flushCpu(w.name,android.os.Debug.threadCpuTimeNanos()-cpuStart,now-wallStart,slices);flushed=now;}
         }
     }
-
-    private RuntimeCoordinatorR26.Claim claimPrepared(String id,PreparedTaskR30R1 current){
-        return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R30_PREPARED_TASK_CLAIM",db->{
+    static final class ClaimAttempt {
+        final RuntimeCoordinatorR26.Claim claim;final String phase;
+        ClaimAttempt(RuntimeCoordinatorR26.Claim claim,String phase){this.claim=claim;this.phase=phase;}
+    }
+    private ClaimAttempt claimPrepared(String id,PreparedTaskR30R1 current){
+        RuntimeCoordinatorR26.Claim claimed=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(RuntimeCoordinatorR26.controlContextR31("R30_PREPARED_TASK_CLAIM"),db->{
             if(!ResearchStoreR30R1.ready(db))return null;
-            long now=System.currentTimeMillis();
-            try(Cursor c=db.rawQuery("SELECT 1 FROM r26_session WHERE session_id=? AND user_enabled=1 AND state='RUNNING'",new String[]{session})){if(!c.moveToFirst())return null;}
-            long fence,cursor;String owner,status;long until;
-            try(Cursor c=db.rawQuery("SELECT fence,cursor,owner,status,lease_until FROM r26_task WHERE task_id=?",new String[]{id})){if(!c.moveToFirst())return null;fence=c.getLong(0);cursor=c.getLong(1);owner=c.getString(2);status=c.getString(3);until=c.getLong(4);}
-            if(current!=null){if(!session.equals(owner)||fence!=current.claim.fence)throw new IllegalStateException("R30_PREPARED_OWNER_CHANGED");}
-            else {if("QUARANTINED".equals(status)||until>now&&!session.equals(owner))return null;fence++;}
-            db.execSQL("UPDATE r26_task SET owner=?,fence=?,status='RUNNING',lease_until=? WHERE task_id=?",new Object[]{session,fence,now+30000,id});
-            return new RuntimeCoordinatorR26.Claim(id,session,fence,cursor,"R27");
+            return RuntimeCoordinatorR26.claimWithinR31(db,id,session,"R27",current==null?null:current.claim);
         });
+        return new ClaimAttempt(claimed,claimed==null?"CLAIM_WAIT":"CLAIMED");
     }
 
     /** Freeze window or active P0 work: the pool runs with one worker (R27.2). */
     boolean narrow(long now) { return parallelismLimit == 1 || writes.freezeWindow(now) || ResearchWriteQueueR27.p0Writing(); }
 
     private synchronized Task next() {
-        long now = System.currentTimeMillis();
+        long now = SystemClock.elapsedRealtime();
         for (Task t : tasks) {
             if (Boolean.TRUE.equals(running.get(t.id()))) continue;
             Long nb = notBefore.get(t.id()); if (nb != null && nb > now) continue;
@@ -162,41 +238,92 @@ public final class ResearchPoolR27 implements AutoCloseable {
     }
     public synchronized void wake(String id) { notBefore.remove(id); }
 
-    private void record(String id, Outcome o, Throwable failure,ResourceBudget appliedResourceBudget,
-                        RuntimeCoordinatorR26.Claim claim, String phase, long cpuMs) {
-        WaitKindR27.Wait wait = WaitKindR27.classify(o == null ? 0 : o.units, o == null ? null : o.reason, failure, o == null ? 0 : o.cursor, o == null ? -1 : o.latest, resource, false);
-        final long now = System.currentTimeMillis(); final String stack = failure == null ? null : stack(failure);
-        boolean receiptCommitted = false;
-        try {
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R27_TASK_RECEIPT", db -> {
-                db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism,status,registered_at) VALUES(?,'R27',?,'READY',?)", new Object[] {id, id, now});
-                if (failure != null) {
-                    long ws = 0, cnt = 0;
-                    try (Cursor c = db.rawQuery("SELECT error_window_start,error_count FROM r26_task WHERE task_id=?", new String[] {id})) { if (c.moveToFirst()) { ws = c.getLong(0); cnt = c.getLong(1); } }
-                    long[] e = WaitKindR27.recordError(ws, cnt, now);
-                    boolean q = WaitKindR27.quarantine(e[1]);
-                    db.execSQL("INSERT INTO r27_task_error(task_id,error_class,message,stack,recorded_at) VALUES(?,?,?,?,?)", new Object[] {id, failure.getClass().getName(), RuntimeFaultEvidenceR31.clean(failure.getMessage(), 1024), stack, now});
-                    db.execSQL("DELETE FROM r27_task_error WHERE error_id<(SELECT max(error_id)-2000 FROM r27_task_error)");
-                    db.execSQL("UPDATE r26_task SET error_window_start=?,error_count=?,status=?,wait_kind=?,wait_detail=?,blocked_reason=?,wait_since=CASE WHEN wait_kind=? THEN wait_since ELSE ? END,last_served=? WHERE task_id=?",
-                            new Object[] {e[0], e[1], q ? WaitKindR27.QUARANTINED : "BLOCKED", q ? WaitKindR27.QUARANTINED : wait.kind, wait.detail, wait.blockedReason(), wait.kind, now, now, id});
-                } else {
-                    boolean progress = wait.kind.equals(WaitKindR27.PROGRESS);
-                    boolean parked=o!=null&&"COOPERATIVE_PREPARED_STEP".equals(o.reason);
-                    db.execSQL("UPDATE r26_task SET status=?,lease_until=?,wait_kind=?,wait_detail=?,blocked_reason=?,wait_since=CASE WHEN wait_kind=? THEN wait_since ELSE ? END,last_served=? WHERE task_id=? AND owner=? AND status<>?",
-                            new Object[] {parked?"RUNNING":progress?"YIELDED":"BLOCKED",parked?now+30000:0,wait.kind,wait.detail,wait.blockedReason(),wait.kind,now,now,id,session,WaitKindR27.QUARANTINED});
-                }
-                if(failure==null)recordResourceUse(db,id,now,appliedResourceBudget);
+    public static final String TASK_RECEIPT_CAS_R31="UPDATE r26_task SET status=?,lease_until=?,wait_kind=?,wait_detail=?,blocked_reason=?,wait_since=CASE WHEN wait_kind=? THEN wait_since ELSE ? END,last_served=? WHERE task_id=? AND owner=? AND fence=? AND status='RUNNING'";
+    private void record(String id,Outcome outcome,Throwable failure,ResourceBudget applied,RuntimeCoordinatorR26.Claim claim,String phase,long cpuMs){
+        WaitKindR27.Wait wait=WaitKindR27.classify(outcome==null?0:outcome.units,outcome==null?null:outcome.reason,failure,outcome==null?0:outcome.cursor,outcome==null?-1:outcome.latest,resource,false);
+        long now=System.currentTimeMillis();boolean receiptCommitted=false;
+        // An unclaimed attempt has no authority to change a task's status or error budget.
+        if(claim!=null)try{
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(RuntimeCoordinatorR26.controlContextR31("R27_TASK_RECEIPT"),db->{
+                RuntimeCoordinatorR26.requireFence(db,claim);
+                boolean parked=outcome!=null&&"COOPERATIVE_PREPARED_STEP".equals(outcome.reason);
+                FailureDispositionR31.Decision disposition=failure==null?null:FailureDispositionR31.classify(failure);
+                String status=parked?"RUNNING":WaitKindR27.PROGRESS.equals(wait.kind)?"YIELDED":"BLOCKED";
+                if(disposition!=null&&disposition.requiresCommitResolution)status="COMMIT_UNCERTAIN";
+                if(disposition!=null&&disposition.disposition==FailureDispositionR31.Disposition.FATAL)status="NEEDS_FIX";
+                db.execSQL(TASK_RECEIPT_CAS_R31,new Object[]{status,parked?now+30_000:0,wait.kind,wait.detail,wait.blockedReason(),wait.kind,now,now,id,claim.owner,claim.fence});
+                try(Cursor changed=db.rawQuery("SELECT changes()",null)){if(!changed.moveToFirst()||changed.getInt(0)!=1)throw new IllegalStateException("R31_STALE_RECEIPT_IGNORED");}
+                RuntimeCoordinatorR26.releaseLeaseR31(db,claim,outcome!=null&&outcome.units>0?0:1000,parked);
+                if(disposition!=null&&disposition.consumesFaultBudget())recordFaultBudgetR31(db,claim,failure,now);
+                if(failure==null){recordResourceUse(db,id,now,applied);recordDurableRecoveryR31(db,claim);}
                 return 0;
-            });
-            receiptCommitted = true;
-        } catch (RuntimeException busy) { android.util.Log.w("STARCORE_R27", "task receipt deferred " + id, busy); }
-        observeAttemptR31(store, id, session, claim, phase, failure, o == null ? 0 : o.units, cpuMs, receiptCommitted);
-        if (failure != null) android.util.Log.w("STARCORE_R27", id, failure);
+            });receiptCommitted=true;
+        }catch(RuntimeException receipt){if(FailureDispositionR31.classify(receipt).disposition!=FailureDispositionR31.Disposition.STALE_OWNER)android.util.Log.w("STARCORE_R31","task receipt deferred "+id+":"+receipt.getClass().getSimpleName());}
+        observeAttemptR31(store,id,session,claim,phase,failure,outcome==null?0:outcome.units,cpuMs,receiptCommitted);
     }
-
-    /** Manual retry from the UI: clears a quarantine. */
-    public static void retry(DbStore store, String taskId) {
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R27_TASK_RETRY", db -> { db.execSQL("UPDATE r26_task SET status='READY',wait_kind='',error_count=0,error_window_start=0 WHERE task_id=? AND lane='R27'", new Object[] {taskId}); return 0; });
+    static void recordFaultBudgetR31(SQLiteDatabase db,RuntimeCoordinatorR26.Claim claim,Throwable failure,long now){
+        long window=0,count=0;try(Cursor row=db.rawQuery("SELECT error_window_start,error_count FROM r26_task WHERE task_id=? AND owner=? AND fence=?",new String[]{claim.task,claim.owner,String.valueOf(claim.fence)})){if(!row.moveToFirst())throw new IllegalStateException("R31_STALE_ERROR_RECEIPT");window=row.getLong(0);count=row.getLong(1);}
+        db.execSQL("INSERT OR IGNORE INTO r31_task_control(task_id) VALUES(?)",new Object[]{claim.task});
+        long windowMono=0;String windowBoot="";try(Cursor row=db.rawQuery("SELECT fault_window_boot_id,fault_window_elapsed_ms FROM r31_task_control WHERE task_id=?",new String[]{claim.task})){if(row.moveToFirst()){windowBoot=row.getString(0);windowMono=row.getLong(1);}}
+        long mono=SystemClock.elapsedRealtime();boolean newWindow=!IssueTimelineWriterR30.bootId().equals(windowBoot)||windowMono==0||mono-windowMono>WaitKindR27.ERROR_WINDOW_MS;
+        long[] errors={newWindow?now:window,newWindow?1:count+1};
+        db.execSQL("UPDATE r31_task_control SET fault_window_boot_id=?,fault_window_elapsed_ms=? WHERE task_id=?",new Object[]{IssueTimelineWriterR30.bootId(),newWindow?mono:windowMono,claim.task});
+        RuntimeFaultEvidenceR31 evidence=RuntimeFaultEvidenceR31.capture(failure,"TASK");
+        long level=0,rounds=0;String fingerprint="",probeOwner=null;long probeFence=0;
+        try(Cursor row=db.rawQuery("SELECT level,fault_rounds,fingerprint,half_open_owner,half_open_fence FROM r31_task_control WHERE task_id=?",new String[]{claim.task})){if(row.moveToFirst()){level=row.getLong(0);rounds=row.getLong(1);fingerprint=row.getString(2);probeOwner=row.getString(3);probeFence=row.getLong(4);}}
+        boolean probe=claim.owner.equals(probeOwner)&&claim.fence==probeFence,quarantine=WaitKindR27.quarantine(errors[1])||probe;
+        if(quarantine){boolean same=evidence.fingerprint.equals(fingerprint);level=same?level+1:1;rounds=same?rounds+1:1;}
+        String status=quarantine?(rounds>=6?"NEEDS_FIX":"QUARANTINED"):"BLOCKED";
+        db.execSQL("UPDATE r26_task SET error_window_start=?,error_count=?,status=?,wait_kind=CASE WHEN ? THEN ? ELSE wait_kind END,blocked_reason=? WHERE task_id=? AND owner=? AND fence=?",
+                new Object[]{errors[0],errors[1],status,quarantine?1:0,status,"FAULT:"+evidence.category+":"+evidence.fingerprint,claim.task,claim.owner,claim.fence});
+        if(quarantine){long delay=FailureDispositionR31.quarantineMillis((int)level);db.execSQL("UPDATE r31_task_control SET quarantine_until=?,level=?,fingerprint=?,half_open_owner=NULL,half_open_fence=0,quarantine_boot_id=?,quarantine_deadline_elapsed_ms=?,fault_rounds=?,generation=generation+1 WHERE task_id=?",new Object[]{now+delay,level,evidence.fingerprint,IssueTimelineWriterR30.bootId(),SystemClock.elapsedRealtime()+delay,rounds,claim.task});}
+        db.execSQL("INSERT INTO r27_task_error(task_id,error_class,message,stack,recorded_at) VALUES(?,?,?,?,?)",new Object[]{claim.task,failure.getClass().getName(),RuntimeFaultEvidenceR31.clean(failure.getMessage(),1024),RuntimeFaultEvidenceR31.clean(evidence.stack,2048),now});
+        db.execSQL("DELETE FROM r27_task_error WHERE error_id<(SELECT max(error_id)-2000 FROM r27_task_error)");
+    }
+    static void recordDurableRecoveryR31(SQLiteDatabase db,RuntimeCoordinatorR26.Claim claim){
+        String artifact=null;try(Cursor row=db.rawQuery("SELECT artifact_identity FROM r30r1_task_progress WHERE task_id=? AND session_id=? AND fence=?",new String[]{claim.task,claim.owner,String.valueOf(claim.fence)})){if(row.moveToFirst())artifact=row.getString(0);}
+        if(artifact==null||artifact.isEmpty()||artifact.equals(claim.artifactAtClaimR31))return;
+        db.execSQL("UPDATE r31_task_control SET level=0,fault_rounds=0,quarantine_until=0,quarantine_deadline_elapsed_ms=0,half_open_owner=NULL,half_open_fence=0,last_success_artifact_hash=? WHERE task_id=?",new Object[]{artifact,claim.task});
+        db.execSQL("UPDATE r26_task SET error_count=0,error_window_start=0 WHERE task_id=? AND owner=? AND fence=?",new Object[]{claim.task,claim.owner,claim.fence});
+    }
+    /** Manual recovery first revokes the old fence. A still-live calculation remains CANCELLING. */
+    public static void retry(DbStore store,String taskId){
+        boolean live=false;for(ResearchPoolR27 pool:POOLS_R31.values()){synchronized(pool){PreparedTaskR30R1 task=pool.prepared.get(taskId);if(task!=null){task.failedR31=true;if(!task.isTerminated()){task.close();live=true;}}}}
+        final boolean draining=live;
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(RuntimeCoordinatorR26.controlContextR31("R27_TASK_RETRY"),db->{
+            db.execSQL("UPDATE r26_task SET fence=fence+1,status=?,lease_until=0,wait_kind=?,blocked_reason=? WHERE task_id=? AND lane='R27'",new Object[]{draining?"CANCELLING":"READY",draining?"CANCELLED":"HALF_OPEN",draining?"DRAINING_NOT_TERMINATED":"MANUAL_FENCED_RETRY",taskId});
+            db.execSQL("UPDATE r31_task_lease SET deadline_elapsed_ms=0,next_elapsed_ms=0 WHERE task_id=?",new Object[]{taskId});
+            db.execSQL("UPDATE r31_task_control SET half_open_owner=NULL,half_open_fence=0,quarantine_until=0,quarantine_deadline_elapsed_ms=0,generation=generation+1 WHERE task_id=?",new Object[]{taskId});return 0;
+        });
+        for(ResearchPoolR27 pool:POOLS_R31.values())pool.wake(taskId);
+    }
+    private void finishCancelledR31(String task){
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(RuntimeCoordinatorR26.controlContextR31("R31_TASK_DRAINED"),db->{db.execSQL("UPDATE r26_task SET status='READY',wait_kind='HALF_OPEN',blocked_reason='PREVIOUS_COMPUTE_TERMINATED' WHERE task_id=? AND status='CANCELLING' AND EXISTS(SELECT 1 FROM r26_session WHERE session_id=? AND user_enabled=1 AND state='RUNNING')",new Object[]{task,session});return 0;});
+    }
+    private void invalidateDraftR31(String task){RuntimeR27 runtime=RuntimeR27.active();if(runtime!=null&&runtime.pool()==this)runtime.invalidateTaskDraftR31(task);}
+    private static final java.util.concurrent.atomic.AtomicLong RECOVERY_POLL_R31=new java.util.concurrent.atomic.AtomicLong();
+    /** One fenced half-open probe per second, shared by R26 and R27, driven by a boot-scoped clock. */
+    static void recoverOneR31(DbStore store,String owner){
+        long mono=SystemClock.elapsedRealtime(),last=RECOVERY_POLL_R31.get();if(mono-last<1000||!RECOVERY_POLL_R31.compareAndSet(last,mono))return;
+        try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(RuntimeCoordinatorR26.controlContextR31("R31_TASK_RECOVERY_CONTROL"),db->{
+            String boot=IssueTimelineWriterR30.bootId();
+            try(Cursor rate=db.rawQuery("SELECT boot_id,last_recovery_elapsed_ms FROM r31_recovery_clock WHERE singleton=1",null)){if(rate.moveToFirst()&&boot.equals(rate.getString(0))&&mono-rate.getLong(1)<1000)return 0;}
+            try(Cursor task=db.rawQuery("SELECT t.task_id,t.owner,t.fence,c.quarantine_boot_id,c.quarantine_deadline_elapsed_ms,c.level FROM r26_task t JOIN r31_task_control c ON c.task_id=t.task_id WHERE t.status='QUARANTINED' ORDER BY c.last_recovery_at,t.task_id LIMIT 64",null)){
+                while(task.moveToNext()){
+                    String id=task.getString(0);boolean oldLive=false;
+                    for(ResearchPoolR27 pool:POOLS_R31.values())synchronized(pool){PreparedTaskR30R1 current=pool.prepared.get(id);if(current!=null&&!current.isTerminated())oldLive=true;}
+                    if(oldLive)continue;
+                    if(!boot.equals(task.getString(3))){long delay=FailureDispositionR31.quarantineMillis(Math.max(1,task.getInt(5)));db.execSQL("UPDATE r31_task_control SET quarantine_boot_id=?,quarantine_deadline_elapsed_ms=?,quarantine_until=? WHERE task_id=?",new Object[]{boot,mono+delay,System.currentTimeMillis()+delay,id});continue;}
+                    if(task.getLong(4)>mono)continue;
+                    db.execSQL("UPDATE r26_task SET status='READY',owner=NULL,fence=fence+1,lease_until=0,wait_kind='HALF_OPEN',wait_detail='ONE_FENCED_RECOVERY_PROBE',blocked_reason='HALF_OPEN_PENDING_DURABLE_PROGRESS' WHERE task_id=? AND owner IS ? AND fence=? AND status='QUARANTINED'",new Object[]{id,task.getString(1),task.getLong(2)});
+                    try(Cursor changed=db.rawQuery("SELECT changes()",null)){if(!changed.moveToFirst()||changed.getInt(0)!=1)continue;}
+                    db.execSQL("UPDATE r31_task_control SET half_open_owner=?,half_open_fence=0,last_recovery_at=?,generation=generation+1 WHERE task_id=?",new Object[]{owner,System.currentTimeMillis(),id});
+                    db.execSQL("UPDATE r31_task_lease SET deadline_elapsed_ms=0,next_elapsed_ms=0 WHERE task_id=?",new Object[]{id});
+                    db.execSQL("INSERT OR REPLACE INTO r31_recovery_clock VALUES(1,?,?,?)",new Object[]{boot,mono,owner});
+                    return 1;
+                }
+            }return 0;
+        });}catch(RuntimeException unavailable){/* Pending schema/busy remains observable in task rows; no recursive fault receipt. */}
     }
     public boolean quarantined(String id) {
         try (Cursor c = store.readable().rawQuery("SELECT 1 FROM r26_task WHERE task_id=? AND status=?", new String[] {id, WaitKindR27.QUARANTINED})) { return c.moveToFirst(); }
@@ -206,7 +333,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
     private void flushCpu(String thread, long cpuNs, long wallMs, long slices) {
         final long cpu = cpuNs / 1_000_000L, now = System.currentTimeMillis();
         try {
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R27_THREAD_CPU", db -> {
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.TELEMETRY,"R27_THREAD_CPU"), db -> {
                 db.execSQL("INSERT OR IGNORE INTO r27_thread_cpu(session_id,thread_name,updated_at) VALUES(?,?,?)", new Object[] {session, thread, now});
                 db.execSQL("UPDATE r27_thread_cpu SET cpu_ms=?,wall_ms=?,slices=?,updated_at=? WHERE session_id=? AND thread_name=?", new Object[] {cpu, wallMs, slices, now, session, thread});
                 return 0;
@@ -219,18 +346,41 @@ public final class ResearchPoolR27 implements AutoCloseable {
     static String stack(Throwable t) { return RuntimeFaultEvidenceR31.capture(t, "UNKNOWN").stack; }
     private static void sleep(long ms) { try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); } }
 
-    /** Cancel token first, then wait up to 10 s for workers, then close read-only connections (R27-009). */
-    @Override public void close() {
-        closed = true;
+    /** Cancellation requests return immediately; a single control reaper owns resources until actual exit. */
+    @Override public void close(){
+        if(!closeControllerR31.compareAndSet(false,true))return;
+        closed=true;shutdownStateR31="CANCELLING";
         synchronized(this){for(PreparedTaskR30R1 task:prepared.values())task.close();}
-        for (Thread t : threads) t.interrupt();
-        long deadline = SystemClock.elapsedRealtime() + 10_000;
-        for (Thread t : threads) { long left = deadline - SystemClock.elapsedRealtime(); if (left > 0) try { t.join(left); } catch (InterruptedException e) { Thread.currentThread().interrupt(); } }
+        for(Thread thread:threads)thread.interrupt();
         compute.shutdownNow();
-        while(!CooperativeContinuationR26.awaitOwnerStopped("r30-r27:"+session,1000))android.util.Log.w("STARCORE_R30","waiting for prepared workers before closing their read connections");
-        synchronized(this){prepared.clear();}
-        for (SQLiteDatabase c : connections) try { c.close(); } catch (RuntimeException ignored) { }
-        connections.clear();
+        DRAINER_R31.execute(()->{
+            long end=System.nanoTime()+TimeUnit.SECONDS.toNanos(10);
+            while(System.nanoTime()<end&&!tryFinishResourcesR31()){try{Thread.sleep(50);}catch(InterruptedException interrupted){Thread.currentThread().interrupt();break;}}
+            if(!resourcesTerminatedR31())shutdownStateR31="DRAINING_NOT_TERMINATED";
+        });
+    }
+    private static final java.util.concurrent.ScheduledExecutorService DRAINER_R31;
+    static{
+        DRAINER_R31=java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r->{Thread thread=new Thread(r,"starcore-r31-resource-controller");thread.setDaemon(true);return thread;});
+        DRAINER_R31.scheduleWithFixedDelay(()->{for(ResearchPoolR27 pool:POOLS_R31.values())if(pool.closed)try{pool.tryFinishResourcesR31();}catch(RuntimeException ignored){pool.shutdownStateR31="DRAINING_NOT_TERMINATED";}},1,1,TimeUnit.SECONDS);
+    }
+    private boolean tryFinishResourcesR31(){
+        CooperativeContinuationR26.reapTerminated();
+        for(Thread thread:threads)if(thread.isAlive())return false;
+        if(!compute.isTerminated())return false;
+        if(!CooperativeContinuationR26.awaitOwnerStopped("r30-r27:"+session,0))return false;
+        synchronized(this){for(PreparedTaskR30R1 task:prepared.values())if(!task.isTerminated())return false;for(PreparedTaskR30R1 task:prepared.values())clearTaskHelperCancellationR31(task.claim);prepared.clear();}
+        synchronized(connections){for(SQLiteDatabase connection:connections)try{connection.close();}catch(RuntimeException ignored){}connections.clear();}
+        shutdownStateR31="TERMINATED";POOLS_R31.remove(session,this);return true;
+    }
+    public boolean awaitResourcesTerminatedR31(long millis){long end=System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(Math.max(0,millis));do{if(resourcesTerminatedR31())return true;try{Thread.sleep(10);}catch(InterruptedException interrupted){Thread.currentThread().interrupt();return false;}}while(System.nanoTime()<end);return resourcesTerminatedR31();}
+    public boolean resourcesTerminatedR31(){return "TERMINATED".equals(shutdownStateR31);}
+    public String shutdownStateR31(){return shutdownStateR31;}
+    public java.util.Map<String,Object> shutdownSnapshotR31(){java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();out.put("state",shutdownStateR31);out.put("owner",session);out.put("compute",computeBudgetSnapshotR31());out.put("continuations",continuationSnapshotsR31("r30-r27:"+session));out.put("readConnectionsReleased",resourcesTerminatedR31());return out;}
+    static java.util.List<Object> continuationSnapshotsR31(String owner){
+        java.util.List<Object> out=new java.util.ArrayList<>();for(CooperativeContinuationR26.DiagnosticSnapshot snapshot:CooperativeContinuationR26.snapshots(owner)){
+            java.util.Map<String,Object> row=new java.util.LinkedHashMap<>(snapshot.asMap());row.put("phase",RuntimeFaultEvidenceR31.clean(snapshot.phase,128));row.put("checkpoint",RuntimeFaultEvidenceR31.clean(snapshot.checkpoint,512));row.put("cleanupFailure",RuntimeFaultEvidenceR31.clean(snapshot.cleanupFailure,512));java.util.List<String> stack=new java.util.ArrayList<>();for(String frame:snapshot.stack)stack.add(RuntimeFaultEvidenceR31.clean(frame,512));row.put("stack",stack);out.add(row);
+        }return out;
     }
     public boolean isClosed() { return closed; }
     static final class ResourceBudget {final String run;final long from,through;final java.util.Map<String,Integer> quantums;ResourceBudget(String run,long from,long through,java.util.Map<String,Integer> q){this.run=run;this.from=from;this.through=through;quantums=java.util.Collections.unmodifiableMap(new java.util.LinkedHashMap<>(q));}}
@@ -270,7 +420,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
         final String safeOwner = RuntimeFaultEvidenceR31.clean(owner, 128);
         try {
             final RuntimeFaultEvidenceR31 fault = failure == null ? null : RuntimeFaultEvidenceR31.capture(failure, "TASK_" + phase);
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R31_RUNTIME_OBSERVATION", db -> {
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.TELEMETRY,"R31_RUNTIME_OBSERVATION"), db -> {
                 // At most the finite registered task set, not arbitrary caller/event IDs.
                 try (Cursor registered = db.rawQuery("SELECT 1 FROM r26_task WHERE task_id=?", new String[] {safeTask})) {
                     if (!registered.moveToFirst()) throw new IllegalStateException("R31_OBSERVATION_UNREGISTERED_TASK");

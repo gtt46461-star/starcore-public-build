@@ -273,21 +273,81 @@ public final class EvolutionLoopR27 {
     void stepReplay() {
         long t0 = System.nanoTime(); candidateReplayMs.clear();
         List<Pending> born = new ArrayList<>(); for (Pending p : pending) if (p.state.equals("BORN")) born.add(p);
-        // R27.2: data-parallel replay only while no P0 analysis/settlement is running; otherwise one thread.
-        if (executor == null || (serialWhile != null && serialWhile.getAsBoolean())) for (Pending p : born) replayOne(p);
-        else {
-            List<java.util.concurrent.Future<?>> fs = new ArrayList<>();
-            for (Pending p : born) fs.add(executor.submit(() -> replayOne(p)));
-            for (java.util.concurrent.Future<?> f : fs) try { f.get(); } catch (Exception e) { throw new IllegalStateException("R27_REPLAY_TASK", e); }
+        // A parent continuation already owns its compute permit. The configured serial mode stays on that
+        // research parent; executor saturation never falls back onto an arbitrary caller/realtime thread.
+        if (executor == null || (serialWhile != null && serialWhile.getAsBoolean())) {
+            for (Pending p : born) { ExecutionBudgetR26.poll(); replayOne(p); }
+        } else {
+            java.util.ArrayDeque<java.util.concurrent.Future<ReplayResultR31>> inFlight = new java.util.ArrayDeque<>();
+            int submitted = 0, applied = 0;
+            try {
+                while (applied < born.size()) {
+                    ExecutionBudgetR26.poll();
+                    long admissionStart = System.nanoTime();
+                    while (submitted < born.size() && inFlight.size() < 2) {
+                        Pending candidate = born.get(submitted);
+                        try {
+                            inFlight.addLast(executor.submit(() -> {
+                                Integer previousLimit = ReplayEvaluatorR27.enterEvolutionR30(ctx.split.selectTo);
+                                try { ExecutionBudgetR26.poll(); return calculateReplayR31(candidate); }
+                                finally { ReplayEvaluatorR27.leaveEvolutionR30(previousLimit); }
+                            }));
+                            submitted++;
+                        } catch (java.util.concurrent.RejectedExecutionException capacity) {
+                            ExecutionBudgetR26.phase("RESOURCE_WAIT:R31_COMPUTE_CAPACITY_WAIT");
+                            // One accepted helper can continue. If none was accepted, give completed helper
+                            // wrappers at most 50 ms to return their permits, polling cancellation between waits.
+                            if (!inFlight.isEmpty()) break;
+                            if (executor.isShutdown() || System.nanoTime() - admissionStart >= 50_000_000L)
+                                throw new CooperativeContinuationR26.CapacityUnavailable();
+                            ExecutionBudgetR26.poll(); java.util.concurrent.locks.LockSupport.parkNanos(2_000_000L);
+                        }
+                    }
+                    ExecutionBudgetR26.phase("EVOLUTION_REPLAY_HELPER_WAIT");
+                    ReplayResultR31 result = awaitReplayR31(inFlight.getFirst());
+                    inFlight.removeFirst(); applyReplayR31(born.get(applied++), result);
+                }
+            } finally {
+                // Future cancellation is a request. ResearchPool's task/fence helper group retains resources
+                // and prevents another prepared instance until every accepted helper body has actually exited.
+                for (java.util.concurrent.Future<?> future : inFlight) if (!future.isDone()) future.cancel(true);
+            }
         }
         genStats.put("replayMs", (System.nanoTime() - t0) / 1_000_000L);
         List<Long> sorted; synchronized (candidateReplayMs) { sorted = new ArrayList<>(candidateReplayMs); }
         java.util.Collections.sort(sorted);
         genStats.put("candidateReplayP95Ms", sorted.isEmpty() ? null : sorted.get(Math.min(sorted.size() - 1, (int) Math.ceil(sorted.size() * 0.95) - 1)));
     }
-    private void replayOne(Pending p) {
-        long s = System.nanoTime(); p.tau = ctx.temperature(p.spec); p.trace = ctx.selectTrace(p.spec, p.tau);
-        synchronized (candidateReplayMs) { candidateReplayMs.add((System.nanoTime() - s) / 1_000_000L); }
+    private static final class ReplayResultR31 {
+        final double tau; final ReplayEvaluatorR27.Trace trace; final long millis;
+        ReplayResultR31(double tau, ReplayEvaluatorR27.Trace trace, long millis) { this.tau = tau; this.trace = trace; this.millis = millis; }
+    }
+    private ReplayResultR31 calculateReplayR31(Pending p) {
+        long start = System.nanoTime(); double tau = ctx.temperature(p.spec);
+        ReplayEvaluatorR27.Trace trace = ctx.selectTrace(p.spec, tau);
+        return new ReplayResultR31(tau, trace, (System.nanoTime() - start) / 1_000_000L);
+    }
+    private void applyReplayR31(Pending p, ReplayResultR31 result) {
+        p.tau = result.tau; p.trace = result.trace;
+        synchronized (candidateReplayMs) { candidateReplayMs.add(result.millis); }
+    }
+    private void replayOne(Pending p) { applyReplayR31(p, calculateReplayR31(p)); }
+    private static ReplayResultR31 awaitReplayR31(java.util.concurrent.Future<ReplayResultR31> future) {
+        for (;;) {
+            ExecutionBudgetR26.poll();
+            try { return future.get(20, java.util.concurrent.TimeUnit.MILLISECONDS); }
+            catch (java.util.concurrent.TimeoutException pending) { /* next iteration polls the parent quantum */ }
+            catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                java.util.concurrent.CancellationException cancelled = new java.util.concurrent.CancellationException("R31_REPLAY_INTERRUPTED");
+                cancelled.initCause(interrupted); throw cancelled;
+            } catch (java.util.concurrent.ExecutionException failed) {
+                Throwable cause = failed.getCause();
+                if (cause instanceof RuntimeException) throw (RuntimeException) cause;
+                if (cause instanceof Error) throw (Error) cause;
+                throw new IllegalStateException("R27_REPLAY_TASK", cause);
+            }
+        }
     }
 
     void stepHalving() {

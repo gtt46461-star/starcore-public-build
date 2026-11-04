@@ -1,0 +1,61 @@
+[
+  {
+    "argv": [
+      "bash",
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=4",
+      ":app:compileDebugJavaWithJavac",
+      "-x",
+      ":app:generateR982SourceCallAsset"
+    ],
+    "activation": "source /workspace/starcore-environment/activate.sh",
+    "exit_code": 1,
+    "log": "NOT_APK_BOOTSTRAP.log",
+    "log_sha256": "1de7d211ab438cb1b059bf6e30c3460c31be3f6074bdf28d4342eddfe4477263",
+    "scope": "BOOTSTRAP_FAILED_R997_UNCOMMITTED_METADATA",
+    "started_utc": "NOT_CAPTURED_SEPARATELY"
+  },
+  {
+    "argv": [
+      "bash",
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=4",
+      ":app:compileDebugJavaWithJavac",
+      "-x",
+      ":app:generateR982SourceCallAsset",
+      "-x",
+      ":app:generateR997ConstructionAssets"
+    ],
+    "activation": "source /workspace/starcore-environment/activate.sh",
+    "exit_code": 0,
+    "log": "NOT_APK_BOOTSTRAP-r997-metadata.log",
+    "log_sha256": "b3e92dc0f4b89828a6c9ff99895692c81aefaa10b67678cb40d1dfc09327e500",
+    "scope": "ACTUAL_COMPILED_CLASSES_ONLY_NOT_APK",
+    "started_utc": "NOT_CAPTURED_SEPARATELY"
+  },
+  {
+    "argv": [
+      "bash",
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=4",
+      ":app:compileDebugJavaWithJavac",
+      ":app:testDebugUnitTest",
+      "--tests",
+      "com.ethk3.novaonepro.strategyv2.R31TaskStatusPrecedenceTest",
+      "--tests",
+      "com.ethk3.novaonepro.strategyv2.R30TaskLivenessTest",
+      ":app:generateR31BuildIdentity",
+      ":app:generateDebugBuildConfig",
+      ":app:verifyFinalR31BuildIdentity"
+    ],
+    "activation": "source /workspace/starcore-environment/activate.sh",
+    "exit_code": 0,
+    "log": "FINAL_UNEXCLUDED_COMPILE_AND_STATUS_TESTS.log",
+    "log_sha256": "14628d10b6c9a42e695f3c1aadb53019b8854f4765c00ede283d1990f4cae9b8",
+    "scope": "UNEXCLUDED_COMPILE_AND_HOST_UNIT_NOT_APK",
+    "started_utc": "NOT_CAPTURED_SEPARATELY"
+  }
+]

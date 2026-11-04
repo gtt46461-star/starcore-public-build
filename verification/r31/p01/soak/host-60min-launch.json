@@ -1,0 +1,28 @@
+{
+  "format": "R31_HOST_CONTENTION_LAUNCH_V1",
+  "status": "IN_PROGRESS",
+  "pid": 48685,
+  "requested_at": "2026-11-04T09:45:13.960276+00:00",
+  "requested_seconds": 3600,
+  "snapshot": "/tmp/r31-host-contention-20261104-v1",
+  "snapshot_manifest_sha256": "da3f3bb784ea9514912b6be6e000b4f8c7282606c018cf2929fe1a16c2e7c3cc",
+  "command": [
+    "java",
+    "-Xmx512m",
+    "-cp",
+    "/tmp/r31-host-contention-20261104-v1/platform:/tmp/r31-host-contention-20261104-v1/production:/tmp/r31-host-contention-20261104-v1/test:/tmp/r31-host-contention-20261104-v1/support-classes:/tmp/r31-host-contention-20261104-v1/sqlite-jdbc.jar:/tmp/r31-host-contention-20261104-v1/android.jar",
+    "com.ethk3.novaonepro.R31WriterContentionHost",
+    "/workspace/starcore-public-build/verification/r31/p01/soak/host-60min/fixture.db",
+    "/workspace/starcore-public-build/verification/r31/p01/soak/host-60min",
+    "3600"
+  ],
+  "production_source_sha256": {
+    "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java": "bf5495b95b2820693e8d49bba02c528b8ed1147a73cdfb9afe36a7d0139d4c6c",
+    "app/src/main/java/com/ethk3/novaonepro/TransactionSchemaCacheR941.java": "609b31256f757a9e463973e2d93f9a1492f316187206eb1f33fd56f3db2b53eb",
+    "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java": "c24b76d8ee6523df94c5082f7581df2319d7609518226aca5a89b17044045613",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java": "dc9effeed210b5a8f51d3f6a3552071098fff8683b88c778c008977a5f2b63e6",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java": "25bd11775579573eafe00e85eae6c3dbafdff5efa8632e9056938a0d9b38dd73",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java": "edb385b55b7bacd99ebc323d481a7b4bbd0444a0501bb568b1542c127d0af0ea"
+  },
+  "scope": "HOST synthetic writer/native SQLite fixture; not Android or 24/72-hour device acceptance"
+}

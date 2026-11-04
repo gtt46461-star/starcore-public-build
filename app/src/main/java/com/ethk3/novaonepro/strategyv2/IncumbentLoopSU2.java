@@ -25,22 +25,27 @@ public final class IncumbentLoopSU2 {
 
 
     public static long prepareNext(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget,long seq)throws IOException{
+        ExecutionBudgetR26.phase("INCUMBENT_INPUT");
         if(!StrategySchemaSU2.ready(store.readable())){claims.get().reason("SU2_SCHEMA_PENDING");return 0;}
         try(Cursor c=store.readable().rawQuery("SELECT 1 FROM su2_live_decision WHERE genome_key=? AND sequence_ordinal=?",new String[]{KEY,String.valueOf(seq)})){if(c.moveToFirst()){claims.get().reason("INCUMBENT_ALREADY_FROZEN; MISSING_OLD_PREFERENCES_NOT_RECONSTRUCTED");return 0;}}
         Models.Draw latest=store.getLatestDraw();if(latest==null||TargetIssueResolver.sequenceOrdinalSU1(latest.issue)!=seq-1){claims.get().reason("INCUMBENT_SUPERSEDED_TARGET");return 0;}
         long deadline=TargetIssueResolver.predrawDeadlineWallR20261008(latest);if(System.currentTimeMillis()>=deadline){claims.get().reason("INCUMBENT_MISSING_AFTER_OPEN");return 0;}
+        ExecutionBudgetR26.phase("INCUMBENT_CAPTURE");
         budget.checkpointOrYield();EventFrameSU1 frame;
         try{frame=EventFrameBuilderSU1.capture(store,TargetIssueResolver.fromSequenceOrdinalSU1(seq));}catch(IllegalArgumentException crossed){if(System.currentTimeMillis()>=deadline){claims.get().reason("INCUMBENT_MISSING_AFTER_OPEN");return 0;}throw crossed;}
         if(System.currentTimeMillis()>=frame.targetOpenTime){claims.get().reason("INCUMBENT_MISSING_AFTER_OPEN");return 0;}
+        ExecutionBudgetR26.phase("INCUMBENT_NUMERICAL");
         XiIncumbentSU2.Decision x=XiIncumbentSU2.decideNextFull(frame.history());
         if(x==null){claims.get().reason("INCUMBENT_HISTORY_SHORT");return 0;}
         budget.checkpointOrYield();return commitPrepared(store,claims,frame,x);
     }
     /** Original decision and original preferences commit together, only before the source-bound deadline. */
     static long commitPrepared(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,EventFrameSU1 frame,XiIncumbentSU2.Decision x)throws IOException{
+        ExecutionBudgetR26.phase("INCUMBENT_ENCODE");
         final byte[] preferences=LegacyPreferenceTableR26.encode(x.table);final String hash=LiveStateR26.hash(preferences);final long seq=TargetIssueResolver.sequenceOrdinalSU1(String.valueOf(frame.targetIssue));
         final ModelLiveSU2.Decision d=new ModelLiveSU2.Decision(seq,x.position,x.mask(),x.act,Double.NaN,x.phat);
-        return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_INCUMBENT_FREEZE",db->{
+        ExecutionBudgetR26.phase("INCUMBENT_FREEZE");
+        long committed=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_INCUMBENT_FREEZE",db->{
             RuntimeCoordinatorR26.requireFence(db,claims.get());long now=System.currentTimeMillis();
             if(!EventFrameBuilderSU1.unchanged(store,frame)||now>=frame.targetOpenTime){claims.get().reason("INCUMBENT_SOURCE_CHANGED_OR_DEADLINE");return 0L;}
             try(Cursor c=db.rawQuery("SELECT 1 FROM su2_live_decision WHERE genome_key=? AND sequence_ordinal=?",new String[]{KEY,String.valueOf(seq)})){if(c.moveToFirst())return 0L;}
@@ -49,6 +54,8 @@ public final class IncumbentLoopSU2 {
             db.execSQL("INSERT INTO r26_incumbent_frozen VALUES(?,?,?,?,?,?,?,?,?)",new Object[]{seq,seq-1,frame.sourceVersionHash,frame.sourceGeneration,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256,now,frame.targetOpenTime,preferences,hash});
             return 1L;
         });
+        if(committed>0)CooperativeContinuationR26.recordCheckpoint("INCUMBENT_FROZEN");
+        return committed;
     }
     /** Read persisted original preferences after restart; never project them into claimed joint marginals. */
     public static float[][] pendingTable(SQLiteDatabase db,long seq){

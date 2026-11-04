@@ -1,0 +1,11 @@
+{
+  "actual_changes": [],
+  "tests": [],
+  "remaining": [
+    "模拟永不poll任务：无第二个相同任务实例；P0可继续；stop按钮可用；10秒内显示停止未完成而非虚报已停。",
+    "模拟在writer critical段触发yield：必须拒绝且回滚；任何park不持writer锁。",
+    "长时间压力下线程总数、待执行队列长度、prepared对象数有上限；取消后资源可归还。",
+    "同任务owner/target切换一万次无ABA、双重提交、已关闭connection访问。"
+  ],
+  "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet."
+}

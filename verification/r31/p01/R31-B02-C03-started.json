@@ -1,0 +1,10 @@
+{
+  "actual_changes": [],
+  "tests": [],
+  "remaining": [
+    "注入afterCommit/timing/Log失败：模型参数、样本计数、结算计数各只变化一次；诊断标红。",
+    "注入commit完成但返回前进程死：重启同commit_key不重复应用；注入commit回滚则能重做。",
+    "不同payload复用commit_key必须报INTEGRITY_CONFLICT，不能INSERT OR IGNORE掩盖。"
+  ],
+  "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet."
+}

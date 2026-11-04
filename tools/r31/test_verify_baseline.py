@@ -167,6 +167,40 @@ class GitBaselineTest(unittest.TestCase):
 class ApkInspectionAdapterTest(unittest.TestCase):
     # The tool responses here test pinning/identity rejection. These fixtures are
     # explicitly NOT signed APKs and are never used as Android acceptance.
+    def test_embedded_dirty_or_unknown_build_cannot_be_a_release_receipt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "release").mkdir()
+            (root / "release/release_manifest.json").write_text(json.dumps({
+                "applicationId": "com.starcore.research.r13", "versionCode": 123,
+                "versionName": "fixture"}))
+            identity = {key: "a" * 64 for key in (
+                "source_commit", "source_tree", "product_worktree_sha256",
+                "plan_manifest_sha256", "migration_contract_sha256")}
+            signer = subprocess.CompletedProcess([], 0, stdout=
+                "Signer #1 certificate SHA-256 digest: " + "c" * 64, stderr="")
+            aapt = subprocess.CompletedProcess([], 0, stdout=
+                "package: name='com.starcore.research.r13' versionCode='123' "
+                "versionName='fixture'\n", stderr="")
+            apk = root / "fixture.zip"
+            for state in (False, True, None, "false", 0):
+                with self.subTest(embedded_source_dirty=state):
+                    embedded = dict(identity)
+                    if state is not None:
+                        embedded["source_dirty"] = state
+                    with zipfile.ZipFile(apk, "w") as archive:
+                        archive.writestr("assets/diagnostics/build-identity-r31.json",
+                                         json.dumps(embedded))
+                    with patch.object(v.subprocess, "run", side_effect=[signer, aapt]):
+                        result = v.verify_apk(root, apk, Path("fixture-signer"),
+                                              Path("fixture-aapt"), "c" * 64, identity)
+                    if state is False:
+                        self.assertEqual("PASS", result["status"])
+                    else:
+                        self.assertEqual("FAIL", result["status"])
+                        self.assertIn("APK_SOURCE_NOT_PROVEN_CLEAN", result["errors"])
+                    self.assertEqual("NOT_RUN", result["device_installation"])
+
     def test_certificate_mismatch_and_embedded_source_mismatch_are_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

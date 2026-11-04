@@ -69,6 +69,29 @@ public final class SchemaDomainCoordinatorR926 {
         }
     }
 
+    public static Contract r31WriteContract() {
+        return new Contract("RESEARCH_R31_WRITE",
+                com.ethk3.novaonepro.strategyv2.SchemaR27.R31_WRITE_REVISION,
+                new String[] {"r31_commit_receipt", "r31_commit_receipt_task", "r31_task_lease",
+                        "r31_recovery_clock", "r30_cache_rebuild"});
+    }
+
+    /** Lease columns and durable commit receipts change together under the existing schema owner. */
+    public static void migrateR31WriteProtocol(SQLiteDatabase db) {
+        if (!db.inTransaction()) throw new IllegalStateException("R31_MIGRATION_OWNER_REQUIRED");
+        Contract contract = r31WriteContract();
+        prepareRepairIfDrift(db, contract);
+        try {
+            runStep(db, contract, "R31_WRITE_TASK_PROTOCOL_V1",
+                    com.ethk3.novaonepro.strategyv2.SchemaR27::ensureR31WriteProtocol);
+            verifyAndStamp(db, contract);
+        } catch (RuntimeException failure) {
+            throw failure;
+        } catch (Exception failure) {
+            throw new IllegalStateException("R31_WRITE_PROTOCOL_MIGRATION_FAILED", failure);
+        }
+    }
+
     public static Contract criticalContract() {
         return new Contract(
                 DOMAIN_CRITICAL,

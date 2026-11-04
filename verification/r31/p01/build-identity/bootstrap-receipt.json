@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "bash",
+    "./gradlew",
+    "--no-daemon",
+    "--max-workers=4",
+    ":app:compileDebugJavaWithJavac",
+    "-x",
+    ":app:generateR982SourceCallAsset",
+    "-x",
+    ":app:generateR997ConstructionAssets"
+  ],
+  "activation": "source /workspace/starcore-environment/activate.sh",
+  "started_utc": "2026-11-04T09:42:50.009544+00:00",
+  "completed_utc": "2026-11-04T09:43:28.460032+00:00",
+  "exit_code": 0,
+  "log": "NOT_APK_BOOTSTRAP.log",
+  "log_sha256": "6a326fc10f056d19db2515fe4dc3f6da5e38947427d0014f887a60e68419851d",
+  "scope": "ACTUAL_JAVAC_CLASSES_ONLY_NOT_APK_NOT_INTEGRATION_ACCEPTANCE",
+  "excluded_bootstrap_metadata_tasks": [
+    "generateR982SourceCallAsset",
+    "generateR997ConstructionAssets"
+  ],
+  "mandatory_next_step": "freeze_actual_new_classes_then_commit_then_unexcluded_build"
+}

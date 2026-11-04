@@ -11,14 +11,15 @@ from datetime import datetime, timezone
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "app/src/main/java/com/ethk3/novaonepro/strategyv2"
-OUT = ROOT / "verification/r31/runtime_observation"
+OUT = ROOT / "verification/r31/p01/runtime_observation"
+HARNESS = ROOT / "verification/r31/runtime_observation/RuntimeFaultEvidenceR31HostTest.java"
 PLAN = ROOT / "construction/STARCORE_R31_FINAL_20261104"
 
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    java_sources = [SOURCE / (name + ".java") for name in ("JsonR27", "StatsR27", "RuntimeFaultEvidenceR31", "WaitKindR27")]
-    harness = OUT / "RuntimeFaultEvidenceR31HostTest.java"
+    java_sources = [SOURCE / (name + ".java") for name in ("JsonR27", "StatsR27", "RuntimeFaultEvidenceR31", "FailureDispositionR31", "WaitKindR27")]
+    harness = HARNESS
     with tempfile.TemporaryDirectory(prefix="r31-observation-") as directory:
         compile_result = subprocess.run(["javac", "-d", directory, *map(str, java_sources), str(harness)], text=True, capture_output=True)
         (OUT / "javac.log").write_text(compile_result.stdout + compile_result.stderr)
@@ -82,7 +83,7 @@ def main():
         pass
     # No device SQLite or process-kill result is claimed by this host protocol check.
     result = {
-        "scope": "P00_PRODUCTION_HELPER_AND_ADDITIVE_SQL_HOST_CHECKS",
+        "scope": "P01_PRODUCTION_OBSERVATION_HELPER_AND_ADDITIVE_SQL_HOST_CHECKS",
         "status": "PASS",
         "capturedAt": datetime.now(timezone.utc).isoformat(),
         "java": java_receipt,
@@ -92,7 +93,7 @@ def main():
         "androidBuild": "NOT_RUN_BY_THIS_SCRIPT",
         "device": "NOT_RUN",
         "naturalQuality": "NOT_PROVEN",
-        "remaining": ["Android SQLite adapter fault injection", "runtime observation failure after real business commit", "device report evidence", "P01 disposition/recovery/fence contracts"],
+        "remaining": ["Android SQLite adapter fault injection", "runtime observation failure after real business commit", "device report evidence", "Full Android instrumented and physical-device validation"],
     }
     (OUT / "receipt.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
     print(json.dumps(result, ensure_ascii=False, indent=2))

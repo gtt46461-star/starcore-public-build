@@ -1,0 +1,33 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/workspace/starcore-public-build/tools/r31/host/R31TaskRuntimeHost.java:13: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/workspace/starcore-public-build/tools/r31/host/R31TaskRuntimeHost.java:135: warning: Unsafe is internal proprietary API and may be removed in a future release
+            Field unsafeField=Unsafe.class.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);Unsafe unsafe=(Unsafe)unsafeField.get(null);coordinator=(DatabaseCoordinator)unsafe.allocateInstance(DatabaseCoordinator.class);
+                              ^
+/workspace/starcore-public-build/tools/r31/host/R31TaskRuntimeHost.java:135: warning: Unsafe is internal proprietary API and may be removed in a future release
+            Field unsafeField=Unsafe.class.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);Unsafe unsafe=(Unsafe)unsafeField.get(null);coordinator=(DatabaseCoordinator)unsafe.allocateInstance(DatabaseCoordinator.class);
+                                                                                                         ^
+/workspace/starcore-public-build/tools/r31/host/R31TaskRuntimeHost.java:135: warning: Unsafe is internal proprietary API and may be removed in a future release
+            Field unsafeField=Unsafe.class.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);Unsafe unsafe=(Unsafe)unsafeField.get(null);coordinator=(DatabaseCoordinator)unsafe.allocateInstance(DatabaseCoordinator.class);
+                                                                                                                        ^
+4 warnings
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+R31_TASK_FENCE_NATIVE_HOST_PASS late_success_and_failure_ignored=true wall_deadline_plus_minus_24h_ignored=true boot_mismatch_rejected=true
+R31_TASK_RECOVERY_NATIVE_HOST_PASS cancel100_fault0=true finite_quarantine=true one_probe_per_second=true same_root_six_rounds_NEEDS_FIX=true actual_artifact_required=true
+R31_THIRTEEN_ACTUAL_CLAIMS_LOCK3S_NATIVE_HOST_PASS faults=0 quarantined=0 resumed=13 scope=HOST_WRITER_LOCK_NOT_ANDROID_SLO
+R31_ACTUAL_POOL_LOOP_HELPER_RACE_HOST_PASS no_replacement_after_parent_done=true manual_retry_waits_for_helper=true resumes_after_actual_exit=true
+Exception in thread "main" java.lang.AssertionError: pool controller releases only after actual resource exit
+	at com.ethk3.novaonepro.strategyv2.R31TaskRuntimeHost.need(R31TaskRuntimeHost.java:19)
+	at com.ethk3.novaonepro.strategyv2.R31TaskRuntimeHost.helperTermination(R31TaskRuntimeHost.java:105)
+	at com.ethk3.novaonepro.strategyv2.R31TaskRuntimeHost.main(R31TaskRuntimeHost.java:141)
+Traceback (most recent call last):
+  File "/workspace/starcore-public-build/tools/r31/run_task_runtime_host.py", line 66, in <module>
+    run(["java", "-Xmx512m", "-cp", classpath, "com.ethk3.novaonepro.strategyv2.R31TaskRuntimeHost", tmp / "runtime.db"])
+  File "/workspace/starcore-public-build/tools/r31/run_task_runtime_host.py", line 15, in run
+    subprocess.run(list(map(str, args)), cwd=ROOT, check=True)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['java', '-Xmx512m', '-cp', '/tmp/r31-production-runtime-1yq1hcjl/platform:/tmp/r31-production-runtime-1yq1hcjl/production:/tmp/r31-production-runtime-1yq1hcjl/test:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar', 'com.ethk3.novaonepro.strategyv2.R31TaskRuntimeHost', '/tmp/r31-production-runtime-1yq1hcjl/runtime.db']' returned non-zero exit status 1.

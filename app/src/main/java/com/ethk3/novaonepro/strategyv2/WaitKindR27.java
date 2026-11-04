@@ -8,7 +8,8 @@ import java.util.List;
 public final class WaitKindR27 {
     private WaitKindR27() {}
     public static final String PROGRESS = "PROGRESS", NO_NEW_EVENT = "NO_NEW_EVENT", DEPENDENCY = "DEPENDENCY", DEADLINE_MISSED = "DEADLINE_MISSED",
-            RESOURCE = "RESOURCE", ERROR = "ERROR", DISABLED_BY_USER = "DISABLED_BY_USER", QUARANTINED = "QUARANTINED";
+            RESOURCE = "RESOURCE", ERROR = "ERROR", DISABLED_BY_USER = "DISABLED_BY_USER", QUARANTINED = "QUARANTINED",
+            RETRY_LATER = "RETRY_LATER", CANCELLED = "CANCELLED", STALE_OWNER = "STALE_OWNER", NEEDS_FIX = "NEEDS_FIX";
     public static final long STUCK_MS = 30 * 60_000L, NEVER_RUN_MS = 60 * 60_000L, ERROR_WINDOW_MS = 10 * 60_000L;
     public static final int MAX_ERRORS_PER_WINDOW = 5;
 
@@ -27,11 +28,21 @@ public final class WaitKindR27 {
      * @param cursor   task cursor before the slice; latest = newest event ordinal it could consume */
     public static Wait classify(long delta, String reason, Throwable failure, long cursor, long latest, String resource, boolean userDisabled) {
         if (userDisabled) return new Wait(DISABLED_BY_USER, "");
-        if (resource != null) return new Wait(RESOURCE, resource.startsWith("RESOURCE(") ? resource : "RESOURCE(" + resource + ")");
         if (failure != null) {
             RuntimeFaultEvidenceR31 fault = RuntimeFaultEvidenceR31.capture(failure, "TASK");
-            return new Wait(ERROR, "ERROR(category=" + fault.category + ";fingerprint=" + fault.fingerprint + ";operation=" + fault.operation + ")");
+            FailureDispositionR31.Decision decision=FailureDispositionR31.classify(failure);
+            String kind;
+            switch(decision.disposition){
+                case RETRY_LATER:kind=RETRY_LATER;break;
+                case CANCELLED:kind=CANCELLED;break;
+                case STALE_OWNER:kind=STALE_OWNER;break;
+                case DEPENDENCY:kind=DEPENDENCY;break;
+                case FATAL:kind=NEEDS_FIX;break;
+                default:kind=ERROR;
+            }
+            return new Wait(kind, "category=" + decision.category + ";cause="+failure.getClass().getSimpleName()+":"+RuntimeFaultEvidenceR31.clean(failure.getMessage(),160)+";fingerprint=" + fault.fingerprint + ";operation=" + fault.operation + ";commit="+decision.commitOutcome);
         }
+        if (resource != null) return new Wait(RESOURCE, resource.startsWith("RESOURCE(") ? resource : "RESOURCE(" + resource + ")");
         if (delta > 0) return new Wait(PROGRESS, (reason != null && reason.startsWith("COOPERATIVE") ? reason + ";" : "") + "units=" + delta);
         if (reason != null) {
             String r = reason;
@@ -64,5 +75,5 @@ public final class WaitKindR27 {
     }
     public static boolean quarantine(long count) { return count > MAX_ERRORS_PER_WINDOW; }
 
-    public static List<String> kinds() { List<String> l = new ArrayList<>(); for (String k : new String[] {PROGRESS, NO_NEW_EVENT, DEPENDENCY, DEADLINE_MISSED, RESOURCE, ERROR, DISABLED_BY_USER, QUARANTINED}) l.add(k); return l; }
+    public static List<String> kinds() { List<String> l = new ArrayList<>(); for (String k : new String[] {PROGRESS, NO_NEW_EVENT, DEPENDENCY, DEADLINE_MISSED, RESOURCE, ERROR, DISABLED_BY_USER, QUARANTINED, RETRY_LATER,CANCELLED,STALE_OWNER,NEEDS_FIX}) l.add(k); return l; }
 }

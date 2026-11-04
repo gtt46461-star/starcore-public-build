@@ -9,7 +9,10 @@ import java.util.*;
 /** The original R14/R15/R16 engine runs on a fixed snapshot, with durable member replay and fair quanta. */
 public final class LegacyGenerationR26 {
     private LegacyGenerationR26() {}
-    private static Context active;
+    private static volatile Context active;
+    private static final Object LOCK=new Object();
+    private static StepRun inFlight;
+    private static final class StepRun {final String owner;volatile boolean cancelled;StepRun(String owner){this.owner=owner;}}
     private static final class Context {
         final String id,source,abi;final FoundryCampaignR26.Snapshot snapshot;final int generation;final byte[] evolution;
         volatile RuntimeCoordinatorR26.Claim claim;CooperativeContinuationR26<Result> work;
@@ -18,12 +21,22 @@ public final class LegacyGenerationR26 {
     private static final class Result {
         ModelEvolutionSU2.State state;List<double[]> populationScores,hofScores;List<StageStrategySU2.Definition> stages;CommitteeSU2 matrixChampion;MatrixSnapshotSU2.Data matrices;
     }
-    public static synchronized void cancel(String owner){if(active!=null&&active.claim!=null&&active.claim.owner.equals(owner)){active.work.close();active=null;}}
+    public static void cancel(String owner){Context context;synchronized(LOCK){if(inFlight!=null&&inFlight.owner.equals(owner))inFlight.cancelled=true;context=active;}if(context!=null&&context.claim!=null&&context.claim.owner.equals(owner))context.work.close();}
     private static long scalar(SQLiteDatabase db,String sql){try(Cursor c=db.rawQuery(sql,null)){return c.moveToFirst()&&!c.isNull(0)?c.getLong(0):0;}}
     private static void status(DbStore store,Context c,String state){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_GENERATION_STATUS",db->{db.execSQL("UPDATE r26_legacy_campaign SET status=?,phase=?,snapshot=CASE WHEN ?='RUNNING' THEN snapshot ELSE X'' END,updated_at=? WHERE campaign_id=?",new Object[]{state,state,state,System.currentTimeMillis(),c.id});return 0;});}
     public static long step(DbStore store,RuntimeCoordinatorR26.Claim claim,BudgetTokenSU1 budget)throws Exception {
+        CooperativeContinuationR26.reapTerminated();StepRun run;
+        synchronized(LOCK){if(inFlight!=null){claim.reason("R31_CONTINUATION_SLICE_IN_FLIGHT");return 0;}run=new StepRun(claim.owner);inFlight=run;}
+        try{return stepOwned(store,claim,budget,run);}finally{synchronized(LOCK){if(inFlight==run)inFlight=null;}}
+    }
+    private static long stepOwned(DbStore store,RuntimeCoordinatorR26.Claim claim,BudgetTokenSU1 budget,StepRun run)throws Exception {
         Models.Draw latest=store.getLatestDraw();if(latest==null)return 0;long latestOrdinal=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);long carry=scalar(store.readable(),"SELECT completed FROM r26_work_total WHERE task_id='legacy-generation'");claim.advanceCursorTo(carry);carry=Math.max(0,carry-claim.cursor);String abi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
-        if(active!=null&&(!active.abi.equals(abi)||latestOrdinal-active.snapshot.ordinal[0]>=5000)){active.work.close();status(store,active,"EXPIRED_SOURCE_OR_ABI");active=null;}
+        if(active!=null&&(!active.claim.owner.equals(claim.owner)||!active.abi.equals(abi)||latestOrdinal-active.snapshot.ordinal[0]>=5000)){
+            Context previous=active;previous.work.close();if(!previous.work.isTerminated()){claim.reason("COOPERATIVE_DRAINING_PREVIOUS_LEGACY_GENERATION");return carry;}
+            if(!previous.abi.equals(abi)||latestOrdinal-previous.snapshot.ordinal[0]>=5000)status(store,previous,"EXPIRED_SOURCE_OR_ABI");
+            synchronized(LOCK){if(active==previous)active=null;}
+        }
+        if(run.cancelled){claim.reason("R31_CONTINUATION_CANCELLING");return carry;}
         if(active==null){
             String id=null,source=null;byte[] snapshot=null;int generation=0;
             try(Cursor c=store.readable().rawQuery("SELECT campaign_id,snapshot_hash,snapshot,generation FROM r26_legacy_campaign WHERE status='RUNNING' AND numerical_abi=? ORDER BY updated_at LIMIT 1",new String[]{abi})){if(c.moveToFirst()){id=c.getString(0);source=c.getString(1);snapshot=c.getBlob(2);generation=c.getInt(3);}}
@@ -35,12 +48,14 @@ public final class LegacyGenerationR26 {
             }
             FoundryCampaignR26.Snapshot frozen=FoundryCampaignR26.Snapshot.decode(snapshot);if(latestOrdinal-frozen.ordinal[0]>=5000){final String expired=id;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_EXPIRE",db->{db.execSQL("UPDATE r26_legacy_campaign SET status='EXPIRED_RETENTION',snapshot=X'' WHERE campaign_id=?",new Object[]{expired});return 0;});return carry;}
             Context context=new Context(id,source,abi,frozen,generation,ModelStateCodecSU2.encode(ModelStoreSU2.loadEvolution(store.readable())));context.claim=claim;
-            context.work=new CooperativeContinuationR26<>("starcore-r26-legacy-generation",()->compute(store,context),()->RuntimeCoordinatorR26.hasCriticalPressure(),()->RuntimeCoordinatorR26.bindBackgroundClaim(context.claim),()->android.os.SystemClock.currentThreadTimeMillis()*1000000L,claim.owner);active=context;
+            context.work=new CooperativeContinuationR26<>("starcore-r26-legacy-generation",()->compute(store,context),()->RuntimeCoordinatorR26.hasCriticalPressure(),()->RuntimeCoordinatorR26.bindBackgroundClaim(context.claim),()->android.os.SystemClock.currentThreadTimeMillis()*1000000L,claim.owner);synchronized(LOCK){active=context;if(run.cancelled)context.work.close();}
         }
-        Context context=active;context.claim=claim;budget.checkpointOrYield();CooperativeContinuationR26.Slice<Result> slice=context.work.slice(CooperativeContinuationR26.CONTINUATION_SLICE_MS);claim.addWorkerCpuMillis(slice.cpuNanos/1000000L);
+        Context context=active;claim.inheritCommitChunksR31(context.claim);context.claim=claim;if(run.cancelled){context.work.close();claim.reason("R31_CONTINUATION_CANCELLING");return carry;}budget.checkpointOrYield();CooperativeContinuationR26.Slice<Result> slice=context.work.slice(CooperativeContinuationR26.CONTINUATION_SLICE_MS);claim.addWorkerCpuMillis(slice.cpuNanos/1000000L);
         long committed=scalar(store.readable(),"SELECT completed FROM r26_work_total WHERE task_id='legacy-generation'");claim.advanceCursorTo(committed);long delta=Math.max(0,committed-claim.cursor);
-        if(!slice.done){claim.reason("COOPERATIVE_LEGACY_GENERATION:"+context.generation);return delta;}
+        if(!slice.done){claim.reason(slice.state==CooperativeContinuationR26.State.CANCELLING?"R31_CONTINUATION_CANCELLING":"COOPERATIVE_LEGACY_GENERATION:"+context.generation);return delta;}
+        if(!context.work.awaitTermination(25)){claim.reason("COOPERATIVE_DRAINING_COMPLETED_LEGACY_GENERATION");return delta;}
         if(slice.error!=null){active=null;context.work.close();if(slice.error instanceof InterruptedException||slice.error instanceof BudgetTokenSU1.Yield){claim.reason("LEGACY_CONTINUATION_RESTART_FROM_COMMITTED_REPLAY");return delta;}throw new IllegalStateException("R26_LEGACY_GENERATION",slice.error);}
+        if(run.cancelled){claim.reason("R31_CONTINUATION_CANCELLING");return delta;}
         Result result=slice.result;try{verifySource(store,context.snapshot);}catch(IOException revised){context.work.close();status(store,context,"INVALIDATED_FROZEN_SOURCE");active=null;claim.reason("LEGACY_SOURCE_REVISED_OR_EXPIRED");return delta;}long generationNow=EventFrameBuilderSU1.generation(store.readable());boolean finished=context.generation+1>=ModelFoundryJobSU2.GENERATIONS;long now=System.currentTimeMillis();
         store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_GENERATION_COMMIT",db->{RuntimeCoordinatorR26.requireFence(db,claim);if(EventFrameBuilderSU1.generation(db)!=generationNow)throw new IllegalStateException("R26_GENERATION_SOURCE_CHANGED_BEFORE_COMMIT");
             try(Cursor c=db.rawQuery("SELECT generation,status FROM r26_legacy_campaign WHERE campaign_id=?",new String[]{context.id})){if(!c.moveToFirst()||c.getInt(0)!=context.generation||!c.getString(1).equals("RUNNING"))throw new IllegalStateException("R26_LEGACY_GENERATION_CAS");}
@@ -53,6 +68,7 @@ public final class LegacyGenerationR26 {
         context.work.close();active=null;committed=scalar(store.readable(),"SELECT completed FROM r26_work_total WHERE task_id='legacy-generation'");claim.advanceCursorTo(committed);return Math.max(0,committed-claim.cursor);
     }
     private static Result compute(DbStore store,Context context)throws Exception {
+        ExecutionBudgetR26.phase("LEGACY_GENERATION_COMPUTE");
         int[][] draws=context.snapshot.draws;ReplayWorkspaceR26 durable=new ReplayWorkspaceR26(store,context.id,context.source,context.snapshot.through);long cap=Math.min(ModelFoundryJobSU2.MODEL_BYTES,Math.max(4L<<20,Runtime.getRuntime().maxMemory()/16));
         ModelReplaySU2.Library lib=new ModelReplaySU2.Library(draws,cap,context.source,context.snapshot.through,durable);ModelEvolutionSU2 evo=new ModelEvolutionSU2(lib,ModelFoundryJobSU2.seed(context.id,context.generation),1500,2500,250);ModelEvolutionSU2.Eras eras=new ModelEvolutionSU2.Eras(1500,draws.length-ModelFoundryJobSU2.VAL_LEN,draws.length-ModelFoundryJobSU2.VAL_LEN,draws.length);
         Map<String,String> lineageKeys=new HashMap<>();evo.proposalObserver=(child,parent)->{
