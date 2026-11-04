@@ -1,0 +1,17 @@
+Exception in thread "main" android.database.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (no such table: main.r26_feedback)
+	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:21)
+	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:16)
+	at com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.ensureR31Feedback(RuntimeSchemaR26.java:27)
+	at com.ethk3.novaonepro.SchemaDomainCoordinatorR926.runStep(SchemaDomainCoordinatorR926.java:498)
+	at com.ethk3.novaonepro.SchemaDomainCoordinatorR926.migrateR31Feedback(SchemaDomainCoordinatorR926.java:110)
+	at com.ethk3.novaonepro.strategyv2.SchemaR27.ensure(SchemaR27.java:97)
+	at com.ethk3.novaonepro.strategyv2.RepairMatrixR30HostTest.main(RepairMatrixR30HostTest.java:11)
+Traceback (most recent call last):
+  File "/home/runner/work/_temp/r31-host-source/tools/r30-repair/run_matrix_host.py", line 17, in <module>
+    run(['java','-Xmx768m','-cp',cp,'com.ethk3.novaonepro.strategyv2.RepairMatrixR30HostTest'])
+  File "/home/runner/work/_temp/r31-host-source/tools/r30-repair/run_matrix_host.py", line 7, in run
+    def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['java', '-Xmx768m', '-cp', '/tmp/repair-matrix-host-kxn1_d1j/shim:/tmp/repair-matrix-host-kxn1_d1j/test:/home/runner/work/_temp/r31-host-source/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/tmp/tmp.A57dQdxfJN/sqlite-jdbc.jar:/usr/local/lib/android/sdk/platforms/android-36/android.jar', 'com.ethk3.novaonepro.strategyv2.RepairMatrixR30HostTest']' returned non-zero exit status 1.

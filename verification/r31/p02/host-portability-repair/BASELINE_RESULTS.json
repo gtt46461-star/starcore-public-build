@@ -1,0 +1,52 @@
+[
+  {
+    "name": "timeline",
+    "command": [
+      "python3",
+      "tools/r30-repair/run_timeline_host.py"
+    ],
+    "exit": 1,
+    "elapsedSeconds": 3.024,
+    "log": "baseline-timeline.log"
+  },
+  {
+    "name": "snapshot",
+    "command": [
+      "python3",
+      "tools/r30-repair/run_snapshot_host.py"
+    ],
+    "exit": 1,
+    "elapsedSeconds": 2.33,
+    "log": "baseline-snapshot.log"
+  },
+  {
+    "name": "matrix",
+    "command": [
+      "python3",
+      "tools/r30-repair/run_matrix_host.py"
+    ],
+    "exit": 1,
+    "elapsedSeconds": 1.924,
+    "log": "baseline-matrix.log"
+  },
+  {
+    "name": "service",
+    "command": [
+      "python3",
+      "tools/r31/run_service_protocol_host.py"
+    ],
+    "exit": 1,
+    "elapsedSeconds": 0.925,
+    "log": "baseline-service.log"
+  },
+  {
+    "name": "task-runtime-sourcepath",
+    "command": [
+      "python3",
+      "tools/r31/run_task_runtime_host.py"
+    ],
+    "exit": 1,
+    "elapsedSeconds": 18.981,
+    "log": "baseline-task-runtime-sourcepath.log"
+  }
+]

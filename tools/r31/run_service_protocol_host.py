@@ -7,13 +7,11 @@ import pathlib
 import re
 import subprocess
 import tempfile
+from host_tool_support import dependencies, run as host_run, cursor_column_metadata, database_column_metadata
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 MAIN = ROOT / "app/src/main/java/com/ethk3/novaonepro"
-CLASSES = ROOT / "app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"
-SDK = pathlib.Path(os.environ["ANDROID_HOME"]) / "platforms/android-36/android.jar"
-RJAR = ROOT / "app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/processDebugResources/R.jar"
-JDBC = pathlib.Path(os.environ.get("SQLITE_JDBC", "/tmp/r31-baseline-deps/sqlite-jdbc.jar"))
+CLASSES, SDK, RJAR, JDBC = dependencies(ROOT, require_resources=True)
 source_names = ["AutoFetchService", "DatabaseCoordinator", "SchemaDomainCoordinatorR926", "ApiClient", "FetchLedgerR925", "SettlementTaskStoreR36", "AnalysisSingleFlightR36", "AnalysisRequestStoreR36", "ServiceHeartbeatStore", "BootReceiver", "OosAfterDrawWriterR36"]
 strategy_names = ["RuntimeSchemaR26", "RuntimeCoordinatorR26", "ResearchPoolR27", "SchemaR27", "FailureDispositionR31", "CooperativeContinuationR26", "MemoryBudgetR31", "BoundedResearchExecutorR31", "SharedFeatureStoreR31", "FeatureCacheR27", "PreparedTaskR30R1", "TaskContinuationR26", "ExecutionBudgetR26"]
 production_sources = [MAIN / (name + ".java") for name in source_names] + [MAIN / "strategyv2" / (name + ".java") for name in strategy_names]
@@ -23,7 +21,7 @@ for path, digest in before.items():
 
 
 def run(args):
-    subprocess.run(list(map(str, args)), cwd=ROOT, check=True)
+    host_run(ROOT, args)
 
 
 # Reuse only the labelled Android/JDBC adapters. No business algorithm is extracted or replaced.
@@ -43,13 +41,10 @@ with tempfile.TemporaryDirectory(prefix="r31-service-native-") as temporary:
         target.parent.mkdir(parents=True, exist_ok=True)
         text = source.read_text()
         if source.name == "Cursor.java":
-            text = text.replace("    int getCount();", "    int getCount();\n    int getColumnCount();")
+            text = cursor_column_metadata(text)
         if source.name == "SQLiteDatabase.java":
             text = text.replace("public class SQLiteDatabase {", "public class SQLiteDatabase implements java.lang.AutoCloseable {")
-            text = text.replace("List<Object[]> rows = new ArrayList<>();", "List<Object[]> rows = new ArrayList<>();int columns=0;")
-            text = text.replace("int n = r.getMetaData().getColumnCount();", "int n = r.getMetaData().getColumnCount();columns=n;")
-            text = text.replace("return new Rows(rows);", "return new Rows(rows,columns);")
-            text = text.replace("Rows(List<Object[]> rows) { this.rows = rows; }", "final int columns;Rows(List<Object[]> rows,int columns){this.rows=rows;this.columns=columns;} public int getColumnCount(){return columns;}")
+            text = database_column_metadata(text)
             at = text.index("    static final class Rows")
             dml = '''
     public static final int CONFLICT_IGNORE=4,CONFLICT_REPLACE=5;
@@ -82,11 +77,13 @@ public String getState(String key,String fallback){return fallback;}public void 
     run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", os.pathsep.join(map(str, [SDK, CLASSES])), "-d", platform, *files])
     run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", os.pathsep.join(map(str, [SDK, CLASSES, RJAR])), "-d", actual, *production_sources])
     cp = os.pathsep.join(map(str, [platform, actual, tests, CLASSES, JDBC, SDK]))
-    drivers = [ROOT / "tools/r31/host/R31ServiceProtocolHost.java", ROOT / "tools/r31/host/R31FeedbackHost.java", ROOT / "tools/r31/host/R31ServiceHeartbeatHost.java"]
+    drivers = [ROOT / "tools/r31/host/R31ServiceProtocolHost.java", ROOT / "tools/r31/host/R31FeedbackHost.java", ROOT / "tools/r31/host/R31ServiceHeartbeatHost.java", ROOT / "tools/r31/host/R31SqliteHostBoundaryContract.java"]
     run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", cp, "-d", tests, *drivers])
+    run(["java", "-Xmx768m", "-cp", cp, "com.ethk3.novaonepro.R31SqliteHostBoundaryContract"])
     run(["java", "-Xmx768m", "-cp", cp, "com.ethk3.novaonepro.R31ServiceProtocolHost", tmp / "service.db"])
-    junit = next(pathlib.Path(os.environ["GRADLE_USER_HOME"]).glob("caches/modules-2/files-2.1/junit/junit/4.13.2/*/*.jar"))
-    hamcrest = next(pathlib.Path(os.environ["GRADLE_USER_HOME"]).glob("caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/*/*.jar"))
+    gradle = pathlib.Path(os.environ.get("GRADLE_USER_HOME",str(pathlib.Path.home()/".gradle")))
+    junit = next(gradle.glob("caches/modules-2/files-2.1/junit/junit/4.13.2/*/*.jar"))
+    hamcrest = next(gradle.glob("caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/*/*.jar"))
     unit_cp = os.pathsep.join(map(str, [cp, junit, hamcrest]))
     test_source = ROOT / "app/src/test/java/com/ethk3/novaonepro/R31AnalysisPhaseBudgetTest.java"
     run(["javac", "-encoding", "UTF-8", "-cp", unit_cp, "-d", tests, test_source])

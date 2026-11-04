@@ -8,7 +8,7 @@ public final class RepairMatrixR30HostTest {
   db.execSQL("CREATE TABLE old_model(identity TEXT,payload BLOB)");db.execSQL("INSERT INTO old_model VALUES('protected',X'00112233')");
   c.setAutoCommit(false);ResearchEvolutionStoreR930.createSchema(db);c.rollback();c.setAutoCommit(true);check(count(db,"SELECT count(*) FROM sqlite_master WHERE name='research_matrix_snapshot_r930'")==0,"PARTIAL_SCHEMA_COMMITTED");
   c.setAutoCommit(false);ResearchEvolutionStoreR930.createSchema(db);ResearchEvolutionStoreR930.createSchema(db);c.commit();c.setAutoCommit(true);check(count(db,"SELECT count(*) FROM sqlite_master WHERE type='table' AND name LIKE 'research_%_r930'")==13,"LEGACY_RESTORE_NOT_13");
-  for(String ddl:StrategySchemaSU2.DDL)if(ddl.startsWith("CREATE TABLE"))db.execSQL(ddl);db.execSQL("INSERT INTO su2_matrix_snapshot VALUES('old',33,'{}',X'0011',X'2233','{}',33,1)");c.setAutoCommit(false);SchemaR27.ensure(db);SchemaR27.ensure(db);c.commit();c.setAutoCommit(true);check(count(db,"SELECT count(*) FROM su2_matrix_snapshot WHERE genome_key='old' AND input_through_ordinal IS NULL AND available_at IS NULL AND hex(factors_blob)='0011'")==1,"EXISTING_SU2_READY_MARKER_SKIPPED_METADATA_OR_INVENTED_OLD_WATERMARK");
+  for(String ddl:StrategySchemaSU2.DDL)if(ddl.startsWith("CREATE TABLE"))db.execSQL(ddl);db.execSQL("INSERT INTO su2_matrix_snapshot VALUES('old',33,'{}',X'0011',X'2233','{}',33,1)");try(R31OwnedRuntimeFixture startupOwner=new R31OwnedRuntimeFixture(db,"HOST_MATRIX_SCHEMA")){startupOwner.coordinator.runAtomicWriteOrThrowF01(com.ethk3.novaonepro.DatabaseCoordinator.WriteContext.of(com.ethk3.novaonepro.DatabaseCoordinator.WriteClass.MIGRATION,"R31_HOST_MATRIX_BOOTSTRAP"),tx->{RuntimeSchemaR26.ensure(tx);SchemaR27.ensure(tx);SchemaR27.ensure(tx);return null;});check(count(db,"SELECT count(*) FROM su2_matrix_snapshot WHERE genome_key='old' AND input_through_ordinal IS NULL AND available_at IS NULL AND hex(factors_blob)='0011'")==1,"EXISTING_SU2_READY_MARKER_SKIPPED_METADATA_OR_INVENTED_OLD_WATERMARK");
   double[][]v={{.4,.6,.45}};long[][]n={{200,200,200}};MatrixTensorR30R1.Tensor t=new MatrixTensorR30R1.Tensor("STUDENT_ERROR","SELECT",StatsR27.sha256("dataset"),StatsR27.sha256("parent"),"202610300100","202610300101",1,Collections.singletonList("original-parent"),Arrays.asList("hit","miss","brier"),v,n,Collections.singletonMap("scope","HOST_SYNTHETIC"));
   ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();MatrixTensorR30R1.append(b,t,1);
   c.setAutoCommit(false);ResearchWriteQueueR27.execute(db,b,"HOST_MATRIX");c.rollback();c.setAutoCommit(true);check(count(db,"SELECT count(*) FROM research_matrix_snapshot_r930")==0,"FAILED_MATRIX_PUBLISHED");
@@ -20,5 +20,5 @@ public final class RepairMatrixR30HostTest {
   legacyAtomic(c,db);
   check(count(db,"SELECT count(*) FROM old_model WHERE hex(payload)='00112233'")==1,"ORIGINAL_MODEL_CHANGED");
   System.out.println("REPAIR_MATRIX_NATIVE|RESTORE_13_BASELINE_DECLARED_TABLES|MIGRATION_ROLLBACK_AND_RETRY|ACTUAL_PAYLOAD_HASH_AND_ROLE|FAILED_WRITE_NO_PUBLICATION|IDEMPOTENT|ORIGINAL_MODEL_BYTES_KEPT|PASS|HOST_SYNTHETIC_ONLY");
- }}
+ }}}
 }

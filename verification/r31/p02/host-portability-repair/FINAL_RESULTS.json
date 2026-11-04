@@ -1,0 +1,91 @@
+{
+  "scope": "ACTUAL_HOST_TOOL_REPAIR_SEVEN_FAILED_PATHS_NOT_TEN_SCRIPT_RELEASE_GATE",
+  "capturedAtUtc": "2026-11-04T17:44:10.020045+00:00",
+  "results": [
+    {
+      "name": "timeline",
+      "command": [
+        "python3",
+        "tools/r30-repair/run_timeline_host.py"
+      ],
+      "selector": null,
+      "exit": 0,
+      "elapsedSeconds": 4.593,
+      "log": "current-timeline.log"
+    },
+    {
+      "name": "snapshot",
+      "command": [
+        "python3",
+        "tools/r30-repair/run_snapshot_host.py"
+      ],
+      "selector": null,
+      "exit": 0,
+      "elapsedSeconds": 4.722,
+      "log": "current-snapshot.log"
+    },
+    {
+      "name": "matrix",
+      "command": [
+        "python3",
+        "tools/r30-repair/run_matrix_host.py"
+      ],
+      "selector": null,
+      "exit": 0,
+      "elapsedSeconds": 9.04,
+      "log": "current-matrix.log"
+    },
+    {
+      "name": "task-runtime",
+      "command": [
+        "python3",
+        "tools/r31/run_task_runtime_host.py"
+      ],
+      "selector": "R31TaskRuntimeHost",
+      "exit": 0,
+      "elapsedSeconds": 11.361,
+      "log": "current-task-runtime.log"
+    },
+    {
+      "name": "runtime-health",
+      "command": [
+        "python3",
+        "tools/r31/run_task_runtime_host.py"
+      ],
+      "selector": "R31RuntimeHealthHost",
+      "exit": 0,
+      "elapsedSeconds": 7.78,
+      "log": "current-runtime-health.log"
+    },
+    {
+      "name": "service",
+      "command": [
+        "source /workspace/starcore-environment/activate.sh",
+        "SQLITE_JDBC=/tmp/r31-host-portability-892e-wzaohnz1/2-sqlite-jdbc.jar python3 tools/r31/run_service_protocol_host.py"
+      ],
+      "exit": 0,
+      "log": "current-service-approved-loopback.log",
+      "executionPermission": "NORMAL_PLATFORM_REQUIRE_ESCALATED_FOR_LOOPBACK_ONLY_AFTER_RECORDED_DEFAULT_DENIAL",
+      "checks": "Original service/nativeHTTP plus6originalJUnit and5newSQLiteBoundaryChecks",
+      "evidenceCompletion": "Observed exec session37292 returned exit0; no inferred elapsed duration"
+    },
+    {
+      "name": "resource-recovery",
+      "command": [
+        "python3",
+        "tools/r31/run_task_runtime_host.py"
+      ],
+      "selector": "R31ResourceRecoveryConsumerHost",
+      "exit": 0,
+      "elapsedSeconds": 126.218,
+      "log": "current-resource-recovery.log"
+    }
+  ],
+  "notInScope": [
+    "verify_memory baseline5237 unchanged; root fixes clone history",
+    "run_commit_failure baselineb225 unchanged; root fixes clone history",
+    "run_research_schema baseline31fea unchanged; root fixes clone history",
+    "root storage_host script untouched"
+  ],
+  "allSevenExitZero": true
+}

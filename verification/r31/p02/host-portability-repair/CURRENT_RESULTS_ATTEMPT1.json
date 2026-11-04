@@ -1,0 +1,68 @@
+[
+  {
+    "name": "timeline",
+    "command": [
+      "python3",
+      "tools/r30-repair/run_timeline_host.py"
+    ],
+    "selector": null,
+    "exit": 0,
+    "elapsedSeconds": 4.593,
+    "log": "current-timeline.log"
+  },
+  {
+    "name": "snapshot",
+    "command": [
+      "python3",
+      "tools/r30-repair/run_snapshot_host.py"
+    ],
+    "selector": null,
+    "exit": 0,
+    "elapsedSeconds": 4.722,
+    "log": "current-snapshot.log"
+  },
+  {
+    "name": "matrix",
+    "command": [
+      "python3",
+      "tools/r30-repair/run_matrix_host.py"
+    ],
+    "selector": null,
+    "exit": 0,
+    "elapsedSeconds": 9.04,
+    "log": "current-matrix.log"
+  },
+  {
+    "name": "service",
+    "command": [
+      "python3",
+      "tools/r31/run_service_protocol_host.py"
+    ],
+    "selector": null,
+    "exit": 1,
+    "elapsedSeconds": 7.704,
+    "log": "current-service.log"
+  },
+  {
+    "name": "task-runtime",
+    "command": [
+      "python3",
+      "tools/r31/run_task_runtime_host.py"
+    ],
+    "selector": "R31TaskRuntimeHost",
+    "exit": 0,
+    "elapsedSeconds": 11.361,
+    "log": "current-task-runtime.log"
+  },
+  {
+    "name": "runtime-health",
+    "command": [
+      "python3",
+      "tools/r31/run_task_runtime_host.py"
+    ],
+    "selector": "R31RuntimeHealthHost",
+    "exit": 0,
+    "elapsedSeconds": 7.78,
+    "log": "current-runtime-health.log"
+  }
+]

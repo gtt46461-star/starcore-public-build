@@ -1,0 +1,13 @@
+Exception in thread "main" java.lang.AssertionError: CAPTURE_FAILED:[RuntimeException:Stub!]
+	at com.ethk3.novaonepro.strategyv2.ReportSnapshotR30HostTest.require(ReportSnapshotR30HostTest.java:10)
+	at com.ethk3.novaonepro.strategyv2.ReportSnapshotR30HostTest.main(ReportSnapshotR30HostTest.java:31)
+Traceback (most recent call last):
+  File "/home/runner/work/_temp/r31-host-source/tools/r30-repair/run_snapshot_host.py", line 13, in <module>
+    for name in ['ReportSnapshotR30HostTest']:run(['java','-Xmx768m','-cp',cp,'com.ethk3.novaonepro.strategyv2.'+name])
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/_temp/r31-host-source/tools/r30-repair/run_snapshot_host.py", line 5, in run
+    def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['java', '-Xmx768m', '-cp', '/tmp/repair-snapshot-host-webbyxjt/shim:/tmp/repair-snapshot-host-webbyxjt/test:/home/runner/work/_temp/r31-host-source/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/tmp/tmp.A57dQdxfJN/sqlite-jdbc.jar:/usr/local/lib/android/sdk/platforms/android-36/android.jar', 'com.ethk3.novaonepro.strategyv2.ReportSnapshotR30HostTest']' returned non-zero exit status 1.

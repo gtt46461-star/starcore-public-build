@@ -7,19 +7,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 import subprocess
 import tempfile
+from host_tool_support import dependencies, run as host_run
 
 ROOT = Path(__file__).resolve().parents[2]
 MAIN = ROOT / "app/src/main/java/com/ethk3/novaonepro"
-CLASSES = ROOT / "app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"
-SDK = Path(os.environ["ANDROID_HOME"]) / "platforms/android-36/android.jar"
-JDBC = Path(os.environ.get("SQLITE_JDBC", "/tmp/r31-baseline-deps/sqlite-jdbc.jar"))
+CLASSES, SDK, RJAR, JDBC = dependencies(ROOT)
 HOST_CLASS=os.environ.get("R31_RUNTIME_HOST_CLASS","R31TaskRuntimeHost")
 if HOST_CLASS not in {"R31TaskRuntimeHost","R31RuntimeHealthHost","R31ResourceRecoveryConsumerHost"}:raise ValueError("unsupported host harness")
 OUTPUT=ROOT/os.environ.get("R31_RUNTIME_OUTPUT","verification/r31/p02/runtime-health" if HOST_CLASS=="R31RuntimeHealthHost" else "verification/r31/p01/task-runtime")
 
 
 def run(args):
-    subprocess.run(list(map(str, args)), cwd=ROOT, check=True)
+    host_run(ROOT, args)
 
 
 with tempfile.TemporaryDirectory(prefix="r31-production-runtime-") as temporary:
@@ -80,7 +79,8 @@ with tempfile.TemporaryDirectory(prefix="r31-production-runtime-") as temporary:
         return {str((MAIN/(name+".java")).relative_to(ROOT)):hashlib.sha256(path.read_bytes()).hexdigest() for name,path in production_paths.items()}
     compiled_hashes=production_hashes()
     compile_commit=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
-    run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", str(SDK) + os.pathsep + str(CLASSES), "-sourcepath", ROOT / "app/src/main/java", "-d", production, *production_paths.values()])
+    compile_support = os.pathsep.join(map(str, [SDK, CLASSES] + ([RJAR] if RJAR.is_file() else [])))
+    run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", compile_support, "-d", production, *production_paths.values()])
     if compiled_hashes!=production_hashes():
         raise RuntimeError("production source changed during compilation; rerun with owners frozen")
     classpath = os.pathsep.join(map(str, [platform, production, test, CLASSES, JDBC, SDK]))
@@ -92,7 +92,7 @@ with tempfile.TemporaryDirectory(prefix="r31-production-runtime-") as temporary:
     checks=int(re.search(r"(?:R31_TASK_RUNTIME_HOST_PASS|R31_RUNTIME_HEALTH_HOST_PASS|R31_RESOURCE_RECOVERY_CONSUMER_HOST_PASS) assertions=(\d+)",completed.stdout).group(1))
     classifier_tests=0
     if HOST_CLASS=="R31RuntimeHealthHost":
-        gradle=Path(os.environ.get("GRADLE_USER_HOME","/workspace/starcore-environment/gradle-home"))
+        gradle=Path(os.environ.get("GRADLE_USER_HOME",str(Path.home()/".gradle")))
         junit=next(gradle.glob("caches/modules-2/files-2.1/junit/junit/4.13.2/*/junit-4.13.2.jar"))
         hamcrest=next(gradle.glob("caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/*/hamcrest-core-1.3.jar"))
         junit_cp=classpath+os.pathsep+str(junit)+os.pathsep+str(hamcrest)

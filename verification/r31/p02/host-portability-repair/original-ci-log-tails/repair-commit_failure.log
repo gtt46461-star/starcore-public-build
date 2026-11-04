@@ -1,0 +1,24 @@
+/home/runner/work/_temp/r31-host-source/tools/r30-repair/qual_host/RepairCommitFailureR30HostTest.java:7: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/home/runner/work/_temp/r31-host-source/tools/r30-repair/qual_host/RepairCommitFailureR30HostTest.java:69: warning: Unsafe is internal proprietary API and may be removed in a future release
+            SQLiteDatabase db=new SQLiteDatabase(connection);Field uf=Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);Unsafe unsafe=(Unsafe)uf.get(null);DatabaseCoordinator coordinator=(DatabaseCoordinator)unsafe.allocateInstance(DatabaseCoordinator.class);
+                                                                      ^
+/home/runner/work/_temp/r31-host-source/tools/r30-repair/qual_host/RepairCommitFailureR30HostTest.java:69: warning: Unsafe is internal proprietary API and may be removed in a future release
+            SQLiteDatabase db=new SQLiteDatabase(connection);Field uf=Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);Unsafe unsafe=(Unsafe)uf.get(null);DatabaseCoordinator coordinator=(DatabaseCoordinator)unsafe.allocateInstance(DatabaseCoordinator.class);
+                                                                                                                                        ^
+/home/runner/work/_temp/r31-host-source/tools/r30-repair/qual_host/RepairCommitFailureR30HostTest.java:69: warning: Unsafe is internal proprietary API and may be removed in a future release
+            SQLiteDatabase db=new SQLiteDatabase(connection);Field uf=Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);Unsafe unsafe=(Unsafe)uf.get(null);DatabaseCoordinator coordinator=(DatabaseCoordinator)unsafe.allocateInstance(DatabaseCoordinator.class);
+                                                                                                                                                       ^
+4 warnings
+fatal: bad object b225ab204db043b347f9d76d6c5c1376fd9a2590:app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
+Traceback (most recent call last):
+  File "/home/runner/work/_temp/r31-host-source/tools/r30-repair/run_commit_failure_host.py", line 34, in <module>
+    baseline_source=out/'baseline-source/DatabaseCoordinator.java';baseline_source.parent.mkdir();baseline_source.write_bytes(subprocess.check_output(['git','show','b225ab204db043b347f9d76d6c5c1376fd9a2590:app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java'],cwd=root))
+                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', 'show', 'b225ab204db043b347f9d76d6c5c1376fd9a2590:app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java']' returned non-zero exit status 128.
