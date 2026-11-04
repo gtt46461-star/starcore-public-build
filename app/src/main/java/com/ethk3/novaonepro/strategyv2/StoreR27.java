@@ -55,6 +55,10 @@ public final class StoreR27 {
         public final ResearchWriteQueueR27.Batch batch = new ResearchWriteQueueR27.Batch(); private final String loop, birthIssue;
         public final List<Object[]> promotions = new ArrayList<>(); public final List<String[]> demotions = new ArrayList<>();
         public EvolutionSink(String loop, String birthIssue) { this.loop = loop; this.birthIssue = birthIssue == null ? "" : birthIssue; }
+        /** Freeze the complete owner batch, including its original admission guards and cursor. */
+        public EvolutionPublicationStoreR31.Prepared preparePublicationR31(SQLiteDatabase read, RuntimeCoordinatorR26.Claim claim, String sourceCommit, EvolutionPublicationStoreR31.CursorState expectedCursor) {
+            return EvolutionPublicationStoreR31.prepare(read,loop,claim,sourceCommit,expectedCursor,batch,promotions.size());
+        }
         public void policy(PolicySpecR27 spec, String state, String reason, int generation, String datasetHash) {
             long now = System.currentTimeMillis(); String idea = spec.meta == null ? "" : spec.meta.idea;
             batch.add("INSERT OR IGNORE INTO r27_policy(policy_hash,spec_json,idea_family,birth_generation,birth_issue,dataset_hash,state,state_reason,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)",
