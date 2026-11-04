@@ -1,0 +1,25 @@
+R31_HOST_DEPENDENCY_PROVENANCE {"androidSdk": {"path": "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar", "sha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a"}, "classes": {"path": "/tmp/r31-history-013-frozen-support/classes.jar", "sha256": "8f863b5f6e40500640c1b65cea4c78594d5405ae7021853bafbf11525d71ff13"}, "generatedResources": {"path": "/tmp/r31-host-portability-892e-wzaohnz1/1-R.jar", "sha256": "ee74e9c8d95f2a1cb9d5477246207aac640b2e790edaaa495142f626318f4956"}, "sqliteJdbc": {"path": "/tmp/r31-baseline-deps/sqlite-jdbc.jar", "sha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa"}}
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/workspace/r31-history-import/tools/r31/host/R31OwnedRuntimeFixture.java:14: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/workspace/r31-history-import/tools/r31/host/R31OwnedRuntimeFixture.java:30: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Field field = Unsafe.class.getDeclaredField("theUnsafe"); field.setAccessible(true);
+                      ^
+/workspace/r31-history-import/tools/r31/host/R31OwnedRuntimeFixture.java:31: warning: Unsafe is internal proprietary API and may be removed in a future release
+        coordinator = (DatabaseCoordinator) ((Unsafe) field.get(null)).allocateInstance(DatabaseCoordinator.class);
+                                              ^
+3 warnings
+{"name": "old-large-repeat", "command": ["java", "-Xmx512m", "-cp", "/tmp/r31-history-native-qtsceej4/owned/platform:/tmp/r31-history-native-qtsceej4/old-classes:/tmp/r31-history-013-frozen-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar", "com.ethk3.novaonepro.strategyv2.HistoryImportBaselineR31Host", "repeat", "/tmp/r31-history-native-qtsceej4/databases/large.db", "4000"], "exit": 0, "expectedExit": 0, "elapsedSeconds": 1.3017837529987446}
+HISTORY_OLD_NEGATIVE_CONTROL|runtimeDdl=2|maxSqlOpsInTx=4003|maxNativeTxMs=214.373988|physicalRows=4000|conflictCountBeforeRepeat=1|conflictCountAfter=2|canonicalRows=2|scope=HOST_SYNTHETIC_NOT_ANDROID_OR_QUALITY
+历史CSV：比对一致 1；冲突 1（不导入）：202001031120 ；新增回放专用 3998；非法行 0；重复期 0（其中自相矛盾 0，不导入）；缺期 0（0 处断档，回放按段处理）。
+
+{"name": "old-commit-then-kill", "command": ["java", "-Xmx512m", "-cp", "/tmp/r31-history-native-qtsceej4/owned/platform:/tmp/r31-history-native-qtsceej4/old-classes:/tmp/r31-history-013-frozen-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar", "com.ethk3.novaonepro.strategyv2.HistoryImportBaselineR31Host", "crash-after-commit", "/tmp/r31-history-native-qtsceej4/databases/crash.db", "64"], "exit": 73, "expectedExit": 73, "elapsedSeconds": 0.4977960440010065}
+
+{"name": "old-reentry-after-kill", "command": ["java", "-Xmx512m", "-cp", "/tmp/r31-history-native-qtsceej4/owned/platform:/tmp/r31-history-native-qtsceej4/old-classes:/tmp/r31-history-013-frozen-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar", "com.ethk3.novaonepro.strategyv2.HistoryImportBaselineR31Host", "once", "/tmp/r31-history-native-qtsceej4/databases/crash.db", "64"], "exit": 0, "expectedExit": 0, "elapsedSeconds": 0.5439737400010927}
+HISTORY_OLD_NEGATIVE_CONTROL|runtimeDdl=1|maxSqlOpsInTx=67|maxNativeTxMs=10.432006|physicalRows=64|conflictCountBeforeRepeat=2|conflictCountAfter=2|canonicalRows=2|scope=HOST_SYNTHETIC_NOT_ANDROID_OR_QUALITY
+历史CSV：比对一致 1；冲突 1（不导入）：202001010064 ；新增回放专用 62；非法行 0；重复期 0（其中自相矛盾 0，不导入）；缺期 0（0 处断档，回放按段处理）。
+

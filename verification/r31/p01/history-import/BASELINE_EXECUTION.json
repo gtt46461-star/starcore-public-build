@@ -1,0 +1,55 @@
+{
+  "scope": "EXACT_OLD_IMPORTER_NATIVE_JDBC_NEGATIVE_CONTROL_NOT_DEVICE_OR_QUALITY",
+  "baseline": "241a93848851440fdfd21155ae400ff2354eceb2",
+  "sourceSha256": "e73848b9157261b168e33da65e5f6d08c24a6a6b790214103b6a0172ce6814e9",
+  "records": [
+    {
+      "name": "old-large-repeat",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-history-native-qtsceej4/owned/platform:/tmp/r31-history-native-qtsceej4/old-classes:/tmp/r31-history-013-frozen-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.HistoryImportBaselineR31Host",
+        "repeat",
+        "/tmp/r31-history-native-qtsceej4/databases/large.db",
+        "4000"
+      ],
+      "exit": 0,
+      "expectedExit": 0,
+      "elapsedSeconds": 1.3017837529987446
+    },
+    {
+      "name": "old-commit-then-kill",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-history-native-qtsceej4/owned/platform:/tmp/r31-history-native-qtsceej4/old-classes:/tmp/r31-history-013-frozen-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.HistoryImportBaselineR31Host",
+        "crash-after-commit",
+        "/tmp/r31-history-native-qtsceej4/databases/crash.db",
+        "64"
+      ],
+      "exit": 73,
+      "expectedExit": 73,
+      "elapsedSeconds": 0.4977960440010065
+    },
+    {
+      "name": "old-reentry-after-kill",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-history-native-qtsceej4/owned/platform:/tmp/r31-history-native-qtsceej4/old-classes:/tmp/r31-history-013-frozen-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.HistoryImportBaselineR31Host",
+        "once",
+        "/tmp/r31-history-native-qtsceej4/databases/crash.db",
+        "64"
+      ],
+      "exit": 0,
+      "expectedExit": 0,
+      "elapsedSeconds": 0.5439737400010927
+    }
+  ]
+}

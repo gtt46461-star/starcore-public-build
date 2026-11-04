@@ -1,0 +1,128 @@
+{
+  "module": "P01/B02 history CSV residual production integration",
+  "planBaseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "moduleInheritedBaseline": "241a93848851440fdfd21155ae400ff2354eceb2",
+  "branch": "construction/r31-history-import-20261104",
+  "sourceCommit": "6074a5816d3162e4f2b62fd5a9ebd35c37acec84",
+  "toolFilesystemCommit": "e5310f516b0e6ee567a8d46c38165efd31b34bef",
+  "status": "CODE_COMPLETE",
+  "wholeCardCompletionClaim": false,
+  "cardsSupported": [
+    "R31-B02-C02",
+    "R31-B02-C03"
+  ],
+  "actualModifiedProductionFiles": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/HistoryImportR27.java": "18afcd274c11c0cfd677d4fdb2fd1ff33f750215f2ca3e43be5a077486b2e3db",
+    "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java": "9699896b903abe30e1dda8385a31a5320e319fb65627633b604e46d305a24150"
+  },
+  "productionMethods": {
+    "HistoryImportR27": [
+      "importCsv/importCsvExpected",
+      "resumeSavedR31/pendingJobIdR31",
+      "snapshot/CsvR31",
+      "claim/requireOwner/pulse",
+      "chunk/submit",
+      "refreshCanonical/prepareChanges/rebaseChanges/publish",
+      "ensureR31PublicationSchema/publicationSchemaReadyReadOnlyR31",
+      "publishedRowsSqlR31/publishedCountSqlR31/appendOlder"
+    ],
+    "ChartsActivityR83": [
+      "onActivityResult/startHistoryImportR31",
+      "toolsR27 import recovery action",
+      "onDestroy import cancellation"
+    ]
+  },
+  "migration": {
+    "domain": "RESEARCH_R31_HISTORY_IMPORT",
+    "revision": 1,
+    "objects": 10,
+    "rootOwner": "SchemaDomainCoordinatorR926 + SchemaR27",
+    "sourceJournalOwnerCommit": "d88c848f16c6ad2fcde61c21a7c872b3443eb61a",
+    "nativeActualStartupAndReentry": "PASS_IN_EXPLICIT_JOINT_SOURCE_SNAPSHOT",
+    "androidUpgrade": "NOT_RUN",
+    "schemaFilesChangedByThisAgent": false
+  },
+  "validation": {
+    "freshProducerAndUiJavac": "PASS",
+    "native15Modes": "PASS_SCOPED_HOST_CHECKS_ONLY",
+    "nativeReceipt": "final-e531-joint-workspace/EXECUTION.json",
+    "sourceOriginsStableDuringFinalRun": true,
+    "androidTestSourceJavac": "PASS",
+    "androidTestJavacReceipt": "FINAL_ANDROID_TEST_COMPILE.json",
+    "source6074AndE531AppTreeEquivalent": true,
+    "fullUnexcludedAndroidBuild": "NOT_RUN_IN_THIS_MODULE",
+    "existingWholeAppUnitSuite": "NOT_RUN_IN_THIS_MODULE",
+    "fullMergedAndroidIntegration": "PENDING_ROOT",
+    "measuredMaxTopLevelExecSqlOpsPerTx": 50,
+    "preparedMaxOps": 49,
+    "runtimeDdlInImport": 0,
+    "nativeSampleMaxCommittedTxMs": 15.185777,
+    "measurementLimit": "HOST/JDBC top-level execSQL + native transaction elapsed, not internal trigger VM operations, WAL physical bytes, Android hold SLO or 24h/72h"
+  },
+  "device": {
+    "api29": "NOT_RUN",
+    "api35": "NOT_RUN",
+    "physicalAndroid": "NOT_RUN",
+    "duration24h": "NOT_RUN",
+    "duration72h": "NOT_RUN",
+    "instrumentedTest": "app/src/androidTest/java/com/ethk3/novaonepro/R31HistoryImportInstrumentedTest.java"
+  },
+  "apk": {
+    "status": "NOT_BUILT_IN_THIS_MODULE",
+    "applicationId": "NOT_MEASURED_NEW_APK",
+    "version": "NOT_MEASURED_NEW_APK",
+    "signingFingerprint": "NOT_MEASURED_NEW_APK",
+    "sha256": "NOT_MEASURED_NEW_APK"
+  },
+  "naturalQuality": {
+    "status": "NOT_PROVEN",
+    "source": "ALL_HOST_AND_INSTRUMENTATION_INPUTS_EXPLICIT_ENGINEERING_SYNTHETIC",
+    "realFutureSamples": 0,
+    "naturalQualifiedStrategiesProducedByThisModule": 0
+  },
+  "oldControls": {
+    "receipt": "BASELINE_EXECUTION.json",
+    "runtimeDdlCountTwoImports": 2,
+    "maxTopLevelSqlOpsPerTx": 4003,
+    "nativeMaxTxMs": 214.373988,
+    "conflictBeforeAfterSameSource": [
+      1,
+      2
+    ],
+    "actualPostCommitHaltReentryDuplicateConflictCount": 2,
+    "scope": "Original old fixture has 4000 CSV and two canonical rows; new main fixture has 4002 CSV and 5000 canonical rows. Timings are observations, not matched performance benchmark."
+  },
+  "preservedFailures": [
+    "verification/r31-history-baseline-launch.log: original 012-support API mismatch before importer",
+    "current-02: old Pin startup rejects upgraded source journal with PIN_TRIGGER_CONFLICT",
+    "current-03-joint: HOST DbHelper/Cursor shadowed actual compile-time constants",
+    "current-05-source-contracts: race injection not enabled, required real-writer assertion FAILED",
+    "final-6074-joint: actual /tmp free space below unchanged production floor; whole run remains FAILED"
+  ],
+  "storageLifecycle": {
+    "sourceOwner": "HistoryImportR27 run.source_path/source_hash/source_bytes + active StorageBudget INPUT_RESEARCH reservation",
+    "memoryOwner": "2MiB prepared-work lease plus 128KiB source buffer, closed after actual work; no actual heap-free claim",
+    "sourceWriteAdmission": "DEFAULT production Config + real kernel blocks at declared HOST measurement boundary; Android actual boundary NOT_RUN",
+    "cancelledAndFailedStage": "STAGING and referenced original retained; owner released only after work exits or real 30s lease expiry; same job saved-source resume validated",
+    "duplicateOrUnreferencedSnapshot": "Actual deletion of own file/directory and zero remaining disk owners measured",
+    "completedSource": "Manifest/rows immutable; complete input retained for provenance and dependent research",
+    "retirement": "NOT_IMPLEMENTED_P01; P06 must validate active inputs/pins/models/certificates/unsettled predictions/report or backup references and explicitly retire superseded originals/unpublished members/orphans",
+    "capacityDebt": "All retained files/database counted in default hard/free-floor admission; protected debt refuses new work, no directory move credited as reclamation"
+  },
+  "compatibility": {
+    "legacySevenColumnsAndEvidence": "PRESERVED",
+    "canonical5000Values": "PRESERVED_IN_MAIN_NATIVE_FIXTURE",
+    "forwardR31SameVersionReaders": "SCOPED_NATIVE_PASS",
+    "oldApkDirectUseOfUpgradedDatabase": "NOT_SUPPORTED_OR_VERIFIED; old Pin startup conflict was actually observed",
+    "downgradeRecovery": "Requires repository verified recovery with a matching complete DB plus private-input backup; this module never deletes/reset DB"
+  },
+  "remaining": [
+    "Root cherry-pick all same-version protocol owners and wire ReportSnapshot importedRows scalar in its one SELECT",
+    "Root run full canonical Gradle build/tests/packaging/signing and exact APK identity verification",
+    "Root run new Android instrumentation on API29/35 and physical device",
+    "24h/72h full-chain/capacity and real Android resource/holding SLO evidence",
+    "P06 reference-aware retirement and actual physical reclamation of superseded protected sources/unpublished sets/post-fsync-preclaim crash orphans",
+    "External document provider blocked read/cancel and actual free-space-exhaustion Android behavior not executed",
+    "Natural future quality evidence remains separate, not supplied by these engineering fixtures"
+  ]
+}

@@ -1,0 +1,36 @@
+R31_HOST_DEPENDENCY_PROVENANCE {"androidSdk": {"path": "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar", "sha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a"}, "classes": {"path": "/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar", "sha256": "8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0"}, "generatedResources": {"path": "/tmp/r31-host-portability-892e-wzaohnz1/1-R.jar", "sha256": "ee74e9c8d95f2a1cb9d5477246207aac640b2e790edaaa495142f626318f4956"}, "sqliteJdbc": {"path": "/tmp/r31-baseline-deps/sqlite-jdbc.jar", "sha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa"}}
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/tmp/r31-history-publication-34x1qw1z/source-snapshot/5/HistoryPosixStatR31Host.java:8: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/tmp/r31-history-publication-34x1qw1z/source-snapshot/6/R31OwnedRuntimeFixture.java:14: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/tmp/r31-history-publication-34x1qw1z/source-snapshot/5/HistoryPosixStatR31Host.java:28: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe"); unsafeField.setAccessible(true);
+                            ^
+/tmp/r31-history-publication-34x1qw1z/source-snapshot/5/HistoryPosixStatR31Host.java:29: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Unsafe unsafe = (Unsafe) unsafeField.get(null);
+        ^
+/tmp/r31-history-publication-34x1qw1z/source-snapshot/5/HistoryPosixStatR31Host.java:29: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Unsafe unsafe = (Unsafe) unsafeField.get(null);
+                         ^
+/tmp/r31-history-publication-34x1qw1z/source-snapshot/6/R31OwnedRuntimeFixture.java:30: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Field field = Unsafe.class.getDeclaredField("theUnsafe"); field.setAccessible(true);
+                      ^
+/tmp/r31-history-publication-34x1qw1z/source-snapshot/6/R31OwnedRuntimeFixture.java:31: warning: Unsafe is internal proprietary API and may be removed in a future release
+        coordinator = (DatabaseCoordinator) ((Unsafe) field.get(null)).allocateInstance(DatabaseCoordinator.class);
+                                              ^
+7 warnings
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+{"mode": "stock-unknown", "command": ["/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java", "-Xmx512m", "-cp", "/tmp/r31-history-publication-34x1qw1z/owned/platform:/tmp/r31-history-publication-34x1qw1z/current-classes:/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar", "com.ethk3.novaonepro.strategyv2.HistoryImportPublicationR31Host", "stock-unknown", "/tmp/r31-history-publication-34x1qw1z/stock-unknown/databases/main.db", "/tmp/r31-history-publication-34x1qw1z/libhistory_posix_stat_r31.so"], "expectedExit": 0, "exit": 0, "elapsedSeconds": 0.5320608270048979, "log": "/workspace/r31-history-import/verification/r31/p01/history-import/current-01/stock-unknown.log"}
+HISTORY_STOCK_HOST_DEFAULT_ADMISSION|ALLOCATED_BYTES_UNKNOWN|inputReads=0|androidBoundary=NOT_RUN|PASS
+
+{"mode": "suite", "command": ["/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java", "-Xmx512m", "-cp", "/tmp/r31-history-publication-34x1qw1z/owned/platform:/tmp/r31-history-publication-34x1qw1z/current-classes:/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar", "com.ethk3.novaonepro.strategyv2.HistoryImportPublicationR31Host", "suite", "/tmp/r31-history-publication-34x1qw1z/suite/databases/main.db", "/tmp/r31-history-publication-34x1qw1z/libhistory_posix_stat_r31.so"], "expectedExit": 0, "exit": 0, "elapsedSeconds": 3.368152294999163, "log": "/workspace/r31-history-import/verification/r31/p01/history-import/current-01/suite.log"}
+HISTORY_HOST_POSIX_BOUNDARY|before=UNKNOWN|after=JNI_REAL_STAT_ST_BLOCKS|vm=OpenJDK 64-Bit Server VM|runtime=OpenJDK Runtime Environment|productionConfig=UNCHANGED|androidBoundary=NOT_RUN
+HISTORY_NEW_NATIVE|checks=1035|maxSqlOpsInTx=50|maxNativeTxMs=11.358253|runtimeDdl=0|stagedCommitsObserved=1002|canonicalRows=5000|historyInputs=REPLAY_ONLY|qualityEvidence=NONE|PASS
+
+EVIDENCE /workspace/r31-history-import/verification/r31/p01/history-import/current-01/EXECUTION.json

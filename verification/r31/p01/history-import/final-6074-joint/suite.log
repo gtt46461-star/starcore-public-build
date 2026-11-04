@@ -1,0 +1,18 @@
+HISTORY_HOST_POSIX_BOUNDARY|before=UNKNOWN|after=JNI_REAL_STAT_ST_BLOCKS|vm=OpenJDK 64-Bit Server VM|runtime=OpenJDK Runtime Environment|productionConfig=UNCHANGED|androidBoundary=NOT_RUN
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Exception in thread "main" com.ethk3.novaonepro.StorageBudgetR31$Rejected: STORAGE_BUDGET_FREE_SPACE_RESERVE|owner=HISTORY_SOURCE|fence=0
+	at com.ethk3.novaonepro.StorageBudgetR31$Rejected.context(StorageBudgetR31.java:35)
+	at com.ethk3.novaonepro.StorageBudgetR31.lockedContext(StorageBudgetR31.java:72)
+	at com.ethk3.novaonepro.StorageBudgetR31.reserve(StorageBudgetR31.java:77)
+	at com.ethk3.novaonepro.StorageBudgetR31.reserve(StorageBudgetR31.java:70)
+	at com.ethk3.novaonepro.strategyv2.HistoryImportR27.snapshot(HistoryImportR27.java:99)
+	at com.ethk3.novaonepro.strategyv2.HistoryImportR27.importCsvExpected(HistoryImportR27.java:417)
+	at com.ethk3.novaonepro.strategyv2.HistoryImportR27.importCsv(HistoryImportR27.java:408)
+	at com.ethk3.novaonepro.strategyv2.HistoryImportR27.importCsv(HistoryImportR27.java:388)
+	at com.ethk3.novaonepro.strategyv2.HistoryImportPublicationR31Host.importBytes(HistoryImportPublicationR31Host.java:27)
+	at com.ethk3.novaonepro.strategyv2.HistoryImportPublicationR31Host.suite(HistoryImportPublicationR31Host.java:48)
+	at com.ethk3.novaonepro.strategyv2.HistoryImportPublicationR31Host.main(HistoryImportPublicationR31Host.java:218)
+Caused by: com.ethk3.novaonepro.StorageBudgetR31$Rejected: STORAGE_BUDGET_FREE_SPACE_RESERVE|owner=COMMON_BUDGET|fence=-1
+	at com.ethk3.novaonepro.StorageBudgetR31.lambda$reserve$0(StorageBudgetR31.java:91)
+	at com.ethk3.novaonepro.StorageBudgetR31.locked(StorageBudgetR31.java:66)
+	... 10 more
