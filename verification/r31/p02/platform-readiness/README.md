@@ -27,3 +27,5 @@ python3 tools/r31/verify_platform_readiness.py \
 保留原始试验失败：首 HOST 运行遇 SDK org.json 的 Stub，原错误仍在 baseline；加仓库已有 AOSP JSON 实现作为 HOST 平台后复验通过。首 metadata fixture 误将“完整原因列表的一项”要求为“异常首因”，修为同时验证完整列表及真正首因，生产源码没有为此放宽。原始失败在 `metadata-first-harness-failure/`。
 
 仍未取得的证据：新的 Android 完整构建/身份、三项新 instrumentation 的 ART、两 API 原14故障矩阵、完整正常 DbStore 构造的联合 HOST 结果、物理设备、24/72小时及自然未来质量。没有清数据库、降低唯一性或统计门槛；本次没有 B10 主链权威选择切换或缓存回收。
+
+源码与本轮原始证据提交：`6e7a9d1470fc0ef58acf09f443ec3c6a1751dc86`。该证据固定在测试时的 DatabaseCoordinator、Root Domain ec280eb3/DbStore f8a4 及35源 snapshot；之后 WriterHoldFaults 等新源必须由 Root 的新联合验证覆盖。
