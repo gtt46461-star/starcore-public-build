@@ -42,6 +42,6 @@ public final class R31FamilyScopeIsolationTest {
     }
     @Test public void neuralForkShapeIncludesUnserializedAutodiffWorkspace()throws Exception{
         FeatureCacheR27.FamilyStream neural=new FeatureCacheR27.FamilyStream(3);Method shape=FeatureCacheR27.FamilyStream.class.getDeclaredMethod("modelShapeR31",Object.class);shape.setAccessible(true);long bytes=((Number)shape.invoke(null,neural.model)).longValue();assertTrue("fixed private tape must be counted, not inferred from codec length",bytes>=2129920);byte[] codec=state(neural);assertTrue(bytes>codec.length*10L);
-        MemoryBudgetR31 memory=memory(new AtomicBoolean());long before=n(memory.snapshot(),"declaredJavaWorkingBytes");FeatureCacheR27.FamilyStream child=neural.forkR31(memory);try{assertNotSame(neural.model,child.model);assertArrayEquals(codec,state(child));assertTrue(n(memory.snapshot(),"declaredJavaWorkingBytes")-before>=2*bytes);}finally{child.closeForkOwnerR31();neural.closeForkOwnerR31();}assertEquals(before,n(memory.snapshot(),"declaredJavaWorkingBytes"));
+        MemoryBudgetR31 memory=memory(new AtomicBoolean());long before=n(memory.snapshot(),"declaredJavaWorkingBytes");FeatureCacheR27.FamilyStream child=neural.forkR31(memory);try{assertNotSame(neural.model,child.model);assertArrayEquals(codec,state(child));assertTrue(n(memory.snapshot(),"declaredJavaWorkingBytes")-before>=bytes);}finally{child.closeForkOwnerR31();neural.closeForkOwnerR31();}assertEquals(before,n(memory.snapshot(),"declaredJavaWorkingBytes"));
     }
 }

@@ -1,0 +1,59 @@
+{
+  "card": "R31-B05-C11",
+  "phase": "P02",
+  "baseline": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
+  "branch": "construction/r31-family-admission-20261104",
+  "status": "CODE_COMPLETE",
+  "recordedAt": "2026-11-04T17:16:00.695629+00:00",
+  "actualFiles": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31FamilyAdmissionTest.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31FamilyBudgetResumeTest.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31FamilyScopeIsolationTest.java",
+    "tools/r31/verify_family_admission.py",
+    "tools/r31/family_admission_host"
+  ],
+  "methods": [
+    "FamilyStream constructorBoundR31/admitConstructorR31",
+    "copyMatrixR31",
+    "saveRowR31/restoreRowR31/advance",
+    "forkR31",
+    "familyIntoR31(tp,index,target,critical)",
+    "familyCopyR31 active-use lifecycle"
+  ],
+  "sourceSha256": "892ffffb6ed00d84e2e7ffe5ae8fc501136e45dbd5bc9e6f28148a7a39054cc7",
+  "verifierSha256": "5cee0706b2e67a5189e2e1c9f0384c51d400f2bd0a481aa708e475e29036bc41",
+  "migrationVersion": "NONE; database unchanged; existing model wire format preserved",
+  "hostJavaCompile": "PASS",
+  "completedEvidence": {
+    "targetedJUnit": 64,
+    "pitModelJUnit": 6,
+    "goldenFingerprints": 52,
+    "familyParentChildValues": 250500,
+    "realCancellationBoundaries": 24,
+    "shortTokenProgressTests": 2,
+    "scope": "HOST_ONLY; synthetic inputs are engineering fixtures"
+  },
+  "originalSixCurrentSource": {
+    "status": "IN_PROGRESS",
+    "timeLimitSeconds": 900,
+    "streamingStatusFile": "original-six-default512.log.status.json",
+    "prior300Seconds": "TIMEOUT_NOT_COMPLETE; see timed-out-final-codec",
+    "intermediateSameSourceRepeatedOutcomes": "first-codec2FAIL; direct-slow6PASS; neither overrides latest source"
+  },
+  "androidJointBuild": "NOT_RUN_BY_MODULE_OWNER",
+  "integration": "PENDING_ROOT_POLICY_AST_AND_IDENTITY",
+  "apkIdentity": null,
+  "device": "NOT_RUN",
+  "continuous24h": "NOT_RUN",
+  "continuous72h": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED",
+  "remaining": [
+    "root PolicyAst actual existing critical parameter must call new4argument overload",
+    "root whole Android build/full suite/lint/index/sign/install",
+    "model-kernel temporary/dynamic allocations and other owners remain outside constructor/matrix coverage",
+    "external F23 adapter needs an explicit bound; no universal arbitrary-adapter guarantee",
+    "in-memory row recovery does not replace durable training checkpoint/process-death recovery"
+  ],
+  "next": "root cherry-pick fixed source; preserve current900s run; append result in later metadata-only commit"
+}
