@@ -1,0 +1,35 @@
+{
+  "card": "R31-B05-C11",
+  "phase": "P02",
+  "status": "ACTUAL_COMPILED_CONSUMER_HOST_PASS",
+  "sourceBaseline": "root013 actual Android support jar",
+  "actualProductionFilesChanged": [],
+  "actualToolFilesChanged": [
+    "tools/r31/verify_ast_family_scope.py",
+    "tools/r31/ast_family_scope_host/AstFamilyScopeR31Host.java"
+  ],
+  "actualMethodsExercised": [
+    "ReplayEvaluatorR27.predictNext",
+    "PolicyAstR27.evalRealtimeScopedR31 -> evalScopedR31 critical=true",
+    "actual bytecode consumes iload_3 at FeatureCacheR27.familyIntoR31(II[DZ)V",
+    "cold model/matrix/row-checkpoint admissions have REALTIME leases",
+    "critical ThreadLocal restored on success, real token exception and real worker completion"
+  ],
+  "supportJarSha256": "8f863b5f6e40500640c1b65cea4c78594d5405ae7021853bafbf11525d71ff13",
+  "inputRole": "SYNTHETIC_ENGINEERING_ONLY",
+  "assertions": 125,
+  "testCommand": "python3 tools/r31/verify_ast_family_scope.py --support-jar /tmp/r31-p02-013-actual-android-support/classes.jar",
+  "result": "PASS",
+  "migrationVersion": "NONE",
+  "apkIdentity": null,
+  "deviceEvidence": "NOT_RUN",
+  "continuous24h": "NOT_RUN",
+  "continuous72h": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED",
+  "remaining": [
+    "root actual Android full unit/lint/identity/sign/install gates",
+    "device duration/native calibration/real future quality evidence"
+  ],
+  "next": "root integrate this metadata-only verification commit",
+  "capturedAt": "2026-11-04T18:07:32.739618+00:00"
+}
