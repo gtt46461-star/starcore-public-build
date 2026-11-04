@@ -1,0 +1,148 @@
+{
+  "status": "ACTUAL_WHOLE4475_AND_SOURCE_DOWNLOAD_NATIVE_PASS",
+  "scope": "PORTABLE_VALIDATION_TOOL_ONLY_NO_PRODUCTION_CHANGE_NOT_ANDROID_NOT_SOAK_NOT_QUALITY",
+  "artifactSha256": "e46f65ea8e53b8982e1077a6908600cfab66d690f9c7bc11f501285fc85405c9",
+  "artifactBusinessClassCodeSourcesChecked": 22,
+  "toolSha256": "e4a999351e38be0b21c0c498bce92e1f9393390fcf479429edaf24a559235776",
+  "runs": {
+    "whole4475": {
+      "consumerAssertions": 543,
+      "originalJUnit": 29,
+      "crossJvm": true,
+      "actualRuntimeProducer": {
+        "actualProductionSplits": [
+          880,
+          480,
+          0
+        ],
+        "assertions": 9,
+        "batchInventory": {
+          "ATOMNET_R30_INIT": {
+            "attempts": 1,
+            "legacyWithoutDurableIdentity": 0,
+            "maxBindBytes": 2150,
+            "maxOps": 5,
+            "overInitialBudget": 0,
+            "runtimeDdlAttempts": 0
+          },
+          "ATOMNET_R30_SLICE": {
+            "attempts": 1,
+            "legacyWithoutDurableIdentity": 0,
+            "maxBindBytes": 1954,
+            "maxOps": 4,
+            "overInitialBudget": 0,
+            "runtimeDdlAttempts": 0
+          },
+          "ATOMNET_R31_STAGE_0": {
+            "attempts": 2,
+            "legacyWithoutDurableIdentity": 0,
+            "maxBindBytes": 592,
+            "maxOps": 1,
+            "overInitialBudget": 0,
+            "runtimeDdlAttempts": 0
+          },
+          "ATOMNET_R31_STAGE_1": {
+            "attempts": 1,
+            "legacyWithoutDurableIdentity": 0,
+            "maxBindBytes": 32560,
+            "maxOps": 20,
+            "overInitialBudget": 0,
+            "runtimeDdlAttempts": 0
+          }
+        },
+        "businessDdl": 0,
+        "materializedSamples": 20,
+        "pid": 234960,
+        "scope": "ACTUAL_ATOMNET_RUNTIME_STEP_INIT_AND_MATERIALIZE_WITH_REAL_RUNTIME_SUBMIT_AND_NATIVE_SQLITE;NOT_ANDROID_OR_QUALITY",
+        "status": "ACTUAL_RUNTIME_PRODUCER_NATIVE_PASS"
+      }
+    },
+    "source-download-no-git": {
+      "consumerAssertions": 543,
+      "originalJUnit": 29,
+      "crossJvm": true,
+      "actualRuntimeProducer": {
+        "actualProductionSplits": [
+          880,
+          480,
+          0
+        ],
+        "assertions": 10,
+        "batchInventory": {
+          "ATOMNET_R30_INIT": {
+            "attempts": 1,
+            "legacyWithoutDurableIdentity": 0,
+            "maxBindBytes": 2150,
+            "maxOps": 5,
+            "overInitialBudget": 0,
+            "runtimeDdlAttempts": 0
+          },
+          "ATOMNET_R30_SLICE": {
+            "attempts": 1,
+            "legacyWithoutDurableIdentity": 0,
+            "maxBindBytes": 1943,
+            "maxOps": 4,
+            "overInitialBudget": 0,
+            "runtimeDdlAttempts": 0
+          },
+          "ATOMNET_R31_STAGE_0": {
+            "attempts": 2,
+            "legacyWithoutDurableIdentity": 0,
+            "maxBindBytes": 592,
+            "maxOps": 1,
+            "overInitialBudget": 0,
+            "runtimeDdlAttempts": 0
+          },
+          "ATOMNET_R31_STAGE_1": {
+            "attempts": 1,
+            "legacyWithoutDurableIdentity": 0,
+            "maxBindBytes": 52096,
+            "maxOps": 32,
+            "overInitialBudget": 0,
+            "runtimeDdlAttempts": 0
+          },
+          "ATOMNET_R31_STAGE_2": {
+            "attempts": 1,
+            "legacyWithoutDurableIdentity": 0,
+            "maxBindBytes": 13024,
+            "maxOps": 8,
+            "overInitialBudget": 0,
+            "runtimeDdlAttempts": 0
+          }
+        },
+        "businessDdl": 0,
+        "materializedSamples": 40,
+        "pid": 235517,
+        "scope": "ACTUAL_ATOMNET_RUNTIME_STEP_INIT_AND_MATERIALIZE_WITH_REAL_RUNTIME_SUBMIT_AND_NATIVE_SQLITE;NOT_ANDROID_OR_QUALITY",
+        "status": "ACTUAL_RUNTIME_PRODUCER_NATIVE_PASS"
+      },
+      "gitDirectoryPresent": false,
+      "compileSetupFilePresent": false,
+      "copiedInputCount": 47
+    }
+  },
+  "noHardcodedWorkspaceOrPriorCompileSetup": true,
+  "productionSourceOverrides": [],
+  "businessStubs": [],
+  "hostConnectionSeamOnly": {
+    "source": "verification/r31/p01/atomnet-publication/AtomPublicationNativeHost.java",
+    "originalSha256": "9f8927a8a4763dea90a9666bcdb2db769f2327266a835ba07bea47f094366be7",
+    "old": "set(coordinator,\"helper\",new DbHelper(db));",
+    "new": "android.database.sqlite.SQLiteOpenHelper.bindExistingForHostR31(path,db);set(coordinator,\"helper\",new DbHelper(new android.app.Application(path)));",
+    "assertionsChanged": false
+  },
+  "originalNumericalTestsUnchanged": {
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R29ModelArtifactTest.java": "1d20a839e99446bddea5f06443b00adbc32a6c4f6de1edb32a76ef8ff6f26b20",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ResumeTrainingTest.java": "9582ba35b39a1bfd72f736f1edd0a5cdb2da0d7bfc120d789945b4c49fb76132",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30TenPositionTrainingTest.java": "679636a8af024bbdf973ff24416db93b7fbf24c87b525597e9719c047568d433",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairNeuralR30Test.java": "73a0bf0d0da77adc0cc0abc426f959d15b0307de895a82d3627b4e540813db2f",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30NumberRankerTest.java": "2fee6e8deed8188ebb755162e3b8e3a158492e8b3cbd05ed8b73aaba19c304e9",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairModelReplayR30Test.java": "fae1eeafe246de7dd7442a420d95b388d842b95dd70259369b30246d17e0a9d0",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ModelSurfaceTest.java": "d4d1d40a01bbd46d66db1fa930015a3936a74986d6bcf2ae6735dc53cca14441"
+  },
+  "device": "NOT_RUN",
+  "soak24h": "NOT_RUN",
+  "soak72h": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED",
+  "createdAtUtc": "2026-11-04T21:42:36.751922+00:00"
+}

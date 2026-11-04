@@ -1,0 +1,621 @@
+{
+  "status": "ACTUAL_WHOLE_JAR_NATIVE_CONTRACTS_PASS",
+  "scope": "ACTUAL_WHOLE_JAR_NATIVE_SQLITE_HOST_ORIGINAL_CONTRACTS_NOT_ANDROID",
+  "startedAtUtc": "2026-11-04T21:40:33.179975+00:00",
+  "commands": [
+    {
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-version"
+      ],
+      "log": "java-version.log",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "elapsedNanos": 50692508
+    },
+    {
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-atomnet-artifact-4475-final/platform",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/platform/android/content/Context.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/platform/android/app/Application.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/platform/android/os/SystemClock.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/platform/android/os/Debug.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/platform/android/os/Process.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/platform/android/os/Looper.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/platform/android/util/Log.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/platform/android/content/res/AssetManager.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/platform/android/os/Build.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/platform/android/database/sqlite/SQLiteOpenHelper.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/platform/android/system/ErrnoException.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/platform/android/system/OsConstants.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/platform/android/system/Os.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/platform/android/database/Cursor.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/platform/android/database/sqlite/SQLiteDatabase.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/platform/android/database/sqlite/SQLiteDatabaseLockedException.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/platform/android/database/sqlite/SQLiteException.java"
+      ],
+      "log": "platform-compile.log",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "elapsedNanos": 1037203664
+    },
+    {
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/tmp/r31-atomnet-artifact-4475-final/platform:/tmp/r31-atomnet-artifact-4475-final/tests:/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/r31-atomnet-protocol/app/src/test/resources",
+        "-d",
+        "/tmp/r31-atomnet-artifact-4475-final/tests",
+        "/workspace/r31-atomnet-protocol/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27TestSupport.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/host/AtomNativeFaultsR31.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/host/AtomPublicationNativeHost.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/host/AtomPublicationConsumerHost.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/host/AtomPublicationProcessHost.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/host/MaterializedCursorNativeHost.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/host/AtomRuntimeProducerHost.java",
+        "/tmp/r31-atomnet-artifact-4475-final/sources/host/AtomWholeArtifactIdentityHost.java"
+      ],
+      "log": "host-compile.log",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "elapsedNanos": 1729806936
+    },
+    {
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-Dr31.assets=/workspace/r31-atomnet-protocol/app/src/main/assets",
+        "-cp",
+        "/tmp/r31-atomnet-artifact-4475-final/platform:/tmp/r31-atomnet-artifact-4475-final/tests:/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/r31-atomnet-protocol/app/src/test/resources",
+        "com.ethk3.novaonepro.strategyv2.AtomWholeArtifactIdentityHost",
+        "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+        "com.ethk3.novaonepro.DbHelper",
+        "com.ethk3.novaonepro.DbStore",
+        "com.ethk3.novaonepro.DatabaseCoordinator",
+        "com.ethk3.novaonepro.strategyv2.AtomNetPublicationR31",
+        "com.ethk3.novaonepro.strategyv2.AtomNetStoreR30",
+        "com.ethk3.novaonepro.strategyv2.AtomNetSessionR30",
+        "com.ethk3.novaonepro.strategyv2.AtomNetRuntimeR30",
+        "com.ethk3.novaonepro.strategyv2.ModelArtifactR29",
+        "com.ethk3.novaonepro.strategyv2.ModelSurfaceStoreR30",
+        "com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30",
+        "com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26",
+        "com.ethk3.novaonepro.strategyv2.CheckpointReferencesR26",
+        "com.ethk3.novaonepro.strategyv2.ModelReplayStudyR30R1",
+        "com.ethk3.novaonepro.strategyv2.CapabilityRegistryStoreR30",
+        "com.ethk3.novaonepro.strategyv2.ResearchProvenanceGraphR30R1",
+        "com.ethk3.novaonepro.strategyv2.RuntimeR27",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26",
+        "com.ethk3.novaonepro.strategyv2.ResearchPoolR27",
+        "com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27",
+        "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31",
+        "com.ethk3.novaonepro.strategyv2.FeatureCacheR27",
+        "com.ethk3.novaonepro.strategyv2.PolicyAstR27"
+      ],
+      "log": "artifact-identity.log",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "elapsedNanos": 110475146
+    },
+    {
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-Dr31.assets=/workspace/r31-atomnet-protocol/app/src/main/assets",
+        "-cp",
+        "/tmp/r31-atomnet-artifact-4475-final/platform:/tmp/r31-atomnet-artifact-4475-final/tests:/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/r31-atomnet-protocol/app/src/test/resources",
+        "com.ethk3.novaonepro.strategyv2.AtomRuntimeProducerHost",
+        "/tmp/r31-atomnet-artifact-4475-final/data/producer/databases/main.db"
+      ],
+      "log": "actual-runtime-producer.log",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "elapsedNanos": 1068159688
+    },
+    {
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-Dr31.assets=/workspace/r31-atomnet-protocol/app/src/main/assets",
+        "-cp",
+        "/tmp/r31-atomnet-artifact-4475-final/platform:/tmp/r31-atomnet-artifact-4475-final/tests:/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/r31-atomnet-protocol/app/src/test/resources",
+        "com.ethk3.novaonepro.strategyv2.MaterializedCursorNativeHost",
+        "/tmp/r31-atomnet-artifact-4475-final/data/cursor/databases/main.db",
+        "fixed"
+      ],
+      "log": "cursor-fixed.log",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "elapsedNanos": 1059344667
+    },
+    {
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-Dr31.assets=/workspace/r31-atomnet-protocol/app/src/main/assets",
+        "-cp",
+        "/tmp/r31-atomnet-artifact-4475-final/platform:/tmp/r31-atomnet-artifact-4475-final/tests:/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/r31-atomnet-protocol/app/src/test/resources",
+        "com.ethk3.novaonepro.strategyv2.AtomPublicationConsumerHost",
+        "/tmp/r31-atomnet-artifact-4475-final/data/consumer/databases/main.db"
+      ],
+      "log": "native-consumer.log",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "elapsedNanos": 2801222607
+    },
+    {
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-Dr31.assets=/workspace/r31-atomnet-protocol/app/src/main/assets",
+        "-cp",
+        "/tmp/r31-atomnet-artifact-4475-final/platform:/tmp/r31-atomnet-artifact-4475-final/tests:/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/r31-atomnet-protocol/app/src/test/resources",
+        "com.ethk3.novaonepro.strategyv2.AtomPublicationProcessHost",
+        "/tmp/r31-atomnet-artifact-4475-final/data/process-before/databases/main.db",
+        "halt-before-final"
+      ],
+      "log": "process-before-halt.log",
+      "exitCode": 71,
+      "expectedExitCode": 71,
+      "elapsedNanos": 1073186117
+    },
+    {
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-Dr31.assets=/workspace/r31-atomnet-protocol/app/src/main/assets",
+        "-cp",
+        "/tmp/r31-atomnet-artifact-4475-final/platform:/tmp/r31-atomnet-artifact-4475-final/tests:/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/r31-atomnet-protocol/app/src/test/resources",
+        "com.ethk3.novaonepro.strategyv2.AtomPublicationProcessHost",
+        "/tmp/r31-atomnet-artifact-4475-final/data/process-before/databases/main.db",
+        "recover-before"
+      ],
+      "log": "process-before-recovery.log",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "elapsedNanos": 813095016
+    },
+    {
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-Dr31.assets=/workspace/r31-atomnet-protocol/app/src/main/assets",
+        "-cp",
+        "/tmp/r31-atomnet-artifact-4475-final/platform:/tmp/r31-atomnet-artifact-4475-final/tests:/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/r31-atomnet-protocol/app/src/test/resources",
+        "com.ethk3.novaonepro.strategyv2.AtomPublicationProcessHost",
+        "/tmp/r31-atomnet-artifact-4475-final/data/process-after/databases/main.db",
+        "halt-after-final"
+      ],
+      "log": "process-after-halt.log",
+      "exitCode": 73,
+      "expectedExitCode": 73,
+      "elapsedNanos": 1094239612
+    },
+    {
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-Dr31.assets=/workspace/r31-atomnet-protocol/app/src/main/assets",
+        "-cp",
+        "/tmp/r31-atomnet-artifact-4475-final/platform:/tmp/r31-atomnet-artifact-4475-final/tests:/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/r31-atomnet-protocol/app/src/test/resources",
+        "com.ethk3.novaonepro.strategyv2.AtomPublicationProcessHost",
+        "/tmp/r31-atomnet-artifact-4475-final/data/process-after/databases/main.db",
+        "recover-after"
+      ],
+      "log": "process-after-recovery.log",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "elapsedNanos": 1081177635
+    },
+    {
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/tmp/r31-atomnet-artifact-4475-final/platform:/tmp/r31-atomnet-artifact-4475-final/tests:/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/r31-atomnet-protocol/app/src/test/resources:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "-d",
+        "/tmp/r31-atomnet-artifact-4475-final/tests",
+        "/workspace/r31-atomnet-protocol/app/src/test/java/com/ethk3/novaonepro/strategyv2/R29ModelArtifactTest.java",
+        "/workspace/r31-atomnet-protocol/app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ResumeTrainingTest.java",
+        "/workspace/r31-atomnet-protocol/app/src/test/java/com/ethk3/novaonepro/strategyv2/R30TenPositionTrainingTest.java",
+        "/workspace/r31-atomnet-protocol/app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairNeuralR30Test.java",
+        "/workspace/r31-atomnet-protocol/app/src/test/java/com/ethk3/novaonepro/strategyv2/R30NumberRankerTest.java",
+        "/workspace/r31-atomnet-protocol/app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairModelReplayR30Test.java",
+        "/workspace/r31-atomnet-protocol/app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ModelSurfaceTest.java"
+      ],
+      "log": "original-junit-compile.log",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "elapsedNanos": 1196041251
+    },
+    {
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-atomnet-artifact-4475-final/platform:/tmp/r31-atomnet-artifact-4475-final/tests:/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/r31-atomnet-protocol/app/src/test/resources:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "org.junit.runner.JUnitCore",
+        "com.ethk3.novaonepro.strategyv2.R29ModelArtifactTest",
+        "com.ethk3.novaonepro.strategyv2.R30ResumeTrainingTest",
+        "com.ethk3.novaonepro.strategyv2.R30TenPositionTrainingTest",
+        "com.ethk3.novaonepro.strategyv2.RepairNeuralR30Test",
+        "com.ethk3.novaonepro.strategyv2.R30NumberRankerTest",
+        "com.ethk3.novaonepro.strategyv2.RepairModelReplayR30Test",
+        "com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest"
+      ],
+      "log": "original-junit.log",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "elapsedNanos": 1796210612
+    }
+  ],
+  "productionSourceOverrides": [],
+  "device": "NOT_RUN",
+  "soak24h": "NOT_RUN",
+  "soak72h": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED",
+  "explicitGc": false,
+  "heapArgument": "-Xmx512m",
+  "hostFrameworkApiLevel": "NOT_ANDROID",
+  "dependencyInputs": {
+    "actualWholeJar": {
+      "path": "/workspace/r31-shared-bootstrap-2f91-frozen/classes.jar",
+      "sha256": "e46f65ea8e53b8982e1077a6908600cfab66d690f9c7bc11f501285fc85405c9"
+    },
+    "androidSdk": {
+      "path": "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+      "sha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a"
+    },
+    "sqliteJdbc": {
+      "path": "/tmp/r31-baseline-deps/sqlite-jdbc.jar",
+      "sha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa"
+    },
+    "junit": {
+      "path": "/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar",
+      "sha256": "8e495b634469d64fb8acfa3495a065cbacc8a0fff55ce1e31007be4c16dc57d3"
+    },
+    "hamcrest": {
+      "path": "/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+      "sha256": "66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9"
+    }
+  },
+  "actualWholeClassCount": 4475,
+  "businessClassEntryHashes": {
+    "com.ethk3.novaonepro.DbHelper": "dd6071a1d823004115bcaf76f9d59048ae1b8d1c7db66a7e4f0b3d282db42fb0",
+    "com.ethk3.novaonepro.DbStore": "bf1104409431a119ef3bb73cbaf3815272e56358cd63cf7d5d9b2a341b38aec0",
+    "com.ethk3.novaonepro.DatabaseCoordinator": "cd9f5d44011c285641152c3fe8b8650e147a7bd5df0efbdd4bbb8aabe3318058",
+    "com.ethk3.novaonepro.strategyv2.AtomNetPublicationR31": "7da9553dd26f533b499fc3f272499ffef61e4584b619fc382945244b65a0d489",
+    "com.ethk3.novaonepro.strategyv2.AtomNetStoreR30": "50fb9c8475ae7aab78fda024c3a051bd0368f49c5552bb67713502c15e5e6d43",
+    "com.ethk3.novaonepro.strategyv2.AtomNetSessionR30": "1a36400c3a2991544aeb19984ec93bf786dfac7ce9af80aa99e10949ee9105cc",
+    "com.ethk3.novaonepro.strategyv2.AtomNetRuntimeR30": "cd93a996df71c79eeed9b7ad5ac662ac33fc6c6f5746eb038bbb70e31b9f9a87",
+    "com.ethk3.novaonepro.strategyv2.ModelArtifactR29": "86f381b024d2ea8ef25ab5a5a25481cd0ad93e077ca6f20ab63f1f5e06e4a9e3",
+    "com.ethk3.novaonepro.strategyv2.ModelSurfaceStoreR30": "504232ce38aa4ef5e7580f6b030c7abc8547d3b8f5778e884a867ada1207bde6",
+    "com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30": "547593a27d8be25a5407cbbb65b1964f8c3509043f5ae2ab3c1f0d7dcfd87d60",
+    "com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26": "f247ba205933794e511ac5b68ec41df10bea58532494c75e1ee4c9caea51e013",
+    "com.ethk3.novaonepro.strategyv2.CheckpointReferencesR26": "2d0d10b80c92e1e24423b44e807988a140333aedfa66e1cdabd10750ea232db4",
+    "com.ethk3.novaonepro.strategyv2.ModelReplayStudyR30R1": "7c011863730e180a8b24499a833170255305742e8e8cc665691cec56d966c5e1",
+    "com.ethk3.novaonepro.strategyv2.CapabilityRegistryStoreR30": "ac06f24e950a7f4c5756b61b49ed6712156e27941b1b2686884becd667369758",
+    "com.ethk3.novaonepro.strategyv2.ResearchProvenanceGraphR30R1": "1c6bbcd9e4e3837773557cf7899d16fc0346458cbe7b27ac2f88bf2f92b502ce",
+    "com.ethk3.novaonepro.strategyv2.RuntimeR27": "cfdf031173166fb0731a000d4562ce94ea8556b2bc3fb215de2acf365194af29",
+    "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26": "9f7c4be2a02c6a18aed70b4ce623cf5360c446b9eefd22ac55f423328f20b3ed",
+    "com.ethk3.novaonepro.strategyv2.ResearchPoolR27": "a46db5cb6b604e84673224682c771fb0892b6d8c34e55d771a5163e527a0bd96",
+    "com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27": "2cb982124841aec8b4d7c111bc223e1ed90d3c8d54178d289e1d644247f5f297",
+    "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31": "3a68effbada1b75f27408d0eb064a636fa15df8f6b8367507f09aa9ccec416a1",
+    "com.ethk3.novaonepro.strategyv2.FeatureCacheR27": "2a09b203e7331355319c27eac05518a7c383438a8602fe725913a4cb9564115b",
+    "com.ethk3.novaonepro.strategyv2.PolicyAstR27": "0d46a673973990430144300d33080d93f823386f976e193eb8e3dc2680520b9e"
+  },
+  "jdk": {
+    "java": "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+    "javac": "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+    "version": "Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit\nopenjdk version \"17.0.17\" 2025-10-21\nOpenJDK Runtime Environment Temurin-17.0.17+10 (build 17.0.17+10)\nOpenJDK 64-Bit Server VM Temurin-17.0.17+10 (build 17.0.17+10, mixed mode, sharing)\n"
+  },
+  "repositoryInputsBefore": {
+    "tools/r31/run_atomnet_publication_host.py": "e4a999351e38be0b21c0c498bce92e1f9393390fcf479429edaf24a559235776",
+    "tools/r31/run_task_runtime_host.py": "bc0a8fcad87e3db14af1cd25f568e2d490e306aba7b08dbb47c3d9ea3857f8f2",
+    "verification/r31/p01/atomnet-publication/FINAL_NATIVE_RECEIPT.json": "2095ff73dda9431fcd6bc7ff33ec303918ffcf815a25f5a22161032e33112e3c",
+    "tools/r29/qual_host/shim/android/database/Cursor.java": "98dc66b94e18cd85d2f270a111392896b4ed5d11d2d1d7947baed2e340f040f4",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java": "80a2bed95c2e382a461d0e363749510c12b0ceafefd152b6f227009199719ad0",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabaseLockedException.java": "e17afce73f98be731b31a7d19f895a6df48c90b4f12362a1b5e5b463566a74c9",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java": "878df09b56099f50a5cd75f2d94a9c0f11d1b49ce9c3cc36e5c66101b47c4b88",
+    "verification/r31/p01/atomnet-publication/AtomNativeFaultsR31.java": "844e5b9ef21ab2383f6a1b05d1ea27c359e4221486e476837e14c8b728af42d0",
+    "verification/r31/p01/atomnet-publication/AtomPublicationNativeHost.java": "9f8927a8a4763dea90a9666bcdb2db769f2327266a835ba07bea47f094366be7",
+    "verification/r31/p01/atomnet-publication/AtomPublicationConsumerHost.java": "04859bc58e03192489b5902b58c933fc2c95c86e658bc13b42eb484a9b8064b1",
+    "verification/r31/p01/atomnet-publication/AtomPublicationProcessHost.java": "306519d336ea9823e5f018b1ee7b98f59ec6817f73ef2ceb41f69711d29e22e6",
+    "verification/r31/p01/atomnet-publication/MaterializedCursorNativeHost.java": "0c32c070e77e241e3e2e40fc32463c858de10800a47486b4d44c484c6a4eb380",
+    "verification/r31/p01/atomnet-publication/AtomRuntimeProducerHost.java": "023d6125092f8b7a740e9587fb3f5a13d04bb13063dacf50e7a92d11be3b678d",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R29ModelArtifactTest.java": "1d20a839e99446bddea5f06443b00adbc32a6c4f6de1edb32a76ef8ff6f26b20",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ResumeTrainingTest.java": "9582ba35b39a1bfd72f736f1edd0a5cdb2da0d7bfc120d789945b4c49fb76132",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30TenPositionTrainingTest.java": "679636a8af024bbdf973ff24416db93b7fbf24c87b525597e9719c047568d433",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairNeuralR30Test.java": "73a0bf0d0da77adc0cc0abc426f959d15b0307de895a82d3627b4e540813db2f",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30NumberRankerTest.java": "2fee6e8deed8188ebb755162e3b8e3a158492e8b3cbd05ed8b73aaba19c304e9",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairModelReplayR30Test.java": "fae1eeafe246de7dd7442a420d95b388d842b95dd70259369b30246d17e0a9d0",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ModelSurfaceTest.java": "d4d1d40a01bbd46d66db1fa930015a3936a74986d6bcf2ae6735dc53cca14441",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27TestSupport.java": "b65991b9227f39aec3780d836b1d6d73b13e273a0d19ec099f2df434c873030f",
+    "research_data/ethpk10_draws_20260316_201059.csv": "f2c22c332cf43a573d77be4484b3cfa42db5251188d2558545d0baee9e112acd",
+    "app/src/main/assets/cp4_atom_registry.jsonl": "57673f6000cd5db5ae4be162430086753c879b8c63d5ef1d2bb521169cdcdefe",
+    "app/src/main/assets/cp4_catalog_manifest.json": "4a28c5d53e805402f3f3d6181302fc8a5860f90b6f846aaf366e029ad6392678",
+    "app/src/main/assets/diagnostics/construction-CARDS_299.json": "1bbb1b6a4a0005de5abef5af521083f4b35f158d6cee35fc6fdd8b6a4662011f",
+    "app/src/main/assets/diagnostics/construction-DETECTIONS_166.csv": "2a29b52e46615169cecca5ee136963eb0b46284c1da1825887b83c1da5d113e4",
+    "app/src/main/assets/diagnostics/construction-REQUIREMENTS_1832.csv": "71e4eb1d2dfa0532e5be899d94e44e2e49d76d16842ca7e793956f399b9383d2",
+    "app/src/main/assets/diagnostics/construction-TEST_CASES_328.csv": "ff86077e8fb56e164b0ad78e1c435a4b769d9a6eb12429e14d139c0fbd0bfbdd",
+    "app/src/main/assets/history_seed.csv.gz": "5a2bbd5e0bdccba54e2b7569c85ec2aa023476eb815ef496608c09a92c870889",
+    "app/src/main/assets/r27/golden_512.bin": "3cd1f137d11a71459f14a8323918eecf6a00a5f533c0c798380770e231e6d913",
+    "app/src/main/assets/r29/legacy_preservation.json": "9a7f75dbb11624bbb6b253ba2962ad30f34fa4f11913cb0265954d5e0fc6d948",
+    "app/src/main/assets/r925_software_audit.txt": "a1aa06540bafae346f21b96a3551a88d20d25ddeb336149ad909a7919c185f3c",
+    "app/src/main/assets/r952/modules/base_registry.json": "2defb26499c8b74db548a6da49b7c864e792bea9462fcb27439ced5f92d04451",
+    "app/src/main/assets/r952/modules/certificate.json": "74d60f1eb0e185604fdfa96a5bbe52df87ffec2a95621f31081bc76c848b4cfe",
+    "app/src/main/assets/r952/modules/evolution.json": "e2013b6c3b3bcfacadfc69c2a059192fa6b47a18866a481b2d0202a136ab6363",
+    "app/src/main/assets/r952/modules/model.json": "00f61b53c8ec9c73b50ac1684ae8df30873c566b058715bb94cd5c962abd1f98",
+    "app/src/main/assets/r952/modules/pit.json": "22947c1056d37e970ac68c760814d724bfc02832db53c3b4717401f60213b67a",
+    "app/src/main/assets/r952/modules/research_creation.json": "20ab9ac4e8845afa96a37fc915fedd0cfeb9584c50c93915d52e57b174075c51",
+    "app/src/main/assets/r952/modules/runtime.json": "2a7acc14dd3b9290bf6b9e0ba27cb4795aa7998d17473b8070b234b62f766b77",
+    "app/src/main/assets/r952/modules/ui.json": "6bd92063a39d9e0ef458ce695701771bdb4dda7268f2dd5f3cbcf5055e2cbf2b",
+    "app/src/main/assets/r952/modules/world.json": "d1c0a240626249c3abcbb560cc350fb287a9b92af3b264e9eaaa66fdfa40bf65",
+    "app/src/main/assets/research/cp4_molecule_seeds.jsonl": "b4ab9a61e2a36a4a426d0588ffb52350a25c09165273f802b9aa4c63e3c726ad",
+    "app/src/main/assets/research/r967_history/R908_125_algorithms.tsv": "3697570b8db5ad0b14285685e7c2c12712dd02433d7efa6019e123838100ef80",
+    "app/src/main/assets/research/r967_history/original_manifest.json": "ee26b359402c8b6d4501fa700c0ebdb16eeb529e704fcb2d130223b7c8954a39",
+    "app/src/main/assets/strategy_su1/atom_catalog_lifted.json": "d4765fa66144b8c29654f2a04cb34435e9cf33d5902bd60072c1cd87353dc46c",
+    "app/src/test/resources/r30-repair-legacy-v1.bin": "e310d012e4f6ce3566c75f883a5c3449a60c1c735c62136a3d91d9236c856400",
+    "app/src/test/resources/r30-repair-legacy-v1.json": "dd3844a883af5f036da1101073e14127e4134163b2242d501e4fd9f86ddcc55e"
+  },
+  "originalTestSha256": {
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R29ModelArtifactTest.java": "1d20a839e99446bddea5f06443b00adbc32a6c4f6de1edb32a76ef8ff6f26b20",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ResumeTrainingTest.java": "9582ba35b39a1bfd72f736f1edd0a5cdb2da0d7bfc120d789945b4c49fb76132",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30TenPositionTrainingTest.java": "679636a8af024bbdf973ff24416db93b7fbf24c87b525597e9719c047568d433",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairNeuralR30Test.java": "73a0bf0d0da77adc0cc0abc426f959d15b0307de895a82d3627b4e540813db2f",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30NumberRankerTest.java": "2fee6e8deed8188ebb755162e3b8e3a158492e8b3cbd05ed8b73aaba19c304e9",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairModelReplayR30Test.java": "fae1eeafe246de7dd7442a420d95b388d842b95dd70259369b30246d17e0a9d0",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ModelSurfaceTest.java": "d4d1d40a01bbd46d66db1fa930015a3936a74986d6bcf2ae6735dc53cca14441"
+  },
+  "platformSourceHashes": {
+    "sources/platform/android/content/Context.java": "2444e77b4f312a084cf746ffb701491aab4f8d7ebd53c6cc273c2b0d6fc7dcce",
+    "sources/platform/android/app/Application.java": "3e733572c5cb88b07ddc2ef6c8b2dc323a569d35334e495a3a9f6efd9d61c3c7",
+    "sources/platform/android/os/SystemClock.java": "6ae44d4d47f55003e6bf32111d0ba4cbe62bb8059599ab562a720f4696997726",
+    "sources/platform/android/os/Debug.java": "8caad0476cfff2bcb6af944554dd7fcf3b5e608203d73a0a1051a0b32a8f6f34",
+    "sources/platform/android/os/Process.java": "e5f8969f566d4a174612039acb489d0dd4113acf8577e611a1cb46f6bdfc0b7c",
+    "sources/platform/android/os/Looper.java": "cb537e9dcf0d839bc5496b141013ce2776bfa85311be9d8edd2ceaa67d2e07ca",
+    "sources/platform/android/util/Log.java": "250fdc7266144ced9c510ab5193950b2c2f793d6f7c3b89d944af47242044bd8",
+    "sources/platform/android/content/res/AssetManager.java": "54ccc37f255ec0e6864f2313690d3a3cb8a56973c483ab906aee6aa62fba6c7d",
+    "sources/platform/android/os/Build.java": "71cc17082a9a4892ed61c2f42b42f014f062aeb5e4543b1b856d989d232500fe",
+    "sources/platform/android/database/sqlite/SQLiteOpenHelper.java": "7e4e3d093423b1e8eb88d1cc1dfb70cc8d78044f373fbe8ea9fb3ed30ca5d6a3",
+    "sources/platform/android/system/ErrnoException.java": "2897159873aea588d87f5a49297e69f540647371499276d9b1a0794922b6c345",
+    "sources/platform/android/system/OsConstants.java": "587805077a7d10be1a04d6f0788b448142e8264846796790d3b05dd425397e91",
+    "sources/platform/android/system/Os.java": "8821db81c7c3138d78fd21ae2b617b5d7b59c344313d8fa4abaf2784f4d279ca",
+    "sources/platform/android/database/Cursor.java": "98dc66b94e18cd85d2f270a111392896b4ed5d11d2d1d7947baed2e340f040f4",
+    "sources/platform/android/database/sqlite/SQLiteDatabase.java": "4004da814047b88736a6910a5480280a53d11e7d3252e326886a9f458140bf8b",
+    "sources/platform/android/database/sqlite/SQLiteDatabaseLockedException.java": "e17afce73f98be731b31a7d19f895a6df48c90b4f12362a1b5e5b463566a74c9",
+    "sources/platform/android/database/sqlite/SQLiteException.java": "878df09b56099f50a5cd75f2d94a9c0f11d1b49ce9c3cc36e5c66101b47c4b88"
+  },
+  "hostConnectionAdaptation": {
+    "source": "verification/r31/p01/atomnet-publication/AtomPublicationNativeHost.java",
+    "originalSha256": "9f8927a8a4763dea90a9666bcdb2db769f2327266a835ba07bea47f094366be7",
+    "old": "set(coordinator,\"helper\",new DbHelper(db));",
+    "new": "android.database.sqlite.SQLiteOpenHelper.bindExistingForHostR31(path,db);set(coordinator,\"helper\",new DbHelper(new android.app.Application(path)));",
+    "assertionsChanged": false
+  },
+  "effectiveHostSourceHashes": {
+    "sources/host/AtomNativeFaultsR31.java": "844e5b9ef21ab2383f6a1b05d1ea27c359e4221486e476837e14c8b728af42d0",
+    "sources/host/AtomPublicationNativeHost.java": "78066f9e6dce3e38ae71e1ad9ebc85d8a1a73bb433bd904137bb3c7fbf759668",
+    "sources/host/AtomPublicationConsumerHost.java": "04859bc58e03192489b5902b58c933fc2c95c86e658bc13b42eb484a9b8064b1",
+    "sources/host/AtomPublicationProcessHost.java": "306519d336ea9823e5f018b1ee7b98f59ec6817f73ef2ceb41f69711d29e22e6",
+    "sources/host/MaterializedCursorNativeHost.java": "0c32c070e77e241e3e2e40fc32463c858de10800a47486b4d44c484c6a4eb380",
+    "sources/host/AtomRuntimeProducerHost.java": "023d6125092f8b7a740e9587fb3f5a13d04bb13063dacf50e7a92d11be3b678d",
+    "sources/host/AtomWholeArtifactIdentityHost.java": "879a90ca277377e2d540a5d450e3aff1e639697cfc02a93e5c433f71d0992ecb"
+  },
+  "artifactIdentity": {
+    "loadedBusinessClasses": {
+      "com.ethk3.novaonepro.DatabaseCoordinator": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.DbHelper": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.DbStore": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.AtomNetPublicationR31": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.AtomNetRuntimeR30": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.AtomNetSessionR30": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.AtomNetStoreR30": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.CapabilityRegistryStoreR30": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.CheckpointReferencesR26": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.FeatureCacheR27": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.ModelArtifactR29": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.ModelReplayStudyR30R1": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.ModelSurfaceStoreR30": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.PolicyAstR27": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.ResearchPoolR27": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.ResearchProvenanceGraphR30R1": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar",
+      "com.ethk3.novaonepro.strategyv2.RuntimeR27": "/tmp/r31-atomnet-artifact-4475-final/support/actual-whole.jar"
+    },
+    "pid": 234941,
+    "status": "ACTUAL_WHOLE_JAR_CLASS_SOURCES_CONFIRMED"
+  },
+  "originalJUnit": 29,
+  "consumerAssertions": 543,
+  "actualRuntimeProducer": {
+    "actualProductionSplits": [
+      880,
+      480,
+      0
+    ],
+    "assertions": 9,
+    "batchInventory": {
+      "ATOMNET_R30_INIT": {
+        "attempts": 1,
+        "legacyWithoutDurableIdentity": 0,
+        "maxBindBytes": 2150,
+        "maxOps": 5,
+        "overInitialBudget": 0,
+        "runtimeDdlAttempts": 0
+      },
+      "ATOMNET_R30_SLICE": {
+        "attempts": 1,
+        "legacyWithoutDurableIdentity": 0,
+        "maxBindBytes": 1954,
+        "maxOps": 4,
+        "overInitialBudget": 0,
+        "runtimeDdlAttempts": 0
+      },
+      "ATOMNET_R31_STAGE_0": {
+        "attempts": 2,
+        "legacyWithoutDurableIdentity": 0,
+        "maxBindBytes": 592,
+        "maxOps": 1,
+        "overInitialBudget": 0,
+        "runtimeDdlAttempts": 0
+      },
+      "ATOMNET_R31_STAGE_1": {
+        "attempts": 1,
+        "legacyWithoutDurableIdentity": 0,
+        "maxBindBytes": 32560,
+        "maxOps": 20,
+        "overInitialBudget": 0,
+        "runtimeDdlAttempts": 0
+      }
+    },
+    "businessDdl": 0,
+    "materializedSamples": 20,
+    "pid": 234960,
+    "scope": "ACTUAL_ATOMNET_RUNTIME_STEP_INIT_AND_MATERIALIZE_WITH_REAL_RUNTIME_SUBMIT_AND_NATIVE_SQLITE;NOT_ANDROID_OR_QUALITY",
+    "status": "ACTUAL_RUNTIME_PRODUCER_NATIVE_PASS"
+  },
+  "cursorFault": {
+    "actualPreparedSamplesBeforeFault": 120,
+    "actualStoredMaterialized": 0,
+    "actualStoredSamples": 0,
+    "businessDdl": 0,
+    "deliberatelyDroppedSampleOps": 120,
+    "mode": "fixed",
+    "pid": 234990,
+    "rejected": true,
+    "scope": "ACTUAL_NATIVE_PROTOCOL_FAULT_INJECTION_NOT_NATURAL_QUALITY"
+  },
+  "fullOriginalSamplePlan": [
+    800,
+    400,
+    160
+  ],
+  "crossJvm": {
+    "before": {
+      "haltExit": 71,
+      "haltEvent": {
+        "currentMaterializedBeforeFinal": 0,
+        "mode": "halt-before-final",
+        "phase": "DURABLE_PREPARED_BEFORE_FINAL_CAS",
+        "pid": 235045,
+        "publication": "7421d5b6a89be14b82cae4fbec6df69dabf0da3cd09e8e9c4020669d01d8437a",
+        "stateHash": "83c3da8f0117cb97536b47ba8b578818154924830e5eb22ff214f364c0a9eb71"
+      },
+      "recovery": {
+        "assertions": 18,
+        "declaredOriginalSplitPlan": [
+          800,
+          400,
+          160
+        ],
+        "mode": "recover-before",
+        "pid": 235071,
+        "samples": 120,
+        "scope": "REAL_HOST_JVM_HALT_AND_NEW_JVM_NATIVE_SQLITE_FILE_CAS_NOT_ANDROID_PROCESS_KILL_NOT_QUALITY",
+        "stateHash": "83c3da8f0117cb97536b47ba8b578818154924830e5eb22ff214f364c0a9eb71",
+        "status": "FRESH_JVM_NATIVE_RECOVERY_PASS"
+      }
+    },
+    "after": {
+      "haltExit": 73,
+      "haltEvent": {
+        "currentMaterializedBeforeFinal": 0,
+        "mode": "halt-after-final",
+        "phase": "NEXT_WRITE_REAL_AFTER_COMMIT_HALT_HOOK",
+        "pid": 235098,
+        "publication": "7421d5b6a89be14b82cae4fbec6df69dabf0da3cd09e8e9c4020669d01d8437a",
+        "stateHash": "83c3da8f0117cb97536b47ba8b578818154924830e5eb22ff214f364c0a9eb71"
+      },
+      "recovery": {
+        "assertions": 17,
+        "declaredOriginalSplitPlan": [
+          800,
+          400,
+          160
+        ],
+        "mode": "recover-after",
+        "pid": 235124,
+        "samples": 120,
+        "scope": "REAL_HOST_JVM_HALT_AND_NEW_JVM_NATIVE_SQLITE_FILE_CAS_NOT_ANDROID_PROCESS_KILL_NOT_QUALITY",
+        "stateHash": "83c3da8f0117cb97536b47ba8b578818154924830e5eb22ff214f364c0a9eb71",
+        "status": "FRESH_JVM_NATIVE_RECOVERY_PASS"
+      }
+    }
+  },
+  "repositoryInputsAfter": {
+    "tools/r31/run_atomnet_publication_host.py": "e4a999351e38be0b21c0c498bce92e1f9393390fcf479429edaf24a559235776",
+    "tools/r31/run_task_runtime_host.py": "bc0a8fcad87e3db14af1cd25f568e2d490e306aba7b08dbb47c3d9ea3857f8f2",
+    "verification/r31/p01/atomnet-publication/FINAL_NATIVE_RECEIPT.json": "2095ff73dda9431fcd6bc7ff33ec303918ffcf815a25f5a22161032e33112e3c",
+    "tools/r29/qual_host/shim/android/database/Cursor.java": "98dc66b94e18cd85d2f270a111392896b4ed5d11d2d1d7947baed2e340f040f4",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java": "80a2bed95c2e382a461d0e363749510c12b0ceafefd152b6f227009199719ad0",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabaseLockedException.java": "e17afce73f98be731b31a7d19f895a6df48c90b4f12362a1b5e5b463566a74c9",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java": "878df09b56099f50a5cd75f2d94a9c0f11d1b49ce9c3cc36e5c66101b47c4b88",
+    "verification/r31/p01/atomnet-publication/AtomNativeFaultsR31.java": "844e5b9ef21ab2383f6a1b05d1ea27c359e4221486e476837e14c8b728af42d0",
+    "verification/r31/p01/atomnet-publication/AtomPublicationNativeHost.java": "9f8927a8a4763dea90a9666bcdb2db769f2327266a835ba07bea47f094366be7",
+    "verification/r31/p01/atomnet-publication/AtomPublicationConsumerHost.java": "04859bc58e03192489b5902b58c933fc2c95c86e658bc13b42eb484a9b8064b1",
+    "verification/r31/p01/atomnet-publication/AtomPublicationProcessHost.java": "306519d336ea9823e5f018b1ee7b98f59ec6817f73ef2ceb41f69711d29e22e6",
+    "verification/r31/p01/atomnet-publication/MaterializedCursorNativeHost.java": "0c32c070e77e241e3e2e40fc32463c858de10800a47486b4d44c484c6a4eb380",
+    "verification/r31/p01/atomnet-publication/AtomRuntimeProducerHost.java": "023d6125092f8b7a740e9587fb3f5a13d04bb13063dacf50e7a92d11be3b678d",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R29ModelArtifactTest.java": "1d20a839e99446bddea5f06443b00adbc32a6c4f6de1edb32a76ef8ff6f26b20",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ResumeTrainingTest.java": "9582ba35b39a1bfd72f736f1edd0a5cdb2da0d7bfc120d789945b4c49fb76132",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30TenPositionTrainingTest.java": "679636a8af024bbdf973ff24416db93b7fbf24c87b525597e9719c047568d433",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairNeuralR30Test.java": "73a0bf0d0da77adc0cc0abc426f959d15b0307de895a82d3627b4e540813db2f",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30NumberRankerTest.java": "2fee6e8deed8188ebb755162e3b8e3a158492e8b3cbd05ed8b73aaba19c304e9",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairModelReplayR30Test.java": "fae1eeafe246de7dd7442a420d95b388d842b95dd70259369b30246d17e0a9d0",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ModelSurfaceTest.java": "d4d1d40a01bbd46d66db1fa930015a3936a74986d6bcf2ae6735dc53cca14441",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27TestSupport.java": "b65991b9227f39aec3780d836b1d6d73b13e273a0d19ec099f2df434c873030f",
+    "research_data/ethpk10_draws_20260316_201059.csv": "f2c22c332cf43a573d77be4484b3cfa42db5251188d2558545d0baee9e112acd",
+    "app/src/main/assets/cp4_atom_registry.jsonl": "57673f6000cd5db5ae4be162430086753c879b8c63d5ef1d2bb521169cdcdefe",
+    "app/src/main/assets/cp4_catalog_manifest.json": "4a28c5d53e805402f3f3d6181302fc8a5860f90b6f846aaf366e029ad6392678",
+    "app/src/main/assets/diagnostics/construction-CARDS_299.json": "1bbb1b6a4a0005de5abef5af521083f4b35f158d6cee35fc6fdd8b6a4662011f",
+    "app/src/main/assets/diagnostics/construction-DETECTIONS_166.csv": "2a29b52e46615169cecca5ee136963eb0b46284c1da1825887b83c1da5d113e4",
+    "app/src/main/assets/diagnostics/construction-REQUIREMENTS_1832.csv": "71e4eb1d2dfa0532e5be899d94e44e2e49d76d16842ca7e793956f399b9383d2",
+    "app/src/main/assets/diagnostics/construction-TEST_CASES_328.csv": "ff86077e8fb56e164b0ad78e1c435a4b769d9a6eb12429e14d139c0fbd0bfbdd",
+    "app/src/main/assets/history_seed.csv.gz": "5a2bbd5e0bdccba54e2b7569c85ec2aa023476eb815ef496608c09a92c870889",
+    "app/src/main/assets/r27/golden_512.bin": "3cd1f137d11a71459f14a8323918eecf6a00a5f533c0c798380770e231e6d913",
+    "app/src/main/assets/r29/legacy_preservation.json": "9a7f75dbb11624bbb6b253ba2962ad30f34fa4f11913cb0265954d5e0fc6d948",
+    "app/src/main/assets/r925_software_audit.txt": "a1aa06540bafae346f21b96a3551a88d20d25ddeb336149ad909a7919c185f3c",
+    "app/src/main/assets/r952/modules/base_registry.json": "2defb26499c8b74db548a6da49b7c864e792bea9462fcb27439ced5f92d04451",
+    "app/src/main/assets/r952/modules/certificate.json": "74d60f1eb0e185604fdfa96a5bbe52df87ffec2a95621f31081bc76c848b4cfe",
+    "app/src/main/assets/r952/modules/evolution.json": "e2013b6c3b3bcfacadfc69c2a059192fa6b47a18866a481b2d0202a136ab6363",
+    "app/src/main/assets/r952/modules/model.json": "00f61b53c8ec9c73b50ac1684ae8df30873c566b058715bb94cd5c962abd1f98",
+    "app/src/main/assets/r952/modules/pit.json": "22947c1056d37e970ac68c760814d724bfc02832db53c3b4717401f60213b67a",
+    "app/src/main/assets/r952/modules/research_creation.json": "20ab9ac4e8845afa96a37fc915fedd0cfeb9584c50c93915d52e57b174075c51",
+    "app/src/main/assets/r952/modules/runtime.json": "2a7acc14dd3b9290bf6b9e0ba27cb4795aa7998d17473b8070b234b62f766b77",
+    "app/src/main/assets/r952/modules/ui.json": "6bd92063a39d9e0ef458ce695701771bdb4dda7268f2dd5f3cbcf5055e2cbf2b",
+    "app/src/main/assets/r952/modules/world.json": "d1c0a240626249c3abcbb560cc350fb287a9b92af3b264e9eaaa66fdfa40bf65",
+    "app/src/main/assets/research/cp4_molecule_seeds.jsonl": "b4ab9a61e2a36a4a426d0588ffb52350a25c09165273f802b9aa4c63e3c726ad",
+    "app/src/main/assets/research/r967_history/R908_125_algorithms.tsv": "3697570b8db5ad0b14285685e7c2c12712dd02433d7efa6019e123838100ef80",
+    "app/src/main/assets/research/r967_history/original_manifest.json": "ee26b359402c8b6d4501fa700c0ebdb16eeb529e704fcb2d130223b7c8954a39",
+    "app/src/main/assets/strategy_su1/atom_catalog_lifted.json": "d4765fa66144b8c29654f2a04cb34435e9cf33d5902bd60072c1cd87353dc46c",
+    "app/src/test/resources/r30-repair-legacy-v1.bin": "e310d012e4f6ce3566c75f883a5c3449a60c1c735c62136a3d91d9236c856400",
+    "app/src/test/resources/r30-repair-legacy-v1.json": "dd3844a883af5f036da1101073e14127e4134163b2242d501e4fd9f86ddcc55e"
+  },
+  "repositoryInputsStable": true,
+  "actualWholeJarStable": true,
+  "businessClassOverrides": [],
+  "finishedAtUtc": "2026-11-04T21:40:48.514829+00:00"
+}

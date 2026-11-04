@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/workspace/r31-atomnet-protocol/tools/r31/run_atomnet_publication_host.py", line 261, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/workspace/r31-atomnet-protocol/tools/r31/run_atomnet_publication_host.py", line 257, in main
+    return run(parser.parse_args())
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/r31-atomnet-protocol/tools/r31/run_atomnet_publication_host.py", line 108, in run
+    out.mkdir(parents=True, exist_ok=False)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1311, in mkdir
+    os.mkdir(self, mode)
+FileExistsError: [Errno 17] File exists: '/tmp/r31-atomnet-artifact-4475-final'
