@@ -137,6 +137,8 @@ public final class AtomNetSessionR30 {
         r.put("trainingCounterScope","PRETRAIN_VISITS_PLUS_NEW_ONLINE_POSITIONS;EXCLUDES_REPLAY_VISITS;NOT_INDEPENDENT_ISSUES");
         r.put("status",materializedSamples>0?"MEASURED":"INSUFFICIENT");r.put("quality","NO_NATURAL_QUALITY_CLAIM");r.put("validationRole","DEVELOPMENT_VALIDATION_FROM_ORIGINAL_SELECT_ONLY");r.put("currentValidationInputPolicy","ORIGINAL_SELECT_ONLY; FORMAL_CONFIRM_AND_FUTURE_TABLES_ARE_NOT_OPTIMIZER_INPUT");r.put("legacyValidationOriginUnknown",legacyValidationOriginUnknown);r.put("needsValidationRoleMigration",needsValidationRoleMigration);r.put("independentTrainingCalendarIssues",pretrainSamples==0?0L:(long)(trainCount/10));return r;
     }
+    public long serializedBoundR31(){return 16384L+3L*(datasetHash.length()+observedThrough.length()+completeIssue.length()+partialIssue.length()+replayEvidenceRun.length())+4L*(order==null?0:order.length)+(bestNet==null?0:bestNet.length)+new ModelArtifactR29(trainer,ftrl,datasetHash,completeIssue.isEmpty()?observedThrough:trainedThrough()).serializedBoundR31();}
+    public static AtomNetSessionR30 decode(android.database.sqlite.SQLiteDatabase db,byte[] bytes,String hash){byte[] raw=CheckpointArtifactsR26.resolveSerializedR31(db,bytes);try(MemoryBudgetR31.Lease read=CheckpointArtifactsR26.readReservationR31("session-decode",6L*raw.length+1048576)){return decode(raw,hash);}}
     public byte[] encode(){
         try{
             ByteArrayOutputStream bytes=new ByteArrayOutputStream();DataOutputStream o=new DataOutputStream(bytes);

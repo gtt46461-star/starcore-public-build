@@ -5,6 +5,7 @@ import android.system.ErrnoException;
 import android.system.Os;
 import android.system.OsConstants;
 import com.ethk3.novaonepro.DbStore;
+import android.database.sqlite.SQLiteDatabase;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
@@ -18,6 +19,8 @@ public final class CheckpointArtifactsR26 {
     private static final Map<String,Integer> IN_FLIGHT=new HashMap<>();
     private static final class Usage {long bytes,reserved;int files,reservedFiles;}
     private static final Map<String,Usage> USAGE=new HashMap<>();
+    private static final class DatabaseRootR31{final File root;int readers;boolean persistent;DatabaseRootR31(File root){this.root=root;}}
+    private static final Map<String,DatabaseRootR31> DATABASE_ROOTS_R31=new LinkedHashMap<>();
     private static final long ROOT_LIMIT=256L<<20;
     private static final int FILE_LIMIT=8192;
     private final File root;
@@ -38,7 +41,37 @@ public final class CheckpointArtifactsR26 {
         synchronized(FILES_LOCK){if(!USAGE.containsKey(root.getPath())){Usage u=new Usage();File[] all=root.listFiles();if(all==null)throw new IOException("R26_ARTIFACT_LIST");for(File file:all)if(file.isFile()){u.bytes+=file.length();u.files++;}USAGE.put(root.getPath(),u);}}
     }
     public static CheckpointArtifactsR26 forStore(DbStore store)throws IOException {
-        return new CheckpointArtifactsR26(new File(store.contextForR26().getFilesDir(),"r26-checkpoints"));
+        CheckpointArtifactsR26 files=new CheckpointArtifactsR26(new File(store.contextForR26().getFilesDir(),"r26-checkpoints"));
+        registerDatabaseRootR31(store.readable(),files.root);return files;
+    }
+    /** Snapshot/report owners explicitly register their own matching, verified checkpoint directory. */
+    public static void registerDatabaseRootR31(SQLiteDatabase db,File directory)throws IOException {
+        File root=directory.getCanonicalFile();if(!root.isDirectory())throw new IOException("R31_ARTIFACT_SOURCE_DIRECTORY_MISSING");String path=new File(db.getPath()).getCanonicalPath();
+        synchronized(DATABASE_ROOTS_R31){DatabaseRootR31 entry=databaseRootR31(path,root);entry.persistent=true;}
+    }
+    private static DatabaseRootR31 databaseRootR31(String path,File root)throws IOException {DatabaseRootR31 old=DATABASE_ROOTS_R31.get(path);if(old!=null&&!old.root.equals(root))throw new IOException("R31_ARTIFACT_DATABASE_ROOT_CONFLICT");if(old==null){if(DATABASE_ROOTS_R31.size()>=32)throw new IOException("R31_ARTIFACT_DATABASE_ROOT_CAPACITY");old=new DatabaseRootR31(root);DATABASE_ROOTS_R31.put(path,old);}return old;}
+    public static final class DatabaseRootLeaseR31 implements AutoCloseable{private final String path;private boolean closed;private DatabaseRootLeaseR31(String path){this.path=path;}@Override public void close(){synchronized(DATABASE_ROOTS_R31){if(closed)return;closed=true;DatabaseRootR31 entry=DATABASE_ROOTS_R31.get(path);if(entry==null||entry.readers<=0)throw new IllegalStateException("R31_ARTIFACT_DATABASE_ROOT_LEASE");if(--entry.readers==0&&!entry.persistent)DATABASE_ROOTS_R31.remove(path);}}}
+    /** One scope per live snapshot reader. Contains only a canonical key, never the DB/Context or a file handle. */
+    public static DatabaseRootLeaseR31 openDatabaseRootR31(SQLiteDatabase db,File directory)throws IOException {File root=directory.getCanonicalFile();if(!root.isDirectory())throw new IOException("R31_ARTIFACT_SOURCE_DIRECTORY_MISSING");String path=new File(db.getPath()).getCanonicalPath();synchronized(DATABASE_ROOTS_R31){databaseRootR31(path,root).readers++;return new DatabaseRootLeaseR31(path);}}
+    public static void unregisterDatabaseRootR31(SQLiteDatabase db)throws IOException {String path=new File(db.getPath()).getCanonicalPath();synchronized(DATABASE_ROOTS_R31){DatabaseRootR31 entry=DATABASE_ROOTS_R31.get(path);if(entry!=null){entry.persistent=false;if(entry.readers==0)DATABASE_ROOTS_R31.remove(path);}}}
+    private static CheckpointArtifactsR26 forDatabaseR31(SQLiteDatabase db)throws IOException {
+        File database=new File(db.getPath()).getCanonicalFile(),directory;synchronized(DATABASE_ROOTS_R31){DatabaseRootR31 entry=DATABASE_ROOTS_R31.get(database.getPath());directory=entry==null?null:entry.root;}
+        if(directory==null){File parent=database.getParentFile();if(parent==null||!"databases".equals(parent.getName())||parent.getParentFile()==null)throw new IOException("R31_ARTIFACT_SOURCE_NOT_REGISTERED");directory=new File(parent.getParentFile(),"files/r26-checkpoints");}
+        if(!directory.isDirectory())throw new IOException("R31_ARTIFACT_SOURCE_DIRECTORY_MISSING");return new CheckpointArtifactsR26(directory);
+    }
+    public static final class ArtifactReadR31 extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure {
+        private final String category;ArtifactReadR31(String category,IOException cause){super("R31_ARTIFACT_"+category+":"+cause.getMessage(),cause);this.category=category;}
+        public String failureCategory(){return category;}public String operation(){return "ATOMNET_ARTIFACT_READ";}public String phase(){return "ARTIFACT_RESOLVE";}public String commitOutcomeName(){return "NOT_SUBMITTED";}
+    }
+    static MemoryBudgetR31.Lease readReservationR31(String phase,long bytes){if(bytes<1||bytes>512L<<20)throw new ArtifactReadR31("DEPENDENCY",new IOException("R31_ARTIFACT_READ_WORKSPACE_BOUND"));MemoryBudgetR31.Admission a=MemoryBudgetR31.processBudget().tryAcquire("atomnet-artifact-"+phase,MemoryBudgetR31.Kind.CHECKPOINT,bytes,()->Thread.currentThread().isInterrupted());if(!a.acquired())throw new MemoryBudgetR31.CapacityWait(a.reason);return a.lease;}
+    /** Versioned references resolve at the actual consumer. Legacy inline codec bytes remain unchanged.
+     * Never infer a snapshot's checkpoint directory or create an absent directory while reading. */
+    public static byte[] resolveSerializedR31(SQLiteDatabase db,byte[] value){
+        if(!reference(value))return value;
+        try{CheckpointArtifactsR26 files=forDatabaseR31(db);long rootLength=files.path(referenceHash(value)).length();try(MemoryBudgetR31.Lease rootRead=readReservationR31("root-read",2*rootLength+65536)){byte[] root=files.resolve(value);if(!ChunkedCheckpointR26.isManifest(root))return root;
+            long raw;try(DataInputStream header=new DataInputStream(new ByteArrayInputStream(root))){header.readInt();raw=header.readLong();}if(raw<1||raw>64L<<20)throw new IOException("R31_ARTIFACT_SERIALIZED_BOUND");
+            try(MemoryBudgetR31.Lease read=readReservationR31("serialized-read",3*raw+3L*262144+65536);InputStream input=ChunkedCheckpointR26.open(root,files.readStore());ByteArrayOutputStream bytes=new ByteArrayOutputStream((int)raw)){byte[] buffer=new byte[32768];int n;while((n=input.read(buffer))!=-1){if((long)bytes.size()+n>raw)throw new IOException("R31_ARTIFACT_SERIALIZED_BOUND");bytes.write(buffer,0,n);}return bytes.toByteArray();}}
+        }catch(IOException failure){String m=String.valueOf(failure.getMessage());throw new ArtifactReadR31(failure instanceof FileNotFoundException||m.contains("MISSING")||m.contains("NOT_REGISTERED")?"DEPENDENCY":"INTEGRITY",failure);}
     }
     private static void syncDirectory(File directory)throws IOException {
         java.io.FileDescriptor fd=null;
@@ -101,7 +134,7 @@ public final class CheckpointArtifactsR26 {
     }
     public InputStream openState(byte[] reference)throws IOException{return ChunkedCheckpointR26.open(resolve(reference),readStore());}
     public Set<String> reachableHashes(Set<String> roots)throws IOException {
-        Set<String> closure=new TreeSet<>(roots);for(String hash:roots){byte[] header=new byte[4];int n;try(InputStream in=new FileInputStream(path(hash))){n=in.read(header);}if(n==4&&ChunkedCheckpointR26.isManifest(header))closure.addAll(ChunkedCheckpointR26.children(readHash(hash)));}return closure;
+        Set<String> closure=new TreeSet<>(roots);for(String hash:roots){byte[] header=new byte[4];int n;try(InputStream in=new FileInputStream(path(hash))){n=in.read(header);}if(n==4&&ChunkedCheckpointR26.isManifest(header))closure.addAll(ChunkedCheckpointR26.children(readHash(hash)));else if(n>=3&&header[0]==0x26&&header[1]==0x43&&header[2]==0x53)throw new IOException("R31_UNKNOWN_CHECKPOINT_MANIFEST_VERSION_RETENTION_BLOCKED");}return closure;
     }
     /** Called with DB references frozen by the P3 owner. New, not-yet-committed files have an age grace. */
     public long prune(Set<String> references,long now,long graceMillis,int limit)throws IOException {return prune(()->references,now,graceMillis,limit);}

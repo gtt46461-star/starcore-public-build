@@ -23,7 +23,7 @@ public final class AtomNetStoreR30 {
     }
     public static ReplayDatasetR27 dataset(SQLiteDatabase ro,String hash){
         try(Cursor c=ro.rawQuery("SELECT payload,payload_hash FROM r30_atomnet_dataset WHERE dataset_hash=?",new String[]{hash})){
-            if(!c.moveToFirst())throw new IllegalStateException("R30_TRAIN_DATASET_MISSING");byte[] bytes=c.getBlob(0);
+            if(!c.moveToFirst())throw new IllegalStateException("R30_TRAIN_DATASET_MISSING");byte[] bytes=CheckpointArtifactsR26.resolveSerializedR31(ro,c.getBlob(0));
             if(!StatsR27.sha256(bytes).equals(c.getString(1)))throw new IllegalStateException("R30_TRAIN_DATASET_CHECKSUM");
             try(DataInputStream d=new DataInputStream(new GZIPInputStream(new ByteArrayInputStream(bytes)))){
                 int n=d.readInt();if(n<1||n>100_000)throw new IOException("rows");List<ReplayDatasetR27.Row> rows=new ArrayList<>();
@@ -45,15 +45,16 @@ public final class AtomNetStoreR30 {
             public void prefetch(int[] indices){
                 if(indices.length>64)throw new IllegalArgumentException("R30_SAMPLE_PREFETCH_BOUND");
                 prepared.clear();if(indices.length==0)return;
-                LinkedHashSet<Integer> unique=new LinkedHashSet<>();for(int i:indices){if(i<0||i>=session.trainCount+session.selectCount)throw new IllegalArgumentException("R30_SAMPLE_PROTECTED_OR_OUTSIDE_RESEARCH_SPLITS");unique.add(i);}
-                StringBuilder sql=new StringBuilder("SELECT sample_index,issue,position,features,hit,number_class FROM r30_atomnet_sample WHERE dataset_hash=? AND sample_index IN (");
-                String[] args=new String[unique.size()+1];args[0]=session.datasetHash;int at=1;
-                for(int i:unique){if(at>1)sql.append(',');sql.append('?');args[at++]=Integer.toString(i);}sql.append(')');
-                try(Cursor c=ro.rawQuery(sql.toString(),args)){while(c.moveToNext())prepared.put(c.getInt(0),decode(c));}
+                LinkedHashSet<Integer> unique=new LinkedHashSet<>();for(int i:indices){if(i<0||i>=session.materializedSamples||i>=session.trainCount+session.selectCount)throw new IllegalArgumentException("R30_SAMPLE_PROTECTED_OR_OUTSIDE_RESEARCH_SPLITS");unique.add(i);}
+                StringBuilder slots=new StringBuilder();for(int i:unique){if(slots.length()>0)slots.append(',');slots.append('?');}
+                StringBuilder sql=new StringBuilder("SELECT sample_index,issue,position,features,hit,number_class,NULL FROM r30_atomnet_sample WHERE dataset_hash=? AND sample_index IN (");
+                boolean publishedSource=publicationSchemaPresentR31(ro);String[] args=new String[(publishedSource?2:1)*(unique.size()+1)];args[0]=session.datasetHash;int at=1;
+                for(int i:unique){if(at>1)sql.append(',');sql.append('?');args[at++]=Integer.toString(i);}sql.append(')');if(publishedSource){sql.append(" UNION ALL SELECT s.sample_index,s.issue,s.position,s.features,s.hit,s.number_class,s.payload_hash FROM r31_atomnet_sample_stage s JOIN r31_atomnet_publication p ON p.publication_id=s.publication_id WHERE p.dataset_hash=? AND p.status='PUBLISHED' AND s.sample_index IN (").append(slots).append(')');args[at++]=session.datasetHash;for(int i:unique)args[at++]=Integer.toString(i);}
+                try(Cursor c=ro.rawQuery(sql.toString(),args)){while(c.moveToNext()){AtomNetTrainerR27.Sample decoded=decode(c),old=prepared.putIfAbsent(c.getInt(0),decoded);if(old!=null&&(!old.issue.equals(decoded.issue)||old.y!=decoded.y||old.cls!=decoded.cls||!Arrays.equals(old.x,decoded.x)))throw new IllegalStateException("R31_ATOM_SAMPLE_PUBLICATION_CONFLICT");}}
                 if(prepared.size()!=unique.size())throw new IllegalStateException("R30_TRAIN_SAMPLE_MISSING_IN_PREFETCH");
             }
             AtomNetTrainerR27.Sample decode(Cursor c){
-                byte[] blob=c.getBlob(3);if(blob.length!=session.input*8)throw new IllegalStateException("R30_TRAIN_SAMPLE_SHAPE");
+                byte[] blob=c.getBlob(3);if(!c.isNull(6)&&!c.getString(6).equals(AtomNetPublicationR31.sampleHash(new Object[]{session.datasetHash,c.getInt(0),c.getString(1),c.getInt(2),blob,c.getInt(4),c.getInt(5)})))throw new IllegalStateException("R31_ATOM_SAMPLE_CHECKSUM");if(blob.length!=session.input*8)throw new IllegalStateException("R30_TRAIN_SAMPLE_SHAPE");
                 double[] x=new double[session.input];try(DataInputStream in=new DataInputStream(new ByteArrayInputStream(blob))){for(int i=0;i<x.length;i++){x[i]=in.readDouble();if(!Double.isFinite(x[i]))throw new IllegalStateException("R30_TRAIN_SAMPLE_NONFINITE");}}
                 catch(IOException e){throw new IllegalStateException(e);}
                 int position=c.getInt(2),hit=c.getInt(4),number=c.getInt(5);if(position<1||position>10||hit<0||hit>1||number<0||number>9||position!=Math.floorMod(c.getInt(0),10)+1)throw new IllegalStateException("R30_TRAIN_SAMPLE_IDENTITY");
@@ -68,20 +69,28 @@ public final class AtomNetStoreR30 {
     public static AtomNetSessionR30 restore(SQLiteDatabase ro){
         try(Cursor c=ro.rawQuery("SELECT feature_abi,state_hash,artifact,dataset_hash,trained_through FROM r29_model_checkpoint WHERE owner IN (?,?) ORDER BY CASE WHEN owner=? THEN 0 ELSE 1 END LIMIT 1",new String[]{AtomNetSessionR30.OWNER,AtomNetSessionR30.LEGACY_OWNER,AtomNetSessionR30.OWNER})){
             if(!c.moveToFirst())return null;if(!AtomNetSessionR30.ABI.equals(c.getString(0)))throw new IllegalStateException("R30_TRAIN_FEATURE_ABI");
-            AtomNetSessionR30 state=AtomNetSessionR30.decode(c.getBlob(2),c.getString(1));
+            AtomNetSessionR30 state=AtomNetSessionR30.decode(ro,c.getBlob(2),c.getString(1));
             if(!state.datasetHash.equals(c.getString(3))||!(state.completeIssue.isEmpty()?state.observedThrough:state.trainedThrough()).equals(c.getString(4)))throw new IllegalStateException("R30_TRAIN_CHECKPOINT_CURSOR");return state;
         }
     }
+    public static ModelSurfaceProviderR30.FrozenModelRef publicationModelR31(SQLiteDatabase ro,AtomNetSessionR30 state){
+        if(!state.ready())return null;if(publicationSchemaPresentR31(ro))try(Cursor c=ro.rawQuery("SELECT p.model_hash,p.weights_ref,p.through_ordinal,p.model_available_at FROM r31_atomnet_publication p JOIN r29_model_checkpoint c ON c.state_hash=p.state_hash AND c.owner=? WHERE p.status='PUBLISHED' ORDER BY p.published_at DESC LIMIT 1",new String[]{AtomNetSessionR30.OWNER})){if(c.moveToFirst())return ModelSurfaceProviderR30.FrozenModelRef.archived(ro,c.getString(0),c.getBlob(1),c.getLong(2),c.getLong(3));}
+        try(Cursor c=ro.rawQuery("SELECT artifact FROM r29_model_checkpoint WHERE owner=?",new String[]{AtomNetSessionR30.OWNER})){if(c.moveToFirst()&&CheckpointArtifactsR26.reference(c.getBlob(0)))throw new AtomNetPublicationR31.Dependency("PUBLISHED_MODEL_MANIFEST_MISSING");}
+        return new ModelSurfaceProviderR30.FrozenModelRef(state.trainer.net.encode(),state.trainedThroughOrdinal(),System.currentTimeMillis());
+    }
+    private static boolean publicationSchemaPresentR31(SQLiteDatabase ro){try(Cursor c=ro.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('r31_atomnet_publication','r31_atomnet_sample_stage')",null)){return c.moveToFirst()&&c.getInt(0)==2;}}
     public static void checkpoint(ResearchWriteQueueR27.Batch b,AtomNetSessionR30 state,long now){checkpointWithIdentity(b,state,now);}
     public static String checkpointWithIdentity(ResearchWriteQueueR27.Batch b,AtomNetSessionR30 state,long now){
-        byte[] bytes=state.encode();
+        byte[] bytes=state.encode();return checkpointReferenceR31(b,state,StatsR27.sha256(bytes),bytes,now);
+    }
+    static String checkpointReferenceR31(ResearchWriteQueueR27.Batch b,AtomNetSessionR30 state,String identity,byte[] stored,long now){
         // Exact old bytes/checksum are archived before the first outer-format migration, in an existing immutable table.
         b.add("INSERT OR IGNORE INTO r29_legacy_model_checkpoint(owner,artifact_hash,artifact,trained_through,online_steps,learning_rate,last_check_logloss,archived_at,reason) SELECT owner,state_hash,artifact,trained_through,-1,-1,NULL,?,'R30_REPAIR_ORIGINAL_OUTER_V1_V2_BYTES_EXACT; SIDE_COUNTERS_UNKNOWN_SEE_ORIGINAL_ARTIFACT' FROM r29_model_checkpoint old WHERE owner IN (?,?) AND substr(artifact,1,4) IN (x'30A70001',x'30A70002') AND NOT EXISTS(SELECT 1 FROM r29_legacy_model_checkpoint saved WHERE saved.owner=old.owner AND saved.artifact_hash=old.state_hash)",now,AtomNetSessionR30.OWNER,AtomNetSessionR30.LEGACY_OWNER);
-        String identity=StatsR27.sha256(bytes);long work=state.materializedSamples+state.pretrainSamples+state.trainer.onlineSteps;
+        long work=state.materializedSamples+state.pretrainSamples+state.trainer.onlineSteps;
         long materializeTotal=(long)state.trainCount+state.selectCount+state.holdoutCount;
         Long pending=null;if(state.materializedSamples<materializeTotal)pending=Long.valueOf(materializeTotal-state.materializedSamples);else if(state.phase.equals("TRAIN"))pending=Long.valueOf(Math.max(0,state.trainCount-state.offset)); // Current known sample queue only; no invented future early-stop visits.
         ResearchStoreR30R1.appendOwnedProgress(b,-1,new ResearchStoreR30R1.Facts(work,work,pending,null,state.ready()?state.trainedThroughOrdinal():null,identity));
-        b.add("INSERT OR REPLACE INTO r29_model_checkpoint(owner,feature_abi,dataset_hash,trained_through,state_hash,artifact,updated_at) VALUES(?,?,?,?,?,?,?)",AtomNetSessionR30.OWNER,AtomNetSessionR30.ABI,state.datasetHash,state.completeIssue.isEmpty()?state.observedThrough:state.trainedThrough(),StatsR27.sha256(bytes),bytes,now);
+        b.add("INSERT OR REPLACE INTO r29_model_checkpoint(owner,feature_abi,dataset_hash,trained_through,state_hash,artifact,updated_at) VALUES(?,?,?,?,?,?,?)",AtomNetSessionR30.OWNER,AtomNetSessionR30.ABI,state.datasetHash,state.completeIssue.isEmpty()?state.observedThrough:state.trainedThrough(),identity,stored,now);
         b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('atomnet','ten-position-r30',?,?)",JsonR27.write(state.report()),now);
         for(AtomNetTrainerR27.Epoch e:state.receipts)b.add("INSERT OR IGNORE INTO r27_atomnet_epoch VALUES(?,?,?,?,?,?)","R30_"+state.datasetHash.substring(0,16),e.epoch,e.split,Double.isFinite(e.logloss)?e.logloss:null,Double.isFinite(e.brier)?e.brier:null,now);
         ResearchProvenanceGraphR30R1.gradient(b,state,identity,now);return identity;

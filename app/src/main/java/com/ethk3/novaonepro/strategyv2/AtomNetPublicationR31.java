@@ -1,0 +1,97 @@
+package com.ethk3.novaonepro.strategyv2;
+
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import com.ethk3.novaonepro.DatabaseCoordinator;
+import com.ethk3.novaonepro.DbStore;
+import java.io.*;
+import java.util.*;
+
+/** P01 protocol only: bounded invisible sample staging, then one fenced learner/publication CAS. */
+public final class AtomNetPublicationR31 {
+    private AtomNetPublicationR31() {}
+    public static final String VERSION="R31_ATOMNET_PUBLICATION_1";
+    public static final int REVISION=1,MAX_SAMPLES=120,MAX_STAGE_ROWS=32;
+    public static final long MAX_STAGE_BINDS=65536,MAX_RESERVED_SAMPLE_BYTES=128L<<20;
+    public static final String[] DDL={
+        "CREATE TABLE IF NOT EXISTS r31_atomnet_publication(publication_id TEXT PRIMARY KEY,operator_version TEXT NOT NULL,owner TEXT NOT NULL,dataset_hash TEXT NOT NULL,previous_state_hash TEXT NOT NULL,state_hash TEXT NOT NULL,state_ref BLOB NOT NULL,model_hash TEXT,weights_hash TEXT,weights_ref BLOB,model_available_at INTEGER,through_ordinal INTEGER NOT NULL,materialized_samples INTEGER NOT NULL,first_sample INTEGER NOT NULL,sample_count INTEGER NOT NULL,sample_bytes INTEGER NOT NULL,sample_digest TEXT NOT NULL,dataset_ref BLOB,dataset_payload_hash TEXT,status TEXT NOT NULL CHECK(status IN ('PREPARED','PUBLISHED')),created_at INTEGER NOT NULL,published_at INTEGER)",
+        "CREATE TABLE IF NOT EXISTS r31_atomnet_sample_stage(publication_id TEXT NOT NULL,sample_index INTEGER NOT NULL,issue TEXT NOT NULL,position INTEGER NOT NULL,features BLOB NOT NULL,hit INTEGER NOT NULL,number_class INTEGER NOT NULL,payload_hash TEXT NOT NULL,PRIMARY KEY(publication_id,sample_index))",
+        "CREATE INDEX IF NOT EXISTS r31_atomnet_publication_samples ON r31_atomnet_publication(dataset_hash,status,first_sample)",
+        "CREATE TRIGGER IF NOT EXISTS r31_atomnet_stage_no_update BEFORE UPDATE ON r31_atomnet_sample_stage BEGIN SELECT RAISE(ABORT,'R31_ATOM_SAMPLE_IMMUTABLE'); END",
+        "CREATE TRIGGER IF NOT EXISTS r31_atomnet_stage_published_no_delete BEFORE DELETE ON r31_atomnet_sample_stage BEGIN SELECT RAISE(ABORT,'R31_ATOM_PUBLISHED_SAMPLE_PROTECTED'); END"
+    };
+    private static final String[][] TABLES={
+        {"r31_atomnet_publication","publication_id,operator_version,owner,dataset_hash,previous_state_hash,state_hash,state_ref,model_hash,weights_hash,weights_ref,model_available_at,through_ordinal,materialized_samples,first_sample,sample_count,sample_bytes,sample_digest,dataset_ref,dataset_payload_hash,status,created_at,published_at"},
+        {"r31_atomnet_sample_stage","publication_id,sample_index,issue,position,features,hit,number_class,payload_hash"}
+    };
+    /** Startup/migration journal entry only; production preparation calls requireReady, never this method. */
+    public static void ensureSchemaR31(SQLiteDatabase db){if(!db.inTransaction())throw new IllegalStateException("R31_ATOMNET_MIGRATION_TRANSACTION_REQUIRED");for(String ddl:DDL)db.execSQL(ddl);requireReady(db);}
+    public static String[][] schemaObjectsR31(){return new String[][]{{"table","r31_atomnet_publication"},{"table","r31_atomnet_sample_stage"},{"index","r31_atomnet_publication_samples"},{"trigger","r31_atomnet_stage_no_update"},{"trigger","r31_atomnet_stage_published_no_delete"}};}
+    public static void requireReady(SQLiteDatabase db){DatabaseCoordinator.requireSchemaObjectsR31(db,"R31_ATOMNET_PUBLICATION",TABLES,new String[][]{{"index","r31_atomnet_publication_samples"},{"trigger","r31_atomnet_stage_no_update"},{"trigger","r31_atomnet_stage_published_no_delete"}});}
+    public static final class Dependency extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure {
+        Dependency(String message){super("R31_ATOMNET_"+message);}public String failureCategory(){return "DEPENDENCY";}public String operation(){return "ATOMNET_PUBLICATION";}public String phase(){return "PREPARE_OR_PUBLISH";}public String commitOutcomeName(){return "NOT_SUBMITTED";}
+    }
+    /** Admission happens before copy/encoding/sample construction; it is not a measured heap-free claim. */
+    public static MemoryBudgetR31.Lease workReservationR31(AtomNetSessionR30 state){
+        long stateBound=state.serializedBoundR31(),sampleBound=MAX_SAMPLES*(512L+8L*state.input);
+        long bytes=2L*1024*1024+6*stateBound+3*sampleBound+72L*state.trainer.net.parameterCount()+64L*(state.input+512)*8;
+        if(stateBound>64L<<20)throw new Dependency("CHECKPOINT_SERIALIZED_CAPACITY");
+        MemoryBudgetR31.Admission a=MemoryBudgetR31.processBudget().tryAcquire("atomnet-prepare-and-encode",MemoryBudgetR31.Kind.MODEL,bytes,()->Thread.currentThread().isInterrupted());if(!a.acquired())throw new MemoryBudgetR31.CapacityWait(a.reason);return a.lease;
+    }
+    static String currentStateHash(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT state_hash FROM r29_model_checkpoint WHERE owner IN (?,?) ORDER BY CASE WHEN owner=? THEN 0 ELSE 1 END LIMIT 1",new String[]{AtomNetSessionR30.OWNER,AtomNetSessionR30.LEGACY_OWNER,AtomNetSessionR30.OWNER})){return c.moveToFirst()?c.getString(0):"";}}
+    private static long parentMaterializedR31(SQLiteDatabase ro,String hash,String dataset){
+        if(hash.isEmpty())return 0;
+        try(Cursor parent=ro.rawQuery("SELECT materialized_samples,dataset_hash FROM r31_atomnet_publication WHERE owner=? AND state_hash=? AND status='PUBLISHED' LIMIT 1",new String[]{AtomNetSessionR30.OWNER,hash})){if(parent.moveToFirst()){if(!dataset.equals(parent.getString(1))||parent.getLong(0)<0)throw new IllegalStateException("R31_ATOM_PARENT_BINDING");return parent.getLong(0);}}
+        // Inline pre-R31 checkpoints have no publication manifest. Decode only here, outside the writer.
+        try(Cursor parent=ro.rawQuery("SELECT artifact FROM r29_model_checkpoint WHERE state_hash=? AND owner IN (?,?) LIMIT 1",new String[]{hash,AtomNetSessionR30.OWNER,AtomNetSessionR30.LEGACY_OWNER})){if(parent.moveToFirst()){AtomNetSessionR30 original=AtomNetSessionR30.decode(ro,parent.getBlob(0),hash);if(!dataset.equals(original.datasetHash))throw new IllegalStateException("R31_ATOM_PARENT_BINDING");return original.materializedSamples;}}
+        throw new Dependency("PARENT_CHECKPOINT_SOURCE_NOT_AVAILABLE_RESTORE_REQUIRED");
+    }
+    static String sampleHash(Object[] args){try{ByteArrayOutputStream bytes=new ByteArrayOutputStream();DataOutputStream out=new DataOutputStream(bytes);out.writeUTF((String)args[0]);out.writeInt(((Number)args[1]).intValue());out.writeUTF((String)args[2]);out.writeInt(((Number)args[3]).intValue());byte[] features=(byte[])args[4];out.writeInt(features.length);out.write(features);out.writeInt(((Number)args[5]).intValue());out.writeInt(((Number)args[6]).intValue());out.close();return StatsR27.sha256(bytes.toByteArray());}catch(IOException impossible){throw new IllegalStateException(impossible);}}
+    private static final class SampleRow {
+        final int index,position,hit,number;final String issue,hash;final byte[] features;
+        SampleRow(ResearchWriteQueueR27.Op op,AtomNetSessionR30 state){Object[] a=op.args;if(a==null||a.length!=7||!state.datasetHash.equals(a[0]))throw new IllegalArgumentException("R31_ATOM_SAMPLE_BINDING");index=((Number)a[1]).intValue();issue=(String)a[2];position=((Number)a[3]).intValue();features=(byte[])a[4];hit=((Number)a[5]).intValue();number=((Number)a[6]).intValue();if(features.length!=state.input*8||index<0||position!=Math.floorMod(index,10)+1||hit<0||hit>1||number<0||number>9)throw new IllegalArgumentException("R31_ATOM_SAMPLE_IDENTITY");hash=sampleHash(a);}
+        long bytes(){return features.length+3L*issue.length()+128;}
+    }
+    public static final class Prepared implements AutoCloseable {
+        public final String id,stateHash,previousStateHash,datasetHash;public final ModelSurfaceProviderR30.FrozenModelRef model;
+        private final CheckpointArtifactsR26.Prepared stateFile,modelFile,datasetFile;
+        private final byte[] stateRef,modelRef,datasetRef;private final String datasetPayloadHash,sampleDigest;private final long now,sampleBytes,through,materialized;
+        private final int first;private final List<SampleRow> samples;private boolean closed;
+        private Prepared(DbStore store,SQLiteDatabase ro,ResearchWriteQueueR27.Batch control,AtomNetSessionR30 state,long now,String expectedState)throws IOException{
+            if(ro.inTransaction()&&!ro.isReadOnly())throw new IllegalStateException("R31_ATOM_PREPARE_OUTSIDE_WRITER_REQUIRED");requireReady(ro);if(expectedState==null||!expectedState.isEmpty()&&!expectedState.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("R31_ATOM_EXPECTED_PARENT");datasetHash=state.datasetHash;previousStateHash=expectedState;through=state.trainedThroughOrdinal();materialized=state.materializedSamples;
+            List<SampleRow> extracted=new ArrayList<>();ResearchWriteQueueR27.Op dataset=null;
+            for(Iterator<ResearchWriteQueueR27.Op> i=control.ops.iterator();i.hasNext();){ResearchWriteQueueR27.Op op=i.next();if(op.sql.equals("INSERT OR IGNORE INTO r30_atomnet_sample VALUES(?,?,?,?,?,?,?)")){extracted.add(new SampleRow(op,state));i.remove();}else if(op.sql.equals("INSERT OR IGNORE INTO r30_atomnet_dataset VALUES(?,?,?,?)")){if(dataset!=null)throw new IllegalArgumentException("R31_ATOM_DUPLICATE_DATASET");dataset=op;i.remove();}}
+            if(state.materializedSamples<0||state.materializedSamples>(long)state.trainCount+state.selectCount+state.holdoutCount)throw new IllegalArgumentException("R31_ATOM_MATERIALIZED_BOUND");
+            if(extracted.size()>MAX_SAMPLES)throw new IllegalArgumentException("R31_ATOM_SAMPLE_SLICE_BOUND");extracted.sort(Comparator.comparingInt(s->s.index));first=extracted.isEmpty()?(int)state.materializedSamples:extracted.get(0).index;StringBuilder digests=new StringBuilder(VERSION);long total=0;
+            for(int i=0;i<extracted.size();i++){SampleRow row=extracted.get(i);if(row.index!=first+i)throw new IllegalArgumentException("R31_ATOM_SAMPLE_CONTIGUITY");digests.append('|').append(row.hash);total+=row.bytes();}
+            long parentMaterialized=parentMaterializedR31(ro,previousStateHash,datasetHash);if(parentMaterialized+extracted.size()!=state.materializedSamples||!extracted.isEmpty()&&first!=parentMaterialized)throw new IllegalStateException("R31_ATOM_MATERIALIZED_CURSOR_DELTA");samples=Collections.unmodifiableList(extracted);sampleBytes=total;sampleDigest=StatsR27.sha256(digests.toString());
+            byte[] encoded=state.encode();if(encoded.length>state.serializedBoundR31())throw new IllegalStateException("R31_ATOM_SOURCE_BOUND_DRIFT");stateHash=StatsR27.sha256(encoded);id=HashingSU1.fields(VERSION,AtomNetSessionR30.OWNER,datasetHash,previousStateHash,stateHash,sampleDigest);long publicationAt=now;try(Cursor prior=ro.rawQuery("SELECT created_at FROM r31_atomnet_publication WHERE publication_id=?",new String[]{id})){if(prior.moveToFirst())publicationAt=prior.getLong(0);}this.now=publicationAt;if(this.now<=0)throw new IllegalStateException("R31_ATOM_MANIFEST_CREATED_AT");
+            CheckpointArtifactsR26 files=CheckpointArtifactsR26.forStore(store);CheckpointArtifactsR26.Prepared s=null,m=null,d=null;ModelSurfaceProviderR30.FrozenModelRef frozen=null;boolean complete=false;
+            try{s=files.prepareState(out->out.write(encoded));if(state.ready()){byte[] weights=state.trainer.net.encode();m=files.prepareLease(weights);frozen=ModelSurfaceProviderR30.FrozenModelRef.publishedR31(weights,through,this.now,m.reference());}if(dataset!=null){byte[] bytes=(byte[])dataset.args[1];if(!datasetHash.equals(dataset.args[0])||!StatsR27.sha256(bytes).equals(dataset.args[2]))throw new IllegalArgumentException("R31_ATOM_DATASET_BINDING");d=files.prepareLease(bytes);}stateFile=s;modelFile=m;datasetFile=d;stateRef=s.reference();modelRef=m==null?null:m.reference();datasetRef=d==null?null:d.reference();datasetPayloadHash=dataset==null?null:(String)dataset.args[2];model=frozen;complete=true;}
+            finally{if(!complete){if(s!=null)s.close();if(m!=null)m.close();if(d!=null)d.close();}}
+        }
+        public int sampleCount(){return samples.size();}
+        public List<ResearchWriteQueueR27.Batch> stagingBatches(){
+            if(closed)throw new IllegalStateException("R31_ATOM_PREPARED_CLOSED");List<ResearchWriteQueueR27.Batch> result=new ArrayList<>();ResearchWriteQueueR27.Batch manifest=new ResearchWriteQueueR27.Batch();
+            manifest.guardBefore(db->{requireReady(db);try(Cursor old=db.rawQuery("SELECT state_hash,sample_digest,sample_count FROM r31_atomnet_publication WHERE publication_id=?",new String[]{id})){if(old.moveToFirst()){if(!stateHash.equals(old.getString(0))||!sampleDigest.equals(old.getString(1))||samples.size()!=old.getInt(2))throw new IllegalStateException("R31_ATOM_MANIFEST_CONFLICT");return 0;}}
+                try(Cursor capacity=db.rawQuery("SELECT count(*),coalesce(sum(sample_count),0),coalesce(sum(sample_bytes),0) FROM r31_atomnet_publication",null)){if(!capacity.moveToFirst()||capacity.getLong(0)>=4096||capacity.getLong(1)+samples.size()>100000||capacity.getLong(2)+sampleBytes>MAX_RESERVED_SAMPLE_BYTES)throw new Dependency("STORAGE_CAPACITY_DEBT_PREPARED_AND_PUBLISHED_EVIDENCE_PROTECTED");}return 0;});
+            manifest.add("INSERT OR IGNORE INTO r31_atomnet_publication VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'PREPARED',?,NULL)",id,VERSION,AtomNetSessionR30.OWNER,datasetHash,previousStateHash,stateHash,stateRef,model==null?null:model.modelHash,model==null?null:model.weightsHash,modelRef,model==null?null:model.availableAt,through,materialized,first,samples.size(),sampleBytes,sampleDigest,datasetRef,datasetPayloadHash,now);result.add(manifest);
+            ResearchWriteQueueR27.Batch current=null;long bytes=0;int count=0;
+            for(SampleRow row:samples){long next=row.bytes()+id.length()+row.hash.length();if(next>MAX_STAGE_BINDS)throw new IllegalArgumentException("R31_ATOM_SINGLE_SAMPLE_BIND_BOUND");if(current==null||count>=MAX_STAGE_ROWS||bytes+next>MAX_STAGE_BINDS){current=new ResearchWriteQueueR27.Batch();result.add(current);bytes=0;count=0;}current.add("INSERT OR IGNORE INTO r31_atomnet_sample_stage VALUES(?,?,?,?,?,?,?,?)",id,row.index,row.issue,row.position,row.features,row.hit,row.number,row.hash);bytes+=next;count++;}
+            return Collections.unmodifiableList(result);
+        }
+        /** Full staging verification/codec read is deliberately outside the writer. Final CAS only rechecks bounded identities/counts. */
+        public void verifyPrepared(SQLiteDatabase ro){requireReady(ro);if(!stateHash.equals(StatsR27.sha256(CheckpointArtifactsR26.resolveSerializedR31(ro,stateRef))))throw new IllegalStateException("R31_ATOM_STAGED_STATE_CHECKSUM");if(model!=null&&!model.weightsHash.equals(StatsR27.sha256(CheckpointArtifactsR26.resolveSerializedR31(ro,modelRef))))throw new IllegalStateException("R31_ATOM_STAGED_MODEL_CHECKSUM");if(datasetRef!=null&&!datasetPayloadHash.equals(StatsR27.sha256(CheckpointArtifactsR26.resolveSerializedR31(ro,datasetRef))))throw new IllegalStateException("R31_ATOM_STAGED_DATASET_CHECKSUM");StringBuilder hashes=new StringBuilder(VERSION);int count=0;try(Cursor c=ro.rawQuery("SELECT sample_index,issue,position,features,hit,number_class,payload_hash FROM r31_atomnet_sample_stage WHERE publication_id=? ORDER BY sample_index",new String[]{id})){while(c.moveToNext()){String actual=sampleHash(new Object[]{datasetHash,c.getInt(0),c.getString(1),c.getInt(2),c.getBlob(3),c.getInt(4),c.getInt(5)});if(count>=samples.size()||c.getInt(0)!=first+count||!samples.get(count).hash.equals(actual)||!actual.equals(c.getString(6)))throw new IllegalStateException("R31_ATOM_SAMPLE_STAGING_MISMATCH");hashes.append('|').append(actual);count++;}}if(count!=samples.size()||!sampleDigest.equals(StatsR27.sha256(hashes.toString())))throw new Dependency("SAMPLE_STAGING_INCOMPLETE");}
+        public ResearchWriteQueueR27.Batch publicationBatch(ResearchWriteQueueR27.Batch control,AtomNetSessionR30 state){
+            if(closed)throw new IllegalStateException("R31_ATOM_PREPARED_CLOSED");control.guardBefore(db->{requireReady(db);String current=currentStateHash(db);if(!previousStateHash.equals(current)&&!stateHash.equals(current))return -1;
+                try(Cursor manifest=db.rawQuery("SELECT state_hash,sample_digest,sample_count,state_ref,model_hash,weights_ref,model_available_at,through_ordinal,materialized_samples,previous_state_hash,dataset_hash,dataset_ref,dataset_payload_hash FROM r31_atomnet_publication WHERE publication_id=?",new String[]{id})){if(!manifest.moveToFirst()||!stateHash.equals(manifest.getString(0))||!sampleDigest.equals(manifest.getString(1))||samples.size()!=manifest.getInt(2)||!Arrays.equals(stateRef,manifest.getBlob(3))||!Objects.equals(model==null?null:model.modelHash,manifest.getString(4))||!Arrays.equals(modelRef,manifest.getBlob(5))||model!=null&&model.availableAt!=manifest.getLong(6)||through!=manifest.getLong(7)||materialized!=manifest.getLong(8)||!previousStateHash.equals(manifest.getString(9))||!datasetHash.equals(manifest.getString(10))||!Arrays.equals(datasetRef,manifest.getBlob(11))||!Objects.equals(datasetPayloadHash,manifest.getString(12)))return -1;}
+                try(Cursor count=db.rawQuery("SELECT count(*) FROM r31_atomnet_sample_stage WHERE publication_id=?",new String[]{id})){if(!count.moveToFirst()||count.getInt(0)!=samples.size())return -1;}return 0;});
+            AtomNetStoreR30.checkpointReferenceR31(control,state,stateHash,stateRef,now);
+            if(datasetRef!=null)control.add("INSERT OR IGNORE INTO r30_atomnet_dataset VALUES(?,?,?,?)",datasetHash,datasetRef,datasetPayloadHash,now);
+            if(model!=null)control.add("INSERT OR IGNORE INTO r30_model_artifact VALUES(?,?,?,?,?)",model.modelHash,AtomNetSessionR30.ABI,modelRef,through,now);
+            control.add("UPDATE r31_atomnet_publication SET status='PUBLISHED',published_at=coalesce(published_at,CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)) WHERE publication_id=?",id);return control;
+        }
+        @Override public void close(){if(closed)return;closed=true;stateFile.close();if(modelFile!=null)modelFile.close();if(datasetFile!=null)datasetFile.close();}
+    }
+    public static Prepared prepare(DbStore store,SQLiteDatabase ro,ResearchWriteQueueR27.Batch batch,AtomNetSessionR30 state,long now,String expectedStateHash)throws IOException{return new Prepared(store,ro,batch,state,now,expectedStateHash);}
+}

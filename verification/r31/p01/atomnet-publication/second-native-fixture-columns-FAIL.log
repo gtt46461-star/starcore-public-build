@@ -1,0 +1,20 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Exception in thread "main" com.ethk3.novaonepro.DatabaseCoordinator$WriteRejectedR31: F01_WRITE_FAILED|operation=R27_ATOMNET_R30_INIT|category=DEPENDENCY|phase=END|commitOutcome=ROLLED_BACK
+	at com.ethk3.novaonepro.DatabaseCoordinator.runIdempotentAtomicWriteR31(DatabaseCoordinator.java:991)
+	at com.ethk3.novaonepro.strategyv2.AtomPublicationNativeHost.submit(AtomPublicationNativeHost.java:19)
+	at com.ethk3.novaonepro.strategyv2.AtomPublicationNativeHost.init(AtomPublicationNativeHost.java:22)
+	at com.ethk3.novaonepro.strategyv2.AtomPublicationNativeHost.full(AtomPublicationNativeHost.java:25)
+	at com.ethk3.novaonepro.strategyv2.AtomPublicationNativeHost.main(AtomPublicationNativeHost.java:45)
+Caused by: android.database.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (no such column: first_progress_at)
+	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:21)
+	at com.ethk3.novaonepro.strategyv2.AtomPublicationNativeHost$TraceDb.execSQL(AtomPublicationNativeHost.java:8)
+	at com.ethk3.novaonepro.strategyv2.ResearchStoreR30R1.commitProgress(ResearchStoreR30R1.java:31)
+	at com.ethk3.novaonepro.strategyv2.ResearchStoreR30R1.lambda$appendProgress$0(ResearchStoreR30R1.java:23)
+	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.execute(ResearchWriteQueueR27.java:205)
+	at com.ethk3.novaonepro.strategyv2.AtomPublicationNativeHost.lambda$submit$1(AtomPublicationNativeHost.java:19)
+	at com.ethk3.novaonepro.DatabaseCoordinator.lambda$runIdempotentAtomicWriteR31$14(DatabaseCoordinator.java:976)
+	at com.ethk3.novaonepro.DatabaseCoordinator.lambda$atomicCallableF01$13(DatabaseCoordinator.java:921)
+	at com.ethk3.novaonepro.DatabaseCoordinator.lambda$runIdempotentAtomicWriteR31$15(DatabaseCoordinator.java:981)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:831)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runIdempotentAtomicWriteR31(DatabaseCoordinator.java:971)
+	... 4 more

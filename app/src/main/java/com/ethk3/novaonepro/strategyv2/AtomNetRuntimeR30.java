@@ -9,21 +9,29 @@ import java.util.*;
 public final class AtomNetRuntimeR30 {
     private AtomNetRuntimeR30(){}
     static ResearchPoolR27.Outcome step(RuntimeR27 rt,ResearchPoolR27.Worker w)throws Exception{
+        AtomNetPublicationR31.requireReady(w.ro);
         AtomNetSessionR30 saved=rt.atomSessionR30;
         if(saved!=null)OnlineResearchWindowR30R1.register(w,saved.datasetHash);
         if(saved==null){
             saved=AtomNetStoreR30.restore(w.ro);
-            if(saved!=null){rt.atomDataR30=AtomNetStoreR30.dataset(w.ro,saved.datasetHash);rt.publishAtomStateR30(saved);return ResearchPoolR27.Outcome.progress(1,saved.units);}
+            if(saved!=null){rt.atomDataR30=AtomNetStoreR30.dataset(w.ro,saved.datasetHash);rt.publishAtomStateR31(saved,AtomNetStoreR30.publicationModelR31(w.ro,saved));return ResearchPoolR27.Outcome.progress(1,saved.units);}
             ReplayDatasetR27 d=rt.evoData;if(d==null)return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-replay-dataset)",0,-1);
             SplitR27 split=SplitR27.of(d,null);int first=AtomReplayR27.MIN_ROWS;
             int train=Math.max(0,split.trainTo-first)*10,select=(split.selectTo-Math.max(first,split.selectFrom))*10,hold=(split.holdoutTo-Math.max(first,split.holdoutFrom))*10;
             if(train<=0||select<=0)return ResearchPoolR27.Outcome.idle("INSUFFICIENT_TEN_POSITION_TRAINING_HISTORY",0,-1);
             saved=new AtomNetSessionR30(d.datasetHash,d.issues[split.holdoutTo-1],d.ordinals[split.holdoutTo-1],7+AtomReplayR27.eligible().length+10,train,select,Math.max(0,hold));
-            ResearchWriteQueueR27.Batch start=new ResearchWriteQueueR27.Batch();long now=System.currentTimeMillis();AtomNetStoreR30.dataset(start,d,now);AtomNetStoreR30.checkpoint(start,saved,now);RuntimeR27.submit(w,"ATOMNET_R30_INIT",start);
-            rt.atomDataR30=d;rt.publishAtomStateR30(saved);return ResearchPoolR27.Outcome.progress(1,0);
+            try(MemoryBudgetR31.Lease work=AtomNetPublicationR31.workReservationR31(saved)){
+                ResearchWriteQueueR27.Batch start=new ResearchWriteQueueR27.Batch();long now=System.currentTimeMillis();AtomNetStoreR30.dataset(start,d,now);
+                try(AtomNetPublicationR31.Prepared publication=AtomNetPublicationR31.prepare(w.store(),w.ro,start,saved,now,"")){
+                    stage(w,publication);publication.verifyPrepared(w.ro);RuntimeR27.submit(w,"ATOMNET_R30_INIT",publication.publicationBatch(start,saved),false,publication.id);
+                    rt.atomDataR30=d;rt.publishAtomStateR31(saved,publication.model);return ResearchPoolR27.Outcome.progress(1,0);
+                }
+            }
         }
         ReplayDatasetR27 d=rt.atomDataR30;
         if(d==null){d=AtomNetStoreR30.dataset(w.ro,saved.datasetHash);rt.atomDataR30=d;}
+        try(MemoryBudgetR31.Lease work=AtomNetPublicationR31.workReservationR31(saved)){
+        final String expectedCheckpointR31=AtomNetPublicationR31.currentStateHash(w.ro);
         // Copy before computing: no failed/cancelled write can mutate the committed/published learner.
         byte[] previous=saved.encode();AtomNetSessionR30 next=AtomNetSessionR30.decode(previous,StatsR27.sha256(previous));
         ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();long now=System.currentTimeMillis();int n=0;ModelReplayStudyR30R1.ReplayDecision replayDecision=null;
@@ -59,10 +67,17 @@ public final class AtomNetRuntimeR30 {
             replayDecision=ModelReplayStudyR30R1.allocateReplay(w.ro,next,b);
             next.online(new AtomNetTrainerR27.Sample(x,frame.hit[p],frame.actual[p]-1,AtomNetSessionR30.eventKey(recent.issues[t],p+1)),recent.issues[t],recent.ordinals[t],p+1);n=1;
         }
-        String stateIdentity=AtomNetStoreR30.checkpointWithIdentity(b,next,System.currentTimeMillis());ModelReplayStudyR30R1.recordReplayDecision(b,next,replayDecision,stateIdentity);try{RuntimeR27.submit(w,"ATOMNET_R30_SLICE",b);}catch(IllegalStateException changed){if(QualificationInboxR29.precondition(changed))return ResearchPoolR27.Outcome.idle("DEPENDENCY(NEURAL_SOURCE_CHANGED_PREPARED_RETRY)",saved.trainer.onlineSteps,-1);throw changed;}
-        rt.publishAtomStateR30(next);
+        try(AtomNetPublicationR31.Prepared publication=AtomNetPublicationR31.prepare(w.store(),w.ro,b,next,System.currentTimeMillis(),expectedCheckpointR31)){
+            stage(w,publication);publication.verifyPrepared(w.ro);ModelReplayStudyR30R1.recordReplayDecision(b,next,replayDecision,publication.stateHash);
+            try{RuntimeR27.submit(w,"ATOMNET_R30_SLICE",publication.publicationBatch(b,next),false,publication.id);}catch(IllegalStateException changed){if(QualificationInboxR29.precondition(changed))return ResearchPoolR27.Outcome.idle("DEPENDENCY(NEURAL_SOURCE_CHANGED_PREPARED_RETRY)",saved.trainer.onlineSteps,-1);throw changed;}
+            rt.publishAtomStateR31(next,publication.model);
+        }
         if(next.ready())forecast(rt,w,next,StoreR27.loadDataset(w.ro,AtomReplayR27.HISTORY+64));
         return ResearchPoolR27.Outcome.progress(n,++rt.atomUnitsR30);
+        }
+    }
+    private static void stage(ResearchPoolR27.Worker w,AtomNetPublicationR31.Prepared publication)throws InterruptedException{
+        int chunk=0;for(ResearchWriteQueueR27.Batch staging:publication.stagingBatches())RuntimeR27.submit(w,"ATOMNET_R31_STAGE_"+chunk,staging,false,publication.id+"|STAGE|"+(chunk++));
     }
     static void settle(ResearchWriteQueueR27.Batch batch,ResearchPoolR27.Worker w,String issue,int position,int hit,long now){
         String suffix=String.format(java.util.Locale.ROOT,"_R30_P%02d",position);

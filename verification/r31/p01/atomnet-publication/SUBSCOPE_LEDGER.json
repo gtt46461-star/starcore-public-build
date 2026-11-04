@@ -1,0 +1,109 @@
+{
+  "cards": [
+    "R31-B02-C02",
+    "R31-B02-C03",
+    "R31-B05-C11"
+  ],
+  "subscope": "AtomNet sample/artifact/checkpoint persistence and actual ref consumption; no B06 new capability",
+  "baselineSource": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "implementationParent": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+  "status": "CODE_COMPLETE",
+  "wholeCardsClosed": false,
+  "files": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java": "c1ed94f1f2bdbd9f4bcb7970b2ca083dec3b4703bfa7fe510dce7bd6e00b273b",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java": "f56016e2aa74449419c657dc89c1bdf615182b761ddff5851de4f31521e812e3",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java": "d7485b4cb8828e9fbfb27e81073946d7ebd1d6481879546edc1d540441a5a9f5",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java": "cc145539dbaf4a68225e5668eb32655c6ecdbf70203a440a089f300a7596671c",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java": "6bd7d7215d0b5f06c2408ae40390c157614274d5d7f6b8fb778ede19b1112a48",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR30.java": "0a6f0215c82a5311c708c0355492951e62c3cf8579c3d829d3ebdeee3bc221d9",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java": "984da23fe1ee9efa1cc5cb931d94d008672d02f76ce584574c9e8e24d11c2789",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointReferencesR26.java": "f9b8ef4bf33ec3802ab0bbf28dd5298382d62892a0777112d8e7c1e5884aaaa1",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java": "0172a31e890d374c31a0e17ad1679930c29985ae7f9ee6f78c00fc09f6d51871",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplayStudyR30R1.java": "83a9ab0da576f9864c4b5f1aa53207c36dcee8814e0158afd51e967aee642695",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityRegistryStoreR30.java": "6f6dcb02c98398e76f299ae291fcb1e4a3e487dc9a910ae96c0c4ad74c24632f",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchProvenanceGraphR30R1.java": "cfeff8dfca38715a2e6f5593fce40f66eddc1537e862f6e8c6331325b7d13100"
+  },
+  "methods": [
+    "AtomNetRuntimeR30.step/stage/restore publication",
+    "AtomNetPublicationR31.prepare/workReservation/stagingBatches/verifyPrepared/publicationBatch/parentMaterializedR31",
+    "AtomNetStoreR30.samples/restore/dataset/publicationModelR31/checkpointReferenceR31",
+    "AtomNetSessionR30/ModelArtifactR29 serialization bound and database ref decode overloads",
+    "ModelSurfaceProviderR30.FrozenModelRef published/ref admission and archive resolve",
+    "ModelSurfaceStoreR30.surface/archived",
+    "CheckpointArtifactsR26 resolved serialized reader and database root scope",
+    "CheckpointReferencesR26 root census and conservative unknown handling",
+    "CapabilityRegistryStoreR30,ModelReplayStudyR30R1,ResearchProvenanceGraphR30R1 actual readonly consumers"
+  ],
+  "migration": {
+    "domainSuggested": "R31_ATOMNET_PUBLICATION",
+    "revision": 1,
+    "objects": [
+      [
+        "table",
+        "r31_atomnet_publication"
+      ],
+      [
+        "table",
+        "r31_atomnet_sample_stage"
+      ],
+      [
+        "index",
+        "r31_atomnet_publication_samples"
+      ],
+      [
+        "trigger",
+        "r31_atomnet_stage_no_update"
+      ],
+      [
+        "trigger",
+        "r31_atomnet_stage_published_no_delete"
+      ]
+    ],
+    "startupOwner": "ROOT_SCHEMA_DOMAIN_PENDING_INTEGRATION",
+    "ddlHash": "5a3fca11329933b132a158c3d6281e0a0fb026ce4f21c0b92bb6733397dee024",
+    "businessDdlObserved": 0
+  },
+  "testCommands": [
+    "python3 verification/r31/p01/atomnet-publication/verify.py",
+    "python3 verification/r31/p01/atomnet-publication/run_native.py"
+  ],
+  "testResults": {
+    "nativeConsumer": 543,
+    "actualProductionProducer": "PASS_INIT_AND_MATERIALIZATION_WITH_REAL_RUNTIME_SUBMIT",
+    "originalJUnit": 29,
+    "lostAll120SampleOps": "NEGATIVE_REPRODUCED_THEN_FIXED_NATIVE",
+    "crossJvm": "TWO_REAL_HALT_AND_FRESH_JVM_CASES_PASS",
+    "fullOriginalFixturePlan": [
+      800,
+      400,
+      160
+    ],
+    "actualRuntimeShortHistorySplits": [
+      880,
+      480,
+      0
+    ]
+  },
+  "apkIdentity": "NONE_THIS_CHILD_ROOT_RELEASE_BUILD_PENDING",
+  "deviceEvidence": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED",
+  "remaining": [
+    "Root startup domain registration and final full Android source rebind/compile/test",
+    "Physical device migration/kill/clock/low-memory/low-disk/service behavior NOT_RUN",
+    "24h and72h NOT_RUN",
+    "Natural future quality NOT_EVALUATED",
+    "B05 full heap/native/PSS ownership and P06 versioned abandoned staging cleanup remain separate acceptance scope",
+    "Logical sample reservations are not measured SQLite physical disk bytes"
+  ],
+  "nextStep": "Root cherry-pick independent commit, register exact five schema objects in existing migration transaction, join Report root scope, rebind and run full Android gates",
+  "evidence": [
+    "BASELINE_RECEIPT.json",
+    "FINAL_NATIVE_RECEIPT.json",
+    "SCHEMA_CONTRACT.json",
+    "CROSS_JVM.json",
+    "cursor-baseline-negative.json",
+    "cursor-fixed.json",
+    "actual-runtime-producer.json",
+    "IMPLEMENTATION.md"
+  ]
+}

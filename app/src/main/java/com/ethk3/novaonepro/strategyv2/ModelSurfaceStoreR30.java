@@ -15,7 +15,7 @@ public final class ModelSurfaceStoreR30 {
     };
     public static void surface(ResearchWriteQueueR27.Batch b,ModelSurfaceProviderR30.Surface s,ModelSurfaceProviderR30.FrozenModelRef ref){
         if(ref!=null&&(!ref.modelHash.equals(s.modelHash)||ref.trainedThroughOrdinal!=s.trainedThroughOrdinal||ref.availableAt!=s.modelAvailableAt))throw new ModelSurfaceProviderR30.Blocked("SURFACE_ARTIFACT_VERSION_MISMATCH");
-        if(ref!=null)b.add("INSERT OR IGNORE INTO r30_model_artifact VALUES(?,?,?,?,?)",ref.modelHash,AtomNetSessionR30.ABI,ref.weights(),ref.trainedThroughOrdinal,ref.availableAt);
+        if(ref!=null)b.add("INSERT OR IGNORE INTO r30_model_artifact VALUES(?,?,?,?,?)",ref.modelHash,AtomNetSessionR30.ABI,ref.storedWeightsR31(),ref.trainedThroughOrdinal,ref.availableAt);
         b.add("INSERT OR IGNORE INTO r30_model_surface VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",s.targetOrdinal,s.position,s.modelHash,s.historyHash,StoreR27.pack(s.probabilities()),s.probabilityHash,s.trainedThroughOrdinal,s.modelAvailableAt,s.featureThroughOrdinal,s.featureAvailableAt,s.preparedAt,s.frozenAt,s.deadlineAt);
     }
     static final class Prepared {
@@ -34,12 +34,12 @@ public final class ModelSurfaceStoreR30 {
                 if(!hash.equals(c.getString(3))){p.blocked.put(key,"ARCHIVED_HISTORY_MISMATCH");continue;}
                 try{
                     if(!AtomNetSessionR30.ABI.equals(c.getString(13)))throw new ModelSurfaceProviderR30.Blocked("ARCHIVED_FEATURE_ABI");
-                    ModelSurfaceProviderR30.FrozenModelRef original=verifiedModels.get(c.getString(2));if(original==null){original=ModelSurfaceProviderR30.FrozenModelRef.archived(c.getString(2),c.getBlob(14),c.getLong(15),c.getLong(16));verifiedModels.put(original.modelHash,original);}
+                    ModelSurfaceProviderR30.FrozenModelRef original=verifiedModels.get(c.getString(2));if(original==null){original=ModelSurfaceProviderR30.FrozenModelRef.archived(ro,c.getString(2),c.getBlob(14),c.getLong(15),c.getLong(16));verifiedModels.put(original.modelHash,original);}
                     if(original.trainedThroughOrdinal!=c.getLong(6)||original.availableAt!=c.getLong(7))throw new ModelSurfaceProviderR30.Blocked("ARCHIVED_ARTIFACT_BOUNDARY_MISMATCH");
                     ModelSurfaceProviderR30.Surface s=ModelSurfaceProviderR30.archived(c.getString(2),hash,StoreR27.unpack(c.getBlob(4)),c.getLong(0),c.getLong(6),c.getLong(7),c.getLong(8),c.getLong(9),position,c.getLong(10),c.getLong(11),c.getLong(12));
                     if(!s.probabilityHash.equals(c.getString(5)))throw new ModelSurfaceProviderR30.Blocked("ARCHIVED_PROBABILITY_HASH");
                     p.rows.put(key,s);
-                }catch(RuntimeException invalid){p.blocked.put(key,"INVALID_ARCHIVED_SURFACE:"+invalid.getMessage());}
+                }catch(RuntimeException invalid){p.blocked.put(key,(FailureDispositionR31.classify(invalid).disposition==FailureDispositionR31.Disposition.DEPENDENCY?"UNAVAILABLE_ARCHIVED_SURFACE:":"INVALID_ARCHIVED_SURFACE:")+invalid.getMessage());}
             }
         }catch(RuntimeException missingSchema){p.blocked.put(-1L,"MODEL_SCHEMA_UNAVAILABLE");}
         return p;

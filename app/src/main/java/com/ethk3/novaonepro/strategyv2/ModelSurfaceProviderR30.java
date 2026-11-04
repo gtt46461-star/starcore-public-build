@@ -9,7 +9,7 @@ public final class ModelSurfaceProviderR30 {
     public static final class FrozenModelRef {
         public final String modelHash,weightsHash; public final long trainedThroughOrdinal,availableAt;
         public final boolean legacyWeightsOnlyIdentity;public final String learningProtocol;
-        private final byte[] weights;
+        private final byte[] weights;private byte[] storageReferenceR31;
         public FrozenModelRef(byte[] weights,long through,long available){this(weights,through,available,null);}
         private FrozenModelRef(byte[] weights,long through,long available,String original){
             this.weights=weights.clone();weightsHash=StatsR27.sha256(this.weights);trainedThroughOrdinal=through;availableAt=available;
@@ -19,6 +19,14 @@ public final class ModelSurfaceProviderR30 {
             try{ModelArtifactR29.network(this.weights);}catch(java.io.IOException invalid){throw new Blocked("INVALID_MODEL_ARTIFACT");}if(available<=0||through<0)throw new IllegalArgumentException("MODEL_AVAILABILITY_UNKNOWN");
         }
         static FrozenModelRef archived(String hash,byte[] bytes,long through,long available){return new FrozenModelRef(bytes,through,available,hash);}
+        static FrozenModelRef archived(android.database.sqlite.SQLiteDatabase db,String hash,byte[] stored,long through,long available){byte[] bytes=CheckpointArtifactsR26.resolveSerializedR31(db,stored);if(!CheckpointArtifactsR26.reference(stored))return archived(hash,bytes,through,available);return admittedR31(bytes,through,available,hash,stored);}
+        static FrozenModelRef publishedR31(byte[] bytes,long through,long available,byte[] stored){return admittedR31(bytes,through,available,null,stored);}
+        private static FrozenModelRef admittedR31(byte[] bytes,long through,long available,String original,byte[] stored){
+            if(!CheckpointArtifactsR26.reference(stored)||!StatsR27.sha256(bytes).equals(CheckpointArtifactsR26.referenceHash(stored)))throw new Blocked("ARTIFACT_STORAGE_IDENTITY");
+            MemoryBudgetR31.Admission a=MemoryBudgetR31.processBudget().tryAcquire("atomnet-immutable-published-weights",MemoryBudgetR31.Kind.MODEL,bytes.length+512L,()->Thread.currentThread().isInterrupted());if(!a.acquired())throw new MemoryBudgetR31.CapacityWait(a.reason);boolean owned=false;
+            try{FrozenModelRef ref=new FrozenModelRef(bytes,through,available,original);ref.storageReferenceR31=stored.clone();a.lease.allocatedPrimitiveArrayR31(ref.weights);a.lease.closeWhenPrivateBackingCollectedR31(ref.weights);owned=true;return ref;}finally{if(!owned)a.lease.close();}
+        }
+        byte[] storedWeightsR31(){return storageReferenceR31==null?weights():storageReferenceR31.clone();}
         public byte[] weights(){return weights.clone();}
     }
     public static final class Pit {

@@ -35,6 +35,9 @@ public final class ModelArtifactR29 {
     }
 
     public void recoverReceiptCursorFromPersistence(int next){if(next<0)throw new IllegalArgumentException("RECEIPT_CURSOR_LOWER_BOUND");trainer.nextEpochReceipt=Math.max(trainer.nextEpochReceipt,next);receiptCursorRequiresPersistenceRecovery=false;}
+    /** Source-derived serialized upper bound; no encoding/allocation of model arrays is needed. */
+    public long serializedBoundR31(){long bytes=8192+16L+24L*trainer.net.parameterCount()+(trainer.checkpoint==null?0:trainer.checkpoint.length)+24L*ftrl.d+3L*(datasetHash.length()+trainedThrough.length());for(AtomNetTrainerR27.Sample sample:trainer.buffer)bytes+=128L+3L*sample.issue.length()+8L*sample.x.length;return bytes;}
+    public static ModelArtifactR29 decode(android.database.sqlite.SQLiteDatabase db,byte[] bytes,String expectedHash){byte[] raw=CheckpointArtifactsR26.resolveSerializedR31(db,bytes);try(MemoryBudgetR31.Lease read=CheckpointArtifactsR26.readReservationR31("optimizer-decode",6L*raw.length+1048576)){return decode(raw,expectedHash);}}
     public byte[] encode() {
         if(receiptCursorRequiresPersistenceRecovery)throw new IllegalStateException("LEGACY_RECEIPT_CURSOR_REQUIRES_EXISTING_DB_RECOVERY");
         try {

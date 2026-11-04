@@ -1,0 +1,40 @@
+{
+  "revision": 1,
+  "helperSourceSha256": "c1ed94f1f2bdbd9f4bcb7970b2ca083dec3b4703bfa7fe510dce7bd6e00b273b",
+  "ddlSha256": "5a3fca11329933b132a158c3d6281e0a0fb026ce4f21c0b92bb6733397dee024",
+  "ddlHashBasis": "UTF8_DDL_STRINGS_JOINED_WITH_LF_NO_TRAILING_LF",
+  "objects": [
+    [
+      "table",
+      "r31_atomnet_publication"
+    ],
+    [
+      "table",
+      "r31_atomnet_sample_stage"
+    ],
+    [
+      "index",
+      "r31_atomnet_publication_samples"
+    ],
+    [
+      "trigger",
+      "r31_atomnet_stage_no_update"
+    ],
+    [
+      "trigger",
+      "r31_atomnet_stage_published_no_delete"
+    ]
+  ],
+  "ddl": [
+    "CREATE TABLE IF NOT EXISTS r31_atomnet_publication(publication_id TEXT PRIMARY KEY,operator_version TEXT NOT NULL,owner TEXT NOT NULL,dataset_hash TEXT NOT NULL,previous_state_hash TEXT NOT NULL,state_hash TEXT NOT NULL,state_ref BLOB NOT NULL,model_hash TEXT,weights_hash TEXT,weights_ref BLOB,model_available_at INTEGER,through_ordinal INTEGER NOT NULL,materialized_samples INTEGER NOT NULL,first_sample INTEGER NOT NULL,sample_count INTEGER NOT NULL,sample_bytes INTEGER NOT NULL,sample_digest TEXT NOT NULL,dataset_ref BLOB,dataset_payload_hash TEXT,status TEXT NOT NULL CHECK(status IN ('PREPARED','PUBLISHED')),created_at INTEGER NOT NULL,published_at INTEGER)",
+    "CREATE TABLE IF NOT EXISTS r31_atomnet_sample_stage(publication_id TEXT NOT NULL,sample_index INTEGER NOT NULL,issue TEXT NOT NULL,position INTEGER NOT NULL,features BLOB NOT NULL,hit INTEGER NOT NULL,number_class INTEGER NOT NULL,payload_hash TEXT NOT NULL,PRIMARY KEY(publication_id,sample_index))",
+    "CREATE INDEX IF NOT EXISTS r31_atomnet_publication_samples ON r31_atomnet_publication(dataset_hash,status,first_sample)",
+    "CREATE TRIGGER IF NOT EXISTS r31_atomnet_stage_no_update BEFORE UPDATE ON r31_atomnet_sample_stage BEGIN SELECT RAISE(ABORT,'R31_ATOM_SAMPLE_IMMUTABLE'); END",
+    "CREATE TRIGGER IF NOT EXISTS r31_atomnet_stage_published_no_delete BEFORE DELETE ON r31_atomnet_sample_stage BEGIN SELECT RAISE(ABORT,'R31_ATOM_PUBLISHED_SAMPLE_PROTECTED'); END"
+  ],
+  "entrypoint": "AtomNetPublicationR31.ensureSchemaR31(SQLiteDatabase)",
+  "requiresExistingMigrationTransaction": true,
+  "objectApi": "public static String[][] schemaObjectsR31()",
+  "readiness": "requireReady(SQLiteDatabase) READ_ONLY",
+  "ownedBusinessSourcesEnsureCalls": []
+}
