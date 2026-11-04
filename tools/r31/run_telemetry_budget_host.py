@@ -12,9 +12,23 @@ import shutil
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 MAIN = ROOT / "app/src/main/java/com/ethk3/novaonepro"
 BASE = "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056"
+def support_digest(path):
+    if path.is_file():
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+    if path.is_dir():
+        h = hashlib.sha256()
+        for entry in sorted(path.rglob("*.class")):
+            h.update(str(entry.relative_to(path)).encode())
+            h.update(b"\0")
+            h.update(hashlib.sha256(entry.read_bytes()).digest())
+        return h.hexdigest()
+    raise RuntimeError("Complete Android support classes are unavailable: supply --support-jar with an actual built classes directory or jar")
+current_classes = ROOT / "app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"
+default_support = os.environ.get("R31_TELEMETRY_SUPPORT_JAR") or (str(current_classes) if (current_classes / "com/ethk3/novaonepro/DatabaseCoordinator.class").is_file() else "/tmp/r31-p02-012-actual-android-support/classes.jar")
 parser = argparse.ArgumentParser()
 parser.add_argument("--output", type=pathlib.Path, required=True)
-parser.add_argument("--support-jar", type=pathlib.Path, default=pathlib.Path("/tmp/r31-p02-012-actual-android-support/classes.jar"))
+parser.add_argument("--support-jar", type=pathlib.Path, default=pathlib.Path(default_support), help="actual complete Android classes jar or directory")
+parser.add_argument("--legacy-retry-only", action="store_true", help="run the original12+3 writer retry assertions on the real coordinator")
 options = parser.parse_args()
 output = options.output.resolve()
 output.mkdir(parents=True, exist_ok=False)
@@ -27,11 +41,15 @@ sources = [MAIN / "DatabaseCoordinator.java", MAIN / "TransactionSchemaCacheR941
 hashes = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sources}
 receipt = {"sourceCapturedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
            "base": BASE, "sourceSha256": hashes,
-           "supportJar": str(options.support_jar), "supportJarSha256": hashlib.sha256(options.support_jar.read_bytes()).hexdigest(),
+           "supportJar": str(options.support_jar), "supportJarSha256": support_digest(options.support_jar),
            "jdbcSha256": hashlib.sha256(jdbc.read_bytes()).hexdigest(),
            "androidJarSha256": hashlib.sha256(sdk.read_bytes()).hexdigest(),
            "scope": "Actual production telemetry/coordinator sources; native JDBC SQLite HOST adapters, engineering fixtures; NOT_ANDROID_NOT_DEVICE_NOT_24H_NOT_72H_NOT_NATURAL_QUALITY",
            "status": "IN_PROGRESS", "runs": []}
+receipt["mode"] = "ORIGINAL_12_PLUS_3_RETRY_CONTRACT" if options.legacy_retry_only else "FULL_TELEMETRY_BUDGET_PROTOCOL"
+receipt["supportKind"] = "CLASS_DIRECTORY" if options.support_jar.is_dir() else "JAR"
+receipt["sourceGitHeadAtRun"] = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+receipt["baselineOwnerSourceCommit"] = BASE
 native_env = dict(os.environ)
 native_env.pop("JAVA_TOOL_OPTIONS", None)  # Local JNI/JDK tests need no proxy JVM properties in public logs.
 receipt["javaHome"] = os.environ.get("JAVA_HOME")
@@ -153,22 +171,28 @@ with tempfile.TemporaryDirectory(prefix="r31-telemetry-budgets-") as temporary:
     receipt["compiledHostTestClassSha256"] = {str(p.relative_to(tests)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(tests.rglob("*.class"))}
     receipt["hostTestSourceSha256"] = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in host_sources}
     baseline_cp = os.pathsep.join(map(str, [platform, old, prepared, tests, options.support_jar, jdbc, sdk]))
-    for case in ["baseline-timeline64", "baseline-hold65"]:
+    for case in ([] if options.legacy_retry_only else ["baseline-timeline64", "baseline-hold65"]):
         run(["java", "-Xmx512m", "-cp", baseline_cp, "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost", case, output], case)
     cases = ["timeline64", "hold65", "timeline-first-sql-failure", "timeline-middle-sql-failure",
              "timeline-before-commit-failure", "timeline-after-commit-ack-failure", "timeline-unknown-then-receipt",
              "timeline-postcommit-diagnostic", "timeline-concurrent-source", "timeline-concurrent-new", "timeline-existing-durable",
              "hold-first-sql-failure", "hold-middle-sql-failure", "hold-before-commit-failure", "hold-after-commit-ack-failure",
              "hold-unknown-then-receipt", "hold-postcommit-diagnostic", "hold-concurrent-new", "missing-schema", "timeline-byte-budget", "timeline-byte-budget-64m", "hold-prune"]
+    if options.legacy_retry_only:
+        cases = ["legacy-retry"]
     for case in cases:
         run(["java", "-Xmx64m" if case.endswith("-64m") else "-Xmx512m", "-cp", cp, "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost", case, output], case)
-    run(["java", "-Xmx512m", "-cp", cp, "com.ethk3.novaonepro.strategyv2.RepairTimelineR30HostTest"], "original-timeline-regression")
+    if not options.legacy_retry_only:
+        run(["java", "-Xmx512m", "-cp", cp, "com.ethk3.novaonepro.strategyv2.RepairTimelineR30HostTest"], "original-timeline-regression")
     receipt["compiledProductionClassSha256"] = {str(p.relative_to(prepared)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(prepared.rglob("*.class"))}
     receipt["baselineOwnerSourceSha256"] = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in baseline_sources}
     receipt["hostShimSha256"] = {str(p.relative_to(generated)): hashlib.sha256(p.read_bytes()).hexdigest() for p in shims}
     receipt["productionSourcesUnchangedDuringRun"] = all(hashlib.sha256((ROOT / p).read_bytes()).hexdigest() == h for p, h in hashes.items())
     if not receipt["productionSourcesUnchangedDuringRun"]:
         raise RuntimeError("Production source changed during run; no coherent source receipt")
+    receipt["supportClassesUnchangedDuringRun"] = support_digest(options.support_jar) == receipt["supportJarSha256"]
+    if not receipt["supportClassesUnchangedDuringRun"]:
+        raise RuntimeError("Complete support classes changed during run; no coherent dependency receipt")
 receipt["status"] = "HOST_NATIVE_TESTS_COMPLETED"
 receipt["completedAt"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
 (output / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")

@@ -1,0 +1,57 @@
+{
+  "recordedAt": "2026-11-04T18:12:34.627329+00:00",
+  "base": "de9a30834025c18ce291c241a722abe437717539",
+  "branch": "construction/r31-writer-host-compat-20261104",
+  "scope": "HOST tool compatibility only; no production/schema/identity/version/ledger changes",
+  "originalFailure": {
+    "rawLog": "original-full-host-writer20errors.log",
+    "sha256": "b95e31b6ef4cbdd844281084fe66abff32245b90c29849693a470ec37337dd69",
+    "cause": "Prior embedded fake DbStore.Coordinator lacked real DatabaseCoordinator/idempotent/DbStore.readable and production support classes; original rotation160000 completed before20 actual javac errors."
+  },
+  "originalAssertions": {
+    "rotationEvents": 160000,
+    "rotationLost": 0,
+    "oldSamples": 12,
+    "newSamples": 3,
+    "finalOriginalWorkloadSamples": 15,
+    "additionalRealCoordinatorSelfSamples": 3,
+    "allActualPersistedSamples": 18,
+    "beforeBusy": "Actual shared coordinator writer lock held by a bounded/joined competing thread; no BEGIN admitted",
+    "afterSql": "Actual native END rollback; receipt and original12 rolled back together",
+    "pendingOriginal12": "Confirmed later with no duplicate",
+    "openUpper": "wait_p95 IS NULL, not Long.MAX_VALUE",
+    "histogram": "Original HISTOGRAM_VERSION exact",
+    "processScope": "Original PROCESS_SESSION exact"
+  },
+  "testExecution": {
+    "status": "ORIGINAL_WRITER_CONTRACTS_COMPLETED_REAL_COORDINATOR_HOST",
+    "actualCoordinatorCompiledSourceSha256": "2cc3ed2ebaf74f92e9b101ff12d96015eb4a742934149addf87a9d58696b7e62",
+    "allCompiledSources": {
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java": "2cc3ed2ebaf74f92e9b101ff12d96015eb4a742934149addf87a9d58696b7e62",
+      "app/src/main/java/com/ethk3/novaonepro/TransactionSchemaCacheR941.java": "609b31256f757a9e463973e2d93f9a1492f316187206eb1f33fd56f3db2b53eb",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java": "cc4354d257a170ce2de3579c2fe62e0e676b70593c8373deec1fe56df79483cf",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineR30.java": "b8f8af7d8593be71c5291fa4db8161254551e7298d90f7e210632548bd3075ba",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java": "97380f13f65da759fbb6ce7008c8797f9744d264d529799ca7b57e0ce05f6d89",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java": "31476d4cee77f827ce9c0217f42c95bf1ad419ebbe5c0cb7c8e986221d658f37",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java": "ee697f455edd9c0c5e254226e36aad4f8459e031cce88353a9e93aad92ad79a9"
+    },
+    "sourceCapturedAt": "2026-11-04T18:11:13.476833+00:00",
+    "supportKind": "JAR",
+    "supportDigest": "892e5be7feb3609755c6746ea080644fd19427a90f8d9ab8493c964af1f01fa8",
+    "supportUnchanged": true,
+    "nativeAssertions": 40,
+    "nativeTransactions": 4,
+    "nativeSqlMax": 11,
+    "nativeBindMax": 2599,
+    "nativeDdlCount": 0,
+    "nativeFaultExecuted": true
+  },
+  "migration": "None. Actual known startup DDL creates fixture tables before measured business; no runtime schema substitution.",
+  "notClaimed": [
+    "No complete24HOST rerun",
+    "No new Android/physicaldevice/24h/72h result",
+    "No production performance target closure",
+    "No natural quality evidence"
+  ],
+  "next": "Root may cherry-pick tooling commit then rerun original run_writer_host.py as its existing full-host entry point."
+}

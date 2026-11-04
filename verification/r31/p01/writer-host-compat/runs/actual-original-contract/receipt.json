@@ -1,0 +1,48 @@
+{
+  "scope": "Original160000 rotation and old12/new3 assertions; real production coordinator + native HOST SQLite; NOT_ANDROID_NOT_PROCESS_DEATH_NOT_SLO",
+  "sourceCapturedAt": "2026-11-04T18:08:39.321851+00:00",
+  "sources": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java": "97380f13f65da759fbb6ce7008c8797f9744d264d529799ca7b57e0ce05f6d89",
+    "construction/plans/STARCORE_R30_FINAL_REPAIR_20261101/verification/WriterRotateTest.java": "26bc93459726fc5ad0f32144cda6f59049143856a92965fd3a9fe502eb8a0d03"
+  },
+  "runs": [
+    {
+      "name": "compile-original-rotation",
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-d",
+        "/tmp/repair-writer-rotation-3xs2mdlc",
+        "/workspace/r31-writer-host-compat/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java",
+        "/workspace/r31-writer-host-compat/construction/plans/STARCORE_R30_FINAL_REPAIR_20261101/verification/WriterRotateTest.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "original-rotation160000",
+      "command": [
+        "java",
+        "-cp",
+        "/tmp/repair-writer-rotation-3xs2mdlc",
+        "com.ethk3.novaonepro.strategyv2.WriterRotateTest"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "original-retry-native",
+      "command": [
+        "/workspace/starcore-environment/venv/bin/python",
+        "/workspace/r31-writer-host-compat/tools/r31/run_telemetry_budget_host.py",
+        "--legacy-retry-only",
+        "--output",
+        "/workspace/r31-writer-host-compat/verification/r31/p01/writer-host-compat/runs/actual-original-contract/original-retry-native",
+        "--support-jar",
+        "/tmp/r31-p02-012-actual-android-support/classes.jar"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "status": "ORIGINAL_WRITER_CONTRACTS_COMPLETED_REAL_COORDINATOR_HOST",
+  "completedAt": "2026-11-04T18:09:03.639947+00:00"
+}

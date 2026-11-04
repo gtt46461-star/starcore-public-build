@@ -1,50 +1,54 @@
-"""Actual telemetry sources with JDBC SQLite; a bounded HOST coordinator adapter is never packaged."""
-import pathlib,os,subprocess,tempfile
-root=pathlib.Path(__file__).resolve().parents[2]
-plan=root/'construction/plans/STARCORE_R30_FINAL_REPAIR_20261101'
-src=root/'app/src/main/java/com/ethk3/novaonepro/strategyv2'
-sdk=pathlib.Path(os.environ['ANDROID_HOME'])/'platforms/android-36/android.jar'
-jdbc=pathlib.Path(os.environ.get('SQLITE_JDBC','/workspace/work/r29/deps/sqlite-jdbc.jar'))
-def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
-with tempfile.TemporaryDirectory(prefix='repair-writer-') as directory:
- tmp=pathlib.Path(directory);out=tmp/'classes';out.mkdir()
- run(['javac','-encoding','UTF-8','-d',out,src/'WriterHoldLedgerR30.java',plan/'verification/WriterRotateTest.java'])
- run(['java','-cp',out,'com.ethk3.novaonepro.strategyv2.WriterRotateTest'])
- adapters={
- 'com/ethk3/novaonepro/DbStore.java':'''package com.ethk3.novaonepro;
- import java.sql.*;import android.database.sqlite.SQLiteDatabase;
- public final class DbStore {
- public final Coordinator coordinator;public DbStore(Connection connection){coordinator=new Coordinator(connection);}
- public Coordinator coordinatorForResearchR952(){return coordinator;}
- public interface Work<T>{T call(SQLiteDatabase db)throws Exception;}
- public static final class Coordinator {
- final Connection connection;final SQLiteDatabase db;public boolean rejectBefore=true,rejectAfter;
- Coordinator(Connection c){connection=c;db=new SQLiteDatabase(c);}
- public <T>T runAtomicWriteOrThrowF01(String operation,Work<T> work){
- try{if(rejectBefore){rejectBefore=false;throw new IllegalStateException("SYNTHETIC_BUSY_BEFORE");}
- connection.setAutoCommit(false);T value=work.call(db);if(rejectAfter){rejectAfter=false;throw new IllegalStateException("SYNTHETIC_DISK_FAILURE_AFTER_SQL");}connection.commit();return value;
- }catch(Exception failure){try{connection.rollback();}catch(Exception ignored){}throw new IllegalStateException(failure);}
- finally{try{connection.setAutoCommit(true);}catch(Exception failure){throw new IllegalStateException(failure);}}}
- }}''',
- 'android/util/Log.java':'''package android.util;public final class Log{public static int w(String tag,String message,Throwable error){return 0;}public static int w(String tag,String message){return 0;}}''',
- 'com/ethk3/novaonepro/strategyv2/NativeWriterRetryHost.java':'''package com.ethk3.novaonepro.strategyv2;
- import java.sql.*;import com.ethk3.novaonepro.DbStore;
- public final class NativeWriterRetryHost {
- static void need(boolean b,String message){if(!b)throw new AssertionError(message);}
- static void due()throws Exception{java.lang.reflect.Field f=HoldLedgerFlushR30.class.getDeclaredField("lastFlush");f.setAccessible(true);f.setLong(null,0);}
- static long total(Connection db)throws Exception{try(Statement s=db.createStatement();ResultSet r=s.executeQuery("SELECT coalesce(sum(count),0) FROM r30_writer_hold")){return r.getLong(1);}}
- public static void main(String[] args)throws Exception{Class.forName("org.sqlite.JDBC");try(Connection c=DriverManager.getConnection("jdbc:sqlite::memory:")){
- try(Statement s=c.createStatement()){s.execute(HoldLedgerFlushR30.DDL);}WriterHoldLedgerR30.rotate();DbStore store=new DbStore(c);
- for(int i=0;i<12;i++)WriterHoldLedgerR30.record("old",true,40000,41000,false);HoldLedgerFlushR30.maybeFlush(store);need(total(c)==0,"rejected first write");
- for(int i=0;i<3;i++)WriterHoldLedgerR30.record("new",false,1,1,false);store.coordinator.rejectAfter=true;due();HoldLedgerFlushR30.maybeFlush(store);need(total(c)==0,"all actual SQL rolled back");
- due();HoldLedgerFlushR30.maybeFlush(store);need(total(c)==12,"original pending12 retained");
- try(Statement s=c.createStatement();ResultSet r=s.executeQuery("SELECT wait_p95,histogram_json,process_session FROM r30_writer_hold WHERE operation='old'")){need(r.next(),"actual original window");need(r.getObject(1)==null,"open upper not Long.MAX ms");need(r.getString(2).contains(WriterHoldLedgerR30.HISTOGRAM_VERSION),"persisted histogram contract");need(r.getString(3).equals(WriterHoldLedgerR30.PROCESS_SESSION),"process scope exact");}
- due();HoldLedgerFlushR30.maybeFlush(store);need(total(c)==15,"new3 preserved without duplicate old12");due();HoldLedgerFlushR30.maybeFlush(store);need(total(c)==15,"empty flush no duplicate");
- System.out.println("WRITER_RETRY_NATIVE_SQLITE_HOST_PASS old=12 new=3 before_busy_and_after_sql_rollback_preserved=1 duplicate=0 open_upper_histogram=1 scope=production_sources_with_HOST_coordinator_NOT_Android_NOT_process_death");}}
- }'''}
- files=[]
- for name,text in adapters.items():
-  p=tmp/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text);files.append(p)
- run(['javac','-encoding','UTF-8','-cp',os.pathsep.join(map(str,[out,sdk])),'-d',out,*sorted((root/'tools/r29/qual_host/shim').rglob('*.java')),*files,src/'JsonR27.java',src/'HoldLedgerFlushR30.java',src/'IssueTimelineR30.java',src/'IssueTimelineWriterR30.java',src/'HashingSU1.java'])
- run(['java','-cp',os.pathsep.join(map(str,[out,jdbc,sdk])),'com.ethk3.novaonepro.strategyv2.NativeWriterRetryHost'])
-print('FR_B02_WRITER_SOURCE_AND_NATIVE_SQLITE_HOST_SCOPE_PASS_NOT_ANDROID_OR_PROCESS_DEATH')
+"""Original rotation/retry contracts on actual telemetry + coordinator/native HOST SQLite."""
+import argparse
+import datetime
+import hashlib
+import json
+import os
+import pathlib
+import subprocess
+import sys
+import tempfile
+
+ROOT = pathlib.Path(__file__).resolve().parents[2]
+parser = argparse.ArgumentParser()
+parser.add_argument("--output", type=pathlib.Path)
+parser.add_argument("--support-jar", type=pathlib.Path, default=pathlib.Path(os.environ["R31_TELEMETRY_SUPPORT_JAR"]) if "R31_TELEMETRY_SUPPORT_JAR" in os.environ else None)
+options = parser.parse_args()
+# Persistent caller-selected evidence, or a fresh temporary directory for the legacy zero-argument entry point.
+output = options.output.resolve() if options.output else pathlib.Path(tempfile.mkdtemp(prefix="r31-original-writer-contract-"))
+output.mkdir(parents=True, exist_ok=not bool(options.output))
+env = dict(os.environ)
+env.pop("JAVA_TOOL_OPTIONS", None)
+source = ROOT / "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java"
+original = ROOT / "construction/plans/STARCORE_R30_FINAL_REPAIR_20261101/verification/WriterRotateTest.java"
+receipt = {"scope": "Original160000 rotation and old12/new3 assertions; real production coordinator + native HOST SQLite; NOT_ANDROID_NOT_PROCESS_DEATH_NOT_SLO", "sourceCapturedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(), "sources": {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in [source, original]}, "runs": [], "status": "IN_PROGRESS"}
+
+
+def run(args, name):
+    args = list(map(str, args))
+    result = subprocess.run(args, cwd=ROOT, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=60)
+    (output / (name + ".log")).write_text(result.stdout)
+    receipt["runs"].append({"name": name, "command": args, "exitCode": result.returncode})
+    receipt["status"] = "FAILED" if result.returncode else "IN_PROGRESS"
+    (output / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
+    if result.returncode:
+        print(result.stdout, flush=True)
+        raise RuntimeError(name + " failed; original output preserved")
+    return result.stdout
+
+
+with tempfile.TemporaryDirectory(prefix="repair-writer-rotation-") as temporary:
+    print(run(["javac", "-encoding", "UTF-8", "-d", temporary, source, original], "compile-original-rotation"), end="")
+    print(run(["java", "-cp", temporary, "com.ethk3.novaonepro.strategyv2.WriterRotateTest"], "original-rotation160000"), end="")
+command = [sys.executable, ROOT / "tools/r31/run_telemetry_budget_host.py", "--legacy-retry-only", "--output", output / "original-retry-native"]
+if options.support_jar is not None:
+    command.extend(["--support-jar", options.support_jar])
+run(command, "original-retry-native")
+for line in (output / "original-retry-native/legacy-retry.log").read_text().splitlines():
+    if line.startswith("WRITER_RETRY_NATIVE_SQLITE_HOST_PASS"):
+        print(line, flush=True)
+receipt["status"] = "ORIGINAL_WRITER_CONTRACTS_COMPLETED_REAL_COORDINATOR_HOST"
+receipt["completedAt"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+(output / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
+print("FR_B02_WRITER_SOURCE_AND_NATIVE_SQLITE_HOST_SCOPE_PASS_NOT_ANDROID_OR_PROCESS_DEATH", flush=True)
+print("R31_ORIGINAL_WRITER_EVIDENCE", output, flush=True)

@@ -146,12 +146,16 @@ public final class R31TelemetryBudgetHost {
         System.out.println(JsonR27.write(report));
     }
     public static void main(String[] args)throws Exception{
-        scenario=args[0];output=new File(args[1]);baseline=scenario.startsWith("baseline-");hold=scenario.contains("hold");Class.forName("org.sqlite.JDBC");
+        scenario=args[0];output=new File(args[1]);baseline=scenario.startsWith("baseline-");hold=scenario.contains("hold")||scenario.equals("legacy-retry");Class.forName("org.sqlite.JDBC");
         File file=File.createTempFile("r31-telemetry-", ".db");
         try(Connection connection=DriverManager.getConnection("jdbc:sqlite:"+file.getPath())){
             db=new SQLiteDatabase(connection);Field unsafeField=Unsafe.class.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);Unsafe unsafe=(Unsafe)unsafeField.get(null);coordinator=(DatabaseCoordinator)unsafe.allocateInstance(DatabaseCoordinator.class);
             Field lockField=DatabaseCoordinator.class.getDeclaredField("WRITE_LOCK_CP3");lockField.setAccessible(true);set(coordinator,"writeLock",(ReentrantLock)lockField.get(null));set(coordinator,"helper",new DbHelper(db));set(coordinator,"app",new android.app.Application(file));set(coordinator,"waitingWriters",new AtomicInteger());set(coordinator,"criticalBusinessWaitersR914",new AtomicInteger());store=new DbStore(db,coordinator);
             schemas(!scenario.equals("missing-schema"));SQLiteDatabase.observer=observer;
+            if(scenario.equals("legacy-retry")) {
+                RuntimeCoordinatorR26.bindBackgroundClaim(new RuntimeCoordinatorR26.Claim("r27-health","host-owner",1,0));
+                observe=true;diagnose(true);legacyRetry();diagnose(false);RuntimeCoordinatorR26.unbindBackgroundClaimR31();budgetEvidence();return;
+            }
             if(hold||scenario.equals("missing-schema"))holdSamples(65);else if(scenario.contains("byte-budget"))seedTimeline(4,40000);else seedTimeline(64,0);
             if(scenario.equals("hold-prune")){
                 long end=System.currentTimeMillis()-8*86400000L;for(int i=0;i<160;i++)db.execSQL("INSERT INTO r30_writer_hold(window_start,window_end,operation,critical,count,hold_max,wait_max,over_budget,over_hard,failures,process_session) VALUES(?,?,'OLD_'||?,0,1,1,1,0,0,0,'OLD_SESSION')",new Object[]{end,end,i});
@@ -199,4 +203,35 @@ public final class R31TelemetryBudgetHost {
         }finally{SQLiteDatabase.observer=null;file.delete();}
     }
     static void setStatic(Class<?> type,String name,Object value)throws Exception{Field f=type.getDeclaredField(name);f.setAccessible(true);f.set(null,value);}
+    static void dueLegacyWindow()throws Exception {
+        // Physical scheduling adaptation: the old wall-clock lastFlush became a monotonic rotation clock.
+        // The original window contents and the production60s policy are not changed or resampled.
+        Field f=HoldLedgerFlushR30.class.getDeclaredField("lastRotationElapsedR31");f.setAccessible(true);f.setLong(null,android.os.SystemClock.elapsedRealtime()-HoldLedgerFlushR30.PERIOD_MS-1);
+    }
+    static long legacyTotal(){return scalar("SELECT coalesce(sum(count),0) FROM r30_writer_hold WHERE operation IN ('old','new')");}
+    static void legacyRetry()throws Exception {
+        WriterHoldLedgerR30.rotate();
+        for(int n=0;n<12;n++)WriterHoldLedgerR30.record("old",true,40000,41000,false);
+        Field f=DatabaseCoordinator.class.getDeclaredField("WRITE_LOCK_CP3");f.setAccessible(true);ReentrantLock lock=(ReentrantLock)f.get(null);
+        java.util.concurrent.CountDownLatch held=new java.util.concurrent.CountDownLatch(1),release=new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicReference<Throwable> threadFailure=new java.util.concurrent.atomic.AtomicReference<>();
+        Thread owner=new Thread(()->{lock.lock();try{held.countDown();if(!release.await(5,java.util.concurrent.TimeUnit.SECONDS))throw new AssertionError("writer lock fixture exceeded deadline");}catch(Throwable failure){threadFailure.set(failure);}finally{lock.unlock();}},"host-original-retry-real-writer-lock");
+        owner.start();need(held.await(2,java.util.concurrent.TimeUnit.SECONDS),"real competing writer acquired lock");
+        try{holdFlush();need(legacyTotal()==0,"rejected first write");need(transactions.isEmpty(),"real writer wait rejected before SQLite BEGIN");}
+        finally{release.countDown();owner.join(3000);need(!owner.isAlive()&&!lock.isLocked(),"actual competing lock owner exited and released");need(threadFailure.get()==null,"bounded writer lock fixture completed");}
+        for(int n=0;n<3;n++)WriterHoldLedgerR30.record("new",false,1,1,false);
+        db.failBeforeCommitOnce=true;dueLegacyWindow();holdFlush();need(legacyTotal()==0,"all actual SQL rolled back");
+        need(transactions.size()==1&&!Boolean.TRUE.equals(transactions.get(0).get("committed")),"actual native END rollback observed");
+        injected=true;
+        dueLegacyWindow();holdFlush();need(legacyTotal()==12,"original pending12 retained");
+        try(Cursor row=db.rawQuery("SELECT wait_p95,histogram_json,process_session FROM r30_writer_hold WHERE operation='old'",null)){
+            need(row.moveToFirst(),"actual original window");need(row.isNull(0),"open upper not Long.MAX ms");need(row.getString(1).contains(WriterHoldLedgerR30.HISTOGRAM_VERSION),"persisted histogram contract");need(row.getString(2).equals(WriterHoldLedgerR30.PROCESS_SESSION),"process scope exact");
+        }
+        dueLegacyWindow();holdFlush();need(legacyTotal()==15,"new3 preserved without duplicate old12");
+        dueLegacyWindow();holdFlush();need(legacyTotal()==15,"empty fixture workload does not duplicate original old12/new3");
+        // Real coordinator self-observations did not exist in the prior fake adapter. Preserve and report them too.
+        long all=scalar("SELECT coalesce(sum(count),0) FROM r30_writer_hold"),own=scalar("SELECT coalesce(sum(count),0) FROM r30_writer_hold WHERE operation NOT IN ('old','new')");
+        need(all==15+own&&own>0,"actual coordinator self-telemetry retained separately, never discarded to force15");
+        System.out.println("WRITER_RETRY_NATIVE_SQLITE_HOST_PASS old=12 new=3 before_busy_and_after_sql_rollback_preserved=1 duplicate=0 open_upper_histogram=1 process_scope_exact=1 actual_coordinator_self_observations="+own+" actual_all_samples="+all+" scope=REAL_PRODUCTION_COORDINATOR_NATIVE_HOST_NOT_Android_NOT_process_death");
+    }
 }
