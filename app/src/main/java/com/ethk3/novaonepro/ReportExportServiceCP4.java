@@ -28,6 +28,23 @@ public final class ReportExportServiceCP4 extends Service {
     private volatile ActiveControl control;private volatile Future<?> workerFuture;private volatile int lastStartId;
     private final Handler main=new Handler(Looper.getMainLooper());
 
+    /** Metadata scope only. The enclosing ReportInputsLease remains the actual CAS file/GC pin. */
+    static final class CheckpointSourceScopeR31 implements AutoCloseable {
+        private final com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.DatabaseRootLeaseR31 mapping;
+        final String state;final long observedAt;
+        CheckpointSourceScopeR31(com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.DatabaseRootLeaseR31 mapping,String state){this.mapping=mapping;this.state=state;observedAt=System.currentTimeMillis();}
+        Map<String,Object> observation(){Map<String,Object> value=new LinkedHashMap<>();value.put("state",state);value.put("observedAt",observedAt);value.put("scope","EXPLICIT_LIVE_FILES_ROOT_UNDER_REPORT_INPUT_PIN; OUTSIDE_SQL_WATERMARK; OBJECT_VALIDATION_SEPARATE");value.put("checkpointObjectsVerified",null);return value;}
+        @Override public void close(){if(mapping!=null)mapping.close();}
+    }
+    /** Caller supplies the same filesDir used by its enclosing FULL_REPORT input-pin resource. */
+    static CheckpointSourceScopeR31 openCheckpointSourceR31(SQLiteDatabase snapshot,File pinnedFilesDir)throws IOException {
+        if(!ReportInputsLeaseCP12.currentThreadHoldsInput())throw new IOException("REPORT_CHECKPOINT_INPUT_PIN_REQUIRED");
+        File checkpointDirectory=new File(pinnedFilesDir,"r26-checkpoints").getCanonicalFile();
+        // Inline checkpoints can still be reported. A real reference without its source stays typed DEPENDENCY.
+        if(!checkpointDirectory.isDirectory())return new CheckpointSourceScopeR31(null,"DEPENDENCY_CAS_SOURCE_DIRECTORY_UNAVAILABLE");
+        return new CheckpointSourceScopeR31(com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.openDatabaseRootR31(snapshot,checkpointDirectory),"SCOPED_TO_PINNED_CAS_ROOT_OBJECTS_UNVERIFIED");
+    }
+
     /** May be called on UI. Heavy observation/file work stays on the request executor; no Activity is captured. */
     public static String requestExport(Context context,ExportMode mode) {
         return requestExport(context,mode,false);
@@ -236,7 +253,8 @@ public final class ReportExportServiceCP4 extends Service {
                 active.enter("INDEXING",120000);journal.transition(job,ReportJobJournalCP12.Stage.INDEXING,System.currentTimeMillis());
                 File memberInput=new File(directory,"members-unsorted-"+job.attempt+".jsonl");ReportCatalogCP4.Result catalog;
                 try(FileOutputStream fd=new FileOutputStream(memberInput);Writer members=new BufferedWriter(new OutputStreamWriter(active.protectOutput(memberInput,fd),StandardCharsets.UTF_8),8192);
-                    SQLiteDatabase copy=SQLiteDatabase.openDatabase(snapshot.getPath(),null,SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS)) {
+                    SQLiteDatabase copy=SQLiteDatabase.openDatabase(snapshot.getPath(),null,SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+                    CheckpointSourceScopeR31 checkpointSource=openCheckpointSourceR31(copy,getFilesDir())) {
                     if(!copy.isReadOnly())throw new IOException("REPORT_READONLY_SNAPSHOT_REQUIRED");
                     if(ReportAttachmentClosureCP12.isComplete(directory,job.snapshotSha,active))ReportAttachmentClosureCP12.appendComplete(directory,members,active);
                     else ReportAttachmentClosureCP12.capture(this,copy,directory,request,active,members,job.snapshotSha,job.snapshotBytes);
@@ -278,6 +296,7 @@ public final class ReportExportServiceCP4 extends Service {
                     // R30 primary report: capture once, then serialize the identical twelve chapters twice.
                     java.util.Map<String,Object> r30Source=(java.util.Map<String,Object>)com.ethk3.novaonepro.strategyv2.JsonR27.parse(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536));
                     r30Source.put("reportJobId",job.jobId);r30Source.put("snapshotSha256",job.snapshotSha);
+                    r30Source.put("checkpointCasSource",checkpointSource.observation());
                     File r30Previous=new File(new File(getFilesDir(),"r30"),"last_successful_report_summary.json");
                     if(r30Previous.isFile())try{r30Source.put("previousSuccessfulReport",com.ethk3.novaonepro.strategyv2.JsonR27.parse(ReportJobJournalCP12.readAtomic(r30Previous,1024*1024)));}
                     catch(Exception unreadablePrevious){java.util.Map<String,Object> previousFailure=new java.util.LinkedHashMap<>();previousFailure.put("readStatus","UNKNOWN_PREVIOUS_SUMMARY_UNREADABLE");previousFailure.put("failureType",unreadablePrevious.getClass().getSimpleName());r30Source.put("previousSuccessfulReport",previousFailure);}

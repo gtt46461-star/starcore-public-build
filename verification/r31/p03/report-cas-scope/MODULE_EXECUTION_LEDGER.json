@@ -1,0 +1,64 @@
+{
+  "recordedAt": "2026-11-04T20:58:50.928428+00:00",
+  "parentCommit": "a815e522347f3bbb3e9aabc9847329c0e0aa8abf",
+  "moduleStatus": "CODE_COMPLETE",
+  "implementation": "ReportExportServiceCP4 only; actual FULL_REPORT ReportInputsLease protects explicit filesDir/r26-checkpoints; copy resource declared before CAS scope, so scope closes first on normal/exception/cancel",
+  "sourceCapturedAt": "2026-11-04T20:54:37.053626+00:00",
+  "sourceSha256": {
+    "/workspace/r31-report-import-reader/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java": "8ca8039fb91ab8af8465bd645933f951a83d0d325c14b2a554981c6f14495684",
+    "/workspace/r31-report-import-reader/app/src/main/java/com/ethk3/novaonepro/ReportInputsLeaseCP12.java": "5204d3890fab1dadd66026b05405436ba91f711176520ce39e8701213dfb8e61",
+    "/workspace/r31-atomnet-protocol/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java": "984da23fe1ee9efa1cc5cb931d94d008672d02f76ce584574c9e8e24d11c2789"
+  },
+  "compiledAgainstActualWholeAndroidBootstrapSha256": "582f7475b43d218c50d34f8f24d4399ae4916b53579807c22c162bd25b7fea56",
+  "actualCheckpointProducerAheadSourceSha256": "984da23fe1ee9efa1cc5cb931d94d008672d02f76ce584574c9e8e24d11c2789",
+  "nativeAssertions": 170,
+  "nativeCases": [
+    {
+      "case": "actual-read-nested-refcount-idempotent-close-pin-held",
+      "status": "ACTUAL_NATIVE_HELPER_ASSERTIONS_COMPLETED"
+    },
+    {
+      "case": "missing-root-inline-compatible-no-guess-conflict-rejects",
+      "status": "ACTUAL_NATIVE_HELPER_ASSERTIONS_COMPLETED"
+    },
+    {
+      "case": "consumer-exception-finally-and40-report-paths-no-map-leak",
+      "status": "ACTUAL_NATIVE_HELPER_ASSERTIONS_COMPLETED"
+    },
+    {
+      "case": "real-checksum-corruption-distinguished-from-missing-source",
+      "status": "ACTUAL_NATIVE_HELPER_ASSERTIONS_COMPLETED"
+    },
+    {
+      "case": "actual-thread-interrupt-scope-finally-exit",
+      "status": "ACTUAL_NATIVE_HELPER_ASSERTIONS_COMPLETED"
+    },
+    {
+      "case": "two-native-readers-same-db-last-scope-controls-release",
+      "status": "ACTUAL_NATIVE_HELPER_ASSERTIONS_COMPLETED"
+    }
+  ],
+  "payload": {
+    "bytes": 131071,
+    "sha256": "1caafe86f8ad5668b651f2cc4d9a1343754768b1b766d2710221ca88044f94ef",
+    "role": "Engineering bytes written through actual ChunkedCheckpoint/CAS prepare and read, not training/model quality evidence"
+  },
+  "missingRoot": "Metadata state DEPENDENCY_CAS_SOURCE_DIRECTORY_UNAVAILABLE; no mkdir, no snapshot path guessing; inline unchanged, reference reader typedDEPENDENCY",
+  "checksumCorruption": "Actual fixture CAS bytes changed then restored; real resolver returns INTEGRITY, distinct from source absence",
+  "release": "Nested/idempotent/concurrent same-db refs real resolver;40sequential report paths do not exhaust32mapping bound; actual interrupted threads joined before release assertions; file pin remains held until enclosing input scope closes",
+  "androidCompile": "Actual SDK javac of ExportService+ReportInputsLease+real Checkpoint source PASS; not whole app rebuild",
+  "serviceArt": "NOT_RUN",
+  "device": "NOT_RUN",
+  "24h": "NOT_RUN",
+  "72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "apkIdentity": null,
+  "remaining": [
+    "root cherry with final Checkpoint producer refs and same-version complete Android build",
+    "actual Service/ART and Android CancellationSignal instrumented behavior",
+    "device background/duration acceptance",
+    "existing >200ms samples missing fault receipts remain open, no timing rerun/replacement here"
+  ],
+  "finalReceipt": "runs/final-readonly-and-scopes/RECEIPT.json",
+  "readonly": "Actual SQLite READONLY rejection of INSERT, not only a reported boolean"
+}
