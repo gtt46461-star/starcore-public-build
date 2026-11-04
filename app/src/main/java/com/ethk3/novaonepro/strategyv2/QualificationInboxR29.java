@@ -3,6 +3,7 @@ package com.ethk3.novaonepro.strategyv2;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.ethk3.novaonepro.DatabaseCoordinator;
+import com.ethk3.novaonepro.TargetIssueResolver;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -63,15 +64,15 @@ public final class QualificationInboxR29 {
         DatabaseCoordinator.requireSchemaObjectsR31(db,"R31_LIVE_QUALIFICATION",new String[][]{
                 {"draws","issue,dirty,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10"},
                 {"r27_live_shadow","policy_hash,status,global_index,reason,updated_at,through_ordinal"},
-                {"r27_live_frozen","policy_hash,target_ordinal,target_issue,position,n1,n2,n3,act,status,hit,settled_at"},
+                {"r27_live_frozen","policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,hit,frozen_at,deadline_at,settled_at"},
                 {"r27_opportunity","target_ordinal,settled"},
-                {"r27_eprocess","policy_hash,global_index,target_rate,log_e_up,log_e_down,n,acts,hits,sum_u,sum_u2,last_ordinal,state,updated_at"},
+                {"r27_eprocess","policy_hash,global_index,alpha,target_rate,log_e_up,log_e_down,n,acts,hits,sum_u,sum_u2,last_ordinal,state,updated_at"},
                 {"r29_qual_receipt","experiment_id,target_ordinal,target_issue,act,hit,u,digest,state_after,consumed_at"},
                 {"r29_qual_cursor","experiment_id,blocked_ordinal,blocked_reason,consumed_total,cas_retries,updated_at"},
                 {"r29_qual_calendar","experiment_id,first_ordinal,registered_at,origin"},
                 {"r29_qual_conflict","experiment_id,target_ordinal,kind,receipt_digest,observed_digest,detail,detected_at,resolved_at"},
                 {"r29_qual_rebuild","experiment_id,old_state_json,old_certificate,reason,rebuilt_at"},
-                {"r27_certificate","policy_hash,status,evidence_digest"},
+                {"r27_certificate","policy_hash,status,gates_json,evidence_digest,issued_at,expires_at,gate_version"},
                 {"r27_chart_cache","panel_id,key,payload_json,updated_at"},
                 {"r26_evolution","attempt_id,policy_hash,prospective_qualified"},
                 {"r29_pending_draw","target_ordinal,target_issue,rows,act_rows,first_seen_at,last_checked_at,checks,resolved_at"}},
@@ -175,7 +176,8 @@ public final class QualificationInboxR29 {
     }
 
     /** Result of one consumer pass (report/diagnostics). */
-    public static final class Pass { public long consumed, casRetries, conflicts, rebuilt; public final Map<String, String> blocked = new LinkedHashMap<>(); }
+    public static final class Pass { public long consumed, casRetries, conflicts, rebuilt; public final Map<String, String> blocked = new LinkedHashMap<>();
+        public final Map<String,String> dependencies=new LinkedHashMap<>(); }
 
     /** Consumes every live experiment as far as its contiguous resolvable prefix allows. */
     public static Pass consume(SQLiteDatabase ro, Commit sink, String statuses, long latestOrdinal) throws Exception {
@@ -201,7 +203,13 @@ public final class QualificationInboxR29 {
                 requireBudgetR31(cal,0);
                 if (!sink.commit("R29_QUAL_CALENDAR", cal)) { pass.casRetries++; continue; }
             }
-            if (needsRebuild(ro, id)) { if (rebuild(ro, sink, id)) pass.rebuilt++; else { pass.casRetries++; continue; } }
+            if(needsRebuild(ro,id))try {
+                if(rebuild(ro,sink,id))pass.rebuilt++;else{pass.casRetries++;continue;}
+            }catch(LegacyCompatibilityPendingR31 pending){
+                pass.blocked.put(id,pending.reason);pass.dependencies.put(id,pending.reason);
+                if(pending.committedProgress)pass.rebuilt++;
+                continue;
+            }
             // Preserve the original 64 logical windows of MAX_STEP opportunities;
             // only the physical prefix transaction is smaller.
             int physicalPasses=64*((MAX_STEP+RECEIPTS_PER_COMMIT_R31-1)/RECEIPTS_PER_COMMIT_R31);
@@ -234,6 +242,7 @@ public final class QualificationInboxR29 {
     }
     static boolean blockedForCertificate(SQLiteDatabase db, String id) {
         if (hasOpenConflict(db, id)) return true;
+        if(needsRebuild(db,id))return true;
         try (Cursor c = db.rawQuery("SELECT blocked_reason FROM r29_qual_cursor WHERE experiment_id=?", new String[] {id})) {
             if (!c.moveToFirst()) return true;
             String reason = c.getString(0);
@@ -319,44 +328,158 @@ public final class QualificationInboxR29 {
         try (Cursor c = ro.rawQuery("SELECT 1 FROM r29_qual_conflict WHERE experiment_id=? AND resolved_at=0 LIMIT 1", new String[] {id})) { return c.moveToFirst(); }
     }
 
-    /** An experiment fed by the R27 settle loop (state advanced, no receipt) may have skipped late or out-of-order periods:
-     * its e-process is rebuilt from the frozen rows in order. The old state and certificate are kept in r29_qual_rebuild;
-     * nothing about history is edited silently, and the certificate gate re-evaluates from the rebuilt state. */
+    /** Legacy state is evidence, including when inconsistent. Never erase receipts or reset its exposure. */
     static boolean needsRebuild(SQLiteDatabase ro, String id) {
-        long n = 0, receipts = 0;
-        try (Cursor c = ro.rawQuery("SELECT n FROM r27_eprocess WHERE policy_hash=?", new String[] {id})) { if (c.moveToFirst()) n = c.getLong(0); }
-        if (n == 0) return false;
-        try (Cursor c = ro.rawQuery("SELECT count(*),min(target_ordinal),max(target_ordinal) FROM r29_qual_receipt WHERE experiment_id=?", new String[] {id})) {
-            if (c.moveToFirst()) {
-                receipts = c.getLong(0);
-                long start = calendarStart(ro, id);
-                if (receipts > 0 && (c.getLong(2) - c.getLong(1) + 1 != receipts || (start >= 0 && c.getLong(1) != start))) return true;
-            }
-        }
-        return receipts != n;
+        long n,last;
+        try(Cursor c=ro.rawQuery("SELECT n,last_ordinal FROM r27_eprocess WHERE policy_hash=?",new String[]{id})){if(!c.moveToFirst())return false;n=c.getLong(0);last=c.getLong(1);}
+        Object[] receipt=legacyReceiptSummaryR31(ro,id);long count=((Number)receipt[0]).longValue();
+        if(n!=count||n<0)return true;
+        if(n==0)return last!=-1;
+        long start=calendarStart(ro,id);
+        if(receipt[1]==null||receipt[2]==null||((Number)receipt[2]).longValue()!=last
+                ||last-((Number)receipt[1]).longValue()+1!=n||start<0||((Number)receipt[1]).longValue()!=start)return true;
+        Object[] cursor=legacyCursorR31(ro,id);return cursor==null||((Number)cursor[2]).longValue()!=n||String.valueOf(cursor[1]).startsWith("LEGACY_");
     }
 
-    static boolean rebuild(SQLiteDatabase ro, Commit sink, final String id) throws Exception {
-        final SequentialQualificationR27.State old = StoreR27.readEprocess(ro, id); if (old == null) return false;
-        String cert = null;
-        try (Cursor c = ro.rawQuery("SELECT status||'|'||evidence_digest FROM r27_certificate WHERE policy_hash=?", new String[] {id})) { if (c.moveToFirst()) cert = c.getString(0); }
-        final String oldJson = JsonR27.write(old.json()), oldCert = cert; final long expectLast = old.lastOrdinal, expectN = old.n; final long now = System.currentTimeMillis();
-        final String keepState = SequentialQualificationR27.QUALIFIED.equals(old.state) || SequentialQualificationR27.NOT_BETTER.equals(old.state) ? SequentialQualificationR27.ACCUMULATING : old.state;
-        ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
-        b.guardBefore(db -> {
-            try (Cursor c = db.rawQuery("SELECT last_ordinal,n FROM r27_eprocess WHERE policy_hash=?", new String[] {id})) {
-                if (!c.moveToFirst() || c.getLong(0) != expectLast || c.getLong(1) != expectN) return -1;
+    private static final String LEGACY_VERSION_R31="R31_APPEND_ONLY_QUALIFICATION_COMPAT_V1";
+    private static final int LEGACY_RECEIPTS_PER_COMMIT_R31=8;
+    /** Installed only by the existing startup/schema owner, never by a business entry point. */
+    public static String[] legacyReceiptGuardDdlR31(){return new String[]{
+            "CREATE TRIGGER IF NOT EXISTS r31_qual_receipt_no_update BEFORE UPDATE ON r29_qual_receipt BEGIN SELECT RAISE(ABORT,'R31_QUAL_RECEIPT_IMMUTABLE'); END",
+            "CREATE TRIGGER IF NOT EXISTS r31_qual_receipt_no_delete BEFORE DELETE ON r29_qual_receipt BEGIN SELECT RAISE(ABORT,'R31_QUAL_RECEIPT_IMMUTABLE'); END",
+            "CREATE TRIGGER IF NOT EXISTS r31_qual_receipt_no_replace BEFORE INSERT ON r29_qual_receipt WHEN EXISTS(SELECT 1 FROM r29_qual_receipt WHERE experiment_id=NEW.experiment_id AND target_ordinal=NEW.target_ordinal) BEGIN SELECT RAISE(ABORT,'R31_QUAL_RECEIPT_IMMUTABLE'); END"};}
+    public static String[][] legacyReceiptGuardObjectsR31(){return new String[][]{{"trigger","r31_qual_receipt_no_update"},{"trigger","r31_qual_receipt_no_delete"},{"trigger","r31_qual_receipt_no_replace"}};}
+    private static String canonicalLegacyGuardR31(String sql){return sql==null?"":sql.trim().replaceAll("(?i)\\bIF\\s+NOT\\s+EXISTS\\s+","").replaceAll("\\s+"," ").replaceAll(";+$","").toUpperCase(java.util.Locale.ROOT);}
+    public static void requireLegacyReceiptGuardsR31(SQLiteDatabase db) {
+        String[][] objects=legacyReceiptGuardObjectsR31();String[] expected=legacyReceiptGuardDdlR31();int count=0;
+        try(Cursor c=db.rawQuery("SELECT name,sql FROM sqlite_master WHERE type='trigger' AND name IN (?,?,?)",new String[]{objects[0][1],objects[1][1],objects[2][1]})){
+            while(c.moveToNext()){int index=-1;for(int i=0;i<objects.length;i++)if(objects[i][1].equals(c.getString(0)))index=i;
+                if(index<0||!canonicalLegacyGuardR31(expected[index]).equals(canonicalLegacyGuardR31(c.getString(1))))throw new DatabaseCoordinator.SchemaPendingR31("R31_LEGACY_QUALIFICATION_PROOF","RECEIPT_GUARD_CONTRACT_MISMATCH");count++;
             }
-            db.execSQL("INSERT INTO r29_qual_rebuild(experiment_id,old_state_json,old_certificate,reason,rebuilt_at) VALUES(?,?,?,?,?)",
-                    new Object[] {id, oldJson, oldCert, "R29_CONTIGUOUS_REPLAY: e-process advanced by the R27 settle loop without receipts (late hit=-2 / out-of-order skips possible)", now});
-            db.execSQL("DELETE FROM r29_qual_receipt WHERE experiment_id=?", new Object[] {id});
-            db.execSQL("UPDATE r27_eprocess SET log_e_up=0,log_e_down=0,n=0,acts=0,hits=0,sum_u=0,sum_u2=0,last_ordinal=-1,state=?,updated_at=? WHERE policy_hash=?", new Object[] {keepState, now, id});
-            // A certificate issued on the old state is revoked until the rebuilt state earns it again.
-            db.execSQL("UPDATE r27_certificate SET status='REVOKED_REBUILD' WHERE policy_hash=? AND status='ACTIVE'", new Object[] {id});
+        }if(count!=objects.length)throw new DatabaseCoordinator.SchemaPendingR31("R31_LEGACY_QUALIFICATION_PROOF","RECEIPT_GUARD_MISSING");
+    }
+    private static final String LEGACY_STATE_SQL_R31="SELECT global_index,alpha,target_rate,log_e_up,log_e_down,n,acts,hits,sum_u,sum_u2,last_ordinal,state,updated_at FROM r27_eprocess WHERE policy_hash=?";
+    private static final class LegacyCompatibilityPendingR31 extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure {
+        final String reason;final boolean committedProgress;
+        LegacyCompatibilityPendingR31(String reason,boolean progress){super("DEPENDENCY:"+LEGACY_VERSION_R31+":"+reason);this.reason=reason;committedProgress=progress;}
+        public String failureCategory(){return "DEPENDENCY";}public String operation(){return "R29_QUAL_LEGACY_COMPAT";}
+        public String phase(){return "LEGACY_RECEIPT_COMPATIBILITY";}public String commitOutcomeName(){return committedProgress?"COMMITTED":"NOT_SUBMITTED";}
+    }
+    private static Object[] legacyRecordR31(SQLiteDatabase db,String sql,String...args) {
+        try(Cursor c=db.rawQuery(sql,args)){if(!c.moveToFirst())return null;Object[] row=new Object[c.getColumnCount()];
+            for(int i=0;i<row.length;i++)row[i]=c.isNull(i)?null:c.getType(i)==Cursor.FIELD_TYPE_INTEGER?Long.valueOf(c.getLong(i)):c.getType(i)==Cursor.FIELD_TYPE_FLOAT?Double.valueOf(c.getDouble(i)):c.getString(i);
+            return row;
+        }
+    }
+    private static Object[] legacyReceiptSummaryR31(SQLiteDatabase db,String id){return legacyRecordR31(db,"SELECT count(*),min(target_ordinal),max(target_ordinal) FROM r29_qual_receipt WHERE experiment_id=?",id);}
+    private static Object[] legacyCursorR31(SQLiteDatabase db,String id){return legacyRecordR31(db,"SELECT blocked_ordinal,blocked_reason,consumed_total,cas_retries,updated_at FROM r29_qual_cursor WHERE experiment_id=?",id);}
+    private static Object[] legacyCalendarR31(SQLiteDatabase db,String id){return legacyRecordR31(db,"SELECT first_ordinal,registered_at,origin FROM r29_qual_calendar WHERE experiment_id=?",id);}
+    private static Object[] legacyCertificateR31(SQLiteDatabase db,String id){return legacyRecordR31(db,"SELECT status,evidence_digest,issued_at,expires_at,gate_version FROM r27_certificate WHERE policy_hash=?",id);}
+    private static Object[] legacyAuditR31(SQLiteDatabase db,String id){return legacyRecordR31(db,"SELECT reason,rebuilt_at FROM r29_qual_rebuild WHERE experiment_id=? ORDER BY rebuilt_at DESC LIMIT 1",id);}
+    private static boolean sameRecordR31(Object[] a,Object[] b){return java.util.Arrays.deepEquals(a,b);}
+    private static final class LegacySourceR31 {
+        final Row row;final int position;final byte[] probabilities;final long frozen,deadline,open;final Object[] receipt;
+        LegacySourceR31(Cursor c){row=new Row(c.getLong(0),c.getString(1),c.getString(2),c.getInt(3),c.getInt(4),c.getInt(5),c.getInt(6),c.getInt(7),c.isNull(8)?-1:c.getInt(8));position=c.getInt(9);probabilities=c.getBlob(10);frozen=c.getLong(11);deadline=c.getLong(12);open=c.getLong(13);
+            receipt=c.isNull(14)?null:new Object[]{c.getString(14),c.getLong(15),c.getLong(16),c.getDouble(17),c.getString(18),c.getString(19),c.getLong(20)};}
+    }
+    private static final String LEGACY_SOURCE_SQL_R31="SELECT f.target_ordinal,f.target_issue,f.status,f.act,f.n1,f.n2,f.n3,f.hit,"
+            +"(SELECT CASE f.position WHEN 1 THEN d.n1 WHEN 2 THEN d.n2 WHEN 3 THEN d.n3 WHEN 4 THEN d.n4 WHEN 5 THEN d.n5 WHEN 6 THEN d.n6 WHEN 7 THEN d.n7 WHEN 8 THEN d.n8 WHEN 9 THEN d.n9 WHEN 10 THEN d.n10 END FROM draws d WHERE d.issue=f.target_issue AND d.dirty=0 LIMIT 1),"
+            +"f.position,f.probabilities,f.frozen_at,f.deadline_at,coalesce((SELECT open_time FROM draws d WHERE d.issue=f.target_issue AND d.dirty=0 LIMIT 1),-1),r.target_issue,r.act,r.hit,r.u,r.digest,r.state_after,r.consumed_at"
+            +" FROM r27_live_frozen f LEFT JOIN r29_qual_receipt r ON r.experiment_id=f.policy_hash AND r.target_ordinal=f.target_ordinal WHERE f.policy_hash=? AND f.target_ordinal>? AND f.target_ordinal<=? ORDER BY f.target_ordinal LIMIT "+LEGACY_RECEIPTS_PER_COMMIT_R31;
+    private static List<LegacySourceR31> legacySourcesR31(SQLiteDatabase db,String id,long after,long through){List<LegacySourceR31> rows=new ArrayList<>();try(Cursor c=db.rawQuery(LEGACY_SOURCE_SQL_R31,new String[]{id,Long.toString(after),Long.toString(through)})){while(c.moveToNext())rows.add(new LegacySourceR31(c));}return rows;}
+    private static boolean legalLegacySourceR31(LegacySourceR31 source) {
+        Row r=source.row;
+        if(!TargetIssueResolver.isValid(r.issue)||TargetIssueResolver.sequenceOrdinalSU1(r.issue)!=r.ordinal)return false;
+        if(!r.registeredAct())return r.act==0&&("FROZEN".equals(r.status)||"SKIPPED_GAP".equals(r.status)||"DEADLINE_MISSED".equals(r.status)||"ABSTAIN_SET_SUPPORT".equals(r.status));
+        if(source.position<1||source.position>10||r.n1<1||r.n1>10||r.n2<1||r.n2>10||r.n3<1||r.n3>10||r.n1==r.n2||r.n1==r.n3||r.n2==r.n3
+                ||source.frozen<=0||source.deadline-source.frozen<LiveShadowsR27.FREEZE_MARGIN_MS||source.open<source.deadline||source.probabilities==null||source.probabilities.length!=80)return false;
+        double sum=0;for(double p:StoreR27.unpack(source.probabilities)){if(!Double.isFinite(p)||p<0||p>1)return false;sum+=p;}return Math.abs(sum-1)<=1e-9;
+    }
+    private static final class LegacyProofR31 {String reason;final List<Consumed> missing=new ArrayList<>();final List<LegacySourceR31> missingSources=new ArrayList<>();long missingCount;}
+    private static LegacyProofR31 legacyProofR31(SQLiteDatabase ro,String id,Object[] state,Object[] calendar,Object[] receipt,Object[] cursor) {
+        LegacyProofR31 proof=new LegacyProofR31();
+        for(int i=0;i<state.length;i++)if(i!=11&&!(state[i] instanceof Number)){proof.reason="LEGACY_STATE_NOT_NUMERIC";return proof;}
+        long n=((Number)state[5]).longValue(),last=((Number)state[10]).longValue(),index=((Number)state[0]).longValue();double rate=((Number)state[2]).doubleValue();
+        if(calendar==null||!"REGISTERED_BEFORE_FUTURE".equals(calendar[2])){proof.reason="LEGACY_REGISTRATION_BOUNDARY_UNPROVEN";return proof;}
+        long first=((Number)calendar[0]).longValue();
+        if(n<=0||first<0||last<first||last-first+1!=n){proof.reason="LEGACY_EXPOSURE_RANGE_NONCONTIGUOUS";return proof;}
+        if(index<1||!Double.isFinite(rate)||rate<=0||rate>1){proof.reason="LEGACY_ALPHA_OR_RATE_UNPROVEN";return proof;}
+        if(((Number)receipt[0]).longValue()>n||receipt[1]!=null&&(((Number)receipt[1]).longValue()<first||((Number)receipt[2]).longValue()>last)){proof.reason="LEGACY_RECEIPT_OUTSIDE_EXPOSURE";return proof;}
+        if(cursor!=null&&(((Number)cursor[2]).longValue()<0||((Number)cursor[2]).longValue()>n)){proof.reason="LEGACY_CURSOR_EXCEEDS_EXPOSURE";return proof;}
+        try{DatabaseCoordinator.requireSchemaObjectsR31(ro,"R31_LEGACY_QUALIFICATION_PROOF",new String[][]{{"draws","open_time"}},new String[0][]);}
+        catch(DatabaseCoordinator.SchemaPendingR31 pending){proof.reason="LEGACY_ORIGINAL_TIMING_SCHEMA_PENDING";return proof;}
+        try{requireLegacyReceiptGuardsR31(ro);}catch(DatabaseCoordinator.SchemaPendingR31 pending){proof.reason="LEGACY_RECEIPT_GUARD_SCHEMA_PENDING";return proof;}
+        SequentialQualificationR27.State replay=new SequentialQualificationR27.State(id,index,rate);
+        long after=first-1;
+        while(after<last) {
+            CooperativeContinuationR26.poll();List<LegacySourceR31> rows=legacySourcesR31(ro,id,after,last);
+            if(rows.isEmpty()){proof.reason="LEGACY_ORIGINAL_PREFIX_UNAVAILABLE";return proof;}
+            for(LegacySourceR31 source:rows) {
+                CooperativeContinuationR26.poll();Row row=source.row;
+                if(row.ordinal!=after+1||!legalLegacySourceR31(source)||row.registeredAct()&&source.frozen<=((Number)calendar[1]).longValue()){proof.reason="LEGACY_ORIGINAL_PREFIX_OR_PIT_UNPROVEN";return proof;}
+                boolean act=row.registeredAct(),hit=act&&row.hit==1;
+                if(act&&(row.actual<1||row.hit<0||row.hit>1||(row.actual==row.n1||row.actual==row.n2||row.actual==row.n3)!=hit)){proof.reason="LEGACY_ACT_RESULT_UNRESOLVED_OR_CONFLICTING";return proof;}
+                double u=act?(hit?1:0)-StatsR27.BASE:0;String stateAfter=replay.observe(row.ordinal,act,hit),digest=digest(id,row);
+                if(source.receipt!=null) {
+                    Object[] expected={row.issue,act?1L:0L,act?(hit?1L:0L):-1L,u,digest,stateAfter,source.receipt[6]};
+                    if(!sameRecordR31(expected,source.receipt)){proof.reason="LEGACY_EXISTING_RECEIPT_CONFLICT";return proof;}
+                }else {proof.missingCount++;if(proof.missing.size()<LEGACY_RECEIPTS_PER_COMMIT_R31){proof.missing.add(new Consumed(row,act,hit,u,digest,stateAfter));proof.missingSources.add(source);}}
+                after=row.ordinal;
+            }
+        }
+        Object[] recomputed={index,replay.alpha,rate,replay.logUp,replay.logDown,replay.n,replay.acts,replay.hits,replay.sumU,replay.sumU2,replay.lastOrdinal,replay.state,state[12]};
+        if(!sameRecordR31(state,recomputed))proof.reason="LEGACY_EPROCESS_NOT_EQUAL_ORIGINAL_CONTIGUOUS_REPLAY";
+        return proof;
+    }
+
+    /** Append evidence only after a complete numerical proof. Progress is the existing receipt keyset,
+     * with an immutable versioned audit in the existing ledger; no cache is an authority or new schema. */
+    static boolean rebuild(SQLiteDatabase ro,Commit sink,final String id)throws Exception {
+        CooperativeContinuationR26.poll();if(!needsRebuild(ro,id))return true;
+        final Object[] state=legacyRecordR31(ro,LEGACY_STATE_SQL_R31,id);if(state==null)return false;
+        final Object[] calendar=legacyCalendarR31(ro,id),receipt=legacyReceiptSummaryR31(ro,id),cursor=legacyCursorR31(ro,id),certificate=legacyCertificateR31(ro,id),audit=legacyAuditR31(ro,id);
+        final long revision=SchemaR27.liveSourceRevision(ro),now=System.currentTimeMillis();
+        LegacyProofR31 proof=legacyProofR31(ro,id,state,calendar,receipt,cursor);
+        if(SchemaR27.liveSourceRevision(ro)!=revision)throw new LegacyCompatibilityPendingR31("LEGACY_SOURCE_CHANGED_DURING_PROOF",false);
+        final boolean verified=proof.reason==null,complete=verified&&proof.missingCount==proof.missing.size();
+        final String reason=verified?(complete?BLOCK_NONE:"LEGACY_RECEIPT_EVIDENCE_RESTORING"):proof.reason;
+        final String auditKey=LEGACY_VERSION_R31+"|"+HashingSU1.text(JsonR27.write(java.util.Arrays.asList(java.util.Arrays.asList(state),calendar==null?null:java.util.Arrays.asList(calendar))))+"|"+(verified?"VERIFIED_PREFIX":reason);
+        final boolean newAudit=audit==null||!auditKey.equals(audit[0]);
+        long ordinal=verified&&!proof.missing.isEmpty()?proof.missing.get(0).row.ordinal:state[10] instanceof Number?((Number)state[10]).longValue():-1;
+        if(!verified&&!newAudit&&cursor!=null&&reason.equals(cursor[1])&&(certificate==null||!"ACTIVE".equals(certificate[0])))throw new LegacyCompatibilityPendingR31(reason,false);
+        Map<String,Object> original=new LinkedHashMap<>();original.put("version",LEGACY_VERSION_R31);original.put("eprocessColumns","global_index,alpha,target_rate,log_e_up,log_e_down,n,acts,hits,sum_u,sum_u2,last_ordinal,state,updated_at");original.put("originalEprocess",java.util.Arrays.asList(state));original.put("originalCalendar",calendar==null?null:java.util.Arrays.asList(calendar));original.put("originalCursor",cursor==null?null:java.util.Arrays.asList(cursor));original.put("originalReceiptSummary",java.util.Arrays.asList(receipt));original.put("sourceRevisionAtProof",revision);original.put("proofVerdict",verified?"EXACT_ORIGINAL_PREFIX_NUMERICAL_EQUALITY":reason);original.put("action","PRESERVE_ALL_EXISTING_EXPOSURE_AND_RECEIPTS_APPEND_ONLY");
+        String certificateJson=null;if(certificate!=null){Map<String,Object> cert=new LinkedHashMap<>();cert.put("originalMetadata",java.util.Arrays.asList(certificate));String gates=QualificationGapRepairR30R1.text(ro,"SELECT gates_json FROM r27_certificate WHERE policy_hash=?",id);cert.put("originalGatesSha256",gates==null?null:HashingSU1.text(gates));cert.put("gatesBytes","PRESERVED_IN_ORIGINAL_CERTIFICATE_ROW");certificateJson=JsonR27.write(cert);}
+        final List<Consumed> missing=java.util.Collections.unmodifiableList(new ArrayList<>(proof.missing));
+        final List<LegacySourceR31> sources=java.util.Collections.unmodifiableList(new ArrayList<>(proof.missingSources));
+        StringBuilder slots=new StringBuilder();List<String> guardArguments=new ArrayList<>();guardArguments.add(id);
+        for(Consumed input:missing){if(slots.length()>0)slots.append(',');slots.append('?');guardArguments.add(Long.toString(input.row.ordinal));}
+        final String guardSql=LEGACY_SOURCE_SQL_R31.substring(0,LEGACY_SOURCE_SQL_R31.lastIndexOf(" WHERE f.policy_hash=?"))+" WHERE f.policy_hash=? AND f.target_ordinal IN ("+slots+") ORDER BY f.target_ordinal";
+        final String[] guardArgs=guardArguments.toArray(new String[0]);ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();
+        b.guardBefore(db->{
+            if(verified)requireLegacyReceiptGuardsR31(db);
+            if(!sameRecordR31(state,legacyRecordR31(db,LEGACY_STATE_SQL_R31,id))||!sameRecordR31(calendar,legacyCalendarR31(db,id))||!sameRecordR31(receipt,legacyReceiptSummaryR31(db,id))
+                    ||!sameRecordR31(cursor,legacyCursorR31(db,id))||!sameRecordR31(certificate,legacyCertificateR31(db,id))||!sameRecordR31(audit,legacyAuditR31(db,id))||SchemaR27.liveSourceRevision(db)!=revision)return -1;
+            if(verified&&!missing.isEmpty())try(Cursor c=db.rawQuery(guardSql,guardArgs)) {
+                int i=0;while(c.moveToNext()) {
+                    if(i>=sources.size())return -1;LegacySourceR31 expected=sources.get(i++),current=new LegacySourceR31(c);Row a=expected.row,z=current.row;
+                    if(a.ordinal!=z.ordinal||!a.issue.equals(z.issue)||!a.status.equals(z.status)||a.act!=z.act||a.n1!=z.n1||a.n2!=z.n2||a.n3!=z.n3||a.hit!=z.hit||a.actual!=z.actual
+                            ||expected.position!=current.position||expected.frozen!=current.frozen||expected.deadline!=current.deadline||expected.open!=current.open||!java.util.Arrays.equals(expected.probabilities,current.probabilities)||current.receipt!=null)return -1;
+                }if(i!=sources.size())return -1;
+            }
             return 0;
         });
-        try { return sink.commit("R29_QUAL_REBUILD", b); }
-        catch (IllegalStateException cas) { if (!precondition(cas)) throw cas; return false; }
+        if(newAudit)b.add("INSERT INTO r29_qual_rebuild(experiment_id,old_state_json,old_certificate,reason,rebuilt_at) VALUES(?,?,?,?,?)",id,JsonR27.write(original),certificateJson,auditKey,audit==null?now:Math.max(now,((Number)audit[1]).longValue()+1));
+        if(verified)for(Consumed input:missing)b.add("INSERT INTO r29_qual_receipt(experiment_id,target_ordinal,target_issue,act,hit,u,digest,state_after,consumed_at) VALUES(?,?,?,?,?,?,?,?,?)",id,input.row.ordinal,input.row.issue,input.act?1:0,input.act?(input.hit?1:0):-1,input.u,input.digest,input.stateAfter,now);
+        if(certificate!=null&&"ACTIVE".equals(certificate[0]))b.add("UPDATE r27_certificate SET status='REVOKED_LEGACY_EXPOSURE' WHERE policy_hash=? AND status='ACTIVE' AND evidence_digest=? AND issued_at=?",id,certificate[1],certificate[2]);
+        b.add("INSERT OR IGNORE INTO r29_qual_cursor(experiment_id,blocked_ordinal,blocked_reason,updated_at) VALUES(?,?,?,?)",id,ordinal,reason,now);
+        if(complete)b.add("UPDATE r29_qual_cursor SET blocked_ordinal=-1,blocked_reason=?,consumed_total=?,updated_at=? WHERE experiment_id=?",BLOCK_NONE,state[5],now,id);
+        else b.add("UPDATE r29_qual_cursor SET blocked_ordinal=?,blocked_reason=?,updated_at=? WHERE experiment_id=?",ordinal,reason,now,id);
+        // Each protected INSERT also evaluates one indexed EXISTS predicate in its trigger.
+        long triggerBinds=bindBytesR31("r31_qual_receipt_no_update","r31_qual_receipt_no_delete","r31_qual_receipt_no_replace");
+        requireBudgetR31(b,7+(verified?1:0)+(verified&&!missing.isEmpty()?1+missing.size():0),bindBytesR31(id)*7+(verified?triggerBinds:0)+(verified&&!missing.isEmpty()?bindBytesR31((Object[])guardArgs):0));
+        try{if(!sink.commit("R29_QUAL_LEGACY_COMPAT",b))return false;}catch(IllegalStateException changed){if(!precondition(changed))throw changed;return false;}
+        if(!complete)throw new LegacyCompatibilityPendingR31(reason,true);
+        return true;
     }
 
     static boolean precondition(Throwable t) {
