@@ -4,7 +4,7 @@
   "baseline": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
   "branch": "construction/r31-family-admission-20261104",
   "status": "CODE_COMPLETE",
-  "recordedAt": "2026-11-04T17:16:00.695629+00:00",
+  "recordedAt": "2026-11-04T17:24:46.773215+00:00",
   "actualFiles": [
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
     "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31FamilyAdmissionTest.java",
@@ -35,11 +35,18 @@
     "scope": "HOST_ONLY; synthetic inputs are engineering fixtures"
   },
   "originalSixCurrentSource": {
-    "status": "IN_PROGRESS",
+    "status": "PASS",
+    "testCount": 6,
+    "elapsedSeconds": 433.349,
     "timeLimitSeconds": 900,
+    "actualMaximumHeapBytes": 536870912,
+    "probeSubstitution": false,
+    "observer": false,
+    "explicitGc": false,
+    "countsAndThresholdsPreserved": true,
     "streamingStatusFile": "original-six-default512.log.status.json",
-    "prior300Seconds": "TIMEOUT_NOT_COMPLETE; see timed-out-final-codec",
-    "intermediateSameSourceRepeatedOutcomes": "first-codec2FAIL; direct-slow6PASS; neither overrides latest source"
+    "prior300Seconds": "TIMEOUT_NOT_COMPLETE; preserved in timed-out-final-codec",
+    "intermediateIndependentRepeatedOutcomes": "first-codec2FAIL; direct-slow6PASS; both preserved"
   },
   "androidJointBuild": "NOT_RUN_BY_MODULE_OWNER",
   "integration": "PENDING_ROOT_POLICY_AST_AND_IDENTITY",
@@ -55,5 +62,7 @@
     "external F23 adapter needs an explicit bound; no universal arbitrary-adapter guarantee",
     "in-memory row recovery does not replace durable training checkpoint/process-death recovery"
   ],
-  "next": "root cherry-pick fixed source; preserve current900s run; append result in later metadata-only commit"
+  "next": "root integrates PolicyAst critical forwarding and executes whole Android source/test/identity/lint/APK gates",
+  "sourceCommit": "3c9cfeabb2f3b7f9a37872461a239abe6576f4bd",
+  "hostVerification": "TARGETED_HOST_PASS_SOURCE_AND_SUPPORT_STABLE"
 }

@@ -1,5 +1,5 @@
 {
-  "status": "TARGETED_OWNERSHIP_PASS_ORIGINAL_MATH_FAIL",
+  "status": "TARGETED_HOST_PASS",
   "sourceSha256": {
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java": "892ffffb6ed00d84e2e7ffe5ae8fc501136e45dbd5bc9e6f28148a7a39054cc7",
     "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31MemoryGovernanceTest.java": "a10b0d35335972be911d70146f48a636912359128022a23bdef971ed5f71f418",
@@ -49,12 +49,12 @@
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResidualFamilyR26.java": "56f5f120dca2c6b61feb5c626b1d5abb4c2dfc0ecbe7763014a1fc9a0604289e",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/DistillationFamilyR26.java": "1d083a2eb29e17d8307590ffcada247ce8c9321502840a72d256834b8aa66dfa",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/PermutationModelR26.java": "deb7ba3f7f8091d9bf5006076dedb135d110607a1b7c87c7881dca7fb13892ee",
-    "tools/r31/verify_family_admission.py": "7d4e17f52541f942cf939f2ded15ded2a126d5ce64c26738f03afd43954eb8d1"
+    "tools/r31/verify_family_admission.py": "5cee0706b2e67a5189e2e1c9f0384c51d400f2bd0a481aa708e475e29036bc41"
   },
   "supportJar": "/tmp/r31-p02-012-actual-android-support/classes.jar",
   "supportJarSha256": "892e5be7feb3609755c6746ea080644fd19427a90f8d9ab8493c964af1f01fa8",
   "scope": "CURRENT_FEATURE_SOURCE_ON_ACTUAL_ANDROID_SUPPORT_JAR_NOT_DEVICE_OR_APK",
-  "work": "/tmp/r31-family-admission-fwo3v_h5",
+  "work": "/tmp/r31-family-admission-9nnrhzc9",
   "device": "NOT_RUN",
   "continuous24h": "NOT_RUN",
   "continuous72h": "NOT_RUN",
@@ -71,25 +71,28 @@
   },
   "realCooperativeCancellationCases": 24,
   "originalSix": {
-    "status": "FAIL",
-    "exitCode": 143,
+    "status": "PASS",
+    "exitCode": 0,
     "maximumHeapBytes": 536870912,
     "observer": false,
     "substitutedProbe": false,
     "explicitGc": false,
-    "originalCountsAndNumericThresholdsPreserved": true
+    "originalCountsAndNumericThresholdsPreserved": true,
+    "tests": 6,
+    "elapsedSeconds": 433.349
   },
   "sourceStableDuringRun": true,
   "supportJarStableDuringRun": true,
-  "capturedAt": "2026-11-04T17:14:39.952741+00:00",
+  "capturedAt": "2026-11-04T17:22:35.799327+00:00",
   "commands": [
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "-d",
-        "/tmp/r31-family-admission-fwo3v_h5/current",
+        "/tmp/r31-family-admission-9nnrhzc9/current",
         "/workspace/r31-family-admission/app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
         "/workspace/r31-family-admission/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31MemoryGovernanceTest.java",
         "/workspace/r31-family-admission/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31SharedFeatureIntegrationTest.java",
@@ -113,17 +116,20 @@
         "/workspace/r31-family-admission/tools/r31/memory_host/FeatureGoldenR31Host.java",
         "/workspace/r31-family-admission/verification/r31/p02/family-stream-isolation-probe/FamilyStreamIsolationR31Host.java"
       ],
-      "log": "compile.log",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:01.272213+00:00",
+      "pid": 144444,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:02.853957+00:00",
+      "log": "compile.log"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "org.junit.runner.JUnitCore",
         "com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest",
         "com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest",
@@ -134,509 +140,607 @@
         "com.ethk3.novaonepro.strategyv2.R31FamilyAdmissionTest",
         "com.ethk3.novaonepro.strategyv2.R31FamilyBudgetResumeTest"
       ],
-      "log": "targeted-junit.log",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:02.854191+00:00",
+      "pid": 144469,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:04.886806+00:00",
+      "log": "targeted-junit.log"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "org.junit.runner.JUnitCore",
         "com.ethk3.novaonepro.strategyv2.R27LeakageTest",
         "com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest"
       ],
-      "log": "original-pit-model-junit.log",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:04.887217+00:00",
+      "pid": 144626,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:08.878602+00:00",
+      "log": "original-pit-model-junit.log"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "-d",
-        "/tmp/r31-family-admission-fwo3v_h5/baseline",
-        "/tmp/r31-family-admission-fwo3v_h5/FeatureCacheR27.java",
-        "/tmp/r31-family-admission-fwo3v_h5/PolicyAstR27.java",
-        "/tmp/r31-family-admission-fwo3v_h5/ReplayDatasetR27.java",
-        "/tmp/r31-family-admission-fwo3v_h5/ReplayEvaluatorR27.java",
+        "/tmp/r31-family-admission-9nnrhzc9/baseline",
+        "/tmp/r31-family-admission-9nnrhzc9/FeatureCacheR27.java",
+        "/tmp/r31-family-admission-9nnrhzc9/PolicyAstR27.java",
+        "/tmp/r31-family-admission-9nnrhzc9/ReplayDatasetR27.java",
+        "/tmp/r31-family-admission-9nnrhzc9/ReplayEvaluatorR27.java",
         "/workspace/r31-family-admission/tools/r31/memory_host/FeatureGoldenR31Host.java"
       ],
-      "log": "baseline-compile.log",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:08.896847+00:00",
+      "pid": 144654,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:10.065007+00:00",
+      "log": "baseline-compile.log"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/baseline:/tmp/r31-p02-012-actual-android-support/classes.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/baseline:/tmp/r31-p02-012-actual-android-support/classes.jar",
         "com.ethk3.novaonepro.strategyv2.FeatureGoldenR31Host",
         "/workspace/r31-family-admission/app/src/main/assets/r27/golden_512.bin"
       ],
-      "log": "baseline-golden.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:10.065343+00:00",
+      "pid": 144678,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:10.731969+00:00",
+      "log": "baseline-golden.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FeatureGoldenR31Host",
         "/workspace/r31-family-admission/app/src/main/assets/r27/golden_512.bin"
       ],
-      "log": "current-golden.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:10.732335+00:00",
+      "pid": 144702,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:11.952127+00:00",
+      "log": "current-golden.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyStreamIsolationR31Host"
       ],
-      "log": "family-isolation.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:11.952423+00:00",
+      "pid": 144726,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:13.423065+00:00",
+      "log": "family-isolation.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyShapeR31Host"
       ],
-      "log": "current-model-shapes.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:13.424359+00:00",
+      "pid": 144750,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:13.639514+00:00",
+      "log": "current-model-shapes.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyCodecR31Host"
       ],
-      "log": "codec-wire-and-cpu.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:13.639737+00:00",
+      "pid": 144774,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:14.008433+00:00",
+      "log": "codec-wire-and-cpu.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
-        "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
-        "require-recovered",
-        "3",
-        "after-predict"
-      ],
-      "log": "cancel-F03-after-predict.json",
-      "exitCode": 0,
-      "timeLimitSeconds": 240,
-      "status": "EXITED"
-    },
-    {
-      "command": [
-        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
-        "-Xmx512m",
-        "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "3",
         "before-predict"
       ],
-      "log": "cancel-F03-before-predict.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:14.016283+00:00",
+      "pid": 144796,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:15.870083+00:00",
+      "log": "cancel-F03-before-predict.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
+        "require-recovered",
+        "3",
+        "after-predict"
+      ],
+      "timeLimitSeconds": 240,
+      "startedAt": "2026-11-04T17:15:14.016940+00:00",
+      "pid": 144797,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:16.017001+00:00",
+      "log": "cancel-F03-after-predict.json"
+    },
+    {
+      "status": "EXITED",
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
+        "require-recovered",
+        "3",
+        "before-update"
+      ],
+      "timeLimitSeconds": 240,
+      "startedAt": "2026-11-04T17:15:15.870369+00:00",
+      "pid": 144846,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:17.771892+00:00",
+      "log": "cancel-F03-before-update.json"
+    },
+    {
+      "status": "EXITED",
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
+        "require-recovered",
+        "8",
+        "before-predict"
+      ],
+      "timeLimitSeconds": 240,
+      "startedAt": "2026-11-04T17:15:17.772402+00:00",
+      "pid": 144898,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:18.089924+00:00",
+      "log": "cancel-F08-before-predict.json"
+    },
+    {
+      "status": "EXITED",
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "3",
         "after-update"
       ],
-      "log": "cancel-F03-after-update.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:16.017328+00:00",
+      "pid": 144866,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:18.122474+00:00",
+      "log": "cancel-F03-after-update.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
-        "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
-        "require-recovered",
-        "3",
-        "before-update"
-      ],
-      "log": "cancel-F03-before-update.json",
-      "exitCode": 0,
-      "timeLimitSeconds": 240,
-      "status": "EXITED"
-    },
-    {
-      "command": [
-        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
-        "-Xmx512m",
-        "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
-        "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
-        "require-recovered",
-        "8",
-        "before-predict"
-      ],
-      "log": "cancel-F08-before-predict.json",
-      "exitCode": 0,
-      "timeLimitSeconds": 240,
-      "status": "EXITED"
-    },
-    {
-      "command": [
-        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
-        "-Xmx512m",
-        "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "8",
         "after-predict"
       ],
-      "log": "cancel-F08-after-predict.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:18.090179+00:00",
+      "pid": 144923,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:18.413894+00:00",
+      "log": "cancel-F08-after-predict.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "8",
         "before-update"
       ],
-      "log": "cancel-F08-before-update.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:18.122928+00:00",
+      "pid": 144934,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:18.438594+00:00",
+      "log": "cancel-F08-before-update.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "8",
         "after-update"
       ],
-      "log": "cancel-F08-after-update.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:18.416322+00:00",
+      "pid": 144973,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:18.785146+00:00",
+      "log": "cancel-F08-after-update.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "11",
         "before-predict"
       ],
-      "log": "cancel-F11-before-predict.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:18.438960+00:00",
+      "pid": 144980,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:18.807675+00:00",
+      "log": "cancel-F11-before-predict.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "11",
         "after-predict"
       ],
-      "log": "cancel-F11-after-predict.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:18.785478+00:00",
+      "pid": 145023,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:19.152252+00:00",
+      "log": "cancel-F11-after-predict.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "11",
         "before-update"
       ],
-      "log": "cancel-F11-before-update.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:18.807814+00:00",
+      "pid": 145030,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:19.173065+00:00",
+      "log": "cancel-F11-before-update.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "11",
         "after-update"
       ],
-      "log": "cancel-F11-after-update.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:19.152440+00:00",
+      "pid": 145073,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:19.525826+00:00",
+      "log": "cancel-F11-after-update.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "12",
         "before-predict"
       ],
-      "log": "cancel-F12-before-predict.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:19.173238+00:00",
+      "pid": 145080,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:19.544236+00:00",
+      "log": "cancel-F12-before-predict.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "12",
         "after-predict"
       ],
-      "log": "cancel-F12-after-predict.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:19.526082+00:00",
+      "pid": 145119,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:19.891821+00:00",
+      "log": "cancel-F12-after-predict.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "12",
         "before-update"
       ],
-      "log": "cancel-F12-before-update.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:19.544450+00:00",
+      "pid": 145126,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:19.919881+00:00",
+      "log": "cancel-F12-before-update.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "12",
         "after-update"
       ],
-      "log": "cancel-F12-after-update.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:19.892160+00:00",
+      "pid": 145165,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:20.267511+00:00",
+      "log": "cancel-F12-after-update.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "20",
         "before-predict"
       ],
-      "log": "cancel-F20-before-predict.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:19.923903+00:00",
+      "pid": 145173,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:20.292078+00:00",
+      "log": "cancel-F20-before-predict.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "20",
         "after-predict"
       ],
-      "log": "cancel-F20-after-predict.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:20.267880+00:00",
+      "pid": 145215,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:20.790064+00:00",
+      "log": "cancel-F20-after-predict.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "20",
         "before-update"
       ],
-      "log": "cancel-F20-before-update.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:20.292406+00:00",
+      "pid": 145222,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:20.815237+00:00",
+      "log": "cancel-F20-before-update.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "20",
         "after-update"
       ],
-      "log": "cancel-F20-after-update.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:20.790340+00:00",
+      "pid": 145265,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:21.268010+00:00",
+      "log": "cancel-F20-after-update.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "21",
         "before-predict"
       ],
-      "log": "cancel-F21-before-predict.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:20.815471+00:00",
+      "pid": 145272,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:21.287849+00:00",
+      "log": "cancel-F21-before-predict.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "21",
         "after-predict"
       ],
-      "log": "cancel-F21-after-predict.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:21.268280+00:00",
+      "pid": 145315,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:21.685395+00:00",
+      "log": "cancel-F21-after-predict.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
-        "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
-        "require-recovered",
-        "21",
-        "after-update"
-      ],
-      "log": "cancel-F21-after-update.json",
-      "exitCode": 0,
-      "timeLimitSeconds": 240,
-      "status": "EXITED"
-    },
-    {
-      "command": [
-        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
-        "-Xmx512m",
-        "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
         "require-recovered",
         "21",
         "before-update"
       ],
-      "log": "cancel-F21-before-update.json",
-      "exitCode": 0,
       "timeLimitSeconds": 240,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:21.288030+00:00",
+      "pid": 145322,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:21.766980+00:00",
+      "log": "cancel-F21-before-update.json"
     },
     {
+      "status": "EXITED",
       "command": [
         "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
         "-Xmx512m",
         "-cp",
-        "/tmp/r31-family-admission-fwo3v_h5/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "com.ethk3.novaonepro.strategyv2.FamilyRecoveryR31Host",
+        "require-recovered",
+        "21",
+        "after-update"
+      ],
+      "timeLimitSeconds": 240,
+      "startedAt": "2026-11-04T17:15:21.685629+00:00",
+      "pid": 145365,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:15:22.050980+00:00",
+      "log": "cancel-F21-after-update.json"
+    },
+    {
+      "status": "EXITED",
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-family-admission-9nnrhzc9/current:/tmp/r31-p02-012-actual-android-support/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
         "org.junit.runner.JUnitCore",
         "com.ethk3.novaonepro.strategyv2.R27EvolutionTest",
         "com.ethk3.novaonepro.strategyv2.R30NullPipelineTest"
       ],
-      "log": "original-six-default512.log",
-      "exitCode": 143,
       "timeLimitSeconds": 900,
-      "status": "EXITED"
+      "startedAt": "2026-11-04T17:15:22.052088+00:00",
+      "pid": 145390,
+      "exitCode": 0,
+      "completedAt": "2026-11-04T17:22:35.622429+00:00",
+      "log": "original-six-default512.log"
     }
   ],
   "remaining": [
@@ -646,5 +750,12 @@
     "row codec plus rollback protects model-state and pending outputs; it is in-memory recovery, not a durable training checkpoint",
     "explicit cold familyInto overload reaches REALTIME model/matrix/checkpoint; root must integrate PolicyAst existing critical parameter at its owned call site",
     "cross-PID admission NOT_COORDINATED; no device or natural future quality proof"
+  ],
+  "sourceCommit": "3c9cfeabb2f3b7f9a37872461a239abe6576f4bd",
+  "priorEvidencePreserved": [
+    "first-codec/RECEIPT.json",
+    "direct-slow/RECEIPT.json",
+    "timed-out-final-codec/RECEIPT.json",
+    "logging-restart/RECEIPT.json"
   ]
 }
