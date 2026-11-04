@@ -1,0 +1,71 @@
+/workspace/r31-atom-budget-protocol/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:32: error: cannot find symbol
+        final java.util.List<Committed> observations;final HoldLedgerFlushR30.ChunkR31 chunk;
+                                                                             ^
+  symbol:   class ChunkR31
+  location: class HoldLedgerFlushR30
+/workspace/r31-atom-budget-protocol/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:33: error: cannot find symbol
+        PreparedCommittedR31(java.util.List<Committed> observations,java.util.List<HoldLedgerFlushR30.PreparedRowR31> rows) {
+                                                                                                     ^
+  symbol:   class PreparedRowR31
+  location: class HoldLedgerFlushR30
+/workspace/r31-atom-budget-protocol/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:35: error: cannot find symbol
+            chunk=new HoldLedgerFlushR30.ChunkR31("timeline-commit-observations",HashingSU1.fields("ORIGINAL_COMMIT_CLOCKS",JsonR27.write(observationIdentitiesR31(observations))),0,rows);
+                                        ^
+  symbol:   class ChunkR31
+  location: class HoldLedgerFlushR30
+/workspace/r31-atom-budget-protocol/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:54: error: cannot find symbol
+            HoldLedgerFlushR30.requireReadyR31(store.readable(),false);
+                              ^
+  symbol:   method requireReadyR31(SQLiteDatabase,boolean)
+  location: class HoldLedgerFlushR30
+/workspace/r31-atom-budget-protocol/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:57: error: cannot find symbol
+            committedPreparedOpsR31=prepared.chunk.ops+HoldLedgerFlushR30.PROTOCOL_OPS_R31;
+                                                                         ^
+  symbol:   variable PROTOCOL_OPS_R31
+  location: class HoldLedgerFlushR30
+/workspace/r31-atom-budget-protocol/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:58: error: cannot find symbol
+            committedPreparedBytesR31=prepared.chunk.bytes+HoldLedgerFlushR30.protocolBindBytesR31();
+                                                                             ^
+  symbol:   method protocolBindBytesR31()
+  location: class HoldLedgerFlushR30
+/workspace/r31-atom-budget-protocol/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:63: error: cannot find symbol
+            HoldLedgerFlushR30.rethrowFatalR31(unavailable);
+                              ^
+  symbol:   method rethrowFatalR31(RuntimeException)
+  location: class HoldLedgerFlushR30
+/workspace/r31-atom-budget-protocol/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:68: error: cannot find symbol
+                    &&HoldLedgerFlushR30.preparedConflictR31(unavailable))preparedCommittedR31=null;
+                                        ^
+  symbol:   method preparedConflictR31(RuntimeException)
+  location: class HoldLedgerFlushR30
+/workspace/r31-atom-budget-protocol/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:75: error: cannot find symbol
+        java.util.List<Committed> observations=new java.util.ArrayList<>();java.util.List<HoldLedgerFlushR30.PreparedRowR31> rows=new java.util.ArrayList<>();
+                                                                                                            ^
+  symbol:   class PreparedRowR31
+  location: class HoldLedgerFlushR30
+/workspace/r31-atom-budget-protocol/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:85: error: cannot find symbol
+                    new String[]{Long.toString(HoldLedgerFlushR30.bindCapR31()),receipt.event,IssueTimelineR30.EVENT_DRAW_PANEL,IssueTimelineR30.EVENT_PRED_PANEL,IssueTimelineR30.EVENT_RAW_PANEL})) {
+                                                                 ^
+  symbol:   method bindCapR31()
+  location: class HoldLedgerFlushR30
+/workspace/r31-atom-budget-protocol/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:96: error: cannot find symbol
+            HoldLedgerFlushR30.PreparedRowR31 prepared;
+                              ^
+  symbol:   class PreparedRowR31
+  location: class HoldLedgerFlushR30
+/workspace/r31-atom-budget-protocol/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:99: error: cannot find symbol
+                prepared=new HoldLedgerFlushR30.PreparedRowR31(null,new Object[0],"SELECT 1 FROM r27_chart_cache WHERE panel_id=? AND key=? AND payload_json=?"+unique,
+                                               ^
+  symbol:   class PreparedRowR31
+  location: class HoldLedgerFlushR30
+/workspace/r31-atom-budget-protocol/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:104: error: cannot find symbol
+                prepared=new HoldLedgerFlushR30.PreparedRowR31("UPDATE r27_chart_cache SET payload_json=? WHERE panel_id=? AND key=? AND payload_json=?"+unique,
+                                               ^
+  symbol:   class PreparedRowR31
+  location: class HoldLedgerFlushR30
+/workspace/r31-atom-budget-protocol/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:115: error: cannot find symbol
+    public static java.util.Map<String,Object> commitObservationState(){java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();out.put("scope","CURRENT_PROCESS_PENDING_RECEIPTS; unflushed commit instants UNKNOWN after process death");out.put("pending",COMMITTED_SIZE.get());out.put("omittedDueToBound",OMITTED_COMMITTED.get());out.put("diagnosticFailures",DIAGNOSTIC_FAILURES.get());out.put("clockScope",BOOT_ID.startsWith("KERNEL_BOOT:")?"KERNEL_BOOT":"PROCESS_ONLY_CONSERVATIVE");out.put("flushReason",committedFlushReasonR31);out.put("lastPreparedOpsIncludingAllowance",committedPreparedOpsR31);out.put("lastPreparedBindBytesIncludingAllowance",committedPreparedBytesR31);out.put("bindCap",HoldLedgerFlushR30.bindCapR31());return out;}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^
+  symbol:   method bindCapR31()
+  location: class HoldLedgerFlushR30
+14 errors

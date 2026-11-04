@@ -1,0 +1,472 @@
+{
+  "recordedAt": "2026-11-04T19:18:11.481860+00:00",
+  "scope": "ACTUAL_PRODUCTION_MODULE_HOST_NATIVE_SQLITE_NOT_DEVICE_NOT_QUALITY",
+  "card": "R31-B02-C02",
+  "cardStatus": "IMPLEMENTING",
+  "moduleStatus": "CODE_COMPLETE",
+  "planBaseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "constructionBase": "241a93848851440fdfd21155ae400ff2354eceb2",
+  "productionCommit": "4bd5d93e7ff31c5f6f5d9f0d2f8e848a6ba9bf40",
+  "sourceCapturedAt": "2026-11-04T19:12:16.734245+00:00",
+  "supportJarSha256": "8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0",
+  "finalReceipt": "runs/final-ci-contract/receipt.json",
+  "finalDriverGroups": 20,
+  "finalJvmCases": 22,
+  "allOriginalFinalCases": [
+    {
+      "case": "atoms-step-retry",
+      "status": "ACTUAL_ATOMS_STEP_FRAME_AND_FAILED_PUBLICATION_RETRY_COMPLETED",
+      "assertions": 719,
+      "transactionAttempts": 169,
+      "maxApiSql": 28,
+      "maxApiSqlPlusTriggerUpperBound": 30,
+      "maxBindBytes": 2094,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/atoms-step-retry.json"
+    },
+    {
+      "case": "baseline-atom165",
+      "status": "BASELINE_OVERSIZE_REPRODUCED",
+      "assertions": 4,
+      "transactionAttempts": 1,
+      "maxApiSql": 337,
+      "maxApiSqlPlusTriggerUpperBound": 337,
+      "maxBindBytes": 52787,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/baseline-atom165.json"
+    },
+    {
+      "case": "baseline-molecules32",
+      "status": "BASELINE_OVERSIZE_REPRODUCED",
+      "assertions": 8,
+      "transactionAttempts": 2,
+      "maxApiSql": 337,
+      "maxApiSqlPlusTriggerUpperBound": 337,
+      "maxBindBytes": 52787,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/baseline-molecules32.json"
+    },
+    {
+      "case": "brier-original",
+      "status": "ORIGINAL_BRIER_ASSERTIONS_COMPLETED_ON_PRODUCTION_COMPLETE_PUBLICATIONS",
+      "assertions": 1905,
+      "transactionAttempts": 470,
+      "maxApiSql": 28,
+      "maxApiSqlPlusTriggerUpperBound": 30,
+      "maxBindBytes": 2326,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/brier-original.json"
+    },
+    {
+      "case": "cancel-between-chunks",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1356,
+      "transactionAttempts": 336,
+      "maxApiSql": 27,
+      "maxApiSqlPlusTriggerUpperBound": 29,
+      "maxBindBytes": 1986,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/cancel-between-chunks.json"
+    },
+    {
+      "case": "exact-schema-and-report",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1349,
+      "transactionAttempts": 334,
+      "maxApiSql": 27,
+      "maxApiSqlPlusTriggerUpperBound": 29,
+      "maxBindBytes": 1986,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/exact-schema-and-report.json"
+    },
+    {
+      "case": "interrupt-in-transaction",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1366,
+      "transactionAttempts": 338,
+      "maxApiSql": 27,
+      "maxApiSqlPlusTriggerUpperBound": 29,
+      "maxBindBytes": 1986,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/interrupt-in-transaction.json"
+    },
+    {
+      "case": "legacy-upgrade",
+      "status": "ACTUAL_LEGACY_ADDITIVE_MIGRATION_AND_COMPLETE_CONSUMERS_VERIFIED",
+      "assertions": 1349,
+      "transactionAttempts": 167,
+      "maxApiSql": 27,
+      "maxApiSqlPlusTriggerUpperBound": 29,
+      "maxBindBytes": 1986,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/legacy-upgrade.json"
+    },
+    {
+      "case": "owner-transfer",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1358,
+      "transactionAttempts": 336,
+      "maxApiSql": 27,
+      "maxApiSqlPlusTriggerUpperBound": 29,
+      "maxBindBytes": 1998,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/owner-transfer.json"
+    },
+    {
+      "case": "predecessor-cas",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 2025,
+      "transactionAttempts": 504,
+      "maxApiSql": 27,
+      "maxApiSqlPlusTriggerUpperBound": 29,
+      "maxBindBytes": 1986,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/predecessor-cas.json"
+    },
+    {
+      "case": "process-aftercommit-halt",
+      "status": "INTERRUPTED_ACTUAL_PROCESS_HALT",
+      "assertions": 0,
+      "transactionAttempts": 241,
+      "maxApiSql": 27,
+      "maxApiSqlPlusTriggerUpperBound": 29,
+      "maxBindBytes": 1986,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/process-aftercommit-halt.json"
+    },
+    {
+      "case": "process-aftercommit-resume-64m",
+      "status": "ACTUAL_HOST_PROCESS_RESTART_CROSS_HEAP_RECEIPTS_COMPLETED",
+      "assertions": 686,
+      "transactionAttempts": 167,
+      "maxApiSql": 27,
+      "maxApiSqlPlusTriggerUpperBound": 29,
+      "maxBindBytes": 1998,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/process-aftercommit-resume-64m.json"
+    },
+    {
+      "case": "process-inbody-halt",
+      "status": "INTERRUPTED_PROCESS_IN_NATIVE_UNCOMMITTED_TRANSACTION",
+      "assertions": 0,
+      "transactionAttempts": 242,
+      "maxApiSql": 27,
+      "maxApiSqlPlusTriggerUpperBound": 29,
+      "maxBindBytes": 1986,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/process-inbody-halt.json"
+    },
+    {
+      "case": "process-inbody-resume-64m",
+      "status": "ACTUAL_HOST_PROCESS_RESTART_CROSS_HEAP_RECEIPTS_COMPLETED",
+      "assertions": 686,
+      "transactionAttempts": 167,
+      "maxApiSql": 27,
+      "maxApiSqlPlusTriggerUpperBound": 29,
+      "maxBindBytes": 1998,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/process-inbody-resume-64m.json"
+    },
+    {
+      "case": "source-correction",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1361,
+      "transactionAttempts": 337,
+      "maxApiSql": 27,
+      "maxApiSqlPlusTriggerUpperBound": 29,
+      "maxBindBytes": 1986,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/source-correction.json"
+    },
+    {
+      "case": "stage-after-commit",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1350,
+      "transactionAttempts": 334,
+      "maxApiSql": 28,
+      "maxApiSqlPlusTriggerUpperBound": 30,
+      "maxBindBytes": 2094,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/stage-after-commit.json"
+    },
+    {
+      "case": "stage-end-rollback",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1692,
+      "transactionAttempts": 418,
+      "maxApiSql": 28,
+      "maxApiSqlPlusTriggerUpperBound": 30,
+      "maxBindBytes": 2094,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/stage-end-rollback.json"
+    },
+    {
+      "case": "stage-first-sql-failure",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1364,
+      "transactionAttempts": 336,
+      "maxApiSql": 28,
+      "maxApiSqlPlusTriggerUpperBound": 30,
+      "maxBindBytes": 2094,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/stage-first-sql-failure.json"
+    },
+    {
+      "case": "stage-postcommit-diagnostic",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1350,
+      "transactionAttempts": 334,
+      "maxApiSql": 28,
+      "maxApiSqlPlusTriggerUpperBound": 30,
+      "maxBindBytes": 2094,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/stage-postcommit-diagnostic.json"
+    },
+    {
+      "case": "stage-sql-failure",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1692,
+      "transactionAttempts": 418,
+      "maxApiSql": 28,
+      "maxApiSqlPlusTriggerUpperBound": 30,
+      "maxBindBytes": 2094,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/stage-sql-failure.json"
+    },
+    {
+      "case": "stage-unknown-then-readback",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1693,
+      "transactionAttempts": 418,
+      "maxApiSql": 28,
+      "maxApiSqlPlusTriggerUpperBound": 30,
+      "maxBindBytes": 2094,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/stage-unknown-then-readback.json"
+    },
+    {
+      "case": "superseded-replay",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1343,
+      "transactionAttempts": 334,
+      "maxApiSql": 27,
+      "maxApiSqlPlusTriggerUpperBound": 29,
+      "maxBindBytes": 1986,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/superseded-replay.json"
+    }
+  ],
+  "baselineOversize": [
+    {
+      "case": "baseline-atom165",
+      "status": "BASELINE_OVERSIZE_REPRODUCED",
+      "assertions": 4,
+      "transactionAttempts": 1,
+      "maxApiSql": 337,
+      "maxApiSqlPlusTriggerUpperBound": 337,
+      "maxBindBytes": 52787,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/baseline-atom165.json"
+    },
+    {
+      "case": "baseline-molecules32",
+      "status": "BASELINE_OVERSIZE_REPRODUCED",
+      "assertions": 8,
+      "transactionAttempts": 2,
+      "maxApiSql": 337,
+      "maxApiSqlPlusTriggerUpperBound": 337,
+      "maxBindBytes": 52787,
+      "runtimeDdlCalls": 0,
+      "receipt": "runs/final-ci-contract/baseline-molecules32.json"
+    }
+  ],
+  "postfix": {
+    "attempts": 6400,
+    "recordedAssertions": 24644,
+    "maxApiSql": 28,
+    "maxApiSqlPlusConservativeTriggerBound": 30,
+    "maxBindBytes": 2326,
+    "runtimeDdlCalls": 0,
+    "actualRollbackAttempts": 10,
+    "unknownAtHaltAttempts": 1,
+    "measuredHoldAttempts": 6399,
+    "hostHoldP99Ms": 12,
+    "hostHoldMaxMs": 67,
+    "hostHoldsOver50Ms": 2,
+    "hostHoldsOver200Ms": 0,
+    "unknownHoldIsNotZero": true,
+    "deviceSlo": "NOT_RUN"
+  },
+  "scientificPreservation": {
+    "actualOldAndNewProjectionBytesEqual": true,
+    "sha256": "b2d940fdf2a9ca3ba0cd34b3cbc646ecfe9cf6d43d962ad50319285ab69fe1fe",
+    "scoreRows": 165,
+    "moleculeSlots": 32,
+    "timestampsExcludedFromNumericalVector": "Separately validated original computed_at/recorded_at across true JVM halt and64m restart",
+    "naturalImprovement": "NO_CLAIM"
+  },
+  "processRestart": {
+    "formerHeapMiB": 768,
+    "newHeapMiB": 64,
+    "committedOldPartsObservedByFreshProcess": 73,
+    "newMissingPairsActuallyExecuted": 92,
+    "twoCompleteSetsFinalReceipts": 334,
+    "twoCompleteSetsFinalParts": 330,
+    "actualExitCodes": [
+      73,
+      74
+    ],
+    "interruptedTransactionOutcomeResolution": "Independent fresh process sees only73 complete parts and executes92; interrupted74th native transaction not committed",
+    "androidProcessKill": "NOT_RUN"
+  },
+  "costDefinitions": {
+    "bindBytes": "actual bound UTF8 String bytes, byte[].length,8-byte reserve for number/null; not SQLite physical allocation",
+    "triggers": "conservative per-DML known29DDL trigger guard execution upper bound; not JDBC native internal SQL trace",
+    "nativeChanges": "Xerial native SQLite changes/total_changes includes failed/rolled-back effects; never equate with committed training samples"
+  },
+  "uncompleted": {
+    "androidAppBuild": "NOT_RUN_BY_THIS_AGENT_ROOT_JOINT_REQUIRED",
+    "sharedSchemaJournalStartup": "PENDING_ROOT_JOINT_NATIVE",
+    "androidDeviceTests": "NOT_RUN",
+    "24h": "NOT_RUN",
+    "72h": "NOT_RUN",
+    "naturalFutureQuality": "NOT_PROVEN",
+    "apk": "NOT_BUILT_BY_THIS_AGENT",
+    "applicationIdOrSigningChanges": "NONE",
+    "cardB02C02Whole": "OPEN_OTHER_PRODUCERS_CAPACITY_DEVICE_GATES",
+    "historyPublishedCount": "PENDING_OWNER_FREEZE_AND_INTEGRATION",
+    "b05GrowthInventoryAndPhysicalDiskAdmission": "PENDING_ROOT_SHARED_ADMISSION_INTEGRATION",
+    "legacySourceDanglingViewReadiness": "Exact29objects checked; missing old base table needs typed dependency follow-up or root startup/source contract evidence"
+  },
+  "allRunReceiptsIncludingFailed": [
+    {
+      "receipt": "runs/actual-atoms-entrypoint/receipt.json",
+      "sourceCapturedAt": "2026-11-04T19:10:52.026032+00:00",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED_NOT_DEVICE",
+      "failedCommand": null,
+      "sourceGitHeadAtRun": "4bd5d93e7ff31c5f6f5d9f0d2f8e848a6ba9bf40",
+      "supportJarSha256": "8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0"
+    },
+    {
+      "receipt": "runs/bootstrap-actual/receipt.json",
+      "sourceCapturedAt": "2026-11-04T18:43:43.781030+00:00",
+      "status": "FAILED",
+      "failedCommand": "compile-production",
+      "sourceGitHeadAtRun": "48a97416dc7e2be6a3fd6e40823d4ad6b5d34e00",
+      "supportJarSha256": "892e5be7feb3609755c6746ea080644fd19427a90f8d9ab8493c964af1f01fa8"
+    },
+    {
+      "receipt": "runs/bootstrap-actual2/receipt.json",
+      "sourceCapturedAt": "2026-11-04T18:44:18.829374+00:00",
+      "status": "FAILED",
+      "failedCommand": "compile-native-tests",
+      "sourceGitHeadAtRun": "48a97416dc7e2be6a3fd6e40823d4ad6b5d34e00",
+      "supportJarSha256": "892e5be7feb3609755c6746ea080644fd19427a90f8d9ab8493c964af1f01fa8"
+    },
+    {
+      "receipt": "runs/bootstrap-actual3/receipt.json",
+      "sourceCapturedAt": "2026-11-04T18:45:04.920080+00:00",
+      "status": "FAILED",
+      "failedCommand": "baseline-atom165",
+      "sourceGitHeadAtRun": "48a97416dc7e2be6a3fd6e40823d4ad6b5d34e00",
+      "supportJarSha256": "892e5be7feb3609755c6746ea080644fd19427a90f8d9ab8493c964af1f01fa8"
+    },
+    {
+      "receipt": "runs/final-ci-contract/receipt.json",
+      "sourceCapturedAt": "2026-11-04T19:12:16.734245+00:00",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED_NOT_DEVICE",
+      "failedCommand": null,
+      "sourceGitHeadAtRun": "4bd5d93e7ff31c5f6f5d9f0d2f8e848a6ba9bf40",
+      "supportJarSha256": "8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0"
+    },
+    {
+      "receipt": "runs/final-runner-archive-contract/receipt.json",
+      "sourceCapturedAt": "2026-11-04T19:09:00.366944+00:00",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED_NOT_DEVICE",
+      "failedCommand": null,
+      "sourceGitHeadAtRun": "4bd5d93e7ff31c5f6f5d9f0d2f8e848a6ba9bf40",
+      "supportJarSha256": "8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0"
+    },
+    {
+      "receipt": "runs/final-targeted/receipt.json",
+      "sourceCapturedAt": "2026-11-04T19:01:51.093349+00:00",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED_NOT_DEVICE",
+      "failedCommand": null,
+      "sourceGitHeadAtRun": "48a97416dc7e2be6a3fd6e40823d4ad6b5d34e00",
+      "supportJarSha256": "8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0"
+    },
+    {
+      "receipt": "runs/native-first/receipt.json",
+      "sourceCapturedAt": "2026-11-04T18:46:02.216747+00:00",
+      "status": "FAILED",
+      "failedCommand": "baseline-atom165",
+      "sourceGitHeadAtRun": "48a97416dc7e2be6a3fd6e40823d4ad6b5d34e00",
+      "supportJarSha256": "892e5be7feb3609755c6746ea080644fd19427a90f8d9ab8493c964af1f01fa8"
+    },
+    {
+      "receipt": "runs/native-legacy-retry/receipt.json",
+      "sourceCapturedAt": "2026-11-04T18:58:53.956199+00:00",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED_NOT_DEVICE",
+      "failedCommand": null,
+      "sourceGitHeadAtRun": "48a97416dc7e2be6a3fd6e40823d4ad6b5d34e00",
+      "supportJarSha256": "8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0"
+    },
+    {
+      "receipt": "runs/native-owner-source/receipt.json",
+      "sourceCapturedAt": "2026-11-04T18:51:52.795477+00:00",
+      "status": "FAILED",
+      "failedCommand": "compile-native-tests",
+      "sourceGitHeadAtRun": "48a97416dc7e2be6a3fd6e40823d4ad6b5d34e00",
+      "supportJarSha256": "8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0"
+    },
+    {
+      "receipt": "runs/native-owner-source2/receipt.json",
+      "sourceCapturedAt": "2026-11-04T18:52:44.815761+00:00",
+      "status": "FAILED",
+      "failedCommand": "baseline-molecules32",
+      "sourceGitHeadAtRun": "48a97416dc7e2be6a3fd6e40823d4ad6b5d34e00",
+      "supportJarSha256": "8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0"
+    },
+    {
+      "receipt": "runs/native-owner-source3/receipt.json",
+      "sourceCapturedAt": "2026-11-04T18:54:27.048549+00:00",
+      "status": "FAILED",
+      "failedCommand": "predecessor-cas",
+      "sourceGitHeadAtRun": "48a97416dc7e2be6a3fd6e40823d4ad6b5d34e00",
+      "supportJarSha256": "8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0"
+    },
+    {
+      "receipt": "runs/native-reader-restart/receipt.json",
+      "sourceCapturedAt": "2026-11-04T18:56:04.699736+00:00",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED_NOT_DEVICE",
+      "failedCommand": null,
+      "sourceGitHeadAtRun": "48a97416dc7e2be6a3fd6e40823d4ad6b5d34e00",
+      "supportJarSha256": "8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0"
+    },
+    {
+      "receipt": "runs/native-second/receipt.json",
+      "sourceCapturedAt": "2026-11-04T18:47:03.819783+00:00",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED_NOT_DEVICE",
+      "failedCommand": null,
+      "sourceGitHeadAtRun": "48a97416dc7e2be6a3fd6e40823d4ad6b5d34e00",
+      "supportJarSha256": "892e5be7feb3609755c6746ea080644fd19427a90f8d9ab8493c964af1f01fa8"
+    },
+    {
+      "receipt": "runs/scientific-actual-old-new/receipt.json",
+      "sourceCapturedAt": "2026-11-04T19:05:43.280746+00:00",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED_NOT_DEVICE",
+      "failedCommand": null,
+      "sourceGitHeadAtRun": "4bd5d93e7ff31c5f6f5d9f0d2f8e848a6ba9bf40",
+      "supportJarSha256": "8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0"
+    }
+  ],
+  "allHistoricalCaseFilesPreserved": 72,
+  "allHistoricalMeasuredHoldMaxMs": 122,
+  "allHistoricalHoldMaxProofs": [
+    {
+      "holdMs": 122,
+      "file": "runs/native-reader-restart/process-inbody-halt.json",
+      "status": "INTERRUPTED_PROCESS_IN_NATIVE_UNCOMMITTED_TRANSACTION"
+    }
+  ]
+}
