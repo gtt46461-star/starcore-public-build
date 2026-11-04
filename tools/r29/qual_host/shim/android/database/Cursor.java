@@ -3,6 +3,11 @@ package android.database;
 /** HOST shim (tools/r29/qual_host only): the subset of android.database.Cursor the R29 qualification path calls,
  * backed by a materialized JDBC result. Never packaged into the APK. */
 public interface Cursor extends java.io.Closeable {
+    int FIELD_TYPE_NULL = 0;
+    int FIELD_TYPE_INTEGER = 1;
+    int FIELD_TYPE_FLOAT = 2;
+    int FIELD_TYPE_STRING = 3;
+    int FIELD_TYPE_BLOB = 4;
     boolean moveToNext();
     boolean moveToFirst();
     String getString(int i);

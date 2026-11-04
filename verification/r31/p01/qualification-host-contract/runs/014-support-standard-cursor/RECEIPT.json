@@ -1,0 +1,129 @@
+{
+  "scope": "NATIVE_SQLITE_EXPOSURE_PRESERVATION_NOT_WHOLE_ANDROID_OR_DEVICE",
+  "sourceHead": "84e2349313a9771b1eae470409f36498c075be7e",
+  "startedAt": "2026-11-04T19:45:34.975339+00:00",
+  "support": {
+    "path": "/tmp/r31-014-postfull-frozen/classes.jar",
+    "sha256": "15a524242feefe47f158c3cb4513b0ac4a5c7dc9038b4bf924525d11ec710b96"
+  },
+  "sources": [
+    {
+      "origin": "/workspace/r31-shared-migrations/app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+      "sha256": "b5fdf7a667257b910aca30dc4b9e23dae82167410ebcfe75e95d35e84cfb9831",
+      "snapshot": "/workspace/r31-qual-contract-cq2o480s/source/QualificationInboxR29.java"
+    },
+    {
+      "origin": "/workspace/r31-shared-migrations/verification/r31/p01/qualification-host-contract/original-QualInboxR29HostTest.java.txt",
+      "sha256": "153d4d8bbddf74c29905a40b4f6f00aba1051ecf4cdb66b5e723628a454c8a98",
+      "snapshot": "/workspace/r31-qual-contract-cq2o480s/original/source/QualInboxR29HostTest.java"
+    },
+    {
+      "origin": "/workspace/r31-shared-migrations/tools/r29/qual_host/QualInboxR29HostTest.java",
+      "sha256": "def343896af6f60c979e973c470d1a7f40ed17ccd5d746aabc8790910b97638f",
+      "snapshot": "/workspace/r31-qual-contract-cq2o480s/r31/source/QualInboxR29HostTest.java"
+    }
+  ],
+  "commands": [
+    {
+      "name": "compile-production",
+      "argv": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/workspace/r31-qual-contract-cq2o480s/platform-inputs/platform:/tmp/r31-014-postfull-frozen/classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/workspace/r31-qual-contract-cq2o480s/production",
+        "/workspace/r31-qual-contract-cq2o480s/source/QualificationInboxR29.java"
+      ],
+      "exitCode": 0,
+      "log": "/workspace/r31-shared-migrations/verification/r31/p01/qualification-host-contract/runs/014-support-standard-cursor/compile-production.log",
+      "sha256": "27941f057b12f217f30a174adda602a055a5bcb56f7f4ac77299acbd58b7d6f0"
+    },
+    {
+      "name": "original-compile",
+      "argv": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/workspace/r31-qual-contract-cq2o480s/platform-inputs/platform:/workspace/r31-qual-contract-cq2o480s/production:/tmp/r31-014-postfull-frozen/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/workspace/r31-qual-contract-cq2o480s/original/classes",
+        "/workspace/r31-qual-contract-cq2o480s/original/source/QualInboxR29HostTest.java"
+      ],
+      "exitCode": 0,
+      "log": "/workspace/r31-shared-migrations/verification/r31/p01/qualification-host-contract/runs/014-support-standard-cursor/original-compile.log",
+      "sha256": "27941f057b12f217f30a174adda602a055a5bcb56f7f4ac77299acbd58b7d6f0"
+    },
+    {
+      "name": "original-native",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-cp",
+        "/workspace/r31-qual-contract-cq2o480s/original/classes:/workspace/r31-qual-contract-cq2o480s/platform-inputs/platform:/workspace/r31-qual-contract-cq2o480s/production:/tmp/r31-014-postfull-frozen/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.QualInboxR29HostTest"
+      ],
+      "exitCode": 1,
+      "log": "/workspace/r31-shared-migrations/verification/r31/p01/qualification-host-contract/runs/014-support-standard-cursor/original-native.log",
+      "sha256": "2336d55698093e36115383b71d665a879acdd07636cb8dcd4fa9582919047785"
+    },
+    {
+      "name": "r31-compile",
+      "argv": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/workspace/r31-qual-contract-cq2o480s/platform-inputs/platform:/workspace/r31-qual-contract-cq2o480s/production:/tmp/r31-014-postfull-frozen/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/workspace/r31-qual-contract-cq2o480s/r31/classes",
+        "/workspace/r31-qual-contract-cq2o480s/r31/source/QualInboxR29HostTest.java"
+      ],
+      "exitCode": 0,
+      "log": "/workspace/r31-shared-migrations/verification/r31/p01/qualification-host-contract/runs/014-support-standard-cursor/r31-compile.log",
+      "sha256": "27941f057b12f217f30a174adda602a055a5bcb56f7f4ac77299acbd58b7d6f0"
+    },
+    {
+      "name": "r31-native",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-cp",
+        "/workspace/r31-qual-contract-cq2o480s/r31/classes:/workspace/r31-qual-contract-cq2o480s/platform-inputs/platform:/workspace/r31-qual-contract-cq2o480s/production:/tmp/r31-014-postfull-frozen/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.QualInboxR29HostTest"
+      ],
+      "exitCode": 0,
+      "log": "/workspace/r31-shared-migrations/verification/r31/p01/qualification-host-contract/runs/014-support-standard-cursor/r31-native.log",
+      "sha256": "31bdf7b3aaf2d5b291ed825d554a9980d6da54cf1d159c8b5a53b8cd80ee0cb4"
+    }
+  ],
+  "state": "HOST_PASS_ORIGINAL_FAILURES_PRESERVED",
+  "physicalDevice": "NOT_RUN",
+  "24h": "NOT_RUN",
+  "72h": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED",
+  "preservedOriginal": {
+    "state": "EXPECTED_CONTRACT_FAILURE",
+    "failedCases": [
+      "Q3_LATE_HIT_MINUS2_RECOVERED_AND_REBUILT",
+      "Q11_REBUILD_GAPPED_CHECKPOINT"
+    ]
+  },
+  "r31Contract": {
+    "state": "HOST_PASS",
+    "checks": 21
+  },
+  "sourceChangesDuringRun": [],
+  "finishedAt": "2026-11-04T19:45:54.165703+00:00"
+}

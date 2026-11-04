@@ -1,0 +1,15 @@
+{
+  "baselineSourceCommit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+  "originalSha256": "153d4d8bbddf74c29905a40b4f6f00aba1051ecf4cdb66b5e723628a454c8a98",
+  "productionProtocol": "b856d75791c458b03f49973d8ac8fdbc6b249980 + ad15622c91a1f3d730136d00f3125b3ce4ac6517",
+  "changedCases": [
+    "Q3",
+    "Q11"
+  ],
+  "reason": "User explicitly prohibits clearing exposure or resetting trials. Invalid/gapped legacy states lack original contiguous PIT proof, so preserving all state/receipt bytes and blocking only affected experiment replaces the old destructive-reset/replay expectation. Valid recovery remains exercised by native21996 assertions; no numerical threshold changes.",
+  "originalFailureEvidence": "verification/r31/legacy_qualification_compat",
+  "device": "NOT_RUN",
+  "wholeAndroid": "NOT_RUN",
+  "newRunEvidence": "verification/r31/p01/qualification-host-contract/runs/014-support-standard-cursor/RECEIPT.json",
+  "sourceQualificationSha256": "b5fdf7a667257b910aca30dc4b9e23dae82167410ebcfe75e95d35e84cfb9831"
+}

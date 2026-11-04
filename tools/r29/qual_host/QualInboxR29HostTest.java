@@ -17,7 +17,7 @@ import java.util.Random;
  *   Q2 shuffled/late arrival (1,3 before 2), duplicate passes and killed transactions equal the in-order state;
  *      invariants hold after every pass: receipts == n, unique, contiguous prefix of registered opportunities;
  *   Q3 a late draw for a row the R27 loop had marked hit=-2 is settled from the original freeze and counted;
- *      an e-process advanced without receipts is rebuilt (old state logged, certificate revoked) to the same state;
+ *      an unprovable legacy e-process keeps its exact exposure and receipts, with its certificate revoked;
  *   Q4 a stored hit that disagrees with the draw is isolated as a conflict, never consumed, never duplicated;
  *   Q5 rows still waiting for their draw do not fill the settlement page; they are recorded as PENDING_DRAW;
  *   Q6 a stale concurrent step commits nothing (no double count);
@@ -96,6 +96,26 @@ public final class QualInboxR29HostTest {
 
     static long scalar(SQLiteDatabase db, String sql, String... a) { try (Cursor c = db.rawQuery(sql, a)) { return c.moveToFirst() ? c.getLong(0) : -999; } }
 
+    /** Stable complete row evidence, including the original SQL value types. */
+    static String rows(SQLiteDatabase db, String sql, String... args) {
+        List<Object> result = new ArrayList<>();
+        try (Cursor c = db.rawQuery(sql, args)) {
+            while (c.moveToNext()) {
+                List<Object> row = new ArrayList<>();
+                for (int i = 0; i < c.getColumnCount(); i++) {
+                    int type = c.getType(i);
+                    row.add(type);
+                    if (c.isNull(i)) row.add(null);
+                    else if (type == Cursor.FIELD_TYPE_INTEGER) row.add(Long.valueOf(c.getLong(i)));
+                    else if (type == Cursor.FIELD_TYPE_FLOAT) row.add(Double.valueOf(c.getDouble(i)));
+                    else row.add(c.getString(i));
+                }
+                result.add(row);
+            }
+        }
+        return JsonR27.write(result);
+    }
+
     /** settle + consume, as RuntimeR27.LiveTask does; a killed transaction leaves the database as it was. */
     static void pass(SQLiteDatabase db, QualificationInboxR29.Commit sink, long latest) throws Exception {
         try { long[] k = new long[1]; sink.commit("LIVE_SETTLE", LiveShadowsR27.settleBatch(db, latest, k)); } catch (Killed died) { }
@@ -148,7 +168,7 @@ public final class QualInboxR29HostTest {
             long settledRows = scalar(db, "SELECT count(*) FROM r27_live_frozen WHERE hit>=0");
             check("Q2_OUT_OF_ORDER_EQUALS_IN_ORDER_seed" + seed, d == null && broken == null && settledRows == N, d != null ? d : broken != null ? broken : "settled=" + settledRows + " receipts=" + scalar(db, "SELECT count(*) FROM r29_qual_receipt"));
         }
-        // Q3 legacy hit=-2 rows + e-process advanced without receipts → rebuild
+        // Q3 source backfill may settle old freezes; it must not erase unprovable legacy exposure.
         {
             World w = new World(60, 21); SQLiteDatabase db = open(); w.register(db, -1); QualificationInboxR29.Commit s = sink(db, 0, new Random(3));
             for (int o = 1; o <= 60; o++) if (o % 7 != 0) w.draw(db, o);
@@ -159,6 +179,8 @@ public final class QualInboxR29HostTest {
             db.execSQL("UPDATE r27_eprocess SET log_e_up=?,log_e_down=?,n=?,acts=?,hits=?,sum_u=?,sum_u2=?,last_ordinal=?,state=? WHERE policy_hash=?",
                     new Object[] {legacy.logUp, legacy.logDown, legacy.n, legacy.acts, legacy.hits, legacy.sumU, legacy.sumU2, legacy.lastOrdinal, legacy.state, w.id});
             db.execSQL("INSERT INTO r27_certificate(policy_hash,status,gates_json,evidence_digest,issued_at,expires_at) VALUES(?,'ACTIVE','{}','old',0,1)", new Object[] {w.id});
+            String oldExposure = rows(db, "SELECT * FROM r27_eprocess ORDER BY policy_hash");
+            String oldReceipts = rows(db, "SELECT * FROM r29_qual_receipt ORDER BY experiment_id,target_ordinal");
             pass(db, s, 60);
             long rebuilt = scalar(db, "SELECT count(*) FROM r29_qual_rebuild WHERE experiment_id=?", w.id);
             String cert = null; try (Cursor c = db.rawQuery("SELECT status FROM r27_certificate WHERE policy_hash=?", new String[] {w.id})) { if (c.moveToFirst()) cert = c.getString(0); }
@@ -166,12 +188,18 @@ public final class QualInboxR29HostTest {
             long pendingDraw = scalar(db, "SELECT count(*) FROM r29_pending_draw WHERE resolved_at=0");
             for (int o = 7; o <= 60; o += 7) w.draw(db, o); // the backfill finally brings the missing draws
             for (int k = 0; k < 5; k++) pass(db, s, 60);
-            String d = same(StoreR27.readEprocess(db, w.id), w.reference());
+            boolean exposurePreserved = oldExposure.equals(rows(db, "SELECT * FROM r27_eprocess ORDER BY policy_hash"));
+            boolean receiptsPreserved = oldReceipts.equals(rows(db, "SELECT * FROM r29_qual_receipt ORDER BY experiment_id,target_ordinal"));
             long minus2 = scalar(db, "SELECT count(*) FROM r27_live_frozen WHERE hit=-2");
             long resolved = scalar(db, "SELECT count(*) FROM r29_pending_draw WHERE resolved_at>0");
             boolean actBlocks = false; for (int o = 7; o <= 60; o += 7) if (w.act(o)) { actBlocks = blockedAt < o; break; }
-            check("Q3_LATE_HIT_MINUS2_RECOVERED_AND_REBUILT", rebuilt == 1 && "REVOKED_REBUILD".equals(cert) && d == null && minus2 == 0 && pendingDraw > 0 && resolved == pendingDraw,
-                    "rebuildLog=" + rebuilt + " cert=" + cert + " pendingDraw=" + pendingDraw + " resolved=" + resolved + " blockedAtLastOrdinal=" + blockedAt + " actBlocked=" + actBlocks + (d == null ? "" : " " + d));
+            String blockedReason = null;
+            try (Cursor c = db.rawQuery("SELECT blocked_reason FROM r29_qual_cursor WHERE experiment_id=?", new String[] {w.id})) { if (c.moveToFirst()) blockedReason = c.getString(0); }
+            check("Q3_BACKFILL_SETTLED_UNPROVEN_EXPOSURE_PRESERVED", rebuilt == 1 && "REVOKED_LEGACY_EXPOSURE".equals(cert)
+                            && exposurePreserved && receiptsPreserved && "LEGACY_REGISTRATION_BOUNDARY_UNPROVEN".equals(blockedReason)
+                            && minus2 == 0 && pendingDraw > 0 && resolved == pendingDraw,
+                    "audit=" + rebuilt + " cert=" + cert + " exposurePreserved=" + exposurePreserved + " receiptsPreserved=" + receiptsPreserved
+                            + " pendingDraw=" + pendingDraw + " resolved=" + resolved + " reason=" + blockedReason);
         }
         // Q4 conflict isolation
         {
@@ -278,7 +306,7 @@ public final class QualInboxR29HostTest {
             boolean end = scalar(db, "SELECT last_ordinal FROM r27_eprocess") == 3 && scalar(db, "SELECT blocked_ordinal FROM r29_qual_cursor") == 4;
             check("Q10_FIRST_AND_TRAILING_GAPS", first && end, "firstBlocked=" + first + " trailingBeforeFuture=" + end);
         }
-        // Q11 Old checkpoint receipts may themselves have jumped a missing opportunity. Log, revoke, rebuild.
+        // Q11 A gapped legacy checkpoint cannot acquire a fabricated continuous exposure history.
         {
             World w = new World(5, 73); SQLiteDatabase db = open(); w.register(db, -1);
             QualificationInboxR29.Commit s = sink(db, 0, new Random(2));
@@ -288,10 +316,16 @@ public final class QualInboxR29HostTest {
             db.execSQL("UPDATE r27_eprocess SET n=2,last_ordinal=3");
             db.execSQL("INSERT INTO r27_certificate(policy_hash,status,gates_json,evidence_digest,issued_at,expires_at) VALUES(?,'ACTIVE','{}','old',0,999999)", new Object[] {w.id});
             for (int o = 1; o <= 5; o++) w.draw(db, o);
+            String oldExposure = rows(db, "SELECT * FROM r27_eprocess ORDER BY policy_hash");
+            String oldReceipts = rows(db, "SELECT * FROM r29_qual_receipt ORDER BY experiment_id,target_ordinal");
             pass(db, s, 5);
-            check("Q11_REBUILD_GAPPED_CHECKPOINT", scalar(db, "SELECT count(*) FROM r29_qual_rebuild") == 1
-                    && scalar(db, "SELECT count(*) FROM r27_certificate WHERE status='REVOKED_REBUILD'") == 1
-                    && same(StoreR27.readEprocess(db, w.id), w.reference()) == null, "old evidence kept; certificate revoked; continuous replay recovered");
+            for (int i = 0; i < 3; i++) pass(db, s, 5);
+            check("Q11_GAPPED_CHECKPOINT_KEEPS_ALL_EXPOSURE_AND_RECEIPTS", scalar(db, "SELECT count(*) FROM r29_qual_rebuild") == 1
+                    && scalar(db, "SELECT count(*) FROM r27_certificate WHERE status='REVOKED_LEGACY_EXPOSURE'") == 1
+                    && oldExposure.equals(rows(db, "SELECT * FROM r27_eprocess ORDER BY policy_hash"))
+                    && oldReceipts.equals(rows(db, "SELECT * FROM r29_qual_receipt ORDER BY experiment_id,target_ordinal"))
+                    && scalar(db, "SELECT count(*) FROM r29_qual_cursor WHERE blocked_reason='LEGACY_EXPOSURE_RANGE_NONCONTIGUOUS'") == 1,
+                    "all original state and receipt values/types preserved; repeated recovery stays blocked and audit is idempotent");
         }
         atomicBatches();
         modelCheckpointTransaction();
