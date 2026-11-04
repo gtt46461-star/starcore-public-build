@@ -360,6 +360,15 @@
           "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
           "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
+      ],
+      "candidate_protocol_evidence": [
+        {
+          "source_commit": "4c5db260de645796ee5c4d1f3c898f937fbc10f5",
+          "methods": "DatabaseCoordinator.recordUnlockedWriterR30 + WriterHoldFaultsR31.observe/drainOne",
+          "evidence": "verification/r31/p01/writer-hold-fault/actual-whole-android-bootstrap-4459/SUMMARY.json",
+          "result": "HOST_100_PASS_NOT_ANDROID_RUNTIME",
+          "card_acceptance": "OPEN_NOT_INFERRED_FROM_MODULE_TESTS"
+        }
       ]
     },
     {
@@ -423,10 +432,18 @@
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
           "methods": "shared classification for direct and legacy task entries",
           "committed_sha256": "d2b27268bfb8027ea2ebcbb8a326deb03397f73b12e7082495bfb2c5ef7f80b2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "source_commit": "493080ad4d74c2821f1b3d5651c93212c042a86e",
+          "sha256_at_record": "16c79cd027c433537b371469a32394e3fddb07b9352e92d4d8b3579a6532d871",
+          "methods": "Typed category adaptation and known cold-start guard verification",
+          "scope": "SOURCE_CHECKPOINT_FINAL_JOINT_GATES_OPEN"
         }
       ],
       "commits": [
-        "844a78488f396189c2db98591782b7bb214799d2"
+        "844a78488f396189c2db98591782b7bb214799d2",
+        "493080ad4d74c2821f1b3d5651c93212c042a86e"
       ],
       "migration_versions": [
         "SQLite userVersion 36 retained",
@@ -539,6 +556,16 @@
           "state": "BUILD_PASS",
           "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
           "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
+        }
+      ],
+      "candidate_protocol_evidence": [
+        {
+          "source_commit": "493080ad4d74c2821f1b3d5651c93212c042a86e",
+          "evidence": "verification/r31/p01/failure-classification/20261104-whole4475/RECEIPT.json",
+          "result": "TARGETED_11_UNIT_PASS_ON_ACTUAL4475_BOOTSTRAP",
+          "card_acceptance": "OPEN_NO_STATE_PROMOTION",
+          "device": "NOT_RUN",
+          "natural_quality": "NOT_PROVEN"
         }
       ]
     },
@@ -1347,18 +1374,53 @@
           "methods": "recordCacheRebuildsR30 retains bounded prepared exact events and lease until idempotent fenced success; same identity retry afterUNKNOWN and no wrong-owner dequeue",
           "sha256_at_record": "5f792f65509da955b9dbd2ca76cfb82d79b1db7aa7ca5d0b43a3800631823adb",
           "scope": "ACTUAL148ASSERT_HOST31STAGES;NEW_MAIN_BUILD_NOT_RUN"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+          "source_commit": "493080ad4d74c2821f1b3d5651c93212c042a86e",
+          "sha256_at_record": "71722a8582e6eeeb2daf8d16446de145501bf54793819695bc4eaeea74a7a913",
+          "methods": "Owner-authenticated startup migrations/archive byte preservation and actual Dataset Pin scope integration",
+          "scope": "SOURCE_CHECKPOINT_FINAL_JOINT_GATES_OPEN"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+          "source_commit": "493080ad4d74c2821f1b3d5651c93212c042a86e",
+          "sha256_at_record": "e26556fdde2b055e51e8f8c7ad748023a4ad7b69a84b412df50ee7e64cc48680",
+          "methods": "Owner-authenticated startup migrations/archive byte preservation and actual Dataset Pin scope integration",
+          "scope": "SOURCE_CHECKPOINT_FINAL_JOINT_GATES_OPEN"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+          "source_commit": "493080ad4d74c2821f1b3d5651c93212c042a86e",
+          "sha256_at_record": "f46c6b02aa86041846c7a91780ac32387d46377d58a9fd254420681b78285756",
+          "methods": "Owner-authenticated startup migrations/archive byte preservation and actual Dataset Pin scope integration",
+          "scope": "SOURCE_CHECKPOINT_FINAL_JOINT_GATES_OPEN"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "source_commit": "493080ad4d74c2821f1b3d5651c93212c042a86e",
+          "sha256_at_record": "e21f0642f267d218fa2c8fbd7ccf0904030b9aed887e33d699e9e29a65e2ec94",
+          "methods": "Owner-authenticated startup migrations/archive byte preservation and actual Dataset Pin scope integration",
+          "scope": "SOURCE_CHECKPOINT_FINAL_JOINT_GATES_OPEN"
         }
       ],
       "commits": [
         "844a78488f396189c2db98591782b7bb214799d2",
         "84b2de53fef1a0edc7d41cfe762bbdc13aa2408d",
         "a4e4c4b887ed4c685929a2241188c9f0255f5ef6",
-        "f6f8bbc878aec16190d6dd7f7fd44d63b138d2d9"
+        "f6f8bbc878aec16190d6dd7f7fd44d63b138d2d9",
+        "493080ad4d74c2821f1b3d5651c93212c042a86e"
       ],
       "migration_versions": [
         "SQLite userVersion 36 retained",
         "RESEARCH_R31_OBSERVATION:1",
-        "RESEARCH_R31_WRITE:1"
+        "RESEARCH_R31_WRITE:1",
+        "RESEARCH_R31_OBSERVATION:2",
+        "RESEARCH_R31_ATOMNET_PUBLICATION:1",
+        "RESEARCH_R31_MODEL_PUBLICATION:1",
+        "R31_FEEDBACK_INDEX_CUTOVER_V1",
+        "R31_RETENTION_GUARD_CUTOVER_V1",
+        "R31_REVOCATION_GUARD_CUTOVER_V1"
       ],
       "tests": [
         {
@@ -1510,6 +1572,42 @@
           "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
           "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
+      ],
+      "candidate_protocol_evidence": [
+        {
+          "source_commit": "4c5db260de645796ee5c4d1f3c898f937fbc10f5",
+          "methods": "Shared migration domains for source/atom/history/qualification/evolution and bounded writer hold observation/drain",
+          "evidence": "verification/r31/p01/writer-hold-fault/actual-whole-android-bootstrap-4459/SUMMARY.json",
+          "result": "HOST_100_PASS_FINAL_JOINT_OPEN",
+          "card_acceptance": "OPEN_NOT_INFERRED_FROM_MODULE_TESTS"
+        },
+        {
+          "source_commit": "31bbc687c80e46fc4cd67e16fb4fcfb938654f2e",
+          "methods": "DbStore startup prerequisite + RSC.ensureRuntimeBundlePrerequisitesR31",
+          "evidence": "verification/r31/p02/platform-readiness/LEDGER.json",
+          "result": "HOST_122_PASS_ART_NOT_RUN",
+          "card_acceptance": "OPEN_NOT_INFERRED_FROM_MODULE_TESTS"
+        },
+        {
+          "source_commit": "d999418b59b2fd7a7c07d9d7fb0cf4aef790dfa7",
+          "methods": "ReportSnapshotR30.metrics complete HistoryImportR27 published scalar",
+          "evidence": "verification/r31/p01/history-report-reader",
+          "result": "HOST_134_PASS_ART_NOT_RUN",
+          "card_acceptance": "OPEN_NOT_INFERRED_FROM_MODULE_TESTS"
+        },
+        {
+          "source_commit": "493080ad4d74c2821f1b3d5651c93212c042a86e",
+          "evidence": "verification/r31/p01/shared-build/bootstrap-2f91-integration-02/RECEIPT.json",
+          "result": "4475_WHOLE_JAVA_BOOTSTRAP_PASS_LATER_SOURCE_STILL_REQUIRES_FINAL_BUILD",
+          "card_acceptance": "OPEN_NO_STATE_PROMOTION",
+          "device": "NOT_RUN",
+          "natural_quality": "NOT_PROVEN"
+        }
+      ],
+      "remaining_protocol_boundaries": [
+        "Warm ABI producer; Observer with real archive guards; Dataset actual postcommit interruption; same-source final Android gates",
+        "ModelPublication legacy first version accepted public Finalizer; closed dispatch currently being repaired, old evidence is not proof of a whitelist",
+        "Physical storage/GC/long run not inferred from bootstrap/native tests"
       ]
     },
     {
@@ -1578,11 +1676,40 @@
           "sha256_at_record": "c9562be588dfb38bf588797c1b4a10ec8d8a0330a692b85fbaaf44765aaa0c8d",
           "source_commit": "a4e4c4b887ed4c685929a2241188c9f0255f5ef6",
           "scope": "MODULE_IMPLEMENTED_AND_HOST_VERIFIED; MERGED_ANDROID_REVALIDATION_PENDING"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+          "source_commit": "493080ad4d74c2821f1b3d5651c93212c042a86e",
+          "sha256_at_record": "71722a8582e6eeeb2daf8d16446de145501bf54793819695bc4eaeea74a7a913",
+          "methods": "Owner-authenticated startup migrations/archive byte preservation and actual Dataset Pin scope integration",
+          "scope": "SOURCE_CHECKPOINT_FINAL_JOINT_GATES_OPEN"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+          "source_commit": "493080ad4d74c2821f1b3d5651c93212c042a86e",
+          "sha256_at_record": "e26556fdde2b055e51e8f8c7ad748023a4ad7b69a84b412df50ee7e64cc48680",
+          "methods": "Owner-authenticated startup migrations/archive byte preservation and actual Dataset Pin scope integration",
+          "scope": "SOURCE_CHECKPOINT_FINAL_JOINT_GATES_OPEN"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+          "source_commit": "493080ad4d74c2821f1b3d5651c93212c042a86e",
+          "sha256_at_record": "f46c6b02aa86041846c7a91780ac32387d46377d58a9fd254420681b78285756",
+          "methods": "Owner-authenticated startup migrations/archive byte preservation and actual Dataset Pin scope integration",
+          "scope": "SOURCE_CHECKPOINT_FINAL_JOINT_GATES_OPEN"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "source_commit": "493080ad4d74c2821f1b3d5651c93212c042a86e",
+          "sha256_at_record": "e21f0642f267d218fa2c8fbd7ccf0904030b9aed887e33d699e9e29a65e2ec94",
+          "methods": "Owner-authenticated startup migrations/archive byte preservation and actual Dataset Pin scope integration",
+          "scope": "SOURCE_CHECKPOINT_FINAL_JOINT_GATES_OPEN"
         }
       ],
       "commits": [
         "844a78488f396189c2db98591782b7bb214799d2",
-        "a4e4c4b887ed4c685929a2241188c9f0255f5ef6"
+        "a4e4c4b887ed4c685929a2241188c9f0255f5ef6",
+        "493080ad4d74c2821f1b3d5651c93212c042a86e"
       ],
       "migration_versions": [
         "SQLite userVersion 36 retained",
@@ -1732,6 +1859,23 @@
           "state": "BUILD_PASS",
           "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
           "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
+        }
+      ],
+      "candidate_protocol_evidence": [
+        {
+          "source_commit": "4c5db260de645796ee5c4d1f3c898f937fbc10f5",
+          "methods": "Independent diagnostic durable receipt never changes original business commit/replay",
+          "evidence": "verification/r31/p01/writer-hold-fault/actual-whole-android-bootstrap-4459/SUMMARY.json",
+          "result": "HOST_100_PASS_NOT_ANDROID_RUNTIME",
+          "card_acceptance": "OPEN_NOT_INFERRED_FROM_MODULE_TESTS"
+        },
+        {
+          "source_commit": "493080ad4d74c2821f1b3d5651c93212c042a86e",
+          "evidence": "verification/r31/p01/shared-build/bootstrap-2f91-integration-02/RECEIPT.json",
+          "result": "4475_WHOLE_JAVA_BOOTSTRAP_PASS_LATER_SOURCE_STILL_REQUIRES_FINAL_BUILD",
+          "card_acceptance": "OPEN_NO_STATE_PROMOTION",
+          "device": "NOT_RUN",
+          "natural_quality": "NOT_PROVEN"
         }
       ]
     },
@@ -2935,6 +3079,15 @@
             ],
             "next_step": "Root joint Android build+APK binding, then applicable real-device acceptance; continue independent P03+ work without treating missing future evidence as PASS."
           }
+        }
+      ],
+      "candidate_protocol_evidence": [
+        {
+          "source_commit": "4c5db260de645796ee5c4d1f3c898f937fbc10f5",
+          "methods": "RuntimeR27.HealthTask stable per-cleanup-slice identity; failure cause/pending actual scheduler verification",
+          "evidence": "verification/r31/evolution-publication/health-runtime62c46-supplementary",
+          "result": "PRIOR_ACTUAL_SCHEDULER_FAILURE_RETAINED_NEW65S_PENDING",
+          "card_acceptance": "OPEN_NOT_INFERRED_FROM_MODULE_TESTS"
         }
       ]
     },
@@ -6908,5 +7061,6 @@
         "consumer": "verification/r31/p02/resource-recovery-consumer/receipt.json"
       }
     }
-  }
+  },
+  "updated_at": "2026-11-04T21:31:53.576300+00:00"
 }

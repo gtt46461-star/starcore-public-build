@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-11-04T19:40:11.395586+00:00",
+  "recorded_at": "2026-11-04T21:31:53.576300+00:00",
   "branch": "construction/r31-final-20261104",
   "report_baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
   "latest_pushed_source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
@@ -85,8 +85,9 @@
     "P02_EXISTING_SOURCE_INTEGRATION_ONLY"
   ],
   "current_failures": [
-    "014 full API29/35: each14 fault cells FAILED in common R929 bundle-capture prerequisites before actual injection; original logs retained",
-    "P01/B02 all-producer protocol OPEN; new source/atom/history/evolution/qualification/F23 are being integrated into a separate later source",
+    "014 full API29/35 fault matrices FAILED before injection at R929 bundle prerequisites; original logs retained",
+    "P01 latest second SU2 phase native FAIL from Certificate-owned Critical delta; precise fix is implemented with regression IN_PROGRESS",
+    "P01 all-producer protocol and final same-source Android verification OPEN",
     "Physical device24h/72h NOT_RUN; natural future quality NOT_PROVEN"
   ],
   "apk_delivery": {
@@ -303,5 +304,103 @@
         "baseline_public_release": "https://github.com/gtt46461-star/starcore-public-build/releases/tag/r30-repair1-577311009-5237b265a27f"
       }
     }
+  ],
+  "latest_shared_candidate": {
+    "branch": "construction/r31-shared-migrations-20261104",
+    "commit": "30fffa790097046dd03ba65e010cab4ba4013f7a",
+    "url": "https://github.com/gtt46461-star/starcore-public-build/tree/construction/r31-shared-migrations-20261104",
+    "core_protocol_commit": "4c5db260de645796ee5c4d1f3c898f937fbc10f5",
+    "card_state_promoted": false,
+    "whole_android_java_bootstrap": "PASS_4459_ACTUAL_CLASSES_INPUTS_UNCHANGED",
+    "bootstrap_receipt": "verification/r31/p01/shared-build/bootstrap-30fffa79-01/RECEIPT.json",
+    "bootstrap_excluded_metadata_tasks": [
+      ":app:generateR982SourceCallAsset",
+      ":app:generateR997ConstructionAssets"
+    ],
+    "final_unexcluded": "NOT_RUN",
+    "latest_native_writer_fault": "100_PASS_ON_ACTUAL4459_BOOTSTRAP_CLASSES",
+    "native_writer_fault_receipt": "verification/r31/p01/writer-hold-fault/actual-whole-android-bootstrap-4459/SUMMARY.json",
+    "contains_new_atomnet_or_modelstore_publication": true,
+    "apk_for_this_candidate": "NOT_BUILT",
+    "latest_local_source_checkpoint": "493080ad4d74c2821f1b3d5651c93212c042a86e",
+    "latest_local_source_dirty_generated_identity": true,
+    "latest_pushed_checkpoint": "30fffa790097046dd03ba65e010cab4ba4013f7a",
+    "latest_bootstrap": {
+      "state": "PASS_BOOTSTRAP_ONLY",
+      "classes": 4475,
+      "receipt": "verification/r31/p01/shared-build/bootstrap-2f91-integration-02/RECEIPT.json",
+      "jar_sha256": "e46f65ea8e53b8982e1077a6908600cfab66d690f9c7bc11f501285fc85405c9",
+      "source_base": "2f91a41c2904df4d465158254c090f85be7f16ad",
+      "source_inputs": "COMPLETE_SHA256_MAP_IN_RECEIPT_UNCHANGED_DURING_RUN",
+      "exclusions": [
+        ":app:generateR982SourceCallAsset",
+        ":app:generateR997ConstructionAssets"
+      ],
+      "does_not_include_later_retention_strict_archive_or_pin_observer_runtime_changes": true
+    }
+  },
+  "P01_shared_startup_gate": {
+    "state": "PARTIAL_NATIVE_PASS_SECOND_SU2_PHASE_REPAIR_IN_PROGRESS",
+    "original_full_class_jar": "582f7475b43d218c50d34f8f24d4399ae4916b53579807c22c162bd25b7fea56",
+    "actual_baseline": "REAL_5237_DBSTORE_DBHELPER_DATABASE_1097_OBJECTS_USER_VERSION36",
+    "found_and_preserved": [
+      "Feedback owner adds r31_feedback_source index to Critical without restamping: Source cutover correctly refused and rolled back",
+      "Unknown History CHECK constraint could be stamped READY with only object presence: false readiness proven",
+      "WRITE altered task_control after OBS stamped its7-column shape: OBS fingerprint invalidated",
+      "Retention feedback archive guard changed Critical without authenticated owner cutover",
+      "Existing archive INTEGER affinity coerced TEXT 00123 to INTEGER123; extra INSERT IGNORE trigger dropped archive rows",
+      "Cold generic Critical repair authenticated persisted wrong retention guard before owner validation",
+      "Second scheduled SU2 initializer adds two source-revocation draw triggers without authenticated owner cutover"
+    ],
+    "repairs": [
+      "Exact Feedback-owned index delta verified with all other Critical definitions unchanged; same-transaction journal/stamp",
+      "History strict published contract must verify after migration step before READY",
+      "OBS revision2 owns complete14-column task_control, migrates known old rows without resetting; WRITE is read-only for that table shape",
+      "Retention exact same-builder guard delta and all-other-Core unchanged before same-TX journal/stamp; STAMP_MISSING stays missing",
+      "Strict archive metadata/NONE affinities, table SQL, source-column membership and attachment inventory; never rebuild or delete evidence",
+      "Cold Core entry validates known Research-owned attachments before generic repair/stamp",
+      "Certificate owner validates exact declared draw guards and authenticates only their delta in same writer transaction"
+    ],
+    "latest_overlay": "Domain71722_Certificatef46c_Retentione588_AND_LATER_READONLY_APIe265",
+    "original_failures_remain_failed": true,
+    "not_final_android_runtime_acceptance": true,
+    "native_three_initializers": {
+      "state": "PASS_15_CASES_632_ASSERTIONS_OLDER_OVERLAY_SCOPE",
+      "evidence": "verification/r31/p01/shared-startup-joint/20261104T194418Z/whole30ff-overlay07a-13-full-retention/RECEIPT.json",
+      "does_not_cover_later_atomnet_model_domains": true
+    },
+    "native_cold_and_unstamped": {
+      "state": "PASS_THREE_CASES_FOUNDATION_SCOPE_NOT_SU2",
+      "evidence": "verification/r31/p01/shared-startup-joint/20261104T194418Z/whole2f91-overlay56c-17-reopen-and-unstamped/RECEIPT.json"
+    },
+    "latest_joint_with_su2": "IN_PROGRESS_AFTER_REAL_SECOND_PHASE_FAILURE_NO_PASS_INFERRED"
+  },
+  "latest_health_liveness": {
+    "state": "HOST_NAMED_PROTOCOL_PASS",
+    "actual_elapsed_seconds": 70.03,
+    "dispatches": 65,
+    "real_health_publications": 2,
+    "private_scratch_rows_before": 2334,
+    "private_scratch_rows_after": 0,
+    "real_fault_receipts": 1,
+    "pending_at_exit": 0,
+    "capacity_loss": 0,
+    "original_3second_exit_gate": "PASS_ACTUAL_READER_CLOSED_CONTINUATIONS_AND_COMPUTE_EXITED",
+    "longest_dispatch_gap_ms": 5113,
+    "constant_1Hz_claim": false,
+    "receipt": "verification/r31/evolution-publication/health-followup-20261104/RECEIPT.json",
+    "physicalDevice": "NOT_RUN",
+    "24h": "NOT_RUN",
+    "72h": "NOT_RUN",
+    "naturalQuality": "NOT_EVALUATED"
+  },
+  "latest_local_source_checkpoint": "493080ad4d74c2821f1b3d5651c93212c042a86e",
+  "latest_local_source_url": "https://github.com/gtt46461-star/starcore-public-build/commit/493080ad4d74c2821f1b3d5651c93212c042a86e",
+  "producer_contract_remaining": [
+    "Warm/ABI producer shared write and ownership integration",
+    "Observer actual Retention-protected source guards and Runtime integration",
+    "Dataset actual submit/receipt interruption recovery after new Pin admission",
+    "Full same-source Android unexcluded compile/all-unit/lint/identity plus actual API29/35 fault matrices",
+    "Protected growth debts and P06-controlled reclamation remain separate; no measured physical release inferred"
   ]
 }
