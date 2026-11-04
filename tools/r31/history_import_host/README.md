@@ -26,6 +26,10 @@ python3 tools/r31/history_import_host/run_publication_host.py
 脚本先逐源复制和 SHA256 绑定，再显式编译；原始产物依赖和每条命令写入 `EXECUTION.json`。
 这类 WIP 联合快照不声称为一个干净 Android 源提交或 APK。
 
+默认临时卷实际可用空间不足 256MiB 时生产准入会拒绝，原始失败必须保留。
+可用 `--scratch-root /path/on/available-filesystem` 选择有真实容量的独立新 fixture；
+这不改变默认预算、不腾空原卷，也不是任何受保护数据回收证明。
+
 HOST 默认 allocated 测量为 UNKNOWN 的拒绝保留为独立负控。其余模式只把 private
 `STAT/BLOCKS` 测量边界接到本目录 JNI 的真实 POSIX `stat(2).st_blocks`，记录源/二进制 SHA，
 不改变 VM 属性、生产 Config、全目录遍历、预算或 probe。物理 blocks 与文件逻辑字节分别报告；

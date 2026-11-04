@@ -23,6 +23,7 @@ from host_tool_support import dependencies, run
 parser = argparse.ArgumentParser()
 parser.add_argument("--modes", default="stock-unknown,suite,rollback-cancel,io-debt,source-members,source-race,streaming-format,crash-chunk,lease-pending,resume-chunk,crash-members,member-lease-pending,resume-members,crash-publish,resume-publish")
 parser.add_argument("--out", type=Path, default=ROOT / "verification/r31/p01/history-import/current")
+parser.add_argument("--scratch-root", type=Path, help="Explicit real fixture filesystem; production free-floor/config stay unchanged")
 args = parser.parse_args()
 OUT = args.out.resolve()
 OUT.mkdir(parents=True, exist_ok=True)
@@ -33,7 +34,9 @@ JAVA_HOME = JAVA.parent.parent
 journal = Path(os.environ.get("R31_SOURCE_JOURNAL_SOURCE", ROOT / "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSourceJournalR31.java"))
 if not journal.is_file():
     raise FileNotFoundError("actual same-version ResearchSourceJournalR31 producer required: " + str(journal))
-temporary = Path(tempfile.mkdtemp(prefix="r31-history-publication-"))
+if args.scratch_root:
+    args.scratch_root.mkdir(parents=True, exist_ok=True)
+temporary = Path(tempfile.mkdtemp(prefix="r31-history-publication-", dir=args.scratch_root))
 sources = [ROOT / "app/src/main/java/com/ethk3/novaonepro/strategyv2/HistoryImportR27.java", journal]
 joint_manifest = os.environ.get("R31_HISTORY_JOINT_SOURCES")
 if joint_manifest:
