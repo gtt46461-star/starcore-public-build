@@ -14,11 +14,11 @@ HistoryImport 必须同版集成新的 COMPLETE 发布协议。准备阶段按�
 
 迁移复用 Root 的 `SchemaDomainCoordinatorR926.migrateR31SourceJournal`，新 source domain rev1、24 个对象；SQLite user_version 保持原值，原 pin 编码 VERSION 也不变。helper 仅接受 EXACT 旧四个触发器、EXACT 新六个触发器或全空的显式安装；未知同名定义拒绝。R31 已存在而 evidence table 缺失也拒绝，不能创建一个空 journal 冒充原证据。
 
-最终本模块测试：`runs/20261104T192241Z/RECEIPT.json`，所有来源测试前后字节一致。
+最终本模块测试：`runs/20261104T192757Z/RECEIPT.json`，所有来源测试前后字节一致。
 
 - `InputPinJournalR31Host`：3631 项断言；1/16/256/2048 pin 的单次 UPDATE 恒 3 行（源 + 旧 clock + event）、新 INPUT_INVALIDATION 恒 0；同事务即时 invalid/revision/require/run gate、回滚、重开、metadata no-op、范围端点、精确 import 洞、已发布成员保护、重复 event 幂等、32/33 成员边界及真实逆序触发器。
 - 原 `RepairInputPinR30HostTest` 原样通过；3000 原始输入、追加400与删除旧500后原 hash/角色可恢复、同事务纠正后 guard 全回滚、精确回改内容的新 pin 与旧 advice 区分、原两列/六触发器及 immutable pin 保留。
-- `InputSourceMigrationR31Host`：43 项断言。执行实际 DbHelper.createBaseTables、migrateDrawColumns/AppState、实际 12 个 Critical runStep 回调，完整实际 Critical contract verifyObjects；旧 MATCH 及严格旧 pin-addition MATCH → 精确切换 → restamp → 物理重开。注入第二个新 draw trigger DDL 失败时，旧 trigger/stamp/journal 全回滚；无关 Critical trigger 篡改不能取得新 stamp；原 stamp 缺失不补造。仅 HOST Db 测试 adapter 去除 final 以便注入，原 schema 方法/断言未改，compiled SHA 已记录。
+- `InputSourceMigrationR31Host`：46 项断言（含实际 user_version36 升级、重开和回滚保留）。执行实际 DbHelper.createBaseTables、migrateDrawColumns/AppState、实际 12 个 Critical runStep 回调，完整实际 Critical contract verifyObjects；旧 MATCH 及严格旧 pin-addition MATCH → 精确切换 → restamp → 物理重开。注入第二个新 draw trigger DDL 失败时，旧 trigger/stamp/journal 全回滚；无关 Critical trigger 篡改不能取得新 stamp；原 stamp 缺失不补造。仅 HOST Db 测试 adapter 去除 final 以便注入，原 schema 方法/断言未改，compiled SHA 已记录。
 - 实际 consumer 有正反对照：有效工程模型 receipt 可被 summary 与 temporal matrix 消费；同事务源修正后两者立即拒绝；rollback 后 matrix 恢复。工程 receipt 不是模型训练、未来胜率或资格证据。
 
 重跑命令：
@@ -40,3 +40,5 @@ python3 tools/r31/verify_input_pin_joint.py \
 - 任意 SQL `INSERT OR REPLACE` 的 ONLINE 纠正语义没有全面证明。实际 canonical DbStore 路径是 CONFLICT_IGNORE + UPDATE；旧 HistoryImport 的 REPLACE 必须由新 COMPLETE 精确事件路径替换，不能单独交付本 helper 后宣称已接全。
 - 原始 pin 解压/编码仍是有界但未单独新增完整 working-memory owner 的路径；新增 proof cache 只有元数据声明，不代表这些工作数组或 SQLite native 内存已覆盖。
 - 不重置旧曝光、不删除旧 pin/失效账本、不创建自然合格策略；没有设备或自然质量 PASS。
+
+源码提交为 `d88c848f16c6ad2fcde61c21a7c872b3443eb61a`。最后工具复验复制并逐类哈希固定 shared API 闭包，记录 runner SHA；本模块8生产源没有继续修改。192241Z 的3631+43稳定通过历史保持原样。

@@ -20,14 +20,14 @@ def main():
     parser.add_argument('--jdbc',type=Path,default=Path('/tmp/r31-baseline-deps/sqlite-jdbc.jar'))
     parser.add_argument('--out',type=Path)
     args=parser.parse_args()
-    out=args.out or ROOT/'verification/r31/p01/input-pin-budget/runs'/datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')
+    out=(args.out or ROOT/'verification/r31/p01/input-pin-budget/runs'/datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')).resolve()
     out.mkdir(parents=True,exist_ok=False)
     work=Path(tempfile.mkdtemp(prefix='r31-source-pin-joint-'))
     source,production,platform,host,rich,critical=[work/name for name in ['source','production','platform','host','critical-platform','critical-host']]
     for directory in [source,production,platform,host,rich,critical]:directory.mkdir()
     receipt={'schema':'R31_SOURCE_PIN_NATIVE_1','scope':'EXPLICIT_PRODUCTION_SOURCE_AND_FROZEN_SHARED_API_NATIVE_SQLITE_NOT_WHOLE_ANDROID',
       'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'work':str(work),'source_head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
-      'status':'IMPLEMENTING','commands':[],'sources':[],'support_jar':{'path':str(args.support_jar),'sha256':SHA(args.support_jar.read_bytes())},
+      'status':'IMPLEMENTING','commands':[],'sources':[],'runner_sha256':SHA(Path(__file__).read_bytes()),'support_jar':{'path':str(args.support_jar),'sha256':SHA(args.support_jar.read_bytes())},
       'jdbc':{'path':str(args.jdbc),'sha256':SHA(args.jdbc.read_bytes())},'shared_api_classes':str(args.shared_api_classes),
       'device':'NOT_RUN','android_whole_build':'NOT_RUN','natural_quality':'NOT_EVALUATED',
       'limits':['The fixed shared API classes supply unrelated protocols; all thirteen modified pin/consumer/Domain/Q/Evolution source inputs override their older classes.',
@@ -47,18 +47,27 @@ def main():
         receipt['sources'].append({'origin':str(path),'snapshot':str(target),'sha256':SHA(data)})
         return target
     try:
+        # Never execute another owner's live compilation directory. Copy its fixed API-only closure
+        # and disclose every byte; the thirteen source inputs below take precedence over it.
+        api=work/'shared-api-frozen';api.mkdir();inventory={}
+        for origin in sorted(args.shared_api_classes.rglob('*.class')):
+            relative=origin.relative_to(args.shared_api_classes);data=origin.read_bytes();target=api/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data);inventory[str(relative)]=SHA(data)
+        if not inventory:raise RuntimeError('Empty shared API class closure')
+        receipt['shared_api_class_inventory_sha256']=SHA(json.dumps(inventory,sort_keys=True,separators=(',',':')).encode())
+        receipt['shared_api_class_inventory']=inventory
+        receipt['shared_api_frozen_path']=str(api)
         names=['ResearchSourceJournalR31','PinSnapshotProofR31','ResearchInputPinR30R1','AtomNetRuntimeR30','MatrixEvidenceR30R1','MatrixResearchR30R1','ModelReplayStudyR30R1','OnlineResearchWindowR30R1']
         origins=[ROOT/BASE/'strategyv2'/f'{name}.java' for name in names]
         origins += [args.domain_root/BASE/name for name in ['SchemaDomainCoordinatorR926.java','strategyv2/SchemaR27.java']]
         origins += [args.qualification_root/BASE/'strategyv2/QualificationInboxR29.java']
         origins += [args.evolution_root/BASE/'strategyv2'/f'{name}.java' for name in ['EvolutionPublicationStoreR31','EvolutionPublicationSqlR31']]
         files=[snapshot(origin,source/'production'/origin.name) for origin in origins]
-        classpath=os.pathsep.join(map(str,[args.shared_api_classes,args.support_jar,args.sdk]))
+        classpath=os.pathsep.join(map(str,[api,args.support_jar,args.sdk]))
         javac=args.jdk/'bin/javac';java=args.jdk/'bin/java'
         run('production-javac',[javac,'-encoding','UTF-8','-sourcepath','','-implicit:none','-cp',classpath,'-d',production,*files])
         shims=[snapshot(origin,source/'plain-shim'/origin.relative_to(ROOT/'tools/r29/qual_host/shim')) for origin in (ROOT/'tools/r29/qual_host/shim').rglob('*.java')]
         run('plain-platform-javac',[javac,'-encoding','UTF-8','-cp',str(args.sdk),'-d',platform,*shims])
-        runtime=os.pathsep.join(map(str,[platform,production,args.shared_api_classes,args.support_jar,args.jdbc,args.sdk]))
+        runtime=os.pathsep.join(map(str,[platform,production,api,args.support_jar,args.jdbc,args.sdk]))
         hosts=[snapshot(ROOT/'tools/r31/input_pin_host/InputPinJournalR31Host.java',source/'InputPinJournalR31Host.java'),snapshot(ROOT/'tools/r30-repair/qual_host/RepairInputPinR30HostTest.java',source/'RepairInputPinR30HostTest.java')]
         run('pin-host-javac',[javac,'-encoding','UTF-8','-sourcepath','','-implicit:none','-cp',runtime,'-d',host,*hosts])
         for name in ['InputPinJournalR31Host','RepairInputPinR30HostTest']:run(name,[java,'-Xmx512m','-cp',str(host)+os.pathsep+runtime,'com.ethk3.novaonepro.strategyv2.'+name])
@@ -85,7 +94,7 @@ def main():
         text=text.replace(old,'static class Db extends SQLiteDatabase');fixture_snapshot.write_text(text)
         receipt['critical_fixture_adapter']={'purpose':'Allow test Db subclass for explicit source-DDL failure injection; original schema methods/guards/assertions unchanged','compiled_sha256':SHA(text.encode()),'patch':'Remove final from the HOST Db adapter class only'}
         fixtures=[fixture_snapshot,snapshot(ROOT/'tools/r31/input_pin_host/InputSourceMigrationR31Host.java',source/'InputSourceMigrationR31Host.java')]
-        runtime=os.pathsep.join(map(str,[rich,production,args.shared_api_classes,args.support_jar,args.jdbc,args.sdk]))
+        runtime=os.pathsep.join(map(str,[rich,production,api,args.support_jar,args.jdbc,args.sdk]))
         run('critical-host-javac',[javac,'-encoding','UTF-8','-sourcepath','','-implicit:none','-cp',runtime,'-d',critical,*fixtures])
         run('InputSourceMigrationR31Host',[java,'-Xmx512m','-cp',str(critical)+os.pathsep+runtime,'com.ethk3.novaonepro.InputSourceMigrationR31Host',out/'critical-sql-api.tsv'])
         changed=[]

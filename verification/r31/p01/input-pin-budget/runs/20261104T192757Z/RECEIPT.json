@@ -1,0 +1,411 @@
+{
+  "schema": "R31_SOURCE_PIN_NATIVE_1",
+  "scope": "EXPLICIT_PRODUCTION_SOURCE_AND_FROZEN_SHARED_API_NATIVE_SQLITE_NOT_WHOLE_ANDROID",
+  "started_utc": "2026-11-04T19:27:57.638958+00:00",
+  "work": "/tmp/r31-source-pin-joint-nesqx8o4",
+  "source_head": "d88c848f16c6ad2fcde61c21a7c872b3443eb61a",
+  "status": "NATIVE_NAMED_PROTOCOLS_PASS_NOT_ANDROID_OR_DEVICE",
+  "commands": [
+    {
+      "name": "production-javac",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/tmp/r31-source-pin-joint-nesqx8o4/shared-api-frozen:/tmp/r31-p02-014-actual-android-support/classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-source-pin-joint-nesqx8o4/production",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/production/ResearchSourceJournalR31.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/production/PinSnapshotProofR31.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/production/ResearchInputPinR30R1.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/production/AtomNetRuntimeR30.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/production/MatrixEvidenceR30R1.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/production/MatrixResearchR30R1.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/production/ModelReplayStudyR30R1.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/production/OnlineResearchWindowR30R1.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/production/SchemaDomainCoordinatorR926.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/production/SchemaR27.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/production/QualificationInboxR29.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/production/EvolutionPublicationStoreR31.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/production/EvolutionPublicationSqlR31.java"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.667517,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "plain-platform-javac",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-source-pin-joint-nesqx8o4/platform",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/plain-shim/android/database/Cursor.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/plain-shim/android/database/sqlite/SQLiteDatabase.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/plain-shim/android/database/sqlite/SQLiteDatabaseLockedException.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/plain-shim/android/database/sqlite/SQLiteException.java"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.720924,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "pin-host-javac",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/tmp/r31-source-pin-joint-nesqx8o4/platform:/tmp/r31-source-pin-joint-nesqx8o4/production:/tmp/r31-source-pin-joint-nesqx8o4/shared-api-frozen:/tmp/r31-p02-014-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-source-pin-joint-nesqx8o4/host",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/InputPinJournalR31Host.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/RepairInputPinR30HostTest.java"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.157291,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "InputPinJournalR31Host",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-source-pin-joint-nesqx8o4/host:/tmp/r31-source-pin-joint-nesqx8o4/platform:/tmp/r31-source-pin-joint-nesqx8o4/production:/tmp/r31-source-pin-joint-nesqx8o4/shared-api-frozen:/tmp/r31-p02-014-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.InputPinJournalR31Host"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.731211,
+      "stdout_sha256": "a2b95be9cbfee617105bc925c8145656bb4b975159c67e989be23fd197b36c18",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "RepairInputPinR30HostTest",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-source-pin-joint-nesqx8o4/host:/tmp/r31-source-pin-joint-nesqx8o4/platform:/tmp/r31-source-pin-joint-nesqx8o4/production:/tmp/r31-source-pin-joint-nesqx8o4/shared-api-frozen:/tmp/r31-p02-014-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.RepairInputPinR30HostTest"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.492789,
+      "stdout_sha256": "104a42876d223046a911d0bd1f5d47868bb51fd150f386ed0df2660fac0a35f5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "critical-platform-javac",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/tmp/r31-source-pin-joint-nesqx8o4/shared-api-frozen:/tmp/r31-p02-014-actual-android-support/classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-source-pin-joint-nesqx8o4/critical-platform",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/rich-shim/android/content/ContentValues.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/rich-shim/android/database/Cursor.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/rich-shim/android/database/sqlite/SQLiteDatabase.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/rich-shim/android/database/sqlite/SQLiteOpenHelper.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/rich-shim/android/database/sqlite/SQLiteException.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/rich-shim/android/os/SystemClock.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/rich-shim/android/os/Looper.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/rich-shim/android/util/Log.java"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.613898,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "critical-host-javac",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/tmp/r31-source-pin-joint-nesqx8o4/critical-platform:/tmp/r31-source-pin-joint-nesqx8o4/production:/tmp/r31-source-pin-joint-nesqx8o4/shared-api-frozen:/tmp/r31-p02-014-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-source-pin-joint-nesqx8o4/critical-host",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/MainChainSchemaR31Host.java",
+        "/tmp/r31-source-pin-joint-nesqx8o4/source/InputSourceMigrationR31Host.java"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.667624,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "9425a10ece6795f927f46fd0fb5c7005cc68ffe7014dd4b60136fd9ca8a1af1f"
+    },
+    {
+      "name": "InputSourceMigrationR31Host",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-source-pin-joint-nesqx8o4/critical-host:/tmp/r31-source-pin-joint-nesqx8o4/critical-platform:/tmp/r31-source-pin-joint-nesqx8o4/production:/tmp/r31-source-pin-joint-nesqx8o4/shared-api-frozen:/tmp/r31-p02-014-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.InputSourceMigrationR31Host",
+        "/workspace/r31-input-pin-budget/verification/r31/p01/input-pin-budget/runs/20261104T192757Z/critical-sql-api.tsv"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.743634,
+      "stdout_sha256": "1abf259b649c8f13f8affa455cf8823a34737866a3b16cdde091f7c8362dd7d8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "sources": [
+    {
+      "origin": "/workspace/r31-input-pin-budget/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSourceJournalR31.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/production/ResearchSourceJournalR31.java",
+      "sha256": "ec31ce289aedba8acac17e5f2dcb40172a42c045821fe52094defb8ff657415e",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/app/src/main/java/com/ethk3/novaonepro/strategyv2/PinSnapshotProofR31.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/production/PinSnapshotProofR31.java",
+      "sha256": "32c01cecfb675bbded4a4db802e7b670cd2a55e9236289a0fd703ad19a3a42a8",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/production/ResearchInputPinR30R1.java",
+      "sha256": "cb002a93258836632780748a395bedc1aafaff96e18e02fc6dd0dcf5170bbb63",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/production/AtomNetRuntimeR30.java",
+      "sha256": "1c3db81fc3b61aab8f07bece3db38289eb1293610b89affaa77702392eaec2ec",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixEvidenceR30R1.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/production/MatrixEvidenceR30R1.java",
+      "sha256": "49afe44914d27f40758368d935862cef9e5766b43fe2b0a7b65407d2c8f0dd77",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/production/MatrixResearchR30R1.java",
+      "sha256": "38896cecd7d325f0a8d6a85e2e8c9a0d1331bbdd3e329e20520af41ab5f6655e",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplayStudyR30R1.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/production/ModelReplayStudyR30R1.java",
+      "sha256": "b5e0494a5ed57fbadaaca9808d36519a59a4294cf57e9ac63b45f8da2b0d8cb0",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/app/src/main/java/com/ethk3/novaonepro/strategyv2/OnlineResearchWindowR30R1.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/production/OnlineResearchWindowR30R1.java",
+      "sha256": "193bc3f8cfafc788775202693f34686de91b0afee65d8a32e4999a0a73933af1",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-shared-migrations/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/production/SchemaDomainCoordinatorR926.java",
+      "sha256": "3500dcfe1472a904f8e871dec972fde086c825221b9f4b051237257bdd0e3b4b",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-shared-migrations/app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/production/SchemaR27.java",
+      "sha256": "d54a0bfebf0d3d3bab6a3e935a3a39cc1f88ea8bafeb0ba7c3e65e7334760fc5",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-live-writer-budgets/app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/production/QualificationInboxR29.java",
+      "sha256": "b5fdf7a667257b910aca30dc4b9e23dae82167410ebcfe75e95d35e84cfb9831",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-evolution-publication-de9/app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionPublicationStoreR31.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/production/EvolutionPublicationStoreR31.java",
+      "sha256": "ae0943a12c709c6e7d5bd1968fbe5619bffc96254aeaf3eb33797c8cafeb1968",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-evolution-publication-de9/app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionPublicationSqlR31.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/production/EvolutionPublicationSqlR31.java",
+      "sha256": "3dc7b0747d3740e08a7aaef34670992359b876f6da854d863cf916318e9d9fbd",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r29/qual_host/shim/android/database/Cursor.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/plain-shim/android/database/Cursor.java",
+      "sha256": "98dc66b94e18cd85d2f270a111392896b4ed5d11d2d1d7947baed2e340f040f4",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/plain-shim/android/database/sqlite/SQLiteDatabase.java",
+      "sha256": "80a2bed95c2e382a461d0e363749510c12b0ceafefd152b6f227009199719ad0",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabaseLockedException.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/plain-shim/android/database/sqlite/SQLiteDatabaseLockedException.java",
+      "sha256": "e17afce73f98be731b31a7d19f895a6df48c90b4f12362a1b5e5b463566a74c9",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/plain-shim/android/database/sqlite/SQLiteException.java",
+      "sha256": "878df09b56099f50a5cd75f2d94a9c0f11d1b49ce9c3cc36e5c66101b47c4b88",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r31/input_pin_host/InputPinJournalR31Host.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/InputPinJournalR31Host.java",
+      "sha256": "41adebfd67969f88cb1e40af62e6745dc41537c592d0fe1e34b5411f3000fc72",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r30-repair/qual_host/RepairInputPinR30HostTest.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/RepairInputPinR30HostTest.java",
+      "sha256": "85f1fa10604ff71884add42390dea7d525955acc2f2052e732a783d0461e828d",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r31/ddl_host/android/content/ContentValues.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/rich-shim/android/content/ContentValues.java",
+      "sha256": "2f09f41eff886c803ff118108d4aca5c74cc380b3f8324ad0c304281fdbde7e4",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r31/ddl_host/android/database/Cursor.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/rich-shim/android/database/Cursor.java",
+      "sha256": "af1ae7569385c0a5e162d4fbe6cb52b946b7a35275d5c3e7c8baf82ff1442155",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r31/ddl_host/android/database/sqlite/SQLiteDatabase.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/rich-shim/android/database/sqlite/SQLiteDatabase.java",
+      "sha256": "a1e905f5adeb87805acc5a404cc249bcee2770216ab364317456f6a75ea24041",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r31/ddl_host/android/database/sqlite/SQLiteOpenHelper.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/rich-shim/android/database/sqlite/SQLiteOpenHelper.java",
+      "sha256": "2ce33e0cddc38ae027e3ce12336ce96f3a23f70e0937091563d6575a68dbbea9",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/rich-shim/android/database/sqlite/SQLiteException.java",
+      "sha256": "878df09b56099f50a5cd75f2d94a9c0f11d1b49ce9c3cc36e5c66101b47c4b88",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/verification/r31/p02/schema_mainchain/runs/20261104T112314Z/source_snapshot/MainChainSchemaR31Host.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/MainChainSchemaR31Host.java",
+      "sha256": "ac05f4858406ab1bad2d2cab1fcdb438cda6b06b021e2d0f5099cb1a274e3bc1",
+      "origin_unchanged_after_run": true
+    },
+    {
+      "origin": "/workspace/r31-input-pin-budget/tools/r31/input_pin_host/InputSourceMigrationR31Host.java",
+      "snapshot": "/tmp/r31-source-pin-joint-nesqx8o4/source/InputSourceMigrationR31Host.java",
+      "sha256": "229c9586f2c6dcca6d8da72942459794713a575f41ea6a7a9a94f170f83afc33",
+      "origin_unchanged_after_run": true
+    }
+  ],
+  "runner_sha256": "753c1df854bec4db4f6bfe584af613008759bb07a0f3e3e1643b260668c1e80f",
+  "support_jar": {
+    "path": "/tmp/r31-p02-014-actual-android-support/classes.jar",
+    "sha256": "6c41ea9b5e6a0cf3262dcfaa0379a0b4dd91ba11ca6e238919528a9f01d6df82"
+  },
+  "jdbc": {
+    "path": "/tmp/r31-baseline-deps/sqlite-jdbc.jar",
+    "sha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa"
+  },
+  "shared_api_classes": "/workspace/r31-shared-migrations/verification/r31/p01/shared-migration-integration/20261104T184245Z/classes",
+  "device": "NOT_RUN",
+  "android_whole_build": "NOT_RUN",
+  "natural_quality": "NOT_EVALUATED",
+  "limits": [
+    "The fixed shared API classes supply unrelated protocols; all thirteen modified pin/consumer/Domain/Q/Evolution source inputs override their older classes.",
+    "Host Android adapters replace platform connection/lifecycle only. Source guards, writer batches, migrations, Critical predecessor DDL and SQLite triggers are actual production methods.",
+    "Source/member journal lifecycle and unsupported SQL REPLACE are not established by these tests. Per-source-row write bounds do not certify every upstream bulk writer.",
+    "No APK identity, device duration, or future quality proof is produced here."
+  ],
+  "shared_api_class_inventory_sha256": "69f8697bf8e73aec54eee90015b70fb24065482ab3e915ea99a50c6a4f834e28",
+  "shared_api_class_inventory": {
+    "com/ethk3/novaonepro/SchemaDomainCoordinatorR926$Contract.class": "f898688d7ba67c417259e662a2d49f7f184f1c81bbc710e9d221335d233c512e",
+    "com/ethk3/novaonepro/SchemaDomainCoordinatorR926$Step.class": "86d45cda76eb040d8b3a2f52f7a5d3e0ec3072ac97b6ef64d4fabdd0728d3d53",
+    "com/ethk3/novaonepro/SchemaDomainCoordinatorR926.class": "238c381ea0eed22ebd8fa2a6de97ec17bd604ee4e71f5b1ced4b6370a58b67be",
+    "com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31$Dependency.class": "b0f87c70b2fd10b31de44300614167c392c440ee9df1fc5452a769737746c50b",
+    "com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31$Input.class": "d6127bcefcbd5a93c6184e1678f5d0b97e7b5515a7d8c6e338ca08663865b442",
+    "com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31$Pair.class": "96ae8ddabd23ddf01d69e82665f01ab378b3cabc1552c643452edde86a91f749",
+    "com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31$Part.class": "2b8e204acf027d6da2cbecff93412e8a39294eca55e25370be4f09613298d7f2",
+    "com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31$Plan.class": "ede466e8638c91da76a4cc1792e288e4d237836933792910135ca61d46d07e0e",
+    "com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31.class": "aea945d8aa12f278419fe545706a851e3f127b0b89efccada07bb8ca696b0267",
+    "com/ethk3/novaonepro/strategyv2/AtomWorldR27$1.class": "76787025f0f352f527a1d272d52fac359e49a76956927ff26d952ed9de26b81b",
+    "com/ethk3/novaonepro/strategyv2/AtomWorldR27$PublicationR31.class": "8d6f10c8d7f6c513fcb3a2a99e0ca81f646e0c2fe7cdcca5cc67c44be2d82f01",
+    "com/ethk3/novaonepro/strategyv2/AtomWorldR27.class": "a255a730c262681163a6e04f4b45f7b2d67f0aba8f8e75fb44fc5aeeb54ac31b",
+    "com/ethk3/novaonepro/strategyv2/EvolutionPublicationSqlR31$Plan.class": "a170e8bef83d3167af1d848471c1f012843e6cbd664ebaa0ba612cf97311491b",
+    "com/ethk3/novaonepro/strategyv2/EvolutionPublicationSqlR31$Shape.class": "7a8b84426b9da598418a8e882b730c6cb6ed35e5f21f3a22ebfa72564a1f3d48",
+    "com/ethk3/novaonepro/strategyv2/EvolutionPublicationSqlR31.class": "f8e8fd0ecf8f237300ce204e6e24da71651ff97429f1d2b4d3a43c486e35edb6",
+    "com/ethk3/novaonepro/strategyv2/EvolutionPublicationStoreR31$Capacity.class": "a6a3e8f8e26e0e891e76ff251d8439a71dd5016332a85d53d203530c7c71015d",
+    "com/ethk3/novaonepro/strategyv2/EvolutionPublicationStoreR31$CursorState.class": "b656118bcb8dd8fb1bb002d0c4e9c5d16a8e26917379b7c9a218ee5ee265144e",
+    "com/ethk3/novaonepro/strategyv2/EvolutionPublicationStoreR31$Prepared.class": "648174ea4c9c13ac8581a0bf0c38ffaccd44d1fd1a057b8df6080c5ff298361a",
+    "com/ethk3/novaonepro/strategyv2/EvolutionPublicationStoreR31$Row.class": "45f5dbb9a990085800b5f01f993e9a4ae437af623e28993073ff604fe17ff64c",
+    "com/ethk3/novaonepro/strategyv2/EvolutionPublicationStoreR31$Stale.class": "9f7ce762eda8cf76ec3fb8dfd850b907335ae47839746ce982d3ab5ddecbffea",
+    "com/ethk3/novaonepro/strategyv2/EvolutionPublicationStoreR31$Value.class": "4605c6e38aabdc7f8522bf911a2d325f428e5b697fee3ff737acf5bb7409e9cc",
+    "com/ethk3/novaonepro/strategyv2/EvolutionPublicationStoreR31.class": "ec98342782b1d263c616345f417a5f6d25c0a668a58d55fac0bf1677f1ecd345",
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27$CsvR31.class": "7f5f7dfeab08eaa71141ed30ca007afd3b3147e5ea1ecfc99a3c76764eeeb3d9",
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27$DependencyR31.class": "6807e9e80e1be449b10ae998b995860a0f46697e0b16273a15a492da6fe9ad35",
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27$Governed.class": "5ed7433a85e600a9d95ee69ee99cd5261e6e3712c6fa7687e20434af935e1197",
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27$JobR31.class": "c0263dee9d8560411910d489070483c6439ed709d802fe3ab83fb8659b295b69",
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27$RowR31.class": "05832b9fae3f2cc53d0710b24b0a96b6ac3be065efb6518f664dc9653b67f576",
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27$SourceR31.class": "cb5c871ecb9c06058f78ae16204f38d44f64d7ddc6be594b23da48a4faebd1bb",
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27$SummaryR31.class": "ebeca10371972ceddd6fed6b387e5042ffb991b39dfb2ed5b1335e86ade691f3",
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27.class": "47d8139f6d1eb2de19fb3c15189f8e93393c62858ea18e9e7521674e2aea88f4",
+    "com/ethk3/novaonepro/strategyv2/QualificationInboxR29$Commit.class": "593437b49d993e0a90fa7cd50f2b34b8d40487af46bc1fe3dbb194e733ea36ac",
+    "com/ethk3/novaonepro/strategyv2/QualificationInboxR29$Consumed.class": "7ebe523cb90c28800f8f0794e7ff038e4366b5be2c72994672c915efa290e891",
+    "com/ethk3/novaonepro/strategyv2/QualificationInboxR29$LegacyCompatibilityPendingR31.class": "7b6b35a0ce25836f59d2e4966a82d08169f9b1771b194bb94ec3a012bb1b76f7",
+    "com/ethk3/novaonepro/strategyv2/QualificationInboxR29$LegacyProofR31.class": "1899cd68de8fc93a1b8c75420669a7bd95e163e5239e47b15c98eead26384343",
+    "com/ethk3/novaonepro/strategyv2/QualificationInboxR29$LegacySourceR31.class": "74043710bcf55b6d3dc188ab72c41d62c2c46ced7be7d49570d82547403862a2",
+    "com/ethk3/novaonepro/strategyv2/QualificationInboxR29$Pass.class": "a2aa01906ff5dbefdfa660bf22a594708af1d9b580f4057210842284cdec8f1e",
+    "com/ethk3/novaonepro/strategyv2/QualificationInboxR29$PendingR31.class": "dc42a3ffb99374f37fdf3096e193d12b47b1b2f9132ce5dd7dd421a19634e5a2",
+    "com/ethk3/novaonepro/strategyv2/QualificationInboxR29$Plan.class": "87dbbcb6ee12306ed353bfd2095dc344da779f461643f200b567a17a5430df74",
+    "com/ethk3/novaonepro/strategyv2/QualificationInboxR29$PreparedDependencyR31.class": "ab852bd2722eaeaab9058ea3c8ef797b165cb8a0488d7d9b010fa589e1e72eb9",
+    "com/ethk3/novaonepro/strategyv2/QualificationInboxR29$Row.class": "85ca76e121fa676f0fe0741a5e37745e1651bf4eb2aa6a6ff20ee631b5b6986f",
+    "com/ethk3/novaonepro/strategyv2/QualificationInboxR29.class": "b75b4acff8751c142d1bc6843ff8bfcfa1fcd7cb31ab3cf7f97c5b8e41f20db8",
+    "com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1$Pin.class": "4023368d486d81cddbf909336c691ae38c4188e55b6decc3941a5a14d015b791",
+    "com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.class": "2388139a515d8b6c62ac86c6f51a1fbc43ba76273193005734f5447f27f4b172",
+    "com/ethk3/novaonepro/strategyv2/ResearchSourceJournalR31.class": "028572e1a6d210eed846d5dbc2c6e929930987e18c386d82013d5e63dff00dc5",
+    "com/ethk3/novaonepro/strategyv2/SchemaR27.class": "9c1d4ae3443b20a3a513e2219d514389ba0b01f2ff35f7814dfa64dba9ca7577",
+    "com/ethk3/novaonepro/strategyv2/StoreR27$EvolutionSink.class": "c520f133b8151d329a62e039718c62577faf1427e5114db6c9869f2764f9b88f",
+    "com/ethk3/novaonepro/strategyv2/StoreR27.class": "df588033949cac2ca18305f036b53eeb40c424d7dbcdeaeb4c059c37e9fd1a91"
+  },
+  "shared_api_frozen_path": "/tmp/r31-source-pin-joint-nesqx8o4/shared-api-frozen",
+  "strict_null_binding_adapter_sha256": "3a1af2785c6b031ea9ffb3921fcebc7d23cd302ac9031133e9952122b958c291",
+  "host_only_adapters": {
+    "android/os/SystemClock.java": "package android.os;public final class SystemClock{public static long elapsedRealtime(){return System.nanoTime()/1000000;}public static long uptimeMillis(){return elapsedRealtime();}public static long currentThreadTimeMillis(){return java.lang.management.ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime()/1000000;}}",
+    "android/os/Looper.java": "package android.os;public final class Looper{public static Looper myLooper(){return null;}public static Looper getMainLooper(){return null;}}",
+    "android/util/Log.java": "package android.util;public final class Log{public static int w(String t,String m){return 0;}public static int w(String t,String m,Throwable e){return 0;}public static int e(String t,String m){return 0;}public static int e(String t,String m,Throwable e){return 0;}public static int d(String t,String m){return 0;}public static int i(String t,String m){return 0;}}"
+  },
+  "critical_fixture_adapter": {
+    "purpose": "Allow test Db subclass for explicit source-DDL failure injection; original schema methods/guards/assertions unchanged",
+    "compiled_sha256": "dbb8dc021e8087ed4e98bc17a969e84e96259268f866b07c1979ba218c2a8be1",
+    "patch": "Remove final from the HOST Db adapter class only"
+  },
+  "finished_utc": "2026-11-04T19:28:11.565189+00:00"
+}
