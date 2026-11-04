@@ -196,8 +196,13 @@ jobs:
           curl -fLsS --connect-timeout 15 --max-time 90 -o "$SQLITE_JDBC" https://repo.maven.apache.org/maven2/org/xerial/sqlite-jdbc/3.46.1.3/sqlite-jdbc-3.46.1.3.jar
           printf '%s  %s\n' 4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa "$SQLITE_JDBC" | sha256sum -c -
           # Isolate legacy test outputs, while reading this exact build's actual compiled classes.
-          git clone --shared --no-checkout "$GITHUB_WORKSPACE" "$RUNNER_TEMP/r31-host-source"
-          git -C "$RUNNER_TEMP/r31-host-source" checkout --detach "$(git rev-parse HEAD)"
+          git worktree add --detach "$RUNNER_TEMP/r31-host-source" "$(git rev-parse HEAD)"
+          for r31_baseline in 5237b265a27fe5ad27fd842901c445d5f8c27749 b225ab204db043b347f9d76d6c5c1376fd9a2590 31fea28c5723ac70e47ae4cc7542344b16fb3f91; do
+            if ! git -C "$RUNNER_TEMP/r31-host-source" cat-file -e "$r31_baseline^{commit}"; then
+              git fetch --no-tags origin "$r31_baseline"
+            fi
+            git -C "$RUNNER_TEMP/r31-host-source" cat-file -e "$r31_baseline^{commit}"
+          done
           rm -rf "$RUNNER_TEMP/r31-host-source/app/build"
           ln -s "$GITHUB_WORKSPACE/app/build" "$RUNNER_TEMP/r31-host-source/app/build"
           cd "$RUNNER_TEMP/r31-host-source"
@@ -379,6 +384,25 @@ jobs:
           record={'sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'scope':'ACTUAL_ANDROID_EMULATOR_DEBUG_INSTRUMENTATION','tests':int(found.group(1)),'result':'PASS','apiLevel':subprocess.check_output(['adb','shell','getprop','ro.build.version.sdk'],text=True).strip(),'serial':subprocess.check_output(['adb','get-serialno'],text=True).strip(),'physicalDevice':'NOT_RUN','device24h':'NOT_RUN','device72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','outputSha256':hashlib.sha256(raw).hexdigest()}
           (out/'r31-protocol-receipt.json').write_text(json.dumps(record,indent=2)+'\n')
           PY
+          if [ -f app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R31FamilyContinuationInstrumentedTest.java ]; then
+            adb shell am instrument -w -r -e r30Sandbox "r31-family-$GITHUB_RUN_ID" -e class com.ethk3.novaonepro.strategyv2.R31FamilyContinuationInstrumentedTest com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner > "$out/family-protocol.txt" 2>&1
+            python3 - "$out" <<'R31_FAMILY_VERIFY'
+          import datetime,hashlib,json,pathlib,re,subprocess,sys
+          out=pathlib.Path(sys.argv[1]);raw=(out/'family-protocol.txt').read_bytes();text=raw.decode(errors='replace')
+          found=re.search(r'OK \((\d+) tests?\)',text)
+          passed=bool(found and int(found.group(1))==2 and 'FAILURES!!!' not in text and 'INSTRUMENTATION_FAILED' not in text)
+          receipt={'scope':'ACTUAL_ART_FAMILY_CONTINUATION_ENGINEERING_PROTOCOL_NOT_NATURAL_QUALITY','source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'observedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'api':subprocess.check_output(['adb','shell','getprop','ro.build.version.sdk'],text=True).strip(),'tests':int(found.group(1)) if found else None,'result':'PASS' if passed else 'FAILED_OR_INCOMPLETE','outputSha256':hashlib.sha256(raw).hexdigest(),'physicalDevice':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','actualThreadExitAndModelRows':'SEE_ORIGINAL_ASSERTIONS_AND_OUTPUT; EXECUTION_DOES_NOT_IMPLY_ALL_B05_ACCEPTANCE'}
+          (out/'FAMILY-RECEIPT.json').write_text(json.dumps(receipt,indent=2)+'\n')
+          print('R31_ANDROID_FAMILY_JSON|'+json.dumps(receipt,sort_keys=True))
+          if not passed:
+              crash=subprocess.run(['adb','logcat','-d','-b','crash','-t','256','-v','threadtime'],capture_output=True,text=True)
+              clean=re.sub(r'(?i)((?:api[_-]?key|password|token)\s*[=:]\s*)[^\s,;]+',r'\1[REDACTED]',crash.stdout)
+              clean=re.sub(r'(?i)Bearer\s+[^\s]+','Bearer [REDACTED]',clean)
+              (out/'family-crash-redacted.txt').write_text(clean)
+              for line in text.splitlines()[-100:]:print('R31_ANDROID_FAMILY_FAILURE|'+line)
+          assert passed,'R31_ACTUAL_FAMILY_CONTINUATION_PROTOCOL_FAILED'
+          R31_FAMILY_VERIFY
+          fi
           bash tools/r30/run_fault_matrix.sh "$out/existing-fault-matrix"
           bash tools/r30-repair/run_research_fault_matrix.sh "$out/existing-research-fault-matrix"
           R31_CI_PROBE
@@ -642,6 +666,25 @@ jobs:
           print('R31_EMULATOR_VALIDATION_JSON|'+json.dumps(receipt,sort_keys=True))
           assert passed,'R31_ACTUAL_PROTOCOL_FAILED'
           PY
+          if [ -f app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R31FamilyContinuationInstrumentedTest.java ]; then
+            adb shell am instrument -w -r -e r30Sandbox "r31-family-$GITHUB_RUN_ID" -e class com.ethk3.novaonepro.strategyv2.R31FamilyContinuationInstrumentedTest com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner > "$out/family-protocol.txt" 2>&1
+            python3 - "$out" <<'R31_FAMILY_VERIFY'
+          import datetime,hashlib,json,pathlib,re,subprocess,sys
+          out=pathlib.Path(sys.argv[1]);raw=(out/'family-protocol.txt').read_bytes();text=raw.decode(errors='replace')
+          found=re.search(r'OK \((\d+) tests?\)',text)
+          passed=bool(found and int(found.group(1))==2 and 'FAILURES!!!' not in text and 'INSTRUMENTATION_FAILED' not in text)
+          receipt={'scope':'ACTUAL_ART_FAMILY_CONTINUATION_ENGINEERING_PROTOCOL_NOT_NATURAL_QUALITY','source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'observedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'api':subprocess.check_output(['adb','shell','getprop','ro.build.version.sdk'],text=True).strip(),'tests':int(found.group(1)) if found else None,'result':'PASS' if passed else 'FAILED_OR_INCOMPLETE','outputSha256':hashlib.sha256(raw).hexdigest(),'physicalDevice':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','actualThreadExitAndModelRows':'SEE_ORIGINAL_ASSERTIONS_AND_OUTPUT; EXECUTION_DOES_NOT_IMPLY_ALL_B05_ACCEPTANCE'}
+          (out/'FAMILY-RECEIPT.json').write_text(json.dumps(receipt,indent=2)+'\n')
+          print('R31_ANDROID_FAMILY_JSON|'+json.dumps(receipt,sort_keys=True))
+          if not passed:
+              crash=subprocess.run(['adb','logcat','-d','-b','crash','-t','256','-v','threadtime'],capture_output=True,text=True)
+              clean=re.sub(r'(?i)((?:api[_-]?key|password|token)\s*[=:]\s*)[^\s,;]+',r'\1[REDACTED]',crash.stdout)
+              clean=re.sub(r'(?i)Bearer\s+[^\s]+','Bearer [REDACTED]',clean)
+              (out/'family-crash-redacted.txt').write_text(clean)
+              for line in text.splitlines()[-100:]:print('R31_ANDROID_FAMILY_FAILURE|'+line)
+          assert passed,'R31_ACTUAL_FAMILY_CONTINUATION_PROTOCOL_FAILED'
+          R31_FAMILY_VERIFY
+          fi
           R31_VALIDATION_PROBE
       - uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -804,6 +847,25 @@ jobs:
           print('R31_EMULATOR_VALIDATION_JSON|'+json.dumps(receipt,sort_keys=True))
           assert passed,'R31_ACTUAL_PROTOCOL_FAILED'
           PY
+          if [ -f app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R31FamilyContinuationInstrumentedTest.java ]; then
+            adb shell am instrument -w -r -e r30Sandbox "r31-family-$GITHUB_RUN_ID" -e class com.ethk3.novaonepro.strategyv2.R31FamilyContinuationInstrumentedTest com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner > "$out/family-protocol.txt" 2>&1
+            python3 - "$out" <<'R31_FAMILY_VERIFY'
+          import datetime,hashlib,json,pathlib,re,subprocess,sys
+          out=pathlib.Path(sys.argv[1]);raw=(out/'family-protocol.txt').read_bytes();text=raw.decode(errors='replace')
+          found=re.search(r'OK \((\d+) tests?\)',text)
+          passed=bool(found and int(found.group(1))==2 and 'FAILURES!!!' not in text and 'INSTRUMENTATION_FAILED' not in text)
+          receipt={'scope':'ACTUAL_ART_FAMILY_CONTINUATION_ENGINEERING_PROTOCOL_NOT_NATURAL_QUALITY','source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'observedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'api':subprocess.check_output(['adb','shell','getprop','ro.build.version.sdk'],text=True).strip(),'tests':int(found.group(1)) if found else None,'result':'PASS' if passed else 'FAILED_OR_INCOMPLETE','outputSha256':hashlib.sha256(raw).hexdigest(),'physicalDevice':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','actualThreadExitAndModelRows':'SEE_ORIGINAL_ASSERTIONS_AND_OUTPUT; EXECUTION_DOES_NOT_IMPLY_ALL_B05_ACCEPTANCE'}
+          (out/'FAMILY-RECEIPT.json').write_text(json.dumps(receipt,indent=2)+'\n')
+          print('R31_ANDROID_FAMILY_JSON|'+json.dumps(receipt,sort_keys=True))
+          if not passed:
+              crash=subprocess.run(['adb','logcat','-d','-b','crash','-t','256','-v','threadtime'],capture_output=True,text=True)
+              clean=re.sub(r'(?i)((?:api[_-]?key|password|token)\s*[=:]\s*)[^\s,;]+',r'\1[REDACTED]',crash.stdout)
+              clean=re.sub(r'(?i)Bearer\s+[^\s]+','Bearer [REDACTED]',clean)
+              (out/'family-crash-redacted.txt').write_text(clean)
+              for line in text.splitlines()[-100:]:print('R31_ANDROID_FAMILY_FAILURE|'+line)
+          assert passed,'R31_ACTUAL_FAMILY_CONTINUATION_PROTOCOL_FAILED'
+          R31_FAMILY_VERIFY
+          fi
           R31_VALIDATION_PROBE
       - uses: reactivecircus/android-emulator-runner@v2
         with:
