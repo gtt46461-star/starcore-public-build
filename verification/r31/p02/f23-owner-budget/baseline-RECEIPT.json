@@ -1,0 +1,106 @@
+{
+  "status": "TARGETED_HOST_PASS",
+  "mode": "baseline",
+  "baseline": "5c91d2620c9fbfb96336b6c84b81a72fb37d682c",
+  "scope": "ACTUAL125_ASSET_OWNER_ORIGINAL_VM_AND_ADAPTER_HOST_ENGINEERING_FRAMES_NOT_ANDROID_OR_NATURAL_QUALITY",
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/LegacyTeacherOwnerR26.java": "f5c7c99764014ac3d1be67cc0013104c4aeb52e50a16d88350ca61900d44aa5b",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java": "0e43143fcf1d700a04e586d7a411ebf23dabae570f0bbe95c86cd3e3d1475362",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/DistillationFamilyR26.java": "cd0836470252c4fbdac7930b3336b55910da253c21fe34a4290fb68b58afe6df",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java": "83455c6463ce9c8edf555dae1cc95fcdce095d3bcae601226da35b04fa8f4b54",
+    "verification/r31/p02/f23-owner-budget/SizeAgentR31.java": "bc3f6292e1e3bf01dd795ad127ac5ce910916aae317a250fede3d08260637a77",
+    "verification/r31/p02/f23-owner-budget/F23OwnerBudgetHost.java": "7f843a7970a37487ae0fabd1e8e0ca3421d2934afd3cfac31095154258c9c498",
+    "verification/r31/p02/f23-owner-budget/F23OwnerBaselineHost.java": "816665dd2ef51cf654d6bafd8d0b3a07e06ceda7bc766fda8d8ac19c0b864df1",
+    "verification/r31/p02/f23-owner-budget/run.py": "981c75b329db8835c6971311cda344db515b4278b0b5187f7c028906c0b74930"
+  },
+  "compiledSources": {
+    "LegacyTeacherOwnerR26.java": "2c901ff21032313f7fb3d748bc073d46dfafbfc27927f268b4277700cbc17ee2",
+    "FamilyRegistryR26.java": "bf395fc72f90961692f0353b96ef7fdd23d83ac8d577e7080349e14c8167dff6",
+    "DistillationFamilyR26.java": "1d083a2eb29e17d8307590ffcada247ce8c9321502840a72d256834b8aa66dfa",
+    "FeatureCacheR27.java": "9759347ecd4e0b05201206b205996552826c1c835b7f41d3a4e596cb506835a1"
+  },
+  "sourceStableDuringRun": true,
+  "assetSha256": "3697570b8db5ad0b14285685e7c2c12712dd02433d7efa6019e123838100ef80",
+  "supportSha256": "8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0",
+  "actualObjectInstrumentation": true,
+  "originalComparison": {},
+  "work": "/tmp/r31-f23-baseline-jkzzdsze",
+  "assertions": 8,
+  "commands": [
+    {
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-d",
+        "/tmp/r31-f23-baseline-jkzzdsze/platform",
+        "/tmp/r31-f23-baseline-jkzzdsze/sources/Context.java",
+        "/tmp/r31-f23-baseline-jkzzdsze/sources/AssetManager.java",
+        "/tmp/r31-f23-baseline-jkzzdsze/sources/SystemClock.java"
+      ],
+      "exitCode": 0,
+      "log": "baseline-platform.log"
+    },
+    {
+      "command": [
+        "javac",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/tmp/r31-f23-baseline-jkzzdsze/platform:/tmp/r31-f23-baseline-jkzzdsze/support.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-f23-baseline-jkzzdsze/production",
+        "/tmp/r31-f23-baseline-jkzzdsze/sources/LegacyTeacherOwnerR26.java",
+        "/tmp/r31-f23-baseline-jkzzdsze/sources/FamilyRegistryR26.java",
+        "/tmp/r31-f23-baseline-jkzzdsze/sources/DistillationFamilyR26.java",
+        "/tmp/r31-f23-baseline-jkzzdsze/sources/FeatureCacheR27.java"
+      ],
+      "exitCode": 0,
+      "log": "baseline-production.log"
+    },
+    {
+      "command": [
+        "javac",
+        "-sourcepath",
+        "",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/tmp/r31-f23-baseline-jkzzdsze/platform:/tmp/r31-f23-baseline-jkzzdsze/production:/tmp/r31-f23-baseline-jkzzdsze/host:/tmp/r31-f23-baseline-jkzzdsze/support.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-f23-baseline-jkzzdsze/host",
+        "/workspace/r31-cache-rebuild/verification/r31/p02/f23-owner-budget/SizeAgentR31.java",
+        "/workspace/r31-cache-rebuild/verification/r31/p02/f23-owner-budget/F23OwnerBaselineHost.java"
+      ],
+      "exitCode": 0,
+      "log": "baseline-host.log"
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-javaagent:/tmp/r31-f23-baseline-jkzzdsze/size-agent.jar",
+        "--add-opens",
+        "java.base/java.lang=ALL-UNNAMED",
+        "--add-opens",
+        "java.base/java.util=ALL-UNNAMED",
+        "--add-opens",
+        "java.base/java.util.concurrent.atomic=ALL-UNNAMED",
+        "--add-opens",
+        "java.base/java.lang.ref=ALL-UNNAMED",
+        "-cp",
+        "/tmp/r31-f23-baseline-jkzzdsze/platform:/tmp/r31-f23-baseline-jkzzdsze/production:/tmp/r31-f23-baseline-jkzzdsze/host:/tmp/r31-f23-baseline-jkzzdsze/support.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.F23OwnerBaselineHost",
+        "baseline",
+        "/workspace/r31-cache-rebuild/app/src/main/assets"
+      ],
+      "exitCode": 0,
+      "log": "baseline-native.log"
+    }
+  ],
+  "device": "NOT_RUN",
+  "quality": "NOT_EVALUATED"
+}

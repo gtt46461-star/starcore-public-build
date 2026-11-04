@@ -1,0 +1,58 @@
+{
+  "card": "R31-B05-C11",
+  "subscope": "Actual F23 original teacher constructor/read/shared-owner boundary",
+  "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "implementationParent": "5c91d2620c9fbfb96336b6c84b81a72fb37d682c",
+  "branch": "construction/r31-cache-rebuild-20261104",
+  "status": "CODE_COMPLETE",
+  "wholeCardClosed": false,
+  "actualFiles": [
+    "app/src/main/java/com/ethk3/novaonepro/LegacyTeacherOwnerR26.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/DistillationFamilyR26.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java"
+  ],
+  "methods": [
+    "LegacyTeacherOwnerR26.register/buildBoundR31/loadedOwnerR31/projection/rowFrameR31/releaseUnusedOwnerR31/memorySnapshotR31",
+    "FamilyRegistryR26.bindLegacyTeacher",
+    "DistillationFamilyR26.constructor/read/close/constructorEnvelopeR31",
+    "FeatureCacheR27.FamilyStream constructor/modelShapeR31/forkR31/restoreRowR31/advance; cache trim"
+  ],
+  "migrationVersion": "NONE_NO_DDL_OR_PERSISTENCE_FORMAT_CHANGE",
+  "testCommands": [
+    "python3 verification/r31/p02/f23-owner-budget/run.py baseline",
+    "python3 verification/r31/p02/f23-owner-budget/run.py fixed",
+    "python3 verification/r31/p02/f23-owner-budget/regression.py"
+  ],
+  "testResult": {
+    "targetedHost": "PASS",
+    "f23Assertions": 59,
+    "originalJUnit": 24,
+    "last200BitComparisonActual": 200,
+    "protectedGolden": "52_IDENTICAL",
+    "actualAssetFd": {
+      "active": 0,
+      "closed": 6,
+      "opened": 6,
+      "source": "REAL_FILEINPUTSTREAM_REPOSITORY_ASSET"
+    }
+  },
+  "apkIdentity": "NONE_ROOT_JOINT_BUILD_PENDING",
+  "deviceEvidence": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED",
+  "remaining": [
+    "Full final combined unexcluded Android build/tests by root",
+    "Physical Android original125 F23/device native/FD verification",
+    "Source-frame producers absent from some R27 consumers remain typed DEPENDENCY; no fabricated availability",
+    "Model per-step/JVM temporaries outside this declared source subset remain explicit capacity coverage debt",
+    "24h/72h and natural future quality NOT_RUN"
+  ],
+  "nextStep": "Root cherry-pick independent contribution, rebind actual final sources, joint build and device acceptance",
+  "evidence": [
+    "FROZEN_SOURCES.json",
+    "baseline-RECEIPT.json",
+    "fixed-RECEIPT.json",
+    "REGRESSION_RECEIPT.json",
+    "IMPLEMENTATION.md"
+  ]
+}

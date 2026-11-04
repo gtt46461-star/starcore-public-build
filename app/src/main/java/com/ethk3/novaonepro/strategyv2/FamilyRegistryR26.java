@@ -10,6 +10,7 @@ public final class FamilyRegistryR26 {
     public static synchronized void bindLegacyTeacher(Map<String,String> binding,ModelReplaySU2.Adapter adapter){
         if(binding==null||adapter==null||!"1".equals(binding.get("abi"))||!"LEGACY_REPORTED_PREFERENCE_PROJECTION_V1".equals(binding.get("scope")))throw new IllegalArgumentException("F23_BINDING_ABI_OR_SCOPE");
         for(String key:new String[]{"asset","teacher","state"})if(binding.get(key)==null||!binding.get(key).matches("[0-9a-f]{64}"))throw new IllegalArgumentException("F23_BINDING_HASH:"+key);
+        FeatureCacheR27.registerFamilyConstructorBudgetR31(23,DistillationFamilyR26.constructorEnvelopeR31(),"F23_STUDENT_BIAS_CONTEXT_REF_AND_DIAGNOSTICS;SHARED_VM_OWNER_SEPARATELY_ADMITTED");
         Teacher prepared=new Teacher(binding,adapter);ModelReplaySU2.ADAPTERS.put("R26F23",adapter);teacher=prepared;AVAILABLE.addIfAbsent("F23");
     }
     public static Map<String,String> legacyBinding(){Teacher snapshot=teacher;return snapshot==null?Collections.emptyMap():snapshot.binding;}
