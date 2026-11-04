@@ -2,6 +2,7 @@ package com.ethk3.novaonepro.strategyv2;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import com.ethk3.novaonepro.DatabaseCoordinator;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,6 +23,60 @@ import java.util.Map;
 public final class QualificationInboxR29 {
     private QualificationInboxR29() {}
     public static final int MAX_STEP = 256;
+    // MAX_STEP remains the logical window. Physical commits reserve space for
+    // the existing fence, source/CAS reads, typed progress and durable receipt.
+    static final int RECEIPTS_PER_COMMIT_R31=16, PENDING_PER_COMMIT_R31=8;
+    static final int PROTOCOL_SQL_RESERVE_R31=32;
+    static final long PROTOCOL_BIND_RESERVE_R31=8192;
+    static void requireBudgetR31(ResearchWriteQueueR27.Batch batch,int guardSql) {
+        requireBudgetR31(batch,guardSql,0);
+    }
+    static long bindBytesR31(Object... args) {
+        long bytes=0;for(Object value:args)bytes+=value instanceof byte[]?((byte[])value).length:value instanceof String?((String)value).getBytes(java.nio.charset.StandardCharsets.UTF_8).length:8;
+        return bytes;
+    }
+    static void requireBudgetR31(ResearchWriteQueueR27.Batch batch,int guardSql,long guardBindBytes) {
+        long bytes=PROTOCOL_BIND_RESERVE_R31+guardBindBytes;
+        for(ResearchWriteQueueR27.Op op:batch.ops)if(op.args!=null)for(Object value:op.args)
+            bytes+=bindBytesR31(value);
+        if(batch.ops.size()+guardSql+PROTOCOL_SQL_RESERVE_R31>64
+                ||bytes>Math.min(262144L,Runtime.getRuntime().maxMemory()/512L))
+            throw dependencyR31("PREPARED_WRITE_BUDGET","RESOURCE_WAIT:R31_LIVE_PREPARED_WRITE_BUDGET");
+    }
+    private static final class PreparedDependencyR31 extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure {
+        private final String phase;
+        PreparedDependencyR31(String phase,String detail){super(detail);this.phase=phase;}
+        public String failureCategory(){return "DEPENDENCY";}
+        public String operation(){return "R31_LIVE_QUALIFICATION";}
+        public String phase(){return phase;}
+        public String commitOutcomeName(){return "NOT_SUBMITTED";}
+    }
+    private static PreparedDependencyR31 dependencyR31(String phase,String detail) {
+        return new PreparedDependencyR31(phase,detail);
+    }
+    static String preparedInputR31(ResearchWriteQueueR27.Batch batch) {
+        List<Object> operations=new ArrayList<>();
+        for(ResearchWriteQueueR27.Op op:batch.ops){List<Object> row=new ArrayList<>();row.add(op.sql);if(op.args!=null)java.util.Collections.addAll(row,op.args);operations.add(row);}
+        return HashingSU1.text(JsonR27.write(operations));
+    }
+    static void requireSchemaR31(SQLiteDatabase db) {
+        DatabaseCoordinator.requireSchemaObjectsR31(db,"R31_LIVE_QUALIFICATION",new String[][]{
+                {"draws","issue,dirty,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10"},
+                {"r27_live_shadow","policy_hash,status,global_index,reason,updated_at,through_ordinal"},
+                {"r27_live_frozen","policy_hash,target_ordinal,target_issue,position,n1,n2,n3,act,status,hit,settled_at"},
+                {"r27_opportunity","target_ordinal,settled"},
+                {"r27_eprocess","policy_hash,global_index,target_rate,log_e_up,log_e_down,n,acts,hits,sum_u,sum_u2,last_ordinal,state,updated_at"},
+                {"r29_qual_receipt","experiment_id,target_ordinal,target_issue,act,hit,u,digest,state_after,consumed_at"},
+                {"r29_qual_cursor","experiment_id,blocked_ordinal,blocked_reason,consumed_total,cas_retries,updated_at"},
+                {"r29_qual_calendar","experiment_id,first_ordinal,registered_at,origin"},
+                {"r29_qual_conflict","experiment_id,target_ordinal,kind,receipt_digest,observed_digest,detail,detected_at,resolved_at"},
+                {"r29_qual_rebuild","experiment_id,old_state_json,old_certificate,reason,rebuilt_at"},
+                {"r27_certificate","policy_hash,status,evidence_digest"},
+                {"r27_chart_cache","panel_id,key,payload_json,updated_at"},
+                {"r26_evolution","attempt_id,policy_hash,prospective_qualified"},
+                {"r29_pending_draw","target_ordinal,target_issue,rows,act_rows,first_seen_at,last_checked_at,checks,resolved_at"}},
+                new String[][]{{"index","r27_live_frozen_order"}});
+    }
     public static final String[] DDL = {
         "CREATE TABLE IF NOT EXISTS r29_qual_receipt(experiment_id TEXT NOT NULL,target_ordinal INTEGER NOT NULL,target_issue TEXT NOT NULL,act INTEGER NOT NULL,hit INTEGER NOT NULL,u REAL NOT NULL,digest TEXT NOT NULL,state_after TEXT NOT NULL,consumed_at INTEGER NOT NULL,PRIMARY KEY(experiment_id,target_ordinal))",
         "CREATE TABLE IF NOT EXISTS r29_qual_conflict(experiment_id TEXT NOT NULL,target_ordinal INTEGER NOT NULL,kind TEXT NOT NULL,receipt_digest TEXT,observed_digest TEXT NOT NULL,detail TEXT NOT NULL,detected_at INTEGER NOT NULL,resolved_at INTEGER NOT NULL DEFAULT 0,PRIMARY KEY(experiment_id,target_ordinal,observed_digest))",
@@ -124,6 +179,7 @@ public final class QualificationInboxR29 {
 
     /** Consumes every live experiment as far as its contiguous resolvable prefix allows. */
     public static Pass consume(SQLiteDatabase ro, Commit sink, String statuses, long latestOrdinal) throws Exception {
+        requireSchemaR31(ro);
         Pass pass = new Pass();
         List<String> experiments = new ArrayList<>();
         try (Cursor c = ro.rawQuery("SELECT s.policy_hash FROM r27_live_shadow s JOIN r27_eprocess e ON e.policy_hash=s.policy_hash WHERE s.status IN " + statuses + " ORDER BY s.global_index", null)) {
@@ -142,24 +198,31 @@ public final class QualificationInboxR29 {
                 if (firstOrdinal < 0) { pass.blocked.put(id, "REGISTRATION_BOUNDARY_UNKNOWN"); continue; }
                 ResearchWriteQueueR27.Batch cal = new ResearchWriteQueueR27.Batch().add(
                         "INSERT OR IGNORE INTO r29_qual_calendar VALUES(?,?,?,?)", id, firstOrdinal, System.currentTimeMillis(), "LEGACY_FIRST_FREEZE_LOWER_BOUND");
+                requireBudgetR31(cal,0);
                 if (!sink.commit("R29_QUAL_CALENDAR", cal)) { pass.casRetries++; continue; }
             }
             if (needsRebuild(ro, id)) { if (rebuild(ro, sink, id)) pass.rebuilt++; else { pass.casRetries++; continue; } }
-            for (int guard = 0; guard < 64; guard++) {
+            // Preserve the original 64 logical windows of MAX_STEP opportunities;
+            // only the physical prefix transaction is smaller.
+            int physicalPasses=64*((MAX_STEP+RECEIPTS_PER_COMMIT_R31-1)/RECEIPTS_PER_COMMIT_R31);
+            for (int guard = 0; guard < physicalPasses; guard++) {
                 CooperativeContinuationR26.poll();
                 SequentialQualificationR27.State s = StoreR27.readEprocess(ro, id); if (s == null) break;
                 final long expectLast = s.lastOrdinal, expectN = s.n;
-                Plan p = plan(s, rows(ro, id, s.lastOrdinal, MAX_STEP + 1), latestOrdinal, MAX_STEP, firstOrdinal);
+                Plan p = plan(s, rows(ro, id, s.lastOrdinal, RECEIPTS_PER_COMMIT_R31 + 1), latestOrdinal, RECEIPTS_PER_COMMIT_R31, firstOrdinal);
                 if (p.consumed.isEmpty() && !BLOCK_CONFLICT.equals(p.block) && sameCursor(ro, id, p)) { pass.blocked.put(id, p.block); break; }
                 ResearchWriteQueueR27.Batch b = step(id, s, p, expectLast, expectN);
+                appendReplayMarkerR31(ro,b,id,p,s.lastOrdinal);
+                requireBudgetR31(b,2,bindBytesR31(id,id,String.valueOf(expectLast)));
                 boolean ok;
                 try { ok = sink.commit("R29_QUAL_CONSUME", b); }
                 catch (IllegalStateException cas) { if (!precondition(cas)) throw cas; ok = false; }
                 if (!ok) { pass.casRetries++; break; }
                 pass.consumed += p.consumed.size();
                 if (BLOCK_CONFLICT.equals(p.block)) pass.conflicts++;
-                if (!BLOCK_NONE.equals(p.block) || p.consumed.size() < MAX_STEP) { pass.blocked.put(id, p.block); break; }
+                if (!BLOCK_NONE.equals(p.block) || p.consumed.size() < RECEIPTS_PER_COMMIT_R31) { pass.blocked.put(id, p.block); break; }
             }
+            markQualifiedLinksR31(ro,sink,id);
         }
         return pass;
     }
@@ -181,35 +244,69 @@ public final class QualificationInboxR29 {
     /** Builds the single transaction for one plan. */
     static ResearchWriteQueueR27.Batch step(final String id, final SequentialQualificationR27.State s, final Plan p, final long expectLast, final long expectN) {
         final long now = System.currentTimeMillis();
-        if (p.consumed.isEmpty() && !BLOCK_CONFLICT.equals(p.block)) {
-            // Only refresh the visible block reason; no state change.
-            ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
-            b.add("INSERT OR IGNORE INTO r29_qual_cursor(experiment_id,blocked_ordinal,blocked_reason,updated_at) VALUES(?,?,?,?)", id, p.blockedOrdinal, p.block, now);
-            b.add("UPDATE r29_qual_cursor SET blocked_ordinal=?,blocked_reason=?,updated_at=? WHERE experiment_id=? AND (blocked_ordinal<>? OR blocked_reason<>?)", p.blockedOrdinal, p.block, now, id, p.blockedOrdinal, p.block);
-            return b;
-        }
-        ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
-        b.guardBefore(db -> {
-            try (Cursor c = db.rawQuery("SELECT last_ordinal,n FROM r27_eprocess WHERE policy_hash=?", new String[] {id})) {
-                if (!c.moveToFirst() || c.getLong(0) != expectLast || c.getLong(1) != expectN) return -1; // another step won: commit nothing
+        final List<Consumed> prefix=java.util.Collections.unmodifiableList(new ArrayList<>(p.consumed));
+        if(prefix.size()>RECEIPTS_PER_COMMIT_R31)throw new IllegalArgumentException("R31_QUALIFICATION_PHYSICAL_PREFIX_TOO_LARGE");
+        ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();
+        b.guardBefore(db->{
+            try(Cursor current=db.rawQuery("SELECT last_ordinal,n FROM r27_eprocess WHERE policy_hash=?",new String[]{id})) {
+                if(!current.moveToFirst()||current.getLong(0)!=expectLast||current.getLong(1)!=expectN)return -1;
             }
-            for (Consumed x : p.consumed)
-                db.execSQL("INSERT INTO r29_qual_receipt(experiment_id,target_ordinal,target_issue,act,hit,u,digest,state_after,consumed_at) VALUES(?,?,?,?,?,?,?,?,?)",
-                        new Object[] {id, x.row.ordinal, x.row.issue, x.act ? 1 : 0, x.act ? (x.hit ? 1 : 0) : -1, x.u, x.digest, x.stateAfter, now});
-            db.execSQL("UPDATE r27_eprocess SET log_e_up=?,log_e_down=?,n=?,acts=?,hits=?,sum_u=?,sum_u2=?,last_ordinal=?,state=?,updated_at=? WHERE policy_hash=?",
-                    new Object[] {s.logUp, s.logDown, s.n, s.acts, s.hits, s.sumU, s.sumU2, s.lastOrdinal, s.state, now, id});
-            if(!p.consumed.isEmpty())QualificationGapRepairR30R1.markReplayWithin(db,id,p.consumed.get(0).row.ordinal,s.lastOrdinal);
-            if (SequentialQualificationR27.QUALIFIED.equals(s.state)) db.execSQL(StoreR27.R26_EVOLUTION_QUALIFIED, new Object[] {id});
-            if (SequentialQualificationR27.NOT_BETTER.equals(s.state))
-                db.execSQL("UPDATE r27_live_shadow SET status='RETIRED_TO_ARCHIVE',reason='SEQUENTIAL_TEST_NOT_BETTER_THAN_TARGET',updated_at=? WHERE policy_hash=? AND status IN ('ACTIVE','ACTIVE_REPAIR1')", new Object[] {now, id});
-            if (BLOCK_CONFLICT.equals(p.block))
-                db.execSQL("INSERT OR IGNORE INTO r29_qual_conflict(experiment_id,target_ordinal,kind,receipt_digest,observed_digest,detail,detected_at) VALUES(?,?,'RESULT_CONFLICT',NULL,?,?,?)",
-                        new Object[] {id, p.blockedOrdinal, p.conflictDigest, p.conflictDetail, now});
-            db.execSQL("INSERT OR IGNORE INTO r29_qual_cursor(experiment_id,blocked_ordinal,blocked_reason,updated_at) VALUES(?,?,?,?)", new Object[] {id, p.blockedOrdinal, p.block, now});
-            db.execSQL("UPDATE r29_qual_cursor SET blocked_ordinal=?,blocked_reason=?,consumed_total=consumed_total+?,updated_at=? WHERE experiment_id=?", new Object[] {p.blockedOrdinal, p.block, p.consumed.size(), now, id});
+            if(!prefix.isEmpty()) {
+                List<Row> current=rows(db,id,expectLast,prefix.size());if(current.size()!=prefix.size())return -1;
+                for(int i=0;i<prefix.size();i++) {
+                    Row before=prefix.get(i).row,after=current.get(i);
+                    if(before.ordinal!=after.ordinal||!before.issue.equals(after.issue)||before.registeredAct()!=after.registeredAct())return -1;
+                    if(before.registeredAct()&&(before.n1!=after.n1||before.n2!=after.n2||before.n3!=after.n3||before.hit!=after.hit||before.actual!=after.actual))return -1;
+                }
+            }
             return 0;
         });
-        return b;
+        if (p.consumed.isEmpty() && !BLOCK_CONFLICT.equals(p.block)) {
+            // Only refresh the visible block reason; no state change.
+            b.add("INSERT OR IGNORE INTO r29_qual_cursor(experiment_id,blocked_ordinal,blocked_reason,updated_at) VALUES(?,?,?,?)", id, p.blockedOrdinal, p.block, now);
+            b.add("UPDATE r29_qual_cursor SET blocked_ordinal=?,blocked_reason=?,updated_at=? WHERE experiment_id=? AND (blocked_ordinal<>? OR blocked_reason<>?)", p.blockedOrdinal, p.block, now, id, p.blockedOrdinal, p.block);
+            requireBudgetR31(b,1,bindBytesR31(id));return b;
+        }
+            for (Consumed x : prefix)
+                b.add("INSERT INTO r29_qual_receipt(experiment_id,target_ordinal,target_issue,act,hit,u,digest,state_after,consumed_at) VALUES(?,?,?,?,?,?,?,?,?)",
+                        id,x.row.ordinal,x.row.issue,x.act?1:0,x.act?(x.hit?1:0):-1,x.u,x.digest,x.stateAfter,now);
+            b.add("UPDATE r27_eprocess SET log_e_up=?,log_e_down=?,n=?,acts=?,hits=?,sum_u=?,sum_u2=?,last_ordinal=?,state=?,updated_at=? WHERE policy_hash=? AND last_ordinal=? AND n=?",
+                    s.logUp,s.logDown,s.n,s.acts,s.hits,s.sumU,s.sumU2,s.lastOrdinal,s.state,now,id,expectLast,expectN);
+            if (SequentialQualificationR27.NOT_BETTER.equals(s.state))
+                b.add("UPDATE r27_live_shadow SET status='RETIRED_TO_ARCHIVE',reason='SEQUENTIAL_TEST_NOT_BETTER_THAN_TARGET',updated_at=? WHERE policy_hash=? AND status IN ('ACTIVE','ACTIVE_REPAIR1')",now,id);
+            if (BLOCK_CONFLICT.equals(p.block))
+                b.add("INSERT OR IGNORE INTO r29_qual_conflict(experiment_id,target_ordinal,kind,receipt_digest,observed_digest,detail,detected_at) VALUES(?,?,'RESULT_CONFLICT',NULL,?,?,?)",id,p.blockedOrdinal,p.conflictDigest,p.conflictDetail,now);
+            b.add("INSERT OR IGNORE INTO r29_qual_cursor(experiment_id,blocked_ordinal,blocked_reason,updated_at) VALUES(?,?,?,?)",id,p.blockedOrdinal,p.block,now);
+            b.add("UPDATE r29_qual_cursor SET blocked_ordinal=?,blocked_reason=?,consumed_total=consumed_total+?,updated_at=? WHERE experiment_id=?",p.blockedOrdinal,p.block,prefix.size(),now,id);
+        requireBudgetR31(b,2,bindBytesR31(id,id,String.valueOf(expectLast)));return b;
+    }
+
+    private static void appendReplayMarkerR31(SQLiteDatabase ro,ResearchWriteQueueR27.Batch b,String id,Plan p,long through) {
+        if(p.consumed.isEmpty())return;
+        String key=id+"|"+p.consumed.get(0).row.ordinal;
+        String original=QualificationGapRepairR30R1.text(ro,"SELECT payload_json FROM r27_chart_cache WHERE panel_id=? AND key=?",QualificationGapRepairR30R1.PANEL,key);
+        if(original==null)return;
+        try {
+            Map<String,Object> receipt=new LinkedHashMap<>(MetricEvaluatorR29.map(JsonR27.parse(original)));
+            if(!"ORIGINAL_RESTORED_REPLAY_PENDING".equals(receipt.get("status")))return;
+            long now=System.currentTimeMillis();receipt.put("status","ORIGINAL_RESTORED_CONTIGUOUS_PREFIX_ADVANCED");receipt.put("replayedThroughOrdinal",through);receipt.put("replayedAt",now);
+            b.add("UPDATE r27_chart_cache SET payload_json=?,updated_at=? WHERE panel_id=? AND key=? AND payload_json=?",JsonR27.write(receipt),now,QualificationGapRepairR30R1.PANEL,key,original);
+        } catch(RuntimeException invalid){QualificationGapRepairR30R1.observeFailure(invalid);}
+    }
+
+    private static void markQualifiedLinksR31(SQLiteDatabase ro,Commit sink,String id)throws Exception {
+        for(;;) {
+            CooperativeContinuationR26.poll();SequentialQualificationR27.State s=StoreR27.readEprocess(ro,id);
+            if(s==null||!SequentialQualificationR27.QUALIFIED.equals(s.state))return;
+            List<String> attempts=new ArrayList<>();
+            try(Cursor c=ro.rawQuery("SELECT attempt_id FROM r26_evolution WHERE policy_hash=? AND attempt_id LIKE 'R27:%' AND coalesce(prospective_qualified,0)<>1 ORDER BY attempt_id LIMIT 16",new String[]{id})){while(c.moveToNext())attempts.add(c.getString(0));}
+            if(attempts.isEmpty())return;
+            final long expected=s.n,last=s.lastOrdinal;ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();
+            b.guardBefore(db->{try(Cursor c=db.rawQuery("SELECT n,last_ordinal,state FROM r27_eprocess WHERE policy_hash=?",new String[]{id})){return c.moveToFirst()&&c.getLong(0)==expected&&c.getLong(1)==last&&SequentialQualificationR27.QUALIFIED.equals(c.getString(2))?0:-1;}});
+            for(String attempt:attempts)b.add("UPDATE r26_evolution SET prospective_qualified=1 WHERE attempt_id=? AND policy_hash=? AND coalesce(prospective_qualified,0)<>1",attempt,id);
+            requireBudgetR31(b,1,bindBytesR31(id));
+            try{if(!sink.commit("R29_QUALIFIED_LINK",b))return;}catch(IllegalStateException changed){if(!precondition(changed))throw changed;return;}
+        }
     }
 
     static boolean sameCursor(SQLiteDatabase ro, String id, Plan p) {
@@ -270,29 +367,79 @@ public final class QualificationInboxR29 {
     // ---------------------------------------------------------------- pending draws (separate page from settlement)
     /** Records frozen periods whose draw is still missing (PENDING_DRAW with retry bookkeeping) and resolves those whose
      * draw has arrived. Pending rows stay hit=-1 and remain settleable whenever the backfill brings the draw. */
-    public static ResearchWriteQueueR27.Batch pendingDraws(SQLiteDatabase ro, long latestOrdinal) {
-        ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long now = System.currentTimeMillis();
-        Map<Long, long[]> known = new LinkedHashMap<>(); // ordinal -> {last_checked_at, resolved_at, checks, first_seen_at}
-        try (Cursor c = ro.rawQuery("SELECT target_ordinal,last_checked_at,resolved_at,checks,first_seen_at FROM r29_pending_draw WHERE resolved_at=0 OR target_ordinal>=?", new String[] {String.valueOf(latestOrdinal - 2880)})) {
-            while (c.moveToNext()) known.put(c.getLong(0), new long[] {c.getLong(1), c.getLong(2), c.getLong(3), c.getLong(4)});
+    public static ResearchWriteQueueR27.Batch pendingDraws(SQLiteDatabase ro,long latestOrdinal) {
+        List<ResearchWriteQueueR27.Batch> chunks=pendingDrawChunksR31(ro,latestOrdinal);
+        return chunks.isEmpty()?new ResearchWriteQueueR27.Batch():chunks.get(0);
+    }
+    static final class PendingR31 {
+        final long ordinal,rows,acts,checked,checks,first,resolved;final String issue;final boolean exists,draw;
+        PendingR31(long ordinal,String issue,long rows,long acts,boolean exists,long checked,long checks,long first,long resolved,boolean draw){
+            this.ordinal=ordinal;this.issue=issue;this.rows=rows;this.acts=acts;this.exists=exists;this.checked=checked;this.checks=checks;this.first=first;this.resolved=resolved;this.draw=draw;
         }
-        boolean open = false;
-        try (Cursor c = ro.rawQuery("SELECT f.target_ordinal,f.target_issue,count(*),sum(CASE WHEN f.status='FROZEN' AND f.act=1 THEN 1 ELSE 0 END) FROM r27_live_frozen f"
-                + " WHERE f.hit IN(-1,-2) AND f.target_ordinal<? AND NOT EXISTS(SELECT 1 FROM draws d WHERE d.issue=f.target_issue AND d.dirty=0)"
-                + " GROUP BY f.target_ordinal,f.target_issue ORDER BY f.target_ordinal DESC LIMIT 128", new String[] {String.valueOf(latestOrdinal)})) {
-            while (c.moveToNext()) {
-                long ord = c.getLong(0); long[] k = known.get(ord);
-                // R30-B02-03: recheck backoff 1,2,4,...,300 s from the existing checks count (next_check_at =
-                // last_checked_at + nextCheckDelayMs(checks)); a STALE row (>2880 checks or >48 h open) is no longer
-                // rechecked but is kept, stays settleable and is listed in the report. No row is deleted.
-                if (k != null && k[1] == 0 && (stale(k[2], k[3], now) || now - k[0] < nextCheckDelayMs(k[2]))) continue;
-                b.add("INSERT OR IGNORE INTO r29_pending_draw(target_ordinal,target_issue,rows,act_rows,first_seen_at,last_checked_at) VALUES(?,?,?,?,?,?)", ord, c.getString(1), c.getLong(2), c.getLong(3), now, now);
-                b.add("UPDATE r29_pending_draw SET rows=?,act_rows=?,last_checked_at=?,checks=checks+1,resolved_at=0 WHERE target_ordinal=?", c.getLong(2), c.getLong(3), now, ord);
+    }
+    private static List<PendingR31> missingPendingR31(SQLiteDatabase ro,long latest,long now) {
+        List<PendingR31> selected=new ArrayList<>();
+        try(Cursor c=ro.rawQuery("SELECT f.target_ordinal,f.target_issue,count(*),sum(CASE WHEN f.status='FROZEN' AND f.act=1 THEN 1 ELSE 0 END),p.target_issue,p.last_checked_at,p.checks,p.first_seen_at,p.resolved_at FROM r27_live_frozen f LEFT JOIN r29_pending_draw p ON p.target_ordinal=f.target_ordinal"
+                +" WHERE f.hit IN(-1,-2) AND f.target_ordinal<? AND NOT EXISTS(SELECT 1 FROM draws d WHERE d.issue=f.target_issue AND d.dirty=0) GROUP BY f.target_ordinal,f.target_issue ORDER BY f.target_ordinal DESC LIMIT 128",new String[]{Long.toString(latest)})) {
+            while(c.moveToNext()) {
+                CooperativeContinuationR26.poll();boolean exists=!c.isNull(4);
+                if(exists&&!c.getString(1).equals(c.getString(4)))throw dependencyR31("PENDING_DRAW_IDENTITY","R31_PENDING_DRAW_ORDINAL_IDENTITY_CONFLICT");
+                long checked=exists?c.getLong(5):0,checks=exists?c.getLong(6):0,first=exists?c.getLong(7):0,resolved=exists?c.getLong(8):0;
+                if(exists&&resolved==0&&(stale(checks,first,now)||now-checked<nextCheckDelayMs(checks)))continue;
+                selected.add(new PendingR31(c.getLong(0),c.getString(1),c.getLong(2),c.getLong(3),exists,checked,checks,first,resolved,false));
             }
+        }return selected;
+    }
+    private static List<PendingR31> resolvedPendingR31(SQLiteDatabase ro,long after,long upper,int limit) {
+        List<PendingR31> selected=new ArrayList<>();
+        try(Cursor c=ro.rawQuery("SELECT target_ordinal,target_issue,rows,act_rows,last_checked_at,checks,first_seen_at,resolved_at FROM r29_pending_draw p WHERE resolved_at=0 AND target_ordinal>? AND target_ordinal<=? AND EXISTS(SELECT 1 FROM draws d WHERE d.issue=p.target_issue AND d.dirty=0) ORDER BY target_ordinal LIMIT "+limit,new String[]{Long.toString(after),Long.toString(upper)})) {
+            while(c.moveToNext())selected.add(new PendingR31(c.getLong(0),c.getString(1),c.getLong(2),c.getLong(3),true,c.getLong(4),c.getLong(5),c.getLong(6),c.getLong(7),true));
+        }return selected;
+    }
+    private static ResearchWriteQueueR27.Batch pendingChunkR31(List<PendingR31> selected,long now) {
+        final List<PendingR31> inputs=java.util.Collections.unmodifiableList(new ArrayList<>(selected));
+        ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();
+        if(inputs.isEmpty())return b;
+        b.guardBefore(db->{
+            for(PendingR31 input:inputs)try(Cursor c=db.rawQuery("SELECT p.target_issue,p.last_checked_at,p.checks,p.first_seen_at,p.resolved_at,EXISTS(SELECT 1 FROM draws d WHERE d.issue=? AND d.dirty=0) FROM (SELECT 1) seed LEFT JOIN r29_pending_draw p ON p.target_ordinal=?",new String[]{input.issue,Long.toString(input.ordinal)})) {
+                if(!c.moveToFirst()||(!c.isNull(0))!=input.exists||(c.getInt(5)!=0)!=input.draw)return -1;
+                if(input.exists&&(!input.issue.equals(c.getString(0))||input.checked!=c.getLong(1)||input.checks!=c.getLong(2)||input.first!=c.getLong(3)||input.resolved!=c.getLong(4)))return -1;
+            }return 0;
+        });
+        long guardBindBytes=0;
+        for(PendingR31 input:inputs) {
+            guardBindBytes+=bindBytesR31(input.issue,Long.toString(input.ordinal));
+            if(input.draw)b.add("UPDATE r29_pending_draw SET resolved_at=? WHERE target_ordinal=? AND target_issue=? AND resolved_at=0",now,input.ordinal,input.issue);
+            else {
+                b.add("INSERT OR IGNORE INTO r29_pending_draw(target_ordinal,target_issue,rows,act_rows,first_seen_at,last_checked_at) VALUES(?,?,?,?,?,?)",input.ordinal,input.issue,input.rows,input.acts,now,now);
+                b.add("UPDATE r29_pending_draw SET rows=?,act_rows=?,last_checked_at=?,checks=checks+1,resolved_at=0 WHERE target_ordinal=? AND target_issue=? AND checks=? AND last_checked_at=? AND resolved_at=?",input.rows,input.acts,now,input.ordinal,input.issue,input.checks,input.exists?input.checked:now,input.resolved);
+            }
+        }requireBudgetR31(b,inputs.size(),guardBindBytes);return b;
+    }
+    /** Bounded compatibility page; production drains resolution pages below without a global UPDATE. */
+    static List<ResearchWriteQueueR27.Batch> pendingDrawChunksR31(SQLiteDatabase ro,long latest) {
+        requireSchemaR31(ro);long now=System.currentTimeMillis();List<ResearchWriteQueueR27.Batch> out=new ArrayList<>();
+        List<PendingR31> missing=missingPendingR31(ro,latest,now);
+        for(int i=0;i<missing.size();i+=PENDING_PER_COMMIT_R31)out.add(pendingChunkR31(missing.subList(i,Math.min(missing.size(),i+PENDING_PER_COMMIT_R31)),now));
+        List<PendingR31> resolved=resolvedPendingR31(ro,Long.MIN_VALUE,Long.MAX_VALUE,128);
+        for(int i=0;i<resolved.size();i+=PENDING_PER_COMMIT_R31)out.add(pendingChunkR31(resolved.subList(i,Math.min(resolved.size(),i+PENDING_PER_COMMIT_R31)),now));
+        return out;
+    }
+    static void reconcilePendingDrawsR31(SQLiteDatabase ro,Commit sink,long latest)throws Exception {
+        requireSchemaR31(ro);long now=System.currentTimeMillis();List<PendingR31> missing=missingPendingR31(ro,latest,now);
+        for(int i=0;i<missing.size();i+=PENDING_PER_COMMIT_R31) {
+            CooperativeContinuationR26.poll();ResearchWriteQueueR27.Batch b=pendingChunkR31(missing.subList(i,Math.min(missing.size(),i+PENDING_PER_COMMIT_R31)),now);
+            try{if(!sink.commit("LIVE_PENDING_DRAW",b))return;}catch(IllegalStateException changed){if(!precondition(changed))throw changed;return;}
         }
-        for (long[] k : known.values()) if (k[1] == 0) open = true;
-        if (open) b.add("UPDATE r29_pending_draw SET resolved_at=? WHERE resolved_at=0 AND EXISTS(SELECT 1 FROM draws d WHERE d.issue=r29_pending_draw.target_issue AND d.dirty=0)", now);
-        return b;
+        long upper=Long.MIN_VALUE;
+        try(Cursor c=ro.rawQuery("SELECT max(target_ordinal) FROM r29_pending_draw WHERE resolved_at=0",null)){if(c.moveToFirst()&&!c.isNull(0))upper=c.getLong(0);}
+        long after=Long.MIN_VALUE;
+        while(after<upper) {
+            CooperativeContinuationR26.poll();List<PendingR31> rows=resolvedPendingR31(ro,after,upper,PENDING_PER_COMMIT_R31);if(rows.isEmpty())return;
+            ResearchWriteQueueR27.Batch b=pendingChunkR31(rows,System.currentTimeMillis());
+            try{if(!sink.commit("LIVE_PENDING_RESOLVE",b))return;}catch(IllegalStateException changed){if(!precondition(changed))throw changed;return;}
+            after=rows.get(rows.size()-1).ordinal;
+        }
     }
     public static final long PENDING_RECHECK_MS = 30_000L;
     /** R30-B02-03 recheck backoff: 1 s doubling per check, capped at 300 s. */

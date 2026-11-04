@@ -39,56 +39,88 @@ public final class LiveShadowsR27 {
      * (r29_pending_draw, retried every pass) and the row stays settleable when the backfill brings it. Rows the R27
      * loop had written as hit=-2 are settled again from their original freeze. The e-process is fed exclusively by
      * QualificationInboxR29 in contiguous order (docs/12 §3). */
-    static final String SETTLEABLE = "SELECT * FROM (SELECT f.policy_hash,f.target_ordinal,f.target_issue,f.position,f.n1,f.n2,f.n3,f.act,f.status,"
-            + "(SELECT CASE f.position WHEN 1 THEN d.n1 WHEN 2 THEN d.n2 WHEN 3 THEN d.n3 WHEN 4 THEN d.n4 WHEN 5 THEN d.n5 WHEN 6 THEN d.n6 WHEN 7 THEN d.n7 WHEN 8 THEN d.n8 WHEN 9 THEN d.n9 WHEN 10 THEN d.n10 END FROM draws d WHERE d.issue=f.target_issue AND d.dirty=0 LIMIT 1) AS actual"
-            + " FROM r27_live_frozen f WHERE f.hit IN(-1,-2) AND f.target_ordinal<=?) WHERE actual IS NOT NULL ORDER BY target_ordinal,policy_hash LIMIT 640";
-    static final int SETTLE_CHUNK_R30 = 160;
+    static final String SETTLEMENT_COLUMNS_R31="f.policy_hash,f.target_ordinal,f.target_issue,f.position,f.n1,f.n2,f.n3,f.act,f.status,"
+            +"(SELECT CASE f.position WHEN 1 THEN d.n1 WHEN 2 THEN d.n2 WHEN 3 THEN d.n3 WHEN 4 THEN d.n4 WHEN 5 THEN d.n5 WHEN 6 THEN d.n6 WHEN 7 THEN d.n7 WHEN 8 THEN d.n8 WHEN 9 THEN d.n9 WHEN 10 THEN d.n10 END FROM draws d WHERE d.issue=f.target_issue AND d.dirty=0 LIMIT 1) AS actual,f.hit";
+    static final String SETTLEABLE="SELECT * FROM (SELECT "+SETTLEMENT_COLUMNS_R31
+            +" FROM r27_live_frozen f WHERE f.hit IN(-1,-2) AND f.target_ordinal<=?) WHERE actual IS NOT NULL ORDER BY target_ordinal,policy_hash LIMIT 640";
+    static final int SETTLE_CHUNK_R30 = 12;
 
     static long settle(RuntimeR27 rt, ResearchPoolR27.Worker w, long latestOrd) throws Exception {
-        long[] settled = new long[1];
-        // R30-B01-04: 每片 ≤160 行一个事务；汇总只更新本片涉及的期号。每条 UPDATE 都带 hit IN(-1,-2)，片间幂等。
-        for (ResearchWriteQueueR27.Batch chunk : settleChunks(w.ro, latestOrd, settled, SETTLE_CHUNK_R30))
-            RuntimeR27.submit(w, "LIVE_SETTLE", chunk);
-        return settled[0];
+        QualificationInboxR29.Commit commit=(operation,batch)->{RuntimeR27.submit(w,operation,batch,false,QualificationInboxR29.preparedInputR31(batch));return true;};
+        QualificationInboxR29.reconcilePendingDrawsR31(w.ro,commit,latestOrd);
+        long settled=0;long[] planned=new long[1];
+        for(ResearchWriteQueueR27.Batch chunk:settleOutcomeChunksR31(w.ro,latestOrd,planned,SETTLE_CHUNK_R30)) {
+            CooperativeContinuationR26.poll();
+            try {commit.commit("LIVE_SETTLE",chunk);}
+            catch(IllegalStateException changed){if(!QualificationInboxR29.precondition(changed))throw changed;break;}
+            for(ResearchWriteQueueR27.Op op:chunk.ops)if(op.sql.startsWith("UPDATE r27_live_frozen"))settled++;
+        }return settled;
     }
 
-    /** 兼容旧调用与旧测试：把所有片合成一个 Batch（内容与旧版相同，只是汇总语句改为按期号）。 */
+    /** Legacy test adapter only: preserve every prepared guard when combining pages.
+     * Production submits the bounded pages separately through settle(). */
     static ResearchWriteQueueR27.Batch settleBatch(SQLiteDatabase ro, long latestOrd, long[] settled) {
         ResearchWriteQueueR27.Batch all = new ResearchWriteQueueR27.Batch();
-        for (ResearchWriteQueueR27.Batch chunk : settleChunks(ro, latestOrd, settled, Integer.MAX_VALUE)) all.ops.addAll(chunk.ops);
+        for(ResearchWriteQueueR27.Batch chunk:settleChunks(ro,latestOrd,settled,Integer.MAX_VALUE)) {
+            if(chunk.before!=null)all.guardBefore(chunk.before);
+            all.ops.addAll(chunk.ops);
+        }
         return all;
     }
 
     static List<ResearchWriteQueueR27.Batch> settleChunks(SQLiteDatabase ro, long latestOrd, long[] settled, int perChunk) {
+        List<ResearchWriteQueueR27.Batch> out=new ArrayList<>(QualificationInboxR29.pendingDrawChunksR31(ro,latestOrd));
+        out.addAll(settleOutcomeChunksR31(ro,latestOrd,settled,perChunk));return out;
+    }
+    static List<ResearchWriteQueueR27.Batch> settleOutcomeChunksR31(SQLiteDatabase ro,long latestOrd,long[] settled,int perChunk) {
+        QualificationInboxR29.requireSchemaR31(ro);
+        if(perChunk<1)throw new IllegalArgumentException("R31_SETTLEMENT_CHUNK_REQUIRED");
+        perChunk=Math.min(perChunk,SETTLE_CHUNK_R30);
         List<Object[]> rows = new ArrayList<>();
         try (Cursor c = ro.rawQuery(SETTLEABLE, new String[] {String.valueOf(latestOrd)})) {
-            while (c.moveToNext()) rows.add(new Object[] {c.getString(0), c.getLong(1), c.getString(2), c.getInt(3), c.getInt(4), c.getInt(5), c.getInt(6), c.getInt(7), c.getString(8), c.getInt(9)});
+            while (c.moveToNext()) rows.add(new Object[] {c.getString(0), c.getLong(1), c.getString(2), c.getInt(3), c.getInt(4), c.getInt(5), c.getInt(6), c.getInt(7), c.getString(8), c.getInt(9),c.getInt(10)});
         }
         List<ResearchWriteQueueR27.Batch> out = new ArrayList<>();
-        ResearchWriteQueueR27.Batch b = QualificationInboxR29.pendingDraws(ro, latestOrd); // 缺期记账只放第一片
+        ResearchWriteQueueR27.Batch b =new ResearchWriteQueueR27.Batch();
         java.util.TreeSet<Long> ords = new java.util.TreeSet<>();
+        List<Object[]> inputs=new ArrayList<>();
         long now = System.currentTimeMillis(); int inChunk = 0;
         for (Object[] r : rows) {
+            CooperativeContinuationR26.poll();
             String id = (String) r[0]; long ord = (Long) r[1]; int actual = (Integer) r[9];
             if (actual < 1) continue; // malformed draw value: never invent an outcome
             boolean frozen = "FROZEN".equals(r[8]);
             boolean hit = frozen && (actual == (Integer) r[4] || actual == (Integer) r[5] || actual == (Integer) r[6]);
-            b.add("UPDATE r27_live_frozen SET hit=?,settled_at=? WHERE policy_hash=? AND target_ordinal=? AND hit IN(-1,-2)", hit ? 1 : 0, now, id, ord);
+            b.add("UPDATE r27_live_frozen SET hit=?,settled_at=? WHERE policy_hash=? AND target_ordinal=? AND hit=? AND target_issue=? AND position=? AND n1=? AND n2=? AND n3=? AND act=? AND status=?",hit?1:0,now,id,ord,r[10],r[2],r[3],r[4],r[5],r[6],r[7],r[8]);
+            inputs.add(r.clone());
             ords.add(ord); settled[0]++;
-            if (++inChunk >= perChunk) { closeSettleChunk(b, ords); out.add(b); b = new ResearchWriteQueueR27.Batch(); ords = new java.util.TreeSet<>(); inChunk = 0; }
+            if(++inChunk>=perChunk){closeSettleChunk(b,ords,inputs);out.add(b);b=new ResearchWriteQueueR27.Batch();ords=new java.util.TreeSet<>();inputs=new ArrayList<>();inChunk=0;}
         }
-        if (inChunk > 0 || !b.isEmpty()) { closeSettleChunk(b, ords); out.add(b); }
+        if(inChunk>0){closeSettleChunk(b,ords,inputs);out.add(b);}
         return out;
     }
 
-    private static void closeSettleChunk(ResearchWriteQueueR27.Batch b, java.util.Set<Long> ords) {
+    private static void closeSettleChunk(ResearchWriteQueueR27.Batch b,java.util.Set<Long> ords,List<Object[]> inputs) {
+        final List<Object[]> expected=java.util.Collections.unmodifiableList(new ArrayList<>(inputs));
+        StringBuilder where=new StringBuilder();List<String> arguments=new ArrayList<>();
+        for(Object[] row:expected){if(where.length()>0)where.append(" OR ");where.append("(f.policy_hash=? AND f.target_ordinal=?)");arguments.add((String)row[0]);arguments.add(String.valueOf(row[1]));}
+        final String sourceSql="SELECT "+SETTLEMENT_COLUMNS_R31+" FROM r27_live_frozen f WHERE "+where+" ORDER BY f.target_ordinal,f.policy_hash";
+        final String[] sourceArgs=arguments.toArray(new String[0]);
+        b.guardBefore(db->{int index=0;try(Cursor c=db.rawQuery(sourceSql,sourceArgs)){
+            while(c.moveToNext()) {
+                if(index>=expected.size())return -1;Object[] row=expected.get(index++);
+                if(!row[0].equals(c.getString(0))||((Long)row[1]).longValue()!=c.getLong(1)||!row[2].equals(c.getString(2))||!row[8].equals(c.getString(8)))return -1;
+                for(int column:new int[]{3,4,5,6,7,9,10})if(c.isNull(column)||((Integer)row[column]).intValue()!=c.getInt(column))return -1;
+            }
+        }return index==expected.size()?0:-1;});
         for (Long o : ords)
             b.add("UPDATE r27_opportunity SET settled=(SELECT count(*) FROM r27_live_frozen f WHERE f.target_ordinal=? AND f.hit>=0) WHERE target_ordinal=?", o, o);
+        QualificationInboxR29.requireBudgetR31(b,1,QualificationInboxR29.bindBytesR31((Object[])sourceArgs));
     }
 
     /** R29-035: contiguous qualification consumption after settlement (single owner of e-process updates). */
     static long qualify(RuntimeR27 rt, final ResearchPoolR27.Worker w, long latestOrd) throws Exception {
-        QualificationInboxR29.Pass p = QualificationInboxR29.consume(w.ro, (op, batch) -> w.writes().submit(op, batch, w::cancelled), LIVE_STATES, latestOrd);
+        QualificationInboxR29.Pass p=QualificationInboxR29.consume(w.ro,(op,batch)->{RuntimeR27.submit(w,op,batch,false,QualificationInboxR29.preparedInputR31(batch));return true;},LIVE_STATES,latestOrd);
         return p.consumed + p.rebuilt;
     }
 
