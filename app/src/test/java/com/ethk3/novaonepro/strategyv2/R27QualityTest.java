@@ -34,13 +34,17 @@ public final class R27QualityTest {
     // ------------------------------------------------------------------ H10 / H11 semantic ABI
     @Test public void h10UiOnlyChangeIsEquivalent() throws Exception {
         ReplayDatasetR27 g = R27TestSupport.golden();
-        FeatureCacheR27 before = new FeatureCacheR27(g);
+        try (FeatureCacheR27 before = new FeatureCacheR27(g)) {
         Map<String, String> abiBefore = OperatorGoldenR27.fingerprints(before);
         Map<String, SemanticAbiR27.Fingerprint> fp = new LinkedHashMap<>();
         for (PolicySpecR27 s : policies()) fp.put(s.policyHash(), SemanticAbiR27.fingerprint(s, 1.0, before));
         // A "new build" that changed only UI/report/scheduling code: a fresh process recomputes everything from
         // scratch; the build identity / source hash is not an input of the fingerprint.
-        FeatureCacheR27 after = new FeatureCacheR27(SemanticAbiR27.readGolden(new java.io.FileInputStream(new File(R27TestSupport.root(), "app/src/main/assets/" + SemanticAbiR27.GOLDEN_ASSET)), true));
+        ReplayDatasetR27 reread;
+        try (java.io.InputStream input = new java.io.FileInputStream(new File(R27TestSupport.root(), "app/src/main/assets/" + SemanticAbiR27.GOLDEN_ASSET))) {
+            reread = SemanticAbiR27.readGolden(input, true);
+        }
+        try (FeatureCacheR27 after = new FeatureCacheR27(reread)) {
         assertEquals(abiBefore, OperatorGoldenR27.fingerprints(after));
         int eq = 0;
         for (PolicySpecR27 s : policies()) {
@@ -51,15 +55,17 @@ public final class R27QualityTest {
             assertEquals(SemanticAbiR27.EQUIVALENT, SemanticAbiR27.compare(SemanticAbiR27.Fingerprint.fromBlob(f.digest, f.rowsBlob(), f.issues), f).result);
         }
         R27TestSupport.log("H10_PASS policies=" + eq + " allEquivalent=true operatorAbi=" + SemanticAbiR27.operatorSetHash(abiBefore).substring(0, 16));
+        }
+        }
     }
 
     @Test public void h11ChangedFdecayChangesOnlyItsPolicies() throws Exception {
         ReplayDatasetR27 g = R27TestSupport.golden();
-        FeatureCacheR27 before = new FeatureCacheR27(g);
+        try (FeatureCacheR27 before = new FeatureCacheR27(g)) {
         Map<String, String> abiBefore = OperatorGoldenR27.fingerprints(before);
         Map<String, SemanticAbiR27.Fingerprint> fp = new LinkedHashMap<>();
         for (PolicySpecR27 s : policies()) fp.put(s.policyHash(), SemanticAbiR27.fingerprint(s, 1.0, before));
-        FeatureCacheR27 after = new FeatureCacheR27(g);
+        try (FeatureCacheR27 after = new FeatureCacheR27(g)) {
         // The changed formula: the exponential decay uses twice the half-life.
         after.override("fdecay", (f, tp, a, b) -> f.decay(a, b * 2));
         Map<String, String> abiAfter = OperatorGoldenR27.fingerprints(after);
@@ -83,6 +89,8 @@ public final class R27QualityTest {
         }
         assertEquals(2, changed); assertEquals(4, equivalent);
         R27TestSupport.log("H11_PASS changedOperators=" + changedOps + " changedPolicies=" + changed + " equivalentPolicies=" + equivalent + " firstDiff=" + first.toString().trim());
+        }
+        }
     }
 
     // ------------------------------------------------------------------ H13 calibration rows
@@ -447,6 +455,7 @@ public final class R27QualityTest {
             try {
                 assertTrue("P0 narrows the actual pool", pool.narrow(now));
                 EvolutionLoopR27 loop = R30EvolutionConfirmIntegrationTest.evolution();
+                try (FeatureCacheR27 ownedCache = loop.context().cache; EvolutionLoopR27 ownedLoop = loop) {
                 EvolutionLoopR27.Pending pending = new EvolutionLoopR27.Pending();
                 pending.spec = loop.champion; pending.state = "BORN";
                 java.lang.reflect.Field field = EvolutionLoopR27.class.getDeclaredField("pending");
@@ -455,6 +464,7 @@ public final class R27QualityTest {
                 loop.stepReplay();
                 assertNotNull("a real SELECT replay completed serially", pending.trace);
                 assertEquals(1, loop.candidateReplayMs.size());
+                }
             } finally { RealtimePressureGateR811.endAnalysis(); }
             String runtime = new String(Files.readAllBytes(new File(dir, "RuntimeR27.java").toPath()), "UTF-8").replaceAll("\\s+", "");
             assertTrue("runtime connects evolution to the pressure guard", runtime.contains("loop.serialWhile=()->pool.narrow(System.currentTimeMillis());"));
@@ -498,7 +508,9 @@ public final class R27QualityTest {
         for (int i = 0; i <= HoldoutLedgerR27.MAX_DISTINCT_LOOKS; i++) l.look(7, "champion-" + i);
         assertTrue("main-line looks still spend the budget", l.degraded(7));
         // R30-B05-01 moves all actual looks outside evolution; exercise that production evaluator directly.
-        EvolutionLoopR27 loop = R30EvolutionConfirmIntegrationTest.evolution(); loop.cfg.nullControl = true;
+        EvolutionLoopR27 loop = R30EvolutionConfirmIntegrationTest.evolution();
+        try (FeatureCacheR27 ownedCache = loop.context().cache; EvolutionLoopR27 ownedLoop = loop) {
+        loop.cfg.nullControl = true;
         loop.i00Champion = loop.champion; loop.i00Tau = 1;
         loop.nullEvolution.champion = loop.champion; loop.nullEvolution.championTau = 1; loop.nullEvolution.lastSeed = 17;
         loop.stepHoldout();
@@ -507,6 +519,7 @@ public final class R27QualityTest {
         assertEquals("only the main candidate spends the main budget",1,loop.ledger().exposures(block));
         assertEquals("both frozen controls keep their own experiment identities",2,loop.ledger().controlExposures(block));
         assertFalse(loop.ledger().degraded(block));
+        }
         String frame = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/strategyv2/EventFrameBuilderSU1.java").toPath()), "UTF-8");
         assertTrue("SU1 frames use the newest contiguous run", frame.contains("pit=pit.newestContiguous();pit.requireConsecutive();"));
         R27TestSupport.log("R27_3_HOLDOUT_BUDGET_PASS");

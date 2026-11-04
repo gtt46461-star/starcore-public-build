@@ -1,0 +1,26 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--cached",
+    "--check"
+  ],
+  "observedExit": 2,
+  "problem": "Added raw unified-diff artifact includes required one-space blank context lines; flagged as trailing whitespace only in that artifact, not production or test source.",
+  "reportedArtifactLines": [
+    83,
+    103,
+    187,
+    191,
+    211,
+    247,
+    261,
+    285,
+    305,
+    327
+  ],
+  "firstMoveError": "OSError: [Errno 18] Invalid cross-device link",
+  "action": "Copied and byte-verified exact source patch outside repository, then removed own untracked artifact. Commit contains actual source diff and module evidence.",
+  "preservedPatch": "/tmp/r31-owner-consumers-3246-source-diff.patch",
+  "patchSha256": "19172baf65fb6610f687e397a2705688c0f1d22501dba2158f06f326f0362a9c"
+}

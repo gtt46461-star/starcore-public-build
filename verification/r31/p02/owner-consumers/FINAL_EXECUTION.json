@@ -1,0 +1,108 @@
+{
+  "scope": "HOST_ONLY_FIXED_ACTUAL_012_SUPPORT_WITH_OPERATOR_AND_FIVE_LIFECYCLE_SOURCE_OVERLAY_NOT_ANDROID_OR_FULL_SUITE_ACCEPTANCE",
+  "baseline": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
+  "snapshot": "/tmp/r31-owner-consumers-3246-k4u9rss0",
+  "commands": [
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-cp",
+        "/tmp/r31-owner-consumers-3246-k4u9rss0/modified-production:/tmp/r31-owner-consumers-3246-k4u9rss0/0-classes.jar:/tmp/r31-owner-consumers-3246-k4u9rss0/1-junit-4.13.2.jar:/tmp/r31-owner-consumers-3246-k4u9rss0/2-hamcrest-core-1.3.jar:/tmp/r31-owner-consumers-3246-k4u9rss0/3-android.jar:/tmp/r31-owner-consumers-3246-k4u9rss0/4-R.jar",
+        "-sourcepath",
+        "/workspace/r31-owner-consumers/app/src/test/java",
+        "-d",
+        "/tmp/r31-owner-consumers-3246-k4u9rss0/modified-tests",
+        "/workspace/r31-owner-consumers/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java",
+        "/workspace/r31-owner-consumers/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27ReplayTest.java",
+        "/workspace/r31-owner-consumers/app/src/test/java/com/ethk3/novaonepro/strategyv2/R30IncrementalFeatureTest.java",
+        "/workspace/r31-owner-consumers/app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ModelSurfaceTest.java",
+        "/workspace/r31-owner-consumers/app/src/test/java/com/ethk3/novaonepro/strategyv2/R30FailureRepairTest.java"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-cp",
+        "/tmp/r31-owner-consumers-3246-k4u9rss0/modified-tests:/tmp/r31-owner-consumers-3246-k4u9rss0/modified-production:/tmp/r31-owner-consumers-3246-k4u9rss0/0-classes.jar:/tmp/r31-owner-consumers-3246-k4u9rss0/1-junit-4.13.2.jar:/tmp/r31-owner-consumers-3246-k4u9rss0/2-hamcrest-core-1.3.jar:/tmp/r31-owner-consumers-3246-k4u9rss0/3-android.jar:/tmp/r31-owner-consumers-3246-k4u9rss0/4-R.jar",
+        "-d",
+        "/tmp/r31-owner-consumers-3246-k4u9rss0/runner",
+        "/workspace/r31-owner-consumers/verification/r31/p02/owner-consumers/OwnerConsumerResourceR31Host.java"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-owner-consumers-3246-k4u9rss0/runner:/tmp/r31-owner-consumers-3246-k4u9rss0/modified-tests:/tmp/r31-owner-consumers-3246-k4u9rss0/modified-production:/tmp/r31-owner-consumers-3246-k4u9rss0/0-classes.jar:/tmp/r31-owner-consumers-3246-k4u9rss0/1-junit-4.13.2.jar:/tmp/r31-owner-consumers-3246-k4u9rss0/2-hamcrest-core-1.3.jar:/tmp/r31-owner-consumers-3246-k4u9rss0/3-android.jar:/tmp/r31-owner-consumers-3246-k4u9rss0/4-R.jar",
+        "com.ethk3.novaonepro.strategyv2.OwnerConsumerResourceR31Host",
+        "/workspace/r31-owner-consumers/app/src/main/assets/r27/golden_512.bin"
+      ],
+      "exit": 0,
+      "elapsedSeconds": 1.0398356914520264
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-owner-consumers-3246-k4u9rss0/runner:/tmp/r31-owner-consumers-3246-k4u9rss0/modified-tests:/tmp/r31-owner-consumers-3246-k4u9rss0/modified-production:/tmp/r31-owner-consumers-3246-k4u9rss0/0-classes.jar:/tmp/r31-owner-consumers-3246-k4u9rss0/1-junit-4.13.2.jar:/tmp/r31-owner-consumers-3246-k4u9rss0/2-hamcrest-core-1.3.jar:/tmp/r31-owner-consumers-3246-k4u9rss0/3-android.jar:/tmp/r31-owner-consumers-3246-k4u9rss0/4-R.jar",
+        "com.ethk3.novaonepro.strategyv2.OwnerConsumerRunnerR31Host",
+        "com.ethk3.novaonepro.strategyv2.R27QualityTest",
+        "com.ethk3.novaonepro.strategyv2.R27ReplayTest",
+        "com.ethk3.novaonepro.strategyv2.R30IncrementalFeatureTest",
+        "com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest",
+        "com.ethk3.novaonepro.strategyv2.R30FailureRepairTest"
+      ],
+      "exit": 0,
+      "elapsedSeconds": 24.706677675247192
+    }
+  ],
+  "source": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/OperatorGoldenR27.java",
+      "sha256": "5fb75a42071b752feb2a625db843c700d873530287cde3471d37351847d9ba9e"
+    },
+    {
+      "path": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java",
+      "sha256": "56710a8ec04a492b3ae97f03ddf72d1c16a4d3bae17c1cfa72698ec4a8140c0d"
+    },
+    {
+      "path": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27ReplayTest.java",
+      "sha256": "c6dae6a3b75516469d5d1143393adfcb18de5dc4fae061abf8cfd325a00bcb6f"
+    },
+    {
+      "path": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30IncrementalFeatureTest.java",
+      "sha256": "2c574b72cc44efc34212a59d94d5c5c9b6cbfa31877da308bb17d7028bf7396d"
+    },
+    {
+      "path": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ModelSurfaceTest.java",
+      "sha256": "d4d1d40a01bbd46d66db1fa930015a3936a74986d6bcf2ae6735dc53cca14441"
+    },
+    {
+      "path": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30FailureRepairTest.java",
+      "sha256": "cca3ef155aa4f06655f5bb890943c512fe483272df0553347a2b623ad1cfed7e"
+    }
+  ],
+  "dependenciesUnchanged": true,
+  "protectedAfter": [
+    {
+      "path": "app/src/main/assets/r27/golden_512.bin",
+      "sha256": "3cd1f137d11a71459f14a8323918eecf6a00a5f533c0c798380770e231e6d913"
+    },
+    {
+      "path": "verification/r31/memory/baseline-golden.json",
+      "sha256": "10626492e9153ce938d694daa5ab01a90710cf87ea4c4e245dab2eaf9d8a399d"
+    },
+    {
+      "path": "verification/r31/memory/current-golden.json",
+      "sha256": "10626492e9153ce938d694daa5ab01a90710cf87ea4c4e245dab2eaf9d8a399d"
+    }
+  ],
+  "originalFullSuite": "PARENT_472_TESTS_8_FAILED_RETAINED_NOT_REPLACED_BY_THIS_SUBSET",
+  "naturalQuality": "NOT_EVALUATED",
+  "device": "NOT_RUN",
+  "protectedUnchanged": true
+}

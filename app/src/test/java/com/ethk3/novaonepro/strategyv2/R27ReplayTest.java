@@ -12,13 +12,18 @@ public class R27ReplayTest {
         PolicyAstR27.Node ast = PolicyAstR27.op("mix", 0.6, PolicyAstR27.op("zscore", PolicyAstR27.leaf("freq", 3, 128)),
                 PolicyAstR27.op("add", PolicyAstR27.op("zscore", PolicyAstR27.leaf("trans1")), PolicyAstR27.op("zscore", PolicyAstR27.leaf("family", 12))));
         PolicySpecR27 s = spec(ast, 3); double tau = 2.0;
-        FeatureCacheR27 full = new FeatureCacheR27(d);
+        try (FeatureCacheR27 full = new FeatureCacheR27(d)) {
         FeatureCacheR27 previous = null; int compared = 0;
+        try {
         for (int t = d.size() - 200; t < d.size(); t++) {
             ReplayEvaluatorR27.Trace replay = ReplayEvaluatorR27.run(s, full, d.draws, tau, t, t + 1);
             // Live: only rows < t exist; a placeholder occupies the target slot.
             ReplayDatasetR27 prefix = ReplayDatasetR27.of(rows(d, t)).append(new ReplayDatasetR27.Row("PLACEHOLDER", d.ordinals[t], new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
-            FeatureCacheR27 live = new FeatureCacheR27(prefix); if (previous != null) live.extendFrom(previous); previous = live;
+            FeatureCacheR27 live = new FeatureCacheR27(prefix);
+            try { if (previous != null) live.extendFrom(previous); }
+            catch (RuntimeException | Error failed) { live.close(); throw failed; }
+            FeatureCacheR27 retired = previous; previous = live;
+            if (retired != null) retired.close(); // The completed deep fork was the previous owner's last user.
             double[] out = ReplayEvaluatorR27.predictNext(s, live, tau);
             if (replay.skipped[t]) { assertTrue(Double.isNaN(out[0])); continue; }
             for (int k = 0; k < 10; k++) assertEquals("row " + t + " p[" + k + "]", Double.doubleToLongBits(replay.lastProbs[k]), Double.doubleToLongBits(out[k]));
@@ -27,6 +32,8 @@ public class R27ReplayTest {
         }
         assertTrue(compared >= 190);
         R27TestSupport.log("H02_PASS compared=" + compared + " bitIdentical=true");
+        } finally { if (previous != null) previous.close(); }
+        }
     }
     static java.util.List<ReplayDatasetR27.Row> rows(ReplayDatasetR27 d, int to) {
         java.util.List<ReplayDatasetR27.Row> l = new java.util.ArrayList<>(); for (int i = 0; i < to; i++) l.add(new ReplayDatasetR27.Row(d.issues[i], d.ordinals[i], d.draws[i])); return l;
@@ -36,11 +43,13 @@ public class R27ReplayTest {
         ReplayDatasetR27 d = ReplayDatasetR27.synthetic(3000, 3, new int[] {700, 1500, 2200});
         assertEquals(4, d.segments()); assertEquals(3, d.gaps());
         PolicySpecR27 lag2 = spec(PolicyAstR27.op("zscore", PolicyAstR27.leaf("trans2")), 1);
-        ReplayEvaluatorR27.Trace tr = ReplayEvaluatorR27.run(lag2, new FeatureCacheR27(d), d.draws, 1.0, 0, d.size());
+        try (FeatureCacheR27 cache = new FeatureCacheR27(d)) {
+        ReplayEvaluatorR27.Trace tr = ReplayEvaluatorR27.run(lag2, cache, d.draws, 1.0, 0, d.size());
         ReplayScoreR27 sc = ReplayScoreR27.of("H_SELECT", tr, 0, d.size());
         // trans2 needs rows t-1 and t-2 in the same segment: 2 rows at the start of each of the 4 segments.
         assertEquals(8, sc.skippedGap); assertEquals(3000, sc.nSched);
         R27TestSupport.log("H03_PASS segments=4 skippedGap=" + sc.skippedGap + " nSched=" + sc.nSched);
+        }
     }
 
     @Test public void su1SegmentedHistoryDoesNotThrowOnGaps() {
@@ -64,12 +73,13 @@ public class R27ReplayTest {
     }
 
     @Test public void linearCandidateFullReplaySpeed() throws Exception {
-        ReplayDatasetR27 d = R27TestSupport.csv(5000); FeatureCacheR27 f = new FeatureCacheR27(d);
+        ReplayDatasetR27 d = R27TestSupport.csv(5000); try (FeatureCacheR27 f = new FeatureCacheR27(d)) {
         PolicySpecR27 s = spec(PolicyAstR27.op("sub", PolicyAstR27.op("zscore", PolicyAstR27.leaf("freq", 1, 32)), PolicyAstR27.op("zscore", PolicyAstR27.leaf("gap", 1))), 1);
         ReplayEvaluatorR27.run(s, f, d.draws, 1.0, 0, d.size()); // warm leaves
         long best = Long.MAX_VALUE;
         for (int i = 0; i < 5; i++) { long t0 = System.nanoTime(); double[] sc = ReplayEvaluatorR27.scores(s, f); ReplayEvaluatorR27.run(s, sc, d, d.draws, 1.0, 0, d.size()); best = Math.min(best, System.nanoTime() - t0); }
         R27TestSupport.log("REPLAY_SPEED linear5000ms=" + best / 1e6 + " (phone target ≤50ms; host measurement)");
         assertTrue("host linear 5000-row walk-forward should be well under 50 ms", best / 1e6 < 50);
+        }
     }
 }

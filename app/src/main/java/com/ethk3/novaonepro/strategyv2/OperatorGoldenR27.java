@@ -15,16 +15,16 @@ public final class OperatorGoldenR27 {
         PolicyAstR27.Node f = PolicyAstR27.leaf("freq", 3, 32), g = PolicyAstR27.leaf("gap", 3);
         for (String kind : PolicyAstR27.LEAVES.keySet()) {
             if(kind.equals("model_surface")){out.put(kind,ModelSurfaceProviderR30.goldenHash());continue;}
-            if (kind.equals("family")) { for (int fam : PolicyAstR27.FAMILY_LEAVES) out.put("family:" + fam, hash(PolicyAstR27.eval(PolicyAstR27.leaf("family", fam), golden, tp))); continue; }
-            out.put(kind, hash(PolicyAstR27.eval(sample(kind), golden, tp)));
+            if (kind.equals("family")) { for (int fam : PolicyAstR27.FAMILY_LEAVES) out.put("family:" + fam, hash(PolicyAstR27.leaf("family", fam), golden, tp)); continue; }
+            out.put(kind, hash(sample(kind), golden, tp));
         }
-        out.put("c", hash(PolicyAstR27.eval(PolicyAstR27.constant(0.125), golden, tp)));
-        for (String u : new String[] {"neg", "abs", "log1p", "sqrt", "sigmoid", "tanh", "rank", "zscore", "lagdiff"}) out.put(u, hash(PolicyAstR27.eval(PolicyAstR27.op(u, f), golden, tp)));
-        for (String b : new String[] {"add", "sub", "mul", "div", "max", "min"}) out.put(b, hash(PolicyAstR27.eval(PolicyAstR27.op(b, f, g), golden, tp)));
-        out.put("softmax", hash(PolicyAstR27.eval(PolicyAstR27.op("softmax", 2.0, f), golden, tp)));
-        out.put("ema", hash(PolicyAstR27.eval(PolicyAstR27.op("ema", 0.3, f), golden, tp)));
-        out.put("mix", hash(PolicyAstR27.eval(PolicyAstR27.op("mix", 0.25, f, g), golden, tp)));
-        out.put("if", hash(PolicyAstR27.eval(PolicyAstR27.op("if", f, g, f, g), golden, tp)));
+        out.put("c", hash(PolicyAstR27.constant(0.125), golden, tp));
+        for (String u : new String[] {"neg", "abs", "log1p", "sqrt", "sigmoid", "tanh", "rank", "zscore", "lagdiff"}) out.put(u, hash(PolicyAstR27.op(u, f), golden, tp));
+        for (String b : new String[] {"add", "sub", "mul", "div", "max", "min"}) out.put(b, hash(PolicyAstR27.op(b, f, g), golden, tp));
+        out.put("softmax", hash(PolicyAstR27.op("softmax", 2.0, f), golden, tp));
+        out.put("ema", hash(PolicyAstR27.op("ema", 0.3, f), golden, tp));
+        out.put("mix", hash(PolicyAstR27.op("mix", 0.25, f, g), golden, tp));
+        out.put("if", hash(PolicyAstR27.op("if", f, g, f, g), golden, tp));
         // Readout, selectors and updater through the evaluator on a fixed program.
         for (PolicySpecR27.Rule r : PolicySpecR27.Rule.values()) {
             PolicySpecR27 s = new PolicySpecR27(PolicyAstR27.op("zscore", f), tp, r, 0.02, 0.2, 1.0, false, 0.01, 0.01, null);
@@ -55,5 +55,21 @@ public final class OperatorGoldenR27 {
         java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocate(v.length * 8);
         for (double x : v) bb.putLong(Double.doubleToLongBits(x));
         return StatsR27.sha256(bb.array());
+    }
+
+    /** Internal read-only consumer: keep the score backing inside its actual reader lifetime. */
+    private static String hash(PolicyAstR27.Node node, FeatureCacheR27 golden, int position) {
+        try (PolicyAstR27.ScopedScoresR31 scores = PolicyAstR27.evalScopedR31(node, golden, position)) {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            java.nio.ByteBuffer word = java.nio.ByteBuffer.allocate(Long.BYTES);
+            for (int i = 0; i < golden.data.size() * 10; i++) {
+                word.clear(); word.putLong(Double.doubleToLongBits(scores.at(i))); digest.update(word.array());
+            }
+            StringBuilder out = new StringBuilder();
+            for (byte x : digest.digest()) out.append(Character.forDigit((x >> 4) & 15, 16)).append(Character.forDigit(x & 15, 16));
+            return out.toString();
+        } catch (java.security.NoSuchAlgorithmException unavailable) {
+            throw new IllegalStateException("R27_SHA256", unavailable);
+        }
     }
 }

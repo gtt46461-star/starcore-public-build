@@ -14,26 +14,38 @@ public final class R30IncrementalFeatureTest {
 
     @Test public void incrementalEqualsFull() {
         ReplayDatasetR27 d = ReplayDatasetR27.synthetic(420, 11, new int[] {200});
-        double[] full = new FeatureCacheR27(d).family(3, 12);
+        try (FeatureCacheR27 fullCache = new FeatureCacheR27(d)) {
+        double[] full = fullCache.family(3, 12);
         FeatureCacheR27 prev = null; double[] inc = null;
+        try {
         for (int n = 300; n <= d.size(); n++) {
-            FeatureCacheR27 c = new FeatureCacheR27(prefix(d, n)); if (prev != null) c.extendFrom(prev); prev = c;
+            FeatureCacheR27 c = new FeatureCacheR27(prefix(d, n));
+            try { if (prev != null) c.extendFrom(prev); }
+            catch (RuntimeException | Error failed) { c.close(); throw failed; }
+            FeatureCacheR27 retired = prev; prev = c;
+            if (retired != null) retired.close(); // Fork completion ended every use of the previous owner.
             inc = c.family(3, 12);
         }
         assertEquals(full.length, inc.length);
         for (int i = 0; i < full.length; i++) assertEquals("row " + i / 10, Double.doubleToLongBits(full[i]), Double.doubleToLongBits(inc[i]));
+        } finally { if (prev != null) prev.close(); }
+        }
     }
 
     @Test public void changedPrefixIsRebuiltToFullValues() {
         ReplayDatasetR27 d = ReplayDatasetR27.synthetic(400, 12, new int[0]);
-        FeatureCacheR27 a = new FeatureCacheR27(prefix(d, 250)); a.family(2, 12);
+        try (FeatureCacheR27 a = new FeatureCacheR27(prefix(d, 250))) {
+        a.family(2, 12);
         int[][] changed = new int[d.size()][]; for (int i = 0; i < d.size(); i++) changed[i] = d.draws[i].clone();
         int[] tmp = changed[10]; changed[10] = changed[11]; changed[11] = tmp;  // rewrite an early row
         ReplayDatasetR27 e = d.withDraws(changed);
         long before = FeatureCacheR27.REBUILDS_R30.get();
-        FeatureCacheR27 b = new FeatureCacheR27(e); b.extendFrom(a);
-        double[] got = b.family(2, 12), want = new FeatureCacheR27(e).family(2, 12);
+        try (FeatureCacheR27 b = new FeatureCacheR27(e); FeatureCacheR27 independent = new FeatureCacheR27(e)) {
+        b.extendFrom(a);
+        double[] got = b.family(2, 12), want = independent.family(2, 12);
         assertTrue("rebuild recorded", FeatureCacheR27.REBUILDS_R30.get() > before);
         for (int i = 0; i < want.length; i++) assertEquals(Double.doubleToLongBits(want[i]), Double.doubleToLongBits(got[i]));
+        }
+        }
     }
 }

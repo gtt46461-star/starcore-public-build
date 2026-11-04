@@ -16,14 +16,25 @@ public final class R30FailureRepairTest {
     }
     static PolicySpecR27 rich() { return policy(PolicyAstR27.op("add",sum(1,11),PolicyAstR27.constant(0.2)),1); }
 
+    /** This fixture creates both resources; evaluation contexts elsewhere keep their caller's cache. */
+    static final class OwnedFailureContextR31 implements AutoCloseable {
+        final FeatureCacheR27 cache;
+        final EvalContextR27 evaluation;
+        OwnedFailureContextR31(FeatureCacheR27 cache, EvalContextR27 evaluation) { this.cache = cache; this.evaluation = evaluation; }
+        @Override public void close() { try { evaluation.close(); } finally { cache.close(); } }
+    }
+
     /** Synthetic counterexample: position 7 always misses the unchanged parent's K3 on H_SELECT. All ten
      * numbers remain a permutation, and feature data / H_TRAIN labels are unchanged. */
-    static EvalContextR27 failedPositionContext(PolicySpecR27 parent) {
+    static OwnedFailureContextR31 failedPositionContext(PolicySpecR27 parent) {
         ReplayDatasetR27 data = ReplayDatasetR27.synthetic(1800,307,new int[0]);
         FeatureCacheR27 cache = new FeatureCacheR27(data); SplitR27 split = SplitR27.of(data,null);
-        EvalContextR27 original = new EvalContextR27(cache,split,null);
+        boolean transferred = false;
+        try {
+        int[][] labels;
+        try (EvalContextR27 original = new EvalContextR27(cache,split,null)) {
         ReplayEvaluatorR27.Trace trace = original.selectTrace(parent,1);
-        int[][] labels = new int[data.size()][];
+        labels = new int[data.size()][];
         for (int t = 0; t < data.size(); t++) {
             labels[t] = data.draws[t].clone();
             if (t < split.selectFrom || t >= split.selectTo || trace.skipped[t]) continue;
@@ -32,11 +43,15 @@ public final class R30FailureRepairTest {
             int other = 0; while (labels[t][other] != miss) other++;
             int old = labels[t][6]; labels[t][6] = miss; labels[t][other] = old;
         }
-        return new EvalContextR27(cache,split,labels);
+        }
+        OwnedFailureContextR31 owned = new OwnedFailureContextR31(cache,new EvalContextR27(cache,split,labels));
+        transferred = true; return owned;
+        } finally { if (!transferred) cache.close(); }
     }
 
     @Test public void measuredFailureDrivesActualWindowMutationAndFamilyRepair() {
-        PolicySpecR27 parent = rich(); EvalContextR27 evaluation = failedPositionContext(parent);
+        PolicySpecR27 parent = rich(); try (OwnedFailureContextR31 owned = failedPositionContext(parent)) {
+        EvalContextR27 evaluation = owned.evaluation;
         FailureProfileR30 p = evaluation.failureProfile(parent);
         assertTrue(p.ready()); assertEquals(7,p.position); assertEquals(512,p.window);
         assertEquals(512,p.nAct); assertEquals(0,p.hits);
@@ -58,6 +73,7 @@ public final class R30FailureRepairTest {
         }
         assertTrue("window repair was only a no-op",changed >= 20); assertTrue(familyChildren >= 90);
         R27TestSupport.log("R30_FAILURE_TARGET " + p.json() + " actualWindowChanges=" + changed + " familyChildren=" + familyChildren);
+        }
     }
 
     @Test public void confirmAndFutureLabelsCannotChangeTheProfile() {
@@ -65,18 +81,24 @@ public final class R30FailureRepairTest {
         assertTrue(split.holdoutAvailable); int[][] poisoned = new int[data.size()][];
         for (int t = 0; t < data.size(); t++) poisoned[t] = t >= split.selectTo ? null : data.draws[t].clone();
         // null sealed/open rows throw on any attempted label read, including a hidden temperature fit.
-        PolicySpecR27 parent = rich(); FeatureCacheR27 cache = new FeatureCacheR27(data);
-        FailureProfileR30 a = new EvalContextR27(cache,split,null).failureProfile(parent);
-        FailureProfileR30 b = new EvalContextR27(cache,split,poisoned).failureProfile(parent);
+        PolicySpecR27 parent = rich(); try (FeatureCacheR27 cache = new FeatureCacheR27(data)) {
+        try (EvalContextR27 actual = new EvalContextR27(cache,split,null); EvalContextR27 poisonedContext = new EvalContextR27(cache,split,poisoned)) {
+        FailureProfileR30 a = actual.failureProfile(parent);
+        FailureProfileR30 b = poisonedContext.failureProfile(parent);
         assertEquals(a.json(),b.json()); assertTrue(a.ready()); assertTrue(a.from >= split.selectFrom); assertEquals(split.selectTo,a.to);
         PolicySpecR27 silent = parent.withSelector(1,PolicySpecR27.Rule.MARGIN,0.70,0,parent.meta);
-        FailureProfileR30 missing = new EvalContextR27(cache,split,poisoned).failureProfile(silent);
+        try (EvalContextR27 silentContext = new EvalContextR27(cache,split,poisoned)) {
+        FailureProfileR30 missing = silentContext.failureProfile(silent);
         assertEquals("INSUFFICIENT",missing.status); assertEquals(0,missing.nAct); assertTrue(Double.isNaN(missing.hitRate()));
         assertEquals("NOT_RUN",FailureProfileR30.forParent(parent,new IdeaFamilyR27.Context()).status);
+        }
+        }
+        }
     }
 
     @Test public void allOperatorProductsAreCompleteAndCarryRealProfiles() {
-        PolicySpecR27 parent = rich(); EvalContextR27 evaluation = failedPositionContext(parent);
+        PolicySpecR27 parent = rich(); try (OwnedFailureContextR31 owned = failedPositionContext(parent)) {
+        EvalContextR27 evaluation = owned.evaluation;
         IdeaFamilyR27.Context ctx = new IdeaFamilyR27.Context(); ctx.evaluation = evaluation;
         List<PolicySpecR27> parents = Arrays.asList(parent,policy(PolicyAstR27.op("zscore",PolicyAstR27.leaf("freq",2,128)),2),
                 policy(PolicyAstR27.op("zscore",PolicyAstR27.leaf("gap",3)),3),policy(PolicyAstR27.op("zscore",PolicyAstR27.leaf("cross",4,1)),4));
@@ -106,5 +128,6 @@ public final class R30FailureRepairTest {
         }
         assertTrue(valid / (double)produced >= 0.99);
         R27TestSupport.log("R30_REPAIR_CONTRACT attempts=" + attempted + " proposed=" + produced + " valid=" + valid + " notProposed=" + (attempted-produced) + " perOperator=" + proposed);
+        }
     }
 }

@@ -23,7 +23,7 @@ public class R30ModelSurfaceTest {
         rejected(()->ModelSurfaceProviderR30.archived(StatsR27.sha256(weights),"h",new double[10],100,99,10_000,99,19_000,1,20_000,20_000,30_000),"PROB_SUM");
     }
     @Test public void typedAstConsumesActualSurfaceAndMissingRowsCannotCarryThroughEma(){
-        ReplayDatasetR27 d=ReplayDatasetR27.synthetic(50,14,new int[0]);FeatureCacheR27 f=new FeatureCacheR27(d);
+        ReplayDatasetR27 d=ReplayDatasetR27.synthetic(50,14,new int[0]);try(FeatureCacheR27 f=new FeatureCacheR27(d)) {
         int row=30;ModelSurfaceProviderR30.FrozenModelRef ref=new ModelSurfaceProviderR30.FrozenModelRef(new AtomNetR27(12,7).encode(),d.ordinals[row]-1,10_000);
         ModelSurfaceProviderR30.Surface s=ModelSurfaceProviderR30.predict(new ModelSurfaceProviderR30.Pit(d.ordinals[row],d.ordinals[row]-1,1,ModelSurfaceProviderR30.historyHash(d,row),AtomNetR27.positionedInput(new double[]{.2,.8},1),19_000,20_000,20_000,30_000),ref);
         Map<Long,ModelSurfaceProviderR30.Surface> rows=new HashMap<>();rows.put(ModelSurfaceProviderR30.key(row,1),s);f.bindModelSurfaces(ModelSurfaceProviderR30.source(rows,Collections.emptyMap()));
@@ -32,16 +32,22 @@ public class R30ModelSurfaceTest {
         double[] ema=PolicyAstR27.eval(PolicyAstR27.op("ema",.5,leaf),f,1);for(int n=0;n<10;n++)assertTrue(Double.isNaN(ema[(row+1)*10+n]));
         assertEquals("RANGE:model_surface",PolicyAstR27.rangeAndCausality(PolicyAstR27.leaf("model_surface",11)));
         f.bindModelSurfaces(null);for(double x:PolicyAstR27.eval(leaf,f,1))assertTrue(Double.isNaN(x));
+        }
     }
     @Test public void i08ActuallyProposesModelLeavesAndRetainsFamilyCapability(){
         IdeaI08NeuralRepresentationR27 family=new IdeaI08NeuralRepresentationR27();StatsR27.SplitMix r=new StatsR27.SplitMix(30);int models=0,legacy=0;
         IdeaFamilyR27.Context unavailable=new IdeaFamilyR27.Context();for(int i=0;i<100;i++)assertEquals(0,family.generate(r,unavailable).ast.modelPositions);
-        ReplayDatasetR27 data=ReplayDatasetR27.synthetic(3000,14,null);FeatureCacheR27 cache=new FeatureCacheR27(data);SplitR27 split=SplitR27.of(data,null);int row=split.selectTo-1;
+        ReplayDatasetR27 data=ReplayDatasetR27.synthetic(3000,14,null);try(FeatureCacheR27 cache=new FeatureCacheR27(data)) {
+        SplitR27 split=SplitR27.of(data,null);int row=split.selectTo-1;
         Map<Long,ModelSurfaceProviderR30.Surface> available=new HashMap<>();ModelSurfaceProviderR30.FrozenModelRef ref=new ModelSurfaceProviderR30.FrozenModelRef(new AtomNetR27(12,7).encode(),data.ordinals[row]-1,10000);
         for(int pos=1;pos<=10;pos++)available.put(ModelSurfaceProviderR30.key(row,pos),ModelSurfaceProviderR30.predict(new ModelSurfaceProviderR30.Pit(data.ordinals[row],data.ordinals[row]-1,pos,ModelSurfaceProviderR30.historyHash(data,row),AtomNetR27.positionedInput(new double[]{.2,.8},pos),19000,20000,20000,30000),ref));
-        cache.bindModelSurfaces(ModelSurfaceProviderR30.source(available,Collections.emptyMap()));IdeaFamilyR27.Context ready=new IdeaFamilyR27.Context();ready.evaluation=new EvalContextR27(cache,split,null);
+        cache.bindModelSurfaces(ModelSurfaceProviderR30.source(available,Collections.emptyMap()));IdeaFamilyR27.Context ready=new IdeaFamilyR27.Context();
+        try(EvalContextR27 evaluation=new EvalContextR27(cache,split,null)) {
+        ready.evaluation=evaluation;
         for(int i=0;i<1000;i++){PolicySpecR27 p=family.generate(r,ready);assertTrue(PolicyContractR30.violations(p).toString(),PolicyContractR30.violations(p).isEmpty());if(p.ast.modelPositions!=0)models++;else legacy++;}
         assertTrue(models>=400);assertTrue(legacy>=400);assertEquals(ModelSurfaceProviderR30.goldenHash(),ModelSurfaceProviderR30.goldenHash());
         System.out.println("R30_I08|MODEL_PROPOSALS="+models+"|FAMILY_PROPOSALS="+legacy+"|NO_UNAVAILABLE_MODEL_BIRTH_CLAIM");
+        }
+        }
     }
 }
