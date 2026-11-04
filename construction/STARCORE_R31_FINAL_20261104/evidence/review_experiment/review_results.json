@@ -1,0 +1,162 @@
+{
+  "scope": "Independent diagnostic baseline experiment, not production R27/SU2 model replay; not FUTURE and not REAL evidence",
+  "spec_sha256": "a1c695a4e846b2069bc80608d13a9292909afb57f657d301c6705c7808432c6e",
+  "input_csv_sha256": "a99fddae0bd6406e8e6b95f8a8b1d4afd5b4469d2db9dcfad47eaa3ebba0ba01",
+  "rows": 5000,
+  "select_range": [
+    "202610301011",
+    "202611010890"
+  ],
+  "holdout_range": [
+    "202611010891",
+    "202611030010"
+  ],
+  "candidate_count": 100,
+  "selection_criterion": "highest SELECT Wilson95 lower bound, deterministic candidate id tie break; inspect holdout once, no reselection",
+  "selected_champion": {
+    "id": "hot_frequency:p4:w20",
+    "family": "hot_frequency",
+    "position": 4,
+    "window": 20,
+    "frozen_threshold": 0.5000000007019502,
+    "select_calendar": 2760,
+    "select_acts": 414,
+    "select_hits": 145,
+    "select_frequency": 0.15,
+    "select_hr": 0.3502415458937198,
+    "select_wilson_low": 0.3058570170894044,
+    "select_wilson_high": 0.39737970731325634,
+    "select_max_loss": 15,
+    "holdout_calendar": 2000,
+    "holdout_acts": 257,
+    "holdout_hits": 71,
+    "holdout_frequency": 0.1285,
+    "holdout_hr": 0.27626459143968873,
+    "holdout_wilson_low": 0.2251955741137724,
+    "holdout_wilson_high": 0.33392359152832546,
+    "holdout_max_loss": 13
+  },
+  "new_future_evidence": 0,
+  "real_bets": 0,
+  "production_code_tested": false,
+  "no_claim_of_positive_edge": true,
+  "limits": [
+    "Only 100 simple baseline specifications; not the existing app model implementations.",
+    "Historical prior-outcome replay is causal by array index but not a proof of historical device availability. All first_seen_at values are after draw time.",
+    "SELECT is optimized and biased. HOLDOUT was inspected once in this experiment, but these historical data may have been exposed in prior app research.",
+    "Wilson intervals are descriptive under Bernoulli assumptions; temporal dependence, drift, adaptive policy search and repeated tests require registered production evidence tests.",
+    "Other candidates HOLDOUT rows are for reproducibility; no reselection after reading them."
+  ],
+  "gate_streak_sensitivity": [
+    {
+      "hit_probability_assumption": 0.3,
+      "acts": 250,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 0.00046981894675575387
+    },
+    {
+      "hit_probability_assumption": 0.3,
+      "acts": 600,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 8.42797830982539e-09
+    },
+    {
+      "hit_probability_assumption": 0.3,
+      "acts": 1000,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 3.1731215116710024e-14
+    },
+    {
+      "hit_probability_assumption": 0.34,
+      "acts": 250,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 0.004700246670405915
+    },
+    {
+      "hit_probability_assumption": 0.34,
+      "acts": 600,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 2.243296012257746e-06
+    },
+    {
+      "hit_probability_assumption": 0.34,
+      "acts": 1000,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 3.5907941483480246e-10
+    },
+    {
+      "hit_probability_assumption": 0.37,
+      "acts": 250,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 0.01751444123960818
+    },
+    {
+      "hit_probability_assumption": 0.37,
+      "acts": 600,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 5.4499891834023685e-05
+    },
+    {
+      "hit_probability_assumption": 0.37,
+      "acts": 1000,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 7.434504771858519e-08
+    },
+    {
+      "hit_probability_assumption": 0.4,
+      "acts": 250,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 0.04929722278102403
+    },
+    {
+      "hit_probability_assumption": 0.4,
+      "acts": 600,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 0.0006708440445462795
+    },
+    {
+      "hit_probability_assumption": 0.4,
+      "acts": 1000,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 4.941064890282044e-06
+    },
+    {
+      "hit_probability_assumption": 0.45,
+      "acts": 250,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 0.1699575692334021
+    },
+    {
+      "hit_probability_assumption": 0.45,
+      "acts": 600,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 0.013518408123271736
+    },
+    {
+      "hit_probability_assumption": 0.45,
+      "acts": 1000,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 0.0007489473988124922
+    },
+    {
+      "hit_probability_assumption": 0.5,
+      "acts": 250,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 0.3730951131527528
+    },
+    {
+      "hit_probability_assumption": 0.5,
+      "acts": 600,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 0.0911708372880109
+    },
+    {
+      "hit_probability_assumption": 0.5,
+      "acts": 1000,
+      "longest_loss_at_most": 6,
+      "single_rule_pass_probability": 0.0182166683616279
+    }
+  ],
+  "reference_test_result": "PASS",
+  "reference_test_scope": "DP enumeration/edge cases and input integrity, not Android integration"
+}

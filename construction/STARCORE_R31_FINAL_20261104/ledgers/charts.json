@@ -1,0 +1,1867 @@
+[
+  {
+    "id": "status",
+    "type": "LEGACY_OR_CACHE",
+    "title": "研究状态/同报告快照",
+    "source_method": "ChartsRepositoryR27.headlineSnapshotR30",
+    "source_tables_or_sql": "r27_chart_cache(r30-charts/snapshot)",
+    "producer": "ReportSnapshotR30.capture → ReportChartsR30.packet",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": null,
+      "runtimeReference": null,
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": true,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "r27_chart_cache": 72458
+      }
+    },
+    "repair": "显示服务活着/研究推进/质量达标三条独立状态；禁止以界面成功加载标READY健康",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "SELECT payload_json FROM r27_chart_cache WHERE panel_id='r30-charts' AND key='snapshot'",
+    "read_parameters": [],
+    "current_status": "PRODUCT_UNKNOWN_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "本索引未附本图产物回执；不能把null当0。按原SQL查询source存在/计数、过滤角色、来源版本和UI超时分层取证。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/status",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "p01_three_scores",
+    "type": "LEGACY_OR_CACHE",
+    "title": "三类成绩并列",
+    "source_method": "ChartCacheR27.threeScores",
+    "source_tables_or_sql": "r27_live_shadow + r27_replay_score + r27_live_frozen + r27_eprocess",
+    "producer": "RuntimeR27.LiveTask / EvolutionLoopR27",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": true,
+      "runtimeReference": {
+        "key": "panel",
+        "panel_id": "p01_three_scores",
+        "sourceTable": "r27_chart_cache",
+        "updated_at": 1793619781965
+      },
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "r27_eprocess": 0,
+        "r27_live_frozen": 0,
+        "r27_live_shadow": 0,
+        "r27_replay_score": 0
+      }
+    },
+    "repair": "按policy hash、role、dataset分层；ACT和全预测独立；完整候选池多重比较预算",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id=? AND key='panel'",
+    "read_parameters": [
+      "p01_three_scores"
+    ],
+    "current_status": "CACHE_ROW_PRESENT_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "现有缓存行已存在；缺图不能归咎于完全没有生产者。下一步分别查帧points/finite值、source水位、schema/JSON/timeout、实际设备渲染回执。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/p01_three_scores",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "p02_generation_holdout",
+    "type": "LEGACY_OR_CACHE",
+    "title": "每代冠军留出：主/打乱/随机",
+    "source_method": "ChartCacheR27.generationHoldout",
+    "source_tables_or_sql": "r27_generation",
+    "producer": "EvolutionLoopR27 / FrozenConfirmationStoreR30",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": true,
+      "runtimeReference": {
+        "key": "panel",
+        "panel_id": "p02_generation_holdout",
+        "sourceTable": "r27_chart_cache",
+        "updated_at": 1793619781965
+      },
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "r27_generation": 0
+      }
+    },
+    "repair": "固定独立确认taskKey；无新确认不能复用旧留出画代际提升",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id=? AND key='panel'",
+    "read_parameters": [
+      "p02_generation_holdout"
+    ],
+    "current_status": "CACHE_ROW_PRESENT_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "现有缓存行已存在；缺图不能归咎于完全没有生产者。下一步分别查帧points/finite值、source水位、schema/JSON/timeout、实际设备渲染回执。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/p02_generation_holdout",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "p03_evolution_events",
+    "type": "LEGACY_OR_CACHE",
+    "title": "每代进化事件",
+    "source_method": "ChartCacheR27.evolutionEvents",
+    "source_tables_or_sql": "r27_generation",
+    "producer": "EvolutionLoopR27",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": true,
+      "runtimeReference": {
+        "key": "panel",
+        "panel_id": "p03_evolution_events",
+        "sourceTable": "r27_chart_cache",
+        "updated_at": 1793619781965
+      },
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "r27_generation": 0
+      }
+    },
+    "repair": "事件关联算子、实际AST、语义签名、出生与拒绝回执，不能按事件数称更强",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id=? AND key='panel'",
+    "read_parameters": [
+      "p03_evolution_events"
+    ],
+    "current_status": "CACHE_ROW_PRESENT_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "现有缓存行已存在；缺图不能归咎于完全没有生产者。下一步分别查帧points/finite值、source水位、schema/JSON/timeout、实际设备渲染回执。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/p03_evolution_events",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "p04_seven_counters",
+    "type": "LEGACY_OR_CACHE",
+    "title": "进化七计数累计",
+    "source_method": "ChartCacheR27.sevenCounters",
+    "source_tables_or_sql": "r27_generation",
+    "producer": "EvolutionLoopR27",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": true,
+      "runtimeReference": {
+        "key": "panel",
+        "panel_id": "p04_seven_counters",
+        "sourceTable": "r27_chart_cache",
+        "updated_at": 1793619781965
+      },
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "r27_generation": 0
+      }
+    },
+    "repair": "计数按trial/generation与窗口去重；verified只计新独立确认，不按每次刷新累加",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id=? AND key='panel'",
+    "read_parameters": [
+      "p04_seven_counters"
+    ],
+    "current_status": "CACHE_ROW_PRESENT_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "现有缓存行已存在；缺图不能归咎于完全没有生产者。下一步分别查帧points/finite值、source水位、schema/JSON/timeout、实际设备渲染回执。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/p04_seven_counters",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "p05_lineage",
+    "type": "LEGACY_OR_CACHE",
+    "title": "父子谱系最近60条",
+    "source_method": "ChartCacheR27.lineage",
+    "source_tables_or_sql": "r27_lineage + r27_policy + r27_replay_score",
+    "producer": "EvolutionLoopR27",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": true,
+      "runtimeReference": {
+        "key": "panel",
+        "panel_id": "p05_lineage",
+        "sourceTable": "r27_chart_cache",
+        "updated_at": 1793619781965
+      },
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "r27_lineage": 0,
+        "r27_policy": 0,
+        "r27_replay_score": 0
+      }
+    },
+    "repair": "补完整parent/child/operation/hash键，展示限60不改变总分母",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id=? AND key='panel'",
+    "read_parameters": [
+      "p05_lineage"
+    ],
+    "current_status": "CACHE_ROW_PRESENT_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "现有缓存行已存在；缺图不能归咎于完全没有生产者。下一步分别查帧points/finite值、source水位、schema/JSON/timeout、实际设备渲染回执。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/p05_lineage",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "p06_idea_survival",
+    "type": "LEGACY_OR_CACHE",
+    "title": "思路族存活率",
+    "source_method": "ChartCacheR27.ideaSurvival",
+    "source_tables_or_sql": "r27_policy",
+    "producer": "EvolutionLoopR27",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": true,
+      "runtimeReference": {
+        "key": "panel",
+        "panel_id": "p06_idea_survival",
+        "sourceTable": "r27_chart_cache",
+        "updated_at": 1793619781965
+      },
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "r27_policy": 0
+      }
+    },
+    "repair": "存活率加入尝试分母、计算预算、不同机制数、SELECT与FUTURE分开；0不宣判家族永久无信号",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id=? AND key='panel'",
+    "read_parameters": [
+      "p06_idea_survival"
+    ],
+    "current_status": "CACHE_ROW_PRESENT_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "现有缓存行已存在；缺图不能归咎于完全没有生产者。下一步分别查帧points/finite值、source水位、schema/JSON/timeout、实际设备渲染回执。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/p06_idea_survival",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "p07_funnel",
+    "type": "LEGACY_OR_CACHE",
+    "title": "淘汰漏斗",
+    "source_method": "ChartCacheR27.funnel",
+    "source_tables_or_sql": "r27_generation + r27_policy + r27_live_shadow + r27_eprocess + r27_certificate",
+    "producer": "BirthGateR27 → SequentialQualificationR27 → CertificateGateR27",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": true,
+      "runtimeReference": {
+        "key": "panel",
+        "panel_id": "p07_funnel",
+        "sourceTable": "r27_chart_cache",
+        "updated_at": 1793619781965
+      },
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "r27_certificate": 0,
+        "r27_eprocess": 0,
+        "r27_generation": 0,
+        "r27_live_shadow": 0,
+        "r27_policy": 0
+      }
+    },
+    "repair": "每层记录真实输入/通过/失败/未处理，层层链接同一identity，不把出生等于合格",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id=? AND key='panel'",
+    "read_parameters": [
+      "p07_funnel"
+    ],
+    "current_status": "CACHE_ROW_PRESENT_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "现有缓存行已存在；缺图不能归咎于完全没有生产者。下一步分别查帧points/finite值、source水位、schema/JSON/timeout、实际设备渲染回执。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/p07_funnel",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "p08_bss",
+    "type": "LEGACY_OR_CACHE",
+    "title": "深度学习A：累计BSS及区间",
+    "source_method": "ChartCacheR27.bss",
+    "source_tables_or_sql": "r27_brier_pair(FUTURE,ATOMNET legacy ABI)",
+    "producer": "原ATOMNET冻结/结算写者",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": true,
+      "runtimeReference": {
+        "key": "panel",
+        "panel_id": "p08_bss",
+        "sourceTable": "r27_chart_cache",
+        "updated_at": 1793619781965
+      },
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "r27_brier_pair": 0
+      }
+    },
+    "repair": "仅同ABI同目标配对BSS；新十位置不可混入旧轮换模型；按期聚类",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id=? AND key='panel'",
+    "read_parameters": [
+      "p08_bss"
+    ],
+    "current_status": "CACHE_ROW_PRESENT_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "现有缓存行已存在；缺图不能归咎于完全没有生产者。下一步分别查帧points/finite值、source水位、schema/JSON/timeout、实际设备渲染回执。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/p08_bss",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "p09_rolling200",
+    "type": "LEGACY_OR_CACHE",
+    "title": "深度学习B：滚动200 Brier",
+    "source_method": "ChartCacheR27.rolling",
+    "source_tables_or_sql": "r27_brier_pair",
+    "producer": "原ATOMNET冻结/结算写者",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": true,
+      "runtimeReference": {
+        "key": "panel",
+        "panel_id": "p09_rolling200",
+        "sourceTable": "r27_chart_cache",
+        "updated_at": 1793619781965
+      },
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "r27_brier_pair": 0
+      }
+    },
+    "repair": "固定200期窗口、噪声带版本、有效样本数；多次查看不授证",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id=? AND key='panel'",
+    "read_parameters": [
+      "p09_rolling200"
+    ],
+    "current_status": "CACHE_ROW_PRESENT_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "现有缓存行已存在；缺图不能归咎于完全没有生产者。下一步分别查帧points/finite值、source水位、schema/JSON/timeout、实际设备渲染回执。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/p09_rolling200",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "p10_train_holdout_loss",
+    "type": "LEGACY_OR_CACHE",
+    "title": "深度学习C：训练/留出损失",
+    "source_method": "ChartCacheR27.trainHoldout",
+    "source_tables_or_sql": "r27_atomnet_epoch",
+    "producer": "AtomNetRuntimeR30/原预训练写者",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": true,
+      "runtimeReference": {
+        "key": "panel",
+        "panel_id": "p10_train_holdout_loss",
+        "sourceTable": "r27_chart_cache",
+        "updated_at": 1793619781965
+      },
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "r27_atomnet_epoch": 0
+      }
+    },
+    "repair": "按run/ABI/目标区分TRAIN SELECT与独立CONFIRM；不能因变量旧名hold便认定独立留出",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id=? AND key='panel'",
+    "read_parameters": [
+      "p10_train_holdout_loss"
+    ],
+    "current_status": "CACHE_ROW_PRESENT_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "现有缓存行已存在；缺图不能归咎于完全没有生产者。下一步分别查帧points/finite值、source水位、schema/JSON/timeout、实际设备渲染回执。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/p10_train_holdout_loss",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "p11_eprocess",
+    "type": "LEGACY_OR_CACHE",
+    "title": "序贯进度",
+    "source_method": "ChartCacheR27.eprocess",
+    "source_tables_or_sql": "r27_eprocess",
+    "producer": "SequentialQualificationR27",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": true,
+      "runtimeReference": {
+        "key": "panel",
+        "panel_id": "p11_eprocess",
+        "sourceTable": "r27_chart_cache",
+        "updated_at": 1793619781965
+      },
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "r27_eprocess": 0
+      }
+    },
+    "repair": "展示alpha/预算ledger/已消费ordinal/缺口/退出原因；图本身不修改预算",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id=? AND key='panel'",
+    "read_parameters": [
+      "p11_eprocess"
+    ],
+    "current_status": "CACHE_ROW_PRESENT_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "现有缓存行已存在；缺图不能归咎于完全没有生产者。下一步分别查帧points/finite值、source水位、schema/JSON/timeout、实际设备渲染回执。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/p11_eprocess",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "p12_mainline_weight",
+    "type": "LEGACY_OR_CACHE",
+    "title": "主链算法参与权重",
+    "source_method": "ChartCacheR27.mainline",
+    "source_tables_or_sql": "ResearchMainlineContributionAuditR922.TABLE",
+    "producer": "原主链贡献审计写者",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": true,
+      "runtimeReference": {
+        "key": "panel",
+        "panel_id": "p12_mainline_weight",
+        "sourceTable": "r27_chart_cache",
+        "updated_at": 1793619781965
+      },
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {}
+    },
+    "repair": "改为权威typed选择记录只读投影，接Gate与唯一REAL结算；旧贡献表无数据不可直接补权重",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id=? AND key='panel'",
+    "read_parameters": [
+      "p12_mainline_weight"
+    ],
+    "current_status": "CACHE_ROW_PRESENT_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "现有缓存行已存在；缺图不能归咎于完全没有生产者。下一步分别查帧points/finite值、source水位、schema/JSON/timeout、实际设备渲染回执。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/p12_mainline_weight",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "p13_runtime_health",
+    "type": "LEGACY_OR_CACHE",
+    "title": "研究运行健康",
+    "source_method": "ChartCacheR27.health",
+    "source_tables_or_sql": "r27_thread_cpu+r26_service_total+r26_task+r27_write_wait+r27_opportunity",
+    "producer": "各任务生产者的已提交回执",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": true,
+      "runtimeReference": {
+        "key": "panel",
+        "panel_id": "p13_runtime_health",
+        "sourceTable": "r27_chart_cache",
+        "updated_at": 1793619781965
+      },
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "r26_service_total": 1,
+        "r26_task": 60,
+        "r27_opportunity": 0,
+        "r27_thread_cpu": 2,
+        "r27_write_wait": 2
+      }
+    },
+    "repair": "显示有类型pending/工作游标/日历水位/last commit/最老积压；时间tick不是学习",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id=? AND key='panel'",
+    "read_parameters": [
+      "p13_runtime_health"
+    ],
+    "current_status": "CACHE_ROW_PRESENT_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "现有缓存行已存在；缺图不能归咎于完全没有生产者。下一步分别查帧points/finite值、source水位、schema/JSON/timeout、实际设备渲染回执。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/p13_runtime_health",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "p14_atom_scores",
+    "type": "LEGACY_OR_CACHE",
+    "title": "原子回放评分分布",
+    "source_method": "ChartCacheR27.atoms",
+    "source_tables_or_sql": "r27_atom_score",
+    "producer": "RuntimeR27.AtomTask",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": true,
+      "runtimeReference": {
+        "key": "panel",
+        "panel_id": "p14_atom_scores",
+        "sourceTable": "r27_chart_cache",
+        "updated_at": 1793619781965
+      },
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "r27_atom_score": 0
+      }
+    },
+    "repair": "原子历史评分单独显示，新配对贡献看R06；增加适用域/支持量/缺失率",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id=? AND key='panel'",
+    "read_parameters": [
+      "p14_atom_scores"
+    ],
+    "current_status": "CACHE_ROW_PRESENT_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "现有缓存行已存在；缺图不能归咎于完全没有生产者。下一步分别查帧points/finite值、source水位、schema/JSON/timeout、实际设备渲染回执。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/p14_atom_scores",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "p15_paired_improvement_r30",
+    "type": "LEGACY_OR_CACHE",
+    "title": "逐代配对提升/独立确认",
+    "source_method": "ReportChartsR30.evolution",
+    "source_tables_or_sql": "r27_generation + immutable confirmation detail",
+    "producer": "FrozenConfirmationStoreR30.generationReport",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": null,
+      "runtimeReference": null,
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": true,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "r27_generation": 0
+      }
+    },
+    "repair": "显示配对样本数、独立块、复用证据、负结果和缺失原件；与Q06同一结果对象",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "SELECT payload_json FROM r27_chart_cache WHERE panel_id='r30-charts' AND key='snapshot'",
+    "read_parameters": [],
+    "current_status": "PRODUCT_UNKNOWN_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "本索引未附本图产物回执；不能把null当0。按原SQL查询source存在/计数、过滤角色、来源版本和UI超时分层取证。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/p15_paired_improvement_r30",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "p16_capability_coverage_r30",
+    "type": "LEGACY_OR_CACHE",
+    "title": "能力覆盖与阻塞",
+    "source_method": "ReportChartsR30.capabilities",
+    "source_tables_or_sql": "CapabilityRegistryR30/同捕获快照",
+    "producer": "代码注册 + 运行产物/消费收据",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": null,
+      "runtimeReference": null,
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": true,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {}
+    },
+    "repair": "六层状态独立：implemented/callable/input/produced/consumed/effective；不能由81/82代码入口推出效果",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "SELECT payload_json FROM r27_chart_cache WHERE panel_id='r30-charts' AND key='snapshot'",
+    "read_parameters": [],
+    "current_status": "PRODUCT_UNKNOWN_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "本索引未附本图产物回执；不能把null当0。按原SQL查询source存在/计数、过滤角色、来源版本和UI超时分层取证。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/p16_capability_coverage_r30",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "r83_algorithm_all",
+    "type": "LEGACY_OR_CACHE",
+    "title": "全部算法逐期实盘榜",
+    "source_method": "ChartsRepositoryR83.r27AlgorithmBoard",
+    "source_tables_or_sql": "r27_live_shadow JOIN r27_live_frozen(hit>=0,status=FROZEN)",
+    "producer": "RuntimeR27.LiveTask",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": null,
+      "runtimeReference": null,
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "r27_live_frozen": 0,
+        "r27_live_shadow": 0
+      }
+    },
+    "repair": "榜名改为前向影子；REAL另列。Bonferroni的m不得仅取LIMIT60返回条数，应取预登记候选族预算",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "见 source_excerpt_index[id] 的完整方法原文；表名常量保持Java表达式，不臆造展开值",
+    "current_status": "PRODUCT_UNKNOWN_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "本索引未附本图产物回执；不能把null当0。按原SQL查询source存在/计数、过滤角色、来源版本和UI超时分层取证。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/r83_algorithm_all",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "r83_algorithm_rank",
+    "type": "LEGACY_OR_CACHE",
+    "title": "算法实盘排行榜",
+    "source_method": "ChartsRepositoryR83.algorithmBoard",
+    "source_tables_or_sql": "v57_algorithm_genome_r908 JOIN v57_algorithm_predraw_r908",
+    "producer": "旧R908原冻结写者",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": null,
+      "runtimeReference": null,
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "v57_algorithm_genome_r908": 0,
+        "v57_algorithm_predraw_r908": 0
+      }
+    },
+    "repair": "保留旧ABI历史专区；新当前资产榜读当前权威身份；不得混列旧影子/真实资金",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "见 source_excerpt_index[id] 的完整方法原文；表名常量保持Java表达式，不臆造展开值",
+    "current_status": "PRODUCT_UNKNOWN_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "该旧ABI查询依赖表在报告快照中确实为0行：{\"v57_algorithm_genome_r908\": 0, \"v57_algorithm_predraw_r908\": 0}；因此当前源不具备该旧图数据，但不证明写者代码不存在或所有当前研究为空。保留历史专区与明确EMPTY原因，当前资产另读当前typed来源。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/r83_algorithm_rank",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "r83_best_curve",
+    "type": "LEGACY_OR_CACHE",
+    "title": "最佳算法累计命中",
+    "source_method": "ChartsRepositoryR83.bestAlgorithmCurve",
+    "source_tables_or_sql": "v57_algorithm_predraw_r908 + genome",
+    "producer": "旧R908原冻结写者",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": null,
+      "runtimeReference": null,
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "v57_algorithm_predraw_r908": 0
+      }
+    },
+    "repair": "保留事后曲线标签；新增事前锁定冠军全后续区间曲线，不把事后择优当样本外",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "见 source_excerpt_index[id] 的完整方法原文；表名常量保持Java表达式，不臆造展开值",
+    "current_status": "PRODUCT_UNKNOWN_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "该旧ABI查询依赖表在报告快照中确实为0行：{\"v57_algorithm_predraw_r908\": 0}；因此当前源不具备该旧图数据，但不证明写者代码不存在或所有当前研究为空。保留历史专区与明确EMPTY原因，当前资产另读当前typed来源。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/r83_best_curve",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "r83_action_candles",
+    "type": "LEGACY_OR_CACHE",
+    "title": "出手资金K线",
+    "source_method": "ChartsRepositoryR83.actionCandles",
+    "source_tables_or_sql": "v57_exploration_r83 JOIN v57_shadow_observation_r35",
+    "producer": "ExplorationLaneR83/影子冻结与结算",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": null,
+      "runtimeReference": null,
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "v57_exploration_r83": 73,
+        "v57_shadow_observation_r35": 73
+      }
+    },
+    "repair": "保持影子模拟资金；真实资金只能联实际REAL单键/赔率/成本，不从影子转名",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "见 source_excerpt_index[id] 的完整方法原文；表名常量保持Java表达式，不臆造展开值",
+    "current_status": "PRODUCT_UNKNOWN_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "本索引未附本图产物回执；不能把null当0。按原SQL查询source存在/计数、过滤角色、来源版本和UI超时分层取证。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/r83_action_candles",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "r83_all_hit",
+    "type": "LEGACY_OR_CACHE",
+    "title": "全部预测命中率走势",
+    "source_method": "ChartsRepositoryR83.hitTrend(false)",
+    "source_tables_or_sql": "v57_shadow_observation_r35 settled=1",
+    "producer": "OosAfterDrawWriter/SettlementEngine",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": null,
+      "runtimeReference": null,
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "v57_shadow_observation_r35": 73
+      }
+    },
+    "repair": "20次是描述窗口；增加已到截止的完整日历分母、冻结缺失与尚未结算",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "见 source_excerpt_index[id] 的完整方法原文；表名常量保持Java表达式，不臆造展开值",
+    "current_status": "PRODUCT_UNKNOWN_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "本索引未附本图产物回执；不能把null当0。按原SQL查询source存在/计数、过滤角色、来源版本和UI超时分层取证。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/r83_all_hit",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "r83_act_hit",
+    "type": "LEGACY_OR_CACHE",
+    "title": "出手命中率走势",
+    "source_method": "ChartsRepositoryR83.hitTrend(true)",
+    "source_tables_or_sql": "v57_exploration_r83 JOIN v57_shadow_observation_r35",
+    "producer": "ExplorationLaneR83/影子结算",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": null,
+      "runtimeReference": null,
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "v57_exploration_r83": 73,
+        "v57_shadow_observation_r35": 73
+      }
+    },
+    "repair": "角色筛选使用持久化事件角色；按自身条件出手不是REAL出手",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "见 source_excerpt_index[id] 的完整方法原文；表名常量保持Java表达式，不臆造展开值",
+    "current_status": "PRODUCT_UNKNOWN_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "本索引未附本图产物回执；不能把null当0。按原SQL查询source存在/计数、过滤角色、来源版本和UI超时分层取证。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/r83_act_hit",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "r83_number_candles",
+    "type": "LEGACY_OR_CACHE",
+    "title": "当前所选位置号码K线",
+    "source_method": "ChartsRepositoryR83.numberCandles",
+    "source_tables_or_sql": "draws dirty=0 LIMIT600",
+    "producer": "唯一开奖保存写者",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": null,
+      "runtimeReference": null,
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "draws": 5000
+      }
+    },
+    "repair": "保留描述性图；不依据图形直接声称下一期可预测",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "见 source_excerpt_index[id] 的完整方法原文；表名常量保持Java表达式，不臆造展开值",
+    "current_status": "PRODUCT_UNKNOWN_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "本索引未附本图产物回执；不能把null当0。按原SQL查询source存在/计数、过滤角色、来源版本和UI超时分层取证。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/r83_number_candles",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "r83_number_line",
+    "type": "LEGACY_OR_CACHE",
+    "title": "当前所选位置号码轨迹",
+    "source_method": "ChartsRepositoryR83.numberLine",
+    "source_tables_or_sql": "draws dirty=0 LIMIT600",
+    "producer": "唯一开奖保存写者",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": null,
+      "runtimeReference": null,
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "draws": 5000
+      }
+    },
+    "repair": "按ordinal显示连续和缺口，位置可选；窗口选定值持久化仅作展示",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "见 source_excerpt_index[id] 的完整方法原文；表名常量保持Java表达式，不臆造展开值",
+    "current_status": "PRODUCT_UNKNOWN_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "本索引未附本图产物回执；不能把null当0。按原SQL查询source存在/计数、过滤角色、来源版本和UI超时分层取证。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/r83_number_line",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "r83_omission_heat",
+    "type": "LEGACY_OR_CACHE",
+    "title": "号码遗漏热力图",
+    "source_method": "ChartsRepositoryR83.omissionHeat",
+    "source_tables_or_sql": "draws dirty=0 LIMIT600",
+    "producer": "唯一开奖保存写者",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": null,
+      "runtimeReference": null,
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "draws": 5000
+      }
+    },
+    "repair": "区分窗口外未出现/缺期开奖/确实遗漏；作为候选特征须另立过去窗合同和消融",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "见 source_excerpt_index[id] 的完整方法原文；表名常量保持Java表达式，不臆造展开值",
+    "current_status": "PRODUCT_UNKNOWN_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "本索引未附本图产物回执；不能把null当0。按原SQL查询source存在/计数、过滤角色、来源版本和UI超时分层取证。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/r83_omission_heat",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "r83_hot_cold",
+    "type": "LEGACY_OR_CACHE",
+    "title": "当前所选位置冷热号",
+    "source_method": "ChartsRepositoryR83.hotCold",
+    "source_tables_or_sql": "draws最近100期",
+    "producer": "唯一开奖保存写者",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": null,
+      "runtimeReference": null,
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {}
+    },
+    "repair": "去除“±5正常”固定口号；展示样本数、基率与适用假设，研究另做检验",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "见 source_excerpt_index[id] 的完整方法原文；表名常量保持Java表达式，不臆造展开值",
+    "current_status": "PRODUCT_UNKNOWN_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "本索引未附本图产物回执；不能把null当0。按原SQL查询source存在/计数、过滤角色、来源版本和UI超时分层取证。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/r83_hot_cold",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "r83_calibration",
+    "type": "LEGACY_OR_CACHE",
+    "title": "预测概率校准",
+    "source_method": "ChartsRepositoryR83.calibration",
+    "source_tables_or_sql": "v57_shadow_observation_r35 selected_hit_p/hit_label LIMIT2000",
+    "producer": "原影子概率冻结与结算",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": null,
+      "runtimeReference": null,
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "v57_shadow_observation_r35": 73
+      }
+    },
+    "repair": "按model/role/ABI/事件定义分箱；每箱支持、缺失和时间隔离可核对",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "见 source_excerpt_index[id] 的完整方法原文；表名常量保持Java表达式，不臆造展开值",
+    "current_status": "PRODUCT_UNKNOWN_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "本索引未附本图产物回执；不能把null当0。按原SQL查询source存在/计数、过滤角色、来源版本和UI超时分层取证。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/r83_calibration",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "r83_brier20",
+    "type": "LEGACY_OR_CACHE",
+    "title": "短期波动参考：滚动20期Brier",
+    "source_method": "ChartsRepositoryR83.networkBrier",
+    "source_tables_or_sql": "atomic_tool_context_r943 network_probability/hit",
+    "producer": "旧AtomicToolWorld写者",
+    "consumer": "仅只读展示；若转为研究输入必须另立TRAIN/SELECT数值产物合同",
+    "observed": {
+      "produced": null,
+      "runtimeReference": null,
+      "warning": "缓存存在不等数值非空或界面渲染成功；旧表为零不证明不存在写者",
+      "implemented": true,
+      "inputAvailable": null,
+      "consumed": null,
+      "effective": null,
+      "lifecycleVerification": "NOT_RUN_CURRENT_REPAIR_ANDROID",
+      "source_table_counts": {
+        "atomic_tool_context_r943": 0
+      }
+    },
+    "repair": "旧ABI短窗描述；标题已改为旧ABI，R27旧startswith分支未命中，应用stable ID不靠中文标题路由",
+    "batch": "B09",
+    "acceptance": [
+      "正确角色、身份、样本分母与来源水位",
+      "空/缺源/错误/陈旧分开",
+      "合法fixture渲染且单图异常不拖垮页面",
+      "与同水位机器产物数值一致"
+    ],
+    "read_sql": "见 source_excerpt_index[id] 的完整方法原文；表名常量保持Java表达式，不臆造展开值",
+    "current_status": "PRODUCT_UNKNOWN_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "该旧ABI查询依赖表在报告快照中确实为0行：{\"atomic_tool_context_r943\": 0}；因此当前源不具备该旧图数据，但不证明写者代码不存在或所有当前研究为空。保留历史专区与明确EMPTY原因，当前资产另读当前typed来源。",
+    "consumer_method": "ChartsActivityR83.render（只读可视化）；无已证实算法反馈消费，不应让UI刷新修改策略",
+    "source_excerpt_index": "chart_source_excerpts.json#/r83_brier20",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R01",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "多尺度结构状态与可用窗口",
+    "measure": "STRUCTURE_STATE",
+    "producer": "ResearchObservatoryR30R1.compute → StructureStudyR30R1.compute",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "结构多尺度条件/支持矩阵",
+    "role": "SELECT",
+    "declared_consumer": "StructureGeneratorRegistryR30",
+    "consumer_semantics": "结构候选采样，比较无结构条件同预算对照",
+    "observed": {
+      "producedFrames": 2,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": {
+        "frame_id": "de0a5664cd80e8e1fafdb0e494b63ab7e650e95c2478df3e1b3e35b89049655a",
+        "payload_hash": "de0a5664cd80e8e1fafdb0e494b63ab7e650e95c2478df3e1b3e35b89049655a",
+        "run_id": "92f14fe006ce7fe5c199824dd50ab2101af076170e58e1993f73538f716cdb32",
+        "sourceTable": "r30r1_chart_cache",
+        "updated_at": 1793620185320,
+        "view_id": "R01"
+      }
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B08",
+    "acceptance": [
+      "移除结构条件的同期对照；换窗口须新分析合同",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "FRAME_PRESENT_DATA_AND_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "当前源码已有1—2帧；有效数值、可用支持、最新ABI及手机可见性尚未证明。先读payload中的status/reason/points，再查UI；不新增同义空图掩盖。",
+    "consumer_method": "ResearchStoreR30R1.ready/consume仅已实现PRUNE_COMPONENT实用路由；其余StructureGeneratorRegistryR30为声明绑定，需逐类证实调用及收据。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R01",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R02",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "结构预测与下一期落地误差",
+    "measure": "STRUCTURE_FORECAST_ERROR",
+    "producer": "ResearchObservatoryR30R1.compute → StructureStudyR30R1.compute",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "固定64期块结构预测误差",
+    "role": "SELECT",
+    "declared_consumer": "FailureProfileR30",
+    "consumer_semantics": "失败轮廓/预先声明窗口收益；不可反向重建事前预测",
+    "observed": {
+      "producedFrames": 2,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": {
+        "frame_id": "21b312f03e2bacde93fa8df15d684e1385966b689385ddeff6a16785311907cb",
+        "payload_hash": "21b312f03e2bacde93fa8df15d684e1385966b689385ddeff6a16785311907cb",
+        "run_id": "a85ac7633c8d47ed0c14981390ef798c13a1f8ba22e92a4fca9ea84fd15e6800",
+        "sourceTable": "r30r1_chart_cache",
+        "updated_at": 1793620185656,
+        "view_id": "R02"
+      }
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B08",
+    "acceptance": [
+      "没有事前预测即缺口，禁止用结算结果重造预测",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "FRAME_PRESENT_DATA_AND_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "当前源码已有1—2帧；有效数值、可用支持、最新ABI及手机可见性尚未证明。先读payload中的status/reason/points，再查UI；不新增同义空图掩盖。",
+    "consumer_method": "ResearchStoreR30R1.ready/consume仅已实现PRUNE_COMPONENT实用路由；其余FailureProfileR30为声明绑定，需逐类证实调用及收据。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R02",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R03",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "号码位置兼容与跨位结构",
+    "measure": "POSITION_COMPATIBILITY",
+    "producer": "ResearchObservatoryR30R1.compute → MatrixResearchR30R1.build",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "位置兼容与滞后流矩阵",
+    "role": "SELECT",
+    "declared_consumer": "IdeaI04CrossPositionR27",
+    "consumer_semantics": "仅过去期跨位信息进入下一期候选；同期目标位置结果绝不能作输入",
+    "observed": {
+      "producedFrames": 2,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": {
+        "frame_id": "243ca3f1e063181690bf3e28e6734b782a32f5cba06e597a2752dd673924112a",
+        "payload_hash": "243ca3f1e063181690bf3e28e6734b782a32f5cba06e597a2752dd673924112a",
+        "run_id": "91015a5773432f24d6ea26564eef2f2e1aa2e496135c9271dab7abcbff43784f",
+        "sourceTable": "r30r1_chart_cache",
+        "updated_at": 1793620564403,
+        "view_id": "R03"
+      }
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B08",
+    "acceptance": [
+      "移除该输入的同目标配对损失；同期其他位置真实值不可作事前输入",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "FRAME_PRESENT_DATA_AND_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "当前源码已有1—2帧；有效数值、可用支持、最新ABI及手机可见性尚未证明。先读payload中的status/reason/points，再查UI；不新增同义空图掩盖。",
+    "consumer_method": "ResearchStoreR30R1.ready/consume仅已实现PRUNE_COMPONENT实用路由；其余IdeaI04CrossPositionR27为声明绑定，需逐类证实调用及收据。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R03",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R04",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "多位置围号交集与缩减证据",
+    "measure": "SET_INTERSECTION_SUPPORT",
+    "producer": "ResearchObservatoryR30R1.compute → SetIntersectionPolicyR30.support",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "围号集合、交集支持、弃权、单集合对照",
+    "role": "SELECT",
+    "declared_consumer": "SetIntersectionPolicyR30",
+    "consumer_semantics": "以合法K3支持和收益共同选择；不足3明确弃权，不补凑",
+    "observed": {
+      "producedFrames": 1,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": {
+        "frame_id": "6c441df52960664d41553576da90343e8ab1dcfd134c4f97a1c6a7f0445ae7cd",
+        "payload_hash": "6c441df52960664d41553576da90343e8ab1dcfd134c4f97a1c6a7f0445ae7cd",
+        "run_id": "0f11360a0984dad6d18c8523b2b1bf77fc92b193ac62dac9f1e9d7a695a79aa6",
+        "sourceTable": "r30r1_chart_cache",
+        "updated_at": 1793620568906,
+        "view_id": "R04"
+      }
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B08",
+    "acceptance": [
+      "与单集合/随机同大小集对照；交集过小不补凑3个",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "FRAME_PRESENT_DATA_AND_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "当前源码已有1—2帧；有效数值、可用支持、最新ABI及手机可见性尚未证明。先读payload中的status/reason/points，再查UI；不新增同义空图掩盖。",
+    "consumer_method": "ResearchStoreR30R1.ready/consume仅已实现PRUNE_COMPONENT实用路由；其余SetIntersectionPolicyR30为声明绑定，需逐类证实调用及收据。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R04",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R05",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "失败簇到假设到可执行子代",
+    "measure": "FAILURE_PRESCRIPTION",
+    "producer": "ResearchObservatoryR30R1.stored",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "expert proposal→policy→H_SELECT score",
+    "role": "SELECT",
+    "declared_consumer": "ExpertProposalsR27",
+    "consumer_semantics": "失败簇处方实际编译为子代；未生成child即未落地",
+    "observed": {
+      "producedFrames": 2,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": {
+        "frame_id": "3f76e7a2b2c60e8274fe0e6d1218bb54bd3448b17938498404cf7c189361d111",
+        "payload_hash": "3f76e7a2b2c60e8274fe0e6d1218bb54bd3448b17938498404cf7c189361d111",
+        "run_id": "bcefce702a677cefa37176d7032d3208b49c830a08de4f60b7d58218d2634af8",
+        "sourceTable": "r30r1_chart_cache",
+        "updated_at": 1793622389809,
+        "view_id": "R05"
+      }
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B09",
+    "acceptance": [
+      "文本、记录数、解释长度不算产出；错类型/无子代无成功边",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "FRAME_PRESENT_DATA_AND_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "当前源码已有1—2帧；有效数值、可用支持、最新ABI及手机可见性尚未证明。先读payload中的status/reason/points，再查UI；不新增同义空图掩盖。",
+    "consumer_method": "ResearchStoreR30R1.ready/consume仅已实现PRUNE_COMPONENT实用路由；其余ExpertProposalsR27为声明绑定，需逐类证实调用及收据。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R05",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R06",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "原子条件边际贡献",
+    "measure": "ATOM_PAIRED_GAIN",
+    "producer": "ResearchStudyTaskR30R1.step → ResearchStoreR30R1.paired",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "原组件与准确反事实同目标十分类损失",
+    "role": "SELECT",
+    "declared_consumer": "MutationOpsR27",
+    "consumer_semantics": "ResearchAdviceR30R1→r30r1_proposal(PRUNE_COMPONENT)→ready/consume同出生事务；保留负/不确定结果",
+    "observed": {
+      "producedFrames": 0,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": null
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B08",
+    "acceptance": [
+      "完整测得的反事实必须与实际子代hash相同；不能比较不同K3事件的二元Brier",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "NO_COMMITTED_FRAME",
+    "no_data_diagnosis": "报告R06当前源码帧计数=0；ResearchStudyTask有真实生产代码。检查合法parent AST/组件支持、r27任务隔离及birth dependency，不可删unsupported断言造数据。",
+    "consumer_method": "ResearchStoreR30R1.ready/consume仅已实现PRUNE_COMPONENT实用路由；其余MutationOpsR27为声明绑定，需逐类证实调用及收据。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R06",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R07",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "分子协同与冗余贡献",
+    "measure": "MOLECULE_SYNERGY",
+    "producer": "ResearchObservatoryR30R1.compute",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "none/A/B/AB四臂损失 L_A+L_B−L_AB−L_none",
+    "role": "SELECT",
+    "declared_consumer": "DerivedAtomR27",
+    "consumer_semantics": "分子协同选择只用SELECT；最初仅支持add双子节点，扩大支持需新增完整反事实实现",
+    "observed": {
+      "producedFrames": 1,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": {
+        "frame_id": "69d70e32b53782da83616eb8de2aed01bce089172f615f46d52b41ec1bc53ddf",
+        "payload_hash": "69d70e32b53782da83616eb8de2aed01bce089172f615f46d52b41ec1bc53ddf",
+        "run_id": "bd8a55a7fca4cf2e2e3a96aa033668e4658be98f6bbb104f9b326c9651116f45",
+        "sourceTable": "r30r1_chart_cache",
+        "updated_at": 1793620583411,
+        "view_id": "R07"
+      }
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B08",
+    "acceptance": [
+      "同预算单体/组合对照；正式确认独立，不能用训练协同授证",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "FRAME_PRESENT_DATA_AND_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "当前源码已有1—2帧；有效数值、可用支持、最新ABI及手机可见性尚未证明。先读payload中的status/reason/points，再查UI；不新增同义空图掩盖。",
+    "consumer_method": "ResearchStoreR30R1.ready/consume仅已实现PRUNE_COMPONENT实用路由；其余DerivedAtomR27为声明绑定，需逐类证实调用及收据。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R07",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R08",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "思路族行为差异与机制覆盖",
+    "measure": "BEHAVIOR_DIVERSITY",
+    "producer": "ResearchObservatoryR30R1.compute → BirthGateR27.check",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "固定训练探针语义签名/Jaccard",
+    "role": "TRAIN",
+    "declared_consumer": "BirthGateR27",
+    "consumer_semantics": "用于行为去重或多样性配额，不计质量；签名探针集合冻结",
+    "observed": {
+      "producedFrames": 1,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": {
+        "frame_id": "29f54bef1b447075c1a32b00419e3144b8f09859c62693cea7304e6531d1a359",
+        "payload_hash": "29f54bef1b447075c1a32b00419e3144b8f09859c62693cea7304e6531d1a359",
+        "run_id": "8544e8e57ffa34cc314c5d97a79dde32ae0da5bc2b5b13272bcb5beb849e9357",
+        "sourceTable": "r30r1_chart_cache",
+        "updated_at": 1793620605144,
+        "view_id": "R08"
+      }
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B09",
+    "acceptance": [
+      "近同AST/异名同结果/新机制真差异三个反证；多样不等盈利",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "FRAME_PRESENT_DATA_AND_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "当前源码已有1—2帧；有效数值、可用支持、最新ABI及手机可见性尚未证明。先读payload中的status/reason/points，再查UI；不新增同义空图掩盖。",
+    "consumer_method": "ResearchStoreR30R1.ready/consume仅已实现PRUNE_COMPONENT实用路由；其余BirthGateR27为声明绑定，需逐类证实调用及收据。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R08",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R09",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "专家处方落地与归因",
+    "measure": "EXPERT_EXECUTABLE_CREDIT",
+    "producer": "ResearchObservatoryR30R1.stored",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "专家proposal与实际AST/SELECT成绩",
+    "role": "SELECT",
+    "declared_consumer": "ExpertProposalsR27",
+    "consumer_semantics": "专家权重以同预算盲化对照贡献更新，不能按提案数量得分",
+    "observed": {
+      "producedFrames": 2,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": {
+        "frame_id": "c7c475526593a4954f7260d6be8319ed01b888bb0a40a90258ac92ea2ca2b1be",
+        "payload_hash": "c7c475526593a4954f7260d6be8319ed01b888bb0a40a90258ac92ea2ca2b1be",
+        "run_id": "d5bda2584afcae7bc46a9f704cce4642e4994515c767eec5a4aa4ce851b6a1e1",
+        "sourceTable": "r30r1_chart_cache",
+        "updated_at": 1793622396607,
+        "view_id": "R09"
+      }
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B09",
+    "acceptance": [
+      "相同失败输入/预算的盲化消融，保留负提案",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "FRAME_PRESENT_DATA_AND_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "当前源码已有1—2帧；有效数值、可用支持、最新ABI及手机可见性尚未证明。先读payload中的status/reason/points，再查UI；不新增同义空图掩盖。",
+    "consumer_method": "ResearchStoreR30R1.ready/consume仅已实现PRUNE_COMPONENT实用路由；其余ExpertProposalsR27为声明绑定，需逐类证实调用及收据。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R09",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R10",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "变异算子增益与计算成本",
+    "measure": "OPERATOR_GAIN_COST",
+    "producer": "ResearchObservatoryR30R1.stored → FusionStudyR30R1.gain",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "同目标父子proper score＋AST节点成本",
+    "role": "SELECT",
+    "declared_consumer": "EvolutionLoopR27",
+    "consumer_semantics": "算子探索分配；perObjectCpuNs当前null，补对象级CPU再画成本效率，不借全池CPU代替",
+    "observed": {
+      "producedFrames": 2,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": {
+        "frame_id": "4a338985df3eaff45518a70b6a10ffcc8617ae19c67007b63e60adb1e17269ca",
+        "payload_hash": "4a338985df3eaff45518a70b6a10ffcc8617ae19c67007b63e60adb1e17269ca",
+        "run_id": "94f8c726ee6e61d74ec6fa0c145682032e30378d2096df21f00530340681f535",
+        "sourceTable": "r30r1_chart_cache",
+        "updated_at": 1793622406549,
+        "view_id": "R10"
+      }
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B08",
+    "acceptance": [
+      "均匀预算或旧权重对照；多次筛选成本写进实验族账本",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "FRAME_PRESENT_DATA_AND_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "当前源码已有1—2帧；有效数值、可用支持、最新ABI及手机可见性尚未证明。先读payload中的status/reason/points，再查UI；不新增同义空图掩盖。",
+    "consumer_method": "ResearchStoreR30R1.ready/consume仅已实现PRUNE_COMPONENT实用路由；其余EvolutionLoopR27为声明绑定，需逐类证实调用及收据。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R10",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R11",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "父子同期配对与独立确认",
+    "measure": "PARENT_CHILD_PAIRED",
+    "producer": "ResearchObservatoryR30R1.stored",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "r30_frozen_confirm原任务结果",
+    "role": "CONFIRM_READ_ONLY",
+    "declared_consumer": "FrozenConfirmationR30",
+    "consumer_semantics": "正式确认只读展示；不能回流同一确认段到候选筛选；verified=0是有效终态",
+    "observed": {
+      "producedFrames": 2,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": {
+        "frame_id": "4a7161f046d46a01633ae98d0051bc3ad796cb44cacd3586d121c07254bf4a23",
+        "payload_hash": "4a7161f046d46a01633ae98d0051bc3ad796cb44cacd3586d121c07254bf4a23",
+        "run_id": "4f274609b1c87b011d6a74f8f867a5aa1b7a64e850c0a0ef9a436d66c1f68a58",
+        "sourceTable": "r30r1_chart_cache",
+        "updated_at": 1793622416938,
+        "view_id": "R11"
+      }
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B09",
+    "acceptance": [
+      "DONE verified=0不能自动视为故障；仅verified=1注册未完成走恢复",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "FRAME_PRESENT_DATA_AND_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "当前源码已有1—2帧；有效数值、可用支持、最新ABI及手机可见性尚未证明。先读payload中的status/reason/points，再查UI；不新增同义空图掩盖。",
+    "consumer_method": "只读审计投影，不回流候选选择；要求真实业务链关联回执而非子代出生回执。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R11",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R12",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "融合互补与共同失败区域",
+    "measure": "FUSION_COMPLEMENTARITY",
+    "producer": "ResearchObservatoryR30R1.compute → FusionStudyR30R1.pair",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "同目标父策略残差相关/共同失败",
+    "role": "SELECT",
+    "declared_consumer": "FusionOpsR27",
+    "consumer_semantics": "候选融合新identity新确认；相关性低只是候选条件，需增量收益证据",
+    "observed": {
+      "producedFrames": 1,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": {
+        "frame_id": "c6e0a355fc2b4e4b8ec7c66e521a49d7004611e0ba44cb0a2c42aa762d936ab5",
+        "payload_hash": "c6e0a355fc2b4e4b8ec7c66e521a49d7004611e0ba44cb0a2c42aa762d936ab5",
+        "run_id": "d012bb1b81017807f6f09182d20c58b0af6e1d763058fc8046845433aa471df1",
+        "sourceTable": "r30r1_chart_cache",
+        "updated_at": 1793620704017,
+        "view_id": "R12"
+      }
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B08",
+    "acceptance": [
+      "均匀融合/最佳单体/简单模型对照；不得继承父证书与alpha",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "FRAME_PRESENT_DATA_AND_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "当前源码已有1—2帧；有效数值、可用支持、最新ABI及手机可见性尚未证明。先读payload中的status/reason/points，再查UI；不新增同义空图掩盖。",
+    "consumer_method": "ResearchStoreR30R1.ready/consume仅已实现PRUNE_COMPONENT实用路由；其余FusionOpsR27为声明绑定，需逐类证实调用及收据。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R12",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R13",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "置信度失准与支持域风险",
+    "measure": "CALIBRATION_SUPPORT",
+    "producer": "ResearchObservatoryR30R1.compute",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "候选策略事前K3概率可靠性/支持bin",
+    "role": "SELECT",
+    "declared_consumer": "CalibrationRowsR27",
+    "consumer_semantics": "仅开发诊断；校准拟合只TRAIN，正式FUTURE另验；不能修改原冻结概率",
+    "observed": {
+      "producedFrames": 1,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": {
+        "frame_id": "f93386cda9183c7fdeb25625a58df6b2b617d071e8b6a390282a7aa5f80a92e0",
+        "payload_hash": "f93386cda9183c7fdeb25625a58df6b2b617d071e8b6a390282a7aa5f80a92e0",
+        "run_id": "ddbc033d3128b11cce0f530e21b0d11bda6eb2a144007ca7f31e51d726bc7cd8",
+        "sourceTable": "r30r1_chart_cache",
+        "updated_at": 1793620810536,
+        "view_id": "R13"
+      }
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B09",
+    "acceptance": [
+      "原概率/校准概率同期proper score，去掉难样本不算改善",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "FRAME_PRESENT_DATA_AND_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "当前源码已有1—2帧；有效数值、可用支持、最新ABI及手机可见性尚未证明。先读payload中的status/reason/points，再查UI；不新增同义空图掩盖。",
+    "consumer_method": "ResearchStoreR30R1.ready/consume仅已实现PRUNE_COMPONENT实用路由；其余CalibrationRowsR27为声明绑定，需逐类证实调用及收据。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R13",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R14",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "梯度到概率面到策略消费",
+    "measure": "MODEL_CONSUMPTION_CHAIN",
+    "producer": "ResearchObservatoryR30R1.stored → ModelSurfaceStoreR30.report",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "模型artifact/surface/call逐hash链",
+    "role": "FUTURE_READ_ONLY",
+    "declared_consumer": "IdeaI08NeuralRepresentationR27",
+    "consumer_semantics": "正式消费审计；此图仅表计数不是梯度质量证明；补准确model→frozen→settle键",
+    "observed": {
+      "producedFrames": 2,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": {
+        "frame_id": "7787ac1d12aad5414cb5bc83140e9ce4100914d48d0a64a580dfe6aa0d2d6ba7",
+        "payload_hash": "7787ac1d12aad5414cb5bc83140e9ce4100914d48d0a64a580dfe6aa0d2d6ba7",
+        "run_id": "c92b513a9ca031cdf98e36b7e4afa39567740f94f7aa4f6f98fb2734667b1afc",
+        "sourceTable": "r30r1_chart_cache",
+        "updated_at": 1793622439941,
+        "view_id": "R14"
+      }
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B09",
+    "acceptance": [
+      "仅有模型文件不够；拿掉模型面后输出差异与实际调用回执需一致",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "FRAME_PRESENT_DATA_AND_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "当前源码已有1—2帧；有效数值、可用支持、最新ABI及手机可见性尚未证明。先读payload中的status/reason/points，再查UI；不新增同义空图掩盖。",
+    "consumer_method": "只读审计投影，不回流候选选择；要求真实业务链关联回执而非子代出生回执。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R14",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R15",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "漂移、遗忘与回放价值",
+    "measure": "DRIFT_REPLAY_VALUE",
+    "producer": "ResearchObservatoryR30R1.compute + ModelReplayStudyR30R1.summary",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "固定窗口输入JS漂移＋模型前后配对",
+    "role": "SELECT",
+    "declared_consumer": "AtomNetRuntimeR30",
+    "consumer_semantics": "可请求合法研究重放；输入漂移本身不等性能退化，不能自动重置资格",
+    "observed": {
+      "producedFrames": 1,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": {
+        "frame_id": "c166c9ae5ee4f2a5c250f407cbe3ce70fc8be3f77112ee289b31dc5538a2d9ac",
+        "payload_hash": "c166c9ae5ee4f2a5c250f407cbe3ce70fc8be3f77112ee289b31dc5538a2d9ac",
+        "run_id": "4a8772984e10c62a6d3c3084c77189352a8a3fe66790d5236959fb13a381d5f1",
+        "sourceTable": "r30r1_chart_cache",
+        "updated_at": 1793620870484,
+        "view_id": "R15"
+      }
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B08",
+    "acceptance": [
+      "无回放/固定回放对照；漂移不等真实可预测，也不自动重置资格",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "FRAME_PRESENT_DATA_AND_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "当前源码已有1—2帧；有效数值、可用支持、最新ABI及手机可见性尚未证明。先读payload中的status/reason/points，再查UI；不新增同义空图掩盖。",
+    "consumer_method": "ResearchStoreR30R1.ready/consume仅已实现PRUNE_COMPONENT实用路由；其余AtomNetRuntimeR30为声明绑定，需逐类证实调用及收据。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R15",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R16",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "研究探索预算与有效产出",
+    "measure": "RESEARCH_BUDGET",
+    "producer": "ResearchObservatoryR30R1.stored",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "本会话continuation CPU＋typed task cursor",
+    "role": "SELECT",
+    "declared_consumer": "ResearchPoolR27",
+    "consumer_semantics": "调度预算需实际consumer回执和同预算吞吐对照；保护最小探索预算",
+    "observed": {
+      "producedFrames": 2,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": {
+        "frame_id": "c909064c5fafdf5059cf7886ed0f7dd557b59f5df3e033f5fa3029730895854a",
+        "payload_hash": "c909064c5fafdf5059cf7886ed0f7dd557b59f5df3e033f5fa3029730895854a",
+        "run_id": "68c040559bc5bfca39d3d4e0aff2a2980d76941e4a769102bf6c5dfb45ee81d4",
+        "sourceTable": "r30r1_chart_cache",
+        "updated_at": 1793623323272,
+        "view_id": "R16"
+      }
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B08",
+    "acceptance": [
+      "同预算调度对照，prepared重试不重复计产出；保留探索份额",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "FRAME_PRESENT_DATA_AND_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "当前源码已有1—2帧；有效数值、可用支持、最新ABI及手机可见性尚未证明。先读payload中的status/reason/points，再查UI；不新增同义空图掩盖。",
+    "consumer_method": "ResearchStoreR30R1.ready/consume仅已实现PRUNE_COMPONENT实用路由；其余ResearchPoolR27为声明绑定，需逐类证实调用及收据。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R16",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R17",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "失败机制记忆与重复消耗",
+    "measure": "FAILED_MECHANISM_MEMORY",
+    "producer": "ResearchObservatoryR30R1.stored",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "r30r1_research_measure(kind=FAILURE_MEMORY)",
+    "role": "SELECT",
+    "declared_consumer": "EvolutionLoopR27",
+    "consumer_semantics": "相同ABI/机制/输入反证减少重复试验；新输入允许重测，禁止永久封禁家族",
+    "observed": {
+      "producedFrames": 2,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": {
+        "frame_id": "4eaa09da8327d048e9e27de4e586a9e378d16dfa405af6a4789e2e9fd86450e7",
+        "payload_hash": "4eaa09da8327d048e9e27de4e586a9e378d16dfa405af6a4789e2e9fd86450e7",
+        "run_id": "9fdd87755b6ca00f1c6f106dd2681091463b09b814aa57df27135c991b74c937",
+        "sourceTable": "r30r1_chart_cache",
+        "updated_at": 1793623323305,
+        "view_id": "R17"
+      }
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B08",
+    "acceptance": [
+      "旧冠军/保护族不被误删；同样反例使重复CPU减少",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "FRAME_PRESENT_DATA_AND_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "当前源码已有1—2帧；有效数值、可用支持、最新ABI及手机可见性尚未证明。先读payload中的status/reason/points，再查UI；不新增同义空图掩盖。",
+    "consumer_method": "ResearchStoreR30R1.ready/consume仅已实现PRUNE_COMPONENT实用路由；其余EvolutionLoopR27为声明绑定，需逐类证实调用及收据。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R17",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  },
+  {
+    "id": "R18",
+    "type": "RESEARCH_PRODUCT_VIEW",
+    "title": "研究处方到主链效果全链",
+    "measure": "END_TO_END_RECEIPTS",
+    "producer": "ResearchObservatoryR30R1.stored → ResearchProvenanceGraphR30R1.project",
+    "source_tables_or_sql": "r30r1_chart_cache JOIN r30r1_analysis_run按view_id最新frame；完整数值原件r30r1_research_measure/analysis_run",
+    "input_semantics": "proposal→consume→policy→confirm→certificate/eprocess",
+    "role": "FUTURE_READ_ONLY",
+    "declared_consumer": "DecisionGateEngine",
+    "consumer_semantics": "只读主链归因；当前attributedRealSettlement=null，需要B10准确授权和唯一结算键，不能同一期猜归因",
+    "observed": {
+      "producedFrames": 2,
+      "actualSourceConsumptionReceipts": 0,
+      "effective": null,
+      "runtimeReference": {
+        "frame_id": "6a057fd64971a026c9e16238369eb22537b48a53536c39ea3520694f83f2e16b",
+        "payload_hash": "6a057fd64971a026c9e16238369eb22537b48a53536c39ea3520694f83f2e16b",
+        "run_id": "0065bbf3db9babd2073474d6885f72d949bb622ddeec92d40d24020c76caee64",
+        "sourceTable": "r30r1_chart_cache",
+        "updated_at": 1793623323350,
+        "view_id": "R18"
+      }
+    },
+    "repair": "保持已有数值计算；补当前source/ABI/dataset/revision/水位校验，独立状态与typed消费收据。正式只读图不强求生成子代回执。",
+    "batch": "B09",
+    "acceptance": [
+      "直接研究→REAL、借旧证书、缺结算仍说盈利均失败；无自然资产则0",
+      "生产→提交→读取→可见→适用的算法消费→独立效果分别验收",
+      "真实空样本显示INSUFFICIENT；不以测试fixture充当自然产物"
+    ],
+    "read_sql": "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN (?,?,?,?,?,?) AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n WHERE n.view_id=c.view_id ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6",
+    "read_parameters": "所在组6个view_id；R01—R06/R07—R12/R13—R18",
+    "current_status": "FRAME_PRESENT_DATA_AND_RENDER_UNVERIFIED",
+    "no_data_diagnosis": "当前源码已有1—2帧；有效数值、可用支持、最新ABI及手机可见性尚未证明。先读payload中的status/reason/points，再查UI；不新增同义空图掩盖。",
+    "consumer_method": "只读审计投影，不回流候选选择；要求真实业务链关联回执而非子代出生回执。",
+    "source_excerpt_index": "chart_source_excerpts.json#/R18",
+    "implementation_status": "PLANNED_NOT_APPLIED_NOT_DEVICE_TESTED"
+  }
+]

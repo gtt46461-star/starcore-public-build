@@ -1,0 +1,133 @@
+package com.ethk3.novaonepro.strategyv2;
+
+import android.database.sqlite.SQLiteDatabase;
+import com.ethk3.novaonepro.*;
+import java.util.ArrayList;
+import java.util.List;
+
+/** Research batch boundary. A batch's CAS, outputs and cursor are ONE transaction, including batches over 500
+ * statements. Callers must prepare bounded slices before submitting; splitting a logical batch inside this queue
+ * exposed partial model state and let a retry apply non-idempotent increments twice. R29-005's independent database
+ * cutover is still pending: this correctness fix deliberately retains the existing writer and its pressure guard. */
+public final class ResearchWriteQueueR27 {
+    public static final int MAX_ROWS = 500; public static final long MAX_CHUNK_MS = 20, MAX_WAIT_MS = 200, DEADLINE_GUARD_MS = 5000;
+    private final DbStore store; private volatile long nextDeadline;
+    interface AtomicWriter { void write(String operation, Batch batch); }
+    private final AtomicWriter writer;
+    private final java.util.function.BooleanSupplier critical;
+    private long hourStart, submits, longWaits, maxWait, requeues;
+
+    public ResearchWriteQueueR27(DbStore store) {
+        this.store = store; this.critical = ResearchWriteQueueR27::p0Writing;
+        this.writer = (operation, batch) -> store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                "R27_" + operation, db -> { execute(db, batch, operation); return 0; });
+    }
+    // Same production submit path with a transactional test sink, without an Android process/DbStore.
+    ResearchWriteQueueR27(AtomicWriter writer, java.util.function.BooleanSupplier critical) {
+        this.store = null; this.writer = writer; this.critical = critical;
+    }
+
+    /** One prepared statement and its bind arguments. */
+    public static final class Op { final String sql; final Object[] args; public Op(String sql, Object... args) { this.sql = sql; this.args = args; } }
+    /** A batch built in memory; optional callback runs first inside the same transaction (fence checks, CAS). */
+    public static final class Batch {
+        public final List<Op> ops = new ArrayList<>(); public DatabaseCoordinator.WriteCallable<Integer> before, after;
+        public Batch add(String sql, Object... args) { ops.add(new Op(sql, args)); return this; }
+        public boolean isEmpty() { return ops.isEmpty() && before == null && after == null; }
+        /** Compose preconditions; a later helper must not overwrite the original fence. */
+        public Batch guardBefore(DatabaseCoordinator.WriteCallable<Integer> guard) {
+            if(guard==null)throw new IllegalArgumentException("R30_BATCH_GUARD_REQUIRED");
+            final DatabaseCoordinator.WriteCallable<Integer> prior=before;
+            before=db->{if(prior!=null){Integer r=prior.call(db);if(r==null||r<0)return -1;}Integer result=guard.call(db);return result==null?-1:result;};return this;
+        }
+        public Batch guardAfter(DatabaseCoordinator.WriteCallable<Integer> guard) {
+            if(guard==null)throw new IllegalArgumentException("R30_BATCH_GUARD_REQUIRED");
+            final DatabaseCoordinator.WriteCallable<Integer> prior=after;
+            after=db->{if(prior!=null){Integer r=prior.call(db);if(r==null||r<0)return -1;}Integer result=guard.call(db);return result==null?-1:result;};return this;
+        }
+    }
+
+    public void setNextDeadline(long wallMs) { nextDeadline = wallMs; }
+    public long nextDeadline() { return nextDeadline; }
+    public boolean freezeWindow(long now) { long d = nextDeadline; return d > 0 && now < d && d - now < DEADLINE_GUARD_MS; }
+    public static boolean p0Writing() { return SettlementExecutionGateR819.isActive() || RealtimePressureGateR811.hasActiveCriticalWork(); }
+
+    /** Blocks the calling research thread for at most 200 ms per attempt; returns false if it had to re-queue
+     * (the caller keeps the batch and retries on its next slice). */
+    public boolean submit(String operation, Batch batch, java.util.function.BooleanSupplier cancelled) { return submit(operation, batch, cancelled, false); }
+
+    /** @param freezeWrite the R27 live freeze itself: exempt from the deadline guard (it is the work the guard protects),
+     *                     still yields to P0 settlement for at most 200 ms. */
+    public boolean submit(String operation, Batch batch, java.util.function.BooleanSupplier cancelled, boolean freezeWrite) {
+        if (batch.isEmpty()) return true;
+        long start = System.nanoTime();
+        while (critical.getAsBoolean() || (!freezeWrite && freezeWindow(System.currentTimeMillis()))) {
+            long waited=(System.nanoTime()-start)/1_000_000L;
+            if (cancelled.getAsBoolean()) { stat(waited,true); return false; }
+            long remaining=MAX_WAIT_MS-waited;
+            if (remaining<=0) { stat(waited,true); return false; }
+            // Yield outside the writer and bound the last sleep by the unchanged 200ms allowance.
+            try { Thread.sleep(Math.min(4L,remaining)); }
+            catch (InterruptedException interrupted) { Thread.currentThread().interrupt();stat((System.nanoTime()-start)/1_000_000L,true);return false; }
+        }
+        long waited=(System.nanoTime()-start)/1_000_000L,remaining=MAX_WAIT_MS-waited;
+        if (cancelled.getAsBoolean() || remaining<=0) { stat(waited,true);return false; }
+        // Gate waiting consumes the same allowance as acquiring the existing writer; never grant another 250ms.
+        try (DatabaseCoordinator.WriterDeadlineScopeCP3 deadline=store==null?null:DatabaseCoordinator.withWriterDeadlineCP3(TimeSourceR811.monoNowMs()+remaining)) {
+            writer.write(operation, batch);
+        } catch (IllegalStateException failure) {
+            if (!writerBusy(failure)) throw failure;
+            stat((System.nanoTime()-start)/1_000_000L,true); return false;
+        }
+        stat(waited, false);
+        return true;
+    }
+
+    /** In-memory counters from actual submit attempts; health flush keeps the existing durable hourly format. */
+    public synchronized java.util.Map<String,Object> waitSnapshotR30(){
+        java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();out.put("hourStart",hourStart);out.put("submits",submits);out.put("rejectedOrRequeued",requeues);out.put("waitsAtLeast200ms",longWaits);out.put("maxObservedGateOrRejectedAttemptMs",maxWait);out.put("maxWaitAllowanceMs",MAX_WAIT_MS);return java.util.Collections.unmodifiableMap(out);
+    }
+
+    static void execute(SQLiteDatabase db, Batch batch, String operation) throws Exception {
+        if (!db.inTransaction()) throw new IllegalStateException("R29_BATCH_TRANSACTION_REQUIRED");
+        if (batch.before != null) require(batch.before.call(db), operation);
+        exec(db, batch);
+        // Any automatic task facts precede the original final deadline/source guard.
+        ResearchStoreR30R1.afterOwnedArtifact(db,"R27_"+operation,RuntimeCoordinatorR26.currentClaimR30());
+        if (batch.after != null) require(batch.after.call(db), operation);
+    }
+    private static void require(Integer ok, String operation) {
+        if (ok != null && ok < 0) throw new IllegalStateException("R27_WRITE_PRECONDITION:" + operation);
+    }
+
+    /** True when the failure is the single writer being busy (deadline/interrupt), as opposed to a real write error. */
+    static boolean writerBusy(Throwable failure) {
+        for (Throwable t = failure; t != null; t = t.getCause()) {
+            String m = String.valueOf(t.getMessage());
+            if (m.contains("CP3_DB_BUSY_") || t instanceof InterruptedException || t instanceof android.database.sqlite.SQLiteDatabaseLockedException) return true;
+            if (t.getCause() == t) break;
+        }
+        return false;
+    }
+
+    private synchronized void stat(long waited, boolean requeued) {
+        long hour = System.currentTimeMillis() / 3_600_000L * 3_600_000L;
+        if (hour != hourStart) { flush(); hourStart = hour; submits = longWaits = maxWait = requeues = 0; }
+        submits++; if (waited >= MAX_WAIT_MS) longWaits++; maxWait = Math.max(maxWait, waited); if (requeued) requeues++;
+    }
+    /** Persists the hourly write-wait counters (called by the health task). */
+    public synchronized void flush() {
+        if (hourStart == 0 || store == null) return;
+        final long h = hourStart, s = submits, w = longWaits, m = maxWait, r = requeues;
+        try {
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R27_WRITE_WAIT", db -> {
+                // minSdk 21: no UPSERT (SQLite < 3.24 on old devices).
+                db.execSQL("INSERT OR IGNORE INTO r27_write_wait(hour_start) VALUES(?)", new Object[] {h});
+                db.execSQL("UPDATE r27_write_wait SET submits=?,waits_over_200ms=?,max_wait_ms=max(max_wait_ms,?),requeues=? WHERE hour_start=?", new Object[] {s, w, m, r, h});
+                return 0;
+            });
+        } catch (RuntimeException busy) { android.util.Log.w("STARCORE_R27", "write-wait receipt deferred", busy); }
+    }
+
+    static void exec(SQLiteDatabase db, Batch b) { for (Op op : b.ops) db.execSQL(op.sql, op.args); }
+}
