@@ -423,11 +423,14 @@ jobs:
           R31_ORIGINAL_ARTIFACT_DIGEST: ${{ steps.audit_request.outputs.validationArtifactDigest }}
         run: |
           set -euo pipefail
-          git diff --exit-code
-          test "$(git rev-parse HEAD)" = "$R31_EXPECTED_SOURCE"
-          git merge-base --is-ancestor 5237b265a27fe5ad27fd842901c445d5f8c27749 HEAD
           out="$RUNNER_TEMP/r31-audited-checkpoint"
           mkdir -p "$out"
+          git rev-parse HEAD
+          git rev-parse --is-shallow-repository
+          git status --short
+          git diff --exit-code || { echo R31_AUDIT_WORKTREE_DIRTY; exit 1; }
+          test "$(git rev-parse HEAD)" = "$R31_EXPECTED_SOURCE" || { echo R31_AUDIT_UNEXPECTED_SOURCE; exit 1; }
+          git merge-base --is-ancestor 5237b265a27fe5ad27fd842901c445d5f8c27749 HEAD || { echo R31_AUDIT_BASELINE_ANCESTRY_REJECTED; git log -5 --oneline; exit 1; }
           for variant in release debug; do
             apk="$RUNNER_TEMP/r31-validation-input/validation-apks/STARCORE-R31-validation-$variant.apk"
             test -f "$apk"
