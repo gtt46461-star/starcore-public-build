@@ -369,7 +369,7 @@ jobs:
             evidence/r31/android-${{ matrix.api }}/
             startup-evidence/
   artifact-audit:
-    if: ${{ contains(github.event.head_commit.message, '[R31_ARTIFACT_AUDIT]') }}
+    if: ${{ contains(github.event.head_commit.message, '[R31_ARTIFACT_AUDIT]') && !contains(github.event.head_commit.message, '[R31_PROTOCOL_LOGS]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
@@ -627,5 +627,62 @@ jobs:
         with:
           name: R31-VALIDATION-ANDROID-${{ matrix.api }}-${{ needs['artifact-audit'].outputs.source }}
           path: ${{ runner.temp }}/r31-validation-android-${{ matrix.api }}/
+          if-no-files-found: error
+          retention-days: 90
+  protocol-log-audit:
+    if: ${{ contains(github.event.head_commit.message, '[R31_PROTOCOL_LOGS]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/r31-build-request.json
+      - id: protocol_request
+        run: |
+          python3 - <<'PY'
+          import json,os,re
+          r=json.load(open('.github/r31-build-request.json'))
+          assert r['sourceBranch']=='construction/r31-final-20261104'
+          assert re.fullmatch('[a-f0-9]{40}',r['source'])
+          assert type(r['protocolRunId']) is int and r['protocolRunId']>0
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('source='+r['source']+'\n')
+              f.write('run='+str(r['protocolRunId'])+'\n')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: R31-VALIDATION-ANDROID-*-${{ steps.protocol_request.outputs.source }}
+          run-id: ${{ steps.protocol_request.outputs.run }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          path: ${{ runner.temp }}/r31-protocol-text-input
+      - name: Read actual failed emulator output with credential fields redacted
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,re
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-protocol-text-input'
+          files=sorted(root.rglob('protocol.txt'))
+          assert len(files)==2,('EXPECTED_TWO_ACTUAL_EMULATOR_OUTPUTS',[str(p) for p in files])
+          out=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-protocol-text-audit';out.mkdir()
+          records=[]
+          for i,p in enumerate(files):
+              raw=p.read_bytes();text=raw.decode(errors='replace')
+              text=re.sub(r'(?i)(\b(?:api[_-]?key|key|token|secret|password)\s*[=:]\s*)[^\s&]+',r'\1<REDACTED>',text)
+              text=re.sub(r'(?i)(authorization\s*:\s*bearer\s+)\S+',r'\1<REDACTED>',text)
+              rel=str(p.relative_to(root));print('R31_ACTUAL_PROTOCOL_FILE|'+rel)
+              for line in text.splitlines():print('R31_PROTOCOL_LINE|'+line)
+              (out/('protocol-'+str(i)+'-redacted.txt')).write_text(text)
+              records.append({'original_file':rel,'original_sha256':hashlib.sha256(raw).hexdigest(),'redacted_sha256':hashlib.sha256(text.encode()).hexdigest(),'scope':'ORIGINAL_FAILED_EMULATOR_OUTPUT_NOT_A_TEST_RERUN_OR_PASS'})
+              receipt=p.parent/'RECEIPT.json'
+              if receipt.is_file():
+                  data=json.loads(receipt.read_text());print('R31_ORIGINAL_EMULATOR_RECEIPT|'+json.dumps(data,sort_keys=True))
+          (out/'RECEIPT.json').write_text(json.dumps({'scope':'READ_ONLY_EXISTING_FAILED_ANDROID_LOGS','files':records,'test_result_override':False,'physical_device':'NOT_RUN','natural_quality':'NOT_PROVEN'},indent=2)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R31-PROTOCOL-LOG-AUDIT-${{ steps.protocol_request.outputs.source }}
+          path: ${{ runner.temp }}/r31-protocol-text-audit/
           if-no-files-found: error
           retention-days: 90
