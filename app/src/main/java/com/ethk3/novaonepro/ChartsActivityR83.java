@@ -32,6 +32,9 @@ public final class ChartsActivityR83 extends Activity {
     private LinearLayout charts;
     private TextView status;
     private Future<?> future;
+    private final java.util.concurrent.atomic.AtomicBoolean historyImportBusyR31 = new java.util.concurrent.atomic.AtomicBoolean();
+    private final java.util.concurrent.atomic.AtomicBoolean historyImportCancelledR31 = new java.util.concurrent.atomic.AtomicBoolean();
+    private volatile Thread historyImportThreadR31;
     private CancellationSignal pending;
     private long generation;
     private final int ink = Color.rgb(229, 239, 250), muted = Color.rgb(165, 184, 205);
@@ -97,6 +100,9 @@ public final class ChartsActivityR83 extends Activity {
 
     @Override
     protected void onDestroy() {
+        historyImportCancelledR31.set(true);
+        Thread importer = historyImportThreadR31;
+        if (importer != null) importer.interrupt();
         worker.shutdownNow();
         ui.removeCallbacksAndMessages(null);
         super.onDestroy();
@@ -184,10 +190,11 @@ public final class ChartsActivityR83 extends Activity {
             String legacy = store.getState(ResearchLearningContinuityR912.R27_LEGACY_SWITCH, "1");
             // R27.2: the device crashed here (BadTokenException) when the page closed before the read returned.
             ui.post(() -> { if (isFinishing() || isDestroyed()) return; new android.app.AlertDialog.Builder(this).setTitle("R27 工具")
-                    .setItems(new String[] {"导入历史CSV（与库内同期逐期比对，冲突不导入）", "旧R9xx研究链并行：" + ("0".equals(legacy) ? "已关闭（点此重新开启）" : "开启中（并行观察≥1440期后再关闭）"), "重试全部已隔离（QUARANTINED）的研究任务"}, (d, which) -> {
+                    .setItems(new String[] {"导入历史CSV（与库内同期逐期比对，冲突不导入）", "旧R9xx研究链并行：" + ("0".equals(legacy) ? "已关闭（点此重新开启）" : "开启中（并行观察≥1440期后再关闭）"), "重试全部已隔离（QUARANTINED）的研究任务", "恢复未完成历史CSV（使用已保存的原始输入）"}, (d, which) -> {
                         if (which == 0) { android.content.Intent i = new android.content.Intent(android.content.Intent.ACTION_OPEN_DOCUMENT); i.addCategory(android.content.Intent.CATEGORY_OPENABLE); i.setType("*/*"); startActivityForResult(i, IMPORT_CSV_R27); }
                         else if (which == 1) worker.submit(() -> { store.setState(ResearchLearningContinuityR912.R27_LEGACY_SWITCH, "0".equals(legacy) ? "1" : "0"); ui.post(() -> status.setText("旧研究链开关已改为 " + ("0".equals(legacy) ? "开启" : "关闭") + "；旧表保留只读。")); });
-                        else worker.submit(() -> { int n = com.ethk3.novaonepro.strategyv2.HistoryImportR27.retryQuarantined(store); ui.post(() -> status.setText("已重置隔离任务：" + n + "个")); });
+                        else if (which == 2) worker.submit(() -> { int n = com.ethk3.novaonepro.strategyv2.HistoryImportR27.retryQuarantined(store); ui.post(() -> status.setText("已重置隔离任务：" + n + "个")); });
+                        else startHistoryImportR31(null);
                     }).show(); });
         });
     }
@@ -196,15 +203,38 @@ public final class ChartsActivityR83 extends Activity {
     protected void onActivityResult(int request, int result, android.content.Intent data) {
         super.onActivityResult(request, result, data);
         if (request != IMPORT_CSV_R27 || result != RESULT_OK || data == null || data.getData() == null) return;
-        final android.net.Uri uri = data.getData();
+        startHistoryImportR31(data.getData());
+    }
+
+    private void startHistoryImportR31(final android.net.Uri uri) {
+        if (!historyImportBusyR31.compareAndSet(false, true)) {
+            status.setText("已有历史CSV导入正在退出或推进，请等待实际任务结束。");
+            return;
+        }
+        historyImportCancelledR31.set(false);
         status.setText("正在比对并导入历史CSV……");
-        worker.submit(() -> {
+        Thread importer = new Thread(() -> {
             String message;
-            try (java.io.InputStream in = getContentResolver().openInputStream(uri)) {
-                message = com.ethk3.novaonepro.strategyv2.HistoryImportR27.importCsv(new DbStore(getApplicationContext()), in);
-            } catch (Exception e) { message = "导入失败：" + e.getClass().getSimpleName() + ":" + e.getMessage(); }
-            final String m = message; ui.post(() -> status.setText(m));
-        });
+            DbStore store = null;
+            try {
+                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+                store = new DbStore(getApplicationContext());
+                if (uri == null) {
+                    String job = com.ethk3.novaonepro.strategyv2.HistoryImportR27.pendingJobIdR31(store);
+                    message = job == null ? "没有未完成的历史CSV任务。" : com.ethk3.novaonepro.strategyv2.HistoryImportR27.resumeSavedR31(store, job, historyImportCancelledR31::get);
+                } else try (java.io.InputStream in = getContentResolver().openInputStream(uri)) {
+                    message = com.ethk3.novaonepro.strategyv2.HistoryImportR27.importCsv(store, in, historyImportCancelledR31::get);
+                }
+            } catch (Exception e) { message = "导入需核查或恢复：" + e.getClass().getSimpleName() + ":" + e.getMessage() + "；可恢复已保存CSV，或重新选择同一文件（已完成任务不会重复发布）。"; }
+            finally {
+                if (store != null) store.close();
+                historyImportThreadR31 = null;
+                historyImportBusyR31.set(false); // Real exit, never Future.cancel() as resource-release proof.
+            }
+            final String m = message; ui.post(() -> { if (!isFinishing() && !isDestroyed()) status.setText(m); });
+        }, "r31-history-csv");
+        historyImportThreadR31 = importer;
+        importer.start();
     }
 
     // R27-053 UI chapter: chart first-screen load times (P95 target ≤ 300 ms when reading the R27 cache).
