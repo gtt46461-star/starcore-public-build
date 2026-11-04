@@ -2058,7 +2058,8 @@
         }
       ],
       "commits": [
-        "e96e11cc850672549863a6290b40350fa5248a08"
+        "e96e11cc850672549863a6290b40350fa5248a08",
+        "e056206af83a8fc094b81d97f67a1310b8cc2e46"
       ],
       "migration_versions": [
         "SQLite userVersion36",
@@ -2097,6 +2098,24 @@
           "junitTests": 6,
           "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
           "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+        },
+        {
+          "evidence": "verification/r31/p02/build-identity/MEMORY_REPAIR_COMMITTED_UNEXCLUDED_JOINT.json",
+          "sha256_at_record": "13d5462866132bab74b5ebed56aafbf3ef7662a8ebc5367ac66d23bb6c205b6a",
+          "command": [
+            "bash",
+            "./gradlew",
+            "--no-daemon",
+            "--max-workers=4",
+            "-Pr30Instrumentation=true",
+            "--continue",
+            ":app:compileDebugJavaWithJavac",
+            ":app:compileDebugAndroidTestJavaWithJavac",
+            ":app:testDebugUnitTest",
+            ":app:verifyFinalR31BuildIdentity"
+          ],
+          "result": "FAILED",
+          "scope": "Actual committed whole Android compile and10 instrumentation-definition compile/identity passed;456 host unit tests with6 actual resource-capacity failures; no exclusions/no source mutation; no APK/device execution"
         }
       ],
       "apk_identity": null,
@@ -2151,6 +2170,11 @@
           "receipt": "verification/r31/p02/service/card_updates.json",
           "receipt_sha256": "1614f2bfed9fb13f6cf6eeb846964872d774fc04ee0f4b46d1b7f061ff553777",
           "meaning": "Scoped code/HOST evidence, not final Android/device acceptance."
+        },
+        {
+          "at": "2026-11-04T14:04:17.876950+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "e056 full unexcluded executed456 tests/6 failures; targeted passes do not close card"
         }
       ],
       "owner_slices": [
@@ -3572,7 +3596,8 @@
         }
       ],
       "commits": [
-        "e96e11cc850672549863a6290b40350fa5248a08"
+        "e96e11cc850672549863a6290b40350fa5248a08",
+        "e056206af83a8fc094b81d97f67a1310b8cc2e46"
       ],
       "migration_versions": [
         "SQLite userVersion36",
@@ -3615,6 +3640,24 @@
           "sha256_at_record": "7970a9d84e3cee7be21727d0b6eeb2600c999be289d26af32706cb8e3f1c0a8f",
           "result": "SEE_EXACT_SCOPED_RECEIPT",
           "scope": "Actual whole Android Java compile passed, product sources unchanged; documented2 bootstrap-only exclusions; final unexcluded still required"
+        },
+        {
+          "evidence": "verification/r31/p02/build-identity/MEMORY_REPAIR_COMMITTED_UNEXCLUDED_JOINT.json",
+          "sha256_at_record": "13d5462866132bab74b5ebed56aafbf3ef7662a8ebc5367ac66d23bb6c205b6a",
+          "command": [
+            "bash",
+            "./gradlew",
+            "--no-daemon",
+            "--max-workers=4",
+            "-Pr30Instrumentation=true",
+            "--continue",
+            ":app:compileDebugJavaWithJavac",
+            ":app:compileDebugAndroidTestJavaWithJavac",
+            ":app:testDebugUnitTest",
+            ":app:verifyFinalR31BuildIdentity"
+          ],
+          "result": "FAILED",
+          "scope": "Actual committed whole Android compile and10 instrumentation-definition compile/identity passed;456 host unit tests with6 actual resource-capacity failures; no exclusions/no source mutation; no APK/device execution"
         }
       ],
       "apk_identity": null,
@@ -3691,6 +3734,11 @@
           "at": "2026-11-04T13:21:42.494234+00:00",
           "state": "FAILED",
           "reason": "PIT hot-path allocation component passed baseline semantics; fresh multi-generation integration still has real memory capacity failures, repair ongoing."
+        },
+        {
+          "at": "2026-11-04T14:04:17.876950+00:00",
+          "state": "FAILED",
+          "reason": "e056 full unexcluded executed456 tests/6 failures; targeted passes do not close card"
         }
       ],
       "integration_repair_observation": {
@@ -5828,7 +5876,7 @@
       "joint_build": "NOT_RUN",
       "native_backup_capacity": "REPAIR_IN_PROGRESS_AFTER_ACTUAL_FAILURE",
       "business_gc": "NOT_ENABLED",
-      "source_compile": "PASS_UNEXCLUDED",
+      "source_compile": "PASS_ACTUAL_UNEXCLUDED_E056_NO_SOURCE_MUTATION",
       "schema_versions": {
         "userVersion": 36,
         "critical": 6,
@@ -5850,13 +5898,21 @@
         "DB/WAL/model/CAS writer admission not fully integrated",
         "24/72h actual device absent"
       ],
-      "source_commit": "e96e11cc850672549863a6290b40350fa5248a08",
-      "android_instrumentation_compile": "PASS_UNEXCLUDED",
-      "full_host_unit": "FAILED_17_OF_428",
+      "source_commit": "e056206af83a8fc094b81d97f67a1310b8cc2e46",
+      "android_instrumentation_compile": "PASS_ALL_THREE_CLASSES_10_DEFINED_CASES_NOT_EXECUTED",
+      "full_host_unit": {
+        "source": "e056206af83a8fc094b81d97f67a1310b8cc2e46",
+        "tests": 456,
+        "failures": 6,
+        "errors": 0,
+        "skipped": 0,
+        "result": "FAILED",
+        "evidence": "verification/r31/p02/build-identity/MEMORY_REPAIR_COMMITTED_UNEXCLUDED_JOINT.json"
+      },
       "build_identity": "PASS",
-      "integration": "FAILED_PENDING_MEMORY_LIFECYCLE_AND_H15_CONTROLLED_CONTRACT_REPAIR",
-      "remote_run": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41829247902",
-      "remote_failure": "verify_r26.py fixture extracted dependent trigger before base; production order correct; corrected33 checks PASS, pending same-version commit/full rerun",
+      "integration": "FAILED_6_REAL_CAPACITY_WAITS",
+      "remote_run": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41842958636",
+      "remote_failure": "R967_GENERATED_IDENTITY_STALE; two actual tracked generated outputs omitted from source checkpoint, being committed; remote tests/APK NOT_RUN",
       "memory_repair_checkpoint": {
         "at": "2026-11-04T13:52:44.803831+00:00",
         "source_state": "FROZEN_REPAIR_PENDING_SOURCE_COMMIT_AND_UNEXCLUDED_JOINT",
@@ -5865,7 +5921,7 @@
         "actual_runtime_control": "PASS_8_JUNIT_144_ASSERTIONS_120200MS_HOST",
         "previous_full_unit": "E96_428_TESTS_17_FAILURES_PRESERVED",
         "fresh_owned_math": "6_TESTS_3_PASS_3_RESOURCE_CAPACITY_FAILURES_PRESERVED",
-        "current_full_unexcluded": "NOT_RUN",
+        "current_full_unexcluded": "ACTUAL456_TESTS_6_REAL_CAPACITY_FAILURES",
         "Android_instrumentation": "10_DEFINITIONS_COMPILED_NOT_EXECUTED",
         "integration": "FAILED_NOT_RELEASED",
         "device24h": "NOT_RUN",

@@ -1,0 +1,17 @@
+{
+  "run_id": 41842958636,
+  "job_id": 126619050445,
+  "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41842958636",
+  "signing_support_commit": "70a1e60d4fe8fdaa8100a2fbb991b62bd62c223b",
+  "requested_source": "e056206af83a8fc094b81d97f67a1310b8cc2e46",
+  "result": "FAILED",
+  "failed_step": "Frozen identities / scripts/r967_semantic_identity.py --check",
+  "original_error": "ValueError: R967_GENERATED_IDENTITY_STALE",
+  "cause": "Two repository-tracked generated R967 outputs were omitted from e056 source commit; actual Gradle regenerated them locally but clean remote source precheck correctly rejected stale tracked output. This is a source checkpoint omission, not a network/environment failure.",
+  "raw_decoded_utf8_log": "verification/r31/p02/build-identity/run41842958636-raw-job.log",
+  "decoded_log_sha256": "e3f0dd90a16f7469727503add4f90f38116654cf02a568811ac03b91fae029dc",
+  "tests_this_remote_attempt": "NOT_RUN",
+  "apk_assembly_this_remote_attempt": "NOT_RUN",
+  "repair": "Commit the two actual generated outputs, retain strict check, rerun on exact new commit.",
+  "observed_at": "2026-11-04T14:03:25.454631+00:00"
+}

@@ -1,0 +1,38 @@
+{
+  "auditScope": "READ_ONLY_SIGNING_AND_INSTALL_IDENTITY",
+  "baseline": {
+    "source": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+    "applicationId": "com.starcore.research.r13",
+    "versionCode": 577311009,
+    "versionName": "R30-REPAIR1-2026.11.02-009",
+    "engineeringBuild": "R30_REPAIR1_EXISTING_R27_IDENTITY_ONLY"
+  },
+  "currentSourceManifestObservation": {
+    "applicationId": "com.starcore.research.r13",
+    "versionCode": 577311011,
+    "versionName": "R31-CHECKPOINT-P02-2026.11.04-011"
+  },
+  "baselinePublishedApk": {
+    "file": "STARCORE-R30-REPAIR1-EXISTING_R27-5237b265a27f.apk",
+    "bytes": 28060658,
+    "sha256": "da42eaf3f6458bbf78ef256cfbe5667e29a18a51a94a02730a1d2f46b9c05749",
+    "certificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+    "evidence": "Actual build job125195540441 receipt and published release asset701310637 both bind exact5237source"
+  },
+  "r27LaneBaselineSignatureContinuity": "CONFIRMED_BY_HISTORICAL_SIGNED_APK_RECEIPT_AND_PUBLISHED_ASSET",
+  "deviceInstalledCertificate": "UNKNOWN_NOT_CAPTURED",
+  "deviceInstalledVersionCode": "UNKNOWN_NOT_CAPTURED",
+  "sameDeviceInPlaceUpgrade": "CONDITIONAL_ONLY; same public package + d8d8 certificate + allowed version + actual install verification required",
+  "officialLegacyCertificate": "9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca",
+  "official9eToR27d8Upgrade": "NOT_SUPPORTED_BY_THIS_VERIFIED_LANE; no verified signing rotation lineage",
+  "recommendation": "Continue existing d8d8R27 lane for the exact required public baseline. Do not deploy second official lane merely to assert universal compatibility. If actual installed certificate is9e6d, separately reuse existing official key for exactsame source or verify lawful rotation; root decides. Root has now chosen d8d8baseline lane only.",
+  "rootDecision": "ONLY_EXISTING_D8D8_PUBLIC_BASELINE_LANE; NO_OTHER_LANE_OPENED",
+  "productionModified": false,
+  "remoteRefsModified": false,
+  "privateKeysReadOrExtracted": false,
+  "newSigningKeyGenerated": false,
+  "workflowOrBuildTriggeredByAudit": false,
+  "localBinaryApkSignatureReverification": "NOT_RUN; audit uses actual historical build/publish certificate receipt and matching published asset digest",
+  "deviceInstall": "NOT_RUN",
+  "signingOrGitHubCredentialValuesReadOrCopied": false
+}

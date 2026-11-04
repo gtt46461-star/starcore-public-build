@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ethk3.novaonepro.strategyv2.R27EvolutionTest" tests="3" skipped="0" failures="1" errors="0" timestamp="2026-11-04T13:55:29.216Z" hostname="de5413bf5cd0" time="66.297">
+  <properties/>
+  <testcase name="plantedSignalIsFoundAndVerifiedWithin50Generations" classname="com.ethk3.novaonepro.strategyv2.R27EvolutionTest" time="4.175"/>
+  <testcase name="killAfterEveryStepAndResume" classname="com.ethk3.novaonepro.strategyv2.R27EvolutionTest" time="14.449"/>
+  <testcase name="noSignalRarelyClaimsImprovement" classname="com.ethk3.novaonepro.strategyv2.R27EvolutionTest" time="47.673">
+    <failure message="com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY" type="com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait">com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY
+	at app//com.ethk3.novaonepro.strategyv2.FeatureCacheR27.leaf(FeatureCacheR27.java:97)
+	at app//com.ethk3.novaonepro.strategyv2.FeatureCacheR27.leafWithPriorityR31(FeatureCacheR27.java:105)
+	at app//com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:196)
+	at app//com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:199)
+	at app//com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:188)
+	at app//com.ethk3.novaonepro.strategyv2.BirthGateR27.check(BirthGateR27.java:71)
+	at app//com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.stepGate(EvolutionLoopR27.java:249)
+	at app//com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.stepInsideEvolution(EvolutionLoopR27.java:159)
+	at app//com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.step(EvolutionLoopR27.java:151)
+	at app//com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.runGeneration(EvolutionLoopR27.java:146)
+	at app//com.ethk3.novaonepro.strategyv2.R27EvolutionTest.noSignalRarelyClaimsImprovement(R27EvolutionTest.java:48)
+	at java.base@17.0.17/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base@17.0.17/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base@17.0.17/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base@17.0.17/java.lang.reflect.Method.invoke(Method.java:569)
+	at app//org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at app//org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at app//org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at app//org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at app//org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at app//org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at app//org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at app//org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at app//org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at app//org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at app//org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at app//org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at app//org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at app//org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at app//org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at app//org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:112)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:40)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:54)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:53)
+	at jdk.internal.reflect.GeneratedMethodAccessor5.invoke(Unknown Source)
+	at java.base@17.0.17/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base@17.0.17/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:92)
+	at jdk.proxy1/jdk.proxy1.$Proxy4.processTestClass(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker$2.run(TestWorker.java:183)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:132)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:103)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:63)
+	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:122)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:72)
+	at app//worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
+	at app//worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
+</failure>
+  </testcase>
+  <system-out><![CDATA[R27_HOST|H06_PASS generations=2 verified=1 championHoldoutHR=0.45038167938931295 champion=(ema 0.174 (zscore (family 11)))
+R27_HOST|H12_PASS steps=18 events=173 uniqueBirthsAndEdges=82
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

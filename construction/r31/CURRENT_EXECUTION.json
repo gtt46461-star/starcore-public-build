@@ -1,15 +1,15 @@
 {
-  "recorded_at": "2026-11-04T13:52:44.803831+00:00",
+  "recorded_at": "2026-11-04T14:04:17.876950+00:00",
   "branch": "construction/r31-final-20261104",
   "report_baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-  "latest_pushed_source": "e96e11cc850672549863a6290b40350fa5248a08",
-  "active_phase": "P02_FROZEN_REPAIR_COMMIT_AND_JOINT",
+  "latest_pushed_source": "e056206af83a8fc094b81d97f67a1310b8cc2e46",
+  "active_phase": "P02_REAL_CAPACITY_DIAGNOSIS_AND_TRACKED_IDENTITY_CORRECTION",
   "P03_production_started": false,
   "latest_full_unit": {
-    "executed": 428,
-    "failed": 17,
-    "source": "e96e11cc",
-    "receipt": "verification/r31/p02/build-identity/committed-unexcluded-joint-receipt.json"
+    "executed": 456,
+    "failed": 6,
+    "source": "e056206af83a8fc094b81d97f67a1310b8cc2e46",
+    "receipt": "verification/r31/p02/build-identity/MEMORY_REPAIR_COMMITTED_UNEXCLUDED_JOINT.json"
   },
   "active_production_owner": {
     "continuation_protocol": [
@@ -39,17 +39,14 @@
     "scripts/verify_r26.py production-order DDL fixture;33 checks pass"
   ],
   "next": [
-    "Wait for real memory/AST scoped-buffer code and source-bound parity/pressure tests",
-    "Regenerate reviewed identities, compile actual whole Android classes with documented bootstrap exclusions only",
-    "Freeze compiled-call index from actual classes; commit before unexcluded generateR997 gate",
-    "Run all Gradle unit and Android-test compilation/identity gates; preserve failures and old logs",
-    "Push exact commit and trigger existing signing cache workflow; verify8 Android instrumented cases",
-    "Only then start P03 source implementation with assigned single-file owners"
+    "Commit actual tracked R967 generator outputs with existing strict check retained",
+    "Evaluate real HOST initial heap ergonomics at fixed512m max; retain default failure records",
+    "Rerun full exact-source build/signing workflow; no bypass or final acceptance claim"
   ],
   "signing_support_branch": "construction/r27-20261028",
-  "signing_support_head": "4e1202c2256db611015821b6e2a62acf0a811928",
-  "last_remote_run": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41829247902",
-  "last_remote_failure": "verify_r26.py old whole-file DDL regex ordered trigger before r26_consumption; production order correct; script fixture now fixed locally",
+  "signing_support_head": "70a1e60d4fe8fdaa8100a2fbb991b62bd62c223b",
+  "last_remote_run": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41842958636",
+  "last_remote_failure": "R967_GENERATED_IDENTITY_STALE; two actual tracked generated outputs omitted from source checkpoint, being committed; remote tests/APK NOT_RUN",
   "workflow_current_scope": "exact signed APK validation bytes saved before native host matrix;13 native scripts;API29/35 emulator and8 instrumented tests;physical soak never asserted",
   "device": "NOT_RUN_NO_ADB_DEVICE",
   "initial24h": "NOT_RUN",

@@ -1,0 +1,165 @@
+{
+  "status": "FAILED_RESOURCE_WAIT",
+  "scope": "HOST_INITIAL_HEAP_EXPERIMENT_EXACT_ACTUAL_COMPILED_SUPPORT_SAME_JVM_TWO_COMPLETE_MATH_CLASSES_NOT_ANDROID_OR_CONTINUOUS_RUNTIME_ACCEPTANCE",
+  "actualCompiledIdentity": {
+    "SOURCE_COMMIT_R26": "e056206af83a8fc094b81d97f67a1310b8cc2e46",
+    "SOURCE_DIRTY_R31": true,
+    "SOURCE_TREE_R31": "f23b0de81c552eb1625b613ac460377e5605a15b",
+    "SOURCE_WORKTREE_SHA256_R31": "d011bde648e7df2f6778ddadb25fc7f92548330b7dd769888928df8beacd8b3e"
+  },
+  "initialVmOnlyDefault": {
+    "totalMemory": 297795584,
+    "maxMemory": 536870912,
+    "scope": "BOOT_RUNTIME_COMMITTED_HEAP_VM_ONLY_NO_MATH_CONTROL_RERUN"
+  },
+  "experimentalInitial": {
+    "totalMemory": 35651584,
+    "maxMemory": 536870912
+  },
+  "experimentalFlags": [
+    "-Xms32m",
+    "-Xmx512m"
+  ],
+  "sameJvmClasses": 2,
+  "tests": 6,
+  "failures": 4,
+  "ignored": 0,
+  "exitCode": 1,
+  "elapsedMs": 11026,
+  "failureEvents": [
+    {
+      "elapsedMs": 10665,
+      "failure": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY",
+      "gc": [
+        {
+          "collectionTimeMs": 246,
+          "collections": 149,
+          "name": "G1 Young Generation"
+        },
+        {
+          "collectionTimeMs": 0,
+          "collections": 0,
+          "name": "G1 Old Generation"
+        }
+      ],
+      "heapUsed": 322110192,
+      "maxMemory": 536870912,
+      "test": "com.ethk3.novaonepro.strategyv2.R27EvolutionTest.killAfterEveryStepAndResume",
+      "thread": "main",
+      "threadId": 1,
+      "totalMemory": 355467264,
+      "type": "FAIL"
+    },
+    {
+      "elapsedMs": 10894,
+      "failure": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY",
+      "gc": [
+        {
+          "collectionTimeMs": 256,
+          "collections": 157,
+          "name": "G1 Young Generation"
+        },
+        {
+          "collectionTimeMs": 0,
+          "collections": 0,
+          "name": "G1 Old Generation"
+        }
+      ],
+      "heapUsed": 325311344,
+      "maxMemory": 536870912,
+      "test": "com.ethk3.novaonepro.strategyv2.R27EvolutionTest.noSignalRarelyClaimsImprovement",
+      "thread": "main",
+      "threadId": 1,
+      "totalMemory": 355467264,
+      "type": "FAIL"
+    },
+    {
+      "elapsedMs": 11000,
+      "failure": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY",
+      "gc": [
+        {
+          "collectionTimeMs": 258,
+          "collections": 159,
+          "name": "G1 Young Generation"
+        },
+        {
+          "collectionTimeMs": 0,
+          "collections": 0,
+          "name": "G1 Old Generation"
+        }
+      ],
+      "heapUsed": 326851776,
+      "maxMemory": 536870912,
+      "test": "com.ethk3.novaonepro.strategyv2.R30NullPipelineTest.powerAndFullPipelineQualificationHaveRecoverableSyntheticReceipts",
+      "thread": "main",
+      "threadId": 1,
+      "totalMemory": 355467264,
+      "type": "FAIL"
+    },
+    {
+      "elapsedMs": 11021,
+      "failure": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY",
+      "gc": [
+        {
+          "collectionTimeMs": 259,
+          "collections": 160,
+          "name": "G1 Young Generation"
+        },
+        {
+          "collectionTimeMs": 0,
+          "collections": 0,
+          "name": "G1 Old Generation"
+        }
+      ],
+      "heapUsed": 322418232,
+      "maxMemory": 536870912,
+      "test": "com.ethk3.novaonepro.strategyv2.R30NullPipelineTest.sameFullEvolutionPipelineResumesItsControlState",
+      "thread": "main",
+      "threadId": 1,
+      "totalMemory": 355467264,
+      "type": "FAIL"
+    }
+  ],
+  "actualFinalGc": [
+    {
+      "collectionTimeMs": 259,
+      "collections": 160,
+      "name": "G1 Young Generation"
+    },
+    {
+      "collectionTimeMs": 0,
+      "collections": 0,
+      "name": "G1 Old Generation"
+    }
+  ],
+  "H07": {
+    "plannedTrials": 100,
+    "generationsPerTrial": 3,
+    "entered": true,
+    "completedAllTrialsAndGenerations": false,
+    "actualCompletedTrialCount": "UNKNOWN_UNMODIFIED_TEST_ABORTED_WITH_CAPACITY_WAIT",
+    "H07PassMarkerPresent": false
+  },
+  "budgetMeasuredInProcess": {
+    "maxHeapBytes": 536870912,
+    "highFraction": 0.75,
+    "resumeFraction": 0.6,
+    "emergencyFraction": 0.9,
+    "realtimeReservedBytes": 80530637,
+    "heapUsedBytes": 322418232,
+    "pendingJavaAllocationBytes": 18176,
+    "pressure": "NORMAL",
+    "optionalAdmissionStatus": "RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY",
+    "allowOptionalWork": false
+  },
+  "sourceChangedDuringRun": [],
+  "supportCopiedAndHashVerifiedBeforeRun": true,
+  "productionTestBuildFilesModifiedForExperiment": false,
+  "forcedGc": false,
+  "gcTuningFlags": false,
+  "fakeProbe": false,
+  "thresholdChanges": false,
+  "interpretation": "Lower initial committed heap caused natural young collections but did not complete the original math controls. This experiment does not support treating a HOST initial-heap change as a passing engineering/Android/continuous-runtime result. Default failures remain preserved.",
+  "fullReceipt": "RECEIPT.json",
+  "rawExperimentalLogSha256": "e18b3d7a9cb230ec55d902ddd27388410cfa32e450768eb1d25dab88edf6d831"
+}
