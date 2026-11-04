@@ -1,0 +1,310 @@
+name: STARCORE R31 EXISTING_R27 exact-source candidate
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/r31-build-request.json', '.github/workflows/r31-build-r27.yml']
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: r31-EXISTING_R27-${{ github.sha }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    outputs:
+      source: ${{ steps.request.outputs.source }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/r31-build-request.json
+      - id: request
+        run: |
+          python3 - <<'CODE'
+          import json,os,re
+          r=json.load(open('.github/r31-build-request.json'))
+          assert r.get('sourceBranch')=='construction/r31-final-20261104','R31_SOURCE_BRANCH_REQUIRED'
+          assert re.fullmatch('[a-f0-9]{40}',str(r.get('source',''))),'FULL_SOURCE_SHA_REQUIRED'
+          assert type(r.get('expectedVersionCode')) is int and r['expectedVersionCode']>0,'VERSION_CODE_REQUIRED'
+          assert re.fullmatch('[A-Za-z0-9._+ -]{1,128}',str(r.get('expectedVersionName',''))),'VERSION_NAME_REQUIRED'
+          with open(os.environ['GITHUB_OUTPUT'],'a') as output:
+              output.write('source='+r['source']+'\n')
+              output.write('versionCode='+str(r['expectedVersionCode'])+'\n')
+              output.write('versionName='+r['expectedVersionName']+'\n')
+          CODE
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.request.outputs.source }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+      - uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/r27-ci-temp-key
+          key: starcore-r27-ci-temp-signing-v1
+          fail-on-cache-miss: true
+      - name: Reuse the existing R27 certificate only (no new key)
+        env:
+          R29_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, subprocess, hashlib
+          root=pathlib.Path.home()/'.starcore/r27-ci-temp-key'
+          key=root/'r27-ci.p12'; password_file=root/'pw'
+          if not key.is_file() or not password_file.is_file(): raise SystemExit('ORIGINAL_SIGNING_UNAVAILABLE')
+          password=password_file.read_text().strip()
+          if not password: raise SystemExit('ORIGINAL_SIGNING_UNAVAILABLE')
+          print('::add-mask::'+password)
+          cert=subprocess.check_output(['keytool','-exportcert','-keystore',str(key),'-storetype','PKCS12','-alias','starcore-r13','-storepass',password],stderr=subprocess.DEVNULL)
+          fingerprint=hashlib.sha256(cert).hexdigest()
+          if fingerprint!='d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7': raise SystemExit('R27_SIGNING_CHANGED')
+          with open(os.environ['GITHUB_ENV'],'a') as out:
+              out.write('R13_SIGNING_P12='+str(key)+'\nR13_SIGNING_PASSWORD='+password+'\nR13_EXPECTED_CERT_SHA256='+fingerprint+'\nR29_SIGNING=EXISTING_R27_CI_NOT_OFFICIAL_R13\n')
+              credential=os.environ.get('R29_API_KEY','').strip()
+              if credential:
+                  print('::add-mask::'+credential)
+                  out.write('DUOQU_API_KEY='+credential+'\n')
+          print('Reused R27 certificate '+fingerprint+'; official R13 upgrade BLOCKED')
+          PY
+      - name: Map compatibility variables to the same existing key
+        run: |
+          python3 - <<'PY'
+          import os
+          required=('R13_SIGNING_P12','R13_SIGNING_PASSWORD','R13_EXPECTED_CERT_SHA256')
+          assert all(os.environ.get(key) for key in required),'EXISTING_SIGNING_BINDINGS_UNAVAILABLE'
+          mapping={'STARCORE_SIGNING_P12':os.environ['R13_SIGNING_P12'],'STARCORE_SIGNING_PASSWORD':os.environ['R13_SIGNING_PASSWORD'],'STARCORE_SIGNING_KEY_PASSWORD':os.environ['R13_SIGNING_PASSWORD'],'STARCORE_SIGNING_ALIAS':'starcore-r13','STARCORE_SIGNING_TYPE':'PKCS12','STARCORE_EXPECTED_CERT_SHA256':os.environ['R13_EXPECTED_CERT_SHA256']}
+          with open(os.environ['GITHUB_ENV'],'a') as output:
+              for key,value in mapping.items():output.write(key+'='+value+'\n')
+          PY
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+      - name: Validate exact R31 source and committed version
+        env:
+          EXPECTED_SOURCE: ${{ steps.request.outputs.source }}
+          EXPECTED_VERSION_CODE: ${{ steps.request.outputs.versionCode }}
+          EXPECTED_VERSION_NAME: ${{ steps.request.outputs.versionName }}
+          R31_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE"
+          test -f tools/r31/verify_baseline.py
+          test -f app/src/androidTest/java/com/ethk3/novaonepro/R31RuntimeProtocolInstrumentedTest.java
+          timeout 45s git fetch --no-tags origin refs/heads/construction/r31-final-20261104:refs/remotes/origin/construction/r31-final-20261104
+          git merge-base --is-ancestor "$EXPECTED_SOURCE" refs/remotes/origin/construction/r31-final-20261104
+          git merge-base --is-ancestor 5237b265a27fe5ad27fd842901c445d5f8c27749 "$EXPECTED_SOURCE"
+          git diff --exit-code
+          python3 - <<'PY'
+          import json,os,pathlib,subprocess
+          manifest=json.loads(pathlib.Path('release/release_manifest.json').read_text())
+          assert manifest['applicationId']=='com.starcore.research.r13','WRONG_APPLICATION_ID'
+          assert int(manifest['versionCode'])==int(os.environ['EXPECTED_VERSION_CODE']),'VERSION_CODE_MISMATCH'
+          assert manifest['versionName']==os.environ['EXPECTED_VERSION_NAME'],'VERSION_NAME_MISMATCH'
+          assert os.environ.get('DUOQU_API_KEY','').strip(),'API_CONFIGURATION_UNAVAILABLE'
+          assert os.environ.get('R13_EXPECTED_CERT_SHA256')==os.environ['R31_EXPECTED_CERT_SHA256'],'WRONG_CERTIFICATE_LANE'
+          out=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-evidence';out.mkdir(parents=True,exist_ok=True)
+          record={'sourceCommit':os.environ['EXPECTED_SOURCE'],'sourceTree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),'sourceBranch':'construction/r31-final-20261104','baseline':'5237b265a27fe5ad27fd842901c445d5f8c27749','baselineAncestry':'PASS','requestedSourceAncestry':'PASS','sourceArchive':'https://github.com/gtt46461-star/starcore-public-build/archive/'+os.environ['EXPECTED_SOURCE']+'.zip','versionCode':manifest['versionCode'],'versionName':manifest['versionName']}
+          (out/'source-receipt.json').write_text(json.dumps(record,ensure_ascii=False,indent=2)+'\n')
+          PY
+      - name: Frozen identities, existing verifiers, canonical checks and signed APKs
+        run: |
+          set -euo pipefail
+          # Use committed identities. Do not invoke ci_build.sh/rebind_identity.py or PUSH_REF.
+          python3 scripts/r926_release_manifest.py --check
+          python3 scripts/r967_semantic_identity.py --check
+          python3 scripts/test_r13_production_ddl.py
+          python3 scripts/generate_strategy_su2_schema.py --check
+          python3 scripts/verify_strategy_su1.py > "$RUNNER_TEMP/r31-evidence/su1.log" 2>&1
+          python3 scripts/verify_plan1025.py > "$RUNNER_TEMP/r31-evidence/plan1025.log" 2>&1
+          python3 scripts/verify_r26.py > "$RUNNER_TEMP/r31-evidence/r26.log" 2>&1
+          ./gradlew --no-daemon --max-workers=4 -Pr30Instrumentation=true :app:verifyCanonicalPlanBuildCP3 :app:lintDebug :app:assembleRelease :app:assembleDebug :app:assembleDebugAndroidTest 2>&1 | tee "$RUNNER_TEMP/r31-evidence/assemble.log"
+          grep -Fq 'android:name="com.ethk3.novaonepro.R30FaultAndroidRunner"' app/build/intermediates/packaged_manifests/debugAndroidTest/processDebugAndroidTestManifest/AndroidManifest.xml
+          test -f app/src/androidTest/java/com/ethk3/novaonepro/R31RuntimeProtocolInstrumentedTest.java
+          python3 - <<'PY'
+          import json,os,pathlib,xml.etree.ElementTree as ET
+          files=sorted(pathlib.Path('app/build/test-results/testDebugUnitTest').glob('TEST-*.xml'))
+          assert files,'NO_ACTUAL_JUNIT_XML'
+          totals={k:sum(int(ET.parse(f).getroot().get(k,'0')) for f in files) for k in ('tests','failures','errors','skipped')}
+          assert totals['tests']>0 and totals['failures']==totals['errors']==totals['skipped']==0,totals
+          (pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-evidence/unit-summary.json').write_text(json.dumps({'scope':'HOST_UNIT_NOT_ANDROID_OR_NATURAL','suites':len(files),**totals},indent=2)+'\n')
+          PY
+      - name: Existing production-bytecode and native SQLite host regressions
+        run: |
+          set -euo pipefail
+          repair_deps=$(mktemp -d)
+          trap 'rm -rf "$repair_deps"' EXIT
+          export SQLITE_JDBC="$repair_deps/sqlite-jdbc.jar"
+          curl -fLsS --connect-timeout 15 --max-time 90 -o "$SQLITE_JDBC" https://repo.maven.apache.org/maven2/org/xerial/sqlite-jdbc/3.46.1.3/sqlite-jdbc-3.46.1.3.jar
+          printf '%s  %s\n' 4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa "$SQLITE_JDBC" | sha256sum -c -
+          # Isolate legacy test outputs, while reading this exact build's actual compiled classes.
+          git clone --shared --no-checkout "$GITHUB_WORKSPACE" "$RUNNER_TEMP/r31-host-source"
+          git -C "$RUNNER_TEMP/r31-host-source" checkout --detach "$(git rev-parse HEAD)"
+          rm -rf "$RUNNER_TEMP/r31-host-source/app/build"
+          ln -s "$GITHUB_WORKSPACE/app/build" "$RUNNER_TEMP/r31-host-source/app/build"
+          cd "$RUNNER_TEMP/r31-host-source"
+          for check in diagnosis writer retention timeline commit_failure progress neural qualification input_pin matrix research observatory snapshot; do
+            python3 "tools/r30-repair/run_$check""_host.py" > "$RUNNER_TEMP/r31-evidence/repair-$check.log" 2>&1
+          done
+      - name: Inspect actual signed bytes and package an explicit build candidate
+        env:
+          EXPECTED_SOURCE: ${{ steps.request.outputs.source }}
+          EXPECTED_VERSION_CODE: ${{ steps.request.outputs.versionCode }}
+          EXPECTED_VERSION_NAME: ${{ steps.request.outputs.versionName }}
+          R31_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+          R31_SIGNING_LANE: EXISTING_R27
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE"
+          git diff --exit-code
+          for variant in release debug; do
+            apk=$(find "app/build/outputs/apk/$variant" -maxdepth 1 -name '*.apk' -print -quit)
+            test -n "$apk"
+            python3 tools/r31/verify_baseline.py --require-clean --apk "$apk" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --expected-cert-sha256 "$R31_EXPECTED_CERT_SHA256" --output "$RUNNER_TEMP/r31-evidence/$variant-r31-identity.json"
+          done
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,re,shutil,subprocess,zipfile
+          root=pathlib.Path('.');evidence=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-evidence';out=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-candidate'
+          source=os.environ['EXPECTED_SOURCE'];lane=os.environ['R31_SIGNING_LANE'];cert_expected=os.environ['R31_EXPECTED_CERT_SHA256']
+          assert os.environ['R13_EXPECTED_CERT_SHA256']==cert_expected,'WRONG_CERTIFICATE_LANE'
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==source
+          assert not subprocess.check_output(['git','status','--porcelain','--untracked-files=all'],text=True).strip(),'DIRTY_SOURCE_NO_DELIVERY'
+          out.mkdir(exist_ok=True);tools=pathlib.Path(os.environ['ANDROID_HOME'])/'build-tools/36.0.0'
+          source_receipt=json.loads((evidence/'source-receipt.json').read_text());rows=[]
+          for variant in ('release','debug'):
+              identity=json.loads((evidence/(variant+'-r31-identity.json')).read_text())
+              assert identity['status']=='PASS' and identity['apk']['status']=='PASS'
+              assert identity['identity']['source_dirty'] is False and identity['apk']['embedded_source_dirty'] is False
+              assert identity['identity']['source_commit']==source and identity['identity']['source_tree']==source_receipt['sourceTree']
+              candidates=list((root/'app/build/outputs/apk'/variant).glob('*.apk'));assert len(candidates)==1,'EXACTLY_ONE_'+variant+'_APK_REQUIRED'
+              apk=candidates[0];row=identity['apk']
+              assert row['application_id']=='com.starcore.research.r13' and row['certificate_sha256']==[cert_expected]
+              assert row['version_code']==int(os.environ['EXPECTED_VERSION_CODE']) and row['version_name']==os.environ['EXPECTED_VERSION_NAME']
+              assert row['sha256']==hashlib.sha256(apk.read_bytes()).hexdigest() and row['bytes']==apk.stat().st_size
+              signature=subprocess.check_output([str(tools/'apksigner'),'verify','--verbose','--print-certs',str(apk)],text=True)
+              name='STARCORE-R31-'+lane+'-'+source[:12]+'-'+variant+'.apk';shutil.copy2(apk,out/name)
+              record={'apk':name,'lane':lane,'variant':variant,'sourceCommit':source,'sourceTree':source_receipt['sourceTree'],'sourceArchive':source_receipt['sourceArchive'],'package':row['application_id'],'versionCode':row['version_code'],'versionName':row['version_name'],'certificateSha256':cert_expected,'sha256':row['sha256'],'bytes':row['bytes'],'abis':row['abis'],'embeddedSourceDirty':False,'r31IdentityEvidence':variant+'-r31-identity.json','artifactRole':'BUILT_EXACT_SOURCE_PENDING_ANDROID_GATES','overall':'BUILD_PASS_ACCEPTANCE_SEPARATE','physicalDevice':'NOT_RUN','device24h':'NOT_RUN','device72h':'NOT_RUN','naturalQuality':'NOT_PROVEN'}
+              rows.append(record)
+              (out/(variant+'-public-certificate.txt')).write_text(signature)
+              shutil.copy2(evidence/(variant+'-r31-identity.json'),out/(variant+'-r31-identity.json'))
+          test_apks=list((root/'app/build/outputs/apk/androidTest/debug').glob('*.apk'));assert len(test_apks)==1,'EXACTLY_ONE_TEST_APK_REQUIRED'
+          test_apk=test_apks[0]
+          signature=subprocess.check_output([str(tools/'apksigner'),'verify','--verbose','--print-certs',str(test_apk)],text=True)
+          assert re.search(r'Signer #1 certificate SHA-256 digest: ([0-9a-f]{64})',signature).group(1)==cert_expected,'TEST_CERTIFICATE_MISMATCH'
+          package=subprocess.check_output([str(tools/'aapt'),'dump','badging',str(test_apk)],text=True).splitlines()[0]
+          assert "name='com.starcore.research.r13.test'" in package,'WRONG_TEST_APPLICATION_ID'
+          test_name='STARCORE-R31-'+lane+'-'+source[:12]+'-androidTest.apk';shutil.copy2(test_apk,out/test_name)
+          (out/'androidTest-public-certificate.txt').write_text(signature)
+          (out/'delivery.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2)+'\n')
+          shutil.copy2(evidence/'source-receipt.json',out/'source-receipt.json')
+          shutil.copy2(evidence/'unit-summary.json',out/'unit-summary.json')
+          shutil.copy2(root/'construction/r31/EXECUTION_LEDGER.json',out/'EXECUTION_LEDGER.json')
+          acceptance={'sourceCommit':source,'build':'PASS','unitTests':'PASS','androidRuntime':'NOT_RUN_BY_BUILD_JOB','physicalDevice':'NOT_RUN','device24h':'NOT_RUN','device72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','cardImplementation':'SEE_EXECUTION_LEDGER_NOT_INFERRED_FROM_BUILD','deviceInstalledCertificate':'UNKNOWN_NOT_CAPTURED'}
+          (out/'ACCEPTANCE.json').write_text(json.dumps(acceptance,ensure_ascii=False,indent=2)+'\n')
+          (out/'README_ZH.md').write_text('# STARCORE R31 实际签名构建候选包\n\n本包由完整源码 '+source+' 构建。应用身份 com.starcore.research.r13，签名通道 '+lane+'，指纹 '+cert_expected+'。\n\n源码入口：https://github.com/gtt46461-star/starcore-public-build/tree/'+source+'\n完整快照：https://github.com/gtt46461-star/starcore-public-build/archive/'+source+'.zip\n\n请以 delivery.json 的实际 APK 哈希和版本为准。构建通过不等于全部施工卡、真机持续运行或自然策略质量通过；真实状态见 ACCEPTANCE.json、EXECUTION_LEDGER.json 和独立 CI Android 产物。升级兼容性需核对设备现有应用签名；本流程没有读取用户设备的实际签名。\n')
+          release_name=next(row['apk'] for row in rows if row['variant']=='release')
+          with zipfile.ZipFile(out/('STARCORE-R31-'+lane+'-'+source[:12]+'-DELIVERY.zip'),'w',zipfile.ZIP_DEFLATED) as z:
+              included=[release_name,'delivery.json','source-receipt.json','unit-summary.json','EXECUTION_LEDGER.json','ACCEPTANCE.json','README_ZH.md','release-public-certificate.txt','release-r31-identity.json']
+              payloads={name:(out/name).read_bytes() for name in included}
+              payloads['delivery.json']=(json.dumps([row for row in rows if row['variant']=='release'],ensure_ascii=False,indent=2)+'\n').encode()
+              for name,data in payloads.items():z.writestr(name,data)
+              z.writestr('SHA256SUMS.txt',''.join(hashlib.sha256(data).hexdigest()+'  '+name+'\n' for name,data in payloads.items()))
+          (out/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n' for p in sorted(out.iterdir()) if p.is_file() and p.name!='SHA256SUMS.txt'))
+          print(json.dumps({'sourceCommit':source,'lane':lane,'apks':rows,'scope':'REAL_BUILD_NOT_PHYSICAL_OR_NATURAL'},ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: R31-EXISTING_R27-CANDIDATE-${{ steps.request.outputs.source }}
+          path: ${{ runner.temp }}/r31-candidate/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R31-EXISTING_R27-HOST-EVIDENCE-${{ steps.request.outputs.source }}
+          path: |
+            ${{ runner.temp }}/r31-evidence/
+            app/build/test-results/
+            app/build/reports/
+  android-runtime:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [29, 35]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.source }}
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: R31-EXISTING_R27-CANDIDATE-${{ needs.build.outputs.source }}
+          path: candidate
+      - name: Enable disposable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Prepare the temporary emulator test script
+        run: |
+          cat > "$RUNNER_TEMP/r31-emulator-probe.sh" <<'R31_CI_PROBE'
+          set -euo pipefail
+          out=evidence/r31/android-${{ matrix.api }}
+          mkdir -p "$out"
+          bash tools/r30-repair/prepare_emulator.sh
+          adb install -r "$(find candidate -name '*-release.apk' -print -quit)"
+          python3 scripts/probe_r13_startup.py --installed
+          cp -a startup-evidence "$out/release-startup"
+          adb install -r "$(find candidate -name '*-debug.apk' -print -quit)"
+          adb install -r -t "$(find candidate -name '*-androidTest.apk' -print -quit)"
+          adb shell am force-stop com.starcore.research.r13
+          adb logcat -c
+          adb shell am instrument -w -r -e r30Sandbox "r31-ci-$GITHUB_RUN_ID" -e class com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner > "$out/r31-protocol.txt" 2>&1
+          adb logcat -d -v threadtime > "$out/r31-protocol-logcat.txt"
+          python3 - "$out" <<'PY'
+          import hashlib,json,pathlib,re,subprocess,sys
+          out=pathlib.Path(sys.argv[1]);raw=(out/'r31-protocol.txt').read_bytes();text=raw.decode()
+          found=re.search(r'OK \((\d+) tests?\)',text)
+          assert found and int(found.group(1))>0 and 'FAILURES!!!' not in text and 'INSTRUMENTATION_FAILED' not in text,'R31_ACTUAL_INSTRUMENTATION_FAILED'
+          record={'sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'scope':'ACTUAL_ANDROID_EMULATOR_DEBUG_INSTRUMENTATION','tests':int(found.group(1)),'result':'PASS','apiLevel':subprocess.check_output(['adb','shell','getprop','ro.build.version.sdk'],text=True).strip(),'serial':subprocess.check_output(['adb','get-serialno'],text=True).strip(),'physicalDevice':'NOT_RUN','device24h':'NOT_RUN','device72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','outputSha256':hashlib.sha256(raw).hexdigest()}
+          (out/'r31-protocol-receipt.json').write_text(json.dumps(record,indent=2)+'\n')
+          PY
+          bash tools/r30/run_fault_matrix.sh "$out/existing-fault-matrix"
+          bash tools/r30-repair/run_research_fault_matrix.sh "$out/existing-research-fault-matrix"
+          R31_CI_PROBE
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 4096M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+          script: bash "$RUNNER_TEMP/r31-emulator-probe.sh"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R31-EXISTING_R27-ANDROID-${{ matrix.api }}-${{ needs.build.outputs.source }}
+          path: |
+            evidence/r31/android-${{ matrix.api }}/
+            startup-evidence/
