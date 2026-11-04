@@ -44,4 +44,10 @@ public final class R31TaskFailureDispositionTest {
         LinkageError fatal=new LinkageError("HOST_FATAL_INJECTION");Rejected wrapper=new Rejected("BUG","ROLLED_BACK",new IllegalStateException("outer",fatal));
         assertSame(fatal,FailureDispositionR31.processFatalCause(wrapper));assertEquals(FailureDispositionR31.Disposition.FATAL,FailureDispositionR31.classify(wrapper).disposition);assertFalse(FailureDispositionR31.classify(wrapper).consumesFaultBudget());
     }
+    @Test public void actualMemoryAndBoundedQueueExceptionsNeverConsumeFaultBudget(){
+        Throwable memory=new MemoryBudgetR31.CapacityWait(MemoryBudgetR31.WaitReason.HEAP_PRESSURE);
+        assertEquals(FailureDispositionR31.Disposition.DEPENDENCY,FailureDispositionR31.classify(memory).disposition);assertFalse(FailureDispositionR31.classify(memory).consumesFaultBudget());assertEquals(WaitKindR27.RESOURCE,WaitKindR27.classify(0,null,memory,0,1,null,false).kind);
+        assertEquals(FailureDispositionR31.Disposition.CANCELLED,FailureDispositionR31.classify(new MemoryBudgetR31.CapacityWait(MemoryBudgetR31.WaitReason.CANCELLED)).disposition);
+        Throwable queue=new BoundedResearchExecutorR31.QueueCapacityWait("OWNER_DRAINING");assertEquals(FailureDispositionR31.Disposition.DEPENDENCY,FailureDispositionR31.classify(queue).disposition);assertFalse(FailureDispositionR31.classify(queue).consumesFaultBudget());
+    }
 }

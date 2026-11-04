@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "scope": "ACTUAL_PRODUCTION_TASK_PROTOCOL_WITH_NATIVE_SQLITE_JDBC_HOST_PLATFORM_AND_CLOCK_ADAPTERS",
+  "capturedAt": "2026-11-04T10:37:41.441890+00:00",
+  "assertions": 199,
+  "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_task_runtime_host.py",
+  "sourceCommitAtCompile": "31fea28c5723ac70e47ae4cc7542344b16fb3f91",
+  "dirtyAtRun": false,
+  "productionSources": {
+    "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java": "bf5495b95b2820693e8d49bba02c528b8ed1147a73cdfb9afe36a7d0139d4c6c",
+    "app/src/main/java/com/ethk3/novaonepro/TransactionSchemaCacheR941.java": "609b31256f757a9e463973e2d93f9a1492f316187206eb1f33fd56f3db2b53eb",
+    "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java": "c24b76d8ee6523df94c5082f7581df2319d7609518226aca5a89b17044045613",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java": "dc9effeed210b5a8f51d3f6a3552071098fff8683b88c778c008977a5f2b63e6",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeFaultEvidenceR31.java": "da6f315234ca6546c0af47b52e973dd5b90551ae2c8fc831584cfa95cde649cd",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java": "e3ea909cbbbdc984d3e76d056eb84dc6cfd888ff008e6f514369b2a868f2faab",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java": "25bd11775579573eafe00e85eae6c3dbafdff5efa8632e9056938a0d9b38dd73",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java": "d2b27268bfb8027ea2ebcbb8a326deb03397f73b12e7082495bfb2c5ef7f80b2",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java": "e36d3a9adcbc0099796b6a182bf654257d62b79b58bbb57315c442b5ee051621",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedTaskR30R1.java": "53b9bff4a5906ce233565f14aac7935d5bdb1d51d43f72e98d8c87116847028f",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java": "13ecb475e137e6a69a400817df4c6d52452d736ed0140355f0d3c16ad3cf6219",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java": "edb385b55b7bacd99ebc323d481a7b4bbd0444a0501bb568b1542c127d0af0ea"
+  },
+  "scenarios": [
+    "late owner success and failure receipts",
+    "boot/elapsed lease and wall-deadline perturbation",
+    "100 cancellations without fault budget",
+    "six same-root half-open fault rounds",
+    "one recovery probe per second",
+    "13 parallel actual claims under writer lock held 3 real seconds",
+    "actual pool loop retains parent/helper ownership",
+    "manual retry waits for actual helper exit",
+    "cancelled Future is not actual helper exit",
+    "close is bounded and idempotent"
+  ],
+  "androidRuntime": "NOT_RUN",
+  "physicalDevice": "NOT_RUN",
+  "continuous24h": "NOT_RUN",
+  "continuous72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "remaining": [
+    "Android SQLite/thread integration and device lifecycle matrix",
+    "real OS wall-clock/reboot test",
+    "device resource/latency/capacity acceptance",
+    "full model process-kill recovery matrix"
+  ]
+}

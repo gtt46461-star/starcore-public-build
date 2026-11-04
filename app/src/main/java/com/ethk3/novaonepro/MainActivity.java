@@ -1126,6 +1126,30 @@ public final class MainActivity extends Activity {
 
     /** User-triggered OEM/Android capability setup; the app never changes system policy silently. */
     private void openBackgroundReliabilitySettings() {
+        final android.app.AlertDialog dialog=new android.app.AlertDialog.Builder(this)
+                .setTitle("后台能力与停止记录")
+                .setMessage("正在读取系统状态；24/72小时持续运行尚未取得设备验收。")
+                .setPositiveButton("系统设置",(d,which)->launchBackgroundReliabilitySettingsR31())
+                .setNeutralButton("OEM自启动设置",(d,which)->launchOemStartupSettingsR31())
+                .setNegativeButton("关闭",null).create();
+        dialog.show();
+        if(!LifecycleHealthR963.post(getApplicationContext(),()->{
+            BackgroundRuntimeCapabilityR811.RuntimeObservationR31 state=BackgroundRuntimeCapabilityR811.observeRuntimeR31(getApplicationContext());
+            LifecycleHealthR963.refreshInterruptionObservationR31(getApplicationContext());
+            ServiceHeartbeatStore hb=new ServiceHeartbeatStore(getApplicationContext());
+            final String detail=state.userSummary()+"\n\n停止与重开记录\n"+LifecycleHealthR963.interruptionSummaryR31(getApplicationContext())
+                    +"\n\n进程心跳="+hb.runtimeTruthState()+"｜ageMs="+hb.getHeartbeatAgeMs()
+                    +"\n研究健康="+(hb.getResearchStaleReason().isEmpty()?"当前已知任务水位无停滞":hb.getResearchStaleReason())
+                    +"\nserviceReadyAt="+hb.getServiceReadyAt()+"（实际启动不等于研究恢复）";
+            runOnUiThread(()->{if(!destroyed&&!isFinishing()&&dialog.isShowing()){dialog.setMessage(detail);android.widget.TextView message=dialog.findViewById(android.R.id.message);if(message!=null)message.setTextIsSelectable(true);}});
+        }))dialog.setMessage("UNKNOWN：状态采集队列不可用。可打开系统设置，持续运行验收仍未取得证据。");
+    }
+
+    private boolean startResolvedBackgroundSettingsR31(Intent intent){
+        if(intent.resolveActivity(getPackageManager())==null)return false;
+        startActivity(intent);return true;
+    }
+    private void launchBackgroundReliabilitySettingsR31() {
         try {
             BackgroundRuntimeCapabilityR811.Snapshot capability =
                     BackgroundRuntimeCapabilityR811.snapshot(getApplicationContext());
@@ -1144,23 +1168,39 @@ public final class MainActivity extends Activity {
                 intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                 intent.setData(packageUri);
             }
-            startActivity(intent);
+            if(!startResolvedBackgroundSettingsR31(intent))throw new IllegalStateException("SYSTEM_SETTINGS_NOT_RESOLVED");
         } catch (Throwable primary) {
+            Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(primary);if(fatal!=null)throw fatal;
             try {
                 Intent fallback = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                 fallback.setData(android.net.Uri.parse("package:" + getPackageName()));
-                startActivity(fallback);
+                if(!startResolvedBackgroundSettingsR31(fallback))throw new IllegalStateException("APP_SETTINGS_NOT_RESOLVED");
             } catch (Throwable fallback) {
+                Error fatalFallback=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(fallback);if(fatalFallback!=null)throw fatalFallback;
                 Toast.makeText(this, "无法打开系统后台设置，请手动允许自启动和无限制电池使用", Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    private void launchOemStartupSettingsR31(){
+        String maker=android.os.Build.MANUFACTURER==null?"":android.os.Build.MANUFACTURER.toLowerCase(java.util.Locale.ROOT);
+        java.util.List<String[]> candidates=new java.util.ArrayList<>();
+        if(maker.contains("vivo")||maker.contains("iqoo")){candidates.add(new String[]{"com.vivo.permissionmanager","com.vivo.permissionmanager.activity.BgStartUpManagerActivity"});candidates.add(new String[]{"com.iqoo.secure","com.iqoo.secure.ui.phoneoptimize.AddWhiteListActivity"});}
+        else if(maker.contains("xiaomi")||maker.contains("redmi"))candidates.add(new String[]{"com.miui.securitycenter","com.miui.permcenter.autostart.AutoStartManagementActivity"});
+        else if(maker.contains("oppo")||maker.contains("realme")||maker.contains("oneplus")){candidates.add(new String[]{"com.oplus.safecenter","com.oplus.safecenter.startupapp.StartupAppListActivity"});candidates.add(new String[]{"com.coloros.safecenter","com.coloros.safecenter.permission.startup.StartupAppListActivity"});}
+        else if(maker.contains("huawei")||maker.contains("honor"))candidates.add(new String[]{"com.huawei.systemmanager","com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity"});
+        for(String[] candidate:candidates)try{Intent intent=new Intent().setComponent(new android.content.ComponentName(candidate[0],candidate[1]));intent.putExtra("package_name",getPackageName());if(startResolvedBackgroundSettingsR31(intent)){Toast.makeText(this,"OEM自启动权限尚未核实，请在系统页面确认；打开页面不代表已授权",Toast.LENGTH_LONG).show();return;}}catch(RuntimeException unavailable){}
+        try{Intent fallback=new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,android.net.Uri.parse("package:"+getPackageName()));if(!startResolvedBackgroundSettingsR31(fallback))throw new IllegalStateException("OEM_FALLBACK_NOT_RESOLVED");Toast.makeText(this,"未找到可核实的OEM自启动页面，已打开应用设置；自启动状态仍未核实",Toast.LENGTH_LONG).show();}
+        catch(RuntimeException unavailable){Toast.makeText(this,"无法打开设置；OEM自启动状态为UNKNOWN，请在手机设置核对",Toast.LENGTH_LONG).show();}
     }
 
     private void refreshBackgroundReliabilityButton() {
         if (btnBackgroundReliability == null) return;
         BackgroundRuntimeCapabilityR811.Snapshot capability =
                 BackgroundRuntimeCapabilityR811.snapshot(getApplicationContext());
-        if (!capability.ignoringBatteryOptimizations) {
+        if(capability.status.startsWith("READ_ERROR")){
+            btnBackgroundReliability.setText("后台能力详情：系统状态未知，请核对");
+        } else if (!capability.ignoringBatteryOptimizations) {
             btnBackgroundReliability.setText("后台续跑授权：关闭电池优化");
         } else if (Build.VERSION.SDK_INT >= 31 && !capability.exactAlarmRuntimeGranted) {
             btnBackgroundReliability.setText("后台续跑授权：允许精确闹钟");
@@ -9128,17 +9168,15 @@ public final class MainActivity extends Activity {
                 + (exact ? "可用" : "不可用")
                 + "｜TeacherPumpAge="
                 + ageTextSafeV17(hb.getTeacherPumpAt())
-                + "｜ResearchProgressAge="
+                + "｜LegacyPumpAge(非产物进度)="
                 + ageTextSafeV17(hb.getLearningPumpAt())
                 + "｜ResearchAttempt="
                 + hb.getLearningAttemptState()
                 + "@"
                 + ageTextSafeV17(hb.getLearningAttemptAt())
-                + "｜ResearchTruth="
-                + hb.researchProgressTruth().state
-                + "/"
-                + hb.researchProgressTruth().reason
-                + "｜ResearchCompletion="
+                + "｜R31ResearchHealth="
+                + (hb.getResearchStaleReason().isEmpty()?"KNOWN_NOT_STALLED":hb.getResearchStaleReason())
+                + "｜旧完成标记(非R31验收)="
                 + store.getState("r956_research_owner_completion", "WAITING")
                 + "｜业务异常="
                 + hb.getBusinessStaleReason();

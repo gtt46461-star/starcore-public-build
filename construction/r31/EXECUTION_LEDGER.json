@@ -292,7 +292,7 @@
       "title": "统一瞬时等待、取消、依赖和真实故障分类",
       "phase": "P01",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "IMPLEMENTING",
+      "status": "BUILD_PASS",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java",
@@ -323,10 +323,68 @@
           "baseline_state": "PROPOSED_NEW_FILE"
         }
       ],
-      "actual_changes": [],
-      "commits": [],
-      "migration_versions": [],
-      "tests": [],
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+          "methods": "classify: bounded cause-chain RETRY/CANCEL/DEPENDENCY/STALE/FAULT/FATAL; process-fatal original Error rethrow",
+          "committed_sha256": "dc9effeed210b5a8f51d3f6a3552071098fff8683b88c778c008977a5f2b63e6"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java",
+          "methods": "fromThrowable delegates shared typed classification",
+          "committed_sha256": "e3ea909cbbbdc984d3e76d056eb84dc6cfd888ff008e6f514369b2a868f2faab"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "methods": "typed WriteRejected retains disposition/commit outcome; transient writer waits do not consume task fault budget",
+          "committed_sha256": "bf5495b95b2820693e8d49bba02c528b8ed1147a73cdfb9afe36a7d0139d4c6c"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "methods": "claim/run/receipt use shared classifier and bounded evidence",
+          "committed_sha256": "e36d3a9adcbc0099796b6a182bf654257d62b79b58bbb57315c442b5ee051621"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+          "methods": "shared classification for direct and legacy task entries",
+          "committed_sha256": "d2b27268bfb8027ea2ebcbb8a326deb03397f73b12e7082495bfb2c5ef7f80b2"
+        }
+      ],
+      "commits": [
+        "844a78488f396189c2db98591782b7bb214799d2"
+      ],
+      "migration_versions": [
+        "SQLite userVersion 36 retained",
+        "RESEARCH_R31_OBSERVATION:1",
+        "RESEARCH_R31_WRITE:1"
+      ],
+      "tests": [
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; bash ./gradlew --no-daemon --max-workers=4 :app:compileDebugJavaWithJavac :app:compileDebugAndroidTestJavaWithJavac -Pr30Instrumentation=true :app:testDebugUnitTest --tests *R31* --tests *R30TaskLivenessTest --tests *R30WriteWaitTest :app:verifyFinalR31BuildIdentity",
+          "result": "PASS",
+          "evidence": "verification/r31/p01/build-identity/final-integration-receipt.json",
+          "scope": "source and Android-test compilation, 32 host unit tests; no APK/device execution"
+        },
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_task_runtime_host.py",
+          "result": "PASS",
+          "evidence": "verification/r31/p01/task-runtime/receipt.json",
+          "scope": "199 assertions, actual production protocol plus native SQLite HOST adapters; no Android claim"
+        },
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_write_protocol_host.py",
+          "result": "PASS",
+          "evidence": "verification/r31/p01/writer-protocol/writer-evidence.json",
+          "scope": "actual production writer + native SQLite HOST adapters; process halt/replay, 9 postcommit faults, conflict/rollback; no Android claim"
+        },
+        {
+          "command": "Exact clean31fea unexcluded source compile, then run_task_runtime_host.py and run_write_protocol_host.py",
+          "result": "PASS",
+          "evidence": "verification/r31/ci_diagnosis/exact31fea-native/SUMMARY.json",
+          "evidence_sha256": "ee84b70fd8de5558b87180749ea4a728a35c239458d8414a64c05b82b43d015f",
+          "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
+        }
+      ],
       "apk_identity": null,
       "device_evidence": [],
       "acceptance": [
@@ -349,9 +407,12 @@
       "remaining": [
         "持实时锁3秒，所有R27任务不新增FAULT、不进入QUARANTINED；锁释放后依公平预算有进展，P0不被R27排队阻塞。",
         "磁盘满/constraint/损坏异常不被当busy无限重试；用户stop后无继续提交。",
-        "R26、R27、直接研究write、任务claim四入口对同一根异常分类一致。"
+        "R26、R27、直接研究write、任务claim四入口对同一根异常分类一致。",
+        "Android integration/fault injection and real device lifecycle NOT_RUN",
+        "24h/72h device soak NOT_RUN",
+        "No natural FUTURE/REAL quality proof"
       ],
-      "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet.",
+      "next_step": "P02 integrated resource/feedback/health work; later owner staging and Android/device validation; no mandatory card closure yet.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156318+00:00",
@@ -363,6 +424,12 @@
           "state": "IMPLEMENTING",
           "receipt": "verification/r31/p01/R31-B01-C01-started.json",
           "receipt_sha256": "cf59b33cf9a2300c321c035f412a454cfeb19c35fe39ee9620dc79fc8adbfeaf"
+        },
+        {
+          "at": "2026-11-04T10:08:51.498678+00:00",
+          "state": "BUILD_PASS",
+          "receipt": "verification/r31/p01/card_updates/R31-B01-C01.json",
+          "receipt_sha256": "a8d0725174dd4bfa4f60a05b86e853ec6edffc5f2cc2c8df690fcd879a1e5a9c"
         }
       ]
     },
@@ -371,7 +438,7 @@
       "title": "领取、提交、回执全部使用同一owner/fence并消除旧prepared状态",
       "phase": "P01",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "IMPLEMENTING",
+      "status": "BUILD_PASS",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
@@ -392,10 +459,57 @@
           "baseline_sha256": "ef9dcebb5c2c4dff815796f37ec8998a3c4764d5909e5aa0b8c2a2b75f9261e5"
         }
       ],
-      "actual_changes": [],
-      "commits": [],
-      "migration_versions": [],
-      "tests": [],
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "methods": "Claim owner/fence/boot/elapsed lease CAS for success and failure; helper+parent drain before replacement",
+          "committed_sha256": "e36d3a9adcbc0099796b6a182bf654257d62b79b58bbb57315c442b5ee051621"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedTaskR30R1.java",
+          "methods": "same claim object and monotonically inherited commit chunks",
+          "committed_sha256": "53b9bff4a5906ce233565f14aac7935d5bdb1d51d43f72e98d8c87116847028f"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "methods": "freeze mutable batch once; pinned input/commit-key and exact receipt retries; invalidate mutable draft only after termination",
+          "committed_sha256": "04d87814776977bf0000f92e89531c5c0a1691793dddfcf49b67f832bad6b932"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+          "methods": "durable r31_task_lease/recovery clock and additive control columns",
+          "committed_sha256": "25bd11775579573eafe00e85eae6c3dbafdff5efa8632e9056938a0d9b38dd73"
+        }
+      ],
+      "commits": [
+        "844a78488f396189c2db98591782b7bb214799d2"
+      ],
+      "migration_versions": [
+        "SQLite userVersion 36 retained",
+        "RESEARCH_R31_OBSERVATION:1",
+        "RESEARCH_R31_WRITE:1"
+      ],
+      "tests": [
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; bash ./gradlew --no-daemon --max-workers=4 :app:compileDebugJavaWithJavac :app:compileDebugAndroidTestJavaWithJavac -Pr30Instrumentation=true :app:testDebugUnitTest --tests *R31* --tests *R30TaskLivenessTest --tests *R30WriteWaitTest :app:verifyFinalR31BuildIdentity",
+          "result": "PASS",
+          "evidence": "verification/r31/p01/build-identity/final-integration-receipt.json",
+          "scope": "source and Android-test compilation, 32 host unit tests; no APK/device execution"
+        },
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_task_runtime_host.py",
+          "result": "PASS",
+          "evidence": "verification/r31/p01/task-runtime/receipt.json",
+          "scope": "199 assertions, actual production protocol plus native SQLite HOST adapters; no Android claim"
+        },
+        {
+          "command": "Exact clean31fea unexcluded source compile, then run_task_runtime_host.py and run_write_protocol_host.py",
+          "result": "PASS",
+          "evidence": "verification/r31/ci_diagnosis/exact31fea-native/SUMMARY.json",
+          "evidence_sha256": "ee84b70fd8de5558b87180749ea4a728a35c239458d8414a64c05b82b43d015f",
+          "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
+        }
+      ],
       "apk_identity": null,
       "device_evidence": [],
       "acceptance": [
@@ -424,9 +538,12 @@
         "注入旧owner失败回执晚于新owner领取：新owner保持RUNNING，旧回执只进入拒收日志。",
         "在claim后/提交前/提交后receipt前杀进程：恢复只重复计算未提交部分，artifact及cursor恰好一次发布。",
         "时钟前后跳24小时、重启后同PID复用均不授予旧fence写权。",
-        "busy重试不丢pending batch；owner变更无R30_PREPARED_OWNER_CHANGED无限重试。"
+        "busy重试不丢pending batch；owner变更无R30_PREPARED_OWNER_CHANGED无限重试。",
+        "Android integration/fault injection and real device lifecycle NOT_RUN",
+        "24h/72h device soak NOT_RUN",
+        "No natural FUTURE/REAL quality proof"
       ],
-      "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet.",
+      "next_step": "P02 integrated resource/feedback/health work; later owner staging and Android/device validation; no mandatory card closure yet.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156323+00:00",
@@ -438,6 +555,12 @@
           "state": "IMPLEMENTING",
           "receipt": "verification/r31/p01/R31-B01-C02-started.json",
           "receipt_sha256": "7a79e690981fe00d8248bce29f6b145c68105cab06ef92700f23d00e6721bfdf"
+        },
+        {
+          "at": "2026-11-04T10:08:51.498770+00:00",
+          "state": "BUILD_PASS",
+          "receipt": "verification/r31/p01/card_updates/R31-B01-C02.json",
+          "receipt_sha256": "1dad2ebaa1333e131fc05385d6806aa87b2991e9804049d3b4d64ffc06fa3d8d"
         }
       ]
     },
@@ -446,7 +569,7 @@
       "title": "有限隔离、半开探测与任务级恢复",
       "phase": "P01",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "IMPLEMENTING",
+      "status": "BUILD_PASS",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java",
@@ -473,10 +596,52 @@
           "baseline_sha256": "9f305389e987df62536ae353cc42ba209f7c43d0b38e159e6a3db037d1425893"
         }
       ],
-      "actual_changes": [],
-      "commits": [],
-      "migration_versions": [],
-      "tests": [],
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "methods": "30s/2m/10m/30m isolation, globally bounded half-open, six identical-fault rounds NEEDS_FIX, artifact progress recovery",
+          "committed_sha256": "e36d3a9adcbc0099796b6a182bf654257d62b79b58bbb57315c442b5ee051621"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+          "methods": "same finite recovery protocol and boot/elapsed safeguards",
+          "committed_sha256": "d2b27268bfb8027ea2ebcbb8a326deb03397f73b12e7082495bfb2c5ef7f80b2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+          "methods": "persist fault root/probe state and preserve legacy errors",
+          "committed_sha256": "25bd11775579573eafe00e85eae6c3dbafdff5efa8632e9056938a0d9b38dd73"
+        }
+      ],
+      "commits": [
+        "844a78488f396189c2db98591782b7bb214799d2"
+      ],
+      "migration_versions": [
+        "SQLite userVersion 36 retained",
+        "RESEARCH_R31_OBSERVATION:1",
+        "RESEARCH_R31_WRITE:1"
+      ],
+      "tests": [
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; bash ./gradlew --no-daemon --max-workers=4 :app:compileDebugJavaWithJavac :app:compileDebugAndroidTestJavaWithJavac -Pr30Instrumentation=true :app:testDebugUnitTest --tests *R31* --tests *R30TaskLivenessTest --tests *R30WriteWaitTest :app:verifyFinalR31BuildIdentity",
+          "result": "PASS",
+          "evidence": "verification/r31/p01/build-identity/final-integration-receipt.json",
+          "scope": "source and Android-test compilation, 32 host unit tests; no APK/device execution"
+        },
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_task_runtime_host.py",
+          "result": "PASS",
+          "evidence": "verification/r31/p01/task-runtime/receipt.json",
+          "scope": "199 assertions, actual production protocol plus native SQLite HOST adapters; no Android claim"
+        },
+        {
+          "command": "Exact clean31fea unexcluded source compile, then run_task_runtime_host.py and run_write_protocol_host.py",
+          "result": "PASS",
+          "evidence": "verification/r31/ci_diagnosis/exact31fea-native/SUMMARY.json",
+          "evidence_sha256": "ee84b70fd8de5558b87180749ea4a728a35c239458d8414a64c05b82b43d015f",
+          "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
+        }
+      ],
       "apk_identity": null,
       "device_evidence": [],
       "acceptance": [
@@ -499,9 +664,12 @@
       "remaining": [
         "虚拟时钟测试每个隔离等级、半开唯一性、成功复位与NEEDS_FIX；时间跳变不导致全部同时放行。",
         "将13个任务以混合故障隔离：可恢复错误按依赖恢复，真实缺陷保持NEEDS_FIX并报告；不能把“零隔离”作为唯一验收。",
-        "24小时无永久无声停摆；每个pending>0的已满足依赖任务都有有效进展或有精确阻塞证据。"
+        "24小时无永久无声停摆；每个pending>0的已满足依赖任务都有有效进展或有精确阻塞证据。",
+        "Android integration/fault injection and real device lifecycle NOT_RUN",
+        "24h/72h device soak NOT_RUN",
+        "No natural FUTURE/REAL quality proof"
       ],
-      "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet.",
+      "next_step": "P02 integrated resource/feedback/health work; later owner staging and Android/device validation; no mandatory card closure yet.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156328+00:00",
@@ -513,6 +681,12 @@
           "state": "IMPLEMENTING",
           "receipt": "verification/r31/p01/R31-B01-C03-started.json",
           "receipt_sha256": "03e3952f0ab3ff816db9d8c37a5c387aaa18b447eb11768ff06df0fe8d3037ad"
+        },
+        {
+          "at": "2026-11-04T10:08:51.498840+00:00",
+          "state": "BUILD_PASS",
+          "receipt": "verification/r31/p01/card_updates/R31-B01-C03.json",
+          "receipt_sha256": "8528b9edf6cc0ef0a2dc70307dbfa7ab14eec688af4e1efc9435061b41cd7b5f"
         }
       ]
     },
@@ -521,7 +695,7 @@
       "title": "可中断计算与关闭流程有界，禁止超时后并发替身",
       "phase": "P01",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "IMPLEMENTING",
+      "status": "BUILD_PASS",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java",
@@ -566,10 +740,73 @@
           "baseline_sha256": "b533db11789fa92c65a122358b4eb1145cab17ca9f2ce02a01175567aefa056b"
         }
       ],
-      "actual_changes": [],
-      "commits": [],
-      "migration_versions": [],
-      "tests": [],
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java",
+          "methods": "actual thread termination, bounded cancel/join and permit ownership; no replacement for live cancelled body",
+          "committed_sha256": "13ecb475e137e6a69a400817df4c6d52452d736ed0140355f0d3c16ad3cf6219"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java",
+          "methods": "drain owner/target before replacement, lock excludes slice/join",
+          "committed_sha256": "2aea3ba71ea5a905abc0e93c1a8d661ceed0eb8d06f7ab234b4e7189238cc714"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyGenerationR26.java",
+          "methods": "retain active cancellation state and check real termination",
+          "committed_sha256": "685f951051fad4a4fad7de2dde42ebfb4ca414e7c8a6fb585bab0652ba2f95a4"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyReplayContinuationR26.java",
+          "methods": "retain mutable replay context until actual worker exit",
+          "committed_sha256": "086923000c449d56eb578b34e4f236ef3cdd72c919d7b0a88a724ff16ef58812"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+          "methods": "REPLAY max two in-flight helpers, bounded wait+parent poll, original-order immutable result consumption",
+          "committed_sha256": "faad92fe1dc09311e9072c36cb603c944e57da107aed65e0dda943499f769f55"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "methods": "bounded helper executor, running-owner audit, close remains nonblocking and idempotent",
+          "committed_sha256": "e36d3a9adcbc0099796b6a182bf654257d62b79b58bbb57315c442b5ee051621"
+        }
+      ],
+      "commits": [
+        "844a78488f396189c2db98591782b7bb214799d2"
+      ],
+      "migration_versions": [
+        "SQLite userVersion 36 retained",
+        "RESEARCH_R31_OBSERVATION:1",
+        "RESEARCH_R31_WRITE:1"
+      ],
+      "tests": [
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; bash ./gradlew --no-daemon --max-workers=4 :app:compileDebugJavaWithJavac :app:compileDebugAndroidTestJavaWithJavac -Pr30Instrumentation=true :app:testDebugUnitTest --tests *R31* --tests *R30TaskLivenessTest --tests *R30WriteWaitTest :app:verifyFinalR31BuildIdentity",
+          "result": "PASS",
+          "evidence": "verification/r31/p01/build-identity/final-integration-receipt.json",
+          "scope": "source and Android-test compilation, 32 host unit tests; no APK/device execution"
+        },
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_task_runtime_host.py",
+          "result": "PASS",
+          "evidence": "verification/r31/p01/task-runtime/receipt.json",
+          "scope": "199 assertions, actual production protocol plus native SQLite HOST adapters; no Android claim"
+        },
+        {
+          "command": "python3 tools/r31/verify_continuation.py",
+          "result": "PASS",
+          "evidence": "verification/r31/continuation/RECEIPT.json",
+          "scope": "actual continuation arithmetic/termination, 10000 owner switches, 128 replay candidates; HOST only"
+        },
+        {
+          "command": "Exact clean31fea unexcluded source compile, then run_task_runtime_host.py and run_write_protocol_host.py",
+          "result": "PASS",
+          "evidence": "verification/r31/ci_diagnosis/exact31fea-native/SUMMARY.json",
+          "evidence_sha256": "ee84b70fd8de5558b87180749ea4a728a35c239458d8414a64c05b82b43d015f",
+          "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
+        }
+      ],
       "apk_identity": null,
       "device_evidence": [],
       "acceptance": [
@@ -598,9 +835,12 @@
         "模拟永不poll任务：无第二个相同任务实例；P0可继续；stop按钮可用；10秒内显示停止未完成而非虚报已停。",
         "模拟在writer critical段触发yield：必须拒绝且回滚；任何park不持writer锁。",
         "长时间压力下线程总数、待执行队列长度、prepared对象数有上限；取消后资源可归还。",
-        "同任务owner/target切换一万次无ABA、双重提交、已关闭connection访问。"
+        "同任务owner/target切换一万次无ABA、双重提交、已关闭connection访问。",
+        "Android integration/fault injection and real device lifecycle NOT_RUN",
+        "24h/72h device soak NOT_RUN",
+        "No natural FUTURE/REAL quality proof"
       ],
-      "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet.",
+      "next_step": "P02 integrated resource/feedback/health work; later owner staging and Android/device validation; no mandatory card closure yet.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156337+00:00",
@@ -612,6 +852,12 @@
           "state": "IMPLEMENTING",
           "receipt": "verification/r31/p01/R31-B01-C04-started.json",
           "receipt_sha256": "bde6f8e11b8a2eea81c993421882cb44b6f767e5d330cd64814b7189c8749998"
+        },
+        {
+          "at": "2026-11-04T10:08:51.498912+00:00",
+          "state": "BUILD_PASS",
+          "receipt": "verification/r31/p01/card_updates/R31-B01-C04.json",
+          "receipt_sha256": "f975770207bf2aa810e2aed73642776683ff52da5ec162acc3ffa7fe5536bf30"
         }
       ]
     },
@@ -620,7 +866,7 @@
       "title": "写优先级显式化，消除R30操作名漏分",
       "phase": "P01",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "IMPLEMENTING",
+      "status": "BUILD_PASS",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
@@ -641,10 +887,52 @@
           "baseline_sha256": "95580a52ede3e7c1dc4c13032b2fbdb248ae6b41af6f1ea4d09f70d9c75d0fe8"
         }
       ],
-      "actual_changes": [],
-      "commits": [],
-      "migration_versions": [],
-      "tests": [],
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "methods": "explicit nine WriteClass contexts; unknown operation observable as UNKNOWN_PRIORITY; per-operation wait/hold histogram",
+          "committed_sha256": "bf5495b95b2820693e8d49bba02c528b8ed1147a73cdfb9afe36a7d0139d4c6c"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+          "methods": "immutable prepared request with measured op/bind byte counts",
+          "committed_sha256": "edb385b55b7bacd99ebc323d481a7b4bbd0444a0501bb568b1542c127d0af0ea"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "methods": "real task submits explicit identity and immutable payload",
+          "committed_sha256": "04d87814776977bf0000f92e89531c5c0a1691793dddfcf49b67f832bad6b932"
+        }
+      ],
+      "commits": [
+        "844a78488f396189c2db98591782b7bb214799d2"
+      ],
+      "migration_versions": [
+        "SQLite userVersion 36 retained",
+        "RESEARCH_R31_OBSERVATION:1",
+        "RESEARCH_R31_WRITE:1"
+      ],
+      "tests": [
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; bash ./gradlew --no-daemon --max-workers=4 :app:compileDebugJavaWithJavac :app:compileDebugAndroidTestJavaWithJavac -Pr30Instrumentation=true :app:testDebugUnitTest --tests *R31* --tests *R30TaskLivenessTest --tests *R30WriteWaitTest :app:verifyFinalR31BuildIdentity",
+          "result": "PASS",
+          "evidence": "verification/r31/p01/build-identity/final-integration-receipt.json",
+          "scope": "source and Android-test compilation, 32 host unit tests; no APK/device execution"
+        },
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_write_protocol_host.py",
+          "result": "PASS",
+          "evidence": "verification/r31/p01/writer-protocol/writer-evidence.json",
+          "scope": "actual production writer + native SQLite HOST adapters; process halt/replay, 9 postcommit faults, conflict/rollback; no Android claim"
+        },
+        {
+          "command": "Exact clean31fea unexcluded source compile, then run_task_runtime_host.py and run_write_protocol_host.py",
+          "result": "PASS",
+          "evidence": "verification/r31/ci_diagnosis/exact31fea-native/SUMMARY.json",
+          "evidence_sha256": "ee84b70fd8de5558b87180749ea4a728a35c239458d8414a64c05b82b43d015f",
+          "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
+        }
+      ],
       "apk_identity": null,
       "device_evidence": [],
       "acceptance": [
@@ -667,9 +955,12 @@
       "remaining": [
         "登记表覆盖所有入口；未分类operation构建失败或运行标UNKNOWN_PRIORITY，不自动当最高级。",
         "60分钟竞争测试：1Hz轮询+历史回补+研究+报告+保留，关键写无研究排队饿死，研究pending也不无限积压。",
-        "报告列每operation count/waitP95/holdP95/max/overBudget/rolledBack；阈值失败有具体owner文件。"
+        "报告列每operation count/waitP95/holdP95/max/overBudget/rolledBack；阈值失败有具体owner文件。",
+        "Android integration/fault injection and real device lifecycle NOT_RUN",
+        "24h/72h device soak NOT_RUN",
+        "No natural FUTURE/REAL quality proof"
       ],
-      "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet.",
+      "next_step": "P02 integrated resource/feedback/health work; later owner staging and Android/device validation; no mandatory card closure yet.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156342+00:00",
@@ -681,6 +972,12 @@
           "state": "IMPLEMENTING",
           "receipt": "verification/r31/p01/R31-B02-C01-started.json",
           "receipt_sha256": "49ec641a21ba457314428976f1058f1acae5ee13bb4ce7250193f244a462446a"
+        },
+        {
+          "at": "2026-11-04T10:08:51.498972+00:00",
+          "state": "BUILD_PASS",
+          "receipt": "verification/r31/p01/card_updates/R31-B02-C01.json",
+          "receipt_sha256": "aeb629beab43ad1d2909cb0baff4629fa0b3e466c77d8a23227252032f1bf9d7"
         }
       ]
     },
@@ -716,10 +1013,57 @@
           "baseline_sha256": "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a"
         }
       ],
-      "actual_changes": [],
-      "commits": [],
-      "migration_versions": [],
-      "tests": [],
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+          "methods": "reject runtime DDL; immutable SQL args/blob copy; retain oversized atomic logical batches with debt, do not falsely chunk",
+          "committed_sha256": "edb385b55b7bacd99ebc323d481a7b4bbd0444a0501bb568b1542c127d0af0ea"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "methods": "cache rebuild DDL moved to startup migration; calculations outside batch writer callback",
+          "committed_sha256": "04d87814776977bf0000f92e89531c5c0a1691793dddfcf49b67f832bad6b932"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+          "methods": "retention refuses missing startup schema instead of executing ensureProtected",
+          "committed_sha256": "d2b27268bfb8027ea2ebcbb8a326deb03397f73b12e7082495bfb2c5ef7f80b2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+          "methods": "journaled RESEARCH_R31_WRITE revision1 creates receipts/leases/cache schema in migration transaction",
+          "committed_sha256": "c24b76d8ee6523df94c5082f7581df2319d7609518226aca5a89b17044045613"
+        }
+      ],
+      "commits": [
+        "844a78488f396189c2db98591782b7bb214799d2"
+      ],
+      "migration_versions": [
+        "SQLite userVersion 36 retained",
+        "RESEARCH_R31_OBSERVATION:1",
+        "RESEARCH_R31_WRITE:1"
+      ],
+      "tests": [
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; bash ./gradlew --no-daemon --max-workers=4 :app:compileDebugJavaWithJavac :app:compileDebugAndroidTestJavaWithJavac -Pr30Instrumentation=true :app:testDebugUnitTest --tests *R31* --tests *R30TaskLivenessTest --tests *R30WriteWaitTest :app:verifyFinalR31BuildIdentity",
+          "result": "PASS",
+          "evidence": "verification/r31/p01/build-identity/final-integration-receipt.json",
+          "scope": "source and Android-test compilation, 32 host unit tests; no APK/device execution"
+        },
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_write_protocol_host.py",
+          "result": "PASS",
+          "evidence": "verification/r31/p01/writer-protocol/writer-evidence.json",
+          "scope": "actual production writer + native SQLite HOST adapters; process halt/replay, 9 postcommit faults, conflict/rollback; no Android claim"
+        },
+        {
+          "command": "Exact clean31fea unexcluded source compile, then run_task_runtime_host.py and run_write_protocol_host.py",
+          "result": "PASS",
+          "evidence": "verification/r31/ci_diagnosis/exact31fea-native/SUMMARY.json",
+          "evidence_sha256": "ee84b70fd8de5558b87180749ea4a728a35c239458d8414a64c05b82b43d015f",
+          "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
+        }
+      ],
       "apk_identity": null,
       "device_evidence": [],
       "acceptance": [
@@ -742,9 +1086,12 @@
       "remaining": [
         "运行期DDL tracing=0（真实迁移窗口除外）；schema缺失时DEPENDENCY(SCHEMA_PENDING)，不现场CREATE。",
         "对各大batch在第1片/中间片/最终publish前后杀进程：无半模型、无重复增量、无cursor越过未发布artifact。",
-        "Android实际SQLite测试受保护触发器、WAL和checkpoint并发；host sqlite结果不能代替设备事务时延。"
+        "Android实际SQLite测试受保护触发器、WAL和checkpoint并发；host sqlite结果不能代替设备事务时延。",
+        "Android integration/fault injection and real device lifecycle NOT_RUN",
+        "24h/72h device soak NOT_RUN",
+        "No natural FUTURE/REAL quality proof"
       ],
-      "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet.",
+      "next_step": "P02 integrated resource/feedback/health work; later owner staging and Android/device validation; no mandatory card closure yet.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156347+00:00",
@@ -756,6 +1103,12 @@
           "state": "IMPLEMENTING",
           "receipt": "verification/r31/p01/R31-B02-C02-started.json",
           "receipt_sha256": "c3a0edcbb8371169606f71d79a647b9dc9bd2876b965cc94d85aca903cbe8488"
+        },
+        {
+          "at": "2026-11-04T10:08:51.499031+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p01/card_updates/R31-B02-C02.json",
+          "receipt_sha256": "7de7aacac15afdc245b4cdd240106a0c5effd8fdbbcf82c1d2e7a374c73e80db"
         }
       ]
     },
@@ -764,7 +1117,7 @@
       "title": "区分实际提交与提交后诊断失败，防重复训练/结算",
       "phase": "P01",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "IMPLEMENTING",
+      "status": "BUILD_PASS",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
@@ -791,10 +1144,57 @@
           "baseline_sha256": "9f305389e987df62536ae353cc42ba209f7c43d0b38e159e6a3db037d1425893"
         }
       ],
-      "actual_changes": [],
-      "commits": [],
-      "migration_versions": [],
-      "tests": [],
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "methods": "runIdempotentAtomicWriteR31: durable receipt/readback, diagnostic failure distinction and payload conflict",
+          "committed_sha256": "bf5495b95b2820693e8d49bba02c528b8ed1147a73cdfb9afe36a7d0139d4c6c"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+          "methods": "frozen batches, commit outcomes and late cancellation",
+          "committed_sha256": "edb385b55b7bacd99ebc323d481a7b4bbd0444a0501bb568b1542c127d0af0ea"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "methods": "real R27 writer caller identity and exact receipt retry",
+          "committed_sha256": "04d87814776977bf0000f92e89531c5c0a1691793dddfcf49b67f832bad6b932"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "methods": "durable receipt/writer/control observations",
+          "committed_sha256": "d4a9bb7dde63cdb27bd76358469cf355ae19df679be9959806b5f3f8df300c1b"
+        }
+      ],
+      "commits": [
+        "844a78488f396189c2db98591782b7bb214799d2"
+      ],
+      "migration_versions": [
+        "SQLite userVersion 36 retained",
+        "RESEARCH_R31_OBSERVATION:1",
+        "RESEARCH_R31_WRITE:1"
+      ],
+      "tests": [
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; bash ./gradlew --no-daemon --max-workers=4 :app:compileDebugJavaWithJavac :app:compileDebugAndroidTestJavaWithJavac -Pr30Instrumentation=true :app:testDebugUnitTest --tests *R31* --tests *R30TaskLivenessTest --tests *R30WriteWaitTest :app:verifyFinalR31BuildIdentity",
+          "result": "PASS",
+          "evidence": "verification/r31/p01/build-identity/final-integration-receipt.json",
+          "scope": "source and Android-test compilation, 32 host unit tests; no APK/device execution"
+        },
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_write_protocol_host.py",
+          "result": "PASS",
+          "evidence": "verification/r31/p01/writer-protocol/writer-evidence.json",
+          "scope": "actual production writer + native SQLite HOST adapters; process halt/replay, 9 postcommit faults, conflict/rollback; no Android claim"
+        },
+        {
+          "command": "Exact clean31fea unexcluded source compile, then run_task_runtime_host.py and run_write_protocol_host.py",
+          "result": "PASS",
+          "evidence": "verification/r31/ci_diagnosis/exact31fea-native/SUMMARY.json",
+          "evidence_sha256": "ee84b70fd8de5558b87180749ea4a728a35c239458d8414a64c05b82b43d015f",
+          "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
+        }
+      ],
       "apk_identity": null,
       "device_evidence": [],
       "acceptance": [
@@ -817,9 +1217,11 @@
       "remaining": [
         "注入afterCommit/timing/Log失败：模型参数、样本计数、结算计数各只变化一次；诊断标红。",
         "注入commit完成但返回前进程死：重启同commit_key不重复应用；注入commit回滚则能重做。",
-        "不同payload复用commit_key必须报INTEGRITY_CONFLICT，不能INSERT OR IGNORE掩盖。"
+        "不同payload复用commit_key必须报INTEGRITY_CONFLICT，不能INSERT OR IGNORE掩盖。",
+        "Android process kill and real model/settlement counters NOT_RUN",
+        "24h/72h device soak NOT_RUN"
       ],
-      "next_step": "Complete joint B01/B02 production integration and real fault tests; no APK/device PASS yet.",
+      "next_step": "Complete Android production caller integration and device fault injection; durable HOST receipts do not substitute Android evidence.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156352+00:00",
@@ -831,6 +1233,12 @@
           "state": "IMPLEMENTING",
           "receipt": "verification/r31/p01/R31-B02-C03-started.json",
           "receipt_sha256": "ad29cbc204c7ced394d4eae95845d679db5e17533f2148f09e79e8d1cff98949"
+        },
+        {
+          "at": "2026-11-04T10:08:51.499085+00:00",
+          "state": "BUILD_PASS",
+          "receipt": "verification/r31/p01/card_updates/R31-B02-C03.json",
+          "receipt_sha256": "cb7e7276e5ea997736e8c9bce0fa990e9aa3954481681afe80b78e71db904bf6"
         }
       ]
     },
@@ -839,7 +1247,7 @@
       "title": "抓取与当期入库优先，历史回补不挡下一期准备",
       "phase": "P02",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
@@ -860,10 +1268,73 @@
           "baseline_sha256": "1e7182d2aa6d1f8d9d6a9b624363e3d97594de4a8c9f98addb64810320222920"
         }
       ],
-      "actual_changes": [],
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "methods": [
+            "PollCadenceR31",
+            "runFetchChannelOnce",
+            "scheduleNextFetchLoop",
+            "reconcileResearchOwner",
+            "startWorkR3610OffMain",
+            "stopWork",
+            "submitAnalysisRequestR36",
+            "prepareAnalysisHistoryR364"
+          ],
+          "sha256": "b6de5aa4c79cf1019e423c26124a37c0d861eae8583cbd88a2e8dde6bb456be2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ApiClient.java",
+          "methods": [
+            "requestGet",
+            "requestPostJson",
+            "readAll",
+            "cancelInFlightR31"
+          ],
+          "sha256": "e4161f4f3e76cf4b88fb7856cde5232e1ae8e8f87a85bda9f0975e44db9d3c7b"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+          "methods": [
+            "begin",
+            "complete",
+            "payload",
+            "observeTransportR31",
+            "ensureR31Timing",
+            "ensureReceiptWithinR31"
+          ],
+          "sha256": "92515942369b8aca8d037ac1af4265905c25ed1eaa67c42ca76c17cdf64f978d"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+          "methods": [
+            "enqueueDraw",
+            "enqueueConfirmedWithinWrite",
+            "markTerminalWithinTransaction",
+            "markRetry",
+            "pendingCountR31"
+          ],
+          "sha256": "73795ef6c1ffffaedb29dc150e902848a67aac2fe9692fe4187853c25625a86d"
+        }
+      ],
       "commits": [],
-      "migration_versions": [],
-      "tests": [],
+      "migration_versions": [
+        "SQLite userVersion36 retained",
+        "RESEARCH_R31_FEEDBACK:1 (10 objects)",
+        "REALTIME_R31_TIMING:1 (2 objects)",
+        "R31_STORAGE_ADMISSION_V1 / R31_MEMORY_PER_PID_V1"
+      ],
+      "tests": [
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_service_protocol_host.py",
+          "exitCode": 0,
+          "result": "HOST_SCOPED_PASS",
+          "evidence": "verification/r31/p02/service/native-service-final.log",
+          "junitTests": 6,
+          "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
+          "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+        }
+      ],
       "apk_identity": null,
       "device_evidence": [],
       "acceptance": [
@@ -886,14 +1357,138 @@
       "remaining": [
         "重复包、乱序包、晚到包、断网30分钟恢复、双来源冲突、HTTP卡住：无重复开奖/结算，最新目标不被历史队列长期阻塞。",
         "1000次测量给全分布、分母、最差20次原因；不能只打印最近96次来掩盖漏期。",
-        "所有获知draw最终有SETTLED或带明确原因的排除终态，无默默遗漏。"
+        "所有获知draw最终有SETTLED或带明确原因的排除终态，无默默遗漏。",
+        "Root same-version unexcluded Android/Gradle source integration pending",
+        "Android/physical device fault matrix and24/72h NOT_RUN",
+        "Natural FUTURE/REAL quality NOT_PROVEN",
+        "Android actual database upgrade, mid-process kill/restart,30-minute disconnect/backfill,dual-source correction and1,000 real-time opportunity latency distributions NOT_RUN.",
+        "Historical correction invalidation/5000 rolling retention/input pins are preserved existing contracts and require later B05/B06 cross-chain verification; no new completed claim."
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Finish real HOST/native fault tests, freeze source, regenerate verified identities from actual classes, then run unexcluded joint build/tests. No P06 business/cache GC enabled.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156358+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T10:08:51.499140+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "P01 source gate passed; owner staging and Android mandatory evidence explicitly remain open."
+        },
+        {
+          "at": "2026-11-04T10:38:50.822771+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p02/card_updates/R31-B03-C01.json",
+          "receipt_sha256": "0e2013a39b828abe874ebf0be61cdcf6c8da648c0c8a49588da80b34a740ee96"
+        },
+        {
+          "at": "2026-11-04T12:17:38.330587+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p02/service/card_updates.json",
+          "receipt_sha256": "1614f2bfed9fb13f6cf6eeb846964872d774fc04ee0f4b46d1b7f061ff553777",
+          "meaning": "Scoped code/HOST evidence, not final Android/device acceptance."
+        }
+      ],
+      "owner_slices": [
+        {
+          "recorded_at": "2026-11-04T12:17:38.330587+00:00",
+          "evidence": "verification/r31/p02/service/card_updates.json",
+          "record": {
+            "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+            "status": "IMPLEMENTING",
+            "commits": [],
+            "migration_versions": [
+              {
+                "domain": "RESEARCH_R31_FEEDBACK",
+                "revision": 1,
+                "objects": 10,
+                "entry": "RuntimeSchemaR26.ensureR31Feedback",
+                "additive": true,
+                "actualNativeSqliteMigration": "PASS",
+                "AndroidUpgrade": "NOT_RUN"
+              },
+              {
+                "domain": "REALTIME_R31_TIMING",
+                "revision": 1,
+                "objects": 2,
+                "entry": "FetchLedgerR925.ensureR31Timing",
+                "additive": true,
+                "actualNativeSqliteMigration": "PASS",
+                "AndroidUpgrade": "NOT_RUN"
+              }
+            ],
+            "tests": [
+              {
+                "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_service_protocol_host.py",
+                "exitCode": 0,
+                "result": "HOST_SCOPED_PASS",
+                "evidence": "verification/r31/p02/service/native-service-final.log",
+                "junitTests": 6,
+                "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
+                "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+              }
+            ],
+            "apk_identity": null,
+            "device_evidence": [],
+            "natural_quality": "NOT_PROVEN",
+            "stateMeaning": "Scoped source/host integration is real; complete card/mandatory device acceptance not claimed. Root can separately bind final joint build/commit/APK.",
+            "id": "R31-B03-C01",
+            "actual_changes": [
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+                "methods": [
+                  "PollCadenceR31",
+                  "runFetchChannelOnce",
+                  "scheduleNextFetchLoop",
+                  "reconcileResearchOwner",
+                  "startWorkR3610OffMain",
+                  "stopWork",
+                  "submitAnalysisRequestR36",
+                  "prepareAnalysisHistoryR364"
+                ],
+                "sha256": "b6de5aa4c79cf1019e423c26124a37c0d861eae8583cbd88a2e8dde6bb456be2"
+              },
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/ApiClient.java",
+                "methods": [
+                  "requestGet",
+                  "requestPostJson",
+                  "readAll",
+                  "cancelInFlightR31"
+                ],
+                "sha256": "e4161f4f3e76cf4b88fb7856cde5232e1ae8e8f87a85bda9f0975e44db9d3c7b"
+              },
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+                "methods": [
+                  "begin",
+                  "complete",
+                  "payload",
+                  "observeTransportR31",
+                  "ensureR31Timing",
+                  "ensureReceiptWithinR31"
+                ],
+                "sha256": "92515942369b8aca8d037ac1af4265905c25ed1eaa67c42ca76c17cdf64f978d"
+              },
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+                "methods": [
+                  "enqueueDraw",
+                  "enqueueConfirmedWithinWrite",
+                  "markTerminalWithinTransaction",
+                  "markRetry",
+                  "pendingCountR31"
+                ],
+                "sha256": "73795ef6c1ffffaedb29dc150e902848a67aac2fe9692fe4187853c25625a86d"
+              }
+            ],
+            "remaining": [
+              "Android actual database upgrade, mid-process kill/restart,30-minute disconnect/backfill,dual-source correction and1,000 real-time opportunity latency distributions NOT_RUN.",
+              "Historical correction invalidation/5000 rolling retention/input pins are preserved existing contracts and require later B05/B06 cross-chain verification; no new completed claim."
+            ],
+            "next_step": "Root joint Android build+APK binding, then applicable real-device acceptance; continue independent P03+ work without treating missing future evidence as PASS."
+          }
         }
       ]
     },
@@ -902,7 +1497,7 @@
       "title": "冻结只有一个权威提交，快通道不能覆盖已冻结记录",
       "phase": "P02",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
@@ -935,10 +1530,56 @@
           "baseline_sha256": "67f3d07d9b7d54e74fc0acda28869cdb08da888156fb5da1177a2138627b5931"
         }
       ],
-      "actual_changes": [],
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
+          "methods": [
+            "PhaseBudgetR31",
+            "CancellationToken.beginPhaseR31",
+            "CancellationToken.enterFinalization"
+          ],
+          "sha256": "bb445d7a3f5eb24ea475d77bf609781d1ae2f649da771a87a46407e6d26770e7"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+          "methods": [
+            "transitionOwned dependency disposition preserving fixed deadline"
+          ],
+          "sha256": "093e214e5c227e9704269a5be12a0fcfea0c5cc027b81cd58f08a66b02ccf833"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "methods": [
+            "PollCadenceR31",
+            "runFetchChannelOnce",
+            "scheduleNextFetchLoop",
+            "reconcileResearchOwner",
+            "startWorkR3610OffMain",
+            "stopWork",
+            "submitAnalysisRequestR36",
+            "prepareAnalysisHistoryR364"
+          ],
+          "sha256": "b6de5aa4c79cf1019e423c26124a37c0d861eae8583cbd88a2e8dde6bb456be2"
+        }
+      ],
       "commits": [],
-      "migration_versions": [],
-      "tests": [],
+      "migration_versions": [
+        "SQLite userVersion36 retained",
+        "RESEARCH_R31_FEEDBACK:1 (10 objects)",
+        "REALTIME_R31_TIMING:1 (2 objects)",
+        "R31_STORAGE_ADMISSION_V1 / R31_MEMORY_PER_PID_V1"
+      ],
+      "tests": [
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_service_protocol_host.py",
+          "exitCode": 0,
+          "result": "HOST_SCOPED_PASS",
+          "evidence": "verification/r31/p02/service/native-service-final.log",
+          "junitTests": 6,
+          "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
+          "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+        }
+      ],
       "apk_identity": null,
       "device_evidence": [],
       "acceptance": [
@@ -967,14 +1608,121 @@
         "同一期fast/full竞争、截止前1ms/截止后1ms、first_seen早于open、时钟跳变、模型正在更新：最多一个canonical hash，所有标签使用原hash。",
         "100%已知实时机会有终端状态；可预测覆盖单列，目标≥99%仅在明确设备/网络/正常资源条件下验收。",
         "FULL迟到不得改既有canonical；无资格fast路径不得产生REAL。",
-        "超时owner仍活时不能reap并启动第二owner；唯一并发active=1。"
+        "超时owner仍活时不能reap并启动第二owner；唯一并发active=1。",
+        "Root same-version unexcluded Android/Gradle source integration pending",
+        "Android/physical device fault matrix and24/72h NOT_RUN",
+        "Natural FUTURE/REAL quality NOT_PROVEN",
+        "Canonical first-hash/DecisionGate/K3/OOS original production logic preserved; full fast/full race,fixed-deadline +/-1ms,clock jumps,concurrent model publish require joint Android tests. No qualified FAST implementation added.",
+        "Published model preload/actual numeric deep-learning correctness and changed-data invalidation remain B06 and later integration requirements."
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Finish real HOST/native fault tests, freeze source, regenerate verified identities from actual classes, then run unexcluded joint build/tests. No P06 business/cache GC enabled.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156364+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T10:08:51.499147+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "P01 source gate passed; owner staging and Android mandatory evidence explicitly remain open."
+        },
+        {
+          "at": "2026-11-04T10:38:50.822771+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p02/card_updates/R31-B03-C02.json",
+          "receipt_sha256": "f9dabaa20b1ba3217765e6e03e3e9f3d107a83667691d2290bb310125b06666e"
+        },
+        {
+          "at": "2026-11-04T12:17:38.330587+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p02/service/card_updates.json",
+          "receipt_sha256": "1614f2bfed9fb13f6cf6eeb846964872d774fc04ee0f4b46d1b7f061ff553777",
+          "meaning": "Scoped code/HOST evidence, not final Android/device acceptance."
+        }
+      ],
+      "owner_slices": [
+        {
+          "recorded_at": "2026-11-04T12:17:38.330587+00:00",
+          "evidence": "verification/r31/p02/service/card_updates.json",
+          "record": {
+            "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+            "status": "IMPLEMENTING",
+            "commits": [],
+            "migration_versions": [
+              {
+                "domain": "RESEARCH_R31_FEEDBACK",
+                "revision": 1,
+                "objects": 10,
+                "entry": "RuntimeSchemaR26.ensureR31Feedback",
+                "additive": true,
+                "actualNativeSqliteMigration": "PASS",
+                "AndroidUpgrade": "NOT_RUN"
+              },
+              {
+                "domain": "REALTIME_R31_TIMING",
+                "revision": 1,
+                "objects": 2,
+                "entry": "FetchLedgerR925.ensureR31Timing",
+                "additive": true,
+                "actualNativeSqliteMigration": "PASS",
+                "AndroidUpgrade": "NOT_RUN"
+              }
+            ],
+            "tests": [
+              {
+                "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_service_protocol_host.py",
+                "exitCode": 0,
+                "result": "HOST_SCOPED_PASS",
+                "evidence": "verification/r31/p02/service/native-service-final.log",
+                "junitTests": 6,
+                "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
+                "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+              }
+            ],
+            "apk_identity": null,
+            "device_evidence": [],
+            "natural_quality": "NOT_PROVEN",
+            "stateMeaning": "Scoped source/host integration is real; complete card/mandatory device acceptance not claimed. Root can separately bind final joint build/commit/APK.",
+            "id": "R31-B03-C02",
+            "actual_changes": [
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+                "methods": [
+                  "PollCadenceR31",
+                  "runFetchChannelOnce",
+                  "scheduleNextFetchLoop",
+                  "reconcileResearchOwner",
+                  "startWorkR3610OffMain",
+                  "stopWork",
+                  "submitAnalysisRequestR36",
+                  "prepareAnalysisHistoryR364"
+                ],
+                "sha256": "b6de5aa4c79cf1019e423c26124a37c0d861eae8583cbd88a2e8dde6bb456be2"
+              },
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
+                "methods": [
+                  "PhaseBudgetR31",
+                  "CancellationToken.beginPhaseR31",
+                  "CancellationToken.enterFinalization"
+                ],
+                "sha256": "bb445d7a3f5eb24ea475d77bf609781d1ae2f649da771a87a46407e6d26770e7"
+              },
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+                "methods": [
+                  "transitionOwned dependency disposition preserving fixed deadline"
+                ],
+                "sha256": "093e214e5c227e9704269a5be12a0fcfea0c5cc027b81cd58f08a66b02ccf833"
+              }
+            ],
+            "remaining": [
+              "Canonical first-hash/DecisionGate/K3/OOS original production logic preserved; full fast/full race,fixed-deadline +/-1ms,clock jumps,concurrent model publish require joint Android tests. No qualified FAST implementation added.",
+              "Published model preload/actual numeric deep-learning correctness and changed-data invalidation remain B06 and later integration requirements."
+            ],
+            "next_step": "Root joint Android build+APK binding, then applicable real-device acceptance; continue independent P03+ work without treating missing future evidence as PASS."
+          }
         }
       ]
     },
@@ -983,7 +1731,7 @@
       "title": "结算、反馈与训练事件解耦，漏冻结不能让研究饿死",
       "phase": "P02",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
@@ -1010,10 +1758,63 @@
           "baseline_sha256": "1027f5e42e46a849c17666f91d726d29b6bf5cac1a40b88e53b453fa6e3ee518"
         }
       ],
-      "actual_changes": [],
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+          "methods": [
+            "enqueueDraw",
+            "enqueueConfirmedWithinWrite",
+            "markTerminalWithinTransaction",
+            "markRetry",
+            "pendingCountR31"
+          ],
+          "sha256": "73795ef6c1ffffaedb29dc150e902848a67aac2fe9692fe4187853c25625a86d"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+          "methods": [
+            "executeFromCoordinatorR815 (remove research feedback from core transaction)"
+          ],
+          "sha256": "bffca6af2f7a704fee78d475d5ec71e012b8c30148891c52d7f7dd982d8dd5b8"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+          "methods": [
+            "ensureR31Feedback",
+            "feedbackWithinTransaction",
+            "reconcileFeedbackR31",
+            "typedDrawEventsR31",
+            "typedFrozenEventsR31",
+            "bridgeModelReceiptsR31",
+            "consumeFrozenEffectsR31"
+          ],
+          "sha256": "fa18cca102f58dd54f9f778e86c25cbf7acbef56df0ca1d47e361e38cd1b47c2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+          "methods": "RESEARCH_R31_FEEDBACK rev1 journal and object fingerprints",
+          "worktree_sha256_at_record": "8fc0617636e85d9d5621c8806cde59cabcd393c6a97cb3111ae7afff77bf9a84",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        }
+      ],
       "commits": [],
-      "migration_versions": [],
-      "tests": [],
+      "migration_versions": [
+        "SQLite userVersion36 retained",
+        "RESEARCH_R31_FEEDBACK:1 (10 objects)",
+        "REALTIME_R31_TIMING:1 (2 objects)",
+        "R31_STORAGE_ADMISSION_V1 / R31_MEMORY_PER_PID_V1"
+      ],
+      "tests": [
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_service_protocol_host.py",
+          "exitCode": 0,
+          "result": "HOST_SCOPED_PASS",
+          "evidence": "verification/r31/p02/service/native-service-final.log",
+          "junitTests": 6,
+          "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
+          "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+        }
+      ],
       "apk_identity": null,
       "device_evidence": [],
       "acceptance": [
@@ -1036,14 +1837,124 @@
       "remaining": [
         "人为清掉某期预测：该期OOS拒绝、draw训练可继续，下一期照常冻结，主链胜率分母不掺入该期。",
         "同一event重复投递100次，参数更新恰好一次；消费者重启从commit cursor恢复。",
-        "结算工作健康与预测覆盖失败在报告两栏呈现，不能将所有情况归为“后台正常”。"
+        "结算工作健康与预测覆盖失败在报告两栏呈现，不能将所有情况归为“后台正常”。",
+        "Root same-version unexcluded Android/Gradle source integration pending",
+        "Android/physical device fault matrix and24/72h NOT_RUN",
+        "Natural FUTURE/REAL quality NOT_PROVEN",
+        "Existing real numerical model consumers were not run to prove learning correctness/natural effect by the controlled host parameter fixture.",
+        "Restart-from-committed-cursor and lossless duplicated business SettlementEngine complete transaction require Android integration.",
+        "Independent latest draw/terminal/valid OOS/REAL/each training cursor report watermarks root-owned integration not claimed here."
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Finish real HOST/native fault tests, freeze source, regenerate verified identities from actual classes, then run unexcluded joint build/tests. No P06 business/cache GC enabled.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156369+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T10:08:51.499150+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "P01 source gate passed; owner staging and Android mandatory evidence explicitly remain open."
+        },
+        {
+          "at": "2026-11-04T10:38:50.822771+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p02/card_updates/R31-B03-C03.json",
+          "receipt_sha256": "16839755ed550caba1681754f6539a14f4ee7a77cb65d2e2987bb2ffe6031411"
+        },
+        {
+          "at": "2026-11-04T12:17:38.330587+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p02/service/card_updates.json",
+          "receipt_sha256": "1614f2bfed9fb13f6cf6eeb846964872d774fc04ee0f4b46d1b7f061ff553777",
+          "meaning": "Scoped code/HOST evidence, not final Android/device acceptance."
+        }
+      ],
+      "owner_slices": [
+        {
+          "recorded_at": "2026-11-04T12:17:38.330587+00:00",
+          "evidence": "verification/r31/p02/service/card_updates.json",
+          "record": {
+            "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+            "status": "IMPLEMENTING",
+            "commits": [],
+            "migration_versions": [
+              {
+                "domain": "RESEARCH_R31_FEEDBACK",
+                "revision": 1,
+                "objects": 10,
+                "entry": "RuntimeSchemaR26.ensureR31Feedback",
+                "additive": true,
+                "actualNativeSqliteMigration": "PASS",
+                "AndroidUpgrade": "NOT_RUN"
+              },
+              {
+                "domain": "REALTIME_R31_TIMING",
+                "revision": 1,
+                "objects": 2,
+                "entry": "FetchLedgerR925.ensureR31Timing",
+                "additive": true,
+                "actualNativeSqliteMigration": "PASS",
+                "AndroidUpgrade": "NOT_RUN"
+              }
+            ],
+            "tests": [
+              {
+                "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_service_protocol_host.py",
+                "exitCode": 0,
+                "result": "HOST_SCOPED_PASS",
+                "evidence": "verification/r31/p02/service/native-service-final.log",
+                "junitTests": 6,
+                "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
+                "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+              }
+            ],
+            "apk_identity": null,
+            "device_evidence": [],
+            "natural_quality": "NOT_PROVEN",
+            "stateMeaning": "Scoped source/host integration is real; complete card/mandatory device acceptance not claimed. Root can separately bind final joint build/commit/APK.",
+            "id": "R31-B03-C03",
+            "actual_changes": [
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+                "methods": [
+                  "enqueueDraw",
+                  "enqueueConfirmedWithinWrite",
+                  "markTerminalWithinTransaction",
+                  "markRetry",
+                  "pendingCountR31"
+                ],
+                "sha256": "73795ef6c1ffffaedb29dc150e902848a67aac2fe9692fe4187853c25625a86d"
+              },
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+                "methods": [
+                  "executeFromCoordinatorR815 (remove research feedback from core transaction)"
+                ],
+                "sha256": "bffca6af2f7a704fee78d475d5ec71e012b8c30148891c52d7f7dd982d8dd5b8"
+              },
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+                "methods": [
+                  "ensureR31Feedback",
+                  "feedbackWithinTransaction",
+                  "reconcileFeedbackR31",
+                  "typedDrawEventsR31",
+                  "typedFrozenEventsR31",
+                  "bridgeModelReceiptsR31",
+                  "consumeFrozenEffectsR31"
+                ],
+                "sha256": "fa18cca102f58dd54f9f778e86c25cbf7acbef56df0ca1d47e361e38cd1b47c2"
+              }
+            ],
+            "remaining": [
+              "Existing real numerical model consumers were not run to prove learning correctness/natural effect by the controlled host parameter fixture.",
+              "Restart-from-committed-cursor and lossless duplicated business SettlementEngine complete transaction require Android integration.",
+              "Independent latest draw/terminal/valid OOS/REAL/each training cursor report watermarks root-owned integration not claimed here."
+            ],
+            "next_step": "Root joint Android build+APK binding, then applicable real-device acceptance; continue independent P03+ work without treating missing future evidence as PASS."
+          }
         }
       ]
     },
@@ -1052,7 +1963,7 @@
       "title": "进程内研究健康与服务心跳分离，恢复精确到任务或池",
       "phase": "P02",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
@@ -1079,10 +1990,91 @@
           "baseline_sha256": "e34a09bc8b53f4cc05b12e3690ea3686a5dfb4a5447e454dfc83a49c0219349d"
         }
       ],
-      "actual_changes": [],
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+          "methods": "captureHealthSnapshotR31/healthSnapshotR31/reconcileResearchHealthR31: bounded async actual artifact probe and fenced task control",
+          "worktree_sha256_at_record": "d70364418b2a583ee748b023cf970bd20613ff7c473aee024575b42abda103df",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "methods": "requestTaskRecoveryR31/reconcileTaskRecoveryR31: no replacement before actual parent/helper drain",
+          "worktree_sha256_at_record": "07c47f004f2ad6715e970a9fa4243ebca07c3634c900b43098c7ce9b1e1ddded",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "methods": [
+            "setPendingSettlementCount",
+            "markSettlementTerminal",
+            "tryAcquireRecoveryLease",
+            "markServiceReady",
+            "markResearchHealthR31",
+            "noteResearchRecoveryRequestR31",
+            "getResearchStaleReason",
+            "markFetchCadenceR31"
+          ],
+          "sha256": "d1869d2d27f434586b1e1696f0d98158be4b8aa62bde5edebd66b7defc8e9be6"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "methods": [
+            "PollCadenceR31",
+            "runFetchChannelOnce",
+            "scheduleNextFetchLoop",
+            "reconcileResearchOwner",
+            "startWorkR3610OffMain",
+            "stopWork",
+            "submitAnalysisRequestR36",
+            "prepareAnalysisHistoryR364"
+          ],
+          "sha256": "b6de5aa4c79cf1019e423c26124a37c0d861eae8583cbd88a2e8dde6bb456be2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
+          "methods": [
+            "startAutoFetchService in-process existing-owner control routing"
+          ],
+          "sha256": "31894b0ac375ce6e1b7c2281e57d2077d2ff5908b29838232225623653a947d7"
+        }
+      ],
       "commits": [],
-      "migration_versions": [],
-      "tests": [],
+      "migration_versions": [
+        "SQLite userVersion36 retained",
+        "RESEARCH_R31_FEEDBACK:1 (10 objects)",
+        "REALTIME_R31_TIMING:1 (2 objects)",
+        "R31_STORAGE_ADMISSION_V1 / R31_MEMORY_PER_PID_V1"
+      ],
+      "tests": [
+        {
+          "evidence": "verification/r31/p02/runtime-health/receipt.json",
+          "sha256_at_record": "abb87cd96e19435f6b008fe25f4c46c614d119e6743bdab31281dffe5f778f75",
+          "result": "SEE_SCOPED_RECEIPT",
+          "scope": "HOST_ONLY; source hashes and stated adapters govern exact applicability"
+        },
+        {
+          "evidence": "verification/r31/p02/task-runtime-regression/receipt.json",
+          "sha256_at_record": "14efcfcf4c2c12999ffd6693000589b152b75ed28da4a15efdecbcd61dfe0c84",
+          "result": "SEE_SCOPED_RECEIPT",
+          "scope": "HOST_ONLY; source hashes and stated adapters govern exact applicability"
+        },
+        {
+          "evidence": "verification/r31/p02/continuation-control/RECEIPT.json",
+          "sha256_at_record": "d8541833e4456dfb2af977e050475a77bb2b6734a72bcf86f000d94bb15bad41",
+          "result": "SEE_SCOPED_RECEIPT",
+          "scope": "HOST_ONLY; source hashes and stated adapters govern exact applicability"
+        },
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_service_protocol_host.py",
+          "exitCode": 0,
+          "result": "HOST_SCOPED_PASS",
+          "evidence": "verification/r31/p02/service/native-service-final.log",
+          "junitTests": 6,
+          "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
+          "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+        }
+      ],
       "apk_identity": null,
       "device_evidence": [],
       "acceptance": [
@@ -1105,14 +2097,124 @@
       "remaining": [
         "服务心跳继续、全部R27隔离：2个control tick内报告DEGRADED，按RT-01恢复，无新进程必要。",
         "恢复中反复20次start命令：只一个owner、一个pool generation；receipt证明实际恢复。",
-        "pending未知显示UNKNOWN并启动采集，不判健康；依赖确实无新事件则IDLE不误恢复。"
+        "pending未知显示UNKNOWN并启动采集，不判健康；依赖确实无新事件则IDLE不误恢复。",
+        "Root same-version unexcluded Android/Gradle source integration pending",
+        "Android/physical device fault matrix and24/72h NOT_RUN",
+        "Natural FUTURE/REAL quality NOT_PROVEN",
+        "Service actual20 repeated start commands,2control-tick degraded detection and process/pool lifecycle are not device-proven by host preference tests."
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Finish real HOST/native fault tests, freeze source, regenerate verified identities from actual classes, then run unexcluded joint build/tests. No P06 business/cache GC enabled.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156374+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T10:08:51.499154+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "P01 source gate passed; owner staging and Android mandatory evidence explicitly remain open."
+        },
+        {
+          "at": "2026-11-04T10:38:50.822771+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p02/card_updates/R31-B04-C01.json",
+          "receipt_sha256": "bf652d43a025f765f8d76dd7ecf7fcf01796faa118c513b6d3d0aea21452c841"
+        },
+        {
+          "at": "2026-11-04T12:17:38.330587+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p02/service/card_updates.json",
+          "receipt_sha256": "1614f2bfed9fb13f6cf6eeb846964872d774fc04ee0f4b46d1b7f061ff553777",
+          "meaning": "Scoped code/HOST evidence, not final Android/device acceptance."
+        }
+      ],
+      "owner_slices": [
+        {
+          "recorded_at": "2026-11-04T12:17:38.330587+00:00",
+          "evidence": "verification/r31/p02/service/card_updates.json",
+          "record": {
+            "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+            "status": "IMPLEMENTING",
+            "commits": [],
+            "migration_versions": [
+              {
+                "domain": "RESEARCH_R31_FEEDBACK",
+                "revision": 1,
+                "objects": 10,
+                "entry": "RuntimeSchemaR26.ensureR31Feedback",
+                "additive": true,
+                "actualNativeSqliteMigration": "PASS",
+                "AndroidUpgrade": "NOT_RUN"
+              },
+              {
+                "domain": "REALTIME_R31_TIMING",
+                "revision": 1,
+                "objects": 2,
+                "entry": "FetchLedgerR925.ensureR31Timing",
+                "additive": true,
+                "actualNativeSqliteMigration": "PASS",
+                "AndroidUpgrade": "NOT_RUN"
+              }
+            ],
+            "tests": [
+              {
+                "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_service_protocol_host.py",
+                "exitCode": 0,
+                "result": "HOST_SCOPED_PASS",
+                "evidence": "verification/r31/p02/service/native-service-final.log",
+                "junitTests": 6,
+                "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
+                "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+              }
+            ],
+            "apk_identity": null,
+            "device_evidence": [],
+            "natural_quality": "NOT_PROVEN",
+            "stateMeaning": "Scoped source/host integration is real; complete card/mandatory device acceptance not claimed. Root can separately bind final joint build/commit/APK.",
+            "id": "R31-B04-C01",
+            "actual_changes": [
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+                "methods": [
+                  "PollCadenceR31",
+                  "runFetchChannelOnce",
+                  "scheduleNextFetchLoop",
+                  "reconcileResearchOwner",
+                  "startWorkR3610OffMain",
+                  "stopWork",
+                  "submitAnalysisRequestR36",
+                  "prepareAnalysisHistoryR364"
+                ],
+                "sha256": "b6de5aa4c79cf1019e423c26124a37c0d861eae8583cbd88a2e8dde6bb456be2"
+              },
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+                "methods": [
+                  "setPendingSettlementCount",
+                  "markSettlementTerminal",
+                  "tryAcquireRecoveryLease",
+                  "markServiceReady",
+                  "markResearchHealthR31",
+                  "noteResearchRecoveryRequestR31",
+                  "getResearchStaleReason",
+                  "markFetchCadenceR31"
+                ],
+                "sha256": "d1869d2d27f434586b1e1696f0d98158be4b8aa62bde5edebd66b7defc8e9be6"
+              },
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
+                "methods": [
+                  "startAutoFetchService in-process existing-owner control routing"
+                ],
+                "sha256": "31894b0ac375ce6e1b7c2281e57d2077d2ff5908b29838232225623653a947d7"
+              }
+            ],
+            "remaining": [
+              "Service actual20 repeated start commands,2control-tick degraded detection and process/pool lifecycle are not device-proven by host preference tests."
+            ],
+            "next_step": "Root joint Android build+APK binding, then applicable real-device acceptance; continue independent P03+ work without treating missing future evidence as PASS."
+          }
         }
       ]
     },
@@ -1121,7 +2223,7 @@
       "title": "后台能力按实际系统限制验收，保留主动会话持续研究",
       "phase": "P02",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "CODE_COMPLETE",
       "baseline_files": [
         {
           "path": "app/src/main/AndroidManifest.xml",
@@ -1154,10 +2256,124 @@
           "baseline_sha256": "c881e116d4735a412cdf8ace515c1a87e2bfb174b0d43a14603ab339e40572fe"
         }
       ],
-      "actual_changes": [],
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "methods": [
+            "PollCadenceR31",
+            "runFetchChannelOnce",
+            "scheduleNextFetchLoop",
+            "reconcileResearchOwner",
+            "startWorkR3610OffMain",
+            "stopWork",
+            "submitAnalysisRequestR36",
+            "prepareAnalysisHistoryR364"
+          ],
+          "sha256": "b6de5aa4c79cf1019e423c26124a37c0d861eae8583cbd88a2e8dde6bb456be2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+          "methods": "resource pressure controlled slices/resume reasons",
+          "worktree_sha256_at_record": "d70364418b2a583ee748b023cf970bd20613ff7c473aee024575b42abda103df",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "methods": "resource pressure narrows helpers with actual leases",
+          "worktree_sha256_at_record": "07c47f004f2ad6715e970a9fa4243ebca07c3634c900b43098c7ce9b1e1ddded",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "methods": [
+            "setPendingSettlementCount",
+            "markSettlementTerminal",
+            "tryAcquireRecoveryLease",
+            "markServiceReady",
+            "markResearchHealthR31",
+            "noteResearchRecoveryRequestR31",
+            "getResearchStaleReason",
+            "markFetchCadenceR31"
+          ],
+          "sha256": "d1869d2d27f434586b1e1696f0d98158be4b8aa62bde5edebd66b7defc8e9be6"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
+          "methods": [
+            "startAutoFetchService in-process existing-owner control routing"
+          ],
+          "sha256": "31894b0ac375ce6e1b7c2281e57d2077d2ff5908b29838232225623653a947d7"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java",
+          "sha256": "8da3a6a59f121ff15e67405c8345ccb7472bfdd19ccb52498259ddf299f08166",
+          "methods": [
+            "observeRuntimeR31",
+            "operatingStatusR31",
+            "RuntimeObservationR31.userSummary"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/LifecycleHealthR963.java",
+          "sha256": "5d7ce611a125722a43767a8d9ac1398a208a58f7e8e336a93496ef9636ae7299",
+          "methods": [
+            "recordSystemExits",
+            "Api35R31.currentStartWasForceStopped",
+            "refreshInterruptionObservationR31",
+            "interruptionSummaryR31"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/OperationalDashboardR925.java",
+          "sha256": "b21b5164a6ab1fe2aa428efcd7eb2a4df4eb9dad87ea8e0811e9b76923228407",
+          "methods": [
+            "capture(background section)"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+          "sha256": "0130e63fdccc3e035cb8c96eb5526706a3a22f0be213dc241b4fe902ca28a4c0",
+          "methods": [
+            "openBackgroundReliabilitySettings",
+            "launchBackgroundReliabilitySettingsR31",
+            "startResolvedBackgroundSettingsR31",
+            "launchOemStartupSettingsR31",
+            "buildAlwaysOnPermissionStatusV17"
+          ]
+        },
+        {
+          "path": "app/src/test/java/com/ethk3/novaonepro/R31BackgroundCapabilityStateTest.java",
+          "sha256": "da419773e056fca5a092ebfd9b08ba9e38a4911847942c668ade46a6c58bb880",
+          "methods": [
+            "6 pure state/interruption contract tests"
+          ]
+        }
+      ],
       "commits": [],
-      "migration_versions": [],
-      "tests": [],
+      "migration_versions": [
+        "SQLite userVersion36 retained",
+        "RESEARCH_R31_FEEDBACK:1 (10 objects)",
+        "REALTIME_R31_TIMING:1 (2 objects)",
+        "R31_STORAGE_ADMISSION_V1 / R31_MEMORY_PER_PID_V1"
+      ],
+      "tests": [
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_service_protocol_host.py",
+          "exitCode": 0,
+          "result": "HOST_SCOPED_PASS",
+          "evidence": "verification/r31/p02/service/native-service-final.log",
+          "junitTests": 6,
+          "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
+          "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+        },
+        {
+          "command": "See exact commands in verification/r31/p02/service/background-capability-evidence.json",
+          "result": "PASS",
+          "scope": "Owned production javac +6 HOST pure mapping tests;notAndroidOSgetter/UI/device",
+          "evidence": "verification/r31/p02/service/background-final.log",
+          "evidenceSha256": "7bd01d7f506d34dfbba74e519fdad65ebda7e804cf6b97637935fe214acda55b"
+        }
+      ],
       "apk_identity": null,
       "device_evidence": [],
       "acceptance": [
@@ -1186,14 +2402,240 @@
         "V2353A实际设备72小时：亮屏/熄屏/省电/断网/重连/滑掉任务/普通进程kill/force-stop/重启分别测试，并留adb/退出历史/逐期水位。",
         "用户stop立即停止新抓取和研究提交且不自行复活；普通后台切换保持会话。",
         "force-stop测试预期为停止且再打开恢复；不得把这个预期当缺陷跳过或虚报100%后台覆盖。",
-        "发生平台限制时报告为OS_RESTRICTED并显示实际缺口，不混入自然胜率样本。"
+        "发生平台限制时报告为OS_RESTRICTED并显示实际缺口，不混入自然胜率样本。",
+        "Root same-version unexcluded Android/Gradle source integration pending",
+        "Android/physical device fault matrix and24/72h NOT_RUN",
+        "Natural FUTURE/REAL quality NOT_PROVEN",
+        "72-hour V2353A OS power/network/task-swipe/kill/force-stop/reboot matrix NOT_RUN; original target28/dataSync/bounded RuntimePowerLease preserved, no fake auto-start promise.",
+        "OS capability page/user OEM assertions/force-stop interval disclosure not modified or device-verified in this owned slice.",
+        "The capability page,OEM resolved navigator andforce-stop interval source are now implemented/compiled/host-state-tested;actual Androidgetter/UI/OEM/interval capture andcontinuous-run evidence remainNOT_RUN."
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Finish real HOST/native fault tests, freeze source, regenerate verified identities from actual classes, then run unexcluded joint build/tests. No P06 business/cache GC enabled.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156379+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T10:08:51.499158+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "P01 source gate passed; owner staging and Android mandatory evidence explicitly remain open."
+        },
+        {
+          "at": "2026-11-04T10:38:50.822771+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p02/card_updates/R31-B04-C02.json",
+          "receipt_sha256": "3292d0a37fd6e71c2e526922c6158dd91ed2c47fc1d54b5d872e4042dc90b7b1"
+        },
+        {
+          "at": "2026-11-04T12:17:38.330587+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p02/service/card_updates.json",
+          "receipt_sha256": "1614f2bfed9fb13f6cf6eeb846964872d774fc04ee0f4b46d1b7f061ff553777",
+          "meaning": "Scoped code/HOST evidence, not final Android/device acceptance."
+        },
+        {
+          "at": "2026-11-04T12:17:38.330587+00:00",
+          "state": "CODE_COMPLETE",
+          "receipt": "verification/r31/p02/service/background-card-update.json",
+          "receipt_sha256": "cf2f4e865715eb6a1fb593e6377919057c9419b0472bbfd152eb66ece42a7fc5",
+          "meaning": "Scoped code/HOST evidence, not final Android/device acceptance."
+        }
+      ],
+      "owner_slices": [
+        {
+          "recorded_at": "2026-11-04T12:17:38.330587+00:00",
+          "evidence": "verification/r31/p02/service/card_updates.json",
+          "record": {
+            "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+            "status": "IMPLEMENTING",
+            "commits": [],
+            "migration_versions": [
+              {
+                "domain": "RESEARCH_R31_FEEDBACK",
+                "revision": 1,
+                "objects": 10,
+                "entry": "RuntimeSchemaR26.ensureR31Feedback",
+                "additive": true,
+                "actualNativeSqliteMigration": "PASS",
+                "AndroidUpgrade": "NOT_RUN"
+              },
+              {
+                "domain": "REALTIME_R31_TIMING",
+                "revision": 1,
+                "objects": 2,
+                "entry": "FetchLedgerR925.ensureR31Timing",
+                "additive": true,
+                "actualNativeSqliteMigration": "PASS",
+                "AndroidUpgrade": "NOT_RUN"
+              }
+            ],
+            "tests": [
+              {
+                "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_service_protocol_host.py",
+                "exitCode": 0,
+                "result": "HOST_SCOPED_PASS",
+                "evidence": "verification/r31/p02/service/native-service-final.log",
+                "junitTests": 6,
+                "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
+                "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+              }
+            ],
+            "apk_identity": null,
+            "device_evidence": [],
+            "natural_quality": "NOT_PROVEN",
+            "stateMeaning": "Scoped source/host integration is real; complete card/mandatory device acceptance not claimed. Root can separately bind final joint build/commit/APK.",
+            "id": "R31-B04-C02",
+            "actual_changes": [
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+                "methods": [
+                  "PollCadenceR31",
+                  "runFetchChannelOnce",
+                  "scheduleNextFetchLoop",
+                  "reconcileResearchOwner",
+                  "startWorkR3610OffMain",
+                  "stopWork",
+                  "submitAnalysisRequestR36",
+                  "prepareAnalysisHistoryR364"
+                ],
+                "sha256": "b6de5aa4c79cf1019e423c26124a37c0d861eae8583cbd88a2e8dde6bb456be2"
+              },
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+                "methods": [
+                  "setPendingSettlementCount",
+                  "markSettlementTerminal",
+                  "tryAcquireRecoveryLease",
+                  "markServiceReady",
+                  "markResearchHealthR31",
+                  "noteResearchRecoveryRequestR31",
+                  "getResearchStaleReason",
+                  "markFetchCadenceR31"
+                ],
+                "sha256": "d1869d2d27f434586b1e1696f0d98158be4b8aa62bde5edebd66b7defc8e9be6"
+              },
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
+                "methods": [
+                  "startAutoFetchService in-process existing-owner control routing"
+                ],
+                "sha256": "31894b0ac375ce6e1b7c2281e57d2077d2ff5908b29838232225623653a947d7"
+              }
+            ],
+            "remaining": [
+              "72-hour V2353A OS power/network/task-swipe/kill/force-stop/reboot matrix NOT_RUN; original target28/dataSync/bounded RuntimePowerLease preserved, no fake auto-start promise.",
+              "OS capability page/user OEM assertions/force-stop interval disclosure not modified or device-verified in this owned slice."
+            ],
+            "next_step": "Root joint Android build+APK binding, then applicable real-device acceptance; continue independent P03+ work without treating missing future evidence as PASS."
+          }
+        },
+        {
+          "recorded_at": "2026-11-04T12:17:38.330587+00:00",
+          "evidence": "verification/r31/p02/service/background-card-update.json",
+          "record": {
+            "format": "R31_B04C02_SUPPLEMENTAL_CARD_UPDATE_V1",
+            "id": "R31-B04-C02",
+            "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+            "status": "CODE_COMPLETE",
+            "observedAtUtc": "2026-11-04T11:03:12.089255+00:00",
+            "commits": [],
+            "actual_changes": [
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java",
+                "sha256": "8da3a6a59f121ff15e67405c8345ccb7472bfdd19ccb52498259ddf299f08166",
+                "methods": [
+                  "observeRuntimeR31",
+                  "operatingStatusR31",
+                  "RuntimeObservationR31.userSummary"
+                ]
+              },
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/LifecycleHealthR963.java",
+                "sha256": "5d7ce611a125722a43767a8d9ac1398a208a58f7e8e336a93496ef9636ae7299",
+                "methods": [
+                  "recordSystemExits",
+                  "Api35R31.currentStartWasForceStopped",
+                  "refreshInterruptionObservationR31",
+                  "interruptionSummaryR31"
+                ]
+              },
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/OperationalDashboardR925.java",
+                "sha256": "b21b5164a6ab1fe2aa428efcd7eb2a4df4eb9dad87ea8e0811e9b76923228407",
+                "methods": [
+                  "capture(background section)"
+                ]
+              },
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+                "sha256": "0130e63fdccc3e035cb8c96eb5526706a3a22f0be213dc241b4fe902ca28a4c0",
+                "methods": [
+                  "openBackgroundReliabilitySettings",
+                  "launchBackgroundReliabilitySettingsR31",
+                  "startResolvedBackgroundSettingsR31",
+                  "launchOemStartupSettingsR31",
+                  "buildAlwaysOnPermissionStatusV17"
+                ]
+              },
+              {
+                "path": "app/src/test/java/com/ethk3/novaonepro/R31BackgroundCapabilityStateTest.java",
+                "sha256": "da419773e056fca5a092ebfd9b08ba9e38a4911847942c668ade46a6c58bb880",
+                "methods": [
+                  "6 pure state/interruption contract tests"
+                ]
+              }
+            ],
+            "migration_versions": [],
+            "tests": [
+              {
+                "command": "See exact commands in verification/r31/p02/service/background-capability-evidence.json",
+                "result": "PASS",
+                "scope": "Owned production javac +6 HOST pure mapping tests;notAndroidOSgetter/UI/device",
+                "evidence": "verification/r31/p02/service/background-final.log",
+                "evidenceSha256": "7bd01d7f506d34dfbba74e519fdad65ebda7e804cf6b97637935fe214acda55b"
+              }
+            ],
+            "apk_identity": null,
+            "device_evidence": [],
+            "remaining": [
+              "Root joint all-source Android build/identity/APK binding",
+              "Android API21/28/30/35/36 getter andUIbehavior plus OEM resolve/fallback on supportedrealdevices",
+              "V2353A72h matrix/Doze actual restrictedintervals/20startoneowner/userstop andforce-stop expectedstopped-until-user-opens verification",
+              "No persisted user-attestedOS self-grants;OEM remainsunknownuntil device-specific evidence."
+            ],
+            "next_step": "Root joint all-source build/identity/commit/APK binding;realAndroid getter/UI/OEM and72hourmatrix acceptance remainsNOT_RUN",
+            "supersedesPreviousOwnedSliceRemainingOnly": [
+              "OS capability page/user OEM assertions/force-stop interval disclosure not modified or device-verified in this owned slice."
+            ],
+            "replacementRemaining": "The capability page,OEM resolved navigator andforce-stop interval source are now implemented/compiled/host-state-tested;actual Androidgetter/UI/OEM/interval capture andcontinuous-run evidence remainNOT_RUN.",
+            "inheritedPreservedSources": {
+              "app/src/main/AndroidManifest.xml": "94aef24f5094e0fb2a5f40d3ac239b8d9c27cfb4a8161b4de4907006e41d6d82",
+              "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimePowerLeaseR26.java": "ee2cd6ecc9672f1d6cdfead7c8d74379ee9b3b2381eb682122281235bc8dc821",
+              "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java": "b6de5aa4c79cf1019e423c26124a37c0d861eae8583cbd88a2e8dde6bb456be2",
+              "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java": "d1869d2d27f434586b1e1696f0d98158be4b8aa62bde5edebd66b7defc8e9be6"
+            },
+            "sourceFreeze": true,
+            "naturalQuality": "NOT_PROVEN",
+            "closureRule": "CODE_COMPLETE isnot DEVICE_PASS anddoesnot close mandatory engineering acceptance.",
+            "preservedBaselineComparisons": [
+              {
+                "path": "app/src/main/AndroidManifest.xml",
+                "baselineSha256": "94aef24f5094e0fb2a5f40d3ac239b8d9c27cfb4a8161b4de4907006e41d6d82",
+                "currentSha256": "94aef24f5094e0fb2a5f40d3ac239b8d9c27cfb4a8161b4de4907006e41d6d82",
+                "identicalToPlanBaseline": true,
+                "action": "READ_AND_PRESERVE_VALID_IMPLEMENTATION_WITH_NO_GRATUITOUS_SOURCE_CHANGE"
+              },
+              {
+                "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimePowerLeaseR26.java",
+                "baselineSha256": "ee2cd6ecc9672f1d6cdfead7c8d74379ee9b3b2381eb682122281235bc8dc821",
+                "currentSha256": "ee2cd6ecc9672f1d6cdfead7c8d74379ee9b3b2381eb682122281235bc8dc821",
+                "identicalToPlanBaseline": true,
+                "action": "READ_AND_PRESERVE_VALID_IMPLEMENTATION_WITH_NO_GRATUITOUS_SOURCE_CHANGE"
+              }
+            ]
+          }
         }
       ]
     },
@@ -1202,7 +2644,7 @@
       "title": "连续存储普查与准确口径",
       "phase": "P02",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
@@ -1215,9 +2657,33 @@
           "baseline_state": "PROPOSED_NEW_FILE"
         }
       ],
-      "actual_changes": [],
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+          "methods": "measure: bounded streamed file census, distinct DB/WAL/SHM/report/model/cache; unknown allocation/support remains explicit",
+          "worktree_sha256_at_record": "776660060cd9f582f8ec0897bb91947de49f55d01a83aca616b2ff5d2aad6178",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageLedgerR31.java",
+          "methods": "sampleIfDue/record/history: fixed 288 points and720 hour slots with real boot+mono observation bounds",
+          "worktree_sha256_at_record": "6d4efd973c44fb68fa159fad309444edf8de900950bcef78147509230f4edc94",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "methods": "HealthTask.step: 5min continuous low-priority census outside writer; monotonic service interval",
+          "worktree_sha256_at_record": "94a4702ccd156688ff48a456e7cd7989f08d93f74774f1a9ee9301f12b79e701",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        }
+      ],
       "commits": [],
-      "migration_versions": [],
+      "migration_versions": [
+        "SQLite userVersion36 retained",
+        "RESEARCH_R31_FEEDBACK:1 (10 objects)",
+        "REALTIME_R31_TIMING:1 (2 objects)",
+        "R31_STORAGE_ADMISSION_V1 / R31_MEMORY_PER_PID_V1"
+      ],
       "tests": [],
       "apk_identity": null,
       "device_evidence": [],
@@ -1241,14 +2707,28 @@
       "remaining": [
         "ST-01：总分类相加与总文件长度相等；detail不重复统计",
         "同路径各阶段采样可定位snapshot峰值与清理后稳态",
-        "无dbstat时显示UNKNOWN/ESTIMATED，不触发错误删除"
+        "无dbstat时显示UNKNOWN/ESTIMATED，不触发错误删除",
+        "Root same-version unexcluded Android/Gradle source integration pending",
+        "Android/physical device fault matrix and24/72h NOT_RUN",
+        "Natural FUTURE/REAL quality NOT_PROVEN"
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Finish real HOST/native fault tests, freeze source, regenerate verified identities from actual classes, then run unexcluded joint build/tests. No P06 business/cache GC enabled.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156383+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T10:08:51.499161+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "P01 source gate passed; owner staging and Android mandatory evidence explicitly remain open."
+        },
+        {
+          "at": "2026-11-04T10:38:50.822771+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p02/card_updates/R31-B05-C01.json",
+          "receipt_sha256": "0e42eeee00027ee760a874ce69a4488e927cb35f4cbe143bfe1a4c6634b7720f"
         }
       ]
     },
@@ -1257,7 +2737,7 @@
       "title": "所有增长来源写前预算准入",
       "phase": "P02",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
@@ -1270,9 +2750,39 @@
           "baseline_state": "PROPOSED_NEW_FILE"
         }
       ],
-      "actual_changes": [],
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+          "methods": "reserve/Reservation.beforeChunk/reconcile/finish: cross-PID OS ownership locks, persistent bounded ledger, physical+pending capacity, actual-owner exit recovery",
+          "worktree_sha256_at_record": "26e64cffc0fa071ea6e6c30e927d737bce07bdc36c55be49a3291acbd9911332",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportNativeCP4.java",
+          "methods": "per backup chunk admitted hook",
+          "worktree_sha256_at_record": "3ce1215dd61e1dd8f94e01b59b30940d1052dd48a748459d120f581100be112e",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/cpp/report_native_cp4.c",
+          "methods": "native SQLite backup invokes Java budget before each bounded step",
+          "worktree_sha256_at_record": "6605f66eb31f46e9edf3cdac015b64b9c415600c043b2a56c1bb4bcac5b6447e",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+          "methods": "compatible budgeted ZIP sink",
+          "worktree_sha256_at_record": "5491f960f26e69c89d5695827cff17d9377a6a9db81d9e621d869e110fbdf86d",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        }
+      ],
       "commits": [],
-      "migration_versions": [],
+      "migration_versions": [
+        "SQLite userVersion36 retained",
+        "RESEARCH_R31_FEEDBACK:1 (10 objects)",
+        "REALTIME_R31_TIMING:1 (2 objects)",
+        "R31_STORAGE_ADMISSION_V1 / R31_MEMORY_PER_PID_V1"
+      ],
       "tests": [],
       "apk_identity": null,
       "device_evidence": [],
@@ -1296,14 +2806,29 @@
       "remaining": [
         "ST-02/ST-03：并发reserve不超限，实际chunk超额停止",
         "24h新建产物数量/bytes有上界，保护对象无误删",
-        "ENOSPC下注/冻结/结算原子性不破坏"
+        "ENOSPC下注/冻结/结算原子性不破坏",
+        "Database/WAL/model/training/backup writers outside registered report consumers still require explicit admission integration; registered-only is not all-growth closure.",
+        "Root same-version unexcluded Android/Gradle source integration pending",
+        "Android/physical device fault matrix and24/72h NOT_RUN",
+        "Natural FUTURE/REAL quality NOT_PROVEN"
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Finish real HOST/native fault tests, freeze source, regenerate verified identities from actual classes, then run unexcluded joint build/tests. No P06 business/cache GC enabled.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156386+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T10:08:51.499164+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "P01 source gate passed; owner staging and Android mandatory evidence explicitly remain open."
+        },
+        {
+          "at": "2026-11-04T10:38:50.822771+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p02/card_updates/R31-B05-C02.json",
+          "receipt_sha256": "e88051eec8171735862fc065e0442e1bf70d6de08291d8879def9485cae097ea"
         }
       ]
     },
@@ -1312,7 +2837,7 @@
       "title": "报告当前作业清理闭环与全物理配额",
       "phase": "P02",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
@@ -1333,9 +2858,57 @@
           "baseline_sha256": "00c12c7e26c0afdcf4f2c18282e3b6319028593b8da8e6803777ab8e08db8e4f"
         }
       ],
-      "actual_changes": [],
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportCleanupR31.java",
+          "methods": "persistent bounded cleanup jobs, retained reasons and retry after active leases/streams end",
+          "worktree_sha256_at_record": "cce03ffdfdab532af885003a48917ebe9fff50c739e9166e492db8064d63ef66",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
+          "methods": "full report-owned categories and protection-aware lifecycle",
+          "worktree_sha256_at_record": "c0dd2095bbb1cc40b5f510f4178e882113d516f8fd20268869ce3b74a880ada9",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+          "methods": "READY and CLEANUP_PENDING separate; committed publication not undone by cleanup failure",
+          "worktree_sha256_at_record": "f7e0886e87e834927db1c4ce1a4bf78736090777bade52123cc7748c90285415",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "methods": "actual cleanup/native/stream resource consumer",
+          "worktree_sha256_at_record": "7eabb8875a4da1a7f074e89d404a7b241ca9176972dbd5c9660d23ce2c8f4318",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveCP4.java",
+          "methods": "archive/ZIP/parts write-ahead admission",
+          "worktree_sha256_at_record": "5dea43164e641d8614db7af0f241e7f9f2611585dd70c9d1db810913a03e0c3c",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportInputsLeaseCP12.java",
+          "methods": "actual input pin lifecycle",
+          "worktree_sha256_at_record": "5204d3890fab1dadd66026b05405436ba91f711176520ce39e8701213dfb8e61",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DiagnosticReportProviderR923.java",
+          "methods": "recovery PFD holds cross-process shared lease until close",
+          "worktree_sha256_at_record": "ba442db4b0fd1aebef484305d63b0700a9454523a8ee7b3df31ead7809570c6a",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        }
+      ],
       "commits": [],
-      "migration_versions": [],
+      "migration_versions": [
+        "SQLite userVersion36 retained",
+        "RESEARCH_R31_FEEDBACK:1 (10 objects)",
+        "REALTIME_R31_TIMING:1 (2 objects)",
+        "R31_STORAGE_ADMISSION_V1 / R31_MEMORY_PER_PID_V1"
+      ],
       "tests": [],
       "apk_identity": null,
       "device_evidence": [],
@@ -1359,14 +2932,29 @@
       "remaining": [
         "ST-06/ST-07：发布后10分钟不再导出也能清理snapshot；ZIPhash不变",
         "损坏ZIP不误删唯一证据；配额超限不得再无限复制",
-        "对当前版本正常publish路径回归：不重复删除、不制造新故障"
+        "对当前版本正常publish路径回归：不重复删除、不制造新故障",
+        "Native backup final dirty-page physical growth boundary still under repair/test; no report-capacity PASS.",
+        "Root same-version unexcluded Android/Gradle source integration pending",
+        "Android/physical device fault matrix and24/72h NOT_RUN",
+        "Natural FUTURE/REAL quality NOT_PROVEN"
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Finish real HOST/native fault tests, freeze source, regenerate verified identities from actual classes, then run unexcluded joint build/tests. No P06 business/cache GC enabled.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156389+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T10:08:51.499170+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "P01 source gate passed; owner staging and Android mandatory evidence explicitly remain open."
+        },
+        {
+          "at": "2026-11-04T10:38:50.822771+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p02/card_updates/R31-B05-C03.json",
+          "receipt_sha256": "cf8b3feaae46e48c1b1cfa70a60c5f52c09666b04105571892855dd7009252b8"
         }
       ]
     },
@@ -1780,7 +3368,7 @@
       "title": "Java堆/native/PSS与缓存队列有界治理",
       "phase": "P02",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
@@ -1825,10 +3413,71 @@
           "baseline_state": "PROPOSED_NEW_FILE"
         }
       ],
-      "actual_changes": [],
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+          "methods": "per-PID tryAcquire/grow/close/sample; distinct measured heap/native/PSS/RSS and declared owner bytes",
+          "worktree_sha256_at_record": "6a16e27245985fc943da3cb5364972700229610978def973b15b7e812e978324",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SharedFeatureStoreR31.java",
+          "methods": "primitive immutable block, reference-counted Reader, byte LRU, duplicate publication cleanup",
+          "worktree_sha256_at_record": "b24a2ec45b86cbc5a9cb23a007b28db51b0dfb57230fbf9e7fd9beace1cced9f",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BoundedResearchExecutorR31.java",
+          "methods": "bounded queue count+payload; running cancellation retains lease until actual finally",
+          "worktree_sha256_at_record": "2f550fb8ad9859bb261aa7be30ecd9baf65ed8a604bd9b6823110b51a901cf81",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+          "methods": "acquireLeafR31/memorySnapshotR31/trimRegisteredCachesR31: real hot-path sharing, raw array leases wait for observed GC",
+          "worktree_sha256_at_record": "1b3ef7e376c6b57ae6ebe322594d2f710c96ea1690afa13f2a8040b67ed30dc9",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
+          "methods": "rank/zscore/softmax leaf Reader consumer; copy before masking mutable model output",
+          "worktree_sha256_at_record": "51fa14f13879859a327a040fbf2a2a687df4f2c31d6eaabe9657cc08be0e08e6",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+          "methods": "withDraws deep-copies replacement rows",
+          "worktree_sha256_at_record": "72a105392acc6544622717970d70b1584ab115a98207a06b4d8f5a50d1b97d36",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedTaskR30R1.java",
+          "methods": "declared context lease tied to actual continuation exit",
+          "worktree_sha256_at_record": "9b55cd7abfd375d767c333b9692e899c16d5c899f81ce6f0d721219e4997bf73",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "methods": "helper working/descriptor lease and actual active/queued byte observations",
+          "worktree_sha256_at_record": "07c47f004f2ad6715e970a9fa4243ebca07c3634c900b43098c7ce9b1e1ddded",
+          "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+        }
+      ],
       "commits": [],
-      "migration_versions": [],
-      "tests": [],
+      "migration_versions": [
+        "SQLite userVersion36 retained",
+        "RESEARCH_R31_FEEDBACK:1 (10 objects)",
+        "REALTIME_R31_TIMING:1 (2 objects)",
+        "R31_STORAGE_ADMISSION_V1 / R31_MEMORY_PER_PID_V1"
+      ],
+      "tests": [
+        {
+          "evidence": "verification/r31/memory/RECEIPT.json",
+          "sha256_at_record": "8abfd305e0cb827a174eed086ab02c5160b72a542e1ad2ae107e89acb6592c06",
+          "result": "SEE_SCOPED_RECEIPT",
+          "scope": "HOST_ONLY; source hashes and stated adapters govern exact applicability"
+        }
+      ],
       "apk_identity": null,
       "device_evidence": [],
       "acceptance": [
@@ -1869,14 +3518,29 @@
         "ST-M03 100轮图表进出/取消后heap dominator无Activity/旧session滞留",
         "ST-M04同输入64候选共享1输入实例且可变权重互不污染",
         "ST-M05 native/FD/DB reader正常及取消后回到基线包络",
-        "ST-M06 72h OOM=0；对等负载live heap/PSS无持续增长，末24h等负载P95 live heap≤稳定首24h110%且不越动态高水位；未实测NOT_RUN"
+        "ST-M06 72h OOM=0；对等负载live heap/PSS无持续增长，末24h等负载P95 live heap≤稳定首24h110%且不越动态高水位；未实测NOT_RUN",
+        "AST scoreMemo, mutable family/model state, internal scratch and legacy exposed arrays remain explicit owner/lifecycle work; device dominator/native/FD profiling not run.",
+        "Root same-version unexcluded Android/Gradle source integration pending",
+        "Android/physical device fault matrix and24/72h NOT_RUN",
+        "Natural FUTURE/REAL quality NOT_PROVEN"
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Finish real HOST/native fault tests, freeze source, regenerate verified identities from actual classes, then run unexcluded joint build/tests. No P06 business/cache GC enabled.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156423+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T10:08:51.499182+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "P01 source gate passed; owner staging and Android mandatory evidence explicitly remain open."
+        },
+        {
+          "at": "2026-11-04T10:38:50.822771+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p02/card_updates/R31-B05-C11.json",
+          "receipt_sha256": "f2ab4885b85ca4de374686d8abb3f39e6b281afce702b916f4e9a26c769a6186"
         }
       ]
     },
@@ -3971,5 +5635,56 @@
         }
       ]
     }
-  ]
+  ],
+  "phase_gates": {
+    "P00": {
+      "source_compile": "PASS",
+      "device": "NOT_RUN"
+    },
+    "P01": {
+      "source_compile": "PASS",
+      "targeted_host_unit": "PASS_32",
+      "full_unit_on_844a": "FAILED_4_OF_379",
+      "quality_contract_fix": "31fea28c; isolated19_PASS; full_remote_rerun_pending",
+      "exact_native_source_revalidation": "PASS_31fea_CLEAN_CLONE_HOST_ONLY",
+      "android": "NOT_RUN",
+      "exact_native_source_evidence": "verification/r31/ci_diagnosis/exact31fea-native/SUMMARY.json",
+      "full_unit_on_31fea": "PASS_379",
+      "full_build_on_31fea": "PASS_REMOTE_CANONICAL_LINT_ASSEMBLE_RELEASE_DEBUG_ANDROIDTEST",
+      "remote_native_matrix_on_31fea": "FAILED_REAL_PIT_RUNTIME_DDL_AND_OLD_UNCLAIMED_FIXTURES",
+      "native_matrix_repair_combination": "PASS_13_SCRIPTS_ON_31fea_PLUS_EXACT_PIT_PRODUCTION_PATCH_AND_REAL_CLAIM_FIXTURES",
+      "native_matrix_repair_evidence": "verification/r31/ci_diagnosis/exact31fea-legacy/final-owned-combination/SUMMARY.json",
+      "host_60min": "COMPLETED_3600.003197486_SECONDS_WITH_11_LOCK_BUSY_13_MISSED_TICKS_NO_SAME_INPUT_RETRY",
+      "host_60min_evidence": "verification/r31/p01/soak/completed-host-60min/receipt.json",
+      "signed_apk_independent_identity": "NOT_RUN"
+    },
+    "P02": {
+      "implementation": "FINAL_RECOVERY_ZIP_UI_CANCEL_PATCH_PENDING_THEN_SOURCE_FREEZE",
+      "joint_build": "NOT_RUN",
+      "native_backup_capacity": "REPAIR_IN_PROGRESS_AFTER_ACTUAL_FAILURE",
+      "business_gc": "NOT_ENABLED",
+      "source_compile": "NOT_YET_FULL_JOINT",
+      "schema_versions": {
+        "userVersion": 36,
+        "critical": 6,
+        "research": 17,
+        "legacy": 2,
+        "R31_observation": 1,
+        "R31_write": 1,
+        "R31_feedback": 1,
+        "R31_transport": 1
+      },
+      "scoped_native_zero_ddl": [
+        "runtime-ddl-hotspots 96 assertions /17 business stages /261 calls",
+        "schema_mainchain seven scenarios /80 ready-path calls",
+        "research-business-schema 43 assertions"
+      ],
+      "all_application_runtime_ddl": "NOT_ESTABLISHED",
+      "source_capacity_debt": [
+        "all-producer 64-op/bind envelope staging incomplete",
+        "DB/WAL/model/CAS writer admission not fully integrated",
+        "24/72h actual device absent"
+      ]
+    }
+  }
 }

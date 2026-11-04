@@ -23,20 +23,22 @@ public class SQLiteDatabase {
     public Cursor rawQuery(String sql, String[] args) {
         try (PreparedStatement p = jdbc.prepareStatement(sql)) {
             if (args != null) for (int i = 0; i < args.length; i++) p.setString(i + 1, args[i]);
-            List<Object[]> rows = new ArrayList<>();
+            List<Object[]> rows = new ArrayList<>(); int columns;
             try (ResultSet r = p.executeQuery()) {
-                int n = r.getMetaData().getColumnCount();
+                int n = r.getMetaData().getColumnCount(); columns = n;
                 while (r.next()) { Object[] o = new Object[n]; for (int i = 0; i < n; i++) o[i] = r.getObject(i + 1); rows.add(o); }
             }
-            return new Rows(rows);
+            return new Rows(rows, columns);
         } catch (java.sql.SQLException e) { throw new SQLiteException(e.getMessage()); }
     }
     public boolean inTransaction() { try { return !jdbc.getAutoCommit(); } catch (java.sql.SQLException e) { return false; } }
     public boolean isReadOnly() { try { return jdbc.isReadOnly(); } catch (java.sql.SQLException e) { throw new SQLiteException(e.getMessage()); } }
 
     static final class Rows implements Cursor {
-        final List<Object[]> rows; int at = -1;
-        Rows(List<Object[]> rows) { this.rows = rows; }
+        final List<Object[]> rows; final int columns; int at = -1;
+        Rows(List<Object[]> rows) { this(rows, rows.isEmpty() ? -1 : rows.get(0).length); }
+        Rows(List<Object[]> rows, int columns) { this.rows = rows; this.columns = columns; }
+        public int getColumnCount() { if(columns<0)throw new UnsupportedOperationException("HOST_CURSOR_COLUMN_METADATA_UNAVAILABLE");return columns; }
         public boolean moveToNext() { return ++at < rows.size(); }
         public boolean moveToFirst() { at = 0; return !rows.isEmpty(); }
         Object v(int i) { return rows.get(at)[i]; }

@@ -1,0 +1,103 @@
+{
+  "source": "844a78488f396189c2db98591782b7bb214799d2",
+  "bootstrapCommand": "./gradlew --no-daemon --max-workers=4 -Pr30Instrumentation=true :app:compileDebugJavaWithJavac",
+  "bootstrapExcludedTasks": [],
+  "sourceCallAssetVerification": {
+    "status": "PASS",
+    "bytes": 37456148,
+    "sha256": "2149b032f75929e2875ef8de8df59bf6029d2e1103342cb6a3e0b25d93116f03"
+  },
+  "isolatedHead": "844a78488f396189c2db98591782b7bb214799d2",
+  "localBootstrap": "PASS",
+  "localPostBootstrapSu1": "PASS",
+  "remoteRetryRun": 41812391330,
+  "remoteRetryWorkflowCommit": "7e65517e935282fd6343511f0febf6f70990c2fa",
+  "remoteRetrySource": "844a78488f396189c2db98591782b7bb214799d2",
+  "remoteRetryStatus": "FAILED_UNIT_TESTS",
+  "apk": "ASSEMBLY_PASSED_BUT_NO_ACCEPTED_DELIVERY_OR_INDEPENDENT_SIGNED_APK_IDENTITY_EVIDENCE",
+  "physicalDevice": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "updatedAt": "2026-11-04T11:27:01.434666+00:00",
+  "localPostBootstrapSu1Checks": 21,
+  "localPostBootstrapOtherVerifiers": [
+    {
+      "verifier": "plan1025",
+      "status": "PASS",
+      "checks": 20
+    },
+    {
+      "verifier": "r26",
+      "status": "PASS",
+      "checks": 32
+    }
+  ],
+  "remoteRetryUnitTests": {
+    "completed": 379,
+    "failed": 4,
+    "class": "R27QualityTest",
+    "originalFailureLog": "run41812391330-unit-failure.log"
+  },
+  "bootstrapRepairRemote": "PASS",
+  "localContractRepair": {
+    "tests": 19,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "patch": "R27QualityTest-contract-repair.patch",
+    "productModified": false
+  },
+  "nextSourceCommit": "31fea28c5723ac70e47ae4cc7542344b16fb3f91",
+  "nextRun": 41814981145,
+  "nextRunStatus": "FAILED_LEGACY_NATIVE_GATE",
+  "nextWorkflowCommit": "a86d595f212658e2a6a0b5a1556e81d83211c333",
+  "exact31feaNative": {
+    "status": "PASS",
+    "taskAssertions": 199,
+    "writerUnitTests": 10,
+    "sourceHashMismatch": [],
+    "receipt": "exact31fea-native/SUMMARY.json",
+    "scope": "HOST_NOT_ANDROID_OR_DEVICE_OR_SOAK_OR_NATURAL"
+  },
+  "fourthRun": {
+    "run": 41814981145,
+    "source": "31fea28c5723ac70e47ae4cc7542344b16fb3f91",
+    "supportCommit": "a86d595f212658e2a6a0b5a1556e81d83211c333",
+    "buildJob": 126523340557,
+    "canonicalAndBuildStep": "PASS",
+    "buildElapsed": "13m43s",
+    "gradleTasks": {
+      "total": 159,
+      "executed": 133,
+      "fromCache": 10,
+      "upToDate": 16
+    },
+    "lint": {
+      "existingErrorsFilteredByBaseline": 51,
+      "staleBaselineEntries": 7
+    },
+    "legacyNativeGate": "FAILED_EXIT_1",
+    "gateOriginalError": "Not printed by original workflow; logs redirected without ERR trap. Exact-source local reproduction recorded separately.",
+    "assemblyTasks": [
+      "assembleRelease",
+      "assembleDebug",
+      "assembleDebugAndroidTest"
+    ],
+    "signedApkIndependentIdentityValidation": "NOT_RUN",
+    "androidJob": 126531787930,
+    "androidStatus": "SKIPPED_UPSTREAM_FAILED",
+    "hostArtifactId": 13315093124,
+    "hostArtifactBytes": 304012,
+    "hostArtifactDigest": "3f93b9d90a58b3140dcd325ef3e16ba761d917bfc214cb71f75c9d278862e626",
+    "originalLog": "run41814981145-full.log"
+  },
+  "legacyNativeCombination": {
+    "baseCommit": "31fea28c5723ac70e47ae4cc7542344b16fb3f91",
+    "productionOverlay": "LiveShadowsR27 root PIT runtime-DDL removal",
+    "productionOverlaySha256": "70df33664e875f10d90b808ab60617da607e9efe9a7693a0f8e1c904158184f3",
+    "fixturePatchSha256": "14dc88c7abadb40cfe4036d8332bbd54a8db8d4837a11b58fd624d4b58fab875",
+    "scriptCount": 13,
+    "status": "PASS",
+    "receipt": "exact31fea-legacy/final-owned-combination/SUMMARY.json",
+    "scope": "HOST_NATIVE_SQLITE_COMBINATION_NOT_ORIGINAL_31FEA_NOT_ANDROID_OR_FINAL_P02_OR_NATURAL"
+  }
+}

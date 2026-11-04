@@ -1,0 +1,31 @@
+/tmp/r31-p03-publication-repro-8p0xamvu/source/PublicationCounterexampleR31.java:9: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/tmp/r31-p03-publication-repro-8p0xamvu/source/app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java:64: error: cannot find symbol
+        final class Frame {final DirectoryCursorR31 cursor;final String relative;final int depth;Frame(File directory,String relative,int depth)throws java.io.IOException{cursor=DirectoryCursorR31.open(directory);this.relative=relative;this.depth=depth;}}
+                                 ^
+  symbol:   class DirectoryCursorR31
+  location: class Frame
+/tmp/r31-p03-publication-repro-8p0xamvu/source/app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java:64: error: cannot find symbol
+        final class Frame {final DirectoryCursorR31 cursor;final String relative;final int depth;Frame(File directory,String relative,int depth)throws java.io.IOException{cursor=DirectoryCursorR31.open(directory);this.relative=relative;this.depth=depth;}}
+                                                                                                                                                                                  ^
+  symbol:   variable DirectoryCursorR31
+  location: class Frame
+/tmp/r31-p03-publication-repro-8p0xamvu/source/app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java:145: error: cannot find symbol
+        final class Frame {final DirectoryCursorR31 cursor;final int depth;Frame(File directory,int depth)throws IOException{cursor=DirectoryCursorR31.open(directory);this.depth=depth;}}
+                                 ^
+  symbol:   class DirectoryCursorR31
+  location: class Frame
+/tmp/r31-p03-publication-repro-8p0xamvu/source/app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java:145: error: cannot find symbol
+        final class Frame {final DirectoryCursorR31 cursor;final int depth;Frame(File directory,int depth)throws IOException{cursor=DirectoryCursorR31.open(directory);this.depth=depth;}}
+                                                                                                                                    ^
+  symbol:   variable DirectoryCursorR31
+  location: class Frame
+/tmp/r31-p03-publication-repro-8p0xamvu/source/PublicationCounterexampleR31.java:66: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Field field=Unsafe.class.getDeclaredField("theUnsafe");field.setAccessible(true);
+                    ^
+/tmp/r31-p03-publication-repro-8p0xamvu/source/PublicationCounterexampleR31.java:67: warning: Unsafe is internal proprietary API and may be removed in a future release
+        return (RuntimeR27)((Unsafe)field.get(null)).allocateInstance(RuntimeR27.class);
+                             ^
+4 errors
+3 warnings

@@ -1,0 +1,286 @@
+{
+  "schema": "R31_P03_PREPARATION_METHOD_CONTRACTS_1",
+  "prepared_at_utc": "2026-11-04T10:00:54.715936+00:00",
+  "planning_baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "execution_state": "READ_ONLY_PREPARATION",
+  "implementation_gate": "ROOT_EXPLICIT_P02_GATE_REQUIRED",
+  "contracts": [
+    {
+      "id": "P03-M01",
+      "methods": [
+        "RuntimeR27.DatasetTask.step",
+        "RuntimeR27.EvolutionTask.step",
+        "ReplayDatasetR27.of/append/tail/hash/ordinalOf",
+        "ResearchInputPinR30R1.append/load/requireValid"
+      ],
+      "status": "PROPOSED_NOT_IMPLEMENTED",
+      "current_contract": "固定snapshot原行与旧datasetHash保留；源更正invalid；append/热尾删除不篡改已冻结副本；代边界采用pending cache。",
+      "required_identity": [
+        "legacy_dataset_hash",
+        "versioned_input_envelope_hash",
+        "source_revision",
+        "canonical_calendar_abi",
+        "calendar_from/to",
+        "per_row_canonical_ordinal",
+        "per_row_known_at_or_explicit_unknown",
+        "gap_status",
+        "role_contract_hash",
+        "reader_abi",
+        "numerical_abi",
+        "job_id",
+        "pin_id"
+      ],
+      "prepare": "在事务外冻结行、角色与可见性；输入只读共享且计费；规范生产ordinal用TargetIssueResolver；不改变旧hash/合成测试域。",
+      "commit": "按P01 ownerInputSnapshot提交envelope identity；同事务检查fence/source/input pin并写引用+next cursor+receipt；只有成功才能发布。",
+      "resource_wait": "P02统一pin/磁盘/内存预算不足则持久RESOURCE_WAIT；保留已保护输入并让实时freeze/settlement通道继续。",
+      "invalidation": "新revision生成新envelope，旧run及其结论保留INVALIDATED原因；不能清exposure或把旧run覆盖成新结果。",
+      "preserve": [
+        "5000热尾",
+        "360刷新",
+        "已验证history import",
+        "固定快照全部行",
+        "TRAIN/SELECT与CONFIRM/FUTURE隔离",
+        "旧datasetHash和数值顺序"
+      ]
+    },
+    {
+      "id": "P03-M02",
+      "methods": [
+        "FrozenConfirmationStoreR30.freeze/context/complete/register/generationReport"
+      ],
+      "status": "PROPOSED_NOT_IMPLEMENTED",
+      "prepare": "保留原packet/dataset/trace codec和exact frozen bytes；统一pin引用登记与预算；解压读取有显式上限和取消点。",
+      "commit": "packet/result/reservation/global index同一原子合同；重试只接受exact旧结果，不能重领全局资格；callback实际写SQL纳入owner计费。",
+      "role_boundaries": [
+        "EXPOSED_HISTORY只用于学习/开发",
+        "INDEPENDENT_CONFIRM不反馈候选选择/optimizer",
+        "UNIQUE_FUTURE必须先登记、开奖前冻结"
+      ],
+      "failure": "未知availability不补造时间；原输入损坏failclosed并保留证据；资源不足不删除进行中pin。"
+    },
+    {
+      "id": "P03-M03",
+      "methods": [
+        "CheckpointArtifactsR26.prepareLease/prepareState/resolve/reachableHashes",
+        "AtomNetStoreR30.checkpointWithIdentity/restore"
+      ],
+      "status": "PROPOSED_NOT_IMPLEMENTED",
+      "reuse": "数值状态使用现有CheckpointArtifactsR26/ChunkedCheckpointR26；不另建ReplayCheckpointR31物理存储。TrainingCasCP12仅复用合法SCDEV/SCBIND输入。",
+      "prepare": "完整数值状态/immutable DTO在事务外编码；CAS hash和size验证，fsync/rename/directory fsync完成；lease持有至事务结果确定。",
+      "commit_fields": [
+        "job_id",
+        "input_envelope_hash",
+        "expected_parent_state_hash",
+        "new_numeric_state_hash",
+        "artifact_reference",
+        "next_sample_or_position",
+        "logical_event_identity",
+        "chunk_index",
+        "commit_receipt"
+      ],
+      "commit": "同事务验证P01 fence和source、旧parent hash、未消费业务event；仅写受预算轻引用/进度/receipt。重复intent返回原durable outcome，不再次学习。",
+      "publish": "COMMITTED或可验证的同一ALREADY_COMMITTED结果后，按持久publication receipt发布；失败不污染原对象。",
+      "restore": "先解析旧inline或新CAS/stream，再验证full statehash+ABI+input+cursor；缺失/损坏不能悄悄随机初始化。",
+      "size_compatibility": "现CAS每块32MiB、旧Session允许64MiB；复用streamed chunks，或明确资源等待并保留原bytes，不能下调合法旧状态能力。",
+      "root_order": "新ref生效前先加入checkpoint/publication/pin根与备份闭包；P03只加保护，不启用新GC。"
+    },
+    {
+      "id": "P03-M04",
+      "methods": [
+        "AtomNetSessionR30.online",
+        "AtomNetRuntimeR30.step",
+        "AtomNetStoreR30.checkpointWithIdentity",
+        "RuntimeR27.submit"
+      ],
+      "status": "PROPOSED_NOT_IMPLEMENTED",
+      "logical_event_identity": "固定trainingJobId + immutable inputEnvelopeHash + persistent modelVersion/root + numericalABI/learningProtocol + canonicalIssueOrdinal + position；不含owner/fence/重试次数/重启walltime。",
+      "preconditions": [
+        "同一job/input/数值规则",
+        "source revision及online窗口仍合法",
+        "expected parent state hash匹配",
+        "position等于持久nextPosition",
+        "同issue的partial连续",
+        "event尚未提交"
+      ],
+      "atomic_transition": [
+        "全NN/Adam/RNG/replay/FTRL状态或CAS引用",
+        "issue+position业务receipt",
+        "nextPosition/partialOrdinal",
+        "第10位置时completeOrdinal",
+        "P01 commit receipt",
+        "必要的完整publication receipt"
+      ],
+      "retry": "同event有durable outcome则恢复该checkpoint，不基于新owner重做梯度；父hash不符则读取已提交state重备，不发布未提交draft。",
+      "numerics": "维持原一次新样本+63 replay、当前分配证据规则、dropout RNG消耗及FTRL更新，不将重复投递计成新训练。"
+    },
+    {
+      "id": "P03-M05",
+      "methods": [
+        "AtomNetSessionR30.trainedThrough/trainedThroughOrdinal/ready/report/encode/decode",
+        "AtomNetRuntimeR30 initialization"
+      ],
+      "status": "PROPOSED_NOT_IMPLEMENTED",
+      "watermarks": {
+        "inputBoundary": "冻结作业的最后输入行，允许含formal holdout；只表示可见输入，不表示梯度或独立证据。",
+        "optimizationBoundary": "真正影响发布数值状态/选择的标签截止；分别能区分NN梯度TRAIN与FTRL/selection的SELECT。",
+        "onlineAdmissionBaseline": "原输入尾端；修正trained cutoff不能因此把原holdout纳入在线补学。",
+        "partialIssueOrdinal": "当前期已提交部分位置的期序号，nextPosition=2..10时必须有一致partial。",
+        "completeIssueOrdinal": "全十位置状态最后完成的期/已证明initial baseline；只在十位置成功提交或明示initial proof时推进。",
+        "publishedThroughOrdinal": "独立发布receipt明确绑定的完整截止，不因partial或进程重启改变。",
+        "lastConsumedThroughOrdinal": "来自真实surface/call/frozen receipt联接，不能从published推断已消费。"
+      },
+      "invariants": [
+        "partial为空与nextPosition=1保持一致；非空partial必须大于complete且pos连续",
+        "positions1..9不能推进complete/published",
+        "位置10提交失败不推进complete/published",
+        "输入尾端不能替代已训练截止",
+        "report区分材料化、primary gradient、replay visits、epoch、complete publication、实际消费"
+      ],
+      "note": "通用inner ModelArtifactR29无需为满足外层字段而改数值ABI；可新增版本化outer/envelope验证合同。"
+    },
+    {
+      "id": "P03-M06",
+      "methods": [
+        "RuntimeR27.publishAtomStateR30",
+        "AtomNetRuntimeR30.forecast",
+        "ModelSurfaceStoreR30.prepareLive/surface/calls",
+        "ModelSurfaceProviderR30.FrozenModelRef",
+        "ResearchProvenanceGraphR30R1.gradient/consumer",
+        "ModelConsumptionCensusR30R1"
+      ],
+      "status": "PROPOSED_NOT_IMPLEMENTED",
+      "publication_fields": [
+        "publish_receipt_id",
+        "coverage_contract=SHARED_TEN_COMPLETE",
+        "complete_numeric_state_hash",
+        "NN_weights_hash",
+        "FTRL_state_hash_or_same_full_checkpoint",
+        "input_envelope_hash",
+        "complete_through_ordinal",
+        "fixed_available_at",
+        "model_hash",
+        "committed_event_or_baseline_proof"
+      ],
+      "prepare": "候选partial checkpoint可继续训练；预测持有独立last-complete不可变全状态，不从partial trainer/FTRL取值。",
+      "commit": "第10位置的state/complete与发布receipt同事务；initial publication有明确角色和完成证明。",
+      "restore": "读已提交固定availableAt与hash，不以System.currentTimeMillis重造同一模型身份。若提交后未publish直接恢复同一receipt。",
+      "consume": "forecast、live surfaces、typed leaves/I08均用同一完整publication；calls→artifact→surface→frozen的实际receipt/hash匹配才计消费。",
+      "provenance": "NEURAL_GRADIENT_COMMITTED与COMPLETE_MODEL_PUBLISHED分开；没有实际call记录不写成被预测使用。",
+      "compatibility": "旧modelHash/descriptor/weights/forecast可回放；新coverage要求不改写过去的availableAt或假补历史消费。"
+    },
+    {
+      "id": "P03-M07",
+      "methods": [
+        "AtomNetSessionR30.decode",
+        "ModelArtifactR29.decode/continuationIntegrity",
+        "AtomNetStoreR30.restore/checkpointWithIdentity",
+        "CapabilityRegistryStoreR30",
+        "ReportSnapshotR30"
+      ],
+      "status": "PROPOSED_NOT_IMPLEMENTED",
+      "old_formats": [
+        "outer0x30A70001",
+        "outer0x30A70002",
+        "outer0x30A70003",
+        "inner0x29A70001需receipt持久恢复",
+        "inner0x29A70002"
+      ],
+      "migration": "先精确保留旧bytes/hash/owner；现archive筛选仅outer1/2，必须覆盖当前3或用不覆盖旧owner的新owner。新reader可读所有已合法旧格式。新owner和schema迁移由owner统一登记。",
+      "numeric_preservation": [
+        "weights",
+        "Adam slots/step",
+        "rollback/bestNet",
+        "RNG",
+        "FTRL z/n/w及超参",
+        "replay samples/events",
+        "shuffle order",
+        "epoch/phase/offset/step",
+        "validation flags/statistics",
+        "replay policy/evidence",
+        "receipt cursors",
+        "exposure/source ledger"
+      ],
+      "conservative_publication": "从可核对的原cursor/full state/固定输入证明的完整截止才可生成明确migration receipt；无法证明历史complete或publication时标UNKNOWN，继续原partial恢复，不伪造旧发布。下一完整期允许建立可证明新发布，不能以UNKNOWN为由清空/永久停掉数值学习。",
+      "unknown_or_corrupt": "不接受未知ABI/尾字节/破坏的hash或position coherence；保留原件及原因并failclosed，不fallback随机模型/空counter。",
+      "rollback": "关闭新入口后仍可显式从保留的最后合法old/new checkpoint恢复；不得清事件、source revision、未来/确认账本。"
+    },
+    {
+      "id": "P03-M08",
+      "methods": [
+        "FoundryCampaignR26.capture/step/encode/finish",
+        "LegacyGenerationR26.step/compute/verifySource/cancel",
+        "ReplayWorkspaceR26",
+        "ModelReplaySU2.evaluate/fitness"
+      ],
+      "status": "PROPOSED_NOT_IMPLEMENTED",
+      "reuse": "现有固定snapshot、每成员64标签RAW/CAL输出块、full optimizer/calibrator checkpoint、source/model/ABI key及连续cursor验证。",
+      "increment": "为未覆盖的post-member策略回放/committee/mutation等纯计算增加可恢复子阶段/输出和RNG位置；复用原workspace/CAS与source identity。",
+      "golden": "保持predict-before-learn、校准predict-before-settle、gap reset语义、排序/浮点归约/随机调用顺序，result/act/K3/next frozen hash一致。",
+      "cancel": "继续P01 token→cooperative yield→helper真实终止→释放workspace引用；旧owner结果不进入新claim。",
+      "not_proven": "不能由成员output chunk存在就声称整个generation每断点可恢复；不以屏蔽家族/候选降低计算负担。"
+    },
+    {
+      "id": "P03-M09",
+      "methods": [
+        "ModelReplaySU2.Library.get/getCal/states",
+        "LegacyGenerationR26.compute"
+      ],
+      "status": "PROPOSED_NOT_IMPLEMENTED",
+      "identity": "缓存必须明确归属immutable input envelope/job/numerical ABI/model key；现Library绑定单输入可保留，不能跨job误复用。",
+      "accounting": "RAW/CAL共享state数组只按实际唯一owner引用计费；插入和evict采用同一字节定义；teacher stateSeries也受预算；draws共享而非每候选复制。",
+      "capacity": "单条输出本身超cap不能因cache.size<=1或<=2自动豁免；用持久输出/窗口读取或明确admission等待，不能删有效模型。",
+      "release": "retired/terminated job释放内存强引用；持久输出依证据角色保护，P03不提前GC。",
+      "validation": "核对逻辑bytes、唯一数组引用、post-GC live set/PSS及输出完全一致；不得靠每期强制GC过关。"
+    },
+    {
+      "id": "P03-M10",
+      "methods": [
+        "AtomNetRuntimeR30 materialization",
+        "EvolutionLoopR27 birth/validate + RuntimeR27.EvolutionTask",
+        "FoundryCampaignR26 birth/finish",
+        "LegacyGenerationR26 final commit",
+        "ModelStoreSU2.saveEvolution/saveGenome/saveCommittee",
+        "FrozenConfirmationStoreR30.register"
+      ],
+      "status": "PROPOSED_NOT_IMPLEMENTED",
+      "budgets": {
+        "initial_max_write_ops": 64,
+        "initial_bind_bytes_cap": "min(262144,Runtime.maxMemory()/512)",
+        "initial_train_samples": 64,
+        "initial_replay_rows": 256,
+        "writer_hold_p99_target_ms": 50,
+        "hold_over_200ms": "必须fault receipt，不宣称已测"
+      },
+      "staging": "各owner在事务外形成immutable encoded DTO和有界chunk；chunk receipt绑定job/input/parent/chunk index，durable chunk清单保存进度；final generation/publication指针只在全部chunk验证后一次提交。",
+      "counting": "以实际SQL写操作、prepared bind bytes、callbacks隐藏写和receipt开销预留预算；训练样本数不是SQL数；saveGenome多SQL不能算一op。",
+      "not_allowed": [
+        "由queue任意拆原子batch",
+        "放大预算使120op通过",
+        "删除birth/lineage/candidate/真实能力",
+        "失败后清数据重跑",
+        "只在报告写bounded"
+      ],
+      "atomic_oversize": "遇到不能拆的合法原子单元，显式资源等待/迁移预算及fault receipt，保留原数据；由owner明确解决后才能宣称通过。"
+    },
+    {
+      "id": "P03-M11",
+      "methods": [
+        "CheckpointReferencesR26.hashes",
+        "ArtifactMaintenanceR26.step",
+        "ReportAttachmentClosureCP12 checkpoint closure"
+      ],
+      "status": "PROPOSED_NOT_IMPLEMENTED",
+      "roots": [
+        "新旧可恢复r29模型checkpoint ref",
+        "last-complete publication ref及需保留legacy出版物",
+        "运行中input/confirmation pin ref",
+        "existing r26 current/parent/output roots",
+        "streamed child closure"
+      ],
+      "order": "先保护root，再提交新引用；prepared lease只覆盖prepare期间，不能替代持久root。",
+      "metadata": "若采用r26_checkpoint_artifact manifest，则现maintenance metadata保护查询也要纳入新root；如不采用不要另造重复清单。",
+      "backup": "full-raw报告快照按同一roots+reachableHashes导出完整闭包；compact预算拒绝不能冒充full备份。",
+      "phase_boundary": "P03不启用任何新删除/GC；P06 owner在权威迁移完成后统一落实回收，当前改动只避免已有GC误删新合法状态。"
+    }
+  ]
+}

@@ -1,0 +1,342 @@
+{
+  "card": "B04_CONTROL_LIFECYCLE_WITH_B01_C04_REGRESSION",
+  "phase": "P02",
+  "state": "CODE_COMPLETE",
+  "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "inheritedP00Commit": "8faabc2cbd5fe334730130b2ddb00d6d09ac94ac",
+  "sourceCommit": "31fea28c5723ac70e47ae4cc7542344b16fb3f91",
+  "dirtyAtRun": true,
+  "compiledSourceSHA256": {
+    "CooperativeContinuationR26": "5564385485e5d66286fb0d2a720ef479e40fe9f972a1cc88763ece674384f998",
+    "TaskContinuationR26": "217deb555190d726b448ea7543e175a4612f754430a06d47c0e8ef083a368983",
+    "ExecutionBudgetR26": "7235efe1f018edaedb5dc2f22e1cfa3dc88f7aed5b77e9571374e83b7d0d034b",
+    "IncumbentLoopSU2": "f00b6741c6faf96cbeed451603a5e8912d79fbcd144fa93d4ea85005cbef7bd6",
+    "XiIncumbentSU2": "d66ad5a201a672d8bee5de8ef0b91d487f0d094f1cb91959cc255ab9bf77d57a",
+    "LegacyGenerationR26": "c58d560e43f857ef7918cf853210b701f10b54a117fa9b360ce61ed73f987733",
+    "LegacyReplayContinuationR26": "e99e515051691fc953f9f8668c0b1e0b28f99af7f8eb3c84eb72906898739bb5",
+    "EvolutionLoopR27": "faad92fe1dc09311e9072c36cb603c944e57da107aed65e0dda943499f769f55"
+  },
+  "evaluatedAt": "2026-11-04T10:37:13.206593+00:00",
+  "actualChanges": {
+    "CooperativeContinuationR26": [
+      "State/isTerminated/awaitTermination",
+      "helpers without CURRENT honor interrupt at all existing poll sites",
+      "bounded owner waits preserve interrupt",
+      "slice rejects concurrent resume and never resumes cancellation",
+      "permit ownership reaped after actual thread exit",
+      "startup/finally cleanup",
+      "bounded phase/checkpoint/thread diagnostics",
+      "idempotent critical close"
+    ],
+    "TaskContinuationR26": [
+      "map lock excludes slice/join",
+      "inFlight and context identity",
+      "old owner/target drains before replacement",
+      "commit chunk inheritance for same task/owner"
+    ],
+    "ExecutionBudgetR26": [
+      "bounded phase observer only"
+    ],
+    "IncumbentLoopSU2": [
+      "capture/encode/freeze phase markers",
+      "checkpoint marker only after durable freeze returned success"
+    ],
+    "XiIncumbentSU2": [
+      "phase markers only; original polls and arithmetic preserved"
+    ],
+    "LegacyGenerationR26": [
+      "authorized scope extension: cancel retains active worker",
+      "nonblocking single step reservation",
+      "old owner/source/ABI replacement waits for termination",
+      "same-owner chunk inheritance"
+    ],
+    "EvolutionLoopR27": [
+      "authorized required caller extension: REPLAY only",
+      "at most two in-flight helpers",
+      "20ms Future timeout with parent polling",
+      "capacity refusal yields explicit resource wait after bounded 50ms admission retry",
+      "apply complete results in original candidate order",
+      "cancel every remaining Future on failure",
+      "inherit H_SELECT evolution guard on helpers"
+    ],
+    "LegacyReplayContinuationR26": [
+      "authorized scope extension: lock excludes slice/join",
+      "inFlight/context identity",
+      "do not clear mutable replay state under live worker",
+      "same-owner chunk inheritance"
+    ]
+  },
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java": "5564385485e5d66286fb0d2a720ef479e40fe9f972a1cc88763ece674384f998",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java": "217deb555190d726b448ea7543e175a4612f754430a06d47c0e8ef083a368983",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExecutionBudgetR26.java": "7235efe1f018edaedb5dc2f22e1cfa3dc88f7aed5b77e9571374e83b7d0d034b",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/IncumbentLoopSU2.java": "f00b6741c6faf96cbeed451603a5e8912d79fbcd144fa93d4ea85005cbef7bd6",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/XiIncumbentSU2.java": "d66ad5a201a672d8bee5de8ef0b91d487f0d094f1cb91959cc255ab9bf77d57a",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyGenerationR26.java": "c58d560e43f857ef7918cf853210b701f10b54a117fa9b360ce61ed73f987733",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyReplayContinuationR26.java": "e99e515051691fc953f9f8668c0b1e0b28f99af7f8eb3c84eb72906898739bb5",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java": "faad92fe1dc09311e9072c36cb603c944e57da107aed65e0dda943499f769f55"
+  },
+  "testAndToolSha256": {
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31ContinuationLifecycleTest.java": "ae70c19e23e9c2bd395e8cd9a3b1f0a38f8b629462cf30af4d14c2831e9799ed",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31BoundedReplayTest.java": "4e53a63f0aa294fec70d1342629e70e574c75ed5d812414b48e1181d5904d15c",
+    "tools/r31/verify_continuation.py": "6c0a2756db5f316b0ae20008e524d0829ba5bdde41de75e01d195f6998afd1be",
+    "tools/r31/continuation_host/B01C04BaselineRepro.java": "0cffeb93fbe8093cf552c0b6fc671b3bbc9b3b1bd834a5533206e9ab150b9008",
+    "tools/r31/continuation_host/ContinuationOwnerRaceR31HostTest.java": "4bca05b6f5a71a7876544e226815f2070e7bca7738a8aa36788453b4b2199470",
+    "tools/r31/continuation_host/IncumbentProfileR31HostTest.java": "8f7cf80aa1a910ad7833359de587690917a9e54a80124a4d720622a909616955",
+    "tools/r31/continuation_host/shim/android/os/SystemClock.java": "fe078ba5732833a16a6a2cc1e8a06f7b180a7d2e038f0ed059bf3f3cb38359fe",
+    "tools/r31/continuation_host/shim/com/ethk3/novaonepro/DbStore.java": "6b863201ac0f2778e9169c4b5c4a30edc11d17c2b76e6e4298ac47ccf5993e85",
+    "tools/r31/continuation_host/shim/com/ethk3/novaonepro/strategyv2/LifecycleBodies.java": "97be472ea2dc4c651fb7fb2cf4523329440f183bf7cbb6ff9f28a4ef7684e671",
+    "tools/r31/continuation_host/shim/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java": "98183004054cf69d96a6318a33b23acca36434dc44b9e840aa5ccaf8d8534c9c"
+  },
+  "androidCompiledDependency": {
+    "path": "app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.class",
+    "sha256": "6dfdc2fb32a4840cfdbe81d8810512b0991ff5387c8480b7e017fbcfc95a9fdc",
+    "use": "production ModelReplaySU2.quantileLinear numerical dependency; not a standalone Android build"
+  },
+  "tests": {
+    "coreJUnit": 8,
+    "productionBoundedReplayJUnit": 4,
+    "realReplayCandidates": 128,
+    "maximumReplayHelpers": 2,
+    "exactSerialParallelReplayParity": true,
+    "actualHelperFinallyObservedAfterCancel": true,
+    "controlledOverlapRaces": 2,
+    "sequentialOwnerTargetSwitches": 10000,
+    "maxSameTaskBodyConcurrency": 1,
+    "finalHeldPermits": 0,
+    "originalIncumbentBudget": "PASS",
+    "originalRecovery": "PASS",
+    "baselineFaultReproduction": "REPRODUCED"
+  },
+  "profiles": {
+    "before": {
+      "scope": "SYNTHETIC_ENGINEERING_PROFILE_NOT_NATURAL_QUALITY",
+      "history": 1800,
+      "quanta": 182,
+      "workerCpuNanos": 570964911,
+      "workerAllocatedBytes": 52380312,
+      "maxPollGapNanos": 2603624,
+      "maxSliceWallNanos": 5173259,
+      "continuousAndSlicedSha256": "d91d687221e3ddf14cedd42c58a10e8420381137ca8821e96dfa4ea0e385821e",
+      "phaseCount": 1
+    },
+    "after": {
+      "scope": "SYNTHETIC_ENGINEERING_PROFILE_NOT_NATURAL_QUALITY",
+      "history": 1800,
+      "quanta": 150,
+      "workerCpuNanos": 495748821,
+      "workerAllocatedBytes": 52380080,
+      "maxPollGapNanos": 6004760,
+      "maxSliceWallNanos": 8469261,
+      "continuousAndSlicedSha256": "d91d687221e3ddf14cedd42c58a10e8420381137ca8821e96dfa4ea0e385821e",
+      "phaseCount": 9
+    },
+    "conclusion": "Exact synthetic arithmetic parity; individual host timing/allocation observations are not device performance or quality claims"
+  },
+  "integration": {
+    "sharedProvider": "ResearchPoolR27 single static controller installed before Android workers",
+    "sharedClaim": "inheritCommitChunksR31(previous)",
+    "androidBuild": "PENDING_ROOT_JOINT_BUILD",
+    "databaseMigration": "NO_DDL_IN_OWNED_CHANGES",
+    "apk": null
+  },
+  "requiredRemaining": [
+    "root Android compile and shared task/writer integration",
+    "device owner/fence race and connection lifetime",
+    "writer-internal rejected yield database rollback",
+    "never-poll 10-second shutdown on Android",
+    "memory/thermal/screen-off fault injection",
+    "24h and 72h duration acceptance"
+  ],
+  "notEvidenceFor": [
+    "SQL fence integration by this host shim",
+    "complete LegacyGeneration end-to-end DB recovery",
+    "real ResearchPool helper task/fence group integration by this bounded executor fixture",
+    "Android device scheduling or resource consumption",
+    "natural future quality or promotion"
+  ],
+  "commands": [
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-cp",
+        "/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "-d",
+        "/tmp/r31-continuation-66j53lp9/core",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/ExecutionBudgetR26.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/BudgetTokenSU1.java",
+        "/workspace/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31ContinuationLifecycleTest.java"
+      ],
+      "log": "core-javac.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-cp",
+        "/tmp/r31-continuation-66j53lp9/core:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "org.junit.runner.JUnitCore",
+        "com.ethk3.novaonepro.strategyv2.R31ContinuationLifecycleTest"
+      ],
+      "log": "core-junit.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-cp",
+        "/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "-d",
+        "/tmp/r31-continuation-66j53lp9/replay",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/ExecutionBudgetR26.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/BudgetTokenSU1.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "/workspace/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31BoundedReplayTest.java"
+      ],
+      "log": "bounded-replay-javac.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx768m",
+        "-cp",
+        "/tmp/r31-continuation-66j53lp9/replay:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "org.junit.runner.JUnitCore",
+        "com.ethk3.novaonepro.strategyv2.R31BoundedReplayTest"
+      ],
+      "log": "bounded-replay-junit.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-d",
+        "/tmp/r31-continuation-66j53lp9/race",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/ExecutionBudgetR26.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/BudgetTokenSU1.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyReplayContinuationR26.java",
+        "/workspace/starcore-public-build/tools/r31/continuation_host/shim/android/os/SystemClock.java",
+        "/workspace/starcore-public-build/tools/r31/continuation_host/shim/com/ethk3/novaonepro/DbStore.java",
+        "/workspace/starcore-public-build/tools/r31/continuation_host/shim/com/ethk3/novaonepro/strategyv2/LifecycleBodies.java",
+        "/workspace/starcore-public-build/tools/r31/continuation_host/shim/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "/workspace/starcore-public-build/tools/r31/continuation_host/ContinuationOwnerRaceR31HostTest.java"
+      ],
+      "log": "owner-race-javac.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-cp",
+        "/tmp/r31-continuation-66j53lp9/race",
+        "com.ethk3.novaonepro.strategyv2.ContinuationOwnerRaceR31HostTest"
+      ],
+      "log": "owner-race.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-cp",
+        "/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "-d",
+        "/tmp/r31-continuation-66j53lp9/baseline",
+        "/tmp/r31-continuation-66j53lp9/baseline-source/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java",
+        "/tmp/r31-continuation-66j53lp9/baseline-source/com/ethk3/novaonepro/strategyv2/ExecutionBudgetR26.java",
+        "/tmp/r31-continuation-66j53lp9/baseline-source/com/ethk3/novaonepro/strategyv2/BudgetTokenSU1.java",
+        "/tmp/r31-continuation-66j53lp9/baseline-source/com/ethk3/novaonepro/strategyv2/XiIncumbentSU2.java",
+        "/tmp/r31-continuation-66j53lp9/baseline-source/com/ethk3/novaonepro/strategyv2/LogisticRidgeSU2.java",
+        "/tmp/r31-continuation-66j53lp9/baseline-source/com/ethk3/novaonepro/strategyv2/HashingSU1.java",
+        "/workspace/starcore-public-build/tools/r31/continuation_host/B01C04BaselineRepro.java",
+        "/workspace/starcore-public-build/tools/r31/continuation_host/IncumbentProfileR31HostTest.java"
+      ],
+      "log": "baseline-javac.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-cp",
+        "/tmp/r31-continuation-66j53lp9/baseline:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "com.ethk3.novaonepro.strategyv2.B01C04BaselineRepro"
+      ],
+      "log": "baseline-repro.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx768m",
+        "-cp",
+        "/tmp/r31-continuation-66j53lp9/baseline:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "com.ethk3.novaonepro.strategyv2.IncumbentProfileR31HostTest"
+      ],
+      "log": "baseline-profile.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-cp",
+        "/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "-d",
+        "/tmp/r31-continuation-66j53lp9/current",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/ExecutionBudgetR26.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/BudgetTokenSU1.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/XiIncumbentSU2.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/LogisticRidgeSU2.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/HashingSU1.java",
+        "/workspace/starcore-public-build/tools/r31/continuation_host/IncumbentProfileR31HostTest.java",
+        "/workspace/starcore-public-build/tools/strategy_su2/tests/R26IncumbentBudgetTest.java",
+        "/workspace/starcore-public-build/tools/strategy_su2/tests/R26RecoveryTest.java"
+      ],
+      "log": "current-numerical-javac.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx768m",
+        "-cp",
+        "/tmp/r31-continuation-66j53lp9/current:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "com.ethk3.novaonepro.strategyv2.IncumbentProfileR31HostTest"
+      ],
+      "log": "current-profile.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx768m",
+        "-cp",
+        "/tmp/r31-continuation-66j53lp9/current:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "com.ethk3.novaonepro.strategyv2.R26IncumbentBudgetTest"
+      ],
+      "log": "original-incumbent-budget.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx768m",
+        "-cp",
+        "/tmp/r31-continuation-66j53lp9/current:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "com.ethk3.novaonepro.strategyv2.R26RecoveryTest"
+      ],
+      "log": "original-recovery.log",
+      "exitCode": 0
+    }
+  ],
+  "p02AdditionalEvidence": {
+    "sameOwnerCancelledTerminatedContextReloads": 2,
+    "lastOldResultDiscarded": true,
+    "namedCancellationDoesNotProveTermination": true,
+    "controlledLifecycleBody": "SYNTHETIC_ORCHESTRATION_NOT_QUALITY_OR_FULL_DB_MODEL_RECOVERY"
+  }
+}

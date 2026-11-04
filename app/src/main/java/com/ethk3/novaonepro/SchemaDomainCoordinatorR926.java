@@ -92,6 +92,52 @@ public final class SchemaDomainCoordinatorR926 {
         }
     }
 
+    public static Contract r31FeedbackContract() {
+        return new Contract("RESEARCH_R31_FEEDBACK",
+                com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.R31_FEEDBACK_REVISION,
+                new String[] {"r31_feedback_event", "r31_feedback_event_order", "r31_feedback_receipt",
+                        "r31_feedback_receipt_event", "r31_frozen_feedback_effect", "r31_feedback_event_immutable",
+                        "r31_feedback_model_receipt", "r31_feedback_source",
+                        "r31_feedback_event_no_replace", "r31_feedback_event_no_delete"});
+    }
+
+    /** Research event/consumer extensions are migrated after the legacy feedback and checkpoint schema. */
+    public static void migrateR31Feedback(SQLiteDatabase db) {
+        if (!db.inTransaction()) throw new IllegalStateException("R31_MIGRATION_OWNER_REQUIRED");
+        Contract contract=r31FeedbackContract();
+        prepareRepairIfDrift(db,contract);
+        try {
+            runStep(db,contract,"R31_FEEDBACK_V1",
+                    com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26::ensureR31Feedback);
+            verifyAndStamp(db,contract);
+        } catch(RuntimeException failure) {throw failure;}
+        catch(Exception failure) {throw new IllegalStateException("R31_FEEDBACK_MIGRATION_FAILED",failure);}
+    }
+
+    public static Contract r31TransportTimingContract() {
+        return new Contract("REALTIME_R31_TIMING", FetchLedgerR925.R31_TIMING_REVISION,
+                new String[] {"r31_fetch_timing", "r31_fetch_timing_issue"});
+    }
+
+    /** Startup-only additive domain, under the existing sole writer guard. */
+    public static void migrateR31TransportTiming(SQLiteDatabase db) {
+        boolean own = !db.inTransaction();
+        try {
+            if (own) db.beginTransaction();
+            Contract contract = r31TransportTimingContract();
+            prepareRepairIfDrift(db, contract);
+            runStep(db, contract, "R31_TRANSPORT_TIMING_V1", FetchLedgerR925::ensureR31Timing);
+            verifyAndStamp(db, contract);
+            if (own) db.setTransactionSuccessful();
+        } catch (RuntimeException failure) {
+            throw failure;
+        } catch (Exception failure) {
+            throw new IllegalStateException("R31_TRANSPORT_TIMING_MIGRATION_FAILED", failure);
+        } finally {
+            if (own && db.inTransaction()) db.endTransaction();
+        }
+    }
+
     public static Contract criticalContract() {
         return new Contract(
                 DOMAIN_CRITICAL,
@@ -171,6 +217,9 @@ public final class SchemaDomainCoordinatorR926 {
                     ResearchPlatformStoreR929.TABLE_CERT_GATE,
                     ResearchPlatformStoreR929.TABLE_CERT_HISTORY,
                     ResearchPlatformStoreR929.TABLE_REVOCATION,
+                    UnifiedResearchChoiceR932.TABLE,
+                    "idx_r929_trial_family", "idx_r929_bundle_one_active",
+                    "idx_r929_cert_lookup", "idx_r929_contribution_issue",
                     DirectedResearchCreationR932.GROUP, DirectedResearchCreationR932.ATTEMPT, DirectedResearchCreationR932.CURSOR,
                     ResearchLifecycleR932.TABLE,
                     ResearchLifecycleR932.EVENT,
@@ -237,10 +286,7 @@ public final class SchemaDomainCoordinatorR926 {
     }
 
     public static Contract legacyContract() {
-        return new Contract(
-                DOMAIN_LEGACY,
-                ReleaseManifestR926.LEGACY_DOMAIN_REVISION,
-                new String[] {
+        List<String> objects=new ArrayList<>(Arrays.asList(new String[] {
                     DbHelper.TABLE_REALTIME_VALIDATE,
                     DbHelper.TABLE_TEACHER_SNAPSHOT,
                     DbHelper.TABLE_LEARNING_CASE_LOG,
@@ -251,7 +297,10 @@ public final class SchemaDomainCoordinatorR926 {
                     DbHelper.TABLE_TEACHER_MATRIX_PROFILE,
                     DbHelper.TABLE_TEACHER_MATRIX_COMBO_PROFILE,
                     DbHelper.TABLE_TEACHER_MATRIX_REPORT
-                });
+                }));
+        Collections.addAll(objects,LegacySchemaCoordinatorR926.requiredMainChainObjectsR31());
+        return new Contract(DOMAIN_LEGACY,ReleaseManifestR926.LEGACY_DOMAIN_REVISION,
+                new java.util.LinkedHashSet<>(objects).toArray(new String[0]));
     }
 
     public static void ensureInfrastructure(SQLiteDatabase db) {

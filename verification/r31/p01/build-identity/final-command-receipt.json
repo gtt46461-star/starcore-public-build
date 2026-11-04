@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "bash",
+    "./gradlew",
+    "--no-daemon",
+    "--max-workers=4",
+    ":app:compileDebugJavaWithJavac",
+    ":app:compileDebugAndroidTestJavaWithJavac",
+    "-Pr30Instrumentation=true",
+    ":app:testDebugUnitTest",
+    "--tests",
+    "*R31*",
+    "--tests",
+    "*R30TaskLivenessTest",
+    "--tests",
+    "*R30WriteWaitTest",
+    ":app:verifyFinalR31BuildIdentity"
+  ],
+  "activation": "source /workspace/starcore-environment/activate.sh",
+  "source_commit": "844a78488f396189c2db98591782b7bb214799d2",
+  "started_utc": "2026-11-04T09:47:43.372574+00:00",
+  "completed_utc": "2026-11-04T09:48:23.092165+00:00",
+  "exit_code": 0,
+  "excluded_tasks": [],
+  "log": "FINAL_UNEXCLUDED_P01_COMPILE_INSTRUMENTATION_AND_UNIT.log",
+  "log_sha256": "15a5cf063cdf1f6c66317c578e1e405cf0207074ff9c8b21a02513c1278b0e12",
+  "scope": "P01_SOURCE_AND_ANDROID_TEST_COMPILATION_PLUS_HOST_UNIT_ONLY",
+  "apk": "NOT_BUILT_BY_THIS_COMMAND",
+  "android_instrumentation_execution": "NOT_RUN",
+  "device": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN",
+  "missing_targets_not_requested": [
+    "R26RecoveryTest",
+    "R26IncumbentBudgetTest"
+  ]
+}

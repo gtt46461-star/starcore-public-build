@@ -1,0 +1,10 @@
+/tmp/r31-p03-publication-repro-uo2s8285/source/PublicationCounterexampleR31.java:9: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/tmp/r31-p03-publication-repro-uo2s8285/source/PublicationCounterexampleR31.java:66: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Field field=Unsafe.class.getDeclaredField("theUnsafe");field.setAccessible(true);
+                    ^
+/tmp/r31-p03-publication-repro-uo2s8285/source/PublicationCounterexampleR31.java:67: warning: Unsafe is internal proprietary API and may be removed in a future release
+        return (RuntimeR27)((Unsafe)field.get(null)).allocateInstance(RuntimeR27.class);
+                             ^
+3 warnings

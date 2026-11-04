@@ -19,7 +19,7 @@ public final class LegacyReplayContinuationR26 {
         CooperativeContinuationR26.reapTerminated();
         Context context;
         synchronized (LOCK) {
-            if (active != null && !active.claim.owner.equals(claim.owner)) {
+            if (active != null && (!active.claim.owner.equals(claim.owner)||active.work.cancellationRequested())) {
                 active.work.close();
                 if (active.inFlight || !active.work.isTerminated()) { claim.reason("COOPERATIVE_DRAINING_PREVIOUS_LEGACY_OWNER"); return 0; }
                 active = null; LegacyReplayR26.clearWorking();

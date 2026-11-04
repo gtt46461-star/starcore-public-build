@@ -1,0 +1,86 @@
+{
+  "actual_changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+      "methods": "classify: bounded cause-chain RETRY/CANCEL/DEPENDENCY/STALE/FAULT/FATAL; process-fatal original Error rethrow",
+      "committed_sha256": "dc9effeed210b5a8f51d3f6a3552071098fff8683b88c778c008977a5f2b63e6"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java",
+      "methods": "fromThrowable delegates shared typed classification",
+      "committed_sha256": "e3ea909cbbbdc984d3e76d056eb84dc6cfd888ff008e6f514369b2a868f2faab"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "methods": "typed WriteRejected retains disposition/commit outcome; transient writer waits do not consume task fault budget",
+      "committed_sha256": "bf5495b95b2820693e8d49bba02c528b8ed1147a73cdfb9afe36a7d0139d4c6c"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "methods": "claim/run/receipt use shared classifier and bounded evidence",
+      "committed_sha256": "e36d3a9adcbc0099796b6a182bf654257d62b79b58bbb57315c442b5ee051621"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "methods": "shared classification for direct and legacy task entries",
+      "committed_sha256": "d2b27268bfb8027ea2ebcbb8a326deb03397f73b12e7082495bfb2c5ef7f80b2"
+    }
+  ],
+  "commits": [
+    "844a78488f396189c2db98591782b7bb214799d2"
+  ],
+  "migration_versions": [
+    "SQLite userVersion 36 retained",
+    "RESEARCH_R31_OBSERVATION:1",
+    "RESEARCH_R31_WRITE:1"
+  ],
+  "tests": [
+    {
+      "command": "source /workspace/starcore-environment/activate.sh; bash ./gradlew --no-daemon --max-workers=4 :app:compileDebugJavaWithJavac :app:compileDebugAndroidTestJavaWithJavac -Pr30Instrumentation=true :app:testDebugUnitTest --tests *R31* --tests *R30TaskLivenessTest --tests *R30WriteWaitTest :app:verifyFinalR31BuildIdentity",
+      "result": "PASS",
+      "evidence": "verification/r31/p01/build-identity/final-integration-receipt.json",
+      "scope": "source and Android-test compilation, 32 host unit tests; no APK/device execution"
+    },
+    {
+      "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_task_runtime_host.py",
+      "result": "PASS",
+      "evidence": "verification/r31/p01/task-runtime/receipt.json",
+      "scope": "199 assertions, actual production protocol plus native SQLite HOST adapters; no Android claim"
+    },
+    {
+      "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_write_protocol_host.py",
+      "result": "PASS",
+      "evidence": "verification/r31/p01/writer-protocol/writer-evidence.json",
+      "scope": "actual production writer + native SQLite HOST adapters; process halt/replay, 9 postcommit faults, conflict/rollback; no Android claim"
+    }
+  ],
+  "apk_identity": null,
+  "device_evidence": [],
+  "acceptance": [
+    {
+      "contract": "持实时锁3秒，所有R27任务不新增FAULT、不进入QUARANTINED；锁释放后依公平预算有进展，P0不被R27排队阻塞。",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "contract": "磁盘满/constraint/损坏异常不被当busy无限重试；用户stop后无继续提交。",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "contract": "R26、R27、直接研究write、任务claim四入口对同一根异常分类一致。",
+      "status": "NOT_RUN",
+      "evidence": []
+    }
+  ],
+  "remaining": [
+    "持实时锁3秒，所有R27任务不新增FAULT、不进入QUARANTINED；锁释放后依公平预算有进展，P0不被R27排队阻塞。",
+    "磁盘满/constraint/损坏异常不被当busy无限重试；用户stop后无继续提交。",
+    "R26、R27、直接研究write、任务claim四入口对同一根异常分类一致。",
+    "Android integration/fault injection and real device lifecycle NOT_RUN",
+    "24h/72h device soak NOT_RUN",
+    "No natural FUTURE/REAL quality proof"
+  ],
+  "next_step": "P02 integrated resource/feedback/health work; later owner staging and Android/device validation; no mandatory card closure yet.",
+  "scope_note": "BUILD_PASS only records source compilation; acceptance assertions remain NOT_RUN/PARTIAL until each required environment evidence exists."
+}

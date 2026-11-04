@@ -286,6 +286,32 @@ public final class V51Repository {
         DbHelper.ensureTianshuB03(db);
     }
 
+    /** Startup/manual migrations retain ensure(); business callbacks only inspect their actual contract. */
+    public static void requireBusinessSchemaR31(SQLiteDatabase db,String operation){
+        DatabaseCoordinator.requireSchemaObjectsR31(db,operation,new String[][]{
+            {ISSUE,"target_issue,base_issue,history_hash,feature_hash,state_hash,expert_hash,artifact_bundle_hash,cohort_id,status,created_at,settled,actual_permutation,result,game_code,bundle_hash,contract_hash,record_hash"},
+            {NUMBER,"target_issue,position,number,raw_score,number_p,number_rank,state_id,domain_id,actual_label,expert_hash,game_code,bundle_hash,contract_hash,record_hash"},
+            {ACTION,"target_issue,position,n1,n2,n3,n4,raw_action_p,rank_score,selected_hit_p,rank_no,hit_label,fingerprint,meta_blob,action_hash,game_code,bundle_hash,contract_hash,record_hash"},
+            {ACTION_SPACE,"target_issue,position,n1,n2,n3,n4,raw_action_p,rank_score,selected_hit_p,rank_no,hit_label,fingerprint,meta_blob,action_hash,game_code,bundle_hash,contract_hash,record_hash"},
+            {CHAMPION,"target_issue,position,n1,n2,n3,rank_score,action_hash,ranker_artifact,artifact_proven,frozen,game_code,bundle_hash,record_hash"},
+            {FUNNEL,"target_issue,position,trace_blob,final3,matrix_hash,game_code,bundle_hash,record_hash"},
+            {PERMUTATION,"target_issue,matrix_blob,row_error,column_error,iterations,converged,used_fallback,map_blob,matrix_hash,game_code,bundle_hash,contract_hash,record_hash"},
+            {SELECTED,"target_issue,decision_id,position,n1,n2,n3,selected_hit_p,predictability,lane,decision_action,reject_code,contract_hash,authorization_hash,settled,result,game_code,domain_id,rank_no,bundle_hash,record_hash,settlement_hash,raw_action_p,rank_score,third_margin,entropy,stability,window_consensus,assignment_support,shape_lifecycle,shape_prototype,shape_run_length,shape_change_risk,shape_confidence"},
+            {AUTH,"decision_id,target_issue,contract_hash,artifact_bundle_hash,cohort_id,probability_owner,rank_owner,lane_owner,authorization_hash,created_at,game_code,bundle_hash,record_hash"},
+            {SPAN,"target_issue,trace_id,span_name,parent_name,elapsed_ms,exclusive_ms,success,failure_owner,created_at,game_code,bundle_hash,record_hash"},
+            {DbHelper.TABLE_B03_PREDICTION_BUNDLE,"bundle_id,game_code,target_issue,bundle_hash,record_hash"},
+            {DbHelper.TABLE_B03_NUMBER_EVENT,"bundle_id,game_code,target_issue,position,number,record_hash"},
+            {DbHelper.TABLE_B03_ACTION_EVENT,"bundle_id,game_code,target_issue,position,record_hash"},
+            {DbHelper.TABLE_B03_PERMUTATION_EVENT,"bundle_id,game_code,target_issue,record_hash"},
+            {DbHelper.TABLE_B03_SELECTED_EVENT,"bundle_id,game_code,target_issue,record_hash"},
+            {DbHelper.TABLE_B03_AUTHORIZATION_EVENT,"bundle_id,game_code,target_issue,record_hash"},
+            {DbHelper.TABLE_B03_SETTLEMENT_EVENT,"game_code,target_issue,settlement_hash,record_hash"}
+        },new String[][]{
+            {"index","idx_v57_action_space_rank"},{"index","idx_v57_champion_game_issue"},{"index","idx_v57_funnel_game_issue"},
+            {"index","idx_v51_number_issue"},{"index","idx_v51_action_issue_rank"},{"index","idx_v51_selected_lane"},{"index","uq_v51_issue_game_target"}
+        });
+    }
+
     public static void persist(DbStore store, V51RuntimeResult result) {
         PersistReport report = persistWithReport(store, result);
         if (report == null || !report.success)
@@ -873,7 +899,7 @@ public final class V51Repository {
                             public PersistReport call(
                                     SQLiteDatabase db,
                                     DatabaseCoordinator.TransactionContext context) {
-                                ensure(db);
+                                requireBusinessSchemaR31(db,context.operation);
                                 String existing =
                                         scalar(
                                                 db,
@@ -937,6 +963,7 @@ public final class V51Repository {
                                 result.actions.length,
                                 result.selected == null ? 0 : 1,
                                 "AUDIT_REPLAY"));
+        if(outcome.failureCause instanceof DatabaseCoordinator.SchemaPendingR31)throw (DatabaseCoordinator.SchemaPendingR31)outcome.failureCause;
         return outcome.success && outcome.value != null
                 ? outcome.value
                 : fail(target, outcome.code);
@@ -1485,7 +1512,7 @@ public final class V51Repository {
                             public SettlementReport call(
                                     SQLiteDatabase db,
                                     DatabaseCoordinator.TransactionContext context) {
-                                ensure(db);
+                                requireBusinessSchemaR31(db,context.operation);
                                 String bundle =
                                         scalar(
                                                 db,
@@ -1625,6 +1652,7 @@ public final class V51Repository {
                                 settlementHash,
                                 V51ChecksumEngine.sha256(settlementHash + "|AUDIT_REPLAY"),
                                 "AUDIT_REPLAY"));
+        if(out.failureCause instanceof DatabaseCoordinator.SchemaPendingR31)throw (DatabaseCoordinator.SchemaPendingR31)out.failureCause;
         return out.value == null
                 ? new SettlementReport(
                         false, false, targetIssue, result, settlementHash, "", out.code)
@@ -1644,9 +1672,9 @@ public final class V51Repository {
         if (store == null || draw == null || !draw.isValid())
             return new SettlementReport(
                     false, false, draw == null ? "" : safe(draw.issue), "", "", "", "INVALID_DRAW");
-        ensure(store);
         String target = safe(draw.issue);
         SQLiteDatabase db = store.writable();
+        requireBusinessSchemaR31(db,"B03_OWNER_SETTLEMENT");
         Cursor c =
                 db.rawQuery(
                         "SELECT position,n1,n2,n3 FROM "

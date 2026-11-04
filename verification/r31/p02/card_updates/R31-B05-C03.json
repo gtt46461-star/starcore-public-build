@@ -1,0 +1,70 @@
+{
+  "recorded_at": "2026-11-04T10:38:50.822771+00:00",
+  "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "inherited_source_commit": "31fea28c5723ac70e47ae4cc7542344b16fb3f91",
+  "implementation_commit": "UNCOMMITTED_P02_ROOT_INTEGRATION_PENDING",
+  "actual_changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportCleanupR31.java",
+      "methods": "persistent bounded cleanup jobs, retained reasons and retry after active leases/streams end",
+      "worktree_sha256_at_record": "cce03ffdfdab532af885003a48917ebe9fff50c739e9166e492db8064d63ef66",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
+      "methods": "full report-owned categories and protection-aware lifecycle",
+      "worktree_sha256_at_record": "c0dd2095bbb1cc40b5f510f4178e882113d516f8fd20268869ce3b74a880ada9",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+      "methods": "READY and CLEANUP_PENDING separate; committed publication not undone by cleanup failure",
+      "worktree_sha256_at_record": "f7e0886e87e834927db1c4ce1a4bf78736090777bade52123cc7748c90285415",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "methods": "actual cleanup/native/stream resource consumer",
+      "worktree_sha256_at_record": "7eabb8875a4da1a7f074e89d404a7b241ca9176972dbd5c9660d23ce2c8f4318",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveCP4.java",
+      "methods": "archive/ZIP/parts write-ahead admission",
+      "worktree_sha256_at_record": "5dea43164e641d8614db7af0f241e7f9f2611585dd70c9d1db810913a03e0c3c",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportInputsLeaseCP12.java",
+      "methods": "actual input pin lifecycle",
+      "worktree_sha256_at_record": "5204d3890fab1dadd66026b05405436ba91f711176520ce39e8701213dfb8e61",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/DiagnosticReportProviderR923.java",
+      "methods": "recovery PFD holds cross-process shared lease until close",
+      "worktree_sha256_at_record": "ba442db4b0fd1aebef484305d63b0700a9454523a8ee7b3df31ead7809570c6a",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    }
+  ],
+  "commits": [],
+  "migration_versions": [
+    "SQLite userVersion36 retained",
+    "RESEARCH_R31_FEEDBACK:1 (10 objects)",
+    "REALTIME_R31_TIMING:1 (2 objects)",
+    "R31_STORAGE_ADMISSION_V1 / R31_MEMORY_PER_PID_V1"
+  ],
+  "tests": [],
+  "apk_identity": null,
+  "device_evidence": [],
+  "remaining": [
+    "ST-06/ST-07：发布后10分钟不再导出也能清理snapshot；ZIPhash不变",
+    "损坏ZIP不误删唯一证据；配额超限不得再无限复制",
+    "对当前版本正常publish路径回归：不重复删除、不制造新故障",
+    "Native backup final dirty-page physical growth boundary still under repair/test; no report-capacity PASS.",
+    "Root same-version unexcluded Android/Gradle source integration pending",
+    "Android/physical device fault matrix and24/72h NOT_RUN",
+    "Natural FUTURE/REAL quality NOT_PROVEN"
+  ],
+  "next_step": "Finish real HOST/native fault tests, freeze source, regenerate verified identities from actual classes, then run unexcluded joint build/tests. No P06 business/cache GC enabled."
+}

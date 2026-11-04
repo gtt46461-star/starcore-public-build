@@ -1,0 +1,46 @@
+{
+  "recorded_at": "2026-11-04T10:38:50.822771+00:00",
+  "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "inherited_source_commit": "31fea28c5723ac70e47ae4cc7542344b16fb3f91",
+  "implementation_commit": "UNCOMMITTED_P02_ROOT_INTEGRATION_PENDING",
+  "actual_changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
+      "methods": "Token: fixed deadline and PREPARE/INFER/FINALIZE budgets; no concurrent rescue while actual owner lives",
+      "worktree_sha256_at_record": "bb445d7a3f5eb24ea475d77bf609781d1ae2f649da771a87a46407e6d26770e7",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+      "methods": "pulse/fixedDeadlineF01: preserve original deadline/source selection",
+      "worktree_sha256_at_record": "093e214e5c227e9704269a5be12a0fcfea0c5cc027b81cd58f08a66b02ccf833",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "methods": "unique owner budget integration; FULL runtime supported, unavailable FAST not invented",
+      "worktree_sha256_at_record": "8c2cfc968e741a7cb8f2b1b409deb19b71c037bbd33d3a687318cbaa5d9de810",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    }
+  ],
+  "commits": [],
+  "migration_versions": [
+    "SQLite userVersion36 retained",
+    "RESEARCH_R31_FEEDBACK:1 (10 objects)",
+    "REALTIME_R31_TIMING:1 (2 objects)",
+    "R31_STORAGE_ADMISSION_V1 / R31_MEMORY_PER_PID_V1"
+  ],
+  "tests": [],
+  "apk_identity": null,
+  "device_evidence": [],
+  "remaining": [
+    "同一期fast/full竞争、截止前1ms/截止后1ms、first_seen早于open、时钟跳变、模型正在更新：最多一个canonical hash，所有标签使用原hash。",
+    "100%已知实时机会有终端状态；可预测覆盖单列，目标≥99%仅在明确设备/网络/正常资源条件下验收。",
+    "FULL迟到不得改既有canonical；无资格fast路径不得产生REAL。",
+    "超时owner仍活时不能reap并启动第二owner；唯一并发active=1。",
+    "Root same-version unexcluded Android/Gradle source integration pending",
+    "Android/physical device fault matrix and24/72h NOT_RUN",
+    "Natural FUTURE/REAL quality NOT_PROVEN"
+  ],
+  "next_step": "Finish real HOST/native fault tests, freeze source, regenerate verified identities from actual classes, then run unexcluded joint build/tests. No P06 business/cache GC enabled."
+}

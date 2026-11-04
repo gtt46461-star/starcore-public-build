@@ -1,0 +1,86 @@
+{
+  "phase": "P03_PREPARATION",
+  "card": "R31-B06-C01",
+  "implementationStatus": "NOT_STARTED_AWAITING_P02_JOINT_GATE",
+  "productionFilesModified": [],
+  "sourceHead": "31fea28c5723ac70e47ae4cc7542344b16fb3f91",
+  "sourceWorktree": "CURRENT_P02_SOURCE_SNAPSHOT_IDENTIFIED_BY_FILE_HASHES",
+  "observedAt": "2026-11-04T10:43:30.297024+00:00",
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java": "72a105392acc6544622717970d70b1584ab115a98207a06b4d8f5a50d1b97d36",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java": "4960989548548fca5b55c1bc20bce3511b4d3e466b4e90459807f85fda54ce11",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java": "b77544b3b1b5c6b6d62c0ddd01b1640bff9ce3a3b6704f4d0d114d3614992489",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java": "2ce20b6b0c5e3d2e6efa85f37229606e1451c09c9aae8401692cf1d101791e41",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldoutLedgerR27.java": "bbb81eba5ce5ea84bdbee3a3e51c808d89da46e435d701887d0fd0a418ed10c6",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ConfirmReadStoreR30.java": "6221f6888201f3f4e13f53e8155b5372b608a3596bf12db1e4831d6910eb0d0c",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java": "0fbae1bc194e5be3fba4f127ff90b2bb3132caf212deac883c4e3da9594af16b",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java": "3c2405578ef6f5dbc8b3a26192ac74f6ec72d74a14638c10c6401c4e98a2aa57",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java": "af651b8dec4c870edfa2f8dca91a92eb5873d78020fbd33e8b86a9523c256445",
+    "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java": "9cbe4bdc9463bab5a3928612b5fa80d78199f3809ad626f0ee932a0947795303"
+  },
+  "executedEvidence": {
+    "java": "Current production ReplayDataset/HoldoutLedger/ResearchInputPin compiled directly, using existing complete-project class dependency closure",
+    "sql": "Production-generated revision/pin trigger SQL executed on isolated host SQLite",
+    "android": "NOT_RUN",
+    "naturalQuality": "NOT_EVALUATED"
+  },
+  "findings": [
+    {
+      "id": "INPUT_CALENDAR_IDENTITY",
+      "status": "REPRODUCED",
+      "facts": "ReplayDataset.ordinalOf uses 1970 epoch; canonical TargetIssueResolver uses 2020. Offset=26297280. Arbitrary +1 ordinal keeps datasetHash but moves confirmation boundary 5039 to5038. Duplicate canonical issue with two supplied ordinals is accepted.",
+      "minimumCompatibleFix": "Retain legacy V2 content identities/exposure rows; add versioned canonical-calendar input manifest with explicit ordinals/bounds/reader ABI and validate issue↔ordinal. Do not silently rebase legacy experiments or reset exposure."
+    },
+    {
+      "id": "INPUT_ARRAY_ALIAS",
+      "status": "REPRODUCED",
+      "facts": "tail(5000) keeps exactly5000 rows but shares underlying row arrays with 6000-row source; legal row swap changes tail content while cached datasetHash stays unchanged. withDraws defensive row copy was already fixed in P02.",
+      "minimumCompatibleFix": "Deep-copy append/tail row ownership or use a new immutable input-block facade at freeze boundary; verify content/role identity at freeze. Public legacy array API remains a declared residual until migrated."
+    },
+    {
+      "id": "CONFIRM_REPEAT_CALENDAR_BLOCK",
+      "status": "REPRODUCED",
+      "facts": "Same policy+block+range can confirm again with a different datasetHash; distinct-policy exposure count stays1. Current exact key does not seal a canonical interval across rolling input identities.",
+      "minimumCompatibleFix": "Add durable canonical policy/readout/calendar-interval exposure linkage without clearing old exposure. Exact old cached evidence may be reused only with identical immutable input; corrected/reviewed history must not acquire a fresh independent-evidence label."
+    },
+    {
+      "id": "KNOWN_AT_AND_DELETE_SEMANTICS",
+      "status": "SQL_REPRODUCED",
+      "facts": "Changing draws.fetch_time neither increments source revision nor invalidates pin. DELETE increments global revision but not pin invalidation; number correction correctly invalidates.",
+      "minimumCompatibleFix": "Persist stable first-known-at/canonical source event and typed correction versus physical-retention event. Do not use last refetch timestamp as first availability, and do not indiscriminately invalidate frozen copies when hot tail rolls."
+    },
+    {
+      "id": "CONFIRM_PIN_MANIFEST",
+      "status": "STATIC_PATH_VERIFIED_NOT_END_TO_END_TESTED",
+      "facts": "Frozen dataset payload contains issue/ordinal/numbers only; no source revision/known_at/reader ABI/role contract/pin reference. context verifies payload bytes/content hash; complete/register verify packet/result/semantics but do not require source pin validity. context gzip decode lacks an explicit decompressed-byte/row bound.",
+      "minimumCompatibleFix": "Add versioned dataset manifest and durable pin edge at freeze, validate before context/complete/register, preserve legacy packets as historical/unverifiable-source where provenance is absent, add bounded decode. Keep commit-before-publication and no reopening of consumed confirmation reservations."
+    }
+  ],
+  "preservedWorkingPaths": [
+    "RuntimeR27 reads source revision before/after dataset load, pins through existing writer, publishes memory only after submit succeeds",
+    "Evolution switches pending dataset at generation boundary and preserves RNG/exposure when invalidating development input",
+    "H_CONFIRM reads persist reservation before replay and reject development-thread confirmation via existing evolution limit",
+    "Canonical cross-day1440→0001 distance tested as1; 5000 hot tail preservation remains"
+  ],
+  "scopeNotes": [
+    "StoreR27.loadDataset(5000) additionally reads verified older imported history up to10000 total by existing design. This is separate from retaining5000 hot draws; do not delete that historical training capability to satisfy a misleading cap.",
+    "StorageLedgerR31 currently measures/censuses disk; it is not a unified training input-pin reference table. Pin quotas/lifecycles remain to integrate.",
+    "No FrozenConfirmationStore Android/JDBC integration run yet; static gaps are not falsely marked device or integration failures."
+  ],
+  "nextAuthorizedWork": [
+    "After root P02 gate: implement only assigned C01 input/manifest/role/pin sources; RuntimeR27 remains root owner",
+    "Coordinate typed pin edges and source journal with root migration/writer/storage owners",
+    "Run actual input freeze/restore/source-correction/rolling-tail/exposure migration tests without relabeling old evidence"
+  ],
+  "reproductionCommands": [
+    "javac -cp app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar -d /tmp/r31-p03-preparation/classes app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldoutLedgerR27.java app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java verification/r31/p03_preparation/InputIdentityPreparationR31.java",
+    "java -cp /tmp/r31-p03-preparation/classes:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar com.ethk3.novaonepro.strategyv2.InputIdentityPreparationR31 > verification/r31/p03_preparation/java-facts.json",
+    "python3 verification/r31/p03_preparation/check_pin_sql.py"
+  ],
+  "preparationArtifactsSha256": {
+    "verification/r31/p03_preparation/InputIdentityPreparationR31.java": "5a0b6a72eab76a5a6646dde7043b311ffd8585b21eccde1482ef0b593ebb7e79",
+    "verification/r31/p03_preparation/check_pin_sql.py": "f2a2725d6f12ae9951720b8250efc057409fcc5e920523b5bb3daf1fd5910b90",
+    "verification/r31/p03_preparation/java-facts.json": "1e4b2608554df9b8b772abc5320c949023a8e4fa93b7591d195ef45fc17e8296",
+    "verification/r31/p03_preparation/sql-facts.json": "bc27f4d8209452a8bae2ca5d0ca948a6ed91fc8510c62f9c00b30d0c2fbc39f5"
+  }
+}

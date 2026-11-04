@@ -1,0 +1,86 @@
+{
+  "recorded_at": "2026-11-04T10:38:50.822771+00:00",
+  "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "inherited_source_commit": "31fea28c5723ac70e47ae4cc7542344b16fb3f91",
+  "implementation_commit": "UNCOMMITTED_P02_ROOT_INTEGRATION_PENDING",
+  "actual_changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+      "methods": "per-PID tryAcquire/grow/close/sample; distinct measured heap/native/PSS/RSS and declared owner bytes",
+      "worktree_sha256_at_record": "6a16e27245985fc943da3cb5364972700229610978def973b15b7e812e978324",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SharedFeatureStoreR31.java",
+      "methods": "primitive immutable block, reference-counted Reader, byte LRU, duplicate publication cleanup",
+      "worktree_sha256_at_record": "b24a2ec45b86cbc5a9cb23a007b28db51b0dfb57230fbf9e7fd9beace1cced9f",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BoundedResearchExecutorR31.java",
+      "methods": "bounded queue count+payload; running cancellation retains lease until actual finally",
+      "worktree_sha256_at_record": "2f550fb8ad9859bb261aa7be30ecd9baf65ed8a604bd9b6823110b51a901cf81",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+      "methods": "acquireLeafR31/memorySnapshotR31/trimRegisteredCachesR31: real hot-path sharing, raw array leases wait for observed GC",
+      "worktree_sha256_at_record": "1b3ef7e376c6b57ae6ebe322594d2f710c96ea1690afa13f2a8040b67ed30dc9",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
+      "methods": "rank/zscore/softmax leaf Reader consumer; copy before masking mutable model output",
+      "worktree_sha256_at_record": "51fa14f13879859a327a040fbf2a2a687df4f2c31d6eaabe9657cc08be0e08e6",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+      "methods": "withDraws deep-copies replacement rows",
+      "worktree_sha256_at_record": "72a105392acc6544622717970d70b1584ab115a98207a06b4d8f5a50d1b97d36",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedTaskR30R1.java",
+      "methods": "declared context lease tied to actual continuation exit",
+      "worktree_sha256_at_record": "9b55cd7abfd375d767c333b9692e899c16d5c899f81ce6f0d721219e4997bf73",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "methods": "helper working/descriptor lease and actual active/queued byte observations",
+      "worktree_sha256_at_record": "07c47f004f2ad6715e970a9fa4243ebca07c3634c900b43098c7ce9b1e1ddded",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    }
+  ],
+  "commits": [],
+  "migration_versions": [
+    "SQLite userVersion36 retained",
+    "RESEARCH_R31_FEEDBACK:1 (10 objects)",
+    "REALTIME_R31_TIMING:1 (2 objects)",
+    "R31_STORAGE_ADMISSION_V1 / R31_MEMORY_PER_PID_V1"
+  ],
+  "tests": [
+    {
+      "evidence": "verification/r31/memory/RECEIPT.json",
+      "sha256_at_record": "8abfd305e0cb827a174eed086ab02c5160b72a542e1ad2ae107e89acb6592c06",
+      "result": "SEE_SCOPED_RECEIPT",
+      "scope": "HOST_ONLY; source hashes and stated adapters govern exact applicability"
+    }
+  ],
+  "apk_identity": null,
+  "device_evidence": [],
+  "remaining": [
+    "ST-M01许可超额拒绝、异常释放、重复close幂等",
+    "ST-M02并发1000请求queue与bytes有界，实时线程不被CallerRuns占用，待办无丢失",
+    "ST-M03 100轮图表进出/取消后heap dominator无Activity/旧session滞留",
+    "ST-M04同输入64候选共享1输入实例且可变权重互不污染",
+    "ST-M05 native/FD/DB reader正常及取消后回到基线包络",
+    "ST-M06 72h OOM=0；对等负载live heap/PSS无持续增长，末24h等负载P95 live heap≤稳定首24h110%且不越动态高水位；未实测NOT_RUN",
+    "AST scoreMemo, mutable family/model state, internal scratch and legacy exposed arrays remain explicit owner/lifecycle work; device dominator/native/FD profiling not run.",
+    "Root same-version unexcluded Android/Gradle source integration pending",
+    "Android/physical device fault matrix and24/72h NOT_RUN",
+    "Natural FUTURE/REAL quality NOT_PROVEN"
+  ],
+  "next_step": "Finish real HOST/native fault tests, freeze source, regenerate verified identities from actual classes, then run unexcluded joint build/tests. No P06 business/cache GC enabled."
+}

@@ -25,6 +25,7 @@
 #define CP4_MEMORY -1006
 typedef int (*check_fn)(void *);
 typedef void (*backup_progress_fn)(void *,int,int,int);
+typedef int (*backup_admit_fn)(void *,int64_t);
 typedef int (*write_fn)(void *,const void *,size_t);
 static int64_t now_ms(void){struct timespec t;clock_gettime(CLOCK_MONOTONIC,&t);return (int64_t)t.tv_sec*1000+t.tv_nsec/1000000;}
 static int allowed(check_fn fn,void *p,int64_t end){return now_ms()<end && (!fn||fn(p));}
@@ -44,8 +45,10 @@ static int configure_backup(sqlite3 *db){
  return sqlite3_exec(db,"PRAGMA mmap_size=0; PRAGMA cache_spill=ON; PRAGMA temp_store=FILE;",0,0,0);
 }
 /* dest is private/exclusively created; source is opened READONLY, never CREATE/immutable. */
-static int cp4_backup_impl(const char *source,const char *dest,int64_t memory,int64_t budget,check_fn check,void *opaque,backup_progress_fn progress){
+static int cp4_backup_impl(const char *source,const char *dest,int64_t memory,int64_t budget,check_fn check,void *opaque,backup_progress_fn progress,backup_admit_fn admit){
  if(memory<2*1024*1024 || budget<0) return CP4_MEMORY;
+ /* Admit destination/header metadata before even the exclusive create. */
+ if(admit&&!admit(opaque,8192))return CP4_CANCEL;
  int fd=open(dest,O_CREAT|O_EXCL|O_RDWR,0600);if(fd<0)return errno==EEXIST?CP4_EXISTS:CP4_IO;close(fd);
  sqlite3 *src=0,*dst=0;sqlite3_backup *backup=0;int rc=SQLITE_OK,done=0,read_tx=0;int64_t busy_since=0,end=budget==0?INT64_MAX:now_ms()+budget;
  sqlite3_hard_heap_limit64(memory); /* this vendored library serves no other clients in :diagnostics */
@@ -62,8 +65,23 @@ static int cp4_backup_impl(const char *source,const char *dest,int64_t memory,in
  if((rc=configure_backup(dst))!=SQLITE_OK)goto cleanup;
  if((rc=sqlite3_exec(dst,"PRAGMA journal_mode=DELETE; PRAGMA synchronous=FULL;",0,0,0))!=SQLITE_OK)goto cleanup;
  backup=sqlite3_backup_init(dst,"main",src,"main");if(!backup){rc=sqlite3_errcode(dst);goto cleanup;}
+ int page_size=65536,total_pages=100,page_size_known=0,page_count_known=0;sqlite3_stmt *bounds=0;
+ if(sqlite3_prepare_v2(src,"PRAGMA page_size",-1,&bounds,0)==SQLITE_OK&&sqlite3_step(bounds)==SQLITE_ROW){int n=sqlite3_column_int(bounds,0);if(n>=512&&n<=65536){page_size=n;page_size_known=1;}}sqlite3_finalize(bounds);bounds=0;
+ if(sqlite3_prepare_v2(src,"PRAGMA page_count",-1,&bounds,0)==SQLITE_OK&&sqlite3_step(bounds)==SQLITE_ROW){int n=sqlite3_column_int(bounds,0);if(n>0){total_pages=n;page_count_known=1;}}sqlite3_finalize(bounds);
+ if(admit&&(!page_size_known||!page_count_known)){rc=CP4_VERIFY;goto cleanup;}
  for(;;){
   if(!allowed(check,opaque,end)){rc=CP4_CANCEL;break;}
+  /* One 100-page step may flush dirty pages retained by earlier steps when
+   * SQLite commits/spills its existing bounded cache. Admit all still-unallocated
+   * snapshot bytes, not only the current 100 pages. This source snapshot is pinned. */
+  if(admit){
+   struct stat destination_stat;if(stat(dest,&destination_stat)!=0||destination_stat.st_blocks<0){rc=CP4_IO;break;}
+   int64_t full=(int64_t)total_pages*page_size,allocated=(int64_t)destination_stat.st_blocks*512;
+   int64_t unwritten=allocated<full?full-allocated:0;
+   /* Destination was exclusively created empty; rollback metadata/header margin
+    * is additional. The backup algorithm and native working-set limits stay intact. */
+   if(!admit(opaque,unwritten+(int64_t)4*page_size+16384)){rc=CP4_CANCEL;break;}
+  }
   rc=sqlite3_backup_step(backup,100);
   if(progress)progress(opaque,sqlite3_backup_pagecount(backup),sqlite3_backup_remaining(backup),rc);
   if(rc==SQLITE_DONE){done=1;rc=SQLITE_OK;break;}
@@ -101,7 +119,7 @@ cleanup:
  if(rc!=SQLITE_OK){unlink(dest);char *j=malloc(strlen(dest)+9);if(j){sprintf(j,"%s-journal",dest);unlink(j);free(j);}}
  return rc;
 }
-int cp4_backup(const char *source,const char *dest,int64_t memory,int64_t budget,check_fn check,void *opaque){return cp4_backup_impl(source,dest,memory,budget,check,opaque,0);}
+int cp4_backup(const char *source,const char *dest,int64_t memory,int64_t budget,check_fn check,void *opaque){return cp4_backup_impl(source,dest,memory,budget,check,opaque,0,0);}
 /* R76 retention pages copy only requested rows, not every page of a multi-GB DB.
  * origin is a URI mode=ro attachment. One read transaction pins schema, cells and
  * generations together; no live table, trigger, journal mode or revision is changed. */
@@ -356,9 +374,10 @@ int main(int argc,char **argv){
  return 2;
 }
 #else
-typedef struct {JNIEnv *env;jobject control;jmethodID method;jmethodID progress;} jcontrol_t;
+typedef struct {JNIEnv *env;jobject control;jmethodID method;jmethodID progress;jmethodID backup_admit;} jcontrol_t;
 static int jcheck(void *p){jcontrol_t *c=p;jboolean r=(*c->env)->CallBooleanMethod(c->env,c->control,c->method);return !(*c->env)->ExceptionCheck(c->env)&&r;}
 static void jbackup_progress(void *p,int total,int remaining,int rc){jcontrol_t *c=p;if(c->progress&&!(*c->env)->ExceptionCheck(c->env))(*c->env)->CallVoidMethod(c->env,c->control,c->progress,(jlong)total,(jlong)remaining,(jint)rc);}
+static int jbackup_admit(void *p,int64_t bytes){jcontrol_t *c=p;if((*c->env)->ExceptionCheck(c->env))return 0;(*c->env)->CallVoidMethod(c->env,c->control,c->backup_admit,(jlong)bytes);return !(*c->env)->ExceptionCheck(c->env);}
 typedef struct {JNIEnv *env;jobject sink;jmethodID write;jbyteArray buffer;} jsink_t;
 static int jwrite(void *p,const void *bytes,size_t size){jsink_t *s=p;(*s->env)->SetByteArrayRegion(s->env,s->buffer,0,(jsize)size,bytes);if((*s->env)->ExceptionCheck(s->env))return -1;(*s->env)->CallVoidMethod(s->env,s->sink,s->write,s->buffer,0,(jint)size);return (*s->env)->ExceptionCheck(s->env)?-1:0;}
 
@@ -371,7 +390,7 @@ JNIEXPORT jlong JNICALL Java_com_ethk3_novaonepro_ReportNativeCP4_trainingCasByt
 JNIEXPORT jint JNICALL Java_com_ethk3_novaonepro_ReportNativeCP4_backup0(JNIEnv *e,jclass c,jstring source,jstring dest,jlong memory,jlong millis,jobject control){
  (void)c;const char *s=(*e)->GetStringUTFChars(e,source,0);if(!s)return CP4_MEMORY;const char *d=(*e)->GetStringUTFChars(e,dest,0);if(!d){(*e)->ReleaseStringUTFChars(e,source,s);return CP4_MEMORY;}
  jclass cc=(*e)->GetObjectClass(e,control);jmethodID mid=(*e)->GetMethodID(e,cc,"shouldContinue","()Z");int rc=CP4_CANCEL;
- if(mid){jmethodID progress=(*e)->GetMethodID(e,cc,"onBackupProgress","(JJI)V");if(progress){jcontrol_t jc={e,control,mid,progress};rc=cp4_backup_impl(s,d,memory,millis,jcheck,&jc,jbackup_progress);}}
+ if(mid){jmethodID progress=(*e)->GetMethodID(e,cc,"onBackupProgress","(JJI)V"),admit=(*e)->GetMethodID(e,cc,"beforeBackupChunk","(J)V");if(progress&&admit){jcontrol_t jc={e,control,mid,progress,admit};rc=cp4_backup_impl(s,d,memory,millis,jcheck,&jc,jbackup_progress,jbackup_admit);}}
  (*e)->DeleteLocalRef(e,cc);(*e)->ReleaseStringUTFChars(e,source,s);(*e)->ReleaseStringUTFChars(e,dest,d);return rc;
 }
 JNIEXPORT jint JNICALL Java_com_ethk3_novaonepro_ReportNativeCP4_retentionPage0(JNIEnv *e,jclass c,jstring source,jstring dest,jstring table,jlongArray ids,jlong memory,jlong maxbytes,jobject control){

@@ -1,0 +1,70 @@
+{
+  "actual_changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "methods": "explicit nine WriteClass contexts; unknown operation observable as UNKNOWN_PRIORITY; per-operation wait/hold histogram",
+      "committed_sha256": "bf5495b95b2820693e8d49bba02c528b8ed1147a73cdfb9afe36a7d0139d4c6c"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+      "methods": "immutable prepared request with measured op/bind byte counts",
+      "committed_sha256": "edb385b55b7bacd99ebc323d481a7b4bbd0444a0501bb568b1542c127d0af0ea"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "methods": "real task submits explicit identity and immutable payload",
+      "committed_sha256": "04d87814776977bf0000f92e89531c5c0a1691793dddfcf49b67f832bad6b932"
+    }
+  ],
+  "commits": [
+    "844a78488f396189c2db98591782b7bb214799d2"
+  ],
+  "migration_versions": [
+    "SQLite userVersion 36 retained",
+    "RESEARCH_R31_OBSERVATION:1",
+    "RESEARCH_R31_WRITE:1"
+  ],
+  "tests": [
+    {
+      "command": "source /workspace/starcore-environment/activate.sh; bash ./gradlew --no-daemon --max-workers=4 :app:compileDebugJavaWithJavac :app:compileDebugAndroidTestJavaWithJavac -Pr30Instrumentation=true :app:testDebugUnitTest --tests *R31* --tests *R30TaskLivenessTest --tests *R30WriteWaitTest :app:verifyFinalR31BuildIdentity",
+      "result": "PASS",
+      "evidence": "verification/r31/p01/build-identity/final-integration-receipt.json",
+      "scope": "source and Android-test compilation, 32 host unit tests; no APK/device execution"
+    },
+    {
+      "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_write_protocol_host.py",
+      "result": "PASS",
+      "evidence": "verification/r31/p01/writer-protocol/writer-evidence.json",
+      "scope": "actual production writer + native SQLite HOST adapters; process halt/replay, 9 postcommit faults, conflict/rollback; no Android claim"
+    }
+  ],
+  "apk_identity": null,
+  "device_evidence": [],
+  "acceptance": [
+    {
+      "contract": "登记表覆盖所有入口；未分类operation构建失败或运行标UNKNOWN_PRIORITY，不自动当最高级。",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "contract": "60分钟竞争测试：1Hz轮询+历史回补+研究+报告+保留，关键写无研究排队饿死，研究pending也不无限积压。",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "contract": "报告列每operation count/waitP95/holdP95/max/overBudget/rolledBack；阈值失败有具体owner文件。",
+      "status": "NOT_RUN",
+      "evidence": []
+    }
+  ],
+  "remaining": [
+    "登记表覆盖所有入口；未分类operation构建失败或运行标UNKNOWN_PRIORITY，不自动当最高级。",
+    "60分钟竞争测试：1Hz轮询+历史回补+研究+报告+保留，关键写无研究排队饿死，研究pending也不无限积压。",
+    "报告列每operation count/waitP95/holdP95/max/overBudget/rolledBack；阈值失败有具体owner文件。",
+    "Android integration/fault injection and real device lifecycle NOT_RUN",
+    "24h/72h device soak NOT_RUN",
+    "No natural FUTURE/REAL quality proof"
+  ],
+  "next_step": "P02 integrated resource/feedback/health work; later owner staging and Android/device validation; no mandatory card closure yet.",
+  "scope_note": "BUILD_PASS only records source compilation; acceptance assertions remain NOT_RUN/PARTIAL until each required environment evidence exists."
+}

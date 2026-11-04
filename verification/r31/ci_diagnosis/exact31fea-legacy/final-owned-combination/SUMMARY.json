@@ -1,0 +1,157 @@
+{
+  "baseCommit": "31fea28c5723ac70e47ae4cc7542344b16fb3f91",
+  "scope": "HOST_NATIVE_SQLITE_COMBINATION_NOT_ORIGINAL_31FEA_NOT_ANDROID_OR_DEVICE_OR_NATURAL",
+  "productionPatch": "/tmp/r31-live-pit-runtime-ddl.patch",
+  "productionPatchSha256": "27f427aeec5f06287b802faa7cdafafe03697f1f2d6a7403b17d359d12cea3d9",
+  "filesSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java": "70df33664e875f10d90b808ab60617da607e9efe9a7693a0f8e1c904158184f3",
+    "tools/r29/qual_host/shim/android/database/Cursor.java": "98dc66b94e18cd85d2f270a111392896b4ed5d11d2d1d7947baed2e340f040f4",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java": "556b5d762c449fee0f7b31b14d4203f1b4973d565a75a74bdd9ea95b425e0001",
+    "tools/r30-repair/run_matrix_host.py": "26e2264483656e163b69e0f802d245619c0bc8973ccfe3963c6a13bba81e4c6f",
+    "tools/r30-repair/run_neural_host.py": "43d618b539e5bd5fd61630193ae17520727ea38bf33e0d207a2b62b53153ba28",
+    "tools/r30-repair/run_qualification_host.py": "b21287ddb818e4a8f96649894c4eebe10715bef3e0cc685ea817056ee81e91f4",
+    "tools/r30/qual_host/CalibrationR30HostTest.java": "5f5f8d58081f8cf74a24674254fd30b1e7aa2400c76cf2a96acaea1037353ee9",
+    "tools/r30/qual_host/FrozenConfirmationR30HostTest.java": "2ad96ef86a88755e93208e68e089eb5b4a94f27d35368f195ddb4041ffa68fa8",
+    "tools/r30/qual_host/ModelSurfaceR30HostTest.java": "609f7793830eed95341e6683d8fd4a1bb81fd313bbc121dd9bc21a6fc5535546",
+    "tools/r30/qual_host/TenPositionR30HostTest.java": "d3a63e8c80abf61f001b979d9874d508af1c25514b48945e8a10631274dacc6d",
+    "tools/r31/host/R31OwnedRuntimeFixture.java": "6a32a3fbf60a3fc55995ebb757cc48c50b72282ed975f898f1432d20975815bf",
+    "tools/r31/host_runtime_fixture.py": "4941a443de54eaab59a7bfdd307a653fd20081187bf44155cc6cbde0a62ce7a9"
+  },
+  "javaBuildClassesSource": "/tmp/r31-exact31fea-native/app/build, plus javac of exact patched LiveShadows source in owned platform",
+  "tests": [
+    {
+      "case": "diagnosis",
+      "command": "SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_diagnosis_host.py",
+      "startedAtUtc": "2026-11-04T11:24:40.844542+00:00",
+      "completedAtUtc": "2026-11-04T11:24:44.408287+00:00",
+      "elapsedSeconds": 3.564,
+      "exitCode": 0,
+      "log": "repair-diagnosis.log",
+      "logSha256": "306dd4a057289f949221a04c53b8bc7038f1ec7f2a7a6894741fc29533b8c1f7"
+    },
+    {
+      "case": "writer",
+      "command": "SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_writer_host.py",
+      "startedAtUtc": "2026-11-04T11:24:44.408683+00:00",
+      "completedAtUtc": "2026-11-04T11:24:46.683194+00:00",
+      "elapsedSeconds": 2.275,
+      "exitCode": 0,
+      "log": "repair-writer.log",
+      "logSha256": "3f59c49e983d22ec6756115cff4bcb55c79993b1364cdb0abb003599acafe13a"
+    },
+    {
+      "case": "retention",
+      "command": "SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_retention_host.py",
+      "startedAtUtc": "2026-11-04T11:24:46.683644+00:00",
+      "completedAtUtc": "2026-11-04T11:24:49.062058+00:00",
+      "elapsedSeconds": 2.378,
+      "exitCode": 0,
+      "log": "repair-retention.log",
+      "logSha256": "352bcc4be7d47a4e09670f9581e3bd0d2788ce7c9e79ed399140210b2b640f08"
+    },
+    {
+      "case": "timeline",
+      "command": "SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_timeline_host.py",
+      "startedAtUtc": "2026-11-04T11:24:49.062461+00:00",
+      "completedAtUtc": "2026-11-04T11:24:51.893459+00:00",
+      "elapsedSeconds": 2.831,
+      "exitCode": 0,
+      "log": "repair-timeline.log",
+      "logSha256": "b3290352635515e5c44c492d2446e17718aec8fa18b574dc54e75c6ade2e39e6"
+    },
+    {
+      "case": "commit_failure",
+      "command": "SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_commit_failure_host.py",
+      "startedAtUtc": "2026-11-04T11:24:51.894483+00:00",
+      "completedAtUtc": "2026-11-04T11:24:56.569449+00:00",
+      "elapsedSeconds": 4.675,
+      "exitCode": 0,
+      "log": "repair-commit_failure.log",
+      "logSha256": "6e2a06676fbdbd4ed9e2d0a6933f2b7d7ef26beed908203d753ef601a6f60b60"
+    },
+    {
+      "case": "progress",
+      "command": "SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_progress_host.py",
+      "startedAtUtc": "2026-11-04T11:24:56.569870+00:00",
+      "completedAtUtc": "2026-11-04T11:24:58.316653+00:00",
+      "elapsedSeconds": 1.747,
+      "exitCode": 0,
+      "log": "repair-progress.log",
+      "logSha256": "cd682fc3ae5105ea9c4a63f5cc8579b4125a6bc46ba5274e9c3f04246401ce87"
+    },
+    {
+      "case": "neural",
+      "command": "SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_neural_host.py",
+      "startedAtUtc": "2026-11-04T11:24:58.317078+00:00",
+      "completedAtUtc": "2026-11-04T11:25:23.258491+00:00",
+      "elapsedSeconds": 24.942,
+      "exitCode": 0,
+      "log": "repair-neural.log",
+      "logSha256": "a4c26af95f6755a531cccf919c8ba92b967bce82dfbfbfdbeb136ff4b832a359"
+    },
+    {
+      "case": "qualification",
+      "command": "SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_qualification_host.py",
+      "startedAtUtc": "2026-11-04T11:25:23.260239+00:00",
+      "completedAtUtc": "2026-11-04T11:25:31.160684+00:00",
+      "elapsedSeconds": 7.9,
+      "exitCode": 0,
+      "log": "repair-qualification.log",
+      "logSha256": "96e8ebeb7a35c2ca2f6206c0b1d63d7377c94828488269d7f193487ac611afbc"
+    },
+    {
+      "case": "input_pin",
+      "command": "SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_input_pin_host.py",
+      "startedAtUtc": "2026-11-04T11:25:31.161474+00:00",
+      "completedAtUtc": "2026-11-04T11:25:33.247376+00:00",
+      "elapsedSeconds": 2.086,
+      "exitCode": 0,
+      "log": "repair-input_pin.log",
+      "logSha256": "40097ce121ed04498c628c0e16ee147d6a04eaf8e08b910bcb08e7138b286d77"
+    },
+    {
+      "case": "matrix",
+      "command": "SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_matrix_host.py",
+      "startedAtUtc": "2026-11-04T11:25:33.247877+00:00",
+      "completedAtUtc": "2026-11-04T11:25:39.012285+00:00",
+      "elapsedSeconds": 5.764,
+      "exitCode": 0,
+      "log": "repair-matrix.log",
+      "logSha256": "de6084e69ac5c17891028ff9e75e9ac7fa759dc38fd816ca1d0d838eb1ae444d"
+    },
+    {
+      "case": "research",
+      "command": "SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_research_host.py",
+      "startedAtUtc": "2026-11-04T11:25:39.012859+00:00",
+      "completedAtUtc": "2026-11-04T11:25:43.129719+00:00",
+      "elapsedSeconds": 4.117,
+      "exitCode": 0,
+      "log": "repair-research.log",
+      "logSha256": "5fae6b86d1d7849278e4db6640e2b00c1fafe3d5722ba6743cfa4b9455d8f61e"
+    },
+    {
+      "case": "observatory",
+      "command": "SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_observatory_host.py",
+      "startedAtUtc": "2026-11-04T11:25:43.130394+00:00",
+      "completedAtUtc": "2026-11-04T11:25:45.747747+00:00",
+      "elapsedSeconds": 2.617,
+      "exitCode": 0,
+      "log": "repair-observatory.log",
+      "logSha256": "25e6843d53db9826d0ea55eab77d84ad0661930f3a92d9d9b48a10be00e9bc0a"
+    },
+    {
+      "case": "snapshot",
+      "command": "SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_snapshot_host.py",
+      "startedAtUtc": "2026-11-04T11:25:45.748380+00:00",
+      "completedAtUtc": "2026-11-04T11:25:48.489974+00:00",
+      "elapsedSeconds": 2.742,
+      "exitCode": 0,
+      "log": "repair-snapshot.log",
+      "logSha256": "3512aaa766a9afc47405bc04b29fcd32adb52435f8dc2c9d98e1c5d048fab2b0"
+    }
+  ],
+  "startedAtUtc": "2026-11-04T11:24:40.844374+00:00",
+  "completedAtUtc": "2026-11-04T11:25:48.490650+00:00",
+  "status": "PASS",
+  "totalScripts": 13
+}

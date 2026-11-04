@@ -34,12 +34,29 @@ public final class ContinuationOwnerRaceR31HostTest {
             System.out.println("OWNER_RACE_PASS|wrapper="+(legacy?"LegacyReplayContinuationR26":"TaskContinuationR26")+"|noReplacementBeforeExit=true|cancelBounded=true|synthetic=true");
         }finally{release.countDown();scheduler.shutdownNow();require(scheduler.awaitTermination(2,TimeUnit.SECONDS),"scheduler leaked");CooperativeContinuationR26.awaitOwnerStopped(original.owner,1000);}
     }
+    private static void sameOwnerCancelledContextReloads(boolean legacy)throws Exception{
+        String owner=legacy?"same-legacy-owner":"same-task-owner",task=legacy?"legacy-replay":"incumbent-forecast";
+        CountDownLatch entered=new CountDownLatch(1),release=new CountDownLatch(1);LifecycleBodies.action=target->{entered.countDown();awaitIgnoringInterrupt(release);return -777;};
+        RuntimeCoordinatorR26.Claim original=new RuntimeCoordinatorR26.Claim(task,owner,11);ExecutorService dispatcher=Executors.newSingleThreadExecutor();
+        Future<Long> pending=dispatcher.submit(()->legacy?LegacyReplayContinuationR26.step(null,original,budget()):TaskContinuationR26.step(null,original,budget(),5));
+        try{
+            require(entered.await(1,TimeUnit.SECONDS),"same owner old body not entered");
+            require(CooperativeContinuationR26.requestTaskCancellationR31(owner,"starcore-r26-"+task),"named task cancel did not match worker");pending.get(1,TimeUnit.SECONDS);
+            require(!CooperativeContinuationR26.isTaskTerminatedR31(owner,"starcore-r26-"+task),"cancel reported actual exit before body release");
+            RuntimeCoordinatorR26.Claim next=new RuntimeCoordinatorR26.Claim(task,owner,12);int before=LifecycleBodies.entered.get();
+            long paused=legacy?LegacyReplayContinuationR26.step(null,next,budget()):TaskContinuationR26.step(null,next,budget(),5);require(paused==0&&LifecycleBodies.entered.get()==before,"same owner replaced still-live cancelled context");
+            release.countDown();require(CooperativeContinuationR26.awaitOwnerStopped(owner,1000),"same owner cancelled old work failed to exit");LifecycleBodies.action=target->target;
+            long result=legacy?LegacyReplayContinuationR26.step(null,next,budget()):TaskContinuationR26.step(null,next,budget(),5);require(result==(legacy?1:5),"same owner consumed old cancelled result instead of reloading");require(LifecycleBodies.entered.get()==before+1,"same owner durable reload did not create exactly one new body");require(CooperativeContinuationR26.awaitOwnerStopped(owner,1000),"same owner reload worker leaked");
+            System.out.println("SAME_OWNER_CANCELLATION_RELOAD_PASS|wrapper="+(legacy?"LegacyReplayContinuationR26":"TaskContinuationR26")+"|noReplacementBeforeActualExit=true|oldResultDiscarded=true|syntheticLifecycleBody=true");
+        }finally{release.countDown();dispatcher.shutdownNow();require(dispatcher.awaitTermination(2,TimeUnit.SECONDS),"same owner dispatcher leaked");CooperativeContinuationR26.awaitOwnerStopped(owner,1000);}
+    }
     public static void main(String[] args)throws Exception{
         CooperativeContinuationR26.installPermitProvider((owner,name)->{
             if(!held.compareAndSet(0,1))return null;peak.accumulateAndGet(held.get(),Math::max);AtomicBoolean released=new AtomicBoolean();
             return ()->{if(released.compareAndSet(false,true)){held.decrementAndGet();returned.incrementAndGet();}};
         });
         cancelledOwnerCannotBeReplaced(false);cancelledOwnerCannotBeReplaced(true);
+        sameOwnerCancelledContextReloads(false);sameOwnerCancelledContextReloads(true);
         int before=LifecycleBodies.entered.get();
         for(int i=0;i<10000;i++){
             String owner="aba-owner-"+(i%2);long target=i+100L;

@@ -73,7 +73,7 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
  public java.io.File jobDirectory(){return new java.io.File(snapshot.getPath()).getParentFile();}
  public void recordTextArtifact(java.io.File file,String hash,long bytes)throws java.io.IOException{
   checkpoint();if(!file.getParentFile().equals(jobDirectory())||!file.getName().matches("report-text-[0-9a-f]{64}\\.txt"))throw new java.io.IOException("REPORT_RENDER_PATH");
-  if(artifactManifest==null){artifactFd=new java.io.FileOutputStream(new java.io.File(jobDirectory(),"render-artifacts.jsonl"));artifactManifest=new java.io.OutputStreamWriter(artifactFd,java.nio.charset.StandardCharsets.UTF_8);}
+  if(artifactManifest==null){artifactFd=new java.io.FileOutputStream(new java.io.File(jobDirectory(),"render-artifacts.jsonl"));artifactManifest=new java.io.OutputStreamWriter(ReportIoR31.protect(new java.io.File(jobDirectory(),"render-artifacts.jsonl"),artifactFd,null),java.nio.charset.StandardCharsets.UTF_8);}
   try{ReportMemberPlanCP12.append(artifactManifest,file.getName(),file.getName(),hash,bytes);}catch(Exception error){throw new java.io.IOException("REPORT_RENDER_MANIFEST",error);}
  }
  public void finishArtifacts()throws java.io.IOException{if(artifactManifest!=null){artifactManifest.flush();artifactFd.getFD().sync();artifactManifest.close();artifactManifest=null;artifactFd=null;}}

@@ -1,0 +1,76 @@
+{
+  "recorded_at": "2026-11-04T10:38:50.822771+00:00",
+  "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "inherited_source_commit": "31fea28c5723ac70e47ae4cc7542344b16fb3f91",
+  "implementation_commit": "UNCOMMITTED_P02_ROOT_INTEGRATION_PENDING",
+  "actual_changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "methods": "captureHealthSnapshotR31/healthSnapshotR31/reconcileResearchHealthR31: bounded async actual artifact probe and fenced task control",
+      "worktree_sha256_at_record": "d70364418b2a583ee748b023cf970bd20613ff7c473aee024575b42abda103df",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "methods": "requestTaskRecoveryR31/reconcileTaskRecoveryR31: no replacement before actual parent/helper drain",
+      "worktree_sha256_at_record": "07c47f004f2ad6715e970a9fa4243ebca07c3634c900b43098c7ce9b1e1ddded",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+      "methods": "separate service liveness from research health; later durable artifact required to confirm recovery",
+      "worktree_sha256_at_record": "b7f527ce54e57ec4cbd508f765f60548120c642aa578b475d60b28c307074f75",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "methods": "independent control tick samples actual research health",
+      "worktree_sha256_at_record": "8c2cfc968e741a7cb8f2b1b409deb19b71c037bbd33d3a687318cbaa5d9de810",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
+      "methods": "alive-but-stalled process uses control request instead of repeated foreground-service restart",
+      "worktree_sha256_at_record": "31894b0ac375ce6e1b7c2281e57d2077d2ff5908b29838232225623653a947d7",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    }
+  ],
+  "commits": [],
+  "migration_versions": [
+    "SQLite userVersion36 retained",
+    "RESEARCH_R31_FEEDBACK:1 (10 objects)",
+    "REALTIME_R31_TIMING:1 (2 objects)",
+    "R31_STORAGE_ADMISSION_V1 / R31_MEMORY_PER_PID_V1"
+  ],
+  "tests": [
+    {
+      "evidence": "verification/r31/p02/runtime-health/receipt.json",
+      "sha256_at_record": "abb87cd96e19435f6b008fe25f4c46c614d119e6743bdab31281dffe5f778f75",
+      "result": "SEE_SCOPED_RECEIPT",
+      "scope": "HOST_ONLY; source hashes and stated adapters govern exact applicability"
+    },
+    {
+      "evidence": "verification/r31/p02/task-runtime-regression/receipt.json",
+      "sha256_at_record": "14efcfcf4c2c12999ffd6693000589b152b75ed28da4a15efdecbcd61dfe0c84",
+      "result": "SEE_SCOPED_RECEIPT",
+      "scope": "HOST_ONLY; source hashes and stated adapters govern exact applicability"
+    },
+    {
+      "evidence": "verification/r31/p02/continuation-control/RECEIPT.json",
+      "sha256_at_record": "d8541833e4456dfb2af977e050475a77bb2b6734a72bcf86f000d94bb15bad41",
+      "result": "SEE_SCOPED_RECEIPT",
+      "scope": "HOST_ONLY; source hashes and stated adapters govern exact applicability"
+    }
+  ],
+  "apk_identity": null,
+  "device_evidence": [],
+  "remaining": [
+    "服务心跳继续、全部R27隔离：2个control tick内报告DEGRADED，按RT-01恢复，无新进程必要。",
+    "恢复中反复20次start命令：只一个owner、一个pool generation；receipt证明实际恢复。",
+    "pending未知显示UNKNOWN并启动采集，不判健康；依赖确实无新事件则IDLE不误恢复。",
+    "Root same-version unexcluded Android/Gradle source integration pending",
+    "Android/physical device fault matrix and24/72h NOT_RUN",
+    "Natural FUTURE/REAL quality NOT_PROVEN"
+  ],
+  "next_step": "Finish real HOST/native fault tests, freeze source, regenerate verified identities from actual classes, then run unexcluded joint build/tests. No P06 business/cache GC enabled."
+}

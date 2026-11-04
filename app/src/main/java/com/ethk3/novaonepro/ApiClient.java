@@ -28,6 +28,15 @@ public final class ApiClient {
 
     private final DbStore ledgerStoreR925;
     private final ThreadLocal<String> ledgerRequestR925=new ThreadLocal<String>();
+    private volatile java.util.function.BooleanSupplier requestCancelledR31=()->false;
+    private final java.util.concurrent.Semaphore requestPermitsR31=new java.util.concurrent.Semaphore(8,true);
+    private final java.util.concurrent.atomic.AtomicLong cancellationFailuresR31=new java.util.concurrent.atomic.AtomicLong();
+    private final java.util.Set<HttpURLConnection> activeRequestsR31=java.util.concurrent.ConcurrentHashMap.newKeySet();
+    public void setRequestCancellationR31(java.util.function.BooleanSupplier cancelled){requestCancelledR31=java.util.Objects.requireNonNull(cancelled);}
+    public int activeRequestCountR31(){return activeRequestsR31.size();}
+    public void cancelInFlightR31(){for(HttpURLConnection connection:activeRequestsR31)try{connection.disconnect();}catch(RuntimeException failed){Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failed);if(fatal!=null)throw fatal;cancellationFailuresR31.incrementAndGet();}}
+    private void checkRequestCancellationR31()throws java.io.InterruptedIOException{if(Thread.currentThread().isInterrupted()||requestCancelledR31.getAsBoolean())throw new java.io.InterruptedIOException("USER_SESSION_CANCELLED_R31");}
+
     public ApiClient() { this(null); }
     public ApiClient(DbStore store) { ledgerStoreR925=store; }
 
@@ -518,8 +527,10 @@ public final class ApiClient {
         HttpURLConnection conn = null;
         InputStream in = null;
 
+        boolean requestPermitR31=false;
         RawHttpResult out = new RawHttpResult();
         out.url = sanitizeUrl(urlText);
+        out.requestStartMonoMs=TimeSourceR811.monoNowMs();out.requestStartWallMs=TimeSourceR811.wallNowMs();out.bootId=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.bootId();
 
         if (urlText == null || urlText.length() == 0) {
             out.ok = false;
@@ -529,8 +540,11 @@ public final class ApiClient {
         }
 
         try {
+            checkRequestCancellationR31();
+            if(!requestPermitsR31.tryAcquire())throw new java.io.IOException("R31_HTTP_CAPACITY_RETRY");requestPermitR31=true;
             URL url = new URL(urlText);
             conn = (HttpURLConnection) url.openConnection();
+            activeRequestsR31.add(conn);checkRequestCancellationR31();
             conn.setConnectTimeout((int)Math.max(1L, Math.min(AppConfig.HTTP_CONNECT_TIMEOUT_MS, RuntimeResourceAuditR927.remainingMs())));
             conn.setReadTimeout((int)Math.max(1L, Math.min(AppConfig.HTTP_READ_TIMEOUT_MS, RuntimeResourceAuditR927.remainingMs())));
             conn.setRequestMethod("GET");
@@ -541,11 +555,13 @@ public final class ApiClient {
             conn.setRequestProperty("User-Agent", buildUserAgent());
 
             int code = conn.getResponseCode();
+            out.headersMonoMs=TimeSourceR811.monoNowMs();out.headersWallMs=TimeSourceR811.wallNowMs();
             out.httpCode = code;
 
             if (code >= 200 && code < 300) {
                 in = new BufferedInputStream(conn.getInputStream());
-                out.body = readAll(in);
+                out.body = readAll(in,out);
+                checkRequestCancellationR31();
                 out.ok = out.body != null && out.body.length() > 0;
 
                 if (!out.ok) {
@@ -555,7 +571,7 @@ public final class ApiClient {
                 InputStream err = conn.getErrorStream();
 
                 if (err != null) {
-                    out.body = readAll(err);
+                    out.body = readAll(err,out);
                     closeQuietly(err);
                 }
 
@@ -563,16 +579,16 @@ public final class ApiClient {
                 out.errorMessage = "http " + code;
             }
         } catch (Exception e) {
+            Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(e);if(fatal!=null)throw fatal;
             out.ok = false;
             out.errorMessage = sanitizeMessage(e.getMessage());
         } finally {
-            closeQuietly(in);
-
-            if (conn != null) {
-                conn.disconnect();
-            }
+            try { closeQuietly(in); }
+            finally { try { if (conn != null) conn.disconnect(); }
+                finally { if(conn!=null)activeRequestsR31.remove(conn);if(requestPermitR31)requestPermitsR31.release(); } }
         }
 
+        out.finishedMonoMs=TimeSourceR811.monoNowMs();out.finishedWallMs=TimeSourceR811.wallNowMs();
         FetchLedgerR925.complete(ledgerStoreR925,requestIdR925,TimeSourceR811.monoNowMs()-requestStartedR925,out);
         return out;
     }
@@ -585,8 +601,10 @@ public final class ApiClient {
         InputStream in = null;
         OutputStream os = null;
 
+        boolean requestPermitR31=false;
         RawHttpResult out = new RawHttpResult();
         out.url = sanitizeUrl(urlText);
+        out.requestStartMonoMs=TimeSourceR811.monoNowMs();out.requestStartWallMs=TimeSourceR811.wallNowMs();out.bootId=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.bootId();
 
         if (urlText == null || urlText.length() == 0) {
             out.ok = false;
@@ -596,8 +614,11 @@ public final class ApiClient {
         }
 
         try {
+            checkRequestCancellationR31();
+            if(!requestPermitsR31.tryAcquire())throw new java.io.IOException("R31_HTTP_CAPACITY_RETRY");requestPermitR31=true;
             URL url = new URL(urlText);
             conn = (HttpURLConnection) url.openConnection();
+            activeRequestsR31.add(conn);checkRequestCancellationR31();
             conn.setConnectTimeout((int)Math.max(1L, Math.min(AppConfig.HTTP_CONNECT_TIMEOUT_MS, RuntimeResourceAuditR927.remainingMs())));
             conn.setReadTimeout((int)Math.max(1L, Math.min(AppConfig.HTTP_READ_TIMEOUT_MS, RuntimeResourceAuditR927.remainingMs())));
             conn.setRequestMethod("POST");
@@ -615,11 +636,13 @@ public final class ApiClient {
             os.flush();
 
             int code = conn.getResponseCode();
+            out.headersMonoMs=TimeSourceR811.monoNowMs();out.headersWallMs=TimeSourceR811.wallNowMs();
             out.httpCode = code;
 
             if (code >= 200 && code < 300) {
                 in = new BufferedInputStream(conn.getInputStream());
-                out.body = readAll(in);
+                out.body = readAll(in,out);
+                checkRequestCancellationR31();
                 out.ok = out.body != null && out.body.length() > 0;
 
                 if (!out.ok) {
@@ -629,7 +652,7 @@ public final class ApiClient {
                 InputStream err = conn.getErrorStream();
 
                 if (err != null) {
-                    out.body = readAll(err);
+                    out.body = readAll(err,out);
                     closeQuietly(err);
                 }
 
@@ -637,17 +660,16 @@ public final class ApiClient {
                 out.errorMessage = "http " + code;
             }
         } catch (Exception e) {
+            Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(e);if(fatal!=null)throw fatal;
             out.ok = false;
             out.errorMessage = sanitizeMessage(e.getMessage());
         } finally {
-            closeQuietly(os);
-            closeQuietly(in);
-
-            if (conn != null) {
-                conn.disconnect();
-            }
+            try { try { closeQuietly(os); } finally { closeQuietly(in); } }
+            finally { try { if (conn != null) conn.disconnect(); }
+                finally { if(conn!=null)activeRequestsR31.remove(conn);if(requestPermitR31)requestPermitsR31.release(); } }
         }
 
+        out.finishedMonoMs=TimeSourceR811.monoNowMs();out.finishedWallMs=TimeSourceR811.wallNowMs();
         FetchLedgerR925.complete(ledgerStoreR925,requestIdR925,TimeSourceR811.monoNowMs()-requestStartedR925,out);
         return out;
     }
@@ -788,7 +810,7 @@ public final class ApiClient {
         return s.startsWith("{") || s.startsWith("[");
     }
 
-    private String readAll(InputStream input) throws Exception {
+    private String readAll(InputStream input,final RawHttpResult trace) throws Exception {
         if (input == null) {
             return "";
         }
@@ -797,13 +819,20 @@ public final class ApiClient {
         StringBuilder sb = new StringBuilder();
 
         try {
-            br = new BufferedReader(new InputStreamReader(input, "UTF-8"));
+            InputStream observed=new java.io.FilterInputStream(input){
+                private void first(int count){if(count>0&&trace.firstByteMonoMs==0){trace.firstByteMonoMs=TimeSourceR811.monoNowMs();trace.firstByteWallMs=TimeSourceR811.wallNowMs();}}
+                @Override public int read()throws java.io.IOException{int value=in.read();first(value<0?0:1);return value;}
+                @Override public int read(byte[] bytes,int offset,int length)throws java.io.IOException{int count=in.read(bytes,offset,length);first(count);return count;}
+            };
+            br = new BufferedReader(new InputStreamReader(observed, "UTF-8"));
             char[] buffer = new char[4096];
 
             while (true) {
+                checkRequestCancellationR31();
                 int len = br.read(buffer);
 
                 if (len < 0) {
+                    trace.bodyCompleteMonoMs=TimeSourceR811.monoNowMs();trace.bodyCompleteWallMs=TimeSourceR811.wallNowMs();
                     break;
                 }
 
@@ -811,6 +840,7 @@ public final class ApiClient {
                     sb.append(buffer, 0, len);
 
                     if (sb.length() > MAX_BODY_CHARS) {
+                        trace.bodyTruncated=true;
                         break;
                     }
                 }
@@ -964,6 +994,10 @@ public final class ApiClient {
         public String url;
         public String body;
         public String errorMessage;
+        public long requestStartMonoMs,requestStartWallMs,headersMonoMs,headersWallMs,firstByteMonoMs,firstByteWallMs,
+                bodyCompleteMonoMs,bodyCompleteWallMs,finishedMonoMs,finishedWallMs;
+        public String bootId="";
+        public boolean bodyTruncated;
 
         public RawHttpResult() {
             ok = false;

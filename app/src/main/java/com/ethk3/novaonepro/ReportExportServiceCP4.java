@@ -54,7 +54,14 @@ public final class ReportExportServiceCP4 extends Service {
                 observation.put("liveWalFileBytes",walFile.isFile()?walFile.length():0L);
             }
 
-            ReportJobJournalCP12.collectObservation(root,id,observation,"crashSummary",()->CrashRecorder.detailedSummary(app));ReportJobJournalCP12.collectObservation(root,id,observation,"heartbeatSummary",()->new ServiceHeartbeatStore(app).detailedSummary());
+            ReportJobJournalCP12.collectObservation(root,id,observation,"crashSummary",()->CrashRecorder.detailedSummary(app));
+            ServiceHeartbeatStore heartbeat=new ServiceHeartbeatStore(app);
+            observation.put("servicePrefsReadStartedWallMs",System.currentTimeMillis()).put("servicePrefsReadStartedElapsedMs",SystemClock.elapsedRealtime()).put("servicePrefsObserverPid",android.os.Process.myPid());
+            ReportJobJournalCP12.collectObservation(root,id,observation,"heartbeatSummary",heartbeat::detailedSummary);
+            ReportJobJournalCP12.collectObservation(root,id,observation,"fetchCadenceR31",heartbeat::fetchCadenceJsonR31);
+            observation.put("servicePrefsReadFinishedWallMs",System.currentTimeMillis()).put("servicePrefsReadFinishedElapsedMs",SystemClock.elapsedRealtime())
+                    .put("servicePrefsEvidenceScope","PROCESS_LOCAL_SHARED_PREFERENCES_OBSERVATION; CROSS_PID_VISIBILITY_NOT_ATOMIC; NOT_SQL_SNAPSHOT_WATERMARK");
+            ReportJobJournalCP12.collectObservation(root,id,observation,"backgroundRuntimeCapabilityR31",()->backgroundRuntimeObservationR31(app));
             DatabaseCoordinator coordinator=DatabaseCoordinator.peek();if(coordinator!=null){observation.put("dbWaitMs",coordinator.lastDbLockWaitMs());observation.put("dbWaitMaxMs",coordinator.longestDbLockWaitMs());observation.put("researchSchemaReady",coordinator.isR811ResearchSchemaReady());ReportJobJournalCP12.collectObservation(root,id,observation,"schemaStartupSummary",()->coordinator.startupSchemaSummary());}observation.put("realtimePressure",RealtimePressureGateR811.isUnderPressure());ReportJobJournalCP12.collectObservation(root,id,observation,"fetchWriteError",()->FetchLedgerR925.reportWriteErrorObservationCP12());
             // R27.3: where every app thread is right now (a stalled business loop names its blocking frame).
             ReportJobJournalCP12.collectObservation(root,id,observation,"threadStacks",ReportExportServiceCP4::threadStacksR27);
@@ -67,6 +74,23 @@ public final class ReportExportServiceCP4 extends Service {
             enqueueUserRequest(root,id,"FULL_REPORT",request,generation);kick(app,ACTION_EXPORT,id);
         }catch(Throwable error){requestFailure(app,id,error);}});}catch(RejectedExecutionException full){requestFailure(app,id,new IOException("REPORT_REQUEST_QUEUE_FULL"));}
         return id;
+    }
+    private static String backgroundRuntimeObservationR31(Context app)throws Exception{
+        long startedWall=System.currentTimeMillis(),startedElapsed=SystemClock.elapsedRealtime();
+        BackgroundRuntimeCapabilityR811.Snapshot value=BackgroundRuntimeCapabilityR811.snapshot(app);
+        return new JSONObject().put("status",value.status).put("fingerprint",value.certificateFingerprint())
+                .put("compileSdk",value.compileSdk).put("targetSdk",value.targetSdk).put("runtimeSdk",value.runtimeSdk)
+                .put("ignoringBatteryOptimizations",value.ignoringBatteryOptimizations).put("exactAlarmRuntimeGranted",value.exactAlarmRuntimeGranted)
+                .put("declaredPermissions",value.declaredPermissions).put("grantedPermissions",value.grantedPermissions)
+                .put("observerPid",android.os.Process.myPid()).put("readStartedWallMs",startedWall).put("readStartedElapsedMs",startedElapsed)
+                .put("readFinishedWallMs",System.currentTimeMillis()).put("readFinishedElapsedMs",SystemClock.elapsedRealtime())
+                .put("runtimeOperatingState",new JSONObject(com.ethk3.novaonepro.strategyv2.JsonR27.write(runtimeOperatingStateR31(app)))).put("evidenceScope","RUNTIME_OS_OBSERVATION; NOT_BACKGROUND_CONTINUITY_CERTIFICATE; NOT_SQL_WATERMARK").toString();
+    }
+    private static java.util.Map<String,Object> runtimeOperatingStateR31(Context app){
+        BackgroundRuntimeCapabilityR811.RuntimeObservationR31 value=BackgroundRuntimeCapabilityR811.observeRuntimeR31(app);
+        java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();out.put("status",value.status);out.put("reason",value.reason);out.put("recoveryCondition",value.recoveryCondition);out.put("snapshotId",value.snapshotId);
+        out.put("sampleWallMs",value.sampleWallMs);out.put("sampleElapsedMs",value.sampleElapsedMs);out.put("observerPid",android.os.Process.myPid());out.put("runtimeSdk",value.runtimeSdk);out.put("targetSdk",value.targetSdk);out.put("userEnabled",value.userEnabled);
+        out.put("batteryExemption",value.batteryExemption.name());out.put("deviceIdle",value.deviceIdle.name());out.put("powerSave",value.powerSave.name());out.put("backgroundRestricted",value.backgroundRestricted.name());out.put("foregroundService",value.foregroundService.name());out.put("notifications",value.notifications.name());out.put("exactAlarm",value.exactAlarm.name());out.put("errors",value.errors);out.put("continuous24h","NOT_RUN");out.put("continuous72h","NOT_RUN");return out;
     }
     static String threadStacksR27() {
         StringBuilder b = new StringBuilder();
@@ -139,6 +163,8 @@ public final class ReportExportServiceCP4 extends Service {
         try(ReportJobJournalCP12 journal=ReportJobJournalCP12.tryClaim(getFilesDir())) {
             if(journal==null)return;String queued=ReportRequestQueueCP12.head(journal.root());if(queued!=null)currentRequest=queued;
             ReportTaskControlR69.applyPending(journal);
+            ReportJobJournalCP12.Job publishedCleanup=journal.current();if(publishedCleanup!=null&&publishedCleanup.stage.equals("READY_TO_SHARE"))enqueueCleanupR31(journal,publishedCleanup);
+            runCleanupR31(journal);
             ReportPublicationCP12.pruneRequestMetadata(journal.root(),System.currentTimeMillis());
             ReportJobJournalCP12.Job job=journal.current();if(job!=null&&job.stage.equals("CANCELLED"))ReportTaskControlR69.finishCancellationR30(journal.root(),journal.directory(job),job);if(job!=null&&isActive(job))currentRequest=job.requestId;
             if(job!=null&&isActive(job)&&job.mode.equals("RETENTION_PAGE")&&ReportRequestQueueCP12.interactiveHead(journal.root())!=null){
@@ -150,10 +176,10 @@ public final class ReportExportServiceCP4 extends Service {
             else {request=nextRequest(journal.root());if(request==null)return;
                 String requestId=request.getString("requestId"),mode=request.getString("mode");requireHash(requestId);
                 if(mode.equals("SAF_TRANSFER")){runSafRequest(request,journal.root());return;}
-                if(job!=null&&(job.stage.equals("READY_TO_SHARE")||job.stage.equals("RETENTION_READY"))&&job.requestId.equals(requestId)){ActiveControl ready=new ActiveControl(job,journal.root());verifyReady(job,journal.directory(job),ready);journal.acknowledge(requestId,job);clearPending(journal.root(),request);return;}
+                if(job!=null&&(job.stage.equals("READY_TO_SHARE")||job.stage.equals("RETENTION_READY"))&&job.requestId.equals(requestId)){ActiveControl ready=new ActiveControl(job,journal.root());try(ReportIoR31.Scope outputScope=ReportIoR31.bind(journal.directory(job),ready)){verifyReady(job,journal.directory(job),ready);enqueueCleanupR31(journal,job);journal.acknowledge(requestId,job);clearPending(journal.root(),request);}catch(Exception callback){if(!ready.validatedDeliveryR31)throw callback;android.util.Log.w("ReportExportCP12","Verified READY replay callback pending",callback);}finally{ready.releaseResourcesR31();}runCleanupR31(journal);return;}
                 job=new ReportJobJournalCP12.Job(id(mode),requestId,request.getString("releaseHash"),mode,System.currentTimeMillis());journal.create(job);ReportPublicationCP12.pruneTerminal(journal.root(),job.jobId);clearPending(journal.root(),request);}
             journal.acknowledge(job.requestId,job);ActiveControl active=new ActiveControl(job,journal.root());control=active;foreground("报告采集与核验进行中");
-            try(ReportInputsLeaseCP12 inputPin=job.mode.equals("FULL_REPORT")?ReportInputsLeaseCP12.acquire(getFilesDir()):null) {
+            try(ReportIoR31.Scope outputScope=ReportIoR31.bind(journal.directory(job),active);ReportInputsLeaseCP12 inputPin=job.mode.equals("FULL_REPORT")?ReportInputsLeaseCP12.acquire(getFilesDir()):null) {
                 if(!job.releaseHash.equals(ReleaseManifestR926.MANIFEST_SHA256))throw new IOException("REPORT_VERSION_CHANGED");
                 long budget=Math.min(8*MiB,Runtime.getRuntime().maxMemory()/8);if(budget<8*MiB)throw new IOException("REPORT_MEMORY_BUDGET");
                 File directory=journal.directory(job),snapshot=new File(directory,"snapshot.db");
@@ -183,15 +209,15 @@ public final class ReportExportServiceCP4 extends Service {
                         File replies=new File(getFilesDir(),"retention-replies-cp12");if(!replies.isDirectory()&&!replies.mkdirs())throw new IOException("RETENTION_REPLY_DIRECTORY");
                         RetentionArchiveIoCP12.writeReceipt(new File(replies,job.requestId+".receipt"),receipt);
                     }
-                    job.evidenceComplete=true;job.checksComplete=false;job.allChecksPassed=false;
+                    active.validatedDeliveryR31=true;job.evidenceComplete=true;job.checksComplete=false;job.allChecksPassed=false;
                     journal.transition(job,ReportJobJournalCP12.Stage.RETENTION_RECEIPT_DURABLE,System.currentTimeMillis());
                     journal.transition(job,ReportJobJournalCP12.Stage.RETENTION_READY,System.currentTimeMillis());journal.acknowledge(job.requestId,job);return;
                 }
                 RetentionSnapshotCacheR73.discard(journal); // release optional cleanup copy before reserving full-report space
-                reserveDisk(job,journal);
+                reserveDisk(job,journal,active);
                 boolean snapshotValid=validSnapshot(job,snapshot,active);
                 if(snapshotValid&&job.mode.equals("FULL_REPORT")&&!ReportAttachmentClosureCP12.isComplete(directory,job.snapshotSha,active))snapshotValid=false;
-                if(job.stage.equals("READY_TO_SHARE")||job.stage.equals("RETENTION_READY")){verifyReady(job,directory,active);journal.acknowledge(job.requestId,job);return;}
+                if(job.stage.equals("READY_TO_SHARE")||job.stage.equals("RETENTION_READY")){verifyReady(job,directory,active);enqueueCleanupR31(journal,job);journal.acknowledge(job.requestId,job);return;}
                 File existing=job.publishedDir.isEmpty()?null:ReportArchiveVerifierCP12.inside(directory,job.publishedDir);
                 if(job.stage.equals("VERIFYING")&&existing!=null&&new File(existing,"manifest.jsonl").isFile()) {
                     publish(job,journal,directory,existing,active);journal.acknowledge(job.requestId,job);return; // raw temporaries may already be gone.
@@ -202,14 +228,14 @@ public final class ReportExportServiceCP4 extends Service {
                     // Native backup pins BEGIN + schema_version before copying pages. Its
                     // read view is the start, not the end of a potentially two-minute copy.
                     job.snapshotWallMs=System.currentTimeMillis();
-                    ReportNativeCP4.backup(getDatabasePath(AppConfig.DB_NAME),snapshot,SQLITE_BACKUP_BUDGET,active);
+                    active.backupTargetR31=snapshot;ReportNativeCP4.backup(getDatabasePath(AppConfig.DB_NAME),snapshot,SQLITE_BACKUP_BUDGET,active);
                     active.enter("SNAPSHOT_HASH",120000);
                     sync(snapshot);job.snapshotSha=ReportArchiveCP4.hash(snapshot,active);job.snapshotBytes=snapshot.length();
                     journal.transition(job,ReportJobJournalCP12.Stage.SNAPSHOT_DURABLE,System.currentTimeMillis());
                 }
                 active.enter("INDEXING",120000);journal.transition(job,ReportJobJournalCP12.Stage.INDEXING,System.currentTimeMillis());
                 File memberInput=new File(directory,"members-unsorted-"+job.attempt+".jsonl");ReportCatalogCP4.Result catalog;
-                try(FileOutputStream fd=new FileOutputStream(memberInput);Writer members=new BufferedWriter(new OutputStreamWriter(fd,StandardCharsets.UTF_8),8192);
+                try(FileOutputStream fd=new FileOutputStream(memberInput);Writer members=new BufferedWriter(new OutputStreamWriter(active.protectOutput(memberInput,fd),StandardCharsets.UTF_8),8192);
                     SQLiteDatabase copy=SQLiteDatabase.openDatabase(snapshot.getPath(),null,SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS)) {
                     if(!copy.isReadOnly())throw new IOException("REPORT_READONLY_SNAPSHOT_REQUIRED");
                     if(ReportAttachmentClosureCP12.isComplete(directory,job.snapshotSha,active))ReportAttachmentClosureCP12.appendComplete(directory,members,active);
@@ -229,10 +255,14 @@ public final class ReportExportServiceCP4 extends Service {
                     }
                     File inventory=ReportDiagnosticEvidenceR64.writeFileInventory(getFilesDir().getParentFile(),directory,active);
                     // R13-P31: byte census by category on the first page of every report
-                    File census=new File(directory,"STORAGE_CENSUS.txt");try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(census),StandardCharsets.UTF_8)){w.write(StorageCensusSU2.measure(getFilesDir().getParentFile()).line());w.write('\n');w.write(com.ethk3.novaonepro.strategyv2.JsonR27.write(StorageCensusSU2.sqliteSpace(copy)));w.write('\n');}
+                    File census=new File(directory,"STORAGE_CENSUS.txt");android.os.CancellationSignal spaceCancellation=new android.os.CancellationSignal();active.readCancellationR30=spaceCancellation;
+                    try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(census,new java.io.FileOutputStream(census)),StandardCharsets.UTF_8)){
+                        w.write(StorageCensusSU2.measure(getFilesDir().getParentFile(),java.util.Collections.<String>emptyList(),()->!active.shouldContinue()).line());w.write('\n');active.checkpoint();
+                        w.write(com.ethk3.novaonepro.strategyv2.JsonR27.write(StorageCensusSU2.sqliteSpace(copy,spaceCancellation)));w.write('\n');
+                    }finally{active.readCancellationR30=null;}
                     ReportMemberPlanCP12.append(members,census.getName(),census.getName(),ReportArchiveCP4.hash(census,active),census.length());
                     File r26Report=new File(directory,"R26_REPORT.json");
-                    try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r26Report),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.RuntimeReportR26.json(copy,new org.json.JSONObject(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536))));}
+                    try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r26Report,new java.io.FileOutputStream(r26Report)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.RuntimeReportR26.json(copy,new org.json.JSONObject(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536))));}
                     ReportMemberPlanCP12.append(members,r26Report.getName(),r26Report.getName(),ReportArchiveCP4.hash(r26Report,active),r26Report.length());
                     // R27-051: readable automatic R27 chapters and the summary used for "compare with previous report".
                     File r27Summary=new File(new File(getFilesDir(),"r27"),"last_report_summary.json");
@@ -240,10 +270,10 @@ public final class ReportExportServiceCP4 extends Service {
                     try{
                         if(r27Summary.isFile())com.ethk3.novaonepro.strategyv2.ReportDataR27.previousSummary=(java.util.Map<String,Object>)com.ethk3.novaonepro.strategyv2.JsonR27.parse(readR27Summary(r27Summary));
                         java.util.List<java.util.Map<String,Object>> r27Chapters=com.ethk3.novaonepro.strategyv2.ReportDataR27.chapters(copy);
-                        try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r27Report),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.ReportR27.markdown(r27Chapters));}
+                        try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r27Report,new java.io.FileOutputStream(r27Report)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.ReportR27.markdown(r27Chapters));}
                         Object summary=r27Chapters.isEmpty()?null:r27Chapters.get(0).get("summary");
-                        if(summary!=null){r27Summary.getParentFile().mkdirs();try(java.io.FileOutputStream out=new java.io.FileOutputStream(r27Summary)){out.write(com.ethk3.novaonepro.strategyv2.JsonR27.write(summary).getBytes(StandardCharsets.UTF_8));}}
-                    }catch(Exception r27Failure){try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r27Report),StandardCharsets.UTF_8)){w.write("# R27 报告生成失败\n\n"+r27Failure);}}
+                        if(summary!=null){r27Summary.getParentFile().mkdirs();ReportJobJournalCP12.writeAtomic(r27Summary,com.ethk3.novaonepro.strategyv2.JsonR27.write(summary));}
+                    }catch(Exception r27Failure){try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r27Report,new java.io.FileOutputStream(r27Report)),StandardCharsets.UTF_8)){w.write("# R27 报告生成失败\n\n"+r27Failure);}}
                     ReportMemberPlanCP12.append(members,r27Report.getName(),r27Report.getName(),ReportArchiveCP4.hash(r27Report,active),r27Report.length());
                     // R30 primary report: capture once, then serialize the identical twelve chapters twice.
                     java.util.Map<String,Object> r30Source=(java.util.Map<String,Object>)com.ethk3.novaonepro.strategyv2.JsonR27.parse(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536));
@@ -256,8 +286,8 @@ public final class ReportExportServiceCP4 extends Service {
                     try{r30Chapters=com.ethk3.novaonepro.strategyv2.ReportR29.chapters(copy,r30Source,r30ReadCancellation);}finally{active.readCancellationR30=null;}
                     active.checkpoint();
                     File r30Json=new File(directory,"R30_REPORT.json"),r30Markdown=new File(directory,"R30_REPORT.md");
-                    try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r30Json),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.JsonR27.write(com.ethk3.novaonepro.strategyv2.ReportR29.document(r30Chapters)));}
-                    try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r30Markdown),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.ReportR27.markdownR30(r30Chapters));}
+                    try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r30Json,new java.io.FileOutputStream(r30Json)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.JsonR27.write(com.ethk3.novaonepro.strategyv2.ReportR29.document(r30Chapters)));}
+                    try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r30Markdown,new java.io.FileOutputStream(r30Markdown)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.ReportR27.markdownR30(r30Chapters));}
                     ReportMemberPlanCP12.append(members,r30Json.getName(),r30Json.getName(),ReportArchiveCP4.hash(r30Json,active),r30Json.length());
                     ReportMemberPlanCP12.append(members,r30Markdown.getName(),r30Markdown.getName(),ReportArchiveCP4.hash(r30Markdown,active),r30Markdown.length());
                     File r30SummaryCandidate=new File(directory,"R30_SUCCESSFUL_SUMMARY_CANDIDATE.json");
@@ -267,14 +297,14 @@ public final class ReportExportServiceCP4 extends Service {
                     com.ethk3.novaonepro.strategyv2.PolicyIdentityLedgerR26.export(copy,r26Identities,job.snapshotSha,request.optBoolean("includeRawEvidence",false),active::checkpoint);
                     ReportMemberPlanCP12.append(members,r26Identities.getName(),r26Identities.getName(),ReportArchiveCP4.hash(r26Identities,active),r26Identities.length());
                     File r26Surface=new File(directory,"R26_FROZEN_SURFACE.json");
-                    try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r26Surface),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.FrozenSurfaceStoreR26.exportJson(copy));}
+                    try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r26Surface,new java.io.FileOutputStream(r26Surface)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.FrozenSurfaceStoreR26.exportJson(copy));}
                     ReportMemberPlanCP12.append(members,r26Surface.getName(),r26Surface.getName(),ReportArchiveCP4.hash(r26Surface,active),r26Surface.length());
                     String[] su2Diagnosis=com.ethk3.novaonepro.strategyv2.DiagnosisStoreSU2.report(copy);
                     for(int su2i=0;su2i<2;su2i++){File diag=new File(directory,su2i==0?"UPGRADE_DIAGNOSIS.md":"UPGRADE_DIAGNOSIS.json");
-                        try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(diag),StandardCharsets.UTF_8)){w.write(su2Diagnosis[su2i]);}
+                        try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(diag,new java.io.FileOutputStream(diag)),StandardCharsets.UTF_8)){w.write(su2Diagnosis[su2i]);}
                         ReportMemberPlanCP12.append(members,diag.getName(),diag.getName(),ReportArchiveCP4.hash(diag,active),diag.length());}
                     File su2Matrices=new File(directory,"STRATEGY_MATRICES.json");
-                    try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(su2Matrices),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.MatrixStoreSU2.report(copy));}
+                    try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(su2Matrices,new java.io.FileOutputStream(su2Matrices)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.MatrixStoreSU2.report(copy));}
                     ReportMemberPlanCP12.append(members,su2Matrices.getName(),su2Matrices.getName(),ReportArchiveCP4.hash(su2Matrices,active),su2Matrices.length());
                     ReportMemberPlanCP12.append(members,inventory.getName(),inventory.getName(),ReportArchiveCP4.hash(inventory,active),inventory.length());
                     for(File page:catalog.indexFiles)ReportMemberPlanCP12.append(members,page.getName(),"catalog/"+page.getName(),ReportArchiveCP4.hash(page,active),page.length());
@@ -285,10 +315,13 @@ public final class ReportExportServiceCP4 extends Service {
                 job.allChecksPassed=catalog.allChecksPassed;
                 journal.transition(job,ReportJobJournalCP12.Stage.INDEX_DURABLE,System.currentTimeMillis());
                 // Android snapshot connection is closed before the next native allocation stage.
-                File sorted=ReportMemberPlanCP12.sort(directory,memberInput,active);job.compressionAttempt=Math.addExact(job.compressionAttempt,1);
+                File sorted=ReportMemberPlanCP12.sort(directory,memberInput,active);long plannedRaw=0,plannedMembers=0;
+                try(ReportArchiveVerifierCP12.LineReader plan=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(sorted),8192)){byte[] row;while((row=plan.next())!=null){active.checkpoint();JSONObject member=new JSONObject(new String(row,StandardCharsets.UTF_8));plannedRaw=Math.addExact(plannedRaw,member.getLong("bytes"));plannedMembers++;}}
+                active.reserveFutureBytesR31(ReportPhaseBudgetR31.archiveFuture(plannedRaw,plannedMembers));
+                job.compressionAttempt=Math.addExact(job.compressionAttempt,1);
                 File archive=new File(directory,"archive-"+job.compressionAttempt);if(!archive.mkdir())throw new IOException("REPORT_ARCHIVE_EXCLUSIVE_DIRECTORY");job.publishedDir=archive.getName();
                 active.enter("COMPRESSING",120000);journal.transition(job,ReportJobJournalCP12.Stage.COMPRESSING,System.currentTimeMillis());
-                try(ReportArchiveCP4 writer=new ReportArchiveCP4(archive,job.jobId);ReportArchiveVerifierCP12.LineReader rows=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(sorted),8192)) {
+                try(ReportArchiveCP4 writer=new ReportArchiveCP4(archive,job.jobId,active);ReportArchiveVerifierCP12.LineReader rows=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(sorted),8192)) {
                     byte[] line;while((line=rows.next())!=null){active.checkpoint();JSONObject member=new JSONObject(new String(line,StandardCharsets.UTF_8));File input=ReportArchiveVerifierCP12.inside(directory,member.getString("path"));
                         if(input.length()!=member.getLong("bytes")||!member.getString("sha256").equals(ReportArchiveCP4.hash(input,active)))throw new IOException("REPORT_MEMBER_CHANGED");
                         writer.add(member.getString("name"),input,NATIVE_BUDGET,active);}
@@ -296,6 +329,14 @@ public final class ReportExportServiceCP4 extends Service {
                 }
                 journal.transition(job,ReportJobJournalCP12.Stage.VERIFYING,System.currentTimeMillis());publish(job,journal,directory,archive,active);journal.acknowledge(job.requestId,job);
             } catch(Throwable error) {
+                active.releaseResourcesR31(); // Native/stream/input try scopes have actually exited before the release receipt.
+                // The durable READY transition is authoritative after verified delivery. An ack,
+                // observer or cleanup callback failure must not create a second report or demote it.
+                if(active.validatedDeliveryR31&&(job.stage.equals("READY_TO_SHARE")||job.stage.equals("RETENTION_READY"))){
+                    android.util.Log.w("ReportExportCP12","Verified report committed; post-publication callback needs retry",error);
+                    try{journal.acknowledge(job.requestId,job);}catch(Exception ack){android.util.Log.w("ReportExportCP12","Published acknowledgement retry pending",ack);}
+                    return;
+                }
                 Thread.interrupted();String reason=active.stopReason.isEmpty()?classify(error):active.stopReason;job.lastReason=reason;
                 if(reason.equals("REPORT_USER_CANCEL")){
                     journal.transition(job,ReportJobJournalCP12.Stage.CANCELLED,System.currentTimeMillis());
@@ -304,9 +345,9 @@ public final class ReportExportServiceCP4 extends Service {
                 else if(reason.equals("REPORT_REALTIME_PREEMPT")||reason.equals("REPORT_PROCESS_SHUTDOWN")||reason.equals("REPORT_WORKER_INTERRUPTED")){job.preemptions++;job.resumeStage=job.snapshotSha.isEmpty()?"BACKUP":"INDEXING";if(job.preemptions>30){job.lastReason="REPORT_PREEMPTION_LIMIT";journal.transition(job,ReportJobJournalCP12.Stage.FAILED,System.currentTimeMillis());}else{journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());scheduleResume(job.jobId);}}
                 else if(isRetryable(reason)&&++job.failureAttempts<3){job.resumeStage=job.snapshotSha.isEmpty()?"BACKUP":"INDEXING";journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());scheduleResume(job.jobId);}
                 else {journal.transition(job,ReportJobJournalCP12.Stage.FAILED,System.currentTimeMillis());}
-                if(job.stage.equals("FAILED")&&job.mode.equals("FULL_REPORT"))try{ReportJobJournalCP12.writeFailureArtifact(journal.root(),job.requestId,error,job);}catch(Exception unavailable){android.util.Log.e("ReportExportCP12","recovery evidence unavailable",unavailable);}
+                if(job.stage.equals("FAILED")&&job.mode.equals("FULL_REPORT"))try{ReportJobJournalCP12.writeFailureArtifact(journal.root(),job.requestId,error,job,active::recoveryCancelledR31);}catch(Exception unavailable){android.util.Log.e("ReportExportCP12","recovery evidence unavailable",unavailable);}
                 journal.acknowledge(job.requestId,job);
-            } finally {control=null;}
+            } finally {active.releaseResourcesR31();control=null;runCleanupR31(journal);try{StorageLedgerR31.sampleIfDue(getFilesDir(),"REPORT_OWNER_RELEASED",job.jobId,true);}catch(IOException censusFailure){android.util.Log.w("ReportExportCP12","Storage sample incomplete",censusFailure);}}
         }catch(Throwable error){if(!currentRequest.isEmpty()){
             requestFailure(getApplicationContext(),currentRequest,error);
             try(ReportJobJournalCP12 recovery=ReportJobJournalCP12.tryClaim(getFilesDir())){if(recovery!=null){
@@ -315,12 +356,20 @@ public final class ReportExportServiceCP4 extends Service {
                 ReportRequestQueueCP12.remove(recovery.root(),currentRequest);
             }}catch(Exception recoveryFailure){android.util.Log.e("ReportExportCP12","report failure receipt recovery failed",recoveryFailure);}
         }android.util.Log.e("ReportExportCP12","report owner failed",error);}
-        finally{drainQueued.set(false);main.post(()->{if(lastStartId==ownerStartId){stopForeground(false);stopSelfResult(ownerStartId);}});if(!destroyed.get()){try{File root=requestRoot(this);if(ReportRequestQueueCP12.head(root)!=null||ReportTaskControlR69.hasPending(root))scheduleResume("");}catch(Exception ignored){}}}
+        finally{drainQueued.set(false);main.post(()->{if(lastStartId==ownerStartId){stopForeground(false);stopSelfResult(ownerStartId);}});if(!destroyed.get()){try{File root=requestRoot(this);long cleanupDelay=ReportCleanupR31.nextDelayMs(root);if(ReportRequestQueueCP12.head(root)!=null||ReportTaskControlR69.hasPending(root))scheduleResume("");else if(cleanupDelay>=0)scheduleResume("",cleanupDelay);}catch(Exception ignored){}}}
     }
-    private void reserveDisk(ReportJobJournalCP12.Job job,ReportJobJournalCP12 journal)throws Exception {
+    private void reserveDisk(ReportJobJournalCP12.Job job,ReportJobJournalCP12 journal,ActiveControl active)throws Exception {
         File source=getDatabasePath(AppConfig.DB_NAME);long raw=Math.addExact(source.length(),new File(source.getPath()+"-wal").length());
-        long available=new StatFs(getFilesDir().getPath()).getAvailableBytes();job.temporaryReservationBytes=Math.addExact(Math.multiplyExact(2L,raw),64*MiB);job.publishedQuotaBytes=ReportBudgetSU2.PUBLISHED_QUOTA_BYTES;
-        if(available<job.temporaryReservationBytes)throw new IOException("REPORT_DISK_BUDGET");journal.checkpoint(job,System.currentTimeMillis());
+        if(!source.isFile()||raw<1)throw new IOException("REPORT_SOURCE_MISSING");JSONObject request=loadRequest(journal.root(),job.requestId);
+        long snapshot=Math.addExact(raw,Math.addExact(raw/16,16*MiB));
+        // This is a capped initial workspace promise. Exact attachment and archive plans
+        // must enlarge it before materialization; 256MiB is not a source-data worstcase.
+        job.temporaryReservationBytes=ReportPhaseBudgetR31.initial(snapshot);job.publishedQuotaBytes=ReportBudgetSU2.PUBLISHED_QUOTA_BYTES;
+        String relative="files/r981_reports/jobs/"+job.jobId;
+        try{active.storageReservationR31=StorageBudgetR31.forFiles(getFilesDir()).reserve("report:"+job.jobId,job.revision,StorageBudgetR31.Category.REPORT_WORKSPACE,relative,job.temporaryReservationBytes,Math.multiplyExact(job.temporaryReservationBytes,4L),true);}
+        catch(StorageBudgetR31.Rejected unavailable){throw new IOException("REPORT_STORAGE_BUDGET_"+unavailable.reason,unavailable);}
+        journal.checkpoint(job,System.currentTimeMillis());
+        try{StorageLedgerR31.sampleIfDue(getFilesDir(),"REPORT_ADMITTED",job.jobId,true);}catch(IOException censusFailure){android.util.Log.w("ReportExportCP12","Storage sample incomplete",censusFailure);}
     }
     private boolean validSnapshot(ReportJobJournalCP12.Job job,File snapshot,ActiveControl active)throws Exception {
         if(job.snapshotSha.isEmpty()||!snapshot.isFile()||snapshot.length()!=job.snapshotBytes||!job.snapshotSha.equals(ReportArchiveCP4.hash(snapshot,active)))return false;
@@ -337,19 +386,27 @@ public final class ReportExportServiceCP4 extends Service {
         ReportPublicationCP12.pruneOldReports(journal.root(),directory,System.currentTimeMillis());
         ReportPublicationCP12.enforceQuota(journal.root(),directory,job.publishedQuotaBytes);   // R13-P34: the quota existed but was never called
         ReportJobJournalCP12.writeAtomic(new File(directory,"published.json"),pointer.toString());
-        journal.transition(job,ReportJobJournalCP12.Stage.READY_TO_SHARE,System.currentTimeMillis());
+        active.validatedDeliveryR31=true;journal.transition(job,ReportJobJournalCP12.Stage.READY_TO_SHARE,System.currentTimeMillis());
         recordSuccessfulSummaryR30(job,directory);
         // The sealed verified ZIP is now the durable delivery. Remove redundant private parts only
         // after its hash and publication identity have been checked; legacy multipart stays intact.
-        try{ReportPublicationCP12.cleanRaw(directory,job.publishedDir);}catch(IOException cleanup){job.lastReason="REPORT_RAW_CLEANUP_PENDING";journal.checkpoint(job,System.currentTimeMillis());android.util.Log.w("ReportExportCP12","Published evidence remains valid; private raw cleanup will retry",cleanup);}
+        enqueueCleanupR31(journal,job);
+    }
+    private void enqueueCleanupR31(ReportJobJournalCP12 journal,ReportJobJournalCP12.Job job){
+        try{ReportCleanupR31.enqueue(journal,job,"PUBLISHED_WAITING_FOR_OWNER_RESOURCE_CLOSE");}
+        catch(Exception cleanup){android.util.Log.w("ReportExportCP12","Published report cleanup enrollment pending",cleanup);try{scheduleResume("",600000L);}catch(RuntimeException alarm){android.util.Log.w("ReportExportCP12","Cleanup alarm registration pending",alarm);}}
+    }
+    private void runCleanupR31(ReportJobJournalCP12 journal){
+        try{ReportCleanupR31.runDue(journal,System.currentTimeMillis(),2);}
+        catch(Exception cleanup){android.util.Log.w("ReportExportCP12","Published report cleanup needs retry",cleanup);}
     }
     private void verifyReady(ReportJobJournalCP12.Job job,File directory,ActiveControl active)throws Exception {
-        if(job.mode.equals("RETENTION_PAGE")){RetentionArchiveProtocolCP12.Receipt receipt=RetentionArchiveIoCP12.readReceipt(new File(getFilesDir(),"retention-replies-cp12/"+job.requestId+".receipt"));if(!receipt.page.requestId.equals(job.requestId))throw new IOException("RETENTION_REPLY_IDENTITY");return;}
+        if(job.mode.equals("RETENTION_PAGE")){RetentionArchiveProtocolCP12.Receipt receipt=RetentionArchiveIoCP12.readReceipt(new File(getFilesDir(),"retention-replies-cp12/"+job.requestId+".receipt"));if(!receipt.page.requestId.equals(job.requestId))throw new IOException("RETENTION_REPLY_IDENTITY");active.validatedDeliveryR31=true;return;}
         active.enter("VERIFYING",120000);JSONObject pointer=new JSONObject(ReportJobJournalCP12.readAtomic(new File(directory,"published.json"),4096));
         if(!pointer.getString("jobId").equals(job.jobId)||!pointer.getString("relativeDir").equals(job.publishedDir))throw new IOException("REPORT_PUBLISH_IDENTITY");
-        if(ReportPublicationCP12.verifyPublishedZip(directory,active)){recordSuccessfulSummaryR30(job,directory);return;}
+        if(ReportPublicationCP12.verifyPublishedZip(directory,active)){active.validatedDeliveryR31=true;recordSuccessfulSummaryR30(job,directory);return;}
         ReportArchiveVerifierCP12.Receipt proof=ReportArchiveVerifierCP12.verify(ReportArchiveVerifierCP12.inside(directory,job.publishedDir),job.jobId,ReportArchiveVerifierCP12.nativeDecoder(NATIVE_BUDGET),active,null);
-        if(!proof.manifestSha256.equals(job.manifestSha)||!proof.manifestSha256.equals(pointer.getString("manifestSha256")))throw new IOException("REPORT_PUBLISH_HASH");ReportPublicationCP12.delivery(directory);
+        if(!proof.manifestSha256.equals(job.manifestSha)||!proof.manifestSha256.equals(pointer.getString("manifestSha256")))throw new IOException("REPORT_PUBLISH_HASH");ReportPublicationCP12.delivery(directory);active.validatedDeliveryR31=true;
     }
     @SuppressWarnings("unchecked") private void recordSuccessfulSummaryR30(ReportJobJournalCP12.Job job,File directory){
         try{
@@ -371,12 +428,15 @@ public final class ReportExportServiceCP4 extends Service {
     private static JSONObject nextRequest(File root)throws Exception{String id=ReportRequestQueueCP12.interactiveHead(root);if(id==null)id=ReportRequestQueueCP12.head(root);return id==null?null:loadRequest(root,id);}
     private static void clearPending(File root,JSONObject request)throws Exception{ReportRequestQueueCP12.remove(root,request.getString("requestId"));}
     private void scheduleResume(String id){
+        scheduleResume(id,1000);
+    }
+    private void scheduleResume(String id,long delayMs){
         // OS alarm survives stopSelf/process death; user cancel remains a separate durable command.
         Intent intent=new Intent(getApplicationContext(),ReportExportServiceCP4.class).setAction(ACTION_RESUME).putExtra("id",id);
         int flags=PendingIntent.FLAG_UPDATE_CURRENT;if(Build.VERSION.SDK_INT>=23)flags|=PendingIntent.FLAG_IMMUTABLE;
         PendingIntent callback=Build.VERSION.SDK_INT>=26?PendingIntent.getForegroundService(this,NOTIFICATION,intent,flags):PendingIntent.getService(this,NOTIFICATION,intent,flags);
         AlarmManager alarms=(AlarmManager)getSystemService(ALARM_SERVICE);if(alarms==null)throw new IllegalStateException("REPORT_RESUME_ALARM_UNAVAILABLE");
-        long due=SystemClock.elapsedRealtime()+1000;
+        long due=SystemClock.elapsedRealtime()+Math.max(1000,Math.min(600000,delayMs));
         if(Build.VERSION.SDK_INT>=23)alarms.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,due,callback);else alarms.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,due,callback);
     }
     private static void deleteFile(File file)throws IOException{if(file.exists()&&!file.delete())throw new IOException("REPORT_TEMP_CLEANUP");}
@@ -398,18 +458,43 @@ public final class ReportExportServiceCP4 extends Service {
     private final class ActiveControl implements ReportNativeCP4.Control {
         final ReportJobJournalCP12.Job job;final File root;final String cancelKey;final AtomicBoolean cancel=new AtomicBoolean();volatile String stopReason="";volatile long deadline=Long.MAX_VALUE,lastRead;private long stageStarted,lastProgressWrite;
         volatile android.os.CancellationSignal readCancellationR30;
+        volatile boolean validatedDeliveryR31;volatile StorageBudgetR31.Reservation storageReservationR31;private File backupTargetR31;private long backupChargeR31,backupBeforeR31;
+        private com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Lease phaseMemoryR31;
+        boolean recoveryCancelledR31(){return cancel.get()||destroyed.get()||Thread.currentThread().isInterrupted();}
         void cancelReadR30(){android.os.CancellationSignal active=readCancellationR30;if(active!=null)active.cancel();}
         ActiveControl(ReportJobJournalCP12.Job job,File root){this(job,root,job.jobId);}
-        ActiveControl(ReportJobJournalCP12.Job job,File root,String cancelKey){this.job=job;this.root=root;this.cancelKey=cancelKey;}
-        void enter(String stage,long milliseconds){stopReason="";stageStarted=SystemClock.elapsedRealtime();lastProgressWrite=0;deadline=ReportBudgetSU2.deadline(stageStarted,milliseconds,job.mode.equals("FULL_REPORT"));
+        ActiveControl(ReportJobJournalCP12.Job job,File root,String cancelKey){this.job=job;this.root=root;this.cancelKey=cancelKey;stageStarted=SystemClock.elapsedRealtime();deadline=ReportBudgetSU2.deadline(stageStarted,120000,job.mode.equals("FULL_REPORT"));}
+        void enter(String stage,long milliseconds)throws IOException{closePhaseR31();stopReason="";stageStarted=SystemClock.elapsedRealtime();lastProgressWrite=0;deadline=ReportBudgetSU2.deadline(stageStarted,milliseconds,job.mode.equals("FULL_REPORT"));
+            com.ethk3.novaonepro.strategyv2.MemoryBudgetR31 budget=com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.processBudget();
+            budget.registerNativeCapacity(com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_BACKUP,SQLITE_BACKUP_BUDGET,"EXISTING_STAGE_BUDGET_NOT_DEVICE_CALIBRATION");budget.registerNativeCapacity(com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_DECODER,NATIVE_BUDGET,"EXISTING_STAGE_BUDGET_NOT_DEVICE_CALIBRATION");
+            boolean backup=stage.equals("BACKUP")||stage.equals("RETENTION_PAGE");boolean codec=stage.equals("COMPRESSING")||stage.equals("VERIFYING")||stage.equals("ZIP_DELIVERY");
+            com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind kind=backup?com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_BACKUP:codec?com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_DECODER:com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.RESEARCH;
+            com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Admission admitted=budget.tryAcquire("report:"+job.jobId,job.revision,kind,backup?SQLITE_BACKUP_BUDGET:codec?NATIVE_BUDGET:8*MiB,()->cancel.get()||destroyed.get());
+            if(!admitted.acquired())throw new IOException("REPORT_MEMORY_BUDGET_WAIT:"+admitted.reason);phaseMemoryR31=admitted.lease;
             try{ReportJobJournalCP12.writeAtomic(new File(new File(root,"jobs/"+job.jobId),"stage-progress.json"),new JSONObject().put("stage",stage).put("startedWallMs",System.currentTimeMillis()).toString());}
             catch(Exception error){stopReason="REPORT_PROGRESS_WRITE_FAILED";}}
         @Override public synchronized void onBackupProgress(long totalPages,long remainingPages,int nativeCode){
+            if(storageReservationR31!=null&&backupChargeR31>0&&backupTargetR31!=null){try{long after=backupPhysicalR31();storageReservationR31.refundUnwritten(backupChargeR31,Math.max(0,after-backupBeforeR31));backupChargeR31=0;}catch(IOException|IllegalArgumentException failed){stopReason="REPORT_STORAGE_BUDGET_RECONCILIATION_FAILED";}}
             long now=SystemClock.elapsedRealtime();if(nativeCode!=101&&lastProgressWrite>0&&now-lastProgressWrite<1000)return;
             try{JSONObject progress=new JSONObject();progress.put("stage","BACKUP");progress.put("totalPages",totalPages);progress.put("copiedPages",Math.max(0L,totalPages-remainingPages));progress.put("elapsedMs",Math.max(0L,now-stageStarted));progress.put("nativeCode",nativeCode);progress.put("sampledElapsedMs",now);
                 ReportJobJournalCP12.writeAtomic(new File(new File(root,"jobs/"+job.jobId),"backup-progress.json"),progress.toString());lastProgressWrite=now;
             }catch(Exception error){stopReason="REPORT_PROGRESS_WRITE_FAILED";}
         }
+        private long backupPhysicalR31()throws IOException{
+            long bytes=0;for(File file:new File[]{backupTargetR31,new File(backupTargetR31.getPath()+"-journal")})if(file.exists()){
+                long allocated=StorageCensusSU2.allocatedBytes(file);if(allocated<0)throw new IOException("REPORT_BACKUP_ALLOCATED_BYTES_UNKNOWN");bytes=Math.addExact(bytes,allocated);
+            }return bytes;
+        }
+        @Override public synchronized void beforeBackupChunk(long bytes)throws IOException{if(storageReservationR31==null)return;if(!shouldContinue())throw new InterruptedIOException(stopReason);backupBeforeR31=backupPhysicalR31();storageReservationR31.beforeChunk(bytes);backupChargeR31=bytes;}
+        @Override public boolean hasDiskAdmissionR31(){return storageReservationR31!=null;}
+        @Override public void beforeOutputBytesR31(File file,long bytes)throws IOException{if(storageReservationR31==null)throw new IOException("REPORT_DISK_ADMISSION_MISSING");if(!shouldContinue())throw new InterruptedIOException(stopReason);storageReservationR31.beforeChunk(bytes);}
+        @Override public void reserveFutureBytesR31(long bytes)throws IOException{if(storageReservationR31==null)throw new IOException("REPORT_DISK_ADMISSION_MISSING");storageReservationR31.ensureAdditional(bytes,ReportPhaseBudgetR31.MAX_WRITTEN,true);job.temporaryReservationBytes=storageReservationR31.maximumGrowthBytes();}
+        @Override public OutputStream protectOutput(File file,OutputStream sink)throws IOException{
+            try{return storageReservationR31==null?sink:storageReservationR31.wrap(file,sink);}
+            catch(IOException|RuntimeException|Error error){try{sink.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
+        }
+        private void closePhaseR31(){if(phaseMemoryR31!=null){phaseMemoryR31.close();phaseMemoryR31=null;}}
+        void releaseResourcesR31(){closePhaseR31();StorageBudgetR31.Reservation reserved=storageReservationR31;storageReservationR31=null;if(reserved!=null)try{reserved.close();}catch(IOException release){android.util.Log.w("ReportExportCP12","Disk reservation release needs recovery",release);}}
         public synchronized boolean shouldContinue(){if(!stopReason.isEmpty())return false;if(cancel.get()){stopReason="REPORT_USER_CANCEL";return false;}if(destroyed.get()){stopReason="REPORT_PROCESS_SHUTDOWN";return false;}if(Thread.currentThread().isInterrupted()){stopReason="REPORT_WORKER_INTERRUPTED";return false;}
             long now=SystemClock.elapsedRealtime();if(now>=deadline){stopReason="REPORT_STAGE_TIMEOUT";return false;}
             if(now-lastRead>=ReportTaskControlR69.CHECKPOINT_MS_R30){lastRead=now;try{
@@ -433,7 +518,7 @@ public final class ReportExportServiceCP4 extends Service {
         Context app=context.getApplicationContext();ReportSafCopyCP12.copy(completedPart,expectedSha,expectedBytes,new ReportSafCopyCP12.Destination(){public OutputStream openOutputTruncating()throws IOException{return app.getContentResolver().openOutputStream(destination,"wt");}public InputStream openInput()throws IOException{return app.getContentResolver().openInputStream(destination);}},control);
     }
 
-    private static boolean isRetryable(String reason){return reason.equals("REPORT_STAGE_TIMEOUT")||reason.equals("REPORT_INPUT_LEASE_BUSY")||reason.equals("REPORT_ATTACHMENT_LEASE_BUSY")||reason.equals("IOException");}
+    private static boolean isRetryable(String reason){return reason.equals("REPORT_STAGE_TIMEOUT")||reason.equals("REPORT_INPUT_LEASE_BUSY")||reason.equals("REPORT_ATTACHMENT_LEASE_BUSY")||reason.startsWith("REPORT_MEMORY_BUDGET_WAIT")||reason.equals("IOException");}
 
     public static String requestSafTransfer(Context context,String jobId,String volumeName,Uri destination){final Context app=context.getApplicationContext();final String transfer=id("SAF_TRANSFER");final long generation=USER_REQUEST_GENERATION.get();
         try{REQUESTS.execute(()->{try{requireHash(jobId);if(destination==null||!"content".equals(destination.getScheme())||destination.toString().length()>2048||volumeName==null||!(volumeName.equals("*")||volumeName.matches("STARCORE_FULL_REPORT\\.zip|STARCORE_FULL_REPORT\\.zip\\.part[0-9]{2,3}|index\\.json|P[0-9]{6}\\.bin|M[0-9]{6}\\.manifest")))throw new IOException("REPORT_SAF_REQUEST");if(volumeName.equals("*")&&!(destination.getPathSegments().size()==2&&"tree".equals(destination.getPathSegments().get(0))&&!android.provider.DocumentsContract.getTreeDocumentId(destination).isEmpty()))throw new IOException("REPORT_SAF_TREE_REQUIRED");JSONObject request=new JSONObject();request.put("requestId",transfer);request.put("mode","SAF_TRANSFER");request.put("jobId",jobId);request.put("volumeName",volumeName);request.put("destination",destination.toString());request.put("state","PENDING");request.put("attempt",0);File root=requestRoot(app);enqueueUserRequest(root,transfer,"SAF_TRANSFER",request,generation);kick(app,ACTION_EXPORT,transfer);}catch(Exception error){requestFailure(app,transfer,error);}});}catch(RejectedExecutionException full){requestFailure(app,transfer,full);}return transfer;
@@ -461,7 +546,7 @@ public final class ReportExportServiceCP4 extends Service {
             boolean preempt=reason.equals("REPORT_REALTIME_PREEMPT")||reason.equals("REPORT_PROCESS_SHUTDOWN")||reason.equals("REPORT_WORKER_INTERRUPTED");if(preempt){state.put("attempt",Math.max(0,state.optInt("attempt",0)-1));state.put("preemptions",state.optInt("preemptions",0)+1);}
             boolean retry=(preempt||state.optInt("attempt",0)<3)&&state.optInt("preemptions",0)<=30&&!reason.equals("REPORT_USER_CANCEL")&&!reason.equals("REPORT_STORAGE_FULL");if(state.optInt("preemptions",0)>30)state.put("reason","REPORT_PREEMPTION_LIMIT");
             state.put("state",reason.equals("REPORT_USER_CANCEL")?"CANCELLED":retry?"PAUSED":"FAILED");ReportJobJournalCP12.writeAtomic(journal,state.toString());ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());if(retry)scheduleResume(transfer);else ReportRequestQueueCP12.remove(root,transfer);
-        }finally{control=null;}
+        }finally{if(active!=null)active.releaseResourcesR31();control=null;}
     }
 
     /** One folder selection saves every verified volume; index is written last, never for a partial set. */
@@ -502,7 +587,7 @@ public final class ReportExportServiceCP4 extends Service {
         }catch(Exception error){String reason=active==null||active.stopReason.isEmpty()?classify(error):active.stopReason;state.put("reason",reason);recordSafStorageFailure(state,error,reason);boolean preempt=reason.equals("REPORT_REALTIME_PREEMPT")||reason.equals("REPORT_PROCESS_SHUTDOWN")||reason.equals("REPORT_WORKER_INTERRUPTED");
             if(preempt){state.put("attempt",Math.max(0,state.optInt("attempt",0)-1));state.put("preemptions",state.optInt("preemptions",0)+1);}boolean retry=(preempt||state.optInt("attempt",0)<3)&&state.optInt("preemptions",0)<=30&&!reason.equals("REPORT_USER_CANCEL")&&!reason.equals("REPORT_STORAGE_FULL");
             state.put("state",reason.equals("REPORT_USER_CANCEL")?"CANCELLED":retry?"PAUSED":"FAILED");state.put("allVolumesSaved",false);ReportJobJournalCP12.writeAtomic(journal,state.toString());ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());if(retry)scheduleResume(transfer);else ReportRequestQueueCP12.remove(root,transfer);
-        }finally{control=null;}
+        }finally{if(active!=null)active.releaseResourcesR31();control=null;}
     }
     private void verifySavedTreeParts(File root,String transfer,int count,File sourceJob,JSONObject index,ActiveControl active)throws Exception {
         JSONArray volumes=index.getJSONArray("files");
@@ -528,5 +613,5 @@ public final class ReportExportServiceCP4 extends Service {
     }
 
     /** API-21 safe read of the previous R27 report summary (java.nio.file needs API 26). */
-    private static String readR27Summary(File f)throws java.io.IOException{java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream();try(java.io.FileInputStream in=new java.io.FileInputStream(f)){byte[] b=new byte[8192];int n;while((n=in.read(b))>0)out.write(b,0,n);}return new String(out.toByteArray(),StandardCharsets.UTF_8);}
+    private static String readR27Summary(File f)throws java.io.IOException{return ReportJobJournalCP12.readAtomic(f,1024*1024);}
 }

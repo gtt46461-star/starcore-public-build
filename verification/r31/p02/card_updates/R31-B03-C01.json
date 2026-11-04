@@ -1,0 +1,45 @@
+{
+  "recorded_at": "2026-11-04T10:38:50.822771+00:00",
+  "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "inherited_source_commit": "31fea28c5723ac70e47ae4cc7542344b16fb3f91",
+  "implementation_commit": "UNCOMMITTED_P02_ROOT_INTEGRATION_PENDING",
+  "actual_changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "methods": "postAnalysisForLatest/submitAnalysisRequestR36: current-draw priority and hand historical bootstrap to bounded backfill owner",
+      "worktree_sha256_at_record": "8c2cfc968e741a7cb8f2b1b409deb19b71c037bbd33d3a687318cbaa5d9de810",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ApiClient.java",
+      "methods": "RawHttpResult/HTTP reader: actual request,headers,first-byte,body-EOF clocks",
+      "worktree_sha256_at_record": "996dba993ccb61e82710a9aede1f4841cf1895f0559d1f7cb0b3af9537d17046",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+      "methods": "begin/complete: async bounded request header; strict durable payload before draw; bounded timing telemetry",
+      "worktree_sha256_at_record": "92515942369b8aca8d037ac1af4265905c25ed1eaa67c42ca76c17cdf64f978d",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    }
+  ],
+  "commits": [],
+  "migration_versions": [
+    "SQLite userVersion36 retained",
+    "RESEARCH_R31_FEEDBACK:1 (10 objects)",
+    "REALTIME_R31_TIMING:1 (2 objects)",
+    "R31_STORAGE_ADMISSION_V1 / R31_MEMORY_PER_PID_V1"
+  ],
+  "tests": [],
+  "apk_identity": null,
+  "device_evidence": [],
+  "remaining": [
+    "重复包、乱序包、晚到包、断网30分钟恢复、双来源冲突、HTTP卡住：无重复开奖/结算，最新目标不被历史队列长期阻塞。",
+    "1000次测量给全分布、分母、最差20次原因；不能只打印最近96次来掩盖漏期。",
+    "所有获知draw最终有SETTLED或带明确原因的排除终态，无默默遗漏。",
+    "Root same-version unexcluded Android/Gradle source integration pending",
+    "Android/physical device fault matrix and24/72h NOT_RUN",
+    "Natural FUTURE/REAL quality NOT_PROVEN"
+  ],
+  "next_step": "Finish real HOST/native fault tests, freeze source, regenerate verified identities from actual classes, then run unexcluded joint build/tests. No P06 business/cache GC enabled."
+}

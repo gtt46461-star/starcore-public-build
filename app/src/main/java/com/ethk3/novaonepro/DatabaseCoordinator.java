@@ -61,8 +61,8 @@ public final class DatabaseCoordinator {
         registerR31(registry,WriteClass.LIVE_FREEZE,"R932_BUNDLE_CAPTURE","R932_FREEZE_ONE_RESEARCH_CONSUMER","R36_CANONICAL*","R36_ANALYSIS*","R366_ANALYSIS*","R26_INCUMBENT_FREEZE","R26_LIVE_FREEZE");
         registerR31(registry,WriteClass.SETTLEMENT,"R914_SETTLEMENT_HANDOFF_CURRENT*","R36_SETTLEMENT*","R811_SETTLEMENT_PROMOTE_CURRENT*","R909_SETTLEMENT_REOPEN_CURRENT*","R905_REOPEN_FALSE_NO_PREDRAW*","R820_SETTLEMENT*","R900_SETTLEMENT*");
         registerR31(registry,WriteClass.RESEARCH_CONTROL,"R30_PREPARED_TASK_CLAIM","R27_TASK_RECEIPT","R27_TASK_RETRY","R27_PRIORITY_CLAIM","R26_TASK_CLAIM","R26_TASK_RECEIPT","R26_SESSION_STATUS","R26_SESSION_STOP");
-        registerR31(registry,WriteClass.TELEMETRY,"R31_RUNTIME_OBSERVATION","R27_THREAD_CPU","R27_WRITE_WAIT","R30_WRITER_HOLD_FLUSH","R30_TIMELINE_COMMIT_OBSERVATIONS","R927_RESOURCE*");
-        registerR31(registry,WriteClass.MIGRATION,"R26_RUNTIME_SCHEMA","R26_SU2_SCHEMA","R26_STRATEGY_STORAGE_UNIT","R929_PLATFORM_SCHEMA","R930_EVOLUTION_SCHEMA","R932_ABLATION_SCHEMA","R932_D2_REPLAY_SCHEMA","R932_FIXED_WINDOW_SCHEMA","R948_RESEARCH_INTEGRITY_SCHEMA","R958_RESEARCH_SCHEMA_STEP");
+        registerR31(registry,WriteClass.TELEMETRY,"R31_RUNTIME_OBSERVATION","R31_FETCH_TIMING","R31_FETCH_BEGIN_ASYNC","R27_THREAD_CPU","R27_WRITE_WAIT","R30_WRITER_HOLD_FLUSH","R30_TIMELINE_COMMIT_OBSERVATIONS","R927_RESOURCE*");
+        registerR31(registry,WriteClass.MIGRATION,"R26_RUNTIME_SCHEMA","R26_SU2_SCHEMA","R26_STRATEGY_STORAGE_UNIT","R31_LEGACY_SCHEMA_PREPARE","R929_PLATFORM_SCHEMA","R930_EVOLUTION_SCHEMA","R932_ABLATION_SCHEMA","R932_D2_REPLAY_SCHEMA","R932_FIXED_WINDOW_SCHEMA","R948_RESEARCH_INTEGRITY_SCHEMA","R958_RESEARCH_SCHEMA_STEP");
         registerR31(registry,WriteClass.RETENTION,"RETENTION_CP12*","R26_RETENTION_PHASE_*","R26_ARTIFACT_RETENTION","R914_DRAW_HISTORY_TRIM*");
         registerR31(registry,WriteClass.REPORT,"R27_CHART_CACHE","R27_HEALTH","R27_OBSERVERS");
         registerR31(registry,WriteClass.RESEARCH_DATA,"R914_DRAW_HISTORY_BATCH","R26_*","R27_*","R36_DEFERRED*","R909_SETTLEMENT_POST_COMMIT_SIDECAR*");
@@ -497,6 +497,7 @@ public final class DatabaseCoordinator {
                 criticalStampReason = SchemaDomainCoordinatorR926.matchReason(existingDb, critical);
                 if (criticalStampReason.startsWith("MATCH")) {
                     verifyCriticalTables(existingDb);
+                    SchemaDomainCoordinatorR926.migrateR31TransportTiming(existingDb);
                     if (initializer != null) initializer.run(existingDb);
                     // Initializers run before re-stamping: if one changed the schema, the
                     // second compatibility check below refuses to certify unknown drift.
@@ -581,6 +582,7 @@ public final class DatabaseCoordinator {
                 R811SchemaIntegrityVerifier.assertCritical(db);
                 criticalSchemaStage = "STAMP_R926_CRITICAL";
                 SchemaDomainCoordinatorR926.verifyAndStamp(db, critical);
+                SchemaDomainCoordinatorR926.migrateR31TransportTiming(db);
 
                 criticalSchemaReady.set(true);
                 criticalSchemaStage = "READY";
@@ -620,6 +622,13 @@ public final class DatabaseCoordinator {
      * it.  Calls are process-single-flight and the result is observable; no caller can mistake a
      * failed schema sweep for success.
      */
+    /** Readiness invalidation only. The existing bounded migration writer owns any later DDL. */
+    public void invalidateLegacyRuntimeSchemaR31(String reason){
+        String detail=safe(reason);legacySchemaStage="SCHEMA_PENDING";
+        legacySchemaError="SCHEMA_PENDING:"+detail.substring(0,Math.min(224,detail.length()));
+        runtimeSchemaReady.set(false);
+    }
+
     public boolean ensureRuntimeSchemaOnce(SchemaInitializer initializer) {
         if (runtimeSchemaReady.get()) return true;
         if (initializer == null) return false;
@@ -1073,16 +1082,54 @@ public final class DatabaseCoordinator {
                         fallback, "WRITE_COORDINATION_FAILED", tx.transactionHash, 0L));
     }
 
+    /** A business owner can wait for migration but must never create its own schema. */
+    public static final class SchemaPendingR31 extends IllegalStateException
+            implements com.ethk3.novaonepro.strategyv2.FailureDispositionR31.ClassifiedFailure {
+        private final String operation;
+        public SchemaPendingR31(String operation,String detail){
+            super("SCHEMA_PENDING:"+safe(operation)+":"+safe(detail));this.operation=safe(operation);
+        }
+        public String failureCategory(){return "DEPENDENCY";}
+        public String operation(){return operation;}
+        public String phase(){return "SCHEMA_READINESS";}
+        public String commitOutcomeName(){return "NOT_SUBMITTED";}
+    }
+
+    /** Only sqlite_master/PRAGMA reads. Contracts are internal identifiers, never SQL supplied by UI. */
+    public static void requireSchemaObjectsR31(SQLiteDatabase db,String operation,
+            String[][] requiredTables,String[][] requiredObjects){
+        if(db==null)throw new SchemaPendingR31(operation,"DATABASE_UNAVAILABLE");
+        if(requiredTables==null||requiredObjects==null||requiredTables.length+requiredObjects.length>128)
+            throw new IllegalArgumentException("R31_SCHEMA_READINESS_CONTRACT");
+        java.util.Map<String,String> expected=new java.util.LinkedHashMap<>();
+        for(String[] table:requiredTables){if(table.length!=2)throw new IllegalArgumentException("R31_SCHEMA_TABLE_CONTRACT");schemaIdentifierR31(table[0]);expected.put(table[0],"table");}
+        for(String[] object:requiredObjects){if(object.length!=2||!java.util.Arrays.asList("table","index","trigger","view").contains(object[0]))throw new IllegalArgumentException("R31_SCHEMA_OBJECT_CONTRACT");schemaIdentifierR31(object[1]);expected.put(object[1],object[0]);}
+        if(expected.isEmpty())return;
+        StringBuilder slots=new StringBuilder();for(int i=0;i<expected.size();i++){if(i>0)slots.append(',');slots.append('?');}
+        java.util.Map<String,String> actual=new java.util.HashMap<>();
+        try(android.database.Cursor objects=db.rawQuery("SELECT name,type FROM sqlite_master WHERE name IN ("+slots+")",expected.keySet().toArray(new String[0]))){while(objects.moveToNext())actual.put(objects.getString(0),objects.getString(1));}
+        for(java.util.Map.Entry<String,String> item:expected.entrySet())if(!item.getValue().equals(actual.get(item.getKey())))throw new SchemaPendingR31(operation,"MISSING_OR_WRONG_OBJECT:"+item.getKey());
+        for(String[] table:requiredTables){
+            java.util.Set<String> columns=new java.util.HashSet<>();
+            try(android.database.Cursor info=db.rawQuery("PRAGMA table_info(\""+table[0]+"\")",null)){while(info.moveToNext())columns.add(info.getString(1));}
+            if(!table[1].isEmpty())for(String column:table[1].split(",")){schemaIdentifierR31(column);if(!columns.contains(column))throw new SchemaPendingR31(operation,"MISSING_COLUMN:"+table[0]+":"+column);}
+        }
+    }
+    private static void schemaIdentifierR31(String value){if(value==null||!value.matches("[A-Za-z_][A-Za-z0-9_]*"))throw new IllegalArgumentException("R31_SCHEMA_IDENTIFIER");}
+    public static void requireTransactionSchemaR31(SQLiteDatabase db,String operation){
+        requireSchemaObjectsR31(db,operation,new String[][]{{DbHelper.TABLE_B03_TRANSACTION_AUDIT,
+                "idempotency_key,operation,game_code,target_issue,transaction_hash,status,error_detail,created_at"}},new String[0][]);
+    }
+
     public static <T> TransactionResult<T> runExistingTransaction(
             SQLiteDatabase db, TransactionContext tx, TransactionCallable<T> task, T fallback) {
         long started = TimeSourceR811.monoNowMs();
         if (db == null || tx == null || task == null)
             return TransactionResult.fail(
                     fallback, "TX_ARGUMENT_NULL", tx == null ? "" : tx.transactionHash, 0L);
-        boolean owns = !db.inTransaction();
+        boolean owns = !db.inTransaction(),schemaReadyR31=false;
         try {
-            DbHelper.ensureTianshuB03(db);
-            DbHelper.ensureR35Schema(db);
+            requireTransactionSchemaR31(db,tx.operation);schemaReadyR31=true;
             if (alreadyCommitted(db, tx.idempotencyKey))
                 return TransactionResult.ok(
                         fallback, true, tx.transactionHash, TimeSourceR811.monoNowMs() - started);
@@ -1095,7 +1142,7 @@ public final class DatabaseCoordinator {
         } catch (Throwable e) {
             rethrowProcessFatalR31(e);
             String auditFailure = "";
-            try {
+            try {if(schemaReadyR31)
                 appendTransactionAudit(db, tx, "ROLLED_BACK", safeError(e));
             } catch (Throwable auditError) {
             rethrowProcessFatalR31(auditError);
@@ -1105,7 +1152,7 @@ public final class DatabaseCoordinator {
                     fallback,
                     "TX_FAILED:" + safeError(e) + auditFailure,
                     tx.transactionHash,
-                    TimeSourceR811.monoNowMs() - started);
+                    TimeSourceR811.monoNowMs() - started,e);
         } finally {
             if (owns && db.inTransaction()) {
                 try {

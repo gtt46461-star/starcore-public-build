@@ -51,9 +51,9 @@ public final class ReportAttachmentClosureCP12 {
         long total,seedRows=0,seedMismatches=0;
         File seedEvidence=new File(job,"seed-bundle-observations.jsonl");
         source.put("installedSeedBundleSha256",V51ArtifactBundleManifest.BUNDLE_HASH);
-        try(FileOutputStream fd=new FileOutputStream(plans);Writer out=new BufferedWriter(new OutputStreamWriter(fd,StandardCharsets.UTF_8),8192)) {
+        try(FileOutputStream fd=new FileOutputStream(plans);Writer out=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(plans,fd,control),StandardCharsets.UTF_8),8192)) {
             org.json.JSONArray observations=request.getJSONObject("observation").optJSONArray("fullObservations");
-            if(observations!=null){if(observations.length()>8)throw new IOException("REPORT_OBSERVATION_REFERENCE_BOUND");
+            if(observations!=null){if(observations.length()>ReportJobJournalCP12.MAX_FULL_OBSERVATIONS_R31)throw new IOException("REPORT_OBSERVATION_REFERENCE_BOUND");
                 for(int i=0;i<observations.length();i++){JSONObject ref=observations.getJSONObject(i);String key=ref.getString("key"),requestId=request.getString("requestId"),hash=ref.getString("sha256");
                     if(!key.matches("[A-Za-z][A-Za-z0-9]{0,63}")||!requestId.matches("[0-9a-f]{64}")||!ref.getString("path").equals("observations/"+requestId+"/"+key+".txt"))throw new IOException("REPORT_OBSERVATION_REFERENCE_PATH");requireHash(hash);
                     File original=ReportArchiveVerifierCP12.inside(ReportDirectoriesCP12.root(app.getFilesDir()),ref.getString("path"));
@@ -68,7 +68,7 @@ public final class ReportAttachmentClosureCP12 {
                 if(!compact)descriptor(out,"r26-checkpoint-"+hash+".bin",hash,size,"R26_CHECKPOINT",input.getPath(),"");}
             source.put("r26CheckpointObjects",r26Checkpoints.size()).put("r26CheckpointBytes",r26Bytes).put("r26CheckpointBodiesIncluded",!compact).put("r26CheckpointByteValidation",compact?"NOT_RUN_COMPACT_BYTE_BUDGET":"EACH_INCLUDED_BODY_SHA256_VERIFIED").put("r26CheckpointScope","Referenced complete states, durable replay outputs and retained parents of this exact SQLite snapshot; older historical states are not claimed");
             String last="";
-            try(FileOutputStream seedFd=new FileOutputStream(seedEvidence);Writer seeds=new BufferedWriter(new OutputStreamWriter(seedFd,StandardCharsets.UTF_8),8192)) {
+            try(FileOutputStream seedFd=new FileOutputStream(seedEvidence);Writer seeds=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(seedEvidence,seedFd,control),StandardCharsets.UTF_8),8192)) {
             while(hasTable(copy,ResearchPlatformStoreR929.TABLE_BUNDLE)) {
                 checkpoint(control);String hash,key;long bytes;
                 try(Cursor c=copy.rawQuery("SELECT bundle_hash,key_id,total_bytes FROM "+ResearchPlatformStoreR929.TABLE_BUNDLE+" WHERE bundle_hash>? ORDER BY bundle_hash LIMIT 1",new String[]{last})) {
@@ -134,10 +134,18 @@ public final class ReportAttachmentClosureCP12 {
             descriptor(out,"source-index-"+indexSha+".tsv",indexSha,indexBytes,"ASSET",RuntimeChainDiagnosisR975.INDEX,"");
             out.flush();fd.getFD().sync();
         }
-        File sorted=ReportMemberPlanCP12.sort(job,plans,control);total=0;
-        try(ReportArchiveVerifierCP12.LineReader rows=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(sorted),8192)) {byte[] line;while((line=rows.next())!=null){checkpoint(control);JSONObject row=new JSONObject(new String(line,StandardCharsets.UTF_8));total=Math.addExact(total,row.getLong("bytes"));}}
-        long available=new StatFs(app.getFilesDir().getPath()).getAvailableBytes();if(available<Math.addExact(Math.multiplyExact(2,total),64*MiB))throw new IOException("REPORT_ATTACHMENT_DISK_BUDGET");
-        File manifest=new File(job,"attachments.jsonl");try(ReportArchiveVerifierCP12.LineReader rows=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(sorted),8192);FileOutputStream fd=new FileOutputStream(manifest);Writer refs=new OutputStreamWriter(fd,StandardCharsets.UTF_8)) {
+        File sorted=ReportMemberPlanCP12.sort(job,plans,control);total=0;long missingCopyBytes=0,plannedMembers=0;
+        try(ReportArchiveVerifierCP12.LineReader rows=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(sorted),8192)) {byte[] line;while((line=rows.next())!=null){
+            checkpoint(control);JSONObject row=new JSONObject(new String(line,StandardCharsets.UTF_8));long bytes=row.getLong("bytes");total=Math.addExact(total,bytes);plannedMembers++;
+            File fixed=ReportArchiveVerifierCP12.inside(job,row.getString("path"));if(fixed.exists()){
+                if(fixed.length()!=bytes||!row.getString("sha256").equals(ReportArchiveCP4.hash(fixed,control)))throw new IOException("REPORT_FROZEN_ATTACHMENT_CHANGED");
+            }else missingCopyBytes=Math.addExact(missingCopyBytes,bytes);
+        }}
+        control.reserveFutureBytesR31(ReportPhaseBudgetR31.attachmentFuture(missingCopyBytes));
+        source.put("r31PlannedAttachmentPayloadBytes",total).put("r31PlannedAttachmentMembers",plannedMembers).put("r31MissingAttachmentCopyBytes",missingCopyBytes)
+                .put("r31AdmissionBoundary","SNAPSHOT_BOUND_EXACT_DESCRIPTOR_BYTES_PLUS_ENFORCED_METADATA_ENVELOPE; NOT_SOURCE_WORSTCASE_ESTIMATE");
+        long available=new StatFs(app.getFilesDir().getPath()).getAvailableBytes();if(available<Math.addExact(missingCopyBytes,64*MiB))throw new IOException("REPORT_ATTACHMENT_DISK_BUDGET");
+        File manifest=new File(job,"attachments.jsonl");try(ReportArchiveVerifierCP12.LineReader rows=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(sorted),8192);FileOutputStream fd=new FileOutputStream(manifest);Writer refs=new OutputStreamWriter(ReportIoR31.protect(manifest,fd,control),StandardCharsets.UTF_8)) {
             byte[] line;while((line=rows.next())!=null){checkpoint(control);JSONObject row=new JSONObject(new String(line,StandardCharsets.UTF_8));String hash=row.getString("sha256");File fixed=ReportArchiveVerifierCP12.inside(job,row.getString("path"));long bytes=row.getLong("bytes");
                 if(fixed.exists()){if(fixed.length()!=bytes||!hash.equals(ReportArchiveCP4.hash(fixed,control)))throw new IOException("REPORT_FROZEN_ATTACHMENT_CHANGED");}
                 else {
@@ -177,7 +185,7 @@ public final class ReportAttachmentClosureCP12 {
         final long byteBudget=8L*MiB;long[] remaining={byteBudget};
         long pages=0,rows=0,bytes=0,verified=0,unavailable=0,notRun=0;String last="";
         boolean present=hasTable(snapshot,"research_evidence_archive_v2");
-        try(FileOutputStream fd=new FileOutputStream(report);Writer out=new BufferedWriter(new OutputStreamWriter(fd,StandardCharsets.UTF_8),8192)) {
+        try(FileOutputStream fd=new FileOutputStream(report);Writer out=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(report,fd,control),StandardCharsets.UTF_8),8192)) {
             while(present) {
                 checkpoint(control);String id,table,hash,path;long rowCount,locators;
                 try(Cursor c=snapshot.rawQuery("SELECT a.archive_id,a.source_table,a.archive_hash,a.relative_path,a.row_count,(SELECT COUNT(*) FROM research_evidence_locator_v2 l WHERE l.archive_id=a.archive_id) FROM research_evidence_archive_v2 a WHERE a.archive_id>? AND a.source_table IN('r80_probe_input','r80_probe_forecast','r80_probe_label','r80_probe_opportunity','research_bound_source_r80','research_bound_input_r80') AND a.state IN('VERIFIED','REFERENCED','PRUNED') ORDER BY a.archive_id LIMIT 1",new String[]{last})) {
@@ -236,7 +244,7 @@ public final class ReportAttachmentClosureCP12 {
     private static String state(SQLiteDatabase copy,String key)throws IOException {try(Cursor c=copy.rawQuery("SELECT length(CAST(state_value AS BLOB)) FROM app_state WHERE state_key=?",new String[]{key})){if(!c.moveToFirst())return "";if(c.isNull(0)||c.getLong(0)>128)throw new IOException("REPORT_BUNDLE_STATE_BOUND");}try(Cursor c=copy.rawQuery("SELECT state_value FROM app_state WHERE state_key=?",new String[]{key})){if(!c.moveToFirst())throw new IOException("REPORT_SNAPSHOT_STATE_DISAPPEARED");return c.isNull(0)?"":c.getString(0);}}
     private static void copy(InputStream input,File fixed,long expectedBytes,String expectedSha,ReportNativeCP4.Control control)throws Exception {
         File parent=fixed.getParentFile();if(!parent.isDirectory()&&!parent.mkdirs())throw new IOException("REPORT_ATTACHMENT_BUCKET");File partial=new File(fixed.getPath()+".partial");if(partial.exists()&&!partial.delete())throw new IOException("REPORT_ATTACHMENT_PARTIAL_REMOVE");if(!partial.createNewFile())throw new IOException("REPORT_ATTACHMENT_PARTIAL_EXISTS");
-        MessageDigest digest=MessageDigest.getInstance("SHA-256");long size=0;try(FileOutputStream out=new FileOutputStream(partial)){byte[] buffer=new byte[32768];int n;while((n=input.read(buffer))!=-1){checkpoint(control);if(n>expectedBytes-size)throw new IOException("REPORT_ATTACHMENT_OVERSIZE");out.write(buffer,0,n);digest.update(buffer,0,n);size+=n;}out.flush();out.getFD().sync();}
+        MessageDigest digest=MessageDigest.getInstance("SHA-256");long size=0;try(FileOutputStream fd=new FileOutputStream(partial);OutputStream out=ReportIoR31.protect(partial,fd,control)){byte[] buffer=new byte[32768];int n;while((n=input.read(buffer))!=-1){checkpoint(control);if(n>expectedBytes-size)throw new IOException("REPORT_ATTACHMENT_OVERSIZE");out.write(buffer,0,n);digest.update(buffer,0,n);size+=n;}out.flush();fd.getFD().sync();}
         if(size!=expectedBytes||!expectedSha.equals(ReportArchiveCP4.hex(digest.digest())))throw new IOException("REPORT_ATTACHMENT_COPY_HASH");if(!partial.renameTo(fixed))throw new IOException("REPORT_ATTACHMENT_RENAME");
     }
     private static final class SharedLease implements Closeable {final File path;final RandomAccessFile file;final FileLock lease;SharedLease(File path,RandomAccessFile file,FileLock lease){this.path=path;this.file=file;this.lease=lease;}public void close()throws IOException{try{lease.release();}finally{file.close();}}}

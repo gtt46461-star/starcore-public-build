@@ -31,7 +31,7 @@ public final class LegacyGenerationR26 {
     }
     private static long stepOwned(DbStore store,RuntimeCoordinatorR26.Claim claim,BudgetTokenSU1 budget,StepRun run)throws Exception {
         Models.Draw latest=store.getLatestDraw();if(latest==null)return 0;long latestOrdinal=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);long carry=scalar(store.readable(),"SELECT completed FROM r26_work_total WHERE task_id='legacy-generation'");claim.advanceCursorTo(carry);carry=Math.max(0,carry-claim.cursor);String abi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
-        if(active!=null&&(!active.claim.owner.equals(claim.owner)||!active.abi.equals(abi)||latestOrdinal-active.snapshot.ordinal[0]>=5000)){
+        if(active!=null&&(!active.claim.owner.equals(claim.owner)||active.work.cancellationRequested()||!active.abi.equals(abi)||latestOrdinal-active.snapshot.ordinal[0]>=5000)){
             Context previous=active;previous.work.close();if(!previous.work.isTerminated()){claim.reason("COOPERATIVE_DRAINING_PREVIOUS_LEGACY_GENERATION");return carry;}
             if(!previous.abi.equals(abi)||latestOrdinal-previous.snapshot.ordinal[0]>=5000)status(store,previous,"EXPIRED_SOURCE_OR_ABI");
             synchronized(LOCK){if(active==previous)active=null;}

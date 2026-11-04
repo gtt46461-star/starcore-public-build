@@ -1,0 +1,89 @@
+{
+  "format": "R31_B04C02_IMPLEMENTATION_RECEIPT_V1",
+  "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "observedAtUtc": "2026-11-04T11:02:09.277191+00:00",
+  "sourceSha256BeforeAndAfter": {
+    "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java": "8da3a6a59f121ff15e67405c8345ccb7472bfdd19ccb52498259ddf299f08166",
+    "app/src/main/java/com/ethk3/novaonepro/LifecycleHealthR963.java": "5d7ce611a125722a43767a8d9ac1398a208a58f7e8e336a93496ef9636ae7299",
+    "app/src/main/java/com/ethk3/novaonepro/OperationalDashboardR925.java": "b21b5164a6ab1fe2aa428efcd7eb2a4df4eb9dad87ea8e0811e9b76923228407",
+    "app/src/main/java/com/ethk3/novaonepro/MainActivity.java": "0130e63fdccc3e035cb8c96eb5526706a3a22f0be213dc241b4fe902ca28a4c0",
+    "app/src/test/java/com/ethk3/novaonepro/R31BackgroundCapabilityStateTest.java": "da419773e056fca5a092ebfd9b08ba9e38a4911847942c668ade46a6c58bb880"
+  },
+  "sourceStable": true,
+  "preservedInheritedSources": {
+    "app/src/main/AndroidManifest.xml": "94aef24f5094e0fb2a5f40d3ac239b8d9c27cfb4a8161b4de4907006e41d6d82",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimePowerLeaseR26.java": "ee2cd6ecc9672f1d6cdfead7c8d74379ee9b3b2381eb682122281235bc8dc821",
+    "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java": "b6de5aa4c79cf1019e423c26124a37c0d861eae8583cbd88a2e8dde6bb456be2",
+    "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java": "d1869d2d27f434586b1e1696f0d98158be4b8aa62bde5edebd66b7defc8e9be6"
+  },
+  "state": "CODE_COMPLETE_PENDING_ROOT_JOINT_ANDROID_BUILD_AND_DEVICE_ACCEPTANCE",
+  "commands": [
+    [
+      "javac",
+      "-nowarn",
+      "-encoding",
+      "UTF-8",
+      "-cp",
+      "/tmp/r31-background-final-vi87piu6:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/starcore-public-build/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/processDebugResources/R.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+      "-d",
+      "/tmp/r31-background-final-vi87piu6",
+      "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java",
+      "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/LifecycleHealthR963.java",
+      "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/OperationalDashboardR925.java",
+      "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+      "/workspace/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/R31BackgroundCapabilityStateTest.java"
+    ],
+    [
+      "java",
+      "-cp",
+      "/tmp/r31-background-final-vi87piu6:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/starcore-public-build/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/processDebugResources/R.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+      "org.junit.runner.JUnitCore",
+      "com.ethk3.novaonepro.R31BackgroundCapabilityStateTest"
+    ]
+  ],
+  "hostJunitTests": 6,
+  "hostJunitResult": "PASS",
+  "productionJavac": "PASS",
+  "scope": "Only production compile and pure state/interruption mapping executed; actual Android OS getter values/UI/OEM settings/boot/Doze/start/exit-history not executed on device.",
+  "capabilitiesImplemented": [
+    "ObservedOS deviceIdle,powerSave,backgroundRestricted,notification,exactAlarm,batteryExemption,ownService foreground with bounded32-service lookup",
+    "Per-fieldYES/NO/UNKNOWN/UNSUPPORTED; user-disabled,observedOS restriction,setupdebt,powersaving,missingforeground,unknown mapped separately",
+    "Snapshot/sourceclock+reason+recoverycondition; capability-ready never implies24h/72h soakverified",
+    "Existingbackgroundcardclickopensstatusdetails before optional system/OEM settings; platform/OEM intentsresolve beforestart and fallback,OEM grant remainsunverified",
+    "API35currentpid+process matching ApplicationStartInfo.wasForceStopped; belowAPI35UNSUPPORTED;API30ownmainprocess-exit listmax5;exit-to-observation interval explicitly unobserved,clock-reversalUNKNOWN",
+    "R31research taskhealth presented independently;oldlearningpumpmarkedlegacyandnotnumericalprogress"
+  ],
+  "sourceContractsPreserved": [
+    "target28/dataSync/stopWithTask=false andpermissiondeclarations",
+    "RuntimePowerLease60smax/15srenewal andactualownerclose",
+    "CoreAutoFetch/HeartbeatP02frozen sourcesunchanged bythispatch",
+    "No new charging-only,idle-onlyconditions or force-stop restart mechanism",
+    "No new databaseDDL ormodel/DecisionGate/PIT changes"
+  ],
+  "deviceStatus": "NOT_RUN",
+  "deviceContinuous24h": "NOT_RUN",
+  "deviceContinuous72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "remaining": [
+    "Root joint all-source Android build/identity/APK binding",
+    "Android API21/28/30/35/36 getter andUIbehavior plus OEM resolve/fallback on supportedrealdevices",
+    "V2353A72h matrix/Doze actual restrictedintervals/20startoneowner/userstop andforce-stop expectedstopped-until-user-opens verification",
+    "No persisted user-attestedOS self-grants;OEM remainsunknownuntil device-specific evidence."
+  ],
+  "preservedBaselineComparisons": [
+    {
+      "path": "app/src/main/AndroidManifest.xml",
+      "baselineSha256": "94aef24f5094e0fb2a5f40d3ac239b8d9c27cfb4a8161b4de4907006e41d6d82",
+      "currentSha256": "94aef24f5094e0fb2a5f40d3ac239b8d9c27cfb4a8161b4de4907006e41d6d82",
+      "identicalToPlanBaseline": true,
+      "action": "READ_AND_PRESERVE_VALID_IMPLEMENTATION_WITH_NO_GRATUITOUS_SOURCE_CHANGE"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimePowerLeaseR26.java",
+      "baselineSha256": "ee2cd6ecc9672f1d6cdfead7c8d74379ee9b3b2381eb682122281235bc8dc821",
+      "currentSha256": "ee2cd6ecc9672f1d6cdfead7c8d74379ee9b3b2381eb682122281235bc8dc821",
+      "identicalToPlanBaseline": true,
+      "action": "READ_AND_PRESERVE_VALID_IMPLEMENTATION_WITH_NO_GRATUITOUS_SOURCE_CHANGE"
+    }
+  ]
+}

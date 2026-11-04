@@ -1,0 +1,1881 @@
+{
+  "schema": "R31_P03_EXECUTED_COUNTEREXAMPLE_1",
+  "started_utc": "2026-11-04T10:20:09.417871+00:00",
+  "planning_baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "head_at_capture": "844a78488f396189c2db98591782b7bb214799d2",
+  "worktree_status_at_capture": [
+    " M app/src/androidTest/java/com/ethk3/novaonepro/R31RuntimeProtocolInstrumentedTest.java",
+    " M app/src/main/cpp/report_native_cp4.c",
+    " M app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+    " M app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
+    " M app/src/main/java/com/ethk3/novaonepro/ApiClient.java",
+    " M app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+    " M app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
+    " M app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+    " M app/src/main/java/com/ethk3/novaonepro/DiagnosticReportProviderR923.java",
+    " M app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+    " M app/src/main/java/com/ethk3/novaonepro/ReportArchiveCP4.java",
+    " M app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+    " M app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
+    " M app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+    " M app/src/main/java/com/ethk3/novaonepro/ReportInputsLeaseCP12.java",
+    " M app/src/main/java/com/ethk3/novaonepro/ReportNativeCP4.java",
+    " M app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+    " M app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+    " M app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+    " M app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+    " M app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+    " M app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+    " M app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java",
+    " M app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+    " M app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+    " M app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyGenerationR26.java",
+    " M app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyReplayContinuationR26.java",
+    " M app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
+    " M app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedTaskR30R1.java",
+    " M app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+    " M app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+    " M app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+    " M app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+    " M app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+    " M app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+    " M app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java",
+    " M app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java",
+    " M construction/r31/EXECUTION_LEDGER.json",
+    " M construction/r31/SUMMARY.json",
+    "?? app/src/main/java/com/ethk3/novaonepro/DirectoryCursorR31.java",
+    "?? app/src/main/java/com/ethk3/novaonepro/ReportCleanupR31.java",
+    "?? app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+    "?? app/src/main/java/com/ethk3/novaonepro/StorageLedgerR31.java",
+    "?? app/src/main/java/com/ethk3/novaonepro/strategyv2/BoundedResearchExecutorR31.java",
+    "?? app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+    "?? app/src/main/java/com/ethk3/novaonepro/strategyv2/SharedFeatureStoreR31.java",
+    "?? app/src/test/java/com/ethk3/novaonepro/strategyv2/R31MemoryGovernanceTest.java",
+    "?? verification/r31/ci_diagnosis/",
+    "?? verification/r31/p01/build-identity/BuildConfig-generated.java.txt",
+    "?? verification/r31/p01/build-identity/FINAL_CALL_STABILITY.log",
+    "?? verification/r31/p01/build-identity/FINAL_UNEXCLUDED_P01_COMPILE_INSTRUMENTATION_AND_UNIT.log",
+    "?? verification/r31/p01/build-identity/compiled-android-tests/",
+    "?? verification/r31/p01/build-identity/final-command-receipt.json",
+    "?? verification/r31/p01/build-identity/final-integration-receipt.json",
+    "?? verification/r31/p01/build-identity/generated-build-identity.json",
+    "?? verification/r31/p01/build-identity/junit/",
+    "?? verification/r31/p01/build-identity/test-target-discovery.json",
+    "?? verification/r31/p01/card_updates/",
+    "?? verification/r31/p02/",
+    "?? verification/r31/p03_preparation/"
+  ],
+  "source_snapshot": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java": {
+      "sha256": "0234822de29c8964a508f86dfe53c05a854e32e36ce96f172c33935e4cf4f8a9",
+      "bytes": 15811
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java": {
+      "sha256": "8d6dfdd60bfd960ab6d00bc0103e98a73249f957819fd91098db2901f0e73a67",
+      "bytes": 7109
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetR27.java": {
+      "sha256": "50b5fc87e981047f3f0123383a937b0fab62751328bb631535549bf35a63393c",
+      "bytes": 7275
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java": {
+      "sha256": "ad93eef1ad65956e6e8bd229992e5a7b3e6e35a5b332aea2858faf8d7d25cac1",
+      "bytes": 10354
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FtrlR27.java": {
+      "sha256": "1c75fb114b50a9065b75f168bc682d67230f17708f51d08a85bf23420881b43f",
+      "bytes": 2030
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java": {
+      "sha256": "a7b4645a2247af79c2db75389f7c1c044bf31d20cb0b100fe4b2fa09bdfd9daa",
+      "bytes": 4484
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR30.java": {
+      "sha256": "c0e7b2fea01e5347b3f3081a7143fb8a7deb8824b5534abb318852161f1ac50c",
+      "bytes": 7922
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/NumberRankerAdapterR30.java": {
+      "sha256": "8b8496861082ff777b168c0c7e20078dd976479b33c1d0cfcfcf6470a65d34c8",
+      "bytes": 1073
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/PitGuardR30.java": {
+      "sha256": "122913dcd5fe145a8355c571c72b9b33bbfde42351075cee34b2fbb14ef413d2",
+      "bytes": 3122
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/HashingSU1.java": {
+      "sha256": "5f0757a4374d1ff88babbfcfa306f96aee2a988ee91132743764ad1f4d18dc1a",
+      "bytes": 1315
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java": {
+      "sha256": "35fce88a64f2f5bc1a88f863d0d3cf632179943873b3500b9a54e3fd1101159a",
+      "bytes": 5410
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContractR30R1.java": {
+      "sha256": "985f2d30400bf4272865feb27359a4cb8f0103c9c699c028c80613a88c6dbf1c",
+      "bytes": 2528
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LogisticRidgeSU2.java": {
+      "sha256": "c741a80538e33612ee07d958361acdb7ba85dbfe7c73b1e6f54caeefacb46998",
+      "bytes": 2581
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SplitR27.java": {
+      "sha256": "73ba5a65d0e627e5226fec788bc5d4618c81c0e7ed5d830957a941d41def0aea",
+      "bytes": 3416
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java": {
+      "sha256": "8a4012187b67e6e1a3f8f0e4fe24313bc606f8cf70dc963e159c3e02216b2ae3",
+      "bytes": 9514
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java": {
+      "sha256": "c95c0e995de3dc6d9491bff05be4fca10979e453346cdf231a7bed3b8e42ebeb",
+      "bytes": 48678
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java": {
+      "sha256": "61c44a78cbcd8463e5f686abf99b18ca4c00a8098755e276028ddc3f5bb7e770",
+      "bytes": 16604
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java": {
+      "sha256": "332872adcd70359ebaf0ad3f074b48dbb63ead2e44441f6509b1fed92b2ace77",
+      "bytes": 17229
+    },
+    "app/src/main/java/com/ethk3/novaonepro/StorageLedgerR31.java": {
+      "sha256": "1cda26702f74a9467b7c80189c3e9f2ae5788b1698af7f261a6e926dd3fdf7ff",
+      "bytes": 9545
+    },
+    "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java": {
+      "sha256": "94208c0daf0b9757b6de64b0aae5d7c09200e28b35506047e5a8841d4b228107",
+      "bytes": 22791
+    },
+    "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java": {
+      "sha256": "dea191288e1e99aaa41ec5621740a2bc85a4e4e59447652c2d0e194ff422e05b",
+      "bytes": 10806
+    },
+    "app/src/main/java/com/ethk3/novaonepro/ReportNativeCP4.java": {
+      "sha256": "3ce1215dd61e1dd8f94e01b59b30940d1052dd48a748459d120f581100be112e",
+      "bytes": 9458
+    },
+    "app/src/main/java/com/ethk3/novaonepro/DirectoryCursorR31.java": {
+      "sha256": "c44e4fd681b8d46fb2966162820714e959b687b7910d1561a2ee30725d85127d",
+      "bytes": 1644
+    }
+  },
+  "method_identity": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java": [
+      {
+        "marker": "public int work(Samples samples)",
+        "start_line": 43,
+        "end_line": 82,
+        "sha256_utf8": "ebe6f48930e7cd4b001985585af5f31d7a78b217134d49069cd4e49149926c9f",
+        "exact_source": "public int work(Samples samples) {\n        receipts.clear(); long start=System.nanoTime(); int n=0;\n        if(needsValidationRoleMigration){\n            // Preserve the optimizer/RNG/position state. Old formal validation receipts are not research rewards.\n            trainer.lastCheckLogloss=Double.NaN;trainer.lastCheckSe=Double.NaN;trainer.sinceCheck=0;\n            if(phase.equals(\"EVAL_HOLD\"))transition(\"EVAL_DEVELOPMENT_VALIDATION\");\n            else if(phase.equals(\"EVAL_ONLINE_HOLD\"))transition(\"EVAL_ONLINE_DEVELOPMENT_VALIDATION\");\n            else if(phase.equals(\"ONLINE\"))transition(\"EVAL_DEVELOPMENT_VALIDATION\");\n            needsValidationRoleMigration=false;\n        }\n        if (\"TRAIN\".equals(phase)) {\n            if(order==null) shuffle();\n            n=Math.min(AtomNetTrainerR27.BATCH,trainCount-offset);\n            samples.prefetch(Arrays.copyOfRange(order,offset,offset+n));\n            double[][] x=new double[n][];int[] y=new int[n],c=new int[n];\n            for(int k=0;k<n;k++){AtomNetTrainerR27.Sample s=samples.get(order[offset+k]);x[k]=s.x;y[k]=s.y;c[k]=s.cls;if(epoch==0)ftrl.update(Arrays.copyOf(s.x,7),s.y);}\n            int total=AtomNetTrainerR27.MAX_EPOCHS*((trainCount+63)/64);\n            lastLr=AtomNetTrainerR27.LR_MIN+.5*(AtomNetTrainerR27.LR0-AtomNetTrainerR27.LR_MIN)*(1+Math.cos(Math.PI*step/(double)total));\n            trainer.net.trainBatch(x,y,c,lastLr,trainer.rng);step++;offset+=n;pretrainSamples+=n;\n            if(offset==trainCount) transition(\"EVAL_TRAIN\");\n        } else if(phase.startsWith(\"EVAL_\")) {\n            int from=\"EVAL_TRAIN\".equals(phase)?0:trainCount;\n            int count=\"EVAL_TRAIN\".equals(phase)?trainCount:selectCount;\n            if(phase.contains(\"DEVELOPMENT_VALIDATION\")){from=trainCount;count=selectCount;}\n            n=Math.min(64,count-offset);int[] indices=new int[n];for(int k=0;k<n;k++)indices[k]=from+offset+k;samples.prefetch(indices);\n            for(int k=0;k<n;k++) {\n                AtomNetTrainerR27.Sample s=samples.get(from+offset+k);double p=trainer.net.predict(s.x);\n                if(\"EVAL_SELECT\".equals(phase)&&epoch==0)ftrl.update(Arrays.copyOf(s.x,7),s.y);\n                loss.add(-Math.log(Math.max(1e-12,s.y==1?p:1-p)));brier+=(p-s.y)*(p-s.y);\n            }\n            offset+=n;\n            if(offset==count) finishEvaluation();\n        } else if(\"FILL\".equals(phase)) {\n            int from=Math.max(0,trainCount+selectCount-AtomNetTrainerR27.REPLAY);\n            n=Math.min(64,trainCount+selectCount-from-fillOffset);int[] indices=new int[n];for(int k=0;k<n;k++)indices[k]=from+fillOffset+k;samples.prefetch(indices);\n            for(int k=0;k<n;k++)trainer.remember(samples.get(from+fillOffset+k));fillOffset+=n;\n            if(from+fillOffset==trainCount+selectCount){phase=\"ONLINE\";completeIssue=observedThrough;onlineObservedOrdinal=observedThroughOrdinal;}\n        }\n        trainingMs+=(System.nanoTime()-start)/1_000_000L;units++;return n;\n    }"
+      },
+      {
+        "marker": "public void online(",
+        "start_line": 108,
+        "end_line": 117,
+        "sha256_utf8": "4ee99ce2d120010670506105d7f494ca9bed84dfb292982cdf80bb8e10357e13",
+        "exact_source": "public void online(AtomNetTrainerR27.Sample sample,String issue,long ordinal,int position) {\n        if(!\"ONLINE\".equals(phase)||position!=nextPosition||position<1||position>10\n                ||(!partialIssue.isEmpty()&&!partialIssue.equals(issue))||issue.compareTo(completeIssue)<=0\n                ||!sample.issue.equals(eventKey(issue,position)))throw new IllegalStateException(\"R30_POSITION_CURSOR\");\n        trainer.online(sample,\"OLD48_RECENT15\".equals(replayPolicy));ftrl.update(Arrays.copyOf(sample.x,7),sample.y);\n        partialIssue=issue;onlineObservedOrdinal=ordinal;nextPosition++;\n        if(nextPosition==11){completeIssue=issue;partialIssue=\"\";nextPosition=1;\n            if(trainer.sinceCheck>=10L*AtomNetTrainerR27.CHECK_EVERY)transition(\"EVAL_ONLINE_DEVELOPMENT_VALIDATION\");\n        }\n    }"
+      },
+      {
+        "marker": "public String trainedThrough()",
+        "start_line": 119,
+        "end_line": 119,
+        "sha256_utf8": "bf34b01c83b28ef841af52c4c20bdd839b9b008cec6dea31258c452d74751a52",
+        "exact_source": "public String trainedThrough(){return partialIssue.isEmpty()?completeIssue:partialIssue;}"
+      },
+      {
+        "marker": "public long trainedThroughOrdinal()",
+        "start_line": 120,
+        "end_line": 120,
+        "sha256_utf8": "41ffb9229a1a262958631ed43ecb7032ac9d81f2daa639ab3ec2f7a7023a1c35",
+        "exact_source": "public long trainedThroughOrdinal(){return Math.max(observedThroughOrdinal,onlineObservedOrdinal);}"
+      },
+      {
+        "marker": "public boolean ready()",
+        "start_line": 121,
+        "end_line": 121,
+        "sha256_utf8": "13d21fb5031fbbaf2569f2eb6314dfa0153ee04f882a8ea71555e6106a900549",
+        "exact_source": "public boolean ready(){return \"ONLINE\".equals(phase);}"
+      },
+      {
+        "marker": "public Map<String,Object> report()",
+        "start_line": 122,
+        "end_line": 139,
+        "sha256_utf8": "e4cb8e1eb80018cb4d1d648a22569425af29b53c377abbbcb069295d91b4a838",
+        "exact_source": "public Map<String,Object> report(){\n        Map<String,Object> r=new LinkedHashMap<>();r.put(\"abi\",ABI);r.put(\"owner\",OWNER);r.put(\"datasetHash\",datasetHash);r.put(\"phase\",phase);\n        r.put(\"samplesPerEligiblePeriod\",10L);r.put(\"maxTrainingSamplesPerSlice\",64L);r.put(\"cachePeriod\",(long)cachePeriod);\n        r.put(\"materializedSamples\",materializedSamples);r.put(\"materializeMs\",materializeMs);\n        r.put(\"materializeMsPerPeriod\",materializedSamples>0?materializeMs/(materializedSamples/10.0):null);\n        r.put(\"samplesPerSecond\",materializeMs>0?materializedSamples*1000.0/materializeMs:null);\n        r.put(\"trainingSamplesProcessed\",pretrainSamples);r.put(\"trainingMs\",trainingMs);r.put(\"epoch\",(long)epoch);r.put(\"phaseOffset\",(long)offset);\n        r.put(\"onlineSamples\",trainer.onlineSteps);r.put(\"completeIssue\",completeIssue);r.put(\"partialIssue\",partialIssue);r.put(\"nextPosition\",(long)nextPosition);\n        r.put(\"trainedThrough\",completeIssue.isEmpty()?observedThrough:trainedThrough());r.put(\"trainedThroughOrdinal\",trainedThroughOrdinal());\n        int materializeEnd=com.ethk3.novaonepro.AtomReplayR27.MIN_ROWS+(trainCount+selectCount+holdoutCount)/10;\n        r.put(\"displayPhase\",cachePeriod<materializeEnd?\"MATERIALIZE\":phase);\n        r.put(\"inputBoundary\",observedThrough);r.put(\"legacyTrainedThroughIsInputBoundary\",completeIssue.isEmpty());\n        r.put(\"weightsTrainedThrough\",ready()?trainedThrough():null);\n        r.put(\"weightsTrainedThroughOrdinal\",ready()?trainedThroughOrdinal():null);\n        r.put(\"publicationReady\",ready());r.put(\"learningProtocol\",LEARNING_PROTOCOL);r.put(\"replayPolicy\",replayPolicy);r.put(\"replayEvidenceRun\",replayEvidenceRun);r.put(\"replayPolicyChanges\",replayPolicyChanges);r.put(\"replayChangeQuality\",\"REFUTABLE_RESEARCH_ALLOCATION_NOT_A_PROVED_GAIN_NO_MODEL_OR_ALPHA_RESET\");r.put(\"primaryTrainingSamplesCommitted\",pretrainSamples+trainer.onlineSteps);\n        r.put(\"trainingCounterScope\",\"PRETRAIN_VISITS_PLUS_NEW_ONLINE_POSITIONS;EXCLUDES_REPLAY_VISITS;NOT_INDEPENDENT_ISSUES\");\n        r.put(\"status\",materializedSamples>0?\"MEASURED\":\"INSUFFICIENT\");r.put(\"quality\",\"NO_NATURAL_QUALITY_CLAIM\");r.put(\"validationRole\",\"DEVELOPMENT_VALIDATION_FROM_ORIGINAL_SELECT_ONLY\");r.put(\"currentValidationInputPolicy\",\"ORIGINAL_SELECT_ONLY; FORMAL_CONFIRM_AND_FUTURE_TABLES_ARE_NOT_OPTIMIZER_INPUT\");r.put(\"legacyValidationOriginUnknown\",legacyValidationOriginUnknown);r.put(\"needsValidationRoleMigration\",needsValidationRoleMigration);r.put(\"independentTrainingCalendarIssues\",pretrainSamples==0?0L:(long)(trainCount/10));return r;\n    }"
+      },
+      {
+        "marker": "public byte[] encode()",
+        "start_line": 140,
+        "end_line": 153,
+        "sha256_utf8": "f78621313246fcde44530ffc7eb69655272da42506cafc84007fa6cb5405598c",
+        "exact_source": "public byte[] encode(){\n        try{\n            ByteArrayOutputStream bytes=new ByteArrayOutputStream();DataOutputStream o=new DataOutputStream(bytes);\n            o.writeInt(0x30A70003);o.writeUTF(ABI);o.writeUTF(datasetHash);o.writeUTF(observedThrough);o.writeLong(observedThroughOrdinal);\n            for(int v:new int[]{input,trainCount,selectCount,holdoutCount,cachePeriod,epoch,offset,step,bad,fillOffset,nextPosition})o.writeInt(v);\n            o.writeUTF(phase);o.writeUTF(completeIssue);o.writeUTF(partialIssue);\n            for(long v:new long[]{onlineObservedOrdinal,pretrainSamples,materializedSamples,materializeMs,trainingMs,units,loss.n})o.writeLong(v);\n            for(double v:new double[]{best,lastLr,loss.mean,loss.m2,brier})o.writeDouble(v);\n            o.writeInt(order==null?0:order.length);if(order!=null)for(int v:order)o.writeInt(v);\n            ModelArtifactR29.blob(o,bestNet);ModelArtifactR29.blob(o,new ModelArtifactR29(trainer,ftrl,datasetHash,completeIssue.isEmpty()?observedThrough:trainedThrough()).encode());\n            o.writeBoolean(legacyValidationOriginUnknown);o.writeBoolean(needsValidationRoleMigration);o.writeUTF(LEARNING_PROTOCOL);o.writeUTF(replayPolicy);o.writeUTF(replayEvidenceRun);o.writeLong(replayPolicyChanges);\n            o.close();return bytes.toByteArray();\n        }catch(IOException e){throw new IllegalStateException(\"R30_MODEL_ENCODE\",e);}\n    }"
+      },
+      {
+        "marker": "public static AtomNetSessionR30 decode(",
+        "start_line": 154,
+        "end_line": 172,
+        "sha256_utf8": "58ecbf39429e00a7cab48df7b9a466be500a935b74af42ca04cf1a08af5e967b",
+        "exact_source": "public static AtomNetSessionR30 decode(byte[] bytes,String hash){\n        if(bytes==null||bytes.length>64<<20||!StatsR27.sha256(bytes).equals(hash))throw new IllegalArgumentException(\"R30_MODEL_CHECKSUM\");\n        try{\n            DataInputStream d=new DataInputStream(new ByteArrayInputStream(bytes));int format=d.readInt();if((format!=0x30A70001&&format!=0x30A70002&&format!=0x30A70003)||!ABI.equals(d.readUTF()))throw new IOException(\"ABI\");\n            String ds=d.readUTF(),through=d.readUTF();long ordinal=d.readLong();int[] v=new int[11];for(int i=0;i<v.length;i++)v[i]=d.readInt();\n            if(v[0]<11||v[0]>4096||v[1]<=0||v[1]>1_000_000||v[2]<=0||v[2]>1_000_000||v[3]<0||v[3]>1_000_000)throw new IOException(\"shape\");\n            AtomNetSessionR30 s=new AtomNetSessionR30(ds,through,ordinal,v[0],v[1],v[2],v[3]);\n            s.cachePeriod=v[4];s.epoch=v[5];s.offset=v[6];s.step=v[7];s.bad=v[8];s.fillOffset=v[9];s.nextPosition=v[10];\n            s.phase=d.readUTF();s.completeIssue=d.readUTF();s.partialIssue=d.readUTF();\n            s.onlineObservedOrdinal=d.readLong();s.pretrainSamples=d.readLong();s.materializedSamples=d.readLong();s.materializeMs=d.readLong();s.trainingMs=d.readLong();s.units=d.readLong();s.loss.n=d.readLong();\n            s.best=d.readDouble();s.lastLr=d.readDouble();s.loss.mean=d.readDouble();s.loss.m2=d.readDouble();s.brier=d.readDouble();\n            int n=d.readInt();if(n!=0&&n!=s.trainCount)throw new IOException(\"shuffle\");if(n>0){s.order=new int[n];boolean[] seen=new boolean[n];for(int i=0;i<n;i++){int x=d.readInt();if(x<0||x>=n||seen[x])throw new IOException(\"shuffle index\");seen[x]=true;s.order[i]=x;}}\n            s.bestNet=ModelArtifactR29.blob(d);byte[] inner=ModelArtifactR29.blob(d);ModelArtifactR29 a=ModelArtifactR29.decode(inner,StatsR27.sha256(inner));if(a.receiptCursorRequiresPersistenceRecovery)throw new IOException(\"INNER_LEGACY_RECEIPT_CURSOR_REQUIRES_DB_RECOVERY\");s.trainer=a.trainer;s.ftrl=a.ftrl;\n            if(format==0x30A70002||format==0x30A70003){s.legacyValidationOriginUnknown=d.readBoolean();s.needsValidationRoleMigration=d.readBoolean();}else{s.legacyValidationOriginUnknown=true;s.needsValidationRoleMigration=true;}\n            if(format==0x30A70003){if(!LEARNING_PROTOCOL.equals(d.readUTF()))throw new IOException(\"learning protocol\");s.replayPolicy=d.readUTF();s.replayEvidenceRun=d.readUTF();s.replayPolicyChanges=d.readLong();if(!Arrays.asList(\"UNIFORM_63\",\"OLD48_RECENT15\").contains(s.replayPolicy)||s.replayPolicyChanges<0||(!s.replayEvidenceRun.isEmpty()&&!s.replayEvidenceRun.matches(\"[0-9a-f]{64}\"))||!s.replayPolicy.equals(\"UNIFORM_63\")&&s.replayEvidenceRun.isEmpty())throw new IOException(\"replay policy\");}\n            if(d.available()!=0||s.trainer.net.in!=s.input||s.nextPosition<1||s.nextPosition>10||s.offset<0||s.epoch<0||s.epoch>20||!Arrays.asList(\"TRAIN\",\"EVAL_TRAIN\",\"EVAL_SELECT\",\"EVAL_HOLD\",\"EVAL_ONLINE_HOLD\",\"EVAL_DEVELOPMENT_VALIDATION\",\"EVAL_ONLINE_DEVELOPMENT_VALIDATION\",\"FILL\",\"ONLINE\").contains(s.phase))throw new IOException(\"cursor\");\n            return s;\n        }catch(IOException|RuntimeException e){throw new IllegalArgumentException(\"R30_MODEL_DECODE\",e);}\n    }"
+      }
+    ],
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java": [
+      {
+        "marker": "void publishAtomStateR30(",
+        "start_line": 40,
+        "end_line": 40,
+        "sha256_utf8": "da48255177dcf7ea746b6bd66ef3a9544d439e161670afa71d3186d6e468b9b7",
+        "exact_source": "void publishAtomStateR30(AtomNetSessionR30 state){ModelSurfaceProviderR30.FrozenModelRef ref=state.ready()?new ModelSurfaceProviderR30.FrozenModelRef(state.trainer.net.encode(),state.trainedThroughOrdinal(),System.currentTimeMillis()):null;atomPublicationR30=new AtomPublicationR30(state,ref);atomSessionR30=state;}"
+      }
+    ],
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR30.java": [
+      {
+        "marker": "private FrozenModelRef(",
+        "start_line": 14,
+        "end_line": 20,
+        "sha256_utf8": "4fca556daea05e5210f4f135da09dd744c3627f3919a08e162f3d33ddfe307fe",
+        "exact_source": "private FrozenModelRef(byte[] weights,long through,long available,String original){\n            this.weights=weights.clone();weightsHash=StatsR27.sha256(this.weights);trainedThroughOrdinal=through;availableAt=available;\n            String descriptor=HashingSU1.fields(\"R30_REPAIR_MODEL_REF_2\",weightsHash,AtomNetSessionR30.ABI,AtomNetSessionR30.LEARNING_PROTOCOL,Long.toString(through),Long.toString(available));String priorDescriptor=HashingSU1.fields(\"R30_REPAIR_MODEL_REF_1\",weightsHash,AtomNetSessionR30.ABI,Long.toString(through),Long.toString(available));\n            legacyWeightsOnlyIdentity=original!=null&&original.equals(weightsHash);learningProtocol=legacyWeightsOnlyIdentity?\"LEGACY_WEIGHTS_ONLY_ORIGIN_UNKNOWN\":original!=null&&original.equals(priorDescriptor)?\"LEGACY_UNIFORM_63\":AtomNetSessionR30.LEARNING_PROTOCOL;modelHash=original==null?descriptor:original;\n            if(original!=null&&!original.equals(descriptor)&&!original.equals(priorDescriptor)&&!legacyWeightsOnlyIdentity)throw new Blocked(\"ARTIFACT_IDENTITY_MISMATCH\");\n            try{ModelArtifactR29.network(this.weights);}catch(java.io.IOException invalid){throw new Blocked(\"INVALID_MODEL_ARTIFACT\");}if(available<=0||through<0)throw new IllegalArgumentException(\"MODEL_AVAILABILITY_UNKNOWN\");\n        }"
+      },
+      {
+        "marker": "public static Surface predict(",
+        "start_line": 44,
+        "end_line": 50,
+        "sha256_utf8": "38a3896a8740fa6df9b2ad45277fa7123d3c0248912c838a96c58ae662eb59b9",
+        "exact_source": "public static Surface predict(Pit pit,FrozenModelRef model){\n        if(pit==null||model==null)throw new Blocked(\"NO_FROZEN_MODEL\");\n        AtomNetR27 net=AtomNetR27.decode(model.weights);\n        if(pit.inputs.length!=net.in)throw new Blocked(\"FEATURE_ABI_MISMATCH\");\n        double[] p=NumberRankerAdapterR30.probabilities(net,pit.inputs);\n        return new Surface(model.modelHash,pit.historyHash,p,pit.targetOrdinal,model.trainedThroughOrdinal,model.availableAt,pit.featureThroughOrdinal,pit.featureAvailableAt,pit.position,pit.preparedAt,pit.frozenAt,pit.deadlineAt);\n    }"
+      }
+    ]
+  },
+  "harness_sha256": "2e8ff9a938196e7ab40bf87763a79742f74a09600fc539487cc0dc5d228471db",
+  "runner_sha256": "dbaa1d6667ab0cad8895937a3848d3c1dfe034eb036f57ca8e514830a80b11d0",
+  "java": "/usr/bin/java",
+  "temporary_workspace": "/tmp/r31-p03-publication-repro-uo2s8285",
+  "sdk_linkage_jar": "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+  "sdk_sha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a",
+  "existing_unrelated_dependency_classes": "/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+  "execution_scope": "FRESH_EXACT_SOURCE_NUMERIC_CODEC_RUNTIME_PUBLICATION_AND_SURFACE_METHODS_ON_HOST_JDK",
+  "limitations": [
+    "Unsafe bypasses the Android runtime constructor; owner scheduling/fence/writer/SQLite are not executed.",
+    "Checkpoint files are isolated synthetic host fixtures, not production DB commits or restored original device model bytes.",
+    "Actual child JVM halt/restart proves file codec numerical recovery only; not Android process lifecycle or DB atomicity.",
+    "ModelSurfaceProvider.predict executes on the partial published ref; no live database call/freeze receipt is claimed.",
+    "Unrelated runtime linkage uses copied existing P01 debug classes; no integrated P02/P03 build or device acceptance is claimed."
+  ],
+  "gradle_run": false,
+  "production_or_tools_written": false,
+  "device_run": false,
+  "commands": [
+    {
+      "name": "java-version",
+      "argv": [
+        "java",
+        "-version"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "wall_seconds": 0.046964992000539496,
+      "log": "java-version.log",
+      "log_sha256": "bf61371a588e139353579c26bedbc9693004380fe8e053aa012cb6f7d2c43f20",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "compile-exact-production-and-harness",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-g",
+        "-sourcepath",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/EMPTY_SOURCEPATH",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetR27.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/FtrlR27.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR30.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/NumberRankerAdapterR30.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/PitGuardR30.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/HashingSU1.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContractR30R1.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/LogisticRidgeSU2.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/SplitR27.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/StorageLedgerR31.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/ReportNativeCP4.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/app/src/main/java/com/ethk3/novaonepro/DirectoryCursorR31.java",
+        "/tmp/r31-p03-publication-repro-uo2s8285/source/PublicationCounterexampleR31.java"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "wall_seconds": 2.1202962299994397,
+      "log": "compile-exact-production-and-harness.log",
+      "log_sha256": "fc99b811e0bb06667add36bea7e565903875b65968e5dc601f15473feef1192d",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "prepare",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/prepare.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "prepare",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "wall_seconds": 0.30365025700029946,
+      "log": "prepare.log",
+      "log_sha256": "2173f83ce7afb0e2ec69f8e44594ac107f72363ea4891d5032d5dd63cc3d495f",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "draft-isolation",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/draft-isolation.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "draft-isolation",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "wall_seconds": 0.254760561000694,
+      "log": "draft-isolation.log",
+      "log_sha256": "afbebbece636dd4f341bd57c3bf7773263452a07dc2889a8eb19c59c80bd6265",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "halt-position-1",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/halt-position-1.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "checkpoint-halt",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "1"
+      ],
+      "exit_code": 83,
+      "expected_exit_code": 83,
+      "wall_seconds": 0.20658331499998894,
+      "log": "halt-position-1.log",
+      "log_sha256": "ae3b4a2e32dae7c5ff5237e098030232207d9e4470aa54004eee8f5f021861ad",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "restore-position-1",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/restore-position-1.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "restore",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "1"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "wall_seconds": 0.37915445399994496,
+      "log": "restore-position-1.log",
+      "log_sha256": "909351d83250b6916db010d821b184c76dc0e628b7724f4f0a1966c96116e96f",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "partial-publication-position-1",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/partial-publication-position-1.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "assert-no-partial-publication",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "1"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "wall_seconds": 0.23590192299980117,
+      "log": "partial-publication-position-1.log",
+      "log_sha256": "d12362da175babe0fc9eaa41188d903f1b67d61c542288d78a904377f99de2ef",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "halt-position-2",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/halt-position-2.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "checkpoint-halt",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "2"
+      ],
+      "exit_code": 83,
+      "expected_exit_code": 83,
+      "wall_seconds": 0.21855588200014608,
+      "log": "halt-position-2.log",
+      "log_sha256": "b841ac792b0b755fb01980c7f1ccb2f310edf9cc2c13b79b0fbd2011d2b507c8",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "restore-position-2",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/restore-position-2.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "restore",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "2"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "wall_seconds": 0.3501267960000405,
+      "log": "restore-position-2.log",
+      "log_sha256": "6eda4bd9e71b7a1b9991b10bb468117b7fdffeb41475f6db2920eaa9d3c0e3ea",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "partial-publication-position-2",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/partial-publication-position-2.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "assert-no-partial-publication",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "2"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "wall_seconds": 0.2602701509995313,
+      "log": "partial-publication-position-2.log",
+      "log_sha256": "b1051c99d9a47f8e57c1c106478bb342b7d9b84622bceb6e34a3bf478e58d6a4",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "halt-position-3",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/halt-position-3.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "checkpoint-halt",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "3"
+      ],
+      "exit_code": 83,
+      "expected_exit_code": 83,
+      "wall_seconds": 0.19947080299971276,
+      "log": "halt-position-3.log",
+      "log_sha256": "eec0d8bdf3a55ff9798af8a46758bd69a9001f2a3d4fddc0ea60a5292662ccc0",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "restore-position-3",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/restore-position-3.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "restore",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "3"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "wall_seconds": 0.43310168199968757,
+      "log": "restore-position-3.log",
+      "log_sha256": "91ce3f6d93680c7c0aebea0832ac2616e045e6dc9c256881722a394f1863c00a",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "partial-publication-position-3",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/partial-publication-position-3.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "assert-no-partial-publication",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "3"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "wall_seconds": 0.25791766600013943,
+      "log": "partial-publication-position-3.log",
+      "log_sha256": "d07f55675e1da47641bd742f11161d8ad6609fdd6c19f8e0c3c36bc242b912ef",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "halt-position-4",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/halt-position-4.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "checkpoint-halt",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "4"
+      ],
+      "exit_code": 83,
+      "expected_exit_code": 83,
+      "wall_seconds": 0.22537095400002727,
+      "log": "halt-position-4.log",
+      "log_sha256": "32e931b3c06c62608e4910c7d5e04831a8326572a6403d7cfd92a1412c3673ba",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "restore-position-4",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/restore-position-4.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "restore",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "4"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "wall_seconds": 0.36898500400002376,
+      "log": "restore-position-4.log",
+      "log_sha256": "96e370e71f7ac29b51a211e4d760dd5bbfa9605e4b598c40a361c82c66bc7d50",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "partial-publication-position-4",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/partial-publication-position-4.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "assert-no-partial-publication",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "4"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "wall_seconds": 0.21710610399986763,
+      "log": "partial-publication-position-4.log",
+      "log_sha256": "c7742bf093576970e50cb173fb28a9a4e309db38110e4154445b26fdf8455113",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "halt-position-5",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/halt-position-5.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "checkpoint-halt",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "5"
+      ],
+      "exit_code": 83,
+      "expected_exit_code": 83,
+      "wall_seconds": 0.2318826579994493,
+      "log": "halt-position-5.log",
+      "log_sha256": "e35287371e434ff01bb05543c5159543847fa1d82a1c621ba44c7ba7de42a66c",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "restore-position-5",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/restore-position-5.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "restore",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "5"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "wall_seconds": 0.36436045199934597,
+      "log": "restore-position-5.log",
+      "log_sha256": "ff7662c1421b32020d625d59f3c604cf0e4af66624857b3bfff61d2b845f0b6c",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "partial-publication-position-5",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/partial-publication-position-5.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "assert-no-partial-publication",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "5"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "wall_seconds": 0.2281965809997928,
+      "log": "partial-publication-position-5.log",
+      "log_sha256": "c72d0a987ec5a6fea2a49577816611f099a6754c9e6254365158c12b62d20e58",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "halt-position-6",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/halt-position-6.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "checkpoint-halt",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "6"
+      ],
+      "exit_code": 83,
+      "expected_exit_code": 83,
+      "wall_seconds": 0.2582360679998601,
+      "log": "halt-position-6.log",
+      "log_sha256": "d1eaec8ff56e8a682bb0b838adca0bbfa2d32250b63d2426d6fdccf4a7e5ec38",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "restore-position-6",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/restore-position-6.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "restore",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "6"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "wall_seconds": 0.36633574300049077,
+      "log": "restore-position-6.log",
+      "log_sha256": "6c49bd3bf777fc26bcbdae59ad15512885e2aea0acb8691eab43d8d7f313ddd5",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "partial-publication-position-6",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/partial-publication-position-6.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "assert-no-partial-publication",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "6"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "wall_seconds": 0.2642363850000038,
+      "log": "partial-publication-position-6.log",
+      "log_sha256": "6e480e2b53572726ec45d03a4854d2f5eea900681e7a3085abd67baff2896365",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "halt-position-7",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/halt-position-7.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "checkpoint-halt",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "7"
+      ],
+      "exit_code": 83,
+      "expected_exit_code": 83,
+      "wall_seconds": 0.2056702010004301,
+      "log": "halt-position-7.log",
+      "log_sha256": "1d6e6bfc27968d95d1f5ea98eb00ce8affc3dca72547da6fae9aa8e052b341e7",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "restore-position-7",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/restore-position-7.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "restore",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "7"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "wall_seconds": 0.35387497500050813,
+      "log": "restore-position-7.log",
+      "log_sha256": "3b6190f8954c4f853b96048b963a1c4e64ef544da67bd5c8677ecbd503fbd569",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "partial-publication-position-7",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/partial-publication-position-7.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "assert-no-partial-publication",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "7"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "wall_seconds": 0.27121584200085636,
+      "log": "partial-publication-position-7.log",
+      "log_sha256": "0fdf4e385b2f3a87fe0c10f710c2658b9c7795c2b614277e9e958b304c8c9b3a",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "halt-position-8",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/halt-position-8.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "checkpoint-halt",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "8"
+      ],
+      "exit_code": 83,
+      "expected_exit_code": 83,
+      "wall_seconds": 0.1997127040003761,
+      "log": "halt-position-8.log",
+      "log_sha256": "065c3a05f9e1948a7853f59e0387ee60d06ccb30582ba2cf69fe6c0d4e56cdfb",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "restore-position-8",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/restore-position-8.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "restore",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "8"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "wall_seconds": 0.36521136200008186,
+      "log": "restore-position-8.log",
+      "log_sha256": "c54574f3b75ffca747d0dccd374ba7111231510e6ca80cbc90fd365cfb67561e",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "partial-publication-position-8",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/partial-publication-position-8.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "assert-no-partial-publication",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "8"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "wall_seconds": 0.26899392700033786,
+      "log": "partial-publication-position-8.log",
+      "log_sha256": "f9b530aac5406792f93a91053c06e481e16fc155e4dcbb0cb3502c9b187c7bf9",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "halt-position-9",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/halt-position-9.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "checkpoint-halt",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "9"
+      ],
+      "exit_code": 83,
+      "expected_exit_code": 83,
+      "wall_seconds": 0.2310234020005737,
+      "log": "halt-position-9.log",
+      "log_sha256": "4bf2ff9ebc59de334d1964bf1166d86e3879ad1e4c1e15deb6bbd0ded1e8ae7a",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "restore-position-9",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/restore-position-9.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "restore",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "9"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "wall_seconds": 0.4235908219998237,
+      "log": "restore-position-9.log",
+      "log_sha256": "72479e8527fb47478ef2c4b9810e9229d34d752cb28b80d5e38c99a91be581fc",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "partial-publication-position-9",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/partial-publication-position-9.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "assert-no-partial-publication",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures",
+        "9"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "wall_seconds": 0.28390095600025234,
+      "log": "partial-publication-position-9.log",
+      "log_sha256": "c1933a4f0248ece0ffede5340925cfdf30c719f1f48a2356045af79fb6fadf0a",
+      "exit_matches_expected": true
+    },
+    {
+      "name": "restart-publication-identity",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-Xlog:class+load=info:file=/tmp/r31-p03-publication-repro-uo2s8285/restart-publication-identity.classload.log",
+        "-cp",
+        "/tmp/r31-p03-publication-repro-uo2s8285/classes:/tmp/r31-p03-publication-repro-uo2s8285/dependencies:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31",
+        "assert-stable-restart-identity",
+        "/tmp/r31-p03-publication-repro-uo2s8285/fixtures"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "wall_seconds": 0.22810911200031114,
+      "log": "restart-publication-identity.log",
+      "log_sha256": "92d593deefca42ad19039b86ee2a962019fbb33bbdd33b5259281e59b927a62b",
+      "exit_matches_expected": true
+    }
+  ],
+  "tests": [
+    {
+      "name": "prepare",
+      "position": null,
+      "verdict": "HOST_FIXTURE_PREPARED",
+      "exit_code": 0,
+      "observations": [
+        {
+          "formalHoldoutRead": false,
+          "goldenAdamStep": 12,
+          "goldenHash": "406baf7186dd1c478a125877ff42402e81db8b83878e4ce5db6bf6f3d9e1a43b",
+          "goldenRng": -6154664801676187504,
+          "gradientChangedNetwork": true,
+          "input": 182,
+          "maxSamplesPerWork": 64,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "seedAdamStep": 2,
+          "seedBytes": 652656,
+          "seedHash": "c010514c5a251a3750c90bf22d250a0ec41c0bf9820a167cd0954f9f3d7e4678",
+          "seedRng": 5548921612323419362,
+          "test": "prepare_exact_kernel_fixture",
+          "trainingUnits": 23,
+          "verdict": "FIXTURE_PREPARED_NOT_PRODUCT_ACCEPTANCE"
+        }
+      ]
+    },
+    {
+      "name": "draft-isolation",
+      "position": null,
+      "verdict": "HOST_DRAFT_ISOLATION_PASS_NOT_DATABASE_TEST",
+      "exit_code": 0,
+      "observations": [
+        {
+          "numericDraftChanged": true,
+          "publicationUnchangedWhenNotInvoked": true,
+          "savedBytesUnchanged": true,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "unpublished_training_draft_does_not_mutate_saved_state",
+          "verdict": "HOST_DRAFT_ISOLATION_PASS_NOT_DB_ROLLBACK_TEST"
+        }
+      ]
+    },
+    {
+      "name": "halt-position-1",
+      "position": 1,
+      "verdict": "ACTUAL_JVM_HALT_AT_CHECKPOINT",
+      "exit_code": 83,
+      "observations": [
+        {
+          "adamStep": 3,
+          "checkpointHash": "0664b469af9c275707b190596909b9c496a09d71dc9a4a0e720b3af23bc8ada7",
+          "completeIssue": "202611040999",
+          "expectedHaltExit": 83,
+          "nextPosition": 2,
+          "onlineSteps": 1,
+          "partialIssue": "202611041000",
+          "position": 1,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "write_checkpoint_then_actual_jvm_halt"
+        }
+      ]
+    },
+    {
+      "name": "restore-position-1",
+      "position": 1,
+      "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+      "exit_code": 0,
+      "observations": [
+        {
+          "adamStep": 12,
+          "allTenNextPredictionsExact": true,
+          "completedHash": "406baf7186dd1c478a125877ff42402e81db8b83878e4ce5db6bf6f3d9e1a43b",
+          "duplicateRejected": true,
+          "ftrlExact": true,
+          "fullCodecExactIgnoringTimingOnly": true,
+          "onlineSteps": 10,
+          "position": 1,
+          "rngExact": true,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "restore_after_actual_jvm_halt",
+          "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+          "weightsAdamExact": true
+        }
+      ]
+    },
+    {
+      "name": "partial-publication-position-1",
+      "position": 1,
+      "verdict": "BASELINE_FAIL_REPRODUCED",
+      "exit_code": 1,
+      "observations": [
+        {
+          "actualModelHash": "acb598a7fec993b39b36e9d8f7baee87bf2ad4a0e1dab0f8437e77d29e1178c5",
+          "actualProbabilityHash": "34985409795da2b30be7aa26c107b9945a0e3434f0de50ac9c09ba3157661912",
+          "actualPublicationStateIsPartial": true,
+          "actualPublishedThrough": 1000,
+          "actualReady": true,
+          "actualReportPublicationReady": true,
+          "actualSurfaceModelHash": "acb598a7fec993b39b36e9d8f7baee87bf2ad4a0e1dab0f8437e77d29e1178c5",
+          "actualSurfaceThrough": 1000,
+          "actualWeightsHash": "1c4003625b70410de63229026b5c898805b9cda795459d50f7ff2b36ac6835fa",
+          "completeIssue": "202611040999",
+          "expectedCompleteThrough": 999,
+          "expectedContract": "Keep the last complete publication until position 10 commits",
+          "networkAdamChanged": true,
+          "nextPosition": 2,
+          "partialAdamStep": 3,
+          "partialIssue": "202611041000",
+          "position": 1,
+          "priorAdamStep": 2,
+          "priorModelHash": "e61dac3dfa6ecfb5436e4743f7e94a9f846c83992ce32703f651cb181228ae9a",
+          "priorProbabilityHash": "2779c7b5353afa75fd1710af44b71c01c24b249e9e6c7749f45ef9568b38387a",
+          "priorPublishedThrough": 999,
+          "priorWeightsHash": "edb7013e9411ea5d933a9439fc2dbd7088f2994cd14631fdcc5f0056b4bfd761",
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "surfaceAcceptedPartialModel": true,
+          "test": "complete_publication_must_not_advance_for_partial"
+        }
+      ]
+    },
+    {
+      "name": "halt-position-2",
+      "position": 2,
+      "verdict": "ACTUAL_JVM_HALT_AT_CHECKPOINT",
+      "exit_code": 83,
+      "observations": [
+        {
+          "adamStep": 4,
+          "checkpointHash": "e1b0aedc34ceca7ac1e68a6b93307099390e882a60a724ea9c69101873febaa2",
+          "completeIssue": "202611040999",
+          "expectedHaltExit": 83,
+          "nextPosition": 3,
+          "onlineSteps": 2,
+          "partialIssue": "202611041000",
+          "position": 2,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "write_checkpoint_then_actual_jvm_halt"
+        }
+      ]
+    },
+    {
+      "name": "restore-position-2",
+      "position": 2,
+      "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+      "exit_code": 0,
+      "observations": [
+        {
+          "adamStep": 12,
+          "allTenNextPredictionsExact": true,
+          "completedHash": "406baf7186dd1c478a125877ff42402e81db8b83878e4ce5db6bf6f3d9e1a43b",
+          "duplicateRejected": true,
+          "ftrlExact": true,
+          "fullCodecExactIgnoringTimingOnly": true,
+          "onlineSteps": 10,
+          "position": 2,
+          "rngExact": true,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "restore_after_actual_jvm_halt",
+          "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+          "weightsAdamExact": true
+        }
+      ]
+    },
+    {
+      "name": "partial-publication-position-2",
+      "position": 2,
+      "verdict": "BASELINE_FAIL_REPRODUCED",
+      "exit_code": 1,
+      "observations": [
+        {
+          "actualModelHash": "67a67d3c0cbf0583098b73e46a23d72a6a4fd154ee6a36cba3d682e14616346e",
+          "actualProbabilityHash": "9e853861bde031126c7712559f413d55cc12aeeff52ea635dc17d40453b9f349",
+          "actualPublicationStateIsPartial": true,
+          "actualPublishedThrough": 1000,
+          "actualReady": true,
+          "actualReportPublicationReady": true,
+          "actualSurfaceModelHash": "67a67d3c0cbf0583098b73e46a23d72a6a4fd154ee6a36cba3d682e14616346e",
+          "actualSurfaceThrough": 1000,
+          "actualWeightsHash": "0d1f542b71f597b14923d87aa1fd8ebfa52ee061feea06047092a61fa393ee05",
+          "completeIssue": "202611040999",
+          "expectedCompleteThrough": 999,
+          "expectedContract": "Keep the last complete publication until position 10 commits",
+          "networkAdamChanged": true,
+          "nextPosition": 3,
+          "partialAdamStep": 4,
+          "partialIssue": "202611041000",
+          "position": 2,
+          "priorAdamStep": 2,
+          "priorModelHash": "63282b0b753eb0afbc4aa77230ed37b99d013fa441a0f78177c1f596df1656c5",
+          "priorProbabilityHash": "2779c7b5353afa75fd1710af44b71c01c24b249e9e6c7749f45ef9568b38387a",
+          "priorPublishedThrough": 999,
+          "priorWeightsHash": "edb7013e9411ea5d933a9439fc2dbd7088f2994cd14631fdcc5f0056b4bfd761",
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "surfaceAcceptedPartialModel": true,
+          "test": "complete_publication_must_not_advance_for_partial"
+        }
+      ]
+    },
+    {
+      "name": "halt-position-3",
+      "position": 3,
+      "verdict": "ACTUAL_JVM_HALT_AT_CHECKPOINT",
+      "exit_code": 83,
+      "observations": [
+        {
+          "adamStep": 5,
+          "checkpointHash": "235f8abde344ca785b4d85d4a3f5b49bed4761ab1dbe0e067e0d56f8eb3258d2",
+          "completeIssue": "202611040999",
+          "expectedHaltExit": 83,
+          "nextPosition": 4,
+          "onlineSteps": 3,
+          "partialIssue": "202611041000",
+          "position": 3,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "write_checkpoint_then_actual_jvm_halt"
+        }
+      ]
+    },
+    {
+      "name": "restore-position-3",
+      "position": 3,
+      "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+      "exit_code": 0,
+      "observations": [
+        {
+          "adamStep": 12,
+          "allTenNextPredictionsExact": true,
+          "completedHash": "406baf7186dd1c478a125877ff42402e81db8b83878e4ce5db6bf6f3d9e1a43b",
+          "duplicateRejected": true,
+          "ftrlExact": true,
+          "fullCodecExactIgnoringTimingOnly": true,
+          "onlineSteps": 10,
+          "position": 3,
+          "rngExact": true,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "restore_after_actual_jvm_halt",
+          "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+          "weightsAdamExact": true
+        }
+      ]
+    },
+    {
+      "name": "partial-publication-position-3",
+      "position": 3,
+      "verdict": "BASELINE_FAIL_REPRODUCED",
+      "exit_code": 1,
+      "observations": [
+        {
+          "actualModelHash": "249684170ccbbb45007a478cf6a4315a5fbb20e78cdccd72fcb996ea320f9ec6",
+          "actualProbabilityHash": "8c2d92363e4ccb1ab153dbff1ac204d275b950b5a7e0004fdb73ad248fe072bf",
+          "actualPublicationStateIsPartial": true,
+          "actualPublishedThrough": 1000,
+          "actualReady": true,
+          "actualReportPublicationReady": true,
+          "actualSurfaceModelHash": "249684170ccbbb45007a478cf6a4315a5fbb20e78cdccd72fcb996ea320f9ec6",
+          "actualSurfaceThrough": 1000,
+          "actualWeightsHash": "3b1e34828b893e901c4c9655e52f85932495d628d566f3c0cfbe87236779825f",
+          "completeIssue": "202611040999",
+          "expectedCompleteThrough": 999,
+          "expectedContract": "Keep the last complete publication until position 10 commits",
+          "networkAdamChanged": true,
+          "nextPosition": 4,
+          "partialAdamStep": 5,
+          "partialIssue": "202611041000",
+          "position": 3,
+          "priorAdamStep": 2,
+          "priorModelHash": "a0027d27b48b58d005ae36e9cdc2aae7ea5a341d49073caee010433040a84ecf",
+          "priorProbabilityHash": "2779c7b5353afa75fd1710af44b71c01c24b249e9e6c7749f45ef9568b38387a",
+          "priorPublishedThrough": 999,
+          "priorWeightsHash": "edb7013e9411ea5d933a9439fc2dbd7088f2994cd14631fdcc5f0056b4bfd761",
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "surfaceAcceptedPartialModel": true,
+          "test": "complete_publication_must_not_advance_for_partial"
+        }
+      ]
+    },
+    {
+      "name": "halt-position-4",
+      "position": 4,
+      "verdict": "ACTUAL_JVM_HALT_AT_CHECKPOINT",
+      "exit_code": 83,
+      "observations": [
+        {
+          "adamStep": 6,
+          "checkpointHash": "9c6a75006ea8a4f40a116e1221ed5f1e7db78403a1ad7dd85ffc985eddab8a3f",
+          "completeIssue": "202611040999",
+          "expectedHaltExit": 83,
+          "nextPosition": 5,
+          "onlineSteps": 4,
+          "partialIssue": "202611041000",
+          "position": 4,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "write_checkpoint_then_actual_jvm_halt"
+        }
+      ]
+    },
+    {
+      "name": "restore-position-4",
+      "position": 4,
+      "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+      "exit_code": 0,
+      "observations": [
+        {
+          "adamStep": 12,
+          "allTenNextPredictionsExact": true,
+          "completedHash": "406baf7186dd1c478a125877ff42402e81db8b83878e4ce5db6bf6f3d9e1a43b",
+          "duplicateRejected": true,
+          "ftrlExact": true,
+          "fullCodecExactIgnoringTimingOnly": true,
+          "onlineSteps": 10,
+          "position": 4,
+          "rngExact": true,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "restore_after_actual_jvm_halt",
+          "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+          "weightsAdamExact": true
+        }
+      ]
+    },
+    {
+      "name": "partial-publication-position-4",
+      "position": 4,
+      "verdict": "BASELINE_FAIL_REPRODUCED",
+      "exit_code": 1,
+      "observations": [
+        {
+          "actualModelHash": "d3eacfc4a18005a3dc9a2f8f53d81f9b56975949aad88a6977eb7400848f7970",
+          "actualProbabilityHash": "d55947409b9525d54fabbcb62349d851679ec9abb07a2b28390f19e1d95c96d8",
+          "actualPublicationStateIsPartial": true,
+          "actualPublishedThrough": 1000,
+          "actualReady": true,
+          "actualReportPublicationReady": true,
+          "actualSurfaceModelHash": "d3eacfc4a18005a3dc9a2f8f53d81f9b56975949aad88a6977eb7400848f7970",
+          "actualSurfaceThrough": 1000,
+          "actualWeightsHash": "388fd87ce832fc658320566fa1e51e59a8e4f3bc732118ffced0f75e86a95a5d",
+          "completeIssue": "202611040999",
+          "expectedCompleteThrough": 999,
+          "expectedContract": "Keep the last complete publication until position 10 commits",
+          "networkAdamChanged": true,
+          "nextPosition": 5,
+          "partialAdamStep": 6,
+          "partialIssue": "202611041000",
+          "position": 4,
+          "priorAdamStep": 2,
+          "priorModelHash": "cec07a6695704e72d0ddf3bcd1827dff5095f991f3de8d1d9f4efd6f650a0a53",
+          "priorProbabilityHash": "2779c7b5353afa75fd1710af44b71c01c24b249e9e6c7749f45ef9568b38387a",
+          "priorPublishedThrough": 999,
+          "priorWeightsHash": "edb7013e9411ea5d933a9439fc2dbd7088f2994cd14631fdcc5f0056b4bfd761",
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "surfaceAcceptedPartialModel": true,
+          "test": "complete_publication_must_not_advance_for_partial"
+        }
+      ]
+    },
+    {
+      "name": "halt-position-5",
+      "position": 5,
+      "verdict": "ACTUAL_JVM_HALT_AT_CHECKPOINT",
+      "exit_code": 83,
+      "observations": [
+        {
+          "adamStep": 7,
+          "checkpointHash": "36fa48cd7004fe87b2a2a7a8628dd067e9bed9a6aa0ae36d9b61daf4b153ae01",
+          "completeIssue": "202611040999",
+          "expectedHaltExit": 83,
+          "nextPosition": 6,
+          "onlineSteps": 5,
+          "partialIssue": "202611041000",
+          "position": 5,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "write_checkpoint_then_actual_jvm_halt"
+        }
+      ]
+    },
+    {
+      "name": "restore-position-5",
+      "position": 5,
+      "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+      "exit_code": 0,
+      "observations": [
+        {
+          "adamStep": 12,
+          "allTenNextPredictionsExact": true,
+          "completedHash": "406baf7186dd1c478a125877ff42402e81db8b83878e4ce5db6bf6f3d9e1a43b",
+          "duplicateRejected": true,
+          "ftrlExact": true,
+          "fullCodecExactIgnoringTimingOnly": true,
+          "onlineSteps": 10,
+          "position": 5,
+          "rngExact": true,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "restore_after_actual_jvm_halt",
+          "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+          "weightsAdamExact": true
+        }
+      ]
+    },
+    {
+      "name": "partial-publication-position-5",
+      "position": 5,
+      "verdict": "BASELINE_FAIL_REPRODUCED",
+      "exit_code": 1,
+      "observations": [
+        {
+          "actualModelHash": "584abb3b7991936bf01eee7b754a6e3c859ecccb08c33abbad271e058aa514c6",
+          "actualProbabilityHash": "01670194a391dc8b42c461c39dcab2ed4fafa4384390c57efb6ed7eea2cd448f",
+          "actualPublicationStateIsPartial": true,
+          "actualPublishedThrough": 1000,
+          "actualReady": true,
+          "actualReportPublicationReady": true,
+          "actualSurfaceModelHash": "584abb3b7991936bf01eee7b754a6e3c859ecccb08c33abbad271e058aa514c6",
+          "actualSurfaceThrough": 1000,
+          "actualWeightsHash": "bd9114039f8b58990891a62d4e2cff4beeaf7a809124f5864826e2016853e03a",
+          "completeIssue": "202611040999",
+          "expectedCompleteThrough": 999,
+          "expectedContract": "Keep the last complete publication until position 10 commits",
+          "networkAdamChanged": true,
+          "nextPosition": 6,
+          "partialAdamStep": 7,
+          "partialIssue": "202611041000",
+          "position": 5,
+          "priorAdamStep": 2,
+          "priorModelHash": "ff66e3b98f6800f4a29b9f78b2a8a1997c2e99bede982934b2b8f74914433d11",
+          "priorProbabilityHash": "2779c7b5353afa75fd1710af44b71c01c24b249e9e6c7749f45ef9568b38387a",
+          "priorPublishedThrough": 999,
+          "priorWeightsHash": "edb7013e9411ea5d933a9439fc2dbd7088f2994cd14631fdcc5f0056b4bfd761",
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "surfaceAcceptedPartialModel": true,
+          "test": "complete_publication_must_not_advance_for_partial"
+        }
+      ]
+    },
+    {
+      "name": "halt-position-6",
+      "position": 6,
+      "verdict": "ACTUAL_JVM_HALT_AT_CHECKPOINT",
+      "exit_code": 83,
+      "observations": [
+        {
+          "adamStep": 8,
+          "checkpointHash": "bb4918e293b1807626649ffb2998b9536a52e93f9846f9739cf94ed168000881",
+          "completeIssue": "202611040999",
+          "expectedHaltExit": 83,
+          "nextPosition": 7,
+          "onlineSteps": 6,
+          "partialIssue": "202611041000",
+          "position": 6,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "write_checkpoint_then_actual_jvm_halt"
+        }
+      ]
+    },
+    {
+      "name": "restore-position-6",
+      "position": 6,
+      "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+      "exit_code": 0,
+      "observations": [
+        {
+          "adamStep": 12,
+          "allTenNextPredictionsExact": true,
+          "completedHash": "406baf7186dd1c478a125877ff42402e81db8b83878e4ce5db6bf6f3d9e1a43b",
+          "duplicateRejected": true,
+          "ftrlExact": true,
+          "fullCodecExactIgnoringTimingOnly": true,
+          "onlineSteps": 10,
+          "position": 6,
+          "rngExact": true,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "restore_after_actual_jvm_halt",
+          "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+          "weightsAdamExact": true
+        }
+      ]
+    },
+    {
+      "name": "partial-publication-position-6",
+      "position": 6,
+      "verdict": "BASELINE_FAIL_REPRODUCED",
+      "exit_code": 1,
+      "observations": [
+        {
+          "actualModelHash": "a6d1a6b48c60167a2ed53e3fd6957bcd6e20395f95ea5c6cbd3487b75e11f88e",
+          "actualProbabilityHash": "aa778fc5e10065967e7e6c6548931c1d04d75f48ab450ffe0a5b8289159fcbfd",
+          "actualPublicationStateIsPartial": true,
+          "actualPublishedThrough": 1000,
+          "actualReady": true,
+          "actualReportPublicationReady": true,
+          "actualSurfaceModelHash": "a6d1a6b48c60167a2ed53e3fd6957bcd6e20395f95ea5c6cbd3487b75e11f88e",
+          "actualSurfaceThrough": 1000,
+          "actualWeightsHash": "1f87fc81b4ffd44b7dd624da00d993ebe2368205d60022a79a564d20316e0971",
+          "completeIssue": "202611040999",
+          "expectedCompleteThrough": 999,
+          "expectedContract": "Keep the last complete publication until position 10 commits",
+          "networkAdamChanged": true,
+          "nextPosition": 7,
+          "partialAdamStep": 8,
+          "partialIssue": "202611041000",
+          "position": 6,
+          "priorAdamStep": 2,
+          "priorModelHash": "a22904fc87e5fa26bdd4cd7595be1becf7513986760de97e6f48123abc160bb0",
+          "priorProbabilityHash": "2779c7b5353afa75fd1710af44b71c01c24b249e9e6c7749f45ef9568b38387a",
+          "priorPublishedThrough": 999,
+          "priorWeightsHash": "edb7013e9411ea5d933a9439fc2dbd7088f2994cd14631fdcc5f0056b4bfd761",
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "surfaceAcceptedPartialModel": true,
+          "test": "complete_publication_must_not_advance_for_partial"
+        }
+      ]
+    },
+    {
+      "name": "halt-position-7",
+      "position": 7,
+      "verdict": "ACTUAL_JVM_HALT_AT_CHECKPOINT",
+      "exit_code": 83,
+      "observations": [
+        {
+          "adamStep": 9,
+          "checkpointHash": "325e5f2475a01d1ce4d19395c67481f3675ddc23a24ed0fea256ec0fff97b29b",
+          "completeIssue": "202611040999",
+          "expectedHaltExit": 83,
+          "nextPosition": 8,
+          "onlineSteps": 7,
+          "partialIssue": "202611041000",
+          "position": 7,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "write_checkpoint_then_actual_jvm_halt"
+        }
+      ]
+    },
+    {
+      "name": "restore-position-7",
+      "position": 7,
+      "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+      "exit_code": 0,
+      "observations": [
+        {
+          "adamStep": 12,
+          "allTenNextPredictionsExact": true,
+          "completedHash": "406baf7186dd1c478a125877ff42402e81db8b83878e4ce5db6bf6f3d9e1a43b",
+          "duplicateRejected": true,
+          "ftrlExact": true,
+          "fullCodecExactIgnoringTimingOnly": true,
+          "onlineSteps": 10,
+          "position": 7,
+          "rngExact": true,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "restore_after_actual_jvm_halt",
+          "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+          "weightsAdamExact": true
+        }
+      ]
+    },
+    {
+      "name": "partial-publication-position-7",
+      "position": 7,
+      "verdict": "BASELINE_FAIL_REPRODUCED",
+      "exit_code": 1,
+      "observations": [
+        {
+          "actualModelHash": "0b05fddec06c2d2337add37fd5dfd30afe5b119aa674c9e98f4d9bfb39b97d9c",
+          "actualProbabilityHash": "4a7561fa2391a21047582df68d2b57be9ea84155b4905839e9b5005d63a2759e",
+          "actualPublicationStateIsPartial": true,
+          "actualPublishedThrough": 1000,
+          "actualReady": true,
+          "actualReportPublicationReady": true,
+          "actualSurfaceModelHash": "0b05fddec06c2d2337add37fd5dfd30afe5b119aa674c9e98f4d9bfb39b97d9c",
+          "actualSurfaceThrough": 1000,
+          "actualWeightsHash": "e127cd26ee518cb3467f0266adb8a4cf56f8657e55ec956cd36686f9367ed362",
+          "completeIssue": "202611040999",
+          "expectedCompleteThrough": 999,
+          "expectedContract": "Keep the last complete publication until position 10 commits",
+          "networkAdamChanged": true,
+          "nextPosition": 8,
+          "partialAdamStep": 9,
+          "partialIssue": "202611041000",
+          "position": 7,
+          "priorAdamStep": 2,
+          "priorModelHash": "74153b5411bca1ca24cb46eec84f813a5235fc458a645c712394d85923bc8557",
+          "priorProbabilityHash": "2779c7b5353afa75fd1710af44b71c01c24b249e9e6c7749f45ef9568b38387a",
+          "priorPublishedThrough": 999,
+          "priorWeightsHash": "edb7013e9411ea5d933a9439fc2dbd7088f2994cd14631fdcc5f0056b4bfd761",
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "surfaceAcceptedPartialModel": true,
+          "test": "complete_publication_must_not_advance_for_partial"
+        }
+      ]
+    },
+    {
+      "name": "halt-position-8",
+      "position": 8,
+      "verdict": "ACTUAL_JVM_HALT_AT_CHECKPOINT",
+      "exit_code": 83,
+      "observations": [
+        {
+          "adamStep": 10,
+          "checkpointHash": "9b8ede30866e30fb6e524f581b846732d19956f1da57cd7917c0d4f6e38bc348",
+          "completeIssue": "202611040999",
+          "expectedHaltExit": 83,
+          "nextPosition": 9,
+          "onlineSteps": 8,
+          "partialIssue": "202611041000",
+          "position": 8,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "write_checkpoint_then_actual_jvm_halt"
+        }
+      ]
+    },
+    {
+      "name": "restore-position-8",
+      "position": 8,
+      "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+      "exit_code": 0,
+      "observations": [
+        {
+          "adamStep": 12,
+          "allTenNextPredictionsExact": true,
+          "completedHash": "406baf7186dd1c478a125877ff42402e81db8b83878e4ce5db6bf6f3d9e1a43b",
+          "duplicateRejected": true,
+          "ftrlExact": true,
+          "fullCodecExactIgnoringTimingOnly": true,
+          "onlineSteps": 10,
+          "position": 8,
+          "rngExact": true,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "restore_after_actual_jvm_halt",
+          "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+          "weightsAdamExact": true
+        }
+      ]
+    },
+    {
+      "name": "partial-publication-position-8",
+      "position": 8,
+      "verdict": "BASELINE_FAIL_REPRODUCED",
+      "exit_code": 1,
+      "observations": [
+        {
+          "actualModelHash": "738775dac5c7ea207b0c718af2bfa6ec52ea77785a6eca0604c81c639437423e",
+          "actualProbabilityHash": "71fdf136de1a87abfb6b126b76647de8f98bf940d7da92b12e2b0174b7284349",
+          "actualPublicationStateIsPartial": true,
+          "actualPublishedThrough": 1000,
+          "actualReady": true,
+          "actualReportPublicationReady": true,
+          "actualSurfaceModelHash": "738775dac5c7ea207b0c718af2bfa6ec52ea77785a6eca0604c81c639437423e",
+          "actualSurfaceThrough": 1000,
+          "actualWeightsHash": "7f326a9573f5d888aba5dff391105c5a6a3b05a6840f9a17f2dc466eac46fc2f",
+          "completeIssue": "202611040999",
+          "expectedCompleteThrough": 999,
+          "expectedContract": "Keep the last complete publication until position 10 commits",
+          "networkAdamChanged": true,
+          "nextPosition": 9,
+          "partialAdamStep": 10,
+          "partialIssue": "202611041000",
+          "position": 8,
+          "priorAdamStep": 2,
+          "priorModelHash": "53973fc399ec376003517e0ac0663af9ef869843cf2a019afc0cb563177c1e6d",
+          "priorProbabilityHash": "2779c7b5353afa75fd1710af44b71c01c24b249e9e6c7749f45ef9568b38387a",
+          "priorPublishedThrough": 999,
+          "priorWeightsHash": "edb7013e9411ea5d933a9439fc2dbd7088f2994cd14631fdcc5f0056b4bfd761",
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "surfaceAcceptedPartialModel": true,
+          "test": "complete_publication_must_not_advance_for_partial"
+        }
+      ]
+    },
+    {
+      "name": "halt-position-9",
+      "position": 9,
+      "verdict": "ACTUAL_JVM_HALT_AT_CHECKPOINT",
+      "exit_code": 83,
+      "observations": [
+        {
+          "adamStep": 11,
+          "checkpointHash": "5b3c82db83e2f3163e5c2ed08a9464dba4287786b8ef093ecdc2477a74b314f0",
+          "completeIssue": "202611040999",
+          "expectedHaltExit": 83,
+          "nextPosition": 10,
+          "onlineSteps": 9,
+          "partialIssue": "202611041000",
+          "position": 9,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "write_checkpoint_then_actual_jvm_halt"
+        }
+      ]
+    },
+    {
+      "name": "restore-position-9",
+      "position": 9,
+      "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+      "exit_code": 0,
+      "observations": [
+        {
+          "adamStep": 12,
+          "allTenNextPredictionsExact": true,
+          "completedHash": "406baf7186dd1c478a125877ff42402e81db8b83878e4ce5db6bf6f3d9e1a43b",
+          "duplicateRejected": true,
+          "ftrlExact": true,
+          "fullCodecExactIgnoringTimingOnly": true,
+          "onlineSteps": 10,
+          "position": 9,
+          "rngExact": true,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "restore_after_actual_jvm_halt",
+          "verdict": "HOST_NUMERICAL_RECOVERY_PASS",
+          "weightsAdamExact": true
+        }
+      ]
+    },
+    {
+      "name": "partial-publication-position-9",
+      "position": 9,
+      "verdict": "BASELINE_FAIL_REPRODUCED",
+      "exit_code": 1,
+      "observations": [
+        {
+          "actualModelHash": "818101eca034bb47934bf7d822a51faf85894bd28ee28c5e7748d28469d26e1c",
+          "actualProbabilityHash": "3d6a3070aff84567b7a7435e6af84a82aa6c62fd65626585294bef2ed2cb5ec1",
+          "actualPublicationStateIsPartial": true,
+          "actualPublishedThrough": 1000,
+          "actualReady": true,
+          "actualReportPublicationReady": true,
+          "actualSurfaceModelHash": "818101eca034bb47934bf7d822a51faf85894bd28ee28c5e7748d28469d26e1c",
+          "actualSurfaceThrough": 1000,
+          "actualWeightsHash": "88b00cafc6d0a4351258cfb1309529b9f5dfa5b24320992dd1cd74df0def3c2a",
+          "completeIssue": "202611040999",
+          "expectedCompleteThrough": 999,
+          "expectedContract": "Keep the last complete publication until position 10 commits",
+          "networkAdamChanged": true,
+          "nextPosition": 10,
+          "partialAdamStep": 11,
+          "partialIssue": "202611041000",
+          "position": 9,
+          "priorAdamStep": 2,
+          "priorModelHash": "a4f11a2a51b6ab38db09856b9eb49239834b6f0747b1fc7db780540ff89c4050",
+          "priorProbabilityHash": "2779c7b5353afa75fd1710af44b71c01c24b249e9e6c7749f45ef9568b38387a",
+          "priorPublishedThrough": 999,
+          "priorWeightsHash": "edb7013e9411ea5d933a9439fc2dbd7088f2994cd14631fdcc5f0056b4bfd761",
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "surfaceAcceptedPartialModel": true,
+          "test": "complete_publication_must_not_advance_for_partial"
+        }
+      ]
+    },
+    {
+      "name": "restart-publication-identity",
+      "position": null,
+      "verdict": "BASELINE_FAIL_REPRODUCED",
+      "exit_code": 1,
+      "observations": [
+        {
+          "afterAvailableAt": 1793787620064,
+          "afterModelHash": "43957054a42a1aeb5510d4590c5f12f723d7920b0fcf79856c24a05cc0b7e0f2",
+          "beforeAvailableAt": 1793787620039,
+          "beforeModelHash": "7c26c34a51eedfa128c66977b973a021c96536b13856f41d1b4f65e7fe06dba7",
+          "sameCheckpointBytes": true,
+          "sameTrainedThrough": true,
+          "sameWeightsHash": true,
+          "scope": "CONTROLLED_HOST_PRODUCTION_KERNEL_NOT_DEVICE_OR_NATURAL_QUALITY",
+          "test": "same_complete_checkpoint_restart_identity_must_be_stable"
+        }
+      ]
+    }
+  ],
+  "isolated_fixture_files": [
+    {
+      "name": "golden.session",
+      "sha256": "55c3e322e42bea03564d71c6ff656d76f4e1509abfe6b007b074ab332e943d54",
+      "bytes": 667516
+    },
+    {
+      "name": "position-1.session",
+      "sha256": "0664b469af9c275707b190596909b9c496a09d71dc9a4a0e720b3af23bc8ada7",
+      "bytes": 654154
+    },
+    {
+      "name": "position-2.session",
+      "sha256": "e1b0aedc34ceca7ac1e68a6b93307099390e882a60a724ea9c69101873febaa2",
+      "bytes": 655640
+    },
+    {
+      "name": "position-3.session",
+      "sha256": "235f8abde344ca785b4d85d4a3f5b49bed4761ab1dbe0e067e0d56f8eb3258d2",
+      "bytes": 657126
+    },
+    {
+      "name": "position-4.session",
+      "sha256": "9c6a75006ea8a4f40a116e1221ed5f1e7db78403a1ad7dd85ffc985eddab8a3f",
+      "bytes": 658612
+    },
+    {
+      "name": "position-5.session",
+      "sha256": "36fa48cd7004fe87b2a2a7a8628dd067e9bed9a6aa0ae36d9b61daf4b153ae01",
+      "bytes": 660098
+    },
+    {
+      "name": "position-6.session",
+      "sha256": "bb4918e293b1807626649ffb2998b9536a52e93f9846f9739cf94ed168000881",
+      "bytes": 661584
+    },
+    {
+      "name": "position-7.session",
+      "sha256": "325e5f2475a01d1ce4d19395c67481f3675ddc23a24ed0fea256ec0fff97b29b",
+      "bytes": 663070
+    },
+    {
+      "name": "position-8.session",
+      "sha256": "9b8ede30866e30fb6e524f581b846732d19956f1da57cd7917c0d4f6e38bc348",
+      "bytes": 664556
+    },
+    {
+      "name": "position-9.session",
+      "sha256": "5b3c82db83e2f3163e5c2ed08a9464dba4287786b8ef093ecdc2477a74b314f0",
+      "bytes": 666042
+    },
+    {
+      "name": "seed.session",
+      "sha256": "c010514c5a251a3750c90bf22d250a0ec41c0bf9820a167cd0954f9f3d7e4678",
+      "bytes": 652656
+    }
+  ],
+  "loaded_application_class_identities": {
+    "com.ethk3.novaonepro.strategyv2.PublicationCounterexampleR31": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "522d9c1a0a56e218b4b9ec4de5a3da50f2e58d6145a1da580458030abcd1654d"
+    },
+    "com.ethk3.novaonepro.strategyv2.StatsR27": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "215662f1bd6cddcc87fd8c90e89fe8463a2b23b2a463e9e62de3d2f7b662cb35"
+    },
+    "com.ethk3.novaonepro.strategyv2.AtomNetSessionR30": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "5626675944e79b4e0fa8857b70c2dbc019ecbddc5416bc6ac3dc9bdee8050fce"
+    },
+    "com.ethk3.novaonepro.strategyv2.StatsR27$Moments": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "7b873200a91a30cd11c696f942441ee0ac695392deea580643d1f46d5c0d76db"
+    },
+    "com.ethk3.novaonepro.strategyv2.AtomNetTrainerR27": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "6e75937bde6215ee6e662a7c6052d93759c2706cfe4839460b433aad4ca01f41"
+    },
+    "com.ethk3.novaonepro.strategyv2.AtomNetR27": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "a0119a9d8517641185f54c0c0530a2dda54d93dd68a90b4df06c41a41db9f8a1"
+    },
+    "com.ethk3.novaonepro.strategyv2.StatsR27$SplitMix": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "a9290d24823fda25b58a8dd65cc0cc70ff0107409beec15b23fe0ada71eb90dc"
+    },
+    "com.ethk3.novaonepro.strategyv2.FtrlR27": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "2f39c56578136bb115fffe8ae66aaad3fc28527a229225324f14f7aa89aa6faa"
+    },
+    "com.ethk3.novaonepro.strategyv2.ModelArtifactR29": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "05da1fc0c6c856c6f6dbd4d0233bcfb4c644679b6122bdae404c14bcc8eafa66"
+    },
+    "com.ethk3.novaonepro.strategyv2.AtomNetTrainerR27$Sample": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "8aeb51cb6388e647bde4b35969144f3c47957cd67caeb7ac99c9480aa846e39a"
+    },
+    "com.ethk3.novaonepro.strategyv2.RuntimeR27": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "1f550d4c767cc84e5d76eb8d3252176edd0d3743bf73852c8960b7ce253a73f5"
+    },
+    "com.ethk3.novaonepro.strategyv2.ResearchPoolR27$Task": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/dependencies/",
+      "sha256": "e0d96ad845fe9cf037d534be39d2be69ccf868ab2699f2f934be7de415ec5dde"
+    },
+    "com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$FrozenModelRef": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "5bcb85b3d6e1df56dcf6117d60a9af6c41600af9a71fe085855248b5e7c53db4"
+    },
+    "com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$Blocked": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "6155cadfeae98cbf68d02ebe84d3921a6429074e4a9771c51ba51c2929af6d65"
+    },
+    "com.ethk3.novaonepro.strategyv2.HashingSU1": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "040aefafd426ed45c0e1481c286be1463ab7d59e1bfd503cc3f88f540d532b61"
+    },
+    "com.ethk3.novaonepro.strategyv2.RuntimeR27$AtomPublicationR30": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "e4b9e4cc305e5d513e261b319e5779de13ab2f9d876701fb23dc11e3d06b41fc"
+    },
+    "com.ethk3.novaonepro.strategyv2.AtomNetR27$Out": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "fd1e2692688706262c6e52bdccb69ae2f770009b0b25b3061e3ca94d586e4a97"
+    },
+    "com.ethk3.novaonepro.strategyv2.JsonR27": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "700ee6765b03c4ebf6ac698b61fe97ff7128df753b7d3e30334f86ed7ef5002b"
+    },
+    "com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$Pit": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "9909e9858839fdd326d2ad1bd481ea7cf10fbdee6145e2b8adf77c3f0e59c22e"
+    },
+    "com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "157e2cf6aac185d50fb99bfa667a53b5e83390ecaf91c395723b4fac5bbaf7c3"
+    },
+    "com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$Source": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "e9755e7aea00178fa2c9f6bbb648a845d732c73ffd17f49806b49cbb0ce52118"
+    },
+    "com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$1": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "de33312b976731f6b2b129bc06c20ebba615ba390b6aa18909f371785a46f1f5"
+    },
+    "com.ethk3.novaonepro.strategyv2.NumberRankerAdapterR30": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "3ca92f330adab3064f98879e0e842fab55c8dcdc5eebc675d84c992f2d1a56a5"
+    },
+    "com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$Surface": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "d456d22bf5791dcf8ca2cfea1ea1204d936ba1bc2d01a3cdf379491f5ddd165f"
+    },
+    "com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$Storeless": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "45ced70430cec2617b6b8b53d3b8a5aeb89742271ff5737c88c0164a928de593"
+    },
+    "com.ethk3.novaonepro.strategyv2.PitGuardR30$Freeze": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "0b53674bee0a01ec3e22f2ae97c81bc73bf74ff9bac5d89ffe4b1172e1ca5902"
+    },
+    "com.ethk3.novaonepro.strategyv2.ReplayEvaluatorR27": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "e5104448cfa24df4a3e00ec7bf7f95e9546e48a2774cec6e5c27bbb8c9db1970"
+    },
+    "com.ethk3.novaonepro.strategyv2.ReplayEvaluatorR27$1": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "6405eb4accb7d3ac176c85cbfb6b6b3de81ccfc5ecc3641337df7c9ad51e5c12"
+    },
+    "com.ethk3.novaonepro.strategyv2.PitGuardR30": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "dfb15b719d73df9f6eda2d934ba3491d1b28fbe6dcb59a837f5a257ac1ed721a"
+    },
+    "com.ethk3.novaonepro.strategyv2.AtomNetSessionR30$Samples": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "edb2de9a8210e4089b9390aae7b53bc5f4109275ba9e200d6c564466ce10b515"
+    },
+    "com.ethk3.novaonepro.strategyv2.AtomNetTrainerR27$Epoch": {
+      "origin": "file:/tmp/r31-p03-publication-repro-uo2s8285/classes/",
+      "sha256": "05fcf6cdcb0a113356fd017d5f4de3909f70f32b673c18d92c74993df651a48b"
+    }
+  },
+  "source_changed_after_snapshot": [],
+  "completed_utc": "2026-11-04T10:20:20.182509+00:00",
+  "verdict": "COUNTEREXAMPLES_REPRODUCED_AND_NUMERICAL_RECOVERY_EXECUTED_NOT_PRODUCT_PASS",
+  "summary": {
+    "actual_jvm_halts": 9,
+    "exact_numerical_restores": 9,
+    "partial_publication_contract_baseline_failures": 9,
+    "restart_identity_contract_baseline_failures": 1
+  },
+  "finished_at_utc": "2026-11-04T10:20:20.182525+00:00"
+}

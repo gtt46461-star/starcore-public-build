@@ -1,0 +1,25 @@
+{
+  "scope": "P02_BOOTSTRAP_FRESH_CLASSES_ONLY_NOT_FINAL_UNEXCLUDED_BUILD_NOT_APK",
+  "command": [
+    "bash",
+    "./gradlew",
+    "--no-daemon",
+    "--max-workers=4",
+    ":app:compileDebugJavaWithJavac",
+    "-x",
+    ":app:generateR982SourceCallAsset",
+    "-x",
+    ":app:generateR997ConstructionAssets"
+  ],
+  "started_at": "2026-11-04T10:44:37.157398+00:00",
+  "completed_at": "2026-11-04T10:44:51.217402+00:00",
+  "exit_code": 1,
+  "source_changed_during_compile": [
+    "app/src/main/java/com/ethk3/novaonepro/ApiClient.java",
+    "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java"
+  ],
+  "log": "verification/r31/p02/build-identity/BOOTSTRAP_CLASS_ONLY_NOT_APK.log",
+  "log_sha256": "d191905bbf38dd0a199ef7fa783b938c166a1ffcf5b0d2401ff9212418a9abcf",
+  "source_dirty": true,
+  "final_acceptance": "NOT_ASSERTED; repeat full gates after actual source freeze and compiled-call identity regeneration"
+}

@@ -135,7 +135,7 @@ public final class ReportCatalogCP4 {
     /** Human-readable results retain every evaluated check and link to the complete raw evidence. */
     public static File writeReadableSummary(File job,Result result,ReportNativeCP4.Control control)throws Exception {
         File file=new File(job,"REPORT_DETAILS.txt");
-        try(FileOutputStream fd=new FileOutputStream(file);Writer out=new BufferedWriter(new OutputStreamWriter(fd,StandardCharsets.UTF_8),8192)) {
+        try(FileOutputStream fd=new FileOutputStream(file);Writer out=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(file,fd,control),StandardCharsets.UTF_8),8192)) {
             out.write("STARCORE 全软件检测报告\n版本："+ReleaseManifestR926.VERSION_NAME+"\n发布哈希："+ReleaseManifestR926.MANIFEST_SHA256+"\n");
             out.write("证据归档完整="+result.evidenceCatalogComplete+"；检查执行完整="+result.checksComplete+"；全部检查通过="+result.allChecksPassed+"\n");
             out.write("以上三项含义不同。报告能完整导出，不代表功能全部完成，也不代表高胜率已获验证。\n");
@@ -180,7 +180,7 @@ public final class ReportCatalogCP4 {
         FilePages(File job) throws IOException {
             directory=new File(job,"catalog");if(!directory.isDirectory() && !directory.mkdir())throw new IOException("CATALOG_DIRECTORY");
             if(!directory.getCanonicalPath().startsWith(job.getCanonicalPath()+File.separator))throw new IOException("CATALOG_PATH_ESCAPE");
-            File[] old=directory.listFiles();if(old==null)throw new IOException("CATALOG_LIST_FAILED");
+            File[] old=DirectoryCursorR31.children(directory,4096);
             // Regeneration of this immutable snapshot is idempotent; no files outside catalog-NNNN names are deleted.
             for(File f:old)if(f.getName().matches("catalog-[0-9]{4,}\\.jsonl(?:\\.partial)?") && !f.delete())throw new IOException("CATALOG_RESET_FAILED");
         }
@@ -189,7 +189,7 @@ public final class ReportCatalogCP4 {
             pending=new File(directory,String.format(java.util.Locale.ROOT,"catalog-%04d.jsonl.partial",page));
             if(pending.exists())throw new IOException("CATALOG_PARTIAL_EXISTS");
             stream=new FileOutputStream(pending);final FileOutputStream fd=stream;
-            return new FilterWriter(new BufferedWriter(new OutputStreamWriter(fd,StandardCharsets.UTF_8),16384)){
+            return new FilterWriter(new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(pending,fd,null),StandardCharsets.UTF_8),16384)){
                 public void close() throws IOException {try{flush();fd.getFD().sync();}finally{super.close();}}
             };
         }

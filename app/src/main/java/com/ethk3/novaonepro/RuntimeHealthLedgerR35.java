@@ -22,7 +22,7 @@ public final class RuntimeHealthLedgerR35 {
         long now = System.currentTimeMillis();
         try {
             SQLiteDatabase db = store.writable();
-            DbHelper.ensureR35Schema(db);
+            requireHealthSchemaR31(db);
             ContentValues cv = new ContentValues();
             cv.put("event_at", now);
             cv.put("stage", safe(stage));
@@ -71,7 +71,7 @@ public final class RuntimeHealthLedgerR35 {
         Cursor c = null;
         try {
             SQLiteDatabase db = store.readable();
-            DbHelper.ensureR35Schema(db);
+            requireHealthSchemaR31(db);
             int total = scalarInt(db, "SELECT COUNT(1) FROM " + DbHelper.TABLE_R35_RUNTIME_HEALTH);
             int oom =
                     scalarInt(
@@ -117,11 +117,18 @@ public final class RuntimeHealthLedgerR35 {
                 lastTarget = c.getString(1);
             }
             return new Snapshot(total, oom, max, p95, lastStatus, lastTarget);
+        } catch (DatabaseCoordinator.SchemaPendingR31 pending) {
+            return new Snapshot(0,0,0,0L,"SCHEMA_PENDING",pending.getMessage());
         } catch (Throwable e) {
             return new Snapshot(0, 0, 0, 0L, "READ_ERROR", e.getClass().getSimpleName());
         } finally {
             if (c != null) c.close();
         }
+    }
+
+    private static void requireHealthSchemaR31(SQLiteDatabase db){
+        DatabaseCoordinator.requireSchemaObjectsR31(db,"R35_RUNTIME_HEALTH",new String[][]{{DbHelper.TABLE_R35_RUNTIME_HEALTH,
+                "_id,event_at,stage,target_issue,status,elapsed_ms,active_concurrency,max_concurrency,oom_count,detail,record_hash"}},new String[][]{{"index","idx_r35_health_stage"}});
     }
 
     private static void trim(SQLiteDatabase db) {

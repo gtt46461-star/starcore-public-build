@@ -90,7 +90,8 @@ public final class ReplayDatasetR27 {
     public ReplayDatasetR27 withDraws(int[][] replacement) {
         if (replacement.length != size()) throw new IllegalArgumentException("R27_REPLAY_SHAPE");
         for (int[] p : replacement) if (!legal(p)) throw new IllegalArgumentException("R27_REPLAY_ILLEGAL_PERMUTATION");
-        return new ReplayDatasetR27(replacement, issues.clone(), ordinals.clone(), rejectedRows);
+        int[][] owned=new int[replacement.length][];for(int i=0;i<owned.length;i++)owned[i]=replacement[i].clone();
+        return new ReplayDatasetR27(owned, issues.clone(), ordinals.clone(), rejectedRows);
     }
 
     /** R30-B03-02: sha256(first issue | last issue | row count | normalized rows). A new hash is a new dataset

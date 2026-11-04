@@ -58,7 +58,7 @@ public final class ReportTaskControlR69 {
             JSONObject row=queued.getJSONObject(i);
             if(!"RETENTION_PAGE".equals(row.getString("mode")))requests.add(row.getString("requestId"));
         }
-        File[] jobs=new File(root,"jobs").listFiles();
+        File[] jobs=DirectoryCursorR31.children(new File(root,"jobs"),1024);
         if(jobs!=null)for(File directory:jobs){
             id(directory.getName());
             ReportJobJournalCP12.Job job=readJob(directory);
@@ -89,14 +89,14 @@ public final class ReportTaskControlR69 {
                 new JSONObject().put("id",command).put("stage","STOPPING");
     }
     public static boolean hasPending(File root)throws Exception {
-        File[] files=path(root,"").listFiles();if(files==null)return false;
+        File[] files=DirectoryCursorR31.children(path(root,""),4096);if(files==null)return false;
         for(File file:files)if(file.getName().matches("command-[0-9a-f]{64}\\.json"))return true;
         return false;
     }
     /** Only the sole export owner runs deletion after its previous worker released all streams. */
     public static void applyPending(ReportJobJournalCP12 journal)throws Exception {
         journal.assertOwned();File root=journal.root();ReportPublicationCP12.finishUserDeletions(root);
-        File[] commands=path(root,"").listFiles();if(commands==null)return;
+        File[] commands=DirectoryCursorR31.children(path(root,""),4096);if(commands==null)return;
         Arrays.sort(commands);
         for(File command:commands){
             if(!command.getName().matches("command-[0-9a-f]{64}\\.json"))continue;
@@ -120,7 +120,7 @@ public final class ReportTaskControlR69 {
                         ReportJobJournalCP12.writeAtomic(saf,transfer.toString());
                     }
                 }
-                File[] jobs=new File(root,"jobs").listFiles();
+                File[] jobs=DirectoryCursorR31.children(new File(root,"jobs"),1024);
                 if(jobs!=null)for(File directory:jobs){
                     id(directory.getName());ReportJobJournalCP12.Job job=readJob(directory);
                     if(!requests.contains(job.requestId)||!"FULL_REPORT".equals(job.mode))continue;
@@ -146,7 +146,7 @@ public final class ReportTaskControlR69 {
             }
         }
         // Bounded small control receipts; pending commands and cancellation markers are never pruned.
-        File[] files=path(root,"").listFiles();List<File> receipts=new ArrayList<>();if(files!=null)for(File file:files)
+        File[] files=DirectoryCursorR31.children(path(root,""),4096);List<File> receipts=new ArrayList<>();if(files!=null)for(File file:files)
             if(file.getName().matches("status-[0-9a-f]{64}\\.json")&&!path(root,"command-"+file.getName().substring(7)).exists())receipts.add(file);
         receipts.sort((a,b)->Long.compare(b.lastModified(),a.lastModified()));
         for(int i=64;i<receipts.size();i++)if(!receipts.get(i).delete())throw new IOException("REPORT_CONTROL_RECEIPT_CLEANUP");

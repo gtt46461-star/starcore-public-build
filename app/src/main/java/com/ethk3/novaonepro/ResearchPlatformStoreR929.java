@@ -23,7 +23,9 @@ public final class ResearchPlatformStoreR929 {
     public static final String TABLE_EVENT = "research_platform_event_r929";
     public static final boolean MAY_CREATE_REAL = false;
 
-    private static final java.util.WeakHashMap<SQLiteDatabase,Boolean> READY=new java.util.WeakHashMap<SQLiteDatabase,Boolean>();
+    private static final java.util.WeakHashMap<SQLiteDatabase,Long> READ_READY=new java.util.WeakHashMap<SQLiteDatabase,Long>();
+    private static final String READ_SCHEMA_KEY="ResearchPlatformStoreR929:READ_ONLY_CONTRACT_R31";
+    public static final String SCHEMA_PENDING_R31="DEPENDENCY(SCHEMA_PENDING):R929_PLATFORM";
     private static final Object SCHEMA_LOCK = new Object();
 
     public static final String TABLE_CERT_GATE="research_certificate_gate_r932";
@@ -34,7 +36,7 @@ public final class ResearchPlatformStoreR929 {
         if (store == null) throw new IllegalArgumentException("R929_STORE_REQUIRED");
         synchronized (SCHEMA_LOCK) {
             SQLiteDatabase handle=store.readable();
-            if (READY.containsKey(handle)) return;
+            if (schemaReadyReadOnlyR31(handle)) return;
             Boolean ok = store.coordinatorR36().runAtomicWrite("R929_PLATFORM_SCHEMA",
                     new DatabaseCoordinator.WriteCallable<Boolean>() {
                         @Override public Boolean call(SQLiteDatabase db) {
@@ -44,13 +46,77 @@ public final class ResearchPlatformStoreR929 {
                     }, Boolean.FALSE);
             if (!Boolean.TRUE.equals(ok))
                 throw new IllegalStateException("R929_PLATFORM_SCHEMA_FAILED");
-            READY.put(handle,Boolean.TRUE);
+            if(!schemaReadyReadOnlyR31(handle))throw new IllegalStateException(SCHEMA_PENDING_R31);
         }
     }
 
+    /** Readiness is established by actual metadata reads. This never creates/migrates schema or grants authority.
+     * Transaction-local validation is published only by TransactionSchemaCache after the real outer COMMIT.
+     * A read outside a transaction is cached only with the same observed before/after schema_version. */
+    public static boolean schemaReadyReadOnlyR31(SQLiteDatabase db) {
+        if(db==null)return false;
+        if(TransactionSchemaCacheR941.readyCommitted(db,READ_SCHEMA_KEY))return true;
+        final long before=readSchemaVersionR31(db);if(before<0)return false;
+        synchronized(READ_READY){Long cached=READ_READY.get(db);if(cached!=null&&cached.longValue()==before)return true;}
+        try{
+            Map<String,String> indexes=new HashMap<String,String>();java.util.Set<String> tables=new java.util.HashSet<String>();
+            String[] names=new String[R31_TABLE_COLUMNS.length+R31_INDEXES.length];int next=0;
+            for(String[] definition:R31_TABLE_COLUMNS)names[next++]=definition[0];for(String[] definition:R31_INDEXES)names[next++]=definition[0];
+            StringBuilder placeholders=new StringBuilder();for(int i=0;i<names.length;i++){if(i>0)placeholders.append(',');placeholders.append('?');}
+            try(Cursor objects=db.rawQuery("SELECT name,type,sql FROM sqlite_master WHERE name IN ("+placeholders+")",names)){
+                int seen=0;while(objects.moveToNext()){if(++seen>names.length)return false;String name=objects.getString(0),type=objects.getString(1);if("table".equals(type))tables.add(name);else if("index".equals(type))indexes.put(name,objects.getString(2));}
+            }
+            for(String[] definition:R31_TABLE_COLUMNS){
+                if(!tables.contains(definition[0]))return false;
+                java.util.Set<String> columns=new java.util.HashSet<String>();Map<String,Integer> primary=new HashMap<String,Integer>();
+                try(Cursor info=db.rawQuery("PRAGMA table_info("+definition[0]+")",null)){
+                    int count=0;while(info.moveToNext()){if(++count>128)return false;columns.add(info.getString(1));if(info.getInt(5)>0)primary.put(info.getString(1),info.getInt(5));}
+                }
+                for(String column:definition[1].split(","))if(!columns.contains(column))return false;
+                String[] key=definition[2].split(",");if(primary.size()!=key.length)return false;for(int i=0;i<key.length;i++)if(!Integer.valueOf(i+1).equals(primary.get(key[i])))return false;
+            }
+            for(String[] definition:R31_INDEXES)if(!normalizedSchemaSqlR31(definition[1]).equals(normalizedSchemaSqlR31(indexes.get(definition[0]))))return false;
+            if(!uniqueColumnsR31(db,TABLE_TRIAL,"identity_hash")||!uniqueColumnsR31(db,TABLE_CERTIFICATE,"certificate_hash")||!uniqueColumnsR31(db,TABLE_CONTRIBUTION,"target_issue,consumer,candidate_id"))return false;
+            long after=readSchemaVersionR31(db);if(before!=after)return false;
+            if(db.inTransaction())TransactionSchemaCacheR941.markCommitted(db,READ_SCHEMA_KEY);
+            else synchronized(READ_READY){READ_READY.put(db,Long.valueOf(after));}
+            return true;
+        }catch(RuntimeException unavailable){
+            rethrowSchemaFatalR31(unavailable);
+            synchronized(READ_READY){READ_READY.remove(db);}return false;
+        }
+    }
+    public static void requireSchemaReadOnlyR31(SQLiteDatabase db){if(!schemaReadyReadOnlyR31(db))throw new IllegalStateException(SCHEMA_PENDING_R31);}
+    private static long readSchemaVersionR31(SQLiteDatabase db){try(Cursor version=db.rawQuery("PRAGMA schema_version",null)){return version.moveToFirst()?version.getLong(0):-1;}catch(RuntimeException unavailable){rethrowSchemaFatalR31(unavailable);return -1;}}
+    private static void rethrowSchemaFatalR31(Throwable failure){for(int depth=0;failure!=null&&depth<32;depth++,failure=failure.getCause()){if(failure instanceof VirtualMachineError)throw(VirtualMachineError)failure;if(failure instanceof ThreadDeath)throw(ThreadDeath)failure;if(failure instanceof LinkageError)throw(LinkageError)failure;}}
+    private static String normalizedSchemaSqlR31(String sql){return sql==null?"":sql.toUpperCase(java.util.Locale.ROOT).replaceAll("\\s+","").replace("IFNOTEXISTS","");}
+    private static boolean uniqueColumnsR31(SQLiteDatabase db,String table,String expected){
+        List<String> unique=new ArrayList<String>();try(Cursor list=db.rawQuery("PRAGMA index_list("+table+")",null)){int count=0;while(list.moveToNext()){if(++count>64)return false;if(list.getInt(2)==1)unique.add(list.getString(1));}}
+        for(String index:unique){
+            try(Cursor definition=db.rawQuery("SELECT sql FROM sqlite_master WHERE type='index' AND name=?",new String[]{index})){if(!definition.moveToFirst())continue;String sql=definition.getString(0);if(sql!=null&&java.util.regex.Pattern.compile("\\bWHERE\\b",java.util.regex.Pattern.CASE_INSENSITIVE).matcher(sql).find())continue;}
+            StringBuilder columns=new StringBuilder();try(Cursor info=db.rawQuery("PRAGMA index_info('"+index.replace("'","''")+"')",null)){int count=0;while(info.moveToNext()){if(++count>32)return false;if(columns.length()>0)columns.append(',');columns.append(info.getString(2));}}if(expected.equals(columns.toString()))return true;}return false;
+    }
+    private static final String[][] R31_TABLE_COLUMNS={
+        {TABLE_TRIAL,"trial_id,identity_hash,stage,status,dataset_hash,schema_hash,source_hash,hyper_hash,family_id,structural_hash,split_hash,seed,sealed_token_hash,sealed_consumed,output_hash,failure_code,registered_at,started_at,finished_at,record_hash","trial_id"},
+        {TABLE_BUNDLE,"bundle_hash,bundle_id,game,schema_hash,code_hash,manifest_hash,key_id,signature_algorithm,signature_verified,artifact_count,total_bytes,created_issue,earliest_issue,state,reason,verified_at,activated_at,rollback_of,row_hash","bundle_hash"},
+        {TABLE_CERTIFICATE,"candidate_key,consumer,namespace,family_id,candidate_id,structural_hash,evidence_hash,level,state,bundle_hash,schema_hash,atom_graph_hash,model_hash,policy_hash,calibration_hash,domain_hash,trial_hash,selection_hash,code_hash,valid_from_issue,valid_until_issue,maximum_weight,all_gates_pass,gate_hash,reason,certificate_hash,issued_at,updated_at,contract_revision","candidate_key"},
+        {TABLE_CERT_HISTORY,"certificate_hash,candidate_key,canonical,evidence_hash,issued_at","certificate_hash"},
+        {TABLE_REVOCATION,"certificate_hash,reason,revoked_at","certificate_hash"},
+        {TABLE_CERT_GATE,"certificate_hash,gate_id,observed,required,pass,source,source_hash,detail,gate_hash","certificate_hash,gate_id"},
+        {TABLE_CONTRIBUTION,"target_issue,consumer,candidate_id,certificate_hash,bundle_hash,requested_weight,authorized_weight,before_rank1_hash,after_rank1_hash,input_hash,status,reason,record_hash,created_at","record_hash"},
+        {UnifiedResearchChoiceR932.TABLE,"target_issue,bundle_hash,consumer,candidate_id,certificate_hash,roster_hash,frozen_at","target_issue"},
+        {TABLE_EVENT,"event_hash,event_type,entity_id,previous_hash,current_hash,status,reason,created_at","event_hash"}
+    };
+    private static final String[][] R31_INDEXES={
+        {"idx_r929_trial_family","CREATE INDEX idx_r929_trial_family ON "+TABLE_TRIAL+"(family_id,status,registered_at)"},
+        {"idx_r929_bundle_one_active","CREATE UNIQUE INDEX idx_r929_bundle_one_active ON "+TABLE_BUNDLE+"(state) WHERE state='ACTIVE'"},
+        {"idx_r929_cert_lookup","CREATE INDEX idx_r929_cert_lookup ON "+TABLE_CERTIFICATE+"(consumer,candidate_id,state,valid_from_issue,valid_until_issue)"},
+        {"idx_r929_contribution_issue","CREATE INDEX idx_r929_contribution_issue ON "+TABLE_CONTRIBUTION+"(target_issue,status,created_at)"}
+    };
+
     public static void createSchema(SQLiteDatabase db) {
         if (db == null) throw new IllegalArgumentException("R929_DB_REQUIRED");
-        // Bundle capture runs every issue. Reuse only committed DDL readiness;
+        // Explicit startup/manual migration owner. Reuse only committed DDL readiness;
         // schema_version changes and rollbacks invalidate this optimization.
         if (TransactionSchemaCacheR941.readyCommitted(db,"ResearchPlatformStoreR929")) return;
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_TRIAL + "("
@@ -351,7 +417,7 @@ public final class ResearchPlatformStoreR929 {
     /** Called only with the loader's verified snapshot inside its pointer-CAS transaction. */
     static void activateRuntimeBundle(SQLiteDatabase db,ModelBundleRuntimeR932.Snapshot snapshot,String issue,long at) {
         if(!db.inTransaction())throw new IllegalStateException("R932_BUNDLE_REGISTRY_TRANSACTION");
-        createSchema(db);
+        requireSchemaReadOnlyR31(db);
         String schema=V51ActionMetaFeatureEngine.featureManifestHash(),code=SourceManifestR815.SOURCE_TREE_SHA256;
         try(Cursor current=db.rawQuery("SELECT bundle_hash,schema_hash,code_hash FROM "+TABLE_BUNDLE+" WHERE state='ACTIVE'",null)){
             if(current.moveToFirst()&&snapshot.hash.equals(current.getString(0))

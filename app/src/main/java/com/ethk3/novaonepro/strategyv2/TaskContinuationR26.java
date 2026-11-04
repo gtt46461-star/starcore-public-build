@@ -29,7 +29,7 @@ public final class TaskContinuationR26 {
             if (previous != null) {
                 boolean ownerChanged = !previous.claim.owner.equals(claim.owner);
                 boolean targetChanged = claim.task.equals("incumbent-forecast") && previous.target != nextTarget;
-                if (ownerChanged || targetChanged || previous.work.state() == CooperativeContinuationR26.State.CANCELLING) {
+                if (ownerChanged || targetChanged || previous.work.cancellationRequested()) {
                     previous.work.close();
                     if (previous.inFlight || !previous.work.isTerminated()) {
                         claim.reason(ownerChanged ? "COOPERATIVE_DRAINING_PREVIOUS_TASK_OWNER" : targetChanged ? "COOPERATIVE_DRAINING_SUPERSEDED_INCUMBENT" : "R31_CONTINUATION_CANCELLING");

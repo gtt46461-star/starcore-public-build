@@ -14,7 +14,7 @@ public final class ReportDiagnosticEvidenceR64 {
         if (!snapshot.isReadOnly()) throw new IOException("R64_REPORT_READONLY_REQUIRED");
         File result = new File(job, "DIAGNOSTIC_SCOPE.json");
         try (FileOutputStream fd = new FileOutputStream(result);
-             Writer out = new BufferedWriter(new OutputStreamWriter(fd, StandardCharsets.UTF_8))) {
+             Writer out = new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(result,fd,control), StandardCharsets.UTF_8))) {
             out.write("{\"profile\":\"COMPLETE_DIAGNOSTIC_R70\",\"snapshotSha256\":");
             out.write(JSONObject.quote(hash));
             out.write(",\"evidenceRevision\":\"R70_CALIBRATION_RETENTION_RUNTIME_METADATA_V3\",\"rawDatabaseIncluded\":false,\"allChecks\":96,"
@@ -146,31 +146,28 @@ public final class ReportDiagnosticEvidenceR64 {
     /** File contents are not duplicated in reports. Live metadata is explicitly observational. */
     public static File writeFileInventory(File dataRoot,File job,ReportNativeCP4.Control control)throws Exception {
         File root=dataRoot.getCanonicalFile(),own=job.getCanonicalFile(),result=new File(job,"FILE_STATE.jsonl");
-        java.util.ArrayDeque<File> pending=new java.util.ArrayDeque<>();pending.add(root);
-        long entries=0,unreadable=0;boolean complete=true;
-        try(FileOutputStream fd=new FileOutputStream(result);Writer out=new BufferedWriter(new OutputStreamWriter(fd,StandardCharsets.UTF_8))) {
+        final class Frame implements Closeable {final File directory;final DirectoryCursorR31 cursor;final int depth;Frame(File file,int depth)throws IOException{directory=file;cursor=DirectoryCursorR31.open(file);this.depth=depth;}public void close()throws IOException{cursor.close();}}
+        java.util.ArrayDeque<Frame> pending=new java.util.ArrayDeque<>();long entries=0,unreadable=0;boolean complete=true;String incomplete="";
+        try(FileOutputStream fd=new FileOutputStream(result);Writer out=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(result,fd,control),StandardCharsets.UTF_8))) {
             out.write(new JSONObject().put("kind","scope").put("profile","R68_FILE_STATE")
-                    .put("boundary","App private data tree metadata, observed during export; live files are not an atomic snapshot. Current export temporaries are excluded. No file content or credential values are included. Hash verification is reported by the attachment registries and checks, not implied by this inventory.")
+                    .put("boundary","App private metadata; interval observation, not atomic. Current export temporaries and link targets excluded. Streaming max200000 entries/depth12; incomplete/unsupported stays explicit.")
                     .put("startedWallMs",System.currentTimeMillis()).toString()+"\n");
-            while(!pending.isEmpty()) {
-                checkpoint(control);File file=pending.removeLast();String relative=file.equals(root)?".":file.getAbsolutePath().substring(root.getPath().length()+1);
-                JSONObject row=new JSONObject().put("kind","file").put("path",relative);
-                if(!file.getCanonicalFile().equals(file.getAbsoluteFile())) {
-                    row.put("state","LINK_NOT_FOLLOWED");
-                } else if(file.equals(own)) {
-                    row.put("state","CURRENT_EXPORT_TEMPORARIES");
-                } else if(file.isDirectory()) {
-                    File[] children=file.listFiles();row.put("state",children==null?"DIRECTORY_UNREADABLE":"DIRECTORY");
-                    if(children==null){complete=false;unreadable++;}else{row.put("entries",children.length);java.util.Arrays.sort(children);for(File child:children)pending.add(child);}
-                } else {
-                    boolean readable=file.isFile()&&file.canRead();row.put("state",readable?"FILE_PRESENT":"UNAVAILABLE_OR_CHANGED_DURING_CAPTURE")
-                            .put("bytes",file.length()).put("modifiedWallMs",file.lastModified()).put("readable",readable);
-                    if(!readable){complete=false;unreadable++;}
-                }
-                out.write(row.toString());out.write('\n');entries++;
-            }
-            out.write(new JSONObject().put("kind","receipt").put("entries",entries).put("unreadable",unreadable)
-                    .put("enumerationComplete",complete).put("completedWallMs",System.currentTimeMillis()).toString()+"\n");
+            try{pending.push(new Frame(root,0));while(!pending.isEmpty()){
+                checkpoint(control);Frame frame=pending.peek();File file;
+                try{file=frame.cursor.next();}catch(IOException failed){complete=false;unreadable++;incomplete=failed.getMessage();frame.close();pending.pop();continue;}
+                if(file==null){frame.close();pending.pop();continue;}
+                if(++entries>200000){complete=false;incomplete="ENTRY_BUDGET_200000";break;}
+                String relative=file.getAbsolutePath().substring(root.getPath().length()+1);JSONObject row=new JSONObject().put("kind","file").put("path",relative);
+                if(!file.getCanonicalFile().equals(file.getAbsoluteFile()))row.put("state","LINK_NOT_FOLLOWED");
+                else if(file.equals(own))row.put("state","CURRENT_EXPORT_TEMPORARIES");
+                else if(file.isDirectory()){
+                    row.put("state","DIRECTORY").put("entries",JSONObject.NULL).put("entriesScope","NOT_PRECOUNTED_STREAMING_ENUMERATION");if(frame.depth>=12){complete=false;incomplete="DEPTH_BUDGET_12";row.put("enumeration","NOT_RUN_DEPTH_BOUND");}
+                    else try{pending.push(new Frame(file,frame.depth+1));}catch(IOException failed){complete=false;unreadable++;incomplete=failed.getMessage();row.put("enumeration","UNKNOWN:"+failed.getMessage());}
+                }else{boolean readable=file.isFile()&&file.canRead();row.put("state",readable?"FILE_PRESENT":"UNAVAILABLE_OR_CHANGED_DURING_CAPTURE").put("bytes",file.length()).put("modifiedWallMs",file.lastModified()).put("readable",readable);if(!readable){complete=false;unreadable++;}}
+                out.write(row.toString());out.write('\n');
+            }}catch(IOException failed){if(failed instanceof InterruptedIOException)throw failed;complete=false;unreadable++;incomplete=failed.getMessage();}
+            finally{while(!pending.isEmpty())try{pending.pop().close();}catch(IOException failed){complete=false;unreadable++;incomplete="DIRECTORY_CLOSE_FAILED";}}
+            out.write(new JSONObject().put("kind","receipt").put("entries",entries).put("unreadable",unreadable).put("enumerationComplete",complete).put("incompleteReason",incomplete).put("completedWallMs",System.currentTimeMillis()).toString()+"\n");
             out.flush();fd.getFD().sync();
         }
         return result;

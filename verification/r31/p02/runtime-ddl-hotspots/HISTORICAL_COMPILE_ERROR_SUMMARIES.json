@@ -1,0 +1,25 @@
+{
+  "recordedAt": "2026-11-04T11:37:37.096340+00:00",
+  "kind": "OBSERVED_HISTORICAL_HOST_COMPILE_ERROR_SUMMARIES_NOT_ANDROID_FAILURE_LOGS",
+  "originalTimestamps": "NOT_RETAINED_IN_THIS_SUMMARY",
+  "observations": [
+    {
+      "step": "JDK17 broad sourcepath javac",
+      "error": "java.lang.NullPointerException: Cannot invoke com.sun.tools.javac.code.Type.getTag() because type is null",
+      "retainedArguments": "sourcepath-javac-compiler-NPE.args.txt"
+    },
+    {
+      "step": "new DbHelper versus old compiled DbStore/Legacy",
+      "error": "mainChainFactorColumnDefs() has private access in DbStore; cannot find requireMainChainClosedLoopReadyR31"
+    },
+    {
+      "step": "Java21 support read by JDK17 compiler",
+      "error": "class file has wrong version 65.0, should be 61.0"
+    },
+    {
+      "step": "FetchLedger actual current source versus old RawHttpResult class",
+      "error": "cannot find bootId/bodyTruncated/requestStartWallMs/bodyCompleteMonoMs and other transport fields"
+    }
+  ],
+  "finalResolution": "Current named support receipt + explicit current dependent sources + existing Java21 compiler/runtime; final native and writer regressions passed; full Android build remains root gate"
+}

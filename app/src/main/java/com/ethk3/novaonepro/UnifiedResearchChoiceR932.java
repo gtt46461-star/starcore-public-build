@@ -16,7 +16,9 @@ public final class UnifiedResearchChoiceR932 {
         if(store==null||!target.equals(ModelBundleRuntimeR932.currentTarget()))
             throw new IllegalStateException("R932_CHOICE_REQUEST_SCOPE");
         try {
-            ResearchPlatformStoreR929.ensureSchema(store);
+            if(!ResearchPlatformStoreR929.schemaReadyReadOnlyR31(store.readable())){
+                publishFreezeStatus(store,target,ResearchPlatformStoreR929.SCHEMA_PENDING_R31);return false;
+            }
             final String bundle=ModelBundleRuntimeR932.current().hash;
             try(Cursor previous=store.readable().rawQuery("SELECT bundle_hash FROM "+TABLE+" WHERE target_issue=?",new String[]{target})){
                 if(previous.moveToFirst()){
@@ -32,6 +34,9 @@ public final class UnifiedResearchChoiceR932 {
                     "R932_FREEZE_ONE_RESEARCH_CONSUMER",
                     new DatabaseCoordinator.WriteCallable<Boolean>(){
                         public Boolean call(SQLiteDatabase db){
+                            if(!ResearchPlatformStoreR929.schemaReadyReadOnlyR31(db)){
+                                commitFailure[0]=ResearchPlatformStoreR929.SCHEMA_PENDING_R31;throw new IllegalStateException(commitFailure[0]);
+                            }
                             if(!bundle.equals(ModelBundleRuntimeR932.current().hash))throw new IllegalStateException("R932_CHOICE_BUNDLE_DRIFT");
                             try(Cursor c=db.rawQuery("SELECT bundle_hash FROM "+TABLE+" WHERE target_issue=?",new String[]{target})){
                                 if(c.moveToFirst()){

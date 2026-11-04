@@ -3,22 +3,51 @@ package com.ethk3.novaonepro.strategyv2;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.lang.ref.*;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 /** R27-014 shared point-in-time feature cache. A leaf value at row t is computed only from rows &lt; t
  * (ReplayLeakageTestR27 / H01 checks this for every leaf kind). Values are flattened [t*10 + (number-1)].
  * Lag-based leaves are NaN when the lag window crosses a missing-issue gap; the evaluator records that
  * row as SKIPPED_GAP instead of inventing continuity. One cache serves every candidate of a dataset. */
-public final class FeatureCacheR27 {
+public final class FeatureCacheR27 implements AutoCloseable {
     public static final int[] WINDOWS = {8, 32, 128, 512, 2048, 5000};
     public static final int[] HALF_LIVES = {8, 32, 128};
     public final ReplayDatasetR27 data;
     private final int capacity;
     private final Map<String, double[]> cache;
     private long computed, hits;
+    private static final Map<FeatureCacheR27,Boolean> REGISTERED_R31=java.util.Collections.synchronizedMap(new java.util.WeakHashMap<FeatureCacheR27,Boolean>());
+    private final MemoryBudgetR31 memory;
+    private final long rawByteCapacity;
+    private long rawBytes,rawMapBytesDropped,sharedReads,sharedBuilds;
+    private volatile boolean closedR31;
+    private SharedFeatureStoreR31 sharedR31;
+    private String featureAbiR31="UNBOUND_INSTANCE:"+CACHE_IDS_R31.incrementAndGet();
+    private static final java.util.concurrent.atomic.AtomicLong CACHE_IDS_R31=new java.util.concurrent.atomic.AtomicLong();
+    private static final ReferenceQueue<double[]> RAW_QUEUE_R31=new ReferenceQueue<>();
+    private static final Map<WeakReference<double[]>,MemoryBudgetR31.Lease> RAW_LEASES_R31=new LinkedHashMap<>();
+    private static final Runnable RAW_RECLAIMER_R31=FeatureCacheR27::reapReleasedArraysR31;
+    private static final class SharedHolderR31 {static final SharedFeatureStoreR31 STORE=new SharedFeatureStoreR31(MemoryBudgetR31.processBudget(),Math.max(272,Math.min(32L<<20,Runtime.getRuntime().maxMemory()/16)));}
+    private static final class BuildLockR31 {final ReentrantLock lock=new ReentrantLock();int users;}
+    private final Map<String,BuildLockR31> buildLocksR31=new LinkedHashMap<>();
+    public static void reapReleasedArraysR31(){synchronized(RAW_LEASES_R31){Reference<? extends double[]> ref;while((ref=RAW_QUEUE_R31.poll())!=null){MemoryBudgetR31.Lease lease=RAW_LEASES_R31.remove(ref);if(lease!=null)lease.close();}}}
+    private static void trackRawR31(double[] array,MemoryBudgetR31.Lease lease){synchronized(RAW_LEASES_R31){RAW_LEASES_R31.put(new WeakReference<>(array,RAW_QUEUE_R31),lease);}}
+    private static long arrayBytesR31(double[] array){return 128L+8L*array.length;}
+    private void clearRawR31(){rawMapBytesDropped+=rawBytes;cache.clear();rawBytes=0;}
+    private void trimRawR31(){java.util.Iterator<Map.Entry<String,double[]>> it=cache.entrySet().iterator();while((cache.size()>capacity||rawBytes>rawByteCapacity)&&it.hasNext()){double[] value=it.next().getValue();it.remove();long bytes=arrayBytesR31(value);rawBytes-=bytes;rawMapBytesDropped+=bytes;}}
+    public void bindSharedFeaturesR31(String operatorAbiHash){bindSharedFeaturesR31(sharedR31,operatorAbiHash);}
+    public static SharedFeatureStoreR31 processSharedFeatureStoreR31(){return SharedHolderR31.STORE;}
+    public synchronized void bindSharedFeaturesR31(SharedFeatureStoreR31 shared,String operatorAbiHash){if(operatorAbiHash==null||operatorAbiHash.isEmpty())throw new IllegalArgumentException("R31_FEATURE_ABI");if(!operatorAbiHash.equals(featureAbiR31))clearRawR31();this.sharedR31=java.util.Objects.requireNonNull(shared);featureAbiR31=operatorAbiHash;}
+    public synchronized Map<String,Object> memorySnapshotR31(){reapReleasedArraysR31();Map<String,Object> out=new LinkedHashMap<>();out.put("rawCacheBytes",rawBytes);out.put("rawCacheCapacityBytes",rawByteCapacity);out.put("rawMapBytesDropped",rawMapBytesDropped);out.put("rawDropEvidence","MAP_REFERENCE_REMOVED_NOT_ACTUAL_HEAP_FREE");out.put("sharedReads",sharedReads);out.put("sharedBuilds",sharedBuilds);out.put("featureAbi",featureAbiR31);out.put("overrideSharedDisabled",!overrides.isEmpty());synchronized(RAW_LEASES_R31){out.put("processRawArrayLeasesAwaitingGc",RAW_LEASES_R31.size());}out.put("sharedStore",sharedR31.snapshot());out.put("uncoveredOwners",java.util.Arrays.asList("AST_RETURNED_SCORE_ARRAYS_AND_SCORE_MEMO","MUTABLE_FAMILY_MODEL_STATE","LEAF_INTERNAL_TEMPORARY_SCRATCH"));return out;}
+    public Map<String,Object> trimUnusedR31(){synchronized(this){clearRawR31();}Map<String,Object> result=sharedR31.evictTo(0);reapReleasedArraysR31();return result;}
+    public static Map<String,Object> trimRegisteredCachesR31(){java.util.List<FeatureCacheR27> caches;synchronized(REGISTERED_R31){caches=new java.util.ArrayList<>(REGISTERED_R31.keySet());}int trimmed=0;for(FeatureCacheR27 cache:caches){cache.trimUnusedR31();trimmed++;}SharedHolderR31.STORE.evictTo(0);reapReleasedArraysR31();Map<String,Object> out=new LinkedHashMap<>();out.put("registeredCachesTrimmed",trimmed);out.put("actualHeapReleasedBytes",null);out.put("evidence","UNPINNED_CACHE_REFERENCES_REMOVED; RAW_ARRAY_LEASES_WAIT_FOR_OBSERVED_GC");return out;}
+    @Override public synchronized void close(){closedR31=true;clearRawR31();streams.clear();modelHistoryHashes.clear();overrides.clear();reapReleasedArraysR31();}
     private volatile ModelSurfaceProviderR30.Source modelSurfaces=ModelSurfaceProviderR30.NONE;
     private volatile long modelSourceVersion;
     private final Map<Integer,String> modelHistoryHashes=new LinkedHashMap<Integer,String>(128,.75f,true){protected boolean removeEldestEntry(Map.Entry<Integer,String> e){return size()>128;}};
-    public void bindModelSurfaces(ModelSurfaceProviderR30.Source source){synchronized(this){modelSurfaces=source==null?ModelSurfaceProviderR30.NONE:source;modelSourceVersion++;cache.keySet().removeIf(k->k.startsWith("model_surface|"));}}
+    public void bindModelSurfaces(ModelSurfaceProviderR30.Source source){synchronized(this){modelSurfaces=source==null?ModelSurfaceProviderR30.NONE:source;modelSourceVersion++;cache.keySet().removeIf(k->k.startsWith("model_surface|"));rawBytes=0;for(double[] value:cache.values())rawBytes+=arrayBytesR31(value);}}
     public long modelSourceVersion(){return modelSourceVersion;}
     public ModelSurfaceProviderR30.Surface modelSurface(int row,int position){return checkedSurface(modelSurfaces,row,position);}
     private ModelSurfaceProviderR30.Surface checkedSurface(ModelSurfaceProviderR30.Source source,int row,int position){
@@ -36,10 +65,13 @@ public final class FeatureCacheR27 {
 
     public FeatureCacheR27(ReplayDatasetR27 data) { this(data, 48); }
     public FeatureCacheR27(ReplayDatasetR27 data, int capacity) {
-        this.data = data; this.capacity = Math.max(4, capacity);
-        cache = new LinkedHashMap<String, double[]>(64, 0.75f, true) {
-            @Override protected boolean removeEldestEntry(Map.Entry<String, double[]> e) { return size() > FeatureCacheR27.this.capacity; }
-        };
+        this(data,capacity,MemoryBudgetR31.processBudget(),SharedHolderR31.STORE);
+    }
+    public FeatureCacheR27(ReplayDatasetR27 data,int capacity,MemoryBudgetR31 memory,SharedFeatureStoreR31 shared) {
+        this.data=data;this.capacity=Math.max(4,capacity);this.memory=java.util.Objects.requireNonNull(memory);this.sharedR31=java.util.Objects.requireNonNull(shared);
+        this.rawByteCapacity=Math.max(128,Math.min(16L<<20,((Number)memory.snapshot().get("maxHeapBytes")).longValue()/32));
+        memory.registerReclaimer(RAW_RECLAIMER_R31);
+        cache=new LinkedHashMap<String,double[]>(64,.75f,true);REGISTERED_R31.put(this,Boolean.TRUE);
     }
     public synchronized long computedLeaves() { return computed; }
     public synchronized long cacheHits() { return hits; }
@@ -53,10 +85,29 @@ public final class FeatureCacheR27 {
         if (!targetDependent(kind)) tp = 0;
         String key = kind + '|' + tp + '|' + a + '|' + b+(kind.equals("model_surface")?"|"+AtomNetSessionR30.ABI+"|"+modelSourceVersion:"");
         synchronized (this) { double[] v = cache.get(key); if (v != null) { hits++; return v; } }
-        // Computed outside the lock so research threads never serialize on one long leaf.
-        double[] v = compute(kind, tp, a, b);
-        synchronized (this) { double[] raced = cache.get(key); if (raced != null) return raced; computed++; cache.put(key, v); }
+        if(closedR31)throw new IllegalStateException("R31_FEATURE_CACHE_CLOSED");
+        MemoryBudgetR31.Admission admission=memory.tryAcquire("raw-leaf:"+data.datasetHash.substring(0,16),MemoryBudgetR31.Kind.FEATURE_CACHE,128L+80L*data.size(),()->Thread.currentThread().isInterrupted());
+        if(!admission.acquired())throw new MemoryBudgetR31.CapacityWait(admission.reason);
+        double[] v;
+        try{v=compute(kind,tp,a,b);if(v.length!=data.size()*10)throw new IllegalStateException("R31_LEAF_LENGTH");trackRawR31(v,admission.lease);}
+        catch(RuntimeException|Error failure){admission.lease.close();throw failure;}
+        synchronized (this) { double[] raced = cache.get(key); if (raced != null) return raced; computed++;if(!closedR31){cache.put(key,v);rawBytes+=arrayBytesR31(v);trimRawR31();} }
         return v;
+    }
+
+    public SharedFeatureStoreR31.Reader acquireLeafR31(String kind,int tp,int a,int b) {
+        if(!targetDependent(kind))tp=0;String local=kind+'|'+tp+'|'+a+'|'+b;
+        final SharedFeatureStoreR31 store;final SharedFeatureStoreR31.Key key;final BuildLockR31 build;
+        synchronized(this){if(closedR31)throw new IllegalStateException("R31_FEATURE_CACHE_CLOSED");if(!overrides.isEmpty()||kind.equals("model_surface")||kind.equals("family")||data.size()==0)return null;store=sharedR31;key=new SharedFeatureStoreR31.Key(data.datasetHash,Math.max(0,data.ordinals[data.size()-1]-1),featureAbiR31,"RAW_CAUSAL_LEAF_V1",local);SharedFeatureStoreR31.Reader hit=store.acquire(key,"ast-leaf-reader");if(hit!=null){sharedReads++;return hit;}if(buildLocksR31.size()>=128&&!buildLocksR31.containsKey(local))throw new MemoryBudgetR31.CapacityWait(MemoryBudgetR31.WaitReason.OWNER_LIMIT);build=buildLocksR31.computeIfAbsent(local,k->new BuildLockR31());build.users++;}
+        boolean locked=false;
+        try{
+            while(!(locked=build.lock.tryLock(20,TimeUnit.MILLISECONDS)))CooperativeContinuationR26.poll();
+            CooperativeContinuationR26.poll();SharedFeatureStoreR31.Reader hit=store.acquire(key,"ast-leaf-reader");if(hit!=null){synchronized(this){sharedReads++;}return hit;}
+            MemoryBudgetR31.Admission working=memory.tryAcquire("shared-leaf-producer:"+data.datasetHash.substring(0,16),MemoryBudgetR31.Kind.RESEARCH,128L+80L*data.size(),()->Thread.currentThread().isInterrupted());if(!working.acquired())throw new MemoryBudgetR31.CapacityWait(working.reason);
+            try{double[] values=compute(kind,tp,a,b);SharedFeatureStoreR31.Publication publication=store.publishDoubles("immutable-leaf:"+data.datasetHash.substring(0,16),key,values,()->Thread.currentThread().isInterrupted());if(!publication.acquired())throw new MemoryBudgetR31.CapacityWait(publication.reason);synchronized(this){sharedBuilds++;}return publication.reader;}
+            finally{working.lease.close();}
+        }catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new java.util.concurrent.CancellationException("R31_FEATURE_READER_INTERRUPTED");}
+        finally{if(locked)build.lock.unlock();synchronized(this){if(--build.users==0)buildLocksR31.remove(local,build);}}
     }
 
     static boolean targetDependent(String kind) {
@@ -66,7 +117,7 @@ public final class FeatureCacheR27 {
     /** Test/ABI hook: replaces one leaf kind's implementation (used by H11 to simulate a changed operator). */
     public interface LeafOverride { double[] compute(FeatureCacheR27 f, int tp, int a, int b); }
     private final Map<String, LeafOverride> overrides = new java.util.HashMap<>();
-    public synchronized void override(String kind, LeafOverride o) { overrides.put(kind, o); cache.clear(); }
+    public synchronized void override(String kind, LeafOverride o) { overrides.put(kind, o); clearRawR31(); }
 
     private double[] compute(String kind, int tp, int a, int b) {
         LeafOverride o;

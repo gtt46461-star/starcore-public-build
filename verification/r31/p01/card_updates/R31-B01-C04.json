@@ -1,0 +1,97 @@
+{
+  "actual_changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java",
+      "methods": "actual thread termination, bounded cancel/join and permit ownership; no replacement for live cancelled body",
+      "committed_sha256": "13ecb475e137e6a69a400817df4c6d52452d736ed0140355f0d3c16ad3cf6219"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java",
+      "methods": "drain owner/target before replacement, lock excludes slice/join",
+      "committed_sha256": "2aea3ba71ea5a905abc0e93c1a8d661ceed0eb8d06f7ab234b4e7189238cc714"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyGenerationR26.java",
+      "methods": "retain active cancellation state and check real termination",
+      "committed_sha256": "685f951051fad4a4fad7de2dde42ebfb4ca414e7c8a6fb585bab0652ba2f95a4"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyReplayContinuationR26.java",
+      "methods": "retain mutable replay context until actual worker exit",
+      "committed_sha256": "086923000c449d56eb578b34e4f236ef3cdd72c919d7b0a88a724ff16ef58812"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+      "methods": "REPLAY max two in-flight helpers, bounded wait+parent poll, original-order immutable result consumption",
+      "committed_sha256": "faad92fe1dc09311e9072c36cb603c944e57da107aed65e0dda943499f769f55"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "methods": "bounded helper executor, running-owner audit, close remains nonblocking and idempotent",
+      "committed_sha256": "e36d3a9adcbc0099796b6a182bf654257d62b79b58bbb57315c442b5ee051621"
+    }
+  ],
+  "commits": [
+    "844a78488f396189c2db98591782b7bb214799d2"
+  ],
+  "migration_versions": [
+    "SQLite userVersion 36 retained",
+    "RESEARCH_R31_OBSERVATION:1",
+    "RESEARCH_R31_WRITE:1"
+  ],
+  "tests": [
+    {
+      "command": "source /workspace/starcore-environment/activate.sh; bash ./gradlew --no-daemon --max-workers=4 :app:compileDebugJavaWithJavac :app:compileDebugAndroidTestJavaWithJavac -Pr30Instrumentation=true :app:testDebugUnitTest --tests *R31* --tests *R30TaskLivenessTest --tests *R30WriteWaitTest :app:verifyFinalR31BuildIdentity",
+      "result": "PASS",
+      "evidence": "verification/r31/p01/build-identity/final-integration-receipt.json",
+      "scope": "source and Android-test compilation, 32 host unit tests; no APK/device execution"
+    },
+    {
+      "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_task_runtime_host.py",
+      "result": "PASS",
+      "evidence": "verification/r31/p01/task-runtime/receipt.json",
+      "scope": "199 assertions, actual production protocol plus native SQLite HOST adapters; no Android claim"
+    },
+    {
+      "command": "python3 tools/r31/verify_continuation.py",
+      "result": "PASS",
+      "evidence": "verification/r31/continuation/RECEIPT.json",
+      "scope": "actual continuation arithmetic/termination, 10000 owner switches, 128 replay candidates; HOST only"
+    }
+  ],
+  "apk_identity": null,
+  "device_evidence": [],
+  "acceptance": [
+    {
+      "contract": "模拟永不poll任务：无第二个相同任务实例；P0可继续；stop按钮可用；10秒内显示停止未完成而非虚报已停。",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "contract": "模拟在writer critical段触发yield：必须拒绝且回滚；任何park不持writer锁。",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "contract": "长时间压力下线程总数、待执行队列长度、prepared对象数有上限；取消后资源可归还。",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "contract": "同任务owner/target切换一万次无ABA、双重提交、已关闭connection访问。",
+      "status": "NOT_RUN",
+      "evidence": []
+    }
+  ],
+  "remaining": [
+    "模拟永不poll任务：无第二个相同任务实例；P0可继续；stop按钮可用；10秒内显示停止未完成而非虚报已停。",
+    "模拟在writer critical段触发yield：必须拒绝且回滚；任何park不持writer锁。",
+    "长时间压力下线程总数、待执行队列长度、prepared对象数有上限；取消后资源可归还。",
+    "同任务owner/target切换一万次无ABA、双重提交、已关闭connection访问。",
+    "Android integration/fault injection and real device lifecycle NOT_RUN",
+    "24h/72h device soak NOT_RUN",
+    "No natural FUTURE/REAL quality proof"
+  ],
+  "next_step": "P02 integrated resource/feedback/health work; later owner staging and Android/device validation; no mandatory card closure yet.",
+  "scope_note": "BUILD_PASS only records source compilation; acceptance assertions remain NOT_RUN/PARTIAL until each required environment evidence exists."
+}

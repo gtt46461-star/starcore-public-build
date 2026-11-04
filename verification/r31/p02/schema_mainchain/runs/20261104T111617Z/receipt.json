@@ -1,0 +1,130 @@
+{
+  "schema": "R31_MAIN_CHAIN_NATIVE_HOST_1",
+  "started_utc": "2026-11-04T11:16:17.629807+00:00",
+  "source_head": "31fea28c5723ac70e47ae4cc7542344b16fb3f91",
+  "production_source_sha256": {
+    "app/src/main/java/com/ethk3/novaonepro/DbStore.java": "da9c5f33eddbf3ee97dc66bea2b965381b8e661935490a2983a4a54735c928fc",
+    "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java": "a50f9c953aca341bc6d9cfc3a2f5cf3c5ce1b6b7b56b7ac016b7be6d5a538f67",
+    "app/src/main/java/com/ethk3/novaonepro/DbHelper.java": "abd28f7c876ef285048c8c4880d15d31f995df31e335db17ecba118bbc5af30a",
+    "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java": "4ff46bb3dfe7f725c8897ecac7b4fca4156aa4d71d8d6faf07aec3355d58a94c",
+    "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java": "b49aa773978b4b0be9103071537331136b1441ebcc9d988a9e52f26285536043",
+    "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java": "ad6047a02cb37383f9fd17106b5f8e18f2042a4b488195efc754dc8b6101f475",
+    "app/src/main/java/com/ethk3/novaonepro/V51Repository.java": "d53e3052ccb74c42ce6a41e6926771aee511331e09186a569fc730f26398f768",
+    "app/src/main/java/com/ethk3/novaonepro/SchemaRevisionR925.java": "9c1f26a4542f68290a776f09e3d05592ba4a470edaabf47aa55f0d9df6ed80ab",
+    "app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java": "c0eaad5b255f51b4810d857592cd851e750bbf2057639d60f09d73e087f63120",
+    "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java": "73795ef6c1ffffaedb29dc150e902848a67aac2fe9692fe4187853c25625a86d",
+    "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java": "9ed9f2a340b4d8fbe08c95ace2192a424584d7e5abeaeb3930691c6972afd789",
+    "app/src/main/java/com/ethk3/novaonepro/TimeSourceR811.java": "615dd9472db61c758b4b7c60461c64f6ac54efa9ea184074b392876176d074fe",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java": "cc4354d257a170ce2de3579c2fe62e0e676b70593c8373deec1fe56df79483cf",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java": "fa18cca102f58dd54f9f778e86c25cbf7acbef56df0ca1d47e361e38cd1b47c2"
+  },
+  "harness_sha256": "8ba04e8482bcd1195b4eac32e4762b6a6cce9d658ef6a655e1980ac38d06b26e",
+  "runner_sha256": "e1acff9b4d0a730d3c8242dd45d8fedb70084768ec847dbb6df602c7cd2cffc3",
+  "temporary_workspace": "/tmp/r31-mainchain-native-7nroe0zv",
+  "commands": [
+    {
+      "name": "platform-javac",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "-d",
+        "/tmp/r31-mainchain-native-7nroe0zv/platform",
+        "/workspace/starcore-public-build/tools/r31/ddl_host/android/content/ContentValues.java",
+        "/workspace/starcore-public-build/tools/r31/ddl_host/android/database/Cursor.java",
+        "/workspace/starcore-public-build/tools/r31/ddl_host/android/database/sqlite/SQLiteDatabase.java",
+        "/workspace/starcore-public-build/tools/r31/ddl_host/android/database/sqlite/SQLiteOpenHelper.java",
+        "/workspace/starcore-public-build/tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/android/os/SystemClock.java",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/android/os/Looper.java",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/android/util/Log.java"
+      ],
+      "exit_code": 0,
+      "log": "platform-javac.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "production-javac",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-p02-compile:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "-sourcepath",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/EMPTY_SOURCEPATH",
+        "-d",
+        "/tmp/r31-mainchain-native-7nroe0zv/production",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/app/src/main/java/com/ethk3/novaonepro/SchemaRevisionR925.java",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/app/src/main/java/com/ethk3/novaonepro/TimeSourceR811.java",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+        "/tmp/r31-mainchain-native-7nroe0zv/sources/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java"
+      ],
+      "exit_code": 0,
+      "log": "production-javac.log",
+      "log_sha256": "d8771731b1bdf03477f4686e09186fd24d1ae45e859a92d59b99826f8323d880"
+    },
+    {
+      "name": "harness-javac",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/tmp/r31-mainchain-native-7nroe0zv/platform:/tmp/r31-mainchain-native-7nroe0zv/production:/tmp/r31-mainchain-native-7nroe0zv/test:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-mainchain-native-7nroe0zv/test",
+        "/workspace/starcore-public-build/verification/r31/p02/schema_mainchain/MainChainSchemaR31Host.java"
+      ],
+      "exit_code": 0,
+      "log": "harness-javac.log",
+      "log_sha256": "6bb4ba45cc73c09aa1f23a333d758c0eb15037032693388be45ee407e6f90b4f"
+    },
+    {
+      "name": "mainchain-native",
+      "argv": [
+        "java",
+        "-Xmx768m",
+        "-cp",
+        "/tmp/r31-mainchain-native-7nroe0zv/platform:/tmp/r31-mainchain-native-7nroe0zv/production:/tmp/r31-mainchain-native-7nroe0zv/test:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.MainChainSchemaR31Host",
+        "/tmp/r31-mainchain-native-7nroe0zv/mainchain.db",
+        "/workspace/starcore-public-build/verification/r31/p02/schema_mainchain/runs/20261104T111617Z/SQL_API_CALLS.tsv"
+      ],
+      "exit_code": 1,
+      "log": "mainchain-native.log",
+      "log_sha256": "e9e9f24984fe5820b9d6e481ec3201d861cd55a4d931231334eef67039f87ba1"
+    }
+  ],
+  "scope": "FRESH_FULL_PRODUCTION_DBSTORE_LEGACY_HELPER_COORDINATOR_NATIVE_SQLITE_HOST",
+  "gradle": "NOT_RUN",
+  "android": "NOT_RUN",
+  "device": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN",
+  "limitations": [
+    "Unsafe bypasses application/SQLiteOpenHelper construction only; actual production business/readiness/migration methods execute on JDBC SQLite.",
+    "Host Critical predecessor schema methods are exercised on an isolated fresh database; this is not full Android startup/backup migration validation.",
+    "Only named mainchain/SHADOW business paths are traced; no claim all application DDL or 64-op writer batch acceptance is complete."
+  ],
+  "status": "EXECUTION_OR_HARNESS_FAILURE_NOT_PASS",
+  "failure": "Command failed; original output retained: /workspace/starcore-public-build/verification/r31/p02/schema_mainchain/runs/20261104T111617Z/mainchain-native.log",
+  "finished_utc": "2026-11-04T11:16:22.594354+00:00"
+}

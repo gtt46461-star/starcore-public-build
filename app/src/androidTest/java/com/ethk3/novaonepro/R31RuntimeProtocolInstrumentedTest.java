@@ -108,4 +108,59 @@ public final class R31RuntimeProtocolInstrumentedTest {
                     context(DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,"R31_TEST_NULL"),db->null));
         } finally {store.close();}
     }
+
+    @Test public void feedbackReceiptRequiresTheActualCheckpointTransaction() {
+        DbStore store=open();try {
+            final String seed=UUID.randomUUID().toString(),event="R31_TEST_LABEL_"+seed;
+            final String typed=StatsR27.sha256("typed:"+seed),source=StatsR27.sha256("source:"+seed);
+            final String checkpoint=StatsR27.sha256("checkpoint:"+seed),artifact=StatsR27.sha256("artifact:"+seed);
+            final String policy=StatsR27.sha256("policy:"+seed),consumer=policy+"|"+RuntimeSchemaR26.R31_MODEL_CONSUMER_PROTOCOL;
+            final long ordinal=9_000_000_000L+Math.abs((long)seed.hashCode());
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                    context(DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,"R31_TEST_FEEDBACK_FIXTURE"),db->{
+                        db.execSQL("INSERT INTO r26_feedback VALUES(?,?,?,?,?)",new Object[]{event,ordinal,source,"INJECTED_ENGINEERING_FIXTURE",1});
+                        db.execSQL("INSERT INTO r31_feedback_event VALUES(?,?,?,?,?,?,?,?,?,?,?)",new Object[]{typed,"DRAW_LABEL_REVEALED","R31_TEST_"+seed,ordinal,source,"",event,"INJECTED_ENGINEERING_FIXTURE",StatsR27.sha256("INJECTED_ENGINEERING_FIXTURE"),"INSTRUMENTED_TEST_NOT_NATURAL",1});
+                        db.execSQL("INSERT INTO r26_checkpoint_artifact VALUES(?,?,?,?,?,?,?)",new Object[]{checkpoint,artifact,policy,source,"",ordinal,1});return 0;
+                    });
+            try {
+                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                        context(DatabaseCoordinator.WriteClass.RESEARCH_DATA,"R31_TEST_FEEDBACK_ROLLBACK"),db->{
+                            db.execSQL("INSERT INTO r26_consumption VALUES(?,?,?,?)",new Object[]{event,policy,checkpoint,"TRAIN"});
+                            throw new IllegalStateException("INJECTED_AFTER_CONSUMPTION_BEFORE_COMMIT");
+                        });
+                fail("rollback accepted");
+            } catch(DatabaseCoordinator.WriteRejectedR31 expected) {
+                assertEquals(DatabaseCoordinator.CommitOutcome.ROLLED_BACK,expected.commitOutcome);
+            }
+            assertEquals(0,number(store.readable(),"SELECT count(*) FROM r31_feedback_receipt WHERE consumer_version=?",consumer));
+            for(int i=0;i<2;i++)store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                    context(DatabaseCoordinator.WriteClass.RESEARCH_DATA,"R31_TEST_FEEDBACK_RECEIPT"),db->{
+                        db.execSQL("INSERT OR IGNORE INTO r26_consumption VALUES(?,?,?,?)",new Object[]{event,policy,checkpoint,"TRAIN"});return 0;
+                    });
+            assertEquals(1,number(store.readable(),"SELECT count(*) FROM r31_feedback_receipt WHERE consumer_version=? AND event_id=? AND checkpoint_hash=? AND artifact_hash=?",consumer,typed,checkpoint,artifact));
+            assertTrue(SchemaDomainCoordinatorR926.matches(store.readable(),SchemaDomainCoordinatorR926.r31FeedbackContract()));
+            System.out.println("R31_ANDROID|CHECKPOINT_FEEDBACK_RECEIPT_ATOMIC_ROLLBACK_AND_DEDUP|INJECTED_NOT_LEARNING_OR_QUALITY_PROOF|PASS");
+        } finally {store.close();}
+    }
+
+    @Test public void transportTimingMigrationPreservesUnknownTimesAndOriginalData() {
+        DbStore store=open();try {
+            String key=probe(store);long version=number(store.readable(),"PRAGMA user_version");
+            for(int i=0;i<2;i++)store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                    context(DatabaseCoordinator.WriteClass.MIGRATION,"R31_TEST_TIMING_MIGRATION"),db->{
+                        SchemaDomainCoordinatorR926.migrateR31TransportTiming(db);return 0;
+                    });
+            assertTrue(SchemaDomainCoordinatorR926.matches(store.readable(),SchemaDomainCoordinatorR926.r31TransportTimingContract()));
+            assertEquals(version,number(store.readable(),"PRAGMA user_version"));
+            assertEquals(0,number(store.readable(),"SELECT value FROM r31_test_protocol_probe WHERE id=?",key));
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                    context(DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,"R31_TEST_TIMING_UNKNOWN"),db->{
+                        db.execSQL("INSERT INTO r31_fetch_timing(request_id,boot_id,payload_hash,issue,accepted,body_truncated,observation_contract) VALUES(?,?,?,?,?,?,?)",
+                                new Object[]{key,"TEST_BOOT",StatsR27.sha256(key),"",0,0,"INJECTED_MISSING_CLOCKS_REMAIN_UNKNOWN"});return 0;
+                    });
+            try(Cursor row=store.readable().rawQuery("SELECT first_byte_mono_ms,body_complete_mono_ms,validated_mono_ms FROM r31_fetch_timing WHERE request_id=?",new String[]{key})) {
+                assertTrue(row.moveToFirst());for(int i=0;i<3;i++)assertTrue("missing clock must be NULL",row.isNull(i));
+            }
+        } finally {store.close();}
+    }
 }

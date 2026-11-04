@@ -1,0 +1,45 @@
+{
+  "recorded_at": "2026-11-04T10:38:50.822771+00:00",
+  "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "inherited_source_commit": "31fea28c5723ac70e47ae4cc7542344b16fb3f91",
+  "implementation_commit": "UNCOMMITTED_P02_ROOT_INTEGRATION_PENDING",
+  "actual_changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+      "methods": "measure: bounded streamed file census, distinct DB/WAL/SHM/report/model/cache; unknown allocation/support remains explicit",
+      "worktree_sha256_at_record": "776660060cd9f582f8ec0897bb91947de49f55d01a83aca616b2ff5d2aad6178",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/StorageLedgerR31.java",
+      "methods": "sampleIfDue/record/history: fixed 288 points and720 hour slots with real boot+mono observation bounds",
+      "worktree_sha256_at_record": "6d4efd973c44fb68fa159fad309444edf8de900950bcef78147509230f4edc94",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "methods": "HealthTask.step: 5min continuous low-priority census outside writer; monotonic service interval",
+      "worktree_sha256_at_record": "94a4702ccd156688ff48a456e7cd7989f08d93f74774f1a9ee9301f12b79e701",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    }
+  ],
+  "commits": [],
+  "migration_versions": [
+    "SQLite userVersion36 retained",
+    "RESEARCH_R31_FEEDBACK:1 (10 objects)",
+    "REALTIME_R31_TIMING:1 (2 objects)",
+    "R31_STORAGE_ADMISSION_V1 / R31_MEMORY_PER_PID_V1"
+  ],
+  "tests": [],
+  "apk_identity": null,
+  "device_evidence": [],
+  "remaining": [
+    "ST-01：总分类相加与总文件长度相等；detail不重复统计",
+    "同路径各阶段采样可定位snapshot峰值与清理后稳态",
+    "无dbstat时显示UNKNOWN/ESTIMATED，不触发错误删除",
+    "Root same-version unexcluded Android/Gradle source integration pending",
+    "Android/physical device fault matrix and24/72h NOT_RUN",
+    "Natural FUTURE/REAL quality NOT_PROVEN"
+  ],
+  "next_step": "Finish real HOST/native fault tests, freeze source, regenerate verified identities from actual classes, then run unexcluded joint build/tests. No P06 business/cache GC enabled."
+}

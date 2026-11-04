@@ -7,6 +7,28 @@ import com.ethk3.novaonepro.*;
 /** Additive metadata migration through the existing database writer. */
 public final class RuntimeSchemaR26 {
     private RuntimeSchemaR26() {}
+    public static final int R31_FEEDBACK_REVISION=1;
+    public static final String R31_MODEL_CONSUMER_PROTOCOL="R26_CHECKPOINT_RECEIPT_V1";
+    public static final String[] R31_FEEDBACK_DDL={
+        "CREATE TABLE IF NOT EXISTS r31_feedback_event(event_id TEXT PRIMARY KEY,kind TEXT NOT NULL CHECK(kind IN ('DRAW_LABEL_REVEALED','FROZEN_RESULT')),issue TEXT NOT NULL,issue_ordinal INTEGER NOT NULL,source_hash TEXT NOT NULL,canonical_hash TEXT NOT NULL,legacy_event_id TEXT NOT NULL,payload TEXT NOT NULL,payload_hash TEXT NOT NULL,producer TEXT NOT NULL,created_at INTEGER NOT NULL,UNIQUE(kind,issue,source_hash,canonical_hash))",
+        "CREATE INDEX IF NOT EXISTS r31_feedback_event_order ON r31_feedback_event(kind,issue_ordinal,event_id)",
+        "CREATE TABLE IF NOT EXISTS r31_feedback_receipt(consumer_version TEXT NOT NULL,event_id TEXT NOT NULL,source_hash TEXT NOT NULL,checkpoint_hash TEXT NOT NULL,artifact_hash TEXT NOT NULL,policy_hash TEXT NOT NULL,scope TEXT NOT NULL,committed_at INTEGER NOT NULL,PRIMARY KEY(consumer_version,event_id))",
+        "CREATE INDEX IF NOT EXISTS r31_feedback_receipt_event ON r31_feedback_receipt(event_id,consumer_version)",
+        "CREATE INDEX IF NOT EXISTS r31_feedback_source ON r26_feedback(source_hash)",
+        "CREATE TABLE IF NOT EXISTS r31_frozen_feedback_effect(consumer_version TEXT PRIMARY KEY,events INTEGER NOT NULL,calibrated_events INTEGER NOT NULL,brier_sum REAL NOT NULL,residual_sum REAL NOT NULL,last_ordinal INTEGER NOT NULL,state_hash TEXT NOT NULL,updated_at INTEGER NOT NULL)",
+        "CREATE TRIGGER IF NOT EXISTS r31_feedback_event_immutable BEFORE UPDATE ON r31_feedback_event BEGIN SELECT RAISE(ABORT,'R31_FEEDBACK_EVENT_IMMUTABLE'); END",
+        "CREATE TRIGGER IF NOT EXISTS r31_feedback_event_no_replace BEFORE INSERT ON r31_feedback_event WHEN EXISTS(SELECT 1 FROM r31_feedback_event WHERE event_id=NEW.event_id OR (kind=NEW.kind AND issue=NEW.issue AND source_hash=NEW.source_hash AND canonical_hash=NEW.canonical_hash)) BEGIN SELECT RAISE(ABORT,'R31_FEEDBACK_EVENT_IMMUTABLE'); END",
+        "CREATE TRIGGER IF NOT EXISTS r31_feedback_event_no_delete BEFORE DELETE ON r31_feedback_event BEGIN SELECT RAISE(ABORT,'R31_FEEDBACK_EVENT_DELETE_REQUIRES_VERSIONED_RETENTION_PROTOCOL'); END",
+        "CREATE TRIGGER IF NOT EXISTS r31_feedback_model_receipt AFTER INSERT ON r26_consumption BEGIN INSERT OR IGNORE INTO r31_feedback_receipt(consumer_version,event_id,source_hash,checkpoint_hash,artifact_hash,policy_hash,scope,committed_at) SELECT NEW.policy_hash||'|R26_CHECKPOINT_RECEIPT_V1',e.event_id,e.source_hash,NEW.checkpoint_hash,a.artifact_hash,NEW.policy_hash,NEW.scope,a.created_at FROM r31_feedback_event e JOIN r26_feedback f ON f.event_id=NEW.event_id AND f.source_hash=e.source_hash JOIN r26_checkpoint_artifact a ON a.checkpoint_hash=NEW.checkpoint_hash AND a.trained_through>=e.issue_ordinal WHERE e.kind='DRAW_LABEL_REVEALED' AND e.legacy_event_id=NEW.event_id; END"
+    };
+    /** Called only from the versioned SchemaDomain journal after the R26 base tables exist. */
+    public static void ensureR31Feedback(SQLiteDatabase db){
+        if(!db.inTransaction())throw new IllegalStateException("R31_FEEDBACK_MIGRATION_OWNER_REQUIRED");
+        for(String sql:R31_FEEDBACK_DDL)db.execSQL(sql);
+        try(Cursor columns=db.rawQuery("SELECT consumer_version,event_id,source_hash,checkpoint_hash,artifact_hash,policy_hash,scope,committed_at FROM r31_feedback_receipt LIMIT 0",null)){
+            if(columns.getColumnCount()!=8)throw new IllegalStateException("R31_FEEDBACK_SCHEMA_CONFLICT");
+        }
+    }
     public static final String FEEDBACK = "CREATE TABLE IF NOT EXISTS r26_feedback(event_id TEXT PRIMARY KEY,issue_ordinal INTEGER NOT NULL UNIQUE CHECK(issue_ordinal>=0),source_hash TEXT NOT NULL,payload TEXT NOT NULL,ready_at INTEGER NOT NULL)";
     public static final String[] DDL = {
         FEEDBACK,
@@ -78,6 +100,7 @@ public final class RuntimeSchemaR26 {
         column(db,"r26_live_model","family_id","TEXT NOT NULL DEFAULT ''");
         column(db,"r26_candidate","service_cpu_ms","INTEGER NOT NULL DEFAULT 0");column(db,"r26_candidate","last_served","INTEGER NOT NULL DEFAULT 0");
         column(db,"r26_candidate","state_hash","TEXT NOT NULL DEFAULT ''");column(db,"r26_candidate","checkpoint_hash","TEXT NOT NULL DEFAULT ''");
+        SchemaDomainCoordinatorR926.migrateR31Feedback(db);
         // Old engineering checkpoints remain preserved. Their missing hash is explicitly blocked.
     }
     public static boolean bindCapabilitySource(SQLiteDatabase db,String abi){
@@ -102,7 +125,7 @@ public final class RuntimeSchemaR26 {
     private static boolean table(SQLiteDatabase db,String name){try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",new String[]{name})){return c.moveToFirst();}}
     private static void column(SQLiteDatabase db,String table,String name,String type){try(Cursor c=db.rawQuery("PRAGMA table_info("+table+")",null)){while(c.moveToNext())if(name.equals(c.getString(1)))return;}db.execSQL("ALTER TABLE "+table+" ADD COLUMN "+name+" "+type);}
 
-    /** Called only by SettlementEngine, inside its sole-owner terminal transaction. */
+    /** Confirmed draw outbox producer. It has no dependency on a prediction or settlement terminal. */
     public static void feedbackWithinTransaction(SQLiteDatabase db,Models.Draw draw){
         if(!db.inTransaction()||draw==null||!draw.isValid())throw new IllegalArgumentException("R26_FEEDBACK_OWNER");
         long ordinal=TargetIssueResolver.sequenceOrdinalSU1(draw.issue);String source=DrawHashR36.sha256V2(draw);
@@ -111,5 +134,78 @@ public final class RuntimeSchemaR26 {
         try(Cursor c=db.rawQuery("SELECT source_hash,payload FROM r26_feedback WHERE event_id=?",new String[]{event})){
             if(c.moveToFirst()){if(!source.equals(c.getString(0))||!payload.toString().equals(c.getString(1)))throw new IllegalStateException("R26_FEEDBACK_CONFLICT");return;}}
         db.execSQL("INSERT INTO r26_feedback VALUES(?,?,?,?,?)",new Object[]{event,ordinal,source,payload.toString(),System.currentTimeMillis()});
+    }
+
+    /** Bounded repair/typed delivery on the existing fenced research owner. Bridge work is not model training. */
+    public static long reconcileFeedbackR31(DbStore store,RuntimeCoordinatorR26.Claim claim,BudgetTokenSU1 budget){
+        budget.checkpointOrYield();
+        final java.util.List<Models.Draw> missing=new java.util.ArrayList<>();
+        try(Cursor rows=store.readable().rawQuery("SELECT d.issue FROM draws d JOIN "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t ON t.target_issue=d.issue LEFT JOIN r26_feedback f ON f.source_hash=d.draw_hash_v2 WHERE d.dirty=0 AND f.event_id IS NULL ORDER BY d.issue LIMIT 8",null)){
+            while(rows.moveToNext()){Models.Draw draw=store.getDrawByIssue(rows.getString(0));if(draw!=null&&draw.isValid())missing.add(draw);}
+        }
+        budget.checkpointOrYield();
+        return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RESEARCH_DATA,"R31_FEEDBACK_RECONCILE"),db->{
+                    RuntimeCoordinatorR26.requireFence(db,claim);long work=0;
+                    for(Models.Draw draw:missing){if(!confirmedDrawR31(db,draw))continue;feedbackWithinTransaction(db,draw);work++;}
+                    work+=typedDrawEventsR31(db,8);work+=typedFrozenEventsR31(db,8);work+=bridgeModelReceiptsR31(db,16);work+=consumeFrozenEffectsR31(db,8);
+                    return work;
+                });
+    }
+    private static long typedDrawEventsR31(SQLiteDatabase db,int limit){
+        java.util.List<String[]> prepared=new java.util.ArrayList<>();
+        try(Cursor rows=db.rawQuery("SELECT f.event_id,f.issue_ordinal,f.source_hash,f.payload,f.ready_at FROM r26_feedback f WHERE NOT EXISTS(SELECT 1 FROM r31_feedback_event e WHERE e.kind='DRAW_LABEL_REVEALED' AND e.legacy_event_id=f.event_id) ORDER BY f.issue_ordinal LIMIT ?",new String[]{String.valueOf(limit)})){
+            while(rows.moveToNext())prepared.add(new String[]{rows.getString(0),rows.getString(1),rows.getString(2),rows.getString(3),rows.getString(4)});
+        }
+        for(String[] row:prepared){String issue=row[3].split(",",2)[0];appendEventR31(db,"DRAW_LABEL_REVEALED",issue,Long.parseLong(row[1]),row[2],"",row[0],row[3],"CONFIRMED_DRAW_R26_COMPAT_OUTBOX",Long.parseLong(row[4]));}
+        return prepared.size();
+    }
+    private static long typedFrozenEventsR31(SQLiteDatabase db,int limit){
+        java.util.List<Object[]> prepared=new java.util.ArrayList<>();
+        try(Cursor rows=db.rawQuery("SELECT o.target_issue,d.draw_hash_v2,s.record_hash,o.record_hash,o.selected_hit_p,o.hit_label,o.settled_at FROM "+DbHelper.TABLE_R35_OOS_LABEL+" o JOIN "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" s ON s.target_issue=o.target_issue JOIN draws d ON d.issue=o.target_issue WHERE o.strict_oos=1 AND o.pre_draw_frozen=1 AND s.pre_draw_frozen=1 AND s.settled=1 AND s.commit_at>0 AND s.commit_at<d.open_time AND s.commit_at<d.first_seen_at AND d.dirty=0 AND NOT EXISTS(SELECT 1 FROM r31_feedback_event e WHERE e.kind='FROZEN_RESULT' AND e.issue=o.target_issue AND e.canonical_hash=s.record_hash) ORDER BY o.target_issue LIMIT ?",new String[]{String.valueOf(limit)})){
+            while(rows.moveToNext()){
+                java.util.Map<String,Object> payload=new java.util.LinkedHashMap<>();payload.put("labelHash",rows.getString(3));payload.put("probability",rows.isNull(4)?null:rows.getDouble(4));payload.put("hit",rows.getInt(5));payload.put("role","FUTURE_FROZEN_RESULT");
+                prepared.add(new Object[]{rows.getString(0),rows.getString(1),rows.getString(2),JsonR27.write(payload),rows.getLong(6)});
+            }
+        }
+        for(Object[] row:prepared)appendEventR31(db,"FROZEN_RESULT",(String)row[0],TargetIssueResolver.sequenceOrdinalSU1((String)row[0]),(String)row[1],(String)row[2],"",(String)row[3],"STRICT_OOS_ORIGINAL_CANONICAL",(Long)row[4]);
+        return prepared.size();
+    }
+    private static void appendEventR31(SQLiteDatabase db,String kind,String issue,long ordinal,String source,String canonical,String legacy,String payload,String producer,long at){
+        String event=PolicyIdentityR26.sha256("R31_FEEDBACK|"+kind+'|'+issue+'|'+source+'|'+canonical),hash=PolicyIdentityR26.sha256(payload);
+        try(Cursor existing=db.rawQuery("SELECT source_hash,canonical_hash,payload_hash FROM r31_feedback_event WHERE event_id=?",new String[]{event})){
+            if(existing.moveToFirst()){if(!source.equals(existing.getString(0))||!canonical.equals(existing.getString(1))||!hash.equals(existing.getString(2)))throw new IllegalStateException("R31_FEEDBACK_INTEGRITY_CONFLICT");return;}
+        }
+        db.execSQL("INSERT INTO r31_feedback_event VALUES(?,?,?,?,?,?,?,?,?,?,?)",new Object[]{event,kind,issue,ordinal,source,canonical,legacy,payload,hash,producer,at});
+    }
+    private static long bridgeModelReceiptsR31(SQLiteDatabase db,int limit){
+        // These are pre-existing real model/checkpoint receipts, not newly claimed training work.
+        db.execSQL("INSERT OR IGNORE INTO r31_feedback_receipt(consumer_version,event_id,source_hash,checkpoint_hash,artifact_hash,policy_hash,scope,committed_at) SELECT c.policy_hash||'|R26_CHECKPOINT_RECEIPT_V1',e.event_id,e.source_hash,c.checkpoint_hash,a.artifact_hash,c.policy_hash,c.scope,a.created_at FROM r26_consumption c JOIN r31_feedback_event e ON e.legacy_event_id=c.event_id AND e.kind='DRAW_LABEL_REVEALED' JOIN r26_feedback f ON f.event_id=c.event_id AND f.source_hash=e.source_hash JOIN r26_checkpoint_artifact a ON a.checkpoint_hash=c.checkpoint_hash AND a.trained_through>=e.issue_ordinal WHERE NOT EXISTS(SELECT 1 FROM r31_feedback_receipt r WHERE r.consumer_version=c.policy_hash||'|R26_CHECKPOINT_RECEIPT_V1' AND r.event_id=e.event_id) ORDER BY e.issue_ordinal,c.policy_hash LIMIT ?",new Object[]{limit});
+        return changedR31(db);
+    }
+    private static long consumeFrozenEffectsR31(SQLiteDatabase db,int limit){
+        final String consumer="R31_FROZEN_RESIDUAL_V1";
+        java.util.List<String[]> events=new java.util.ArrayList<>();
+        try(Cursor rows=db.rawQuery("SELECT e.event_id,e.issue_ordinal,e.source_hash,e.payload FROM r31_feedback_event e WHERE e.kind='FROZEN_RESULT' AND NOT EXISTS(SELECT 1 FROM r31_feedback_receipt r WHERE r.consumer_version=? AND r.event_id=e.event_id) ORDER BY e.issue_ordinal,e.event_id LIMIT ?",new String[]{consumer,String.valueOf(limit)})){
+            while(rows.moveToNext())events.add(new String[]{rows.getString(0),rows.getString(1),rows.getString(2),rows.getString(3)});
+        }
+        long count=0,calibrated=0;double brier=0,residual=0;
+        try(Cursor prior=db.rawQuery("SELECT events,calibrated_events,brier_sum,residual_sum FROM r31_frozen_feedback_effect WHERE consumer_version=?",new String[]{consumer})){if(prior.moveToFirst()){count=prior.getLong(0);calibrated=prior.getLong(1);brier=prior.getDouble(2);residual=prior.getDouble(3);}}
+        for(String[] row:events){
+            Object decoded=JsonR27.parse(row[3]);if(!(decoded instanceof java.util.Map))throw new IllegalStateException("R31_FROZEN_FEEDBACK_PAYLOAD");
+            java.util.Map<?,?> payload=(java.util.Map<?,?>)decoded;Object probability=payload.get("probability"),label=payload.get("hit");
+            if(!(label instanceof Number)||(((Number)label).intValue()!=0&&((Number)label).intValue()!=1))throw new IllegalStateException("R31_FROZEN_FEEDBACK_LABEL");
+            count++;if(probability instanceof Number){double p=((Number)probability).doubleValue();if(Double.isFinite(p)&&p>=0&&p<=1){double delta=((Number)label).doubleValue()-p;calibrated++;brier+=delta*delta;residual+=delta;}}
+            String state=PolicyIdentityR26.sha256(consumer+'|'+count+'|'+calibrated+'|'+Double.toHexString(brier)+'|'+Double.toHexString(residual)+'|'+row[0]);long now=System.currentTimeMillis();
+            db.execSQL("INSERT OR REPLACE INTO r31_frozen_feedback_effect VALUES(?,?,?,?,?,?,?,?)",new Object[]{consumer,count,calibrated,brier,residual,Long.parseLong(row[1]),state,now});
+            db.execSQL("INSERT INTO r31_feedback_receipt VALUES(?,?,?,?,?,?,?,?)",new Object[]{consumer,row[0],row[2],"",state,"","NUMERIC_RESEARCH_FROZEN_RESIDUAL_NOT_MODEL_TRAINING",now});
+        }
+        return events.size();
+    }
+    private static long changedR31(SQLiteDatabase db){try(Cursor row=db.rawQuery("SELECT changes()",null)){return row.moveToFirst()?row.getLong(0):0;}}
+    private static boolean confirmedDrawR31(SQLiteDatabase db,Models.Draw draw){
+        try(Cursor row=db.rawQuery("SELECT status,canonical_draw_hash FROM "+DbHelper.TABLE_R811_DRAW_CANONICAL+" WHERE target_issue=?",new String[]{draw.issue})){
+            return row.moveToFirst()&&"CONFIRMED_CANONICAL_DRAW".equals(row.getString(0))&&(DrawHashR36.sha256V2(draw).equals(row.getString(1))||DrawHashR36.sha256(draw).equals(row.getString(1)));
+        }
     }
 }

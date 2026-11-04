@@ -1,0 +1,81 @@
+{
+  "actual_changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "methods": "Claim owner/fence/boot/elapsed lease CAS for success and failure; helper+parent drain before replacement",
+      "committed_sha256": "e36d3a9adcbc0099796b6a182bf654257d62b79b58bbb57315c442b5ee051621"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedTaskR30R1.java",
+      "methods": "same claim object and monotonically inherited commit chunks",
+      "committed_sha256": "53b9bff4a5906ce233565f14aac7935d5bdb1d51d43f72e98d8c87116847028f"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "methods": "freeze mutable batch once; pinned input/commit-key and exact receipt retries; invalidate mutable draft only after termination",
+      "committed_sha256": "04d87814776977bf0000f92e89531c5c0a1691793dddfcf49b67f832bad6b932"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+      "methods": "durable r31_task_lease/recovery clock and additive control columns",
+      "committed_sha256": "25bd11775579573eafe00e85eae6c3dbafdff5efa8632e9056938a0d9b38dd73"
+    }
+  ],
+  "commits": [
+    "844a78488f396189c2db98591782b7bb214799d2"
+  ],
+  "migration_versions": [
+    "SQLite userVersion 36 retained",
+    "RESEARCH_R31_OBSERVATION:1",
+    "RESEARCH_R31_WRITE:1"
+  ],
+  "tests": [
+    {
+      "command": "source /workspace/starcore-environment/activate.sh; bash ./gradlew --no-daemon --max-workers=4 :app:compileDebugJavaWithJavac :app:compileDebugAndroidTestJavaWithJavac -Pr30Instrumentation=true :app:testDebugUnitTest --tests *R31* --tests *R30TaskLivenessTest --tests *R30WriteWaitTest :app:verifyFinalR31BuildIdentity",
+      "result": "PASS",
+      "evidence": "verification/r31/p01/build-identity/final-integration-receipt.json",
+      "scope": "source and Android-test compilation, 32 host unit tests; no APK/device execution"
+    },
+    {
+      "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_task_runtime_host.py",
+      "result": "PASS",
+      "evidence": "verification/r31/p01/task-runtime/receipt.json",
+      "scope": "199 assertions, actual production protocol plus native SQLite HOST adapters; no Android claim"
+    }
+  ],
+  "apk_identity": null,
+  "device_evidence": [],
+  "acceptance": [
+    {
+      "contract": "注入旧owner失败回执晚于新owner领取：新owner保持RUNNING，旧回执只进入拒收日志。",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "contract": "在claim后/提交前/提交后receipt前杀进程：恢复只重复计算未提交部分，artifact及cursor恰好一次发布。",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "contract": "时钟前后跳24小时、重启后同PID复用均不授予旧fence写权。",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "contract": "busy重试不丢pending batch；owner变更无R30_PREPARED_OWNER_CHANGED无限重试。",
+      "status": "NOT_RUN",
+      "evidence": []
+    }
+  ],
+  "remaining": [
+    "注入旧owner失败回执晚于新owner领取：新owner保持RUNNING，旧回执只进入拒收日志。",
+    "在claim后/提交前/提交后receipt前杀进程：恢复只重复计算未提交部分，artifact及cursor恰好一次发布。",
+    "时钟前后跳24小时、重启后同PID复用均不授予旧fence写权。",
+    "busy重试不丢pending batch；owner变更无R30_PREPARED_OWNER_CHANGED无限重试。",
+    "Android integration/fault injection and real device lifecycle NOT_RUN",
+    "24h/72h device soak NOT_RUN",
+    "No natural FUTURE/REAL quality proof"
+  ],
+  "next_step": "P02 integrated resource/feedback/health work; later owner staging and Android/device validation; no mandatory card closure yet.",
+  "scope_note": "BUILD_PASS only records source compilation; acceptance assertions remain NOT_RUN/PARTIAL until each required environment evidence exists."
+}

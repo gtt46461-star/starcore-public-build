@@ -22,6 +22,43 @@ public final class FetchLedgerR925 {
     private static final String CLOCK_EPOCH = V51ChecksumEngine.sha256(
             "R926_CLOCK_EPOCH|" + RuntimeObservabilityR925.PROCESS_ID);
     public static volatile String lastWriteError = "";
+    public static final int R31_TIMING_REVISION=1,R31_TIMING_MAX_ROWS=16384;
+    public static final String[] R31_TIMING_DDL={
+        "CREATE TABLE IF NOT EXISTS r31_fetch_timing(request_id TEXT PRIMARY KEY,boot_id TEXT NOT NULL,payload_hash TEXT NOT NULL,request_wall_ms INTEGER,request_mono_ms INTEGER,headers_wall_ms INTEGER,headers_mono_ms INTEGER,first_byte_wall_ms INTEGER,first_byte_mono_ms INTEGER,body_complete_wall_ms INTEGER,body_complete_mono_ms INTEGER,parse_wall_ms INTEGER,parse_mono_ms INTEGER,validated_wall_ms INTEGER,validated_mono_ms INTEGER,finished_wall_ms INTEGER,finished_mono_ms INTEGER,issue TEXT NOT NULL,accepted INTEGER NOT NULL,body_truncated INTEGER NOT NULL,observation_contract TEXT NOT NULL)",
+        "CREATE INDEX IF NOT EXISTS r31_fetch_timing_issue ON r31_fetch_timing(issue,request_mono_ms)"
+    };
+    public static void ensureR31Timing(SQLiteDatabase db){if(!db.inTransaction())throw new IllegalStateException("R31_TIMING_MIGRATION_OWNER_REQUIRED");for(String sql:R31_TIMING_DDL)db.execSQL(sql);}
+    private static final java.util.LinkedHashMap<String,TransportTraceR31> TRANSPORT_R31=new java.util.LinkedHashMap<>();
+    private static final AtomicLong traceEvictionsR31=new AtomicLong(),traceDeferredR31=new AtomicLong(),traceAdmissionDropsR31=new AtomicLong();
+    private static final class TransportTraceR31 {
+        final String id,boot,payload;final long[] clocks;final boolean truncated;String issue="";boolean accepted;
+        TransportTraceR31(String id,ApiClient.RawHttpResult raw){this.id=id;boot=raw.bootId;payload=V51ChecksumEngine.sha256(raw.body==null?"":raw.body);truncated=raw.bodyTruncated;clocks=new long[]{raw.requestStartWallMs,raw.requestStartMonoMs,raw.headersWallMs,raw.headersMonoMs,raw.firstByteWallMs,raw.firstByteMonoMs,raw.bodyCompleteWallMs,raw.bodyCompleteMonoMs,0,0,0,0,raw.finishedWallMs,raw.finishedMonoMs};}
+        TransportTraceR31(TransportTraceR31 row){id=row.id;boot=row.boot;payload=row.payload;clocks=row.clocks.clone();truncated=row.truncated;issue=row.issue;accepted=row.accepted;}
+    }
+    public static java.util.Map<String,Object> transportTimingSnapshotR31(){java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();synchronized(TRANSPORT_R31){out.put("pendingTraceCount",TRANSPORT_R31.size());}out.put("memoryTraceEvictions",traceEvictionsR31.get());out.put("requestReceiptEvictions",requestReceiptDropsR31.get());out.put("deferredOrRejectedWrites",traceDeferredR31.get());out.put("capacityAdmissionDrops",traceAdmissionDropsR31.get());out.put("maximumPersistedRows",R31_TIMING_MAX_ROWS);out.put("missingTimingIsUnknown",true);return java.util.Collections.unmodifiableMap(out);}
+    private static void observeTransportR31(DbStore store,String id,ApiClient.RawHttpResult raw){
+        if(raw==null||safe(id).isEmpty())return;TransportTraceR31 trace=new TransportTraceR31(id,raw);
+        synchronized(TRANSPORT_R31){TRANSPORT_R31.put(id,trace);while(TRANSPORT_R31.size()>128){TRANSPORT_R31.remove(TRANSPORT_R31.keySet().iterator().next());traceEvictionsR31.incrementAndGet();}}
+        persistTraceR31(store,trace);
+    }
+    private static void observeStageR31(DbStore store,String id,String issue,boolean accepted,boolean parsed){
+        TransportTraceR31 snapshot;long wall=TimeSourceR811.wallNowMs(),mono=TimeSourceR811.monoNowMs();
+        synchronized(TRANSPORT_R31){TransportTraceR31 row=TRANSPORT_R31.get(id);if(row==null)return;int offset=parsed?8:10;if(row.clocks[offset]==0){row.clocks[offset]=wall;row.clocks[offset+1]=mono;}if(!safe(issue).isEmpty())row.issue=issue;row.accepted|=accepted;snapshot=new TransportTraceR31(row);}
+        persistTraceR31(store,snapshot);
+    }
+    private static Long knownTimeR31(long value){return value>0?value:null;}
+    private static void persistTraceR31(DbStore store,TransportTraceR31 trace){
+        DatabaseCoordinator timingOwner=store==null?DatabaseCoordinator.peek():store.coordinatorR36();if(timingOwner==null)return;
+        try{timingOwner.submitBackgroundWrite("R31_FETCH_TIMING",db->{
+            try{
+            boolean exists;try(Cursor row=db.rawQuery("SELECT 1 FROM r31_fetch_timing WHERE request_id=?",new String[]{trace.id})){exists=row.moveToFirst();}
+            if(!exists){try(Cursor count=db.rawQuery("SELECT count(*) FROM r31_fetch_timing",null)){if(count.moveToFirst()&&count.getLong(0)>=R31_TIMING_MAX_ROWS){traceAdmissionDropsR31.incrementAndGet();db.execSQL("INSERT OR IGNORE INTO app_state(state_key,state_value,updated_at) VALUES('r31_fetch_timing_dropped','0',?)",new Object[]{System.currentTimeMillis()});db.execSQL("UPDATE app_state SET state_value=CAST(state_value AS INTEGER)+1,updated_at=? WHERE state_key='r31_fetch_timing_dropped'",new Object[]{System.currentTimeMillis()});return;}}
+                Object[] args=new Object[21];args[0]=trace.id;args[1]=trace.boot;args[2]=trace.payload;for(int i=0;i<14;i++)args[i+3]=knownTimeR31(trace.clocks[i]);args[17]=trace.issue;args[18]=trace.accepted?1:0;args[19]=trace.truncated?1:0;args[20]="FIRST_SUCCESSFUL_INPUTSTREAM_READ; BODY_EOF_BEFORE_CLOSE; MONOTONIC_SAME_BOOT_ONLY; ZERO_IS_UNKNOWN";
+                db.execSQL("INSERT INTO r31_fetch_timing VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",args);
+            }else db.execSQL("UPDATE r31_fetch_timing SET parse_wall_ms=coalesce(parse_wall_ms,?),parse_mono_ms=coalesce(parse_mono_ms,?),validated_wall_ms=coalesce(validated_wall_ms,?),validated_mono_ms=coalesce(validated_mono_ms,?),issue=CASE WHEN issue='' THEN ? ELSE issue END,accepted=max(accepted,?) WHERE request_id=? AND payload_hash=?",new Object[]{knownTimeR31(trace.clocks[8]),knownTimeR31(trace.clocks[9]),knownTimeR31(trace.clocks[10]),knownTimeR31(trace.clocks[11]),trace.issue,trace.accepted?1:0,trace.id,trace.payload});
+            }catch(RuntimeException unavailable){Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(unavailable);if(fatal!=null)throw fatal;traceDeferredR31.incrementAndGet();}
+        });}catch(RuntimeException unavailable){Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(unavailable);if(fatal!=null)throw fatal;traceDeferredR31.incrementAndGet();}
+    }
 
     private FetchLedgerR925() {}
 
@@ -37,44 +74,42 @@ public final class FetchLedgerR925 {
         }
     }
 
-    static final int BEGIN_ATTEMPTS = 3;
-
-    public static String begin(final DbStore store, final String method, String url) {
-        if (store == null) return "";
-        reconcileInterruptedOnce(store);
-        final String id = RuntimeObservabilityR925.PROCESS_ID + "-" + sequence.incrementAndGet();
-        final String path = endpoint(url);
-        final String verb = safe(method).length() == 0 ? "GET" : safe(method);
-        final long requestAt = TimeSourceR811.wallNowMs();
-        final String requestRole=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.requestRole().name();
-        try {
-            DatabaseCoordinator.WriteRunnable insert = new DatabaseCoordinator.WriteRunnable() {
-                        @Override public void run(SQLiteDatabase db) {
-                            db.execSQL(
-                                    "INSERT OR IGNORE INTO " + SchemaRevisionR925.TABLE_FETCH_LEDGER
-                                            + "(request_id,method,endpoint,request_at,status,error_code,clock_epoch,label_version,request_role)"
-                                            + " VALUES (?,?,?,?,?,?,?,?,?)",
-                                    new Object[] {id, verb, path, requestAt, "REQUESTED", "",
-                                            CLOCK_EPOCH, SOURCE_EVENT_LABEL_VERSION,requestRole});
-                        }
-                    };
-            // R27.1: without this receipt the draw cannot be bound (HTTP_REQUEST_RECEIPT_NOT_DURABLE) and the whole
-            // period is lost (NO_ANALYSIS_REQUEST). A busy writer is transient: retry up to 3 times (2 s each).
-            boolean saved = false;
-            for (int attempt = 0; attempt < BEGIN_ATTEMPTS && !saved; attempt++) {
-                if (attempt > 0) rejectedR27(store, "BEGIN_RETRY");
-                saved = store.coordinatorR36().runWrite("R925_FETCH_BEGIN", insert);
-            }
-            if (!saved) {
-                lastWriteError = "BEGIN:WRITE_REJECTED:" + rejectedR27(store, "BEGIN");
-                return "";
-            }
-            return id;
-        } catch (Throwable failure) {
-            lastWriteError = "BEGIN:" + failure.getClass().getSimpleName();
-            return "";
+    static final int BEGIN_ATTEMPTS = 3; // Historical contract identifier; network admission no longer waits on these retries.
+    private static final java.util.LinkedHashMap<String,PendingBeginR31> PENDING_BEGIN_R31=new java.util.LinkedHashMap<>();
+    private static final java.util.LinkedHashMap<String,PendingResponseR31> PENDING_RESPONSE_R31=new java.util.LinkedHashMap<>();
+    private static final AtomicLong requestReceiptDropsR31=new AtomicLong();
+    private static final class PendingBeginR31 {
+        final String id,verb,path,role;final long wall;
+        PendingBeginR31(String id,String verb,String path,String role,long wall){this.id=id;this.verb=verb;this.path=path;this.role=role;this.wall=wall;}
+    }
+    private static final class PendingResponseR31 {
+        final String id,hash,status,error,boot;final long wall,mono,elapsed;final int code;
+        PendingResponseR31(String id,String hash,String status,String error,String boot,long wall,long mono,long elapsed,int code){this.id=id;this.hash=hash;this.status=status;this.error=error;this.boot=boot;this.wall=wall;this.mono=mono;this.elapsed=elapsed;this.code=code;}
+    }
+    public static String begin(final DbStore store,final String method,String url){
+        if(store==null)return "";
+        final String id=RuntimeObservabilityR925.PROCESS_ID+"-"+sequence.incrementAndGet();
+        final PendingBeginR31 start=new PendingBeginR31(id,safe(method).isEmpty()?"GET":safe(method),endpoint(url),com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.requestRole().name(),TimeSourceR811.wallNowMs());
+        synchronized(PENDING_BEGIN_R31){PENDING_BEGIN_R31.put(id,start);while(PENDING_BEGIN_R31.size()>128){PENDING_BEGIN_R31.remove(PENDING_BEGIN_R31.keySet().iterator().next());requestReceiptDropsR31.incrementAndGet();}}
+        // The existing bounded writer may persist this attempt while HTTP proceeds. Canonical
+        // draw binding still requires the exact durable request/payload before any draw commit.
+        try{store.coordinatorR36().submitBackgroundWrite("R31_FETCH_BEGIN_ASYNC",db->insertBeginR31(db,start));}
+        catch(RuntimeException unavailable){Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(unavailable);if(fatal!=null)throw fatal;traceDeferredR31.incrementAndGet();}
+        return id;
+    }
+    private static void insertBeginR31(SQLiteDatabase db,PendingBeginR31 start){
+        db.execSQL("INSERT OR IGNORE INTO "+SchemaRevisionR925.TABLE_FETCH_LEDGER+"(request_id,method,endpoint,request_at,status,error_code,clock_epoch,label_version,request_role) VALUES(?,?,?,?,?,?,?,?,?)",new Object[]{start.id,start.verb,start.path,start.wall,"REQUESTED","",CLOCK_EPOCH,SOURCE_EVENT_LABEL_VERSION,start.role});
+    }
+    private static void ensureReceiptWithinR31(SQLiteDatabase db,String id){
+        PendingBeginR31 start;PendingResponseR31 response;
+        synchronized(PENDING_BEGIN_R31){start=PENDING_BEGIN_R31.get(id);}synchronized(PENDING_RESPONSE_R31){response=PENDING_RESPONSE_R31.get(id);}
+        if(start!=null)insertBeginR31(db,start);
+        if(response!=null)db.execSQL("UPDATE "+SchemaRevisionR925.TABLE_FETCH_LEDGER+" SET response_at=coalesce(response_at,?),received_at=CASE WHEN received_at>0 THEN received_at ELSE ? END,latency_ms=?,http_code=?,response_hash=?,payload_hash=?,status=?,error_code=?,clock_epoch=?,label_version=?,received_mono_ms=coalesce(received_mono_ms,?),received_boot_id=coalesce(received_boot_id,?) WHERE request_id=?",new Object[]{response.wall,response.wall,response.elapsed,response.code,response.hash,response.hash,response.status,response.error,CLOCK_EPOCH,SOURCE_EVENT_LABEL_VERSION,response.mono,response.boot,id});
+        try(Cursor existing=db.rawQuery("SELECT payload_hash FROM "+SchemaRevisionR925.TABLE_FETCH_LEDGER+" WHERE request_id=?",new String[]{id})){
+            if(!existing.moveToFirst()||!safe(existing.getString(0)).matches("[0-9a-f]{64}")||response!=null&&!response.hash.equals(existing.getString(0)))throw new IllegalStateException("R31_DEPENDENCY_HTTP_RECEIPT_NOT_DURABLE");
         }
     }
+    private static void receiptDurableR31(String id){synchronized(PENDING_BEGIN_R31){PENDING_BEGIN_R31.remove(id);}synchronized(PENDING_RESPONSE_R31){PENDING_RESPONSE_R31.remove(id);}}
 
     public static void complete(
             final DbStore store, final String id, final long elapsed, final ApiClient.RawHttpResult raw) {
@@ -82,8 +117,9 @@ public final class FetchLedgerR925 {
         final int httpCode = raw == null ? 0 : raw.httpCode;
         final boolean transportOk = raw != null && raw.ok;
         final String body = raw == null || raw.body == null ? "" : raw.body;
-        final long receivedAt = TimeSourceR811.wallNowMs();
-        final long receivedMono=android.os.SystemClock.elapsedRealtime();final String receivedBoot=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.bootId();
+        final long receivedAt = raw!=null&&raw.bodyCompleteWallMs>0?raw.bodyCompleteWallMs:TimeSourceR811.wallNowMs();
+        final long receivedMono=raw!=null&&raw.bodyCompleteMonoMs>0?raw.bodyCompleteMonoMs:android.os.SystemClock.elapsedRealtime();final String receivedBoot=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.bootId();
+        observeTransportR31(store,id,raw);
         final String payloadHash = V51ChecksumEngine.sha256(body);
         String rawReason = raw == null ? "TRANSPORT_NULL_RESULT" : safe(raw.errorMessage);
         if (rawReason.length() == 0) {
@@ -96,25 +132,13 @@ public final class FetchLedgerR925 {
         final String error = transportOk
                 ? ""
                 : status + (transportReason.length() == 0 ? "" : ":" + trim(transportReason, 160));
-        try {
-            boolean saved = store.coordinatorR36().runWrite(
-                    "R925_FETCH_COMPLETE",
-                    new DatabaseCoordinator.WriteRunnable() {
-                        @Override public void run(SQLiteDatabase db) {
-                            db.execSQL(
-                                    "UPDATE " + SchemaRevisionR925.TABLE_FETCH_LEDGER
-                                            + " SET response_at=coalesce(response_at,?),received_at=CASE WHEN received_at>0 THEN received_at ELSE ? END,latency_ms=?,http_code=?,"
-                                            + "response_hash=?,payload_hash=?,status=?,error_code=?,clock_epoch=?,label_version=?,received_mono_ms=coalesce(received_mono_ms,?),received_boot_id=coalesce(received_boot_id,?)"
-                                            + " WHERE request_id=?",
-                                    new Object[] {receivedAt, receivedAt, Math.max(0L, elapsed), httpCode,
-                                            payloadHash, payloadHash, status, error, CLOCK_EPOCH,
-                                            SOURCE_EVENT_LABEL_VERSION,receivedMono,receivedBoot, id});
-                        }
-                    });
-            if (!saved) lastWriteError = "COMPLETE:WRITE_REJECTED:" + rejectedR27(store, "COMPLETE");
-        } catch (Throwable failure) {
-            lastWriteError = "COMPLETE:" + failure.getClass().getSimpleName();
-        }
+        final PendingResponseR31 response=new PendingResponseR31(id,payloadHash,status,error,receivedBoot,receivedAt,receivedMono,Math.max(0,elapsed),httpCode);
+        synchronized(PENDING_RESPONSE_R31){PENDING_RESPONSE_R31.put(id,response);while(PENDING_RESPONSE_R31.size()>128){PENDING_RESPONSE_R31.remove(PENDING_RESPONSE_R31.keySet().iterator().next());requestReceiptDropsR31.incrementAndGet();}}
+        try{
+            boolean saved=store.coordinatorR36().runAtomicWrite("R925_FETCH_COMPLETE",db->ensureReceiptWithinR31(db,id));
+            if(saved){receiptDurableR31(id);lastWriteError="";}
+            else lastWriteError="COMPLETE:WRITE_REJECTED:"+rejectedR27(store,"COMPLETE");
+        }catch(Throwable failure){Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failure);if(fatal!=null)throw fatal;lastWriteError="COMPLETE:"+failure.getClass().getSimpleName();}
     }
 
     public static void payload(
@@ -128,6 +152,7 @@ public final class FetchLedgerR925 {
     }
     public static void payload(final DbStore store,final String id,final String source,final String issue,final boolean accepted,final String reason,final String observedDrawHash) {
         if (store == null || safe(id).length() == 0) return;
+        observeStageR31(store,id,issue,accepted,false);
         final String[] finalStatus = new String[] {"PAYLOAD_REJECTED_BUSINESS"};
         final long[] evidenceTimes = new long[] {0L, 0L, 0L}; // firstAvailable, received, draw
         final String[] payloadHash = new String[] {""};
@@ -139,6 +164,7 @@ public final class FetchLedgerR925 {
                             boolean owns = !db.inTransaction();
                             if (owns) db.beginTransaction();
                             try {
+                            ensureReceiptWithinR31(db,id);
                             int httpCode = 200;
                             long receivedAt = TimeSourceR811.wallNowMs();
                             String bodyHash = "";
@@ -193,6 +219,7 @@ public final class FetchLedgerR925 {
                             } finally { if (owns) db.endTransaction(); }
                         }
                     });
+            if(saved)receiptDurableR31(id);
             if (!saved) {
                 lastWriteError = "PAYLOAD:WRITE_REJECTED:" + rejectedR27(store, "PAYLOAD");
                 return;
@@ -346,6 +373,7 @@ public final class FetchLedgerR925 {
     /** No SQL and no lookup by issue: bind the actual objects returned by ApiParser. */
     static void bindParsedResultR82(Models.ApiResult raw,Models.ApiResult parsed) {
         RawBindingR82 b=RAW_R82.get(raw);if(b==null||parsed==null)return;
+        observeStageR31(null,b.request,parsed.latestDraw==null?"":parsed.latestDraw.issue,false,true);
         if(!b.payload.equals(V51ChecksumEngine.sha256(safe(raw.rawJson))))throw new IllegalStateException("HTTP_RAW_BINDING_MUTATED");
         java.util.Set<Models.Draw> seen=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<Models.Draw,Boolean>());
         if(parsed.latestDraw!=null)seen.add(parsed.latestDraw);

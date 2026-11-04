@@ -94,15 +94,22 @@ public final class LiveShadowsR27 {
 
     // ---------------------------------------------------------------- R30-B03-01 PIT violations
     static final String PIT_DDL_R30 = "CREATE TABLE IF NOT EXISTS r30_pit_violation(policy_hash TEXT,target_ordinal INTEGER,code TEXT,source TEXT,recorded_at INTEGER,PRIMARY KEY(policy_hash,target_ordinal,code))";
+    private static void requirePitSchemaR31(SQLiteDatabase db) {
+        try(Cursor columns=db.rawQuery("SELECT policy_hash,target_ordinal,code,source,recorded_at FROM r30_pit_violation LIMIT 0",null)) {
+            if(columns.getColumnCount()!=5)throw new IllegalStateException("SCHEMA_PENDING:R30_PIT_COLUMNS");
+        } catch(RuntimeException missing) {
+            throw new IllegalStateException("DEPENDENCY(SCHEMA_PENDING:R30_PIT)",missing);
+        }
+    }
     static void pitViolationsR30(ResearchWriteQueueR27.Batch b, String policy, long target, List<String> codes, String source) {
-        b.add(PIT_DDL_R30);
+        b.guardBefore(db->{requirePitSchemaR31(db);return 0;});
         for (String code : codes) b.add("INSERT OR IGNORE INTO r30_pit_violation(policy_hash,target_ordinal,code,source,recorded_at) VALUES(?,?,?,?,?)", policy, target, code, source, System.currentTimeMillis());
     }
     /** Replay samples rejected by the guard are recorded with the next research freeze batch (bounded per batch). */
     static void drainReplayPitViolationsR30(ResearchWriteQueueR27.Batch b) {
-        Object[] v; int n = 0; boolean ddl = false;
+        Object[] v; int n = 0; boolean guarded = false;
         while (n++ < 256 && (v = ReplayEvaluatorR27.PIT_VIOLATIONS_R30.poll()) != null) {
-            if (!ddl) { b.add(PIT_DDL_R30); ddl = true; }
+            if (!guarded) { b.guardBefore(db->{requirePitSchemaR31(db);return 0;}); guarded = true; }
             b.add("INSERT OR IGNORE INTO r30_pit_violation(policy_hash,target_ordinal,code,source,recorded_at) VALUES(?,?,?,?,?)", v[0], v[1], v[2], v[3], System.currentTimeMillis());
         }
     }
@@ -180,7 +187,8 @@ public final class LiveShadowsR27 {
 
     /** A rejected attempt remains a retryable, explicit gap; it never creates a post-result forecast. */
     private static void recordSourceWait(ResearchPoolR27.Worker w,List<Shadow> pending,long target,String reason) throws Exception {
-        ResearchWriteQueueR27.Batch wait=new ResearchWriteQueueR27.Batch();wait.add(PIT_DDL_R30);
+        ResearchWriteQueueR27.Batch wait=new ResearchWriteQueueR27.Batch();
+        wait.guardBefore(db->{requirePitSchemaR31(db);return 0;});
         long now=System.currentTimeMillis();
         for (Shadow s:pending) {wait.add("INSERT OR IGNORE INTO r30_pit_violation(policy_hash,target_ordinal,code,source,recorded_at) VALUES(?,?,?,?,?)",s.id,target,reason,"LIVE_WAIT",now);ModelSurfaceStoreR30.calls(wait,s.id,s.spec,target,null,null,false,reason);}
         RuntimeR27.submit(w,"LIVE_SOURCE_WAIT",wait);

@@ -91,7 +91,7 @@ public final class ReportArchiveVerifierCP12 {
     public static void writeZip(File archive,File destination,Decoder decoder,ReportNativeCP4.Control control)throws Exception {
         File partial=new File(destination.getPath()+".partial");
         try(FileOutputStream fd=new FileOutputStream(partial);
-            java.util.zip.ZipOutputStream zip=new java.util.zip.ZipOutputStream(new BufferedOutputStream(fd,32768));
+            java.util.zip.ZipOutputStream zip=new java.util.zip.ZipOutputStream(new BufferedOutputStream(ReportIoR31.protect(partial,fd,control),32768));
             LineReader lines=new LineReader(new FileInputStream(inside(archive,"manifest.jsonl")),8192)) {
             zip.setLevel(6);byte[] line;
             while((line=lines.next())!=null){checkpoint(control);JSONObject row=new JSONObject(new String(line,StandardCharsets.UTF_8));

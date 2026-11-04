@@ -23,12 +23,19 @@ public final class SettlementTaskStoreR36 {
             INVALID_DRAW_TERMINAL = "INVALID_DRAW_TERMINAL";
 
     private SettlementTaskStoreR36() {}
+    /** Read the actual durable backlog; a failed read is unknown, never zero. */
+    public static int pendingCountR31(DbStore store){
+        if(store==null)return -1;
+        try(Cursor row=store.readable().rawQuery("SELECT count(*) FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" WHERE status IN ('PENDING','RUNNING','RETRY_WAIT')",null)){
+            return row.moveToFirst()?row.getInt(0):-1;
+        }
+    }
 
     public static boolean enqueueDraw(final DbStore store, final Models.Draw draw) {
         if (store == null || draw == null || !draw.isValid()) return false;
         Boolean out =
                 store.coordinatorR36()
-                        .runWrite(
+                        .runAtomicWrite(
                                 "R36_SETTLEMENT_ENQUEUE",
                                 new DatabaseCoordinator.WriteCallable<Boolean>() {
                                     @Override
@@ -114,6 +121,9 @@ public final class SettlementTaskStoreR36 {
             String source) {
         if (!DrawCanonicalizerR811.isConfirmedWithinRead(db, draw))
             throw new IllegalStateException("R914_DRAW_NOT_CONFIRMED_BEFORE_TASK");
+        // A confirmed revealed draw is training input even when no prediction was frozen.
+        // This legacy-compatible outbox table is owned by the Critical startup migration.
+        com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.feedbackWithinTransaction(db,draw);
         String target = safe(draw.issue), hash = DrawHashR36.sha256V2(draw);
         Cursor c = null;
         try {
@@ -582,9 +592,9 @@ public final class SettlementTaskStoreR36 {
                 db.update(
                         DbHelper.TABLE_R36_SETTLEMENT_TASK,
                         cv,
-                        "target_issue=? AND status=? AND lease_owner=? AND draw_hash=?",
-                        new String[] {claim.targetIssue, RUNNING, claim.owner, claim.drawHash});
-        if (n != 1) throw new IllegalStateException("R36_SETTLEMENT_TASK_LEASE_LOST");
+                        "target_issue=? AND status=? AND lease_owner=? AND draw_hash=? AND lease_generation=? AND process_boot_id=?",
+                        new String[] {claim.targetIssue, RUNNING, claim.owner, claim.drawHash,String.valueOf(claim.leaseGeneration),claim.processBootId});
+        if (n != 1) throw new IllegalStateException("R31_STALE_SETTLEMENT_RECEIPT");
     }
 
     public static void markRetry(final DbStore store, final TaskClaim claim, final String error) {
@@ -626,8 +636,8 @@ public final class SettlementTaskStoreR36 {
                                 db.update(
                                         DbHelper.TABLE_R36_SETTLEMENT_TASK,
                                         cv,
-                                        "target_issue=? AND status=? AND lease_owner=?",
-                                        new String[] {claim.targetIssue, RUNNING, claim.owner});
+                                        "target_issue=? AND status=? AND lease_owner=? AND draw_hash=? AND lease_generation=? AND process_boot_id=?",
+                                        new String[] {claim.targetIssue, RUNNING, claim.owner,claim.drawHash,String.valueOf(claim.leaseGeneration),claim.processBootId});
                             }
                         });
     }

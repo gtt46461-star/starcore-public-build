@@ -1,0 +1,103 @@
+{
+  "format": "R31_B04C02_SOURCE_AUDIT_V1",
+  "observedAtUtc": "2026-11-04T10:53:14.640483+00:00",
+  "mode": "READ_ONLY_NO_PRODUCTION_MODIFICATION",
+  "sourceSha256": {
+    "app/src/main/AndroidManifest.xml": "94aef24f5094e0fb2a5f40d3ac239b8d9c27cfb4a8161b4de4907006e41d6d82",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimePowerLeaseR26.java": "ee2cd6ecc9672f1d6cdfead7c8d74379ee9b3b2381eb682122281235bc8dc821",
+    "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java": "2759d9d68105f4ea625c6ce7f7eea9fb48d5d7efe833b30b87307dd5a4b96f76",
+    "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeContractR922.java": "744b872fa8a4e60964e154208c17b58c4bb2337da9b3d6db517ecb9caccd99c6",
+    "app/src/main/java/com/ethk3/novaonepro/OperationalDashboardR925.java": "02830c819dcb2021581d7db98cd98888b1bf40027b4bd36fd7b48c0f2256f72d",
+    "app/src/main/java/com/ethk3/novaonepro/LifecycleHealthR963.java": "48ebc331a7cd4aeb9c132e7cd1cee8980512a84e24a0e7de9a9520ff1fdfa197",
+    "app/src/main/java/com/ethk3/novaonepro/MainActivity.java": "9ddac6537742e602708ea464c716cf7395f52cf49348220e41751f40cadb52be",
+    "app/src/main/java/com/ethk3/novaonepro/CrashRecorder.java": "1f71c281105cc72724920aa5171504b474cb89bc39dfbf93d89546953d44538b"
+  },
+  "preserve": [
+    {
+      "capability": "target28/dataSync service,stopWithTask=false,standard network/wake/foreground/notification/boot/exact-alarm permissions",
+      "source": "app/src/main/AndroidManifest.xml",
+      "implemented": true,
+      "deviceVerified": false
+    },
+    {
+      "capability": "60-second wake timeout,15-second renewal,release in RuntimeCoordinator cleanup;renewal distinct from numeric model progress",
+      "source": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimePowerLeaseR26.java",
+      "implemented": true,
+      "deviceVerified": false
+    },
+    {
+      "capability": "actual OS battery exemption/exact alarm/notifications;capability-ready text explicitly excludes soak proof",
+      "source": "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java",
+      "implemented": true,
+      "deviceVerified": false
+    },
+    {
+      "capability": "system process-exit history API30+ bounded5,older API explicit unavailable",
+      "source": "app/src/main/java/com/ethk3/novaonepro/LifecycleHealthR963.java",
+      "implemented": true,
+      "visibility": "CrashRecorder only;not direct capability details",
+      "deviceVerified": false
+    },
+    {
+      "capability": "user stop clears enabled/recovery and nosticky;task removal keeps existing active session and schedules system-allowed recovery;force-stop limitation already documented",
+      "source": "AutoFetchService.onStartCommand/onDestroy/onTaskRemoved;BackgroundRuntimeContractR922.LIMITATION",
+      "implemented": true,
+      "deviceVerified": false
+    }
+  ],
+  "sourceGaps": [
+    {
+      "id": "B04C02-OS-STATE",
+      "finding": "No actual isDeviceIdleMode/isPowerSaveMode/isBackgroundRestricted observation;no OS_RESTRICTED reason and explicit recovery condition. Battery whitelist false alone is not evidence that the OS currently blocks all work.",
+      "files": [
+        "BackgroundRuntimeCapabilityR811.java",
+        "OperationalDashboardR925.java"
+      ]
+    },
+    {
+      "id": "B04C02-DETAILS",
+      "finding": "OperationalDashboard text has fuller capability caveat but MainActivity only renders first3 lines;tap opens system settings rather than exposes source/time/scope/recovery evidence.",
+      "files": [
+        "MainActivity.java",
+        "OperationalDashboardR925.java"
+      ]
+    },
+    {
+      "id": "B04C02-OEM-NAV",
+      "finding": "Standard Android settings and catch fallback exist;no OEM autostart resolveActivity candidate plus fallback. No OEM self-report should be presented as OS-verified.",
+      "files": [
+        "MainActivity.java"
+      ]
+    },
+    {
+      "id": "B04C02-LAST-STOP",
+      "finding": "ApplicationStartInfo.wasForceStopped(API35,confirmed Android36 api-versions.xml) absent. Exit history not separated into exact force-stop evidence vs USER_REQUESTED ambiguity or unknown interruption interval.",
+      "files": [
+        "LifecycleHealthR963.java",
+        "MainActivity.java"
+      ]
+    },
+    {
+      "id": "B04C02-OLD-PUMP",
+      "finding": "MainActivity.buildAlwaysOnPermissionStatusV17 still labels ResearchTruth from old learning_pump instead of R31 cached authoritative task-health observation.",
+      "files": [
+        "MainActivity.java"
+      ]
+    }
+  ],
+  "sourceCanBeImplementedWithoutDevice": [
+    "boundedOSstateProbe",
+    "capabilityDetailsWithsourceAndUnknowns",
+    "resolvedOEMSettingsFallback",
+    "supportedAPIForceStoppedEvidenceAndExplicitUnknownInterval",
+    "R31ResearchHealthPresentation"
+  ],
+  "cannotBeProvedWithoutDevice": [
+    "V2353A72hours",
+    "Doze1Hzactualnetworkavailability",
+    "taskSwipe/systemKill/forceStop/rebootmatrix",
+    "userStopNoRevivalAndOneOwnerAcross20startCommands"
+  ],
+  "migrationRequired": false,
+  "noManifestPermissionExpansionNeeded": true
+}

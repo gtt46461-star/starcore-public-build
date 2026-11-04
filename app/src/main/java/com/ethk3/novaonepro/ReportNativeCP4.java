@@ -14,7 +14,17 @@ public final class ReportNativeCP4 {
  }
  private static native long trainingCasBytes0(String directory,long nowMs,boolean cleanOldPartials);
 
- public interface Control { boolean shouldContinue(); default void onBackupProgress(long totalPages,long remainingPages,int nativeCode) {} }
+ public interface Control {
+  boolean shouldContinue();
+  default void onBackupProgress(long totalPages,long remainingPages,int nativeCode) {}
+  default boolean hasDiskAdmissionR31(){return false;}
+  default void beforeOutputBytesR31(File file,long bytes)throws IOException {}
+  default void reserveFutureBytesR31(long bytes)throws IOException {}
+  /** Called before each native page-copy chunk. Legacy callers retain their existing behavior. */
+  default void beforeBackupChunk(long maximumBytes)throws IOException {}
+  /** The actual physical sink is wrapped, so compression overhead is admitted too. */
+  default OutputStream protectOutput(File file,OutputStream sink)throws IOException{return sink;}
+ }
  public static synchronized void loadForDiagnosticProcess(String observedProcessName, String packageName) {
   if (!(packageName + ":diagnostics").equals(observedProcessName)) throw new IllegalStateException("REPORT_WRONG_PROCESS");
   System.loadLibrary("starcore_report_cp4");

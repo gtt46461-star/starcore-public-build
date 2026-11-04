@@ -13,6 +13,9 @@ MAIN = ROOT / "app/src/main/java/com/ethk3/novaonepro"
 CLASSES = ROOT / "app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"
 SDK = Path(os.environ["ANDROID_HOME"]) / "platforms/android-36/android.jar"
 JDBC = Path(os.environ.get("SQLITE_JDBC", "/tmp/r31-baseline-deps/sqlite-jdbc.jar"))
+HOST_CLASS=os.environ.get("R31_RUNTIME_HOST_CLASS","R31TaskRuntimeHost")
+if HOST_CLASS not in {"R31TaskRuntimeHost","R31RuntimeHealthHost"}:raise ValueError("unsupported host harness")
+OUTPUT=ROOT/os.environ.get("R31_RUNTIME_OUTPUT","verification/r31/p02/runtime-health" if HOST_CLASS=="R31RuntimeHealthHost" else "verification/r31/p01/task-runtime")
 
 
 def run(args):
@@ -50,7 +53,7 @@ with tempfile.TemporaryDirectory(prefix="r31-production-runtime-") as temporary:
         "android/app/Application.java": 'package android.app;public class Application extends android.content.Context{private final java.io.File path;public Application(java.io.File path){this.path=path;}@Override public java.io.File getDatabasePath(String name){return path;}}',
         "android/os/SystemClock.java": 'package android.os;public final class SystemClock{public static long offset;public static long elapsedRealtime(){return System.nanoTime()/1000000+offset;}public static long uptimeMillis(){return elapsedRealtime();}public static long currentThreadTimeMillis(){return java.lang.management.ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime()/1000000L;}}',
         "android/os/Debug.java": 'package android.os;public final class Debug{public static long threadCpuTimeNanos(){return java.lang.management.ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();}}',
-        "android/os/Process.java": 'package android.os;public final class Process{public static final int THREAD_PRIORITY_BACKGROUND=10;public static void setThreadPriority(int priority){}}',
+        "android/os/Process.java": 'package android.os;public final class Process{public static final int THREAD_PRIORITY_BACKGROUND=10;public static int myPid(){return(int)java.lang.ProcessHandle.current().pid();}public static void setThreadPriority(int priority){}}',
         "android/os/Looper.java": 'package android.os;public final class Looper{public static Looper myLooper(){return null;}public static Looper getMainLooper(){return null;}}',
         "android/util/Log.java": 'package android.util;public final class Log{public static int w(String t,String m){return 0;}public static int w(String t,String m,Throwable e){return 0;}public static int e(String t,String m){return 0;}public static int e(String t,String m,Throwable e){return 0;}public static int d(String t,String m){return 0;}public static int i(String t,String m){return 0;}}',
         "com/ethk3/novaonepro/DbHelper.java": 'package com.ethk3.novaonepro;import android.database.sqlite.SQLiteDatabase;public final class DbHelper{private final SQLiteDatabase db;public DbHelper(SQLiteDatabase db){this.db=db;}public SQLiteDatabase getReadableDatabase(){return db;}public SQLiteDatabase getWritableDatabase(){return db;}public void close(){}}',
@@ -63,19 +66,32 @@ with tempfile.TemporaryDirectory(prefix="r31-production-runtime-") as temporary:
         shim_files.append(target)
     run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", str(SDK) + os.pathsep + str(CLASSES), "-d", platform, *shim_files])
     production_names = ["DatabaseCoordinator", "TransactionSchemaCacheR941", "SchemaDomainCoordinatorR926"]
-    production_names += ["strategyv2/" + name for name in ["FailureDispositionR31", "RuntimeFaultEvidenceR31", "WaitKindR27", "SchemaR27", "RuntimeCoordinatorR26", "ResearchPoolR27", "PreparedTaskR30R1", "CooperativeContinuationR26", "ResearchWriteQueueR27"]]
+    production_names += ["strategyv2/" + name for name in ["FailureDispositionR31", "RuntimeFaultEvidenceR31", "WaitKindR27", "SchemaR27", "RuntimeCoordinatorR26", "ResearchPoolR27", "PreparedTaskR30R1", "CooperativeContinuationR26", "ResearchWriteQueueR27","MemoryBudgetR31","BoundedResearchExecutorR31","SharedFeatureStoreR31","FeatureCacheR27","PolicyAstR27","RuntimeSchemaR26","TaskContinuationR26","LegacyGenerationR26","LegacyReplayContinuationR26"]]
     compiled_hashes={str((MAIN/(name+".java")).relative_to(ROOT)):hashlib.sha256((MAIN/(name+".java")).read_bytes()).hexdigest() for name in production_names}
     compile_commit=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
     run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", str(SDK) + os.pathsep + str(CLASSES), "-sourcepath", ROOT / "app/src/main/java", "-d", production, *[MAIN / (name + ".java") for name in production_names]])
     if compiled_hashes!={str((MAIN/(name+".java")).relative_to(ROOT)):hashlib.sha256((MAIN/(name+".java")).read_bytes()).hexdigest() for name in production_names}:
         raise RuntimeError("production source changed during compilation; rerun with owners frozen")
     classpath = os.pathsep.join(map(str, [platform, production, test, CLASSES, JDBC, SDK]))
-    run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", classpath, "-d", test, ROOT / "tools/r31/host/R31TaskRuntimeHost.java"])
-    command=["java", "-Xmx512m", "-cp", classpath, "com.ethk3.novaonepro.strategyv2.R31TaskRuntimeHost", str(tmp / "runtime.db")]
+    run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", classpath, "-d", test, ROOT / ("tools/r31/host/"+HOST_CLASS+".java")])
+    command=["java", "-Xmx512m", "-cp", classpath, "com.ethk3.novaonepro.strategyv2."+HOST_CLASS, str(tmp / "runtime.db")]
     completed=subprocess.run(command,cwd=ROOT,text=True,capture_output=True)
     print(completed.stdout,end="");print(completed.stderr,end="")
     completed.check_returncode()
-    checks=int(re.search(r"R31_TASK_RUNTIME_HOST_PASS assertions=(\d+)",completed.stdout).group(1))
+    checks=int(re.search(r"(?:R31_TASK_RUNTIME_HOST_PASS|R31_RUNTIME_HEALTH_HOST_PASS) assertions=(\d+)",completed.stdout).group(1))
+    classifier_tests=0
+    if HOST_CLASS=="R31RuntimeHealthHost":
+        gradle=Path(os.environ.get("GRADLE_USER_HOME","/workspace/starcore-environment/gradle-home"))
+        junit=next(gradle.glob("caches/modules-2/files-2.1/junit/junit/4.13.2/*/junit-4.13.2.jar"))
+        hamcrest=next(gradle.glob("caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/*/hamcrest-core-1.3.jar"))
+        junit_cp=classpath+os.pathsep+str(junit)+os.pathsep+str(hamcrest)
+        run(["javac","-encoding","UTF-8","-cp",junit_cp,"-d",test,ROOT/"app/src/test/java/com/ethk3/novaonepro/strategyv2/R31TaskFailureDispositionTest.java"])
+        classified=subprocess.run(["java","-cp",junit_cp,"org.junit.runner.JUnitCore","com.ethk3.novaonepro.strategyv2.R31TaskFailureDispositionTest"],cwd=ROOT,text=True,capture_output=True)
+        print(classified.stdout,end="");print(classified.stderr,end="");classified.check_returncode()
+        classifier_tests=int(re.search(r"OK \((\d+) tests\)",classified.stdout).group(1))
     receipt={"status":"PASS","scope":"ACTUAL_PRODUCTION_TASK_PROTOCOL_WITH_NATIVE_SQLITE_JDBC_HOST_PLATFORM_AND_CLOCK_ADAPTERS","capturedAt":datetime.now(timezone.utc).isoformat(),"assertions":checks,"command":"source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_task_runtime_host.py","sourceCommitAtCompile":compile_commit,"dirtyAtRun":bool(subprocess.check_output(["git","status","--porcelain"],cwd=ROOT,text=True).strip()),"productionSources":compiled_hashes,"scenarios":["late owner success and failure receipts","boot/elapsed lease and wall-deadline perturbation","100 cancellations without fault budget","six same-root half-open fault rounds","one recovery probe per second","13 parallel actual claims under writer lock held 3 real seconds","actual pool loop retains parent/helper ownership","manual retry waits for actual helper exit","cancelled Future is not actual helper exit","close is bounded and idempotent"],"androidRuntime":"NOT_RUN","physicalDevice":"NOT_RUN","continuous24h":"NOT_RUN","continuous72h":"NOT_RUN","naturalQuality":"NOT_PROVEN","remaining":["Android SQLite/thread integration and device lifecycle matrix","real OS wall-clock/reboot test","device resource/latency/capacity acceptance","full model process-kill recovery matrix"]}
-    output=ROOT/"verification/r31/p01/task-runtime/receipt.json";output.parent.mkdir(parents=True,exist_ok=True);output.write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+"\n")
+    receipt["harness"]=HOST_CLASS
+    receipt["actualFailureClassifierJUnitTests"]=classifier_tests
+    if HOST_CLASS=="R31RuntimeHealthHost":receipt["scenarios"]=["single bounded production SQL snapshot", "13 quarantines immediately degraded", "unknown pending/source/ABI not zero", "per-task stalled detection despite other fresh artifacts", "resource/dependency separation", "actual cached getter and asynchronous bounded control", "same-owner named cancellation and real drain before restart", "immutable DTO and future clock rejection"];receipt["command"]="R31_RUNTIME_HOST_CLASS=R31RuntimeHealthHost python3 tools/r31/run_task_runtime_host.py"
+    output=OUTPUT/"receipt.json";output.parent.mkdir(parents=True,exist_ok=True);output.write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+"\n")
 print("R31_TASK_RUNTIME_NATIVE_SQLITE_HOST_PASS_NOT_ANDROID_NOT_DEVICE_NOT_SOAK")

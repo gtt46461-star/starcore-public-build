@@ -1,0 +1,70 @@
+{
+  "actual_changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "methods": "30s/2m/10m/30m isolation, globally bounded half-open, six identical-fault rounds NEEDS_FIX, artifact progress recovery",
+      "committed_sha256": "e36d3a9adcbc0099796b6a182bf654257d62b79b58bbb57315c442b5ee051621"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "methods": "same finite recovery protocol and boot/elapsed safeguards",
+      "committed_sha256": "d2b27268bfb8027ea2ebcbb8a326deb03397f73b12e7082495bfb2c5ef7f80b2"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+      "methods": "persist fault root/probe state and preserve legacy errors",
+      "committed_sha256": "25bd11775579573eafe00e85eae6c3dbafdff5efa8632e9056938a0d9b38dd73"
+    }
+  ],
+  "commits": [
+    "844a78488f396189c2db98591782b7bb214799d2"
+  ],
+  "migration_versions": [
+    "SQLite userVersion 36 retained",
+    "RESEARCH_R31_OBSERVATION:1",
+    "RESEARCH_R31_WRITE:1"
+  ],
+  "tests": [
+    {
+      "command": "source /workspace/starcore-environment/activate.sh; bash ./gradlew --no-daemon --max-workers=4 :app:compileDebugJavaWithJavac :app:compileDebugAndroidTestJavaWithJavac -Pr30Instrumentation=true :app:testDebugUnitTest --tests *R31* --tests *R30TaskLivenessTest --tests *R30WriteWaitTest :app:verifyFinalR31BuildIdentity",
+      "result": "PASS",
+      "evidence": "verification/r31/p01/build-identity/final-integration-receipt.json",
+      "scope": "source and Android-test compilation, 32 host unit tests; no APK/device execution"
+    },
+    {
+      "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_task_runtime_host.py",
+      "result": "PASS",
+      "evidence": "verification/r31/p01/task-runtime/receipt.json",
+      "scope": "199 assertions, actual production protocol plus native SQLite HOST adapters; no Android claim"
+    }
+  ],
+  "apk_identity": null,
+  "device_evidence": [],
+  "acceptance": [
+    {
+      "contract": "虚拟时钟测试每个隔离等级、半开唯一性、成功复位与NEEDS_FIX；时间跳变不导致全部同时放行。",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "contract": "将13个任务以混合故障隔离：可恢复错误按依赖恢复，真实缺陷保持NEEDS_FIX并报告；不能把“零隔离”作为唯一验收。",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "contract": "24小时无永久无声停摆；每个pending>0的已满足依赖任务都有有效进展或有精确阻塞证据。",
+      "status": "NOT_RUN",
+      "evidence": []
+    }
+  ],
+  "remaining": [
+    "虚拟时钟测试每个隔离等级、半开唯一性、成功复位与NEEDS_FIX；时间跳变不导致全部同时放行。",
+    "将13个任务以混合故障隔离：可恢复错误按依赖恢复，真实缺陷保持NEEDS_FIX并报告；不能把“零隔离”作为唯一验收。",
+    "24小时无永久无声停摆；每个pending>0的已满足依赖任务都有有效进展或有精确阻塞证据。",
+    "Android integration/fault injection and real device lifecycle NOT_RUN",
+    "24h/72h device soak NOT_RUN",
+    "No natural FUTURE/REAL quality proof"
+  ],
+  "next_step": "P02 integrated resource/feedback/health work; later owner staging and Android/device validation; no mandatory card closure yet.",
+  "scope_note": "BUILD_PASS only records source compilation; acceptance assertions remain NOT_RUN/PARTIAL until each required environment evidence exists."
+}

@@ -1,0 +1,8 @@
+MISSING_REASON SCHEMA_PENDING:MAIN_CHAIN_CLOSED_LOOP:MISSING_OR_WRONG_OBJECT:decisions
+CHECK missing_business_schema_pending_zero_ddl_zero_objects
+Exception in thread "main" android.database.sqlite.SQLiteException: [SQLITE_CONSTRAINT_NOTNULL] A NOT NULL constraint failed (NOT NULL constraint failed: diagnostic_log.log_key)
+	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:17)
+	at com.ethk3.novaonepro.MainChainSchemaR31Host$Db.execSQL(MainChainSchemaR31Host.java:26)
+	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:16)
+	at com.ethk3.novaonepro.MainChainSchemaR31Host.createLegacyBase(MainChainSchemaR31Host.java:81)
+	at com.ethk3.novaonepro.MainChainSchemaR31Host.main(MainChainSchemaR31Host.java:126)

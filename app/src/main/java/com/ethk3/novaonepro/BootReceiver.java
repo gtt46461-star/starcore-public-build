@@ -149,6 +149,12 @@ public final class BootReceiver extends BroadcastReceiver {
             scheduleAllRecovery(app, "defer_until_unlocked:" + safe(reason));
             return false;
         }
+        // A living service reconciles its existing task/pool owner on its control looper.
+        // Accepting this request is not evidence that a model checkpoint has recovered.
+        if(AutoFetchService.requestResearchReconcileR31(safeReason)){
+            state.markRecoveryEvaluation("in_process_control",true,"EXISTING_OWNER_CONTROL_REQUESTED");
+            return true;
+        }
         if (!forceBusinessReconcile
                 && state.isServiceHealthyForRecovery()
                 && !state.isBusinessStale()) {

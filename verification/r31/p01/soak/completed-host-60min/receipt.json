@@ -1,0 +1,70 @@
+{
+  "format": "R31_HOST60_COMPLETED_RECEIPT_V1",
+  "status": "COMPLETED_WITH_RECORDED_LOCK_REJECTIONS_AND_MISSED_TICKS",
+  "scope": "FIXED_HOST_SYNTHETIC_CONTENTION_NATIVE_SQLITE_PRODUCTION_COORDINATOR; NOT_ANDROID_DEVICE,NOT_24H_72H,NOT_NATURAL_QUALITY,NOT_BUSINESS_SLO",
+  "capturedAtUtc": "2026-11-04T10:48:36.659799+00:00",
+  "actualMonotonicSecondsFromFinalStatus": 3600.003197486,
+  "requestedSeconds": 3600,
+  "durationReached": true,
+  "rawRows": 75600,
+  "rawUncompressedBytes": 35444354,
+  "rawUncompressedSha256": "9871bf21a52243039737b75a070ea4e5b6b13ea46ee5417f458c95eb5fe9b7a9",
+  "plannedSlots": 75600,
+  "writeAttempts": 75587,
+  "committedAttempts": 75576,
+  "failedAttempts": 11,
+  "missedTicks": 13,
+  "outcomeCounts": {
+    "COMMITTED": 75576,
+    "MISSED_TICK": 13,
+    "ROLLED_BACK": 11
+  },
+  "failureCategories": {
+    "LOCK_BUSY": 11
+  },
+  "perOperation": {
+    "HOST_HISTORY_BOUNDED_8": {
+      "COMMITTED": 14396,
+      "ROLLED_BACK": 4
+    },
+    "HOST_DRAW_INGEST_1HZ": {
+      "COMMITTED": 3600
+    },
+    "HOST_RESEARCH_BOUNDED_8": {
+      "COMMITTED": 35985,
+      "MISSED_TICK": 13,
+      "ROLLED_BACK": 2
+    },
+    "HOST_REPORT_BOUNDED": {
+      "COMMITTED": 7198,
+      "ROLLED_BACK": 2
+    },
+    "HOST_RETENTION_BOUNDED_8": {
+      "COMMITTED": 14397,
+      "ROLLED_BACK": 3
+    }
+  },
+  "backgroundResearchWithin5SecondServiceWindow": true,
+  "sameInputRetryPerformed": false,
+  "sameInputRetryExplanation": "The fixed driver advances each tick sequence after an attempt, including LOCK_BUSY. It does not retry the rejected logical input. Therefore this evidence cannot prove business event losslessness, outbox recovery or exactly-once business completion. No synthetic repair/retry records were added.",
+  "writerLedgerDenominator": "Production hold ledger records attempts that reached its transaction/timing boundary; its reported zero hold-ledger failures does not erase the 11 raw WAIT/LOCK_BUSY rejections. Full raw attempts are authoritative for the attempt failure denominator.",
+  "failingAcceptanceAssertions": [],
+  "notRun": [
+    "Android execution",
+    "business draw-to-settlement P95",
+    "business base-to-next-freeze P95",
+    "real-device 24-hour initial test",
+    "real-device 72-hour capacity/full-chain test",
+    "same-input business retry after lock rejection",
+    "natural FUTURE/REAL strategy quality"
+  ],
+  "fixedSnapshotSourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java": "bf5495b95b2820693e8d49bba02c528b8ed1147a73cdfb9afe36a7d0139d4c6c",
+    "app/src/main/java/com/ethk3/novaonepro/TransactionSchemaCacheR941.java": "609b31256f757a9e463973e2d93f9a1492f316187206eb1f33fd56f3db2b53eb",
+    "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java": "c24b76d8ee6523df94c5082f7581df2319d7609518226aca5a89b17044045613",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java": "dc9effeed210b5a8f51d3f6a3552071098fff8683b88c778c008977a5f2b63e6",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java": "25bd11775579573eafe00e85eae6c3dbafdff5efa8632e9056938a0d9b38dd73",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java": "edb385b55b7bacd99ebc323d481a7b4bbd0444a0501bb568b1542c127d0af0ea"
+  },
+  "artifactNotes": "fixture.db intentionally excluded; original live source directory and raw records were not modified. source-snapshot is the exact earlier P01 source tested, not a claim that later P02/whole APK sources received the same 60-minute run."
+}

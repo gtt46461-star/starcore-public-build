@@ -1,0 +1,564 @@
+diff --git a/tools/r29/qual_host/shim/android/database/Cursor.java b/tools/r29/qual_host/shim/android/database/Cursor.java
+index efb78303..75f07f3f 100644
+--- a/tools/r29/qual_host/shim/android/database/Cursor.java
++++ b/tools/r29/qual_host/shim/android/database/Cursor.java
+@@ -13,5 +13,6 @@ public interface Cursor extends java.io.Closeable {
+     int getType(int i);
+     boolean isNull(int i);
+     int getCount();
++    default int getColumnCount() { throw new UnsupportedOperationException("HOST_CURSOR_COLUMN_METADATA_UNAVAILABLE"); }
+     void close();
+ }
+diff --git a/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java b/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java
+index f2750732..d5514970 100644
+--- a/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java
++++ b/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java
+@@ -23,20 +23,22 @@ public class SQLiteDatabase {
+     public Cursor rawQuery(String sql, String[] args) {
+         try (PreparedStatement p = jdbc.prepareStatement(sql)) {
+             if (args != null) for (int i = 0; i < args.length; i++) p.setString(i + 1, args[i]);
+-            List<Object[]> rows = new ArrayList<>();
++            List<Object[]> rows = new ArrayList<>(); int columns;
+             try (ResultSet r = p.executeQuery()) {
+-                int n = r.getMetaData().getColumnCount();
++                int n = r.getMetaData().getColumnCount(); columns = n;
+                 while (r.next()) { Object[] o = new Object[n]; for (int i = 0; i < n; i++) o[i] = r.getObject(i + 1); rows.add(o); }
+             }
+-            return new Rows(rows);
++            return new Rows(rows, columns);
+         } catch (java.sql.SQLException e) { throw new SQLiteException(e.getMessage()); }
+     }
+     public boolean inTransaction() { try { return !jdbc.getAutoCommit(); } catch (java.sql.SQLException e) { return false; } }
+     public boolean isReadOnly() { try { return jdbc.isReadOnly(); } catch (java.sql.SQLException e) { throw new SQLiteException(e.getMessage()); } }
+ 
+     static final class Rows implements Cursor {
+-        final List<Object[]> rows; int at = -1;
+-        Rows(List<Object[]> rows) { this.rows = rows; }
++        final List<Object[]> rows; final int columns; int at = -1;
++        Rows(List<Object[]> rows) { this(rows, rows.isEmpty() ? -1 : rows.get(0).length); }
++        Rows(List<Object[]> rows, int columns) { this.rows = rows; this.columns = columns; }
++        public int getColumnCount() { if(columns<0)throw new UnsupportedOperationException("HOST_CURSOR_COLUMN_METADATA_UNAVAILABLE");return columns; }
+         public boolean moveToNext() { return ++at < rows.size(); }
+         public boolean moveToFirst() { at = 0; return !rows.isEmpty(); }
+         Object v(int i) { return rows.get(at)[i]; }
+diff --git a/tools/r30-repair/run_matrix_host.py b/tools/r30-repair/run_matrix_host.py
+index 5d032493..ab6a9dfd 100644
+--- a/tools/r30-repair/run_matrix_host.py
++++ b/tools/r30-repair/run_matrix_host.py
+@@ -1,6 +1,8 @@
+ """Actual compiled matrix/schema and calibration task on original native SQLite shim. No device/quality claim."""
+-import pathlib,os,subprocess,tempfile
+-root=pathlib.Path(__file__).resolve().parents[2];classes=root/'app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes'
++import pathlib,os,subprocess,tempfile,sys
++root=pathlib.Path(__file__).resolve().parents[2];sys.path.insert(0,str(root/'tools/r31'))
++from host_runtime_fixture import compile_owned_platform
++classes=root/'app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes'
+ sdk=pathlib.Path(os.environ['ANDROID_HOME'])/'platforms/android-36/android.jar';jdbc=pathlib.Path(os.environ.get('SQLITE_JDBC','/workspace/work/r29/deps/sqlite-jdbc.jar'))
+ def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
+ with tempfile.TemporaryDirectory(prefix='repair-matrix-host-') as temporary:
+@@ -10,6 +12,11 @@ with tempfile.TemporaryDirectory(prefix='repair-matrix-host-') as temporary:
+ """+base[where:];database.write_text(base)
+  run(['javac','-nowarn','-encoding','UTF-8','-d',shim,*[p for p in sorted((root/'tools/r29/qual_host/shim').rglob('*.java')) if p.name!='SQLiteDatabase.java'],log,values,database])
+  cp=os.pathsep.join(map(str,[shim,classes,sdk]))
+- run(['javac','-nowarn','-encoding','UTF-8','-cp',cp,'-d',test,root/'tools/r30-repair/qual_host/RepairMatrixR30HostTest.java',root/'tools/r30/qual_host/CalibrationR30HostTest.java'])
++ run(['javac','-nowarn','-encoding','UTF-8','-cp',cp,'-d',test,root/'tools/r30-repair/qual_host/RepairMatrixR30HostTest.java'])
+  cp=os.pathsep.join(map(str,[shim,test,classes,jdbc,sdk]))
+- for name in ['RepairMatrixR30HostTest','CalibrationR30HostTest']:run(['java','-Xmx768m','-cp',cp,'com.ethk3.novaonepro.strategyv2.'+name])
++ run(['java','-Xmx768m','-cp',cp,'com.ethk3.novaonepro.strategyv2.RepairMatrixR30HostTest'])
++ owned=compile_owned_platform(root,out/'owned-platform',classes,sdk)
++ cp=os.pathsep.join(map(str,[owned,classes,sdk]))
++ run(['javac','-nowarn','-encoding','UTF-8','-cp',cp,'-d',test,root/'tools/r31/host/R31OwnedRuntimeFixture.java',root/'tools/r30/qual_host/CalibrationR30HostTest.java'])
++ cp=os.pathsep.join(map(str,[owned,test,classes,jdbc,sdk]))
++ run(['java','-Xmx768m','-cp',cp,'com.ethk3.novaonepro.strategyv2.CalibrationR30HostTest'])
+diff --git a/tools/r30-repair/run_neural_host.py b/tools/r30-repair/run_neural_host.py
+index 4733b0a9..5e620410 100644
+--- a/tools/r30-repair/run_neural_host.py
++++ b/tools/r30-repair/run_neural_host.py
+@@ -1,12 +1,14 @@
+ """Production model/store bytecode with native SQLite; no phone or natural-quality claim."""
+-import pathlib,os,subprocess,tempfile
+-root=pathlib.Path(__file__).resolve().parents[2];classes=root/'app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes'
++import pathlib,os,subprocess,tempfile,sys
++root=pathlib.Path(__file__).resolve().parents[2];sys.path.insert(0,str(root/'tools/r31'))
++from host_runtime_fixture import compile_owned_platform
++classes=root/'app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes'
+ sdk=pathlib.Path(os.environ['ANDROID_HOME'])/'platforms/android-36/android.jar';jdbc=pathlib.Path(os.environ.get('SQLITE_JDBC','/workspace/work/r29/deps/sqlite-jdbc.jar'))
+ def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
+ with tempfile.TemporaryDirectory(prefix='repair-neural-host-') as temporary:
+-    out=pathlib.Path(temporary);shim=out/'shim';shim.mkdir();test=out/'test';test.mkdir();log=out/'Log.java';log.write_text('package android.util;public final class Log{public static int w(String t,String v){return 0;}public static int w(String t,String v,Throwable e){return 0;}}')
+-    run(['javac','-nowarn','-encoding','UTF-8','-d',shim,*sorted((root/'tools/r29/qual_host/shim').rglob('*.java')),log])
+-    sources=[root/'tools/r30-repair/qual_host/RepairNeuralR30HostTest.java',root/'tools/r30/qual_host/ModelSurfaceR30HostTest.java',root/'tools/r30/qual_host/TenPositionR30HostTest.java']
++    out=pathlib.Path(temporary);test=out/'test';test.mkdir()
++    shim=compile_owned_platform(root,out/'owned-platform',classes,sdk)
++    sources=[root/'tools/r31/host/R31OwnedRuntimeFixture.java',root/'tools/r30-repair/qual_host/RepairNeuralR30HostTest.java',root/'tools/r30/qual_host/ModelSurfaceR30HostTest.java',root/'tools/r30/qual_host/TenPositionR30HostTest.java']
+     run(['javac','-nowarn','-encoding','UTF-8','-cp',os.pathsep.join(map(str,[shim,classes,sdk])),'-d',test,*sources])
+     cp=os.pathsep.join(map(str,[shim,test,classes,jdbc,sdk]))
+     run(['java','-Xmx768m','-cp',cp,'com.ethk3.novaonepro.strategyv2.RepairNeuralR30HostTest',root/'app/src/test/resources/r30-repair-legacy-v1.bin'])
+diff --git a/tools/r30-repair/run_qualification_host.py b/tools/r30-repair/run_qualification_host.py
+index a5def005..56e3f1c2 100644
+--- a/tools/r30-repair/run_qualification_host.py
++++ b/tools/r30-repair/run_qualification_host.py
+@@ -1,15 +1,17 @@
+ """Actual qualification/confirmation/authority code on native SQLite; synthetic mechanism evidence only."""
+-import pathlib,os,subprocess,tempfile
+-root=pathlib.Path(__file__).resolve().parents[2];classes=root/'app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes'
++import pathlib,os,subprocess,tempfile,sys
++root=pathlib.Path(__file__).resolve().parents[2];sys.path.insert(0,str(root/'tools/r31'))
++from host_runtime_fixture import compile_owned_platform
++classes=root/'app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes'
+ sdk=pathlib.Path(os.environ['ANDROID_HOME'])/'platforms/android-36/android.jar';jdbc=pathlib.Path(os.environ.get('SQLITE_JDBC','/workspace/work/r29/deps/sqlite-jdbc.jar'))
+ def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
+ with tempfile.TemporaryDirectory(prefix='repair-qualification-host-') as temporary:
+-    out=pathlib.Path(temporary);shim=out/'shim';shim.mkdir();test=out/'test';test.mkdir();authority=out/'authority';authority.mkdir();log=out/'Log.java';log.write_text('package android.util;public final class Log{public static int w(String t,String v){return 0;}public static int w(String t,String v,Throwable e){return 0;}public static int e(String t,String v){return 0;}}')
+-    run(['javac','-nowarn','-encoding','UTF-8','-d',shim,*sorted((root/'tools/r29/qual_host/shim').rglob('*.java')),log])
+-    run(['javac','-nowarn','-encoding','UTF-8','-cp',os.pathsep.join(map(str,[shim,classes,sdk])),'-d',test,root/'tools/r30-repair/qual_host/RepairQualificationR30HostTest.java',root/'tools/r30/qual_host/FrozenConfirmationR30HostTest.java',root/'tools/r30/qual_host/DecisionExplanationR30HostTest.java'])
++    out=pathlib.Path(temporary);test=out/'test';test.mkdir();authority=out/'authority';authority.mkdir()
++    shim=compile_owned_platform(root,out/'owned-platform',classes,sdk)
++    run(['javac','-nowarn','-encoding','UTF-8','-cp',os.pathsep.join(map(str,[shim,classes,sdk])),'-d',test,root/'tools/r31/host/R31OwnedRuntimeFixture.java',root/'tools/r30-repair/qual_host/RepairQualificationR30HostTest.java',root/'tools/r30/qual_host/FrozenConfirmationR30HostTest.java',root/'tools/r30/qual_host/DecisionExplanationR30HostTest.java'])
+     cp=os.pathsep.join(map(str,[shim,test,classes,jdbc,sdk]))
+     for name in ['RepairQualificationR30HostTest','FrozenConfirmationR30HostTest','DecisionExplanationR30HostTest']:run(['java','-Xmx768m','-cp',cp,'com.ethk3.novaonepro.strategyv2.'+name])
+     run(['javac','-nowarn','-encoding','UTF-8','-cp',os.pathsep.join(map(str,[shim,classes,sdk])),'-d',authority,root/'tools/r30/qual_host/authority_shim/com/ethk3/novaonepro/DbStore.java'])
+-    acp=os.pathsep.join(map(str,[shim,authority,test,classes,jdbc,sdk]))
++    acp=os.pathsep.join(map(str,[authority,shim,test,classes,jdbc,sdk]))
+     run(['javac','-nowarn','-encoding','UTF-8','-cp',acp,'-d',test,root/'tools/r30/qual_host/RealAuthorityR30HostTest.java',root/'tools/r30/qual_host/CertificateRevocationR30HostTest.java'])
+     for name in ['RealAuthorityR30HostTest','CertificateRevocationR30HostTest']:run(['java','-Xmx768m','-cp',acp,'com.ethk3.novaonepro.strategyv2.'+name])
+diff --git a/tools/r30/qual_host/CalibrationR30HostTest.java b/tools/r30/qual_host/CalibrationR30HostTest.java
+index 0633ae60..7102265c 100644
+--- a/tools/r30/qual_host/CalibrationR30HostTest.java
++++ b/tools/r30/qual_host/CalibrationR30HostTest.java
+@@ -3,11 +3,9 @@ package com.ethk3.novaonepro.strategyv2;
+ import android.database.Cursor;
+ import android.database.sqlite.SQLiteDatabase;
+ import com.ethk3.novaonepro.TargetIssueResolver;
+-import java.lang.reflect.Field;
+ import java.sql.*;
+ import java.util.*;
+ import java.util.concurrent.atomic.AtomicBoolean;
+-import sun.misc.Unsafe;
+ 
+ /** Calls the production calibration task on real SQLite with explicitly synthetic FUTURE receipts. */
+ public final class CalibrationR30HostTest {
+@@ -36,25 +34,28 @@ public final class CalibrationR30HostTest {
+             }
+             db.execSQL("UPDATE r27_live_frozen SET probabilities=? WHERE policy_hash='calibration-a' AND target_issue=?",new Object[]{new byte[0],issue(1500)});
+             db.execSQL("UPDATE r27_live_frozen SET target_ordinal=target_ordinal+20000 WHERE policy_hash='calibration-a' AND target_issue=?",new Object[]{issue(1498)});
+-            Field f=Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);Unsafe u=(Unsafe)f.get(null);
+-            RuntimeR27 rt=(RuntimeR27)u.allocateInstance(RuntimeR27.class);ResearchPoolR27 pool=(ResearchPoolR27)u.allocateInstance(ResearchPoolR27.class);AtomicBoolean fail=new AtomicBoolean(false);
+-            ResearchWriteQueueR27 writes=new ResearchWriteQueueR27((op,batch)->{
+-                try{c.setAutoCommit(false);ResearchWriteQueueR27.execute(db,batch,op);if(fail.getAndSet(false))throw new IllegalStateException("CALIBRATION_COMMIT_FAILURE");c.commit();c.setAutoCommit(true);}
+-                catch(Exception e){try{c.rollback();c.setAutoCommit(true);}catch(Exception ignored){}throw new IllegalStateException(e);}
+-            },()->false);u.putObject(pool,u.objectFieldOffset(ResearchPoolR27.class.getDeclaredField("writes")),writes);ResearchPoolR27.Worker worker=pool.new Worker(db,"calibration-test");
++            try (R31OwnedRuntimeFixture owned=new R31OwnedRuntimeFixture(db,"r27-calibration")) {
++            RuntimeR27 rt=owned.runtime;ResearchPoolR27.Worker worker=owned.worker;
+             EvolutionLoopR27.Config cfg=new EvolutionLoopR27.Config();cfg.nullControl=false;rt.evo=new EvolutionLoopR27(cfg,new FeatureCacheR27(data),new StoreR27.EvolutionSink("HOST",issue(1000)),()->0L);rt.evo.stepDataset();
+-            LiveShadowsR27.lastCalibration=0;LiveShadowsR27.calibrate(rt,worker);
++            LiveShadowsR27.lastCalibration=0;owned.owned(()->{LiveShadowsR27.calibrate(rt,worker);return null;});
+             require(count(db,"SELECT count(*) FROM r27_calibration")==1&&rt.calibrationIndexR30==1,"MORE_THAN_ONE_POLICY_PER_SLICE");
+             Map<String,Object> a=cached(db,"calibration-a");require(((Number)a.get("n")).longValue()>=200,"Q05_STILL_CAPPED_AT_120");require(((Number)a.get("excludedInvalid")).longValue()==2,"CORRUPT_PROBABILITY_OR_ORDINAL_NOT_EXPLICITLY_EXCLUDED");
+             List<?> rows=(List<?>)a.get("rollingEvaluations");for(Object value:rows){Map<?,?> e=(Map<?,?>)value;require(((Number)e.get("fitThroughOrdinal")).longValue()<((Number)e.get("ordinal")).longValue()-1,"FUTURE_USED_IN_ROLLING_FIT");}
+-            fail.set(true);try{LiveShadowsR27.calibrate(rt,worker);throw new AssertionError("COMMIT_FAILURE_NOT_INJECTED");}catch(IllegalStateException expected){}
++            AtomicBoolean injected=new AtomicBoolean();db.beforeSuccessful=()->{
++                if(RuntimeCoordinatorR26.currentClaimR30()!=null&&count(db,"SELECT count(*) FROM r27_calibration")==2){
++                    db.beforeSuccessful=null;injected.set(true);throw new IllegalStateException("CALIBRATION_COMMIT_FAILURE_AFTER_ACTUAL_SQL");
++                }
++            };
++            try{owned.owned(()->{LiveShadowsR27.calibrate(rt,worker);return null;});throw new AssertionError("COMMIT_FAILURE_NOT_INJECTED");}catch(IllegalStateException expected){}
++            require(injected.get(),"FAILURE_PRECEDED_ACTUAL_CALIBRATION_SQL");
+             require(rt.calibrationIndexR30==1&&count(db,"SELECT count(*) FROM r27_calibration")==1&&count(db,"SELECT count(*) FROM r27_chart_cache WHERE panel_id='calibration-r30'")==1,"FAILED_COMMIT_ADVANCED_CALIBRATION");
+-            LiveShadowsR27.calibrate(rt,worker);require(rt.calibrationIndexR30==0&&count(db,"SELECT count(*) FROM r27_calibration")==2,"RETRY_DID_NOT_FINISH_ROUND");
++            owned.owned(()->{LiveShadowsR27.calibrate(rt,worker);return null;});require(rt.calibrationIndexR30==0&&count(db,"SELECT count(*) FROM r27_calibration")==2,"RETRY_DID_NOT_FINISH_ROUND");
+             Map<String,Object> report=ReportR29.calibrationQualityR30(db);require(((Number)report.get("measuredPolicies")).longValue()==2,"REPORT_NOT_FROM_COMMITTED_Q05");
+             try(Cursor old=db.rawQuery("SELECT ece,validation_rows FROM r27_calibration WHERE policy_hash='calibration-a'",null)){require(old.moveToFirst()&&old.getDouble(0)==((Number)a.get("eceEqualWidth")).doubleValue()&&old.getLong(1)==((Number)a.get("n")).longValue(),"LEGACY_AND_NEW_REPORT_DISAGREE");}
+             require(a.get("eceEqualMass") instanceof Number&&a.get("brier") instanceof Number&&a.get("bss") instanceof Number&&a.get("supportCoverage") instanceof Number,"Q05_FIELDS_MISSING");
+             Map<String,Object> summary=new LinkedHashMap<>(a);summary.remove("rollingEvaluations");summary.put("scope","HOST_SYNTHETIC_ONLY_NOT_NATURAL_QUALITY");System.out.println("R30_CALIBRATION_SQLITE_REPORT "+JsonR27.write(summary));
+-            System.out.println("R30_CALIBRATION_SQLITE|ACTUAL_TASK_ONE_POLICY_PER_SLICE|STRICT_PRIOR_ORDINAL_AND_EMBARGO|Q05_BOTH_ECE_BRIER_BSS_SUPPORT|CORRUPT_ROW_EXCLUDED|FAILED_COMMIT_ROLLED_BACK_AND_RETRIED|OLD_AND_NEW_REPORT_MATCH|PASS");
++            System.out.println("R30_CALIBRATION_SQLITE|ACTUAL_TASK_ONE_POLICY_PER_SLICE|STRICT_PRIOR_ORDINAL_AND_EMBARGO|Q05_BOTH_ECE_BRIER_BSS_SUPPORT|CORRUPT_ROW_EXCLUDED|FAILED_COMMIT_ROLLED_BACK_AND_RETRIED|OLD_AND_NEW_REPORT_MATCH|PRODUCTION_OWNED_IMMUTABLE_WRITES|PASS");
++            }
+         }
+     }
+ }
+diff --git a/tools/r30/qual_host/FrozenConfirmationR30HostTest.java b/tools/r30/qual_host/FrozenConfirmationR30HostTest.java
+index 6c4c0a77..836fa5f6 100644
+--- a/tools/r30/qual_host/FrozenConfirmationR30HostTest.java
++++ b/tools/r30/qual_host/FrozenConfirmationR30HostTest.java
+@@ -7,7 +7,6 @@ import java.nio.file.*;
+ import java.sql.*;
+ import java.util.*;
+ import java.util.concurrent.TimeUnit;
+-import sun.misc.Unsafe;
+ 
+ /** Production confirmation/registration over disk SQLite, followed by actual JVM death and reopen. */
+ public final class FrozenConfirmationR30HostTest {
+@@ -27,7 +26,7 @@ public final class FrozenConfirmationR30HostTest {
+     public static void main(String[] args) throws Exception {
+         if (args.length==0) {
+             Path file=Files.createTempFile("r30-frozen-confirm-",".db");
+-            try { child("write-and-kill",file);child("restart-and-check",file); } finally { Files.deleteIfExists(file); }
++            try { long oldPid=child("write-and-kill",file,-1);child("restart-and-check",file,oldPid); } finally { Files.deleteIfExists(file); }
+             return;
+         }
+         Class.forName("org.sqlite.JDBC");
+@@ -39,13 +38,11 @@ public final class FrozenConfirmationR30HostTest {
+                 s.execute("CREATE TABLE draws(issue TEXT PRIMARY KEY,dirty INTEGER NOT NULL)");s.execute("INSERT INTO draws VALUES('202610310001',0)");
+                 s.execute("CREATE TABLE r26_evolution(attempt_id TEXT PRIMARY KEY,campaign_id TEXT,policy_hash TEXT,parent TEXT,operation TEXT,category TEXT,structure_hash TEXT,behavior_novel INTEGER,research_accepted INTEGER DEFAULT 0,verified_improvement INTEGER DEFAULT 0,prospective_qualified INTEGER DEFAULT 0)");
+             }
+-            Field f=Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);Unsafe u=(Unsafe)f.get(null);
+-            ResearchPoolR27 pool=(ResearchPoolR27)u.allocateInstance(ResearchPoolR27.class);
+-            ResearchWriteQueueR27 writes=new ResearchWriteQueueR27((op,batch)->commit(c,db,batch),()->false);
+-            u.putObject(pool,u.objectFieldOffset(ResearchPoolR27.class.getDeclaredField("writes")),writes);
+-            ResearchPoolR27.Worker worker=pool.new Worker(db,"frozen-confirm-test");
+-            RuntimeR27 runtime=(RuntimeR27)u.allocateInstance(RuntimeR27.class);
++            try (R31OwnedRuntimeFixture owned=new R31OwnedRuntimeFixture(db,"r27-evolution")) {
++            RuntimeR27 runtime=owned.runtime;ResearchPoolR27.Worker worker=owned.worker;
+             runtime.operatorAbi=new HashMap<>();for (String op:SemanticAbiR27.operators(policy(1)))runtime.operatorAbi.put(op,"host-fixture-abi");
++            if (!args[0].equals("write-and-kill")) owned.recoverAfterConfirmedProcessExit(Long.getLong("r31.host.previousPid",-1));
++            owned.owned(()-> {
+             if (args[0].equals("write-and-kill")) {
+                 StoreR27.EvolutionSink sink=new StoreR27.EvolutionSink(RuntimeR27.LOOP,"202610310001");
+                 EvolutionLoopR27 loop=new EvolutionLoopR27(config(),new FeatureCacheR27(data()),sink,()->1L);
+@@ -155,12 +152,14 @@ public final class FrozenConfirmationR30HostTest {
+             require(q08.snapshot().equals(NullPipelineSimulationStoreR30.load(db,q08.sourceCommit()).snapshot()),"Q08_CHECKPOINT_NOT_RESTORED");
+             Map<String,Object> q08Report=ReportR29.cachedPanel(db,"r30","q08");
+             require(Boolean.FALSE.equals(q08Report.get("naturalQualityEligible"))&&q08.sourceCommit().equals(q08Report.get("sourceCommit")),"Q08_REPORT_SOURCE_OR_SCOPE_WRONG");
+-            System.out.println("R30_FROZEN_SQLITE|PROCESS_RESTART|RAW_CACHE_NO_REREAD_WITH_NULL_CONFIRM_LABELS|CONSUMED_WITHOUT_OUTCOME_INSUFFICIENT|ORPHAN_DATASET_RECOVERED|FIRST_PACKET_IMMUTABLE|QUALIFICATION_INDEX_PRESERVED|CORRUPT_TRACE_REJECTED|SYNTHETIC_FUTURE_STATE_COUNT_MATCHES|FIRST_REPORT_COUNT_CORRECT|CONTROL_VIEW_RESERVATION_AND_CACHE_MATCH|Q08_CHECKPOINT_AND_REPORT_MATCH|PASS");
++            System.out.println("R30_FROZEN_SQLITE|PROCESS_RESTART|RAW_CACHE_NO_REREAD_WITH_NULL_CONFIRM_LABELS|CONSUMED_WITHOUT_OUTCOME_INSUFFICIENT|ORPHAN_DATASET_RECOVERED|FIRST_PACKET_IMMUTABLE|QUALIFICATION_INDEX_PRESERVED|CORRUPT_TRACE_REJECTED|SYNTHETIC_FUTURE_STATE_COUNT_MATCHES|FIRST_REPORT_COUNT_CORRECT|CONTROL_VIEW_RESERVATION_AND_CACHE_MATCH|Q08_CHECKPOINT_AND_REPORT_MATCH|PRODUCTION_OWNED_WRITES_AND_FENCED_RETRY_AFTER_CONFIRMED_EXIT|PASS");
++            return null; });
++            }
+         }
+     }
+-    static void child(String mode,Path database)throws Exception{
+-        Process p=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-cp",System.getProperty("java.class.path"),FrozenConfirmationR30HostTest.class.getName(),mode,database.toString()).redirectErrorStream(true).start();
++    static long child(String mode,Path database,long previousPid)throws Exception{
++        Process p=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-Dr31.host.previousPid="+previousPid,"-cp",System.getProperty("java.class.path"),FrozenConfirmationR30HostTest.class.getName(),mode,database.toString()).redirectErrorStream(true).start();
+         if(!p.waitFor(45,TimeUnit.SECONDS)){p.destroyForcibly();throw new AssertionError("FROZEN_CHILD_TIMEOUT:"+mode);}
+-        String output=new String(p.getInputStream().readAllBytes(),StandardCharsets.UTF_8);System.out.print(output);require(p.exitValue()==0,"FROZEN_CHILD_FAILED:"+mode);
++        String output=new String(p.getInputStream().readAllBytes(),StandardCharsets.UTF_8);System.out.print(output);require(p.exitValue()==0,"FROZEN_CHILD_FAILED:"+mode);return p.pid();
+     }
+ }
+diff --git a/tools/r30/qual_host/ModelSurfaceR30HostTest.java b/tools/r30/qual_host/ModelSurfaceR30HostTest.java
+index 27f316a5..48856f73 100644
+--- a/tools/r30/qual_host/ModelSurfaceR30HostTest.java
++++ b/tools/r30/qual_host/ModelSurfaceR30HostTest.java
+@@ -4,10 +4,8 @@ import android.database.Cursor;
+ import android.database.sqlite.SQLiteDatabase;
+ import com.ethk3.novaonepro.AtomReplayR27;
+ import com.ethk3.novaonepro.TargetIssueResolver;
+-import java.lang.reflect.Field;
+ import java.sql.*;
+ import java.util.*;
+-import sun.misc.Unsafe;
+ 
+ /** Exercises actual policy freezing and call receipts, including a source commit between preparation and writer. */
+ public final class ModelSurfaceR30HostTest {
+@@ -30,15 +28,11 @@ public final class ModelSurfaceR30HostTest {
+             for(int n=1;n<=100;n++)add(c,n);c.setAutoCommit(false);SchemaR27.ensureLiveSourceRevision(db);c.commit();c.setAutoCommit(true);
+             ReplayDatasetR27 data=StoreR27.loadDataset(db,100);long latest=data.ordinals[99],deadline=RuntimeR27.latestOpen(db)+60_000L;
+             PolicySpecR27 spec=spec();db.execSQL("INSERT INTO r27_live_shadow(policy_hash,spec_json,temperature,bias,global_index,status,reason,promoted_at,updated_at) VALUES(?,?,1,?,1,'ACTIVE','HOST',1,1)",new Object[]{"model-fixture",spec.fullJson(),new byte[80]});
+-            Field f=Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);Unsafe u=(Unsafe)f.get(null);
+-            RuntimeR27 rt=(RuntimeR27)u.allocateInstance(RuntimeR27.class);ResearchPoolR27 pool=(ResearchPoolR27)u.allocateInstance(ResearchPoolR27.class);
+-            ResearchWriteQueueR27 writes=new ResearchWriteQueueR27((op,batch)->{
+-                try{
+-                    if(mode.equals("race")&&op.equals("LIVE_FREEZE"))add(c,101);
+-                    c.setAutoCommit(false);ResearchWriteQueueR27.execute(db,batch,op);c.commit();c.setAutoCommit(true);
+-                }catch(Exception e){try{c.rollback();c.setAutoCommit(true);}catch(Exception ignored){}throw new IllegalStateException(e);}
+-            },()->false);u.putObject(pool,u.objectFieldOffset(ResearchPoolR27.class.getDeclaredField("writes")),writes);
+-            ResearchPoolR27.Worker worker=pool.new Worker(db,"model-surface-test");
++            try(R31OwnedRuntimeFixture owned=new R31OwnedRuntimeFixture(db,"r27-live")){
++            RuntimeR27 rt=owned.runtime;ResearchPoolR27.Worker worker=owned.worker;
++            if(mode.equals("race"))owned.beforeNextOwnedWrite(()->{
++                try{add(c,101);}catch(Exception failure){throw new IllegalStateException(failure);}
++            });
+             if(!mode.equals("missing")){
+                 AtomNetSessionR30 state=new AtomNetSessionR30(data.datasetHash,issue(99),latest-1,182,10,10,0);
+                 AtomReplayR27.Frame train=AtomReplayR27.build(data,70,72);
+@@ -47,7 +41,7 @@ public final class ModelSurfaceR30HostTest {
+                 if(mode.equals("target"))rt.atomSessionR30=new AtomNetSessionR30(data.datasetHash,issue(101),latest+1,182,10,10,0);
+                 if(mode.equals("target")){rt.atomSessionR30.phase="ONLINE";rt.atomSessionR30.completeIssue=issue(101);rt.publishAtomStateR30(rt.atomSessionR30);}
+             }
+-            LiveShadowsR27.freeze(rt,worker,issue(100),latest,deadline,"('ACTIVE')",true);
++            owned.owned(()->LiveShadowsR27.freeze(rt,worker,issue(100),latest,deadline,"('ACTIVE')",true));
+             Map<String,Object> report=ModelSurfaceStoreR30.report(db);
+             boolean valid=mode.equals("valid");
+             require(count(db,"SELECT count(*) FROM r27_live_frozen WHERE status='FROZEN'")==(valid?1:0),"INVALID_FREEZE_COUNT:"+mode+":"+report);
+@@ -55,7 +49,7 @@ public final class ModelSurfaceR30HostTest {
+             if(!valid){require(count(db,"SELECT count(*) FROM r30_model_call WHERE status='BLOCKED' AND reason<>''")==2,"BLOCKED_REASON_MISSING:"+mode);require("BLOCKED".equals(report.get("status")),"NOT_BLOCKED:"+report);}
+             if(valid){
+                 require("MATCHED".equals(report.get("status"))&&((Number)report.get("matchingRatio")).doubleValue()==1,"M24_NOT_MATCHED:"+report);
+-                LiveShadowsR27.freeze(rt,worker,issue(100),latest,deadline,"('ACTIVE')",true);require(count(db,"SELECT count(*) FROM r30_model_call WHERE status='MATCHED'")==2,"DUPLICATE_CALLS_ON_RETRY");
++                owned.owned(()->LiveShadowsR27.freeze(rt,worker,issue(100),latest,deadline,"('ACTIVE')",true));require(count(db,"SELECT count(*) FROM r30_model_call WHERE status='MATCHED'")==2,"DUPLICATE_CALLS_ON_RETRY");
+                 ReplayDatasetR27 withTarget=data.append(new ReplayDatasetR27.Row(issue(101),latest+1,new int[]{1,2,3,4,5,6,7,8,9,10}));FeatureCacheR27 cache=new FeatureCacheR27(withTarget);ModelSurfaceStoreR30.bindHistorical(db,cache);
+                 require(cache.modelSurface(100,1)!=null&&cache.modelSurface(100,2)!=null,"VALID_ARCHIVED_SURFACE_NOT_RESTORED");
+                 int[][] changed=withTarget.draws.clone();changed[99]=new int[]{10,9,8,7,6,5,4,3,2,1};FeatureCacheR27 bad=new FeatureCacheR27(withTarget.withDraws(changed));ModelSurfaceStoreR30.bindHistorical(db,bad);
+@@ -65,6 +59,7 @@ public final class ModelSurfaceR30HostTest {
+                 System.out.println("R30_MODEL_SQLITE_REPORT "+JsonR27.write(report));
+                 System.out.println("R30_MODEL_SQLITE|TWO_ACTUAL_MODEL_POSITIONS_ONE_FREEZE|M24_100_PERCENT|RETRY_NO_DUPLICATE|ARCHIVE_PIT_RECOVERED|HISTORY_AND_HASH_TAMPER_BLOCKED|ORPHAN_DETECTED|PASS");
+             }else System.out.println("R30_MODEL_SQLITE|"+mode.toUpperCase(java.util.Locale.ROOT)+"|NO_ILLEGAL_FREEZE|TWO_EXPLICIT_BLOCKED_CALLS|PASS");
++            }
+         }
+     }
+ }
+diff --git a/tools/r30/qual_host/TenPositionR30HostTest.java b/tools/r30/qual_host/TenPositionR30HostTest.java
+index 746f52de..ed7fa9b7 100644
+--- a/tools/r30/qual_host/TenPositionR30HostTest.java
++++ b/tools/r30/qual_host/TenPositionR30HostTest.java
+@@ -3,14 +3,12 @@ package com.ethk3.novaonepro.strategyv2;
+ import android.database.sqlite.SQLiteDatabase;
+ import com.ethk3.novaonepro.AtomReplayR27;
+ import com.ethk3.novaonepro.TargetIssueResolver;
+-import java.lang.reflect.Field;
+ import java.nio.charset.StandardCharsets;
+ import java.nio.file.*;
+ import java.sql.*;
+ import java.util.*;
+ import java.util.concurrent.TimeUnit;
+ import java.util.concurrent.atomic.AtomicBoolean;
+-import sun.misc.Unsafe;
+ 
+ /** Actual ten-position production task, atomic checkpoint rollback, legacy preservation, and JVM death mid-issue. */
+ public final class TenPositionR30HostTest {
+@@ -29,7 +27,7 @@ public final class TenPositionR30HostTest {
+     static byte[] artifact(SQLiteDatabase db){try(android.database.Cursor c=db.rawQuery("SELECT artifact FROM r29_model_checkpoint WHERE owner=?",new String[]{AtomNetSessionR30.OWNER})){require(c.moveToFirst(),"STATE_MISSING");return c.getBlob(0);}}
+     static String text(SQLiteDatabase db,String sql){try(android.database.Cursor c=db.rawQuery(sql,null)){return c.moveToFirst()?c.getString(0):null;}}
+     public static void main(String[] args)throws Exception{
+-        if(args.length==0){Path db=Files.createTempFile("r30-ten-position-",".db");try{child("write-and-kill",db);child("restart-and-check",db);}finally{Files.deleteIfExists(db);}return;}
++        if(args.length==0){Path db=Files.createTempFile("r30-ten-position-",".db");try{long oldPid=child("write-and-kill",db,-1);child("restart-and-check",db,oldPid);}finally{Files.deleteIfExists(db);}return;}
+         Class.forName("org.sqlite.JDBC");try(Connection c=DriverManager.getConnection("jdbc:sqlite:"+args[1])){
+             SQLiteDatabase db=new SQLiteDatabase(c);boolean initial=args[0].equals("write-and-kill");
+             if(initial){try(Statement s=c.createStatement()){
+@@ -43,18 +41,15 @@ public final class TenPositionR30HostTest {
+             ResearchWriteQueueR27.Batch old=new ResearchWriteQueueR27.Batch();AtomWorldR27.checkpoint(old,new ModelArtifactR29(legacy,new FtrlR27(7,.05,1,1e-4,1e-3),"legacy",issue(79)),1);commit(c,db,old,false);
+             }
+             String legacyHash=text(db,"SELECT state_hash FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'");
+-            Field field=Unsafe.class.getDeclaredField("theUnsafe");field.setAccessible(true);Unsafe u=(Unsafe)field.get(null);
+-            RuntimeR27 rt=(RuntimeR27)u.allocateInstance(RuntimeR27.class);ResearchPoolR27 pool=(ResearchPoolR27)u.allocateInstance(ResearchPoolR27.class);
+-            AtomicBoolean fail=new AtomicBoolean(false);
+-            ResearchWriteQueueR27 writes=new ResearchWriteQueueR27((op,b)->commit(c,db,b,op.equals("ATOMNET_R30_SLICE")&&fail.getAndSet(false)),()->false);
+-            u.putObject(pool,u.objectFieldOffset(ResearchPoolR27.class.getDeclaredField("writes")),writes);
+-            ResearchPoolR27.Worker worker=pool.new Worker(db,"ten-position-test");
++            try(R31OwnedRuntimeFixture owned=new R31OwnedRuntimeFixture(db,"r27-atomnet")){
++            RuntimeR27 rt=owned.runtime;ResearchPoolR27.Worker worker=owned.worker;
++            if(!initial)owned.recoverAfterConfirmedProcessExit(Long.getLong("r31.host.previousPid",-1));
+             rt.evoData=StoreR27.loadDataset(db,100);
+             if(initial){
+                 int slices=0;do{
+                     AtomNetSessionR30 prior=rt.atomSessionR30==null?AtomNetStoreR30.restore(db):rt.atomSessionR30;
+                     long before=prior==null?0:prior.materializedSamples;
+-                    AtomNetRuntimeR30.step(rt,worker);slices++;
++                    owned.owned(()->AtomNetRuntimeR30.step(rt,worker));slices++;
+                     require(rt.atomSessionR30.materializedSamples-before<=120,"CACHE_SLICE_EXCEEDED_ORIGINAL_BUDGET");
+                     if(slices%13==0){rt.atomSessionR30=null;rt.atomDataR30=null;}
+                     require(slices<2000,"PRETRAIN_STUCK");
+@@ -63,13 +58,13 @@ public final class TenPositionR30HostTest {
+                 require(legacyHash.equals(text(db,"SELECT state_hash FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'")),"LEGACY_OVERWRITTEN");
+                 require("10".equals(text(db,"SELECT count(*) FROM r30_atomnet_forecast")),"TEN_FUTURE_PREDICTIONS_NOT_FROZEN");
+                 require(rt.atomSessionR30.trainer.net.in==182,"PRODUCTION_ONE_HOT_NOT_CONSUMED");
+-                long learnedBefore=rt.atomSessionR30.trainer.onlineSteps;add(c,81);AtomNetRuntimeR30.step(rt,worker);require(rt.atomSessionR30.trainer.onlineSteps==learnedBefore,"IN_FLIGHT_UNREGISTERED_INPUT_LEARNED");
+-                add(c,82);AtomNetRuntimeR30.step(rt,worker);
++                long learnedBefore=rt.atomSessionR30.trainer.onlineSteps;add(c,81);owned.owned(()->AtomNetRuntimeR30.step(rt,worker));require(rt.atomSessionR30.trainer.onlineSteps==learnedBefore,"IN_FLIGHT_UNREGISTERED_INPUT_LEARNED");
++                add(c,82);owned.owned(()->AtomNetRuntimeR30.step(rt,worker));
+                 require(rt.atomSessionR30.nextPosition==2,"POSITION_ONE_NOT_COMMITTED");
+-                byte[] before=artifact(db),memory=rt.atomSessionR30.encode();fail.set(true);
+-                try{AtomNetRuntimeR30.step(rt,worker);throw new AssertionError("FAILURE_NOT_INJECTED");}catch(IllegalStateException expected){}
++                byte[] before=artifact(db),memory=rt.atomSessionR30.encode();owned.failNextCheckpoint(AtomNetSessionR30.OWNER);
++                try{owned.owned(()->AtomNetRuntimeR30.step(rt,worker));throw new AssertionError("FAILURE_NOT_INJECTED");}catch(IllegalStateException expected){}
+                 require(Arrays.equals(before,artifact(db))&&Arrays.equals(memory,rt.atomSessionR30.encode()),"MODEL_CURSOR_NOT_ATOMIC_ON_ROLLBACK");
+-                for(int p=2;p<=STOP_POSITION;p++)AtomNetRuntimeR30.step(rt,worker);
++                for(int p=2;p<=STOP_POSITION;p++)owned.owned(()->AtomNetRuntimeR30.step(rt,worker));
+                 require(rt.atomSessionR30.nextPosition==STOP_POSITION+1&&rt.atomSessionR30.partialIssue.equals(issue(82)),"MID_ISSUE_CURSOR");
+                 AtomNetSessionR30 expected=AtomNetSessionR30.decode(artifact(db),StatsR27.sha256(artifact(db)));
+                 ReplayDatasetR27 data=StoreR27.loadDataset(db,100);AtomReplayR27.Frame frame=AtomReplayR27.build(data,81,82);
+@@ -80,21 +75,22 @@ public final class TenPositionR30HostTest {
+                 ResearchWriteQueueR27.Batch receipt=new ResearchWriteQueueR27.Batch();receipt.add("INSERT OR REPLACE INTO r27_chart_cache VALUES('host','expected',?,1)",StatsR27.sha256(expected.encode()));commit(c,db,receipt,false);
+                 System.out.println("R30_TEN_SQLITE|PRETRAIN_SLICES="+slices+"|560_SAMPLES_56_PERIODS|182_INPUTS|10_FROZEN_POSITIONS|FAILED_COMMIT_ROLLED_BACK|HALT_AFTER_POSITION_"+STOP_POSITION);System.out.flush();Runtime.getRuntime().halt(0);
+             }
+-            AtomNetRuntimeR30.step(rt,worker);require(rt.atomSessionR30.nextPosition==STOP_POSITION+1,"RESTORE_LOST_POSITION_CURSOR");
+-            for(int p=STOP_POSITION+1;p<=10;p++)AtomNetRuntimeR30.step(rt,worker);
++            owned.owned(()->AtomNetRuntimeR30.step(rt,worker));require(rt.atomSessionR30.nextPosition==STOP_POSITION+1,"RESTORE_LOST_POSITION_CURSOR");
++            for(int p=STOP_POSITION+1;p<=10;p++)owned.owned(()->AtomNetRuntimeR30.step(rt,worker));
+             require(rt.atomSessionR30.trainer.onlineSteps==10&&rt.atomSessionR30.completeIssue.equals(issue(82)),"TEN_ONLINE_POSITIONS_NOT_ONCE");
+             require(StatsR27.sha256(artifact(db)).equals(text(db,"SELECT payload_json FROM r27_chart_cache WHERE panel_id='host' AND key='expected'")),"PRODUCTION_RESTART_NOT_EXACT");
+-            byte[] settled=artifact(db);AtomNetRuntimeR30.step(rt,worker);require(Arrays.equals(settled,artifact(db)),"DUPLICATE_LEARNING_AFTER_RETRY");
++            byte[] settled=artifact(db);owned.owned(()->AtomNetRuntimeR30.step(rt,worker));require(Arrays.equals(settled,artifact(db)),"DUPLICATE_LEARNING_AFTER_RETRY");
+             require(legacyHash.equals(text(db,"SELECT state_hash FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'")),"LEGACY_NOT_PRESERVED");
+             Map<?,?> report=(Map<?,?>)JsonR27.parse(text(db,"SELECT payload_json FROM r27_chart_cache WHERE panel_id='atomnet' AND key='ten-position-r30'"));
+             require(((Number)report.get("materializedSamples")).longValue()==560&&((Number)report.get("onlineSamples")).longValue()==10,"REPORT_DOES_NOT_MATCH_COMMITTED_TRAINING");
+-            System.out.println("R30_TEN_SQLITE|REAL_JVM_RESTART_DECLARED_POSITION_TO_10_EXACT|NO_DUPLICATE|LEGACY_BYTES_PRESERVED|THROUGHPUT_REPORT_MATCHES|PASS");
++            System.out.println("R30_TEN_SQLITE|REAL_JVM_RESTART_DECLARED_POSITION_TO_10_EXACT|PRODUCTION_FENCED_RETRY_AFTER_CONFIRMED_EXIT|NO_DUPLICATE|LEGACY_BYTES_PRESERVED|THROUGHPUT_REPORT_MATCHES|PASS");
+             System.out.println("R30_TEN_SQLITE_REPORT "+JsonR27.write(report));
++            }
+         }
+     }
+-    static void child(String mode,Path db)throws Exception{
+-        Process p=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-Xmx768m","-Dr30.host.stopPosition="+STOP_POSITION,"-cp",System.getProperty("java.class.path"),TenPositionR30HostTest.class.getName(),mode,db.toString()).redirectErrorStream(true).start();
++    static long child(String mode,Path db,long oldPid)throws Exception{
++        Process p=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-Xmx768m","-Dr30.host.stopPosition="+STOP_POSITION,"-Dr31.host.previousPid="+oldPid,"-cp",System.getProperty("java.class.path"),TenPositionR30HostTest.class.getName(),mode,db.toString()).redirectErrorStream(true).start();
+         if(!p.waitFor(120,TimeUnit.SECONDS)){p.destroyForcibly();throw new AssertionError("TEN_CHILD_TIMEOUT:"+mode);}
+-        String output=new String(p.getInputStream().readAllBytes(),StandardCharsets.UTF_8);System.out.print(output);require(p.exitValue()==0,"TEN_CHILD_FAILED:"+mode+":"+p.exitValue());
++        String output=new String(p.getInputStream().readAllBytes(),StandardCharsets.UTF_8);System.out.print(output);require(p.exitValue()==0,"TEN_CHILD_FAILED:"+mode+":"+p.exitValue());return p.pid();
+     }
+ }
+diff --git a/tools/r31/host/R31OwnedRuntimeFixture.java b/tools/r31/host/R31OwnedRuntimeFixture.java
+new file mode 100644
+index 00000000..e08ed4d5
+--- /dev/null
++++ b/tools/r31/host/R31OwnedRuntimeFixture.java
+@@ -0,0 +1,101 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import android.database.Cursor;
++import android.database.sqlite.SQLiteDatabase;
++import com.ethk3.novaonepro.DatabaseCoordinator;
++import com.ethk3.novaonepro.DbHelper;
++import com.ethk3.novaonepro.DbStore;
++import java.io.File;
++import java.lang.reflect.Field;
++import java.util.UUID;
++import java.util.concurrent.Callable;
++import java.util.concurrent.atomic.AtomicInteger;
++import java.util.concurrent.locks.ReentrantLock;
++import sun.misc.Unsafe;
++
++/** HOST arrangement only. Claim/CAS/lease, immutable submit, sole writer and durable receipts are production code. */
++public final class R31OwnedRuntimeFixture implements AutoCloseable {
++    public final SQLiteDatabase db;
++    public final DatabaseCoordinator coordinator;
++    public final RuntimeR27 runtime;
++    public final ResearchPoolR27.Worker worker;
++    public final String owner = "host-owned-" + ProcessHandle.current().pid() + "-" + UUID.randomUUID();
++    private final String task;
++    private final DbHelper helper;
++    private final DbStore store;
++    private RuntimeCoordinatorR26.Claim claim;
++
++    public R31OwnedRuntimeFixture(SQLiteDatabase db, String task) throws Exception {
++        this.db = db; this.task = task;
++        Field field = Unsafe.class.getDeclaredField("theUnsafe"); field.setAccessible(true);
++        coordinator = (DatabaseCoordinator) ((Unsafe) field.get(null)).allocateInstance(DatabaseCoordinator.class);
++        helper = new DbHelper(db);
++        android.app.Application app = new android.app.Application(new File(db.getPath()));
++        Field lock = DatabaseCoordinator.class.getDeclaredField("WRITE_LOCK_CP3"); lock.setAccessible(true);
++        set("writeLock", (ReentrantLock) lock.get(null)); set("helper", helper); set("app", app);
++        set("waitingWriters", new AtomicInteger()); set("criticalBusinessWaitersR914", new AtomicInteger());
++        coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION, "R31_HOST_FIXTURE_SCHEMA"), tx -> {
++            RuntimeSchemaR26.ensure(tx); SchemaR27.ensure(tx);
++            tx.execSQL("INSERT OR REPLACE INTO r26_session(session_id,user_enabled,boot_id,state,heartbeat,actual_progress) VALUES(?,1,?,'RUNNING',?,0)", new Object[] {owner, IssueTimelineWriterR30.bootId(), System.currentTimeMillis()});
++            tx.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism,status) VALUES(?,'R27','HOST_CONTROLLED_FIXTURE','READY')", new Object[] {task});
++            return 0;
++        });
++        store = new DbStore(coordinator, db, app);
++        runtime = new RuntimeR27(store, owner);
++        worker = runtime.pool().new Worker(db, "host-owned-runtime");
++    }
++
++    private void set(String name, Object value) throws Exception {
++        Field field = DatabaseCoordinator.class.getDeclaredField(name); field.setAccessible(true); field.set(coordinator, value);
++    }
++
++    public <T> T owned(Callable<T> body) throws Exception {
++        claim = coordinator.runAtomicWriteOrThrowF01(RuntimeCoordinatorR26.controlContextR31("R31_HOST_FIXTURE_CLAIM"), tx -> {
++            RuntimeCoordinatorR26.Claim next = RuntimeCoordinatorR26.claimWithinR31(tx, task, owner, "R27", claim);
++            if (next == null) throw new IllegalStateException("HOST_PRODUCTION_CLAIM_NOT_ACQUIRED");
++            RuntimeCoordinatorR26.requireFence(tx, next); return next;
++        });
++        RuntimeCoordinatorR26.bindBackgroundClaim(claim);
++        try { return body.call(); }
++        finally { RuntimeCoordinatorR26.unbindBackgroundClaimR31(); }
++    }
++
++    /** The parent has observed this precise HOST JVM exit. Use the real fenced retry API, never edit a lease. */
++    public void recoverAfterConfirmedProcessExit(long oldPid) {
++        if(oldPid<=0||ProcessHandle.of(oldPid).map(ProcessHandle::isAlive).orElse(false))
++            throw new IllegalStateException("HOST_PRIOR_PROCESS_NOT_CONFIRMED_DEAD");
++        String prior=scalar("SELECT owner FROM r26_task WHERE task_id=?",task);
++        if(prior==null||!prior.startsWith("host-owned-"+oldPid+"-"))
++            throw new IllegalStateException("HOST_PRIOR_PROCESS_DOES_NOT_OWN_TASK");
++        ResearchPoolR27.retry(store,task);
++        System.out.println("HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid="+oldPid+" task="+task);
++    }
++
++    /** Inject a source commit after numerical preparation but before the actual coordinator opens its transaction. */
++    public void beforeNextOwnedWrite(Runnable action) {
++        helper.beforeWritable = () -> {
++            if (RuntimeCoordinatorR26.currentClaimR30() == null) return;
++            helper.beforeWritable = null; action.run();
++        };
++    }
++
++    /** Fail only after a real checkpoint SQL update, immediately before native SQLite COMMIT. */
++    public void failNextCheckpoint(String modelOwner) {
++        final String before = scalar("SELECT state_hash FROM r29_model_checkpoint WHERE owner=?", modelOwner);
++        db.beforeSuccessful = () -> {
++            if (RuntimeCoordinatorR26.currentClaimR30() != null && !java.util.Objects.equals(before, scalar("SELECT state_hash FROM r29_model_checkpoint WHERE owner=?", modelOwner))) {
++                db.beforeSuccessful = null; throw new IllegalStateException("HOST_INJECTED_ROLLBACK_AFTER_CHECKPOINT_SQL");
++            }
++        };
++    }
++
++    private String scalar(String sql, String value) {
++        try (Cursor row = db.rawQuery(sql, new String[] {value})) { return row.moveToFirst() ? row.getString(0) : null; }
++    }
++
++    @Override public void close() {
++        RuntimeCoordinatorR26.unbindBackgroundClaimR31(); helper.beforeWritable = null; db.beforeSuccessful = null;
++        runtime.close();
++        if (!runtime.pool().awaitResourcesTerminatedR31(2000)) throw new IllegalStateException("HOST_FIXTURE_RUNTIME_DID_NOT_DRAIN");
++    }
++}
+diff --git a/tools/r31/host_runtime_fixture.py b/tools/r31/host_runtime_fixture.py
+new file mode 100644
+index 00000000..1494a2f4
+--- /dev/null
++++ b/tools/r31/host_runtime_fixture.py
+@@ -0,0 +1,52 @@
++"""HOST platform adapters for actual owned RuntimeR27 fixtures; no business implementation is replaced."""
++from pathlib import Path
++import os
++import subprocess
++
++
++def compile_owned_platform(root, output, classes, sdk):
++    root, output, classes, sdk = map(Path, (root, output, classes, sdk))
++    sources = output / "sources"
++    platform = output / "platform"
++    sources.mkdir(parents=True)
++    platform.mkdir()
++    files = []
++    for original in sorted((root / "tools/r29/qual_host/shim").rglob("*.java")):
++        target = sources / original.relative_to(root / "tools/r29/qual_host/shim")
++        target.parent.mkdir(parents=True, exist_ok=True)
++        text = original.read_text()
++        if original.name == "SQLiteDatabase.java":
++            at = text.index("    static final class Rows")
++            text = text[:at] + '''
++    private boolean successful;
++    public Runnable beforeSuccessful;
++    public static final int OPEN_READONLY=1,NO_LOCALIZED_COLLATORS=16;
++    public interface CursorFactory {}
++    public static SQLiteDatabase openDatabase(String path,CursorFactory factory,int flags){try{return new SQLiteDatabase(java.sql.DriverManager.getConnection("jdbc:sqlite:file:"+path+"?mode=ro"));}catch(java.sql.SQLException failure){throw new SQLiteException(failure.getMessage());}}
++    public void beginTransaction(){try{jdbc.setAutoCommit(false);successful=false;}catch(java.sql.SQLException failure){throw new SQLiteException(failure.getMessage());}}
++    public void setTransactionSuccessful(){if(beforeSuccessful!=null)beforeSuccessful.run();successful=true;}
++    public void endTransaction(){try{if(successful)jdbc.commit();else jdbc.rollback();}catch(java.sql.SQLException failure){try{jdbc.rollback();}catch(java.sql.SQLException ignored){}throw new SQLiteException(failure.getMessage());}finally{successful=false;try{jdbc.setAutoCommit(true);}catch(java.sql.SQLException failure){throw new SQLiteException(failure.getMessage());}}}
++    public String getPath(){try{return jdbc.getMetaData().getURL().substring("jdbc:sqlite:".length());}catch(java.sql.SQLException failure){throw new SQLiteException(failure.getMessage());}}
++''' + text[at:]
++        target.write_text(text)
++        files.append(target)
++    adapters = {
++        "android/content/Context.java": 'package android.content;public class Context{public java.io.File getDatabasePath(String name){throw new IllegalStateException("HOST_PATH_REQUIRED");}public Context getApplicationContext(){return this;}}',
++        "android/app/Application.java": 'package android.app;public class Application extends android.content.Context{private final java.io.File path;public Application(java.io.File path){this.path=path;}@Override public java.io.File getDatabasePath(String name){return path;}}',
++        "android/os/SystemClock.java": 'package android.os;public final class SystemClock{public static long elapsedRealtime(){return System.nanoTime()/1000000L;}public static long uptimeMillis(){return elapsedRealtime();}public static long currentThreadTimeMillis(){return java.lang.management.ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime()/1000000L;}}',
++        "android/os/Debug.java": 'package android.os;public final class Debug{public static long threadCpuTimeNanos(){return java.lang.management.ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();}}',
++        "android/os/Process.java": 'package android.os;public final class Process{public static final int THREAD_PRIORITY_BACKGROUND=10;public static void setThreadPriority(int priority){}}',
++        "android/os/Looper.java": 'package android.os;public final class Looper{public static Looper myLooper(){return null;}public static Looper getMainLooper(){return null;}}',
++        "android/util/Log.java": 'package android.util;public final class Log{public static int w(String t,String m){return 0;}public static int w(String t,String m,Throwable e){return 0;}public static int e(String t,String m){return 0;}public static int e(String t,String m,Throwable e){return 0;}public static int d(String t,String m){return 0;}public static int i(String t,String m){return 0;}}',
++        "com/ethk3/novaonepro/DbHelper.java": 'package com.ethk3.novaonepro;import android.database.sqlite.SQLiteDatabase;public final class DbHelper{private final SQLiteDatabase db;public Runnable beforeWritable;public DbHelper(SQLiteDatabase db){this.db=db;}public SQLiteDatabase getReadableDatabase(){return db;}public SQLiteDatabase getWritableDatabase(){if(beforeWritable!=null)beforeWritable.run();return db;}public void close(){}}',
++        "com/ethk3/novaonepro/DbStore.java": 'package com.ethk3.novaonepro;import android.database.sqlite.SQLiteDatabase;public final class DbStore{private final DatabaseCoordinator coordinator;private final SQLiteDatabase db;private final android.content.Context context;public DbStore(DatabaseCoordinator coordinator,SQLiteDatabase db,android.content.Context context){this.coordinator=coordinator;this.db=db;this.context=context;}public DatabaseCoordinator coordinatorForResearchR952(){return coordinator;}public SQLiteDatabase readable(){return db;}public android.content.Context contextForR26(){return context;}}',
++    }
++    for name, text in adapters.items():
++        target = sources / name
++        target.parent.mkdir(parents=True, exist_ok=True)
++        target.write_text(text)
++        files.append(target)
++    subprocess.run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", os.pathsep.join(map(str, (sdk, classes))), "-d", str(platform), *map(str, files)], cwd=root, check=True)
++    # Compile the exact current producer, including reviewed PIT DDL removal, ahead of old support classes.
++    subprocess.run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", os.pathsep.join(map(str, (platform, classes, sdk))), "-d", str(platform), str(root / "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java")], cwd=root, check=True)
++    return platform

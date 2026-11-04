@@ -275,7 +275,7 @@ public final class ServiceHeartbeatStore {
         RuntimePatch p = new RuntimePatch();
         p.putLong("last_recovery_result_at", System.currentTimeMillis());
         p.putString("last_recovery_source", safe(source));
-        p.putString("last_recovery_result", ok ? "OK" : "FAIL");
+        p.putString("last_recovery_result", ok ? "REQUEST_ACCEPTED" : "FAIL");
         p.putString("last_recovery_detail", safe(detail));
         commitPatch(p);
     }
@@ -321,7 +321,8 @@ public final class ServiceHeartbeatStore {
 
     public void setPendingSettlementCount(int count) {
         RuntimePatch p = new RuntimePatch();
-        p.putInt("pending_settlement_count", Math.max(0, count));
+        p.putInt("pending_settlement_count", count<0?-1:count);
+        p.putBoolean("pending_settlement_known",count>=0);
         p.putLong("pending_settlement_updated_at", System.currentTimeMillis());
         applyTelemetryPatchR76(p);
     }
@@ -493,8 +494,7 @@ public final class ServiceHeartbeatStore {
         p.putString("settlement_stage_issue", safe(target));
         p.putString("settlement_stage_detail", safe(detail));
         p.putLong("settlement_stage_at", at);
-        p.putInt("pending_settlement_count", 0);
-        p.putLong("pending_settlement_updated_at", at);
+        // One task terminal is not evidence that the global backlog is empty.
         if ("COMPLETED".equals(terminalStatus)) {
             p.putLong("last_settlement_success_at", at);
             p.putString("last_settlement_issue", safe(target));
@@ -603,37 +603,26 @@ public final class ServiceHeartbeatStore {
     }
 
     public boolean tryAcquireRecoveryLease(String reason) {
-        synchronized (LOCK) {
-            long now = System.currentTimeMillis();
-            long until = getLong("recovery_lease_until", 0L);
-            long acquired = getLong("recovery_lease_acquired_at", 0L);
-            long ready = getLong("service_ready_at", 0L);
-            // Recovery and service run in the app's main process. A new main PID
-            // proves that a lease from the previous PID cannot still own a start.
-            // Fall back to the heartbeat owner for pre-R13 leases without this field.
-            boolean previousProcess = isPreviousMainProcessR13(
-                    getInt("recovery_lease_process_id", getInt("process_id", 0)));
-            boolean abandoned =
-                    until > now && (previousProcess || (acquired > 0L
-                            && ready < acquired
-                            && now - acquired > AppConfig.B07_RECOVERY_LEASE_STEAL_MS
-                            && isHeartbeatExpired()));
-            if (until > now && !abandoned) return false;
-            RuntimePatch p = new RuntimePatch();
-            p.putLong("recovery_lease_until", now + AppConfig.RECOVERY_LEASE_MS);
-            p.putString("recovery_lease_reason", safe(reason));
-            p.putLong("recovery_lease_acquired_at", now);
-            p.putInt("recovery_lease_process_id", safePid());
-            p.putString("recovery_lease_mode", abandoned && previousProcess
-                    ? "STEAL_PREVIOUS_PROCESS" : abandoned ? "STEAL_ABANDONED" : "NORMAL");
-            commitPatchLocked(p);
-            return true;
+        synchronized(LOCK){
+            long wall=System.currentTimeMillis(),mono=android.os.SystemClock.elapsedRealtime();
+            String boot=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.bootId(),epoch=ProcessBootIdentityR906.id();
+            boolean same=boot.equals(getString("r31_recovery_boot",""))&&epoch.equals(getString("r31_recovery_epoch",""));
+            long until=getLong("r31_recovery_deadline_elapsed",0L);
+            if(same&&until>mono)return false;
+            RuntimePatch p=new RuntimePatch();
+            p.putString("r31_recovery_request_id",java.util.UUID.randomUUID().toString());p.putString("r31_recovery_boot",boot);p.putString("r31_recovery_epoch",epoch);
+            p.putLong("r31_recovery_deadline_elapsed",mono+AppConfig.RECOVERY_LEASE_MS);p.putString("r31_recovery_state","REQUESTED");
+            p.putString("r31_recovery_baseline_artifact",getString("r31_research_artifact",""));p.putLong("r31_recovery_baseline_ordinal",getLong("r31_research_artifact_ordinal",-1));
+            p.putLong("recovery_lease_until",wall+AppConfig.RECOVERY_LEASE_MS);p.putLong("recovery_lease_acquired_at",wall);p.putInt("recovery_lease_process_id",safePid());p.putString("recovery_lease_reason",safe(reason));p.putString("recovery_lease_mode",same?"EXPIRED_MONOTONIC":"NEW_PROCESS_OR_BOOT");
+            commitPatchLocked(p);return true;
         }
     }
 
     public void releaseRecoveryLease(String reason) {
         RuntimePatch p = new RuntimePatch();
         p.putLong("recovery_lease_until", 0L);
+        p.putLong("r31_recovery_deadline_elapsed",0L);
+        p.putString("r31_recovery_state","RELEASED:"+safe(reason));
         p.putString("recovery_lease_release_reason", safe(reason));
         commitPatch(p);
     }
@@ -655,8 +644,11 @@ public final class ServiceHeartbeatStore {
         p.putString("init_last_error", "");
         p.putLong("last_recovery_result_at", now);
         p.putString("last_recovery_source", "service_ready");
-        p.putString("last_recovery_result", "OK");
-        p.putString("last_recovery_detail", "SERVICE_READY:" + safe(reason));
+        p.putString("last_recovery_result", "STARTED_AWAITING_PROGRESS");
+        p.putString("r31_recovery_state","STARTED_AWAITING_PROGRESS");
+        p.putString("r31_recovery_observed_owner","");
+        p.putLong("r31_recovery_deadline_elapsed",0L);
+        p.putString("last_recovery_detail", "SERVICE_READY_NOT_RESEARCH_RECOVERED:" + safe(reason));
         commitPatch(p);
     }
 
@@ -689,7 +681,7 @@ public final class ServiceHeartbeatStore {
         if (isPreviousMainProcessR13(getInt("process_id", 0))) return false;
         if (isHeartbeatExpired()) return false;
         if (!isRuntimeLeaseFresh()) return false;
-        return !isBusinessStale() || isAnalysisWorkFresh();
+        return !isBusinessStale();
     }
 
     public long getHeartbeatAt() {
@@ -817,13 +809,14 @@ public final class ServiceHeartbeatStore {
                         || analysis + AppConfig.SERVICE_ANALYSIS_STALE_MS < fetch
                         || now - analysis > AppConfig.SERVICE_ANALYSIS_STALE_MS)
                 && !isAnalysisWorkFresh()) return "ANALYSIS_STALE_NO_PROGRESS";
-        int pending = getInt("pending_settlement_count", 0);
+        int pending = getInt("pending_settlement_count", -1);
         long settlement = getLastSettlementSuccessAt(),
                 settlementStage = getLong("settlement_stage_at", 0L);
         if (pending > 0
                 && (settlement <= 0L
                         || now - Math.max(settlement, settlementStage)
                                 > AppConfig.SERVICE_SETTLEMENT_STALE_MS)) return "SETTLEMENT_STALE";
+        if(pending<0)return "SETTLEMENT_PENDING_UNKNOWN";
         String researchStale = getResearchStaleReason();
         if (researchStale.length() > 0) return researchStale;
         return "";
@@ -965,9 +958,44 @@ public final class ServiceHeartbeatStore {
     }
 
     public String getResearchStaleReason() {
-        BackgroundResearchProgressContractR955.Result truth = researchProgressTruth();
-        return truth.stale() ? truth.reason : "";
+        if(getLong("r31_research_sample_elapsed",0)>0){
+            String boot=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.bootId();
+            long age=android.os.SystemClock.elapsedRealtime()-getLong("r31_research_sample_elapsed",0);
+            if(!boot.equals(getString("r31_research_boot",""))||age<0||age>15000)return "RESEARCH_HEALTH_UNKNOWN_STALE_SAMPLE";
+            String state=getString("r31_research_health","UNKNOWN");
+            return researchProgressAcceptableR31(state)?"":"RESEARCH_"+state+":"+getString("r31_research_reason","");
+        }
+        return "RESEARCH_HEALTH_UNKNOWN_NOT_SAMPLED";
     }
+
+    public void markResearchHealthR31(com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.RuntimeHealthSnapshot snapshot){
+        if(snapshot==null)return;
+        RuntimePatch p=new RuntimePatch();p.putString("r31_research_snapshot_id",snapshot.snapshotId);p.putString("r31_research_owner",snapshot.ownerEpoch);p.putString("r31_research_boot",snapshot.bootId);
+        p.putLong("r31_research_sample_wall",snapshot.sampleWallMs);p.putLong("r31_research_sample_elapsed",snapshot.sampleElapsedMs);p.putString("r31_process_liveness",snapshot.processLiveness);p.putString("r31_research_health",snapshot.researchHealth);p.putString("r31_research_reason",snapshot.reason);
+        p.putBoolean("r31_research_pending_known",snapshot.pendingKnown);p.putLong("r31_research_pending_task_count",snapshot.pending==null?-1:snapshot.pending);
+        p.putString("r31_research_artifact",safe(snapshot.lastArtifactHash));p.putLong("r31_research_artifact_ordinal",snapshot.lastArtifactOrdinal==null?-1:snapshot.lastArtifactOrdinal);
+        p.putString("r31_research_snapshot_json",com.ethk3.novaonepro.strategyv2.JsonR27.write(snapshot.asMap()));
+        String baseline=getString("r31_recovery_baseline_artifact","");long ordinal=getLong("r31_recovery_baseline_ordinal",-1);
+        String observedOwner=getString("r31_recovery_observed_owner","");
+        boolean advanced=snapshot.lastArtifactOrdinal!=null&&snapshot.lastArtifactOrdinal>=ordinal&&!safe(snapshot.lastArtifactHash).isEmpty()&&!safe(snapshot.lastArtifactHash).equals(baseline);
+        if(!snapshot.ownerEpoch.equals(observedOwner)){
+            // The first persisted checkpoint observed in this owner may predate this process.
+            // Establish a baseline; only a later independently observed artifact proves recovery.
+            p.putString("r31_recovery_observed_owner",snapshot.ownerEpoch);p.putString("r31_recovery_baseline_artifact",safe(snapshot.lastArtifactHash));p.putLong("r31_recovery_baseline_ordinal",snapshot.lastArtifactOrdinal==null?-1:snapshot.lastArtifactOrdinal);
+        }else if(advanced&&(getString("r31_recovery_state","").equals("STARTED_AWAITING_PROGRESS")||getString("r31_recovery_state","").equals("CONTROL_REQUESTED_AWAITING_PROGRESS"))){
+            p.putString("r31_recovery_state","RECOVERED_ARTIFACT_CONFIRMED");p.putString("last_recovery_result","RECOVERED_ARTIFACT_CONFIRMED");p.putLong("r31_recovery_first_progress_at",snapshot.sampleWallMs);
+        }
+        applyTelemetryPatchR76(p);
+    }
+    public void noteResearchRecoveryRequestR31(com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.RuntimeHealthSnapshot snapshot,String reason){
+        if(snapshot==null||researchProgressAcceptableR31(snapshot.researchHealth))return;
+        if(snapshot.ownerEpoch.equals(getString("r31_recovery_observed_owner",""))&&getString("r31_recovery_state","").equals("CONTROL_REQUESTED_AWAITING_PROGRESS"))return;
+        RuntimePatch p=new RuntimePatch();p.putString("r31_recovery_state","CONTROL_REQUESTED_AWAITING_PROGRESS");p.putString("r31_recovery_observed_owner",snapshot.ownerEpoch);p.putString("r31_recovery_baseline_artifact",safe(snapshot.lastArtifactHash));p.putLong("r31_recovery_baseline_ordinal",snapshot.lastArtifactOrdinal==null?-1:snapshot.lastArtifactOrdinal);p.putString("r31_recovery_request_id",java.util.UUID.randomUUID().toString());p.putLong("r31_recovery_control_requested_at",System.currentTimeMillis());p.putString("last_recovery_result","CONTROL_REQUESTED_AWAITING_PROGRESS");p.putString("last_recovery_detail",safe(reason));applyTelemetryPatchR76(p);
+    }
+    public String researchHealthJsonR31(){return getString("r31_research_snapshot_json","{\"researchHealth\":\"UNKNOWN\"}");}
+    static boolean researchProgressAcceptableR31(String state){return "IDLE_WAITING_INPUT".equals(state)||"PROGRESS_PENDING".equals(state)||"HEALTHY".equals(state)||"IDLE".equals(state);}
+    public void markFetchCadenceR31(java.util.Map<String,Object> cadence){RuntimePatch p=new RuntimePatch();p.putString("r31_fetch_cadence_json",com.ethk3.novaonepro.strategyv2.JsonR27.write(cadence));applyTelemetryPatchR76(p);}
+    public String fetchCadenceJsonR31(){return getString("r31_fetch_cadence_json","{\"status\":\"NOT_SAMPLED\"}");}
 
     public long getLoopRepairAt() {
         return getLong("loop_repair_at", 0L);
@@ -1592,7 +1620,7 @@ public final class ServiceHeartbeatStore {
         String research =
                 starting
                         ? "WAITING"
-                        : (initFailed ? "BLOCKED" : researchTruth.state);
+                        : (initFailed ? "BLOCKED" : getString("r31_research_health","UNKNOWN"));
         String overall = "HEALTHY", reason = "";
         if (!isUserEnabled()) {
             overall = "USER_STOPPED";

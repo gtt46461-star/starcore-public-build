@@ -1,0 +1,36 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/tmp/r31-legacy31fea-ci-mirror/tools/r30/qual_host/CalibrationR30HostTest.java:10: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/tmp/r31-legacy31fea-ci-mirror/tools/r30/qual_host/CalibrationR30HostTest.java:39: warning: Unsafe is internal proprietary API and may be removed in a future release
+            Field f=Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);Unsafe u=(Unsafe)f.get(null);
+                    ^
+/tmp/r31-legacy31fea-ci-mirror/tools/r30/qual_host/CalibrationR30HostTest.java:39: warning: Unsafe is internal proprietary API and may be removed in a future release
+            Field f=Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);Unsafe u=(Unsafe)f.get(null);
+                                                                                     ^
+/tmp/r31-legacy31fea-ci-mirror/tools/r30/qual_host/CalibrationR30HostTest.java:39: warning: Unsafe is internal proprietary API and may be removed in a future release
+            Field f=Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);Unsafe u=(Unsafe)f.get(null);
+                                                                                               ^
+4 warnings
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+REPAIR_MATRIX_ACTUAL_PRODUCERS|FIVE_DISTINCT_TYPED_CALCULATIONS|FOUR_DISTINCT_SHAPES|14_EXPLICIT_DEPENDENCIES|CANONICAL_CALENDAR_BOUNDARY|PASS|HOST_SYNTHETIC_ONLY
+REPAIR_MATRIX_LEGACY|ACTUAL_PRODUCTION_CALLBACK|THIRD_CAPTURE_CONFLICT_ROLLS_BACK_FIRST_TWO|EXACT_RETRY_SUCCEEDS_WITHOUT_DUPLICATION|FULL_ORIGINAL_CELLS_PRESERVED|PASS
+REPAIR_MATRIX_NATIVE|RESTORE_13_BASELINE_DECLARED_TABLES|MIGRATION_ROLLBACK_AND_RETRY|ACTUAL_PAYLOAD_HASH_AND_ROLE|FAILED_WRITE_NO_PUBLICATION|IDEMPOTENT|ORIGINAL_MODEL_BYTES_KEPT|PASS|HOST_SYNTHETIC_ONLY
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Exception in thread "main" java.lang.IllegalStateException: R31_DEPENDENCY_TASK_CLAIM_REQUIRED
+	at com.ethk3.novaonepro.strategyv2.RuntimeR27.submit(RuntimeR27.java:107)
+	at com.ethk3.novaonepro.strategyv2.RuntimeR27.submit(RuntimeR27.java:101)
+	at com.ethk3.novaonepro.strategyv2.RuntimeR27.submit(RuntimeR27.java:98)
+	at com.ethk3.novaonepro.strategyv2.LiveShadowsR27.calibrate(LiveShadowsR27.java:350)
+	at com.ethk3.novaonepro.strategyv2.CalibrationR30HostTest.main(CalibrationR30HostTest.java:46)
+Traceback (most recent call last):
+  File "/tmp/r31-legacy31fea-ci-mirror/tools/r30-repair/run_matrix_host.py", line 15, in <module>
+    for name in ['RepairMatrixR30HostTest','CalibrationR30HostTest']:run(['java','-Xmx768m','-cp',cp,'com.ethk3.novaonepro.strategyv2.'+name])
+                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r31-legacy31fea-ci-mirror/tools/r30-repair/run_matrix_host.py", line 5, in run
+    def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['java', '-Xmx768m', '-cp', '/tmp/repair-matrix-host-oc2wc8_s/shim:/tmp/repair-matrix-host-oc2wc8_s/test:/tmp/r31-legacy31fea-ci-mirror/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar', 'com.ethk3.novaonepro.strategyv2.CalibrationR30HostTest']' returned non-zero exit status 1.

@@ -7,7 +7,6 @@ import java.nio.file.*;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import sun.misc.Unsafe;
 
 /** Production confirmation/registration over disk SQLite, followed by actual JVM death and reopen. */
 public final class FrozenConfirmationR30HostTest {
@@ -27,7 +26,7 @@ public final class FrozenConfirmationR30HostTest {
     public static void main(String[] args) throws Exception {
         if (args.length==0) {
             Path file=Files.createTempFile("r30-frozen-confirm-",".db");
-            try { child("write-and-kill",file);child("restart-and-check",file); } finally { Files.deleteIfExists(file); }
+            try { long oldPid=child("write-and-kill",file,-1);child("restart-and-check",file,oldPid); } finally { Files.deleteIfExists(file); }
             return;
         }
         Class.forName("org.sqlite.JDBC");
@@ -39,13 +38,11 @@ public final class FrozenConfirmationR30HostTest {
                 s.execute("CREATE TABLE draws(issue TEXT PRIMARY KEY,dirty INTEGER NOT NULL)");s.execute("INSERT INTO draws VALUES('202610310001',0)");
                 s.execute("CREATE TABLE r26_evolution(attempt_id TEXT PRIMARY KEY,campaign_id TEXT,policy_hash TEXT,parent TEXT,operation TEXT,category TEXT,structure_hash TEXT,behavior_novel INTEGER,research_accepted INTEGER DEFAULT 0,verified_improvement INTEGER DEFAULT 0,prospective_qualified INTEGER DEFAULT 0)");
             }
-            Field f=Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);Unsafe u=(Unsafe)f.get(null);
-            ResearchPoolR27 pool=(ResearchPoolR27)u.allocateInstance(ResearchPoolR27.class);
-            ResearchWriteQueueR27 writes=new ResearchWriteQueueR27((op,batch)->commit(c,db,batch),()->false);
-            u.putObject(pool,u.objectFieldOffset(ResearchPoolR27.class.getDeclaredField("writes")),writes);
-            ResearchPoolR27.Worker worker=pool.new Worker(db,"frozen-confirm-test");
-            RuntimeR27 runtime=(RuntimeR27)u.allocateInstance(RuntimeR27.class);
+            try (R31OwnedRuntimeFixture owned=new R31OwnedRuntimeFixture(db,"r27-evolution")) {
+            RuntimeR27 runtime=owned.runtime;ResearchPoolR27.Worker worker=owned.worker;
             runtime.operatorAbi=new HashMap<>();for (String op:SemanticAbiR27.operators(policy(1)))runtime.operatorAbi.put(op,"host-fixture-abi");
+            if (!args[0].equals("write-and-kill")) owned.recoverAfterConfirmedProcessExit(Long.getLong("r31.host.previousPid",-1));
+            owned.owned(()-> {
             if (args[0].equals("write-and-kill")) {
                 StoreR27.EvolutionSink sink=new StoreR27.EvolutionSink(RuntimeR27.LOOP,"202610310001");
                 EvolutionLoopR27 loop=new EvolutionLoopR27(config(),new FeatureCacheR27(data()),sink,()->1L);
@@ -155,12 +152,14 @@ public final class FrozenConfirmationR30HostTest {
             require(q08.snapshot().equals(NullPipelineSimulationStoreR30.load(db,q08.sourceCommit()).snapshot()),"Q08_CHECKPOINT_NOT_RESTORED");
             Map<String,Object> q08Report=ReportR29.cachedPanel(db,"r30","q08");
             require(Boolean.FALSE.equals(q08Report.get("naturalQualityEligible"))&&q08.sourceCommit().equals(q08Report.get("sourceCommit")),"Q08_REPORT_SOURCE_OR_SCOPE_WRONG");
-            System.out.println("R30_FROZEN_SQLITE|PROCESS_RESTART|RAW_CACHE_NO_REREAD_WITH_NULL_CONFIRM_LABELS|CONSUMED_WITHOUT_OUTCOME_INSUFFICIENT|ORPHAN_DATASET_RECOVERED|FIRST_PACKET_IMMUTABLE|QUALIFICATION_INDEX_PRESERVED|CORRUPT_TRACE_REJECTED|SYNTHETIC_FUTURE_STATE_COUNT_MATCHES|FIRST_REPORT_COUNT_CORRECT|CONTROL_VIEW_RESERVATION_AND_CACHE_MATCH|Q08_CHECKPOINT_AND_REPORT_MATCH|PASS");
+            System.out.println("R30_FROZEN_SQLITE|PROCESS_RESTART|RAW_CACHE_NO_REREAD_WITH_NULL_CONFIRM_LABELS|CONSUMED_WITHOUT_OUTCOME_INSUFFICIENT|ORPHAN_DATASET_RECOVERED|FIRST_PACKET_IMMUTABLE|QUALIFICATION_INDEX_PRESERVED|CORRUPT_TRACE_REJECTED|SYNTHETIC_FUTURE_STATE_COUNT_MATCHES|FIRST_REPORT_COUNT_CORRECT|CONTROL_VIEW_RESERVATION_AND_CACHE_MATCH|Q08_CHECKPOINT_AND_REPORT_MATCH|PRODUCTION_OWNED_WRITES_AND_FENCED_RETRY_AFTER_CONFIRMED_EXIT|PASS");
+            return null; });
+            }
         }
     }
-    static void child(String mode,Path database)throws Exception{
-        Process p=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-cp",System.getProperty("java.class.path"),FrozenConfirmationR30HostTest.class.getName(),mode,database.toString()).redirectErrorStream(true).start();
+    static long child(String mode,Path database,long previousPid)throws Exception{
+        Process p=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-Dr31.host.previousPid="+previousPid,"-cp",System.getProperty("java.class.path"),FrozenConfirmationR30HostTest.class.getName(),mode,database.toString()).redirectErrorStream(true).start();
         if(!p.waitFor(45,TimeUnit.SECONDS)){p.destroyForcibly();throw new AssertionError("FROZEN_CHILD_TIMEOUT:"+mode);}
-        String output=new String(p.getInputStream().readAllBytes(),StandardCharsets.UTF_8);System.out.print(output);require(p.exitValue()==0,"FROZEN_CHILD_FAILED:"+mode);
+        String output=new String(p.getInputStream().readAllBytes(),StandardCharsets.UTF_8);System.out.print(output);require(p.exitValue()==0,"FROZEN_CHILD_FAILED:"+mode);return p.pid();
     }
 }

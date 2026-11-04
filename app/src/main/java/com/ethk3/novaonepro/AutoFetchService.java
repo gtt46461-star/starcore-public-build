@@ -69,6 +69,20 @@ import java.util.List;
 public final class AutoFetchService extends Service {
     private static volatile boolean lifecycleActiveR82;
     private static volatile AutoFetchService activeInstanceR82;
+    private final java.util.concurrent.atomic.AtomicBoolean researchControlPostedR31=new java.util.concurrent.atomic.AtomicBoolean();
+    public static boolean requestResearchReconcileR31(final String reason){
+        final AutoFetchService service=activeInstanceR82;
+        if(service==null||!lifecycleActiveR82||!service.running||service.userRequestedStopV5||!service.runtimeInitialized||service.runtimeGuardHandler==null)return false;
+        if(!service.researchControlPostedR31.compareAndSet(false,true))return true;
+        boolean posted=false;
+        try{posted=service.runtimeGuardHandler.post(new Runnable(){@Override public void run(){
+            try{
+                if(!service.running||service.userRequestedStopV5||!service.isServiceUserEnabledV5())return;
+                service.reconcileResearchOwner("IN_PROCESS:"+service.safe(reason));
+                service.ensureRuntimeLoopsAliveV17("R31_CONTROL_RECONCILE");
+            }finally{service.researchControlPostedR31.set(false);}
+        }});return posted;}finally{if(!posted)service.researchControlPostedR31.set(false);}
+    }
     private static volatile Thread[] teardownThreadsR82 = new Thread[0];
     /** Reads existing live owners and validated provider facts; performs no SQL or side effects. */
     public static String runtimeHealthBlockerR82(String baseIssue,String targetIssue) {
@@ -589,6 +603,36 @@ public final class AutoFetchService extends Service {
     /** R30-B02-02: one draw request in flight per process; backoff 1/2/4/8/15 s on consecutive failures. */
     public static final com.ethk3.novaonepro.strategyv2.FetchBackoffR30 FETCH_R30 = new com.ethk3.novaonepro.strategyv2.FetchBackoffR30();
     private volatile boolean haveCurrentDrawR30;
+    private volatile long fetchGenerationR31;
+    private final PollCadenceR31 fetchCadenceR31=new PollCadenceR31();
+    private volatile int offlineStreakR31;
+
+    /** One monotonic target slot per second. Late work is counted, never replayed in a burst. */
+    public static final class PollCadenceR31 {
+        private long nextTarget,wakes,targetSlots,missedTicks,earlyWakes,lastWake,inactiveAt,excludedInactiveMs,sessions;
+        private String scheduleReason="SESSION_START";
+        private final java.util.Map<String,Long> missedByReason=new java.util.LinkedHashMap<>();
+        public synchronized void beginSession(long mono){if(inactiveAt>0)excludedInactiveMs+=Math.max(0,mono-inactiveAt);inactiveAt=0;nextTarget=mono;lastWake=mono;sessions++;scheduleReason="SESSION_START";}
+        public synchronized void endSession(long mono){inactiveAt=mono;}
+        public synchronized void wake(long mono){
+            if(mono<lastWake)throw new IllegalArgumentException("R31_MONOTONIC_CLOCK_REGRESSION");
+            lastWake=mono;wakes++;
+            if(nextTarget==0)nextTarget=mono;
+            if(mono<nextTarget){earlyWakes++;return;}
+            long skipped=(mono-nextTarget)/1000L;
+            missedTicks+=skipped;targetSlots+=skipped+1;nextTarget+=(skipped+1)*1000L;
+            if(skipped>0)missedByReason.put(scheduleReason,missedByReason.getOrDefault(scheduleReason,0L)+skipped);
+        }
+        public synchronized long nextDelay(long mono,long backoff,String reason,long minimum){
+            scheduleReason=reason;long due=nextTarget==0?mono:nextTarget;
+            if(backoff>1000L)due=Math.max(due,mono+backoff);
+            return Math.max(minimum,due-mono);
+        }
+        public synchronized java.util.Map<String,Object> snapshot(){
+            java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();
+            out.put("targetPeriodMs",1000L);out.put("wakes",wakes);out.put("targetSlots",targetSlots);out.put("missed_tick",missedTicks);out.put("earlyExplicitWakes",earlyWakes);out.put("lastWakeElapsedMs",lastWake);out.put("nextTargetElapsedMs",nextTarget);out.put("scheduleReason",scheduleReason);out.put("missedByReason",java.util.Collections.unmodifiableMap(new java.util.LinkedHashMap<>(missedByReason)));out.put("activeSessions",sessions);out.put("excludedInactiveMs",excludedInactiveMs);out.put("scope","CURRENT_SERVICE_INSTANCE_MONOTONIC_SCHEDULER_NOT_HTTP_OR_DEVICE_SLO");return java.util.Collections.unmodifiableMap(out);
+        }
+    }
 
     private final Runnable fetchLoop =
             new Runnable() {
@@ -597,6 +641,7 @@ public final class AutoFetchService extends Service {
                     if (!running) {
                         return;
                     }
+                    fetchCadenceR31.wake(android.os.SystemClock.elapsedRealtime());
                     try {
                         runFetchChannelOnce();
                     } catch (Throwable e) {
@@ -1468,6 +1513,7 @@ public final class AutoFetchService extends Service {
             }
             heartbeatStateV8().markInitStage("ENGINE_GRAPH", "construct_active_runtime");
             apiClient = new ApiClient(store);
+            apiClient.setRequestCancellationR31(()->userRequestedStopV5||!running);
             dataGuard = new DataGuard();
             countdownClock = new CountdownClock(countdownThreadR973.getLooper());
 
@@ -2369,8 +2415,30 @@ public final class AutoFetchService extends Service {
     }
 
     private synchronized void ensureContinuousRuntimeR26() {
-        if (store != null && (continuousRuntimeR26 == null || !continuousRuntimeR26.isRunning()))
+        if (store != null && (continuousRuntimeR26 == null || "TERMINATED".equals(continuousRuntimeR26.stopStateR31())))
             continuousRuntimeR26 = new com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26(store);
+    }
+    private volatile long lastResearchControlElapsedR31;
+    private final Runnable researchControlLoopR31=new Runnable(){@Override public void run(){
+        if(!running||userRequestedStopV5)return;
+        try{reconcileResearchOwner("CONTROL_TICK");}
+        catch(RuntimeException failure){Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failure);if(fatal!=null)throw fatal;CrashRecorder.recordCaught(getApplicationContext(),failure,"R31_RESEARCH_CONTROL");}
+        finally{if(running&&!userRequestedStopV5&&runtimeGuardHandler!=null)runtimeGuardHandler.postDelayed(this,5000L);}
+    }};
+    private void postResearchControlR31(){if(runtimeGuardHandler!=null){runtimeGuardHandler.removeCallbacks(researchControlLoopR31);runtimeGuardHandler.post(researchControlLoopR31);}}
+    private void reconcileResearchOwner(String reason){
+        if(!running||userRequestedStopV5||store==null||!isServiceUserEnabledV5())return;
+        long mono=android.os.SystemClock.elapsedRealtime();if(mono-lastResearchControlElapsedR31<5000L)return;lastResearchControlElapsedR31=mono;
+        store.requestLegacySchemaMigrationR31();
+        ensureContinuousRuntimeR26();
+        com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26 owner=continuousRuntimeR26;
+        if(owner!=null){
+            com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.RuntimeHealthSnapshot before=owner.healthSnapshotR31();
+            heartbeatStateV8().noteResearchRecoveryRequestR31(before,reason);
+            heartbeatStateV8().markResearchHealthR31(owner.reconcileResearchHealthR31(reason));
+        }
+        try{heartbeatStateV8().setPendingSettlementCount(SettlementTaskStoreR36.pendingCountR31(store));}
+        catch(RuntimeException unknown){Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(unknown);if(fatal!=null)throw fatal;heartbeatStateV8().setPendingSettlementCount(-1);}
     }
 
     private void startWorkR3610OffMain() {
@@ -2380,6 +2448,7 @@ public final class AutoFetchService extends Service {
         }
         ensureContinuousRuntimeR26();
         if (running) {
+            postResearchControlR31();
             refreshBuildIdentityAndModuleState("startWork_running");
             forceRefresh = true;
             ensureRuntimeLoopsAliveV17("startWork_running");
@@ -2391,6 +2460,8 @@ public final class AutoFetchService extends Service {
             ensureR908BackgroundLoops();
             return;
         }
+        fetchGenerationR31++;
+        fetchCadenceR31.beginSession(android.os.SystemClock.elapsedRealtime());offlineStreakR31=0;
         running = true;
         forceRefresh = true;
         startLightweightHeartbeatR817();
@@ -2413,6 +2484,7 @@ public final class AutoFetchService extends Service {
         } catch (Throwable ignore) {
         }
         postServiceHeartbeatV5();
+        postResearchControlR31();
         try {
             BootReceiver.scheduleAllRecovery(getApplicationContext(), "startWork");
         } catch (Throwable ignore) {
@@ -2515,6 +2587,10 @@ public final class AutoFetchService extends Service {
     }
 
     private void stopWork() {
+        if(runtimeGuardHandler!=null)runtimeGuardHandler.removeCallbacks(researchControlLoopR31);
+        researchControlPostedR31.set(false);fetchGenerationR31++;running=false;
+        fetchCadenceR31.endSession(android.os.SystemClock.elapsedRealtime());
+        if(apiClient!=null)apiClient.cancelInFlightR31();
         if (continuousRuntimeR26 != null) continuousRuntimeR26.close();
         cancelExitedAnalysisReleasesR77();
         running = false;
@@ -2634,46 +2710,15 @@ public final class AutoFetchService extends Service {
             return;
         }
 
-        long delay = FETCH_IDLE_DELAY_MS;
-
-        if (isRealtimeLikeWindow()) {
-            delay = FETCH_REALTIME_DELAY_MS;
-        } else {
-            try {
-                if (countdownClock != null) {
-                    long clockDelay = countdownClock.getNextFetchDelayMs();
-                    if (clockDelay > 0L && clockDelay < delay) {
-                        delay = clockDelay;
-                    }
-                }
-            } catch (Throwable e) {
-                delay = FETCH_IDLE_DELAY_MS;
-            }
-        }
-
-        // Scheduling the next transport wake must be DB-free. Admission and commit still
-        // validate the exact durable draw/target in their existing owners.
-        if (analysisBusy
-                || realtimePriorityUntilAt > System.currentTimeMillis()
-                || (pendingAnalysisBaseIssue != null && pendingAnalysisBaseIssue.length() > 0)) {
-            if (delay > 650L) {
-                delay = 650L;
-            }
-        }
-
-        // R30-B02-02: the next wake comes from FetchBackoffR30 (healthy 1 s, relaxed 3 s more than 20 s before the
-        // deadline when the current draw is already held, backoff 1/2/4/8/15 s after failures). The analysis-pending
-        // 650 ms fast path above still applies while healthy; it never shortens a failure backoff.
-        long untilDeadlineR30 = Long.MIN_VALUE;
-        try { if (countdownClock != null) untilDeadlineR30 = countdownClock.getSignedCountdownMs(); }
-        catch (Throwable unknownClock) { untilDeadlineR30 = Long.MIN_VALUE; }
-        long backoffR30 = FETCH_R30.nextDelayMs(haveCurrentDrawR30, untilDeadlineR30);
-        delay = FETCH_R30.consecutiveFailures() == 0 && delay <= 650L ? Math.min(delay, backoffR30) : backoffR30;
-
-        if (delay < AppConfig.REALTIME_MIN_LOOP_INTERVAL_MS) {
-            delay = AppConfig.REALTIME_MIN_LOOP_INTERVAL_MS;
-        }
-
+        // R31 keeps the one-second healthy target anchored to actual elapsed time. HTTP
+        // completion cannot add another second to every period. Backoff keeps its original
+        // bounded failure policy; no overlapping request or catch-up replay is scheduled.
+        long backoffR30=FETCH_R30.consecutiveFailures()>0?FETCH_R30.nextDelayMs(false,Long.MIN_VALUE):1000L;
+        String reason=FETCH_R30.consecutiveFailures()>0?"HTTP_FAILURE_OR_429_BACKOFF":"NORMAL_OR_PREVIOUS_WORK_OVERRUN";
+        if(offlineStreakR31>0){backoffR30=Math.max(backoffR30,Math.min(15000L,1000L<<Math.min(4,offlineStreakR31-1)));reason="NETWORK_UNAVAILABLE_BACKOFF";}
+        long delay=fetchCadenceR31.nextDelay(android.os.SystemClock.elapsedRealtime(),backoffR30,reason,AppConfig.REALTIME_MIN_LOOP_INTERVAL_MS);
+        heartbeatStateV8().markFetchCadenceR31(fetchCadenceR31.snapshot());
+        fetchHandler.removeCallbacks(fetchLoop);
         fetchHandler.postDelayed(fetchLoop, delay);
     }
 
@@ -2683,6 +2728,7 @@ public final class AutoFetchService extends Service {
         }
 
         fetchBusy = true;
+        final long generationR31=fetchGenerationR31;
 
         try {
             long now = System.currentTimeMillis();
@@ -2691,8 +2737,7 @@ public final class AutoFetchService extends Service {
             boolean realtimeLike = isRealtimeLikeWindow();
             Models.Draw localLatestBeforeFetch = store == null ? null : store.getLatestDraw();
             boolean staleLatestBeforeFetch = isLatestDrawStaleForRecovery(localLatestBeforeFetch, now);
-            boolean shouldFetch =
-                    forceRefresh || realtimeLike || shouldClockFetchNow() || staleLatestBeforeFetch;
+            boolean shouldFetch = true; // R31 healthy foreground polling target is one second.
 
             if (!shouldFetch) {
                 updateRuntimeState(AppConfig.SERVICE_STATUS_WAITING, "");
@@ -2706,6 +2751,7 @@ public final class AutoFetchService extends Service {
             forceRefresh = false;
 
             if (!isNetworkAvailable()) {
+                offlineStreakR31=Math.min(16,offlineStreakR31+1);
                 networkWasUnavailable = true;
                 lastError = "网络不可用";
                 updateRuntimeState(AppConfig.SERVICE_STATUS_DELAY, lastError);
@@ -2716,6 +2762,7 @@ public final class AutoFetchService extends Service {
 
             boolean recovered = networkWasUnavailable;
             networkWasUnavailable = false;
+            offlineStreakR31=0;
 
             // Fetch admission must not wait for the full status snapshot (backtest/learning
             // reads and app_state writes). Clock ticks already have their own DB-free owner;
@@ -2731,12 +2778,14 @@ public final class AutoFetchService extends Service {
                 return;
             }
             Models.ApiResult latestResult = null;
+            if(!running||userRequestedStopV5||generationR31!=fetchGenerationR31){FETCH_R30.end(true);return;}
             try (com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.RequestScope timelineRole=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.requestScope(com.ethk3.novaonepro.strategyv2.IssueTimelineR30.EventRole.LIVE)) {
                 latestResult = fetchLatestRealtime();
             } finally {
                 FETCH_R30.end(latestResult != null && latestResult.ok && latestResult.latestDraw != null);
             }
 
+            if(!running||userRequestedStopV5||generationR31!=fetchGenerationR31)return;
             if (countdownClock != null) {
                 countdownClock.markFetched(latestResult != null && latestResult.ok);
             }
@@ -3644,6 +3693,7 @@ public final class AutoFetchService extends Service {
             // R77: the successful claim already renewed the durable lease. History checkpoints
             // retain cancellation/deadline checks without immediately writing the same lease twice.
             lease.token.claimDurablePulse(System.currentTimeMillis(), true);
+            lease.token.beginPhaseR31(AnalysisSingleFlightR36.PhaseR31.PREPARE,1000L);
             // Measure only an accepted durable execution. Auditing before claim used to
             // exhaust an old request's SLO before its retry could acquire ownership.
             resourceScopeR927 = RuntimeResourceAuditR927.begin(store, lease);
@@ -3697,6 +3747,7 @@ public final class AutoFetchService extends Service {
             claimed = requests.bindHistoryHash(claimed, input.historyHash, lease.ownerId);
             setAnalysisState("RUNNING", 35, "R3.6计算号码100与正式动作1200：" + request.targetIssue);
             RuntimeResourceAuditR927.stageEnd("PIT_FREEZE_AND_BIND",TimeSourceR811.monoNowMs()-inputStartedR959,true);
+            lease.token.beginPhaseR31(AnalysisSingleFlightR36.PhaseR31.INFER,3000L);
             outcome = V51AutoFetchBridge.runR36(store, input, claimed, lease, predrawWakeR81);
             }
             if (outcome == null
@@ -3894,7 +3945,8 @@ public final class AutoFetchService extends Service {
                             + "|durable="
                             + requests.diagnostic(request.targetIssue));
             try {
-                heartbeatStateV8().markAnalysisFailed(request.targetIssue, lastError);
+                if(lastError.contains("R31_DEPENDENCY_"))heartbeatStateV8().markAnalysisProgress("WAITING",0,lastError,request.targetIssue);
+                else heartbeatStateV8().markAnalysisFailed(request.targetIssue, lastError);
             } catch (Throwable ignore) {
                 recordCriticalCatchR926("HEARTBEAT_ANALYSIS_FAILED", request.targetIssue, ignore);
             }
@@ -3914,9 +3966,10 @@ public final class AutoFetchService extends Service {
             } catch (Throwable ignore) {
                 recordCriticalCatchR926("ANALYSIS_FAILURE_DURABLE_STATE", request.targetIssue, ignore);
             }
-            setAnalysisState("ERROR", 0, "R3.6分析未提交 canonical：" + lastError);
+            setAnalysisState(lastError.contains("R31_DEPENDENCY_")?"WAITING":"ERROR", 0, "R3.6分析未提交 canonical：" + lastError);
         } finally {
-            try { RuntimeResourceAuditR927.finish(store, resourceScopeR927, lease.token.isCanonicalCommitted(), lease.token.isCanonicalCommitted() ? "DURABLE" : lastError); }
+            try{java.util.Map<String,String> phases=new java.util.LinkedHashMap<>();phases.put("r31_analysis_phase_snapshot",com.ethk3.novaonepro.strategyv2.JsonR27.write(lease.token.phaseSnapshotR31()));LiveTelemetryProjectionR81.tryWrite(store,phases);}catch(RuntimeException diagnostic){}
+            try { RuntimeResourceAuditR927.finish(store, resourceScopeR927, lease.token.isCanonicalCommitted(), "R31_PHASES="+com.ethk3.novaonepro.strategyv2.JsonR27.write(lease.token.phaseSnapshotR31())+"|"+(lease.token.isCanonicalCommitted()?"DURABLE":lastError)); }
             catch (Throwable auditErrorR927) { recordCriticalCatchR926("RESOURCE_AUDIT_FINISH", request.targetIssue, auditErrorR927); }
             analysisBusy = false;
             analysisStartedAt = 0L;
@@ -3963,58 +4016,12 @@ public final class AutoFetchService extends Service {
         } catch (Throwable ignore) {
             recordCriticalCatchR926("HISTORY_BOOTSTRAP_STATE_BEFORE", request.targetIssue, ignore);
         }
-        if (R36AnalysisHistoryPolicyR364.needsBootstrap(suffixBefore)) {
-            renewAnalysisLeaseOrThrowR365(requests, request, lease, "HISTORY_BOOTSTRAP_BEGIN");
-            setAnalysisState(
-                    "RUNNING",
-                    12,
-                    "R3.6.6新安装历史补齐："
-                            + before
-                            + " total/"
-                            + suffixBefore
-                            + " contiguous"
-                            + "/"
-                            + R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY);
-            Models.ApiResult bootstrap =
-                    apiClient == null
-                            ? Models.ApiResult.fail("API_CLIENT_NULL", "history bootstrap unavailable")
-                            : apiClient.fetchHistory(
-                                    R36AnalysisHistoryPolicyR364.PREFERRED_BOOTSTRAP_HISTORY);
-            boolean apiOk = bootstrap != null && (bootstrap.success || bootstrap.ok);
-            // Keep an authenticated response durable even if this prediction expires.
-            // Saving data cannot create a canonical prediction or REAL authorization.
-            if (apiOk) {
-                final Models.Draw beforeIngress=store.getLatestDraw();
-                try(RuntimeResourceAuditR927.DataIngressScopeCP12 dataLane=RuntimeResourceAuditR927.dataIngressCP12()) {
-                    // Bootstrap can span an opening. Hand the newest durable draw to
-                    // clock/request/settlement consumers before writing its history page.
-                    saveApiResultDraws(bootstrap,new Runnable(){
-                        @Override public void run(){
-                            handleLatestDrawAfterSave(store.getLatestDraw(),beforeIngress,false,
-                                    "R60_BOOTSTRAP_LATEST_BEFORE_HISTORY");
-                        }
-                    });
-                }
-            }
-            renewAnalysisLeaseOrThrowR365(requests, request, lease, "HISTORY_BOOTSTRAP_SAVED");
-            try {
-                java.util.LinkedHashMap<String, String> state =
-                        new java.util.LinkedHashMap<String, String>();
-                state.put("r364_history_bootstrap_status", apiOk ? "OK" : "FAILED");
-                state.put(
-                        "r364_history_bootstrap_error",
-                        bootstrap == null
-                                ? "RESULT_NULL"
-                                : safe(bootstrap.errorCode) + ":" + safe(bootstrap.errorMessage));
-                state.put(
-                        "r364_history_bootstrap_at", String.valueOf(System.currentTimeMillis()));
-                LiveTelemetryProjectionR81.tryWrite(store, state);
-            } catch (Throwable ignore) {
-                recordCriticalCatchR926("HISTORY_BOOTSTRAP_STATE_RESULT", request.targetIssue, ignore);
-            }
-            if (store.getDrawByIssue(request.targetIssue) != null)
-                throw new IllegalStateException("R364_TARGET_DRAWN_DURING_HISTORY_BOOTSTRAP");
-            history = store.getRecentDraws(R36AnalysisHistoryPolicyR364.MAX_FROZEN_HISTORY);
+        if(R36AnalysisHistoryPolicyR364.needsBootstrap(suffixBefore)){
+            // The existing background ingress owner retains the same bootstrap capability.
+            // A realtime execution lease never waits for network/history on its analysis looper.
+            scheduleQuickHistorySyncR71("R31_HISTORY_BOOTSTRAP_FOR:"+request.targetIssue);
+            postBackfillCheck(true,"R31_HISTORY_BOOTSTRAP_FOR:"+request.targetIssue);
+            throw new IllegalStateException("R31_DEPENDENCY_HISTORY_BOOTSTRAP_PENDING|contiguous="+suffixBefore);
         }
         int after = R36AnalysisHistoryPolicyR364.validCount(history);
         int suffixAfter =
@@ -4138,7 +4145,7 @@ public final class AutoFetchService extends Service {
     /** R30-B01-07: true while RuntimeCoordinatorR26 is the active owner of the shared research tables. */
     private boolean researchOwnedByCoordinatorR30() {
         com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26 coordinator = continuousRuntimeR26;
-        return coordinator != null && coordinator.isRunning();
+        return coordinator != null && !"TERMINATED".equals(coordinator.stopStateR31());
     }
 
     private void postResearchCaptureR907(final String requestedTarget, final int attempt) {

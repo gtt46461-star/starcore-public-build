@@ -1,0 +1,22 @@
+{
+  "scope": "P02_FROZEN_BOOTSTRAP_ACTUAL_CLASSES_ONLY_NOT_FINAL_ASSEMBLY_NOT_APK",
+  "command": [
+    "bash",
+    "./gradlew",
+    "--no-daemon",
+    "--max-workers=4",
+    ":app:compileDebugJavaWithJavac",
+    "-x",
+    ":app:generateR982SourceCallAsset",
+    "-x",
+    ":app:generateR997ConstructionAssets"
+  ],
+  "started_at": "2026-11-04T12:18:39.779794+00:00",
+  "completed_at": "2026-11-04T12:19:19.652351+00:00",
+  "exit_code": 0,
+  "source_changed_during_compile": [],
+  "log": "verification/r31/p02/build-identity/FINAL_FROZEN_BOOTSTRAP_CLASSES_ONLY.log",
+  "log_sha256": "b08ee2eedee16294a47460441692184e073d30e2ee4738d379f7a7ee57f12e4f",
+  "source_dirty": true,
+  "next": "Freeze actual compiled-call index, commit source and identities, run unexcluded joint gates."
+}

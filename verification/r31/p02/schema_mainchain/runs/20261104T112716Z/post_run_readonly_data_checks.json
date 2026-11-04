@@ -1,0 +1,40 @@
+{
+  "schema": "R31_MAINCHAIN_POST_RUN_READONLY_CHECKS_1",
+  "captured_at_utc": "2026-11-04T11:31:25.967408+00:00",
+  "scope": "READ_ONLY_NATIVE_SQLITE_FINAL_FIXTURE_STATE_NOT_ANDROID_NOT_USER_DB",
+  "fixture_path": "/tmp/r31-mainchain-native-v1t3j3gw/mainchain.db",
+  "fixture_sha256": "00df9f78871907d34d4014709ee253aae6b8436d8d30283deacaa8c094325470",
+  "receipt_sha256": "618469556fc5d9a64c71d358c1215bcfd3f6746def0f6fac15de697d639bbe42",
+  "queries": {
+    "new_snapshot": "SELECT COUNT(*) FROM main_chain_candidate_snapshot WHERE target_issue='202611040101'",
+    "new_fullscan": "SELECT COUNT(*) FROM full_candidate_scan WHERE target_issue='202611040101'",
+    "new_audit": "SELECT COUNT(*) FROM candidate_audit WHERE target_issue='202611040101' AND audit_key='MCCA_MCCS_202611040101_P1_K7_R1'",
+    "new_shadow": "SELECT COUNT(*) FROM shadow_candidates WHERE target_issue='202611040101'",
+    "reject_bucket": "SELECT COUNT(*) FROM main_chain_reject_bucket WHERE candidate_count=1 AND shadow_count=1",
+    "actual_reject_reason": "SELECT reject_code FROM main_chain_reject_bucket WHERE candidate_count=1 AND shadow_count=1",
+    "rolled_back_target": "SELECT COUNT(*) FROM main_chain_candidate_snapshot WHERE target_issue='202611040102'",
+    "old_snapshot_bytes": "SELECT hex(legacy_payload) FROM main_chain_candidate_snapshot WHERE snapshot_key='original-snapshot'",
+    "old_factor": "SELECT factor_name||':'||sample_count FROM causal_factor_matrix WHERE causal_key='original-factor'",
+    "old_diagnostic": "SELECT legacy_diagnostic FROM diagnostic_log WHERE log_key='original-diagnostic'",
+    "migration_defaults_dynamic": "SELECT state_value FROM dynamic_causal_state WHERE state_key='dbstore_main_chain_scope'",
+    "migration_defaults_app": "SELECT state_value FROM app_state WHERE state_key='dbstore_main_chain_scope'"
+  },
+  "results": {
+    "new_snapshot": 1,
+    "new_fullscan": 1,
+    "new_audit": 1,
+    "new_shadow": 1,
+    "reject_bucket": 1,
+    "actual_reject_reason": "FINAL_GATE_NOT_PASSED",
+    "rolled_back_target": 0,
+    "old_snapshot_bytes": "000102FEFF",
+    "old_factor": "ORIGINAL_FACTOR:37",
+    "old_diagnostic": "ORIGINAL_DIAGNOSTIC",
+    "migration_defaults_dynamic": "SAVE_READ_REPAIR_ONLY",
+    "migration_defaults_app": "SAVE_READ_REPAIR_ONLY"
+  },
+  "prior_readonly_check_failure": {
+    "exception": "AssertionError: ('reject_bucket', 0)",
+    "cause": "Post-run check incorrectly guessed bucket key PASS_OR_UNKNOWN. The unchanged production normalizer correctly derives FINAL_GATE_NOT_PASSED for finalP .31 and gate .345. Only this test expectation was corrected; no production source or fixture data changed."
+  }
+}

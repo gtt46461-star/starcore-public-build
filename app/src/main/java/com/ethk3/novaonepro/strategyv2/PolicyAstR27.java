@@ -146,7 +146,7 @@ public final class PolicyAstR27 {
     /** Vectorized PIT evaluation for target position tp: returns double[T*10] (NaN = unavailable). */
     public static double[] eval(Node n, FeatureCacheR27 f, int tp) {
         double[] values=evalNode(n,f,tp);
-        if(n.modelPositions!=0)f.maskMissingModelRows(values,n.modelPositions);
+        if(n.modelPositions!=0){if(LEAVES.containsKey(n.op))values=values.clone();f.maskMissingModelRows(values,n.modelPositions);}
         return values;
     }
     private static double[] evalNode(Node n,FeatureCacheR27 f,int tp) {
@@ -157,6 +157,12 @@ public final class PolicyAstR27 {
             int a = n.ints.length > 0 ? n.ints[0] : 0, b = n.ints.length > 1 ? n.ints[1] : 0;
             if (n.op.equals("regime")) { b = a; a = 0; }
             return f.leaf(n.op, tp, a, b);
+        }
+        if((n.op.equals("rank")||n.op.equals("zscore")||n.op.equals("softmax"))&&n.kids.length==1&&LEAVES.containsKey(n.kids[0].op)) {
+            Node leaf=n.kids[0];int a=leaf.ints.length>0?leaf.ints[0]:0,b=leaf.ints.length>1?leaf.ints[1]:0;if(leaf.op.equals("regime")){b=a;a=0;}
+            try(SharedFeatureStoreR31.Reader input=f.acquireLeafR31(leaf.op,tp,a,b)) {
+                if(input!=null){double[] output=new double[len];rowWiseSharedR31(input,output,n.op.equals("rank")?0:n.op.equals("zscore")?1:2,n.param);return output;}
+            }
         }
         double[][] k = new double[n.kids.length][];
         for (int i = 0; i < k.length; i++) k[i] = eval(n.kids[i], f, tp);
@@ -215,6 +221,27 @@ public final class PolicyAstR27 {
             } else {
                 double mx = Double.NEGATIVE_INFINITY; for (int j = 0; j < 10; j++) mx = Math.max(mx, x[o + j] * temperature);
                 double z = 0; for (int j = 0; j < 10; j++) { v[o + j] = Math.exp(x[o + j] * temperature - mx); z += v[o + j]; }
+                for (int j = 0; j < 10; j++) v[o + j] /= z;
+            }
+        }
+    }
+
+    private static void rowWiseSharedR31(SharedFeatureStoreR31.Reader input,double[] v,int mode,double temperature) {
+        double[] x=new double[10];
+        for (int t = 0; t < input.length() / 10; t++) {
+            if((t&31)==0)CooperativeContinuationR26.poll();
+            int o = t * 10;input.copyRangeTo(o,x,0,10);boolean bad = false;
+            for (int j = 0; j < 10; j++) if (Double.isNaN(x[j])) bad = true;
+            if (bad) { for (int j = 0; j < 10; j++) v[o + j] = Double.NaN; continue; }
+            if (mode == 0) {
+                for (int j = 0; j < 10; j++) { int r = 0; for (int i = 0; i < 10; i++) if (x[i] < x[j] || (x[i] == x[j] && i < j)) r++; v[o + j] = r / 9.0; }
+            } else if (mode == 1) {
+                double m = 0, s = 0; for (int j = 0; j < 10; j++) m += x[j]; m /= 10;
+                for (int j = 0; j < 10; j++) s += (x[j] - m) * (x[j] - m); s = Math.sqrt(s / 10);
+                for (int j = 0; j < 10; j++) v[o + j] = s < 1e-12 ? 0 : (x[j] - m) / s;
+            } else {
+                double mx = Double.NEGATIVE_INFINITY; for (int j = 0; j < 10; j++) mx = Math.max(mx, x[j] * temperature);
+                double z = 0; for (int j = 0; j < 10; j++) { v[o + j] = Math.exp(x[j] * temperature - mx); z += v[o + j]; }
                 for (int j = 0; j < 10; j++) v[o + j] /= z;
             }
         }

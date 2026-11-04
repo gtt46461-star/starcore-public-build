@@ -42,6 +42,14 @@ public final class R31TaskRuntimeHost {
         need(rejected,"cross-boot elapsed values never authorize old claim");
         need(old.nextCommitChunkR31()==0&&old.nextCommitChunkR31()==1,"chunk sequence increments once per logical submit");
         RuntimeCoordinatorR26.Claim next=new RuntimeCoordinatorR26.Claim(old.task,old.owner,old.fence+1,old.cursor,"R27");next.inheritCommitChunksR31(old);need(next.nextCommitChunkR31()==2,"continuation renew inherits logical sequence");
+        add("host-health-cas");RuntimeCoordinatorR26.Claim health=claim("host-health-cas","owner-A");
+        db.execSQL("INSERT INTO r30r1_task_progress(task_id,session_id,fence,artifact_identity) VALUES('host-health-cas','owner-A',?,'HOST_CURRENT_ARTIFACT')",new Object[]{health.fence});
+        need(!pool.requestTaskRecoveryR31(health.task,health.fence,"HOST_OLDER_ARTIFACT","HOST_STALL"),"health observation cannot revoke a task that published a newer artifact");
+        need(pool.requestTaskRecoveryR31(health.task,health.fence,"HOST_CURRENT_ARTIFACT","HOST_STALL"),"matching health owner fence and artifact permit one controlled revoke");
+        need(!pool.requestTaskRecoveryR31(health.task,health.fence,"HOST_CURRENT_ARTIFACT","HOST_LATE_OBSERVATION"),"old control observation cannot revoke new fence");
+        db.execSQL("UPDATE r26_task SET owner='owner-B',fence=?,status='CANCELLING' WHERE task_id='host-health-cas'",new Object[]{health.fence+2});
+        Method drained=ResearchPoolR27.class.getDeclaredMethod("finishCancelledR31",RuntimeCoordinatorR26.Claim.class);drained.setAccessible(true);drained.invoke(pool,health);
+        need(text("SELECT status FROM r26_task WHERE task_id='host-health-cas'").equals("CANCELLING"),"late old-owner drain receipt cannot ready a newer owner");
         System.out.println("R31_TASK_FENCE_NATIVE_HOST_PASS late_success_and_failure_ignored=true wall_deadline_plus_minus_24h_ignored=true boot_mismatch_rejected=true");
     }
     static void classificationsAndRecovery()throws Exception{
@@ -90,6 +98,7 @@ public final class R31TaskRuntimeHost {
     }
     static void helperTermination()throws Exception{
         RuntimeCoordinatorR26.Claim claim=new RuntimeCoordinatorR26.Claim("host-helper","owner-A",99,0,"R27");
+        MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();long beforeLeases=((Number)memory.snapshot().get("activeLeaseCount")).longValue(),beforeBytes=((Number)memory.snapshot().get("declaredJavaWorkingBytes")).longValue();
         CountDownLatch started=new CountDownLatch(1),release=new CountDownLatch(1);AtomicReference<Future<?>> future=new AtomicReference<>();
         ResearchPoolR27.Worker worker=pool.new Worker(db,"HOST_HELPER_OWNER");
         PreparedTaskR30R1 prepared=new PreparedTaskR30R1(new ResearchPoolR27.Task(){public String id(){return "host-helper";}public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker ignored){future.set(pool.compute().submit(()->{started.countDown();while(release.getCount()>0)try{release.await(5,TimeUnit.MILLISECONDS);}catch(InterruptedException deliberatelyUncooperative){};}));return ResearchPoolR27.Outcome.progress(1,1);}},worker,claim);
@@ -97,11 +106,15 @@ public final class R31TaskRuntimeHost {
         prepared.close();need(future.get().isCancelled(),"future cancel accepted");
         need(!prepared.isTerminated(),"cancelled future and exited parent do not prove helper termination");
         need(((Number)ResearchPoolR27.computeBudgetSnapshotR31().get("activeHelpers")).intValue()==1,"uncooperative helper still owned and budgeted");
+        need(((Number)memory.snapshot().get("activeLeaseCount")).longValue()>=beforeLeases+3,"prepared descriptor and two helper working/descriptor leases retained after Future cancel");
+        need(((Number)memory.snapshot().get("declaredJavaWorkingBytes")).longValue()>=beforeBytes+ResearchPoolR27.HELPER_REPLAY_WORKING_ESTIMATE_R31,"actual admitted replay working estimate remains owned until body finally");
         need(!prepared.awaitTermination(25),"bounded helper drain returns pending");
         long closeStarted=System.nanoTime();pool.close();need((System.nanoTime()-closeStarted)/1_000_000<100,"close requests return without waiting for uncooperative helper");
         need(!pool.resourcesTerminatedR31(),"pool cannot declare terminated while owned helper body is alive");
         release.countDown();need(prepared.awaitTermination(1000),"actual helper exit releases prepared ownership");
         ResearchPoolR27.clearTaskHelperCancellationR31(claim);need(((Number)ResearchPoolR27.computeBudgetSnapshotR31().get("activeHelpers")).intValue()==0,"actual finally clears active helper");
+        need(((Number)memory.snapshot().get("activeLeaseCount")).longValue()==beforeLeases,"actual finally releases exactly the registered prepared/helper leases");
+        need(((Number)memory.snapshot().get("declaredJavaWorkingBytes")).longValue()==beforeBytes,"declared bytes decrease after actual resource release, not cancellation alone");
         pool.close();need(pool.awaitResourcesTerminatedR31(2000),"pool controller releases only after actual resource exit");
         System.out.println("R31_HELPER_TERMINATION_HOST_PASS cancelled_future_not_exit=true parent_exit_not_group_exit=true permit_retained_until_real_finally=true bounded_drain=true");
     }

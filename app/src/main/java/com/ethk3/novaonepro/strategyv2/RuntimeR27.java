@@ -56,6 +56,13 @@ public final class RuntimeR27 implements AutoCloseable {
     public ResearchPoolR27 pool() { return pool; }
     @Override public void close() { pool.close(); if (active == this) active = null; }
 
+    private FeatureCacheR27 featureCacheR31(ReplayDatasetR27 data,int capacity) {
+        FeatureCacheR27 cache=new FeatureCacheR27(data,capacity);
+        String abi=operatorAbiHash;
+        if(abi!=null)cache.bindSharedFeaturesR31(abi);
+        return cache;
+    }
+
     /** Called by the pool only after the revoked task's continuation has actually terminated.
      * Discard computation drafts, retaining committed evidence and the last published immutable model. */
     public synchronized void invalidateTaskDraftR31(String task) {
@@ -139,7 +146,7 @@ public final class RuntimeR27 implements AutoCloseable {
             if(cur==null){
                 String savedHash=null;
                 try(Cursor x=w.ro.rawQuery("SELECT dataset_hash FROM r27_evolution_cursor WHERE loop IN (?,?) ORDER BY CASE loop WHEN ? THEN 0 ELSE 1 END LIMIT 1",new String[]{LOOP,"MAIN",LOOP})){if(x.moveToFirst())savedHash=x.getString(0);}
-                if(savedHash!=null){ResearchInputPinR30R1.Pin pin=ResearchInputPinR30R1.load(w.ro,savedHash);if(pin!=null){evoData=pin.data;evoCache=new FeatureCacheR27(pin.data);ModelSurfaceStoreR30.bindHistorical(w.ro,evoCache);return ResearchPoolR27.Outcome.progress(1,pin.data.ordinals[pin.data.size()-1]);}}
+                if(savedHash!=null){ResearchInputPinR30R1.Pin pin=ResearchInputPinR30R1.load(w.ro,savedHash);if(pin!=null){evoData=pin.data;evoCache=featureCacheR31(pin.data,48);ModelSurfaceStoreR30.bindHistorical(w.ro,evoCache);return ResearchPoolR27.Outcome.progress(1,pin.data.ordinals[pin.data.size()-1]);}}
             }
 
             if (cur != null && !ResearchInputPinR30R1.invalid(w.ro,cur.datasetHash) && latestOrd - cur.ordinals[cur.size() - 1] < REFRESH_NEW_ROWS) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", cur.ordinals[cur.size() - 1], latestOrd);
@@ -148,7 +155,7 @@ public final class RuntimeR27 implements AutoCloseable {
             ReplayDatasetR27 d = StoreR27.loadDataset(w.ro, DATASET_ROWS);
             if(capturedRevision<0||capturedRevision!=SchemaR27.liveSourceRevision(w.ro))return ResearchPoolR27.Outcome.idle("DEPENDENCY(DATASET_READ_SOURCE_CHANGED)",0,-1);
             if (d.size() < 3 * SplitR27.BLOCK) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS:rows=" + d.size(), d.size(), 3 * SplitR27.BLOCK);
-            FeatureCacheR27 c = new FeatureCacheR27(d);
+            FeatureCacheR27 c = featureCacheR31(d,48);
             ModelSurfaceStoreR30.bindHistorical(w.ro,c);
             SplitR27 sp = SplitR27.of(d, evo == null ? null : evo.ledger().degradedBlocks());
             ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
@@ -405,7 +412,7 @@ public final class RuntimeR27 implements AutoCloseable {
         liveData = fresh;
         liveCacheKeyR30 = liveData.datasetHash + "|" + latestOrd + "|" + operatorAbiHash;
         ReplayDatasetR27 withSlot = liveData.append(new ReplayDatasetR27.Row("PLACEHOLDER", latestOrd + 1, new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
-        FeatureCacheR27 c = new FeatureCacheR27(withSlot, 64);
+        FeatureCacheR27 c = featureCacheR31(withSlot,64);
         if (prefix && liveCache != null) c.extendFrom(liveCache);
         liveCache = c;
         return c;
@@ -441,6 +448,10 @@ public final class RuntimeR27 implements AutoCloseable {
         String hash = SemanticAbiR27.operatorSetHash(abi);
         store.setState("r27_operator_abi", hash);
         synchronized(this) { goldenCache=cache;operatorAbi=abi;operatorAbiHash=hash;golden=prepared; }
+        // Fingerprints above were computed in instance isolation. Only the resulting real operator
+        // identity may authorize sharing with other dataset caches.
+        for(FeatureCacheR27 existing:new FeatureCacheR27[]{cache,evoCache,pendingCache,liveCache})
+            if(existing!=null)existing.bindSharedFeaturesR31(hash);
     }
 
     // ------------------------------------------------------------------ r27-atoms (R27-043/044) and r27-atomnet (R27-033/034/036)
@@ -490,11 +501,28 @@ public final class RuntimeR27 implements AutoCloseable {
 
     // ------------------------------------------------------------------ r27-health (R27-006/048)
     final class HealthTask implements ResearchPoolR27.Task {
-        long last, lastSize; boolean assetsCached; final Map<String, Long> fetchFlushed = new HashMap<>();
+        long last, lastSize, lastElapsedR31; boolean assetsCached; final Map<String, Long> fetchFlushed = new HashMap<>();
         NullPipelineSimulationR30 q08;
         public String id() { return "r27-health"; }
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
-            if (System.currentTimeMillis() - last < 60_000) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);
+            final long tickElapsed=android.os.SystemClock.elapsedRealtime();
+            if (lastElapsedR31>0 && tickElapsed>=lastElapsedR31 && tickElapsed-lastElapsedR31<60_000)
+                return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);
+            // A low-priority owner samples disk outside every SQLite write transaction.
+            // Wall-clock correction must not stop observations for the duration of the jump.
+            Map<String,Object> storageObservation=new LinkedHashMap<>();
+            try {
+                storageObservation.putAll(StorageLedgerR31.sampleIfDue(store.contextForR26().getFilesDir(),
+                        "CONTINUOUS_RESEARCH_HEALTH",id(),false));
+            } catch(java.io.IOException unavailable) {
+                storageObservation.put("status","UNKNOWN_STORAGE_SAMPLE_FAILED");
+                storageObservation.put("reason",unavailable.getClass().getSimpleName()+":"+unavailable.getMessage());
+                storageObservation.put("regularFileBytes",null);
+                storageObservation.put("allocatedBlocksBytes",null);
+                storageObservation.put("physicalMeasurementComplete",false);
+            }
+            MemoryBudgetR31.processBudget().sample();
+            final Map<String,Object> memoryObservation=MemoryBudgetR31.processBudget().snapshot();
             final long preparedAt=System.currentTimeMillis();w.writes().flush();
             final Map<String,Long> nextFetchFlushed=new HashMap<>(fetchFlushed);
             final boolean nextAssetsCached=true;long nextSize=lastSize;
@@ -539,10 +567,18 @@ public final class RuntimeR27 implements AutoCloseable {
             for (WaitKindR27.Health x : h) { if (x.stuck) stuck++; if (x.neverRun) never++; }
             Map<String, Object> m = new LinkedHashMap<>(); m.put("stuck", (long) stuck); m.put("neverRun", (long) never); m.put("checkedAt", preparedAt);
             m.put("workerLimit", (long) pool.workerLimit()); m.put("thermalReason", pool.thermalReason());
+            m.put("storageObservationR31",storageObservation);
+            m.put("memoryObservationR31",memoryObservation);
+            Map<String,Object> caches=new LinkedHashMap<>();
+            if(evoCache!=null)caches.put("evolution",evoCache.memorySnapshotR31());
+            if(pendingCache!=null)caches.put("pending",pendingCache.memorySnapshotR31());
+            if(liveCache!=null)caches.put("live",liveCache.memorySnapshotR31());
+            m.put("featureCacheObservationR31",caches);
+            m.put("observationScopeR31","PER_PID_MEMORY_AND_INTERVAL_DISK; NOT_MODEL_PROGRESS_OR_NATURAL_QUALITY");
             b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('health','summary',?,?)", JsonR27.write(m), preparedAt);
             ResearchStoreR30R1.appendOwnedProgress(b,ResearchStoreR30R1.calendar(w.ro),new ResearchStoreR30R1.Facts(preparedAt/1000,preparedAt/1000,0L,null,null,HashingSU1.text("HEALTH|"+preparedAt)));
             submit(w, "HEALTH", b);
-            last=preparedAt;lastSize=nextSize;assetsCached=nextAssetsCached;q08=nextQ08;fetchFlushed.clear();fetchFlushed.putAll(nextFetchFlushed);
+            last=preparedAt;lastElapsedR31=tickElapsed;lastSize=nextSize;assetsCached=nextAssetsCached;q08=nextQ08;fetchFlushed.clear();fetchFlushed.putAll(nextFetchFlushed);
             return ResearchPoolR27.Outcome.progress(1, preparedAt / 1000);
         }
     }

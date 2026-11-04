@@ -34,6 +34,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--classes", type=Path, default=ROOT / "app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes")
     parser.add_argument("--out", type=Path, default=ROOT / "verification/r31/continuation")
+    parser.add_argument("--phase", choices=["P01","P02"], default="P01")
     args = parser.parse_args()
     out = args.out.resolve()
     out.mkdir(parents=True, exist_ok=True)
@@ -48,6 +49,8 @@ def main():
     if not java or not javac:
         raise RuntimeError("java/javac missing; activate the repository's configured JDK")
     commands = []
+    compiled_hashes={name:digest(SOURCE/(name+".java")) for name in OWNED}
+    source_commit=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
 
     def run(command, log, timeout=90):
         result = subprocess.run(list(map(str, command)), cwd=ROOT, capture_output=True, text=True, timeout=timeout)
@@ -95,9 +98,10 @@ def main():
         run([java, "-Xmx768m", "-cp", current_cp, "com.ethk3.novaonepro.strategyv2.R26IncumbentBudgetTest"], "original-incumbent-budget.log")
         run([java, "-Xmx768m", "-cp", current_cp, "com.ethk3.novaonepro.strategyv2.R26RecoveryTest"], "original-recovery.log", timeout=180)
 
+    if compiled_hashes!={name:digest(SOURCE/(name+".java")) for name in OWNED}:raise RuntimeError("production continuation source changed during verification")
     receipt = dict(
-        card="B01-C04", phase="P01", state="CODE_COMPLETE", baseline=BASELINE,
-        inheritedP00Commit=subprocess.check_output(["git", "rev-parse", "8faabc2c"], cwd=ROOT, text=True).strip(), sourceCommit="UNCOMMITTED_P01_ROOT_INTEGRATION_PENDING", evaluatedAt=datetime.now(timezone.utc).isoformat(),
+        card="B01-C04" if args.phase=="P01" else "B04_CONTROL_LIFECYCLE_WITH_B01_C04_REGRESSION", phase=args.phase, state="CODE_COMPLETE", baseline=BASELINE,
+        inheritedP00Commit=subprocess.check_output(["git", "rev-parse", "8faabc2c"], cwd=ROOT, text=True).strip(), sourceCommit=source_commit, dirtyAtRun=bool(subprocess.check_output(["git","status","--porcelain"],cwd=ROOT,text=True).strip()),compiledSourceSHA256=compiled_hashes,evaluatedAt=datetime.now(timezone.utc).isoformat(),
         actualChanges={
             "CooperativeContinuationR26": ["State/isTerminated/awaitTermination", "helpers without CURRENT honor interrupt at all existing poll sites", "bounded owner waits preserve interrupt", "slice rejects concurrent resume and never resumes cancellation", "permit ownership reaped after actual thread exit", "startup/finally cleanup", "bounded phase/checkpoint/thread diagnostics", "idempotent critical close"],
             "TaskContinuationR26": ["map lock excludes slice/join", "inFlight and context identity", "old owner/target drains before replacement", "commit chunk inheritance for same task/owner"],
@@ -120,6 +124,7 @@ def main():
         notEvidenceFor=["SQL fence integration by this host shim", "complete LegacyGeneration end-to-end DB recovery", "real ResearchPool helper task/fence group integration by this bounded executor fixture", "Android device scheduling or resource consumption", "natural future quality or promotion"],
         commands=commands,
     )
+    if args.phase=="P02":receipt["p02AdditionalEvidence"]={"sameOwnerCancelledTerminatedContextReloads":2,"lastOldResultDiscarded":True,"namedCancellationDoesNotProveTermination":True,"controlledLifecycleBody":"SYNTHETIC_ORCHESTRATION_NOT_QUALITY_OR_FULL_DB_MODEL_RECOVERY"}
     (out / "RECEIPT.json").write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n")
     (out / "FAILED_COMMAND.json").unlink(missing_ok=True)
     print(json.dumps(dict(status="HOST_PASS", junit=receipt["tests"]["coreJUnit"], productionReplayJUnit=replay_tests, realReplayCandidates=128, controlledOverlapRaces=2, sequentialSwitches=10000, exactOriginalNumericalParity=True, androidDevice="NOT_RUN", naturalQuality="NOT_EVALUATED")))

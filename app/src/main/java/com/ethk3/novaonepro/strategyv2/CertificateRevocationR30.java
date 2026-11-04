@@ -52,10 +52,31 @@ public final class CertificateRevocationR30 {
     /** Invoked by SettlementEngine's hook from the canonicalizer's already active write transaction. */
     public static void revokeWithin(SQLiteDatabase db,String issue,String cause,String eventKey) {
         if(!db.inTransaction())throw new IllegalStateException("R30_REVOCATION_TRANSACTION_REQUIRED");
-        ensure(db);
+        boolean r27=table(db,"r27_certificate"),su2=table(db,"su2_certificate");
+        if(!r27&&!su2)return; // No authority exists yet. A business source writer never creates it.
+        requireRevocationSchemaR31(db,r27,su2);
         for(String protocol:new String[]{"R27","SU2"})if(table(db,protocol.equals("R27")?"r27_certificate":"su2_certificate")) {
             for(String statement:statementParts(db,protocol,quote(issue),quote(cause),quote(eventKey),String.valueOf(System.currentTimeMillis())))db.execSQL(statement);
         }
+    }
+    private static void requireRevocationSchemaR31(SQLiteDatabase db,boolean r27,boolean su2){
+        List<String[]> tables=new ArrayList<>(),objects=new ArrayList<>();
+        tables.add(new String[]{"r30_certificate_revocation_event","protocol,issue,cause,event_key,scope,affected,detected_at"});
+        tables.add(new String[]{"r30_revoked_policy","protocol,policy_key,issue,cause,revoked_at"});
+        tables.add(new String[]{"r30_revoked_certificate","protocol,certificate_key,policy_key,issue,cause,evidence_digest,gates_json,gate_version,issued_at,expires_at,old_status,revoked_at"});
+        if(r27)tables.add(new String[]{"r27_certificate","policy_hash,status,gates_json,evidence_digest,issued_at,expires_at"});
+        if(su2){tables.add(new String[]{"su2_certificate","certificate_id,genome_key,expires_at"});tables.add(new String[]{"r26_certificate_revocation","certificate_id,reason,revoked_at"});}
+        Set<String> drawColumns=table(db,"draws")?columns(db,"draws"):Collections.emptySet();
+        for(String protocol:new String[]{"R27","SU2"}){
+            if(protocol.equals("R27")?!r27:!su2)continue;
+            String prefix="r30_revoke_"+protocol.toLowerCase(Locale.ROOT);
+            objects.add(new String[]{"index",prefix+"_expires"});
+            if(protocol.equals("R27")){objects.add(new String[]{"trigger",prefix+"_reissue_insert"});objects.add(new String[]{"trigger",prefix+"_reissue_update"});}
+            else objects.add(new String[]{"trigger",prefix+"_reissue"});
+            if(!Collections.disjoint(drawColumns,Arrays.asList("issue","dirty","open_time","n1","n2","n3","n4","n5","n6","n7","n8","n9","n10")))objects.add(new String[]{"trigger",prefix+"_draw_semantics"});
+            if(drawColumns.contains("draw_hash_v2")||drawColumns.contains("draw_hash_version"))objects.add(new String[]{"trigger",prefix+"_draw_hash"});
+        }
+        com.ethk3.novaonepro.DatabaseCoordinator.requireSchemaObjectsR31(db,"SOURCE_REVOCATION",tables.toArray(new String[0][]),objects.toArray(new String[0][]));
     }
     static String statements(SQLiteDatabase db,String protocol,String issue,String cause,String event,String now) {
         return String.join("",statementParts(db,protocol,issue,cause,event,now));

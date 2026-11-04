@@ -37,7 +37,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
     public final class Worker {
         public final SQLiteDatabase ro; public final String name;
         Worker(SQLiteDatabase ro, String name) { this.ro = ro; this.name = name; }
-        public boolean cancelled() { return closed || Thread.currentThread().isInterrupted(); }
+        public boolean cancelled() { RuntimeCoordinatorR26.Claim claim=RuntimeCoordinatorR26.currentClaimR30();Long revoked=claim==null?null:revokedTaskFencesR31.get(claim.task);return closed || Thread.currentThread().isInterrupted()||revoked!=null&&claim.fence<=revoked; }
         public ResearchWriteQueueR27 writes() { return writes; }
         public DbStore store() { return store; }
         public ResearchPoolR27 pool() { return ResearchPoolR27.this; }
@@ -49,9 +49,12 @@ public final class ResearchPoolR27 implements AutoCloseable {
     private final Map<String,PreparedTaskR30R1> prepared = new HashMap<>();
     private final List<Thread> threads = new ArrayList<>(); private final List<SQLiteDatabase> connections = new ArrayList<>();
     private volatile boolean closed; private volatile String resource;
+    private final MemoryBudgetR31 memoryBudgetR31=MemoryBudgetR31.processBudget();
+    private volatile boolean memoryPressureR31;
     private volatile String shutdownStateR31="RUNNING";
     private final java.util.concurrent.atomic.AtomicBoolean closeControllerR31=new java.util.concurrent.atomic.AtomicBoolean();
     private final Map<String,Integer> retryStreakR31=new HashMap<>();
+    private final java.util.concurrent.ConcurrentHashMap<String,Long> revokedTaskFencesR31=new java.util.concurrent.ConcurrentHashMap<>();
     private static final java.util.concurrent.ConcurrentHashMap<String,ResearchPoolR27> POOLS_R31=new java.util.concurrent.ConcurrentHashMap<>();
     private volatile int parallelismLimit = 2; private volatile String thermalReason = "NORMAL";
     private final AtomicInteger active = new AtomicInteger();
@@ -76,6 +79,8 @@ public final class ResearchPoolR27 implements AutoCloseable {
         return ()->{if(released.compareAndSet(false,true))synchronized(COMPUTE_OWNERS_R31){COMPUTE_OWNERS_R31.remove(key);}};
     }
     private static final java.util.concurrent.ConcurrentHashMap<String,HelperWorkR31> HELPER_WORK_R31=new java.util.concurrent.ConcurrentHashMap<>();
+    public static final long HELPER_DESCRIPTOR_BYTES_R31=512;
+    public static final long HELPER_REPLAY_WORKING_ESTIMATE_R31=RuntimeR27.DATASET_ROWS*10L*(3*Double.BYTES+4*Integer.BYTES);
     private static final java.util.Set<String> CANCELLED_HELPER_GROUPS_R31=java.util.concurrent.ConcurrentHashMap.newKeySet();
     private static String helperGroupR31(RuntimeCoordinatorR26.Claim claim){return claim.owner+"|"+claim.task+"|"+claim.fence;}
     static boolean helpersTerminatedR31(RuntimeCoordinatorR26.Claim claim){String group=helperGroupR31(claim);for(HelperWorkR31 work:HELPER_WORK_R31.values())if(group.equals(work.group))return false;return true;}
@@ -90,22 +95,23 @@ public final class ResearchPoolR27 implements AutoCloseable {
     public static java.util.Map<String,Object> computeBudgetSnapshotR31(){
         java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();
         synchronized(COMPUTE_OWNERS_R31){out.put("activeAndParkedOwners",new java.util.ArrayList<>(COMPUTE_OWNERS_R31.keySet()));out.put("count",COMPUTE_OWNERS_R31.size());}
-        java.util.List<Object> helpers=new java.util.ArrayList<>();int queued=0,active=0;
+        java.util.List<Object> helpers=new java.util.ArrayList<>();int queued=0,active=0;long queuedBytes=0,workingBytes=0;
         for(HelperWorkR31 work:HELPER_WORK_R31.values()){
-            java.util.Map<String,Object> item=new java.util.LinkedHashMap<>();item.put("task",work.claim.task);item.put("owner",work.claim.owner);item.put("fence",work.claim.fence);item.put("phase",work.phase);helpers.add(item);if("QUEUED".equals(work.phase))queued++;else active++;
+            java.util.Map<String,Object> item=new java.util.LinkedHashMap<>();item.put("task",work.claim.task);item.put("owner",work.claim.owner);item.put("fence",work.claim.fence);item.put("phase",work.phase);item.put("descriptorDeclaredBytes",work.descriptor.bytes());item.put("workingDeclaredBytes",work.working.bytes());helpers.add(item);workingBytes+=work.working.bytes();if("QUEUED".equals(work.phase)){queued++;queuedBytes+=work.descriptor.bytes();}else active++;
         }
-        out.put("helpers",helpers);out.put("queuedHelpers",queued);out.put("activeHelpers",active);out.put("continuationLimit",CONTINUATION_LIMIT_R31);out.put("helperLimit",HELPER_LIMIT_R31);return out;
+        out.put("helpers",helpers);out.put("queuedHelpers",queued);out.put("activeHelpers",active);out.put("queuedDeclaredBytes",queuedBytes);out.put("helperWorkingDeclaredBytes",workingBytes);out.put("workingEstimateBasis","5000_ROWS_X_10_OUTCOMES_X_THREE_DOUBLES_AND_FOUR_INTS; MODEL_PARAMETERS_AND_THREAD_NATIVE_STACKS_NOT_PROFILED");out.put("continuationLimit",CONTINUATION_LIMIT_R31);out.put("helperLimit",HELPER_LIMIT_R31);return out;
     }
     private static final class HelperWorkR31 implements Runnable {
         final Runnable body;final CooperativeContinuationR26.ComputePermit permit;final RuntimeCoordinatorR26.Claim claim;
+        final MemoryBudgetR31.Lease descriptor,working;
         final String key,group;final BudgetedHelperExecutorR31 executor;volatile String phase="QUEUED";
-        HelperWorkR31(Runnable body,CooperativeContinuationR26.ComputePermit permit,RuntimeCoordinatorR26.Claim claim,String key,BudgetedHelperExecutorR31 executor){this.body=body;this.permit=permit;this.claim=claim;this.key=key;this.group=helperGroupR31(claim);this.executor=executor;}
+        HelperWorkR31(Runnable body,CooperativeContinuationR26.ComputePermit permit,RuntimeCoordinatorR26.Claim claim,String key,BudgetedHelperExecutorR31 executor,MemoryBudgetR31.Lease descriptor,MemoryBudgetR31.Lease working){this.body=body;this.permit=permit;this.claim=claim;this.key=key;this.group=helperGroupR31(claim);this.executor=executor;this.descriptor=descriptor;this.working=working;}
         public void run(){
             phase="ACTIVE";RuntimeCoordinatorR26.bindBackgroundClaim(claim);
             try{if(CANCELLED_HELPER_GROUPS_R31.contains(group)){if(body instanceof java.util.concurrent.Future<?>)((java.util.concurrent.Future<?>)body).cancel(false);return;}body.run();}
-            finally{RuntimeCoordinatorR26.unbindBackgroundClaimR31();phase="TERMINATED";HELPER_WORK_R31.remove(key,this);permit.close();}
+            finally{RuntimeCoordinatorR26.unbindBackgroundClaimR31();working.close();descriptor.close();phase="TERMINATED";HELPER_WORK_R31.remove(key,this);permit.close();}
         }
-        void releaseUnstarted(){phase="TERMINATED";HELPER_WORK_R31.remove(key,this);permit.close();}
+        void releaseUnstarted(){working.close();descriptor.close();phase="TERMINATED";HELPER_WORK_R31.remove(key,this);permit.close();}
     }
     private static final class BudgetedHelperExecutorR31 extends ThreadPoolExecutor{
         final String owner;
@@ -116,8 +122,12 @@ public final class ResearchPoolR27 implements AutoCloseable {
             String group=helperGroupR31(claim);if(CANCELLED_HELPER_GROUPS_R31.contains(group))throw new RejectedExecutionException("R31_CONTINUATION_CANCELLING");
             String key=group+":helper:"+java.util.UUID.randomUUID();CooperativeContinuationR26.ComputePermit permit=acquireComputeR31(key,true);
             if(permit==null)throw new RejectedExecutionException("R31_COMPUTE_CAPACITY_WAIT");
-            HelperWorkR31 work=new HelperWorkR31(command,permit,claim,key,this);HELPER_WORK_R31.put(key,work);
-            try{super.execute(work);}catch(RuntimeException failure){work.releaseUnstarted();throw failure;}
+            MemoryBudgetR31 budget=MemoryBudgetR31.processBudget();MemoryBudgetR31.Admission queued;try{queued=budget.tryAcquire(key,claim.fence,MemoryBudgetR31.Kind.QUEUED,HELPER_DESCRIPTOR_BYTES_R31,()->CANCELLED_HELPER_GROUPS_R31.contains(group));}catch(RuntimeException|Error failure){permit.close();throw failure;}
+            if(!queued.acquired()){permit.close();throw new RejectedExecutionException("R31_MEMORY_CAPACITY_WAIT:"+queued.reason);}
+            MemoryBudgetR31.Admission admitted;try{admitted=budget.tryAcquire(key,claim.fence,MemoryBudgetR31.Kind.RESEARCH,HELPER_REPLAY_WORKING_ESTIMATE_R31,()->CANCELLED_HELPER_GROUPS_R31.contains(group));}catch(RuntimeException|Error failure){queued.lease.close();permit.close();throw failure;}
+            if(!admitted.acquired()){queued.lease.close();permit.close();throw new RejectedExecutionException("R31_MEMORY_CAPACITY_WAIT:"+admitted.reason);}
+            HelperWorkR31 work=new HelperWorkR31(command,permit,claim,key,this,queued.lease,admitted.lease);HELPER_WORK_R31.put(key,work);
+            try{super.execute(work);}catch(RuntimeException|Error failure){work.releaseUnstarted();throw failure;}
         }
         @Override public java.util.List<Runnable> shutdownNow(){java.util.List<Runnable> pending=super.shutdownNow();for(Runnable item:pending)if(item instanceof HelperWorkR31){HelperWorkR31 work=(HelperWorkR31)item;if(work.body instanceof java.util.concurrent.Future<?>)((java.util.concurrent.Future<?>)work.body).cancel(true);work.releaseUnstarted();}return pending;}
     }
@@ -131,6 +141,8 @@ public final class ResearchPoolR27 implements AutoCloseable {
         compute = new BudgetedHelperExecutorR31(size,session);
     }
     public ResearchWriteQueueR27 writes() { return writes; }
+    MemoryBudgetR31 memoryBudgetR31(){return memoryBudgetR31;}
+    public void setMemoryPressureR31(boolean pressured){memoryPressureR31=pressured;}
     public ExecutorService compute() { return compute; }
     public synchronized void register(Task t) { for(Task existing:tasks)if(existing.id().equals(t.id()))throw new IllegalArgumentException("DUPLICATE_RESEARCH_OWNER:"+t.id());tasks.add(t); running.put(t.id(), false); }
     public void setResource(String r) { resource = r; }
@@ -171,20 +183,19 @@ public final class ResearchPoolR27 implements AutoCloseable {
                 try{
                     if(current!=null&&current.state()==CooperativeContinuationR26.State.CANCELLING){
                         if(!current.isTerminated()){outcome=Outcome.idle("DEPENDENCY(DRAINING_NOT_TERMINATED)",current.claim.cursor,-1);synchronized(this){notBefore.put(task.id(),SystemClock.elapsedRealtime()+250);}continue;}
-                        clearTaskHelperCancellationR31(current.claim);synchronized(this){prepared.remove(task.id(),current);}invalidateDraftR31(task.id());current=null;
-                        finishCancelledR31(task.id());
+                        clearTaskHelperCancellationR31(current.claim);synchronized(this){prepared.remove(task.id(),current);}invalidateDraftR31(task.id());finishCancelledR31(current.claim);current=null;
                     }
                     if(current!=null&&current.done()){
                         current.awaitTermination(50);
                         if(!current.isTerminated()){outcome=Outcome.idle("DEPENDENCY(RESULT_CLEANUP_PENDING)",current.claim.cursor,-1);synchronized(this){notBefore.put(task.id(),SystemClock.elapsedRealtime()+50);}continue;}
-                        clearTaskHelperCancellationR31(current.claim);synchronized(this){prepared.remove(task.id(),current);}if(current.failedR31){invalidateDraftR31(task.id());finishCancelledR31(task.id());}current=null;
+                        clearTaskHelperCancellationR31(current.claim);synchronized(this){prepared.remove(task.id(),current);}if(current.failedR31){invalidateDraftR31(task.id());finishCancelledR31(current.claim);}current=null;
                     }
                     ClaimAttempt attempt=claimPrepared(task.id(),current);claim=attempt.claim;phase=attempt.phase;
                     if(claim==null){outcome=Outcome.idle("DEPENDENCY(ACTIVE_SCHEMA_SESSION_TASK_LEASE_OR_RECOVERY)",0,-1);}
                     else{
                         if(current==null){current=new PreparedTaskR30R1(task,w,claim);synchronized(this){prepared.put(task.id(),current);}}
                         current.claim=claim;phase="COMPUTE_OR_PUBLISH";
-                        refreshResourceBudget(w.ro);applied=resourceBudget;int quantum=applied.quantums.getOrDefault(task.id(),200);
+                        refreshResourceBudget(w.ro);applied=resourceBudget;int quantum=Math.min(applied.quantums.getOrDefault(task.id(),200),memoryPressureR31?100:200);
                         try{outcome=current.slice(quantum);}finally{
                             recordResearchCost(task.id(),current.lastCpuNanos);
                             if(current.done()&&!current.failedR31){current.awaitTermination(50);if(current.isTerminated()){clearTaskHelperCancellationR31(current.claim);synchronized(this){prepared.remove(task.id(),current);}}}
@@ -297,8 +308,29 @@ public final class ResearchPoolR27 implements AutoCloseable {
         });
         for(ResearchPoolR27 pool:POOLS_R31.values())pool.wake(taskId);
     }
-    private void finishCancelledR31(String task){
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(RuntimeCoordinatorR26.controlContextR31("R31_TASK_DRAINED"),db->{db.execSQL("UPDATE r26_task SET status='READY',wait_kind='HALF_OPEN',blocked_reason='PREVIOUS_COMPUTE_TERMINATED' WHERE task_id=? AND status='CANCELLING' AND EXISTS(SELECT 1 FROM r26_session WHERE session_id=? AND user_enabled=1 AND state='RUNNING')",new Object[]{task,session});return 0;});
+    private void finishCancelledR31(RuntimeCoordinatorR26.Claim retired){
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(RuntimeCoordinatorR26.controlContextR31("R31_TASK_DRAINED"),db->{db.execSQL("UPDATE r26_task SET status='READY',wait_kind='HALF_OPEN',blocked_reason='PREVIOUS_COMPUTE_TERMINATED' WHERE task_id=? AND owner=? AND fence=? AND status='CANCELLING' AND EXISTS(SELECT 1 FROM r26_session WHERE session_id=? AND user_enabled=1 AND state='RUNNING')",new Object[]{retired.task,session,retired.fence+1,session});return 0;});
+    }
+    /** Health control revokes only the observed owner/fence, never a newer task generation. */
+    public boolean requestTaskRecoveryR31(String task,long expectedFence,String expectedArtifact,String reason){
+        final boolean live;synchronized(this){PreparedTaskR30R1 current=prepared.get(task);live=Boolean.TRUE.equals(running.get(task))||current!=null&&!current.isTerminated();}
+        Integer changed=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(RuntimeCoordinatorR26.controlContextR31("R31_HEALTH_TASK_REVOKE"),db->{
+            db.execSQL("UPDATE r26_task SET fence=fence+1,status=?,lease_until=0,wait_kind='CANCELLED',blocked_reason=? WHERE task_id=? AND owner=? AND fence=? AND status IN ('RUNNING','READY','YIELDED','BLOCKED') AND NOT EXISTS(SELECT 1 FROM r30r1_task_progress p WHERE p.task_id=r26_task.task_id AND p.artifact_identity IS NOT ?)",new Object[]{live?"CANCELLING":"READY","HEALTH_RECOVERY:"+RuntimeFaultEvidenceR31.clean(reason,128),task,session,expectedFence,expectedArtifact});
+            int rows;try(Cursor count=db.rawQuery("SELECT changes()",null)){rows=count.moveToFirst()?count.getInt(0):0;}if(rows==1)db.execSQL("UPDATE r31_task_lease SET deadline_elapsed_ms=0,next_elapsed_ms=0 WHERE task_id=? AND owner_epoch=? AND fence=?",new Object[]{task,session,expectedFence});return rows;
+        });
+        if(changed==null||changed!=1)return false;
+        revokedTaskFencesR31.put(task,expectedFence);
+        synchronized(this){PreparedTaskR30R1 current=prepared.get(task);if(current!=null&&current.claim.fence==expectedFence){current.failedR31=true;current.close();}}
+        wake(task);return true;
+    }
+    /** Fallback for a revoke between dispatch and PreparedTask registration. No replacement while either is live. */
+    public boolean reconcileTaskRecoveryR31(String task,long expectedFence){
+        PreparedTaskR30R1 previous;synchronized(this){if(Boolean.TRUE.equals(running.get(task)))return false;previous=prepared.get(task);if(previous!=null&&!previous.isTerminated())return false;running.put(task,true);if(previous!=null)prepared.remove(task,previous);}
+        try{
+            if(previous!=null){clearTaskHelperCancellationR31(previous.claim);invalidateDraftR31(task);}
+            Integer result=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(RuntimeCoordinatorR26.controlContextR31("R31_HEALTH_TASK_DRAINED"),db->{db.execSQL("UPDATE r26_task SET status='READY',wait_kind='HALF_OPEN',blocked_reason='ACTUAL_PREVIOUS_TASK_TERMINATED' WHERE task_id=? AND owner=? AND fence=? AND status='CANCELLING'",new Object[]{task,session,expectedFence});try(Cursor count=db.rawQuery("SELECT changes()",null)){return count.moveToFirst()?count.getInt(0):0;}});
+            if(result!=null&&result==1){revokedTaskFencesR31.remove(task);wake(task);return true;}return false;
+        }finally{synchronized(this){running.put(task,false);}}
     }
     private void invalidateDraftR31(String task){RuntimeR27 runtime=RuntimeR27.active();if(runtime!=null&&runtime.pool()==this)runtime.invalidateTaskDraftR31(task);}
     private static final java.util.concurrent.atomic.AtomicLong RECOVERY_POLL_R31=new java.util.concurrent.atomic.AtomicLong();

@@ -3,11 +3,9 @@ package com.ethk3.novaonepro.strategyv2;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.ethk3.novaonepro.TargetIssueResolver;
-import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import sun.misc.Unsafe;
 
 /** Calls the production calibration task on real SQLite with explicitly synthetic FUTURE receipts. */
 public final class CalibrationR30HostTest {
@@ -36,25 +34,28 @@ public final class CalibrationR30HostTest {
             }
             db.execSQL("UPDATE r27_live_frozen SET probabilities=? WHERE policy_hash='calibration-a' AND target_issue=?",new Object[]{new byte[0],issue(1500)});
             db.execSQL("UPDATE r27_live_frozen SET target_ordinal=target_ordinal+20000 WHERE policy_hash='calibration-a' AND target_issue=?",new Object[]{issue(1498)});
-            Field f=Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);Unsafe u=(Unsafe)f.get(null);
-            RuntimeR27 rt=(RuntimeR27)u.allocateInstance(RuntimeR27.class);ResearchPoolR27 pool=(ResearchPoolR27)u.allocateInstance(ResearchPoolR27.class);AtomicBoolean fail=new AtomicBoolean(false);
-            ResearchWriteQueueR27 writes=new ResearchWriteQueueR27((op,batch)->{
-                try{c.setAutoCommit(false);ResearchWriteQueueR27.execute(db,batch,op);if(fail.getAndSet(false))throw new IllegalStateException("CALIBRATION_COMMIT_FAILURE");c.commit();c.setAutoCommit(true);}
-                catch(Exception e){try{c.rollback();c.setAutoCommit(true);}catch(Exception ignored){}throw new IllegalStateException(e);}
-            },()->false);u.putObject(pool,u.objectFieldOffset(ResearchPoolR27.class.getDeclaredField("writes")),writes);ResearchPoolR27.Worker worker=pool.new Worker(db,"calibration-test");
+            try (R31OwnedRuntimeFixture owned=new R31OwnedRuntimeFixture(db,"r27-calibration")) {
+            RuntimeR27 rt=owned.runtime;ResearchPoolR27.Worker worker=owned.worker;
             EvolutionLoopR27.Config cfg=new EvolutionLoopR27.Config();cfg.nullControl=false;rt.evo=new EvolutionLoopR27(cfg,new FeatureCacheR27(data),new StoreR27.EvolutionSink("HOST",issue(1000)),()->0L);rt.evo.stepDataset();
-            LiveShadowsR27.lastCalibration=0;LiveShadowsR27.calibrate(rt,worker);
+            LiveShadowsR27.lastCalibration=0;owned.owned(()->{LiveShadowsR27.calibrate(rt,worker);return null;});
             require(count(db,"SELECT count(*) FROM r27_calibration")==1&&rt.calibrationIndexR30==1,"MORE_THAN_ONE_POLICY_PER_SLICE");
             Map<String,Object> a=cached(db,"calibration-a");require(((Number)a.get("n")).longValue()>=200,"Q05_STILL_CAPPED_AT_120");require(((Number)a.get("excludedInvalid")).longValue()==2,"CORRUPT_PROBABILITY_OR_ORDINAL_NOT_EXPLICITLY_EXCLUDED");
             List<?> rows=(List<?>)a.get("rollingEvaluations");for(Object value:rows){Map<?,?> e=(Map<?,?>)value;require(((Number)e.get("fitThroughOrdinal")).longValue()<((Number)e.get("ordinal")).longValue()-1,"FUTURE_USED_IN_ROLLING_FIT");}
-            fail.set(true);try{LiveShadowsR27.calibrate(rt,worker);throw new AssertionError("COMMIT_FAILURE_NOT_INJECTED");}catch(IllegalStateException expected){}
+            AtomicBoolean injected=new AtomicBoolean();db.beforeSuccessful=()->{
+                if(RuntimeCoordinatorR26.currentClaimR30()!=null&&count(db,"SELECT count(*) FROM r27_calibration")==2){
+                    db.beforeSuccessful=null;injected.set(true);throw new IllegalStateException("CALIBRATION_COMMIT_FAILURE_AFTER_ACTUAL_SQL");
+                }
+            };
+            try{owned.owned(()->{LiveShadowsR27.calibrate(rt,worker);return null;});throw new AssertionError("COMMIT_FAILURE_NOT_INJECTED");}catch(IllegalStateException expected){}
+            require(injected.get(),"FAILURE_PRECEDED_ACTUAL_CALIBRATION_SQL");
             require(rt.calibrationIndexR30==1&&count(db,"SELECT count(*) FROM r27_calibration")==1&&count(db,"SELECT count(*) FROM r27_chart_cache WHERE panel_id='calibration-r30'")==1,"FAILED_COMMIT_ADVANCED_CALIBRATION");
-            LiveShadowsR27.calibrate(rt,worker);require(rt.calibrationIndexR30==0&&count(db,"SELECT count(*) FROM r27_calibration")==2,"RETRY_DID_NOT_FINISH_ROUND");
+            owned.owned(()->{LiveShadowsR27.calibrate(rt,worker);return null;});require(rt.calibrationIndexR30==0&&count(db,"SELECT count(*) FROM r27_calibration")==2,"RETRY_DID_NOT_FINISH_ROUND");
             Map<String,Object> report=ReportR29.calibrationQualityR30(db);require(((Number)report.get("measuredPolicies")).longValue()==2,"REPORT_NOT_FROM_COMMITTED_Q05");
             try(Cursor old=db.rawQuery("SELECT ece,validation_rows FROM r27_calibration WHERE policy_hash='calibration-a'",null)){require(old.moveToFirst()&&old.getDouble(0)==((Number)a.get("eceEqualWidth")).doubleValue()&&old.getLong(1)==((Number)a.get("n")).longValue(),"LEGACY_AND_NEW_REPORT_DISAGREE");}
             require(a.get("eceEqualMass") instanceof Number&&a.get("brier") instanceof Number&&a.get("bss") instanceof Number&&a.get("supportCoverage") instanceof Number,"Q05_FIELDS_MISSING");
             Map<String,Object> summary=new LinkedHashMap<>(a);summary.remove("rollingEvaluations");summary.put("scope","HOST_SYNTHETIC_ONLY_NOT_NATURAL_QUALITY");System.out.println("R30_CALIBRATION_SQLITE_REPORT "+JsonR27.write(summary));
-            System.out.println("R30_CALIBRATION_SQLITE|ACTUAL_TASK_ONE_POLICY_PER_SLICE|STRICT_PRIOR_ORDINAL_AND_EMBARGO|Q05_BOTH_ECE_BRIER_BSS_SUPPORT|CORRUPT_ROW_EXCLUDED|FAILED_COMMIT_ROLLED_BACK_AND_RETRIED|OLD_AND_NEW_REPORT_MATCH|PASS");
+            System.out.println("R30_CALIBRATION_SQLITE|ACTUAL_TASK_ONE_POLICY_PER_SLICE|STRICT_PRIOR_ORDINAL_AND_EMBARGO|Q05_BOTH_ECE_BRIER_BSS_SUPPORT|CORRUPT_ROW_EXCLUDED|FAILED_COMMIT_ROLLED_BACK_AND_RETRIED|OLD_AND_NEW_REPORT_MATCH|PRODUCTION_OWNED_IMMUTABLE_WRITES|PASS");
+            }
         }
     }
 }

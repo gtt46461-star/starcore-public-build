@@ -14,6 +14,23 @@ public final class AnalysisSingleFlightR36 {
     private Request latestPending;
     private int active;
     private int maximum;
+    public enum PhaseR31 { PREPARE, INFER, COMMIT, PUBLISHED }
+    /** Same-owner cooperative budgets. Repeated pulses and wall-clock changes cannot extend a phase. */
+    public static final class PhaseBudgetR31 {
+        private final java.util.function.LongSupplier clock;private final long fixedDeadline;
+        private PhaseR31 phase;private long entered,deadline,selectionMono;private boolean committed;
+        private final java.util.List<java.util.Map<String,Object>> spans=new java.util.ArrayList<>();
+        public PhaseBudgetR31(long fixedDeadline,java.util.function.LongSupplier clock){if(clock==null)throw new IllegalArgumentException("R31_PHASE_CLOCK_REQUIRED");this.clock=clock;this.fixedDeadline=fixedDeadline>0?fixedDeadline:Long.MAX_VALUE;}
+        public synchronized void begin(PhaseR31 next,long allowanceMs){
+            if(committed)return;if(next==null||allowanceMs<=0)throw new IllegalArgumentException("R31_PHASE_BUDGET_REQUIRED");
+            if(phase==next)return;if(phase!=null&&next.ordinal()<phase.ordinal())throw new IllegalStateException("R31_ANALYSIS_PHASE_REGRESSION");
+            long now=clock.getAsLong();closeSpan(now);phase=next;entered=now;if(next==PhaseR31.INFER)selectionMono=now;deadline=Math.min(fixedDeadline,now+allowanceMs);
+        }
+        private void closeSpan(long now){if(phase==null)return;java.util.Map<String,Object> row=new java.util.LinkedHashMap<>();row.put("phase",phase.name());row.put("startedMonoMs",entered);row.put("endedMonoMs",now);row.put("deadlineMonoMs",deadline);row.put("overBudget",now>deadline);if(spans.size()<4)spans.add(java.util.Collections.unmodifiableMap(row));}
+        public synchronized String exceeded(){if(committed)return "";long now=clock.getAsLong();if(now>=fixedDeadline)return "FIXED_PREDRAW_DEADLINE";return phase!=null&&now>deadline?"PHASE_BUDGET_"+phase.name():"";}
+        public synchronized void published(){if(committed)return;closeSpan(clock.getAsLong());committed=true;phase=PhaseR31.PUBLISHED;}
+        public synchronized java.util.Map<String,Object> snapshot(){java.util.Map<String,Object> row=new java.util.LinkedHashMap<>();row.put("phase",phase==null?"NOT_STARTED":phase.name());row.put("fixedDeadlineMonoMs",fixedDeadline);row.put("phaseDeadlineMonoMs",phase==null?null:deadline);row.put("committed",committed);row.put("spans",java.util.Collections.unmodifiableList(new java.util.ArrayList<>(spans)));row.put("sourceChoice","FULL_REGISTERED_RUNTIME");row.put("selectionMonoMs",selectionMono==0?null:selectionMono);row.put("fastFallback","UNSUPPORTED_UNTIL_PREREGISTERED_QUALIFIED_IMPLEMENTATION");return java.util.Collections.unmodifiableMap(row);}
+    }
 
     private AnalysisSingleFlightR36() {}
 
@@ -233,7 +250,7 @@ public final class AnalysisSingleFlightR36 {
                                             + '|'
                                             + Thread.currentThread().getId())
                             .substring(0, 32);
-            token = new CancellationToken(targetIssue, acquiredMonoAt);
+            token = new CancellationToken(targetIssue, acquiredMonoAt,request.deadlineMonoAt);
             token.pressureOwnerCP4=ownerId;token.pressureGenerationCP4=request.generation;
         }
 
@@ -296,12 +313,20 @@ public final class AnalysisSingleFlightR36 {
         private Thread workerThread;
         private String pressureOwnerCP4="";
         private long pressureGenerationCP4;
+        private final PhaseBudgetR31 phaseBudgetR31;
 
         CancellationToken(String target, long now) {
+            this(target,now,Long.MAX_VALUE);
+        }
+        CancellationToken(String target,long now,long deadline) {
             targetIssue = safe(target);
             lastProgressMonoAt = now;
             lastDurablePulseWallAt = System.currentTimeMillis();
+            phaseBudgetR31=new PhaseBudgetR31(deadline,AnalysisSingleFlightR36::monotonicNowMs);
         }
+        public synchronized void beginPhaseR31(PhaseR31 phase,long allowanceMs){checkPhaseR31();phaseBudgetR31.begin(phase,allowanceMs);checkPhaseR31();if(cancelRequested&&!canonicalCommitted)throw new CancelledBeforeCommitException(targetIssue,stage,cancelReason);}
+        public synchronized java.util.Map<String,Object> phaseSnapshotR31(){return phaseBudgetR31.snapshot();}
+        private void checkPhaseR31(){String exceeded=phaseBudgetR31.exceeded();if(!canonicalCommitted&&!exceeded.isEmpty())requestCancelOnce("R31_"+exceeded);}
 
         public synchronized void pulse(String value) {
             if (canonicalCommitted) return;
@@ -334,6 +359,7 @@ public final class AnalysisSingleFlightR36 {
         /** Linearization point: only a later supersede is deferred, never a hard failure. */
         public synchronized void enterFinalization() {
             if (canonicalCommitted) return;
+            checkPhaseR31();phaseBudgetR31.begin(PhaseR31.COMMIT,1000L);checkPhaseR31();
             if (cancelRequested) {
                 throw new CancelledBeforeCommitException(targetIssue, stage, cancelReason);
             }
@@ -347,6 +373,7 @@ public final class AnalysisSingleFlightR36 {
         }
 
         public synchronized void checkpoint(String value) {
+            checkPhaseR31();
             RealtimePressureGateR811.renewCrossProcess(pressureOwnerCP4,pressureGenerationCP4);
             if (!canonicalCommitted) RuntimeResourceAuditR927.checkpoint(value);
             pulse(value);
@@ -356,6 +383,7 @@ public final class AnalysisSingleFlightR36 {
         }
 
         public synchronized void markCanonicalCommitted() {
+            phaseBudgetR31.published();
             canonicalCommitted = true;
             cancelRequested = false;
             stage = "CANONICAL_COMMITTED";

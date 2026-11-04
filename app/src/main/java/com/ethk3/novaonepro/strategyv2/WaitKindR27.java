@@ -36,7 +36,7 @@ public final class WaitKindR27 {
                 case RETRY_LATER:kind=RETRY_LATER;break;
                 case CANCELLED:kind=CANCELLED;break;
                 case STALE_OWNER:kind=STALE_OWNER;break;
-                case DEPENDENCY:kind=DEPENDENCY;break;
+                case DEPENDENCY:kind=decision.category.startsWith("RESOURCE_")?RESOURCE:DEPENDENCY;break;
                 case FATAL:kind=NEEDS_FIX;break;
                 default:kind=ERROR;
             }

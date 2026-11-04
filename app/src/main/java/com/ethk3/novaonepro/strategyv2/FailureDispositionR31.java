@@ -55,6 +55,9 @@ public final class FailureDispositionR31 {
                     || message.startsWith("R909_BACKGROUND_WRITER_YIELD")) result = category("LOCK_BUSY", "NOT_SUBMITTED");
             else if (message.startsWith("R26_STALE_FENCE") || message.startsWith("R31_STALE_")
                     || message.startsWith("R30_PREPARED_OWNER_CHANGED")) result = category("STALE_OWNER", "NOT_SUBMITTED");
+            else if(message.startsWith("RESOURCE_WAIT:MEMORY_CANCELLED")||message.startsWith("R31_MEMORY_CAPACITY_WAIT:CANCELLED")||message.startsWith("QUEUE_CAPACITY_WAIT:MEMORY_CANCELLED"))result=category("CANCELLED","NOT_SUBMITTED");
+            else if(message.startsWith("R31_MEMORY_CAPACITY_WAIT")||message.startsWith("RESOURCE_WAIT:MEMORY_"))result=new Decision(Disposition.DEPENDENCY,"RESOURCE_MEMORY","NOT_SUBMITTED",false,false);
+            else if(message.startsWith("QUEUE_CAPACITY_WAIT")||name.endsWith("QueueCapacityWait"))result=new Decision(Disposition.DEPENDENCY,"RESOURCE_QUEUE","NOT_SUBMITTED",false,false);
             else if (message.startsWith("MATRIX_ORIGINAL_STUDENT_UNAVAILABLE") || message.startsWith("MISSING_TEACHER")
                     || message.contains("SCHEMA_PENDING") || message.startsWith("R31_COMPUTE_CAPACITY")
                     || message.startsWith("R31_CONTINUATION_CANCELLING") || message.startsWith("R31_CONTINUATION_SLICE_IN_FLIGHT")

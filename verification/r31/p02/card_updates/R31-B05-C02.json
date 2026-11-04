@@ -1,0 +1,52 @@
+{
+  "recorded_at": "2026-11-04T10:38:50.822771+00:00",
+  "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "inherited_source_commit": "31fea28c5723ac70e47ae4cc7542344b16fb3f91",
+  "implementation_commit": "UNCOMMITTED_P02_ROOT_INTEGRATION_PENDING",
+  "actual_changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+      "methods": "reserve/Reservation.beforeChunk/reconcile/finish: cross-PID OS ownership locks, persistent bounded ledger, physical+pending capacity, actual-owner exit recovery",
+      "worktree_sha256_at_record": "26e64cffc0fa071ea6e6c30e927d737bce07bdc36c55be49a3291acbd9911332",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportNativeCP4.java",
+      "methods": "per backup chunk admitted hook",
+      "worktree_sha256_at_record": "3ce1215dd61e1dd8f94e01b59b30940d1052dd48a748459d120f581100be112e",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/cpp/report_native_cp4.c",
+      "methods": "native SQLite backup invokes Java budget before each bounded step",
+      "worktree_sha256_at_record": "6605f66eb31f46e9edf3cdac015b64b9c415600c043b2a56c1bb4bcac5b6447e",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+      "methods": "compatible budgeted ZIP sink",
+      "worktree_sha256_at_record": "5491f960f26e69c89d5695827cff17d9377a6a9db81d9e621d869e110fbdf86d",
+      "identity_scope": "UNCOMMITTED_P02_SNAPSHOT_NOT_SIGNED_APK"
+    }
+  ],
+  "commits": [],
+  "migration_versions": [
+    "SQLite userVersion36 retained",
+    "RESEARCH_R31_FEEDBACK:1 (10 objects)",
+    "REALTIME_R31_TIMING:1 (2 objects)",
+    "R31_STORAGE_ADMISSION_V1 / R31_MEMORY_PER_PID_V1"
+  ],
+  "tests": [],
+  "apk_identity": null,
+  "device_evidence": [],
+  "remaining": [
+    "ST-02/ST-03：并发reserve不超限，实际chunk超额停止",
+    "24h新建产物数量/bytes有上界，保护对象无误删",
+    "ENOSPC下注/冻结/结算原子性不破坏",
+    "Database/WAL/model/training/backup writers outside registered report consumers still require explicit admission integration; registered-only is not all-growth closure.",
+    "Root same-version unexcluded Android/Gradle source integration pending",
+    "Android/physical device fault matrix and24/72h NOT_RUN",
+    "Natural FUTURE/REAL quality NOT_PROVEN"
+  ],
+  "next_step": "Finish real HOST/native fault tests, freeze source, regenerate verified identities from actual classes, then run unexcluded joint build/tests. No P06 business/cache GC enabled."
+}

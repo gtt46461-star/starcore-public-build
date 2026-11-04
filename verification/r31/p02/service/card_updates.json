@@ -1,0 +1,424 @@
+{
+  "format": "R31_P02_SCOPED_CARD_UPDATES",
+  "owner": "writer_protocol",
+  "cards": [
+    {
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "IMPLEMENTING",
+      "commits": [],
+      "migration_versions": [
+        {
+          "domain": "RESEARCH_R31_FEEDBACK",
+          "revision": 1,
+          "objects": 10,
+          "entry": "RuntimeSchemaR26.ensureR31Feedback",
+          "additive": true,
+          "actualNativeSqliteMigration": "PASS",
+          "AndroidUpgrade": "NOT_RUN"
+        },
+        {
+          "domain": "REALTIME_R31_TIMING",
+          "revision": 1,
+          "objects": 2,
+          "entry": "FetchLedgerR925.ensureR31Timing",
+          "additive": true,
+          "actualNativeSqliteMigration": "PASS",
+          "AndroidUpgrade": "NOT_RUN"
+        }
+      ],
+      "tests": [
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_service_protocol_host.py",
+          "exitCode": 0,
+          "result": "HOST_SCOPED_PASS",
+          "evidence": "verification/r31/p02/service/native-service-final.log",
+          "junitTests": 6,
+          "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
+          "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+        }
+      ],
+      "apk_identity": null,
+      "device_evidence": [],
+      "natural_quality": "NOT_PROVEN",
+      "stateMeaning": "Scoped source/host integration is real; complete card/mandatory device acceptance not claimed. Root can separately bind final joint build/commit/APK.",
+      "id": "R31-B03-C01",
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "methods": [
+            "PollCadenceR31",
+            "runFetchChannelOnce",
+            "scheduleNextFetchLoop",
+            "reconcileResearchOwner",
+            "startWorkR3610OffMain",
+            "stopWork",
+            "submitAnalysisRequestR36",
+            "prepareAnalysisHistoryR364"
+          ],
+          "sha256": "b6de5aa4c79cf1019e423c26124a37c0d861eae8583cbd88a2e8dde6bb456be2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ApiClient.java",
+          "methods": [
+            "requestGet",
+            "requestPostJson",
+            "readAll",
+            "cancelInFlightR31"
+          ],
+          "sha256": "e4161f4f3e76cf4b88fb7856cde5232e1ae8e8f87a85bda9f0975e44db9d3c7b"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+          "methods": [
+            "begin",
+            "complete",
+            "payload",
+            "observeTransportR31",
+            "ensureR31Timing",
+            "ensureReceiptWithinR31"
+          ],
+          "sha256": "92515942369b8aca8d037ac1af4265905c25ed1eaa67c42ca76c17cdf64f978d"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+          "methods": [
+            "enqueueDraw",
+            "enqueueConfirmedWithinWrite",
+            "markTerminalWithinTransaction",
+            "markRetry",
+            "pendingCountR31"
+          ],
+          "sha256": "73795ef6c1ffffaedb29dc150e902848a67aac2fe9692fe4187853c25625a86d"
+        }
+      ],
+      "remaining": [
+        "Android actual database upgrade, mid-process kill/restart,30-minute disconnect/backfill,dual-source correction and1,000 real-time opportunity latency distributions NOT_RUN.",
+        "Historical correction invalidation/5000 rolling retention/input pins are preserved existing contracts and require later B05/B06 cross-chain verification; no new completed claim."
+      ],
+      "next_step": "Root joint Android build+APK binding, then applicable real-device acceptance; continue independent P03+ work without treating missing future evidence as PASS."
+    },
+    {
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "IMPLEMENTING",
+      "commits": [],
+      "migration_versions": [
+        {
+          "domain": "RESEARCH_R31_FEEDBACK",
+          "revision": 1,
+          "objects": 10,
+          "entry": "RuntimeSchemaR26.ensureR31Feedback",
+          "additive": true,
+          "actualNativeSqliteMigration": "PASS",
+          "AndroidUpgrade": "NOT_RUN"
+        },
+        {
+          "domain": "REALTIME_R31_TIMING",
+          "revision": 1,
+          "objects": 2,
+          "entry": "FetchLedgerR925.ensureR31Timing",
+          "additive": true,
+          "actualNativeSqliteMigration": "PASS",
+          "AndroidUpgrade": "NOT_RUN"
+        }
+      ],
+      "tests": [
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_service_protocol_host.py",
+          "exitCode": 0,
+          "result": "HOST_SCOPED_PASS",
+          "evidence": "verification/r31/p02/service/native-service-final.log",
+          "junitTests": 6,
+          "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
+          "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+        }
+      ],
+      "apk_identity": null,
+      "device_evidence": [],
+      "natural_quality": "NOT_PROVEN",
+      "stateMeaning": "Scoped source/host integration is real; complete card/mandatory device acceptance not claimed. Root can separately bind final joint build/commit/APK.",
+      "id": "R31-B03-C02",
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "methods": [
+            "PollCadenceR31",
+            "runFetchChannelOnce",
+            "scheduleNextFetchLoop",
+            "reconcileResearchOwner",
+            "startWorkR3610OffMain",
+            "stopWork",
+            "submitAnalysisRequestR36",
+            "prepareAnalysisHistoryR364"
+          ],
+          "sha256": "b6de5aa4c79cf1019e423c26124a37c0d861eae8583cbd88a2e8dde6bb456be2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
+          "methods": [
+            "PhaseBudgetR31",
+            "CancellationToken.beginPhaseR31",
+            "CancellationToken.enterFinalization"
+          ],
+          "sha256": "bb445d7a3f5eb24ea475d77bf609781d1ae2f649da771a87a46407e6d26770e7"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+          "methods": [
+            "transitionOwned dependency disposition preserving fixed deadline"
+          ],
+          "sha256": "093e214e5c227e9704269a5be12a0fcfea0c5cc027b81cd58f08a66b02ccf833"
+        }
+      ],
+      "remaining": [
+        "Canonical first-hash/DecisionGate/K3/OOS original production logic preserved; full fast/full race,fixed-deadline +/-1ms,clock jumps,concurrent model publish require joint Android tests. No qualified FAST implementation added.",
+        "Published model preload/actual numeric deep-learning correctness and changed-data invalidation remain B06 and later integration requirements."
+      ],
+      "next_step": "Root joint Android build+APK binding, then applicable real-device acceptance; continue independent P03+ work without treating missing future evidence as PASS."
+    },
+    {
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "IMPLEMENTING",
+      "commits": [],
+      "migration_versions": [
+        {
+          "domain": "RESEARCH_R31_FEEDBACK",
+          "revision": 1,
+          "objects": 10,
+          "entry": "RuntimeSchemaR26.ensureR31Feedback",
+          "additive": true,
+          "actualNativeSqliteMigration": "PASS",
+          "AndroidUpgrade": "NOT_RUN"
+        },
+        {
+          "domain": "REALTIME_R31_TIMING",
+          "revision": 1,
+          "objects": 2,
+          "entry": "FetchLedgerR925.ensureR31Timing",
+          "additive": true,
+          "actualNativeSqliteMigration": "PASS",
+          "AndroidUpgrade": "NOT_RUN"
+        }
+      ],
+      "tests": [
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_service_protocol_host.py",
+          "exitCode": 0,
+          "result": "HOST_SCOPED_PASS",
+          "evidence": "verification/r31/p02/service/native-service-final.log",
+          "junitTests": 6,
+          "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
+          "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+        }
+      ],
+      "apk_identity": null,
+      "device_evidence": [],
+      "natural_quality": "NOT_PROVEN",
+      "stateMeaning": "Scoped source/host integration is real; complete card/mandatory device acceptance not claimed. Root can separately bind final joint build/commit/APK.",
+      "id": "R31-B03-C03",
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+          "methods": [
+            "enqueueDraw",
+            "enqueueConfirmedWithinWrite",
+            "markTerminalWithinTransaction",
+            "markRetry",
+            "pendingCountR31"
+          ],
+          "sha256": "73795ef6c1ffffaedb29dc150e902848a67aac2fe9692fe4187853c25625a86d"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+          "methods": [
+            "executeFromCoordinatorR815 (remove research feedback from core transaction)"
+          ],
+          "sha256": "bffca6af2f7a704fee78d475d5ec71e012b8c30148891c52d7f7dd982d8dd5b8"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+          "methods": [
+            "ensureR31Feedback",
+            "feedbackWithinTransaction",
+            "reconcileFeedbackR31",
+            "typedDrawEventsR31",
+            "typedFrozenEventsR31",
+            "bridgeModelReceiptsR31",
+            "consumeFrozenEffectsR31"
+          ],
+          "sha256": "fa18cca102f58dd54f9f778e86c25cbf7acbef56df0ca1d47e361e38cd1b47c2"
+        }
+      ],
+      "remaining": [
+        "Existing real numerical model consumers were not run to prove learning correctness/natural effect by the controlled host parameter fixture.",
+        "Restart-from-committed-cursor and lossless duplicated business SettlementEngine complete transaction require Android integration.",
+        "Independent latest draw/terminal/valid OOS/REAL/each training cursor report watermarks root-owned integration not claimed here."
+      ],
+      "next_step": "Root joint Android build+APK binding, then applicable real-device acceptance; continue independent P03+ work without treating missing future evidence as PASS."
+    },
+    {
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "IMPLEMENTING",
+      "commits": [],
+      "migration_versions": [
+        {
+          "domain": "RESEARCH_R31_FEEDBACK",
+          "revision": 1,
+          "objects": 10,
+          "entry": "RuntimeSchemaR26.ensureR31Feedback",
+          "additive": true,
+          "actualNativeSqliteMigration": "PASS",
+          "AndroidUpgrade": "NOT_RUN"
+        },
+        {
+          "domain": "REALTIME_R31_TIMING",
+          "revision": 1,
+          "objects": 2,
+          "entry": "FetchLedgerR925.ensureR31Timing",
+          "additive": true,
+          "actualNativeSqliteMigration": "PASS",
+          "AndroidUpgrade": "NOT_RUN"
+        }
+      ],
+      "tests": [
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_service_protocol_host.py",
+          "exitCode": 0,
+          "result": "HOST_SCOPED_PASS",
+          "evidence": "verification/r31/p02/service/native-service-final.log",
+          "junitTests": 6,
+          "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
+          "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+        }
+      ],
+      "apk_identity": null,
+      "device_evidence": [],
+      "natural_quality": "NOT_PROVEN",
+      "stateMeaning": "Scoped source/host integration is real; complete card/mandatory device acceptance not claimed. Root can separately bind final joint build/commit/APK.",
+      "id": "R31-B04-C01",
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "methods": [
+            "PollCadenceR31",
+            "runFetchChannelOnce",
+            "scheduleNextFetchLoop",
+            "reconcileResearchOwner",
+            "startWorkR3610OffMain",
+            "stopWork",
+            "submitAnalysisRequestR36",
+            "prepareAnalysisHistoryR364"
+          ],
+          "sha256": "b6de5aa4c79cf1019e423c26124a37c0d861eae8583cbd88a2e8dde6bb456be2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "methods": [
+            "setPendingSettlementCount",
+            "markSettlementTerminal",
+            "tryAcquireRecoveryLease",
+            "markServiceReady",
+            "markResearchHealthR31",
+            "noteResearchRecoveryRequestR31",
+            "getResearchStaleReason",
+            "markFetchCadenceR31"
+          ],
+          "sha256": "d1869d2d27f434586b1e1696f0d98158be4b8aa62bde5edebd66b7defc8e9be6"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
+          "methods": [
+            "startAutoFetchService in-process existing-owner control routing"
+          ],
+          "sha256": "31894b0ac375ce6e1b7c2281e57d2077d2ff5908b29838232225623653a947d7"
+        }
+      ],
+      "remaining": [
+        "Service actual20 repeated start commands,2control-tick degraded detection and process/pool lifecycle are not device-proven by host preference tests."
+      ],
+      "next_step": "Root joint Android build+APK binding, then applicable real-device acceptance; continue independent P03+ work without treating missing future evidence as PASS."
+    },
+    {
+      "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "status": "IMPLEMENTING",
+      "commits": [],
+      "migration_versions": [
+        {
+          "domain": "RESEARCH_R31_FEEDBACK",
+          "revision": 1,
+          "objects": 10,
+          "entry": "RuntimeSchemaR26.ensureR31Feedback",
+          "additive": true,
+          "actualNativeSqliteMigration": "PASS",
+          "AndroidUpgrade": "NOT_RUN"
+        },
+        {
+          "domain": "REALTIME_R31_TIMING",
+          "revision": 1,
+          "objects": 2,
+          "entry": "FetchLedgerR925.ensureR31Timing",
+          "additive": true,
+          "actualNativeSqliteMigration": "PASS",
+          "AndroidUpgrade": "NOT_RUN"
+        }
+      ],
+      "tests": [
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_service_protocol_host.py",
+          "exitCode": 0,
+          "result": "HOST_SCOPED_PASS",
+          "evidence": "verification/r31/p02/service/native-service-final.log",
+          "junitTests": 6,
+          "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
+          "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+        }
+      ],
+      "apk_identity": null,
+      "device_evidence": [],
+      "natural_quality": "NOT_PROVEN",
+      "stateMeaning": "Scoped source/host integration is real; complete card/mandatory device acceptance not claimed. Root can separately bind final joint build/commit/APK.",
+      "id": "R31-B04-C02",
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "methods": [
+            "PollCadenceR31",
+            "runFetchChannelOnce",
+            "scheduleNextFetchLoop",
+            "reconcileResearchOwner",
+            "startWorkR3610OffMain",
+            "stopWork",
+            "submitAnalysisRequestR36",
+            "prepareAnalysisHistoryR364"
+          ],
+          "sha256": "b6de5aa4c79cf1019e423c26124a37c0d861eae8583cbd88a2e8dde6bb456be2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "methods": [
+            "setPendingSettlementCount",
+            "markSettlementTerminal",
+            "tryAcquireRecoveryLease",
+            "markServiceReady",
+            "markResearchHealthR31",
+            "noteResearchRecoveryRequestR31",
+            "getResearchStaleReason",
+            "markFetchCadenceR31"
+          ],
+          "sha256": "d1869d2d27f434586b1e1696f0d98158be4b8aa62bde5edebd66b7defc8e9be6"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
+          "methods": [
+            "startAutoFetchService in-process existing-owner control routing"
+          ],
+          "sha256": "31894b0ac375ce6e1b7c2281e57d2077d2ff5908b29838232225623653a947d7"
+        }
+      ],
+      "remaining": [
+        "72-hour V2353A OS power/network/task-swipe/kill/force-stop/reboot matrix NOT_RUN; original target28/dataSync/bounded RuntimePowerLease preserved, no fake auto-start promise.",
+        "OS capability page/user OEM assertions/force-stop interval disclosure not modified or device-verified in this owned slice."
+      ],
+      "next_step": "Root joint Android build+APK binding, then applicable real-device acceptance; continue independent P03+ work without treating missing future evidence as PASS."
+    }
+  ]
+}

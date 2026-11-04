@@ -1,0 +1,87 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java:21: error: cannot find symbol
+    private final MemoryBudgetR31 memoryBudgetR31=MemoryBudgetR31.processBudget();
+                  ^
+  symbol:   class MemoryBudgetR31
+  location: class RuntimeCoordinatorR26
+app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java:179: error: cannot find symbol
+    private static BoundedResearchExecutorR31 healthControlExecutorR31(){return HealthControlHolderR31.INSTANCE;}
+                   ^
+  symbol:   class BoundedResearchExecutorR31
+  location: class RuntimeCoordinatorR26
+app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java:178: error: cannot find symbol
+    private static final class HealthControlHolderR31{static final BoundedResearchExecutorR31 INSTANCE=new BoundedResearchExecutorR31(1,1024,MemoryBudgetR31.processBudget(),r->{Thread thread=new Thread(r,"starcore-r31-health-controller");thread.setDaemon(true);return thread;});}
+                                                                   ^
+  symbol:   class BoundedResearchExecutorR31
+  location: class HealthControlHolderR31
+app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java:52: error: cannot find symbol
+    private final MemoryBudgetR31 memoryBudgetR31=MemoryBudgetR31.processBudget();
+                  ^
+  symbol:   class MemoryBudgetR31
+  location: class ResearchPoolR27
+app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java:144: error: cannot find symbol
+    MemoryBudgetR31 memoryBudgetR31(){return memoryBudgetR31;}
+    ^
+  symbol:   class MemoryBudgetR31
+  location: class ResearchPoolR27
+app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java:106: error: package MemoryBudgetR31 does not exist
+        final MemoryBudgetR31.Lease descriptor,working;
+                             ^
+app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java:108: error: package MemoryBudgetR31 does not exist
+        HelperWorkR31(Runnable body,CooperativeContinuationR26.ComputePermit permit,RuntimeCoordinatorR26.Claim claim,String key,BudgetedHelperExecutorR31 executor,MemoryBudgetR31.Lease descriptor,MemoryBudgetR31.Lease working){this.body=body;this.permit=permit;this.claim=claim;this.key=key;this.group=helperGroupR31(claim);this.executor=executor;this.descriptor=descriptor;this.working=working;}
+                                                                                                                                                                                   ^
+app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java:108: error: package MemoryBudgetR31 does not exist
+        HelperWorkR31(Runnable body,CooperativeContinuationR26.ComputePermit permit,RuntimeCoordinatorR26.Claim claim,String key,BudgetedHelperExecutorR31 executor,MemoryBudgetR31.Lease descriptor,MemoryBudgetR31.Lease working){this.body=body;this.permit=permit;this.claim=claim;this.key=key;this.group=helperGroupR31(claim);this.executor=executor;this.descriptor=descriptor;this.working=working;}
+                                                                                                                                                                                                                    ^
+app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java:21: error: cannot find symbol
+    private final MemoryBudgetR31 memoryBudgetR31=MemoryBudgetR31.processBudget();
+                                                  ^
+  symbol:   variable MemoryBudgetR31
+  location: class RuntimeCoordinatorR26
+app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java:71: error: cannot find symbol
+        if(!"NORMAL".equals(pressure)&&mono>=nextMemoryTrimR31){FeatureCacheR27.trimRegisteredCachesR31();nextMemoryTrimR31=mono+30_000;}
+                                                                               ^
+  symbol:   method trimRegisteredCachesR31()
+  location: class FeatureCacheR27
+app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java:178: error: cannot find symbol
+    private static final class HealthControlHolderR31{static final BoundedResearchExecutorR31 INSTANCE=new BoundedResearchExecutorR31(1,1024,MemoryBudgetR31.processBudget(),r->{Thread thread=new Thread(r,"starcore-r31-health-controller");thread.setDaemon(true);return thread;});}
+                                                                                                           ^
+  symbol:   class BoundedResearchExecutorR31
+  location: class HealthControlHolderR31
+app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java:178: error: cannot find symbol
+    private static final class HealthControlHolderR31{static final BoundedResearchExecutorR31 INSTANCE=new BoundedResearchExecutorR31(1,1024,MemoryBudgetR31.processBudget(),r->{Thread thread=new Thread(r,"starcore-r31-health-controller");thread.setDaemon(true);return thread;});}
+                                                                                                                                             ^
+  symbol:   variable MemoryBudgetR31
+  location: class HealthControlHolderR31
+app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java:52: error: cannot find symbol
+    private final MemoryBudgetR31 memoryBudgetR31=MemoryBudgetR31.processBudget();
+                                                  ^
+  symbol:   variable MemoryBudgetR31
+  location: class ResearchPoolR27
+app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java:125: error: cannot find symbol
+            MemoryBudgetR31 budget=MemoryBudgetR31.processBudget();MemoryBudgetR31.Admission queued=budget.tryAcquire(key,claim.fence,MemoryBudgetR31.Kind.QUEUED,HELPER_DESCRIPTOR_BYTES_R31,()->CANCELLED_HELPER_GROUPS_R31.contains(group));
+            ^
+  symbol:   class MemoryBudgetR31
+  location: class BudgetedHelperExecutorR31
+app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java:125: error: cannot find symbol
+            MemoryBudgetR31 budget=MemoryBudgetR31.processBudget();MemoryBudgetR31.Admission queued=budget.tryAcquire(key,claim.fence,MemoryBudgetR31.Kind.QUEUED,HELPER_DESCRIPTOR_BYTES_R31,()->CANCELLED_HELPER_GROUPS_R31.contains(group));
+                                   ^
+  symbol:   variable MemoryBudgetR31
+  location: class BudgetedHelperExecutorR31
+app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java:125: error: package MemoryBudgetR31 does not exist
+            MemoryBudgetR31 budget=MemoryBudgetR31.processBudget();MemoryBudgetR31.Admission queued=budget.tryAcquire(key,claim.fence,MemoryBudgetR31.Kind.QUEUED,HELPER_DESCRIPTOR_BYTES_R31,()->CANCELLED_HELPER_GROUPS_R31.contains(group));
+                                                                                  ^
+app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java:125: error: package MemoryBudgetR31 does not exist
+            MemoryBudgetR31 budget=MemoryBudgetR31.processBudget();MemoryBudgetR31.Admission queued=budget.tryAcquire(key,claim.fence,MemoryBudgetR31.Kind.QUEUED,HELPER_DESCRIPTOR_BYTES_R31,()->CANCELLED_HELPER_GROUPS_R31.contains(group));
+                                                                                                                                                     ^
+app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java:127: error: package MemoryBudgetR31 does not exist
+            MemoryBudgetR31.Admission admitted;try{admitted=budget.tryAcquire(key,claim.fence,MemoryBudgetR31.Kind.RESEARCH,HELPER_REPLAY_WORKING_ESTIMATE_R31,()->CANCELLED_HELPER_GROUPS_R31.contains(group));}catch(RuntimeException|Error failure){queued.lease.close();permit.close();throw failure;}
+                           ^
+app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java:127: error: package MemoryBudgetR31 does not exist
+            MemoryBudgetR31.Admission admitted;try{admitted=budget.tryAcquire(key,claim.fence,MemoryBudgetR31.Kind.RESEARCH,HELPER_REPLAY_WORKING_ESTIMATE_R31,()->CANCELLED_HELPER_GROUPS_R31.contains(group));}catch(RuntimeException|Error failure){queued.lease.close();permit.close();throw failure;}
+                                                                                                             ^
+Note: app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+19 errors

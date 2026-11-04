@@ -113,6 +113,59 @@ public final class DbStore {
     private final DatabaseCoordinator coordinator;
     private final DbHelper helper;
     private final HashMap<String, HashSet<String>> columnCache;
+    private static final java.util.Map<DatabaseCoordinator,LegacySchemaFlightR31> LEGACY_SCHEMA_FLIGHTS_R31=
+            new java.util.WeakHashMap<>();
+    private static final class LegacySchemaFlightR31 {
+        volatile java.util.concurrent.Future<?> future;
+        volatile boolean started,exited;
+    }
+
+    /** Called by the background control owner. It only reads or queues migration. */
+    public boolean requestLegacySchemaMigrationR31() {
+        final LegacySchemaFlightR31 flight;
+        synchronized(LEGACY_SCHEMA_FLIGHTS_R31) {
+            LegacySchemaFlightR31 prior=LEGACY_SCHEMA_FLIGHTS_R31.get(coordinator);
+            if(prior!=null) {
+                java.util.concurrent.Future<?> completion=prior.future;
+                // Normal Future completion follows the outer writer Runnable's exit.
+                // Cancellation alone cannot prove a running callback has terminated.
+                if(completion==null||!completion.isDone()||(completion.isCancelled()&&!prior.exited))return false;
+                LEGACY_SCHEMA_FLIGHTS_R31.remove(coordinator);
+            }
+            try {
+                LegacySchemaCoordinatorR926.requireMainChainClosedLoopReadyR31(readable());
+                SchemaDomainCoordinatorR926.Contract contract=SchemaDomainCoordinatorR926.legacyContract();
+                try(Cursor step=readable().rawQuery("SELECT status FROM "+SchemaDomainCoordinatorR926.TABLE_JOURNAL
+                        +" WHERE domain=? AND revision=? AND step_id=?",new String[]{contract.domain,
+                        String.valueOf(contract.revision),LegacySchemaCoordinatorR926.MAIN_CHAIN_STEP_R31})) {
+                    if(step.moveToFirst()&&"COMPLETED".equals(step.getString(0))
+                            &&SchemaDomainCoordinatorR926.matches(readable(),contract))return false;
+                }
+                coordinator.invalidateLegacyRuntimeSchemaR31("LEGACY_MAIN_CHAIN_JOURNAL_PENDING");
+            } catch(RuntimeException pending) {
+                coordinator.invalidateLegacyRuntimeSchemaR31(pending.getClass().getSimpleName()+":"+pending.getMessage());
+            }
+            flight=new LegacySchemaFlightR31();LEGACY_SCHEMA_FLIGHTS_R31.put(coordinator,flight);
+        }
+        try {
+            flight.future=coordinator.submitBackgroundWrite("R31_LEGACY_SCHEMA_PREPARE",db->{
+                flight.started=true;
+                try {
+                    // invalidate above prevents the old in-memory READY flag from
+                    // permanently bypassing a real schema-drift repair.
+                    ensureRuntimeExtraTablesOnce(db);
+                    LegacySchemaCoordinatorR926.requireMainChainClosedLoopReadyR31(db);
+                } finally {flight.exited=true;}
+            });
+            return true;
+        } catch(java.util.concurrent.RejectedExecutionException busy) {
+            synchronized(LEGACY_SCHEMA_FLIGHTS_R31){if(LEGACY_SCHEMA_FLIGHTS_R31.get(coordinator)==flight)LEGACY_SCHEMA_FLIGHTS_R31.remove(coordinator);}
+            return false;
+        } catch(RuntimeException|Error failed) {
+            synchronized(LEGACY_SCHEMA_FLIGHTS_R31){if(LEGACY_SCHEMA_FLIGHTS_R31.get(coordinator)==flight)LEGACY_SCHEMA_FLIGHTS_R31.remove(coordinator);}
+            throw failed;
+        }
+    }
 
     public java.io.InputStream openResearchAssetCP12(String path) throws java.io.IOException {
         if (!"research/cp4_molecule_seeds.jsonl".equals(path)) throw new IllegalArgumentException("TRAIN_ASSET_PATH");
@@ -262,7 +315,7 @@ public final class DbStore {
     private void ensureRuntimeExtraTablesOnce(final SQLiteDatabase db) {
         boolean ready =
                 coordinator.ensureRuntimeSchemaOnce(
-                        new DatabaseCoordinator.SchemaInitializer() {
+                        new LegacySchemaCoordinatorR926.MainChainInitializerR31() {
                             @Override
                             public void run(SQLiteDatabase ignored) {
                                 SQLiteDatabase target = db == null ? ignored : db;
@@ -270,10 +323,23 @@ public final class DbStore {
                                 verifyLegacyRuntimeTablesR363(target);
                                 clearColumnCache();
                             }
+                            @Override
+                            public void initializeMainChainDefaultsR31(SQLiteDatabase target) {
+                                ensureMainChainDefaultState(target);
+                                String[] keys={"dbstore_main_chain_version","dbstore_main_chain_candidate_snapshot",
+                                        "dbstore_main_chain_reject_bucket","dbstore_main_chain_no_bet_rescue","dbstore_main_chain_scope"};
+                                String[] values={DBSTORE_MAIN_CHAIN_CLOSED_LOOP_VERSION,TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT,
+                                        TABLE_MAIN_CHAIN_REJECT_BUCKET,"1","SAVE_READ_REPAIR_ONLY"};
+                                for(String table:new String[]{TABLE_DYNAMIC_CAUSAL_STATE,DbHelper.TABLE_APP_STATE})
+                                    for(int i=0;i<keys.length;i++)try(Cursor row=target.rawQuery("SELECT state_value FROM "+table+" WHERE state_key=?",new String[]{keys[i]})) {
+                                        if(!row.moveToFirst()||!values[i].equals(row.getString(0)))
+                                            throw new DatabaseCoordinator.SchemaPendingR31("LEGACY_MAIN_CHAIN_DEFAULTS","MISSING_OR_WRONG_STATE:"+table+":"+keys[i]);
+                                    }
+                            }
                         });
         if (!ready)
-            throw new IllegalStateException(
-                    "LEGACY_RUNTIME_SCHEMA_NOT_READY|" + coordinator.startupSchemaSummary());
+            throw new DatabaseCoordinator.SchemaPendingR31(
+                    "LEGACY_RUNTIME_SCHEMA", coordinator.startupSchemaSummary());
     }
 
     private void verifyLegacyRuntimeTablesR363(SQLiteDatabase db) {
@@ -364,41 +430,9 @@ public final class DbStore {
     }
 
     private void ensureMainChainClosedLoopReady(SQLiteDatabase db) {
-        if (db == null) {
-            return;
-        }
-        try {
-            execQuiet(
-                    db,
-                    "CREATE TABLE IF NOT EXISTS "
-                            + TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT
-                            + " (_id INTEGER PRIMARY KEY AUTOINCREMENT, snapshot_key TEXT NOT NULL"
-                            + " UNIQUE)");
-            execQuiet(
-                    db,
-                    "CREATE TABLE IF NOT EXISTS "
-                            + TABLE_MAIN_CHAIN_REJECT_BUCKET
-                            + " (_id INTEGER PRIMARY KEY AUTOINCREMENT, bucket_key TEXT NOT NULL"
-                            + " UNIQUE)");
-            ensureMainChainColumns(db, DbHelper.TABLE_DECISIONS);
-            ensureMainChainColumns(db, DbHelper.TABLE_TRADES);
-            ensureMainChainColumns(db, DbHelper.TABLE_SHADOW);
-            ensureMainChainColumns(db, DbHelper.TABLE_FULL_CANDIDATE_SCAN);
-            ensureMainChainColumns(db, DbHelper.TABLE_CANDIDATE_AUDIT);
-            ensureMainChainColumns(db, DbHelper.TABLE_DYNAMIC_CAUSE_CHAIN);
-            ensureMainChainColumns(db, DbHelper.TABLE_DECISION_AUDIT);
-            ensureMainChainColumns(db, DbHelper.TABLE_V20_CLOSED_LOOP);
-            ensureMainChainColumns(db, TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT);
-            ensureMainChainColumns(db, DbHelper.TABLE_REAL_TRADE_LEDGER);
-            ensureMainChainColumns(db, TABLE_ADAPTIVE_JUDGE_SAMPLE);
-            ensureMainChainColumns(db, TABLE_PROMOTION_DOMAIN_SNAPSHOT);
-            ensureMainChainRejectBucketColumns(db);
-            ensureMainChainFactorColumns(db);
-            ensureMainChainIndexes(db);
-            ensureMainChainDefaultState(db);
-            clearColumnCache();
-        } catch (Throwable e) {
-        }
+        // Business persistence observes the real schema. Only the Legacy migration
+        // owner may add objects/columns; pending input must not bootstrap a schema.
+        LegacySchemaCoordinatorR926.requireMainChainClosedLoopReadyR31(db);
     }
 
     private void ensureMainChainColumns(SQLiteDatabase db, String table) {
@@ -407,7 +441,7 @@ public final class DbStore {
         addColumnArray(db, table, defs);
     }
 
-    private String[] mainChainClosedLoopColumnDefs() {
+    static String[] mainChainClosedLoopColumnDefs() {
         return new String[] {
             "snapshot_key TEXT",
             "candidate_key TEXT",
@@ -511,7 +545,7 @@ public final class DbStore {
         }
     }
 
-    private String[] mainChainFactorColumnDefs() {
+    static String[] mainChainFactorColumnDefs() {
         return new String[] {
             "state_key TEXT",
             "window_state_key TEXT",
@@ -6147,7 +6181,9 @@ public final class DbStore {
             }
 
             SQLiteDatabase db = writable();
-            ensureRuntimeExtraTablesOnce(db);
+            // The snapshot and SHADOW path share the same read-only contract.
+            // A first business call must not run the lazy Legacy DDL initializer.
+            ensureMainChainClosedLoopReady(db);
 
             db.beginTransaction();
 
@@ -6897,6 +6933,7 @@ public final class DbStore {
         if (max > MAIN_CHAIN_CANDIDATE_SNAPSHOT_KEEP) max = MAIN_CHAIN_CANDIDATE_SNAPSHOT_KEEP;
         int saved = 0;
         db.beginTransaction();
+        Throwable snapshotFailure=null;
         try {
             for (int i = 0; i < candidates.size() && i < max; i++) {
                 Models.ComboCandidate c = candidates.get(i);
@@ -6912,40 +6949,38 @@ public final class DbStore {
                         c, "adaptiveInputFlag", c.rank <= MAIN_CHAIN_REALTIME_TOP40_LIMIT ? 1 : 0);
                 ContentValues cv = comboCandidateToValues(c);
                 putMainChainClosedLoopValues(cv, c);
-                cv.put(
-                        "snapshot_key",
-                        buildMainChainCandidateKey(
-                                targetIssue, c.position, c.n1, c.n2, c.n3, c.k3Mask, c.rank));
-                insertFiltered(
-                        db,
-                        TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT,
-                        cv,
-                        SQLiteDatabase.CONFLICT_REPLACE);
-                insertFiltered(
-                        db,
-                        DbHelper.TABLE_FULL_CANDIDATE_SCAN,
-                        cv,
-                        SQLiteDatabase.CONFLICT_REPLACE);
+                String snapshotKey=buildMainChainCandidateKey(
+                        targetIssue,c.position,c.n1,c.n2,c.n3,c.k3Mask,c.rank);
+                cv.put("snapshot_key",snapshotKey);
+                // The existing audit table has a required natural key. It is a
+                // sidecar identity derived from this actual candidate, not a freeze.
+                cv.put("audit_key","MCCA_"+snapshotKey);
+                insertMainChainRowR31(db,TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT,cv);
+                insertMainChainRowR31(db,DbHelper.TABLE_FULL_CANDIDATE_SCAN,cv);
                 if (c.rank <= MAIN_CHAIN_REALTIME_TOP40_LIMIT) {
-                    insertFiltered(
-                            db,
-                            DbHelper.TABLE_CANDIDATE_AUDIT,
-                            cv,
-                            SQLiteDatabase.CONFLICT_REPLACE);
+                    insertMainChainRowR31(db,DbHelper.TABLE_CANDIDATE_AUDIT,cv);
                 }
                 recordMainChainRejectBucket(
                         db, c, getStringField(c, "rejectCode"), AppConfig.DECISION_SHADOW);
                 saved++;
             }
             db.setTransactionSuccessful();
-        } catch (Throwable e) {
+        } catch (RuntimeException|Error failed) {
+            snapshotFailure=failed;throw failed;
         } finally {
             try {
                 db.endTransaction();
-            } catch (Throwable ignore) {
+            } catch (RuntimeException|Error endFailure) {
+                if(snapshotFailure==null)throw endFailure;
+                if(snapshotFailure!=endFailure)snapshotFailure.addSuppressed(endFailure);
             }
         }
         return saved;
+    }
+
+    private void insertMainChainRowR31(SQLiteDatabase db,String table,ContentValues values) {
+        if(insertFiltered(db,table,values,SQLiteDatabase.CONFLICT_REPLACE)<0)
+            throw new IllegalStateException("MAIN_CHAIN_SIDECAR_INSERT_FAILED:"+table);
     }
 
     public int saveRealtimeTop40Candidates(
@@ -6966,7 +7001,6 @@ public final class DbStore {
         String code =
                 rejectCode == null || rejectCode.length() == 0 ? REJECT_CODE_NONE : rejectCode;
         if (code.length() == 0) code = "PASS_OR_UNKNOWN";
-        try {
             String bucketKey = "MCRB_" + AppConfig.safeKeyPart(code);
             ContentValues cv = new ContentValues();
             cv.put("bucket_key", bucketKey);
@@ -6994,9 +7028,7 @@ public final class DbStore {
                             0.0d));
             cv.put("avg_edge", getDoubleField(obj, "edge"));
             cv.put("updated_at", System.currentTimeMillis());
-            insertFiltered(db, TABLE_MAIN_CHAIN_REJECT_BUCKET, cv, SQLiteDatabase.CONFLICT_REPLACE);
-        } catch (Throwable e) {
-        }
+            insertMainChainRowR31(db,TABLE_MAIN_CHAIN_REJECT_BUCKET,cv);
     }
 
     private void putFinalVersionFallback(ContentValues cv, Object obj) {

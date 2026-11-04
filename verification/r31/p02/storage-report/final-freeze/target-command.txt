@@ -1,0 +1,7 @@
+# Actual commands. Prior all-sinks classes and P02 API DTO classpath are not a whole Android source gate.
+source /workspace/starcore-environment/activate.sh
+javac -encoding UTF-8 -proc:none -cp "$ANDROID_HOME/platforms/android-36/android.jar:/tmp/r31-p02-storage-report-all-sinks-a/product:/tmp/r31-p02-compile:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes" -sourcepath /tmp/r31-empty-source -d /tmp/r31-p02-report-extra-classes app/src/main/java/com/ethk3/novaonepro/{ReportIoR31,ReportJobJournalCP12,ReportExportServiceCP4}.java
+storage_cancel_cp="/tmp/r31-p02-storage-report-all-sinks-a/runtime:/tmp/r31-p02-report-extra-classes:/tmp/r31-p02-storage-report-all-sinks-a/product:/tmp/r31-p02-compile:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar"
+javac -encoding UTF-8 -proc:none -cp "$storage_cancel_cp" -d /tmp/r31-p02-report-extra-drivers verification/r31/p02/storage-report/recovery-cancel-test/R31RecoveryUiCancelHostTest.java
+java -Xmx128m -cp "/tmp/r31-p02-report-extra-drivers:$storage_cancel_cp" com.ethk3.novaonepro.R31RecoveryUiCancelHostTest /tmp/r31-p02-recovery-ui-cancel-final-fixture /tmp/r31-p02-storage-report-all-sinks-a/fixtures/com.starcore.research.r13/databases/binance_k3_nova_one_pro_v57.db
+# The fixture root must be fresh for replay. Use a new root path; inputs are reproducible SQLite fixtures from the host runner.

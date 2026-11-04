@@ -141,7 +141,7 @@ public final class DeferredEvidenceWriterR35 {
         Cursor c = null;
         try {
             SQLiteDatabase db = store.readable();
-            DbHelper.ensureR35Schema(db);
+            requireJobSchemaR31(db);
             c =
                     db.rawQuery(
                             "SELECT COUNT(1) FROM "
@@ -149,8 +149,11 @@ public final class DeferredEvidenceWriterR35 {
                                     + " WHERE status<>'COMPLETED'",
                             null);
             return c.moveToFirst() ? c.getInt(0) : 0;
+        } catch (DatabaseCoordinator.SchemaPendingR31 pending) {
+            throw pending;
         } catch (Throwable e) {
-            return 0;
+            Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(e);if(fatal!=null)throw fatal;
+            throw new IllegalStateException("R35_DEFERRED_PENDING_UNAVAILABLE",e);
         } finally {
             if (c != null) c.close();
         }
@@ -175,46 +178,49 @@ public final class DeferredEvidenceWriterR35 {
             String error,
             boolean incrementAttempt) {
         if (store == null) return;
-        Cursor c = null;
-        try {
-            SQLiteDatabase db = store.writable();
-            DbHelper.ensureR35Schema(db);
+        store.coordinatorR36().runAtomicWriteOrThrowF01(
+                DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,"R35_DEFERRED_JOB_STATUS"),db->{
+            requireJobSchemaR31(db);
             int attempts = 0;
             long created = System.currentTimeMillis();
-            c =
-                    db.rawQuery(
-                            "SELECT attempts,created_at FROM "
+            boolean existing=false;
+            try(Cursor c = db.rawQuery(
+                            "SELECT attempts,created_at,bundle_hash,job_type FROM "
                                     + DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB
                                     + " WHERE target_issue=?",
-                            new String[] {target});
+                            new String[] {target})){
             if (c.moveToFirst()) {
+                existing=true;
+                if(!bundle.equals(c.getString(2)))throw new IllegalStateException("R31_STALE_DEFERRED_BUNDLE");
+                if(!"V51_FULL_EVIDENCE".equals(c.getString(3)))throw new IllegalStateException("R31_STALE_DEFERRED_JOB_PROTOCOL_OWNER");
                 attempts = c.getInt(0);
                 created = c.getLong(1);
             }
-            c.close();
-            c = null;
+            }
             if (incrementAttempt) attempts++;
             ContentValues cv = new ContentValues();
-            cv.put("target_issue", target);
-            cv.put("job_type", "V51_FULL_EVIDENCE");
             cv.put("status", status);
             cv.put("attempts", attempts);
-            cv.put("bundle_hash", bundle);
-            cv.put("created_at", created);
             cv.put("updated_at", System.currentTimeMillis());
             cv.put("last_error", trim(error, 700));
-            cv.put(
+            if(!existing){
+                cv.put("target_issue",target);cv.put("job_type","V51_FULL_EVIDENCE");
+                cv.put("bundle_hash",bundle);cv.put("created_at",created);
+                cv.put(
                     "record_hash",
                     V51ChecksumEngine.sha256("R35_DEFERRED|" + target + "|" + bundle));
-            db.insertWithOnConflict(
-                    DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB,
-                    null,
-                    cv,
-                    SQLiteDatabase.CONFLICT_REPLACE);
-        } catch (Throwable ignore) {
-        } finally {
-            if (c != null) c.close();
-        }
+            }
+            // The R36 owner stores immutable snapshot/lease columns in this same durable row.
+            // REPLACE would silently erase them on an R35 status/error update.
+            if(existing){if(db.update(DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB,cv,"target_issue=? AND bundle_hash=?",new String[]{target,bundle})!=1)throw new IllegalStateException("R31_STALE_DEFERRED_JOB_STATUS");}
+            else if(db.insertWithOnConflict(DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB,null,cv,SQLiteDatabase.CONFLICT_IGNORE)<0)throw new IllegalStateException("R35_DEFERRED_JOB_INSERT_FAILED");
+            return 0;
+        });
+    }
+
+    private static void requireJobSchemaR31(SQLiteDatabase db){
+        DatabaseCoordinator.requireSchemaObjectsR31(db,"R35_DEFERRED_JOB",new String[][]{{DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB,
+                "target_issue,job_type,status,attempts,bundle_hash,created_at,updated_at,last_error,record_hash"}},new String[][]{{"index","idx_r35_deferred_status"}});
     }
 
     private static String safe(String x) {

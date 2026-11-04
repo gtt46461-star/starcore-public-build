@@ -1,0 +1,102 @@
+{
+  "format": "R31_B04C02_SUPPLEMENTAL_CARD_UPDATE_V1",
+  "id": "R31-B04-C02",
+  "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "status": "CODE_COMPLETE",
+  "observedAtUtc": "2026-11-04T11:03:12.089255+00:00",
+  "commits": [],
+  "actual_changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java",
+      "sha256": "8da3a6a59f121ff15e67405c8345ccb7472bfdd19ccb52498259ddf299f08166",
+      "methods": [
+        "observeRuntimeR31",
+        "operatingStatusR31",
+        "RuntimeObservationR31.userSummary"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/LifecycleHealthR963.java",
+      "sha256": "5d7ce611a125722a43767a8d9ac1398a208a58f7e8e336a93496ef9636ae7299",
+      "methods": [
+        "recordSystemExits",
+        "Api35R31.currentStartWasForceStopped",
+        "refreshInterruptionObservationR31",
+        "interruptionSummaryR31"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/OperationalDashboardR925.java",
+      "sha256": "b21b5164a6ab1fe2aa428efcd7eb2a4df4eb9dad87ea8e0811e9b76923228407",
+      "methods": [
+        "capture(background section)"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+      "sha256": "0130e63fdccc3e035cb8c96eb5526706a3a22f0be213dc241b4fe902ca28a4c0",
+      "methods": [
+        "openBackgroundReliabilitySettings",
+        "launchBackgroundReliabilitySettingsR31",
+        "startResolvedBackgroundSettingsR31",
+        "launchOemStartupSettingsR31",
+        "buildAlwaysOnPermissionStatusV17"
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/ethk3/novaonepro/R31BackgroundCapabilityStateTest.java",
+      "sha256": "da419773e056fca5a092ebfd9b08ba9e38a4911847942c668ade46a6c58bb880",
+      "methods": [
+        "6 pure state/interruption contract tests"
+      ]
+    }
+  ],
+  "migration_versions": [],
+  "tests": [
+    {
+      "command": "See exact commands in verification/r31/p02/service/background-capability-evidence.json",
+      "result": "PASS",
+      "scope": "Owned production javac +6 HOST pure mapping tests;notAndroidOSgetter/UI/device",
+      "evidence": "verification/r31/p02/service/background-final.log",
+      "evidenceSha256": "7bd01d7f506d34dfbba74e519fdad65ebda7e804cf6b97637935fe214acda55b"
+    }
+  ],
+  "apk_identity": null,
+  "device_evidence": [],
+  "remaining": [
+    "Root joint all-source Android build/identity/APK binding",
+    "Android API21/28/30/35/36 getter andUIbehavior plus OEM resolve/fallback on supportedrealdevices",
+    "V2353A72h matrix/Doze actual restrictedintervals/20startoneowner/userstop andforce-stop expectedstopped-until-user-opens verification",
+    "No persisted user-attestedOS self-grants;OEM remainsunknownuntil device-specific evidence."
+  ],
+  "next_step": "Root joint all-source build/identity/commit/APK binding;realAndroid getter/UI/OEM and72hourmatrix acceptance remainsNOT_RUN",
+  "supersedesPreviousOwnedSliceRemainingOnly": [
+    "OS capability page/user OEM assertions/force-stop interval disclosure not modified or device-verified in this owned slice."
+  ],
+  "replacementRemaining": "The capability page,OEM resolved navigator andforce-stop interval source are now implemented/compiled/host-state-tested;actual Androidgetter/UI/OEM/interval capture andcontinuous-run evidence remainNOT_RUN.",
+  "inheritedPreservedSources": {
+    "app/src/main/AndroidManifest.xml": "94aef24f5094e0fb2a5f40d3ac239b8d9c27cfb4a8161b4de4907006e41d6d82",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimePowerLeaseR26.java": "ee2cd6ecc9672f1d6cdfead7c8d74379ee9b3b2381eb682122281235bc8dc821",
+    "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java": "b6de5aa4c79cf1019e423c26124a37c0d861eae8583cbd88a2e8dde6bb456be2",
+    "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java": "d1869d2d27f434586b1e1696f0d98158be4b8aa62bde5edebd66b7defc8e9be6"
+  },
+  "sourceFreeze": true,
+  "naturalQuality": "NOT_PROVEN",
+  "closureRule": "CODE_COMPLETE isnot DEVICE_PASS anddoesnot close mandatory engineering acceptance.",
+  "preservedBaselineComparisons": [
+    {
+      "path": "app/src/main/AndroidManifest.xml",
+      "baselineSha256": "94aef24f5094e0fb2a5f40d3ac239b8d9c27cfb4a8161b4de4907006e41d6d82",
+      "currentSha256": "94aef24f5094e0fb2a5f40d3ac239b8d9c27cfb4a8161b4de4907006e41d6d82",
+      "identicalToPlanBaseline": true,
+      "action": "READ_AND_PRESERVE_VALID_IMPLEMENTATION_WITH_NO_GRATUITOUS_SOURCE_CHANGE"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimePowerLeaseR26.java",
+      "baselineSha256": "ee2cd6ecc9672f1d6cdfead7c8d74379ee9b3b2381eb682122281235bc8dc821",
+      "currentSha256": "ee2cd6ecc9672f1d6cdfead7c8d74379ee9b3b2381eb682122281235bc8dc821",
+      "identicalToPlanBaseline": true,
+      "action": "READ_AND_PRESERVE_VALID_IMPLEMENTATION_WITH_NO_GRATUITOUS_SOURCE_CHANGE"
+    }
+  ]
+}

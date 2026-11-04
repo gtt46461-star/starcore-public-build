@@ -94,6 +94,7 @@ public final class SchemaR27 {
         for (String sql : DDL) db.execSQL(sql);
         SchemaDomainCoordinatorR926.migrateR31Observations(db);
         SchemaDomainCoordinatorR926.migrateR31WriteProtocol(db);
+        SchemaDomainCoordinatorR926.migrateR31Feedback(db);
         for (String sql : ResearchSchemaR30R1.DDL) db.execSQL(sql);
         if(tableExists(db,"su2_matrix_snapshot"))MatrixStoreSU2.ensureMetadata(db); // existing SU2 ready markers do not imply new additive columns
         ResearchEvolutionStoreR930.createSchema(db); // restore the 13 baseline-declared legacy evidence tables, same owner/writer

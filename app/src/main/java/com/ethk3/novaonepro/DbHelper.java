@@ -2027,6 +2027,54 @@ public final class DbHelper extends SQLiteOpenHelper {
      * V20 主链闭环修复 03/22：DbHelper 只负责建表、补列、索引和账本保护。
      * 不计算概率，不生成 BET，不救援 BET，不改门槛，不结算。
      */
+    /** Existing Legacy schema owner calls this journaled additive unit, never a live snapshot writer. */
+    public void ensureMainChainClosedLoopSchemaR31(SQLiteDatabase db) {
+        if(db==null||!db.inTransaction())throw new IllegalStateException("R31_MAIN_CHAIN_MIGRATION_OWNER_REQUIRED");
+        SchemaDomainCoordinatorR926.verifyObjects(db,SchemaDomainCoordinatorR926.criticalContract());
+        createBaseTables(db);
+        String[] main={TABLE_DECISIONS,TABLE_TRADES,TABLE_SHADOW,TABLE_FULL_CANDIDATE_SCAN,
+                TABLE_CANDIDATE_AUDIT,TABLE_DYNAMIC_CAUSE_CHAIN,TABLE_DECISION_AUDIT,TABLE_V20_CLOSED_LOOP,
+                TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT,TABLE_REAL_TRADE_LEDGER,TABLE_ADAPTIVE_JUDGE_SAMPLE,
+                TABLE_PROMOTION_DOMAIN_SNAPSHOT};
+        for(String table:main) {
+            ensureColumnsR31(db,table,DbStore.mainChainClosedLoopColumnDefs());
+            ensureColumnsR31(db,table,new String[]{"base_issue TEXT","target_issue TEXT","created_at INTEGER DEFAULT 0",
+                    "position INTEGER DEFAULT 0","n1 INTEGER DEFAULT 0","n2 INTEGER DEFAULT 0","n3 INTEGER DEFAULT 0","k3_mask INTEGER DEFAULT 0"});
+        }
+        String[] factors={TABLE_CAUSAL_FACTOR_MATRIX,TABLE_POSITION_CAUSE_MATRIX,TABLE_TEACHER_NUMBER_MATRIX,
+                TABLE_COUNTERFACTUAL_RANK,TABLE_THIRD_GUARD_MATRIX,TABLE_RULE_HEALTH_MATRIX,TABLE_SOURCE_HEALTH_MATRIX,
+                TABLE_STATE_HEALTH_MATRIX,TABLE_SHADOW_HEALTH_GATE,TABLE_DYNAMIC_WINDOW_CLUSTER,TABLE_WINDOW_FEATURE_SAMPLE,
+                TABLE_POSITION_NEED_SAMPLE,TABLE_NUMBER_SUPPLY_SAMPLE,TABLE_NEED_SUPPLY_MATCH_SAMPLE,
+                TABLE_COUNTERFACTUAL_REASON_SAMPLE,TABLE_PROMOTION_DOMAIN_SNAPSHOT};
+        for(String table:factors)ensureColumnsR31(db,table,DbStore.mainChainFactorColumnDefs());
+        ensureColumnsR31(db,TABLE_DECISIONS,new String[]{"decision TEXT"});
+        ensureColumnsR31(db,TABLE_TRADES,new String[]{"action TEXT"});
+        ensureColumnsR31(db,TABLE_SHADOW,new String[]{"rank_no INTEGER DEFAULT 0"});
+        ensureColumnsR31(db,TABLE_ADAPTIVE_JUDGE_SAMPLE,new String[]{"candidate_count INTEGER DEFAULT 0","action TEXT"});
+        ensureColumnsR31(db,TABLE_MAIN_CHAIN_REJECT_BUCKET,new String[]{"reject_code TEXT","sample_count INTEGER DEFAULT 0",
+                "candidate_count INTEGER DEFAULT 0","bet_count INTEGER DEFAULT 0","shadow_count INTEGER DEFAULT 0",
+                "hold_count INTEGER DEFAULT 0","hit_count INTEGER DEFAULT 0","miss_count INTEGER DEFAULT 0",
+                "avg_final_p REAL DEFAULT 0","avg_gate REAL DEFAULT 0","avg_edge REAL DEFAULT 0","updated_at INTEGER DEFAULT 0"});
+        createMainChainClosedLoopIndexes(db);
+        LegacySchemaCoordinatorR926.requireMainChainClosedLoopReadyR31(db);
+    }
+
+    /** Strict migration helper: failures remain failures; one column census per table. */
+    private void ensureColumnsR31(SQLiteDatabase db,String table,String[] definitions) {
+        java.util.Set<String> present=new java.util.HashSet<>();
+        try(android.database.Cursor columns=db.rawQuery("PRAGMA table_info(\""+table+"\")",null)) {
+            while(columns.moveToNext())present.add(columns.getString(1));
+        }
+        if(present.isEmpty())throw new IllegalStateException("SCHEMA_PENDING:MAIN_CHAIN_BASE_TABLE:"+table);
+        for(String definition:definitions) {
+            String column=definition.substring(0,definition.indexOf(' '));
+            if(!present.contains(column)) {
+                db.execSQL("ALTER TABLE \""+table+"\" ADD COLUMN "+definition);
+                present.add(column);
+            }
+        }
+    }
+
     private void migrateMainChainClosedLoopColumns(SQLiteDatabase db) {
         addMainChainClosedLoopColumns(db, TABLE_DECISIONS);
         addMainChainClosedLoopColumns(db, TABLE_TRADES);
@@ -6775,6 +6823,8 @@ public final class DbHelper extends SQLiteOpenHelper {
         try {
             db.execSQL(sql);
         } catch (Throwable e) {
+            Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(e);
+            if(fatal!=null)throw fatal;
         }
     }
 

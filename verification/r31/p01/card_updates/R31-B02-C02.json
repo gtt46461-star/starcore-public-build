@@ -1,0 +1,75 @@
+{
+  "actual_changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+      "methods": "reject runtime DDL; immutable SQL args/blob copy; retain oversized atomic logical batches with debt, do not falsely chunk",
+      "committed_sha256": "edb385b55b7bacd99ebc323d481a7b4bbd0444a0501bb568b1542c127d0af0ea"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "methods": "cache rebuild DDL moved to startup migration; calculations outside batch writer callback",
+      "committed_sha256": "04d87814776977bf0000f92e89531c5c0a1691793dddfcf49b67f832bad6b932"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "methods": "retention refuses missing startup schema instead of executing ensureProtected",
+      "committed_sha256": "d2b27268bfb8027ea2ebcbb8a326deb03397f73b12e7082495bfb2c5ef7f80b2"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+      "methods": "journaled RESEARCH_R31_WRITE revision1 creates receipts/leases/cache schema in migration transaction",
+      "committed_sha256": "c24b76d8ee6523df94c5082f7581df2319d7609518226aca5a89b17044045613"
+    }
+  ],
+  "commits": [
+    "844a78488f396189c2db98591782b7bb214799d2"
+  ],
+  "migration_versions": [
+    "SQLite userVersion 36 retained",
+    "RESEARCH_R31_OBSERVATION:1",
+    "RESEARCH_R31_WRITE:1"
+  ],
+  "tests": [
+    {
+      "command": "source /workspace/starcore-environment/activate.sh; bash ./gradlew --no-daemon --max-workers=4 :app:compileDebugJavaWithJavac :app:compileDebugAndroidTestJavaWithJavac -Pr30Instrumentation=true :app:testDebugUnitTest --tests *R31* --tests *R30TaskLivenessTest --tests *R30WriteWaitTest :app:verifyFinalR31BuildIdentity",
+      "result": "PASS",
+      "evidence": "verification/r31/p01/build-identity/final-integration-receipt.json",
+      "scope": "source and Android-test compilation, 32 host unit tests; no APK/device execution"
+    },
+    {
+      "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/run_write_protocol_host.py",
+      "result": "PASS",
+      "evidence": "verification/r31/p01/writer-protocol/writer-evidence.json",
+      "scope": "actual production writer + native SQLite HOST adapters; process halt/replay, 9 postcommit faults, conflict/rollback; no Android claim"
+    }
+  ],
+  "apk_identity": null,
+  "device_evidence": [],
+  "acceptance": [
+    {
+      "contract": "运行期DDL tracing=0（真实迁移窗口除外）；schema缺失时DEPENDENCY(SCHEMA_PENDING)，不现场CREATE。",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "contract": "对各大batch在第1片/中间片/最终publish前后杀进程：无半模型、无重复增量、无cursor越过未发布artifact。",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "contract": "Android实际SQLite测试受保护触发器、WAL和checkpoint并发；host sqlite结果不能代替设备事务时延。",
+      "status": "NOT_RUN",
+      "evidence": []
+    }
+  ],
+  "remaining": [
+    "运行期DDL tracing=0（真实迁移窗口除外）；schema缺失时DEPENDENCY(SCHEMA_PENDING)，不现场CREATE。",
+    "对各大batch在第1片/中间片/最终publish前后杀进程：无半模型、无重复增量、无cursor越过未发布artifact。",
+    "Android实际SQLite测试受保护触发器、WAL和checkpoint并发；host sqlite结果不能代替设备事务时延。",
+    "Android integration/fault injection and real device lifecycle NOT_RUN",
+    "24h/72h device soak NOT_RUN",
+    "No natural FUTURE/REAL quality proof"
+  ],
+  "next_step": "P02 integrated resource/feedback/health work; later owner staging and Android/device validation; no mandatory card closure yet.",
+  "scope_note": "BUILD_PASS only records source compilation; acceptance assertions remain NOT_RUN/PARTIAL until each required environment evidence exists."
+}

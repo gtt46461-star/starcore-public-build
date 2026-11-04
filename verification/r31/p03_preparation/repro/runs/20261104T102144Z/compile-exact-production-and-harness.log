@@ -1,0 +1,42 @@
+/tmp/r31-p03-publication-repro-etq7jpun/source/PublicationCounterexampleR31.java:9: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/tmp/r31-p03-publication-repro-etq7jpun/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java:62: error: cannot find symbol
+        if(abi!=null)cache.bindSharedFeaturesR31(abi);
+                          ^
+  symbol:   method bindSharedFeaturesR31(String)
+  location: variable cache of type FeatureCacheR27
+/tmp/r31-p03-publication-repro-etq7jpun/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java:454: error: cannot find symbol
+            if(existing!=null)existing.bindSharedFeaturesR31(hash);
+                                      ^
+  symbol:   method bindSharedFeaturesR31(String)
+  location: variable existing of type FeatureCacheR27
+/tmp/r31-p03-publication-repro-etq7jpun/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java:571: error: cannot find symbol
+            if(evoCache!=null)caches.put("evolution",evoCache.memorySnapshotR31());
+                                                             ^
+  symbol:   method memorySnapshotR31()
+  location: variable evoCache of type FeatureCacheR27
+/tmp/r31-p03-publication-repro-etq7jpun/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java:572: error: cannot find symbol
+            if(pendingCache!=null)caches.put("pending",pendingCache.memorySnapshotR31());
+                                                                   ^
+  symbol:   method memorySnapshotR31()
+  location: variable pendingCache of type FeatureCacheR27
+/tmp/r31-p03-publication-repro-etq7jpun/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java:573: error: cannot find symbol
+            if(liveCache!=null)caches.put("live",liveCache.memorySnapshotR31());
+                                                          ^
+  symbol:   method memorySnapshotR31()
+  location: variable liveCache of type FeatureCacheR27
+/tmp/r31-p03-publication-repro-etq7jpun/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java:133: warning: [removal] ThreadDeath in java.lang has been deprecated and marked for removal
+        private static void rethrowProcessFatal(Throwable failure){for(int depth=0;failure!=null&&depth<32;depth++,failure=failure.getCause()){if(failure instanceof VirtualMachineError)throw(VirtualMachineError)failure;if(failure instanceof ThreadDeath)throw(ThreadDeath)failure;if(failure instanceof LinkageError)throw(LinkageError)failure;}}
+                                                                                                                                                                                                                                                 ^
+/tmp/r31-p03-publication-repro-etq7jpun/source/app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java:133: warning: [removal] ThreadDeath in java.lang has been deprecated and marked for removal
+        private static void rethrowProcessFatal(Throwable failure){for(int depth=0;failure!=null&&depth<32;depth++,failure=failure.getCause()){if(failure instanceof VirtualMachineError)throw(VirtualMachineError)failure;if(failure instanceof ThreadDeath)throw(ThreadDeath)failure;if(failure instanceof LinkageError)throw(LinkageError)failure;}}
+                                                                                                                                                                                                                                                                   ^
+/tmp/r31-p03-publication-repro-etq7jpun/source/PublicationCounterexampleR31.java:66: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Field field=Unsafe.class.getDeclaredField("theUnsafe");field.setAccessible(true);
+                    ^
+/tmp/r31-p03-publication-repro-etq7jpun/source/PublicationCounterexampleR31.java:67: warning: Unsafe is internal proprietary API and may be removed in a future release
+        return (RuntimeR27)((Unsafe)field.get(null)).allocateInstance(RuntimeR27.class);
+                             ^
+5 errors
+5 warnings

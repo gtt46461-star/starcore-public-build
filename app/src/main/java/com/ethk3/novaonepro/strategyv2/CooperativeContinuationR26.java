@@ -134,6 +134,9 @@ public final class CooperativeContinuationR26<T> implements AutoCloseable, Budge
     }
     private boolean terminated() { return started && !thread.isAlive(); }
     public boolean isTerminated() { boolean stopped = terminated(); if (stopped) reapTerminated(); return stopped; }
+    public boolean cancellationRequested(){return closed;}
+    public static boolean requestTaskCancellationR31(String owner,String workName){boolean found=false;for(CooperativeContinuationR26<?> work:owned(owner))if(work.thread.getName().equals(workName)){found=true;work.close();}return found;}
+    public static boolean isTaskTerminatedR31(String owner,String workName){for(CooperativeContinuationR26<?> work:owned(owner))if(work.thread.getName().equals(workName)&&!work.terminated())return false;return true;}
     public State state() { return observedState(); }
     private State observedState() {
         if (terminated()) return State.TERMINATED;

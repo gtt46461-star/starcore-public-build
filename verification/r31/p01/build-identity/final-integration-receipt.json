@@ -1,0 +1,140 @@
+{
+  "status": "PASS",
+  "scope": "P01_UNEXCLUDED_SOURCE_AND_ANDROID_TEST_COMPILATION_PLUS_TARGETED_HOST_UNIT_NOT_APK_NOT_DEVICE",
+  "source_commit": "844a78488f396189c2db98591782b7bb214799d2",
+  "observed_utc": "2026-11-04T09:49:15.467434+00:00",
+  "gradle": {
+    "argv": [
+      "bash",
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=4",
+      ":app:compileDebugJavaWithJavac",
+      ":app:compileDebugAndroidTestJavaWithJavac",
+      "-Pr30Instrumentation=true",
+      ":app:testDebugUnitTest",
+      "--tests",
+      "*R31*",
+      "--tests",
+      "*R30TaskLivenessTest",
+      "--tests",
+      "*R30WriteWaitTest",
+      ":app:verifyFinalR31BuildIdentity"
+    ],
+    "activation": "source /workspace/starcore-environment/activate.sh",
+    "source_commit": "844a78488f396189c2db98591782b7bb214799d2",
+    "started_utc": "2026-11-04T09:47:43.372574+00:00",
+    "completed_utc": "2026-11-04T09:48:23.092165+00:00",
+    "exit_code": 0,
+    "excluded_tasks": [],
+    "log": "FINAL_UNEXCLUDED_P01_COMPILE_INSTRUMENTATION_AND_UNIT.log",
+    "log_sha256": "15a5cf063cdf1f6c66317c578e1e405cf0207074ff9c8b21a02513c1278b0e12",
+    "scope": "P01_SOURCE_AND_ANDROID_TEST_COMPILATION_PLUS_HOST_UNIT_ONLY",
+    "apk": "NOT_BUILT_BY_THIS_COMMAND",
+    "android_instrumentation_execution": "NOT_RUN",
+    "device": "NOT_RUN",
+    "natural_quality": "NOT_PROVEN",
+    "missing_targets_not_requested": [
+      "R26RecoveryTest",
+      "R26IncumbentBudgetTest"
+    ]
+  },
+  "test_suite_count": 7,
+  "totals": {
+    "tests": 32,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "junit": [
+    {
+      "suite": "com.ethk3.novaonepro.strategyv2.R30TaskLivenessTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml": "junit/TEST-com.ethk3.novaonepro.strategyv2.R30TaskLivenessTest.xml",
+      "xml_sha256": "635e2171498dfad228e0aa6777613df2782ebc6c77756748e09ebbd166a9d353"
+    },
+    {
+      "suite": "com.ethk3.novaonepro.strategyv2.R30WriteWaitTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml": "junit/TEST-com.ethk3.novaonepro.strategyv2.R30WriteWaitTest.xml",
+      "xml_sha256": "7a7370b65955d41cad7c668afea1ff2db08b8e735aa1e1499f40693ea14ffd7f"
+    },
+    {
+      "suite": "com.ethk3.novaonepro.strategyv2.R31BoundedReplayTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml": "junit/TEST-com.ethk3.novaonepro.strategyv2.R31BoundedReplayTest.xml",
+      "xml_sha256": "e14c49d27b6d63623d656733f93fa689f843210c09ea87267faec60b9bef7722"
+    },
+    {
+      "suite": "com.ethk3.novaonepro.strategyv2.R31ContinuationLifecycleTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml": "junit/TEST-com.ethk3.novaonepro.strategyv2.R31ContinuationLifecycleTest.xml",
+      "xml_sha256": "b3ad055571be90580fa4e95f7785070bda281c879163959777d67bb1aa20729b"
+    },
+    {
+      "suite": "com.ethk3.novaonepro.strategyv2.R31PreparedWriteContractTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml": "junit/TEST-com.ethk3.novaonepro.strategyv2.R31PreparedWriteContractTest.xml",
+      "xml_sha256": "3f250a9766b2f54f35fe34c7a1c2b0b097892d096c8848775e212fb3c09dfb9c"
+    },
+    {
+      "suite": "com.ethk3.novaonepro.strategyv2.R31TaskFailureDispositionTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml": "junit/TEST-com.ethk3.novaonepro.strategyv2.R31TaskFailureDispositionTest.xml",
+      "xml_sha256": "e80090d61b834f7d4e311bbe9a1ca678869d4b3a4016c9b2bbb4621c692da830"
+    },
+    {
+      "suite": "com.ethk3.novaonepro.strategyv2.R31TaskStatusPrecedenceTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml": "junit/TEST-com.ethk3.novaonepro.strategyv2.R31TaskStatusPrecedenceTest.xml",
+      "xml_sha256": "6820ee562f6a04820171b84abe8b1ce5cd25fd03bdde3bbd443cadb87f2d1ea6"
+    }
+  ],
+  "final_compiled_calls_match_frozen_archive": true,
+  "BuildConfig_fields_match_asset": {
+    "BASELINE_SOURCE_COMMIT_R31": true,
+    "SOURCE_TREE_R31": true,
+    "SOURCE_WORKTREE_SHA256_R31": true,
+    "PLAN_MANIFEST_SHA256_R31": true,
+    "MIGRATION_CONTRACT_SHA256_R31": true,
+    "SOURCE_DIRTY_R31": true
+  },
+  "source_dirty_at_configuration": true,
+  "Android_instrumented_test_compiled_classes": [
+    {
+      "path": "app/build/intermediates/javac/debugAndroidTest/compileDebugAndroidTestJavaWithJavac/classes/com/ethk3/novaonepro/R30FaultAndroidRunner.class",
+      "sha256": "d4f13107368e1ed23d99d589823301b9f66b80b3508669c8b5766f9644b8547b",
+      "bytes": 1945
+    },
+    {
+      "path": "app/build/intermediates/javac/debugAndroidTest/compileDebugAndroidTestJavaWithJavac/classes/com/ethk3/novaonepro/R31RuntimeProtocolInstrumentedTest.class",
+      "sha256": "f49c06580a9c9e782feefdafb9bfa117bf605a529c3091f1a82d64e96b344474",
+      "bytes": 13342
+    }
+  ],
+  "android_instrumentation_execution": "NOT_RUN",
+  "apk": "NOT_BUILT_BY_THIS_COMMAND",
+  "device": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN"
+}

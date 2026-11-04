@@ -1,0 +1,26 @@
+{
+  "scope": "P02_UNEXCLUDED_PRODUCTION_AND_ANDROID_TEST_COMPILE_PLUS_FULL_HOST_UNIT_NOT_APK_OR_DEVICE",
+  "command": [
+    "bash",
+    "./gradlew",
+    "--no-daemon",
+    "--max-workers=4",
+    "-Pr30Instrumentation=true",
+    ":app:compileDebugJavaWithJavac",
+    ":app:compileDebugAndroidTestJavaWithJavac",
+    ":app:testDebugUnitTest",
+    ":app:verifyFinalR31BuildIdentity"
+  ],
+  "excluded_tasks": [],
+  "started_utc": "2026-11-04T12:20:51.645917+00:00",
+  "completed_utc": "2026-11-04T12:21:03.754994+00:00",
+  "exit_code": 1,
+  "junit": null,
+  "failures": null,
+  "log_sha256": "07dbc9696fce1b38767a3d5c0cab8005db3e66932cd1709e5f426f31faaf17d1",
+  "android_execution": "NOT_RUN",
+  "physical_device": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN",
+  "junit_output_scope": "STALE_PREVIOUS_P01_XML_NOT_EXECUTED_BY_THIS_FAILED_COMMAND",
+  "failed_stage": "generateR997ConstructionAssets: committed build inputs required; no full unit or instrumentation compilation executed"
+}

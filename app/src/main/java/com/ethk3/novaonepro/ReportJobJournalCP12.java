@@ -11,7 +11,7 @@ import org.json.JSONObject;
 public final class ReportJobJournalCP12 implements Closeable {
     public enum Stage { CLAIMED,BACKUP,SNAPSHOT_DURABLE,INDEXING,INDEX_DURABLE,COMPRESSING,VERIFYING,READY_TO_SHARE,RETENTION_ENCODING,RETENTION_RECEIPT_DURABLE,RETENTION_READY,PAUSED,FAILED,CANCELLED }
     public enum Recovery { BACKUP,REBUILD_INDEX,RECOMPRESS,VERIFY_AND_PUBLISH,READ_PUBLISHED,WAIT_FOR_KICK,TERMINAL }
-    public static final int MAX_JSON=65536;
+    public static final int MAX_JSON=65536,MAX_FULL_OBSERVATIONS_R31=24;
     private static final Object CANCEL_COMMANDS_LOCK=new Object();
     private interface CancelWork<T>{T run()throws Exception;}
     /** Independent durable commands: cancelling one task cannot overwrite another task's command. */
@@ -29,7 +29,7 @@ public final class ReportJobJournalCP12 implements Closeable {
             }
             File directory=ReportArchiveVerifierCP12.inside(root,"cancel-commands");
             if(!directory.isDirectory()&&!directory.mkdirs())throw new IOException("REPORT_CANCEL_DIRECTORY");
-            File[] commands=directory.listFiles();if(commands==null)throw new IOException("REPORT_CANCEL_DIRECTORY_READ");
+            File[] commands=DirectoryCursorR31.children(directory,1024);
             File destination=ReportArchiveVerifierCP12.inside(root,"cancel-commands/"+id+".json");
             if(!destination.exists()&&commands.length>=1024)throw new IOException("REPORT_CANCEL_COMMAND_LIMIT");
             JSONObject command=new JSONObject();command.put("jobId",id);command.put("cancel",true);command.put("createdWallMs",System.currentTimeMillis());
@@ -112,7 +112,7 @@ public final class ReportJobJournalCP12 implements Closeable {
         if(!id.equals(j.jobId))throw new IOException("REPORT_JOB_POINTER");return j;}
     /** Read-only UI recovery lookup: retention jobs cannot hide the latest full export. */
     public static Job latestFullReport(File root)throws Exception {
-        File jobs=ReportArchiveVerifierCP12.inside(root,"jobs");File[] directories=jobs.listFiles();
+        File jobs=ReportArchiveVerifierCP12.inside(root,"jobs");File[] directories=DirectoryCursorR31.children(jobs,1024);
         if(directories==null)return null;if(directories.length>1024)throw new IOException("REPORT_RECOVERY_JOB_LIMIT");
         Job latest=null;
         for(File directory:directories){
@@ -165,8 +165,11 @@ public final class ReportJobJournalCP12 implements Closeable {
     }
     public static void writeAtomic(File file,String json)throws IOException {
         byte[] bytes=json.getBytes(StandardCharsets.UTF_8);if(bytes.length>MAX_JSON)throw new IOException("REPORT_JSON_BOUND");File parent=file.getParentFile();if(!parent.isDirectory()&&!parent.mkdirs())throw new IOException("REPORT_JSON_PARENT");
-        if(!file.getCanonicalFile().equals(file.getAbsoluteFile()))throw new IOException("REPORT_JSON_PATH");AtomicFile atomic=new AtomicFile(file);FileOutputStream out=null;
-        try{out=atomic.startWrite();out.write(bytes);out.flush();out.getFD().sync();atomic.finishWrite(out);out=null;}finally{if(out!=null)atomic.failWrite(out);}
+        if(!file.getCanonicalFile().equals(file.getAbsoluteFile()))throw new IOException("REPORT_JSON_PATH");
+        try(ReportIoR31.AtomicPermit permit=ReportIoR31.beforeAtomic(file,bytes.length)){
+            AtomicFile atomic=new AtomicFile(file);FileOutputStream out=null;
+            try{out=atomic.startWrite();OutputStream admitted=permit.stream(out);admitted.write(bytes);admitted.flush();out.getFD().sync();atomic.finishWrite(out);out=null;}finally{if(out!=null)atomic.failWrite(out);}
+        }
     }
     /** Full observations never prevent an export merely because a bounded request JSON is small. */
     public static void putObservation(File root,String requestId,JSONObject observation,String key,String value)throws Exception {
@@ -177,8 +180,11 @@ public final class ReportJobJournalCP12 implements Closeable {
         if(value.length()<=1024&&value.getBytes(StandardCharsets.UTF_8).length<=4096){observation.put(key,value);return;}
         File file=ReportArchiveVerifierCP12.inside(root,"observations/"+requestId+"/"+key+".txt");
         File parent=file.getParentFile();if(!parent.isDirectory()&&!parent.mkdirs())throw new IOException("REPORT_OBSERVATION_PARENT");
-        AtomicFile atomic=new AtomicFile(file);FileOutputStream fd=atomic.startWrite();
-        try{Writer writer=new BufferedWriter(new OutputStreamWriter(fd,StandardCharsets.UTF_8),8192);writer.write(value);writer.flush();fd.getFD().sync();atomic.finishWrite(fd);fd=null;}finally{if(fd!=null)atomic.failWrite(fd);}
+        org.json.JSONArray existing=observation.optJSONArray("fullObservations");if(existing!=null&&existing.length()>=MAX_FULL_OBSERVATIONS_R31)throw new IOException("REPORT_OBSERVATION_REFERENCE_BOUND");
+        try(ReportIoR31.AtomicPermit permit=ReportIoR31.beforeAtomic(file,ReportIoR31.utf8Bytes(value))){
+            AtomicFile atomic=new AtomicFile(file);FileOutputStream fd=atomic.startWrite();
+            try{Writer writer=new BufferedWriter(new OutputStreamWriter(permit.stream(fd),StandardCharsets.UTF_8),8192);writer.write(value);writer.flush();fd.getFD().sync();atomic.finishWrite(fd);fd=null;}finally{if(fd!=null)atomic.failWrite(fd);}
+        }
         JSONObject ref=new JSONObject();ref.put("key",key);ref.put("path","observations/"+requestId+"/"+key+".txt");ref.put("bytes",file.length());ref.put("sha256",ReportArchiveCP4.hash(file,()->true));
         org.json.JSONArray refs=observation.optJSONArray("fullObservations");if(refs==null){refs=new org.json.JSONArray();observation.put("fullObservations",refs);}refs.put(ref);
         observation.put(key,"FULL_OBSERVATION_MEMBER:"+key+"|bytes="+file.length()+"|sha256="+ref.getString("sha256"));
@@ -203,8 +209,9 @@ public final class ReportJobJournalCP12 implements Closeable {
     public static JSONObject writeFailureArtifact(File root,String requestId,Throwable error)throws Exception {
         return writeFailureArtifact(root,requestId,error,null);
     }
-    public static JSONObject writeFailureArtifact(File root,String requestId,Throwable error,Job job)throws Exception {
-        hash(requestId);
+    public static JSONObject writeFailureArtifact(File root,String requestId,Throwable error,Job job)throws Exception{return writeFailureArtifact(root,requestId,error,job,()->false);}
+    public static JSONObject writeFailureArtifact(File root,String requestId,Throwable error,Job job,java.util.function.BooleanSupplier cancelled)throws Exception {
+        java.util.Objects.requireNonNull(cancelled);hash(requestId);
         File snapshot=null;
         if(job!=null) {
             if(!requestId.equals(job.requestId)||!"FULL_REPORT".equals(job.mode))throw new IOException("REPORT_RECOVERY_JOB_IDENTITY");
@@ -216,6 +223,11 @@ public final class ReportJobJournalCP12 implements Closeable {
         if(snapshot!=null&&!ReportBudgetSU2.recoveryMayIncludeDatabase(ReportArchiveVerifierCP12.inside(root,"requests/"+requestId+".json"),snapshot.length()))snapshot=null;
         File directory=ReportArchiveVerifierCP12.inside(root,"recovery/"+requestId);
         if(!directory.isDirectory()&&!directory.mkdirs())throw new IOException("REPORT_RECOVERY_DIRECTORY");
+        File requestInput=ReportArchiveVerifierCP12.inside(root,"requests/"+requestId+".json"),observations=ReportArchiveVerifierCP12.inside(root,"observations/"+requestId);
+        File[] originals=DirectoryCursorR31.children(observations,MAX_FULL_OBSERVATIONS_R31);
+        long rawBytes=(snapshot==null?0:snapshot.length())+(requestInput.isFile()?requestInput.length():0);for(File file:originals){if(!file.getName().matches("[A-Za-z][A-Za-z0-9]{0,63}\\.txt"))throw new IOException("REPORT_RECOVERY_OBSERVATION_PATH");rawBytes=Math.addExact(rawBytes,file.length());}
+        long recoveryBound=Math.addExact(ReportPhaseBudgetR31.zipUpper(rawBytes,originals.length+4),8L<<20);
+        try(ReportIoR31.Artifact admitted=ReportIoR31.reserveArtifact(directory,recoveryBound,cancelled)){
         File partial=File.createTempFile("recovery-",".partial",directory);
         JSONObject boundary=new JSONObject();boundary.put("scope","EXPORT_FAILURE_RECOVERY_ONLY");
         boundary.put("requestId",requestId);boundary.put("evidenceComplete",false);
@@ -224,38 +236,37 @@ public final class ReportJobJournalCP12 implements Closeable {
         if(snapshot!=null){boundary.put("snapshotSha256",job.snapshotSha);boundary.put("snapshotBytes",job.snapshotBytes);}
         try {
             try(FileOutputStream fd=new FileOutputStream(partial);
-                java.util.zip.ZipOutputStream zip=new java.util.zip.ZipOutputStream(fd)) {
-                zip.putNextEntry(new java.util.zip.ZipEntry("EVIDENCE_BOUNDARY.json"));
+                java.util.zip.ZipOutputStream zip=new java.util.zip.ZipOutputStream(new BufferedOutputStream(ReportIoR31.protect(partial,fd,admitted),32768))) {
+                admitted.checkpoint();zip.putNextEntry(new java.util.zip.ZipEntry("EVIDENCE_BOUNDARY.json"));
                 zip.write(boundary.toString().getBytes(StandardCharsets.UTF_8));zip.closeEntry();
                 zip.putNextEntry(new java.util.zip.ZipEntry("original-failure.txt"));
                 PrintWriter stack=new PrintWriter(new OutputStreamWriter(zip,StandardCharsets.UTF_8));
                 error.printStackTrace(stack);stack.flush();if(stack.checkError())throw new IOException("REPORT_RECOVERY_STACK_WRITE");zip.closeEntry();
                 File request=ReportArchiveVerifierCP12.inside(root,"requests/"+requestId+".json");
-                if(request.isFile())copyRecoveryMember(zip,request,"request.json");
-                if(snapshot!=null)copyRecoveryMember(zip,snapshot,"snapshot.db");
-                File observations=ReportArchiveVerifierCP12.inside(root,"observations/"+requestId);
-                File[] originals=observations.listFiles();
-                if(originals!=null)for(File file:originals){
+                if(request.isFile())copyRecoveryMember(zip,request,"request.json",admitted);
+                if(snapshot!=null)copyRecoveryMember(zip,snapshot,"snapshot.db",admitted);
+                for(File file:originals){
                     if(!file.getName().matches("[A-Za-z][A-Za-z0-9]{0,63}\\.txt"))throw new IOException("REPORT_RECOVERY_OBSERVATION_PATH");
-                    copyRecoveryMember(zip,ReportArchiveVerifierCP12.inside(observations,file.getName()),"observations/"+file.getName());
+                    copyRecoveryMember(zip,ReportArchiveVerifierCP12.inside(observations,file.getName()),"observations/"+file.getName(),admitted);
                 }
                 zip.finish();zip.flush();fd.getFD().sync();
             }
             // Reopen every member: a partial ZIP is never offered to the provider.
             try(java.util.zip.ZipFile read=new java.util.zip.ZipFile(partial)){
                 byte[] buffer=new byte[32768];Enumeration<? extends java.util.zip.ZipEntry> entries=read.entries();
-                while(entries.hasMoreElements()){java.util.zip.ZipEntry entry=entries.nextElement();java.util.zip.CRC32 crc=new java.util.zip.CRC32();java.security.MessageDigest digest=java.security.MessageDigest.getInstance("SHA-256");long bytes=0;try(InputStream in=read.getInputStream(entry)){int n;while((n=in.read(buffer))!=-1){crc.update(buffer,0,n);digest.update(buffer,0,n);bytes=Math.addExact(bytes,n);}}if(bytes!=entry.getSize()||crc.getValue()!=entry.getCrc())throw new IOException("REPORT_RECOVERY_MEMBER_CRC");if(entry.getName().equals("snapshot.db")&&(job==null||bytes!=job.snapshotBytes||!job.snapshotSha.equals(ReportArchiveCP4.hex(digest.digest()))))throw new IOException("REPORT_RECOVERY_SNAPSHOT_HASH");}
+                while(entries.hasMoreElements()){admitted.checkpoint();java.util.zip.ZipEntry entry=entries.nextElement();java.util.zip.CRC32 crc=new java.util.zip.CRC32();java.security.MessageDigest digest=java.security.MessageDigest.getInstance("SHA-256");long bytes=0;try(InputStream in=read.getInputStream(entry)){int n;while((n=in.read(buffer))!=-1){admitted.checkpoint();crc.update(buffer,0,n);digest.update(buffer,0,n);bytes=Math.addExact(bytes,n);}}if(bytes!=entry.getSize()||crc.getValue()!=entry.getCrc())throw new IOException("REPORT_RECOVERY_MEMBER_CRC");if(entry.getName().equals("snapshot.db")&&(job==null||bytes!=job.snapshotBytes||!job.snapshotSha.equals(ReportArchiveCP4.hex(digest.digest()))))throw new IOException("REPORT_RECOVERY_SNAPSHOT_HASH");}
             }
-            String sha=ReportArchiveCP4.hash(partial,()->true);File archive=new File(directory,sha+".zip");
+            admitted.checkpoint();String sha=ReportArchiveCP4.hash(partial,admitted);admitted.checkpoint();File archive=new File(directory,sha+".zip");
             if(archive.exists()){if(archive.length()!=partial.length()||!sha.equals(ReportArchiveCP4.hash(archive,()->true)))throw new IOException("REPORT_RECOVERY_HASH_CONFLICT");if(!partial.delete())throw new IOException("REPORT_RECOVERY_TEMP_REMOVE");}
             else if(!partial.renameTo(archive))throw new IOException("REPORT_RECOVERY_PUBLISH");
             JSONObject receipt=new JSONObject();receipt.put("sha256",sha);receipt.put("bytes",archive.length());receipt.put("scope","EXPORT_FAILURE_RECOVERY_ONLY");
             receipt.put("databaseIncluded",snapshot!=null);
             writeAtomic(new File(directory,"receipt.json"),receipt.toString());return receipt;
         }finally{if(partial.exists()&&!partial.delete())throw new IOException("REPORT_RECOVERY_TEMP_REMOVE");}
+        }
     }
-    private static void copyRecoveryMember(java.util.zip.ZipOutputStream zip,File source,String name)throws IOException {
-        zip.putNextEntry(new java.util.zip.ZipEntry(name));try(InputStream in=new FileInputStream(source)){byte[] buffer=new byte[32768];int n;while((n=in.read(buffer))!=-1)zip.write(buffer,0,n);}zip.closeEntry();
+    private static void copyRecoveryMember(java.util.zip.ZipOutputStream zip,File source,String name,ReportIoR31.Artifact admitted)throws IOException {
+        admitted.checkpoint();zip.putNextEntry(new java.util.zip.ZipEntry(name));try(InputStream in=new FileInputStream(source)){byte[] buffer=new byte[32768];int n;while((n=in.read(buffer))!=-1){admitted.checkpoint();zip.write(buffer,0,n);}}zip.closeEntry();
     }
     public static void addRecoveryReceipt(File root,String requestId,JSONObject ack)throws Exception {
         hash(requestId);File receipt=ReportArchiveVerifierCP12.inside(root,"recovery/"+requestId+"/receipt.json");

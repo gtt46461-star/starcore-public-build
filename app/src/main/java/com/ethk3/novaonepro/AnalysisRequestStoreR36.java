@@ -843,7 +843,7 @@ public final class AnalysisRequestStoreR36 {
                                                 || !safe(owner).equals(row.leaseOwner))
                                             return TransitionResult.lost("LEASE_FENCE_LOST");
                                         boolean maxed =
-                                                row.attempts >= AppConfig.R36_ANALYSIS_MAX_ATTEMPTS;
+                                                !safe(error).contains("R31_DEPENDENCY_")&&row.attempts >= AppConfig.R36_ANALYSIS_MAX_ATTEMPTS;
                                         String nextStatus =
                                                 terminal
                                                         ? (failed ? FAILED_TERMINAL : EXPIRED)
