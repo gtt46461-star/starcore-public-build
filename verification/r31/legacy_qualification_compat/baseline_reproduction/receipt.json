@@ -1,0 +1,39 @@
+{
+  "status": "BASELINE_ERASURE_AND_RESET_ACTUALLY_REPRODUCED_NOT_REPAIRED",
+  "production_commit": "5d1da3156a7900816aa0f580e34c18fabf5ef322",
+  "qualification_source_sha256": "c9562be588dfb38bf588797c1b4a10ec8d8a0330a692b85fbaaf44765aaa0c8d",
+  "compile_command": [
+    "java",
+    "-m",
+    "jdk.compiler/com.sun.tools.javac.Main",
+    "-cp",
+    "/tmp/r31-live-physical-native-o9fn6sqs/platform:/tmp/r31-live-physical-native-o9fn6sqs/new-classes:/tmp/r31-legacy-qualification-baseline-test:/tmp/r31-live-physical-native-o9fn6sqs/new-test:/tmp/r31-live-physical-native-o9fn6sqs/fixed-support.jar:/tmp/r31-live-physical-native-o9fn6sqs/sqlite-jdbc.jar:/tmp/r31-live-physical-native-o9fn6sqs/android.jar",
+    "-d",
+    "/tmp/r31-legacy-qualification-baseline-test",
+    "/workspace/r31-live-writer-budgets/verification/r31/legacy_qualification_compat/LegacyCompatibilityHostR31.java"
+  ],
+  "run_command": [
+    "java",
+    "-Xmx512m",
+    "-cp",
+    "/tmp/r31-live-physical-native-o9fn6sqs/platform:/tmp/r31-live-physical-native-o9fn6sqs/new-classes:/tmp/r31-legacy-qualification-baseline-test:/tmp/r31-live-physical-native-o9fn6sqs/new-test:/tmp/r31-live-physical-native-o9fn6sqs/fixed-support.jar:/tmp/r31-live-physical-native-o9fn6sqs/sqlite-jdbc.jar:/tmp/r31-live-physical-native-o9fn6sqs/android.jar",
+    "com.ethk3.novaonepro.strategyv2.LegacyCompatibilityHostR31",
+    "baseline",
+    "/tmp/r31-legacy-qualification-baseline-test/fixtures"
+  ],
+  "support_sha256": "892e5be7feb3609755c6746ea080644fd19427a90f8d9ab8493c964af1f01fa8",
+  "exit_code": 1,
+  "facts": [
+    {
+      "afterN": 0,
+      "afterReceiptRows": 0,
+      "afterReceiptSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "beforeN": 256,
+      "beforeReceiptRows": 96,
+      "originalReceiptSha256": "099ff11a7522dfd12d760e20acdb0ff3ba1be8ac31c09e7f066eec262a721210",
+      "test": "BASELINE_LEGACY_REBUILD_ERASURE"
+    }
+  ],
+  "log_sha256": "28adc26070af200272a5df0a7768545d8440a0ff396ba8d3362077350b914f5e",
+  "scope": "ACTUAL_OWNED_PRODUCER_RUNTIME_QUEUE_COORDINATOR_NATIVE_SQLITE_HOST_NOT_ANDROID"
+}

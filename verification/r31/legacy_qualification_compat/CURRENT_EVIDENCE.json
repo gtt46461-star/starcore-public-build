@@ -1,0 +1,726 @@
+{
+  "status": "APPEND_ONLY_LEGACY_COMPATIBILITY_NATIVE_HOST_PASS_NOT_ANDROID",
+  "receipt": "runs/20261104T192357Z/receipt.json",
+  "production_commits": [
+    "b856d75791c458b03f49973d8ac8fdbc6b249980",
+    "ad15622c91a1f3d730136d00f3125b3ce4ac6517"
+  ],
+  "baseline_producer_commit": "5d1da3156a7900816aa0f580e34c18fabf5ef322",
+  "qualification_source_sha256": "b5fdf7a667257b910aca30dc4b9e23dae82167410ebcfe75e95d35e84cfb9831",
+  "live_shadows_source_unchanged_sha256": "bd77b7a974afdc95b65f34f0f3aca4d4e0db949058d1cad71c7fe91b6480da9b",
+  "support_jar_sha256": "892e5be7feb3609755c6746ea080644fd19427a90f8d9ab8493c964af1f01fa8",
+  "runner_sha256": "b2c6bb8e461ee723a242f4e7b5ab24904de2884067af9375ab8b1b1393892013",
+  "harness_sha256": "37c9dad9bf2fb0008423ee3387c695e2a1f0da2179d87e0dd99cc2cf9f6ad3a3",
+  "adapter_sha256": "a9d5602f5fc89175703dd11f5f5aa1806723f359ebe460ff43b492f0b9d316a6",
+  "sum_named_harness_assertions": 21996,
+  "checks": [
+    "CHECK actual_100000_receipt_writer_VM_steps_bounded_original_unprovable_evidence_preserved",
+    "CHECK global_append_watermark_other_experiment_conservative_retry_makes_progress_without_permanent_isolation",
+    "CHECK normal_16_prefix_100_durable_replays_and_100_business_reentries_keep_all_original_samples_once",
+    "CHECK all_original_256_normal_opportunities_and_100_reentries_with_guard_cost_counted",
+    "CHECK append_only_legacy_MISSING_160_all_old_bytes_and_math_preserved",
+    "CHECK append_only_legacy_NO_RECEIPTS_NO_CURSOR_all_old_bytes_and_math_preserved",
+    "CHECK missing_guard_business_DDL_zero_actual_migration_rollback_repeat_preserves_old_data_and_recovers",
+    "CHECK immutable_update_delete_replace_guards_close_actual_receipt_CAS_race_with_indexed_lookup",
+    "CHECK fail_closed_GAPPED_STATE_original_evidence_kept_healthy_experiment_continues reason=LEGACY_EXPOSURE_RANGE_NONCONTIGUOUS",
+    "CHECK fail_closed_RECEIPT_CONFLICT_original_evidence_kept_healthy_experiment_continues reason=LEGACY_EXISTING_RECEIPT_CONFLICT",
+    "CHECK fail_closed_MISSING_ORIGINAL_original_evidence_kept_healthy_experiment_continues reason=LEGACY_ORIGINAL_PREFIX_OR_PIT_UNPROVEN",
+    "CHECK fail_closed_UNKNOWN_BOUNDARY_original_evidence_kept_healthy_experiment_continues reason=LEGACY_REGISTRATION_BOUNDARY_UNPROVEN",
+    "CHECK fail_closed_MATH_MISMATCH_original_evidence_kept_healthy_experiment_continues reason=LEGACY_EPROCESS_NOT_EQUAL_ORIGINAL_CONTIGUOUS_REPLAY",
+    "CHECK fail_closed_CURSOR_EXCESS_original_evidence_kept_healthy_experiment_continues reason=LEGACY_CURSOR_EXCEEDS_EXPOSURE",
+    "CHECK fail_closed_PIT_UNPROVEN_original_evidence_kept_healthy_experiment_continues reason=LEGACY_ORIGINAL_PREFIX_OR_PIT_UNPROVEN",
+    "CHECK legacy_cancel_owner_source_receipt_and_complete_state_CAS_no_publication",
+    "CHECK legacy_commit_diagnostic_failure_cannot_erase_or_duplicate_old_or_reconstructed_evidence",
+    "CHECK actual_existing_retention_schema_and_metadata_pruning_coexist_with_guarded_append_only_qualification",
+    "CHECK actual_TableCopier_100_identical_receipt_duplicates_noop_conflicting_source_and_root_both_preserved",
+    "CHECK actual_known_v1_v2_upgrade_rollback_repeat_reopen_unknown_SQL_and_rowid_shadow_refusal_no_original_row_change",
+    "CHECK every_legacy_append_slice_before_after_business_rollback_reentry_no_reset",
+    "CHECK actual_legacy_jvm_halt_and_fresh_process_resume_without_reset_or_recount"
+  ],
+  "legacy_and_fail_closed_host_costs": {
+    "frames": 1053,
+    "max_sql_cost_including_begin_end_and_guard_index_reads": 44,
+    "max_bind_bytes": 4123,
+    "max_direct_changed_rows": 20,
+    "native_sql_transaction_p99_ms": 2.759829,
+    "native_sql_transaction_max_ms": 15.697765
+  },
+  "normal_guarded_consumer_host_costs": {
+    "frames": 120,
+    "max_sql_cost_including_begin_end_and_guard_index_reads": 44,
+    "max_bind_bytes": 4281,
+    "max_direct_changed_rows": 20,
+    "native_sql_transaction_p99_ms": 2.577768,
+    "native_sql_transaction_max_ms": 12.127889
+  },
+  "per_mode_budget_facts": {
+    "new-vm-backlog": [
+      {
+        "instrumentedTimingIsNotLatencyAcceptance": true,
+        "interval": 100,
+        "nativeVmStepLowerBound": 2700,
+        "receiptRows": 100096,
+        "test": "ACTUAL_LEGACY_WRITER_VM_STEPS_100000_RECEIPTS"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 1,
+        "maxAllSqlIncludingBeginEnd": 18,
+        "maxBindBytes": 2370,
+        "maxDirectChangedRows": 4,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      }
+    ],
+    "new-concurrent": [
+      {
+        "bindCap": 262144,
+        "frames": 22,
+        "maxAllSqlIncludingBeginEnd": 44,
+        "maxBindBytes": 4123,
+        "maxDirectChangedRows": 20,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      }
+    ],
+    "new-normal": [
+      {
+        "bindCap": 262144,
+        "frames": 101,
+        "maxAllSqlIncludingBeginEnd": 44,
+        "maxBindBytes": 4059,
+        "maxDirectChangedRows": 20,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 19,
+        "maxAllSqlIncludingBeginEnd": 44,
+        "maxBindBytes": 4281,
+        "maxDirectChangedRows": 20,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      }
+    ],
+    "new-positive": [
+      {
+        "bindCap": 262144,
+        "frames": 20,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 32,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4059,
+        "maxDirectChangedRows": 13,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      }
+    ],
+    "new-migration": [
+      {
+        "bindCap": 262144,
+        "frames": 20,
+        "maxAllSqlIncludingBeginEnd": 37,
+        "maxBindBytes": 4049,
+        "maxDirectChangedRows": 11,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 20,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      }
+    ],
+    "new-negative": [
+      {
+        "bindCap": 262144,
+        "frames": 2,
+        "maxAllSqlIncludingBeginEnd": 44,
+        "maxBindBytes": 4123,
+        "maxDirectChangedRows": 20,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 2,
+        "maxAllSqlIncludingBeginEnd": 44,
+        "maxBindBytes": 4123,
+        "maxDirectChangedRows": 20,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 2,
+        "maxAllSqlIncludingBeginEnd": 44,
+        "maxBindBytes": 4123,
+        "maxDirectChangedRows": 20,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 2,
+        "maxAllSqlIncludingBeginEnd": 44,
+        "maxBindBytes": 4123,
+        "maxDirectChangedRows": 20,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 2,
+        "maxAllSqlIncludingBeginEnd": 44,
+        "maxBindBytes": 4123,
+        "maxDirectChangedRows": 20,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 2,
+        "maxAllSqlIncludingBeginEnd": 44,
+        "maxBindBytes": 4123,
+        "maxDirectChangedRows": 20,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 2,
+        "maxAllSqlIncludingBeginEnd": 44,
+        "maxBindBytes": 4123,
+        "maxDirectChangedRows": 20,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      }
+    ],
+    "new-owner": [
+      {
+        "bindCap": 262144,
+        "frames": 0,
+        "maxAllSqlIncludingBeginEnd": 0,
+        "maxBindBytes": 0,
+        "maxDirectChangedRows": 0,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 1,
+        "maxAllSqlIncludingBeginEnd": 36,
+        "maxBindBytes": 3656,
+        "maxDirectChangedRows": 11,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 0,
+        "maxAllSqlIncludingBeginEnd": 0,
+        "maxBindBytes": 0,
+        "maxDirectChangedRows": 0,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 1,
+        "maxAllSqlIncludingBeginEnd": 14,
+        "maxBindBytes": 547,
+        "maxDirectChangedRows": 0,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 1,
+        "maxAllSqlIncludingBeginEnd": 8,
+        "maxBindBytes": 291,
+        "maxDirectChangedRows": 0,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 1,
+        "maxAllSqlIncludingBeginEnd": 7,
+        "maxBindBytes": 227,
+        "maxDirectChangedRows": 0,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      }
+    ],
+    "new-diagnostic": [
+      {
+        "bindCap": 262144,
+        "frames": 20,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      }
+    ],
+    "new-retention": [
+      {
+        "bindCap": 262144,
+        "frames": 20,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      }
+    ],
+    "new-foldback": [
+      {
+        "bindCap": 262144,
+        "frames": 20,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      }
+    ],
+    "new-upgrade": [
+      {
+        "bindCap": 262144,
+        "frames": 20,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      }
+    ],
+    "new-rollback": [
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 21,
+        "maxAllSqlIncludingBeginEnd": 38,
+        "maxBindBytes": 4095,
+        "maxDirectChangedRows": 12,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      }
+    ],
+    "new-fresh-jvm-resume": [
+      {
+        "bindCap": 262144,
+        "frames": 19,
+        "maxAllSqlIncludingBeginEnd": 36,
+        "maxBindBytes": 2940,
+        "maxDirectChangedRows": 10,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      }
+    ]
+  },
+  "actual_100000_receipt_VM_negative_control": {
+    "candidate-unbounded-writer-vm-scan": [
+      {
+        "instrumentedTimingIsNotLatencyAcceptance": true,
+        "interval": 100,
+        "nativeVmStepLowerBound": 903500,
+        "receiptRows": 100096,
+        "test": "ACTUAL_LEGACY_WRITER_VM_STEPS_100000_RECEIPTS"
+      }
+    ],
+    "new-vm-backlog": [
+      {
+        "instrumentedTimingIsNotLatencyAcceptance": true,
+        "interval": 100,
+        "nativeVmStepLowerBound": 2700,
+        "receiptRows": 100096,
+        "test": "ACTUAL_LEGACY_WRITER_VM_STEPS_100000_RECEIPTS"
+      },
+      {
+        "bindCap": 262144,
+        "frames": 1,
+        "maxAllSqlIncludingBeginEnd": 18,
+        "maxBindBytes": 2370,
+        "maxDirectChangedRows": 4,
+        "over": false,
+        "test": "NEW_PHYSICAL_BUDGET"
+      }
+    ]
+  },
+  "sql_cost_basis": "Actual production API SQL trace plus installed-trigger indexed EXISTS branch cost (one fresh, up to two duplicate), with native EXPLAIN retained; not a VM trace for every statement. Native VM progress counting is enabled separately only for the explicit large-backlog control.",
+  "source_freeze": "b5fdf7a667257b910aca30dc4b9e23dae82167410ebcfe75e95d35e84cfb9831; Pin agent notified; no further production changes",
+  "root_integration": "Install RESEARCH_R31_QUALIFICATION_RECEIPT rev2 using startup-only ensureLegacyReceiptGuardsR31 then readonly requireLegacyReceiptGuardsR31; root owns shared schema/domain/journal.",
+  "existing_regression_receipt": "existing_contract_regression_v2/receipt.json",
+  "existing_regression_scope": "Same rev2 duplicate-compatible source before final global-watermark boundedness change; final native normal/retention/concurrency cases run the frozen final source. Old Q3/Q11 reset-contract failures are retained, not waived.",
+  "retention_budget": "NOT_ACCEPTED_BY_THIS_MODULE; original legitimate cleanup is a compatibility regression",
+  "device": "NOT_RUN",
+  "gradle": "NOT_RUN",
+  "android_writer_hold_slo": "NOT_PROVEN",
+  "natural_quality": "NOT_PROVEN",
+  "P03": "NOT_OPENED",
+  "full_B02": "OPEN_OTHER_PRODUCERS_AND_PAYLOADS_REMAIN"
+}

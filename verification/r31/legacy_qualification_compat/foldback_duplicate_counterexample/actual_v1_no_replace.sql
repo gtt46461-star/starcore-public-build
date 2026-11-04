@@ -1,0 +1,1 @@
+CREATE TRIGGER r31_qual_receipt_no_replace BEFORE INSERT ON r29_qual_receipt WHEN EXISTS(SELECT 1 FROM r29_qual_receipt WHERE experiment_id=NEW.experiment_id AND target_ordinal=NEW.target_ordinal) BEGIN SELECT RAISE(ABORT,'R31_QUAL_RECEIPT_IMMUTABLE'); END

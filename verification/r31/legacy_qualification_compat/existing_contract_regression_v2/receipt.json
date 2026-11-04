@@ -1,0 +1,109 @@
+{
+  "scope": "UNCHANGED_NUMERIC_AND_RETENTION_ASSERTIONS_PREVIOUS_PHYSICAL_CONTRACT_FIX_AND_STARTUP_OWNER_INSTALL_ONLY",
+  "production_source_sha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java": "bd77b7a974afdc95b65f34f0f3aca4d4e0db949058d1cad71c7fe91b6480da9b",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java": "5d115a69bdeb64e3fccbc77ee27d6d78ff559d060d3d269c3e9f0266a0716d77"
+  },
+  "support_jar_sha256": "892e5be7feb3609755c6746ea080644fd19427a90f8d9ab8493c964af1f01fa8",
+  "test_source_original_sha256": "e489b08eab1472b17b5458b0bd54949a14b932b26dfd6abd713695ae913b0239",
+  "retention_bootstrap_adapted_sha256": "a605a635d9983d2404ba2d3fa4c06dc614a17b94a2534a1a4349b97ec74bbae2",
+  "commands": [
+    {
+      "name": "QualInboxR29HostTest",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-sgiq8uho/platform:/tmp/r31-legacy-qualification-native-sgiq8uho/new-classes:/tmp/r31-legacy-v2-existing-contracts-6_ou714g:/tmp/r31-legacy-qualification-native-sgiq8uho/new-tests:/tmp/r31-legacy-qualification-native-sgiq8uho/fixed-support.jar:/tmp/r31-legacy-qualification-native-sgiq8uho/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-sgiq8uho/android.jar",
+        "com.ethk3.novaonepro.strategyv2.QualInboxR29HostTest"
+      ],
+      "exit_code": 1,
+      "log_sha256": "72262c7beefcb4b7ce5dbbb60ef3a5ff202058f8a9eee77cc4314d94707d67ba",
+      "checks": [
+        "R29_QUAL|Q1_IN_ORDER_EQUALS_REFERENCE|OK|n=240 acts=74 hits=20",
+        "R29_QUAL|Q2_OUT_OF_ORDER_EQUALS_IN_ORDER_seed11|OK|settled=240 receipts=240",
+        "R29_QUAL|Q2_OUT_OF_ORDER_EQUALS_IN_ORDER_seed12|OK|settled=240 receipts=240",
+        "R29_QUAL|Q2_OUT_OF_ORDER_EQUALS_IN_ORDER_seed13|OK|settled=240 receipts=240",
+        "R29_QUAL|Q2_OUT_OF_ORDER_EQUALS_IN_ORDER_seed14|OK|settled=240 receipts=240",
+        "R29_QUAL|Q2_OUT_OF_ORDER_EQUALS_IN_ORDER_seed15|OK|settled=240 receipts=240",
+        "R29_QUAL|Q3_LATE_HIT_MINUS2_RECOVERED_AND_REBUILT|FAILED|rebuildLog=1 cert=REVOKED_LEGACY_EXPOSURE pendingDraw=8 resolved=8 blockedAtLastOrdinal=60 actBlocked=false db={policyHash=EXP_A, globalIndex=1, alpha=0.024663776297916815, deltaMin=0.006000000000000005, targetActRate=0.15, deltaMinSource=PRE_REGISTERED_TARGET_ACT_RATE: clamp(rate,0.01,1)*(0.34-0.30); legacy unknown MARGIN uses 0.15; no FUTURE refit, logEUp=0.0, logEDown=2.3115345128692537, threshold=3.7024196584233318, n=52, acts=16, hits=1, state=ACCUMULATING, progress=0.0, expectedRemaining=null} ref={policyHash=EXP_A, globalIndex=1, alpha=0.024663776297916815, deltaMin=0.006000000000000005, targetActRate=0.15, deltaMinSource=PRE_REGISTERED_TARGET_ACT_RATE: clamp(rate,0.01,1)*(0.34-0.30); legacy unknown MARGIN uses 0.15; no FUTURE refit, logEUp=-0.04322401533251141, logEDown=1.7965456395651263, threshold=3.7024196584233318, n=60, acts=21, hits=2, state=ACCUMULATING, progress=-0.01167453160912566, expectedRemaining=null}",
+        "R29_QUAL|Q4_CONFLICT_ISOLATED|OK|target=11 conflicts=1 last=10 receiptsAtOrAfter=0 storedHitKept=true",
+        "R29_QUAL|Q5_PENDING_DRAWS_SEPARATE_PAGE|OK|settled=100 pendingDrawRows=128",
+        "R29_QUAL|Q6_STALE_STEP_COMMITS_NOTHING|OK|first=true second=false receipts=30",
+        "R29_QUAL|Q7_REPORT_DIAGNOSIS|OK|beforeMigration=null after={pendingDrawOpen=1, pendingDrawOpenActRows=1, pendingDrawOldestOrdinal=20, pendingDrawResolved=0, pendingDrawStale=0, pendingDrawStaleIssues=null, legacyHitMinus2Remaining=0, receipts=19, receiptActs=7, conflictsOpen=0, rebuilds=0, registrationBoundariesInferred=1, missingOpportunityExperiments=0, receiptStateMismatch=0, cursorByBlockReason={ACT_PENDING_DRAW={experiments=1, oldestOrdinal=20}}, gateV2Evaluated=0, gateV2WouldIssue=0, gateV2Nearest=[], rule=e-process advances only over the contiguous resolvable prefix; ACT with missing draw stays pending; conflicts are isolated}",
+        "R29_QUAL|Q8_GATE_V2_EVIDENCE|OK|opportunities=120 actDecisions=40/40 settled=19 pending=0 failing=[sequentialTest, settledActs>=250, hitRate>=0.34, betterThanI00, betterThanShuffledControl, calibrationSupportedEce, completeBlocks>=3(80acts), worstBlock>=0.26]",
+        "R29_QUAL|Q8_ORIGINAL_GAP_RESTORATION_UPDATES_READONLY_DENOMINATOR|OK|only original opportunity restoration reopens contiguous formal evidence; V2 remains report-only",
+        "R29_QUAL|Q9_ABSENT_FREEZE_STOPS_CURSOR|OK|blockedAt2=true recoveredOriginalRecordTo=12",
+        "R29_QUAL|Q10_FIRST_AND_TRAILING_GAPS|OK|firstBlocked=true trailingBeforeFuture=true",
+        "R29_QUAL|Q11_REBUILD_GAPPED_CHECKPOINT|FAILED|old evidence kept; certificate revoked; continuous replay recovered",
+        "R29_QUAL|Q12_LARGE_BATCH_ATOMIC_RETRY|OK|rollbackThenRetry=true transactions=2 rows=1203",
+        "R29_QUAL|Q13_POSTCHECK_ROLLS_BACK_ALL|OK|end-of-transaction safety check failure left original rows unchanged",
+        "R29_QUAL|Q14_CANCEL_BEFORE_WRITE|OK|cancelled batch never entered writer",
+        "R29_QUAL|Q15_MODEL_CURSOR_ATOMIC_RESTORE|OK|optimizer/RNG/replay/model and issue cursor roll back together",
+        "R29_QUAL|Q16_LEGACY_MODEL_PRESERVED_BEFORE_RETRAIN|OK|original bytes/hash/cursor kept; idempotent migration; active full state stops legacy copying; update/delete rejected",
+        "R29_QUAL|SUMMARY|FAILED [Q3_LATE_HIT_MINUS2_RECOVERED_AND_REBUILT, Q11_REBUILD_GAPPED_CHECKPOINT]"
+      ]
+    },
+    {
+      "name": "SettleChunkR30HostTest",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-sgiq8uho/platform:/tmp/r31-legacy-qualification-native-sgiq8uho/new-classes:/tmp/r31-legacy-v2-existing-contracts-6_ou714g:/tmp/r31-legacy-qualification-native-sgiq8uho/new-tests:/tmp/r31-legacy-qualification-native-sgiq8uho/fixed-support.jar:/tmp/r31-legacy-qualification-native-sgiq8uho/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-sgiq8uho/android.jar",
+        "com.ethk3.novaonepro.strategyv2.SettleChunkR30HostTest"
+      ],
+      "exit_code": 0,
+      "log_sha256": "6642a4fb6e7c24305947d51104547872c8e38d78f9c9ea8d3304379f91676aae",
+      "checks": [
+        "R30_SETTLE|S1_640_ROWS_BOUNDED_PHYSICAL_CHUNKS_seed1|OK|chunks=54 rows=640",
+        "R30_SETTLE|S2_EQUALS_PRE_R30_seed1|OK|settled=640",
+        "R30_SETTLE|S3_KILL_AFTER_CHUNK2_RESUMES_ONCE_seed1|OK|settledAfterDeath=12 resumed=628 leftover=0",
+        "R30_SETTLE|S1_640_ROWS_BOUNDED_PHYSICAL_CHUNKS_seed2|OK|chunks=54 rows=640",
+        "R30_SETTLE|S2_EQUALS_PRE_R30_seed2|OK|settled=640",
+        "R30_SETTLE|S3_KILL_AFTER_CHUNK2_RESUMES_ONCE_seed2|OK|settledAfterDeath=12 resumed=628 leftover=0",
+        "R30_SETTLE|S1_640_ROWS_BOUNDED_PHYSICAL_CHUNKS_seed3|OK|chunks=54 rows=640",
+        "R30_SETTLE|S2_EQUALS_PRE_R30_seed3|OK|settled=640",
+        "R30_SETTLE|S3_KILL_AFTER_CHUNK2_RESUMES_ONCE_seed3|OK|settledAfterDeath=12 resumed=628 leftover=0",
+        "R30_SETTLE|SUMMARY|OK"
+      ]
+    },
+    {
+      "name": "PendingDrawR30HostTest",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-sgiq8uho/platform:/tmp/r31-legacy-qualification-native-sgiq8uho/new-classes:/tmp/r31-legacy-v2-existing-contracts-6_ou714g:/tmp/r31-legacy-qualification-native-sgiq8uho/new-tests:/tmp/r31-legacy-qualification-native-sgiq8uho/fixed-support.jar:/tmp/r31-legacy-qualification-native-sgiq8uho/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-sgiq8uho/android.jar",
+        "com.ethk3.novaonepro.strategyv2.PendingDrawR30HostTest"
+      ],
+      "exit_code": 0,
+      "log_sha256": "2ef7273c615581462c691891da5f0c404b285c9719b6e2e57dbb77b318de49e7",
+      "checks": [
+        "R30_PENDING|P1_PENDING_ROW_AND_BACKOFF_NO_RECHECK|OK|rows=1 checks=1 immediateRechecks=0",
+        "R30_PENDING|P2_LATE_DRAW_SETTLES_ORIGINAL_FREEZE_ONCE|OK|hit=1 laterPasses=0 resolved=1",
+        "R30_PENDING|P3_STALE_KEPT_NOT_RECHECKED_LISTED|OK|stale=1 rechecked=false",
+        "R30_PENDING|P4_BACKOFF_SEQUENCE|OK|1,2,4,8,16,32,64,128,256,300,300,",
+        "R30_PENDING|SUMMARY|OK"
+      ]
+    },
+    {
+      "name": "ResearchRetentionR30HostTest",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-sgiq8uho/platform:/tmp/r31-legacy-qualification-native-sgiq8uho/new-classes:/tmp/r31-legacy-v2-existing-contracts-6_ou714g:/tmp/r31-legacy-qualification-native-sgiq8uho/new-tests:/tmp/r31-legacy-qualification-native-sgiq8uho/fixed-support.jar:/tmp/r31-legacy-qualification-native-sgiq8uho/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-sgiq8uho/android.jar",
+        "com.ethk3.novaonepro.strategyv2.ResearchRetentionR30HostTest"
+      ],
+      "exit_code": 0,
+      "log_sha256": "2e95d77d2abbc31521436f995616fc15ca1c6e566e6c9ce239104f26dab6e15c",
+      "checks": [
+        "R30_RETENTION_SQLITE_FILES|ACTUAL_ORIGINAL_RETENTION_WINDOW|FROZEN_AND_MODEL_BLOB_EXACT|SAME_TX_ROLLBACK|IMMUTABLE_ARCHIVE|SCHEMA_EVOLUTION_SINGLE_ARCHIVE|ACTUAL_MATRIX_SAVE_8_LIVE_2_PROTECTED|ORIGINAL_FOLDBACK_COPY_AND_PREUNLINK_REFERENCE|ONLY_RECOMPUTABLE_CACHE|PROTECTED_BUDGET_REMAINS_BLOCKED|HOST_NOT_DEVICE|PASS"
+      ]
+    }
+  ],
+  "gradle": "NOT_RUN",
+  "device": "NOT_RUN",
+  "status": "NORMAL_AND_RETENTION_REGRESSIONS_PASS_OLD_RESET_CONTRACT_Q3_Q11_EXPECTED_FAIL_NOT_WAIVED"
+}

@@ -1,0 +1,1514 @@
+{
+  "schema": "R31_APPEND_ONLY_LEGACY_QUALIFICATION_NATIVE_1",
+  "started_utc": "2026-11-04T19:18:18.105300+00:00",
+  "base_commit": "5d1da3156a7900816aa0f580e34c18fabf5ef322",
+  "support_jar_sha256": "892e5be7feb3609755c6746ea080644fd19427a90f8d9ab8493c964af1f01fa8",
+  "sdk_sha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a",
+  "jdbc_sha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa",
+  "private_workspace": "/tmp/r31-legacy-qualification-native-z0kc68w9",
+  "production_source_sha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java": "bd77b7a974afdc95b65f34f0f3aca4d4e0db949058d1cad71c7fe91b6480da9b",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java": "c45110f84bbccd81351fd29dcafd55077fb8b0935b26444de3f49102c6123c90"
+  },
+  "runner_sha256": "b2c6bb8e461ee723a242f4e7b5ab24904de2884067af9375ab8b1b1393892013",
+  "harness_sha256": "8c6d7ca3184de44906c744805d513e937b290fccd1ab61619fb4865d9672d75a",
+  "adapter_sha256": "a9d5602f5fc89175703dd11f5f5aa1806723f359ebe460ff43b492f0b9d316a6",
+  "bootstrap_harness_sha256": "32d96767d520726a98fb59e7abaec94ac64449231ba4304c1148dcd516a7c592",
+  "device": "NOT_RUN",
+  "gradle": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN",
+  "commands": [
+    {
+      "name": "platform-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-g",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar",
+        "-d",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform-source/android/database/Cursor.java",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform-source/android/content/ContentValues.java",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform-source/android/database/sqlite/SQLiteOpenHelper.java",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform-source/android/database/sqlite/SQLiteDatabase.java",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform-source/android/database/sqlite/SQLiteException.java",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform-source/android/database/sqlite/SQLiteDatabaseLockedException.java",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform-source/android/content/Context.java",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform-source/android/app/Application.java",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform-source/android/os/SystemClock.java",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform-source/android/os/Looper.java",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform-source/android/os/Process.java",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform-source/android/util/Log.java"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "platform-compile.log.gz",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "frames": 0
+    },
+    {
+      "name": "baseline-producer-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-g",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar",
+        "-sourcepath",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/empty-sourcepath",
+        "-d",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/baseline-classes",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/baseline-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/baseline-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "baseline-producer-compile.log.gz",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "frames": 0
+    },
+    {
+      "name": "baseline-harness-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-g",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/baseline-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/baseline-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "-d",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/baseline-tests",
+        "/workspace/r31-live-writer-budgets/verification/r31/live_writer_budgets/LiveBudgetHostR31.java",
+        "/workspace/r31-live-writer-budgets/verification/r31/legacy_qualification_compat/LegacyCompatibilityHostR31.java"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "baseline-harness-compile.log.gz",
+      "log_sha256": "1a51d80ae18c914d148fa4a71b8007be84db14c922820c92fc32a15d12158e77",
+      "frames": 0
+    },
+    {
+      "name": "race-candidate-producer-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-g",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar",
+        "-sourcepath",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/empty-sourcepath",
+        "-d",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/race-candidate-classes",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/race-candidate-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/race-candidate-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "race-candidate-producer-compile.log.gz",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "frames": 0
+    },
+    {
+      "name": "race-candidate-harness-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-g",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/race-candidate-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/race-candidate-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "-d",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/race-candidate-tests",
+        "/workspace/r31-live-writer-budgets/verification/r31/live_writer_budgets/LiveBudgetHostR31.java",
+        "/workspace/r31-live-writer-budgets/verification/r31/legacy_qualification_compat/LegacyCompatibilityHostR31.java",
+        "/workspace/r31-live-writer-budgets/verification/r31/legacy_qualification_compat/receipt_race_counterexample/LegacyReceiptRaceProofR31.java"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "race-candidate-harness-compile.log.gz",
+      "log_sha256": "1a51d80ae18c914d148fa4a71b8007be84db14c922820c92fc32a15d12158e77",
+      "frames": 0
+    },
+    {
+      "name": "count-candidate-producer-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-g",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar",
+        "-sourcepath",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/empty-sourcepath",
+        "-d",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/count-candidate-classes",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/count-candidate-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/count-candidate-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "count-candidate-producer-compile.log.gz",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "frames": 0
+    },
+    {
+      "name": "count-candidate-harness-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-g",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/count-candidate-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/count-candidate-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "-d",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/count-candidate-tests",
+        "/workspace/r31-live-writer-budgets/verification/r31/live_writer_budgets/LiveBudgetHostR31.java",
+        "/workspace/r31-live-writer-budgets/verification/r31/legacy_qualification_compat/LegacyCompatibilityHostR31.java"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "count-candidate-harness-compile.log.gz",
+      "log_sha256": "1a51d80ae18c914d148fa4a71b8007be84db14c922820c92fc32a15d12158e77",
+      "frames": 0
+    },
+    {
+      "name": "new-producer-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-g",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar",
+        "-sourcepath",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/empty-sourcepath",
+        "-d",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/new-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/new-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "new-producer-compile.log.gz",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "frames": 0
+    },
+    {
+      "name": "new-harness-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-g",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "-d",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests",
+        "/workspace/r31-live-writer-budgets/verification/r31/live_writer_budgets/LiveBudgetHostR31.java",
+        "/workspace/r31-live-writer-budgets/verification/r31/legacy_qualification_compat/LegacyCompatibilityHostR31.java"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "new-harness-compile.log.gz",
+      "log_sha256": "1a51d80ae18c914d148fa4a71b8007be84db14c922820c92fc32a15d12158e77",
+      "frames": 0
+    },
+    {
+      "name": "baseline-original-erasure",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/baseline-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/baseline-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LegacyCompatibilityHostR31",
+        "baseline",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/baseline-fixture"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "original_log": "baseline-original-erasure.log.gz",
+      "log_sha256": "a0f6d1c83d811f340b546fe618edabad94800722f154c6f5e5e3a5e9ff8d765f",
+      "frames": 21
+    },
+    {
+      "name": "candidate-original-receipt-race",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/race-candidate-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/race-candidate-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LegacyReceiptRaceProofR31",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/race-fixture"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "original_log": "candidate-original-receipt-race.log.gz",
+      "log_sha256": "1c2547ee6f2ffceb775dee4663490508cc112b56b20d752b95e672c16dd329ac",
+      "frames": 21
+    },
+    {
+      "name": "candidate-unbounded-writer-vm-scan",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/count-candidate-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/count-candidate-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LegacyCompatibilityHostR31",
+        "vm-counterexample",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/vm-counterexample-fixture"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "original_log": "candidate-unbounded-writer-vm-scan.log.gz",
+      "log_sha256": "a7742ae239ecd078d9595b2d0e43deb7efe189c573061f2b50b8e6f4d426aace",
+      "frames": 22
+    },
+    {
+      "name": "new-vm-backlog",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LegacyCompatibilityHostR31",
+        "vm-backlog",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/new-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "new-vm-backlog.log.gz",
+      "log_sha256": "9fbfb1f60bb0e12622989b23b13927419bc3f581b648a73ebafe6a981083f1d5",
+      "frames": 22
+    },
+    {
+      "name": "new-concurrent",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LegacyCompatibilityHostR31",
+        "concurrent",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/new-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "new-concurrent.log.gz",
+      "log_sha256": "87792d98cdb7b128e4d2c4530333bb3deae0fb9d682dfcdf276eab3261b95fbf",
+      "frames": 43
+    },
+    {
+      "name": "new-normal",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LegacyCompatibilityHostR31",
+        "normal",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/new-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "new-normal.log.gz",
+      "log_sha256": "9eb2d1d38092d02d48ad83812176fdb417137401658251863696612c8a03c1ba",
+      "frames": 124
+    },
+    {
+      "name": "new-positive",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LegacyCompatibilityHostR31",
+        "positive",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/new-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "new-positive.log.gz",
+      "log_sha256": "b39602437bdaa7295c98adfdb8a86b2c2ee21218afcf3d6fc292be572512e996",
+      "frames": 94
+    },
+    {
+      "name": "new-migration",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LegacyCompatibilityHostR31",
+        "migration",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/new-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "new-migration.log.gz",
+      "log_sha256": "11f258409a1676bf25cc261f9e209d4c9a842e772b14f60edda8a6aace4cc4c0",
+      "frames": 87
+    },
+    {
+      "name": "new-negative",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LegacyCompatibilityHostR31",
+        "negative",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/new-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "new-negative.log.gz",
+      "log_sha256": "6a7a60ad9a9e15cb7f3de8fb93dc28f0ad7f67ed713f61aee833f798fbd1e3de",
+      "frames": 161
+    },
+    {
+      "name": "new-owner",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LegacyCompatibilityHostR31",
+        "owner",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/new-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "new-owner.log.gz",
+      "log_sha256": "80b411a9661b9f7a8c8a061c31336e4ccd113885b3e4cb737888ce9870e0619d",
+      "frames": 130
+    },
+    {
+      "name": "new-diagnostic",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LegacyCompatibilityHostR31",
+        "diagnostic",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/new-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "new-diagnostic.log.gz",
+      "log_sha256": "10ae9c71444482cbaf958619ed0b02999e25addbff6e5886afd01a9f4ccc89b9",
+      "frames": 41
+    },
+    {
+      "name": "new-retention",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LegacyCompatibilityHostR31",
+        "retention",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/new-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "new-retention.log.gz",
+      "log_sha256": "9f633a289f903f47e9408220596d5132523ecb5e67810c1dc2e4f0ef39f7bd86",
+      "frames": 46
+    },
+    {
+      "name": "new-foldback",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LegacyCompatibilityHostR31",
+        "foldback",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/new-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "new-foldback.log.gz",
+      "log_sha256": "62fbf8b35d96c8656200a44e599e6f59965eb3619a266ec542e65faaf2cc52d7",
+      "frames": 242
+    },
+    {
+      "name": "new-upgrade",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LegacyCompatibilityHostR31",
+        "upgrade",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/new-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "new-upgrade.log.gz",
+      "log_sha256": "77a696d7dc4f2017938a3d574161846d3f19dd35fbb12eb3d5d01972c0d1801f",
+      "frames": 67
+    },
+    {
+      "name": "new-rollback",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LegacyCompatibilityHostR31",
+        "rollback",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/new-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "new-rollback.log.gz",
+      "log_sha256": "5bc9a4f9ae33bfe87d1bf84f3b9d12975b183eed9206e33a5456dcc804108e97",
+      "frames": 1680
+    },
+    {
+      "name": "new-actual-jvm-halt",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LegacyCompatibilityHostR31",
+        "halt",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/halt-fixture"
+      ],
+      "exit_code": 73,
+      "expected_exit_code": 73,
+      "original_log": "new-actual-jvm-halt.log.gz",
+      "log_sha256": "29bf9d2e4dd47948af5d4cb9e9afa54856a1c9e106f1644b930988f3e01e7984",
+      "frames": 22
+    },
+    {
+      "name": "new-fresh-jvm-resume",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LegacyCompatibilityHostR31",
+        "resume",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/halt-fixture"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "new-fresh-jvm-resume.log.gz",
+      "log_sha256": "8d509b5c191ddf61f00effecdc3aa58c4d7e464c875b2012b9b0eae3f093ef89",
+      "frames": 21
+    },
+    {
+      "name": "unchanged-normal-settle",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "settle",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/normal-regression-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "unchanged-normal-settle.log.gz",
+      "log_sha256": "a02cf16767010c74cca4fb98632822c4bb8dd589083199302c044a4cf57d2e86",
+      "frames": 28
+    },
+    {
+      "name": "unchanged-normal-pending",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "pending",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/normal-regression-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "unchanged-normal-pending.log.gz",
+      "log_sha256": "71266507a661f30cbb2ad1175fb99e1703f411e0f895d55000a6b230ce3d84e9",
+      "frames": 55
+    },
+    {
+      "name": "unchanged-normal-consume",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "consume",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/normal-regression-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "unchanged-normal-consume.log.gz",
+      "log_sha256": "ab3437e1950485082bf916a8f9cbb9d5f4e897bf2c81f54a3a9e5b79040f2113",
+      "frames": 20
+    },
+    {
+      "name": "unchanged-normal-resolve",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/platform:/tmp/r31-legacy-qualification-native-z0kc68w9/new-classes:/tmp/r31-legacy-qualification-native-z0kc68w9/new-tests:/tmp/r31-legacy-qualification-native-z0kc68w9/fixed-support.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/sqlite-jdbc.jar:/tmp/r31-legacy-qualification-native-z0kc68w9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.LiveBudgetHostR31",
+        "resolve",
+        "/tmp/r31-legacy-qualification-native-z0kc68w9/normal-regression-fixtures"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "original_log": "unchanged-normal-resolve.log.gz",
+      "log_sha256": "dfb4cad1d16d814afc325573f5fe4495181b868ace721472508e299d097989e4",
+      "frames": 28
+    }
+  ],
+  "results": [
+    {
+      "name": "baseline-original-erasure",
+      "facts": [
+        {
+          "afterN": 0,
+          "afterReceiptRows": 0,
+          "afterReceiptSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "beforeN": 256,
+          "beforeReceiptRows": 96,
+          "originalReceiptSha256": "33569b057de11fe74aca1703fdc9c3832af4195724b2a33f21c68587d2f05178",
+          "test": "BASELINE_LEGACY_REBUILD_ERASURE"
+        }
+      ],
+      "checks": []
+    },
+    {
+      "name": "candidate-original-receipt-race",
+      "facts": [
+        {
+          "test": "LEGACY_SAME_COUNT_RECEIPT_RACE",
+          "needsRebuildAfterCommit": false,
+          "blockedForCertificateAfterCommit": false
+        }
+      ],
+      "checks": []
+    },
+    {
+      "name": "candidate-unbounded-writer-vm-scan",
+      "facts": [
+        {
+          "instrumentedTimingIsNotLatencyAcceptance": true,
+          "interval": 100,
+          "nativeVmStepLowerBound": 903500,
+          "receiptRows": 100096,
+          "test": "ACTUAL_LEGACY_WRITER_VM_STEPS_100000_RECEIPTS"
+        }
+      ],
+      "checks": []
+    },
+    {
+      "name": "new-vm-backlog",
+      "facts": [
+        {
+          "instrumentedTimingIsNotLatencyAcceptance": true,
+          "interval": 100,
+          "nativeVmStepLowerBound": 2700,
+          "receiptRows": 100096,
+          "test": "ACTUAL_LEGACY_WRITER_VM_STEPS_100000_RECEIPTS"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 1,
+          "maxAllSqlIncludingBeginEnd": 18,
+          "maxBindBytes": 2370,
+          "maxDirectChangedRows": 4,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ],
+      "checks": [
+        "CHECK actual_100000_receipt_writer_VM_steps_bounded_original_unprovable_evidence_preserved",
+        "LEGACY_COMPAT_NATIVE_HOST_PASS assertions=34 scope=CONTROLLED_NATIVE_SQLITE_NOT_ANDROID_NOT_NATURAL_QUALITY"
+      ]
+    },
+    {
+      "name": "new-concurrent",
+      "facts": [
+        {
+          "bindCap": 262144,
+          "frames": 22,
+          "maxAllSqlIncludingBeginEnd": 44,
+          "maxBindBytes": 4123,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ],
+      "checks": [
+        "CHECK global_append_watermark_other_experiment_conservative_retry_makes_progress_without_permanent_isolation",
+        "LEGACY_COMPAT_NATIVE_HOST_PASS assertions=162 scope=CONTROLLED_NATIVE_SQLITE_NOT_ANDROID_NOT_NATURAL_QUALITY"
+      ]
+    },
+    {
+      "name": "new-normal",
+      "facts": [
+        {
+          "bindCap": 262144,
+          "frames": 101,
+          "maxAllSqlIncludingBeginEnd": 44,
+          "maxBindBytes": 4059,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 19,
+          "maxAllSqlIncludingBeginEnd": 44,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ],
+      "checks": [
+        "CHECK normal_16_prefix_100_durable_replays_and_100_business_reentries_keep_all_original_samples_once",
+        "CHECK all_original_256_normal_opportunities_and_100_reentries_with_guard_cost_counted",
+        "LEGACY_COMPAT_NATIVE_HOST_PASS assertions=2889 scope=CONTROLLED_NATIVE_SQLITE_NOT_ANDROID_NOT_NATURAL_QUALITY"
+      ]
+    },
+    {
+      "name": "new-positive",
+      "facts": [
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 32,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4059,
+          "maxDirectChangedRows": 13,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ],
+      "checks": [
+        "CHECK append_only_legacy_MISSING_160_all_old_bytes_and_math_preserved",
+        "CHECK append_only_legacy_NO_RECEIPTS_NO_CURSOR_all_old_bytes_and_math_preserved",
+        "LEGACY_COMPAT_NATIVE_HOST_PASS assertions=2940 scope=CONTROLLED_NATIVE_SQLITE_NOT_ANDROID_NOT_NATURAL_QUALITY"
+      ]
+    },
+    {
+      "name": "new-migration",
+      "facts": [
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 4049,
+          "maxDirectChangedRows": 11,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ],
+      "checks": [
+        "CHECK missing_guard_business_DDL_zero_actual_migration_rollback_repeat_preserves_old_data_and_recovers",
+        "EXPLAIN_GUARD [[0,\"Init\",0,37,0,null,0,null],[1,\"OpenWrite\",0,389,0,\"9\",0,null],[2,\"OpenWrite\",1,390,0,\"k(2,,)\",0,null],[3,\"Variable\",1,2,0,null,0,null],[4,\"Variable\",2,3,0,null,0,null],[5,\"Variable\",3,4,0,null,0,null],[6,\"Variable\",4,5,0,null,0,null],[7,\"Variable\",5,6,0,null,0,null],[8,\"Variable\",6,7,0,null,0,null],[9,\"Variable\",7,8,0,null,0,null],[10,\"Variable\",8,9,0,null,0,null],[11,\"Variable\",9,10,0,null,0,null],[12,\"Integer\",-1,16,0,null,0,null],[13,\"Copy\",2,17,8,null,0,null],[14,\"Affinity\",17,9,0,\"BDBDDEBBD\",0,null],[15,\"Program\",6,36,26,\"program\",1,null],[16,\"NewRowid\",0,1,0,null,0,null],[17,\"HaltIfNull\",1299,2,2,\"r29_qual_receipt.experiment_id\",1,null],[18,\"HaltIfNull\",1299,2,3,\"r29_qual_receipt.target_ordinal\",1,null],[19,\"HaltIfNull\",1299,2,4,\"r29_qual_receipt.target_issue\",1,null],[20,\"HaltIfNull\",1299,2,5,\"r29_qual_receipt.act\",1,null],[21,\"HaltIfNull\",1299,2,6,\"r29_qual_receipt.hit\",1,null],[22,\"HaltIfNull\",1299,2,7,\"r29_qual_receipt.u\",1,null],[23,\"HaltIfNull\",1299,2,8,\"r29_qual_receipt.digest\",1,null],[24,\"HaltIfNull\",1299,2,9,\"r29_qual_receipt.state_after\",1,null],[25,\"HaltIfNull\",1299,2,10,\"r29_qual_receipt.consumed_at\",1,null],[26,\"Affinity\",2,9,0,\"BDBDDEBBD\",0,null],[27,\"SCopy\",2,12,0,null,0,null],[28,\"SCopy\",3,13,0,null,0,null],[29,\"IntCopy\",1,14,0,null,0,null],[30,\"MakeRecord\",12,3,11,null,0,null],[31,\"NoConflict\",1,33,12,\"2\",0,null],[32,\"Halt\",1555,2,0,\"r29_qual_receipt.experiment_id, r29_qual_receipt.target_ordinal\",2,null],[33,\"MakeRecord\",2,9,15,null,0,null],[34,\"IdxInsert\",1,11,12,\"2\",16,null],[35,\"Insert\",0,15,1,\"r29_qual_receipt\",57,null],[36,\"Halt\",0,0,0,null,0,null],[37,\"Transaction\",0,1,629,\"383\",1,null],[38,\"Goto\",0,1,0,null,0,null],[0,\"Init\",0,1,0,\"-- TRIGGER r31_qual_receipt_no_replace\",0,null],[1,\"BeginSubrtn\",0,2,0,null,0,null],[2,\"Once\",0,15,0,null,0,null],[3,\"Integer\",0,3,0,null,0,null],[4,\"Integer\",1,4,0,null,0,null],[5,\"OpenRead\",1,390,0,\"k(2,,)\",2,null],[6,\"Param\",11,5,0,null,0,null],[7,\"IsNull\",5,15,0,null,0,null],[8,\"Param\",12,6,0,null,0,null],[9,\"IsNull\",6,15,0,null,0,null],[10,\"Affinity\",5,2,0,\"BC\",0,null],[11,\"SeekGE\",1,15,5,\"2\",0,null],[12,\"IdxGT\",1,15,5,\"2\",0,null],[13,\"Integer\",1,3,0,null,0,null],[14,\"DecrJumpZero\",4,15,0,null,0,null],[15,\"Return\",2,2,1,null,0,null],[16,\"IfNot\",3,99,1,null,0,null],[17,\"Trace\",2147483647,1,0,\"-- SELECT CASE WHEN EXISTS(SELECT 1 FROM r29_qual_receipt WHERE experiment_id=NEW.experiment_id AND target_ordinal=NEW.target_ordinal AND typeof(target_issue)=typeof(NEW.target_issue) AND target_issue IS NEW.target_issue AND typeof(act)=typeof(NEW.act) AND act IS NEW.act AND typeof(hit)=typeof(NEW.hit) AND hit IS NEW.hit AND typeof(u)=typeof(NEW.u) AND u IS NEW.u AND typeof(digest)=typeof(NEW.digest) AND digest IS NEW.digest AND typeof(state_after)=typeof(NEW.state_after) AND state_after IS NEW.state_after AND typeof(consumed_at)=typeof(NEW.consumed_at) AND consumed_at IS NEW.consumed_at) THEN RAISE(IGNORE) ELSE RAISE(ABORT,'R31_QUAL_RECEIPT_IMMUTABLE') END\",0,null],[18,\"BeginSubrtn\",0,9,0,null,0,null],[19,\"Once\",0,94,0,null,0,null],[20,\"Integer\",0,10,0,null,0,null],[21,\"Integer\",1,11,0,null,0,null],[22,\"OpenRead\",2,389,0,\"9\",0,null],[23,\"OpenRead\",3,390,0,\"k(2,,)\",2,null],[24,\"Param\",11,12,0,null,0,null],[25,\"IsNull\",12,94,0,null,0,null],[26,\"Param\",12,13,0,null,0,null],[27,\"IsNull\",13,94,0,null,0,null],[28,\"Affinity\",12,2,0,\"BC\",0,null],[29,\"SeekGE\",3,94,12,\"2\",0,null],[30,\"IdxGT\",3,94,12,\"2\",0,null],[31,\"DeferredSeek\",3,0,2,null,0,null],[32,\"Column\",2,2,15,null,128,null],[33,\"Function\",0,15,14,\"typeof(1)\",0,null],[34,\"Param\",13,16,0,null,0,null],[35,\"Function\",1,16,15,\"typeof(1)\",0,null],[36,\"Ne\",15,94,14,null,80,null],[37,\"Column\",2,2,15,null,0,null],[38,\"Param\",13,14,0,null,0,null],[39,\"Ne\",14,94,15,\"BINARY-8\",194,null],[40,\"Column\",2,3,15,null,128,null],[41,\"Function\",0,15,14,\"typeof(1)\",0,null],[42,\"Param\",14,17,0,null,0,null],[43,\"Function\",1,17,15,\"typeof(1)\",0,null],[44,\"Ne\",15,94,14,null,80,null],[45,\"Column\",2,3,15,null,0,null],[46,\"Param\",14,14,0,null,0,null],[47,\"Ne\",14,94,15,\"BINARY-8\",196,null],[48,\"Column\",2,4,15,null,128,null],[49,\"Function\",0,15,14,\"typeof(1)\",0,null],[50,\"Param\",15,18,0,null,0,null],[51,\"Function\",1,18,15,\"typeof(1)\",0,null],[52,\"Ne\",15,94,14,null,80,null],[53,\"Column\",2,4,15,null,0,null],[54,\"Param\",15,14,0,null,0,null],[55,\"Ne\",14,94,15,\"BINARY-8\",196,null],[56,\"Column\",2,5,15,null,0,null],[57,\"RealAffinity\",15,0,0,null,0,null],[58,\"Function\",0,15,14,\"typeof(1)\",0,null],[59,\"Param\",16,19,0,null,0,null],[60,\"RealAffinity\",19,0,0,null,0,null],[61,\"Function\",1,19,15,\"typeof(1)\",0,null],[62,\"Ne\",15,94,14,null,80,null],[63,\"Column\",2,5,15,null,0,null],[64,\"RealAffinity\",15,0,0,null,0,null],[65,\"Param\",16,14,0,null,0,null],[66,\"RealAffinity\",14,0,0,null,0,null],[67,\"Ne\",14,94,15,\"BINARY-8\",197,null],[68,\"Column\",2,6,15,null,128,null],[69,\"Function\",0,15,14,\"typeof(1)\",0,null],[70,\"Param\",17,20,0,null,0,null],[71,\"Function\",1,20,15,\"typeof(1)\",0,null],[72,\"Ne\",15,94,14,null,80,null],[73,\"Column\",2,6,15,null,0,null],[74,\"Param\",17,14,0,null,0,null],[75,\"Ne\",14,94,15,\"BINARY-8\",194,null],[76,\"Column\",2,7,15,null,128,null],[77,\"Function\",0,15,14,\"typeof(1)\",0,null],[78,\"Param\",18,21,0,null,0,null],[79,\"Function\",1,21,15,\"typeof(1)\",0,null],[80,\"Ne\",15,94,14,null,80,null],[81,\"Column\",2,7,15,null,0,null],[82,\"Param\",18,14,0,null,0,null],[83,\"Ne\",14,94,15,\"BINARY-8\",194,null],[84,\"Column\",2,8,15,null,128,null],[85,\"Function\",0,15,14,\"typeof(1)\",0,null],[86,\"Param\",19,22,0,null,0,null],[87,\"Function\",1,22,15,\"typeof(1)\",0,null],[88,\"Ne\",15,94,14,null,80,null],[89,\"Column\",2,8,15,null,0,null],[90,\"Param\",19,14,0,null,0,null],[91,\"Ne\",14,94,15,\"BINARY-8\",196,null],[92,\"Integer\",1,10,0,null,0,null],[93,\"DecrJumpZero\",11,94,0,null,0,null],[94,\"Return\",9,19,1,null,0,null],[95,\"IfNot\",10,98,1,null,0,null],[96,\"Halt\",0,4,0,null,0,null],[97,\"Goto\",0,99,0,null,0,null],[98,\"Halt\",1811,2,0,\"R31_QUAL_RECEIPT_IMMUTABLE\",0,null],[99,\"Halt\",0,0,0,null,0,null]]",
+        "CHECK immutable_update_delete_replace_guards_close_actual_receipt_CAS_race_with_indexed_lookup",
+        "LEGACY_COMPAT_NATIVE_HOST_PASS assertions=309 scope=CONTROLLED_NATIVE_SQLITE_NOT_ANDROID_NOT_NATURAL_QUALITY"
+      ]
+    },
+    {
+      "name": "new-negative",
+      "facts": [
+        {
+          "bindCap": 262144,
+          "frames": 2,
+          "maxAllSqlIncludingBeginEnd": 44,
+          "maxBindBytes": 4123,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 2,
+          "maxAllSqlIncludingBeginEnd": 44,
+          "maxBindBytes": 4123,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 2,
+          "maxAllSqlIncludingBeginEnd": 44,
+          "maxBindBytes": 4123,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 2,
+          "maxAllSqlIncludingBeginEnd": 44,
+          "maxBindBytes": 4123,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 2,
+          "maxAllSqlIncludingBeginEnd": 44,
+          "maxBindBytes": 4123,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 2,
+          "maxAllSqlIncludingBeginEnd": 44,
+          "maxBindBytes": 4123,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 2,
+          "maxAllSqlIncludingBeginEnd": 44,
+          "maxBindBytes": 4123,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ],
+      "checks": [
+        "CHECK fail_closed_GAPPED_STATE_original_evidence_kept_healthy_experiment_continues reason=LEGACY_EXPOSURE_RANGE_NONCONTIGUOUS",
+        "CHECK fail_closed_RECEIPT_CONFLICT_original_evidence_kept_healthy_experiment_continues reason=LEGACY_EXISTING_RECEIPT_CONFLICT",
+        "CHECK fail_closed_MISSING_ORIGINAL_original_evidence_kept_healthy_experiment_continues reason=LEGACY_ORIGINAL_PREFIX_OR_PIT_UNPROVEN",
+        "CHECK fail_closed_UNKNOWN_BOUNDARY_original_evidence_kept_healthy_experiment_continues reason=LEGACY_REGISTRATION_BOUNDARY_UNPROVEN",
+        "CHECK fail_closed_MATH_MISMATCH_original_evidence_kept_healthy_experiment_continues reason=LEGACY_EPROCESS_NOT_EQUAL_ORIGINAL_CONTIGUOUS_REPLAY",
+        "CHECK fail_closed_CURSOR_EXCESS_original_evidence_kept_healthy_experiment_continues reason=LEGACY_CURSOR_EXCEEDS_EXPOSURE",
+        "CHECK fail_closed_PIT_UNPROVEN_original_evidence_kept_healthy_experiment_continues reason=LEGACY_ORIGINAL_PREFIX_OR_PIT_UNPROVEN",
+        "LEGACY_COMPAT_NATIVE_HOST_PASS assertions=392 scope=CONTROLLED_NATIVE_SQLITE_NOT_ANDROID_NOT_NATURAL_QUALITY"
+      ]
+    },
+    {
+      "name": "new-owner",
+      "facts": [
+        {
+          "bindCap": 262144,
+          "frames": 0,
+          "maxAllSqlIncludingBeginEnd": 0,
+          "maxBindBytes": 0,
+          "maxDirectChangedRows": 0,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 1,
+          "maxAllSqlIncludingBeginEnd": 36,
+          "maxBindBytes": 3656,
+          "maxDirectChangedRows": 11,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 0,
+          "maxAllSqlIncludingBeginEnd": 0,
+          "maxBindBytes": 0,
+          "maxDirectChangedRows": 0,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 1,
+          "maxAllSqlIncludingBeginEnd": 14,
+          "maxBindBytes": 547,
+          "maxDirectChangedRows": 0,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 1,
+          "maxAllSqlIncludingBeginEnd": 8,
+          "maxBindBytes": 291,
+          "maxDirectChangedRows": 0,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 1,
+          "maxAllSqlIncludingBeginEnd": 7,
+          "maxBindBytes": 227,
+          "maxDirectChangedRows": 0,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ],
+      "checks": [
+        "CHECK legacy_cancel_owner_source_receipt_and_complete_state_CAS_no_publication",
+        "LEGACY_COMPAT_NATIVE_HOST_PASS assertions=200 scope=CONTROLLED_NATIVE_SQLITE_NOT_ANDROID_NOT_NATURAL_QUALITY"
+      ]
+    },
+    {
+      "name": "new-diagnostic",
+      "facts": [
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ],
+      "checks": [
+        "CHECK legacy_commit_diagnostic_failure_cannot_erase_or_duplicate_old_or_reconstructed_evidence",
+        "LEGACY_COMPAT_NATIVE_HOST_PASS assertions=265 scope=CONTROLLED_NATIVE_SQLITE_NOT_ANDROID_NOT_NATURAL_QUALITY"
+      ]
+    },
+    {
+      "name": "new-retention",
+      "facts": [
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ],
+      "checks": [
+        "CHECK actual_existing_retention_schema_and_metadata_pruning_coexist_with_guarded_append_only_qualification",
+        "LEGACY_COMPAT_NATIVE_HOST_PASS assertions=150 scope=CONTROLLED_NATIVE_SQLITE_NOT_ANDROID_NOT_NATURAL_QUALITY"
+      ]
+    },
+    {
+      "name": "new-foldback",
+      "facts": [
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ],
+      "checks": [
+        "CHECK actual_TableCopier_100_identical_receipt_duplicates_noop_conflicting_source_and_root_both_preserved",
+        "LEGACY_COMPAT_NATIVE_HOST_PASS assertions=350 scope=CONTROLLED_NATIVE_SQLITE_NOT_ANDROID_NOT_NATURAL_QUALITY"
+      ]
+    },
+    {
+      "name": "new-upgrade",
+      "facts": [
+        {
+          "bindCap": 262144,
+          "frames": 20,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ],
+      "checks": [
+        "CHECK actual_known_v1_v2_upgrade_rollback_repeat_reopen_unknown_SQL_refusal_no_original_row_change",
+        "LEGACY_COMPAT_NATIVE_HOST_PASS assertions=185 scope=CONTROLLED_NATIVE_SQLITE_NOT_ANDROID_NOT_NATURAL_QUALITY"
+      ]
+    },
+    {
+      "name": "new-rollback",
+      "facts": [
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 21,
+          "maxAllSqlIncludingBeginEnd": 38,
+          "maxBindBytes": 4095,
+          "maxDirectChangedRows": 12,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ],
+      "checks": [
+        "CHECK every_legacy_append_slice_before_after_business_rollback_reentry_no_reset",
+        "LEGACY_COMPAT_NATIVE_HOST_PASS assertions=13968 scope=CONTROLLED_NATIVE_SQLITE_NOT_ANDROID_NOT_NATURAL_QUALITY"
+      ]
+    },
+    {
+      "name": "new-fresh-jvm-resume",
+      "facts": [
+        {
+          "bindCap": 262144,
+          "frames": 19,
+          "maxAllSqlIncludingBeginEnd": 36,
+          "maxBindBytes": 2940,
+          "maxDirectChangedRows": 10,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ],
+      "checks": [
+        "CHECK actual_legacy_jvm_halt_and_fresh_process_resume_without_reset_or_recount",
+        "LEGACY_COMPAT_NATIVE_HOST_PASS assertions=126 scope=CONTROLLED_NATIVE_SQLITE_NOT_ANDROID_NOT_NATURAL_QUALITY"
+      ]
+    },
+    {
+      "name": "unchanged-normal-settle",
+      "facts": [
+        {
+          "bindCap": 262144,
+          "frames": 14,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 3722,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 13,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 0,
+          "maxAllSqlIncludingBeginEnd": 0,
+          "maxBindBytes": 0,
+          "maxDirectChangedRows": 0,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ],
+      "checks": [
+        "CHECK basic_settle_all_original_rows_and_math_once"
+      ]
+    },
+    {
+      "name": "unchanged-normal-pending",
+      "facts": [
+        {
+          "bindCap": 262144,
+          "frames": 16,
+          "maxAllSqlIncludingBeginEnd": 31,
+          "maxBindBytes": 1694,
+          "maxDirectChangedRows": 17,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 27,
+          "maxAllSqlIncludingBeginEnd": 37,
+          "maxBindBytes": 3722,
+          "maxDirectChangedRows": 27,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 11,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 0,
+          "maxAllSqlIncludingBeginEnd": 0,
+          "maxBindBytes": 0,
+          "maxDirectChangedRows": 0,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ],
+      "checks": [
+        "CHECK basic_pending_all_original_rows_and_math_once"
+      ]
+    },
+    {
+      "name": "unchanged-normal-consume",
+      "facts": [
+        {
+          "bindCap": 262144,
+          "frames": 19,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 0,
+          "maxAllSqlIncludingBeginEnd": 0,
+          "maxBindBytes": 0,
+          "maxDirectChangedRows": 0,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ],
+      "checks": [
+        "CHECK basic_consume_all_original_rows_and_math_once"
+      ]
+    },
+    {
+      "name": "unchanged-normal-resolve",
+      "facts": [
+        {
+          "bindCap": 262144,
+          "frames": 16,
+          "maxAllSqlIncludingBeginEnd": 23,
+          "maxBindBytes": 961,
+          "maxDirectChangedRows": 9,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 11,
+          "maxAllSqlIncludingBeginEnd": 28,
+          "maxBindBytes": 4281,
+          "maxDirectChangedRows": 20,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        },
+        {
+          "bindCap": 262144,
+          "frames": 0,
+          "maxAllSqlIncludingBeginEnd": 0,
+          "maxBindBytes": 0,
+          "maxDirectChangedRows": 0,
+          "over": false,
+          "test": "NEW_PHYSICAL_BUDGET"
+        }
+      ],
+      "checks": [
+        "CHECK basic_resolve_all_original_rows_and_math_once"
+      ]
+    }
+  ],
+  "status": "APPEND_ONLY_LEGACY_COMPATIBILITY_NATIVE_HOST_PASS_NOT_ANDROID",
+  "source_changed_during_run": [],
+  "limitations": [
+    "Root startup migration journal/SchemaR27 integration is owned/tested by root; this run uses actual coordinator MIGRATION transactions and the exact owned DDL/checker APIs.",
+    "Host timings and synthetic original rows are not Android/device latency or natural qualification evidence.",
+    "Guard indexed-read cost is a conservative per-INSERT addition to traced API SQL, with actual SQLite trigger program EXPLAIN retained.",
+    "Existing Retention phase17 compatibility is exercised separately; its prior row budget is not accepted by this producer repair.",
+    "Unprovable legacy experiments remain blocked with original evidence retained; no alpha, trial identity or sample state is reset."
+  ],
+  "finished_utc": "2026-11-04T19:19:33.483781+00:00"
+}
