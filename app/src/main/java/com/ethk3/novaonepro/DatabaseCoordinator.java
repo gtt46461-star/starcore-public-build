@@ -136,6 +136,7 @@ public final class DatabaseCoordinator {
         snapshot.put("lastUnknownPriority",lastUnknownPriorityR31);snapshot.put("diagnosticFailures",DIAGNOSTIC_FAILURES_R31.get());
         snapshot.put("lastDiagnosticFailure",lastDiagnosticR31);snapshot.put("unknownCommitCount",UNKNOWN_COMMITS_R31.get());
         snapshot.put("researchServiceIntervalMs",5000);snapshot.put("lastResearchServiceMonoMs",LAST_RESEARCH_SERVICE_R31.get());
+        snapshot.put("writerHoldFaultReceipts",com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.snapshot());
         return Collections.unmodifiableMap(snapshot);
     }
     private static final ThreadLocal<String> LAST_OWNED_COMMIT_R30=new ThreadLocal<>();
@@ -771,6 +772,10 @@ public final class DatabaseCoordinator {
         if(task==null)return fallback;
         if(context==null)throw new IllegalArgumentException("R31_WRITE_CONTEXT_REQUIRED");
         rejectMaintenanceR82();
+        if(context.writeClass==WriteClass.RESEARCH_DATA
+                &&com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.deferResearch())
+            throw new WriteRejectedR31("DEPENDENCY",context.operation,"ADMISSION",CommitOutcome.ROLLED_BACK,
+                    new IllegalStateException("R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN"));
         if(android.os.Looper.myLooper()!=null&&android.os.Looper.myLooper()==android.os.Looper.getMainLooper())
             throw new IllegalStateException("CP3_DB_WRITE_ON_MAIN_THREAD");
         AttemptR31 previousAttempt=ATTEMPT_R31.get();
@@ -881,7 +886,13 @@ public final class DatabaseCoordinator {
     }
     private void recordUnlockedWriterR30(String operation,boolean critical,long wait,long hold,boolean failed){
         if(writeLock.isHeldByCurrentThread())return;
-        com.ethk3.novaonepro.strategyv2.WriterHoldLedgerR30.record(operation,critical,Math.max(0,wait),Math.max(0,hold),failed);
+        try {
+            com.ethk3.novaonepro.strategyv2.WriterHoldLedgerR30.record(operation,critical,Math.max(0,wait),Math.max(0,hold),failed);
+        } finally {
+            AttemptR31 attempt=ATTEMPT_R31.get();
+            com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.observe(operation,critical,wait,hold,failed,
+                    attempt==null?CommitOutcome.UNKNOWN:attempt.outcome);
+        }
     }
 
     /** Existing writer lock + actual SQLite transaction. Old fallback API is preserved. */

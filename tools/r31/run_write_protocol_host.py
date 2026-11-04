@@ -15,7 +15,8 @@ CLASSES = ROOT / "app/build/intermediates/javac/debug/compileDebugJavaWithJavac/
 SDK = pathlib.Path(os.environ["ANDROID_HOME"]) / "platforms/android-36/android.jar"
 JDBC = pathlib.Path(os.environ.get("SQLITE_JDBC", "/tmp/r31-baseline-deps/sqlite-jdbc.jar"))
 PRODUCTION_SOURCES = [MAIN / "DatabaseCoordinator.java", MAIN / "TransactionSchemaCacheR941.java", MAIN / "SchemaDomainCoordinatorR926.java",
-                      MAIN / "strategyv2/FailureDispositionR31.java", MAIN / "strategyv2/SchemaR27.java", MAIN / "strategyv2/ResearchWriteQueueR27.java"]
+                      MAIN / "strategyv2/FailureDispositionR31.java", MAIN / "strategyv2/SchemaR27.java", MAIN / "strategyv2/ResearchWriteQueueR27.java",
+                      MAIN / "strategyv2/WriterHoldFaultsR31.java"]
 SOURCE_HASHES = {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest() for path in PRODUCTION_SOURCES}
 for path, digest in SOURCE_HASHES.items():
     print("R31_HOST_SOURCE_SHA256", path, digest, flush=True)

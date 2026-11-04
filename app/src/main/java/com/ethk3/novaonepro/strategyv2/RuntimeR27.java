@@ -40,6 +40,14 @@ public final class RuntimeR27 implements AutoCloseable {
     static final class AtomPublicationR30 {final AtomNetSessionR30 state;final ModelSurfaceProviderR30.FrozenModelRef model;AtomPublicationR30(AtomNetSessionR30 state,ModelSurfaceProviderR30.FrozenModelRef model){this.state=state;this.model=model;}}
     volatile AtomPublicationR30 atomPublicationR30;
     void publishAtomStateR30(AtomNetSessionR30 state){ModelSurfaceProviderR30.FrozenModelRef ref=state.ready()?new ModelSurfaceProviderR30.FrozenModelRef(state.trainer.net.encode(),state.trainedThroughOrdinal(),System.currentTimeMillis()):null;atomPublicationR30=new AtomPublicationR30(state,ref);atomSessionR30=state;}
+    void publishAtomStateR31(AtomNetSessionR30 state, ModelSurfaceProviderR30.FrozenModelRef persisted) {
+        if (state == null || state.ready() != (persisted != null)
+                || (persisted != null && (persisted.trainedThroughOrdinal != state.trainedThroughOrdinal()
+                || !persisted.weightsHash.equals(StatsR27.sha256(state.trainer.net.encode())))))
+            throw new IllegalArgumentException("R31_ATOM_PUBLICATION_STATE_MISMATCH");
+        atomPublicationR30 = new AtomPublicationR30(state, persisted);
+        atomSessionR30 = state;
+    }
     volatile AtomNetSessionR30 atomSessionR30; ReplayDatasetR27 atomDataR30; long atomUnitsR30;
 
     private static volatile RuntimeR27 active;
@@ -167,7 +175,7 @@ public final class RuntimeR27 implements AutoCloseable {
             if(cur==null){
                 String savedHash=null;
                 try(Cursor x=w.ro.rawQuery("SELECT dataset_hash FROM r27_evolution_cursor WHERE loop IN (?,?) ORDER BY CASE loop WHEN ? THEN 0 ELSE 1 END LIMIT 1",new String[]{LOOP,"MAIN",LOOP})){if(x.moveToFirst())savedHash=x.getString(0);}
-                if(savedHash!=null){ResearchInputPinR30R1.Pin pin=ResearchInputPinR30R1.load(w.ro,savedHash);if(pin!=null){evoData=pin.data;evoCache=featureCacheR31(pin.data,48);ModelSurfaceStoreR30.bindHistorical(w.ro,evoCache);return ResearchPoolR27.Outcome.progress(1,pin.data.ordinals[pin.data.size()-1]);}}
+                if(savedHash!=null){ResearchInputPinR30R1.Pin pin=ResearchInputPinR30R1.loadCurrent(w.ro,savedHash);if(pin!=null){evoData=pin.data;evoCache=featureCacheR31(pin.data,48);ModelSurfaceStoreR30.bindHistorical(w.ro,evoCache);return ResearchPoolR27.Outcome.progress(1,pin.data.ordinals[pin.data.size()-1]);}}
             }
 
             if (cur != null && !ResearchInputPinR30R1.invalid(w.ro,cur.datasetHash) && latestOrd - cur.ordinals[cur.size() - 1] < REFRESH_NEW_ROWS) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", cur.ordinals[cur.size() - 1], latestOrd);
@@ -194,6 +202,7 @@ public final class RuntimeR27 implements AutoCloseable {
         public String id() { return "r27-evolution"; }
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
             if (evoCache == null) return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-replay-dataset)", 0, -1);
+            final EvolutionPublicationStoreR31.CursorState expectedEvolutionCursor=EvolutionPublicationStoreR31.CursorState.capture(w.ro,LOOP);
             EvolutionLoopR27 committed=evo;
             if(committed==null){committed=restoreOrCreate(w);ConfirmReadStoreR30.restore(w.ro,committed.ledger());}
             EvolutionLoopR27 loop=committed.preparedForkR30();
@@ -246,7 +255,15 @@ public final class RuntimeR27 implements AutoCloseable {
                 final List<Object[]> promos = sink.promotions;
                 b.guardBefore(db -> { for (Object[] p : promos) { PolicySpecR27 s = (PolicySpecR27) p[0]; StoreR27.insertShadow(db, s, (Double) p[1], (String) p[3], semanticAbi(s), s.policyHash(), s.policyHash()); } return 0; });
             }
-            try{submit(w, "EVOLUTION_STEP_" + EvolutionLoopR27.STEPS[stepBefore], b,false,selectedData.datasetHash+"|generation="+genBefore+"|step="+stepBefore+"|previous="+HashingSU1.text(committed.snapshot()));}catch(RuntimeException stale){boolean benign=false;for(Throwable cause=stale;cause!=null&&cause.getCause()!=cause;cause=cause.getCause())if(cause instanceof ResearchStoreR30R1.StaleResearch)benign=true;if(benign)return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT:RESEARCH_SOURCE_RETRY",(long)committed.generation*10+committed.step,-1);throw stale;}
+            try(EvolutionPublicationStoreR31.Prepared publication=sink.preparePublicationR31(w.ro,RuntimeCoordinatorR26.currentClaimR30(),BuildConfig.SOURCE_COMMIT_R26,expectedEvolutionCursor)){
+                int publicationSlice=0;
+                for(ResearchWriteQueueR27.Batch stage:publication.stagingBatches()){
+                    submit(w,"EVOLUTION_STAGING_"+stepBefore+"_"+publicationSlice,stage,false,publication.id+"|slice="+publicationSlice);
+                    publicationSlice++;
+                }
+                publication.verifyPrepared(w.ro); // Hash/codec verification stays outside the writer.
+                submit(w,"EVOLUTION_STEP_"+EvolutionLoopR27.STEPS[stepBefore],publication.publicationBatch(),false,publication.id);
+            }catch(RuntimeException stale){boolean benign=false;for(Throwable cause=stale;cause!=null&&cause.getCause()!=cause;cause=cause.getCause())if(cause instanceof ResearchStoreR30R1.StaleResearch)benign=true;if(benign)return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT:RESEARCH_SOURCE_RETRY",(long)committed.generation*10+committed.step,-1);throw stale;}
             if(preservedLegacy!=null&&preservedLegacy.equals(recoveredLegacyCursor))recoveredLegacyCursor=null;
             synchronized(RuntimeR27.this){evoData=selectedData;evoCache=selectedCache;evo=loop;if(pendingCache==selectedCache){pendingCache=null;pendingData=null;}}
             if (stepBefore == 9) refreshObservers(w, loop);
@@ -359,11 +376,12 @@ public final class RuntimeR27 implements AutoCloseable {
         EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.seed = System.currentTimeMillis();
         try (Cursor c = w.ro.rawQuery("SELECT snapshot,dataset_hash FROM r27_evolution_cursor WHERE loop IN (?,?) ORDER BY CASE loop WHEN ? THEN 0 ELSE 1 END LIMIT 1", new String[] {LOOP,"MAIN",LOOP})) {
             if (c.moveToFirst()) {
-                try { return EvolutionLoopR27.restore(c.getString(0), cfg, evoCache, null, System::currentTimeMillis); }
+                final String originalSnapshot=EvolutionPublicationStoreR31.resolveSnapshot(w.ro,c.getString(0));
+                try { return EvolutionLoopR27.restore(originalSnapshot, cfg, evoCache, null, System::currentTimeMillis); }
                 catch (RuntimeException mismatch) {
                     if(!evoCache.data.datasetHash.equals(c.getString(1))){
-                        EvolutionLoopR27 recovered=RepairCompatibilityR30R1.restoreBoundary(c.getString(0),cfg,evoCache,null,System::currentTimeMillis);
-                        recoveredLegacyCursor=c.getString(0);return recovered;
+                        EvolutionLoopR27 recovered=RepairCompatibilityR30R1.restoreBoundary(originalSnapshot,cfg,evoCache,null,System::currentTimeMillis);
+                        recoveredLegacyCursor=originalSnapshot;return recovered;
                     }
                     throw mismatch; // A damaged cursor must not silently discard the exposure ledger or models.
                 }
@@ -603,7 +621,8 @@ public final class RuntimeR27 implements AutoCloseable {
             if (System.currentTimeMillis() - lastBuilt < 30_000) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);
             ResearchWriteQueueR27.Batch b = ChartCacheR27.build(w.ro, RuntimeR27.this);
             long preparedAt=System.currentTimeMillis();ResearchStoreR30R1.appendOwnedProgress(b,ResearchStoreR30R1.calendar(w.ro),new ResearchStoreR30R1.Facts(preparedAt/1000,preparedAt/1000,0L,null,null,HashingSU1.text("CHART_CACHE|"+preparedAt)));
-            submit(w, "CHART_CACHE", b); lastBuilt = preparedAt;
+            submit(w, "CHART_CACHE", b, false, "CHART_OBSERVATION|" + preparedAt
+                    + "|" + android.os.SystemClock.elapsedRealtime()); lastBuilt = preparedAt;
             return ResearchPoolR27.Outcome.progress(b.ops.size(), lastBuilt / 1000);
         }
     }
@@ -621,6 +640,19 @@ public final class RuntimeR27 implements AutoCloseable {
         public String id() { return "r27-health"; }
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
             final long tickElapsed=android.os.SystemClock.elapsedRealtime();
+            // Deliver observations before optional maintenance can encounter backlog backpressure.
+            WriterHoldFaultsR31.drainOne(store);
+            // A bounded slice of new private scratch, independent of the business publication ACK.
+            ResearchWriteQueueR27.Batch evolutionCleanup = EvolutionPublicationStoreR31.cleanupSlice(
+                    w.ro, LOOP, RuntimeCoordinatorR26.currentClaimR30());
+            if (evolutionCleanup != null) {
+                String publication = String.valueOf(evolutionCleanup.ops.get(0).args[0]);
+                String sliceHash = evolutionCleanup.prepareR31("EVOLUTION_PRIVATE_SCRATCH_CLEANUP",
+                        "FINGERPRINT_ONLY", "r27-health", "FINGERPRINT_ONLY", 0, publication,
+                        0, "R31_PRIVATE_SCRATCH_SLICE_V1").payloadHash;
+                submit(w, "EVOLUTION_PRIVATE_SCRATCH_CLEANUP", evolutionCleanup, false,
+                        "NEW_PRIVATE_SCRATCH_ONLY|" + publication + "|slice=" + sliceHash);
+            }
             if (lastElapsedR31>0 && tickElapsed>=lastElapsedR31 && tickElapsed-lastElapsedR31<60_000)
                 return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);
             // A low-priority owner samples disk outside every SQLite write transaction.
@@ -692,7 +724,8 @@ public final class RuntimeR27 implements AutoCloseable {
             m.put("observationScopeR31","PER_PID_MEMORY_AND_INTERVAL_DISK; NOT_MODEL_PROGRESS_OR_NATURAL_QUALITY");
             b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('health','summary',?,?)", JsonR27.write(m), preparedAt);
             ResearchStoreR30R1.appendOwnedProgress(b,ResearchStoreR30R1.calendar(w.ro),new ResearchStoreR30R1.Facts(preparedAt/1000,preparedAt/1000,0L,null,null,HashingSU1.text("HEALTH|"+preparedAt)));
-            submit(w, "HEALTH", b);
+            submit(w, "HEALTH", b, false, "HEALTH_OBSERVATION|" + IssueTimelineWriterR30.bootId()
+                    + "|" + tickElapsed + "|" + preparedAt);
             last=preparedAt;lastElapsedR31=tickElapsed;lastSize=nextSize;assetsCached=nextAssetsCached;q08=nextQ08;fetchFlushed.clear();fetchFlushed.putAll(nextFetchFlushed);
             return ResearchPoolR27.Outcome.progress(1, preparedAt / 1000);
         }

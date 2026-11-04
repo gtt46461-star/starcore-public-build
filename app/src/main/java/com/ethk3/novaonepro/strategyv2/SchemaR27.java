@@ -94,6 +94,7 @@ public final class SchemaR27 {
         for (String sql : DDL) db.execSQL(sql);
         SchemaDomainCoordinatorR926.migrateR31Observations(db);
         SchemaDomainCoordinatorR926.migrateR31WriteProtocol(db);
+        SchemaDomainCoordinatorR926.migrateR31QualificationReceipts(db);
         SchemaDomainCoordinatorR926.migrateR31Feedback(db);
         for (String sql : ResearchSchemaR30R1.DDL) db.execSQL(sql);
         if(tableExists(db,"su2_matrix_snapshot"))MatrixStoreSU2.ensureMetadata(db); // existing SU2 ready markers do not imply new additive columns
@@ -103,6 +104,9 @@ public final class SchemaR27 {
         CertificateRevocationR30.ensure(db);
         db.execSQL(HoldoutLedgerR27.CONFIRM_DDL); // R30-B03-03: durable reservation before confirmation reads
         db.execSQL(AtomScoreR27.CONTRIBUTION_DDL_R30);
+        SchemaDomainCoordinatorR926.migrateR31AtomPublication(db);
+        SchemaDomainCoordinatorR926.migrateR31HistoryImport(db);
+        SchemaDomainCoordinatorR926.migrateR31EvolutionPublication(db);
         db.execSQL(BehaviorSignatureR30.DDL); // R30-B04-02: idempotent duplicate rejection receipts
         for (String sql : ModelSurfaceStoreR30.DDL) db.execSQL(sql);
         for (String sql : AtomNetStoreR30.DDL) db.execSQL(sql);
@@ -110,7 +114,7 @@ public final class SchemaR27 {
         column(db,"r30_frozen_confirm","registration_state","TEXT NOT NULL DEFAULT 'PENDING'");
         column(db, "r30_confirm_read", "control", "INTEGER NOT NULL DEFAULT 0");
         ensureLiveSourceRevision(db);
-        ResearchInputPinR30R1.ensure(db);
+        SchemaDomainCoordinatorR926.migrateR31SourceJournal(db);
         db.execSQL(LiveShadowsR27.PIT_DDL_R30);
         db.execSQL(HoldLedgerFlushR30.DDL); // R30-B01-02 (additive)
         column(db,"r30_writer_hold","histogram_json","TEXT");column(db,"r30_writer_hold","process_session","TEXT");

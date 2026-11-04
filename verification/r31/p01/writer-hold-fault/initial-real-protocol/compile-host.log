@@ -1,0 +1,11 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/workspace/r31-writer-hold-fault-9e2phy3z/source/host/R31WriterHoldFaultHost.java:13: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/workspace/r31-writer-hold-fault-9e2phy3z/source/host/R31WriterHoldFaultHost.java:101: warning: Unsafe is internal proprietary API and may be removed in a future release
+            Field unsafeField=Unsafe.class.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);
+                              ^
+/workspace/r31-writer-hold-fault-9e2phy3z/source/host/R31WriterHoldFaultHost.java:102: warning: Unsafe is internal proprietary API and may be removed in a future release
+            coordinator=(DatabaseCoordinator)((Unsafe)unsafeField.get(null)).allocateInstance(DatabaseCoordinator.class);
+                                               ^
+3 warnings

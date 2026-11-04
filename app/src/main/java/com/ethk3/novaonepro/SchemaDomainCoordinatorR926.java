@@ -92,6 +92,211 @@ public final class SchemaDomainCoordinatorR926 {
         }
     }
 
+    /** Complete atom/molecule sets are published independently of the legacy table layout. */
+    public static Contract r31AtomPublicationContract() {
+        return new Contract("RESEARCH_R31_ATOM_PUBLICATION", 1, new String[] {
+                "r31_atom_result_run", "r31_atom_result_chunk", "r31_atom_result_active",
+                "r31_atom_score_stage", "r31_atom_contribution_stage", "r31_molecule_stage",
+                "r31_atom_run_publication", "r31_atom_score_identity", "r31_atom_contribution_identity",
+                "r31_molecule_identity", "r31_atom_score_visible", "r31_molecule_visible",
+                "r31_atom_contribution_visible", "r31_atom_score_stage_insert_guard",
+                "r31_atom_score_stage_no_update", "r31_atom_score_stage_protect_active",
+                "r31_atom_contribution_stage_insert_guard", "r31_atom_contribution_stage_no_update",
+                "r31_atom_contribution_stage_protect_active", "r31_molecule_stage_insert_guard",
+                "r31_molecule_stage_no_update", "r31_molecule_stage_protect_active",
+                "r31_atom_result_chunk_insert_guard", "r31_atom_result_chunk_no_update",
+                "r31_atom_result_chunk_protect_active", "r31_atom_run_identity",
+                "r31_atom_run_protect_active", "r31_atom_active_insert_guard", "r31_atom_active_update_guard"
+        });
+    }
+
+    /** The existing startup migration writer is the sole schema owner. */
+    public static void migrateR31AtomPublication(SQLiteDatabase db) {
+        if (!db.inTransaction()) throw new IllegalStateException("R31_MIGRATION_OWNER_REQUIRED");
+        Contract contract = r31AtomPublicationContract();
+        prepareRepairIfDrift(db, contract);
+        try {
+            runStep(db, contract, "R31_ATOM_PUBLICATION_V1",
+                    com.ethk3.novaonepro.strategyv2.AtomPublicationStoreR31::ensureSchemaR31);
+            verifyAndStamp(db, contract);
+        } catch (RuntimeException failure) {
+            throw failure;
+        } catch (Exception failure) {
+            throw new IllegalStateException("R31_ATOM_PUBLICATION_MIGRATION_FAILED", failure);
+        }
+    }
+
+    public static Contract r31HistoryImportContract() {
+        return new Contract("RESEARCH_R31_HISTORY_IMPORT", 1, new String[] {
+                "r31_history_import_run", "r31_history_import_row", "r31_history_import_order",
+                "r31_history_import_issue", "r31_history_import_publication",
+                "r31_history_import_run_immutable", "r31_history_import_run_keep",
+                "r31_history_import_row_no_insert", "r31_history_import_row_no_update",
+                "r31_history_import_row_keep"
+        });
+    }
+
+    /** Completed imports become visible atomically; startup alone installs their schema. */
+    public static void migrateR31HistoryImport(SQLiteDatabase db) {
+        if (!db.inTransaction()) throw new IllegalStateException("R31_MIGRATION_OWNER_REQUIRED");
+        Contract contract = r31HistoryImportContract();
+        prepareRepairIfDrift(db, contract);
+        try {
+            runStep(db, contract, "R31_HISTORY_IMPORT_V1",
+                    com.ethk3.novaonepro.strategyv2.HistoryImportR27::ensureR31PublicationSchema);
+            verifyAndStamp(db, contract);
+        } catch (RuntimeException failure) {
+            throw failure;
+        } catch (Exception failure) {
+            throw new IllegalStateException("R31_HISTORY_IMPORT_MIGRATION_FAILED", failure);
+        }
+    }
+
+    public static Contract r31QualificationReceiptContract() {
+        String[][] objects = com.ethk3.novaonepro.strategyv2.QualificationInboxR29.legacyReceiptGuardObjectsR31();
+        String[] names = new String[objects.length];
+        for (int i = 0; i < objects.length; i++) {
+            if (objects[i].length != 2 || !"trigger".equals(objects[i][0]))
+                throw new IllegalStateException("R31_QUALIFICATION_RECEIPT_SCHEMA_CONTRACT");
+            names[i] = objects[i][1];
+        }
+        return new Contract("RESEARCH_R31_QUALIFICATION_RECEIPT", 2, names);
+    }
+
+    /** Immutable exposure receipts are installed together with their compatible consumer. */
+    public static void migrateR31QualificationReceipts(SQLiteDatabase db) {
+        if (!db.inTransaction()) throw new IllegalStateException("R31_MIGRATION_OWNER_REQUIRED");
+        Contract contract = r31QualificationReceiptContract();
+        prepareRepairIfDrift(db, contract);
+        try {
+            runStep(db, contract, "R31_QUALIFICATION_RECEIPT_V2", tx -> {
+                com.ethk3.novaonepro.strategyv2.QualificationInboxR29.ensureLegacyReceiptGuardsR31(tx);
+                com.ethk3.novaonepro.strategyv2.QualificationInboxR29.requireLegacyReceiptGuardsR31(tx);
+            });
+            verifyAndStamp(db, contract);
+        } catch (RuntimeException failure) {
+            throw failure;
+        } catch (Exception failure) {
+            throw new IllegalStateException("R31_QUALIFICATION_RECEIPT_MIGRATION_FAILED", failure);
+        }
+    }
+
+    public static Contract r31SourceJournalContract() {
+        return new Contract("RESEARCH_R31_SOURCE_JOURNAL", 1,
+                com.ethk3.novaonepro.strategyv2.ResearchSourceJournalR31.schemaObjectsR31());
+    }
+
+    /** Only the declared draw-trigger delta may change Critical's authenticated startup layout. */
+    public static void migrateR31SourceJournal(SQLiteDatabase db) {
+        if (!db.inTransaction()) throw new IllegalStateException("R31_MIGRATION_OWNER_REQUIRED");
+        ensureInfrastructure(db);
+        Contract source = r31SourceJournalContract(), critical = criticalContract();
+        String priorReason = matchReason(db, critical);
+        boolean trustedCritical = priorReason.startsWith("MATCH");
+        Set<String> delta = sourceDrawTriggerDeltaR31();
+        String beforeCore = fingerprint(db, critical, true, delta);
+        String beforeCritical = fingerprint(db, critical);
+        prepareRepairIfDrift(db, source);
+        try {
+            runStep(db, source, "R31_SOURCE_JOURNAL_V1", tx -> {
+                String upgrade = com.ethk3.novaonepro.strategyv2.ResearchSourceJournalR31.inspectUpgradeR31(tx);
+                if (!("OLD_EXACT".equals(upgrade) || "R31_EXACT".equals(upgrade) || "EMPTY".equals(upgrade)))
+                    throw new IllegalStateException("R31_SOURCE_TRIGGER_UPGRADE_CONFLICT");
+                com.ethk3.novaonepro.strategyv2.ResearchSourceJournalR31.ensureSchemaR31(tx);
+                if (!"R31_EXACT".equals(com.ethk3.novaonepro.strategyv2.ResearchSourceJournalR31.inspectUpgradeR31(tx))
+                        || !com.ethk3.novaonepro.strategyv2.ResearchInputPinR30R1.triggersValid(tx))
+                    throw new IllegalStateException("R31_SOURCE_TRIGGER_UPGRADE_NOT_VERIFIED");
+                if (!beforeCore.equals(fingerprint(tx, critical, true, delta)))
+                    throw new IllegalStateException("R31_SOURCE_UPGRADE_CHANGED_UNRELATED_CRITICAL_SCHEMA");
+                if (trustedCritical) {
+                    // The source schema and the new authenticated Critical stamp roll back together.
+                    String afterCritical = fingerprint(tx, critical);
+                    long now = System.currentTimeMillis();
+                    tx.execSQL("INSERT OR IGNORE INTO " + TABLE_JOURNAL
+                                    + "(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code)"
+                                    + " VALUES(?,?,?,'COMPLETED',1,'EXACT_DRAW_TRIGGER_DELTA',?,?,?,?, '')",
+                            new Object[] {critical.domain, critical.revision, "R31_SOURCE_DRAW_CUTOVER_V1",
+                                    beforeCritical, afterCritical, now, now});
+                    verifyAndStamp(tx, critical);
+                } else if (!"STAMP_MISSING".equals(priorReason) && !matches(tx, critical)) {
+                    throw new IllegalStateException("R31_SOURCE_UPGRADE_UNTRUSTED_CRITICAL_STAMP:" + priorReason);
+                }
+            });
+            verifyAndStamp(db, source);
+        } catch (RuntimeException failure) {
+            throw failure;
+        } catch (Exception failure) {
+            throw new IllegalStateException("R31_SOURCE_JOURNAL_MIGRATION_FAILED", failure);
+        }
+    }
+
+    private static Set<String> sourceDrawTriggerDeltaR31() {
+        Set<String> names = new HashSet<>();
+        for (String[] definitions : new String[][] {
+                com.ethk3.novaonepro.strategyv2.ResearchSourceJournalR31.legacyDrawTriggerSqlR31(),
+                com.ethk3.novaonepro.strategyv2.ResearchSourceJournalR31.sourceDrawTriggerSqlR31()}) {
+            for (String sql : definitions) {
+                java.util.regex.Matcher match = java.util.regex.Pattern.compile(
+                        "(?is)^CREATE TRIGGER IF NOT EXISTS ([A-Za-z0-9_]+) AFTER (?:INSERT|UPDATE|DELETE) ON draws(?:\\s|$)").matcher(sql);
+                if (!match.find()) throw new IllegalStateException("R31_SOURCE_DRAW_TRIGGER_DELTA_CONTRACT");
+                names.add(match.group(1));
+            }
+        }
+        if (names.isEmpty() || names.size() > 6) throw new IllegalStateException("R31_SOURCE_DRAW_TRIGGER_DELTA_BOUND");
+        return names;
+    }
+
+    public static Contract r31EvolutionPublicationContract() {
+        String[][] objects = com.ethk3.novaonepro.strategyv2.EvolutionPublicationStoreR31.schemaObjectsR31();
+        String[] names = new String[objects.length];
+        for (int i = 0; i < objects.length; i++) {
+            if (objects[i].length != 2 || !("table".equals(objects[i][0])
+                    || "index".equals(objects[i][0]) || "trigger".equals(objects[i][0])))
+                throw new IllegalStateException("R31_EVOLUTION_PUBLICATION_SCHEMA_CONTRACT");
+            names[i] = objects[i][1];
+        }
+        return new Contract("RESEARCH_R31_EVOLUTION_PUBLICATION", 1, names);
+    }
+
+    public static void migrateR31EvolutionPublication(SQLiteDatabase db) {
+        if (!db.inTransaction()) throw new IllegalStateException("R31_MIGRATION_OWNER_REQUIRED");
+        Contract contract = r31EvolutionPublicationContract();
+        prepareRepairIfDrift(db, contract);
+        try {
+            runStep(db, contract, "R31_EVOLUTION_PUBLICATION_V1",
+                    com.ethk3.novaonepro.strategyv2.EvolutionPublicationStoreR31::ensureSchemaR31);
+            verifyAndStamp(db, contract);
+        } catch (RuntimeException failure) {
+            throw failure;
+        } catch (Exception failure) {
+            throw new IllegalStateException("R31_EVOLUTION_PUBLICATION_MIGRATION_FAILED", failure);
+        }
+    }
+
+    public static Contract r31PlatformPrerequisitesContract() {
+        return new Contract("RESEARCH_R31_PLATFORM_PREREQUISITES", 1,
+                ResearchPlatformStoreR929.schemaObjectsR31());
+    }
+
+    /** Minimal startup prerequisites; this does not declare the entire Research schema ready. */
+    public static void migrateR31PlatformPrerequisites(SQLiteDatabase db) {
+        if (!db.inTransaction()) throw new IllegalStateException("R31_MIGRATION_OWNER_REQUIRED");
+        Contract contract = r31PlatformPrerequisitesContract();
+        prepareRepairIfDrift(db, contract);
+        try {
+            runStep(db, contract, "R31_PLATFORM_PREREQUISITES_V1", tx -> {
+                ResearchPlatformStoreR929.createSchema(tx);
+                ResearchPlatformStoreR929.requireSchemaReadOnlyR31(tx);
+            });
+            ResearchPlatformStoreR929.requireSchemaReadOnlyR31(db);
+            verifyAndStamp(db, contract);
+        } catch (RuntimeException failure) {
+            throw failure;
+        } catch (Exception failure) {
+            throw new IllegalStateException("R31_PLATFORM_PREREQUISITES_MIGRATION_FAILED", failure);
+        }
+    }
+
     public static Contract r31FeedbackContract() {
         return new Contract("RESEARCH_R31_FEEDBACK",
                 com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.R31_FEEDBACK_REVISION,
@@ -353,7 +558,8 @@ public final class SchemaDomainCoordinatorR926 {
             if (fingerprint(db, contract).equals(stored)) return "MATCH";
             if (DOMAIN_CRITICAL.equals(contract.domain)
                     && completeCriticalJournal(db, contract)
-                    && com.ethk3.novaonepro.strategyv2.ResearchInputPinR30R1.triggersValid(db)
+                    && (com.ethk3.novaonepro.strategyv2.ResearchInputPinR30R1.triggersValid(db)
+                        || "OLD_EXACT".equals(com.ethk3.novaonepro.strategyv2.ResearchSourceJournalR31.inspectUpgradeR31(db)))
                     && fingerprintWithoutResearchPinDrawTriggers(db, contract).equals(stored))
                 return "MATCH_R30_PIN_DRAW_ADDITION";
             return "FINGERPRINT_MISMATCH";
@@ -529,6 +735,11 @@ public final class SchemaDomainCoordinatorR926 {
     }
 
     private static String fingerprint(SQLiteDatabase db, Contract contract, boolean excludeResearchPinDrawTriggers) {
+        return fingerprint(db, contract, excludeResearchPinDrawTriggers, null);
+    }
+
+    private static String fingerprint(SQLiteDatabase db, Contract contract, boolean excludeResearchPinDrawTriggers,
+                                      Set<String> declaredDrawTriggerDelta) {
         if (db == null || contract == null) return "";
         Set<String> wanted = new HashSet<String>(Arrays.asList(contract.objects));
         ArrayList<String> rows = new ArrayList<String>();
@@ -576,7 +787,8 @@ public final class SchemaDomainCoordinatorR926 {
                 if (!wanted.contains(name) && !wanted.contains(table)) continue;
                 if (excludeResearchPinDrawTriggers && "trigger".equals(safe(c.getString(0)))
                         && "draws".equals(table)
-                        && ("r30r1_pin_draws_insert".equals(name) || "r30r1_pin_draws_update".equals(name))) continue;
+                        && (declaredDrawTriggerDelta != null ? declaredDrawTriggerDelta.contains(name)
+                            : "r30r1_pin_draws_insert".equals(name) || "r30r1_pin_draws_update".equals(name))) continue;
                 rows.add(safe(c.getString(0)) + '|' + name + '|' + table + '|' + safe(c.getString(3)));
             }
         } finally { c.close(); }

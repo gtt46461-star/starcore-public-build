@@ -230,6 +230,8 @@ public final class DbStore {
                         clearColumnCache();
                     }
                 });
+        // The first bundle capture can precede asynchronous research-schema initialization.
+        ResearchSchemaCoordinatorR926.ensureRuntimeBundlePrerequisitesR31(coordinator);
         // Establish the R816 diagnostic boundary before any UI/service reader can mistake old
         // OOM or latency events for failures produced by the upgraded runtime. Historical rows
         // remain immutable and are still reported by lifetime counters.

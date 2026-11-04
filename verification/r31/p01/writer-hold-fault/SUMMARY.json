@@ -1,0 +1,85 @@
+{
+  "scope": "NATIVE_SQLITE_EXACT_PRODUCTION_WRITER_HOST_ENGINEERING_NOT_ANDROID",
+  "states": "MODULE_NAMED_PROTOCOLS_PASS_CARD_IMPLEMENTING",
+  "cases": [
+    {
+      "mode": "basic",
+      "assertions": 27,
+      "status": "HOST_PASS",
+      "snapshot": {
+        "admitting": 0,
+        "capacityLoss": 0,
+        "declaredQueueBytes": 0,
+        "drainFailures": 1,
+        "heapReleaseClaim": false,
+        "lastDrainCommitOutcome": "COMMITTED_DIAGNOSTIC_FAILED",
+        "lastDrainFailure": "",
+        "maxPending": 32,
+        "observedOver200ms": 1,
+        "pending": 0,
+        "persistedFaultReceipts": 1,
+        "processDeathBeforeDrain": "PENDING_MEMORY_OBSERVATION_NOT_DURABLE_UNKNOWN",
+        "researchBackpressureAt": 24,
+        "researchDeferred": false,
+        "researchResumeCondition": "pending+admitting < 24 after actual durable drain; Critical and telemetry remain admitted",
+        "state": "NO_PENDING_OBSERVATION",
+        "timingAttribution": "UNKNOWN_UNLESS_SEPARATELY_MEASURED"
+      }
+    },
+    {
+      "mode": "schema",
+      "assertions": 11,
+      "status": "HOST_PASS",
+      "snapshot": {
+        "admitting": 0,
+        "capacityLoss": 0,
+        "declaredQueueBytes": 0,
+        "drainFailures": 1,
+        "heapReleaseClaim": false,
+        "lastDrainCommitOutcome": "COMMITTED",
+        "lastDrainFailure": "",
+        "maxPending": 32,
+        "observedOver200ms": 1,
+        "pending": 0,
+        "persistedFaultReceipts": 1,
+        "processDeathBeforeDrain": "PENDING_MEMORY_OBSERVATION_NOT_DURABLE_UNKNOWN",
+        "researchBackpressureAt": 24,
+        "researchDeferred": false,
+        "researchResumeCondition": "pending+admitting < 24 after actual durable drain; Critical and telemetry remain admitted",
+        "state": "NO_PENDING_OBSERVATION",
+        "timingAttribution": "UNKNOWN_UNLESS_SEPARATELY_MEASURED"
+      }
+    },
+    {
+      "mode": "backpressure",
+      "assertions": 62,
+      "status": "HOST_PASS",
+      "snapshot": {
+        "admitting": 0,
+        "capacityLoss": 0,
+        "declaredQueueBytes": 0,
+        "drainFailures": 0,
+        "heapReleaseClaim": false,
+        "lastDrainCommitOutcome": "COMMITTED",
+        "lastDrainFailure": "",
+        "maxPending": 32,
+        "observedOver200ms": 25,
+        "pending": 0,
+        "persistedFaultReceipts": 25,
+        "processDeathBeforeDrain": "PENDING_MEMORY_OBSERVATION_NOT_DURABLE_UNKNOWN",
+        "researchBackpressureAt": 24,
+        "researchDeferred": false,
+        "researchResumeCondition": "pending+admitting < 24 after actual durable drain; Critical and telemetry remain admitted",
+        "state": "NO_PENDING_OBSERVATION",
+        "timingAttribution": "UNKNOWN_UNLESS_SEPARATELY_MEASURED"
+      }
+    }
+  ],
+  "assertions": 100,
+  "allSourceInputsUnchanged": true,
+  "wholeAndroid": "NOT_RUN",
+  "physicalDevice": "NOT_RUN",
+  "24h": "NOT_RUN",
+  "72h": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED"
+}
