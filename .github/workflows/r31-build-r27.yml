@@ -202,20 +202,51 @@ jobs:
           ln -s "$GITHUB_WORKSPACE/app/build" "$RUNNER_TEMP/r31-host-source/app/build"
           cd "$RUNNER_TEMP/r31-host-source"
           trap 'r31_status=$?; echo "FAILED_HOST_CHECK:${r31_check:-SETUP}"; for r31_log in "$RUNNER_TEMP"/r31-evidence/repair-*.log; do if [ -f "$r31_log" ]; then echo "FAILED_CHECK_LOG:$r31_log"; tail -n 100 "$r31_log"; fi; done; exit "$r31_status"' ERR
+          r31_host_failed=0
           for r31_check in diagnosis writer retention timeline commit_failure progress neural qualification input_pin matrix research observatory snapshot; do
             echo "R31_HOST_START:$r31_check"
-            python3 "tools/r30-repair/run_$r31_check""_host.py" > "$RUNNER_TEMP/r31-evidence/repair-$r31_check.log" 2>&1
-            echo "R31_HOST_PASS:$r31_check"
+            if python3 "tools/r30-repair/run_$r31_check""_host.py" > "$RUNNER_TEMP/r31-evidence/repair-$r31_check.log" 2>&1; then
+              echo "R31_HOST_PASS:$r31_check"
+            else
+              r31_status=$?; r31_host_failed=1
+              echo "R31_HOST_FAIL:$r31_check:exit=$r31_status"
+            fi
           done
-          for r31_check in memory pitguard_allocation runtime_memory_control; do
+          for r31_check in memory pitguard_allocation runtime_memory_control resource_recovery; do
             echo "R31_HOST_START:R31_$r31_check"
-            python3 "tools/r31/verify_$r31_check.py" > "$RUNNER_TEMP/r31-evidence/repair-r31-$r31_check.log" 2>&1
-            echo "R31_HOST_PASS:R31_$r31_check"
+            if python3 "tools/r31/verify_$r31_check.py" > "$RUNNER_TEMP/r31-evidence/repair-r31-$r31_check.log" 2>&1; then
+              echo "R31_HOST_PASS:R31_$r31_check"
+            else
+              r31_status=$?; r31_host_failed=1
+              echo "R31_HOST_FAIL:R31_$r31_check:exit=$r31_status"
+            fi
+          done
+          for r31_check in task_runtime write_protocol service_protocol runtime_ddl research_schema; do
+            echo "R31_HOST_START:R31_$r31_check"
+            if python3 "tools/r31/run_$r31_check""_host.py" > "$RUNNER_TEMP/r31-evidence/repair-r31-$r31_check.log" 2>&1; then
+              echo "R31_HOST_PASS:R31_$r31_check"
+            else
+              r31_status=$?; r31_host_failed=1
+              echo "R31_HOST_FAIL:R31_$r31_check:exit=$r31_status"
+            fi
+          done
+          for r31_runtime_case in R31RuntimeHealthHost R31ResourceRecoveryConsumerHost; do
+            echo "R31_HOST_START:$r31_runtime_case"
+            if R31_RUNTIME_HOST_CLASS="$r31_runtime_case" R31_RUNTIME_OUTPUT="verification/r31/ci-scoped-$r31_runtime_case" python3 tools/r31/run_task_runtime_host.py > "$RUNNER_TEMP/r31-evidence/repair-$r31_runtime_case.log" 2>&1; then
+              echo "R31_HOST_PASS:$r31_runtime_case"
+            else
+              r31_status=$?; r31_host_failed=1
+              echo "R31_HOST_FAIL:$r31_runtime_case:exit=$r31_status"
+            fi
           done
           mkdir -p "$RUNNER_TEMP/r31-evidence/r31-scoped-memory"
-          cp -a verification/r31/memory "$RUNNER_TEMP/r31-evidence/r31-scoped-memory/"
-          cp -a verification/r31/p02/pitguard-allocation "$RUNNER_TEMP/r31-evidence/r31-scoped-memory/"
-          cp -a verification/r31/p02/runtime-memory-control "$RUNNER_TEMP/r31-evidence/r31-scoped-memory/"
+          for r31_receipt_dir in verification/r31/memory verification/r31/p02/pitguard-allocation verification/r31/p02/runtime-memory-control verification/r31/p02/resource-recovery verification/r31/p01/task-runtime verification/r31/p02/service-protocol verification/r31/p01/write-protocol verification/r31/p02/runtime-ddl-hotspots verification/r31/p02/research-schema verification/r31/ci-scoped-R31RuntimeHealthHost verification/r31/ci-scoped-R31ResourceRecoveryConsumerHost; do
+            if [ -d "$r31_receipt_dir" ]; then cp -a "$r31_receipt_dir" "$RUNNER_TEMP/r31-evidence/r31-scoped-memory/"; fi
+          done
+          if [ "$r31_host_failed" -ne 0 ]; then
+            echo R31_HOST_MATRIX_HAS_REAL_FAILURES_OTHER_CHECKS_EXECUTED
+            exit 1
+          fi
       - name: Inspect actual signed bytes and package an explicit build candidate
         env:
           EXPECTED_SOURCE: ${{ steps.request.outputs.source }}
@@ -684,5 +715,110 @@ jobs:
         with:
           name: R31-PROTOCOL-LOG-AUDIT-${{ steps.protocol_request.outputs.source }}
           path: ${{ runner.temp }}/r31-protocol-text-audit/
+          if-no-files-found: error
+          retention-days: 90
+
+  validation-android:
+    needs: build
+    if: ${{ always() && !contains(github.event.head_commit.message, '[R31_ARTIFACT_AUDIT]') && needs.build.result == 'failure' && needs.build.outputs.source != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [29,35]
+    env:
+      R31_VALIDATION_SOURCE: ${{ needs.build.outputs.source }}
+      R31_EMULATOR_API: ${{ matrix.api }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.source }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/download-artifact@v4
+        with:
+          name: R31-EXISTING_R27-HOST-EVIDENCE-${{ needs.build.outputs.source }}
+          path: ${{ runner.temp }}/r31-validation-input
+      - name: Enable disposable emulator KVM access
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Prepare bounded install and original10-case protocol execution
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib
+          version=json.load(open('release/release_manifest.json'))['versionCode']
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-validation-input'
+          files=list(root.rglob('VALIDATION-BOUNDARY.json'));assert len(files)==1
+          evidence=files[0].parent.parent.resolve();assert evidence.is_relative_to(root.resolve())
+          with open(os.environ['GITHUB_ENV'],'a') as f:
+              f.write('R31_EXPECTED_VERSION_CODE='+str(version)+'\n')
+              f.write('R31_VALIDATION_EVIDENCE_ROOT='+str(evidence)+'\n')
+          PY
+          cat > "$RUNNER_TEMP/r31-validation-emulator.sh" <<'R31_VALIDATION_PROBE'
+          set -euo pipefail
+          out="$RUNNER_TEMP/r31-validation-android-$R31_EMULATOR_API"
+          mkdir -p "$out"
+          inp="$R31_VALIDATION_EVIDENCE_ROOT/validation-apks"
+          adb wait-for-device
+          adb install -r "$inp/STARCORE-R31-validation-release.apk" > "$out/release-install.txt" 2>&1
+          grep -Fq 'Success' "$out/release-install.txt"
+          adb shell dumpsys package com.starcore.research.r13 > "$out/release-installed-package.txt"
+          adb install -r "$inp/STARCORE-R31-validation-debug.apk" > "$out/debug-cover-install.txt" 2>&1
+          grep -Fq 'Success' "$out/debug-cover-install.txt"
+          adb install -r "$inp/STARCORE-R31-instrumentation-only.apk" > "$out/test-install.txt" 2>&1
+          grep -Fq 'Success' "$out/test-install.txt"
+          adb shell dumpsys package com.starcore.research.r13 > "$out/debug-installed-package.txt"
+          adb shell am force-stop com.starcore.research.r13
+          adb shell am instrument -w -r -e r30Sandbox "r31-validation-$GITHUB_RUN_ID-$R31_EMULATOR_API" -e class com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest,com.ethk3.novaonepro.R31StorageProtocolInstrumentedTest,com.ethk3.novaonepro.R31OwnerFenceProtocolInstrumentedTest com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner > "$out/protocol.txt" 2>&1
+          python3 - "$out" <<'PY'
+          import datetime,hashlib,json,os,pathlib,re,subprocess,sys
+          p=pathlib.Path(sys.argv[1]);raw=(p/'protocol.txt').read_bytes();text=raw.decode(errors='replace')
+          found=re.search(r'OK \((\d+) tests?\)',text)
+          current={};completed=[]
+          for line in text.splitlines():
+              if line.startswith('INSTRUMENTATION_STATUS: '):
+                  key,sep,value=line[len('INSTRUMENTATION_STATUS: '):].partition('=')
+                  if sep:current[key]=value
+              elif line.startswith('INSTRUMENTATION_STATUS_CODE: '):
+                  code=int(line.split(':',1)[1])
+                  if code in (0,-1,-2):completed.append({'class':current.get('class'),'test':current.get('test'),'status_code':code})
+                  current={}
+          print('R31_ORIGINAL_PROTOCOL_COUNTS|'+json.dumps({'executed':len(completed),'passed':sum(x['status_code']==0 for x in completed),'failed':sum(x['status_code']!=0 for x in completed)}))
+          for line in text.splitlines():
+              redacted=re.sub(r'(?i)((?:api[_-]?key|password|token)\s*[=:]\s*)[^\s,;]+',r'\1[REDACTED]',line)
+              redacted=re.sub(r'(?i)Bearer\s+[^\s]+','Bearer [REDACTED]',redacted)
+              print('R31_ORIGINAL_PROTOCOL_LINE|'+redacted)
+          passed=bool(found and int(found.group(1))==10 and 'FAILURES!!!' not in text and 'INSTRUMENTATION_FAILED' not in text)
+          for kind in ('release','debug'):
+              package=(p/(kind+'-installed-package.txt')).read_text()
+              assert 'versionCode='+os.environ['R31_EXPECTED_VERSION_CODE'] in package
+          receipt={'scope':'ACTUAL_DISPOSABLE_ANDROID_EMULATOR_INSTALL_AND10_ENGINEERING_PROTOCOL_CASES_ON_KNOWN_FAILED_GATE_APK_NOT_FINAL_PRODUCT','observed_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'source':os.environ['R31_VALIDATION_SOURCE'],'api':int(os.environ['R31_EMULATOR_API']),'serial':subprocess.check_output(['adb','get-serialno'],text=True).strip(),'releaseInstall':'PASS_ACTUAL_ADB_SUCCESS','sameSignatureDebugCoverInstall':'PASS_ACTUAL_ADB_SUCCESS_CLEAN_TEST_DEVICE_ONLY','instrumentationCompanionInstall':'PASS_ACTUAL_ADB_SUCCESS','protocolTests':int(found.group(1)) if found else len(completed),'actualCompletedCases':completed,'protocolResult':'PASS' if passed else 'FAILED_OR_INCOMPLETE','protocolOutputSha256':hashlib.sha256(raw).hexdigest(),'physicalDevice':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','originalCanonicalFailures':'REMAIN_FAILED; this does not override unit/lint/HOST failures'}
+          (p/'RECEIPT.json').write_text(json.dumps(receipt,indent=2)+'\n')
+          print('R31_EMULATOR_VALIDATION_JSON|'+json.dumps(receipt,sort_keys=True))
+          assert passed,'R31_ACTUAL_PROTOCOL_FAILED'
+          PY
+          R31_VALIDATION_PROBE
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 4096M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+          script: bash "$RUNNER_TEMP/r31-validation-emulator.sh"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R31-VALIDATION-ANDROID-${{ matrix.api }}-${{ needs.build.outputs.source }}
+          path: ${{ runner.temp }}/r31-validation-android-${{ matrix.api }}/
           if-no-files-found: error
           retention-days: 90
