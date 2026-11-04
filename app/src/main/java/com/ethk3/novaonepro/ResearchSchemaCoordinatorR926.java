@@ -17,6 +17,21 @@ public final class ResearchSchemaCoordinatorR926 {
 
     private ResearchSchemaCoordinatorR926() {}
 
+    /** Startup prerequisite for the existing bundle pointer-CAS; never marks the whole Research domain ready.
+     * DbStore invokes this after Critical is available, before any request can enter the bundle loader. */
+    public static void ensureRuntimeBundlePrerequisitesR31(final DatabaseCoordinator owner) {
+        if(owner==null)throw new IllegalArgumentException("R31_PLATFORM_SCHEMA_OWNER_REQUIRED");
+        SQLiteDatabase readable=owner.readable();
+        if(ResearchPlatformStoreR929.schemaReadyReadOnlyR31(readable))return;
+        owner.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(
+                DatabaseCoordinator.WriteClass.MIGRATION,"R929_PLATFORM_SCHEMA"),db->{
+            SchemaDomainCoordinatorR926.migrateR31PlatformPrerequisites(db);
+            ResearchPlatformStoreR929.requireSchemaReadOnlyR31(db);
+            return Boolean.TRUE;
+        });
+        ResearchPlatformStoreR929.requireSchemaReadOnlyR31(readable);
+    }
+
     /** Result belongs to this invocation, even if another writer finishes before it returns. */
     public static final class StepResult {
         public final boolean ready, enteredWriter;

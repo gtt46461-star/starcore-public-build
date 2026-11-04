@@ -1,0 +1,74 @@
+{
+  "schema": "R31_CARD_SUBSCOPE_RECEIPT_1",
+  "card": "R31-B02-C02",
+  "phase": "P02_NECESSARY_STARTUP_REPAIR",
+  "scope": "R929/R932 first production bundle capture schema prerequisite, strict read-only failure diagnostics",
+  "plan_baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "construction_base": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+  "branch": "construction/r31-platform-readiness-20261104",
+  "status": "CODE_COMPLETE",
+  "whole_card_status": "IMPLEMENTING",
+  "implementation_commit": "PENDING_LOCAL_COMMIT",
+  "actual_changes": [
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java",
+      "sha256": "ecdca4ba0956a7accd5749d89400d16b37d681e70fba63041c1ee53a907be2ec",
+      "methods": [
+        "schemaObjectsR31",
+        "schemaReadinessReportR31",
+        "checkSchemaReadOnlyR31",
+        "SchemaNotReadyR31",
+        "requireSchemaReadOnlyR31"
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/ResearchSchemaCoordinatorR926.java",
+      "sha256": "05dde8d1f67f1f38c155be98f4d4c568a3862edf35b4e7892712cf49e07acd51",
+      "methods": [
+        "ensureRuntimeBundlePrerequisitesR31"
+      ]
+    }
+  ],
+  "shared_root_integration": {
+    "DbStore": "constructor after ensureCritical, before RuntimeReleaseEpoch",
+    "SchemaDomainCoordinatorR926": "migrateR31PlatformPrerequisites, independent domain rev1"
+  },
+  "migration_version": {
+    "domain": "RESEARCH_R31_PLATFORM_PREREQUISITES",
+    "revision": 1,
+    "objects": 13,
+    "sqlite_user_version_change": false,
+    "research_ready_claimed": false
+  },
+  "tests": {
+    "native_named_protocols": "PASS_122_ASSERTIONS",
+    "native_receipt": "runs/20261104T195444Z/RECEIPT.json",
+    "androidtest_java_compile": "PASS_3_FILES_NOT_ART",
+    "androidtest_java_receipt": "androidtest-source-compile/RECEIPT.json",
+    "normal_DbStore_constructor_joint_native": "PENDING_PARENT_JOINT_RUN",
+    "new_ART_tests": "NOT_RUN",
+    "API29_original14_matrix": "NOT_RUN_ON_NEW_SOURCE",
+    "API35_original14_matrix": "NOT_RUN_ON_NEW_SOURCE",
+    "prior_014_matrix": "FAILED_28_CELLS_PREINJECTION_ORIGINAL_LOGS_RETAINED",
+    "android_whole_build": "NOT_RUN"
+  },
+  "apk": {
+    "status": "NOT_BUILT_IN_THIS_SCOPE",
+    "identity": null,
+    "sha256": null
+  },
+  "device": {
+    "physical": "NOT_RUN",
+    "24h": "NOT_RUN",
+    "72h": "NOT_RUN"
+  },
+  "natural_quality": "NOT_EVALUATED",
+  "remaining": [
+    "Merge Root startup hooks and regenerate actual compiled identities",
+    "Run full Android source/build/lint/unit/host gates without exclusions",
+    "Run all original14 fault cells on API29 and API35 plus three new ART tests",
+    "Parent joint actual DbStore constructor/native startup evidence",
+    "Physical continuous run and natural quality remain separate unavailable gates"
+  ],
+  "next": "Root merges this commit with its two startup hooks and executes the same actual APK/test APK on both API emulators; preserve original failures until results exist"
+}

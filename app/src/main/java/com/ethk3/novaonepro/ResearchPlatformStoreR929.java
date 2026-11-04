@@ -32,6 +32,14 @@ public final class ResearchPlatformStoreR929 {
     public static final String TABLE_CERT_HISTORY="research_certificate_history_r932",TABLE_REVOCATION="research_certificate_revocation_r932";
     private ResearchPlatformStoreR929() {}
 
+    /** Exact objects owned by the platform migration; no Critical object or whole-Research stamp. */
+    public static String[] schemaObjectsR31(){
+        String[] names=new String[R31_TABLE_COLUMNS.length+R31_INDEXES.length];int i=0;
+        for(String[] definition:R31_TABLE_COLUMNS)names[i++]=definition[0];
+        for(String[] definition:R31_INDEXES)names[i++]=definition[0];
+        return names;
+    }
+
     public static void ensureSchema(final DbStore store) {
         if (store == null) throw new IllegalArgumentException("R929_STORE_REQUIRED");
         synchronized (SCHEMA_LOCK) {
@@ -54,47 +62,79 @@ public final class ResearchPlatformStoreR929 {
      * Transaction-local validation is published only by TransactionSchemaCache after the real outer COMMIT.
      * A read outside a transaction is cached only with the same observed before/after schema_version. */
     public static boolean schemaReadyReadOnlyR31(SQLiteDatabase db) {
-        if(db==null)return false;
-        if(TransactionSchemaCacheR941.readyCommitted(db,READ_SCHEMA_KEY))return true;
-        final long before=readSchemaVersionR31(db);if(before<0)return false;
-        synchronized(READ_READY){Long cached=READ_READY.get(db);if(cached!=null&&cached.longValue()==before)return true;}
+        return checkSchemaReadOnlyR31(db,null);
+    }
+    /** Diagnostic validation always reads the actual contract, bypassing readiness memoization.
+     * Only schema metadata is returned, capped at 64 reasons; no source data or repair is read/run. */
+    public static Map<String,Object> schemaReadinessReportR31(SQLiteDatabase db){
+        SchemaDiagnosisR31 diagnosis=new SchemaDiagnosisR31();boolean ready=checkSchemaReadOnlyR31(db,diagnosis);
+        Map<String,Object> out=new LinkedHashMap<String,Object>();out.put("status",ready?"READY":diagnosis.unknown?"UNKNOWN":"SCHEMA_PENDING");
+        out.put("ready",ready);out.put("reason",diagnosis.issues.isEmpty()?"ACTUAL_CONTRACT_VERIFIED":diagnosis.issues.get(0));
+        out.put("issues",Collections.unmodifiableList(new ArrayList<String>(diagnosis.issues)));out.put("issuesTruncated",diagnosis.truncated);
+        out.put("schemaVersionBefore",diagnosis.before);out.put("schemaVersionAfter",diagnosis.after);out.put("readOnly",true);out.put("ddlExecuted",0);
+        return Collections.unmodifiableMap(out);
+    }
+    private static final class SchemaDiagnosisR31 {
+        final List<String> issues=new ArrayList<String>();long before=-1,after=-1;boolean truncated,unknown;
+        void issue(String kind,String object,String detail){if(issues.size()>=64){truncated=true;return;}String value=kind+":"+object+(detail.isEmpty()?"":":"+detail);issues.add(value.substring(0,Math.min(value.length(),512)));}
+    }
+    private static boolean rejectSchemaR31(SchemaDiagnosisR31 d,String kind,String object,String detail){if(d!=null)d.issue(kind,object,detail);return false;}
+    private static boolean checkSchemaReadOnlyR31(SQLiteDatabase db,SchemaDiagnosisR31 diagnosis) {
+        if(db==null){if(diagnosis!=null)diagnosis.unknown=true;return rejectSchemaR31(diagnosis,"DATABASE_MISSING","R929_PLATFORM","");}
+        if(diagnosis==null&&TransactionSchemaCacheR941.readyCommitted(db,READ_SCHEMA_KEY))return true;
+        final long before=readSchemaVersionR31(db);if(diagnosis!=null)diagnosis.before=before;
+        if(before<0){if(diagnosis!=null)diagnosis.unknown=true;return rejectSchemaR31(diagnosis,"SCHEMA_VERSION_UNAVAILABLE","R929_PLATFORM","");}
+        if(diagnosis==null)synchronized(READ_READY){Long cached=READ_READY.get(db);if(cached!=null&&cached.longValue()==before)return true;}
         try{
             Map<String,String> indexes=new HashMap<String,String>();java.util.Set<String> tables=new java.util.HashSet<String>();
-            String[] names=new String[R31_TABLE_COLUMNS.length+R31_INDEXES.length];int next=0;
-            for(String[] definition:R31_TABLE_COLUMNS)names[next++]=definition[0];for(String[] definition:R31_INDEXES)names[next++]=definition[0];
+            String[] names=schemaObjectsR31();
             StringBuilder placeholders=new StringBuilder();for(int i=0;i<names.length;i++){if(i>0)placeholders.append(',');placeholders.append('?');}
             try(Cursor objects=db.rawQuery("SELECT name,type,sql FROM sqlite_master WHERE name IN ("+placeholders+")",names)){
-                int seen=0;while(objects.moveToNext()){if(++seen>names.length)return false;String name=objects.getString(0),type=objects.getString(1);if("table".equals(type))tables.add(name);else if("index".equals(type))indexes.put(name,objects.getString(2));}
+                int seen=0;while(objects.moveToNext()){if(++seen>names.length)return rejectSchemaR31(diagnosis,"METADATA_LIMIT","sqlite_master","objects");String name=objects.getString(0),type=objects.getString(1);if("table".equals(type))tables.add(name);else if("index".equals(type))indexes.put(name,objects.getString(2));}
             }
             for(String[] definition:R31_TABLE_COLUMNS){
-                if(!tables.contains(definition[0]))return false;
+                if(!tables.contains(definition[0])){rejectSchemaR31(diagnosis,"MISSING_TABLE",definition[0],"");if(diagnosis==null)return false;continue;}
                 java.util.Set<String> columns=new java.util.HashSet<String>();Map<String,Integer> primary=new HashMap<String,Integer>();
                 try(Cursor info=db.rawQuery("PRAGMA table_info("+definition[0]+")",null)){
-                    int count=0;while(info.moveToNext()){if(++count>128)return false;columns.add(info.getString(1));if(info.getInt(5)>0)primary.put(info.getString(1),info.getInt(5));}
+                    int count=0;while(info.moveToNext()){if(++count>128)return rejectSchemaR31(diagnosis,"METADATA_LIMIT",definition[0],"columns>128");columns.add(info.getString(1));if(info.getInt(5)>0)primary.put(info.getString(1),info.getInt(5));}
                 }
-                for(String column:definition[1].split(","))if(!columns.contains(column))return false;
-                String[] key=definition[2].split(",");if(primary.size()!=key.length)return false;for(int i=0;i<key.length;i++)if(!Integer.valueOf(i+1).equals(primary.get(key[i])))return false;
+                for(String column:definition[1].split(","))if(!columns.contains(column)){rejectSchemaR31(diagnosis,"MISSING_COLUMN",definition[0],column);if(diagnosis==null)return false;}
+                String[] key=definition[2].split(",");boolean keyValid=primary.size()==key.length;for(int i=0;i<key.length;i++)keyValid&=Integer.valueOf(i+1).equals(primary.get(key[i]));
+                if(!keyValid){rejectSchemaR31(diagnosis,"PRIMARY_KEY_MISMATCH",definition[0],"expected="+definition[2]+",observed="+primary);if(diagnosis==null)return false;}
             }
-            for(String[] definition:R31_INDEXES)if(!normalizedSchemaSqlR31(definition[1]).equals(normalizedSchemaSqlR31(indexes.get(definition[0]))))return false;
-            if(!uniqueColumnsR31(db,TABLE_TRIAL,"identity_hash")||!uniqueColumnsR31(db,TABLE_CERTIFICATE,"certificate_hash")||!uniqueColumnsR31(db,TABLE_CONTRIBUTION,"target_issue,consumer,candidate_id"))return false;
-            long after=readSchemaVersionR31(db);if(before!=after)return false;
+            for(String[] definition:R31_INDEXES)if(!normalizedSchemaSqlR31(definition[1]).equals(normalizedSchemaSqlR31(indexes.get(definition[0])))){rejectSchemaR31(diagnosis,indexes.containsKey(definition[0])?"INDEX_DEFINITION_MISMATCH":"MISSING_INDEX",definition[0],"");if(diagnosis==null)return false;}
+            for(String[] unique:new String[][]{{TABLE_TRIAL,"identity_hash"},{TABLE_CERTIFICATE,"certificate_hash"},{TABLE_CONTRIBUTION,"target_issue,consumer,candidate_id"}}){
+                if(!tables.contains(unique[0]))continue;
+                if(!uniqueColumnsR31(db,unique[0],unique[1],diagnosis)){rejectSchemaR31(diagnosis,"GLOBAL_UNIQUE_NOT_PROVEN",unique[0],unique[1]);if(diagnosis==null)return false;}
+            }
+            long after=readSchemaVersionR31(db);if(diagnosis!=null)diagnosis.after=after;if(after<0){if(diagnosis!=null)diagnosis.unknown=true;return rejectSchemaR31(diagnosis,"SCHEMA_VERSION_UNAVAILABLE","R929_PLATFORM","after");}if(before!=after)return rejectSchemaR31(diagnosis,"SCHEMA_VERSION_CHANGED","R929_PLATFORM",before+"->"+after);
+            if(diagnosis!=null&&!diagnosis.issues.isEmpty())return false;
             if(db.inTransaction())TransactionSchemaCacheR941.markCommitted(db,READ_SCHEMA_KEY);
             else synchronized(READ_READY){READ_READY.put(db,Long.valueOf(after));}
             return true;
         }catch(RuntimeException unavailable){
             rethrowSchemaFatalR31(unavailable);
+            if(diagnosis!=null){diagnosis.unknown=true;diagnosis.issue("METADATA_EXCEPTION","R929_PLATFORM",unavailable.getClass().getSimpleName()+":"+String.valueOf(unavailable.getMessage()));}
             synchronized(READ_READY){READ_READY.remove(db);}return false;
         }
     }
-    public static void requireSchemaReadOnlyR31(SQLiteDatabase db){if(!schemaReadyReadOnlyR31(db))throw new IllegalStateException(SCHEMA_PENDING_R31);}
+    public static final class SchemaNotReadyR31 extends IllegalStateException
+            implements com.ethk3.novaonepro.strategyv2.FailureDispositionR31.ClassifiedFailure {
+        public final Map<String,Object> readiness;
+        SchemaNotReadyR31(Map<String,Object> value){super(SCHEMA_PENDING_R31);readiness=value;}
+        public String failureCategory(){return "DEPENDENCY";}public String operation(){return "R929_PLATFORM_READINESS";}
+        public String phase(){return "SCHEMA_READINESS";}public String commitOutcomeName(){return "NOT_SUBMITTED";}
+        @Override public String toString(){return super.toString()+"|"+readiness.get("reason");}
+    }
+    public static void requireSchemaReadOnlyR31(SQLiteDatabase db){if(!schemaReadyReadOnlyR31(db))throw new SchemaNotReadyR31(schemaReadinessReportR31(db));}
     private static long readSchemaVersionR31(SQLiteDatabase db){try(Cursor version=db.rawQuery("PRAGMA schema_version",null)){return version.moveToFirst()?version.getLong(0):-1;}catch(RuntimeException unavailable){rethrowSchemaFatalR31(unavailable);return -1;}}
     private static void rethrowSchemaFatalR31(Throwable failure){for(int depth=0;failure!=null&&depth<32;depth++,failure=failure.getCause()){if(failure instanceof VirtualMachineError)throw(VirtualMachineError)failure;if(failure instanceof ThreadDeath)throw(ThreadDeath)failure;if(failure instanceof LinkageError)throw(LinkageError)failure;}}
     private static String normalizedSchemaSqlR31(String sql){return sql==null?"":sql.toUpperCase(java.util.Locale.ROOT).replaceAll("\\s+","").replace("IFNOTEXISTS","");}
-    private static boolean uniqueColumnsR31(SQLiteDatabase db,String table,String expected){
-        List<String> unique=new ArrayList<String>();try(Cursor list=db.rawQuery("PRAGMA index_list("+table+")",null)){int count=0;while(list.moveToNext()){if(++count>64)return false;if(list.getInt(2)==1)unique.add(list.getString(1));}}
+    private static boolean uniqueColumnsR31(SQLiteDatabase db,String table,String expected,SchemaDiagnosisR31 diagnosis){
+        List<String> unique=new ArrayList<String>();try(Cursor list=db.rawQuery("PRAGMA index_list("+table+")",null)){int count=0;while(list.moveToNext()){if(++count>64)return rejectSchemaR31(diagnosis,"METADATA_LIMIT",table,"indexes>64");if(list.getInt(2)==1)unique.add(list.getString(1));}}
         for(String index:unique){
             try(Cursor definition=db.rawQuery("SELECT sql FROM sqlite_master WHERE type='index' AND name=?",new String[]{index})){if(!definition.moveToFirst())continue;String sql=definition.getString(0);if(sql!=null&&java.util.regex.Pattern.compile("\\bWHERE\\b",java.util.regex.Pattern.CASE_INSENSITIVE).matcher(sql).find())continue;}
-            StringBuilder columns=new StringBuilder();try(Cursor info=db.rawQuery("PRAGMA index_info('"+index.replace("'","''")+"')",null)){int count=0;while(info.moveToNext()){if(++count>32)return false;if(columns.length()>0)columns.append(',');columns.append(info.getString(2));}}if(expected.equals(columns.toString()))return true;}return false;
+            StringBuilder columns=new StringBuilder();try(Cursor info=db.rawQuery("PRAGMA index_info('"+index.replace("'","''")+"')",null)){int count=0;while(info.moveToNext()){if(++count>32)return rejectSchemaR31(diagnosis,"METADATA_LIMIT",index,"index_columns>32");if(columns.length()>0)columns.append(',');columns.append(info.getString(2));}}if(expected.equals(columns.toString()))return true;}return false;
     }
     private static final String[][] R31_TABLE_COLUMNS={
         {TABLE_TRIAL,"trial_id,identity_hash,stage,status,dataset_hash,schema_hash,source_hash,hyper_hash,family_id,structural_hash,split_hash,seed,sealed_token_hash,sealed_consumed,output_hash,failure_code,registered_at,started_at,finished_at,record_hash","trial_id"},

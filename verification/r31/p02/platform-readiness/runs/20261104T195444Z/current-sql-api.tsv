@@ -1,0 +1,1143 @@
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT count(*) FROM sqlite_master
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT count(*) FROM sqlite_master
+BOOTSTRAP	transaction	BEGIN
+BOOTSTRAP	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS v57_schema_domain_r926(domain TEXT PRIMARY KEY,revision INTEGER NOT NULL,contract_hash TEXT NOT NULL,fingerprint TEXT NOT NULL,state TEXT NOT NULL,cursor TEXT NOT NULL DEFAULT '',started_at INTEGER NOT NULL DEFAULT 0,updated_at INTEGER NOT NULL,last_error TEXT NOT NULL DEFAULT '')
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS v57_schema_migration_journal_r926(domain TEXT NOT NULL,revision INTEGER NOT NULL,step_id TEXT NOT NULL,status TEXT NOT NULL,attempt INTEGER NOT NULL DEFAULT 0,cursor TEXT NOT NULL DEFAULT '',before_hash TEXT NOT NULL DEFAULT '',after_hash TEXT NOT NULL DEFAULT '',started_at INTEGER NOT NULL DEFAULT 0,completed_at INTEGER NOT NULL DEFAULT 0,error_code TEXT NOT NULL DEFAULT '',PRIMARY KEY(domain,revision,step_id))
+BOOTSTRAP	execSQL	CREATE INDEX IF NOT EXISTS idx_r926_migration_status ON v57_schema_migration_journal_r926(domain,revision,status,started_at)
+BOOTSTRAP	rawQuery	SELECT revision,contract_hash,fingerprint,state FROM v57_schema_domain_r926 WHERE domain=?
+BOOTSTRAP	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+BOOTSTRAP	rawQuery	SELECT status FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND step_id=?
+BOOTSTRAP	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+BOOTSTRAP	rawQuery	SELECT COALESCE(MAX(attempt),0)+1 FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND step_id=?
+BOOTSTRAP	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP	execSQL	INSERT OR REPLACE INTO v57_schema_migration_journal_r926(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code) VALUES(?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_trial_registry_r929(trial_id TEXT PRIMARY KEY NOT NULL,identity_hash TEXT NOT NULL UNIQUE,stage TEXT NOT NULL,status TEXT NOT NULL,dataset_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,source_hash TEXT NOT NULL,hyper_hash TEXT NOT NULL,family_id TEXT NOT NULL,structural_hash TEXT NOT NULL,split_hash TEXT NOT NULL,seed INTEGER NOT NULL,sealed_token_hash TEXT NOT NULL DEFAULT '',sealed_consumed INTEGER NOT NULL DEFAULT 0,output_hash TEXT NOT NULL DEFAULT '',failure_code TEXT NOT NULL DEFAULT '',registered_at INTEGER NOT NULL,started_at INTEGER NOT NULL DEFAULT 0,finished_at INTEGER NOT NULL DEFAULT 0,record_hash TEXT NOT NULL)
+BOOTSTRAP	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_trial_family ON research_trial_registry_r929(family_id,status,registered_at)
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_model_bundle_r929(bundle_hash TEXT PRIMARY KEY NOT NULL,bundle_id TEXT NOT NULL,game TEXT NOT NULL,schema_hash TEXT NOT NULL,code_hash TEXT NOT NULL,manifest_hash TEXT NOT NULL,key_id TEXT NOT NULL,signature_algorithm TEXT NOT NULL,signature_verified INTEGER NOT NULL,artifact_count INTEGER NOT NULL,total_bytes INTEGER NOT NULL,created_issue TEXT NOT NULL,earliest_issue TEXT NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL,verified_at INTEGER NOT NULL,activated_at INTEGER NOT NULL DEFAULT 0,rollback_of TEXT NOT NULL DEFAULT '',row_hash TEXT NOT NULL)
+BOOTSTRAP	execSQL	CREATE UNIQUE INDEX IF NOT EXISTS idx_r929_bundle_one_active ON research_model_bundle_r929(state) WHERE state='ACTIVE'
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_r929(candidate_key TEXT PRIMARY KEY NOT NULL,consumer TEXT NOT NULL,namespace TEXT NOT NULL,family_id TEXT NOT NULL,candidate_id TEXT NOT NULL,structural_hash TEXT NOT NULL,evidence_hash TEXT NOT NULL,level TEXT NOT NULL,state TEXT NOT NULL,bundle_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,atom_graph_hash TEXT NOT NULL,model_hash TEXT NOT NULL,policy_hash TEXT NOT NULL,calibration_hash TEXT NOT NULL,domain_hash TEXT NOT NULL,trial_hash TEXT NOT NULL,selection_hash TEXT NOT NULL,code_hash TEXT NOT NULL,valid_from_issue TEXT NOT NULL,valid_until_issue TEXT NOT NULL,maximum_weight REAL NOT NULL,all_gates_pass INTEGER NOT NULL,gate_hash TEXT NOT NULL,reason TEXT NOT NULL,certificate_hash TEXT NOT NULL UNIQUE,issued_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,contract_revision TEXT NOT NULL DEFAULT '')
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_history_r932(certificate_hash TEXT PRIMARY KEY,candidate_key TEXT NOT NULL,canonical TEXT NOT NULL,evidence_hash TEXT NOT NULL,issued_at INTEGER NOT NULL)
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_revocation_r932(certificate_hash TEXT PRIMARY KEY,reason TEXT NOT NULL,revoked_at INTEGER NOT NULL)
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_gate_r932(certificate_hash TEXT NOT NULL,gate_id TEXT NOT NULL,observed REAL NOT NULL,required REAL NOT NULL,pass INTEGER NOT NULL,source TEXT NOT NULL,source_hash TEXT NOT NULL,detail TEXT NOT NULL,gate_hash TEXT NOT NULL,PRIMARY KEY(certificate_hash,gate_id))
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_r929)
+BOOTSTRAP	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_cert_lookup ON research_certificate_r929(consumer,candidate_id,state,valid_from_issue,valid_until_issue)
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_mainline_contribution_r929(target_issue TEXT NOT NULL,consumer TEXT NOT NULL,candidate_id TEXT NOT NULL,certificate_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,requested_weight REAL NOT NULL,authorized_weight REAL NOT NULL,before_rank1_hash TEXT NOT NULL,after_rank1_hash TEXT NOT NULL,input_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,record_hash TEXT PRIMARY KEY NOT NULL,created_at INTEGER NOT NULL,UNIQUE(target_issue,consumer,candidate_id))
+BOOTSTRAP	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_contribution_issue ON research_mainline_contribution_r929(target_issue,status,created_at)
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_consumer_choice_r932(target_issue TEXT PRIMARY KEY,bundle_hash TEXT NOT NULL,consumer TEXT NOT NULL,candidate_id TEXT NOT NULL,certificate_hash TEXT NOT NULL,roster_hash TEXT NOT NULL,frozen_at INTEGER NOT NULL)
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_platform_event_r929(event_hash TEXT PRIMARY KEY NOT NULL,event_type TEXT NOT NULL,entity_id TEXT NOT NULL,previous_hash TEXT NOT NULL,current_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,created_at INTEGER NOT NULL)
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_platform_event_r929)
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_certificate_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP	execSQL	UPDATE v57_schema_migration_journal_r926 SET status='COMPLETED',cursor='DONE',after_hash=?,completed_at=?,error_code='' WHERE domain=? AND revision=? AND step_id=?
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_platform_event_r929)
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_certificate_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+BOOTSTRAP	rawQuery	SELECT name FROM sqlite_master WHERE name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP	execSQL	INSERT OR REPLACE INTO v57_schema_domain_r926(domain,revision,contract_hash,fingerprint,state,cursor,started_at,updated_at,last_error) VALUES(?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_platform_event_r929)
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_certificate_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	transaction	ROLLBACK
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT count(*) FROM sqlite_master
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT count(*) FROM sqlite_master
+BOOTSTRAP	rawQuery	SELECT count(*) FROM sqlite_master WHERE name='research_model_bundle_r929'
+BOOTSTRAP	transaction	BEGIN
+BOOTSTRAP	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS v57_schema_domain_r926(domain TEXT PRIMARY KEY,revision INTEGER NOT NULL,contract_hash TEXT NOT NULL,fingerprint TEXT NOT NULL,state TEXT NOT NULL,cursor TEXT NOT NULL DEFAULT '',started_at INTEGER NOT NULL DEFAULT 0,updated_at INTEGER NOT NULL,last_error TEXT NOT NULL DEFAULT '')
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS v57_schema_migration_journal_r926(domain TEXT NOT NULL,revision INTEGER NOT NULL,step_id TEXT NOT NULL,status TEXT NOT NULL,attempt INTEGER NOT NULL DEFAULT 0,cursor TEXT NOT NULL DEFAULT '',before_hash TEXT NOT NULL DEFAULT '',after_hash TEXT NOT NULL DEFAULT '',started_at INTEGER NOT NULL DEFAULT 0,completed_at INTEGER NOT NULL DEFAULT 0,error_code TEXT NOT NULL DEFAULT '',PRIMARY KEY(domain,revision,step_id))
+BOOTSTRAP	execSQL	CREATE INDEX IF NOT EXISTS idx_r926_migration_status ON v57_schema_migration_journal_r926(domain,revision,status,started_at)
+BOOTSTRAP	rawQuery	SELECT revision,contract_hash,fingerprint,state FROM v57_schema_domain_r926 WHERE domain=?
+BOOTSTRAP	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+BOOTSTRAP	rawQuery	SELECT status FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND step_id=?
+BOOTSTRAP	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+BOOTSTRAP	rawQuery	SELECT COALESCE(MAX(attempt),0)+1 FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND step_id=?
+BOOTSTRAP	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP	execSQL	INSERT OR REPLACE INTO v57_schema_migration_journal_r926(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code) VALUES(?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_trial_registry_r929(trial_id TEXT PRIMARY KEY NOT NULL,identity_hash TEXT NOT NULL UNIQUE,stage TEXT NOT NULL,status TEXT NOT NULL,dataset_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,source_hash TEXT NOT NULL,hyper_hash TEXT NOT NULL,family_id TEXT NOT NULL,structural_hash TEXT NOT NULL,split_hash TEXT NOT NULL,seed INTEGER NOT NULL,sealed_token_hash TEXT NOT NULL DEFAULT '',sealed_consumed INTEGER NOT NULL DEFAULT 0,output_hash TEXT NOT NULL DEFAULT '',failure_code TEXT NOT NULL DEFAULT '',registered_at INTEGER NOT NULL,started_at INTEGER NOT NULL DEFAULT 0,finished_at INTEGER NOT NULL DEFAULT 0,record_hash TEXT NOT NULL)
+BOOTSTRAP	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_trial_family ON research_trial_registry_r929(family_id,status,registered_at)
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_model_bundle_r929(bundle_hash TEXT PRIMARY KEY NOT NULL,bundle_id TEXT NOT NULL,game TEXT NOT NULL,schema_hash TEXT NOT NULL,code_hash TEXT NOT NULL,manifest_hash TEXT NOT NULL,key_id TEXT NOT NULL,signature_algorithm TEXT NOT NULL,signature_verified INTEGER NOT NULL,artifact_count INTEGER NOT NULL,total_bytes INTEGER NOT NULL,created_issue TEXT NOT NULL,earliest_issue TEXT NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL,verified_at INTEGER NOT NULL,activated_at INTEGER NOT NULL DEFAULT 0,rollback_of TEXT NOT NULL DEFAULT '',row_hash TEXT NOT NULL)
+BOOTSTRAP	execSQL	CREATE UNIQUE INDEX IF NOT EXISTS idx_r929_bundle_one_active ON research_model_bundle_r929(state) WHERE state='ACTIVE'
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_r929(candidate_key TEXT PRIMARY KEY NOT NULL,consumer TEXT NOT NULL,namespace TEXT NOT NULL,family_id TEXT NOT NULL,candidate_id TEXT NOT NULL,structural_hash TEXT NOT NULL,evidence_hash TEXT NOT NULL,level TEXT NOT NULL,state TEXT NOT NULL,bundle_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,atom_graph_hash TEXT NOT NULL,model_hash TEXT NOT NULL,policy_hash TEXT NOT NULL,calibration_hash TEXT NOT NULL,domain_hash TEXT NOT NULL,trial_hash TEXT NOT NULL,selection_hash TEXT NOT NULL,code_hash TEXT NOT NULL,valid_from_issue TEXT NOT NULL,valid_until_issue TEXT NOT NULL,maximum_weight REAL NOT NULL,all_gates_pass INTEGER NOT NULL,gate_hash TEXT NOT NULL,reason TEXT NOT NULL,certificate_hash TEXT NOT NULL UNIQUE,issued_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,contract_revision TEXT NOT NULL DEFAULT '')
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_history_r932(certificate_hash TEXT PRIMARY KEY,candidate_key TEXT NOT NULL,canonical TEXT NOT NULL,evidence_hash TEXT NOT NULL,issued_at INTEGER NOT NULL)
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_revocation_r932(certificate_hash TEXT PRIMARY KEY,reason TEXT NOT NULL,revoked_at INTEGER NOT NULL)
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_gate_r932(certificate_hash TEXT NOT NULL,gate_id TEXT NOT NULL,observed REAL NOT NULL,required REAL NOT NULL,pass INTEGER NOT NULL,source TEXT NOT NULL,source_hash TEXT NOT NULL,detail TEXT NOT NULL,gate_hash TEXT NOT NULL,PRIMARY KEY(certificate_hash,gate_id))
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_r929)
+BOOTSTRAP	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_cert_lookup ON research_certificate_r929(consumer,candidate_id,state,valid_from_issue,valid_until_issue)
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_mainline_contribution_r929(target_issue TEXT NOT NULL,consumer TEXT NOT NULL,candidate_id TEXT NOT NULL,certificate_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,requested_weight REAL NOT NULL,authorized_weight REAL NOT NULL,before_rank1_hash TEXT NOT NULL,after_rank1_hash TEXT NOT NULL,input_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,record_hash TEXT PRIMARY KEY NOT NULL,created_at INTEGER NOT NULL,UNIQUE(target_issue,consumer,candidate_id))
+BOOTSTRAP	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_contribution_issue ON research_mainline_contribution_r929(target_issue,status,created_at)
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_consumer_choice_r932(target_issue TEXT PRIMARY KEY,bundle_hash TEXT NOT NULL,consumer TEXT NOT NULL,candidate_id TEXT NOT NULL,certificate_hash TEXT NOT NULL,roster_hash TEXT NOT NULL,frozen_at INTEGER NOT NULL)
+BOOTSTRAP	execSQL	CREATE TABLE IF NOT EXISTS research_platform_event_r929(event_hash TEXT PRIMARY KEY NOT NULL,event_type TEXT NOT NULL,entity_id TEXT NOT NULL,previous_hash TEXT NOT NULL,current_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,created_at INTEGER NOT NULL)
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_platform_event_r929)
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_certificate_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP	execSQL	UPDATE v57_schema_migration_journal_r926 SET status='COMPLETED',cursor='DONE',after_hash=?,completed_at=?,error_code='' WHERE domain=? AND revision=? AND step_id=?
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_platform_event_r929)
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_certificate_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+BOOTSTRAP	rawQuery	SELECT name FROM sqlite_master WHERE name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP	execSQL	INSERT OR REPLACE INTO v57_schema_domain_r926(domain,revision,contract_hash,fingerprint,state,cursor,started_at,updated_at,last_error) VALUES(?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	transaction	COMMIT
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_platform_event_r929)
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_certificate_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+BOOTSTRAP	rawQuery	PRAGMA table_info(research_platform_event_r929)
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_certificate_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+BOOTSTRAP	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+BOOTSTRAP	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+BOOTSTRAP	rawQuery	PRAGMA schema_version
+BOOTSTRAP	rawQuery	SELECT revision,contract_hash,fingerprint,state FROM v57_schema_domain_r926 WHERE domain=?
+BOOTSTRAP	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP	rawQuery	SELECT count(*) FROM v57_schema_domain_r926 WHERE domain='RESEARCH' AND state='READY'
+BUSINESS_CAPTURE	transaction	BEGIN
+BUSINESS_CAPTURE	rawQuery	PRAGMA schema_version
+BUSINESS_CAPTURE	rawQuery	SELECT bundle_hash,schema_hash,code_hash FROM research_model_bundle_r929 WHERE state='ACTIVE'
+BUSINESS_CAPTURE	rawQuery	SELECT certificate_hash FROM research_certificate_r929 WHERE state='ACTIVE' AND (bundle_hash<>? OR schema_hash<>? OR (contract_revision='CP4_REQUIRED_GATES_V1' AND NOT (contract_revision='CP4_REQUIRED_GATES_V1' AND EXISTS(SELECT 1 FROM research_certificate_gate_r932 sg WHERE sg.certificate_hash=research_certificate_r929.certificate_hash AND sg.gate_id='F04_NUMERIC_SCOPE' AND sg.source='F04_NUMERIC_SCOPE_V1' AND sg.observed=1 AND sg.required=1 AND sg.pass=1 AND sg.source_hash=research_certificate_r929.code_hash))) OR ((contract_revision='CP4_REQUIRED_GATES_V1' AND EXISTS(SELECT 1 FROM research_certificate_gate_r932 sg WHERE sg.certificate_hash=research_certificate_r929.certificate_hash AND sg.gate_id='F04_NUMERIC_SCOPE' AND sg.source='F04_NUMERIC_SCOPE_V1' AND sg.observed=1 AND sg.required=1 AND sg.pass=1 AND sg.source_hash=research_certificate_r929.code_hash)) AND code_hash<>?) OR (contract_revision<>'CP4_REQUIRED_GATES_V1' AND code_hash<>?))
+BUSINESS_CAPTURE	execSQL	UPDATE research_certificate_r929 SET state='REVOKED',reason='ACTIVE_MODEL_BUNDLE_CHANGED',updated_at=? WHERE state='ACTIVE' AND (bundle_hash<>? OR schema_hash<>? OR (contract_revision='CP4_REQUIRED_GATES_V1' AND NOT (contract_revision='CP4_REQUIRED_GATES_V1' AND EXISTS(SELECT 1 FROM research_certificate_gate_r932 sg WHERE sg.certificate_hash=research_certificate_r929.certificate_hash AND sg.gate_id='F04_NUMERIC_SCOPE' AND sg.source='F04_NUMERIC_SCOPE_V1' AND sg.observed=1 AND sg.required=1 AND sg.pass=1 AND sg.source_hash=research_certificate_r929.code_hash))) OR ((contract_revision='CP4_REQUIRED_GATES_V1' AND EXISTS(SELECT 1 FROM research_certificate_gate_r932 sg WHERE sg.certificate_hash=research_certificate_r929.certificate_hash AND sg.gate_id='F04_NUMERIC_SCOPE' AND sg.source='F04_NUMERIC_SCOPE_V1' AND sg.observed=1 AND sg.required=1 AND sg.pass=1 AND sg.source_hash=research_certificate_r929.code_hash)) AND code_hash<>?) OR (contract_revision<>'CP4_REQUIRED_GATES_V1' AND code_hash<>?))
+BUSINESS_CAPTURE	execSQL	UPDATE research_model_bundle_r929 SET state='ROLLED_BACK',reason='NEW_VERIFIED_RUNTIME_BUNDLE' WHERE state='ACTIVE'
+BUSINESS_CAPTURE	execSQL	INSERT OR REPLACE INTO research_model_bundle_r929 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+BUSINESS_CAPTURE	transaction	COMMIT
+BUSINESS_CAPTURE	rawQuery	SELECT count(*) FROM research_model_bundle_r929 WHERE state='ACTIVE'
+SCHEMA_NEGATIVE_CONTROLS	transaction	BEGIN
+SCHEMA_NEGATIVE_CONTROLS	execSQL	DROP INDEX idx_r929_bundle_one_active
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT count(*) FROM sqlite_master
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT count(*) FROM sqlite_master
+SCHEMA_NEGATIVE_CONTROLS	transaction	ROLLBACK
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	execSQL	DROP INDEX idx_r929_bundle_one_active
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT count(*) FROM sqlite_master
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT count(*) FROM sqlite_master
+SCHEMA_NEGATIVE_CONTROLS	transaction	BEGIN
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT revision,contract_hash,fingerprint,state FROM v57_schema_domain_r926 WHERE domain=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name FROM sqlite_master WHERE name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT COUNT(*) FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT COUNT(*) FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND status<>'COMPLETED'
+SCHEMA_NEGATIVE_CONTROLS	execSQL	UPDATE v57_schema_migration_journal_r926 SET status='REPAIR_REQUIRED',cursor='REPAIR',completed_at=0,error_code=? WHERE domain=? AND revision=? AND status='COMPLETED'
+SCHEMA_NEGATIVE_CONTROLS	execSQL	INSERT OR REPLACE INTO v57_schema_domain_r926(domain,revision,contract_hash,fingerprint,state,cursor,started_at,updated_at,last_error) VALUES(?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT status FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND step_id=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT COALESCE(MAX(attempt),0)+1 FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND step_id=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	execSQL	INSERT OR REPLACE INTO v57_schema_migration_journal_r926(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code) VALUES(?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_trial_registry_r929(trial_id TEXT PRIMARY KEY NOT NULL,identity_hash TEXT NOT NULL UNIQUE,stage TEXT NOT NULL,status TEXT NOT NULL,dataset_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,source_hash TEXT NOT NULL,hyper_hash TEXT NOT NULL,family_id TEXT NOT NULL,structural_hash TEXT NOT NULL,split_hash TEXT NOT NULL,seed INTEGER NOT NULL,sealed_token_hash TEXT NOT NULL DEFAULT '',sealed_consumed INTEGER NOT NULL DEFAULT 0,output_hash TEXT NOT NULL DEFAULT '',failure_code TEXT NOT NULL DEFAULT '',registered_at INTEGER NOT NULL,started_at INTEGER NOT NULL DEFAULT 0,finished_at INTEGER NOT NULL DEFAULT 0,record_hash TEXT NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_trial_family ON research_trial_registry_r929(family_id,status,registered_at)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_model_bundle_r929(bundle_hash TEXT PRIMARY KEY NOT NULL,bundle_id TEXT NOT NULL,game TEXT NOT NULL,schema_hash TEXT NOT NULL,code_hash TEXT NOT NULL,manifest_hash TEXT NOT NULL,key_id TEXT NOT NULL,signature_algorithm TEXT NOT NULL,signature_verified INTEGER NOT NULL,artifact_count INTEGER NOT NULL,total_bytes INTEGER NOT NULL,created_issue TEXT NOT NULL,earliest_issue TEXT NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL,verified_at INTEGER NOT NULL,activated_at INTEGER NOT NULL DEFAULT 0,rollback_of TEXT NOT NULL DEFAULT '',row_hash TEXT NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE UNIQUE INDEX IF NOT EXISTS idx_r929_bundle_one_active ON research_model_bundle_r929(state) WHERE state='ACTIVE'
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_r929(candidate_key TEXT PRIMARY KEY NOT NULL,consumer TEXT NOT NULL,namespace TEXT NOT NULL,family_id TEXT NOT NULL,candidate_id TEXT NOT NULL,structural_hash TEXT NOT NULL,evidence_hash TEXT NOT NULL,level TEXT NOT NULL,state TEXT NOT NULL,bundle_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,atom_graph_hash TEXT NOT NULL,model_hash TEXT NOT NULL,policy_hash TEXT NOT NULL,calibration_hash TEXT NOT NULL,domain_hash TEXT NOT NULL,trial_hash TEXT NOT NULL,selection_hash TEXT NOT NULL,code_hash TEXT NOT NULL,valid_from_issue TEXT NOT NULL,valid_until_issue TEXT NOT NULL,maximum_weight REAL NOT NULL,all_gates_pass INTEGER NOT NULL,gate_hash TEXT NOT NULL,reason TEXT NOT NULL,certificate_hash TEXT NOT NULL UNIQUE,issued_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,contract_revision TEXT NOT NULL DEFAULT '')
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_history_r932(certificate_hash TEXT PRIMARY KEY,candidate_key TEXT NOT NULL,canonical TEXT NOT NULL,evidence_hash TEXT NOT NULL,issued_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_revocation_r932(certificate_hash TEXT PRIMARY KEY,reason TEXT NOT NULL,revoked_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_gate_r932(certificate_hash TEXT NOT NULL,gate_id TEXT NOT NULL,observed REAL NOT NULL,required REAL NOT NULL,pass INTEGER NOT NULL,source TEXT NOT NULL,source_hash TEXT NOT NULL,detail TEXT NOT NULL,gate_hash TEXT NOT NULL,PRIMARY KEY(certificate_hash,gate_id))
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_cert_lookup ON research_certificate_r929(consumer,candidate_id,state,valid_from_issue,valid_until_issue)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_mainline_contribution_r929(target_issue TEXT NOT NULL,consumer TEXT NOT NULL,candidate_id TEXT NOT NULL,certificate_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,requested_weight REAL NOT NULL,authorized_weight REAL NOT NULL,before_rank1_hash TEXT NOT NULL,after_rank1_hash TEXT NOT NULL,input_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,record_hash TEXT PRIMARY KEY NOT NULL,created_at INTEGER NOT NULL,UNIQUE(target_issue,consumer,candidate_id))
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_contribution_issue ON research_mainline_contribution_r929(target_issue,status,created_at)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_consumer_choice_r932(target_issue TEXT PRIMARY KEY,bundle_hash TEXT NOT NULL,consumer TEXT NOT NULL,candidate_id TEXT NOT NULL,certificate_hash TEXT NOT NULL,roster_hash TEXT NOT NULL,frozen_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_platform_event_r929(event_hash TEXT PRIMARY KEY NOT NULL,event_type TEXT NOT NULL,entity_id TEXT NOT NULL,previous_hash TEXT NOT NULL,current_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,created_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	execSQL	UPDATE v57_schema_migration_journal_r926 SET status='COMPLETED',cursor='DONE',after_hash=?,completed_at=?,error_code='' WHERE domain=? AND revision=? AND step_id=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name FROM sqlite_master WHERE name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	execSQL	INSERT OR REPLACE INTO v57_schema_domain_r926(domain,revision,contract_hash,fingerprint,state,cursor,started_at,updated_at,last_error) VALUES(?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	transaction	COMMIT
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE name=?
+SCHEMA_NEGATIVE_CONTROLS	execSQL	DROP TABLE research_certificate_r929
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE research_certificate_r929(candidate_key TEXT PRIMARY KEY NOT NULL,consumer TEXT NOT NULL,namespace TEXT NOT NULL,family_id TEXT NOT NULL,candidate_id TEXT NOT NULL,structural_hash TEXT NOT NULL,evidence_hash TEXT NOT NULL,level TEXT NOT NULL,state TEXT NOT NULL,bundle_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,atom_graph_hash TEXT NOT NULL,model_hash TEXT NOT NULL,policy_hash TEXT NOT NULL,calibration_hash TEXT NOT NULL,domain_hash TEXT NOT NULL,trial_hash TEXT NOT NULL,selection_hash TEXT NOT NULL,code_hash TEXT NOT NULL,valid_from_issue TEXT NOT NULL,valid_until_issue TEXT NOT NULL,maximum_weight REAL NOT NULL,all_gates_pass INTEGER NOT NULL,gate_hash TEXT NOT NULL,reason TEXT NOT NULL,certificate_hash TEXT NOT NULL UNIQUE,issued_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT count(*) FROM sqlite_master
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT count(*) FROM sqlite_master
+SCHEMA_NEGATIVE_CONTROLS	transaction	BEGIN
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT revision,contract_hash,fingerprint,state FROM v57_schema_domain_r926 WHERE domain=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name FROM sqlite_master WHERE name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT COUNT(*) FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT COUNT(*) FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND status<>'COMPLETED'
+SCHEMA_NEGATIVE_CONTROLS	execSQL	UPDATE v57_schema_migration_journal_r926 SET status='REPAIR_REQUIRED',cursor='REPAIR',completed_at=0,error_code=? WHERE domain=? AND revision=? AND status='COMPLETED'
+SCHEMA_NEGATIVE_CONTROLS	execSQL	INSERT OR REPLACE INTO v57_schema_domain_r926(domain,revision,contract_hash,fingerprint,state,cursor,started_at,updated_at,last_error) VALUES(?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT status FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND step_id=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT COALESCE(MAX(attempt),0)+1 FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND step_id=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	execSQL	INSERT OR REPLACE INTO v57_schema_migration_journal_r926(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code) VALUES(?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_trial_registry_r929(trial_id TEXT PRIMARY KEY NOT NULL,identity_hash TEXT NOT NULL UNIQUE,stage TEXT NOT NULL,status TEXT NOT NULL,dataset_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,source_hash TEXT NOT NULL,hyper_hash TEXT NOT NULL,family_id TEXT NOT NULL,structural_hash TEXT NOT NULL,split_hash TEXT NOT NULL,seed INTEGER NOT NULL,sealed_token_hash TEXT NOT NULL DEFAULT '',sealed_consumed INTEGER NOT NULL DEFAULT 0,output_hash TEXT NOT NULL DEFAULT '',failure_code TEXT NOT NULL DEFAULT '',registered_at INTEGER NOT NULL,started_at INTEGER NOT NULL DEFAULT 0,finished_at INTEGER NOT NULL DEFAULT 0,record_hash TEXT NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_trial_family ON research_trial_registry_r929(family_id,status,registered_at)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_model_bundle_r929(bundle_hash TEXT PRIMARY KEY NOT NULL,bundle_id TEXT NOT NULL,game TEXT NOT NULL,schema_hash TEXT NOT NULL,code_hash TEXT NOT NULL,manifest_hash TEXT NOT NULL,key_id TEXT NOT NULL,signature_algorithm TEXT NOT NULL,signature_verified INTEGER NOT NULL,artifact_count INTEGER NOT NULL,total_bytes INTEGER NOT NULL,created_issue TEXT NOT NULL,earliest_issue TEXT NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL,verified_at INTEGER NOT NULL,activated_at INTEGER NOT NULL DEFAULT 0,rollback_of TEXT NOT NULL DEFAULT '',row_hash TEXT NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE UNIQUE INDEX IF NOT EXISTS idx_r929_bundle_one_active ON research_model_bundle_r929(state) WHERE state='ACTIVE'
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_r929(candidate_key TEXT PRIMARY KEY NOT NULL,consumer TEXT NOT NULL,namespace TEXT NOT NULL,family_id TEXT NOT NULL,candidate_id TEXT NOT NULL,structural_hash TEXT NOT NULL,evidence_hash TEXT NOT NULL,level TEXT NOT NULL,state TEXT NOT NULL,bundle_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,atom_graph_hash TEXT NOT NULL,model_hash TEXT NOT NULL,policy_hash TEXT NOT NULL,calibration_hash TEXT NOT NULL,domain_hash TEXT NOT NULL,trial_hash TEXT NOT NULL,selection_hash TEXT NOT NULL,code_hash TEXT NOT NULL,valid_from_issue TEXT NOT NULL,valid_until_issue TEXT NOT NULL,maximum_weight REAL NOT NULL,all_gates_pass INTEGER NOT NULL,gate_hash TEXT NOT NULL,reason TEXT NOT NULL,certificate_hash TEXT NOT NULL UNIQUE,issued_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,contract_revision TEXT NOT NULL DEFAULT '')
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_history_r932(certificate_hash TEXT PRIMARY KEY,candidate_key TEXT NOT NULL,canonical TEXT NOT NULL,evidence_hash TEXT NOT NULL,issued_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_revocation_r932(certificate_hash TEXT PRIMARY KEY,reason TEXT NOT NULL,revoked_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_gate_r932(certificate_hash TEXT NOT NULL,gate_id TEXT NOT NULL,observed REAL NOT NULL,required REAL NOT NULL,pass INTEGER NOT NULL,source TEXT NOT NULL,source_hash TEXT NOT NULL,detail TEXT NOT NULL,gate_hash TEXT NOT NULL,PRIMARY KEY(certificate_hash,gate_id))
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	ALTER TABLE research_certificate_r929 ADD COLUMN contract_revision TEXT NOT NULL DEFAULT ''
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_cert_lookup ON research_certificate_r929(consumer,candidate_id,state,valid_from_issue,valid_until_issue)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_mainline_contribution_r929(target_issue TEXT NOT NULL,consumer TEXT NOT NULL,candidate_id TEXT NOT NULL,certificate_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,requested_weight REAL NOT NULL,authorized_weight REAL NOT NULL,before_rank1_hash TEXT NOT NULL,after_rank1_hash TEXT NOT NULL,input_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,record_hash TEXT PRIMARY KEY NOT NULL,created_at INTEGER NOT NULL,UNIQUE(target_issue,consumer,candidate_id))
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_contribution_issue ON research_mainline_contribution_r929(target_issue,status,created_at)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_consumer_choice_r932(target_issue TEXT PRIMARY KEY,bundle_hash TEXT NOT NULL,consumer TEXT NOT NULL,candidate_id TEXT NOT NULL,certificate_hash TEXT NOT NULL,roster_hash TEXT NOT NULL,frozen_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_platform_event_r929(event_hash TEXT PRIMARY KEY NOT NULL,event_type TEXT NOT NULL,entity_id TEXT NOT NULL,previous_hash TEXT NOT NULL,current_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,created_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	execSQL	UPDATE v57_schema_migration_journal_r926 SET status='COMPLETED',cursor='DONE',after_hash=?,completed_at=?,error_code='' WHERE domain=? AND revision=? AND step_id=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name FROM sqlite_master WHERE name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	execSQL	INSERT OR REPLACE INTO v57_schema_domain_r926(domain,revision,contract_hash,fingerprint,state,cursor,started_at,updated_at,last_error) VALUES(?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	transaction	COMMIT
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	execSQL	DROP INDEX idx_r929_trial_family
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX idx_r929_trial_family ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT count(*) FROM sqlite_master
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT count(*) FROM sqlite_master
+SCHEMA_NEGATIVE_CONTROLS	execSQL	DROP INDEX idx_r929_trial_family
+SCHEMA_NEGATIVE_CONTROLS	transaction	BEGIN
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT revision,contract_hash,fingerprint,state FROM v57_schema_domain_r926 WHERE domain=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name FROM sqlite_master WHERE name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT COUNT(*) FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT COUNT(*) FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND status<>'COMPLETED'
+SCHEMA_NEGATIVE_CONTROLS	execSQL	UPDATE v57_schema_migration_journal_r926 SET status='REPAIR_REQUIRED',cursor='REPAIR',completed_at=0,error_code=? WHERE domain=? AND revision=? AND status='COMPLETED'
+SCHEMA_NEGATIVE_CONTROLS	execSQL	INSERT OR REPLACE INTO v57_schema_domain_r926(domain,revision,contract_hash,fingerprint,state,cursor,started_at,updated_at,last_error) VALUES(?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT status FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND step_id=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT COALESCE(MAX(attempt),0)+1 FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND step_id=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	execSQL	INSERT OR REPLACE INTO v57_schema_migration_journal_r926(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code) VALUES(?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_trial_registry_r929(trial_id TEXT PRIMARY KEY NOT NULL,identity_hash TEXT NOT NULL UNIQUE,stage TEXT NOT NULL,status TEXT NOT NULL,dataset_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,source_hash TEXT NOT NULL,hyper_hash TEXT NOT NULL,family_id TEXT NOT NULL,structural_hash TEXT NOT NULL,split_hash TEXT NOT NULL,seed INTEGER NOT NULL,sealed_token_hash TEXT NOT NULL DEFAULT '',sealed_consumed INTEGER NOT NULL DEFAULT 0,output_hash TEXT NOT NULL DEFAULT '',failure_code TEXT NOT NULL DEFAULT '',registered_at INTEGER NOT NULL,started_at INTEGER NOT NULL DEFAULT 0,finished_at INTEGER NOT NULL DEFAULT 0,record_hash TEXT NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_trial_family ON research_trial_registry_r929(family_id,status,registered_at)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_model_bundle_r929(bundle_hash TEXT PRIMARY KEY NOT NULL,bundle_id TEXT NOT NULL,game TEXT NOT NULL,schema_hash TEXT NOT NULL,code_hash TEXT NOT NULL,manifest_hash TEXT NOT NULL,key_id TEXT NOT NULL,signature_algorithm TEXT NOT NULL,signature_verified INTEGER NOT NULL,artifact_count INTEGER NOT NULL,total_bytes INTEGER NOT NULL,created_issue TEXT NOT NULL,earliest_issue TEXT NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL,verified_at INTEGER NOT NULL,activated_at INTEGER NOT NULL DEFAULT 0,rollback_of TEXT NOT NULL DEFAULT '',row_hash TEXT NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE UNIQUE INDEX IF NOT EXISTS idx_r929_bundle_one_active ON research_model_bundle_r929(state) WHERE state='ACTIVE'
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_r929(candidate_key TEXT PRIMARY KEY NOT NULL,consumer TEXT NOT NULL,namespace TEXT NOT NULL,family_id TEXT NOT NULL,candidate_id TEXT NOT NULL,structural_hash TEXT NOT NULL,evidence_hash TEXT NOT NULL,level TEXT NOT NULL,state TEXT NOT NULL,bundle_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,atom_graph_hash TEXT NOT NULL,model_hash TEXT NOT NULL,policy_hash TEXT NOT NULL,calibration_hash TEXT NOT NULL,domain_hash TEXT NOT NULL,trial_hash TEXT NOT NULL,selection_hash TEXT NOT NULL,code_hash TEXT NOT NULL,valid_from_issue TEXT NOT NULL,valid_until_issue TEXT NOT NULL,maximum_weight REAL NOT NULL,all_gates_pass INTEGER NOT NULL,gate_hash TEXT NOT NULL,reason TEXT NOT NULL,certificate_hash TEXT NOT NULL UNIQUE,issued_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,contract_revision TEXT NOT NULL DEFAULT '')
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_history_r932(certificate_hash TEXT PRIMARY KEY,candidate_key TEXT NOT NULL,canonical TEXT NOT NULL,evidence_hash TEXT NOT NULL,issued_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_revocation_r932(certificate_hash TEXT PRIMARY KEY,reason TEXT NOT NULL,revoked_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_gate_r932(certificate_hash TEXT NOT NULL,gate_id TEXT NOT NULL,observed REAL NOT NULL,required REAL NOT NULL,pass INTEGER NOT NULL,source TEXT NOT NULL,source_hash TEXT NOT NULL,detail TEXT NOT NULL,gate_hash TEXT NOT NULL,PRIMARY KEY(certificate_hash,gate_id))
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_cert_lookup ON research_certificate_r929(consumer,candidate_id,state,valid_from_issue,valid_until_issue)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_mainline_contribution_r929(target_issue TEXT NOT NULL,consumer TEXT NOT NULL,candidate_id TEXT NOT NULL,certificate_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,requested_weight REAL NOT NULL,authorized_weight REAL NOT NULL,before_rank1_hash TEXT NOT NULL,after_rank1_hash TEXT NOT NULL,input_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,record_hash TEXT PRIMARY KEY NOT NULL,created_at INTEGER NOT NULL,UNIQUE(target_issue,consumer,candidate_id))
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_contribution_issue ON research_mainline_contribution_r929(target_issue,status,created_at)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_consumer_choice_r932(target_issue TEXT PRIMARY KEY,bundle_hash TEXT NOT NULL,consumer TEXT NOT NULL,candidate_id TEXT NOT NULL,certificate_hash TEXT NOT NULL,roster_hash TEXT NOT NULL,frozen_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_platform_event_r929(event_hash TEXT PRIMARY KEY NOT NULL,event_type TEXT NOT NULL,entity_id TEXT NOT NULL,previous_hash TEXT NOT NULL,current_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,created_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	execSQL	UPDATE v57_schema_migration_journal_r926 SET status='COMPLETED',cursor='DONE',after_hash=?,completed_at=?,error_code='' WHERE domain=? AND revision=? AND step_id=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name FROM sqlite_master WHERE name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	execSQL	INSERT OR REPLACE INTO v57_schema_domain_r926(domain,revision,contract_hash,fingerprint,state,cursor,started_at,updated_at,last_error) VALUES(?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	transaction	COMMIT
+SCHEMA_NEGATIVE_CONTROLS	execSQL	DROP TABLE research_certificate_r929
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE research_certificate_r929(candidate_key TEXT PRIMARY KEY NOT NULL,consumer TEXT NOT NULL,namespace TEXT NOT NULL,family_id TEXT NOT NULL,candidate_id TEXT NOT NULL,structural_hash TEXT NOT NULL,evidence_hash TEXT NOT NULL,level TEXT NOT NULL,state TEXT NOT NULL,bundle_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,atom_graph_hash TEXT NOT NULL,model_hash TEXT NOT NULL,policy_hash TEXT NOT NULL,calibration_hash TEXT NOT NULL,domain_hash TEXT NOT NULL,trial_hash TEXT NOT NULL,selection_hash TEXT NOT NULL,code_hash TEXT NOT NULL,valid_from_issue TEXT NOT NULL,valid_until_issue TEXT NOT NULL,maximum_weight REAL NOT NULL,all_gates_pass INTEGER NOT NULL,gate_hash TEXT NOT NULL,reason TEXT NOT NULL,certificate_hash TEXT NOT NULL,issued_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,contract_revision TEXT NOT NULL DEFAULT '')
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE UNIQUE INDEX partial_certificate_hash ON research_certificate_r929(certificate_hash) WHERE state='ACTIVE'
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT count(*) FROM sqlite_master
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_1')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_1')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT count(*) FROM sqlite_master
+SCHEMA_NEGATIVE_CONTROLS	transaction	BEGIN
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT revision,contract_hash,fingerprint,state FROM v57_schema_domain_r926 WHERE domain=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name FROM sqlite_master WHERE name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT COUNT(*) FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT COUNT(*) FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND status<>'COMPLETED'
+SCHEMA_NEGATIVE_CONTROLS	execSQL	UPDATE v57_schema_migration_journal_r926 SET status='REPAIR_REQUIRED',cursor='REPAIR',completed_at=0,error_code=? WHERE domain=? AND revision=? AND status='COMPLETED'
+SCHEMA_NEGATIVE_CONTROLS	execSQL	INSERT OR REPLACE INTO v57_schema_domain_r926(domain,revision,contract_hash,fingerprint,state,cursor,started_at,updated_at,last_error) VALUES(?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT status FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND step_id=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT COALESCE(MAX(attempt),0)+1 FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND step_id=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	execSQL	INSERT OR REPLACE INTO v57_schema_migration_journal_r926(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code) VALUES(?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_trial_registry_r929(trial_id TEXT PRIMARY KEY NOT NULL,identity_hash TEXT NOT NULL UNIQUE,stage TEXT NOT NULL,status TEXT NOT NULL,dataset_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,source_hash TEXT NOT NULL,hyper_hash TEXT NOT NULL,family_id TEXT NOT NULL,structural_hash TEXT NOT NULL,split_hash TEXT NOT NULL,seed INTEGER NOT NULL,sealed_token_hash TEXT NOT NULL DEFAULT '',sealed_consumed INTEGER NOT NULL DEFAULT 0,output_hash TEXT NOT NULL DEFAULT '',failure_code TEXT NOT NULL DEFAULT '',registered_at INTEGER NOT NULL,started_at INTEGER NOT NULL DEFAULT 0,finished_at INTEGER NOT NULL DEFAULT 0,record_hash TEXT NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_trial_family ON research_trial_registry_r929(family_id,status,registered_at)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_model_bundle_r929(bundle_hash TEXT PRIMARY KEY NOT NULL,bundle_id TEXT NOT NULL,game TEXT NOT NULL,schema_hash TEXT NOT NULL,code_hash TEXT NOT NULL,manifest_hash TEXT NOT NULL,key_id TEXT NOT NULL,signature_algorithm TEXT NOT NULL,signature_verified INTEGER NOT NULL,artifact_count INTEGER NOT NULL,total_bytes INTEGER NOT NULL,created_issue TEXT NOT NULL,earliest_issue TEXT NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL,verified_at INTEGER NOT NULL,activated_at INTEGER NOT NULL DEFAULT 0,rollback_of TEXT NOT NULL DEFAULT '',row_hash TEXT NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE UNIQUE INDEX IF NOT EXISTS idx_r929_bundle_one_active ON research_model_bundle_r929(state) WHERE state='ACTIVE'
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_r929(candidate_key TEXT PRIMARY KEY NOT NULL,consumer TEXT NOT NULL,namespace TEXT NOT NULL,family_id TEXT NOT NULL,candidate_id TEXT NOT NULL,structural_hash TEXT NOT NULL,evidence_hash TEXT NOT NULL,level TEXT NOT NULL,state TEXT NOT NULL,bundle_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,atom_graph_hash TEXT NOT NULL,model_hash TEXT NOT NULL,policy_hash TEXT NOT NULL,calibration_hash TEXT NOT NULL,domain_hash TEXT NOT NULL,trial_hash TEXT NOT NULL,selection_hash TEXT NOT NULL,code_hash TEXT NOT NULL,valid_from_issue TEXT NOT NULL,valid_until_issue TEXT NOT NULL,maximum_weight REAL NOT NULL,all_gates_pass INTEGER NOT NULL,gate_hash TEXT NOT NULL,reason TEXT NOT NULL,certificate_hash TEXT NOT NULL UNIQUE,issued_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,contract_revision TEXT NOT NULL DEFAULT '')
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_history_r932(certificate_hash TEXT PRIMARY KEY,candidate_key TEXT NOT NULL,canonical TEXT NOT NULL,evidence_hash TEXT NOT NULL,issued_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_revocation_r932(certificate_hash TEXT PRIMARY KEY,reason TEXT NOT NULL,revoked_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_gate_r932(certificate_hash TEXT NOT NULL,gate_id TEXT NOT NULL,observed REAL NOT NULL,required REAL NOT NULL,pass INTEGER NOT NULL,source TEXT NOT NULL,source_hash TEXT NOT NULL,detail TEXT NOT NULL,gate_hash TEXT NOT NULL,PRIMARY KEY(certificate_hash,gate_id))
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_cert_lookup ON research_certificate_r929(consumer,candidate_id,state,valid_from_issue,valid_until_issue)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_mainline_contribution_r929(target_issue TEXT NOT NULL,consumer TEXT NOT NULL,candidate_id TEXT NOT NULL,certificate_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,requested_weight REAL NOT NULL,authorized_weight REAL NOT NULL,before_rank1_hash TEXT NOT NULL,after_rank1_hash TEXT NOT NULL,input_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,record_hash TEXT PRIMARY KEY NOT NULL,created_at INTEGER NOT NULL,UNIQUE(target_issue,consumer,candidate_id))
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_contribution_issue ON research_mainline_contribution_r929(target_issue,status,created_at)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_consumer_choice_r932(target_issue TEXT PRIMARY KEY,bundle_hash TEXT NOT NULL,consumer TEXT NOT NULL,candidate_id TEXT NOT NULL,certificate_hash TEXT NOT NULL,roster_hash TEXT NOT NULL,frozen_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_platform_event_r929(event_hash TEXT PRIMARY KEY NOT NULL,event_type TEXT NOT NULL,entity_id TEXT NOT NULL,previous_hash TEXT NOT NULL,current_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,created_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_1')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_1')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	execSQL	UPDATE v57_schema_migration_journal_r926 SET status='FAILED',cursor='RETRY',completed_at=?,error_code=? WHERE domain=? AND revision=? AND step_id=?
+SCHEMA_NEGATIVE_CONTROLS	transaction	ROLLBACK
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT revision,contract_hash,fingerprint,state FROM v57_schema_domain_r926 WHERE domain=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	execSQL	DROP TABLE research_certificate_r929
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE research_certificate_r929(candidate_key TEXT NOT NULL,consumer TEXT NOT NULL,namespace TEXT NOT NULL,family_id TEXT NOT NULL,candidate_id TEXT NOT NULL,structural_hash TEXT NOT NULL,evidence_hash TEXT NOT NULL,level TEXT NOT NULL,state TEXT NOT NULL,bundle_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,atom_graph_hash TEXT NOT NULL,model_hash TEXT NOT NULL,policy_hash TEXT NOT NULL,calibration_hash TEXT NOT NULL,domain_hash TEXT NOT NULL,trial_hash TEXT NOT NULL,selection_hash TEXT NOT NULL,code_hash TEXT NOT NULL,valid_from_issue TEXT NOT NULL,valid_until_issue TEXT NOT NULL,maximum_weight REAL NOT NULL,all_gates_pass INTEGER NOT NULL,gate_hash TEXT NOT NULL,reason TEXT NOT NULL,certificate_hash TEXT NOT NULL UNIQUE,issued_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,contract_revision TEXT NOT NULL DEFAULT '')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT count(*) FROM sqlite_master
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_1')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_1')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT count(*) FROM sqlite_master
+SCHEMA_NEGATIVE_CONTROLS	transaction	BEGIN
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS v57_schema_domain_r926(domain TEXT PRIMARY KEY,revision INTEGER NOT NULL,contract_hash TEXT NOT NULL,fingerprint TEXT NOT NULL,state TEXT NOT NULL,cursor TEXT NOT NULL DEFAULT '',started_at INTEGER NOT NULL DEFAULT 0,updated_at INTEGER NOT NULL,last_error TEXT NOT NULL DEFAULT '')
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS v57_schema_migration_journal_r926(domain TEXT NOT NULL,revision INTEGER NOT NULL,step_id TEXT NOT NULL,status TEXT NOT NULL,attempt INTEGER NOT NULL DEFAULT 0,cursor TEXT NOT NULL DEFAULT '',before_hash TEXT NOT NULL DEFAULT '',after_hash TEXT NOT NULL DEFAULT '',started_at INTEGER NOT NULL DEFAULT 0,completed_at INTEGER NOT NULL DEFAULT 0,error_code TEXT NOT NULL DEFAULT '',PRIMARY KEY(domain,revision,step_id))
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX IF NOT EXISTS idx_r926_migration_status ON v57_schema_migration_journal_r926(domain,revision,status,started_at)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT revision,contract_hash,fingerprint,state FROM v57_schema_domain_r926 WHERE domain=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT status FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND step_id=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT COALESCE(MAX(attempt),0)+1 FROM v57_schema_migration_journal_r926 WHERE domain=? AND revision=? AND step_id=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	execSQL	INSERT OR REPLACE INTO v57_schema_migration_journal_r926(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code) VALUES(?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_trial_registry_r929(trial_id TEXT PRIMARY KEY NOT NULL,identity_hash TEXT NOT NULL UNIQUE,stage TEXT NOT NULL,status TEXT NOT NULL,dataset_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,source_hash TEXT NOT NULL,hyper_hash TEXT NOT NULL,family_id TEXT NOT NULL,structural_hash TEXT NOT NULL,split_hash TEXT NOT NULL,seed INTEGER NOT NULL,sealed_token_hash TEXT NOT NULL DEFAULT '',sealed_consumed INTEGER NOT NULL DEFAULT 0,output_hash TEXT NOT NULL DEFAULT '',failure_code TEXT NOT NULL DEFAULT '',registered_at INTEGER NOT NULL,started_at INTEGER NOT NULL DEFAULT 0,finished_at INTEGER NOT NULL DEFAULT 0,record_hash TEXT NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_trial_family ON research_trial_registry_r929(family_id,status,registered_at)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_model_bundle_r929(bundle_hash TEXT PRIMARY KEY NOT NULL,bundle_id TEXT NOT NULL,game TEXT NOT NULL,schema_hash TEXT NOT NULL,code_hash TEXT NOT NULL,manifest_hash TEXT NOT NULL,key_id TEXT NOT NULL,signature_algorithm TEXT NOT NULL,signature_verified INTEGER NOT NULL,artifact_count INTEGER NOT NULL,total_bytes INTEGER NOT NULL,created_issue TEXT NOT NULL,earliest_issue TEXT NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL,verified_at INTEGER NOT NULL,activated_at INTEGER NOT NULL DEFAULT 0,rollback_of TEXT NOT NULL DEFAULT '',row_hash TEXT NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE UNIQUE INDEX IF NOT EXISTS idx_r929_bundle_one_active ON research_model_bundle_r929(state) WHERE state='ACTIVE'
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_r929(candidate_key TEXT PRIMARY KEY NOT NULL,consumer TEXT NOT NULL,namespace TEXT NOT NULL,family_id TEXT NOT NULL,candidate_id TEXT NOT NULL,structural_hash TEXT NOT NULL,evidence_hash TEXT NOT NULL,level TEXT NOT NULL,state TEXT NOT NULL,bundle_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,atom_graph_hash TEXT NOT NULL,model_hash TEXT NOT NULL,policy_hash TEXT NOT NULL,calibration_hash TEXT NOT NULL,domain_hash TEXT NOT NULL,trial_hash TEXT NOT NULL,selection_hash TEXT NOT NULL,code_hash TEXT NOT NULL,valid_from_issue TEXT NOT NULL,valid_until_issue TEXT NOT NULL,maximum_weight REAL NOT NULL,all_gates_pass INTEGER NOT NULL,gate_hash TEXT NOT NULL,reason TEXT NOT NULL,certificate_hash TEXT NOT NULL UNIQUE,issued_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,contract_revision TEXT NOT NULL DEFAULT '')
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_history_r932(certificate_hash TEXT PRIMARY KEY,candidate_key TEXT NOT NULL,canonical TEXT NOT NULL,evidence_hash TEXT NOT NULL,issued_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_revocation_r932(certificate_hash TEXT PRIMARY KEY,reason TEXT NOT NULL,revoked_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_certificate_gate_r932(certificate_hash TEXT NOT NULL,gate_id TEXT NOT NULL,observed REAL NOT NULL,required REAL NOT NULL,pass INTEGER NOT NULL,source TEXT NOT NULL,source_hash TEXT NOT NULL,detail TEXT NOT NULL,gate_hash TEXT NOT NULL,PRIMARY KEY(certificate_hash,gate_id))
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_cert_lookup ON research_certificate_r929(consumer,candidate_id,state,valid_from_issue,valid_until_issue)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_mainline_contribution_r929(target_issue TEXT NOT NULL,consumer TEXT NOT NULL,candidate_id TEXT NOT NULL,certificate_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,requested_weight REAL NOT NULL,authorized_weight REAL NOT NULL,before_rank1_hash TEXT NOT NULL,after_rank1_hash TEXT NOT NULL,input_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,record_hash TEXT PRIMARY KEY NOT NULL,created_at INTEGER NOT NULL,UNIQUE(target_issue,consumer,candidate_id))
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX IF NOT EXISTS idx_r929_contribution_issue ON research_mainline_contribution_r929(target_issue,status,created_at)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_consumer_choice_r932(target_issue TEXT PRIMARY KEY,bundle_hash TEXT NOT NULL,consumer TEXT NOT NULL,candidate_id TEXT NOT NULL,certificate_hash TEXT NOT NULL,roster_hash TEXT NOT NULL,frozen_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE TABLE IF NOT EXISTS research_platform_event_r929(event_hash TEXT PRIMARY KEY NOT NULL,event_type TEXT NOT NULL,entity_id TEXT NOT NULL,previous_hash TEXT NOT NULL,current_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,created_at INTEGER NOT NULL)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	execSQL	UPDATE v57_schema_migration_journal_r926 SET status='COMPLETED',cursor='DONE',after_hash=?,completed_at=?,error_code='' WHERE domain=? AND revision=? AND step_id=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_trial_registry_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name FROM sqlite_master WHERE name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+SCHEMA_NEGATIVE_CONTROLS	execSQL	INSERT OR REPLACE INTO v57_schema_domain_r926(domain,revision,contract_hash,fingerprint,state,cursor,started_at,updated_at,last_error) VALUES(?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	transaction	COMMIT
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_0 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_1 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_2 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_3 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_4 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_5 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_6 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_7 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_8 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_9 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_10 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_11 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_12 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_13 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_14 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_15 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_16 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_17 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_18 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_19 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_20 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_21 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_22 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_23 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_24 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_25 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_26 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_27 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_28 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_29 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_30 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_31 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_32 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_33 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_34 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_35 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_36 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_37 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_38 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_39 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_40 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_41 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_42 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_43 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_44 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_45 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_46 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_47 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_48 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_49 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_50 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_51 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_52 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_53 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_54 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_55 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_56 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_57 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_58 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_59 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_60 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_61 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_62 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_63 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	execSQL	CREATE INDEX meta_limit_64 ON research_trial_registry_r929(status)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT count(*) FROM sqlite_master
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_model_bundle_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_history_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_revocation_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_certificate_gate_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_consumer_choice_r932)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA table_info(research_platform_event_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_trial_registry_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_certificate_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_certificate_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_list(research_mainline_contribution_r929)
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT sql FROM sqlite_master WHERE type='index' AND name=?
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA index_info('sqlite_autoindex_research_mainline_contribution_r929_2')
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	SELECT count(*) FROM sqlite_master
+SCHEMA_NEGATIVE_CONTROLS	rawQuery	PRAGMA schema_version
