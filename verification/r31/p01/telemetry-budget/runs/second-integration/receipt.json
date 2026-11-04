@@ -1,0 +1,256 @@
+{
+  "sourceCapturedAt": "2026-11-04T16:46:23.996641+00:00",
+  "base": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java": "2cc3ed2ebaf74f92e9b101ff12d96015eb4a742934149addf87a9d58696b7e62",
+    "app/src/main/java/com/ethk3/novaonepro/TransactionSchemaCacheR941.java": "609b31256f757a9e463973e2d93f9a1492f316187206eb1f33fd56f3db2b53eb",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java": "cc4354d257a170ce2de3579c2fe62e0e676b70593c8373deec1fe56df79483cf",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineR30.java": "b8f8af7d8593be71c5291fa4db8161254551e7298d90f7e210632548bd3075ba",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java": "97380f13f65da759fbb6ce7008c8797f9744d264d529799ca7b57e0ce05f6d89",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java": "9c8fff10bee8d6bf4dfbba95a7abe6b572826df9e93834561ce3d1444fb1a15d",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java": "0aa9a8f7ab1192f8cd89e9cacc495ef2c918e82c3eb83fa6c823cb27ff7825db"
+  },
+  "supportJar": "/tmp/r31-p02-012-actual-android-support/classes.jar",
+  "supportJarSha256": "892e5be7feb3609755c6746ea080644fd19427a90f8d9ab8493c964af1f01fa8",
+  "jdbcSha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa",
+  "androidJarSha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a",
+  "scope": "Actual production telemetry/coordinator sources; native JDBC SQLite HOST adapters, engineering fixtures; NOT_ANDROID_NOT_DEVICE_NOT_24H_NOT_72H_NOT_NATURAL_QUALITY",
+  "status": "IN_PROGRESS",
+  "runs": [
+    {
+      "name": "compile-host-platform",
+      "command": [
+        "javac",
+        "-nowarn",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-p02-012-actual-android-support/classes.jar",
+        "-d",
+        "/tmp/r31-telemetry-budgets-xtdhioge/platform",
+        "/tmp/r31-telemetry-budgets-xtdhioge/shim-source/android/database/Cursor.java",
+        "/tmp/r31-telemetry-budgets-xtdhioge/shim-source/android/database/sqlite/SQLiteDatabase.java",
+        "/tmp/r31-telemetry-budgets-xtdhioge/shim-source/android/database/sqlite/SQLiteDatabaseLockedException.java",
+        "/tmp/r31-telemetry-budgets-xtdhioge/shim-source/android/database/sqlite/SQLiteException.java",
+        "/tmp/r31-telemetry-budgets-xtdhioge/shim-source/android/content/Context.java",
+        "/tmp/r31-telemetry-budgets-xtdhioge/shim-source/android/app/Application.java",
+        "/tmp/r31-telemetry-budgets-xtdhioge/shim-source/android/os/SystemClock.java",
+        "/tmp/r31-telemetry-budgets-xtdhioge/shim-source/android/os/Process.java",
+        "/tmp/r31-telemetry-budgets-xtdhioge/shim-source/android/os/Looper.java",
+        "/tmp/r31-telemetry-budgets-xtdhioge/shim-source/android/util/Log.java",
+        "/tmp/r31-telemetry-budgets-xtdhioge/shim-source/com/ethk3/novaonepro/DbHelper.java",
+        "/tmp/r31-telemetry-budgets-xtdhioge/shim-source/com/ethk3/novaonepro/DbStore.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "compile-production",
+      "command": [
+        "javac",
+        "-nowarn",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-p02-012-actual-android-support/classes.jar",
+        "-d",
+        "/tmp/r31-telemetry-budgets-xtdhioge/production",
+        "/workspace/r31-writer-budgets/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "/workspace/r31-writer-budgets/app/src/main/java/com/ethk3/novaonepro/TransactionSchemaCacheR941.java",
+        "/workspace/r31-writer-budgets/app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+        "/workspace/r31-writer-budgets/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineR30.java",
+        "/workspace/r31-writer-budgets/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java",
+        "/workspace/r31-writer-budgets/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java",
+        "/workspace/r31-writer-budgets/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "compile-baseline-owners",
+      "command": [
+        "javac",
+        "-nowarn",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-telemetry-budgets-xtdhioge/production:/tmp/r31-p02-012-actual-android-support/classes.jar",
+        "-d",
+        "/tmp/r31-telemetry-budgets-xtdhioge/baseline",
+        "/tmp/r31-telemetry-budgets-xtdhioge/baseline-source/IssueTimelineWriterR30.java",
+        "/tmp/r31-telemetry-budgets-xtdhioge/baseline-source/HoldLedgerFlushR30.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "compile-native-tests",
+      "command": [
+        "javac",
+        "-nowarn",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-xtdhioge/platform:/tmp/r31-telemetry-budgets-xtdhioge/production:/tmp/r31-telemetry-budgets-xtdhioge/tests:/tmp/r31-p02-012-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-telemetry-budgets-xtdhioge/tests",
+        "/workspace/r31-writer-budgets/tools/r31/telemetry_budget_host/R31TelemetryBudgetHost.java",
+        "/workspace/r31-writer-budgets/tools/r30-repair/qual_host/RepairTimelineR30HostTest.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "baseline-timeline64",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-xtdhioge/platform:/tmp/r31-telemetry-budgets-xtdhioge/baseline:/tmp/r31-telemetry-budgets-xtdhioge/production:/tmp/r31-telemetry-budgets-xtdhioge/tests:/tmp/r31-p02-012-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "baseline-timeline64",
+        "/workspace/r31-writer-budgets/verification/r31/p01/telemetry-budget/runs/second-integration"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "baseline-hold65",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-xtdhioge/platform:/tmp/r31-telemetry-budgets-xtdhioge/baseline:/tmp/r31-telemetry-budgets-xtdhioge/production:/tmp/r31-telemetry-budgets-xtdhioge/tests:/tmp/r31-p02-012-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "baseline-hold65",
+        "/workspace/r31-writer-budgets/verification/r31/p01/telemetry-budget/runs/second-integration"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline64",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-xtdhioge/platform:/tmp/r31-telemetry-budgets-xtdhioge/production:/tmp/r31-telemetry-budgets-xtdhioge/tests:/tmp/r31-p02-012-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline64",
+        "/workspace/r31-writer-budgets/verification/r31/p01/telemetry-budget/runs/second-integration"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "hold65",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-xtdhioge/platform:/tmp/r31-telemetry-budgets-xtdhioge/production:/tmp/r31-telemetry-budgets-xtdhioge/tests:/tmp/r31-p02-012-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "hold65",
+        "/workspace/r31-writer-budgets/verification/r31/p01/telemetry-budget/runs/second-integration"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-first-sql-failure",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-xtdhioge/platform:/tmp/r31-telemetry-budgets-xtdhioge/production:/tmp/r31-telemetry-budgets-xtdhioge/tests:/tmp/r31-p02-012-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-first-sql-failure",
+        "/workspace/r31-writer-budgets/verification/r31/p01/telemetry-budget/runs/second-integration"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-middle-sql-failure",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-xtdhioge/platform:/tmp/r31-telemetry-budgets-xtdhioge/production:/tmp/r31-telemetry-budgets-xtdhioge/tests:/tmp/r31-p02-012-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-middle-sql-failure",
+        "/workspace/r31-writer-budgets/verification/r31/p01/telemetry-budget/runs/second-integration"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-before-commit-failure",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-xtdhioge/platform:/tmp/r31-telemetry-budgets-xtdhioge/production:/tmp/r31-telemetry-budgets-xtdhioge/tests:/tmp/r31-p02-012-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-before-commit-failure",
+        "/workspace/r31-writer-budgets/verification/r31/p01/telemetry-budget/runs/second-integration"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-after-commit-ack-failure",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-xtdhioge/platform:/tmp/r31-telemetry-budgets-xtdhioge/production:/tmp/r31-telemetry-budgets-xtdhioge/tests:/tmp/r31-p02-012-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-after-commit-ack-failure",
+        "/workspace/r31-writer-budgets/verification/r31/p01/telemetry-budget/runs/second-integration"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-unknown-then-receipt",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-xtdhioge/platform:/tmp/r31-telemetry-budgets-xtdhioge/production:/tmp/r31-telemetry-budgets-xtdhioge/tests:/tmp/r31-p02-012-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-unknown-then-receipt",
+        "/workspace/r31-writer-budgets/verification/r31/p01/telemetry-budget/runs/second-integration"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-postcommit-diagnostic",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-xtdhioge/platform:/tmp/r31-telemetry-budgets-xtdhioge/production:/tmp/r31-telemetry-budgets-xtdhioge/tests:/tmp/r31-p02-012-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-postcommit-diagnostic",
+        "/workspace/r31-writer-budgets/verification/r31/p01/telemetry-budget/runs/second-integration"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-concurrent-source",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-xtdhioge/platform:/tmp/r31-telemetry-budgets-xtdhioge/production:/tmp/r31-telemetry-budgets-xtdhioge/tests:/tmp/r31-p02-012-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-concurrent-source",
+        "/workspace/r31-writer-budgets/verification/r31/p01/telemetry-budget/runs/second-integration"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-concurrent-new",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-xtdhioge/platform:/tmp/r31-telemetry-budgets-xtdhioge/production:/tmp/r31-telemetry-budgets-xtdhioge/tests:/tmp/r31-p02-012-actual-android-support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-concurrent-new",
+        "/workspace/r31-writer-budgets/verification/r31/p01/telemetry-budget/runs/second-integration"
+      ],
+      "exitCode": 1
+    }
+  ]
+}

@@ -1,0 +1,552 @@
+{
+  "recordedAt": "2026-11-04T17:08:46.117000+00:00",
+  "base": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
+  "branch": "construction/r31-writer-budgets-20261104",
+  "worktree": "/workspace/r31-writer-budgets",
+  "scope": "Only IssueTimelineWriterR30 and HoldLedgerFlushR30 plus owned host fixture/runner/evidence",
+  "status": "HOST_NATIVE_VERIFIED_SCOPE_ONLY",
+  "card": "R31-B02-C02",
+  "cardClosure": false,
+  "productionSourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java": "31476d4cee77f827ce9c0217f42c95bf1ad419ebbe5c0cb7c8e986221d658f37",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java": "ee697f455edd9c0c5e254226e36aad4f8459e031cce88353a9e93aad92ad79a9"
+  },
+  "sourceCapturedAt": "2026-11-04T17:05:55.853181+00:00",
+  "completedAt": "2026-11-04T17:06:21.537938+00:00",
+  "baselineCases": [
+    {
+      "case": "baseline-timeline64",
+      "transactions": 1,
+      "maxSqlCalls": 320,
+      "maxBindBytes": 77365,
+      "businessDdl": 0
+    },
+    {
+      "case": "baseline-hold65",
+      "transactions": 1,
+      "maxSqlCalls": 67,
+      "maxBindBytes": 35813,
+      "businessDdl": 1
+    }
+  ],
+  "currentNativeCases": 22,
+  "assertions": 4285,
+  "actualTransactionAttempts": 75,
+  "actualCommittedTransactions": 68,
+  "actualRolledBackTransactions": 7,
+  "maxActualSqlCallsIncludingProtocol": 59,
+  "maxActualBindBytesIncludingProtocol": 245206,
+  "maxActualWriterHoldMsFromProductionLedger": 79,
+  "businessDdlCount": 0,
+  "dynamicCapsMeasured": [
+    131072,
+    262144
+  ],
+  "originalTimelineRegression": "COMPLETED_ORIGINAL_ASSERTIONS_UNCHANGED",
+  "sourceAndSupportBinding": {
+    "sourcesUnchangedDuringRun": true,
+    "supportJarSha256": "892e5be7feb3609755c6746ea080644fd19427a90f8d9ab8493c964af1f01fa8",
+    "supportJarStillSameAtSummary": true
+  },
+  "notRun": [
+    "Gradle/full app joint build",
+    "Android instrumentation and WAL/checkpoint latency for this patch",
+    "Physical Android lifecycle/24h/72h",
+    "Natural strategy quality"
+  ],
+  "remaining": [
+    "B02 other producer/staging debts remain OPEN",
+    "Single oversized original event remains pending with explicit budget debt; no source truncation or extra directory falsely claimed as reclaimed",
+    "Unflushed RAM clocks/histograms retain existing process-only durability boundary; process death can leave UNKNOWN, no new durable telemetry outbox claimed",
+    "Shared r31_commit_receipt retention/admission lifecycle must remain under existing B05 owner; this patch adds no cleanup or new schema",
+    "Historical package-private flushCommittedWithin retained for unchanged original regression; no production call site uses it, and no global all-path short-transaction claim is made",
+    "Rows of the same Hold window can be published across successive short transactions; pending closed-window rows remain in memory until confirmed, and pendingRows is scoped to that closed window, not the still-open live accumulator"
+  ],
+  "migration": {
+    "newSchema": false,
+    "newDatabase": false,
+    "schemaOwner": "Existing SchemaR27 startup contract, columns required read-only at admission and inside transaction",
+    "existingTables": [
+      "r30_writer_hold",
+      "r27_chart_cache",
+      "r31_commit_receipt"
+    ],
+    "databaseVersionChange": false
+  },
+  "apk": "NOT_BUILT_THIS_BRANCH; existing validation APK does not contain unmerged repair",
+  "remote": "NOT_PUSHED",
+  "receipt": "runs/final-cast-bound-source/receipt.json",
+  "sourceReadBoundary": {
+    "timeline-byte-budget-64m": {
+      "cap": 131072,
+      "actualMaxSourcePayloadBytesRead": 40586
+    },
+    "timeline-byte-budget": {
+      "cap": 262144,
+      "actualMaxSourcePayloadBytesRead": 200585
+    }
+  },
+  "hostWriterHoldTargetEvidence": {
+    "scope": "All75 actual attempts of final source, including rollback faults and fresh JVM starts; no failed/slow denominator excluded. Not Android/device SLO.",
+    "attemptCount": 75,
+    "nearestRankP99Ms": 79,
+    "committedAttemptCount": 68,
+    "committedNearestRankP99Ms": 61,
+    "targetMs": 50,
+    "overTargetAttempts": 2,
+    "over200msAttempts": 0,
+    "status": "HOST_OBSERVED_TARGET_NOT_MET",
+    "allClassifiedAttempts": [
+      {
+        "case": "timeline-after-commit-ack-failure",
+        "attempt": 1,
+        "holdMs": 18,
+        "committed": true
+      },
+      {
+        "case": "timeline-after-commit-ack-failure",
+        "attempt": 2,
+        "holdMs": 22,
+        "committed": true
+      },
+      {
+        "case": "timeline-after-commit-ack-failure",
+        "attempt": 3,
+        "holdMs": 5,
+        "committed": true
+      },
+      {
+        "case": "hold-middle-sql-failure",
+        "attempt": 1,
+        "holdMs": 31,
+        "committed": true
+      },
+      {
+        "case": "hold-middle-sql-failure",
+        "attempt": 2,
+        "holdMs": 7,
+        "committed": false
+      },
+      {
+        "case": "hold-middle-sql-failure",
+        "attempt": 3,
+        "holdMs": 9,
+        "committed": true
+      },
+      {
+        "case": "hold-middle-sql-failure",
+        "attempt": 4,
+        "holdMs": 5,
+        "committed": true
+      },
+      {
+        "case": "timeline64",
+        "attempt": 1,
+        "holdMs": 16,
+        "committed": true
+      },
+      {
+        "case": "timeline64",
+        "attempt": 2,
+        "holdMs": 34,
+        "committed": true
+      },
+      {
+        "case": "timeline64",
+        "attempt": 3,
+        "holdMs": 18,
+        "committed": true
+      },
+      {
+        "case": "hold-unknown-then-receipt",
+        "attempt": 1,
+        "holdMs": 23,
+        "committed": true
+      },
+      {
+        "case": "hold-unknown-then-receipt",
+        "attempt": 2,
+        "holdMs": 15,
+        "committed": true
+      },
+      {
+        "case": "hold-unknown-then-receipt",
+        "attempt": 3,
+        "holdMs": 1,
+        "committed": true
+      },
+      {
+        "case": "hold-unknown-then-receipt",
+        "attempt": 4,
+        "holdMs": 6,
+        "committed": true
+      },
+      {
+        "case": "timeline-before-commit-failure",
+        "attempt": 1,
+        "holdMs": 37,
+        "committed": true
+      },
+      {
+        "case": "timeline-before-commit-failure",
+        "attempt": 2,
+        "holdMs": 27,
+        "committed": false
+      },
+      {
+        "case": "timeline-before-commit-failure",
+        "attempt": 3,
+        "holdMs": 7,
+        "committed": true
+      },
+      {
+        "case": "timeline-before-commit-failure",
+        "attempt": 4,
+        "holdMs": 4,
+        "committed": true
+      },
+      {
+        "case": "timeline-existing-durable",
+        "attempt": 1,
+        "holdMs": 13,
+        "committed": true
+      },
+      {
+        "case": "timeline-existing-durable",
+        "attempt": 2,
+        "holdMs": 16,
+        "committed": true
+      },
+      {
+        "case": "timeline-existing-durable",
+        "attempt": 3,
+        "holdMs": 4,
+        "committed": true
+      },
+      {
+        "case": "hold-after-commit-ack-failure",
+        "attempt": 1,
+        "holdMs": 32,
+        "committed": true
+      },
+      {
+        "case": "hold-after-commit-ack-failure",
+        "attempt": 2,
+        "holdMs": 16,
+        "committed": true
+      },
+      {
+        "case": "hold-after-commit-ack-failure",
+        "attempt": 3,
+        "holdMs": 5,
+        "committed": true
+      },
+      {
+        "case": "hold-before-commit-failure",
+        "attempt": 1,
+        "holdMs": 28,
+        "committed": true
+      },
+      {
+        "case": "hold-before-commit-failure",
+        "attempt": 2,
+        "holdMs": 13,
+        "committed": false
+      },
+      {
+        "case": "hold-before-commit-failure",
+        "attempt": 3,
+        "holdMs": 10,
+        "committed": true
+      },
+      {
+        "case": "hold-before-commit-failure",
+        "attempt": 4,
+        "holdMs": 12,
+        "committed": true
+      },
+      {
+        "case": "timeline-unknown-then-receipt",
+        "attempt": 1,
+        "holdMs": 12,
+        "committed": true
+      },
+      {
+        "case": "timeline-unknown-then-receipt",
+        "attempt": 2,
+        "holdMs": 40,
+        "committed": true
+      },
+      {
+        "case": "timeline-unknown-then-receipt",
+        "attempt": 3,
+        "holdMs": 7,
+        "committed": true
+      },
+      {
+        "case": "timeline-unknown-then-receipt",
+        "attempt": 4,
+        "holdMs": 7,
+        "committed": true
+      },
+      {
+        "case": "hold-concurrent-new",
+        "attempt": 1,
+        "holdMs": 34,
+        "committed": true
+      },
+      {
+        "case": "hold-concurrent-new",
+        "attempt": 2,
+        "holdMs": 13,
+        "committed": true
+      },
+      {
+        "case": "hold-concurrent-new",
+        "attempt": 3,
+        "holdMs": 5,
+        "committed": true
+      },
+      {
+        "case": "timeline-concurrent-new",
+        "attempt": 1,
+        "holdMs": 13,
+        "committed": true
+      },
+      {
+        "case": "timeline-concurrent-new",
+        "attempt": 2,
+        "holdMs": 8,
+        "committed": true
+      },
+      {
+        "case": "timeline-concurrent-new",
+        "attempt": 3,
+        "holdMs": 3,
+        "committed": true
+      },
+      {
+        "case": "timeline-concurrent-new",
+        "attempt": 4,
+        "holdMs": 1,
+        "committed": true
+      },
+      {
+        "case": "hold65",
+        "attempt": 1,
+        "holdMs": 61,
+        "committed": true
+      },
+      {
+        "case": "hold65",
+        "attempt": 2,
+        "holdMs": 15,
+        "committed": true
+      },
+      {
+        "case": "hold65",
+        "attempt": 3,
+        "holdMs": 7,
+        "committed": true
+      },
+      {
+        "case": "timeline-byte-budget-64m",
+        "attempt": 1,
+        "holdMs": 6,
+        "committed": true
+      },
+      {
+        "case": "timeline-byte-budget-64m",
+        "attempt": 2,
+        "holdMs": 4,
+        "committed": true
+      },
+      {
+        "case": "timeline-byte-budget-64m",
+        "attempt": 3,
+        "holdMs": 3,
+        "committed": true
+      },
+      {
+        "case": "hold-first-sql-failure",
+        "attempt": 1,
+        "holdMs": 19,
+        "committed": false
+      },
+      {
+        "case": "hold-first-sql-failure",
+        "attempt": 2,
+        "holdMs": 16,
+        "committed": true
+      },
+      {
+        "case": "hold-first-sql-failure",
+        "attempt": 3,
+        "holdMs": 10,
+        "committed": true
+      },
+      {
+        "case": "hold-first-sql-failure",
+        "attempt": 4,
+        "holdMs": 6,
+        "committed": true
+      },
+      {
+        "case": "hold-prune",
+        "attempt": 1,
+        "holdMs": 28,
+        "committed": true
+      },
+      {
+        "case": "hold-prune",
+        "attempt": 2,
+        "holdMs": 10,
+        "committed": true
+      },
+      {
+        "case": "hold-prune",
+        "attempt": 3,
+        "holdMs": 5,
+        "committed": true
+      },
+      {
+        "case": "hold-prune",
+        "attempt": 4,
+        "holdMs": 6,
+        "committed": true
+      },
+      {
+        "case": "hold-prune",
+        "attempt": 5,
+        "holdMs": 5,
+        "committed": true
+      },
+      {
+        "case": "hold-prune",
+        "attempt": 6,
+        "holdMs": 4,
+        "committed": true
+      },
+      {
+        "case": "hold-prune",
+        "attempt": 7,
+        "holdMs": 1,
+        "committed": true
+      },
+      {
+        "case": "timeline-byte-budget",
+        "attempt": 1,
+        "holdMs": 7,
+        "committed": true
+      },
+      {
+        "case": "timeline-concurrent-source",
+        "attempt": 1,
+        "holdMs": 7,
+        "committed": false
+      },
+      {
+        "case": "timeline-concurrent-source",
+        "attempt": 2,
+        "holdMs": 9,
+        "committed": true
+      },
+      {
+        "case": "timeline-concurrent-source",
+        "attempt": 3,
+        "holdMs": 6,
+        "committed": true
+      },
+      {
+        "case": "timeline-concurrent-source",
+        "attempt": 4,
+        "holdMs": 4,
+        "committed": true
+      },
+      {
+        "case": "timeline-middle-sql-failure",
+        "attempt": 1,
+        "holdMs": 15,
+        "committed": true
+      },
+      {
+        "case": "timeline-middle-sql-failure",
+        "attempt": 2,
+        "holdMs": 79,
+        "committed": false
+      },
+      {
+        "case": "timeline-middle-sql-failure",
+        "attempt": 3,
+        "holdMs": 14,
+        "committed": true
+      },
+      {
+        "case": "timeline-middle-sql-failure",
+        "attempt": 4,
+        "holdMs": 26,
+        "committed": true
+      },
+      {
+        "case": "timeline-first-sql-failure",
+        "attempt": 1,
+        "holdMs": 8,
+        "committed": false
+      },
+      {
+        "case": "timeline-first-sql-failure",
+        "attempt": 2,
+        "holdMs": 10,
+        "committed": true
+      },
+      {
+        "case": "timeline-first-sql-failure",
+        "attempt": 3,
+        "holdMs": 7,
+        "committed": true
+      },
+      {
+        "case": "timeline-first-sql-failure",
+        "attempt": 4,
+        "holdMs": 4,
+        "committed": true
+      },
+      {
+        "case": "timeline-postcommit-diagnostic",
+        "attempt": 1,
+        "holdMs": 35,
+        "committed": true
+      },
+      {
+        "case": "timeline-postcommit-diagnostic",
+        "attempt": 2,
+        "holdMs": 25,
+        "committed": true
+      },
+      {
+        "case": "timeline-postcommit-diagnostic",
+        "attempt": 3,
+        "holdMs": 12,
+        "committed": true
+      },
+      {
+        "case": "hold-postcommit-diagnostic",
+        "attempt": 1,
+        "holdMs": 28,
+        "committed": true
+      },
+      {
+        "case": "hold-postcommit-diagnostic",
+        "attempt": 2,
+        "holdMs": 13,
+        "committed": true
+      },
+      {
+        "case": "hold-postcommit-diagnostic",
+        "attempt": 3,
+        "holdMs": 8,
+        "committed": true
+      }
+    ]
+  }
+}

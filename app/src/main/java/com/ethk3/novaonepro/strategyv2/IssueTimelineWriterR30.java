@@ -23,24 +23,96 @@ public final class IssueTimelineWriterR30 {
     private static final java.util.concurrent.atomic.AtomicBoolean FLUSHING_COMMITTED=new java.util.concurrent.atomic.AtomicBoolean();
     private static final java.util.concurrent.atomic.AtomicLong OMITTED_COMMITTED=new java.util.concurrent.atomic.AtomicLong();
     private static final java.util.concurrent.atomic.AtomicLong DIAGNOSTIC_FAILURES=new java.util.concurrent.atomic.AtomicLong();
+    private static volatile PreparedCommittedR31 preparedCommittedR31;
+    private static volatile String committedFlushReasonR31="NOT_SAMPLED";
+    private static volatile int committedPreparedOpsR31;
+    private static volatile long committedPreparedBytesR31;
     static final class Committed {final String event,clock;final IssueTimelineR30.Stage stage;final long wall,mono;Committed(String event,IssueTimelineR30.Stage stage,long wall,long mono,String clock){this.event=event;this.stage=stage;this.wall=wall;this.mono=mono;this.clock=clock;}}
+    private static final class PreparedCommittedR31 {
+        final java.util.List<Committed> observations;final HoldLedgerFlushR30.ChunkR31 chunk;
+        PreparedCommittedR31(java.util.List<Committed> observations,java.util.List<HoldLedgerFlushR30.PreparedRowR31> rows) {
+            this.observations=java.util.Collections.unmodifiableList(new java.util.ArrayList<>(observations));
+            chunk=new HoldLedgerFlushR30.ChunkR31("timeline-commit-observations",HashingSU1.fields("ORIGINAL_COMMIT_CLOCKS",JsonR27.write(observationIdentitiesR31(observations))),0,rows);
+        }
+    }
+    private static java.util.List<Object> observationIdentitiesR31(java.util.List<Committed> observations) {
+        java.util.List<Object> keys=new java.util.ArrayList<>();for(Committed r:observations)keys.add(java.util.Arrays.asList(r.event,r.stage.name(),r.wall,r.mono,r.clock));return keys;
+    }
     /** Called only after the caller observes a successful transaction return, after COMMIT and writer release. */
     public static void committed(String event,IssueTimelineR30.Stage stage){try{committedAt(event,stage,System.currentTimeMillis(),SystemClock.elapsedRealtime(),BOOT_ID);}catch(RuntimeException unavailable){diagnosticFailure(unavailable);}}
     static void committedAt(String event,IssueTimelineR30.Stage stage,long wall,long mono,String clock){
         if(event==null||stage!=IssueTimelineR30.Stage.SETTLED&&stage!=IssueTimelineR30.Stage.NEXT_FROZEN)return;
         try{String key=event+"|"+stage;if(COMMITTED.containsKey(key))return;if(COMMITTED_SIZE.incrementAndGet()>256){COMMITTED_SIZE.decrementAndGet();OMITTED_COMMITTED.incrementAndGet();return;}if(COMMITTED.putIfAbsent(key,new Committed(event,stage,wall,mono,clock))!=null)COMMITTED_SIZE.decrementAndGet();}catch(RuntimeException ignored){}
     }
-    static void flushCommittedWithin(SQLiteDatabase db,java.util.List<Committed> receipts){
+    /** Historical transaction-local test API. The production flush below prepares outside the writer. */
+    @Deprecated static void flushCommittedWithin(SQLiteDatabase db,java.util.List<Committed> receipts){
         for(Committed receipt:receipts){java.util.Map<String,Object> row=readEvent(db,receipt.event);if(row==null||row.get("durable_mono")!=null)continue;row.put("durable_wall",receipt.wall);row.put("durable_mono",receipt.mono);row.put("durable_boot",receipt.clock);row.put("durable_stage",receipt.stage.name());row.put("timing_boundary","CALLER_OBSERVED_SUCCESS_AFTER_SQLITE_COMMIT");saveEvent(db,row);}
     }
     public static void flushCommitted(com.ethk3.novaonepro.DbStore store){
         if(COMMITTED.isEmpty()||!FLUSHING_COMMITTED.compareAndSet(false,true))return;
-        try{java.util.List<Committed> receipts=new java.util.ArrayList<>();for(Committed receipt:COMMITTED.values()){receipts.add(receipt);if(receipts.size()==64)break;}
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R30_TIMELINE_COMMIT_OBSERVATIONS",db->{flushCommittedWithin(db,receipts);return 0;});
-            for(Committed receipt:receipts)if(COMMITTED.remove(receipt.event+"|"+receipt.stage,receipt))COMMITTED_SIZE.decrementAndGet();
-        }catch(RuntimeException unavailable){diagnosticFailure(unavailable);}finally{FLUSHING_COMMITTED.set(false);}
+        try {
+            HoldLedgerFlushR30.requireReadyR31(store.readable(),false);
+            if(preparedCommittedR31==null)preparedCommittedR31=prepareCommittedR31(store.readable());
+            PreparedCommittedR31 prepared=preparedCommittedR31;if(prepared==null)return;
+            committedPreparedOpsR31=prepared.chunk.ops+HoldLedgerFlushR30.PROTOCOL_OPS_R31;
+            committedPreparedBytesR31=prepared.chunk.bytes+HoldLedgerFlushR30.protocolBindBytesR31();
+            committedFlushReasonR31=HoldLedgerFlushR30.commitR31(store,"R30_TIMELINE_COMMIT_OBSERVATIONS",false,prepared.chunk).outcome.name();
+            for(Committed receipt:prepared.observations)if(COMMITTED.remove(receipt.event+"|"+receipt.stage,receipt))COMMITTED_SIZE.decrementAndGet();
+            preparedCommittedR31=null;
+        }catch(RuntimeException unavailable) {
+            HoldLedgerFlushR30.rethrowFatalR31(unavailable);
+            // A changed source rolls the WHOLE prepared transaction back. Rebase on the next owner slice;
+            // the original observation objects and their wall/mono/boot clocks remain untouched.
+            if(unavailable instanceof com.ethk3.novaonepro.DatabaseCoordinator.WriteRejectedR31
+                    &&((com.ethk3.novaonepro.DatabaseCoordinator.WriteRejectedR31)unavailable).commitOutcome==com.ethk3.novaonepro.DatabaseCoordinator.CommitOutcome.ROLLED_BACK
+                    &&HoldLedgerFlushR30.preparedConflictR31(unavailable))preparedCommittedR31=null;
+            committedFlushReasonR31=unavailable.getMessage();diagnosticFailure(unavailable);
+        }finally{FLUSHING_COMMITTED.set(false);}
     }
-    public static java.util.Map<String,Object> commitObservationState(){java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();out.put("scope","CURRENT_PROCESS_PENDING_RECEIPTS; unflushed commit instants UNKNOWN after process death");out.put("pending",COMMITTED_SIZE.get());out.put("omittedDueToBound",OMITTED_COMMITTED.get());out.put("diagnosticFailures",DIAGNOSTIC_FAILURES.get());out.put("clockScope",BOOT_ID.startsWith("KERNEL_BOOT:")?"KERNEL_BOOT":"PROCESS_ONLY_CONSERVATIVE");return out;}
+    @SuppressWarnings("unchecked") private static PreparedCommittedR31 prepareCommittedR31(SQLiteDatabase ro) {
+        java.util.List<Committed> candidates=new java.util.ArrayList<>(COMMITTED.values());
+        candidates.sort((a,b)->{int order=Long.compare(a.mono,b.mono);return order!=0?order:(a.event+"|"+a.stage).compareTo(b.event+"|"+b.stage);});
+        java.util.List<Committed> observations=new java.util.ArrayList<>();java.util.List<HoldLedgerFlushR30.PreparedRowR31> rows=new java.util.ArrayList<>();
+        java.util.Set<String> preparedEvents=new java.util.HashSet<>();
+        int ops=0;long bytes=0;boolean deferred=false;
+        for(Committed receipt:candidates) {
+            // Different stages can observe the same original event while a flush is in flight.
+            // Publish/verify that row once per transaction; retain the other observation for the next slice.
+            if(preparedEvents.contains(receipt.event))continue;
+            String panel=null,original=null;
+            // One read snapshot, no split-panel race. Oversized source text is not materialized on the heap.
+            try(android.database.Cursor c=ro.rawQuery("SELECT panel_id,CASE WHEN length(CAST(payload_json AS BLOB))<=CAST(? AS INTEGER) THEN payload_json ELSE NULL END FROM r27_chart_cache WHERE key=? AND panel_id IN (?,?,?)",
+                    new String[]{Long.toString(HoldLedgerFlushR30.bindCapR31()),receipt.event,IssueTimelineR30.EVENT_DRAW_PANEL,IssueTimelineR30.EVENT_PRED_PANEL,IssueTimelineR30.EVENT_RAW_PANEL})) {
+                if(!c.moveToFirst()){committedFlushReasonR31="DEPENDENCY(ORIGINAL_EVENT_NOT_VISIBLE)";deferred=true;continue;}
+                panel=c.getString(0);original=c.getString(1);
+                if(c.moveToNext())throw new IllegalStateException("R30_TIMELINE_DUPLICATE_STORAGE_IDENTITY");
+            }
+            if(original==null){committedFlushReasonR31="R31_TELEMETRY_SINGLE_ROW_BUDGET_DEBT";deferred=true;continue;}
+            Object parsed=JsonR27.parse(original);
+            if(!(parsed instanceof java.util.Map))throw new IllegalStateException("R30_TIMELINE_PAYLOAD_UNREADABLE");
+            java.util.Map<String,Object> row=new java.util.LinkedHashMap<>((java.util.Map<String,Object>)parsed);
+            if(!receipt.event.equals(row.get("event_id"))||!"ISSUE_EVENT_R30_REPAIR_1".equals(row.get("version")))throw new IllegalStateException("R30_TIMELINE_EVENT_IDENTITY_UNREADABLE");
+            String unique=" AND 1=(SELECT count(*) FROM r27_chart_cache WHERE key=? AND panel_id IN (?,?,?))";
+            HoldLedgerFlushR30.PreparedRowR31 prepared;
+            if(row.get("durable_mono")!=null) {
+                // Preserve an earlier committed observation, even when this later receipt carries another clock.
+                prepared=new HoldLedgerFlushR30.PreparedRowR31(null,new Object[0],"SELECT 1 FROM r27_chart_cache WHERE panel_id=? AND key=? AND payload_json=?"+unique,
+                        new String[]{panel,receipt.event,original,receipt.event,IssueTimelineR30.EVENT_DRAW_PANEL,IssueTimelineR30.EVENT_PRED_PANEL,IssueTimelineR30.EVENT_RAW_PANEL});
+            } else {
+                row.put("durable_wall",receipt.wall);row.put("durable_mono",receipt.mono);row.put("durable_boot",receipt.clock);row.put("durable_stage",receipt.stage.name());row.put("timing_boundary","CALLER_OBSERVED_SUCCESS_AFTER_SQLITE_COMMIT");
+                String payload=JsonR27.write(row);
+                prepared=new HoldLedgerFlushR30.PreparedRowR31("UPDATE r27_chart_cache SET payload_json=? WHERE panel_id=? AND key=? AND payload_json=?"+unique,
+                        new Object[]{payload,panel,receipt.event,original,receipt.event,IssueTimelineR30.EVENT_DRAW_PANEL,IssueTimelineR30.EVENT_PRED_PANEL,IssueTimelineR30.EVENT_RAW_PANEL},
+                        "SELECT 1 WHERE changes()=1",new String[0]);
+            }
+            if(!HoldLedgerFlushR30.fitsR31(prepared.ops,prepared.bytes)){committedFlushReasonR31="R31_TELEMETRY_SINGLE_ROW_BUDGET_DEBT";deferred=true;continue;}
+            if(!HoldLedgerFlushR30.fitsR31(ops+prepared.ops,bytes+prepared.bytes))break;
+            rows.add(prepared);observations.add(receipt);preparedEvents.add(receipt.event);ops+=prepared.ops;bytes+=prepared.bytes;
+        }
+        if(rows.isEmpty()){if(!deferred)committedFlushReasonR31="NO_PENDING_ORIGINAL_EVENT";return null;}
+        return new PreparedCommittedR31(observations,rows);
+    }
+    public static java.util.Map<String,Object> commitObservationState(){java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();out.put("scope","CURRENT_PROCESS_PENDING_RECEIPTS; unflushed commit instants UNKNOWN after process death");out.put("pending",COMMITTED_SIZE.get());out.put("omittedDueToBound",OMITTED_COMMITTED.get());out.put("diagnosticFailures",DIAGNOSTIC_FAILURES.get());out.put("clockScope",BOOT_ID.startsWith("KERNEL_BOOT:")?"KERNEL_BOOT":"PROCESS_ONLY_CONSERVATIVE");out.put("flushReason",committedFlushReasonR31);out.put("lastPreparedOpsIncludingAllowance",committedPreparedOpsR31);out.put("lastPreparedBindBytesIncludingAllowance",committedPreparedBytesR31);out.put("bindCap",HoldLedgerFlushR30.bindCapR31());return out;}
     private static String realBootOrConservativeProcessScope(){
         try(java.io.BufferedReader reader=new java.io.BufferedReader(new java.io.FileReader("/proc/sys/kernel/random/boot_id"))){String value=reader.readLine();if(value!=null&&value.matches("[0-9a-fA-F-]{36}"))return "KERNEL_BOOT:"+value.toLowerCase(java.util.Locale.ROOT);}
         catch(java.io.IOException|SecurityException unavailable){}

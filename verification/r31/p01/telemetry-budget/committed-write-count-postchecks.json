@@ -1,0 +1,141 @@
+{
+  "sourceRun": "runs/final-cast-bound-source",
+  "scope": "Read-only original raw-call traces joined to native transaction outcomes; only committed calls included.",
+  "checks": [
+    {
+      "case": "timeline-after-commit-ack-failure",
+      "committedOriginalEventUpdates": 64,
+      "expected": 64,
+      "match": true
+    },
+    {
+      "case": "hold-middle-sql-failure",
+      "committedOperationRowInsertCalls": 65,
+      "expected": 65,
+      "committedExpiredRowDeletes": 0,
+      "match": true
+    },
+    {
+      "case": "timeline64",
+      "committedOriginalEventUpdates": 64,
+      "expected": 64,
+      "match": true
+    },
+    {
+      "case": "hold-unknown-then-receipt",
+      "committedOperationRowInsertCalls": 65,
+      "expected": 65,
+      "committedExpiredRowDeletes": 0,
+      "match": true
+    },
+    {
+      "case": "timeline-before-commit-failure",
+      "committedOriginalEventUpdates": 64,
+      "expected": 64,
+      "match": true
+    },
+    {
+      "case": "timeline-existing-durable",
+      "committedOriginalEventUpdates": 63,
+      "expected": 63,
+      "match": true
+    },
+    {
+      "case": "hold-after-commit-ack-failure",
+      "committedOperationRowInsertCalls": 65,
+      "expected": 65,
+      "committedExpiredRowDeletes": 0,
+      "match": true
+    },
+    {
+      "case": "hold-before-commit-failure",
+      "committedOperationRowInsertCalls": 65,
+      "expected": 65,
+      "committedExpiredRowDeletes": 0,
+      "match": true
+    },
+    {
+      "case": "timeline-unknown-then-receipt",
+      "committedOriginalEventUpdates": 64,
+      "expected": 64,
+      "match": true
+    },
+    {
+      "case": "hold-concurrent-new",
+      "committedOperationRowInsertCalls": 65,
+      "expected": 65,
+      "committedExpiredRowDeletes": 0,
+      "match": true
+    },
+    {
+      "case": "timeline-concurrent-new",
+      "committedOriginalEventUpdates": 64,
+      "expected": 64,
+      "match": true
+    },
+    {
+      "case": "hold65",
+      "committedOperationRowInsertCalls": 65,
+      "expected": 65,
+      "committedExpiredRowDeletes": 0,
+      "match": true
+    },
+    {
+      "case": "timeline-byte-budget-64m",
+      "committedOriginalEventUpdates": 3,
+      "expected": 3,
+      "match": true
+    },
+    {
+      "case": "hold-first-sql-failure",
+      "committedOperationRowInsertCalls": 65,
+      "expected": 65,
+      "committedExpiredRowDeletes": 0,
+      "match": true
+    },
+    {
+      "case": "hold-prune",
+      "committedOperationRowInsertCalls": 65,
+      "expected": 65,
+      "committedExpiredRowDeletes": 160,
+      "match": true
+    },
+    {
+      "case": "timeline-byte-budget",
+      "committedOriginalEventUpdates": 3,
+      "expected": 3,
+      "match": true
+    },
+    {
+      "case": "timeline-concurrent-source",
+      "committedOriginalEventUpdates": 64,
+      "expected": 64,
+      "match": true
+    },
+    {
+      "case": "timeline-middle-sql-failure",
+      "committedOriginalEventUpdates": 64,
+      "expected": 64,
+      "match": true
+    },
+    {
+      "case": "timeline-first-sql-failure",
+      "committedOriginalEventUpdates": 64,
+      "expected": 64,
+      "match": true
+    },
+    {
+      "case": "timeline-postcommit-diagnostic",
+      "committedOriginalEventUpdates": 64,
+      "expected": 64,
+      "match": true
+    },
+    {
+      "case": "hold-postcommit-diagnostic",
+      "committedOperationRowInsertCalls": 65,
+      "expected": 65,
+      "committedExpiredRowDeletes": 0,
+      "match": true
+    }
+  ]
+}
