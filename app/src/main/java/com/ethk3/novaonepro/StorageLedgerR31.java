@@ -22,10 +22,14 @@ public final class StorageLedgerR31 {
                 StorageCensusSU2.Census census=StorageCensusSU2.measure(root);long reserved=-1;String budgetState="UNKNOWN";
                 try{Map<String,Object> budget=new StorageBudgetR31(root).snapshot();reserved=((Number)budget.get("unallocatedReservationBytes")).longValue();budgetState=String.valueOf(budget.get("state"));}
                 catch(IOException unavailable){budgetState="UNKNOWN:"+unavailable.getClass().getSimpleName();}
-                Point point=recordWithin(census,phase,owner,now,new File(root.getPath()).getUsableSpace(),reserved,budgetState,"ACTUAL_RUNTIME");return point.map("RECORDED");
+                Point point=recordWithin(census,phase,owner,now,observedUsableBytesR31(),reserved,budgetState,"ACTUAL_RUNTIME");return point.map("RECORDED");
             }finally{lease.release();}
         }}
     }
+    // This metric observes currently usable physical space; it grants no allocation.
+    // StorageManager allocatable bytes can include caches that have not been released.
+    @android.annotation.SuppressLint("UsableSpace")
+    private long observedUsableBytesR31(){return root.getUsableSpace();}
     private static Map<String,Object> waitOwner(){Map<String,Object> out=new LinkedHashMap<>();out.put("status","WAITING_SAMPLE_OWNER");out.put("physicalBytes",null);return out;}
     /** Deterministic clock fixtures are labeled by clockRole; they do not represent elapsed handset time. */
     public void record(StorageCensusSU2.Census census,String phase,String owner,long wall,long free,long reserved,String budgetState,String clockRole)throws IOException{

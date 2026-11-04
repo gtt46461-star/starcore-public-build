@@ -208,9 +208,10 @@ public final class QualInboxR29HostTest {
             long[] k = new long[1]; s.commit("LIVE_SETTLE", LiveShadowsR27.settleBatch(db, 30, k));
             SequentialQualificationR27.State a = StoreR27.readEprocess(db, w.id), b2 = StoreR27.readEprocess(db, w.id);
             List<QualificationInboxR29.Row> rows = QualificationInboxR29.rows(db, w.id, -1, 300);
-            QualificationInboxR29.Plan p1 = QualificationInboxR29.plan(a, rows, 30, 256), p2 = QualificationInboxR29.plan(b2, rows, 30, 256);
+            QualificationInboxR29.Plan p1 = QualificationInboxR29.plan(a, rows, 30, 16), p2 = QualificationInboxR29.plan(b2, rows, 30, 16);
             boolean first = s.commit("A", QualificationInboxR29.step(w.id, a, p1, -1, 0)); boolean second;
             try { second = s.commit("B", QualificationInboxR29.step(w.id, b2, p2, -1, 0)); } catch (IllegalStateException cas) { second = !QualificationInboxR29.precondition(cas); }
+            pass(db, s, 30); // Finish the remaining original opportunities through bounded production prefixes.
             check("Q6_STALE_STEP_COMMITS_NOTHING", first && !second && invariants(db, w.id) == null && same(StoreR27.readEprocess(db, w.id), w.reference()) == null,
                     "first=" + first + " second=" + second + " receipts=" + scalar(db, "SELECT count(*) FROM r29_qual_receipt"));
         }

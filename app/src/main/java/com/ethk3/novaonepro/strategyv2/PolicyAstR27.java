@@ -194,7 +194,7 @@ public final class PolicyAstR27 {
         try{
             if(LEAVES.containsKey(n.op)){
                 int a=n.ints.length>0?n.ints[0]:0,b=n.ints.length>1?n.ints[1]:0;if(n.op.equals("regime")){b=a;a=0;}
-                if(n.op.equals("family")){result=f.scratchPoolR31().borrow(critical);f.familyIntoR31(tp,a,result.values);complete=true;return result;}
+                if(n.op.equals("family")){result=f.scratchPoolR31().borrow(critical);f.familyIntoR31(tp,a,result.values,critical);complete=true;return result;}
                 SharedFeatureStoreR31.Reader reader=f.acquireLeafR31(n.op,tp,a,b,critical);result=reader==null?ScopedScoresR31.legacy(f.leafWithPriorityR31(n.op,tp,a,b,critical)):new ScopedScoresR31(reader);
                 if(n.modelPositions!=0){ScopedScoresR31 copy=f.scratchPoolR31().borrow(critical);System.arraycopy(result.values,0,copy.values,0,copy.values.length);result.close();result=copy;}
             }else{

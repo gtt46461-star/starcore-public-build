@@ -86,6 +86,7 @@ public final class LifecycleHealthR963 {
         if(Build.VERSION.SDK_INT>=35)try{forceStopped=Api35R31.currentStartWasForceStopped(am,mainProcess);if(forceStopped!=null)startSource="ApplicationStartInfo.wasForceStopped/current_pid_and_process";}catch(RuntimeException failed){Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failed);if(fatal!=null)throw fatal;startSource="UNKNOWN_START_HISTORY:"+failed.getClass().getSimpleName();}
         prefs(app).edit().putString("system_exits",b.toString()).putString("r31_interruption_summary",interruptionSummaryR31(observed,latestMainExit,forceStopped,startSource,latestReason)).putLong("r31_exit_observed_at",observed).apply();
     }
+    @androidx.annotation.RequiresApi(35)
     private static final class Api35R31 {
         static Boolean currentStartWasForceStopped(ActivityManager manager,String process){
             List<android.app.ApplicationStartInfo> starts=manager.getHistoricalProcessStartReasons(5);if(starts==null)return null;int count=0;

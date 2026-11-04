@@ -7,9 +7,15 @@ import java.util.Iterator;
 public interface DirectoryCursorR31 extends Closeable {
     File next()throws IOException;
     static DirectoryCursorR31 open(File directory)throws IOException{
+        if(!supportsDirectoryStreamR31())throw new IOException("DIRECTORY_STREAM_UNSUPPORTED");
+        try{return Api26.open(directory);}catch(LinkageError unsupported){throw new IOException("DIRECTORY_STREAM_UNSUPPORTED",unsupported);}
+    }
+    /** A true result proves the Android API boundary; a HOST JVM uses its own NIO runtime. */
+    @androidx.annotation.ChecksSdkIntAtLeast(api=26)
+    static boolean supportsDirectoryStreamR31()throws IOException{
         String vm=System.getProperty("java.vm.name",""),runtime=System.getProperty("java.runtime.name","");boolean android=vm.toLowerCase(java.util.Locale.ROOT).contains("dalvik")||runtime.toLowerCase(java.util.Locale.ROOT).contains("android");
         if(android){try{int api=Class.forName("android.os.Build$VERSION").getField("SDK_INT").getInt(null);if(api<26)throw new IOException("DIRECTORY_STREAM_UNSUPPORTED_API_"+api);}catch(ReflectiveOperationException unavailable){throw new IOException("DIRECTORY_STREAM_API_UNKNOWN",unavailable);}}
-        try{return Api26.open(directory);}catch(LinkageError unsupported){throw new IOException("DIRECTORY_STREAM_UNSUPPORTED",unsupported);}
+        return true;
     }
     /** The limit is enforced during enumeration, before allocating the result array. */
     static File[] children(File directory,int maximum)throws IOException{
@@ -21,6 +27,7 @@ public interface DirectoryCursorR31 extends Closeable {
             files.add(file);
         }}return files.toArray(new File[0]);
     }
+    @androidx.annotation.RequiresApi(26)
     final class Api26 {
         private Api26(){}
         static DirectoryCursorR31 open(File directory)throws IOException{

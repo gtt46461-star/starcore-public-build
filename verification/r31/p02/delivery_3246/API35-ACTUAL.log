@@ -1,0 +1,811 @@
+﻿2026-11-04T16:57:08.0077758Z Current runner version: '2.338.2'
+2026-11-04T16:57:08.0100273Z ##[group]Runner Image Provisioner
+2026-11-04T16:57:08.0100969Z Hosted Compute Agent
+2026-11-04T16:57:08.0101545Z Version: 20261028.624
+2026-11-04T16:57:08.0102059Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-04T16:57:08.0102895Z Build Date: 2026-10-28T21:51:42Z
+2026-11-04T16:57:08.0103691Z Worker ID: {62c67828-1ebe-4a45-9312-f104c3496d86}
+2026-11-04T16:57:08.0104263Z Region: westus3
+2026-11-04T16:57:08.0104801Z Cloud: Azure
+2026-11-04T16:57:08.0105240Z ##[endgroup]
+2026-11-04T16:57:08.0106375Z ##[group]Operating System
+2026-11-04T16:57:08.0106953Z Ubuntu
+2026-11-04T16:57:08.0107376Z 26.04.1
+2026-11-04T16:57:08.0107845Z LTS
+2026-11-04T16:57:08.0108280Z ##[endgroup]
+2026-11-04T16:57:08.0108735Z ##[group]Runner Image
+2026-11-04T16:57:08.0109297Z Image: ubuntu-26.04
+2026-11-04T16:57:08.0109761Z Version: 20261101.186.1
+2026-11-04T16:57:08.0110863Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261101.186/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-04T16:57:08.0112063Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261101.186
+2026-11-04T16:57:08.0113152Z ##[endgroup]
+2026-11-04T16:57:08.0114122Z ##[group]GITHUB_TOKEN Permissions
+2026-11-04T16:57:08.0115994Z Actions: read
+2026-11-04T16:57:08.0116487Z Contents: read
+2026-11-04T16:57:08.0117000Z Metadata: read
+2026-11-04T16:57:08.0117465Z ##[endgroup]
+2026-11-04T16:57:08.0119157Z Secret source: Actions
+2026-11-04T16:57:08.0119990Z Cache mode: write
+2026-11-04T16:57:08.0120584Z Prepare workflow directory
+2026-11-04T16:57:08.0563938Z Prepare all required actions
+2026-11-04T16:57:08.0603141Z Getting action download info
+2026-11-04T16:57:08.3906111Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-04T16:57:08.5362828Z Download action repository 'actions/setup-java@v4' (SHA:cf277c60eb25467037889841efdb72551f06f6c3)
+2026-11-04T16:57:09.2674285Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-11-04T16:57:09.9130846Z Download action repository 'reactivecircus/android-emulator-runner@v2' (SHA:a421e43855164a8197daf9d8d40fe71c6996bb0d)
+2026-11-04T16:57:10.4502555Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-04T16:57:10.6410420Z Complete job name: validation-android (35)
+2026-11-04T16:57:10.7040268Z ##[group]Run actions/checkout@v4
+2026-11-04T16:57:10.7040716Z with:
+2026-11-04T16:57:10.7040924Z   ref: 3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056
+2026-11-04T16:57:10.7041167Z   fetch-depth: 0
+2026-11-04T16:57:10.7041349Z   persist-credentials: false
+2026-11-04T16:57:10.7041589Z   repository: gtt46461-star/starcore-public-build
+2026-11-04T16:57:10.7043730Z   token: ***
+2026-11-04T16:57:10.7043916Z   ssh-strict: true
+2026-11-04T16:57:10.7044094Z   ssh-user: git
+2026-11-04T16:57:10.7044260Z   clean: true
+2026-11-04T16:57:10.7044448Z   sparse-checkout-cone-mode: true
+2026-11-04T16:57:10.7044689Z   fetch-tags: false
+2026-11-04T16:57:10.7044862Z   show-progress: true
+2026-11-04T16:57:10.7045036Z   lfs: false
+2026-11-04T16:57:10.7045197Z   submodules: false
+2026-11-04T16:57:10.7045373Z   set-safe-directory: true
+2026-11-04T16:57:10.7045575Z   allow-unsafe-pr-checkout: false
+2026-11-04T16:57:10.7045934Z env:
+2026-11-04T16:57:10.7046192Z   R31_VALIDATION_SOURCE: 3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056
+2026-11-04T16:57:10.7046478Z   R31_EMULATOR_API: 35
+2026-11-04T16:57:10.7046658Z ##[endgroup]
+2026-11-04T16:57:10.9433264Z Syncing repository: gtt46461-star/starcore-public-build
+2026-11-04T16:57:10.9434874Z ##[group]Getting Git version info
+2026-11-04T16:57:10.9435489Z Working directory is '/home/runner/work/starcore-public-build/starcore-public-build'
+2026-11-04T16:57:10.9436332Z [command]/usr/bin/git version
+2026-11-04T16:57:10.9437736Z git version 2.56.0
+2026-11-04T16:57:10.9453613Z ##[endgroup]
+2026-11-04T16:57:10.9464822Z Temporarily overriding HOME='/home/runner/work/_temp/1b933111-dab5-4008-8498-ddc5a64c7f75' before making global git config changes
+2026-11-04T16:57:10.9466114Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-04T16:57:10.9468537Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-11-04T16:57:10.9528270Z Deleting the contents of '/home/runner/work/starcore-public-build/starcore-public-build'
+2026-11-04T16:57:10.9530709Z ##[group]Initializing the repository
+2026-11-04T16:57:10.9534159Z [command]/usr/bin/git init /home/runner/work/starcore-public-build/starcore-public-build
+2026-11-04T16:57:10.9625034Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-04T16:57:10.9625804Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-04T16:57:10.9626566Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-04T16:57:10.9627624Z hint: call:
+2026-11-04T16:57:10.9627928Z hint:
+2026-11-04T16:57:10.9628323Z hint: 	git config --global init.defaultBranch <name>
+2026-11-04T16:57:10.9628761Z hint:
+2026-11-04T16:57:10.9629170Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-04T16:57:10.9629874Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-04T16:57:10.9630525Z hint:
+2026-11-04T16:57:10.9630803Z hint: 	git branch -m <name>
+2026-11-04T16:57:10.9631094Z hint:
+2026-11-04T16:57:10.9631506Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-04T16:57:10.9638014Z Initialized empty Git repository in /home/runner/work/starcore-public-build/starcore-public-build/.git/
+2026-11-04T16:57:10.9647743Z [command]/usr/bin/git remote add origin https://github.com/gtt46461-star/starcore-public-build
+2026-11-04T16:57:10.9690907Z ##[endgroup]
+2026-11-04T16:57:10.9691484Z ##[group]Disabling automatic garbage collection
+2026-11-04T16:57:10.9695308Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-04T16:57:10.9723655Z ##[endgroup]
+2026-11-04T16:57:10.9724160Z ##[group]Setting up auth
+2026-11-04T16:57:10.9730187Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-04T16:57:10.9758446Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-04T16:57:11.0187511Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-04T16:57:11.0215664Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-04T16:57:11.0447556Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-04T16:57:11.0477286Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-04T16:57:11.0709688Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-04T16:57:11.0745171Z ##[endgroup]
+2026-11-04T16:57:11.0745864Z ##[group]Fetching the repository
+2026-11-04T16:57:11.0754930Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+2026-11-04T16:58:09.5766875Z From https://github.com/gtt46461-star/starcore-public-build
+2026-11-04T16:58:09.5774158Z  * [new branch]        construction/r13-restore-latest-20261024 -> origin/construction/r13-restore-latest-20261024
+2026-11-04T16:58:09.5775286Z  * [new branch]        construction/r26-f08-graph-20261027 -> origin/construction/r26-f08-graph-20261027
+2026-11-04T16:58:09.5776332Z  * [new branch]        construction/r26-fixture-process-20261027 -> origin/construction/r26-fixture-process-20261027
+2026-11-04T16:58:09.5777427Z  * [new branch]        construction/r26-incumbent-owner-20261027 -> origin/construction/r26-incumbent-owner-20261027
+2026-11-04T16:58:09.5778928Z  * [new branch]        construction/r26-report-review-20261028 -> origin/construction/r26-report-review-20261028
+2026-11-04T16:58:09.5779923Z  * [new branch]        construction/r27-20261028 -> origin/construction/r27-20261028
+2026-11-04T16:58:09.5780662Z  * [new branch]        construction/r29-20261029 -> origin/construction/r29-20261029
+2026-11-04T16:58:09.5789352Z  * [new branch]        construction/r30-20261031 -> origin/construction/r30-20261031
+2026-11-04T16:58:09.5790207Z  * [new branch]        construction/r30-final-r27 -> origin/construction/r30-final-r27
+2026-11-04T16:58:09.5791045Z  * [new branch]        construction/r30-preflight-104-3c89ffc2 -> origin/construction/r30-preflight-104-3c89ffc2
+2026-11-04T16:58:09.5792042Z  * [new branch]        construction/r30-preflight-105-8a7d7b46 -> origin/construction/r30-preflight-105-8a7d7b46
+2026-11-04T16:58:09.5793241Z  * [new branch]        construction/r30-preflight-106-budget-db6656ed -> origin/construction/r30-preflight-106-budget-db6656ed
+2026-11-04T16:58:09.5794374Z  * [new branch]        construction/r30-preflight-106-charts-faults -> origin/construction/r30-preflight-106-charts-faults
+2026-11-04T16:58:09.5795482Z  * [new branch]        construction/r30-preflight-106-f857f30b -> origin/construction/r30-preflight-106-f857f30b
+2026-11-04T16:58:09.5796603Z  * [new branch]        construction/r30-preflight-106-receipts-035dd498 -> origin/construction/r30-preflight-106-receipts-035dd498
+2026-11-04T16:58:09.5797583Z  * [new branch]        construction/r30-repair-20261101 -> origin/construction/r30-repair-20261101
+2026-11-04T16:58:09.5798300Z  * [new branch]        construction/r31-final-20261104 -> origin/construction/r31-final-20261104
+2026-11-04T16:58:09.5799051Z  * [new branch]        construction/su1-20261022 -> origin/construction/su1-20261022
+2026-11-04T16:58:09.5799832Z  * [new branch]        delivery/r30-009-single-zip-20261102 -> origin/delivery/r30-009-single-zip-20261102
+2026-11-04T16:58:09.5800674Z  * [new branch]        fix/r26-report-export-20261028 -> origin/fix/r26-report-export-20261028
+2026-11-04T16:58:09.5801314Z  * [new branch]        main                      -> origin/main
+2026-11-04T16:58:09.5802001Z  * [new branch]        verification/r29-checkpoint06-20261030 -> origin/verification/r29-checkpoint06-20261030
+2026-11-04T16:58:09.5803268Z  * [new branch]        verification/r30-b00-cp06-cp16 -> origin/verification/r30-b00-cp06-cp16
+2026-11-04T16:58:09.5803958Z  * [new tag]           archive/r29-b01-cp16      -> archive/r29-b01-cp16
+2026-11-04T16:58:09.5804493Z  * [new tag]           r13-5.4.3.04-20261025     -> r13-5.4.3.04-20261025
+2026-11-04T16:58:09.5805019Z  * [new tag]           r26-20261027-engineering  -> r26-20261027-engineering
+2026-11-04T16:58:09.5805567Z  * [new tag]           r26-20261028-reportfix2   -> r26-20261028-reportfix2
+2026-11-04T16:58:09.5806107Z  * [new tag]           r26-20261028-runtime-117  -> r26-20261028-runtime-117
+2026-11-04T16:58:09.5806717Z  * [new tag]           r29-B00-a618d14ccc41      -> r29-B00-a618d14ccc41
+2026-11-04T16:58:09.5807330Z  * [new tag]           r29-B02-QUAL-534603296b84 -> r29-B02-QUAL-534603296b84
+2026-11-04T16:58:09.5807870Z  * [new tag]           r29-CP05-R27-770e81bd449b -> r29-CP05-R27-770e81bd449b
+2026-11-04T16:58:09.5808419Z  * [new tag]           r29-CP06-R27-bb607cf5ab69 -> r29-CP06-R27-bb607cf5ab69
+2026-11-04T16:58:09.5808971Z  * [new tag]           r29-CP07-R27-1d2f1565e308 -> r29-CP07-R27-1d2f1565e308
+2026-11-04T16:58:09.5809509Z  * [new tag]           r29-CP08-R27-2f1e2ab9caf2 -> r29-CP08-R27-2f1e2ab9caf2
+2026-11-04T16:58:09.5810390Z  * [new tag]           r29-CP09-R27-e3dd104302dc -> r29-CP09-R27-e3dd104302dc
+2026-11-04T16:58:09.5810936Z  * [new tag]           r29-CP10-R27-0c639ccb3702 -> r29-CP10-R27-0c639ccb3702
+2026-11-04T16:58:09.5811492Z  * [new tag]           r29-CP11-R27-2cf09d56fbff -> r29-CP11-R27-2cf09d56fbff
+2026-11-04T16:58:09.5812045Z  * [new tag]           r29-CP12-R27-116888fe641a -> r29-CP12-R27-116888fe641a
+2026-11-04T16:58:09.5812912Z  * [new tag]           r29-CP14-R27-b8de949cb79d -> r29-CP14-R27-b8de949cb79d
+2026-11-04T16:58:09.5813462Z  * [new tag]           r29-CP15-R27-51cca638e3dd -> r29-CP15-R27-51cca638e3dd
+2026-11-04T16:58:09.5813962Z  * [new tag]           r29-CP16-R27-5ce1cc0f639b -> r29-CP16-R27-5ce1cc0f639b
+2026-11-04T16:58:09.5814612Z  * [new tag]           r29-official-577291005-770e81bd449b -> r29-official-577291005-770e81bd449b
+2026-11-04T16:58:09.5815369Z  * [new tag]           r29-official-577291006-bb607cf5ab69 -> r29-official-577291006-bb607cf5ab69
+2026-11-04T16:58:09.5816161Z  * [new tag]           r29-official-577291007-1d2f1565e308 -> r29-official-577291007-1d2f1565e308
+2026-11-04T16:58:09.5816919Z  * [new tag]           r29-official-577291008-2f1e2ab9caf2 -> r29-official-577291008-2f1e2ab9caf2
+2026-11-04T16:58:09.5817797Z  * [new tag]           r29-official-577291009-e3dd104302dc -> r29-official-577291009-e3dd104302dc
+2026-11-04T16:58:09.5818631Z  * [new tag]           r29-official-577291010-0c639ccb3702 -> r29-official-577291010-0c639ccb3702
+2026-11-04T16:58:09.5819488Z  * [new tag]           r29-official-577291011-2cf09d56fbff -> r29-official-577291011-2cf09d56fbff
+2026-11-04T16:58:09.5820351Z  * [new tag]           r29-official-577291012-116888fe641a -> r29-official-577291012-116888fe641a
+2026-11-04T16:58:09.5821202Z  * [new tag]           r29-official-577291014-b8de949cb79d -> r29-official-577291014-b8de949cb79d
+2026-11-04T16:58:09.5822081Z  * [new tag]           r29-official-577291015-51cca638e3dd -> r29-official-577291015-51cca638e3dd
+2026-11-04T16:58:09.5823156Z  * [new tag]           r29-official-577291016-5ce1cc0f639b -> r29-official-577291016-5ce1cc0f639b
+2026-11-04T16:58:09.5823906Z  * [new tag]           r30-B00-R27-4bc5ee4e1d05  -> r30-B00-R27-4bc5ee4e1d05
+2026-11-04T16:58:09.5824602Z  * [new tag]           r30-final-577310107-b225ab204db0 -> r30-final-577310107-b225ab204db0
+2026-11-04T16:58:09.5825369Z  * [new tag]           r30-official-577310001-4bc5ee4e1d05 -> r30-official-577310001-4bc5ee4e1d05
+2026-11-04T16:58:09.5826167Z  * [new tag]           r30-repair1-577311002-a94ee9dae4e0 -> r30-repair1-577311002-a94ee9dae4e0
+2026-11-04T16:58:09.5826934Z  * [new tag]           r30-repair1-577311003-63ad6291711d -> r30-repair1-577311003-63ad6291711d
+2026-11-04T16:58:09.5828049Z  * [new tag]           r30-repair1-577311008-9f139cf999e4 -> r30-repair1-577311008-9f139cf999e4
+2026-11-04T16:58:09.5829007Z  * [new tag]           r30-repair1-577311009-5237b265a27f -> r30-repair1-577311009-5237b265a27f
+2026-11-04T16:58:09.5830777Z [command]/usr/bin/git rev-parse --verify --quiet 3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056^{object}
+2026-11-04T16:58:09.5831472Z 3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056
+2026-11-04T16:58:09.5832440Z ##[endgroup]
+2026-11-04T16:58:09.5833064Z ##[group]Determining the checkout info
+2026-11-04T16:58:09.5833585Z ##[endgroup]
+2026-11-04T16:58:09.5833934Z [command]/usr/bin/git sparse-checkout disable
+2026-11-04T16:58:09.5875221Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-04T16:58:09.5901691Z ##[group]Checking out the ref
+2026-11-04T16:58:09.5905234Z [command]/usr/bin/git checkout --progress --force 3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056
+2026-11-04T16:58:10.6040474Z Updating files:  55% (5644/10160)
+2026-11-04T16:58:10.6089282Z Updating files:  56% (5690/10160)
+2026-11-04T16:58:10.6161850Z Updating files:  57% (5792/10160)
+2026-11-04T16:58:10.7442520Z Updating files:  58% (5893/10160)
+2026-11-04T16:58:10.8250623Z Updating files:  59% (5995/10160)
+2026-11-04T16:58:10.8289666Z Updating files:  60% (6096/10160)
+2026-11-04T16:58:10.8330610Z Updating files:  61% (6198/10160)
+2026-11-04T16:58:10.9694238Z Updating files:  62% (6300/10160)
+2026-11-04T16:58:10.9772155Z Updating files:  63% (6401/10160)
+2026-11-04T16:58:10.9815417Z Updating files:  64% (6503/10160)
+2026-11-04T16:58:10.9860401Z Updating files:  65% (6604/10160)
+2026-11-04T16:58:10.9906143Z Updating files:  66% (6706/10160)
+2026-11-04T16:58:11.0174575Z Updating files:  67% (6808/10160)
+2026-11-04T16:58:11.0208095Z Updating files:  68% (6909/10160)
+2026-11-04T16:58:11.0244176Z Updating files:  69% (7011/10160)
+2026-11-04T16:58:11.0311270Z Updating files:  70% (7112/10160)
+2026-11-04T16:58:11.0753375Z Updating files:  71% (7214/10160)
+2026-11-04T16:58:11.0821147Z Updating files:  72% (7316/10160)
+2026-11-04T16:58:11.0955622Z Updating files:  73% (7417/10160)
+2026-11-04T16:58:11.1011604Z Updating files:  74% (7519/10160)
+2026-11-04T16:58:11.1057535Z Updating files:  75% (7620/10160)
+2026-11-04T16:58:11.1126801Z Updating files:  76% (7722/10160)
+2026-11-04T16:58:11.1176609Z Updating files:  77% (7824/10160)
+2026-11-04T16:58:11.1217090Z Updating files:  78% (7925/10160)
+2026-11-04T16:58:11.1261244Z Updating files:  79% (8027/10160)
+2026-11-04T16:58:11.1301424Z Updating files:  80% (8128/10160)
+2026-11-04T16:58:11.1333210Z Updating files:  81% (8230/10160)
+2026-11-04T16:58:11.1378098Z Updating files:  82% (8332/10160)
+2026-11-04T16:58:11.1425161Z Updating files:  83% (8433/10160)
+2026-11-04T16:58:11.1474078Z Updating files:  84% (8535/10160)
+2026-11-04T16:58:11.1509501Z Updating files:  85% (8636/10160)
+2026-11-04T16:58:11.1543458Z Updating files:  86% (8738/10160)
+2026-11-04T16:58:11.1574111Z Updating files:  87% (8840/10160)
+2026-11-04T16:58:11.1622905Z Updating files:  88% (8941/10160)
+2026-11-04T16:58:11.1660330Z Updating files:  89% (9043/10160)
+2026-11-04T16:58:11.1701381Z Updating files:  90% (9144/10160)
+2026-11-04T16:58:11.1751577Z Updating files:  91% (9246/10160)
+2026-11-04T16:58:11.1807249Z Updating files:  92% (9348/10160)
+2026-11-04T16:58:11.1859558Z Updating files:  93% (9449/10160)
+2026-11-04T16:58:11.2007566Z Updating files:  94% (9551/10160)
+2026-11-04T16:58:11.2037067Z Updating files:  95% (9652/10160)
+2026-11-04T16:58:11.2248807Z Updating files:  96% (9754/10160)
+2026-11-04T16:58:11.2415988Z Updating files:  97% (9856/10160)
+2026-11-04T16:58:11.2454889Z Updating files:  98% (9957/10160)
+2026-11-04T16:58:11.2552381Z Updating files:  99% (10059/10160)
+2026-11-04T16:58:11.2552826Z Updating files: 100% (10160/10160)
+2026-11-04T16:58:11.2553052Z Updating files: 100% (10160/10160), done.
+2026-11-04T16:58:11.2644929Z Note: switching to '3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056'.
+2026-11-04T16:58:11.2645270Z 
+2026-11-04T16:58:11.2645468Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-04T16:58:11.2646092Z changes and commit them, and you can discard any commits you make in this
+2026-11-04T16:58:11.2646465Z state without impacting any branches by switching back to a branch.
+2026-11-04T16:58:11.2646677Z 
+2026-11-04T16:58:11.2646821Z If you want to create a new branch to retain commits you create, you may
+2026-11-04T16:58:11.2647153Z do so (now or later) by using -c with the switch command. Example:
+2026-11-04T16:58:11.2647349Z 
+2026-11-04T16:58:11.2647444Z   git switch -c <new-branch-name>
+2026-11-04T16:58:11.2647575Z 
+2026-11-04T16:58:11.2647660Z Or undo this operation with:
+2026-11-04T16:58:11.2647787Z 
+2026-11-04T16:58:11.2647866Z   git switch -
+2026-11-04T16:58:11.2647967Z 
+2026-11-04T16:58:11.2648139Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-04T16:58:11.2648483Z 
+2026-11-04T16:58:11.2648777Z HEAD is now at 3246ccf8 Repair Android initial claims and bounded private research memory
+2026-11-04T16:58:11.2783841Z ##[endgroup]
+2026-11-04T16:58:11.2827382Z [command]/usr/bin/git log -1 --format=%H
+2026-11-04T16:58:11.2857123Z 3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056
+2026-11-04T16:58:11.2873009Z ##[group]Removing auth
+2026-11-04T16:58:11.2873462Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-04T16:58:11.2896862Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-04T16:58:11.3144445Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-04T16:58:11.3165254Z http.https://github.com/.extraheader
+2026-11-04T16:58:11.3170741Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-04T16:58:11.3199864Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-04T16:58:11.3446106Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-04T16:58:11.3478524Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-04T16:58:11.3722085Z ##[endgroup]
+2026-11-04T16:58:11.3951747Z ##[group]Run actions/setup-java@v4
+2026-11-04T16:58:11.3951968Z with:
+2026-11-04T16:58:11.3952145Z   distribution: temurin
+2026-11-04T16:58:11.3952334Z   java-version: 17
+2026-11-04T16:58:11.3952506Z   java-package: jdk
+2026-11-04T16:58:11.3952819Z   check-latest: false
+2026-11-04T16:58:11.3953000Z   server-id: github
+2026-11-04T16:58:11.3953179Z   server-username: GITHUB_ACTOR
+2026-11-04T16:58:11.3953383Z   server-password: GITHUB_TOKEN
+2026-11-04T16:58:11.3953576Z   overwrite-settings: true
+2026-11-04T16:58:11.3953758Z   job-status: success
+2026-11-04T16:58:11.3955626Z   token: ***
+2026-11-04T16:58:11.3955786Z env:
+2026-11-04T16:58:11.3956009Z   R31_VALIDATION_SOURCE: 3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056
+2026-11-04T16:58:11.3956290Z   R31_EMULATOR_API: 35
+2026-11-04T16:58:11.3956466Z ##[endgroup]
+2026-11-04T16:58:11.5301589Z ##[warning]setup-java v4 is deprecated and will no longer receive updates. Please migrate to actions/setup-java@v5.
+2026-11-04T16:58:11.5308531Z ##[group]Installed distributions
+2026-11-04T16:58:11.5506746Z Resolved Java 17.0.21+9 from tool-cache
+2026-11-04T16:58:11.5507119Z Setting Java 17.0.21+9 as the default
+2026-11-04T16:58:11.5514539Z (node:2304) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-04T16:58:11.5515096Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-04T16:58:11.5517605Z Creating toolchains.xml for JDK version 17 from temurin
+2026-11-04T16:58:11.5571072Z Writing to /home/runner/.m2/toolchains.xml
+2026-11-04T16:58:11.5571647Z 
+2026-11-04T16:58:11.5571851Z Java configuration:
+2026-11-04T16:58:11.5572185Z   Distribution: temurin
+2026-11-04T16:58:11.5572478Z   Version: 17.0.21+9
+2026-11-04T16:58:11.5573013Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T16:58:11.5573368Z 
+2026-11-04T16:58:11.5573743Z ##[endgroup]
+2026-11-04T16:58:11.5607771Z Creating settings.xml with server-id: github
+2026-11-04T16:58:11.5608080Z Writing to /home/runner/.m2/settings.xml
+2026-11-04T16:58:11.5815574Z ##[group]Run actions/download-artifact@v4
+2026-11-04T16:58:11.5815940Z with:
+2026-11-04T16:58:11.5816364Z   name: R31-EXISTING_R27-HOST-EVIDENCE-3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056
+2026-11-04T16:58:11.5816981Z   path: /home/runner/work/_temp/r31-validation-input
+2026-11-04T16:58:11.5817391Z   merge-multiple: false
+2026-11-04T16:58:11.5817730Z   repository: gtt46461-star/starcore-public-build
+2026-11-04T16:58:11.5818119Z   run-id: 41867648951
+2026-11-04T16:58:11.5818349Z env:
+2026-11-04T16:58:11.5818671Z   R31_VALIDATION_SOURCE: 3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056
+2026-11-04T16:58:11.5819087Z   R31_EMULATOR_API: 35
+2026-11-04T16:58:11.5819484Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T16:58:11.5820066Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T16:58:11.5820518Z ##[endgroup]
+2026-11-04T16:58:11.7069412Z Downloading single artifact
+2026-11-04T16:58:11.7211470Z (node:2316) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-04T16:58:11.7212113Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-04T16:58:11.9600651Z Preparing to download the following artifacts:
+2026-11-04T16:58:11.9602232Z - R31-EXISTING_R27-HOST-EVIDENCE-3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056 (ID: 13344932363, Size: 39921972, Expected Digest: sha256:478173f6b2f3471c0d07169aeebacf5f3d3dd4fe533da41e433e10f831630c3c)
+2026-11-04T16:58:12.2283517Z Redirecting to blob download url: https://productionresultssa7.blob.core.windows.net/actions-results/ccc171de-8b7a-8cb7-9796-0267df71e7a7/workflow-job-run-041c1dc5-1eb9-581e-8ed6-e84eb4a93d67/artifacts/c1c5ea12642a5c7eaf2233a8385850a8e6637c5ff391728962d37d832c31698f.zip
+2026-11-04T16:58:12.2284610Z Starting download of artifact to: /home/runner/work/_temp/r31-validation-input
+2026-11-04T16:58:12.4801880Z (node:2316) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-11-04T16:58:13.9946861Z SHA256 digest of downloaded artifact is 478173f6b2f3471c0d07169aeebacf5f3d3dd4fe533da41e433e10f831630c3c
+2026-11-04T16:58:13.9947657Z Artifact download completed successfully.
+2026-11-04T16:58:13.9948047Z Total of 1 artifact(s) downloaded
+2026-11-04T16:58:13.9953460Z Download artifact has finished successfully
+2026-11-04T16:58:14.0136375Z ##[group]Run echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+2026-11-04T16:58:14.0137117Z [36;1mecho 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules[0m
+2026-11-04T16:58:14.0137575Z [36;1msudo udevadm control --reload-rules[0m
+2026-11-04T16:58:14.0137834Z [36;1msudo udevadm trigger --name-match=kvm[0m
+2026-11-04T16:58:14.0184383Z shell: /usr/bin/bash -e {0}
+2026-11-04T16:58:14.0184601Z env:
+2026-11-04T16:58:14.0184839Z   R31_VALIDATION_SOURCE: 3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056
+2026-11-04T16:58:14.0185128Z   R31_EMULATOR_API: 35
+2026-11-04T16:58:14.0185413Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T16:58:14.0185823Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T16:58:14.0186123Z ##[endgroup]
+2026-11-04T16:58:14.0338382Z KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"
+2026-11-04T16:58:14.0834192Z ##[group]Run python3 - <<'PY'
+2026-11-04T16:58:14.0834526Z [36;1mpython3 - <<'PY'[0m
+2026-11-04T16:58:14.0834734Z [36;1mimport json,os,pathlib[0m
+2026-11-04T16:58:14.0835053Z [36;1mversion=json.load(open('release/release_manifest.json'))['versionCode'][0m
+2026-11-04T16:58:14.0835464Z [36;1mroot=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-validation-input'[0m
+2026-11-04T16:58:14.0835877Z [36;1mfiles=list(root.rglob('VALIDATION-BOUNDARY.json'));assert len(files)==1[0m
+2026-11-04T16:58:14.0836348Z [36;1mevidence=files[0].parent.parent.resolve();assert evidence.is_relative_to(root.resolve())[0m
+2026-11-04T16:58:14.0836752Z [36;1mwith open(os.environ['GITHUB_ENV'],'a') as f:[0m
+2026-11-04T16:58:14.0837059Z [36;1m    f.write('R31_EXPECTED_VERSION_CODE='+str(version)+'\n')[0m
+2026-11-04T16:58:14.0837411Z [36;1m    f.write('R31_VALIDATION_EVIDENCE_ROOT='+str(evidence)+'\n')[0m
+2026-11-04T16:58:14.0837683Z [36;1mPY[0m
+2026-11-04T16:58:14.0837985Z [36;1mcat > "$RUNNER_TEMP/r31-validation-emulator.sh" <<'R31_VALIDATION_PROBE'[0m
+2026-11-04T16:58:14.0838302Z [36;1mset -euo pipefail[0m
+2026-11-04T16:58:14.0838566Z [36;1mout="$RUNNER_TEMP/r31-validation-android-$R31_EMULATOR_API"[0m
+2026-11-04T16:58:14.0838848Z [36;1mmkdir -p "$out"[0m
+2026-11-04T16:58:14.0839085Z [36;1minp="$R31_VALIDATION_EVIDENCE_ROOT/validation-apks"[0m
+2026-11-04T16:58:14.0839349Z [36;1madb wait-for-device[0m
+2026-11-04T16:58:14.0839690Z [36;1madb install -r "$inp/STARCORE-R31-validation-release.apk" > "$out/release-install.txt" 2>&1[0m
+2026-11-04T16:58:14.0840094Z [36;1mgrep -Fq 'Success' "$out/release-install.txt"[0m
+2026-11-04T16:58:14.0840486Z [36;1madb shell dumpsys package com.starcore.research.r13 > "$out/release-installed-package.txt"[0m
+2026-11-04T16:58:14.0841168Z [36;1madb install -r "$inp/STARCORE-R31-validation-debug.apk" > "$out/debug-cover-install.txt" 2>&1[0m
+2026-11-04T16:58:14.0841574Z [36;1mgrep -Fq 'Success' "$out/debug-cover-install.txt"[0m
+2026-11-04T16:58:14.0841982Z [36;1madb install -r "$inp/STARCORE-R31-instrumentation-only.apk" > "$out/test-install.txt" 2>&1[0m
+2026-11-04T16:58:14.0842381Z [36;1mgrep -Fq 'Success' "$out/test-install.txt"[0m
+2026-11-04T16:58:14.0842973Z [36;1madb shell dumpsys package com.starcore.research.r13 > "$out/debug-installed-package.txt"[0m
+2026-11-04T16:58:14.0843457Z [36;1madb shell am force-stop com.starcore.research.r13[0m
+2026-11-04T16:58:14.0844820Z [36;1madb shell am instrument -w -r -e r30Sandbox "r31-validation-$GITHUB_RUN_ID-$R31_EMULATOR_API" -e class com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest,com.ethk3.novaonepro.R31StorageProtocolInstrumentedTest,com.ethk3.novaonepro.R31OwnerFenceProtocolInstrumentedTest com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner > "$out/protocol.txt" 2>&1[0m
+2026-11-04T16:58:14.0846136Z [36;1mpython3 - "$out" <<'PY'[0m
+2026-11-04T16:58:14.0846434Z [36;1mimport datetime,hashlib,json,os,pathlib,re,subprocess,sys[0m
+2026-11-04T16:58:14.0846883Z [36;1mp=pathlib.Path(sys.argv[1]);raw=(p/'protocol.txt').read_bytes();text=raw.decode(errors='replace')[0m
+2026-11-04T16:58:14.0847274Z [36;1mfound=re.search(r'OK \((\d+) tests?\)',text)[0m
+2026-11-04T16:58:14.0847521Z [36;1mcurrent={};completed=[][0m
+2026-11-04T16:58:14.0847742Z [36;1mfor line in text.splitlines():[0m
+2026-11-04T16:58:14.0848003Z [36;1m    if line.startswith('INSTRUMENTATION_STATUS: '):[0m
+2026-11-04T16:58:14.0848342Z [36;1m        key,sep,value=line[len('INSTRUMENTATION_STATUS: '):].partition('=')[0m
+2026-11-04T16:58:14.0848662Z [36;1m        if sep:current[key]=value[0m
+2026-11-04T16:58:14.0848950Z [36;1m    elif line.startswith('INSTRUMENTATION_STATUS_CODE: '):[0m
+2026-11-04T16:58:14.0849239Z [36;1m        code=int(line.split(':',1)[1])[0m
+2026-11-04T16:58:14.0849659Z [36;1m        if code in (0,-1,-2):completed.append({'class':current.get('class'),'test':current.get('test'),'status_code':code})[0m
+2026-11-04T16:58:14.0850058Z [36;1m        current={}[0m
+2026-11-04T16:58:14.0850753Z [36;1mprint('R31_ORIGINAL_PROTOCOL_COUNTS|'+json.dumps({'executed':len(completed),'passed':sum(x['status_code']==0 for x in completed),'failed':sum(x['status_code']!=0 for x in completed)}))[0m
+2026-11-04T16:58:14.0851324Z [36;1mfor line in text.splitlines():[0m
+2026-11-04T16:58:14.0851684Z [36;1m    redacted=re.sub(r'(?i)((?:api[_-]?key|password|token)\s*[=:]\s*)[^\s,;]+',r'\1[REDACTED]',line)[0m
+2026-11-04T16:58:14.0852246Z [36;1m    redacted=re.sub(r'(?i)Bearer\s+[^\s]+','***',redacted)[0m
+2026-11-04T16:58:14.0852581Z [36;1m    print('R31_ORIGINAL_PROTOCOL_LINE|'+redacted)[0m
+2026-11-04T16:58:14.0853230Z [36;1mpassed=bool(found and int(found.group(1))==10 and 'FAILURES!!!' not in text and 'INSTRUMENTATION_FAILED' not in text)[0m
+2026-11-04T16:58:14.0853646Z [36;1mfor kind in ('release','debug'):[0m
+2026-11-04T16:58:14.0853935Z [36;1m    package=(p/(kind+'-installed-package.txt')).read_text()[0m
+2026-11-04T16:58:14.0854320Z [36;1m    assert 'versionCode='+os.environ['R31_EXPECTED_VERSION_CODE'] in package[0m
+2026-11-04T16:58:14.0856929Z [36;1mreceipt={'scope':'ACTUAL_DISPOSABLE_ANDROID_EMULATOR_INSTALL_AND10_ENGINEERING_PROTOCOL_CASES_ON_KNOWN_FAILED_GATE_APK_NOT_FINAL_PRODUCT','observed_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'source':os.environ['R31_VALIDATION_SOURCE'],'api':int(os.environ['R31_EMULATOR_API']),'serial':subprocess.check_output(['adb','get-serialno'],text=True).strip(),'releaseInstall':'PASS_ACTUAL_ADB_SUCCESS','sameSignatureDebugCoverInstall':'PASS_ACTUAL_ADB_SUCCESS_CLEAN_TEST_DEVICE_ONLY','instrumentationCompanionInstall':'PASS_ACTUAL_ADB_SUCCESS','protocolTests':int(found.group(1)) if found else len(completed),'actualCompletedCases':completed,'protocolResult':'PASS' if passed else 'FAILED_OR_INCOMPLETE','protocolOutputSha256':hashlib.sha256(raw).hexdigest(),'physicalDevice':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','originalCanonicalFailures':'REMAIN_FAILED; this does not override unit/lint/HOST failures'}[0m
+2026-11-04T16:58:14.0859614Z [36;1m(p/'RECEIPT.json').write_text(json.dumps(receipt,indent=2)+'\n')[0m
+2026-11-04T16:58:14.0860006Z [36;1mprint('R31_EMULATOR_VALIDATION_JSON|'+json.dumps(receipt,sort_keys=True))[0m
+2026-11-04T16:58:14.0860365Z [36;1massert passed,'R31_ACTUAL_PROTOCOL_FAILED'[0m
+2026-11-04T16:58:14.0860609Z [36;1mPY[0m
+2026-11-04T16:58:14.0860784Z [36;1mR31_VALIDATION_PROBE[0m
+2026-11-04T16:58:14.0904634Z shell: /usr/bin/bash -e {0}
+2026-11-04T16:58:14.0904856Z env:
+2026-11-04T16:58:14.0905099Z   R31_VALIDATION_SOURCE: 3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056
+2026-11-04T16:58:14.0905387Z   R31_EMULATOR_API: 35
+2026-11-04T16:58:14.0905657Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T16:58:14.0906055Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T16:58:14.0906356Z ##[endgroup]
+2026-11-04T16:58:14.1268837Z ##[group]Run reactivecircus/android-emulator-runner@v2
+2026-11-04T16:58:14.1269134Z with:
+2026-11-04T16:58:14.1269303Z   api-level: 35
+2026-11-04T16:58:14.1269476Z   arch: x86_64
+2026-11-04T16:58:14.1269635Z   target: default
+2026-11-04T16:58:14.1269812Z   disable-animations: true
+2026-11-04T16:58:14.1270010Z   ram-size: 4096M
+2026-11-04T16:58:14.1270173Z   heap-size: 512M
+2026-11-04T16:58:14.1270529Z   emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+2026-11-04T16:58:14.1270962Z   script: bash "$RUNNER_TEMP/r31-validation-emulator.sh"
+2026-11-04T16:58:14.1271218Z   cores: 2
+2026-11-04T16:58:14.1271375Z   avd-name: test
+2026-11-04T16:58:14.1271549Z   force-avd-creation: true
+2026-11-04T16:58:14.1271748Z   emulator-boot-timeout: 600
+2026-11-04T16:58:14.1271953Z   emulator-port: 5554
+2026-11-04T16:58:14.1272153Z   disable-spellchecker: false
+2026-11-04T16:58:14.1272359Z   disable-linux-hw-accel: auto
+2026-11-04T16:58:14.1272596Z   enable-hw-keyboard: false
+2026-11-04T16:58:14.1273206Z   channel: stable
+2026-11-04T16:58:14.1273372Z env:
+2026-11-04T16:58:14.1273598Z   R31_VALIDATION_SOURCE: 3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056
+2026-11-04T16:58:14.1273880Z   R31_EMULATOR_API: 35
+2026-11-04T16:58:14.1274148Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T16:58:14.1274533Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T16:58:14.1274852Z   R31_EXPECTED_VERSION_CODE: 577311012
+2026-11-04T16:58:14.1275202Z   R31_VALIDATION_EVIDENCE_ROOT: /home/runner/work/_temp/r31-validation-input/_temp/r31-evidence
+2026-11-04T16:58:14.1275549Z ##[endgroup]
+2026-11-04T16:58:14.1747874Z ##[group]Configure emulator
+2026-11-04T16:58:14.1749126Z API level: 35
+2026-11-04T16:58:14.1749446Z System image API level: 35
+2026-11-04T16:58:14.1749785Z target: default
+2026-11-04T16:58:14.1750273Z CPU architecture: x86_64
+2026-11-04T16:58:14.1750606Z Hardware profile: 
+2026-11-04T16:58:14.1753077Z Cores: 2
+2026-11-04T16:58:14.1753340Z RAM size: 4096M
+2026-11-04T16:58:14.1753615Z Heap size: 512M
+2026-11-04T16:58:14.1753896Z SD card path or size: 
+2026-11-04T16:58:14.1754215Z Disk size: 
+2026-11-04T16:58:14.1759802Z AVD name: test
+2026-11-04T16:58:14.1760120Z force avd creation: true
+2026-11-04T16:58:14.1760411Z Emulator boot timeout: 600
+2026-11-04T16:58:14.1760618Z emulator port: 5554
+2026-11-04T16:58:14.1761009Z emulator options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+2026-11-04T16:58:14.1761418Z disable animations: true
+2026-11-04T16:58:14.1761625Z disable spellchecker: false
+2026-11-04T16:58:14.1761846Z disable Linux hardware acceleration: false
+2026-11-04T16:58:14.1762083Z enable hardware keyboard: false
+2026-11-04T16:58:14.1762280Z Channel: 0 (stable)
+2026-11-04T16:58:14.1762458Z Script:
+2026-11-04T16:58:14.1763106Z bash "$RUNNER_TEMP/r31-validation-emulator.sh"
+2026-11-04T16:58:14.1763352Z Pre emulator launch script:
+2026-11-04T16:58:14.1763861Z ##[endgroup]
+2026-11-04T16:58:14.1764163Z ##[group]Install Android SDK
+2026-11-04T16:58:14.2000202Z [command]/usr/bin/sh -c \yes | sdkmanager --licenses > /dev/null
+2026-11-04T16:58:20.0527055Z Installing latest build tools, platform tools, and platform.
+2026-11-04T16:58:20.0537842Z [command]/usr/bin/sh -c \sdkmanager --install 'build-tools;37.0.0' platform-tools 'platforms;android-35'> /dev/null
+2026-11-04T16:58:21.3487195Z Installing latest emulator.
+2026-11-04T16:58:21.3497242Z [command]/usr/bin/sh -c \sdkmanager --install emulator --channel=0 > /dev/null
+2026-11-04T16:58:31.5323706Z Installing system images.
+2026-11-04T16:58:31.5334085Z [command]/usr/bin/sh -c \sdkmanager --install 'system-images;android-35;default;x86_64' --channel=0 > /dev/null
+2026-11-04T16:58:50.1219361Z ##[endgroup]
+2026-11-04T16:58:50.1220218Z ##[group]Create AVD
+2026-11-04T16:58:50.1220687Z Creating AVD.
+2026-11-04T16:58:50.1234104Z [command]/usr/bin/sh -c \echo no | avdmanager create avd --force -n test --package 'system-images;android-35;default;x86_64'
+2026-11-04T16:58:50.8885705Z Loading local repository...                                                     
+2026-11-04T16:58:51.0507913Z [=========                              ] 25% Loading local repository...       
+2026-11-04T16:58:51.0509594Z Auto-selecting single ABI x86_64
+2026-11-04T16:58:51.1164319Z Do you wish to create a custom hardware profile? [no] [command]/usr/bin/sh -c \printf 'hw.cpu.ncore=2\nhw.ramSize=4096M\nhw.heapSize=512M\n' >> /home/runner/.android/avd/test.avd/config.ini
+2026-11-04T16:58:51.1183170Z ##[endgroup]
+2026-11-04T16:58:51.1185042Z ##[group]Launch Emulator
+2026-11-04T16:58:51.1185261Z Starting emulator.
+2026-11-04T16:58:51.1195168Z [command]/usr/bin/sh -c \/usr/local/lib/android/sdk/emulator/emulator -port 5554 -avd test -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2 &
+2026-11-04T16:58:51.1299006Z INFO         | Android emulator version 37.2.13.0 (build_id 16740729) (CL:N/A)
+2026-11-04T16:58:51.1299536Z INFO         | Graphics backend: gfxstream
+2026-11-04T16:58:51.1300127Z INFO         | Found systemPath /usr/local/lib/android/sdk/system-images/android-35/default/x86_64/
+2026-11-04T16:58:51.1720669Z INFO         | Saving last run QEMU version for the AVD to 2
+2026-11-04T16:58:51.1721263Z ##############################################################################
+2026-11-04T16:58:51.1721592Z ##                        WARNING - ACTION REQUIRED                         ##
+2026-11-04T16:58:51.1721960Z ##  Consider using the '-metrics-collection' flag to help improve the       ##
+2026-11-04T16:58:51.1722338Z ##  emulator by sending anonymized usage data. Or use the '-no-metrics'     ##
+2026-11-04T16:58:51.1722898Z ##  flag to bypass this warning and turn off the metrics collection.        ##
+2026-11-04T16:58:51.1723319Z ##  In a future release this warning will turn into a one-time blocking     ##
+2026-11-04T16:58:51.1723742Z ##  prompt to ask for explicit user input regarding metrics collection.     ##
+2026-11-04T16:58:51.1724125Z ##                                                                          ##
+2026-11-04T16:58:51.1724470Z ##  Please see '-help-metrics-collection' for more details. You can use     ##
+2026-11-04T16:58:51.1724869Z ##  '-metrics-to-file' or '-metrics-to-console' flags to see what type of   ##
+2026-11-04T16:58:51.1725246Z ##  data is being collected by emulator as part of usage statistics.        ##
+2026-11-04T16:58:51.1725570Z ##############################################################################
+2026-11-04T16:58:51.1725838Z INFO         | Guest GLES Driver: Auto (ext controls)
+2026-11-04T16:58:51.1726219Z INFO         | emuglConfig_init: vulkan_mode_selected:swiftshader gles_mode_selected:swiftshader
+2026-11-04T16:58:51.1726592Z INFO         | Checking system compatibility:
+2026-11-04T16:58:51.1726849Z INFO         |   Checking: hasSufficientDiskSpace
+2026-11-04T16:58:51.1728828Z INFO         |      Ok: Disk space requirements to run avd: `test` are met
+2026-11-04T16:58:51.1729256Z INFO         |   Checking: hasSufficientHwGpu
+2026-11-04T16:58:51.1729647Z INFO         |      Ok: Hardware GPU compatibility checks are not required
+2026-11-04T16:58:51.1730047Z INFO         |   Checking: hasSufficientSystem
+2026-11-04T16:58:51.1730446Z INFO         |      Ok: System requirements to run avd: `test` are met
+2026-11-04T16:58:51.1731335Z WARNING      | Feature QuickbootFileBacked is disabled due to stability issues, if you really want that, the environment variable ANDROID_EMU_FORCE_QUICKBOOT_FILE_BACKED need to set to 1
+2026-11-04T16:58:51.9057181Z ERROR        | Unable to connect to adb daemon on port: 5037
+2026-11-04T16:58:51.9058048Z INFO         | Storing crashdata in: /tmp/android-runner/emu-crash-37.2.13.db, detection is enabled for process: 2758
+2026-11-04T16:58:51.9058796Z INFO         | Initializing gfxstream backend
+2026-11-04T16:58:51.9068464Z INFO         | startOpenglesRendererImpl: gpu info
+2026-11-04T16:58:51.9068965Z INFO         | 
+2026-11-04T16:58:51.9071369Z INFO         | initIcdPaths: ICD set to 'swiftshader', using Swiftshader ICD
+2026-11-04T16:58:51.9072368Z INFO         | Setting ICD filenames for the loader = /usr/local/lib/android/sdk/emulator/lib64/vulkan/vk_swiftshader_icd.json
+2026-11-04T16:58:51.9073844Z INFO         | SharedLibrary::open for [/usr/local/lib/android/sdk/emulator/qemu/linux-x86_64/lib64/vulkan/libvulkan.so]
+2026-11-04T16:58:51.9074937Z INFO         | SharedLibrary::open for [/usr/local/lib/android/sdk/emulator/qemu/linux-x86_64/lib64/vulkan/libvulkan.so.1]
+2026-11-04T16:58:51.9075986Z INFO         | SharedLibrary::open for [/usr/local/lib/android/sdk/emulator/lib64/vulkan/libvulkan.so]
+2026-11-04T16:58:51.9076847Z INFO         | Added library: /usr/local/lib/android/sdk/emulator/lib64/vulkan/libvulkan.so
+2026-11-04T16:58:51.9126789Z INFO         | Selecting Vulkan device: SwiftShader Device (Subzero), Version: 1.3.0
+2026-11-04T16:58:51.9127435Z INFO         | Using Vulkan externalMemoryMode: OpaqueFd for VkEmulation
+2026-11-04T16:58:51.9507517Z INFO         | Format VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16 does not support YCbCr sampler conversion
+2026-11-04T16:58:51.9533943Z INFO         | SharedLibrary::open for [libX11]
+2026-11-04T16:58:51.9534862Z WARNING      | Could not open libX11.so, try libX11.so.6
+2026-11-04T16:58:51.9535350Z INFO         | SharedLibrary::open for [libX11.so.6]
+2026-11-04T16:58:51.9535774Z INFO         | SharedLibrary::open for [libX11-xcb]
+2026-11-04T16:58:51.9537005Z WARNING      | Could not open libX11-xcb.so, try libX11-xcb.so.1
+2026-11-04T16:58:51.9537391Z INFO         | SharedLibrary::open for [libX11-xcb.so.1]
+2026-11-04T16:58:51.9618489Z INFO         | Initializing VkEmulation features:
+2026-11-04T16:58:51.9618936Z INFO         |     glInteropSupported: false
+2026-11-04T16:58:51.9619320Z INFO         |     useDeferredCommands: true
+2026-11-04T16:58:51.9619720Z INFO         |     createResourceWithRequirements: true
+2026-11-04T16:58:51.9620168Z INFO         |     useVulkanComposition: false
+2026-11-04T16:58:51.9620699Z INFO         |     useVulkanNativeSwapchain: false
+2026-11-04T16:58:51.9621157Z INFO         |     enable guestRenderDoc: false
+2026-11-04T16:58:51.9621611Z INFO         |     ASTC LDR emulation mode: Gpu
+2026-11-04T16:58:51.9622135Z INFO         |     enable ETC2 emulation: true
+2026-11-04T16:58:51.9622588Z INFO         |     enable Ycbcr emulation: false
+2026-11-04T16:58:51.9623108Z INFO         |     guestVulkanOnly: false
+2026-11-04T16:58:51.9623485Z INFO         |     useDedicatedAllocations: false
+2026-11-04T16:58:51.9623883Z INFO         |     guestVulkanMaxApiVersion: 1.3.0
+2026-11-04T16:58:51.9624324Z INFO         |     enableProtectedMemoryEmulation: false
+2026-11-04T16:58:51.9629794Z INFO         | Graphics Adapter Vendor Google (Google Inc.)
+2026-11-04T16:58:51.9630360Z INFO         | Graphics Adapter Android Emulator OpenGL ES Translator (Google SwiftShader)
+2026-11-04T16:58:51.9631349Z INFO         | Graphics API Version OpenGL ES 3.0 (OpenGL ES 3.0 SwiftShader 4.0.0.1)
+2026-11-04T16:58:51.9634314Z INFO         | Graphics API Extensions GL_OES_EGL_sync GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_depth24 GL_OES_depth32 GL_OES_element_index_uint GL_OES_texture_float GL_OES_texture_float_linear GL_OES_compressed_paletted_texture GL_OES_compressed_ETC1_RGB8_texture GL_OES_depth_texture GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_packed_depth_stencil GL_OES_vertex_half_float GL_OES_standard_derivatives GL_OES_texture_npot GL_OES_rgb8_rgba8 GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_texture_format_BGRA8888 GL_APPLE_texture_format_BGRA8888 
+2026-11-04T16:58:51.9636929Z INFO         | Graphics Device Extensions N/A
+2026-11-04T16:58:51.9637344Z INFO         | Disabling sparse binding feature support
+2026-11-04T16:58:51.9711243Z INFO         | Sending adb public key [QAAAAB3WyN3LY+V7n1T3xp8LenL1bfazwoyUjxPHuOfqeGX9HJZzoPBJ4g3xVebECEdRE7bfwf9mWcndxs/kSk27VZNvMr6nMHKI/QxQR55IfVbwEFvH/Z7nDNSs2RKikVJIc6pvJWMm3k4LIYZ+EZ+WjK83jYhm/SPsFg/Vt6AK7pladnvoBKsVIenO2KX72lS3WWMUL33Xzrp6zwmsUYX/Tn1vWW4yFpuj38XjS8m0ib9MGl51cQo60NrMObl2drUPdVbhygoH6kreNr01woe91TbRyAK2YubPRAYkwrgdAeBD9tTa8E65LdSq33kY7NSGpy6Um8z44M4KQJ5R9a3BXkr7+pfUtpXO2jeip3/iulEizY8L5wxGaXliUx7kGQWu1iptHPnDBZWx1DasaDsDeDhFpiNimYl/ld9uBO9JckqLTMpyYN/qGBcD9CFC5E+3K8NrpSrzFOmlBppcLh01kpErre/FsMX/iiPHD5mNK6yv7Wza42U9qDg6QBhq5aWaH7kOm8YCu6jen+yTkaZGj6ue0PUoYkk+T0fQTz3mGkLYphDbBIMDOCjFt19tNR8NwDgvoWUAmhOww8AePe1xQSv/tIwiaym760pJiUApC3NPCwQrYICde4/JrhNJN/ZVN7ULJbgAVC1PgblrHoC9toDm2vR6FJnfkHLCNXIeU7Xem3w8cwEAAQA= runner@unknown]
+2026-11-04T16:58:51.9716141Z INFO         | Userspace boot properties:
+2026-11-04T16:58:51.9716944Z INFO         |   androidboot.boot_devices=pci0000:00/0000:00:03.0 pci0000:00/0000:00:06.0
+2026-11-04T16:58:51.9717511Z INFO         |   androidboot.dalvik.vm.heapsize=576m
+2026-11-04T16:58:51.9717947Z INFO         |   androidboot.debug.hwui.renderer=skiagl
+2026-11-04T16:58:51.9718400Z INFO         |   androidboot.debug.sf.nobootanimation=1
+2026-11-04T16:58:51.9718818Z INFO         |   androidboot.hardware=ranchu
+2026-11-04T16:58:51.9719221Z INFO         |   androidboot.hardware.gltransport=pipe
+2026-11-04T16:58:51.9719660Z INFO         |   androidboot.hardware.vulkan=ranchu
+2026-11-04T16:58:51.9720062Z INFO         |   androidboot.logcat=*:V
+2026-11-04T16:58:51.9720341Z INFO         |   androidboot.opengles.version=196608
+2026-11-04T16:58:51.9720596Z INFO         |   androidboot.qemu=1
+2026-11-04T16:58:51.9723395Z INFO         |   androidboot.qemu.adb.pubkey=QAAAAB3WyN3LY+V7n1T3xp8LenL1bfazwoyUjxPHuOfqeGX9HJZzoPBJ4g3xVebECEdRE7bfwf9mWcndxs/kSk27VZNvMr6nMHKI/QxQR55IfVbwEFvH/Z7nDNSs2RKikVJIc6pvJWMm3k4LIYZ+EZ+WjK83jYhm/SPsFg/Vt6AK7pladnvoBKsVIenO2KX72lS3WWMUL33Xzrp6zwmsUYX/Tn1vWW4yFpuj38XjS8m0ib9MGl51cQo60NrMObl2drUPdVbhygoH6kreNr01woe91TbRyAK2YubPRAYkwrgdAeBD9tTa8E65LdSq33kY7NSGpy6Um8z44M4KQJ5R9a3BXkr7+pfUtpXO2jeip3/iulEizY8L5wxGaXliUx7kGQWu1iptHPnDBZWx1DasaDsDeDhFpiNimYl/ld9uBO9JckqLTMpyYN/qGBcD9CFC5E+3K8NrpSrzFOmlBppcLh01kpErre/FsMX/iiPHD5mNK6yv7Wza42U9qDg6QBhq5aWaH7kOm8YCu6jen+yTkaZGj6ue0PUoYkk+T0fQTz3mGkLYphDbBIMDOCjFt19tNR8NwDgvoWUAmhOww8AePe1xQSv/tIwiaym760pJiUApC3NPCwQrYICde4/JrhNJN/ZVN7ULJbgAVC1PgblrHoC9toDm2vR6FJnfkHLCNXIeU7Xem3w8cwEAAQA= runner@unknown
+2026-11-04T16:58:51.9726064Z INFO         |   androidboot.qemu.avd_name=test
+2026-11-04T16:58:51.9726364Z INFO         |   androidboot.qemu.camera_hq_edge_processing=0
+2026-11-04T16:58:51.9726658Z INFO         |   androidboot.qemu.camera_protocol_ver=1
+2026-11-04T16:58:51.9726944Z INFO         |   androidboot.qemu.cpuvulkan.version=4206592
+2026-11-04T16:58:51.9727265Z INFO         |   androidboot.qemu.gltransport.drawFlushInterval=800
+2026-11-04T16:58:51.9727580Z INFO         |   androidboot.qemu.gltransport.name=pipe
+2026-11-04T16:58:51.9727848Z INFO         |   androidboot.qemu.hwcodec.avcdec=2
+2026-11-04T16:58:51.9728153Z INFO         |   androidboot.qemu.hwcodec.hevcdec=2
+2026-11-04T16:58:51.9728415Z INFO         |   androidboot.qemu.hwcodec.vpxdec=2
+2026-11-04T16:58:51.9728963Z INFO         |   androidboot.qemu.settings.system.screen_off_timeout=2147483647
+2026-11-04T16:58:51.9729292Z INFO         |   androidboot.qemu.skin=320x640
+2026-11-04T16:58:51.9729535Z INFO         |   androidboot.qemu.virtiowifi=1
+2026-11-04T16:58:51.9729771Z INFO         |   androidboot.qemu.vsync=60
+2026-11-04T16:58:51.9730034Z INFO         |   androidboot.serialno=EMULATOR37X2X13X0
+2026-11-04T16:58:51.9730426Z INFO         |   androidboot.vbmeta.digest=602b0c809848f3be570a96601071931225108ec3b3739d99a1dc41db38efe83c
+2026-11-04T16:58:51.9730827Z INFO         |   androidboot.vbmeta.hash_alg=sha256
+2026-11-04T16:58:51.9731167Z INFO         |   androidboot.vbmeta.size=6720
+2026-11-04T16:58:51.9731424Z INFO         |   androidboot.veritymode=enforcing
+2026-11-04T16:58:51.9891579Z WARNING: cannnot unmap ptr 0x7b4d78a01000 as it is in the protected range from 0x7b4c78a00000 to 0x7b4d78c00000
+2026-11-04T16:58:51.9893453Z pc_memory_init: above 4g size: 40000000
+2026-11-04T16:58:52.0133690Z INFO         | Monitoring duration of emulator setup.
+2026-11-04T16:58:53.0339958Z INFO         | Successfully initialized netsim WiFi
+2026-11-04T16:58:53.0340346Z INFO         | Activated packet streamer for bluetooth emulation
+2026-11-04T16:58:53.0387538Z INFO         | Setting display: 0 configuration to: 320x640, dpi: 160x160 
+2026-11-04T16:58:53.0388060Z INFO         | setDisplayActiveConfig: id:0, 320x640
+2026-11-04T16:58:53.0388740Z INFO         | emulatorSetupEnvironment: Environment scene is not required
+2026-11-04T16:58:53.0452002Z INFO         | Loading snapshot 'default_boot'...
+2026-11-04T16:58:53.0452842Z WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+2026-11-04T16:58:53.0618831Z WARNING      | Device 'cache' does not have the requested snapshot 'default_boot'
+2026-11-04T16:58:53.0619252Z 
+2026-11-04T16:58:53.0619425Z WARNING      | Failed to load snapshot 'default_boot'
+2026-11-04T16:58:53.0620261Z USER_INFO    | The emulator is performing a cold boot without a saved state because there's no snapshot and you have configured it not to save on exit.
+2026-11-04T16:58:53.1941510Z WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+2026-11-04T16:59:01.1237479Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T16:59:01.1269845Z * daemon not running; starting now at tcp:5037
+2026-11-04T16:59:01.3462332Z * daemon started successfully
+2026-11-04T16:59:01.3467643Z adb: device offline
+2026-11-04T16:59:01.3474805Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+2026-11-04T16:59:03.3532533Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T16:59:03.4018349Z 
+2026-11-04T16:59:05.4082816Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T16:59:05.4728348Z 
+2026-11-04T16:59:07.4804773Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T16:59:07.4994966Z 
+2026-11-04T16:59:09.5053499Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T16:59:09.5463904Z 
+2026-11-04T16:59:11.5507295Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T16:59:11.5765660Z 
+2026-11-04T16:59:13.5824324Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T16:59:13.6075506Z 
+2026-11-04T16:59:15.6134004Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T16:59:15.6385410Z 
+2026-11-04T16:59:17.6423892Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-04T16:59:17.6587414Z 1
+2026-11-04T16:59:17.6604737Z Emulator booted.
+2026-11-04T16:59:17.6610767Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell input keyevent 82
+2026-11-04T16:59:17.7554346Z Disabling animations.
+2026-11-04T16:59:17.7573431Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global window_animation_scale 0.0
+2026-11-04T16:59:17.7865546Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global transition_animation_scale 0.0
+2026-11-04T16:59:17.8386347Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global animator_duration_scale 0.0
+2026-11-04T16:59:17.8682325Z ##[endgroup]
+2026-11-04T16:59:17.8699321Z [command]/usr/bin/sh -c bash "$RUNNER_TEMP/r31-validation-emulator.sh"
+2026-11-04T16:59:17.8923828Z INFO         | Boot completed in 26737 ms
+2026-11-04T16:59:17.8924708Z INFO         | Increasing screen off timeout, logcat buffer size to 2M.
+2026-11-04T16:59:36.0341295Z R31_ORIGINAL_PROTOCOL_COUNTS|{"executed": 10, "passed": 10, "failed": 0}
+2026-11-04T16:59:36.0343295Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest
+2026-11-04T16:59:36.0344948Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=1
+2026-11-04T16:59:36.0345795Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0346766Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0347629Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=
+2026-11-04T16:59:36.0348695Z R31_ORIGINAL_PROTOCOL_LINE|com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest:
+2026-11-04T16:59:36.0366939Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=migrationIsAdditiveAndIdempotent
+2026-11-04T16:59:36.0367626Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 1
+2026-11-04T16:59:36.0368417Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest
+2026-11-04T16:59:36.0369206Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=1
+2026-11-04T16:59:36.0369731Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0370094Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0370417Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=.
+2026-11-04T16:59:36.0370820Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=migrationIsAdditiveAndIdempotent
+2026-11-04T16:59:36.0371211Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 0
+2026-11-04T16:59:36.0371686Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest
+2026-11-04T16:59:36.0372154Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=2
+2026-11-04T16:59:36.0372509Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0373117Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0373617Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=
+2026-11-04T16:59:36.0374318Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=rollbackCanRetryAndPayloadConflictCannotMutate
+2026-11-04T16:59:36.0375036Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 1
+2026-11-04T16:59:36.0375782Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest
+2026-11-04T16:59:36.0376377Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=2
+2026-11-04T16:59:36.0376724Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0377089Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0377410Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=.
+2026-11-04T16:59:36.0377868Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=rollbackCanRetryAndPayloadConflictCannotMutate
+2026-11-04T16:59:36.0378309Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 0
+2026-11-04T16:59:36.0379000Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest
+2026-11-04T16:59:36.0379475Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=3
+2026-11-04T16:59:36.0379825Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0380186Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0380497Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=
+2026-11-04T16:59:36.0380974Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=transportTimingMigrationPreservesUnknownTimesAndOriginalData
+2026-11-04T16:59:36.0381458Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 1
+2026-11-04T16:59:36.0381911Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest
+2026-11-04T16:59:36.0382362Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=3
+2026-11-04T16:59:36.0382839Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0383309Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0383628Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=.
+2026-11-04T16:59:36.0384100Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=transportTimingMigrationPreservesUnknownTimesAndOriginalData
+2026-11-04T16:59:36.0384566Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 0
+2026-11-04T16:59:36.0385005Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest
+2026-11-04T16:59:36.0385447Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=4
+2026-11-04T16:59:36.0385777Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0386112Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0386480Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=
+2026-11-04T16:59:36.0386956Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=feedbackReceiptRequiresTheActualCheckpointTransaction
+2026-11-04T16:59:36.0387411Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 1
+2026-11-04T16:59:36.0387851Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest
+2026-11-04T16:59:36.0388506Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=4
+2026-11-04T16:59:36.0388996Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0389506Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0389989Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=.
+2026-11-04T16:59:36.0390744Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=feedbackReceiptRequiresTheActualCheckpointTransaction
+2026-11-04T16:59:36.0391424Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 0
+2026-11-04T16:59:36.0392078Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest
+2026-11-04T16:59:36.0396397Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=5
+2026-11-04T16:59:36.0397010Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0397590Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0398026Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=
+2026-11-04T16:59:36.0398423Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=successfulNullIsNotAWriteFailure
+2026-11-04T16:59:36.0398839Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 1
+2026-11-04T16:59:36.0399298Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest
+2026-11-04T16:59:36.0399768Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=5
+2026-11-04T16:59:36.0400118Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0400471Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0400980Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=.
+2026-11-04T16:59:36.0401377Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=successfulNullIsNotAWriteFailure
+2026-11-04T16:59:36.0401769Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 0
+2026-11-04T16:59:36.0402212Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest
+2026-11-04T16:59:36.0402843Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=6
+2026-11-04T16:59:36.0403290Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0403664Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0403986Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=
+2026-11-04T16:59:36.0404423Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=committedDiagnosticFailuresNeverRepeatBusiness
+2026-11-04T16:59:36.0404991Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 1
+2026-11-04T16:59:36.0405872Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest
+2026-11-04T16:59:36.0406345Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=6
+2026-11-04T16:59:36.0406689Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0407042Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0407354Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=.
+2026-11-04T16:59:36.0407780Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=committedDiagnosticFailuresNeverRepeatBusiness
+2026-11-04T16:59:36.0408207Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 0
+2026-11-04T16:59:36.0408663Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31StorageProtocolInstrumentedTest
+2026-11-04T16:59:36.0409122Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=7
+2026-11-04T16:59:36.0409470Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0409825Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0410139Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=
+2026-11-04T16:59:36.0410523Z R31_ORIGINAL_PROTOCOL_LINE|com.ethk3.novaonepro.R31StorageProtocolInstrumentedTest:
+2026-11-04T16:59:36.0411043Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=kernelAllocatedBlocksAndLegacyEnumerationAreHonest
+2026-11-04T16:59:36.0411490Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 1
+2026-11-04T16:59:36.0412031Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31StorageProtocolInstrumentedTest
+2026-11-04T16:59:36.0412570Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=7
+2026-11-04T16:59:36.0413104Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0413464Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0413789Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=.
+2026-11-04T16:59:36.0414238Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=kernelAllocatedBlocksAndLegacyEnumerationAreHonest
+2026-11-04T16:59:36.0415016Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 0
+2026-11-04T16:59:36.0415617Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31StorageProtocolInstrumentedTest
+2026-11-04T16:59:36.0416071Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=8
+2026-11-04T16:59:36.0416409Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0416751Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0417066Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=
+2026-11-04T16:59:36.0417546Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=productionBlockRequirementAndInjectedSpaceDenialKeepOriginal
+2026-11-04T16:59:36.0418014Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 1
+2026-11-04T16:59:36.0418628Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31StorageProtocolInstrumentedTest
+2026-11-04T16:59:36.0419087Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=8
+2026-11-04T16:59:36.0419429Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0419780Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0420102Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=.
+2026-11-04T16:59:36.0420581Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=productionBlockRequirementAndInjectedSpaceDenialKeepOriginal
+2026-11-04T16:59:36.0421059Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 0
+2026-11-04T16:59:36.0421523Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31OwnerFenceProtocolInstrumentedTest
+2026-11-04T16:59:36.0422001Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=9
+2026-11-04T16:59:36.0422349Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0422947Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0423276Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=
+2026-11-04T16:59:36.0423664Z R31_ORIGINAL_PROTOCOL_LINE|com.ethk3.novaonepro.R31OwnerFenceProtocolInstrumentedTest:
+2026-11-04T16:59:36.0424245Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=staleOwnerReceiptsCannotReplaceNewClaimAndCommitIsIdempotent
+2026-11-04T16:59:36.0424719Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 1
+2026-11-04T16:59:36.0425172Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31OwnerFenceProtocolInstrumentedTest
+2026-11-04T16:59:36.0425632Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=9
+2026-11-04T16:59:36.0425972Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0426311Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0426635Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=.
+2026-11-04T16:59:36.0427105Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=staleOwnerReceiptsCannotReplaceNewClaimAndCommitIsIdempotent
+2026-11-04T16:59:36.0427574Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 0
+2026-11-04T16:59:36.0428038Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31OwnerFenceProtocolInstrumentedTest
+2026-11-04T16:59:36.0428516Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=10
+2026-11-04T16:59:36.0428857Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0429191Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0429501Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=
+2026-11-04T16:59:36.0430018Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=independentSqliteWriterContentionReleasesBeforeSameInputRetry
+2026-11-04T16:59:36.0430747Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 1
+2026-11-04T16:59:36.0431464Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.R31OwnerFenceProtocolInstrumentedTest
+2026-11-04T16:59:36.0432290Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: current=10
+2026-11-04T16:59:36.0432951Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-11-04T16:59:36.0433501Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: numtests=10
+2026-11-04T16:59:36.0434028Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: stream=.
+2026-11-04T16:59:36.0434847Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS: test=independentSqliteWriterContentionReleasesBeforeSameInputRetry
+2026-11-04T16:59:36.0435506Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_STATUS_CODE: 0
+2026-11-04T16:59:36.0435819Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_RESULT: stream=
+2026-11-04T16:59:36.0436097Z R31_ORIGINAL_PROTOCOL_LINE|
+2026-11-04T16:59:36.0436311Z R31_ORIGINAL_PROTOCOL_LINE|Time: 12.274
+2026-11-04T16:59:36.0437425Z R31_ORIGINAL_PROTOCOL_LINE|
+2026-11-04T16:59:36.0437735Z R31_ORIGINAL_PROTOCOL_LINE|OK (10 tests)
+2026-11-04T16:59:36.0438074Z R31_ORIGINAL_PROTOCOL_LINE|
+2026-11-04T16:59:36.0438367Z R31_ORIGINAL_PROTOCOL_LINE|
+2026-11-04T16:59:36.0438711Z R31_ORIGINAL_PROTOCOL_LINE|INSTRUMENTATION_CODE: -1
+2026-11-04T16:59:36.0446143Z R31_EMULATOR_VALIDATION_JSON|{"24h": "NOT_RUN", "72h": "NOT_RUN", "actualCompletedCases": [{"class": "com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest", "status_code": 0, "test": "migrationIsAdditiveAndIdempotent"}, {"class": "com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest", "status_code": 0, "test": "rollbackCanRetryAndPayloadConflictCannotMutate"}, {"class": "com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest", "status_code": 0, "test": "transportTimingMigrationPreservesUnknownTimesAndOriginalData"}, {"class": "com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest", "status_code": 0, "test": "feedbackReceiptRequiresTheActualCheckpointTransaction"}, {"class": "com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest", "status_code": 0, "test": "successfulNullIsNotAWriteFailure"}, {"class": "com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest", "status_code": 0, "test": "committedDiagnosticFailuresNeverRepeatBusiness"}, {"class": "com.ethk3.novaonepro.R31StorageProtocolInstrumentedTest", "status_code": 0, "test": "kernelAllocatedBlocksAndLegacyEnumerationAreHonest"}, {"class": "com.ethk3.novaonepro.R31StorageProtocolInstrumentedTest", "status_code": 0, "test": "productionBlockRequirementAndInjectedSpaceDenialKeepOriginal"}, {"class": "com.ethk3.novaonepro.R31OwnerFenceProtocolInstrumentedTest", "status_code": 0, "test": "staleOwnerReceiptsCannotReplaceNewClaimAndCommitIsIdempotent"}, {"class": "com.ethk3.novaonepro.R31OwnerFenceProtocolInstrumentedTest", "status_code": 0, "test": "independentSqliteWriterContentionReleasesBeforeSameInputRetry"}], "api": 35, "instrumentationCompanionInstall": "PASS_ACTUAL_ADB_SUCCESS", "naturalQuality": "NOT_PROVEN", "observed_at": "2026-11-04T16:59:36.031050+00:00", "originalCanonicalFailures": "REMAIN_FAILED; this does not override unit/lint/HOST failures", "physicalDevice": "NOT_RUN", "protocolOutputSha256": "00a199e39568401fbf45b39980fe3aaff7494065574eec32414d9c709df4a2bf", "protocolResult": "PASS", "protocolTests": 10, "releaseInstall": "PASS_ACTUAL_ADB_SUCCESS", "sameSignatureDebugCoverInstall": "PASS_ACTUAL_ADB_SUCCESS_CLEAN_TEST_DEVICE_ONLY", "scope": "ACTUAL_DISPOSABLE_ANDROID_EMULATOR_INSTALL_AND10_ENGINEERING_PROTOCOL_CASES_ON_KNOWN_FAILED_GATE_APK_NOT_FINAL_PRODUCT", "serial": "emulator-5554", "source": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056"}
+2026-11-04T16:59:36.0453253Z ##[group]Terminate Emulator
+2026-11-04T16:59:36.0453572Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 emu kill
+2026-11-04T16:59:36.0453917Z OK: killing emulator, bye bye
+2026-11-04T16:59:36.0454119Z OK
+2026-11-04T16:59:36.0454409Z ##[endgroup]
+2026-11-04T16:59:36.0454994Z INFO         | Wait for emulator (pid 2758) 20 seconds to shutdown gracefully before kill;you can set environment variable ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL(in seconds) to change the default value (20 seconds)
+2026-11-04T16:59:36.0455550Z 
+2026-11-04T16:59:43.3010001Z INFO         | Saving with gfxstream=1
+2026-11-04T16:59:43.4707151Z INFO         | Saving snapshot 'default_boot' took 7413 ms
+2026-11-04T16:59:44.0153927Z ERROR        | stop: Not implemented
+2026-11-04T16:59:44.0154477Z WARNING      | Emulator client has not yet been configured.. Call configure me first!
+2026-11-04T16:59:44.0348053Z INFO         | removeAll
+2026-11-04T16:59:44.3214250Z WARNING      | Netsim Wifi dns:///localhost:41819 is gone due to Stream removed (CANCELLED)
+2026-11-04T16:59:45.4904483Z ##[group]Run actions/upload-artifact@v4
+2026-11-04T16:59:45.4904753Z with:
+2026-11-04T16:59:45.4905040Z   name: R31-VALIDATION-ANDROID-35-3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056
+2026-11-04T16:59:45.4905417Z   path: /home/runner/work/_temp/r31-validation-android-35/
+2026-11-04T16:59:45.4905884Z   if-no-files-found: error
+2026-11-04T16:59:45.4906075Z   retention-days: 90
+2026-11-04T16:59:45.4906268Z   compression-level: 6
+2026-11-04T16:59:45.4906451Z   overwrite: false
+2026-11-04T16:59:45.4906632Z   include-hidden-files: false
+2026-11-04T16:59:45.4906827Z env:
+2026-11-04T16:59:45.4907059Z   R31_VALIDATION_SOURCE: 3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056
+2026-11-04T16:59:45.4907335Z   R31_EMULATOR_API: 35
+2026-11-04T16:59:45.4907593Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T16:59:45.4907974Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T16:59:45.4908292Z   R31_EXPECTED_VERSION_CODE: 577311012
+2026-11-04T16:59:45.4908683Z   R31_VALIDATION_EVIDENCE_ROOT: /home/runner/work/_temp/r31-validation-input/_temp/r31-evidence
+2026-11-04T16:59:45.4909064Z   ANDROID_AVD_HOME: /home/runner/.android/avd
+2026-11-04T16:59:45.4909291Z ##[endgroup]
+2026-11-04T16:59:45.6334273Z (node:3012) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-04T16:59:45.6334880Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-04T16:59:45.6386277Z With the provided path, there will be 7 files uploaded
+2026-11-04T16:59:45.6393233Z Artifact name is valid!
+2026-11-04T16:59:45.6393690Z Root directory input is valid!
+2026-11-04T16:59:45.9968491Z Beginning upload of artifact content to blob storage
+2026-11-04T16:59:46.0177249Z (node:3012) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-04T16:59:46.2354843Z Uploaded bytes 6619
+2026-11-04T16:59:46.2968522Z Finished uploading artifact content to blob storage!
+2026-11-04T16:59:46.2969338Z SHA256 digest of uploaded artifact zip is 5c1ccc9f0bcd59bed31acff1cd0b5a9c24a4cebc4430cad35e7a3f42158c4792
+2026-11-04T16:59:46.2970227Z Finalizing artifact upload
+2026-11-04T16:59:46.7685725Z Artifact R31-VALIDATION-ANDROID-35-3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056.zip successfully finalized. Artifact ID 13345242090
+2026-11-04T16:59:46.7687127Z Artifact R31-VALIDATION-ANDROID-35-3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056 has been successfully uploaded! Final size is 6619 bytes. Artifact ID is 13345242090
+2026-11-04T16:59:46.7691127Z Artifact download URL: https://github.com/gtt46461-star/starcore-public-build/actions/runs/41867648951/artifacts/13345242090
+2026-11-04T16:59:46.7865690Z Post job cleanup.
+2026-11-04T16:59:46.9001637Z (node:3024) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-04T16:59:46.9002219Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-04T16:59:46.9172866Z Post job cleanup.
+2026-11-04T16:59:46.9913409Z [command]/usr/bin/git version
+2026-11-04T16:59:46.9949508Z git version 2.56.0
+2026-11-04T16:59:46.9984878Z Temporarily overriding HOME='/home/runner/work/_temp/a0369e8e-96d2-4b58-80bf-760fb73378fa' before making global git config changes
+2026-11-04T16:59:46.9988760Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-04T16:59:46.9990002Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-11-04T16:59:47.0038328Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-04T16:59:47.0078852Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-04T16:59:47.0429779Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-04T16:59:47.0464479Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-04T16:59:47.0784837Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-04T16:59:47.0813628Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-04T16:59:47.1200217Z Cleaning up orphan processes
+2026-11-04T16:59:47.1510986Z Terminate orphan process: pid (2871) (adb)
+2026-11-04T16:59:47.1591415Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/setup-java@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+

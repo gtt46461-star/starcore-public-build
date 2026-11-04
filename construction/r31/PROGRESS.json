@@ -26,7 +26,7 @@
     "future_samples_this_build": 0,
     "reason": "No prospective run of this APK; historical/SHADOW/synthetic evidence does not establish natural quality."
   },
-  "recorded_at": "2026-11-04T16:20:50.423283+00:00",
+  "recorded_at": "2026-11-04T17:54:43.511680+00:00",
   "plan_batches": 13,
   "started_cards": 18,
   "started_is_not_completed": true,
@@ -45,7 +45,7 @@
     "B04",
     "B05_FRONT_ONLY"
   ],
-  "latest_pushed_checkpoint": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+  "latest_pushed_checkpoint": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
   "phases": {
     "P00": {
       "cards": 2,
@@ -166,39 +166,43 @@
     }
   },
   "latest_full_unit": {
-    "executed": 456,
-    "failed": 10,
+    "executed": 472,
+    "passed": 464,
+    "failed": 8,
     "skipped": 0,
-    "source": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-    "scope": "CLEAN_EXACT_SOURCE_REMOTE_HOST_XML",
-    "receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json"
+    "source": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
+    "scope": "ACTUAL_FULL_UNEXCLUDED_LOCAL_JAVA_ANDROIDTEST_COMPILE_UNIT_BOTH_LINT_IDENTITY",
+    "receipt": "verification/r31/p02/build-identity/P02_PRIVATE_POOL_NULL_OWNER_012_COMMITTED_UNEXCLUDED_JOINT.json"
   },
   "apk_delivery": {
-    "state": "ACTUAL_SIGNED_CHECKPOINT_AVAILABLE_WITH_FAILED_GATES_NOT_FINAL",
-    "source": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-    "receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-    "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41856826339/artifacts/13337517432",
-    "contains_current_uncommitted_fixes": false
+    "state": "ACTUAL_SIGNED_CHECKPOINT_WITH_FAILED_GATES_NOT_FINAL",
+    "source": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
+    "receipt": "verification/r31/p02/delivery_3246/DELIVERY-RECEIPT.json",
+    "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41867648951/artifacts/13344932363",
+    "contains_013_repairs": false
   },
   "android_emulator": {
-    "source": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
+    "source": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
     "apis": [
       29,
       35
     ],
     "release_install": "PASS_ACTUAL_ADB",
-    "same_signature_debug_cover": "PASS_ACTUAL_ADB_CLEAN_DISPOSABLE_EMULATOR",
+    "same_signature_debug_cover": "PASS_ACTUAL_ADB_DISPOSABLE_EMULATOR",
     "per_api_protocol": {
       "executed": 10,
-      "passed": 9,
-      "failed": 1
+      "passed": 10,
+      "failed": 0
     },
-    "evidence": "verification/r31/p02/delivery_2ab/protocol-failures/RECEIPT.json",
+    "family_new_tests": "NOT_INCLUDED_IN_3246;013_PENDING_ACTUAL_EXECUTION",
+    "evidence": "verification/r31/p02/delivery_3246/DELIVERY-RECEIPT.json",
     "physical_device_equivalence": false
   },
   "current_failures": [
-    "Clean2ab full456/10FAIL and originalAPI29/35 each9PASS1FAIL preserved; current012 fixed targeted source tests pass but full current suite and Android rerun pending",
-    "B02C02 64op/byte owner staging still incomplete on actual producers",
-    "Ordinary initial/rebuilt family model/matrix owner pre-admission incomplete"
+    "Local3246 full472/8FAIL remains exact historical record; merged013 full NOT_RUN yet",
+    "3246 both variants15newLint errors fixed in targeted dev check, final013 unexcluded NOT_RUN",
+    "3246 HOST14PASS10FAIL;7 repaired original paths independentlyPASS and3 missing-Git-object workflow fix prepared;merged013 full HOST NOT_RUN",
+    "B02C02 all-producer64SQL/bind/compute staging remainsOPEN;telemetry+live modules do not close other producers",
+    "Physical device24h/72h NOT_RUN and natural future quality NOT_PROVEN"
   ]
 }

@@ -1,0 +1,12 @@
+Exception in thread "main" java.lang.AssertionError: current compiled report SELECT: [RuntimeException:Stub!]
+	at com.ethk3.novaonepro.strategyv2.RepairTimelineR30HostTest.need(RepairTimelineR30HostTest.java:9)
+	at com.ethk3.novaonepro.strategyv2.RepairTimelineR30HostTest.main(RepairTimelineR30HostTest.java:37)
+Traceback (most recent call last):
+  File "/home/runner/work/_temp/r31-host-source/tools/r30-repair/run_timeline_host.py", line 12, in <module>
+    run(['java','-Xmx512m','-cp',os.pathsep.join(map(str,[shim,test,classes,jdbc,sdk])),'com.ethk3.novaonepro.strategyv2.RepairTimelineR30HostTest'])
+  File "/home/runner/work/_temp/r31-host-source/tools/r30-repair/run_timeline_host.py", line 6, in run
+    def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['java', '-Xmx512m', '-cp', '/tmp/repair-timeline-host-d7pun2zi/shim:/tmp/repair-timeline-host-d7pun2zi/test:/home/runner/work/_temp/r31-host-source/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/tmp/tmp.A57dQdxfJN/sqlite-jdbc.jar:/usr/local/lib/android/sdk/platforms/android-36/android.jar', 'com.ethk3.novaonepro.strategyv2.RepairTimelineR30HostTest']' returned non-zero exit status 1.

@@ -1,0 +1,432 @@
+{
+  "schema": "R31_WRITER_BUDGET_OPEN_FINDINGS_1",
+  "sourceCapturedAt": "2026-11-04T16:22:13.877405Z",
+  "card": "R31-B02-C02",
+  "status": "IMPLEMENTING",
+  "acceptanceClosure": false,
+  "execution": "NOT_RUN",
+  "limits": {
+    "maxOps": 64,
+    "bindBytes": "min(262144, Runtime.maxMemory()/512)",
+    "writerHoldP99TargetMs": 50,
+    "over200msNeedsFaultReceipt": true
+  },
+  "findings": [
+    {
+      "id": "WB01",
+      "owner": "HistoryImportR27.importCsv",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "ChartsActivityR83 history CSV import -> HistoryImportR27.importCsv -> new ResearchWriteQueueR27 -> legacy submit -> sole coordinator",
+      "sourceRefs": [
+        "ChartsActivityR83:204",
+        "HistoryImportR27:45-69",
+        "ResearchWriteQueueR27:141-149",
+        "SchemaR27:68"
+      ],
+      "budgetFormula": {
+        "explicitOps": "N canonical governed rows + 1 DDL + (2 if rejectedConflicts>0 else 0)",
+        "example": "65 accepted rows -> 66 explicit statements before trigger/protocol effects",
+        "bind": "sum UTF-8/string/blob/scalar bind lengths; no per-file or batch byte admission"
+      },
+      "boundary": "P01_INDEPENDENT",
+      "minimumProductionChange": "Remove business DDL using existing startup schema readiness. Owner prepares bounded immutable CSV chunks with stable run_id/chunk_seq hashes; publish a complete imported generation/pointer once all chunks are durable; appendOlder/readers must ignore partial staging. Preserve conflicts/reject statistics and CSV capability.",
+      "unmeasuredBoundary": "No CSV fixture executed. Chunk publication is proposed, not implemented. Pin/source-revision trigger fanout must also be bounded.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB02",
+      "owner": "HoldLedgerFlushR30.maybeFlush",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "ResearchPoolR27.recordThreadCpu -> HoldLedgerFlushR30.maybeFlush -> R30_WRITER_HOLD_FLUSH",
+      "sourceRefs": [
+        "ResearchPoolR27:376",
+        "HoldLedgerFlushR30:32-47",
+        "WriterHoldLedgerR30:31,70-76",
+        "SchemaR27:115-116"
+      ],
+      "budgetFormula": {
+        "explicitOps": "K INSERT + 1 business CREATE + 1 PRUNE",
+        "at65Rows": "67 statements",
+        "rowBoundCorrection": "MAX_OPERATIONS=512, but critical and background __OTHER__ keys may both be added after reaching512; up to514 map keys in captured implementation, so do not call512 an absolute hard bound",
+        "hiddenWork": "JsonR27.write(s.histogram()) and histogram projection inside the write transaction; PRUNE may affect unbounded old rows"
+      },
+      "boundary": "P01_INDEPENDENT",
+      "minimumProductionChange": "Use existing startup table/column readiness, freeze rows/JSON outside writer, retain a stable pending window and per-chunk cursor; bounded idempotent writes keyed by window/session/operation. Advance cursor only after confirmed commit; bound existing maintenance by stable keyset. Do not add destructive B05 collection before P06.",
+      "unmeasuredBoundary": "No clock/flush fixture or transaction timing measured; no per-attempt over200ms fault-receipt closure inferred from aggregated over_hard counters.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB03",
+      "owner": "IssueTimelineWriterR30.flushCommitted",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "ResearchPoolR27 -> HoldLedgerFlushR30.maybeFlush -> IssueTimelineWriterR30.flushCommitted -> R30_TIMELINE_COMMIT_OBSERVATIONS",
+      "sourceRefs": [
+        "IssueTimelineWriterR30:33-41,60-69",
+        "HoldLedgerFlushR30:33"
+      ],
+      "budgetFormula": {
+        "explicitOps": "2*N eligible events (DELETE+INSERT) where N<=64",
+        "maximum": "128 DML before any coordinator metadata",
+        "hiddenWork": "readEvent JSON parse and saveEvent JSON serialization in the writer",
+        "eligibility": "Only original event rows present with durable_mono unset are rewritten"
+      },
+      "boundary": "P01_INDEPENDENT",
+      "minimumProductionChange": "Freeze immutable per-event prepared observations outside writer; pack by actual two-write cost plus protocol/trigger reserves. Validate source payload/CAS within writer to avoid overwriting newer marks. Keep original observed durable wall/mono/boot; remove pending events only after confirmed commit.",
+      "unmeasuredBoundary": "No64-event SQLite experiment executed; missing events/previously-durable rows reduce actual writes. Prep must not fabricate commit clocks.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB04",
+      "owner": "LiveShadowsR27.settle/settleChunks",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "RuntimeR27.LiveTask -> LiveShadowsR27.settle -> settleChunks -> RuntimeR27.submit -> immutable writer",
+      "sourceRefs": [
+        "RuntimeR27:385-394",
+        "LiveShadowsR27:42-86"
+      ],
+      "budgetFormula": {
+        "explicitOps": "S settlement UPDATE + O distinct-ordinal opportunity UPDATE + pendingDrawOps on first chunk; S<=160 and O<=S",
+        "example": "160 rows from one ordinal -> at least161 explicit DML before pending/progress/receipt",
+        "semanticGuard": "UPDATE remains hit IN(-1,-2); settled counts remain from actual frozen rows"
+      },
+      "boundary": "P01_INDEPENDENT",
+      "minimumProductionChange": "Separate pending-draw owner pages from settlement pages; prepare short chunks by total cost including per-ordinal aggregate updates and typed-progress/receipt/trigger reserve. Preserve existing frozen rows and idempotent settlement guards.",
+      "unmeasuredBoundary": "No settlement fixture executed in this review; pre-existing native proof does not certify new budget slices.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB05",
+      "owner": "QualificationInboxR29.consume/step",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "RuntimeR27.LiveTask -> LiveShadowsR27.qualify -> QualificationInboxR29.consume -> w.writes().submit legacy path",
+      "sourceRefs": [
+        "LiveShadowsR27:89-92",
+        "QualificationInboxR29:24,148-161,191-211",
+        "QualificationGapRepairR30R1:15"
+      ],
+      "budgetFormula": {
+        "listedBatchOps": "0 for callback-only real consumption batch",
+        "hiddenDml": "C receipt INSERT + 1 eprocess UPDATE + 2 cursor writes + optional markReplay/qualified/retirement/conflict writes",
+        "maximumPrefix": "C<=256 so base maximum259 DML",
+        "stateInvariant": "receipt set, eprocess state and last ordinal must commit under the same old(n,lastOrdinal) CAS"
+      },
+      "boundary": "P01_INDEPENDENT",
+      "minimumProductionChange": "Owner plans a shorter contiguous prefix by actual total budget, materializes receipt and state writes before admission, retains in-transaction CAS. Migrate production commit adapter to durable immutable identity without resetting e-process/global index/exposure.",
+      "unmeasuredBoundary": "No256-opportunity fixture run. Changing MAX_STEP alone does not account for optional writes/bind size or close callback inventory.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB06",
+      "owner": "QualificationInboxR29.pendingDraws",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "LiveShadowsR27.settleChunks first chunk -> QualificationInboxR29.pendingDraws",
+      "sourceRefs": [
+        "QualificationInboxR29:273-295",
+        "LiveShadowsR27:68"
+      ],
+      "budgetFormula": {
+        "explicitOps": "2*P + R, P<=128, R in {0,1}",
+        "maximum": "257 listed DML; broad resolved UPDATE row effects can be larger"
+      },
+      "boundary": "P01_INDEPENDENT",
+      "minimumProductionChange": "Separate bounded keyset pages and use immutable prepared last_checked/checks CAS; preserve all outstanding issues/backoff and never turn missing draws into labels or remove evidence.",
+      "unmeasuredBoundary": "No128-missing-issue fixture run; broad UPDATE row effects not measured.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB07",
+      "owner": "AtomWorldR27.score",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "Registered RuntimeR27.AtomsTask -> AtomWorldR27.atomsStep -> score -> RuntimeR27.submit",
+      "sourceRefs": [
+        "RuntimeR27:489-491",
+        "AtomWorldR27:41-54",
+        "GenesisSchemaRegistryR915:17,53-54,155-167",
+        "AtomReplayR27:23-26"
+      ],
+      "budgetFormula": {
+        "catalog": "165 score-eligible atoms required by actual registry assertContract",
+        "explicitOps": "2*A +1 census =331 for A=165",
+        "additionalCost": "typed progress may add2 DML, idempotent receipt1, actual trigger effects separately"
+      },
+      "boundary": "P01_OWNER_STAGING_WITH_REAL_CONSUMERS",
+      "minimumProductionChange": "Stage complete score sets keyed by run/dataset/sourceRevision with bounded chunks and hashes, final short publish CAS a complete score-set pointer. Update StoreR27/ResearchStore progress and actual RuntimeR27.leafWeights/atomStates publication plus score/report readers to select the same complete set. No reduced atom universe, proxy scores or alternate DB.",
+      "unmeasuredBoundary": "Static enumeration/formula only; no scoring/SQLite fixture run. Large-set consumer changes belong to this minimal staging integration, cannot be deferred as inventory-only completion.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB08",
+      "owner": "AtomWorldR27.molecules",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "Registered AtomsTask -> AtomWorldR27.atomsStep -> molecules -> RuntimeR27.submit",
+      "sourceRefs": [
+        "AtomWorldR27:84-114",
+        "DatabaseCoordinator:978-979"
+      ],
+      "budgetFormula": {
+        "explicitOps": "32*(contribution INSERT + molecule INSERT)=64",
+        "minimumWithIdentity": "64+1 idempotent receipt=65 DML; others conditional"
+      },
+      "boundary": "P01_OWNER_STAGING_WITH_REAL_CONSUMERS",
+      "minimumProductionChange": "Prepare all32 actual molecule results outside writer. Stage by immutable generation/input run and bounded chunks, publish only complete result/derived list; retain old complete derived configuration on interrupted publish. Keep every result and reason.",
+      "unmeasuredBoundary": "No molecule execution; transaction cost counts statements, not a measured duration. Do not silently shrink32 to31.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB09",
+      "owner": "RuntimeR27.recordCacheRebuildsR30",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "AbiTask -> recordCacheRebuildsR30 -> RuntimeR27.submit",
+      "sourceRefs": [
+        "RuntimeR27:443-460",
+        "DatabaseCoordinator:978-979"
+      ],
+      "budgetFormula": {
+        "explicitOps": "N rebuild INSERT where N<=64",
+        "withReceipt": "65 DML when N=64, even with no typed progress adapter",
+        "ddl": "Existing cache schema was already moved to startup"
+      },
+      "boundary": "P01_INDEPENDENT",
+      "minimumProductionChange": "Retain immutable pending events until commit resolution; pack with reserved receipt/protocol cost and bind-byte admission. Do not drop events by polling a replacement batch after failure.",
+      "unmeasuredBoundary": "No64-event fixture run; no new diagnostic durability claim.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB10",
+      "owner": "AtomNetRuntimeR30.step sample materialization",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "Registered AtomNetTask -> AtomWorldR27.atomNetStep -> AtomNetRuntimeR30.step -> AtomNetStoreR30.sample + checkpointWithIdentity -> RuntimeR27.submit",
+      "sourceRefs": [
+        "RuntimeR27:493-495",
+        "AtomWorldR27:118-119",
+        "AtomNetRuntimeR30:31-42,62-64",
+        "AtomNetStoreR30:76-87"
+      ],
+      "budgetFormula": {
+        "sampleOps": "10*P, P<=12, so up to120 sample INSERT before checkpoint/report/receipts",
+        "condition": "100ms loop cutoff may lower P; >64 sample writes require at least7 completed periods before cutoff",
+        "publication": "materializedSamples/cachePeriod and exact model/optimizer/RNG state belong to one completed publication"
+      },
+      "boundary": "P01_PREPARE_PROTOCOL_P03_CHECKPOINT_CAS_JOINT",
+      "minimumProductionChange": "P01 defines/implements bounded immutable sample staging and manifest identities now. Final publish and reader filters must atomically bind complete sample inputs with matching cachePeriod/materializedSamples/model checkpoint; integrate existing AtomNet checkpoint CAS/restore in P03 rather than queue-level split. B02 remains open until actual producer/consumer integration.",
+      "unmeasuredBoundary": "No materialization fixture/timing run. Maximum120 is a reachable source branch bound, not an observed per-device write count.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB11",
+      "owner": "AtomNetStoreR30.checkpointWithIdentity / AtomNetSessionR30.encode",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "AtomNetRuntimeR30 INIT or SLICE -> AtomNetStoreR30 checkpoint -> r29_model_checkpoint artifact bind",
+      "sourceRefs": [
+        "AtomNetRuntimeR30:21-22",
+        "AtomNetSessionR30:31-36,140-150",
+        "AtomNetR27:19,25-32,94-100",
+        "ModelArtifactR29:38-50"
+      ],
+      "budgetFormula": {
+        "input": "7+165+10=182",
+        "parameterFormula": "182*32+32+32*16+16+16+1+16*10+10",
+        "parameters": 6571,
+        "oneNetEncodeBytes": 157720,
+        "initialCheckpointLowerBoundBytes": 315440,
+        "lowerBoundFormula": "bestNet bytes + current trainer.net bytes; excludes all headers, strings and other state",
+        "capUpperBoundBytes": 262144,
+        "replayFeatureBytesAt2000Samples": "2000*182*8=2912000 bytes plus per-sample identity/scalars, net/best/checkpoint and metadata"
+      },
+      "boundary": "P01_ARTIFACT_PROTOCOL_P03_CHECKPOINT_CAS_JOINT",
+      "minimumProductionChange": "Implement staged full-state artifact/chunk protocol under existing sole coordinator/schema owner in P01. Reuse/check CheckpointArtifactsR26/ChunkedCheckpointR26 manifest readiness rather than new database. P03 must integrate AtomNetStore restore, checkpointWithIdentity, ModelArtifact/AtomNetSession codecs and RuntimeR27 atom publication/ModelSurface actual consumers: full weights+Adam+RNG+replay/cursor must be one final old-state CAS. Preserve legacy exact bytes and old ACTIVE until complete new state.",
+      "unmeasuredBoundary": "Exact codec arithmetic only; no encode fixture performed here. Initial bind lower bound is315440bytes, not a measured resident/heap/disk size. Epoch receipts are cleared each work slice; this review does not claim an unbounded lifetime receipt list.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB12",
+      "owner": "EvolutionTask / EvolutionSink",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "Registered EvolutionTask -> private preparedFork -> loop.step -> EvolutionSink batch + cursor -> RuntimeR27.submit",
+      "sourceRefs": [
+        "RuntimeR27:193-255",
+        "EvolutionLoopR27:25,233-263",
+        "StoreR27:58-102"
+      ],
+      "budgetFormula": {
+        "birthTarget": "128 default proposals; duplicates/null/research stale can reduce write-producing policies",
+        "gateCost": "3*B + L +1 cursor + optional admission/recovery/hypothesis writes, B is BORN or serializable REJECTED, L parent edges",
+        "threshold": "B>=22 already yields at least67 explicit ops including one cursor, even when L=0",
+        "otherPhases": "score/ablation/population updates and cursor snapshot bind also need admission; no measured byte maxima"
+      },
+      "boundary": "P01_EVOLUTION_STAGING_P03_STATE_CAS_JOINT",
+      "minimumProductionChange": "P01 must implement real owner staging in RuntimeR27.EvolutionTask/StoreR27.EvolutionSink with run_id(input,parent cursor,operator) and chunk_seq+payload hashes. Gate all policy/lineage/score/admission consumers by committed run/version. P03 integrates EvolutionLoop snapshot/restore (population+pending+RNG+exposure) and final cursor CAS with complete manifest. Parent/e-process/frozen confirmation evidence cannot be independently split or reset. This is a minimal same-version producer+consumer change, not a new cycle or permission to wait to start P01.",
+      "unmeasuredBoundary": "No evolution fixture or generation hit-rate claim.128 births does not imply384 writes in every generation; threshold formula explicitly accounts for duplicates/rejections.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB13",
+      "owner": "LegacyGenerationR26 generation commit / ModelStoreSU2",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "RuntimeCoordinatorR26 dispatch legacy-generation -> LegacyGenerationR26.step -> R26_LEGACY_GENERATION_COMMIT",
+      "sourceRefs": [
+        "RuntimeCoordinatorR26:574",
+        "LegacyGenerationR26:60-66",
+        "ModelFoundryJobSU2:13",
+        "ModelStoreSU2:25-44",
+        "PolicyIdentityLedgerR26:11-22"
+      ],
+      "budgetFormula": {
+        "populationTarget": 24,
+        "hallOfFameTarget": 12,
+        "perModernGenome": "identity INSERT + genome INSERT + genome UPDATE + optional lineage INSERT =3..4 DML",
+        "full24PopulationMinimum": "72 DML when modern identities are recorded, before HOF and campaign/cursor writes",
+        "hiddenWork": "ModelStateCodecSU2.encode, policy parse/canonical/hash inside the transaction"
+      },
+      "boundary": "P01_PREPARED_IDENTITIES_P03_GENERATION_CAS_JOINT",
+      "minimumProductionChange": "Prepare canonical policies/state bytes outside writer now; stage generation outputs and preserve old complete state. Integrate population/HOF/committee/stage/matrix readers and same old generation/status CAS with model publication; do not split saveEvolution from generation cursor.",
+      "unmeasuredBoundary": "No full24-member campaign fixture run. Identity helper can skip legacy identity formats; perGenome count is conditioned on modern bound records, not universal old data.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB14",
+      "owner": "FoundryCampaignR26 campaign birth/checkpoint",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "RuntimeCoordinator foundry-su2 -> TaskContinuationR26.compute -> FoundryCampaignR26.step -> R26_CAMPAIGN_BIRTH / R26_CANDIDATE_STEP",
+      "sourceRefs": [
+        "RuntimeCoordinatorR26:585",
+        "TaskContinuationR26:90",
+        "FoundryCampaignR26:38-52,94-102",
+        "FamilyRegistryR26:6-7"
+      ],
+      "budgetFormula": {
+        "birthOps": "1 foundry INSERT + sum(identity+candidate+evolution) over all proposals + failure-research records",
+        "registeredFamilyLowerBound": "23 enabled baseline families imply at least69 proposal DML plus foundry when modern bound identities record, before central programs/children",
+        "checkpointCost": "candidate CAS+manifest+training diagnostics+receipt+sample consumptions+capability updates;16 samples can have multiple member diagnostics"
+      },
+      "boundary": "P01_BIRTH_STAGING_P03_CHECKPOINT_CAS_JOINT",
+      "minimumProductionChange": "P01 stage bounded proposal chunks and activate campaign only after manifest complete; candidate selector must read only ACTIVE complete campaign. Prepare identity/digests off writer. P03 bind candidate state/reference/cursor CAS and actual training consumption/progress receipts with staged diagnostics; keep existing CheckpointArtifacts/manifest ownership.",
+      "unmeasuredBoundary": "No birth or training fixture run. Numeric threshold is conditional on actual bound modern identities and proposals, not a claim of observed train progress.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB15",
+      "owner": "ResearchInputPinR30R1 source invalidation trigger",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "Canonical draw insert/correction or HistoryImport INSERT/UPDATE -> r30r1_pin_* trigger -> r30r1_research_measure INSERT SELECT",
+      "sourceRefs": [
+        "ResearchInputPinR30R1:19-25",
+        "HistoryImportR27:59"
+      ],
+      "budgetFormula": {
+        "effect": "One input row may generate one invalidation row for every affected pinned/online run; no source-level affected-run bound",
+        "inventoryBlindSpot": "Batch opCount does not include trigger fanout",
+        "integrity": "Invalidation protects research source revisions; removing it would permit stale-input research"
+      },
+      "boundary": "P01_INVALIDATION_PROTOCOL_WITH_ALL_ACTUAL_CONSUMERS",
+      "minimumProductionChange": "Preserve immediate revision/fence invalidity, stage bounded invalidation materialization keyed by source correction/run with exact source hashes; all consumers must reject affected input before deferred materialization. Count true trigger/side-effect row costs and preserve original already-trained input.",
+      "unmeasuredBoundary": "No trigger fanout/WAL experiment run; cannot claim64-op closure by counting SQL statements only or by disabling trigger checks.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB16",
+      "owner": "Opaque callback and byte-budget blind spots",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "Runtime observer/confirmation/live certify/ChartTask -> existing writer callbacks or immutable batch",
+      "sourceRefs": [
+        "ResearchWriteQueueR27:73-77,141-164,189-205",
+        "RuntimeR27:328-355,400-411,505-512",
+        "FrozenConfirmationStoreR30:138-156",
+        "LiveShadowsR27:252-258",
+        "ChartCacheR27:30-52"
+      ],
+      "budgetFormula": {
+        "queueAdmission": "overInitialBudget only recorded, not enforced; legacy runtime DDL only recorded; immutable SQL DDL rejected",
+        "hashBoundary": "before/after callbacks captured by reference; hash includes presence booleans, not callback writes/captured mutable configuration",
+        "observerWrites": "retired + confirmation-protected updates +2*kept; up to24 kept already48 writes plus other members",
+        "chartListedOps": "14 panels + ranking/action_surface when available + snapshot = up to17; bind bytes depend on actual JSON, not proven belowcap"
+      },
+      "boundary": "P01_PREPARED_OWNER_GUARDS_AND_SELECTED_ENFORCEMENT",
+      "minimumProductionChange": "Move calculations/serialization off writer and replace hidden business writes with immutable prepared statements plus short CAS guards. Budget mandatory metadata and bounded fanout; migrate actual owners before targeted hard admission so core research remains functional. Reports need complete snapshot publication if chunked; no arbitrary truncation or lower quality gates.",
+      "unmeasuredBoundary": "No byte inventory captured for live chart JSON; static potential is not an observed oversize. No blanket all-callback or all-producer closure claimed.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB17",
+      "owner": "TrainingStepStoreR26.record/trim",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "Foundry/LivePool owner checkpoint -> TrainingStepStoreR26.record -> StatisticalTrainingStepStoreR26.trimCombined",
+      "sourceRefs": [
+        "FoundryCampaignR26:96",
+        "TrainingStepStoreR26:18,29-35",
+        "StatisticalTrainingStepStoreR26:24-33"
+      ],
+      "budgetFormula": {
+        "hiddenWork": "Per-member/sample receipt hashing; COUNT of both history tables and ordered excess selection in the checkpoint transaction",
+        "deleteBound": "remove uses groups256 ids per SQL but all groups in the same owner transaction, plus two totals writes per affected kind"
+      },
+      "boundary": "P01_PREPARED_DIAGNOSTICS_P03_CHECKPOINT_CAS_JOINT",
+      "minimumProductionChange": "Prepare complete immutable diagnostic rows/hashes outside writer and stage with the actual matching checkpoint. Keep checkpoint-linked rows atomic at final publication; move bounded permitted detail folding to its owner with references/retention obligations preserved. Do not introduce early destructive B05 collection.",
+      "unmeasuredBoundary": "No large diagnostics retention or failure-injection experiment run;8192 retained detail cap is not a transaction cost bound.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB18",
+      "owner": "LiveShadowsR27.freeze + ModelSurfaceStoreR30.calls",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "RuntimeR27.LiveTask -> LiveShadowsR27.freeze (LIVE or OBSERVE) -> per-policy frozen row + actual model surface/call evidence -> immutable RuntimeR27.submit",
+      "sourceRefs": [
+        "LiveShadowsR27:121-171",
+        "ModelSurfaceStoreR30:16-19,65-78",
+        "ModelSurfaceProviderR30:9-22",
+        "RuntimeR27:42,392-393"
+      ],
+      "budgetFormula": {
+        "listedOps": "sum per policy [1 frozen row +2*q matched model positions +a artifact writes] + V replay-PIT writes + other violations + opportunity(0/1); q<=10; V<=256",
+        "example": "3 valid policies using10 model positions and one artifact each ->66 listedops, plus opportunity/protocol",
+        "bindExample": "addedModels is per calls()/policy, not per Batch;2 policies can each bind same157720-byte current encoded net through ref.weights(), totaling>=315440 model bytes even if INSERT OR IGNORE does not insert duplicate rows",
+        "condition": "Requires actual eligible model-using policies/model reference and predraw deadline. No natural model/policy availability observed by this review."
+      },
+      "boundary": "P01_REAL_FREEZE_OWNER_BUDGET_AND_P03_MODEL_ARTIFACT_JOINT",
+      "minimumProductionChange": "Prepare model evidence once by immutable model identity and account complete per-policy bundle cost. Owner may stage coherent immutable probability/model inputs before final short per-policy publication; all final freezes/call links retain original PIT and deadline checks. Opportunity counts must come from actually committed original freezes. Full model-reference codec change must integrate actual ModelSurface archived/live readers with P03; no late stage publish may manufacture an earlier frozen_at. Separate bounded diagnostic flush from critical freeze without dropping reasons.",
+      "unmeasuredBoundary": "No model-policy freeze fixture or transaction timing executed. Do not classify as physically observed oversize or claim qualified strategies exist.",
+      "executionEvidence": null
+    },
+    {
+      "id": "WB19",
+      "owner": "LiveShadowsR27.certify",
+      "status": "OPEN",
+      "evidenceKind": "STATIC_PRODUCTION_SOURCE_REVIEW",
+      "reachableCallChain": "Registered RuntimeR27.LiveTask -> LiveShadowsR27.certify -> GateV2R29.record + certificate rows -> after callback current choice -> immutable submit",
+      "sourceRefs": [
+        "LiveShadowsR27:222-261",
+        "GateV2R29:193-196",
+        "EvolutionLoopR27:25"
+      ],
+      "budgetFormula": {
+        "listedOps": "2*N (one r27_certificate +one r29_gate_v2)",
+        "callback": "1 mainline choice-cache INSERT in after",
+        "receipt": "1 durable receipt",
+        "at32Experiments": "64 listedops+1 hidden choice+1receipt=66 DML before triggers, with32 active rows having eprocess states",
+        "state": "N counts existing active experiments, NOT naturally qualified certificates; no qualified result required to create NOT_ISSUED rows"
+      },
+      "boundary": "P01_INDEPENDENT_BOUNDED_CERTIFICATE_EVIDENCE_WITH_P05_AUTHORITY_PRESERVED",
+      "minimumProductionChange": "Owner prepares bounded per-experiment evidence batches keeping source/n/lastOrdinal CAS; final choice uses only committed valid certificates under unchanged original gates and source checks, with one short bounded publication. Preserve current r27_chart_cache/mainline/choice until P05 durable authority migration and formal cutover. No cache cleanup or threshold easing.",
+      "unmeasuredBoundary": "No32-experiment fixture or device measure executed. Original cache remains mainchain authority; staged evidence alone does not complete B10/P05.",
+      "executionEvidence": null
+    }
+  ]
+}

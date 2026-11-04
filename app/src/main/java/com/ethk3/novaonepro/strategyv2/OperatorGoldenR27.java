@@ -61,7 +61,7 @@ public final class OperatorGoldenR27 {
     private static String hash(PolicyAstR27.Node node, FeatureCacheR27 golden, int position) {
         try (PolicyAstR27.ScopedScoresR31 scores = PolicyAstR27.evalScopedR31(node, golden, position)) {
             java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
-            java.nio.ByteBuffer word = java.nio.ByteBuffer.allocate(Long.BYTES);
+            java.nio.ByteBuffer word = java.nio.ByteBuffer.allocate(8);
             for (int i = 0; i < golden.data.size() * 10; i++) {
                 word.clear(); word.putLong(Double.doubleToLongBits(scores.at(i))); digest.update(word.array());
             }

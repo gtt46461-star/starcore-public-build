@@ -1,0 +1,23 @@
+{
+  "scope": "TARGETED_DEBUG_AND_RELEASE_LINT_CHECK_WITH_TWO_IDENTITY_GENERATION_EXCLUSIONS_NOT_FINAL_BUILD",
+  "command": [
+    "./gradlew",
+    "--no-daemon",
+    "--continue",
+    "--max-workers=4",
+    "-Pr30Instrumentation=true",
+    ":app:lintDebug",
+    ":app:lintRelease",
+    "-x",
+    ":app:generateR982SourceCallAsset",
+    "-x",
+    ":app:generateR997ConstructionAssets"
+  ],
+  "result": "PASS",
+  "new_lint_errors": 0,
+  "existing_baseline_errors_filtered_per_variant": 51,
+  "log_sha256": "8c355e2e0b16fe842cc5ab6efecbfbbbd15c815f4c4ccd857f06389149be0a67",
+  "source_state": "Uncommitted compatibility fixes over17f2937e before merged013 freeze; final unexcluded run required",
+  "physical_device": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN"
+}

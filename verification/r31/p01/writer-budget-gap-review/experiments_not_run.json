@@ -1,0 +1,157 @@
+{
+  "schema": "R31_WRITER_BUDGET_EXPERIMENT_SPEC_1",
+  "sourceCapturedAt": "2026-11-04T16:22:13.877405Z",
+  "allExperimentsExecuted": false,
+  "experiments": [
+    {
+      "id": "WX01",
+      "target": "HistoryImportR27.importCsv",
+      "input": "65 lawful distinct CSV rows; then a conflicted row; repeat same input",
+      "observations": [
+        "Production SQL trace including business DDL, total changes and bind bytes",
+        "Chunk1/middle/prepublish/postpublish halt with old/full-new imported set only",
+        "Reject counts and pin invalidation remain exact"
+      ],
+      "status": "NOT_RUN",
+      "command": null,
+      "result": null,
+      "evidence": null,
+      "boundary": "Specification for a future actual production integration experiment; no execution claimed by this artifact."
+    },
+    {
+      "id": "WX02",
+      "target": "HoldLedgerFlushR30.maybeFlush + IssueTimelineWriterR30.flushCommitted",
+      "input": "65 distinct actual operation stats;64 original timeline events not yet durable",
+      "observations": [
+        "Capture real CREATE and67 hold statements / up to128 timeline DML before fix",
+        "Source payload CAS, exact original durable clocks, bounded retry with same prepared input",
+        "Pending rows removed only after definite commit; >200ms attempt has explicit fault receipt"
+      ],
+      "status": "NOT_RUN",
+      "command": null,
+      "result": null,
+      "evidence": null,
+      "boundary": "Specification for a future actual production integration experiment; no execution claimed by this artifact."
+    },
+    {
+      "id": "WX03",
+      "target": "LiveShadowsR27.settle/settleChunks + QualificationInboxR29.pendingDraws",
+      "input": "160 actual frozen due rows for one ordinal; separately128 missing draw issues then backfill",
+      "observations": [
+        "Full transaction costs include aggregate/pending/progress/receipt/triggers",
+        "Duplicate settlement produces no new independent labels",
+        "Missing issues remain pending until original verified backfill"
+      ],
+      "status": "NOT_RUN",
+      "command": null,
+      "result": null,
+      "evidence": null,
+      "boundary": "Specification for a future actual production integration experiment; no execution claimed by this artifact."
+    },
+    {
+      "id": "WX04",
+      "target": "QualificationInboxR29.consume/step",
+      "input": "256 continuous frozen opportunities, original qualifying state and actual CAS; parallel stale owner",
+      "observations": [
+        "Count callback writes omitted by opCount=0",
+        "Receipt count equals state.n; source/global index/exposure retained",
+        "Bounded prefix retries and old owner failure cannot overwrite new claim"
+      ],
+      "status": "NOT_RUN",
+      "command": null,
+      "result": null,
+      "evidence": null,
+      "boundary": "Specification for a future actual production integration experiment; no execution claimed by this artifact."
+    },
+    {
+      "id": "WX05",
+      "target": "AtomWorldR27.score/molecules",
+      "input": "Actual165 eligible atoms with legal source dataset;32 real molecule results",
+      "observations": [
+        "331 score ops and64 molecular ops plus mandatory metadata",
+        "Kill chunk1/middle/pre/postpublication; real leafWeights/derived/report readers see only complete sets",
+        "No reduced capability or synthetic quality claims"
+      ],
+      "status": "NOT_RUN",
+      "command": null,
+      "result": null,
+      "evidence": null,
+      "boundary": "Specification for a future actual production integration experiment; no execution claimed by this artifact."
+    },
+    {
+      "id": "WX06",
+      "target": "AtomNetSessionR30.encode + AtomNetStoreR30.checkpointWithIdentity + real restore",
+      "input": "182-dimensional fresh session and lawful dataset, then actual fill/train resume",
+      "observations": [
+        "Measure actual initial artifact and Batch bind (static lowerbound315440)",
+        "Bounded materialization/staged state and final source/owner/old-checkpoint CAS",
+        "Lossless weights/Adam/RNG/replay/cursor continuation and exactly-once consumption across halt points"
+      ],
+      "status": "NOT_RUN",
+      "command": null,
+      "result": null,
+      "evidence": null,
+      "boundary": "Specification for a future actual production integration experiment; no execution claimed by this artifact."
+    },
+    {
+      "id": "WX07",
+      "target": "RuntimeR27.EvolutionTask/EvolutionSink + actual downstream readers",
+      "input": "Legal fixed dataset and actual proposal set with>=22 write-producing policies; preserve exposure and old snapshot",
+      "observations": [
+        "Full policy/lineage/admission/score counts and bytes",
+        "Stable run/chunk keys and full-manifest final CAS",
+        "Interrupted publication leaves old or complete new population/pending/RNG/cursor; no inherited winrate"
+      ],
+      "status": "NOT_RUN",
+      "command": null,
+      "result": null,
+      "evidence": null,
+      "boundary": "Specification for a future actual production integration experiment; no execution claimed by this artifact."
+    },
+    {
+      "id": "WX08",
+      "target": "LegacyGenerationR26 / FoundryCampaignR26 / ModelStoreSU2 / checkpoint readers",
+      "input": "Modern24-member population/HOF and23-family bound campaign",
+      "observations": [
+        "No serialization/replay/model calculation or schema DDL inside writer",
+        "Generation/candidate artifact+cursor+consumption+diagnostics final CAS",
+        "Every staged output has actual matching consumer after publish; legacy exact bytes preserved"
+      ],
+      "status": "NOT_RUN",
+      "command": null,
+      "result": null,
+      "evidence": null,
+      "boundary": "Specification for a future actual production integration experiment; no execution claimed by this artifact."
+    },
+    {
+      "id": "WX09",
+      "target": "ResearchInputPinR30R1 true Android SQLite triggers and WAL/checkpoint concurrency",
+      "input": "Several real affected pins/online runs, one canonical correction/backfill; missing source/schema variants",
+      "observations": [
+        "Measure actual trigger fanout, operation/bind/hold costs without pruning denominator",
+        "Immediate invalidation before deferred rows, all current consumers refuse stale inputs",
+        "Schema absence returns DEPENDENCY(SCHEMA_PENDING), business tracingDDL0; real migration window separately tagged"
+      ],
+      "status": "NOT_RUN",
+      "command": null,
+      "result": null,
+      "evidence": null,
+      "boundary": "Specification for a future actual production integration experiment; no execution claimed by this artifact."
+    },
+    {
+      "id": "WX10",
+      "target": "All migrated actual writer producers after joint source freeze",
+      "input": "HOST native SQLite targeted contention plus actual Android SQLite and physical-device workloads",
+      "observations": [
+        "64-op/bind ledger includes callback/trigger/protocol costs and no unknown producer silently admitted as compliant",
+        "Fault injection chunk1/middle/final publish; actual thread/resource exit",
+        "24h/72h evidence remains NOT_RUN/IN_PROGRESS until actual duration; no replacement by static review or HOST60min"
+      ],
+      "status": "NOT_RUN",
+      "command": null,
+      "result": null,
+      "evidence": null,
+      "boundary": "Specification for a future actual production integration experiment; no execution claimed by this artifact."
+    }
+  ]
+}

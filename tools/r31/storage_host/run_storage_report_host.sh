@@ -11,6 +11,8 @@ product_classes=${CLASSES:-app/build/intermediates/javac/debug/compileDebugJavaW
 storage_sdk=${ANDROID_HOME:-${ANDROID_SDK_ROOT:?}}
 storage_junit=$(rg --files "$GRADLE_USER_HOME/caches/modules-2/files-2.1/junit/junit/4.13.2" -g '*.jar')
 storage_hamcrest=$(rg --files "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3" -g '*.jar')
+storage_annotation=$(rg --files "$GRADLE_USER_HOME/caches/modules-2/files-2.1/androidx.annotation/annotation/1.3.0" -g '*.jar')
+test -n "$storage_annotation" && test -f "$storage_annotation"
 if [ -n "${REPORT_NATIVE_DIR:-}" ]; then
     storage_native=$REPORT_NATIVE_DIR
     python3 - "$storage_native/receipt.json" <<'PY'
@@ -39,7 +41,7 @@ javac -encoding UTF-8 -d "$storage_out/runtime" $(rg --files verification/r932/a
 storage_sources=(DirectoryCursorR31 StorageBudgetR31 StorageLedgerR31 StorageCensusSU2 ReportIoR31 ReportPhaseBudgetR31 ReportCleanupR31 ReportBudgetSU2 ReportPublicationCP12 ReportExportServiceCP4 ReportInputsLeaseCP12 ReportArchiveCP4 ReportArchiveVerifierCP12 ReportNativeCP4 DiagnosticReportProviderR923 ReportAttachmentClosureCP12 ReportCatalogCP4 ReportDiagnosticEvidenceR64 ReportMemberPlanCP12 ReportReadContextCP4 ReportTextCP12 ReportJobJournalCP12 ReportTaskControlR69 ServiceHeartbeatStore BackgroundRuntimeCapabilityR811)
 storage_paths=();for name in "${storage_sources[@]}";do storage_paths+=("app/src/main/java/com/ethk3/novaonepro/$name.java");done
 # Dependencies use the prior canonical product classes. This subset compile is not a whole Android build.
-javac -encoding UTF-8 -proc:none -cp "$storage_sdk/platforms/android-36/android.jar:$product_classes" -sourcepath "$storage_out/no-implicit-source" -d "$storage_out/product" "${storage_paths[@]}" app/src/main/java/com/ethk3/novaonepro/strategyv2/{MemoryBudgetR31,FailureDispositionR31}.java > "$storage_out/product-javac.log" 2>&1
+javac -encoding UTF-8 -proc:none -cp "$storage_sdk/platforms/android-36/android.jar:$product_classes:$storage_annotation" -sourcepath "$storage_out/no-implicit-source" -d "$storage_out/product" "${storage_paths[@]}" app/src/main/java/com/ethk3/novaonepro/strategyv2/{MemoryBudgetR31,FailureDispositionR31}.java > "$storage_out/product-javac.log" 2>&1
 storage_cp="$storage_out/runtime:$storage_out/product:$product_classes:$storage_sdk/platforms/android-36/android.jar:$storage_junit:$storage_hamcrest"
 javac -encoding UTF-8 -proc:none -cp "$storage_cp" -d "$storage_out/drivers" app/src/test/java/com/ethk3/novaonepro/R31StorageGovernanceTest.java app/src/test/java/com/ethk3/novaonepro/RepairStorageCensusR30Test.java tools/r31/storage_host/R31StorageProtocolHostTest.java tools/r31/storage_host/R31ReportStorageHostTest.java tools/r31/storage_host/R31ReportSinkHostTest.java tools/r31/storage_host/R31LegacyReportHostEntry.java tools/r30/qual_host/ReportDeliveryR30HostTest.java > "$storage_out/driver-javac.log" 2>&1
 java -Xmx128m -cp "$storage_out/drivers:$storage_cp" org.junit.runner.JUnitCore com.ethk3.novaonepro.R31StorageGovernanceTest com.ethk3.novaonepro.RepairStorageCensusR30Test > "$storage_out/junit.log" 2>&1

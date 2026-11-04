@@ -66,9 +66,9 @@ public final class SettleChunkR30HostTest {
             SQLiteDatabase ref = world(seed); legacy(ref, ORDINALS);
             SQLiteDatabase a = world(seed); long[] k = new long[1];
             List<ResearchWriteQueueR27.Batch> chunks = LiveShadowsR27.settleChunks(a, ORDINALS, k, LiveShadowsR27.SETTLE_CHUNK_R30);
-            long outcome = 0; boolean sized = chunks.size() == 4;
-            for (ResearchWriteQueueR27.Batch c : chunks) { long n = 0; for (ResearchWriteQueueR27.Op op : c.ops) if (op.sql.startsWith("UPDATE r27_live_frozen")) n++; outcome += n; sized &= n == 160; }
-            check("S1_640_ROWS_FOUR_CHUNKS_seed" + seed, sized && outcome == 640 && k[0] == 640, "chunks=" + chunks.size() + " rows=" + outcome);
+            long outcome = 0; boolean sized = chunks.size() == (640 + LiveShadowsR27.SETTLE_CHUNK_R30 - 1) / LiveShadowsR27.SETTLE_CHUNK_R30;
+            for (ResearchWriteQueueR27.Batch c : chunks) { long n = 0; for (ResearchWriteQueueR27.Op op : c.ops) if (op.sql.startsWith("UPDATE r27_live_frozen")) n++; outcome += n; sized &= n > 0 && n <= LiveShadowsR27.SETTLE_CHUNK_R30; }
+            check("S1_640_ROWS_BOUNDED_PHYSICAL_CHUNKS_seed" + seed, sized && outcome == 640 && k[0] == 640, "chunks=" + chunks.size() + " rows=" + outcome);
             for (ResearchWriteQueueR27.Batch c : chunks) commit(a, c, false);
             check("S2_EQUALS_PRE_R30_seed" + seed, dump(a).equals(dump(ref)), "settled=" + scalar(a, "SELECT count(*) FROM r27_live_frozen WHERE hit>=0"));
 
@@ -80,7 +80,7 @@ public final class SettleChunkR30HostTest {
             long[] k2 = new long[1]; List<ResearchWriteQueueR27.Batch> resume = LiveShadowsR27.settleChunks(b, ORDINALS, k2, LiveShadowsR27.SETTLE_CHUNK_R30);
             for (ResearchWriteQueueR27.Batch c : resume) commit(b, c, false);
             long[] k3 = new long[1]; LiveShadowsR27.settleChunks(b, ORDINALS, k3, LiveShadowsR27.SETTLE_CHUNK_R30);
-            check("S3_KILL_AFTER_CHUNK2_RESUMES_ONCE_seed" + seed, died && afterDeath == 160 && k2[0] == 480 && k3[0] == 0 && dump(b).equals(dump(ref)),
+            check("S3_KILL_AFTER_CHUNK2_RESUMES_ONCE_seed" + seed, died && afterDeath == LiveShadowsR27.SETTLE_CHUNK_R30 && k2[0] == 640 - LiveShadowsR27.SETTLE_CHUNK_R30 && k3[0] == 0 && dump(b).equals(dump(ref)),
                     "settledAfterDeath=" + afterDeath + " resumed=" + k2[0] + " leftover=" + k3[0]);
         }
         System.out.println("R30_SETTLE|SUMMARY|" + (FAIL.isEmpty() ? "OK" : "FAILED " + FAIL));

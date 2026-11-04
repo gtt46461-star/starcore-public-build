@@ -1,0 +1,146 @@
+{
+  "status": "TARGETED_HOST_PASS",
+  "capturedAt": "2026-11-04T16:48:48.454135+00:00",
+  "scope": "UNCHANGED_4_GUARD_JUNIT_OLD_FIXTURE_REPRODUCED_AND_ROOT_REPAIR_VALIDATED_UNDER_REAL_DEFAULT_512M_HEAP_PRESSURE_NOT_FULL_SUITE_OR_DEVICE",
+  "headAtCompile": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
+  "oldTestCommit": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
+  "oldTestPath": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31OptionalHeapRecoveryTest.java",
+  "oldTestSha256": "9685112f045c08de1dea7b40e4ef56feee89033cbbe7b47baaa91ef5f60d2c4e",
+  "currentTestSha256": "9a41eb449d992de622303873d66ae657b28cdd2642486ab087a7adb3108cd095",
+  "onlyAuthorizedFixtureDifferences": true,
+  "allOriginalAssertionBytesPreserved": true,
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java": "494541534d062baab0d622536ee224742f4d9e655cf4d7e6f3b10aaecd1dd495",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java": "35fce88a64f2f5bc1a88f863d0d3cf632179943873b3500b9a54e3fd1101159a",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31OptionalHeapRecoveryTest.java": "9a41eb449d992de622303873d66ae657b28cdd2642486ab087a7adb3108cd095",
+    "verification/r31/p02/recovery-guard-pressure/RecoveryGuardPressureHost.java": "fe49023499fdde3d7fb9b4ff17a86fa2b42a60e9c8282a043c4b2649255f947a",
+    "verification/r31/p02/recovery-guard-pressure/run.py": "d1b30cda96ec8fb0dca3f13dafb6c6488e3e2b5a311305bfd50b3374b0502721"
+  },
+  "sourceStableDuringRun": true,
+  "productionAndOriginalTestWrites": false,
+  "work": "/tmp/r31-guard-pressure-zsrn8wvn",
+  "junitJarSha256": "8e495b634469d64fb8acfa3495a065cbacc8a0fff55ce1e31007be4c16dc57d3",
+  "hamcrestJarSha256": "66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9",
+  "cases": [
+    {
+      "mode": "old-pressure",
+      "pid": 135070,
+      "tests": 4,
+      "failures": 1,
+      "ignored": 0,
+      "measuredHeapBefore": 346278048,
+      "maxHeap": 536870912,
+      "payloadBytes": 343597383,
+      "protectedPayloadAndLeaseRetained": true,
+      "explicitCollectorRequests": 0,
+      "observedGcDuringJUnit": 1
+    },
+    {
+      "mode": "current-pressure",
+      "pid": 135094,
+      "tests": 4,
+      "failures": 0,
+      "ignored": 0,
+      "measuredHeapBefore": 346278072,
+      "maxHeap": 536870912,
+      "payloadBytes": 343597383,
+      "protectedPayloadAndLeaseRetained": true,
+      "explicitCollectorRequests": 0,
+      "observedGcDuringJUnit": 1
+    },
+    {
+      "mode": "current-healthy",
+      "pid": 135118,
+      "tests": 4,
+      "failures": 0,
+      "ignored": 0,
+      "measuredHeapBefore": 2312968,
+      "maxHeap": 536870912,
+      "payloadBytes": 0,
+      "protectedPayloadAndLeaseRetained": true,
+      "explicitCollectorRequests": 0,
+      "observedGcDuringJUnit": 0
+    }
+  ],
+  "scopeLimitations": [
+    "pressure orchestration is an explicitly labeled engineering payload, not a natural model workload",
+    "existing custom-Probe guard remains unchanged; no substituted pressure Probe or time",
+    "full 472-test capacity failures, Android/device, 24h/72h and natural quality remain separate"
+  ],
+  "commands": [
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-cp",
+        "/tmp/r31-guard-pressure-zsrn8wvn/old-classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "-d",
+        "/tmp/r31-guard-pressure-zsrn8wvn/old-classes",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java",
+        "/tmp/r31-guard-pressure-zsrn8wvn/old-source/R31OptionalHeapRecoveryTest.java",
+        "/workspace/starcore-public-build/verification/r31/p02/recovery-guard-pressure/RecoveryGuardPressureHost.java"
+      ],
+      "log": "old-javac.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-cp",
+        "/tmp/r31-guard-pressure-zsrn8wvn/current-classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "-d",
+        "/tmp/r31-guard-pressure-zsrn8wvn/current-classes",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java",
+        "/tmp/r31-guard-pressure-zsrn8wvn/current-source/R31OptionalHeapRecoveryTest.java",
+        "/workspace/starcore-public-build/verification/r31/p02/recovery-guard-pressure/RecoveryGuardPressureHost.java"
+      ],
+      "log": "current-javac.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-guard-pressure-zsrn8wvn/old-classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "com.ethk3.novaonepro.strategyv2.RecoveryGuardPressureHost",
+        "old-pressure"
+      ],
+      "log": "old-pressure.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-guard-pressure-zsrn8wvn/current-classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "com.ethk3.novaonepro.strategyv2.RecoveryGuardPressureHost",
+        "current-pressure"
+      ],
+      "log": "current-pressure.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-guard-pressure-zsrn8wvn/current-classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+        "com.ethk3.novaonepro.strategyv2.RecoveryGuardPressureHost",
+        "current-healthy"
+      ],
+      "log": "current-healthy.log",
+      "exitCode": 0
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+/workspace/starcore-public-build/app/lint-baseline.xml: Hint: 51 errors were filtered out because they are listed in the baseline file, lint-baseline.xml [LintBaseline]
+/workspace/starcore-public-build/app/lint-baseline.xml: Hint: 7 errors/warnings were listed in the baseline file (lint-baseline.xml) but not found in the project; perhaps they have been fixed? Another possible explanation is that lint recently stopped analyzing (and including results from) dependent projects by default. You can turn this back on with android.lintOptions.checkDependencies=true. Unmatched issue types: SetTextI18n (7) [LintBaselineFixed]
+
+   Explanation for issues of type "LintBaselineFixed":
+   If a lint baseline describes a problem which is no longer reported, then
+   the problem has either been fixed, or perhaps the issue type has been
+   disabled. In any case, the entry can be removed from the baseline (such
+   that if the issue is reintroduced at some point, lint will complain rather
+   than just silently starting to match the old baseline entry again.)
+
+/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java:32: Error: Call requires API level 23 (current min is 21): android.os.PowerManager#isIgnoringBatteryOptimizations [NewApi]
+        ObservationR31 battery=observeR31(sdk>=23,()->{PowerManager pm=(PowerManager)owner.getSystemService(Context.POWER_SERVICE);if(pm==null)throw new IllegalStateException("POWER_SERVICE_MISSING");return pm.isIgnoringBatteryOptimizations(owner.getPackageName());},"PowerManager.isIgnoringBatteryOptimizations",errors);
+                                                                                                                                                                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java:33: Error: Call requires API level 23 (current min is 21): android.os.PowerManager#isDeviceIdleMode [NewApi]
+        ObservationR31 idle=observeR31(sdk>=23,()->{PowerManager pm=(PowerManager)owner.getSystemService(Context.POWER_SERVICE);if(pm==null)throw new IllegalStateException("POWER_SERVICE_MISSING");return pm.isDeviceIdleMode();},"PowerManager.isDeviceIdleMode",errors);
+                                                                                                                                                                                                               ~~~~~~~~~~~~~~~~
+/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java:35: Error: Call requires API level 28 (current min is 21): android.app.ActivityManager#isBackgroundRestricted [NewApi]
+        ObservationR31 restricted=observeR31(sdk>=28,()->{android.app.ActivityManager am=(android.app.ActivityManager)owner.getSystemService(Context.ACTIVITY_SERVICE);if(am==null)throw new IllegalStateException("ACTIVITY_SERVICE_MISSING");return am.isBackgroundRestricted();},"ActivityManager.isBackgroundRestricted",errors);
+                                                                                                                                                                                                                                                         ~~~~~~~~~~~~~~~~~~~~~~
+/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java:36: Error: Call requires API level 24 (current min is 21): android.app.NotificationManager#areNotificationsEnabled [NewApi]
+        ObservationR31 notifications=observeR31(sdk>=24,()->{android.app.NotificationManager nm=(android.app.NotificationManager)owner.getSystemService(Context.NOTIFICATION_SERVICE);if(nm==null)throw new IllegalStateException("NOTIFICATION_SERVICE_MISSING");return nm.areNotificationsEnabled();},"NotificationManager.areNotificationsEnabled",errors);
+                                                                                                                                                                                                                                                                            ~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java:37: Error: Call requires API level 31 (current min is 21): android.app.AlarmManager#canScheduleExactAlarms [NewApi]
+        ObservationR31 alarm=observeR31(sdk>=31,()->{AlarmManager am=(AlarmManager)owner.getSystemService(Context.ALARM_SERVICE);if(am==null)throw new IllegalStateException("ALARM_SERVICE_MISSING");return am.canScheduleExactAlarms();},"AlarmManager.canScheduleExactAlarms",errors);
+                                                                                                                                                                                                                ~~~~~~~~~~~~~~~~~~~~~~
+/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/DirectoryCursorR31.java:27: Error: Call requires API level 26 (current min is 21): java.io.File#toPath [NewApi]
+            final java.nio.file.DirectoryStream<java.nio.file.Path> stream=java.nio.file.Files.newDirectoryStream(directory.toPath());final Iterator<java.nio.file.Path> rows=stream.iterator();
+                                                                                                                            ~~~~~~
+/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/DirectoryCursorR31.java:27: Error: Call requires API level 26 (current min is 21): java.nio.file.DirectoryStream#iterator [NewApi]
+            final java.nio.file.DirectoryStream<java.nio.file.Path> stream=java.nio.file.Files.newDirectoryStream(directory.toPath());final Iterator<java.nio.file.Path> rows=stream.iterator();
+                                                                                                                                                                                     ~~~~~~~~
+/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/DirectoryCursorR31.java:27: Error: Call requires API level 26 (current min is 21): java.nio.file.Files#newDirectoryStream [NewApi]
+            final java.nio.file.DirectoryStream<java.nio.file.Path> stream=java.nio.file.Files.newDirectoryStream(directory.toPath());final Iterator<java.nio.file.Path> rows=stream.iterator();
+                                                                                               ~~~~~~~~~~~~~~~~~~
+/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/DirectoryCursorR31.java:28: Error: Call requires API level 26 (current min is 21): java.nio.file.Path#toFile [NewApi]
+            return new DirectoryCursorR31(){public File next()throws IOException{try{return rows.hasNext()?rows.next().toFile():null;}catch(java.nio.file.DirectoryIteratorException error){throw error.getCause();}}public void close()throws IOException{stream.close();}};
+                                                                                                                       ~~~~~~
+/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/DirectoryCursorR31.java:28: Error: Exception requires API level 26 (current min is 21): java.nio.file.DirectoryIteratorException [NewApi]
+            return new DirectoryCursorR31(){public File next()throws IOException{try{return rows.hasNext()?rows.next().toFile():null;}catch(java.nio.file.DirectoryIteratorException error){throw error.getCause();}}public void close()throws IOException{stream.close();}};
+                                                                                                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/LifecycleHealthR963.java:91: Error: Call requires API level 35 (current min is 21): android.app.ActivityManager#getHistoricalProcessStartReasons [NewApi]
+            List<android.app.ApplicationStartInfo> starts=manager.getHistoricalProcessStartReasons(5);if(starts==null)return null;int count=0;
+                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/LifecycleHealthR963.java:92: Error: Call requires API level 35 (current min is 21): android.app.ApplicationStartInfo#getPid [NewApi]
+            for(android.app.ApplicationStartInfo start:starts){if(count++==5)break;if(start.getPid()==android.os.Process.myPid()&&process!=null&&process.equals(start.getProcessName()))return start.wasForceStopped();}return null;
+                                                                                            ~~~~~~
+/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/LifecycleHealthR963.java:92: Error: Call requires API level 35 (current min is 21): android.app.ApplicationStartInfo#getProcessName [NewApi]
+            for(android.app.ApplicationStartInfo start:starts){if(count++==5)break;if(start.getPid()==android.os.Process.myPid()&&process!=null&&process.equals(start.getProcessName()))return start.wasForceStopped();}return null;
+                                                                                                                                                                      ~~~~~~~~~~~~~~
+/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/LifecycleHealthR963.java:92: Error: Call requires API level 35 (current min is 21): android.app.ApplicationStartInfo#wasForceStopped [NewApi]
+            for(android.app.ApplicationStartInfo start:starts){if(count++==5)break;if(start.getPid()==android.os.Process.myPid()&&process!=null&&process.equals(start.getProcessName()))return start.wasForceStopped();}return null;
+                                                                                                                                                                                                     ~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "NewApi":
+   This check scans through all the Android API calls in the application and
+   warns about any calls that are not available on all versions targeted by
+   this application (according to its minimum SDK attribute in the manifest).
+
+   If you really want to use this API and don't need to support older devices
+   just set the minSdkVersion in your build.gradle or AndroidManifest.xml
+   files.
+
+   If your code is deliberately accessing newer APIs, and you have ensured
+   (e.g. with conditional execution) that this code will only ever be called
+   on a supported platform, then you can annotate your class or method with
+   the @TargetApi annotation specifying the local minimum SDK to apply, such
+   as @TargetApi(11), such that this check considers 11 rather than your
+   manifest file's minimum SDK as the required API level.
+
+   If you are deliberately setting android: attributes in style definitions,
+   make sure you place this in a values-vNN folder in order to avoid running
+   into runtime conflicts on certain devices where manufacturers have added
+   custom attributes whose ids conflict with the new ones on later platforms.
+
+   Similarly, you can use tools:targetApi="11" in an XML file to indicate that
+   the element will only be inflated in an adequate context.
+
+/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/StorageLedgerR31.java:25: Error: Consider also using StorageManager#getAllocatableBytes and allocateBytes which will consider clearable cached data [UsableSpace]
+                Point point=recordWithin(census,phase,owner,now,new File(root.getPath()).getUsableSpace(),reserved,budgetState,"ACTUAL_RUNTIME");return point.map("RECORDED");
+                                                                                         ~~~~~~~~~~~~~~
+
+   Explanation for issues of type "UsableSpace":
+   When you need to allocate disk space for large files, consider using the
+   new allocateBytes(FileDescriptor, long) API, which will automatically clear
+   cached files belonging to other apps (as needed) to meet your request.
+
+   When deciding if the device has enough disk space to hold your new data,
+   call getAllocatableBytes(UUID) instead of using getUsableSpace(), since the
+   former will consider any cached data that the system is willing to clear on
+   your behalf.
+
+   Note that these methods require API level 26. If your app is running on
+   older devices, you will probably need to use both APIs, conditionally
+   switching on Build.VERSION.SDK_INT. Lint only looks in the same compilation
+   unit to see if you are already using both APIs, so if it warns even though
+   you are already using the new API, consider moving the calls to the same
+   file or suppressing the warning.
+
+15 errors (and 51 errors filtered by baseline lint-baseline.xml)
