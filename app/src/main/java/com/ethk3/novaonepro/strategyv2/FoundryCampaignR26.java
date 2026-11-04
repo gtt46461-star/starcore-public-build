@@ -27,14 +27,14 @@ public final class FoundryCampaignR26 {
     }
     /** No model training is executed inside the writer. Returns a count of committed samples. */
     public static long step(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget)throws IOException{
-        final String numericalAbi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
+        ModelPublicationR31.requireSchemaR31(store.readable());pruneFinishedR31(store,claims.get());final String numericalAbi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
         store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_CAMPAIGN_ABI_GUARD",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());db.execSQL("UPDATE r26_foundry SET status='ABANDONED_NUMERICAL_ABI',snapshot=X'' WHERE status='RUNNING' AND numerical_abi<>?",new Object[]{numericalAbi});WarmCandidateR26.preserveExpired(db);return 0;});
         SQLiteDatabase r=store.readable();String campaign=null;byte[] snapshotBytes=null;long through=0;
         try(Cursor c=r.rawQuery("SELECT f.campaign_id,f.snapshot,f.source_through FROM r26_foundry f WHERE f.status='RUNNING' ORDER BY CASE WHEN EXISTS(SELECT 1 FROM r26_candidate c WHERE c.campaign_id=f.campaign_id AND c.status='READY') THEN 1 ELSE 0 END,(SELECT coalesce(sum(CASE WHEN c.status='READY' THEN c.service_cpu_ms ELSE 0 END),0)*1.0/max(1,sum(CASE WHEN c.status='READY' THEN 1 ELSE 0 END)) FROM r26_candidate c WHERE c.campaign_id=f.campaign_id),f.created_at,f.campaign_id LIMIT 1",null)){if(c.moveToFirst()){campaign=c.getString(0);snapshotBytes=c.getBlob(1);through=c.getLong(2);}}
         Models.Draw latest=store.getLatestDraw();if(latest==null)return 0;long latestOrdinal=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);
         if(campaign==null){
             try(Cursor c=r.rawQuery("SELECT max(source_through) FROM r26_foundry WHERE status='DONE' AND numerical_abi=?",new String[]{numericalAbi})){if(c.moveToFirst()&&!c.isNull(0)&&c.getLong(0)>=latestOrdinal)return 0;}
-            budget.checkpointOrYield();Snapshot s=capture(store);if(s==null)return 0;snapshotBytes=s.encode();String hash=PolicyIdentityR26.sha256(Base64.getEncoder().encodeToString(snapshotBytes));campaign=HashingSU1.fields("R26_CAMPAIGN_V2",hash,numericalAbi);through=s.through;
+            budget.checkpointOrYield();long snapshotGeneration=EventFrameBuilderSU1.generation(r);Snapshot s=capture(store);if(s==null)return 0;snapshotBytes=s.encode();String hash=PolicyIdentityR26.sha256(Base64.getEncoder().encodeToString(snapshotBytes));campaign=HashingSU1.fields("R26_CAMPAIGN_V2",hash,numericalAbi);through=s.through;
             List<ModelGenomeSU2> seeds=ModelEvolutionSU2.centralPrograms(true,true);
             for(String family:FamilyRegistryR26.EXECUTABLE)seeds.add(FamilyRegistryR26.genome(family));
             // The exact unary matching head is a real trainable candidate, not a renamed fallback.
@@ -46,10 +46,15 @@ public final class FoundryCampaignR26 {
             for(int i=0;i<parents.size();i++)for(StructuralProposalR26.Proposal proposal:StructuralProposalR26.from(parents.get(i),seeds.get(i%seeds.size()).members.get(0)))proposals.add(new StructuralProposalR26.Proposal(proposal.genome.bindBirth(hash,through),proposal.parent,proposal.operation,proposal.category));
             final List<FailureDirectedResearchR26.Batch> failureResearch;try{failureResearch=FailureDirectedResearchR26.select(r,hash,through);}catch(org.json.JSONException malformed){throw new IOException("R26_FAILURE_RESEARCH_METADATA",malformed);}for(FailureDirectedResearchR26.Batch batch:failureResearch)proposals.addAll(batch.proposals);
             final String id=campaign;final byte[] frozen=snapshotBytes;final long source=through;
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_CAMPAIGN_BIRTH",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());db.execSQL("INSERT OR IGNORE INTO r26_foundry(campaign_id,snapshot_hash,source_through,snapshot,status,created_at,numerical_abi,source_first) VALUES(?,?,?,?,'RUNNING',?,?,?)",new Object[]{id,hash,source,frozen,System.currentTimeMillis(),numericalAbi,s.ordinal[0]});int index=0;for(StructuralProposalR26.Proposal proposal:proposals){ModelGenomeSU2 g=proposal.genome;PolicyIdentityLedgerR26.record(db,g.text(),g.key());
-                db.execSQL("INSERT OR IGNORE INTO r26_candidate(campaign_id,policy_hash,canonical_text,parent,operation) VALUES(?,?,?,?,?)",new Object[]{id,g.key(),g.text(),proposal.parent,proposal.operation});
-                db.execSQL("INSERT OR IGNORE INTO r26_evolution(attempt_id,campaign_id,policy_hash,parent,operation,category,structure_hash) VALUES(?,?,?,?,?,?,?)",new Object[]{id+":"+(index++),id,g.key(),proposal.parent,proposal.operation,proposal.category,StructuralProposalR26.structure(g)});
-            }FailureDirectedResearchR26.recordWithin(db,id,failureResearch);return 0;});
+            if(EventFrameBuilderSU1.generation(r)!=snapshotGeneration)throw new IOException("R31_FOUNDRY_SOURCE_CHANGED_DURING_PREPARE");
+            String publicationId="FOUNDRY_BIRTH:"+id;ModelPublicationR31.Plan plan=ModelPublicationR31.existing(r,publicationId);
+            try{if(plan==null){plan=new ModelPublicationR31.Plan(publicationId,"FOUNDRY_BIRTH",hash,snapshotGeneration,-1,System.currentTimeMillis());String raw=plan.rawPayload(frozen);
+                plan.put("FOUNDRY_ROOT",id,id,hash,source,raw,"RUNNING",plan.now,numericalAbi,s.ordinal[0],frozen.length);
+                int index=0;for(StructuralProposalR26.Proposal proposal:proposals){ExecutionBudgetR26.poll();ModelGenomeSU2 g=proposal.genome;ModelStoreSU2.prepareIdentityR31(plan,g.text(),g.key());if(plan.item("CANDIDATE",g.key())==null)plan.put("CANDIDATE",g.key(),id,g.key(),g.text(),proposal.parent,proposal.operation);plan.put("ATTEMPT",id+":"+index,id+":"+(index++),id,g.key(),proposal.parent,proposal.operation,proposal.category,StructuralProposalR26.structure(g));}
+                for(FailureDirectedResearchR26.Batch batch:failureResearch)plan.put("FAILURE_CURSOR",batch.parent,batch.parent,batch.oldDigest,batch.oldEnd,batch.digest,batch.windowEnd,batch.payload,batch.reason,batch.text);
+            }
+            ModelPublicationR31.stageAndPublish(store,claims.get(),plan,FoundryCampaignR26::publishBirthPreparedR31);
+            }finally{if(plan!=null)plan.close();}
             return 0;
         }
         final String id=campaign;
@@ -103,12 +108,44 @@ public final class FoundryCampaignR26 {
             return 0;});}return after-before;
     }
     private static byte[] encode(ModelLiveSU2.Hub hub,ModelLiveSU2 live)throws IOException{ByteArrayOutputStream bytes=new ByteArrayOutputStream();try(DataOutputStream out=new DataOutputStream(new BufferedOutputStream(new CooperativeOutputStreamR26(new GZIPOutputStream(bytes)),32768))){hub.write(out);live.write(out);}return bytes.toByteArray();}
+    static void publishBirthPreparedR31(SQLiteDatabase db,ModelPublicationR31.Plan p){
+        ModelPublicationR31.Item root=null;for(ModelPublicationR31.Item item:p.items.values())if(item.kind.equals("FOUNDRY_ROOT"))root=item;if(root==null)throw new IllegalStateException("R31_FOUNDRY_ROOT_MISSING");String campaign=(String)root.values[0];
+        try(Cursor c=db.rawQuery("SELECT 1 FROM r26_foundry WHERE campaign_id=?",new String[]{campaign})){if(c.moveToFirst())throw new IllegalStateException("R31_FOUNDRY_BIRTH_ALREADY_EXISTS");}
+        ModelStoreSU2.projectPreparedR31(db,p);
+        String rows=ModelPublicationR31.select(p,"FOUNDRY_ROOT","c0,c1,c2,c3,c4,c5,c6,c7,c8");
+        db.execSQL("INSERT INTO r26_foundry(campaign_id,snapshot_hash,source_through,snapshot,status,created_at,numerical_abi,source_first) SELECT c0,c1,c2,"+ModelPublicationR31.rawExpression((String)root.values[3])+",c4,c5,c6,c7 FROM ("+rows+")");
+        db.execSQL("INSERT OR IGNORE INTO r26_candidate(campaign_id,policy_hash,canonical_text,parent,operation) "+ModelPublicationR31.select(p,"CANDIDATE","c0,c1,c2,c3,c4"));
+        db.execSQL("INSERT OR IGNORE INTO r26_evolution(attempt_id,campaign_id,policy_hash,parent,operation,category,structure_hash) "+ModelPublicationR31.select(p,"ATTEMPT","c0,c1,c2,c3,c4,c5,c6"));
+        if(p.count("FAILURE_CURSOR")>0){String attempts=ModelPublicationR31.select(p,"ATTEMPT","c0,c1,c2,c3,c4");try(Cursor c=db.rawQuery("SELECT 1 FROM ("+attempts+") a WHERE instr(a.c4,'FAILURE_GUIDED_V1:')=1 AND NOT EXISTS(SELECT 1 FROM r26_candidate child JOIN r26_evolution e ON e.campaign_id=child.campaign_id AND e.policy_hash=child.policy_hash WHERE child.campaign_id=a.c1 AND child.policy_hash=a.c2 AND e.parent IS a.c3 AND e.operation IS a.c4) LIMIT 1",null)){if(c.moveToFirst())throw new IllegalStateException("R26_FAILURE_CHILD_NOT_REGISTERED");}}
+        // The original failure cursor CAS is published with all of its children.
+        for(ModelPublicationR31.Item item:p.items.values())if(item.kind.equals("FAILURE_CURSOR")){
+            Object[] v=item.values;try(Cursor c=db.rawQuery("SELECT 1 FROM r26_qualification_result q JOIN r26_live_model l ON l.policy_hash=q.policy_hash WHERE q.policy_hash=? AND q.evidence_digest=? AND q.reason=? AND q.window_end=? AND l.canonical_text=? AND l.status='ACTIVE'",new String[]{(String)v[0],(String)v[3],(String)v[6],String.valueOf(v[4]),(String)v[7]})){if(!c.moveToFirst())throw new IllegalStateException("R26_FAILURE_EVIDENCE_CHANGED");}
+            db.execSQL("INSERT OR IGNORE INTO r26_failure_research_cursor VALUES(?,'',-1,'','')",new Object[]{v[0]});db.execSQL("UPDATE r26_failure_research_cursor SET evidence_digest=?,window_end=?,campaign_id=?,proposal_json=? WHERE parent_policy=? AND evidence_digest=? AND window_end=?",new Object[]{v[3],v[4],campaign,v[5],v[0],v[1],v[2]});try(Cursor c=db.rawQuery("SELECT changes()",null)){if(!c.moveToFirst()||c.getInt(0)!=1)throw new IllegalStateException("R26_FAILURE_RESEARCH_STALE_CURSOR");}
+        }
+    }
+    static void publishFinishPreparedR31(SQLiteDatabase db,ModelPublicationR31.Plan p){
+        ModelPublicationR31.Item meta=null;for(ModelPublicationR31.Item item:p.items.values())if(item.kind.equals("FOUNDRY_FINISH"))meta=item;if(meta==null)throw new IllegalStateException("R31_FOUNDRY_FINISH_META");String campaign=(String)meta.values[0];
+        try(Cursor c=db.rawQuery("SELECT snapshot_hash,status FROM r26_foundry WHERE campaign_id=?",new String[]{campaign})){if(!c.moveToFirst()||!p.source.equals(c.getString(0))||!c.getString(1).equals("RUNNING"))throw new IllegalStateException("R31_FOUNDRY_FINISH_CAS");}
+        ModelStoreSU2.projectPreparedR31(db,p);
+        if(p.count("ACCEPTED")>0)db.execSQL("UPDATE r26_evolution SET research_accepted=1 WHERE campaign_id=? AND attempt_id IN ("+ModelPublicationR31.select(p,"ACCEPTED","c0")+")",new Object[]{campaign});
+        db.execSQL("UPDATE r26_foundry SET status='DONE' WHERE campaign_id=? AND status='RUNNING'",new Object[]{campaign});try(Cursor c=db.rawQuery("SELECT changes()",null)){if(!c.moveToFirst()||c.getInt(0)!=1)throw new IllegalStateException("R31_FOUNDRY_FINISH_CAS");}
+    }
+    private static void pruneFinishedR31(DbStore store,RuntimeCoordinatorR26.Claim claim){
+        List<String[]> rows=new ArrayList<>();String old="campaign_id IN (SELECT campaign_id FROM r26_foundry WHERE status<>'RUNNING' ORDER BY created_at DESC LIMIT -1 OFFSET 2)";
+        try(Cursor c=store.readable().rawQuery("SELECT campaign_id,policy_hash FROM r26_candidate WHERE "+old+" AND (state IS NULL OR length(state)=0 OR EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=r26_candidate.policy_hash)) ORDER BY campaign_id,policy_hash LIMIT 8",null)){while(c.moveToNext())rows.add(new String[]{c.getString(0),c.getString(1)});}
+        if(rows.isEmpty())return;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R31_FOUNDRY_RETENTION_SLICE",db->{RuntimeCoordinatorR26.requireFence(db,claim);for(String[] row:rows)db.execSQL("DELETE FROM r26_candidate WHERE campaign_id=? AND policy_hash=? AND "+old+" AND (state IS NULL OR length(state)=0 OR EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=r26_candidate.policy_hash))",row);db.execSQL("DELETE FROM r26_foundry WHERE campaign_id IN (SELECT f.campaign_id FROM r26_foundry f WHERE f.status<>'RUNNING' AND NOT EXISTS(SELECT 1 FROM r26_candidate c WHERE c.campaign_id=f.campaign_id) AND f.campaign_id NOT IN (SELECT campaign_id FROM r26_foundry ORDER BY created_at DESC LIMIT 2) ORDER BY f.created_at,f.campaign_id LIMIT 2)");RuntimeCoordinatorR26.requireFence(db,claim);return 0;});
+    }
     private static void finish(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,String campaign,long through){
         List<ModelEvolutionSU2.Ranked> best=new ArrayList<>();List<double[]> scores=new ArrayList<>();
         try(Cursor c=store.readable().rawQuery("SELECT canonical_text,dev_n,dev_k,val_n,val_k FROM r26_candidate WHERE campaign_id=? AND status='DONE' ORDER BY CASE WHEN val_n>0 THEN 1.0*val_k/val_n ELSE -1 END DESC,policy_hash LIMIT 3",new String[]{campaign})){while(c.moveToNext()){ModelGenomeSU2 g=ModelGenomeSU2.parse(c.getString(0));best.add(new ModelEvolutionSU2.Ranked(g,"R26_RESEARCH_SELECTION","","EXPOSED_HISTORY; NOT A QUALITY CERTIFICATE"));scores.add(new double[]{c.getInt(1)==0?-1:c.getDouble(2)/c.getInt(1),c.getInt(3)==0?-1:c.getDouble(4)/c.getInt(3)});}}
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_CAMPAIGN_FINISH",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());long now=System.currentTimeMillis();for(int i=0;i<best.size();i++){ModelEvolutionSU2.Ranked x=best.get(i);ModelStoreSU2.saveGenome(db,x,campaign,through,scores.get(i)[0],scores.get(i)[1],"RESEARCH",now);/* A new member waits in RESEARCH until cooperative live-state publication is verified.
-                Never trigger an unbounded genesis replay on the pre-draw thread. */db.execSQL("UPDATE r26_evolution SET research_accepted=1 WHERE campaign_id=? AND policy_hash=?",new Object[]{campaign,x.g.key()});}db.execSQL("UPDATE r26_foundry SET status='DONE' WHERE campaign_id=?",new Object[]{campaign});
-            // Keep two bounded campaign receipts; full label copies and optimizer blobs expire.
-            db.execSQL("DELETE FROM r26_candidate WHERE campaign_id IN (SELECT campaign_id FROM r26_foundry WHERE status<>'RUNNING' ORDER BY created_at DESC LIMIT -1 OFFSET 2) AND (state IS NULL OR length(state)=0 OR EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=r26_candidate.policy_hash))");db.execSQL("DELETE FROM r26_foundry WHERE campaign_id NOT IN (SELECT campaign_id FROM r26_foundry ORDER BY created_at DESC LIMIT 2) AND status<>'RUNNING' AND NOT EXISTS(SELECT 1 FROM r26_candidate c WHERE c.campaign_id=r26_foundry.campaign_id)");return 0;});
+        SQLiteDatabase r=store.readable();String sourceHash;try(Cursor c=r.rawQuery("SELECT snapshot_hash FROM r26_foundry WHERE campaign_id=?",new String[]{campaign})){if(!c.moveToFirst())throw new IllegalStateException("R31_FOUNDRY_FINISH_SOURCE_MISSING");sourceHash=c.getString(0);}
+        long publicationGeneration=EventFrameBuilderSU1.generation(r);String publicationId="FOUNDRY_FINISH:"+campaign+":"+publicationGeneration;ModelPublicationR31.Plan plan;
+        try{plan=ModelPublicationR31.existing(r,publicationId);}catch(IOException invalid){throw new IllegalStateException("R31_FOUNDRY_PLAN_RECOVERY",invalid);}
+        try{if(plan==null){plan=new ModelPublicationR31.Plan(publicationId,"FOUNDRY_FINISH",sourceHash,publicationGeneration,-1,System.currentTimeMillis());plan.put("FOUNDRY_FINISH",campaign,campaign);
+            for(int i=0;i<best.size();i++){ModelEvolutionSU2.Ranked x=best.get(i);ModelStoreSU2.prepareGenomeR31(plan,x,campaign,through,scores.get(i)[0],scores.get(i)[1],"RESEARCH");try(Cursor c=r.rawQuery("SELECT attempt_id FROM r26_evolution WHERE campaign_id=? AND policy_hash=? ORDER BY attempt_id",new String[]{campaign,x.g.key()})){while(c.moveToNext())plan.put("ACCEPTED",c.getString(0),c.getString(0),x.g.key());}}
+        }
+        ModelPublicationR31.stageAndPublish(store,claims.get(),plan,FoundryCampaignR26::publishFinishPreparedR31);
+        }catch(IOException invalid){throw new IllegalStateException("R31_FOUNDRY_FINISH_RECOVERY",invalid);}finally{if(plan!=null)plan.close();}
+        pruneFinishedR31(store,claims.get());
     }
 }

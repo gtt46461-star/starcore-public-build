@@ -14,9 +14,9 @@ public final class LegacyGenerationR26 {
     private static StepRun inFlight;
     private static final class StepRun {final String owner;volatile boolean cancelled;StepRun(String owner){this.owner=owner;}}
     private static final class Context {
-        final String id,source,abi;final FoundryCampaignR26.Snapshot snapshot;final int generation;final byte[] evolution;
+        final String id,source,abi;final FoundryCampaignR26.Snapshot snapshot;final int generation;final byte[] evolution,previousBlob;final long evolutionVersion;
         volatile RuntimeCoordinatorR26.Claim claim;CooperativeContinuationR26<Result> work;
-        Context(String id,String source,String abi,FoundryCampaignR26.Snapshot snapshot,int generation,byte[] evolution){this.id=id;this.source=source;this.abi=abi;this.snapshot=snapshot;this.generation=generation;this.evolution=evolution;}
+        Context(String id,String source,String abi,FoundryCampaignR26.Snapshot snapshot,int generation,byte[] evolution,byte[] previousBlob,long evolutionVersion){this.id=id;this.source=source;this.abi=abi;this.snapshot=snapshot;this.generation=generation;this.evolution=evolution;this.previousBlob=previousBlob;this.evolutionVersion=evolutionVersion;}
     }
     private static final class Result {
         ModelEvolutionSU2.State state;List<double[]> populationScores,hofScores;List<StageStrategySU2.Definition> stages;CommitteeSU2 matrixChampion;MatrixSnapshotSU2.Data matrices;
@@ -30,7 +30,7 @@ public final class LegacyGenerationR26 {
         try{return stepOwned(store,claim,budget,run);}finally{synchronized(LOCK){if(inFlight==run)inFlight=null;}}
     }
     private static long stepOwned(DbStore store,RuntimeCoordinatorR26.Claim claim,BudgetTokenSU1 budget,StepRun run)throws Exception {
-        Models.Draw latest=store.getLatestDraw();if(latest==null)return 0;long latestOrdinal=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);long carry=scalar(store.readable(),"SELECT completed FROM r26_work_total WHERE task_id='legacy-generation'");claim.advanceCursorTo(carry);carry=Math.max(0,carry-claim.cursor);String abi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
+        ModelPublicationR31.requireSchemaR31(store.readable());Models.Draw latest=store.getLatestDraw();if(latest==null)return 0;long latestOrdinal=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);long carry=scalar(store.readable(),"SELECT completed FROM r26_work_total WHERE task_id='legacy-generation'");claim.advanceCursorTo(carry);carry=Math.max(0,carry-claim.cursor);String abi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
         if(active!=null&&(!active.claim.owner.equals(claim.owner)||active.work.cancellationRequested()||!active.abi.equals(abi)||latestOrdinal-active.snapshot.ordinal[0]>=5000)){
             Context previous=active;previous.work.close();if(!previous.work.isTerminated()){claim.reason("COOPERATIVE_DRAINING_PREVIOUS_LEGACY_GENERATION");return carry;}
             if(!previous.abi.equals(abi)||latestOrdinal-previous.snapshot.ordinal[0]>=5000)status(store,previous,"EXPIRED_SOURCE_OR_ABI");
@@ -47,7 +47,7 @@ public final class LegacyGenerationR26 {
                     int T=captured.draws.length;db.execSQL("INSERT OR IGNORE INTO su2_campaign(campaign_id,through_sequence,dev_start,dev_end,val_start,val_end,generations,population,status,started_at) VALUES(?,?,?,?,?,?,?,?,'RUNNING',?)",new Object[]{campaign,captured.through,1500,T-ModelFoundryJobSU2.VAL_LEN,T-ModelFoundryJobSU2.VAL_LEN,T,ModelFoundryJobSU2.GENERATIONS,ModelFoundryJobSU2.POPULATION,System.currentTimeMillis()});return 0;});snapshot=bytes;
             }
             FoundryCampaignR26.Snapshot frozen=FoundryCampaignR26.Snapshot.decode(snapshot);if(latestOrdinal-frozen.ordinal[0]>=5000){final String expired=id;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_EXPIRE",db->{db.execSQL("UPDATE r26_legacy_campaign SET status='EXPIRED_RETENTION',snapshot=X'' WHERE campaign_id=?",new Object[]{expired});return 0;});return carry;}
-            Context context=new Context(id,source,abi,frozen,generation,ModelStateCodecSU2.encode(ModelStoreSU2.loadEvolution(store.readable())));context.claim=claim;
+            long evolutionVersion=ModelPublicationR31.evolutionVersion(store.readable());byte[] previousBlob=ModelStoreSU2.evolutionBlobR31(store.readable());byte[] evolution=ModelStateCodecSU2.encode(ModelStoreSU2.loadEvolution(store.readable()));if(evolutionVersion!=ModelPublicationR31.evolutionVersion(store.readable()))throw new IOException("R31_LEGACY_EVOLUTION_CHANGED_DURING_CAPTURE");Context context=new Context(id,source,abi,frozen,generation,evolution,previousBlob,evolutionVersion);context.claim=claim;
             context.work=new CooperativeContinuationR26<>("starcore-r26-legacy-generation",()->compute(store,context),()->RuntimeCoordinatorR26.hasCriticalPressure(),()->RuntimeCoordinatorR26.bindBackgroundClaim(context.claim),()->android.os.SystemClock.currentThreadTimeMillis()*1000000L,claim.owner);synchronized(LOCK){active=context;if(run.cancelled)context.work.close();}
         }
         Context context=active;claim.inheritCommitChunksR31(context.claim);context.claim=claim;if(run.cancelled){context.work.close();claim.reason("R31_CONTINUATION_CANCELLING");return carry;}budget.checkpointOrYield();CooperativeContinuationR26.Slice<Result> slice=context.work.slice(CooperativeContinuationR26.CONTINUATION_SLICE_MS);claim.addWorkerCpuMillis(slice.cpuNanos/1000000L);
@@ -57,15 +57,29 @@ public final class LegacyGenerationR26 {
         if(slice.error!=null){active=null;context.work.close();if(slice.error instanceof InterruptedException||slice.error instanceof BudgetTokenSU1.Yield){claim.reason("LEGACY_CONTINUATION_RESTART_FROM_COMMITTED_REPLAY");return delta;}throw new IllegalStateException("R26_LEGACY_GENERATION",slice.error);}
         if(run.cancelled){claim.reason("R31_CONTINUATION_CANCELLING");return delta;}
         Result result=slice.result;try{verifySource(store,context.snapshot);}catch(IOException revised){context.work.close();status(store,context,"INVALIDATED_FROZEN_SOURCE");active=null;claim.reason("LEGACY_SOURCE_REVISED_OR_EXPIRED");return delta;}long generationNow=EventFrameBuilderSU1.generation(store.readable());boolean finished=context.generation+1>=ModelFoundryJobSU2.GENERATIONS;long now=System.currentTimeMillis();
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_GENERATION_COMMIT",db->{RuntimeCoordinatorR26.requireFence(db,claim);if(EventFrameBuilderSU1.generation(db)!=generationNow)throw new IllegalStateException("R26_GENERATION_SOURCE_CHANGED_BEFORE_COMMIT");
-            try(Cursor c=db.rawQuery("SELECT generation,status FROM r26_legacy_campaign WHERE campaign_id=?",new String[]{context.id})){if(!c.moveToFirst()||c.getInt(0)!=context.generation||!c.getString(1).equals("RUNNING"))throw new IllegalStateException("R26_LEGACY_GENERATION_CAS");}
-            for(int i=0;i<result.state.population.size();i++){double[] score=result.populationScores.get(i);ModelStoreSU2.saveGenome(db,result.state.population.get(i),context.id,context.snapshot.through,score[0],score[1],"RESEARCH",now);}
-            for(int i=0;i<result.state.hallOfFame.size();i++){double[] score=result.hofScores.get(i);ModelStoreSU2.saveGenome(db,result.state.hallOfFame.get(i),context.id,context.snapshot.through,score[0],score[1],"HALL_OF_FAME",now);}
-            ModelStoreSU2.saveEvolution(db,context.id,result.state,now);db.execSQL("UPDATE su2_campaign SET evaluated=evaluated+?,effective_generations=? WHERE campaign_id=?",new Object[]{result.state.population.size(),result.state.effectiveGenerations,context.id});
-            if(finished){for(Map.Entry<String,CommitteeSU2> entry:result.state.committees.entrySet()){CommitteeSU2 c=entry.getValue();ModelStoreSU2.saveCommittee(db,c,entry.getKey(),context.id,context.snapshot.through,result.state.committeeJudge,now);ModelStoreSU2.joinLeague(db,"SU2:"+c.key(),"SU2",entry.getKey()+"·委员会",c.key(),latestOrdinal+1);}StageStoreSU2.save(db,result.stages,context.id,context.snapshot.through,now);if(result.matrices!=null)MatrixStoreSU2.save(db,result.matrixChampion.key(),context.snapshot.through,result.matrices,now);db.execSQL("UPDATE su2_campaign SET status='DONE',finished_at=? WHERE campaign_id=?",new Object[]{now,context.id});}
-            db.execSQL("UPDATE r26_legacy_campaign SET generation=generation+1,phase=?,status=?,updated_at=? WHERE campaign_id=?",new Object[]{finished?"COMPLETED":"GENERATION_COMMITTED",finished?"DONE":"RUNNING",now,context.id});db.execSQL("INSERT OR IGNORE INTO r26_work_total VALUES('legacy-generation',0)");db.execSQL("UPDATE r26_work_total SET completed=completed+1 WHERE task_id='legacy-generation'");return 0;});
+        if(ModelPublicationR31.evolutionVersion(store.readable())!=context.evolutionVersion){context.work.close();active=null;claim.reason("R31_LEGACY_RESTART_FROM_NEW_COMMITTED_EVOLUTION");return delta;}
+        String publicationId="LEGACY:"+context.id+":"+context.generation+":"+generationNow+":"+context.evolutionVersion;ModelPublicationR31.Plan plan=ModelPublicationR31.existing(store.readable(),publicationId);
+        try{if(plan==null){plan=new ModelPublicationR31.Plan(publicationId,"LEGACY",context.source,generationNow,context.evolutionVersion,now);
+            for(int i=0;i<result.state.population.size();i++){ExecutionBudgetR26.poll();double[] score=result.populationScores.get(i);ModelStoreSU2.prepareGenomeR31(plan,result.state.population.get(i),context.id,context.snapshot.through,score[0],score[1],"RESEARCH");}
+            for(int i=0;i<result.state.hallOfFame.size();i++){ExecutionBudgetR26.poll();double[] score=result.hofScores.get(i);ModelStoreSU2.prepareGenomeR31(plan,result.state.hallOfFame.get(i),context.id,context.snapshot.through,score[0],score[1],"HALL_OF_FAME");}
+            ModelStoreSU2.prepareEvolutionR31(plan,context.id,result.state,context.previousBlob);
+            if(finished){for(Map.Entry<String,CommitteeSU2> entry:result.state.committees.entrySet()){CommitteeSU2 c=entry.getValue();ModelStoreSU2.prepareCommitteeR31(plan,c,entry.getKey(),context.id,context.snapshot.through,result.state.committeeJudge);ModelStoreSU2.prepareLeagueR31(plan,"SU2:"+c.key(),"SU2",entry.getKey()+"·委员会",c.key(),latestOrdinal+1);}StageStoreSU2.prepareR31(plan,result.stages,context.id,context.snapshot.through);if(result.matrices!=null)MatrixStoreSU2.prepareR31(plan,result.matrixChampion.key(),context.snapshot.through,result.matrices);}
+            plan.put("LEGACY_META","1",context.id,context.generation,finished?1L:0L,result.state.population.size(),result.state.effectiveGenerations,context.abi);
+        }
+        ModelPublicationR31.stageAndPublish(store,claim,plan,LegacyGenerationR26::publishPreparedR31);
+        }finally{if(plan!=null)plan.close();}
         if(finished&&result.matrices!=null)MatrixStoreSU2.markAvailable(store,result.matrixChampion.key(),context.snapshot.through,System.currentTimeMillis());
+        StageStoreSU2.pruneR31(store,claim);MatrixStoreSU2.pruneR31(store,claim);
         context.work.close();active=null;committed=scalar(store.readable(),"SELECT completed FROM r26_work_total WHERE task_id='legacy-generation'");claim.advanceCursorTo(committed);return Math.max(0,committed-claim.cursor);
+    }
+    static void publishPreparedR31(SQLiteDatabase db,ModelPublicationR31.Plan p){
+        ModelPublicationR31.Item meta=p.item("LEGACY_META","1");String campaign=(String)meta.values[0],abi=(String)meta.values[5];long generation=((Number)meta.values[1]).longValue();boolean finished=((Number)meta.values[2]).longValue()==1;
+        try(Cursor c=db.rawQuery("SELECT generation,status,snapshot_hash,numerical_abi FROM r26_legacy_campaign WHERE campaign_id=?",new String[]{campaign})){if(!c.moveToFirst()||c.getLong(0)!=generation||!c.getString(1).equals("RUNNING")||!p.source.equals(c.getString(2))||!abi.equals(c.getString(3)))throw new IllegalStateException("R26_LEGACY_GENERATION_CAS");}
+        ModelStoreSU2.projectPreparedR31(db,p);
+        db.execSQL("UPDATE su2_campaign SET evaluated=evaluated+?,effective_generations=?,status=CASE WHEN ?=1 THEN 'DONE' ELSE status END,finished_at=CASE WHEN ?=1 THEN ? ELSE finished_at END WHERE campaign_id=?",new Object[]{meta.values[3],meta.values[4],finished?1:0,finished?1:0,p.now,campaign});
+        db.execSQL("UPDATE r26_legacy_campaign SET generation=generation+1,phase=?,status=?,updated_at=? WHERE campaign_id=? AND generation=? AND status='RUNNING'",new Object[]{finished?"COMPLETED":"GENERATION_COMMITTED",finished?"DONE":"RUNNING",p.now,campaign,generation});
+        try(Cursor c=db.rawQuery("SELECT changes()",null)){if(!c.moveToFirst()||c.getInt(0)!=1)throw new IllegalStateException("R26_LEGACY_GENERATION_CAS");}
+        db.execSQL("INSERT OR IGNORE INTO r26_work_total VALUES('legacy-generation',0)");db.execSQL("UPDATE r26_work_total SET completed=completed+1 WHERE task_id='legacy-generation'");
     }
     private static Result compute(DbStore store,Context context)throws Exception {
         ExecutionBudgetR26.phase("LEGACY_GENERATION_COMPUTE");

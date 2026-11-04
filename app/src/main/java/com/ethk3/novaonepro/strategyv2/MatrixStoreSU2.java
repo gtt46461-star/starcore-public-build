@@ -18,15 +18,25 @@ public final class MatrixStoreSU2 {
         db.execSQL("INSERT OR IGNORE INTO su2_matrix_snapshot(genome_key,checkpoint_sequence,snapshot_json,factors_blob,reason_state,graded_through,updated_at,input_through_ordinal,available_at,consumed_actions) VALUES(?,?,?,?,?,?,?,?,NULL,0)",new Object[]{key,through,data.json,data.factors,data.stream,through,now,through});
         db.execSQL("DELETE FROM su2_matrix_snapshot WHERE checkpoint_sequence<(SELECT min(checkpoint_sequence) FROM (SELECT checkpoint_sequence FROM su2_matrix_snapshot ORDER BY checkpoint_sequence DESC LIMIT 8))");
     }
+    static void prepareR31(ModelPublicationR31.Plan p,String key,long through,MatrixSnapshotSU2.Data data){
+        String json=new String(p.payload(data.json.getBytes(java.nio.charset.StandardCharsets.UTF_8)),java.nio.charset.StandardCharsets.US_ASCII);
+        p.put("MATRIX",key+":"+through,key,through,json,p.payload(data.factors),p.payload(data.stream),"{}",through,p.now,through,null,0L,null);
+    }
+    static void projectPreparedR31(SQLiteDatabase db,ModelPublicationR31.Plan p){if(p.count("MATRIX")>0)db.execSQL("INSERT OR IGNORE INTO su2_matrix_snapshot(genome_key,checkpoint_sequence,snapshot_json,factors_blob,reason_state,stats_json,graded_through,updated_at,input_through_ordinal,available_at,consumed_actions,last_consumed_at) "+ModelPublicationR31.select(p,"MATRIX","c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11"));}
+    static void pruneR31(DbStore store,RuntimeCoordinatorR26.Claim claim){
+        List<Row> old=new ArrayList<>();String guard="checkpoint_sequence<(SELECT min(checkpoint_sequence) FROM (SELECT checkpoint_sequence FROM su2_matrix_snapshot ORDER BY checkpoint_sequence DESC LIMIT 8))";
+        try(Cursor c=store.readable().rawQuery("SELECT genome_key,checkpoint_sequence FROM su2_matrix_snapshot WHERE "+guard+" ORDER BY checkpoint_sequence,genome_key LIMIT 8",null)){while(c.moveToNext()){Row r=new Row();r.key=c.getString(0);r.checkpoint=c.getLong(1);old.add(r);}}
+        if(old.isEmpty())return;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R31_MATRIX_RETENTION_SLICE",db->{RuntimeCoordinatorR26.requireFence(db,claim);for(Row r:old)db.execSQL("DELETE FROM su2_matrix_snapshot WHERE genome_key=? AND checkpoint_sequence=? AND "+guard,new Object[]{r.key,r.checkpoint});RuntimeCoordinatorR26.requireFence(db,claim);return 0;});
+    }
     static final class Row {String key,json,stats;byte[] factors,state;long checkpoint,graded,end;}
     public static String maintain(DbStore store,String target){
-        try{
+        try(MemoryBudgetR31.Lease workspace=ModelPublicationR31.workspaceR31("matrix-maintain",16L<<20)){
             SQLiteDatabase db=store.readable();if(!StrategySchemaSU2.ready(db))return"SU2_MATRIX_SCHEMA_PENDING";
             EventFrameSU1 frame=EventFrameBuilderSU1.capture(store,target);int[][] history=frame.history();
             long first=TargetIssueResolver.sequenceOrdinalSU1(String.valueOf(frame.issue(0))),last=first+history.length-1;
             List<Row> rows=new ArrayList<>();
             try(Cursor c=db.rawQuery("SELECT genome_key,checkpoint_sequence,snapshot_json,factors_blob,reason_state,stats_json,graded_through FROM su2_matrix_snapshot ORDER BY checkpoint_sequence DESC LIMIT 8",null)){
-                while(c.moveToNext()){Row r=new Row();r.key=c.getString(0);r.checkpoint=c.getLong(1);r.json=c.getString(2);r.factors=c.getBlob(3);r.state=c.getBlob(4);r.stats=c.getString(5);r.graded=c.getLong(6);r.end=last;rows.add(r);}
+                while(c.moveToNext()){Row r=new Row();r.key=c.getString(0);r.checkpoint=c.getLong(1);r.json=ModelPublicationR31.resolveText(db,c.getString(2));r.factors=ModelPublicationR31.resolve(db,c.getBlob(3));r.state=ModelPublicationR31.resolve(db,c.getBlob(4));r.stats=c.getString(5);r.graded=c.getLong(6);r.end=last;rows.add(r);}
             }
             for(Row r:rows){
                 for(Row later:rows)if(later.key.equals(r.key)&&later.checkpoint>r.checkpoint)r.end=Math.min(r.end,later.checkpoint);
@@ -58,11 +68,11 @@ public final class MatrixStoreSU2 {
     static Map<String,long[]> readStats(String text)throws JSONException{Map<String,long[]> out=new TreeMap<>();JSONObject j=new JSONObject(text);Iterator<String> it=j.keys();while(it.hasNext()){String key=it.next();JSONArray a=j.getJSONArray(key);out.put(key,new long[]{a.getLong(0),a.getLong(1),a.getLong(2),a.getLong(3)});}return out;}
     static String statsJson(Map<String,long[]> rows)throws JSONException{JSONObject j=new JSONObject();for(Map.Entry<String,long[]> e:rows.entrySet()){JSONArray a=new JSONArray();for(long n:e.getValue())a.put(n);j.put(e.getKey(),a);}return j.toString();}
     public static String report(SQLiteDatabase db){
-        try{
+        try(MemoryBudgetR31.Lease workspace=ModelPublicationR31.workspaceR31("matrix-report",8L<<20)){
             JSONArray snapshots=new JSONArray();
             try(Cursor c=db.rawQuery("SELECT snapshot_json,stats_json,graded_through,input_through_ordinal,available_at,consumed_actions,last_consumed_at FROM su2_matrix_snapshot ORDER BY checkpoint_sequence DESC LIMIT 8",null)){
                 while(c.moveToNext()){
-                    JSONObject row=new JSONObject(c.getString(0)),grades=new JSONObject();Map<String,long[]> stats=readStats(c.getString(1));
+                    JSONObject row=new JSONObject(ModelPublicationR31.resolveText(db,c.getString(0))),grades=new JSONObject();Map<String,long[]> stats=readStats(c.getString(1));
                     for(Map.Entry<String,long[]> e:stats.entrySet()){
                         long[] n=e.getValue();if(e.getKey().startsWith("__")){row.put("missing_source_periods",n[0]);continue;}
                         JSONObject g=new JSONObject();g.put("supported",n[0]);g.put("hit_when_supported",n[0]>0?n[1]/(double)n[0]:JSONObject.NULL);g.put("other",n[2]);g.put("hit_otherwise",n[2]>0?n[3]/(double)n[2]:JSONObject.NULL);
@@ -73,7 +83,7 @@ public final class MatrixStoreSU2 {
                 }
             }
             return new JSONObject().put("schema","SU2_MATRICES_V1").put("snapshots",snapshots).toString()+"\n";
-        }catch(RuntimeException|JSONException failure){return"{\"schema\":\"SU2_MATRICES_V1\",\"status\":\"PENDING\",\"snapshots\":[]}\n";}
+        }catch(IOException|RuntimeException|JSONException failure){return"{\"schema\":\"SU2_MATRICES_V1\",\"status\":\"PENDING\",\"snapshots\":[]}\n";}
     }
     public static String render(SQLiteDatabase db){
         StringBuilder out=new StringBuilder("\n因子、原因与教师矩阵\n");

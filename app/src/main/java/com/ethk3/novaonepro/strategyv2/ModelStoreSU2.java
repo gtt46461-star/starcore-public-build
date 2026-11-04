@@ -35,13 +35,50 @@ public final class ModelStoreSU2 {
 
     // ------------------------------------------------------------- evolution state
     public static ModelEvolutionSU2.State loadEvolution(SQLiteDatabase db) throws IOException {
-        try (Cursor c = db.rawQuery("SELECT state_blob FROM su2_evolution_state WHERE singleton=1", null)) {
-            return c.moveToFirst() ? ModelStateCodecSU2.decode(c.getBlob(0)) : new ModelEvolutionSU2.State();
+        try (MemoryBudgetR31.Lease workspace=ModelPublicationR31.workspaceR31("evolution-reader",24L<<20);Cursor c = db.rawQuery("SELECT state_blob FROM su2_evolution_state WHERE singleton=1", null)) {
+            return c.moveToFirst() ? ModelStateCodecSU2.decode(ModelPublicationR31.resolve(db,c.getBlob(0))) : new ModelEvolutionSU2.State();
         }
     }
+    static byte[] evolutionBlobR31(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT state_blob FROM su2_evolution_state WHERE singleton=1",null)){return c.moveToFirst()?c.getBlob(0):null;}}
     public static void saveEvolution(SQLiteDatabase db, String campaign, ModelEvolutionSU2.State s, long now) {
         writer(db); byte[] b = ModelStateCodecSU2.encode(s);
         db.execSQL("INSERT OR REPLACE INTO su2_evolution_state(singleton,campaign_id,state_blob,byte_count,updated_at) VALUES(1,?,?,?,?)", new Object[]{campaign, b, b.length, now});
+    }
+
+    /** Preparation keeps every original program, score, identity and lineage; no writer work. */
+    public static void prepareGenomeR31(ModelPublicationR31.Plan p,ModelEvolutionSU2.Ranked r,String campaign,long seq,double dev,double val,String state){
+        prepareIdentityR31(p,r.g.text(),r.g.key());ModelPublicationR31.Item old=p.item("GENOME",r.g.key());
+        Object[] values=old==null?new Object[]{r.g.key(),r.g.text(),r.g.formula(),ModelEvolutionSU2.tierOf(r.g),r.origin,r.parent.isEmpty()?null:r.parent,r.note.length()>512?r.note.substring(0,512):r.note,campaign,seq,dev,val,state,p.now,1L,0L}:old.values.clone();
+        values[9]=dev;values[10]=val;if(!"LEAGUE".equals(values[11])&&!"RETIRED".equals(values[11]))values[11]=state;values[13]=1L;p.put("GENOME",r.g.key(),values);
+        if(!r.parent.isEmpty()&&p.item("LINEAGE",r.g.key()+":"+r.parent)==null)p.put("LINEAGE",r.g.key()+":"+r.parent,r.g.key(),r.parent,r.origin,campaign,null,null,r.note);
+    }
+    static void prepareIdentityR31(ModelPublicationR31.Plan p,String text,String key){PolicyIdentityLedgerR26.Prepared identity=PolicyIdentityLedgerR26.prepare(text,key);if(identity!=null)p.put("IDENTITY",key,key,identity.canonical,identity.text,identity.abi,p.now);}
+    public static void prepareCommitteeR31(ModelPublicationR31.Plan p,CommitteeSU2 c,String tier,String campaign,long seq,double judge){
+        prepareIdentityR31(p,c.text(),c.key());if(p.item("GENOME",c.key())==null)p.put("GENOME",c.key(),c.key(),c.text(),c.formula(),tier,"COMMITTEE",null,"",campaign,seq,null,judge,"LEAGUE",p.now,0L,0L);
+    }
+    static void prepareLeagueR31(ModelPublicationR31.Plan p,String id,String kind,String name,String genome,long seq){
+        p.put("LEAGUE",id,id,kind,name,genome,seq,"ACTIVE");if(genome!=null){ModelPublicationR31.Item item=p.item("GENOME",genome);if(item==null)throw new IllegalStateException("R31_MODEL_LEAGUE_WITHOUT_PREPARED_GENOME");Object[] values=item.values.clone();values[14]=1L;if(!"RETIRED".equals(values[11]))values[11]="LEAGUE";p.put("GENOME",genome,values);}
+    }
+    public static void prepareEvolutionR31(ModelPublicationR31.Plan p,String campaign,ModelEvolutionSU2.State state,byte[] previous){
+        p.reserve(24L<<20);byte[] bytes=ModelStateCodecSU2.encode(state),reference=p.payload(bytes);byte[] old=previous==null?null:ModelPublicationR31.isReference(previous)?previous.clone():p.payload(previous);
+        p.put("EVOLUTION","1",campaign,reference,reference.length,p.now,old);
+    }
+    /** Finite projections: each SELECT is bounded by the exact immutable typed manifest.
+     * Genomes deliberately retain insert-once metadata and sticky LEAGUE/RETIRED. */
+    static void projectPreparedR31(SQLiteDatabase db,ModelPublicationR31.Plan p){
+        writer(db);String identities=ModelPublicationR31.select(p,"IDENTITY","c0,c1,c2,c3,c4");
+        try(Cursor c=db.rawQuery("SELECT 1 FROM ("+identities+") i JOIN r26_policy_identity old ON old.policy_hash=i.c0 WHERE old.canonical_policy IS NOT i.c1 OR old.genotype_text IS NOT i.c2 OR old.numerical_abi IS NOT i.c3 LIMIT 1",null)){if(c.moveToFirst())throw new IllegalStateException("R26_POLICY_IDENTITY_CONFLICT");}
+        if(p.count("IDENTITY")>0)db.execSQL("INSERT OR IGNORE INTO r26_policy_identity(policy_hash,canonical_policy,genotype_text,numerical_abi,created_at) "+identities);
+        if(p.count("GENOME")>0){
+            String rows=ModelPublicationR31.select(p,"GENOME","c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14");
+            db.execSQL("INSERT OR IGNORE INTO su2_model_genome(genome_key,canonical_text,formula,tier,origin_op,parent_key,repair_note,born_campaign,born_sequence,dev_fitness,val_fitness,state,created_at) SELECT c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12 FROM ("+rows+")");
+            String pick=" FROM ("+rows+") prepared WHERE prepared.c0=su2_model_genome.genome_key";
+            db.execSQL("UPDATE su2_model_genome SET dev_fitness=CASE WHEN (SELECT c13"+pick+")=1 THEN (SELECT c9"+pick+") ELSE dev_fitness END,val_fitness=CASE WHEN (SELECT c13"+pick+")=1 THEN (SELECT c10"+pick+") ELSE val_fitness END,state=CASE WHEN state='RETIRED' THEN state WHEN (SELECT c14"+pick+")=1 THEN 'LEAGUE' WHEN state='LEAGUE' THEN state WHEN (SELECT c13"+pick+")=1 THEN (SELECT c11"+pick+") ELSE state END WHERE genome_key IN (SELECT c0 FROM ("+rows+"))");
+        }
+        if(p.count("LINEAGE")>0)db.execSQL("INSERT OR IGNORE INTO su2_lineage(child_key,parent_key,op,campaign_id,parent_dev,child_dev,note) "+ModelPublicationR31.select(p,"LINEAGE","c0,c1,c2,c3,c4,c5,c6"));
+        if(p.count("EVOLUTION")>0)db.execSQL("INSERT OR REPLACE INTO su2_evolution_state(singleton,campaign_id,state_blob,byte_count,updated_at) SELECT 1,c0,c1,c2,c3 FROM ("+ModelPublicationR31.select(p,"EVOLUTION","c0,c1,c2,c3")+")");
+        if(p.count("LEAGUE")>0)db.execSQL("INSERT OR IGNORE INTO su2_league(member_id,kind,name,genome_key,joined_sequence,state) "+ModelPublicationR31.select(p,"LEAGUE","c0,c1,c2,c3,c4,c5"));
+        StageStoreSU2.projectPreparedR31(db,p);MatrixStoreSU2.projectPreparedR31(db,p);
     }
 
     // ------------------------------------------------------------- live states (checkpointed, P06)

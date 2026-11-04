@@ -11,15 +11,29 @@ public final class PolicyIdentityLedgerR26 {
     public static boolean record(SQLiteDatabase db,String text,String expected){
         if(!db.inTransaction())throw new IllegalStateException("R26_POLICY_IDENTITY_WRITER");
         try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r26_policy_identity'",null)){if(!c.moveToFirst())return false;}
+        return recordPrepared(db,prepare(text,expected));
+    }
+    public static final class Prepared {
+        public final String hash,canonical,text,abi;
+        private Prepared(String hash,String canonical,String text,String abi){this.hash=hash;this.canonical=canonical;this.text=text;this.abi=abi;}
+    }
+    /** Parse, canonicalize and hash on the compute owner, before entering the writer. */
+    public static Prepared prepare(String text,String expected){
         PolicyIdentityR26.Policy identity;String abi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
         if(StageStrategySU2.isStage(text)){
-            if(!text.startsWith(StageStrategySU2.PREFIX_R26))return false;String[] fields=text.split("\\|");if(fields.length!=4)throw new IllegalArgumentException("R26_STAGE_IDENTITY_TEXT");abi=fields[2];identity=StrategyPolicyIdentityR26.policy(text,"FITTED_BUNDLE_AND_BOUND_BOOTSTRAP",abi);
+            if(!text.startsWith(StageStrategySU2.PREFIX_R26))return null;String[] fields=text.split("\\|");if(fields.length!=4)throw new IllegalArgumentException("R26_STAGE_IDENTITY_TEXT");abi=fields[2];identity=StrategyPolicyIdentityR26.policy(text,"FITTED_BUNDLE_AND_BOUND_BOOTSTRAP",abi);
         }else if(CommitteeSU2.isCommittee(text)){
-            CommitteeSU2 committee=CommitteeSU2.parse(text);if(!committee.legalReadoutR26())return false;identity=StrategyPolicyIdentityR26.policy(text,"DETERMINISTIC_BOOTSTRAP_OF_BOUND_MEMBER_DATASETS",abi);
-        }else{ModelGenomeSU2 genome=ModelGenomeSU2.parse(text);if(genome.legacyIdentity())return false;identity=genome.identityR26();}
+            CommitteeSU2 committee=CommitteeSU2.parse(text);if(!committee.legalReadoutR26())return null;identity=StrategyPolicyIdentityR26.policy(text,"DETERMINISTIC_BOOTSTRAP_OF_BOUND_MEMBER_DATASETS",abi);
+        }else{ModelGenomeSU2 genome=ModelGenomeSU2.parse(text);if(genome.legacyIdentity())return null;identity=genome.identityR26();}
         if(!identity.hash.equals(expected)||!PolicyIdentityR26.sha256(identity.canonical).equals(expected))throw new IllegalStateException("R26_POLICY_IDENTITY_HASH_MISMATCH");
-        db.execSQL("INSERT OR IGNORE INTO r26_policy_identity VALUES(?,?,?,?,?)",new Object[]{expected,identity.canonical,text,abi,System.currentTimeMillis()});
-        try(Cursor c=db.rawQuery("SELECT canonical_policy,genotype_text,numerical_abi FROM r26_policy_identity WHERE policy_hash=?",new String[]{expected})){if(!c.moveToFirst()||!identity.canonical.equals(c.getString(0))||!text.equals(c.getString(1))||!abi.equals(c.getString(2)))throw new IllegalStateException("R26_POLICY_IDENTITY_CONFLICT");}return true;
+        return new Prepared(expected,identity.canonical,text,abi);
+    }
+    public static boolean recordPrepared(SQLiteDatabase db,Prepared prepared){
+        if(!db.inTransaction())throw new IllegalStateException("R26_POLICY_IDENTITY_WRITER");
+        if(prepared==null)return false;
+        String expected=prepared.hash,text=prepared.text,abi=prepared.abi,canonical=prepared.canonical;
+        db.execSQL("INSERT OR IGNORE INTO r26_policy_identity VALUES(?,?,?,?,?)",new Object[]{expected,canonical,text,abi,System.currentTimeMillis()});
+        try(Cursor c=db.rawQuery("SELECT canonical_policy,genotype_text,numerical_abi FROM r26_policy_identity WHERE policy_hash=?",new String[]{expected})){if(!c.moveToFirst()||!canonical.equals(c.getString(0))||!text.equals(c.getString(1))||!abi.equals(c.getString(2)))throw new IllegalStateException("R26_POLICY_IDENTITY_CONFLICT");}return true;
     }
     public static String canonical(SQLiteDatabase db,String hash){
         try(Cursor c=db.rawQuery("SELECT canonical_policy FROM r26_policy_identity WHERE policy_hash=?",new String[]{hash})){if(!c.moveToFirst())return null;String canonical=c.getString(0);if(!PolicyIdentityR26.sha256(canonical).equals(hash))throw new IllegalStateException("R26_POLICY_IDENTITY_CORRUPT");return canonical;}
