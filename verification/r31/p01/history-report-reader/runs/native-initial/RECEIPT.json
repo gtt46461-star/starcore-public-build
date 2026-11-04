@@ -1,0 +1,142 @@
+{
+  "scope": "ACTUAL_REPORT_HISTORY_SCALAR_NATIVE_HOST_ONLY_NOT_ANDROID_NOT_IMPORTER_E2E_NOT_QUALITY",
+  "sourceCapturedAt": "2026-11-04T20:00:18.724666+00:00",
+  "head": "91471e776196b06f38baf642b75606ddadc317f7",
+  "classes": "/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar",
+  "classesSha256": "8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0",
+  "jdbcSha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa",
+  "androidSdkSha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a",
+  "records": [
+    {
+      "label": "compile-host-platform",
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/r31-shared-migrations/verification/r31/p01/shared-migration-integration/20261104T184245Z/classes:/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-report-history-reader-gsad1o8d/platform",
+        "/tmp/r31-report-history-reader-gsad1o8d/platform-source/android/database/Cursor.java",
+        "/tmp/r31-report-history-reader-gsad1o8d/platform-source/android/database/sqlite/SQLiteDatabase.java",
+        "/tmp/r31-report-history-reader-gsad1o8d/platform-source/android/database/sqlite/SQLiteDatabaseLockedException.java",
+        "/tmp/r31-report-history-reader-gsad1o8d/platform-source/android/database/sqlite/SQLiteException.java",
+        "/tmp/r31-report-history-reader-gsad1o8d/platform-source/android/os/Process.java",
+        "/tmp/r31-report-history-reader-gsad1o8d/platform-source/android/os/SystemClock.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "compile-actual-production",
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/r31-shared-migrations/verification/r31/p01/shared-migration-integration/20261104T184245Z/classes:/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-report-history-reader-gsad1o8d/current",
+        "/workspace/r31-report-import-reader/verification/r31/p01/history-report-reader/runs/native-initial/source-snapshot/ReportSnapshotR30.java",
+        "/workspace/r31-report-import-reader/verification/r31/p01/history-report-reader/runs/native-initial/source-snapshot/HistoryImportR27.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "compile-actual-original-report",
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/tmp/r31-report-history-reader-gsad1o8d/current:/workspace/r31-shared-migrations/verification/r31/p01/shared-migration-integration/20261104T184245Z/classes:/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-report-history-reader-gsad1o8d/old",
+        "/tmp/r31-report-history-reader-gsad1o8d/old-source/ReportSnapshotR30.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "compile-native-reader-test",
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/tmp/r31-report-history-reader-gsad1o8d/platform:/tmp/r31-report-history-reader-gsad1o8d/current:/tmp/r31-report-history-reader-gsad1o8d/test:/workspace/r31-shared-migrations/verification/r31/p01/shared-migration-integration/20261104T184245Z/classes:/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar",
+        "-d",
+        "/tmp/r31-report-history-reader-gsad1o8d/test",
+        "/workspace/r31-report-import-reader/tools/r31/report_history_host/R31ReportHistoryReaderHost.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "baseline-actual-report",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-report-history-reader-gsad1o8d/platform:/tmp/r31-report-history-reader-gsad1o8d/old:/tmp/r31-report-history-reader-gsad1o8d/current:/tmp/r31-report-history-reader-gsad1o8d/test:/workspace/r31-shared-migrations/verification/r31/p01/shared-migration-integration/20261104T184245Z/classes:/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar",
+        "com.ethk3.novaonepro.strategyv2.R31ReportHistoryReaderHost",
+        "baseline",
+        "/workspace/r31-report-import-reader/verification/r31/p01/history-report-reader/runs/native-initial"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "current-report-native",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-report-history-reader-gsad1o8d/platform:/tmp/r31-report-history-reader-gsad1o8d/current:/tmp/r31-report-history-reader-gsad1o8d/test:/workspace/r31-shared-migrations/verification/r31/p01/shared-migration-integration/20261104T184245Z/classes:/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar",
+        "com.ethk3.novaonepro.strategyv2.R31ReportHistoryReaderHost",
+        "current",
+        "/workspace/r31-report-import-reader/verification/r31/p01/history-report-reader/runs/native-initial"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "status": "TARGETED_NATIVE_READER_ASSERTIONS_COMPLETED_NOT_DEVICE",
+  "producerDependencySnapshot": {
+    "path": "/workspace/r31-shared-migrations/verification/r31/p01/shared-migration-integration/20261104T184245Z/classes",
+    "classTreeSha256": "6121d893fc2e11046c908a1eea585f23b5536f8978080bb284f72cd36a6960a3",
+    "scope": "Fixed actual production dependency bytecode; current History and ReportSnapshot are separately recompiled from recorded source bytes"
+  },
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java": "4a926a8492ee3dad70f068e9b5e8e20242406d7fb0b7f433036a27c512c1ed31",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/HistoryImportR27.java": "18afcd274c11c0cfd677d4fdb2fd1ff33f750215f2ca3e43be5a077486b2e3db"
+  },
+  "baselineOrigin": {
+    "originalCommit": "91471e776196b06f38baf642b75606ddadc317f7",
+    "sourcePath": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+    "sha256": "52d52217aaadb3a3ca79749eb6306c4ce9f1532675806c0663bd7e382821c72c",
+    "scope": "Actual original report source only as negative reference, never current production"
+  },
+  "hostTestSourceSha256": "5b962937be5f54b7091df11d5f6a56c8af8840d2b932dd3ce1a397b819f4dc3a",
+  "compiledSourceClassSha256": {
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27$ChangesR31.class": "54873f24bbecc9b17cc07723e1c864c589ab803db5413059cee6ba8a02101309",
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27$CsvR31.class": "4976fc5b3a102d19e53fd413fff4802aaf5c4003ab2d601904952ddd588bc2ca",
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27$DependencyR31.class": "9aaee7c0f43991d84c8d4bbf06d17da91f2c6d1d7d57cf35604a6aafaa6b5f93",
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27$Governed.class": "bc52b5bd34248d27e7456e98d63c99f536433f1c09e749870a49b3e0c3f0e78d",
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27$IntegrityR31.class": "4f0b724191c6d3877bb023c4c937c103db25f494c11075f41f2abf9467760597",
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27$JobR31.class": "7635ae2baf6ff05d4213ce95ad523dc40e9172603db270d4b98f8deed9af1098",
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27$RowR31.class": "9028fa9302ee6fe7f4bdb70f5544ce491bb752bab9d49487ed6d36463d4009d1",
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27$SourceR31.class": "613185d7029fd28eeae364e17d74cb9fbfd37e1f136d2650cf0bf87390a6a04c",
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27$SummaryR31.class": "76fc7b74180b217ca1851c3e5a8541d68fe3e8c9f594e8ffcb4fa83bf49e131e",
+    "com/ethk3/novaonepro/strategyv2/HistoryImportR27.class": "d13a1e3de265517a36a73961216d893986fed9546b7b72a88cb220fd5edf6109",
+    "com/ethk3/novaonepro/strategyv2/ReportSnapshotR30$Cell.class": "7f512c69c9d46a1afb2c242a67b552cea4fd5bbe0dcdfb9fcdb5c9a35ea143a3",
+    "com/ethk3/novaonepro/strategyv2/ReportSnapshotR30$Query.class": "34d3b53d9480bc56892d8fffd4f82c5041eb8edba5c155b56090b47c3336d0cd",
+    "com/ethk3/novaonepro/strategyv2/ReportSnapshotR30$Table.class": "d6533502456c4904f6f39ad555593aaaa2f7d2ecc9d54bb3279d08c303634576",
+    "com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.class": "d87a7f1e73eebf345d4304458c0c5a722a86cc53cd1aab5b344ba484b13e14f2"
+  },
+  "hostShimSourceSha256": {
+    "android/database/Cursor.java": "0c81badbc252c30f83eb808f3f9d818a6f9cc43f5d90e7a9feb5c693bafc8dbf",
+    "android/database/sqlite/SQLiteDatabase.java": "0d5d87ab46545cbf06ffa5f126d8d342ef5631b141d4b4fbdcbad59b6b729348",
+    "android/database/sqlite/SQLiteDatabaseLockedException.java": "e17afce73f98be731b31a7d19f895a6df48c90b4f12362a1b5e5b463566a74c9",
+    "android/database/sqlite/SQLiteException.java": "878df09b56099f50a5cd75f2d94a9c0f11d1b49ce9c3cc36e5c66101b47c4b88",
+    "android/os/Process.java": "63e7d8b0e8a8f152255442b9074a86ef21145254eb6cd8508ae45c99d8a2b2fc",
+    "android/os/SystemClock.java": "cb75f4244debb7b5a34d3ae3e8821cdfaa7e06f3b96e4a50f50272f1bb67fdca"
+  },
+  "originalSourcesUnchanged": true,
+  "finishedAt": "2026-11-04T20:00:24.291885+00:00"
+}

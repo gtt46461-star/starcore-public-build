@@ -1,0 +1,17 @@
+# History完整发布结果接入真实报告
+
+生产只改 `ReportSnapshotR30`。基线为root Shared已提交 `91471e776196b06f38baf642b75606ddadc317f7`，继承History生产 `6074a5816d3162e4f2b62fd5a9ebd35c37acec84`，其文件SHA为 `18afcd274c11c0cfd677d4fdb2fd1ff33f750215f2ca3e43be5a077486b2e3db`。
+
+原报告 `importedRows` 直接COUNT旧表，漏掉已经COMPLETE的分片结果。现在使用实际 `HistoryImportR27.publishedCountSqlR31()`，表达式在其他全部facts使用的同一个SELECT里执行，没有提前查询后拼接数字。
+
+metadata纳入新run／row，真实 `publicationSchemaReadyReadOnlyR31` 验证必要列和10对象精确DDL。缺旧源、未迁移、部分表／列、对象合同缺失分别有状态；这些情形的逻辑计数为NULL。有效迁移后，没有发布记录才能返回已知0，只有暂存记录会另有明确状态。旧记录总数、COMPLETE任务、STAGING任务及未发布行分别列出，MATCH／CONFLICT仍保留旧记录计数语义。自冲突CSV不会覆盖较早完整结果。
+
+`runs/native-initial/RECEIPT.json` 实际编译当前ReportSnapshot和冻结History源，运行原报告负对照与新报告134条断言、13个状态。负对照真实复现旧表3行而实际发布关系4行时，原报告仍报3。新报告验证暂存不可见、当前旧记录保留、完整覆盖为4、下一完整集为5、缺trigger变UNKNOWN、修复10对象后恢复、空已发布0和只有暂存的已知0。第二个真实SQLite连接在最终SELECT前提交另一个完整任务，报告同时得到6条当前记录／3个完整任务／0暂存行，证明同一次事实读取，非脱离快照的单独COUNT。
+
+每次capture在query_only连接运行，断言没有数据／schema修改、只有一个最终facts SELECT，原44个指标定义保持。所有工程fixture状态明确不代表一次CSV导入、训练、自然胜率、Android或设备通过；History producer自身15模式证据由其owner另行交付。
+
+HOST使用ba35真实完整应用支持jar，SHA `8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0`，另用root先前冻结的真实producer class快照解决未集成API依赖，路径及classTree SHA见收据。实际被测History／ReportSnapshot均从记录的源码重新编译；这不是完整Android构建或最新共享启动通过。root同版合并后CI入口使用新完整app classes，不再依赖该本地快照。
+
+CI接入 `tools/r30/ci_build.sh` 已有native阶段后，输出独立目录，未运行全局Gradle。APK／安装、共享Schema最新完整启动、设备24／72小时及自然质量仍未由本代理验证。
+
+原401／322ms写时序失败记录没有被本次reader测试替换。另附 `atom-publication/readiness/THRESHOLD_INTERPRETATION_ADDENDUM.json` 按实际配置澄清：测得HOST p99为12ms，两个>200ms样本缺所要求的FaultReceipt证据；原FAIL保留，不虚构max<=200规则。

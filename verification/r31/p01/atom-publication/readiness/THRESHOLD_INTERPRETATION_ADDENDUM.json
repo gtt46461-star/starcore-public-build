@@ -1,0 +1,20 @@
+{
+  "recordedAt": "2026-11-04T20:04:09.638267+00:00",
+  "originalFailureRecordUnchanged": "readiness/SUMMARY.json from40ec9426",
+  "acceptanceConfigSha256": "c577c58f63879ce8c9090d5b9d7494108db8f0d317b31d22639b4888b47bc08c",
+  "exactConfig": {
+    "writer_hold_p99_target_ms": 50,
+    "writer_hold_over_200ms_must_have_fault_receipt": true
+  },
+  "clarification": "Original description incorrectly called200ms an absolute max threshold. Preserved HOST FAIL label means required fault-receipt evidence is missing for two observed over200ms writes, not an invented max<=200 rule.",
+  "measuredSubsetP99Ms": 12,
+  "measuredAttempts": 7067,
+  "unknownAtProcessHaltAttempts": 1,
+  "measuredOver200": 2,
+  "faultReceiptPath": null,
+  "faultReceiptEvidence": "NOT_ACQUIRED; in-memory overHard and raw timing are not fault receipts",
+  "cause": "UNKNOWN; original phase/GC/scheduler data not recorded",
+  "deviceLatency": "NOT_RUN",
+  "noThresholdOrHeapChanges": true,
+  "noFasterRerunUsedToReplaceOriginal": true
+}
