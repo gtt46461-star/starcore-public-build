@@ -90,29 +90,36 @@
           "command": "Independent apksigner/aapt/embedded-source audit of actual CI APK bytes",
           "result": "PASS_APK_IDENTITY_ONLY_FAILED_ENGINEERING_GATES_REMAIN",
           "evidence": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json"
+        },
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
         }
       ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -161,6 +168,12 @@
           "state": "BUILD_PASS",
           "receipt": "verification/r31/p00/R31-B00-C01.json",
           "receipt_sha256": "4fc8f81b927997fb445da75e6330386742e99ac1704c6d23b6a74eef1cfb67f8"
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "BUILD_PASS",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ]
     },
@@ -262,29 +275,36 @@
           "result": "PASS",
           "tests": 4,
           "evidence": "verification/r31/p00/source-identity-refresh/final-compile-receipt.json"
+        },
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
         }
       ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -333,6 +353,12 @@
           "state": "BUILD_PASS",
           "receipt": "verification/r31/p00/R31-B00-C02.json",
           "receipt_sha256": "b384c5ce1c295f1b4e3314c191172c12996d6e3ab5547fb8d558ea215e113415"
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "BUILD_PASS",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ]
     },
@@ -432,29 +458,36 @@
           "evidence": "verification/r31/ci_diagnosis/exact31fea-native/SUMMARY.json",
           "evidence_sha256": "ee84b70fd8de5558b87180749ea4a728a35c239458d8414a64c05b82b43d015f",
           "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
+        },
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
         }
       ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -500,6 +533,12 @@
           "state": "BUILD_PASS",
           "receipt": "verification/r31/p01/card_updates/R31-B01-C01.json",
           "receipt_sha256": "a8d0725174dd4bfa4f60a05b86e853ec6edffc5f2cc2c8df690fcd879a1e5a9c"
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "BUILD_PASS",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ]
     },
@@ -596,29 +635,42 @@
           "evidence": "verification/r31/p02/build-identity/P02_MERGED_PROTOCOLS_COMPATIBILITY_013_COMMITTED_UNEXCLUDED_JOINT.json",
           "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
           "scope": "JAVA_ANDROIDTEST_COMPILE_BOTH_LINT_IDENTITY_PASS;481UNIT_480PASS1RESOURCE_ADMISSIONFAIL"
+        },
+        {
+          "result": "PASS",
+          "evidence": "verification/r31/p02/build-identity/P02_LIVE_FORK_CACHE_DELIVERY_014_COMMITTED_UNEXCLUDED_JOINT.json",
+          "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+          "scope": "actual481unit/0fail/0skip+AndroidJavaAndTestCompile+DebugReleaseLint+Identity;noAPK/physical/endurance/naturalproof"
+        },
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
         }
       ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -675,6 +727,18 @@
           "at": "2026-11-04T18:15:35.970155+00:00",
           "state": "BUILD_PASS",
           "reason": "Actual full481/1 failure recorded; preserve previous472/8 and remote472/0 separately; no card promotion"
+        },
+        {
+          "at": "2026-11-04T18:52:07.414738+00:00",
+          "state": "BUILD_PASS",
+          "previous_state": "BUILD_PASS",
+          "reason": "014 complete unexcluded local checkPASS;remainingcontracts retained,F23/owner coverage/physical remainopen;BUILD_PASS only sourcebuildnotclosure"
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "BUILD_PASS",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ]
     },
@@ -754,29 +818,36 @@
           "evidence": "verification/r31/ci_diagnosis/exact31fea-native/SUMMARY.json",
           "evidence_sha256": "ee84b70fd8de5558b87180749ea4a728a35c239458d8414a64c05b82b43d015f",
           "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
+        },
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
         }
       ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -822,6 +893,12 @@
           "state": "BUILD_PASS",
           "receipt": "verification/r31/p01/card_updates/R31-B01-C03.json",
           "receipt_sha256": "8528b9edf6cc0ef0a2dc70307dbfa7ab14eec688af4e1efc9435061b41cd7b5f"
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "BUILD_PASS",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ]
     },
@@ -940,29 +1017,36 @@
           "evidence": "verification/r31/ci_diagnosis/exact31fea-native/SUMMARY.json",
           "evidence_sha256": "ee84b70fd8de5558b87180749ea4a728a35c239458d8414a64c05b82b43d015f",
           "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
+        },
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
         }
       ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -1014,6 +1098,12 @@
           "state": "BUILD_PASS",
           "receipt": "verification/r31/p01/card_updates/R31-B01-C04.json",
           "receipt_sha256": "f975770207bf2aa810e2aed73642776683ff52da5ec162acc3ffa7fe5536bf30"
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "BUILD_PASS",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ]
     },
@@ -1087,29 +1177,36 @@
           "evidence": "verification/r31/ci_diagnosis/exact31fea-native/SUMMARY.json",
           "evidence_sha256": "ee84b70fd8de5558b87180749ea4a728a35c239458d8414a64c05b82b43d015f",
           "scope": "199 task assertions + writer native SQLite HOST adapters +10JUnit; complete compiled source hashes match; no Android/device/natural claim"
+        },
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
         }
       ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -1155,6 +1252,12 @@
           "state": "BUILD_PASS",
           "receipt": "verification/r31/p01/card_updates/R31-B02-C01.json",
           "receipt_sha256": "aeb629beab43ad1d2909cb0baff4629fa0b3e466c77d8a23227252032f1bf9d7"
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "BUILD_PASS",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ]
     },
@@ -1297,29 +1400,42 @@
           "result": "PASS_MODULE_ONLY",
           "evidence": "verification/r31/p02/cache-rebuild-delivery/fixed-RECEIPT.json",
           "scope": "148 actualnative assertions;16-events<=32SQL inclguards/receipt;process-local precommit diagnostic durability only"
+        },
+        {
+          "result": "PASS",
+          "evidence": "verification/r31/p02/build-identity/P02_LIVE_FORK_CACHE_DELIVERY_014_COMMITTED_UNEXCLUDED_JOINT.json",
+          "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+          "scope": "actual481unit/0fail/0skip+AndroidJavaAndTestCompile+DebugReleaseLint+Identity;noAPK/physical/endurance/naturalproof"
+        },
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
         }
       ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -1381,6 +1497,18 @@
           "at": "2026-11-04T18:15:35.970155+00:00",
           "state": "IMPLEMENTING",
           "reason": "Actual full481/1 failure recorded; preserve previous472/8 and remote472/0 separately; no card promotion"
+        },
+        {
+          "at": "2026-11-04T18:52:07.414738+00:00",
+          "state": "IMPLEMENTING",
+          "previous_state": "IMPLEMENTING",
+          "reason": "014 complete unexcluded local checkPASS;remainingcontracts retained,F23/owner coverage/physical remainopen;BUILD_PASS only sourcebuildnotclosure"
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ]
     },
@@ -1502,29 +1630,42 @@
           "evidence": "verification/r31/p02/build-identity/P02_MERGED_PROTOCOLS_COMPATIBILITY_013_COMMITTED_UNEXCLUDED_JOINT.json",
           "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
           "scope": "JAVA_ANDROIDTEST_COMPILE_BOTH_LINT_IDENTITY_PASS;481UNIT_480PASS1RESOURCE_ADMISSIONFAIL"
+        },
+        {
+          "result": "PASS",
+          "evidence": "verification/r31/p02/build-identity/P02_LIVE_FORK_CACHE_DELIVERY_014_COMMITTED_UNEXCLUDED_JOINT.json",
+          "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+          "scope": "actual481unit/0fail/0skip+AndroidJavaAndTestCompile+DebugReleaseLint+Identity;noAPK/physical/endurance/naturalproof"
+        },
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
         }
       ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -1579,6 +1720,18 @@
           "at": "2026-11-04T18:15:35.970155+00:00",
           "state": "BUILD_PASS",
           "reason": "Actual full481/1 failure recorded; preserve previous472/8 and remote472/0 separately; no card promotion"
+        },
+        {
+          "at": "2026-11-04T18:52:07.414738+00:00",
+          "state": "BUILD_PASS",
+          "previous_state": "BUILD_PASS",
+          "reason": "014 complete unexcluded local checkPASS;remainingcontracts retained,F23/owner coverage/physical remainopen;BUILD_PASS only sourcebuildnotclosure"
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "BUILD_PASS",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ]
     },
@@ -1679,29 +1832,36 @@
           "junitTests": 6,
           "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
           "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+        },
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
         }
       ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -1755,6 +1915,12 @@
           "receipt": "verification/r31/p02/service/card_updates.json",
           "receipt_sha256": "1614f2bfed9fb13f6cf6eeb846964872d774fc04ee0f4b46d1b7f061ff553777",
           "meaning": "Scoped code/HOST evidence, not final Android/device acceptance."
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ],
       "owner_slices": [
@@ -1951,29 +2117,36 @@
           "junitTests": 6,
           "evidenceSha256": "4fdbbdfdd8cbf5c97fbce64f50805e36ec2967e8de0b59af1d1c5bbfcfa3db4c",
           "scope": "Actual production sources/native SQLite and actual localhost HTTP with labelled Android platform adapters. This is not Android service lifecycle/device/SLO or natural-quality execution."
+        },
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
         }
       ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -2033,6 +2206,12 @@
           "receipt": "verification/r31/p02/service/card_updates.json",
           "receipt_sha256": "1614f2bfed9fb13f6cf6eeb846964872d774fc04ee0f4b46d1b7f061ff553777",
           "meaning": "Scoped code/HOST evidence, not final Android/device acceptance."
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ],
       "owner_slices": [
@@ -2233,29 +2412,36 @@
           "evidence": "verification/r31/live_writer_budgets/CURRENT_EVIDENCE.json",
           "result": "PASS_WITH_MODULE_SCOPE_AND_REMAINING_LIMITS_IN_RECEIPT",
           "scope": "MODULE_NATIVE_HOST_ONLY; NO_ANDROID_DEVICE_SOAK_OR_NATURAL_QUALITY_CLAIM"
+        },
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
         }
       ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -2315,6 +2501,12 @@
           "at": "2026-11-04T17:54:43.441282+00:00",
           "state": "IMPLEMENTING",
           "reason": "Merged actual module commits and evidence; do not promote status before full integration gate"
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ],
       "owner_slices": [
@@ -2557,29 +2749,36 @@
           "evidence": "verification/r31/p02/build-identity/P02_MERGED_PROTOCOLS_COMPATIBILITY_013_COMMITTED_UNEXCLUDED_JOINT.json",
           "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
           "scope": "JAVA_ANDROIDTEST_COMPILE_BOTH_LINT_IDENTITY_PASS;481UNIT_480PASS1RESOURCE_ADMISSIONFAIL"
+        },
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
         }
       ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -2642,6 +2841,12 @@
           "at": "2026-11-04T18:15:35.970155+00:00",
           "state": "IMPLEMENTING",
           "reason": "Actual full481/1 failure recorded; preserve previous472/8 and remote472/0 separately; no card promotion"
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ],
       "owner_slices": [
@@ -2738,7 +2943,7 @@
       "title": "后台能力按实际系统限制验收，保留主动会话持续研究",
       "phase": "P02",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "CODE_COMPLETE",
+      "status": "BUILD_PASS",
       "baseline_files": [
         {
           "path": "app/src/main/AndroidManifest.xml",
@@ -2893,29 +3098,42 @@
           "scope": "Owned production javac +6 HOST pure mapping tests;notAndroidOSgetter/UI/device",
           "evidence": "verification/r31/p02/service/background-final.log",
           "evidenceSha256": "7bd01d7f506d34dfbba74e519fdad65ebda7e804cf6b97637935fe214acda55b"
+        },
+        {
+          "result": "PASS",
+          "evidence": "verification/r31/p02/build-identity/P02_LIVE_FORK_CACHE_DELIVERY_014_COMMITTED_UNEXCLUDED_JOINT.json",
+          "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+          "scope": "actual481unit/0fail/0skip+AndroidJavaAndTestCompile+DebugReleaseLint+Identity;noAPK/physical/endurance/naturalproof"
+        },
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
         }
       ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -2983,6 +3201,18 @@
           "receipt": "verification/r31/p02/service/background-card-update.json",
           "receipt_sha256": "cf2f4e865715eb6a1fb593e6377919057c9419b0472bbfd152eb66ece42a7fc5",
           "meaning": "Scoped code/HOST evidence, not final Android/device acceptance."
+        },
+        {
+          "at": "2026-11-04T18:52:07.414738+00:00",
+          "state": "BUILD_PASS",
+          "previous_state": "CODE_COMPLETE",
+          "reason": "014 complete unexcluded local checkPASS;remainingcontracts retained,F23/owner coverage/physical remainopen;BUILD_PASS only sourcebuildnotclosure"
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "BUILD_PASS",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ],
       "owner_slices": [
@@ -3232,28 +3462,36 @@
         "RESEARCH_R31_FEEDBACK:1",
         "REALTIME_R31_TIMING:1"
       ],
-      "tests": [],
+      "tests": [
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
+        }
+      ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -3298,6 +3536,12 @@
           "state": "IMPLEMENTING",
           "receipt": "verification/r31/p02/card_updates/R31-B05-C01.json",
           "receipt_sha256": "0e42eeee00027ee760a874ce69a4488e927cb35f4cbe143bfe1a4c6634b7720f"
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ]
     },
@@ -3358,28 +3602,36 @@
         "RESEARCH_R31_FEEDBACK:1",
         "REALTIME_R31_TIMING:1"
       ],
-      "tests": [],
+      "tests": [
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
+        }
+      ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -3425,6 +3677,12 @@
           "state": "IMPLEMENTING",
           "receipt": "verification/r31/p02/card_updates/R31-B05-C02.json",
           "receipt_sha256": "e88051eec8171735862fc065e0442e1bf70d6de08291d8879def9485cae097ea"
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ]
     },
@@ -3433,7 +3691,7 @@
       "title": "报告当前作业清理闭环与全物理配额",
       "phase": "P02",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "CODE_COMPLETE",
+      "status": "BUILD_PASS",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
@@ -3511,28 +3769,42 @@
         "RESEARCH_R31_FEEDBACK:1",
         "REALTIME_R31_TIMING:1"
       ],
-      "tests": [],
+      "tests": [
+        {
+          "result": "PASS",
+          "evidence": "verification/r31/p02/build-identity/P02_LIVE_FORK_CACHE_DELIVERY_014_COMMITTED_UNEXCLUDED_JOINT.json",
+          "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+          "scope": "actual481unit/0fail/0skip+AndroidJavaAndTestCompile+DebugReleaseLint+Identity;noAPK/physical/endurance/naturalproof"
+        },
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
+        }
+      ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -3578,6 +3850,18 @@
           "state": "IMPLEMENTING",
           "receipt": "verification/r31/p02/card_updates/R31-B05-C03.json",
           "receipt_sha256": "cf8b3feaae46e48c1b1cfa70a60c5f52c09666b04105571892855dd7009252b8"
+        },
+        {
+          "at": "2026-11-04T18:52:07.414738+00:00",
+          "state": "BUILD_PASS",
+          "previous_state": "CODE_COMPLETE",
+          "reason": "014 complete unexcluded local checkPASS;remainingcontracts retained,F23/owner coverage/physical remainopen;BUILD_PASS only sourcebuildnotclosure"
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "BUILD_PASS",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ],
       "owner_slices": [
@@ -3997,7 +4281,7 @@
       "title": "Java堆/native/PSS与缓存队列有界治理",
       "phase": "P02",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "FAILED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
@@ -4264,29 +4548,42 @@
           "result": "PASS_MODULE_ONLY",
           "evidence": "verification/r31/p02/live-family-fork/NUMERICAL_RECEIPT.json",
           "scope": "sameJVMoriginal11tests;H02actual200bit;52goldenidentical;actualcold-liveconsumer62asserts/realheld.64M/noGC;notfullsuite/ART/device"
+        },
+        {
+          "result": "PASS",
+          "evidence": "verification/r31/p02/build-identity/P02_LIVE_FORK_CACHE_DELIVERY_014_COMMITTED_UNEXCLUDED_JOINT.json",
+          "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+          "scope": "actual481unit/0fail/0skip+AndroidJavaAndTestCompile+DebugReleaseLint+Identity;noAPK/physical/endurance/naturalproof"
+        },
+        {
+          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
+          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
+          "unit": {
+            "tests": 481,
+            "failures": 0,
+            "skipped": 0
+          },
+          "host": {
+            "groups": 24,
+            "failures": 0
+          },
+          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
         }
       ],
       "apk_identity": {
-        "abis": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86_64"
-        ],
+        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
         "applicationId": "com.starcore.research.r13",
-        "bytes": 28304612,
-        "engineeringAcceptance": "FAILED_GATES_REMAIN",
-        "file": "STARCORE-R31-2ab54e2b3ad1-VALIDATION-release.apk",
-        "identity": "PASS_ACTUAL_SIGNATURE_AND_EMBEDDED_SOURCE",
-        "installedDeviceCompatibility": "UNKNOWN_INSTALLED_CERT_AND_VERSION",
-        "sha256": "34c07f8ff867eb1bf2c066207e327b6911a7b7284f69dd866b5c341f76e24484",
+        "versionCode": 577311014,
+        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
         "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "source_commit": "2ab54e2b3ad1772b560a15404f0421084d10c5c1",
-        "source_tree": "1e610edf25675848d8e81a207a1fc068881c0c73",
-        "variant": "release",
-        "versionCode": 577311011,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-011",
-        "delivery_receipt": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json",
-        "contains_later_uncommitted_fixes": false
+        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
+        "bytes": 28349737,
+        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
+        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
+        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
       },
       "device_evidence": [],
       "acceptance": [
@@ -4377,6 +4674,18 @@
           "at": "2026-11-04T18:15:35.970155+00:00",
           "state": "FAILED",
           "reason": "Actual full481/1 failure recorded; preserve previous472/8 and remote472/0 separately; no card promotion"
+        },
+        {
+          "at": "2026-11-04T18:52:07.414738+00:00",
+          "state": "IMPLEMENTING",
+          "previous_state": "FAILED",
+          "reason": "014 complete unexcluded local checkPASS;remainingcontracts retained,F23/owner coverage/physical remainopen;BUILD_PASS only sourcebuildnotclosure"
+        },
+        {
+          "at": "2026-11-04T19:40:11.395586+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
+          "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
         }
       ],
       "integration_repair_observation": {

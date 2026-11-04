@@ -2,13 +2,13 @@
   "cards": 56,
   "states": {
     "NOT_STARTED": 38,
-    "IMPLEMENTING": 7,
-    "CODE_COMPLETE": 2,
-    "BUILD_PASS": 8,
+    "IMPLEMENTING": 8,
+    "CODE_COMPLETE": 0,
+    "BUILD_PASS": 10,
     "INTEGRATION_PASS": 0,
     "DEVICE_PASS": 0,
     "BLOCKED": 0,
-    "FAILED": 1
+    "FAILED": 0
   },
   "mandatory_closed_cards": 0,
   "mandatory_completion_rate": 0.0,
@@ -26,7 +26,7 @@
     "future_samples_this_build": 0,
     "reason": "No prospective run of this APK; historical/SHADOW/synthetic evidence does not establish natural quality."
   },
-  "recorded_at": "2026-11-04T18:36:10.032778+00:00",
+  "recorded_at": "2026-11-04T19:40:11.588075+00:00",
   "plan_batches": 13,
   "started_cards": 18,
   "started_is_not_completed": true,
@@ -44,7 +44,7 @@
     "B01_B02_JOINT_GATE_REPAIR",
     "P02_EXISTING_SOURCE_INTEGRATION_ONLY"
   ],
-  "latest_pushed_checkpoint": "de9a30834025c18ce291c241a722abe437717539",
+  "latest_pushed_checkpoint": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
   "phases": {
     "P00": {
       "cards": 2,
@@ -76,13 +76,13 @@
       "cards": 9,
       "states": {
         "NOT_STARTED": 0,
-        "IMPLEMENTING": 6,
-        "CODE_COMPLETE": 2,
-        "BUILD_PASS": 0,
+        "IMPLEMENTING": 7,
+        "CODE_COMPLETE": 0,
+        "BUILD_PASS": 2,
         "INTEGRATION_PASS": 0,
         "DEVICE_PASS": 0,
         "BLOCKED": 0,
-        "FAILED": 1
+        "FAILED": 0
       }
     },
     "P03": {
@@ -165,45 +165,60 @@
     }
   },
   "latest_full_unit": {
-    "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+    "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
     "executed": 481,
-    "passed": 480,
-    "failed": 1,
+    "passed": 481,
+    "failed": 0,
     "errors": 0,
     "skipped": 0,
-    "scope": "ACTUAL_COMPLETE_LOCAL_UNEXCLUDED; LOCAL_GENERATED013_HOST_STUB_WAS_NOT_COMMITTED_IN_BA35;DE9_FIXED_COMMIT_PENDING_REMOTE",
-    "receipt": "verification/r31/p02/build-identity/P02_MERGED_PROTOCOLS_COMPATIBILITY_013_COMMITTED_UNEXCLUDED_JOINT.json"
+    "scope": "ACTUAL_FULL_LOCAL_UNEXCLUDED_ALL_UNIT_NO_ISOLATION_OR_THRESHOLD_CHANGES",
+    "receipt": "verification/r31/p02/build-identity/P02_LIVE_FORK_CACHE_DELIVERY_014_COMMITTED_UNEXCLUDED_JOINT.json"
   },
   "apk_delivery": {
-    "state": "ACTUAL_SIGNED_CHECKPOINT_WITH_FAILED_GATES_NOT_FINAL",
-    "source": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
-    "receipt": "verification/r31/p02/delivery_3246/DELIVERY-RECEIPT.json",
-    "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41867648951/artifacts/13344932363",
-    "contains_013_repairs": false
+    "state": "ACTUAL_SIGNED_014_CHECKPOINT_WITH_FAILED_ANDROID_GATES_NOT_FINAL",
+    "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+    "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
+    "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
+    "versionCode": 577311014,
+    "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
+    "contains_unmerged_P01_protocols": false
   },
   "android_emulator": {
-    "source": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
+    "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
     "apis": [
       29,
       35
     ],
-    "release_install": "PASS_ACTUAL_ADB",
-    "same_signature_debug_cover": "PASS_ACTUAL_ADB_DISPOSABLE_EMULATOR",
-    "per_api_protocol": {
-      "executed": 10,
-      "passed": 10,
+    "overall": "FAILED",
+    "additional_family_protocols_per_api": {
+      "tests": 2,
+      "passed": 2,
       "failed": 0
     },
-    "family_new_tests": "NOT_INCLUDED_IN_3246;013_PENDING_ACTUAL_EXECUTION",
-    "evidence": "verification/r31/p02/delivery_3246/DELIVERY-RECEIPT.json",
-    "physical_device_equivalence": false
+    "fault_matrix": {
+      "apis": [
+        29,
+        35
+      ],
+      "cells_per_api": 14,
+      "failed_cells_per_api": 14,
+      "injection_stage_reached": false,
+      "common_failure": "R932_BUNDLE_CAPTURE_COMMIT_FAILED -> DEPENDENCY(SCHEMA_PENDING):R929_PLATFORM",
+      "business_write": "R932_BUNDLE_CAPTURE",
+      "commit_outcome": "ROLLED_BACK",
+      "failure_source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+      "raw_logs": [
+        "API29-FULL-ANDROID-FAILED.log",
+        "API35-FULL-ANDROID-FAILED.log"
+      ],
+      "repair_state": "IMPLEMENTING_IN_ISOLATED_NEXT_SOURCE_NOT_IN_014"
+    },
+    "physical_device_equivalence": false,
+    "run": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067"
   },
   "current_failures": [
-    "Fullba35 unit481/1FAIL:original last200 live/replay deepfork memory admission; actual Runtime.liveCache also lacks live critical allocation scope, repair in isolatedtree",
-    "Fullba35 HOST24 latest21PASS3FAIL; all3 root/writer followups individually PASS, a new combined24 matrix has not run",
-    "CI9 ba35 exact preflight exit23 HOST_BUILD_CONFIG;generated013 missing file fixed and pushedde9;CI10 pending",
-    "B02C02 producer64SQL/bind staging stillOPEN in atoms/history/evolution/model artifacts/source invalidation/legacy-compatible exposure repair",
-    "Physical device24/72NOT_RUN; naturalFUTUREqualityNOT_PROVEN",
-    "F23 actual bound teacher has no constructor budget registration; ReplayDataset lacks real open/availability frame; source-derived owner budget and causal-input contracts under isolated repair, not covered by23built-in fixture"
+    "014 full API29/35: each14 fault cells FAILED in common R929 bundle-capture prerequisites before actual injection; original logs retained",
+    "P01/B02 all-producer protocol OPEN; new source/atom/history/evolution/qualification/F23 are being integrated into a separate later source",
+    "Physical device24h/72h NOT_RUN; natural future quality NOT_PROVEN"
   ]
 }

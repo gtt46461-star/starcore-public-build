@@ -1,0 +1,1581 @@
+﻿2026-11-04T18:40:49.5209466Z Current runner version: '2.338.2'
+2026-11-04T18:40:49.5234003Z ##[group]Runner Image Provisioner
+2026-11-04T18:40:49.5235053Z Hosted Compute Agent
+2026-11-04T18:40:49.5235753Z Version: 20261021.618
+2026-11-04T18:40:49.5236472Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-11-04T18:40:49.5237230Z Build Date: 2026-10-21T00:45:21Z
+2026-11-04T18:40:49.5237916Z Worker ID: {396f4c15-a0d1-4f9e-93aa-786223251872}
+2026-11-04T18:40:49.5238746Z Region: mexicocentral
+2026-11-04T18:40:49.5239353Z Cloud: Azure
+2026-11-04T18:40:49.5239994Z ##[endgroup]
+2026-11-04T18:40:49.5241698Z ##[group]Operating System
+2026-11-04T18:40:49.5242382Z Ubuntu
+2026-11-04T18:40:49.5243080Z 26.04.1
+2026-11-04T18:40:49.5243624Z LTS
+2026-11-04T18:40:49.5244191Z ##[endgroup]
+2026-11-04T18:40:49.5244829Z ##[group]Runner Image
+2026-11-04T18:40:49.5245441Z Image: ubuntu-26.04
+2026-11-04T18:40:49.5246129Z Version: 20261025.179.1
+2026-11-04T18:40:49.5247393Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261025.179/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-04T18:40:49.5249040Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261025.179
+2026-11-04T18:40:49.5250029Z ##[endgroup]
+2026-11-04T18:40:49.5251355Z ##[group]GITHUB_TOKEN Permissions
+2026-11-04T18:40:49.5253669Z Actions: read
+2026-11-04T18:40:49.5254446Z Contents: read
+2026-11-04T18:40:49.5255031Z Metadata: read
+2026-11-04T18:40:49.5255725Z ##[endgroup]
+2026-11-04T18:40:49.5257914Z Secret source: Actions
+2026-11-04T18:40:49.5258980Z Cache mode: write
+2026-11-04T18:40:49.5259693Z Prepare workflow directory
+2026-11-04T18:40:49.5653558Z Prepare all required actions
+2026-11-04T18:40:49.5701323Z Getting action download info
+2026-11-04T18:40:49.9214592Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-04T18:40:50.0187794Z Download action repository 'actions/setup-java@v4' (SHA:cf277c60eb25467037889841efdb72551f06f6c3)
+2026-11-04T18:40:50.7078008Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-11-04T18:40:50.7745852Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-11-04T18:40:50.8426237Z Download action repository 'android-actions/setup-android@v3' (SHA:9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407)
+2026-11-04T18:40:51.3100817Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-04T18:40:51.5440871Z Complete job name: build
+2026-11-04T18:40:51.6653440Z ##[group]Run actions/checkout@v4
+2026-11-04T18:40:51.6654715Z with:
+2026-11-04T18:40:51.6655589Z   persist-credentials: false
+2026-11-04T18:40:51.6656562Z   sparse-checkout: .github/r31-build-request.json
+2026-11-04T18:40:51.6657598Z   repository: gtt46461-star/starcore-public-build
+2026-11-04T18:40:51.6661592Z   token: ***
+2026-11-04T18:40:51.6662440Z   ssh-strict: true
+2026-11-04T18:40:51.6663267Z   ssh-user: git
+2026-11-04T18:40:51.6664060Z   clean: true
+2026-11-04T18:40:51.6664936Z   sparse-checkout-cone-mode: true
+2026-11-04T18:40:51.6665829Z   fetch-depth: 1
+2026-11-04T18:40:51.6666638Z   fetch-tags: false
+2026-11-04T18:40:51.6667451Z   show-progress: true
+2026-11-04T18:40:51.6668270Z   lfs: false
+2026-11-04T18:40:51.6669058Z   submodules: false
+2026-11-04T18:40:51.6669888Z   set-safe-directory: true
+2026-11-04T18:40:51.6670778Z   allow-unsafe-pr-checkout: false
+2026-11-04T18:40:51.6672105Z ##[endgroup]
+2026-11-04T18:40:52.0044303Z Syncing repository: gtt46461-star/starcore-public-build
+2026-11-04T18:40:52.0048053Z ##[group]Getting Git version info
+2026-11-04T18:40:52.0050240Z Working directory is '/home/runner/work/starcore-public-build/starcore-public-build'
+2026-11-04T18:40:52.0052427Z [command]/usr/bin/git version
+2026-11-04T18:40:52.0059981Z git version 2.56.0
+2026-11-04T18:40:52.0094633Z ##[endgroup]
+2026-11-04T18:40:52.0104111Z Temporarily overriding HOME='/home/runner/work/_temp/1eb05ae3-bf64-4bc8-ac24-dd02a53db531' before making global git config changes
+2026-11-04T18:40:52.0107485Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-04T18:40:52.0110434Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-11-04T18:40:52.0235445Z Deleting the contents of '/home/runner/work/starcore-public-build/starcore-public-build'
+2026-11-04T18:40:52.0241942Z ##[group]Initializing the repository
+2026-11-04T18:40:52.0246979Z [command]/usr/bin/git init /home/runner/work/starcore-public-build/starcore-public-build
+2026-11-04T18:40:52.0389735Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-04T18:40:52.0392270Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-04T18:40:52.0393601Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-04T18:40:52.0395067Z hint: call:
+2026-11-04T18:40:52.0395887Z hint:
+2026-11-04T18:40:52.0396826Z hint: 	git config --global init.defaultBranch <name>
+2026-11-04T18:40:52.0398236Z hint:
+2026-11-04T18:40:52.0399225Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-04T18:40:52.0400835Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-04T18:40:52.0402516Z hint:
+2026-11-04T18:40:52.0403973Z hint: 	git branch -m <name>
+2026-11-04T18:40:52.0405431Z hint:
+2026-11-04T18:40:52.0407028Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-04T18:40:52.0408736Z Initialized empty Git repository in /home/runner/work/starcore-public-build/starcore-public-build/.git/
+2026-11-04T18:40:52.0424067Z [command]/usr/bin/git remote add origin https://github.com/gtt46461-star/starcore-public-build
+2026-11-04T18:40:52.0480600Z ##[endgroup]
+2026-11-04T18:40:52.0483141Z ##[group]Disabling automatic garbage collection
+2026-11-04T18:40:52.0486969Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-04T18:40:52.0526146Z ##[endgroup]
+2026-11-04T18:40:52.0528381Z ##[group]Setting up auth
+2026-11-04T18:40:52.0532629Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-04T18:40:52.0568951Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-04T18:40:52.1074272Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-04T18:40:52.1111744Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-04T18:40:52.1401213Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-04T18:40:52.1440245Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-04T18:40:52.1721248Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-04T18:40:52.1764889Z ##[endgroup]
+2026-11-04T18:40:52.1766382Z ##[group]Fetching the repository
+2026-11-04T18:40:52.1775532Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --filter=blob:none --depth=1 origin +359594de5ea7049604e5763baa11777c22d6e3b8:refs/remotes/origin/construction/r27-20261028
+2026-11-04T18:40:52.7610319Z From https://github.com/gtt46461-star/starcore-public-build
+2026-11-04T18:40:52.7611065Z  * [new ref]         359594de5ea7049604e5763baa11777c22d6e3b8 -> origin/construction/r27-20261028
+2026-11-04T18:40:52.7615083Z ##[endgroup]
+2026-11-04T18:40:52.7615696Z ##[group]Determining the checkout info
+2026-11-04T18:40:52.7623614Z ##[endgroup]
+2026-11-04T18:40:52.7624131Z ##[group]Setting up sparse checkout
+2026-11-04T18:40:52.7626534Z [command]/usr/bin/git sparse-checkout set .github/r31-build-request.json
+2026-11-04T18:40:52.7686229Z ##[endgroup]
+2026-11-04T18:40:52.7687272Z ##[group]Checking out the ref
+2026-11-04T18:40:52.7693753Z [command]/usr/bin/git checkout --progress --force -B construction/r27-20261028 refs/remotes/origin/construction/r27-20261028
+2026-11-04T18:40:53.4062755Z Switched to a new branch 'construction/r27-20261028'
+2026-11-04T18:40:53.4067973Z branch 'construction/r27-20261028' set up to track 'origin/construction/r27-20261028'.
+2026-11-04T18:40:53.4076885Z ##[endgroup]
+2026-11-04T18:40:53.4135682Z [command]/usr/bin/git log -1 --format=%H
+2026-11-04T18:40:53.4163420Z 359594de5ea7049604e5763baa11777c22d6e3b8
+2026-11-04T18:40:53.4172509Z ##[group]Removing auth
+2026-11-04T18:40:53.4175673Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-04T18:40:53.4208947Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-04T18:40:53.4527114Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-04T18:40:53.4555026Z http.https://github.com/.extraheader
+2026-11-04T18:40:53.4564838Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-04T18:40:53.4599287Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-04T18:40:53.4904375Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-04T18:40:53.4939029Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-04T18:40:53.5235378Z ##[endgroup]
+2026-11-04T18:40:53.5447291Z ##[group]Run python3 - <<'CODE'
+2026-11-04T18:40:53.5447702Z [36;1mpython3 - <<'CODE'[0m
+2026-11-04T18:40:53.5447969Z [36;1mimport json,os,re[0m
+2026-11-04T18:40:53.5448302Z [36;1mr=json.load(open('.github/r31-build-request.json'))[0m
+2026-11-04T18:40:53.5448897Z [36;1massert r.get('sourceBranch')=='construction/r31-final-20261104','R31_SOURCE_BRANCH_REQUIRED'[0m
+2026-11-04T18:40:53.5449545Z [36;1massert re.fullmatch('[a-f0-9]{40}',str(r.get('source',''))),'FULL_SOURCE_SHA_REQUIRED'[0m
+2026-11-04T18:40:53.5450206Z [36;1massert type(r.get('expectedVersionCode')) is int and r['expectedVersionCode']>0,'VERSION_CODE_REQUIRED'[0m
+2026-11-04T18:40:53.5450938Z [36;1massert re.fullmatch('[A-Za-z0-9._+ -]{1,128}',str(r.get('expectedVersionName',''))),'VERSION_NAME_REQUIRED'[0m
+2026-11-04T18:40:53.5451764Z [36;1mwith open(os.environ['GITHUB_OUTPUT'],'a') as output:[0m
+2026-11-04T18:40:53.5452164Z [36;1m    output.write('source='+r['source']+'\n')[0m
+2026-11-04T18:40:53.5452615Z [36;1m    output.write('versionCode='+str(r['expectedVersionCode'])+'\n')[0m
+2026-11-04T18:40:53.5453101Z [36;1m    output.write('versionName='+r['expectedVersionName']+'\n')[0m
+2026-11-04T18:40:53.5453469Z [36;1mCODE[0m
+2026-11-04T18:40:53.5484970Z shell: /usr/bin/bash -e {0}
+2026-11-04T18:40:53.5485265Z ##[endgroup]
+2026-11-04T18:40:53.5894004Z ##[group]Run actions/checkout@v4
+2026-11-04T18:40:53.5894302Z with:
+2026-11-04T18:40:53.5894539Z   ref: 961a6b8a74b9624a2b195e9562fbdfc9283b29fc
+2026-11-04T18:40:53.5894841Z   fetch-depth: 0
+2026-11-04T18:40:53.5895072Z   persist-credentials: false
+2026-11-04T18:40:53.5895374Z   repository: gtt46461-star/starcore-public-build
+2026-11-04T18:40:53.5898094Z   token: ***
+2026-11-04T18:40:53.5898329Z   ssh-strict: true
+2026-11-04T18:40:53.5898576Z   ssh-user: git
+2026-11-04T18:40:53.5898785Z   clean: true
+2026-11-04T18:40:53.5899012Z   sparse-checkout-cone-mode: true
+2026-11-04T18:40:53.5899289Z   fetch-tags: false
+2026-11-04T18:40:53.5899507Z   show-progress: true
+2026-11-04T18:40:53.5899722Z   lfs: false
+2026-11-04T18:40:53.5899918Z   submodules: false
+2026-11-04T18:40:53.5900131Z   set-safe-directory: true
+2026-11-04T18:40:53.5900388Z   allow-unsafe-pr-checkout: false
+2026-11-04T18:40:53.5900843Z ##[endgroup]
+2026-11-04T18:40:53.6799586Z Syncing repository: gtt46461-star/starcore-public-build
+2026-11-04T18:40:53.6801157Z ##[group]Getting Git version info
+2026-11-04T18:40:53.6802601Z Working directory is '/home/runner/work/starcore-public-build/starcore-public-build'
+2026-11-04T18:40:53.6844207Z [command]/usr/bin/git version
+2026-11-04T18:40:53.6891901Z git version 2.56.0
+2026-11-04T18:40:53.6916383Z ##[endgroup]
+2026-11-04T18:40:53.6932096Z Temporarily overriding HOME='/home/runner/work/_temp/3924f3f1-b9de-46a4-b409-8fe3da8fdbf4' before making global git config changes
+2026-11-04T18:40:53.6933479Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-04T18:40:53.6938119Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-11-04T18:40:53.6986380Z [command]/usr/bin/git config --local --get remote.origin.url
+2026-11-04T18:40:53.7015929Z https://github.com/gtt46461-star/starcore-public-build
+2026-11-04T18:40:53.7033649Z ##[group]Removing previously created refs, to avoid conflicts
+2026-11-04T18:40:53.7039504Z [command]/usr/bin/git rev-parse --symbolic-full-name --verify --quiet HEAD
+2026-11-04T18:40:53.7070865Z refs/heads/construction/r27-20261028
+2026-11-04T18:40:53.7083145Z [command]/usr/bin/git checkout --detach
+2026-11-04T18:40:53.7279248Z HEAD is now at 359594d Build exact R31 961a6b8a014 live-fork and HOST integration repairs with all existing gates
+2026-11-04T18:40:53.7382357Z [command]/usr/bin/git branch --delete --force construction/r27-20261028
+2026-11-04T18:40:53.7393164Z Deleted branch construction/r27-20261028 (was 359594d).
+2026-11-04T18:40:53.7395402Z ##[endgroup]
+2026-11-04T18:40:53.7395847Z [command]/usr/bin/git submodule status
+2026-11-04T18:40:53.7760631Z ##[group]Cleaning the repository
+2026-11-04T18:40:53.7767780Z [command]/usr/bin/git clean -ffdx
+2026-11-04T18:40:53.7828966Z [command]/usr/bin/git reset --hard HEAD
+2026-11-04T18:40:53.8099873Z HEAD is now at 359594d Build exact R31 961a6b8a014 live-fork and HOST integration repairs with all existing gates
+2026-11-04T18:40:53.8107171Z ##[endgroup]
+2026-11-04T18:40:53.8109108Z ##[group]Disabling automatic garbage collection
+2026-11-04T18:40:53.8115762Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-04T18:40:53.8149540Z ##[endgroup]
+2026-11-04T18:40:53.8150157Z ##[group]Setting up auth
+2026-11-04T18:40:53.8157747Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-04T18:40:53.8193078Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-04T18:40:53.8509756Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-04T18:40:53.8548044Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-04T18:40:53.8850749Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-04T18:40:53.8887784Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-04T18:40:53.9178454Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-04T18:40:53.9217072Z ##[endgroup]
+2026-11-04T18:40:53.9217558Z ##[group]Fetching the repository
+2026-11-04T18:40:53.9226288Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules --unshallow origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+2026-11-04T18:40:55.0130398Z From https://github.com/gtt46461-star/starcore-public-build
+2026-11-04T18:40:55.0131711Z  * [new branch]      construction/r13-restore-latest-20261024 -> origin/construction/r13-restore-latest-20261024
+2026-11-04T18:40:55.0133378Z  * [new branch]      construction/r26-f08-graph-20261027 -> origin/construction/r26-f08-graph-20261027
+2026-11-04T18:40:55.0134782Z  * [new branch]      construction/r26-fixture-process-20261027 -> origin/construction/r26-fixture-process-20261027
+2026-11-04T18:40:55.0136128Z  * [new branch]      construction/r26-incumbent-owner-20261027 -> origin/construction/r26-incumbent-owner-20261027
+2026-11-04T18:40:55.0137428Z  * [new branch]      construction/r26-report-review-20261028 -> origin/construction/r26-report-review-20261028
+2026-11-04T18:40:55.0138648Z  * [new branch]      construction/r29-20261029 -> origin/construction/r29-20261029
+2026-11-04T18:40:55.0139718Z  * [new branch]      construction/r30-20261031 -> origin/construction/r30-20261031
+2026-11-04T18:40:55.0140639Z  * [new branch]      construction/r30-final-r27 -> origin/construction/r30-final-r27
+2026-11-04T18:40:55.0142219Z  * [new branch]      construction/r30-preflight-104-3c89ffc2 -> origin/construction/r30-preflight-104-3c89ffc2
+2026-11-04T18:40:55.0143719Z  * [new branch]      construction/r30-preflight-105-8a7d7b46 -> origin/construction/r30-preflight-105-8a7d7b46
+2026-11-04T18:40:55.0145226Z  * [new branch]      construction/r30-preflight-106-budget-db6656ed -> origin/construction/r30-preflight-106-budget-db6656ed
+2026-11-04T18:40:55.0146801Z  * [new branch]      construction/r30-preflight-106-charts-faults -> origin/construction/r30-preflight-106-charts-faults
+2026-11-04T18:40:55.0147898Z  * [new branch]      construction/r30-preflight-106-f857f30b -> origin/construction/r30-preflight-106-f857f30b
+2026-11-04T18:40:55.0148743Z  * [new branch]      construction/r30-preflight-106-receipts-035dd498 -> origin/construction/r30-preflight-106-receipts-035dd498
+2026-11-04T18:40:55.0149517Z  * [new branch]      construction/r30-repair-20261101 -> origin/construction/r30-repair-20261101
+2026-11-04T18:40:55.0150129Z  * [new branch]      construction/r31-final-20261104 -> origin/construction/r31-final-20261104
+2026-11-04T18:40:55.0150680Z  * [new branch]      construction/su1-20261022 -> origin/construction/su1-20261022
+2026-11-04T18:40:55.0151290Z  * [new branch]      delivery/r30-009-single-zip-20261102 -> origin/delivery/r30-009-single-zip-20261102
+2026-11-04T18:40:55.0152301Z  * [new branch]      fix/r26-report-export-20261028 -> origin/fix/r26-report-export-20261028
+2026-11-04T18:40:55.0152807Z  * [new branch]      main                      -> origin/main
+2026-11-04T18:40:55.0153359Z  * [new branch]      verification/r29-checkpoint06-20261030 -> origin/verification/r29-checkpoint06-20261030
+2026-11-04T18:40:55.0154023Z  * [new branch]      verification/r30-b00-cp06-cp16 -> origin/verification/r30-b00-cp06-cp16
+2026-11-04T18:40:55.0154526Z  * [new tag]         archive/r29-b01-cp16      -> archive/r29-b01-cp16
+2026-11-04T18:40:55.0154926Z  * [new tag]         r13-5.4.3.04-20261025     -> r13-5.4.3.04-20261025
+2026-11-04T18:40:55.0155328Z  * [new tag]         r26-20261027-engineering  -> r26-20261027-engineering
+2026-11-04T18:40:55.0155767Z  * [new tag]         r26-20261028-reportfix2   -> r26-20261028-reportfix2
+2026-11-04T18:40:55.0156398Z  * [new tag]         r26-20261028-runtime-117  -> r26-20261028-runtime-117
+2026-11-04T18:40:55.0156817Z  * [new tag]         r29-B00-a618d14ccc41      -> r29-B00-a618d14ccc41
+2026-11-04T18:40:55.0157322Z  * [new tag]         r29-B02-QUAL-534603296b84 -> r29-B02-QUAL-534603296b84
+2026-11-04T18:40:55.0157776Z  * [new tag]         r29-CP05-R27-770e81bd449b -> r29-CP05-R27-770e81bd449b
+2026-11-04T18:40:55.0158237Z  * [new tag]         r29-CP06-R27-bb607cf5ab69 -> r29-CP06-R27-bb607cf5ab69
+2026-11-04T18:40:55.0158666Z  * [new tag]         r29-CP07-R27-1d2f1565e308 -> r29-CP07-R27-1d2f1565e308
+2026-11-04T18:40:55.0159076Z  * [new tag]         r29-CP08-R27-2f1e2ab9caf2 -> r29-CP08-R27-2f1e2ab9caf2
+2026-11-04T18:40:55.0159485Z  * [new tag]         r29-CP09-R27-e3dd104302dc -> r29-CP09-R27-e3dd104302dc
+2026-11-04T18:40:55.0159892Z  * [new tag]         r29-CP10-R27-0c639ccb3702 -> r29-CP10-R27-0c639ccb3702
+2026-11-04T18:40:55.0160424Z  * [new tag]         r29-CP11-R27-2cf09d56fbff -> r29-CP11-R27-2cf09d56fbff
+2026-11-04T18:40:55.0160846Z  * [new tag]         r29-CP12-R27-116888fe641a -> r29-CP12-R27-116888fe641a
+2026-11-04T18:40:55.0161256Z  * [new tag]         r29-CP14-R27-b8de949cb79d -> r29-CP14-R27-b8de949cb79d
+2026-11-04T18:40:55.0162175Z  * [new tag]         r29-CP15-R27-51cca638e3dd -> r29-CP15-R27-51cca638e3dd
+2026-11-04T18:40:55.0162948Z  * [new tag]         r29-CP16-R27-5ce1cc0f639b -> r29-CP16-R27-5ce1cc0f639b
+2026-11-04T18:40:55.0163841Z  * [new tag]         r29-official-577291005-770e81bd449b -> r29-official-577291005-770e81bd449b
+2026-11-04T18:40:55.0164909Z  * [new tag]         r29-official-577291006-bb607cf5ab69 -> r29-official-577291006-bb607cf5ab69
+2026-11-04T18:40:55.0165908Z  * [new tag]         r29-official-577291007-1d2f1565e308 -> r29-official-577291007-1d2f1565e308
+2026-11-04T18:40:55.0166833Z  * [new tag]         r29-official-577291008-2f1e2ab9caf2 -> r29-official-577291008-2f1e2ab9caf2
+2026-11-04T18:40:55.0167825Z  * [new tag]         r29-official-577291009-e3dd104302dc -> r29-official-577291009-e3dd104302dc
+2026-11-04T18:40:55.0168780Z  * [new tag]         r29-official-577291010-0c639ccb3702 -> r29-official-577291010-0c639ccb3702
+2026-11-04T18:40:55.0169722Z  * [new tag]         r29-official-577291011-2cf09d56fbff -> r29-official-577291011-2cf09d56fbff
+2026-11-04T18:40:55.0170675Z  * [new tag]         r29-official-577291012-116888fe641a -> r29-official-577291012-116888fe641a
+2026-11-04T18:40:55.0171889Z  * [new tag]         r29-official-577291014-b8de949cb79d -> r29-official-577291014-b8de949cb79d
+2026-11-04T18:40:55.0173276Z  * [new tag]         r29-official-577291015-51cca638e3dd -> r29-official-577291015-51cca638e3dd
+2026-11-04T18:40:55.0174287Z  * [new tag]         r29-official-577291016-5ce1cc0f639b -> r29-official-577291016-5ce1cc0f639b
+2026-11-04T18:40:55.0175155Z  * [new tag]         r30-B00-R27-4bc5ee4e1d05  -> r30-B00-R27-4bc5ee4e1d05
+2026-11-04T18:40:55.0175885Z  * [new tag]         r30-final-577310107-b225ab204db0 -> r30-final-577310107-b225ab204db0
+2026-11-04T18:40:55.0176678Z  * [new tag]         r30-official-577310001-4bc5ee4e1d05 -> r30-official-577310001-4bc5ee4e1d05
+2026-11-04T18:40:55.0177628Z  * [new tag]         r30-repair1-577311002-a94ee9dae4e0 -> r30-repair1-577311002-a94ee9dae4e0
+2026-11-04T18:40:55.0178594Z  * [new tag]         r30-repair1-577311003-63ad6291711d -> r30-repair1-577311003-63ad6291711d
+2026-11-04T18:40:55.0179553Z  * [new tag]         r30-repair1-577311008-9f139cf999e4 -> r30-repair1-577311008-9f139cf999e4
+2026-11-04T18:40:55.0180501Z  * [new tag]         r30-repair1-577311009-5237b265a27f -> r30-repair1-577311009-5237b265a27f
+2026-11-04T18:40:55.0182739Z [command]/usr/bin/git rev-parse --verify --quiet 961a6b8a74b9624a2b195e9562fbdfc9283b29fc^{object}
+2026-11-04T18:40:55.0200531Z 961a6b8a74b9624a2b195e9562fbdfc9283b29fc
+2026-11-04T18:40:55.0212292Z ##[endgroup]
+2026-11-04T18:40:55.0212949Z ##[group]Determining the checkout info
+2026-11-04T18:40:55.0213675Z ##[endgroup]
+2026-11-04T18:40:55.0214101Z [command]/usr/bin/git sparse-checkout disable
+2026-11-04T18:41:00.5517371Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-04T18:41:00.5549934Z ##[group]Checking out the ref
+2026-11-04T18:41:00.5556013Z [command]/usr/bin/git checkout --progress --force 961a6b8a74b9624a2b195e9562fbdfc9283b29fc
+2026-11-04T18:41:04.8764094Z Updating files:   0% (16/5078)
+2026-11-04T18:41:04.8922737Z Updating files:   1% (51/5078)
+2026-11-04T18:41:04.8985881Z Updating files:   2% (102/5078)
+2026-11-04T18:41:04.9036376Z Updating files:   3% (153/5078)
+2026-11-04T18:41:04.9089807Z Updating files:   4% (204/5078)
+2026-11-04T18:41:04.9130453Z Updating files:   5% (254/5078)
+2026-11-04T18:41:04.9158446Z Updating files:   6% (305/5078)
+2026-11-04T18:41:04.9197700Z Updating files:   7% (356/5078)
+2026-11-04T18:41:04.9284398Z Updating files:   7% (380/5078)
+2026-11-04T18:41:04.9327085Z Updating files:   8% (407/5078)
+2026-11-04T18:41:04.9362673Z Updating files:   9% (458/5078)
+2026-11-04T18:41:04.9415215Z Updating files:  10% (508/5078)
+2026-11-04T18:41:04.9454377Z Updating files:  11% (559/5078)
+2026-11-04T18:41:04.9705670Z Updating files:  12% (610/5078)
+2026-11-04T18:41:05.1152911Z Updating files:  13% (661/5078)
+2026-11-04T18:41:05.2219729Z Updating files:  14% (711/5078)
+2026-11-04T18:41:05.2301579Z Updating files:  15% (762/5078)
+2026-11-04T18:41:05.2407811Z Updating files:  16% (813/5078)
+2026-11-04T18:41:05.2525205Z Updating files:  17% (864/5078)
+2026-11-04T18:41:05.2566664Z Updating files:  18% (915/5078)
+2026-11-04T18:41:05.2620322Z Updating files:  19% (965/5078)
+2026-11-04T18:41:05.2694233Z Updating files:  20% (1016/5078)
+2026-11-04T18:41:05.2757237Z Updating files:  21% (1067/5078)
+2026-11-04T18:41:05.2814687Z Updating files:  22% (1118/5078)
+2026-11-04T18:41:05.3438590Z Updating files:  23% (1168/5078)
+2026-11-04T18:41:05.3514221Z Updating files:  24% (1219/5078)
+2026-11-04T18:41:05.3569550Z Updating files:  25% (1270/5078)
+2026-11-04T18:41:05.3593684Z Updating files:  26% (1321/5078)
+2026-11-04T18:41:05.3616432Z Updating files:  27% (1372/5078)
+2026-11-04T18:41:05.3645040Z Updating files:  28% (1422/5078)
+2026-11-04T18:41:05.3665711Z Updating files:  29% (1473/5078)
+2026-11-04T18:41:05.3689329Z Updating files:  30% (1524/5078)
+2026-11-04T18:41:05.3708064Z Updating files:  31% (1575/5078)
+2026-11-04T18:41:05.3726528Z Updating files:  32% (1625/5078)
+2026-11-04T18:41:05.3747250Z Updating files:  33% (1676/5078)
+2026-11-04T18:41:05.3767078Z Updating files:  34% (1727/5078)
+2026-11-04T18:41:05.3783415Z Updating files:  35% (1778/5078)
+2026-11-04T18:41:05.3800277Z Updating files:  36% (1829/5078)
+2026-11-04T18:41:05.3831060Z Updating files:  37% (1879/5078)
+2026-11-04T18:41:05.3866109Z Updating files:  38% (1930/5078)
+2026-11-04T18:41:05.3985064Z Updating files:  39% (1981/5078)
+2026-11-04T18:41:05.4029437Z Updating files:  40% (2032/5078)
+2026-11-04T18:41:05.4058339Z Updating files:  41% (2082/5078)
+2026-11-04T18:41:05.4098139Z Updating files:  42% (2133/5078)
+2026-11-04T18:41:05.4137596Z Updating files:  43% (2184/5078)
+2026-11-04T18:41:05.4161864Z Updating files:  44% (2235/5078)
+2026-11-04T18:41:05.4180947Z Updating files:  45% (2286/5078)
+2026-11-04T18:41:05.4215236Z Updating files:  46% (2336/5078)
+2026-11-04T18:41:05.4238508Z Updating files:  47% (2387/5078)
+2026-11-04T18:41:05.4268744Z Updating files:  48% (2438/5078)
+2026-11-04T18:41:05.4326364Z Updating files:  49% (2489/5078)
+2026-11-04T18:41:05.4354671Z Updating files:  50% (2539/5078)
+2026-11-04T18:41:05.4413903Z Updating files:  51% (2590/5078)
+2026-11-04T18:41:05.4464231Z Updating files:  52% (2641/5078)
+2026-11-04T18:41:05.4537448Z Updating files:  53% (2692/5078)
+2026-11-04T18:41:05.4615538Z Updating files:  54% (2743/5078)
+2026-11-04T18:41:05.4840850Z Updating files:  55% (2793/5078)
+2026-11-04T18:41:05.4868164Z Updating files:  56% (2844/5078)
+2026-11-04T18:41:05.4890532Z Updating files:  57% (2895/5078)
+2026-11-04T18:41:05.4915670Z Updating files:  58% (2946/5078)
+2026-11-04T18:41:05.4939473Z Updating files:  59% (2997/5078)
+2026-11-04T18:41:05.4964764Z Updating files:  60% (3047/5078)
+2026-11-04T18:41:05.4988003Z Updating files:  61% (3098/5078)
+2026-11-04T18:41:05.5030044Z Updating files:  62% (3149/5078)
+2026-11-04T18:41:05.5060606Z Updating files:  63% (3200/5078)
+2026-11-04T18:41:05.5106578Z Updating files:  64% (3250/5078)
+2026-11-04T18:41:05.5146174Z Updating files:  65% (3301/5078)
+2026-11-04T18:41:05.5167498Z Updating files:  66% (3352/5078)
+2026-11-04T18:41:05.5187924Z Updating files:  67% (3403/5078)
+2026-11-04T18:41:05.5229688Z Updating files:  68% (3454/5078)
+2026-11-04T18:41:05.5250445Z Updating files:  69% (3504/5078)
+2026-11-04T18:41:05.5272797Z Updating files:  70% (3555/5078)
+2026-11-04T18:41:05.5293013Z Updating files:  71% (3606/5078)
+2026-11-04T18:41:05.5321479Z Updating files:  72% (3657/5078)
+2026-11-04T18:41:05.5341588Z Updating files:  73% (3707/5078)
+2026-11-04T18:41:05.5361971Z Updating files:  74% (3758/5078)
+2026-11-04T18:41:05.5400766Z Updating files:  75% (3809/5078)
+2026-11-04T18:41:05.5436306Z Updating files:  76% (3860/5078)
+2026-11-04T18:41:05.5452931Z Updating files:  77% (3911/5078)
+2026-11-04T18:41:05.5472034Z Updating files:  78% (3961/5078)
+2026-11-04T18:41:05.5499489Z Updating files:  79% (4012/5078)
+2026-11-04T18:41:05.5529761Z Updating files:  80% (4063/5078)
+2026-11-04T18:41:05.5556921Z Updating files:  81% (4114/5078)
+2026-11-04T18:41:05.5655034Z Updating files:  82% (4164/5078)
+2026-11-04T18:41:05.6088935Z Updating files:  83% (4215/5078)
+2026-11-04T18:41:05.6110510Z Updating files:  84% (4266/5078)
+2026-11-04T18:41:05.6138080Z Updating files:  85% (4317/5078)
+2026-11-04T18:41:05.6205282Z Updating files:  86% (4368/5078)
+2026-11-04T18:41:05.6296758Z Updating files:  87% (4418/5078)
+2026-11-04T18:41:05.6334075Z Updating files:  88% (4469/5078)
+2026-11-04T18:41:05.6364472Z Updating files:  89% (4520/5078)
+2026-11-04T18:41:05.6404100Z Updating files:  90% (4571/5078)
+2026-11-04T18:41:05.6431961Z Updating files:  91% (4621/5078)
+2026-11-04T18:41:05.6466273Z Updating files:  92% (4672/5078)
+2026-11-04T18:41:05.6504568Z Updating files:  93% (4723/5078)
+2026-11-04T18:41:05.6551807Z Updating files:  94% (4774/5078)
+2026-11-04T18:41:05.6585759Z Updating files:  95% (4825/5078)
+2026-11-04T18:41:05.6618184Z Updating files:  96% (4875/5078)
+2026-11-04T18:41:05.6648279Z Updating files:  97% (4926/5078)
+2026-11-04T18:41:05.6676385Z Updating files:  98% (4977/5078)
+2026-11-04T18:41:05.6711015Z Updating files:  99% (5028/5078)
+2026-11-04T18:41:05.6711633Z Updating files: 100% (5078/5078)
+2026-11-04T18:41:05.6712098Z Updating files: 100% (5078/5078), done.
+2026-11-04T18:41:06.0227596Z Previous HEAD position was 359594de Build exact R31 961a6b8a014 live-fork and HOST integration repairs with all existing gates
+2026-11-04T18:41:06.0231024Z HEAD is now at 961a6b8a Freeze R31 014 actual compiled identity and remaining gate ledger
+2026-11-04T18:41:06.0290728Z ##[endgroup]
+2026-11-04T18:41:06.0337567Z [command]/usr/bin/git log -1 --format=%H
+2026-11-04T18:41:06.0365463Z 961a6b8a74b9624a2b195e9562fbdfc9283b29fc
+2026-11-04T18:41:06.0375452Z ##[group]Removing auth
+2026-11-04T18:41:06.0379691Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-04T18:41:06.0412986Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-04T18:41:06.0714752Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-04T18:41:06.0744791Z http.https://github.com/.extraheader
+2026-11-04T18:41:06.0753774Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-04T18:41:06.0794450Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-04T18:41:06.1112753Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-04T18:41:06.1150056Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-04T18:41:06.1438459Z ##[endgroup]
+2026-11-04T18:41:06.1659930Z ##[group]Run actions/setup-java@v4
+2026-11-04T18:41:06.1660228Z with:
+2026-11-04T18:41:06.1660430Z   distribution: temurin
+2026-11-04T18:41:06.1660664Z   java-version: 17
+2026-11-04T18:41:06.1660882Z   java-package: jdk
+2026-11-04T18:41:06.1661096Z   check-latest: false
+2026-11-04T18:41:06.1661313Z   server-id: github
+2026-11-04T18:41:06.1661865Z   server-username: GITHUB_ACTOR
+2026-11-04T18:41:06.1662139Z   server-password: GITHUB_TOKEN
+2026-11-04T18:41:06.1662409Z   overwrite-settings: true
+2026-11-04T18:41:06.1662648Z   job-status: success
+2026-11-04T18:41:06.1665288Z   token: ***
+2026-11-04T18:41:06.1665496Z ##[endgroup]
+2026-11-04T18:41:06.3443070Z ##[warning]setup-java v4 is deprecated and will no longer receive updates. Please migrate to actions/setup-java@v5.
+2026-11-04T18:41:06.3451966Z ##[group]Installed distributions
+2026-11-04T18:41:06.3489224Z Resolved Java 17.0.21+9 from tool-cache
+2026-11-04T18:41:06.3489782Z Setting Java 17.0.21+9 as the default
+2026-11-04T18:41:06.3500134Z (node:2755) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-04T18:41:06.3500980Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-04T18:41:06.3504484Z Creating toolchains.xml for JDK version 17 from temurin
+2026-11-04T18:41:06.3579462Z Writing to /home/runner/.m2/toolchains.xml
+2026-11-04T18:41:06.3579879Z 
+2026-11-04T18:41:06.3580058Z Java configuration:
+2026-11-04T18:41:06.3580483Z   Distribution: temurin
+2026-11-04T18:41:06.3580912Z   Version: 17.0.21+9
+2026-11-04T18:41:06.3581723Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:06.3582259Z 
+2026-11-04T18:41:06.3582721Z ##[endgroup]
+2026-11-04T18:41:06.3598555Z Creating settings.xml with server-id: github
+2026-11-04T18:41:06.3629737Z Writing to /home/runner/.m2/settings.xml
+2026-11-04T18:41:06.3844132Z ##[group]Run actions/setup-python@v5
+2026-11-04T18:41:06.3844428Z with:
+2026-11-04T18:41:06.3844632Z   python-version: 3.12
+2026-11-04T18:41:06.3844864Z   check-latest: false
+2026-11-04T18:41:06.3847515Z   token: ***
+2026-11-04T18:41:06.3847911Z   update-environment: true
+2026-11-04T18:41:06.3848319Z   allow-prereleases: false
+2026-11-04T18:41:06.3848714Z   freethreaded: false
+2026-11-04T18:41:06.3849071Z env:
+2026-11-04T18:41:06.3849556Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:06.3850402Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:06.3851052Z ##[endgroup]
+2026-11-04T18:41:06.5327775Z ##[group]Installed versions
+2026-11-04T18:41:06.5447531Z (node:2769) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-04T18:41:06.5448844Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-04T18:41:06.5449697Z Successfully set up CPython (3.12.15)
+2026-11-04T18:41:06.5450432Z ##[endgroup]
+2026-11-04T18:41:06.5636484Z ##[group]Run python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+2026-11-04T18:41:06.5637336Z [36;1mpython -m pip install numpy==2.3.5 'cryptography>=41,<51'[0m
+2026-11-04T18:41:06.5687557Z shell: /usr/bin/bash -e {0}
+2026-11-04T18:41:06.5688721Z env:
+2026-11-04T18:41:06.5689308Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:06.5690162Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:06.5690985Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:06.5691942Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-11-04T18:41:06.5692636Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:06.5693102Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:06.5693533Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:06.5693965Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-11-04T18:41:06.5694305Z ##[endgroup]
+2026-11-04T18:41:07.6449361Z Collecting numpy==2.3.5
+2026-11-04T18:41:07.6694759Z   Downloading numpy-2.3.5-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+2026-11-04T18:41:07.8586757Z Collecting cryptography<51,>=41
+2026-11-04T18:41:07.8620941Z   Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (4.4 kB)
+2026-11-04T18:41:07.9645931Z Collecting cffi>=2.0.0 (from cryptography<51,>=41)
+2026-11-04T18:41:07.9680775Z   Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+2026-11-04T18:41:07.9795538Z Collecting pycparser (from cffi>=2.0.0->cryptography<51,>=41)
+2026-11-04T18:41:07.9827624Z   Downloading pycparser-3.12-py3-none-any.whl.metadata (9.7 kB)
+2026-11-04T18:41:07.9912507Z Downloading numpy-2.3.5-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.6 MB)
+2026-11-04T18:41:08.0890061Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.6/16.6 MB 179.2 MB/s  0:00:00
+2026-11-04T18:41:08.0926058Z Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl (4.8 MB)
+2026-11-04T18:41:08.1082714Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.8/4.8 MB 333.8 MB/s  0:00:00
+2026-11-04T18:41:08.1116193Z Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+2026-11-04T18:41:08.1168685Z Downloading pycparser-3.12-py3-none-any.whl (62 kB)
+2026-11-04T18:41:08.2105659Z Installing collected packages: pycparser, numpy, cffi, cryptography
+2026-11-04T18:41:10.4224086Z 
+2026-11-04T18:41:10.4236908Z Successfully installed cffi-2.1.1 cryptography-50.0.2 numpy-2.3.5 pycparser-3.12
+2026-11-04T18:41:10.4245747Z 
+2026-11-04T18:41:10.4246177Z [notice] A new release of pip is available: 26.2.2 -> 26.3
+2026-11-04T18:41:10.4246669Z [notice] To update, run: pip install --upgrade pip
+2026-11-04T18:41:10.4856243Z ##[group]Run actions/cache/restore@v4
+2026-11-04T18:41:10.4856550Z with:
+2026-11-04T18:41:10.4856762Z   path: ~/.starcore/r27-ci-temp-key
+2026-11-04T18:41:10.4857046Z   key: starcore-r27-ci-temp-signing-v1
+2026-11-04T18:41:10.4857325Z   fail-on-cache-miss: true
+2026-11-04T18:41:10.4857570Z   enableCrossOsArchive: false
+2026-11-04T18:41:10.4857816Z   lookup-only: false
+2026-11-04T18:41:10.4858024Z env:
+2026-11-04T18:41:10.4858319Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:10.4858811Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:10.4859270Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:10.4859694Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-11-04T18:41:10.4860116Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:10.4860495Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:10.4860943Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:10.4861336Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-11-04T18:41:10.4861965Z ##[endgroup]
+2026-11-04T18:41:10.5944824Z (node:2806) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-04T18:41:10.5945755Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-04T18:41:10.8188792Z Cache hit for: starcore-r27-ci-temp-signing-v1
+2026-11-04T18:41:10.8309469Z (node:2806) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-04T18:41:11.1302519Z Received 3773 of 3773 (100.0%), 0.0 MBs/sec
+2026-11-04T18:41:11.1303284Z Cache Size: ~0 MB (3773 B)
+2026-11-04T18:41:11.1334690Z [command]/usr/bin/tar -xf /home/runner/work/_temp/01b42a40-adae-4f6b-aa06-59d12d311d61/cache.tzst -P -C /home/runner/work/starcore-public-build/starcore-public-build --use-compress-program unzstd
+2026-11-04T18:41:11.1386564Z Cache restored successfully
+2026-11-04T18:41:11.1572198Z Cache restored from key: starcore-r27-ci-temp-signing-v1
+2026-11-04T18:41:11.1672902Z ##[group]Run python3 - <<'PY'
+2026-11-04T18:41:11.1673255Z [36;1mpython3 - <<'PY'[0m
+2026-11-04T18:41:11.1673546Z [36;1mimport os, pathlib, subprocess, hashlib[0m
+2026-11-04T18:41:11.1673950Z [36;1mroot=pathlib.Path.home()/'.starcore/r27-ci-temp-key'[0m
+2026-11-04T18:41:11.1674365Z [36;1mkey=root/'r27-ci.p12'; password_file=root/'pw'[0m
+2026-11-04T18:41:11.1674899Z [36;1mif not key.is_file() or not password_file.is_file(): raise SystemExit('ORIGINAL_SIGNING_UNAVAILABLE')[0m
+2026-11-04T18:41:11.1675437Z [36;1mpassword=password_file.read_text().strip()[0m
+2026-11-04T18:41:11.1675864Z [36;1mif not password: raise SystemExit('ORIGINAL_SIGNING_UNAVAILABLE')[0m
+2026-11-04T18:41:11.1676448Z [36;1mprint('::add-mask::'+password)[0m
+2026-11-04T18:41:11.1677186Z [36;1mcert=subprocess.check_output(['keytool','-exportcert','-keystore',str(key),'-storetype','PKCS12','-alias','starcore-r13','-storepass',password],stderr=subprocess.DEVNULL)[0m
+2026-11-04T18:41:11.1677988Z [36;1mfingerprint=hashlib.sha256(cert).hexdigest()[0m
+2026-11-04T18:41:11.1678645Z [36;1mif fingerprint!='d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7': raise SystemExit('R27_SIGNING_CHANGED')[0m
+2026-11-04T18:41:11.1679322Z [36;1mwith open(os.environ['GITHUB_ENV'],'a') as out:[0m
+2026-11-04T18:41:11.1680088Z [36;1m    out.write('R13_SIGNING_P12='+str(key)+'\nR13_SIGNING_PASSWORD='+password+'\nR13_EXPECTED_CERT_SHA256='+fingerprint+'\nR29_SIGNING=EXISTING_R27_CI_NOT_OFFICIAL_R13\n')[0m
+2026-11-04T18:41:11.1680865Z [36;1m    credential=os.environ.get('R29_API_KEY','').strip()[0m
+2026-11-04T18:41:11.1681224Z [36;1m    if credential:[0m
+2026-11-04T18:41:11.1681787Z [36;1m        print('::add-mask::'+credential)[0m
+2026-11-04T18:41:11.1682373Z [36;1m        out.write('DUOQU_API_KEY='+credential+'\n')[0m
+2026-11-04T18:41:11.1683119Z [36;1mprint('Reused R27 certificate '+fingerprint+'; official R13 upgrade BLOCKED')[0m
+2026-11-04T18:41:11.1683543Z [36;1mPY[0m
+2026-11-04T18:41:11.1712871Z shell: /usr/bin/bash -e {0}
+2026-11-04T18:41:11.1713139Z env:
+2026-11-04T18:41:11.1713460Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:11.1713975Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:11.1714447Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:11.1714877Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-11-04T18:41:11.1715325Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:11.1715727Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:11.1716120Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:11.1716527Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-11-04T18:41:11.1717303Z   R29_API_KEY: ***
+2026-11-04T18:41:11.1717545Z ##[endgroup]
+2026-11-04T18:41:11.7615859Z Reused R27 certificate d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7; official R13 upgrade BLOCKED
+2026-11-04T18:41:11.7704758Z ##[group]Run python3 - <<'PY'
+2026-11-04T18:41:11.7705102Z [36;1mpython3 - <<'PY'[0m
+2026-11-04T18:41:11.7705348Z [36;1mimport os[0m
+2026-11-04T18:41:11.7705728Z [36;1mrequired=('R13_SIGNING_P12','R13_SIGNING_PASSWORD','R13_EXPECTED_CERT_SHA256')[0m
+2026-11-04T18:41:11.7706365Z [36;1massert all(os.environ.get(key) for key in required),'EXISTING_SIGNING_BINDINGS_UNAVAILABLE'[0m
+2026-11-04T18:41:11.7707820Z [36;1mmapping={'STARCORE_SIGNING_P12':os.environ['R13_SIGNING_P12'],'STARCORE_SIGNING_PASSWORD':os.environ['R13_SIGNING_PASSWORD'],'STARCORE_SIGNING_KEY_PASSWORD':os.environ['R13_SIGNING_PASSWORD'],'STARCORE_SIGNING_ALIAS':'starcore-r13','STARCORE_SIGNING_TYPE':'PKCS12','STARCORE_EXPECTED_CERT_SHA256':os.environ['R13_EXPECTED_CERT_SHA256']}[0m
+2026-11-04T18:41:11.7709163Z [36;1mwith open(os.environ['GITHUB_ENV'],'a') as output:[0m
+2026-11-04T18:41:11.7709610Z [36;1m    for key,value in mapping.items():output.write(key+'='+value+'\n')[0m
+2026-11-04T18:41:11.7710024Z [36;1mPY[0m
+2026-11-04T18:41:11.7740241Z shell: /usr/bin/bash -e {0}
+2026-11-04T18:41:11.7740507Z env:
+2026-11-04T18:41:11.7740833Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:11.7741357Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:11.7742062Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:11.7742523Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-11-04T18:41:11.7742986Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:11.7743381Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:11.7744075Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:11.7744481Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-11-04T18:41:11.7744914Z   R13_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T18:41:11.7745424Z   R13_SIGNING_PASSWORD: ***
+2026-11-04T18:41:11.7745865Z   R13_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T18:41:11.7746368Z   R29_SIGNING: EXISTING_R27_CI_NOT_OFFICIAL_R13
+2026-11-04T18:41:11.7746726Z   DUOQU_API_KEY: ***
+2026-11-04T18:41:11.7746951Z ##[endgroup]
+2026-11-04T18:41:11.7968870Z ##[group]Run android-actions/setup-android@v3
+2026-11-04T18:41:11.7969206Z with:
+2026-11-04T18:41:11.7969426Z   packages: platform-tools
+2026-11-04T18:41:11.7969718Z   log-accepted-android-sdk-licenses: false
+2026-11-04T18:41:11.7970032Z   cmdline-tools-version: 12266719
+2026-11-04T18:41:11.7970321Z   accept-android-sdk-licenses: true
+2026-11-04T18:41:11.7970604Z env:
+2026-11-04T18:41:11.7970913Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:11.7971726Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:11.7972231Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:11.7972673Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-11-04T18:41:11.7973111Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:11.7973507Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:11.7973935Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:11.7974337Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-11-04T18:41:11.7974775Z   R13_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T18:41:11.7975267Z   R13_SIGNING_PASSWORD: ***
+2026-11-04T18:41:11.7975700Z   R13_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T18:41:11.7976221Z   R29_SIGNING: EXISTING_R27_CI_NOT_OFFICIAL_R13
+2026-11-04T18:41:11.7976542Z   DUOQU_API_KEY: ***
+2026-11-04T18:41:11.7976890Z   STARCORE_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T18:41:11.7977353Z   STARCORE_SIGNING_PASSWORD: ***
+2026-11-04T18:41:11.7977705Z   STARCORE_SIGNING_KEY_PASSWORD: ***
+2026-11-04T18:41:11.7977997Z   STARCORE_SIGNING_ALIAS: starcore-r13
+2026-11-04T18:41:11.7978283Z   STARCORE_SIGNING_TYPE: PKCS12
+2026-11-04T18:41:11.7978748Z   STARCORE_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T18:41:11.7979225Z ##[endgroup]
+2026-11-04T18:41:11.8687817Z Found preinstalled sdkmanager in /usr/local/lib/android/sdk/cmdline-tools/latest with following source.properties:
+2026-11-04T18:41:11.8688725Z Pkg.Revision=20.0
+2026-11-04T18:41:11.8689172Z Pkg.Path=cmdline-tools;20.0
+2026-11-04T18:41:11.8689653Z Pkg.Desc=Android SDK Command-line Tools
+2026-11-04T18:41:11.8690022Z 
+2026-11-04T18:41:11.8690216Z Wrong version in preinstalled sdkmanager
+2026-11-04T18:41:11.8691236Z Downloading commandline tools from https://dl.google.com/android/repository/commandlinetools-linux-12266719_latest.zip
+2026-11-04T18:41:13.3836226Z [command]/usr/bin/unzip -o -q /home/runner/work/_temp/b19c706f-858a-4ffd-a375-aa0f2fab463c
+2026-11-04T18:41:14.1526737Z Accepting Android SDK licenses
+2026-11-04T18:41:17.0229164Z [command]/usr/local/lib/android/sdk/cmdline-tools/16.0/bin/sdkmanager platform-tools
+2026-11-04T18:41:17.8662737Z Loading package information...                                                  
+2026-11-04T18:41:17.9735010Z Loading local repository...                                                     
+2026-11-04T18:41:17.9762531Z [                                       ] 3% Loading local repository...        
+2026-11-04T18:41:17.9838554Z [                                       ] 3% Fetch remote repository...         
+2026-11-04T18:41:18.3655166Z [=                                      ] 3% Fetch remote repository...         
+2026-11-04T18:41:18.4504889Z [=                                      ] 4% Fetch remote repository...         
+2026-11-04T18:41:18.4911305Z [=                                      ] 5% Fetch remote repository...         
+2026-11-04T18:41:18.5865559Z [==                                     ] 5% Fetch remote repository...         
+2026-11-04T18:41:18.6823990Z [==                                     ] 6% Fetch remote repository...         
+2026-11-04T18:41:18.7642764Z [==                                     ] 7% Fetch remote repository...         
+2026-11-04T18:41:18.7644652Z [==                                     ] 7% Computing updates...               
+2026-11-04T18:41:18.7752418Z [===                                    ] 8% Computing updates...               
+2026-11-04T18:41:18.7815514Z [===                                    ] 10% Computing updates...              
+2026-11-04T18:41:18.7832725Z [=======================================] 100% Computing updates...             
+2026-11-04T18:41:18.7833330Z 
+2026-11-04T18:41:18.8433288Z ##[group]Run sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+2026-11-04T18:41:18.8434160Z [36;1msdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null[0m
+2026-11-04T18:41:18.8464673Z shell: /usr/bin/bash -e {0}
+2026-11-04T18:41:18.8464930Z env:
+2026-11-04T18:41:18.8465263Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:18.8465796Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:18.8466282Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:18.8466744Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-11-04T18:41:18.8467189Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:18.8467594Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:18.8468037Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:18.8468447Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-11-04T18:41:18.8468904Z   R13_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T18:41:18.8469459Z   R13_SIGNING_PASSWORD: ***
+2026-11-04T18:41:18.8469906Z   R13_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T18:41:18.8470455Z   R29_SIGNING: EXISTING_R27_CI_NOT_OFFICIAL_R13
+2026-11-04T18:41:18.8470786Z   DUOQU_API_KEY: ***
+2026-11-04T18:41:18.8471149Z   STARCORE_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T18:41:18.8471857Z   STARCORE_SIGNING_PASSWORD: ***
+2026-11-04T18:41:18.8472371Z   STARCORE_SIGNING_KEY_PASSWORD: ***
+2026-11-04T18:41:18.8472702Z   STARCORE_SIGNING_ALIAS: starcore-r13
+2026-11-04T18:41:18.8472994Z   STARCORE_SIGNING_TYPE: PKCS12
+2026-11-04T18:41:18.8473470Z   STARCORE_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T18:41:18.8473986Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-11-04T18:41:18.8474303Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-11-04T18:41:18.8474596Z ##[endgroup]
+2026-11-04T18:41:39.0348952Z ##[group]Run set -euo pipefail
+2026-11-04T18:41:39.0349343Z [36;1mset -euo pipefail[0m
+2026-11-04T18:41:39.0349666Z [36;1mtest "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE"[0m
+2026-11-04T18:41:39.0350050Z [36;1mtest -f tools/r31/verify_baseline.py[0m
+2026-11-04T18:41:39.0350604Z [36;1mtest -f app/src/androidTest/java/com/ethk3/novaonepro/R31RuntimeProtocolInstrumentedTest.java[0m
+2026-11-04T18:41:39.0351832Z [36;1mtimeout 45s git fetch --no-tags origin refs/heads/construction/r31-final-20261104:refs/remotes/origin/construction/r31-final-20261104[0m
+2026-11-04T18:41:39.0352711Z [36;1mgit merge-base --is-ancestor "$EXPECTED_SOURCE" refs/remotes/origin/construction/r31-final-20261104[0m
+2026-11-04T18:41:39.0353411Z [36;1mgit merge-base --is-ancestor 5237b265a27fe5ad27fd842901c445d5f8c27749 "$EXPECTED_SOURCE"[0m
+2026-11-04T18:41:39.0354109Z [36;1mgit diff --exit-code[0m
+2026-11-04T18:41:39.0354422Z [36;1mpython3 - <<'PY'[0m
+2026-11-04T18:41:39.0354746Z [36;1mimport json,os,pathlib,subprocess[0m
+2026-11-04T18:41:39.0355222Z [36;1mmanifest=json.loads(pathlib.Path('release/release_manifest.json').read_text())[0m
+2026-11-04T18:41:39.0355860Z [36;1massert manifest['applicationId']=='com.starcore.research.r13','WRONG_APPLICATION_ID'[0m
+2026-11-04T18:41:39.0356547Z [36;1massert int(manifest['versionCode'])==int(os.environ['EXPECTED_VERSION_CODE']),'VERSION_CODE_MISMATCH'[0m
+2026-11-04T18:41:39.0357241Z [36;1massert manifest['versionName']==os.environ['EXPECTED_VERSION_NAME'],'VERSION_NAME_MISMATCH'[0m
+2026-11-04T18:41:39.0357878Z [36;1massert os.environ.get('DUOQU_API_KEY','').strip(),'API_CONFIGURATION_UNAVAILABLE'[0m
+2026-11-04T18:41:39.0358567Z [36;1massert os.environ.get('R13_EXPECTED_CERT_SHA256')==os.environ['R31_EXPECTED_CERT_SHA256'],'WRONG_CERTIFICATE_LANE'[0m
+2026-11-04T18:41:39.0359329Z [36;1mout=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-evidence';out.mkdir(parents=True,exist_ok=True)[0m
+2026-11-04T18:41:39.0361676Z [36;1mrecord={'sourceCommit':os.environ['EXPECTED_SOURCE'],'sourceTree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),'sourceBranch':'construction/r31-final-20261104','baseline':'5237b265a27fe5ad27fd842901c445d5f8c27749','baselineAncestry':'PASS','requestedSourceAncestry':'PASS','sourceArchive':'https://github.com/gtt46461-star/starcore-public-build/archive/'+os.environ['EXPECTED_SOURCE']+'.zip','versionCode':manifest['versionCode'],'versionName':manifest['versionName']}[0m
+2026-11-04T18:41:39.0364494Z [36;1m(out/'source-receipt.json').write_text(json.dumps(record,ensure_ascii=False,indent=2)+'\n')[0m
+2026-11-04T18:41:39.0364986Z [36;1mPY[0m
+2026-11-04T18:41:39.0394862Z shell: /usr/bin/bash -e {0}
+2026-11-04T18:41:39.0395129Z env:
+2026-11-04T18:41:39.0395454Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:39.0396005Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:39.0396495Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:39.0396944Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-11-04T18:41:39.0397383Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:39.0397781Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:39.0398182Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:39.0398585Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-11-04T18:41:39.0399033Z   R13_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T18:41:39.0399526Z   R13_SIGNING_PASSWORD: ***
+2026-11-04T18:41:39.0399967Z   R13_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T18:41:39.0400472Z   R29_SIGNING: EXISTING_R27_CI_NOT_OFFICIAL_R13
+2026-11-04T18:41:39.0400801Z   DUOQU_API_KEY: ***
+2026-11-04T18:41:39.0401143Z   STARCORE_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T18:41:39.0402087Z   STARCORE_SIGNING_PASSWORD: ***
+2026-11-04T18:41:39.0402465Z   STARCORE_SIGNING_KEY_PASSWORD: ***
+2026-11-04T18:41:39.0402764Z   STARCORE_SIGNING_ALIAS: starcore-r13
+2026-11-04T18:41:39.0403052Z   STARCORE_SIGNING_TYPE: PKCS12
+2026-11-04T18:41:39.0403514Z   STARCORE_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T18:41:39.0404012Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-11-04T18:41:39.0404323Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-11-04T18:41:39.0404686Z   EXPECTED_SOURCE: 961a6b8a74b9624a2b195e9562fbdfc9283b29fc
+2026-11-04T18:41:39.0405033Z   EXPECTED_VERSION_CODE: 577311014
+2026-11-04T18:41:39.0405377Z   EXPECTED_VERSION_NAME: R31-CHECKPOINT-P02-2026.11.04-014
+2026-11-04T18:41:39.0405889Z   R31_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T18:41:39.0406486Z ##[endgroup]
+2026-11-04T18:41:39.3917231Z ##[group]Run set -euo pipefail
+2026-11-04T18:41:39.3917615Z [36;1mset -euo pipefail[0m
+2026-11-04T18:41:39.3918071Z [36;1m# Use committed identities. Do not invoke ci_build.sh/rebind_identity.py or PUSH_REF.[0m
+2026-11-04T18:41:39.3919012Z [36;1mtrap 'r31_status=$?; for r31_log in "$RUNNER_TEMP"/r31-evidence/*.log; do if [ -f "$r31_log" ]; then echo "FAILED_CHECK_LOG:$r31_log"; tail -n 120 "$r31_log"; fi; done; exit "$r31_status"' ERR[0m
+2026-11-04T18:41:39.3919820Z [36;1mpython3 scripts/r926_release_manifest.py --check[0m
+2026-11-04T18:41:39.3920228Z [36;1mpython3 scripts/r967_semantic_identity.py --check[0m
+2026-11-04T18:41:39.3920620Z [36;1mpython3 scripts/test_r13_production_ddl.py[0m
+2026-11-04T18:41:39.3921024Z [36;1mpython3 scripts/generate_strategy_su2_schema.py --check[0m
+2026-11-04T18:41:39.3922199Z [36;1m./gradlew --no-daemon --max-workers=4 -Pr30Instrumentation=true :app:compileDebugJavaWithJavac 2>&1 | tee "$RUNNER_TEMP/r31-evidence/compile-before-host.log"[0m
+2026-11-04T18:41:39.3923118Z [36;1mpython3 scripts/verify_strategy_su1.py > "$RUNNER_TEMP/r31-evidence/su1.log" 2>&1[0m
+2026-11-04T18:41:39.3923742Z [36;1mpython3 scripts/verify_plan1025.py > "$RUNNER_TEMP/r31-evidence/plan1025.log" 2>&1[0m
+2026-11-04T18:41:39.3924316Z [36;1mpython3 scripts/verify_r26.py > "$RUNNER_TEMP/r31-evidence/r26.log" 2>&1[0m
+2026-11-04T18:41:39.3925520Z [36;1m./gradlew --no-daemon --continue --max-workers=4 -Pr30Instrumentation=true :app:verifyCanonicalPlanBuildCP3 :app:lintDebug :app:assembleRelease :app:assembleDebug :app:assembleDebugAndroidTest 2>&1 | tee "$RUNNER_TEMP/r31-evidence/assemble.log"[0m
+2026-11-04T18:41:39.3927124Z [36;1mgrep -Fq 'android:name="com.ethk3.novaonepro.R30FaultAndroidRunner"' app/build/intermediates/packaged_manifests/debugAndroidTest/processDebugAndroidTestManifest/AndroidManifest.xml[0m
+2026-11-04T18:41:39.3928200Z [36;1mtest -f app/src/androidTest/java/com/ethk3/novaonepro/R31RuntimeProtocolInstrumentedTest.java[0m
+2026-11-04T18:41:39.3928731Z [36;1mpython3 - <<'PY'[0m
+2026-11-04T18:41:39.3929064Z [36;1mimport json,os,pathlib,xml.etree.ElementTree as ET[0m
+2026-11-04T18:41:39.3929627Z [36;1mfiles=sorted(pathlib.Path('app/build/test-results/testDebugUnitTest').glob('TEST-*.xml'))[0m
+2026-11-04T18:41:39.3930134Z [36;1massert files,'NO_ACTUAL_JUNIT_XML'[0m
+2026-11-04T18:41:39.3930682Z [36;1mtotals={k:sum(int(ET.parse(f).getroot().get(k,'0')) for f in files) for k in ('tests','failures','errors','skipped')}[0m
+2026-11-04T18:41:39.3931670Z [36;1massert totals['tests']>0 and totals['failures']==totals['errors']==totals['skipped']==0,totals[0m
+2026-11-04T18:41:39.3932804Z [36;1m(pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-evidence/unit-summary.json').write_text(json.dumps({'scope':'HOST_UNIT_NOT_ANDROID_OR_NATURAL','suites':len(files),**totals},indent=2)+'\n')[0m
+2026-11-04T18:41:39.3933592Z [36;1mPY[0m
+2026-11-04T18:41:39.3963820Z shell: /usr/bin/bash -e {0}
+2026-11-04T18:41:39.3964105Z env:
+2026-11-04T18:41:39.3964442Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:39.3964981Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T18:41:39.3965470Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:39.3965919Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-11-04T18:41:39.3966359Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:39.3966772Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:39.3967172Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T18:41:39.3967585Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-11-04T18:41:39.3968019Z   R13_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T18:41:39.3968490Z   R13_SIGNING_PASSWORD: ***
+2026-11-04T18:41:39.3968933Z   R13_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T18:41:39.3969775Z   R29_SIGNING: EXISTING_R27_CI_NOT_OFFICIAL_R13
+2026-11-04T18:41:39.3970119Z   DUOQU_API_KEY: ***
+2026-11-04T18:41:39.3970464Z   STARCORE_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T18:41:39.3971032Z   STARCORE_SIGNING_PASSWORD: ***
+2026-11-04T18:41:39.3971631Z   STARCORE_SIGNING_KEY_PASSWORD: ***
+2026-11-04T18:41:39.3971984Z   STARCORE_SIGNING_ALIAS: starcore-r13
+2026-11-04T18:41:39.3972299Z   STARCORE_SIGNING_TYPE: PKCS12
+2026-11-04T18:41:39.3972763Z   STARCORE_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T18:41:39.3973270Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-11-04T18:41:39.3973595Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-11-04T18:41:39.3973887Z ##[endgroup]
+2026-11-04T18:41:39.4427614Z {"status": "PASS", "manifestSha256": "77c228e4394e4556148948958b92292a2b72c04fdebf63847a5e172775c2c56c", "versionName": "R31-CHECKPOINT-P02-2026.11.04-014", "versionCode": 577311014}
+2026-11-04T18:41:40.4497050Z R967_SEMANTIC_IDENTITY_VERIFIED|aa006d8f43ef2f858f42ea55213df9ec9db260b86bbca27063d13bc1609c4c85
+2026-11-04T18:41:40.5035961Z R13_PRODUCTION_DDL_PASS
+2026-11-04T18:41:40.5414226Z SU2 production DDL: reproducible and executable
+2026-11-04T18:41:40.6497233Z Downloading https://services.gradle.org/distributions/gradle-8.14.6-bin.zip
+2026-11-04T18:41:42.2987499Z .............10%.............20%.............30%..............40%.............50%.............60%..............70%.............80%.............90%.............100%
+2026-11-04T18:41:43.6276767Z 
+2026-11-04T18:41:43.6277894Z Welcome to Gradle 8.14.6!
+2026-11-04T18:41:43.6278269Z 
+2026-11-04T18:41:43.6278583Z Here are the highlights of this release:
+2026-11-04T18:41:43.6279187Z  - Java 24 support
+2026-11-04T18:41:43.6279760Z  - GraalVM Native Image toolchain selection
+2026-11-04T18:41:43.6280421Z  - Enhancements to test reporting
+2026-11-04T18:41:43.6281031Z  - Build Authoring improvements
+2026-11-04T18:41:43.6281394Z 
+2026-11-04T18:41:43.6282217Z For more details see https://docs.gradle.org/8.14.6/release-notes.html
+2026-11-04T18:41:43.6282759Z 
+2026-11-04T18:41:43.7270967Z To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+2026-11-04T18:41:44.8263927Z Daemon will be stopped at the end of the build 
+2026-11-04T18:42:25.7263792Z 
+2026-11-04T18:42:25.7268672Z > Task :app:generateR27BuildIdentity
+2026-11-04T18:42:25.7270793Z R27_BUILD_IDENTITY_WRITTEN 961a6b8a74b9624a2b195e9562fbdfc9283b29fc 22b9099669e2f8b20b9f9ea548a8faddffda8a76
+2026-11-04T18:42:27.2258129Z 
+2026-11-04T18:42:27.2259382Z > Task :app:verifyR31Baseline
+2026-11-04T18:42:27.8266600Z > Task :app:generateR31BuildIdentity
+2026-11-04T18:42:28.2258026Z 
+2026-11-04T18:42:28.2259332Z > Task :app:generateR982SourceCallAsset
+2026-11-04T18:42:28.2260660Z SOURCE_CALL_ASSET_VERIFIED|bytes=38284190|sha256=13d9df143035946c50b37069956f2265ad9824dd6ebc3590d268f3d3b9f40716
+2026-11-04T18:42:28.6257653Z 
+2026-11-04T18:42:28.6258901Z > Task :app:generateR997ConstructionAssets
+2026-11-04T18:42:28.6261720Z R997_CONSTRUCTION_ASSETS_GENERATED requirements=1832 statuses_preserved=TRUE
+2026-11-04T18:42:29.5257503Z 
+2026-11-04T18:42:29.5258678Z > Task :app:verifyCatalogAssetsCP12
+2026-11-04T18:42:29.5263193Z CATALOG_IDENTITY_PASS|atoms=25350|seeds=4200|stream_line_cap=65536
+2026-11-04T18:42:29.5264003Z 
+2026-11-04T18:42:29.5264555Z > Task :app:verifyPlan1025Schema
+2026-11-04T18:42:29.5265564Z SU2 production DDL: reproducible and executable
+2026-11-04T18:42:30.5257654Z 
+2026-11-04T18:42:30.5258391Z > Task :app:generateR967Semantics
+2026-11-04T18:42:30.5259470Z R967_SEMANTIC_IDENTITY_GENERATED|aa006d8f43ef2f858f42ea55213df9ec9db260b86bbca27063d13bc1609c4c85
+2026-11-04T18:42:31.5258946Z 
+2026-11-04T18:42:31.5259792Z > Task :app:verifyR967Semantics
+2026-11-04T18:42:31.5261837Z R967_SEMANTIC_IDENTITY_VERIFIED|aa006d8f43ef2f858f42ea55213df9ec9db260b86bbca27063d13bc1609c4c85
+2026-11-04T18:42:33.6258562Z 
+2026-11-04T18:42:33.6259375Z > Task :app:generateR815Provenance
+2026-11-04T18:42:33.6262379Z R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=543a488b625fe0d243d921eba749e1e8b7786efed8cef37ba0a710d7192c4063|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=3e071b5d0d89f697231f507295f6a723be04439e3d60b50fffed9841b2094f8c|GENERATED_AT=2026-11-04T18:42:33Z
+2026-11-04T18:42:34.4260895Z 
+2026-11-04T18:42:34.4303693Z > Task :app:verifyR815Provenance
+2026-11-04T18:42:34.4307416Z R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=543a488b625fe0d243d921eba749e1e8b7786efed8cef37ba0a710d7192c4063|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=3e071b5d0d89f697231f507295f6a723be04439e3d60b50fffed9841b2094f8c|GENERATED_AT=2026-11-04T18:42:33Z
+2026-11-04T18:42:34.4310430Z 
+2026-11-04T18:42:34.4310850Z > Task :app:preBuild
+2026-11-04T18:42:34.4311740Z > Task :app:preDebugBuild
+2026-11-04T18:42:34.5259007Z > Task :app:generateDebugBuildConfig
+2026-11-04T18:42:34.5259745Z > Task :app:javaPreCompileDebug
+2026-11-04T18:42:34.9269385Z > Task :app:checkDebugAarMetadata
+2026-11-04T18:42:34.9272376Z > Task :app:generateDebugResValues
+2026-11-04T18:42:35.0273207Z > Task :app:mapDebugSourceSetPaths
+2026-11-04T18:42:35.0306672Z > Task :app:generateDebugResources
+2026-11-04T18:42:35.4282643Z > Task :app:packageDebugResources
+2026-11-04T18:42:35.5258683Z > Task :app:mergeDebugResources
+2026-11-04T18:42:35.8270400Z > Task :app:createDebugCompatibleScreenManifests
+2026-11-04T18:42:35.8271190Z > Task :app:extractDeepLinksDebug
+2026-11-04T18:42:35.9263031Z > Task :app:parseDebugLocalResources
+2026-11-04T18:42:35.9263754Z > Task :app:processDebugMainManifest
+2026-11-04T18:42:36.2276060Z > Task :app:processDebugManifest
+2026-11-04T18:42:36.3258311Z > Task :app:processDebugManifestForPackage
+2026-11-04T18:42:37.7258761Z > Task :app:processDebugResources
+2026-11-04T18:42:52.4264114Z 
+2026-11-04T18:42:52.4293870Z > Task :app:compileDebugJavaWithJavac
+2026-11-04T18:42:52.4324450Z /home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java:14: warning: [strictfp] as of release 17, all floating-point expressions are evaluated strictly and 'strictfp' is not required
+2026-11-04T18:42:52.4352735Z public strictfp final class DevelopmentTrainerCP9 {
+2026-11-04T18:42:52.4382668Z                       ^
+2026-11-04T18:43:08.1262913Z Note: Some input files use or override a deprecated API.
+2026-11-04T18:43:08.1264579Z Note: Recompile with -Xlint:deprecation for details.
+2026-11-04T18:43:08.1265486Z Note: Some input files use unchecked or unsafe operations.
+2026-11-04T18:43:08.1266355Z Note: Recompile with -Xlint:unchecked for details.
+2026-11-04T18:43:08.1267066Z 1 warning
+2026-11-04T18:43:12.4292251Z 
+2026-11-04T18:43:12.4294224Z [Incubating] Problems report is available at: file:///home/runner/work/starcore-public-build/starcore-public-build/build/reports/problems/problems-report.html
+2026-11-04T18:43:12.4295681Z 
+2026-11-04T18:43:12.4296551Z Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+2026-11-04T18:43:12.4297396Z 
+2026-11-04T18:43:12.4298565Z You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+2026-11-04T18:43:12.4299684Z 
+2026-11-04T18:43:12.4301047Z For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+2026-11-04T18:43:12.4302454Z 
+2026-11-04T18:43:12.4302863Z BUILD SUCCESSFUL in 1m 31s
+2026-11-04T18:43:12.4303569Z 27 actionable tasks: 27 executed
+2026-11-04T18:48:49.9284824Z To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+2026-11-04T18:48:51.1253311Z Daemon will be stopped at the end of the build 
+2026-11-04T18:49:01.7262695Z 
+2026-11-04T18:49:01.7273123Z > Task :app:generateR27BuildIdentity
+2026-11-04T18:49:01.7274612Z R27_BUILD_IDENTITY_WRITTEN 961a6b8a74b9624a2b195e9562fbdfc9283b29fc 22b9099669e2f8b20b9f9ea548a8faddffda8a76
+2026-11-04T18:49:03.2248540Z 
+2026-11-04T18:49:03.2249533Z > Task :app:verifyR31Baseline
+2026-11-04T18:49:03.9249284Z > Task :app:generateR31BuildIdentity
+2026-11-04T18:49:04.2248492Z 
+2026-11-04T18:49:04.2252976Z > Task :app:generateR982SourceCallAsset
+2026-11-04T18:49:04.2254505Z SOURCE_CALL_ASSET_VERIFIED|bytes=38284190|sha256=13d9df143035946c50b37069956f2265ad9824dd6ebc3590d268f3d3b9f40716
+2026-11-04T18:49:04.6249486Z 
+2026-11-04T18:49:04.6252146Z > Task :app:generateR997ConstructionAssets
+2026-11-04T18:49:04.6253210Z R997_CONSTRUCTION_ASSETS_GENERATED requirements=1832 statuses_preserved=TRUE
+2026-11-04T18:49:05.5248294Z 
+2026-11-04T18:49:05.5249434Z > Task :app:verifyCatalogAssetsCP12
+2026-11-04T18:49:05.5252103Z CATALOG_IDENTITY_PASS|atoms=25350|seeds=4200|stream_line_cap=65536
+2026-11-04T18:49:05.5252808Z 
+2026-11-04T18:49:05.5253167Z > Task :app:verifyPlan1025Schema
+2026-11-04T18:49:05.5254016Z SU2 production DDL: reproducible and executable
+2026-11-04T18:49:06.5248573Z 
+2026-11-04T18:49:06.5249576Z > Task :app:generateR967Semantics
+2026-11-04T18:49:06.5251241Z R967_SEMANTIC_IDENTITY_GENERATED|aa006d8f43ef2f858f42ea55213df9ec9db260b86bbca27063d13bc1609c4c85
+2026-11-04T18:49:07.5248920Z 
+2026-11-04T18:49:07.5250223Z > Task :app:verifyR967Semantics
+2026-11-04T18:49:07.5251822Z R967_SEMANTIC_IDENTITY_VERIFIED|aa006d8f43ef2f858f42ea55213df9ec9db260b86bbca27063d13bc1609c4c85
+2026-11-04T18:49:08.3248236Z 
+2026-11-04T18:49:08.3249043Z > Task :app:generateR815Provenance
+2026-11-04T18:49:08.3252992Z R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=543a488b625fe0d243d921eba749e1e8b7786efed8cef37ba0a710d7192c4063|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=3e071b5d0d89f697231f507295f6a723be04439e3d60b50fffed9841b2094f8c|GENERATED_AT=2026-11-04T18:42:33Z
+2026-11-04T18:49:09.1257447Z 
+2026-11-04T18:49:09.1274960Z > Task :app:verifyR815Provenance
+2026-11-04T18:49:09.1278792Z R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=543a488b625fe0d243d921eba749e1e8b7786efed8cef37ba0a710d7192c4063|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=3e071b5d0d89f697231f507295f6a723be04439e3d60b50fffed9841b2094f8c|GENERATED_AT=2026-11-04T18:42:33Z
+2026-11-04T18:49:09.1281841Z 
+2026-11-04T18:49:09.1282324Z > Task :app:preBuild
+2026-11-04T18:49:09.1283037Z > Task :app:preReleaseBuild
+2026-11-04T18:49:09.2272327Z > Task :app:generateReleaseBuildConfig
+2026-11-04T18:49:09.2273468Z > Task :app:javaPreCompileRelease FROM-CACHE
+2026-11-04T18:49:09.2274744Z > Task :app:generateReleaseResValues FROM-CACHE
+2026-11-04T18:49:09.2275670Z > Task :app:checkReleaseAarMetadata
+2026-11-04T18:49:09.2276580Z > Task :app:mapReleaseSourceSetPaths
+2026-11-04T18:49:09.2277483Z > Task :app:generateReleaseResources FROM-CACHE
+2026-11-04T18:49:09.7263138Z > Task :app:packageReleaseResources
+2026-11-04T18:49:09.7267919Z > Task :app:parseReleaseLocalResources FROM-CACHE
+2026-11-04T18:49:09.8253592Z > Task :app:createReleaseCompatibleScreenManifests
+2026-11-04T18:49:09.8276577Z > Task :app:extractDeepLinksRelease FROM-CACHE
+2026-11-04T18:49:09.8290259Z > Task :app:mergeReleaseResources
+2026-11-04T18:49:09.9249324Z > Task :app:processReleaseMainManifest
+2026-11-04T18:49:10.3249251Z > Task :app:processReleaseManifest
+2026-11-04T18:49:10.3289737Z > Task :app:extractProguardFiles
+2026-11-04T18:49:10.3312520Z > Task :app:preReleaseUnitTestBuild
+2026-11-04T18:49:10.3313300Z > Task :app:preDebugBuild
+2026-11-04T18:49:10.3314574Z > Task :app:generateDebugBuildConfig UP-TO-DATE
+2026-11-04T18:49:10.3315731Z > Task :app:processReleaseManifestForPackage
+2026-11-04T18:49:10.4282785Z > Task :app:javaPreCompileDebug UP-TO-DATE
+2026-11-04T18:49:10.4308083Z > Task :app:checkDebugAarMetadata UP-TO-DATE
+2026-11-04T18:49:10.4345679Z > Task :app:generateDebugResValues UP-TO-DATE
+2026-11-04T18:49:10.4402631Z > Task :app:mapDebugSourceSetPaths UP-TO-DATE
+2026-11-04T18:49:10.4403809Z > Task :app:generateDebugResources UP-TO-DATE
+2026-11-04T18:49:10.4425934Z > Task :app:mergeDebugResources UP-TO-DATE
+2026-11-04T18:49:10.4472282Z > Task :app:packageDebugResources UP-TO-DATE
+2026-11-04T18:49:10.5267981Z > Task :app:parseDebugLocalResources UP-TO-DATE
+2026-11-04T18:49:10.5299001Z > Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+2026-11-04T18:49:10.5318714Z > Task :app:extractDeepLinksDebug UP-TO-DATE
+2026-11-04T18:49:10.5377033Z > Task :app:processDebugMainManifest UP-TO-DATE
+2026-11-04T18:49:10.5402558Z > Task :app:processDebugManifest UP-TO-DATE
+2026-11-04T18:49:10.5422285Z > Task :app:processDebugManifestForPackage UP-TO-DATE
+2026-11-04T18:49:10.5450355Z > Task :app:processDebugResources UP-TO-DATE
+2026-11-04T18:49:10.8250186Z > Task :app:processReleaseResources
+2026-11-04T18:49:11.0252930Z > Task :app:compileDebugJavaWithJavac UP-TO-DATE
+2026-11-04T18:49:22.8250943Z 
+2026-11-04T18:49:22.8255993Z > Task :app:compileReleaseJavaWithJavac
+2026-11-04T18:49:22.8258842Z /home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java:14: warning: [strictfp] as of release 17, all floating-point expressions are evaluated strictly and 'strictfp' is not required
+2026-11-04T18:49:22.8261253Z public strictfp final class DevelopmentTrainerCP9 {
+2026-11-04T18:49:22.8262387Z                       ^
+2026-11-04T18:49:39.5249501Z Note: Some input files use or override a deprecated API.
+2026-11-04T18:49:39.5251954Z Note: Recompile with -Xlint:deprecation for details.
+2026-11-04T18:49:39.5253272Z Note: Some input files use unchecked or unsafe operations.
+2026-11-04T18:49:39.5255537Z Note: Recompile with -Xlint:unchecked for details.
+2026-11-04T18:49:39.5257465Z 1 warning
+2026-11-04T18:49:45.4262168Z 
+2026-11-04T18:49:45.4282714Z > Task :app:generateReleaseLintReportModel
+2026-11-04T18:49:46.1252790Z > Task :app:bundleReleaseClassesToCompileJar
+2026-11-04T18:49:53.3272711Z > Task :app:generateReleaseUnitTestLintModel
+2026-11-04T18:49:54.1259546Z > Task :app:bundleDebugClassesToRuntimeJar
+2026-11-04T18:49:54.1312238Z > Task :app:preDebugUnitTestBuild
+2026-11-04T18:49:54.1362683Z > Task :app:javaPreCompileDebugUnitTest FROM-CACHE
+2026-11-04T18:49:54.1392215Z > Task :app:processDebugJavaRes NO-SOURCE
+2026-11-04T18:49:54.2262770Z > Task :app:processDebugUnitTestJavaRes
+2026-11-04T18:49:54.4249913Z > Task :app:bundleDebugClassesToCompileJar
+2026-11-04T18:50:10.7257759Z 
+2026-11-04T18:50:10.7282676Z > Task :app:testR967Semantics
+2026-11-04T18:50:10.7312867Z R973_SEMANTIC_IDENTITY_SELF_TEST_PASS|8 mutation checks|DEV_ONLY|no_certificate_migration
+2026-11-04T18:50:12.6248729Z 
+2026-11-04T18:50:12.6302726Z > Task :app:lintAnalyzeReleaseUnitTest
+2026-11-04T18:50:13.6252475Z 
+2026-11-04T18:50:13.6253312Z > Task :app:compileDebugUnitTestJavaWithJavac
+2026-11-04T18:50:13.6254183Z Note: Some input files use unchecked or unsafe operations.
+2026-11-04T18:50:13.6254999Z Note: Recompile with -Xlint:unchecked for details.
+2026-11-04T18:50:15.5272234Z 
+2026-11-04T18:50:15.5302851Z > Task :app:lintAnalyzeRelease
+2026-11-04T18:50:44.3249356Z > Task :app:testDebugUnitTest
+2026-11-04T18:58:27.7262878Z > Task :app:preDebugAndroidTestBuild SKIPPED
+2026-11-04T18:58:27.7352492Z > Task :app:generateDebugAndroidTestResValues FROM-CACHE
+2026-11-04T18:58:27.7382605Z > Task :app:prepareRawUpstreamAndroidTestHarness
+2026-11-04T18:58:27.8247954Z 
+2026-11-04T18:58:27.8248976Z > Task :app:lintReportRelease
+2026-11-04T18:58:27.8250942Z Lint found no new issues (and 51 errors filtered by baseline lint-baseline.xml)
+2026-11-04T18:58:27.8254614Z 
+2026-11-04T18:58:34.6275351Z 7 errors/warnings were listed in the baseline file (/home/runner/work/starcore-public-build/starcore-public-build/app/lint-baseline.xml) but not found in the project; perhaps they have been fixed?
+2026-11-04T18:58:34.6276651Z 
+2026-11-04T18:58:34.6292728Z > Task :app:generateDebugAndroidTestLintModel
+2026-11-04T18:58:34.6339617Z > Task :app:lintRelease
+2026-11-04T18:58:34.6362662Z > Task :app:verifyCanonicalPlanBuildCP3
+2026-11-04T18:58:34.6363526Z > Task :app:generateDebugLintReportModel
+2026-11-04T18:58:34.6364292Z > Task :app:generateDebugUnitTestLintModel
+2026-11-04T18:58:36.1272843Z > Task :app:configureCMakeRelWithDebInfo[arm64-v8a]
+2026-11-04T18:58:46.5262639Z > Task :app:lintAnalyzeDebugAndroidTest
+2026-11-04T18:58:47.2272636Z > Task :app:lintAnalyzeDebugUnitTest
+2026-11-04T18:59:04.6249223Z > Task :app:lintAnalyzeDebug
+2026-11-04T18:59:06.1268929Z > Task :app:buildCMakeRelWithDebInfo[arm64-v8a]
+2026-11-04T18:59:08.8352971Z > Task :app:configureCMakeRelWithDebInfo[armeabi-v7a]
+2026-11-04T18:59:37.3253103Z > Task :app:buildCMakeRelWithDebInfo[armeabi-v7a]
+2026-11-04T18:59:37.5323461Z > Task :app:configureCMakeRelWithDebInfo[x86_64]
+2026-11-04T19:00:05.0283542Z > Task :app:buildCMakeRelWithDebInfo[x86_64]
+2026-11-04T19:00:05.0312701Z > Task :app:mergeReleaseJniLibFolders
+2026-11-04T19:00:05.0328001Z 
+2026-11-04T19:00:05.0362048Z > Task :app:lintReportDebug
+2026-11-04T19:00:05.0372531Z Lint found no new issues (and 51 errors filtered by baseline lint-baseline.xml)
+2026-11-04T19:00:05.0392345Z 
+2026-11-04T19:00:05.0394120Z 7 errors/warnings were listed in the baseline file (/home/runner/work/starcore-public-build/starcore-public-build/app/lint-baseline.xml) but not found in the project; perhaps they have been fixed?
+2026-11-04T19:00:05.1248613Z 
+2026-11-04T19:00:05.1249444Z > Task :app:lintDebug
+2026-11-04T19:00:05.1250260Z > Task :app:mergeReleaseArtProfile
+2026-11-04T19:00:05.1251147Z > Task :app:checkReleaseDuplicateClasses
+2026-11-04T19:00:05.1252233Z > Task :app:mergeReleaseNativeLibs
+2026-11-04T19:00:08.8293387Z > Task :app:expandReleaseL8ArtProfileWildcards
+2026-11-04T19:00:08.9248632Z > Task :app:stripReleaseDebugSymbols
+2026-11-04T19:00:38.8272843Z > Task :app:dexBuilderRelease
+2026-11-04T19:00:56.2272865Z > Task :app:desugarReleaseFileDependencies
+2026-11-04T19:00:56.2273774Z > Task :app:mergeReleaseStartupProfile
+2026-11-04T19:00:56.3292488Z > Task :app:mergeReleaseShaders
+2026-11-04T19:00:56.3352268Z > Task :app:compileReleaseShaders NO-SOURCE
+2026-11-04T19:00:56.3367746Z > Task :app:generateReleaseAssets UP-TO-DATE
+2026-11-04T19:00:56.3412035Z > Task :app:mergeReleaseGlobalSynthetics
+2026-11-04T19:00:56.3472027Z > Task :app:mergeExtDexRelease
+2026-11-04T19:00:56.5288268Z > Task :app:mergeReleaseAssets
+2026-11-04T19:00:56.7293125Z > Task :app:extractReleaseNativeSymbolTables
+2026-11-04T19:00:57.0262545Z > Task :app:extractReleaseVersionControlInfo
+2026-11-04T19:00:57.1291111Z > Task :app:generateReleaseLintVitalReportModel
+2026-11-04T19:00:57.4252666Z > Task :app:mergeReleaseNativeDebugMetadata
+2026-11-04T19:00:57.4312482Z > Task :app:processReleaseJavaRes NO-SOURCE
+2026-11-04T19:00:58.2270767Z > Task :app:mergeReleaseJavaResource
+2026-11-04T19:00:58.2342400Z > Task :app:optimizeReleaseResources
+2026-11-04T19:00:58.3292708Z > Task :app:collectReleaseDependencies
+2026-11-04T19:00:58.4253512Z > Task :app:sdkReleaseDependencyData
+2026-11-04T19:00:58.4312515Z > Task :app:validateSigningRelease
+2026-11-04T19:00:58.4352179Z > Task :app:writeReleaseAppMetadata
+2026-11-04T19:00:58.5252791Z > Task :app:writeReleaseSigningConfigVersions
+2026-11-04T19:00:58.5312564Z > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+2026-11-04T19:00:58.5357111Z > Task :app:mergeDebugShaders
+2026-11-04T19:00:58.5370455Z > Task :app:compileDebugShaders NO-SOURCE
+2026-11-04T19:00:58.5450362Z > Task :app:generateDebugAssets UP-TO-DATE
+2026-11-04T19:00:58.8251730Z > Task :app:mergeDebugAssets
+2026-11-04T19:00:58.8272306Z > Task :app:compressReleaseAssets
+2026-11-04T19:01:00.3272778Z > Task :app:compressDebugAssets
+2026-11-04T19:01:00.3293283Z > Task :app:desugarDebugFileDependencies
+2026-11-04T19:01:17.0255019Z > Task :app:l8DexDesugarLibDebug
+2026-11-04T19:01:19.1260426Z > Task :app:lintVitalAnalyzeRelease
+2026-11-04T19:01:19.2248726Z > Task :app:mergeDexRelease
+2026-11-04T19:01:30.3262794Z > Task :app:dexBuilderDebug
+2026-11-04T19:01:44.8253505Z > Task :app:lintVitalReportRelease SKIPPED
+2026-11-04T19:01:44.8272352Z > Task :app:lintVitalRelease SKIPPED
+2026-11-04T19:01:44.8302160Z > Task :app:mergeDebugGlobalSynthetics
+2026-11-04T19:01:44.8312210Z > Task :app:mergeDebugJavaResource
+2026-11-04T19:01:44.8332180Z > Task :app:checkDebugDuplicateClasses
+2026-11-04T19:01:45.2262782Z > Task :app:configureCMakeDebug[arm64-v8a]
+2026-11-04T19:01:45.2362698Z > Task :app:mergeExtDexDebug
+2026-11-04T19:01:45.2422495Z > Task :app:mergeLibDexDebug
+2026-11-04T19:01:56.0292713Z > Task :app:mergeProjectDexDebug
+2026-11-04T19:02:08.3286828Z > Task :app:l8DexDesugarLibRelease
+2026-11-04T19:02:15.2247989Z > Task :app:buildCMakeDebug[arm64-v8a]
+2026-11-04T19:02:17.9272886Z > Task :app:compileReleaseArtProfile
+2026-11-04T19:02:18.2332859Z > Task :app:configureCMakeDebug[armeabi-v7a]
+2026-11-04T19:02:41.1248023Z > Task :app:buildCMakeDebug[armeabi-v7a]
+2026-11-04T19:02:41.3263479Z > Task :app:configureCMakeDebug[x86_64]
+2026-11-04T19:02:47.9248418Z > Task :app:packageRelease
+2026-11-04T19:03:04.2263131Z > Task :app:buildCMakeDebug[x86_64]
+2026-11-04T19:03:04.3283365Z > Task :app:mergeDebugJniLibFolders
+2026-11-04T19:03:04.3352610Z > Task :app:validateSigningDebug
+2026-11-04T19:03:04.3372485Z > Task :app:writeDebugAppMetadata
+2026-11-04T19:03:04.3402340Z > Task :app:writeDebugSigningConfigVersions
+2026-11-04T19:03:04.3422198Z > Task :app:mergeDebugNativeLibs
+2026-11-04T19:03:04.4252733Z > Task :app:processDebugAndroidTestManifest
+2026-11-04T19:03:04.4253522Z > Task :app:generateDebugAndroidTestBuildConfig
+2026-11-04T19:03:04.4254277Z > Task :app:javaPreCompileDebugAndroidTest FROM-CACHE
+2026-11-04T19:03:04.4255020Z > Task :app:checkDebugAndroidTestAarMetadata
+2026-11-04T19:03:04.4255640Z > Task :app:stripDebugDebugSymbols
+2026-11-04T19:03:04.5292840Z > Task :app:createReleaseApkListingFileRedirect
+2026-11-04T19:03:04.5350729Z > Task :app:assembleRelease
+2026-11-04T19:03:04.5372196Z > Task :app:mapDebugAndroidTestSourceSetPaths
+2026-11-04T19:03:04.5432115Z > Task :app:generateDebugAndroidTestResources
+2026-11-04T19:03:04.5464113Z > Task :app:mergeDebugAndroidTestShaders
+2026-11-04T19:03:04.5492266Z > Task :app:compileDebugAndroidTestShaders NO-SOURCE
+2026-11-04T19:03:04.5552146Z > Task :app:generateDebugAndroidTestAssets UP-TO-DATE
+2026-11-04T19:03:04.6248855Z > Task :app:mergeDebugAndroidTestResources
+2026-11-04T19:03:04.6254572Z > Task :app:mergeDebugAndroidTestAssets
+2026-11-04T19:03:04.8248189Z > Task :app:compressDebugAndroidTestAssets
+2026-11-04T19:03:04.9247979Z > Task :app:processDebugAndroidTestResources
+2026-11-04T19:03:05.1265055Z > Task :app:desugarDebugAndroidTestFileDependencies
+2026-11-04T19:03:06.9247409Z 
+2026-11-04T19:03:06.9272448Z > Task :app:compileDebugAndroidTestJavaWithJavac
+2026-11-04T19:03:06.9273362Z Note: Some input files use or override a deprecated API.
+2026-11-04T19:03:06.9274160Z Note: Recompile with -Xlint:deprecation for details.
+2026-11-04T19:03:08.9247112Z 
+2026-11-04T19:03:08.9249221Z > Task :app:dexBuilderDebugAndroidTest
+2026-11-04T19:03:16.9254816Z > Task :app:mergeDebugAndroidTestGlobalSynthetics FROM-CACHE
+2026-11-04T19:03:16.9265712Z > Task :app:processDebugAndroidTestJavaRes NO-SOURCE
+2026-11-04T19:03:17.0262783Z > Task :app:checkDebugAndroidTestDuplicateClasses
+2026-11-04T19:03:17.1248667Z > Task :app:packageDebug
+2026-11-04T19:03:17.1249485Z > Task :app:createDebugApkListingFileRedirect
+2026-11-04T19:03:17.1250310Z > Task :app:assembleDebug
+2026-11-04T19:03:17.1251119Z > Task :app:mergeLibDexDebugAndroidTest FROM-CACHE
+2026-11-04T19:03:17.3252818Z > Task :app:mergeDebugAndroidTestJniLibFolders
+2026-11-04T19:03:17.3272086Z > Task :app:mergeDebugAndroidTestJavaResource
+2026-11-04T19:03:17.4252780Z > Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
+2026-11-04T19:03:17.4272630Z > Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
+2026-11-04T19:03:17.4273453Z > Task :app:validateSigningDebugAndroidTest
+2026-11-04T19:03:17.5251869Z > Task :app:writeDebugAndroidTestSigningConfigVersions
+2026-11-04T19:03:17.5272483Z > Task :app:mergeProjectDexDebugAndroidTest
+2026-11-04T19:03:18.3254794Z > Task :app:mergeExtDexDebugAndroidTest
+2026-11-04T19:03:18.5247661Z > Task :app:packageDebugAndroidTest
+2026-11-04T19:03:18.5248866Z > Task :app:createDebugAndroidTestApkListingFileRedirect
+2026-11-04T19:03:18.5249531Z > Task :app:assembleDebugAndroidTest
+2026-11-04T19:03:19.2248557Z > Task :app:verifyFinalR31BuildIdentity
+2026-11-04T19:03:20.0247379Z 
+2026-11-04T19:03:20.0248140Z > Task :app:verifyFinalR815Provenance
+2026-11-04T19:03:20.0251303Z R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=543a488b625fe0d243d921eba749e1e8b7786efed8cef37ba0a710d7192c4063|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=3e071b5d0d89f697231f507295f6a723be04439e3d60b50fffed9841b2094f8c|GENERATED_AT=2026-11-04T18:42:33Z
+2026-11-04T19:03:21.0251334Z 
+2026-11-04T19:03:21.0252824Z > Task :app:verifyFinalR967Semantics
+2026-11-04T19:03:21.0254416Z R967_SEMANTIC_IDENTITY_VERIFIED|aa006d8f43ef2f858f42ea55213df9ec9db260b86bbca27063d13bc1609c4c85
+2026-11-04T19:03:21.0255410Z 
+2026-11-04T19:03:21.0256950Z [Incubating] Problems report is available at: file:///home/runner/work/starcore-public-build/starcore-public-build/build/reports/problems/problems-report.html
+2026-11-04T19:03:21.0258401Z 
+2026-11-04T19:03:21.0259264Z Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+2026-11-04T19:03:21.0260193Z 
+2026-11-04T19:03:21.0261405Z You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+2026-11-04T19:03:21.0262876Z 
+2026-11-04T19:03:21.0264313Z For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+2026-11-04T19:03:21.0265743Z 
+2026-11-04T19:03:21.0266267Z BUILD SUCCESSFUL in 14m 31s
+2026-11-04T19:03:21.0267372Z 159 actionable tasks: 133 executed, 10 from cache, 16 up-to-date
+2026-11-04T19:03:21.4226814Z ##[group]Run python3 - <<'PY'
+2026-11-04T19:03:21.4227166Z [36;1mpython3 - <<'PY'[0m
+2026-11-04T19:03:21.4227536Z [36;1mimport json,os,pathlib,shutil,xml.etree.ElementTree as ET[0m
+2026-11-04T19:03:21.4228022Z [36;1mout=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-evidence'[0m
+2026-11-04T19:03:21.4228423Z [36;1mout.mkdir(parents=True,exist_ok=True)[0m
+2026-11-04T19:03:21.4228933Z [36;1mfiles=sorted(pathlib.Path('app/build/test-results/testDebugUnitTest').glob('TEST-*.xml'))[0m
+2026-11-04T19:03:21.4229461Z [36;1mrows=[ET.parse(f).getroot() for f in files][0m
+2026-11-04T19:03:21.4229980Z [36;1mtotals={k:sum(int(row.get(k,'0')) for row in rows) for k in ('tests','failures','errors','skipped')}[0m
+2026-11-04T19:03:21.4230477Z [36;1mxmlout=out/'unit-xml'[0m
+2026-11-04T19:03:21.4230750Z [36;1mxmlout.mkdir(exist_ok=True)[0m
+2026-11-04T19:03:21.4231128Z [36;1mfor f in files:shutil.copy2(f,xmlout/f.name)[0m
+2026-11-04T19:03:21.4232191Z [36;1mstate='NOT_RUN' if not files else 'PASS' if totals['tests']>0 and totals['failures']==totals['errors']==totals['skipped']==0 else 'FAILED_OR_INCOMPLETE'[0m
+2026-11-04T19:03:21.4233578Z [36;1m(out/'unit-execution-observation.json').write_text(json.dumps({'scope':'ACTUAL_HOST_XML_ONLY_NOT_DEVICE_OR_BUSINESS_ACCEPTANCE','state':state,'build_checks_outcome':os.environ['R31_BUILD_CHECKS_OUTCOME'],'suites':len(files),**totals},indent=2)+'\n')[0m
+2026-11-04T19:03:21.4234562Z [36;1mPY[0m
+2026-11-04T19:03:21.4264420Z shell: /usr/bin/bash -e {0}
+2026-11-04T19:03:21.4264687Z env:
+2026-11-04T19:03:21.4265007Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T19:03:21.4265698Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T19:03:21.4266168Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:03:21.4266611Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-11-04T19:03:21.4267057Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:03:21.4267451Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:03:21.4267845Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:03:21.4268241Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-11-04T19:03:21.4268672Z   R13_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T19:03:21.4269139Z   R13_SIGNING_PASSWORD: ***
+2026-11-04T19:03:21.4269576Z   R13_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T19:03:21.4270077Z   R29_SIGNING: EXISTING_R27_CI_NOT_OFFICIAL_R13
+2026-11-04T19:03:21.4270423Z   DUOQU_API_KEY: ***
+2026-11-04T19:03:21.4270770Z   STARCORE_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T19:03:21.4271237Z   STARCORE_SIGNING_PASSWORD: ***
+2026-11-04T19:03:21.4271770Z   STARCORE_SIGNING_KEY_PASSWORD: ***
+2026-11-04T19:03:21.4272062Z   STARCORE_SIGNING_ALIAS: starcore-r13
+2026-11-04T19:03:21.4272354Z   STARCORE_SIGNING_TYPE: PKCS12
+2026-11-04T19:03:21.4272810Z   STARCORE_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T19:03:21.4273305Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-11-04T19:03:21.4273627Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-11-04T19:03:21.4274019Z   R31_BUILD_CHECKS_OUTCOME: success
+2026-11-04T19:03:21.4274340Z ##[endgroup]
+2026-11-04T19:03:21.4899874Z ##[group]Run set -euo pipefail
+2026-11-04T19:03:21.4900248Z [36;1mset -euo pipefail[0m
+2026-11-04T19:03:21.4900593Z [36;1mmkdir -p "$RUNNER_TEMP/r31-evidence/validation-apks"[0m
+2026-11-04T19:03:21.4911740Z [36;1mfor r31_variant in release debug; do[0m
+2026-11-04T19:03:21.4912363Z [36;1m  r31_apk=$(find "app/build/outputs/apk/$r31_variant" -maxdepth 1 -name '*.apk' -print -quit)[0m
+2026-11-04T19:03:21.4912870Z [36;1m  test -n "$r31_apk"[0m
+2026-11-04T19:03:21.4914064Z [36;1m  python3 tools/r31/verify_baseline.py --require-clean --apk "$r31_apk" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --expected-cert-sha256 "$R31_EXPECTED_CERT_SHA256" --output "$RUNNER_TEMP/r31-evidence/validation-apks/$r31_variant-identity.json"[0m
+2026-11-04T19:03:21.4915525Z [36;1m  cp "$r31_apk" "$RUNNER_TEMP/r31-evidence/validation-apks/STARCORE-R31-validation-$r31_variant.apk"[0m
+2026-11-04T19:03:21.4916022Z [36;1mdone[0m
+2026-11-04T19:03:21.4916461Z [36;1mr31_test_apk=$(find app/build/outputs/apk/androidTest/debug -name '*.apk' -print -quit)[0m
+2026-11-04T19:03:21.4916945Z [36;1mtest -n "$r31_test_apk"[0m
+2026-11-04T19:03:21.4917446Z [36;1mcp "$r31_test_apk" "$RUNNER_TEMP/r31-evidence/validation-apks/STARCORE-R31-instrumentation-only.apk"[0m
+2026-11-04T19:03:21.4917987Z [36;1mpython3 - <<'PY'[0m
+2026-11-04T19:03:21.4918304Z [36;1mimport hashlib,json,os,pathlib,subprocess[0m
+2026-11-04T19:03:21.4918774Z [36;1mp=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-evidence/validation-apks'[0m
+2026-11-04T19:03:21.4920736Z [36;1md={'scope':'ACTUAL_SIGNED_VALIDATION_BYTES_NOT_FINAL_ENGINEERING_RELEASE','canonical_build_step_outcome':os.environ['R31_BUILD_CHECKS_OUTCOME'],'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'required_remaining':['all legacy native host gates','Android integration jobs','physical device fault matrix','24h and72h real device run'],'natural_quality':'NOT_PROVEN','apks':{f.name:{'bytes':f.stat().st_size,'sha256':hashlib.sha256(f.read_bytes()).hexdigest()} for f in p.glob('*.apk')}}[0m
+2026-11-04T19:03:21.4922990Z [36;1m(p/'VALIDATION-BOUNDARY.json').write_text(json.dumps(d,indent=2)+'\n')[0m
+2026-11-04T19:03:21.4923616Z [36;1mPY[0m
+2026-11-04T19:03:21.4951835Z shell: /usr/bin/bash -e {0}
+2026-11-04T19:03:21.4952110Z env:
+2026-11-04T19:03:21.4952434Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T19:03:21.4952962Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T19:03:21.4953446Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:03:21.4953889Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-11-04T19:03:21.4954340Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:03:21.4954739Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:03:21.4955145Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:03:21.4955569Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-11-04T19:03:21.4955999Z   R13_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T19:03:21.4956474Z   R13_SIGNING_PASSWORD: ***
+2026-11-04T19:03:21.4956919Z   R13_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T19:03:21.4957431Z   R29_SIGNING: EXISTING_R27_CI_NOT_OFFICIAL_R13
+2026-11-04T19:03:21.4957757Z   DUOQU_API_KEY: ***
+2026-11-04T19:03:21.4958101Z   STARCORE_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T19:03:21.4958573Z   STARCORE_SIGNING_PASSWORD: ***
+2026-11-04T19:03:21.4958925Z   STARCORE_SIGNING_KEY_PASSWORD: ***
+2026-11-04T19:03:21.4959225Z   STARCORE_SIGNING_ALIAS: starcore-r13
+2026-11-04T19:03:21.4959517Z   STARCORE_SIGNING_TYPE: PKCS12
+2026-11-04T19:03:21.4959977Z   STARCORE_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T19:03:21.4960672Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-11-04T19:03:21.4960998Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-11-04T19:03:21.4961310Z   R31_BUILD_CHECKS_OUTCOME: success
+2026-11-04T19:03:21.4962047Z   R31_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T19:03:21.4962527Z ##[endgroup]
+2026-11-04T19:03:25.7894935Z ##[group]Run set -euo pipefail
+2026-11-04T19:03:25.7895350Z [36;1mset -euo pipefail[0m
+2026-11-04T19:03:25.7895713Z [36;1mexport GRADLE_USER_HOME="${GRADLE_USER_HOME:-$HOME/.gradle}"[0m
+2026-11-04T19:03:25.7896117Z [36;1mrepair_deps=$(mktemp -d)[0m
+2026-11-04T19:03:25.7896414Z [36;1mtrap 'rm -rf "$repair_deps"' EXIT[0m
+2026-11-04T19:03:25.7896775Z [36;1mexport SQLITE_JDBC="$repair_deps/sqlite-jdbc.jar"[0m
+2026-11-04T19:03:25.7897593Z [36;1mcurl -fLsS --connect-timeout 15 --max-time 90 -o "$SQLITE_JDBC" https://repo.maven.apache.org/maven2/org/xerial/sqlite-jdbc/3.46.1.3/sqlite-jdbc-3.46.1.3.jar[0m
+2026-11-04T19:03:25.7898606Z [36;1mprintf '%s  %s\n' 4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa "$SQLITE_JDBC" | sha256sum -c -[0m
+2026-11-04T19:03:25.7899379Z [36;1m# Isolate legacy test outputs, while reading this exact build's actual compiled classes.[0m
+2026-11-04T19:03:25.7900046Z [36;1mgit worktree add --detach "$RUNNER_TEMP/r31-host-source" "$(git rev-parse HEAD)"[0m
+2026-11-04T19:03:25.7900881Z [36;1mfor r31_baseline in 5237b265a27fe5ad27fd842901c445d5f8c27749 b225ab204db043b347f9d76d6c5c1376fd9a2590 31fea28c5723ac70e47ae4cc7542344b16fb3f91; do[0m
+2026-11-04T19:03:25.7902004Z [36;1m  if ! git -C "$RUNNER_TEMP/r31-host-source" cat-file -e "$r31_baseline^{commit}"; then[0m
+2026-11-04T19:03:25.7902500Z [36;1m    git fetch --no-tags origin "$r31_baseline"[0m
+2026-11-04T19:03:25.7902814Z [36;1m  fi[0m
+2026-11-04T19:03:25.7903160Z [36;1m  git -C "$RUNNER_TEMP/r31-host-source" cat-file -e "$r31_baseline^{commit}"[0m
+2026-11-04T19:03:25.7903561Z [36;1mdone[0m
+2026-11-04T19:03:25.7903830Z [36;1mrm -rf "$RUNNER_TEMP/r31-host-source/app/build"[0m
+2026-11-04T19:03:25.7904286Z [36;1mln -s "$GITHUB_WORKSPACE/app/build" "$RUNNER_TEMP/r31-host-source/app/build"[0m
+2026-11-04T19:03:25.7904725Z [36;1mcd "$RUNNER_TEMP/r31-host-source"[0m
+2026-11-04T19:03:25.7905849Z [36;1mtrap 'r31_status=$?; echo "FAILED_HOST_CHECK:${r31_check:-SETUP}"; for r31_log in "$RUNNER_TEMP"/r31-evidence/repair-*.log; do if [ -f "$r31_log" ]; then echo "FAILED_CHECK_LOG:$r31_log"; tail -n 100 "$r31_log"; fi; done; exit "$r31_status"' ERR[0m
+2026-11-04T19:03:25.7906773Z [36;1mr31_host_failed=0[0m
+2026-11-04T19:03:25.7907434Z [36;1mfor r31_check in diagnosis writer retention timeline commit_failure progress neural qualification input_pin matrix research observatory snapshot; do[0m
+2026-11-04T19:03:25.7908133Z [36;1m  echo "R31_HOST_START:$r31_check"[0m
+2026-11-04T19:03:25.7908697Z [36;1m  if python3 "tools/r30-repair/run_$r31_check""_host.py" > "$RUNNER_TEMP/r31-evidence/repair-$r31_check.log" 2>&1; then[0m
+2026-11-04T19:03:25.7909265Z [36;1m    echo "R31_HOST_PASS:$r31_check"[0m
+2026-11-04T19:03:25.7909552Z [36;1m  else[0m
+2026-11-04T19:03:25.7909792Z [36;1m    r31_status=$?; r31_host_failed=1[0m
+2026-11-04T19:03:25.7910138Z [36;1m    echo "R31_HOST_FAIL:$r31_check:exit=$r31_status"[0m
+2026-11-04T19:03:25.7910466Z [36;1m  fi[0m
+2026-11-04T19:03:25.7910671Z [36;1mdone[0m
+2026-11-04T19:03:25.7911066Z [36;1mfor r31_check in memory pitguard_allocation runtime_memory_control resource_recovery; do[0m
+2026-11-04T19:03:25.7911799Z [36;1m  echo "R31_HOST_START:R31_$r31_check"[0m
+2026-11-04T19:03:25.7912347Z [36;1m  if python3 "tools/r31/verify_$r31_check.py" > "$RUNNER_TEMP/r31-evidence/repair-r31-$r31_check.log" 2>&1; then[0m
+2026-11-04T19:03:25.7912901Z [36;1m    echo "R31_HOST_PASS:R31_$r31_check"[0m
+2026-11-04T19:03:25.7913189Z [36;1m  else[0m
+2026-11-04T19:03:25.7913418Z [36;1m    r31_status=$?; r31_host_failed=1[0m
+2026-11-04T19:03:25.7913774Z [36;1m    echo "R31_HOST_FAIL:R31_$r31_check:exit=$r31_status"[0m
+2026-11-04T19:03:25.7914104Z [36;1m  fi[0m
+2026-11-04T19:03:25.7914304Z [36;1mdone[0m
+2026-11-04T19:03:25.7914710Z [36;1mfor r31_check in task_runtime write_protocol service_protocol runtime_ddl research_schema; do[0m
+2026-11-04T19:03:25.7915214Z [36;1m  echo "R31_HOST_START:R31_$r31_check"[0m
+2026-11-04T19:03:25.7915933Z [36;1m  if python3 "tools/r31/run_$r31_check""_host.py" > "$RUNNER_TEMP/r31-evidence/repair-r31-$r31_check.log" 2>&1; then[0m
+2026-11-04T19:03:25.7916493Z [36;1m    echo "R31_HOST_PASS:R31_$r31_check"[0m
+2026-11-04T19:03:25.7916782Z [36;1m  else[0m
+2026-11-04T19:03:25.7917012Z [36;1m    r31_status=$?; r31_host_failed=1[0m
+2026-11-04T19:03:25.7917364Z [36;1m    echo "R31_HOST_FAIL:R31_$r31_check:exit=$r31_status"[0m
+2026-11-04T19:03:25.7917694Z [36;1m  fi[0m
+2026-11-04T19:03:25.7917889Z [36;1mdone[0m
+2026-11-04T19:03:25.7918263Z [36;1mfor r31_runtime_case in R31RuntimeHealthHost R31ResourceRecoveryConsumerHost; do[0m
+2026-11-04T19:03:25.7918748Z [36;1m  echo "R31_HOST_START:$r31_runtime_case"[0m
+2026-11-04T19:03:25.7919670Z [36;1m  if R31_RUNTIME_HOST_CLASS="$r31_runtime_case" R31_RUNTIME_OUTPUT="verification/r31/ci-scoped-$r31_runtime_case" python3 tools/r31/run_task_runtime_host.py > "$RUNNER_TEMP/r31-evidence/repair-$r31_runtime_case.log" 2>&1; then[0m
+2026-11-04T19:03:25.7920616Z [36;1m    echo "R31_HOST_PASS:$r31_runtime_case"[0m
+2026-11-04T19:03:25.7920915Z [36;1m  else[0m
+2026-11-04T19:03:25.7921144Z [36;1m    r31_status=$?; r31_host_failed=1[0m
+2026-11-04T19:03:25.7921774Z [36;1m    echo "R31_HOST_FAIL:$r31_runtime_case:exit=$r31_status"[0m
+2026-11-04T19:03:25.7922127Z [36;1m  fi[0m
+2026-11-04T19:03:25.7922329Z [36;1mdone[0m
+2026-11-04T19:03:25.7922626Z [36;1mmkdir -p "$RUNNER_TEMP/r31-evidence/r31-scoped-memory"[0m
+2026-11-04T19:03:25.7924562Z [36;1mfor r31_receipt_dir in verification/r31/memory verification/r31/p02/pitguard-allocation verification/r31/p02/runtime-memory-control verification/r31/p02/resource-recovery verification/r31/p01/task-runtime verification/r31/p02/service-protocol verification/r31/p01/write-protocol verification/r31/p02/runtime-ddl-hotspots verification/r31/p02/research-schema verification/r31/ci-scoped-R31RuntimeHealthHost verification/r31/ci-scoped-R31ResourceRecoveryConsumerHost; do[0m
+2026-11-04T19:03:25.7926802Z [36;1m  if [ -d "$r31_receipt_dir" ]; then cp -a "$r31_receipt_dir" "$RUNNER_TEMP/r31-evidence/r31-scoped-memory/"; fi[0m
+2026-11-04T19:03:25.7927299Z [36;1mdone[0m
+2026-11-04T19:03:25.7927537Z [36;1mif [ "$r31_host_failed" -ne 0 ]; then[0m
+2026-11-04T19:03:25.7927929Z [36;1m  echo R31_HOST_MATRIX_HAS_REAL_FAILURES_OTHER_CHECKS_EXECUTED[0m
+2026-11-04T19:03:25.7928300Z [36;1m  exit 1[0m
+2026-11-04T19:03:25.7928513Z [36;1mfi[0m
+2026-11-04T19:03:25.7958749Z shell: /usr/bin/bash -e {0}
+2026-11-04T19:03:25.7959017Z env:
+2026-11-04T19:03:25.7959354Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T19:03:25.7959886Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T19:03:25.7960360Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:03:25.7960814Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-11-04T19:03:25.7961243Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:03:25.7961940Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:03:25.7962353Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:03:25.7962756Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-11-04T19:03:25.7963189Z   R13_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T19:03:25.7963667Z   R13_SIGNING_PASSWORD: ***
+2026-11-04T19:03:25.7964112Z   R13_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T19:03:25.7964623Z   R29_SIGNING: EXISTING_R27_CI_NOT_OFFICIAL_R13
+2026-11-04T19:03:25.7964953Z   DUOQU_API_KEY: ***
+2026-11-04T19:03:25.7965291Z   STARCORE_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T19:03:25.7965769Z   STARCORE_SIGNING_PASSWORD: ***
+2026-11-04T19:03:25.7966121Z   STARCORE_SIGNING_KEY_PASSWORD: ***
+2026-11-04T19:03:25.7966413Z   STARCORE_SIGNING_ALIAS: starcore-r13
+2026-11-04T19:03:25.7966710Z   STARCORE_SIGNING_TYPE: PKCS12
+2026-11-04T19:03:25.7967331Z   STARCORE_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T19:03:25.7967857Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-11-04T19:03:25.7968168Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-11-04T19:03:25.7968460Z ##[endgroup]
+2026-11-04T19:03:26.2669715Z /tmp/tmp.8vmMlzInsE/sqlite-jdbc.jar: OK
+2026-11-04T19:03:26.2713638Z Preparing worktree (detached HEAD 961a6b8a)
+2026-11-04T19:03:27.2912407Z Updating files:  31% (3608/11451)
+2026-11-04T19:03:27.3040147Z Updating files:  32% (3665/11451)
+2026-11-04T19:03:27.3131524Z Updating files:  33% (3779/11451)
+2026-11-04T19:03:27.3214682Z Updating files:  34% (3894/11451)
+2026-11-04T19:03:27.3289767Z Updating files:  35% (4008/11451)
+2026-11-04T19:03:27.3350873Z Updating files:  36% (4123/11451)
+2026-11-04T19:03:27.3499527Z Updating files:  37% (4237/11451)
+2026-11-04T19:03:27.3730956Z Updating files:  38% (4352/11451)
+2026-11-04T19:03:27.3805862Z Updating files:  39% (4466/11451)
+2026-11-04T19:03:27.3866797Z Updating files:  40% (4581/11451)
+2026-11-04T19:03:27.3923629Z Updating files:  41% (4695/11451)
+2026-11-04T19:03:27.3969112Z Updating files:  42% (4810/11451)
+2026-11-04T19:03:27.4013035Z Updating files:  43% (4924/11451)
+2026-11-04T19:03:27.4051549Z Updating files:  44% (5039/11451)
+2026-11-04T19:03:27.4114825Z Updating files:  45% (5153/11451)
+2026-11-04T19:03:27.4261770Z Updating files:  46% (5268/11451)
+2026-11-04T19:03:27.4734091Z Updating files:  47% (5382/11451)
+2026-11-04T19:03:27.4799873Z Updating files:  48% (5497/11451)
+2026-11-04T19:03:27.4874246Z Updating files:  49% (5611/11451)
+2026-11-04T19:03:27.4952210Z Updating files:  50% (5726/11451)
+2026-11-04T19:03:27.5055733Z Updating files:  51% (5841/11451)
+2026-11-04T19:03:27.6892112Z Updating files:  52% (5955/11451)
+2026-11-04T19:03:27.7513002Z Updating files:  53% (6070/11451)
+2026-11-04T19:03:27.7569113Z Updating files:  54% (6184/11451)
+2026-11-04T19:03:27.7650530Z Updating files:  55% (6299/11451)
+2026-11-04T19:03:27.7767871Z Updating files:  56% (6413/11451)
+2026-11-04T19:03:27.7816715Z Updating files:  57% (6528/11451)
+2026-11-04T19:03:27.7882550Z Updating files:  58% (6642/11451)
+2026-11-04T19:03:27.7977875Z Updating files:  59% (6757/11451)
+2026-11-04T19:03:27.8091986Z Updating files:  60% (6871/11451)
+2026-11-04T19:03:27.8438394Z Updating files:  61% (6986/11451)
+2026-11-04T19:03:27.8514301Z Updating files:  62% (7100/11451)
+2026-11-04T19:03:27.8566691Z Updating files:  63% (7215/11451)
+2026-11-04T19:03:27.8621829Z Updating files:  64% (7329/11451)
+2026-11-04T19:03:27.8724851Z Updating files:  65% (7444/11451)
+2026-11-04T19:03:27.8797344Z Updating files:  66% (7558/11451)
+2026-11-04T19:03:27.8876861Z Updating files:  67% (7673/11451)
+2026-11-04T19:03:27.8924068Z Updating files:  68% (7787/11451)
+2026-11-04T19:03:27.8979777Z Updating files:  69% (7902/11451)
+2026-11-04T19:03:27.9034989Z Updating files:  70% (8016/11451)
+2026-11-04T19:03:27.9105238Z Updating files:  71% (8131/11451)
+2026-11-04T19:03:27.9155521Z Updating files:  72% (8245/11451)
+2026-11-04T19:03:27.9227821Z Updating files:  73% (8360/11451)
+2026-11-04T19:03:27.9807582Z Updating files:  74% (8474/11451)
+2026-11-04T19:03:27.9874062Z Updating files:  75% (8589/11451)
+2026-11-04T19:03:28.0040627Z Updating files:  76% (8703/11451)
+2026-11-04T19:03:28.0119174Z Updating files:  77% (8818/11451)
+2026-11-04T19:03:28.0188816Z Updating files:  78% (8932/11451)
+2026-11-04T19:03:28.0285508Z Updating files:  79% (9047/11451)
+2026-11-04T19:03:28.0351583Z Updating files:  80% (9161/11451)
+2026-11-04T19:03:28.0420131Z Updating files:  81% (9276/11451)
+2026-11-04T19:03:28.0479101Z Updating files:  82% (9390/11451)
+2026-11-04T19:03:28.0528004Z Updating files:  83% (9505/11451)
+2026-11-04T19:03:28.0598911Z Updating files:  84% (9619/11451)
+2026-11-04T19:03:28.0676379Z Updating files:  85% (9734/11451)
+2026-11-04T19:03:28.0724342Z Updating files:  86% (9848/11451)
+2026-11-04T19:03:28.0777955Z Updating files:  87% (9963/11451)
+2026-11-04T19:03:28.0827042Z Updating files:  88% (10077/11451)
+2026-11-04T19:03:28.0886319Z Updating files:  89% (10192/11451)
+2026-11-04T19:03:28.0942069Z Updating files:  90% (10306/11451)
+2026-11-04T19:03:28.1010875Z Updating files:  91% (10421/11451)
+2026-11-04T19:03:28.1086345Z Updating files:  92% (10535/11451)
+2026-11-04T19:03:28.1184271Z Updating files:  93% (10650/11451)
+2026-11-04T19:03:28.1238924Z Updating files:  94% (10764/11451)
+2026-11-04T19:03:28.1427496Z Updating files:  95% (10879/11451)
+2026-11-04T19:03:28.1484370Z Updating files:  96% (10993/11451)
+2026-11-04T19:03:28.1913432Z Updating files:  97% (11108/11451)
+2026-11-04T19:03:28.1971644Z Updating files:  98% (11222/11451)
+2026-11-04T19:03:28.2103816Z Updating files:  99% (11337/11451)
+2026-11-04T19:03:28.2104261Z Updating files: 100% (11451/11451)
+2026-11-04T19:03:28.2104672Z Updating files: 100% (11451/11451), done.
+2026-11-04T19:03:28.2205394Z HEAD is now at 961a6b8a Freeze R31 014 actual compiled identity and remaining gate ledger
+2026-11-04T19:03:28.2499368Z R31_HOST_START:diagnosis
+2026-11-04T19:03:32.1387112Z R31_HOST_PASS:diagnosis
+2026-11-04T19:03:32.1388149Z R31_HOST_START:writer
+2026-11-04T19:03:41.0986361Z R31_HOST_PASS:writer
+2026-11-04T19:03:41.0986953Z R31_HOST_START:retention
+2026-11-04T19:03:43.8548533Z R31_HOST_PASS:retention
+2026-11-04T19:03:43.8549175Z R31_HOST_START:timeline
+2026-11-04T19:03:47.7527867Z R31_HOST_PASS:timeline
+2026-11-04T19:03:47.7528276Z R31_HOST_START:commit_failure
+2026-11-04T19:03:54.3294484Z R31_HOST_PASS:commit_failure
+2026-11-04T19:03:54.3295289Z R31_HOST_START:progress
+2026-11-04T19:03:56.1582629Z R31_HOST_PASS:progress
+2026-11-04T19:03:56.1583231Z R31_HOST_START:neural
+2026-11-04T19:04:21.8732967Z R31_HOST_PASS:neural
+2026-11-04T19:04:21.8733895Z R31_HOST_START:qualification
+2026-11-04T19:04:31.3719647Z R31_HOST_PASS:qualification
+2026-11-04T19:04:31.3720247Z R31_HOST_START:input_pin
+2026-11-04T19:04:33.8791878Z R31_HOST_PASS:input_pin
+2026-11-04T19:04:33.8792642Z R31_HOST_START:matrix
+2026-11-04T19:04:42.0825299Z R31_HOST_PASS:matrix
+2026-11-04T19:04:42.0825914Z R31_HOST_START:research
+2026-11-04T19:04:47.1662524Z R31_HOST_PASS:research
+2026-11-04T19:04:50.3936618Z R31_HOST_START:observatory
+2026-11-04T19:04:50.3937257Z R31_HOST_PASS:observatory
+2026-11-04T19:04:50.3937783Z R31_HOST_START:snapshot
+2026-11-04T19:04:54.2949863Z R31_HOST_PASS:snapshot
+2026-11-04T19:04:54.2950401Z R31_HOST_START:R31_memory
+2026-11-04T19:05:22.5625931Z R31_HOST_PASS:R31_memory
+2026-11-04T19:05:22.5628441Z R31_HOST_START:R31_pitguard_allocation
+2026-11-04T19:05:24.9277444Z R31_HOST_PASS:R31_pitguard_allocation
+2026-11-04T19:05:24.9278195Z R31_HOST_START:R31_runtime_memory_control
+2026-11-04T19:07:29.9935022Z R31_HOST_PASS:R31_runtime_memory_control
+2026-11-04T19:07:29.9935819Z R31_HOST_START:R31_resource_recovery
+2026-11-04T19:09:32.0726037Z R31_HOST_PASS:R31_resource_recovery
+2026-11-04T19:09:32.0726516Z R31_HOST_START:R31_task_runtime
+2026-11-04T19:09:43.8963217Z R31_HOST_PASS:R31_task_runtime
+2026-11-04T19:09:43.8963816Z R31_HOST_START:R31_write_protocol
+2026-11-04T19:09:53.5972430Z R31_HOST_PASS:R31_write_protocol
+2026-11-04T19:09:53.5973393Z R31_HOST_START:R31_service_protocol
+2026-11-04T19:10:03.6031632Z R31_HOST_PASS:R31_service_protocol
+2026-11-04T19:10:03.6032353Z R31_HOST_START:R31_runtime_ddl
+2026-11-04T19:10:10.8043633Z R31_HOST_PASS:R31_runtime_ddl
+2026-11-04T19:10:10.8044316Z R31_HOST_START:R31_research_schema
+2026-11-04T19:10:17.7662705Z R31_HOST_PASS:R31_research_schema
+2026-11-04T19:10:17.7663613Z R31_HOST_START:R31RuntimeHealthHost
+2026-11-04T19:10:26.6025944Z R31_HOST_PASS:R31RuntimeHealthHost
+2026-11-04T19:10:26.6026495Z R31_HOST_START:R31ResourceRecoveryConsumerHost
+2026-11-04T19:12:33.2741939Z R31_HOST_PASS:R31ResourceRecoveryConsumerHost
+2026-11-04T19:12:33.3006807Z ##[group]Run set -euo pipefail
+2026-11-04T19:12:33.3007251Z [36;1mset -euo pipefail[0m
+2026-11-04T19:12:33.3007576Z [36;1mtest "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE"[0m
+2026-11-04T19:12:33.3007934Z [36;1mgit diff --exit-code[0m
+2026-11-04T19:12:33.3008239Z [36;1mfor variant in release debug; do[0m
+2026-11-04T19:12:33.3008714Z [36;1m  apk=$(find "app/build/outputs/apk/$variant" -maxdepth 1 -name '*.apk' -print -quit)[0m
+2026-11-04T19:12:33.3009172Z [36;1m  test -n "$apk"[0m
+2026-11-04T19:12:33.3010268Z [36;1m  python3 tools/r31/verify_baseline.py --require-clean --apk "$apk" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --expected-cert-sha256 "$R31_EXPECTED_CERT_SHA256" --output "$RUNNER_TEMP/r31-evidence/$variant-r31-identity.json"[0m
+2026-11-04T19:12:33.3011380Z [36;1mdone[0m
+2026-11-04T19:12:33.3011927Z [36;1mpython3 - <<'PY'[0m
+2026-11-04T19:12:33.3012336Z [36;1mimport hashlib,json,os,pathlib,re,shutil,subprocess,zipfile[0m
+2026-11-04T19:12:33.3013107Z [36;1mroot=pathlib.Path('.');evidence=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-evidence';out=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-candidate'[0m
+2026-11-04T19:12:33.3014063Z [36;1msource=os.environ['EXPECTED_SOURCE'];lane=os.environ['R31_SIGNING_LANE'];cert_expected=os.environ['R31_EXPECTED_CERT_SHA256'][0m
+2026-11-04T19:12:33.3014818Z [36;1massert os.environ['R13_EXPECTED_CERT_SHA256']==cert_expected,'WRONG_CERTIFICATE_LANE'[0m
+2026-11-04T19:12:33.3015441Z [36;1massert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==source[0m
+2026-11-04T19:12:33.3016212Z [36;1massert not subprocess.check_output(['git','status','--porcelain','--untracked-files=all'],text=True).strip(),'DIRTY_SOURCE_NO_DELIVERY'[0m
+2026-11-04T19:12:33.3017012Z [36;1mout.mkdir(exist_ok=True);tools=pathlib.Path(os.environ['ANDROID_HOME'])/'build-tools/36.0.0'[0m
+2026-11-04T19:12:33.3017651Z [36;1msource_receipt=json.loads((evidence/'source-receipt.json').read_text());rows=[][0m
+2026-11-04T19:12:33.3018116Z [36;1mfor variant in ('release','debug'):[0m
+2026-11-04T19:12:33.3018555Z [36;1m    identity=json.loads((evidence/(variant+'-r31-identity.json')).read_text())[0m
+2026-11-04T19:12:33.3019291Z [36;1m    assert identity['status']=='PASS' and identity['apk']['status']=='PASS'[0m
+2026-11-04T19:12:33.3019935Z [36;1m    assert identity['identity']['source_dirty'] is False and identity['apk']['embedded_source_dirty'] is False[0m
+2026-11-04T19:12:33.3020740Z [36;1m    assert identity['identity']['source_commit']==source and identity['identity']['source_tree']==source_receipt['sourceTree'][0m
+2026-11-04T19:12:33.3021787Z [36;1m    candidates=list((root/'app/build/outputs/apk'/variant).glob('*.apk'));assert len(candidates)==1,'EXACTLY_ONE_'+variant+'_APK_REQUIRED'[0m
+2026-11-04T19:12:33.3022451Z [36;1m    apk=candidates[0];row=identity['apk'][0m
+2026-11-04T19:12:33.3023009Z [36;1m    assert row['application_id']=='com.starcore.research.r13' and row['certificate_sha256']==[cert_expected][0m
+2026-11-04T19:12:33.3023837Z [36;1m    assert row['version_code']==int(os.environ['EXPECTED_VERSION_CODE']) and row['version_name']==os.environ['EXPECTED_VERSION_NAME'][0m
+2026-11-04T19:12:33.3024660Z [36;1m    assert row['sha256']==hashlib.sha256(apk.read_bytes()).hexdigest() and row['bytes']==apk.stat().st_size[0m
+2026-11-04T19:12:33.3025464Z [36;1m    signature=subprocess.check_output([str(tools/'apksigner'),'verify','--verbose','--print-certs',str(apk)],text=True)[0m
+2026-11-04T19:12:33.3026198Z [36;1m    name='STARCORE-R31-'+lane+'-'+source[:12]+'-'+variant+'.apk';shutil.copy2(apk,out/name)[0m
+2026-11-04T19:12:33.3028778Z [36;1m    record={'apk':name,'lane':lane,'variant':variant,'sourceCommit':source,'sourceTree':source_receipt['sourceTree'],'sourceArchive':source_receipt['sourceArchive'],'package':row['application_id'],'versionCode':row['version_code'],'versionName':row['version_name'],'certificateSha256':cert_expected,'sha256':row['sha256'],'bytes':row['bytes'],'abis':row['abis'],'embeddedSourceDirty':False,'r31IdentityEvidence':variant+'-r31-identity.json','artifactRole':'BUILT_EXACT_SOURCE_PENDING_ANDROID_GATES','overall':'BUILD_PASS_ACCEPTANCE_SEPARATE','physicalDevice':'NOT_RUN','device24h':'NOT_RUN','device72h':'NOT_RUN','naturalQuality':'NOT_PROVEN'}[0m
+2026-11-04T19:12:33.3031114Z [36;1m    rows.append(record)[0m
+2026-11-04T19:12:33.3031662Z [36;1m    (out/(variant+'-public-certificate.txt')).write_text(signature)[0m
+2026-11-04T19:12:33.3032345Z [36;1m    shutil.copy2(evidence/(variant+'-r31-identity.json'),out/(variant+'-r31-identity.json'))[0m
+2026-11-04T19:12:33.3033155Z [36;1mtest_apks=list((root/'app/build/outputs/apk/androidTest/debug').glob('*.apk'));assert len(test_apks)==1,'EXACTLY_ONE_TEST_APK_REQUIRED'[0m
+2026-11-04T19:12:33.3033774Z [36;1mtest_apk=test_apks[0][0m
+2026-11-04T19:12:33.3034331Z [36;1msignature=subprocess.check_output([str(tools/'apksigner'),'verify','--verbose','--print-certs',str(test_apk)],text=True)[0m
+2026-11-04T19:12:33.3035228Z [36;1massert re.search(r'Signer #1 certificate SHA-256 digest: ([0-9a-f]{64})',signature).group(1)==cert_expected,'TEST_CERTIFICATE_MISMATCH'[0m
+2026-11-04T19:12:33.3036075Z [36;1mpackage=subprocess.check_output([str(tools/'aapt'),'dump','badging',str(test_apk)],text=True).splitlines()[0][0m
+2026-11-04T19:12:33.3036778Z [36;1massert "name='com.starcore.research.r13.test'" in package,'WRONG_TEST_APPLICATION_ID'[0m
+2026-11-04T19:12:33.3037450Z [36;1mtest_name='STARCORE-R31-'+lane+'-'+source[:12]+'-androidTest.apk';shutil.copy2(test_apk,out/test_name)[0m
+2026-11-04T19:12:33.3038077Z [36;1m(out/'androidTest-public-certificate.txt').write_text(signature)[0m
+2026-11-04T19:12:33.3038630Z [36;1m(out/'delivery.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2)+'\n')[0m
+2026-11-04T19:12:33.3039207Z [36;1mshutil.copy2(evidence/'source-receipt.json',out/'source-receipt.json')[0m
+2026-11-04T19:12:33.3039743Z [36;1mshutil.copy2(evidence/'unit-summary.json',out/'unit-summary.json')[0m
+2026-11-04T19:12:33.3040330Z [36;1mshutil.copy2(root/'construction/r31/EXECUTION_LEDGER.json',out/'EXECUTION_LEDGER.json')[0m
+2026-11-04T19:12:33.3042107Z [36;1macceptance={'sourceCommit':source,'build':'PASS','unitTests':'PASS','androidRuntime':'NOT_RUN_BY_BUILD_JOB','physicalDevice':'NOT_RUN','device24h':'NOT_RUN','device72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','cardImplementation':'SEE_EXECUTION_LEDGER_NOT_INFERRED_FROM_BUILD','deviceInstalledCertificate':'UNKNOWN_NOT_CAPTURED'}[0m
+2026-11-04T19:12:33.3043735Z [36;1m(out/'ACCEPTANCE.json').write_text(json.dumps(acceptance,ensure_ascii=False,indent=2)+'\n')[0m
+2026-11-04T19:12:33.3045727Z [36;1m(out/'README_ZH.md').write_text('# STARCORE R31 实际签名构建候选包\n\n本包由完整源码 '+source+' 构建。应用身份 com.starcore.research.r13，签名通道 '+lane+'，指纹 '+cert_expected+'。\n\n源码入口：https://github.com/gtt46461-star/starcore-public-build/tree/'+source+'\n完整快照：https://github.com/gtt46461-star/starcore-public-build/archive/'+source+'.zip\n\n请以 delivery.json 的实际 APK 哈希和版本为准。构建通过不等于全部施工卡、真机持续运行或自然策略质量通过；真实状态见 ACCEPTANCE.json、EXECUTION_LEDGER.json 和独立 CI Android 产物。升级兼容性需核对设备现有应用签名；本流程没有读取用户设备的实际签名。\n')[0m
+2026-11-04T19:12:33.3047512Z [36;1mrelease_name=next(row['apk'] for row in rows if row['variant']=='release')[0m
+2026-11-04T19:12:33.3048199Z [36;1mwith zipfile.ZipFile(out/('STARCORE-R31-'+lane+'-'+source[:12]+'-DELIVERY.zip'),'w',zipfile.ZIP_DEFLATED) as z:[0m
+2026-11-04T19:12:33.3049321Z [36;1m    included=[release_name,'delivery.json','source-receipt.json','unit-summary.json','EXECUTION_LEDGER.json','ACCEPTANCE.json','README_ZH.md','release-public-certificate.txt','release-r31-identity.json'][0m
+2026-11-04T19:12:33.3050276Z [36;1m    payloads={name:(out/name).read_bytes() for name in included}[0m
+2026-11-04T19:12:33.3050972Z [36;1m    payloads['delivery.json']=(json.dumps([row for row in rows if row['variant']=='release'],ensure_ascii=False,indent=2)+'\n').encode()[0m
+2026-11-04T19:12:33.3052737Z [36;1m    for name,data in payloads.items():z.writestr(name,data)[0m
+2026-11-04T19:12:33.3053426Z [36;1m    z.writestr('SHA256SUMS.txt',''.join(hashlib.sha256(data).hexdigest()+'  '+name+'\n' for name,data in payloads.items()))[0m
+2026-11-04T19:12:33.3054456Z [36;1m(out/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n' for p in sorted(out.iterdir()) if p.is_file() and p.name!='SHA256SUMS.txt'))[0m
+2026-11-04T19:12:33.3055529Z [36;1mprint(json.dumps({'sourceCommit':source,'lane':lane,'apks':rows,'scope':'REAL_BUILD_NOT_PHYSICAL_OR_NATURAL'},ensure_ascii=False))[0m
+2026-11-04T19:12:33.3056122Z [36;1mPY[0m
+2026-11-04T19:12:33.3086072Z shell: /usr/bin/bash -e {0}
+2026-11-04T19:12:33.3086341Z env:
+2026-11-04T19:12:33.3086674Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T19:12:33.3087199Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T19:12:33.3087693Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:12:33.3088150Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-11-04T19:12:33.3088591Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:12:33.3088996Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:12:33.3089402Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:12:33.3089814Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-11-04T19:12:33.3090255Z   R13_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T19:12:33.3090724Z   R13_SIGNING_PASSWORD: ***
+2026-11-04T19:12:33.3091165Z   R13_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T19:12:33.3091819Z   R29_SIGNING: EXISTING_R27_CI_NOT_OFFICIAL_R13
+2026-11-04T19:12:33.3092151Z   DUOQU_API_KEY: ***
+2026-11-04T19:12:33.3092487Z   STARCORE_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T19:12:33.3092959Z   STARCORE_SIGNING_PASSWORD: ***
+2026-11-04T19:12:33.3093328Z   STARCORE_SIGNING_KEY_PASSWORD: ***
+2026-11-04T19:12:33.3093620Z   STARCORE_SIGNING_ALIAS: starcore-r13
+2026-11-04T19:12:33.3093907Z   STARCORE_SIGNING_TYPE: PKCS12
+2026-11-04T19:12:33.3094360Z   STARCORE_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T19:12:33.3095029Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-11-04T19:12:33.3095352Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-11-04T19:12:33.3095710Z   EXPECTED_SOURCE: 961a6b8a74b9624a2b195e9562fbdfc9283b29fc
+2026-11-04T19:12:33.3096058Z   EXPECTED_VERSION_CODE: 577311014
+2026-11-04T19:12:33.3096386Z   EXPECTED_VERSION_NAME: R31-CHECKPOINT-P02-2026.11.04-014
+2026-11-04T19:12:33.3096900Z   R31_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T19:12:33.3097365Z   R31_SIGNING_LANE: EXISTING_R27
+2026-11-04T19:12:33.3097620Z ##[endgroup]
+2026-11-04T19:12:39.7066178Z {"sourceCommit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc", "lane": "EXISTING_R27", "apks": [{"apk": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk", "lane": "EXISTING_R27", "variant": "release", "sourceCommit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc", "sourceTree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76", "sourceArchive": "https://github.com/gtt46461-star/starcore-public-build/archive/961a6b8a74b9624a2b195e9562fbdfc9283b29fc.zip", "package": "com.starcore.research.r13", "versionCode": 577311014, "versionName": "R31-CHECKPOINT-P02-2026.11.04-014", "certificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7", "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac", "bytes": 28349737, "abis": ["arm64-v8a", "armeabi-v7a", "x86_64"], "embeddedSourceDirty": false, "r31IdentityEvidence": "release-r31-identity.json", "artifactRole": "BUILT_EXACT_SOURCE_PENDING_ANDROID_GATES", "overall": "BUILD_PASS_ACCEPTANCE_SEPARATE", "physicalDevice": "NOT_RUN", "device24h": "NOT_RUN", "device72h": "NOT_RUN", "naturalQuality": "NOT_PROVEN"}, {"apk": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-debug.apk", "lane": "EXISTING_R27", "variant": "debug", "sourceCommit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc", "sourceTree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76", "sourceArchive": "https://github.com/gtt46461-star/starcore-public-build/archive/961a6b8a74b9624a2b195e9562fbdfc9283b29fc.zip", "package": "com.starcore.research.r13", "versionCode": 577311014, "versionName": "R31-CHECKPOINT-P02-2026.11.04-014", "certificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7", "sha256": "d996ce307c110bb14f7eefd4e450bfc52e8c46fe1e08d0c80508dc24732b7f8f", "bytes": 32816125, "abis": ["arm64-v8a", "armeabi-v7a", "x86_64"], "embeddedSourceDirty": false, "r31IdentityEvidence": "debug-r31-identity.json", "artifactRole": "BUILT_EXACT_SOURCE_PENDING_ANDROID_GATES", "overall": "BUILD_PASS_ACCEPTANCE_SEPARATE", "physicalDevice": "NOT_RUN", "device24h": "NOT_RUN", "device72h": "NOT_RUN", "naturalQuality": "NOT_PROVEN"}], "scope": "REAL_BUILD_NOT_PHYSICAL_OR_NATURAL"}
+2026-11-04T19:12:39.7265824Z ##[group]Run actions/upload-artifact@v4
+2026-11-04T19:12:39.7266135Z with:
+2026-11-04T19:12:39.7266478Z   name: R31-EXISTING_R27-CANDIDATE-961a6b8a74b9624a2b195e9562fbdfc9283b29fc
+2026-11-04T19:12:39.7266939Z   path: /home/runner/work/_temp/r31-candidate/
+2026-11-04T19:12:39.7267257Z   if-no-files-found: error
+2026-11-04T19:12:39.7267507Z   compression-level: 6
+2026-11-04T19:12:39.7267740Z   overwrite: false
+2026-11-04T19:12:39.7267979Z   include-hidden-files: false
+2026-11-04T19:12:39.7268224Z env:
+2026-11-04T19:12:39.7268526Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T19:12:39.7269049Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T19:12:39.7269517Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:12:39.7269963Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-11-04T19:12:39.7270399Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:12:39.7270817Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:12:39.7271208Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:12:39.7271941Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-11-04T19:12:39.7272577Z   R13_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T19:12:39.7273042Z   R13_SIGNING_PASSWORD: ***
+2026-11-04T19:12:39.7273474Z   R13_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T19:12:39.7273961Z   R29_SIGNING: EXISTING_R27_CI_NOT_OFFICIAL_R13
+2026-11-04T19:12:39.7274320Z   DUOQU_API_KEY: ***
+2026-11-04T19:12:39.7274654Z   STARCORE_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T19:12:39.7275119Z   STARCORE_SIGNING_PASSWORD: ***
+2026-11-04T19:12:39.7275465Z   STARCORE_SIGNING_KEY_PASSWORD: ***
+2026-11-04T19:12:39.7275751Z   STARCORE_SIGNING_ALIAS: starcore-r13
+2026-11-04T19:12:39.7276048Z   STARCORE_SIGNING_TYPE: PKCS12
+2026-11-04T19:12:39.7276506Z   STARCORE_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T19:12:39.7277027Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-11-04T19:12:39.7277349Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-11-04T19:12:39.7277637Z ##[endgroup]
+2026-11-04T19:12:39.8986079Z (node:12596) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-04T19:12:39.8987586Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-04T19:12:39.9072333Z With the provided path, there will be 16 files uploaded
+2026-11-04T19:12:39.9078637Z Artifact name is valid!
+2026-11-04T19:12:39.9079545Z Root directory input is valid!
+2026-11-04T19:12:40.2703756Z Beginning upload of artifact content to blob storage
+2026-11-04T19:12:40.5470932Z (node:12596) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-04T19:12:41.2768252Z Uploaded bytes 8388608
+2026-11-04T19:12:41.5658764Z Uploaded bytes 16777216
+2026-11-04T19:12:41.6331327Z Uploaded bytes 25165824
+2026-11-04T19:12:41.7840675Z Uploaded bytes 33554432
+2026-11-04T19:12:42.0088875Z Uploaded bytes 41943040
+2026-11-04T19:12:42.2906123Z Uploaded bytes 50331648
+2026-11-04T19:12:42.5038956Z Uploaded bytes 55422745
+2026-11-04T19:12:42.5628198Z Finished uploading artifact content to blob storage!
+2026-11-04T19:12:42.5632255Z SHA256 digest of uploaded artifact zip is 7377f94cbc402170f6f8674641258f30aa224d839cef6940ccf1206988ed1150
+2026-11-04T19:12:42.5634481Z Finalizing artifact upload
+2026-11-04T19:12:43.0445870Z Artifact R31-EXISTING_R27-CANDIDATE-961a6b8a74b9624a2b195e9562fbdfc9283b29fc.zip successfully finalized. Artifact ID 13355297633
+2026-11-04T19:12:43.0447892Z Artifact R31-EXISTING_R27-CANDIDATE-961a6b8a74b9624a2b195e9562fbdfc9283b29fc has been successfully uploaded! Final size is 55422745 bytes. Artifact ID is 13355297633
+2026-11-04T19:12:43.0455282Z Artifact download URL: https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633
+2026-11-04T19:12:43.0679815Z ##[group]Run actions/upload-artifact@v4
+2026-11-04T19:12:43.0680136Z with:
+2026-11-04T19:12:43.0680490Z   name: R31-EXISTING_R27-HOST-EVIDENCE-961a6b8a74b9624a2b195e9562fbdfc9283b29fc
+2026-11-04T19:12:43.0681090Z   path: /home/runner/work/_temp/r31-evidence/
+app/build/test-results/
+app/build/reports/
+
+2026-11-04T19:12:43.0681939Z   if-no-files-found: warn
+2026-11-04T19:12:43.0682218Z   compression-level: 6
+2026-11-04T19:12:43.0682461Z   overwrite: false
+2026-11-04T19:12:43.0682703Z   include-hidden-files: false
+2026-11-04T19:12:43.0682964Z env:
+2026-11-04T19:12:43.0683287Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T19:12:43.0683802Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-04T19:12:43.0684279Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:12:43.0684716Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-11-04T19:12:43.0685192Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:12:43.0685784Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:12:43.0686190Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-04T19:12:43.0686588Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-11-04T19:12:43.0687025Z   R13_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T19:12:43.0687479Z   R13_SIGNING_PASSWORD: ***
+2026-11-04T19:12:43.0687915Z   R13_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T19:12:43.0688417Z   R29_SIGNING: EXISTING_R27_CI_NOT_OFFICIAL_R13
+2026-11-04T19:12:43.0688739Z   DUOQU_API_KEY: ***
+2026-11-04T19:12:43.0689084Z   STARCORE_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-11-04T19:12:43.0689554Z   STARCORE_SIGNING_PASSWORD: ***
+2026-11-04T19:12:43.0689932Z   STARCORE_SIGNING_KEY_PASSWORD: ***
+2026-11-04T19:12:43.0690234Z   STARCORE_SIGNING_ALIAS: starcore-r13
+2026-11-04T19:12:43.0690535Z   STARCORE_SIGNING_TYPE: PKCS12
+2026-11-04T19:12:43.0691001Z   STARCORE_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-11-04T19:12:43.0691766Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-11-04T19:12:43.0692106Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-11-04T19:12:43.0692410Z ##[endgroup]
+2026-11-04T19:12:43.2419984Z (node:12609) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-04T19:12:43.2420816Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-04T19:12:43.3412646Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-11-04T19:12:43.3414395Z The least common ancestor is /home/runner/work. This will be the root directory of the artifact
+2026-11-04T19:12:43.3415224Z With the provided path, there will be 490 files uploaded
+2026-11-04T19:12:43.3415777Z Artifact name is valid!
+2026-11-04T19:12:43.3416097Z Root directory input is valid!
+2026-11-04T19:12:43.6843591Z Beginning upload of artifact content to blob storage
+2026-11-04T19:12:44.1240151Z (node:12609) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-04T19:12:44.8298639Z Uploaded bytes 8388608
+2026-11-04T19:12:45.1338038Z Uploaded bytes 16777216
+2026-11-04T19:12:45.3388991Z Uploaded bytes 25165824
+2026-11-04T19:12:45.5134915Z Uploaded bytes 33554432
+2026-11-04T19:12:45.7510081Z Uploaded bytes 40101050
+2026-11-04T19:12:45.8102529Z Finished uploading artifact content to blob storage!
+2026-11-04T19:12:45.8105677Z SHA256 digest of uploaded artifact zip is 588949cc1d66f2a050f8829384156cb604c2d6f979e669351df4f01aed968b4a
+2026-11-04T19:12:45.8108117Z Finalizing artifact upload
+2026-11-04T19:12:46.2950662Z Artifact R31-EXISTING_R27-HOST-EVIDENCE-961a6b8a74b9624a2b195e9562fbdfc9283b29fc.zip successfully finalized. Artifact ID 13355113157
+2026-11-04T19:12:46.2952596Z Artifact R31-EXISTING_R27-HOST-EVIDENCE-961a6b8a74b9624a2b195e9562fbdfc9283b29fc has been successfully uploaded! Final size is 40101050 bytes. Artifact ID is 13355113157
+2026-11-04T19:12:46.2959379Z Artifact download URL: https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355113157
+2026-11-04T19:12:46.3219345Z Post job cleanup.
+2026-11-04T19:12:46.4434421Z (node:12622) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-04T19:12:46.4435929Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-04T19:12:46.4568538Z Post job cleanup.
+2026-11-04T19:12:46.6036452Z (node:12630) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-04T19:12:46.6037945Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-04T19:12:46.6220644Z Post job cleanup.
+2026-11-04T19:12:46.7169549Z [command]/usr/bin/git version
+2026-11-04T19:12:46.7217285Z git version 2.56.0
+2026-11-04T19:12:46.7258568Z Temporarily overriding HOME='/home/runner/work/_temp/07c7b84b-2c3d-419a-a9b2-754c6f622530' before making global git config changes
+2026-11-04T19:12:46.7260196Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-04T19:12:46.7264583Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-11-04T19:12:46.7308356Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-04T19:12:46.7353770Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-04T19:12:46.7678466Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-04T19:12:46.7729487Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-04T19:12:46.8068299Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-04T19:12:46.8108333Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-04T19:12:46.8586398Z Post job cleanup.
+2026-11-04T19:12:46.9497792Z [command]/usr/bin/git version
+2026-11-04T19:12:46.9544505Z git version 2.56.0
+2026-11-04T19:12:46.9589464Z Temporarily overriding HOME='/home/runner/work/_temp/997f12c2-2f2a-4078-a2bd-333673b094fb' before making global git config changes
+2026-11-04T19:12:46.9591086Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-04T19:12:46.9597189Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-11-04T19:12:46.9639986Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-04T19:12:46.9682748Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-04T19:12:47.0059554Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-04T19:12:47.0102648Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-04T19:12:47.0431271Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-04T19:12:47.0472707Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-04T19:12:47.0920027Z Evaluate and set job outputs
+2026-11-04T19:12:47.0925121Z Set output 'source'
+2026-11-04T19:12:47.0927029Z Cleaning up orphan processes
+2026-11-04T19:12:47.1305738Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache/restore@v4, actions/checkout@v4, actions/setup-java@v4, actions/setup-python@v5, actions/upload-artifact@v4, android-actions/setup-android@v3. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
