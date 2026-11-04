@@ -54,15 +54,35 @@ public final class AtomPublicationStoreR31 {
     private static int schemaVersion(SQLiteDatabase db){try(Cursor c=db.rawQuery("PRAGMA schema_version",null)){if(!c.moveToFirst())throw dependency("SCHEMA_VERSION_UNAVAILABLE");return c.getInt(0);}}
     private static String definition(String sql){return sql==null?null:sql.replace(" IF NOT EXISTS "," ").trim();}
     private static String objectName(String sql){String rest=sql.substring(sql.indexOf(" IF NOT EXISTS ")+15);int space=rest.indexOf(' '),paren=rest.indexOf('(');int end=space<0?paren:paren<0?space:Math.min(space,paren);return rest.substring(0,end);}
-    /** One catalog snapshot checks definitions, including views/indexes/triggers, rather than only names. */
+    private static final String[][] LEGACY_COLUMNS={
+        {"r27_atom_score","atom_id","atom_index","dataset_hash","n_select","gain_select","lcb_select","ucb_select","n_holdout","gain_holdout","lcb_holdout","missing_rate","state","derived","definition","computed_at"},
+        {"r30_atom_contribution","atom_id","dataset_hash","from_row","to_row","n_periods","paired_comparisons","mean_gain","lcb95","source","recorded_at"},
+        {"r27_molecule","molecule_hash","definition","generation","state","select_gain","reason","created_at"}
+    };
+    /** Finite catalog/column/view probes. A surviving view definition does not prove its legacy source exists. */
     public static int requireReadyR31(SQLiteDatabase db) {
-        int version=schemaVersion(db);Integer cached=READY.get(db);if(cached!=null&&cached==version)return version;
-        Map<String,String> actual=new HashMap<>();try(Cursor c=db.rawQuery("SELECT name,sql FROM sqlite_master WHERE name LIKE 'r31_atom_%' OR name LIKE 'r31_molecule_%'",null)){while(c.moveToNext())actual.put(c.getString(0),c.getString(1));}
-        for(String sql:DDL){String name=objectName(sql);if(!definition(sql).equals(definition(actual.get(name))))throw dependency("SCHEMA_DEFINITION_MISMATCH:"+name);}
-        if(schemaVersion(db)!=version)throw dependency("SCHEMA_CHANGED_DURING_READINESS");READY.put(db,version);return version;
+        Objects.requireNonNull(db,"R31_ATOM_SCHEMA_DATABASE_REQUIRED");
+        try{
+            boolean committed=!db.inTransaction();int version=schemaVersion(db);Integer cached=committed?READY.get(db):null;if(cached!=null&&cached==version)return version;
+            Map<String,String> actual=new HashMap<>(),types=new HashMap<>();try(Cursor c=db.rawQuery("SELECT name,sql,type FROM sqlite_master WHERE name LIKE 'r31_atom_%' OR name LIKE 'r31_molecule_%' OR name IN ('r27_atom_score','r30_atom_contribution','r27_molecule')",null)){while(c.moveToNext()){actual.put(c.getString(0),c.getString(1));types.put(c.getString(0),c.getString(2));}}
+            for(String sql:DDL){String name=objectName(sql);if(!definition(sql).equals(definition(actual.get(name))))throw dependency("SCHEMA_DEFINITION_MISMATCH:"+name);}
+            for(String[] source:LEGACY_COLUMNS){if(!"table".equals(types.get(source[0])))throw dependency("LEGACY_SOURCE_TABLE_REQUIRED:"+source[0]);Set<String> columns=new HashSet<>();try(Cursor c=db.rawQuery("PRAGMA table_info("+source[0]+")",null)){while(c.moveToNext())columns.add(c.getString(1));}for(int i=1;i<source.length;i++)if(!columns.contains(source[i]))throw dependency("LEGACY_SOURCE_COLUMN_REQUIRED:"+source[0]+":"+source[i]);}
+            String[] views={SCORE_VIEW,CONTRIBUTION_VIEW,MOLECULE_VIEW};int[] widths={15,10,7};
+            for(int i=0;i<views.length;i++)try(Cursor c=db.rawQuery("SELECT * FROM "+views[i]+" LIMIT 0",null)){if(c.getColumnCount()!=widths[i]||c.moveToFirst())throw dependency("VIEW_SOURCE_CONTRACT_MISMATCH:"+views[i]);}
+            if(schemaVersion(db)!=version)throw dependency("SCHEMA_CHANGED_DURING_READINESS");
+            // A version observed during a migration may roll back and be reused by another DDL shape.
+            if(committed&&!db.inTransaction())READY.put(db,version);else READY.remove(db);return version;
+        }catch(RuntimeException unavailable){
+            Error fatal=FailureDispositionR31.processFatalCause(unavailable);if(fatal!=null)throw fatal;
+            READY.remove(db);if(unavailable instanceof Dependency)throw unavailable;
+            // Preserve known cancellation/retry/storage-fatal categories; source readiness must not hide them.
+            if(FailureDispositionR31.classify(unavailable).disposition!=FailureDispositionR31.Disposition.FAULT)throw unavailable;
+            throw new Dependency("SCHEMA_READINESS_UNAVAILABLE",unavailable);
+        }
     }
     static final class Dependency extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure {
         Dependency(String detail){super("DEPENDENCY(R31_ATOM_PUBLICATION:"+detail+")");}
+        Dependency(String detail,Throwable cause){super("DEPENDENCY(R31_ATOM_PUBLICATION:"+detail+")",cause);}
         public String failureCategory(){return "DEPENDENCY";}public String operation(){return "R31_ATOM_PUBLICATION";}public String phase(){return "PREPARED_RESULT_PROTOCOL";}public String commitOutcomeName(){return "NOT_SUBMITTED";}
     }
     static Dependency dependency(String reason){return new Dependency(reason);}

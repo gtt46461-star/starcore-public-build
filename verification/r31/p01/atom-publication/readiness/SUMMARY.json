@@ -1,0 +1,389 @@
+{
+  "recordedAt": "2026-11-04T19:43:05.975049+00:00",
+  "scope": "REAL_PRODUCTION_HELPER_ENTRYPOINT_AND_NATIVE_SQLITE_HOST_ONLY",
+  "parentProductionCommit": "4bd5d93e7ff31c5f6f5d9f0d2f8e848a6ba9bf40",
+  "parentEvidenceCommit": "6e929350f26a0389111528b609ce2fa1d62b59b8",
+  "card": "R31-B02-C02",
+  "cardStatus": "IMPLEMENTING",
+  "narrowReadinessCode": "CODE_COMPLETE",
+  "sourceCapturedAt": "2026-11-04T19:39:16.734958+00:00",
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java": "2cc3ed2ebaf74f92e9b101ff12d96015eb4a742934149addf87a9d58696b7e62",
+    "app/src/main/java/com/ethk3/novaonepro/TransactionSchemaCacheR941.java": "609b31256f757a9e463973e2d93f9a1492f316187206eb1f33fd56f3db2b53eb",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java": "cc4354d257a170ce2de3579c2fe62e0e676b70593c8373deec1fe56df79483cf",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineR30.java": "b8f8af7d8593be71c5291fa4db8161254551e7298d90f7e210632548bd3075ba",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java": "97380f13f65da759fbb6ce7008c8797f9744d264d529799ca7b57e0ce05f6d89",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java": "31476d4cee77f827ce9c0217f42c95bf1ad419ebbe5c0cb7c8e986221d658f37",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java": "ee697f455edd9c0c5e254226e36aad4f8459e031cce88353a9e93aad92ad79a9",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java": "714bebf005bba4eecfee5f6f9634b7c9bae1eed8ae6278111995127bd4dbbc58",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31.java": "ce7508a6cc676240bf845b0a5a0a653ec2cdf34bb10653c670dc219b5de4efa5",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java": "edb385b55b7bacd99ebc323d481a7b4bbd0444a0501bb568b1542c127d0af0ea",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java": "85f4bb286cb570fb072bc8e6666cb38d7a65b94df838f1a010e0c4e58fe9d8bd",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java": "c0cf40b8877eeb6ad6ed4dbbfdb4b1933eb862f8dd211e9b27f22eb2e9793c98",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java": "8717f593df50000489a96c561cf12ae01c92d284e063153a8c7575949b51781b",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java": "2ce20b6b0c5e3d2e6efa85f37229606e1451c09c9aae8401692cf1d101791e41",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java": "af651b8dec4c870edfa2f8dca91a92eb5873d78020fbd33e8b86a9523c256445",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java": "e39161bd24b0125f5969454f73409fcdd6257a8865fa0e12ad425cef65ba4db7",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java": "010b480d99b6c30df6ab2135d7d1b7ae2f78d430d3d8cd0a04dbbbd056bdffcc",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java": "41c5cb8477c6983cc3da1d9b1fb53af5aa85ef6cb03bff883eb168602270db37",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java": "c22d7eab11d611acbf655d527d59b0f8bfddaad6313a9b15ed09cdc9cc9372c9",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java": "c86a687939419d2e5f6759561fcb22f5a2029ae72ac064027a6da20875d22df7",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java": "52d52217aaadb3a3ca79749eb6306c4ce9f1532675806c0663bd7e382821c72c"
+  },
+  "supportJarSha256": "8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0",
+  "finalDriverGroups": 31,
+  "finalJvmCases": 33,
+  "cases": [
+    {
+      "case": "atoms-step-retry",
+      "status": "ACTUAL_ATOMS_STEP_FRAME_AND_FAILED_PUBLICATION_RETRY_COMPLETED",
+      "assertions": 719,
+      "transactions": 169,
+      "file": "runs/final-ci-same-source/atoms-step-retry.json"
+    },
+    {
+      "case": "baseline-atom165",
+      "status": "BASELINE_OVERSIZE_REPRODUCED",
+      "assertions": 4,
+      "transactions": 1,
+      "file": "runs/final-ci-same-source/baseline-atom165.json"
+    },
+    {
+      "case": "baseline-dangling-contribution-source",
+      "status": "BASELINE_DANGLING_SOURCE_FALSE_READY_AND_SQL_BUG_REPRODUCED",
+      "assertions": 6,
+      "transactions": 167,
+      "file": "runs/final-ci-same-source/baseline-dangling-contribution-source.json"
+    },
+    {
+      "case": "baseline-dangling-molecule-source",
+      "status": "BASELINE_DANGLING_SOURCE_FALSE_READY_AND_SQL_BUG_REPRODUCED",
+      "assertions": 6,
+      "transactions": 167,
+      "file": "runs/final-ci-same-source/baseline-dangling-molecule-source.json"
+    },
+    {
+      "case": "baseline-dangling-rollback-version",
+      "status": "BASELINE_DANGLING_SOURCE_FALSE_READY_AND_SQL_BUG_REPRODUCED",
+      "assertions": 11,
+      "transactions": 167,
+      "file": "runs/final-ci-same-source/baseline-dangling-rollback-version.json"
+    },
+    {
+      "case": "baseline-dangling-score-source",
+      "status": "BASELINE_DANGLING_SOURCE_FALSE_READY_AND_SQL_BUG_REPRODUCED",
+      "assertions": 6,
+      "transactions": 167,
+      "file": "runs/final-ci-same-source/baseline-dangling-score-source.json"
+    },
+    {
+      "case": "baseline-molecules32",
+      "status": "BASELINE_OVERSIZE_REPRODUCED",
+      "assertions": 8,
+      "transactions": 2,
+      "file": "runs/final-ci-same-source/baseline-molecules32.json"
+    },
+    {
+      "case": "brier-original",
+      "status": "ORIGINAL_BRIER_ASSERTIONS_COMPLETED_ON_PRODUCTION_COMPLETE_PUBLICATIONS",
+      "assertions": 1905,
+      "transactions": 470,
+      "file": "runs/final-ci-same-source/brier-original.json"
+    },
+    {
+      "case": "cancel-between-chunks",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1356,
+      "transactions": 336,
+      "file": "runs/final-ci-same-source/cancel-between-chunks.json"
+    },
+    {
+      "case": "dangling-contribution-source",
+      "status": "SOURCE_DEPENDENCY_AND_ACTUAL_SCHEMA_STARTUP_RECOVERY_COMPLETED",
+      "assertions": 683,
+      "transactions": 167,
+      "file": "runs/final-ci-same-source/dangling-contribution-source.json"
+    },
+    {
+      "case": "dangling-molecule-source",
+      "status": "SOURCE_DEPENDENCY_AND_ACTUAL_SCHEMA_STARTUP_RECOVERY_COMPLETED",
+      "assertions": 683,
+      "transactions": 167,
+      "file": "runs/final-ci-same-source/dangling-molecule-source.json"
+    },
+    {
+      "case": "dangling-rollback-version",
+      "status": "SOURCE_DEPENDENCY_AND_ACTUAL_SCHEMA_STARTUP_RECOVERY_COMPLETED",
+      "assertions": 689,
+      "transactions": 167,
+      "file": "runs/final-ci-same-source/dangling-rollback-version.json"
+    },
+    {
+      "case": "dangling-score-source",
+      "status": "SOURCE_DEPENDENCY_AND_ACTUAL_SCHEMA_STARTUP_RECOVERY_COMPLETED",
+      "assertions": 683,
+      "transactions": 167,
+      "file": "runs/final-ci-same-source/dangling-score-source.json"
+    },
+    {
+      "case": "exact-schema-and-report",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1349,
+      "transactions": 334,
+      "file": "runs/final-ci-same-source/exact-schema-and-report.json"
+    },
+    {
+      "case": "interrupt-in-transaction",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1366,
+      "transactions": 338,
+      "file": "runs/final-ci-same-source/interrupt-in-transaction.json"
+    },
+    {
+      "case": "legacy-upgrade",
+      "status": "ACTUAL_LEGACY_ADDITIVE_MIGRATION_AND_COMPLETE_CONSUMERS_VERIFIED",
+      "assertions": 1349,
+      "transactions": 167,
+      "file": "runs/final-ci-same-source/legacy-upgrade.json"
+    },
+    {
+      "case": "owner-transfer",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1358,
+      "transactions": 336,
+      "file": "runs/final-ci-same-source/owner-transfer.json"
+    },
+    {
+      "case": "predecessor-cas",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 2025,
+      "transactions": 504,
+      "file": "runs/final-ci-same-source/predecessor-cas.json"
+    },
+    {
+      "case": "process-aftercommit-halt",
+      "status": "INTERRUPTED_ACTUAL_PROCESS_HALT",
+      "assertions": 0,
+      "transactions": 241,
+      "file": "runs/final-ci-same-source/process-aftercommit-halt.json"
+    },
+    {
+      "case": "process-aftercommit-resume-64m",
+      "status": "ACTUAL_HOST_PROCESS_RESTART_CROSS_HEAP_RECEIPTS_COMPLETED",
+      "assertions": 686,
+      "transactions": 167,
+      "file": "runs/final-ci-same-source/process-aftercommit-resume-64m.json"
+    },
+    {
+      "case": "process-inbody-halt",
+      "status": "INTERRUPTED_PROCESS_IN_NATIVE_UNCOMMITTED_TRANSACTION",
+      "assertions": 0,
+      "transactions": 242,
+      "file": "runs/final-ci-same-source/process-inbody-halt.json"
+    },
+    {
+      "case": "process-inbody-resume-64m",
+      "status": "ACTUAL_HOST_PROCESS_RESTART_CROSS_HEAP_RECEIPTS_COMPLETED",
+      "assertions": 686,
+      "transactions": 167,
+      "file": "runs/final-ci-same-source/process-inbody-resume-64m.json"
+    },
+    {
+      "case": "readiness-fatal-unknown",
+      "status": "ACTUAL_READINESS_FATAL_AND_UNKNOWN_BOUNDARIES_COMPLETED",
+      "assertions": 9,
+      "transactions": 0,
+      "file": "runs/final-ci-same-source/readiness-fatal-unknown.json"
+    },
+    {
+      "case": "readiness-legacy-column",
+      "status": "ACTUAL_LEGACY_TYPE_AND_COLUMN_DEPENDENCY_COMPLETED",
+      "assertions": 3,
+      "transactions": 0,
+      "file": "runs/final-ci-same-source/readiness-legacy-column.json"
+    },
+    {
+      "case": "readiness-legacy-tabletype",
+      "status": "ACTUAL_LEGACY_TYPE_AND_COLUMN_DEPENDENCY_COMPLETED",
+      "assertions": 3,
+      "transactions": 0,
+      "file": "runs/final-ci-same-source/readiness-legacy-tabletype.json"
+    },
+    {
+      "case": "source-correction",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1361,
+      "transactions": 337,
+      "file": "runs/final-ci-same-source/source-correction.json"
+    },
+    {
+      "case": "stage-after-commit",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1350,
+      "transactions": 334,
+      "file": "runs/final-ci-same-source/stage-after-commit.json"
+    },
+    {
+      "case": "stage-end-rollback",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1692,
+      "transactions": 418,
+      "file": "runs/final-ci-same-source/stage-end-rollback.json"
+    },
+    {
+      "case": "stage-first-sql-failure",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1364,
+      "transactions": 336,
+      "file": "runs/final-ci-same-source/stage-first-sql-failure.json"
+    },
+    {
+      "case": "stage-postcommit-diagnostic",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1350,
+      "transactions": 334,
+      "file": "runs/final-ci-same-source/stage-postcommit-diagnostic.json"
+    },
+    {
+      "case": "stage-sql-failure",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1692,
+      "transactions": 418,
+      "file": "runs/final-ci-same-source/stage-sql-failure.json"
+    },
+    {
+      "case": "stage-unknown-then-readback",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1693,
+      "transactions": 418,
+      "file": "runs/final-ci-same-source/stage-unknown-then-readback.json"
+    },
+    {
+      "case": "superseded-replay",
+      "status": "TARGETED_HOST_ASSERTIONS_COMPLETED",
+      "assertions": 1343,
+      "transactions": 334,
+      "file": "runs/final-ci-same-source/superseded-replay.json"
+    }
+  ],
+  "actualPostfixTransactionAttempts": 7068,
+  "actualApiSqlMax": 28,
+  "apiSqlPlusConservativeTriggerBoundMax": 30,
+  "actualBindBytesMax": 2326,
+  "businessDdlCalls": 0,
+  "coldReadinessSqlCalls": 9,
+  "warmReadinessSqlCalls": 1,
+  "fixedLegacyTablesAndViews": {
+    "r27_atom_score": 15,
+    "r30_atom_contribution": 10,
+    "r27_molecule": 7,
+    "actualZeroRowViewProbes": 3
+  },
+  "objectDdlChanges": 0,
+  "domain": "RESEARCH_R31_ATOM_PUBLICATION",
+  "revision": 1,
+  "objects": 29,
+  "cache": "only committed schemaVersion cached; same version after rollback negative control demonstrated",
+  "failureBoundaries": {
+    "missingLegacySource": "DEPENDENCY/NOT_SUBMITTED, actual AtomWorld.score, zero new writer transaction/DML/DDL",
+    "legacyTypeOrColumns": "typed precise DEPENDENCY, no schema repair",
+    "unknownRead": "cause retained typedDEPENDENCY",
+    "nestedLinkageOomThreadDeath": "same original Error rethrown",
+    "storageFatalBusyCancel": "same category and original RuntimeException retained; injected classification boundary only, not actual disk-pressure/device proof"
+  },
+  "startupRecoveries": [
+    {
+      "case": "dangling-contribution-source",
+      "elapsedNanos": 95254221,
+      "nativeTotalChanges": 12,
+      "sqlCalls": 291,
+      "status": "ACTUAL_SCHEMA_R27_STARTUP_BODY_RETURNED"
+    },
+    {
+      "case": "dangling-molecule-source",
+      "elapsedNanos": 199753375,
+      "nativeTotalChanges": 12,
+      "sqlCalls": 291,
+      "status": "ACTUAL_SCHEMA_R27_STARTUP_BODY_RETURNED"
+    },
+    {
+      "case": "dangling-rollback-version",
+      "elapsedNanos": 101910954,
+      "nativeTotalChanges": 12,
+      "sqlCalls": 291,
+      "status": "ACTUAL_SCHEMA_R27_STARTUP_BODY_RETURNED"
+    },
+    {
+      "case": "dangling-score-source",
+      "elapsedNanos": 82632373,
+      "nativeTotalChanges": 12,
+      "sqlCalls": 291,
+      "status": "ACTUAL_SCHEMA_R27_STARTUP_BODY_RETURNED"
+    }
+  ],
+  "startupScope": "Actual DatabaseCoordinator.MIGRATION + actual SchemaR27.ensure from this branch241a-based code. Latest root shared producer/journal startup still needs root joint integration; CI runs same cases against freshly compiled app sources.",
+  "actualScientificProjectionSha256": "b2d940fdf2a9ca3ba0cd34b3cbc646ecfe9cf6d43d962ad50319285ab69fe1fe",
+  "hostHoldOnly": {
+    "measuredAttempts": 7067,
+    "unmeasuredAtProcessHalt": 1,
+    "p99Ms": 12,
+    "maxMs": 401,
+    "over50": 14,
+    "over200": 2,
+    "deviceSlo": "NOT_RUN",
+    "status": "FAILED_OBSERVED_HARD200_EXCEEDANCES"
+  },
+  "notClosed": [
+    "full card producer/capacity/device requirements",
+    "root latest shared startup",
+    "Android app build/install/instrumentation",
+    "24h",
+    "72h",
+    "natural future quality",
+    "APK delivery"
+  ],
+  "next": "root integrate this followup with4bd+6e, run same native cases using new complete app classes; separately integrate History published report scalar",
+  "hostTimingFailureOriginalEvidence": [
+    {
+      "case": "interrupt-in-transaction",
+      "actualTransactionElapsedNanos": 318963726,
+      "actualWriterHoldMsFromProductionLedger": 322,
+      "actualWriterWaitMsFromProductionLedger": 0,
+      "bindBytes": 1983,
+      "committed": true,
+      "ddlCount": 0,
+      "nativeTotalChangesIncludingTriggersAndRolledBackAttempts": 4,
+      "operation": "R27_ATOM_RESULT_STAGE",
+      "primaryStageAttempt": true,
+      "sequence": 14,
+      "sqlCount": 21,
+      "stageGuardExecutions": 3,
+      "triggerGuardUpperBound": 3
+    },
+    {
+      "case": "process-aftercommit-resume-64m",
+      "actualTransactionElapsedNanos": 399917781,
+      "actualWriterHoldMsFromProductionLedger": 401,
+      "actualWriterWaitMsFromProductionLedger": 0,
+      "bindBytes": 1998,
+      "committed": true,
+      "ddlCount": 0,
+      "nativeTotalChangesIncludingTriggersAndRolledBackAttempts": 4,
+      "operation": "R27_ATOM_RESULT_STAGE",
+      "primaryStageAttempt": true,
+      "sequence": 120,
+      "sqlCount": 21,
+      "stageGuardExecutions": 3,
+      "triggerGuardUpperBound": 3
+    }
+  ],
+  "hostTimingForensics": {
+    "originalIntervalDefinition": "native adapter System.nanoTime start after JDBC setAutoCommit(false), until commit/rollback and autocommit reset; before/after actual SQLite transaction observer",
+    "originalBeginLatency": "UNKNOWN_NOT_CAPTURED_SEPARATELY",
+    "originalSqlVersusEndLatency": "UNKNOWN_NOT_CAPTURED_SEPARATELY",
+    "originalGCAndScheduling": "UNKNOWN_NOT_CAPTURED; no retrospective attribution",
+    "thresholdsChanged": false,
+    "heapChanged": false,
+    "isolation": "Not an isolated device SLO run; parent reported concurrent validation workloads. Exact original overlap windows not recorded."
+  }
+}

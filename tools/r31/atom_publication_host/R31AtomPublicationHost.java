@@ -20,26 +20,32 @@ import sun.misc.Unsafe;
 
 /** Android/JDBC platform adaptation only; every publication/fence/receipt/score is production code. */
 public final class R31AtomPublicationHost implements AutoCloseable {
+    static final class SQLiteFullException extends RuntimeException {}
+    static final class SQLiteDatabaseCorruptException extends RuntimeException {}
+    static final class SQLiteDatabaseLockedException extends RuntimeException {}
     static int assertions;
     static void need(boolean yes,String why){assertions++;if(!yes)throw new AssertionError(why);}
     static final Unsafe U;
     static {try{Field f=Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);U=(Unsafe)f.get(null);}catch(Exception e){throw new ExceptionInInitializerError(e);}}
     static void set(Object o,String field,Object value)throws Exception{Field f=o.getClass().getDeclaredField(field);f.setAccessible(true);f.set(o,value);}
-    final File databaseFile,output;final Connection connection;final SQLiteDatabase db;final DatabaseCoordinator coordinator;final DbStore store;final ResearchPoolR27 pool;final ResearchPoolR27.Worker worker;
+    final File databaseFile,output;final boolean ephemeralDatabase;final Connection connection;final SQLiteDatabase db;final DatabaseCoordinator coordinator;final DbStore store;final ResearchPoolR27 pool;final ResearchPoolR27.Worker worker;
     RuntimeR27 runtime;ReplayDatasetR27 data;SplitR27 split;
-    final String scenario;final List<Map<String,Object>> transactions=new ArrayList<>(),calls=new ArrayList<>(),rejections=new ArrayList<>();
+    final String scenario;final List<Map<String,Object>> transactions=new ArrayList<>(),calls=new ArrayList<>(),rejections=new ArrayList<>(),startupCalls=new ArrayList<>();
+    String failReadPrefix;RuntimeException readFault;boolean observingStartup;Map<String,Object> startupResult;
     Map<String,Object> transaction,lastCall,lastEnded;boolean observing,injected,diagnosticFault;int stageCalls,failStage=-1,haltStage=-1,haltInBody=-1,afterCommitStage=-1,everyStageCalls;String faultKind="";long totalChangesAtBegin;Runnable afterStage,everyStage;Throwable hookFailure;
     final Map<String,long[]> priorWriterStats=new HashMap<>();
     String currentOwner="host-atom-owner";long currentFence=1;
     final SQLiteDatabase.Observer observer=new SQLiteDatabase.Observer(){
         public void begin(SQLiteDatabase actual){if(actual!=db||!observing)return;transaction=new LinkedHashMap<>();transaction.put("sequence",transactions.size()+1);transaction.put("sqlCount",0L);transaction.put("bindBytes",0L);transaction.put("ddlCount",0L);transaction.put("stageGuardExecutions",0L);transaction.put("triggerGuardUpperBound",0L);transaction.put("primaryStageAttempt",false);totalChangesAtBegin=totalChanges();transactions.add(transaction);}
         public void sql(SQLiteDatabase actual,String sql,Object[] args,boolean inTransaction){
-            if(actual!=db||!observing)return;
+            if(actual!=db||!observing&&!observingStartup)return;
+            if(observingStartup){Map<String,Object> row=new LinkedHashMap<>();row.put("sql",sql);row.put("bindBytes",bindBytes(args));row.put("argumentCount",args==null?0:args.length);startupCalls.add(row);return;}
             Map<String,Object> row=new LinkedHashMap<>();row.put("transaction",inTransaction&&transaction!=null?transaction.get("sequence"):null);row.put("sql",sql);row.put("bindBytes",bindBytes(args));row.put("argumentCount",args==null?0:args.length);row.put("thread",Thread.currentThread().getName());calls.add(row);lastCall=row;
             if(inTransaction&&transaction!=null){add(transaction,"sqlCount",1);add(transaction,"bindBytes",bindBytes(args));if(sql.matches("(?is)^\\s*(CREATE|ALTER|DROP|VACUUM|REINDEX|ATTACH|DETACH)\\b.*"))add(transaction,"ddlCount",1);
                 if(sql.matches("(?is)^INSERT OR IGNORE INTO r31_(atom_score_stage|atom_contribution_stage|molecule_stage|atom_result_chunk).*")){add(transaction,"stageGuardExecutions",1);add(transaction,"triggerGuardUpperBound",1);}
                 if(sql.startsWith("UPDATE r31_atom_result_run SET state=")||sql.startsWith("INSERT INTO r31_atom_result_active")||sql.startsWith("UPDATE r31_atom_result_active SET"))add(transaction,"triggerGuardUpperBound",1);
             }
+            if(readFault!=null&&sql.startsWith(failReadPrefix))throw readFault;
             if(sql.startsWith("INSERT OR IGNORE INTO r31_atom_score_stage")||sql.startsWith("INSERT OR IGNORE INTO r31_molecule_stage")){
                 if(transaction!=null)transaction.put("primaryStageAttempt",true);
                 stageCalls++;
@@ -60,7 +66,7 @@ public final class R31AtomPublicationHost implements AutoCloseable {
     String text(String sql){try(Cursor c=db.rawQuery(sql,null)){return c.moveToFirst()?c.getString(0):null;}}
     void raw(String sql,Object...args){boolean prior=observing;observing=false;try{db.execSQL(sql,args);}finally{observing=prior;}}
     R31AtomPublicationHost(String scenario,File output,File persistent,boolean create)throws Exception{
-        this.scenario=scenario;this.output=output;databaseFile=persistent==null?File.createTempFile("r31-atoms-", ".db"):persistent;
+        this.scenario=scenario;this.output=output;ephemeralDatabase=persistent==null;databaseFile=ephemeralDatabase?File.createTempFile("r31-atoms-", ".db"):persistent;
         Class.forName("org.sqlite.JDBC");connection=DriverManager.getConnection("jdbc:sqlite:"+databaseFile);db=new SQLiteDatabase(connection);
         coordinator=(DatabaseCoordinator)U.allocateInstance(DatabaseCoordinator.class);Field lock=DatabaseCoordinator.class.getDeclaredField("WRITE_LOCK_CP3");lock.setAccessible(true);set(coordinator,"writeLock",lock.get(null));set(coordinator,"helper",new DbHelper(db));set(coordinator,"app",new android.app.Application(databaseFile));set(coordinator,"waitingWriters",new AtomicInteger());set(coordinator,"criticalBusinessWaitersR914",new AtomicInteger());store=new DbStore(db,coordinator);
         if(create)schemas();
@@ -200,7 +206,43 @@ public final class R31AtomPublicationHost implements AutoCloseable {
         need(failed&&slices>0,"bounded actual producer reached requested durable commit failure");need(AtomPublicationStoreR31.activeRun(db,"SCORES")==null&&runtime.atomStates.isEmpty(),"failed first publication is not exposed as complete");
         ResearchPoolR27.Outcome retry=AtomWorldR27.atomsStep(runtime,worker);need(retry.units==1&&AtomPublicationStoreR31.activeStates(db).size()==165&&runtime.atomStates.size()==165,"next real atomsStep retries failed scoring after frame cursor advanced; it never skips into molecules");need(AtomWorldR27.publishedMoleculeGenerationR31(runtime)==-1,"retry did not bypass score into another research phase");assertBudget(false);writeEvidence("ACTUAL_ATOMS_STEP_FRAME_AND_FAILED_PUBLICATION_RETRY_COMPLETED");
     }
+    void actualRootStartup(){
+        boolean old=observing;observing=false;observingStartup=true;long at=System.nanoTime(),changes=totalChanges();startupResult=new LinkedHashMap<>();
+        try{coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R31_ATOM_READINESS_STARTUP_RECOVERY"),actual->{SchemaR27.ensure(actual);return 0;});startupResult.put("status","ACTUAL_SCHEMA_R27_STARTUP_BODY_RETURNED");}catch(Throwable failure){startupResult.put("status","FAILED");startupResult.put("failure",failure.toString());throw failure;}finally{startupResult.put("nativeTotalChanges",totalChanges()-changes);startupResult.put("sqlCalls",startupCalls.size());startupResult.put("elapsedNanos",System.nanoTime()-at);observingStartup=false;observing=old;}
+    }
+    void readinessCase()throws Exception{
+        AtomPublicationStoreR31.Plan old=engineeringPlan("OLD_READY_COMPLETE");publish(old);String active=old.source.run;long rows=count("SELECT count(*) FROM r31_atom_score_stage");
+        boolean baseline=scenario.startsWith("baseline-dangling"),rollback=scenario.contains("rollback-version");String table=scenario.contains("molecule-source")?"r27_molecule":scenario.contains("contribution-source")?"r30_atom_contribution":"r27_atom_score";
+        raw("CREATE TABLE readiness_cold_probe_version(id INTEGER)");int coldStart=calls.size();long coldChanges=totalChanges();int beforeVersion=AtomPublicationStoreR31.requireReadyR31(db);need(totalChanges()==coldChanges,"cold readiness is read only");if(!baseline)need(calls.size()-coldStart==9,"finite cold check is9 catalog/column/actual-view reads");int warmStart=calls.size();need(AtomPublicationStoreR31.requireReadyR31(db)==beforeVersion&&calls.size()-warmStart==1,"committed schema cache uses exactly one version read");
+        if(rollback){boolean was=observing;observing=false;db.beginTransaction();try{db.execSQL("CREATE TABLE readiness_rolled_back_good(id INTEGER)");need(AtomPublicationStoreR31.requireReadyR31(db)==beforeVersion+1,"actual uncommitted healthy schema observed");if(!baseline){Object cached=((Map<?,?>)staticField(AtomPublicationStoreR31.class,"READY")).get(db);need(cached==null||((Number)cached).intValue()==beforeVersion,"uncommitted future schemaVersion never enters READY cache");}}finally{db.endTransaction();observing=was;}need(count("PRAGMA schema_version")==beforeVersion,"actual migration rollback restores old schema version");}
+        raw("DROP TABLE "+table);if(rollback)need(count("PRAGMA schema_version")==beforeVersion+1,"later committed bad schema reuses rolled-back healthy version");
+        long changes=totalChanges();int tx=transactions.size(),start=calls.size();
+        if(baseline){
+            AtomPublicationStoreR31.requireReadyR31(db);boolean sqliteError=false;try(Cursor c=db.rawQuery("SELECT * FROM "+(table.equals("r27_molecule")?AtomPublicationStoreR31.MOLECULE_VIEW:table.equals("r30_atom_contribution")?AtomPublicationStoreR31.CONTRIBUTION_VIEW:AtomPublicationStoreR31.SCORE_VIEW)+" LIMIT 0",null)){c.moveToFirst();}catch(SQLiteException failure){sqliteError=true;need(FailureDispositionR31.classify(failure).disposition==FailureDispositionR31.Disposition.FAULT,"old false READY actually becomes native SQL BUG fault");}
+            need(sqliteError,"actual old catalog-only readiness falsely admitted dangling view");need(totalChanges()==changes&&transactions.size()==tx,"negative-control probes themselves perform no business writes");writeEvidence("BASELINE_DANGLING_SOURCE_FALSE_READY_AND_SQL_BUG_REPRODUCED");return;
+        }
+        scientificFrame();try{score();throw new AssertionError("DANGLING_SOURCE_ENTERED_PRODUCTION_WRITER");}catch(AtomPublicationStoreR31.Dependency expected){FailureDispositionR31.Decision d=FailureDispositionR31.classify(expected);need(d.disposition==FailureDispositionR31.Disposition.DEPENDENCY&&!d.consumesFaultBudget(),"actual producer schema dependency never consumes BUG quarantine budget");need(expected.getMessage().contains("LEGACY_SOURCE_TABLE_REQUIRED:"+table),"missing actual legacy source named in typed dependency");}
+        need(totalChanges()==changes&&transactions.size()==tx,"missing source rejects before any business mutation/transaction");need(calls.subList(start,calls.size()).stream().noneMatch(c->String.valueOf(c.get("sql")).matches("(?is)^\\s*(INSERT|UPDATE|DELETE|REPLACE|CREATE|ALTER|DROP|VACUUM|REINDEX)\\b.*")),"readiness failure issues zero business DML and zero DDL");need(rows==count("SELECT count(*) FROM r31_atom_score_stage")&&active.equals(AtomPublicationStoreR31.activeRun(db,"SCORES")),"old complete publication survives missing unrelated legacy source");
+        actualRootStartup();need("ACTUAL_SCHEMA_R27_STARTUP_BODY_RETURNED".equals(startupResult.get("status")),"real startup method restores missing source");AtomPublicationStoreR31.requireReadyR31(db);need(active.equals(AtomPublicationStoreR31.activeRun(db,"SCORES"))&&AtomPublicationStoreR31.activeStates(db).size()==165,"actual startup preserves oldactive and complete consumer map");try(Cursor c=db.rawQuery("SELECT count(*) FROM r31_atom_score_visible WHERE derived=0",null)){need(c.moveToFirst()&&c.getLong(0)==165,"restored actual view still consumes old complete165");}assertBudget(false);writeEvidence("SOURCE_DEPENDENCY_AND_ACTUAL_SCHEMA_STARTUP_RECOVERY_COMPLETED");
+    }
+    void readinessFatalAndUnknown()throws Exception{
+        raw("CREATE TABLE source_probe_version_change(id INTEGER)");
+        Error[] fatals={new NoClassDefFoundError("HOST_NESTED_LINKAGE_FIXTURE"),new OutOfMemoryError("HOST_NESTED_OOM_FIXTURE"),new ThreadDeath()};
+        for(Error fatal:fatals){failReadPrefix="SELECT * FROM "+AtomPublicationStoreR31.SCORE_VIEW+" LIMIT 0";readFault=new IllegalStateException("HOST_WRAPPED_PROCESS_FATAL",fatal);try{AtomPublicationStoreR31.requireReadyR31(db);throw new AssertionError("PROCESS_FATAL_HIDDEN_BY_READINESS");}catch(Error actual){need(actual==fatal,"same nested processfatal object is rethrown");}finally{readFault=null;}}
+        RuntimeException unknown=new IllegalStateException("HOST_EXPLICIT_PLATFORM_QUERY_FAILURE");readFault=unknown;try{AtomPublicationStoreR31.requireReadyR31(db);throw new AssertionError("UNKNOWN_SOURCE_PROBE_REPORTED_READY");}catch(AtomPublicationStoreR31.Dependency expected){need(expected.getCause()==unknown&&FailureDispositionR31.classify(expected).disposition==FailureDispositionR31.Disposition.DEPENDENCY,"unknown source read failure retains cause and typed dependency");}finally{readFault=null;}
+        for(RuntimeException known:new RuntimeException[]{new SQLiteFullException(),new SQLiteDatabaseCorruptException(),new SQLiteDatabaseLockedException(),new java.util.concurrent.CancellationException("HOST_CLASSIFIER_BOUNDARY")}){
+            readFault=known;try{AtomPublicationStoreR31.requireReadyR31(db);throw new AssertionError("KNOWN_FAILURE_HIDDEN_BY_SCHEMA_DEPENDENCY");}catch(RuntimeException actual){need(actual==known&&FailureDispositionR31.classify(actual).disposition==FailureDispositionR31.classify(known).disposition&&FailureDispositionR31.processFatalCause(actual)==null,"known storageFATAL/busy/cancel category remains exact and is not processfatal");}finally{readFault=null;}
+        }
+        AtomPublicationStoreR31.requireReadyR31(db);need(transactions.isEmpty(),"read-only processfatal/unknown probes started no writer transaction");writeEvidence("ACTUAL_READINESS_FATAL_AND_UNKNOWN_BOUNDARIES_COMPLETED");
+    }
+    void legacyShapeCase(){
+        AtomPublicationStoreR31.requireReadyR31(db);raw("DROP TABLE r27_atom_score");
+        if(scenario.equals("readiness-legacy-tabletype"))raw("CREATE VIEW r27_atom_score AS SELECT 'fake' AS atom_id");else raw("CREATE TABLE r27_atom_score(atom_id TEXT PRIMARY KEY)");
+        long changes=totalChanges();int start=calls.size();try{AtomPublicationStoreR31.requireReadyR31(db);throw new AssertionError("WRONG_LEGACY_SHAPE_REPORTED_READY");}catch(AtomPublicationStoreR31.Dependency expected){need(expected.getMessage().contains(scenario.equals("readiness-legacy-tabletype")?"LEGACY_SOURCE_TABLE_REQUIRED:r27_atom_score":"LEGACY_SOURCE_COLUMN_REQUIRED:r27_atom_score:atom_index"),"legacy source type/column defect has exact typed dependency reason");need(!FailureDispositionR31.classify(expected).consumesFaultBudget(),"known source drift does not consume BUG budget");}
+        need(totalChanges()==changes&&transactions.isEmpty()&&calls.subList(start,calls.size()).stream().noneMatch(c->String.valueOf(c.get("sql")).matches("(?is)^\\s*(INSERT|UPDATE|DELETE|REPLACE|CREATE|ALTER|DROP)\\b.*")),"wrong source shape probes never create/repair business schema");writeEvidence("ACTUAL_LEGACY_TYPE_AND_COLUMN_DEPENDENCY_COMPLETED");
+    }
     static Object field(Object owner,String name){try{Field f=owner.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(owner);}catch(Exception e){throw new AssertionError(e);}}
+    static Object staticField(Class<?> type,String name){try{Field f=type.getDeclaredField(name);f.setAccessible(true);return f.get(null);}catch(Exception e){throw new AssertionError(e);}}
     static boolean chainContains(Throwable error,String message){for(int n=0;n<16&&error!=null;n++,error=error.getCause())if(String.valueOf(error.getMessage()).contains(message))return true;return false;}
     void newInputSameScientificOpportunities(){raw("UPDATE r30_live_source_revision SET generation=generation+1 WHERE singleton=1");}
     void rejected(DatabaseCoordinator.WriteRejectedR31 failure){Map<String,Object> row=new LinkedHashMap<>();row.put("category",failure.category);row.put("operation",failure.operation);row.put("phase",failure.phase);row.put("commitOutcome",failure.commitOutcome.name());rejections.add(row);}
@@ -231,16 +273,19 @@ public final class R31AtomPublicationHost implements AutoCloseable {
     }
     void writeEvidence(String status){try{
         Map<String,Object> report=new LinkedHashMap<>();report.put("scope","ACTUAL_PRODUCTION_NATIVE_SQLITE_HOST_ONLY_NOT_ANDROID_NOT_NATURAL_QUALITY");report.put("case",scenario);report.put("status",status);report.put("assertions",assertions);report.put("maxMemory",Runtime.getRuntime().maxMemory());report.put("dynamicBindCap",Math.min(262144L,Runtime.getRuntime().maxMemory()/512L));report.put("injected",injected);report.put("transactions",transactions);report.put("stageInsertAttempts",stageCalls);report.put("sqliteIndependentReadbackOpens",SQLiteDatabase.independentOpens);report.put("actualTypedRejections",rejections);
-        Files.write(new File(output,scenario+".json").toPath(),(JsonR27.write(report)+"\n").getBytes(StandardCharsets.UTF_8));try(PrintWriter p=new PrintWriter(new File(output,scenario+"-sql.jsonl"),"UTF-8")){for(Map<String,Object> call:calls)p.println(JsonR27.write(call));}
+        report.put("startupRecovery",startupResult);Files.write(new File(output,scenario+".json").toPath(),(JsonR27.write(report)+"\n").getBytes(StandardCharsets.UTF_8));try(PrintWriter p=new PrintWriter(new File(output,scenario+"-sql.jsonl"),"UTF-8")){for(Map<String,Object> call:calls)p.println(JsonR27.write(call));}if(!startupCalls.isEmpty())try(PrintWriter p=new PrintWriter(new File(output,scenario+"-startup-sql.jsonl"),"UTF-8")){for(Map<String,Object> call:startupCalls)p.println(JsonR27.write(call));}
         System.out.println("R31_ATOM_HOST case="+scenario+" assertions="+assertions+" transactions="+transactions.size()+" status="+status);
     }catch(IOException e){throw new AssertionError(e);}}
-    public void close()throws Exception{Field f=DatabaseCoordinator.class.getDeclaredField("diagnosticFaultR31");f.setAccessible(true);((ThreadLocal<?>)f.get(null)).remove();RuntimeCoordinatorR26.unbindBackgroundClaimR31();observing=false;SQLiteDatabase.observer=null;need(!db.inTransaction(),"native transaction actually closed before releasing fixture");db.close();need(connection.isClosed(),"actual native connection closed");}
+    public void close()throws Exception{Field f=DatabaseCoordinator.class.getDeclaredField("diagnosticFaultR31");f.setAccessible(true);((ThreadLocal<?>)f.get(null)).remove();RuntimeCoordinatorR26.unbindBackgroundClaimR31();observing=false;SQLiteDatabase.observer=null;need(!db.inTransaction(),"native transaction actually closed before releasing fixture");db.close();need(connection.isClosed(),"actual native connection closed");if(ephemeralDatabase)for(String suffix:new String[]{"","-wal","-shm","-journal"}){File own=new File(databaseFile.getPath()+suffix);need(!own.exists()||own.delete(),"only this fixture's closed temporary SQLite file is removed");}}
     public static void main(String[] args)throws Exception{
         String name=args[0];File output=new File(args[1]);
         boolean process=name.startsWith("process-"),resume=name.contains("resume"),body=name.contains("inbody");File persistent=process?new File(output,body?"process-inbody-fixture.db":"process-aftercommit-fixture.db"):null;
         try(R31AtomPublicationHost h=new R31AtomPublicationHost(name,output,persistent,!resume)){
             try{
                 if(process){h.processPhase(resume,body);return;}
+                if(name.contains("dangling-")||name.contains("rollback-version")){h.readinessCase();return;}
+                if(name.equals("readiness-fatal-unknown")){h.readinessFatalAndUnknown();return;}
+                if(name.equals("readiness-legacy-tabletype")||name.equals("readiness-legacy-column")){h.legacyShapeCase();return;}
                 if(name.equals("legacy-upgrade")){h.legacyCase();return;}
                 if(name.equals("atoms-step-retry")){h.atomsStepRetry();return;}
                 if(Arrays.asList("cancel-between-chunks","interrupt-in-transaction","source-correction","owner-transfer","predecessor-cas","exact-schema-and-report","superseded-replay").contains(name)){h.protocolCase();return;}

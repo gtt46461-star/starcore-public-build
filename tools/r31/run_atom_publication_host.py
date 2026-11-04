@@ -187,9 +187,19 @@ with tempfile.TemporaryDirectory(prefix="r31-atom-publication-") as temporary:
     receipt["compiledHostTestClassSha256"] = {str(p.relative_to(tests)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(tests.rglob("*.class"))}
     baseline_source = tmp / "old-source/AtomWorldR27.java"
     baseline_source.parent.mkdir()
-    baseline_source.write_bytes(subprocess.check_output(["git", "show", BASE+":app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java"], cwd=ROOT))
+    references=ROOT / "tools/r31/atom_publication_host/baseline"
+    origins=json.loads((references/"ORIGINS.json").read_text())
+    baseline_source.write_bytes((references/"AtomWorldR27.java.txt").read_bytes())
     receipt["baselineSourceSha256"] = hashlib.sha256(baseline_source.read_bytes()).hexdigest()
+    if receipt["baselineSourceSha256"]!=origins["AtomWorldR27.java"]["sha256"]:raise RuntimeError("Actual baseline atom source hash mismatch")
     run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", os.pathsep.join(map(str,[sdk,prepared,options.support_jar])), "-d", old, baseline_source], "compile-baseline-atom-owner")
+    baseline_helper = tmp / "old-source/AtomPublicationStoreR31.java"
+    baseline_helper.write_bytes((references/"AtomPublicationStoreR31.java.txt").read_bytes())
+    receipt["baselineReadinessSourceSha256"] = hashlib.sha256(baseline_helper.read_bytes()).hexdigest()
+    if receipt["baselineReadinessSourceSha256"]!=origins["AtomPublicationStoreR31.java"]["sha256"]:raise RuntimeError("Actual baseline readiness source hash mismatch")
+    receipt["baselineReferenceOrigins"]=origins
+    if any(case.startswith("baseline-dangling") for case in options.cases.split(",")):
+        run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", os.pathsep.join(map(str,[sdk,prepared,options.support_jar])), "-d", old, baseline_helper], "compile-baseline-readiness")
     cases=options.cases.split(",")
     if "brier-original" in cases and "baseline-molecules32" not in cases:
         cases.insert(0,"baseline-molecules32")  # Actual old producer output is the numerical reference, never a frozen example.
