@@ -1,0 +1,14 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/workspace/r31-ba35-host-integration/tools/r31/host/R31RuntimeDdlHost.java:13: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/workspace/r31-ba35-host-integration/tools/r31/host/R31RuntimeDdlHost.java:17: warning: Unsafe is internal proprietary API and may be removed in a future release
+    static int checks;static SQLiteDatabase db;static DbStore store;static Unsafe unsafe;
+                                                                           ^
+/workspace/r31-ba35-host-integration/tools/r31/host/R31RuntimeDdlHost.java:88: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Class.forName("org.sqlite.JDBC");Field unsafeField=Unsafe.class.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);unsafe=(Unsafe)unsafeField.get(null);
+                                                           ^
+/workspace/r31-ba35-host-integration/tools/r31/host/R31RuntimeDdlHost.java:88: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Class.forName("org.sqlite.JDBC");Field unsafeField=Unsafe.class.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);unsafe=(Unsafe)unsafeField.get(null);
+                                                                                                                                              ^
+4 warnings

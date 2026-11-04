@@ -1,0 +1,144 @@
+{
+  "scope": "P02_B02_D05_D06_RUNTIME_DDL_REPAIR",
+  "state": "CODE_COMPLETE",
+  "actualProductionChanges": [
+    "ResearchPlatformStoreR929.ensureSchema/schemaReadyReadOnlyR31/activateRuntimeBundle",
+    "UnifiedResearchChoiceR932.freeze"
+  ],
+  "rootStartupIntegration": [
+    "SchemaDomainCoordinatorR926.researchContract includes research_consumer_choice_r932",
+    "ReleaseManifestR926 research domain revision17; SQLite userVersion36 and Critical revision6 retained"
+  ],
+  "startupJournalTestScope": "Actual SchemaDomain coordinator methods with a reduced two-object fixture; full Android R932 startup graph NOT_RUN",
+  "toolSha256": "069679ed67a01a3b94b7638cacaba8787f603dc74bffb1287177b595a804a734",
+  "hostHarnessSha256": "a9d8fb975f7c944069c5600b262c2b5139416f8f5f2f2e3f3fdad37bf71aa66c",
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java": "9fb18a578758bbcfb0b06447dabfcfe09847799fbfc0b964d91d352167fba380",
+    "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java": "bd81717d719da09504b75ffdcdf7c811192a0d83df3960f8d90f34fd6deaf6ec",
+    "app/src/main/java/com/ethk3/novaonepro/TransactionSchemaCacheR941.java": "609b31256f757a9e463973e2d93f9a1492f316187206eb1f33fd56f3db2b53eb",
+    "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java": "9db50623c3238156b369004a4be3d747bc6480b60711a99782d52322b0ef7239",
+    "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java": "a04927d68282a3426786fbd695692b9fa3e62d15e8ee6ba691158844c6af71eb",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java": "fa18cca102f58dd54f9f778e86c25cbf7acbef56df0ca1d47e361e38cd1b47c2",
+    "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java": "92515942369b8aca8d037ac1af4265905c25ed1eaa67c42ca76c17cdf64f978d",
+    "app/src/main/java/com/ethk3/novaonepro/ApiClient.java": "e4161f4f3e76cf4b88fb7856cde5232e1ae8e8f87a85bda9f0975e44db9d3c7b"
+  },
+  "sourceHashStableDuringRun": true,
+  "baselineCommit": "31fea28c5723ac70e47ae4cc7542344b16fb3f91",
+  "baselineFaults": [
+    "BASELINE_D05|businessDdl=13|schemaVersionDrift=true",
+    "BASELINE_D06|businessDdl=13|migrationCallbacks=1|missingTablesCreated=true"
+  ],
+  "currentResults": [
+    "R929_READY_DRIFT_PASS|runtimeCreateAlterDrop=0|bundleRegistryPreserved=true|freezeImmutable=true|explicitRepair=true",
+    "R929_MISSING_ROLLBACK_PASS|missingCreates=0|dependencyExplicit=true|rollbackNoFalseStamp=true",
+    "R929_RESEARCH_REV17_REPAIR_PASS|actualContractIncludesChoice=true|existingRepairJournalRearmed=true|fullAndroidAdvance=NOT_RUN",
+    "R929_SCHEMA_HOST_PASS|assertions=43|backend=native-sqlite-jdbc|android=NOT_RUN|notNaturalEvidence=true"
+  ],
+  "businessCreateAlterDrop": 0,
+  "databaseBackend": "native-sqlite-jdbc",
+  "realAndroidOwnerAdvance": "NOT_RUN",
+  "device": "NOT_RUN",
+  "constraintsPreserved": [
+    "verified bundle registry",
+    "unique active bundle index",
+    "certificate primary/unique keys",
+    "immutable predraw choice and scope",
+    "one existing migration owner, no fake schema_version writes"
+  ],
+  "startupOwner": "existing ResearchSchemaCoordinatorR926.R932_UNIFIED; root research domain revision17 includes choice and re-arms drift journal",
+  "testAdapters": "Only SQLite/DbStore/coordinator platform boundaries adapted; production two stores and actual transaction schema/domain cache execute native SQL",
+  "commands": [
+    {
+      "command": [
+        "javac",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/r31-ba35-host-integration/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "-d",
+        "/tmp/r31-r929-schema-yflpz__1/platform",
+        "/tmp/r31-r929-schema-yflpz__1/shim/android/database/Cursor.java",
+        "/tmp/r31-r929-schema-yflpz__1/shim/android/database/sqlite/SQLiteDatabase.java",
+        "/tmp/r31-r929-schema-yflpz__1/shim/android/database/sqlite/SQLiteDatabaseLockedException.java",
+        "/tmp/r31-r929-schema-yflpz__1/shim/android/database/sqlite/SQLiteException.java",
+        "/tmp/r31-r929-schema-yflpz__1/shim/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "/tmp/r31-r929-schema-yflpz__1/shim/com/ethk3/novaonepro/DbStore.java",
+        "/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/TransactionSchemaCacheR941.java",
+        "/workspace/r31-ba35-host-integration/verification/r932/android-json/org/json/JSON.java",
+        "/workspace/r31-ba35-host-integration/verification/r932/android-json/org/json/JSONArray.java",
+        "/workspace/r31-ba35-host-integration/verification/r932/android-json/org/json/JSONException.java",
+        "/workspace/r31-ba35-host-integration/verification/r932/android-json/org/json/JSONObject.java",
+        "/workspace/r31-ba35-host-integration/verification/r932/android-json/org/json/JSONStringer.java",
+        "/workspace/r31-ba35-host-integration/verification/r932/android-json/org/json/JSONTokener.java",
+        "/workspace/r31-ba35-host-integration/verification/r932/android-json/org/json/NonNull.java",
+        "/workspace/r31-ba35-host-integration/verification/r932/android-json/org/json/Nullable.java",
+        "/workspace/r31-ba35-host-integration/verification/r932/android-json/org/json/UnsupportedAppUsage.java"
+      ],
+      "exitCode": 0,
+      "log": "adapter-javac.log"
+    },
+    {
+      "command": [
+        "javac",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/r31-ba35-host-integration/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "-d",
+        "/tmp/r31-r929-schema-yflpz__1/current",
+        "/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java",
+        "/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+        "/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/TransactionSchemaCacheR941.java",
+        "/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+        "/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
+        "/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+        "/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+        "/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/ApiClient.java"
+      ],
+      "exitCode": 0,
+      "log": "production-javac.log"
+    },
+    {
+      "command": [
+        "javac",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/r31-ba35-host-integration/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "-d",
+        "/tmp/r31-r929-schema-yflpz__1/baseline",
+        "/tmp/r31-r929-schema-yflpz__1/baseline-source/ResearchPlatformStoreR929.java",
+        "/tmp/r31-r929-schema-yflpz__1/baseline-source/UnifiedResearchChoiceR932.java"
+      ],
+      "exitCode": 0,
+      "log": "baseline-javac.log"
+    },
+    {
+      "command": [
+        "javac",
+        "-cp",
+        "/tmp/r31-r929-schema-yflpz__1/platform:/tmp/r31-r929-schema-yflpz__1/current:/workspace/r31-ba35-host-integration/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-r929-schema-yflpz__1/test",
+        "/workspace/r31-ba35-host-integration/tools/r31/schema_host/R929BusinessSchemaHost.java"
+      ],
+      "exitCode": 0,
+      "log": "harness-javac.log"
+    },
+    {
+      "command": [
+        "java",
+        "-cp",
+        "/tmp/r31-r929-schema-yflpz__1/platform:/tmp/r31-r929-schema-yflpz__1/baseline:/tmp/r31-r929-schema-yflpz__1/test:/tmp/r31-r929-schema-yflpz__1/current:/workspace/r31-ba35-host-integration/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.R929BusinessSchemaHost",
+        "baseline"
+      ],
+      "exitCode": 0,
+      "log": "baseline-native.log"
+    },
+    {
+      "command": [
+        "java",
+        "-cp",
+        "/tmp/r31-r929-schema-yflpz__1/platform:/tmp/r31-r929-schema-yflpz__1/current:/tmp/r31-r929-schema-yflpz__1/test:/workspace/r31-ba35-host-integration/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.R929BusinessSchemaHost"
+      ],
+      "exitCode": 0,
+      "log": "current-native.log"
+    }
+  ]
+}

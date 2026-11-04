@@ -590,6 +590,12 @@
           "result": "PASS_NATIVE_HOST_ONLY",
           "assertions": 211,
           "evidence": "verification/r31/p02/android-null-owner/RECEIPT.json"
+        },
+        {
+          "result": "FAILED_ONE_OF481_ALL_TESTS_EXECUTED_NO_SKIPS",
+          "evidence": "verification/r31/p02/build-identity/P02_MERGED_PROTOCOLS_COMPATIBILITY_013_COMMITTED_UNEXCLUDED_JOINT.json",
+          "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+          "scope": "JAVA_ANDROIDTEST_COMPILE_BOTH_LINT_IDENTITY_PASS;481UNIT_480PASS1RESOURCE_ADMISSIONFAIL"
         }
       ],
       "apk_identity": {
@@ -664,6 +670,11 @@
           "state": "BUILD_PASS",
           "receipt": "verification/r31/p01/card_updates/R31-B01-C02.json",
           "receipt_sha256": "1dad2ebaa1333e131fc05385d6806aa87b2991e9804049d3b4d64ffc06fa3d8d"
+        },
+        {
+          "at": "2026-11-04T18:15:35.970155+00:00",
+          "state": "BUILD_PASS",
+          "reason": "Actual full481/1 failure recorded; preserve previous472/8 and remote472/0 separately; no card promotion"
         }
       ]
     },
@@ -1227,12 +1238,19 @@
           "sha256_at_record": "c9562be588dfb38bf588797c1b4a10ec8d8a0330a692b85fbaaf44765aaa0c8d",
           "source_commit": "a4e4c4b887ed4c685929a2241188c9f0255f5ef6",
           "scope": "MODULE_IMPLEMENTED_AND_HOST_VERIFIED; MERGED_ANDROID_REVALIDATION_PENDING"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "methods": "recordCacheRebuildsR30 retains bounded prepared exact events and lease until idempotent fenced success; same identity retry afterUNKNOWN and no wrong-owner dequeue",
+          "sha256_at_record": "5f792f65509da955b9dbd2ca76cfb82d79b1db7aa7ca5d0b43a3800631823adb",
+          "scope": "ACTUAL148ASSERT_HOST31STAGES;NEW_MAIN_BUILD_NOT_RUN"
         }
       ],
       "commits": [
         "844a78488f396189c2db98591782b7bb214799d2",
         "84b2de53fef1a0edc7d41cfe762bbdc13aa2408d",
-        "a4e4c4b887ed4c685929a2241188c9f0255f5ef6"
+        "a4e4c4b887ed4c685929a2241188c9f0255f5ef6",
+        "f6f8bbc878aec16190d6dd7f7fd44d63b138d2d9"
       ],
       "migration_versions": [
         "SQLite userVersion 36 retained",
@@ -1268,6 +1286,17 @@
           "evidence": "verification/r31/live_writer_budgets/CURRENT_EVIDENCE.json",
           "result": "PASS_WITH_MODULE_SCOPE_AND_REMAINING_LIMITS_IN_RECEIPT",
           "scope": "MODULE_NATIVE_HOST_ONLY; NO_ANDROID_DEVICE_SOAK_OR_NATURAL_QUALITY_CLAIM"
+        },
+        {
+          "result": "FAILED_ONE_OF481_ALL_TESTS_EXECUTED_NO_SKIPS",
+          "evidence": "verification/r31/p02/build-identity/P02_MERGED_PROTOCOLS_COMPATIBILITY_013_COMMITTED_UNEXCLUDED_JOINT.json",
+          "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+          "scope": "JAVA_ANDROIDTEST_COMPILE_BOTH_LINT_IDENTITY_PASS;481UNIT_480PASS1RESOURCE_ADMISSIONFAIL"
+        },
+        {
+          "result": "PASS_MODULE_ONLY",
+          "evidence": "verification/r31/p02/cache-rebuild-delivery/fixed-RECEIPT.json",
+          "scope": "148 actualnative assertions;16-events<=32SQL inclguards/receipt;process-local precommit diagnostic durability only"
         }
       ],
       "apk_identity": {
@@ -1347,6 +1376,11 @@
           "at": "2026-11-04T17:54:43.441282+00:00",
           "state": "IMPLEMENTING",
           "reason": "Merged actual module commits and evidence; do not promote status before full integration gate"
+        },
+        {
+          "at": "2026-11-04T18:15:35.970155+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "Actual full481/1 failure recorded; preserve previous472/8 and remote472/0 separately; no card promotion"
         }
       ]
     },
@@ -1462,6 +1496,12 @@
           "evidence": "verification/r31/live_writer_budgets/CURRENT_EVIDENCE.json",
           "result": "PASS_WITH_MODULE_SCOPE_AND_REMAINING_LIMITS_IN_RECEIPT",
           "scope": "MODULE_NATIVE_HOST_ONLY; NO_ANDROID_DEVICE_SOAK_OR_NATURAL_QUALITY_CLAIM"
+        },
+        {
+          "result": "FAILED_ONE_OF481_ALL_TESTS_EXECUTED_NO_SKIPS",
+          "evidence": "verification/r31/p02/build-identity/P02_MERGED_PROTOCOLS_COMPATIBILITY_013_COMMITTED_UNEXCLUDED_JOINT.json",
+          "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+          "scope": "JAVA_ANDROIDTEST_COMPILE_BOTH_LINT_IDENTITY_PASS;481UNIT_480PASS1RESOURCE_ADMISSIONFAIL"
         }
       ],
       "apk_identity": {
@@ -1534,6 +1574,11 @@
           "at": "2026-11-04T17:54:43.441282+00:00",
           "state": "BUILD_PASS",
           "reason": "Merged actual module commits and evidence; do not promote status before full integration gate"
+        },
+        {
+          "at": "2026-11-04T18:15:35.970155+00:00",
+          "state": "BUILD_PASS",
+          "reason": "Actual full481/1 failure recorded; preserve previous472/8 and remote472/0 separately; no card promotion"
         }
       ]
     },
@@ -2506,6 +2551,12 @@
           "result": "PASS_HOST_NOT_ANDROID",
           "assertions": 23,
           "evidence": "verification/r31/p02/resource-recovery-consumer/receipt.json"
+        },
+        {
+          "result": "FAILED_ONE_OF481_ALL_TESTS_EXECUTED_NO_SKIPS",
+          "evidence": "verification/r31/p02/build-identity/P02_MERGED_PROTOCOLS_COMPATIBILITY_013_COMMITTED_UNEXCLUDED_JOINT.json",
+          "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+          "scope": "JAVA_ANDROIDTEST_COMPILE_BOTH_LINT_IDENTITY_PASS;481UNIT_480PASS1RESOURCE_ADMISSIONFAIL"
         }
       ],
       "apk_identity": {
@@ -2586,6 +2637,11 @@
           "at": "2026-11-04T14:04:17.876950+00:00",
           "state": "IMPLEMENTING",
           "reason": "e056 full unexcluded executed456 tests/6 failures; targeted passes do not close card"
+        },
+        {
+          "at": "2026-11-04T18:15:35.970155+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "Actual full481/1 failure recorded; preserve previous472/8 and remote472/0 separately; no card promotion"
         }
       ],
       "owner_slices": [
@@ -4196,6 +4252,12 @@
           "evidence": "verification/r31/p02/family-admission/RECEIPT.json",
           "result": "PASS_WITH_MODULE_SCOPE_AND_REMAINING_LIMITS_IN_RECEIPT",
           "scope": "MODULE_NATIVE_HOST_ONLY; NO_ANDROID_DEVICE_SOAK_OR_NATURAL_QUALITY_CLAIM"
+        },
+        {
+          "result": "FAILED_ONE_OF481_ALL_TESTS_EXECUTED_NO_SKIPS",
+          "evidence": "verification/r31/p02/build-identity/P02_MERGED_PROTOCOLS_COMPATIBILITY_013_COMMITTED_UNEXCLUDED_JOINT.json",
+          "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+          "scope": "JAVA_ANDROIDTEST_COMPILE_BOTH_LINT_IDENTITY_PASS;481UNIT_480PASS1RESOURCE_ADMISSIONFAIL"
         }
       ],
       "apk_identity": {
@@ -4303,6 +4365,11 @@
           "at": "2026-11-04T17:54:43.441282+00:00",
           "state": "FAILED",
           "reason": "Merged actual module commits and evidence; do not promote status before full integration gate"
+        },
+        {
+          "at": "2026-11-04T18:15:35.970155+00:00",
+          "state": "FAILED",
+          "reason": "Actual full481/1 failure recorded; preserve previous472/8 and remote472/0 separately; no card promotion"
         }
       ],
       "integration_repair_observation": {

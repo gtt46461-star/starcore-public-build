@@ -1,0 +1,30 @@
+R31_HOST_DEPENDENCY_PROVENANCE {"androidSdk": {"path": "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar", "sha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a"}, "classes": {"path": "/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar", "sha256": "8dd37c4c7f21e09fc1413e7c2b992538b4d66f833d07c754d41ca65df2dc5da0"}, "generatedResources": {"path": "/tmp/r31-ba35-host-integration-mifthdj3/R.jar", "sha256": "ee74e9c8d95f2a1cb9d5477246207aac640b2e790edaaa495142f626318f4956"}, "sqliteJdbc": {"path": "/tmp/r31-baseline-deps/sqlite-jdbc.jar", "sha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa"}}
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/workspace/r31-ba35-host-integration/tools/r31/host/R31RuntimeHealthHost.java:13: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/workspace/r31-ba35-host-integration/tools/r31/host/R31RuntimeHealthHost.java:19: warning: Unsafe is internal proprietary API and may be removed in a future release
+    static int checks;static TraceDb db;static Unsafe unsafe;static DbStore store;static DatabaseCoordinator coordinator;
+                                               ^
+/workspace/r31-ba35-host-integration/tools/r31/host/R31RuntimeHealthHost.java:96: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Class.forName("org.sqlite.JDBC");File file=new File(args[0]);Field unsafeField=Unsafe.class.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);unsafe=(Unsafe)unsafeField.get(null);
+                                                                                       ^
+/workspace/r31-ba35-host-integration/tools/r31/host/R31RuntimeHealthHost.java:96: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Class.forName("org.sqlite.JDBC");File file=new File(args[0]);Field unsafeField=Unsafe.class.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);unsafe=(Unsafe)unsafeField.get(null);
+                                                                                                                                                                          ^
+4 warnings
+R31_HEALTH_SQL_NATIVE_HOST_PASS singleQuery=true quarantine13=DEGRADED unknownNotZero=true perTaskStall=true dependencyResourceDistinct=true cappedRows=128
+R31_HEALTH_CONTROL_NATIVE_HOST_PASS cachedGetterNoQuery=true async=true twoObservations=true actualThreadDrain=true sameOwnerFenceAdvanced=true resourcePauseNoRevoke=true
+R31_RUNTIME_HEALTH_HOST_PASS assertions=99 scope=ACTUAL_PRODUCTION_QUERY_AND_CONTROL_NATIVE_SQLITE_HOST_FIXTURES_NOT_ANDROID_NOT_DEVICE_NOT_SOAK_NOT_NATURAL_QUALITY
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+JUnit version 4.13.2
+.......
+Time: 0.326
+
+OK (7 tests)
+
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+R31_TASK_RUNTIME_NATIVE_SQLITE_HOST_PASS_NOT_ANDROID_NOT_DEVICE_NOT_SOAK

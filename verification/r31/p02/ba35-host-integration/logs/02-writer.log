@@ -1,0 +1,92 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+WRITER_ROTATE_HOST_PASS events=160000 lost=0
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java:6: error: cannot find symbol
+import com.ethk3.novaonepro.DatabaseCoordinator;
+                           ^
+  symbol:   class DatabaseCoordinator
+  location: package com.ethk3.novaonepro
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java:96: error: package DatabaseCoordinator does not exist
+    static DatabaseCoordinator.CommitResultR31<Integer> commitR31(DbStore store,String operation,boolean hold,ChunkR31 chunk) {
+                              ^
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java:86: error: package RuntimeCoordinatorR26 does not exist
+        RuntimeCoordinatorR26.Claim c=RuntimeCoordinatorR26.currentClaimR30();
+                             ^
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java:86: error: cannot find symbol
+        RuntimeCoordinatorR26.Claim c=RuntimeCoordinatorR26.currentClaimR30();
+                                      ^
+  symbol:   variable RuntimeCoordinatorR26
+  location: class HoldLedgerFlushR30
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java:92: error: cannot find symbol
+        DatabaseCoordinator.requireSchemaObjectsR31(db,hold?"R30_WRITER_HOLD_FLUSH":"R30_TIMELINE_COMMIT_OBSERVATIONS",
+        ^
+  symbol:   variable DatabaseCoordinator
+  location: class HoldLedgerFlushR30
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java:98: error: package RuntimeCoordinatorR26 does not exist
+        RuntimeCoordinatorR26.Claim c=RuntimeCoordinatorR26.currentClaimR30();
+                             ^
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java:98: error: cannot find symbol
+        RuntimeCoordinatorR26.Claim c=RuntimeCoordinatorR26.currentClaimR30();
+                                      ^
+  symbol:   variable RuntimeCoordinatorR26
+  location: class HoldLedgerFlushR30
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java:99: error: package DatabaseCoordinator does not exist
+        DatabaseCoordinator.CommitIdentityR31 id=new DatabaseCoordinator.CommitIdentityR31(chunk.key,chunk.payload,chunk.task,
+                           ^
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java:99: error: package DatabaseCoordinator does not exist
+        DatabaseCoordinator.CommitIdentityR31 id=new DatabaseCoordinator.CommitIdentityR31(chunk.key,chunk.payload,chunk.task,
+                                                                        ^
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java:102: error: package DatabaseCoordinator does not exist
+                DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.TELEMETRY,operation),id,db->{
+                                                                       ^
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java:102: error: package DatabaseCoordinator does not exist
+                DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.TELEMETRY,operation),id,db->{
+                                   ^
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java:108: error: cannot find symbol
+    static void rethrowFatalR31(Throwable failure){Error fatal=FailureDispositionR31.processFatalCause(failure);if(fatal!=null)throw fatal;}
+                                                               ^
+  symbol:   variable FailureDispositionR31
+  location: class HoldLedgerFlushR30
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java:119: error: cannot find symbol
+            requireReadyR31(store.readable(),true); // read only; missing schema never rotates away the live window
+                                 ^
+  symbol:   method readable()
+  location: variable store of type DbStore
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java:132: error: package DatabaseCoordinator does not exist
+            DatabaseCoordinator.CommitResultR31<Integer> committed=commitR31(store,"R30_WRITER_HOLD_FLUSH",true,closed.chunk);
+                               ^
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java:158: error: cannot find symbol
+        try(Cursor c=store.readable().rawQuery("SELECT window_start,operation,critical,window_end,process_session FROM r30_writer_hold WHERE window_start<? AND window_end<? AND window_start<=window_end ORDER BY window_start,operation,critical LIMIT 52",new String[]{Long.toString(cutoff),Long.toString(cutoff)})) {
+                          ^
+  symbol:   method readable()
+  location: variable store of type DbStore
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:54: error: cannot find symbol
+            HoldLedgerFlushR30.requireReadyR31(store.readable(),false);
+                                                    ^
+  symbol:   method readable()
+  location: variable store of type DbStore
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:55: error: cannot find symbol
+            if(preparedCommittedR31==null)preparedCommittedR31=prepareCommittedR31(store.readable());
+                                                                                        ^
+  symbol:   method readable()
+  location: variable store of type DbStore
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:66: error: package com.ethk3.novaonepro.DatabaseCoordinator does not exist
+            if(unavailable instanceof com.ethk3.novaonepro.DatabaseCoordinator.WriteRejectedR31
+                                                                              ^
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:67: error: package com.ethk3.novaonepro.DatabaseCoordinator does not exist
+                    &&((com.ethk3.novaonepro.DatabaseCoordinator.WriteRejectedR31)unavailable).commitOutcome==com.ethk3.novaonepro.DatabaseCoordinator.CommitOutcome.ROLLED_BACK
+                                                                ^
+/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java:67: error: package com.ethk3.novaonepro.DatabaseCoordinator does not exist
+                    &&((com.ethk3.novaonepro.DatabaseCoordinator.WriteRejectedR31)unavailable).commitOutcome==com.ethk3.novaonepro.DatabaseCoordinator.CommitOutcome.ROLLED_BACK
+                                                                                                                                                      ^
+20 errors
+Traceback (most recent call last):
+  File "/workspace/r31-ba35-host-integration/tools/r30-repair/run_writer_host.py", line 48, in <module>
+    run(['javac','-encoding','UTF-8','-cp',os.pathsep.join(map(str,[out,sdk])),'-d',out,*sorted((root/'tools/r29/qual_host/shim').rglob('*.java')),*files,src/'JsonR27.java',src/'HoldLedgerFlushR30.java',src/'IssueTimelineR30.java',src/'IssueTimelineWriterR30.java',src/'HashingSU1.java'])
+  File "/workspace/r31-ba35-host-integration/tools/r30-repair/run_writer_host.py", line 8, in run
+    def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['javac', '-encoding', 'UTF-8', '-cp', '/tmp/repair-writer-9qeq3gwa/classes:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar', '-d', '/tmp/repair-writer-9qeq3gwa/classes', '/workspace/r31-ba35-host-integration/tools/r29/qual_host/shim/android/database/Cursor.java', '/workspace/r31-ba35-host-integration/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java', '/workspace/r31-ba35-host-integration/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabaseLockedException.java', '/workspace/r31-ba35-host-integration/tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java', '/tmp/repair-writer-9qeq3gwa/com/ethk3/novaonepro/DbStore.java', '/tmp/repair-writer-9qeq3gwa/android/util/Log.java', '/tmp/repair-writer-9qeq3gwa/com/ethk3/novaonepro/strategyv2/NativeWriterRetryHost.java', '/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java', '/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java', '/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineR30.java', '/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java', '/workspace/r31-ba35-host-integration/app/src/main/java/com/ethk3/novaonepro/strategyv2/HashingSU1.java']' returned non-zero exit status 1.

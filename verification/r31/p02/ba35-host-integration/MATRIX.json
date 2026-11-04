@@ -1,0 +1,538 @@
+{
+  "scope": "SEQUENTIAL_24_GROUPS_ACTUAL_PRODUCTION_BYTECODE_NATIVE_SQLITE_AND_LABELLED_HOST_ADAPTERS_NOT_ART_OR_NATURAL",
+  "sourceCommit": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+  "worktree": "/workspace/r31-ba35-host-integration",
+  "startedAt": "2026-11-04T18:01:03.269270+00:00",
+  "dependencyEnvironment": {
+    "SQLITE_JDBC": "/tmp/r31-baseline-deps/sqlite-jdbc.jar",
+    "R31_HOST_CLASSES": "/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar",
+    "R31_HOST_SUPPORT_CLASSES": "/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar",
+    "R31_MEMORY_CLASSES": "/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes",
+    "R31_MEMORY_CONTROL_SUPPORT": "/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar",
+    "R31_HOST_RJAR": "/tmp/r31-ba35-host-integration-mifthdj3/R.jar",
+    "ANDROID_HOME": "/workspace/starcore-environment/android-sdk",
+    "JAVA_HOME": "/workspace/starcore-environment/tools/jdk-17.0.17+10",
+    "GRADLE_USER_HOME": "/workspace/starcore-environment/gradle-home"
+  },
+  "tests": [
+    {
+      "index": 1,
+      "name": "diagnosis",
+      "command": [
+        "python3",
+        "tools/r30-repair/run_diagnosis_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:01:03.269580+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/01-diagnosis.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 4.002,
+      "finishedAt": "2026-11-04T18:01:07.271877+00:00",
+      "logSha256": "306dd4a057289f949221a04c53b8bc7038f1ec7f2a7a6894741fc29533b8c1f7",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r30-repair/run_diagnosis_host.py"
+    },
+    {
+      "index": 2,
+      "name": "writer",
+      "command": [
+        "python3",
+        "tools/r30-repair/run_writer_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:01:07.272849+00:00",
+      "status": "HOST_FAILED",
+      "log": "logs/02-writer.log",
+      "exitCode": 1,
+      "timeout": false,
+      "elapsedRealSeconds": 3.002,
+      "finishedAt": "2026-11-04T18:01:10.275564+00:00",
+      "logSha256": "b95e31b6ef4cbdd844281084fe66abff32245b90c29849693a470ec37337dd69",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r30-repair/run_writer_host.py"
+    },
+    {
+      "index": 3,
+      "name": "retention",
+      "command": [
+        "python3",
+        "tools/r30-repair/run_retention_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:01:10.276190+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/03-retention.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 3.002,
+      "finishedAt": "2026-11-04T18:01:13.278378+00:00",
+      "logSha256": "352bcc4be7d47a4e09670f9581e3bd0d2788ce7c9e79ed399140210b2b640f08",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r30-repair/run_retention_host.py"
+    },
+    {
+      "index": 4,
+      "name": "timeline",
+      "command": [
+        "python3",
+        "tools/r30-repair/run_timeline_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:01:13.278948+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/04-timeline.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 4.002,
+      "finishedAt": "2026-11-04T18:01:17.280884+00:00",
+      "logSha256": "9e2759e21a51851654f1ed012bd9994d717cf69c610efefc1959133ab8df971a",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r30-repair/run_timeline_host.py"
+    },
+    {
+      "index": 5,
+      "name": "commit_failure",
+      "command": [
+        "python3",
+        "tools/r30-repair/run_commit_failure_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:01:17.281424+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/05-commit_failure.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 6.001,
+      "finishedAt": "2026-11-04T18:01:23.283106+00:00",
+      "logSha256": "d3c20fa3f16bd35b07731e354b599b0da4878802401bbbafc66137a78d9cfd08",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r30-repair/run_commit_failure_host.py"
+    },
+    {
+      "index": 6,
+      "name": "progress",
+      "command": [
+        "python3",
+        "tools/r30-repair/run_progress_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:01:23.283617+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/06-progress.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 2.004,
+      "finishedAt": "2026-11-04T18:01:25.287719+00:00",
+      "logSha256": "cd682fc3ae5105ea9c4a63f5cc8579b4125a6bc46ba5274e9c3f04246401ce87",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r30-repair/run_progress_host.py"
+    },
+    {
+      "index": 7,
+      "name": "neural",
+      "command": [
+        "python3",
+        "tools/r30-repair/run_neural_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:01:25.288438+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/07-neural.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 25.014,
+      "finishedAt": "2026-11-04T18:01:50.303158+00:00",
+      "logSha256": "a113defae693c9bb3be17fd23230d21c2bab488c467ae81be0c0d0f9273a2ab4",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r30-repair/run_neural_host.py"
+    },
+    {
+      "index": 8,
+      "name": "qualification",
+      "command": [
+        "python3",
+        "tools/r30-repair/run_qualification_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:01:50.304786+00:00",
+      "status": "HOST_FAILED",
+      "log": "logs/08-qualification.log",
+      "exitCode": 1,
+      "timeout": false,
+      "elapsedRealSeconds": 5.014,
+      "finishedAt": "2026-11-04T18:01:55.319157+00:00",
+      "logSha256": "59e4bbd47ba2094f987d23f83ab6d7b0d0efafee97df1e4ebe04bc97aca3960a",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r30-repair/run_qualification_host.py"
+    },
+    {
+      "index": 9,
+      "name": "input_pin",
+      "command": [
+        "python3",
+        "tools/r30-repair/run_input_pin_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:01:55.320938+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/09-input_pin.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 3.002,
+      "finishedAt": "2026-11-04T18:01:58.323268+00:00",
+      "logSha256": "40097ce121ed04498c628c0e16ee147d6a04eaf8e08b910bcb08e7138b286d77",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r30-repair/run_input_pin_host.py"
+    },
+    {
+      "index": 10,
+      "name": "matrix",
+      "command": [
+        "python3",
+        "tools/r30-repair/run_matrix_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:01:58.324020+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/10-matrix.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 7.005,
+      "finishedAt": "2026-11-04T18:02:05.328977+00:00",
+      "logSha256": "97692b2f3b8acd77b49304c9ce4f8dba202b1be8da0646ae378fa32c0340b7f2",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r30-repair/run_matrix_host.py"
+    },
+    {
+      "index": 11,
+      "name": "research",
+      "command": [
+        "python3",
+        "tools/r30-repair/run_research_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:02:05.330439+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/11-research.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 5.009,
+      "finishedAt": "2026-11-04T18:02:10.339822+00:00",
+      "logSha256": "5fae6b86d1d7849278e4db6640e2b00c1fafe3d5722ba6743cfa4b9455d8f61e",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r30-repair/run_research_host.py"
+    },
+    {
+      "index": 12,
+      "name": "observatory",
+      "command": [
+        "python3",
+        "tools/r30-repair/run_observatory_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:02:10.340542+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/12-observatory.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 3.001,
+      "finishedAt": "2026-11-04T18:02:13.342229+00:00",
+      "logSha256": "25e6843d53db9826d0ea55eab77d84ad0661930f3a92d9d9b48a10be00e9bc0a",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r30-repair/run_observatory_host.py"
+    },
+    {
+      "index": 13,
+      "name": "snapshot",
+      "command": [
+        "python3",
+        "tools/r30-repair/run_snapshot_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:02:13.343227+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/13-snapshot.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 3.002,
+      "finishedAt": "2026-11-04T18:02:16.345465+00:00",
+      "logSha256": "e0a9996b9537bba844c2c4c434bfcc0fe77b611294916e904cb37b79e483d16b",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r30-repair/run_snapshot_host.py"
+    },
+    {
+      "index": 14,
+      "name": "r31-memory",
+      "command": [
+        "python3",
+        "tools/r31/verify_memory.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:02:16.346296+00:00",
+      "status": "HOST_FAILED",
+      "log": "logs/14-r31-memory.log",
+      "exitCode": 1,
+      "timeout": false,
+      "elapsedRealSeconds": 13.01,
+      "finishedAt": "2026-11-04T18:02:29.356739+00:00",
+      "logSha256": "b175aac4845ab7e103e050310b9d862a018b5736751decdfa1bc74214a22f902",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r31/verify_memory.py"
+    },
+    {
+      "index": 15,
+      "name": "r31-pitguard_allocation",
+      "command": [
+        "python3",
+        "tools/r31/verify_pitguard_allocation.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:02:29.363281+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/15-r31-pitguard_allocation.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 4.005,
+      "finishedAt": "2026-11-04T18:02:33.368825+00:00",
+      "logSha256": "b021d65a93573ec854e2016176433c802e97b570c58d0fc52f18be37a902e123",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r31/verify_pitguard_allocation.py"
+    },
+    {
+      "index": 16,
+      "name": "r31-runtime_memory_control",
+      "command": [
+        "python3",
+        "tools/r31/verify_runtime_memory_control.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:02:33.370482+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/16-r31-runtime_memory_control.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 128.074,
+      "finishedAt": "2026-11-04T18:04:41.445368+00:00",
+      "logSha256": "f45687ff90e7afdb987ae4d616d4886baf491900f8cefc094b982ae1e99d2ef1",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r31/verify_runtime_memory_control.py"
+    },
+    {
+      "index": 17,
+      "name": "r31-resource_recovery",
+      "command": [
+        "python3",
+        "tools/r31/verify_resource_recovery.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:04:41.450253+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/17-r31-resource_recovery.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 127.505,
+      "finishedAt": "2026-11-04T18:06:48.956012+00:00",
+      "logSha256": "f5d7f55dfd9bd768f5fd9ab3203da25c623f53f0aefac24d8201e659352403e9",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r31/verify_resource_recovery.py"
+    },
+    {
+      "index": 18,
+      "name": "r31-task_runtime",
+      "command": [
+        "python3",
+        "tools/r31/run_task_runtime_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:06:48.967655+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/18-r31-task_runtime.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 24.022,
+      "finishedAt": "2026-11-04T18:07:12.990845+00:00",
+      "logSha256": "b6ffca7c5f5b7fe4d86cb16981de078a48c23263f02baae1cee4e4a0cdb5a6a8",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r31/run_task_runtime_host.py"
+    },
+    {
+      "index": 19,
+      "name": "r31-write_protocol",
+      "command": [
+        "python3",
+        "tools/r31/run_write_protocol_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:07:12.992455+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/19-r31-write_protocol.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 15.036,
+      "finishedAt": "2026-11-04T18:07:28.029806+00:00",
+      "logSha256": "974d0242afda1717cdf4e95d7ac0191b5da1c33a1f10b19e0504c47288dccaa1",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r31/run_write_protocol_host.py"
+    },
+    {
+      "index": 20,
+      "name": "r31-service_protocol",
+      "command": [
+        "python3",
+        "tools/r31/run_service_protocol_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:07:28.035669+00:00",
+      "status": "HOST_FAILED",
+      "log": "logs/20-r31-service_protocol.log",
+      "exitCode": 1,
+      "timeout": false,
+      "elapsedRealSeconds": 15.012,
+      "finishedAt": "2026-11-04T18:07:43.047923+00:00",
+      "logSha256": "49bb17fb2dbf48fcf77c248d65608df86d13e1124c65e4ea618f7f32cebda394",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r31/run_service_protocol_host.py"
+    },
+    {
+      "index": 21,
+      "name": "r31-runtime_ddl",
+      "command": [
+        "python3",
+        "tools/r31/run_runtime_ddl_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:07:43.050285+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/21-r31-runtime_ddl.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 20.031,
+      "finishedAt": "2026-11-04T18:08:03.081705+00:00",
+      "logSha256": "b8f79d58139d3ef9e734d01e1cc0de2d16cfc25979e6a3f58aa7eada72a537e6",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r31/run_runtime_ddl_host.py"
+    },
+    {
+      "index": 22,
+      "name": "r31-research_schema",
+      "command": [
+        "python3",
+        "tools/r31/run_research_schema_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {},
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:08:03.085436+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/22-r31-research_schema.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 20.051,
+      "finishedAt": "2026-11-04T18:08:23.137441+00:00",
+      "logSha256": "b03c5d2b8c7fba1cf60760423da3384c07e14dde987665302ce6972d3d1aca00",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\npython3 tools/r31/run_research_schema_host.py"
+    },
+    {
+      "index": 23,
+      "name": "R31RuntimeHealthHost",
+      "command": [
+        "python3",
+        "tools/r31/run_task_runtime_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {
+        "R31_RUNTIME_HOST_CLASS": "R31RuntimeHealthHost",
+        "R31_RUNTIME_OUTPUT": "verification/r31/ci-scoped-R31RuntimeHealthHost"
+      },
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:08:23.153214+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/23-R31RuntimeHealthHost.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 19.038,
+      "finishedAt": "2026-11-04T18:08:42.192276+00:00",
+      "logSha256": "0f720ae52a5a73d8bf13f2be6144e359cbd00bdd463ecaeb04d93813bdf9a0ef",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\nR31_RUNTIME_HOST_CLASS=R31RuntimeHealthHost R31_RUNTIME_OUTPUT=verification/r31/ci-scoped-R31RuntimeHealthHost python3 tools/r31/run_task_runtime_host.py"
+    },
+    {
+      "index": 24,
+      "name": "R31ResourceRecoveryConsumerHost",
+      "command": [
+        "python3",
+        "tools/r31/run_task_runtime_host.py"
+      ],
+      "cwd": "/workspace/r31-ba35-host-integration",
+      "extraEnvironment": {
+        "R31_RUNTIME_HOST_CLASS": "R31ResourceRecoveryConsumerHost",
+        "R31_RUNTIME_OUTPUT": "verification/r31/ci-scoped-R31ResourceRecoveryConsumerHost"
+      },
+      "attempt": 1,
+      "sandbox": "use_default",
+      "startedAt": "2026-11-04T18:08:42.194756+00:00",
+      "status": "HOST_PASS",
+      "log": "logs/24-R31ResourceRecoveryConsumerHost.log",
+      "exitCode": 0,
+      "timeout": false,
+      "elapsedRealSeconds": 142.241,
+      "finishedAt": "2026-11-04T18:11:04.458357+00:00",
+      "logSha256": "d899d064c907a69a33e0fe2bb06779918b9d58b40cc3db4a26e0ea4d84365b2a",
+      "exactReproductionCommand": "source /workspace/starcore-environment/activate.sh\nexport SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar\nexport R31_HOST_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_SUPPORT_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_MEMORY_CLASSES=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes\nexport R31_MEMORY_CONTROL_SUPPORT=/tmp/r31-ba35-host-integration-mifthdj3/frozen-debug-classes.jar\nexport R31_HOST_RJAR=/tmp/r31-ba35-host-integration-mifthdj3/R.jar\ncd /workspace/r31-ba35-host-integration\nR31_RUNTIME_HOST_CLASS=R31ResourceRecoveryConsumerHost R31_RUNTIME_OUTPUT=verification/r31/ci-scoped-R31ResourceRecoveryConsumerHost python3 tools/r31/run_task_runtime_host.py"
+    }
+  ],
+  "android": "NOT_RUN",
+  "physicalDevice": "NOT_RUN",
+  "continuous24h": "NOT_RUN",
+  "continuous72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "finishedAt": "2026-11-04T18:11:04.460062+00:00",
+  "passed": 20,
+  "failed": 4,
+  "status": "HOST_MATRIX_HAS_REAL_FAILURES_ALL_24_ATTEMPTED"
+}

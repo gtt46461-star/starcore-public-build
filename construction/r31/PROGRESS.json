@@ -26,7 +26,7 @@
     "future_samples_this_build": 0,
     "reason": "No prospective run of this APK; historical/SHADOW/synthetic evidence does not establish natural quality."
   },
-  "recorded_at": "2026-11-04T17:54:43.511680+00:00",
+  "recorded_at": "2026-11-04T18:29:36.588561+00:00",
   "plan_batches": 13,
   "started_cards": 18,
   "started_is_not_completed": true,
@@ -38,14 +38,13 @@
     "B04",
     "B05"
   ],
-  "current_phase": "P02",
-  "current_phase_ordinal": 3,
+  "current_phase": "P01",
+  "current_phase_ordinal": 2,
   "current_scope": [
-    "B03",
-    "B04",
-    "B05_FRONT_ONLY"
+    "B01_B02_JOINT_GATE_REPAIR",
+    "P02_EXISTING_SOURCE_INTEGRATION_ONLY"
   ],
-  "latest_pushed_checkpoint": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
+  "latest_pushed_checkpoint": "de9a30834025c18ce291c241a722abe437717539",
   "phases": {
     "P00": {
       "cards": 2,
@@ -166,13 +165,14 @@
     }
   },
   "latest_full_unit": {
-    "executed": 472,
-    "passed": 464,
-    "failed": 8,
+    "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+    "executed": 481,
+    "passed": 480,
+    "failed": 1,
+    "errors": 0,
     "skipped": 0,
-    "source": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
-    "scope": "ACTUAL_FULL_UNEXCLUDED_LOCAL_JAVA_ANDROIDTEST_COMPILE_UNIT_BOTH_LINT_IDENTITY",
-    "receipt": "verification/r31/p02/build-identity/P02_PRIVATE_POOL_NULL_OWNER_012_COMMITTED_UNEXCLUDED_JOINT.json"
+    "scope": "ACTUAL_COMPLETE_LOCAL_UNEXCLUDED; LOCAL_GENERATED013_HOST_STUB_WAS_NOT_COMMITTED_IN_BA35;DE9_FIXED_COMMIT_PENDING_REMOTE",
+    "receipt": "verification/r31/p02/build-identity/P02_MERGED_PROTOCOLS_COMPATIBILITY_013_COMMITTED_UNEXCLUDED_JOINT.json"
   },
   "apk_delivery": {
     "state": "ACTUAL_SIGNED_CHECKPOINT_WITH_FAILED_GATES_NOT_FINAL",
@@ -199,10 +199,10 @@
     "physical_device_equivalence": false
   },
   "current_failures": [
-    "Local3246 full472/8FAIL remains exact historical record; merged013 full NOT_RUN yet",
-    "3246 both variants15newLint errors fixed in targeted dev check, final013 unexcluded NOT_RUN",
-    "3246 HOST14PASS10FAIL;7 repaired original paths independentlyPASS and3 missing-Git-object workflow fix prepared;merged013 full HOST NOT_RUN",
-    "B02C02 all-producer64SQL/bind/compute staging remainsOPEN;telemetry+live modules do not close other producers",
-    "Physical device24h/72h NOT_RUN and natural future quality NOT_PROVEN"
+    "Fullba35 unit481/1FAIL:original last200 live/replay deepfork memory admission; actual Runtime.liveCache also lacks live critical allocation scope, repair in isolatedtree",
+    "Fullba35 HOST24 latest21PASS3FAIL; all3 root/writer followups individually PASS, a new combined24 matrix has not run",
+    "CI9 ba35 exact preflight exit23 HOST_BUILD_CONFIG;generated013 missing file fixed and pushedde9;CI10 pending",
+    "B02C02 producer64SQL/bind staging stillOPEN in atoms/history/evolution/model artifacts/source invalidation/legacy-compatible exposure repair",
+    "Physical device24/72NOT_RUN; naturalFUTUREqualityNOT_PROVEN"
   ]
 }

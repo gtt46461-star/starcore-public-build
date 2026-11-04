@@ -1,34 +1,38 @@
 {
-  "recorded_at": "2026-11-04T17:54:43.441282+00:00",
+  "recorded_at": "2026-11-04T18:15:35.970155+00:00",
   "branch": "construction/r31-final-20261104",
   "report_baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-  "latest_pushed_source": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
-  "active_phase": "P02_MERGED_013_FROZEN_FOR_UNEXCLUDED_JOINT_REVALIDATION",
+  "latest_pushed_source": "de9a30834025c18ce291c241a722abe437717539",
+  "active_phase": "P01_GATE_BACKFILL_WITH_EXISTING_P02_INTEGRATION_REVALIDATION",
   "P03_production_started": false,
   "latest_full_unit": {
-    "executed": 472,
-    "passed": 464,
-    "failed": 8,
+    "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+    "executed": 481,
+    "passed": 480,
+    "failed": 1,
+    "errors": 0,
     "skipped": 0,
-    "source": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
-    "scope": "ACTUAL_FULL_UNEXCLUDED_LOCAL_JAVA_ANDROIDTEST_COMPILE_UNIT_BOTH_LINT_IDENTITY",
-    "receipt": "verification/r31/p02/build-identity/P02_PRIVATE_POOL_NULL_OWNER_012_COMMITTED_UNEXCLUDED_JOINT.json"
+    "scope": "ACTUAL_COMPLETE_LOCAL_UNEXCLUDED; LOCAL_GENERATED013_HOST_STUB_WAS_NOT_COMMITTED_IN_BA35;DE9_FIXED_COMMIT_PENDING_REMOTE",
+    "receipt": "verification/r31/p02/build-identity/P02_MERGED_PROTOCOLS_COMPATIBILITY_013_COMMITTED_UNEXCLUDED_JOINT.json"
   },
   "active_production_owner": {
     "root": [
-      "MAIN_013_FROZEN; NO_PRODUCTION_OR_BUILD_INPUT_EDITS_DURING_UNEXCLUDED_RUN"
+      "MAIN_NO_BUILD_RUNNING;SHARED_SCHEMA_OWNER_ISOLATED_NEXT_CHECKPOINT"
     ],
     "writer_protocol": [
       "ISOLATED_NEXT_CHECKPOINT_ATOM_PROTOCOL_AND_READERS"
     ],
     "task_runtime": [
-      "ISOLATED_NEXT_CHECKPOINT_RUNTIME_CACHE_EVENT_PERSISTENCE"
+      "ISOLATED_EXPLICIT_LIVE_DEEPFORK_FIX_LAST200_ORIGINAL_TEST"
     ],
     "training_continuity": [
       "ISOLATED_NEXT_CHECKPOINT_EXPOSURE_PRESERVING_QUAL_REBUILD"
     ],
     "build_baseline": [
       "ISOLATED_NEXT_CHECKPOINT_HISTORY_IMPORT_PROTOCOL"
+    ],
+    "baseline_identity": [
+      "ISOLATED_EVOLUTION_PREPARED_PUBLICATION_PROTOCOL"
     ]
   },
   "completed_repairs_waiting_joint_validation": [
@@ -45,9 +49,9 @@
     "Continue P01 producer protocol and P02 source obligations;P03 NOT_STARTED"
   ],
   "signing_support_branch": "construction/r27-20261028",
-  "signing_support_head": "3fdf015e3f67207f89c8467de01c01df710bd7b9",
-  "last_remote_run": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41867648951",
-  "last_remote_failure": "ACTUAL3246_CANONICAL_LINT15_AND_HOST10_FAILURES_PRESERVED",
+  "signing_support_head": "6fdf3686495658289174426ce0324f2ea49fc5dc",
+  "last_remote_run": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41883335923",
+  "last_remote_failure": "CI9_ba35_HOST_BUILD_CONFIG_PREFLIGHT23_PRESERVED;CI10_de9_IN_PROGRESS",
   "workflow_current_scope": "EXACT_SIGNED_VALIDATION_APK_BYTES; ORIGINAL_FAILURES_PRESERVED; API29/35_DISPOSABLE_EMULATOR_INSTALL_AND10_PROTOCOLS; NOT_FINAL_ACCEPTANCE",
   "device": "NOT_RUN_NO_ADB_DEVICE",
   "initial24h": "NOT_RUN",
@@ -93,19 +97,18 @@
     "required_cert_sha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
     "baseline_public_release": "https://github.com/gtt46461-star/starcore-public-build/releases/tag/r30-repair1-577311009-5237b265a27f"
   },
-  "current_phase": "P02",
-  "current_phase_ordinal": 3,
+  "current_phase": "P01",
+  "current_phase_ordinal": 2,
   "current_scope": [
-    "B03",
-    "B04",
-    "B05_FRONT_ONLY"
+    "B01_B02_JOINT_GATE_REPAIR",
+    "P02_EXISTING_SOURCE_INTEGRATION_ONLY"
   ],
   "current_failures": [
-    "Local3246 full472/8FAIL remains exact historical record; merged013 full NOT_RUN yet",
-    "3246 both variants15newLint errors fixed in targeted dev check, final013 unexcluded NOT_RUN",
-    "3246 HOST14PASS10FAIL;7 repaired original paths independentlyPASS and3 missing-Git-object workflow fix prepared;merged013 full HOST NOT_RUN",
-    "B02C02 all-producer64SQL/bind/compute staging remainsOPEN;telemetry+live modules do not close other producers",
-    "Physical device24h/72h NOT_RUN and natural future quality NOT_PROVEN"
+    "Fullba35 unit481/1FAIL:original last200 live/replay deepfork memory admission; actual Runtime.liveCache also lacks live critical allocation scope, repair in isolatedtree",
+    "Fullba35 HOST24 latest21PASS3FAIL; all3 root/writer followups individually PASS, a new combined24 matrix has not run",
+    "CI9 ba35 exact preflight exit23 HOST_BUILD_CONFIG;generated013 missing file fixed and pushedde9;CI10 pending",
+    "B02C02 producer64SQL/bind staging stillOPEN in atoms/history/evolution/model artifacts/source invalidation/legacy-compatible exposure repair",
+    "Physical device24/72NOT_RUN; naturalFUTUREqualityNOT_PROVEN"
   ],
   "apk_delivery": {
     "state": "ACTUAL_SIGNED_CHECKPOINT_WITH_FAILED_GATES_NOT_FINAL",
@@ -159,7 +162,7 @@
       ]
     }
   },
-  "latest_local_integrated_commit": "241a93848851440fdfd21155ae400ff2354eceb2",
+  "latest_local_integrated_commit": "f6f8bbc878aec16190d6dd7f7fd44d63b138d2d9",
   "remote_full_unit": {
     "source": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
     "executed": 472,
@@ -168,5 +171,38 @@
     "skipped": 0,
     "scope": "ACTUAL_REMOTE113_JUNIT_XML; DOES_NOT_OVERRIDE_LOCAL8_FAILURES",
     "receipt": "verification/r31/p02/delivery_3246/DELIVERY-RECEIPT.json"
-  }
+  },
+  "latest_pushed_source_link": "https://github.com/gtt46461-star/starcore-public-build/commit/ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+  "execution_gate": "P01_B02_C02_OPEN; EXISTING_P02_SOURCE_UNDER_REVALIDATION; P03_NOT_STARTED",
+  "pending_full_unit": {
+    "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+    "state": "COMPLETED_FAILED_ONE_UNIT",
+    "receipt": "verification/r31/p02/build-identity/P02_MERGED_PROTOCOLS_COMPATIBILITY_013_COMMITTED_UNEXCLUDED_JOINT.json"
+  },
+  "latest_local_build": {
+    "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+    "java": "PASS",
+    "androidTestCompile": "PASS",
+    "lintDebug": "PASS",
+    "lintRelease": "PASS",
+    "finalIdentity": "PASS",
+    "whole": "FAILED_ONE_UNIT",
+    "excluded_tasks": [],
+    "product_inputs_changed_during_run": [],
+    "time_seconds": 805
+  },
+  "latest_full_host": {
+    "source": "ba35b0d6328c98737cbfbd483ddd3dcbf182aaac",
+    "executed_groups": 24,
+    "initial_passed_groups": 20,
+    "initial_failed_groups": 4,
+    "latest_passed_groups": 21,
+    "latest_failed_groups": 3,
+    "service": "PASS_EXACT_COMMAND_WITH_AUTHORIZED_LOCAL_SOCKET_PERMISSION; INITIAL_DENIAL_KEPT",
+    "receipt": "verification/r31/p02/ba35-host-integration/SUMMARY.json",
+    "three_followup_repairs": "EACH_INDEPENDENTLY_PASS; NOT_NEW_FULL24_CLAIM"
+  },
+  "highest_source_phase": "P02",
+  "highest_source_phase_ordinal": 3,
+  "phase_reporting_rule": "Report current unpassed dependency gate separately from highest phase with code changes; starting P02 was not evidence of G01 acceptance."
 }
