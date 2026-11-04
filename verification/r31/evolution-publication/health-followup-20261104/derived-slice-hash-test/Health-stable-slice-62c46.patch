@@ -1,0 +1,19 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java
+@@ -644,8 +644,15 @@
+                     w.ro, LOOP, RuntimeCoordinatorR26.currentClaimR30());
+             if (evolutionCleanup != null) {
+                 String publication = String.valueOf(evolutionCleanup.ops.get(0).args[0]);
++                // Each slice has a stable key-set identity: health cursor and per-claim sequence
++                // can remain zero across dispatches, while the next bounded key range changes.
++                RuntimeCoordinatorR26.Claim cleanupClaim = RuntimeCoordinatorR26.currentClaimR30();
++                String cleanupSliceHash = evolutionCleanup.prepareR31(
++                        "EVOLUTION_PRIVATE_SCRATCH_CLEANUP", "R31_EVOLUTION_CLEANUP_FINGERPRINT",
++                        cleanupClaim.task, cleanupClaim.owner, cleanupClaim.fence,
++                        publication, 0, EvolutionPublicationStoreR31.ABI).payloadHash;
+                 submit(w, "EVOLUTION_PRIVATE_SCRATCH_CLEANUP", evolutionCleanup, false,
+-                        "NEW_PRIVATE_SCRATCH_ONLY|" + publication);
++                        "NEW_PRIVATE_SCRATCH_ONLY|" + publication + "|slice=" + cleanupSliceHash);
+             }
+             if (lastElapsedR31>0 && tickElapsed>=lastElapsedR31 && tickElapsed-lastElapsedR31<60_000)
+                 return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);

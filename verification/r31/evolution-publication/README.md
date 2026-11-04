@@ -47,3 +47,13 @@ python3 tools/r31/run_evolution_publication_host.py
 ## 补充当前 Runtime Health 调度测试尚未通过
 
 `health-runtime62c46-supplementary/` 保存独立的 12 秒真实 scheduler 尝试（当前 Runtime class source62c46，不是最终整合 tree）。第一次实际启动因 AtomPublicationStoreR31 依赖缺类退出；真实014 schema 闭包重试进入调度，最终 `awaitResourcesTerminatedR31(3000)` 为 false，资源退出断言失败，尚待定位。状态 FAILED，不能从它宣称实际 Health 周期、释放或积压排空通过，也不能用手工清理 PASS 替代。两轮原命令/原日志/class scope 均保存。此补充 fixture 不在正式五组 runner 的 glob 中，避免把它当前 WIP 外部闭包伪装成便携默认测试。
+
+## 后续同版回归与两个失败的真实归因
+
+详见 `health-followup-20261104/RECEIPT.json`。保留原 FAILED，不把它改成 PASS。旧 HOST adapter 缺 `SQLiteDatabase.close()`，取消后真实 worker/continuation 已退出，但生产 reaper 不能调用 reader close；修复仅 HOST adapter，实际 `jdbc.close()` 后原 3 秒 await 可完成。另一独立缺陷是旧 Runtime62c46 Health 清理同 publication 的不同 key-range 复用了 cursor0/seq0 输入，真实 `R31_INTEGRITY_CONFLICT_COMMIT_PAYLOAD` 后隔离。仅修 HOST close 的旧 Runtime 负对照仍失败；稳定 slice SQL+args hash 精确修复由 ROOT 集成，未放松 receipt 冲突检查。
+
+最新补测执行完整实际 Android bootstrap4459类（source30fffa79、Runtime88cf5195；jar SHA582f7475...），HOST 平台 API 全新编译，没有 stub 诊断 drain。70.030 秒实际65 dispatch，两次真实 HEALTH 与 durable receipts，新 scratch2334->0；人为触发的真实230ms writer hold 经生产 `WriterHoldFaultsR31.drainOne` 持久1条、pending0；原3秒 await 成功。另12秒定向退出测试保留实际 reader 引用，直接断言 JDBC `isClosed()`：opened1/closed1。
+
+同一4459 class jar 另实跑 protocol101、phases101、fault38、capacity29，全 exit0；完整128候选。物理页623->623、freelist0->114、WAL3209512->4025272，依然只证明可复用页。最长真实dispatch gap5113ms如实保留。b6e58 中间快照 stdout 完成70.024秒全部断言，但环境切换丢失 wrapper exit，记录 UNKNOWN，不补造0。
+
+新补测认证范围仅 worker/continuation/reader、对应 RESEARCH/CHECKPOINT 许可与协议结果；独立 fixture 创建的 Health Q08/cache/model 对象仍可能被 fixture 持有，不宣称整Runtime模型/堆已释放。HOST 中 APK/certificate getter 明确不支持，缺 asset 显式失败/不足；这些状态不影响“HEALTH写入执行”与业务通过的区分。整Android最终不排除构建、ART/真机、24h/72h、自然未来质量仍须分别取得证据。

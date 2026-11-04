@@ -1,0 +1,68 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/tmp/r31-evolution-health-b6e58-freeze/adapters/Context.java:8: error: package android.content.pm does not exist
+ public android.content.pm.ApplicationInfo getApplicationInfo(){throw new UnsupportedOperationException("HOST_NOT_AN_INSTALLED_APK");}
+                          ^
+/tmp/r31-evolution-health-b6e58-freeze/adapters/Context.java:9: error: package android.content.pm does not exist
+ public android.content.pm.PackageManager getPackageManager(){throw new UnsupportedOperationException("HOST_NO_ANDROID_PACKAGE_MANAGER");}
+                          ^
+/tmp/r31-evolution-health-b6e58-freeze/adapters/SQLiteDatabase.java:3: error: cannot find symbol
+import android.database.Cursor;
+                       ^
+  symbol:   class Cursor
+  location: package android.database
+/tmp/r31-evolution-health-b6e58-freeze/adapters/SQLiteDatabase.java:25: error: cannot find symbol
+    public Cursor rawQuery(String sql, String[] args) {
+           ^
+  symbol:   class Cursor
+  location: class SQLiteDatabase
+/tmp/r31-evolution-health-b6e58-freeze/adapters/SQLiteDatabase.java:54: error: cannot find symbol
+    static final class Rows implements Cursor {
+                                       ^
+  symbol:   class Cursor
+  location: class SQLiteDatabase
+/tmp/r31-evolution-health-b6e58-freeze/adapters/SQLiteDatabase.java:15: error: cannot find symbol
+    public void close(){try{jdbc.close();}catch(java.sql.SQLException failure){throw new SQLiteException(failure.getMessage());}}
+                                                                                         ^
+  symbol:   class SQLiteException
+  location: class SQLiteDatabase
+/tmp/r31-evolution-health-b6e58-freeze/adapters/SQLiteDatabase.java:23: error: cannot find symbol
+        } catch (java.sql.SQLException e) { throw new SQLiteException(e.getMessage()); }
+                                                      ^
+  symbol:   class SQLiteException
+  location: class SQLiteDatabase
+/tmp/r31-evolution-health-b6e58-freeze/adapters/SQLiteDatabase.java:39: error: cannot find symbol
+        } catch (java.sql.SQLException e) { throw new SQLiteException(e.getMessage()); }
+                                                      ^
+  symbol:   class SQLiteException
+  location: class SQLiteDatabase
+/tmp/r31-evolution-health-b6e58-freeze/adapters/SQLiteDatabase.java:42: error: cannot find symbol
+    public boolean isReadOnly() { try { return jdbc.isReadOnly(); } catch (java.sql.SQLException e) { throw new SQLiteException(e.getMessage()); } }
+                                                                                                                ^
+  symbol:   class SQLiteException
+  location: class SQLiteDatabase
+/tmp/r31-evolution-health-b6e58-freeze/adapters/SQLiteDatabase.java:49: error: cannot find symbol
+    public static SQLiteDatabase openDatabase(String path,CursorFactory factory,int flags){try{return new SQLiteDatabase(java.sql.DriverManager.getConnection("jdbc:sqlite:file:"+path+"?mode=ro"));}catch(java.sql.SQLException failure){throw new SQLiteException(failure.getMessage());}}
+                                                                                                                                                                                                                                                    ^
+  symbol:   class SQLiteException
+  location: class SQLiteDatabase
+/tmp/r31-evolution-health-b6e58-freeze/adapters/SQLiteDatabase.java:50: error: cannot find symbol
+    public void beginTransaction(){try{jdbc.setAutoCommit(false);successful=false;}catch(java.sql.SQLException failure){throw new SQLiteException(failure.getMessage());}}
+                                                                                                                                  ^
+  symbol:   class SQLiteException
+  location: class SQLiteDatabase
+/tmp/r31-evolution-health-b6e58-freeze/adapters/SQLiteDatabase.java:52: error: cannot find symbol
+    public void endTransaction(){try{if(successful)jdbc.commit();else jdbc.rollback();}catch(java.sql.SQLException failure){try{jdbc.rollback();}catch(java.sql.SQLException ignored){}throw new SQLiteException(failure.getMessage());}finally{successful=false;try{jdbc.setAutoCommit(true);}catch(java.sql.SQLException failure){throw new SQLiteException(failure.getMessage());}}}
+                                                                                                                                                                                                 ^
+  symbol:   class SQLiteException
+  location: class SQLiteDatabase
+/tmp/r31-evolution-health-b6e58-freeze/adapters/SQLiteDatabase.java:52: error: cannot find symbol
+    public void endTransaction(){try{if(successful)jdbc.commit();else jdbc.rollback();}catch(java.sql.SQLException failure){try{jdbc.rollback();}catch(java.sql.SQLException ignored){}throw new SQLiteException(failure.getMessage());}finally{successful=false;try{jdbc.setAutoCommit(true);}catch(java.sql.SQLException failure){throw new SQLiteException(failure.getMessage());}}}
+                                                                                                                                                                                                                                                                                                                                              ^
+  symbol:   class SQLiteException
+  location: class SQLiteDatabase
+/tmp/r31-evolution-health-b6e58-freeze/adapters/SQLiteDatabase.java:53: error: cannot find symbol
+    public String getPath(){try{return jdbc.getMetaData().getURL().substring("jdbc:sqlite:".length());}catch(java.sql.SQLException failure){throw new SQLiteException(failure.getMessage());}}
+                                                                                                                                                      ^
+  symbol:   class SQLiteException
+  location: class SQLiteDatabase
+14 errors

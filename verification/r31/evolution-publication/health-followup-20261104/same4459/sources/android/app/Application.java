@@ -1,0 +1,1 @@
+package android.app;public class Application extends android.content.Context{private final java.io.File path;public Application(java.io.File path){this.path=path;}@Override public java.io.File getDatabasePath(String name){return path;}}

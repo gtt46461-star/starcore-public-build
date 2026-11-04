@@ -1,0 +1,27 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/tmp/r31-evolution-health-fixed/source/RuntimeR27.java:178: error: cannot find symbol
+                if(savedHash!=null){ResearchInputPinR30R1.Pin pin=ResearchInputPinR30R1.loadCurrent(w.ro,savedHash);if(pin!=null){evoData=pin.data;evoCache=featureCacheR31(pin.data,48);ModelSurfaceStoreR30.bindHistorical(w.ro,evoCache);return ResearchPoolR27.Outcome.progress(1,pin.data.ordinals[pin.data.size()-1]);}}
+                                                                                       ^
+  symbol:   method loadCurrent(SQLiteDatabase,String)
+  location: class ResearchInputPinR30R1
+/tmp/r31-evolution-health-fixed/source/RuntimeR27.java:578: error: cannot find symbol
+        try (InputStream in = store.contextForR26().getAssets().open(SemanticAbiR27.GOLDEN_ASSET)) { prepared = SemanticAbiR27.readGolden(in, true); }
+                                                   ^
+  symbol:   method getAssets()
+  location: class Context
+/tmp/r31-evolution-health-fixed/source/RuntimeR27.java:582: error: cannot find symbol
+        store.setState("r27_operator_abi", hash);
+             ^
+  symbol:   method setState(String,String)
+  location: variable store of type DbStore
+/tmp/r31-evolution-health-fixed/source/RuntimeR27.java:663: error: cannot find symbol
+                storageObservation.putAll(StorageLedgerR31.sampleIfDue(store.contextForR26().getFilesDir(),
+                                                                                            ^
+  symbol:   method getFilesDir()
+  location: class Context
+/tmp/r31-evolution-health-fixed/source/RuntimeR27.java:689: error: cannot find symbol
+                    try (InputStream in = store.contextForR26().getAssets().open("r27/" + name + ".json")) {
+                                                               ^
+  symbol:   method getAssets()
+  location: class Context
+5 errors
