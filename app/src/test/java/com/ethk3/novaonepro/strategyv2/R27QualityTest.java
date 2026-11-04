@@ -170,7 +170,9 @@ public final class R27QualityTest {
             {"    private void ensureRuntimeExtraTablesOnce(final SQLiteDatabase db) {","    private void verifyLegacyRuntimeTablesR363(","6b3f167e263c8bc81ec53ae5746431e3137c8b9077770e7e94f39ca240001cc5","REPLACE"},
             {"    private void ensureMainChainClosedLoopReady(SQLiteDatabase db) {","    private void ensureMainChainColumns(","97c5e3abe28683190a2c92ba10413490faa5ed9b16b8c87e78e221fe8b3c7158","REPLACE"},
             {"    public int saveMainChainCandidateSnapshot(","    public int saveRealtimeTop40Candidates(","e83ca46b42aa0b524437a15d4a5dea2ba0f1648eebfe9938bda1cd1a87f74419","REPLACE"},
-            {"    private void recordMainChainRejectBucket(","    private void putFinalVersionFallback(","5ae257ee60cfc081b1baa1ca2296b007e21ef21b31f8723afce780261f476b52","REPLACE"}
+            {"    private void recordMainChainRejectBucket(","    private void putFinalVersionFallback(","5ae257ee60cfc081b1baa1ca2296b007e21ef21b31f8723afce780261f476b52","REPLACE"},
+            // R31 P01: startup-only R929 runtime-bundle schema prerequisite; no main-chain decision, payout or gate bytes.
+            {"        // The first bundle capture can precede asynchronous research-schema initialization.\n","        // Establish the R816 diagnostic boundary","f97ec7d2dcb9ac6902b4bbcc485e8b9d970b6f8095b15efe42ad996834b182e9","INSERTION_INLINE"}
         };
         for(String[] block:blocks) {
             int start=source.indexOf(block[0]),end=source.indexOf(block[1],start+block[0].length());
@@ -178,8 +180,8 @@ public final class R27QualityTest {
             assertEquals("Approved block start must be unique",start,source.lastIndexOf(block[0]));
             assertEquals("Only exact reviewed schema/sidecar bytes are allowed: "+block[0],block[2],
                     StatsR27.sha256(source.substring(start,end).getBytes(java.nio.charset.StandardCharsets.UTF_8)));
-            String original="\n"; // the inserted flight occupies the original blank separator
-            if(!"INSERTION".equals(block[3])) {
+            String original="INSERTION_INLINE".equals(block[3])?"":"\n"; // the inserted flight occupies the original blank separator
+            if(!"INSERTION".equals(block[3])&&!"INSERTION_INLINE".equals(block[3])) {
                 int oldStart=baseline.indexOf(block[0]),oldEnd=baseline.indexOf(block[1],oldStart+block[0].length());
                 assertTrue("Original block must exist",oldStart>=0&&oldEnd>oldStart);
                 original=baseline.substring(oldStart,oldEnd);
