@@ -5,7 +5,7 @@ public final class ResearchTableAdaptersR30R1 {
  private ResearchTableAdaptersR30R1(){}private static final Map<String,String> SQL=new LinkedHashMap<>();
  static {
   SQL.put("T01","SELECT run_id,dataset_hash,policy_hash,role,source_commit,source_revision,from_ordinal,through_ordinal,contract_hash,status,summary_json FROM r30r1_analysis_run ORDER BY recorded_at DESC,run_id");
-  SQL.put("T02","SELECT atom_id,dataset_hash,n_select,missing_rate,state,definition,computed_at FROM r27_atom_score ORDER BY atom_id");
+  SQL.put("T02","SELECT atom_id,dataset_hash,n_select,missing_rate,state,definition,computed_at FROM r31_atom_score_visible ORDER BY atom_id");
   SQL.put("T03","SELECT policy_hash,target_issue,target_ordinal,position,probabilities,frozen_at,deadline_at,hit,settled_at,'FUTURE_READ_ONLY' AS role FROM r27_live_frozen ORDER BY target_ordinal DESC,policy_hash");
   SQL.put("T04","SELECT run_id,measure_key,kind,parent_hash,from_ordinal,to_ordinal,payload_json FROM r30r1_research_measure WHERE kind IN ('FAILURE_PRESCRIPTION','FAILURE_MEMORY','STRUCTURE_FORECAST_ERROR') ORDER BY run_id,measure_key");
   SQL.put("T05","SELECT run_id,measure_key,parent_hash,from_ordinal,to_ordinal,evaluated_calendar_issues,mean_gain,lower95,upper95,payload_json FROM r30r1_research_measure WHERE kind='ATOM_PAIRED_GAIN' ORDER BY run_id,measure_key");

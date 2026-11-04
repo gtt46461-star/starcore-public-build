@@ -229,10 +229,10 @@ public final class ChartCacheR27 {
     }
     static Map<String, Object> atoms(SQLiteDatabase db) {
         List<Object> pts = new ArrayList<>();
-        try (Cursor c = db.rawQuery("SELECT state,count(*),min(n_select),max(n_select) FROM r27_atom_score GROUP BY state ORDER BY state", null)) {
+        try (Cursor c = db.rawQuery("SELECT state,count(*),min(n_select),max(n_select) FROM r31_atom_score_visible GROUP BY state ORDER BY state", null)) {
             while (c.moveToNext()) pts.add(pt(c.getString(0), (double) c.getLong(1), null, null, c.getLong(1), c.getString(0) + "：" + c.getLong(1) + "项；回放样本 " + c.getLong(2) + "—" + c.getLong(3)));
         }
-        return panel("", "BAR", "r27_atom_score", "165项可评分原子+派生", "旧原子评分状态，仅保留历史角色，不当作本轮独立确认；新配对研究见R06。历史USEFUL=挑选段与留出段下界都>0；NEUTRAL=区间含0；HARMFUL=上界<0；MASKED=缺失>10%；DERIVED=派生原子。", pts);
+        return panel("", "BAR", "r31_atom_score_visible", "165项可评分原子+派生", "旧原子评分状态，仅保留历史角色，不当作本轮独立确认；新配对研究见R06。历史USEFUL=挑选段与留出段下界都>0；NEUTRAL=区间含0；HARMFUL=上界<0；MASKED=缺失>10%；DERIVED=派生原子。", pts);
     }
 
     static long count(SQLiteDatabase db, String sql) { try (Cursor c = db.rawQuery(sql, null)) { return c.moveToFirst() ? c.getLong(0) : 0; } catch (RuntimeException e) { return 0; } }

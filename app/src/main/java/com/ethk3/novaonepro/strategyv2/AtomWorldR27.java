@@ -14,14 +14,34 @@ public final class AtomWorldR27 {
     private AtomWorldR27() {}
     static final int CHUNK = 120;
     static final boolean RAW = true; // 7 group features + 165 raw atoms (docs/06 6.2, configurable)
+    private static final Map<RuntimeR27,PublicationR31> PUBLICATIONS_R31=java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
+    private static final class PublicationR31 {
+        java.lang.ref.WeakReference<double[][]> scoredFrame=new java.lang.ref.WeakReference<>(null);
+        String scoreDataset="",moleculeRun="";int moleculeGeneration=-1;
+    }
+    private static PublicationR31 publicationR31(RuntimeR27 rt){synchronized(PUBLICATIONS_R31){PublicationR31 p=PUBLICATIONS_R31.get(rt);if(p==null){p=new PublicationR31();PUBLICATIONS_R31.put(rt,p);}return p;}}
+    private static void restoreCompleteR31(RuntimeR27 rt,ResearchPoolR27.Worker w)throws InterruptedException {
+        if(w.cancelled())throw new InterruptedException("R31_ATOM_CONSUMER_CANCELLED");
+        synchronized(rt.atomStates){Map<Integer,String> complete=AtomPublicationStoreR31.activeStates(w.ro);if(!complete.isEmpty()){if(w.cancelled())throw new InterruptedException("R31_ATOM_CONSUMER_CANCELLED");rt.atomStates.clear();rt.atomStates.putAll(complete);}}
+        synchronized(rt){PublicationR31 publication=publicationR31(rt);String run=AtomPublicationStoreR31.activeRun(w.ro,"MOLECULES");if(run!=null&&!run.equals(publication.moleculeRun)){
+            List<PolicyAstR27.Node> complete=AtomPublicationStoreR31.activeMolecules(w.ro);if(w.cancelled())throw new InterruptedException("R31_MOLECULE_CONSUMER_CANCELLED");
+            if(!complete.isEmpty()){List<PolicyAstR27.Node> next=new ArrayList<>(rt.derived);next.addAll(complete);while(next.size()>32)next.remove(0);rt.derived=next;}publication.moleculeRun=run;
+        }}
+    }
 
     // ------------------------------------------------------------------ atoms
     static ResearchPoolR27.Outcome atomsStep(RuntimeR27 rt, ResearchPoolR27.Worker w) throws Exception {
-        ReplayDatasetR27 d = rt.evoData; EvolutionLoopR27 evo = rt.evo;
+        ReplayDatasetR27 d;EvolutionLoopR27 evo;synchronized(rt){d=rt.evoData;evo=rt.evo;}
         if (d == null || evo == null) return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-evolution)", 0, -1);
+        if(!d.datasetHash.equals(evo.context().data.datasetHash))return ResearchPoolR27.Outcome.idle("DEPENDENCY(ATOM_SOURCE_SNAPSHOT)",0,-1);
+        restoreCompleteR31(rt,w);
         SplitR27 sp = evo.context().split;
         if (!d.datasetHash.equals(rt.frameDataset)) {
             synchronized (rt) { rt.frameDataset = d.datasetHash; rt.frameCursor = 0; int n = sp.selectTo; rt.frameValues = new double[n][]; rt.framePresent = new boolean[n][]; rt.frameHit = new int[n]; rt.framePos = new int[n]; rt.frameActual = new int[n]; rt.frameIssue = new String[n]; }
+        }
+        PublicationR31 publication=publicationR31(rt);
+        if(rt.frameCursor>=rt.frameValues.length&&(publication.scoredFrame.get()!=rt.frameValues||!d.datasetHash.equals(publication.scoreDataset))) {
+            score(rt,w,d,sp);return ResearchPoolR27.Outcome.progress(1,rt.frameCursor);
         }
         if (rt.frameCursor < rt.frameValues.length) {
             int from = rt.frameCursor, to = Math.min(rt.frameValues.length, from + CHUNK);
@@ -39,10 +59,15 @@ public final class AtomWorldR27 {
     }
 
     static void score(RuntimeR27 rt, ResearchPoolR27.Worker w, ReplayDatasetR27 d, SplitR27 sp) throws Exception {
-        ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long now = System.currentTimeMillis();
-        int[] el = AtomReplayR27.eligible(); Map<Integer, String> states = new LinkedHashMap<>();
+        int[] el = AtomReplayR27.eligible();
+        final double[][] frameValues=rt.frameValues;final boolean[][] framePresent=rt.framePresent;final int[] frameHit=rt.frameHit;
+        long revision=ResearchInputPinR30R1.revision(w.ro,d.datasetHash);
+        String input=atomInputHashR31(d,sp,frameValues,framePresent,frameHit,el,revision);
+        AtomPublicationStoreR31.Input source=AtomPublicationStoreR31.open(w,"SCORES",d.datasetHash,input,-1,revision,d.ordinals[d.size()-1]);
+        ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long now = source.computedAt;
+        Map<Integer, String> states = new LinkedHashMap<>();
         for (int a : el) {
-            AtomScoreR27.Score s = AtomScoreR27.score(a, rt.frameValues, rt.framePresent, rt.frameHit, sp.selectFrom,sp.selectTo);
+            AtomScoreR27.Score s = AtomScoreR27.score(a, frameValues, framePresent, frameHit, sp.selectFrom,sp.selectTo);
             states.put(a, s.state);
             contribution(b,GenesisSchemaRegistryR915.atoms().get(a).id,d.datasetHash,sp.selectFrom,sp.selectTo,s.contribution(),now);
             b.add("INSERT OR REPLACE INTO r27_atom_score(atom_id,atom_index,dataset_hash,n_select,gain_select,lcb_select,ucb_select,n_holdout,gain_holdout,lcb_holdout,missing_rate,state,derived,definition,computed_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,0,'',?)",
@@ -50,8 +75,32 @@ public final class AtomWorldR27 {
         }
         Map<String,Object> census=new LinkedHashMap<>();census.put("catalogNamespace","GENESIS_R915_DIRECTORY");census.put("catalogObjects",GenesisSchemaRegistryR915.atoms().size());census.put("scoredNamespace","R27_EXECUTABLE_BINARY_K3_ATOMS");census.put("scorableObjects",el.length);census.put("committedScoreObjects",states.size());census.put("sampleRole","H_TRAIN_AND_H_SELECT_ONLY");census.put("preparedRows",rt.frameValues.length);census.put("formalRowsRead",0L);census.put("actualConsumer","RuntimeR27.leafWeights -> IdeaFamilyR27.Grow.pick");census.put("effective",null);census.put("scope","CATALOGUE_SCORE_AND_MOLECULE_SETS_HAVE_DISTINCT_IDENTITIES");
         b.add("INSERT OR REPLACE INTO r27_chart_cache VALUES('atoms','namespace-inventory',?,?)",JsonR27.write(census),now);
-        RuntimeR27.submit(w, "ATOM_SCORES", b);
-        synchronized (rt.atomStates) { rt.atomStates.clear(); rt.atomStates.putAll(states); }
+        List<AtomPublicationStoreR31.Pair> prepared=new ArrayList<>();long work=0;
+        for(int i=0;i<el.length;i++) {
+            Object[] old=b.ops.get(i*2+1).args,primary=new Object[15];
+            System.arraycopy(old,0,primary,0,12);primary[12]=0;primary[13]="";primary[14]=old[12];
+            prepared.add(new AtomPublicationStoreR31.Pair(i,primary,b.ops.get(i*2).args));work+=((Number)primary[3]).longValue();
+        }
+        if(!input.equals(atomInputHashR31(d,sp,frameValues,framePresent,frameHit,el,revision)))throw AtomPublicationStoreR31.dependency("CONSUMED_FRAME_CHANGED_DURING_PREPARATION");
+        AtomPublicationStoreR31.publish(w,AtomPublicationStoreR31.prepare(source,prepared,work,b.ops.get(b.ops.size()-1)));
+        if(w.cancelled())throw new InterruptedException("R31_ATOM_CONSUMER_CANCELLED");
+        synchronized (rt.atomStates) {Map<Integer,String> published=AtomPublicationStoreR31.activeStates(w.ro);if(published.size()!=el.length)throw new IllegalStateException("R31_ATOM_COMPLETE_CONSUMER_REQUIRED");if(w.cancelled())throw new InterruptedException("R31_ATOM_CONSUMER_CANCELLED");rt.atomStates.clear();rt.atomStates.putAll(published);}
+        PublicationR31 publication=publicationR31(rt);publication.scoredFrame=new java.lang.ref.WeakReference<>(frameValues);publication.scoreDataset=d.datasetHash;
+    }
+
+    /** Stream the exact consumed prefix; never materialize a second tensor or read confirmation labels. */
+    private static String atomInputHashR31(ReplayDatasetR27 d,SplitR27 split,double[][] values,boolean[][] present,int[] hit,int[] eligible,long revision)throws Exception {
+        java.security.MessageDigest sha=java.security.MessageDigest.getInstance("SHA-256");
+        java.io.OutputStream sink=new java.io.OutputStream(){public void write(int value){}public void write(byte[] data,int off,int length){}};
+        try(java.io.DataOutputStream out=new java.io.DataOutputStream(new java.security.DigestOutputStream(sink,sha))) {
+            out.writeUTF("R31_ATOM_EXACT_PREFIX_V1");out.writeUTF(d.datasetHash);out.writeLong(revision);out.writeInt(split.selectFrom);out.writeInt(split.selectTo);
+            for(int t=0;t<Math.min(values.length,split.selectTo);t++) {
+                if(Thread.currentThread().isInterrupted())throw new InterruptedException("R31_ATOM_INPUT_CANCELLED");
+                out.writeBoolean(values[t]!=null);if(values[t]==null)continue;
+                out.writeInt(hit[t]);for(int atom:eligible){out.writeInt(atom);out.writeBoolean(present[t][atom]);out.writeDouble(values[t][atom]);}
+            }
+        }
+        StringBuilder hex=new StringBuilder();for(byte v:sha.digest())hex.append(String.format(java.util.Locale.ROOT,"%02x",v&255));return hex.toString();
     }
 
     static long derived(RuntimeR27 rt, ResearchPoolR27.Worker w, EvolutionLoopR27 evo) throws Exception {
@@ -80,10 +129,13 @@ public final class AtomWorldR27 {
         return 1;
     }
 
+    // Legacy ABI observation only. Publication cursors belong to a runtime, never to another owner's static state.
     static int moleculeGeneration = -1;
+    static int publishedMoleculeGenerationR31(RuntimeR27 rt){return publicationR31(rt).moleculeGeneration;}
     static long molecules(RuntimeR27 rt, ResearchPoolR27.Worker w, EvolutionLoopR27 evo) throws Exception {
         final int generation=evo.generation;
-        if (generation == moleculeGeneration) return 0;
+        PublicationR31 publication=publicationR31(rt);
+        if (generation == publication.moleculeGeneration) return 0;
         Map<String, Double> lw = rt.leafWeights(); List<String> kinds = new ArrayList<>();
         for (String k : MutationOpsR27.ALL_KINDS) { Double x = lw.get(k); if (x == null || x >= 1.0) kinds.add(k); } // USEFUL/NEUTRAL sources only
         if (kinds.size() < 2) return 0;
@@ -91,7 +143,10 @@ public final class AtomWorldR27 {
         // Mutual-information prior on H_TRAIN for source selection.
         IdeaFamilyR27.Context ic = new IdeaFamilyR27.Context(); ic.leafWeight = new java.util.HashMap<>();
         for (String k : ks) { int tp = 1; double mi = 0; try { mi = DerivedAtomR27.mutualInformation(k, k.equals("knn") ? 3 : 1, k.equals("knn") ? 20 : 32, ctx.cache, tp, ctx.split.trainFrom, Math.min(ctx.split.trainTo, ctx.split.trainFrom + 1500)); } catch (RuntimeException shapeMismatch) { } ic.leafWeight.put(k, 1 + 100 * mi); }
-        ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long now = System.currentTimeMillis(); int survived = 0;
+        long revision=ResearchInputPinR30R1.revision(w.ro,ctx.data.datasetHash);
+        String input=HashingSU1.fields("R31_MOLECULE_INPUT_V1",ctx.data.datasetHash,Integer.toString(generation),Long.toString(evo.rng.state),Long.toString(revision),JsonR27.write(new java.util.TreeMap<>(lw)),JsonR27.write(new java.util.TreeMap<>(ic.leafWeight)));
+        AtomPublicationStoreR31.Input source=AtomPublicationStoreR31.open(w,"MOLECULES",ctx.data.datasetHash,input,generation,revision,ctx.data.ordinals[ctx.data.size()-1]);
+        ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long now = source.computedAt; int survived = 0;
         List<PolicyAstR27.Node> keep = new ArrayList<>();
         for (int i = 0; i < 32; i++) {
             int tp = 1 + r.nextInt(10); PolicyAstR27.Node mol = DerivedAtomR27.molecule(ks, tp, r, ic);
@@ -108,9 +163,11 @@ public final class AtomWorldR27 {
             String moleculeHash=StatsR27.sha256(mol+"@"+tp);contribution(b,"MOLECULE:"+moleculeHash,ctx.data.datasetHash,ctx.split.selectFrom,ctx.split.selectTo,paired,now);
             b.add("INSERT OR IGNORE INTO r27_molecule(molecule_hash,definition,generation,state,select_gain,reason,created_at) VALUES(?,?,?,?,?,?,?)", StatsR27.sha256(mol + "@" + tp), mol.toString() + "@" + tp, generation, state, gain, reason, now);
         }
-        RuntimeR27.submit(w, "MOLECULES", b);
-        moleculeGeneration=generation;
-        if (!keep.isEmpty()) synchronized (rt) { List<PolicyAstR27.Node> l = new ArrayList<>(rt.derived); l.addAll(keep); while (l.size() > 32) l.remove(0); rt.derived = l; }
+        List<AtomPublicationStoreR31.Pair> prepared=new ArrayList<>();for(int i=0;i<32;i++)prepared.add(new AtomPublicationStoreR31.Pair(i,b.ops.get(i*2+1).args,b.ops.get(i*2).args));
+        AtomPublicationStoreR31.publish(w,AtomPublicationStoreR31.prepare(source,prepared,32,null));
+        restoreCompleteR31(rt,w);
+        if(w.cancelled())throw new InterruptedException("R31_MOLECULE_CONSUMER_CANCELLED");
+        publication.moleculeGeneration=generation;
         return 32;
     }
 
