@@ -29,8 +29,8 @@ public final class WaitKindR27 {
         if (userDisabled) return new Wait(DISABLED_BY_USER, "");
         if (resource != null) return new Wait(RESOURCE, resource.startsWith("RESOURCE(") ? resource : "RESOURCE(" + resource + ")");
         if (failure != null) {
-            String msg = String.valueOf(failure.getMessage());
-            return new Wait(ERROR, "ERROR(" + failure.getClass().getSimpleName() + ":" + (msg.length() > 160 ? msg.substring(0, 160) : msg) + ")");
+            RuntimeFaultEvidenceR31 fault = RuntimeFaultEvidenceR31.capture(failure, "TASK");
+            return new Wait(ERROR, "ERROR(category=" + fault.category + ";fingerprint=" + fault.fingerprint + ";operation=" + fault.operation + ")");
         }
         if (delta > 0) return new Wait(PROGRESS, (reason != null && reason.startsWith("COOPERATIVE") ? reason + ";" : "") + "units=" + delta);
         if (reason != null) {

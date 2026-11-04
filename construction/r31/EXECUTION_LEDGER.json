@@ -33,7 +33,7 @@
       "title": "固定报告对应源码和安装身份，继承1832要求与299历史卡",
       "phase": "P00",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "CODE_COMPLETE",
       "baseline_files": [
         {
           "path": "app/build.gradle",
@@ -46,10 +46,37 @@
           "baseline_state": "PROPOSED_NEW_FILE"
         }
       ],
-      "actual_changes": [],
+      "actual_changes": [
+        {
+          "path": "app/build.gradle",
+          "methods": [
+            "R31 BuildConfig identity fields",
+            "generateR31BuildIdentity"
+          ]
+        },
+        {
+          "path": "tools/r31/verify_baseline.py",
+          "methods": [
+            "verify_manifest",
+            "compare_tree"
+          ]
+        }
+      ],
       "commits": [],
       "migration_versions": [],
-      "tests": [],
+      "tests": [
+        {
+          "command": "python3 tools/r31/reproduce_report.py",
+          "result": "PASS",
+          "evidence": "verification/r31/p00/original-report-recount.json"
+        },
+        {
+          "command": "python3 tools/r31/test_verify_baseline.py",
+          "result": "PASS",
+          "tests": 12,
+          "evidence": "verification/r31/baseline_identity/test-receipts.json"
+        }
+      ],
       "apk_identity": null,
       "device_evidence": [],
       "acceptance": [
@@ -74,12 +101,24 @@
         "本包源提交与source-manifest.json一致，所有实际改动文件有diff和负责批次。",
         "旧要求原文摘要不变，未经实施的状态仍未实施。"
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Commit P00 code and all source identity inputs; execute complete build gates without bootstrap exclusions. APK/device acceptance remains NOT_RUN.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156294+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T08:48:12.942292+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p00/R31-B00-C01.json",
+          "receipt_sha256": "c4360efc73bb381811dfa8e5f93812ea40fe87ef6c86a30efccb6ecadd67e910"
+        },
+        {
+          "at": "2026-11-04T08:54:04.829736+00:00",
+          "state": "CODE_COMPLETE",
+          "receipt": "verification/r31/p00/R31-B00-C01.json",
+          "receipt_sha256": "8194e0768a08e2c0b59fd33869b055c697cfffc905f15b01fe2793cc1f5d3b38"
         }
       ]
     },
@@ -88,7 +127,7 @@
       "title": "采集完整原因链和实际提交回执，纠正隔离数量口径",
       "phase": "P00",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "CODE_COMPLETE",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
@@ -115,10 +154,66 @@
           "baseline_sha256": "ef9dcebb5c2c4dff815796f37ec8998a3c4764d5909e5aa0b8c2a2b75f9261e5"
         }
       ],
-      "actual_changes": [],
+      "actual_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskProgressR30R1.java",
+          "methods": [
+            "summarize"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskLivenessR30.java",
+          "methods": [
+            "classify",
+            "summarize"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "methods": [
+            "rowsets",
+            "capture",
+            "taskLiveness"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+          "methods": [
+            "r31ObservationContract",
+            "migrateR31Observations"
+          ]
+        }
+      ],
       "commits": [],
-      "migration_versions": [],
-      "tests": [],
+      "migration_versions": [
+        "RESEARCH_R31_OBSERVATION:1"
+      ],
+      "tests": [
+        {
+          "command": "python3 tools/r31/reproduce_report.py",
+          "result": "PASS",
+          "evidence": "verification/r31/p00/original-report-recount.json"
+        },
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/verify_runtime_observation.py",
+          "result": "PASS",
+          "assertions": 28,
+          "evidence": "verification/r31/runtime_observation/receipt.json"
+        },
+        {
+          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/verify_task_status.py",
+          "result": "PASS",
+          "before": "14 quarantines hidden; assertion FAIL at exact baseline",
+          "after": "0 quarantines hidden; PASS",
+          "evidence": "verification/r31/p00/task-status-regression/receipt.json"
+        },
+        {
+          "command": "javac + JUnitCore R31TaskStatusPrecedenceTest R30TaskLivenessTest",
+          "result": "PASS",
+          "tests": 4,
+          "evidence": "verification/r31/p00/task-status-tests.log"
+        }
+      ],
       "apk_identity": null,
       "device_evidence": [],
       "acceptance": [
@@ -143,12 +238,24 @@
         "嵌套busy、owner变更、SQL语法错误、磁盘满、用户取消各注入1次，原因链和类别可区分；不得全部重试或全部隔离。",
         "错误事件写入故障不会让真实交易回滚；下一次报告显示telemetry_incomplete及丢样数。"
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Commit P00 code and all source identity inputs; execute complete build gates without bootstrap exclusions. APK/device acceptance remains NOT_RUN.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156309+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-04T08:48:12.987929+00:00",
+          "state": "IMPLEMENTING",
+          "receipt": "verification/r31/p00/R31-B00-C02.json",
+          "receipt_sha256": "02660a97b1d2918bfde0d42f4b2629321307dfe4f4869e082deda28af0c07ccb"
+        },
+        {
+          "at": "2026-11-04T08:54:04.873855+00:00",
+          "state": "CODE_COMPLETE",
+          "receipt": "verification/r31/p00/R31-B00-C02.json",
+          "receipt_sha256": "13bed7519994b31a5c38d10b5744fcd59007055fd4aacfbdde5319370357d4ed"
         }
       ]
     },

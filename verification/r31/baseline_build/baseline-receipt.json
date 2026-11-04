@@ -1,0 +1,73 @@
+{
+  "sourceCommit": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "workingCopy": "/tmp/r31-baseline-5237",
+  "scope": "BASELINE_HOST_NOT_CURRENT_R31_NOT_ANDROID_PHYSICAL_NOT_NATURAL",
+  "checks": [
+    {
+      "command": "python3 scripts/test_r13_production_ddl.py",
+      "status": "PASS",
+      "exitCode": 0,
+      "log": "production-ddl.log",
+      "logSha256": "f59b966f9e6e13d87cc430a58439454e87e36d6f3be383a8b5621f0ce0f53794"
+    },
+    {
+      "command": "SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_writer_host.py",
+      "status": "PASS",
+      "exitCode": 0,
+      "log": "writer-host.log",
+      "logSha256": "3f59c49e983d22ec6756115cff4bcb55c79993b1364cdb0abb003599acafe13a"
+    },
+    {
+      "command": "SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_commit_failure_host.py",
+      "status": "PASS",
+      "exitCode": 0,
+      "log": "commit-failure-host.log",
+      "logSha256": "706b07d8597f64c8dae93e54fbcef1a1ebec6eb212fa77291ea0b80c695679c7"
+    },
+    {
+      "command": "SQLITE_JDBC=/tmp/r31-baseline-deps/sqlite-jdbc.jar python3 tools/r30-repair/run_progress_host.py",
+      "status": "PASS",
+      "exitCode": 0,
+      "log": "progress-host.log",
+      "logSha256": "cd682fc3ae5105ea9c4a63f5cc8579b4125a6bc46ba5274e9c3f04246401ce87"
+    }
+  ],
+  "canonical": {
+    "sourceCommit": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+    "worktree": "/tmp/r31-baseline-5237",
+    "command": "bash ./gradlew --no-daemon --max-workers=4 :app:verifyCanonicalPlanBuildCP3",
+    "exitCode": 0,
+    "endedAt": "2026-11-04T08:50:07.517829+00:00",
+    "status": "PASS",
+    "log": "canonical-approved.log",
+    "logSha256": "18391cec24afc6685df65399b9e9bdf8cd3ff318e0978e9d8592f308d6da70cf",
+    "unitTestSummary": "junit-summary.json",
+    "unitTests": {
+      "tests": 351,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 418.765
+    },
+    "lint": {
+      "status": "NO_NEW_ISSUES",
+      "existingErrorsFilteredByBaseline": 51,
+      "staleBaselineEntries": 7,
+      "rawReport": "lint/lint-results-release.xml"
+    },
+    "apkAssemblyIncluded": false
+  },
+  "sqliteJdbcSha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa",
+  "apk": "NOT_BUILT",
+  "device": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "sourceStateAfter": "source-state-after.json",
+  "updatedAt": "2026-11-04T08:51:22.717080+00:00",
+  "limits": [
+    "Source baseline 5237 only. Does not validate concurrent R31 edits.",
+    "Android compile, host unit tests, release lint, and native SQLite host scripts only; no Android runtime or installed APK tested.",
+    "Existing 51 lint errors are suppressed by repository lint-baseline.xml.",
+    "No signing binding available locally; canonical verification does not assemble a signed APK.",
+    "No device, 24 h / 72 h run, or natural future quality evidence."
+  ]
+}

@@ -3,7 +3,7 @@ package com.ethk3.novaonepro.strategyv2;
 /** Work cursor, source watermark and commit clock are different units. */
 public final class TaskProgressR30R1 {
     public enum Unit { ISSUE, POSITION_SAMPLE, GENERATION, PHASE, POLICY, TIME_TICK }
-    public enum State { UNKNOWN, BLOCKED_DEPENDENCY, IDLE_WAITING_INPUT, RUNNING, BACKLOG, STALLED }
+    public enum State { DISABLED, QUARANTINED, NEEDS_FIX, ERROR, UNKNOWN, BLOCKED_DEPENDENCY, IDLE_WAITING_INPUT, RUNNING, BACKLOG, STALLED }
     public final Unit unit;public final long cursor,latest,pending,oldestPendingOrdinal,commitClockOrdinal;
     public TaskProgressR30R1(Unit unit,long cursor,long latest,long pending,long oldest,long committedClock){
         this.unit=java.util.Objects.requireNonNull(unit);this.cursor=cursor;this.latest=latest;this.pending=pending;oldestPendingOrdinal=oldest;commitClockOrdinal=committedClock;
@@ -21,7 +21,7 @@ public final class TaskProgressR30R1 {
     /** Shared report projection. An absent adapter is a named missing source, never a healthy zero. */
     public static java.util.Map<String,Object> summarize(Object scheduled,Object committed,long calendar){
         java.util.Map<String,java.util.Map<String,Object>> owners=index(scheduled,"task_id"),facts=index(committed,"task_id");
-        java.util.List<Object> rows=new java.util.ArrayList<>();long stalled=0,unknown=0,maxLag=0,trainingUnknown=0;
+        java.util.List<Object> rows=new java.util.ArrayList<>();long stalled=0,unknown=0,maxLag=0,trainingUnknown=0,quarantined=0,faulted=0;
         for(ResearchTaskRegistryR30R1.Entry entry:ResearchTaskRegistryR30R1.all().values()){
             java.util.Map<String,Object> owner=owners.get(entry.id),fact=facts.get(entry.id),row=new java.util.LinkedHashMap<>();
             row.put("taskId",entry.id);row.put("owner",entry.owner);row.put("workUnit",entry.unit.name());row.put("inputSemantics",entry.input);row.put("trainingOwner",entry.training);
@@ -34,11 +34,18 @@ public final class TaskProgressR30R1 {
                 if(pending>=0){try{TaskProgressR30R1 p=new TaskProgressR30R1(entry.unit,n(fact.get("work_cursor")),n(fact.get("known_latest")),pending,oldest,clock);state=p.state(calendar,reason.startsWith("DEPENDENCY")||reason.startsWith("WAITING_SELF_CONTAINED")||reason.startsWith("WAITING_LEGACY_RESEARCH_SCHEMA"),status.equals("RUNNING"));lag=p.oldestLag(calendar);}catch(IllegalArgumentException invalid){row.put("sourceFailure","INVALID_TYPED_PROGRESS_UNITS");}}
                 else row.put("sourceFailure","OWNER_HAS_NOT_MATERIALIZED_PENDING_COUNT");
             }else row.put("sourceFailure",fact==null?"NO_ARTIFACT_BOUND_TYPED_PROGRESS":"OWNER_WORK_UNIT_CHANGED_REQUIRES_CURRENT_RECEIPT");
-            row.put("state",state.name());row.put("oldestPendingCalendarLag",lag);if(state==State.STALLED)stalled++;if(state==State.UNKNOWN)unknown++;
+            // Persisted owner state is authoritative even if the last progress receipt said pending=0.
+            // Keep sourceFailure/committedFacts visible; a control state does not invent fresh input facts.
+            row.put("sourceState",state.name());
+            if("DISABLED".equals(status))state=State.DISABLED;
+            else if("QUARANTINED".equals(status))state=State.QUARANTINED;
+            else if("NEEDS_FIX".equals(status))state=State.NEEDS_FIX;
+            else if("ERROR".equals(status)||"FAILED".equals(status))state=State.ERROR;
+            row.put("rawSchedulerState",status);row.put("state",state.name());row.put("oldestPendingCalendarLag",lag);if(state==State.STALLED)stalled++;if(state==State.UNKNOWN)unknown++;if(state==State.QUARANTINED)quarantined++;if(state==State.ERROR||state==State.NEEDS_FIX)faulted++;
             if(entry.training){if(state==State.UNKNOWN||n(fact==null?null:fact.get("pending"))>0&&lag==null)trainingUnknown++;if(lag!=null)maxLag=Math.max(maxLag,lag);}
             rows.add(row);
         }
-        java.util.Map<String,Object> summary=new java.util.LinkedHashMap<>();summary.put("tasks",rows.size());summary.put("originalEntrances",57);summary.put("additionalRepairTasks",ResearchTaskRegistryR30R1.ADDITIONAL.size());summary.put("stalled",stalled);summary.put("unknown",unknown);summary.put("m12",unknown>0?null:stalled);summary.put("oldestBacklogIssues",trainingUnknown>0?null:maxLag);summary.put("observedOldestBacklogIssues",maxLag);summary.put("trainingTasksWithUnknownSource",trainingUnknown);
+        java.util.Map<String,Object> summary=new java.util.LinkedHashMap<>();summary.put("tasks",rows.size());summary.put("originalEntrances",57);summary.put("additionalRepairTasks",ResearchTaskRegistryR30R1.ADDITIONAL.size());summary.put("stalled",stalled);summary.put("unknown",unknown);summary.put("quarantined",quarantined);summary.put("faulted",faulted);summary.put("m12",unknown>0?null:stalled+quarantined+faulted);summary.put("m12Pass",unknown>0?null:stalled+quarantined+faulted==0);summary.put("oldestBacklogIssues",trainingUnknown>0?null:maxLag);summary.put("observedOldestBacklogIssues",maxLag);summary.put("trainingTasksWithUnknownSource",trainingUnknown);
         java.util.Map<String,Object> result=new java.util.LinkedHashMap<>();result.put("version",ResearchTaskRegistryR30R1.VERSION);result.put("tasks",rows);result.put("summary",summary);result.put("scope","57 original entrances plus "+ResearchTaskRegistryR30R1.ADDITIONAL.size()+" registered repair tasks; artifact transaction facts only. Work units never subtracted from calendar. Missing facts remain UNKNOWN.");return result;
     }
     private static long n(Object value){return value instanceof Number?((Number)value).longValue():-1;}

@@ -45,6 +45,30 @@ public final class SchemaDomainCoordinatorR926 {
 
     private SchemaDomainCoordinatorR926() {}
 
+    /** R31 observation schema has its own journal; it cannot invalidate Critical startup. */
+    public static Contract r31ObservationContract() {
+        return new Contract("RESEARCH_R31_OBSERVATION",
+                com.ethk3.novaonepro.strategyv2.SchemaR27.R31_OBSERVATION_REVISION,
+                new String[] {"r31_runtime_fault", "r31_runtime_fault_order", "r31_telemetry_counter",
+                        "r31_task_observation", "r31_task_control", "r31_migration"});
+    }
+
+    /** Called once by the existing R26_RUNTIME_SCHEMA writer, never by a business receipt. */
+    public static void migrateR31Observations(SQLiteDatabase db) {
+        if (!db.inTransaction()) throw new IllegalStateException("R31_MIGRATION_OWNER_REQUIRED");
+        Contract contract = r31ObservationContract();
+        prepareRepairIfDrift(db, contract);
+        try {
+            runStep(db, contract, "R31_OBSERVATION_V1",
+                    com.ethk3.novaonepro.strategyv2.SchemaR27::ensureR31Observations);
+            verifyAndStamp(db, contract);
+        } catch (RuntimeException failure) {
+            throw failure;
+        } catch (Exception failure) {
+            throw new IllegalStateException("R31_OBSERVATION_MIGRATION_FAILED", failure);
+        }
+    }
+
     public static Contract criticalContract() {
         return new Contract(
                 DOMAIN_CRITICAL,

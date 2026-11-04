@@ -1,0 +1,62 @@
+{
+  "actual_changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskProgressR30R1.java",
+      "methods": [
+        "summarize"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskLivenessR30.java",
+      "methods": [
+        "classify",
+        "summarize"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "methods": [
+        "rowsets",
+        "capture",
+        "taskLiveness"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+      "methods": [
+        "r31ObservationContract",
+        "migrateR31Observations"
+      ]
+    }
+  ],
+  "migration_versions": [
+    "RESEARCH_R31_OBSERVATION:1"
+  ],
+  "tests": [
+    {
+      "command": "python3 tools/r31/reproduce_report.py",
+      "result": "PASS",
+      "evidence": "verification/r31/p00/original-report-recount.json"
+    },
+    {
+      "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/verify_runtime_observation.py",
+      "result": "PASS",
+      "assertions": 28,
+      "evidence": "verification/r31/runtime_observation/receipt.json"
+    },
+    {
+      "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/verify_task_status.py",
+      "result": "PASS",
+      "before": "14 quarantines hidden; assertion FAIL at exact baseline",
+      "after": "0 quarantines hidden; PASS",
+      "evidence": "verification/r31/p00/task-status-regression/receipt.json"
+    },
+    {
+      "command": "javac + JUnitCore R31TaskStatusPrecedenceTest R30TaskLivenessTest",
+      "result": "PASS",
+      "tests": 4,
+      "evidence": "verification/r31/p00/task-status-tests.log"
+    }
+  ],
+  "next_step": "Commit P00 code and all source identity inputs; execute complete build gates without bootstrap exclusions. APK/device acceptance remains NOT_RUN."
+}

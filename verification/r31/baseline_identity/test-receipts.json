@@ -1,0 +1,65 @@
+{
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "tools/r31/test_verify_baseline.py"
+      ],
+      "started_utc": "2026-11-04T08:47:27.095668+00:00",
+      "completed_utc": "2026-11-04T08:47:29.689150+00:00",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "command-1.log",
+      "scope": "PYTHON_VERIFIER_HOST_ONLY"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/r31/verify_baseline.py",
+        "--output",
+        "verification/r31/baseline_identity/baseline-verification.json"
+      ],
+      "started_utc": "2026-11-04T08:47:29.689168+00:00",
+      "completed_utc": "2026-11-04T08:47:31.427557+00:00",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "command-2.log",
+      "scope": "PYTHON_VERIFIER_HOST_ONLY"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/r31/verify_baseline.py",
+        "--identity-only",
+        "--require-clean",
+        "--output",
+        "verification/r31/baseline_identity/dirty-release-rejection.json"
+      ],
+      "started_utc": "2026-11-04T08:47:31.427573+00:00",
+      "completed_utc": "2026-11-04T08:47:31.967910+00:00",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "log": "command-3.log",
+      "scope": "PYTHON_VERIFIER_HOST_ONLY"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/r31/verify_baseline.py",
+        "--strict-baseline",
+        "--output",
+        "verification/r31/baseline_identity/old-anchor-rejection.json"
+      ],
+      "started_utc": "2026-11-04T08:47:31.967926+00:00",
+      "completed_utc": "2026-11-04T08:47:33.217508+00:00",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "log": "command-4.log",
+      "scope": "PYTHON_VERIFIER_HOST_ONLY"
+    }
+  ],
+  "status": "PASS",
+  "android_build": "NOT_RUN_BY_THIS_AGENT",
+  "device": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN"
+}

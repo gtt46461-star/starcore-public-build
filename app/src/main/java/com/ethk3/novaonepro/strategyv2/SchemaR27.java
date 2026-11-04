@@ -11,6 +11,16 @@ import com.ethk3.novaonepro.*;
 public final class SchemaR27 {
     private SchemaR27() {}
     public static final int REVISION = 1;
+    public static final int R31_OBSERVATION_REVISION = 1;
+    /** Additive, executed only by the existing startup/migration owner. Never from a fault callback. */
+    public static final String[] R31_DDL = {
+        "CREATE TABLE IF NOT EXISTS r31_runtime_fault(event_id TEXT PRIMARY KEY,task_id TEXT NOT NULL,owner_epoch TEXT NOT NULL,fence INTEGER,operation TEXT NOT NULL,phase TEXT NOT NULL,category TEXT NOT NULL,root_fingerprint TEXT NOT NULL,minute_bucket INTEGER NOT NULL,cause_chain_json TEXT NOT NULL,stack TEXT NOT NULL,stack_hash TEXT NOT NULL,last_cause_chain_json TEXT NOT NULL,last_stack TEXT NOT NULL,last_stack_hash TEXT NOT NULL,commit_outcome TEXT NOT NULL,boot_id TEXT NOT NULL,first_wall_ms INTEGER NOT NULL,last_wall_ms INTEGER NOT NULL,first_elapsed_ms INTEGER NOT NULL,last_elapsed_ms INTEGER NOT NULL,occurrences INTEGER NOT NULL,byte_count INTEGER NOT NULL CHECK(byte_count>=0),UNIQUE(task_id,owner_epoch,root_fingerprint,minute_bucket))",
+        "CREATE INDEX IF NOT EXISTS r31_runtime_fault_order ON r31_runtime_fault(last_wall_ms,task_id)",
+        "CREATE TABLE IF NOT EXISTS r31_telemetry_counter(owner_epoch TEXT NOT NULL,name TEXT NOT NULL,value INTEGER NOT NULL CHECK(value>=0),updated_at INTEGER NOT NULL,PRIMARY KEY(owner_epoch,name))",
+        "CREATE TABLE IF NOT EXISTS r31_task_observation(task_id TEXT PRIMARY KEY,owner_epoch TEXT NOT NULL,fence INTEGER,attempts INTEGER NOT NULL DEFAULT 0,work_cpu_ms INTEGER NOT NULL DEFAULT 0,observed_work_units INTEGER NOT NULL DEFAULT 0,task_receipts_committed INTEGER NOT NULL DEFAULT 0,task_receipts_failed INTEGER NOT NULL DEFAULT 0,last_attempt_elapsed_ms INTEGER NOT NULL,boot_id TEXT NOT NULL,last_artifact_hash TEXT,progress_evidence_status TEXT NOT NULL DEFAULT 'NOT_ARTIFACT_BOUND')",
+        "CREATE TABLE IF NOT EXISTS r31_task_control(task_id TEXT PRIMARY KEY,quarantine_until INTEGER NOT NULL DEFAULT 0,level INTEGER NOT NULL DEFAULT 0,fingerprint TEXT NOT NULL DEFAULT '',half_open_owner TEXT,last_recovery_at INTEGER NOT NULL DEFAULT 0,generation INTEGER NOT NULL DEFAULT 0)",
+        "CREATE TABLE IF NOT EXISTS r31_migration(revision INTEGER PRIMARY KEY,applied_at INTEGER NOT NULL,source_commit TEXT NOT NULL)"
+    };
     public static final String[] DDL = {
         "CREATE TABLE IF NOT EXISTS r27_migration(revision INTEGER PRIMARY KEY,applied_at INTEGER NOT NULL,source_commit TEXT NOT NULL)",
         "CREATE TABLE IF NOT EXISTS r27_task_error(error_id INTEGER PRIMARY KEY,task_id TEXT NOT NULL,error_class TEXT NOT NULL,message TEXT NOT NULL,stack TEXT NOT NULL,recorded_at INTEGER NOT NULL)",
@@ -74,6 +84,7 @@ public final class SchemaR27 {
     public static void ensure(SQLiteDatabase db) {
         if (!db.inTransaction()) throw new IllegalStateException("R27_WRITER_REQUIRED");
         for (String sql : DDL) db.execSQL(sql);
+        SchemaDomainCoordinatorR926.migrateR31Observations(db);
         for (String sql : ResearchSchemaR30R1.DDL) db.execSQL(sql);
         if(tableExists(db,"su2_matrix_snapshot"))MatrixStoreSU2.ensureMetadata(db); // existing SU2 ready markers do not imply new additive columns
         ResearchEvolutionStoreR930.createSchema(db); // restore the 13 baseline-declared legacy evidence tables, same owner/writer
@@ -101,6 +112,32 @@ public final class SchemaR27 {
             db.execSQL("UPDATE r26_task SET first_progress_at=last_progress WHERE first_progress_at=0 AND last_progress>0");
         }
         db.execSQL("INSERT OR IGNORE INTO r27_migration VALUES(?,?,?)", new Object[] {REVISION, System.currentTimeMillis(), BuildConfig.SOURCE_COMMIT_R26});
+    }
+
+    public static void ensureR31Observations(SQLiteDatabase db) {
+        if (!db.inTransaction()) throw new IllegalStateException("R31_SCHEMA_WRITER_REQUIRED");
+        for (String sql : R31_DDL) db.execSQL(sql);
+        verifyR31ObservationColumns(db);
+        db.execSQL("INSERT OR IGNORE INTO r31_migration VALUES(?,?,?)", new Object[] {
+                R31_OBSERVATION_REVISION, System.currentTimeMillis(), BuildConfig.SOURCE_COMMIT_R26});
+    }
+
+    private static void verifyR31ObservationColumns(SQLiteDatabase db) {
+        String[][] required = {
+            {"r31_runtime_fault", "event_id,task_id,owner_epoch,fence,operation,phase,category,root_fingerprint,minute_bucket,cause_chain_json,stack,stack_hash,last_cause_chain_json,last_stack,last_stack_hash,commit_outcome,boot_id,first_wall_ms,last_wall_ms,first_elapsed_ms,last_elapsed_ms,occurrences,byte_count"},
+            {"r31_telemetry_counter", "owner_epoch,name,value,updated_at"},
+            {"r31_task_observation", "task_id,owner_epoch,fence,attempts,work_cpu_ms,observed_work_units,task_receipts_committed,task_receipts_failed,last_attempt_elapsed_ms,boot_id,last_artifact_hash,progress_evidence_status"},
+            {"r31_task_control", "task_id,quarantine_until,level,fingerprint,half_open_owner,last_recovery_at,generation"},
+            {"r31_migration", "revision,applied_at,source_commit"}
+        };
+        for (String[] table : required) {
+            java.util.Set<String> actual = new java.util.HashSet<>();
+            try (Cursor columns = db.rawQuery("PRAGMA table_info(" + table[0] + ")", null)) {
+                while (columns.moveToNext()) actual.add(columns.getString(1));
+            }
+            for (String column : table[1].split(",")) if (!actual.contains(column))
+                throw new IllegalStateException("R31_OBSERVATION_SCHEMA_CONFLICT:" + table[0] + ":" + column);
+        }
     }
 
     /** Add metadata without relabeling historical certificates as having passed the current contract. */

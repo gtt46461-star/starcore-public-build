@@ -26,7 +26,17 @@ public final class TaskLivenessR30 {
     public static final int STALL_PERIODS = 5;
     private TaskLivenessR30() {}
 
-    public enum State { UNKNOWN, BLOCKED_DEPENDENCY, IDLE_WAITING_DRAW, STALLED, RUNNING, BACKLOG, IDLE_NO_WORK }
+    public enum State { DISABLED, QUARANTINED, NEEDS_FIX, ERROR, UNKNOWN, BLOCKED_DEPENDENCY, IDLE_WAITING_DRAW, STALLED, RUNNING, BACKLOG, IDLE_NO_WORK }
+
+    /** Scheduler control state outranks a stale/absent work counter. */
+    public static State classify(String entryStatus, long pending, long periodsSinceCommit,
+                                 boolean dependencyMissing, boolean waitingNewDraw, boolean running) {
+        if ("DISABLED".equals(entryStatus)) return State.DISABLED;
+        if ("QUARANTINED".equals(entryStatus)) return State.QUARANTINED;
+        if ("NEEDS_FIX".equals(entryStatus)) return State.NEEDS_FIX;
+        if ("ERROR".equals(entryStatus) || "FAILED".equals(entryStatus)) return State.ERROR;
+        return classify(pending, periodsSinceCommit, dependencyMissing, waitingNewDraw, running);
+    }
 
     public static State classify(long pending, long periodsSinceCommit, boolean dependencyMissing,
                                  boolean waitingNewDraw, boolean running) {
@@ -41,21 +51,25 @@ public final class TaskLivenessR30 {
 
     /** M12 = STALLED 任务数；UNKNOWN 不计为 0，单列。 */
     public static Map<String, Object> summarize(State[] states) {
-        int stalled = 0, unknown = 0, blocked = 0, total = 0;
+        int stalled = 0, unknown = 0, blocked = 0, total = 0, quarantined = 0, faults = 0;
         for (State s : states) {
             if (s == null) continue;
             total++;
             if (s == State.STALLED) stalled++;
             else if (s == State.UNKNOWN) unknown++;
             else if (s == State.BLOCKED_DEPENDENCY) blocked++;
+            else if (s == State.QUARANTINED) quarantined++;
+            else if (s == State.ERROR || s == State.NEEDS_FIX) faults++;
         }
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("tasks", total);
         m.put("stalled", stalled);
         m.put("unknown", unknown);
         m.put("blockedDependency", blocked);
-        m.put("m12", unknown > 0 ? null : (Object) stalled);
-        m.put("m12Pass", unknown > 0 ? null : (Object) (stalled == 0));
+        m.put("quarantined", quarantined);
+        m.put("faulted", faults);
+        m.put("m12", unknown > 0 ? null : (Object) (stalled + quarantined + faults));
+        m.put("m12Pass", unknown > 0 ? null : (Object) (stalled + quarantined + faults == 0));
         return m;
     }
 }

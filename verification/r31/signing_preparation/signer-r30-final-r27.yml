@@ -1,0 +1,247 @@
+name: STARCORE R30 REPAIR1 EXISTING_R27 (existing identity only)
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/r30-final-request.json', '.github/workflows/r30-final-r27.yml']
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: r30-repair1-EXISTING_R27-${{ github.sha }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    outputs:
+      source: ${{ steps.request.outputs.source }}
+      r27RunId: ${{ steps.request.outputs.r27RunId }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/r30-final-request.json
+      - id: request
+        run: |
+          python3 - <<'CODE'
+          import json,os,re
+          r=json.load(open('.github/r30-final-request.json'));assert re.fullmatch('[a-f0-9]{40}',r['source'])
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out: out.write('source='+r['source']+'\n')
+          CODE
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.request.outputs.source }}
+          fetch-depth: 0
+      - name: Mark the known 002 render failure in its public release records
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release edit r30-repair1-577311002-a94ee9dae4e0 --repo "$GITHUB_REPOSITORY" --notes-file tools/r30-repair/KNOWN_002_RENDER_FAILURE.md
+          mkdir -p /tmp/r30-old002
+          gh release download r30-repair1-577311002-a94ee9dae4e0 --repo "$GITHUB_REPOSITORY" --dir /tmp/r30-old002 --pattern ACCEPTANCE.json
+          python3 - <<'PYTHON'
+          import json,pathlib
+          p=pathlib.Path('/tmp/r30-old002/ACCEPTANCE.json');o=json.loads(p.read_text())
+          o['isFinalRecommendedApk']=False
+          o['galleryManualContentAcceptance']='REJECTED_R03_ACTUAL_DRAW_FAILURE_AFTER_CORRECT_CAPTURE'
+          o['knownProductFailure']='R03 100 position-number nodes exceed old graph geometry64 node budget; onDraw fallback displayed IllegalArgumentException. Mechanical screenshot checks do not establish successful drawing.'
+          p.write_text(json.dumps(o,ensure_ascii=False,indent=2)+'\n')
+          PYTHON
+          gh release upload r30-repair1-577311002-a94ee9dae4e0 /tmp/r30-old002/ACCEPTANCE.json --repo "$GITHUB_REPOSITORY" --clobber
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+      - uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/r27-ci-temp-key
+          key: starcore-r27-ci-temp-signing-v1
+          fail-on-cache-miss: true
+      - name: Reuse the existing R27 certificate only (no new key)
+        env:
+          R29_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, subprocess, hashlib
+          root=pathlib.Path.home()/'.starcore/r27-ci-temp-key'
+          key=root/'r27-ci.p12'; password=(root/'pw').read_text().strip()
+          if not key.is_file() or not password: raise SystemExit('ORIGINAL_SIGNING_UNAVAILABLE')
+          print('::add-mask::'+password)
+          cert=subprocess.check_output(['keytool','-exportcert','-keystore',str(key),'-storetype','PKCS12','-alias','starcore-r13','-storepass',password],stderr=subprocess.DEVNULL)
+          fingerprint=hashlib.sha256(cert).hexdigest()
+          if fingerprint!='d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7': raise SystemExit('R27_SIGNING_CHANGED')
+          with open(os.environ['GITHUB_ENV'],'a') as out:
+              out.write('R13_SIGNING_P12='+str(key)+'\nR13_SIGNING_PASSWORD='+password+'\nR13_EXPECTED_CERT_SHA256='+fingerprint+'\nR29_SIGNING=EXISTING_R27_CI_NOT_OFFICIAL_R13\n')
+              credential=os.environ.get('R29_API_KEY','').strip()
+              if credential:
+                  print('::add-mask::'+credential)
+                  out.write('DUOQU_API_KEY='+credential+'\n')
+          print('Reused R27 certificate '+fingerprint+'; official R13 upgrade BLOCKED')
+          PY
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+      - name: Exact-source complete gates and signed candidates
+        run: |
+          timeout 45s git fetch --no-tags origin construction/r30-repair-20261101
+          git merge-base --is-ancestor HEAD origin/construction/r30-repair-20261101
+          [ -n "${DUOQU_API_KEY:-}" ] || { echo FINAL_API_CONFIGURATION_UNAVAILABLE; exit 1; }
+          bash tools/r30-repair/ci_build.sh
+          ./gradlew --no-daemon :app:lintDebug
+          python3 tools/r30/package_final.py --lane EXISTING_R27 --expected-source '${{ steps.request.outputs.source }}'
+          ./gradlew --no-daemon -q -Pr30Instrumentation=true :app:assembleDebugAndroidTest
+          grep -Fq 'android:name="com.ethk3.novaonepro.R30FaultAndroidRunner"' app/build/intermediates/packaged_manifests/debugAndroidTest/processDebugAndroidTestManifest/AndroidManifest.xml
+          mkdir -p r30-androidtest
+          cp app/build/outputs/apk/androidTest/debug/*.apk r30-androidtest/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: R30-REPAIR1-R27-FINAL-CANDIDATE
+          path: r30-final/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: R30-REPAIR1-R27-ANDROIDTEST
+          path: r30-androidtest/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R30-REPAIR1-R27-HOST-EVIDENCE
+          path: |
+            evidence/r30/ci/
+            evidence/r30-repair/ci/
+            app/build/test-results/
+            app/build/reports/
+  emulator:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.source }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/download-artifact@v4
+        with:
+          name: R30-REPAIR1-R27-FINAL-CANDIDATE
+          path: candidate
+      - uses: actions/download-artifact@v4
+        with:
+          name: R30-REPAIR1-R27-ANDROIDTEST
+          path: androidtest
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          profile: pixel_4
+          disable-animations: true
+          ram-size: 4096M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+          script: bash tools/r30-repair/prepare_emulator.sh && adb install $(find candidate -name '*.apk' -print -quit) && adb install -t $(find androidtest -name '*.apk' -print -quit) && python3 scripts/probe_r13_startup.py --installed && bash tools/r30-repair/run_android_regression.sh evidence/r30/android-regression && bash tools/r30/run_fault_matrix.sh evidence/r30/fault-matrix && bash tools/r30-repair/run_research_fault_matrix.sh evidence/r30/research-fault-matrix
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R30-REPAIR1-R27-ANDROID-EVIDENCE
+          path: |
+            evidence/r30/android-regression/
+            evidence/r30/fault-matrix/
+            evidence/r30/research-fault-matrix/
+            startup-evidence/
+  upgrade:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        checkpoint: [CP06, CP16, CURRENT_R30_107]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.source }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/download-artifact@v4
+        with:
+          name: R30-REPAIR1-R27-FINAL-CANDIDATE
+          path: candidate
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools build-tools;36.0.0
+          log-accepted-android-sdk-licenses: false
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 4096M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+          script: bash tools/r30-repair/prepare_emulator.sh && bash tools/r30/run_upgrade_drill.sh $(find candidate -name '*.apk' -print -quit) EXISTING_R27 ${{ matrix.checkpoint }} evidence/r30/upgrade-EXISTING_R27-${{ matrix.checkpoint }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R30-REPAIR1-R27-UPGRADE-${{ matrix.checkpoint }}
+          path: |
+            evidence/r30/upgrade-EXISTING_R27-${{ matrix.checkpoint }}/
+            startup-evidence/
+  publish:
+    needs: [build, emulator, upgrade]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.source }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: R30-REPAIR1-R27-FINAL-CANDIDATE
+          path: verified-candidate
+      - uses: actions/download-artifact@v4
+        with:
+          name: R30-REPAIR1-R27-ANDROID-EVIDENCE
+          path: verified-android
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: R30-REPAIR1-R27-UPGRADE-*
+          path: verified-upgrades
+      - uses: actions/download-artifact@v4
+        with:
+          name: R30-REPAIR1-R27-HOST-EVIDENCE
+          path: verified-host
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: build-tools;36.0.0
+          log-accepted-android-sdk-licenses: false
+      - name: Publish only the exact independently verified same-certificate candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/r30-repair/publish_verified.py --source '${{ needs.build.outputs.source }}' --candidate verified-candidate --android verified-android --upgrades verified-upgrades --host verified-host
+

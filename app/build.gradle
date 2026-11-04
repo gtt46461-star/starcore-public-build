@@ -52,6 +52,14 @@ if (!releaseApiKey.isEmpty() && !(releaseApiKey ==~ /[A-Za-z0-9]{8,128}/)) {
 def requestedRelease = gradle.startParameter.taskNames.any {
     it.tokenize(':').last() ==~ /(?:assemble|bundle|package)Release(?:Bundle)?/
 }
+// The committed tree and current build-input bytes are distinct identities.
+// A developer build may be dirty; a release must be reproducible from its commit.
+def r31BuildIdentity = new groovy.json.JsonSlurper().parseText(providers.exec {
+    workingDir rootProject.projectDir
+    commandLine 'python3', rootProject.file('tools/r31/verify_baseline.py').absolutePath, '--identity-only'
+}.standardOutput.asText.get())
+if (r31BuildIdentity.format != 'R31_BUILD_IDENTITY_V1') throw new GradleException('R31_BUILD_IDENTITY_INVALID')
+if (requestedRelease && r31BuildIdentity.source_dirty) throw new GradleException('R31_DIRTY_SOURCE_NOT_PUBLISHABLE')
 if (requestedRelease && !(releaseApiKey ==~ /[A-Za-z0-9]{8,128}/)) {
     throw new GradleException('R995_RELEASE_DEFAULT_API_KEY_REQUIRED')
 }
@@ -82,6 +90,12 @@ android {
         def sourceCommitR26 = providers.exec { commandLine "git", "rev-parse", "HEAD" }.standardOutput.asText.get().trim()
         if (!(sourceCommitR26 ==~ /[0-9a-f]{40}/)) throw new GradleException("R26_SOURCE_COMMIT_UNAVAILABLE")
         buildConfigField 'String', 'SOURCE_COMMIT_R26', '"' + sourceCommitR26 + '"'
+        buildConfigField 'String', 'BASELINE_SOURCE_COMMIT_R31', '"' + r31BuildIdentity.baseline_commit + '"'
+        buildConfigField 'String', 'SOURCE_TREE_R31', '"' + r31BuildIdentity.source_tree + '"'
+        buildConfigField 'boolean', 'SOURCE_DIRTY_R31', String.valueOf(r31BuildIdentity.source_dirty)
+        buildConfigField 'String', 'SOURCE_WORKTREE_SHA256_R31', '"' + r31BuildIdentity.product_worktree_sha256 + '"'
+        buildConfigField 'String', 'PLAN_MANIFEST_SHA256_R31', '"' + r31BuildIdentity.plan_manifest_sha256 + '"'
+        buildConfigField 'String', 'MIGRATION_CONTRACT_SHA256_R31', '"' + r31BuildIdentity.migration_contract_sha256 + '"'
         buildConfigField 'int', 'DB_USER_VERSION', requiredIdentity('dbVersion')
         buildConfigField 'int', 'LEGACY_R906_SCHEMA_REVISION', requiredIdentity('legacyR906Revision')
         buildConfigField 'String', 'R925_SCHEMA_REVISION', '"' + requiredIdentity('r925Revision') + '"'
@@ -298,6 +312,48 @@ def generateR27BuildIdentity = tasks.register('generateR27BuildIdentity', Exec) 
 android.sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/assets/r27b'))
 tasks.named('preBuild').configure { dependsOn generateR27BuildIdentity }
 tasks.withType(JavaCompile).configureEach { dependsOn verifyR967Semantics }
+
+// Bind packaged metadata to the same bytes used when BuildConfig was configured.
+// Do not serialize filenames from Git status or any private signing inputs.
+def r31IdentityKeys = ['source_commit', 'source_tree', 'product_worktree_sha256',
+                      'plan_manifest_sha256', 'migration_contract_sha256']
+def checkR31Identity = {
+    def current = new groovy.json.JsonSlurper().parseText(providers.exec {
+        workingDir rootProject.projectDir
+        commandLine 'python3', rootProject.file('tools/r31/verify_baseline.py').absolutePath, '--identity-only'
+    }.standardOutput.asText.get())
+    r31IdentityKeys.each { key ->
+        if (current[key] != r31BuildIdentity[key]) throw new GradleException('R31_BUILD_INPUT_CHANGED_' + key)
+    }
+}
+def verifyR31Baseline = tasks.register('verifyR31Baseline', Exec) {
+    workingDir rootProject.projectDir
+    commandLine 'python3', rootProject.file('tools/r31/verify_baseline.py').absolutePath,
+            '--output', layout.buildDirectory.file('r31/baseline-verification.json').get().asFile.absolutePath
+    outputs.upToDateWhen { false }
+}
+def generateR31BuildIdentity = tasks.register('generateR31BuildIdentity') {
+    dependsOn verifyR31Baseline
+    outputs.upToDateWhen { false }
+    doLast {
+        checkR31Identity()
+        def publicIdentity = new LinkedHashMap(r31BuildIdentity)
+        publicIdentity.remove('git_status')
+        def output = layout.buildDirectory.file('generated/assets/r31/diagnostics/build-identity-r31.json').get().asFile
+        output.parentFile.mkdirs()
+        output.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(publicIdentity)) + '\n'
+    }
+}
+def verifyFinalR31BuildIdentity = tasks.register('verifyFinalR31BuildIdentity') {
+    doLast { checkR31Identity() }
+}
+android.sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/assets/r31'))
+tasks.named('preBuild').configure { dependsOn generateR31BuildIdentity }
+tasks.configureEach { task ->
+    if (task.name.startsWith('assemble') || task.name.startsWith('bundle')) {
+        task.finalizedBy verifyFinalR31BuildIdentity
+    }
+}
 
 // Canonical acceptance has no dependency on a connected physical device.
 tasks.register('verifyCanonicalPlanBuildCP3') {

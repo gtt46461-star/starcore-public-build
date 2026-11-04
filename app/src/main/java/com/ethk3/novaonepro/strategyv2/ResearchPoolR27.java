@@ -4,8 +4,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.SystemClock;
 import com.ethk3.novaonepro.*;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -100,6 +98,8 @@ public final class ResearchPoolR27 implements AutoCloseable {
                 try { t = next(); } catch (Throwable failure) { active.decrementAndGet(); throw failure; }
                 if (t == null) { active.decrementAndGet(); sleep(250); continue; }
                 Outcome o = null; Throwable failure = null;ResourceBudget appliedResourceBudget=null;
+                RuntimeCoordinatorR26.Claim observedClaim = null; String observedPhase = "CLAIM";
+                long attemptCpu = android.os.Debug.threadCpuTimeNanos();
                 boolean quarantined = false;
                 try {
                     try (Cursor c = w.ro.rawQuery("SELECT status FROM r26_task WHERE task_id=?", new String[] {t.id()})) {
@@ -108,10 +108,12 @@ public final class ResearchPoolR27 implements AutoCloseable {
                     if (!quarantined) {
                         PreparedTaskR30R1 current; synchronized(this){current=prepared.get(t.id());}
                         RuntimeCoordinatorR26.Claim claim=claimPrepared(t.id(),current);
+                        observedClaim = claim;
                         if(claim==null){o=Outcome.idle("DEPENDENCY(ACTIVE_SCHEMA_SESSION_OR_TASK_LEASE)",0,-1);}
                         else {
                             if(current==null){current=new PreparedTaskR30R1(t,w,claim);synchronized(this){prepared.put(t.id(),current);}}
                             current.claim=claim;
+                            observedPhase = "COMPUTE_OR_PUBLISH";
                             refreshResourceBudget(w.ro);appliedResourceBudget=resourceBudget;int quantum=appliedResourceBudget.quantums.getOrDefault(t.id(),200);
                             try{o=current.slice(quantum);}finally{recordResearchCost(t.id(),current.lastCpuNanos);if(current.done()){current.close();synchronized(this){prepared.remove(t.id());}}}
                         }
@@ -120,7 +122,8 @@ public final class ResearchPoolR27 implements AutoCloseable {
                 finally { active.decrementAndGet(); synchronized (this) { running.put(t.id(), false); } }
                 if (quarantined) { synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + 5000); } continue; }
                 slices++;
-                record(t.id(), o, failure,appliedResourceBudget);
+                record(t.id(), o, failure,appliedResourceBudget, observedClaim, observedPhase,
+                        Math.max(0, android.os.Debug.threadCpuTimeNanos() - attemptCpu) / 1_000_000L);
                 if (o == null || o.units == 0) synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + (failure != null ? 5000 : o!=null&&"COOPERATIVE_PREPARED_STEP".equals(o.reason)?25:1000)); }
             } catch (Throwable unexpected) { android.util.Log.w("STARCORE_R27", "worker " + w.name, unexpected); sleep(500); }
             long now = SystemClock.elapsedRealtime();
@@ -159,9 +162,11 @@ public final class ResearchPoolR27 implements AutoCloseable {
     }
     public synchronized void wake(String id) { notBefore.remove(id); }
 
-    private void record(String id, Outcome o, Throwable failure,ResourceBudget appliedResourceBudget) {
+    private void record(String id, Outcome o, Throwable failure,ResourceBudget appliedResourceBudget,
+                        RuntimeCoordinatorR26.Claim claim, String phase, long cpuMs) {
         WaitKindR27.Wait wait = WaitKindR27.classify(o == null ? 0 : o.units, o == null ? null : o.reason, failure, o == null ? 0 : o.cursor, o == null ? -1 : o.latest, resource, false);
         final long now = System.currentTimeMillis(); final String stack = failure == null ? null : stack(failure);
+        boolean receiptCommitted = false;
         try {
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R27_TASK_RECEIPT", db -> {
                 db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism,status,registered_at) VALUES(?,'R27',?,'READY',?)", new Object[] {id, id, now});
@@ -170,7 +175,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
                     try (Cursor c = db.rawQuery("SELECT error_window_start,error_count FROM r26_task WHERE task_id=?", new String[] {id})) { if (c.moveToFirst()) { ws = c.getLong(0); cnt = c.getLong(1); } }
                     long[] e = WaitKindR27.recordError(ws, cnt, now);
                     boolean q = WaitKindR27.quarantine(e[1]);
-                    db.execSQL("INSERT INTO r27_task_error(task_id,error_class,message,stack,recorded_at) VALUES(?,?,?,?,?)", new Object[] {id, failure.getClass().getName(), String.valueOf(failure.getMessage()), stack, now});
+                    db.execSQL("INSERT INTO r27_task_error(task_id,error_class,message,stack,recorded_at) VALUES(?,?,?,?,?)", new Object[] {id, failure.getClass().getName(), RuntimeFaultEvidenceR31.clean(failure.getMessage(), 1024), stack, now});
                     db.execSQL("DELETE FROM r27_task_error WHERE error_id<(SELECT max(error_id)-2000 FROM r27_task_error)");
                     db.execSQL("UPDATE r26_task SET error_window_start=?,error_count=?,status=?,wait_kind=?,wait_detail=?,blocked_reason=?,wait_since=CASE WHEN wait_kind=? THEN wait_since ELSE ? END,last_served=? WHERE task_id=?",
                             new Object[] {e[0], e[1], q ? WaitKindR27.QUARANTINED : "BLOCKED", q ? WaitKindR27.QUARANTINED : wait.kind, wait.detail, wait.blockedReason(), wait.kind, now, now, id});
@@ -183,7 +188,9 @@ public final class ResearchPoolR27 implements AutoCloseable {
                 if(failure==null)recordResourceUse(db,id,now,appliedResourceBudget);
                 return 0;
             });
+            receiptCommitted = true;
         } catch (RuntimeException busy) { android.util.Log.w("STARCORE_R27", "task receipt deferred " + id, busy); }
+        observeAttemptR31(store, id, session, claim, phase, failure, o == null ? 0 : o.units, cpuMs, receiptCommitted);
         if (failure != null) android.util.Log.w("STARCORE_R27", id, failure);
     }
 
@@ -209,7 +216,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
         HoldLedgerFlushR30.maybeFlush(store); // R30-B01-02
     }
 
-    static String stack(Throwable t) { StringWriter s = new StringWriter(); t.printStackTrace(new PrintWriter(s)); String v = s.toString(); return v.length() > 16000 ? v.substring(0, 16000) : v; }
+    static String stack(Throwable t) { return RuntimeFaultEvidenceR31.capture(t, "UNKNOWN").stack; }
     private static void sleep(long ms) { try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); } }
 
     /** Cancel token first, then wait up to 10 s for workers, then close read-only connections (R27-009). */
@@ -234,5 +241,88 @@ public final class ResearchPoolR27 implements AutoCloseable {
     private final java.util.Map<String,long[]> researchCpu=new java.util.LinkedHashMap<>();
     private void recordResearchCost(String task,long cpu){synchronized(researchCpu){long[] v=researchCpu.computeIfAbsent(task,k->new long[2]);v[0]+=Math.max(0,cpu);v[1]++;}}
     public java.util.List<java.util.Map<String,Object>> researchCosts(){java.util.List<java.util.Map<String,Object>> out=new java.util.ArrayList<>();synchronized(researchCpu){for(java.util.Map.Entry<String,long[]> e:researchCpu.entrySet()){java.util.Map<String,Object> r=new java.util.LinkedHashMap<>();r.put("task",e.getKey());r.put("session",session);r.put("actualContinuationCpuNs",e.getValue()[0]);r.put("quanta",e.getValue()[1]);r.put("cpuClockResolutionNs",1000000L);r.put("scope","PROCESS_OBSERVED_TASK_CPU_EXCLUDES_WRITER_AND_UNOBSERVED_PROCESSES_NOT_PER_POLICY_CPU");out.add(r);}}return out;}
+    private static final java.util.concurrent.atomic.AtomicLong TELEMETRY_DROPPED_R31 = new java.util.concurrent.atomic.AtomicLong();
+    private static final java.util.concurrent.atomic.AtomicLong RECEIPTS_FAILED_R31 = new java.util.concurrent.atomic.AtomicLong();
+    private static final java.util.concurrent.atomic.AtomicLong FAULT_SAMPLES_DROPPED_R31 = new java.util.concurrent.atomic.AtomicLong();
+    private static final String OBSERVATION_EPOCH_R31 = java.util.UUID.randomUUID().toString();
+    public static final int MAX_FAULT_SAMPLES_R31 = 2000;
+    public static final long MAX_FAULT_BYTES_R31 = 8L * 1024 * 1024;
+
+    /** Kept in memory if even the telemetry write fails; never interpreted as zero missing observations. */
+    public static java.util.Map<String,Object> telemetrySnapshotR31() {
+        java.util.Map<String,Object> out = new java.util.LinkedHashMap<>();
+        out.put("scope", "CURRENT_PROCESS_ONLY_UNFLUSHED_COUNTS_LOST_ON_PROCESS_DEATH");
+        out.put("observationEpoch", OBSERVATION_EPOCH_R31);
+        out.put("telemetry_incomplete", TELEMETRY_DROPPED_R31.get() > 0 || FAULT_SAMPLES_DROPPED_R31.get() > 0 || RECEIPTS_FAILED_R31.get() > 0);
+        out.put("observationWritesFailed", TELEMETRY_DROPPED_R31.get());
+        out.put("taskReceiptsFailed", RECEIPTS_FAILED_R31.get());
+        out.put("faultSamplesDropped", FAULT_SAMPLES_DROPPED_R31.get());
+        return out;
+    }
+
+    /** A separate diagnostic transaction: its failure cannot roll back or relabel a business/artifact commit. */
+    static void observeAttemptR31(DbStore store, String task, String owner,
+                                  RuntimeCoordinatorR26.Claim claim, String phase, Throwable failure,
+                                  long units, long cpuMs, boolean receiptCommitted) {
+        if (!receiptCommitted) RECEIPTS_FAILED_R31.incrementAndGet();
+        final long wall = System.currentTimeMillis(), elapsed = SystemClock.elapsedRealtime();
+        final String safeTask = RuntimeFaultEvidenceR31.clean(task, 128);
+        final String safeOwner = RuntimeFaultEvidenceR31.clean(owner, 128);
+        try {
+            final RuntimeFaultEvidenceR31 fault = failure == null ? null : RuntimeFaultEvidenceR31.capture(failure, "TASK_" + phase);
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R31_RUNTIME_OBSERVATION", db -> {
+                // At most the finite registered task set, not arbitrary caller/event IDs.
+                try (Cursor registered = db.rawQuery("SELECT 1 FROM r26_task WHERE task_id=?", new String[] {safeTask})) {
+                    if (!registered.moveToFirst()) throw new IllegalStateException("R31_OBSERVATION_UNREGISTERED_TASK");
+                }
+                db.execSQL("INSERT OR IGNORE INTO r31_task_observation(task_id,owner_epoch,last_attempt_elapsed_ms,boot_id) VALUES(?,?,?,?)",
+                        new Object[] {safeTask, safeOwner, elapsed, IssueTimelineWriterR30.bootId()});
+                db.execSQL("UPDATE r31_task_observation SET owner_epoch=?,fence=?,attempts=attempts+1,work_cpu_ms=work_cpu_ms+?,observed_work_units=observed_work_units+?,task_receipts_committed=task_receipts_committed+?,task_receipts_failed=task_receipts_failed+?,last_attempt_elapsed_ms=?,boot_id=? WHERE task_id=?",
+                        new Object[] {safeOwner, claim == null ? null : claim.fence, Math.max(0, cpuMs), Math.max(0, units), receiptCommitted ? 1 : 0, receiptCommitted ? 0 : 1, elapsed, IssueTimelineWriterR30.bootId(), safeTask});
+                if (fault != null) persistFaultR31(db, safeTask, safeOwner, claim, phase, fault, wall, elapsed);
+                persistCounterR31(db, "observationWritesFailed", TELEMETRY_DROPPED_R31.get(), wall);
+                persistCounterR31(db, "taskReceiptsFailed", RECEIPTS_FAILED_R31.get(), wall);
+                persistCounterR31(db, "faultSamplesDropped", FAULT_SAMPLES_DROPPED_R31.get(), wall);
+                return 0;
+            });
+        } catch (RuntimeException observationUnavailable) {
+            TELEMETRY_DROPPED_R31.incrementAndGet();
+            // No recursive diagnostic write, and no raw exception text or credential-bearing URL.
+            android.util.Log.w("STARCORE_R31", "runtime observation incomplete task=" + safeTask + " class=" + observationUnavailable.getClass().getSimpleName());
+        }
+    }
+
+    private static void persistCounterR31(SQLiteDatabase db, String name, long value, long wall) {
+        db.execSQL("INSERT OR REPLACE INTO r31_telemetry_counter(owner_epoch,name,value,updated_at) VALUES(?,?,?,?)",
+                new Object[] {OBSERVATION_EPOCH_R31, name, value, wall});
+        // Old process counters are summaries, not prediction/settlement/qualification evidence.
+        db.execSQL("DELETE FROM r31_telemetry_counter WHERE owner_epoch NOT IN (SELECT owner_epoch FROM r31_telemetry_counter GROUP BY owner_epoch ORDER BY max(updated_at) DESC LIMIT 32)");
+    }
+
+    private static void persistFaultR31(SQLiteDatabase db, String task, String owner, RuntimeCoordinatorR26.Claim claim,
+                                       String phase, RuntimeFaultEvidenceR31 fault, long wall, long elapsed) {
+        long minute = Math.floorDiv(wall, 60_000L), total = 0, count = 0, oldBytes = 0, oldLastBytes = 0;
+        String eventId = null;
+        try (Cursor c = db.rawQuery("SELECT count(*),coalesce(sum(byte_count),0) FROM r31_runtime_fault", null)) {
+            if (c.moveToFirst()) { count = c.getLong(0); total = c.getLong(1); }
+        }
+        try (Cursor c = db.rawQuery("SELECT event_id,byte_count,length(CAST(last_cause_chain_json AS BLOB))+length(CAST(last_stack AS BLOB)) FROM r31_runtime_fault WHERE task_id=? AND owner_epoch=? AND root_fingerprint=? AND minute_bucket=?",
+                new String[] {task, owner, fault.fingerprint, String.valueOf(minute)})) {
+            if (c.moveToFirst()) { eventId = c.getString(0); oldBytes = c.getLong(1); oldLastBytes = c.getLong(2); }
+        }
+        long nextBytes = eventId == null ? 1024L + 2L * fault.bytes() : oldBytes - oldLastBytes + fault.bytes();
+        if ((eventId == null && count >= MAX_FAULT_SAMPLES_R31) || total - oldBytes + nextBytes > MAX_FAULT_BYTES_R31) {
+            FAULT_SAMPLES_DROPPED_R31.incrementAndGet();
+            return;
+        }
+        if (eventId != null) {
+            db.execSQL("UPDATE r31_runtime_fault SET occurrences=occurrences+1,last_wall_ms=?,last_elapsed_ms=?,last_cause_chain_json=?,last_stack=?,last_stack_hash=?,byte_count=? WHERE event_id=?",
+                    new Object[] {wall, elapsed, fault.causeChainJson, fault.stack, fault.stackHash, nextBytes, eventId});
+        } else {
+            eventId = StatsR27.sha256(task + "|" + owner + "|" + fault.fingerprint + "|" + minute);
+            db.execSQL("INSERT INTO r31_runtime_fault(event_id,task_id,owner_epoch,fence,operation,phase,category,root_fingerprint,minute_bucket,cause_chain_json,stack,stack_hash,last_cause_chain_json,last_stack,last_stack_hash,commit_outcome,boot_id,first_wall_ms,last_wall_ms,first_elapsed_ms,last_elapsed_ms,occurrences,byte_count) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    new Object[] {eventId, task, owner, claim == null ? null : claim.fence, fault.operation, RuntimeFaultEvidenceR31.clean(phase, 64), fault.category, fault.fingerprint, minute, fault.causeChainJson, fault.stack, fault.stackHash, fault.causeChainJson, fault.stack, fault.stackHash, "UNKNOWN_NOT_INFERRED_FROM_EXCEPTION", IssueTimelineWriterR30.bootId(), wall, wall, elapsed, elapsed, 1, nextBytes});
+        }
+    }
     public String session() { return session; }
 }

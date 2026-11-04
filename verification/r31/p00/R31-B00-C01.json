@@ -1,0 +1,33 @@
+{
+  "actual_changes": [
+    {
+      "path": "app/build.gradle",
+      "methods": [
+        "R31 BuildConfig identity fields",
+        "generateR31BuildIdentity"
+      ]
+    },
+    {
+      "path": "tools/r31/verify_baseline.py",
+      "methods": [
+        "verify_manifest",
+        "compare_tree"
+      ]
+    }
+  ],
+  "migration_versions": [],
+  "tests": [
+    {
+      "command": "python3 tools/r31/reproduce_report.py",
+      "result": "PASS",
+      "evidence": "verification/r31/p00/original-report-recount.json"
+    },
+    {
+      "command": "python3 tools/r31/test_verify_baseline.py",
+      "result": "PASS",
+      "tests": 12,
+      "evidence": "verification/r31/baseline_identity/test-receipts.json"
+    }
+  ],
+  "next_step": "Commit P00 code and all source identity inputs; execute complete build gates without bootstrap exclusions. APK/device acceptance remains NOT_RUN."
+}

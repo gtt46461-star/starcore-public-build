@@ -1,0 +1,41 @@
+{
+  "sourceCommit": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "scope": "READ_ONLY_BUILD_AND_SIGNING_PATH_AUDIT",
+  "localSigningBindings": "ABSENT",
+  "localApiConfiguration": "ABSENT",
+  "privateKeyContentsRead": false,
+  "credentialsPrintedOrCopied": false,
+  "publicApplicationId": "com.starcore.research.r13",
+  "r27ExistingCertificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+  "officialR13CertificateSha256": "9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca",
+  "r27Workflow": {
+    "branch": "construction/r27-20261028",
+    "path": ".github/workflows/r30-final-r27.yml",
+    "sourceSelector": ".github/r30-final-request.json source SHA",
+    "cacheKey": "starcore-r27-ci-temp-signing-v1",
+    "apiBinding": "DUOQU_API_KEY GitHub Actions secret",
+    "lastObservedSuccessfulRun": 41420785370,
+    "lastObservedSuccessfulRunUrl": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41420785370",
+    "currentCacheRestore": "NOT_RUN",
+    "r31RequiredAdaptation": "A narrow R31 request/verification workflow on the existing signing branch must checkout the committed R31 source and validate its authorized ancestry, version and actual APK. Do not run the old workflow unchanged: it edits old release 002 records and only accepts R30 repair ancestry."
+  },
+  "officialR13Workflow": {
+    "branch": "construction/su1-20261022",
+    "cacheKey": "starcore-su1-api-transport-v1",
+    "loader": "scripts/load_r13_signing.py",
+    "loaderRequirement": "Authenticated encrypted envelope plus existing private transport in branch-scoped Actions cache",
+    "r31CurrentRestore": "NOT_RUN"
+  },
+  "gitHubReadPaths": {
+    "connectorActionsRunsCollection": "PASS",
+    "connectorFetchFileAtR27Branch": "PASS",
+    "ghDefault": "FAILED_PROXY_SOCKET_OPERATION_NOT_PERMITTED",
+    "ghApproved": "FAILED_HTTP_FORBIDDEN",
+    "note": "Connector service remains available; shell gh API readiness is not inferred from GH_TOKEN presence."
+  },
+  "localSignedApk": "NOT_BUILT",
+  "deviceInstallation": "NOT_RUN",
+  "device24h": "NOT_RUN",
+  "device72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN"
+}
