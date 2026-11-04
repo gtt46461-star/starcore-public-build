@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
-    if: ${{ !contains(github.event.head_commit.message, '[R31_ARTIFACT_AUDIT]') }}
+    if: ${{ !contains(github.event.head_commit.message, '[R31_ARTIFACT_AUDIT]') && !contains(github.event.head_commit.message, '[R31_IDENTITY_FREEZE]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 150
     outputs:
@@ -331,6 +331,90 @@ jobs:
             ${{ runner.temp }}/r31-evidence/
             app/build/test-results/
             app/build/reports/
+  identity-freeze:
+    # Existing R29 identity procedure (tools/r29/ci_build.sh commit_generated + PUSH_REF), run only on explicit request.
+    # Binds generated identities and the compiled call index to the exact requested R31 source, then fast-forwards
+    # construction/r31-final-20261104 by one generated-identity commit. No signing, APK, test or acceptance claim.
+    if: ${{ contains(github.event.head_commit.message, '[R31_IDENTITY_FREEZE]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/r31-build-request.json
+      - id: request
+        run: |
+          python3 - <<'CODE'
+          import json,os,re
+          r=json.load(open('.github/r31-build-request.json'))
+          assert r.get('sourceBranch')=='construction/r31-final-20261104','R31_SOURCE_BRANCH_REQUIRED'
+          assert re.fullmatch('[a-f0-9]{40}',str(r.get('source',''))),'FULL_SOURCE_SHA_REQUIRED'
+          assert type(r.get('expectedVersionCode')) is int and r['expectedVersionCode']>0,'VERSION_CODE_REQUIRED'
+          assert re.fullmatch('[A-Za-z0-9._+ -]{1,128}',str(r.get('expectedVersionName',''))),'VERSION_NAME_REQUIRED'
+          with open(os.environ['GITHUB_OUTPUT'],'a') as output:
+              output.write('source='+r['source']+'\n')
+              output.write('versionCode='+str(r['expectedVersionCode'])+'\n')
+              output.write('versionName='+r['expectedVersionName']+'\n')
+          CODE
+      - uses: actions/checkout@v4
+        with:
+          ref: construction/r31-final-20261104
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+      - name: Bind generated identities and compiled call index to the exact requested source
+        env:
+          EXPECTED_SOURCE: ${{ steps.request.outputs.source }}
+          EXPECTED_VERSION_CODE: ${{ steps.request.outputs.versionCode }}
+          EXPECTED_VERSION_NAME: ${{ steps.request.outputs.versionName }}
+        run: |
+          set -euo pipefail
+          # Only the current branch head may be frozen; never rewrite or skip other construction commits.
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE"
+          git merge-base --is-ancestor 5237b265a27fe5ad27fd842901c445d5f8c27749 "$EXPECTED_SOURCE"
+          git diff --exit-code
+          python3 - <<'PY'
+          import json,os
+          m=json.load(open('release/release_manifest.json'))
+          assert m['applicationId']=='com.starcore.research.r13','WRONG_APPLICATION_ID'
+          assert int(m['versionCode'])==int(os.environ['EXPECTED_VERSION_CODE']),'VERSION_CODE_MISMATCH'
+          assert m['versionName']==os.environ['EXPECTED_VERSION_NAME'],'VERSION_NAME_MISMATCH'
+          PY
+          commit_generated() {
+            git add release/ app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java
+            git add -f app/build/generated/r967/semantic_manifest.json app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
+          }
+          python3 tools/r29/rebind_identity.py | tail -n 3
+          commit_generated
+          ./gradlew --no-daemon --max-workers=4 -Pr30Instrumentation=true :app:compileDebugJavaWithJavac -x :app:generateR982SourceCallAsset -x :app:generateR997ConstructionAssets 2>&1 | tail -n 60
+          python3 tools/r29/rebind_identity.py --classes app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes | tail -n 4
+          commit_generated
+          python3 scripts/r926_release_manifest.py --check
+          python3 scripts/r967_semantic_identity.py --check
+          python3 scripts/r982_source_call_asset.py
+          python3 scripts/generate_strategy_su2_schema.py --check
+          git status --short
+          git diff --cached --stat
+          git diff --exit-code -- app/src/main release
+          if git diff --cached --quiet; then echo R31_IDENTITY_ALREADY_FROZEN; exit 0; fi
+          git -c user.name='STARCORE build identity' -c user.email='starcore-build@users.noreply.github.com' commit -q -m "R31: bind generated identities and compiled call inventory to $EXPECTED_SOURCE"
+          echo "R31_IDENTITY_FROZEN_COMMIT=$(git rev-parse HEAD)"
+          timeout 60s git push origin HEAD:refs/heads/construction/r31-final-20261104
   android-runtime:
     needs: build
     runs-on: ubuntu-latest
@@ -376,7 +460,8 @@ jobs:
           adb logcat -c
           adb shell am instrument -w -r -e r30Sandbox "r31-ci-$GITHUB_RUN_ID" -e class com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest,com.ethk3.novaonepro.R31StorageProtocolInstrumentedTest,com.ethk3.novaonepro.R31OwnerFenceProtocolInstrumentedTest com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner > "$out/r31-protocol.txt" 2>&1
           adb logcat -d -v threadtime > "$out/r31-protocol-logcat.txt"
-          python3 - "$out" <<'PY'
+          r31_original_failed=0
+          python3 - "$out" <<'PY' || { r31_original_failed=1; tail -n 80 "$out/r31-protocol.txt" | sed 's/^/R31_ORIGINAL_PROTOCOL_FAILURE|/'; }
           import hashlib,json,pathlib,re,subprocess,sys
           out=pathlib.Path(sys.argv[1]);raw=(out/'r31-protocol.txt').read_bytes();text=raw.decode()
           found=re.search(r'OK \((\d+) tests?\)',text)
@@ -386,7 +471,7 @@ jobs:
           PY
           if [ -f app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R31FamilyContinuationInstrumentedTest.java ]; then
             adb shell am instrument -w -r -e r30Sandbox "r31-family-$GITHUB_RUN_ID" -e class com.ethk3.novaonepro.strategyv2.R31FamilyContinuationInstrumentedTest com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner > "$out/family-protocol.txt" 2>&1
-            python3 - "$out" <<'R31_FAMILY_VERIFY'
+            python3 - "$out" <<'R31_FAMILY_VERIFY' || r31_original_failed=1
           import datetime,hashlib,json,pathlib,re,subprocess,sys
           out=pathlib.Path(sys.argv[1]);raw=(out/'family-protocol.txt').read_bytes();text=raw.decode(errors='replace')
           found=re.search(r'OK \((\d+) tests?\)',text)
@@ -403,8 +488,23 @@ jobs:
           assert passed,'R31_ACTUAL_FAMILY_CONTINUATION_PROTOCOL_FAILED'
           R31_FAMILY_VERIFY
           fi
-          bash tools/r30/run_fault_matrix.sh "$out/existing-fault-matrix"
-          bash tools/r30-repair/run_research_fault_matrix.sh "$out/existing-research-fault-matrix"
+          r31_joint_failed=0
+          if [ -f tools/r31/run_android_joint_protocols.py ]; then
+            # All named R31 groups (including history publication and platform startup readiness) on the same APKs.
+            python3 tools/r31/run_android_joint_protocols.py --out "$out/joint-protocols" --sandbox-prefix "r31-joint-$GITHUB_RUN_ID" || r31_joint_failed=1
+            for r31_joint_log in "$out"/joint-protocols/*.txt; do
+              if [ -f "$r31_joint_log" ] && ! grep -Eq 'OK \([0-9]+ tests?\)' "$r31_joint_log"; then
+                echo "R31_JOINT_FAILED_LOG:$r31_joint_log"; tail -n 80 "$r31_joint_log" | sed 's/^/R31_JOINT_FAILURE|/'
+              fi
+            done
+          fi
+          r31_fault_failed=0
+          bash tools/r30/run_fault_matrix.sh "$out/existing-fault-matrix" || r31_fault_failed=1
+          bash tools/r30-repair/run_research_fault_matrix.sh "$out/existing-research-fault-matrix" || r31_fault_failed=1
+          echo "R31_ANDROID_SUMMARY|original_failed=$r31_original_failed|joint_failed=$r31_joint_failed|fault_failed=$r31_fault_failed"
+          test "$r31_original_failed" = 0
+          test "$r31_joint_failed" = 0
+          test "$r31_fault_failed" = 0
           R31_CI_PROBE
       - uses: reactivecircus/android-emulator-runner@v2
         with:
