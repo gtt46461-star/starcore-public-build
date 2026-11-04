@@ -450,15 +450,101 @@ public final class RuntimeR27 implements AutoCloseable {
             return units > 0 ? ResearchPoolR27.Outcome.progress(units, units) : ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);
         }
     }
-    /** R30-B03-04: feature-stream rebuilds are recorded in r30_cache_rebuild (append-only diagnostics). */
-    static long recordCacheRebuildsR30(ResearchPoolR27.Worker w) throws Exception {
-        Object[] e; ResearchWriteQueueR27.Batch b = null; int n = 0;
-        while (n < 64 && (e = FeatureCacheR27.REBUILD_EVENTS_R30.poll()) != null) {
-            if (b == null) b = new ResearchWriteQueueR27.Batch(); // schema belongs to R31 startup migration
-            b.add("INSERT INTO r30_cache_rebuild(family_index,through_ordinal,reason,recorded_at) VALUES(?,?,?,?)", e[0], e[1], e[2], e[3]); n++;
+    // B02-C02/C03: an event remains in the producer queue until a durable receipt is observed.
+    private static final Object CACHE_REBUILD_DELIVERY_R31=new Object();
+    static final int CACHE_REBUILD_ROWS_R31=16,CACHE_REBUILD_BIND_BYTES_R31=8192;
+    static final long CACHE_REBUILD_WORKING_BYTES_R31=65536;
+    private static PreparedCacheRebuildsR31 pendingCacheRebuildsR31;
+    private static boolean cacheRebuildInFlightR31;
+    private static long cacheRebuildCommittedR31,cacheRebuildRetriesR31;
+    private static final class CacheRebuildDependencyR31 extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure {
+        CacheRebuildDependencyR31(String reason){super(reason);}
+        public String failureCategory(){return "DEPENDENCY";}public String operation(){return "R27_CACHE_REBUILD";}
+        public String phase(){return "PREPARE";}public String commitOutcomeName(){return "NOT_SUBMITTED";}
+    }
+    private static final class PreparedCacheRebuildsR31 {
+        final List<Object[]> originals,rows;
+        final MemoryBudgetR31.Lease lease;
+        final String inputHash,commitKey;
+        PreparedCacheRebuildsR31(List<Object[]> originals,List<Object[]> rows,MemoryBudgetR31.Lease lease){
+            this.originals=java.util.Collections.unmodifiableList(originals);this.rows=java.util.Collections.unmodifiableList(rows);this.lease=lease;
+            // A nonce distinguishes two genuine events with identical values. Owner/fence are audit only.
+            inputHash=HashingSU1.text("CACHE_REBUILD_INPUT_V1|"+java.util.UUID.randomUUID()+"|"+cacheRebuildHashR31(rows));
+            commitKey=HashingSU1.text("r27-abi|CACHE_REBUILD|"+inputHash+"|R31_CACHE_REBUILD_EVENTS_V1");
         }
-        if (b != null) submit(w,"CACHE_REBUILD",b); // retain the exact prepared events until the receipt commits
-        return n;
+        ResearchWriteQueueR27.ImmutableBatch batch(RuntimeCoordinatorR26.Claim claim){
+            ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();
+            b.guardBefore(db->{requireCacheRebuildSchemaR31(db);RuntimeCoordinatorR26.requireFence(db,claim);return 0;});
+            for(Object[] row:rows)b.add("INSERT INTO r30_cache_rebuild(family_index,through_ordinal,reason,recorded_at) VALUES(?,?,?,?)",row);
+            return b.prepareR31("CACHE_REBUILD",commitKey,"r27-abi",claim.owner,claim.fence,inputHash,0,"R31_CACHE_REBUILD_EVENTS_V1");
+        }
+    }
+    private static void requireCacheRebuildSchemaR31(SQLiteDatabase db){
+        DatabaseCoordinator.requireSchemaObjectsR31(db,"R27_CACHE_REBUILD",new String[][]{
+            {"r30_cache_rebuild","id,family_index,through_ordinal,reason,recorded_at"},
+            {"r31_commit_receipt","commit_key,payload_hash,operation,task_id,owner_epoch,fence,input_snapshot,chunk_seq,operator_version,committed_at"}},new String[0][]);
+    }
+    private static long cacheRebuildUtf8BytesR31(String value){
+        long n=0;for(int i=0;i<value.length();i++){char c=value.charAt(i);if(c<128)n++;else if(c<2048)n+=2;else if(Character.isHighSurrogate(c)&&i+1<value.length()&&Character.isLowSurrogate(value.charAt(i+1))){n+=4;i++;}else n+=3;if(n>CACHE_REBUILD_BIND_BYTES_R31)return n;}return n;
+    }
+    private static String cacheRebuildHashR31(List<Object[]> rows){
+        try{java.security.MessageDigest digest=java.security.MessageDigest.getInstance("SHA-256");
+            java.io.DataOutputStream out=new java.io.DataOutputStream(new java.security.DigestOutputStream(new java.io.OutputStream(){public void write(int b){}},digest));
+            out.writeInt(rows.size());for(Object[] row:rows){out.writeInt((Integer)row[0]);out.writeLong((Long)row[1]);byte[] text=((String)row[2]).getBytes(java.nio.charset.StandardCharsets.UTF_8);out.writeInt(text.length);out.write(text);out.writeLong((Long)row[3]);}out.close();
+            StringBuilder hex=new StringBuilder(64);for(byte b:digest.digest())hex.append(String.format(java.util.Locale.ROOT,"%02x",b&255));return hex.toString();
+        }catch(java.io.IOException|java.security.NoSuchAlgorithmException unavailable){throw new IllegalStateException("R31_CACHE_REBUILD_IDENTITY",unavailable);}
+    }
+    private static PreparedCacheRebuildsR31 prepareCacheRebuildsR31(){
+        if(FeatureCacheR27.REBUILD_EVENTS_R30.peek()==null)return null;
+        MemoryBudgetR31.Admission admission=MemoryBudgetR31.processBudget().tryAcquire("r31-cache-rebuild-prepared",MemoryBudgetR31.Kind.QUEUED,CACHE_REBUILD_WORKING_BYTES_R31,()->false);
+        if(!admission.acquired())throw new MemoryBudgetR31.CapacityWait(admission.reason);
+        boolean retained=false;
+        try{
+            List<Object[]> originals=new ArrayList<>(CACHE_REBUILD_ROWS_R31),rows=new ArrayList<>(CACHE_REBUILD_ROWS_R31);long bytes=0;
+            for(Object[] original:FeatureCacheR27.REBUILD_EVENTS_R30){
+                if(rows.size()==CACHE_REBUILD_ROWS_R31)break;
+                if(original==null||original.length!=4||!(original[0] instanceof Integer)||!(original[1] instanceof Long)||!(original[2] instanceof String)||!(original[3] instanceof Long))throw new IllegalStateException("R31_CACHE_REBUILD_EVENT_INTEGRITY");
+                long next=24+cacheRebuildUtf8BytesR31((String)original[2]);
+                if(next>CACHE_REBUILD_BIND_BYTES_R31){if(rows.isEmpty())throw new CacheRebuildDependencyR31("R31_DEPENDENCY_CACHE_REBUILD_EVENT_EXCEEDS_BYTE_BUDGET");break;}
+                if(bytes+next>CACHE_REBUILD_BIND_BYTES_R31)break;
+                originals.add(original);rows.add(new Object[]{original[0],original[1],original[2],original[3]});bytes+=next;
+            }
+            if(rows.isEmpty())return null;
+            PreparedCacheRebuildsR31 prepared=new PreparedCacheRebuildsR31(originals,rows,admission.lease);retained=true;return prepared;
+        }finally{if(!retained)admission.lease.close();}
+    }
+    /** One finite attempt per ABI slice. Cancellation, rollback and UNKNOWN retain the same input/key.
+     * Uncommitted diagnostic events are process-local; this is not a crash-durable training outbox. */
+    static long recordCacheRebuildsR30(ResearchPoolR27.Worker w) throws Exception {
+        RuntimeCoordinatorR26.Claim claim=RuntimeCoordinatorR26.currentClaimR30();
+        if(claim==null||!"r27-abi".equals(claim.task))throw new CacheRebuildDependencyR31("R31_DEPENDENCY_CACHE_REBUILD_CLAIM_REQUIRED");
+        synchronized(CACHE_REBUILD_DELIVERY_R31){if(pendingCacheRebuildsR31==null&&FeatureCacheR27.REBUILD_EVENTS_R30.peek()==null)return 0;}
+        if(w.cancelled())throw new InterruptedException("R27_CANCELLED");
+        requireCacheRebuildSchemaR31(w.ro);RuntimeCoordinatorR26.requireFence(w.ro,claim);
+        PreparedCacheRebuildsR31 prepared;
+        synchronized(CACHE_REBUILD_DELIVERY_R31){
+            if(cacheRebuildInFlightR31)return 0;
+            if(pendingCacheRebuildsR31==null)pendingCacheRebuildsR31=prepareCacheRebuildsR31();
+            prepared=pendingCacheRebuildsR31;if(prepared==null)return 0;cacheRebuildInFlightR31=true;
+        }
+        boolean acknowledged=false;
+        try{
+            if(w.cancelled())throw new InterruptedException("R27_CANCELLED");
+            if(!w.writes().submit("CACHE_REBUILD",prepared.batch(claim),w::cancelled))return 0;
+            synchronized(CACHE_REBUILD_DELIVERY_R31){
+                if(pendingCacheRebuildsR31!=prepared)throw new IllegalStateException("R31_CACHE_REBUILD_ACK_IDENTITY");
+                for(Object[] original:prepared.originals)FeatureCacheR27.REBUILD_EVENTS_R30.remove(original);
+                pendingCacheRebuildsR31=null;cacheRebuildCommittedR31+=prepared.rows.size();acknowledged=true;
+            }
+            return prepared.rows.size();
+        }finally{
+            try{if(acknowledged)prepared.lease.close();}
+            finally{synchronized(CACHE_REBUILD_DELIVERY_R31){cacheRebuildInFlightR31=false;if(!acknowledged)cacheRebuildRetriesR31++;}}
+        }
+    }
+    static Map<String,Object> cacheRebuildDeliverySnapshotR31(){
+        synchronized(CACHE_REBUILD_DELIVERY_R31){Map<String,Object> out=new LinkedHashMap<>();PreparedCacheRebuildsR31 p=pendingCacheRebuildsR31;
+            out.put("queued",FeatureCacheR27.REBUILD_EVENTS_R30.size());out.put("preparedEvents",p==null?0:p.rows.size());out.put("preparedCommitKey",p==null?null:p.commitKey);out.put("inFlight",cacheRebuildInFlightR31);out.put("committedEvents",cacheRebuildCommittedR31);out.put("retainedAttempts",cacheRebuildRetriesR31);out.put("maxEventsPerChunk",CACHE_REBUILD_ROWS_R31);out.put("maxBindBytes",CACHE_REBUILD_BIND_BYTES_R31);out.put("declaredPreparedBytes",p==null?0:p.lease.bytes());out.put("workingEstimate","64KiB_BOUNDED_ROWS_COPY_UTF8_HASH_AND_IMMUTABLE_BATCH_JAVA_ESTIMATE_NOT_MEASURED_HEAP_OR_SQLITE_NATIVE");out.put("durability","PROCESS_LOCAL_UNTIL_SQLITE_RECEIPT; UNCOMMITTED_EVENTS_NOT_PRESERVED_AFTER_PROCESS_DEATH");return java.util.Collections.unmodifiableMap(out);}
     }
     void ensureGolden() throws Exception {
         if (golden != null && operatorAbi != null && operatorAbiHash != null) return;
