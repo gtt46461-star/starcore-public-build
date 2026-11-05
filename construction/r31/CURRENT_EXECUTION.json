@@ -1,10 +1,10 @@
 {
-  "recorded_at": "2026-11-04T21:31:53.576300+00:00",
+  "recorded_at": "2026-11-05T01:30:33.820375+00:00",
   "branch": "construction/r31-final-20261104",
   "report_baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-  "latest_pushed_source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+  "latest_pushed_source": "c6f1ed3c",
   "active_phase": "P01_GATE_BACKFILL_WITH_EXISTING_P02_INTEGRATION_REVALIDATION",
-  "P03_production_started": false,
+  "P03_production_started": true,
   "latest_full_unit": {
     "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
     "executed": 481,
@@ -50,10 +50,9 @@
     "Legacy writer/qualification/baseline golden threeactual HOST followups independentlyPASS; newfull24NOT_RUN"
   ],
   "next": [
-    "Integrate frozen P01 producer and shared startup migrations in one version; retain original failures",
-    "Repair R929 real startup prerequisite race; rerun unchanged full Android fault matrix on API29/35",
-    "Compile unexcluded whole project and all applicable unit/HOST/Android gates on exact new source before next signed checkpoint",
-    "Keep P03 NOT_STARTED until P01/P02 required integration gates pass"
+    "Read run 41946575566 logs and record real results",
+    "Local full unit rerun after fixes",
+    "Finish B06-C03 (lr=0 control, epoch counter), then B06-C01/C02; one batched CI freeze+build for checkpoint 016"
   ],
   "signing_support_branch": "construction/r27-20261028",
   "signing_support_head": "359594de5ea7049604e5763baa11777c22d6e3b8",
@@ -88,7 +87,9 @@
     "014 full API29/35 fault matrices FAILED before injection at R929 bundle prerequisites; original logs retained",
     "P01 latest second SU2 phase native FAIL from Certificate-owned Critical delta; precise fix is implemented with regression IN_PROGRESS",
     "P01 all-producer protocol and final same-source Android verification OPEN",
-    "Physical device24h/72h NOT_RUN; natural future quality NOT_PROVEN"
+    "Physical device24h/72h NOT_RUN; natural future quality NOT_PROVEN",
+    "015 CI outcome NOT_RECORDED at pause",
+    "Post-fix local unit rerun interrupted (NOT_RECORDED)"
   ],
   "apk_delivery": {
     "state": "ACTUAL_SIGNED_014_CHECKPOINT_WITH_FAILED_ANDROID_GATES_NOT_FINAL",
@@ -402,5 +403,20 @@
     "Dataset actual submit/receipt interruption recovery after new Pin admission",
     "Full same-source Android unexcluded compile/all-unit/lint/identity plus actual API29/35 fault matrices",
     "Protected growth debts and P06-controlled reclamation remain separate; no measured physical release inferred"
-  ]
+  ],
+  "construction_state": "PAUSED_BY_USER_20261105",
+  "process_adjustment": "construction/r31/PROCESS_ADJUSTMENT_20261105.md",
+  "latest_frozen_build_source": "01c65875f294362dbc6f7fce39ea4d103b43eefa",
+  "pending_ci_run": {
+    "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41946575566",
+    "source": "01c65875f294362dbc6f7fce39ea4d103b43eefa",
+    "versionCode": 577311015,
+    "versionName": "R31-CHECKPOINT-P01P02-2026.11.04-015",
+    "result": "NOT_RECORDED_RUNNING_AT_PAUSE"
+  },
+  "unfrozen_sources": [
+    "3402edbf (B06-C03)",
+    "c6f1ed3c (docs/ledger)"
+  ],
+  "gate_rule": "Android/device/24h/72h are P08/B12 release gates, not source-construction prerequisites; failures recorded, never inferred PASS"
 }
