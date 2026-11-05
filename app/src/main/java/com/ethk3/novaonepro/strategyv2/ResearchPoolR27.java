@@ -504,7 +504,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
         } else {
             eventId = StatsR27.sha256(task + "|" + owner + "|" + fault.fingerprint + "|" + minute);
             db.execSQL("INSERT INTO r31_runtime_fault(event_id,task_id,owner_epoch,fence,operation,phase,category,root_fingerprint,minute_bucket,cause_chain_json,stack,stack_hash,last_cause_chain_json,last_stack,last_stack_hash,commit_outcome,boot_id,first_wall_ms,last_wall_ms,first_elapsed_ms,last_elapsed_ms,occurrences,byte_count) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    new Object[] {eventId, task, owner, claim == null ? null : claim.fence, fault.operation, RuntimeFaultEvidenceR31.clean(phase, 64), fault.category, fault.fingerprint, minute, fault.causeChainJson, fault.stack, fault.stackHash, fault.causeChainJson, fault.stack, fault.stackHash, "UNKNOWN_NOT_INFERRED_FROM_EXCEPTION", IssueTimelineWriterR30.bootId(), wall, wall, elapsed, elapsed, 1, nextBytes});
+                    new Object[] {eventId, task, owner, claim == null ? null : claim.fence, fault.operation, RuntimeFaultEvidenceR31.clean(phase, 64), fault.category, fault.fingerprint, minute, fault.causeChainJson, fault.stack, fault.stackHash, fault.causeChainJson, fault.stack, fault.stackHash, fault.commitOutcome, IssueTimelineWriterR30.bootId(), wall, wall, elapsed, elapsed, 1, nextBytes});
         }
     }
     public String session() { return session; }

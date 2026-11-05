@@ -11,6 +11,12 @@ public final class RuntimeFaultEvidenceR31HostTest {
     static final class SQLiteDatabaseCorruptException extends RuntimeException { SQLiteDatabaseCorruptException(String m) { super(m); } }
     static final class SQLiteConstraintException extends RuntimeException { SQLiteConstraintException(String m) { super(m); } }
     static final class SQLiteException extends RuntimeException { SQLiteException(String m) { super(m); } }
+    static final class Typed extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure {
+        final String category,outcome;Typed(String category,String outcome,Throwable cause){super("plain failure",cause);this.category=category;this.outcome=outcome;}
+        public String failureCategory(){return category;}public String commitOutcomeName(){return outcome;}
+        public String operation(){return "ACTUAL_WRITE";}public String phase(){return "AFTER_COMMIT";}
+    }
+    static String outcome(RuntimeFaultEvidenceR31 e){try{return (String)e.getClass().getField("commitOutcome").get(e);}catch(ReflectiveOperationException failed){throw new AssertionError("typed outcome is not retained",failed);}}
     static int assertions;
     static void require(boolean condition, String message) { assertions++; if (!condition) throw new AssertionError(message); }
     static RuntimeFaultEvidenceR31 evidence(Throwable root) { return RuntimeFaultEvidenceR31.capture(new IllegalStateException("F01_WRITE_FAILED|operation=R30_PREPARED_TASK_CLAIM", root), "FALLBACK"); }
@@ -47,6 +53,14 @@ public final class RuntimeFaultEvidenceR31HostTest {
         require(wait.detail.contains("DISK_FULL") && !wait.detail.contains("hidden"), "summary has safe category");
         require(busy.stackHash.equals(StatsR27.sha256(busy.stack)), "stack identity");
         require(busy.fingerprint.equals(evidence(new SQLiteDatabaseLockedException("database locked")).fingerprint), "same root aggregation identity");
+        RuntimeFaultEvidenceR31 typed=evidence(new Typed("DEPENDENCY","ROLLED_BACK",new SQLiteException("database locked")));
+        require(typed.category.equals("DEPENDENCY"),"declared category survives generic wrapping");
+        require(typed.operation.equals("ACTUAL_WRITE"),"declared operation retained");
+        require(outcome(typed).equals("ROLLED_BACK"),"actual rollback is not unknown");
+        RuntimeFaultEvidenceR31 committed=evidence(new Typed("DEPENDENCY","COMMITTED_DIAGNOSTIC_FAILED",null));
+        require(outcome(committed).equals("COMMITTED_DIAGNOSTIC_FAILED"),"diagnostic failure retains actual commit");
+        require(outcome(missing).equals("UNKNOWN_NOT_INFERRED_FROM_EXCEPTION"),"untyped failure cannot invent rollback");
+        require(!typed.fingerprint.equals(evidence(new Typed("DEPENDENCY","UNKNOWN",new SQLiteException("database locked"))).fingerprint),"different commit outcomes cannot collapse into one sample");
         System.out.println(JsonR27.write(Map.of("scope", "PRODUCTION_JAVA_OBSERVATION_HELPER_HOST_FAULT_DOUBLES_NOT_ANDROID_SQLITE", "assertions", assertions, "status", "PASS")));
     }
 }

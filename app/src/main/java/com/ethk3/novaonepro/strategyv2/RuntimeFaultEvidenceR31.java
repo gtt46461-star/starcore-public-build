@@ -14,26 +14,34 @@ public final class RuntimeFaultEvidenceR31 {
     private static final Pattern URL_CREDENTIALS = Pattern.compile("(?i)(https?://)[^/\\s@]+@");
     private static final Pattern QUERY = Pattern.compile("(?i)(https?://[^\\s?]+)\\?[^\\s]*");
     private static final Pattern SECRET = Pattern.compile("(?i)((?:api[_-]?key|authorization|access[_-]?token|refresh[_-]?token|token|password|passwd|secret)[\\\"']?\\s*[:=]\\s*[\\\"']?)(?:Bearer\\s+)?[^\\s,;\\\"'}]+");
-    public final String category, operation, causeChainJson, stack, stackHash, fingerprint;
+    public final String category, operation, causeChainJson, stack, stackHash, fingerprint, commitOutcome;
     public final boolean truncated;
 
-    private RuntimeFaultEvidenceR31(String category, String operation, String chain, String stack, String fingerprint, boolean truncated) {
+    private RuntimeFaultEvidenceR31(String category, String operation, String chain, String stack, String fingerprint, String outcome, boolean truncated) {
         this.category = category; this.operation = operation; this.causeChainJson = chain;
         this.stack = stack; this.stackHash = StatsR27.sha256(stack); this.fingerprint = fingerprint;
-        this.truncated = truncated;
+        this.truncated = truncated; this.commitOutcome=outcome;
     }
 
     public static RuntimeFaultEvidenceR31 capture(Throwable failure, String fallbackOperation) {
         if (failure == null) throw new IllegalArgumentException("R31_FAILURE_REQUIRED");
         List<Object> chain = new ArrayList<>();
         IdentityHashMap<Throwable, Boolean> seen = new IdentityHashMap<>();
-        String operation = clean(fallbackOperation, 128), category = "FAULT";
+        String operation = clean(fallbackOperation, 128), category = "FAULT", typedCategory=null, typedOperation=null, outcome="UNKNOWN_NOT_INFERRED_FROM_EXCEPTION";
         StringBuilder stack = new StringBuilder();
         Throwable current = failure; String rootClass = "", rootMessage = "";
         while (current != null && chain.size() < MAX_CAUSES && !seen.containsKey(current)) {
             seen.put(current, Boolean.TRUE);
             String type = current.getClass().getName(), message = clean(current.getMessage(), 1024);
             String candidate = category(type, message);
+            if(typedCategory==null&&current instanceof FailureDispositionR31.ClassifiedFailure){
+                FailureDispositionR31.ClassifiedFailure typed=(FailureDispositionR31.ClassifiedFailure)current;
+                String declared=typed.failureCategory();
+                switch(declared==null?"":declared){case "DEPENDENCY":case "STALE_OWNER":case "CANCELLED":case "LOCK_BUSY":case "TEMP_TIMEOUT":case "DISK_FULL":case "DB_CORRUPT":case "INTEGRITY":case "BUG":typedCategory=declared;break;default:typedCategory="FAULT";}
+                typedOperation=clean(typed.operation(),128);
+                String declaredOutcome=typed.commitOutcomeName();
+                switch(declaredOutcome==null?"":declaredOutcome){case "COMMITTED":case "COMMITTED_DIAGNOSTIC_FAILED":case "ROLLED_BACK":case "UNKNOWN":case "NOT_SUBMITTED":outcome=declaredOutcome;break;default:outcome="UNKNOWN_NOT_INFERRED_FROM_EXCEPTION";}
+            }
             if (!"FAULT".equals(candidate)) category = candidate;
             int op = message.indexOf("operation=");
             if (op >= 0) {
@@ -52,8 +60,9 @@ public final class RuntimeFaultEvidenceR31 {
         boolean truncated = current != null;
         if (truncated) appendBounded(stack, "[cause chain bounded or cyclic]\n");
         String value = clean(stack.toString(), MAX_STACK_BYTES);
-        String fingerprint = StatsR27.sha256(category + "|" + rootClass + "|" + rootMessage);
-        return new RuntimeFaultEvidenceR31(category, operation, JsonR27.write(chain), value, fingerprint, truncated);
+        if(typedCategory!=null){category=typedCategory;if(typedOperation!=null&&!typedOperation.isEmpty())operation=typedOperation;}
+        String fingerprint = StatsR27.sha256(category + "|" + outcome + "|" + rootClass + "|" + rootMessage);
+        return new RuntimeFaultEvidenceR31(category, operation, JsonR27.write(chain), value, fingerprint, outcome, truncated);
     }
 
     private static String category(String type, String message) {
