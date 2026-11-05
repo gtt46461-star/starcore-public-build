@@ -30,6 +30,8 @@ public final class RuntimeSchemaR26 {
         }
     }
     public static final String FEEDBACK = "CREATE TABLE IF NOT EXISTS r26_feedback(event_id TEXT PRIMARY KEY,issue_ordinal INTEGER NOT NULL UNIQUE CHECK(issue_ordinal>=0),source_hash TEXT NOT NULL,payload TEXT NOT NULL,ready_at INTEGER NOT NULL)";
+    public static final String FEEDBACK_ORDER_R31="CREATE INDEX IF NOT EXISTS r26_feedback_order ON r26_feedback(issue_ordinal)";
+    public static String[] criticalBaseDefinitionsR31(){return new String[]{FEEDBACK,FEEDBACK_ORDER_R31};}
     public static final String[] DDL = {
         FEEDBACK,
         "CREATE TABLE IF NOT EXISTS r26_training_step(policy_hash TEXT NOT NULL,campaign_id TEXT NOT NULL,sample_ordinal INTEGER NOT NULL,sample_issue TEXT NOT NULL,member_key TEXT NOT NULL,source_hash TEXT NOT NULL,source_kind TEXT NOT NULL,kernel_update INTEGER NOT NULL CHECK(kernel_update>0),loss_before REAL NOT NULL,loss_after REAL NOT NULL,gradient_norm REAL NOT NULL CHECK(gradient_norm>=0),parameter_delta_norm REAL NOT NULL CHECK(parameter_delta_norm>=0),input_hash TEXT NOT NULL,objective TEXT NOT NULL,before_state_hash TEXT NOT NULL,after_state_hash TEXT NOT NULL,gap_reset INTEGER NOT NULL CHECK(gap_reset IN (0,1)),optimizer TEXT NOT NULL,scope TEXT NOT NULL,batch_checkpoint TEXT NOT NULL,receipt_hash TEXT NOT NULL CHECK(length(receipt_hash)=64),recorded_at INTEGER NOT NULL,PRIMARY KEY(policy_hash,campaign_id,sample_ordinal,member_key))",
@@ -90,17 +92,20 @@ public final class RuntimeSchemaR26 {
         "CREATE INDEX IF NOT EXISTS r26_live_order ON r26_live_model(status,updated_at)",
         "CREATE INDEX IF NOT EXISTS r26_frozen_order ON r26_frozen(target_ordinal)",
         "CREATE INDEX IF NOT EXISTS r26_task_dispatch ON r26_task(status,lane,next_at,lease_until)",
-        "CREATE INDEX IF NOT EXISTS r26_feedback_order ON r26_feedback(issue_ordinal)"
+        FEEDBACK_ORDER_R31
     };
     public static boolean ready(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('r26_capability','r26_live_model','r26_certificate_revocation','r26_legacy_runtime','r26_checkpoint_artifact','r26_member_replay','r26_legacy_campaign','r26_work_total','r26_prepared_policy','r26_evidence_cursor','r26_evidence_block','r26_qualification_result','r26_prepared_forecast','r26_shadow_admission')",null)){return c.moveToFirst()&&c.getInt(0)==14;}}
-    public static void ensure(SQLiteDatabase db){if(!db.inTransaction())throw new IllegalStateException("R26_WRITER_REQUIRED");for(String sql:DDL)db.execSQL(sql);
+    public static void ensure(SQLiteDatabase db){
+        SchemaDomainCoordinatorR926.migrateR31RuntimeBase(db,RuntimeSchemaR26::ensureBaseR31);
+        SchemaDomainCoordinatorR926.migrateR31Feedback(db);
+    }
+    private static void ensureBaseR31(SQLiteDatabase db){if(!db.inTransaction())throw new IllegalStateException("R26_WRITER_REQUIRED");for(String sql:DDL)db.execSQL(sql);
         column(db,"r26_task","last_served","INTEGER NOT NULL DEFAULT 0");
         column(db,"r26_cohort","family_alpha","REAL NOT NULL DEFAULT 0");column(db,"r26_cohort","checked_sequence","INTEGER NOT NULL DEFAULT -1");
         column(db,"r26_foundry","numerical_abi","TEXT NOT NULL DEFAULT ''");column(db,"r26_foundry","source_first","INTEGER NOT NULL DEFAULT 0");
         column(db,"r26_live_model","family_id","TEXT NOT NULL DEFAULT ''");
         column(db,"r26_candidate","service_cpu_ms","INTEGER NOT NULL DEFAULT 0");column(db,"r26_candidate","last_served","INTEGER NOT NULL DEFAULT 0");
         column(db,"r26_candidate","state_hash","TEXT NOT NULL DEFAULT ''");column(db,"r26_candidate","checkpoint_hash","TEXT NOT NULL DEFAULT ''");
-        SchemaDomainCoordinatorR926.migrateR31Feedback(db);
         // Old engineering checkpoints remain preserved. Their missing hash is explicitly blocked.
     }
     public static boolean bindCapabilitySource(SQLiteDatabase db,String abi){

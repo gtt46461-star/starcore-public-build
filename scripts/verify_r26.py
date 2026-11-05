@@ -27,10 +27,11 @@ def java_string_array(source,name,constants):
 
 def runtime_schema_ddls(source):
     feedback=java_string_constant(source,'FEEDBACK')
+    constants={'FEEDBACK':feedback,'FEEDBACK_ORDER_R31':java_string_constant(source,'FEEDBACK_ORDER_R31')}
     # RuntimeSchemaR26.ensure executes base DDL before SchemaDomain's feedback migration.
     # Declaration order differs: the feedback extension appears first in the Java source.
-    base=java_string_array(source,'DDL',{'FEEDBACK':feedback})
-    extension=java_string_array(source,'R31_FEEDBACK_DDL',{'FEEDBACK':feedback})
+    base=java_string_array(source,'DDL',constants)
+    extension=java_string_array(source,'R31_FEEDBACK_DDL',constants)
     if base[0]!=feedback:raise ValueError('R26_SQL_FIXTURE_BASE_FEEDBACK_ORDER')
     return feedback,base+extension
 

@@ -354,6 +354,57 @@ public final class SchemaDomainCoordinatorR926 {
                         "r31_feedback_event_no_replace", "r31_feedback_event_no_delete"});
     }
 
+    /** Authenticate the original global source-revision guards before the separate pin-journal cutover. */
+    public static void migrateR31LiveSourceRevision(SQLiteDatabase db,Step install){
+        if(!db.inTransaction())throw new IllegalStateException("R31_LIVE_SOURCE_REVISION_MIGRATION_OWNER_REQUIRED");
+        ensureInfrastructure(db);String[] definitions=com.ethk3.novaonepro.strategyv2.SchemaR27.sourceRevisionDefinitionsR31();
+        requireExistingR31Definitions(db,"R31_LIVE_SOURCE_REVISION",definitions);
+        Contract critical=criticalContract();String reason=matchReason(db,critical);boolean trusted=reason.startsWith("MATCH");
+        if(!trusted&&!"STAMP_MISSING".equals(reason))throw new DatabaseCoordinator.SchemaPendingR31("R31_LIVE_SOURCE_REVISION","UNTRUSTED_CRITICAL:"+reason);
+        Set<String> delta=new HashSet<>(Arrays.asList("r30_live_revision_draws_insert","r30_live_revision_draws_update","r30_live_revision_draws_delete"));
+        String before=fingerprint(db,critical),other=fingerprint(db,critical,false,null,delta);
+        try{
+            install.run(db);requireExactR31Definitions(db,"R31_LIVE_SOURCE_REVISION",definitions);
+            if(!other.equals(fingerprint(db,critical,false,null,delta)))throw new IllegalStateException("R31_LIVE_SOURCE_REVISION_CHANGED_UNRELATED_CRITICAL_SCHEMA");
+            String after=fingerprint(db,critical);
+            if(trusted&&!before.equals(after)){
+                long now=System.currentTimeMillis();
+                db.execSQL("INSERT OR IGNORE INTO "+TABLE_JOURNAL
+                                +"(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code)"
+                                +" VALUES(?,?,?,'COMPLETED',1,'EXACT_GLOBAL_REVISION_DRAW_GUARD_DELTA',?,?,?,?, '')",
+                        new Object[]{critical.domain,critical.revision,"R31_GLOBAL_SOURCE_REVISION_CUTOVER_V1",before,after,now,now});
+                verifyAndStamp(db,critical);
+            }
+        }catch(RuntimeException failure){throw failure;}
+        catch(Exception failure){throw new IllegalStateException("R31_LIVE_SOURCE_REVISION_MIGRATION_FAILED",failure);}
+    }
+
+    /** The original runtime owner adds its feedback table/index before the R31 feedback owner runs. */
+    public static void migrateR31RuntimeBase(SQLiteDatabase db,Step install){
+        if(!db.inTransaction())throw new IllegalStateException("R31_RUNTIME_BASE_MIGRATION_OWNER_REQUIRED");
+        ensureInfrastructure(db);
+        String[] definitions=com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.criticalBaseDefinitionsR31();
+        requireExistingR31Definitions(db,"R31_RUNTIME_BASE",definitions);
+        Contract critical=criticalContract();String reason=matchReason(db,critical);boolean trusted=reason.startsWith("MATCH");
+        if(!trusted&&!"STAMP_MISSING".equals(reason))throw new DatabaseCoordinator.SchemaPendingR31("R31_RUNTIME_BASE","UNTRUSTED_CRITICAL:"+reason);
+        Set<String> delta=new HashSet<>(Arrays.asList("r26_feedback","r26_feedback_order"));
+        String before=fingerprint(db,critical),other=fingerprint(db,critical,false,null,delta);
+        try{
+            install.run(db);requireExactR31Definitions(db,"R31_RUNTIME_BASE",definitions);
+            if(!other.equals(fingerprint(db,critical,false,null,delta)))throw new IllegalStateException("R31_RUNTIME_BASE_CHANGED_UNRELATED_CRITICAL_SCHEMA");
+            String after=fingerprint(db,critical);
+            if(trusted&&!before.equals(after)){
+                long now=System.currentTimeMillis();
+                db.execSQL("INSERT OR IGNORE INTO "+TABLE_JOURNAL
+                                +"(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code)"
+                                +" VALUES(?,?,?,'COMPLETED',1,'EXACT_LEGACY_FEEDBACK_BASE_DELTA',?,?,?,?, '')",
+                        new Object[]{critical.domain,critical.revision,"R31_RUNTIME_FEEDBACK_BASE_CUTOVER_V1",before,after,now,now});
+                verifyAndStamp(db,critical);
+            }
+        }catch(RuntimeException failure){throw failure;}
+        catch(Exception failure){throw new IllegalStateException("R31_RUNTIME_BASE_MIGRATION_FAILED",failure);}
+    }
+
     /** Research event/consumer extensions are migrated after the legacy feedback and checkpoint schema. */
     public static void migrateR31Feedback(SQLiteDatabase db) {
         if (!db.inTransaction()) throw new IllegalStateException("R31_MIGRATION_OWNER_REQUIRED");
@@ -389,6 +440,8 @@ public final class SchemaDomainCoordinatorR926 {
 
     /** Read-only cold-start barrier: generic Core repair must not authenticate unknown Research attachments. */
     public static void requireExistingResearchCriticalGuardsR31(SQLiteDatabase db){
+        requireExistingR31Definitions(db,"R31_COLD_RUNTIME_BASE",com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.criticalBaseDefinitionsR31());
+        requireExistingR31Definitions(db,"R31_COLD_LIVE_SOURCE_REVISION",com.ethk3.novaonepro.strategyv2.SchemaR27.sourceRevisionDefinitionsR31());
         com.ethk3.novaonepro.strategyv2.ResearchRetentionStoreR30.requireGuardDefinitionsR31(db,
                 com.ethk3.novaonepro.strategyv2.ResearchRetentionStoreR30.criticalProtectionTriggersR31(db),false);
         if(schemaObjectExists(db,"r31_feedback_source")){
@@ -455,6 +508,11 @@ public final class SchemaDomainCoordinatorR926 {
             }
         }catch(RuntimeException failure){throw failure;}
         catch(Exception failure){throw new IllegalStateException("R31_RETENTION_PROTECTION_MIGRATION_FAILED",failure);}
+    }
+
+    private static void requireExistingR31Definitions(SQLiteDatabase db,String operation,String[] definitions){
+        java.util.regex.Pattern declaration=java.util.regex.Pattern.compile("^CREATE (?:UNIQUE )?(?:TABLE|INDEX|TRIGGER|VIEW) IF NOT EXISTS ([A-Za-z0-9_]+)(?:\\s|\\()");
+        for(String expected:definitions){java.util.regex.Matcher named=declaration.matcher(expected);if(!named.find())throw new IllegalStateException("R31_SCHEMA_DECLARATION_CONTRACT:"+operation);if(schemaObjectExists(db,named.group(1)))requireExactR31Definitions(db,operation,new String[]{expected});}
     }
 
     private static void requireExactR31Definitions(SQLiteDatabase db,String operation,String[] definitions) {

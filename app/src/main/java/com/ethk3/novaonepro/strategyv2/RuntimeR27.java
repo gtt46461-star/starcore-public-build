@@ -188,6 +188,25 @@ public final class RuntimeR27 implements AutoCloseable {
             try{
                 ModelSurfaceStoreR30.bindHistorical(w.ro,c);
                 SplitR27 sp = SplitR27.of(d, evo == null ? null : evo.ledger().degradedBlocks());
+                // A process may die after the canonical input transaction, before publishing its cache.
+                // Restore that committed input without manufacturing new timestamps or another receipt.
+                ResearchInputPinR30R1.Pin pinned=ResearchInputPinR30R1.loadCurrent(w.ro,d.datasetHash);
+                if(pinned!=null){
+                    SplitR27 original=SplitR27.of(d,null);
+                    String sealed=original.describe(),degraded=SplitR27.of(d,java.util.Collections.singleton(original.holdoutBlock)).describe();
+                    try(Cursor saved=w.ro.rawQuery("SELECT from_issue,to_issue,rows,segments,split FROM r27_replay_dataset WHERE dataset_hash=?",new String[]{d.datasetHash})){
+                        if(!saved.moveToFirst()||!d.issues[0].equals(saved.getString(0))||!d.issues[d.size()-1].equals(saved.getString(1))||saved.getInt(2)!=d.size()||saved.getInt(3)!=d.segments()||!(sealed.equals(saved.getString(4))||degraded.equals(saved.getString(4))))
+                            throw new DatasetPublicationIntegrityR31("PERSISTED_INPUT_HEADER_MISMATCH");
+                    }
+                    if(w.cancelled()||Thread.currentThread().isInterrupted())throw new InterruptedException("R27_CANCELLED");
+                    RuntimeCoordinatorR26.Claim current=RuntimeCoordinatorR26.currentClaimR30();
+                    if(current==null)throw new IllegalStateException("R31_DEPENDENCY_TASK_CLAIM_REQUIRED");
+                    RuntimeCoordinatorR26.requireFence(w.ro,current);
+                    if(capturedRevision!=SchemaR27.liveSourceRevision(w.ro)||ResearchInputPinR30R1.invalid(w.ro,d.datasetHash))throw new ResearchStoreR30R1.StaleResearch();
+                    if(evoData==null){evoData=d;evoCache=c;}else{pendingData=d;pendingCache=c;}
+                    published=true;
+                    return ResearchPoolR27.Outcome.progress(1,d.ordinals[d.size()-1]);
+                }
                 ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
                 b.add("INSERT OR IGNORE INTO r27_replay_dataset(dataset_hash,from_issue,to_issue,rows,segments,split,built_at,build_ms) VALUES(?,?,?,?,?,?,?,?)",
                         d.datasetHash, d.issues[0], d.issues[d.size() - 1], d.size(), d.segments(), sp.describe(), System.currentTimeMillis(), System.currentTimeMillis() - t0);
@@ -201,6 +220,12 @@ public final class RuntimeR27 implements AutoCloseable {
         }
     }
 
+    private static final class DatasetPublicationIntegrityR31 extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure{
+        DatasetPublicationIntegrityR31(String reason){super("R31_DATASET_INPUT_INTEGRITY:"+reason);}
+        public String failureCategory(){return "INTEGRITY";}public String operation(){return "REPLAY_DATASET_RESTORE";}
+        public String phase(){return "VERIFY_PERSISTED_INPUT";}public String commitOutcomeName(){return "NOT_SUBMITTED";}
+    }
+
     // ------------------------------------------------------------------ r27-evolution (R27-021..032)
     final class EvolutionTask implements ResearchPoolR27.Task {
         public String id() { return "r27-evolution"; }
@@ -208,7 +233,17 @@ public final class RuntimeR27 implements AutoCloseable {
             if (evoCache == null) return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-replay-dataset)", 0, -1);
             final EvolutionPublicationStoreR31.CursorState expectedEvolutionCursor=EvolutionPublicationStoreR31.CursorState.capture(w.ro,LOOP);
             EvolutionLoopR27 committed=evo;
+            final boolean restoredObserverBoundaryR31=committed==null;
             if(committed==null){committed=restoreOrCreate(w);ConfirmReadStoreR30.restore(w.ro,committed.ledger());}
+            // Recover observer consumption after a committed generation; never rerun the committed step9.
+            // A current in-memory loop already acknowledged its refresh and needs no duplicate ACK.
+            if(restoredObserverBoundaryR31&&committed.step==1&&committed.generation>0&&expectedEvolutionCursor.exists
+                    &&expectedEvolutionCursor.snapshot.startsWith(EvolutionPublicationStoreR31.SNAPSHOT_PREFIX)
+                    &&!ResearchInputPinR30R1.invalid(w.ro,committed.context().data.datasetHash)){
+                boolean refreshed=false;
+                try{refreshObservers(w,committed);refreshed=true;}
+                finally{if(!refreshed&&evo!=committed)committed.close();}
+            }
             EvolutionLoopR27 loop=committed.preparedForkR30();
             if(ResearchInputPinR30R1.invalid(w.ro,loop.context().data.datasetHash)){
                 if(pendingCache==null||ResearchInputPinR30R1.invalid(w.ro,pendingCache.data.datasetHash))return ResearchPoolR27.Outcome.idle("DEPENDENCY(CORRECTED_REPLAY_DATASET)",0,-1);
@@ -343,37 +378,28 @@ public final class RuntimeR27 implements AutoCloseable {
         return keep;
     }
 
-    /** Re-ranking touches exploration only. Read queue membership again inside the same short write
-     * transaction, so a concurrent registration cannot be retired using a stale pre-write snapshot.
-     * This path never creates an e-process/index, resets a qualification cursor or changes a frozen row. */
+    /** Freeze rank/formulas outside the writer. Only source validation and bounded SQL publish inside it. */
     void refreshObservers(ResearchPoolR27.Worker w, EvolutionLoopR27 loop) throws Exception {
-        final List<EvolutionLoopR27.Member> ranked = new ArrayList<>(loop.population);
-        ranked.sort((a, b) -> a.u != b.u ? Double.compare(b.u, a.u) : a.hash().compareTo(b.hash()));
-        final int generation = loop.generation - 1;
-        ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
-        b.guardBefore(db -> {
-            Map<String,String> confirmation = QualificationInboxR29.confirmationQueueR30(db);
-            Map<String,EvolutionLoopR27.Member> keep = explorationR30(ranked,confirmation);
-            List<String> retire = new ArrayList<>();
-            try (Cursor c = db.rawQuery("SELECT policy_hash FROM r27_live_shadow WHERE status IN ('OBSERVE','OBSERVE_REPAIR1')",null)) {
-                while (c.moveToNext()) { String id=c.getString(0); if (!keep.containsKey(id) && !confirmation.containsKey(id)) retire.add(id); }
+        RuntimeCoordinatorR26.Claim claim=RuntimeCoordinatorR26.currentClaimR30();
+        if(claim==null)throw new ObserverPublicationStoreR31.Dependency("R31_OBSERVER_TASK_CLAIM_REQUIRED");
+        try(ObserverPublicationStoreR31.FrozenInput input=ObserverPublicationStoreR31.freeze(loop,claim,w::cancelled)){
+            for(;;){
+                if(w.cancelled())throw new InterruptedException("R27_CANCELLED");
+                try(ObserverPublicationStoreR31.Prepared prepared=ObserverPublicationStoreR31.prepare(w.ro,input,RuntimeCoordinatorR26.currentClaimR30(),w::cancelled)){
+                    try{submit(w,"OBSERVERS",prepared.batch,false,prepared.inputSnapshot);return;}
+                    catch(RuntimeException changed){
+                        FailureDispositionR31.Decision disposition=FailureDispositionR31.classify(changed);
+                        boolean rosterChanged=false;
+                        java.util.Set<Throwable> seen=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<Throwable,Boolean>());
+                        for(Throwable cause=changed;cause!=null&&seen.size()<16&&seen.add(cause);cause=cause.getCause())if(cause instanceof ObserverPublicationStoreR31.RosterChanged)rosterChanged=true;
+                        if(!rosterChanged||disposition.requiresCommitResolution||disposition.alreadyCommitted)throw changed;
+                    }
+                }
+                // A new registration/retirement is a new readonly roster prepare, not a fault or new experiment.
+                if(!CooperativeContinuationR26.installed())throw new ObserverPublicationStoreR31.Dependency("R31_OBSERVER_ROSTER_RETRY_REQUIRES_CONTINUATION");
+                CooperativeContinuationR26.yieldPreparedWrite();
             }
-            long t = System.currentTimeMillis();
-            for (String id : retire) db.execSQL("UPDATE r27_live_shadow SET status=CASE status WHEN 'OBSERVE' THEN 'OBSERVE_RETIRED' ELSE 'OBSERVE_REPAIR1_RETIRED' END,reason=?,updated_at=? WHERE policy_hash=? AND status IN ('OBSERVE','OBSERVE_REPAIR1')",
-                    new Object[]{"LEFT_EXPLORATION_G"+generation,t,id});
-            for (String id : confirmation.keySet()) db.execSQL("UPDATE r27_live_shadow SET status=CASE status WHEN 'OBSERVE_RETIRED' THEN 'OBSERVE' ELSE 'OBSERVE_REPAIR1' END,reason=?,updated_at=? WHERE policy_hash=? AND status IN ('OBSERVE_RETIRED','OBSERVE_REPAIR1_RETIRED')",
-                    new Object[]{"CONFIRMATION_QUEUE_PROTECTED",t,id});
-            for (Map.Entry<String, EvolutionLoopR27.Member> e : keep.entrySet()) {
-                EvolutionLoopR27.Member m = e.getValue();
-                // Re-entering exploration resumes its own row, outside the alpha-spending sequence.
-                db.execSQL("INSERT OR IGNORE INTO r27_live_shadow(policy_hash,spec_json,temperature,bias,global_index,status,reason,promoted_at,updated_at,through_ordinal,base_policy,semantic_abi) VALUES(?,?,?,?,0,?,?,?,?,-1,?,'')",
-                        new Object[] {e.getKey(),m.spec.fullJson(),m.tau,StoreR27.pack(new double[10]),OBSERVE,"EXPLORATION_H_SELECT_G"+generation,t,t,m.hash()});
-                db.execSQL("UPDATE r27_live_shadow SET status=?,temperature=?,reason=?,updated_at=? WHERE policy_hash=? AND status=?",
-                        new Object[]{OBSERVE,m.tau,"EXPLORATION_H_SELECT_G"+generation,t,e.getKey(),OBSERVE_RETIRED});
-            }
-            return 0;
-        });
-        submit(w, "OBSERVERS", b);
+        }
     }
 
     EvolutionLoopR27 restoreOrCreate(ResearchPoolR27.Worker w) {

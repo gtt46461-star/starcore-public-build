@@ -233,6 +233,9 @@ public final class SchemaR27 {
     /** Same-database, additive revision of the actual inputs used by the live feature cache. */
     static final String LIVE_SOURCE_REVISION = "r30_live_source_revision";
     static final String[] LIVE_SOURCE_TRIGGERS = liveSourceTriggers();
+    private static final String LIVE_SOURCE_REVISION_DDL_R31="CREATE TABLE IF NOT EXISTS "+LIVE_SOURCE_REVISION+"(singleton INTEGER PRIMARY KEY CHECK(singleton=1),generation INTEGER NOT NULL CHECK(generation>=0))";
+    public static String[] sourceRevisionDefinitionsR31(){String[] definitions=new String[LIVE_SOURCE_TRIGGERS.length+1];definitions[0]=LIVE_SOURCE_REVISION_DDL_R31;System.arraycopy(LIVE_SOURCE_TRIGGERS,0,definitions,1,LIVE_SOURCE_TRIGGERS.length);return definitions;}
+
     private static String[] liveSourceTriggers() {
         String draws = "NEW.issue IS NOT OLD.issue OR NEW.open_time IS NOT OLD.open_time OR NEW.dirty IS NOT OLD.dirty";
         for (int i=1;i<=10;i++) draws += " OR NEW.n"+i+" IS NOT OLD.n"+i;
@@ -249,10 +252,13 @@ public final class SchemaR27 {
     static void ensureLiveSourceRevision(SQLiteDatabase db) {
         if (!db.inTransaction()) throw new IllegalStateException("R30_SOURCE_REVISION_WRITER_REQUIRED");
         if (!tableExists(db,"draws") || !tableExists(db,"r27_history_import")) return;
-        db.execSQL("CREATE TABLE IF NOT EXISTS "+LIVE_SOURCE_REVISION+"(singleton INTEGER PRIMARY KEY CHECK(singleton=1),generation INTEGER NOT NULL CHECK(generation>=0))");
+        SchemaDomainCoordinatorR926.migrateR31LiveSourceRevision(db,SchemaR27::ensureLiveSourceRevisionObjectsR31);
+    }
+    private static void ensureLiveSourceRevisionObjectsR31(SQLiteDatabase db){
+        db.execSQL(LIVE_SOURCE_REVISION_DDL_R31);
         db.execSQL("INSERT OR IGNORE INTO "+LIVE_SOURCE_REVISION+" VALUES(1,0)");
-        for (String sql:LIVE_SOURCE_TRIGGERS) db.execSQL(sql);
-        if (!liveSourceTriggersValid(db)) throw new IllegalStateException("R30_SOURCE_REVISION_TRIGGER_CONFLICT");
+        for(String sql:LIVE_SOURCE_TRIGGERS)db.execSQL(sql);
+        if(!liveSourceTriggersValid(db))throw new IllegalStateException("R30_SOURCE_REVISION_TRIGGER_CONFLICT");
     }
     static boolean liveSourceTriggersValid(SQLiteDatabase db) {
         for (String expected:LIVE_SOURCE_TRIGGERS) {
