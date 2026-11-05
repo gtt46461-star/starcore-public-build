@@ -370,7 +370,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         try{String foldR30=R29FoldBackR30.run(store);if(!"NONE".equals(foldR30))android.util.Log.i("STARCORE_R30","R29 fold-back "+foldR30);}
         catch(Exception foldFailedR30){android.util.Log.e("STARCORE_R30","R29 fold-back incomplete; route kept for next start",foldFailedR30);store.setState("r30_foldback_error",String.valueOf(foldFailedR30));}
         try{LegacyTeacherOwnerR26.register(store.contextForR26());}catch(RuntimeException blocked){android.util.Log.w("STARCORE_R26","original teacher blocked",blocked);store.setState("r26_teacher_blocked",blocked.toString());}
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R26_RUNTIME_SCHEMA"),db->{RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);ResearchRetentionStoreR30.ensureProtected(db);
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R26_RUNTIME_SCHEMA"),db->{RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);ResearchRetentionStoreR30.ensureProtected(db);SchemaDomainCoordinatorR926.migrateR31WarmPublication(db);
             // R27.1: tasks quarantined only by the fixed continuation-quantum bug get their normal retry back.
             // R31 inherited quarantines are recovered one fenced half-open probe at a time.
             RuntimeSchemaR26.bindCapabilitySource(db,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);long now=System.currentTimeMillis();
@@ -558,7 +558,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 }while(!result.ready&&!preempt()&&SystemClock.elapsedRealtime()<until);
                 c.reason((units>0?"COOPERATIVE_":"")+result.status+":units="+units+":"+result.detail);return units;
             }
-            if(!StrategySchemaSU2.ready(store.readable())){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R26_SU2_SCHEMA"),db->{requireFence(db,c);StrategySchemaSU2.ensure(db);CertificateRevocationR30.ensure(db);ResearchRetentionStoreR30.ensureProtected(db);IncumbentLoopSU2.seedWithin(db,1);return 0;});return 1;}
+            if(!StrategySchemaSU2.ready(store.readable())){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R26_SU2_SCHEMA"),db->{requireFence(db,c);StrategySchemaSU2.ensure(db);CertificateRevocationR30.ensure(db);ResearchRetentionStoreR30.ensureProtected(db);SchemaDomainCoordinatorR926.migrateR31WarmPublication(db);IncumbentLoopSU2.seedWithin(db,1);return 0;});return 1;}
             ProgramModelSU2.register();store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(controlContextR31("R26_STRATEGY_DEPENDENCIES_READY"),db->{requireFence(db,c);db.execSQL("UPDATE r26_task SET status='READY',next_at=0,blocked_reason=NULL WHERE blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE'");return 0;});strategyStorageReady=true;return 1;
         }
         if(c.task.equals("schema-base")){
@@ -620,14 +620,20 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         final RetentionRulesSU2.PreparedFold fold=checkpoint.phase==0?RetentionRulesSU2.prepareFold(read,cycle+1):null;
         budget.checkpointOrYield();
         if(checkpoint.phase==RetentionR26.PHASES_R30_REPAIR+2){ResearchRetentionR30.Result result=ResearchRetentionStoreR30.step(store,claim);claim.reason(result.state);if(result.state.equals("MORE_RECOMPUTABLE_WORK"))return Math.max(1,result.filesDeleted);}
+        try(WarmCandidateR26.PreparedPreservationR31 warm=checkpoint.phase==4?WarmCandidateR26.preparePreservationR31(read):null;
+            WarmCandidateR26.PreparedInitializerPruneR31 initializers=checkpoint.phase==5?WarmCandidateR26.prepareInitializerPruneR31(read):null){
         store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RETENTION,"R26_RETENTION_PHASE_"+checkpoint.phase),db->{
             requireFence(db,claim);RetentionR26.Checkpoint current=RetentionR26.checkpoint(db);if(!Objects.equals(checkpoint.original,current.original))throw new IllegalStateException("R30_RETENTION_PHASE_SOURCE_CHANGED");
             if(!retentionProtectionReadyR31||!SchemaR27.tableExists(db,"r30_retention_archive_index"))throw new IllegalStateException("SCHEMA_PENDING:RETENTION_PROTECTION");
             if(checkpoint.phase==0)RetentionRulesSU2.commitFold(db,fold,System.currentTimeMillis());
             else if(checkpoint.phase==1)RetentionRulesSU2.pruneResearchGenomes(db);
+            else if(checkpoint.phase==4)WarmCandidateR26.applyPreparedPreservationR31(db,warm);
+            else if(checkpoint.phase==5)WarmCandidateR26.applyPreparedInitializerPruneR31(db,initializers);
             else if(checkpoint.phase<RetentionR26.PHASES_R30_REPAIR+2)RetentionR26.pruneStep(db,cycle+1,checkpoint.phase-2);
-            RetentionR26.commitCheckpoint(db,checkpoint,cycle,fold==null?null:fold.stepHash,fold==null?-1:fold.throughOrdinal);return 0;
+            requireFence(db,claim);
+            if((warm==null||!warm.more)&&(initializers==null||!initializers.more))RetentionR26.commitCheckpoint(db,checkpoint,cycle,fold==null?null:fold.stepHash,fold==null?-1:fold.throughOrdinal);return 0;
         });
+        }
         // Legacy task cursor is a work counter here; typed progress in B03 separates it from the calendar.
         claim.completedEventCursor=claim.cursor+1;claim.reason("COOPERATIVE_RETENTION_PHASE:"+checkpoint.phase);return 1;
     }

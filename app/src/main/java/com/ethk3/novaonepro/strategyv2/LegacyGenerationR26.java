@@ -66,7 +66,7 @@ public final class LegacyGenerationR26 {
             if(finished){for(Map.Entry<String,CommitteeSU2> entry:result.state.committees.entrySet()){CommitteeSU2 c=entry.getValue();ModelStoreSU2.prepareCommitteeR31(plan,c,entry.getKey(),context.id,context.snapshot.through,result.state.committeeJudge);ModelStoreSU2.prepareLeagueR31(plan,"SU2:"+c.key(),"SU2",entry.getKey()+"·委员会",c.key(),latestOrdinal+1);}StageStoreSU2.prepareR31(plan,result.stages,context.id,context.snapshot.through);if(result.matrices!=null)MatrixStoreSU2.prepareR31(plan,result.matrixChampion.key(),context.snapshot.through,result.matrices);}
             plan.put("LEGACY_META","1",context.id,context.generation,finished?1L:0L,result.state.population.size(),result.state.effectiveGenerations,context.abi);
         }
-        ModelPublicationR31.stageAndPublish(store,claim,plan,LegacyGenerationR26::publishPreparedR31);
+        ModelPublicationR31.stageAndPublish(store,claim,plan);
         }finally{if(plan!=null)plan.close();}
         if(finished&&result.matrices!=null)MatrixStoreSU2.markAvailable(store,result.matrixChampion.key(),context.snapshot.through,System.currentTimeMillis());
         StageStoreSU2.pruneR31(store,claim);MatrixStoreSU2.pruneR31(store,claim);

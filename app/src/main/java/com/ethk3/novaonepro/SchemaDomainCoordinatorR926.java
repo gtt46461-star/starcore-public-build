@@ -321,6 +321,24 @@ public final class SchemaDomainCoordinatorR926 {
         catch(Exception failure){throw new IllegalStateException("R31_MODEL_PUBLICATION_MIGRATION_FAILED",failure);}
     }
 
+    public static Contract r31WarmPublicationContract() {
+        return new Contract("RESEARCH_R31_WARM_PUBLICATION",
+                com.ethk3.novaonepro.strategyv2.WarmPublicationR31.REVISION,
+                new String[]{"r31_warm_candidate_state_owner"});
+    }
+
+    /** Startup owner only, after the retention owner has installed its protected archives. */
+    public static void migrateR31WarmPublication(SQLiteDatabase db) {
+        if(!db.inTransaction())throw new IllegalStateException("R31_MIGRATION_OWNER_REQUIRED");
+        Contract contract=r31WarmPublicationContract();prepareRepairIfDrift(db,contract);
+        try {
+            runStep(db,contract,"R31_WARM_PUBLICATION_V1",com.ethk3.novaonepro.strategyv2.WarmPublicationR31::ensureSchemaR31);
+            com.ethk3.novaonepro.strategyv2.WarmPublicationR31.requireSchemaR31(db);
+            verifyAndStamp(db,contract);
+        }catch(RuntimeException failure){throw failure;}
+        catch(Exception failure){throw new IllegalStateException("R31_WARM_PUBLICATION_MIGRATION_FAILED",failure);}
+    }
+
     public static Contract r31PlatformPrerequisitesContract() {
         return new Contract("RESEARCH_R31_PLATFORM_PREREQUISITES", 1,
                 ResearchPlatformStoreR929.schemaObjectsR31());

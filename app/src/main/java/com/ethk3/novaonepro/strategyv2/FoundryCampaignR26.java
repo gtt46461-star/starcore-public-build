@@ -28,7 +28,10 @@ public final class FoundryCampaignR26 {
     /** No model training is executed inside the writer. Returns a count of committed samples. */
     public static long step(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget)throws IOException{
         ModelPublicationR31.requireSchemaR31(store.readable());pruneFinishedR31(store,claims.get());final String numericalAbi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_CAMPAIGN_ABI_GUARD",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());db.execSQL("UPDATE r26_foundry SET status='ABANDONED_NUMERICAL_ABI',snapshot=X'' WHERE status='RUNNING' AND numerical_abi<>?",new Object[]{numericalAbi});WarmCandidateR26.preserveExpired(db);return 0;});
+        try(WarmCandidateR26.PreparedAbiR31 abi=WarmCandidateR26.prepareAbiR31(store.readable(),numericalAbi);
+            WarmCandidateR26.PreparedPreservationR31 warm=WarmCandidateR26.preparePreservationR31(store.readable(),abi.campaigns())){
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_CAMPAIGN_ABI_GUARD",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());WarmCandidateR26.applyPreparedAbiR31(db,abi);WarmCandidateR26.applyPreparedPreservationR31(db,warm);RuntimeCoordinatorR26.requireFence(db,claims.get());return 0;});
+        }
         SQLiteDatabase r=store.readable();String campaign=null;byte[] snapshotBytes=null;long through=0;
         try(Cursor c=r.rawQuery("SELECT f.campaign_id,f.snapshot,f.source_through FROM r26_foundry f WHERE f.status='RUNNING' ORDER BY CASE WHEN EXISTS(SELECT 1 FROM r26_candidate c WHERE c.campaign_id=f.campaign_id AND c.status='READY') THEN 1 ELSE 0 END,(SELECT coalesce(sum(CASE WHEN c.status='READY' THEN c.service_cpu_ms ELSE 0 END),0)*1.0/max(1,sum(CASE WHEN c.status='READY' THEN 1 ELSE 0 END)) FROM r26_candidate c WHERE c.campaign_id=f.campaign_id),f.created_at,f.campaign_id LIMIT 1",null)){if(c.moveToFirst()){campaign=c.getString(0);snapshotBytes=c.getBlob(1);through=c.getLong(2);}}
         Models.Draw latest=store.getLatestDraw();if(latest==null)return 0;long latestOrdinal=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);
@@ -53,13 +56,13 @@ public final class FoundryCampaignR26 {
                 int index=0;for(StructuralProposalR26.Proposal proposal:proposals){ExecutionBudgetR26.poll();ModelGenomeSU2 g=proposal.genome;ModelStoreSU2.prepareIdentityR31(plan,g.text(),g.key());if(plan.item("CANDIDATE",g.key())==null)plan.put("CANDIDATE",g.key(),id,g.key(),g.text(),proposal.parent,proposal.operation);plan.put("ATTEMPT",id+":"+index,id+":"+(index++),id,g.key(),proposal.parent,proposal.operation,proposal.category,StructuralProposalR26.structure(g));}
                 for(FailureDirectedResearchR26.Batch batch:failureResearch)plan.put("FAILURE_CURSOR",batch.parent,batch.parent,batch.oldDigest,batch.oldEnd,batch.digest,batch.windowEnd,batch.payload,batch.reason,batch.text);
             }
-            ModelPublicationR31.stageAndPublish(store,claims.get(),plan,FoundryCampaignR26::publishBirthPreparedR31);
+            ModelPublicationR31.stageAndPublish(store,claims.get(),plan);
             }finally{if(plan!=null)plan.close();}
             return 0;
         }
         final String id=campaign;
         // Snapshots cannot pin raw history indefinitely beyond the rolling retention window.
-        if(latestOrdinal-Snapshot.decode(snapshotBytes).ordinal[0]>=5000){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_CAMPAIGN_EXPIRE",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());db.execSQL("UPDATE r26_foundry SET status='EXPIRED_RETENTION',snapshot=X'' WHERE campaign_id=?",new Object[]{id});WarmCandidateR26.preserveExpired(db);return 0;});return 0;}
+        if(latestOrdinal-Snapshot.decode(snapshotBytes).ordinal[0]>=5000){try(WarmCandidateR26.PreparedPreservationR31 warm=WarmCandidateR26.preparePreservationR31(store.readable(),Collections.singletonList(id))){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_CAMPAIGN_EXPIRE",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());db.execSQL("UPDATE r26_foundry SET status='EXPIRED_RETENTION',snapshot=X'' WHERE campaign_id=?",new Object[]{id});WarmCandidateR26.applyPreparedPreservationR31(db,warm);RuntimeCoordinatorR26.requireFence(db,claims.get());return 0;});}return 0;}
         String text=null,key=null,parentHash="",expectedStateHash="";byte[] state=null;int cursor=0,dn=0,dk=0,vn=0,vk=0;double loss=0;
         try(Cursor c=r.rawQuery("SELECT canonical_text,policy_hash,cursor,state,dev_n,dev_k,val_n,val_k,loss_sum,checkpoint_hash,state_hash FROM r26_candidate candidate WHERE campaign_id=? AND status='READY' ORDER BY CASE WHEN operation IN ('CUT_CROSS_POSITION_LAG_EDGES','REMOVE_PAIRWISE_FACTORS','REMOVE_HIDDEN_TRANSITION_MEMORY','REMOVE_STATE_FRAGMENT_MEMORY','MISMATCH_STATE_FRAGMENT_RETRIEVAL','EXPIRE_STATE_FRAGMENT_RETRIEVAL','REMOVE_TENSOR_POSITION_MODE','REMOVE_TENSOR_STATE_MODE') THEN CASE WHEN EXISTS(SELECT 1 FROM r26_candidate unserved JOIN r26_capability cold ON cold.kind='FAMILY' AND cold.last_progress=0 AND instr(unserved.canonical_text,'R26'||cold.mechanism)>0 WHERE unserved.campaign_id=candidate.campaign_id AND unserved.status='READY' AND unserved.operation NOT IN ('CUT_CROSS_POSITION_LAG_EDGES','REMOVE_PAIRWISE_FACTORS','REMOVE_HIDDEN_TRANSITION_MEMORY','REMOVE_STATE_FRAGMENT_MEMORY','MISMATCH_STATE_FRAGMENT_RETRIEVAL','EXPIRE_STATE_FRAGMENT_RETRIEVAL','REMOVE_TENSOR_POSITION_MODE','REMOVE_TENSOR_STATE_MODE')) THEN 2 ELSE 1 END WHEN EXISTS(SELECT 1 FROM r26_capability cap WHERE cap.kind='FAMILY' AND cap.last_progress=0 AND instr(canonical_text,'R26'||cap.mechanism)>0) THEN 0 ELSE 1 END,service_cpu_ms,last_served,policy_hash LIMIT 1",new String[]{id})){if(c.moveToFirst()){text=c.getString(0);key=c.getString(1);cursor=c.getInt(2);state=c.isNull(3)?null:c.getBlob(3);dn=c.getInt(4);dk=c.getInt(5);vn=c.getInt(6);vk=c.getInt(7);loss=c.getDouble(8);parentHash=c.getString(9);expectedStateHash=c.getString(10);}}
         if(text==null){finish(store,claims,id,through);return 0;}
@@ -144,7 +147,7 @@ public final class FoundryCampaignR26 {
         try{if(plan==null){plan=new ModelPublicationR31.Plan(publicationId,"FOUNDRY_FINISH",sourceHash,publicationGeneration,-1,System.currentTimeMillis());plan.put("FOUNDRY_FINISH",campaign,campaign);
             for(int i=0;i<best.size();i++){ModelEvolutionSU2.Ranked x=best.get(i);ModelStoreSU2.prepareGenomeR31(plan,x,campaign,through,scores.get(i)[0],scores.get(i)[1],"RESEARCH");try(Cursor c=r.rawQuery("SELECT attempt_id FROM r26_evolution WHERE campaign_id=? AND policy_hash=? ORDER BY attempt_id",new String[]{campaign,x.g.key()})){while(c.moveToNext())plan.put("ACCEPTED",c.getString(0),c.getString(0),x.g.key());}}
         }
-        ModelPublicationR31.stageAndPublish(store,claims.get(),plan,FoundryCampaignR26::publishFinishPreparedR31);
+        ModelPublicationR31.stageAndPublish(store,claims.get(),plan);
         }catch(IOException invalid){throw new IllegalStateException("R31_FOUNDRY_FINISH_RECOVERY",invalid);}finally{if(plan!=null)plan.close();}
         pruneFinishedR31(store,claims.get());
     }
