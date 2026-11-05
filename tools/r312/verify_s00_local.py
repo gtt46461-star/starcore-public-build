@@ -67,7 +67,7 @@ def preservation():
  for cid in unstarted:require(states.get(cid)=='NOT_STARTED','UNIMPLEMENTED_CARD_STATUS_CHANGED:'+cid)
  return {'preservation':rows,'not_started_cards_unchanged':len(unstarted),'semantic_implementation_acceptance':'NOT_PERFORMED_BY_PRESERVATION_CHECK'}
 def registry():
- suite=read(CONTROL/'HOST_SUITE.json');entries=suite.get('host',[]);require(entries,'HOST_SUITE_EMPTY');ids=set()
+ suite=read(CONTROL/'HOST_SUITE.json');entries=suite.get('host',[])+suite.get('post_build',[]);require(entries,'HOST_SUITE_EMPTY');ids=set()
  for row in entries:
   require(row.get('id') and row['id'] not in ids,'DUPLICATE_OR_EMPTY_HOST_ID');ids.add(row['id'])
   if row.get('retired'):require(bool(row.get('replacement')),'RETIRED_WITHOUT_REPLACEMENT:'+row['id'])

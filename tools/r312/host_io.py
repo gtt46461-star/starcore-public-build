@@ -13,6 +13,7 @@ import json
 import os
 from pathlib import Path
 import sys
+import types
 
 
 class OutputPaths(ast.NodeTransformer):
@@ -104,8 +105,11 @@ def main():
     arguments = args.arguments[1:] if args.arguments[:1] == ["--"] else args.arguments
     sys.path.insert(0, str(script.parent))
     sys.argv = [str(script), *arguments]
-    namespace = {"__file__": str(script), "__name__": "__main__", "__r312_output_target__": output_target}
-    exec(compile(adapted, str(script), "exec"), namespace)
+    module = types.ModuleType("__main__")
+    module.__dict__.update({"__file__": str(script), "__package__": None,
+                            "__r312_output_target__": output_target})
+    sys.modules["__main__"] = module
+    exec(compile(adapted, str(script), "exec"), module.__dict__)
 
 
 if __name__ == "__main__":

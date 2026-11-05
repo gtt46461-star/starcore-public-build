@@ -1,0 +1,15 @@
+R312_HOST_ACTUAL_COMMAND ["python3", "tools/r31/verify_task_status.py"]
+{
+  "scope": "ORIGINAL_REPORT_THROUGH_PRODUCTION_JAVA_PROJECTION_HOST_NOT_DEVICE",
+  "status": "PASS",
+  "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "before": {
+    "exit_code": 1,
+    "output": "HIDDEN incumbent-forecast projected=UNKNOWN\nHIDDEN r27-replay-dataset projected=IDLE_WAITING_INPUT\nHIDDEN r27-evolution projected=STALLED\nHIDDEN r27-live projected=UNKNOWN\nHIDDEN r27-atoms projected=UNKNOWN\nHIDDEN r27-atomnet projected=STALLED\nHIDDEN r27-abi projected=UNKNOWN\nHIDDEN r27-calibration projected=UNKNOWN\nHIDDEN r27-chart-cache projected=IDLE_WAITING_INPUT\nHIDDEN r27-legacy-export projected=UNKNOWN\nHIDDEN r27-health projected=IDLE_WAITING_INPUT\nHIDDEN r27-observatory-r1 projected=IDLE_WAITING_INPUT\nHIDDEN r27-study-r1 projected=UNKNOWN\nHIDDEN r27-matrices-r1 projected=UNKNOWN\noriginalQuarantined=14 hiddenQuarantines=14\nPicked up JAVA_TOOL_OPTIONS: -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit -Djava.io.tmpdir=/workspace/starcore-public-build/app/build/r312/tmp -Djava.io.tmpdir=/workspace/starcore-public-build/app/build/r312/host-runs/S00/e614b3324ef54d4a89c7de79a3191a04/verify_task_status-tmp\nException in thread \"main\" java.lang.AssertionError: SCHEDULER_FAULT_HIDDEN_BY_OLD_PROGRESS\n\tat com.ethk3.novaonepro.strategyv2.R31OriginalReportStatusRegression.main(R31OriginalReportStatusRegression.java:20)\n"
+  },
+  "after": {
+    "exit_code": 0,
+    "output": "originalQuarantined=14 hiddenQuarantines=0\nPicked up JAVA_TOOL_OPTIONS: -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit -Djava.io.tmpdir=/workspace/starcore-public-build/app/build/r312/tmp -Djava.io.tmpdir=/workspace/starcore-public-build/app/build/r312/host-runs/S00/e614b3324ef54d4a89c7de79a3191a04/verify_task_status-tmp\n"
+  }
+}
+R312_HOST_RAW_LOG {"raw_log": "/workspace/starcore-public-build/app/build/r312/host-runs/S00/e614b3324ef54d4a89c7de79a3191a04/verify_task_status-RAW.log", "raw_log_sha256": "9fa122d552a69cae941932abd00699991b7b160131e12b593b6181af43b89380", "raw_log_bytes": 2035}

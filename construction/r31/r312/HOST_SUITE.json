@@ -558,36 +558,6 @@
       "replacement": null,
       "configuration_state": "CONFIGURED_NOT_EXECUTED",
       "input_scope": "PURE_SOURCE_METADATA_NO_MAIN_COMPILE_DEPENDENCY"
-    },
-    {
-      "id": "s00_failure_reconciliation",
-      "command": "python3 tools/r312/host_entry.py --id s00_failure_reconciliation --source-only -- python3 tools/r312/wip_inventory.py check --check failures",
-      "required_args": [
-        "--check"
-      ],
-      "owner_cards": [
-        "R312-S00-C01"
-      ],
-      "retired": false,
-      "replacement": null,
-      "configuration_state": "CONFIGURED_NOT_EXECUTED",
-      "input_scope": "PURE_SOURCE_METADATA_NO_MAIN_COMPILE_DEPENDENCY",
-      "strict_summary_policy": "Missing current actual BUILD_SUMMARY or wrong source_head must FAIL; no journal/synthetic summary substitution."
-    },
-    {
-      "id": "s00_gate_summary",
-      "command": "python3 tools/r312/host_entry.py --id s00_gate_summary --source-only -- python3 tools/r312/verify_s00_local.py --case gate-summary",
-      "required_args": [
-        "--case"
-      ],
-      "owner_cards": [
-        "R312-S00-C01"
-      ],
-      "retired": false,
-      "replacement": null,
-      "configuration_state": "CONFIGURED_NOT_EXECUTED",
-      "input_scope": "PURE_SOURCE_METADATA_NO_MAIN_COMPILE_DEPENDENCY",
-      "strict_summary_policy": "Missing current actual BUILD_SUMMARY or wrong source_head must FAIL; no journal/synthetic summary substitution."
     }
   ],
   "pre_build_scope": "Check Root-authorized already refreshed developer semantics without --apply, then write ignored development identity inputs and evidence-only GATE_CONTEXT. No tracked mutation, release identity/r982 freeze or signing.",
@@ -605,5 +575,44 @@
     "ahead_receipt": "Actual current whole compile source/class receipt, not a fabricated independent compile"
   },
   "execution_state": "NOT_RUN_CONFIGURATION_ONLY",
-  "execution_adapter": "tools/r312/host_io.py relocates only historical HOST output/platform/temp paths into app/build, preserving assertion ASTs and all numeric constants; complete child raw logs remain there and gate logs contain a bounded tail with SHA."
+  "execution_adapter": "tools/r312/host_io.py relocates only historical HOST output/platform/temp paths into app/build, preserving assertion ASTs and all numeric constants; complete child raw logs remain there and gate logs contain a bounded tail with SHA.",
+  "post_build": [
+    {
+      "id": "s00_sync_actual_failures",
+      "command": "python3 tools/r312/wip_inventory.py sync-failures --summary verification/r31/r312/S00/BUILD_SUMMARY.json",
+      "retired": false,
+      "purpose": "Synchronize only real UNIT/HOST failures from the completed immutable main summary; post failures are separate."
+    },
+    {
+      "id": "s00_gate_summary",
+      "command": "python3 tools/r312/host_entry.py --id s00_gate_summary --source-only -- python3 tools/r312/verify_s00_local.py --case gate-summary",
+      "required_args": [
+        "--case"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "input_scope": "PURE_SOURCE_METADATA_NO_MAIN_COMPILE_DEPENDENCY",
+      "strict_summary_policy": "Missing current actual BUILD_SUMMARY or wrong source_head must FAIL; no journal/synthetic summary substitution."
+    },
+    {
+      "id": "s00_failure_reconciliation",
+      "command": "python3 tools/r312/host_entry.py --id s00_failure_reconciliation --source-only -- python3 tools/r312/wip_inventory.py check --check failures",
+      "required_args": [
+        "--check"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "input_scope": "PURE_SOURCE_METADATA_NO_MAIN_COMPILE_DEPENDENCY",
+      "strict_summary_policy": "Missing current actual BUILD_SUMMARY or wrong source_head must FAIL; no journal/synthetic summary substitution."
+    }
+  ],
+  "post_build_rule": "Only after main BUILD_SUMMARY is written: sync its actual failures, validate the completed summary, then check exact failure reconciliation. POST_BUILD_CHECKS records independent actual exits and SHA-binds the immutable main summary; no self-reference."
 }

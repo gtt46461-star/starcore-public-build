@@ -36,7 +36,7 @@ def main():
     journal = context_path.with_name("HOST_JOURNAL.jsonl")
     journal.parent.mkdir(parents=True, exist_ok=True)
     suite = json.loads((ROOT / "construction/r31/r312/HOST_SUITE.json").read_text())
-    registered = next(entry["command"] for entry in suite["host"] if entry["id"] == args.id)
+    registered = next(entry["command"] for entry in suite.get("host", []) + suite.get("post_build", []) if entry["id"] == args.id)
     row = dict(identity, run_id=context["run_id"], entry_pid=os.getpid(), host_id=args.id, id=args.id,
                event="START", started_at=started, status="PREPARING_NOT_PASS", original_command=template,
                registered_command=registered, registered_command_sha256=hashlib.sha256(registered.encode()).hexdigest())

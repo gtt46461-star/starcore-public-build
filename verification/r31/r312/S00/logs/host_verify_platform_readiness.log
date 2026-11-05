@@ -1,0 +1,21 @@
+R312_HOST_ACTUAL_COMMAND ["python3", "tools/r31/verify_platform_readiness.py", "--joint-manifest", "/workspace/starcore-public-build/app/build/r312/host-support/74ab32f9c3d5688b2c453a22bf2723eb775a803c/5cb704b2598bf3cc6c8522682d4080f4133cd76211f56c4d674dd2ae472033dd/platform-joint-manifest.json", "--domain-root", "/workspace/starcore-public-build"]
+RECEIPT /workspace/starcore-public-build/app/build/r312/host-runs/S00/e614b3324ef54d4a89c7de79a3191a04/verify_platform_readiness/legacy-output/p02/platform-readiness/runs/20261105T064300Z/RECEIPT.json
+Traceback (most recent call last):
+  File "/workspace/starcore-public-build/tools/r312/host_io.py", line 112, in <module>
+    main()
+  File "/workspace/starcore-public-build/tools/r312/host_io.py", line 108, in main
+    exec(compile(adapted, str(script), "exec"), namespace)
+  File "/workspace/starcore-public-build/tools/r31/verify_platform_readiness.py", line 62, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/starcore-public-build/tools/r31/verify_platform_readiness.py", line 28, in main
+    if SHA(path.read_bytes())!=support[key]['sha256']:raise RuntimeError('Support changed:'+key)
+           ^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/starcore-public-build/app/build/r312/deps/original014-classes.jar'
+R312_HOST_RAW_LOG {"raw_log": "/workspace/starcore-public-build/app/build/r312/host-runs/S00/e614b3324ef54d4a89c7de79a3191a04/verify_platform_readiness-RAW.log", "raw_log_sha256": "fe2afe2b71d427ce0f268e28113289195f47f7d77f96f5bf8a59c8b4fdc2fdb5", "raw_log_bytes": 1453}

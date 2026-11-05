@@ -248,16 +248,107 @@ def run_logged(cmd, log, shell=False):
     return r.returncode
 
 
-def build(b, import_file=None, skip_gradle=False):
+def post_path(sid):
+    return summary_path(sid).with_name('POST_BUILD_CHECKS.json')
+
+
+def post_entries(suite):
+    normal = suite.get('host', [])
+    post = suite.get('post_build', [])
+    ids = [h.get('id') for h in normal + post]
+    if any(not isinstance(i, str) or not re.fullmatch(r'[A-Za-z0-9_-]+', i) for i in ids) or len(set(ids)) != len(ids):
+        die('HOST and post_build ids must be valid, unique and mutually distinct')
+    if any(h.get('retired') or not isinstance(h.get('command'), str) or not h['command'].strip() for h in post):
+        die('post_build checks require actual nonempty commands; they cannot be retired')
+    return post
+
+
+def execute_post_build(b, suite, out, logs):
+    post = post_entries(suite)
+    if not post:
+        return
+    raw = out.read_bytes()
+    main = json.loads(raw)
+    suite_file = ROOT / 'construction/r31/r312/HOST_SUITE.json'
+    suite_sha = hashlib.sha256(suite_file.read_bytes()).hexdigest()
+    head = git('rev-parse', 'HEAD')
+    started = dt.datetime.now(dt.timezone.utc).isoformat()
+    checks = []
+    for h in post:
+        start = dt.datetime.now(dt.timezone.utc).isoformat()
+        rc = run_logged(h['command'], logs / f"post_{h['id']}.log", shell=True)
+        checks.append({'id': h['id'], 'command': h['command'], 'exit': rc,
+                       'status': 'PASS' if rc == 0 else 'FAIL', 'started_at': start,
+                       'finished_at': dt.datetime.now(dt.timezone.utc).isoformat()})
+    stable = (out.read_bytes() == raw and git('rev-parse', 'HEAD') == head and
+              hashlib.sha256(suite_file.read_bytes()).hexdigest() == suite_sha)
+    data = {'format': 'R312_POST_BUILD_CHECKS_V1', 'batch': b['batch'],
+            'source_head': head, 'build_source_head': main['source_head'],
+            'main_summary_sha256': hashlib.sha256(raw).hexdigest(), 'host_suite_sha256': suite_sha,
+            'started_at': started, 'finished_at': dt.datetime.now(dt.timezone.utc).isoformat(),
+            'inputs_unchanged': stable, 'artifact_checks': checks}
+    post_path(b['batch']).write_text(json.dumps(data, ensure_ascii=False, indent=1) + '\n')
+    # Main summary is immutable here: post failures never replace its real UNIT/HOST inputs.
+
+
+def validate_post_build(b, main_path, main, problems):
+    suite_file = ROOT / 'construction/r31/r312/HOST_SUITE.json'
+    suite = json.loads(suite_file.read_text())
+    expected = post_entries(suite)
+    if not expected:
+        return set(), None
+    path = post_path(b['batch'])
+    if not path.is_file():
+        problems.append('post_build checks not executed/imported: ' + str(path))
+        return set(), None
+    try:
+        data = json.loads(path.read_text())
+        if data.get('format') != 'R312_POST_BUILD_CHECKS_V1' or data.get('batch') != b['batch']:
+            raise ValueError('wrong post_build format/batch')
+        if data.get('source_head') != git('rev-parse', 'HEAD') or data.get('build_source_head') != main['source_head']:
+            raise ValueError('post_build source HEAD mismatch')
+        if data['source_head'] != main['source_head']:
+            raise ValueError('post_build must use the same source as the main build')
+        if data.get('main_summary_sha256') != hashlib.sha256(main_path.read_bytes()).hexdigest():
+            raise ValueError('post_build main summary SHA256 mismatch')
+        if data.get('host_suite_sha256') != hashlib.sha256(suite_file.read_bytes()).hexdigest():
+            raise ValueError('post_build HOST_SUITE SHA256 mismatch')
+        if data.get('inputs_unchanged') is not True:
+            raise ValueError('post_build changed its source/summary/suite inputs')
+        checks = data.get('artifact_checks', [])
+        if [c.get('id') for c in checks] != [h['id'] for h in expected]:
+            raise ValueError('post_build check set/order mismatch')
+        for actual, h in zip(checks, expected):
+            rc = actual.get('exit')
+            if actual.get('command') != h['command'] or type(rc) is not int:
+                raise ValueError('post_build command/actual exit missing: ' + h['id'])
+            if actual.get('status') != ('PASS' if rc == 0 else 'FAIL'):
+                raise ValueError('post_build exit/status mismatch: ' + h['id'])
+            if rc != 0:
+                problems.append('post_build check failed: ' + h['id'])
+        return {c['id'] for c in checks if c['exit'] == 0}, data
+    except (ValueError, KeyError, TypeError) as error:
+        problems.append('invalid post_build evidence: ' + str(error))
+        return set(), None
+
+
+def build(b, import_file=None, skip_gradle=False, import_post=None):
     out = summary_path(b['batch'])
     out.parent.mkdir(parents=True, exist_ok=True)
     if import_file:
         s = json.loads(Path(import_file).read_text())
         if s.get('format') != 'R312_BUILD_SUMMARY_V1' or s.get('batch') != b['batch']:
             die('imported summary has wrong format or batch')
-        out.write_text(json.dumps(s, ensure_ascii=False, indent=1) + '\n')
+        out.write_bytes(Path(import_file).read_bytes())
+        pp = post_path(b['batch'])
+        if import_post:
+            pp.write_bytes(Path(import_post).read_bytes())
+        elif pp.is_file():
+            pp.unlink()
         print(json.dumps({k: s[k] for k in ('source_head', 'gradle', 'unit', 'host_failed')}, ensure_ascii=False))
         return
+    if import_post:
+        die('--import-post requires --import')
     head, dirty = tree_identity()
     if dirty:
         die('commit source changes before build; dirty: ' + ', '.join(dirty[:10]))
@@ -265,6 +356,10 @@ def build(b, import_file=None, skip_gradle=False):
     if not suite_file.is_file():
         die('construction/r31/r312/HOST_SUITE.json missing (install it in S00)')
     suite = json.loads(suite_file.read_text())
+    post_entries(suite)
+    pp = post_path(b['batch'])
+    if pp.is_file():
+        pp.unlink()
     empty = [h['id'] for h in suite.get('host', []) if not h.get('retired') and not h.get('command')]
     if empty and b['batch'] != 'S00':
         die('HOST_SUITE entries without command: ' + ', '.join(empty))
@@ -316,6 +411,7 @@ def build(b, import_file=None, skip_gradle=False):
         s['environment'] = 'CI'
         s['ci_run'] = os.environ['GITHUB_RUN_ID']
     out.write_text(json.dumps(s, ensure_ascii=False, indent=1) + '\n')
+    execute_post_build(b, suite, out, logs)
     for f in logs.glob('*.log'):
         name = f.name
         failed = (name == 'gradle.log' and gradle['state'] == 'FAIL') or any(
@@ -373,7 +469,8 @@ def close(b):
                 problems.append('unit test count dropped from %d to %d' % (prev['tests'], s['unit']['tests']))
             if s['unit']['skipped'] > prev['skipped']:
                 problems.append('skipped tests increased from %d to %d' % (prev['skipped'], s['unit']['skipped']))
-    host_pass = {h['id'] for h in s['host'] if h['status'] == 'PASS'}
+    post_pass, post_checks = validate_post_build(b, sp, s, problems)
+    host_pass = {h['id'] for h in s['host'] if h['status'] == 'PASS'} | post_pass
     its = {x['item']: x for x in items() if x['batch'] == b['batch']}
     bound = bindings.get('items', {})
     results = {}
@@ -421,6 +518,8 @@ def close(b):
            'closed_at': dt.datetime.now(dt.timezone.utc).isoformat(), 'full_suite_must_pass': full,
            'unit': s['unit'], 'host': {h['id']: h['status'] for h in s['host']},
            'local_items': results, 'deferred_items': deferred, 'scope': sc,
+           'post_build': ({'main_summary_sha256': post_checks['main_summary_sha256'],
+                           'checks': {c['id']: c['status'] for c in post_checks['artifact_checks']}} if post_checks else None),
            'unit_failures_recorded_for_next_batch': [k for k, v in s['tests'].items() if v['status'] in ('FAIL', 'ERROR')] if not full else [],
            'claims_not_made': ['APK released', 'Android emulator PASS', 'device 24h/72h PASS', 'natural quality proven']}
     receipt_path(b['batch']).parent.mkdir(parents=True, exist_ok=True)
@@ -452,6 +551,7 @@ def main():
     ap.add_argument('command', choices=['status', 'check-plan', 'scope', 'build', 'close'])
     ap.add_argument('--batch')
     ap.add_argument('--import', dest='import_file')
+    ap.add_argument('--import-post', help='POST_BUILD_CHECKS.json accompanying an imported main summary')
     ap.add_argument('--skip-gradle', action='store_true', help='HOST-only dry run; a summary without gradle cannot close a batch')
     a = ap.parse_args()
     if a.command == 'check-plan':
@@ -470,7 +570,7 @@ def main():
         bp = bindings_path(b['batch'])
         print(json.dumps(scope_report(b, json.loads(bp.read_text()) if bp.is_file() else None), ensure_ascii=False, indent=1))
     elif a.command == 'build':
-        build(b, a.import_file, a.skip_gradle)
+        build(b, a.import_file, a.skip_gradle, a.import_post)
     elif a.command == 'close':
         close(b)
 

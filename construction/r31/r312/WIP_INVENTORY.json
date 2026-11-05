@@ -4730,11 +4730,65 @@
       }
     }
   ],
-  "failures": null,
-  "build_failures": null,
+  "failures": [],
+  "build_failures": [
+    {
+      "kind": "HOST",
+      "id": "verify_ast_family_scope",
+      "status": "FAIL",
+      "exit": 1
+    },
+    {
+      "kind": "HOST",
+      "id": "verify_family_admission",
+      "status": "FAIL",
+      "exit": 1
+    },
+    {
+      "kind": "HOST",
+      "id": "verify_platform_readiness",
+      "status": "FAIL",
+      "exit": 1
+    },
+    {
+      "kind": "HOST",
+      "id": "run_writer_outcome_chain_host",
+      "status": "FAIL",
+      "exit": 1
+    },
+    {
+      "kind": "HOST",
+      "id": "s00_baseline_contracts",
+      "status": "FAIL",
+      "exit": 5
+    },
+    {
+      "kind": "HOST",
+      "id": "s00_failure_reconciliation",
+      "status": "FAIL",
+      "exit": 1
+    },
+    {
+      "kind": "HOST",
+      "id": "s00_gate_summary",
+      "status": "FAIL",
+      "exit": 2
+    }
+  ],
   "failure_capture": {
-    "state": "NOT_CAPTURED_S00_BUILD_NOT_IMPORTED",
-    "summary_path": "verification/r31/r312/S00/BUILD_SUMMARY.json"
+    "state": "CAPTURED_FROM_REAL_S00_BUILD",
+    "summary_path": "verification/r31/r312/S00/BUILD_SUMMARY.json",
+    "summary_sha256": "de24737d05cfa5acf3b3e74eda8acabda45c0507d5c538639ae82f9063a7ed5a",
+    "source_head": "74ab32f9c3d5688b2c453a22bf2723eb775a803c",
+    "finished_at": "2026-11-05T06:48:09.740390+00:00",
+    "unit_counts": {
+      "tests": 499,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "unit_failure_count": 0,
+    "build_failure_count": 7
   },
   "claims_not_made": [
     "Legacy BUILD_PASS means S00 accepted",
