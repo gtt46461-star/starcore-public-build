@@ -1,0 +1,59 @@
+{
+  "commands": [
+    {
+      "name": "aggregate-final",
+      "argv": [
+        "bash",
+        "./gradlew",
+        "--no-daemon",
+        "--offline",
+        "--max-workers=2",
+        "-Djava.io.tmpdir=/workspace/r31-integration-20261105/verification/r31/b00/R31-B00-C01/20261105/gradle-temporary",
+        ":app:build",
+        "--dry-run"
+      ],
+      "exitCode": 1,
+      "headBefore": "c6a580313e6214949534badbd452eaae98c51e81",
+      "headAfter": "c6a580313e6214949534badbd452eaae98c51e81",
+      "headStable": true,
+      "startedAt": "2026-11-05T02:55:00.463366+00:00",
+      "elapsedSeconds": 10.478956,
+      "expectedDirtyRejection": true
+    },
+    {
+      "name": "direct-final",
+      "argv": [
+        "bash",
+        "./gradlew",
+        "--no-daemon",
+        "--offline",
+        "--max-workers=2",
+        "-Djava.io.tmpdir=/workspace/r31-integration-20261105/verification/r31/b00/R31-B00-C01/20261105/gradle-temporary",
+        ":app:assembleRelease",
+        "--dry-run"
+      ],
+      "exitCode": 1,
+      "headBefore": "c6a580313e6214949534badbd452eaae98c51e81",
+      "headAfter": "c6a580313e6214949534badbd452eaae98c51e81",
+      "headStable": true,
+      "startedAt": "2026-11-05T02:55:10.944650+00:00",
+      "elapsedSeconds": 7.001299,
+      "expectedDirtyRejection": true
+    }
+  ],
+  "protectedBefore": {
+    "release/strategy_su1_reviewed_inputs.json": "6fbf4769cc74abab0e79be4d7c2f4091ec18e74fb3b83d40035072bb7a51ba1f",
+    "release/research_dependencies_r967.json": "45ca6fb960ae6a957f71ad9426189ccd969825cb402be9971d7a290f65815f86",
+    "release/r82_training_invalidation.json": "bb82604ca2daad3198db8009f190e530d407e8d729fd648e0dbb01bbc4889dc9",
+    "app/build/generated/r967/semantic_manifest.json": "0276f213000080504c8c2b30f5d426a70234c0930749819aac9167b3917443d6",
+    "app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java": "58a94880544d642a93e88baaaf905e98a8d8d8d06b4910ca5a34c262797595e6"
+  },
+  "protectedAfter": {
+    "release/strategy_su1_reviewed_inputs.json": "6fbf4769cc74abab0e79be4d7c2f4091ec18e74fb3b83d40035072bb7a51ba1f",
+    "release/research_dependencies_r967.json": "45ca6fb960ae6a957f71ad9426189ccd969825cb402be9971d7a290f65815f86",
+    "release/r82_training_invalidation.json": "bb82604ca2daad3198db8009f190e530d407e8d729fd648e0dbb01bbc4889dc9",
+    "app/build/generated/r967/semantic_manifest.json": "0276f213000080504c8c2b30f5d426a70234c0930749819aac9167b3917443d6",
+    "app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java": "58a94880544d642a93e88baaaf905e98a8d8d8d06b4910ca5a34c262797595e6"
+  },
+  "noExpectedDigestOrFreezeMutation": true
+}

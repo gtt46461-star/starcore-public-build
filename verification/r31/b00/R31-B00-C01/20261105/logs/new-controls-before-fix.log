@@ -1,0 +1,26 @@
+test_all_missing_current_anchors_fail_even_after_committed_deletion (__main__.GitBaselineTest.test_all_missing_current_anchors_fail_even_after_committed_deletion) ... FAIL
+test_wrong_receipt_commit_has_a_distinct_commit_failure (__main__.GitBaselineTest.test_wrong_receipt_commit_has_a_distinct_commit_failure) ... FAIL
+
+======================================================================
+FAIL: test_all_missing_current_anchors_fail_even_after_committed_deletion (__main__.GitBaselineTest.test_all_missing_current_anchors_fail_even_after_committed_deletion)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/r31-integration-20261105/tools/r31/test_verify_baseline.py", line 165, in test_all_missing_current_anchors_fail_even_after_committed_deletion
+    self.assertEqual("FAIL", result["status"])
+AssertionError: 'FAIL' != 'PASS'
+- FAIL
++ PASS
+
+
+======================================================================
+FAIL: test_wrong_receipt_commit_has_a_distinct_commit_failure (__main__.GitBaselineTest.test_wrong_receipt_commit_has_a_distinct_commit_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/r31-integration-20261105/tools/r31/test_verify_baseline.py", line 181, in test_wrong_receipt_commit_has_a_distinct_commit_failure
+    self.assertIn("BASELINE_SOURCE_COMMIT_MISMATCH:src/Input000.txt", result["errors"])
+AssertionError: 'BASELINE_SOURCE_COMMIT_MISMATCH:src/Input000.txt' not found in ['BASELINE_BLOB_MISMATCH:src/Input000.txt']
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.122s
+
+FAILED (failures=2)

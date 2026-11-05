@@ -1,0 +1,115 @@
+{
+  "card": "R31-B00-C02",
+  "status": "CODE_COMPLETE",
+  "acceptance_scope": "SOURCE_AND_NAMED_HOST_PROTOCOL_ACCEPTANCE_ONLY; no Android platform, full CI, installed APK or release closure inferred",
+  "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "actual_changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeFaultEvidenceR31.java",
+      "methods": [
+        "capture",
+        "clean"
+      ],
+      "purpose": "Retain declared outcome/phase, separate operation/phase aggregation, redact truncated URL authorities"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "methods": [
+        "observeAttemptR31",
+        "persistFaultR31"
+      ],
+      "purpose": "Persist actual outcome and phase, count only expected failed receipts"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeDiagnosticLinksR31.java",
+      "methods": [
+        "summarize"
+      ],
+      "purpose": "Bounded exact event links with current owner/fence and explicit missing evidence"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "methods": [
+        "capture",
+        "rowsets"
+      ],
+      "purpose": "Read task owner/fence and project persisted event links"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+      "methods": [
+        "chaptersR30"
+      ],
+      "purpose": "Actually export fault links, persisted faults and incomplete telemetry in task chapter"
+    }
+  ],
+  "commits": [
+    "e3b6e293",
+    "810818d5a8f73e886dbeb0ad593a6fc6bddd3665",
+    "c6a580313e6214949534badbd452eaae98c51e81"
+  ],
+  "migration_versions": [
+    "Existing R31_OBSERVATION_REVISION=2 retained; these corrections add no DDL or destructive migration"
+  ],
+  "tests": [
+    {
+      "command": "Production observation helper + original R26 report recount",
+      "result": "PASS_34_HELPER_ASSERTIONS_AND_EXACT_60_14_13_13_11_1_1",
+      "evidence": "verification/r31/b00/R31-B00-C02/20261105/legacy-helper-rerun/receipt.json",
+      "scope": "Pure Java injected exception doubles and exact historical report; not Android framework fault injection"
+    },
+    {
+      "command": "Actual ResearchPool.record -> observeAttempt -> DatabaseCoordinator/native SQLite -> ReportSnapshot.capture",
+      "result": "PASS_98_ASSERTIONS_2249_NEW_PHYSICAL_TRANSACTIONS",
+      "evidence": "verification/r31/b00_observation_pipeline/PROOF_RECEIPT.json",
+      "scope": "Actual production objects with explicit HOST platform boundary; not ART/device"
+    },
+    {
+      "command": "Actual native persist before/after declared phase",
+      "result": "BEFORE_FAIL_AFTER_PASS_17_ASSERTIONS",
+      "evidence": "verification/r31/b00/R31-B00-C02/20261105/root-subchecks/b00-declared-phase-persistence/RECEIPT.json"
+    },
+    {
+      "command": "Actual Android Gradle compile + R31FaultObservationContractTest + lintDebug + lintRelease",
+      "result": "PASS_DEVELOPMENT_ONLY_6_UNIT_TESTS_BOTH_LINT_NO_NEW_ISSUES",
+      "evidence": "verification/r31/b00/CURRENT_DEVELOPMENT_BUILD_20261105/b00-current-dev-after-cursor-constants/RECEIPT.json",
+      "scope": "Five named metadata tasks excluded, no local identity freeze; not canonical CI/build/release PASS"
+    }
+  ],
+  "acceptance": [
+    {
+      "contract": "报告回归fixture精确得到R27 total=13/quarantined=13/claimFailure=11/cancel=1/matrixDependency=1；全任务total=60/quarantined=14。",
+      "status": "PASS",
+      "scope": "SOURCE_AND_HOST_NAMED_CONTRACT; Android release evidence separately required",
+      "evidence": [
+        "verification/r31/b00/R31-B00-C02/20261105/legacy-helper-rerun/receipt.json"
+      ]
+    },
+    {
+      "contract": "嵌套busy、owner变更、SQL语法错误、磁盘满、用户取消各注入1次，原因链和类别可区分；不得全部重试或全部隔离。",
+      "status": "PASS",
+      "scope": "SOURCE_AND_HOST_NAMED_CONTRACT; Android release evidence separately required",
+      "evidence": [
+        "verification/r31/b00/R31-B00-C02/20261105/legacy-helper-rerun/receipt.json",
+        "verification/r31/b00_observation_pipeline/PROOF_RECEIPT.json"
+      ]
+    },
+    {
+      "contract": "错误事件写入故障不会让真实交易回滚；下一次报告显示telemetry_incomplete及丢样数。",
+      "status": "PASS",
+      "scope": "SOURCE_AND_HOST_NAMED_CONTRACT; Android release evidence separately required",
+      "evidence": [
+        "verification/r31/b00_observation_pipeline/PROOF_RECEIPT.json"
+      ]
+    }
+  ],
+  "apk_identity": null,
+  "device_evidence": [],
+  "remaining": [
+    "Canonical complete current-source CI, Android framework fault injection and final signed APK validation are NOT_RUN for these final sources",
+    "Cross-process death before flushing process-only telemetry remains explicitly unobserved; no global zero/incompleteness guarantee inferred",
+    "Physical device, 24h/72h are NOT_RUN; natural quality NOT_PROVEN"
+  ],
+  "next_step": "Keep release evidence open; finish B00-C01 source traceability acceptance before advancing the joint protocol batch.",
+  "recorded_at": "2026-11-05T02:54:22.111811+00:00"
+}

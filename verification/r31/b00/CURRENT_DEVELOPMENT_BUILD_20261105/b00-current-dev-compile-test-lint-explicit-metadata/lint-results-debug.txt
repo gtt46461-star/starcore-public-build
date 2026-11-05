@@ -1,0 +1,25 @@
+/workspace/r31-integration-20261105/app/lint-baseline.xml: Hint: 51 errors were filtered out because they are listed in the baseline file, lint-baseline.xml [LintBaseline]
+/workspace/r31-integration-20261105/app/lint-baseline.xml: Hint: 7 errors/warnings were listed in the baseline file (lint-baseline.xml) but not found in the project; perhaps they have been fixed? Another possible explanation is that lint recently stopped analyzing (and including results from) dependent projects by default. You can turn this back on with android.lintOptions.checkDependencies=true. Unmatched issue types: SetTextI18n (7) [LintBaselineFixed]
+
+   Explanation for issues of type "LintBaselineFixed":
+   If a lint baseline describes a problem which is no longer reported, then
+   the problem has either been fixed, or perhaps the issue type has been
+   disabled. In any case, the entry can be removed from the baseline (such
+   that if the issue is reintroduced at some point, lint will complain rather
+   than just silently starting to match the old baseline entry again.)
+
+/workspace/r31-integration-20261105/app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmPublicationR31.java:42: Error: Must be one of: Cursor.FIELD_TYPE_NULL, Cursor.FIELD_TYPE_INTEGER, Cursor.FIELD_TYPE_FLOAT, Cursor.FIELD_TYPE_STRING, Cursor.FIELD_TYPE_BLOB [WrongConstant]
+    private static Object[] row(Cursor c){Object[] out=new Object[c.getColumnCount()];for(int i=0;i<out.length;i++)out[i]=c.isNull(i)?null:c.getType(i)==4?c.getBlob(i):c.getType(i)==1?c.getLong(i):c.getType(i)==2?c.getDouble(i):c.getString(i);return out;}
+                                                                                                                                                         ~
+/workspace/r31-integration-20261105/app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmPublicationR31.java:42: Error: Must be one of: Cursor.FIELD_TYPE_NULL, Cursor.FIELD_TYPE_INTEGER, Cursor.FIELD_TYPE_FLOAT, Cursor.FIELD_TYPE_STRING, Cursor.FIELD_TYPE_BLOB [WrongConstant]
+    private static Object[] row(Cursor c){Object[] out=new Object[c.getColumnCount()];for(int i=0;i<out.length;i++)out[i]=c.isNull(i)?null:c.getType(i)==4?c.getBlob(i):c.getType(i)==1?c.getLong(i):c.getType(i)==2?c.getDouble(i):c.getString(i);return out;}
+                                                                                                                                                                                      ~
+/workspace/r31-integration-20261105/app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmPublicationR31.java:42: Error: Must be one of: Cursor.FIELD_TYPE_NULL, Cursor.FIELD_TYPE_INTEGER, Cursor.FIELD_TYPE_FLOAT, Cursor.FIELD_TYPE_STRING, Cursor.FIELD_TYPE_BLOB [WrongConstant]
+    private static Object[] row(Cursor c){Object[] out=new Object[c.getColumnCount()];for(int i=0;i<out.length;i++)out[i]=c.isNull(i)?null:c.getType(i)==4?c.getBlob(i):c.getType(i)==1?c.getLong(i):c.getType(i)==2?c.getDouble(i):c.getString(i);return out;}
+                                                                                                                                                                                                                   ~
+
+   Explanation for issues of type "WrongConstant":
+   Ensures that when parameter in a method only allows a specific set of
+   constants, calls obey those rules.
+
+3 errors (and 51 errors filtered by baseline lint-baseline.xml)

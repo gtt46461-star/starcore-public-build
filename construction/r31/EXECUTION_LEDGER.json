@@ -14,7 +14,7 @@
     "BLOCKED",
     "FAILED"
   ],
-  "completion_rule": "CODE_COMPLETE/source and BUILD_PASS/CI and INTEGRATION_PASS/emulator and DEVICE_PASS/physical are separate evidence milestones; missing physical device never blocks source implementation. All required final release evidence and unavailable/waived items remain explicit.",
+  "completion_rule": "Card contract PASS requires every applicable acceptance item with execution evidence. Build milestones alone do not establish source completion. Physical/endurance/natural evidence remains separately unproven.",
   "device": {
     "state": "NOT_RUN",
     "initial_24h": "NOT_RUN",
@@ -35,7 +35,7 @@
       "title": "固定报告对应源码和安装身份，继承1832要求与299历史卡",
       "phase": "P00",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "BUILD_PASS",
+      "status": "CODE_COMPLETE",
       "baseline_files": [
         {
           "path": "app/build.gradle",
@@ -52,99 +52,101 @@
         {
           "path": "app/build.gradle",
           "methods": [
-            "R31 BuildConfig identity fields",
-            "generateR31BuildIdentity"
-          ]
+            "taskGraph.whenReady",
+            "checkR31Identity",
+            "verifyFinalR31BuildIdentity"
+          ],
+          "purpose": "Reject dirty aggregate release builds, compare dirty identity, cover package finalizers"
         },
         {
           "path": "tools/r31/verify_baseline.py",
           "methods": [
-            "verify_manifest",
             "compare_tree"
-          ]
+          ],
+          "purpose": "Reject missing current source members and mismatched baseline receipt commit"
+        },
+        {
+          "path": "tools/r31/test_verify_baseline.py",
+          "methods": [
+            "GitBaselineTest"
+          ],
+          "purpose": "Retain original controls and reproduce two new baseline-verifier failures"
+        },
+        {
+          "path": "tools/r31/construction_ledger.py",
+          "methods": [
+            "contract_verified",
+            "update",
+            "summary"
+          ],
+          "purpose": "Separate build milestones from evidenced source acceptance and guard CODE_COMPLETE"
         }
       ],
       "commits": [
-        "8faabc2cbd5fe334730130b2ddb00d6d09ac94ac"
+        "7ca0ad00d0fe24ec4e7d68f2247b4f98b1e84dc3"
       ],
-      "migration_versions": [],
+      "migration_versions": [
+        "NO_NEW_DATABASE_MIGRATION"
+      ],
       "tests": [
         {
-          "command": "python3 tools/r31/reproduce_report.py",
-          "result": "PASS",
-          "evidence": "verification/r31/p00/original-report-recount.json"
+          "command": "Independent baseline verifier controls",
+          "result": "PASS_15_SOURCE_CONTROLS",
+          "evidence": "verification/r31/b00/R31-B00-C01/20261105/logs/independent-controls-after-fix-workspace-temp.stderr.log",
+          "scope": "Explicit APK/signature subprocess doubles, not a final signed APK"
         },
         {
-          "command": "python3 tools/r31/test_verify_baseline.py",
-          "result": "PASS",
-          "tests": 12,
-          "evidence": "verification/r31/baseline_identity/test-receipts.json"
+          "command": "Real Gradle aggregate/direct dirty release dry-runs",
+          "result": "EXPECTED_FAIL_R31_DIRTY_SOURCE_NOT_PUBLISHABLE_BOTH_ENTRIES",
+          "evidence": "verification/r31/b00/R31-B00-C01/20261105/FINAL_GRADLE_COMMANDS.json"
         },
         {
-          "command": "Unexcluded compileDebugJavaWithJavac + two selected JUnit classes + verifyFinalR31BuildIdentity",
-          "result": "PASS",
-          "tests": 4,
-          "evidence": "verification/r31/p00/source-identity-refresh/final-compile-receipt.json"
-        },
-        {
-          "command": "Independent apksigner/aapt/embedded-source audit of actual CI APK bytes",
-          "result": "PASS_APK_IDENTITY_ONLY_FAILED_ENGINEERING_GATES_REMAIN",
-          "evidence": "verification/r31/p02/delivery_2ab/DELIVERY-RECEIPT.json"
-        },
-        {
-          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
-          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
-          "unit": {
-            "tests": 481,
-            "failures": 0,
-            "skipped": 0
-          },
-          "host": {
-            "groups": 24,
-            "failures": 0
-          },
-          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
-          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
+          "command": "Fixed package, original baseline and current CLI checks",
+          "result": "PASS_405_PACKAGE_MEMBERS_190_SOURCE_ANCHORS_AND_6425_PATH_OWNERSHIP",
+          "evidence": "verification/r31/b00/R31-B00-C01/20261105/ownership-primary-check.json",
+          "scope": "Preservation/traceability only; no semantic feature completion inferred"
         }
       ],
-      "apk_identity": {
-        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
-        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
-        "applicationId": "com.starcore.research.r13",
-        "versionCode": 577311014,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
-        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
-        "bytes": 28349737,
-        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
-        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
-        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
-        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
-      },
+      "apk_identity": null,
       "device_evidence": [],
       "acceptance": [
         {
           "contract": "错提交/dirty/签名不符/漏文件分别有明确失败，不能自动改期望摘要过关。",
-          "status": "NOT_RUN",
-          "evidence": []
+          "status": "PASS",
+          "scope": "Source/policy contract controls only. 15 independent tests include explicit ZIP signer adapter negatives; current real Gradle release entrypoints both reject dirty. Actual final APK signature/installation remains NOT_RUN.",
+          "evidence": [
+            "verification/r31/b00/R31-B00-C01/20261105/logs/independent-controls-after-fix-workspace-temp.stderr.log",
+            "verification/r31/b00/R31-B00-C01/20261105/FINAL_COMMANDS.json",
+            "verification/r31/b00/R31-B00-C01/20261105/FINAL_GRADLE_COMMANDS.json"
+          ]
         },
         {
           "contract": "本包源提交与source-manifest.json一致，所有实际改动文件有diff和负责批次。",
-          "status": "NOT_RUN",
-          "evidence": []
+          "status": "PASS",
+          "scope": "Fixed 405-member package/190 actual baseline blobs; current captured 6425 paths have protocol responsibility or explicit B00-C01 preservation custody. No functional completion follows from custody. Final self/dynamic 39 bytes bind externally to Root final Git tree.",
+          "evidence": [
+            "verification/r31/b00/R31-B00-C01/20261105/original5237-clean-positive.json",
+            "verification/r31/b00/R31-B00-C01/20261105/FINAL_COMMANDS.json",
+            "verification/r31/b00/R31-B00-C01/20261105/ownership-primary-check.json",
+            "construction/r31/SOURCE_CHANGE_OWNERS.json"
+          ]
         },
         {
           "contract": "旧要求原文摘要不变，未经实施的状态仍未实施。",
-          "status": "NOT_RUN",
-          "evidence": []
+          "status": "PASS",
+          "scope": "Raw original bytes/status preservation only; original 1770 uninspected and62 modified-awaiting-verification, all1832 require implementation review.",
+          "evidence": [
+            "verification/r31/b00/R31-B00-C01/20261105/original5237-clean-positive.json",
+            "verification/r31/b00/R31-B00-C01/20261105/FINAL_COMMANDS.json"
+          ]
         }
       ],
       "remaining": [
-        "错提交/dirty/签名不符/漏文件分别有明确失败，不能自动改期望摘要过关。",
-        "本包源提交与source-manifest.json一致，所有实际改动文件有diff和负责批次。",
-        "旧要求原文摘要不变，未经实施的状态仍未实施。"
+        "Root must commit the five current code inputs, then evidence/derived ledgers, and verify all 39 external bindings against the actual final containing Git tree. No future commit hash is invented here.",
+        "Current authority CI/final same-source signed APK, SDK signature/ABI inspection and installation identity comparison remain OPEN/NOT_RUN for the unified final delivery. Historical014/015 artifacts do not prove this c6a dirty candidate.",
+        "Physical-device continuous runtime and natural future quality remain separately unverified. No unexecuted duration or device PASS is recorded."
       ],
-      "next_step": "Current signed checkpoint identity verified; target-device installed identity and required acceptance remain NOT_RUN.",
+      "next_step": "Advance B01/B02 source acceptance after the containing Git tree passes the explicit external binding check; release gates remain open.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156294+00:00",
@@ -174,6 +176,17 @@
           "state": "BUILD_PASS",
           "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
           "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
+        },
+        {
+          "at": "2026-11-05T02:30:19.826301+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "Strict per-card source acceptance resumed: concrete identity/fault/redaction/report gaps found. Previous BUILD_PASS is retained as historical build evidence, not semantic acceptance."
+        },
+        {
+          "at": "2026-11-05T03:11:39.417879+00:00",
+          "state": "CODE_COMPLETE",
+          "receipt": "verification/r31/b00/R31-B00-C01/20261105/RECEIPT.json",
+          "receipt_sha256": "d0e007c6a2a65779e91299834c1d0e271a392050bcce731f419ccc4b82516c5e"
         }
       ]
     },
@@ -182,7 +195,7 @@
       "title": "采集完整原因链和实际提交回执，纠正隔离数量口径",
       "phase": "P00",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "BUILD_PASS",
+      "status": "CODE_COMPLETE",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
@@ -211,125 +224,112 @@
       ],
       "actual_changes": [
         {
-          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskProgressR30R1.java",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeFaultEvidenceR31.java",
           "methods": [
-            "summarize"
-          ]
+            "capture",
+            "clean"
+          ],
+          "purpose": "Retain declared outcome/phase, separate operation/phase aggregation, redact truncated URL authorities"
         },
         {
-          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskLivenessR30.java",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
           "methods": [
-            "classify",
+            "observeAttemptR31",
+            "persistFaultR31"
+          ],
+          "purpose": "Persist actual outcome and phase, count only expected failed receipts"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeDiagnosticLinksR31.java",
+          "methods": [
             "summarize"
-          ]
+          ],
+          "purpose": "Bounded exact event links with current owner/fence and explicit missing evidence"
         },
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
           "methods": [
-            "rowsets",
             "capture",
-            "taskLiveness"
-          ]
+            "rowsets"
+          ],
+          "purpose": "Read task owner/fence and project persisted event links"
         },
         {
-          "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
           "methods": [
-            "r31ObservationContract",
-            "migrateR31Observations"
-          ]
+            "chaptersR30"
+          ],
+          "purpose": "Actually export fault links, persisted faults and incomplete telemetry in task chapter"
         }
       ],
       "commits": [
-        "8faabc2cbd5fe334730130b2ddb00d6d09ac94ac"
+        "e3b6e293",
+        "810818d5a8f73e886dbeb0ad593a6fc6bddd3665",
+        "c6a580313e6214949534badbd452eaae98c51e81"
       ],
       "migration_versions": [
-        "RESEARCH_R31_OBSERVATION:1"
+        "Existing R31_OBSERVATION_REVISION=2 retained; these corrections add no DDL or destructive migration"
       ],
       "tests": [
         {
-          "command": "python3 tools/r31/reproduce_report.py",
-          "result": "PASS",
-          "evidence": "verification/r31/p00/original-report-recount.json"
+          "command": "Production observation helper + original R26 report recount",
+          "result": "PASS_34_HELPER_ASSERTIONS_AND_EXACT_60_14_13_13_11_1_1",
+          "evidence": "verification/r31/b00/R31-B00-C02/20261105/legacy-helper-rerun/receipt.json",
+          "scope": "Pure Java injected exception doubles and exact historical report; not Android framework fault injection"
         },
         {
-          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/verify_runtime_observation.py",
-          "result": "PASS",
-          "assertions": 28,
-          "evidence": "verification/r31/runtime_observation/receipt.json"
+          "command": "Actual ResearchPool.record -> observeAttempt -> DatabaseCoordinator/native SQLite -> ReportSnapshot.capture",
+          "result": "PASS_98_ASSERTIONS_2249_NEW_PHYSICAL_TRANSACTIONS",
+          "evidence": "verification/r31/b00_observation_pipeline/PROOF_RECEIPT.json",
+          "scope": "Actual production objects with explicit HOST platform boundary; not ART/device"
         },
         {
-          "command": "source /workspace/starcore-environment/activate.sh; python3 tools/r31/verify_task_status.py",
-          "result": "PASS",
-          "before": "14 quarantines hidden; assertion FAIL at exact baseline",
-          "after": "0 quarantines hidden; PASS",
-          "evidence": "verification/r31/p00/task-status-regression/receipt.json"
+          "command": "Actual native persist before/after declared phase",
+          "result": "BEFORE_FAIL_AFTER_PASS_17_ASSERTIONS",
+          "evidence": "verification/r31/b00/R31-B00-C02/20261105/root-subchecks/b00-declared-phase-persistence/RECEIPT.json"
         },
         {
-          "command": "javac + JUnitCore R31TaskStatusPrecedenceTest R30TaskLivenessTest",
-          "result": "PASS",
-          "tests": 4,
-          "evidence": "verification/r31/p00/task-status-tests.log"
-        },
-        {
-          "command": "Unexcluded compileDebugJavaWithJavac + two selected JUnit classes + verifyFinalR31BuildIdentity",
-          "result": "PASS",
-          "tests": 4,
-          "evidence": "verification/r31/p00/source-identity-refresh/final-compile-receipt.json"
-        },
-        {
-          "command": "Exact014 unexcluded Java+AndroidTest compile+all unit+both lint+identity;24 HOST groups;existing signer;full API29/35 fault matrix",
-          "result": "BUILD_AND_HOST_PASS_ANDROID_FAULT_MATRIX_FAILED",
-          "unit": {
-            "tests": 481,
-            "failures": 0,
-            "skipped": 0
-          },
-          "host": {
-            "groups": 24,
-            "failures": 0
-          },
-          "evidence": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json",
-          "scope": "REGRESSION_EVIDENCE_NOT_AUTOMATIC_CARD_ACCEPTANCE"
+          "command": "Actual Android Gradle compile + R31FaultObservationContractTest + lintDebug + lintRelease",
+          "result": "PASS_DEVELOPMENT_ONLY_6_UNIT_TESTS_BOTH_LINT_NO_NEW_ISSUES",
+          "evidence": "verification/r31/b00/CURRENT_DEVELOPMENT_BUILD_20261105/b00-current-dev-after-cursor-constants/RECEIPT.json",
+          "scope": "Five named metadata tasks excluded, no local identity freeze; not canonical CI/build/release PASS"
         }
       ],
-      "apk_identity": {
-        "source_commit": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
-        "source_tree": "22b9099669e2f8b20b9f9ea548a8faddffda8a76",
-        "applicationId": "com.starcore.research.r13",
-        "versionCode": 577311014,
-        "versionName": "R31-CHECKPOINT-P02-2026.11.04-014",
-        "signatureSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-        "sha256": "e3a1c5a13191e10da215c4a116843c50f9131d33712e129f1a3ae74c835860ac",
-        "bytes": 28349737,
-        "file": "STARCORE-R31-EXISTING_R27-961a6b8a74b9-release.apk",
-        "bundle_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41889513067/artifacts/13355297633",
-        "engineeringAcceptance": "FAILED_FULL_ANDROID_GATES_REMAIN",
-        "scope": "ONLY_SOURCE_INCLUDED_IN_014;LATER_ISOLATED_WORK_NOT_INCLUDED"
-      },
+      "apk_identity": null,
       "device_evidence": [],
       "acceptance": [
         {
           "contract": "报告回归fixture精确得到R27 total=13/quarantined=13/claimFailure=11/cancel=1/matrixDependency=1；全任务total=60/quarantined=14。",
-          "status": "NOT_RUN",
-          "evidence": []
+          "status": "PASS",
+          "scope": "SOURCE_AND_HOST_NAMED_CONTRACT; Android release evidence separately required",
+          "evidence": [
+            "verification/r31/b00/R31-B00-C02/20261105/legacy-helper-rerun/receipt.json"
+          ]
         },
         {
           "contract": "嵌套busy、owner变更、SQL语法错误、磁盘满、用户取消各注入1次，原因链和类别可区分；不得全部重试或全部隔离。",
-          "status": "NOT_RUN",
-          "evidence": []
+          "status": "PASS",
+          "scope": "SOURCE_AND_HOST_NAMED_CONTRACT; Android release evidence separately required",
+          "evidence": [
+            "verification/r31/b00/R31-B00-C02/20261105/legacy-helper-rerun/receipt.json",
+            "verification/r31/b00_observation_pipeline/PROOF_RECEIPT.json"
+          ]
         },
         {
           "contract": "错误事件写入故障不会让真实交易回滚；下一次报告显示telemetry_incomplete及丢样数。",
-          "status": "NOT_RUN",
-          "evidence": []
+          "status": "PASS",
+          "scope": "SOURCE_AND_HOST_NAMED_CONTRACT; Android release evidence separately required",
+          "evidence": [
+            "verification/r31/b00_observation_pipeline/PROOF_RECEIPT.json"
+          ]
         }
       ],
       "remaining": [
-        "报告回归fixture精确得到R27 total=13/quarantined=13/claimFailure=11/cancel=1/matrixDependency=1；全任务total=60/quarantined=14。",
-        "嵌套busy、owner变更、SQL语法错误、磁盘满、用户取消各注入1次，原因链和类别可区分；不得全部重试或全部隔离。",
-        "错误事件写入故障不会让真实交易回滚；下一次报告显示telemetry_incomplete及丢样数。"
+        "Canonical complete current-source CI, Android framework fault injection and final signed APK validation are NOT_RUN for these final sources",
+        "Cross-process death before flushing process-only telemetry remains explicitly unobserved; no global zero/incompleteness guarantee inferred",
+        "Physical device, 24h/72h are NOT_RUN; natural quality NOT_PROVEN"
       ],
-      "next_step": "Source build verified at 8faabc2; APK identity and target-device evidence await signed build/physical run.",
+      "next_step": "Keep release evidence open; finish B00-C01 source traceability acceptance before advancing the joint protocol batch.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156309+00:00",
@@ -359,6 +359,17 @@
           "state": "BUILD_PASS",
           "reason": "014 signed checkpoint evidence recorded; all mandatory acceptance remains open; no state promotion from aggregate tests",
           "receipt": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json"
+        },
+        {
+          "at": "2026-11-05T02:30:19.826301+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "Strict per-card source acceptance resumed: concrete identity/fault/redaction/report gaps found. Previous BUILD_PASS is retained as historical build evidence, not semantic acceptance."
+        },
+        {
+          "at": "2026-11-05T03:11:39.473309+00:00",
+          "state": "CODE_COMPLETE",
+          "receipt": "verification/r31/b00/R31-B00-C02/20261105/CARD_RECEIPT.json",
+          "receipt_sha256": "4ab760c76b440dafb0978d7222a1d0532021a239f4bd11c6d7b9c358db944b28"
         }
       ],
       "candidate_protocol_evidence": [

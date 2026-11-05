@@ -1,19 +1,21 @@
 {
-  "recorded_at": "2026-11-05T01:51:54.326714+00:00",
+  "recorded_at": "2026-11-05T03:11:39.509752+00:00",
   "branch": "construction/r31-final-20261104",
   "report_baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-  "latest_pushed_source": "c6f1ed3c",
-  "active_phase": "P03_SOURCE_WITH_P01_P02_INTEGRATION_BACKFILL",
+  "latest_pushed_source": "5b9be7ee",
+  "active_phase": "P01_B01_B02_JOINT_SOURCE_ACCEPTANCE",
   "P03_production_started": true,
   "latest_full_unit": {
-    "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
-    "executed": 481,
-    "passed": 481,
-    "failed": 0,
+    "state": "FAILED",
+    "baseline": "4e395662838a69d3b784eee8f05af11fa94460ac",
+    "source_scope": "Actual four-source ownership/fixture changes before subsequent H15 regex repair; exact file identities in receipt, not current merged candidate",
+    "executed": 485,
+    "passed": 472,
+    "failed": 13,
     "errors": 0,
     "skipped": 0,
-    "scope": "ACTUAL_FULL_LOCAL_UNEXCLUDED_ALL_UNIT_NO_ISOLATION_OR_THRESHOLD_CHANGES",
-    "receipt": "verification/r31/p02/build-identity/P02_LIVE_FORK_CACHE_DELIVERY_014_COMMITTED_UNEXCLUDED_JOINT.json"
+    "receipt": "verification/r31/ci015-memory-lifecycle/SUBSCOPE_LEDGER.json",
+    "later_h15_target": "PASS_ONLY_ONE_TEST; no later full-suite PASS inferred"
   },
   "active_production_owner": {
     "root": [
@@ -50,10 +52,10 @@
     "Legacy writer/qualification/baseline golden threeactual HOST followups independentlyPASS; newfull24NOT_RUN"
   ],
   "next": [
-    "Complete P03 three cards in parallel with shared file owners",
-    "Repair observed CI015 memory/lint failures locally using same limits",
-    "Integrate preserved local startup and Dataset recovery fixes without overriding remote modifications",
-    "One local baseline/candidate regression group, then batched CI identity freeze and build at agreed release gate"
+    "Verify staged and committed tree binding before publishing B00 source acceptance",
+    "Run current whole-class B01/B02 startup, owner/fence, Dataset recovery and prepared-producer joint acceptance",
+    "Repair any actual joint failures before advancing P02",
+    "Keep canonical CI, final signed APK, emulator/device/duration and natural quality separately open"
   ],
   "signing_support_branch": "construction/r27-20261028",
   "signing_support_head": "359594de5ea7049604e5763baa11777c22d6e3b8",
@@ -78,21 +80,20 @@
     "Owned lifecycle patch passes18-step resume and all4 bounded replay tests;100run no-signal/control still failed capacity, not overridden",
     "Prior process-death fixtures must close their now-AutoCloseable old owner before replacement; numerical assertions remain untouched"
   ],
-  "current_phase": "P03",
-  "current_phase_ordinal": 4,
+  "current_phase": "P01",
+  "current_phase_ordinal": 2,
   "current_scope": [
-    "B06_C01_FROZEN_INPUT_ROLES",
-    "B06_C02_INCREMENTAL_CHECKPOINT",
-    "B06_C03_EPOCH_AND_CONSUMER_PROOF",
-    "P01_P02_EXISTING_REGRESSION_REPAIR"
+    "B01_TASK_OWNER_CANCEL_RECOVERY_PROTOCOL",
+    "B02_BOUNDED_WRITE_AND_COMMIT_OUTCOME_PROTOCOL"
   ],
   "current_failures": [
     "014 full API29/35 fault matrices FAILED before injection at R929 bundle prerequisites; original logs retained",
     "P01 latest second SU2 phase native FAIL from Certificate-owned Critical delta; precise fix is implemented with regression IN_PROGRESS",
     "P01 all-producer protocol and final same-source Android verification OPEN",
     "Physical device24h/72h NOT_RUN; natural future quality NOT_PROVEN",
-    "015 CI outcome NOT_RECORDED at pause",
-    "Post-fix local unit rerun interrupted (NOT_RECORDED)"
+    "CI015 actual API29/35 each 8/10 failed at Certificate critical fingerprint; source differs from preserved Root startup repair candidate",
+    "Latest local complete485 before H15 fix: 13 failures; subsequent H15 target PASS does not establish whole-suite PASS",
+    "B00 resumed strict acceptance; new actual baseline, typed phase, credential truncation, report event-link and receipt-accounting repairs pending joint proof"
   ],
   "apk_delivery": {
     "state": "ACTUAL_SIGNED_014_CHECKPOINT_WITH_FAILED_ANDROID_GATES_NOT_FINAL",
@@ -398,7 +399,7 @@
     "72h": "NOT_RUN",
     "naturalQuality": "NOT_EVALUATED"
   },
-  "latest_local_source_checkpoint": "493080ad4d74c2821f1b3d5651c93212c042a86e",
+  "latest_local_source_checkpoint": "7ca0ad00d0fe24ec4e7d68f2247b4f98b1e84dc3",
   "latest_local_source_url": "https://github.com/gtt46461-star/starcore-public-build/commit/493080ad4d74c2821f1b3d5651c93212c042a86e",
   "producer_contract_remaining": [
     "Warm/ABI producer shared write and ownership integration",
@@ -415,7 +416,7 @@
     "source": "01c65875f294362dbc6f7fce39ea4d103b43eefa",
     "versionCode": 577311015,
     "versionName": "R31-CHECKPOINT-P01P02-2026.11.04-015",
-    "result": "NOT_RECORDED_RUNNING_AT_PAUSE"
+    "result": "FAILED_UNIT_LINT_AND_ANDROID_PROTOCOL_GATES"
   },
   "unfrozen_sources": [
     "3402edbf (B06-C03)",
@@ -434,8 +435,27 @@
     },
     "lint": "FAILED_STATIC_FIELD_CONTEXT_LEAK_LegacyTeacherOwnerR26",
     "legacy_native_host_job": "PASS",
-    "android_validation": "IN_PROGRESS_AT_LAST_FETCH",
+    "android_validation": "FAILED_API29_AND35_EACH_2_PASS_8_FAIL_CERTIFICATE_CRITICAL_FINGERPRINT_MISMATCH",
     "physical": "NOT_RUN",
-    "natural": "NOT_PROVEN"
-  }
+    "natural": "NOT_PROVEN",
+    "android_receipt": "verification/r31/integration-20261105/CI015_ANDROID_OBSERVATION.json"
+  },
+  "highest_source_phase_touched": "P03",
+  "execution_order_policy": "Close the current batch against its applicable source and executable engineering acceptance before expanding later batches; retain existing later work without claiming it complete; physical/endurance gates stay NOT_RUN until actually available.",
+  "last_passing_full_unit_historical": {
+    "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+    "executed": 481,
+    "passed": 481,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "scope": "ACTUAL_FULL_LOCAL_UNEXCLUDED_ALL_UNIT_NO_ISOLATION_OR_THRESHOLD_CHANGES",
+    "receipt": "verification/r31/p02/build-identity/P02_LIVE_FORK_CACHE_DELIVERY_014_COMMITTED_UNEXCLUDED_JOINT.json"
+  },
+  "source_acceptance_closed_batches": [
+    "B00"
+  ],
+  "source_acceptance_scope": "B00 two cards source and named HOST policy contracts verified; no final CI/integration/device/release completion inferred",
+  "active_worktree": "/workspace/r31-integration-20261105",
+  "active_source_branch": "construction/r31-integration-20261105"
 }

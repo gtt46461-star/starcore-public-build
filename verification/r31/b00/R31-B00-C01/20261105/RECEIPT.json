@@ -1,0 +1,431 @@
+{
+  "card": "R31-B00-C01",
+  "state": "CODE_COMPLETE",
+  "capturedAt": "2026-11-05T03:08:52.323046+00:00",
+  "baseline": {
+    "sourceCommit": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+    "planManifestSha256": "13f34908b624c74e2852ce8f944b99f8978348820aab23f83043fab1d72753ce",
+    "sealedMembers": 405,
+    "exactGitBlobAnchors": 190,
+    "cleanOriginalFullRepositoryPositive": {
+      "result": "PASS",
+      "evidence": "original5237-clean-positive.json"
+    },
+    "sourceManifestClarification": {
+      "actualSealedSourceReceipt": "ledgers/source_receipts.json",
+      "sourceCommit": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "anchors": 190,
+      "note": "This sealed package uses source_receipts.json for the source manifest contract. No file named source-manifest.json was invented."
+    }
+  },
+  "candidate": {
+    "repo": "/workspace/r31-integration-20261105",
+    "initialInspectedHead": "f4d4cde0a59193abf4659a3f6d703543b8905dea",
+    "latestObservedHead": "c6a580313e6214949534badbd452eaae98c51e81",
+    "lastCliCurrentSampleHead": "c6a580313e6214949534badbd452eaae98c51e81",
+    "currentCandidateFinalSnapshot": "FINAL_COMMANDS.json:last3 stdoutJson (after strict ledger sync)",
+    "publicationSourceClean": "NO_DIRTY_WORKING_TREE_EXPECTED_AND_REJECTED_FOR_RELEASE",
+    "sourceTree": "49e55433a559af2085fdf576b6c5a66ef4888651",
+    "productWorktreeSha256": "9f0ee1c2aa82197dace6bfa3369b5ba4ef8e737d7031df6d2feb7218e021849a",
+    "productInputCount": 1805,
+    "sourceDirty": true,
+    "sourceCleanRequirement": "Explicitly FAIL for publishing current dirty worktree; ordinary source verification PASS is not release PASS."
+  },
+  "actualChanges": [
+    {
+      "path": "app/build.gradle",
+      "sha256": "f676613560e456bfa1a40b04819d359b53dfaadd8f76ecb3339fb0592dbd04d2",
+      "owner": "ROOT",
+      "commit": "PENDING_PARENT_COMMIT"
+    },
+    {
+      "path": "tools/r31/verify_baseline.py",
+      "sha256": "853c30a553a88b3384e062f265323ef74503335b42102b0140ce3362d0711ee7",
+      "owner": "BUILD_BASELINE_AGENT",
+      "commit": "PENDING_PARENT_COMMIT"
+    },
+    {
+      "path": "tools/r31/test_verify_baseline.py",
+      "sha256": "915188a0c5c993dc25de2f9bc4270514c3bff27cd9262416948bf829086f8df8",
+      "owner": "BUILD_BASELINE_AGENT",
+      "commit": "PENDING_PARENT_COMMIT"
+    }
+  ],
+  "methods": [
+    "verify_baseline.compare_tree: all missing current source anchors fail and remain visible; distinct receipt commit mismatch",
+    "test_verify_baseline: two independent real-Git negative controls retain all prior controls",
+    "app/build.gradle (Root): aggregate release dirty graph, midbuild dirty identity key and package finalizer"
+  ],
+  "sourcePatch": {
+    "path": "C01-source-changes.patch",
+    "sha256": "46de62d3a2e70dcecd7bea1aed30d92a6a1d28b40e76d3892e52e901c5b3833b"
+  },
+  "newControlBeforeFix": {
+    "result": "TWO_REAL_ASSERTION_FAILURES",
+    "evidence": "logs/new-controls-before-fix.log"
+  },
+  "existingControls": {
+    "tests": 13,
+    "result": "PASS",
+    "evidence": "logs/existing-independent-controls.stderr.log"
+  },
+  "currentControls": {
+    "tests": 15,
+    "result": "PASS",
+    "evidence": "logs/independent-controls-after-fix-workspace-temp.stderr.log",
+    "negativeScope": "Real Git/package/current-missing/dirty policy; signature/package responses use explicitly non-APK ZIP adapter fixtures, never signed deliverables.",
+    "actualCommand": [
+      "python3",
+      "tools/r31/test_verify_baseline.py"
+    ],
+    "sourceSha256": {
+      "app/build.gradle": "f676613560e456bfa1a40b04819d359b53dfaadd8f76ecb3339fb0592dbd04d2",
+      "tools/r31/verify_baseline.py": "853c30a553a88b3384e062f265323ef74503335b42102b0140ce3362d0711ee7",
+      "tools/r31/test_verify_baseline.py": "915188a0c5c993dc25de2f9bc4270514c3bff27cd9262416948bf829086f8df8"
+    },
+    "temporaryDirectoryOnlyChange": "Private workspace TMPDIR after actual /tmp ENOSPC; original assertions/iterations unchanged."
+  },
+  "environmentFailuresPreserved": [
+    {
+      "evidence": "logs/independent-controls-after-fix.log",
+      "actualFailure": "OSError ENOSPC while creating temporary independent Git fixtures under /tmp",
+      "mitigation": "Original assertions unchanged; private workspace TMPDIR only. No claim of disk reclamation."
+    },
+    {
+      "evidence": "logs/gradle-aggregate-default.log",
+      "actualFailure": "Gradle FileLockContentionHandler cannot determine usable wildcard IP in default sandbox",
+      "mitigation": "Exact approved command-scoped loopback execution; offline dependencies, no global network change."
+    }
+  ],
+  "gradleDirtyControls": {
+    "commands": [
+      {
+        "name": "aggregate-final",
+        "argv": [
+          "bash",
+          "./gradlew",
+          "--no-daemon",
+          "--offline",
+          "--max-workers=2",
+          "-Djava.io.tmpdir=/workspace/r31-integration-20261105/verification/r31/b00/R31-B00-C01/20261105/gradle-temporary",
+          ":app:build",
+          "--dry-run"
+        ],
+        "exitCode": 1,
+        "headBefore": "c6a580313e6214949534badbd452eaae98c51e81",
+        "headAfter": "c6a580313e6214949534badbd452eaae98c51e81",
+        "headStable": true,
+        "startedAt": "2026-11-05T02:55:00.463366+00:00",
+        "elapsedSeconds": 10.478956,
+        "expectedDirtyRejection": true
+      },
+      {
+        "name": "direct-final",
+        "argv": [
+          "bash",
+          "./gradlew",
+          "--no-daemon",
+          "--offline",
+          "--max-workers=2",
+          "-Djava.io.tmpdir=/workspace/r31-integration-20261105/verification/r31/b00/R31-B00-C01/20261105/gradle-temporary",
+          ":app:assembleRelease",
+          "--dry-run"
+        ],
+        "exitCode": 1,
+        "headBefore": "c6a580313e6214949534badbd452eaae98c51e81",
+        "headAfter": "c6a580313e6214949534badbd452eaae98c51e81",
+        "headStable": true,
+        "startedAt": "2026-11-05T02:55:10.944650+00:00",
+        "elapsedSeconds": 7.001299,
+        "expectedDirtyRejection": true
+      }
+    ],
+    "result": "EXPECTED_DIRTY_REJECTION_BOTH_REAL_ENTRYPOINTS",
+    "noIdentityFreezeOrExpectedSummaryMutation": true,
+    "protectedIdentityBytes": {
+      "release/strategy_su1_reviewed_inputs.json": "6fbf4769cc74abab0e79be4d7c2f4091ec18e74fb3b83d40035072bb7a51ba1f",
+      "release/research_dependencies_r967.json": "45ca6fb960ae6a957f71ad9426189ccd969825cb402be9971d7a290f65815f86",
+      "release/r82_training_invalidation.json": "bb82604ca2daad3198db8009f190e530d407e8d729fd648e0dbb01bbc4889dc9",
+      "app/build/generated/r967/semantic_manifest.json": "0276f213000080504c8c2b30f5d426a70234c0930749819aac9167b3917443d6",
+      "app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java": "58a94880544d642a93e88baaaf905e98a8d8d8d06b4910ca5a34c262797595e6"
+    },
+    "latestEvidence": "FINAL_GRADLE_COMMANDS.json",
+    "earlierEvidenceRetained": "gradle-escalated-commands.json",
+    "bothSampledHead": "c6a580313e6214949534badbd452eaae98c51e81",
+    "noExpectedIdentityBytesChangedThroughFinalSampling": true,
+    "scope": "Real dirty release task-graph negative controls with --dry-run; no APK build, identity freeze, signature generation or release acceptance."
+  },
+  "historicalPreservation": {
+    "result": "RAW_BYTES_AND_UNVERIFIED_STATE_PRESERVED",
+    "records": [
+      {
+        "path": "evidence/derived/legacy_requirements_1832.csv",
+        "rows": 1832,
+        "sha256": "6e9efda4947e8b3df96a98325b74000573e56d9fc4f63ef412115902a0930735",
+        "original_bytes_preserved": true,
+        "semantic_implementation_acceptance": "NOT_PERFORMED"
+      },
+      {
+        "path": "evidence/derived/legacy_file_cards_299.csv",
+        "rows": 299,
+        "sha256": "0eacc521566e5dd7714945cdf205ea62614de6a8d6538d55ae86d42a3d70b85a",
+        "original_bytes_preserved": true,
+        "semantic_implementation_acceptance": "NOT_PERFORMED"
+      },
+      {
+        "path": "ledgers/legacy_1832_preservation_map.csv",
+        "rows": 1832,
+        "sha256": "faf6fd11e193d58671442b3689df429648a6f0649cb1d29582e150f81ecdb4e9",
+        "original_bytes_preserved": true,
+        "semantic_implementation_acceptance": "NOT_PERFORMED"
+      }
+    ],
+    "sourceStatuses": {
+      "未检查": 1770,
+      "已修改待验证": 62
+    },
+    "closureStatuses": {
+      "REQUIRES_IMPLEMENTATION_REVIEW": 1832
+    },
+    "semanticImplementationAcceptance": "NOT_PERFORMED_NOT_INFERRED_FROM_PRESERVATION"
+  },
+  "ownership": {
+    "state": "PASS_ALL_CAPTURED_CHANGE_PATHS_HAVE_PROTOCOL_OR_EXPLICIT_CUSTODY_BATCH_AND_DIFF_ENTRY",
+    "registry": "construction/r31/SOURCE_CHANGE_OWNERS.json",
+    "registrySha256": "c05db39883cb05b1b3a7bc4096d8bbb2e3492c39d165b52f6afa1cbb1eada188",
+    "registryBytes": 8547635,
+    "evidence": "ownership-primary-check.json",
+    "captureHead": "c6a580313e6214949534badbd452eaae98c51e81",
+    "capturedUniqueChangePaths": 6425,
+    "protocolPaths": 250,
+    "auxiliaryCustodyPaths": 6175,
+    "missingPaths": [],
+    "unexpectedPaths": [],
+    "validPlanCardsChecked": 56,
+    "sourceCommitsExistChecked": 70,
+    "primaryDiffRecipe": [
+      "git",
+      "diff",
+      "--unified=2",
+      "5237b265a27fe5ad27fd842901c445d5f8c27749",
+      "--",
+      "<path>"
+    ],
+    "primaryDiffChecks": 250,
+    "exactFourDerivedMetadataExternalBindingDeltaVerified": true,
+    "externalFinalGitBindings": 39,
+    "externalBindingState": "PENDING_ROOT_FINAL_CONTAINING_GIT_COMMIT_TREE; no self/current future hash fabricated",
+    "auxiliaryFunctionalOwnersNotAudited": 6139,
+    "implementationAcceptance": "NOT_INFERRED_FROM_OWNERSHIP_OR_CUSTODY",
+    "scope": "Actual path/blob/current-byte/diff and responsible batch trace only. Auxiliary custody is B00-C01 Root preservation responsibility; it is not functional implementation acceptance."
+  },
+  "currentApk": {
+    "status": "NOT_RUN_CURRENT_SAME_SOURCE_FINAL_APK_NOT_AVAILABLE",
+    "configuredIdentity": {
+      "applicationId": "com.starcore.research.r13",
+      "versionCode": 577311015,
+      "versionName": "R31-CHECKPOINT-P01P02-2026.11.04-015"
+    },
+    "signaturePinMismatchPolicy": "PASS_INDEPENDENT_ADAPTER_TEST_ONLY",
+    "actualSdkSignatureInspection": "NOT_RUN_CURRENT_ARTIFACT",
+    "abiCurrentApk": "NOT_RUN",
+    "historical014Record": "verification/r31/p02/delivery_014/DELIVERY-RECEIPT.json; source961a, not this current candidate"
+  },
+  "deviceInstalledIdentityComparison": "NOT_RUN_DEFERRED_TO_B12_FINAL_GATE",
+  "androidRuntime": "NOT_RUN_BY_THIS_CARD_REVIEW",
+  "naturalQuality": "NOT_EVALUATED",
+  "migrationVersion": "NO_DATABASE_MIGRATION_BY_C01; configured userVersion36 retained",
+  "remaining": [
+    "Root must commit the five current code inputs, then evidence/derived ledgers, and verify all 39 external bindings against the actual final containing Git tree. No future commit hash is invented here.",
+    "Current authority CI/final same-source signed APK, SDK signature/ABI inspection and installation identity comparison remain OPEN/NOT_RUN for the unified final delivery. Historical014/015 artifacts do not prove this c6a dirty candidate.",
+    "Physical-device continuous runtime and natural future quality remain separately unverified. No unexecuted duration or device PASS is recorded."
+  ],
+  "cardAcceptance": [
+    {
+      "contract": "Wrong commit/dirty/signature mismatch/missing distinctly reject without rewriting expectations",
+      "state": "PASS",
+      "scope": "Source/policy contract controls only. 15 independent tests include explicit ZIP signer adapter negatives; current real Gradle release entrypoints both reject dirty. Actual final APK signature/installation remains NOT_RUN.",
+      "evidence": [
+        "logs/independent-controls-after-fix-workspace-temp.stderr.log",
+        "FINAL_COMMANDS.json",
+        "FINAL_GRADLE_COMMANDS.json"
+      ]
+    },
+    {
+      "contract": "Fixed source manifest and all actual changes have diff and responsible batch",
+      "state": "PASS",
+      "scope": "Fixed 405-member package/190 actual baseline blobs; current captured 6425 paths have protocol responsibility or explicit B00-C01 preservation custody. No functional completion follows from custody. Final self/dynamic 39 bytes bind externally to Root final Git tree.",
+      "evidence": [
+        "original5237-clean-positive.json",
+        "FINAL_COMMANDS.json",
+        "ownership-primary-check.json",
+        "construction/r31/SOURCE_CHANGE_OWNERS.json"
+      ]
+    },
+    {
+      "contract": "Old1832 requirements and299 historical card bytes and unverified states preserved",
+      "state": "PASS",
+      "scope": "Raw original bytes/status preservation only; original 1770 uninspected and62 modified-awaiting-verification, all1832 require implementation review.",
+      "evidence": [
+        "original5237-clean-positive.json",
+        "FINAL_COMMANDS.json"
+      ]
+    }
+  ],
+  "sourceAcceptanceState": "PASS_SOURCE_CONTRACTS_ONLY",
+  "publicationAcceptanceState": "OPEN_FINAL_CI_APK_AND_INSTALLATION_EVIDENCE_PENDING",
+  "finalCurrentCli": {
+    "evidence": "FINAL_COMMANDS.json",
+    "records": [
+      "candidate-post-ledger-current",
+      "candidate-post-ledger-dirty",
+      "candidate-post-ledger-missing-apk"
+    ],
+    "result": "PASS_EXPECTED_CURRENT_SOURCE_AND_TWO_NEGATIVE_CONTROLS",
+    "headStable": true,
+    "threeC01SourcesUnchanged": true,
+    "fiveProtectedIdentityFilesUnchanged": true,
+    "missingApkWasNeverCreated": true
+  },
+  "developmentBuildIntegration": {
+    "state": "PASS_DEVELOPMENT_SCOPE_ONLY",
+    "ownerExecuted": "ROOT",
+    "evidence": "verification/r31/b00/CURRENT_DEVELOPMENT_BUILD_20261105/b00-current-dev-after-cursor-constants/RECEIPT.json",
+    "evidenceSha256": "7a3eae56b12e788875db08b1c3c5cb8e0d80030132fcf849973df807ccb31219",
+    "head": "c6a580313e6214949534badbd452eaae98c51e81",
+    "exitCode": 0,
+    "sourceInputsUnchanged": true,
+    "command": [
+      "bash",
+      "./gradlew",
+      "--offline",
+      "--no-daemon",
+      "--max-workers=4",
+      "-Pr30Instrumentation=true",
+      "-Djava.io.tmpdir=/workspace/r31-root-b00-tmp",
+      ":app:compileDebugJavaWithJavac",
+      ":app:testDebugUnitTest",
+      "--tests",
+      "com.ethk3.novaonepro.strategyv2.R31FaultObservationContractTest",
+      ":app:lintDebug",
+      ":app:lintRelease",
+      "-x",
+      ":app:generateR982SourceCallAsset",
+      "-x",
+      ":app:generateR997ConstructionAssets",
+      "-x",
+      ":app:generateR967Semantics",
+      "-x",
+      ":app:verifyR967Semantics",
+      "-x",
+      ":app:verifyFinalR967Semantics"
+    ],
+    "unitTests": 6,
+    "lintVariants": [
+      "debug",
+      "release"
+    ],
+    "ciIdentity": "OPEN_VERIFY_FINAL_R967_EXPLICITLY_EXCLUDED_IN_DEVELOPMENT_RUN",
+    "releaseBuild": "NOT_RUN_CURRENT_SAME_SOURCE_FINAL_ARTIFACT"
+  },
+  "fullEngineeringClosure": "NOT_CLAIMED",
+  "selfBinding": "This dynamic per-card receipt is externally bound by the final containing Root Git commit; it does not contain a fabricated self-hash or future commit.",
+  "commits": [
+    "7ca0ad00d0fe24ec4e7d68f2247b4f98b1e84dc3"
+  ],
+  "status": "CODE_COMPLETE",
+  "acceptance_scope": "SOURCE_AND_NAMED_HOST_POLICY_CONTRACT_ONLY; final CI/APK/install/device/natural evidence remains separate",
+  "actual_changes": [
+    {
+      "path": "app/build.gradle",
+      "methods": [
+        "taskGraph.whenReady",
+        "checkR31Identity",
+        "verifyFinalR31BuildIdentity"
+      ],
+      "purpose": "Reject dirty aggregate release builds, compare dirty identity, cover package finalizers"
+    },
+    {
+      "path": "tools/r31/verify_baseline.py",
+      "methods": [
+        "compare_tree"
+      ],
+      "purpose": "Reject missing current source members and mismatched baseline receipt commit"
+    },
+    {
+      "path": "tools/r31/test_verify_baseline.py",
+      "methods": [
+        "GitBaselineTest"
+      ],
+      "purpose": "Retain original controls and reproduce two new baseline-verifier failures"
+    },
+    {
+      "path": "tools/r31/construction_ledger.py",
+      "methods": [
+        "contract_verified",
+        "update",
+        "summary"
+      ],
+      "purpose": "Separate build milestones from evidenced source acceptance and guard CODE_COMPLETE"
+    }
+  ],
+  "migration_versions": [
+    "NO_NEW_DATABASE_MIGRATION"
+  ],
+  "apk_identity": null,
+  "device_evidence": [],
+  "acceptance": [
+    {
+      "contract": "错提交/dirty/签名不符/漏文件分别有明确失败，不能自动改期望摘要过关。",
+      "status": "PASS",
+      "scope": "Source/policy contract controls only. 15 independent tests include explicit ZIP signer adapter negatives; current real Gradle release entrypoints both reject dirty. Actual final APK signature/installation remains NOT_RUN.",
+      "evidence": [
+        "verification/r31/b00/R31-B00-C01/20261105/logs/independent-controls-after-fix-workspace-temp.stderr.log",
+        "verification/r31/b00/R31-B00-C01/20261105/FINAL_COMMANDS.json",
+        "verification/r31/b00/R31-B00-C01/20261105/FINAL_GRADLE_COMMANDS.json"
+      ]
+    },
+    {
+      "contract": "本包源提交与source-manifest.json一致，所有实际改动文件有diff和负责批次。",
+      "status": "PASS",
+      "scope": "Fixed 405-member package/190 actual baseline blobs; current captured 6425 paths have protocol responsibility or explicit B00-C01 preservation custody. No functional completion follows from custody. Final self/dynamic 39 bytes bind externally to Root final Git tree.",
+      "evidence": [
+        "verification/r31/b00/R31-B00-C01/20261105/original5237-clean-positive.json",
+        "verification/r31/b00/R31-B00-C01/20261105/FINAL_COMMANDS.json",
+        "verification/r31/b00/R31-B00-C01/20261105/ownership-primary-check.json",
+        "construction/r31/SOURCE_CHANGE_OWNERS.json"
+      ]
+    },
+    {
+      "contract": "旧要求原文摘要不变，未经实施的状态仍未实施。",
+      "status": "PASS",
+      "scope": "Raw original bytes/status preservation only; original 1770 uninspected and62 modified-awaiting-verification, all1832 require implementation review.",
+      "evidence": [
+        "verification/r31/b00/R31-B00-C01/20261105/original5237-clean-positive.json",
+        "verification/r31/b00/R31-B00-C01/20261105/FINAL_COMMANDS.json"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "command": "Independent baseline verifier controls",
+      "result": "PASS_15_SOURCE_CONTROLS",
+      "evidence": "verification/r31/b00/R31-B00-C01/20261105/logs/independent-controls-after-fix-workspace-temp.stderr.log",
+      "scope": "Explicit APK/signature subprocess doubles, not a final signed APK"
+    },
+    {
+      "command": "Real Gradle aggregate/direct dirty release dry-runs",
+      "result": "EXPECTED_FAIL_R31_DIRTY_SOURCE_NOT_PUBLISHABLE_BOTH_ENTRIES",
+      "evidence": "verification/r31/b00/R31-B00-C01/20261105/FINAL_GRADLE_COMMANDS.json"
+    },
+    {
+      "command": "Fixed package, original baseline and current CLI checks",
+      "result": "PASS_405_PACKAGE_MEMBERS_190_SOURCE_ANCHORS_AND_6425_PATH_OWNERSHIP",
+      "evidence": "verification/r31/b00/R31-B00-C01/20261105/ownership-primary-check.json",
+      "scope": "Preservation/traceability only; no semantic feature completion inferred"
+    }
+  ],
+  "source_code_commit": "7ca0ad00d0fe24ec4e7d68f2247b4f98b1e84dc3",
+  "next_step": "Advance B01/B02 source acceptance after the containing Git tree passes the explicit external binding check; release gates remain open.",
+  "selfBindingResolutionMethod": "Verify the staged immutable Git tree before commit, then require the containing commit to reference that identical tree; keep the actual tree/commit proof outside the self-referential source tree."
+}

@@ -1,0 +1,73 @@
+[
+  {
+    "name": "existing-independent-controls",
+    "argv": [
+      "python3",
+      "tools/r31/test_verify_baseline.py"
+    ],
+    "exitCode": 0,
+    "startedAt": "2026-11-05T02:23:38.470930+00:00",
+    "elapsedSeconds": 3.362687
+  },
+  {
+    "name": "current-baseline-and-plan",
+    "argv": [
+      "python3",
+      "tools/r31/verify_baseline.py",
+      "--output",
+      "/workspace/r31-integration-20261105/verification/r31/b00/R31-B00-C01/20261105/current-baseline.json"
+    ],
+    "exitCode": 0,
+    "startedAt": "2026-11-05T02:23:41.833631+00:00",
+    "elapsedSeconds": 1.259837
+  },
+  {
+    "name": "current-dirty-release-negative",
+    "argv": [
+      "python3",
+      "tools/r31/verify_baseline.py",
+      "--identity-only",
+      "--require-clean",
+      "--output",
+      "/workspace/r31-integration-20261105/verification/r31/b00/R31-B00-C01/20261105/dirty-release-negative.json"
+    ],
+    "exitCode": 1,
+    "startedAt": "2026-11-05T02:23:43.093546+00:00",
+    "elapsedSeconds": 0.386877
+  },
+  {
+    "name": "independent-controls-after-fix-workspace-temp",
+    "argv": [
+      "python3",
+      "tools/r31/test_verify_baseline.py"
+    ],
+    "exitCode": 0,
+    "environmentOverride": {
+      "TMPDIR": "/workspace/r31-integration-20261105/verification/r31/b00/R31-B00-C01/20261105/temporary-fixtures"
+    },
+    "startedAt": "2026-11-05T02:29:52.459135+00:00",
+    "elapsedSeconds": 3.715606
+  },
+  {
+    "name": "audit-only-source-rejected-as-full-repository",
+    "argv": [
+      "python3",
+      "tools/r31/verify_baseline.py",
+      "--repo",
+      "/workspace/r31-integration-20261105/construction/STARCORE_R31_FINAL_20261104/baseline_source",
+      "--plan",
+      "/workspace/r31-integration-20261105/construction/STARCORE_R31_FINAL_20261104",
+      "--identity-only"
+    ],
+    "exitCode": 1,
+    "expectedFailure": true,
+    "actualResult": {
+      "status": "FAIL",
+      "errors": [
+        "REQUIRED_BUILD_INPUT_MISSING:build.gradle"
+      ],
+      "device_acceptance": "NOT_RUN"
+    },
+    "capturedAt": "2026-11-05T02:39:17.370089+00:00"
+  }
+]
