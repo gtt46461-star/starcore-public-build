@@ -1,14 +1,20 @@
-# STARCORE R30 应用源码、APK 与验收入口
+# STARCORE R31 唯一施工入口
 
-最终版本：`577310107 / R30-FINAL-2026.10.31-107`。两份 APK 来自同一源码 [`b225ab204db0`](https://github.com/gtt46461-star/starcore-public-build/commit/b225ab204db043b347f9d76d6c5c1376fd9a2590)，按当前安装证书选择对应版本。
+当前方案：**R31-FINAL-20261104，13批、56卡**。本入口不再指向R30。冻结方案和既有应用源码分别读取，禁止把main当作最新应用源码。
 
-- [R13/R26 官方既有证书 APK](https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-final-577310107-b225ab204db0/STARCORE-R30-FINAL-OFFICIAL_R13-b225ab204db0.apk) · SHA-256 `62b280d2785a8cc453bcc894a08319b5caf6434a68bfb28dce708c845b51590d`
-- [R27 既有证书 APK](https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-final-577310107-b225ab204db0/STARCORE-R30-FINAL-EXISTING_R27-b225ab204db0.apk) · SHA-256 `c414a664dec8a8c58f5e3f573f875e593a3c5d7c156b8df19e856bf5109c9a94`
+- [R31方案总入口](https://github.com/gtt46461-star/starcore-public-build/blob/main/construction/STARCORE_R31_FINAL_20261104/README.md) · [全部分册与施工卡](https://github.com/gtt46461-star/starcore-public-build/tree/main/construction/STARCORE_R31_FINAL_20261104)
+- [当前R31源码与验收记录](https://github.com/gtt46461-star/starcore-public-build/tree/construction/r31-final-20261104)
+- [施工流程纠偏与接续指令](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/r31/PROCESS_ADJUSTMENT_20261105.md) · [下一步最小清单](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/r31/NEXT_ACTION.json)
+- [逐卡真实进度](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/r31/PROGRESS.json) · [执行记录](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/r31/EXECUTION_LEDGER.json)
 
-源码与完整验收账本：[construction/r30-20261031](https://github.com/gtt46461-star/starcore-public-build/tree/construction/r30-20261031) · [FINAL.json](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r30-20261031/construction/r30/FINAL.json) · [不可变源码ZIP](https://github.com/gtt46461-star/starcore-public-build/archive/b225ab204db043b347f9d76d6c5c1376fd9a2590.zip)。main 保存这一交付索引。
+## 已核实进度
 
-两证书均完成 Android 17 项回归、48 张实际图表页截图、14 格故障矩阵，以及各自真实 CP06/CP16 覆盖—回退—再覆盖验证。迁移保护大模型原字节；缺字段保留原源库及路由，不以部分复制当成功。完整回执与公开签名见 release 的 FINAL_BUILD.json、EVIDENCE_RECEIPTS.json 和 delivery.json。原 lint 51 条基线及 7 条未匹配保留，新增错误为零。
+核查源提交[`05391e682660`](https://github.com/gtt46461-star/starcore-public-build/commit/05391e68266083d156612b014f8d1c84cfcf2fb3)，北京时间2026-11-05 11:14:53：B00两卡完成限定源码/HOST合同验收；21/56卡已开始，35卡未开始；最终强制闭环0卡。后续变化以当前分支账本为准。已改代码、源码验收、构建、联合工程验收、真机和自然质量分别统计。
 
-V2353A 前台60分钟、息屏6小时、连续72小时尚未执行，Q01–Q07 自然质量证据不足；B11 三项真机触发条件未知，切库未启用。未宣称100%全指标验收。
+当前收敛**P01（B01/B02七卡联合协议）**。CI015已经失败：其485项单元中8项失败；另一后续本地源码全量为13项失败，不得混为同一源码。API29/35各10项协议均2过8败，共同前置为Certificate域指纹不匹配。当前完整工程验收及最终成品仍未通过。
 
-方案：[STARCORE_R30_FINAL_20261031](construction/plans/STARCORE_R30_FINAL_20261031/README.md) · [逐步说明](construction/plans/STARCORE_R30_FINAL_20261031/START_HERE_施工方必读.md) · [完整ZIP](construction/plans/STARCORE_R30_FINAL_20261031.zip)。57 张卡（含 B11 条件卡）、44 指标，基线 CP06 `bb607cf5ab69`，方案树未改。
+## 执行约束
+
+继续现有工程并保留未推送改动，不从旧基线重做。先修当前共同前置和内存生命周期，再进行匹配源码的针对性与全量工程检查；本地修红后批量冻结和CI。共享文件单一owner，生产者/消费者协议不得拆成不同版本。真机、24h/72h及自然质量单列，不伪记完成；无设备不妨碍源码修复。具体执行以流程纠偏、冻结方案及当前卡合同为准。
+
+旧R30发布是历史交付，不代表R31完成。R31检查点014/015有未通过工程门，不作为最终成品推荐下载。
