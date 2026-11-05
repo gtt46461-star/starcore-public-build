@@ -5,7 +5,9 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -31,7 +33,7 @@ class PlanIntegrityTest(unittest.TestCase):
         return plan, v.sha256(manifest)
 
     def test_real_sealed_package_and_legacy_originals(self):
-        result = v.verify_manifest(v.ROOT / v.PLAN_REL)
+        result = v.verify_manifest(v.ROOT / v.ORIGINAL_PLAN_REL, v.ORIGINAL_PLAN_MANIFEST_SHA256)
         self.assertEqual("PASS", result["status"])
         self.assertEqual(405, result["member_count"])
         self.assertEqual([1832, 299, 1832], [r["rows"] for r in result["preservation"]])
@@ -84,6 +86,86 @@ class PlanIntegrityTest(unittest.TestCase):
                 v.safe_file(plan, "link")
             with self.assertRaisesRegex(ValueError, "UNSAFE_MANIFEST_PATH"):
                 v.safe_file(plan, "../outside.txt")
+
+
+class PlanRevisionRoleTest(unittest.TestCase):
+    @contextlib.contextmanager
+    def plans(self):
+        # Immutable hardlink copies avoid duplicating 260MiB of existing evidence.
+        # Faults below unlink their one target before writing; originals stay intact.
+        with tempfile.TemporaryDirectory(prefix="r31-plan-revision-", dir=v.ROOT / "verification") as directory:
+            root = Path(directory)
+            for relative in (v.PLAN_REL, v.ORIGINAL_PLAN_REL):
+                shutil.copytree(v.ROOT / relative, root / relative, copy_function=os.link)
+            yield root, root / v.PLAN_REL
+
+    @staticmethod
+    def replace_member(path, data):
+        path.unlink()
+        path.write_bytes(data)
+
+    def test_hashes_are_fixed_to_authorized_user_commit(self):
+        for relative, expected in ((v.PLAN_REL, v.PLAN_MANIFEST_SHA256),
+                                   (v.ORIGINAL_PLAN_REL, v.ORIGINAL_PLAN_MANIFEST_SHA256)):
+            sealed = v.git(v.ROOT, "show", v.PLAN_AUTHORIZATION_COMMIT + ":" + relative + "/MANIFEST_SHA256.json")
+            self.assertEqual(expected, v.sha256(sealed))
+        self.assertNotEqual(v.PLAN_MANIFEST_SHA256, v.ORIGINAL_PLAN_MANIFEST_SHA256)
+
+    def test_real_active_and_original_archive_are_independently_sealed(self):
+        results = v.require_plan_packages(v.ROOT, v.ROOT / v.PLAN_REL)
+        self.assertEqual([410, 405], [results[r]["member_count"] for r in ("active", "original_archive")])
+        for result in results.values():
+            self.assertEqual("PASS", result["status"])
+            self.assertEqual([1832, 299, 1832], [r["rows"] for r in result["preservation"]])
+            self.assertTrue(all(r["original_bytes_preserved"] for r in result["preservation"]))
+
+    def test_identity_points_to_active_and_preserves_original_trace(self):
+        identity = v.build_identity(v.ROOT, v.ROOT / v.PLAN_REL)
+        self.assertEqual(v.PLAN_MANIFEST_SHA256, identity["plan_manifest_sha256"])
+        self.assertEqual(v.PLAN_REVISION, identity["plan_revision"])
+        self.assertEqual(v.PLAN_AUTHORIZATION_COMMIT, identity["plan_authorization_commit"])
+        self.assertEqual(v.ORIGINAL_PLAN_MANIFEST_SHA256, identity["original_plan_manifest_sha256"])
+        self.assertEqual(v.ORIGINAL_PLAN_REVISION, identity["original_plan_revision"])
+        self.assertEqual(v.ORIGINAL_PLAN_REL, identity["original_plan_path"])
+        self.assertEqual(405, identity["original_plan_member_count"])
+        self.assertEqual("NOT_RUN", identity["device_identity"])
+
+    def test_original_archive_cannot_impersonate_active_revision(self):
+        result = v.verify_plan_packages(v.ROOT, v.ROOT / v.ORIGINAL_PLAN_REL)
+        self.assertEqual("FAIL", result["active"]["status"])
+        self.assertIn("PINNED_PLAN_MANIFEST_MISMATCH", result["active"]["errors"])
+        self.assertEqual("PASS", result["original_archive"]["status"])
+
+    def test_resealed_manifest_in_either_role_is_rejected_by_identity(self):
+        for role, relative in (("active", v.PLAN_REL), ("original_archive", v.ORIGINAL_PLAN_REL)):
+            with self.subTest(role=role), self.plans() as (root, active):
+                target = root / relative / "MANIFEST_SHA256.json"
+                original = target.read_bytes()
+                self.replace_member(target, original + b"\n")
+                with self.assertRaisesRegex(ValueError, role.upper() + "_PLAN_INTEGRITY_FAILED:PINNED_PLAN_MANIFEST_MISMATCH"):
+                    v.build_identity(root, active)
+                self.assertEqual(original, (v.ROOT / relative / "MANIFEST_SHA256.json").read_bytes())
+
+    def test_member_tamper_in_either_role_is_rejected_without_resealing(self):
+        for role, relative in (("active", v.PLAN_REL), ("original_archive", v.ORIGINAL_PLAN_REL)):
+            with self.subTest(role=role), self.plans() as (root, active):
+                target = root / relative / "README.md"
+                original = target.read_bytes()
+                self.replace_member(target, original + b"\nCONTROLLED_TAMPER\n")
+                result = v.verify_plan_packages(root, active)
+                self.assertEqual("FAIL", result[role]["status"])
+                self.assertEqual(["README.md"], result[role]["mismatch"])
+                with self.assertRaisesRegex(ValueError, role.upper() + "_PLAN_INTEGRITY_FAILED:MISMATCH:README.md"):
+                    v.build_identity(root, active)
+                self.assertEqual(original, (v.ROOT / relative / "README.md").read_bytes())
+
+    def test_original_and_active_each_retain_exact_190_baseline_blobs(self):
+        for relative in (v.PLAN_REL, v.ORIGINAL_PLAN_REL):
+            with self.subTest(plan=relative):
+                result = v.compare_tree(v.ROOT, v.ROOT / relative)
+                self.assertEqual("PASS", result["status"])
+                self.assertEqual(190, result["source_anchor_count"])
+                self.assertTrue(all(r["status"] == "EXACT_BLOB_VERIFIED" for r in result["source_anchors"]))
 
 
 class GitBaselineTest(unittest.TestCase):

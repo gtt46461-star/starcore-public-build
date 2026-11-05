@@ -1,0 +1,126 @@
+{
+  "format": "R31_P01_MEMORY_MATERIALIZATION_FIX_V1",
+  "source_head_at_capture": "21080a71d7c1a22d536cea5b82332cec38fe783c",
+  "recorded_at": "2026-11-05T04:06:48.073530+00:00",
+  "scope": "P01_REQUIRED_MEMORY_OWNERSHIP_PREREQUISITE; NOT_COMPLETE_B05_OR_FULL_ENGINEERING_CLOSURE",
+  "state": "SOURCE_AND_NAMED_HOST_TESTS_PASS; FULL_STABLE_CANDIDATE_485_NOT_RUN",
+  "source_files": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+      "baseline_sha256": "494541534d062baab0d622536ee224742f4d9e655cf4d7e6f3b10aaecd1dd495",
+      "current_sha256": "078239ed72c3174e3c59bfb2627306c33bdee4d268fc7c9f88b53d54258f222c",
+      "baseline_commit": "21080a71d7c1a22d536cea5b82332cec38fe783c",
+      "diff_entry": [
+        "git",
+        "diff",
+        "HEAD",
+        "--",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+      "baseline_sha256": "83455c6463ce9c8edf555dae1cc95fcdce095d3bcae601226da35b04fa8f4b54",
+      "current_sha256": "482e5675e060e4320117f09ddc512b88e0b6c9cdbf291a13093b581878258189",
+      "baseline_commit": "21080a71d7c1a22d536cea5b82332cec38fe783c",
+      "diff_entry": [
+        "git",
+        "diff",
+        "HEAD",
+        "--",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java"
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31FamilyAdmissionTest.java",
+      "baseline_sha256": "4b0cf82b008034c0ba2f0ad30ff89f1e1e8241e1683a84f1ec0b9f09f5f79f3d",
+      "current_sha256": "536cc30d7592c0276f12b54cb96d7458d2eba3a077aa2d978a561de13afcbe00",
+      "baseline_commit": "21080a71d7c1a22d536cea5b82332cec38fe783c",
+      "diff_entry": [
+        "git",
+        "diff",
+        "HEAD",
+        "--",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31FamilyAdmissionTest.java"
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31OwnedModelMaterializationTest.java",
+      "baseline_sha256": null,
+      "current_sha256": "f258c0f41bcd7c8f060d757aaa832c8a658b92d9e00ec08dad5e434dad8c5430",
+      "baseline_commit": "21080a71d7c1a22d536cea5b82332cec38fe783c",
+      "diff_entry": [
+        "git",
+        "diff",
+        "--no-index",
+        "/dev/null",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31OwnedModelMaterializationTest.java"
+      ]
+    }
+  ],
+  "no_new_sql_schema": true,
+  "public_application_identity_or_signing_changed": false,
+  "model_kernel_math_changed": false,
+  "heap_limit_or_admission_threshold_changed": false,
+  "forced_gc": false,
+  "heap_bytes": 536870912,
+  "default_probe_counterexample": {
+    "baseline_exit": 1,
+    "after_exit": 0,
+    "same_actual_heap_used_bytes": true,
+    "heap_used_bytes": 10102864,
+    "unchanged_declared_model_bytes": 8024064,
+    "actual_independent_owned_primitive_bytes": 6391680,
+    "baseline_pending_java_bytes": 8024064,
+    "after_pending_java_bytes": 1632384,
+    "metadata_and_future_margin_remain_reserved": true,
+    "actual_owner_close_lease_count": 0,
+    "private_strong_array_or_model_references_added": false
+  },
+  "test_results": [
+    {
+      "scope": "initial named 5 whole classes",
+      "tests": 42,
+      "failures": 1,
+      "pass": 41,
+      "status": "FAILED_PRESERVED",
+      "reason": "controlled F12 Probe omitted the real constructor payload from heap after materialization; original raw failure retained"
+    },
+    {
+      "scope": "after correction only affected original R31FamilyAdmissionTest + new R31OwnedModelMaterializationTest",
+      "tests": 10,
+      "failures": 0,
+      "status": "PASS",
+      "unchanged_other_classes_repeated": false
+    },
+    {
+      "scope": "one initial all119 test-source javac attempt against old05391 support",
+      "status": "FAILED_PRESERVED_API_CLOSURE",
+      "reason": "Root new WriterHoldLedger6-arg tests require current Root5-source overlay; not a claim whole current build compiled"
+    },
+    {
+      "scope": "two actual production memory sources plus named test dependency closure javac",
+      "status": "PASS"
+    }
+  ],
+  "original_fixture_assertion_preservation": {
+    "path": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31FamilyAdmissionTest.java",
+    "assertion_call_count": 43,
+    "exact_call_text_equal": true,
+    "new_coverage_is_additive": true
+  },
+  "controlled_probe_delta": "CONTROLLED_PROBE_INPUT_DELTA.json",
+  "support": {
+    "actual_whole_source_commit": "05391e68266083d156612b014f8d1c84cfcf2fb3",
+    "jar": "/workspace/r31-after05391-build/frozen/classes.jar",
+    "sha256": "c55e051e3d0f8509b6c57dc286f36e0a86e68423013a5f66f6fee050bb2a0005",
+    "two_current_memory_sources_compiled_ahead": true,
+    "Root5_other_WIP_not_part_of_this_scoped_run": true
+  },
+  "remaining": [
+    "Original CI015 485/8, local 485/2 and 485/13 failures remain preserved as distinct source snapshots.",
+    "Full stable candidate same512MiB Gradle suite, whole-source build and lint await Root unified execution.",
+    "Natural-GC-only garbage pressure is not proven fixed by this accounting correction; no forced collection requested.",
+    "Android/device/24h/72h/natural quality/APK not run or produced by this fix."
+  ]
+}

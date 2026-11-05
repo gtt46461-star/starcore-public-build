@@ -1,0 +1,203 @@
+{
+  "scope": "P01_ACTUAL_COORDINATOR_OUTCOME_TO_LEDGER_HISTOGRAM_FLUSH_REPORT_CHAIN_ONLY",
+  "status": "TARGETED_NATIVE_PRODUCTION_CHAIN_PASS",
+  "sourceHead": "21080a71d7c1a22d536cea5b82332cec38fe783c",
+  "productionState": "Five Root-frozen current source classes ahead of exact05391 whole4494 support; explicitly NOT a whole new build or app acceptance.",
+  "producerSourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java": "dd379a54007506d60c21a0c52cbe3425df547b85e74038b01a5e2cbe1deb72fe",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java": "0b0894d0cc161e196b9ebe87b0e8f22c71a02439690d6c759230d8d2e0562a4b",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java": "78b5d38dc02c7e019233cd5468ae3a155aec11b307a916957a6657bc7ce4f43b",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java": "5ebd764ef2e631580722dd9368b2de71fd9ba1f1dd32d93e041a8ff4066d9a44",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java": "719a0100dddcb5ea90a4498b6f2576e199f52a2fc54aa0bb636e5b3410fe303f"
+  },
+  "supportJarSha256": "c55e051e3d0f8509b6c57dc286f36e0a86e68423013a5f66f6fee050bb2a0005",
+  "rootCompilationReceipt": "final111/ROOT_AHEAD_RECEIPT.json",
+  "newOwnedToolSha256": {
+    "tools/r31/run_writer_outcome_chain_host.py": "878a9841042b98e9471a202f71544b6ccc6f0cf048ba5ba443e1b7792cd6cdc8",
+    "tools/r31/host/R31WriterOutcomeChainHost.java": "2769bef9f233a493caaef9b68e427ac1d27fd5c4d70a9135c54af5d3b47cec57"
+  },
+  "commands": [
+    {
+      "label": "platform-compile",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-J-Djava.io.tmpdir=/workspace/r31-writer-outcome-chain-r311-native-final/tmp",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/support/classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/platform",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/platform/android/content/Context.java",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/platform/android/app/Application.java",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/platform/android/os/SystemClock.java",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/platform/android/os/Debug.java",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/platform/android/os/Process.java",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/platform/android/os/Looper.java",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/platform/android/util/Log.java",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/platform/android/content/res/AssetManager.java",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/platform/android/os/Build.java",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/platform/android/database/sqlite/SQLiteOpenHelper.java",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/platform/android/system/ErrnoException.java",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/platform/android/system/OsConstants.java",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/platform/android/system/Os.java",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/platform/android/database/Cursor.java",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/platform/android/database/sqlite/SQLiteDatabase.java",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/platform/android/database/sqlite/SQLiteDatabaseLockedException.java",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/platform/android/database/sqlite/SQLiteException.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "native-fixture-compile",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-J-Djava.io.tmpdir=/workspace/r31-writer-outcome-chain-r311-native-final/tmp",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/platform:/workspace/r31-writer-outcome-chain-r311-native-final/tests:/workspace/r31-writer-outcome-chain-r311-native-final/ahead:/workspace/r31-writer-outcome-chain-r311-native-final/support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/tests",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/sources/R31WriterOutcomeChainHost.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "native-chain",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Djava.io.tmpdir=/workspace/r31-writer-outcome-chain-r311-native-final/tmp",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/platform:/workspace/r31-writer-outcome-chain-r311-native-final/tests:/workspace/r31-writer-outcome-chain-r311-native-final/ahead:/workspace/r31-writer-outcome-chain-r311-native-final/support/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31WriterOutcomeChainHost",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/data/databases/main.db",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/ahead",
+        "/workspace/r31-writer-outcome-chain-r311-native-final/support/classes.jar"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "entryCommand": "source environment activation; SQLITE_JDBC=... python3 tools/r31/run_writer_outcome_chain_host.py --classes ACTUAL_WHOLE_JAR --ahead ROOT_FROZEN_5SOURCE_CLASSES --ahead-receipt ROOT_COMPILE_RECEIPT --out NEW_DIRECTORY",
+  "assertions": 111,
+  "realCoordinatorOutcomeRows": [
+    {},
+    {
+      "operation": "R31_CHAIN_COMMIT",
+      "count": 1,
+      "failures": 0,
+      "rolledBack": 0,
+      "rolledBackKnown": 0,
+      "commitOutcomeUnknown": 0,
+      "over_budget": 1,
+      "rollbackEvidenceState": "COMPLETE_OBSERVED_TRANSACTION_OUTCOMES"
+    },
+    {
+      "operation": "R31_CHAIN_ROLLBACK",
+      "count": 1,
+      "failures": 1,
+      "rolledBack": 1,
+      "rolledBackKnown": 1,
+      "commitOutcomeUnknown": 0,
+      "over_budget": 0,
+      "rollbackEvidenceState": "COMPLETE_OBSERVED_TRANSACTION_OUTCOMES"
+    },
+    {
+      "operation": "R31_CHAIN_DIAGNOSTIC",
+      "count": 1,
+      "failures": 0,
+      "rolledBack": 0,
+      "rolledBackKnown": 0,
+      "commitOutcomeUnknown": 0,
+      "over_budget": 0,
+      "rollbackEvidenceState": "COMPLETE_OBSERVED_TRANSACTION_OUTCOMES"
+    },
+    {
+      "operation": "R31_CHAIN_UNKNOWN",
+      "count": 1,
+      "failures": 1,
+      "rolledBack": null,
+      "rolledBackKnown": 0,
+      "commitOutcomeUnknown": 1,
+      "over_budget": 0,
+      "rollbackEvidenceState": "PARTIAL_OBSERVED_TRANSACTION_OUTCOMES"
+    },
+    {
+      "operation": "R31_CHAIN_LEGACY_FIVE_ARG",
+      "count": 1,
+      "failures": 1,
+      "rolledBack": null,
+      "rolledBackKnown": 0,
+      "commitOutcomeUnknown": 1,
+      "over_budget": 0,
+      "rollbackEvidenceState": "PARTIAL_OBSERVED_TRANSACTION_OUTCOMES"
+    },
+    {
+      "operation": "R31_OLD_HISTOGRAM",
+      "count": 7,
+      "failures": 6,
+      "rolledBack": null,
+      "rolledBackKnown": null,
+      "commitOutcomeUnknown": null,
+      "over_budget": 3,
+      "rollbackEvidenceState": "UNKNOWN_LEGACY_OR_MISSING_OUTCOME_SOURCE"
+    },
+    {
+      "operation": "R31_MISSING_HISTOGRAM",
+      "count": 7,
+      "failures": 6,
+      "rolledBack": null,
+      "rolledBackKnown": null,
+      "commitOutcomeUnknown": null,
+      "over_budget": 3,
+      "rollbackEvidenceState": "UNKNOWN_LEGACY_OR_MISSING_OUTCOME_SOURCE"
+    }
+  ],
+  "verified": [
+    "Real native COMMIT increments probe once and yields committed-known ledger count.",
+    "Real native UNIQUE failure after UPDATE rolls back both the mutation and commit receipt, producing rolled-back-known1.",
+    "Actual AFTER_COMMIT diagnostic hook failure retains COMMITTED_DIAGNOSTIC_FAILED, business mutation once, attempt-failure0/rollback0 and red diagnostic.",
+    "Actual native COMMIT then END acknowledgment exception plus independent reader boundary unavailability yields UNKNOWN; failure1 but exact rollback null/known0/unknown1; native DB confirms mutation actually committed.",
+    "Actual HoldLedgerFlushR30.maybeFlush writes versioned commitOutcomes into existing histogram_json; actual ReportSnapshot.capture projects same counts and nonzero over_budget1 from real controlled70ms writer hold.",
+    "Five-argument legacy recorder, old archived histogram and missing histogram keep exact rollback null; old failures6 is never renamed rollback.",
+    "Missing writer table remains unknown/null, actual report capture read-only and business DDL0.",
+    "Actual ReportR27 writer chapter and markdown export include protocol diagnostics and rollback evidence; status remains RECORDED_UNVALIDATED and physicalDevice NOT_RUN.",
+    "CodeSource verifies actual DbStore/DbHelper/HoldLedgerFlush from whole c55 and all five updated business classes from frozen overlay; no business stubs."
+  ],
+  "fixtureBoundary": "Unsafe skips full application/startup constructors only to inject a real native connection into actual coordinator/DbStore. Android/JDBC platform shims support HOST; END/readback failure is explicitly controlled. Probe SQL and legacy archive rows are isolated engineering inputs, not real user business/model quality.",
+  "sourceStable": true,
+  "businessDdl": 0,
+  "workingDirectoryBytesFinal": 13887113,
+  "workingDirectoryBytesTwoRuns": 27772653,
+  "limitBytes": 104857600,
+  "preservedNegativeEvidence": [
+    "verification/r31/p01/seven-card-review-05391/negative4.log",
+    "verification/r31/p01/seven-card-review-05391/writer-report-negative.log"
+  ],
+  "rawSha256": {
+    "initial108/native-chain.log": "0d2d136195020f0b37d64af045482ffade944ade82778e32e2bf28f48782fd25",
+    "initial108/native-fixture-compile.log": "b7059ee8ef4189c207d84231c8f00fbd5fbb2f03376523c0f642c8af0bfb0453",
+    "initial108/platform-compile.log": "27941f057b12f217f30a174adda602a055a5bcb56f7f4ac77299acbd58b7d6f0",
+    "initial108/RECEIPT.json": "512f1cf663cbdbb648291418bcfe78af63cd6a3eaa82b32824f7d7eef3eefd48",
+    "initial108/ROOT_AHEAD_RECEIPT.json": "e0870ca1d2d016e2f236d143f9281cfaa7035d958ad4105faf7598eb7e2fb26d",
+    "final111/native-chain.log": "0eb517b5b477e870b4fc98e6da1a800e6ea5adf0f65458e105ecb133603db943",
+    "final111/native-fixture-compile.log": "d7166a0300df354e86ef877217db905fc5ac0e9fb0615bc3ea06d9f3f8974bb0",
+    "final111/platform-compile.log": "27941f057b12f217f30a174adda602a055a5bcb56f7f4ac77299acbd58b7d6f0",
+    "final111/RECEIPT.json": "f356489e857fc07bc54da263e80ac3570dfedc29b98ecb2807a3771f65ede816",
+    "final111/ROOT_AHEAD_RECEIPT.json": "e0870ca1d2d016e2f236d143f9281cfaa7035d958ad4105faf7598eb7e2fb26d"
+  },
+  "applicationProductionEditedByThisTask": false,
+  "sharedIndexTouched": false,
+  "wholeBuild": "NOT_RUN",
+  "full32": "NOT_RUN",
+  "device": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "createdAtUtc": "2026-11-05T04:10:17.002940+00:00"
+}

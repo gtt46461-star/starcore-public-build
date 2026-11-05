@@ -18,7 +18,11 @@ public final class R31FamilyAdmissionTest {
  }
  @Test public void matrixRefusalKeepsAValidEmptyModelThenRecoversWithoutReset()throws Exception{
   Probe probe=new Probe();probe.max=4000000;probe.used=700000;MemoryBudgetR31 memory=new MemoryBudgetR31(probe,new MemoryBudgetR31.Config());SharedFeatureStoreR31 store=new SharedFeatureStoreR31(memory,100000);try(FeatureCacheR27 c=new FeatureCacheR27(ReplayDatasetR27.synthetic(2000,3211,null),8,memory,store)){
-   try{c.family(1,12);fail();}catch(MemoryBudgetR31.CapacityWait expected){assertEquals(MemoryBudgetR31.WaitReason.DECLARED_CAPACITY,expected.reason);}FeatureCacheR27.FamilyStream s=stream(c,12);assertNotNull(s);assertEquals(0,s.fed);assertEquals(0,s.values.length);byte[] before=state(s);probe.used=1000;double[] actual=c.family(1,12);assertSame(s,stream(c,12));assertEquals(20000,actual.length);assertFalse(Arrays.equals(before,state(s)));assertEquals(1999,s.fed);
+   // The controlled heap must include this exact constructed model before it can cover its
+   // primitive payload. Count the actual F12 arrays independently of budget materialization.
+   FeatureCacheR27.FamilyStream constructed=new FeatureCacheR27.FamilyStream(12,memory);double[][][] counts=(double[][][])field(constructed.model,"count");long[] support=(long[])field(constructed.model,"support");long modelPayload=8L*support.length;for(double[][] block:counts)for(double[] row:block)modelPayload+=8L*row.length;
+   @SuppressWarnings("unchecked")Map<Integer,FeatureCacheR27.FamilyStream> owned=(Map<Integer,FeatureCacheR27.FamilyStream>)field(c,"streams");owned.put(12,constructed);probe.used=700000+modelPayload;
+   try{c.family(1,12);fail();}catch(MemoryBudgetR31.CapacityWait expected){assertEquals(MemoryBudgetR31.WaitReason.DECLARED_CAPACITY,expected.reason);}FeatureCacheR27.FamilyStream s=stream(c,12);assertNotNull(s);assertEquals(0,s.fed);assertEquals(0,s.values.length);byte[] before=state(s);probe.used=1000+modelPayload;double[] actual=c.family(1,12);assertSame(s,stream(c,12));assertEquals(20000,actual.length);assertFalse(Arrays.equals(before,state(s)));assertEquals(1999,s.fed);
   }finally{store.close();}
  }
  @Test public void oldAndNewMatricesKeepSeparateDeclarationsWhileOldBackingIsStillReachable()throws Exception{

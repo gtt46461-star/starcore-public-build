@@ -55,13 +55,16 @@ public final class MemoryBudgetR31 {
     public static final class Lease implements AutoCloseable {
         private final MemoryBudgetR31 budget;public final String owner;public final long fence;public final Kind kind;
         private final BooleanSupplier cancellation;private long bytes;private boolean closed;
-        private WeakReference<Object> allocatedPrimitive;private long allocatedPayloadBytes,allocatedAtNanos;private boolean fixedPrivateBacking;
+        private WeakReference<Object> allocatedPrimitive;private long allocatedPayloadBytes,allocatedAtNanos;private boolean fixedPrivateBacking,allocatedPrimitiveGraph;
         private Lease(MemoryBudgetR31 budget,String owner,long fence,Kind kind,long bytes,BooleanSupplier cancellation){this.budget=budget;this.owner=owner;this.fence=fence;this.kind=kind;this.bytes=bytes;this.cancellation=cancellation;}
         public long bytes(){synchronized(budget){return bytes;}}
         public Admission grow(long delta){return budget.grow(this,delta);}
         /** Only a completed primitive backing allocation may stop being a future reservation.
          * The owner/declaration remains live; no measured heap or released-byte claim is changed. */
         void allocatedPrimitiveArrayR31(Object array){budget.allocatedPrimitiveArray(this,array);}
+        /** Constructor owner supplies only its independently enumerated, private primitive backings.
+         * Object metadata, shared teacher state and future model scratch remain reservations. */
+        void allocatedOwnedPrimitiveGraphR31(Object root,Collection<Object> arrays){budget.allocatedOwnedPrimitiveGraph(this,root,arrays);}
         /** Only the pool's fixed private array plus bounded metadata has this exact lifetime. */
         void closeWhenPrivateBackingCollectedR31(Object array){budget.trackFixedPrivateBacking(this,array);}
         public boolean isClosed(){synchronized(budget){return closed;}}
@@ -223,6 +226,22 @@ public final class MemoryBudgetR31 {
         if(lease.allocatedPrimitive!=null){if(lease.allocatedPrimitive.get()!=array)throw new IllegalStateException("R31_MEMORY_ALLOCATION_ALREADY_RECORDED");return;}
         lease.allocatedPrimitive=new WeakReference<>(array);lease.allocatedPayloadBytes=payload;lease.allocatedAtNanos=System.nanoTime();
     }
+    private synchronized void allocatedOwnedPrimitiveGraph(Lease lease,Object root,Collection<Object> arrays){
+        if(lease.closed)throw new IllegalStateException("R31_MEMORY_CLOSED_ALLOCATION");
+        if(lease.kind!=Kind.MODEL&&lease.kind!=Kind.REALTIME)throw new IllegalArgumentException("R31_MODEL_PRIVATE_GRAPH_OWNER_REQUIRED");
+        if(root==null||root.getClass().isArray()||arrays==null||arrays.size()>200000)throw new IllegalArgumentException("R31_MODEL_PRIVATE_GRAPH_BOUND");
+        if(lease.allocatedPrimitive!=null)throw new IllegalStateException("R31_MEMORY_ALLOCATION_ALREADY_RECORDED");
+        IdentityHashMap<Object,Boolean> seen=new IdentityHashMap<>();long payload=0;
+        for(Object array:arrays){
+            if(array==null||!array.getClass().isArray()||!array.getClass().getComponentType().isPrimitive()||seen.put(array,Boolean.TRUE)!=null)throw new IllegalArgumentException("R31_MODEL_PRIVATE_PRIMITIVE_WITNESS");
+            Class<?> component=array.getClass().getComponentType();int width=component==double.class||component==long.class?8:component==int.class||component==float.class?4:component==short.class||component==char.class?2:1;
+            payload=Math.addExact(payload,Math.multiplyExact((long)java.lang.reflect.Array.getLength(array),width));
+            if(payload>lease.bytes)throw new IllegalArgumentException("R31_MEMORY_ALLOCATION_EXCEEDS_RESERVATION");
+        }
+        // The model has already been constructed. A future probe must start after this marker
+        // before its primitive payload can be covered by measured heap instead of a promise.
+        lease.allocatedPrimitive=new WeakReference<>(root);lease.allocatedPayloadBytes=payload;lease.allocatedPrimitiveGraph=true;lease.allocatedAtNanos=System.nanoTime();
+    }
     private long pendingJavaBytes(Lease lease){
         // A probe sampled before allocation must still count the whole promise. This also closes
         // the admission race when another thread finishes its allocation after readProbe().
@@ -230,7 +249,7 @@ public final class MemoryBudgetR31 {
         return lease.bytes-covered;
     }
     private synchronized void trackFixedPrivateBacking(Lease lease,Object array){
-        if(lease.closed||lease.allocatedPrimitive==null||lease.allocatedPrimitive.get()!=array||lease.bytes>lease.allocatedPayloadBytes+512)throw new IllegalStateException("R31_PRIVATE_BACKING_LIFETIME_UNPROVEN");
+        if(lease.closed||lease.allocatedPrimitiveGraph||lease.allocatedPrimitive==null||lease.allocatedPrimitive.get()!=array||lease.bytes>lease.allocatedPayloadBytes+512)throw new IllegalStateException("R31_PRIVATE_BACKING_LIFETIME_UNPROVEN");
         if(lease.fixedPrivateBacking)return;
         lease.fixedPrivateBacking=true;lease.allocatedPrimitive=new WeakReference<>(array,collectedPrivateBackings);privateBackingOwners.put(lease.allocatedPrimitive,lease);
     }
@@ -284,7 +303,7 @@ public final class MemoryBudgetR31 {
         out.put("optionalUnallocatedHeadroomBytes",availableJavaBytes(Kind.RESEARCH,false));out.put("criticalUnallocatedHeadroomBytes",availableJavaBytes(Kind.REALTIME,true));
         out.put("privateBackingOwnersAwaitingCollectionOrClose",privateBackingOwners.size());out.put("privateOwnersClosedAfterObservedCollection",collectedPrivateOwners);
         out.put("declaredJavaWorkingBytes",java);out.put("pendingJavaAllocationBytes",pending);out.put("allocatedJavaPayloadCoveredByHeapSampleBytes",java-pending);out.put("allocatedPayloadMeaning","PROVEN_PRIMITIVE_PAYLOAD_ONLY; NOT_LIVE_HEAP_OR_RELEASE_EVIDENCE");out.put("declaredNativeWorkingBytes",nativeBytes);out.put("declaredQueuedBytes",queued);out.put("declaredByKind",kinds);out.put("activeLeaseCount",leases.size());out.put("pressureReclaimAttempts",pressureReclaims);out.put("pressureReclaimFailure",pressureReclaimFailure);
-        List<Lease> largest=new ArrayList<>(leases);largest.sort((a,b)->Long.compare(b.bytes,a.bytes));List<Object> owners=new ArrayList<>();for(int i=0;i<Math.min(32,largest.size());i++){Lease l=largest.get(i);Map<String,Object> row=new LinkedHashMap<>();row.put("owner",l.owner);row.put("fence",l.fence);row.put("kind",l.kind.name());row.put("declaredBytes",l.bytes);row.put("pendingJavaAllocationBytes",l.kind.nativeMemory()?null:pendingJavaBytes(l));row.put("provenAllocatedPrimitivePayloadBytes",l.allocatedPayloadBytes);row.put("measurement","ESTIMATED_WORKING_SET_NOT_ACTUAL_HEAP");owners.add(row);}out.put("largestOwners",owners);out.put("ownersTruncated",largest.size()>32);
+        List<Lease> largest=new ArrayList<>(leases);largest.sort((a,b)->Long.compare(b.bytes,a.bytes));List<Object> owners=new ArrayList<>();for(int i=0;i<Math.min(32,largest.size());i++){Lease l=largest.get(i);Map<String,Object> row=new LinkedHashMap<>();row.put("owner",l.owner);row.put("fence",l.fence);row.put("kind",l.kind.name());row.put("declaredBytes",l.bytes);row.put("pendingJavaAllocationBytes",l.kind.nativeMemory()?null:pendingJavaBytes(l));row.put("provenAllocatedPrimitivePayloadBytes",l.allocatedPayloadBytes);row.put("primitiveAllocationBasis",l.allocatedPrimitive==null?"NOT_MATERIALIZED":l.allocatedPrimitiveGraph?"OWNER_ENUMERATED_PRIVATE_MODEL_ARRAYS":"SINGLE_PRIMITIVE_BACKING");row.put("measurement","ESTIMATED_WORKING_SET_NOT_ACTUAL_HEAP");owners.add(row);}out.put("largestOwners",owners);out.put("ownersTruncated",largest.size()>32);
         Map<String,Object> caps=new LinkedHashMap<>();for(Kind kind:nativeCaps.keySet()){Map<String,Object> row=new LinkedHashMap<>();row.put("bytes",nativeCaps.get(kind));row.put("basis",nativeBasis.get(kind));caps.put(kind.name(),row);}out.put("nativeDeclaredCapacities",caps);out.put("nativeHardCapacityVerdict","UNMANAGED_NATIVE_OWNERS_NOT_COVERED");Map<String,Object> failures=new LinkedHashMap<>();for(Map.Entry<WaitReason,Long> e:waits.entrySet())failures.put(e.getKey().name(),e.getValue());out.put("admissionWaitCounts",failures);return out;
     }
     private Map<String,Object> measurementMap(){

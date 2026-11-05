@@ -1,0 +1,9 @@
+plain-java-timeout direct=RETRY_LATER:TEMP_TIMEOUT writer=RETRY_LATER:TEMP_TIMEOUT directWait=RETRY_LATER writerWait=RETRY_LATER same=true
+typed-dependency-around-storage-full direct=FATAL:DISK_FULL writer=FATAL:DISK_FULL directWait=NEEDS_FIX writerWait=NEEDS_FIX same=true
+typed-dependency-around-storage-corrupt direct=FATAL:DB_CORRUPT writer=FATAL:DB_CORRUPT directWait=NEEDS_FIX writerWait=NEEDS_FIX same=true
+typed-dependency-around-storage-constraint direct=FAULT:INTEGRITY writer=FAULT:INTEGRITY directWait=ERROR writerWait=ERROR same=true
+control-busy direct=RETRY_LATER:LOCK_BUSY writer=RETRY_LATER:LOCK_BUSY directWait=RETRY_LATER writerWait=RETRY_LATER same=true
+control-stale direct=STALE_OWNER:STALE_OWNER writer=STALE_OWNER:STALE_OWNER directWait=STALE_OWNER writerWait=STALE_OWNER same=true
+control-cancel direct=CANCELLED:CANCELLED writer=CANCELLED:CANCELLED directWait=CANCELLED writerWait=CANCELLED same=true
+COMMITTED_AND_UNKNOWN_OUTCOME_PRIORITY_CONTROLS_PASS
+CLASSIFIER_PARITY_MISMATCHES=0

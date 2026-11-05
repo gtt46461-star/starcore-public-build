@@ -44,6 +44,9 @@ public final class WriterHoldLedgerR30 {
         final AtomicLong overBudget = new AtomicLong();
         final AtomicLong overHard = new AtomicLong();
         final AtomicLong failures = new AtomicLong();
+        final AtomicLong committedKnown = new AtomicLong();
+        final AtomicLong rolledBackKnown = new AtomicLong();
+        final AtomicLong outcomeUnknown = new AtomicLong();
         final AtomicLongArray holdHist = new AtomicLongArray(BOUNDS.length);
         final AtomicLongArray waitHist = new AtomicLongArray(BOUNDS.length);
         Stat(String operation, boolean critical) { this.operation = operation; this.critical = critical; }
@@ -58,7 +61,7 @@ public final class WriterHoldLedgerR30 {
         public Map<String,Object> histogram(){
             Map<String,Object> out=new LinkedHashMap<>();List<Object> bounds=new ArrayList<>(),holds=new ArrayList<>(),waits=new ArrayList<>();
             for(int i=0;i<BOUNDS.length;i++){bounds.add(BOUNDS[i]==Long.MAX_VALUE?null:BOUNDS[i]);holds.add(holdHist.get(i));waits.add(waitHist.get(i));}
-            out.put("version",HISTOGRAM_VERSION);out.put("upperInclusiveMs",bounds);out.put("lastBucketLowerExclusiveMs",30000L);out.put("holdCounts",holds);out.put("waitCounts",waits);out.put("processSession",PROCESS_SESSION);out.put("durability","FLUSHED_WINDOWS_ONLY; unflushed memory is UNKNOWN after process death");return out;
+            out.put("version",HISTOGRAM_VERSION);out.put("upperInclusiveMs",bounds);out.put("lastBucketLowerExclusiveMs",30000L);out.put("holdCounts",holds);out.put("waitCounts",waits);out.put("processSession",PROCESS_SESSION);out.put("durability","FLUSHED_WINDOWS_ONLY; unflushed memory is UNKNOWN after process death");Map<String,Object> outcomes=new LinkedHashMap<>();outcomes.put("version","R31_WRITER_COMMIT_OUTCOME_V1");outcomes.put("committedKnown",committedKnown.get());outcomes.put("rolledBackKnown",rolledBackKnown.get());outcomes.put("outcomeUnknown",outcomeUnknown.get());out.put("commitOutcomes",outcomes);return out;
         }
         public double holdMean() { long n = count.get(); return n == 0 ? 0 : holdSum.get() / (double) n; }
     }
@@ -68,6 +71,11 @@ public final class WriterHoldLedgerR30 {
 
     /** 调用方：DatabaseCoordinator.runWrite 的 finally（已释放写锁之后）。任何异常都被吞掉，诊断不能改变业务结果。 */
     public static synchronized void record(String operation, boolean critical, long waitMs, long holdMs, boolean failed) {
+        record(operation,critical,waitMs,holdMs,failed,null);
+    }
+
+    /** The transaction owner supplies an observed outcome; legacy callers remain explicitly unknown. */
+    public static synchronized void record(String operation, boolean critical, long waitMs, long holdMs, boolean failed, String outcome) {
         try {
             String key = normalize(operation, critical);
             Stat s = STATS.get(key);
@@ -84,6 +92,9 @@ public final class WriterHoldLedgerR30 {
             s.holdHist.incrementAndGet(bucket(hold));
             s.waitHist.incrementAndGet(bucket(wait));
             if (failed) s.failures.incrementAndGet();
+            if ("ROLLED_BACK".equals(outcome)) s.rolledBackKnown.incrementAndGet();
+            else if ("COMMITTED".equals(outcome)||"COMMITTED_DIAGNOSTIC_FAILED".equals(outcome)) s.committedKnown.incrementAndGet();
+            else s.outcomeUnknown.incrementAndGet();
             if (!critical && hold > BACKGROUND_HOLD_BUDGET_MS) s.overBudget.incrementAndGet();
             if (!critical && hold > BACKGROUND_HOLD_HARD_MS) s.overHard.incrementAndGet();
         } catch (RuntimeException ignored) {
@@ -190,6 +201,7 @@ public final class WriterHoldLedgerR30 {
         m.put("overBudget50ms", s.overBudget());
         m.put("overHard200ms", s.overHard());
         m.put("failures", s.failures());
+        m.put("rolledBack",s.outcomeUnknown.get()==0?s.rolledBackKnown.get():null);m.put("rolledBackKnown",s.rolledBackKnown.get());m.put("commitOutcomeUnknown",s.outcomeUnknown.get());
         m.put("holdP95Interval",interval(s.holdP(0.95)));m.put("waitP95Interval",interval(s.waitP(0.95)));m.put("histogram",s.histogram());m.put("processSession",PROCESS_SESSION);
         return m;
     }

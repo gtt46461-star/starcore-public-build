@@ -1,0 +1,647 @@
+{
+  "scope": "P01_SEVEN_CARD_23_EXACT_ACCEPTANCE_READONLY_PRODUCTION_AND_EVIDENCE_AUDIT_NOT_FULL_SUITE_OR_RELEASE",
+  "anchor": "05391e68266083d156612b014f8d1c84cfcf2fb3",
+  "recordedAtUtc": "2026-11-05T03:34:35.410356+00:00",
+  "productionEdited": false,
+  "sharedIndexTouched": false,
+  "sourceInputs": {
+    "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java": {
+      "anchorSha256": "16c79cd027c433537b371469a32394e3fddb07b9352e92d4d8b3579a6532d871",
+      "workingFileEqualsAnchorAtAudit": true
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java": {
+      "anchorSha256": "cc4354d257a170ce2de3579c2fe62e0e676b70593c8373deec1fe56df79483cf",
+      "workingFileEqualsAnchorAtAudit": true
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java": {
+      "anchorSha256": "ec98ea0e2a672caa8ac4d61e5172e84d243b546c5867644d15e3565d170b23a0",
+      "workingFileEqualsAnchorAtAudit": true
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java": {
+      "anchorSha256": "2fda6286322d1344ef19934d4810839598d1fbb0cf319c11eabae609b314e706",
+      "workingFileEqualsAnchorAtAudit": true
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedTaskR30R1.java": {
+      "anchorSha256": "9b55cd7abfd375d767c333b9692e899c16d5c899f81ce6f0d721219e4997bf73",
+      "workingFileEqualsAnchorAtAudit": true
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java": {
+      "anchorSha256": "98fc0bc205ea4187e43b7e7057cfd52447ff30d5c90c4f933405c31b5b93f1f7",
+      "workingFileEqualsAnchorAtAudit": true
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java": {
+      "anchorSha256": "5564385485e5d66286fb0d2a720ef479e40fe9f972a1cc88763ece674384f998",
+      "workingFileEqualsAnchorAtAudit": true
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java": {
+      "anchorSha256": "217deb555190d726b448ea7543e175a4612f754430a06d47c0e8ef083a368983",
+      "workingFileEqualsAnchorAtAudit": true
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java": {
+      "anchorSha256": "edb385b55b7bacd99ebc323d481a7b4bbd0444a0501bb568b1542c127d0af0ea",
+      "workingFileEqualsAnchorAtAudit": true
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java": {
+      "anchorSha256": "f6e8cf42a3ce8fee578db0da5fc70e3d6728abf9d222f971ba37dede851efb9f",
+      "workingFileEqualsAnchorAtAudit": true
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java": {
+      "anchorSha256": "98ec5e9535eee060689f7fac835e2b45d4494ec8c1bd2b796e6db9a2192c0948",
+      "workingFileEqualsAnchorAtAudit": true
+    },
+    "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java": {
+      "anchorSha256": "c0d466deddad7af01ace76602ee1264f85f88896bc956b7dd0d172c54b28688a",
+      "workingFileEqualsAnchorAtAudit": true
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java": {
+      "anchorSha256": "97380f13f65da759fbb6ce7008c8797f9744d264d529799ca7b57e0ce05f6d89",
+      "workingFileEqualsAnchorAtAudit": true
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java": {
+      "anchorSha256": "ee697f455edd9c0c5e254226e36aad4f8459e031cce88353a9e93aad92ad79a9",
+      "workingFileEqualsAnchorAtAudit": true
+    },
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java": {
+      "anchorSha256": "a4c8c167f9dcecdecd007862bb8725e5ccf2640de0899efc25dbbc1345ad7283",
+      "workingFileEqualsAnchorAtAudit": true
+    }
+  },
+  "verdict": "NOT_READY_TO_DECLARE_P01_ENGINEERING_CLOSED;TWO_REPRODUCED_DEFECTS_AND_EXPLICIT_SOURCE_TEST_GAPS",
+  "confirmedFindings": [
+    {
+      "id": "CLASSIFIER_PARITY",
+      "cards": [
+        "R31-B01-C01.A3"
+      ],
+      "negative": "negative4.log",
+      "privateCandidate": "candidate.log",
+      "patch": "ROOT_CLASSIFIER_PARITY_CANDIDATE.patch",
+      "integrated": false
+    },
+    {
+      "id": "WRITER_REPORT_OVER_BUDGET",
+      "cards": [
+        "R31-B02-C01.A3"
+      ],
+      "negative": "writer-report-negative.log",
+      "privateCandidate": "writer-report-candidate-native.log",
+      "patch": "ROOT_WRITER_REPORT_OVERBUDGET_CANDIDATE.patch",
+      "integrated": false
+    },
+    {
+      "id": "EXACT_ROLLBACK_COUNT_SOURCE",
+      "cards": [
+        "R31-B02-C01.A3"
+      ],
+      "status": "MISSING_SOURCE",
+      "note": "failures counts attempts and cannot be renamed rolledBack. No false zero or completed implementation."
+    }
+  ],
+  "currentAssignedValidation": {
+    "owner": "writer_protocol",
+    "status": "IN_PROGRESS_AS_OF_AUDIT_NOT_PASS",
+    "actualWholeJar": "/workspace/r31-after05391-build/frozen/classes.jar",
+    "actualWholeJarSha256": "c55e051e3d0f8509b6c57dc286f36e0a86e68423013a5f66f6fee050bb2a0005",
+    "actualClassCount": 4494,
+    "compileReceipt": "/workspace/r31-after05391-build/evidence/WHOLE_COMPILE_RECEIPT.json",
+    "compileScope": "Exact05391 offline SDK36/JDK17 development compile,4metadata exclusions,tracked inputs stable;notCI identity or release",
+    "groups": "Original ordered after32 includes task_runtime,write_protocol,commit_failure,progress and writer-hold;this audit did not rerun that group",
+    "otherOwners": "Startup/Dataset/Warm already assigned; no duplicate group or protocol edits by this audit"
+  },
+  "evidenceCatalog": [
+    {
+      "id": "TASK4E",
+      "path": "verification/r31/integration-20261105/before-4e-host32/raw-runner-artifacts/verification/r31/p01/task-runtime/receipt.json",
+      "available": true,
+      "sha256": "234df936bb4844a51f71e5fc1f3f1b66fd8274283e10961db34035ef3db85784",
+      "observedResult": "PASS_211_PRIOR_SOURCE",
+      "actualScope": "actual claim/receipt/half-open/13claims lock3s/helper real exit, 4e source",
+      "limits": "Current 05391 loop/observation changed; current after32 owned by writer is IN_PROGRESS, not filled PASS from this receipt."
+    },
+    {
+      "id": "WRITER",
+      "path": "verification/r31/p01/writer-protocol/writer-evidence.json",
+      "available": true,
+      "sha256": "03d2022522c227ef72c0565bea359f5e6c66608eed23d9104dcdb155ab6c6894",
+      "observedResult": "PASS_PRIOR_NAMED_PROTOCOL",
+      "actualScope": "9 diagnostics; real native transaction/independent readback/rollback, fresh JVM halt/replay; controlled model/sample/settlement SQL counters",
+      "limits": "Older documented explicit compile closure. Its 60min IN_PROGRESS field superseded by completed status. Not actual Android latency."
+    },
+    {
+      "id": "CLASS4475",
+      "path": "verification/r31/p01/failure-classification/20261104-whole4475/RECEIPT.json",
+      "available": true,
+      "sha256": "dbfe39bfc7610426ebf7d63a44e6e8d27495b95f1a8ac6a9b3d1a636a5211671",
+      "observedResult": "PASS_11_PRIOR_JUNIT",
+      "actualScope": "typed producer -> DatabaseCoordinator adapter contracts and original tests",
+      "limits": "Does not test parity of all roots through direct classifier; our current parity negative shows this coverage gap."
+    },
+    {
+      "id": "CONT",
+      "path": "verification/r31/p02/continuation-control/RECEIPT.json",
+      "available": true,
+      "sha256": "d8541833e4456dfb2af977e050475a77bb2b6734a72bcf86f000d94bb15bad41",
+      "observedResult": "PASS_8_CORE_4_REPLAY_10000_SWITCHES",
+      "actualScope": "actual continuation and TaskContinuation, synthetic lifecycle bodies, 128 replay candidates/2 helpers, owner/target 10000, permits0",
+      "limits": "Controlled bodies and DbStore/Coordinator boundary; not actual SQLite connection lifetime or writer rollback. Relevant core/TaskContinuation bytes still equal current source."
+    },
+    {
+      "id": "HOST60",
+      "path": "verification/r31/p01/soak/completed-host-60min/status.json",
+      "available": true,
+      "sha256": "08cbc61a5c4a49cf3daf5cca7cdcd9590b8d2276a79bfc45fdb73dbe105a3838",
+      "observedResult": "COMPLETED_3600_REAL_SECONDS_WITH_RECORDED_REJECTIONS",
+      "actualScope": "5 synthetic operation classes through actual production writer and native SQLite; draw3600/3600,11 lock failures,13 research missed ticks",
+      "limits": "Old frozen source, driver skips failed input instead of retaining business pending; proves neither current five real business chains nor all-input losslessness."
+    },
+    {
+      "id": "HOLD",
+      "path": "verification/r31/p01/writer-hold-fault/SUMMARY.json",
+      "available": true,
+      "sha256": "bb32bd0a61c3517f7bb3c72552a27044f4fdb8017264ffb8270a0977c235cadc",
+      "observedResult": "PASS_100_NAMED_ASSERTIONS",
+      "actualScope": "actual writer over200ms fault receipt bounded queue/backpressure and durable outcomes",
+      "limits": "Named source closure; unflushed RAM observations after process death explicitly unknown."
+    },
+    {
+      "id": "TELEMETRY",
+      "path": "verification/r31/p01/telemetry-budget/SUMMARY.json",
+      "available": true,
+      "sha256": "850918f410348790aa6e3435d091221ff5d6dd2d74fe50d589feb9110ac15cc0",
+      "observedResult": "PASS_4285_NAMED_ASSERTIONS",
+      "actualScope": "actual timeline/hold immutable chunks, unknown/commit/replay/cancel, complete costs, DDL0",
+      "limits": "Only named two producers, not global runtime DDL0."
+    },
+    {
+      "id": "ATOM",
+      "path": "verification/r31/p01/atom-publication/SUMMARY.json",
+      "available": true,
+      "sha256": "cb495544691b641447e57dae9087f3cf0514f6c657065c0e71b82fa58923efc5",
+      "observedResult": "PASS_NAMED_NATIVE_PROTOCOL",
+      "actualScope": "atom165/molecules32 actual owner protocol; staged/final, failure/cancel/owner/process scenarios and original projections",
+      "limits": "Named producer old frozen scope; not every B02 producer."
+    },
+    {
+      "id": "ATOMNET",
+      "path": "verification/r31/p01/atomnet-artifact-host/PORTABILITY_RECEIPT.json",
+      "available": true,
+      "sha256": "655fb191a3eda1abc24b1baba5279b9b8fe77884983790965f970241c34a846f",
+      "observedResult": "PASS_543_NATIVE_PLUS_29_ORIGINAL",
+      "actualScope": "actual whole4475 business classes, real model/optimizer/RNG/sample refs, producer, native halt71/73/fresh JVM",
+      "limits": "Old actual artifact, controlled engineering samples; not current whole-source or Android/natural quality."
+    },
+    {
+      "id": "HISTORY",
+      "path": "verification/r31/p01/history-import/MODULE_STATUS.json",
+      "available": true,
+      "sha256": "7ee11ce773442aa166756ded54c82874115abc5e7632e44df0e4404828626c9d",
+      "observedResult": "NAMED_NATIVE_PUBLICATION_PROOF",
+      "actualScope": "published generations, staging, actual restore/readers and process/retry cases",
+      "limits": "Current owner/data-source join must not be inferred from this older module proof."
+    },
+    {
+      "id": "EVOLUTION",
+      "path": "verification/r31/evolution_publication/FINAL_EVIDENCE.json",
+      "available": true,
+      "sha256": "e4d9666f11365382c217933184eb28a5f414edc4c93e425b27d9828f63cc4827",
+      "observedResult": "NAMED_NATIVE_PUBLICATION_PROOF",
+      "actualScope": "canonical final atomic publication and manifest chunk identity, exact old scientific projection",
+      "limits": "Only named producer, later owner cleanup has separate proof."
+    },
+    {
+      "id": "DDL",
+      "path": "verification/r31/p02/runtime-ddl-hotspots/RECEIPT.json",
+      "available": true,
+      "sha256": "e5d7ede12f8601f3fa97aade9de4d24d992601b2c4dcd36452ba5ded2cd697f4",
+      "observedResult": "PASS_NAMED_NATIVE_DDL0",
+      "actualScope": "Certificate/V51/Deferred actual business DDL0 and missing schema typed refusal; identity preserved",
+      "limits": "Not all-app DDL tracing, current startup owner has separate assigned test."
+    },
+    {
+      "id": "PARITY",
+      "path": "verification/r31/p01/seven-card-review-05391/PARITY_NEGATIVE_RECEIPT.json",
+      "available": true,
+      "sha256": "bda195a75f720f3598a4295a2689d948dfa8df847d2da543995d60c80920b2a4",
+      "observedResult": "DEFECT_REPRODUCED_CURRENT_AND_PRIVATE_CANDIDATE_PASS",
+      "actualScope": "current exact05391 whole4494; plain Timeout and typed dependency around FULL/CORRUPT/constraint give different direct/writer decisions; 3 controls and commit/unknown priority retained",
+      "limits": "Controlled Throwable injection only, no claim actual disk filled or SQL executed. Candidate not integrated."
+    },
+    {
+      "id": "REPORT",
+      "path": "verification/r31/p01/seven-card-review-05391/WRITER_REPORT_NEGATIVE_RECEIPT.json",
+      "available": true,
+      "sha256": "246d786d32463a65ae7d2f5b0137ed582df87185c79c4351203fc0d0b820071c",
+      "observedResult": "DEFECT_REPRODUCED_CURRENT_AND_PRIVATE_CANDIDATE_PASS",
+      "actualScope": "actual05391 ReportSnapshot.capture/nativeSQLite controlled persisted writer row loses over_budget=3; one-column candidate retains3",
+      "limits": "No exact rollback counter source. Initial candidate compile with old platform-only signature failed and retained; actualSDK compilation then native HOST passed."
+    },
+    {
+      "id": "PROCESS",
+      "path": "construction/r31/PROCESS_ADJUSTMENT_20261105.md",
+      "available": true,
+      "sha256": "56ef8dd217990558a881dd11e1cd9548e9a1844e5e621f612842ec226eecae5a",
+      "observedResult": "ACTIVE_USER_AUTHORIZED_PROCESS_OVERRIDE",
+      "actualScope": "Android/physical/24h72h are B12 release gates; local before/after tests, CI identity-only freeze",
+      "limits": "Does not lower test assertions; no per-card DEVICE_PASS forced."
+    }
+  ],
+  "cards": [
+    {
+      "id": "R31-B01-C01",
+      "title": "统一瞬时等待、取消、依赖和真实故障分类",
+      "implementation": "DEFECT_FOUND_ROOT_FIX_PENDING",
+      "engineeringExit": "NOT_CLOSED_BY_THIS_AUDIT",
+      "acceptance": [
+        {
+          "id": "R31-B01-C01.A1",
+          "originalAcceptance": "持实时锁3秒，所有R27任务不新增FAULT、不进入QUARANTINED；锁释放后依公平预算有进展，P0不被R27排队阻塞。",
+          "status": "PARTIAL_PRIOR_EVIDENCE_CURRENT_REPLAY_IN_PROGRESS",
+          "evidence": [
+            "TASK4E",
+            "HOST60"
+          ],
+          "currentProductionMechanism": "ResearchPool.claimPrepared -> claimWithinR31; typed lock failures do not consume recordFaultBudget; round-robin next; fair single writer service slot.",
+          "actuallyProved": "13 actual claims reject during real3s lock, 0fault/0quarantine and resume13. Critical writer contention has separate synthetic window.",
+          "requiredRemaining": "writer after32 task_runtime/write_protocol; joint actual P0+all R27 fairness must remain explicit, not inferred from isolated13 claims."
+        },
+        {
+          "id": "R31-B01-C01.A2",
+          "originalAcceptance": "磁盘满/constraint/损坏异常不被当busy无限重试；用户stop后无继续提交。",
+          "status": "PARTIAL_PRIOR_EVIDENCE",
+          "evidence": [
+            "WRITER",
+            "CLASS4475",
+            "TASK4E",
+            "PARITY"
+          ],
+          "currentProductionMechanism": "FailureDisposition decisions gate fault budget; current queue checks cancellation before and after SQL with fence checks.",
+          "actuallyProved": "Typed writer FULL/CORRUPT/constraint never busy; real queue cancellation rolls back. Direct typed-storage masking is listed as A3 defect.",
+          "requiredRemaining": "current write_protocol/commit_failure/task_runtime outcomes from assigned after32; direct-classifier candidate integration must pass original contracts."
+        },
+        {
+          "id": "R31-B01-C01.A3",
+          "originalAcceptance": "R26、R27、直接研究write、任务claim四入口对同一根异常分类一致。",
+          "status": "DEFECT_CONFIRMED",
+          "evidence": [
+            "PARITY",
+            "CLASS4475"
+          ],
+          "currentProductionMechanism": "Current direct classifier returns immediately for typed producer before checking storage roots and omits plain TimeoutException; coordinator separately detects those causes.",
+          "actuallyProved": "4 mismatches reproduced on exact05391 classes; busy/stale/cancel3 controls agree. Private candidate4->0 and COMMITTED/UNKNOWN preserved.",
+          "requiredRemaining": "Root integrate ROOT_CLASSIFIER_PARITY_CANDIDATE.patch, rerun tiny parity host and original classification/queue tests. Not a production edit by this audit."
+        }
+      ],
+      "required_tests": {
+        "frozenCardsField": "ABSENT",
+        "source": "Exact acceptance clauses; no additional task scope invented"
+      },
+      "device": "NOT_RUN_B12_GATE",
+      "naturalQuality": "NOT_PROVEN_SEPARATE_FROM_ENGINEERING"
+    },
+    {
+      "id": "R31-B01-C02",
+      "title": "领取、提交、回执全部使用同一owner/fence并消除旧prepared状态",
+      "implementation": "CURRENT_NAMED_PROTOCOL_IMPLEMENTED_NO_NEW_PRODUCTION_DEFECT_CONFIRMED_BY_THIS_AUDIT",
+      "engineeringExit": "NOT_CLOSED_BY_THIS_AUDIT",
+      "acceptance": [
+        {
+          "id": "R31-B01-C02.A1",
+          "originalAcceptance": "注入旧owner失败回执晚于新owner领取：新owner保持RUNNING，旧回执只进入拒收日志。",
+          "status": "PRIOR_NAMED_PASS_CURRENT_REPLAY_IN_PROGRESS",
+          "evidence": [
+            "TASK4E"
+          ],
+          "currentProductionMechanism": "ResearchPool.record requires owner/fence/session/boot/elapsed lease and TASK_RECEIPT_CAS_R31 status RUNNING; stale attempt only observed. R26.recordClaim uses same requireFence before task/lease/progress.",
+          "actuallyProved": "Actual old success+failure receipts arrive after new claim; new status RUNNING/fault0 and newer health revoke fenced.",
+          "requiredRemaining": "assigned current task_runtime; retain exact old-owner rejected receipt log, not merely a SQL-string test."
+        },
+        {
+          "id": "R31-B01-C02.A2",
+          "originalAcceptance": "在claim后/提交前/提交后receipt前杀进程：恢复只重复计算未提交部分，artifact及cursor恰好一次发布。",
+          "status": "PARTIAL_NAMED_PROCESS_PROOF",
+          "evidence": [
+            "WRITER",
+            "ATOM",
+            "ATOMNET",
+            "HISTORY",
+            "EVOLUTION"
+          ],
+          "currentProductionMechanism": "durable commit_key/payload receipt same transaction; owner chunk/staging manifest then final cursor. Process-local parked Java stacks explicitly not durable.",
+          "actuallyProved": "HOST real commit->halt/newJVM replay and owner artifact protocols old-or-complete; rollback permits redo.",
+          "requiredRemaining": "Current Dataset/Warm/startup owner joins (already assigned) plus phase matrix claim-after / pre-submit / post-COMMIT pre-ack for affected owners. No duplicate full groups launched here."
+        },
+        {
+          "id": "R31-B01-C02.A3",
+          "originalAcceptance": "时钟前后跳24小时、重启后同PID复用均不授予旧fence写权。",
+          "status": "PARTIAL_HOST_CLOCK_PROOF",
+          "evidence": [
+            "TASK4E"
+          ],
+          "currentProductionMechanism": "claimWithin/requireFence check boot_id+elapsed deadline/session/fence; owner-null Android selectionArgs branch fixed in current source. initialize rotates owner/fence.",
+          "actuallyProved": "HOST perturbs wall lease deadlines +/-24h and lease boot; old fence rejected. This is not real OS clock/reboot/PID-reuse trace.",
+          "requiredRemaining": "Retain HOST injected boot/elapsed proof; explicit whole clock/PID restoration injection if not covered by current task_runtime. Real OS test deferred B12."
+        },
+        {
+          "id": "R31-B01-C02.A4",
+          "originalAcceptance": "busy重试不丢pending batch；owner变更无R30_PREPARED_OWNER_CHANGED无限重试。",
+          "status": "PRIOR_NAMED_PASS_CURRENT_REPLAY_IN_PROGRESS",
+          "evidence": [
+            "TASK4E",
+            "CONT",
+            "WRITER"
+          ],
+          "currentProductionMechanism": "Runtime.submit freezes immutable batch+input+logical sequence before retry loop; claimPrepared stale closes old continuation; discard/invalidate only after real parent/helper termination.",
+          "actuallyProved": "Immutable bind snapshot; prepared yield/retry retains payload; owner changes drain rather than resume stale prepared.",
+          "requiredRemaining": "current assigned task_runtime/write_protocol, and affected owner-specific current busy->same-payload resume; current Dataset/Warm are not silently counted done."
+        }
+      ],
+      "required_tests": {
+        "frozenCardsField": "ABSENT",
+        "source": "Exact acceptance clauses; no additional task scope invented"
+      },
+      "device": "NOT_RUN_B12_GATE",
+      "naturalQuality": "NOT_PROVEN_SEPARATE_FROM_ENGINEERING"
+    },
+    {
+      "id": "R31-B01-C03",
+      "title": "有限隔离、半开探测与任务级恢复",
+      "implementation": "CURRENT_NAMED_PROTOCOL_IMPLEMENTED_NO_NEW_PRODUCTION_DEFECT_CONFIRMED_BY_THIS_AUDIT",
+      "engineeringExit": "NOT_CLOSED_BY_THIS_AUDIT",
+      "acceptance": [
+        {
+          "id": "R31-B01-C03.A1",
+          "originalAcceptance": "虚拟时钟测试每个隔离等级、半开唯一性、成功复位与NEEDS_FIX；时间跳变不导致全部同时放行。",
+          "status": "PARTIAL_HOST_EVIDENCE",
+          "evidence": [
+            "TASK4E",
+            "CONT"
+          ],
+          "currentProductionMechanism": "quarantine deadlines and rate gate boot/elapsed; recoverOne admits1probe/sec; typed fault alone consumes budget; actual new durable artifact required for reset.",
+          "actuallyProved": "Six same-fingerprint rounds reach NEEDS_FIX; delays numerically tested30s/120s/600s/1800s; global unique probe and artifact reset native tested.",
+          "requiredRemaining": "Exact virtual-clock each-level deadline/boundary/boot-change combined scenario not established by manually setting deadline=0; current after32 may repeat named proof only."
+        },
+        {
+          "id": "R31-B01-C03.A2",
+          "originalAcceptance": "将13个任务以混合故障隔离：可恢复错误按依赖恢复，真实缺陷保持NEEDS_FIX并报告；不能把“零隔离”作为唯一验收。",
+          "status": "NOT_RUN_EXACT_REQUIRED_MIXTURE",
+          "evidence": [
+            "TASK4E"
+          ],
+          "currentProductionMechanism": "r31_task_control preserves inherited faults, finite quarantine and NEEDS_FIX; recovery checks old actual work before one half-open.",
+          "actuallyProved": "13-task real3s BUSY test is real but is not13 mixed quarantined failures. One-task6round and two-task limiter are separate evidence.",
+          "requiredRemaining": "One focused actual13-task mixed-failure recovery case, dependency-recoverables resume, deterministic defects remain NEEDS_FIX with exact cause. No new production capability requested."
+        },
+        {
+          "id": "R31-B01-C03.A3",
+          "originalAcceptance": "24小时无永久无声停摆；每个pending>0的已满足依赖任务都有有效进展或有精确阻塞证据。",
+          "status": "DEFERRED_B12_DURATION_GATE",
+          "evidence": [
+            "TASK4E",
+            "PROCESS"
+          ],
+          "currentProductionMechanism": "current bounded health pending/last-artifact/source facts and explicit blocked state support observation; wake does not report recovered.",
+          "actuallyProved": "Short HOST proofs do not reach24h.",
+          "requiredRemaining": "24h trace with pending/dependency/progress evidence NOT_RUN; user-authorized B12 gate, not P01 source-start blocker."
+        }
+      ],
+      "required_tests": {
+        "frozenCardsField": "ABSENT",
+        "source": "Exact acceptance clauses; no additional task scope invented"
+      },
+      "device": "NOT_RUN_B12_GATE",
+      "naturalQuality": "NOT_PROVEN_SEPARATE_FROM_ENGINEERING"
+    },
+    {
+      "id": "R31-B01-C04",
+      "title": "可中断计算与关闭流程有界，禁止超时后并发替身",
+      "implementation": "CURRENT_NAMED_PROTOCOL_IMPLEMENTED_NO_NEW_PRODUCTION_DEFECT_CONFIRMED_BY_THIS_AUDIT",
+      "engineeringExit": "NOT_CLOSED_BY_THIS_AUDIT",
+      "acceptance": [
+        {
+          "id": "R31-B01-C04.A1",
+          "originalAcceptance": "模拟永不poll任务：无第二个相同任务实例；P0可继续；stop按钮可用；10秒内显示停止未完成而非虚报已停。",
+          "status": "PARTIAL_HOST_PASS_ANDROID_UI_DEFERRED",
+          "evidence": [
+            "TASK4E",
+            "CONT",
+            "PROCESS"
+          ],
+          "currentProductionMechanism": "Cooperative CANCELLING retains thread/permit; PreparedTask combines parent actual termination+helper group; close async draining forbids new owner/pool.",
+          "actuallyProved": "Never-poll isolated body cannot be replaced; actual pool/manual-retry/helper release tested; bounded close is not TERMINATED.",
+          "requiredRemaining": "Stop UI and10s display/P0 coexistence is B12 runtime gate; HOST named proof accepted in its stated boundary, not UI proof."
+        },
+        {
+          "id": "R31-B01-C04.A2",
+          "originalAcceptance": "模拟在writer critical段触发yield：必须拒绝且回滚；任何park不持writer锁。",
+          "status": "PARTIAL_CRITICAL_GUARD_PASS_SQL_ROLLBACK_NOT_RUN",
+          "evidence": [
+            "CONT",
+            "WRITER"
+          ],
+          "currentProductionMechanism": "yieldPreparedWrite throws R30_YIELD_INSIDE_WRITER when criticalDepth>0; DBC scopes writer/transaction with Cooperative.Critical.",
+          "actuallyProved": "Actual pure-Java critical rejection/idempotent close tested. Writer native TX rollback tested separately.",
+          "requiredRemaining": "One current native writer-body yielding case must show actual rollback and no lock-held park; cannot join two unrelated assertions as proof it ran."
+        },
+        {
+          "id": "R31-B01-C04.A3",
+          "originalAcceptance": "长时间压力下线程总数、待执行队列长度、prepared对象数有上限；取消后资源可归还。",
+          "status": "PARTIAL_SHORT_RUN_PASS_LONG_STRESS_NOT_RUN",
+          "evidence": [
+            "TASK4E",
+            "CONT"
+          ],
+          "currentProductionMechanism": "4continuations/2helpers static limits, helper count/descriptor/working leases, bounded executor queue; prepared map keyed task, releases after real exit.",
+          "actuallyProved": "128 candidate bounded replay+actual uncooperative helper retain/release and prepared budget checks.",
+          "requiredRemaining": "Long pressure thread/queue/prepared plateau trace not established by short128 or10k transitions; sustained resource gate can be B12, short same-source regression is assigned after32."
+        },
+        {
+          "id": "R31-B01-C04.A4",
+          "originalAcceptance": "同任务owner/target切换一万次无ABA、双重提交、已关闭connection访问。",
+          "status": "SATISFIED_NAMED_LIFECYCLE_SCOPE_CONNECTION_SCOPE_MISSING",
+          "evidence": [
+            "CONT",
+            "TASK4E"
+          ],
+          "currentProductionMechanism": "TaskContinuation.ACTIVE identity/inFlight + old owner/target await true termination, logical commit chunk inheritance.",
+          "actuallyProved": "10000 real sequential owner/target switches, maxsame body1/permits0; controlled2overlap races.",
+          "requiredRemaining": "Existing10k uses lifecycle body/DbStore boundary, not actual SQLite connection-close access proof. Keep HOST scope rather than repeat/rename as DB ABA acceptance."
+        }
+      ],
+      "required_tests": {
+        "frozenCardsField": "ABSENT",
+        "source": "Exact acceptance clauses; no additional task scope invented"
+      },
+      "device": "NOT_RUN_B12_GATE",
+      "naturalQuality": "NOT_PROVEN_SEPARATE_FROM_ENGINEERING"
+    },
+    {
+      "id": "R31-B02-C01",
+      "title": "写优先级显式化，消除R30操作名漏分",
+      "implementation": "DEFECT_FOUND_ROOT_FIX_PENDING",
+      "engineeringExit": "NOT_CLOSED_BY_THIS_AUDIT",
+      "acceptance": [
+        {
+          "id": "R31-B02-C01.A1",
+          "originalAcceptance": "登记表覆盖所有入口；未分类operation构建失败或运行标UNKNOWN_PRIORITY，不自动当最高级。",
+          "status": "PRIOR_NAMED_PASS_CURRENT_REPLAY_IN_PROGRESS",
+          "evidence": [
+            "WRITER",
+            "HOLD"
+          ],
+          "currentProductionMechanism": "WriteContext explicit classes at producers; immutable legacy registry with known wildcard families; unknown marks UNKNOWN_PRIORITY and defaults background, not critical.",
+          "actuallyProved": "Actual unknown operation counter test and source explicit contexts; registry-file existence is not all-call-site coverage.",
+          "requiredRemaining": "current assigned write_protocol and any UNKNOWN_PRIORITY observation from actual callers. Do not infer every dynamic operation was exercised."
+        },
+        {
+          "id": "R31-B02-C01.A2",
+          "originalAcceptance": "60分钟竞争测试：1Hz轮询+历史回补+研究+报告+保留，关键写无研究排队饿死，研究pending也不无限积压。",
+          "status": "PARTIAL_REAL_60MIN_WINDOW",
+          "evidence": [
+            "HOST60"
+          ],
+          "currentProductionMechanism": "fair single writer with every5s aged research slot, explicit live-freeze precedence and bounded background requests.",
+          "actuallyProved": "Real3600.003197486s; draw3600/3600 no critical failures;11 other lock failures/13 research missed ticks explicitly recorded.",
+          "requiredRemaining": "Synthetic driver skipped failed inputs. Current real five-chain pending-lossless/SLO workload not proved. Do not relabel old window clean/all-business PASS or invent rerun."
+        },
+        {
+          "id": "R31-B02-C01.A3",
+          "originalAcceptance": "报告列每operation count/waitP95/holdP95/max/overBudget/rolledBack；阈值失败有具体owner文件。",
+          "status": "DEFECT_CONFIRMED_AND_MISSING_SOURCE",
+          "evidence": [
+            "REPORT",
+            "HOLD",
+            "TELEMETRY"
+          ],
+          "currentProductionMechanism": "WriterHoldLedger -> HoldLedgerFlush persists count/wait/hold/max/over_budget/failures, but current ReportSnapshot omits over_budget; failures does not measure exact rolled-back count.",
+          "actuallyProved": "Actual persisted row over_budget3 -> exported row lacks key; candidateonecolumn retains3. Exact rolledBack source/owner mapping still absent.",
+          "requiredRemaining": "Root integrate ROOT_WRITER_REPORT_OVERBUDGET_CANDIDATE.patch; provide real rollback outcome count source or explicitly UNKNOWN pending implementation, never rename failures. Verify threshold->specific owner-file linkage with actual fault rows."
+        }
+      ],
+      "required_tests": {
+        "frozenCardsField": "ABSENT",
+        "source": "Exact acceptance clauses; no additional task scope invented"
+      },
+      "device": "NOT_RUN_B12_GATE",
+      "naturalQuality": "NOT_PROVEN_SEPARATE_FROM_ENGINEERING"
+    },
+    {
+      "id": "R31-B02-C02",
+      "title": "数值计算和DDL退出短事务，分片在owner层完成",
+      "implementation": "CURRENT_NAMED_PROTOCOL_IMPLEMENTED_NO_NEW_PRODUCTION_DEFECT_CONFIRMED_BY_THIS_AUDIT",
+      "engineeringExit": "NOT_CLOSED_BY_THIS_AUDIT",
+      "acceptance": [
+        {
+          "id": "R31-B02-C02.A1",
+          "originalAcceptance": "运行期DDL tracing=0（真实迁移窗口除外）；schema缺失时DEPENDENCY(SCHEMA_PENDING)，不现场CREATE。",
+          "status": "PARTIAL_NAMED_DDL0_CURRENT_JOIN_IN_PROGRESS",
+          "evidence": [
+            "DDL",
+            "TELEMETRY",
+            "ATOM",
+            "ATOMNET",
+            "HISTORY"
+          ],
+          "currentProductionMechanism": "Queue immutable prepared admission rejects DDL; actual domain journals own startup migration; business schema-readiness guards require objects, no runtime CREATE in named repaired paths.",
+          "actuallyProved": "Named native business tracesDDL0+missing-schema DEPENDENCY and actual migration outside business.",
+          "requiredRemaining": "Startup owner fresh joint, Dataset/Warm assigned repairs and affected real callgraph trace. No global all-appDDL0 from1998 literal inventory or Schema filename exemption."
+        },
+        {
+          "id": "R31-B02-C02.A2",
+          "originalAcceptance": "对各大batch在第1片/中间片/最终publish前后杀进程：无半模型、无重复增量、无cursor越过未发布artifact。",
+          "status": "PARTIAL_NAMED_PUBLICATION_CURRENT_JOINS_PENDING",
+          "evidence": [
+            "ATOM",
+            "ATOMNET",
+            "HISTORY",
+            "EVOLUTION",
+            "WRITER"
+          ],
+          "currentProductionMechanism": "owner bounded invisible staging/immutable manifest and final CAS; no generic queue split. Scientific arithmetic/coverage unchanged.",
+          "actuallyProved": "Actual named producer stage failure/rollback/cancel/source/oldowner, real native halt and readback traces.",
+          "requiredRemaining": "Current assigned Dataset/Warm/ABI outputs plus exact required first/middle/final before-after kill for every affected large owner. Existing module assertions are not all-big-batch closure."
+        },
+        {
+          "id": "R31-B02-C02.A3",
+          "originalAcceptance": "Android实际SQLite测试受保护触发器、WAL和checkpoint并发；host sqlite结果不能代替设备事务时延。",
+          "status": "DEFERRED_B12_ANDROID_GATE",
+          "evidence": [
+            "PROCESS",
+            "ATOM",
+            "ATOMNET",
+            "DDL"
+          ],
+          "currentProductionMechanism": "startup trigger contracts and checkpoint reference closure have native tests, Android instrumented originals are retained.",
+          "actuallyProved": "HOST trigger/archive/reference preservation is real; not ART/WAL/checkpoint concurrent latency.",
+          "requiredRemaining": "Actual Android protected-trigger/WAL/checkpoint concurrency NOT_RUN for this source; B12 release gate, not prior source phase blocker."
+        }
+      ],
+      "required_tests": {
+        "frozenCardsField": "ABSENT",
+        "source": "Exact acceptance clauses; no additional task scope invented"
+      },
+      "device": "NOT_RUN_B12_GATE",
+      "naturalQuality": "NOT_PROVEN_SEPARATE_FROM_ENGINEERING"
+    },
+    {
+      "id": "R31-B02-C03",
+      "title": "区分实际提交与提交后诊断失败，防重复训练/结算",
+      "implementation": "CURRENT_NAMED_PROTOCOL_IMPLEMENTED_NO_NEW_PRODUCTION_DEFECT_CONFIRMED_BY_THIS_AUDIT",
+      "engineeringExit": "NOT_CLOSED_BY_THIS_AUDIT",
+      "acceptance": [
+        {
+          "id": "R31-B02-C03.A1",
+          "originalAcceptance": "注入afterCommit/timing/Log失败：模型参数、样本计数、结算计数各只变化一次；诊断标红。",
+          "status": "PRIOR_NAMED_PASS_CURRENT_REPLAY_IN_PROGRESS",
+          "evidence": [
+            "WRITER",
+            "HOLD",
+            "ATOMNET"
+          ],
+          "currentProductionMechanism": "DatabaseCoordinator CommitOutcome separates committed diagnostic failure from rollback/unknown; diagnostics cannot redo body, scheduler requires receipt resolution for UNKNOWN.",
+          "actuallyProved": "Nine diagnostic phases and model/sample/settlement engineering counters once; real trained model checkpoint protocol also has ACK/replay tests.",
+          "requiredRemaining": "assigned current write_protocol/commit_failure/writer-hold groups; compare source-bound case outcomes, not script-exit alone."
+        },
+        {
+          "id": "R31-B02-C03.A2",
+          "originalAcceptance": "注入commit完成但返回前进程死：重启同commit_key不重复应用；注入commit回滚则能重做。",
+          "status": "PRIOR_NAMED_REAL_HOST_PROCESS_PASS",
+          "evidence": [
+            "WRITER",
+            "ATOMNET",
+            "ATOM"
+          ],
+          "currentProductionMechanism": "stable commit key excludes owner/fence and receipt payload hash same atomic transaction; independent readback after END resolves unknown.",
+          "actuallyProved": "Actual COMMIT->halt73 then fresh PID/JVM skips body; rollback case redoes. Named model/stage process scenarios real.",
+          "requiredRemaining": "current owned-producer joins and after32 receipt; physical Android process death deferred B12, old HOST logs kept actual scope."
+        },
+        {
+          "id": "R31-B02-C03.A3",
+          "originalAcceptance": "不同payload复用commit_key必须报INTEGRITY_CONFLICT，不能INSERT OR IGNORE掩盖。",
+          "status": "PRIOR_NAMED_PASS_CURRENT_REPLAY_IN_PROGRESS",
+          "evidence": [
+            "WRITER",
+            "ATOMNET"
+          ],
+          "currentProductionMechanism": "runIdempotentAtomicWriteR31 reads existing durable receipt then compares payload_hash, integrity conflict before user body; immutable batch hashes exact binds.",
+          "actuallyProved": "Same key different payload rejects INTEGRITY and persisted counters unchanged; no silent ignore.",
+          "requiredRemaining": "assigned current write_protocol/commit_failure and immutable batch tests. No production defect in this audit for receipt replay itself."
+        }
+      ],
+      "required_tests": {
+        "frozenCardsField": "ABSENT",
+        "source": "Exact acceptance clauses; no additional task scope invented"
+      },
+      "device": "NOT_RUN_B12_GATE",
+      "naturalQuality": "NOT_PROVEN_SEPARATE_FROM_ENGINEERING"
+    }
+  ],
+  "releaseGate": {
+    "Android": "NOT_RUN_FOR_CURRENT_SOURCE",
+    "physicalDevice": "NOT_RUN",
+    "24h": "NOT_RUN",
+    "72h": "NOT_RUN",
+    "policy": "User-authorized no-physical-device alternative and PROCESS_ADJUSTMENT move these to B12. HOST results do not become DEVICE_PASS; these do not block earlier source construction."
+  },
+  "naturalQuality": "NOT_PROVEN",
+  "excludedWork": "No new research capability, APK/version/identity freeze, global ownership/semantic full inventory, production edits or shared index operations."
+}

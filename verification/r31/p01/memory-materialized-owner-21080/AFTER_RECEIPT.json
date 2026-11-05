@@ -1,0 +1,39 @@
+{
+  "scope": "TWO_REAL_PRODUCTION_OVERLAYS_SAME_ACTUAL_05391_SUPPORT_NOT_WHOLE_BUILD",
+  "source_sha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java": "078239ed72c3174e3c59bfb2627306c33bdee4d268fc7c9f88b53d54258f222c",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java": "cf29bcc40990968689137b133c670322c4b26f13ab0ba27f64819e5790b55f16"
+  },
+  "support_sha256": "c55e051e3d0f8509b6c57dc286f36e0a86e68423013a5f66f6fee050bb2a0005",
+  "fixture_sha256": "8783670a3e3c98e1250c46f1fd3d8807704f2d27930f3095c3ff2a7b3815a955",
+  "forced_gc": false,
+  "heap_bytes": 536870912,
+  "commands": [
+    {
+      "name": "compile-production",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx256m",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-sourcepath",
+        "/workspace/r31-memory-materialized-owner-scratch/empty",
+        "-implicit:none",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/r31-after05391-build/frozen/classes.jar:/workspace/r31-startup-joint-current-scratch/r31-shared-startup-r0h60xyf/platform:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/workspace/r31-memory-materialized-owner-scratch/production",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 1.355958,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "a5aacc722187bba8f6425d35a58a8aaa18de6e45e43108d0eb52c61ea6d1f0ff"
+    }
+  ],
+  "android": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN"
+}

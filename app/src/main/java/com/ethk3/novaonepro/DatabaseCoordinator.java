@@ -132,7 +132,7 @@ public final class DatabaseCoordinator {
         if(fatal!=null)throw fatal;
     }
     public static Map<String,Object> writeProtocolSnapshotR31() {
-        Map<String,Object> snapshot=new LinkedHashMap<>();snapshot.put("unknownPriorityCount",UNKNOWN_PRIORITY_R31.get());
+        Map<String,Object> snapshot=new LinkedHashMap<>();snapshot.put("scope","CURRENT_PROCESS_ONLY_OUTSIDE_DATABASE_WATERMARK");snapshot.put("unknownPriorityCount",UNKNOWN_PRIORITY_R31.get());
         snapshot.put("lastUnknownPriority",lastUnknownPriorityR31);snapshot.put("diagnosticFailures",DIAGNOSTIC_FAILURES_R31.get());
         snapshot.put("lastDiagnosticFailure",lastDiagnosticR31);snapshot.put("unknownCommitCount",UNKNOWN_COMMITS_R31.get());
         snapshot.put("researchServiceIntervalMs",5000);snapshot.put("lastResearchServiceMonoMs",LAST_RESEARCH_SERVICE_R31.get());
@@ -888,10 +888,10 @@ public final class DatabaseCoordinator {
     }
     private void recordUnlockedWriterR30(String operation,boolean critical,long wait,long hold,boolean failed){
         if(writeLock.isHeldByCurrentThread())return;
+        AttemptR31 attempt=ATTEMPT_R31.get();
         try {
-            com.ethk3.novaonepro.strategyv2.WriterHoldLedgerR30.record(operation,critical,Math.max(0,wait),Math.max(0,hold),failed);
+            com.ethk3.novaonepro.strategyv2.WriterHoldLedgerR30.record(operation,critical,Math.max(0,wait),Math.max(0,hold),failed,attempt==null?null:attempt.outcome.name());
         } finally {
-            AttemptR31 attempt=ATTEMPT_R31.get();
             com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.observe(operation,critical,wait,hold,failed,
                     attempt==null?CommitOutcome.UNKNOWN:attempt.outcome);
         }

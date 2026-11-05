@@ -1,0 +1,5 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java
+@@ -185 +185 @@
+-        q.rows("writerWindows","r30_writer_hold",new String[]{"window_start","window_end","operation","critical","count","failures","hold_p95","hold_max","wait_p95","wait_max","over_hard","histogram_json","process_session"},q.has("r30_writer_hold","window_start")?"window_start DESC":null,2000,q.has("r30_writer_hold","window_start")?"window_start>="+READ_CLOCK+"-86400000":null,4096);
++        q.rows("writerWindows","r30_writer_hold",new String[]{"window_start","window_end","operation","critical","count","failures","hold_p95","hold_max","wait_p95","wait_max","over_budget","over_hard","histogram_json","process_session"},q.has("r30_writer_hold","window_start")?"window_start DESC":null,2000,q.has("r30_writer_hold","window_start")?"window_start>="+READ_CLOCK+"-86400000":null,4096);

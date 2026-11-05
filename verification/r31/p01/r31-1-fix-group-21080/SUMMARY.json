@@ -1,0 +1,41 @@
+{
+  "scope": "R31_1_P01_TARGETED_SOURCE_REPAIRS_NOT_PHASE_OR_FINAL_RELEASE_ACCEPTANCE",
+  "revisionAuthorization": "21080a71d7c1a22d536cea5b82332cec38fe783c",
+  "state": "IMPLEMENTING",
+  "actualChanges": [
+    "Family model private primitives now materialize against fresh heap epochs; metadata/margin stays reserved; thresholds and model math unchanged",
+    "Consistent timeout/native storage failure scheduling while declared COMMITTED/UNKNOWN outcomes remain authoritative",
+    "Record actual transaction outcomes separately from failed attempts; persist in existing histogram JSON and export rollback/unknown/over-budget facts",
+    "Validate both explicitly authorized active R31.1 and immutable original plan archive with fixed independent pins"
+  ],
+  "targeted": [
+    {
+      "result": "PASS_29_TESTS_FOUR_AFFECTED_CLASSES",
+      "receipt": "verification/r31/p01/r31-1-fix-group-21080/r31-p01-r311-targeted-json-api-fixed/RECEIPT.json"
+    },
+    {
+      "result": "PASS_111_ACTUAL_NATIVE_OUTCOME_ASSERTIONS",
+      "receipt": "verification/r31/p01/writer-outcome-chain-r311/RECEIPT.json"
+    },
+    {
+      "result": "MEMORY_BEFORE_FAIL_AFTER_PASS_AND_RELEVANT_CLASS_COVERAGE; see exact mixed scope, not full suite",
+      "receipt": "verification/r31/p01/memory-materialized-owner-21080/SUMMARY.json"
+    },
+    {
+      "result": "PASS_22_PLAN_VERIFIER_CONTROLS",
+      "receipt": "verification/r31/p01/r31-1-baseline-verifier/RECEIPT.json"
+    }
+  ],
+  "certificatePrerequisite": "Current native fresh/repeat/cold/unknown-guard27 PASS; old three-source counterfactual reproduces old fingerprint mismatch; Android still NOT_RUN",
+  "remaining": [
+    "One stable-candidate full unit/lint and affected HOST regression",
+    "Same-source canonical identities/build/Android protocol checks",
+    "Remaining seven-card joint acceptance including required stress/fault scopes; no P02 expansion until applicable gates pass"
+  ],
+  "previousFailuresRetained": true,
+  "APK": "NOT_BUILT_FOR_THIS_GROUP",
+  "physicalDevice": "NOT_RUN",
+  "endurance24h72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "at": "2026-11-05T04:18:58.419672+00:00"
+}

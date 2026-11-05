@@ -1,0 +1,12 @@
+/workspace/r31-seven-card-parity-05391/writer-report/ReportSnapshotR30.java:51: error: cannot find symbol
+            if(Build.VERSION.SDK_INT>=35){db.beginTransactionReadOnly();own=true;}
+                                            ^
+  symbol:   method beginTransactionReadOnly()
+  location: variable db of type SQLiteDatabase
+/workspace/r31-seven-card-parity-05391/writer-report/ReportSnapshotR30.java:63: error: method rawQuery in class SQLiteDatabase cannot be applied to given types;
+            Map<String,Object> values=new LinkedHashMap<>();try(Cursor c=cancellation==null?db.rawQuery(q.sql(),null):db.rawQuery(q.sql(),null,cancellation)){
+                                                                                                                        ^
+  required: String,String[]
+  found:    String,<null>,CancellationSignal
+  reason: actual and formal argument lists differ in length
+2 errors

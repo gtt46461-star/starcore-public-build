@@ -1,0 +1,104 @@
+{
+  "scope": "R31_1_AUTHORIZED_PLAN_VERIFIER_COMPATIBILITY_ONLY_NOT_APPLICATION_OR_BUILD_ACCEPTANCE",
+  "authorizationCommit": "21080a71d7c1a22d536cea5b82332cec38fe783c",
+  "status": "TARGETED_VERIFIER_CONTRACT_PASS",
+  "sourceSha256": {
+    "tools/r31/verify_baseline.py": "7794d86be33930bd0d1cc18db9893017ee6001fce97cd70343d731a27cbcbfaf",
+    "tools/r31/test_verify_baseline.py": "b8637cc8bb7fe6b6e5249fc9b04d509dec24bb95144877042c4356611263ff5d"
+  },
+  "changes": [
+    "Fixed active R31.1 manifest pin from the verified user commit; no accept-any-digest or automatic resealing.",
+    "Independently require original archive fixed13f349 seal/405members and preserved1832/299/1832 originals.",
+    "Full CLI checks both independent190baseline blob receipts against fixed5237 Git objects.",
+    "Build identity points to active manifest and records original archive hash/path/revision plus authorizing commit. Identity-only validates both package seals but is not full source engineering acceptance."
+  ],
+  "active": {
+    "revision": "R31.1-EXECUTION-20261105",
+    "manifestSha256": "4f21a1291a413c0bd23efb85dde8a4a2e940322c9b039365b573fe752046f114",
+    "members": 410,
+    "baselineBlobsVerified": 190
+  },
+  "originalArchive": {
+    "revision": "R31_FINAL_20261104",
+    "path": "construction/archives/STARCORE_R31_FINAL_20261104",
+    "manifestSha256": "13f34908b624c74e2852ce8f944b99f8978348820aab23f83043fab1d72753ce",
+    "members": 405,
+    "baselineBlobsVerified": 190,
+    "preservationCounts": [
+      1832,
+      299,
+      1832
+    ]
+  },
+  "before": {
+    "argv": [
+      "python3",
+      "tools/r31/verify_baseline.py",
+      "--identity-only"
+    ],
+    "exitCode": 1,
+    "error": "PINNED_PLAN_MANIFEST_MISMATCH",
+    "raw": "before-cli.log"
+  },
+  "tests": {
+    "argv": [
+      "python3",
+      "tools/r31/test_verify_baseline.py"
+    ],
+    "exitCode": 0,
+    "originalTests": 15,
+    "addedTests": 7,
+    "total": 22,
+    "raw": "tests.log",
+    "tamperControls": "Actual fixture hardlink copies replace one target inode before mutation; original files remain unchanged. Both manifest reseals and member tampering fail in each fixed role; original cannot impersonate active."
+  },
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "tools/r31/verify_baseline.py",
+        "--identity-only"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.868795816990314,
+      "raw": "after-identity-cli.json"
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/r31/verify_baseline.py"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 2.768345862001297,
+      "raw": "after-full-cli.json"
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/r31/verify_baseline.py",
+        "--identity-only",
+        "--require-clean"
+      ],
+      "exitCode": 1,
+      "expected": "DIRTY_SOURCE_NOT_PUBLISHABLE"
+    }
+  ],
+  "rawSha256": {
+    "after-identity-cli.json": "95acd82c5d068f78b73efc4f81848a089b396e71f2aef9e29e7c5912650e3102",
+    "after-full-cli.json": "464f688921878a5bf907f56e154b27fd09aa76848942f40b6a638a3937674ae3",
+    "after-full-cli.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "after-identity-cli.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "after-require-clean-cli.json": "4c6aaf737b951b584bb87fd7895ca843eb16a4fb9571ce758d9685f6eb144a57",
+    "before-cli.log": "a5b032d02c2db2d39eb8a6447292d13ad612820dddf0191c5d0fc22e053b7671",
+    "tests.log": "fa480f45ac1d1699564a81ce5253dd0913292bd3c7c6c87243f6c9e0058f57c7",
+    "commands.json": "4b06fe1b7e92bed7982105ff8ee384a54198446482a607289250c9ed551a5da2"
+  },
+  "sharedIndexTouched": false,
+  "applicationSourcesChangedByThisTask": false,
+  "identityOutputsRegenerated": false,
+  "currentApplicationSourceDirty": true,
+  "build": "NOT_RUN",
+  "device": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "createdAtUtc": "2026-11-05T03:55:19.190130+00:00"
+}

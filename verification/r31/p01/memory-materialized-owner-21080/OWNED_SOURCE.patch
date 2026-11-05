@@ -1,0 +1,186 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java
+index 6d42ef92..2c3de6d1 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java
+@@ -1,8 +1,10 @@
+ package com.ethk3.novaonepro.strategyv2;
+ 
+ import java.util.Arrays;
++import java.util.ArrayList;
+ import java.util.Collection;
+ import java.util.LinkedHashMap;
++import java.util.List;
+ import java.util.Map;
+ import java.lang.ref.*;
+ import java.util.concurrent.*;
+@@ -443,7 +445,7 @@ public final class FeatureCacheR27 implements AutoCloseable {
+         FamilyStream(int index,MemoryBudgetR31 memory){this(index,memory,admitConstructorR31(index,memory));}
+         private FamilyStream(int index,MemoryBudgetR31 memory,MemoryBudgetR31.Lease reservation){
+             boolean adopted=false;this.index=index;constructorBoundR31=constructorBoundR31(index);ownerR31=new FamilyOwnerR31(memory,reservation);
+-            try{OnlineModelsSU2.Model prepared;if(index==23){try(DistillationFamilyR26.ConstructorScopeR31 scope=DistillationFamilyR26.useConstructorReservationR31(reservation)){prepared=FamilyRegistryR26.build("F23");}}else prepared=FamilyRegistryR26.build(String.format(java.util.Locale.ROOT,"F%02d",index));model=prepared;if(model instanceof DistillationFamilyR26)ownerR31.teacherStudent=(DistillationFamilyR26)model;st=new float[Math.max(1,model.stateWidth())];rollbackStateR31=new float[st.length];if(modelShapeR31(model)+2048>constructorBoundR31)throw new IllegalStateException("R31_FAMILY_CONSTRUCTOR_SHAPE_DRIFT:F"+index);
++            try{OnlineModelsSU2.Model prepared;if(index==23){try(DistillationFamilyR26.ConstructorScopeR31 scope=DistillationFamilyR26.useConstructorReservationR31(reservation)){prepared=FamilyRegistryR26.build("F23");}}else prepared=FamilyRegistryR26.build(String.format(java.util.Locale.ROOT,"F%02d",index));model=prepared;if(model instanceof DistillationFamilyR26)ownerR31.teacherStudent=(DistillationFamilyR26)model;st=new float[Math.max(1,model.stateWidth())];rollbackStateR31=new float[st.length];List<Object> privatePrimitiveBackings=new ArrayList<>();if(modelShapeR31(model,privatePrimitiveBackings)+2048>constructorBoundR31)throw new IllegalStateException("R31_FAMILY_CONSTRUCTOR_SHAPE_DRIFT:F"+index);reservation.allocatedOwnedPrimitiveGraphR31(model,privatePrimitiveBackings);
+                 ownerReferenceR31=new WeakReference<>(this,FAMILY_FORK_QUEUE_R31);synchronized(FAMILY_FORK_LEASES_R31){if(FAMILY_FORK_LEASES_R31.size()>=4096)throw new MemoryBudgetR31.CapacityWait(MemoryBudgetR31.WaitReason.OWNER_LIMIT);FAMILY_FORK_LEASES_R31.put(ownerReferenceR31,ownerR31);}adopted=true;
+             }finally{if(!adopted)ownerR31.close();}
+         }
+@@ -464,9 +466,10 @@ public final class FeatureCacheR27 implements AutoCloseable {
+         void closeForkOwnerR31(){closingR31=true;if(activeUsesR31.get()==0)releaseOwnerR31();}
+         private void releaseOwnerR31(){synchronized(FAMILY_FORK_LEASES_R31){FAMILY_FORK_LEASES_R31.remove(ownerReferenceR31);}synchronized(this){values=new double[0];pendingValuesR31=null;pendingDataR31=null;rowCheckpointR31=null;ownerR31.close();}}
+         private static final class CountOutputR31 extends java.io.OutputStream {long bytes;@Override public void write(int value){bytes++;}@Override public void write(byte[] values,int offset,int length){bytes+=length;}}
+-        private static long modelShapeR31(Object root){
++        private static long modelShapeR31(Object root){return modelShapeR31(root,null);}
++        private static long modelShapeR31(Object root,List<Object> privatePrimitiveBackings){
+             java.util.IdentityHashMap<Object,Boolean> seen=new java.util.IdentityHashMap<>();java.util.ArrayDeque<Object> pending=new java.util.ArrayDeque<>();pending.add(root);Object borrowedTeacherIdentity=root instanceof DistillationFamilyR26?((DistillationFamilyR26)root).sharedTeacherIdentityR31():null;long bytes=0;
+-            try{while(!pending.isEmpty()){Object object=pending.removeFirst();if(object==borrowedTeacherIdentity||seen.put(object,Boolean.TRUE)!=null)continue;if(object instanceof MemoryBudgetR31.Lease){bytes+=128;continue;}if(object instanceof DistillationFamilyR26.MemoryBoundTeacherR31){DistillationFamilyR26.MemoryBoundTeacherR31 reference=(DistillationFamilyR26.MemoryBoundTeacherR31)object;MemoryBudgetR31.Lease shared=reference.sharedOwnerLeaseR31();if(shared==null||shared.isClosed())throw new java.util.concurrent.CancellationException("F23_SHARED_OWNER_CLOSED");long local=reference.ownedReferenceBytesR31();if(local<64||local>1024)throw new IllegalStateException("F23_REFERENCE_ENVELOPE");bytes+=local;continue;}if(seen.size()>200000)throw new IllegalStateException("R31_FAMILY_MODEL_SHAPE_BOUND");Class<?> type=object.getClass();if(type.isArray()){int length=java.lang.reflect.Array.getLength(object);Class<?> component=type.getComponentType();if(component.isPrimitive()){int width=component==double.class||component==long.class?8:component==int.class||component==float.class?4:component==short.class||component==char.class?2:1;bytes+=32L+(long)width*length;}else{bytes+=32L+8L*length;for(Object value:(Object[])object)if(value!=null)pending.add(value);}continue;}
++            try{while(!pending.isEmpty()){Object object=pending.removeFirst();if(object==borrowedTeacherIdentity||seen.put(object,Boolean.TRUE)!=null)continue;if(object instanceof MemoryBudgetR31.Lease){bytes+=128;continue;}if(object instanceof DistillationFamilyR26.MemoryBoundTeacherR31){DistillationFamilyR26.MemoryBoundTeacherR31 reference=(DistillationFamilyR26.MemoryBoundTeacherR31)object;MemoryBudgetR31.Lease shared=reference.sharedOwnerLeaseR31();if(shared==null||shared.isClosed())throw new java.util.concurrent.CancellationException("F23_SHARED_OWNER_CLOSED");long local=reference.ownedReferenceBytesR31();if(local<64||local>1024)throw new IllegalStateException("F23_REFERENCE_ENVELOPE");bytes+=local;continue;}if(seen.size()>200000)throw new IllegalStateException("R31_FAMILY_MODEL_SHAPE_BOUND");Class<?> type=object.getClass();if(type.isArray()){int length=java.lang.reflect.Array.getLength(object);Class<?> component=type.getComponentType();if(component.isPrimitive()){int width=component==double.class||component==long.class?8:component==int.class||component==float.class?4:component==short.class||component==char.class?2:1;bytes+=32L+(long)width*length;if(privatePrimitiveBackings!=null)privatePrimitiveBackings.add(object);}else{bytes+=32L+8L*length;for(Object value:(Object[])object)if(value!=null)pending.add(value);}continue;}
+                 if(object instanceof String){bytes+=64L+2L*((String)object).length();continue;}if(object instanceof Number||object instanceof Boolean||object instanceof Character||object instanceof Enum<?>){bytes+=64;continue;}if(object instanceof Map<?,?>){bytes+=128L+96L*((Map<?,?>)object).size();for(Map.Entry<?,?> e:((Map<?,?>)object).entrySet()){if(e.getKey()!=null)pending.add(e.getKey());if(e.getValue()!=null)pending.add(e.getValue());}continue;}if(object instanceof Collection<?>){bytes+=128L+32L*((Collection<?>)object).size();for(Object value:(Collection<?>)object)if(value!=null)pending.add(value);continue;}
+                 if(type.getName().startsWith("java.")||type.getName().startsWith("android."))throw new IllegalStateException("R31_FAMILY_MODEL_SHAPE_UNSUPPORTED:"+type.getName());bytes+=64;for(Class<?> owner=type;owner!=null&&owner!=Object.class;owner=owner.getSuperclass())for(java.lang.reflect.Field field:owner.getDeclaredFields())if(!java.lang.reflect.Modifier.isStatic(field.getModifiers())){bytes+=8;if(!field.getType().isPrimitive()){field.setAccessible(true);Object value=field.get(object);if(value!=null)pending.add(value);}}
+             }return bytes;}catch(IllegalAccessException inaccessible){throw new IllegalStateException("R31_FAMILY_MODEL_SHAPE_INACCESSIBLE",inaccessible);}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java
+index 0745801f..6912f25f 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java
+@@ -55,13 +55,16 @@ public final class MemoryBudgetR31 {
+     public static final class Lease implements AutoCloseable {
+         private final MemoryBudgetR31 budget;public final String owner;public final long fence;public final Kind kind;
+         private final BooleanSupplier cancellation;private long bytes;private boolean closed;
+-        private WeakReference<Object> allocatedPrimitive;private long allocatedPayloadBytes,allocatedAtNanos;private boolean fixedPrivateBacking;
++        private WeakReference<Object> allocatedPrimitive;private long allocatedPayloadBytes,allocatedAtNanos;private boolean fixedPrivateBacking,allocatedPrimitiveGraph;
+         private Lease(MemoryBudgetR31 budget,String owner,long fence,Kind kind,long bytes,BooleanSupplier cancellation){this.budget=budget;this.owner=owner;this.fence=fence;this.kind=kind;this.bytes=bytes;this.cancellation=cancellation;}
+         public long bytes(){synchronized(budget){return bytes;}}
+         public Admission grow(long delta){return budget.grow(this,delta);}
+         /** Only a completed primitive backing allocation may stop being a future reservation.
+          * The owner/declaration remains live; no measured heap or released-byte claim is changed. */
+         void allocatedPrimitiveArrayR31(Object array){budget.allocatedPrimitiveArray(this,array);}
++        /** Constructor owner supplies only its independently enumerated, private primitive backings.
++         * Object metadata, shared teacher state and future model scratch remain reservations. */
++        void allocatedOwnedPrimitiveGraphR31(Object root,Collection<Object> arrays){budget.allocatedOwnedPrimitiveGraph(this,root,arrays);}
+         /** Only the pool's fixed private array plus bounded metadata has this exact lifetime. */
+         void closeWhenPrivateBackingCollectedR31(Object array){budget.trackFixedPrivateBacking(this,array);}
+         public boolean isClosed(){synchronized(budget){return closed;}}
+@@ -223,6 +226,22 @@ public final class MemoryBudgetR31 {
+         if(lease.allocatedPrimitive!=null){if(lease.allocatedPrimitive.get()!=array)throw new IllegalStateException("R31_MEMORY_ALLOCATION_ALREADY_RECORDED");return;}
+         lease.allocatedPrimitive=new WeakReference<>(array);lease.allocatedPayloadBytes=payload;lease.allocatedAtNanos=System.nanoTime();
+     }
++    private synchronized void allocatedOwnedPrimitiveGraph(Lease lease,Object root,Collection<Object> arrays){
++        if(lease.closed)throw new IllegalStateException("R31_MEMORY_CLOSED_ALLOCATION");
++        if(lease.kind!=Kind.MODEL&&lease.kind!=Kind.REALTIME)throw new IllegalArgumentException("R31_MODEL_PRIVATE_GRAPH_OWNER_REQUIRED");
++        if(root==null||root.getClass().isArray()||arrays==null||arrays.size()>200000)throw new IllegalArgumentException("R31_MODEL_PRIVATE_GRAPH_BOUND");
++        if(lease.allocatedPrimitive!=null)throw new IllegalStateException("R31_MEMORY_ALLOCATION_ALREADY_RECORDED");
++        IdentityHashMap<Object,Boolean> seen=new IdentityHashMap<>();long payload=0;
++        for(Object array:arrays){
++            if(array==null||!array.getClass().isArray()||!array.getClass().getComponentType().isPrimitive()||seen.put(array,Boolean.TRUE)!=null)throw new IllegalArgumentException("R31_MODEL_PRIVATE_PRIMITIVE_WITNESS");
++            Class<?> component=array.getClass().getComponentType();int width=component==double.class||component==long.class?8:component==int.class||component==float.class?4:component==short.class||component==char.class?2:1;
++            payload=Math.addExact(payload,Math.multiplyExact((long)java.lang.reflect.Array.getLength(array),width));
++            if(payload>lease.bytes)throw new IllegalArgumentException("R31_MEMORY_ALLOCATION_EXCEEDS_RESERVATION");
++        }
++        // The model has already been constructed. A future probe must start after this marker
++        // before its primitive payload can be covered by measured heap instead of a promise.
++        lease.allocatedPrimitive=new WeakReference<>(root);lease.allocatedPayloadBytes=payload;lease.allocatedPrimitiveGraph=true;lease.allocatedAtNanos=System.nanoTime();
++    }
+     private long pendingJavaBytes(Lease lease){
+         // A probe sampled before allocation must still count the whole promise. This also closes
+         // the admission race when another thread finishes its allocation after readProbe().
+@@ -230,7 +249,7 @@ public final class MemoryBudgetR31 {
+         return lease.bytes-covered;
+     }
+     private synchronized void trackFixedPrivateBacking(Lease lease,Object array){
+-        if(lease.closed||lease.allocatedPrimitive==null||lease.allocatedPrimitive.get()!=array||lease.bytes>lease.allocatedPayloadBytes+512)throw new IllegalStateException("R31_PRIVATE_BACKING_LIFETIME_UNPROVEN");
++        if(lease.closed||lease.allocatedPrimitiveGraph||lease.allocatedPrimitive==null||lease.allocatedPrimitive.get()!=array||lease.bytes>lease.allocatedPayloadBytes+512)throw new IllegalStateException("R31_PRIVATE_BACKING_LIFETIME_UNPROVEN");
+         if(lease.fixedPrivateBacking)return;
+         lease.fixedPrivateBacking=true;lease.allocatedPrimitive=new WeakReference<>(array,collectedPrivateBackings);privateBackingOwners.put(lease.allocatedPrimitive,lease);
+     }
+@@ -284,7 +303,7 @@ public final class MemoryBudgetR31 {
+         out.put("optionalUnallocatedHeadroomBytes",availableJavaBytes(Kind.RESEARCH,false));out.put("criticalUnallocatedHeadroomBytes",availableJavaBytes(Kind.REALTIME,true));
+         out.put("privateBackingOwnersAwaitingCollectionOrClose",privateBackingOwners.size());out.put("privateOwnersClosedAfterObservedCollection",collectedPrivateOwners);
+         out.put("declaredJavaWorkingBytes",java);out.put("pendingJavaAllocationBytes",pending);out.put("allocatedJavaPayloadCoveredByHeapSampleBytes",java-pending);out.put("allocatedPayloadMeaning","PROVEN_PRIMITIVE_PAYLOAD_ONLY; NOT_LIVE_HEAP_OR_RELEASE_EVIDENCE");out.put("declaredNativeWorkingBytes",nativeBytes);out.put("declaredQueuedBytes",queued);out.put("declaredByKind",kinds);out.put("activeLeaseCount",leases.size());out.put("pressureReclaimAttempts",pressureReclaims);out.put("pressureReclaimFailure",pressureReclaimFailure);
+-        List<Lease> largest=new ArrayList<>(leases);largest.sort((a,b)->Long.compare(b.bytes,a.bytes));List<Object> owners=new ArrayList<>();for(int i=0;i<Math.min(32,largest.size());i++){Lease l=largest.get(i);Map<String,Object> row=new LinkedHashMap<>();row.put("owner",l.owner);row.put("fence",l.fence);row.put("kind",l.kind.name());row.put("declaredBytes",l.bytes);row.put("pendingJavaAllocationBytes",l.kind.nativeMemory()?null:pendingJavaBytes(l));row.put("provenAllocatedPrimitivePayloadBytes",l.allocatedPayloadBytes);row.put("measurement","ESTIMATED_WORKING_SET_NOT_ACTUAL_HEAP");owners.add(row);}out.put("largestOwners",owners);out.put("ownersTruncated",largest.size()>32);
++        List<Lease> largest=new ArrayList<>(leases);largest.sort((a,b)->Long.compare(b.bytes,a.bytes));List<Object> owners=new ArrayList<>();for(int i=0;i<Math.min(32,largest.size());i++){Lease l=largest.get(i);Map<String,Object> row=new LinkedHashMap<>();row.put("owner",l.owner);row.put("fence",l.fence);row.put("kind",l.kind.name());row.put("declaredBytes",l.bytes);row.put("pendingJavaAllocationBytes",l.kind.nativeMemory()?null:pendingJavaBytes(l));row.put("provenAllocatedPrimitivePayloadBytes",l.allocatedPayloadBytes);row.put("primitiveAllocationBasis",l.allocatedPrimitive==null?"NOT_MATERIALIZED":l.allocatedPrimitiveGraph?"OWNER_ENUMERATED_PRIVATE_MODEL_ARRAYS":"SINGLE_PRIMITIVE_BACKING");row.put("measurement","ESTIMATED_WORKING_SET_NOT_ACTUAL_HEAP");owners.add(row);}out.put("largestOwners",owners);out.put("ownersTruncated",largest.size()>32);
+         Map<String,Object> caps=new LinkedHashMap<>();for(Kind kind:nativeCaps.keySet()){Map<String,Object> row=new LinkedHashMap<>();row.put("bytes",nativeCaps.get(kind));row.put("basis",nativeBasis.get(kind));caps.put(kind.name(),row);}out.put("nativeDeclaredCapacities",caps);out.put("nativeHardCapacityVerdict","UNMANAGED_NATIVE_OWNERS_NOT_COVERED");Map<String,Object> failures=new LinkedHashMap<>();for(Map.Entry<WaitReason,Long> e:waits.entrySet())failures.put(e.getKey().name(),e.getValue());out.put("admissionWaitCounts",failures);return out;
+     }
+     private Map<String,Object> measurementMap(){
+diff --git a/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31FamilyAdmissionTest.java b/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31FamilyAdmissionTest.java
+index d1faee0e..8c47f826 100644
+--- a/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31FamilyAdmissionTest.java
++++ b/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31FamilyAdmissionTest.java
+@@ -18,7 +18,11 @@ public final class R31FamilyAdmissionTest {
+  }
+  @Test public void matrixRefusalKeepsAValidEmptyModelThenRecoversWithoutReset()throws Exception{
+   Probe probe=new Probe();probe.max=4000000;probe.used=700000;MemoryBudgetR31 memory=new MemoryBudgetR31(probe,new MemoryBudgetR31.Config());SharedFeatureStoreR31 store=new SharedFeatureStoreR31(memory,100000);try(FeatureCacheR27 c=new FeatureCacheR27(ReplayDatasetR27.synthetic(2000,3211,null),8,memory,store)){
+-   try{c.family(1,12);fail();}catch(MemoryBudgetR31.CapacityWait expected){assertEquals(MemoryBudgetR31.WaitReason.DECLARED_CAPACITY,expected.reason);}FeatureCacheR27.FamilyStream s=stream(c,12);assertNotNull(s);assertEquals(0,s.fed);assertEquals(0,s.values.length);byte[] before=state(s);probe.used=1000;double[] actual=c.family(1,12);assertSame(s,stream(c,12));assertEquals(20000,actual.length);assertFalse(Arrays.equals(before,state(s)));assertEquals(1999,s.fed);
++   // The controlled heap must include this exact constructed model before it can cover its
++   // primitive payload. Count the actual F12 arrays independently of budget materialization.
++   FeatureCacheR27.FamilyStream constructed=new FeatureCacheR27.FamilyStream(12,memory);double[][][] counts=(double[][][])field(constructed.model,"count");long[] support=(long[])field(constructed.model,"support");long modelPayload=8L*support.length;for(double[][] block:counts)for(double[] row:block)modelPayload+=8L*row.length;
++   @SuppressWarnings("unchecked")Map<Integer,FeatureCacheR27.FamilyStream> owned=(Map<Integer,FeatureCacheR27.FamilyStream>)field(c,"streams");owned.put(12,constructed);probe.used=700000+modelPayload;
++   try{c.family(1,12);fail();}catch(MemoryBudgetR31.CapacityWait expected){assertEquals(MemoryBudgetR31.WaitReason.DECLARED_CAPACITY,expected.reason);}FeatureCacheR27.FamilyStream s=stream(c,12);assertNotNull(s);assertEquals(0,s.fed);assertEquals(0,s.values.length);byte[] before=state(s);probe.used=1000+modelPayload;double[] actual=c.family(1,12);assertSame(s,stream(c,12));assertEquals(20000,actual.length);assertFalse(Arrays.equals(before,state(s)));assertEquals(1999,s.fed);
+   }finally{store.close();}
+  }
+  @Test public void oldAndNewMatricesKeepSeparateDeclarationsWhileOldBackingIsStillReachable()throws Exception{
+diff --git a/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31OwnedModelMaterializationTest.java b/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31OwnedModelMaterializationTest.java
+new file mode 100644
+index 00000000..57146cfe
+--- /dev/null
++++ b/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31OwnedModelMaterializationTest.java
+@@ -0,0 +1,63 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import org.junit.Test;
++import static org.junit.Assert.*;
++import java.lang.reflect.Field;
++import java.util.*;
++import java.util.concurrent.*;
++
++/** Real runtime measurements/allocation witnesses; no enlarged heap, fake heap, or forced GC. */
++public final class R31OwnedModelMaterializationTest {
++    private static Object field(Object owner,String name)throws Exception{Field f=owner.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(owner);}
++    private static long n(MemoryBudgetR31 memory,String key){return((Number)memory.snapshot().get(key)).longValue();}
++    private static final class Model {final byte[] values=new byte[65536];}
++    private static final class DelayedRuntimeProbe implements MemoryBudgetR31.Probe {
++        final MemoryBudgetR31.RuntimeProbe actual=new MemoryBudgetR31.RuntimeProbe();
++        final CountDownLatch sampled=new CountDownLatch(1),release=new CountDownLatch(1);
++        volatile boolean hold;
++        public MemoryBudgetR31.Measurement measure(){
++            MemoryBudgetR31.Measurement measurement=actual.measure();
++            if(hold){sampled.countDown();try{if(!release.await(3,TimeUnit.SECONDS))throw new AssertionError("real sample release deadline");}catch(InterruptedException e){Thread.currentThread().interrupt();throw new AssertionError(e);}}
++            return measurement;
++        }
++    }
++    @Test public void actualNeuralConstructorKeepsDeclarationWithoutDoubleCountingPrivateTape()throws Exception{
++        MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();FeatureCacheR27.FamilyStream stream=new FeatureCacheR27.FamilyStream(3);
++        try{
++            MemoryBudgetR31.Lease lease=(MemoryBudgetR31.Lease)field(field(stream,"ownerR31"),"model");
++            long allocated=((Number)field(lease,"allocatedPayloadBytes")).longValue();
++            assertTrue("the real private tape, weights and optimizer must be witnessed",allocated>2L*1024*1024);
++            assertTrue("metadata and unallocated safety margin remain reserved",allocated<lease.bytes());
++            assertFalse(lease.isClosed());memory.sample();
++            assertTrue(n(memory,"allocatedJavaPayloadCoveredByHeapSampleBytes")>=allocated);
++            assertEquals("all declarations remain tracked",2674688,lease.bytes());
++            assertTrue((Boolean)field(lease,"allocatedPrimitiveGraph"));
++        }finally{stream.closeForkOwnerR31();}
++    }
++    @Test public void actualProbeSampleStartedBeforeAllocationCannotSpendTheGraphPromise()throws Exception{
++        DelayedRuntimeProbe probe=new DelayedRuntimeProbe();MemoryBudgetR31 memory=new MemoryBudgetR31(probe,new MemoryBudgetR31.Config());
++        MemoryBudgetR31.Lease model=memory.tryAcquire("actual-model",MemoryBudgetR31.Kind.MODEL,65664,()->false).lease;
++        ExecutorService worker=Executors.newSingleThreadExecutor();MemoryBudgetR31.Lease racing=null;
++        try{
++            probe.hold=true;Future<MemoryBudgetR31.Admission> result=worker.submit(()->memory.tryAcquire("race",MemoryBudgetR31.Kind.RESEARCH,64,()->false));assertTrue(probe.sampled.await(1,TimeUnit.SECONDS));
++            Model root=new Model();model.allocatedOwnedPrimitiveGraphR31(root,Collections.singletonList((Object)root.values));
++            probe.hold=false;probe.release.countDown();MemoryBudgetR31.Admission admission=result.get(2,TimeUnit.SECONDS);assertTrue(admission.acquired());racing=admission.lease;
++            assertEquals("old real sample retains every promise",65728,n(memory,"pendingJavaAllocationBytes"));
++            memory.sample();assertEquals("new sample covers only allocated primitive payload",192,n(memory,"pendingJavaAllocationBytes"));
++            assertEquals(65536,n(memory,"allocatedJavaPayloadCoveredByHeapSampleBytes"));root.values[0]=42;assertEquals(42,root.values[0]);
++        }finally{probe.hold=false;probe.release.countDown();worker.shutdownNow();assertTrue(worker.awaitTermination(3,TimeUnit.SECONDS));if(racing!=null)racing.close();model.close();}
++    }
++    @Test public void malformedWitnessCannotReducePromisesOrCloseAComplexModelAsOneBacking(){
++        MemoryBudgetR31 memory=new MemoryBudgetR31(new MemoryBudgetR31.RuntimeProbe(),new MemoryBudgetR31.Config());Model root=new Model();
++        MemoryBudgetR31.Lease lease=memory.tryAcquire("actual-model",MemoryBudgetR31.Kind.MODEL,65664,()->false).lease;
++        try{
++            for(Collection<Object> bad:Arrays.asList(Arrays.<Object>asList(root.values,root.values),Collections.<Object>singletonList(new Object[1]),Collections.<Object>singletonList(new byte[70000]))){
++                try{lease.allocatedOwnedPrimitiveGraphR31(root,bad);fail("invalid proof accepted");}catch(IllegalArgumentException expected){assertEquals(0,((Number)fieldUnchecked(lease,"allocatedPayloadBytes")).longValue());}
++            }
++            lease.allocatedOwnedPrimitiveGraphR31(root,Collections.singletonList((Object)root.values));
++            try{lease.closeWhenPrivateBackingCollectedR31(root);fail("complex graph treated as a single fixed private backing");}catch(IllegalStateException expected){assertEquals("R31_PRIVATE_BACKING_LIFETIME_UNPROVEN",expected.getMessage());}
++            assertFalse(lease.isClosed());
++        }finally{lease.close();}
++    }
++    private static Object fieldUnchecked(Object owner,String name){try{return field(owner,name);}catch(Exception e){throw new AssertionError(e);}}
++}

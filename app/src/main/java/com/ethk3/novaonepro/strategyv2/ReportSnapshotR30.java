@@ -78,6 +78,7 @@ public final class ReportSnapshotR30 {
             List<CapabilityRegistryR30.Definition> definitions=CapabilityRegistryR30.all();facts.put("registeredCapabilities",(long)definitions.size());List<Object> capabilities=new ArrayList<>();for(CapabilityRegistryR30.Definition def:definitions){Map<String,Object> row=new LinkedHashMap<>(def.json());row.put("effective",null);row.put("availabilityScope","CODE_AND_CURRENT_BINDINGS_SEPARATE_FROM_STATISTICAL_SNAPSHOT");row.put("evidenceState","SEPARATE_PERSISTED_SOURCE_REQUIRED");capabilities.add(row);}data.put("capabilities",capabilities);
             cachedViews(data);
             timelineViewsR30(data);
+            writerOutcomeViewsR31(data);
             confirmationViewsR30(data);data.put("qualificationGapProcessObservation",QualificationGapRepairR30R1.failureObservation());
             Map<String,Object> authority=new LinkedHashMap<>(CertificateGateR27.contract());authority.put("reportOnlyGate",GateV2R29.POLICY);authority.put("reportOnlyGateEnabled",GateV2R29.ENABLED);authority.put("realOwner","DecisionGateEngine");authority.put("settlementOwner","SettlementEngine");data.put("gateAuthority",authority);
             data.put("modelConsumption",ModelConsumptionCensusR30R1.parse(values.get("modelConsumptionCensus") instanceof String?(String)values.get("modelConsumptionCensus"):null));
@@ -102,6 +103,26 @@ public final class ReportSnapshotR30 {
         finally{if(own)db.endTransaction();}
         return new ReportR27.R30Input(facts,watermark,data,errors);
     }
+    /** Counts are recorded by the transaction owner; attempt failures are never used as rollback facts. */
+    @SuppressWarnings("unchecked") static void writerOutcomeViewsR31(Map<String,Object> data){
+        Object windows=data.get("writerWindows");if(!(windows instanceof List))return;
+        for(Object item:(List<?>)windows){
+            if(!(item instanceof Map))continue;Map<String,Object> row=(Map<String,Object>)item;
+            row.put("rolledBack",null);row.put("rolledBackKnown",null);row.put("commitOutcomeUnknown",null);
+            row.put("rollbackEvidenceState","UNKNOWN_LEGACY_OR_MISSING_OUTCOME_SOURCE");
+            Object encoded=row.get("histogram_json");if(!(encoded instanceof String))continue;
+            try{
+                Object decoded=JsonR27.parse((String)encoded);if(!(decoded instanceof Map))continue;
+                Object nested=((Map<?,?>)decoded).get("commitOutcomes");if(!(nested instanceof Map))continue;
+                Map<?,?> counts=(Map<?,?>)nested;if(!"R31_WRITER_COMMIT_OUTCOME_V1".equals(counts.get("version")))continue;
+                Long committed=writerOutcomeCountR31(counts.get("committedKnown")),rolled=writerOutcomeCountR31(counts.get("rolledBackKnown")),unknown=writerOutcomeCountR31(counts.get("outcomeUnknown")),total=writerOutcomeCountR31(row.get("count"));
+                if(committed==null||rolled==null||unknown==null||total==null||Math.addExact(Math.addExact(committed,rolled),unknown)!=total){row.put("rollbackEvidenceState","UNKNOWN_INVALID_OUTCOME_COUNTS");continue;}
+                row.put("rolledBackKnown",rolled);row.put("commitOutcomeUnknown",unknown);row.put("rolledBack",unknown==0?rolled:null);
+                row.put("rollbackEvidenceState",unknown==0?"COMPLETE_OBSERVED_TRANSACTION_OUTCOMES":"PARTIAL_OBSERVED_TRANSACTION_OUTCOMES");
+            }catch(RuntimeException invalid){row.put("rollbackEvidenceState","UNKNOWN_INVALID_OUTCOME_SOURCE");}
+        }
+    }
+    private static Long writerOutcomeCountR31(Object value){if(!(value instanceof Long||value instanceof Integer||value instanceof Short||value instanceof Byte))return null;long count=((Number)value).longValue();return count<0?null:count;}
     static Number number(Cursor c,int i){String text=c.getString(i);try{return Long.valueOf(text);}catch(NumberFormatException real){try{double parsed=Double.parseDouble(text);return Double.isFinite(parsed)?c.getDouble(i):null;}catch(NumberFormatException invalid){return null;}}}
     static long schema(SQLiteDatabase db){try(Cursor c=db.rawQuery("PRAGMA schema_version",null)){if(!c.moveToFirst())throw new IllegalStateException("REPORT_SCHEMA_VERSION_MISSING");return c.getLong(0);}}
     static Map<String,Table> metadata(SQLiteDatabase db){Map<String,Table> out=new LinkedHashMap<>();Set<String> wanted=new HashSet<>(Arrays.asList(TABLES));
@@ -182,7 +203,7 @@ public final class ReportSnapshotR30 {
         q.rows("gateComparisons","r29_gate_v2",new String[]{"policy_hash","policy_version","would_issue","failing","sections_json","evaluated_through","evaluated_at"},null,32,null,65536);
         q.rows("evolution","r27_generation",new String[]{"generation","loop","dataset_hash","champion_hash","births","rejected","no_op","duplicates","survivors","paired_lcb","verified","detail_json","finished_at"},q.has("r27_generation","generation")?"generation DESC":null,20,null,65536);
         q.rows("confirmation","r30_frozen_confirm",new String[]{"task_key","policy_hash","state","verified","registration_state","registered_at","registration_experiment_id","result_json"},null,20,null,65536);
-        q.rows("writerWindows","r30_writer_hold",new String[]{"window_start","window_end","operation","critical","count","failures","hold_p95","hold_max","wait_p95","wait_max","over_hard","histogram_json","process_session"},q.has("r30_writer_hold","window_start")?"window_start DESC":null,2000,q.has("r30_writer_hold","window_start")?"window_start>="+READ_CLOCK+"-86400000":null,4096);
+        q.rows("writerWindows","r30_writer_hold",new String[]{"window_start","window_end","operation","critical","count","failures","hold_p95","hold_max","wait_p95","wait_max","over_budget","over_hard","histogram_json","process_session"},q.has("r30_writer_hold","window_start")?"window_start DESC":null,2000,q.has("r30_writer_hold","window_start")?"window_start>="+READ_CLOCK+"-86400000":null,4096);
         q.rows("timeline","r30_issue_timeline",new String[]{"issue","event_id","event_role","boot_id","wall_source_published","wall_first_observed","wall_validated","wall_draw_committed","wall_settled","wall_next_requested","wall_next_prepared","wall_next_frozen","wall_next_deadline","mono_first_observed","mono_validated","mono_draw_committed","mono_settled","mono_next_requested","mono_next_prepared","mono_next_frozen","boot_first_observed","boot_validated","boot_draw_committed","boot_settled","boot_next_requested","boot_next_prepared","boot_next_frozen","outcome","updated_at"},q.has("r30_issue_timeline","updated_at")?"updated_at DESC":null,2000,q.has("r30_issue_timeline","updated_at")?"updated_at>="+READ_CLOCK+"-86400000":null,256);
         q.rows("timelineEventRows",IssueTimelineR30.EVENT_TABLE,new String[]{"panel_id","key","payload_json","updated_at"},"updated_at DESC,key",5000,"panel_id IN ('"+IssueTimelineR30.EVENT_DRAW_PANEL+"','"+IssueTimelineR30.EVENT_PRED_PANEL+"') AND updated_at>="+READ_CLOCK+"-86400000",16384);
         q.rows("matrixProduction","r27_chart_cache",new String[]{"key","payload_json","updated_at"},"key",20,"panel_id='matrix-r30-r1'",16384);

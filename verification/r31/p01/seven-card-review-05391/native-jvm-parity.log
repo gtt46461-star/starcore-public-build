@@ -1,0 +1,9 @@
+plain-java-timeout direct=FAULT:BUG writer=RETRY_LATER:TEMP_TIMEOUT directWait=ERROR writerWait=RETRY_LATER same=false
+typed-dependency-around-storage-full direct=DEPENDENCY:DEPENDENCY writer=FATAL:DISK_FULL directWait=DEPENDENCY writerWait=NEEDS_FIX same=false
+typed-dependency-around-storage-corrupt direct=DEPENDENCY:DEPENDENCY writer=FATAL:DB_CORRUPT directWait=DEPENDENCY writerWait=NEEDS_FIX same=false
+control-busy direct=RETRY_LATER:LOCK_BUSY writer=RETRY_LATER:LOCK_BUSY directWait=RETRY_LATER writerWait=RETRY_LATER same=true
+control-stale direct=STALE_OWNER:STALE_OWNER writer=STALE_OWNER:STALE_OWNER directWait=STALE_OWNER writerWait=STALE_OWNER same=true
+control-cancel direct=CANCELLED:CANCELLED writer=CANCELLED:CANCELLED directWait=CANCELLED writerWait=CANCELLED same=true
+CLASSIFIER_PARITY_MISMATCHES=3
+Exception in thread "main" java.lang.AssertionError: FOUR_ENTRY_CLASSIFIER_PARITY_NOT_MET
+	at ClassifierParityHost.main(ClassifierParityHost.java:35)

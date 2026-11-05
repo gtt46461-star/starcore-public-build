@@ -1,0 +1,55 @@
+{
+  "scope": "ONLY_TWO_ENTIRE_CLASSES_AFTER_CONTROLLED_PROBE_MODEL_LIFETIME_CORRECTION_NOT_REPEAT_OTHER_41",
+  "commands": [
+    {
+      "name": "compile-two-affected-classes",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx256m",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-sourcepath",
+        "/workspace/starcore-public-build/app/src/test/java",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/r31-memory-materialized-owner-scratch/production:/workspace/r31-after05391-build/frozen/classes.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/workspace/r31-memory-materialized-owner-scratch/targeted-tests",
+        "/workspace/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31OwnedModelMaterializationTest.java",
+        "/workspace/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31FamilyAdmissionTest.java"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.907216,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "two-whole-classes-after-fixture",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/r31-memory-materialized-owner-scratch/targeted-tests:/workspace/r31-memory-materialized-owner-scratch/production:/workspace/r31-after05391-build/frozen/classes.jar:/workspace/r31-startup-joint-current-scratch/r31-shared-startup-r0h60xyf/platform:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "org.junit.runner.JUnitCore",
+        "com.ethk3.novaonepro.strategyv2.R31OwnedModelMaterializationTest",
+        "com.ethk3.novaonepro.strategyv2.R31FamilyAdmissionTest"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.949309,
+      "stdout_sha256": "6b343b710af00c4412ed431de3546a3559795a24a42e0561224315b169a134a9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "source_sha256": {
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31OwnedModelMaterializationTest.java": "f258c0f41bcd7c8f060d757aaa832c8a658b92d9e00ec08dad5e434dad8c5430",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31FamilyAdmissionTest.java": "536cc30d7592c0276f12b54cb96d7458d2eba3a077aa2d978a561de13afcbe00"
+  },
+  "heap_bytes": 536870912,
+  "forced_gc": false,
+  "android": "NOT_RUN",
+  "production_sources": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java": "078239ed72c3174e3c59bfb2627306c33bdee4d268fc7c9f88b53d54258f222c",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java": "482e5675e060e4320117f09ddc512b88e0b6c9cdbf291a13093b581878258189"
+  }
+}

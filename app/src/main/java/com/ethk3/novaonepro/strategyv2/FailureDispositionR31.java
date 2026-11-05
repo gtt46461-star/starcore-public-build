@@ -39,14 +39,16 @@ public final class FailureDispositionR31 {
                     return new Decision(Disposition.DEPENDENCY, "COMMITTED_ACK_RECOVERY", outcome, false, true);
                 if ("UNKNOWN".equals(outcome))
                     return new Decision(Disposition.DEPENDENCY, "COMMIT_RESOLUTION_REQUIRED", outcome, true, false);
-                result = category(typed.failureCategory(), outcome);
-                // The typed coordinator owns the transaction outcome. Its root must not silently override it.
+                String physical = physicalCauseCategoryR31(failure);
+                result = category(physical == null ? typed.failureCategory() : physical, outcome);
+                // Physical storage failures refine the category; the typed owner still owns the outcome.
                 return result;
             }
             String name = current.getClass().getName(), message = String.valueOf(current.getMessage());
             if (current instanceof InterruptedException || current instanceof java.util.concurrent.CancellationException
                     || message.equals("R27_CANCELLED") || message.equals("R26_CONTINUATION_CANCELLED"))
                 result = category("CANCELLED", "NOT_SUBMITTED");
+            else if (current instanceof java.util.concurrent.TimeoutException) result = category("TEMP_TIMEOUT", "NOT_SUBMITTED");
             else if (name.endsWith("SQLiteFullException")) result = category("DISK_FULL", "ROLLED_BACK");
             else if (name.endsWith("SQLiteDatabaseCorruptException")) result = category("DB_CORRUPT", "UNKNOWN");
             else if (name.endsWith("SQLiteConstraintException")) result = category("INTEGRITY", "ROLLED_BACK");
@@ -65,7 +67,19 @@ public final class FailureDispositionR31 {
                     || name.endsWith("CapacityUnavailable")) result = category("DEPENDENCY", "NOT_SUBMITTED");
             current = current.getCause();
         }
+        String physical = physicalCauseCategoryR31(failure);
+        if (physical != null) return category(physical, "DB_CORRUPT".equals(physical) ? "UNKNOWN" : "ROLLED_BACK");
         return result == null ? category("BUG", "UNOBSERVED") : result;
+    }
+    private static String physicalCauseCategoryR31(Throwable failure) {
+        IdentityHashMap<Throwable,Boolean> seen = new IdentityHashMap<>();
+        for (Throwable cause=failure; cause!=null && seen.size()<16 && seen.put(cause,Boolean.TRUE)==null; cause=cause.getCause()) {
+            String name=cause.getClass().getSimpleName(), message=String.valueOf(cause.getMessage()).toUpperCase(java.util.Locale.ROOT);
+            if (name.contains("SQLiteFull") || message.contains("SQLITE_FULL") || message.contains("DATABASE OR DISK IS FULL")) return "DISK_FULL";
+            if (name.contains("Corrupt") || message.contains("SQLITE_CORRUPT") || message.contains("DATABASE DISK IMAGE IS MALFORMED")) return "DB_CORRUPT";
+            if (name.contains("Constraint") || message.contains("CONSTRAINT FAILED") || message.contains("INTEGRITY_CONFLICT")) return "INTEGRITY";
+        }
+        return null;
     }
     public static Error processFatalCause(Throwable failure){
         IdentityHashMap<Throwable,Boolean> seen=new IdentityHashMap<>();

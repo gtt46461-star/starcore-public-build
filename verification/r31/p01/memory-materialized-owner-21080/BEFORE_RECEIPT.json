@@ -1,0 +1,52 @@
+{
+  "scope": "MINIMAL_ACTUAL_MODEL_ALLOCATION_ACCOUNTING_512M_NOT_FULL485",
+  "head": "21080a71d7c1a22d536cea5b82332cec38fe783c",
+  "source_sha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java": "494541534d062baab0d622536ee224742f4d9e655cf4d7e6f3b10aaecd1dd495",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java": "83455c6463ce9c8edf555dae1cc95fcdce095d3bcae601226da35b04fa8f4b54"
+  },
+  "support_sha256": "c55e051e3d0f8509b6c57dc286f36e0a86e68423013a5f66f6fee050bb2a0005",
+  "fixture_sha256": "8783670a3e3c98e1250c46f1fd3d8807704f2d27930f3095c3ff2a7b3815a955",
+  "forced_gc": false,
+  "heap_bytes": 536870912,
+  "android": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN",
+  "commands": [
+    {
+      "name": "compile-fixture",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-sourcepath",
+        "/workspace/r31-memory-materialized-owner-scratch/empty",
+        "-implicit:none",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/r31-after05391-build/frozen/classes.jar:/workspace/r31-startup-joint-current-scratch/r31-shared-startup-r0h60xyf/platform:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/workspace/r31-memory-materialized-owner-scratch/fixture",
+        "/workspace/starcore-public-build/verification/r31/p01/memory-materialized-owner-21080/FamilyMaterializationHostR31.java"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.828327,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "before",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/r31-memory-materialized-owner-scratch/fixture:/workspace/r31-after05391-build/frozen/classes.jar:/workspace/r31-startup-joint-current-scratch/r31-shared-startup-r0h60xyf/platform:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.FamilyMaterializationHostR31"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 0.101824,
+      "stdout_sha256": "7679db70916ca0cc631a8c8046c98fa45b6a9b1562a40c5036eb196517dadd84",
+      "stderr_sha256": "2cb99c60a0ce31c3bbebd6e9cdb5b8c2574aa9a71ed661d195d8ffbcee779096"
+    }
+  ]
+}

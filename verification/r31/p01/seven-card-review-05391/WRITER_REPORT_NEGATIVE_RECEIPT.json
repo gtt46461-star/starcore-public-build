@@ -1,0 +1,42 @@
+{
+  "scope": "ACTUAL_REPORT_CAPTURE_NATIVE_SQLITE_SINGLE_CONTROLLED_WRITER_ROW_NOT_TRANSACTION_LATENCY_OR_DEVICE",
+  "sourceAnchor": "05391e68266083d156612b014f8d1c84cfcf2fb3",
+  "actualWholeJarSha256": "c55e051e3d0f8509b6c57dc286f36e0a86e68423013a5f66f6fee050bb2a0005",
+  "wholeCompileReceipt": "/workspace/r31-after05391-build/evidence/WHOLE_COMPILE_RECEIPT.json",
+  "negative": "writer-report-negative.log: actual counter over_budget=3 omitted from actual snapshot row",
+  "commands": [
+    {
+      "label": "writer-report-candidate-sdk-compile",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/workspace/r31-after05391-build/frozen/classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/workspace/r31-seven-card-parity-05391/writer-report",
+        "/workspace/r31-seven-card-parity-05391/writer-report/ReportSnapshotR30.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "writer-report-candidate-native",
+      "argv": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Djava.io.tmpdir=/workspace/r31-seven-card-parity-05391/writer-report/tmp",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/r31-b06c03-after-final/platform:/workspace/r31-seven-card-parity-05391/writer-report:/workspace/r31-after05391-build/frozen/classes.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.WriterReportContractHost",
+        "/workspace/r31-seven-card-parity-05391/writer-report/counter-fixed-actual.db"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "productionSourceHash": "a4c8c167f9dcecdecd007862bb8725e5ccf2640de0899efc25dbbc1345ad7283",
+  "actualPlatformAdapterSourceScope": "Android/JDBC platform only; /workspace/r31-b06c03-after-final/platform, no business override in negative; private Report candidate explicit in positive",
+  "status": "ACTUAL_REPORT_MISSING_OVER_BUDGET_REPRODUCED_AND_PRIVATE_CANDIDATE_VERIFIED",
+  "rollbackCounter": "SOURCE_GAP:failures does not measure exact rolled-back count; private candidate intentionally does not invent it",
+  "initialFixtureCompileFailure": "writer-report-candidate-compile.log: old platform boundary lacks API35 beginTransactionReadOnly/3arg rawQuery; actual business candidate compiled with actual SDK then runtime uses only HOST-supported SDK0/null-cancellation path. Both old failure logs retained."
+}
