@@ -558,6 +558,15 @@
       "replacement": null,
       "configuration_state": "CONFIGURED_NOT_EXECUTED",
       "input_scope": "PURE_SOURCE_METADATA_NO_MAIN_COMPILE_DEPENDENCY"
+    },
+    {
+      "id": "r312_gate_porcelain",
+      "command": "python3 tools/r312/host_entry.py --id r312_gate_porcelain --source-only -- python3 tools/r312/test_gate_porcelain.py",
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "purpose": "Real Git status regression: evidence changes stay evidence, actual source changes remain rejected."
     }
   ],
   "pre_build_scope": "Check Root-authorized already refreshed developer semantics without --apply, then write ignored development identity inputs and evidence-only GATE_CONTEXT. No tracked mutation, release identity/r982 freeze or signing.",

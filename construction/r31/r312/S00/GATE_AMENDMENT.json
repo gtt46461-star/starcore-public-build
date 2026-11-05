@@ -4,7 +4,7 @@
  "user_reply": "对啊，赶紧按批次一个一个施工啊，这么半天一个批次都做不好？",
  "disclosed_patch_sha256": "32567ed7a7b524fcc65de9a04319416e6455e7c3c1ae3ae20600d20131fdefb5",
  "old_plan_manifest_sha256": "571fc11519680d0fee86cdfe9211ab7169358ce0a197da537ece8d33bed764c7",
- "new_plan_manifest_sha256": "a1cd207d70d5ebced01f5090a9616c6775b2cdf27bb7a95a1bfd33af122a6d70",
+ "new_plan_manifest_sha256": "b32ba63a1a7aafda83b978d9ea2c4576b045620cabd81651777aa69bf00e8b85",
  "changed_plan_members": [
   "tools/r312_gate.py"
  ],
@@ -13,5 +13,6 @@
  "main_summary_immutable": true,
  "existing_41_commands_preserved": true,
  "post_checks_require_actual_exit_and_same_head_and_summary_sha": true,
- "ci_import_compatibility": "Existing --import automatically imports the adjacent same-run POST_BUILD_CHECKS.json; close still validates source/head/SHA/commands/exits"
+ "ci_import_compatibility": "Existing --import automatically imports the adjacent same-run POST_BUILD_CHECKS.json; close still validates source/head/SHA/commands/exits",
+ "git_status_regression_fix": "Preserve porcelain leading status-column whitespace; actual source dirty rejection is retained and tested with real Git repositories."
 }

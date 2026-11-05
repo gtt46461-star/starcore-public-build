@@ -67,7 +67,7 @@ def git(*args, check=True):
     r = subprocess.run(['git', *args], cwd=ROOT, text=True, capture_output=True)
     if check and r.returncode:
         die('git ' + ' '.join(args) + ': ' + r.stderr.strip())
-    return r.stdout.strip()
+    return r.stdout.rstrip('\r\n')
 
 
 def receipt_path(sid):
