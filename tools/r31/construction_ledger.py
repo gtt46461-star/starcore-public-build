@@ -26,6 +26,12 @@ def git(*args):
     return subprocess.check_output(['git', *args], cwd=ROOT, text=True).strip()
 
 
+def contract_verified(card):
+    acceptance = card.get('acceptance', [])
+    return bool(acceptance) and all(item.get('status') == 'PASS' and item.get('evidence')
+                                    for item in acceptance)
+
+
 def save(data):
     DEST.mkdir(parents=True, exist_ok=True)
     target = DEST / 'EXECUTION_LEDGER.json'
@@ -45,7 +51,7 @@ def initialize():
         'branch': git('branch', '--show-current'),
         'plan_manifest_sha256': digest(PLAN / 'MANIFEST_SHA256.json'),
         'state_values': STATES,
-        'completion_rule': 'Only DEVICE_PASS with every applicable mandatory acceptance evidence closes a card; code/build/integration counts are reported separately.',
+        'completion_rule': 'Card source acceptance requires every contract item with execution evidence; build milestones alone do not close a card. Physical/endurance/natural evidence is recorded separately.',
         'device': {'state': 'NOT_RUN', 'initial_24h': 'NOT_RUN',
                    'final_72h': 'NOT_RUN', 'observed_devices': [],
                    'blocker': 'adb devices -l returned no connected device; /dev/kvm absent'},
@@ -75,6 +81,8 @@ def update(card_id, state, receipt_path):
                 'device_evidence', 'remaining', 'next_step', 'acceptance'):
         if key in receipt:
             card[key] = receipt[key]
+    if state == 'CODE_COMPLETE' and (not card['commits'] or not contract_verified(card)):
+        raise SystemExit('CANNOT_DECLARE_CODE_COMPLETE_WITH_UNPROVEN_CARD_ACCEPTANCE')
     if state == 'DEVICE_PASS':
         if not card['device_evidence'] or not card['apk_identity'] or not card['commits']:
             raise SystemExit('CANNOT_CLOSE_WITHOUT_DEVICE_APK_COMMIT')
@@ -95,14 +103,23 @@ def summary():
               'mandatory_closed_cards': counts['DEVICE_PASS'],
               'mandatory_completion_rate': counts['DEVICE_PASS'] / total,
               'device': data['device'], 'natural_quality': data['natural_quality']}
-    source_done = sum(x['status'] in ('CODE_COMPLETE','BUILD_PASS','INTEGRATION_PASS','DEVICE_PASS') for x in data['cards'])
+    source_done = sum(x['status'] in ('CODE_COMPLETE','BUILD_PASS','INTEGRATION_PASS','DEVICE_PASS')
+                      and contract_verified(x) for x in data['cards'])
     result.update(source_complete_cards=source_done, source_completion_rate=source_done/total,
+                  build_milestone_cards=sum(c['status'] in ('BUILD_PASS','INTEGRATION_PASS','DEVICE_PASS') or any(h.get('state') in ('BUILD_PASS','INTEGRATION_PASS','DEVICE_PASS') for h in c.get('history',[])) for c in data['cards']),
                   engineering_integration_cards=counts['INTEGRATION_PASS']+counts['DEVICE_PASS'],
                   device_verified_cards=counts['DEVICE_PASS'],
                   completion_policy='Source milestones and engineering integration are separate from physical/endurance/natural evidence; see PROCESS_ADJUSTMENT_20261105.md')
     current_path = DEST / 'CURRENT_EXECUTION.json'
     current = json.loads(current_path.read_text()) if current_path.exists() else {}
     batches = sorted({card['id'].split('-')[1] for card in data['cards']})
+    result['batch_source_acceptance'] = {
+        batch: {'cards': len(group), 'contract_verified_cards': sum(contract_verified(c) for c in group),
+                'state': 'PASS' if all(contract_verified(c) and c['status'] in
+                       ('CODE_COMPLETE','BUILD_PASS','INTEGRATION_PASS','DEVICE_PASS') for c in group)
+                       else 'OPEN'}
+        for batch in batches
+        for group in [[c for c in data['cards'] if c['id'].split('-')[1] == batch]]}
     started = [card for card in data['cards'] if card['status'] != 'NOT_STARTED']
     result.update(recorded_at=now(), plan_batches=len(batches),
                   started_cards=len(started), started_is_not_completed=True,

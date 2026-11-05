@@ -154,6 +154,33 @@ class GitBaselineTest(unittest.TestCase):
             result = v.compare_tree(root, plan, baseline)
             self.assertIn("BASELINE_BLOB_MISMATCH:src/Input000.txt", result["errors"])
 
+    def test_all_missing_current_anchors_fail_even_after_committed_deletion(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, plan, baseline, git = self.fixture(directory)
+            for name in ("src/Input000.txt", "src/Input001.txt"):
+                (root / name).unlink()
+            git("add", "-u")
+            git("commit", "-m", "explicit missing current source negative control")
+            result = v.compare_tree(root, plan, baseline)
+            self.assertEqual("FAIL", result["status"])
+            self.assertEqual(["src/Input000.txt", "src/Input001.txt"], result["missing_current_files"])
+            self.assertIn("CURRENT_SOURCE_FILE_MISSING:src/Input000.txt", result["errors"])
+            self.assertIn("CURRENT_SOURCE_FILE_MISSING:src/Input001.txt", result["errors"])
+            self.assertEqual("BLOCKED_CURRENT_DIFF", result["automatic_old_line_patch"])
+            self.assertEqual(190, result["source_anchor_count"])
+
+    def test_wrong_receipt_commit_has_a_distinct_commit_failure(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, plan, baseline, git = self.fixture(directory)
+            receipt_file = plan / "ledgers/source_receipts.json"
+            rows = json.loads(receipt_file.read_text())
+            rows[0]["source_commit"] = "f" * 40
+            receipt_file.write_text(json.dumps(rows))
+            result = v.compare_tree(root, plan, baseline)
+            self.assertEqual("FAIL", result["status"])
+            self.assertIn("BASELINE_SOURCE_COMMIT_MISMATCH:src/Input000.txt", result["errors"])
+            self.assertEqual("BASELINE_SOURCE_COMMIT_MISMATCH", result["source_anchors"][0]["status"])
+
     def test_dirty_release_mode_fails_without_rewriting_expected_identity(self):
         with patch.object(v, "build_identity", return_value={"format": "R31_BUILD_IDENTITY_V1", "source_dirty": True}), \
                 contextlib.redirect_stdout(io.StringIO()) as stdout:

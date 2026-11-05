@@ -151,6 +151,7 @@ java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
 
 gradle.taskGraph.whenReady { graph ->
     if (graph.allTasks.any { it.project == project && it.name ==~ /(?:assemble|bundle|package)Release(?:Bundle)?/ }) {
+        if (r31BuildIdentity.source_dirty) throw new GradleException('R31_DIRTY_SOURCE_NOT_PUBLISHABLE')
         if (!(releaseApiKey ==~ /[A-Za-z0-9]{8,128}/)) {
             throw new GradleException('R995_RELEASE_DEFAULT_API_KEY_REQUIRED')
         }
@@ -316,7 +317,7 @@ tasks.withType(JavaCompile).configureEach { dependsOn verifyR967Semantics }
 
 // Bind packaged metadata to the same bytes used when BuildConfig was configured.
 // Do not serialize filenames from Git status or any private signing inputs.
-def r31IdentityKeys = ['source_commit', 'source_tree', 'product_worktree_sha256',
+def r31IdentityKeys = ['source_commit', 'source_tree', 'source_dirty', 'product_worktree_sha256',
                       'plan_manifest_sha256', 'migration_contract_sha256']
 def checkR31Identity = {
     def current = new groovy.json.JsonSlurper().parseText(providers.exec {
@@ -351,7 +352,7 @@ def verifyFinalR31BuildIdentity = tasks.register('verifyFinalR31BuildIdentity') 
 android.sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/assets/r31'))
 tasks.named('preBuild').configure { dependsOn generateR31BuildIdentity }
 tasks.configureEach { task ->
-    if (task.name.startsWith('assemble') || task.name.startsWith('bundle')) {
+    if (task.name.startsWith('assemble') || task.name.startsWith('bundle') || task.name.startsWith('package')) {
         task.finalizedBy verifyFinalR31BuildIdentity
     }
 }

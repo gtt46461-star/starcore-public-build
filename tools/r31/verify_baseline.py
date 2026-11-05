@@ -113,7 +113,7 @@ def tree_entries(root: Path, revision: str) -> dict:
 
 
 def compare_tree(root: Path, plan: Path, baseline: str = BASELINE) -> dict:
-    errors, anchors, current_diff = [], [], []
+    errors, anchors, current_diff, missing_current = [], [], [], []
     head = git(root, "rev-parse", "HEAD").decode().strip()
     baseline_commit = git(root, "rev-parse", baseline + "^{commit}").decode().strip()
     if baseline_commit != baseline:
@@ -131,7 +131,10 @@ def compare_tree(root: Path, plan: Path, baseline: str = BASELINE) -> dict:
         expected = receipt["git_blob_sha1"]
         entry = baseline_tree.get(path)
         row = {"path": path, "expected_blob": expected, "baseline_blob": entry["blob"] if entry else None}
-        if receipt.get("source_commit") != baseline or not entry or entry["blob"] != expected:
+        if receipt.get("source_commit") != baseline:
+            row["status"] = "BASELINE_SOURCE_COMMIT_MISMATCH"
+            errors.append("BASELINE_SOURCE_COMMIT_MISMATCH:" + path)
+        elif not entry or entry["blob"] != expected:
             row["status"] = "BASELINE_BLOB_MISMATCH"
             errors.append("BASELINE_BLOB_MISMATCH:" + path)
         else:
@@ -145,6 +148,9 @@ def compare_tree(root: Path, plan: Path, baseline: str = BASELINE) -> dict:
                 row["status"] = "EXACT_BLOB_VERIFIED"
         current = safe_file(root, path)
         current_sha = sha256(current.read_bytes()) if current.is_file() else None
+        if current_sha is None:
+            missing_current.append(path)
+            errors.append("CURRENT_SOURCE_FILE_MISSING:" + path)
         row["current_sha256"] = current_sha
         row["current_matches_anchor"] = current_sha == receipt["sha256"]
         if not row["current_matches_anchor"]:
@@ -161,6 +167,7 @@ def compare_tree(root: Path, plan: Path, baseline: str = BASELINE) -> dict:
             "baseline_tree": git(root, "rev-parse", baseline + "^{tree}").decode().strip(),
             "ancestor_verified": ancestry.returncode == 0, "errors": errors,
             "source_anchor_count": len(anchors), "source_anchors": anchors,
+            "missing_current_files": sorted(missing_current),
             "current_anchor_differences": current_diff,
             "committed_diff_from_baseline": changed,
             "planned_file_cards": card_owner,
