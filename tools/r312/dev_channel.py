@@ -73,7 +73,7 @@ def prepare():
                 partial.unlink(missing_ok=True)
     return {"JAVA_HOME": str(java_home), "ANDROID_HOME": str(sdk), "ANDROID_SDK_ROOT": str(sdk),
             "R312_ANDROID_JAR": str(android), "R312_SQLITE_JDBC": str(jdbc),
-            "ORG_GRADLE_PROJECT_r312Development": "true"}
+            "ORG_GRADLE_PROJECT_r312Development": "true", "PYTHONDONTWRITEBYTECODE": "1"}
 
 
 def main():

@@ -3,6 +3,7 @@
 from __future__ import annotations
 import argparse,csv,hashlib,importlib.util,io,json,os,re,subprocess,sys,xml.etree.ElementTree as ET
 from pathlib import Path
+sys.dont_write_bytecode = True
 ROOT=Path(__file__).resolve().parents[2]
 PLAN=ROOT/'construction/STARCORE_R31_FINAL_20261104'
 CONTROL=ROOT/'construction/r31/r312'
