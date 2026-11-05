@@ -1,0 +1,44 @@
+{
+  "schema": "WARM_EDGES_FOLLOWUP",
+  "productionReceipt": "verification/r31/warm_abi_protocol/runs/20261105T015733Z/receipt.json",
+  "commands": [
+    {
+      "name": "edge-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-cp",
+        "/workspace/.r31-warm-abi-native-duegf5a9/test:/workspace/.r31-warm-abi-native-duegf5a9/platform:/workspace/.r31-warm-abi-native-duegf5a9/classes:/workspace/.r31-warm-abi-native-duegf5a9/fixed-support.jar:/workspace/.r31-warm-abi-native-duegf5a9/sqlite-jdbc.jar:/workspace/.r31-warm-abi-native-duegf5a9/android.jar",
+        "-d",
+        "/workspace/.r31-warm-abi-native-duegf5a9/test",
+        "/workspace/r31-warm-protocol-503ef/verification/r31/warm_abi_protocol/WarmRetentionEdgesHostR31.java"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "original-seed-correct-package",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/.r31-warm-abi-native-duegf5a9/test:/workspace/.r31-warm-abi-native-duegf5a9/platform:/workspace/.r31-warm-abi-native-duegf5a9/classes:/workspace/.r31-warm-abi-native-duegf5a9/fixed-support.jar:/workspace/.r31-warm-abi-native-duegf5a9/sqlite-jdbc.jar:/workspace/.r31-warm-abi-native-duegf5a9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R26WarmSeedTest"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "actual-runtime-retention-edges",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/.r31-warm-abi-native-duegf5a9/test:/workspace/.r31-warm-abi-native-duegf5a9/platform:/workspace/.r31-warm-abi-native-duegf5a9/classes:/workspace/.r31-warm-abi-native-duegf5a9/fixed-support.jar:/workspace/.r31-warm-abi-native-duegf5a9/sqlite-jdbc.jar:/workspace/.r31-warm-abi-native-duegf5a9/android.jar",
+        "com.ethk3.novaonepro.strategyv2.WarmRetentionEdgesHostR31",
+        "/workspace/r31-warm-protocol-503ef/verification/r31/warm_abi_protocol/runs/20261105T020005Z/edges.db"
+      ],
+      "exit": 1
+    }
+  ],
+  "android": "NOT_RUN"
+}
