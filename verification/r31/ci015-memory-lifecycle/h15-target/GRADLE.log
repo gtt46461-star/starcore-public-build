@@ -1,0 +1,418 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Initialized native services in: /workspace/starcore-environment/gradle-home/native
+Initialized jansi services in: /workspace/starcore-environment/gradle-home/native
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Starting process 'Gradle build daemon'. Working directory: /workspace/starcore-environment/gradle-home/daemon/8.14.6 Command: /workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED -Xmx3072m -Dfile.encoding=UTF-8 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit -Duser.country -Duser.language=en -Duser.variant -cp /workspace/starcore-environment/gradle-home/wrapper/dists/gradle-8.14.6-bin/aynuqaj6iwevsbr5c5qdwq08s/gradle-8.14.6/lib/gradle-daemon-main-8.14.6.jar -javaagent:/workspace/starcore-environment/gradle-home/wrapper/dists/gradle-8.14.6-bin/aynuqaj6iwevsbr5c5qdwq08s/gradle-8.14.6/lib/agents/gradle-instrumentation-agent-8.14.6.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 8.14.6
+Successfully started process 'Gradle build daemon'
+An attempt to start the daemon took 1.393 secs.
+The client will now receive all logging from the daemon (pid: 262136). The daemon log file: /workspace/starcore-environment/gradle-home/daemon/8.14.6/daemon-262136.out.log
+Daemon will be stopped at the end of the build 
+Using 4 worker leases.
+Received JVM installation metadata from '/workspace/starcore-environment/tools/jdk-17.0.17+10': {JAVA_HOME=/workspace/starcore-environment/tools/jdk-17.0.17+10, JAVA_VERSION=17.0.17, JAVA_VENDOR=Eclipse Adoptium, RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=17.0.17+10, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=17.0.17+10, VM_VENDOR=Eclipse Adoptium, OS_ARCH=amd64}
+Watching the file system is configured to be enabled if available
+Not watching /workspace/r31-ci015-memory-lifecycle since the file system is not supported
+File system watching is active
+Starting Build
+Settings evaluated using settings file '/workspace/r31-ci015-memory-lifecycle/settings.gradle'.
+Using local directory build cache for the root build (location = /workspace/starcore-environment/gradle-home/caches/build-cache-1, remove unused entries = after 7 days).
+Projects loaded. Root project using build file '/workspace/r31-ci015-memory-lifecycle/build.gradle'.
+Included projects: [root project 'ETH-K3-Nova-One-Pro', project ':app']
+
+> Configure project :
+Evaluating root project 'ETH-K3-Nova-One-Pro' using build file '/workspace/r31-ci015-memory-lifecycle/build.gradle'.
+Resolved plugin [id: 'com.android.application', version: '8.12.2', apply: false]
+
+> Configure project :app
+Evaluating project ':app' using build file '/workspace/r31-ci015-memory-lifecycle/app/build.gradle'.
+Resolved plugin [id: 'com.android.application']
+Using default execution profile
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/tools/r31/verify_baseline.py --identity-only
+Successfully started process 'command 'python3''
+Starting process 'command 'git''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: git rev-parse HEAD
+Successfully started process 'command 'git''
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+All projects evaluated.
+Task path ':app:generateR982SourceCallAsset' matched project ':app'
+Task path ':app:generateR997ConstructionAssets' matched project ':app'
+Task path ':app:generateR967Semantics' matched project ':app'
+Task path ':app:verifyR967Semantics' matched project ':app'
+Task path ':app:verifyFinalR967Semantics' matched project ':app'
+Task path ':app:testDebugUnitTest' matched project ':app'
+Task name matched 'testDebugUnitTest'
+Starting process 'command '/usr/lib/jvm/java-21-openjdk-amd64/bin/java''. Working directory: /workspace/starcore-environment/gradle-home/.tmp/tmp-jvm9103827377703931843probe Command: /usr/lib/jvm/java-21-openjdk-amd64/bin/java -Xmx32m -Xms32m -cp . JavaProbe
+Successfully started process 'command '/usr/lib/jvm/java-21-openjdk-amd64/bin/java''
+Received JVM installation metadata from '/usr/lib/jvm/java-21-openjdk-amd64': {JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, JAVA_VERSION=21.0.12.1, JAVA_VENDOR=Debian, RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=21.0.12.1+1-1-deb13u1-Debian, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=21.0.12.1+1-1-deb13u1-Debian, VM_VENDOR=Debian, OS_ARCH=amd64}
+Selected primary task 'testDebugUnitTest' from project :app
+Task name matched 'generateR982SourceCallAsset'
+Task name matched 'generateR997ConstructionAssets'
+Task name matched 'generateR967Semantics'
+Task name matched 'verifyR967Semantics'
+Task name matched 'verifyFinalR967Semantics'
+Tasks to be executed: [task ':app:generateR27BuildIdentity', task ':app:verifyR31Baseline', task ':app:generateR31BuildIdentity', task ':app:verifyCatalogAssetsCP12', task ':app:verifyPlan1025Schema', task ':app:generateR815Provenance', task ':app:verifyR815Provenance', task ':app:preBuild', task ':app:preDebugBuild', task ':app:generateDebugBuildConfig', task ':app:javaPreCompileDebug', task ':app:checkDebugAarMetadata', task ':app:generateDebugResValues', task ':app:mapDebugSourceSetPaths', task ':app:generateDebugResources', task ':app:mergeDebugResources', task ':app:packageDebugResources', task ':app:parseDebugLocalResources', task ':app:createDebugCompatibleScreenManifests', task ':app:extractDeepLinksDebug', task ':app:processDebugMainManifest', task ':app:processDebugManifest', task ':app:processDebugManifestForPackage', task ':app:processDebugResources', task ':app:compileDebugJavaWithJavac', task ':app:bundleDebugClassesToRuntimeJar', task ':app:bundleDebugClassesToCompileJar', task ':app:verifyFinalR815Provenance', task ':app:verifyFinalR31BuildIdentity', task ':app:preDebugUnitTestBuild', task ':app:javaPreCompileDebugUnitTest', task ':app:compileDebugUnitTestJavaWithJavac', task ':app:processDebugJavaRes', task ':app:processDebugUnitTestJavaRes', task ':app:testDebugUnitTest']
+Tasks that were excluded: [task ':app:generateR982SourceCallAsset', task ':app:generateR997ConstructionAssets', task ':app:verifyFinalR967Semantics', task ':app:verifyR967Semantics']
+Resolve mutations for :app:generateR27BuildIdentity (Thread[Execution worker,5,main]) started.
+:app:generateR27BuildIdentity (Thread[Execution worker,5,main]) started.
+
+> Task :app:generateR27BuildIdentity
+Caching disabled for task ':app:generateR27BuildIdentity' because:
+  Gradle would require more information to cache this task
+Task ':app:generateR27BuildIdentity' is not up-to-date because:
+  Task.upToDateWhen is false.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/tools/r27/build_identity.py /workspace/r31-ci015-memory-lifecycle/app/build/generated/assets/r27b
+Successfully started process 'command 'python3''
+R27_BUILD_IDENTITY_WRITTEN 4e395662838a69d3b784eee8f05af11fa94460ac 7a046ef6dce273bfc75f499078161dcbe16ec655
+Resolve mutations for :app:verifyR31Baseline (Thread[included builds,5,main]) started.
+:app:verifyR31Baseline (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:verifyR31Baseline
+Caching disabled for task ':app:verifyR31Baseline' because:
+  Gradle would require more information to cache this task
+Task ':app:verifyR31Baseline' is not up-to-date because:
+  Task.upToDateWhen is false.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/tools/r31/verify_baseline.py --output /workspace/r31-ci015-memory-lifecycle/app/build/r31/baseline-verification.json
+Successfully started process 'command 'python3''
+Resolve mutations for :app:generateR31BuildIdentity (Thread[Execution worker Thread 3,5,main]) started.
+:app:generateR31BuildIdentity (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:generateR31BuildIdentity
+Custom actions are attached to task ':app:generateR31BuildIdentity'.
+Caching disabled for task ':app:generateR31BuildIdentity' because:
+  Gradle would require more information to cache this task
+Task ':app:generateR31BuildIdentity' is not up-to-date because:
+  Task.upToDateWhen is false.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/tools/r31/verify_baseline.py --identity-only
+Successfully started process 'command 'python3''
+Resolve mutations for :app:verifyCatalogAssetsCP12 (Thread[Execution worker Thread 3,5,main]) started.
+:app:verifyCatalogAssetsCP12 (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:verifyCatalogAssetsCP12
+Caching disabled for task ':app:verifyCatalogAssetsCP12' because:
+  Gradle would require more information to cache this task
+Task ':app:verifyCatalogAssetsCP12' is not up-to-date because:
+  Task.upToDateWhen is false.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/scripts/verify_catalog_assets_cp12.py --check
+Successfully started process 'command 'python3''
+CATALOG_IDENTITY_PASS|atoms=25350|seeds=4200|stream_line_cap=65536
+Resolve mutations for :app:verifyPlan1025Schema (Thread[Execution worker Thread 3,5,main]) started.
+:app:verifyPlan1025Schema (Thread[Execution worker Thread 2,5,main]) started.
+
+> Task :app:verifyPlan1025Schema
+Caching disabled for task ':app:verifyPlan1025Schema' because:
+  Gradle would require more information to cache this task
+Task ':app:verifyPlan1025Schema' is not up-to-date because:
+  Task.upToDateWhen is false.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/scripts/generate_strategy_su2_schema.py --check
+Successfully started process 'command 'python3''
+SU2 production DDL: reproducible and executable
+Resolve mutations for :app:generateR815Provenance (Thread[Execution worker Thread 3,5,main]) started.
+:app:generateR815Provenance (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:generateR815Provenance
+Caching disabled for task ':app:generateR815Provenance' because:
+  Gradle would require more information to cache this task
+Task ':app:generateR815Provenance' is not up-to-date because:
+  Task.upToDateWhen is false.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/scripts/r815_generate_provenance.py --toolchain-file jdk-modules=/workspace/starcore-environment/tools/jdk-17.0.17+10/lib/modules --toolchain-file android-platform=/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar --toolchain-file d8=/workspace/starcore-environment/android-sdk/build-tools/36.0.0/lib/d8.jar --toolchain-file aapt2=/workspace/starcore-environment/android-sdk/build-tools/36.0.0/aapt2 --toolchain-file ndk-version=/workspace/starcore-environment/android-sdk/ndk/28.2.13676358/source.properties --toolchain-file clang=/workspace/starcore-environment/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --toolchain-file cmake=/workspace/starcore-environment/android-sdk/cmake/3.22.1/bin/cmake --toolchain-file gradle-wrapper=/workspace/r31-ci015-memory-lifecycle/gradle/wrapper/gradle-wrapper.jar
+Successfully started process 'command 'python3''
+R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=23907863caabbae322112e3082583d8f0c81e1939d361293f3f571ff5f1ef4dd|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=6243ae39dcf9e78cf9a10d9c7eb1847ba5632c05b2be6a816805c53af8f54ce4|GENERATED_AT=2026-11-05T02:12:16Z
+Resolve mutations for :app:verifyR815Provenance (Thread[Execution worker Thread 3,5,main]) started.
+:app:verifyR815Provenance (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:verifyR815Provenance
+Caching disabled for task ':app:verifyR815Provenance' because:
+  Gradle would require more information to cache this task
+Task ':app:verifyR815Provenance' is not up-to-date because:
+  Task.upToDateWhen is false.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/scripts/r815_generate_provenance.py --toolchain-file jdk-modules=/workspace/starcore-environment/tools/jdk-17.0.17+10/lib/modules --toolchain-file android-platform=/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar --toolchain-file d8=/workspace/starcore-environment/android-sdk/build-tools/36.0.0/lib/d8.jar --toolchain-file aapt2=/workspace/starcore-environment/android-sdk/build-tools/36.0.0/aapt2 --toolchain-file ndk-version=/workspace/starcore-environment/android-sdk/ndk/28.2.13676358/source.properties --toolchain-file clang=/workspace/starcore-environment/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --toolchain-file cmake=/workspace/starcore-environment/android-sdk/cmake/3.22.1/bin/cmake --toolchain-file gradle-wrapper=/workspace/r31-ci015-memory-lifecycle/gradle/wrapper/gradle-wrapper.jar --check
+Successfully started process 'command 'python3''
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=23907863caabbae322112e3082583d8f0c81e1939d361293f3f571ff5f1ef4dd|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=6243ae39dcf9e78cf9a10d9c7eb1847ba5632c05b2be6a816805c53af8f54ce4|GENERATED_AT=2026-11-05T02:12:16Z
+Resolve mutations for :app:preBuild (Thread[Execution worker Thread 3,5,main]) started.
+:app:preBuild (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:preBuild
+Skipping task ':app:preBuild' as it has no actions.
+Resolve mutations for :app:preDebugBuild (Thread[Execution worker Thread 3,5,main]) started.
+:app:preDebugBuild (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:preDebugBuild
+Skipping task ':app:preDebugBuild' as it has no actions.
+Resolve mutations for :app:generateDebugBuildConfig (Thread[Execution worker Thread 3,5,main]) started.
+:app:generateDebugBuildConfig (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+Build cache key for task ':app:generateDebugBuildConfig' is 29803fd631818a3b92ef2232a03efdb8
+Skipping task ':app:generateDebugBuildConfig' as it is up-to-date.
+Resolve mutations for :app:javaPreCompileDebug (Thread[Execution worker Thread 3,5,main]) started.
+:app:javaPreCompileDebug (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:javaPreCompileDebug UP-TO-DATE
+Build cache key for task ':app:javaPreCompileDebug' is 95bc80506f13d2961ef6293be462d30c
+Skipping task ':app:javaPreCompileDebug' as it is up-to-date.
+Resolve mutations for :app:checkDebugAarMetadata (Thread[Execution worker Thread 3,5,main]) started.
+:app:checkDebugAarMetadata (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+Caching disabled for task ':app:checkDebugAarMetadata' because:
+  Caching has been disabled for the task
+Skipping task ':app:checkDebugAarMetadata' as it is up-to-date.
+Resolve mutations for :app:generateDebugResValues (Thread[Execution worker Thread 3,5,main]) started.
+:app:generateDebugResValues (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:generateDebugResValues UP-TO-DATE
+Build cache key for task ':app:generateDebugResValues' is 87d5b3191a6311eef0574794347ed426
+Skipping task ':app:generateDebugResValues' as it is up-to-date.
+Resolve mutations for :app:mapDebugSourceSetPaths (Thread[Execution worker Thread 3,5,main]) started.
+:app:mapDebugSourceSetPaths (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+Caching disabled for task ':app:mapDebugSourceSetPaths' because:
+  Caching has been disabled for the task
+Skipping task ':app:mapDebugSourceSetPaths' as it is up-to-date.
+Resolve mutations for :app:generateDebugResources (Thread[Execution worker Thread 3,5,main]) started.
+:app:generateDebugResources (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:generateDebugResources UP-TO-DATE
+Build cache key for task ':app:generateDebugResources' is b72c1d68d1a508f2f7c8f3c7a3fcb7c3
+Skipping task ':app:generateDebugResources' as it is up-to-date.
+Resolve mutations for :app:mergeDebugResources (Thread[Execution worker Thread 3,5,main]) started.
+:app:mergeDebugResources (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:mergeDebugResources UP-TO-DATE
+Build cache key for task ':app:mergeDebugResources' is 875b072ec5674202092a8bdaad826b81
+Skipping task ':app:mergeDebugResources' as it is up-to-date.
+Resolve mutations for :app:packageDebugResources (Thread[Execution worker Thread 3,5,main]) started.
+:app:packageDebugResources (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:packageDebugResources UP-TO-DATE
+Build cache key for task ':app:packageDebugResources' is 3d2ad166663cbaf79a0a614e41640b65
+Skipping task ':app:packageDebugResources' as it is up-to-date.
+Resolve mutations for :app:parseDebugLocalResources (Thread[Execution worker Thread 3,5,main]) started.
+:app:parseDebugLocalResources (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:parseDebugLocalResources UP-TO-DATE
+Invalidating in-memory cache of /workspace/starcore-environment/gradle-home/caches/journal-1/file-access.bin
+Build cache key for task ':app:parseDebugLocalResources' is 35fad0f3198a8cc197037d4bd26a21c6
+Skipping task ':app:parseDebugLocalResources' as it is up-to-date.
+Resolve mutations for :app:createDebugCompatibleScreenManifests (Thread[Execution worker Thread 3,5,main]) started.
+:app:createDebugCompatibleScreenManifests (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+Caching disabled for task ':app:createDebugCompatibleScreenManifests' because:
+  Caching has been disabled for the task
+Skipping task ':app:createDebugCompatibleScreenManifests' as it is up-to-date.
+Resolve mutations for :app:extractDeepLinksDebug (Thread[Execution worker Thread 2,5,main]) started.
+:app:extractDeepLinksDebug (Thread[Execution worker Thread 2,5,main]) started.
+
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+Build cache key for task ':app:extractDeepLinksDebug' is 3cf8f93aa8426e8f2d421da9df152b7c
+Skipping task ':app:extractDeepLinksDebug' as it is up-to-date.
+Resolve mutations for :app:processDebugMainManifest (Thread[Execution worker Thread 3,5,main]) started.
+:app:processDebugMainManifest (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:processDebugMainManifest UP-TO-DATE
+Build cache key for task ':app:processDebugMainManifest' is 3991c8b4a7b8c1b1596b5dd9df6d82ba
+Skipping task ':app:processDebugMainManifest' as it is up-to-date.
+Resolve mutations for :app:processDebugManifest (Thread[Execution worker Thread 2,5,main]) started.
+:app:processDebugManifest (Thread[Execution worker Thread 2,5,main]) started.
+
+> Task :app:processDebugManifest UP-TO-DATE
+Build cache key for task ':app:processDebugManifest' is 598f3818abcac0e0f0491c631887f97e
+Skipping task ':app:processDebugManifest' as it is up-to-date.
+Resolve mutations for :app:processDebugManifestForPackage (Thread[Execution worker Thread 2,5,main]) started.
+:app:processDebugManifestForPackage (Thread[Execution worker Thread 2,5,main]) started.
+
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+Custom actions are attached to task ':app:processDebugManifestForPackage'.
+Build cache key for task ':app:processDebugManifestForPackage' is c614a14bc7a051709a6fed6c69b5210b
+Skipping task ':app:processDebugManifestForPackage' as it is up-to-date.
+Resolve mutations for :app:processDebugResources (Thread[Execution worker Thread 3,5,main]) started.
+:app:processDebugResources (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:processDebugResources UP-TO-DATE
+Build cache key for task ':app:processDebugResources' is c5f28f92b6f5755397c70c0a48773699
+Skipping task ':app:processDebugResources' as it is up-to-date.
+Resolve mutations for :app:compileDebugJavaWithJavac (Thread[Execution worker Thread 2,5,main]) started.
+:app:compileDebugJavaWithJavac (Thread[Execution worker Thread 2,5,main]) started.
+
+> Task :app:compileDebugJavaWithJavac UP-TO-DATE
+Custom actions are attached to task ':app:compileDebugJavaWithJavac'.
+Build cache key for task ':app:compileDebugJavaWithJavac' is 001f754c85afe396c522847f4750cea6
+Skipping task ':app:compileDebugJavaWithJavac' as it is up-to-date.
+Resolve mutations for :app:bundleDebugClassesToRuntimeJar (Thread[Execution worker Thread 3,5,main]) started.
+:app:bundleDebugClassesToRuntimeJar (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:bundleDebugClassesToRuntimeJar UP-TO-DATE
+Caching disabled for task ':app:bundleDebugClassesToRuntimeJar' because:
+  Caching has been disabled for the task
+Skipping task ':app:bundleDebugClassesToRuntimeJar' as it is up-to-date.
+work action resolve classes.jar (project :app) (Thread[Execution worker Thread 3,5,main]) started.
+Resolve mutations for :app:bundleDebugClassesToCompileJar (Thread[Execution worker Thread 3,5,main]) started.
+:app:bundleDebugClassesToCompileJar (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:bundleDebugClassesToCompileJar UP-TO-DATE
+Caching disabled for task ':app:bundleDebugClassesToCompileJar' because:
+  Caching has been disabled for the task
+Skipping task ':app:bundleDebugClassesToCompileJar' as it is up-to-date.
+work action resolve classes.jar (project :app) (Thread[Execution worker Thread 2,5,main]) started.
+Resolve mutations for :app:verifyFinalR815Provenance (Thread[Execution worker Thread 2,5,main]) started.
+:app:verifyFinalR815Provenance (Thread[Execution worker Thread 2,5,main]) started.
+
+> Task :app:verifyFinalR815Provenance
+Caching disabled for task ':app:verifyFinalR815Provenance' because:
+  Gradle would require more information to cache this task
+Task ':app:verifyFinalR815Provenance' is not up-to-date because:
+  Task.upToDateWhen is false.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/scripts/r815_generate_provenance.py --toolchain-file jdk-modules=/workspace/starcore-environment/tools/jdk-17.0.17+10/lib/modules --toolchain-file android-platform=/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar --toolchain-file d8=/workspace/starcore-environment/android-sdk/build-tools/36.0.0/lib/d8.jar --toolchain-file aapt2=/workspace/starcore-environment/android-sdk/build-tools/36.0.0/aapt2 --toolchain-file ndk-version=/workspace/starcore-environment/android-sdk/ndk/28.2.13676358/source.properties --toolchain-file clang=/workspace/starcore-environment/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --toolchain-file cmake=/workspace/starcore-environment/android-sdk/cmake/3.22.1/bin/cmake --toolchain-file gradle-wrapper=/workspace/r31-ci015-memory-lifecycle/gradle/wrapper/gradle-wrapper.jar --check
+Successfully started process 'command 'python3''
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=23907863caabbae322112e3082583d8f0c81e1939d361293f3f571ff5f1ef4dd|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=6243ae39dcf9e78cf9a10d9c7eb1847ba5632c05b2be6a816805c53af8f54ce4|GENERATED_AT=2026-11-05T02:12:16Z
+Resolve mutations for :app:verifyFinalR31BuildIdentity (Thread[Execution worker Thread 3,5,main]) started.
+:app:verifyFinalR31BuildIdentity (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:verifyFinalR31BuildIdentity
+Custom actions are attached to task ':app:verifyFinalR31BuildIdentity'.
+Caching disabled for task ':app:verifyFinalR31BuildIdentity' because:
+  Gradle would require more information to cache this task
+Task ':app:verifyFinalR31BuildIdentity' is not up-to-date because:
+  Task has not declared any outputs despite executing actions.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/tools/r31/verify_baseline.py --identity-only
+Successfully started process 'command 'python3''
+Resolve mutations for :app:preDebugUnitTestBuild (Thread[Execution worker Thread 3,5,main]) started.
+:app:preDebugUnitTestBuild (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:preDebugUnitTestBuild
+Skipping task ':app:preDebugUnitTestBuild' as it has no actions.
+Resolve mutations for :app:javaPreCompileDebugUnitTest (Thread[Execution worker Thread 3,5,main]) started.
+:app:javaPreCompileDebugUnitTest (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+Build cache key for task ':app:javaPreCompileDebugUnitTest' is 95bc80506f13d2961ef6293be462d30c
+Skipping task ':app:javaPreCompileDebugUnitTest' as it is up-to-date.
+Resolve mutations for :app:compileDebugUnitTestJavaWithJavac (Thread[Execution worker Thread 3,5,main]) started.
+:app:compileDebugUnitTestJavaWithJavac (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:compileDebugUnitTestJavaWithJavac
+Custom actions are attached to task ':app:compileDebugUnitTestJavaWithJavac'.
+Build cache key for task ':app:compileDebugUnitTestJavaWithJavac' is f7bc5559b788301e6ecc408ba9541ff9
+Task ':app:compileDebugUnitTestJavaWithJavac' is not up-to-date because:
+  Input property 'stableSources' file /workspace/r31-ci015-memory-lifecycle/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java has changed.
+Compilation mode: in-process compilation
+Created classpath snapshot for incremental compilation in 0.06 secs.
+file or directory '/workspace/r31-ci015-memory-lifecycle/app/src/testDebug/java', not found
+Compiling with toolchain '/workspace/starcore-environment/tools/jdk-17.0.17+10'.
+file or directory '/workspace/r31-ci015-memory-lifecycle/app/src/testDebug/java', not found
+Compiling with JDK Java compiler API.
+Incremental compilation of 1 classes completed in 1.289 secs.
+Class dependency analysis for incremental compilation took 0.033 secs.
+Stored cache entry for task ':app:compileDebugUnitTestJavaWithJavac' with cache key f7bc5559b788301e6ecc408ba9541ff9
+Resolve mutations for :app:processDebugJavaRes (Thread[Execution worker Thread 3,5,main]) started.
+:app:processDebugJavaRes (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:processDebugJavaRes NO-SOURCE
+file or directory '/workspace/r31-ci015-memory-lifecycle/app/src/main/resources', not found
+file or directory '/workspace/r31-ci015-memory-lifecycle/app/src/debug/resources', not found
+Skipping task ':app:processDebugJavaRes' as it has no source files and no previous output files.
+work action resolve out (project :app) (Thread[Execution worker Thread 3,5,main]) started.
+Resolve mutations for :app:processDebugUnitTestJavaRes (Thread[Execution worker Thread 3,5,main]) started.
+:app:processDebugUnitTestJavaRes (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:processDebugUnitTestJavaRes UP-TO-DATE
+file or directory '/workspace/r31-ci015-memory-lifecycle/app/src/testDebug/resources', not found
+file or directory '/workspace/r31-ci015-memory-lifecycle/app/src/testDebug/resources', not found
+Caching disabled for task ':app:processDebugUnitTestJavaRes' because:
+  Caching has been disabled for the task
+Skipping task ':app:processDebugUnitTestJavaRes' as it is up-to-date.
+Resolve mutations for :app:testDebugUnitTest (Thread[Execution worker Thread 3,5,main]) started.
+:app:testDebugUnitTest (Thread[Execution worker Thread 3,5,main]) started.
+Gradle Test Executor 1 started executing tests.
+Gradle Test Executor 1 finished executing tests.
+
+> Task :app:testDebugUnitTest
+Build cache key for task ':app:testDebugUnitTest' is 4b6e6350f8a6cfa7d749b17fd382520b
+Task ':app:testDebugUnitTest' is not up-to-date because:
+  Task has failed previously.
+Starting process 'Gradle Test Executor 1'. Working directory: /workspace/r31-ci015-memory-lifecycle/app Command: /workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java -Djava.awt.headless=true -Djava.library.path=/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib:/workspace/r31-ci015-memory-lifecycle/app/src/testDebug/jniLibs:/workspace/r31-ci015-memory-lifecycle/app/src/test/jniLibs -Dorg.gradle.internal.worker.tmpdir=/workspace/r31-ci015-memory-lifecycle/app/build/tmp/testDebugUnitTest/work --add-opens=java.base/java.io=ALL-UNNAMED @/workspace/starcore-environment/gradle-home/.tmp/gradle-worker-classpath9900564056643294655txt -Xmx512m -Dfile.encoding=UTF-8 -Duser.country -Duser.language=en -Duser.variant -ea worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+Successfully started process 'Gradle Test Executor 1'
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+
+R27QualityTest > h15MainlineRedLines STANDARD_OUT
+    R27_HOST|H15_JAVA_PASS originalOwnerHashesProtected=7 registeredR31FeedbackExtraction=1 pinnedDbSchemaSidecars=true payoutK3AndUnregisteredSideEffectMutationsRejected=true r27FilesScanned=62 noCertificateDenied=NO_CERTIFICATE
+Finished generating test XML results (0.007 secs) into: /workspace/r31-ci015-memory-lifecycle/app/build/test-results/testDebugUnitTest
+Generating HTML test report...
+Finished generating test html results (0.026 secs) into: /workspace/r31-ci015-memory-lifecycle/app/build/reports/tests/testDebugUnitTest
+Stored cache entry for task ':app:testDebugUnitTest' with cache key 4b6e6350f8a6cfa7d749b17fd382520b
+
+[Incubating] Problems report is available at: file:///workspace/r31-ci015-memory-lifecycle/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 27s
+31 actionable tasks: 11 executed, 20 up-to-date
+Some of the file system contents retained in the virtual file system are on file systems that Gradle doesn't support watching. The relevant state was discarded to ensure changes to these locations are properly detected. You can override this by explicitly enabling file system watching.

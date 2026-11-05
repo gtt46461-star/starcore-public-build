@@ -1,0 +1,32 @@
+/workspace/r31-ci015-memory-lifecycle/app/lint-baseline.xml: Hint: 51 errors were filtered out because they are listed in the baseline file, lint-baseline.xml [LintBaseline]
+/workspace/r31-ci015-memory-lifecycle/app/lint-baseline.xml: Hint: 7 errors/warnings were listed in the baseline file (lint-baseline.xml) but not found in the project; perhaps they have been fixed? Another possible explanation is that lint recently stopped analyzing (and including results from) dependent projects by default. You can turn this back on with android.lintOptions.checkDependencies=true. Unmatched issue types: SetTextI18n (7) [LintBaselineFixed]
+
+   Explanation for issues of type "LintBaselineFixed":
+   If a lint baseline describes a problem which is no longer reported, then
+   the problem has either been fixed, or perhaps the issue type has been
+   disabled. In any case, the entry can be removed from the baseline (such
+   that if the issue is reintroduced at some point, lint will complain rather
+   than just silently starting to match the old baseline entry again.)
+
+/workspace/r31-ci015-memory-lifecycle/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java:179: Error: Consider also using StorageManager#getAllocatableBytes and allocateBytes which will consider clearable cached data [UsableSpace]
+    private static void checkFreeFloorR31(DbStore store){java.io.File parent=new java.io.File(store.readable().getPath()).getAbsoluteFile().getParentFile();long free=parent==null?0:parent.getUsableSpace();if(free<256L*1024*1024)throw new PublicationDependencyR31("FREE_SPACE_RESERVE_OR_UNKNOWN");}
+                                                                                                                                                                                            ~~~~~~~~~~~~~~
+
+   Explanation for issues of type "UsableSpace":
+   When you need to allocate disk space for large files, consider using the
+   new allocateBytes(FileDescriptor, long) API, which will automatically clear
+   cached files belonging to other apps (as needed) to meet your request.
+
+   When deciding if the device has enough disk space to hold your new data,
+   call getAllocatableBytes(UUID) instead of using getUsableSpace(), since the
+   former will consider any cached data that the system is willing to clear on
+   your behalf.
+
+   Note that these methods require API level 26. If your app is running on
+   older devices, you will probably need to use both APIs, conditionally
+   switching on Build.VERSION.SDK_INT. Lint only looks in the same compilation
+   unit to see if you are already using both APIs, so if it warns even though
+   you are already using the new API, consider moving the calls to the same
+   file or suppressing the warning.
+
+1 error (and 51 errors filtered by baseline lint-baseline.xml)

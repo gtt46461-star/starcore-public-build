@@ -1,0 +1,48 @@
+{
+  "state": "TARGETED_PASS",
+  "commands": [
+    {
+      "command": [
+        "javac",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/workspace/r31-ci015-memory-lifecycle/app/build/intermediates/javac/debugUnitTest/compileDebugUnitTestJavaWithJavac/classes:/workspace/r31-ci015-memory-lifecycle/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-ci015-memory-lifecycle/h15-fixture/classes",
+        "/workspace/r31-ci015-memory-lifecycle/verification/r31/ci015-memory-lifecycle/JavaStringRemovalR31Host.java"
+      ],
+      "exitCode": 0,
+      "log": "COMPILE.log"
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-ci015-memory-lifecycle/h15-fixture/classes:/workspace/r31-ci015-memory-lifecycle/app/build/intermediates/javac/debugUnitTest/compileDebugUnitTestJavaWithJavac/classes:/workspace/r31-ci015-memory-lifecycle/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.JavaStringRemovalR31Host"
+      ],
+      "exitCode": 0,
+      "log": "RUN.log"
+    }
+  ],
+  "result": {
+    "assertions": 5015,
+    "boundedRandomLegacyEquivalence": 5000,
+    "heapOverride": "512MiB",
+    "longLiteralCharacters": 1000000,
+    "originalRealStackOverflowObserved": true,
+    "scope": "H15_SCANNER_ENGINEERING_FIXTURE_NOT_ANDROID_OR_NATURAL_QUALITY",
+    "source": "ACTUAL_R27QualityTest.stripJavaStringsR31",
+    "stackSizeOverride": false,
+    "state": "PASS"
+  },
+  "sourceSha256": {
+    "verification/r31/ci015-memory-lifecycle/JavaStringRemovalR31Host.java": "e52ea23673cd05fbeec6cd665e1745132c23166a7de398ec40bf65f87a61e7e6",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java": "e2c34588993076e54c59574fb7ffb2ba52caf48026bd3583ccb6bfab81478785"
+  },
+  "actualHelperClassSha256": "7a9f48dd0db37170f2fc5c60cbb09c9d6436a08f45127ffd96fc531b05fd5a18",
+  "meaning": "ACTUAL_UNIT_TEST_HELPER_BYTECODE_NOT_PRODUCTION_SCANNER_OR_WHOLE485_PASS"
+}

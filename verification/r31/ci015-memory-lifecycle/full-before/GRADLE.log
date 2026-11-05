@@ -1,0 +1,658 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Initialized native services in: /workspace/starcore-environment/gradle-home/native
+Initialized jansi services in: /workspace/starcore-environment/gradle-home/native
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Starting process 'Gradle build daemon'. Working directory: /workspace/starcore-environment/gradle-home/daemon/8.14.6 Command: /workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED -Xmx3072m -Dfile.encoding=UTF-8 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit -Duser.country -Duser.language=en -Duser.variant -cp /workspace/starcore-environment/gradle-home/wrapper/dists/gradle-8.14.6-bin/aynuqaj6iwevsbr5c5qdwq08s/gradle-8.14.6/lib/gradle-daemon-main-8.14.6.jar -javaagent:/workspace/starcore-environment/gradle-home/wrapper/dists/gradle-8.14.6-bin/aynuqaj6iwevsbr5c5qdwq08s/gradle-8.14.6/lib/agents/gradle-instrumentation-agent-8.14.6.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 8.14.6
+Successfully started process 'Gradle build daemon'
+An attempt to start the daemon took 0.831 secs.
+The client will now receive all logging from the daemon (pid: 246699). The daemon log file: /workspace/starcore-environment/gradle-home/daemon/8.14.6/daemon-246699.out.log
+Daemon will be stopped at the end of the build 
+Using 4 worker leases.
+Received JVM installation metadata from '/workspace/starcore-environment/tools/jdk-17.0.17+10': {JAVA_HOME=/workspace/starcore-environment/tools/jdk-17.0.17+10, JAVA_VERSION=17.0.17, JAVA_VENDOR=Eclipse Adoptium, RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=17.0.17+10, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=17.0.17+10, VM_VENDOR=Eclipse Adoptium, OS_ARCH=amd64}
+Watching the file system is configured to be enabled if available
+Not watching /workspace/r31-ci015-memory-lifecycle since the file system is not supported
+File system watching is active
+Starting Build
+Settings evaluated using settings file '/workspace/r31-ci015-memory-lifecycle/settings.gradle'.
+Using local directory build cache for the root build (location = /workspace/starcore-environment/gradle-home/caches/build-cache-1, remove unused entries = after 7 days).
+Projects loaded. Root project using build file '/workspace/r31-ci015-memory-lifecycle/build.gradle'.
+Included projects: [root project 'ETH-K3-Nova-One-Pro', project ':app']
+
+> Configure project :
+Evaluating root project 'ETH-K3-Nova-One-Pro' using build file '/workspace/r31-ci015-memory-lifecycle/build.gradle'.
+Resolved plugin [id: 'com.android.application', version: '8.12.2', apply: false]
+
+> Configure project :app
+Evaluating project ':app' using build file '/workspace/r31-ci015-memory-lifecycle/app/build.gradle'.
+Resolved plugin [id: 'com.android.application']
+Using default execution profile
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/tools/r31/verify_baseline.py --identity-only
+Successfully started process 'command 'python3''
+Starting process 'command 'git''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: git rev-parse HEAD
+Successfully started process 'command 'git''
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+C/C++: android.ndkPath from module build.gradle is not set
+C/C++: ndk.dir in local.properties is not set
+C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+C/C++: sdkFolder is /workspace/starcore-environment/android-sdk
+All projects evaluated.
+Task path ':app:generateR982SourceCallAsset' matched project ':app'
+Task path ':app:generateR997ConstructionAssets' matched project ':app'
+Task path ':app:generateR967Semantics' matched project ':app'
+Task path ':app:verifyR967Semantics' matched project ':app'
+Task path ':app:verifyFinalR967Semantics' matched project ':app'
+Task path ':app:testDebugUnitTest' matched project ':app'
+Task name matched 'testDebugUnitTest'
+Starting process 'command '/usr/lib/jvm/java-21-openjdk-amd64/bin/java''. Working directory: /workspace/starcore-environment/gradle-home/.tmp/tmp-jvm16511149136950668908probe Command: /usr/lib/jvm/java-21-openjdk-amd64/bin/java -Xmx32m -Xms32m -cp . JavaProbe
+Successfully started process 'command '/usr/lib/jvm/java-21-openjdk-amd64/bin/java''
+Received JVM installation metadata from '/usr/lib/jvm/java-21-openjdk-amd64': {JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64, JAVA_VERSION=21.0.12.1, JAVA_VENDOR=Debian, RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=21.0.12.1+1-1-deb13u1-Debian, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=21.0.12.1+1-1-deb13u1-Debian, VM_VENDOR=Debian, OS_ARCH=amd64}
+Selected primary task 'testDebugUnitTest' from project :app
+Task name matched 'generateR982SourceCallAsset'
+Task name matched 'generateR997ConstructionAssets'
+Task name matched 'generateR967Semantics'
+Task name matched 'verifyR967Semantics'
+Task name matched 'verifyFinalR967Semantics'
+Tasks to be executed: [task ':app:generateR27BuildIdentity', task ':app:verifyR31Baseline', task ':app:generateR31BuildIdentity', task ':app:verifyCatalogAssetsCP12', task ':app:verifyPlan1025Schema', task ':app:generateR815Provenance', task ':app:verifyR815Provenance', task ':app:preBuild', task ':app:preDebugBuild', task ':app:generateDebugBuildConfig', task ':app:javaPreCompileDebug', task ':app:checkDebugAarMetadata', task ':app:generateDebugResValues', task ':app:mapDebugSourceSetPaths', task ':app:generateDebugResources', task ':app:mergeDebugResources', task ':app:packageDebugResources', task ':app:parseDebugLocalResources', task ':app:createDebugCompatibleScreenManifests', task ':app:extractDeepLinksDebug', task ':app:processDebugMainManifest', task ':app:processDebugManifest', task ':app:processDebugManifestForPackage', task ':app:processDebugResources', task ':app:compileDebugJavaWithJavac', task ':app:bundleDebugClassesToRuntimeJar', task ':app:bundleDebugClassesToCompileJar', task ':app:verifyFinalR815Provenance', task ':app:verifyFinalR31BuildIdentity', task ':app:preDebugUnitTestBuild', task ':app:javaPreCompileDebugUnitTest', task ':app:compileDebugUnitTestJavaWithJavac', task ':app:processDebugJavaRes', task ':app:processDebugUnitTestJavaRes', task ':app:testDebugUnitTest']
+Tasks that were excluded: [task ':app:generateR997ConstructionAssets', task ':app:verifyFinalR967Semantics', task ':app:verifyR967Semantics', task ':app:generateR982SourceCallAsset']
+Resolve mutations for :app:generateR27BuildIdentity (Thread[Execution worker,5,main]) started.
+:app:generateR27BuildIdentity (Thread[Execution worker,5,main]) started.
+
+> Task :app:generateR27BuildIdentity
+Caching disabled for task ':app:generateR27BuildIdentity' because:
+  Gradle would require more information to cache this task
+Task ':app:generateR27BuildIdentity' is not up-to-date because:
+  Task.upToDateWhen is false.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/tools/r27/build_identity.py /workspace/r31-ci015-memory-lifecycle/app/build/generated/assets/r27b
+Successfully started process 'command 'python3''
+R27_BUILD_IDENTITY_WRITTEN 4e395662838a69d3b784eee8f05af11fa94460ac 7a046ef6dce273bfc75f499078161dcbe16ec655
+Resolve mutations for :app:verifyR31Baseline (Thread[Execution worker,5,main]) started.
+:app:verifyR31Baseline (Thread[Execution worker,5,main]) started.
+
+> Task :app:verifyR31Baseline
+Caching disabled for task ':app:verifyR31Baseline' because:
+  Gradle would require more information to cache this task
+Task ':app:verifyR31Baseline' is not up-to-date because:
+  Task.upToDateWhen is false.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/tools/r31/verify_baseline.py --output /workspace/r31-ci015-memory-lifecycle/app/build/r31/baseline-verification.json
+Successfully started process 'command 'python3''
+Resolve mutations for :app:generateR31BuildIdentity (Thread[Execution worker,5,main]) started.
+:app:generateR31BuildIdentity (Thread[Execution worker,5,main]) started.
+
+> Task :app:generateR31BuildIdentity
+Custom actions are attached to task ':app:generateR31BuildIdentity'.
+Caching disabled for task ':app:generateR31BuildIdentity' because:
+  Gradle would require more information to cache this task
+Task ':app:generateR31BuildIdentity' is not up-to-date because:
+  Task.upToDateWhen is false.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/tools/r31/verify_baseline.py --identity-only
+Successfully started process 'command 'python3''
+Resolve mutations for :app:verifyCatalogAssetsCP12 (Thread[Execution worker,5,main]) started.
+:app:verifyCatalogAssetsCP12 (Thread[Execution worker,5,main]) started.
+
+> Task :app:verifyCatalogAssetsCP12
+Caching disabled for task ':app:verifyCatalogAssetsCP12' because:
+  Gradle would require more information to cache this task
+Task ':app:verifyCatalogAssetsCP12' is not up-to-date because:
+  Task.upToDateWhen is false.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/scripts/verify_catalog_assets_cp12.py --check
+Successfully started process 'command 'python3''
+CATALOG_IDENTITY_PASS|atoms=25350|seeds=4200|stream_line_cap=65536
+Resolve mutations for :app:verifyPlan1025Schema (Thread[Execution worker,5,main]) started.
+:app:verifyPlan1025Schema (Thread[Execution worker,5,main]) started.
+
+> Task :app:verifyPlan1025Schema
+Caching disabled for task ':app:verifyPlan1025Schema' because:
+  Gradle would require more information to cache this task
+Task ':app:verifyPlan1025Schema' is not up-to-date because:
+  Task.upToDateWhen is false.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/scripts/generate_strategy_su2_schema.py --check
+Successfully started process 'command 'python3''
+SU2 production DDL: reproducible and executable
+Resolve mutations for :app:generateR815Provenance (Thread[Execution worker,5,main]) started.
+:app:generateR815Provenance (Thread[Execution worker,5,main]) started.
+
+> Task :app:generateR815Provenance
+Caching disabled for task ':app:generateR815Provenance' because:
+  Gradle would require more information to cache this task
+Task ':app:generateR815Provenance' is not up-to-date because:
+  Task.upToDateWhen is false.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/scripts/r815_generate_provenance.py --toolchain-file jdk-modules=/workspace/starcore-environment/tools/jdk-17.0.17+10/lib/modules --toolchain-file android-platform=/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar --toolchain-file d8=/workspace/starcore-environment/android-sdk/build-tools/36.0.0/lib/d8.jar --toolchain-file aapt2=/workspace/starcore-environment/android-sdk/build-tools/36.0.0/aapt2 --toolchain-file ndk-version=/workspace/starcore-environment/android-sdk/ndk/28.2.13676358/source.properties --toolchain-file clang=/workspace/starcore-environment/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --toolchain-file cmake=/workspace/starcore-environment/android-sdk/cmake/3.22.1/bin/cmake --toolchain-file gradle-wrapper=/workspace/r31-ci015-memory-lifecycle/gradle/wrapper/gradle-wrapper.jar
+Successfully started process 'command 'python3''
+R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=0d5818d1c0eb5eec0e74acd6c75afe1c3e12e64d5d2cddc0838947943ec6ebc1|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=f95ddf9f2bd7a292283c78face77cfc96e1a39e35f0a9b83972e8541ad097a43|GENERATED_AT=2026-11-05T01:49:29Z
+Resolve mutations for :app:verifyR815Provenance (Thread[Execution worker,5,main]) started.
+:app:verifyR815Provenance (Thread[Execution worker,5,main]) started.
+
+> Task :app:verifyR815Provenance
+Caching disabled for task ':app:verifyR815Provenance' because:
+  Gradle would require more information to cache this task
+Task ':app:verifyR815Provenance' is not up-to-date because:
+  Task.upToDateWhen is false.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/scripts/r815_generate_provenance.py --toolchain-file jdk-modules=/workspace/starcore-environment/tools/jdk-17.0.17+10/lib/modules --toolchain-file android-platform=/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar --toolchain-file d8=/workspace/starcore-environment/android-sdk/build-tools/36.0.0/lib/d8.jar --toolchain-file aapt2=/workspace/starcore-environment/android-sdk/build-tools/36.0.0/aapt2 --toolchain-file ndk-version=/workspace/starcore-environment/android-sdk/ndk/28.2.13676358/source.properties --toolchain-file clang=/workspace/starcore-environment/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --toolchain-file cmake=/workspace/starcore-environment/android-sdk/cmake/3.22.1/bin/cmake --toolchain-file gradle-wrapper=/workspace/r31-ci015-memory-lifecycle/gradle/wrapper/gradle-wrapper.jar --check
+Successfully started process 'command 'python3''
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=0d5818d1c0eb5eec0e74acd6c75afe1c3e12e64d5d2cddc0838947943ec6ebc1|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=f95ddf9f2bd7a292283c78face77cfc96e1a39e35f0a9b83972e8541ad097a43|GENERATED_AT=2026-11-05T01:49:29Z
+Resolve mutations for :app:preBuild (Thread[Execution worker,5,main]) started.
+:app:preBuild (Thread[Execution worker,5,main]) started.
+
+> Task :app:preBuild
+Skipping task ':app:preBuild' as it has no actions.
+Resolve mutations for :app:preDebugBuild (Thread[Execution worker,5,main]) started.
+:app:preDebugBuild (Thread[Execution worker,5,main]) started.
+
+> Task :app:preDebugBuild
+Skipping task ':app:preDebugBuild' as it has no actions.
+Resolve mutations for :app:generateDebugBuildConfig (Thread[Execution worker,5,main]) started.
+:app:generateDebugBuildConfig (Thread[Execution worker,5,main]) started.
+
+> Task :app:generateDebugBuildConfig
+Deleting stale output file: /workspace/r31-ci015-memory-lifecycle/app/build/generated/source/buildConfig/debug
+Build cache key for task ':app:generateDebugBuildConfig' is d4e371c98789d63af274f547242b6ee0
+Task ':app:generateDebugBuildConfig' is not up-to-date because:
+  No history is available.
+Stored cache entry for task ':app:generateDebugBuildConfig' with cache key d4e371c98789d63af274f547242b6ee0
+Resolve mutations for :app:javaPreCompileDebug (Thread[Execution worker,5,main]) started.
+:app:javaPreCompileDebug (Thread[Execution worker,5,main]) started.
+
+> Task :app:javaPreCompileDebug FROM-CACHE
+Deleting stale output file: /workspace/r31-ci015-memory-lifecycle/app/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+Build cache key for task ':app:javaPreCompileDebug' is 95bc80506f13d2961ef6293be462d30c
+Task ':app:javaPreCompileDebug' is not up-to-date because:
+  No history is available.
+Loaded cache entry for task ':app:javaPreCompileDebug' with cache key 95bc80506f13d2961ef6293be462d30c
+Resolve mutations for :app:checkDebugAarMetadata (Thread[Execution worker,5,main]) started.
+:app:checkDebugAarMetadata (Thread[Execution worker,5,main]) started.
+
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+Caching disabled for task ':app:checkDebugAarMetadata' because:
+  Caching has been disabled for the task
+Skipping task ':app:checkDebugAarMetadata' as it is up-to-date.
+Resolve mutations for :app:generateDebugResValues (Thread[Execution worker,5,main]) started.
+:app:generateDebugResValues (Thread[Execution worker,5,main]) started.
+
+> Task :app:generateDebugResValues UP-TO-DATE
+Build cache key for task ':app:generateDebugResValues' is 87d5b3191a6311eef0574794347ed426
+Skipping task ':app:generateDebugResValues' as it is up-to-date.
+Resolve mutations for :app:mapDebugSourceSetPaths (Thread[Execution worker,5,main]) started.
+:app:mapDebugSourceSetPaths (Thread[Execution worker,5,main]) started.
+
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+Caching disabled for task ':app:mapDebugSourceSetPaths' because:
+  Caching has been disabled for the task
+Skipping task ':app:mapDebugSourceSetPaths' as it is up-to-date.
+Resolve mutations for :app:generateDebugResources (Thread[included builds,5,main]) started.
+:app:generateDebugResources (Thread[included builds,5,main]) started.
+
+> Task :app:generateDebugResources UP-TO-DATE
+Build cache key for task ':app:generateDebugResources' is b72c1d68d1a508f2f7c8f3c7a3fcb7c3
+Skipping task ':app:generateDebugResources' as it is up-to-date.
+Resolve mutations for :app:mergeDebugResources (Thread[Execution worker,5,main]) started.
+:app:mergeDebugResources (Thread[Execution worker Thread 2,5,main]) started.
+
+> Task :app:mergeDebugResources UP-TO-DATE
+Build cache key for task ':app:mergeDebugResources' is 875b072ec5674202092a8bdaad826b81
+Skipping task ':app:mergeDebugResources' as it is up-to-date.
+Resolve mutations for :app:packageDebugResources (Thread[Execution worker Thread 2,5,main]) started.
+:app:packageDebugResources (Thread[Execution worker Thread 2,5,main]) started.
+
+> Task :app:packageDebugResources UP-TO-DATE
+Build cache key for task ':app:packageDebugResources' is 3d2ad166663cbaf79a0a614e41640b65
+Skipping task ':app:packageDebugResources' as it is up-to-date.
+Resolve mutations for :app:parseDebugLocalResources (Thread[Execution worker,5,main]) started.
+:app:parseDebugLocalResources (Thread[Execution worker,5,main]) started.
+
+> Task :app:parseDebugLocalResources UP-TO-DATE
+Build cache key for task ':app:parseDebugLocalResources' is 35fad0f3198a8cc197037d4bd26a21c6
+Skipping task ':app:parseDebugLocalResources' as it is up-to-date.
+Resolve mutations for :app:createDebugCompatibleScreenManifests (Thread[Execution worker Thread 2,5,main]) started.
+:app:createDebugCompatibleScreenManifests (Thread[Execution worker Thread 2,5,main]) started.
+
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+Caching disabled for task ':app:createDebugCompatibleScreenManifests' because:
+  Caching has been disabled for the task
+Skipping task ':app:createDebugCompatibleScreenManifests' as it is up-to-date.
+Resolve mutations for :app:extractDeepLinksDebug (Thread[Execution worker,5,main]) started.
+:app:extractDeepLinksDebug (Thread[included builds,5,main]) started.
+
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+Build cache key for task ':app:extractDeepLinksDebug' is 3cf8f93aa8426e8f2d421da9df152b7c
+Skipping task ':app:extractDeepLinksDebug' as it is up-to-date.
+Resolve mutations for :app:processDebugMainManifest (Thread[included builds,5,main]) started.
+:app:processDebugMainManifest (Thread[Execution worker,5,main]) started.
+
+> Task :app:processDebugMainManifest UP-TO-DATE
+Build cache key for task ':app:processDebugMainManifest' is 3991c8b4a7b8c1b1596b5dd9df6d82ba
+Skipping task ':app:processDebugMainManifest' as it is up-to-date.
+Resolve mutations for :app:processDebugManifest (Thread[included builds,5,main]) started.
+:app:processDebugManifest (Thread[Execution worker,5,main]) started.
+
+> Task :app:processDebugManifest UP-TO-DATE
+Build cache key for task ':app:processDebugManifest' is 598f3818abcac0e0f0491c631887f97e
+Skipping task ':app:processDebugManifest' as it is up-to-date.
+Resolve mutations for :app:processDebugManifestForPackage (Thread[included builds,5,main]) started.
+:app:processDebugManifestForPackage (Thread[included builds,5,main]) started.
+
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+Custom actions are attached to task ':app:processDebugManifestForPackage'.
+Build cache key for task ':app:processDebugManifestForPackage' is c614a14bc7a051709a6fed6c69b5210b
+Skipping task ':app:processDebugManifestForPackage' as it is up-to-date.
+Resolve mutations for :app:processDebugResources (Thread[Execution worker,5,main]) started.
+:app:processDebugResources (Thread[included builds,5,main]) started.
+
+> Task :app:processDebugResources UP-TO-DATE
+Build cache key for task ':app:processDebugResources' is c5f28f92b6f5755397c70c0a48773699
+Skipping task ':app:processDebugResources' as it is up-to-date.
+Resolve mutations for :app:compileDebugJavaWithJavac (Thread[Execution worker,5,main]) started.
+:app:compileDebugJavaWithJavac (Thread[Execution worker,5,main]) started.
+
+> Task :app:compileDebugJavaWithJavac
+Deleting stale output file: /workspace/r31-ci015-memory-lifecycle/app/build/generated/ap_generated_sources/debug/out
+Deleting stale output file: /workspace/r31-ci015-memory-lifecycle/app/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+Deleting stale output file: /workspace/r31-ci015-memory-lifecycle/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes
+Custom actions are attached to task ':app:compileDebugJavaWithJavac'.
+Build cache key for task ':app:compileDebugJavaWithJavac' is 13bc5735e0ede733cc56a1717cf6e7a4
+Task ':app:compileDebugJavaWithJavac' is not up-to-date because:
+  No history is available.
+The input changes require a full rebuild for incremental task ':app:compileDebugJavaWithJavac'.
+Compilation mode: in-process compilation
+Full recompilation is required because no incremental change information is available. This is usually caused by clean builds or changing compiler arguments.
+Compiling with toolchain '/workspace/starcore-environment/tools/jdk-17.0.17+10'.
+file or directory '/workspace/r31-ci015-memory-lifecycle/app/src/debug/java', not found
+Compiling with JDK Java compiler API.
+/workspace/r31-ci015-memory-lifecycle/app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java:14: warning: [strictfp] as of release 17, all floating-point expressions are evaluated strictly and 'strictfp' is not required
+public strictfp final class DevelopmentTrainerCP9 {
+                      ^
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+1 warning
+Class dependency analysis for incremental compilation took 1.022 secs.
+Created classpath snapshot for incremental compilation in 0.098 secs.
+Stored cache entry for task ':app:compileDebugJavaWithJavac' with cache key 13bc5735e0ede733cc56a1717cf6e7a4
+Resolve mutations for :app:bundleDebugClassesToRuntimeJar (Thread[Execution worker,5,main]) started.
+:app:bundleDebugClassesToRuntimeJar (Thread[Execution worker,5,main]) started.
+Resolve mutations for :app:bundleDebugClassesToCompileJar (Thread[Execution worker Thread 2,5,main]) started.
+:app:bundleDebugClassesToCompileJar (Thread[Execution worker Thread 2,5,main]) started.
+Resolve mutations for :app:preDebugUnitTestBuild (Thread[Execution worker Thread 3,5,main]) started.
+:app:preDebugUnitTestBuild (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:preDebugUnitTestBuild
+Skipping task ':app:preDebugUnitTestBuild' as it has no actions.
+Resolve mutations for :app:javaPreCompileDebugUnitTest (Thread[Execution worker Thread 3,5,main]) started.
+:app:javaPreCompileDebugUnitTest (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+Build cache key for task ':app:javaPreCompileDebugUnitTest' is 95bc80506f13d2961ef6293be462d30c
+Skipping task ':app:javaPreCompileDebugUnitTest' as it is up-to-date.
+Resolve mutations for :app:processDebugJavaRes (Thread[Execution worker Thread 3,5,main]) started.
+:app:processDebugJavaRes (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:processDebugJavaRes NO-SOURCE
+file or directory '/workspace/r31-ci015-memory-lifecycle/app/src/main/resources', not found
+file or directory '/workspace/r31-ci015-memory-lifecycle/app/src/debug/resources', not found
+Skipping task ':app:processDebugJavaRes' as it has no source files and no previous output files.
+work action resolve out (project :app) (Thread[Execution worker Thread 3,5,main]) started.
+Resolve mutations for :app:processDebugUnitTestJavaRes (Thread[Execution worker Thread 3,5,main]) started.
+:app:processDebugUnitTestJavaRes (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :app:processDebugUnitTestJavaRes UP-TO-DATE
+file or directory '/workspace/r31-ci015-memory-lifecycle/app/src/testDebug/resources', not found
+file or directory '/workspace/r31-ci015-memory-lifecycle/app/src/testDebug/resources', not found
+Caching disabled for task ':app:processDebugUnitTestJavaRes' because:
+  Caching has been disabled for the task
+Skipping task ':app:processDebugUnitTestJavaRes' as it is up-to-date.
+
+> Task :app:bundleDebugClassesToRuntimeJar
+Caching disabled for task ':app:bundleDebugClassesToRuntimeJar' because:
+  Caching has been disabled for the task
+Task ':app:bundleDebugClassesToRuntimeJar' is not up-to-date because:
+  No history is available.
+work action resolve classes.jar (project :app) (Thread[Execution worker,5,main]) started.
+
+> Task :app:bundleDebugClassesToCompileJar
+Caching disabled for task ':app:bundleDebugClassesToCompileJar' because:
+  Caching has been disabled for the task
+Task ':app:bundleDebugClassesToCompileJar' is not up-to-date because:
+  Input property 'inputDirs' file /workspace/r31-ci015-memory-lifecycle/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/ethk3/novaonepro/BuildConfig.class has changed.
+  Input property 'inputDirs' file /workspace/r31-ci015-memory-lifecycle/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/ethk3/novaonepro/BuildProvenanceR815.class has changed.
+  Input property 'inputDirs' file /workspace/r31-ci015-memory-lifecycle/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/ethk3/novaonepro/ReleaseIdentityR815.class has changed.
+work action resolve classes.jar (project :app) (Thread[Execution worker Thread 2,5,main]) started.
+Resolve mutations for :app:verifyFinalR815Provenance (Thread[Execution worker Thread 2,5,main]) started.
+:app:verifyFinalR815Provenance (Thread[Execution worker Thread 2,5,main]) started.
+
+> Task :app:verifyFinalR815Provenance
+Caching disabled for task ':app:verifyFinalR815Provenance' because:
+  Gradle would require more information to cache this task
+Task ':app:verifyFinalR815Provenance' is not up-to-date because:
+  Task.upToDateWhen is false.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/scripts/r815_generate_provenance.py --toolchain-file jdk-modules=/workspace/starcore-environment/tools/jdk-17.0.17+10/lib/modules --toolchain-file android-platform=/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar --toolchain-file d8=/workspace/starcore-environment/android-sdk/build-tools/36.0.0/lib/d8.jar --toolchain-file aapt2=/workspace/starcore-environment/android-sdk/build-tools/36.0.0/aapt2 --toolchain-file ndk-version=/workspace/starcore-environment/android-sdk/ndk/28.2.13676358/source.properties --toolchain-file clang=/workspace/starcore-environment/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --toolchain-file cmake=/workspace/starcore-environment/android-sdk/cmake/3.22.1/bin/cmake --toolchain-file gradle-wrapper=/workspace/r31-ci015-memory-lifecycle/gradle/wrapper/gradle-wrapper.jar --check
+Successfully started process 'command 'python3''
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=0d5818d1c0eb5eec0e74acd6c75afe1c3e12e64d5d2cddc0838947943ec6ebc1|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=f95ddf9f2bd7a292283c78face77cfc96e1a39e35f0a9b83972e8541ad097a43|GENERATED_AT=2026-11-05T01:49:29Z
+Resolve mutations for :app:verifyFinalR31BuildIdentity (Thread[Execution worker Thread 2,5,main]) started.
+:app:verifyFinalR31BuildIdentity (Thread[Execution worker Thread 2,5,main]) started.
+
+> Task :app:verifyFinalR31BuildIdentity
+Custom actions are attached to task ':app:verifyFinalR31BuildIdentity'.
+Caching disabled for task ':app:verifyFinalR31BuildIdentity' because:
+  Gradle would require more information to cache this task
+Task ':app:verifyFinalR31BuildIdentity' is not up-to-date because:
+  Task has not declared any outputs despite executing actions.
+Starting process 'command 'python3''. Working directory: /workspace/r31-ci015-memory-lifecycle Command: python3 /workspace/r31-ci015-memory-lifecycle/tools/r31/verify_baseline.py --identity-only
+Successfully started process 'command 'python3''
+Resolve mutations for :app:compileDebugUnitTestJavaWithJavac (Thread[Execution worker Thread 2,5,main]) started.
+:app:compileDebugUnitTestJavaWithJavac (Thread[Execution worker Thread 2,5,main]) started.
+
+> Task :app:compileDebugUnitTestJavaWithJavac
+Custom actions are attached to task ':app:compileDebugUnitTestJavaWithJavac'.
+Build cache key for task ':app:compileDebugUnitTestJavaWithJavac' is d005336719365b83001a52754495cb23
+Task ':app:compileDebugUnitTestJavaWithJavac' is not up-to-date because:
+  Input property 'classpath' file /workspace/r31-ci015-memory-lifecycle/app/build/intermediates/compile_app_classes_jar/debug/bundleDebugClassesToCompileJar/classes.jar has changed.
+Compilation mode: in-process compilation
+Created classpath snapshot for incremental compilation in 0.441 secs.
+file or directory '/workspace/r31-ci015-memory-lifecycle/app/src/testDebug/java', not found
+Compiling with toolchain '/workspace/starcore-environment/tools/jdk-17.0.17+10'.
+file or directory '/workspace/r31-ci015-memory-lifecycle/app/src/testDebug/java', not found
+Compiling with JDK Java compiler API.
+Incremental compilation of 2 classes completed in 0.903 secs.
+Class dependency analysis for incremental compilation took 0.02 secs.
+Stored cache entry for task ':app:compileDebugUnitTestJavaWithJavac' with cache key d005336719365b83001a52754495cb23
+Resolve mutations for :app:testDebugUnitTest (Thread[Execution worker Thread 2,5,main]) started.
+:app:testDebugUnitTest (Thread[Execution worker Thread 2,5,main]) started.
+Gradle Test Executor 1 started executing tests.
+
+> Task :app:testDebugUnitTest
+Deleting stale output file: /workspace/r31-ci015-memory-lifecycle/app/build/test-results/testDebugUnitTest/binary
+Deleting stale output file: /workspace/r31-ci015-memory-lifecycle/app/build/test-results/testDebugUnitTest
+Deleting stale output file: /workspace/r31-ci015-memory-lifecycle/app/build/reports/tests/testDebugUnitTest
+Build cache key for task ':app:testDebugUnitTest' is ddbfac0a9d29f345a21a9f03a59d73cf
+Task ':app:testDebugUnitTest' is not up-to-date because:
+  No history is available.
+Starting process 'Gradle Test Executor 1'. Working directory: /workspace/r31-ci015-memory-lifecycle/app Command: /workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java -Djava.awt.headless=true -Djava.library.path=/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib:/workspace/r31-ci015-memory-lifecycle/app/src/testDebug/jniLibs:/workspace/r31-ci015-memory-lifecycle/app/src/test/jniLibs -Dorg.gradle.internal.worker.tmpdir=/workspace/r31-ci015-memory-lifecycle/app/build/tmp/testDebugUnitTest/work --add-opens=java.base/java.io=ALL-UNNAMED @/workspace/starcore-environment/gradle-home/.tmp/gradle-worker-classpath1256136774403262447txt -Xmx512m -Dfile.encoding=UTF-8 -Duser.country -Duser.language=en -Duser.variant -ea worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+Successfully started process 'Gradle Test Executor 1'
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+
+R27BirthGateTest > everyIdeaFamilyProducesExecutableBirths STANDARD_OUT
+    R27_HOST|R27-023_PASS I00:30/30 I01:30/30 I02:30/30 I03:30/30 I04:30/30 I05:30/30 I06:30/30 I07:30/30 I08:30/30 I09:30/30 I10:30/30 I11:30/30 I12:30/30 I13:30/30 I14:3/30{OUTPUT=27} I15:30/30 I16:30/30 I17:30/30 I18:30/30 I19:30/30 I20:1/30{OUTPUT=29} 
+
+R27BirthGateTest > everyRejectionReasonIsProducedAndEnumerated STANDARD_OUT
+    R27_HOST|H04_PASS reasons={TYPE=TYPE:MIXED_PROB_RISK_IN_add, RANGE=RANGE:freq, CAUSAL=CAUSAL:LAG_0, COST=predictMsPerPeriod=10.014663425, OUTPUT=AVAILABLE_ROWS=0, DUPLICATE=JACCARD>=0.95, TOO_COMPLEX=depth=9,nodes=9,constants=0}
+
+R27BirthGateTest > canonicalIdentityIsLosslessAndStable STANDARD_OUT
+    R27_HOST|R27-021_PASS hash=9f47c758df57cd0e lossless=true
+
+R27BirthGateTest > noOpChildIsDetectedAndNotRegistered STANDARD_OUT
+    R27_HOST|H05_PASS noOp=NO_OP
+
+R27ComponentTest > derivedAtomsAndMoleculesArePitAndRanked STANDARD_OUT
+    R27_HOST|R27-044_PASS derived=DERIVED:5409e4d76167def9 freq=2 moleculesPit=10/10 miPlanted=0.16640987517459613 miNull=1.0101281795225556E-4
+
+R27ComponentTest > atomScoringSeparatesUsefulNeutralAndMissing STANDARD_OUT
+    R27_HOST|R27-043_PASS useful={atom=0, nSelect=4000, gainSelect=0.005408172275706231, lcbSelect=0.0032350087382312523, nHoldout=0, gainHoldout=0.0, lcbHoldout=null, nLateSelect=1176, lcbLateSelect=0.0017108937430147667, contributionR30={periods=1176, pairedComparisons=1176, mean=0.006007845887816207, lower95=0.0024017299714198274, target=BINARY_K3_SAME_ORIGINAL_ACTION, intervalScope=LEGACY_FAST_RESEARCH_SCREEN_NOT_NATURAL_QUALITY, source=H_SELECT_SAME_PERIOD_PAIRED_BRIER, status=MEASURED}, confirmRead=false, missingRate=0.0, state=USEFUL} noise=HARMFUL missing=MASKED_MISSING(0.19925)
+
+R27ComponentTest > expertProposalsAreCompleteAndSurvivalIsMeasured STANDARD_OUT
+    R27_HOST|R27-024_PASS directProposals=16 executable=10/10 audits=6 loopExpertBirths=9 born=8 stillActive=1
+
+R27ComponentTest > ftrlWarmStartsAndLearnsOnlyRealSignal STANDARD_OUT
+    R27_HOST|R27-036 planted=true verdict=BETTER_THAN_BASELINE summary={n=4000, verdict=BETTER_THAN_BASELINE, bss=0.057464183662398985, bandLow=0.04200256602706371, bandHigh=0.07292580129773427, ewma=0.05368182140355213}
+    R27_HOST|R27-036 planted=false verdict=NOT_DISTINGUISHABLE_FROM_BASELINE summary={n=4000, verdict=NOT_DISTINGUISHABLE_FROM_BASELINE, bss=-0.002943933303757919, bandLow=-0.005965316241266364, bandHigh=7.744963375052559E-5, ewma=-0.002621889552166953}
+    R27_HOST|R27-036_PASS
+
+R27EvolutionTest > plantedSignalIsFoundAndVerifiedWithin50Generations STANDARD_OUT
+    R27_HOST|H06_PASS generations=2 verified=1 championHoldoutHR=0.45038167938931295 champion=(ema 0.174 (zscore (family 11)))
+
+R27EvolutionTest > killAfterEveryStepAndResume STANDARD_OUT
+    R27_HOST|H12_PASS steps=18 events=173 uniqueBirthsAndEdges=82
+
+R27EvolutionTest > noSignalRarelyClaimsImprovement STANDARD_OUT
+    R27_HOST|H07 runs=100 comparisons=220 verified=0 rate=0.0 runsWithAnyVerified=0
+    R27_HOST|H07_PASS
+
+R27LeakageTest > all240AtomsArePointInTime STANDARD_OUT
+    R27_HOST|H01_ATOMS_PASS atoms=240 rows=3
+
+R27LeakageTest > everyLeafKindIsPointInTime STANDARD_OUT
+    R27_HOST|H01_LEAVES_PASS leaves=26 checks=156
+
+R27NullBaselineTest > javaIsomorphMatchesPublishedResults STANDARD_OUT
+    R27_HOST|R27_056_JAVA_ISOMORPH_PASS draws=10000 A_maxAbsDiff=0.0047 B_evolution_real_labels[train=0.3318/py 0.3303,future=0.2994/py 0.2951] C_evolution_shuffled_labels[train=0.3322/py 0.3285,future=0.3085/py 0.3056] D20[median=0.55,p95=0.65] D32[median=0.46875,p95=0.5625] D120[median=0.39166666666666666,p95=0.43333333333333335] E[medianMin=0.1480,medianMax=0.2890] F_planted_signal_q0.05[train=0.3421/py 0.3414,future=0.3181/py 0.3351] F_planted_signal_q0.1[train=0.3860/py 0.3825,future=0.3765/py 0.3691]
+
+R27QualityTest > h15MainlineRedLines STANDARD_OUT
+    R27_HOST|H15_JAVA_PASS originalOwnerHashesProtected=7 registeredR31FeedbackExtraction=1 pinnedDbSchemaSidecars=true payoutK3AndUnregisteredSideEffectMutationsRejected=true r27FilesScanned=62 noCertificateDenied=NO_CERTIFICATE
+
+R27QualityTest > h11ChangedFdecayChangesOnlyItsPolicies FAILED
+    com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY
+        at app//com.ethk3.novaonepro.strategyv2.FeatureCacheR27$FamilyStream.acquireR31(FeatureCacheR27.java:461)
+        at app//com.ethk3.novaonepro.strategyv2.FeatureCacheR27$FamilyStream.admitConstructorR31(FeatureCacheR27.java:460)
+        at app//com.ethk3.novaonepro.strategyv2.FeatureCacheR27$FamilyStream.<init>(FeatureCacheR27.java:443)
+        at app//com.ethk3.novaonepro.strategyv2.FeatureCacheR27.familyCopyR31(FeatureCacheR27.java:386)
+        at app//com.ethk3.novaonepro.strategyv2.FeatureCacheR27.familyIntoR31(FeatureCacheR27.java:381)
+        at app//com.ethk3.novaonepro.strategyv2.FeatureCacheR27.familyIntoR31(FeatureCacheR27.java:382)
+        at app//com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:197)
+        at app//com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:189)
+        at app//com.ethk3.novaonepro.strategyv2.OperatorGoldenR27.hash(OperatorGoldenR27.java:62)
+        at app//com.ethk3.novaonepro.strategyv2.OperatorGoldenR27.fingerprints(OperatorGoldenR27.java:18)
+        at app//com.ethk3.novaonepro.strategyv2.R27QualityTest.h11ChangedFdecayChangesOnlyItsPolicies(R27QualityTest.java:71)
+
+R27QualityTest > continuationSlicesUseAnAcceptedQuantum STANDARD_OUT
+    R27_HOST|R27_1_CONTINUATION_QUANTUM_PASS callSites=5
+
+R27QualityTest > r274ReportCarriesObserversWithoutChangingTheConclusion STANDARD_OUT
+    R27_HOST|R27_4_REPORT_OBSERVERS_PASS
+
+R27QualityTest > r27ResearchWritesYieldToCriticalBusiness STANDARD_OUT
+    R27_HOST|R31_WRITER_PRIORITY_PASS current_draw_critical=true history_background=true
+
+R27QualityTest > r274RealtimeChainOutranksResearchThreads STANDARD_OUT
+    R27_HOST|R27_4_PRIORITY_PASS
+
+R27QualityTest > waitKindsAreSpecific STANDARD_OUT
+    R27_HOST|WAITKIND_PASS kinds=[PROGRESS, NO_NEW_EVENT, DEPENDENCY, DEADLINE_MISSED, RESOURCE, ERROR, DISABLED_BY_USER, QUARANTINED, RETRY_LATER, CANCELLED, STALE_OWNER, NEEDS_FIX]
+
+R27QualityTest > h10UiOnlyChangeIsEquivalent FAILED
+    com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY
+        at app//com.ethk3.novaonepro.strategyv2.FeatureCacheR27$FamilyStream.acquireR31(FeatureCacheR27.java:461)
+        at app//com.ethk3.novaonepro.strategyv2.FeatureCacheR27$FamilyStream.admitConstructorR31(FeatureCacheR27.java:460)
+        at app//com.ethk3.novaonepro.strategyv2.FeatureCacheR27$FamilyStream.<init>(FeatureCacheR27.java:443)
+        at app//com.ethk3.novaonepro.strategyv2.FeatureCacheR27.familyCopyR31(FeatureCacheR27.java:386)
+        at app//com.ethk3.novaonepro.strategyv2.FeatureCacheR27.familyIntoR31(FeatureCacheR27.java:381)
+        at app//com.ethk3.novaonepro.strategyv2.FeatureCacheR27.familyIntoR31(FeatureCacheR27.java:382)
+        at app//com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:197)
+        at app//com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:189)
+        at app//com.ethk3.novaonepro.strategyv2.OperatorGoldenR27.hash(OperatorGoldenR27.java:62)
+        at app//com.ethk3.novaonepro.strategyv2.OperatorGoldenR27.fingerprints(OperatorGoldenR27.java:18)
+        at app//com.ethk3.novaonepro.strategyv2.R27QualityTest.h10UiOnlyChangeIsEquivalent(R27QualityTest.java:38)
+
+R27QualityTest > r274ObserversRecordEveryPeriodButNeverQualify STANDARD_OUT
+    R27_HOST|R27_4_OBSERVERS_PASS cap=24
+
+R27QualityTest > h13LateRowsAreExcludedNotFatal STANDARD_OUT
+    R27_HOST|H13_PASS injectedLate=13 excludedLate=13 excludedGap=8 state=FITTED ece=0.05214031663991909 fitSource=REPLAY
+
+R27QualityTest > h14HundredSurfacesTwelveHundredActions STANDARD_OUT
+    R27_HOST|H14_PASS surfaces=100 actions=1200 maxError=2.8421709430404007E-14
+
+R27QualityTest > r27ComputeHelpersRunAtBackgroundPriorityAndNarrowDuringP0 STANDARD_OUT
+    R27_HOST|R31_RESEARCH_PRIORITY_PASS bounded_factory_and_P0_serial_replay=true OS_PRIORITY_DEVICE_REQUIRED
+
+R27QualityTest > r27BusyWriterIsAWaitNotATaskError STANDARD_OUT
+    R27_HOST|R31_BUSY_WRITER_PASS queue_sink_and_typed_budget=true native_recovery_separate=true
+
+R27QualityTest > r27005ResearchSessionNoLongerYieldsToDeadlines STANDARD_OUT
+    R27_HOST|R27-005_PASS preempt=private boolean preempt(){return cancelled||Thread.currentThread().isInterrupted()||resourceBlocked!=null;}
+
+R27QualityTest > r27ControlLooksDoNotSpendTheHoldoutBudget STANDARD_OUT
+    R27_HOST|R27_3_HOLDOUT_BUDGET_PASS
+
+R27QualityTest > r27BackgroundWritersNeverQueueAheadOfCriticalWriters STANDARD_OUT
+    R27_HOST|R27_3_CRITICAL_FIRST_WRITER_PASS
+
+R27QualityTest > h16AtomNetFindsSignalAndDoesNotInventOne STANDARD_OUT
+    R27_HOST|H16_PASS seed1:planted[bss=0.04145885271797032,low=0.02857660984019602] null[bss=-2.8943135993136275E-4,low=-9.064644423605796E-4,high=3.27601722497854E-4] seed2:planted[bss=0.044926105326418726,low=0.031827942849598556] null[bss=2.6917550036853893E-5,low=-6.888402139124866E-4,high=7.426753139861945E-4] seed3:planted[bss=0.04657899599469784,low=0.03413911938897024] null[bss=-8.291798095811124E-4,low=-0.0019791475378945077,high=3.2078791873228264E-4]
+
+R27QualityTest > h17EmptyReportIsInsufficientWithoutPass STANDARD_OUT
+    R27_HOST|H17_PASS chapters=4 template=样本不足 otherTemplates=QUALIFIED,NONE
+
+R27QualityTest > r27SettlementNeverRunsTheWholeResearchMigration STANDARD_OUT
+    R27_HOST|R27_3_SETTLEMENT_SCHEMA_DEFERRAL_PASS
+
+R27ReplayTest > su1SegmentedHistoryDoesNotThrowOnGaps STANDARD_OUT
+    R27_HOST|R27-017_PASS segments=4 newestSegment=67 SKIPPED_GAP=330
+
+R27ReplayTest > replayAndLiveAreBitIdenticalOverLast200 STANDARD_OUT
+    R27_HOST|H02_PASS compared=200 bitIdentical=true
+
+R27ReplayTest > datasetHashAndIncrementalAppend STANDARD_OUT
+    R27_HOST|R27-013_PASS hash=78706507dccde3ee gaps=1=segments-1
+
+R27ReplayTest > threeGapsGiveFourSegmentsAndCountedSkips STANDARD_OUT
+    R27_HOST|H03_PASS segments=4 skippedGap=8 nSched=3000
+
+R27ReplayTest > linearCandidateFullReplaySpeed STANDARD_OUT
+    R27_HOST|REPLAY_SPEED linear5000ms=4.232981 (phone target ≤50ms; host measurement)
+
+R27SequentialTest > powerAtHr35Act15 STANDARD_OUT
+    R27_HOST|H09 index3:alpha=0.003082972037239602,medianStop=7676,notQualifiedIn60000=1 index10:alpha=3.7470318289973425E-4,medianStop=10775,notQualifiedIn60000=0 index1000:alpha=4.960287589112837E-7,medianStop=17847,notQualifiedIn60000=0 
+    R27_HOST|H09_PASS medianStopAtIndex3=7676
+
+R27SequentialTest > falseAuthorizationAtMostFivePercent STANDARD_OUT
+    R27_HOST|H08 nullStrategies=1000 periods=20000 falseQualified=0 rate=0.0 judgedNotBetter=163
+    R27_HOST|H08_PASS
+
+R27SequentialTest > alphaAllocationSumsToRoot STANDARD_OUT
+    R27_HOST|ALPHA C=2.10974280242459 alpha1=0.024663776297916815 alpha3=0.003082972037239602 alpha1000=4.960287589112837E-7 sum(1..2e6)=0.048366522188041085
+
+R29BaselineTest > packagedLedgerKeepsEveryRequirementAndCard STANDARD_OUT
+    R27_HOST|R29_002_PASS {NOT_VERIFIED=1832} unresolvedCardLinks=0
+
+R30BrierContributionTest > ablationUsesOriginalK3EventAndCountsUniquePeriodsNotPolicyCopies STANDARD_OUT
+    R30_PAIRED_BRIER|SAME_ORIGINAL_K3|PERIODS=659|POLICY_COMPARISONS=1318|H_CONFIRM_LABELS_NULL|PASS
+
+R30CalibrationTest > rollingFitIsOrdinalSortedAndCannotUseCurrentOrFutureLabels STANDARD_OUT
+    R30_CALIBRATION|500_ROLLING_FUTURE_EVALUATIONS|120_PRIOR_ROWS_EMBARGO1|ALL_FORMAL_LABEL_PERTURBATION_NO_FIT_CHANGE_PASS
+
+R30FailureRepairTest > allOperatorProductsAreCompleteAndCarryRealProfiles STANDARD_OUT
+    R27_HOST|R30_REPAIR_CONTRACT attempts=5000 proposed=3700 valid=3700 notProposed=1300 perOperator={F_STACK=0, M_CONST=100, M_FAMILY=400, M_GATE=400, M_HOIST=100, M_LEAF=400, M_PRUNE=100, M_SELECTOR=400, M_SUBTREE=400, M_UPDATER=400, M_WINDOW=200, M_WRAP=400, X_INPUT=200, X_SUBTREE=200}
+
+R30FailureRepairTest > measuredFailureDrivesActualWindowMutationAndFamilyRepair STANDARD_OUT
+    R27_HOST|R30_FAILURE_TARGET {status=READY, method=COUNTERFACTUAL_POSITION_TRAILING_SELECT_WINDOW, role=H_SELECT, datasetHash=1fa7fd45f9f52017113591e274e781ace4d6d2ca3132a63f0594f262e224c349, parentHash=898edcf220ac1cd732d025decd2a4997bdd8aca489894b9fe864bcc362c885a2, position=7, window=512, from=1288, to=1800, nAct=512, hits=0, hitRate=0.0} actualWindowChanges=47 familyChildren=100
+
+R30IdeaFamilyContractTest > thirteenFamiliesHaveCompleteProposalsAndRealBirthRecords STANDARD_OUT
+    R27_HOST|R30_FAMILY_CONTRACT complete={I01=100, I02=100, I03=100, I04=100, I05=100, I06=100, I07=100, I08=100, I09=100, I10=100, I11=100, I12=100, I13=100} actualBirths={I01=20, I02=20, I03=20, I04=20, I05=20, I06=20, I07=20, I08=20, I09=20, I10=20, I11=20, I12=20, I13=20}
+
+R30IdeaFamilyContractTest > expertsPublishCompletePoliciesOrExplicitAuditReceipts STANDARD_OUT
+    R27_HOST|R30_EXPERT_CONTRACT executable={E02=100, E03=100, E04=100, E05=100, E06=100, E07=100, E08=100, E09=100, E11=100, E12=100, E13=100} audits={E01=100, E10=100, E14=100, E15=100, E16=100}
+
+R30ModelSurfaceTest > i08ActuallyProposesModelLeavesAndRetainsFamilyCapability STANDARD_OUT
+    R30_I08|MODEL_PROPOSALS=524|FAMILY_PROPOSALS=476|NO_UNAVAILABLE_MODEL_BIRTH_CLAIM
+
+R30NullPipelineTest > powerAndFullPipelineQualificationHaveRecoverableSyntheticReceipts STANDARD_OUT
+    R27_HOST|R30_Q08_MEASURED workUnits=144 {"completedNullTrials":3,"earlyStoppingRule":"FIXED_REGISTERED_TRIAL_COUNT_NO_STOP_AFTER_FAVOURABLE_RESULT","eligibleNullCandidates":3,"evidenceLevel":"SYNTHETIC_MECHANISM_TEST","falseQualificationGivenEligibleInterval95":{"events":0,"independentReplicates":3,"lower95":5.551115123125783E-17,"method":"WILSON_TWO_SIDED_95_DESCRIPTIVE","oneSided95ZeroEventUpper":0.6315968501359612,"rate":0.0,"status":"DESCRIPTIVE_SYNTHETIC_ONLY","upper95":0.5614970317550454},"falseQualificationPerCompletedPipelineInterval95":{"events":0,"independentReplicates":3,"lower95":5.551115123125783E-17,"method":"WILSON_TWO_SIDED_95_DESCRIPTIVE","oneSided95ZeroEventUpper":0.6315968501359612,"rate":0.0,"status":"DESCRIPTIVE_SYNTHETIC_ONLY","upper95":0.5614970317550454},"falseSequentialQualifications":0,"fullPipelineTrials":[{"endpoint":"SEQUENTIAL_EVIDENCE; controls never receive a REAL certificate","falseSequentialQualification":false,"frozenThrough":1002999,"futureFrom":1003000,"futurePeriods":645,"mode":"SYNTHETIC_RANDOM_PERMUTATION_ONLY","naturalQualityEligible":false,"pipeline":{"acceptedBirths":107,"budgetOwner":"ORIGINAL_RESEARCH_POOL","canGrantREAL":false,"formalOutcomesUsedForSelection":0,"implementation":"EvolutionLoopR27 all nine steps; recursive controls disabled","lastGeneration":{"archiveCells":6,"behaviorProbeCount":256,"behaviorProbeSetHash":"f13f40338521b0abb2e3c161e8dcc06e0c9509536240b6596bc425e4a727d05d","behaviorProbeStatus":"READY","births":40,"championHash":"ad70e0236741303795c0096e278cfc0c7249d46e6b5d7fcf2d778255e34385a0","championIdea":"I19","championSelectHr":0.3741935483870968,"championSelectU":0.017450682852807282,"counters":{"attempts":120,"behaviorNovel":107,"prospectiveQualified":0,"researchAccepted":5,"structuralCandidates":102,"uniquePolicies":114,"verifiedImprovements":0},"datasetHash":"5e1e00e5b081c6f9cd9b3387ac77e214d922219d615a96b001b7e6eaeb67b6de","diagnosis":[],"duplicates":5,"familySurvivors":{"I19":1},"funnel":[34,15,2,1],"generation":2,"holdout":{"holdoutBlock":1392,"reason":"AWAITING_INDEPENDENT_CONFIRMATION","status":"FROZEN_PENDING_EXTERNAL","taskKey":"b635ccfc3108b087a3191b6141c753ef7e5e43534bf1dcdb1d3fedcca050eabf","verified":false},"i00ChampionHash":null,"live":0,"noOp":1,"nullChampionHash":null,"population":5,"rejectReasons":{},"rejected":0,"retired":33,"sameGenerationBehaviorDuplicates":[{"datasetHash":"5e1e00e5b081c6f9cd9b3387ac77e214d922219d615a96b001b7e6eaeb67b6de","droppedPolicy":"ba08660ea275b5d7d7641e709b3cd27a99e0601d47f7038fc2a93ca7110dfa51","droppedPosition":9,"keptPolicy":"f38b9b5cb8a67b92cb750445267b3da0a58b3f796893a9d9276056b0c9c35b54","probeScope":"ORIGINAL_BIRTH_GATE_PROBE_SAME_TARGET_OR_BOTH_NO_ACT","signatureHash":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","similarity":1.0,"stage":"BIRTH_SAME_GENERATION"}],"sameGenerationBehaviorDuplicatesOmitted":0,"sameGenerationBehaviorDuplicatesTotal":1,"split":"train=[0,1581) select=[1581,2240) holdout=[2240,2960) block=1392 available=true open=[2960,..)","survivors":1},"mode":"SYNTHETIC_SHUFFLED_TRAIN_SELECT_SEQUENCE","naturalQualityEligible":false,"receipts":{"bornOperator:EXPERT_PROPOSAL":7,"bornOperator:F_STACK":1,"bornOperator:GENERATE":78,"bornOperator:LEGACY_SEED":1,"bornOperator:M_LEAF":7,"bornOperator:M_PRUNE":1,"bornOperator:M_SELECTOR":4,"bornOperator:M_SUBTREE":1,"bornOperator:M_UPDATER":1,"bornOperator:M_WRAP":2,"bornOperator:REPAIR":2,"bornOperator:X_SUBTREE":2,"completedGenerations":3,"expertExecutableProposals":7,"expertReceipts":12,"lineage:CHAMPION_FROZEN_FOR_CONFIRMATION":2,"lineage:CROSSOVER_PARENT":4,"lineage:EXPERT_PARENT":7,"lineage:FUSION_MEMBER":2,"lineage:PARENT":19,"policy:ACTIVE":5,"policy:BORN":107,"policy:RETIRED":102,"scores:H_SELECT":8},"role":"SYNTHETIC","survivors":5},"policyHash":"ad70e0236741303795c0096e278cfc0c7249d46e6b5d7fcf2d778255e34385a0","qualification":{"acts":109,"alpha":0.024663776297916815,"deltaMin":0.007400000000000006,"deltaMinSource":"PRE_REGISTERED_TARGET_ACT_RATE: clamp(rate,0.01,1)*(0.34-0.30); legacy unknown MARGIN uses 0.15; no FUTURE refit","expectedRemaining":null,"globalIndex":1,"hits":23,"logEDown":3.790067327286402,"logEUp":0.0,"n":645,"policyHash":"Q08_NULL_0","progress":0.0,"state":"NOT_BETTER_THAN_TARGET","targetActRate":0.185,"threshold":3.7024196584233318},"status":"MEASURED","temperature":0.25,"trial":0},{"endpoint":"SEQUENTIAL_EVIDENCE; controls never receive a REAL certificate","falseSequentialQualification":false,"frozenThrough":1002999,"futureFrom":1003000,"futurePeriods":6000,"mode":"SYNTHETIC_RANDOM_PERMUTATION_ONLY","naturalQualityEligible":false,"pipeline":{"acceptedBirths":112,"budgetOwner":"ORIGINAL_RESEARCH_POOL","canGrantREAL":false,"formalOutcomesUsedForSelection":0,"implementation":"EvolutionLoopR27 all nine steps; recursive controls disabled","lastGeneration":{"archiveCells":6,"behaviorProbeCount":256,"behaviorProbeSetHash":"01282b6504b18707ac0aad382e1a18159f4b52f50a1e8a3e19db84fddb463511","behaviorProbeStatus":"READY","births":40,"championHash":"20d5b02bd56608de7dc4f6289f54594c6daedd2082ba3b40f0085f6a7614cfd8","championIdea":"I01","championSelectHr":0.35106382978723405,"championSelectU":0.014567526555386949,"counters":{"attempts":120,"behaviorNovel":112,"prospectiveQualified":0,"researchAccepted":8,"structuralCandidates":107,"uniquePolicies":118,"verifiedImprovements":0},"datasetHash":"3de18a89b58c3d7658bedbd252649e51874e6bf383ceafc15d23a92d5a528b4d","diagnosis":[],"duplicates":3,"familySurvivors":{"I01":1,"I08":1,"I10":1},"funnel":[37,15,5,3],"generation":2,"holdout":{"holdoutBlock":1392,"reason":"AWAITING_INDEPENDENT_CONFIRMATION","status":"FROZEN_PENDING_EXTERNAL","taskKey":"4c7ecfc075c7c428b933d75425f119951687ec7de684f3aafa6a2260e2510500","verified":false},"i00ChampionHash":null,"live":0,"noOp":0,"nullChampionHash":null,"population":8,"rejectReasons":{},"rejected":0,"retired":34,"sameGenerationBehaviorDuplicates":[{"datasetHash":"3de18a89b58c3d7658bedbd252649e51874e6bf383ceafc15d23a92d5a528b4d","droppedPolicy":"0977122c42182ae49bb57f7396169aa5acf0675697f5a85fa3dea323f7adf837","droppedPosition":1,"keptPolicy":"3b487a60a87e6b8cf996e77147a18f6c543c8274826bf2c01e8f62096bfc9774","probeScope":"ORIGINAL_BIRTH_GATE_PROBE_SAME_TARGET_OR_BOTH_NO_ACT","signatureHash":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","similarity":1.0,"stage":"BIRTH_SAME_GENERATION"}],"sameGenerationBehaviorDuplicatesOmitted":0,"sameGenerationBehaviorDuplicatesTotal":1,"split":"train=[0,1581) select=[1581,2240) holdout=[2240,2960) block=1392 available=true open=[2960,..)","survivors":3},"mode":"SYNTHETIC_SHUFFLED_TRAIN_SELECT_SEQUENCE","naturalQualityEligible":false,"receipts":{"bornOperator:EXPERT_PROPOSAL":3,"bornOperator:GENERATE":84,"bornOperator:LEGACY_SEED":1,"bornOperator:M_HOIST":1,"bornOperator:M_LEAF":6,"bornOperator:M_PRUNE":2,"bornOperator:M_SELECTOR":3,"bornOperator:M_SUBTREE":3,"bornOperator:M_WINDOW":2,"bornOperator:M_WRAP":1,"bornOperator:REPAIR":3,"bornOperator:X_INPUT":1,"bornOperator:X_SUBTREE":2,"completedGenerations":3,"expertExecutableProposals":3,"expertReceipts":12,"lineage:CROSSOVER_PARENT":6,"lineage:EXPERT_PARENT":3,"lineage:PARENT":22,"policy:ACTIVE":8,"policy:BORN":112,"policy:RETIRED":104,"scores:H_SELECT":13},"role":"SYNTHETIC","survivors":8},"policyHash":"20d5b02bd56608de7dc4f6289f54594c6daedd2082ba3b40f0085f6a7614cfd8","qualification":{"acts":1850,"alpha":0.024663776297916815,"deltaMin":0.01160000000000001,"deltaMinSource":"PRE_REGISTERED_TARGET_ACT_RATE: clamp(rate,0.01,1)*(0.34-0.30); legacy unknown MARGIN uses 0.15; no FUTURE refit","expectedRemaining":34319.67380425691,"globalIndex":1,"hits":580,"logEDown":-1.7369297846203537,"logEUp":-0.7842814089112302,"n":6000,"policyHash":"Q08_NULL_1","progress":-0.2118294200191274,"state":"ACCUMULATING","targetActRate":0.29,"threshold":3.7024196584233318},"status":"MEASURED","temperature":0.25,"trial":1},{"endpoint":"SEQUENTIAL_EVIDENCE; controls never receive a REAL certificate","falseSequentialQualification":false,"frozenThrough":1002999,"futureFrom":1003000,"futurePeriods":6000,"mode":"SYNTHETIC_RANDOM_PERMUTATION_ONLY","naturalQualityEligible":false,"pipeline":{"acceptedBirths":108,"budgetOwner":"ORIGINAL_RESEARCH_POOL","canGrantREAL":false,"formalOutcomesUsedForSelection":0,"implementation":"EvolutionLoopR27 all nine steps; recursive controls disabled","lastGeneration":{"archiveCells":4,"behaviorProbeCount":256,"behaviorProbeSetHash":"3cd1eb22784b650dd0c8951025a21f4958d96a15fa9b57065ba70e99230af735","behaviorProbeStatus":"READY","births":40,"championHash":"442acce408accaf457751d9b2a5147c99f1b429afceae21aee6899dc4eee7fba","championIdea":"EXPERT:E13","championSelectHr":0.33783783783783783,"championSelectU":0.012746585735963576,"counters":{"attempts":120,"behaviorNovel":108,"prospectiveQualified":0,"researchAccepted":4,"structuralCandidates":104,"uniquePolicies":120,"verifiedImprovements":0},"datasetHash":"45444cb45e2883f6d98d5b24b2da759747fce83a71889d46bfb62f2824e6c40e","diagnosis":[],"duplicates":4,"familySurvivors":{"I10":1},"funnel":[33,13,1,1],"generation":2,"holdout":{"holdoutBlock":1392,"reason":"AWAITING_INDEPENDENT_CONFIRMATION","status":"FROZEN_PENDING_EXTERNAL","taskKey":"e90e452ee8bef78ec47a20a60f2e79c7fe7f64b1c9cbd4ece0b540d3b619120a","verified":false},"i00ChampionHash":null,"live":0,"noOp":2,"nullChampionHash":null,"population":4,"rejectReasons":{"TOO_COMPLEX":1},"rejected":1,"retired":32,"sameGenerationBehaviorDuplicates":[{"datasetHash":"45444cb45e2883f6d98d5b24b2da759747fce83a71889d46bfb62f2824e6c40e","droppedPolicy":"9c896ddfe751109b459f219a3a06d4226e0bc6bac94c3b882b8e5d522ac0582d","droppedPosition":7,"keptPolicy":"b8373bd3b3484057b1615f1dee1e7b893dfaf2cf0db87255bf4a5cd5b8c5ceec","probeScope":"ORIGINAL_BIRTH_GATE_PROBE_SAME_TARGET_OR_BOTH_NO_ACT","signatureHash":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","similarity":1.0,"stage":"BIRTH_SAME_GENERATION"},{"datasetHash":"45444cb45e2883f6d98d5b24b2da759747fce83a71889d46bfb62f2824e6c40e","droppedPolicy":"d0573fca74215b99c59288bd3b7402df5e16d938baf2943685023c04fc3eb56e","droppedPosition":10,"keptPolicy":"b8373bd3b3484057b1615f1dee1e7b893dfaf2cf0db87255bf4a5cd5b8c5ceec","probeScope":"ORIGINAL_BIRTH_GATE_PROBE_SAME_TARGET_OR_BOTH_NO_ACT","signatureHash":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","similarity":1.0,"stage":"BIRTH_SAME_GENERATION"}],"sameGenerationBehaviorDuplicatesOmitted":0,"sameGenerationBehaviorDuplicatesTotal":2,"split":"train=[0,1581) select=[1581,2240) holdout=[2240,2960) block=1392 available=true open=[2960,..)","survivors":1},"mode":"SYNTHETIC_SHUFFLED_TRAIN_SELECT_SEQUENCE","naturalQualityEligible":false,"receipts":{"bornOperator:EXPERT_PROPOSAL":7,"bornOperator:GENERATE":76,"bornOperator:LEGACY_SEED":3,"bornOperator:M_CONST":3,"bornOperator:M_FAMILY":2,"bornOperator:M_GATE":1,"bornOperator:M_LEAF":9,"bornOperator:M_SUBTREE":1,"bornOperator:M_UPDATER":1,"bornOperator:M_WRAP":1,"bornOperator:REPAIR":2,"bornOperator:X_SUBTREE":2,"completedGenerations":3,"expertExecutableProposals":8,"expertReceipts":12,"lineage:CHAMPION_FROZEN_FOR_CONFIRMATION":2,"lineage:CROSSOVER_PARENT":4,"lineage:EXPERT_PARENT":7,"lineage:PARENT":23,"policy:ACTIVE":4,"policy:BORN":108,"policy:REJECTED":1,"policy:RETIRED":104,"scores:H_SELECT":6},"role":"SYNTHETIC","survivors":4},"policyHash":"442acce408accaf457751d9b2a5147c99f1b429afceae21aee6899dc4eee7fba","qualification":{"acts":2391,"alpha":0.024663776297916815,"deltaMin":0.006000000000000005,"deltaMinSource":"PRE_REGISTERED_TARGET_ACT_RATE: clamp(rate,0.01,1)*(0.34-0.30); legacy unknown MARGIN uses 0.15; no FUTURE refit","expectedRemaining":null,"globalIndex":1,"hits":716,"logEDown":-1.4921332520719863,"logEUp":-1.7547789382139818,"n":6000,"policyHash":"Q08_NULL_2","progress":-0.47395462970322794,"state":"ACCUMULATING","targetActRate":0.15,"threshold":3.7024196584233318},"status":"MEASURED","temperature":0.25,"trial":2}],"mainAlphaBudgetSpent":false,"metric":"Q08","naturalQualityEligible":false,"noEligibleCandidates":0,"nullEvidenceStatus":"MEASURED","originalAlphaReset":false,"plannedNullTrials":3,"power":[{"censoredAt5000":0,"detected":19,"detectionPeriods":[52,176,500,527,664,721,802,890,937,974,1056,1273,1364,1475,1483,1885,2336,3225,3232],"detectionProbabilityInterval95":{"events":19,"independentReplicates":20,"lower95":0.763868806553258,"method":"WILSON_TWO_SIDED_95_DESCRIPTIVE","oneSided95ZeroEventUpper":null,"rate":0.95,"status":"DESCRIPTIVE_SYNTHETIC_ONLY","upper95":0.9911185511992047},"experiments":20,"medianDetectedPeriods":974,"notBetter":1,"p95DetectedPeriods":3232,"trueHitProbability":0.34},{"censoredAt5000":0,"detected":20,"detectionPeriods":[40,52,130,150,217,224,256,299,330,341,369,386,486,508,546,598,690,832,1012,1147],"detectionProbabilityInterval95":{"events":20,"independentReplicates":20,"lower95":0.8388748419471806,"method":"WILSON_TWO_SIDED_95_DESCRIPTIVE","oneSided95ZeroEventUpper":null,"rate":1.0,"status":"DESCRIPTIVE_SYNTHETIC_ONLY","upper95":1.0},"experiments":20,"medianDetectedPeriods":341,"notBetter":0,"p95DetectedPeriods":1012,"trueHitProbability":0.37},{"censoredAt5000":0,"detected":20,"detectionPeriods":[53,61,71,76,79,97,99,109,111,112,127,145,147,148,224,228,247,370,413,776],"detectionProbabilityInterval95":{"events":20,"independentReplicates":20,"lower95":0.8388748419471806,"method":"WILSON_TWO_SIDED_95_DESCRIPTIVE","oneSided95ZeroEventUpper":null,"rate":1.0,"status":"DESCRIPTIVE_SYNTHETIC_ONLY","upper95":1.0},"experiments":20,"medianDetectedPeriods":112,"notBetter":0,"p95DetectedPeriods":413,"trueHitProbability":0.4}],"powerIndex":"index 1 in each independent synthetic experiment; no shared real budget","productionTrialBudget":20,"protocol":"R30_REPAIR_Q08_INDEPENDENT_INDEX1_V2","sourceCommit":"HOST_EXPLICIT_THREE_REPEAT_REGRESSION","status":"MEASURED","uncertaintyScope":"Synthetic independent repeats under the declared budget only; not a natural false-certificate rate","workBudget":"40 births x 3 generations x 6000 frozen future periods per independent null repeat; original pipeline"}
+
+R30NullPipelineTest > sameFullEvolutionPipelineResumesItsControlState STANDARD_OUT
+    R27_HOST|R30_FULL_NULL_PIPELINE {"acceptedBirths":118,"budgetOwner":"ORIGINAL_RESEARCH_POOL","canGrantREAL":false,"formalOutcomesUsedForSelection":0,"implementation":"EvolutionLoopR27 all nine steps; recursive controls disabled","lastGeneration":{"archiveCells":10,"behaviorProbeCount":256,"behaviorProbeSetHash":"5f50cef19cf067bed550311d9a2e172c9d4ac8b200984ab34a89fccfd0bd4059","behaviorProbeStatus":"READY","births":40,"championHash":"94f637ceb8fa3a72f2943ebb69a24da1553226b7e1aa3d73240b474c3141bbd8","championIdea":"I13","championSelectHr":0.391304347826087,"championSelectU":0.01274658573596356,"counters":{"attempts":160,"behaviorNovel":118,"prospectiveQualified":0,"researchAccepted":10,"structuralCandidates":103,"uniquePolicies":139,"verifiedImprovements":0},"datasetHash":"39e0282054d18ddf50956cd015ed04a75387c97126d597bfdd59a01fadde2946","diagnosis":[],"duplicates":13,"familySurvivors":{"I11":1,"I12":1,"I13":1},"funnel":[26,11,5,3],"generation":3,"holdout":{"holdoutBlock":1392,"reason":"AWAITING_INDEPENDENT_CONFIRMATION","status":"FROZEN_PENDING_EXTERNAL","taskKey":"fbf93ef65893a32bba1d5538768d00c53d92157ed4c247d59146ada86253b9fc","verified":false},"i00ChampionHash":null,"live":0,"noOp":1,"nullChampionHash":null,"population":10,"rejectReasons":{},"rejected":0,"retired":23,"sameGenerationBehaviorDuplicates":[{"datasetHash":"39e0282054d18ddf50956cd015ed04a75387c97126d597bfdd59a01fadde2946","droppedPolicy":"38a9423811fbbf48168b7d25777c0aa191ac828f6e30852294adde727f0af197","droppedPosition":1,"keptPolicy":"5691cef96073f7961633b7371f9ae56b83cdfb17fcec6dfdcd91c29d998db432","probeScope":"ORIGINAL_BIRTH_GATE_PROBE_SAME_TARGET_OR_BOTH_NO_ACT","signatureHash":"b2a15fa893ee54a1b5aa7a46f090fc11c8ff488a6d998baa517282eaaf2cb3ee","similarity":1.0,"stage":"BIRTH_SAME_GENERATION"},{"datasetHash":"39e0282054d18ddf50956cd015ed04a75387c97126d597bfdd59a01fadde2946","droppedPolicy":"726b7e2b09d2ed8ef767167a21426857119b2682a317b3b4dce510f6896a7f18","droppedPosition":1,"keptPolicy":"fe135b6a19dcb3a04850b6f64891d1c01772bd606eb8bb858b9144ba143ae1e0","probeScope":"ORIGINAL_BIRTH_GATE_PROBE_SAME_TARGET_OR_BOTH_NO_ACT","signatureHash":"b249d7a4122c365bfcc7ea969da6ad2f08959f7f0b504d4fe5bf09581ef3ce48","similarity":1.0,"stage":"BIRTH_SAME_GENERATION"},{"datasetHash":"39e0282054d18ddf50956cd015ed04a75387c97126d597bfdd59a01fadde2946","droppedPolicy":"d67dc609118175acef0d607b69810ac5aa1f1b15c2b6ef1f63f8b83204bd69fd","droppedPosition":1,"keptPolicy":"fabe3eea9766d6541afbf21923f9d4010596d0826fc87c01353aaa69e4874aac","probeScope":"ORIGINAL_BIRTH_GATE_PROBE_SAME_TARGET_OR_BOTH_NO_ACT","signatureHash":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","similarity":1.0,"stage":"BIRTH_SAME_GENERATION"},{"datasetHash":"39e0282054d18ddf50956cd015ed04a75387c97126d597bfdd59a01fadde2946","droppedPolicy":"6da7c339adbec1cd0ee7fbfc1164be9abff701e89175d0f86dc91324a8d0b023","droppedPosition":1,"keptPolicy":"fabe3eea9766d6541afbf21923f9d4010596d0826fc87c01353aaa69e4874aac","probeScope":"ORIGINAL_BIRTH_GATE_PROBE_SAME_TARGET_OR_BOTH_NO_ACT","signatureHash":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","similarity":1.0,"stage":"BIRTH_SAME_GENERATION"},{"datasetHash":"39e0282054d18ddf50956cd015ed04a75387c97126d597bfdd59a01fadde2946","droppedPolicy":"a5923b980d350a8f738f75f938b58fefe63c815aa10918aff34ef054042eacd8","droppedPosition":1,"keptPolicy":"fabe3eea9766d6541afbf21923f9d4010596d0826fc87c01353aaa69e4874aac","probeScope":"ORIGINAL_BIRTH_GATE_PROBE_SAME_TARGET_OR_BOTH_NO_ACT","signatureHash":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945","similarity":1.0,"stage":"BIRTH_SAME_GENERATION"}],"sameGenerationBehaviorDuplicatesOmitted":0,"sameGenerationBehaviorDuplicatesTotal":5,"split":"train=[0,1581) select=[1581,2240) holdout=[2240,2960) block=1392 available=true open=[2960,..)","survivors":3},"mode":"SYNTHETIC_SHUFFLED_TRAIN_SELECT_SEQUENCE","naturalQualityEligible":false,"receipts":{"bornOperator:EXPERT_PROPOSAL":7,"bornOperator:F_STACK":1,"bornOperator:GENERATE":55,"bornOperator:LEGACY_SEED":1,"bornOperator:M_FAMILY":1,"bornOperator:M_GATE":5,"bornOperator:M_LEAF":16,"bornOperator:M_PRUNE":1,"bornOperator:M_SELECTOR":11,"bornOperator:M_SUBTREE":6,"bornOperator:M_WINDOW":4,"bornOperator:M_WRAP":3,"bornOperator:REPAIR":4,"bornOperator:X_INPUT":1,"bornOperator:X_SUBTREE":2,"completedGenerations":4,"expertExecutableProposals":11,"expertReceipts":16,"lineage:CHAMPION_FROZEN_FOR_CONFIRMATION":2,"lineage:CROSSOVER_PARENT":6,"lineage:EXPERT_PARENT":7,"lineage:FUSION_MEMBER":2,"lineage:PARENT":52,"policy:ACTIVE":10,"policy:BORN":118,"policy:RETIRED":108,"scores:H_SELECT":17},"role":"SYNTHETIC","survivors":10}
+
+R30PolicyContractTest > mainBirthIntakeRejectsShellsAndPreservesReasonsAcrossRestart STANDARD_OUT
+    R27_HOST|R30_CONTRACT_INTAKE rejected=7 born=0 reasons={R30_CONTRACT:NULL_POLICY=1, R30_CONTRACT:NO_PROGRAM=1, R30_CONTRACT:SELECTOR_RULE_NULL=1, R30_CONTRACT:PROGRAM_CONSTANT_ONLY;PROGRAM_NO_DATA_LEAF=1, R30_CONTRACT:PROVENANCE_MISSING=1, R30_CONTRACT:MALFORMED_PROGRAM:ArrayIndexOutOfBoundsException=1, R30_CONTRACT:CONTROL_ONLY=1}
+
+R30StructureRegistryTest > sevenRegisteredFamiliesEachProduceFiveHundredCompleteContracts STANDARD_OUT
+    R27_HOST|R30_NEW_FAMILY_CONTRACT {I14=500, I15=500, I16=500, I17=500, I18=500, I19=500, I20=500}
+
+R30StructureRegistryTest > realMainBirthLoopProducesEveryNewFamily STANDARD_OUT
+    R27_HOST|R30_NEW_FAMILY_ACTUAL_BIRTHS {EXPERT:E03=1, EXPERT:E04=1, EXPERT:E05=1, EXPERT:E12=1, EXPERT:E13=1, I01=6, I02=4, I03=4, I04=4, I05=3, I06=5, I07=3, I08=3, I09=3, I10=4, I11=3, I12=6, I13=3, I14=3, I15=3, I16=3, I17=4, I18=5, I19=3, I20=1}
+
+R30TenPositionTrainingTest > everyPretrainAndOnlineBoundaryResumesExactlyWithinOriginalBudget STANDARD_OUT
+    R30_TEN_POSITION|PRETRAIN_RESUME_UNITS=103|ALL_10_ONLINE_POSITIONS_RESUME_EXACTLY|BATCH_LE_64|PASS
+
+R30WriteWaitTest > rejectionRetainsExactBatchAndNormalRetryWritesOnce STANDARD_OUT
+    R30_WAIT_MEASUREMENT|scenario=P0_REJECTION_THEN_RETRY|hostElapsedMs=200|submits=2|rejected=1|writes=1|HOST_SYNTHETIC_NOT_DEVICE
+
+Gradle Test Executor 1 finished executing tests.
+
+> Task :app:testDebugUnitTest
+
+485 tests completed, 2 failed
+Finished generating test XML results (0.046 secs) into: /workspace/r31-ci015-memory-lifecycle/app/build/test-results/testDebugUnitTest
+Generating HTML test report...
+Finished generating test html results (0.065 secs) into: /workspace/r31-ci015-memory-lifecycle/app/build/reports/tests/testDebugUnitTest
+
+> Task :app:testDebugUnitTest FAILED
+
+[Incubating] Problems report is available at: file:///workspace/r31-ci015-memory-lifecycle/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:testDebugUnitTest'.
+> There were failing tests. See the report at: file:///workspace/r31-ci015-memory-lifecycle/app/build/reports/tests/testDebugUnitTest/index.html
+
+* Try:
+> Run with --scan to get full insights.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 10m 19s
+31 actionable tasks: 15 executed, 1 from cache, 15 up-to-date
+Some of the file system contents retained in the virtual file system are on file systems that Gradle doesn't support watching. The relevant state was discarded to ensure changes to these locations are properly detected. You can override this by explicitly enabling file system watching.

@@ -1,0 +1,197 @@
+{
+  "scope": "CI015_CONTEXT_ASSET_LIFETIME_AND_TEST_OWNER_SCANNER_FIX_ONLY",
+  "baseline": "4e395662838a69d3b784eee8f05af11fa94460ac",
+  "sourceCommit": "fac317133a9b821a7342d9fb8cf981c2732147bf",
+  "codeState": "CODE_COMPLETE",
+  "wholeIntegrationState": "FAILED",
+  "newSqlSchema": "NO_NEW_SQL_SCHEMA",
+  "sourceChanges": {
+    "app/src/main/java/com/ethk3/novaonepro/LegacyTeacherOwnerR26.java": "dc3de9cd3cf4c8ec7f9e006f745d2ec2e111f6f6e681f6a0fb771ac657bf91e3",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java": "e2c34588993076e54c59574fb7ffb2ba52caf48026bd3583ccb6bfab81478785",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30EvolutionConfirmIntegrationTest.java": "6a767a1ff1e10e689d8be76c19f6eb555af200fcbfaba389876be08b062e3cea",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30IdeaFamilyContractTest.java": "a74426627b8f53b499b0641aebb83d95e144e37d405db28a9b63525d95c871c3",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairSetIntersectionR30Test.java": "233098f30ed00c3a64bf8a50c225aec009baa38fbaee1e68b69a38d6a421e8a4"
+  },
+  "modelKernelMathChanged": false,
+  "memoryFeatureSourceChanged": false,
+  "memoryThresholdsHeapSamplingAndAdmissionChanged": false,
+  "sourceBuild": "DEVELOPMENT_COMPILE_PASS_WITH_ENUMERATED_IDENTITY_EXCLUSIONS_NOT_FINAL_APK",
+  "checks": {
+    "rawCi015": {
+      "state": "FAILED",
+      "run": 41946575566,
+      "unit": {
+        "tests": 485,
+        "failures": 8
+      },
+      "lintErrors": 3,
+      "note": "Original supplied raw build log, full SHA256 in SHA256SUMS",
+      "sourceCommit": "01c65875f294362dbc6f7fce39ea4d103b43eefa",
+      "workflowCommitAbbrev": "6ce27b8",
+      "sameWholeSourceAsLocalBefore": false,
+      "inheritedDeltaEvidence": "INHERITED_SOURCE_DELTA.json"
+    },
+    "fullBefore": {
+      "exitCode": 1,
+      "finishedAt": "2026-11-05T02:09:42.678693+00:00",
+      "scope": "FULL_4E_GRADLE_SUITE_SAME_DEFAULT_WORKER_512MiB; DEV_IDENTITY_EXCLUSIONS_NOT_APK",
+      "junit": {
+        "tests": 485,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failures": [
+        {
+          "class": "com.ethk3.novaonepro.strategyv2.R27QualityTest",
+          "test": "h11ChangedFdecayChangesOnlyItsPolicies",
+          "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+        },
+        {
+          "class": "com.ethk3.novaonepro.strategyv2.R27QualityTest",
+          "test": "h10UiOnlyChangeIsEquivalent",
+          "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+        }
+      ],
+      "workingTreeSourceTextEditedAfterCompilation": true,
+      "actualRunningClassesChecked": 4632,
+      "actualRunningClassesChanged": 0,
+      "sourceEvidence": "captured-source and BEFORE_SOURCE_AND_CLASSES.json.gz; original compiled bytes verified unchanged; not a claim of clean working text throughout execution"
+    },
+    "fullAfterBeforeH15Fix": {
+      "exitCode": 1,
+      "finishedAt": "2026-11-05T02:21:52.627735+00:00",
+      "scope": "FULL_GRADLE_SUITE_DEFAULT_WORKER_512MiB_AND_REAL_LINT; DEV_IDENTITY_EXCLUSIONS_NOT_APK",
+      "junit": {
+        "tests": 485,
+        "failures": 13,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failures": [
+        {
+          "class": "com.ethk3.novaonepro.strategyv2.R30FailureRepairTest",
+          "test": "allOperatorProductsAreCompleteAndCarryRealProfiles",
+          "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_HEAP_PRESSURE"
+        },
+        {
+          "class": "com.ethk3.novaonepro.strategyv2.R30FailureRepairTest",
+          "test": "measuredFailureDrivesActualWindowMutationAndFamilyRepair",
+          "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_HEAP_PRESSURE"
+        },
+        {
+          "class": "com.ethk3.novaonepro.strategyv2.R30FailureRepairTest",
+          "test": "confirmAndFutureLabelsCannotChangeTheProfile",
+          "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_HEAP_PRESSURE"
+        },
+        {
+          "class": "com.ethk3.novaonepro.strategyv2.R30IdeaFamilyContractTest",
+          "test": "thirteenFamiliesHaveCompleteProposalsAndRealBirthRecords",
+          "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_HEAP_PRESSURE"
+        },
+        {
+          "class": "com.ethk3.novaonepro.strategyv2.R30PitReplayInjectionTest",
+          "test": "injectedTrainedThroughTargetIsRejectedAndRecorded",
+          "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+        },
+        {
+          "class": "com.ethk3.novaonepro.strategyv2.R30IncrementalFeatureTest",
+          "test": "changedPrefixIsRebuiltToFullValues",
+          "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_HEAP_PRESSURE"
+        },
+        {
+          "class": "com.ethk3.novaonepro.strategyv2.R30IncrementalFeatureTest",
+          "test": "incrementalEqualsFull",
+          "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_HEAP_PRESSURE"
+        },
+        {
+          "class": "com.ethk3.novaonepro.strategyv2.R30PolicyContractTest",
+          "test": "completeCandidateIsBornAndExplicitControlRemainsExecutable",
+          "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+        },
+        {
+          "class": "com.ethk3.novaonepro.strategyv2.R27QualityTest",
+          "test": "h15MainlineRedLines",
+          "message": "java.lang.StackOverflowError"
+        },
+        {
+          "class": "com.ethk3.novaonepro.strategyv2.R30StructureRegistryTest",
+          "test": "realMainBirthLoopProducesEveryNewFamily",
+          "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_HEAP_PRESSURE"
+        },
+        {
+          "class": "com.ethk3.novaonepro.strategyv2.R30EvolutionConfirmIntegrationTest",
+          "test": "actualEvolutionCanRunWithUnreadableConfirmLabels",
+          "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+        },
+        {
+          "class": "com.ethk3.novaonepro.strategyv2.R30NullPipelineTest",
+          "test": "powerAndFullPipelineQualificationHaveRecoverableSyntheticReceipts",
+          "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+        },
+        {
+          "class": "com.ethk3.novaonepro.strategyv2.R30NullPipelineTest",
+          "test": "sameFullEvolutionPipelineResumesItsControlState",
+          "message": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait: RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+        }
+      ]
+    },
+    "contextStaticFieldLeak": {
+      "state": "PASS",
+      "actualDebugAfterCount": 0,
+      "actualReleaseAfterCount": 0,
+      "overallLint": "FAILED_ONE_MODEL_PUBLICATION_USABLESPACE_IN_EACH_VARIANT"
+    },
+    "h15ActualGradle": {
+      "exitCode": 0,
+      "finishedAt": "2026-11-05T02:23:41.526561+00:00",
+      "scope": "ONLY_H15_ACTUAL_GRADLE_ENGINEERING_CHECK_NOT_WHOLE485_PASS",
+      "junit": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "h15LongStringEquivalence": {
+      "state": "PASS",
+      "assertions": 5015,
+      "oldActualStackOverflow": true,
+      "legacyRandomEquivalence": 5000,
+      "XssOverride": false
+    },
+    "actual125Assets": {
+      "state": "PASS",
+      "assertions": 14,
+      "baselineExit": 1,
+      "afterExit": 0,
+      "oldVmAndStudentCodecExact": true,
+      "allAssetInputStreamsClosed": true,
+      "teacherSource": "UNCHANGED_REAL125_REPOSITORY_ARCHIVE"
+    },
+    "protected52Golden": {
+      "state": "PASS",
+      "beforeAfterExact": true,
+      "count": 52
+    }
+  },
+  "device": "NOT_RUN_SEPARATE_FROM_SOURCE_GATE",
+  "24h": "NOT_RUN",
+  "72h": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED",
+  "APK": null,
+  "signingOrAppIdentityChanged": false,
+  "remaining": [
+    "Full 485 did not pass: original valid capacity waits retained, no thresholds or admission bypassed",
+    "H15-only pass after its fix does not replace a final whole-suite run; root integrates same source",
+    "ModelPublication UsableSpace remains in this isolated tree, belongs to a different owner",
+    "Lease records and sampled heap do not prove a complete reachable heap graph or physically released bytes",
+    "Root rebinds final identities and delivers unified signed APK; no APK built in this task"
+  ],
+  "nextStep": "Root integrates source+evidence, completes the active batch and runs final full checks without redefining legitimate resource waits as PASS.",
+  "assertionPreservation": {
+    "originalCallCount": 245,
+    "state": "PASS_CONTENT_BYTE_EQUAL"
+  },
+  "recordedAt": "2026-11-05T02:30:19.045411+00:00"
+}
