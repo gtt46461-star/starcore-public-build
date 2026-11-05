@@ -11,6 +11,24 @@ public final class WarmModelSeedR26 {
     private static final int MAGIC=0x26aa0001,MAX_RAW=32<<20,MAX_PACKED=4<<20;
     private static final String[] FIELDS={"_warm_parent","_warm_checkpoint","_warm_parent_state","_warm_kernel","_warm_through","_warm_member","_warm_exposed"};
     private WarmModelSeedR26(){}
+    private static final ThreadLocal<MemoryBudgetR31.Lease> PREPARING_R31=new ThreadLocal<>();
+    private static void reservePreparingR31(long bytes){MemoryBudgetR31.Lease lease=PREPARING_R31.get();if(lease==null||bytes==0)return;MemoryBudgetR31.Admission admission=lease.grow(bytes);if(!admission.acquired())throw new MemoryBudgetR31.CapacityWait(admission.reason);}
+    /** The actual owner retains this declaration until preparation, copies and file fsync finish. */
+    public static final class OwnedSeedR31 implements AutoCloseable {
+        private Seed seed;private MemoryBudgetR31.Lease lease;
+        private OwnedSeedR31(Seed seed,MemoryBudgetR31.Lease lease){this.seed=seed;this.lease=lease;}
+        public Seed seed(){if(seed==null)throw new IllegalStateException("R31_WARM_PREPARATION_CLOSED");return seed;}
+        public void close(){seed=null;if(lease!=null){lease.close();lease=null;}}
+    }
+    public static OwnedSeedR31 prepareOwnedR31(String canonical,byte[] bytes,String stateHash,String checkpoint,long through,String snapshot,long first,long last)throws IOException{
+        if(bytes==null)throw new IllegalArgumentException("R31_WARM_PARENT_BYTES_REQUIRED");
+        RuntimeCoordinatorR26.Claim claim=RuntimeCoordinatorR26.currentClaimR30();long fence=claim==null?-1:claim.fence;
+        MemoryBudgetR31.Admission admission=MemoryBudgetR31.processBudget().tryAcquire("warm-seed:"+checkpoint,fence,MemoryBudgetR31.Kind.CHECKPOINT,(8L<<20)+16L*bytes.length,()->Thread.currentThread().isInterrupted());
+        if(!admission.acquired())throw new MemoryBudgetR31.CapacityWait(admission.reason);
+        MemoryBudgetR31.Lease previous=PREPARING_R31.get();boolean retained=false;PREPARING_R31.set(admission.lease);
+        try{OwnedSeedR31 owned=new OwnedSeedR31(prepare(canonical,bytes,stateHash,checkpoint,through,snapshot,first,last),admission.lease);retained=true;return owned;}
+        finally{if(previous==null)PREPARING_R31.remove();else PREPARING_R31.set(previous);if(!retained)admission.lease.close();}
+    }
     public static boolean has(Map<String,String> parameters){for(String field:FIELDS)if(parameters.containsKey(field))return true;return false;}
     public static boolean has(ModelGenomeSU2 genome){for(ModelGenomeSU2.Member m:genome.members)if(has(m.params))return true;return false;}
     private static void hex(String value){if(value==null||!value.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("R26_WARM_HASH");}
@@ -48,15 +66,16 @@ public final class WarmModelSeedR26 {
     }
     private static final class BoundedBytes extends ByteArrayOutputStream {
         final int maximum;BoundedBytes(int maximum){this.maximum=maximum;}
-        private void reserve(int n){if(n<0||count>maximum-n)throw new IllegalArgumentException("R26_WARM_STATE_CAPACITY");}
+        private void reserve(int n){if(n<0||count>maximum-n)throw new IllegalArgumentException("R26_WARM_STATE_CAPACITY");if(count+n>buf.length)reservePreparingR31(Math.max((long)buf.length*2,count+(long)n));}
         @Override public synchronized void write(int value){reserve(1);super.write(value);}
         @Override public synchronized void write(byte[] bytes,int offset,int length){reserve(length);super.write(bytes,offset,length);}
+        @Override public synchronized byte[] toByteArray(){reservePreparingR31(count);return super.toByteArray();}
     }
     public static final class Seed {
         public final ModelGenomeSU2 genome;public final String initializerHash;
         public final long parentSamples,parentExposedThrough;
         private final byte[] initializer,state;
-        private Seed(ModelGenomeSU2 genome,byte[] initializer,byte[] state,long parentSamples,long parentExposedThrough){this.genome=genome;this.initializer=initializer.clone();this.state=state.clone();this.parentSamples=parentSamples;this.parentExposedThrough=parentExposedThrough;initializerHash=LiveStateR26.hash(initializer);}
+        private Seed(ModelGenomeSU2 genome,byte[] initializer,byte[] state,long parentSamples,long parentExposedThrough){reservePreparingR31((long)initializer.length+state.length);this.genome=genome;this.initializer=initializer.clone();this.state=state.clone();this.parentSamples=parentSamples;this.parentExposedThrough=parentExposedThrough;initializerHash=LiveStateR26.hash(initializer);}
         public byte[] initializer(){return initializer.clone();}
         public byte[] state(){return state.clone();}
     }

@@ -78,6 +78,24 @@ public final class ModelPublicationR31 {
     private static String normalize(String sql){return sql==null?"":sql.replace("IF NOT EXISTS ","").trim();}
     public static long evolutionVersion(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT evolution_version FROM "+CLOCK+" WHERE singleton=1",null)){if(!c.moveToFirst())throw new DatabaseCoordinator.SchemaPendingR31(VERSION,"EVOLUTION_CLOCK_MISSING");return c.getLong(0);}}
 
+    private static Set<String> itemKindsR31(String kind){
+        String allowed;switch(kind){
+            case "LEGACY":allowed="GENOME IDENTITY LINEAGE EVOLUTION LEAGUE STAGE MATRIX LEGACY_META";break;
+            case "FOUNDRY_BIRTH":allowed="FOUNDRY_ROOT CANDIDATE ATTEMPT IDENTITY FAILURE_CURSOR";break;
+            case "FOUNDRY_FINISH":allowed="FOUNDRY_FINISH ACCEPTED GENOME IDENTITY LINEAGE";break;
+            case "WARM_FORK":allowed="WARM_META WARM_CANDIDATE WARM_INITIALIZER WARM_ARTIFACT WARM_ATTEMPT WARM_PARENT WARM_PROGRESS FOUNDRY_ROOT IDENTITY";break;
+            default:throw new IllegalArgumentException("R31_MODEL_PUBLICATION_KIND_UNSUPPORTED:"+kind);
+        }return new HashSet<>(Arrays.asList(allowed.split(" ")));
+    }
+    private static void projectClosedR31(SQLiteDatabase db,Plan plan)throws Exception{
+        switch(plan.kind){
+            case "LEGACY":LegacyGenerationR26.publishPreparedR31(db,plan);return;
+            case "FOUNDRY_BIRTH":FoundryCampaignR26.publishBirthPreparedR31(db,plan);return;
+            case "FOUNDRY_FINISH":FoundryCampaignR26.publishFinishPreparedR31(db,plan);return;
+            case "WARM_FORK":WarmPublicationR31.publishR31(db,plan);return;
+            default:throw new IllegalArgumentException("R31_MODEL_PUBLICATION_KIND_UNSUPPORTED:"+plan.kind);
+        }
+    }
     static final class Item {
         final String kind,key,hash;final Object[] values;
         Item(String kind,String key,Object[] values){this.kind=kind;this.key=key;this.values=copy(values);hash=CheckpointArtifactsR26.sha(encodeValues(kind,key,this.values));}
@@ -87,8 +105,8 @@ public final class ModelPublicationR31 {
         public final String id,kind,source;public final long sourceGeneration,oldEvolutionVersion,now;
         final LinkedHashMap<String,Item> items=new LinkedHashMap<>();final LinkedHashMap<String,byte[]> contents=new LinkedHashMap<>();
         private boolean frozen,closed;String manifestHash;long schemaVersion;private final MemoryBudgetR31.Lease memory;
-        public Plan(String id,String kind,String source,long sourceGeneration,long oldEvolutionVersion,long now){if(id==null||id.length()>160||kind==null||source==null)throw new IllegalArgumentException("R31_MODEL_PLAN_IDENTITY");this.id=id;this.kind=kind;this.source=source;this.sourceGeneration=sourceGeneration;this.oldEvolutionVersion=oldEvolutionVersion;this.now=now;MemoryBudgetR31.Admission admission=MemoryBudgetR31.processBudget().tryAcquire("model-publication:"+id,MemoryBudgetR31.Kind.CHECKPOINT,1L<<20,()->Thread.currentThread().isInterrupted());if(!admission.acquired())throw new MemoryBudgetR31.CapacityWait(admission.reason);memory=admission.lease;}
-        public void put(String kind,String key,Object...values){if(frozen||values.length>16)throw new IllegalStateException("R31_MODEL_PLAN_FROZEN_OR_SHAPE");reserve(512+3*bound(values));items.put(kind+"|"+key,new Item(kind,key,values));if(items.size()>MAX_ITEMS)throw new PublicationDependencyR31("PLAN_ITEM_RESOURCE_BOUND");}
+        public Plan(String id,String kind,String source,long sourceGeneration,long oldEvolutionVersion,long now){if(id==null||id.length()>160||kind==null||source==null)throw new IllegalArgumentException("R31_MODEL_PLAN_IDENTITY");itemKindsR31(kind);this.id=id;this.kind=kind;this.source=source;this.sourceGeneration=sourceGeneration;this.oldEvolutionVersion=oldEvolutionVersion;this.now=now;MemoryBudgetR31.Admission admission=MemoryBudgetR31.processBudget().tryAcquire("model-publication:"+id,MemoryBudgetR31.Kind.CHECKPOINT,1L<<20,()->Thread.currentThread().isInterrupted());if(!admission.acquired())throw new MemoryBudgetR31.CapacityWait(admission.reason);memory=admission.lease;}
+        public void put(String kind,String key,Object...values){if(frozen||values.length>16)throw new IllegalStateException("R31_MODEL_PLAN_FROZEN_OR_SHAPE");if(!itemKindsR31(this.kind).contains(kind))throw new IllegalArgumentException("R31_MODEL_ITEM_KIND_UNSUPPORTED:"+this.kind+":"+kind);reserve(512+3*bound(values));items.put(kind+"|"+key,new Item(kind,key,values));if(items.size()>MAX_ITEMS)throw new PublicationDependencyR31("PLAN_ITEM_RESOURCE_BOUND");}
         Item item(String kind,String key){return items.get(kind+"|"+key);}
         public int count(String kind){int n=0;for(Item item:items.values())if(item.kind.equals(kind))n++;return n;}
         public byte[] payload(byte[] bytes){
@@ -130,7 +148,8 @@ public final class ModelPublicationR31 {
     static String select(Plan p,String kind,String columns){return "SELECT "+columns+" FROM "+STAGE+" WHERE publication_id='"+p.id.replace("'","''")+"' AND kind='"+kind+"' ORDER BY ordinal LIMIT "+p.count(kind);}
     private static long scalar(SQLiteDatabase db,String sql,String...args){try(Cursor c=db.rawQuery(sql,args)){if(!c.moveToFirst())throw new IllegalStateException("R31_MODEL_SCALAR_MISSING");return c.getLong(0);}}
     private static void changed(SQLiteDatabase db){if(scalar(db,"SELECT changes()")!=1)throw new IllegalStateException("R31_MODEL_PUBLICATION_CAS");}
-    public interface Finalizer {void publish(SQLiteDatabase db,Plan plan)throws Exception;}
+    /** Source compatibility only. The callback parameter of the old overload is never executed. */
+    @Deprecated public interface Finalizer {void publish(SQLiteDatabase db,Plan plan)throws Exception;}
     private static void submit(DbStore store,RuntimeCoordinatorR26.Claim claim,Plan p,String suffix,long chunk,ResearchWriteQueueR27.Batch batch){
         String operation="R31_MODEL_PUBLICATION_"+suffix;final DatabaseCoordinator.WriteCallable<Integer> prior=batch.before;batch.before=db->{RuntimeCoordinatorR26.requireFence(db,claim);if(scalar(db,"PRAGMA schema_version")!=p.schemaVersion)throw new DatabaseCoordinator.SchemaPendingR31(VERSION,"SCHEMA_CHANGED_AFTER_PREPARATION");requireQuotaR31(db,suffix,batch);return prior==null?0:prior.call(db);};batch.guardAfter(db->{RuntimeCoordinatorR26.requireFence(db,claim);return 0;});
         String key=HashingSU1.fields(VERSION,p.id,p.manifestHash,suffix,Long.toString(chunk));ResearchWriteQueueR27.ImmutableBatch frozen=batch.prepareR31(operation,key,claim.task,claim.owner,claim.fence,p.source,chunk,VERSION);
@@ -139,8 +158,9 @@ public final class ModelPublicationR31 {
     }
     private static void persistContent(DbStore store,RuntimeCoordinatorR26.Claim claim,Plan p,String hash,byte[] bytes){int count=(bytes.length+PART_BYTES-1)/PART_BYTES;for(int part=0;part<count;part++){ExecutionBudgetR26.poll();checkFreeFloorR31(store);int index=part;byte[] slice=Arrays.copyOfRange(bytes,part*PART_BYTES,Math.min(bytes.length,(part+1)*PART_BYTES));ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch().add("INSERT INTO "+PART+" VALUES(?,?,?,?,?)",hash,index,count,bytes.length,slice);submit(store,claim,p,"CONTENT_"+hash,index,b);}}
     /** Each staged item is immutable and the prefix CAS/receipt commit with it. */
-    public static void stageAndPublish(DbStore store,RuntimeCoordinatorR26.Claim claim,Plan requested,Finalizer finalizer)throws IOException {
-        Plan existing=null;try{requireSchemaR31(store.readable());requireCanonicalR31(store.readable(),requested.kind);existing=existing(store.readable(),requested.id);Plan p=existing==null?requested:existing;p.schemaVersion=scalar(store.readable(),"PRAGMA schema_version");
+    @Deprecated public static void stageAndPublish(DbStore store,RuntimeCoordinatorR26.Claim claim,Plan requested,Finalizer ignored)throws IOException{stageAndPublish(store,claim,requested);}
+    public static void stageAndPublish(DbStore store,RuntimeCoordinatorR26.Claim claim,Plan requested)throws IOException {
+        Plan existing=null;try{long schemaVersion=scalar(store.readable(),"PRAGMA schema_version");requireSchemaR31(store.readable());requireCanonicalR31(store.readable(),requested.kind);if(scalar(store.readable(),"PRAGMA schema_version")!=schemaVersion)throw new DatabaseCoordinator.SchemaPendingR31(VERSION,"SCHEMA_CHANGED_DURING_PREPARE");existing=existing(store.readable(),requested.id);Plan p=existing==null?requested:existing;p.schemaVersion=schemaVersion;
         if(existing==null){byte[] bytes=encode(p);p.manifestHash=CheckpointArtifactsR26.sha(bytes);p.frozen=true;for(Map.Entry<String,byte[]> content:p.contents.entrySet())persistContent(store,claim,p,content.getKey(),content.getValue());persistContent(store,claim,p,p.manifestHash,bytes);
             ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch().add("INSERT OR IGNORE INTO "+ROOT+"(publication_id,manifest_hash,plan_reference,kind,source_hash,source_generation,old_evolution_version,expected_items,prepared_at,status) VALUES(?,?,?,?,?,?,?,?,?,'PREPARING')",p.id,p.manifestHash,reference(p.manifestHash),p.kind,p.source,p.sourceGeneration,p.oldEvolutionVersion,p.items.size(),p.now);submit(store,claim,p,"OPEN",0,b);
         }
@@ -156,7 +176,7 @@ public final class ModelPublicationR31 {
             if(EventFrameBuilderSU1.generation(db)!=prepared.sourceGeneration)throw new PublicationDependencyR31("SOURCE_CHANGED");
             if(prepared.oldEvolutionVersion>=0&&evolutionVersion(db)!=prepared.oldEvolutionVersion)throw new PublicationDependencyR31("OLD_EVOLUTION_CHANGED");
             try(Cursor c=db.rawQuery("SELECT kind,count(*) FROM "+STAGE+" WHERE publication_id=? GROUP BY kind",new String[]{prepared.id})){int seen=0;while(c.moveToNext()){if(c.getInt(1)!=prepared.count(c.getString(0)))throw new IllegalStateException("R31_MODEL_TYPED_MANIFEST_COUNT");seen+=c.getInt(1);}if(seen!=prepared.items.size())throw new IllegalStateException("R31_MODEL_MANIFEST_COUNT");}
-            finalizer.publish(db,prepared);return 0;});batch.add("UPDATE "+ROOT+" SET status='PUBLISHED',published_at=? WHERE publication_id=? AND manifest_hash=? AND staged_items=expected_items AND status='PREPARING'",p.now,p.id,p.manifestHash);batch.guardAfter(db->{changed(db);return 0;});submit(store,claim,p,"PUBLISH",rows.size(),batch);
+            projectClosedR31(db,prepared);return 0;});batch.add("UPDATE "+ROOT+" SET status='PUBLISHED',published_at=? WHERE publication_id=? AND manifest_hash=? AND staged_items=expected_items AND status='PREPARING'",p.now,p.id,p.manifestHash);batch.guardAfter(db->{changed(db);return 0;});submit(store,claim,p,"PUBLISH",rows.size(),batch);
         }finally{if(existing!=null)existing.close();requested.close();}
     }
     private static void requireQuotaR31(SQLiteDatabase db,String suffix,ResearchWriteQueueR27.Batch batch){
@@ -174,9 +194,9 @@ public final class ModelPublicationR31 {
         List<String[]> required=new ArrayList<>();Collections.addAll(required,new String[][]{{"su1_source_clock","singleton,generation"},{"r31_commit_receipt","commit_key,payload_hash"},{"r26_policy_identity","policy_hash,canonical_policy,genotype_text,numerical_abi,created_at"},{"su2_model_genome","genome_key,canonical_text,formula,tier,origin_op,parent_key,repair_note,born_campaign,born_sequence,dev_fitness,val_fitness,state,created_at"},{"su2_lineage","child_key,parent_key,op,campaign_id,parent_dev,child_dev,note"}});
         if(kind.equals("LEGACY"))Collections.addAll(required,new String[][]{{"r26_legacy_campaign","campaign_id,generation,status,snapshot_hash,numerical_abi"},{"su2_campaign","campaign_id,evaluated,effective_generations,status,finished_at"},{"r26_work_total","task_id,completed"},{"su2_evolution_state","singleton,campaign_id,state_blob,byte_count,updated_at"},{"su2_league","member_id,kind,name,genome_key,joined_sequence,state"},{"su2_stage_bundle","genome_key,bundle,byte_count,created_at"},{"su2_matrix_snapshot","genome_key,checkpoint_sequence,snapshot_json,factors_blob,reason_state,stats_json,graded_through,updated_at,input_through_ordinal,available_at,consumed_actions,last_consumed_at"}});
         else Collections.addAll(required,new String[][]{{"r26_foundry","campaign_id,snapshot_hash,source_through,snapshot,status,created_at,numerical_abi,source_first"},{"r26_candidate","campaign_id,policy_hash,canonical_text,parent,operation,status"},{"r26_evolution","attempt_id,campaign_id,policy_hash,parent,operation,category,structure_hash,research_accepted"},{"r26_failure_research_cursor","parent_policy,evidence_digest,window_end,campaign_id,proposal_json"}});
-        DatabaseCoordinator.requireSchemaObjectsR31(db,VERSION,required.toArray(new String[0][]),new String[0][]);
+        DatabaseCoordinator.requireSchemaObjectsR31(db,VERSION,required.toArray(new String[0][]),new String[0][]);if(kind.equals("WARM_FORK"))WarmPublicationR31.requireSchemaR31(db);
     }
-    private static void checkFreeFloorR31(DbStore store){java.io.File parent=new java.io.File(store.readable().getPath()).getAbsoluteFile().getParentFile();long free=parent==null?0:parent.getUsableSpace();if(free<256L*1024*1024)throw new PublicationDependencyR31("FREE_SPACE_RESERVE_OR_UNKNOWN");}
+    private static void checkFreeFloorR31(DbStore store){String path=store.readable().getPath();if(path==null||path.isEmpty())throw new PublicationDependencyR31("FREE_SPACE_RESERVE_OR_UNKNOWN");java.io.File parent=new java.io.File(path).getAbsoluteFile().getParentFile();long free=0;if(parent!=null)try{free=new android.os.StatFs(parent.getPath()).getAvailableBytes();}catch(IllegalArgumentException|SecurityException unknown){throw new PublicationDependencyR31("FREE_SPACE_RESERVE_OR_UNKNOWN");}if(free<256L*1024*1024)throw new PublicationDependencyR31("FREE_SPACE_RESERVE_OR_UNKNOWN");}
     public static final class PublicationDependencyR31 extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure {
         PublicationDependencyR31(String reason){super("R31_MODEL_PUBLICATION_DEPENDENCY:"+reason);}public String failureCategory(){return "DEPENDENCY";}public String operation(){return VERSION;}public String phase(){return "RESOURCE_ADMISSION";}public String commitOutcomeName(){return "NOT_SUBMITTED";}
     }
