@@ -1,0 +1,269 @@
+package com.ethk3.novaonepro.strategyv2;
+
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import com.ethk3.novaonepro.BuildConfig;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/** Read-only engineering diagnosis is available before natural confirmation has enough samples. */
+public final class ReportR29 {
+    private ReportR29() {}
+    public static List<Map<String,Object>> chapters(SQLiteDatabase db){return chapters(db,null);}
+    public static List<Map<String,Object>> chapters(SQLiteDatabase db,Map<String,Object> sourceManifest){return chapters(db,sourceManifest,null);}
+    public static List<Map<String,Object>> chapters(SQLiteDatabase db,Map<String,Object> sourceManifest,android.os.CancellationSignal cancellation){
+        return chapters(ReportSnapshotR30.capture(db,sourceManifest,cancellation));
+    }
+    public static List<Map<String,Object>> fromSnapshotR30(ReportR27.R30Input input){return chapters(input);}
+    static List<Map<String,Object>> chapters(ReportR27.R30Input input){
+        List<Map<String,Object>> chapters=ReportR27.chaptersR30(input);
+        Map<String,Object> upgrade=new LinkedHashMap<>();
+        upgrade.put("snapshots",UpgradeDiagnosisSU2.evidenceR30("su2_diag_snapshot",input.facts.get("upgradeSnapshots"),input.data.get("upgradeSnapshots"),"旧升级探针尚无诊断快照；原门槛保持2000期后每500期", "DiagnosisStoreSU2.maintain：采集真实已结算探针进度、最新快照序列和数据集；不补写诊断"));
+        upgrade.put("ledger",UpgradeDiagnosisSU2.evidenceR30("su2_diag_state",input.facts.get("upgradeStateRows"),input.data.get("upgradeState"),"没有升级问题账本状态", "DiagnosisStoreSU2.report：导出同源 ledger_text 与 diagnosed_sequence，和升级快照对照"));
+        chapters.get(8).put("upgradeDiagnosisSources",upgrade);
+        Map<String,Object> ablation=new LinkedHashMap<>();
+        ablation.put("policy",UpgradeDiagnosisSU2.evidenceR30("r27_ablation",input.facts.get("ablationRows"),input.data.get("ablation"),"没有已存策略消融行；Q06同一期配对改善证据不足", "EvolutionLoopR27.stepPromote：采集同源champion/node/removed_child及原delta；父子同一期机会配对后验证单侧95%下界"));
+        ablation.put("model",UpgradeDiagnosisSU2.evidenceR30("su1_model_ablation",input.facts.get("modelAblationTasks"),input.data.get("modelAblation"),"没有已存模型消融任务；不能宣称NN消融已完成", "ModelAblationStoreSU1.advanceOne：按原数据集与kernel继续原任务，保留checkpoint/frozen/report_hash；DONE后读取原报告配对结果"));
+        ablation.put("q06Status","INSUFFICIENT_PAIRED_IMPROVEMENT_VALIDATION");
+        chapters.get(9).put("ablationEvidence",ablation);
+        Map<String,Object> retention=new LinkedHashMap<>();retention.put("lastRun",input.data.get("retentionRun"));retention.put("protectedArchives",input.data.get("retentionArchives"));retention.put("fileActions",input.data.get("retentionFiles"));
+        retention.put("status",input.facts.get("retentionRuns")==null?"UNKNOWN":((Number)input.facts.get("retentionRuns")).longValue()==0?"INSUFFICIENT":"RECORDED_UNVALIDATED");
+        retention.put("definition","Physical regular-file census, explicit cache and verified retired duplicate deletion; protected archive rows preserve original fields/BLOBs and never become current natural samples.");
+        retention.put("collectionAction","ResearchRetentionStoreR30.step：运行原retention任务，采集完整物理目录与同快照受保护归档/文件删除引用；缺测不填预算通过");
+        chapters.get(10).put("retention",retention);
+        List<Map<String,Object>> sameViewCharts=ReportChartsR30.panels(input);chapters.get(1).put("pairedImprovementChart",sameViewCharts.get(0));chapters.get(6).put("capabilityCoverageChart",sameViewCharts.get(1));
+        Map<String,Object> diagnosis=DiagnosisRulesR30.evaluate(input.facts,input.data,input.watermark,input.errors);
+        chapters.get(11).put("diagnosis",diagnosis);
+        chapters.get(11).put("diagnosticActionCoverage",diagnosis.get("actionCoverage"));
+        String[] chapterMetrics={"Q01 Q02 Q03 Q04 Q07","M19 M21 M22 M27 M29 Q06","M03 M04 M05 M06 M07 M10","M11 M12 M13 M14","M08 M09 M18 M19 M27","M20 M24 M26 Q05","M23 M25","M28 M30 M35 Q03 Q07","M01 M02 M20 M34","M21 M22 M31 M36 Q06 Q08","M15 M16 M17","M01 M02 M17 M31 M32 M33 M34 Q01 Q02 Q03 Q04 Q05 Q06 Q07 Q08"};
+        for(int i=0;i<chapters.size();i++){
+            List<Map<String,Object>> projected=new ArrayList<>();for(Map<String,Object> metric:input.metricResults)if((" "+chapterMetrics[i]+" ").contains(" "+metric.get("metricId")+" "))projected.add(metric);
+            chapters.get(i).put("metricResults",java.util.Collections.unmodifiableList(projected));chapters.get(i).put("metricRegistryVersion",MetricDefinitionsR29.CURRENT_VERSION);
+        }
+        chapters.get(11).put("allMetricResults",input.metricResults);
+        chapters.get(11).put("objectIndex",input.data.get("objectIndex"));
+        chapters.get(11).put("previousReportComparison",ReportDataR27.compareSuccessfulR30(input));
+        chapters.get(11).put("successfulSummaryCandidate",ReportDataR27.successfulSummaryR30(input));
+        return chapters;
+    }
+    /** JSON and Markdown receive this same chapter list, never independently reload their metrics. */
+    public static Map<String,Object> document(List<Map<String,Object>> chapters){
+        Map<String,Object> out=new LinkedHashMap<>();out.put("schemaVersion","R30_REPORT_1");out.put("chapters",chapters);out.put("expectedChapters",12);out.put("exportedChapters",chapters.size());
+        out.put("snapshotWatermark",chapters.isEmpty()?null:chapters.get(0).get("snapshotWatermark"));out.put("reportConsistencyConflicts",chapters.isEmpty()?null:chapters.get(0).get("reportConsistencyConflicts"));
+        out.put("diagnosis",chapters.size()<12?null:chapters.get(11).get("diagnosis"));
+        out.put("metricRegistryVersion",MetricDefinitionsR29.CURRENT_VERSION);out.put("metricResults",chapters.size()<12?null:chapters.get(11).get("allMetricResults"));
+        out.put("objectIndex",chapters.size()<12?null:chapters.get(11).get("objectIndex"));out.put("previousReportComparison",chapters.size()<12?null:chapters.get(11).get("previousReportComparison"));
+        out.put("overallAcceptance","INCOMPLETE");out.put("naturalQuality","INSUFFICIENT");out.put("physicalDevice","NOT_RUN");out.put("legacyDetails",java.util.Arrays.asList("R26_REPORT.json","R27_REPORT.md","snapshot.db"));return out;
+    }
+    public static Map<String,Object> chapter(SQLiteDatabase db) {
+        Map<String,Object> out=new LinkedHashMap<>(), snapshot=new LinkedHashMap<>();
+        snapshot.put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26); snapshot.put("capturedAt",System.currentTimeMillis());
+        snapshot.put("timeRange",timeRange(db)); snapshot.put("session",null); snapshot.put("planCommit",BaselineIdentityR29.PLAN_COMMIT);
+        Map<String,Object> baseline=cached(db,"baseline-identity"), preservation=cached(db,"legacy-preservation");
+        out.put("sectionId","R29_12_ACCEPTANCE_GAPS"); out.put("title","R29.1 实施、运行与验收差距"); out.put("schemaVersion","R29_REPORT_1");
+        out.put("historicalAttachment",true);out.put("currentRegistry",MetricDefinitionsR29.CURRENT_VERSION);out.put("legacyNotice","历史R29.1原件；原定义/卡号只读保留，当前44指标以R30_REPORT.json为准，禁止跨版本相减或混入当前通过率");
+        out.put("status","PARTIAL"); out.put("overall","IMPLEMENTATION_IN_PROGRESS"); out.put("evidenceLevel","ANDROID_DATABASE_SNAPSHOT");
+        out.put("reason","52卡/44指标逐项验收；缺少回执不能作为0或PASS。设备长测和未来质量独立验收。");
+        out.put("baselineIdentity",baseline); out.put("legacyPreservation",preservation);
+        Map<String,Object> qualification=QualificationInboxR29.diagnostics(db);
+        out.put("settlementQualification",qualification);
+        out.put("findings",FindingsR29.fromQualification(qualification));
+        Map<String,Object> model = modelCheckpoint(db);
+        out.put("modelContinuation", model);
+        out.put("capabilityRegistryR30",ReportDataR27.capabilityInventoryR30(db));
+        out.put("matrixTraceabilityR30",MatrixRegistryStoreR30.report(db));
+        out.put("decisionChainR30",DecisionExplanationStoreR30.report(db));
+        out.put("certificateRevocationR30",CertificateRevocationR30.report(db));
+        out.put("atomContributionsR30",atomContributionsR30(db));
+        out.put("calibrationQualityR30",calibrationQualityR30(db));
+        out.put("modelConsumptionR30",ModelSurfaceStoreR30.report(db));
+        out.put("tenPositionTrainingR30",cachedPanel(db,"atomnet","ten-position-r30"));
+        out.put("runtimeHealth", cachedPanel(db, "health", "summary"));
+        out.put("writerHoldR30", writerHold(db, System.currentTimeMillis() - 24L * 3600_000L));
+        out.put("issueTimelineR30", issueTimeline(db));
+        out.put("behaviorDedupR30", behaviorDuplicates(db));
+        out.put("syntheticPowerQ08R30",cachedPanel(db,"r30","q08"));
+        Map<String,Object> fetch = new LinkedHashMap<>(); // R30-B02-02 (sub-card B02-02-a): current process values
+        fetch.put("rejectedConcurrent", com.ethk3.novaonepro.AutoFetchService.FETCH_R30.rejectedConcurrent());
+        fetch.put("consecutiveFailures", com.ethk3.novaonepro.AutoFetchService.FETCH_R30.consecutiveFailures());
+        fetch.put("inFlight", com.ethk3.novaonepro.AutoFetchService.FETCH_R30.inFlight());
+        fetch.put("scope", "本进程自启动以来的计数；进程重启归零，不是持久化统计");
+        out.put("fetchBackoffR30", fetch);
+        Map<String,MetricEvaluatorR29.Probe> probes=probes(baseline,preservation);
+        probes.putAll(qualificationProbes(qualification));
+        if ("RECORDED".equals(model.get("status"))) {
+            List<String> refs = new ArrayList<>(); refs.add("r29_model_checkpoint:ATOMNET_FTRL"); refs.add("R29ModelArtifactTest");
+            probes.put("M20", new MetricEvaluatorR29.Probe("PARTIAL", "AtomNet/Adam/FTRL/RNG/replay完整续训状态已保存；主机逐字节续训测试与Android杀进程恢复分别验收，后者NOT_RUN",
+                    "EXISTING_ROTATING_POSITION_ATOMNET_FTRL", null, null, null, 1, refs));
+        }
+        out.put("metricResults",MetricEvaluatorR29.evaluate(probes,snapshot));
+        return out;
+    }
+
+    /** Probes from measured snapshot records only. Pure (host-testable): a missing record leaves the metric NOT_RUN. */
+    public static Map<String,MetricEvaluatorR29.Probe> probes(Map<String,Object> baseline, Map<String,Object> preservation) {
+        Map<String,MetricEvaluatorR29.Probe> probes=new LinkedHashMap<>();
+        if (baseline!=null) {
+            boolean measured=BaselineIdentityR29.consistent(baseline);
+            List<String> ev=new ArrayList<>(); ev.add("r27_chart_cache:r29/baseline-identity");
+            probes.put("M01",new MetricEvaluatorR29.Probe(measured?"PARTIAL":"FAIL",
+                    measured?"设备实测源码提交、安装包SHA-256与签名证书已记录；需与CI回执delivery.json逐项互证后才可PASS":"身份字段缺失："+baseline.get("installedApkReason")+"/"+baseline.get("signingCertificateReason"),
+                    "INSTALLED_PACKAGE",null,null,null,1,ev));
+        }
+        if (preservation!=null && preservation.get("requirements") instanceof Number) {
+            long total=num(preservation.get("requirements")), missing=num(preservation.get("missingStatusOwnerOrEvidencePath")), unfounded=num(preservation.get("completionClaimsWithoutReceipt")), receipts=num(preservation.get("regressionReceipts"));
+            boolean complete=Boolean.TRUE.equals(preservation.get("ledgerComplete"));
+            List<String> ev=new ArrayList<>(); ev.add("r27_chart_cache:r29/legacy-preservation"); ev.add("assets:"+LegacyContinuityR27.PRESERVATION_ASSET);
+            probes.put("M02",new MetricEvaluatorR29.Probe(!complete||unfounded>0?"FAIL":"PARTIAL",
+                    "记录覆盖 "+(total-missing)+"/"+total+"，无回执的完成声明 "+unfounded+"；回归复核回执 "+receipts+"/"+total+"（未复核的不计完成）",
+                    "LEGACY_REQUIREMENTS_1832_AND_FILE_CARDS_299",total-missing,total,total==0?null:(Number)((total-missing)/(double)total),total,ev));
+        }
+        // M32: JSON and Markdown are rendered from the same chapter objects of one snapshot; the UI comparison needs a device receipt.
+        List<String> ev=new ArrayList<>(); ev.add("ReportDataR27.chapters: one snapshot, one object per metric for JSON/Markdown");
+        probes.put("M32",new MetricEvaluatorR29.Probe("PARTIAL","JSON/Markdown同一快照同一对象；UI同值对照需设备回执(NOT_RUN)","REPORT_RENDERINGS",null,null,null,0,ev));
+        return probes;
+    }
+    /** M27 from the R29 contiguous qualification state; PASS needs the device receipt, so measured data is PARTIAL at best. */
+    public static Map<String,MetricEvaluatorR29.Probe> qualificationProbes(Map<String,Object> q) {
+        Map<String,MetricEvaluatorR29.Probe> probes=new LinkedHashMap<>();
+        if (q==null || !(q.get("receipts") instanceof Number)) return probes;
+        long receipts=num(q.get("receipts")), mismatch=num(q.get("receiptStateMismatch")), conflicts=num(q.get("conflictsOpen")), minus2=num(q.get("legacyHitMinus2Remaining"));
+        List<String> ev=new ArrayList<>(); ev.add("r29_qual_receipt/r29_qual_cursor/r29_qual_conflict/r29_pending_draw"); ev.add("tools/r29/run_qual_host.sh Q1-Q6");
+        boolean bad=mismatch>0;
+        probes.put("M27",new MetricEvaluatorR29.Probe(bad?"FAIL":"PARTIAL",
+                "回执 "+receipts+"，回执与e-process不一致 "+mismatch+"，未解决冲突 "+conflicts+"，遗留hit=-2 "+minus2+"，待补抓开奖 "+q.get("pendingDrawOpen")+"；设备重启/杀进程回执前不计PASS",
+                "LIVE_EXPERIMENT_RECEIPTS",null,null,null,receipts,ev));
+        return probes;
+    }
+    /** R30-B01-02 第3章 运行与时延：后台超时持有前50 + 关键写等待（来自 r30_writer_hold，近24小时）。 */
+    static Map<String,Object> writerHold(SQLiteDatabase db, long since) {
+        Map<String,Object> m = new LinkedHashMap<>();
+        m.put("chapter", "3 运行与时延"); m.put("source", "r30_writer_hold"); m.put("windowSince", since);
+        List<Map<String,Object>> top = new ArrayList<>(), critical = new ArrayList<>();
+        long windows;
+        try {
+            try (Cursor c = db.rawQuery("SELECT count(*) FROM r30_writer_hold WHERE window_end>=?", new String[] {Long.toString(since)})) { windows = c.moveToFirst() ? c.getLong(0) : 0; }
+            try (Cursor c = db.rawQuery(HoldLedgerFlushR30.REPORT_TOP, new String[] {Long.toString(since)})) {
+                while (c.moveToNext()) {
+                    Map<String,Object> r = new LinkedHashMap<>(); r.put("operation", c.getString(0)); r.put("count", c.getLong(1)); r.put("holdMaxMs", c.getLong(2));
+                    r.put("holdP95Ms", c.isNull(3) ? null : c.getLong(3)); r.put("overBudget", c.getLong(4)); r.put("overHard", c.getLong(5)); top.add(r);
+                }
+            }
+            try (Cursor c = db.rawQuery(HoldLedgerFlushR30.REPORT_CRITICAL, new String[] {Long.toString(since)})) {
+                while (c.moveToNext()) {
+                    Map<String,Object> r = new LinkedHashMap<>(); r.put("operation", c.getString(0)); r.put("count", c.getLong(1));
+                    r.put("waitP95Ms", c.isNull(2) ? null : c.getLong(2)); r.put("waitMaxMs", c.getLong(3)); r.put("holdMaxMs", c.getLong(4)); critical.add(r);
+                }
+            }
+        } catch (RuntimeException missingTable) { windows = 0; }
+        m.put("windows", windows);
+        if (windows <= 0) { m.put("status", "INSUFFICIENT"); m.put("reason", "INSUFFICIENT：r30_writer_hold 尚无窗口"); }
+        else m.put("status", "MEASURED");
+        m.put("backgroundOverBudgetTop50", top); m.put("criticalWriteWait", critical);
+        return m;
+    }
+    /** R30-B02-01 第3章 实时链分段：最近1440期，开奖期 d 的观测/校验/落库/结算 + 下一目标期 t 的请求/准备/冻结/截止（docs/B02 §2）。 */
+    static final String TIMELINE_PAIRS_R30 = "SELECT d.issue,t.issue,"
+            + "d.wall_first_observed,d.mono_first_observed,d.boot_first_observed,d.wall_validated,d.mono_validated,d.boot_validated,"
+            + "d.wall_draw_committed,d.mono_draw_committed,d.boot_draw_committed,d.wall_settled,d.mono_settled,d.boot_settled,"
+            + "t.wall_next_requested,t.mono_next_requested,t.boot_next_requested,t.wall_next_prepared,t.mono_next_prepared,t.boot_next_prepared,"
+            + "t.wall_next_frozen,t.mono_next_frozen,t.boot_next_frozen,t.wall_next_deadline "
+            + "FROM r30_issue_timeline d LEFT JOIN r30_issue_timeline t ON t.issue=(SELECT min(issue) FROM r30_issue_timeline x WHERE x.issue>d.issue AND x.wall_next_requested IS NOT NULL) "
+            + "WHERE d.wall_first_observed IS NOT NULL ORDER BY d.issue DESC LIMIT 1440";
+    static Map<String,Object> issueTimeline(SQLiteDatabase db) {
+        Map<String,Object> m = new LinkedHashMap<>();
+        m.put("chapter", "3 运行与时延：实时链分段"); m.put("source", "r30_issue_timeline"); m.put("window", "最近1440个开奖期");
+        List<IssueTimelineR30.Row> rows = new ArrayList<>();
+        IssueTimelineR30.Stage[] stages = {IssueTimelineR30.Stage.FIRST_OBSERVED, IssueTimelineR30.Stage.VALIDATED, IssueTimelineR30.Stage.DRAW_COMMITTED, IssueTimelineR30.Stage.SETTLED,
+                IssueTimelineR30.Stage.NEXT_REQUESTED, IssueTimelineR30.Stage.NEXT_PREPARED, IssueTimelineR30.Stage.NEXT_FROZEN};
+        try (Cursor c = db.rawQuery(TIMELINE_PAIRS_R30, null)) {
+            while (c.moveToNext()) {
+                IssueTimelineR30.Row r = new IssueTimelineR30.Row(c.getString(0));
+                for (int i = 0; i < stages.length; i++) {
+                    int k = 2 + 3 * i;
+                    r.set(stages[i], c.isNull(k) ? null : c.getLong(k), c.isNull(k + 1) ? null : c.getLong(k + 1), c.isNull(k + 2) ? null : c.getString(k + 2));
+                }
+                if (!c.isNull(23)) r.set(IssueTimelineR30.Stage.NEXT_DEADLINE, c.getLong(23), null, null);
+                rows.add(r);
+            }
+        } catch (RuntimeException missingTable) { m.put("status", "INSUFFICIENT"); m.put("reason", "INSUFFICIENT：r30_issue_timeline 尚未建立"); return m; }
+        m.put("periods", rows.size());
+        if (rows.isEmpty()) { m.put("status", "INSUFFICIENT"); m.put("reason", "INSUFFICIENT：r30_issue_timeline 尚无开奖期"); return m; }
+        m.put("status", "MEASURED"); m.put("segments", IssueTimelineR30.summarize(rows));
+        m.put("environmentNote", "时延门槛只以真机为准（docs/02 §4）；模拟器/CI 数值只记录不判定");
+        return m;
+    }
+    /** M22 counts committed duplicate receipts, never a process-local counter. */
+    static Map<String,Object> behaviorDuplicates(SQLiteDatabase db) {
+        Map<String,Object> result = new LinkedHashMap<>(), stages = new LinkedHashMap<>();
+        result.put("source", "r30_behavior_dup");
+        result.put("scope", "拒绝入档/迁移的尝试；保留原策略和旧资产，不等于质量验证");
+        try {
+            long rows = 0;
+            try (Cursor c = db.rawQuery("SELECT stage,count(*) FROM r30_behavior_dup GROUP BY stage ORDER BY stage", null)) {
+                while (c.moveToNext()) { long count = c.getLong(1); rows += count; stages.put(c.getString(0), count); }
+            }
+            result.put("rows", rows); result.put("byStage", stages);
+            result.put("status", rows > 0 ? "MEASURED" : "NO_REJECTIONS_RECORDED");
+        } catch (RuntimeException unavailable) {
+            result.put("rows", null); result.put("status", "INSUFFICIENT"); result.put("reason", unavailable.getClass().getSimpleName());
+        }
+        return result;
+    }
+    static long num(Object o) { return o instanceof Number ? ((Number)o).longValue() : 0; }
+
+    static Map<String,Object> atomContributionsR30(SQLiteDatabase db){
+        Map<String,Object> result=new LinkedHashMap<>();List<Object> rows=new ArrayList<>();long measured=0;
+        try(Cursor c=db.rawQuery("SELECT c.atom_id,c.dataset_hash,c.from_row,c.to_row,c.n_periods,c.paired_comparisons,c.mean_gain,c.lcb95,coalesce(s.state,m.state,'UNREGISTERED'),coalesce(s.derived,1) FROM r30_atom_contribution c LEFT JOIN r27_atom_score s ON s.atom_id=c.atom_id AND s.dataset_hash=c.dataset_hash LEFT JOIN r27_molecule m ON c.atom_id='MOLECULE:'||m.molecule_hash WHERE s.atom_id IS NOT NULL OR m.molecule_hash IS NOT NULL ORDER BY s.derived,s.atom_index,c.atom_id",null)){
+            while(c.moveToNext()){Map<String,Object> row=new LinkedHashMap<>();row.put("atomId",c.getString(0));row.put("componentType",c.getString(0).startsWith("MOLECULE:")?"MOLECULE":"ATOM");row.put("datasetHash",c.getString(1));row.put("selectFrom",c.getLong(2));row.put("selectTo",c.getLong(3));row.put("periods",c.getLong(4));row.put("pairedComparisons",c.getLong(5));row.put("meanBrierGain",c.isNull(6)?null:c.getDouble(6));row.put("lower95OneSided",c.isNull(7)?null:c.getDouble(7));row.put("legacyState",c.getString(8));row.put("derived",c.getInt(9)==1);row.put("status",c.getLong(4)>=2?"MEASURED":"INSUFFICIENT");if(c.getLong(4)>=2)measured++;rows.add(row);}
+        }catch(RuntimeException unavailable){result.put("reason",unavailable.getClass().getSimpleName());}
+        result.put("rows",rows);result.put("measuredAtoms",measured);result.put("source","H_SELECT_SAME_PERIOD_SAME_ACTION_PAIRED_BRIER");result.put("status",measured>0?"MEASURED":"INSUFFICIENT");return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    static Map<String,Object> calibrationQualityR30(SQLiteDatabase db){
+        Map<String,Object> result=new LinkedHashMap<>();List<Object> policies=new ArrayList<>();long measured=0,rows=0;
+        try(Cursor c=db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id='calibration-r30' ORDER BY key",null)){
+            while(c.moveToNext()){Map<String,Object> q=(Map<String,Object>)JsonR27.parse(c.getString(0));rows+=num(q.get("n"));if("MEASURED".equals(q.get("status")))measured++;policies.add(q);}
+        }catch(RuntimeException unavailable){result.put("reason",unavailable.getClass().getSimpleName());}
+        result.put("policies",policies);result.put("validationRows",rows);result.put("measuredPolicies",measured);result.put("status",measured>0?"MEASURED":"INSUFFICIENT");
+        result.put("source","r27_chart_cache:calibration-r30 / original FROZEN FUTURE rows and prior H_SELECT");return result;
+    }
+
+    static Map<String,Object> modelCheckpoint(SQLiteDatabase db) {
+        Map<String,Object> m = new LinkedHashMap<>();
+        m.put("status", "NEVER_RUN"); m.put("I08SurfaceIntegration",ModelSurfaceStoreR30.report(db));
+        m.put("scope", "Existing rotating-position hit experiment; not a 10x10 number-surface model");
+        m.put("legacyPartialStatesPreserved", QualificationInboxR29.count(db, "SELECT count(*) FROM r29_legacy_model_checkpoint"));
+        try (Cursor c = db.rawQuery("SELECT feature_abi,dataset_hash,trained_through,state_hash,length(artifact),updated_at FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'", null)) {
+            if (c.moveToFirst()) {
+                m.put("status", "RECORDED"); m.put("featureAbi", c.getString(0)); m.put("datasetHash", c.getString(1)); m.put("trainedThrough", c.getString(2));
+                m.put("stateHash", c.getString(3)); m.put("bytes", c.getLong(4)); m.put("committedAt", c.getLong(5));
+            }
+            m.put("forecastStateReferences", QualificationInboxR29.count(db, "SELECT count(*) FROM r29_atomnet_forecast"));
+        } catch (RuntimeException unavailable) { m.put("status", "SCHEMA_PENDING"); m.put("reason", unavailable.getClass().getSimpleName()); }
+        return m;
+    }
+
+    @SuppressWarnings("unchecked")
+    static Map<String,Object> cachedPanel(SQLiteDatabase db, String panel, String key) {
+        try (Cursor c = db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id=? AND key=?", new String[] {panel,key})) {
+            return c.moveToFirst() ? (Map<String,Object>) JsonR27.parse(c.getString(0)) : null;
+        } catch (RuntimeException unavailable) { return null; }
+    }
+
+    @SuppressWarnings("unchecked")
+    static Map<String,Object> cached(SQLiteDatabase db, String key) {
+        try (Cursor c=db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id='r29' AND key=?",new String[]{key})) {
+            return c.moveToFirst() ? (Map<String,Object>)JsonR27.parse(c.getString(0)) : null;
+        } catch (RuntimeException schemaPending) { return null; }
+    }
+    static Map<String,Object> timeRange(SQLiteDatabase db) {
+        try (Cursor c=db.rawQuery("SELECT min(issue),max(issue),count(*) FROM draws WHERE dirty=0",null)) {
+            if (!c.moveToFirst() || c.getLong(2)==0) return null;
+            Map<String,Object> m=new LinkedHashMap<>(); m.put("fromIssue",c.getString(0)); m.put("toIssue",c.getString(1)); m.put("draws",c.getLong(2)); return m;
+        } catch (RuntimeException schemaPending) { return null; }
+    }
+}

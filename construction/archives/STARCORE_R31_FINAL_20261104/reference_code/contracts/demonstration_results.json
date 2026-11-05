@@ -1,0 +1,26 @@
+{
+  "scope": "REFERENCE_CONTRACT_ONLY",
+  "status": "PASS",
+  "before": {
+    "hot": 10,
+    "keep": 190,
+    "total_rows": 200,
+    "incoming_rows": 200,
+    "hot_retention_limit": 10,
+    "finding": "Deleting the hot tail moved originals; total retained rows kept growing."
+  },
+  "after": {
+    "replacements": 200,
+    "retained_objects": 1,
+    "peak_catalog_accounted_bytes": 80,
+    "final_catalog_accounted_bytes": 40,
+    "file_unlink_in_this_example": "SIMULATED_CALLBACK",
+    "byte_scope": "CATALOG_LOGICAL_BYTES_NOT_PHYSICAL_DB_FILE"
+  },
+  "does_not_prove": [
+    "Android disk usage",
+    "SQLite file shrinks after DELETE",
+    "APK repair completed",
+    "Real-data predictive quality"
+  ]
+}

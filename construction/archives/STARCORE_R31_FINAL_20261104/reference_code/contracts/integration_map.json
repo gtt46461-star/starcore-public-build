@@ -1,0 +1,70 @@
+{
+  "scope": "REFERENCE_CONTRACT_ONLY",
+  "production_patch": false,
+  "baseline_source_commit": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "contracts": [
+    {
+      "contract": "TaskStore",
+      "integration_targets": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java:claimPrepared",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java:loop",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java:record",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java:classify",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java:recordError",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java:runWriteOrThrowF01"
+      ],
+      "required_changes": [
+        "Typed BUSY/DEPENDENCY/CANCELLED distinct from defects; preserve cause chain",
+        "Owner/session/fence/boot/lease checked atomically at publication",
+        "Only one half-open probe; finite quarantine escalation",
+        "Cancellation propagated even when receipt cannot be written",
+        "User stop revokes fence; no automatic restart of stopped sessions"
+      ],
+      "must_still_test_on_android": ["Writer priority and actual lock budgets", "Cooperative worker termination", "Schema migrations", "Dead-process recovery"]
+    },
+    {
+      "contract": "ForecastStore",
+      "integration_targets": [
+        "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR35.java",
+        "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenSurfaceStoreR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveLoopSU2.java"
+      ],
+      "required_changes": [
+        "Append-only prediction identity; no replacement of a frozen forecast",
+        "PIT plus already-observed-outcome guard",
+        "Conservative commit-ack interval and explicit unknown/late state",
+        "Settlement and feedback outbox atomic; consumer checkpoint fenced and idempotent"
+      ],
+      "must_still_test_on_android": ["Clock synchronization uncertainty", "Actual commit acknowledgements", "Final single DecisionGate integration", "All original metric meanings preserved"]
+    },
+    {
+      "contract": "ObjectBudget",
+      "integration_targets": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java"
+      ],
+      "required_changes": [
+        "Reserve peak bytes before writes; count deletion failures and all temporary owners",
+        "Certificate/pin/unsettled/root closure, revision-fenced paged marking",
+        "New checkpoint verified and published before old root released",
+        "Physical unlink outside write transaction; persistent recoverable deletion receipt"
+      ],
+      "must_still_test_on_android": ["Actual file fsync/rename recovery", "Large-graph chunking and writer deadlines", "Reference migration", "72-hour measured disk and memory bounds", "SQLite vacuum/checkpoint compatibility"]
+    },
+    {
+      "contract": "BoundedCoalescingQueue / BoundedCache",
+      "integration_targets": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java"
+      ],
+      "required_changes": ["Single owner or explicit synchronization", "Byte and count limits", "Reject/coalesce diagnostics rather than dropping durable business events", "Pinned cache entries cannot be evicted"],
+      "must_still_test_on_android": ["Real object overhead", "PSS/heap profile", "Cancellation and activity lifecycle", "Slow consumer behavior"]
+    }
+  ]
+}

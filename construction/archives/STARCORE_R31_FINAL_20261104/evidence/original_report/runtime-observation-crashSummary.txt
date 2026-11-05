@@ -1,0 +1,52 @@
+crashCount=0
+oomCount=0
+stackOverflowCount=0
+windowCrashCount10m=0
+windowCrashCountScope=NO_ROLLING_TIMESTAMP_LOG;UNKNOWN_WHEN_RECENT_EVENT
+recordedCrashWindowCount=0
+recordedCrashWindowStart=0
+crashObservedAt=1793664653835
+lastAt=0
+thread=
+type=
+message=
+stage=
+targetIssue=
+dbQueue=0
+freeMemory=0
+totalMemory=0
+maxMemory=0
+fingerprint=
+stack=
+
+R963_LIFECYCLE_HEALTH|stallIsObservedDelayNotAnrVerdict=1
+SYSTEM_EXIT_HISTORY|noRecordsDoesNotProveNoCrash=1
+at=1793619321801|reason=10|status=0|importance=125|pssKiB=49123|rssKiB=109724|detail=[FORCE STOP] stop com.starcore.research.r13 due to clear data by com.android.settings
+at=1793601556278|reason=10|status=0|importance=125|pssKiB=53450|rssKiB=84732|detail=[FORCE STOP] stop com.starcore.research.r13 due to single-cleaner
+at=1793601556259|reason=10|status=0|importance=400|pssKiB=30885|rssKiB=61736|detail=[FORCE STOP] stop com.starcore.research.r13 due to single-cleaner
+at=1793598200358|reason=10|status=0|importance=125|pssKiB=47887|rssKiB=92840|detail=[FORCE STOP] stop com.starcore.research.r13 due to single-cleaner
+at=1793592700073|reason=3|status=0|importance=125|pssKiB=182329|rssKiB=65652|detail=
+
+mainStallAt=1793625406219|delayMs=4498|version=R30-REPAIR1-2026.11.02-009
+mainStack=android.os.Parcel.nativeWriteString16(Native Method)
+android.os.Parcel.writeString16NoHelper(Parcel.java:1180)
+android.os.Parcel$ReadWriteHelper.writeString16(Parcel.java:495)
+android.os.Parcel.writeString16(Parcel.java:1159)
+android.os.Parcel.writeString(Parcel.java:1149)
+com.vivo.statistics.sdk.ArgPack.writeToParcel(ArgPack.java:308)
+com.vivo.statistics.sdk.GatherProxy.gather(GatherProxy.java:43)
+com.vivo.statistics.sdk.GatherManager.gather(GatherManager.java:57)
+com.vivo.perf.bigdata.Jank.handleBroadcastTimeout(Jank.java:275)
+com.vivo.perf.bigdata.VivoPerfBigdataImpl.handleBroadcastTimeout(VivoPerfBigdataImpl.java:64)
+android.app.ActivityThread.handleReceiver(ActivityThread.java:5022)
+android.app.ActivityThread.-$$Nest$mhandleReceiver(Unknown Source:0)
+android.app.ActivityThread$H.handleMessage(ActivityThread.java:2668)
+android.os.Handler.dispatchMessage(Handler.java:108)
+android.os.Looper.loopOnce(Looper.java:226)
+android.os.Looper.loop(Looper.java:328)
+android.app.ActivityThread.main(ActivityThread.java:9236)
+java.lang.reflect.Method.invoke(Native Method)
+com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:594)
+com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1099)
+
+recoveryError=

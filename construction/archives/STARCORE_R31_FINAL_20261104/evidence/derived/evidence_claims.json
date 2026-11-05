@@ -1,0 +1,134 @@
+[
+  {
+    "id": "E001",
+    "fact": "报告源码提交5237b265a27fe5ad27fd842901c445d5f8c27749，APK SHA256 da42eaf3f6458bbf78ef256cfbe5667e29a18a51a94a02730a1d2f46b9c05749",
+    "source": "source-manifest.json#/sourceCommit、#/apkSha256",
+    "boundary": "这是报告记录身份；APK二进制未导出，无法在本包重算安装包哈希或签名"
+  },
+  {
+    "id": "E002",
+    "fact": "60任务中14项QUARANTINED；lane=R27的13项全部QUARANTINED",
+    "source": "R30_REPORT.json#/chapters/3/data/tasks",
+    "boundary": "11项为领取写失败，另外1项取消、1项学生缺失；不能写成仅11项R27隔离"
+  },
+  {
+    "id": "E003",
+    "fact": "11项R27 blocked_reason包含F01_WRITE_FAILED及R30_PREPARED_TASK_CLAIM",
+    "source": "同上按task_id筛选",
+    "boundary": "外层异常只定位领取阶段；具体内层busy/owner/fence/其它SQL错误须从完整原因链证实，不能直接断言全部由250ms写锁超时导致"
+  },
+  {
+    "id": "E004",
+    "fact": "r27-chart-cache为InterruptedException:R27_CANCELLED；r27-matrices-r1为MATRIX_ORIGINAL_STUDENT_UNAVAILABLE；incumbent-forecast为R26_UNSLICED_COMPUTATION_CAPACITY",
+    "source": "同上",
+    "boundary": "三类应分别处理取消、依赖和不可协作计算，不能统一无限重试"
+  },
+  {
+    "id": "E005",
+    "fact": "研究心跳STALE，progressAge=45,165,527ms（约12.55小时）；restartRequest=26、actualStart=1",
+    "source": "runtime-observation-heartbeatSummary.txt:1",
+    "boundary": "这是采样时的心跳记录，不能据重启请求数推断确实重启过26次"
+  },
+  {
+    "id": "E006",
+    "fact": "全部713表，556空表、157非空；research_row_revision_v2 316,363行、runtime_event 134,688行、action_space 85,859行、action_label 84,000行、chart_cache 72,458行",
+    "source": "DIAGNOSTIC_SCOPE.json#/tables；tables_713.csv",
+    "boundary": "行数不是占用字节，也不是运行效果；空表不是可删除的充分条件"
+  },
+  {
+    "id": "E007",
+    "fact": "55张r30_keep_*表全为0行",
+    "source": "同上筛选表名前缀",
+    "boundary": "可结合源码判定未来无界保留风险，但不能归因为本次已产生大量keep数据"
+  },
+  {
+    "id": "E008",
+    "fact": "磁盘普查total=1,293,614,271字节，DATABASE=606,564,438，REPORTS=673,227,433；报告快照592,556,032字节",
+    "source": "STORAGE_CENSUS.txt:1",
+    "boundary": "是某时刻目录普查，约1.294GB/1.205GiB；用户所说两天30GB需连续观测确认，这份快照不等于30GB实测"
+  },
+  {
+    "id": "E009",
+    "fact": "快照PRAGMA freePageBytes=0，logicalPageBytes=592,556,032",
+    "source": "STORAGE_CENSUS.txt:2",
+    "boundary": "明确是IMMUTABLE_REPORT_COPY，不能当作当前live库free-list、可回收空间或磁盘余量"
+  },
+  {
+    "id": "E010",
+    "fact": "runtime liveDatabaseFileBytes=592,556,032、liveWalFileBytes=1,582,112；存储普查后续live DB=602,959,872，MAIN_WAL=959,992",
+    "source": "runtime-observation.json；STORAGE_CENSUS.txt",
+    "boundary": "两个采样时刻不同，不能把差异判为伪造或相加计算总量；更不能把磁盘30GB叫Java堆内存30GB"
+  },
+  {
+    "id": "E011",
+    "fact": "44项指标：33 INSUFFICIENT、7 RECORDED_UNVALIDATED、2 PARTIAL、1 BLOCKED、1 NOT_DEPLOYED",
+    "source": "R30_REPORT.json#/metricResults",
+    "boundary": "无一项状态为PASS；“31项不足”不准确；UNKNOWN/NULL不能填0"
+  },
+  {
+    "id": "E012",
+    "fact": "96条检查全部EXECUTED，其中4条domain_outcome=PASS、2 FAIL；其余为OBSERVED、N/A、不足、WATCH等",
+    "source": "REPORT_DETAILS.txt中check_result逐行；checks_96.csv",
+    "boundary": "allChecks=96只是声明数量；必须读取逐项结果；EXECUTED与completes_contract=true不代表软件验收通过"
+  },
+  {
+    "id": "E013",
+    "fact": "总结INCOMPLETE、自然质量INSUFFICIENT、physicalDevice=NOT_RUN，12章齐全",
+    "source": "R30_REPORT.json顶层",
+    "boundary": "physicalDevice=NOT_RUN指对应验收证据未完成，不否认报告包含实际设备运行观测"
+  },
+  {
+    "id": "E014",
+    "fact": "最新结算任务202611030010为COMPLETED，73条SHADOW中72已结算、1未结算",
+    "source": "DIAGNOSTIC_SCOPE.json#/recentEvidence/25、/24；REPORT_DETAILS RSEC-305",
+    "boundary": "心跳仍显示202611020847是旧业务心跳/口径不一致；不能写“所有结算停在该期”"
+  },
+  {
+    "id": "E015",
+    "fact": "结算任务共5519：72 COMPLETED/LIVE_CURRENT、36无赛前排除/LIVE_CURRENT、4958无赛前排除/BACKLOG、453 PENDING/BACKLOG",
+    "source": "DIAGNOSTIC_SCOPE.json#/recentEvidence/25",
+    "boundary": "不能把历史种子缺预测算成实时漏预测，也不能把72/72已存在预测的结算率当全部在线期覆盖率"
+  },
+  {
+    "id": "E016",
+    "fact": "重算72条已结算SHADOW命中20次，27.7778%；Wilson双侧95%区间18.7603%–39.0464%",
+    "source": "shadow_validation.json；原预测recentEvidence/24与draws recentEvidence/0",
+    "boundary": "不是REAL胜率，不是新策略未来证据；样本小，不能证明优势；数值匹配不等于完整历史状态可重放"
+  },
+  {
+    "id": "E017",
+    "fact": "5000条历史开奖，202610300771至202611030010；相邻4999间隔全60000ms，无重复，全部1..10排列且原JSON一致",
+    "source": "draws_validation.json，原recentEvidence/0",
+    "boundary": "仅内部一致性，不证明开奖源真伪、独立均匀性或哈希可预测性；可用于受限PIT研究回放"
+  },
+  {
+    "id": "E018",
+    "fact": "rawDatabaseIncluded=false；installedApkIncluded=false；r26CheckpointBodiesIncluded=false",
+    "source": "DIAGNOSTIC_SCOPE.json及source-manifest.json",
+    "boundary": "没有原SQLite页/全状态二进制；但并非没有原开奖数据，83组选定逐行元数据已经导出"
+  },
+  {
+    "id": "E019",
+    "fact": "writerHardViolations=579；requestToCommitP95最近96=37,373ms；fetchWriteError=PAYLOAD:WRITE_REJECTED:BUSY_DEADLINE",
+    "source": "R30_REPORT.json#/diagnosis/findings/0/evidence/value；RSEC-305；runtime-observation.json",
+    "boundary": "579是累计窗口指标，37.373s是分析请求至事务返回指标；不能当所有写锁单次持锁时间或远端开奖抓取时延"
+  },
+  {
+    "id": "E020",
+    "fact": "crashSummary内有3条single-cleaner FORCE STOP与1条clear data；crashCount=0、oomCount=0；另有4498ms mainStall记录",
+    "source": "runtime-observation-crashSummary.txt",
+    "boundary": "没记录崩溃不证明未发生；mainStall栈在vivo统计广播路径，不能直接确认为自有业务ANR根因"
+  },
+  {
+    "id": "E021",
+    "fact": "48个解码成员的raw_bytes/raw_sha256全部匹配，manifest正文SHA256匹配",
+    "source": "ARCHIVE_MANIFEST.jsonl，archive_integrity.json",
+    "boundary": "原P*.bin编码块不在ZIP，不能验证其编码字节哈希；文件完整不等于软件功能完整"
+  },
+  {
+    "id": "E022",
+    "fact": "r26_evolution=50行；r27_policy、r27_lineage=0行；r30r1_analysis_run=25行，其中21 COMMITTED",
+    "source": "DIAGNOSTIC_SCOPE.json#/tables",
+    "boundary": "不能说从未产生任何进化尝试；也不能将50行等同50个高品质新算法；研究有部分运行痕迹但主产物链不完整"
+  }
+]

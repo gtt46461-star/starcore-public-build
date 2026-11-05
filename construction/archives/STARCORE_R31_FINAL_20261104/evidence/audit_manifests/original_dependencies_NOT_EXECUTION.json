@@ -1,0 +1,505 @@
+[
+  {
+    "card": "R31-B00-C01",
+    "original_dependencies": [],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B00-C02",
+    "original_dependencies": [],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B01-C01",
+    "original_dependencies": [
+      "R31-B00-C02",
+      "R31-B02-C01"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B01-C02",
+    "original_dependencies": [
+      "R31-B01-C01"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B01-C03",
+    "original_dependencies": [
+      "R31-B01-C02"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B01-C04",
+    "original_dependencies": [
+      "R31-B01-C02",
+      "R31-B02-C02"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B02-C01",
+    "original_dependencies": [
+      "R31-B00-C02",
+      "R31-B01-C01"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B02-C02",
+    "original_dependencies": [
+      "R31-B02-C01",
+      "R31-B01-C02"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B02-C03",
+    "original_dependencies": [
+      "R31-B01-C02",
+      "R31-B02-C02"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B03-C01",
+    "original_dependencies": [
+      "R31-B02-C01",
+      "R31-B02-C03"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B03-C02",
+    "original_dependencies": [
+      "R31-B01-C04",
+      "R31-B03-C01"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B03-C03",
+    "original_dependencies": [
+      "R31-B02-C03",
+      "R31-B03-C02"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B04-C01",
+    "original_dependencies": [
+      "R31-B01-C01",
+      "R31-B01-C02",
+      "R31-B01-C03",
+      "R31-B01-C04"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B04-C02",
+    "original_dependencies": [
+      "R31-B04-C01",
+      "R31-B03-C03"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B05-C01",
+    "original_dependencies": [
+      "B00基线锁定",
+      "B02版本化DDL"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B05-C02",
+    "original_dependencies": [
+      "R31-B05-C01",
+      "B01 owner/fence"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B05-C03",
+    "original_dependencies": [
+      "R31-B05-C02",
+      "B11报告profile契约"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B05-C04",
+    "original_dependencies": [
+      "R31-B05-C01",
+      "R31-B05-C05",
+      "B02 schema单所有者"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B05-C05",
+    "original_dependencies": [
+      "B01 owner/fence",
+      "B06 task/output事务契约",
+      "B10模型与证书根"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B05-C06",
+    "original_dependencies": [
+      "R31-B05-C02",
+      "R31-B05-C05",
+      "B01持久任务恢复"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B05-C07",
+    "original_dependencies": [
+      "R31-B05-C01",
+      "R31-B05-C06",
+      "B02 DDL迁移"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B05-C08",
+    "original_dependencies": [
+      "B10 typed selection migration gate",
+      "B09图表producer-consumer清单"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B05-C09",
+    "original_dependencies": [
+      "B02 writer/reader lease",
+      "R31-B05-C01"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B05-C10",
+    "original_dependencies": [
+      "R31-B05-C04",
+      "R31-B05-C05",
+      "B12安装升级恢复"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B05-C11",
+    "original_dependencies": [
+      "B01任务owner/fence/取消完成协议",
+      "B02短事务与资源释放",
+      "B06共享回放输入ABI",
+      "B09图表分页与取消",
+      "B12真机内存/温控/72h"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B06-C01",
+    "original_dependencies": [
+      "B00",
+      "B01",
+      "B02",
+      "B03",
+      "B05"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B06-C02",
+    "original_dependencies": [
+      "R31-B06-C01",
+      "B02",
+      "B05"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B06-C03",
+    "original_dependencies": [
+      "R31-B06-C02",
+      "B03"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B07-C01",
+    "original_dependencies": [
+      "B00",
+      "B01",
+      "B02",
+      "R31-B06-C02"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B07-C02",
+    "original_dependencies": [
+      "R31-B06-C01",
+      "R31-B07-C01",
+      "B02"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B07-C03",
+    "original_dependencies": [
+      "R31-B06-C02",
+      "R31-B07-C01",
+      "R31-B07-C02",
+      "B05"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B07-C04",
+    "original_dependencies": [
+      "R31-B06-C01",
+      "R31-B06-C02",
+      "R31-B07-C03",
+      "B03"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B07-C05",
+    "original_dependencies": [
+      "R31-B07-C02",
+      "R31-B07-C03",
+      "R31-B07-C04",
+      "B03"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B07-C06",
+    "original_dependencies": [
+      "R31-B06-C03",
+      "R31-B07-C02",
+      "R31-B07-C03",
+      "R31-B07-C04",
+      "R31-B08-C02"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B08-C01",
+    "original_dependencies": [
+      "B01",
+      "B02",
+      "R31-B06-C01",
+      "R31-B07-C01"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B08-C02",
+    "original_dependencies": [
+      "R31-B07-C02",
+      "R31-B07-C03",
+      "R31-B08-C01"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B08-C03",
+    "original_dependencies": [
+      "R31-B06-C02",
+      "R31-B07-C04",
+      "R31-B08-C02",
+      "B05"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B08-C04",
+    "original_dependencies": [
+      "B01",
+      "B06",
+      "B07"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B08-C05",
+    "original_dependencies": [
+      "B08",
+      "R31-B09-C01"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B09-C01",
+    "original_dependencies": [
+      "B00",
+      "B01"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B09-C02",
+    "original_dependencies": [
+      "R31-B09-C01",
+      "B02"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B09-C03",
+    "original_dependencies": [
+      "B05",
+      "B10",
+      "R31-B09-C01"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B09-C04",
+    "original_dependencies": [
+      "B07",
+      "B10"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B09-C05",
+    "original_dependencies": [
+      "R31-B09-C01",
+      "R31-B09-C02",
+      "R31-B11-C01"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B10-C01",
+    "original_dependencies": [
+      "B02",
+      "B03",
+      "B05",
+      "R31-B07-C04",
+      "B09"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B10-C02",
+    "original_dependencies": [
+      "R31-B07-C04",
+      "R31-B07-C05",
+      "R31-B10-C01",
+      "B03",
+      "B11"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B10-C03",
+    "original_dependencies": [
+      "B03",
+      "B04",
+      "R31-B06-C03",
+      "R31-B10-C01",
+      "R31-B10-C02"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B11-C01",
+    "original_dependencies": [
+      "B00",
+      "B01",
+      "B02",
+      "B03",
+      "B04",
+      "B05",
+      "B06",
+      "B07",
+      "B08",
+      "B09",
+      "B10"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B11-C02",
+    "original_dependencies": [
+      "R31-B11-C01",
+      "B08",
+      "B09"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B11-C03",
+    "original_dependencies": [
+      "B05",
+      "R31-B11-C01"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B11-C04",
+    "original_dependencies": [
+      "B00",
+      "R31-B11-C01"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B12-C01",
+    "original_dependencies": [
+      "B00",
+      "B01",
+      "B02",
+      "B05",
+      "B10"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B12-C02",
+    "original_dependencies": [
+      "B01",
+      "B02",
+      "B03",
+      "B05",
+      "B06",
+      "B07",
+      "B08",
+      "B09",
+      "B10",
+      "B11"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B12-C03",
+    "original_dependencies": [
+      "R31-B12-C02"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B12-C04",
+    "original_dependencies": [
+      "R31-B12-C01",
+      "R31-B12-C02",
+      "R31-B12-C03"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  },
+  {
+    "card": "R31-B12-C05",
+    "original_dependencies": [
+      "R31-B12-C03"
+    ],
+    "status": "ARCHIVAL_REVIEW_NOT_EXECUTION_DAG"
+  }
+]
