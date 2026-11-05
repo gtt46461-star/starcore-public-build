@@ -1,0 +1,21 @@
+{
+  "scope": "LOCAL_NON_AUTHORITATIVE_HOST_AND_UNIT_NOT_CI_NOT_ANDROID_NOT_DEVICE",
+  "why_local": "dl.google.com/maven.google.com blocked by session proxy; no Android SDK. Compiled with JDK21 javac --release 17 against Robolectric android-all 16 (Maven Central) transformed to SDK-stub and AGP-mockable jars (JarTransform.java).",
+  "known_differences": [
+    "JDK21 vs CI JDK17: r982 call index NOT equivalent (local 305348 vs CI 356312 invocations at 961a6b8a); never committed from local classes",
+    "R class generated from res/ with placeholder ids",
+    "R27QualityTest regex needs -Xss8m under JDK21 only"
+  ],
+  "control_014": "control-014-SUMMARY.txt: identical local env on 961a6b8a",
+  "current": "full-matrix-SUMMARY.txt + env-rerun-SUMMARY.txt on aeaccedd sources",
+  "regressions_found_pass_on_014_fail_after_integration": [
+    "r30repair-neural",
+    "r30repair-qualification",
+    "r30repair-matrix",
+    "r30repair-snapshot",
+    "unit R27QualityTest.h15MainlineRedLines"
+  ],
+  "after_fixes": "24/24 CI-listed HOST groups + 8 newer R31 runners PASS locally (env-only failures resolved by providing junit/hamcrest/R.jar/classes.jar)",
+  "unit_before_fix": "114/115 classes, 485 tests, 1 failure (R27QualityTest); post-fix full unit rerun interrupted by worker restart -> NOT_RECORDED",
+  "authoritative": "CI run https://github.com/gtt46461-star/starcore-public-build/actions/runs/41946575566 (015, 01c65875)"
+}

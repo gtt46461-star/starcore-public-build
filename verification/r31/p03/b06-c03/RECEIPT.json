@@ -1,0 +1,51 @@
+{
+  "actual_changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+      "methods": "forecast: consume only complete-issue shared ten-position model; step: cold-start checkpoint root registration"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+      "methods": "report: completeTrainedThroughIssue/Ordinal, partialObservedIssue, partialPositionsCommitted, consumable, consumerModelScope (ABI unchanged)"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "methods": "facts atomnetPublishedModels/atomnetConsumedModels/atomnetConsumedPublishedModels"
+    },
+    {
+      "path": "tools/r30/qual_host/TenPositionR30HostTest.java",
+      "methods": "partial/complete watermark, non-zero gradient, published-hash consumption assertions"
+    }
+  ],
+  "commits": [
+    "3402edbf"
+  ],
+  "migration_versions": [
+    "SQLite userVersion 36 retained; no schema change"
+  ],
+  "tests": [
+    {
+      "command": "python3 tools/r30-repair/run_neural_host.py (real JVM kill/restart at positions 4,5,9)",
+      "result": "PASS_LOCAL_NON_AUTHORITATIVE",
+      "evidence": "verification/r31/p03/b06-c03/fixed-neural-host.log"
+    },
+    {
+      "command": "same with only the forecast consumer guard reverted",
+      "result": "EXPECTED_FAIL:PARTIAL_MODEL_CONSUMED",
+      "evidence": "verification/r31/p03/b06-c03/counterexample-without-consumer-guard.log"
+    },
+    {
+      "command": "CI build of 3402edbf",
+      "result": "NOT_RUN"
+    }
+  ],
+  "apk_identity": null,
+  "device_evidence": [],
+  "remaining": [
+    "Card step 4 (each ten-position counter incl. training epochs) only partly in report; epochs exist in r27_atomnet_epoch, not yet a report fact",
+    "Lr=0 control model unchanged check not yet added",
+    "CI build/unit/Android for this source NOT_RUN",
+    "Device NOT_RUN; natural quality NOT_PROVEN"
+  ],
+  "next_step": "Freeze identities for 3402edbf in CI, build, then add lr=0 control and epoch counter; device run when available"
+}
