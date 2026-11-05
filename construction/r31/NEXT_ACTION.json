@@ -1,44 +1,26 @@
 {
-  "scope": "R31_EXECUTION_RECOVERY_NOT_APPLICATION_FIX",
-  "observed_source": "05391e68266083d156612b014f8d1c84cfcf2fb3",
-  "observed_at_beijing": "2026-11-05T11:14:53+08:00",
+  "scope": "R31_2_SEQUENTIAL_CONSTRUCTION_NOT_APPLICATION_FIX",
+  "plan_revision": "R31.2-SEQUENTIAL-20261105",
+  "plan_contract": "construction/STARCORE_R31_FINAL_20261104/docs/15_R31.2顺序批次施工合同.md",
+  "plan_policy": "construction/STARCORE_R31_FINAL_20261104/ledgers/execution_policy.json",
+  "batch_ledger": "construction/STARCORE_R31_FINAL_20261104/ledgers/r312_batches.json",
+  "gate": "python3 construction/STARCORE_R31_FINAL_20261104/tools/r312_gate.py",
+  "current_batch_selection": "FIRST_BATCH_WITHOUT construction/r31/r312/<S>/RECEIPT.json (run: gate status)",
+  "current_batch_at_revision": "S00",
+  "resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
   "resume_order": [
-    "Inspect current HEAD, dirty files, unpushed commits and ancestry; preserve them",
-    "Read current P01 cards and applicable producer/consumer contracts",
-    "Reproduce and repair Certificate critical schema/fingerprint prerequisite on one candidate",
-    "Reproduce and repair memory ownership/capacity failures without weakening limits",
-    "Run targeted whole classes, then full HOST/unit/lint on the stable candidate",
-    "Freeze identities and run canonical CI once local gates pass; rerun only when fixes or new evidence justify it",
-    "Accept B01/B02 jointly before expanding P02"
+    "gate status -> open batches/Sxx.md for the open batch only",
+    "Bind every LOCAL item of the batch to a test in construction/r31/r312/Sxx/BINDINGS.json",
+    "Change only the batch's scope files (declare any extension with a reason)",
+    "Commit, then gate build --batch Sxx (or push and --import the r312-gate CI summary)",
+    "gate close --batch Sxx; commit RECEIPT.json + BUILD_SUMMARY; continue with the next batch"
   ],
-  "current_phase": "P01",
-  "current_cards": [
-    "R31-B01-C01",
-    "R31-B01-C02",
-    "R31-B01-C03",
-    "R31-B01-C04",
-    "R31-B02-C01",
-    "R31-B02-C02",
-    "R31-B02-C03"
-  ],
-  "source_accepted_batches_at_observation": [
-    "B00"
-  ],
-  "final_accepted_cards_at_observation": 0,
+  "s00_then_s01": "S00 installs HOST_SUITE.json and r312-gate.yml and records current full-suite failures; S01 makes the full suite green (Certificate fingerprint, memory admission compatibility, remaining failures). From S01 on every batch closes green.",
+  "superseded_ledgers": "PROGRESS.json, EXECUTION_LEDGER.json, CURRENT_EXECUTION.json and SOURCE_CHANGE_OWNERS.json are R31.1 history (read-only, targeted queries only); progress is derived from R31.2 receipts.",
   "claims_not_made": [
     "Application defects fixed",
     "Current full suite passes",
-    "Other Codex session stopped/reconfigured",
-    "Exact quota consumption audited",
-    "Physical or natural-quality acceptance passes"
-  ],
-  "evidence": [
-    "construction/r31/PROGRESS.json",
-    "verification/r31/ci015-memory-lifecycle/SUBSCOPE_LEDGER.json",
-    "verification/r31/integration-20261105/CI015_ANDROID_OBSERVATION.json"
-  ],
-  "instructions": "construction/r31/PROCESS_ADJUSTMENT_20261105.md",
-  "plan_revision": "R31.1-EXECUTION-20261105",
-  "plan_policy": "construction/STARCORE_R31_FINAL_20261104/ledgers/execution_policy.json",
-  "phase_selection": "EARLIEST_UNPASSED_PHASE_IN_LIVE_LEDGER; observed P01 is a historical snapshot, preserve newer progress"
+    "Android emulator or device acceptance passes",
+    "Natural quality proven"
+  ]
 }

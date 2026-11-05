@@ -1,0 +1,113 @@
+[
+ {
+  "id": "R312-S00-C01",
+  "batch": "S00",
+  "title": "安装施工闸门工具、HOST注册表与CI兜底构建",
+  "issue": "R31.1无统一关门命令：每次会话手工挑选测试、手工写账本，导致同一阶段反复重审。",
+  "files": [
+   "construction/r31/r312/HOST_SUITE.json",
+   ".github/workflows/r312-gate.yml"
+  ],
+  "steps": [
+   "从方案包reference_code/r312复制HOST_SUITE模板与r312-gate.yml到施工分支对应路径。",
+   "逐个运行tools/r31下现有HOST/verify脚本，把每个能运行的命令写入HOST_SUITE.json（含所需参数、owner卡）；需参数的补齐，确实已废弃的写retired及替代测试。",
+   "在HOST_SUITE.json的pre_build中写入开发构建所需的身份刷新命令（若构建需要），保证gate build一条命令即可完成。",
+   "运行r312_gate.py status与build --batch S00，确认能产出BUILD_SUMMARY.json。"
+  ],
+  "acceptance": [
+   "HOST_SUITE.json无command为空的条目，check-plan与status通过。",
+   "gate build在当前HEAD实际执行gradle与全部HOST条目，BUILD_SUMMARY逐项记录结果（失败如实保留）。",
+   "本地无Android SDK时，r312-gate.yml在施工分支推送后能产出同格式BUILD_SUMMARY工件。"
+  ],
+  "origin": "R31.2新增工程卡"
+ },
+ {
+  "id": "R312-S00-C02",
+  "batch": "S00",
+  "title": "在制品盘点与唯一候选源码",
+  "issue": "21卡已开工、7个批次被触及，进度只记“IMPLEMENTING/BUILD_PASS”，看不出哪些代码属于哪张卡、哪些已在树内。",
+  "files": [
+   "construction/r31/r312/WIP_INVENTORY.json"
+  ],
+  "steps": [
+   "确认施工分支HEAD包含全部已推送工作（集成分支/本地未推送提交已并入或明确放弃并记录）。",
+   "以SOURCE_CHANGE_OWNERS.json定点查询，生成WIP_INVENTORY.json：每张已开工卡→已改文件、对应提交、当时状态；不复制大JSON全文。",
+   "把S01需要修复的全量失败清单（测试类#方法、错误信息）写入WIP_INVENTORY.failures。"
+  ],
+  "acceptance": [
+   "WIP_INVENTORY覆盖EXECUTION_LEDGER中全部非NOT_STARTED卡，文件路径均存在于HEAD。",
+   "唯一候选：resume提交是HEAD祖先，且无其它分支需要回并的应用源码。",
+   "全量失败清单与S00的BUILD_SUMMARY逐条一致。"
+  ],
+  "origin": "R31.2新增工程卡"
+ },
+ {
+  "id": "R312-S01-C01",
+  "batch": "S01",
+  "title": "修复启动Certificate关键域指纹失配",
+  "issue": "CI015 API29/35各10项协议8项失败于SCHEMA_PENDING:R31_CERTIFICATE_REVOCATION:UNTRUSTED_CRITICAL:FINGERPRINT_MISMATCH；共享启动增量认证改动(493080ad)后Certificate关键域指纹生产者与校验者不一致。原属B02-C02在制品回归。",
+  "files": [
+   "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+   "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+   "tools/r31/certificate_startup_host/"
+  ],
+  "steps": [
+   "用certificate_startup_host在HOST复现：全新库启动、R30旧库升级两条路径，得到同一失败码。",
+   "对比指纹计算输入（规范化DDL文本、版本号、登记顺序）在生产者登记与启动校验两侧的差异，定位唯一真值来源。",
+   "修正为单一来源计算；旧库合法指纹按迁移规则重新认证，篡改仍拒绝；不得增加信任旁路或改断言。",
+   "补三条回归：新库READY、R30旧库升级READY且撤销记录不变、篡改关键DDL被FINGERPRINT_MISMATCH拒绝。"
+  ],
+  "acceptance": [
+   "HOST新库启动Certificate域READY。",
+   "R30旧库升级后READY，既有撤销记录逐行不变。",
+   "篡改关键DDL必然FINGERPRINT_MISMATCH；源码中不存在无条件信任新指纹的路径（静态检查）。"
+  ],
+  "origin": "R31-B02-C02在制品回归"
+ },
+ {
+  "id": "R312-S01-C02",
+  "batch": "S01",
+  "title": "内存准入在制品与原有测试相容（不加堆、不改阈值）",
+  "issue": "MemoryBudgetR31（B05-C11在制品）合入后，11项既有研究测试在原512MiB下报MEMORY_DECLARED_CAPACITY/MEMORY_HEAP_PRESSURE。",
+  "files": [
+   "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+   "app/src/main/java/com/ethk3/novaonepro/strategyv2/BoundedResearchExecutorR31.java",
+   "app/src/main/java/com/ethk3/novaonepro/strategyv2/SharedFeatureStoreR31.java",
+   "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java"
+  ],
+  "steps": [
+   "对每个失败类在原JVM限制下单独运行与全量运行各一次：单独通过而全量失败=前序泄漏；单独也失败=声明容量或真实压力。",
+   "泄漏：修生产代码的lease close/finally与owner生命周期、有界缓存的回收；提供生产API用于测试间复位，不在测试里清静态字段掩盖。",
+   "声明容量估算偏大：按实测上界修正估算函数并留测量依据；真实压力：修数据结构共享（同输入共享实例）。",
+   "加泄漏守卫：每个测试结束时outstanding lease=0、声明容量回到0。"
+  ],
+  "acceptance": [
+   "原512MiB限制、原阈值下，原11项失败测试全部通过。",
+   "每个测试结束outstanding lease=0（全量运行断言）。",
+   "超额请求仍被拒绝、异常路径释放、重复close幂等（ST-M01子集仍成立）。"
+  ],
+  "origin": "R31-B05-C11在制品回归"
+ },
+ {
+  "id": "R312-S01-C03",
+  "batch": "S01",
+  "title": "全量基线绿化：单元/HOST/lint/编译同一HEAD全过",
+  "issue": "最新全量485项13失败、CI015为8失败、HOST脚本状态分散；任何后续批次都无法证明“未回归”。",
+  "files": [
+   "app/src/test/",
+   "tools/r31/",
+   "construction/r31/r312/HOST_SUITE.json"
+  ],
+  "steps": [
+   "以S00的失败清单为唯一输入，逐条修复剩余失败（含H15 StackOverflow类），每条记录根因一句话。",
+   "修复过程中只改与失败直接相关的文件；涉及其它在制品卡的文件按scope_extension声明。",
+   "同一HEAD运行gate build：单元、HOST注册表、lintDebug、androidTest编译全部通过。"
+  ],
+  "acceptance": [
+   "gate build：单元失败=0、错误=0、跳过数不增加。",
+   "HOST_SUITE全部条目PASS。",
+   "lintDebug与compileDebugAndroidTestJavaWithJavac通过。"
+  ],
+  "origin": "R31.2新增工程卡"
+ }
+]

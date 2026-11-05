@@ -1,0 +1,80 @@
+{
+  "version": "R31.1-EXECUTION-20261105",
+  "scope": "EXECUTION_POLICY_NOT_APPLICATION_IMPLEMENTATION",
+  "supersedes": [
+    "Restart an existing R31 project from report baseline",
+    "Treat missing physical device as a source-work blocker",
+    "Defer all applicable joint engineering failures to final release"
+  ],
+  "resume": {
+    "mode": "PRESERVE_EXISTING_WORK",
+    "report_baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+    "source_branch": "construction/r31-final-20261104",
+    "inspect": [
+      "git status",
+      "HEAD",
+      "unpushed commits",
+      "ancestry and shared-file changes",
+      "live execution ledger"
+    ],
+    "never_reset_existing_r31_to_report_baseline": true,
+    "initial_review_snapshot": "05391e68266083d156612b014f8d1c84cfcf2fb3",
+    "phase_selection": "EARLIEST_UNPASSED_PHASE_IN_LIVE_LEDGER",
+    "initial_focus_phase": "P01",
+    "do_not_override_newer_progress": true
+  },
+  "work_in_progress": {
+    "expanded_phases_max": 1,
+    "preserve_later_existing_work": true,
+    "allow_only_dependencies_required_to_repair_current_phase": true,
+    "shared_file_owner_count": 1
+  },
+  "verification": {
+    "layers": [
+      "SOURCE_CONTRACT",
+      "CANONICAL_BUILD",
+      "JOINT_ENGINEERING",
+      "PHYSICAL_ENDURANCE",
+      "NATURAL_QUALITY"
+    ],
+    "joint_engineering_required_before_next_phase": true,
+    "physical_absence_blocks_source_repair": false,
+    "unavailable_evidence_state": "NOT_RUN",
+    "local_order": [
+      "minimal reproducer",
+      "fix and whole affected class",
+      "full HOST unit lint on stable candidate"
+    ],
+    "repeat_only_after_relevant_change_new_failure_or_unresolved_concern": true,
+    "canonical_identity_freeze": "BATCH_AFTER_LOCAL_GATES",
+    "known_unchanged_prerequisite_failure_blocks_duplicate_full_matrix": true,
+    "weaken_assertions_limits_or_acceptance": false
+  },
+  "evidence": {
+    "one_summary_per_fix_group": true,
+    "raw_failure_logs_preserved": true,
+    "read_large_ledgers": "TARGETED_FIELDS_OR_CHANGED_RECORDS",
+    "reused_result_requires_matching_source_and_input_hashes": true,
+    "snapshot_is_not_current_source_acceptance": true
+  },
+  "preservation": {
+    "cards": 56,
+    "batches": 13,
+    "original_plan_tree": "f029ec813be8c7b19f8992ef1a52a446caf06d3a",
+    "acceptance_config_sha256": "c577c58f63879ce8c9090d5b9d7494108db8f0d317b31d22639b4888b47bc08c",
+    "frozen_baseline_assets_unchanged": true,
+    "natural_quality_promise": false
+  },
+  "known_blockers_at_review": [
+    {
+      "kind": "CERTIFICATE_SCHEMA_FINGERPRINT",
+      "evidence": "verification/r31/integration-20261105/CI015_ANDROID_OBSERVATION.json",
+      "action": "Repair owned migration prerequisites and initialization on same candidate; no trust bypass"
+    },
+    {
+      "kind": "MEMORY_OWNERSHIP_CAPACITY",
+      "evidence": "verification/r31/ci015-memory-lifecycle/SUBSCOPE_LEDGER.json",
+      "action": "Reproduce pressure or reservation ownership under original limits; no capacity bypass"
+    }
+  ]
+}

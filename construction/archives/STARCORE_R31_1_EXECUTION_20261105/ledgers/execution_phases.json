@@ -1,0 +1,223 @@
+[
+  {
+    "phase": "P00",
+    "batches": [
+      "B00"
+    ],
+    "requires": [],
+    "scope": "baseline and observability",
+    "cards": [
+      "R31-B00-C01",
+      "R31-B00-C02"
+    ],
+    "integration_group": "G00",
+    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
+    "execution_policy": "ledgers/execution_policy.json",
+    "source_work_in_progress_limit": 1,
+    "joint_engineering_before_next_phase": true,
+    "physical_device_is_source_prerequisite": false
+  },
+  {
+    "phase": "P01",
+    "batches": [
+      "B01",
+      "B02"
+    ],
+    "requires": [
+      "P00"
+    ],
+    "scope": "atomic runtime/writer protocol group",
+    "cards": [
+      "R31-B01-C01",
+      "R31-B01-C02",
+      "R31-B01-C03",
+      "R31-B01-C04",
+      "R31-B02-C01",
+      "R31-B02-C02",
+      "R31-B02-C03"
+    ],
+    "integration_group": "G01",
+    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
+    "execution_policy": "ledgers/execution_policy.json",
+    "source_work_in_progress_limit": 1,
+    "joint_engineering_before_next_phase": true,
+    "physical_device_is_source_prerequisite": false
+  },
+  {
+    "phase": "P02",
+    "batches": [
+      "B03",
+      "B04",
+      "B05"
+    ],
+    "requires": [
+      "P01"
+    ],
+    "scope": "B05 only non-destructive measurement/admission/publication lifecycle",
+    "cards": [
+      "R31-B03-C01",
+      "R31-B03-C02",
+      "R31-B03-C03",
+      "R31-B04-C01",
+      "R31-B04-C02",
+      "R31-B05-C01",
+      "R31-B05-C02",
+      "R31-B05-C03",
+      "R31-B05-C11"
+    ],
+    "integration_group": "G02",
+    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
+    "execution_policy": "ledgers/execution_policy.json",
+    "source_work_in_progress_limit": 1,
+    "joint_engineering_before_next_phase": true,
+    "physical_device_is_source_prerequisite": false
+  },
+  {
+    "phase": "P03",
+    "batches": [
+      "B06"
+    ],
+    "requires": [
+      "P02"
+    ],
+    "scope": "historical replay and model state",
+    "cards": [
+      "R31-B06-C01",
+      "R31-B06-C02",
+      "R31-B06-C03"
+    ],
+    "integration_group": "G03",
+    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
+    "execution_policy": "ledgers/execution_policy.json",
+    "source_work_in_progress_limit": 1,
+    "joint_engineering_before_next_phase": true,
+    "physical_device_is_source_prerequisite": false
+  },
+  {
+    "phase": "P04",
+    "batches": [
+      "B07",
+      "B08"
+    ],
+    "requires": [
+      "P03"
+    ],
+    "scope": "creation and research consumer contracts",
+    "cards": [
+      "R31-B07-C01",
+      "R31-B07-C02",
+      "R31-B07-C03",
+      "R31-B07-C04",
+      "R31-B07-C05",
+      "R31-B07-C06",
+      "R31-B08-C01",
+      "R31-B08-C02",
+      "R31-B08-C03",
+      "R31-B08-C04",
+      "R31-B08-C05"
+    ],
+    "integration_group": "G04",
+    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
+    "execution_policy": "ledgers/execution_policy.json",
+    "source_work_in_progress_limit": 1,
+    "joint_engineering_before_next_phase": true,
+    "physical_device_is_source_prerequisite": false
+  },
+  {
+    "phase": "P05",
+    "batches": [
+      "B10"
+    ],
+    "requires": [
+      "P04"
+    ],
+    "scope": "typed mainline choice migration and evidence gate validation",
+    "cards": [
+      "R31-B10-C01",
+      "R31-B10-C02",
+      "R31-B10-C03"
+    ],
+    "integration_group": "G05",
+    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
+    "execution_policy": "ledgers/execution_policy.json",
+    "source_work_in_progress_limit": 1,
+    "joint_engineering_before_next_phase": true,
+    "physical_device_is_source_prerequisite": false
+  },
+  {
+    "phase": "P06",
+    "batches": [
+      "B05",
+      "B09"
+    ],
+    "requires": [
+      "P05"
+    ],
+    "scope": "B05 destructive GC enabled only after authority migration and protection checks",
+    "cards": [
+      "R31-B05-C04",
+      "R31-B05-C05",
+      "R31-B05-C06",
+      "R31-B05-C07",
+      "R31-B05-C08",
+      "R31-B05-C09",
+      "R31-B05-C10",
+      "R31-B09-C01",
+      "R31-B09-C02",
+      "R31-B09-C03",
+      "R31-B09-C04",
+      "R31-B09-C05"
+    ],
+    "integration_group": "G06",
+    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
+    "execution_policy": "ledgers/execution_policy.json",
+    "source_work_in_progress_limit": 1,
+    "joint_engineering_before_next_phase": true,
+    "physical_device_is_source_prerequisite": false
+  },
+  {
+    "phase": "P07",
+    "batches": [
+      "B11"
+    ],
+    "requires": [
+      "P06"
+    ],
+    "scope": "full report integration; producers instrumented in earlier phases",
+    "cards": [
+      "R31-B11-C01",
+      "R31-B11-C02",
+      "R31-B11-C03",
+      "R31-B11-C04"
+    ],
+    "integration_group": "G07",
+    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
+    "execution_policy": "ledgers/execution_policy.json",
+    "source_work_in_progress_limit": 1,
+    "joint_engineering_before_next_phase": true,
+    "physical_device_is_source_prerequisite": false
+  },
+  {
+    "phase": "P08",
+    "batches": [
+      "B12"
+    ],
+    "requires": [
+      "P07"
+    ],
+    "scope": "integrated device, migration, capacity and release acceptance",
+    "cards": [
+      "R31-B12-C01",
+      "R31-B12-C02",
+      "R31-B12-C03",
+      "R31-B12-C04",
+      "R31-B12-C05"
+    ],
+    "integration_group": "G08",
+    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
+    "execution_policy": "ledgers/execution_policy.json",
+    "source_work_in_progress_limit": 1,
+    "joint_engineering_before_next_phase": true,
+    "physical_device_is_source_prerequisite": false
+  }
+]
