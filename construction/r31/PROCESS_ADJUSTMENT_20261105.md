@@ -1,4 +1,4 @@
-> **已被R31.2取代（2026-11-05）。** 按`construction/STARCORE_R31_FINAL_20261104/docs/15_R31.2顺序批次施工合同.md`与`NEXT_ACTION.json`逐批施工（S00→S21），本页仅作历史记录。
+> **已被R31.3取代（2026-11-05）。** 按`construction/STARCORE_R31_FINAL_20261104/docs/16_R31.3施工推进合同.md`与`NEXT_ACTION.json`逐批施工（K01→K21），本页仅作历史记录。
 
 # R31.1施工流程（已并入正式方案）
 

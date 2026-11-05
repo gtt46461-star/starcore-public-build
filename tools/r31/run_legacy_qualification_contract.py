@@ -27,7 +27,7 @@ def main():
     args = parser.parse_args()
     out = args.out.resolve()
     out.mkdir(parents=True, exist_ok=False)
-    work = Path(tempfile.mkdtemp(prefix='r31-qual-contract-', dir='/workspace'))
+    work = Path(tempfile.mkdtemp(prefix='r31-qual-contract-'))
     sdk = Path(os.environ['ANDROID_HOME']) / 'platforms/android-36/android.jar'
     jdbc = Path(os.environ['SQLITE_JDBC'])
     receipt = {'scope': 'NATIVE_SQLITE_EXPOSURE_PRESERVATION_NOT_WHOLE_ANDROID_OR_DEVICE',

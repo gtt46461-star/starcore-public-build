@@ -1,22 +1,32 @@
 {
-  "scope": "R31_2_SEQUENTIAL_CONSTRUCTION_NOT_APPLICATION_FIX",
-  "plan_revision": "R31.2-SEQUENTIAL-20261105",
-  "plan_contract": "construction/STARCORE_R31_FINAL_20261104/docs/15_R31.2顺序批次施工合同.md",
-  "plan_policy": "construction/STARCORE_R31_FINAL_20261104/ledgers/execution_policy.json",
-  "batch_ledger": "construction/STARCORE_R31_FINAL_20261104/ledgers/r312_batches.json",
-  "gate": "python3 construction/STARCORE_R31_FINAL_20261104/tools/r312_gate.py",
-  "current_batch_selection": "FIRST_BATCH_WITHOUT construction/r31/r312/<S>/RECEIPT.json (run: gate status)",
-  "current_batch_at_revision": "S00",
-  "resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
-  "resume_order": [
-    "gate status -> open batches/Sxx.md for the open batch only",
-    "Bind every LOCAL item of the batch to a test in construction/r31/r312/Sxx/BINDINGS.json",
-    "Change only the batch's scope files (declare any extension with a reason)",
-    "Commit, then gate build --batch Sxx (or push and --import the r312-gate CI summary)",
-    "gate close --batch Sxx; commit RECEIPT.json + BUILD_SUMMARY; continue with the next batch"
+  "scope": "R31_3_CONSTRUCTION_FIRST_NOT_APPLICATION_FIX",
+  "plan_revision": "R31.3-CONSTRUCTION-20261105",
+  "plan_contract": "construction/STARCORE_R31_FINAL_20261104/docs/16_R31.3施工推进合同.md",
+  "batch_pages": "construction/STARCORE_R31_FINAL_20261104/batches/K01.md ... K21.md",
+  "gate": "python3 construction/STARCORE_R31_FINAL_20261104/tools/r31_gate.py",
+  "current_batch_selection": "FIRST_BATCH_WITHOUT construction/r31/batches/<K>/RECEIPT.json (gate status)",
+  "current_batch_at_revision": "K01",
+  "k01_todo": [
+    "construction/r31/batches/K01/BINDINGS.json already binds the six B00 items (from S00)",
+    "Run gate close --batch K01 once; it builds and lists current failures",
+    "Assign each listed failure an owner batch in known_failure_owners (CapacityWait tests -> K02; certificate startup -> K04; others to the batch owning the failing file; none later than K20)",
+    "Commit and run close again; commit RECEIPT + BUILD_SUMMARY; go to K02"
   ],
-  "s00_then_s01": "S00 installs HOST_SUITE.json and r312-gate.yml and records current full-suite failures; S01 makes the full suite green (Certificate fingerprint, memory admission compatibility, remaining failures). From S01 on every batch closes green.",
-  "superseded_ledgers": "PROGRESS.json, EXECUTION_LEDGER.json, CURRENT_EXECUTION.json and SOURCE_CHANGE_OWNERS.json are R31.1 history (read-only, targeted queries only); progress is derived from R31.2 receipts.",
+  "per_batch_loop": [
+    "gate status -> open batches/Kxx.md",
+    "Change the code listed under 施工内容 (this is the work)",
+    "Bind each LOCAL item to tests in construction/r31/batches/Kxx/BINDINGS.json (reuse existing tests where they prove the item)",
+    "gate quick --batch Kxx while coding",
+    "commit; gate close --batch Kxx once; fix what it lists; commit RECEIPT + BUILD_SUMMARY; push; next batch"
+  ],
+  "r31_2_reused": [
+    "construction/r31/HOST_SUITE.json (moved from r312/)",
+    "tools/r312/host.sh",
+    "K01 bindings",
+    "verify_baseline revision-manifest sealing"
+  ],
+  "ci_fallback": ".github/workflows/r31-gate.yml (fixed SDK setup); then gate close --batch Kxx --import BUILD_SUMMARY.json",
+  "superseded": "R31.1/R31.2 ledgers (PROGRESS.json, EXECUTION_LEDGER.json, r312/) are read-only history; progress = receipts in construction/r31/batches/",
   "claims_not_made": [
     "Application defects fixed",
     "Current full suite passes",

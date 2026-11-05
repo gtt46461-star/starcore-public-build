@@ -1,0 +1,416 @@
+{
+ "format": "R312_HOST_SUITE_V1",
+ "rule": "Every entry must have a command or retired=true with a replacement test id. Commands run from repo root; exit code 0 = PASS. Used by tools/r31_gate.py build/quick/close.",
+ "pre_build": [],
+ "pre_build_rule": "Only developer-build identity refresh needed for gradle tasks to compile and test. No release identity freeze, no signing, no r982 release inventory.",
+ "not_in_suite": {
+  "tools/r31/run_construction_build.py": "gradle is run by the gate itself",
+  "tools/r31/run_android_joint_protocols.py": "EMU layer; executed in S20 only"
+ },
+ "host": [
+  {
+   "id": "run_atom_publication_host",
+   "command": "bash tools/r312/host.sh run_atom_publication_host",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "run_atomnet_publication_host",
+   "command": "bash tools/r312/host.sh run_atomnet_publication_host",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "run_certificate_startup_host",
+   "command": "bash tools/r312/host.sh run_certificate_startup_host",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "run_checkpoint_startup_host",
+   "command": "bash tools/r312/host.sh run_checkpoint_startup_host",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "run_evolution_publication_host",
+   "command": "bash tools/r312/host.sh run_evolution_publication_host",
+   "required_args": [
+    "--case",
+    "--output"
+   ],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "run_legacy_qualification_contract",
+   "command": "bash tools/r312/host.sh run_legacy_qualification_contract",
+   "required_args": [
+    "--classes",
+    "--out"
+   ],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "run_report_cas_scope_host",
+   "command": "bash tools/r312/host.sh run_report_cas_scope_host",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "run_report_history_reader_host",
+   "command": "bash tools/r312/host.sh run_report_history_reader_host",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "run_research_schema_host",
+   "command": "bash tools/r312/host.sh run_research_schema_host",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "run_runtime_ddl_host",
+   "command": "bash tools/r312/host.sh run_runtime_ddl_host",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "run_runtime_ddl_writer_regression",
+   "command": "bash tools/r312/host.sh run_runtime_ddl_writer_regression",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "run_service_protocol_host",
+   "command": "bash tools/r312/host.sh run_service_protocol_host",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "run_task_runtime_host",
+   "command": "bash tools/r312/host.sh run_task_runtime_host",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "run_telemetry_budget_host",
+   "command": "bash tools/r312/host.sh run_telemetry_budget_host",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "run_write_protocol_host",
+   "command": "bash tools/r312/host.sh run_write_protocol_host",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "run_writer_hold_fault_host",
+   "command": "bash tools/r312/host.sh run_writer_hold_fault_host",
+   "required_args": [
+    "--classes",
+    "--joint-classes",
+    "--out"
+   ],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "verify_ast_family_scope",
+   "command": "bash tools/r312/host.sh verify_ast_family_scope",
+   "required_args": [
+    "--support-jar",
+    "--main-source"
+   ],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "verify_baseline",
+   "command": "bash tools/r312/host.sh verify_baseline",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "verify_continuation",
+   "command": "bash tools/r312/host.sh verify_continuation",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "verify_family_admission",
+   "command": "bash tools/r312/host.sh verify_family_admission",
+   "required_args": [
+    "--support-jar"
+   ],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "verify_input_pin_joint",
+   "command": null,
+   "required_args": [
+    "--support-jar",
+    "--shared-api-classes",
+    "--domain-root",
+    "--qualification-root",
+    "--evolution-root",
+    "--jdk",
+    "--sdk",
+    "--jdbc",
+    "--out"
+   ],
+   "owner_cards": [],
+   "retired": true,
+   "replacement": "HOST:r30repair_input_pin",
+   "retirement_reason": "Pre-merge joint check of three external worktrees (/workspace/r31-shared-migrations, -live-writer-budgets, -evolution-publication) that are now merged into this branch; the merged input-pin producer/guards run on actual HEAD classes in r30repair_input_pin and run_research_schema_host."
+  },
+  {
+   "id": "verify_memory",
+   "command": "bash tools/r312/host.sh verify_memory",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "verify_pin_capacity",
+   "command": "bash tools/r312/host.sh verify_pin_capacity",
+   "required_args": [
+    "--support-jar"
+   ],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "verify_pitguard_allocation",
+   "command": "bash tools/r312/host.sh verify_pitguard_allocation",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "verify_platform_readiness",
+   "command": null,
+   "required_args": [
+    "--joint-manifest",
+    "--domain-root"
+   ],
+   "owner_cards": [],
+   "retired": true,
+   "replacement": "HOST:run_certificate_startup_host",
+   "retirement_reason": "Required a pre-merge joint manifest pointing at 014 support jars outside the repo; the R929 platform prerequisite and Critical startup order now run on actual HEAD classes in run_certificate_startup_host (all orders + negatives) and run_research_schema_host."
+  },
+  {
+   "id": "verify_resource_recovery",
+   "command": "bash tools/r312/host.sh verify_resource_recovery",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "verify_runtime_memory_control",
+   "command": "bash tools/r312/host.sh verify_runtime_memory_control",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "verify_runtime_observation",
+   "command": "bash tools/r312/host.sh verify_runtime_observation",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "verify_task_status",
+   "command": "bash tools/r312/host.sh verify_task_status",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null
+  },
+  {
+   "id": "r30repair_commit_failure",
+   "command": "bash tools/r312/host.sh r30repair_commit_failure",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "origin": "tools/r30-repair/run_commit_failure_host.py (previous CI HOST step)"
+  },
+  {
+   "id": "r30repair_diagnosis",
+   "command": "bash tools/r312/host.sh r30repair_diagnosis",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "origin": "tools/r30-repair/run_diagnosis_host.py (previous CI HOST step)"
+  },
+  {
+   "id": "r30repair_input_pin",
+   "command": "bash tools/r312/host.sh r30repair_input_pin",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "origin": "tools/r30-repair/run_input_pin_host.py (previous CI HOST step)"
+  },
+  {
+   "id": "r30repair_matrix",
+   "command": "bash tools/r312/host.sh r30repair_matrix",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "origin": "tools/r30-repair/run_matrix_host.py (previous CI HOST step)"
+  },
+  {
+   "id": "r30repair_neural",
+   "command": "bash tools/r312/host.sh r30repair_neural",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "origin": "tools/r30-repair/run_neural_host.py (previous CI HOST step)"
+  },
+  {
+   "id": "r30repair_observatory",
+   "command": "bash tools/r312/host.sh r30repair_observatory",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "origin": "tools/r30-repair/run_observatory_host.py (previous CI HOST step)"
+  },
+  {
+   "id": "r30repair_progress",
+   "command": "bash tools/r312/host.sh r30repair_progress",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "origin": "tools/r30-repair/run_progress_host.py (previous CI HOST step)"
+  },
+  {
+   "id": "r30repair_qualification",
+   "command": "bash tools/r312/host.sh r30repair_qualification",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "origin": "tools/r30-repair/run_qualification_host.py (previous CI HOST step)"
+  },
+  {
+   "id": "r30repair_research",
+   "command": "bash tools/r312/host.sh r30repair_research",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "origin": "tools/r30-repair/run_research_host.py (previous CI HOST step)"
+  },
+  {
+   "id": "r30repair_retention",
+   "command": "bash tools/r312/host.sh r30repair_retention",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "origin": "tools/r30-repair/run_retention_host.py (previous CI HOST step)"
+  },
+  {
+   "id": "r30repair_snapshot",
+   "command": "bash tools/r312/host.sh r30repair_snapshot",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "origin": "tools/r30-repair/run_snapshot_host.py (previous CI HOST step)"
+  },
+  {
+   "id": "r30repair_timeline",
+   "command": "bash tools/r312/host.sh r30repair_timeline",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "origin": "tools/r30-repair/run_timeline_host.py (previous CI HOST step)"
+  },
+  {
+   "id": "r30repair_writer",
+   "command": "bash tools/r312/host.sh r30repair_writer",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "origin": "tools/r30-repair/run_writer_host.py (previous CI HOST step)"
+  },
+  {
+   "id": "verify_baseline_selftest",
+   "command": "python3 tools/r31/test_verify_baseline.py",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B00-C01"
+   ],
+   "retired": false,
+   "replacement": null,
+   "origin": "tools/r31/test_verify_baseline.py fault injection (wrong commit, dirty, certificate, missing members, revision tamper)"
+  },
+  {
+   "id": "reproduce_report",
+   "command": "python3 tools/r31/reproduce_report.py --output app/build/r312-host/reproduce_report/recount.json",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B00-C02"
+   ],
+   "retired": false,
+   "replacement": null,
+   "origin": "original device report recount (R27 13/13/11/1/1, all tasks 60/14)"
+  }
+ ],
+ "installed_in": "S00 (R31.2); moved to construction/r31/HOST_SUITE.json for R31.3"
+}

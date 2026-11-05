@@ -16,5 +16,9 @@ def main():
     subprocess.run(['javac','-nowarn','-encoding','UTF-8','-cp',cp,'-d',str(host),str(fixture),str(ROOT/'tools/r31/certificate_startup_host/CertificateStartupR31Host.java')],check=True)
     r=subprocess.run(['java','-Xmx512m','-cp',os.pathsep.join(map(str,[plat,host,classes,sdk,jdbc])),'com.ethk3.novaonepro.CertificateStartupR31Host',str(work/'startup.db'),os.environ.get('R31_ORDER','TEST_OPEN')],capture_output=True,text=True,timeout=600)
     out=r.stdout+r.stderr;print(out[-12000:])
-    sys.exit(0 if 'SCHEMA_R27|PASS' in out and 'REPRODUCED|' not in out else 1)
+    order=os.environ.get('R31_ORDER','TEST_OPEN')
+    if order.startswith('NEG_'):sys.exit(0 if 'NEGATIVE_REFUSED|' in out and 'NEGATIVE_NOT_REFUSED|' not in out else 1)
+    ok='SCHEMA_R27|PASS' in out and 'REPRODUCED|' not in out and 'FINGERPRINT_MISMATCH' not in out
+    if order=='SU_AFTER_R27':ok=ok and 'SCHEMA_R27_SECOND|PASS' in out
+    sys.exit(0 if ok else 1)
 if __name__=='__main__':main()

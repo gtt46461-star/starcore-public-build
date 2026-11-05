@@ -1,58 +1,67 @@
 {
-  "version": "R31.2-SEQUENTIAL-20261105",
+  "version": "R31.3-CONSTRUCTION-20261105",
   "scope": "EXECUTION_POLICY_NOT_APPLICATION_IMPLEMENTATION",
   "supersedes": [
-    "R31.1-EXECUTION-20261105 phase P01 joint gate over a tree containing unfinished later-phase code",
-    "Card acceptance mixing local, emulator, device-duration and natural-quality items in one closure",
-    "Release identity rebinding and CI freeze on every source change",
-    "B-number functional batches that are not the construction order"
+    "R31.2-SEQUENTIAL-20261105",
+    "R31.1-EXECUTION-20261105"
   ],
-  "root_causes_fixed": {
-    "RC1_GATE_DEADLOCK": "P01 required full-suite and Android joint PASS while code of 21 cards across B00-B06 was already merged; failures owned by later phases (MemoryBudgetR31/B05-C11) blocked P01, but expanding later phases was forbidden.",
-    "RC2_MIXED_ACCEPTANCE": "Card acceptance contained 24h/72h, V2353A, device P95 and Android SQLite items, so no card could ever close in a session without a device.",
-    "RC3_ORDER_NOT_NUMBER": "B00-B12 were functional groups; real order was P00-P08 with B05 split across P02/P06 and B10 before B09.",
-    "RC4_IDENTITY_AND_EVIDENCE_OVERHEAD": "Each source change rebound release identities and CI call inventory; 5700 evidence files / 2.25M lines versus 12.7K lines of app change.",
-    "RC5_NO_SINGLE_CLOSING_COMMAND": "No machine gate defined when a batch was done, so each session re-audited and re-planned."
+  "why_r31_2_still_stalled": {
+    "TOOLING_ONLY_FIRST_BATCH": "S00 contained no application change; its checker required a first full build, then an inventory compared against that build, then a second build — a loop before any card work.",
+    "GLOBAL_GREEN_BEFORE_ANY_CARD": "S01 required zero failures in the whole suite before the first card batch could start; the 11 CapacityWait and Certificate failures belong to card work, so construction could not begin.",
+    "BROKEN_CI_FALLBACK": "The reference r312-gate.yml used android-actions/setup-android without packages, which fails on sdkmanager 'tools' (run 41987211228 failed in 40s).",
+    "PLAN_REVISION_BROKE_GRADLE": "verify_baseline.py pinned the plan manifest hash at Gradle configuration time, so the R31.2 plan revision broke every Gradle build until the executor repaired it in 293bb230."
   },
   "resume": {
     "mode": "PRESERVE_EXISTING_WORK",
     "source_branch": "construction/r31-final-20261104",
-    "resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+    "resume_commit": "293bb23015e9ff694b4344aaf688cb4c1f6e356d",
     "report_baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
     "never_reset_existing_r31_to_report_baseline": true,
     "do_not_override_newer_progress": true,
-    "current_batch_selection": "FIRST_BATCH_WITHOUT_RECEIPT (tools/r312_gate.py status)",
-    "first_batch": "S00"
+    "current_batch_selection": "FIRST_BATCH_WITHOUT construction/r31/batches/<K>/RECEIPT.json (tools/r31_gate.py status)",
+    "first_batch": "K01",
+    "r31_2_work_reused": [
+      "construction/r31/HOST_SUITE.json (moved from r312/)",
+      "tools/r312/host.sh",
+      "S00 bindings for B00 -> K01",
+      "R31InjectedCauseChainContractTest",
+      "verify_baseline revision-manifest sealing"
+    ]
   },
   "sequence": {
     "batches": [
-      "S00",
-      "S01",
-      "S02",
-      "S03",
-      "S04",
-      "S05",
-      "S06",
-      "S07",
-      "S08",
-      "S09",
-      "S10",
-      "S11",
-      "S12",
-      "S13",
-      "S14",
-      "S15",
-      "S16",
-      "S17",
-      "S18",
-      "S19",
-      "S20",
-      "S21"
+      "K01",
+      "K02",
+      "K03",
+      "K04",
+      "K05",
+      "K06",
+      "K07",
+      "K08",
+      "K09",
+      "K10",
+      "K11",
+      "K12",
+      "K13",
+      "K14",
+      "K15",
+      "K16",
+      "K17",
+      "K18",
+      "K19",
+      "K20",
+      "K21"
     ],
     "open_batches_max": 1,
     "next_batch_requires_previous_receipt": true,
     "later_batch_new_work_forbidden": true,
-    "existing_in_tree_code_of_later_cards": "KEEP; must not break the green suite; completed and accepted only in its own batch"
+    "existing_in_tree_code_of_later_cards": "KEEP; completed and accepted in its own batch"
+  },
+  "construction_first": {
+    "batch_page_lists_code_changes": true,
+    "inner_loop": "tools/r31_gate.py quick (compile + bound tests only), any number of times",
+    "full_run": "tools/r31_gate.py close, once when the batch code is done; repeat only after a fix",
+    "plan_or_ledger_edits_count_as_progress": false
   },
   "closure": {
     "blocking_levels": [
@@ -63,16 +72,28 @@
       "DEVICE",
       "NATURAL"
     ],
-    "emu_executed_in": "S20",
-    "device_items": "DEFERRED (NOT_RUN); never PASS during construction",
-    "natural_quality": "NOT_PROVEN; never a construction gate",
-    "full_suite_must_pass_from": "S01",
-    "s00_may_record_failures": true,
-    "every_local_item_bound_to_passing_test": true,
+    "ratchet": {
+      "K01_records_known_failures_with_owner_batch": true,
+      "new_failures_allowed": false,
+      "known_failures_owned_by_batch_must_pass": true,
+      "known_failures_reassign_max_per_batch": 3,
+      "zero_known_failures_from": "K20",
+      "compilation_failure_always_blocks": true
+    },
+    "carry": {
+      "max_per_batch": 2,
+      "requires_committed_executed_test": true,
+      "latest_target": "K20",
+      "carried_is_not_pass": true
+    },
+    "every_local_item_bound_to_passing_test_or_carried": true,
     "unit_test_count_may_not_drop": true,
     "skipped_count_may_not_rise": true,
     "main_source_changes_outside_scope_require_reason": true,
-    "gate_command": "python3 construction/STARCORE_R31_FINAL_20261104/tools/r312_gate.py",
+    "emu_executed_in": "K20",
+    "device_items": "DEFERRED (NOT_RUN); never PASS during construction",
+    "natural_quality": "NOT_PROVEN; never a construction gate",
+    "gate_command": "python3 construction/STARCORE_R31_FINAL_20261104/tools/r31_gate.py",
     "gradle_gate_tasks": [
       ":app:compileDebugJavaWithJavac",
       ":app:compileDebugAndroidTestJavaWithJavac",
@@ -86,19 +107,18 @@
       "signing",
       "APK/ZIP publication"
     ],
-    "release_only_batch": "S21",
-    "ci_fallback": ".github/workflows/r312-gate.yml (installed in S00), one run per batch candidate"
+    "release_only_batch": "K21",
+    "ci_fallback": ".github/workflows/r31-gate.yml"
   },
   "evidence": {
     "per_batch": [
-      "construction/r31/r312/<S>/BINDINGS.json",
-      "construction/r31/r312/<S>/RECEIPT.json",
-      "verification/r31/r312/<S>/BUILD_SUMMARY.json",
-      "verification/r31/r312/<S>/logs/*.log"
+      "construction/r31/batches/<K>/BINDINGS.json",
+      "construction/r31/batches/<K>/RECEIPT.json",
+      "verification/r31/batches/<K>/BUILD_SUMMARY.json",
+      "verification/r31/batches/<K>/logs/*.log"
     ],
     "max_bytes_per_batch": 20971520,
-    "source_snapshots_in_evidence": false,
-    "legacy_ledgers": "construction/r31/*.json kept read-only as history; progress is derived from receipts"
+    "source_snapshots_in_evidence": false
   },
   "verification": {
     "weaken_assertions_limits_or_acceptance": false,
@@ -109,12 +129,15 @@
   "preservation": {
     "cards": 56,
     "batches": 13,
-    "r312_batches": 22,
-    "engineering_cards": 5,
+    "construction_batches": 21,
+    "repair_cards": 2,
     "original_plan_tree": "f029ec813be8c7b19f8992ef1a52a446caf06d3a",
-    "r31_1_archive": "construction/archives/STARCORE_R31_1_EXECUTION_20261105",
+    "archives": [
+      "construction/archives/STARCORE_R31_1_EXECUTION_20261105",
+      "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105"
+    ],
     "acceptance_config_sha256": "c577c58f63879ce8c9090d5b9d7494108db8f0d317b31d22639b4888b47bc08c",
-    "original_acceptance_text": "byte-preserved in ledgers/cards.json; hashes in r312_acceptance_items.json",
+    "original_acceptance_text": "byte-preserved in ledgers/cards.json; hashes in acceptance_items.json",
     "frozen_baseline_assets_unchanged": true,
     "natural_quality_promise": false
   }

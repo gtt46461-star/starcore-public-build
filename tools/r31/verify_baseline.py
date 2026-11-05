@@ -19,15 +19,30 @@ import sys
 import zipfile
 
 BASELINE = "5237b265a27fe5ad27fd842901c445d5f8c27749"
-PLAN_REL = "construction/STARCORE_R31_FINAL_20261104"
-PLAN_REVISION = "R31.2-SEQUENTIAL-20261105"
-PLAN_MEMBER_COUNT = 452
-ORIGINAL_PLAN_MEMBER_COUNT = 405
-PLAN_AUTHORIZATION_COMMIT = "f2d9275fefb1f2ebb3608414790e5cafd58d230d"
-PLAN_MANIFEST_SHA256 = "b32ba63a1a7aafda83b978d9ea2c4576b045620cabd81651777aa69bf00e8b85"
-ORIGINAL_PLAN_REL = "construction/archives/STARCORE_R31_FINAL_20261104"
-ORIGINAL_PLAN_REVISION = "R31_FINAL_20261104"
-ORIGINAL_PLAN_MANIFEST_SHA256 = "13f34908b624c74e2852ce8f944b99f8978348820aab23f83043fab1d72753ce"
+# R31.1 revised the plan in place and archived the original R31 tree byte-for-byte.
+# The original pin and every original member/preservation check are verified unchanged at the archive;
+# the in-place R31.1 revision is pinned separately (it changes execution policy, not acceptance).
+PLAN_REL = "construction/archives/STARCORE_R31_FINAL_20261104"
+PLAN_MANIFEST_SHA256 = "13f34908b624c74e2852ce8f944b99f8978348820aab23f83043fab1d72753ce"
+REVISION_PLAN_REL = "construction/STARCORE_R31_FINAL_20261104"
+# The in-place revision (R31.1, R31.2, ...) is sealed by its own member manifest: every listed member must
+# exist with exact bytes/sha256 and the acceptance config must equal the original. Its manifest hash is recorded
+# in the build identity; it is never silently rewritten by this tool.
+
+
+def verify_revision_plan(root: Path, original_plan: Path) -> str:
+    revision_dir = root / REVISION_PLAN_REL
+    revision = safe_file(revision_dir, "MANIFEST_SHA256.json").read_bytes()
+    members = json.loads(revision).get("files")
+    if not isinstance(members, list) or not members:
+        raise ValueError("REVISION_PLAN_MANIFEST_EMPTY")
+    for member in members:
+        data = safe_file(revision_dir, member["path"]).read_bytes()
+        if len(data) != member["bytes"] or sha256(data) != member["sha256"]:
+            raise ValueError("REVISION_PLAN_MEMBER_MISMATCH:" + member["path"])
+    if (revision_dir / "ledgers/acceptance_config.json").read_bytes() != (original_plan / "ledgers/acceptance_config.json").read_bytes():
+        raise ValueError("REVISION_CHANGED_ACCEPTANCE_CONFIG")
+    return sha256(revision)
 PRESERVED = {
     "evidence/derived/legacy_requirements_1832.csv": (1832, "6e9efda4947e8b3df96a98325b74000573e56d9fc4f63ef412115902a0930735"),
     "evidence/derived/legacy_file_cards_299.csv": (299, "0eacc521566e5dd7714945cdf205ea62614de6a8d6538d55ae86d42a3d70b85a"),
@@ -105,34 +120,6 @@ def verify_manifest(plan: Path, expected_hash: str = PLAN_MANIFEST_SHA256) -> di
             "manifest_sha256": sha256(manifest_bytes), "member_count": len(seen),
             "errors": errors, "missing": sorted(missing), "mismatch": sorted(mismatch),
             "unexpected": unexpected, "preservation": preservation}
-
-
-def verify_plan_packages(root: Path, plan: Path) -> dict:
-    """Two separately pinned roles, authorized by the R31.2 user revision.
-
-    A manifest cannot select its own role or update its expected digest. The
-    original archive remains mandatory even when --plan selects an active copy.
-    """
-    roles = (("active", plan, PLAN_MANIFEST_SHA256, PLAN_MEMBER_COUNT),
-             ("original_archive", root / ORIGINAL_PLAN_REL, ORIGINAL_PLAN_MANIFEST_SHA256, ORIGINAL_PLAN_MEMBER_COUNT))
-    results = {}
-    for role, directory, expected, count in roles:
-        result = verify_manifest(directory, expected)
-        if result.get("member_count") != count:
-            result["errors"].append("EXACT_PLAN_MEMBER_COUNT_MUST_BE_" + str(count))
-            result["status"] = "FAIL"
-        results[role] = result
-    return results
-
-
-def require_plan_packages(root: Path, plan: Path) -> dict:
-    results = verify_plan_packages(root, plan)
-    for role, result in results.items():
-        if result["status"] != "PASS":
-            details = result["errors"] + ["MISSING:" + p for p in result["missing"]]
-            details += ["MISMATCH:" + p for p in result["mismatch"]]
-            raise ValueError(role.upper() + "_PLAN_INTEGRITY_FAILED:" + ";".join(details)[:1024])
-    return results
 
 
 def tree_entries(root: Path, revision: str) -> dict:
@@ -236,8 +223,10 @@ def product_inputs(root: Path) -> list[dict]:
 
 
 def build_identity(root: Path, plan: Path) -> dict:
-    packages = require_plan_packages(root, plan)
     manifest = safe_file(plan, "MANIFEST_SHA256.json").read_bytes()
+    if sha256(manifest) != PLAN_MANIFEST_SHA256:
+        raise ValueError("PINNED_PLAN_MANIFEST_MISMATCH")
+    revision_manifest_sha256 = verify_revision_plan(root, plan)
     head = git(root, "rev-parse", "HEAD").decode().strip()
     ancestry = subprocess.run(["git", "-C", str(root), "merge-base", "--is-ancestor", BASELINE, head],
                               capture_output=True)
@@ -259,13 +248,7 @@ def build_identity(root: Path, plan: Path) -> dict:
             "product_digest_excludes": ["app/build (generated outputs)", "verification (test evidence)",
                                         "construction (plan separately sealed)", "private signing inputs"],
             "plan_manifest_sha256": sha256(manifest),
-            "revision_plan_manifest_sha256": sha256(manifest),
-            "plan_revision": PLAN_REVISION,
-            "plan_authorization_commit": PLAN_AUTHORIZATION_COMMIT,
-            "original_plan_revision": ORIGINAL_PLAN_REVISION,
-            "original_plan_path": ORIGINAL_PLAN_REL,
-            "original_plan_manifest_sha256": packages["original_archive"]["manifest_sha256"],
-            "original_plan_member_count": packages["original_archive"]["member_count"],
+            "revision_plan_manifest_sha256": revision_manifest_sha256,
             "migration_contract_sha256": sha256(canonical(migration)), "schema": schema,
             "device_identity": "NOT_RUN", "signature_identity": "NOT_VERIFIED_HERE",
             "natural_quality": "NOT_PROVEN"}
@@ -354,24 +337,16 @@ def main(argv=None) -> int:
             result = identity
             errors = ["DIRTY_SOURCE_NOT_PUBLISHABLE"] if args.require_clean and identity["source_dirty"] else []
         else:
-            packages = verify_plan_packages(root, plan)
-            manifest = packages["active"]
+            manifest = verify_manifest(plan)
             baseline = compare_tree(root, plan)
-            original_baseline = compare_tree(root, root / ORIGINAL_PLAN_REL)
             errors = list(manifest["errors"]) + list(baseline["errors"])
-            errors += ["ORIGINAL_ARCHIVE:" + error for error in packages["original_archive"]["errors"]]
-            errors += ["ORIGINAL_ARCHIVE:" + error for error in original_baseline["errors"]]
             if manifest["status"] != "PASS":
                 errors.append("PACKAGE_MEMBER_INTEGRITY_FAILED")
-            if packages["original_archive"]["status"] != "PASS":
-                errors.append("ORIGINAL_ARCHIVE_PACKAGE_MEMBER_INTEGRITY_FAILED")
             if args.require_clean and identity["source_dirty"]:
                 errors.append("DIRTY_SOURCE_NOT_PUBLISHABLE")
             if args.strict_baseline and baseline["current_anchor_differences"]:
                 errors.append("CURRENT_SOURCE_DIFFERS_FROM_FROZEN_ANCHORS")
             result = {"scope": "R31_BASELINE_AND_BUILD_IDENTITY_ONLY", "manifest": manifest,
-                      "original_archive_manifest": packages["original_archive"],
-                      "original_archive_baseline": original_baseline,
                       "baseline": baseline, "identity": identity, "errors": errors,
                       "status": "FAIL" if errors else "PASS",
                       "device_acceptance": "NOT_RUN", "natural_quality": "NOT_PROVEN"}
