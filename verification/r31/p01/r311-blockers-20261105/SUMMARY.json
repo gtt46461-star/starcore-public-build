@@ -1,0 +1,36 @@
+{
+  "scope": "R31.1 P01 common blockers; LOCAL_NON_AUTHORITATIVE (no SDK, JDK21); Android/CI re-verification pending",
+  "blocker1_certificate_fingerprint": {
+    "state": "FIXED_HOST_PROVEN",
+    "commit": "4e375b34",
+    "root_cause": "StrategySchemaSU1.advance installed su1_draw_{insert,update,delete}_clock on Critical draws without owner cutover; Critical stamp untrusted; revocation/source/retention migrations refused",
+    "reproducer": "python3 tools/r31/run_certificate_startup_host.py with R31_ORDER=TEST_OPEN|SU_BEFORE_R27|SU_AFTER_R27|NEG_TAMPERED_SU1_TRIGGER|NEG_FOREIGN_DRAW_TRIGGER",
+    "before": "SU_BEFORE_R27 and SU_AFTER_R27 reproduce SCHEMA_PENDING:R31_CERTIFICATE_REVOCATION:UNTRUSTED_CRITICAL:FINGERPRINT_MISMATCH",
+    "after": "all three orders Critical MATCH + SchemaR27 PASS; both negatives refused, Critical stays untrusted"
+  },
+  "plan_identity": {
+    "state": "FIXED",
+    "commit": "4e375b34",
+    "detail": "verify_baseline pinned original manifest at in-place revised path; now original pin at construction/archives + separate R31.1 pin; 15/15 self-tests, full baseline PASS"
+  },
+  "unit_single_jvm_512m": {
+    "before": "491 tests, 12 failures (11 CapacityWait MEMORY_DECLARED_CAPACITY, 1 r274 source-contract)",
+    "r274": "FIXED: observer roster write moved to ObserverPublicationStoreR31; test now enforces the same no-eprocess/no-certificate/global_index=0 contract on the owner (R27QualityTest 19/19)"
+  },
+  "blocker2_memory_capacity": {
+    "state": "DIAGNOSED_NOT_FIXED",
+    "evidence": "memory-per-class-single-jvm-512m.log",
+    "facts": [
+      "post-GC live heap flat 44-46MB across whole suite: no heap leak",
+      "with GC between classes all 11 CapacityWait disappear",
+      "raw totalMemory-freeMemory reaches 289-355MB of 512MB during allocation bursts",
+      "255-455 open leases are fixed private-backing reservations with 128-272 pending bytes each; not the capacity consumer"
+    ],
+    "root_cause": "Admission compares raw used heap (including uncollected garbage) with thresholds; admission never requests GC by design and the reclaim retry re-measures the same garbage",
+    "required_direction": "acceptance_config memory_live_heap_evidence = post-observed-major-GC live set, no per-issue forced GC; admission basis must use an observed post-GC live set (HotSpot pool collection usage; ART needs a GC-count-gated sample) without raising heap, thresholds or catching waits",
+    "not_done": "design change on ART measurement not implemented in this round"
+  },
+  "device": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN",
+  "recorded_at": "2026-11-05T05:02:52.637707+00:00"
+}

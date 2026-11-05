@@ -560,10 +560,15 @@ public final class R27QualityTest {
         String rt = new String(Files.readAllBytes(new File(root + "strategyv2/RuntimeR27.java").toPath()), "UTF-8");
         String live = new String(Files.readAllBytes(new File(root + "strategyv2/LiveShadowsR27.java").toPath()), "UTF-8");
         int i = rt.indexOf("void refreshObservers("); assertTrue(i >= 0);
-        String body = rt.substring(i, rt.indexOf("submit(w, \"OBSERVERS\", b);", i));
-        // No e-process row, no α index, no certificate, no promotion: observers only collect FUTURE rows.
-        assertFalse(body.contains("r27_eprocess")); assertFalse(body.contains("insertShadow")); assertFalse(body.contains("r27_certificate"));
-        assertTrue(body.contains("VALUES(?,?,?,?,0,?"));
+        // R31: refreshObservers delegates the roster write to its single owner ObserverPublicationStoreR31.
+        int end = rt.indexOf("submit(w,\"OBSERVERS\",prepared.batch", i); assertTrue("observer submit owner moved", end > i);
+        String body = rt.substring(i, end);
+        assertTrue(body.contains("ObserverPublicationStoreR31.prepare(")); assertFalse(body.contains("insertShadow"));
+        String owner = new String(Files.readAllBytes(new File(root + "strategyv2/ObserverPublicationStoreR31.java").toPath()), "UTF-8");
+        // No e-process row, no α index, no certificate, no promotion: observers only collect FUTURE rows (reads/guards only).
+        assertFalse(java.util.regex.Pattern.compile("(INSERT[^\"]*INTO|UPDATE)\\s+r27_(eprocess|certificate)").matcher(owner).find());
+        assertFalse(owner.contains("insertShadow(")); assertFalse(body.contains("r27_eprocess")); assertFalse(body.contains("r27_certificate"));
+        assertTrue(owner.contains("VALUES(?,?,?,?,0,?"));
         assertTrue(rt.contains("LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline, LiveShadowsR27.OBSERVE_STATES, false)"));
         assertTrue(rt.contains("if (stepBefore == 9) refreshObservers(w, loop);"));
         // Certification, calibration and the mainline intent still read ACTIVE shadows only.
