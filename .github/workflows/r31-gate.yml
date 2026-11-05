@@ -1,25 +1,27 @@
-# R31.2 batch gate CI fallback. Install in S00 as .github/workflows/r312-gate.yml on construction/r31-final-20261104.
-# Runs exactly the local gate (gradle debug unit/lint/compile + HOST_SUITE) and uploads BUILD_SUMMARY.json.
+# R31 construction gate CI fallback (installed as .github/workflows/r31-gate.yml on construction/r31-final-20261104).
+# Runs the same full build as `r31_gate.py build` and uploads BUILD_SUMMARY.json; then locally:
+#   r31_gate.py close --batch Kxx --import BUILD_SUMMARY.json
 # No emulator, no signing, no release identity freeze. Evidence-only pushes do not trigger it.
-name: STARCORE R31.2 batch gate
+# SDK setup copies r30.yml (setup-android with explicit packages; without them sdkmanager fails on 'tools').
+name: STARCORE R31 construction gate
 on:
   push:
     branches: ['construction/r31-final-20261104']
-    paths-ignore: ['construction/r31/**', 'verification/**', 'construction/STARCORE_R31_FINAL_20261104/**', '**/*.md']
+    paths-ignore: ['construction/**', 'verification/**', '**/*.md']
   workflow_dispatch:
     inputs:
       batch:
-        description: Batch id (default = open batch from the gate)
+        description: Batch id (default = open batch)
         required: false
 permissions:
   contents: read
 concurrency:
-  group: r312-gate-${{ github.ref }}
+  group: r31-gate-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   gate:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,18 +35,20 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
       - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
       - name: Gate build
         run: |
+          G=construction/STARCORE_R31_FINAL_20261104/tools/r31_gate.py
           BATCH="${{ github.event.inputs.batch }}"
-          if [ -z "$BATCH" ]; then
-            BATCH=$(python3 construction/STARCORE_R31_FINAL_20261104/tools/r312_gate.py status | python3 -c 'import json,sys; print(json.load(sys.stdin)["open_batch"])')
-          fi
+          if [ -z "$BATCH" ]; then BATCH=$(python3 $G status | python3 -c 'import json,sys; print(json.load(sys.stdin)["open_batch"])'); fi
           echo "BATCH=$BATCH" >> "$GITHUB_ENV"
-          python3 construction/STARCORE_R31_FINAL_20261104/tools/r312_gate.py build --batch "$BATCH"
+          python3 $G build --batch "$BATCH"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: r312-${{ env.BATCH }}-${{ github.sha }}
-          path: verification/r31/r312/
+          name: r31-gate-${{ env.BATCH }}-${{ github.sha }}
+          path: verification/r31/batches/
           retention-days: 30

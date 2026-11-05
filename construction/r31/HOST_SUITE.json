@@ -1,6 +1,6 @@
 {
  "format": "R312_HOST_SUITE_V1",
- "rule": "Every entry must have a command or retired=true with a replacement test id. Commands run from repo root; exit code 0 = PASS. Install as construction/r31/r312/HOST_SUITE.json in S00.",
+ "rule": "Every entry must have a command or retired=true with a replacement test id. Commands run from repo root; exit code 0 = PASS. Used by tools/r31_gate.py build/quick/close.",
  "pre_build": [],
  "pre_build_rule": "Only developer-build identity refresh needed for gradle tasks to compile and test. No release identity freeze, no signing, no r982 release inventory.",
  "not_in_suite": {
@@ -410,19 +410,7 @@
    "retired": false,
    "replacement": null,
    "origin": "original device report recount (R27 13/13/11/1/1, all tasks 60/14)"
-  },
-  {
-   "id": "verify_s00",
-   "command": "python3 tools/r312/verify_s00.py",
-   "required_args": [],
-   "owner_cards": [
-    "R312-S00-C01",
-    "R312-S00-C02"
-   ],
-   "retired": false,
-   "replacement": null,
-   "origin": "S00 channel/inventory checks"
   }
  ],
- "installed_in": "S00"
+ "installed_in": "S00 (R31.2); moved to construction/r31/HOST_SUITE.json for R31.3"
 }
