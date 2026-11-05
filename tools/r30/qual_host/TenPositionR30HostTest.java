@@ -25,6 +25,8 @@ public final class TenPositionR30HostTest {
         catch(Exception e){try{c.rollback();c.setAutoCommit(true);}catch(Exception ignored){}throw new IllegalStateException(e);}
     }
     static byte[] artifact(SQLiteDatabase db){try(android.database.Cursor c=db.rawQuery("SELECT artifact FROM r29_model_checkpoint WHERE owner=?",new String[]{AtomNetSessionR30.OWNER})){require(c.moveToFirst(),"STATE_MISSING");return c.getBlob(0);}}
+    // R31: the checkpoint row may hold a verified file-artifact reference; resolve through the production reader.
+    static byte[] resolved(SQLiteDatabase db){return CheckpointArtifactsR26.resolveSerializedR31(db,artifact(db));}
     static String text(SQLiteDatabase db,String sql){try(android.database.Cursor c=db.rawQuery(sql,null)){return c.moveToFirst()?c.getString(0):null;}}
     public static void main(String[] args)throws Exception{
         if(args.length==0){Path db=Files.createTempFile("r30-ten-position-",".db");try{long oldPid=child("write-and-kill",db,-1);child("restart-and-check",db,oldPid);}finally{Files.deleteIfExists(db);}return;}
@@ -54,7 +56,9 @@ public final class TenPositionR30HostTest {
                     if(slices%13==0){rt.atomSessionR30=null;rt.atomDataR30=null;}
                     require(slices<2000,"PRETRAIN_STUCK");
                 }while(rt.atomSessionR30==null||!rt.atomSessionR30.ready());
-                require("560".equals(text(db,"SELECT count(*) FROM r30_atomnet_sample")),"SAMPLES_NOT_PERIODS_TIMES_TEN");
+                // R31: new materialized samples are published through r31_atomnet_sample_stage; count the union exactly once.
+                require("560".equals(text(db,"SELECT count(*) FROM (SELECT dataset_hash,sample_index FROM r30_atomnet_sample UNION SELECT p.dataset_hash,s.sample_index FROM r31_atomnet_sample_stage s JOIN r31_atomnet_publication p ON p.publication_id=s.publication_id WHERE p.status='PUBLISHED')")),"SAMPLES_NOT_PERIODS_TIMES_TEN");
+                require(String.valueOf(rt.atomSessionR30.materializedSamples).equals("560"),"SESSION_MATERIALIZED_NOT_PERIODS_TIMES_TEN");
                 require(legacyHash.equals(text(db,"SELECT state_hash FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'")),"LEGACY_OVERWRITTEN");
                 require("10".equals(text(db,"SELECT count(*) FROM r30_atomnet_forecast")),"TEN_FUTURE_PREDICTIONS_NOT_FROZEN");
                 require(rt.atomSessionR30.trainer.net.in==182,"PRODUCTION_ONE_HOT_NOT_CONSUMED");
@@ -66,7 +70,7 @@ public final class TenPositionR30HostTest {
                 require(Arrays.equals(before,artifact(db))&&Arrays.equals(memory,rt.atomSessionR30.encode()),"MODEL_CURSOR_NOT_ATOMIC_ON_ROLLBACK");
                 for(int p=2;p<=STOP_POSITION;p++)owned.owned(()->AtomNetRuntimeR30.step(rt,worker));
                 require(rt.atomSessionR30.nextPosition==STOP_POSITION+1&&rt.atomSessionR30.partialIssue.equals(issue(82)),"MID_ISSUE_CURSOR");
-                AtomNetSessionR30 expected=AtomNetSessionR30.decode(artifact(db),StatsR27.sha256(artifact(db)));
+                byte[] committedState=resolved(db);AtomNetSessionR30 expected=AtomNetSessionR30.decode(committedState,StatsR27.sha256(committedState));
                 ReplayDatasetR27 data=StoreR27.loadDataset(db,100);AtomReplayR27.Frame frame=AtomReplayR27.build(data,81,82);
                 for(int p=STOP_POSITION+1;p<=10;p++){
                     double[] x=AtomNetR27.positionedInput(AtomReplayR27.features(frame.values[p-1],frame.present[p-1],true),p);
@@ -78,7 +82,7 @@ public final class TenPositionR30HostTest {
             owned.owned(()->AtomNetRuntimeR30.step(rt,worker));require(rt.atomSessionR30.nextPosition==STOP_POSITION+1,"RESTORE_LOST_POSITION_CURSOR");
             for(int p=STOP_POSITION+1;p<=10;p++)owned.owned(()->AtomNetRuntimeR30.step(rt,worker));
             require(rt.atomSessionR30.trainer.onlineSteps==10&&rt.atomSessionR30.completeIssue.equals(issue(82)),"TEN_ONLINE_POSITIONS_NOT_ONCE");
-            require(StatsR27.sha256(artifact(db)).equals(text(db,"SELECT payload_json FROM r27_chart_cache WHERE panel_id='host' AND key='expected'")),"PRODUCTION_RESTART_NOT_EXACT");
+            require(StatsR27.sha256(resolved(db)).equals(text(db,"SELECT payload_json FROM r27_chart_cache WHERE panel_id='host' AND key='expected'")),"PRODUCTION_RESTART_NOT_EXACT");
             byte[] settled=artifact(db);owned.owned(()->AtomNetRuntimeR30.step(rt,worker));require(Arrays.equals(settled,artifact(db)),"DUPLICATE_LEARNING_AFTER_RETRY");
             require(legacyHash.equals(text(db,"SELECT state_hash FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'")),"LEGACY_NOT_PRESERVED");
             Map<?,?> report=(Map<?,?>)JsonR27.parse(text(db,"SELECT payload_json FROM r27_chart_cache WHERE panel_id='atomnet' AND key='ten-position-r30'"));

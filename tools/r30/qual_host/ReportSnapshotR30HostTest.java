@@ -22,6 +22,7 @@ public final class ReportSnapshotR30HostTest {
         db.execSQL("INSERT INTO r27_chart_cache VALUES('health','summary',?,1)",new Object[]{"{\"scope\":\"真实UTF8 & ; :\\n边界\"}"});
         db.execSQL("INSERT INTO r27_chart_cache VALUES('health','source',?,2)",new Object[]{String.join("",Collections.nCopies(17000,"x"))});
         db.execSQL(AtomScoreR27.CONTRIBUTION_DDL_R30);db.execSQL("INSERT INTO r30_atom_contribution VALUES('atom','dataset',1,660,659,1318,?,.001,'SYNTHETIC_H_SELECT',1)",new Object[]{.0123456789012345});
+        for(String ddl:AtomPublicationStoreR31.DDL)db.execSQL(ddl); // R31: reports read atoms through the production publication views
     }
     public static void main(String[] args)throws Exception {
         Class.forName("org.sqlite.JDBC");Path file=Files.createTempFile("r30-report-snapshot-",".db");ExecutorService writer=Executors.newSingleThreadExecutor();

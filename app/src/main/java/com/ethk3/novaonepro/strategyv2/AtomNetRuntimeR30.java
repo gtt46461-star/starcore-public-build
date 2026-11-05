@@ -13,6 +13,9 @@ public final class AtomNetRuntimeR30 {
         AtomNetSessionR30 saved=rt.atomSessionR30;
         if(saved!=null)OnlineResearchWindowR30R1.register(w,saved.datasetHash);
         if(saved==null){
+            // Cold start: a published checkpoint may be a file reference. Register this database's owned
+            // checkpoint directory first instead of relying on another module having called forStore earlier.
+            CheckpointArtifactsR26.forStore(w.store());
             saved=AtomNetStoreR30.restore(w.ro);
             if(saved!=null){rt.atomDataR30=AtomNetStoreR30.dataset(w.ro,saved.datasetHash);rt.publishAtomStateR31(saved,AtomNetStoreR30.publicationModelR31(w.ro,saved));return ResearchPoolR27.Outcome.progress(1,saved.units);}
             ReplayDatasetR27 d=rt.evoData;if(d==null)return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-replay-dataset)",0,-1);

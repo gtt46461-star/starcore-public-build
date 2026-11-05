@@ -115,7 +115,11 @@ public final class SchemaR27 {
         column(db,"r30_frozen_confirm","registration_state","TEXT NOT NULL DEFAULT 'PENDING'");
         column(db, "r30_confirm_read", "control", "INTEGER NOT NULL DEFAULT 0");
         ensureLiveSourceRevision(db);
-        SchemaDomainCoordinatorR926.migrateR31SourceJournal(db);
+        // Same source precondition as ensureLiveSourceRevision and the former ResearchInputPinR30R1.ensure:
+        // without the canonical source tables there is nothing to journal. Pin readiness then stays
+        // SCHEMA_PENDING (requireReady) instead of failing every Research migration on a source-less database.
+        if (tableExists(db, "draws") && tableExists(db, "r27_history_import"))
+            SchemaDomainCoordinatorR926.migrateR31SourceJournal(db);
         db.execSQL(LiveShadowsR27.PIT_DDL_R30);
         db.execSQL(HoldLedgerFlushR30.DDL); // R30-B01-02 (additive)
         column(db,"r30_writer_hold","histogram_json","TEXT");column(db,"r30_writer_hold","process_session","TEXT");
