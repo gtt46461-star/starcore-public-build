@@ -447,7 +447,8 @@ public final class ResearchPoolR27 implements AutoCloseable {
     static void observeAttemptR31(DbStore store, String task, String owner,
                                   RuntimeCoordinatorR26.Claim claim, String phase, Throwable failure,
                                   long units, long cpuMs, boolean receiptCommitted) {
-        if (!receiptCommitted) RECEIPTS_FAILED_R31.incrementAndGet();
+        final boolean receiptFailed=claim!=null&&!receiptCommitted;
+        if (receiptFailed) RECEIPTS_FAILED_R31.incrementAndGet();
         final long wall = System.currentTimeMillis(), elapsed = SystemClock.elapsedRealtime();
         final String safeTask = RuntimeFaultEvidenceR31.clean(task, 128);
         final String safeOwner = RuntimeFaultEvidenceR31.clean(owner, 128);
@@ -461,7 +462,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
                 db.execSQL("INSERT OR IGNORE INTO r31_task_observation(task_id,owner_epoch,last_attempt_elapsed_ms,boot_id) VALUES(?,?,?,?)",
                         new Object[] {safeTask, safeOwner, elapsed, IssueTimelineWriterR30.bootId()});
                 db.execSQL("UPDATE r31_task_observation SET owner_epoch=?,fence=?,attempts=attempts+1,work_cpu_ms=work_cpu_ms+?,observed_work_units=observed_work_units+?,task_receipts_committed=task_receipts_committed+?,task_receipts_failed=task_receipts_failed+?,last_attempt_elapsed_ms=?,boot_id=? WHERE task_id=?",
-                        new Object[] {safeOwner, claim == null ? null : claim.fence, Math.max(0, cpuMs), Math.max(0, units), receiptCommitted ? 1 : 0, receiptCommitted ? 0 : 1, elapsed, IssueTimelineWriterR30.bootId(), safeTask});
+                        new Object[] {safeOwner, claim == null ? null : claim.fence, Math.max(0, cpuMs), Math.max(0, units), receiptCommitted ? 1 : 0, receiptFailed ? 1 : 0, elapsed, IssueTimelineWriterR30.bootId(), safeTask});
                 if (fault != null) persistFaultR31(db, safeTask, safeOwner, claim, phase, fault, wall, elapsed);
                 persistCounterR31(db, "observationWritesFailed", TELEMETRY_DROPPED_R31.get(), wall);
                 persistCounterR31(db, "taskReceiptsFailed", RECEIPTS_FAILED_R31.get(), wall);
@@ -504,7 +505,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
         } else {
             eventId = StatsR27.sha256(task + "|" + owner + "|" + fault.fingerprint + "|" + minute);
             db.execSQL("INSERT INTO r31_runtime_fault(event_id,task_id,owner_epoch,fence,operation,phase,category,root_fingerprint,minute_bucket,cause_chain_json,stack,stack_hash,last_cause_chain_json,last_stack,last_stack_hash,commit_outcome,boot_id,first_wall_ms,last_wall_ms,first_elapsed_ms,last_elapsed_ms,occurrences,byte_count) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    new Object[] {eventId, task, owner, claim == null ? null : claim.fence, fault.operation, RuntimeFaultEvidenceR31.clean(phase, 64), fault.category, fault.fingerprint, minute, fault.causeChainJson, fault.stack, fault.stackHash, fault.causeChainJson, fault.stack, fault.stackHash, fault.commitOutcome, IssueTimelineWriterR30.bootId(), wall, wall, elapsed, elapsed, 1, nextBytes});
+                    new Object[] {eventId, task, owner, claim == null ? null : claim.fence, fault.operation, fault.phase == null || fault.phase.isEmpty() ? RuntimeFaultEvidenceR31.clean(phase, 64) : fault.phase, fault.category, fault.fingerprint, minute, fault.causeChainJson, fault.stack, fault.stackHash, fault.causeChainJson, fault.stack, fault.stackHash, fault.commitOutcome, IssueTimelineWriterR30.bootId(), wall, wall, elapsed, elapsed, 1, nextBytes});
         }
     }
     public String session() { return session; }

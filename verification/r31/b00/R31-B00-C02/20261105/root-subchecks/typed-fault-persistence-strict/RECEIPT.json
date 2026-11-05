@@ -1,0 +1,51 @@
+{
+  "scope": "ACTUAL_PRODUCTION_PERSIST_METHOD_WITH_CONTROLLED_TYPED_FAILURES_AND_NATIVE_SQLITE_NOT_REAL_TRAINING",
+  "before": "Old4e pool class + current capture; explicitly isolates persistence bug, not full baseline artifact",
+  "after": "Actual current412fed57 entire production classes",
+  "records": [
+    {
+      "name": "compile",
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/r31-integration-20261105/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar",
+        "-d",
+        "/workspace/starcore-public-build/verification/r31/integration-20261105/typed-fault-persistence-strict/platform",
+        "/workspace/r31-integration-20261105/tools/r29/qual_host/shim/android/database/Cursor.java",
+        "/workspace/r31-integration-20261105/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java",
+        "/workspace/r31-integration-20261105/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabaseLockedException.java",
+        "/workspace/r31-integration-20261105/tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java",
+        "/workspace/r31-integration-20261105/tools/r31/TypedFaultPersistenceHostR31.java"
+      ],
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "name": "before",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/starcore-public-build/verification/r31/integration-20261105/typed-fault-persistence-strict/old-pool:/workspace/starcore-public-build/verification/r31/integration-20261105/typed-fault-persistence-strict/platform:/workspace/r31-integration-20261105/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar",
+        "com.ethk3.novaonepro.strategyv2.TypedFaultPersistenceHostR31"
+      ],
+      "exit": 1,
+      "expected": 1
+    },
+    {
+      "name": "after",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/starcore-public-build/verification/r31/integration-20261105/typed-fault-persistence-strict/platform:/workspace/r31-integration-20261105/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar",
+        "com.ethk3.novaonepro.strategyv2.TypedFaultPersistenceHostR31"
+      ],
+      "exit": 0,
+      "expected": 0
+    }
+  ],
+  "at": "2026-11-05T02:11:49.986792+00:00"
+}

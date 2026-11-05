@@ -1,0 +1,75 @@
+{
+  "scope": "ACTUAL_PERSISTENCE_ENTRY_WITH_CONTROLLED_TYPED_FAILURES_NATIVE_SQLITE_NOT_ACTUAL_MODEL_COMMIT",
+  "beforeScope": "Frozen f607 pool class plus current explicit RuntimeFaultEvidence source isolates phase persistence defect",
+  "afterScope": "Current two actual production sources on frozen f607 full support classes",
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeFaultEvidenceR31.java": "7bfe024663edfa744913112c671b3af4ae6129b4d07dcc2befef6c463e97eb4e",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java": "2fda6286322d1344ef19934d4810839598d1fbb0cf319c11eabae609b314e706",
+    "tools/r31/TypedFaultPersistenceHostR31.java": "d2304b49c8f8a8b585fba2eba73efe1650b5db756b9d13c9e115ae0d6d50b2f6"
+  },
+  "baseJarSha256": "111dfd9f2591906036d031a32adfcc999ab58e644ebda7e24548fceb1d37e30f",
+  "records": [
+    {
+      "name": "production-compile",
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/r31-f607-frozen/classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar",
+        "-d",
+        "/workspace/starcore-public-build/verification/r31/integration-20261105/b00-declared-phase-persistence/production",
+        "/workspace/r31-integration-20261105/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeFaultEvidenceR31.java",
+        "/workspace/r31-integration-20261105/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java"
+      ],
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "name": "platform-compile",
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/starcore-public-build/verification/r31/integration-20261105/b00-declared-phase-persistence/production:/workspace/r31-f607-frozen/classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar",
+        "-d",
+        "/workspace/starcore-public-build/verification/r31/integration-20261105/b00-declared-phase-persistence/platform",
+        "/workspace/r31-integration-20261105/tools/r29/qual_host/shim/android/database/Cursor.java",
+        "/workspace/r31-integration-20261105/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java",
+        "/workspace/r31-integration-20261105/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabaseLockedException.java",
+        "/workspace/r31-integration-20261105/tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java",
+        "/workspace/r31-integration-20261105/tools/r31/TypedFaultPersistenceHostR31.java"
+      ],
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "name": "before",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-Djava.io.tmpdir=/workspace/starcore-public-build/verification/r31/integration-20261105/b00-declared-phase-persistence/java-tmp",
+        "-cp",
+        "/workspace/starcore-public-build/verification/r31/integration-20261105/b00-declared-phase-persistence/before-pool:/workspace/starcore-public-build/verification/r31/integration-20261105/b00-declared-phase-persistence/platform:/workspace/starcore-public-build/verification/r31/integration-20261105/b00-declared-phase-persistence/production:/workspace/r31-f607-frozen/classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar",
+        "com.ethk3.novaonepro.strategyv2.TypedFaultPersistenceHostR31"
+      ],
+      "exit": 1,
+      "expected": 1
+    },
+    {
+      "name": "after",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-Djava.io.tmpdir=/workspace/starcore-public-build/verification/r31/integration-20261105/b00-declared-phase-persistence/java-tmp",
+        "-cp",
+        "/workspace/starcore-public-build/verification/r31/integration-20261105/b00-declared-phase-persistence/platform:/workspace/starcore-public-build/verification/r31/integration-20261105/b00-declared-phase-persistence/production:/workspace/r31-f607-frozen/classes.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-baseline-deps/sqlite-jdbc.jar",
+        "com.ethk3.novaonepro.strategyv2.TypedFaultPersistenceHostR31"
+      ],
+      "exit": 0,
+      "expected": 0
+    }
+  ],
+  "at": "2026-11-05T02:31:15.966738+00:00"
+}

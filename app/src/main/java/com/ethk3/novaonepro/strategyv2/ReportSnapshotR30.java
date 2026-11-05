@@ -92,6 +92,7 @@ public final class ReportSnapshotR30 {
             data.put("r31TransportTimingObservation",com.ethk3.novaonepro.FetchLedgerR925.transportTimingSnapshotR31());
             data.put("r31ProcessObservationScope","PER_PID_OUTSIDE_DATABASE_WATERMARK; diagnostics PID may have no main runtime owner");
             data.put("taskLiveness",TaskProgressR30R1.summarize(data.get("tasks"),data.get("typedTaskProgress"),taskCalendar));
+            data.put("runtimeDiagnosticLinks",RuntimeDiagnosticLinksR31.summarize(data.get("tasks"),data.get("r31RuntimeFaults")));
             data.put("objectIndex",ReportObjectIndexR30.build(facts,watermark,data));
             Map<String,Object> refs=new LinkedHashMap<>();refs.put("tables",marks);refs.put("inlineRowsAreBounded",true);refs.put("inlineRowsetEncodedByteBudget",768*1024);refs.put("fullModelCensusEncodedByteBudget",1048576);refs.put("truncationRule","Only complete display rows; complete SQL totals and original snapshot remain authoritative");refs.put("fullEvidence","verified snapshot.db and legacy R26/R27 report attachments");data.put("snapshotSources",refs);
             String digest=StatsR27.sha256(JsonR27.write(facts)+"|"+JsonR27.write(watermark));watermark.put("factsSha256",digest);watermark.put("digestScope","DETACHED_REPORT_FACTS_AND_WATERMARK_NOT_FULL_DATABASE_HASH");
@@ -191,7 +192,7 @@ public final class ReportSnapshotR30 {
         q.rows("researchConsumption","r30r1_consume",new String[]{"proposal_id","child_policy_hash","source_generation","consumer_version","receipt_hash","consumed_at"},"consumed_at DESC,proposal_id",128,null,4096);
         q.rows("researchFrames","r30r1_chart_cache",new String[]{"view_id","frame_id","run_id","payload_json","payload_hash","updated_at"},"updated_at DESC,view_id",64,null,65536);
         q.rows("typedTaskProgress","r30r1_task_progress",new String[]{"task_id","owner_version","work_unit","work_cursor","known_latest","pending","oldest_pending_ordinal","last_commit_clock_ordinal","completed_input_ordinal","fence","session_id","artifact_identity","updated_at"},"task_id",100,null,1024);
-        q.rows("tasks","r26_task",new String[]{"task_id","lane","status","blocked_reason","wait_kind","wait_detail","pending","last_committed_seq","cursor","steps","last_cpu_ms"},null,100,null,512);
+        q.rows("tasks","r26_task",new String[]{"task_id","lane","status","owner","fence","blocked_reason","wait_kind","wait_detail","pending","last_committed_seq","cursor","steps","last_cpu_ms"},null,100,null,512);
         q.rows("qualificationGaps","r29_qual_cursor",new String[]{"experiment_id","blocked_ordinal","blocked_reason","consumed_total","updated_at"},"experiment_id",100,null,512);
         q.rows("qualificationGapDisposition","r27_chart_cache",new String[]{"panel_id","key","payload_json","updated_at"},"key",100,"panel_id='r30-qualification-gap'",16384);
         q.rows("qualificationConflicts","r29_qual_conflict",new String[]{"experiment_id","target_ordinal","kind","detail","detected_at","resolved_at"},null,20,null,512);
