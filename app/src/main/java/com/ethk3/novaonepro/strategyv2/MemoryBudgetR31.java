@@ -28,10 +28,19 @@ public final class MemoryBudgetR31 {
     }
     public static final class Measurement {
         public final long pid,maxHeapBytes,heapUsedBytes,nativeAllocatedBytes,pssBytes,rssBytes,observedAtNanos,nativeObservedAtNanos;
+        /** Admission basis: heap occupancy after the latest observed collection, never above raw used heap.
+         * Allocations completed after {@link #liveObservedAtNanos} are not covered by it and stay pending promises. */
+        public final long liveHeapBytes,liveObservedAtNanos;public final String liveHeapBasis;
         public final String processName; public final Boolean osLowMemory;
+        /** Caller samples (synthetic probes) have no collector observation: live basis equals the raw sample. */
         public Measurement(long pid,String processName,long maxHeapBytes,long heapUsedBytes,long nativeAllocatedBytes,long pssBytes,long rssBytes,Boolean osLowMemory,long observedAtNanos,long nativeObservedAtNanos){
+            this(pid,processName,maxHeapBytes,heapUsedBytes,nativeAllocatedBytes,pssBytes,rssBytes,osLowMemory,observedAtNanos,nativeObservedAtNanos,heapUsedBytes,observedAtNanos,"RAW_USED_CALLER_SAMPLE");
+        }
+        public Measurement(long pid,String processName,long maxHeapBytes,long heapUsedBytes,long nativeAllocatedBytes,long pssBytes,long rssBytes,Boolean osLowMemory,long observedAtNanos,long nativeObservedAtNanos,long liveHeapBytes,long liveObservedAtNanos,String liveHeapBasis){
             if(maxHeapBytes<=0||heapUsedBytes<0||nativeAllocatedBytes< -1||pssBytes< -1||rssBytes< -1)throw new IllegalArgumentException("R31_MEMORY_MEASUREMENT");
+            if(liveHeapBytes<0||liveHeapBytes>heapUsedBytes||liveObservedAtNanos-observedAtNanos>0||liveHeapBasis==null||liveHeapBasis.isEmpty())throw new IllegalArgumentException("R31_MEMORY_LIVE_BASIS");
             this.pid=pid;this.processName=processName;this.maxHeapBytes=maxHeapBytes;this.heapUsedBytes=heapUsedBytes;this.nativeAllocatedBytes=nativeAllocatedBytes;this.pssBytes=pssBytes;this.rssBytes=rssBytes;this.osLowMemory=osLowMemory;this.observedAtNanos=observedAtNanos;this.nativeObservedAtNanos=nativeObservedAtNanos;
+            this.liveHeapBytes=liveHeapBytes;this.liveObservedAtNanos=liveObservedAtNanos;this.liveHeapBasis=bounded(liveHeapBasis,96);
         }
     }
     public static final class Config {
@@ -179,12 +188,12 @@ public final class MemoryBudgetR31 {
         long cap=(long)(observed.maxHeapBytes*HIGH_FRACTION);long reserved=Math.max((long)Math.ceil(observed.maxHeapBytes*REALTIME_FRACTION),config.realtimePeakBytes);cap=Math.max(0,cap-Math.min(cap,reserved));if(optionalLastDeniedKind!=Kind.UI)cap=Math.max(0,cap-Math.min(cap,config.uiPeakBytes));
         long pending=0;for(Lease lease:leases)if(!lease.kind.nativeMemory())pending=safeAdd(pending,pendingJavaBytes(lease));
         if(optionalLastRequestedBytes>Math.max(0,cap-Math.min(Math.max(0,cap),pending)))return "CAPACITY_DEBT_PENDING_PROMISES_OR_OVERSIZED_REQUEST";
-        if(observed.heapUsedBytes<=0||status==WaitReason.EMERGENCY_PRESSURE&&observed.heapUsedBytes<observed.maxHeapBytes*HIGH_FRACTION)return "SYSTEM_PRESSURE_WITHOUT_MEASURED_HEAP_CONSTRAINT";
+        long admissionHeap=admissionHeapBytes(observed);if(admissionHeap<=0||status==WaitReason.EMERGENCY_PRESSURE&&admissionHeap<observed.maxHeapBytes*HIGH_FRACTION)return "SYSTEM_PRESSURE_WITHOUT_MEASURED_HEAP_CONSTRAINT";
         return null;
     }
     private Map<String,Object> recoveryMeasurementR31(){
         long declared=0,pending=0;for(Lease lease:leases)if(!lease.kind.nativeMemory()){declared=safeAdd(declared,lease.bytes);pending=safeAdd(pending,pendingJavaBytes(lease));}
-        Map<String,Object> out=new LinkedHashMap<>();out.put("pid",observed.pid);out.put("sampleAtNanos",observed.observedAtNanos);out.put("heapUsedBytes",observed.heapUsedBytes);out.put("maxHeapBytes",observed.maxHeapBytes);out.put("nativeAllocatedBytes",observed.nativeAllocatedBytes);out.put("pssBytes",observed.pssBytes);out.put("rssBytes",observed.rssBytes);out.put("sampleFailure",sampleFailure);out.put("heapPressure",emergency?"EMERGENCY":softPressure?"SOFT":"NORMAL");out.put("osLowMemory",effectiveLowMemory());out.put("optionalUnallocatedHeadroomBytes",availableJavaBytes(Kind.RESEARCH,false));out.put("declaredJavaWorkingBytes",declared);out.put("pendingJavaAllocationBytes",pending);out.put("activeLeaseCount",leases.size());out.put("privateOwnersClosedAfterObservedCollection",collectedPrivateOwners);out.put("optionalWaitSinceNanos",optionalWaitSince);out.put("optionalLastDeniedAtNanos",optionalLastDeniedAt);out.put("optionalLastDeniedRequestedBytes",optionalLastRequestedBytes);out.put("optionalLastDeniedKind",optionalLastDeniedKind==null?null:optionalLastDeniedKind.name());out.put("currentRequestStatus",optionalRequestStatus().name());return Collections.unmodifiableMap(out);
+        Map<String,Object> out=new LinkedHashMap<>();out.put("pid",observed.pid);out.put("sampleAtNanos",observed.observedAtNanos);out.put("heapUsedBytes",observed.heapUsedBytes);out.put("liveHeapBytes",observed.liveHeapBytes);out.put("admissionHeapBytes",admissionHeapBytes(observed));out.put("liveHeapBasis",observed.liveHeapBasis);out.put("maxHeapBytes",observed.maxHeapBytes);out.put("nativeAllocatedBytes",observed.nativeAllocatedBytes);out.put("pssBytes",observed.pssBytes);out.put("rssBytes",observed.rssBytes);out.put("sampleFailure",sampleFailure);out.put("heapPressure",emergency?"EMERGENCY":softPressure?"SOFT":"NORMAL");out.put("osLowMemory",effectiveLowMemory());out.put("optionalUnallocatedHeadroomBytes",availableJavaBytes(Kind.RESEARCH,false));out.put("declaredJavaWorkingBytes",declared);out.put("pendingJavaAllocationBytes",pending);out.put("activeLeaseCount",leases.size());out.put("privateOwnersClosedAfterObservedCollection",collectedPrivateOwners);out.put("optionalWaitSinceNanos",optionalWaitSince);out.put("optionalLastDeniedAtNanos",optionalLastDeniedAt);out.put("optionalLastDeniedRequestedBytes",optionalLastRequestedBytes);out.put("optionalLastDeniedKind",optionalLastDeniedKind==null?null:optionalLastDeniedKind.name());out.put("currentRequestStatus",optionalRequestStatus().name());return Collections.unmodifiableMap(out);
     }
     private Map<String,Object> skippedRecoveryR31(String owner,String reason,long started){
         Map<String,Object> out=new LinkedHashMap<>();out.put("attempted",false);out.put("outcome","SKIPPED");out.put("reason",reason);out.put("controllerOwner",owner);out.put("controlElapsedNanos",Math.max(0,System.nanoTime()-started));out.put("businessProgress",false);out.put("requestMeaning","NO_COLLECTOR_REQUEST");Map<String,Object> immutable=Collections.unmodifiableMap(out);synchronized(this){heapRecoverySkippedR31++;lastHeapRecoveryAttemptR31=immutable;}return immutable;
@@ -248,6 +257,12 @@ public final class MemoryBudgetR31 {
         long covered=lease.allocatedAtNanos!=0&&lease.allocatedAtNanos<=observed.observedAtNanos?lease.allocatedPayloadBytes:0;
         return lease.bytes-covered;
     }
+    /** Admission heap basis: post-collection live heap plus proven payload allocated after that collection
+     * and covered by the raw sample. Never above the raw sample, so garbage awaiting collection is not admitted debt. */
+    private long admissionHeapBytes(Measurement m){
+        long since=0;for(Lease lease:leases)if(!lease.kind.nativeMemory()&&lease.allocatedAtNanos!=0&&lease.allocatedAtNanos-m.liveObservedAtNanos>0&&lease.allocatedAtNanos<=m.observedAtNanos)since=safeAdd(since,lease.allocatedPayloadBytes);
+        return Math.min(m.heapUsedBytes,safeAdd(m.liveHeapBytes,since));
+    }
     private synchronized void trackFixedPrivateBacking(Lease lease,Object array){
         if(lease.closed||lease.allocatedPrimitiveGraph||lease.allocatedPrimitive==null||lease.allocatedPrimitive.get()!=array||lease.bytes>lease.allocatedPayloadBytes+512)throw new IllegalStateException("R31_PRIVATE_BACKING_LIFETIME_UNPROVEN");
         if(lease.fixedPrivateBacking)return;
@@ -273,20 +288,23 @@ public final class MemoryBudgetR31 {
         long high=(long)(observed.maxHeapBytes*(critical?EMERGENCY_FRACTION:HIGH_FRACTION));
         long reserved=critical?0:Math.max((long)Math.ceil(observed.maxHeapBytes*REALTIME_FRACTION),config.realtimePeakBytes);
         long declared=0;for(Lease lease:leases)if(!lease.kind.nativeMemory())declared=safeAdd(declared,pendingJavaBytes(lease));
-        long available=Math.max(0,high-Math.min(high,observed.heapUsedBytes));available=Math.max(0,available-Math.min(available,reserved));if(!critical&&kind!=Kind.UI)available=Math.max(0,available-Math.min(available,config.uiPeakBytes));available=Math.max(0,available-Math.min(available,declared));
+        long available=Math.max(0,high-Math.min(high,admissionHeapBytes(observed)));available=Math.max(0,available-Math.min(available,reserved));if(!critical&&kind!=Kind.UI)available=Math.max(0,available-Math.min(available,config.uiPeakBytes));available=Math.max(0,available-Math.min(available,declared));
         return available;
     }
+    /** Leases whose lifetime is an explicit owner close (not a fixed private backing that closes after collection). */
+    public synchronized int explicitOwnerLeaseCountR31(){reapCollectedPrivateBackings();int n=0;for(Lease lease:leases)if(!lease.fixedPrivateBacking)n++;return n;}
+    public synchronized List<String> explicitOwnerLeasesR31(int limit){List<String> out=new ArrayList<>();for(Lease lease:leases)if(!lease.fixedPrivateBacking&&out.size()<Math.max(0,Math.min(64,limit)))out.add(lease.owner+"/"+lease.kind+"/"+lease.bytes);return Collections.unmodifiableList(out);}
     private synchronized void release(Lease lease){if(lease.closed)return;lease.closed=true;leases.remove(lease);if(lease.fixedPrivateBacking)privateBackingOwners.remove(lease.allocatedPrimitive);long prior=declaredByKind.getOrDefault(lease.kind,0L);if(lease.bytes>prior)throw new IllegalStateException("R31_MEMORY_ACCOUNTING");declaredByKind.put(lease.kind,prior-lease.bytes);}
     private Admission denied(WaitReason reason){waits.put(reason,waits.getOrDefault(reason,0L)+1);return new Admission(null,reason);}
     private Admission deniedRequest(Kind kind,long bytes,WaitReason reason){
         if(!kind.nativeMemory()&&kind!=Kind.REALTIME&&kind!=Kind.CHECKPOINT&&(reason==WaitReason.DECLARED_CAPACITY||reason==WaitReason.HEAP_PRESSURE||reason==WaitReason.EMERGENCY_PRESSURE)){
-            long now=System.nanoTime();if(optionalWaitSince==0)optionalWaitSince=now;optionalLastDeniedAt=now;optionalLastRequestedBytes=bytes;optionalLastDeniedKind=kind;optionalLastDeniedReason=reason;optionalLastDeniedHeap=observed.heapUsedBytes;
+            long now=System.nanoTime();if(optionalWaitSince==0)optionalWaitSince=now;optionalLastDeniedAt=now;optionalLastRequestedBytes=bytes;optionalLastDeniedKind=kind;optionalLastDeniedReason=reason;optionalLastDeniedHeap=admissionHeapBytes(observed);
         }
         return denied(reason);
     }
     private WaitReason optionalRequestStatus(){return optionalLastDeniedKind==null?WaitReason.NONE:admissible(optionalLastDeniedKind,optionalLastRequestedBytes,null);}
     private synchronized void update(Measurement measurement,boolean initial){
-        Objects.requireNonNull(measurement);if(observed!=null&&measurement.observedAtNanos<observed.observedAtNanos)return;observed=measurement;sampleFailure="";double fraction=measurement.heapUsedBytes/(double)measurement.maxHeapBytes;
+        Objects.requireNonNull(measurement);if(observed!=null&&measurement.observedAtNanos<observed.observedAtNanos)return;observed=measurement;sampleFailure="";double fraction=admissionHeapBytes(measurement)/(double)measurement.maxHeapBytes;
         if(initial&&fraction>=HIGH_FRACTION)baselineCapacityUnmet=true;
         emergency=fraction>=EMERGENCY_FRACTION||Boolean.TRUE.equals(effectiveLowMemory());
         if(emergency||fraction>=HIGH_FRACTION)softPressure=true;
@@ -302,29 +320,68 @@ public final class MemoryBudgetR31 {
         long pending=0;for(Lease lease:leases)if(!lease.kind.nativeMemory())pending=safeAdd(pending,pendingJavaBytes(lease));
         out.put("optionalUnallocatedHeadroomBytes",availableJavaBytes(Kind.RESEARCH,false));out.put("criticalUnallocatedHeadroomBytes",availableJavaBytes(Kind.REALTIME,true));
         out.put("privateBackingOwnersAwaitingCollectionOrClose",privateBackingOwners.size());out.put("privateOwnersClosedAfterObservedCollection",collectedPrivateOwners);
-        out.put("declaredJavaWorkingBytes",java);out.put("pendingJavaAllocationBytes",pending);out.put("allocatedJavaPayloadCoveredByHeapSampleBytes",java-pending);out.put("allocatedPayloadMeaning","PROVEN_PRIMITIVE_PAYLOAD_ONLY; NOT_LIVE_HEAP_OR_RELEASE_EVIDENCE");out.put("declaredNativeWorkingBytes",nativeBytes);out.put("declaredQueuedBytes",queued);out.put("declaredByKind",kinds);out.put("activeLeaseCount",leases.size());out.put("pressureReclaimAttempts",pressureReclaims);out.put("pressureReclaimFailure",pressureReclaimFailure);
+        out.put("declaredJavaWorkingBytes",java);out.put("pendingJavaAllocationBytes",pending);out.put("allocatedJavaPayloadCoveredByHeapSampleBytes",java-pending);out.put("allocatedPayloadMeaning","PROVEN_PRIMITIVE_PAYLOAD_ONLY; NOT_LIVE_HEAP_OR_RELEASE_EVIDENCE");out.put("declaredNativeWorkingBytes",nativeBytes);out.put("declaredQueuedBytes",queued);out.put("declaredByKind",kinds);out.put("activeLeaseCount",leases.size());out.put("explicitOwnerLeaseCount",explicitOwnerLeaseCountR31());out.put("pressureReclaimAttempts",pressureReclaims);out.put("pressureReclaimFailure",pressureReclaimFailure);
         List<Lease> largest=new ArrayList<>(leases);largest.sort((a,b)->Long.compare(b.bytes,a.bytes));List<Object> owners=new ArrayList<>();for(int i=0;i<Math.min(32,largest.size());i++){Lease l=largest.get(i);Map<String,Object> row=new LinkedHashMap<>();row.put("owner",l.owner);row.put("fence",l.fence);row.put("kind",l.kind.name());row.put("declaredBytes",l.bytes);row.put("pendingJavaAllocationBytes",l.kind.nativeMemory()?null:pendingJavaBytes(l));row.put("provenAllocatedPrimitivePayloadBytes",l.allocatedPayloadBytes);row.put("primitiveAllocationBasis",l.allocatedPrimitive==null?"NOT_MATERIALIZED":l.allocatedPrimitiveGraph?"OWNER_ENUMERATED_PRIVATE_MODEL_ARRAYS":"SINGLE_PRIMITIVE_BACKING");row.put("measurement","ESTIMATED_WORKING_SET_NOT_ACTUAL_HEAP");owners.add(row);}out.put("largestOwners",owners);out.put("ownersTruncated",largest.size()>32);
         Map<String,Object> caps=new LinkedHashMap<>();for(Kind kind:nativeCaps.keySet()){Map<String,Object> row=new LinkedHashMap<>();row.put("bytes",nativeCaps.get(kind));row.put("basis",nativeBasis.get(kind));caps.put(kind.name(),row);}out.put("nativeDeclaredCapacities",caps);out.put("nativeHardCapacityVerdict","UNMANAGED_NATIVE_OWNERS_NOT_COVERED");Map<String,Object> failures=new LinkedHashMap<>();for(Map.Entry<WaitReason,Long> e:waits.entrySet())failures.put(e.getKey().name(),e.getValue());out.put("admissionWaitCounts",failures);return out;
     }
     private Map<String,Object> measurementMap(){
         WaitReason optionalStatus=optionalRequestStatus();boolean recheckBlocked=optionalLastDeniedAt!=0&&optionalStatus!=WaitReason.NONE,optionalDenied=optionalWaitSince!=0&&recheckBlocked;
         Map<String,Object> optional=new LinkedHashMap<>();optional.put("optionalAdmissionStatus",optionalDenied?"RESOURCE_WAIT:MEMORY_"+optionalStatus:emergency?"RESOURCE_WAIT:MEMORY_EMERGENCY_PRESSURE":softPressure?"RESOURCE_WAIT:MEMORY_HEAP_PRESSURE":availableJavaBytes(Kind.RESEARCH,false)==0?"RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY":"AVAILABLE");optional.put("optionalWaitSinceNanos",optionalDenied?optionalWaitSince:0);optional.put("optionalLastDeniedAtNanos",optionalLastDeniedAt);optional.put("optionalLastDeniedRequestedBytes",optionalLastRequestedBytes);optional.put("optionalLastDeniedKind",optionalLastDeniedKind==null?null:optionalLastDeniedKind.name());optional.put("optionalLastDeniedReason",optionalLastDeniedReason.name());optional.put("optionalLastDeniedObservedHeapBytes",optionalLastDeniedHeap);optional.put("optionalDenialStillBlocking",optionalDenied);optional.put("optionalLastRequestRecheckBlocked",recheckBlocked);optional.put("optionalUnallocatedHeadroomBytes",availableJavaBytes(Kind.RESEARCH,false));
-        Map<String,Object> out=new LinkedHashMap<>();out.putAll(optional);out.put("optionalHeapRecovery",heapRecoveryObservationR31());out.put("scope","PER_PID");out.put("pid",observed.pid);out.put("processName",observed.processName);out.put("crossProcessBudget","NOT_COORDINATED");out.put("coverage","REGISTERED_OWNERS_ONLY_NOT_ALL_APPLICATION_ALLOCATIONS");out.put("maxHeapBytes",observed.maxHeapBytes);out.put("heapUsedBytes",observed.heapUsedBytes);out.put("nativeAllocatedBytes",observed.nativeAllocatedBytes);out.put("pssBytes",observed.pssBytes);out.put("rssBytes",observed.rssBytes);out.put("osLowMemory",effectiveLowMemory());out.put("systemLowMemoryObservedAtNanos",systemLowMemoryObservedAt);out.put("observedAtNanos",observed.observedAtNanos);out.put("nativeObservedAtNanos",observed.nativeObservedAtNanos);out.put("clock","PROCESS_MONOTONIC_NS");out.put("highFraction",HIGH_FRACTION);out.put("resumeFraction",RESUME_FRACTION);out.put("emergencyFraction",EMERGENCY_FRACTION);out.put("realtimeReservedBytes",Math.max((long)Math.ceil(observed.maxHeapBytes*REALTIME_FRACTION),config.realtimePeakBytes));out.put("uiReservedBytes",config.uiPeakBytes);out.put("pressure",emergency?"EMERGENCY":softPressure?"SOFT":"NORMAL");out.put("reason",sampleFailure.isEmpty()?pressureReason:"MEMORY_MEASUREMENT_UNAVAILABLE");out.put("sampleFailure",sampleFailure);out.put("baselineCapacityUnmetObserved",baselineCapacityUnmet);out.put("resumeCondition","heapUsed/maxHeap <= 0.60 AND osLowMemory != true; owners must release actual work");out.put("allowOptionalWork",!softPressure&&sampleFailure.isEmpty()&&!optionalDenied);out.put("recommendedParallelism",softPressure||optionalDenied?1:2);out.put("accounting","ADMISSION_USES_MEASURED_HEAP_PLUS_PENDING_ALLOCATION_PROMISES; PROVEN_ARRAY_PAYLOAD_REQUIRES_POST_ALLOCATION_SAMPLE; NEVER_SUM_HEAP_NATIVE_PSS");return out;
+        Map<String,Object> out=new LinkedHashMap<>();out.putAll(optional);out.put("optionalHeapRecovery",heapRecoveryObservationR31());out.put("scope","PER_PID");out.put("pid",observed.pid);out.put("processName",observed.processName);out.put("crossProcessBudget","NOT_COORDINATED");out.put("coverage","REGISTERED_OWNERS_ONLY_NOT_ALL_APPLICATION_ALLOCATIONS");out.put("maxHeapBytes",observed.maxHeapBytes);out.put("heapUsedBytes",observed.heapUsedBytes);out.put("liveHeapBytes",observed.liveHeapBytes);out.put("admissionHeapBytes",admissionHeapBytes(observed));out.put("liveHeapBasis",observed.liveHeapBasis);out.put("liveObservedAtNanos",observed.liveObservedAtNanos);out.put("nativeAllocatedBytes",observed.nativeAllocatedBytes);out.put("pssBytes",observed.pssBytes);out.put("rssBytes",observed.rssBytes);out.put("osLowMemory",effectiveLowMemory());out.put("systemLowMemoryObservedAtNanos",systemLowMemoryObservedAt);out.put("observedAtNanos",observed.observedAtNanos);out.put("nativeObservedAtNanos",observed.nativeObservedAtNanos);out.put("clock","PROCESS_MONOTONIC_NS");out.put("highFraction",HIGH_FRACTION);out.put("resumeFraction",RESUME_FRACTION);out.put("emergencyFraction",EMERGENCY_FRACTION);out.put("realtimeReservedBytes",Math.max((long)Math.ceil(observed.maxHeapBytes*REALTIME_FRACTION),config.realtimePeakBytes));out.put("uiReservedBytes",config.uiPeakBytes);out.put("pressure",emergency?"EMERGENCY":softPressure?"SOFT":"NORMAL");out.put("reason",sampleFailure.isEmpty()?pressureReason:"MEMORY_MEASUREMENT_UNAVAILABLE");out.put("sampleFailure",sampleFailure);out.put("baselineCapacityUnmetObserved",baselineCapacityUnmet);out.put("resumeCondition","liveHeap/maxHeap <= 0.60 AND osLowMemory != true; owners must release actual work");out.put("allowOptionalWork",!softPressure&&sampleFailure.isEmpty()&&!optionalDenied);out.put("recommendedParallelism",softPressure||optionalDenied?1:2);out.put("accounting","ADMISSION_USES_POST_OBSERVED_GC_LIVE_HEAP_PLUS_PENDING_ALLOCATION_PROMISES; ADMISSION_HEAP=min(RAW_USED,POST_GC_LIVE+PROVEN_PAYLOAD_ALLOCATED_SINCE_COLLECTION); PROVEN_ARRAY_PAYLOAD_REQUIRES_POST_ALLOCATION_SAMPLE; RAW_USED_HEAP_REPORTED_NOT_ADMITTED; NEVER_SUM_HEAP_NATIVE_PSS");return out;
     }
     private static long safeAdd(long a,long b){if(b<0||a>Long.MAX_VALUE-b)throw new IllegalArgumentException("R31_MEMORY_SIZE_OVERFLOW");return a+b;}
     private static String bounded(String text,int limit){return text.substring(0,Math.min(text.length(),limit)).replace('\n',' ').replace('\r',' ');}
     /** Java heap is fresh per request; potentially unavailable native/proc observations refresh at most once/s. */
     public static final class RuntimeProbe implements Probe {
         private long sampledNativeAt,nativeBytes=-1,pss=-1,rss=-1;private final long pid=pid();private final String processName=processName();
+        private final LiveHeapObserver live=new LiveHeapObserver();
         public synchronized Measurement measure(){
             Runtime runtime=Runtime.getRuntime();long now=System.nanoTime();if(sampledNativeAt==0||now-sampledNativeAt>=1_000_000_000L){nativeBytes=nativeAllocated();long[] proc=procMemory();pss=proc[0];rss=proc[1];sampledNativeAt=now;}
-            return new Measurement(pid,processName,runtime.maxMemory(),Math.max(0,runtime.totalMemory()-runtime.freeMemory()),nativeBytes,pss,rss,null,now,sampledNativeAt);
+            long used=Math.max(0,runtime.totalMemory()-runtime.freeMemory());long[] observedLive=live.observe(used,now);
+            return new Measurement(pid,processName,runtime.maxMemory(),used,nativeBytes,pss,rss,null,now,sampledNativeAt,observedLive[0],observedLive[1],live.basis);
         }
         private static long nativeAllocated(){String vm=System.getProperty("java.vm.name","");if(!vm.equals("Dalvik")&&!vm.equals("ART"))return -1;try{Class<?> debug=Class.forName("android.os.Debug");Method method=debug.getMethod("getNativeHeapAllocatedSize");return ((Number)method.invoke(null)).longValue();}catch(ReflectiveOperationException|SecurityException unavailable){rethrowProcessFatal(unavailable);return -1;}}
         private static void rethrowProcessFatal(Throwable failure){for(int depth=0;failure!=null&&depth<32;depth++,failure=failure.getCause()){if(failure instanceof VirtualMachineError)throw(VirtualMachineError)failure;if(failure instanceof ThreadDeath)throw(ThreadDeath)failure;if(failure instanceof LinkageError)throw(LinkageError)failure;}}
         private static long pid(){try{return Long.parseLong(new File("/proc/self").getCanonicalFile().getName());}catch(IOException|NumberFormatException unavailable){return -1;}}
         private static String processName(){try(InputStream in=new FileInputStream("/proc/self/cmdline")){byte[] buffer=new byte[192];int length=in.read(buffer);if(length<=0)return "UNKNOWN";int end=0;while(end<length&&buffer[end]!=0)end++;return new String(buffer,0,end,java.nio.charset.StandardCharsets.UTF_8);}catch(IOException unavailable){return "UNKNOWN";}}
         private static long[] procMemory(){long pss=-1,rss=-1;for(String path:new String[]{"/proc/self/smaps_rollup","/proc/self/status"})try(BufferedReader reader=new BufferedReader(new FileReader(path))){String line;int chars=0;while((line=reader.readLine())!=null&&(chars+=line.length())<=65536){if(line.startsWith("Pss:"))pss=kib(line);if(line.startsWith("Rss:")||rss<0&&line.startsWith("VmRSS:"))rss=kib(line);}}catch(IOException|NumberFormatException unavailable){/* unknown remains -1 */}return new long[]{pss,rss};}
+        /** Post-collection heap occupancy, observed and never requested here. HotSpot: heap pools after the
+         * most recent completed collection (GcInfo). ART: the first sample after the runtime GC count advanced.
+         * Without any collector observation the raw used heap remains the basis. Result is clamped to raw used:
+         * both are upper bounds of the live set at their own observation time. */
+        static final class LiveHeapObserver {
+            String basis="RAW_USED_NO_COLLECTION_OBSERVED";private long lastCount=-1,postGcBytes=-1,postGcAtNanos;private boolean unsupported;
+            long[] observe(long used,long now){
+                if(!unsupported)try{if(art())observeArt(used,now);else observeHotSpot(now);}catch(ReflectiveOperationException|RuntimeException failure){rethrowProcessFatal(failure);unsupported=true;postGcBytes=-1;basis="RAW_USED_COLLECTOR_OBSERVATION_UNAVAILABLE";}
+                if(postGcBytes<0||postGcAtNanos-now>0)return new long[]{used,now};
+                if(postGcBytes>=used)return new long[]{used,now};
+                return new long[]{postGcBytes,postGcAtNanos};
+            }
+            private static boolean art(){String vm=System.getProperty("java.vm.name","");return vm.equals("Dalvik")||vm.equals("ART");}
+            private void observeArt(long used,long now)throws ReflectiveOperationException{
+                Object raw=Class.forName("android.os.Debug").getMethod("getRuntimeStat",String.class).invoke(null,"art.gc.gc-count");
+                long count=raw==null?-1:Long.parseLong(String.valueOf(raw).trim());if(count<0){basis="RAW_USED_ART_GC_COUNT_UNAVAILABLE";return;}
+                if(lastCount>=0&&count!=lastCount){postGcBytes=used;postGcAtNanos=now;basis="ART_FIRST_SAMPLE_AFTER_GC_COUNT_ADVANCE";}
+                lastCount=count;
+            }
+            private void observeHotSpot(long now)throws ReflectiveOperationException{
+                Class<?> factory=Class.forName("java.lang.management.ManagementFactory");Object beans=factory.getMethod("getGarbageCollectorMXBeans").invoke(null);
+                Class<?> gcApi=Class.forName("java.lang.management.GarbageCollectorMXBean");long count=0;
+                for(Object bean:(List<?>)beans){long n=((Number)gcApi.getMethod("getCollectionCount").invoke(bean)).longValue();if(n>0)count+=n;}
+                if(count==lastCount)return;lastCount=count;if(count==0)return;
+                Class<?> ext=Class.forName("com.sun.management.GarbageCollectorMXBean"),info=Class.forName("com.sun.management.GcInfo"),usage=Class.forName("java.lang.management.MemoryUsage"),pool=Class.forName("java.lang.management.MemoryPoolMXBean");
+                Set<String> heapPools=new HashSet<>();Object heapType=Class.forName("java.lang.management.MemoryType").getField("HEAP").get(null);
+                for(Object p:(List<?>)factory.getMethod("getMemoryPoolMXBeans").invoke(null))if(heapType.equals(pool.getMethod("getType").invoke(p)))heapPools.add((String)pool.getMethod("getName").invoke(p));
+                long bestEnd=-1,bestBytes=-1;
+                for(Object bean:(List<?>)beans){if(!ext.isInstance(bean))continue;Object last=ext.getMethod("getLastGcInfo").invoke(bean);if(last==null)continue;
+                    long end=((Number)info.getMethod("getEndTime").invoke(last)).longValue();if(end<bestEnd)continue;long bytes=0;
+                    for(Map.Entry<?,?> e:((Map<?,?>)info.getMethod("getMemoryUsageAfterGc").invoke(last)).entrySet())if(heapPools.contains(String.valueOf(e.getKey())))bytes+=Math.max(0,((Number)usage.getMethod("getUsed").invoke(e.getValue())).longValue());
+                    bestEnd=end;bestBytes=bytes;}
+                if(bestEnd<0){basis="RAW_USED_NO_GC_INFO";return;}
+                long uptime=((Number)Class.forName("java.lang.management.RuntimeMXBean").getMethod("getUptime").invoke(factory.getMethod("getRuntimeMXBean").invoke(null))).longValue();
+                postGcBytes=bestBytes;postGcAtNanos=now-Math.max(0,uptime-bestEnd)*1_000_000L;basis="HOTSPOT_HEAP_POOLS_AFTER_LATEST_GC";
+            }
+        }
         private static long kib(String line){String[] parts=line.trim().split("\\s+");long value=Long.parseLong(parts[1]);return value<0||value>Long.MAX_VALUE/1024?-1:value*1024;}
     }
 }
