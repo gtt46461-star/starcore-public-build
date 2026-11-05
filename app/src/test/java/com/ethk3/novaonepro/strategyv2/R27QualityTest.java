@@ -202,6 +202,12 @@ public final class R27QualityTest {
         return source.replace(newShadow,oldShadow);
     }
 
+    /** The two literal-body alternatives are disjoint. Possessive repetition preserves the
+     * matched language/output while avoiding one recursive regex frame per source character. */
+    static String stripJavaStringsR31(String source) {
+        return source.replaceAll("\"(?:[^\"\\\\]|\\\\.)*+\"", "\"\"");
+    }
+
     @Test public void h15MainlineRedLines() throws Exception {
         File root = R27TestSupport.root();
         // 1. Original bytes match after the registered R30 wrappers and exact R31 research extraction.
@@ -252,7 +258,7 @@ public final class R27QualityTest {
         File dir = new File(root, "app/src/main/java/com/ethk3/novaonepro/strategyv2"); int scanned = 0;
         for (File f : Objects.requireNonNull(dir.listFiles())) {
             if (!f.getName().contains("R27")) continue; scanned++;
-            String src = new String(Files.readAllBytes(f.toPath()), java.nio.charset.StandardCharsets.UTF_8).replaceAll("(?s)/\\*.*?\\*/", "").replaceAll("//[^\n]*", "").replaceAll("\"(?:[^\"\\\\]|\\\\.)*\"", "\"\""); // code only: comments and UI text removed
+            String src = stripJavaStringsR31(new String(Files.readAllBytes(f.toPath()), java.nio.charset.StandardCharsets.UTF_8).replaceAll("(?s)/\\*.*?\\*/", "").replaceAll("//[^\n]*", "")); // code only: comments and UI text removed
             for (String w : forbidden) assertFalse(f.getName() + " references " + w, src.contains(w));
         }
         // 3. Certificate service of the existing chain: no certificate / expired certificate are denied; never mayCreateReal.

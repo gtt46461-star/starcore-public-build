@@ -15,7 +15,8 @@ public final class R30IdeaFamilyContractTest {
             }
         };
         EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.nullControl = false;
-        EvolutionLoopR27 loop = new EvolutionLoopR27(cfg, new FeatureCacheR27(data), sink, () -> 0L);
+        try (FeatureCacheR27 cache = new FeatureCacheR27(data);
+             EvolutionLoopR27 loop = new EvolutionLoopR27(cfg, cache, sink, () -> 0L)) {
         loop.stepDataset(); IdeaFamilyR27.Context ctx = loop.ideaContext(); StatsR27.SplitMix rng = new StatsR27.SplitMix(301);
         Map<String,Integer> complete = new TreeMap<>();
         for (int f = 1; f <= 13; f++) {
@@ -35,6 +36,7 @@ public final class R30IdeaFamilyContractTest {
             assertEquals(100, complete.get(id).intValue()); assertTrue(id + " has no real birth", born.getOrDefault(id, 0) > 0);
         }
         R27TestSupport.log("R30_FAMILY_CONTRACT complete=" + complete + " actualBirths=" + born);
+        }
     }
 
     @Test public void expertsPublishCompletePoliciesOrExplicitAuditReceipts() {
