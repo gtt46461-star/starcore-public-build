@@ -70,6 +70,10 @@ public final class TenPositionR30HostTest {
                 require(Arrays.equals(before,artifact(db))&&Arrays.equals(memory,rt.atomSessionR30.encode()),"MODEL_CURSOR_NOT_ATOMIC_ON_ROLLBACK");
                 for(int p=2;p<=STOP_POSITION;p++)owned.owned(()->AtomNetRuntimeR30.step(rt,worker));
                 require(rt.atomSessionR30.nextPosition==STOP_POSITION+1&&rt.atomSessionR30.partialIssue.equals(issue(82)),"MID_ISSUE_CURSOR");
+                // R31-B06-C03: a partial issue never advances the complete watermark and is never consumed.
+                Map<?,?> partial=(Map<?,?>)JsonR27.parse(text(db,"SELECT payload_json FROM r27_chart_cache WHERE panel_id='atomnet' AND key='ten-position-r30'"));
+                require(Boolean.FALSE.equals(partial.get("consumable"))&&((Number)partial.get("partialPositionsCommitted")).longValue()==STOP_POSITION&&((Number)partial.get("completeTrainedThroughOrdinal")).longValue()==TargetIssueResolver.sequenceOrdinalSU1(issue(80))/* 81 is the unregistered in-flight input, never learned */,"PARTIAL_ISSUE_ADVANCED_COMPLETE_WATERMARK");
+                require("0".equals(text(db,"SELECT count(*) FROM r30_atomnet_forecast WHERE target_issue='"+issue(83)+"'")),"PARTIAL_MODEL_CONSUMED");
                 byte[] committedState=resolved(db);AtomNetSessionR30 expected=AtomNetSessionR30.decode(committedState,StatsR27.sha256(committedState));
                 ReplayDatasetR27 data=StoreR27.loadDataset(db,100);AtomReplayR27.Frame frame=AtomReplayR27.build(data,81,82);
                 for(int p=STOP_POSITION+1;p<=10;p++){
@@ -80,14 +84,19 @@ public final class TenPositionR30HostTest {
                 System.out.println("R30_TEN_SQLITE|PRETRAIN_SLICES="+slices+"|560_SAMPLES_56_PERIODS|182_INPUTS|10_FROZEN_POSITIONS|FAILED_COMMIT_ROLLED_BACK|HALT_AFTER_POSITION_"+STOP_POSITION);System.out.flush();Runtime.getRuntime().halt(0);
             }
             owned.owned(()->AtomNetRuntimeR30.step(rt,worker));require(rt.atomSessionR30.nextPosition==STOP_POSITION+1,"RESTORE_LOST_POSITION_CURSOR");
+            byte[] partialWeights=rt.atomSessionR30.trainer.net.encode();
             for(int p=STOP_POSITION+1;p<=10;p++)owned.owned(()->AtomNetRuntimeR30.step(rt,worker));
             require(rt.atomSessionR30.trainer.onlineSteps==10&&rt.atomSessionR30.completeIssue.equals(issue(82)),"TEN_ONLINE_POSITIONS_NOT_ONCE");
+            require(!Arrays.equals(partialWeights,rt.atomSessionR30.trainer.net.encode()),"NONZERO_GRADIENT_DID_NOT_CHANGE_WEIGHTS");
+            Map<?,?> complete=(Map<?,?>)JsonR27.parse(text(db,"SELECT payload_json FROM r27_chart_cache WHERE panel_id='atomnet' AND key='ten-position-r30'"));
+            require(Boolean.TRUE.equals(complete.get("consumable"))&&((Number)complete.get("partialPositionsCommitted")).longValue()==0&&((Number)complete.get("completeTrainedThroughOrdinal")).longValue()==TargetIssueResolver.sequenceOrdinalSU1(issue(82)),"COMPLETE_WATERMARK_NOT_ADVANCED_AT_POSITION_TEN");
+            require("0".equals(text(db,"SELECT count(*) FROM r30_atomnet_forecast f WHERE NOT EXISTS(SELECT 1 FROM r31_atomnet_publication p WHERE p.status='PUBLISHED' AND p.model_hash=f.model_hash)")),"FORECAST_CONSUMED_UNPUBLISHED_MODEL");
             require(StatsR27.sha256(resolved(db)).equals(text(db,"SELECT payload_json FROM r27_chart_cache WHERE panel_id='host' AND key='expected'")),"PRODUCTION_RESTART_NOT_EXACT");
             byte[] settled=artifact(db);owned.owned(()->AtomNetRuntimeR30.step(rt,worker));require(Arrays.equals(settled,artifact(db)),"DUPLICATE_LEARNING_AFTER_RETRY");
             require(legacyHash.equals(text(db,"SELECT state_hash FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'")),"LEGACY_NOT_PRESERVED");
             Map<?,?> report=(Map<?,?>)JsonR27.parse(text(db,"SELECT payload_json FROM r27_chart_cache WHERE panel_id='atomnet' AND key='ten-position-r30'"));
             require(((Number)report.get("materializedSamples")).longValue()==560&&((Number)report.get("onlineSamples")).longValue()==10,"REPORT_DOES_NOT_MATCH_COMMITTED_TRAINING");
-            System.out.println("R30_TEN_SQLITE|REAL_JVM_RESTART_DECLARED_POSITION_TO_10_EXACT|PRODUCTION_FENCED_RETRY_AFTER_CONFIRMED_EXIT|NO_DUPLICATE|LEGACY_BYTES_PRESERVED|THROUGHPUT_REPORT_MATCHES|PASS");
+            System.out.println("R30_TEN_SQLITE|REAL_JVM_RESTART_DECLARED_POSITION_TO_10_EXACT|PRODUCTION_FENCED_RETRY_AFTER_CONFIRMED_EXIT|PARTIAL_NOT_CONSUMED|COMPLETE_WATERMARK_AT_POSITION_10|NONZERO_GRADIENT|PUBLISHED_MODEL_CONSUMED|NO_DUPLICATE|LEGACY_BYTES_PRESERVED|THROUGHPUT_REPORT_MATCHES|PASS");
             System.out.println("R30_TEN_SQLITE_REPORT "+JsonR27.write(report));
             }
         }

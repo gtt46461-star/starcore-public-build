@@ -94,7 +94,9 @@ public final class AtomNetRuntimeR30 {
         }
     }
     static void forecast(RuntimeR27 rt,ResearchPoolR27.Worker w,AtomNetSessionR30 state,ReplayDatasetR27 recent)throws Exception{
-        if(!state.ready()||recent.size()<AtomReplayR27.MIN_ROWS)return;
+        // R31-B06-C03: the consumer is the shared ten-position model. Positions 1..9 of an issue are partial
+        // updates; only a complete issue (all ten positions committed) may be frozen and consumed.
+        if(!state.ready()||!state.partialIssue.isEmpty()||recent.size()<AtomReplayR27.MIN_ROWS)return;
         long targetOrdinal=recent.ordinals[recent.size()-1]+1,deadline=RuntimeR27.latestOpen(w.ro)+60_000L;
         if(state.trainedThroughOrdinal()>=targetOrdinal||System.currentTimeMillis()>=deadline-LiveShadowsR27.FREEZE_MARGIN_MS)return;
         String target=TargetIssueResolver.fromSequenceOrdinalSU1(targetOrdinal);

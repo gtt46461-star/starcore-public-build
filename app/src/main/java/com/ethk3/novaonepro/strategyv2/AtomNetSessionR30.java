@@ -133,6 +133,13 @@ public final class AtomNetSessionR30 {
         r.put("inputBoundary",observedThrough);r.put("legacyTrainedThroughIsInputBoundary",completeIssue.isEmpty());
         r.put("weightsTrainedThrough",ready()?trainedThrough():null);
         r.put("weightsTrainedThroughOrdinal",ready()?trainedThroughOrdinal():null);
+        // R31-B06-C03: complete watermark advances only after position 10; partial positions are observed, not consumable.
+        r.put("completeTrainedThroughIssue",ready()?completeIssue:null);
+        r.put("completeTrainedThroughOrdinal",ready()?(partialIssue.isEmpty()?Long.valueOf(trainedThroughOrdinal()):completeIssue.isEmpty()?null:Long.valueOf(com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1(completeIssue))):null);
+        r.put("partialObservedIssue",partialIssue.isEmpty()?null:partialIssue);
+        r.put("partialPositionsCommitted",partialIssue.isEmpty()?0L:(long)(nextPosition-1));
+        r.put("consumerModelScope","SHARED_TEN_POSITION_COMPLETE_ISSUE_ONLY");
+        r.put("consumable",ready()&&partialIssue.isEmpty());
         r.put("publicationReady",ready());r.put("learningProtocol",LEARNING_PROTOCOL);r.put("replayPolicy",replayPolicy);r.put("replayEvidenceRun",replayEvidenceRun);r.put("replayPolicyChanges",replayPolicyChanges);r.put("replayChangeQuality","REFUTABLE_RESEARCH_ALLOCATION_NOT_A_PROVED_GAIN_NO_MODEL_OR_ALPHA_RESET");r.put("primaryTrainingSamplesCommitted",pretrainSamples+trainer.onlineSteps);
         r.put("trainingCounterScope","PRETRAIN_VISITS_PLUS_NEW_ONLINE_POSITIONS;EXCLUDES_REPLAY_VISITS;NOT_INDEPENDENT_ISSUES");
         r.put("status",materializedSamples>0?"MEASURED":"INSUFFICIENT");r.put("quality","NO_NATURAL_QUALITY_CLAIM");r.put("validationRole","DEVELOPMENT_VALIDATION_FROM_ORIGINAL_SELECT_ONLY");r.put("currentValidationInputPolicy","ORIGINAL_SELECT_ONLY; FORMAL_CONFIRM_AND_FUTURE_TABLES_ARE_NOT_OPTIMIZER_INPUT");r.put("legacyValidationOriginUnknown",legacyValidationOriginUnknown);r.put("needsValidationRoleMigration",needsValidationRoleMigration);r.put("independentTrainingCalendarIssues",pretrainSamples==0?0L:(long)(trainCount/10));return r;
