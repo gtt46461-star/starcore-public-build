@@ -214,7 +214,7 @@ jobs:
               echo "R31_HOST_PASS:$r31_check"
             else
               r31_status=$?; r31_host_failed=1
-              echo "R31_HOST_FAIL:$r31_check:exit=$r31_status"
+              echo "R31_HOST_FAIL:$r31_check:exit=$r31_status"; tail -n 40 "$RUNNER_TEMP/r31-evidence/repair-$r31_check.log" | sed 's/^/R31_HOST_FAILURE|/'
             fi
           done
           for r31_check in memory pitguard_allocation runtime_memory_control resource_recovery; do
@@ -242,6 +242,20 @@ jobs:
             else
               r31_status=$?; r31_host_failed=1
               echo "R31_HOST_FAIL:$r31_runtime_case:exit=$r31_status"
+            fi
+          done
+          # Newer R31 P01/P02 producer HOST protocols on this build's actual compiled classes (failures retained).
+          r31_classes="$GITHUB_WORKSPACE/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"
+          r31_new_out="$RUNNER_TEMP/r31-evidence/r31-new-host"; mkdir -p "$r31_new_out"
+          for r31_new in "atom_publication|tools/r31/run_atom_publication_host.py --output $r31_new_out/atom" "evolution_publication|tools/r31/run_evolution_publication_host.py" "report_cas_scope|tools/r31/run_report_cas_scope_host.py --out $r31_new_out/cas --classes $r31_classes" "report_history_reader|tools/r31/run_report_history_reader_host.py --out $r31_new_out/history --classes $r31_classes" "telemetry_budget|tools/r31/run_telemetry_budget_host.py --output $r31_new_out/telemetry" "runtime_ddl_writer_regression|tools/r31/run_runtime_ddl_writer_regression.py" "runtime_observation|tools/r31/verify_runtime_observation.py" "task_status|tools/r31/verify_task_status.py"; do
+            r31_check="R31NEW_${r31_new%%|*}"; r31_cmd="${r31_new#*|}"
+            echo "R31_HOST_START:$r31_check"
+            if [ ! -f "${r31_cmd%% *}" ]; then echo "R31_HOST_NOT_PRESENT:$r31_check"; continue; fi
+            if python3 $r31_cmd > "$RUNNER_TEMP/r31-evidence/repair-$r31_check.log" 2>&1; then
+              echo "R31_HOST_PASS:$r31_check"
+            else
+              r31_status=$?; r31_host_failed=1
+              echo "R31_HOST_FAIL:$r31_check:exit=$r31_status"; tail -n 40 "$RUNNER_TEMP/r31-evidence/repair-$r31_check.log" | sed 's/^/R31_HOST_FAILURE|/'
             fi
           done
           mkdir -p "$RUNNER_TEMP/r31-evidence/r31-scoped-memory"
