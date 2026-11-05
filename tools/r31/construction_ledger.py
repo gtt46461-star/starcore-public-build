@@ -95,6 +95,11 @@ def summary():
               'mandatory_closed_cards': counts['DEVICE_PASS'],
               'mandatory_completion_rate': counts['DEVICE_PASS'] / total,
               'device': data['device'], 'natural_quality': data['natural_quality']}
+    source_done = sum(x['status'] in ('CODE_COMPLETE','BUILD_PASS','INTEGRATION_PASS','DEVICE_PASS') for x in data['cards'])
+    result.update(source_complete_cards=source_done, source_completion_rate=source_done/total,
+                  engineering_integration_cards=counts['INTEGRATION_PASS']+counts['DEVICE_PASS'],
+                  device_verified_cards=counts['DEVICE_PASS'],
+                  completion_policy='Source milestones and engineering integration are separate from physical/endurance/natural evidence; see PROCESS_ADJUSTMENT_20261105.md')
     current_path = DEST / 'CURRENT_EXECUTION.json'
     current = json.loads(current_path.read_text()) if current_path.exists() else {}
     batches = sorted({card['id'].split('-')[1] for card in data['cards']})

@@ -1,9 +1,9 @@
 {
-  "recorded_at": "2026-11-05T01:30:33.820375+00:00",
+  "recorded_at": "2026-11-05T01:51:54.326714+00:00",
   "branch": "construction/r31-final-20261104",
   "report_baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
   "latest_pushed_source": "c6f1ed3c",
-  "active_phase": "P01_GATE_BACKFILL_WITH_EXISTING_P02_INTEGRATION_REVALIDATION",
+  "active_phase": "P03_SOURCE_WITH_P01_P02_INTEGRATION_BACKFILL",
   "P03_production_started": true,
   "latest_full_unit": {
     "source": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
@@ -50,9 +50,10 @@
     "Legacy writer/qualification/baseline golden threeactual HOST followups independentlyPASS; newfull24NOT_RUN"
   ],
   "next": [
-    "Read run 41946575566 logs and record real results",
-    "Local full unit rerun after fixes",
-    "Finish B06-C03 (lr=0 control, epoch counter), then B06-C01/C02; one batched CI freeze+build for checkpoint 016"
+    "Complete P03 three cards in parallel with shared file owners",
+    "Repair observed CI015 memory/lint failures locally using same limits",
+    "Integrate preserved local startup and Dataset recovery fixes without overriding remote modifications",
+    "One local baseline/candidate regression group, then batched CI identity freeze and build at agreed release gate"
   ],
   "signing_support_branch": "construction/r27-20261028",
   "signing_support_head": "359594de5ea7049604e5763baa11777c22d6e3b8",
@@ -77,11 +78,13 @@
     "Owned lifecycle patch passes18-step resume and all4 bounded replay tests;100run no-signal/control still failed capacity, not overridden",
     "Prior process-death fixtures must close their now-AutoCloseable old owner before replacement; numerical assertions remain untouched"
   ],
-  "current_phase": "P01",
-  "current_phase_ordinal": 2,
+  "current_phase": "P03",
+  "current_phase_ordinal": 4,
   "current_scope": [
-    "B01_B02_JOINT_GATE_REPAIR",
-    "P02_EXISTING_SOURCE_INTEGRATION_ONLY"
+    "B06_C01_FROZEN_INPUT_ROLES",
+    "B06_C02_INCREMENTAL_CHECKPOINT",
+    "B06_C03_EPOCH_AND_CONSUMER_PROOF",
+    "P01_P02_EXISTING_REGRESSION_REPAIR"
   ],
   "current_failures": [
     "014 full API29/35 fault matrices FAILED before injection at R929 bundle prerequisites; original logs retained",
@@ -172,7 +175,7 @@
     "scope": "ACTUAL_REMOTE_UNEXCLUDED_UNIT_NOT_DEVICE"
   },
   "latest_pushed_source_link": "https://github.com/gtt46461-star/starcore-public-build/commit/961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
-  "execution_gate": "P01_B02_C02_OPEN; EXISTING_P02_SOURCE_UNDER_REVALIDATION; P03_NOT_STARTED",
+  "execution_gate": "Source development proceeds per PROCESS_ADJUSTMENT_20261105; Android/device/endurance gates deferred toP08/B12, never assumed PASS",
   "pending_full_unit": {
     "state": "COMPLETED_PASS481_ZERO_FAILURE_ZERO_SKIP",
     "versionCode": 577311014,
@@ -202,8 +205,8 @@
     "scope": "ACTUAL_HOST_NOT_ANDROID_OR_PHYSICAL",
     "source_inputs_changed": false
   },
-  "highest_source_phase": "P02",
-  "highest_source_phase_ordinal": 3,
+  "highest_source_phase": "P03",
+  "highest_source_phase_ordinal": 4,
   "phase_reporting_rule": "Report current unpassed dependency gate separately from highest phase with code changes; starting P02 was not evidence of G01 acceptance.",
   "historical_checkpoints": [
     {
@@ -404,7 +407,7 @@
     "Full same-source Android unexcluded compile/all-unit/lint/identity plus actual API29/35 fault matrices",
     "Protected growth debts and P06-controlled reclamation remain separate; no measured physical release inferred"
   ],
-  "construction_state": "PAUSED_BY_USER_20261105",
+  "construction_state": "IMPLEMENTING",
   "process_adjustment": "construction/r31/PROCESS_ADJUSTMENT_20261105.md",
   "latest_frozen_build_source": "01c65875f294362dbc6f7fce39ea4d103b43eefa",
   "pending_ci_run": {
@@ -418,5 +421,21 @@
     "3402edbf (B06-C03)",
     "c6f1ed3c (docs/ledger)"
   ],
-  "gate_rule": "Android/device/24h/72h are P08/B12 release gates, not source-construction prerequisites; failures recorded, never inferred PASS"
+  "gate_rule": "SOURCE_IMPLEMENTATION_AND_B12_RELEASE_ACCEPTANCE_SEPARATE",
+  "delivery_policy": "FINAL_ONLY_NO_INTERMEDIATE_APK_DELIVERY",
+  "ci015_actual_observation": {
+    "run": 41946575566,
+    "source": "01c65875f294362dbc6f7fce39ea4d103b43eefa",
+    "build": "FAILED",
+    "unit": {
+      "executed": 485,
+      "failures": 8,
+      "category": "MemoryBudgetR31.CapacityWait"
+    },
+    "lint": "FAILED_STATIC_FIELD_CONTEXT_LEAK_LegacyTeacherOwnerR26",
+    "legacy_native_host_job": "PASS",
+    "android_validation": "IN_PROGRESS_AT_LAST_FETCH",
+    "physical": "NOT_RUN",
+    "natural": "NOT_PROVEN"
+  }
 }

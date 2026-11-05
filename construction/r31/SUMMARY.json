@@ -1,9 +1,9 @@
 {
   "cards": 56,
   "states": {
-    "NOT_STARTED": 37,
-    "IMPLEMENTING": 8,
-    "CODE_COMPLETE": 1,
+    "NOT_STARTED": 35,
+    "IMPLEMENTING": 11,
+    "CODE_COMPLETE": 0,
     "BUILD_PASS": 10,
     "INTEGRATION_PASS": 0,
     "DEVICE_PASS": 0,
@@ -26,9 +26,14 @@
     "future_samples_this_build": 0,
     "reason": "No prospective run of this APK; historical/SHADOW/synthetic evidence does not establish natural quality."
   },
-  "recorded_at": "2026-11-05T01:19:22.793376+00:00",
+  "source_complete_cards": 10,
+  "source_completion_rate": 0.17857142857142858,
+  "engineering_integration_cards": 0,
+  "device_verified_cards": 0,
+  "completion_policy": "Source milestones and engineering integration are separate from physical/endurance/natural evidence; see PROCESS_ADJUSTMENT_20261105.md",
+  "recorded_at": "2026-11-05T01:53:16.978748+00:00",
   "plan_batches": 13,
-  "started_cards": 19,
+  "started_cards": 21,
   "started_is_not_completed": true,
   "batches_touched": [
     "B00",
@@ -39,13 +44,15 @@
     "B05",
     "B06"
   ],
-  "current_phase": "P01",
-  "current_phase_ordinal": 2,
+  "current_phase": "P03",
+  "current_phase_ordinal": 4,
   "current_scope": [
-    "B01_B02_JOINT_GATE_REPAIR",
-    "P02_EXISTING_SOURCE_INTEGRATION_ONLY"
+    "B06_C01_FROZEN_INPUT_ROLES",
+    "B06_C02_INCREMENTAL_CHECKPOINT",
+    "B06_C03_EPOCH_AND_CONSUMER_PROOF",
+    "P01_P02_EXISTING_REGRESSION_REPAIR"
   ],
-  "latest_pushed_checkpoint": "961a6b8a74b9624a2b195e9562fbdfc9283b29fc",
+  "latest_pushed_checkpoint": "c6f1ed3c",
   "phases": {
     "P00": {
       "cards": 2,
@@ -89,9 +96,9 @@
     "P03": {
       "cards": 3,
       "states": {
-        "NOT_STARTED": 2,
-        "IMPLEMENTING": 0,
-        "CODE_COMPLETE": 1,
+        "NOT_STARTED": 0,
+        "IMPLEMENTING": 3,
+        "CODE_COMPLETE": 0,
         "BUILD_PASS": 0,
         "INTEGRATION_PASS": 0,
         "DEVICE_PASS": 0,

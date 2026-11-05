@@ -14,7 +14,7 @@
     "BLOCKED",
     "FAILED"
   ],
-  "completion_rule": "Only DEVICE_PASS with every applicable mandatory acceptance evidence closes a card; code/build/integration counts are reported separately.",
+  "completion_rule": "CODE_COMPLETE/source and BUILD_PASS/CI and INTEGRATION_PASS/emulator and DEVICE_PASS/physical are separate evidence milestones; missing physical device never blocks source implementation. All required final release evidence and unavailable/waived items remain explicit.",
   "device": {
     "state": "NOT_RUN",
     "initial_24h": "NOT_RUN",
@@ -4862,7 +4862,7 @@
       "title": "保留历史训练并统一冻结输入、角色和数据修订",
       "phase": "P03",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
@@ -4917,12 +4917,19 @@
         "开发过程读取 CONFIRM/FUTURE 标签即测试失败；报告能列出每个候选训练输入与独立证据边界。",
         "pin 超预算时研究等待、实时冻结结算继续；删除保护输入应由外键或 pin 校验阻止。"
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Implement exact card contract and necessary local tests, then CODE_COMPLETE; no dependency on physical device availability.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156429+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-05T01:51:54.326714+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "Authorized under updated process; real independent source work and negative-control tests started",
+          "owner": "continuation_protocol",
+          "worktree": "/workspace/r31-historical-input"
         }
       ]
     },
@@ -4931,7 +4938,7 @@
       "title": "回放增量化与模型、优化器、游标共同提交",
       "phase": "P03",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
@@ -4996,12 +5003,19 @@
         "记录 CPU 样本吞吐、峰值内存及实时延迟，达到 B01/B02/B12 的性能门后才启用更多家族预算。",
         "退休候选释放后的堆、native、缓存与磁盘引用均能下降；模型 cache 命中率与实际字节可核对。"
       ],
-      "next_step": "Read card and source evidence; implement after predecessor integration.",
+      "next_step": "Implement exact card contract and necessary local tests, then CODE_COMPLETE; no dependency on physical device availability.",
       "history": [
         {
           "at": "2026-11-04T08:42:02.156433+00:00",
           "state": "NOT_STARTED",
           "reason": "Initialized from immutable plan; no inherited completion claims."
+        },
+        {
+          "at": "2026-11-05T01:51:54.326714+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "Authorized under updated process; real independent source work and negative-control tests started",
+          "owner": "writer_protocol",
+          "worktree": "/workspace/r31-replay-checkpoint"
         }
       ]
     },
@@ -5010,7 +5024,7 @@
       "title": "AtomNet 十位置完整训练水位与真实发布消费证明",
       "phase": "P03",
       "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
-      "status": "CODE_COMPLETE",
+      "status": "IMPLEMENTING",
       "baseline_files": [
         {
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
@@ -5113,6 +5127,11 @@
           "state": "CODE_COMPLETE",
           "receipt": "verification/r31/p03/b06-c03/RECEIPT.json",
           "receipt_sha256": "8a21bc613b8b57e2b71353aedf54cdf0a5d059755a0f85e09f66d1778ca17589"
+        },
+        {
+          "at": "2026-11-05T01:52:18.427877+00:00",
+          "state": "IMPLEMENTING",
+          "reason": "Inherited CODE_COMPLETE receipt lists two unimplemented card steps: lr=0 control and reported epoch counter; complete-source status deferred until these are implemented and tested. Original milestone/evidence preserved."
         }
       ]
     },
@@ -7104,5 +7123,11 @@
       }
     }
   },
-  "updated_at": "2026-11-04T21:31:53.576300+00:00"
+  "updated_at": "2026-11-04T21:31:53.576300+00:00",
+  "execution_policy_override": {
+    "source": "construction/r31/PROCESS_ADJUSTMENT_20261105.md and user resume instruction20261105",
+    "source_completion": "CODE_COMPLETE requires real source and local evidence",
+    "release_gates": "CI/Android/physical/endurance recorded separately; no physical test required to start/complete source implementation",
+    "apk_delivery": "FINAL_ONLY"
+  }
 }
