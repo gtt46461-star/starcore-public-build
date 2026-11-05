@@ -1,0 +1,31 @@
+{
+  "scope": "ACTUAL_POOL_RECORD_OBSERVE_COORDINATOR_SQLITE_AND_REPORT_CAPTURE_HOST_NOT_ANDROID_OR_RELEASE",
+  "candidateCommit": "810818d5a8f73e886dbeb0ad593a6fc6bddd3665",
+  "runReceipt": "runs/20261105T023753Z/receipt.json",
+  "runReceiptSha256": "0c6e5965120358b47a868ec9ccaa35b18cbc04fd0023c49d0aaa51fff56111e0",
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java": "2fda6286322d1344ef19934d4810839598d1fbb0cf319c11eabae609b314e706",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeFaultEvidenceR31.java": "7bfe024663edfa744913112c671b3af4ae6129b4d07dcc2befef6c463e97eb4e",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java": "a4c8c167f9dcecdecd007862bb8725e5ccf2640de0899efc25dbbc1345ad7283",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java": "7082f556df496611f0231f0e2172c537349c0e95f8916ea5a714953d22f1a5d0",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeDiagnosticLinksR31.java": "f3deb17c34f8e5fbb482d6f136211f6b207a44f6a4be00407ca3b67833cbfaf8"
+  },
+  "fixedSupportSha256": "111dfd9f2591906036d031a32adfcc999ab58e644ebda7e24548fceb1d37e30f",
+  "assertions": 98,
+  "newPhysicalTransactions": 2249,
+  "denominatorIncludes": "one intentional frozen-baseline claim-wait transaction plus all candidate NEW-labelled transactions, including native rollbacks",
+  "maxSqlIncludingBeginEnd": 14,
+  "maxBindBytes": 35540,
+  "hostP99Nanos": 3091378,
+  "hostMaximumNanos": 24786433,
+  "timingScope": "HOST_MECHANISM_ONLY_NOT_ANDROID_SLO",
+  "actualProducer": "ResearchPoolR27.record -> observeAttemptR31",
+  "actualConsumer": "ReportSnapshotR30.capture on native read-only connection, API34 host transport",
+  "dbStoreFacade": false,
+  "constructionBoundary": "Unsafe wiring actual final production objects, no service startup; actual RuntimeSchema private base startup helper plus actual declarative columns, not whole Android startup",
+  "knownOpen": [
+    "Android runtime/device and final release proof",
+    "Cross-process visibility and death before flushing process-only counters"
+  ],
+  "sourceChangedAfterSnapshot": []
+}

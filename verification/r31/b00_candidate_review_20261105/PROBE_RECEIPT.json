@@ -1,0 +1,44 @@
+{
+  "scope": "READ_ONLY_CANDIDATE_PURE_JAVA_OBSERVATION_NEGATIVE_NOT_ANDROID",
+  "source": "/workspace/r31-integration-20261105",
+  "sourceCommit": "f60757fd56c04da3900babababdb0e1721cadb71",
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java": "35fce88a64f2f5bc1a88f863d0d3cf632179943873b3500b9a54e3fd1101159a",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java": "a7b4645a2247af79c2db75389f7c1c044bf31d20cb0b100fe4b2fa09bdfd9daa",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java": "cc4354d257a170ce2de3579c2fe62e0e676b70593c8373deec1fe56df79483cf",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java": "ec98ea0e2a672caa8ac4d61e5172e84d243b546c5867644d15e3565d170b23a0",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeFaultEvidenceR31.java": "32e945ddc1bb9eea91cde05dbf9d5b7af1c93ec3da1820826ec9451d50dfa92a"
+  },
+  "commands": [
+    {
+      "name": "bounded-redaction-probe-compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-d",
+        "/workspace/.r31-b00-review-vrfx9z9d/classes",
+        "/workspace/r31-warm-protocol-503ef/verification/r31/b00_candidate_review_20261105/source_snapshot/app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java",
+        "/workspace/r31-warm-protocol-503ef/verification/r31/b00_candidate_review_20261105/source_snapshot/app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java",
+        "/workspace/r31-warm-protocol-503ef/verification/r31/b00_candidate_review_20261105/source_snapshot/app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+        "/workspace/r31-warm-protocol-503ef/verification/r31/b00_candidate_review_20261105/source_snapshot/app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java",
+        "/workspace/r31-warm-protocol-503ef/verification/r31/b00_candidate_review_20261105/source_snapshot/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeFaultEvidenceR31.java",
+        "/workspace/r31-warm-protocol-503ef/verification/r31/b00_candidate_review_20261105/B00CandidateObservationProbeR31.java"
+      ],
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "name": "bounded-redaction-negative",
+      "argv": [
+        "java",
+        "-cp",
+        "/workspace/.r31-b00-review-vrfx9z9d/classes",
+        "com.ethk3.novaonepro.strategyv2.B00CandidateObservationProbeR31"
+      ],
+      "exit": 1,
+      "expected": 1
+    }
+  ],
+  "sourceChangedAfterSnapshot": []
+}
