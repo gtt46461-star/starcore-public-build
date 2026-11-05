@@ -39,6 +39,32 @@ class PlanIntegrityTest(unittest.TestCase):
         self.assertTrue(all(r["semantic_implementation_acceptance"] == "NOT_PERFORMED"
                             for r in result["preservation"]))
 
+    def test_revision_plan_member_tamper_and_acceptance_change_fail(self):
+        """R31.1/R31.2 in-place revision: sealed by its member manifest, never by rewriting an expected hash."""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            revision = root / v.REVISION_PLAN_REL
+            original = root / "original"
+            for plan in (revision, original):
+                (plan / "ledgers").mkdir(parents=True)
+                (plan / "ledgers/acceptance_config.json").write_text('{"x":1}')
+            (revision / "a.txt").write_bytes(b"revised")
+            members = [{"path": "a.txt", "bytes": 7, "sha256": v.sha256(b"revised")},
+                       {"path": "ledgers/acceptance_config.json", "bytes": 7, "sha256": v.sha256(b'{"x":1}')}]
+            (revision / "MANIFEST_SHA256.json").write_text(json.dumps({"files": members}))
+            self.assertEqual(64, len(v.verify_revision_plan(root, original)))
+            (revision / "a.txt").write_bytes(b"tamper!")
+            with self.assertRaisesRegex(ValueError, "REVISION_PLAN_MEMBER_MISMATCH:a.txt"):
+                v.verify_revision_plan(root, original)
+            (revision / "a.txt").write_bytes(b"revised")
+            (original / "ledgers/acceptance_config.json").write_text('{"x":2}')
+            with self.assertRaisesRegex(ValueError, "REVISION_CHANGED_ACCEPTANCE_CONFIG"):
+                v.verify_revision_plan(root, original)
+            (revision / "a.txt").unlink()
+            (original / "ledgers/acceptance_config.json").write_text('{"x":1}')
+            with self.assertRaises((ValueError, FileNotFoundError, OSError)):
+                v.verify_revision_plan(root, original)
+
     def test_resealed_manifest_does_not_change_fixed_expectation(self):
         with tempfile.TemporaryDirectory() as directory:
             plan, expected = self.fixture(directory)

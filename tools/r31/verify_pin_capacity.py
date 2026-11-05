@@ -7,7 +7,7 @@ def main():
  ap=argparse.ArgumentParser();ap.add_argument('--support-jar',type=Path,required=True);args=ap.parse_args()
  out=ROOT/'verification/r31/p02/pin-capacity/runs'/datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ');out.mkdir(parents=True);work=Path(tempfile.mkdtemp(prefix='r31-pin-capacity-final-'));src,platform,prod,host=[work/n for n in ['sources','platform','production','host']]
  for p in [src,platform,prod,host]:p.mkdir()
- sdk=Path('/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar');jdbc=Path('/tmp/r31-baseline-deps/sqlite-jdbc.jar');jdk=Path('/workspace/starcore-environment/tools/jdk-17.0.17+10/bin')
+ sdk=Path(os.environ.get('ANDROID_HOME') or os.environ['ANDROID_SDK_ROOT'])/'platforms/android-36/android.jar';jdbc=Path(os.environ.get('SQLITE_JDBC','/tmp/r31-baseline-deps/sqlite-jdbc.jar'));jdk=Path(shutil.which('javac')).resolve().parent
  receipt={'schema':'R31_PIN_CAPACITY_NATIVE_1','scope':'ACTUAL_PIN_MEASUREMENT_AND_NATIVE_PROTOCOL_WITH_EXPLICIT_DISK_FIXTURES_NOT_ART_DEVICE_OR_NATURAL','status':'IMPLEMENTING','work':str(work),'head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'supportJar':str(args.support_jar),'supportJarSha256':SHA(args.support_jar.read_bytes()),'runnerSha256':SHA(Path(__file__).read_bytes()),'sources':[],'commands':[],'art':'NOT_RUN','device':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_EVALUATED'}
  def save():(out/'RECEIPT.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
  def snap(p,q):

@@ -27,7 +27,7 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
     out = args.out.resolve(); out.mkdir(parents=True, exist_ok=False)
-    work = Path(tempfile.mkdtemp(prefix='r31-writer-hold-fault-', dir='/workspace'))
+    work = Path(tempfile.mkdtemp(prefix='r31-writer-hold-fault-'))
     sdk = Path(os.environ['ANDROID_HOME']) / 'platforms/android-36/android.jar'
     jdbc = Path(os.environ['SQLITE_JDBC'])
     receipt = {'scope': 'FROZEN_PRODUCTION_NATIVE_SQLITE_ENGINEERING_FAULT_INJECTION_NOT_ANDROID_OR_NATURAL',

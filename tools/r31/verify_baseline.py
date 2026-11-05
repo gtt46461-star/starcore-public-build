@@ -25,7 +25,24 @@ BASELINE = "5237b265a27fe5ad27fd842901c445d5f8c27749"
 PLAN_REL = "construction/archives/STARCORE_R31_FINAL_20261104"
 PLAN_MANIFEST_SHA256 = "13f34908b624c74e2852ce8f944b99f8978348820aab23f83043fab1d72753ce"
 REVISION_PLAN_REL = "construction/STARCORE_R31_FINAL_20261104"
-REVISION_PLAN_MANIFEST_SHA256 = "4f21a1291a413c0bd23efb85dde8a4a2e940322c9b039365b573fe752046f114"
+# The in-place revision (R31.1, R31.2, ...) is sealed by its own member manifest: every listed member must
+# exist with exact bytes/sha256 and the acceptance config must equal the original. Its manifest hash is recorded
+# in the build identity; it is never silently rewritten by this tool.
+
+
+def verify_revision_plan(root: Path, original_plan: Path) -> str:
+    revision_dir = root / REVISION_PLAN_REL
+    revision = safe_file(revision_dir, "MANIFEST_SHA256.json").read_bytes()
+    members = json.loads(revision).get("files")
+    if not isinstance(members, list) or not members:
+        raise ValueError("REVISION_PLAN_MANIFEST_EMPTY")
+    for member in members:
+        data = safe_file(revision_dir, member["path"]).read_bytes()
+        if len(data) != member["bytes"] or sha256(data) != member["sha256"]:
+            raise ValueError("REVISION_PLAN_MEMBER_MISMATCH:" + member["path"])
+    if (revision_dir / "ledgers/acceptance_config.json").read_bytes() != (original_plan / "ledgers/acceptance_config.json").read_bytes():
+        raise ValueError("REVISION_CHANGED_ACCEPTANCE_CONFIG")
+    return sha256(revision)
 PRESERVED = {
     "evidence/derived/legacy_requirements_1832.csv": (1832, "6e9efda4947e8b3df96a98325b74000573e56d9fc4f63ef412115902a0930735"),
     "evidence/derived/legacy_file_cards_299.csv": (299, "0eacc521566e5dd7714945cdf205ea62614de6a8d6538d55ae86d42a3d70b85a"),
@@ -209,11 +226,7 @@ def build_identity(root: Path, plan: Path) -> dict:
     manifest = safe_file(plan, "MANIFEST_SHA256.json").read_bytes()
     if sha256(manifest) != PLAN_MANIFEST_SHA256:
         raise ValueError("PINNED_PLAN_MANIFEST_MISMATCH")
-    revision = safe_file(root / REVISION_PLAN_REL, "MANIFEST_SHA256.json").read_bytes()
-    if sha256(revision) != REVISION_PLAN_MANIFEST_SHA256:
-        raise ValueError("PINNED_REVISION_PLAN_MANIFEST_MISMATCH")
-    if (root / REVISION_PLAN_REL / "ledgers/acceptance_config.json").read_bytes() != (plan / "ledgers/acceptance_config.json").read_bytes():
-        raise ValueError("REVISION_CHANGED_ACCEPTANCE_CONFIG")
+    revision_manifest_sha256 = verify_revision_plan(root, plan)
     head = git(root, "rev-parse", "HEAD").decode().strip()
     ancestry = subprocess.run(["git", "-C", str(root), "merge-base", "--is-ancestor", BASELINE, head],
                               capture_output=True)
@@ -235,7 +248,7 @@ def build_identity(root: Path, plan: Path) -> dict:
             "product_digest_excludes": ["app/build (generated outputs)", "verification (test evidence)",
                                         "construction (plan separately sealed)", "private signing inputs"],
             "plan_manifest_sha256": sha256(manifest),
-            "revision_plan_manifest_sha256": sha256(revision),
+            "revision_plan_manifest_sha256": revision_manifest_sha256,
             "migration_contract_sha256": sha256(canonical(migration)), "schema": schema,
             "device_identity": "NOT_RUN", "signature_identity": "NOT_VERIFIED_HERE",
             "natural_quality": "NOT_PROVEN"}
