@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/workspace/starcore-public-build/tools/r31/verify_family_admission.py", line 65, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/starcore-public-build/tools/r31/verify_family_admission.py", line 43, in main
+    run([javac,'-cp',cp,'-d',baseline,*old,ROOT/'tools/r31/memory_host/FeatureGoldenR31Host.java'],'baseline-compile.log');a=json.loads(run([java,'-Xmx512m','-cp',str(baseline)+os.pathsep+str(support),'com.ethk3.novaonepro.strategyv2.FeatureGoldenR31Host',golden],'baseline-golden.json').stdout);b=json.loads(run([java,'-Xmx512m','-cp',cp,'com.ethk3.novaonepro.strategyv2.FeatureGoldenR31Host',golden],'current-golden.json').stdout);assert a==b;receipt['goldenFingerprints']=len(a)
+                                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/starcore-public-build/tools/r31/verify_family_admission.py", line 33, in run
+    if process.returncode and not allow_failure:raise RuntimeError(log)
+                                                ^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: baseline-golden.json

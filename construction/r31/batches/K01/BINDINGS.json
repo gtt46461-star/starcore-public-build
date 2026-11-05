@@ -23,8 +23,295 @@
    "com.ethk3.novaonepro.strategyv2.R31FaultObservationContractTest#actualReportTaskChapterExportsFaultsLinksAndIncompleteCounters"
   ]
  },
- "known_failure_owners": {},
- "carry": {},
- "scope_extensions": [],
+ "known_failure_owners": {
+  "HOST:r30repair_commit_failure": "K04",
+  "HOST:r30repair_retention": "K15",
+  "HOST:run_legacy_qualification_contract": "K14",
+  "HOST:run_writer_hold_fault_host": "K04",
+  "HOST:verify_ast_family_scope": "K10",
+  "HOST:verify_baseline_selftest": "K02",
+  "HOST:verify_family_admission": "K02",
+  "com.ethk3.novaonepro.strategyv2.R30EvolutionConfirmIntegrationTest#actualEvolutionCanRunWithUnreadableConfirmLabels": "K02",
+  "com.ethk3.novaonepro.strategyv2.R30IdeaFamilyContractTest#thirteenFamiliesHaveCompleteProposalsAndRealBirthRecords": "K02",
+  "com.ethk3.novaonepro.strategyv2.R30IncrementalFeatureTest#changedPrefixIsRebuiltToFullValues": "K02",
+  "com.ethk3.novaonepro.strategyv2.R30IncrementalFeatureTest#incrementalEqualsFull": "K02",
+  "com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest#typedAstConsumesActualSurfaceAndMissingRowsCannotCarryThroughEma": "K02",
+  "com.ethk3.novaonepro.strategyv2.R30NullPipelineTest#powerAndFullPipelineQualificationHaveRecoverableSyntheticReceipts": "K02",
+  "com.ethk3.novaonepro.strategyv2.R30NullPipelineTest#sameFullEvolutionPipelineResumesItsControlState": "K02",
+  "com.ethk3.novaonepro.strategyv2.R30PitReplayInjectionTest#injectedTrainedThroughTargetIsRejectedAndRecorded": "K02",
+  "com.ethk3.novaonepro.strategyv2.R30PolicyContractTest#completeCandidateIsBornAndExplicitControlRemainsExecutable": "K02",
+  "com.ethk3.novaonepro.strategyv2.R30StructureRegistryTest#realMainBirthLoopProducesEveryNewFamily": "K02",
+  "com.ethk3.novaonepro.strategyv2.R30UnifiedEvaluatorTest#deterministicAndDatasetKeyed": "K02"
+ },
+ "carry": {
+  "R31-B00-C01#A1": {
+   "to": "K02",
+   "reason": "R31.3切换后保留下来的双封印安全回归与验证器新接口不兼容，必须在K02补齐兼容并保留全部拒错断言，不能删测试或伪报通过。",
+   "red_tests": [
+    "HOST:verify_baseline_selftest"
+   ]
+  },
+  "R31-B00-C01#A3": {
+   "to": "K02",
+   "reason": "R31.3切换后保留下来的双封印安全回归与验证器新接口不兼容，必须在K02补齐兼容并保留全部拒错断言，不能删测试或伪报通过。",
+   "red_tests": [
+    "HOST:verify_baseline_selftest"
+   ]
+  }
+ },
+ "scope_extensions": [
+  {
+   "path": ".github/workflows/r312-gate.yml",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "CURRENT_FINAL_PLAN.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "STARCORE_最终施工入口.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+   "reason": "保留暂停前实际提交的事务结局观测联改，避免覆盖已修改的六参CommitOutcome事实传递；本批只保全，数据库协议仍按后续批次验收。"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+   "reason": "保留暂停前真实根因分类修复，物理满盘、损坏、约束和超时分别处理；后续任务协议批次继续验证，不以继承状态冒充完成。"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+   "reason": "保留暂停前模型私有原始数组物化计量修复及借用教师排除逻辑；本次全量仍有内存失败，明确交K02修复。"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+   "reason": "保留暂停前按真实堆采样纪元扣除已物化私有模型载荷的修复；不增大预算或堆，剩余CapacityWait全部在K02处理。"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+   "reason": "保留暂停前真实写入结局进入报告章节的源码联改，未知不得当零；保全不表示后续完整报告能力已验收。"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+   "reason": "保留暂停前commitOutcomes和over_budget实际投影，缺源及旧直方图保持unknown，避免合并时丢失真实修复。"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java",
+   "reason": "保留暂停前真实提交、回滚和未知计数的有界直方图实现，旧五参调用仍未知，数据库协议留K04验收。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/CURRENT_FINAL_PLAN.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/MANIFEST_SHA256.json",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/README.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/STARCORE_最终施工入口.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/START_HERE.html",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/README.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S00.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S01.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S02.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S03.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S04.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S05.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S06.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S07.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S08.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S09.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S10.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S11.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S12.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S13.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S14.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S15.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S16.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S17.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S18.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S19.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S20.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/batches/S21.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/cards/S00/R312-S00-C01.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/cards/S00/R312-S00-C02.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/cards/S01/R312-S01-C01.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/cards/S01/R312-S01-C02.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/cards/S01/R312-S01-C03.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/docs/00_最终施工总纲.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/docs/02_严格验收与实施协议.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/docs/05_批次拓扑与需求对照.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/docs/15_R31.2顺序批次施工合同.md",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/ledgers/cards.json",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/ledgers/execution_phases.json",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/ledgers/execution_policy.json",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/ledgers/package_summary.json",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/ledgers/r312_acceptance_items.json",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/ledgers/r312_batches.json",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/ledgers/r312_deferred_items.json",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/ledgers/r312_engineering_cards.json",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/ledgers/r312_wip_snapshot.json",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/r312/HOST_SUITE.template.json",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/r312/r312-gate.yml",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/tools/build_r312_plan.py",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/tools/r312_gate.py",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/tools/render_plan_html.py",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/tools/test_r312_gate.py",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  },
+  {
+   "path": "construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/tools/validate_package.py",
+   "reason": "保全用户R31.3更新的入口与归档以及暂停前已提交的R31.2通道历史，保持原提交字节，不计作当前批次业务源码施工。"
+  }
+ ],
  "_note": "B00 bindings carried over from R31.2 S00 (293bb230). Fill known_failure_owners after the first close run lists current failures."
 }

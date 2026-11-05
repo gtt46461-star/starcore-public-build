@@ -1,0 +1,40 @@
+{
+  "scope": "P02_ACTUAL_PRODUCTION_PIT_CHECK_SEMANTICS_AND_ALLOCATION_ONLY",
+  "baseline": "5237b265a27fe5ad27fd842901c445d5f8c27749",
+  "started_utc": "2026-11-05T08:43:47.292034+00:00",
+  "finished_utc": "2026-11-05T08:43:49.392987+00:00",
+  "production_file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PitGuardR30.java",
+  "baseline_sha256": "122913dcd5fe145a8355c571c72b9b33bbfde42351075cee34b2fbb14ef413d2",
+  "production_sha256": "43ef3fddf42828ac8d86aa444cbe16538bf90d13f9ca3ef7df21abe8b9cd3cb2",
+  "harness_sha256": "36eed04d38b82945f91a1c8193b7450520e658c387205fa89c04d70a3f75160c",
+  "java": "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+  "javac": "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+  "observations": {
+    "baseline": {
+      "scope": "HOST_ACTUAL_GUARD_ORDERED_DIFFERENTIAL_AND_THREAD_ALLOCATIONS_NOT_DEVICE_OR_QUALITY",
+      "cases": 20000,
+      "valid": 9677,
+      "violations": 57639,
+      "orderedViolationSha256": "317da24e8e85ab95042aeaa2d9c462a8a51e3f8d1eaecbe438801dae488bf623",
+      "legalChecksMeasured": 1000000,
+      "actualThreadAllocatedBytes": 56000288,
+      "forcedGc": false
+    },
+    "current": {
+      "scope": "HOST_ACTUAL_GUARD_ORDERED_DIFFERENTIAL_AND_THREAD_ALLOCATIONS_NOT_DEVICE_OR_QUALITY",
+      "cases": 20000,
+      "valid": 9677,
+      "violations": 57639,
+      "orderedViolationSha256": "317da24e8e85ab95042aeaa2d9c462a8a51e3f8d1eaecbe438801dae488bf623",
+      "legalChecksMeasured": 1000000,
+      "actualThreadAllocatedBytes": 0,
+      "forcedGc": false
+    }
+  },
+  "ordered_semantics": "PASS",
+  "allocation_measurement": "ACTUAL_HOST_THREAD_BYTES; NO_DEVICE_LIVE_SET_OR_RELEASE_CLAIM",
+  "full_android_build": "PENDING_ROOT_JOINT",
+  "device": "NOT_RUN",
+  "natural_quality": "NOT_EVALUATED",
+  "forced_gc": false
+}

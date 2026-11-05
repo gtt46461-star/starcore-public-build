@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/starcore-public-build/tools/r31/verify_ast_family_scope.py", line 25, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/starcore-public-build/tools/r31/verify_ast_family_scope.py", line 12, in main
+    parser=argparse.ArgumentParser();parser.add_argument('--support-jar',type=Path,default=Path('/tmp/r31-p02-013-actual-android-support/classes.jar'));parser.add_argument('--main-source',type=Path,default=Path('/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java'));args=parser.parse_args();jar=args.support_jar.resolve();assert jar.is_file() and sha(jar)==EXPECTED,'unexpected actual Android support jar';OUT.mkdir(parents=True,exist_ok=True);snapshot=OUT/'PolicyAstR27.java.source.snapshot';snapshot.write_bytes(args.main_source.read_bytes());observed_policy_sha=sha(snapshot);assert observed_policy_sha=='448de8c754fc22f10b6f4540f042ae43186e8040e6e25a0c09f7ad156442da56','unexpected observed root policy source';source_before={str(p.relative_to(ROOT)):sha(p) for p in [HOST,Path(__file__).resolve()]};java,javac,javap=[shutil.which(n) for n in ['java','javac','javap']];work=Path(tempfile.mkdtemp(prefix='r31-actual-ast-family-scope-'));commands=[]
+                                                                                                                                                                                                                                                                                                                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpected actual Android support jar
