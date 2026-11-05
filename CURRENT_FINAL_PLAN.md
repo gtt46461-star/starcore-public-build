@@ -1,22 +1,30 @@
 # STARCORE R31 唯一施工入口
 
-当前方案：**R31.1-EXECUTION-20261105，13批、56卡**。本入口不再指向R30。冻结方案和既有应用源码分别读取，禁止把main当作最新应用源码。
+当前方案：**R31.2-SEQUENTIAL-20261105，22个顺序批次（S00→S21），56张原卡+5张工程卡**。批次序号就是施工顺序，一批关门后才开下一批。冻结方案与应用源码分别读取，禁止把main当作最新应用源码。
 
-- [R31.1方案总入口](https://github.com/gtt46461-star/starcore-public-build/blob/main/construction/STARCORE_R31_FINAL_20261104/README.md) · [全部分册与施工卡](https://github.com/gtt46461-star/starcore-public-build/tree/main/construction/STARCORE_R31_FINAL_20261104)
-- [当前R31源码与验收记录](https://github.com/gtt46461-star/starcore-public-build/tree/construction/r31-final-20261104)
-- [施工流程纠偏与接续指令](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/r31/PROCESS_ADJUSTMENT_20261105.md) · [下一步最小清单](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/r31/NEXT_ACTION.json)
-- [逐卡真实进度](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/r31/PROGRESS.json) · [执行记录](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/r31/EXECUTION_LEDGER.json)
+- [R31.2顺序批次施工合同（根因、规则、22批总表）](https://github.com/gtt46461-star/starcore-public-build/blob/main/construction/STARCORE_R31_FINAL_20261104/docs/15_R31.2顺序批次施工合同.md)
+- [逐批施工页 batches/S00–S21](https://github.com/gtt46461-star/starcore-public-build/tree/main/construction/STARCORE_R31_FINAL_20261104/batches) · [方案总入口](https://github.com/gtt46461-star/starcore-public-build/blob/main/construction/STARCORE_R31_FINAL_20261104/README.md)
+- [应用源码与施工记录：construction/r31-final-20261104](https://github.com/gtt46461-star/starcore-public-build/tree/construction/r31-final-20261104) · [下一步](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/r31/NEXT_ACTION.json)
 
-## 已核实进度
+## 怎么施工
 
-核查源提交[`05391e682660`](https://github.com/gtt46461-star/starcore-public-build/commit/05391e68266083d156612b014f8d1c84cfcf2fb3)，北京时间2026-11-05 11:14:53：B00两卡完成限定源码/HOST合同验收；21/56卡已开始，35卡未开始；最终强制闭环0卡。后续变化以当前分支账本为准。已改代码、源码验收、构建、联合工程验收、真机和自然质量分别统计。
+在施工分支根目录：
 
-当前收敛**P01（B01/B02七卡联合协议）**。CI015已经失败：其485项单元中8项失败；另一后续本地源码全量为13项失败，不得混为同一源码。API29/35各10项协议均2过8败，共同前置为Certificate域指纹不匹配。当前完整工程验收及最终成品仍未通过。
+```bash
+G="python3 construction/STARCORE_R31_FINAL_20261104/tools/r312_gate.py"
+$G status                   # 当前批次与未绑定的验收项
+$G build --batch Sxx        # 开发构建四任务 + HOST注册表
+$G close --batch Sxx        # 机器判定是否关门，写RECEIPT.json
+```
 
-## 执行约束
+第一批是**S00**（施工通道与在制品盘点），第二批**S01**专门把已合入在制品造成的全量失败修绿（Certificate指纹、内存准入相容）。此后每批关门都要求全量单元/HOST/lint为绿。
 
-继续现有工程并保留未推送改动，不从旧基线重做。先修当前共同前置和内存生命周期，再进行匹配源码的针对性与全量工程检查；本地修红后批量冻结和CI。共享文件单一owner，生产者/消费者协议不得拆成不同版本。真机、24h/72h及自然质量单列，不伪记完成；无设备不妨碍源码修复。具体执行以流程纠偏、冻结方案及当前卡合同为准。
+## 为什么改成R31.2
 
-旧R30发布是历史交付，不代表R31完成。R31检查点014/015有未通过工程门，不作为最终成品推荐下载。
+R31.1的P01关门要求全量测试和Android联合协议全过，但树内已合入21卡、7个批次的在制品，失败恰恰来自被禁止推进的后续阶段——门永远关不上。另外卡片验收混入真机72h等项，任何卡都无法在无设备会话中关闭；B编号又不是施工顺序；每次改代码都重绑发布身份；没有统一关门命令。R31.2逐项修正，见施工合同第1节。
 
-本次已直接修订R31原目录的总纲、实施协议、拓扑与机器执行规则，同步离线HTML及SHA256清单。详见[正式方案施工纠偏分册](https://github.com/gtt46461-star/starcore-public-build/blob/main/construction/STARCORE_R31_FINAL_20261104/docs/14_R31.1施工纠偏与接续.md)；1220项方案完整性检查通过。原版完整保存在[原R31归档](https://github.com/gtt46461-star/starcore-public-build/tree/main/construction/archives/STARCORE_R31_FINAL_20261104)。方案修订不代表应用故障已修复。
+## 验收边界
+
+关门只看LOCAL项（198项，JVM单元/HOST/静态/编译/lint），每项必须绑定实际通过的测试。Android模拟器项（8项）只在S20集中执行；真机/时长项（24项）和自然质量（1项）延后，任何批次都不得记PASS。阈值配置字节不变，不降断言、不加堆、不排除测试。
+
+方案自检：`check-plan`、`validate_package.py`（1338项）与`test_r312_gate.py`（17项关门工具反例/正例）全部通过。方案修订不表示Android故障已修复；当前完整工程与成品仍待按批施工。R31.1控制文件归档于`construction/archives/STARCORE_R31_1_EXECUTION_20261105/`。

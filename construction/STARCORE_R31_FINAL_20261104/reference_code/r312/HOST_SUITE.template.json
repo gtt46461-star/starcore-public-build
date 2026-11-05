@@ -1,0 +1,303 @@
+{
+ "format": "R312_HOST_SUITE_V1",
+ "rule": "Every entry must have a command or retired=true with a replacement test id. Commands run from repo root; exit code 0 = PASS. Install as construction/r31/r312/HOST_SUITE.json in S00.",
+ "pre_build": [],
+ "pre_build_rule": "Only developer-build identity refresh needed for gradle tasks to compile and test. No release identity freeze, no signing, no r982 release inventory.",
+ "not_in_suite": {
+  "tools/r31/run_construction_build.py": "gradle is run by the gate itself",
+  "tools/r31/run_android_joint_protocols.py": "EMU layer; executed in S20 only"
+ },
+ "host": [
+  {
+   "id": "run_atom_publication_host",
+   "command": "python3 tools/r31/run_atom_publication_host.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "run_atomnet_publication_host",
+   "command": "python3 tools/r31/run_atomnet_publication_host.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "run_certificate_startup_host",
+   "command": "python3 tools/r31/run_certificate_startup_host.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "run_checkpoint_startup_host",
+   "command": "python3 tools/r31/run_checkpoint_startup_host.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "run_evolution_publication_host",
+   "command": null,
+   "required_args": [
+    "--case",
+    "--output"
+   ],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: supply argument values"
+  },
+  {
+   "id": "run_legacy_qualification_contract",
+   "command": null,
+   "required_args": [
+    "--classes",
+    "--out"
+   ],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: supply argument values"
+  },
+  {
+   "id": "run_report_cas_scope_host",
+   "command": "python3 tools/r31/run_report_cas_scope_host.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "run_report_history_reader_host",
+   "command": "python3 tools/r31/run_report_history_reader_host.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "run_research_schema_host",
+   "command": "python3 tools/r31/run_research_schema_host.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "run_runtime_ddl_host",
+   "command": "python3 tools/r31/run_runtime_ddl_host.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "run_runtime_ddl_writer_regression",
+   "command": "python3 tools/r31/run_runtime_ddl_writer_regression.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "run_service_protocol_host",
+   "command": "python3 tools/r31/run_service_protocol_host.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "run_task_runtime_host",
+   "command": "python3 tools/r31/run_task_runtime_host.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "run_telemetry_budget_host",
+   "command": "python3 tools/r31/run_telemetry_budget_host.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "run_write_protocol_host",
+   "command": "python3 tools/r31/run_write_protocol_host.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "run_writer_hold_fault_host",
+   "command": null,
+   "required_args": [
+    "--classes",
+    "--joint-classes",
+    "--out"
+   ],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: supply argument values"
+  },
+  {
+   "id": "verify_ast_family_scope",
+   "command": null,
+   "required_args": [
+    "--support-jar",
+    "--main-source"
+   ],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: supply argument values"
+  },
+  {
+   "id": "verify_baseline",
+   "command": "python3 tools/r31/verify_baseline.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "verify_continuation",
+   "command": "python3 tools/r31/verify_continuation.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "verify_family_admission",
+   "command": null,
+   "required_args": [
+    "--support-jar"
+   ],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: supply argument values"
+  },
+  {
+   "id": "verify_input_pin_joint",
+   "command": null,
+   "required_args": [
+    "--support-jar",
+    "--shared-api-classes",
+    "--domain-root",
+    "--qualification-root",
+    "--evolution-root",
+    "--jdk",
+    "--sdk",
+    "--jdbc",
+    "--out"
+   ],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: supply argument values"
+  },
+  {
+   "id": "verify_memory",
+   "command": "python3 tools/r31/verify_memory.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "verify_pin_capacity",
+   "command": null,
+   "required_args": [
+    "--support-jar"
+   ],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: supply argument values"
+  },
+  {
+   "id": "verify_pitguard_allocation",
+   "command": "python3 tools/r31/verify_pitguard_allocation.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "verify_platform_readiness",
+   "command": null,
+   "required_args": [
+    "--joint-manifest",
+    "--domain-root"
+   ],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: supply argument values"
+  },
+  {
+   "id": "verify_resource_recovery",
+   "command": "python3 tools/r31/verify_resource_recovery.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "verify_runtime_memory_control",
+   "command": "python3 tools/r31/verify_runtime_memory_control.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "verify_runtime_observation",
+   "command": "python3 tools/r31/verify_runtime_observation.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  },
+  {
+   "id": "verify_task_status",
+   "command": "python3 tools/r31/verify_task_status.py",
+   "required_args": [],
+   "owner_cards": [],
+   "retired": false,
+   "replacement": null,
+   "todo": "S00: confirm runs from repo root"
+  }
+ ]
+}

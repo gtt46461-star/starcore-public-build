@@ -1,223 +1,500 @@
 [
-  {
-    "phase": "P00",
-    "batches": [
-      "B00"
-    ],
-    "requires": [],
-    "scope": "baseline and observability",
-    "cards": [
-      "R31-B00-C01",
-      "R31-B00-C02"
-    ],
-    "integration_group": "G00",
-    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
-    "execution_policy": "ledgers/execution_policy.json",
-    "source_work_in_progress_limit": 1,
-    "joint_engineering_before_next_phase": true,
-    "physical_device_is_source_prerequisite": false
-  },
-  {
-    "phase": "P01",
-    "batches": [
-      "B01",
-      "B02"
-    ],
-    "requires": [
-      "P00"
-    ],
-    "scope": "atomic runtime/writer protocol group",
-    "cards": [
-      "R31-B01-C01",
-      "R31-B01-C02",
-      "R31-B01-C03",
-      "R31-B01-C04",
-      "R31-B02-C01",
-      "R31-B02-C02",
-      "R31-B02-C03"
-    ],
-    "integration_group": "G01",
-    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
-    "execution_policy": "ledgers/execution_policy.json",
-    "source_work_in_progress_limit": 1,
-    "joint_engineering_before_next_phase": true,
-    "physical_device_is_source_prerequisite": false
-  },
-  {
-    "phase": "P02",
-    "batches": [
-      "B03",
-      "B04",
-      "B05"
-    ],
-    "requires": [
-      "P01"
-    ],
-    "scope": "B05 only non-destructive measurement/admission/publication lifecycle",
-    "cards": [
-      "R31-B03-C01",
-      "R31-B03-C02",
-      "R31-B03-C03",
-      "R31-B04-C01",
-      "R31-B04-C02",
-      "R31-B05-C01",
-      "R31-B05-C02",
-      "R31-B05-C03",
-      "R31-B05-C11"
-    ],
-    "integration_group": "G02",
-    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
-    "execution_policy": "ledgers/execution_policy.json",
-    "source_work_in_progress_limit": 1,
-    "joint_engineering_before_next_phase": true,
-    "physical_device_is_source_prerequisite": false
-  },
-  {
-    "phase": "P03",
-    "batches": [
-      "B06"
-    ],
-    "requires": [
-      "P02"
-    ],
-    "scope": "historical replay and model state",
-    "cards": [
-      "R31-B06-C01",
-      "R31-B06-C02",
-      "R31-B06-C03"
-    ],
-    "integration_group": "G03",
-    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
-    "execution_policy": "ledgers/execution_policy.json",
-    "source_work_in_progress_limit": 1,
-    "joint_engineering_before_next_phase": true,
-    "physical_device_is_source_prerequisite": false
-  },
-  {
-    "phase": "P04",
-    "batches": [
-      "B07",
-      "B08"
-    ],
-    "requires": [
-      "P03"
-    ],
-    "scope": "creation and research consumer contracts",
-    "cards": [
-      "R31-B07-C01",
-      "R31-B07-C02",
-      "R31-B07-C03",
-      "R31-B07-C04",
-      "R31-B07-C05",
-      "R31-B07-C06",
-      "R31-B08-C01",
-      "R31-B08-C02",
-      "R31-B08-C03",
-      "R31-B08-C04",
-      "R31-B08-C05"
-    ],
-    "integration_group": "G04",
-    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
-    "execution_policy": "ledgers/execution_policy.json",
-    "source_work_in_progress_limit": 1,
-    "joint_engineering_before_next_phase": true,
-    "physical_device_is_source_prerequisite": false
-  },
-  {
-    "phase": "P05",
-    "batches": [
-      "B10"
-    ],
-    "requires": [
-      "P04"
-    ],
-    "scope": "typed mainline choice migration and evidence gate validation",
-    "cards": [
-      "R31-B10-C01",
-      "R31-B10-C02",
-      "R31-B10-C03"
-    ],
-    "integration_group": "G05",
-    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
-    "execution_policy": "ledgers/execution_policy.json",
-    "source_work_in_progress_limit": 1,
-    "joint_engineering_before_next_phase": true,
-    "physical_device_is_source_prerequisite": false
-  },
-  {
-    "phase": "P06",
-    "batches": [
-      "B05",
-      "B09"
-    ],
-    "requires": [
-      "P05"
-    ],
-    "scope": "B05 destructive GC enabled only after authority migration and protection checks",
-    "cards": [
-      "R31-B05-C04",
-      "R31-B05-C05",
-      "R31-B05-C06",
-      "R31-B05-C07",
-      "R31-B05-C08",
-      "R31-B05-C09",
-      "R31-B05-C10",
-      "R31-B09-C01",
-      "R31-B09-C02",
-      "R31-B09-C03",
-      "R31-B09-C04",
-      "R31-B09-C05"
-    ],
-    "integration_group": "G06",
-    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
-    "execution_policy": "ledgers/execution_policy.json",
-    "source_work_in_progress_limit": 1,
-    "joint_engineering_before_next_phase": true,
-    "physical_device_is_source_prerequisite": false
-  },
-  {
-    "phase": "P07",
-    "batches": [
-      "B11"
-    ],
-    "requires": [
-      "P06"
-    ],
-    "scope": "full report integration; producers instrumented in earlier phases",
-    "cards": [
-      "R31-B11-C01",
-      "R31-B11-C02",
-      "R31-B11-C03",
-      "R31-B11-C04"
-    ],
-    "integration_group": "G07",
-    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
-    "execution_policy": "ledgers/execution_policy.json",
-    "source_work_in_progress_limit": 1,
-    "joint_engineering_before_next_phase": true,
-    "physical_device_is_source_prerequisite": false
-  },
-  {
-    "phase": "P08",
-    "batches": [
-      "B12"
-    ],
-    "requires": [
-      "P07"
-    ],
-    "scope": "integrated device, migration, capacity and release acceptance",
-    "cards": [
-      "R31-B12-C01",
-      "R31-B12-C02",
-      "R31-B12-C03",
-      "R31-B12-C04",
-      "R31-B12-C05"
-    ],
-    "integration_group": "G08",
-    "execution_rule": "One owner per shared file. Applicable source and joint producer/consumer engineering contracts must pass before expanding the next phase. Physical/endurance and natural-quality evidence remain separate; missing physical hardware does not block source repair. Preserve existing work and follow the live ledger.",
-    "execution_policy": "ledgers/execution_policy.json",
-    "source_work_in_progress_limit": 1,
-    "joint_engineering_before_next_phase": true,
-    "physical_device_is_source_prerequisite": false
-  }
+ {
+  "phase": "S00",
+  "order": 0,
+  "name": "施工通道与在制品盘点",
+  "batches": [
+   "B00",
+   "S00"
+  ],
+  "requires": [],
+  "cards": [
+   "R31-B00-C01",
+   "R31-B00-C02",
+   "R312-S00-C01",
+   "R312-S00-C02"
+  ],
+  "original_phases": [
+   "P00"
+  ],
+  "doc": "batches/S00.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite executed, failures recorded for S01",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S01",
+  "order": 1,
+  "name": "基线绿化（修复已合入在制品造成的全量失败）",
+  "batches": [
+   "S01"
+  ],
+  "requires": [
+   "S00"
+  ],
+  "cards": [
+   "R312-S01-C01",
+   "R312-S01-C02",
+   "R312-S01-C03"
+  ],
+  "original_phases": [],
+  "doc": "batches/S01.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S02",
+  "order": 2,
+  "name": "任务故障分类与owner/fence",
+  "batches": [
+   "B01"
+  ],
+  "requires": [
+   "S01"
+  ],
+  "cards": [
+   "R31-B01-C01",
+   "R31-B01-C02"
+  ],
+  "original_phases": [
+   "P01"
+  ],
+  "doc": "batches/S02.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S03",
+  "order": 3,
+  "name": "有限隔离恢复与可中断关闭",
+  "batches": [
+   "B01"
+  ],
+  "requires": [
+   "S02"
+  ],
+  "cards": [
+   "R31-B01-C03",
+   "R31-B01-C04"
+  ],
+  "original_phases": [
+   "P01"
+  ],
+  "doc": "batches/S03.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S04",
+  "order": 4,
+  "name": "写优先级、短事务与提交结果（含B01/B02联合协议）",
+  "batches": [
+   "B02"
+  ],
+  "requires": [
+   "S03"
+  ],
+  "cards": [
+   "R31-B02-C01",
+   "R31-B02-C02",
+   "R31-B02-C03"
+  ],
+  "original_phases": [
+   "P01"
+  ],
+  "doc": "batches/S04.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S05",
+  "order": 5,
+  "name": "抓取、唯一冻结与结算解耦",
+  "batches": [
+   "B03"
+  ],
+  "requires": [
+   "S04"
+  ],
+  "cards": [
+   "R31-B03-C01",
+   "R31-B03-C02",
+   "R31-B03-C03"
+  ],
+  "original_phases": [
+   "P02"
+  ],
+  "doc": "batches/S05.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S06",
+  "order": 6,
+  "name": "研究健康与后台能力",
+  "batches": [
+   "B04"
+  ],
+  "requires": [
+   "S05"
+  ],
+  "cards": [
+   "R31-B04-C01",
+   "R31-B04-C02"
+  ],
+  "original_phases": [
+   "P02"
+  ],
+  "doc": "batches/S06.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S07",
+  "order": 7,
+  "name": "存储普查、写前准入与报告清理",
+  "batches": [
+   "B05"
+  ],
+  "requires": [
+   "S06"
+  ],
+  "cards": [
+   "R31-B05-C01",
+   "R31-B05-C02",
+   "R31-B05-C03"
+  ],
+  "original_phases": [
+   "P02"
+  ],
+  "doc": "batches/S07.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S08",
+  "order": 8,
+  "name": "内存与缓存队列有界治理",
+  "batches": [
+   "B05"
+  ],
+  "requires": [
+   "S07"
+  ],
+  "cards": [
+   "R31-B05-C11"
+  ],
+  "original_phases": [
+   "P02"
+  ],
+  "doc": "batches/S08.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S09",
+  "order": 9,
+  "name": "历史回放与模型状态共同提交",
+  "batches": [
+   "B06"
+  ],
+  "requires": [
+   "S08"
+  ],
+  "cards": [
+   "R31-B06-C01",
+   "R31-B06-C02",
+   "R31-B06-C03"
+  ],
+  "original_phases": [
+   "P03"
+  ],
+  "doc": "batches/S09.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S10",
+  "order": 10,
+  "name": "家族保全、typed AST与创造预算",
+  "batches": [
+   "B07"
+  ],
+  "requires": [
+   "S09"
+  ],
+  "cards": [
+   "R31-B07-C01",
+   "R31-B07-C02",
+   "R31-B07-C03"
+  ],
+  "original_phases": [
+   "P04"
+  ],
+  "doc": "batches/S10.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S11",
+  "order": 11,
+  "name": "父子比较、工厂检出力与能力升级",
+  "batches": [
+   "B07"
+  ],
+  "requires": [
+   "S10"
+  ],
+  "cards": [
+   "R31-B07-C04",
+   "R31-B07-C05",
+   "R31-B07-C06"
+  ],
+  "original_phases": [
+   "P04"
+  ],
+  "doc": "batches/S11.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S12",
+  "order": 12,
+  "name": "研究矩阵依赖、typed来源与融合研究",
+  "batches": [
+   "B08"
+  ],
+  "requires": [
+   "S11"
+  ],
+  "cards": [
+   "R31-B08-C01",
+   "R31-B08-C02",
+   "R31-B08-C03"
+  ],
+  "original_phases": [
+   "P04"
+  ],
+  "doc": "batches/S12.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S13",
+  "order": 13,
+  "name": "研究产物数值合同与16逻辑表",
+  "batches": [
+   "B08"
+  ],
+  "requires": [
+   "S12"
+  ],
+  "cards": [
+   "R31-B08-C04",
+   "R31-B08-C05"
+  ],
+  "original_phases": [
+   "P04"
+  ],
+  "doc": "batches/S13.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S14",
+  "order": 14,
+  "name": "主链typed权威、资格合同与撤销闭环",
+  "batches": [
+   "B10"
+  ],
+  "requires": [
+   "S13"
+  ],
+  "cards": [
+   "R31-B10-C01",
+   "R31-B10-C02",
+   "R31-B10-C03"
+  ],
+  "original_phases": [
+   "P05"
+  ],
+  "doc": "batches/S14.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S15",
+  "order": 15,
+  "name": "保护迁移、引用闭包GC、CAS与事件有界",
+  "batches": [
+   "B05"
+  ],
+  "requires": [
+   "S14"
+  ],
+  "cards": [
+   "R31-B05-C04",
+   "R31-B05-C05",
+   "R31-B05-C06",
+   "R31-B05-C07"
+  ],
+  "original_phases": [
+   "P06"
+  ],
+  "doc": "batches/S15.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S16",
+  "order": 16,
+  "name": "图表缓存迁移清理、WAL与旧库重建",
+  "batches": [
+   "B05"
+  ],
+  "requires": [
+   "S15"
+  ],
+  "cards": [
+   "R31-B05-C08",
+   "R31-B05-C09",
+   "R31-B05-C10"
+  ],
+  "original_phases": [
+   "P06"
+  ],
+  "doc": "batches/S16.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S17",
+  "order": 17,
+  "name": "47面板稳定ID、慢图隔离与缓存限额",
+  "batches": [
+   "B09"
+  ],
+  "requires": [
+   "S16"
+  ],
+  "cards": [
+   "R31-B09-C01",
+   "R31-B09-C02",
+   "R31-B09-C03"
+  ],
+  "original_phases": [
+   "P06"
+  ],
+  "doc": "batches/S17.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S18",
+  "order": 18,
+  "name": "证据口径统一与47图/16表回归",
+  "batches": [
+   "B09"
+  ],
+  "requires": [
+   "S17"
+  ],
+  "cards": [
+   "R31-B09-C04",
+   "R31-B09-C05"
+  ],
+  "original_phases": [
+   "P06"
+  ],
+  "doc": "batches/S18.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S19",
+  "order": 19,
+  "name": "44指标/96检查完整报告",
+  "batches": [
+   "B11"
+  ],
+  "requires": [
+   "S18"
+  ],
+  "cards": [
+   "R31-B11-C01",
+   "R31-B11-C02",
+   "R31-B11-C03",
+   "R31-B11-C04"
+  ],
+  "original_phases": [
+   "P07"
+  ],
+  "doc": "batches/S19.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S20",
+  "order": 20,
+  "name": "迁移恢复、统一CI故障注入、受控退役与Android集中回归",
+  "batches": [
+   "B12"
+  ],
+  "requires": [
+   "S19"
+  ],
+  "cards": [
+   "R31-B12-C01",
+   "R31-B12-C02",
+   "R31-B12-C04"
+  ],
+  "original_phases": [
+   "P08"
+  ],
+  "doc": "batches/S20.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ },
+ {
+  "phase": "S21",
+  "order": 21,
+  "name": "发布冻结与成品交付",
+  "batches": [
+   "B12"
+  ],
+  "requires": [
+   "S20"
+  ],
+  "cards": [
+   "R31-B12-C05",
+   "R31-B12-C03"
+  ],
+  "original_phases": [
+   "P08"
+  ],
+  "doc": "batches/S21.md",
+  "execution_policy": "ledgers/execution_policy.json",
+  "closure": "LOCAL items bound to passing tests; full suite green",
+  "physical_device_is_source_prerequisite": false
+ }
 ]
