@@ -473,6 +473,44 @@ public final class SchemaDomainCoordinatorR926 {
             throw new DatabaseCoordinator.SchemaPendingR31("R31_COLD_SOURCE_GUARDS","UNKNOWN_DRAW_OR_HISTORY_TRIGGER_DEFINITION");
     }
 
+    private static final java.util.regex.Pattern SU1_DRAW_CLOCK_R31=java.util.regex.Pattern.compile(
+            "^CREATE TRIGGER IF NOT EXISTS (su1_draw_(?:insert|update|delete)_clock) AFTER (?:INSERT|UPDATE|DELETE) ON draws\\b");
+    private static String normalizedTriggerR31(String sql){
+        return sql==null?"":sql.replace(" IF NOT EXISTS "," ").trim().replaceAll(";\\s*$","").replaceAll("\\s+"," ");
+    }
+    /** True only for SU1's three declared draw clock triggers (Critical-table attachments). */
+    public static boolean isR31Su1DrawClockTrigger(String sql){return sql!=null&&SU1_DRAW_CLOCK_R31.matcher(sql).find();}
+    /** SU1 owns three exact clock triggers on the Critical draws table. Install each as an authenticated
+     *  Critical delta in the SU1 owner transaction: untrusted Critical and unknown definitions are refused,
+     *  every other Critical object must be unchanged, and the journal/stamp advance in the same transaction. */
+    public static void installR31Su1DrawClockTrigger(SQLiteDatabase db,String sql){
+        if(!db.inTransaction())throw new IllegalStateException("R31_SU1_DRAW_CLOCK_OWNER_REQUIRED");
+        java.util.regex.Matcher declared=SU1_DRAW_CLOCK_R31.matcher(sql==null?"":sql);
+        if(!declared.find())throw new IllegalArgumentException("R31_SU1_DRAW_CLOCK_UNDECLARED");
+        String name=declared.group(1);
+        ensureInfrastructure(db);
+        Contract critical=criticalContract();String priorReason=matchReason(db,critical);boolean trustedCritical=priorReason.startsWith("MATCH");
+        if(!trustedCritical&&!"STAMP_MISSING".equals(priorReason))throw new DatabaseCoordinator.SchemaPendingR31("R31_SU1_DRAW_CLOCK","UNTRUSTED_CRITICAL:"+priorReason);
+        String existing=null;try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE type='trigger' AND name=?",new String[]{name})){if(c.moveToFirst())existing=c.getString(0);}
+        if(existing!=null&&!normalizedTriggerR31(existing).equals(normalizedTriggerR31(sql)))
+            throw new DatabaseCoordinator.SchemaPendingR31("R31_SU1_DRAW_CLOCK","UNKNOWN_TRIGGER_DEFINITION:"+name);
+        Set<String> delta=Collections.singleton(name);
+        String beforeCritical=fingerprint(db,critical),beforeCore=fingerprint(db,critical,false,null,delta);
+        db.execSQL(sql);
+        String installed=null;try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE type='trigger' AND name=?",new String[]{name})){if(c.moveToFirst())installed=c.getString(0);}
+        if(!normalizedTriggerR31(sql).equals(normalizedTriggerR31(installed)))throw new IllegalStateException("R31_SU1_DRAW_CLOCK_NOT_EXACT:"+name);
+        if(!beforeCore.equals(fingerprint(db,critical,false,null,delta)))throw new IllegalStateException("R31_SU1_DRAW_CLOCK_CHANGED_UNRELATED_CRITICAL_SCHEMA");
+        String afterCritical=fingerprint(db,critical);
+        if(trustedCritical&&!beforeCritical.equals(afterCritical)){
+            long now=System.currentTimeMillis();
+            db.execSQL("INSERT OR IGNORE INTO "+TABLE_JOURNAL
+                            +"(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code)"
+                            +" VALUES(?,?,?,'COMPLETED',1,?,?,?,?,?, '')",
+                    new Object[]{critical.domain,critical.revision,"R31_SU1_DRAW_CLOCK_CUTOVER_V1:"+name,"EXACT_DRAW_CLOCK_TRIGGER_DELTA:"+name,beforeCritical,afterCritical,now,now});
+            verifyAndStamp(db,critical);
+        }
+    }
+
     /** SU2 becomes available in a later schema task: install only its exact source-revocation additions. */
     public static void migrateR31CertificateRevocationProtection(SQLiteDatabase db,Step install){
         if(!db.inTransaction())throw new IllegalStateException("R31_REVOCATION_MIGRATION_OWNER_REQUIRED");

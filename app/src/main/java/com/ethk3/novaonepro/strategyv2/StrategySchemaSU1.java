@@ -25,7 +25,11 @@ public final class StrategySchemaSU1 {
         if(installed<SqlStatementsSU1.SQL.length){
             db.beginTransaction();
             try{
-                String sql=SqlStatementsSU1.SQL[installed];db.execSQL(sql);
+                String sql=SqlStatementsSU1.SQL[installed];
+                // R31: draw clock triggers attach to the Critical draws table; install them as authenticated deltas.
+                if(com.ethk3.novaonepro.SchemaDomainCoordinatorR926.isR31Su1DrawClockTrigger(sql))
+                    com.ethk3.novaonepro.SchemaDomainCoordinatorR926.installR31Su1DrawClockTrigger(db,sql);
+                else db.execSQL(sql);
                 db.execSQL("INSERT INTO su1_migration_unit_v2 VALUES(?,?,?)",new Object[]{installed,HashingSU1.text(sql),System.currentTimeMillis()});
                 db.setTransactionSuccessful();
             }finally{db.endTransaction();}

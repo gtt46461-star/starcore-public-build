@@ -19,8 +19,13 @@ import sys
 import zipfile
 
 BASELINE = "5237b265a27fe5ad27fd842901c445d5f8c27749"
-PLAN_REL = "construction/STARCORE_R31_FINAL_20261104"
+# R31.1 revised the plan in place and archived the original R31 tree byte-for-byte.
+# The original pin and every original member/preservation check are verified unchanged at the archive;
+# the in-place R31.1 revision is pinned separately (it changes execution policy, not acceptance).
+PLAN_REL = "construction/archives/STARCORE_R31_FINAL_20261104"
 PLAN_MANIFEST_SHA256 = "13f34908b624c74e2852ce8f944b99f8978348820aab23f83043fab1d72753ce"
+REVISION_PLAN_REL = "construction/STARCORE_R31_FINAL_20261104"
+REVISION_PLAN_MANIFEST_SHA256 = "4f21a1291a413c0bd23efb85dde8a4a2e940322c9b039365b573fe752046f114"
 PRESERVED = {
     "evidence/derived/legacy_requirements_1832.csv": (1832, "6e9efda4947e8b3df96a98325b74000573e56d9fc4f63ef412115902a0930735"),
     "evidence/derived/legacy_file_cards_299.csv": (299, "0eacc521566e5dd7714945cdf205ea62614de6a8d6538d55ae86d42a3d70b85a"),
@@ -204,6 +209,11 @@ def build_identity(root: Path, plan: Path) -> dict:
     manifest = safe_file(plan, "MANIFEST_SHA256.json").read_bytes()
     if sha256(manifest) != PLAN_MANIFEST_SHA256:
         raise ValueError("PINNED_PLAN_MANIFEST_MISMATCH")
+    revision = safe_file(root / REVISION_PLAN_REL, "MANIFEST_SHA256.json").read_bytes()
+    if sha256(revision) != REVISION_PLAN_MANIFEST_SHA256:
+        raise ValueError("PINNED_REVISION_PLAN_MANIFEST_MISMATCH")
+    if (root / REVISION_PLAN_REL / "ledgers/acceptance_config.json").read_bytes() != (plan / "ledgers/acceptance_config.json").read_bytes():
+        raise ValueError("REVISION_CHANGED_ACCEPTANCE_CONFIG")
     head = git(root, "rev-parse", "HEAD").decode().strip()
     ancestry = subprocess.run(["git", "-C", str(root), "merge-base", "--is-ancestor", BASELINE, head],
                               capture_output=True)
@@ -225,6 +235,7 @@ def build_identity(root: Path, plan: Path) -> dict:
             "product_digest_excludes": ["app/build (generated outputs)", "verification (test evidence)",
                                         "construction (plan separately sealed)", "private signing inputs"],
             "plan_manifest_sha256": sha256(manifest),
+            "revision_plan_manifest_sha256": sha256(revision),
             "migration_contract_sha256": sha256(canonical(migration)), "schema": schema,
             "device_identity": "NOT_RUN", "signature_identity": "NOT_VERIFIED_HERE",
             "natural_quality": "NOT_PROVEN"}
