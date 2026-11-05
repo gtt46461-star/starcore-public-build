@@ -341,8 +341,11 @@ def build(b, import_file=None, skip_gradle=False, import_post=None):
             die('imported summary has wrong format or batch')
         out.write_bytes(Path(import_file).read_bytes())
         pp = post_path(b['batch'])
-        if import_post:
-            pp.write_bytes(Path(import_post).read_bytes())
+        imported_post = Path(import_post) if import_post else Path(import_file).with_name('POST_BUILD_CHECKS.json')
+        if imported_post.is_file():
+            pp.write_bytes(imported_post.read_bytes())
+        elif import_post:
+            die('explicit post_build evidence file missing: ' + str(imported_post))
         elif pp.is_file():
             pp.unlink()
         print(json.dumps({k: s[k] for k in ('source_head', 'gradle', 'unit', 'host_failed')}, ensure_ascii=False))

@@ -225,6 +225,22 @@ def prepare() -> dict:
             raise FileNotFoundError("JAVA_HOME_TOOL_REQUIRED:" + name)
     outcome_sources = ["DatabaseCoordinator", "strategyv2/FailureDispositionR31", "strategyv2/WriterHoldLedgerR30", "strategyv2/ReportSnapshotR30", "strategyv2/ReportR27"]
     source_sha = {"app/src/main/java/com/ethk3/novaonepro/" + name + ".java": sha(ROOT / ("app/src/main/java/com/ethk3/novaonepro/" + name + ".java")) for name in outcome_sources}
+    outcome_ahead = location / "writer-outcomes-ahead"
+    outcome_classes = {}
+    for name in outcome_sources:
+        relative = "com/ethk3/novaonepro/" + name
+        selected = [p for p in inventory if p == relative + ".class" or p.startswith(relative + "$")]
+        if relative + ".class" not in selected:
+            raise ValueError("WRITER_OUTCOME_ROOT_CLASS_MISSING:" + name)
+        for p in selected:
+            target = outcome_ahead / p
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes((classes / p).read_bytes())
+            if sha(target) != inventory[p]:
+                raise ValueError("WRITER_OUTCOME_CLASS_COPY_MISMATCH:" + p)
+            outcome_classes[p] = inventory[p]
+    if {str(p.relative_to(outcome_ahead)) for p in outcome_ahead.rglob("*.class")} != set(outcome_classes):
+        raise ValueError("WRITER_OUTCOME_AHEAD_UNEXPECTED_CLASSES")
     receipt = dict(identity, format="R312_ACTUAL_GATE_HOST_SUPPORT_V1", scope="ACTUAL_CURRENT_GATE_BUILD_INPUT_SNAPSHOT_NOT_RELEASE_FREEZE",
                    batch=batch, class_count=len(inventory), classes_dir=str(classes), classes_jar=str(jar),
                    classes_jar_sha256=sha(jar), class_tree_sha256=tree_sha, r_jar=str(resource_copy), r_jar_sha256=sha(resource_copy),
@@ -232,6 +248,8 @@ def prepare() -> dict:
                    gradle_log=str(gradle_log), gradle_log_sha256=sha(gradle_log), baseJarSha256=sha(jar), sourceSha256=source_sha,
                    aheadMeaning="The same actual whole gate class directory; not independently compiled business overrides.")
     receipt["development_dirty_observation"] = dirty
+    receipt["writer_outcomes_ahead"] = str(outcome_ahead)
+    receipt["writer_outcomes_classes_sha256"] = outcome_classes
     receipt_path = location / "SUPPORT_RECEIPT.json"
     receipt_path.write_text(json.dumps(receipt, indent=2) + "\n")
     # The original014 artifact is an explicitly historical negative-control dependency only.

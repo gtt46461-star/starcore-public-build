@@ -55,7 +55,8 @@ def main():
             substitutions.update({"classes_jar": support["classes_jar"], "classes_dir": support["classes_dir"],
                                   "r_jar": support["r_jar"], "jdk": support["java_home"], "sdk": support["sdk"],
                                   "jdbc": support["jdbc"], "platform_manifest": support["platform_manifest"],
-                                  "ahead_receipt": support["receipt"]})
+                                  "ahead_receipt": support["receipt"],
+                                  "writer_outcomes_ahead": support["writer_outcomes_ahead"]})
         command = []
         for argument in template:
             for key, value in substitutions.items():
