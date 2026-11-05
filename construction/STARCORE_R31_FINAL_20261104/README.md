@@ -1,6 +1,8 @@
 # STARCORE R31 最终返修施工总包
 
-版本：R31-FINAL-20261104。源提交：5237b265a27fe5ad27fd842901c445d5f8c27749。
+版本：R31.1-EXECUTION-20261105。报告故障追溯源提交：5237b265a27fe5ad27fd842901c445d5f8c27749。
+
+> **R31.1 施工纠偏修订，2026-11-05。** 目录名保留R31；56卡及性能、质量、资产保护要求保留。执行方式以`ledgers/execution_policy.json`及`docs/14_R31.1施工纠偏与接续.md`为准。既有工程先接续，不从报告基线重做；当前阶段按实时施工账本的最早未通过阶段确定。方案修订不代表Android故障已修复。
 
 先打开 **START_HERE.html**：离线阅读入口，包含全部最终分册、可搜索的逐文件施工卡、47图合同和40项要求导航。无需联网。手机可先解压，再用支持本地HTML的浏览器打开；也可直接阅读docs里的Markdown。
 
@@ -13,6 +15,12 @@
 - 40项合并要求设计映射；1832历史要求与299旧卡保全；原参考方案归档与逐项纠偏。
 - 可执行Python/SQLite参考合同、SQL、关键Java设计片段；30项合同测试与12项存储协议测试记录；5000期真实报告数据、固定100候选历史复算和门槛功效脚本。
 
+## 接续当前施工
+
+先读`docs/14_R31.1施工纠偏与接续.md`和`ledgers/execution_policy.json`，再读取当前施工账本及当前阶段的卡。首次全面阅读完成后按变化读取；无需每轮重读总包。修订依据为已核查提交05391e682660，B00两卡限定源码合同通过、最终工程闭环仍为0；这是一份有时间边界的快照，实际施工前须刷新实时账本。
+
+原版完整归档位于仓库`construction/archives/STARCORE_R31_FINAL_20261104/`，原方案树f029ec813be8c7b19f8992ef1a52a446caf06d3a保持不变。
+
 ## 阅读与施工顺序
 
 1. `docs/00_最终施工总纲.md`：基线、事实、闭环、不变量、13批与预算。
@@ -22,7 +30,7 @@
 5. `docs/10`至`13`开头的四份专题：运行/后台、磁盘与内存、训练创造进化、图表矩阵与报告的详细实现。
 6. `cards/B00`至`cards/B12`：逐卡文件/方法/修改前后/步骤/验收/依赖/回滚。
 
-数值阈值唯一优先级：`ledgers/acceptance_config.json` → 总纲解释 → 专题示例。卡号以`ledgers/cards.json`为准。实施依赖以`execution_phases.json`及每卡`implementation_predecessor_phases`为准；专题的联合验证要求不能再展开成前置循环。
+数值阈值唯一优先级：`ledgers/acceptance_config.json` → 总纲解释 → 专题示例。卡号以`ledgers/cards.json`为准。实施依赖以`execution_phases.json`及每卡`implementation_predecessor_phases`为准，执行和验收分层由`execution_policy.json`补充；专题的联合验证要求不能再展开成前置循环。
 
 ## 关键施工约束
 

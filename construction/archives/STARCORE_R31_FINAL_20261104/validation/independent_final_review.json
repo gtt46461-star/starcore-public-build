@@ -1,0 +1,157 @@
+{
+  "reviewed_at_utc": "2026-11-04T07:26:32.520860+00:00",
+  "review_scope": "Independent re-review of previously raised R1-R6 in planning deliverable; no Android build/device/production quality certification. Deliverable files were not modified.",
+  "package": "STARCORE_R31_FINAL_20261104",
+  "overall": "PRIOR_FINDINGS_RESOLVED",
+  "card_count": 56,
+  "phase_count": 9,
+  "machine_checks": {
+    "phase_dag_acyclic_and_topological": true,
+    "all_cards_exactly_once": true,
+    "all_card_predecessors_match_phases": true,
+    "errors": []
+  },
+  "findings": [
+    {
+      "id": "R1",
+      "status": "RESOLVED",
+      "resolution": "唯一实施DAG为P00-P08，56张卡归属唯一且实施前置与phase一致；B01/B02同集成组，B05破坏性操作在P05之后；旧依赖仅作为NOT_EXECUTION归档。",
+      "evidence": [
+        "ledgers/execution_phases.json",
+        "ledgers/cards.json",
+        "docs/04_能力升级与闭环产物.md",
+        "evidence/audit_manifests/original_dependencies_NOT_EXECUTION.json"
+      ]
+    },
+    {
+      "id": "R2",
+      "status": "RESOLVED",
+      "resolution": "B03C01明确37.4秒为分析请求到commit，不是HTTP抓取或开奖入库时延。",
+      "evidence": [
+        "ledgers/cards.json:R31-B03-C01.issue"
+      ]
+    },
+    {
+      "id": "R3",
+      "status": "RESOLVED",
+      "resolution": "总纲明确静态调用索引仅提供引用线索，不证明编译成功或运行覆盖。",
+      "evidence": [
+        "docs/00_最终施工总纲.md:45"
+      ]
+    },
+    {
+      "id": "R4",
+      "status": "RESOLVED",
+      "resolution": "新增B05C11独立内存治理卡；配置给出Java水位、队列及批次有界预算、预注册时机、72h/2h预热/首末24h等负载live heap和PSS P95比值≤1.10、OOM=0、未解释增长阻断发布。属于待实现、待真机验证门。",
+      "evidence": [
+        "ledgers/cards.json:R31-B05-C11",
+        "ledgers/acceptance_config.json",
+        "docs/00_最终施工总纲.md:97"
+      ]
+    },
+    {
+      "id": "R5",
+      "status": "RESOLVED",
+      "resolution": "SchemaDomainCoordinator精确方法及行锚点补足；readReceipt/exclusive锚点补足；DbStore明确DEFERRED_TARGET_SELECTION_AFTER_COVERAGE，不授权未选定方法删除或改写。",
+      "evidence": [
+        "ledgers/cards.json:R31-B12-C01.files",
+        "ledgers/cards.json:R31-B12-C04.files",
+        "ledgers/cards.json:R31-B05-C06.files"
+      ]
+    },
+    {
+      "id": "R6",
+      "status": "RESOLVED",
+      "resolution": "README确定acceptance_config→总纲解释→专题示例的唯一阈值优先级；配置明确完整响应体收到时开始，包含parse/validation，保留无效响应与缺期失败计数。",
+      "evidence": [
+        "README.md:25",
+        "ledgers/acceptance_config.json:timing_definition"
+      ]
+    }
+  ],
+  "method_anchor_spot_checks": [
+    {
+      "card": "R31-B02-C02",
+      "file": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+      "anchors": [
+        {
+          "symbol": "runStep(",
+          "lines": [
+            386
+          ]
+        },
+        {
+          "symbol": "criticalContract(",
+          "lines": [
+            48
+          ]
+        }
+      ]
+    },
+    {
+      "card": "R31-B05-C06",
+      "file": "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveIoCP12.java",
+      "anchors": [
+        {
+          "symbol": "readReceipt",
+          "lines": [
+            106
+          ]
+        }
+      ]
+    },
+    {
+      "card": "R31-B05-C10",
+      "file": "app/src/main/java/com/ethk3/novaonepro/SourceReadLeaseR82.java",
+      "anchors": [
+        {
+          "symbol": "exclusive",
+          "lines": [
+            29
+          ]
+        }
+      ]
+    },
+    {
+      "card": "R31-B12-C01",
+      "file": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+      "anchors": [
+        {
+          "symbol": "ensureInfrastructure",
+          "lines": [
+            210
+          ]
+        },
+        {
+          "symbol": "verifyAndStamp",
+          "lines": [
+            281
+          ]
+        },
+        {
+          "symbol": "prepareRepairIfDrift",
+          "lines": [
+            312
+          ]
+        },
+        {
+          "symbol": "runStep",
+          "lines": [
+            386
+          ]
+        },
+        {
+          "symbol": "verifyObjects",
+          "lines": [
+            494
+          ]
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "This review resolves design-document issues only. Production implementation and target-device acceptance remain NOT_IMPLEMENTED/NOT_RUN as applicable.",
+    "Memory parameters are engineering acceptance targets, not measured current device performance.",
+    "Quality gates may reject all candidates; no claim of guaranteed high win rate, profitable formulas, or every generation outperforming the prior one."
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "source": "runtime-observation.json",
+  "observation": {
+    "pid": 1708,
+    "sampleWallMs": 1793664653832,
+    "sampleElapsedMs": 327291158,
+    "frameSummary": "R914_FRAME|frames=31096|slow33=99|severe50=41|maxMs=408.250|scrollFrames=9932|scrollSlow33=10|scrollSevere50=3|scrollSlowRate=0.001007|truthBinds=422|truthBindAvgMs=2.880|truthBindMaxMs=55.839",
+    "process": "com.starcore.research.r13",
+    "storageSampleWallMs": 1793664653833,
+    "storageMaintenanceSummary": "STORAGE_MAINTENANCE_R82|phase=NEVER_REQUESTED|sampleWallMs=0|explicitWindowActive=false|runtimeAutoRestart=false|detail=|retained_backup_bytes=0 pending_swap=false backup_receipt=false backup_cleanup=EXPLICIT_SEPARATE_ACTION",
+    "liveDatabaseFilePresent": true,
+    "liveDatabaseFileBytes": 592556032,
+    "liveWalFilePresent": true,
+    "liveWalFileBytes": 1582112,
+    "fullObservations": [
+      {
+        "key": "crashSummary",
+        "path": "observations/b2e2ffa26a323eca6baa52b80c3a88d209efe11951c56dd95de1eb3dd6c46a5f/crashSummary.txt",
+        "bytes": 2482,
+        "sha256": "c57697d6f01fc7d0c2f7956d63ccb83003e822a4940c133e71184a3aae4b5da0"
+      },
+      {
+        "key": "heartbeatSummary",
+        "path": "observations/b2e2ffa26a323eca6baa52b80c3a88d209efe11951c56dd95de1eb3dd6c46a5f/heartbeatSummary.txt",
+        "bytes": 1692,
+        "sha256": "009a5b8b8bc7440053d29ecce9af17336cee0130ecdc31ae51e69fa8c46f5f1f"
+      },
+      {
+        "key": "threadStacks",
+        "path": "observations/b2e2ffa26a323eca6baa52b80c3a88d209efe11951c56dd95de1eb3dd6c46a5f/threadStacks.txt",
+        "bytes": 50786,
+        "sha256": "a3a459ea209cdf038589465f8469a036387f72f0ab0e9ec2e248e509675fc0d9"
+      },
+      {
+        "key": "ftrlWritePhases",
+        "path": "observations/b2e2ffa26a323eca6baa52b80c3a88d209efe11951c56dd95de1eb3dd6c46a5f/ftrlWritePhases.txt",
+        "bytes": 6585,
+        "sha256": "f104a43dcf4eb0451889d4ecf21dbaf6c65c274ce11cfd4d1a1f39a3de467d6b"
+      }
+    ],
+    "crashSummary": "FULL_OBSERVATION_MEMBER:crashSummary|bytes=2482|sha256=c57697d6f01fc7d0c2f7956d63ccb83003e822a4940c133e71184a3aae4b5da0",
+    "heartbeatSummary": "FULL_OBSERVATION_MEMBER:heartbeatSummary|bytes=1692|sha256=009a5b8b8bc7440053d29ecce9af17336cee0130ecdc31ae51e69fa8c46f5f1f",
+    "dbWaitMs": 0,
+    "dbWaitMaxMs": 1992,
+    "researchSchemaReady": true,
+    "schemaStartupSummary": "critical=READY@157830ms/error=|criticalStamp=STAMP_MISSING|research=READY|researchOwnerError=|legacy=NOT_STARTED@0ms/error=",
+    "realtimePressure": false,
+    "fetchWriteError": "PAYLOAD:WRITE_REJECTED:BUSY_DEADLINE",
+    "threadStacks": "FULL_OBSERVATION_MEMBER:threadStacks|bytes=50786|sha256=a3a459ea209cdf038589465f8469a036387f72f0ab0e9ec2e248e509675fc0d9",
+    "ftrlWritePhases": "FULL_OBSERVATION_MEMBER:ftrlWritePhases|bytes=6585|sha256=f104a43dcf4eb0451889d4ecf21dbaf6c65c274ce11cfd4d1a1f39a3de467d6b",
+    "timelineCommitObservations": {
+      "clockScope": "KERNEL_BOOT",
+      "diagnosticFailures": 45,
+      "omittedDueToBound": 0,
+      "pending": 108,
+      "scope": "CURRENT_PROCESS_PENDING_RECEIPTS; unflushed commit instants UNKNOWN after process death"
+    },
+    "analysisDepth": 0,
+    "settlementDepth": 0,
+    "quietForMs": 9808,
+    "settlementExecutionActive": false
+  },
+  "heartbeat_source": "runtime-observation-heartbeatSummary.txt:1",
+  "heartbeat_raw": "enabled=1|truth=RUNNING|heartbeatAge=978ms|pid=1708|alive=1|startAt=1793619331835|startingAt=1793619331820|readyAt=1793619488317|fg=1793619331830|cmd=1793664566222|init=READY/stage=BUSINESS_READY@1793619488317/detail=startWork/retry=0/error=|fetch=202611030010@1793664651878|analysis=202611030011@1793664650912|settlement=202611020847@1793628440862|business=RESEARCH_STALE/stale=1/reason=RESEARCH_PROGRESS_STALE_AFTER_YIELD/fetchStage=FETCH_SUCCEEDED/fetchDetail=/analysisStage=CANONICAL_COMMITTED/analysisDetail=/settleStage=NO_PREDRAW_CANONICAL_TERMINAL/settleDetail=FROZEN_OBSERVATION_MISSING|target=202611030009|hit=-1|p=-1.0|brier=-1.0|replay=false|base=|frozenAt=0|drawOpenTime=1793664543000|historyHash=|canonicalHash=|drawHash=0b45e942e21b5c4a98f30397d6f6782d3a5e49f69811034dc95e51168febe358|errorCode=FROZEN_OBSERVATION_MISSING|apiCredential=READY/pending=0|alarm=TRIGGERED/trigger=1793664587766|job=FINISHED:START_OR_RECONCILE_REQUESTED/trigger=1793664637592|teacherPump=V51_OWNER_OK@1793664652910|learningProgress=UNKNOWN@0|learningAttempt=V51_OWNER_YIELD@1793664652866|researchTruth=R955_RESEARCH_PROGRESS_TRUTH_V1|state=STALE|reason=RESEARCH_PROGRESS_STALE_AFTER_YIELD|progressAge=45165527|attemptAge=978|loopRepair=countdown_tick|stale=ANALYSIS_FAILED@1793664633482|receiver=|recovery=OK:SKIP_RECOVERY_LEASE_ACTIVE/evaluation=ACCEPTED:LEASED_START_EVALUATED:ui_manual_start_r323|restartRequest=26/actualStart=1/generation=1/progress=100@1793664650912/leaseUntil=1793664686149/runtimeLease=1793664697865/guard@1793664652865|teacher=:0//0ms|cohort=NOVA_V46_NUMBER_DISTRIBUTION_COHORT_20260721_46072130|pipeline=V47_CROSSFIT_NUMBER_CHAMPION_FINAL40_FULL_DIAGNOSIS_20260721_47072147",
+  "crash_source": "runtime-observation-crashSummary.txt",
+  "crash_raw": "crashCount=0\noomCount=0\nstackOverflowCount=0\nwindowCrashCount10m=0\nwindowCrashCountScope=NO_ROLLING_TIMESTAMP_LOG;UNKNOWN_WHEN_RECENT_EVENT\nrecordedCrashWindowCount=0\nrecordedCrashWindowStart=0\ncrashObservedAt=1793664653835\nlastAt=0\nthread=\ntype=\nmessage=\nstage=\ntargetIssue=\ndbQueue=0\nfreeMemory=0\ntotalMemory=0\nmaxMemory=0\nfingerprint=\nstack=\n\nR963_LIFECYCLE_HEALTH|stallIsObservedDelayNotAnrVerdict=1\nSYSTEM_EXIT_HISTORY|noRecordsDoesNotProveNoCrash=1\nat=1793619321801|reason=10|status=0|importance=125|pssKiB=49123|rssKiB=109724|detail=[FORCE STOP] stop com.starcore.research.r13 due to clear data by com.android.settings\nat=1793601556278|reason=10|status=0|importance=125|pssKiB=53450|rssKiB=84732|detail=[FORCE STOP] stop com.starcore.research.r13 due to single-cleaner\nat=1793601556259|reason=10|status=0|importance=400|pssKiB=30885|rssKiB=61736|detail=[FORCE STOP] stop com.starcore.research.r13 due to single-cleaner\nat=1793598200358|reason=10|status=0|importance=125|pssKiB=47887|rssKiB=92840|detail=[FORCE STOP] stop com.starcore.research.r13 due to single-cleaner\nat=1793592700073|reason=3|status=0|importance=125|pssKiB=182329|rssKiB=65652|detail=\n\nmainStallAt=1793625406219|delayMs=4498|version=R30-REPAIR1-2026.11.02-009\nmainStack=android.os.Parcel.nativeWriteString16(Native Method)\nandroid.os.Parcel.writeString16NoHelper(Parcel.java:1180)\nandroid.os.Parcel$ReadWriteHelper.writeString16(Parcel.java:495)\nandroid.os.Parcel.writeString16(Parcel.java:1159)\nandroid.os.Parcel.writeString(Parcel.java:1149)\ncom.vivo.statistics.sdk.ArgPack.writeToParcel(ArgPack.java:308)\ncom.vivo.statistics.sdk.GatherProxy.gather(GatherProxy.java:43)\ncom.vivo.statistics.sdk.GatherManager.gather(GatherManager.java:57)\ncom.vivo.perf.bigdata.Jank.handleBroadcastTimeout(Jank.java:275)\ncom.vivo.perf.bigdata.VivoPerfBigdataImpl.handleBroadcastTimeout(VivoPerfBigdataImpl.java:64)\nandroid.app.ActivityThread.handleReceiver(ActivityThread.java:5022)\nandroid.app.ActivityThread.-$$Nest$mhandleReceiver(Unknown Source:0)\nandroid.app.ActivityThread$H.handleMessage(ActivityThread.java:2668)\nandroid.os.Handler.dispatchMessage(Handler.java:108)\nandroid.os.Looper.loopOnce(Looper.java:226)\nandroid.os.Looper.loop(Looper.java:328)\nandroid.app.ActivityThread.main(ActivityThread.java:9236)\njava.lang.reflect.Method.invoke(Native Method)\ncom.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:594)\ncom.android.internal.os.ZygoteInit.main(ZygoteInit.java:1099)\n\nrecoveryError="
+}

@@ -1,0 +1,6 @@
+﻿id,requirement_ids,problem,status,change,host_result,evidence,remaining
+R997-S01,USR-05-025;USR-23-001;USR-23-008;BPR-0041;BPR-0339;BPR-0405;BPR-0555;BPR-0625;HIST-B09-03,冻结SHADOW未知概率阻断结算,外部验收待完成,OosAfterDrawWriterR36 + SettlementTaskStoreR36,182结算；重复0新增；0 REAL；2缺开奖不补造,evidence/r997/host/after-recovery.log,手机更新安装后真实连续期验收；缺失开奖取得合法真实输入；只对应上述要求的一部分，不代表关联父要求或施工卡全闭环
+R997-S02,USR-03-002;USR-05-032,名单登记family漂移回滚,外部验收待完成,StagedResearchRosterR943.freezeAdmission,原27/94失败；新目标94/94完成；旧冻结名单不篡改,evidence/r997/host/after-roster.log,手机下一个新目标名单与消费者回执；只对应上述要求的一部分，不代表关联父要求或施工卡全闭环
+R997-S03,USR-03-002;USR-05-032,不同方法中文名唯一约束导致创造回滚,外部验收待完成,ResearchAssetRegistryR906 + ResearchChineseNamingR906,相同基名不同签名登记成功；同签名幂等；合成冲突夹具,evidence/r997/host/after-names.log,手机实际创造批次与候选训练/消费；不可把名称登记当学习；只对应上述要求的一部分，不代表关联父要求或施工卡全闭环
+R997-S04,USR-05-025;USR-23-001,连续目标期发布结算,外部验收待完成,复验现有ProductionPredictionDispatcherR815→SettlementEngine,3期SHADOW/3结算/5000历史；反馈sidecar执行，但teacher无predraw不伪造,evidence/r997/pipeline/execution.log,真实接口/手机生命周期/自然Future/研究候选消费者；只对应上述要求的一部分，不代表关联父要求或施工卡全闭环
+R997-S05,USR-41-004;HIST-U04-03,报告备份与数据库并发,外部验收待完成,复验R996现有原生WAL快照,186904576字节/5000期/232并发写入/完整性ok；取消删除半成品,evidence/r997/native-backup/receipt.json,新版完整ZIP导出最终设备SAF交付及低空间实测；只对应上述要求的一部分，不代表关联父要求或施工卡全闭环

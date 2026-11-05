@@ -1,0 +1,70 @@
+package com.ethk3.novaonepro.strategyv2;
+
+import java.util.concurrent.*;
+import java.util.function.*;
+
+/** A private compute continuation, parked outside DB critical sections between service quanta.
+ * Durable numerical progress remains the repository's checkpoint, never this thread's existence. */
+public final class CooperativeContinuationR26<T> implements AutoCloseable,BudgetTokenSU1.PauseClock {
+    /** R27 (docs/02 2.2.1): the R26 research thread no longer shares a thread with P0, so a slice is budget-sized
+     * (default 1000 ms) instead of 150 ms. */
+    public static final long SLICE_MS = 1000;
+    /** Largest quantum {@link #slice(long)} accepts (1..200 ms). Continuations are always resumed with this value;
+     * R27 briefly passed SLICE_MS here, which threw R26_CONTINUATION_QUANTUM and quarantined every expert task. */
+    public static final long CONTINUATION_SLICE_MS = 200;
+    /** R27.4: run first on every continuation thread (set by RuntimeR27 to android background priority). */
+    public static volatile Runnable threadStartHook;
+    private static final ThreadLocal<CooperativeContinuationR26<?>> CURRENT=new ThreadLocal<>();
+    private static final java.util.Map<String,java.util.Set<CooperativeContinuationR26<?>>> OWNED=new java.util.HashMap<>();
+    private final String owner;
+    private final Object monitor=new Object();private final Callable<T> body;private final BooleanSupplier preempt;private final Runnable resume;private final LongSupplier cpuClock;
+    private final Thread thread;private volatile boolean closed,done,paused=true;private volatile long endNanos,pausedSince,totalPaused,cpuTotal,cpuOrigin,maxPollGap,lastPoll;private int criticalDepth;private volatile Throwable error;private volatile T result;
+    public static final class Slice<T>{public final boolean done;public final T result;public final Throwable error;public final long cpuNanos,maxPollGapNanos;Slice(boolean done,T result,Throwable error,long cpu,long gap){this.done=done;this.result=result;this.error=error;cpuNanos=cpu;maxPollGapNanos=gap;}}
+    public CooperativeContinuationR26(String name,Callable<T> body,BooleanSupplier preempt,Runnable resume,LongSupplier cpuClock){this(name,body,preempt,resume,cpuClock,"");}
+    public CooperativeContinuationR26(String name,Callable<T> body,BooleanSupplier preempt,Runnable resume,LongSupplier cpuClock,String owner){this.owner=owner;this.body=body;this.preempt=preempt;this.resume=resume;this.cpuClock=cpuClock;thread=new Thread(this::run,name);thread.setDaemon(true);pausedSince=System.nanoTime();synchronized(OWNED){OWNED.computeIfAbsent(owner,key->new java.util.HashSet<>()).add(this);}thread.start();}
+    public static boolean awaitOwnerStopped(String owner,long millis){
+        long deadline=System.nanoTime()+millis*1000000L;
+        for(;;){java.util.List<CooperativeContinuationR26<?>> tasks;synchronized(OWNED){java.util.Set<CooperativeContinuationR26<?>> live=OWNED.get(owner);if(live==null||live.isEmpty())return true;tasks=new java.util.ArrayList<>(live);}
+            for(CooperativeContinuationR26<?> task:tasks){long left=deadline-System.nanoTime();if(left<=0)return false;try{TimeUnit.NANOSECONDS.timedJoin(task.thread,left);}catch(InterruptedException stopping){/* cleanup still owns these resources */}}
+        }
+    }
+    public Slice<T> slice(long millis)throws InterruptedException{
+        if(millis<1||millis>CONTINUATION_SLICE_MS)throw new IllegalArgumentException("R26_CONTINUATION_QUANTUM");
+        synchronized(monitor){long cpuBefore=cpuTotal;if(!done){endNanos=System.nanoTime()+millis*1000000L;paused=false;monitor.notifyAll();long hard=System.nanoTime()+(millis+1000)*1000000L;
+            while(!done&&!paused){long remaining=hard-System.nanoTime();if(remaining<=0){close();throw new IllegalStateException("R26_UNSLICED_COMPUTATION_CAPACITY");}TimeUnit.NANOSECONDS.timedWait(monitor,remaining);}}
+            return new Slice<>(done,result,error,Math.max(0,cpuTotal-cpuBefore),maxPollGap);
+        }
+    }
+    private void run(){
+        // R27.4: a new Thread starts at normal (nice 0) scheduling priority whatever its creator runs at, so every R26
+        // expert/foundry continuation competed with the realtime analysis thread (device 10.29: request→commit P95 25 s,
+        // ACTION_BUILD_FUNNEL_META_RANK 27.9 s wall for 4.0 s CPU). The Android runtime installs a hook that lowers the
+        // thread to background priority; this class stays pure Java. Research is never paused by it.
+        Runnable hook=threadStartHook;if(hook!=null)try{hook.run();}catch(Throwable denied){/* keep running at the default priority */}
+        CURRENT.set(this);BudgetTokenSU1.setPauseClock(this);cpuOrigin=cpuClock.getAsLong();
+        try{awaitPermit();ExecutionBudgetR26.enter(new BudgetTokenSU1(3600000,Long.MAX_VALUE/4,()->closed));lastPoll=System.nanoTime();result=body.call();}
+        catch(Throwable failure){error=failure;}
+        finally{ExecutionBudgetR26.leave();BudgetTokenSU1.setPauseClock(null);CURRENT.remove();synchronized(monitor){cpuTotal=Math.max(0,cpuClock.getAsLong()-cpuOrigin);done=true;paused=true;monitor.notifyAll();}synchronized(OWNED){java.util.Set<CooperativeContinuationR26<?>> tasks=OWNED.get(owner);if(tasks!=null){tasks.remove(this);if(tasks.isEmpty())OWNED.remove(owner);}}}
+    }
+    private void awaitPermit()throws InterruptedException{
+        synchronized(monitor){while((paused||endNanos==0)&&!closed)monitor.wait();if(closed)throw new InterruptedException("R26_CONTINUATION_CANCELLED");long now=System.nanoTime();if(pausedSince!=0){totalPaused+=now-pausedSince;pausedSince=0;}if(resume!=null)resume.run();lastPoll=now;}
+    }
+    private void checkpoint(){
+        if(closed||Thread.currentThread().isInterrupted())throw new BudgetTokenSU1.Yield("R26_CONTINUATION_CANCELLED");long now=System.nanoTime();maxPollGap=Math.max(maxPollGap,now-lastPoll);lastPoll=now;
+        if(criticalDepth>0)return;
+        if(now<endNanos&&(preempt==null||!preempt.getAsBoolean()))return;
+        long cpu=cpuClock.getAsLong();
+        synchronized(monitor){paused=true;pausedSince=System.nanoTime();cpuTotal=Math.max(0,cpu-cpuOrigin);monitor.notifyAll();}
+        try{awaitPermit();}catch(InterruptedException stopped){Thread.currentThread().interrupt();throw new BudgetTokenSU1.Yield("R26_CONTINUATION_CANCELLED");}
+    }
+    public static void poll(){CooperativeContinuationR26<?> task=CURRENT.get();if(task!=null)task.checkpoint();}
+    /** A rejected prepared write yields its current quantum, retaining the exact batch on its private stack. */
+    public static void yieldPreparedWrite(){CooperativeContinuationR26<?> task=CURRENT.get();if(task==null)throw new IllegalStateException("R30_PREPARED_RETRY_REQUIRES_CONTINUATION");if(task.criticalDepth!=0)throw new IllegalStateException("R30_YIELD_INSIDE_WRITER");task.endNanos=0;task.checkpoint();}
+    public static boolean installed(){return CURRENT.get()!=null;}
+    /** Acquired after the writer lock: no waiting/yield is allowed while a DB transaction or lock is held. */
+    public static final class Critical implements AutoCloseable {private final CooperativeContinuationR26<?> task;private Critical(CooperativeContinuationR26<?> task){this.task=task;if(task!=null)task.criticalDepth++;}public void close(){if(task!=null)task.criticalDepth--;}}
+    public static Critical critical(){return new Critical(CURRENT.get());}
+    @Override public long pausedNanos(){return totalPaused+(pausedSince==0?0:System.nanoTime()-pausedSince);}
+    public boolean isDone(){return done;}
+    @Override public void close(){closed=true;synchronized(monitor){monitor.notifyAll();}thread.interrupt();}
+}
