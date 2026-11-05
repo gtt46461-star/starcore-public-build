@@ -21,6 +21,8 @@ import zipfile
 BASELINE = "5237b265a27fe5ad27fd842901c445d5f8c27749"
 PLAN_REL = "construction/STARCORE_R31_FINAL_20261104"
 PLAN_REVISION = "R31.2-SEQUENTIAL-20261105"
+PLAN_MEMBER_COUNT = 452
+ORIGINAL_PLAN_MEMBER_COUNT = 405
 PLAN_AUTHORIZATION_COMMIT = "fec7b4e3f20f8375befe8af75d95f08266235f50"
 PLAN_MANIFEST_SHA256 = "571fc11519680d0fee86cdfe9211ab7169358ce0a197da537ece8d33bed764c7"
 ORIGINAL_PLAN_REL = "construction/archives/STARCORE_R31_FINAL_20261104"
@@ -106,13 +108,13 @@ def verify_manifest(plan: Path, expected_hash: str = PLAN_MANIFEST_SHA256) -> di
 
 
 def verify_plan_packages(root: Path, plan: Path) -> dict:
-    """Two separately pinned roles, authorized by the R31.1 user revision.
+    """Two separately pinned roles, authorized by the R31.2 user revision.
 
     A manifest cannot select its own role or update its expected digest. The
     original archive remains mandatory even when --plan selects an active copy.
     """
-    roles = (("active", plan, PLAN_MANIFEST_SHA256, 410),
-             ("original_archive", root / ORIGINAL_PLAN_REL, ORIGINAL_PLAN_MANIFEST_SHA256, 405))
+    roles = (("active", plan, PLAN_MANIFEST_SHA256, PLAN_MEMBER_COUNT),
+             ("original_archive", root / ORIGINAL_PLAN_REL, ORIGINAL_PLAN_MANIFEST_SHA256, ORIGINAL_PLAN_MEMBER_COUNT))
     results = {}
     for role, directory, expected, count in roles:
         result = verify_manifest(directory, expected)

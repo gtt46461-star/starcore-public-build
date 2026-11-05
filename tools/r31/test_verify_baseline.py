@@ -113,7 +113,7 @@ class PlanRevisionRoleTest(unittest.TestCase):
 
     def test_real_active_and_original_archive_are_independently_sealed(self):
         results = v.require_plan_packages(v.ROOT, v.ROOT / v.PLAN_REL)
-        self.assertEqual([410, 405], [results[r]["member_count"] for r in ("active", "original_archive")])
+        self.assertEqual([452, 405], [results[r]["member_count"] for r in ("active", "original_archive")])
         for result in results.values():
             self.assertEqual("PASS", result["status"])
             self.assertEqual([1832, 299, 1832], [r["rows"] for r in result["preservation"]])

@@ -1,0 +1,95 @@
+{
+  "format": "R312_FIXED_DEV_SEMANTIC_REVIEW_V1",
+  "baseline_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+  "recorded_head": "bf795c942038190241a9f624543b15115e7fa0b5",
+  "recorded_at": "2026-11-05T06:13:05.969985+00:00",
+  "scope": "ONLY_SEVEN_PRESERVED_PRODUCTION_FILES_AND_DEBUG_CHANNEL_GRADLE_CONTRACT",
+  "qualification_inheritance": false,
+  "source_reviews": [
+    {
+      "path": "app/build.gradle",
+      "role": "BUILD_CONTRACT",
+      "before_sha256": "f676613560e456bfa1a40b04819d359b53dfaadd8f76ecb3339fb0592dbd04d2",
+      "after_sha256": "640f6b6c473550858f006201c5090e5c6d38b3318818b9947a0fbdea565ae9cf",
+      "diff_sha256": "045453e0b0cbe40c3f77ecc35345688bcab8a604b5f81e4c8bef91af41e57326",
+      "reviewer": "Codex R31.2 S00 explicit eight-path source review",
+      "rationale": "Separate only release asset/final identity hooks from the exact debug Gate task set; preserve semantic validators, every test, heap limits and release behavior outside development mode."
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "role": "NUMERIC",
+      "before_sha256": "16c79cd027c433537b371469a32394e3fddb07b9352e92d4d8b3579a6532d871",
+      "after_sha256": "dd379a54007506d60c21a0c52cbe3425df547b85e74038b01a5e2cbe1deb72fe",
+      "diff_sha256": "cbc19512cf47213504cf10989f6c9f9983f4e5894e0079aa8b9e820238fe9cd7",
+      "reviewer": "Codex R31.2 S00 explicit eight-path source review",
+      "rationale": "Pass the transaction owner observed commit outcome to unlocked writer telemetry and label process-only observations; preserve the actual commit conclusion and avoid nested diagnostic writes."
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+      "role": "NUMERIC",
+      "before_sha256": "cc4354d257a170ce2de3579c2fe62e0e676b70593c8373deec1fe56df79483cf",
+      "after_sha256": "0b0894d0cc161e196b9ebe87b0e8f22c71a02439690d6c759230d8d2e0562a4b",
+      "diff_sha256": "698736e41095a2880f09814a471dbb01486d022b435fac03adf18d4550e24e4a",
+      "reviewer": "Codex R31.2 S00 explicit eight-path source review",
+      "rationale": "Distinguish bounded nested physical disk-full, corrupt and constraint causes plus temporary timeouts while retaining the typed transaction outcome and existing fault-budget semantics."
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+      "role": "NUMERIC",
+      "before_sha256": "83455c6463ce9c8edf555dae1cc95fcdce095d3bcae601226da35b04fa8f4b54",
+      "after_sha256": "482e5675e060e4320117f09ddc512b88e0b6c9cdbf291a13093b581878258189",
+      "diff_sha256": "e47163ed8138a1bbd0d1fce17c6a58a4da25ec5a5f9f3b29e4ece9d8758296c2",
+      "reviewer": "Codex R31.2 S00 explicit eight-path source review",
+      "rationale": "Enumerate already-constructed model private primitive backings within the existing bounded shape walk, exclude borrowed teacher state, and preserve numerical prediction/update formulas and loops."
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+      "role": "NUMERIC",
+      "before_sha256": "494541534d062baab0d622536ee224742f4d9e655cf4d7e6f3b10aaecd1dd495",
+      "after_sha256": "078239ed72c3174e3c59bfb2627306c33bdee4d268fc7c9f88b53d54258f222c",
+      "diff_sha256": "07de69353bfea3219c24a376a5793ae3d54ad0b72c659dc4f506479183615f0f",
+      "reviewer": "Codex R31.2 S00 explicit eight-path source review",
+      "rationale": "Record only bounded owner-enumerated private primitive payload after a future actual heap sample; retain metadata/future reservations and forbid array-collection lifetime rules on model graphs. Existing Looper/Debug/MXBean reflective sources are unchanged; no new dynamic class entry is approved."
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+      "role": "PRESENTATION",
+      "before_sha256": "7082f556df496611f0231f0e2172c537349c0e95f8916ea5a714953d22f1a5d0",
+      "after_sha256": "719a0100dddcb5ea90a4498b6f2576e199f52a2fc54aa0bb636e5b3410fe303f",
+      "diff_sha256": "162083a87d961c39a7164bef743940c8a3c4daaeac8603c4edb64176e414a859",
+      "reviewer": "Codex R31.2 S00 explicit eight-path source review",
+      "rationale": "Expose the existing writer protocol observation in the report chapter without granting numerical authority, natural-quality PASS, or changing any decision threshold."
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "role": "NUMERIC",
+      "before_sha256": "a4c8c167f9dcecdecd007862bb8725e5ccf2640de0899efc25dbbc1345ad7283",
+      "after_sha256": "5ebd764ef2e631580722dd9368b2de71fd9ba1f1dd32d93e041a8ff4066d9a44",
+      "diff_sha256": "2efbaf4481971c798120d50ebfd64299b8d4b69fcfb9694df8b0a1f0551b6955",
+      "reviewer": "Codex R31.2 S00 explicit eight-path source review",
+      "rationale": "Project rollback counts only from validated owner outcome histograms; retain unknown/null for missing or invalid counts and expose over-budget telemetry without schema or statistical changes."
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java",
+      "role": "NUMERIC",
+      "before_sha256": "97380f13f65da759fbb6ce7008c8797f9744d264d529799ca7b57e0ce05f6d89",
+      "after_sha256": "78b5d38dc02c7e019233cd5468ae3a155aec11b307a916957a6657bc7ce4f43b",
+      "diff_sha256": "81110331941bb190184fdeaed29b392c51212ae544dc6fa3bd6452bb509f7c20",
+      "reviewer": "Codex R31.2 S00 explicit eight-path source review",
+      "rationale": "Persist observed committed/rolled-back/unknown transaction counts in the existing bounded histogram payload; legacy callers stay unknown rather than treating attempt failures as rollback facts."
+    }
+  ],
+  "protected_sha256": {
+    "release/release_manifest.json": "08a98fc89acfb6bc9dbe978f4c4044fcb68dbde67bd367a2c51af901fd5de817",
+    "release/release_identity.properties": "73876ff3a9bb6111c7fd6c45c3b72be94a6960a5f9ae591b0384aee12912d09b",
+    "release/research_gate_plan_r967.json": "be3ddf5dd91cdd595fe6a49ab70c1c11887d942d41677a25bd4740aed9c63c5f",
+    "release/r81_semantic_baseline.json": "dfcf44525ebff47f018c55dd0772c2b0c61ba335fc90f6fe4a25ad7dd2293eb7",
+    "release/r81_controlled_source_baseline.json": "a01f962a253d97879d7498d6e2c881719ac777bff64557a94310b84bdf7a0024",
+    "scripts/r967_semantic_identity.py": "60e4a4f535dd79126a4ab4ba1580aa8afba3cda3b53d8347dd3ee59e8379d85e"
+  },
+  "metadata_before_sha256": {
+    "release/research_dependencies_r967.json": "d3056807c528832cf5257cee98b82889219c41d2e8cb389ed6ea2b8e697d7963",
+    "release/r82_training_invalidation.json": "6404526e429db9a80cb7ccd3f2d4319af954f8d0706e71c8d0f4c8c25bf3d0c6"
+  },
+  "forbidden": "No r982 freeze, release identity write, predecessor continuation, threshold change, assertion change, semantic validator edit, or unknown source/dynamic trust."
+}

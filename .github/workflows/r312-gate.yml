@@ -1,0 +1,57 @@
+# R31.2 batch gate CI fallback. Install in S00 as .github/workflows/r312-gate.yml on construction/r31-final-20261104.
+# Runs exactly the local gate (gradle debug unit/lint/compile + HOST_SUITE) and uploads BUILD_SUMMARY.json.
+# No emulator, no signing, no release identity freeze. Evidence-only pushes do not trigger it.
+name: STARCORE R31.2 batch gate
+on:
+  push:
+    branches: ['construction/r31-final-20261104']
+    paths-ignore: ['construction/r31/**', 'verification/**', 'construction/STARCORE_R31_FINAL_20261104/**', '**/*.md']
+  workflow_dispatch:
+    inputs:
+      batch:
+        description: Batch id (default = open batch from the gate)
+        required: false
+permissions:
+  contents: read
+concurrency:
+  group: r312-gate-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      ORG_GRADLE_PROJECT_r312Development: 'true'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51' PyYAML==6.0.2
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+      - name: Prepare development channel
+        run: python3 tools/r312/dev_channel.py prepare --github-env "$GITHUB_ENV"
+      - name: Gate build
+        env:
+          REQUESTED_BATCH: ${{ github.event.inputs.batch }}
+        run: |
+          BATCH="$REQUESTED_BATCH"
+          if [ -z "$BATCH" ]; then
+            BATCH=$(python3 construction/STARCORE_R31_FINAL_20261104/tools/r312_gate.py status | python3 -c 'import json,sys; print(json.load(sys.stdin)["open_batch"])')
+          fi
+          echo "BATCH=$BATCH" >> "$GITHUB_ENV"
+          export R312_CURRENT_BATCH="$BATCH"
+          python3 construction/STARCORE_R31_FINAL_20261104/tools/r312_gate.py build --batch "$BATCH"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r312-${{ env.BATCH }}-${{ github.sha }}
+          path: verification/r31/r312/
+          retention-days: 30

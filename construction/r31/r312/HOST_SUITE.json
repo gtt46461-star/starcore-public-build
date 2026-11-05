@@ -1,0 +1,609 @@
+{
+  "format": "R312_HOST_SUITE_V1",
+  "rule": "Every entry must have a command or retired=true with a replacement test id. Commands run from repo root; exit code 0 = PASS. Install as construction/r31/r312/HOST_SUITE.json in S00.",
+  "pre_build": [
+    "git config --local core.quotepath false",
+    "python3 tools/r312/refresh_dev_semantics.py --check",
+    "python3 tools/r312/prepare_host_support.py --pre-build"
+  ],
+  "pre_build_rule": "Only developer-build identity refresh needed for gradle tasks to compile and test. No release identity freeze, no signing, no r982 release inventory.",
+  "not_in_suite": {
+    "tools/r31/run_construction_build.py": "gradle is run by the gate itself",
+    "tools/r31/run_android_joint_protocols.py": "EMU layer; executed in S20 only"
+  },
+  "host": [
+    {
+      "id": "run_atom_publication_host",
+      "command": "python3 tools/r312/host_entry.py --id run_atom_publication_host -- python3 tools/r31/run_atom_publication_host.py --output '{out}' --support-jar '{classes_jar}'",
+      "required_args": [
+        "--output",
+        "--support-jar"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "run_atomnet_publication_host",
+      "command": "python3 tools/r312/host_entry.py --id run_atomnet_publication_host -- python3 tools/r31/run_atomnet_publication_host.py --classes '{classes_jar}' --out '{out}'",
+      "required_args": [
+        "--classes",
+        "--out"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "run_certificate_startup_host",
+      "command": "python3 tools/r312/host_entry.py --id run_certificate_startup_host -- python3 tools/r31/run_certificate_startup_host.py",
+      "required_args": [],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "run_checkpoint_startup_host",
+      "command": "python3 tools/r312/host_entry.py --id run_checkpoint_startup_host -- python3 tools/r31/run_checkpoint_startup_host.py --out '{out}' --classes '{classes_jar}' --production-root '{repo}'",
+      "required_args": [
+        "--out",
+        "--classes",
+        "--production-root"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "run_evolution_publication_host",
+      "command": "python3 tools/r312/host_entry.py --id run_evolution_publication_host -- python3 tools/r31/run_evolution_publication_host.py --case all --output '{out}'",
+      "required_args": [
+        "--case",
+        "--output"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "run_legacy_qualification_contract",
+      "command": "python3 tools/r312/host_entry.py --id run_legacy_qualification_contract -- python3 tools/r31/run_legacy_qualification_contract.py --classes '{classes_jar}' --out '{out}'",
+      "required_args": [
+        "--classes",
+        "--out"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "run_report_cas_scope_host",
+      "command": "python3 tools/r312/host_entry.py --id run_report_cas_scope_host -- python3 tools/r31/run_report_cas_scope_host.py --classes '{classes_jar}' --out '{out}'",
+      "required_args": [
+        "--classes",
+        "--out"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "run_report_history_reader_host",
+      "command": "python3 tools/r312/host_entry.py --id run_report_history_reader_host -- python3 tools/r31/run_report_history_reader_host.py --classes '{classes_jar}' --producer-support '{classes_jar}' --out '{out}'",
+      "required_args": [
+        "--classes",
+        "--producer-support",
+        "--out"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "run_research_schema_host",
+      "command": "python3 tools/r312/host_entry.py --id run_research_schema_host -- python3 tools/r31/run_research_schema_host.py",
+      "required_args": [],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "run_runtime_ddl_host",
+      "command": "python3 tools/r312/host_entry.py --id run_runtime_ddl_host -- python3 tools/r31/run_runtime_ddl_host.py",
+      "required_args": [],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "run_runtime_ddl_writer_regression",
+      "command": "python3 tools/r312/host_entry.py --id run_runtime_ddl_writer_regression -- python3 tools/r31/run_runtime_ddl_writer_regression.py",
+      "required_args": [],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "run_service_protocol_host",
+      "command": "python3 tools/r312/host_entry.py --id run_service_protocol_host -- python3 tools/r31/run_service_protocol_host.py",
+      "required_args": [],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "run_task_runtime_host",
+      "command": "python3 tools/r312/host_entry.py --id run_task_runtime_host -- python3 tools/r31/run_task_runtime_host.py",
+      "required_args": [],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "run_telemetry_budget_host",
+      "command": "python3 tools/r312/host_entry.py --id run_telemetry_budget_host -- python3 tools/r31/run_telemetry_budget_host.py --output '{out}' --support-jar '{classes_jar}'",
+      "required_args": [
+        "--output",
+        "--support-jar"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "run_write_protocol_host",
+      "command": "python3 tools/r312/host_entry.py --id run_write_protocol_host -- python3 tools/r31/run_write_protocol_host.py",
+      "required_args": [],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "run_writer_hold_fault_host",
+      "command": "python3 tools/r312/host_entry.py --id run_writer_hold_fault_host -- python3 tools/r31/run_writer_hold_fault_host.py --classes '{classes_jar}' --joint-classes '{classes_dir}' --out '{out}'",
+      "required_args": [
+        "--classes",
+        "--joint-classes",
+        "--out"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "verify_ast_family_scope",
+      "command": "python3 tools/r312/host_entry.py --id verify_ast_family_scope -- python3 tools/r31/verify_ast_family_scope.py --support-jar '{classes_jar}' --main-source '{repo}/app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java'",
+      "required_args": [
+        "--support-jar",
+        "--main-source"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback",
+      "known_existing_constraint": "Original verifier pins an old 013 jar/source SHA. Current gate inputs are passed; its original assertion is preserved and a resulting failure must be reported, not auto-repinned."
+    },
+    {
+      "id": "verify_baseline",
+      "command": "python3 tools/r312/host_entry.py --id verify_baseline -- python3 tools/r31/verify_baseline.py --output '{out}.json'",
+      "required_args": [
+        "--output"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "verify_continuation",
+      "command": "python3 tools/r312/host_entry.py --id verify_continuation -- python3 tools/r31/verify_continuation.py --classes '{classes_dir}' --out '{out}' --phase P01",
+      "required_args": [
+        "--classes",
+        "--out",
+        "--phase"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "verify_family_admission",
+      "command": "python3 tools/r312/host_entry.py --id verify_family_admission -- python3 tools/r31/verify_family_admission.py --support-jar '{classes_jar}'",
+      "required_args": [
+        "--support-jar"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "verify_input_pin_joint",
+      "command": "python3 tools/r312/host_entry.py --id verify_input_pin_joint -- python3 tools/r31/verify_input_pin_joint.py --support-jar '{classes_jar}' --shared-api-classes '{classes_dir}' --domain-root '{repo}' --qualification-root '{repo}' --evolution-root '{repo}' --jdk '{jdk}' --sdk '{sdk}' --jdbc '{jdbc}' --out '{out}'",
+      "required_args": [
+        "--support-jar",
+        "--shared-api-classes",
+        "--domain-root",
+        "--qualification-root",
+        "--evolution-root",
+        "--jdk",
+        "--sdk",
+        "--jdbc",
+        "--out"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "verify_memory",
+      "command": "python3 tools/r312/host_entry.py --id verify_memory -- python3 tools/r31/verify_memory.py",
+      "required_args": [],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "verify_pin_capacity",
+      "command": "python3 tools/r312/host_entry.py --id verify_pin_capacity -- python3 tools/r31/verify_pin_capacity.py --support-jar '{classes_jar}'",
+      "required_args": [
+        "--support-jar"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "verify_pitguard_allocation",
+      "command": "python3 tools/r312/host_entry.py --id verify_pitguard_allocation -- python3 tools/r31/verify_pitguard_allocation.py",
+      "required_args": [],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "verify_platform_readiness",
+      "command": "python3 tools/r312/host_entry.py --id verify_platform_readiness -- python3 tools/r31/verify_platform_readiness.py --joint-manifest '{platform_manifest}' --domain-root '{repo}'",
+      "required_args": [
+        "--joint-manifest",
+        "--domain-root"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback",
+      "historical_negative_control": "Original014 artifact is separate explicitly historical dependency with fixed SHA; no current artifact may replace it. Missing CI dependency is a real recorded failure."
+    },
+    {
+      "id": "verify_resource_recovery",
+      "command": "python3 tools/r312/host_entry.py --id verify_resource_recovery -- python3 tools/r31/verify_resource_recovery.py",
+      "required_args": [],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "verify_runtime_memory_control",
+      "command": "python3 tools/r312/host_entry.py --id verify_runtime_memory_control -- python3 tools/r31/verify_runtime_memory_control.py",
+      "required_args": [],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "verify_runtime_observation",
+      "command": "python3 tools/r312/host_entry.py --id verify_runtime_observation -- python3 tools/r31/verify_runtime_observation.py",
+      "required_args": [],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "verify_task_status",
+      "command": "python3 tools/r312/host_entry.py --id verify_task_status -- python3 tools/r31/verify_task_status.py",
+      "required_args": [],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "current_build_binding": "Current gate main compilation, compiled BuildConfig HEAD/tree/product digest, actual generated R.jar; no historical-current fallback"
+    },
+    {
+      "id": "run_writer_outcome_chain_host",
+      "command": "python3 tools/r312/host_entry.py --id run_writer_outcome_chain_host -- python3 tools/r31/run_writer_outcome_chain_host.py --classes '{classes_jar}' --ahead '{classes_dir}' --ahead-receipt '{ahead_receipt}' --out '{out}'",
+      "required_args": [
+        "--classes",
+        "--ahead",
+        "--ahead-receipt",
+        "--out"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "support_scope": "Both class inputs come from the same actual current whole gate compile; the adapter receipt explicitly states that this is not a separately compiled five-source override."
+    },
+    {
+      "id": "s00_baseline_contracts",
+      "command": "python3 tools/r312/host_entry.py --id s00_baseline_contracts --source-only -- python3 tools/r31/test_verify_baseline.py",
+      "required_args": [],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "input_scope": "PURE_SOURCE_METADATA_NO_MAIN_COMPILE_DEPENDENCY"
+    },
+    {
+      "id": "s00_source_ownership",
+      "command": "python3 tools/r312/host_entry.py --id s00_source_ownership --source-only -- python3 tools/r312/verify_s00_local.py --case source-ownership",
+      "required_args": [
+        "--case"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "input_scope": "PURE_SOURCE_METADATA_NO_MAIN_COMPILE_DEPENDENCY"
+    },
+    {
+      "id": "s00_preservation_states",
+      "command": "python3 tools/r312/host_entry.py --id s00_preservation_states --source-only -- python3 tools/r312/verify_s00_local.py --case preservation",
+      "required_args": [
+        "--case"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "input_scope": "PURE_SOURCE_METADATA_NO_MAIN_COMPILE_DEPENDENCY"
+    },
+    {
+      "id": "s00_observation_contracts",
+      "command": "python3 tools/r312/host_entry.py --id s00_observation_contracts --source-only -- python3 tools/r312/run_s00_observation_host.py --kind evidence",
+      "required_args": [
+        "--kind"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "input_scope": "PURE_SOURCE_METADATA_NO_MAIN_COMPILE_DEPENDENCY"
+    },
+    {
+      "id": "s00_observation_transaction_preservation",
+      "command": "python3 tools/r312/host_entry.py --id s00_observation_transaction_preservation -- python3 tools/r312/run_s00_observation_host.py --kind transaction",
+      "required_args": [
+        "--kind"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "input_scope": "ACTUAL_CURRENT_GATE_CLASSES_SDK36_JDBC"
+    },
+    {
+      "id": "s00_gate_registry",
+      "command": "python3 tools/r312/host_entry.py --id s00_gate_registry --source-only -- python3 tools/r312/verify_s00_local.py --case gate-registry",
+      "required_args": [
+        "--case"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "input_scope": "PURE_SOURCE_METADATA_NO_MAIN_COMPILE_DEPENDENCY"
+    },
+    {
+      "id": "s00_workflow_local_contract",
+      "command": "python3 tools/r312/host_entry.py --id s00_workflow_local_contract --source-only -- python3 tools/r312/verify_s00_local.py --case workflow",
+      "required_args": [
+        "--case"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "input_scope": "PURE_SOURCE_METADATA_NO_MAIN_COMPILE_DEPENDENCY"
+    },
+    {
+      "id": "s00_wip_coverage",
+      "command": "python3 tools/r312/host_entry.py --id s00_wip_coverage --source-only -- python3 tools/r312/wip_inventory.py check --check coverage",
+      "required_args": [
+        "--check"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "input_scope": "PURE_SOURCE_METADATA_NO_MAIN_COMPILE_DEPENDENCY"
+    },
+    {
+      "id": "s00_candidate_single_head",
+      "command": "python3 tools/r312/host_entry.py --id s00_candidate_single_head --source-only -- python3 tools/r312/wip_inventory.py check --check candidate",
+      "required_args": [
+        "--check"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "input_scope": "PURE_SOURCE_METADATA_NO_MAIN_COMPILE_DEPENDENCY"
+    },
+    {
+      "id": "s00_failure_reconciliation",
+      "command": "python3 tools/r312/host_entry.py --id s00_failure_reconciliation --source-only -- python3 tools/r312/wip_inventory.py check --check failures",
+      "required_args": [
+        "--check"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "input_scope": "PURE_SOURCE_METADATA_NO_MAIN_COMPILE_DEPENDENCY",
+      "strict_summary_policy": "Missing current actual BUILD_SUMMARY or wrong source_head must FAIL; no journal/synthetic summary substitution."
+    },
+    {
+      "id": "s00_gate_summary",
+      "command": "python3 tools/r312/host_entry.py --id s00_gate_summary --source-only -- python3 tools/r312/verify_s00_local.py --case gate-summary",
+      "required_args": [
+        "--case"
+      ],
+      "owner_cards": [
+        "R312-S00-C01"
+      ],
+      "retired": false,
+      "replacement": null,
+      "configuration_state": "CONFIGURED_NOT_EXECUTED",
+      "input_scope": "PURE_SOURCE_METADATA_NO_MAIN_COMPILE_DEPENDENCY",
+      "strict_summary_policy": "Missing current actual BUILD_SUMMARY or wrong source_head must FAIL; no journal/synthetic summary substitution."
+    }
+  ],
+  "pre_build_scope": "Check Root-authorized already refreshed developer semantics without --apply, then write ignored development identity inputs and evidence-only GATE_CONTEXT. No tracked mutation, release identity/r982 freeze or signing.",
+  "argument_placeholders": {
+    "resolver": "tools/r312/host_entry.py after the gate Gradle invocation",
+    "classes_jar": "Actual current gate main class snapshot, source-head/tree/product-bound",
+    "classes_dir": "Actual gate main javac classes directory",
+    "r_jar": "Actual R.jar from the same gate resource build",
+    "repo": "Current repository root",
+    "out": "New per-entry app/build/r312/host-runs/<batch>/<run_id>/<id>",
+    "jdk": "JAVA_HOME supplied by tools/r312/dev_channel.py",
+    "sdk": "R312_ANDROID_JAR (SDK36 fixed SHA)",
+    "jdbc": "R312_SQLITE_JDBC (3.46.1.3 fixed SHA)",
+    "platform_manifest": "Current producer/API closure plus explicitly labelled original014 negative control",
+    "ahead_receipt": "Actual current whole compile source/class receipt, not a fabricated independent compile"
+  },
+  "execution_state": "NOT_RUN_CONFIGURATION_ONLY",
+  "execution_adapter": "tools/r312/host_io.py relocates only historical HOST output/platform/temp paths into app/build, preserving assertion ASTs and all numeric constants; complete child raw logs remain there and gate logs contain a bounded tail with SHA."
+}

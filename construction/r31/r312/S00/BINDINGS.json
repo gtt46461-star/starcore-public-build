@@ -1,0 +1,1151 @@
+{
+  "format": "R312_BINDINGS_V1",
+  "batch": "S00",
+  "items": {
+    "R31-B00-C01#A1": [
+      "HOST:s00_baseline_contracts"
+    ],
+    "R31-B00-C01#A2": [
+      "HOST:s00_source_ownership"
+    ],
+    "R31-B00-C01#A3": [
+      "HOST:s00_baseline_contracts",
+      "HOST:s00_preservation_states"
+    ],
+    "R31-B00-C02#A1": [
+      "HOST:s00_observation_contracts"
+    ],
+    "R31-B00-C02#A2": [
+      "HOST:s00_observation_contracts"
+    ],
+    "R31-B00-C02#A3": [
+      "HOST:s00_observation_transaction_preservation"
+    ],
+    "R312-S00-C01#A1": [
+      "HOST:s00_gate_registry"
+    ],
+    "R312-S00-C01#A2": [
+      "HOST:s00_gate_summary"
+    ],
+    "R312-S00-C01#A3": [
+      "HOST:s00_workflow_local_contract"
+    ],
+    "R312-S00-C02#A1": [
+      "HOST:s00_wip_coverage"
+    ],
+    "R312-S00-C02#A2": [
+      "HOST:s00_candidate_single_head"
+    ],
+    "R312-S00-C02#A3": [
+      "HOST:s00_failure_reconciliation"
+    ]
+  },
+  "scope_extensions": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "reason": "保全R31.2启用前P01既有写入结果/异常适配联改；六参CommitOutcome真实来源支持B00观测。仅登记继承范围，不表示B01/B02当前验收通过。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "source_sha256": "dd379a54007506d60c21a0c52cbe3425df547b85e74038b01a5e2cbe1deb72fe",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "candidate_blob": "b67149c234d93b1fde8d83509b6a2529c28753a9",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+      "reason": "保全R31.2启用前P01已发现四入口分类差异的修复；本批仅以B00根因分类合同验证，未开启S01或B01新施工。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "source_sha256": "0b0894d0cc161e196b9ebe87b0e8f22c71a02439690d6c759230d8d2e0562a4b",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "candidate_blob": "494f1ef7dc317fb575e8064d35f702272343fceb",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+      "reason": "保全已做模型材料化owner/lease回收修复，保持所有后续远端有效修改；本批不扩内存算法施工，未通过全量项留S01。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "source_sha256": "482e5675e060e4320117f09ddc512b88e0b6c9cdbf291a13093b581878258189",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "candidate_blob": "2c3de6d16ba1deb8bdfa3f4d4b77ac9a1a7aad49",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+      "reason": "保全已做allocated-model/working reservation生命周期修复，预算与阈值不放宽；登记既有在制品，不宣称本批内存容量验收通过。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "source_sha256": "078239ed72c3174e3c59bfb2627306c33bdee4d268fc7c9f88b53d54258f222c",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "candidate_blob": "6912f25ffc00e2071260eddee5bf4830e3afdccc",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+      "reason": "保全已做B00任务故障链/telemetry_incomplete及真实提交观测的实际导出；仅支持本批观测合同，不把B11报告升级算完成。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "source_sha256": "719a0100dddcb5ea90a4498b6f2576e199f52a2fc54aa0bb636e5b3410fe303f",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "candidate_blob": "3c1033497344ee2447f5a996b4cc0ff1d573f1a0",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "reason": "保全既有owner/fence故障链接和真实commitOutcomes投影，旧hist/缺源保持unknown；本批仅复核现有B00观察者链，不预做后续卡。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "source_sha256": "5ebd764ef2e631580722dd9368b2de71fd9ba1f1dd32d93e041a8ff4066d9a44",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "candidate_blob": "3cb9b33d51aa1e0eedc5232411f0c997e7478277",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java",
+      "reason": "保全R31.2前既有真实CommitOutcome计数，避免failures冒充回滚；登记P01在制品的事实来源，不视为B02验收结论。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "source_sha256": "78b5d38dc02c7e019233cd5468ae3a155aec11b307a916957a6657bc7ce4f43b",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "candidate_blob": "70acfe593dfdd2e2f91cb9f57bd3a14547c62652",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "CURRENT_FINAL_PLAN.md",
+      "reason": "保全用户正式R31.2授权的方案入口、NEXT_ACTION和接续规则更新，确保唯一S00通道；仅施工元数据，不视作本批应用修复或已通过工程验收。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "d4be2c02bc882171643338d32a9d045c09066750e8e48086d7d240818b62c3e1",
+      "candidate_blob": "54d2efd6db4c367502fcf392dae4ebf63522af4b",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "STARCORE_最终施工入口.md",
+      "reason": "保全用户正式R31.2授权的方案入口、NEXT_ACTION和接续规则更新，确保唯一S00通道；仅施工元数据，不视作本批应用修复或已通过工程验收。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "b26e0ee219430ba207d6faaf68374eb74a43c9168078db3c20701b96004d13a0",
+      "candidate_blob": "3269595386485e83589f8188d08d25ee0f0a259f",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "construction/archives/STARCORE_R31_1_EXECUTION_20261105/CURRENT_FINAL_PLAN.md",
+      "reason": "保全用户正式R31.2修订要求归档的R31.1执行合同与入口原文；这属于用户授权的旧方案可追溯归档，不是本批新增应用能力或历史卡完成。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "a201a2bf9538650b3b9bca340e6e2b262220039848b09f6da56c98ecbfad1503",
+      "candidate_blob": "23489c4bc73c717e606fc3ca8853ce95f6e4a256",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "construction/archives/STARCORE_R31_1_EXECUTION_20261105/MANIFEST_SHA256.json",
+      "reason": "保全用户正式R31.2修订要求归档的R31.1执行合同与入口原文；这属于用户授权的旧方案可追溯归档，不是本批新增应用能力或历史卡完成。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "4f21a1291a413c0bd23efb85dde8a4a2e940322c9b039365b573fe752046f114",
+      "candidate_blob": "d4c23670d1803d4f69579686e2bb872d9bcd3747",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "construction/archives/STARCORE_R31_1_EXECUTION_20261105/README.md",
+      "reason": "保全用户正式R31.2修订要求归档的R31.1执行合同与入口原文；这属于用户授权的旧方案可追溯归档，不是本批新增应用能力或历史卡完成。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "7454ec9f3f38bdb7bb8037a2df08bf8eaad4def5358ba656c50d69bac9198658",
+      "candidate_blob": "b227f915e30f209a3f079131719fc91e0d13b7f6",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "construction/archives/STARCORE_R31_1_EXECUTION_20261105/STARCORE_最终施工入口.md",
+      "reason": "保全用户正式R31.2修订要求归档的R31.1执行合同与入口原文；这属于用户授权的旧方案可追溯归档，不是本批新增应用能力或历史卡完成。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "cfccb9bde67025a2b076983c7a1e77b5e2d974e9e6b9ff6c371e7b5d304a84ee",
+      "candidate_blob": "adf158e8e32a249674944ef40a52691ecfc1a0f5",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "construction/archives/STARCORE_R31_1_EXECUTION_20261105/START_HERE.html",
+      "reason": "保全用户正式R31.2修订要求归档的R31.1执行合同与入口原文；这属于用户授权的旧方案可追溯归档，不是本批新增应用能力或历史卡完成。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "0ffbcfbd0ef5ca45517106bc7617e8682fc7baa4027646bfb3dd088cd9032236",
+      "candidate_blob": "6f5c481c562af0dbcaf6f697938366a5bc836734",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "construction/archives/STARCORE_R31_1_EXECUTION_20261105/docs/00_最终施工总纲.md",
+      "reason": "保全用户正式R31.2修订要求归档的R31.1执行合同与入口原文；这属于用户授权的旧方案可追溯归档，不是本批新增应用能力或历史卡完成。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "89f545bde34a55fb8a67ed3bb9caa4a369fa684858c96eb3ab1457dea768c0c0",
+      "candidate_blob": "5ea15dce4e59eda2b4738423548ed48f156c8633",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "construction/archives/STARCORE_R31_1_EXECUTION_20261105/docs/02_严格验收与实施协议.md",
+      "reason": "保全用户正式R31.2修订要求归档的R31.1执行合同与入口原文；这属于用户授权的旧方案可追溯归档，不是本批新增应用能力或历史卡完成。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "846f06fc50dc8cc482f67e1549e9ad5bc89135a282ea75ee3cc0236069e33cff",
+      "candidate_blob": "7904dbcca60ebffc9a2b9391cfcd0053d166bf78",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "construction/archives/STARCORE_R31_1_EXECUTION_20261105/docs/05_批次拓扑与需求对照.md",
+      "reason": "保全用户正式R31.2修订要求归档的R31.1执行合同与入口原文；这属于用户授权的旧方案可追溯归档，不是本批新增应用能力或历史卡完成。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "6be7885e4b7810ebdbafa9e2b6bd179d8efb601d69a12c7bc243a9c8dbfebc75",
+      "candidate_blob": "2abacf61a070e750118476c0d19007bf26d6a5ae",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "construction/archives/STARCORE_R31_1_EXECUTION_20261105/docs/14_R31.1施工纠偏与接续.md",
+      "reason": "保全用户正式R31.2修订要求归档的R31.1执行合同与入口原文；这属于用户授权的旧方案可追溯归档，不是本批新增应用能力或历史卡完成。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "c5ed8889ba8baa0deea410f7547f309c0743024912b710adf2348e8630db463d",
+      "candidate_blob": "34a623dde356b8f5da80f23ef853e4c2a22f7143",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "construction/archives/STARCORE_R31_1_EXECUTION_20261105/ledgers/cards.json",
+      "reason": "保全用户正式R31.2修订要求归档的R31.1执行合同与入口原文；这属于用户授权的旧方案可追溯归档，不是本批新增应用能力或历史卡完成。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "ebd42c21bf6428967f9ae1d54fb3807a83440cb3dc14670091357c75a258d255",
+      "candidate_blob": "1f49f3d9c7e7e54fd82f560f7fa7e2fc7790e36e",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "construction/archives/STARCORE_R31_1_EXECUTION_20261105/ledgers/execution_phases.json",
+      "reason": "保全用户正式R31.2修订要求归档的R31.1执行合同与入口原文；这属于用户授权的旧方案可追溯归档，不是本批新增应用能力或历史卡完成。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "66331ddf99f109d1174ad0bfb5b01112bea44337dc8bedf4b9b499abd603522a",
+      "candidate_blob": "731c983640b07b3a995578625bd253c0f818356b",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "construction/archives/STARCORE_R31_1_EXECUTION_20261105/ledgers/execution_policy.json",
+      "reason": "保全用户正式R31.2修订要求归档的R31.1执行合同与入口原文；这属于用户授权的旧方案可追溯归档，不是本批新增应用能力或历史卡完成。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "f315210d1fa72575f366d1b6360561b14de232cdc9eb9ef77d25b246f602fc5c",
+      "candidate_blob": "4f8b111b97e17971e10423d42bc508220d303422",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "construction/archives/STARCORE_R31_1_EXECUTION_20261105/ledgers/package_summary.json",
+      "reason": "保全用户正式R31.2修订要求归档的R31.1执行合同与入口原文；这属于用户授权的旧方案可追溯归档，不是本批新增应用能力或历史卡完成。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "b57b73f7b99906511951bcf813db46e28bebaeb2b372a7569e2e126d72f36ea4",
+      "candidate_blob": "2edc80071e1236df86050b7918d53226500f49db",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "construction/archives/STARCORE_R31_1_EXECUTION_20261105/tools/validate_package.py",
+      "reason": "保全用户正式R31.2修订要求归档的R31.1执行合同与入口原文；这属于用户授权的旧方案可追溯归档，不是本批新增应用能力或历史卡完成。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "65c03be6a97f7f74497df5f578f0466b0966d40c4a4e0791b054a4916bd022c9",
+      "candidate_blob": "2eb436fcf6847d1625ff116f31f578c32b3d60fa",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "construction/r31/NEXT_ACTION.json",
+      "reason": "保全用户正式R31.2授权的方案入口、NEXT_ACTION和接续规则更新，确保唯一S00通道；仅施工元数据，不视作本批应用修复或已通过工程验收。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "c2619454c56e157035b7d4cc23ff2afbd2042b2a26d23a0eb0e626f466fece8e",
+      "candidate_blob": "b5d5fe36866b1d7fb3d2594900625edafa560b5a",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "construction/r31/PROCESS_ADJUSTMENT_20261105.md",
+      "reason": "保全用户正式R31.2授权的方案入口、NEXT_ACTION和接续规则更新，确保唯一S00通道；仅施工元数据，不视作本批应用修复或已通过工程验收。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "24ee191e44374aebc5fcad1f34f0c6c0e909a1b6316c087fc6e13853d35a327c",
+      "candidate_blob": "c707c076dba8c05ce67b501eb93d1ace6651b493",
+      "last_change_commit": "fec7b4e3f20f8375befe8af75d95f08266235f50"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/AFTER_CORRECTED_RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "ddbf018282294b9ad34533ada2cbdc42d6261058aa0a28d4fc8a2dac0a91dc2c",
+      "candidate_blob": "ffc00792017e832418c02e7ed3e90f57424840f5",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/AFTER_RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "284255761da395146e8d93ab37e3aeb03fdee5a0d0f045a9072f9bee96a34de8",
+      "candidate_blob": "c82c0f1e4868e8f7e295d978f57911b72ec99f3d",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/AFTER_RESULT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "41e8bbd69d93f2d8191088122e350fb34d79bd78589a9470175df152fa82e9d9",
+      "candidate_blob": "2820818607c87997a3b485d2542dbf8369c5b87f",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/BEFORE_RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e80eef393edd1279d265671aa44614af8a606abb030ee7cfe764d89d44046a1b",
+      "candidate_blob": "d4222557da1750d5d4b95429231f02d8d06664e3",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/BEFORE_RESULT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "20b46eb8aecdfabec425ee6f9f6195e9e53af57ca323924f4686bccdd185be71",
+      "candidate_blob": "91c525171b98f59d5deaf316def9b06320199a52",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/CONTROLLED_PROBE_INPUT_DELTA.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "b6d770bc3777d744f2929b1bf5a1b1e6d10a5ed6828891cd213e37615e5aaf6f",
+      "candidate_blob": "a56cb0fe54d24d3ea86b6b4ab008d40474c1c6b1",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/FREEZE.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "dacbd19238e9440844cd77d4b23e859a4ae7f6ff3a84c320c023f8c4d45a6a77",
+      "candidate_blob": "4bbe94c4a83b5f3b70c4531c2c0a651f7deab29b",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/FamilyMaterializationHostR31.java",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "8783670a3e3c98e1250c46f1fd3d8807704f2d27930f3095c3ff2a7b3815a955",
+      "candidate_blob": "8edf60bc337606ca4a57b037cded6d15e86a2058",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/OWNED_SOURCE.patch",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "415b85631b6ab8a65d234045fba0cabb61961bc73343f1dfbf006757a272ee48",
+      "candidate_blob": "722b0e6c8dc376f78d1a5312195562ffcb57584d",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/README.md",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "963e25b3acfe77608addb01a26465c4459f468d83214e60037ae8ccf3ea56448",
+      "candidate_blob": "ab4a07531d356c00731dc2ece86a6f69459ee813",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/SHA256SUMS.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "ae20824ca193f978f5ca73b58df7fdf1d08f53920b8c291b3bd2d8c342d24ca0",
+      "candidate_blob": "626b9e57a54d58939c3e660e10d474b2f4955280",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/SUMMARY.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "fecf7d9cc879515044054a9169d7fcdf350012037f1889e4a9cf1df5598b9f72",
+      "candidate_blob": "2d6a9b841905cbecee681e7280126ebbb264235c",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/TARGETED_CLASSES_RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "f63e54a1f423bb1c44ebe58628cfe7cdd7c5126559ea3e8673ba0c5d53f1edc2",
+      "candidate_blob": "86ecbb70461d75fd524e58024d1b1773dc6bf31e",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/TARGETED_CLOSURE_RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "a371c369c15a6f83db2bb44a4d1b9f73281d3c4dcecfa26de08d2426811feea7",
+      "candidate_blob": "9bfb909218c502f8c4dbddce46c6cc3e04ec6a55",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/TWO_AFFECTED_CLASSES_RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "8389a1dde7bc545412bca07454c7dbd1dce5d84d8b795a7b2a8498b5372972e8",
+      "candidate_blob": "62d0ab765d1216de4984ef2c25dccf14b924fcef",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/after.stderr.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/after.stdout.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "f45fc906dcb285299613e7c484c1264072a2b6afe3ef35d3ae9bf5d82e2ed793",
+      "candidate_blob": "a0e3d50014c30c58b9c4e86ca8e5df61add85947",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/before.stderr.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "2cb99c60a0ce31c3bbebd6e9cdb5b8c2574aa9a71ed661d195d8ffbcee779096",
+      "candidate_blob": "b716d42f4b64db6842e64e0d1d2ed9a17df9963f",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/before.stdout.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "7679db70916ca0cc631a8c8046c98fa45b6a9b1562a40c5036eb196517dadd84",
+      "candidate_blob": "d9c6837580c78c68943dac0f0a3eeb3f5682348e",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/compile-all-current-original-unit-sources.stderr.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "eb64db8143f41f8fd373778624dcd948d02cdf09bc5e424f3e45caf3353f362b",
+      "candidate_blob": "a0cc878fe8930f53831e7e084175fc2155115c91",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/compile-all-current-original-unit-sources.stdout.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/compile-fixture.stderr.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/compile-fixture.stdout.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/compile-production-corrected-imports.stderr.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/compile-production-corrected-imports.stdout.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/compile-production.stderr.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "a5aacc722187bba8f6425d35a58a8aaa18de6e45e43108d0eb52c61ea6d1f0ff",
+      "candidate_blob": "a95a37fd801309f1a5e3d4db19a30ccfb4ec8eea",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/compile-production.stdout.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/compile-related-test-source-closure.stderr.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "3bc4d0e48ef090330fea0108aa181e3895af05c42c72490352c363a55a6d93b8",
+      "candidate_blob": "8e106dffcaf87faac4d7f314a56f7d8b381670f1",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/compile-related-test-source-closure.stdout.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/compile-two-affected-classes.stderr.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/compile-two-affected-classes.stdout.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/two-whole-classes-after-fixture.stderr.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/two-whole-classes-after-fixture.stdout.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "6b343b710af00c4412ed431de3546a3559795a24a42e0561224315b169a134a9",
+      "candidate_blob": "59acf61c86499ecd46b27f01d27f9a06fc705def",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/whole-related-memory-classes.stderr.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/memory-materialized-owner-21080/whole-related-memory-classes.stdout.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "4c17fec01c284c208c4c8ccbceec6cd9df4a4105710b001dc15afa7e5650c9f5",
+      "candidate_blob": "1e3e906d36a0dd54c3075465b62b52465280cd80",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/r31-1-baseline-verifier/RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "92612097c50c2f03605c3efbbc6203de0d005850ee285d37907acb157d76aa7a",
+      "candidate_blob": "f099af1dd54fd178b3139f2ed48df1cd4a69bbeb",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/r31-1-baseline-verifier/after-full-cli.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "464f688921878a5bf907f56e154b27fd09aa76848942f40b6a638a3937674ae3",
+      "candidate_blob": "7c402abc79888b623ef37ba4ed7a705bd29f572a",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/r31-1-baseline-verifier/after-full-cli.stderr.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/r31-1-baseline-verifier/after-identity-cli.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "95acd82c5d068f78b73efc4f81848a089b396e71f2aef9e29e7c5912650e3102",
+      "candidate_blob": "c12b900216fbdb7ea5955e7c7e18fd6076d68cf0",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/r31-1-baseline-verifier/after-identity-cli.stderr.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/r31-1-baseline-verifier/after-require-clean-cli.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "4c6aaf737b951b584bb87fd7895ca843eb16a4fb9571ce758d9685f6eb144a57",
+      "candidate_blob": "a908fb6300a39bd62e59a6519cb53516f4e39c40",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/r31-1-baseline-verifier/before-cli.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "a5b032d02c2db2d39eb8a6447292d13ad612820dddf0191c5d0fc22e053b7671",
+      "candidate_blob": "e118fc91992d1da449571d00084283c6bf7af145",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/r31-1-baseline-verifier/commands.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "4b06fe1b7e92bed7982105ff8ee384a54198446482a607289250c9ed551a5da2",
+      "candidate_blob": "316e14fb560017892bcb74701e443e8f5d7920e8",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/r31-1-baseline-verifier/tests.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "fa480f45ac1d1699564a81ce5253dd0913292bd3c7c6c87243f6c9e0058f57c7",
+      "candidate_blob": "abcd8a5790fd0754c50f60f54d0874d05a871f91",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/r31-1-fix-group-21080/SUMMARY.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "124535a68d1e19d698705576fdeec628dec2c56fe34ccdea31fc7f741c46f33f",
+      "candidate_blob": "e9a896bce4bc8b2f877056800344ee686f9a23e0",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/r31-1-fix-group-21080/r31-p01-r311-targeted-json-api-fixed/RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e0870ca1d2d016e2f236d143f9281cfaa7035d958ad4105faf7598eb7e2fb26d",
+      "candidate_blob": "6a2a9af06cc90559cb54d73735ca25a9355974d5",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/r31-1-fix-group-21080/r31-p01-r311-targeted-json-api-fixed/compile.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "27941f057b12f217f30a174adda602a055a5bcb56f7f4ac77299acbd58b7d6f0",
+      "candidate_blob": "fad0617b9e72a294bea1a7cc8b249da81233d07b",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/r31-1-fix-group-21080/r31-p01-r311-targeted-json-api-fixed/junit.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "81cb321830c1e847e42604ab18f48c3bbc6d28e5a93b34fea5f81559a89c371b",
+      "candidate_blob": "64903e01981a396a535efff0083f79b90a2dba45",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/r31-1-fix-group-21080/r31-p01-r311-targeted/RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "19b105d86bb4d0ad1a709cc9c6325afce15c7114b5748fde57da406b78194353",
+      "candidate_blob": "8c9f084192567b093a2703d89bc854bed241dc45",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/r31-1-fix-group-21080/r31-p01-r311-targeted/compile.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "a81cc8473b4d11acc516cb7c381f0340fd4ba142529c1fdeab8e048a9a3510bd",
+      "candidate_blob": "c205d3ad8e18901ae148ca78b87d8b4df32cc0c9",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/ClassifierParityHost.java",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "a9041c7130d4887d433c11f550dbce56aa03e6b6b7a29aed7810673c28ecb8e9",
+      "candidate_blob": "db6c72946542dffddd6c054c1d54279ce66b2c52",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/PARITY_NEGATIVE_RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "bda195a75f720f3598a4295a2689d948dfa8df847d2da543995d60c80920b2a4",
+      "candidate_blob": "3fb94b5ddf73cbf63933376cf99f7aa5a66b770a",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "9f5fa29c14a75717ff035cd8b1f7f23bbe7b4f07a4c6e61b442c06d8b1c0fafc",
+      "candidate_blob": "3dc29d7613e1777d23fb7c46c13b612a76297f96",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/ROOT_CLASSIFIER_PARITY_CANDIDATE.patch",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "379ae742405cbeee88752b7ab9a59492a760ce632e3d803ee55a26536ed55bc8",
+      "candidate_blob": "e2762420546739ce425ee62c986b1d068feac357",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/ROOT_WRITER_REPORT_OVERBUDGET_CANDIDATE.patch",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "16f12fb545964b428ac5cfb4d39b017938a095b23e1c145ca1668d40485988e4",
+      "candidate_blob": "8fefb2526d984d52fed8ebfd03ddab512833ff6a",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/WRITER_REPORT_NEGATIVE_RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "246d786d32463a65ae7d2f5b0137ed582df87185c79c4351203fc0d0b820071c",
+      "candidate_blob": "cb0e8ce158a843f108e51846a506261e62892c64",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/WriterReportContractHost.java",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "7d4f96acb3bb7e17f60357acd8af74483a97d2eb42ed45a85c2ff5f3d7b0b486",
+      "candidate_blob": "52078fc2702875660627c4ced4f01ca8e7f6a4b5",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/candidate-compile.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/candidate.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "dcef5bb3112c47f992e8e25825f6ce500e4707f46af40c2ba1196986ca37c226",
+      "candidate_blob": "b9505782e1b44ff54bc5cc920227fff89dc39c49",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/compile.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/exact05391-negative.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "7535a4f4ad1706e2ddbdb9227649e8a551486541f1e4b4cfc24fb6bf496dcf1e",
+      "candidate_blob": "d07b9af41e0e3c8294045204f2ebf8d275def919",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/exact05391-private-candidate.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "dcef5bb3112c47f992e8e25825f6ce500e4707f46af40c2ba1196986ca37c226",
+      "candidate_blob": "b9505782e1b44ff54bc5cc920227fff89dc39c49",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/native-jvm-parity.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "fe6d6de87c3b7587e1d311de8656d219f51ab2f914526d702d4e487774b059aa",
+      "candidate_blob": "6315e8117d52ec28d25a083a7b9d85bfde03ba85",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/negative4-compile.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/negative4.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "7535a4f4ad1706e2ddbdb9227649e8a551486541f1e4b4cfc24fb6bf496dcf1e",
+      "candidate_blob": "d07b9af41e0e3c8294045204f2ebf8d275def919",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/original3-ClassifierParityHost.java",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "4091fbf9c3d7221cc4d36448cbe9f58f383c072b5b032e4e81fdf8ba1ad4e996",
+      "candidate_blob": "679c9eb056be7f46c3f752a5e10638c9fd63be55",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/original3-PARITY_NEGATIVE_RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "ebeeade3f4447cb19ca51d4a4301cb39eb100e9986400298a384f508c5209e6b",
+      "candidate_blob": "d1b5ea25e5b62462fb60c039b124d7a90e379ef9",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/original3-native-jvm-parity.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "fe6d6de87c3b7587e1d311de8656d219f51ab2f914526d702d4e487774b059aa",
+      "candidate_blob": "6315e8117d52ec28d25a083a7b9d85bfde03ba85",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/writer-report-candidate-compile.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "824caacc61589501395c1a81287d97d9d94ce642dd7a6e681248aa27479f395f",
+      "candidate_blob": "7424d4232bedb3a68b13e60773ad3303c324975b",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/writer-report-candidate-native.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "4caab94165ff96216fd457f2347dca42a39b5a624e0817467c785e878d9d028f",
+      "candidate_blob": "610b72bbb4ba10ba3f63acac66541275e39d041e",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/writer-report-candidate-sdk-compile.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/writer-report-candidate.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "b12fdf875cd5b31b39d6f9d5c120ef9a306029f5a7fb244e92721bb8e897e915",
+      "candidate_blob": "1f69cbded5479593d19f48e5ae8161a53f730513",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/writer-report-compile.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/seven-card-review-05391/writer-report-negative.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "1efbee5d8c8b4d9630c98a18ef3513cc849c98a976797bcce24fe2a4183b9c92",
+      "candidate_blob": "aa6bd202ac337c18d58c7673ed20b9f4918c7013",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/writer-outcome-chain-r311/RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "6cfc29b3fdf8b2d435ccec63247a2639548ae13f1718e536edb77212f09d6db0",
+      "candidate_blob": "fd6073842ea98e117c75ce71f93e32f0524fa7b1",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/writer-outcome-chain-r311/final111/RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "f356489e857fc07bc54da263e80ac3570dfedc29b98ecb2807a3771f65ede816",
+      "candidate_blob": "760cfd7c80d292a8e7ebdda27d5934828ec04630",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/writer-outcome-chain-r311/final111/ROOT_AHEAD_RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e0870ca1d2d016e2f236d143f9281cfaa7035d958ad4105faf7598eb7e2fb26d",
+      "candidate_blob": "6a2a9af06cc90559cb54d73735ca25a9355974d5",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/writer-outcome-chain-r311/final111/native-chain.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "0eb517b5b477e870b4fc98e6da1a800e6ea5adf0f65458e105ecb133603db943",
+      "candidate_blob": "1fe527528015242bcbdec02c9261b39241325419",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/writer-outcome-chain-r311/final111/native-fixture-compile.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "d7166a0300df354e86ef877217db905fc5ac0e9fb0615bc3ea06d9f3f8974bb0",
+      "candidate_blob": "4986ad444e3ca900c272c34ace9f0eb5bfd50ab6",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/writer-outcome-chain-r311/final111/platform-compile.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "27941f057b12f217f30a174adda602a055a5bcb56f7f4ac77299acbd58b7d6f0",
+      "candidate_blob": "fad0617b9e72a294bea1a7cc8b249da81233d07b",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/writer-outcome-chain-r311/initial108/RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "512f1cf663cbdbb648291418bcfe78af63cd6a3eaa82b32824f7d7eef3eefd48",
+      "candidate_blob": "6fc8e64018a88d3b4d25a8860e155614cc13f09d",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/writer-outcome-chain-r311/initial108/ROOT_AHEAD_RECEIPT.json",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "e0870ca1d2d016e2f236d143f9281cfaa7035d958ad4105faf7598eb7e2fb26d",
+      "candidate_blob": "6a2a9af06cc90559cb54d73735ca25a9355974d5",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/writer-outcome-chain-r311/initial108/native-chain.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "0d2d136195020f0b37d64af045482ffade944ade82778e32e2bf28f48782fd25",
+      "candidate_blob": "7f7c6f9618f2ff5ea06531676cf340e88b8cb233",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/writer-outcome-chain-r311/initial108/native-fixture-compile.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "b7059ee8ef4189c207d84231c8f00fbd5fbb2f03376523c0f642c8af0bfb0453",
+      "candidate_blob": "e5e44d60cfa70d2ae52ad0737795c643cc7a1193",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    },
+    {
+      "path": "verification/r31/p01/writer-outcome-chain-r311/initial108/platform-compile.log",
+      "reason": "保全进入R31.2 S00前已经提交的P01/B00局部原始证据及工具修复回执；不改写历史，不将旧源码SHA复用为当前PASS。本批只登记保管范围，当前结果由S00实际重跑取得。",
+      "kind": "PRESERVED_PRE_R312_WIP_NOT_NEW_CARD_COMPLETION",
+      "preserved_at_commit": "bf795c942038190241a9f624543b15115e7fa0b5",
+      "original_resume_commit": "2c5eca70641aa2ca4f9d9f0c9ff23623e48e0bac",
+      "source_sha256": "27941f057b12f217f30a174adda602a055a5bcb56f7f4ac77299acbd58b7d6f0",
+      "candidate_blob": "fad0617b9e72a294bea1a7cc8b249da81233d07b",
+      "last_change_commit": "bf795c942038190241a9f624543b15115e7fa0b5"
+    }
+  ],
+  "meaning": "Bindings declare executable contracts, never results; only same-source actual gate build and checks may establish PASS.",
+  "verification_notes": {
+    "R312-S00-C01#A2": "Must consume same-source actual Gradle/all-HOST execution, not a synthetic gate self-test or old summary. Post-build wiring coordinated with root/writer.",
+    "R312-S00-C01#A3": "Workflow parse/LOCAL registration can be tested locally; actual fallback CI/push/artifact is NOT_RUN unless same-source CI evidence exists. No CI PASS inferred.",
+    "R312-S00-C02#A3": "Compare full actual failure list to current gate BUILD_SUMMARY after production; no snapshot counts or earlier failure list substituted."
+  }
+}

@@ -1,5 +1,11 @@
 plugins { id 'com.android.application' }
 
+// R31.2 Gate is development-only. The Gate command and every test task remain unchanged.
+def r312GateTasks = [':app:compileDebugJavaWithJavac', ':app:compileDebugAndroidTestJavaWithJavac',
+                     ':app:testDebugUnitTest', ':app:lintDebug'] as Set
+def r312Development = providers.gradleProperty('r312Development').orNull == 'true' ||
+        (gradle.startParameter.taskNames as Set) == r312GateTasks
+
 def releaseManifestFile = rootProject.file('release/release_manifest.json')
 def releaseIdentityFile = rootProject.file('release/release_identity.properties')
 if (!releaseManifestFile.isFile()) throw new GradleException('R926_RELEASE_MANIFEST_MISSING')
@@ -150,6 +156,16 @@ android {
 java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
 
 gradle.taskGraph.whenReady { graph ->
+    if (r312Development) {
+        def forbidden = graph.allTasks.findAll { task ->
+            task.project == project && (task.name in ['verifyFinalR31BuildIdentity', 'lintRelease',
+                    'generateR982SourceCallAsset', 'assembleDebug', 'assembleDebugAndroidTest',
+                    'assembleRelease', 'assembleReleaseAndroidTest', 'bundleDebug', 'bundleRelease',
+                    'packageDebug', 'packageDebugAndroidTest', 'packageRelease', 'packageReleaseAndroidTest'] ||
+                    task.name.startsWith('validateSigning') || task.name.startsWith('sign'))
+        }
+        if (!forbidden.isEmpty()) throw new GradleException('R312_DEVELOPMENT_FORBIDS_RELEASE_SIGNING_APK|' + forbidden*.path.join(','))
+    }
     if (graph.allTasks.any { it.project == project && it.name ==~ /(?:assemble|bundle|package)Release(?:Bundle)?/ }) {
         if (r31BuildIdentity.source_dirty) throw new GradleException('R31_DIRTY_SOURCE_NOT_PUBLISHABLE')
         if (!(releaseApiKey ==~ /[A-Za-z0-9]{8,128}/)) {
@@ -289,8 +305,10 @@ def generateR982SourceCallAsset = tasks.register('generateR982SourceCallAsset', 
     commandLine 'python3', rootProject.file('scripts/r982_source_call_asset.py').absolutePath
     outputs.upToDateWhen { false }
 }
-android.sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/assets/r982'))
-tasks.named('preBuild').configure { dependsOn generateR982SourceCallAsset }
+if (!r312Development) {
+    android.sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/assets/r982'))
+    tasks.named('preBuild').configure { dependsOn generateR982SourceCallAsset }
+}
 def generateR997ConstructionAssets = tasks.register('generateR997ConstructionAssets', Exec) {
     workingDir rootProject.projectDir
     commandLine 'python3', rootProject.file('scripts/r997_construction_assets.py').absolutePath
@@ -352,7 +370,7 @@ def verifyFinalR31BuildIdentity = tasks.register('verifyFinalR31BuildIdentity') 
 android.sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/assets/r31'))
 tasks.named('preBuild').configure { dependsOn generateR31BuildIdentity }
 tasks.configureEach { task ->
-    if (task.name.startsWith('assemble') || task.name.startsWith('bundle') || task.name.startsWith('package')) {
+    if (!r312Development && (task.name.startsWith('assemble') || task.name.startsWith('bundle') || task.name.startsWith('package'))) {
         task.finalizedBy verifyFinalR31BuildIdentity
     }
 }

@@ -1,0 +1,54 @@
+{
+  "scope": "S00_CHANNEL_AND_REVIEWED_SEMANTIC_PREFLIGHT_NOT_GBUILD_PASS",
+  "captureExportedAt": "2026-11-05T06:18:36.788628+00:00",
+  "note": "No command rerun for this export. Tool stdout was originally captured by exec, not a process log file; this fact is explicit. Original preflight disk failure is preserved. No execution timestamp was invented.",
+  "records": [
+    {
+      "path": "inspect.tool-stdout.log",
+      "command": "python3 tools/r312/refresh_dev_semantics.py --inspect",
+      "exitCode": 0,
+      "kind": "EXACT_STDOUT_TRANSCRIPT_FROM_ACTUAL_EXEC_TOOL_CAPTURE_NOT_ORIGINALLY_REDIRECTED_FILE",
+      "execChunk": "5b350e",
+      "bytes": 238,
+      "sha256": "cec4f9a07f3aea342cca71cf022e8b2910b0c576c46f28a856abd8145c44c5fd"
+    },
+    {
+      "path": "apply.tool-stdout.log",
+      "command": "python3 tools/r312/refresh_dev_semantics.py --apply",
+      "exitCode": 0,
+      "kind": "EXACT_STDOUT_TRANSCRIPT_FROM_ACTUAL_EXEC_TOOL_CAPTURE_NOT_ORIGINALLY_REDIRECTED_FILE",
+      "execSession": 8881,
+      "execChunk": "c66f66",
+      "originalOperationsInsideApply": [
+        "scripts.r967_semantic_identity.write_outputs(ROOT)",
+        "scripts.r967_semantic_identity.verify_outputs(ROOT)",
+        "python3 scripts/r967_semantic_identity.py --self-test"
+      ],
+      "independentCheckOrSelfTestRerun": false,
+      "bytes": 370,
+      "sha256": "08b563b9e62d8c6546f6331a67009f0153c2a80bf0250ed95f5ff12f99342828"
+    },
+    {
+      "path": "preflight-original.log",
+      "kind": "BYTE_IDENTICAL_COPY_OF_ORIGINAL_FAILURE_DISK_LOG",
+      "origin": "/workspace/r31-resume-20261105/R312_SEMANTIC_PREFLIGHT.log",
+      "failure": "R967_UNKNOWN_DYNAMIC_DEPENDENCY:app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+      "bytes": 624,
+      "sha256": "5c9cceee3b739d75de46b3467de702fc31ed8d38caa05f8ca4f9ed114f302bba"
+    }
+  ],
+  "combinedOutputBytes": 1232,
+  "ownedFilesFrozenSha256": {
+    ".github/workflows/r312-gate.yml": "6067de5f2c0c7f2fe6c1264292edf5c4aed12b3197f3c8838f0b980933c211f3",
+    "tools/r312/dev_channel.py": "362b7ae188a045042ff77871101bd1ef088476715fe1346d2db95010945d85b1",
+    "tools/r312/semantic_review.json": "29fb2c9617e4d64d05f81294123a2f7ef6edac50d996503c1985e2e369cb3d36",
+    "tools/r312/refresh_dev_semantics.py": "4553321939f6cda2850608fe5c5cb9f9548bccc9f4ef017dab0276df35d306e7"
+  },
+  "qualificationInheritance": false,
+  "predecessorsStill": [],
+  "releaseIdentityAndThresholdsAndR81BaselinesChanged": false,
+  "fullGradle": "NOT_RUN_BY_THIS_AGENT",
+  "ciWorkflowExecution": "NOT_RUN",
+  "android": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED"
+}

@@ -1,0 +1,54 @@
+{
+  "scope": "S00_TARGETED_CUSTODY_CHECKS_AND_FAILURE_IMPORTER_SELF_TEST_NOT_APP_BUILD_OR_FUNCTION_ACCEPTANCE",
+  "source_head": "bf795c942038190241a9f624543b15115e7fa0b5",
+  "checked_at": "2026-11-05T06:05:08.516844+00:00",
+  "commands": [
+    {
+      "argv": [
+        "python",
+        "tools/r312/wip_inventory.py",
+        "check",
+        "--check",
+        "coverage"
+      ],
+      "exit": 0,
+      "stdout": "{\n  \"check\": \"coverage\",\n  \"status\": \"PASS\",\n  \"scope\": \"S00_CUSTODY_OR_SUMMARY_CONSISTENCY_ONLY_NOT_IMPLEMENTATION_ACCEPTANCE\",\n  \"cards\": 21,\n  \"files\": 244\n}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "python",
+        "tools/r312/wip_inventory.py",
+        "check",
+        "--check",
+        "candidate"
+      ],
+      "exit": 0,
+      "stdout": "{\n  \"check\": \"candidate\",\n  \"status\": \"PASS\",\n  \"scope\": \"S00_CUSTODY_OR_SUMMARY_CONSISTENCY_ONLY_NOT_IMPLEMENTATION_ACCEPTANCE\",\n  \"cards\": 21,\n  \"files\": 244\n}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "python",
+        "tools/r312/wip_inventory.py",
+        "check",
+        "--check",
+        "failures"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "{\"status\": \"FAIL\", \"error\": \"current real S00 BUILD_SUMMARY not captured\"}\n"
+    }
+  ],
+  "self_test": {
+    "scope": "IN_MEMORY_SYNTHETIC_SUMMARY_ONLY_NEVER_IMPORTED_TO_WIP",
+    "exact_unit_failure_fields": "PASS",
+    "gradle_host_prebuild_failures_retained": "PASS",
+    "wrong_failure_counts_rejected": "PASS",
+    "wrong_batch_rejected": "PASS"
+  },
+  "source_sha256": "26e49871628e790ff16eb1f9e26b2b269018087f7f7679d34685f0e8486ebbcc",
+  "inventory_sha256": "504055d208286ae807845d90cc9cc1f8eab6250f1b451e335c999cfdffce1b79",
+  "real_summary_capture": "NOT_CAPTURED;failures=null",
+  "no_production_or_legacy_ledger_changes": true
+}
