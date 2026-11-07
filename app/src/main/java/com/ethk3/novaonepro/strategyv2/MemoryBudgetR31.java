@@ -315,6 +315,7 @@ public final class MemoryBudgetR31 {
     private Measurement readProbe(){reapCollectedPrivateBackings();List<Runnable> cleanup;synchronized(this){cleanup=new ArrayList<>(reclaimers);}for(Runnable reclaimer:cleanup)reclaimer.run();try{return probe.measure();}catch(RuntimeException failure){synchronized(this){sampleFailure=failure.getClass().getName();}return null;}}
     public Map<String,Object> sample(){Measurement current=readProbe();synchronized(this){if(current!=null)update(current,false);return measurementMap();}}
     public synchronized Map<String,Object> snapshot(){
+        reapCollectedPrivateBackings();
         Map<String,Object> out=measurementMap();long java=0,nativeBytes=0,queued=declaredByKind.getOrDefault(Kind.QUEUED,0L);Map<String,Object> kinds=new LinkedHashMap<>();
         for(Map.Entry<Kind,Long> e:declaredByKind.entrySet()){kinds.put(e.getKey().name(),e.getValue());if(e.getKey().nativeMemory())nativeBytes=safeAdd(nativeBytes,e.getValue());else java=safeAdd(java,e.getValue());}
         long pending=0;for(Lease lease:leases)if(!lease.kind.nativeMemory())pending=safeAdd(pending,pendingJavaBytes(lease));
@@ -352,10 +353,27 @@ public final class MemoryBudgetR31 {
         static final class LiveHeapObserver {
             String basis="RAW_USED_NO_COLLECTION_OBSERVED";private long lastCount=-1,postGcBytes=-1,postGcAtNanos;private boolean unsupported;
             long[] observe(long used,long now){
-                if(!unsupported)try{if(art())observeArt(used,now);else observeHotSpot(now);}catch(ReflectiveOperationException|RuntimeException failure){rethrowProcessFatal(failure);unsupported=true;postGcBytes=-1;basis="RAW_USED_COLLECTOR_OBSERVATION_UNAVAILABLE";}
+                long nursery=-1;
+                if(!unsupported)try{if(art())observeArt(used,now);else{observeHotSpot(now);nursery=nurseryUsedHotSpot();}}catch(ReflectiveOperationException|RuntimeException failure){rethrowProcessFatal(failure);unsupported=true;postGcBytes=-1;nursery=-1;basis="RAW_USED_COLLECTOR_OBSERVATION_UNAVAILABLE";}
                 if(postGcBytes<0||postGcAtNanos-now>0)return new long[]{used,now};
                 if(postGcBytes>=used)return new long[]{used,now};
+                // Growth outside the nursery since the collection (old/humongous regions: large arrays,
+                // promoted data) is retained until a later collection proves otherwise, so it counts now.
+                // Only nursery allocations, bounded by the young generation and collected next, stay
+                // unproven. Never above raw used; no collection is requested here.
+                if(nursery>=0){long outside=Math.max(0,used-nursery);if(outside>postGcBytes)return new long[]{Math.min(used,outside),now};}
                 return new long[]{postGcBytes,postGcAtNanos};
+            }
+            private static long nurseryUsedHotSpot()throws ReflectiveOperationException{
+                Class<?> factory=Class.forName("java.lang.management.ManagementFactory"),pool=Class.forName("java.lang.management.MemoryPoolMXBean"),usage=Class.forName("java.lang.management.MemoryUsage");
+                Object heapType=Class.forName("java.lang.management.MemoryType").getField("HEAP").get(null);long eden=-1;
+                for(Object p:(List<?>)factory.getMethod("getMemoryPoolMXBeans").invoke(null)){
+                    if(!heapType.equals(pool.getMethod("getType").invoke(p)))continue;
+                    if(!String.valueOf(pool.getMethod("getName").invoke(p)).contains("Eden"))continue;
+                    Object current=pool.getMethod("getUsage").invoke(p);if(current==null)continue;
+                    eden=Math.max(0,eden)+Math.max(0,((Number)usage.getMethod("getUsed").invoke(current)).longValue());
+                }
+                return eden;
             }
             private static boolean art(){String vm=System.getProperty("java.vm.name","");return vm.equals("Dalvik")||vm.equals("ART");}
             private void observeArt(long used,long now)throws ReflectiveOperationException{
