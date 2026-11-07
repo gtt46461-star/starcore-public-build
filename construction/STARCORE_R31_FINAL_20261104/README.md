@@ -1,8 +1,10 @@
 # STARCORE R31 最终返修施工总包
 
-版本：R31.3-CONSTRUCTION-20261105（R31.1/R31.2控制文件归档于`construction/archives/`）。报告故障追溯源提交：5237b265a27fe5ad27fd842901c445d5f8c27749。
+版本：R31.4-MERGED-11-20261107（R31.1/R31.2控制文件与R31.3的21批布局归档于`construction/archives/`）。报告故障追溯源提交：5237b265a27fe5ad27fd842901c445d5f8c27749。
 
-> **R31.3 施工推进修订，2026-11-05。** 目录名保留R31；56卡原文、全部阈值与资产保护要求保留。施工顺序与关门以`docs/16_R31.3施工推进合同.md`、`ledgers/batches.json`和`tools/r31_gate.py`为准：K01→K21逐批先改代码，批末一次棘轮关门（不得新增失败、本批负责的已知失败必须修好，K20清零）；真机/时长与自然质量延后且不得记PASS。方案修订不代表Android故障已修复。
+> **R31.4 批次合并，2026-11-07。** 21个施工批次在各原阶段内相邻合并为11批（K01→K11），卡片、验收原文、阈值、阶段顺序、棘轮规则不变；对照表见`docs/17_R31.4批次合并说明.md`。
+>
+> **R31.3 施工推进修订，2026-11-05。** 目录名保留R31；56卡原文、全部阈值与资产保护要求保留。施工顺序与关门以`docs/16_R31.3施工推进合同.md`、`ledgers/batches.json`和`tools/r31_gate.py`为准：逐批先改代码，批末一次棘轮关门（不得新增失败、本批负责的已知失败必须修好，R31.4起K11清零）；真机/时长与自然质量延后且不得记PASS。方案修订不代表Android故障已修复。
 
 先打开 **START_HERE.html**：离线阅读入口，包含全部最终分册、可搜索的逐文件施工卡、47图合同和40项要求导航。无需联网。手机可先解压，再用支持本地HTML的浏览器打开；也可直接阅读docs里的Markdown。
 
@@ -15,9 +17,9 @@
 - 40项合并要求设计映射；1832历史要求与299旧卡保全；原参考方案归档与逐项纠偏。
 - 可执行Python/SQLite参考合同、SQL、关键Java设计片段；30项合同测试与12项存储协议测试记录；5000期真实报告数据、固定100候选历史复算和门槛功效脚本。
 
-## 接续当前施工（R31.3）
+## 接续当前施工（R31.4，11批）
 
-在施工分支运行`python3 construction/STARCORE_R31_FINAL_20261104/tools/r31_gate.py status`，打开它给出的`batches/Kxx.md`：先按页内“施工内容”改代码，再给每条LOCAL项绑定测试，用`quick`循环，最后`close`一次并提交RECEIPT，进入下一批。第一批是K01。规则、根因与21批总表见`docs/16_R31.3施工推进合同.md`。
+在施工分支运行`python3 construction/STARCORE_R31_FINAL_20261104/tools/r31_gate.py status`，打开它给出的`batches/Kxx.md`：先按页内“施工内容”改代码，再给每条LOCAL项绑定测试，用`quick`循环，最后`close`一次并提交RECEIPT，进入下一批。K01已关门，当前是K02。规则见`docs/16_R31.3施工推进合同.md`，11批总表见`docs/17_R31.4批次合并说明.md`；每批构建走CI的流程见施工分支`construction/r31/R31_3_接续施工说明.md`。
 
 R31.1/R31.2控制文件归档于`construction/archives/STARCORE_R31_1_EXECUTION_20261105/`与`construction/archives/STARCORE_R31_2_SEQUENTIAL_20261105/`；原R31完整归档于`construction/archives/STARCORE_R31_FINAL_20261104/`，原方案树f029ec813be8c7b19f8992ef1a52a446caf06d3a保持不变。
 
@@ -26,9 +28,9 @@ R31.1/R31.2控制文件归档于`construction/archives/STARCORE_R31_1_EXECUTION_
 1. `docs/00_最终施工总纲.md`：基线、事实、闭环、不变量、13批与预算。
 2. `docs/01_参考方案纠偏与保全.md`、`02_严格验收与实施协议.md`：必须纠正的旧结论和验收分层。
 3. `docs/03_真实数据复算与门槛功效.md`、`04_能力升级与闭环产物.md`：真实数据边界、创造与持续升级如何证明。
-4. `docs/05_批次拓扑与需求对照.md`与`docs/16_R31.3施工推进合同.md`：K01–K21唯一施工顺序、关门规则、文件owner和全部卡目录。
+4. `docs/05_批次拓扑与需求对照.md`、`docs/16_R31.3施工推进合同.md`与`docs/17_R31.4批次合并说明.md`：K01–K11唯一施工顺序、关门规则、文件owner和全部卡目录。
 5. `docs/10`至`13`开头的四份专题：运行/后台、磁盘与内存、训练创造进化、图表矩阵与报告的详细实现。
-6. `batches/K01.md`至`batches/K21.md`：每批要改的代码、验收项与延后项；`cards/B00`–`cards/B12`及`cards/ENG`：逐卡文件/方法/修改前后/步骤/验收/依赖/回滚。
+6. `batches/K01.md`至`batches/K11.md`：每批要改的代码、验收项与延后项；`cards/B00`–`cards/B12`及`cards/ENG`：逐卡文件/方法/修改前后/步骤/验收/依赖/回滚。
 
 数值阈值唯一优先级：`ledgers/acceptance_config.json` → 总纲解释 → 专题示例。卡号以`ledgers/cards.json`为准。施工顺序以`ledgers/batches.json`为准，验收分层以`ledgers/acceptance_items.json`为准，关门以`tools/r31_gate.py close`为准；专题的联合验证要求不能再展开成前置循环。
 

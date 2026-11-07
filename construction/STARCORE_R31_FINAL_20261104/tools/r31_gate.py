@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""R31 construction gate (R31.3 construction-first rules).
+"""R31 construction gate (R31.3 construction-first rules; R31.4 layout: 11 merged batches).
 
   status                    open batch, its cards, unbound LOCAL items, known failures it must fix
   check-plan                plan ledgers complete and consistent
@@ -10,10 +10,12 @@
   close  --batch Kxx        full run if needed, judge with the ratchet rules, write RECEIPT.json
 
 Ratchet rules (no global-green prerequisite before construction):
-  * K01 records every failure of the first full run as a known failure with an owner batch (K02..K20).
+  * K01 records every failure of the first full run as a known failure with an owner batch (K02..K11).
   * Every later batch: no new failure; known failures owned by this batch must pass; known failures may only shrink.
-  * Every LOCAL item of the batch is bound to tests that pass, or is carried (max 2, red test committed, target <= K20).
-  * K20 and K21: zero known failures, zero carried items.
+  * Every LOCAL item of the batch is bound to tests that pass, or is carried (max 2, red test committed, target <= K11).
+  * K11: zero known failures, zero carried items.
+  * Receipts written under an earlier plan version name batches in its numbering; they are translated
+    through ledgers/batches.json legacy_batch_map (R31.3 K04 -> R31.4 K03, ...).
   * Compilation failure always blocks. EMU/DEVICE/NATURAL items are never PASS.
 Python 3 standard library only.
 """
@@ -110,10 +112,22 @@ def current_batch():
     return None
 
 
+def translate_receipt(rec):
+    """Map owner/target batch ids of a receipt written under an earlier plan version to this layout."""
+    m = ledger().get('legacy_batch_map', {}).get(rec.get('plan'))
+    if not m:
+        return rec
+    rec = dict(rec)
+    rec['known_failures'] = {f: m.get(o, o) for f, o in rec.get('known_failures', {}).items()}
+    rec['carried'] = {i: dict(c, to=m.get(c.get('to'), c.get('to'))) for i, c in rec.get('carried', {}).items()}
+    rec['translated_from_plan'] = rec.get('plan')
+    return rec
+
+
 def prev_receipt(b):
     if not b['requires_closed']:
         return None
-    return json.loads(receipt_path(b['requires_closed'][0]).read_text())
+    return translate_receipt(json.loads(receipt_path(b['requires_closed'][0]).read_text()))
 
 
 def start_commit(b):

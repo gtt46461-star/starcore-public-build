@@ -288,7 +288,7 @@
  {
   "item": "R31-B02-C01#A1",
   "card": "R31-B02-C01",
-  "batch": "K04",
+  "batch": "K03",
   "level": "LOCAL",
   "blocking": true,
   "text": "登记表覆盖所有入口；未分类operation构建失败或运行标UNKNOWN_PRIORITY，不自动当最高级。",
@@ -299,7 +299,7 @@
  {
   "item": "R31-B02-C01#A2a",
   "card": "R31-B02-C01",
-  "batch": "K04",
+  "batch": "K03",
   "level": "LOCAL",
   "blocking": true,
   "text": "虚拟时钟压缩60分钟竞争：1Hz轮询+历史回补+研究+报告+保留，关键写无饿死，研究pending有界。",
@@ -310,7 +310,7 @@
  {
   "item": "R31-B02-C01#A2b",
   "card": "R31-B02-C01",
-  "batch": "K04",
+  "batch": "K03",
   "level": "DEVICE",
   "blocking": false,
   "text": "真机实时60分钟竞争测试。",
@@ -321,7 +321,7 @@
  {
   "item": "R31-B02-C01#A3",
   "card": "R31-B02-C01",
-  "batch": "K04",
+  "batch": "K03",
   "level": "LOCAL",
   "blocking": true,
   "text": "报告列每operation count/waitP95/holdP95/max/overBudget/rolledBack；阈值失败有具体owner文件。",
@@ -332,7 +332,7 @@
  {
   "item": "R31-B02-C02#A1",
   "card": "R31-B02-C02",
-  "batch": "K04",
+  "batch": "K03",
   "level": "LOCAL",
   "blocking": true,
   "text": "运行期DDL tracing=0（真实迁移窗口除外）；schema缺失时DEPENDENCY(SCHEMA_PENDING)，不现场CREATE。",
@@ -343,7 +343,7 @@
  {
   "item": "R31-B02-C02#A2",
   "card": "R31-B02-C02",
-  "batch": "K04",
+  "batch": "K03",
   "level": "LOCAL",
   "blocking": true,
   "text": "对各大batch在第1片/中间片/最终publish前后杀进程：无半模型、无重复增量、无cursor越过未发布artifact。",
@@ -354,7 +354,7 @@
  {
   "item": "R31-B02-C02#A3a",
   "card": "R31-B02-C02",
-  "batch": "K04",
+  "batch": "K03",
   "level": "EMU",
   "blocking": false,
   "text": "Android实际SQLite：受保护触发器、WAL、checkpoint并发。",
@@ -365,7 +365,7 @@
  {
   "item": "R31-B02-C02#A3b",
   "card": "R31-B02-C02",
-  "batch": "K04",
+  "batch": "K03",
   "level": "DEVICE",
   "blocking": false,
   "text": "设备事务时延（host sqlite结果不能代替）。",
@@ -376,7 +376,7 @@
  {
   "item": "R31-B02-C03#A1",
   "card": "R31-B02-C03",
-  "batch": "K04",
+  "batch": "K03",
   "level": "LOCAL",
   "blocking": true,
   "text": "注入afterCommit/timing/Log失败：模型参数、样本计数、结算计数各只变化一次；诊断标红。",
@@ -387,7 +387,7 @@
  {
   "item": "R31-B02-C03#A2",
   "card": "R31-B02-C03",
-  "batch": "K04",
+  "batch": "K03",
   "level": "LOCAL",
   "blocking": true,
   "text": "注入commit完成但返回前进程死：重启同commit_key不重复应用；注入commit回滚则能重做。",
@@ -398,7 +398,7 @@
  {
   "item": "R31-B02-C03#A3",
   "card": "R31-B02-C03",
-  "batch": "K04",
+  "batch": "K03",
   "level": "LOCAL",
   "blocking": true,
   "text": "不同payload复用commit_key必须报INTEGRITY_CONFLICT，不能INSERT OR IGNORE掩盖。",
@@ -409,7 +409,7 @@
  {
   "item": "R31-ENG-01#A1",
   "card": "R31-ENG-01",
-  "batch": "K04",
+  "batch": "K03",
   "level": "LOCAL",
   "blocking": true,
   "text": "新库启动Certificate域READY（HOST/JVM用例）。",
@@ -420,7 +420,7 @@
  {
   "item": "R31-ENG-01#A2",
   "card": "R31-ENG-01",
-  "batch": "K04",
+  "batch": "K03",
   "level": "LOCAL",
   "blocking": true,
   "text": "R30旧库升级后READY，既有撤销记录逐行不变。",
@@ -431,7 +431,7 @@
  {
   "item": "R31-ENG-01#A3",
   "card": "R31-ENG-01",
-  "batch": "K04",
+  "batch": "K03",
   "level": "LOCAL",
   "blocking": true,
   "text": "篡改关键DDL必然FINGERPRINT_MISMATCH拒绝。",
@@ -442,7 +442,7 @@
  {
   "item": "R31-B03-C01#A1",
   "card": "R31-B03-C01",
-  "batch": "K05",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "重复包、乱序包、晚到包、断网30分钟恢复、双来源冲突、HTTP卡住：无重复开奖/结算，最新目标不被历史队列长期阻塞。",
@@ -453,7 +453,7 @@
  {
   "item": "R31-B03-C01#A2a",
   "card": "R31-B03-C01",
-  "batch": "K05",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "模拟1000次抓取测量输出全分布、分母与最差20次原因；不只保留最近96次。",
@@ -464,7 +464,7 @@
  {
   "item": "R31-B03-C01#A2b",
   "card": "R31-B03-C01",
-  "batch": "K05",
+  "batch": "K04",
   "level": "DEVICE",
   "blocking": false,
   "text": "真机真实网络1000次测量分布。",
@@ -475,7 +475,7 @@
  {
   "item": "R31-B03-C01#A3",
   "card": "R31-B03-C01",
-  "batch": "K05",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "所有获知draw最终有SETTLED或带明确原因的排除终态，无默默遗漏。",
@@ -486,7 +486,7 @@
  {
   "item": "R31-B03-C02#A1",
   "card": "R31-B03-C02",
-  "batch": "K05",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "同一期fast/full竞争、截止前1ms/截止后1ms、first_seen早于open、时钟跳变、模型正在更新：最多一个canonical hash，所有标签使用原hash。",
@@ -497,7 +497,7 @@
  {
   "item": "R31-B03-C02#A2a",
   "card": "R31-B03-C02",
-  "batch": "K05",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "100%已知实时机会有终端状态（模拟时序全覆盖）。",
@@ -508,7 +508,7 @@
  {
   "item": "R31-B03-C02#A2b",
   "card": "R31-B03-C02",
-  "batch": "K05",
+  "batch": "K04",
   "level": "DEVICE",
   "blocking": false,
   "text": "设备/网络/正常资源条件下可预测覆盖≥99%。",
@@ -519,7 +519,7 @@
  {
   "item": "R31-B03-C02#A3",
   "card": "R31-B03-C02",
-  "batch": "K05",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "FULL迟到不得改既有canonical；无资格fast路径不得产生REAL。",
@@ -530,7 +530,7 @@
  {
   "item": "R31-B03-C02#A4",
   "card": "R31-B03-C02",
-  "batch": "K05",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "超时owner仍活时不能reap并启动第二owner；唯一并发active=1。",
@@ -541,7 +541,7 @@
  {
   "item": "R31-B03-C03#A1",
   "card": "R31-B03-C03",
-  "batch": "K05",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "人为清掉某期预测：该期OOS拒绝、draw训练可继续，下一期照常冻结，主链胜率分母不掺入该期。",
@@ -552,7 +552,7 @@
  {
   "item": "R31-B03-C03#A2",
   "card": "R31-B03-C03",
-  "batch": "K05",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "同一event重复投递100次，参数更新恰好一次；消费者重启从commit cursor恢复。",
@@ -563,7 +563,7 @@
  {
   "item": "R31-B03-C03#A3",
   "card": "R31-B03-C03",
-  "batch": "K05",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "结算工作健康与预测覆盖失败在报告两栏呈现，不能将所有情况归为“后台正常”。",
@@ -574,7 +574,7 @@
  {
   "item": "R31-B04-C01#A1",
   "card": "R31-B04-C01",
-  "batch": "K06",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "服务心跳继续、全部R27隔离：2个control tick内报告DEGRADED，按RT-01恢复，无新进程必要。",
@@ -585,7 +585,7 @@
  {
   "item": "R31-B04-C01#A2",
   "card": "R31-B04-C01",
-  "batch": "K06",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "恢复中反复20次start命令：只一个owner、一个pool generation；receipt证明实际恢复。",
@@ -596,7 +596,7 @@
  {
   "item": "R31-B04-C01#A3",
   "card": "R31-B04-C01",
-  "batch": "K06",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "pending未知显示UNKNOWN并启动采集，不判健康；依赖确实无新事件则IDLE不误恢复。",
@@ -607,7 +607,7 @@
  {
   "item": "R31-B04-C02#A1",
   "card": "R31-B04-C02",
-  "batch": "K06",
+  "batch": "K04",
   "level": "DEVICE",
   "blocking": false,
   "text": "V2353A实际设备72小时：亮屏/熄屏/省电/断网/重连/滑掉任务/普通进程kill/force-stop/重启分别测试，并留adb/退出历史/逐期水位。",
@@ -618,7 +618,7 @@
  {
   "item": "R31-B04-C02#A2a",
   "card": "R31-B04-C02",
-  "batch": "K06",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "协调器层：用户stop后不再提交新抓取/研究且不自行复活；普通前后台切换保持会话状态。",
@@ -629,7 +629,7 @@
  {
   "item": "R31-B04-C02#A2b",
   "card": "R31-B04-C02",
-  "batch": "K06",
+  "batch": "K04",
   "level": "DEVICE",
   "blocking": false,
   "text": "真机后台切换与stop行为。",
@@ -640,7 +640,7 @@
  {
   "item": "R31-B04-C02#A3",
   "card": "R31-B04-C02",
-  "batch": "K06",
+  "batch": "K04",
   "level": "DEVICE",
   "blocking": false,
   "text": "force-stop测试预期为停止且再打开恢复；不得把这个预期当缺陷跳过或虚报100%后台覆盖。",
@@ -651,7 +651,7 @@
  {
   "item": "R31-B04-C02#A4",
   "card": "R31-B04-C02",
-  "batch": "K06",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "发生平台限制时报告为OS_RESTRICTED并显示实际缺口，不混入自然胜率样本。",
@@ -662,7 +662,7 @@
  {
   "item": "R31-B05-C01#A1",
   "card": "R31-B05-C01",
-  "batch": "K07",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "ST-01：总分类相加与总文件长度相等；detail不重复统计",
@@ -673,7 +673,7 @@
  {
   "item": "R31-B05-C01#A2",
   "card": "R31-B05-C01",
-  "batch": "K07",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "同路径各阶段采样可定位snapshot峰值与清理后稳态",
@@ -684,7 +684,7 @@
  {
   "item": "R31-B05-C01#A3",
   "card": "R31-B05-C01",
-  "batch": "K07",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "无dbstat时显示UNKNOWN/ESTIMATED，不触发错误删除",
@@ -695,7 +695,7 @@
  {
   "item": "R31-B05-C02#A1",
   "card": "R31-B05-C02",
-  "batch": "K07",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "ST-02/ST-03：并发reserve不超限，实际chunk超额停止",
@@ -706,7 +706,7 @@
  {
   "item": "R31-B05-C02#A2a",
   "card": "R31-B05-C02",
-  "batch": "K07",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "模拟24h增长负载：新建产物数量/bytes有上界，保护对象无误删。",
@@ -717,7 +717,7 @@
  {
   "item": "R31-B05-C02#A2b",
   "card": "R31-B05-C02",
-  "batch": "K07",
+  "batch": "K04",
   "level": "DEVICE",
   "blocking": false,
   "text": "真机24h产物数量/bytes上界。",
@@ -728,7 +728,7 @@
  {
   "item": "R31-B05-C02#A3",
   "card": "R31-B05-C02",
-  "batch": "K07",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "ENOSPC下注/冻结/结算原子性不破坏",
@@ -739,7 +739,7 @@
  {
   "item": "R31-B05-C03#A1",
   "card": "R31-B05-C03",
-  "batch": "K07",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "ST-06/ST-07：发布后10分钟不再导出也能清理snapshot；ZIPhash不变",
@@ -750,7 +750,7 @@
  {
   "item": "R31-B05-C03#A2",
   "card": "R31-B05-C03",
-  "batch": "K07",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "损坏ZIP不误删唯一证据；配额超限不得再无限复制",
@@ -761,7 +761,7 @@
  {
   "item": "R31-B05-C03#A3",
   "card": "R31-B05-C03",
-  "batch": "K07",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "对当前版本正常publish路径回归：不重复删除、不制造新故障",
@@ -772,7 +772,7 @@
  {
   "item": "R31-B05-C11#A1",
   "card": "R31-B05-C11",
-  "batch": "K08",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "ST-M01许可超额拒绝、异常释放、重复close幂等",
@@ -783,7 +783,7 @@
  {
   "item": "R31-B05-C11#A2",
   "card": "R31-B05-C11",
-  "batch": "K08",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "ST-M02并发1000请求queue与bytes有界，实时线程不被CallerRuns占用，待办无丢失",
@@ -794,7 +794,7 @@
  {
   "item": "R31-B05-C11#A3a",
   "card": "R31-B05-C11",
-  "batch": "K08",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "100轮会话打开/取消后，旧session/epoch对象经弱引用+GC断言可回收（JVM）。",
@@ -805,7 +805,7 @@
  {
   "item": "R31-B05-C11#A3b",
   "card": "R31-B05-C11",
-  "batch": "K08",
+  "batch": "K04",
   "level": "DEVICE",
   "blocking": false,
   "text": "设备heap dominator无Activity/旧session滞留。",
@@ -816,7 +816,7 @@
  {
   "item": "R31-B05-C11#A4",
   "card": "R31-B05-C11",
-  "batch": "K08",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "ST-M04同输入64候选共享1输入实例且可变权重互不污染",
@@ -827,7 +827,7 @@
  {
   "item": "R31-B05-C11#A5a",
   "card": "R31-B05-C11",
-  "batch": "K08",
+  "batch": "K04",
   "level": "LOCAL",
   "blocking": true,
   "text": "DB reader/游标/文件句柄在正常与取消路径后计数回到基线（HOST计数）。",
@@ -838,7 +838,7 @@
  {
   "item": "R31-B05-C11#A5b",
   "card": "R31-B05-C11",
-  "batch": "K08",
+  "batch": "K04",
   "level": "DEVICE",
   "blocking": false,
   "text": "native/FD实测回到基线包络。",
@@ -849,7 +849,7 @@
  {
   "item": "R31-B05-C11#A6",
   "card": "R31-B05-C11",
-  "batch": "K08",
+  "batch": "K04",
   "level": "DEVICE",
   "blocking": false,
   "text": "ST-M06 72h OOM=0；对等负载live heap/PSS无持续增长，末24h等负载P95 live heap≤稳定首24h110%且不越动态高水位；未实测NOT_RUN",
@@ -860,7 +860,7 @@
  {
   "item": "R31-B06-C01#A1",
   "card": "R31-B06-C01",
-  "batch": "K09",
+  "batch": "K05",
   "level": "LOCAL",
   "blocking": true,
   "text": "同一固定 5000 期输入的 dataset/role/source hash 在重启、滚动尾窗和同序数据重读后稳定。",
@@ -871,7 +871,7 @@
  {
   "item": "R31-B06-C01#A2",
   "card": "R31-B06-C01",
-  "batch": "K09",
+  "batch": "K05",
   "level": "LOCAL",
   "blocking": true,
   "text": "注入缺期、补期、跨日期号和源修订，结果分别为等待/续进/新身份失效，未冻结的旧预测不能补写。",
@@ -882,7 +882,7 @@
  {
   "item": "R31-B06-C01#A3",
   "card": "R31-B06-C01",
-  "batch": "K09",
+  "batch": "K05",
   "level": "LOCAL",
   "blocking": true,
   "text": "开发过程读取 CONFIRM/FUTURE 标签即测试失败；报告能列出每个候选训练输入与独立证据边界。",
@@ -893,7 +893,7 @@
  {
   "item": "R31-B06-C01#A4",
   "card": "R31-B06-C01",
-  "batch": "K09",
+  "batch": "K05",
   "level": "LOCAL",
   "blocking": true,
   "text": "pin 超预算时研究等待、实时冻结结算继续；删除保护输入应由外键或 pin 校验阻止。",
@@ -904,7 +904,7 @@
  {
   "item": "R31-B06-C02#A1",
   "card": "R31-B06-C02",
-  "batch": "K09",
+  "batch": "K05",
   "level": "LOCAL",
   "blocking": true,
   "text": "对每个断点执行 kill/restart：恢复模型与黄金模型在声明的数值容差内一致，act/K3、后续冻结 hash 必须相同。",
@@ -915,7 +915,7 @@
  {
   "item": "R31-B06-C02#A2",
   "card": "R31-B06-C02",
-  "batch": "K09",
+  "batch": "K05",
   "level": "LOCAL",
   "blocking": true,
   "text": "在 artifact 写完但事务未提交、提交后未 publish、重复投递三处注入故障，游标与模型步数不分离。",
@@ -926,7 +926,7 @@
  {
   "item": "R31-B06-C02#A3a",
   "card": "R31-B06-C02",
-  "batch": "K09",
+  "batch": "K05",
   "level": "LOCAL",
   "blocking": true,
   "text": "性能收据缺失或未达门时家族预算不得提高（门控逻辑测试）；吞吐/峰值/延迟记录字段齐全。",
@@ -937,7 +937,7 @@
  {
   "item": "R31-B06-C02#A3b",
   "card": "R31-B06-C02",
-  "batch": "K09",
+  "batch": "K05",
   "level": "DEVICE",
   "blocking": false,
   "text": "真机CPU吞吐、峰值内存、实时延迟达到性能门。",
@@ -948,7 +948,7 @@
  {
   "item": "R31-B06-C02#A4a",
   "card": "R31-B06-C02",
-  "batch": "K09",
+  "batch": "K05",
   "level": "LOCAL",
   "blocking": true,
   "text": "退休候选释放后缓存引用与磁盘引用下降；模型cache命中率与字节记账可核对。",
@@ -959,7 +959,7 @@
  {
   "item": "R31-B06-C02#A4b",
   "card": "R31-B06-C02",
-  "batch": "K09",
+  "batch": "K05",
   "level": "DEVICE",
   "blocking": false,
   "text": "设备堆/native实测下降。",
@@ -970,7 +970,7 @@
  {
   "item": "R31-B06-C03#A1",
   "card": "R31-B06-C03",
-  "batch": "K09",
+  "batch": "K05",
   "level": "LOCAL",
   "blocking": true,
   "text": "在位置 1 至 9 任一位置终止，complete/published 仍为上一完整期，重启不得漏/重训位置。",
@@ -981,7 +981,7 @@
  {
   "item": "R31-B06-C03#A2",
   "card": "R31-B06-C03",
-  "batch": "K09",
+  "batch": "K05",
   "level": "LOCAL",
   "blocking": true,
   "text": "只有第 10 位置事务成功后完整水位推进；旧 state hash 对应的旧预测始终可重放。",
@@ -992,7 +992,7 @@
  {
   "item": "R31-B06-C03#A3",
   "card": "R31-B06-C03",
-  "batch": "K09",
+  "batch": "K05",
   "level": "LOCAL",
   "blocking": true,
   "text": "使用受控非零梯度样本，权重与优化器状态变化且消费者读取同一发布 hash；未消费不得标‘已提升预测’。",
@@ -1003,7 +1003,7 @@
  {
   "item": "R31-B06-C03#A4",
   "card": "R31-B06-C03",
-  "batch": "K09",
+  "batch": "K05",
   "level": "LOCAL",
   "blocking": true,
   "text": "报告中输入期、部分期、完成期、发布期、最后消费期分别可追溯到唯一 receipt。",
@@ -1014,7 +1014,7 @@
  {
   "item": "R31-B07-C01#A1",
   "card": "R31-B07-C01",
-  "batch": "K10",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "23 个默认家族各自完成可执行与恢复测试，失败一项明确列红，不把支持声明当通过。",
@@ -1025,7 +1025,7 @@
  {
   "item": "R31-B07-C01#A2",
   "card": "R31-B07-C01",
-  "batch": "K10",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "F23 无教师时不可执行、绑定真实教师与 ABI 后可执行；不得静默退回其他模型。",
@@ -1036,7 +1036,7 @@
  {
   "item": "R31-B07-C01#A3",
   "card": "R31-B07-C01",
-  "batch": "K10",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "对同一 model owner 注入双入口，唯一 fence 拒绝第二写者；兼容入口不启动第二数值线程。",
@@ -1047,7 +1047,7 @@
  {
   "item": "R31-B07-C01#A4",
   "card": "R31-B07-C01",
-  "batch": "K10",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "所有家族/专家至少存在‘执行证据’或‘依赖/预算未运行原因’，没有只有名称的绿色能力。",
@@ -1058,7 +1058,7 @@
  {
   "item": "R31-B07-C02#A1",
   "card": "R31-B07-C02",
-  "batch": "K10",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "超过字节/节点/深度、错误 arity、NaN/Infinity、未知 op 均受控拒绝，无 StackOverflow/OOM。",
@@ -1069,7 +1069,7 @@
  {
   "item": "R31-B07-C02#A2",
   "card": "R31-B07-C02",
-  "batch": "K10",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "合法旧策略 canonical/hash/预测逐样本一致；改变 updater 或 selector 必须产生不同身份。",
@@ -1080,7 +1080,7 @@
  {
   "item": "R31-B07-C02#A3",
   "card": "R31-B07-C02",
-  "batch": "K10",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "不同位置、不同输入 hash、不同角色的签名不得误判同一证据；重复正式证据仍保持完整引用。",
@@ -1091,7 +1091,7 @@
  {
   "item": "R31-B07-C02#A4",
   "card": "R31-B07-C02",
-  "batch": "K10",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "输入无未来标签且输出始终 10 维有限归一概率与严格单位置 3 个不同号码或明确弃权。",
@@ -1102,7 +1102,7 @@
  {
   "item": "R31-B07-C03#A1",
   "card": "R31-B07-C03",
-  "batch": "K10",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "每个可用家族在预注册研究轮次预算内被探索或有明确依赖原因，不永久饥饿。",
@@ -1113,7 +1113,7 @@
  {
   "item": "R31-B07-C03#A2",
   "card": "R31-B07-C03",
-  "batch": "K10",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "输入重复候选使去重率上升且不增加独特/晋级计数；重复回执不重复加算子信用。",
@@ -1124,7 +1124,7 @@
  {
   "item": "R31-B07-C03#A3a",
   "card": "R31-B07-C03",
-  "batch": "K10",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "置入高成本低增益候选后总预算不突破，模拟实时SLO预算不劣化，研究逐步继续。",
@@ -1135,7 +1135,7 @@
  {
   "item": "R31-B07-C03#A3b",
   "card": "R31-B07-C03",
-  "batch": "K10",
+  "batch": "K06",
   "level": "DEVICE",
   "blocking": false,
   "text": "真机实时SLO不劣化。",
@@ -1146,7 +1146,7 @@
  {
   "item": "R31-B07-C03#A4",
   "card": "R31-B07-C03",
-  "batch": "K10",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "一次重启前后分配计数/seed/信用一致，非冠军退役能触发真实内存/缓存释放。",
@@ -1157,7 +1157,7 @@
  {
   "item": "R31-B07-C04#A1",
   "card": "R31-B07-C04",
-  "batch": "K11",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "人为对子代提供未来标签，隔离/测试必须检出；禁用未来标签后无法伪造改善。",
@@ -1168,7 +1168,7 @@
  {
   "item": "R31-B07-C04#A2",
   "card": "R31-B07-C04",
-  "batch": "K11",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "父子出手次数不同仍在同机会序列比较；只选子代赢的期应被协议校验拒绝。",
@@ -1179,7 +1179,7 @@
  {
   "item": "R31-B07-C04#A3",
   "card": "R31-B07-C04",
-  "batch": "K11",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "同一确认段重复运行、更名、重启不新增独立证据，不获得新误差预算。",
@@ -1190,7 +1190,7 @@
  {
   "item": "R31-B07-C04#A4",
   "card": "R31-B07-C04",
-  "batch": "K11",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "一条改善声明可反查所有冻结预测、实际结果和选择过程，缺任何关键项只能 PROVISIONAL。",
@@ -1201,7 +1201,7 @@
  {
   "item": "R31-B07-C05#A1",
   "card": "R31-B07-C05",
-  "batch": "K11",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "全链 null/power 每次 trial 有配置、seed、完成/失败状态、全部候选数量、证据 hash 和最终门结果。",
@@ -1212,7 +1212,7 @@
  {
   "item": "R31-B07-C05#A2",
   "card": "R31-B07-C05",
-  "batch": "K11",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "缺一个 trial 不标 COMPLETE；故障失败与统计未检出分别计数。",
@@ -1223,7 +1223,7 @@
  {
   "item": "R31-B07-C05#A3",
   "card": "R31-B07-C05",
-  "batch": "K11",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "信号植入/禁用配对实验结果符合预注册功效区间；零假设整体误报上界符合预注册预算。",
@@ -1234,7 +1234,7 @@
  {
   "item": "R31-B07-C05#A4",
   "card": "R31-B07-C05",
-  "batch": "K11",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "任何合成候选无 REAL 权限，不能写入自然未来证据命名空间。",
@@ -1245,7 +1245,7 @@
  {
   "item": "R31-B07-C06#A1",
   "card": "R31-B07-C06",
-  "batch": "K11",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "给定六种受控失败各触发对应有来源的研究动作，不能全部落到同一随机变异；无法处理时明确 UNSUPPORTED。",
@@ -1256,7 +1256,7 @@
  {
   "item": "R31-B07-C06#A2",
   "card": "R31-B07-C06",
-  "batch": "K11",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "提供已知短期信号与漂移流，检测/失效率和延迟达到预注册功效区间；无信号流整体误报不越预算。",
@@ -1267,7 +1267,7 @@
  {
   "item": "R31-B07-C06#A3",
   "card": "R31-B07-C06",
-  "batch": "K11",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "构造集合大小 0/1/2/3/4，严格交集算法前三种弃权，其余选 3 个不同号且遵守固定 tie-break。",
@@ -1278,7 +1278,7 @@
  {
   "item": "R31-B07-C06#A4",
   "card": "R31-B07-C06",
-  "batch": "K11",
+  "batch": "K06",
   "level": "LOCAL",
   "blocking": true,
   "text": "故意用未来标签生成状态或用已测 A 子代替换为未测 B，均被拒绝；恢复运行输出与不中断一致。",
@@ -1289,7 +1289,7 @@
  {
   "item": "R31-B07-C06#A5",
   "card": "R31-B07-C06",
-  "batch": "K11",
+  "batch": "K06",
   "level": "NATURAL",
   "blocking": false,
   "text": "新功能只有独立自然未来质量与频率合同共同通过后才能宣称品质达标，工程可运行与自然有效分栏。",
@@ -1300,7 +1300,7 @@
  {
   "item": "R31-B08-C01#A1",
   "card": "R31-B08-C01",
-  "batch": "K12",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "删除/不提供学生策略时，STUDENT_* 显示 WAITING_STUDENT，NUMBER_POSITION_COMPATIBILITY/CROSS_POSITION_FLOW 仍产出。",
@@ -1311,7 +1311,7 @@
  {
   "item": "R31-B08-C01#A2",
   "card": "R31-B08-C01",
-  "batch": "K12",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "依赖未变连续调度 100 次不重复建立 100 条等待作业；学生新发布后等待项恢复。",
@@ -1322,7 +1322,7 @@
  {
   "item": "R31-B08-C01#A3",
   "card": "R31-B08-C01",
-  "batch": "K12",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "非法维度、NaN、源修订不进入成功表；旧有效 tensor 不被全零值覆盖。",
@@ -1333,7 +1333,7 @@
  {
   "item": "R31-B08-C01#A4",
   "card": "R31-B08-C01",
-  "batch": "K12",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "故障注入只影响该 kind，不能让整个 r27-matrices 永久隔离或卡死同轮游标。",
@@ -1344,7 +1344,7 @@
  {
   "item": "R31-B08-C02#A1",
   "card": "R31-B08-C02",
-  "batch": "K12",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "挑选任一图表点可追溯 raw rows→research_run→proposal→child→回放/配对结果。",
@@ -1355,7 +1355,7 @@
  {
   "item": "R31-B08-C02#A2",
   "card": "R31-B08-C02",
-  "batch": "K12",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "删掉 UI 缓存再重建不影响矩阵消费者或模型权威数据；有原始值但无 UI 时也可研究。",
@@ -1366,7 +1366,7 @@
  {
   "item": "R31-B08-C02#A3",
   "card": "R31-B08-C02",
-  "batch": "K12",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "源修订/不同 dataset/确认角色值被 read/ready 拒绝。",
@@ -1377,7 +1377,7 @@
  {
   "item": "R31-B08-C02#A4",
   "card": "R31-B08-C02",
-  "batch": "K12",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "禁用指定 sourceRun 的消融实验可度量影响，未证实增益时报告不得标‘研究能力已提升胜率’。",
@@ -1388,7 +1388,7 @@
  {
   "item": "R31-B08-C03#A1",
   "card": "R31-B08-C03",
-  "batch": "K12",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "包含 family 叶的候选可被 adapter 正确研究或明确 UNSUPPORTED，不再静默缺列。",
@@ -1399,7 +1399,7 @@
  {
   "item": "R31-B08-C03#A2",
   "card": "R31-B08-C03",
-  "batch": "K12",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "中断恢复两边模型状态、bias、游标一致，删除一侧组件不可污染另一侧学习状态。",
@@ -1410,7 +1410,7 @@
  {
   "item": "R31-B08-C03#A3",
   "card": "R31-B08-C03",
-  "batch": "K12",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "MASK_FROZEN 与 RETRAIN_REMOVED 结果分别列出，无法从一种结论宣称另一种因果效果。",
@@ -1421,7 +1421,7 @@
  {
   "item": "R31-B08-C03#A4",
   "card": "R31-B08-C03",
-  "batch": "K12",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "所有开发区间仍显示 DESCRIPTIVE，直接给 CERTIFIED 的测试必须失败。",
@@ -1432,7 +1432,7 @@
  {
   "item": "R31-B08-C04#A1",
   "card": "R31-B08-C04",
-  "batch": "K13",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "以可控有信号fixture证明producer→consumer→新产物hash确实变化；空信号可合法不产出",
@@ -1443,7 +1443,7 @@
  {
   "item": "R31-B08-C04#A2",
   "card": "R31-B08-C04",
-  "batch": "K13",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "删除/禁用该数值输入的同预算消融可重算；只有真正优于对照才标effective",
@@ -1454,7 +1454,7 @@
  {
   "item": "R31-B08-C04#A3",
   "card": "R31-B08-C04",
-  "batch": "K13",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "晚标签/错ABI/错revision/错parent/重复consume全被拒且无半成品子代",
@@ -1465,7 +1465,7 @@
  {
   "item": "R31-B08-C05#A1",
   "card": "R31-B08-C05",
-  "batch": "K13",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "R10生成OPERATOR_GAIN_COST后T09查到同run/hash，旧filter回归用例先失败后通过",
@@ -1476,7 +1476,7 @@
  {
   "item": "R31-B08-C05#A2",
   "card": "R31-B08-C05",
-  "batch": "K13",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "16视图SQL在本commit真实schema fixture上可prepare并按页执行",
@@ -1487,7 +1487,7 @@
  {
   "item": "R31-B08-C05#A3",
   "card": "R31-B08-C05",
-  "batch": "K13",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "未知枚举/错单位不能悄悄按0加入图",
@@ -1498,7 +1498,7 @@
  {
   "item": "R31-B08-C05#A4",
   "card": "R31-B08-C05",
-  "batch": "K13",
+  "batch": "K07",
   "level": "LOCAL",
   "blocking": true,
   "text": "R10 fixture顶层mean_gain=null但frame.points有实测值时，T09展示正确对象级数值及节点成本；未知perObjectCpuNs仍为UNKNOWN。",
@@ -1509,7 +1509,7 @@
  {
   "item": "R31-B10-C01#A1",
   "card": "R31-B10-C01",
-  "batch": "K14",
+  "batch": "K08",
   "level": "LOCAL",
   "blocking": true,
   "text": "删除旧 mainline chart 投影后 typed 主链仍正确选择，前提是正式切换完成；切换前删除应被保护阻止。",
@@ -1520,7 +1520,7 @@
  {
   "item": "R31-B10-C01#A2",
   "card": "R31-B10-C01",
-  "batch": "K14",
+  "batch": "K08",
   "level": "LOCAL",
   "blocking": true,
   "text": "每个写点故障注入保证两表不分叉；制造分叉时禁止继续授权而不是任取一个。",
@@ -1531,7 +1531,7 @@
  {
   "item": "R31-B10-C01#A3",
   "card": "R31-B10-C01",
-  "batch": "K14",
+  "batch": "K08",
   "level": "LOCAL",
   "blocking": true,
   "text": "并发两个认证者不能创建同一生效期冲突选择；fence 旧写者被拒绝。",
@@ -1542,7 +1542,7 @@
  {
   "item": "R31-B10-C01#A4",
   "card": "R31-B10-C01",
-  "batch": "K14",
+  "batch": "K08",
   "level": "LOCAL",
   "blocking": true,
   "text": "持有合法证书的测试策略能经过真实 DecisionGate 冻结并结算；合成/无证/过期/撤销策略不能进入 REAL。",
@@ -1553,7 +1553,7 @@
  {
   "item": "R31-B10-C02#A1",
   "card": "R31-B10-C02",
-  "batch": "K14",
+  "batch": "K08",
   "level": "LOCAL",
   "blocking": true,
   "text": "DP 在 n=0、p=0/1、n<=6、n=7 的解析值测试通过，精确数可复算；概率只标 iid 单门敏感性。",
@@ -1564,7 +1564,7 @@
  {
   "item": "R31-B10-C02#A2",
   "card": "R31-B10-C02",
-  "batch": "K14",
+  "batch": "K08",
   "level": "LOCAL",
   "blocking": true,
   "text": "当前 V1 constants 与旧 verdict 重放逐条一致，未完成审批/验证的新合同无发证权限。",
@@ -1575,7 +1575,7 @@
  {
   "item": "R31-B10-C02#A3",
   "card": "R31-B10-C02",
-  "batch": "K14",
+  "batch": "K08",
   "level": "LOCAL",
   "blocking": true,
   "text": "新合同全流程误报上界与功效达到预注册目标，未达则继续 OBSERVE/WAIT。",
@@ -1586,7 +1586,7 @@
  {
   "item": "R31-B10-C02#A4",
   "card": "R31-B10-C02",
-  "batch": "K14",
+  "batch": "K08",
   "level": "LOCAL",
   "blocking": true,
   "text": "重启/更名/子代/重复证据不重置 alpha 与暴露；V2 wouldIssue 不能改变 REAL 选择。",
@@ -1597,7 +1597,7 @@
  {
   "item": "R31-B10-C03#A1",
   "card": "R31-B10-C03",
-  "batch": "K14",
+  "batch": "K08",
   "level": "LOCAL",
   "blocking": true,
   "text": "同一实验重复输入 100 次只计 1 条未来证据；先学标签再冻结的污染测试必须拒绝。",
@@ -1608,7 +1608,7 @@
  {
   "item": "R31-B10-C03#A2",
   "card": "R31-B10-C03",
-  "batch": "K14",
+  "batch": "K08",
   "level": "LOCAL",
   "blocking": true,
   "text": "出手率低于目标时报告不足与选择器支持域，不伪造 ACT；满足频率但未通过质量门也不标达标。",
@@ -1619,7 +1619,7 @@
  {
   "item": "R31-B10-C03#A3",
   "card": "R31-B10-C03",
-  "batch": "K14",
+  "batch": "K08",
   "level": "LOCAL",
   "blocking": true,
   "text": "截止前冻结有签名、截止后新预测明确拒绝；过期/撤销后不得产生新 REAL 记录。",
@@ -1630,7 +1630,7 @@
  {
   "item": "R31-B10-C03#A4",
   "card": "R31-B10-C03",
-  "batch": "K14",
+  "batch": "K08",
   "level": "LOCAL",
   "blocking": true,
   "text": "集成中用合法测试证书验证真实路径可走通，并单独标测试命名空间；自然合格与否保持独立结论。",
@@ -1641,7 +1641,7 @@
  {
   "item": "R31-B05-C04#A1",
   "card": "R31-B05-C04",
-  "batch": "K15",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "ST-08：每个迁移阶段杀进程无丢失或重复计数",
@@ -1652,7 +1652,7 @@
  {
   "item": "R31-B05-C04#A2",
   "card": "R31-B05-C04",
-  "batch": "K15",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "R31新写无永久搬家，旧keep逐步有界缩减",
@@ -1663,7 +1663,7 @@
  {
   "item": "R31-B05-C04#A3",
   "card": "R31-B05-C04",
-  "batch": "K15",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "当前55张空keep也只能经过consumer证明和schema迁移删除",
@@ -1674,7 +1674,7 @@
  {
   "item": "R31-B05-C05#A1",
   "card": "R31-B05-C05",
-  "batch": "K15",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "ST-04/ST-05：有根闭包绝不删，无根环可删，pin与GC竞态只有一方成功",
@@ -1685,7 +1685,7 @@
  {
   "item": "R31-B05-C05#A2",
   "card": "R31-B05-C05",
-  "batch": "K15",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "GC任一步进程死后可恢复，未unlink不能报告释放",
@@ -1696,7 +1696,7 @@
  {
   "item": "R31-B05-C05#A3",
   "card": "R31-B05-C05",
-  "batch": "K15",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "protected根超限返回BLOCKED_PROTECTED_BYTES并列释放条件",
@@ -1707,7 +1707,7 @@
  {
   "item": "R31-B05-C06#A1",
   "card": "R31-B05-C06",
-  "batch": "K15",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "ST-09：同页连续100次变化，inflight始终≤1且临时bytes有界",
@@ -1718,7 +1718,7 @@
  {
   "item": "R31-B05-C06#A2",
   "card": "R31-B05-C06",
-  "batch": "K15",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "稳定后完成归档和prune，版本变化的行从未误删",
@@ -1729,7 +1729,7 @@
  {
   "item": "R31-B05-C06#A3",
   "card": "R31-B05-C06",
-  "batch": "K15",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "归档状态与文件sha/readback互证",
@@ -1740,7 +1740,7 @@
  {
   "item": "R31-B05-C07#A1",
   "card": "R31-B05-C07",
-  "batch": "K15",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "ST-11：revision有效版本无误删，孤儿工作持续推进",
@@ -1751,7 +1751,7 @@
  {
   "item": "R31-B05-C07#A2",
   "card": "R31-B05-C07",
-  "batch": "K15",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "event保留5000期核心事实或对应真实CAS，计数与重建投影一致",
@@ -1762,7 +1762,7 @@
  {
   "item": "R31-B05-C07#A3a",
   "card": "R31-B05-C07",
-  "batch": "K15",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "模拟24h事件写入：日志总bytes与保留条数有上界。",
@@ -1773,7 +1773,7 @@
  {
   "item": "R31-B05-C07#A3b",
   "card": "R31-B05-C07",
-  "batch": "K15",
+  "batch": "K09",
   "level": "DEVICE",
   "blocking": false,
   "text": "真机24h日志上界。",
@@ -1784,7 +1784,7 @@
  {
   "item": "R31-B05-C08#A1",
   "card": "R31-B05-C08",
-  "batch": "K16",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "ST-10：清理前后同PIT输入决策相同；重启仍保留主链选择",
@@ -1795,7 +1795,7 @@
  {
   "item": "R31-B05-C08#A2",
   "card": "R31-B05-C08",
-  "batch": "K16",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "任何读取权威值的panel没有被通用cache GC扫到",
@@ -1806,7 +1806,7 @@
  {
   "item": "R31-B05-C08#A3",
   "card": "R31-B05-C08",
-  "batch": "K16",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "无数据图显原因且不伪造点",
@@ -1817,7 +1817,7 @@
  {
   "item": "R31-B05-C09#A1",
   "card": "R31-B05-C09",
-  "batch": "K16",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "ST-14：长reader注入下无无限BUSY循环，WAL恢复有证据",
@@ -1828,7 +1828,7 @@
  {
   "item": "R31-B05-C09#A2a",
   "card": "R31-B05-C09",
-  "batch": "K16",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "长reader+GC压力模拟下冻结/结算路径不被阻塞（虚拟时钟预算断言）。",
@@ -1839,7 +1839,7 @@
  {
   "item": "R31-B05-C09#A2b",
   "card": "R31-B05-C09",
-  "batch": "K16",
+  "batch": "K09",
   "level": "DEVICE",
   "blocking": false,
   "text": "真机压力下实时冻结/结算延迟门。",
@@ -1850,7 +1850,7 @@
  {
   "item": "R31-B05-C09#A3",
   "card": "R31-B05-C09",
-  "batch": "K16",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "常规GC无需充电/熄屏；离线服务不会被自动调用停业务",
@@ -1861,7 +1861,7 @@
  {
   "item": "R31-B05-C10#A1",
   "card": "R31-B05-C10",
-  "batch": "K16",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "ST-15：每个rename/journal点中断后原库或新库可恢复",
@@ -1872,7 +1872,7 @@
  {
   "item": "R31-B05-C10#A2",
   "card": "R31-B05-C10",
-  "batch": "K16",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "备份不存在完整恢复证明时删除必拒绝",
@@ -1883,7 +1883,7 @@
  {
   "item": "R31-B05-C10#A3",
   "card": "R31-B05-C10",
-  "batch": "K16",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "不以quick_check或mtime单独证明数据完整",
@@ -1894,7 +1894,7 @@
  {
   "item": "R31-B09-C01#A1",
   "card": "R31-B09-C01",
-  "batch": "K17",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "注册唯一ID=47；旧图12实际执行而非先执行15再过滤",
@@ -1905,7 +1905,7 @@
  {
   "item": "R31-B09-C01#A2",
   "card": "R31-B09-C01",
-  "batch": "K17",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "标题改名不改变SQL选择/分组",
@@ -1916,7 +1916,7 @@
  {
   "item": "R31-B09-C01#A3",
   "card": "R31-B09-C01",
-  "batch": "K17",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "UI/报告/机器表三方ID集合完全相等",
@@ -1927,7 +1927,7 @@
  {
   "item": "R31-B09-C02#A1a",
   "card": "R31-B09-C02",
-  "batch": "K17",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "面板加载器隔离：一个面板SQL阻塞/格式错误，其余面板在预算内产出数据帧（JVM）。",
@@ -1938,7 +1938,7 @@
  {
   "item": "R31-B09-C02#A1b",
   "card": "R31-B09-C02",
-  "batch": "K17",
+  "batch": "K09",
   "level": "EMU",
   "blocking": false,
   "text": "UI中其余面板实际可见。",
@@ -1949,7 +1949,7 @@
  {
   "item": "R31-B09-C02#A2a",
   "card": "R31-B09-C02",
-  "batch": "K17",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "加载epoch守卫：100次切换/取消无旧epoch覆盖，连接/线程计数回到基线（JVM）。",
@@ -1960,7 +1960,7 @@
  {
   "item": "R31-B09-C02#A2b",
   "card": "R31-B09-C02",
-  "batch": "K17",
+  "batch": "K09",
   "level": "EMU",
   "blocking": false,
   "text": "真实Activity切tab/后台/旋转100次无BadToken与泄漏。",
@@ -1971,7 +1971,7 @@
  {
   "item": "R31-B09-C02#A3",
   "card": "R31-B09-C02",
-  "batch": "K17",
+  "batch": "K09",
   "level": "DEVICE",
   "blocking": false,
   "text": "所有耗时目标由设备P95回执而非代码常量签收",
@@ -1982,7 +1982,7 @@
  {
   "item": "R31-B09-C03#A1",
   "card": "R31-B09-C03",
-  "batch": "K17",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "清空DISPLAY类别后业务预测/选择/结算结果逐键不变，缓存可重建",
@@ -1993,7 +1993,7 @@
  {
   "item": "R31-B09-C03#A2",
   "card": "R31-B09-C03",
-  "batch": "K17",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "B10迁移前mainline/choice绝不删除",
@@ -2004,7 +2004,7 @@
  {
   "item": "R31-B09-C03#A3",
   "card": "R31-B09-C03",
-  "batch": "K17",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "注入大JSON、坏hash、过期ABI时只显示该图失败；不OOM",
@@ -2015,7 +2015,7 @@
  {
   "item": "R31-B09-C04#A1",
   "card": "R31-B09-C04",
-  "batch": "K18",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "同一结果数据切换role不会重复累计样本",
@@ -2026,7 +2026,7 @@
  {
   "item": "R31-B09-C04#A2",
   "card": "R31-B09-C04",
-  "batch": "K18",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "LIMIT从60改20只改变显示，不改变多重检验预算或资格结论",
@@ -2037,7 +2037,7 @@
  {
   "item": "R31-B09-C04#A3",
   "card": "R31-B09-C04",
-  "batch": "K18",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "旧/新ABI混合fixture不能得单一误导平均值",
@@ -2048,7 +2048,7 @@
  {
   "item": "R31-B09-C04#A4",
   "card": "R31-B09-C04",
-  "batch": "K18",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "无有效资产可显示0有效资产及完整研究输出，不伪造REAL出手",
@@ -2059,7 +2059,7 @@
  {
   "item": "R31-B09-C05#A1a",
   "card": "R31-B09-C05",
-  "batch": "K18",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "47个ID各有有数据fixture及空/错误状态帧；16视图分页查询通过。",
@@ -2070,7 +2070,7 @@
  {
   "item": "R31-B09-C05#A1b",
   "card": "R31-B09-C05",
-  "batch": "K18",
+  "batch": "K09",
   "level": "EMU",
   "blocking": false,
   "text": "47图渲染图证。",
@@ -2081,7 +2081,7 @@
  {
   "item": "R31-B09-C05#A2",
   "card": "R31-B09-C05",
-  "batch": "K18",
+  "batch": "K09",
   "level": "DEVICE",
   "blocking": false,
   "text": "设备截图数值与导出frame hash指向同一数据；单位/role/期范围不矛盾",
@@ -2092,7 +2092,7 @@
  {
   "item": "R31-B09-C05#A3",
   "card": "R31-B09-C05",
-  "batch": "K18",
+  "batch": "K09",
   "level": "LOCAL",
   "blocking": true,
   "text": "真实自然数据不足允许不足，但不能用fixture截图声称自然优势",
@@ -2103,7 +2103,7 @@
  {
   "item": "R31-B11-C01#A1",
   "card": "R31-B11-C01",
-  "batch": "K19",
+  "batch": "K10",
   "level": "LOCAL",
   "blocking": true,
   "text": "44项定义/计算/采集/验收全部有覆盖，未知不补数",
@@ -2114,7 +2114,7 @@
  {
   "item": "R31-B11-C01#A2",
   "card": "R31-B11-C01",
-  "batch": "K19",
+  "batch": "K10",
   "level": "LOCAL",
   "blocking": true,
   "text": "同快照JSON/HTML/图表相同id值/status/denominator逐字段一致",
@@ -2125,7 +2125,7 @@
  {
   "item": "R31-B11-C01#A3",
   "card": "R31-B11-C01",
-  "batch": "K19",
+  "batch": "K10",
   "level": "LOCAL",
   "blocking": true,
   "text": "每个指标有缺源、零样本、失败、足量成功四类fixture；实际自然质量不足仍可正确报告不足",
@@ -2136,7 +2136,7 @@
  {
   "item": "R31-B11-C01#A4",
   "card": "R31-B11-C01",
-  "batch": "K19",
+  "batch": "K10",
   "level": "LOCAL",
   "blocking": true,
   "text": "旧报告自称0冲突但含跨源水位冲突fixture被检出；合法不同role/owner范围不误报数值矛盾",
@@ -2147,7 +2147,7 @@
  {
   "item": "R31-B11-C02#A1",
   "card": "R31-B11-C02",
-  "batch": "K19",
+  "batch": "K10",
   "level": "LOCAL",
   "blocking": true,
   "text": "47图、20矩阵及能力注册集合逐项有报告条目，不能只输出总数",
@@ -2158,7 +2158,7 @@
  {
   "item": "R31-B11-C02#A2",
   "card": "R31-B11-C02",
-  "batch": "K19",
+  "batch": "K10",
   "level": "LOCAL",
   "blocking": true,
   "text": "任务RUNNING但无提交、图有帧但空值、消费成功但无优势三类反例被正确区分",
@@ -2169,7 +2169,7 @@
  {
   "item": "R31-B11-C02#A3",
   "card": "R31-B11-C02",
-  "batch": "K19",
+  "batch": "K10",
   "level": "LOCAL",
   "blocking": true,
   "text": "所有故障有可追溯修改卡，不伪称诊断规则覆盖100%代表已发现全部缺陷",
@@ -2180,7 +2180,7 @@
  {
   "item": "R31-B11-C03#A1",
   "card": "R31-B11-C03",
-  "batch": "K19",
+  "batch": "K10",
   "level": "LOCAL",
   "blocking": true,
   "text": "故意预算不足时报告完整列出未包含项，指标保持未知而非0",
@@ -2191,7 +2191,7 @@
  {
   "item": "R31-B11-C03#A2",
   "card": "R31-B11-C03",
-  "batch": "K19",
+  "batch": "K10",
   "level": "LOCAL",
   "blocking": true,
   "text": "所有included附件hash、大小和路径校验通过；所有可复算结论能找到所需原件",
@@ -2202,7 +2202,7 @@
  {
   "item": "R31-B11-C03#A3",
   "card": "R31-B11-C03",
-  "batch": "K19",
+  "batch": "K10",
   "level": "LOCAL",
   "blocking": true,
   "text": "导出中取消/杀进程/损坏附件不会破坏实时库或删待确认原件",
@@ -2213,7 +2213,7 @@
  {
   "item": "R31-B11-C04#A1",
   "card": "R31-B11-C04",
-  "batch": "K19",
+  "batch": "K10",
   "level": "LOCAL",
   "blocking": true,
   "text": "check IDs集合与真实注册96一致；44指标全部有独立证据要求",
@@ -2224,7 +2224,7 @@
  {
   "item": "R31-B11-C04#A2",
   "card": "R31-B11-C04",
-  "batch": "K19",
+  "batch": "K10",
   "level": "LOCAL",
   "blocking": true,
   "text": "任何静态check PASS都不能单独使Q01/Q06/设备指标PASS",
@@ -2235,7 +2235,7 @@
  {
   "item": "R31-B11-C04#A3",
   "card": "R31-B11-C04",
-  "batch": "K19",
+  "batch": "K10",
   "level": "LOCAL",
   "blocking": true,
   "text": "字节或元数据完整率100%不会显示产品全部通过",
@@ -2246,7 +2246,7 @@
  {
   "item": "R31-B12-C01#A1a",
   "card": "R31-B12-C01",
-  "batch": "K20",
+  "batch": "K11",
   "level": "LOCAL",
   "blocking": true,
   "text": "HOST迁移每个切点杀进程再打开：不丢开奖/模型/证书根，不重复迁移。",
@@ -2257,7 +2257,7 @@
  {
   "item": "R31-B12-C01#A1b",
   "card": "R31-B12-C01",
-  "batch": "K20",
+  "batch": "K11",
   "level": "EMU",
   "blocking": false,
   "text": "Android覆盖安装后各切点杀进程恢复。",
@@ -2268,7 +2268,7 @@
  {
   "item": "R31-B12-C01#A2",
   "card": "R31-B12-C01",
-  "batch": "K20",
+  "batch": "K11",
   "level": "EMU",
   "blocking": false,
   "text": "覆盖安装后UI可启动，实时关键schema优先可用，旧历史训练资产可继续读。",
@@ -2279,7 +2279,7 @@
  {
   "item": "R31-B12-C01#A3",
   "card": "R31-B12-C01",
-  "batch": "K20",
+  "batch": "K11",
   "level": "LOCAL",
   "blocking": true,
   "text": "没有30GB原库时该试验项NOT_RUN，使用构造压力库需明确标SIMULATED。",
@@ -2290,7 +2290,7 @@
  {
   "item": "R31-B12-C02#A1",
   "card": "R31-B12-C02",
-  "batch": "K20",
+  "batch": "K11",
   "level": "LOCAL",
   "blocking": true,
   "text": "CI失败/跳过准确回传，不存在空测试或只检查类名的PASS。",
@@ -2301,7 +2301,7 @@
  {
   "item": "R31-B12-C02#A2",
   "card": "R31-B12-C02",
-  "batch": "K20",
+  "batch": "K11",
   "level": "LOCAL",
   "blocking": true,
   "text": "新功能前后相同fixture结果可对照，原有效能力无退化。",
@@ -2312,7 +2312,7 @@
  {
   "item": "R31-B12-C02#A3a",
   "card": "R31-B12-C02",
-  "batch": "K20",
+  "batch": "K11",
   "level": "LOCAL",
   "blocking": true,
   "text": "HOST全链故障注入：无重复owner提交、重复结算、越界预测、受保护资产删除。",
@@ -2323,7 +2323,7 @@
  {
   "item": "R31-B12-C02#A3b",
   "card": "R31-B12-C02",
-  "batch": "K20",
+  "batch": "K11",
   "level": "EMU",
   "blocking": false,
   "text": "Android全链故障注入矩阵（API29/35）。",
@@ -2334,7 +2334,7 @@
  {
   "item": "R31-B12-C04#A1",
   "card": "R31-B12-C04",
-  "batch": "K20",
+  "batch": "K11",
   "level": "LOCAL",
   "blocking": true,
   "text": "每个删除对象有非活动、无引用、等价替代与恢复说明。",
@@ -2345,7 +2345,7 @@
  {
   "item": "R31-B12-C04#A2",
   "card": "R31-B12-C04",
-  "batch": "K20",
+  "batch": "K11",
   "level": "LOCAL",
   "blocking": true,
   "text": "所有旧能力保全清单仍有可执行实现和测试。",
@@ -2356,7 +2356,7 @@
  {
   "item": "R31-B12-C04#A3",
   "card": "R31-B12-C04",
-  "batch": "K20",
+  "batch": "K11",
   "level": "LOCAL",
   "blocking": true,
   "text": "删除迁移不破坏Schema/Retention/Report注册表和升级路径。",
@@ -2367,7 +2367,7 @@
  {
   "item": "R31-B12-C05#A1a",
   "card": "R31-B12-C05",
-  "batch": "K21",
+  "batch": "K11",
   "level": "LOCAL",
   "blocking": true,
   "text": "ZIP完整性、成员摘要、APK签名指纹与发布收据一致。",
@@ -2378,7 +2378,7 @@
  {
   "item": "R31-B12-C05#A1b",
   "card": "R31-B12-C05",
-  "batch": "K21",
+  "batch": "K11",
   "level": "DEVICE",
   "blocking": false,
   "text": "设备安装身份与收据一致。",
@@ -2389,7 +2389,7 @@
  {
   "item": "R31-B12-C05#A2",
   "card": "R31-B12-C05",
-  "batch": "K21",
+  "batch": "K11",
   "level": "LOCAL",
   "blocking": true,
   "text": "实际下载文件存在且可打开；用户无需在多个同名方案里挑选。",
@@ -2400,7 +2400,7 @@
  {
   "item": "R31-B12-C05#A3",
   "card": "R31-B12-C05",
-  "batch": "K21",
+  "batch": "K11",
   "level": "LOCAL",
   "blocking": true,
   "text": "工程通过与自然优势是否证明分栏，不能互相替代。",
@@ -2411,7 +2411,7 @@
  {
   "item": "R31-B12-C03#A1",
   "card": "R31-B12-C03",
-  "batch": "K21",
+  "batch": "K11",
   "level": "DEVICE",
   "blocking": false,
   "text": "总纲指标按明确分母与时点复算，所有异常样本保留。",
@@ -2422,7 +2422,7 @@
  {
   "item": "R31-B12-C03#A2",
   "card": "R31-B12-C03",
-  "batch": "K21",
+  "batch": "K11",
   "level": "DEVICE",
   "blocking": false,
   "text": "任务隔离没有永久静默停摆；停止/缺依赖有真实理由，满足恢复条件后推进。",
@@ -2433,7 +2433,7 @@
  {
   "item": "R31-B12-C03#A3",
   "card": "R31-B12-C03",
-  "batch": "K21",
+  "batch": "K11",
   "level": "DEVICE",
   "blocking": false,
   "text": "后两日增量与常态预算合格，或明示BLOCKED，不能发最终通过收据。",

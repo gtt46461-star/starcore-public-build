@@ -67,12 +67,12 @@ check('budget ordering',config['disk_normal_soft_mib']<config['disk_normal_hard_
 check('memory budgets and locked acceptance',0<config['memory_heap_resume_fraction']<config['memory_heap_high_water_fraction']<config['memory_heap_emergency_fraction']<1 and config['memory_oom_allowed']==0 and config['memory_constant_workload_last_vs_first_p95_live_heap_ratio_max']==1.10)
 check('no production success claimed',summary['android_implementation']=='NOT_PERFORMED_THIS_PLAN_DELIVERY' and summary['device_test']=='NOT_RUN' and summary['natural_quality']=='NOT_PROVEN')
 policy=load('ledgers/execution_policy.json')
-check('R31.3 explicit revision',summary['plan_version']==policy['version']=='R31.3-CONSTRUCTION-20261105')
+check('R31.4 explicit revision',summary['plan_version']==policy['version']=='R31.4-MERGED-11-20261107')
 check('resume existing work',policy['resume']['never_reset_existing_r31_to_report_baseline'] and policy['resume']['do_not_override_newer_progress'])
 check('one open batch',policy['sequence']['open_batches_max']==1 and policy['sequence']['next_batch_requires_previous_receipt'])
 r=policy['closure']['ratchet']
-check('ratchet: no new failures, owned failures fixed, zero from K20',not r['new_failures_allowed'] and r['known_failures_owned_by_batch_must_pass'] and r['zero_known_failures_from']=='K20' and r['compilation_failure_always_blocks'])
-check('carry is bounded and never PASS',policy['closure']['carry']['max_per_batch']==2 and policy['closure']['carry']['carried_is_not_pass'] and policy['closure']['carry']['latest_target']=='K20')
+check('ratchet: no new failures, owned failures fixed, zero from K11',not r['new_failures_allowed'] and r['known_failures_owned_by_batch_must_pass'] and r['zero_known_failures_from']=='K11' and r['compilation_failure_always_blocks'])
+check('carry is bounded and never PASS',policy['closure']['carry']['max_per_batch']==2 and policy['closure']['carry']['carried_is_not_pass'] and policy['closure']['carry']['latest_target']=='K11')
 check('batch ids are construction order',[p['phase'] for p in phases]==[f'K{i:02}' for i in range(1,len(phases)+1)])
 sys.path.insert(0,str(P/'tools'))
 sys.dont_write_bytecode=True

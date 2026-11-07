@@ -15,7 +15,7 @@ for index,path in enumerate(docs):
         html,count=re.subn(pattern,lambda m:m[1]+rendered+m[2],html,count=1,flags=re.S)
         assert count==1
     else:
-        assert path.name.startswith(('14_','15_','16_'))
+        assert path.name.startswith(('14_','15_','16_','17_'))
         section=f'<section id="doc-{index}" class="chapter"><h2>{path.stem}</h2><details open><summary>展开 / 收起本章</summary><article>{rendered}</article></details></section>'
         needle='<section id="cards"'
         assert html.count(needle)==1

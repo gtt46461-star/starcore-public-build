@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the R31.3 construction-first batch ledgers and batch pages (single source of the batch layout).
+"""Generate the R31.4 (11 merged construction batches) batch ledgers and batch pages (single source of the batch layout).
 
 Original 56 cards and their acceptance text are never edited here; only placement fields and derived
 ledgers/pages are (re)written. Idempotent.
@@ -9,14 +9,16 @@ import hashlib
 import json
 
 P = Path(__file__).resolve().parents[1]
-VERSION = 'R31.3-CONSTRUCTION-20261105'
+VERSION = 'R31.4-MERGED-11-20261107'
+PREVIOUS_VERSION = 'R31.3-CONSTRUCTION-20261105'
 RESUME_COMMIT = '293bb23015e9ff694b4344aaf688cb4c1f6e356d'
 SOURCE_BRANCH = 'construction/r31-final-20261104'
-LAST_FULL_GREEN_BATCH = 'K20'
+LAST_FULL_GREEN_BATCH = 'K11'
+RELEASE_BATCH = 'K11'
 
 LEVELS = {
     'LOCAL': '本地/CI确定性执行：JVM单元、HOST协议、静态检查、编译、lint。本批关门需绑定通过的测试（或按结转规则带红测试结转）。',
-    'EMU': 'Android模拟器/Android SQLite仪器测试。只在K20集中执行；其余批次不阻塞，不得记PASS。',
+    'EMU': 'Android模拟器/Android SQLite仪器测试。只在K11集中执行；其余批次不阻塞，不得记PASS。',
     'DEVICE': '真机/时长/设备时延/截图（V2353A、24h、72h、设备P95）。施工期DEFERRED，不阻塞，不得记PASS。',
     'NATURAL': '自然未来质量。永远不是施工门，只能NOT_PROVEN。',
 }
@@ -82,7 +84,7 @@ WHOLE = {
 
 # ---------------------------------------------------------------- repair cards for code already merged
 ENG = [
-    {'id': 'R31-ENG-01', 'batch': 'K04', 'title': '修复启动Certificate关键域指纹失配（随B02-C02同批）',
+    {'id': 'R31-ENG-01', 'batch': 'K03', 'title': '修复启动Certificate关键域指纹失配（随B02-C02同批）',
      'issue': 'CI015 API29/35各10项协议8项失败于SCHEMA_PENDING:R31_CERTIFICATE_REVOCATION:UNTRUSTED_CRITICAL:FINGERPRINT_MISMATCH；共享启动增量认证改动(493080ad)后，Certificate关键域指纹的登记方与校验方不一致。SchemaDomainCoordinatorR926由B02-C02负责，故同批修。',
      'files': ['app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java',
                'app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java'],
@@ -110,32 +112,44 @@ ENG = [
 # ---------------------------------------------------------------- batches (order = construction order)
 BATCHES = [
     ('K01', '基线身份与故障观测；登记已知失败基线', ['R31-B00-C01', 'R31-B00-C02'],
-     'B00两卡源码已完成，S00的绑定可直接沿用。本批首次全量运行，把当时所有失败登记为“已知失败”，并给每条指定负责修复的批次（只能往后、最迟K20）。'),
-    ('K02', '内存准入相容 + 任务故障分类与owner/fence', ['R31-ENG-02', 'R31-B01-C01', 'R31-B01-C02'], ''),
-    ('K03', '有限隔离恢复与可中断关闭', ['R31-B01-C03', 'R31-B01-C04'], ''),
-    ('K04', '写优先级、短事务、提交结果 + Certificate指纹', ['R31-B02-C01', 'R31-B02-C02', 'R31-B02-C03', 'R31-ENG-01'],
-     '本批结束时，B01/B02相关HOST联合协议（write_protocol、task_runtime、writer_hold_fault、runtime_ddl、certificate_startup）不得在已知失败中由本批负责而仍失败。'),
-    ('K05', '抓取、唯一冻结与结算解耦', ['R31-B03-C01', 'R31-B03-C02', 'R31-B03-C03'], ''),
-    ('K06', '研究健康与后台能力', ['R31-B04-C01', 'R31-B04-C02'], 'B04-C02多为真机项，本批只做本地可验部分。'),
-    ('K07', '存储普查、写前准入与报告清理', ['R31-B05-C01', 'R31-B05-C02', 'R31-B05-C03'], ''),
-    ('K08', '内存与缓存队列有界治理', ['R31-B05-C11'], ''),
-    ('K09', '历史回放与模型状态共同提交', ['R31-B06-C01', 'R31-B06-C02', 'R31-B06-C03'], ''),
-    ('K10', '家族保全、typed AST与创造预算', ['R31-B07-C01', 'R31-B07-C02', 'R31-B07-C03'], ''),
-    ('K11', '父子比较、工厂检出力与能力升级', ['R31-B07-C04', 'R31-B07-C05', 'R31-B07-C06'], ''),
-    ('K12', '研究矩阵依赖、typed来源与融合研究', ['R31-B08-C01', 'R31-B08-C02', 'R31-B08-C03'], ''),
-    ('K13', '研究产物数值合同与16逻辑表', ['R31-B08-C04', 'R31-B08-C05'], ''),
-    ('K14', '主链typed权威、资格合同与撤销闭环', ['R31-B10-C01', 'R31-B10-C02', 'R31-B10-C03'],
-     '权威迁移完成后，K15/K16才允许任何破坏性清理。'),
-    ('K15', '保护迁移、引用闭包GC、CAS与事件有界', ['R31-B05-C04', 'R31-B05-C05', 'R31-B05-C06', 'R31-B05-C07'], ''),
-    ('K16', '图表缓存迁移清理、WAL与旧库重建', ['R31-B05-C08', 'R31-B05-C09', 'R31-B05-C10'], ''),
-    ('K17', '47面板稳定ID、慢图隔离与缓存限额', ['R31-B09-C01', 'R31-B09-C02', 'R31-B09-C03'], ''),
-    ('K18', '证据口径统一与47图/16表回归', ['R31-B09-C04', 'R31-B09-C05'], ''),
-    ('K19', '44指标/96检查完整报告', ['R31-B11-C01', 'R31-B11-C02', 'R31-B11-C03', 'R31-B11-C04'], ''),
-    ('K20', '迁移恢复、统一CI故障注入、受控退役 + 全绿 + Android集中回归', ['R31-B12-C01', 'R31-B12-C02', 'R31-B12-C04'],
-     '本批关门要求：已知失败清零、所有结转项已兑现。EMU项在本批跑一次模拟器矩阵；环境不可用写NOT_RUN，不写PASS。'),
-    ('K21', '发布冻结与成品交付', ['R31-B12-C05', 'R31-B12-C03'],
-     '只有本批做正式身份冻结、r982调用清单、签名和APK/ZIP；B12-C03全是真机时长项，登记DEFERRED，发布收据如实写NOT_RUN。'),
+     'B00两卡源码已完成，S00的绑定可直接沿用。本批首次全量运行，把当时所有失败登记为“已知失败”，并给每条指定负责修复的批次（只能往后、最迟K11）。已于R31.3关门，R31.4不改本批。'),
+    ('K02', '内存准入相容 + 任务故障分类与owner/fence', ['R31-ENG-02', 'R31-B01-C01', 'R31-B01-C02'],
+     'R31.4不改本批（与R31.3的K02完全相同）。'),
+    ('K03', '有限隔离恢复与可中断关闭 + 写优先级、短事务、提交结果 + Certificate指纹',
+     ['R31-B01-C03', 'R31-B01-C04', 'R31-B02-C01', 'R31-B02-C02', 'R31-B02-C03', 'R31-ENG-01'],
+     '合并自R31.3的K03+K04（同属原P01）。按下列卡片顺序施工：先B01-C03/C04，再B02三卡与ENG-01。本批结束时，B01/B02相关HOST联合协议（write_protocol、task_runtime、writer_hold_fault、runtime_ddl、certificate_startup）不得在已知失败中由本批负责而仍失败。'),
+    ('K04', '抓取、唯一冻结与结算解耦 + 研究健康与后台能力 + 存储普查、写前准入与报告清理 + 内存与缓存队列有界治理',
+     ['R31-B03-C01', 'R31-B03-C02', 'R31-B03-C03', 'R31-B04-C01', 'R31-B04-C02',
+      'R31-B05-C01', 'R31-B05-C02', 'R31-B05-C03', 'R31-B05-C11'],
+     '合并自R31.3的K05+K06+K07+K08（同属原P02）。按B03三卡、B04两卡、B05-C01..C03、B05-C11顺序施工；B04-C02多为真机项，本批只做本地可验部分。'),
+    ('K05', '历史回放与模型状态共同提交', ['R31-B06-C01', 'R31-B06-C02', 'R31-B06-C03'],
+     '原R31.3的K09（原P03单独成批：P04的卡必须在P03关门后才能开工）。'),
+    ('K06', '家族保全、typed AST与创造预算 + 父子比较、工厂检出力与能力升级',
+     ['R31-B07-C01', 'R31-B07-C02', 'R31-B07-C03', 'R31-B07-C04', 'R31-B07-C05', 'R31-B07-C06'],
+     '合并自R31.3的K10+K11（同属原P04）。先B07-C01..C03，再B07-C04..C06。'),
+    ('K07', '研究矩阵依赖、typed来源与融合研究 + 研究产物数值合同与16逻辑表',
+     ['R31-B08-C01', 'R31-B08-C02', 'R31-B08-C03', 'R31-B08-C04', 'R31-B08-C05'],
+     '合并自R31.3的K12+K13（同属原P04）。先B08-C01..C03，再B08-C04/C05。'),
+    ('K08', '主链typed权威、资格合同与撤销闭环', ['R31-B10-C01', 'R31-B10-C02', 'R31-B10-C03'],
+     '原R31.3的K14（原P05单独成批）：主链权威迁移关门后，K09才允许任何破坏性清理。'),
+    ('K09', '保护迁移、引用闭包GC、CAS与事件有界 + 图表缓存迁移清理、WAL与旧库重建 + 47面板稳定ID、慢图隔离与缓存限额 + 证据口径统一与47图/16表回归',
+     ['R31-B05-C04', 'R31-B05-C05', 'R31-B05-C06', 'R31-B05-C07', 'R31-B05-C08', 'R31-B05-C09', 'R31-B05-C10',
+      'R31-B09-C01', 'R31-B09-C02', 'R31-B09-C03', 'R31-B09-C04', 'R31-B09-C05'],
+     '合并自R31.3的K15+K16+K17+K18（同属原P06）。按B05-C04..C07、B05-C08..C10、B09-C01..C03、B09-C04/C05顺序施工。'),
+    ('K10', '44指标/96检查完整报告', ['R31-B11-C01', 'R31-B11-C02', 'R31-B11-C03', 'R31-B11-C04'],
+     '原R31.3的K19（原P07单独成批）。'),
+    ('K11', '迁移恢复、统一CI故障注入、受控退役 + 全绿 + Android集中回归 + 发布冻结与成品交付',
+     ['R31-B12-C01', 'R31-B12-C02', 'R31-B12-C04', 'R31-B12-C05', 'R31-B12-C03'],
+     '合并自R31.3的K20+K21（同属原P08）。顺序强制：先完成B12-C01/C02/C04，已知失败清零、所有结转兑现，EMU项跑一次模拟器矩阵（环境不可用写NOT_RUN，不写PASS）；之后才做B12-C05的正式身份冻结、r982调用清单、签名和APK/ZIP。B12-C03全是真机时长项，登记DEFERRED，发布收据如实写NOT_RUN。'),
 ]
+
+# R31.3 batch id -> R31.4 batch id. Receipts written under R31.3 (K01) name owner batches in the old
+# numbering; r31_gate.py translates them through this map. Receipts written under R31.4 are not translated.
+LEGACY_BATCH_MAP = {PREVIOUS_VERSION: {
+    'K01': 'K01', 'K02': 'K02', 'K03': 'K03', 'K04': 'K03', 'K05': 'K04', 'K06': 'K04', 'K07': 'K04', 'K08': 'K04',
+    'K09': 'K05', 'K10': 'K06', 'K11': 'K06', 'K12': 'K07', 'K13': 'K07', 'K14': 'K08', 'K15': 'K09', 'K16': 'K09',
+    'K17': 'K09', 'K18': 'K09', 'K19': 'K10', 'K20': 'K11', 'K21': 'K11'}}
+
 
 
 def sha(b):
@@ -217,10 +231,10 @@ def main():
             'scope_files': files,
             'later_batches_touching_same_files': sorted({b for f in files for b in file_batches.get(f, ()) if b > bid}),
             'records_known_failure_baseline': bid == 'K01',
-            'requires_zero_known_failures': bid in ('K20', 'K21'),
-            'emu_items_executed_here': bid == 'K20',
-            'release_identity_freeze': bid == 'K21',
-            'max_carried_items': 0 if bid in ('K20', 'K21') else 2,
+            'requires_zero_known_failures': bid in (LAST_FULL_GREEN_BATCH, RELEASE_BATCH),
+            'emu_items_executed_here': bid == LAST_FULL_GREEN_BATCH,
+            'release_identity_freeze': bid == RELEASE_BATCH,
+            'max_carried_items': 0 if bid in (LAST_FULL_GREEN_BATCH, RELEASE_BATCH) else 2,
             'local_items': [x['item'] for x in bitems if x['level'] == 'LOCAL'],
             'deferred_items': [x['item'] for x in bitems if x['level'] != 'LOCAL'],
             'note': note, 'doc': f'batches/{bid}.md'})
@@ -232,9 +246,10 @@ def main():
         'version': VERSION,
         'scope': 'CONSTRUCTION_BATCHES_NOT_APPLICATION_IMPLEMENTATION',
         'source_branch': SOURCE_BRANCH, 'resume_commit': RESUME_COMMIT,
-        'rule': '批次序号=施工顺序；上一批RECEIPT提交后才开下一批。关门用棘轮：不得新增失败、本批负责的已知失败必须修好、LOCAL项绑定通过的测试（最多2项带红测试结转）；K20清零。',
+        'rule': '批次序号=施工顺序；上一批RECEIPT提交后才开下一批。关门用棘轮：不得新增失败、本批负责的已知失败必须修好、LOCAL项绑定通过的测试（最多2项带红测试结转）；K11清零。R31.4把R31.3的21批相邻合并为11批，卡片、验收原文、阈值不变。',
         'levels': LEVELS, 'blocking_levels': sorted(BLOCKING),
         'last_batch_for_known_failures_and_carries': LAST_FULL_GREEN_BATCH,
+        'legacy_batch_map': LEGACY_BATCH_MAP, 'previous_version': PREVIOUS_VERSION,
         'batch_count': len(batches), 'original_card_count': len(cards), 'repair_card_count': len(ENG),
         'batches': batches}
     (P / 'ledgers/batches.json').write_text(json.dumps(ledger, ensure_ascii=False, indent=1) + '\n')
@@ -242,15 +257,48 @@ def main():
     (P / 'ledgers/repair_cards.json').write_text(json.dumps(ENG, ensure_ascii=False, indent=1) + '\n')
     deferred = [x for x in items if x['level'] != 'LOCAL']
     (P / 'ledgers/deferred_items.json').write_text(json.dumps({
-        'version': VERSION, 'rule': '施工期不阻塞、不得记PASS。EMU在K20集中执行；DEVICE待真机；NATURAL不作施工门。',
+        'version': VERSION, 'rule': '施工期不阻塞、不得记PASS。EMU在K11集中执行；DEVICE待真机；NATURAL不作施工门。',
         'counts': {lvl: sum(1 for x in deferred if x['level'] == lvl) for lvl in ('EMU', 'DEVICE', 'NATURAL')},
         'items': deferred}, ensure_ascii=False, indent=1) + '\n')
 
+    write_execution_ledgers(batches, by_id)
     tag_card_docs(cards, items, order)
     write_repair_docs()
     write_batch_docs(ledger, items, by_id, eng_by_id)
     print(json.dumps({'batches': len(batches), 'items': len(items),
                       'levels': {l: sum(1 for x in items if x['level'] == l) for l in LEVELS}}, ensure_ascii=False))
+
+
+def write_execution_ledgers(batches, by_id):
+    phases = []
+    for b in batches:
+        phases.append({'phase': b['batch'], 'order': b['order'], 'name': b['name'],
+                       'batches': sorted({by_id[c]['batch'] if c in by_id else 'ENG' for c in b['cards']}),
+                       'requires': b['requires_closed'], 'cards': b['cards'], 'original_phases': b['original_phases'],
+                       'doc': b['doc'], 'execution_policy': 'ledgers/execution_policy.json',
+                       'closure': 'tools/r31_gate.py close (ratchet; LOCAL items bound or carried)',
+                       'physical_device_is_source_prerequisite': False})
+    (P / 'ledgers/execution_phases.json').write_text(json.dumps(phases, ensure_ascii=False, indent=1) + '\n')
+    pol_path = P / 'ledgers/execution_policy.json'
+    pol = json.loads(pol_path.read_text())
+    if pol['version'] != VERSION:
+        pol['supersedes'] = [pol['version']] + [v for v in pol.get('supersedes', []) if v != pol['version']]
+    pol['version'] = VERSION
+    pol['r31_4_merge'] = {'reason': 'User-directed: 21 construction batches merged into 11 adjacent batches. Card text, acceptance text, '
+                                    'thresholds, original phase order and ratchet rules unchanged; K01 (closed) and K02 (in progress) unchanged.',
+                          'legacy_batch_map': LEGACY_BATCH_MAP[PREVIOUS_VERSION]}
+    pol['sequence']['batches'] = [b['batch'] for b in batches]
+    pol['closure']['ratchet']['zero_known_failures_from'] = LAST_FULL_GREEN_BATCH
+    pol['closure']['carry']['latest_target'] = LAST_FULL_GREEN_BATCH
+    pol['closure']['emu_executed_in'] = LAST_FULL_GREEN_BATCH
+    pol['closure']['release_only_batch'] = RELEASE_BATCH
+    pol['preservation']['construction_batches'] = len(batches)
+    pol_path.write_text(json.dumps(pol, ensure_ascii=False, indent=1) + '\n')
+    sum_path = P / 'ledgers/package_summary.json'
+    summ = json.loads(sum_path.read_text())
+    summ['plan_version'] = VERSION
+    summ['construction_batches'] = len(batches)
+    sum_path.write_text(json.dumps(summ, ensure_ascii=False, indent=1) + '\n')
 
 
 def tag_card_docs(cards, items, order):
@@ -288,7 +336,7 @@ def write_batch_docs(ledger, items, by_id, eng_by_id):
     d.mkdir(exist_ok=True)
     for old in d.glob('*.md'):
         old.unlink()
-    idx = ['# R31.3 施工批次总表', '', f"版本：{ledger['version']}。按序号逐批施工；每批一条命令关门：`r31_gate.py close --batch Kxx`。", '',
+    idx = ['# R31.4 施工批次总表（11批）', '', f"版本：{ledger['version']}。按序号逐批施工；每批一条命令关门：`r31_gate.py close --batch Kxx`。", '',
            '| 序号 | 批次 | 卡 | LOCAL项 | 延后项 |', '|---|---|---|---|---|']
     for b in ledger['batches']:
         idx.append(f"| {b['order']:02d} | [{b['batch']} {b['name']}]({b['batch']}.md) | {len(b['cards'])} | {len(b['local_items'])} | {len(b['deferred_items'])} |")
@@ -319,7 +367,7 @@ def write_batch_docs(ledger, items, by_id, eng_by_id):
             L += [f"后续{', '.join(b['later_batches_touching_same_files'])}还会改其中部分文件：本批只做本批卡，不预做后续卡。", '']
         L += ['## 验收（LOCAL，每项在BINDINGS.json绑定至少一个测试）', '', '| 项 | 内容 |', '|---|---|']
         L += [f"| {x['item']} | {cell(x['text'])} |" for x in items if x['batch'] == bid and x['level'] == 'LOCAL']
-        L += ['', f"本批最多结转{b['max_carried_items']}项（必须已有提交的红测试，指定后续批次且不晚于K20）。" if b['max_carried_items'] else
+        L += ['', f"本批最多结转{b['max_carried_items']}项（必须已有提交的红测试，指定后续批次且不晚于{LAST_FULL_GREEN_BATCH}）。" if b['max_carried_items'] else
               '本批不得结转，已知失败必须清零。', '']
         dl = [x for x in items if x['batch'] == bid and x['level'] != 'LOCAL']
         if dl:

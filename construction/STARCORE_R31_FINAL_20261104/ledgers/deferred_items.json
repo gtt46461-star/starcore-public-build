@@ -1,6 +1,6 @@
 {
- "version": "R31.3-CONSTRUCTION-20261105",
- "rule": "施工期不阻塞、不得记PASS。EMU在K20集中执行；DEVICE待真机；NATURAL不作施工门。",
+ "version": "R31.4-MERGED-11-20261107",
+ "rule": "施工期不阻塞、不得记PASS。EMU在K11集中执行；DEVICE待真机；NATURAL不作施工门。",
  "counts": {
   "EMU": 8,
   "DEVICE": 24,
@@ -43,7 +43,7 @@
   {
    "item": "R31-B02-C01#A2b",
    "card": "R31-B02-C01",
-   "batch": "K04",
+   "batch": "K03",
    "level": "DEVICE",
    "blocking": false,
    "text": "真机实时60分钟竞争测试。",
@@ -54,7 +54,7 @@
   {
    "item": "R31-B02-C02#A3a",
    "card": "R31-B02-C02",
-   "batch": "K04",
+   "batch": "K03",
    "level": "EMU",
    "blocking": false,
    "text": "Android实际SQLite：受保护触发器、WAL、checkpoint并发。",
@@ -65,7 +65,7 @@
   {
    "item": "R31-B02-C02#A3b",
    "card": "R31-B02-C02",
-   "batch": "K04",
+   "batch": "K03",
    "level": "DEVICE",
    "blocking": false,
    "text": "设备事务时延（host sqlite结果不能代替）。",
@@ -76,7 +76,7 @@
   {
    "item": "R31-B03-C01#A2b",
    "card": "R31-B03-C01",
-   "batch": "K05",
+   "batch": "K04",
    "level": "DEVICE",
    "blocking": false,
    "text": "真机真实网络1000次测量分布。",
@@ -87,7 +87,7 @@
   {
    "item": "R31-B03-C02#A2b",
    "card": "R31-B03-C02",
-   "batch": "K05",
+   "batch": "K04",
    "level": "DEVICE",
    "blocking": false,
    "text": "设备/网络/正常资源条件下可预测覆盖≥99%。",
@@ -98,7 +98,7 @@
   {
    "item": "R31-B04-C02#A1",
    "card": "R31-B04-C02",
-   "batch": "K06",
+   "batch": "K04",
    "level": "DEVICE",
    "blocking": false,
    "text": "V2353A实际设备72小时：亮屏/熄屏/省电/断网/重连/滑掉任务/普通进程kill/force-stop/重启分别测试，并留adb/退出历史/逐期水位。",
@@ -109,7 +109,7 @@
   {
    "item": "R31-B04-C02#A2b",
    "card": "R31-B04-C02",
-   "batch": "K06",
+   "batch": "K04",
    "level": "DEVICE",
    "blocking": false,
    "text": "真机后台切换与stop行为。",
@@ -120,7 +120,7 @@
   {
    "item": "R31-B04-C02#A3",
    "card": "R31-B04-C02",
-   "batch": "K06",
+   "batch": "K04",
    "level": "DEVICE",
    "blocking": false,
    "text": "force-stop测试预期为停止且再打开恢复；不得把这个预期当缺陷跳过或虚报100%后台覆盖。",
@@ -131,7 +131,7 @@
   {
    "item": "R31-B05-C02#A2b",
    "card": "R31-B05-C02",
-   "batch": "K07",
+   "batch": "K04",
    "level": "DEVICE",
    "blocking": false,
    "text": "真机24h产物数量/bytes上界。",
@@ -142,7 +142,7 @@
   {
    "item": "R31-B05-C11#A3b",
    "card": "R31-B05-C11",
-   "batch": "K08",
+   "batch": "K04",
    "level": "DEVICE",
    "blocking": false,
    "text": "设备heap dominator无Activity/旧session滞留。",
@@ -153,7 +153,7 @@
   {
    "item": "R31-B05-C11#A5b",
    "card": "R31-B05-C11",
-   "batch": "K08",
+   "batch": "K04",
    "level": "DEVICE",
    "blocking": false,
    "text": "native/FD实测回到基线包络。",
@@ -164,7 +164,7 @@
   {
    "item": "R31-B05-C11#A6",
    "card": "R31-B05-C11",
-   "batch": "K08",
+   "batch": "K04",
    "level": "DEVICE",
    "blocking": false,
    "text": "ST-M06 72h OOM=0；对等负载live heap/PSS无持续增长，末24h等负载P95 live heap≤稳定首24h110%且不越动态高水位；未实测NOT_RUN",
@@ -175,7 +175,7 @@
   {
    "item": "R31-B06-C02#A3b",
    "card": "R31-B06-C02",
-   "batch": "K09",
+   "batch": "K05",
    "level": "DEVICE",
    "blocking": false,
    "text": "真机CPU吞吐、峰值内存、实时延迟达到性能门。",
@@ -186,7 +186,7 @@
   {
    "item": "R31-B06-C02#A4b",
    "card": "R31-B06-C02",
-   "batch": "K09",
+   "batch": "K05",
    "level": "DEVICE",
    "blocking": false,
    "text": "设备堆/native实测下降。",
@@ -197,7 +197,7 @@
   {
    "item": "R31-B07-C03#A3b",
    "card": "R31-B07-C03",
-   "batch": "K10",
+   "batch": "K06",
    "level": "DEVICE",
    "blocking": false,
    "text": "真机实时SLO不劣化。",
@@ -208,7 +208,7 @@
   {
    "item": "R31-B07-C06#A5",
    "card": "R31-B07-C06",
-   "batch": "K11",
+   "batch": "K06",
    "level": "NATURAL",
    "blocking": false,
    "text": "新功能只有独立自然未来质量与频率合同共同通过后才能宣称品质达标，工程可运行与自然有效分栏。",
@@ -219,7 +219,7 @@
   {
    "item": "R31-B05-C07#A3b",
    "card": "R31-B05-C07",
-   "batch": "K15",
+   "batch": "K09",
    "level": "DEVICE",
    "blocking": false,
    "text": "真机24h日志上界。",
@@ -230,7 +230,7 @@
   {
    "item": "R31-B05-C09#A2b",
    "card": "R31-B05-C09",
-   "batch": "K16",
+   "batch": "K09",
    "level": "DEVICE",
    "blocking": false,
    "text": "真机压力下实时冻结/结算延迟门。",
@@ -241,7 +241,7 @@
   {
    "item": "R31-B09-C02#A1b",
    "card": "R31-B09-C02",
-   "batch": "K17",
+   "batch": "K09",
    "level": "EMU",
    "blocking": false,
    "text": "UI中其余面板实际可见。",
@@ -252,7 +252,7 @@
   {
    "item": "R31-B09-C02#A2b",
    "card": "R31-B09-C02",
-   "batch": "K17",
+   "batch": "K09",
    "level": "EMU",
    "blocking": false,
    "text": "真实Activity切tab/后台/旋转100次无BadToken与泄漏。",
@@ -263,7 +263,7 @@
   {
    "item": "R31-B09-C02#A3",
    "card": "R31-B09-C02",
-   "batch": "K17",
+   "batch": "K09",
    "level": "DEVICE",
    "blocking": false,
    "text": "所有耗时目标由设备P95回执而非代码常量签收",
@@ -274,7 +274,7 @@
   {
    "item": "R31-B09-C05#A1b",
    "card": "R31-B09-C05",
-   "batch": "K18",
+   "batch": "K09",
    "level": "EMU",
    "blocking": false,
    "text": "47图渲染图证。",
@@ -285,7 +285,7 @@
   {
    "item": "R31-B09-C05#A2",
    "card": "R31-B09-C05",
-   "batch": "K18",
+   "batch": "K09",
    "level": "DEVICE",
    "blocking": false,
    "text": "设备截图数值与导出frame hash指向同一数据；单位/role/期范围不矛盾",
@@ -296,7 +296,7 @@
   {
    "item": "R31-B12-C01#A1b",
    "card": "R31-B12-C01",
-   "batch": "K20",
+   "batch": "K11",
    "level": "EMU",
    "blocking": false,
    "text": "Android覆盖安装后各切点杀进程恢复。",
@@ -307,7 +307,7 @@
   {
    "item": "R31-B12-C01#A2",
    "card": "R31-B12-C01",
-   "batch": "K20",
+   "batch": "K11",
    "level": "EMU",
    "blocking": false,
    "text": "覆盖安装后UI可启动，实时关键schema优先可用，旧历史训练资产可继续读。",
@@ -318,7 +318,7 @@
   {
    "item": "R31-B12-C02#A3b",
    "card": "R31-B12-C02",
-   "batch": "K20",
+   "batch": "K11",
    "level": "EMU",
    "blocking": false,
    "text": "Android全链故障注入矩阵（API29/35）。",
@@ -329,7 +329,7 @@
   {
    "item": "R31-B12-C05#A1b",
    "card": "R31-B12-C05",
-   "batch": "K21",
+   "batch": "K11",
    "level": "DEVICE",
    "blocking": false,
    "text": "设备安装身份与收据一致。",
@@ -340,7 +340,7 @@
   {
    "item": "R31-B12-C03#A1",
    "card": "R31-B12-C03",
-   "batch": "K21",
+   "batch": "K11",
    "level": "DEVICE",
    "blocking": false,
    "text": "总纲指标按明确分母与时点复算，所有异常样本保留。",
@@ -351,7 +351,7 @@
   {
    "item": "R31-B12-C03#A2",
    "card": "R31-B12-C03",
-   "batch": "K21",
+   "batch": "K11",
    "level": "DEVICE",
    "blocking": false,
    "text": "任务隔离没有永久静默停摆；停止/缺依赖有真实理由，满足恢复条件后推进。",
@@ -362,7 +362,7 @@
   {
    "item": "R31-B12-C03#A3",
    "card": "R31-B12-C03",
-   "batch": "K21",
+   "batch": "K11",
    "level": "DEVICE",
    "blocking": false,
    "text": "后两日增量与常态预算合格，或明示BLOCKED，不能发最终通过收据。",

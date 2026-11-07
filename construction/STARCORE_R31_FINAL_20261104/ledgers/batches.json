@@ -1,20 +1,46 @@
 {
- "version": "R31.3-CONSTRUCTION-20261105",
+ "version": "R31.4-MERGED-11-20261107",
  "scope": "CONSTRUCTION_BATCHES_NOT_APPLICATION_IMPLEMENTATION",
  "source_branch": "construction/r31-final-20261104",
  "resume_commit": "293bb23015e9ff694b4344aaf688cb4c1f6e356d",
- "rule": "批次序号=施工顺序；上一批RECEIPT提交后才开下一批。关门用棘轮：不得新增失败、本批负责的已知失败必须修好、LOCAL项绑定通过的测试（最多2项带红测试结转）；K20清零。",
+ "rule": "批次序号=施工顺序；上一批RECEIPT提交后才开下一批。关门用棘轮：不得新增失败、本批负责的已知失败必须修好、LOCAL项绑定通过的测试（最多2项带红测试结转）；K11清零。R31.4把R31.3的21批相邻合并为11批，卡片、验收原文、阈值不变。",
  "levels": {
   "LOCAL": "本地/CI确定性执行：JVM单元、HOST协议、静态检查、编译、lint。本批关门需绑定通过的测试（或按结转规则带红测试结转）。",
-  "EMU": "Android模拟器/Android SQLite仪器测试。只在K20集中执行；其余批次不阻塞，不得记PASS。",
+  "EMU": "Android模拟器/Android SQLite仪器测试。只在K11集中执行；其余批次不阻塞，不得记PASS。",
   "DEVICE": "真机/时长/设备时延/截图（V2353A、24h、72h、设备P95）。施工期DEFERRED，不阻塞，不得记PASS。",
   "NATURAL": "自然未来质量。永远不是施工门，只能NOT_PROVEN。"
  },
  "blocking_levels": [
   "LOCAL"
  ],
- "last_batch_for_known_failures_and_carries": "K20",
- "batch_count": 21,
+ "last_batch_for_known_failures_and_carries": "K11",
+ "legacy_batch_map": {
+  "R31.3-CONSTRUCTION-20261105": {
+   "K01": "K01",
+   "K02": "K02",
+   "K03": "K03",
+   "K04": "K03",
+   "K05": "K04",
+   "K06": "K04",
+   "K07": "K04",
+   "K08": "K04",
+   "K09": "K05",
+   "K10": "K06",
+   "K11": "K06",
+   "K12": "K07",
+   "K13": "K07",
+   "K14": "K08",
+   "K15": "K09",
+   "K16": "K09",
+   "K17": "K09",
+   "K18": "K09",
+   "K19": "K10",
+   "K20": "K11",
+   "K21": "K11"
+  }
+ },
+ "previous_version": "R31.3-CONSTRUCTION-20261105",
+ "batch_count": 11,
  "original_card_count": 56,
  "repair_card_count": 2,
  "batches": [
@@ -41,9 +67,7 @@
    "later_batches_touching_same_files": [
     "K02",
     "K03",
-    "K04",
-    "K06",
-    "K08"
+    "K04"
    ],
    "records_known_failure_baseline": true,
    "requires_zero_known_failures": false,
@@ -59,7 +83,7 @@
     "R31-B00-C02#A3"
    ],
    "deferred_items": [],
-   "note": "B00两卡源码已完成，S00的绑定可直接沿用。本批首次全量运行，把当时所有失败登记为“已知失败”，并给每条指定负责修复的批次（只能往后、最迟K20）。",
+   "note": "B00两卡源码已完成，S00的绑定可直接沿用。本批首次全量运行，把当时所有失败登记为“已知失败”，并给每条指定负责修复的批次（只能往后、最迟K11）。已于R31.3关门，R31.4不改本批。",
    "doc": "batches/K01.md"
   },
   {
@@ -91,10 +115,7 @@
    ],
    "later_batches_touching_same_files": [
     "K03",
-    "K04",
-    "K05",
-    "K06",
-    "K08"
+    "K04"
    ],
    "records_known_failure_baseline": false,
    "requires_zero_known_failures": false,
@@ -114,16 +135,20 @@
     "R31-B01-C02#A4"
    ],
    "deferred_items": [],
-   "note": "",
+   "note": "R31.4不改本批（与R31.3的K02完全相同）。",
    "doc": "batches/K02.md"
   },
   {
    "batch": "K03",
    "order": 3,
-   "name": "有限隔离恢复与可中断关闭",
+   "name": "有限隔离恢复与可中断关闭 + 写优先级、短事务、提交结果 + Certificate指纹",
    "cards": [
     "R31-B01-C03",
-    "R31-B01-C04"
+    "R31-B01-C04",
+    "R31-B02-C01",
+    "R31-B02-C02",
+    "R31-B02-C03",
+    "R31-ENG-01"
    ],
    "requires_closed": [
     "K02"
@@ -132,11 +157,17 @@
     "P01"
    ],
    "scope_files": [
+    "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+    "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+    "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/IncumbentLoopSU2.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedTaskR30R1.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java",
@@ -144,8 +175,8 @@
    ],
    "later_batches_touching_same_files": [
     "K04",
-    "K06",
-    "K08"
+    "K05",
+    "K11"
    ],
    "records_known_failure_baseline": false,
    "requires_zero_known_failures": false,
@@ -159,56 +190,7 @@
     "R31-B01-C04#A1a",
     "R31-B01-C04#A2",
     "R31-B01-C04#A3a",
-    "R31-B01-C04#A4"
-   ],
-   "deferred_items": [
-    "R31-B01-C03#A3b",
-    "R31-B01-C04#A1b",
-    "R31-B01-C04#A3b"
-   ],
-   "note": "",
-   "doc": "batches/K03.md"
-  },
-  {
-   "batch": "K04",
-   "order": 4,
-   "name": "写优先级、短事务、提交结果 + Certificate指纹",
-   "cards": [
-    "R31-B02-C01",
-    "R31-B02-C02",
-    "R31-B02-C03",
-    "R31-ENG-01"
-   ],
-   "requires_closed": [
-    "K03"
-   ],
-   "original_phases": [
-    "P01"
-   ],
-   "scope_files": [
-    "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
-    "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
-    "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java"
-   ],
-   "later_batches_touching_same_files": [
-    "K05",
-    "K06",
-    "K08",
-    "K09",
-    "K20"
-   ],
-   "records_known_failure_baseline": false,
-   "requires_zero_known_failures": false,
-   "emu_items_executed_here": false,
-   "release_identity_freeze": false,
-   "max_carried_items": 2,
-   "local_items": [
+    "R31-B01-C04#A4",
     "R31-B02-C01#A1",
     "R31-B02-C01#A2a",
     "R31-B02-C01#A3",
@@ -222,41 +204,69 @@
     "R31-ENG-01#A3"
    ],
    "deferred_items": [
+    "R31-B01-C03#A3b",
+    "R31-B01-C04#A1b",
+    "R31-B01-C04#A3b",
     "R31-B02-C01#A2b",
     "R31-B02-C02#A3a",
     "R31-B02-C02#A3b"
    ],
-   "note": "本批结束时，B01/B02相关HOST联合协议（write_protocol、task_runtime、writer_hold_fault、runtime_ddl、certificate_startup）不得在已知失败中由本批负责而仍失败。",
-   "doc": "batches/K04.md"
+   "note": "合并自R31.3的K03+K04（同属原P01）。按下列卡片顺序施工：先B01-C03/C04，再B02三卡与ENG-01。本批结束时，B01/B02相关HOST联合协议（write_protocol、task_runtime、writer_hold_fault、runtime_ddl、certificate_startup）不得在已知失败中由本批负责而仍失败。",
+   "doc": "batches/K03.md"
   },
   {
-   "batch": "K05",
-   "order": 5,
-   "name": "抓取、唯一冻结与结算解耦",
+   "batch": "K04",
+   "order": 4,
+   "name": "抓取、唯一冻结与结算解耦 + 研究健康与后台能力 + 存储普查、写前准入与报告清理 + 内存与缓存队列有界治理",
    "cards": [
     "R31-B03-C01",
     "R31-B03-C02",
-    "R31-B03-C03"
+    "R31-B03-C03",
+    "R31-B04-C01",
+    "R31-B04-C02",
+    "R31-B05-C01",
+    "R31-B05-C02",
+    "R31-B05-C03",
+    "R31-B05-C11"
    ],
    "requires_closed": [
-    "K04"
+    "K03"
    ],
    "original_phases": [
     "P02"
    ],
    "scope_files": [
+    "app/src/main/AndroidManifest.xml",
     "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
     "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
     "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+    "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
     "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+    "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
     "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
     "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+    "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
+    "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+    "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+    "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
     "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
     "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java"
+    "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+    "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+    "app/src/main/java/com/ethk3/novaonepro/StorageLedgerR31.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/BoundedResearchExecutorR31.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExecutionBudgetR26.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimePowerLeaseR26.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SharedFeatureStoreR31.java"
    ],
    "later_batches_touching_same_files": [
-    "K06"
+    "K09"
    ],
    "records_known_failure_baseline": false,
    "requires_zero_known_failures": false,
@@ -273,92 +283,12 @@
     "R31-B03-C02#A4",
     "R31-B03-C03#A1",
     "R31-B03-C03#A2",
-    "R31-B03-C03#A3"
-   ],
-   "deferred_items": [
-    "R31-B03-C01#A2b",
-    "R31-B03-C02#A2b"
-   ],
-   "note": "",
-   "doc": "batches/K05.md"
-  },
-  {
-   "batch": "K06",
-   "order": 6,
-   "name": "研究健康与后台能力",
-   "cards": [
-    "R31-B04-C01",
-    "R31-B04-C02"
-   ],
-   "requires_closed": [
-    "K05"
-   ],
-   "original_phases": [
-    "P02"
-   ],
-   "scope_files": [
-    "app/src/main/AndroidManifest.xml",
-    "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
-    "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
-    "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimePowerLeaseR26.java"
-   ],
-   "later_batches_touching_same_files": [],
-   "records_known_failure_baseline": false,
-   "requires_zero_known_failures": false,
-   "emu_items_executed_here": false,
-   "release_identity_freeze": false,
-   "max_carried_items": 2,
-   "local_items": [
+    "R31-B03-C03#A3",
     "R31-B04-C01#A1",
     "R31-B04-C01#A2",
     "R31-B04-C01#A3",
     "R31-B04-C02#A2a",
-    "R31-B04-C02#A4"
-   ],
-   "deferred_items": [
-    "R31-B04-C02#A1",
-    "R31-B04-C02#A2b",
-    "R31-B04-C02#A3"
-   ],
-   "note": "B04-C02多为真机项，本批只做本地可验部分。",
-   "doc": "batches/K06.md"
-  },
-  {
-   "batch": "K07",
-   "order": 7,
-   "name": "存储普查、写前准入与报告清理",
-   "cards": [
-    "R31-B05-C01",
-    "R31-B05-C02",
-    "R31-B05-C03"
-   ],
-   "requires_closed": [
-    "K06"
-   ],
-   "original_phases": [
-    "P02"
-   ],
-   "scope_files": [
-    "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
-    "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
-    "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
-    "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
-    "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
-    "app/src/main/java/com/ethk3/novaonepro/StorageLedgerR31.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java"
-   ],
-   "later_batches_touching_same_files": [
-    "K08",
-    "K15"
-   ],
-   "records_known_failure_baseline": false,
-   "requires_zero_known_failures": false,
-   "emu_items_executed_here": false,
-   "release_identity_freeze": false,
-   "max_carried_items": 2,
-   "local_items": [
+    "R31-B04-C02#A4",
     "R31-B05-C01#A1",
     "R31-B05-C01#A2",
     "R31-B05-C01#A3",
@@ -367,47 +297,7 @@
     "R31-B05-C02#A3",
     "R31-B05-C03#A1",
     "R31-B05-C03#A2",
-    "R31-B05-C03#A3"
-   ],
-   "deferred_items": [
-    "R31-B05-C02#A2b"
-   ],
-   "note": "",
-   "doc": "batches/K07.md"
-  },
-  {
-   "batch": "K08",
-   "order": 8,
-   "name": "内存与缓存队列有界治理",
-   "cards": [
-    "R31-B05-C11"
-   ],
-   "requires_closed": [
-    "K07"
-   ],
-   "original_phases": [
-    "P02"
-   ],
-   "scope_files": [
-    "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
-    "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/BoundedResearchExecutorR31.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExecutionBudgetR26.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SharedFeatureStoreR31.java"
-   ],
-   "later_batches_touching_same_files": [
-    "K17",
-    "K18"
-   ],
-   "records_known_failure_baseline": false,
-   "requires_zero_known_failures": false,
-   "emu_items_executed_here": false,
-   "release_identity_freeze": false,
-   "max_carried_items": 2,
-   "local_items": [
+    "R31-B05-C03#A3",
     "R31-B05-C11#A1",
     "R31-B05-C11#A2",
     "R31-B05-C11#A3a",
@@ -415,16 +305,22 @@
     "R31-B05-C11#A5a"
    ],
    "deferred_items": [
+    "R31-B03-C01#A2b",
+    "R31-B03-C02#A2b",
+    "R31-B04-C02#A1",
+    "R31-B04-C02#A2b",
+    "R31-B04-C02#A3",
+    "R31-B05-C02#A2b",
     "R31-B05-C11#A3b",
     "R31-B05-C11#A5b",
     "R31-B05-C11#A6"
    ],
-   "note": "",
-   "doc": "batches/K08.md"
+   "note": "合并自R31.3的K05+K06+K07+K08（同属原P02）。按B03三卡、B04两卡、B05-C01..C03、B05-C11顺序施工；B04-C02多为真机项，本批只做本地可验部分。",
+   "doc": "batches/K04.md"
   },
   {
-   "batch": "K09",
-   "order": 9,
+   "batch": "K05",
+   "order": 5,
    "name": "历史回放与模型状态共同提交",
    "cards": [
     "R31-B06-C01",
@@ -432,7 +328,7 @@
     "R31-B06-C03"
    ],
    "requires_closed": [
-    "K08"
+    "K04"
    ],
    "original_phases": [
     "P03"
@@ -450,7 +346,7 @@
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
    ],
    "later_batches_touching_same_files": [
-    "K11"
+    "K06"
    ],
    "records_known_failure_baseline": false,
    "requires_zero_known_failures": false,
@@ -475,40 +371,51 @@
     "R31-B06-C02#A3b",
     "R31-B06-C02#A4b"
    ],
-   "note": "",
-   "doc": "batches/K09.md"
+   "note": "原R31.3的K09（原P03单独成批：P04的卡必须在P03关门后才能开工）。",
+   "doc": "batches/K05.md"
   },
   {
-   "batch": "K10",
-   "order": 10,
-   "name": "家族保全、typed AST与创造预算",
+   "batch": "K06",
+   "order": 6,
+   "name": "家族保全、typed AST与创造预算 + 父子比较、工厂检出力与能力升级",
    "cards": [
     "R31-B07-C01",
     "R31-B07-C02",
-    "R31-B07-C03"
+    "R31-B07-C03",
+    "R31-B07-C04",
+    "R31-B07-C05",
+    "R31-B07-C06"
    ],
    "requires_closed": [
-    "K09"
+    "K05"
    ],
    "original_phases": [
     "P04"
    ],
    "scope_files": [
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/DirectedResearchPolicyR30R1.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertWorkshopR26.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelFoundryJobSU2.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveLoopSU2.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedReplayRunnerR30R1.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicySpecR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java"
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RegimeHypothesisR31.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCapabilityExperimentR31.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchHypothesisR31.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java"
    ],
    "later_batches_touching_same_files": [
-    "K11",
-    "K12",
-    "K14"
+    "K07",
+    "K08"
    ],
    "records_known_failure_baseline": false,
    "requires_zero_known_failures": false,
@@ -527,52 +434,7 @@
     "R31-B07-C03#A1",
     "R31-B07-C03#A2",
     "R31-B07-C03#A3a",
-    "R31-B07-C03#A4"
-   ],
-   "deferred_items": [
-    "R31-B07-C03#A3b"
-   ],
-   "note": "",
-   "doc": "batches/K10.md"
-  },
-  {
-   "batch": "K11",
-   "order": 11,
-   "name": "父子比较、工厂检出力与能力升级",
-   "cards": [
-    "R31-B07-C04",
-    "R31-B07-C05",
-    "R31-B07-C06"
-   ],
-   "requires_closed": [
-    "K10"
-   ],
-   "original_phases": [
-    "P04"
-   ],
-   "scope_files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/DirectedResearchPolicyR30R1.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedReplayRunnerR30R1.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RegimeHypothesisR31.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCapabilityExperimentR31.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchHypothesisR31.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java"
-   ],
-   "later_batches_touching_same_files": [
-    "K12",
-    "K14"
-   ],
-   "records_known_failure_baseline": false,
-   "requires_zero_known_failures": false,
-   "emu_items_executed_here": false,
-   "release_identity_freeze": false,
-   "max_carried_items": 2,
-   "local_items": [
+    "R31-B07-C03#A4",
     "R31-B07-C04#A1",
     "R31-B07-C04#A2",
     "R31-B07-C04#A3",
@@ -587,22 +449,25 @@
     "R31-B07-C06#A4"
    ],
    "deferred_items": [
+    "R31-B07-C03#A3b",
     "R31-B07-C06#A5"
    ],
-   "note": "",
-   "doc": "batches/K11.md"
+   "note": "合并自R31.3的K10+K11（同属原P04）。先B07-C01..C03，再B07-C04..C06。",
+   "doc": "batches/K06.md"
   },
   {
-   "batch": "K12",
-   "order": 12,
-   "name": "研究矩阵依赖、typed来源与融合研究",
+   "batch": "K07",
+   "order": 7,
+   "name": "研究矩阵依赖、typed来源与融合研究 + 研究产物数值合同与16逻辑表",
    "cards": [
     "R31-B08-C01",
     "R31-B08-C02",
-    "R31-B08-C03"
+    "R31-B08-C03",
+    "R31-B08-C04",
+    "R31-B08-C05"
    ],
    "requires_closed": [
-    "K11"
+    "K06"
    ],
    "original_phases": [
     "P04"
@@ -615,13 +480,17 @@
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedReplayRunnerR30R1.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGainR30R1.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchMeasureKindR31.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchMeasureProjectionR31.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyCheckpointR31.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java"
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java"
    ],
-   "later_batches_touching_same_files": [
-    "K13"
-   ],
+   "later_batches_touching_same_files": [],
    "records_known_failure_baseline": false,
    "requires_zero_known_failures": false,
    "emu_items_executed_here": false,
@@ -639,42 +508,7 @@
     "R31-B08-C03#A1",
     "R31-B08-C03#A2",
     "R31-B08-C03#A3",
-    "R31-B08-C03#A4"
-   ],
-   "deferred_items": [],
-   "note": "",
-   "doc": "batches/K12.md"
-  },
-  {
-   "batch": "K13",
-   "order": 13,
-   "name": "研究产物数值合同与16逻辑表",
-   "cards": [
-    "R31-B08-C04",
-    "R31-B08-C05"
-   ],
-   "requires_closed": [
-    "K12"
-   ],
-   "original_phases": [
-    "P04"
-   ],
-   "scope_files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchMeasureKindR31.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchMeasureProjectionR31.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java"
-   ],
-   "later_batches_touching_same_files": [],
-   "records_known_failure_baseline": false,
-   "requires_zero_known_failures": false,
-   "emu_items_executed_here": false,
-   "release_identity_freeze": false,
-   "max_carried_items": 2,
-   "local_items": [
+    "R31-B08-C03#A4",
     "R31-B08-C04#A1",
     "R31-B08-C04#A2",
     "R31-B08-C04#A3",
@@ -684,12 +518,12 @@
     "R31-B08-C05#A4"
    ],
    "deferred_items": [],
-   "note": "",
-   "doc": "batches/K13.md"
+   "note": "合并自R31.3的K12+K13（同属原P04）。先B08-C01..C03，再B08-C04/C05。",
+   "doc": "batches/K07.md"
   },
   {
-   "batch": "K14",
-   "order": 14,
+   "batch": "K08",
+   "order": 8,
    "name": "主链typed权威、资格合同与撤销闭环",
    "cards": [
     "R31-B10-C01",
@@ -697,7 +531,7 @@
     "R31-B10-C03"
    ],
    "requires_closed": [
-    "K13"
+    "K07"
    ],
    "original_phases": [
     "P05"
@@ -715,7 +549,7 @@
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java"
    ],
    "later_batches_touching_same_files": [
-    "K16"
+    "K09"
    ],
    "records_known_failure_baseline": false,
    "requires_zero_known_failures": false,
@@ -737,37 +571,58 @@
     "R31-B10-C03#A4"
    ],
    "deferred_items": [],
-   "note": "权威迁移完成后，K15/K16才允许任何破坏性清理。",
-   "doc": "batches/K14.md"
+   "note": "原R31.3的K14（原P05单独成批）：主链权威迁移关门后，K09才允许任何破坏性清理。",
+   "doc": "batches/K08.md"
   },
   {
-   "batch": "K15",
-   "order": 15,
-   "name": "保护迁移、引用闭包GC、CAS与事件有界",
+   "batch": "K09",
+   "order": 9,
+   "name": "保护迁移、引用闭包GC、CAS与事件有界 + 图表缓存迁移清理、WAL与旧库重建 + 47面板稳定ID、慢图隔离与缓存限额 + 证据口径统一与47图/16表回归",
    "cards": [
     "R31-B05-C04",
     "R31-B05-C05",
     "R31-B05-C06",
-    "R31-B05-C07"
+    "R31-B05-C07",
+    "R31-B05-C08",
+    "R31-B05-C09",
+    "R31-B05-C10",
+    "R31-B09-C01",
+    "R31-B09-C02",
+    "R31-B09-C03",
+    "R31-B09-C04",
+    "R31-B09-C05"
    ],
    "requires_closed": [
-    "K14"
+    "K08"
    ],
    "original_phases": [
     "P06"
    ],
    "scope_files": [
+    "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java",
+    "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+    "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
     "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
     "app/src/main/java/com/ethk3/novaonepro/EvidenceReachabilityR31.java",
+    "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
     "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveIoCP12.java",
     "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
     "app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java",
+    "app/src/main/java/com/ethk3/novaonepro/SourceReadLeaseR82.java",
+    "app/src/main/java/com/ethk3/novaonepro/StorageCheckpointR31.java",
     "app/src/main/java/com/ethk3/novaonepro/StorageGcR31.java",
+    "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
+    "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchFrameBoundR30R1.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java"
    ],
    "later_batches_touching_same_files": [
-    "K16"
+    "K10"
    ],
    "records_known_failure_baseline": false,
    "requires_zero_known_failures": false,
@@ -786,44 +641,7 @@
     "R31-B05-C06#A3",
     "R31-B05-C07#A1",
     "R31-B05-C07#A2",
-    "R31-B05-C07#A3a"
-   ],
-   "deferred_items": [
-    "R31-B05-C07#A3b"
-   ],
-   "note": "",
-   "doc": "batches/K15.md"
-  },
-  {
-   "batch": "K16",
-   "order": 16,
-   "name": "图表缓存迁移清理、WAL与旧库重建",
-   "cards": [
-    "R31-B05-C08",
-    "R31-B05-C09",
-    "R31-B05-C10"
-   ],
-   "requires_closed": [
-    "K15"
-   ],
-   "original_phases": [
-    "P06"
-   ],
-   "scope_files": [
-    "app/src/main/java/com/ethk3/novaonepro/SourceReadLeaseR82.java",
-    "app/src/main/java/com/ethk3/novaonepro/StorageCheckpointR31.java",
-    "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
-    "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java"
-   ],
-   "later_batches_touching_same_files": [],
-   "records_known_failure_baseline": false,
-   "requires_zero_known_failures": false,
-   "emu_items_executed_here": false,
-   "release_identity_freeze": false,
-   "max_carried_items": 2,
-   "local_items": [
+    "R31-B05-C07#A3a",
     "R31-B05-C08#A1",
     "R31-B05-C08#A2",
     "R31-B05-C08#A3",
@@ -832,49 +650,7 @@
     "R31-B05-C09#A3",
     "R31-B05-C10#A1",
     "R31-B05-C10#A2",
-    "R31-B05-C10#A3"
-   ],
-   "deferred_items": [
-    "R31-B05-C09#A2b"
-   ],
-   "note": "",
-   "doc": "batches/K16.md"
-  },
-  {
-   "batch": "K17",
-   "order": 17,
-   "name": "47面板稳定ID、慢图隔离与缓存限额",
-   "cards": [
-    "R31-B09-C01",
-    "R31-B09-C02",
-    "R31-B09-C03"
-   ],
-   "requires_closed": [
-    "K16"
-   ],
-   "original_phases": [
-    "P06"
-   ],
-   "scope_files": [
-    "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java",
-    "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
-    "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
-    "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchFrameBoundR30R1.java"
-   ],
-   "later_batches_touching_same_files": [
-    "K18",
-    "K19"
-   ],
-   "records_known_failure_baseline": false,
-   "requires_zero_known_failures": false,
-   "emu_items_executed_here": false,
-   "release_identity_freeze": false,
-   "max_carried_items": 2,
-   "local_items": [
+    "R31-B05-C10#A3",
     "R31-B09-C01#A1",
     "R31-B09-C01#A2",
     "R31-B09-C01#A3",
@@ -882,46 +658,7 @@
     "R31-B09-C02#A2a",
     "R31-B09-C03#A1",
     "R31-B09-C03#A2",
-    "R31-B09-C03#A3"
-   ],
-   "deferred_items": [
-    "R31-B09-C02#A1b",
-    "R31-B09-C02#A2b",
-    "R31-B09-C02#A3"
-   ],
-   "note": "",
-   "doc": "batches/K17.md"
-  },
-  {
-   "batch": "K18",
-   "order": 18,
-   "name": "证据口径统一与47图/16表回归",
-   "cards": [
-    "R31-B09-C04",
-    "R31-B09-C05"
-   ],
-   "requires_closed": [
-    "K17"
-   ],
-   "original_phases": [
-    "P06"
-   ],
-   "scope_files": [
-    "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
-    "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
-    "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java"
-   ],
-   "later_batches_touching_same_files": [
-    "K19"
-   ],
-   "records_known_failure_baseline": false,
-   "requires_zero_known_failures": false,
-   "emu_items_executed_here": false,
-   "release_identity_freeze": false,
-   "max_carried_items": 2,
-   "local_items": [
+    "R31-B09-C03#A3",
     "R31-B09-C04#A1",
     "R31-B09-C04#A2",
     "R31-B09-C04#A3",
@@ -930,15 +667,20 @@
     "R31-B09-C05#A3"
    ],
    "deferred_items": [
+    "R31-B05-C07#A3b",
+    "R31-B05-C09#A2b",
+    "R31-B09-C02#A1b",
+    "R31-B09-C02#A2b",
+    "R31-B09-C02#A3",
     "R31-B09-C05#A1b",
     "R31-B09-C05#A2"
    ],
-   "note": "",
-   "doc": "batches/K18.md"
+   "note": "合并自R31.3的K15+K16+K17+K18（同属原P06）。按B05-C04..C07、B05-C08..C10、B09-C01..C03、B09-C04/C05顺序施工。",
+   "doc": "batches/K09.md"
   },
   {
-   "batch": "K19",
-   "order": 19,
+   "batch": "K10",
+   "order": 10,
    "name": "44指标/96检查完整报告",
    "cards": [
     "R31-B11-C01",
@@ -947,7 +689,7 @@
     "R31-B11-C04"
    ],
    "requires_closed": [
-    "K18"
+    "K09"
    ],
    "original_phases": [
     "P07"
@@ -984,20 +726,22 @@
     "R31-B11-C04#A3"
    ],
    "deferred_items": [],
-   "note": "",
-   "doc": "batches/K19.md"
+   "note": "原R31.3的K19（原P07单独成批）。",
+   "doc": "batches/K10.md"
   },
   {
-   "batch": "K20",
-   "order": 20,
-   "name": "迁移恢复、统一CI故障注入、受控退役 + 全绿 + Android集中回归",
+   "batch": "K11",
+   "order": 11,
+   "name": "迁移恢复、统一CI故障注入、受控退役 + 全绿 + Android集中回归 + 发布冻结与成品交付",
    "cards": [
     "R31-B12-C01",
     "R31-B12-C02",
-    "R31-B12-C04"
+    "R31-B12-C04",
+    "R31-B12-C05",
+    "R31-B12-C03"
    ],
    "requires_closed": [
-    "K19"
+    "K10"
    ],
    "original_phases": [
     "P08"
@@ -1006,7 +750,11 @@
     ".github/workflows/r31-verification.yml",
     "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
     "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+    "release/R31_DELIVERY.json",
+    "tools/r31/accept_device_receipts.py",
+    "tools/r31/collect_device_receipts.py",
     "tools/r31/fault_injection_manifest.json",
+    "tools/r31/package_release.py",
     "tools/r31/retirement_manifest.json",
     "tools/r31/upgrade_matrix.py"
    ],
@@ -1014,7 +762,7 @@
    "records_known_failure_baseline": false,
    "requires_zero_known_failures": true,
    "emu_items_executed_here": true,
-   "release_identity_freeze": false,
+   "release_identity_freeze": true,
    "max_carried_items": 0,
    "local_items": [
     "R31-B12-C01#A1a",
@@ -1024,55 +772,22 @@
     "R31-B12-C02#A3a",
     "R31-B12-C04#A1",
     "R31-B12-C04#A2",
-    "R31-B12-C04#A3"
-   ],
-   "deferred_items": [
-    "R31-B12-C01#A1b",
-    "R31-B12-C01#A2",
-    "R31-B12-C02#A3b"
-   ],
-   "note": "本批关门要求：已知失败清零、所有结转项已兑现。EMU项在本批跑一次模拟器矩阵；环境不可用写NOT_RUN，不写PASS。",
-   "doc": "batches/K20.md"
-  },
-  {
-   "batch": "K21",
-   "order": 21,
-   "name": "发布冻结与成品交付",
-   "cards": [
-    "R31-B12-C05",
-    "R31-B12-C03"
-   ],
-   "requires_closed": [
-    "K20"
-   ],
-   "original_phases": [
-    "P08"
-   ],
-   "scope_files": [
-    "release/R31_DELIVERY.json",
-    "tools/r31/accept_device_receipts.py",
-    "tools/r31/collect_device_receipts.py",
-    "tools/r31/package_release.py"
-   ],
-   "later_batches_touching_same_files": [],
-   "records_known_failure_baseline": false,
-   "requires_zero_known_failures": true,
-   "emu_items_executed_here": false,
-   "release_identity_freeze": true,
-   "max_carried_items": 0,
-   "local_items": [
+    "R31-B12-C04#A3",
     "R31-B12-C05#A1a",
     "R31-B12-C05#A2",
     "R31-B12-C05#A3"
    ],
    "deferred_items": [
+    "R31-B12-C01#A1b",
+    "R31-B12-C01#A2",
+    "R31-B12-C02#A3b",
     "R31-B12-C05#A1b",
     "R31-B12-C03#A1",
     "R31-B12-C03#A2",
     "R31-B12-C03#A3"
    ],
-   "note": "只有本批做正式身份冻结、r982调用清单、签名和APK/ZIP；B12-C03全是真机时长项，登记DEFERRED，发布收据如实写NOT_RUN。",
-   "doc": "batches/K21.md"
+   "note": "合并自R31.3的K20+K21（同属原P08）。顺序强制：先完成B12-C01/C02/C04，已知失败清零、所有结转兑现，EMU项跑一次模拟器矩阵（环境不可用写NOT_RUN，不写PASS）；之后才做B12-C05的正式身份冻结、r982调用清单、签名和APK/ZIP。B12-C03全是真机时长项，登记DEFERRED，发布收据如实写NOT_RUN。",
+   "doc": "batches/K11.md"
   }
  ]
 }
