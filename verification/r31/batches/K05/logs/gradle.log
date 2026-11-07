@@ -15,7 +15,7 @@ To honour the JVM settings for this build a single-use Daemon process will be fo
 Daemon will be stopped at the end of the build 
 
 > Task :app:generateR27BuildIdentity
-R27_BUILD_IDENTITY_WRITTEN 42a813c18e9a554ab2bccdfba2b157e68de96f9b e9532b2fa65ca4c3701e2cccd76f6f58f0d48fea
+R27_BUILD_IDENTITY_WRITTEN 3a66c047bbbee3fa4a6e962db0c7dede0dc9acd1 4a89940afc35a3b32622f6f5919813cc44c23262
 
 > Task :app:verifyR31Baseline
 > Task :app:generateR31BuildIdentity
@@ -36,10 +36,10 @@ R967_SEMANTIC_IDENTITY_GENERATED|9ecfedca891f01b6d5405440735a7d91d124adc6b3a4bdc
 R967_SEMANTIC_IDENTITY_VERIFIED|9ecfedca891f01b6d5405440735a7d91d124adc6b3a4bdcf5ded992ed9974419
 
 > Task :app:generateR815Provenance
-R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=bb2eda877d904e93517ebd6cfc0a6bd86669660836c07e06c31b69b6bdb40d15|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=bd8080a17a30e792783ebc9c2a3515c5b638941edac663cf3dbe39e1dd2a29bd|GENERATED_AT=2026-11-07T12:22:56Z
+R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=bb2eda877d904e93517ebd6cfc0a6bd86669660836c07e06c31b69b6bdb40d15|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=bd8080a17a30e792783ebc9c2a3515c5b638941edac663cf3dbe39e1dd2a29bd|GENERATED_AT=2026-11-07T12:56:43Z
 
 > Task :app:verifyR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=bb2eda877d904e93517ebd6cfc0a6bd86669660836c07e06c31b69b6bdb40d15|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=bd8080a17a30e792783ebc9c2a3515c5b638941edac663cf3dbe39e1dd2a29bd|GENERATED_AT=2026-11-07T12:22:56Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=bb2eda877d904e93517ebd6cfc0a6bd86669660836c07e06c31b69b6bdb40d15|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=bd8080a17a30e792783ebc9c2a3515c5b638941edac663cf3dbe39e1dd2a29bd|GENERATED_AT=2026-11-07T12:56:43Z
 
 > Task :app:preBuild
 > Task :app:preDebugBuild
@@ -63,17 +63,17 @@ R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=bb2eda877d904e93517ebd6cfc0a6bd8666966083
 > Task :app:prepareRawUpstreamAndroidTestHarness
 > Task :app:checkDebugAndroidTestAarMetadata
 > Task :app:generateDebugAndroidTestResValues FROM-CACHE
+> Task :app:processDebugManifestForPackage
 > Task :app:mapDebugAndroidTestSourceSetPaths
 > Task :app:generateDebugAndroidTestResources
 > Task :app:preDebugUnitTestBuild
 > Task :app:javaPreCompileDebugUnitTest FROM-CACHE
 > Task :app:mergeDebugAndroidTestResources
 > Task :app:processDebugJavaRes NO-SOURCE
-> Task :app:processDebugManifestForPackage
-> Task :app:processDebugAndroidTestResources
 > Task :app:processDebugUnitTestJavaRes
 > Task :app:extractProguardFiles
 > Task :app:processDebugResources
+> Task :app:processDebugAndroidTestResources
 
 > Task :app:compileDebugJavaWithJavac
 /home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java:14: warning: [strictfp] as of release 17, all floating-point expressions are evaluated strictly and 'strictfp' is not required
@@ -93,7 +93,7 @@ Note: Recompile with -Xlint:unchecked for details.
 R967_SEMANTIC_IDENTITY_VERIFIED|9ecfedca891f01b6d5405440735a7d91d124adc6b3a4bdcf5ded992ed9974419
 
 > Task :app:verifyFinalR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=bb2eda877d904e93517ebd6cfc0a6bd86669660836c07e06c31b69b6bdb40d15|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=bd8080a17a30e792783ebc9c2a3515c5b638941edac663cf3dbe39e1dd2a29bd|GENERATED_AT=2026-11-07T12:22:56Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=bb2eda877d904e93517ebd6cfc0a6bd86669660836c07e06c31b69b6bdb40d15|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=bd8080a17a30e792783ebc9c2a3515c5b638941edac663cf3dbe39e1dd2a29bd|GENERATED_AT=2026-11-07T12:56:43Z
 
 > Task :app:compileDebugAndroidTestJavaWithJavac
 Note: Some input files use or override a deprecated API.
@@ -104,17 +104,10 @@ Note: Some input files use unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
 
 > Task :app:testDebugUnitTest
-
-R31AtomNetCompleteIssueConsumerTest > consumerSeesOnlyCompleteIssuesWhileCheckpointsAdvanceEveryPosition FAILED
-    java.lang.IllegalArgumentException at R31AtomNetCompleteIssueConsumerTest.java:37
-
-534 tests completed, 1 failed
-
-> Task :app:testDebugUnitTest FAILED
 > Task :app:generateDebugAndroidTestLintModel
 > Task :app:generateDebugUnitTestLintModel
-> Task :app:lintAnalyzeDebugUnitTest
 > Task :app:lintAnalyzeDebugAndroidTest
+> Task :app:lintAnalyzeDebugUnitTest
 > Task :app:lintAnalyzeDebug
 
 > Task :app:lintReportDebug
@@ -126,20 +119,11 @@ Lint found no new issues (and 51 errors filtered by baseline lint-baseline.xml)
 
 [Incubating] Problems report is available at: file:///home/runner/work/starcore-public-build/starcore-public-build/build/reports/problems/problems-report.html
 
-FAILURE: Build failed with an exception.
-
-* What went wrong:
-Execution failed for task ':app:testDebugUnitTest'.
-> There were failing tests. See the report at: file:///home/runner/work/starcore-public-build/starcore-public-build/app/build/reports/tests/testDebugUnitTest/index.html
-
-* Try:
-> Run with --scan to get full insights.
-
 Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
 
 You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
 
 For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD FAILED in 8m 33s
+BUILD SUCCESSFUL in 11m
 54 actionable tasks: 51 executed, 3 from cache
