@@ -10,10 +10,12 @@ import org.junit.Test;
  * UNSUPPORTED/UNKNOWN with the reason and never derives bytes from row counts or reports zero. */
 public final class R31SqliteSpaceUnavailableTest {
     @Test public void unavailableDbstatIsExplicitUnknownNotZeroOrRowEstimate() throws Exception {
-        Field unsafeField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe"); unsafeField.setAccessible(true);
-        sun.misc.Unsafe unsafe = (sun.misc.Unsafe) unsafeField.get(null);
+        // The Android unit-test classpath has no sun.misc at compile time; the host JDK provides it at run time.
+        Class<?> unsafeType = Class.forName("sun.misc.Unsafe");
+        Field unsafeField = unsafeType.getDeclaredField("theUnsafe"); unsafeField.setAccessible(true);
+        Object unsafe = unsafeField.get(null);
         // The JVM stub database answers no query (rawQuery yields no cursor): every probe is unavailable.
-        android.database.sqlite.SQLiteDatabase db = (android.database.sqlite.SQLiteDatabase) unsafe.allocateInstance(android.database.sqlite.SQLiteDatabase.class);
+        android.database.sqlite.SQLiteDatabase db = (android.database.sqlite.SQLiteDatabase) unsafeType.getMethod("allocateInstance", Class.class).invoke(unsafe, android.database.sqlite.SQLiteDatabase.class);
         Map<String, Object> space = StorageCensusSU2.sqliteSpace(db);
         assertEquals("UNSUPPORTED_OR_UNAVAILABLE", space.get("dbstatStatus"));
         assertNotNull("the unavailability reason is reported", space.get("dbstatReason"));
