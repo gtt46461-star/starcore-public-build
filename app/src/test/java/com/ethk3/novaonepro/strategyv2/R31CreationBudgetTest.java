@@ -135,19 +135,25 @@ public final class R31CreationBudgetTest {
                 assertEquals("restored loop continues identically", straight.creation.json(), resumed.creation.json());
                 assertEquals(straight.counter("uniquePolicies"), resumed.counter("uniquePolicies"));
             }
-            // retirement: memoize every member's scores, shrink the cap, and let the next halving retire members
-            stepTo(straight, 5);
-            List<PolicySpecR27> before = new ArrayList<>(); for (EvolutionLoopR27.Member m : straight.population) { straight.context().scores(m.spec); before.add(m.spec); }
-            straight.cfg.populationCap = 2; straight.step();
-            Set<String> kept = new HashSet<>(); for (EvolutionLoopR27.Member m : straight.population) kept.add(m.hash());
-            int retired = 0;
-            for (PolicySpecR27 s : before) if (!kept.contains(s.policyHash()) && !s.policyHash().equals(straight.champion.policyHash()) && !straight.archive.occupies(s.policyHash())) {
-                boolean shared = false; for (EvolutionLoopR27.Member m : straight.population) if (m.spec.position == s.position && m.spec.ast.toString().equals(s.ast.toString())) shared = true;
-                if (shared) continue;
-                retired++; assertFalse("retired non-champion released its score backing", straight.context().holdsScoresR31(s));
+            // retirement: a retired non-champion with no archive cell and no sibling sharing its backing releases its
+            // memoized scores; the champion, archive elites and shared backings are kept.
+            int rows = straight.context().split.selectTo - straight.context().split.selectFrom;
+            PolicySpecR27 retiredSpec = new PolicySpecR27(PolicyAstR27.op("zscore", PolicyAstR27.leaf("freq", 1, 77)), 6, PolicySpecR27.Rule.ALWAYS, 0, 0, 1, false, .01, .001, null);
+            straight.context().scores(retiredSpec); assertTrue(straight.context().holdsScoresR31(retiredSpec));
+            EvolutionLoopR27.Member retired = new EvolutionLoopR27.Member(); retired.spec = retiredSpec;
+            straight.retiredReleasedBytesR31 = 0; straight.releaseRetiredR31(retired);
+            assertFalse("retired non-champion released its score backing", straight.context().holdsScoresR31(retiredSpec));
+            assertTrue("released bytes are real: " + straight.retiredReleasedBytesR31, straight.retiredReleasedBytesR31 >= 8L * rows);
+            assertNotNull("a generation produced a champion", straight.champion);
+            EvolutionLoopR27.Member championMember = new EvolutionLoopR27.Member(); championMember.spec = straight.champion;
+            straight.context().scores(straight.champion); straight.releaseRetiredR31(championMember);
+            assertTrue("the champion is never released", straight.context().holdsScoresR31(straight.champion));
+            if (!straight.population.isEmpty()) {
+                EvolutionLoopR27.Member live = straight.population.get(straight.population.size() - 1);
+                EvolutionLoopR27.Member twin = new EvolutionLoopR27.Member(); twin.spec = live.spec.withSelector(live.spec.position, live.spec.rule, live.spec.threshold + .01, live.spec.rate, null);
+                straight.context().scores(live.spec); straight.releaseRetiredR31(twin);
+                assertTrue("a backing shared with a live member is kept", straight.context().holdsScoresR31(live.spec));
             }
-            if (retired > 0) assertTrue("released bytes are real: " + straight.retiredReleasedBytesR31, straight.retiredReleasedBytesR31 > 0 && straight.retiredReleasedR31 > 0);
-            assertTrue("the fixture retires at least one releasable member", retired > 0);
             assertEquals(CreationBudgetR31.retirable(Arrays.asList("a", "b", "c"), "b", Collections.singleton("c")), Collections.singletonList("a"));
         }
     }

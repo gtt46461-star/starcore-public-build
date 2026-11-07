@@ -65,18 +65,21 @@ public final class FamilyRegistryR26 {
         String dependency=dependencyR31(id);
         if(!dependency.isEmpty())return new AcceptanceR31(id,AcceptanceStatusR31.DEPENDENCY_NOT_READY,dependency,0,0,0,"");
         if(causal==null||causal.length<4)throw new IllegalArgumentException("R31_ACCEPTANCE_STREAM_TOO_SHORT");
-        long started=System.nanoTime();int split=causal.length/2,steps=0;
+        long started=System.nanoTime();int split=causal.length/2,steps=0;OnlineModelsSU2.Model original=null,restored=null;
         try{
-            OnlineModelsSU2.Model original=build(id);float[] state=new float[Math.max(1,original.stateWidth())];
+            original=build(id);float[] state=new float[Math.max(1,original.stateWidth())];
             for(int t=0;t<split;t++){stepR31(original,causal[t],state);steps++;}
             java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();original.write(new java.io.DataOutputStream(bytes));byte[] encoded=bytes.toByteArray();
-            OnlineModelsSU2.Model restored=build(id);java.io.DataInputStream in=new java.io.DataInputStream(new java.io.ByteArrayInputStream(encoded));restored.read(in);
+            restored=build(id);java.io.DataInputStream in=new java.io.DataInputStream(new java.io.ByteArrayInputStream(encoded));restored.read(in);
             if(in.available()!=0)return new AcceptanceR31(id,AcceptanceStatusR31.FAILED,"TRAILING_STATE_BYTES",steps,encoded.length,System.nanoTime()-started,"");
             float[] restoredState=state.clone();
             for(int t=split;t<causal.length;t++){if(!Arrays.equals(stepR31(original,causal[t],state),stepR31(restored,causal[t],restoredState)))return new AcceptanceR31(id,AcceptanceStatusR31.FAILED,"RESTORE_DIVERGED_AT_"+t,steps,encoded.length,System.nanoTime()-started,"");steps++;}
             return new AcceptanceR31(id,AcceptanceStatusR31.EXECUTED,"",steps,encoded.length,System.nanoTime()-started,StatsR27.sha256(encoded));
         }catch(RuntimeException|java.io.IOException failure){return new AcceptanceR31(id,AcceptanceStatusR31.FAILED,failure.getClass().getSimpleName()+":"+failure.getMessage(),steps,0,System.nanoTime()-started,"");}
+        finally{closeR31(original);closeR31(restored);}
     }
+    /** Acceptance instances own memory leases; they are released when the acceptance ends. */
+    static void closeR31(OnlineModelsSU2.Model model){if(model instanceof AutoCloseable)try{((AutoCloseable)model).close();}catch(Exception closeFailure){throw new IllegalStateException("R31_ACCEPTANCE_MODEL_CLOSE",closeFailure);}}
     public static CapabilityR31 capabilityR31(String id,AcceptanceR31 acceptance){
         if(acceptance==null||!acceptance.id.equals(id))throw new IllegalArgumentException("R31_ACCEPTANCE_FOR_OTHER_FAMILY");
         String abi=id.equals("F23")?"SU2_DRAW_10_POSITION_V1+LEGACY_REPORTED_PREFERENCE_PROJECTION_V1":"SU2_DRAW_10_POSITION_V1";

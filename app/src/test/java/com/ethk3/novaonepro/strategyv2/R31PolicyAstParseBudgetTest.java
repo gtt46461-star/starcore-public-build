@@ -19,7 +19,8 @@ public final class R31PolicyAstParseBudgetTest {
         return b.toString();
     }
     @Test public void deepHugeAndWideInputsAreTypedRefusalsBeforeRecursion() {
-        assertEquals("R31_AST_DEPTH_EXCEEDED", rejected(nested(100_000)));
+        assertEquals("a 100k-deep input (~700 KB) is refused by the byte limit before any recursion", "R31_AST_BYTES_EXCEEDED", rejected(nested(100_000)));
+        assertEquals("deep but small inputs are refused by depth before recursion", "R31_AST_DEPTH_EXCEEDED", rejected(nested(1_000)));
         assertEquals("R31_AST_DEPTH_EXCEEDED", rejected(nested(PolicyAstR27.IMPORT_MAX_DEPTH)));
         assertNotNull(PolicyAstR27.parse(nested(PolicyAstR27.IMPORT_MAX_DEPTH - 1)));
         StringBuilder huge = new StringBuilder("(add (freq 3 32) (gap 3)");

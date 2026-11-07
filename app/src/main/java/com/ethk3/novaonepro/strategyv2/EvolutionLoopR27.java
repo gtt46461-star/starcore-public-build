@@ -159,6 +159,14 @@ public final class EvolutionLoopR27 implements AutoCloseable {
     }
 
     private void stepInsideEvolution() {
+        // R31-B07-C03: a step that does not finish (resource wait, cancellation, fault) leaves the creation ledger
+        // exactly as persisted, so a retried step cannot double count attempts, admissions or credit.
+        Map<String, Object> creationBefore = creation.json();
+        try { stepSwitchR31(); } catch (RuntimeException | Error unfinished) { creation = CreationBudgetR31.restore(creationBefore); throw unfinished; }
+        step = step == 9 ? 1 : step + 1;
+        if (step == 1) generation++;
+    }
+    private void stepSwitchR31() {
         switch (step) {
             case 1: stepDataset(); break;
             case 2: stepBirth(); break;
@@ -171,8 +179,6 @@ public final class EvolutionLoopR27 implements AutoCloseable {
             case 9: stepMigrateAblate(); break;
             default: throw new IllegalStateException("R27_EVOLUTION_STEP:" + step);
         }
-        step = step == 9 ? 1 : step + 1;
-        if (step == 1) generation++;
     }
 
     void stepDataset() {
@@ -303,6 +309,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
     void stepReplay() {
         enterUseR31();try{stepReplayOwnedR31();}finally{leaveUseR31();}
     }
+    private final List<Pending> deferredThisReplayR31 = new ArrayList<>();
     private void stepReplayOwnedR31() {
         long t0 = System.nanoTime(); candidateReplayMs.clear();
         List<Pending> born = new ArrayList<>(); int rows = ctx.split.selectTo - ctx.split.selectFrom; long deferred = 0;
@@ -311,9 +318,17 @@ public final class EvolutionLoopR27 implements AutoCloseable {
             if (creation.admit(familyR31(p.spec), units)) { born.add(p); continue; }
             // R31-B07-C03: over the slice or the generation budget; deferred with its reason, never replayed now.
             p.state = "DEFERRED_CREATION_BUDGET"; p.reason = "R31_CREATION_BUDGET:units=" + units + ":spent=" + creation.spentThisGeneration() + "/" + creation.generationCostUnits; deferred++;
-            sink.policy(p.spec, "RETIRED", "R31_CREATION_BUDGET_DEFERRED:units=" + units, generation, ctx.data.datasetHash);
+            deferredThisReplayR31.add(p);
         }
+        try { replayAdmittedR31(born, t0); }
+        catch (RuntimeException | Error unfinished) { for (Pending p : deferredThisReplayR31) { p.state = "BORN"; p.reason = ""; } deferredThisReplayR31.clear(); throw unfinished; }
+        // Deferral records are written only once the step has completed (same sink transaction as the cursor).
+        for (Pending p : deferredThisReplayR31) sink.policy(p.spec, "RETIRED", "R31_CREATION_BUDGET_DEFERRED:" + p.reason.substring("R31_CREATION_BUDGET:".length()), generation, ctx.data.datasetHash);
+        deferredThisReplayR31.clear();
         genStats.put("creationDeferred", deferred); genStats.put("creationSpentUnits", creation.spentThisGeneration());
+        replayStatsR31(t0);
+    }
+    private void replayAdmittedR31(List<Pending> born, long t0) {
         // A parent continuation already owns its compute permit. The configured serial mode stays on that
         // research parent; executor saturation never falls back onto an arbitrary caller/realtime thread.
         if (executor == null || (serialWhile != null && serialWhile.getAsBoolean())) {
@@ -356,6 +371,8 @@ public final class EvolutionLoopR27 implements AutoCloseable {
                 for (java.util.concurrent.Future<?> future : inFlight) if (!future.isDone()) future.cancel(true);
             }
         }
+    }
+    private void replayStatsR31(long t0) {
         genStats.put("replayMs", (System.nanoTime() - t0) / 1_000_000L);
         List<Long> sorted; synchronized (candidateReplayMs) { sorted = new ArrayList<>(candidateReplayMs); }
         java.util.Collections.sort(sorted);

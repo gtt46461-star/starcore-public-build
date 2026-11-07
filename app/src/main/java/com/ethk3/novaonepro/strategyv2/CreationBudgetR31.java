@@ -65,7 +65,8 @@ public final class CreationBudgetR31 {
             if (reason != null && !reason.isEmpty()) { dependency.put(f, reason); out.put(f, 0); row(f); }
             else { dependency.remove(f); available.add(f); }
         }
-        int floor = Math.max(1, (int) Math.floor(minimum * (1 - pressure)));
+        // A configured zero minimum stays zero; a positive minimum shrinks under pressure but never below one.
+        int floor = minimum <= 0 ? 0 : Math.max(1, (int) Math.floor(minimum * (1 - pressure)));
         int budget = Math.max(floor * available.size(), (int) Math.floor(total * (1 - pressure)));
         for (String f : available) out.put(f, floor);
         int rest = budget - floor * available.size(); long creditSum = 0;

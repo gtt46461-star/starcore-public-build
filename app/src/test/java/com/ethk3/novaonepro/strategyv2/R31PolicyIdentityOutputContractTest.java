@@ -20,9 +20,14 @@ public final class R31PolicyIdentityOutputContractTest {
             new PolicySpecR27(mix, 7, PolicySpecR27.Rule.QUANTILE, 0, 0.3, 0.8, false, 0.005, 0.01, null),
             new PolicySpecR27(mix, 9, PolicySpecR27.Rule.RANDOM, 0, 0.4, 1, false, 0.01, 0.0, null));
     }
-    static EvalContextR27 context(ReplayDatasetR27 d) { return new EvalContextR27(new FeatureCacheR27(d), SplitR27.of(d, null), null); }
+    /** Context whose close also closes its feature cache (memory leases are returned after every test). */
+    static final class Owned implements AutoCloseable {
+        final FeatureCacheR27 cache; final EvalContextR27 ctx;
+        Owned(ReplayDatasetR27 d) { cache = new FeatureCacheR27(d); ctx = new EvalContextR27(cache, SplitR27.of(d, null), null); }
+        @Override public void close() { try { ctx.close(); } finally { cache.close(); } }
+    }
     @Test public void canonicalHashAndPredictionsSurviveSerializationAndBehaviorChangesChangeIdentity() {
-        try (EvalContextR27 ctx = context(ReplayDatasetR27.synthetic(2400, 31, new int[0]))) { identity(ctx); }
+        try (Owned o = new Owned(ReplayDatasetR27.synthetic(2400, 31, new int[0]))) { identity(o.ctx); }
     }
     private static void identity(EvalContextR27 ctx) {
         Set<String> hashes = new HashSet<>();
@@ -45,12 +50,12 @@ public final class R31PolicyIdentityOutputContractTest {
     }
     @Test public void outputsAreFiniteNormalizedSinglePositionK3OrAbstainAndIgnoreLaterLabels() {
         ReplayDatasetR27 d = ReplayDatasetR27.synthetic(2400, 47, new int[0]);
-        try (EvalContextR27 ctx = context(d)) { outputs(d, ctx); }
+        try (Owned o = new Owned(d)) { outputs(d, o.ctx); }
     }
     private static void outputs(ReplayDatasetR27 d, EvalContextR27 ctx) {
         int cut = ctx.split.selectFrom + (ctx.split.selectTo - ctx.split.selectFrom) / 2;
         int[][] later = d.draws.clone(); for (int t = cut; t < later.length; t++) later[t] = d.draws[t % 7].clone();
-        try (EvalContextR27 changed = context(d.withDraws(later))) { outputs(ctx, changed, cut); }
+        try (Owned changed = new Owned(d.withDraws(later))) { outputs(ctx, changed.ctx, cut); }
     }
     private static void outputs(EvalContextR27 ctx, EvalContextR27 changed, int cut) {
         for (PolicySpecR27 s : policies()) {
