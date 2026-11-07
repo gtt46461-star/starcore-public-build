@@ -15,7 +15,7 @@ To honour the JVM settings for this build a single-use Daemon process will be fo
 Daemon will be stopped at the end of the build 
 
 > Task :app:generateR27BuildIdentity
-R27_BUILD_IDENTITY_WRITTEN 2996a1ef8ea2a980dad538baf0ba71a71fb0d1a3 be341adb602ccbb3a28cdac7df326d2e800ae7bd
+R27_BUILD_IDENTITY_WRITTEN 958fbb7172ffe100971eef352df627dc5536cc6f 59ef61371c338c92acc25d0dddd38a1c5ba7dbf0
 
 > Task :app:verifyR31Baseline
 > Task :app:generateR31BuildIdentity
@@ -36,10 +36,10 @@ R967_SEMANTIC_IDENTITY_GENERATED|f1525cb37f92c6e6ad0b715e2032e56a23513c875a771e6
 R967_SEMANTIC_IDENTITY_VERIFIED|f1525cb37f92c6e6ad0b715e2032e56a23513c875a771e6d2a23ff007977398d
 
 > Task :app:generateR815Provenance
-R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=e2629d1645aad805f5d5906e3ef2ad29c0eac68c3f80a78cfa61f7455971dd0d|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=d40a4cc4edf5a0d0630bbdd877e88692ef669ca2f6753ef182f5e178abea1b12|GENERATED_AT=2026-11-07T11:02:51Z
+R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=e2629d1645aad805f5d5906e3ef2ad29c0eac68c3f80a78cfa61f7455971dd0d|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=d40a4cc4edf5a0d0630bbdd877e88692ef669ca2f6753ef182f5e178abea1b12|GENERATED_AT=2026-11-07T11:36:26Z
 
 > Task :app:verifyR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=e2629d1645aad805f5d5906e3ef2ad29c0eac68c3f80a78cfa61f7455971dd0d|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=d40a4cc4edf5a0d0630bbdd877e88692ef669ca2f6753ef182f5e178abea1b12|GENERATED_AT=2026-11-07T11:02:51Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=e2629d1645aad805f5d5906e3ef2ad29c0eac68c3f80a78cfa61f7455971dd0d|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=d40a4cc4edf5a0d0630bbdd877e88692ef669ca2f6753ef182f5e178abea1b12|GENERATED_AT=2026-11-07T11:36:26Z
 
 > Task :app:preBuild
 > Task :app:preDebugBuild
@@ -49,8 +49,8 @@ R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=e2629d1645aad805f5d5906e3ef2ad29c0eac68c3
 > Task :app:generateDebugResValues
 > Task :app:mapDebugSourceSetPaths
 > Task :app:generateDebugResources
-> Task :app:packageDebugResources
 > Task :app:mergeDebugResources
+> Task :app:packageDebugResources
 > Task :app:createDebugCompatibleScreenManifests
 > Task :app:extractDeepLinksDebug
 > Task :app:parseDebugLocalResources
@@ -93,7 +93,7 @@ Note: Recompile with -Xlint:unchecked for details.
 R967_SEMANTIC_IDENTITY_VERIFIED|f1525cb37f92c6e6ad0b715e2032e56a23513c875a771e6d2a23ff007977398d
 
 > Task :app:verifyFinalR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=e2629d1645aad805f5d5906e3ef2ad29c0eac68c3f80a78cfa61f7455971dd0d|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=d40a4cc4edf5a0d0630bbdd877e88692ef669ca2f6753ef182f5e178abea1b12|GENERATED_AT=2026-11-07T11:02:51Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=e2629d1645aad805f5d5906e3ef2ad29c0eac68c3f80a78cfa61f7455971dd0d|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=d40a4cc4edf5a0d0630bbdd877e88692ef669ca2f6753ef182f5e178abea1b12|GENERATED_AT=2026-11-07T11:36:26Z
 
 > Task :app:compileDebugAndroidTestJavaWithJavac
 Note: Some input files use or override a deprecated API.
@@ -106,8 +106,8 @@ Note: Recompile with -Xlint:unchecked for details.
 > Task :app:testDebugUnitTest
 > Task :app:generateDebugAndroidTestLintModel
 > Task :app:generateDebugUnitTestLintModel
-> Task :app:lintAnalyzeDebugUnitTest
 > Task :app:lintAnalyzeDebugAndroidTest
+> Task :app:lintAnalyzeDebugUnitTest
 > Task :app:lintAnalyzeDebug
 
 > Task :app:lintReportDebug
@@ -125,5 +125,5 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 8m 32s
+BUILD SUCCESSFUL in 10m 40s
 54 actionable tasks: 51 executed, 3 from cache
