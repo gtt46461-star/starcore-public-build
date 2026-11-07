@@ -236,6 +236,32 @@ public final class R31TaskRuntimeHost {
         need(claim("host-user-stop","owner-A")!=null,"explicit user start resumes the same task");
         System.out.println("R31_USER_STOP_NATIVE_HOST_PASS claims_after_stop=0 self_revival=false explicit_start_resumes=true");
     }
+    static byte[] replayStateR31(int seed){byte[] b=new byte[2048];for(int i=0;i<b.length;i++)b[i]=(byte)(i*17+seed);return b;}
+    /** R31-B06-C02#A2: faults after the artifact write but before commit, after commit before publish, and duplicate
+     * delivery never separate the cursor from the model steps; stale owners and changed input revisions are refused. */
+    static void replayCheckpointFaultInjection()throws Exception{
+        tx(()->{ReplayCheckpointR31.ensureSchemaR31(db);return 0;});Map<String,byte[]> artifacts=new HashMap<>();
+        ReplayCheckpointR31.Envelope first=ReplayCheckpointR31.prepare("host-replay","rev-1",64,64,replayStateR31(1));artifacts.put(first.stateHash,first.encoded());
+        need(tx(()->ReplayCheckpointR31.commitReference(db,first,"",1,1000))==ReplayCheckpointR31.Outcome.COMMITTED,"first checkpoint commits");
+        ReplayCheckpointR31.Envelope second=ReplayCheckpointR31.prepare("host-replay","rev-1",128,128,replayStateR31(2));artifacts.put(second.stateHash,second.encoded());
+        boolean killed=false;try{tx(()->{ReplayCheckpointR31.commitReference(db,second,first.stateHash,1,2000);throw new IllegalStateException("HOST_KILL_AFTER_ARTIFACT_BEFORE_COMMIT");});}catch(IllegalStateException expected){killed="HOST_KILL_AFTER_ARTIFACT_BEFORE_COMMIT".equals(expected.getMessage());}
+        ReplayCheckpointR31.Envelope restored=ReplayCheckpointR31.restore(db,"host-replay",artifacts::get);
+        need(killed&&restored.stateHash.equals(first.stateHash)&&restored.nextIndex==64&&restored.modelSteps==64,"uncommitted artifact is not published: cursor and steps stay together at the previous checkpoint");
+        need(!ReplayCheckpointR31.reachableStateHashes(db).contains(second.stateHash),"the unreferenced artifact is an orphan for reachability GC");
+        need(tx(()->ReplayCheckpointR31.commitReference(db,second,first.stateHash,1,3000))==ReplayCheckpointR31.Outcome.COMMITTED,"retry after the failed transaction commits once");
+        restored=ReplayCheckpointR31.restore(db,"host-replay",artifacts::get);
+        need(restored.stateHash.equals(second.stateHash)&&restored.nextIndex==128&&restored.modelSteps==128,"committed but unpublished reference is authoritative after restart");
+        for(int i=0;i<5;i++)need(tx(()->ReplayCheckpointR31.commitReference(db,second,first.stateHash,1,4000))==ReplayCheckpointR31.Outcome.REPLAYED,"duplicate delivery is a replay "+i);
+        need(n("SELECT model_steps FROM r31_replay_checkpoint WHERE owner='host-replay'")==128&&n("SELECT count(*) FROM r31_replay_checkpoint_receipt WHERE owner='host-replay'")==2,"duplicate delivery adds no training step or receipt");
+        ReplayCheckpointR31.Envelope stale=ReplayCheckpointR31.prepare("host-replay","rev-1",192,192,replayStateR31(3));
+        String staleCategory="";try{tx(()->ReplayCheckpointR31.commitReference(db,stale,first.stateHash,1,5000));}catch(ReplayCheckpointR31.Rejected expected){staleCategory=expected.category;}
+        need("STALE_OWNER".equals(staleCategory)&&FailureDispositionR31.classify(new ReplayCheckpointR31.Rejected(staleCategory,"x")).disposition==FailureDispositionR31.Disposition.STALE_OWNER,"an owner with a superseded previous state is refused");
+        ReplayCheckpointR31.Envelope revised=ReplayCheckpointR31.prepare("host-replay","rev-2",192,192,replayStateR31(4));
+        String revisedCategory="";try{tx(()->ReplayCheckpointR31.commitReference(db,revised,second.stateHash,1,6000));}catch(ReplayCheckpointR31.Rejected expected){revisedCategory=expected.category;}
+        need("DEPENDENCY".equals(revisedCategory),"a changed input revision invalidates the old identity instead of overwriting it");
+        need(text("SELECT state_hash FROM r31_replay_checkpoint WHERE owner='host-replay'").equals(second.stateHash),"refusals never change the committed reference");
+        System.out.println("R31_REPLAY_CHECKPOINT_FAULT_HOST_PASS before_commit=previous after_commit=committed duplicate=replayed stale=refused revision=invalidated orphan_unreachable=true");
+    }
     static void classificationsAndRecovery()throws Exception{
         class Typed extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure{
             final String category,outcome;Typed(String category,String outcome){super("HOST_TYPED");this.category=category;this.outcome=outcome;}
@@ -352,7 +378,7 @@ public final class R31TaskRuntimeHost {
             store=new DbStore(coordinator,db,new android.app.Application(file));pool=new ResearchPoolR27(store,"owner-A",2);
             record=Arrays.stream(ResearchPoolR27.class.getDeclaredMethods()).filter(method->method.getName().equals("record")).findFirst().orElseThrow();record.setAccessible(true);
             claimPrepared=Arrays.stream(ResearchPoolR27.class.getDeclaredMethods()).filter(method->method.getName().equals("claimPrepared")).findFirst().orElseThrow();claimPrepared.setAccessible(true);
-            staleAndClock();killPointsPublishExactlyOnce();ownerChangeIsTerminalForPrepared();classificationsAndRecovery();busyThirteen();thirteenMixedFailures();clockJumpReleasesOnePerSecond();twentyFourHourSchedule();tenThousandOwnerSwitches();sixtyMinuteWriterContention();hundredSessionsReleaseObjectsAndHandles();userStopNoNewWorkNoSelfRevival();actualPoolLoopRetainsHelperOwner();helperTermination();
+            staleAndClock();killPointsPublishExactlyOnce();ownerChangeIsTerminalForPrepared();classificationsAndRecovery();busyThirteen();thirteenMixedFailures();clockJumpReleasesOnePerSecond();twentyFourHourSchedule();tenThousandOwnerSwitches();sixtyMinuteWriterContention();hundredSessionsReleaseObjectsAndHandles();userStopNoNewWorkNoSelfRevival();replayCheckpointFaultInjection();actualPoolLoopRetainsHelperOwner();helperTermination();
             System.out.println("R31_TASK_RUNTIME_HOST_PASS assertions="+assertions+" scope=ACTUAL_PRODUCTION_METHODS_NATIVE_SQLITE_WITH_HOST_FAULT_CLOCK_PLATFORM_ADAPTERS_NOT_ANDROID_NOT_DEVICE_NOT_24H_NOT_72H_NOT_QUALITY");
         }
     }

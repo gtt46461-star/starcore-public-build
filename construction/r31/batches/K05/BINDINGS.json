@@ -1,0 +1,19 @@
+{
+ "items": {
+  "R31-B06-C01#A1": ["com.ethk3.novaonepro.strategyv2.R31ReplayInputIdentityTest#fixedFiveThousandRowIdentityIsStableAcrossRestartTailAndAppend", "com.ethk3.novaonepro.strategyv2.R27ReplayTest#datasetHashAndIncrementalAppend", "com.ethk3.novaonepro.strategyv2.R29ModelArtifactTest#rollingDatasetChangeDoesNotResetLearningState"],
+  "R31-B06-C01#A2": ["com.ethk3.novaonepro.strategyv2.R31ReplayInputIdentityTest#anyRevisionOfOneRowIsANewIdentity", "com.ethk3.novaonepro.strategyv2.R27ReplayTest#threeGapsGiveFourSegmentsAndCountedSkips", "HOST:run_task_runtime_host", "HOST:run_service_protocol_host"],
+  "R31-B06-C01#A3": ["com.ethk3.novaonepro.strategyv2.R30EvolutionConfirmIntegrationTest#roleAndLowLevelReadsAreRejectedBeforeAnyReservationDuringEvolution", "com.ethk3.novaonepro.strategyv2.R30EvolutionConfirmIntegrationTest#actualEvolutionCanRunWithUnreadableConfirmLabels", "com.ethk3.novaonepro.strategyv2.R30PitReplayInjectionTest#injectedTrainedThroughTargetIsRejectedAndRecorded"],
+  "R31-B06-C01#A4": ["HOST:verify_pin_capacity"],
+  "R31-B06-C02#A1": ["com.ethk3.novaonepro.strategyv2.R30ResumeTrainingTest#resumedTrainingEqualsUninterrupted", "com.ethk3.novaonepro.strategyv2.R30TenPositionTrainingTest#everyPretrainAndOnlineBoundaryResumesExactlyWithinOriginalBudget", "com.ethk3.novaonepro.strategyv2.R29ModelArtifactTest#completeStateRestoreProducesIdenticalNextUpdates", "HOST:run_atomnet_publication_host"],
+  "R31-B06-C02#A2": ["HOST:run_task_runtime_host", "com.ethk3.novaonepro.strategyv2.R31ReplayCheckpointEnvelopeTest#cursorAndStepsShareTheStateHash", "com.ethk3.novaonepro.strategyv2.R30ResumeTrainingTest#sameEventIsNotLearnedTwice", "HOST:run_atomnet_publication_host"],
+  "R31-B06-C02#A3a": ["com.ethk3.novaonepro.strategyv2.R31ReplayPerformanceGateTest#missingOrIncompleteReceiptKeepsBudget", "com.ethk3.novaonepro.strategyv2.R31ReplayPerformanceGateTest#hostMeasurementOrAnyMissedGateKeepsBudget", "com.ethk3.novaonepro.strategyv2.R31ReplayPerformanceGateTest#onlyACompleteDeviceReceiptMeetingEveryGateAllowsIncrease"],
+  "R31-B06-C02#A4a": ["com.ethk3.novaonepro.strategyv2.R31ReplayLibraryAccountingTest#retiredCandidateReleaseDropsReferencesAndBytesAndLedgerMatches", "com.ethk3.novaonepro.strategyv2.R31ReplayLibraryAccountingTest#evictionUnderTheByteCapKeepsTheLedgerExact"],
+  "R31-B06-C03#A1": ["com.ethk3.novaonepro.strategyv2.R31AtomNetCompleteIssueConsumerTest#consumerSeesOnlyCompleteIssuesWhileCheckpointsAdvanceEveryPosition", "com.ethk3.novaonepro.strategyv2.R31AtomNetCompleteIssueConsumerTest#restartInsidePartialIssueHasNoConsumableModelUntilItCompletes", "com.ethk3.novaonepro.strategyv2.R30TenPositionTrainingTest#everyPretrainAndOnlineBoundaryResumesExactlyWithinOriginalBudget"],
+  "R31-B06-C03#A2": ["com.ethk3.novaonepro.strategyv2.R31AtomNetCompleteIssueConsumerTest#consumerSeesOnlyCompleteIssuesWhileCheckpointsAdvanceEveryPosition"],
+  "R31-B06-C03#A3": ["com.ethk3.novaonepro.strategyv2.R31AtomNetCompleteIssueConsumerTest#consumerSeesOnlyCompleteIssuesWhileCheckpointsAdvanceEveryPosition", "HOST:run_atomnet_publication_host"],
+  "R31-B06-C03#A4": ["com.ethk3.novaonepro.strategyv2.R31AtomNetCompleteIssueConsumerTest#consumerSeesOnlyCompleteIssuesWhileCheckpointsAdvanceEveryPosition", "HOST:run_atomnet_publication_host"]
+ },
+ "scope_extensions": [
+  {"path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java", "reason": "B06-C03：消费者只读完整十位置模型后，forecast也只能在完整期状态下用同一发布模型出预测，避免pHit与发布模型不一致"}
+ ]
+}

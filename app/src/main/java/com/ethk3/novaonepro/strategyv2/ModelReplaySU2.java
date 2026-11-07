@@ -30,17 +30,39 @@ public final class ModelReplaySU2 {
         final DurableOutputs durable;
         public ModelGenomeSU2 bind(ModelGenomeSU2 g){if(WarmModelSeedR26.has(g))throw new IllegalArgumentException("R26_WARM_INITIALIZER_REQUIRED_FOR_REPLAY");return snapshotBinding==null?g:g.bindBirth(snapshotBinding,sourceThrough);}
         final LinkedHashMap<String, OnlineModelsSU2.Output> cache = new LinkedHashMap<>(16, .75f, true);
+        /** R31-B06-C02: the exact bytes charged per entry, so eviction and release subtract what admission added. */
+        final Map<String, Long> charged = new HashMap<>();
+        long hitsR31, missesR31, evictedR31, releasedR31;
+        private void chargeR31(String key, OnlineModelsSU2.Output o, long bytesCharged) { cache.put(key, o); charged.put(key, bytesCharged); bytes += bytesCharged; }
+        private void dropR31(String key) { cache.remove(key); Long b = charged.remove(key); if (b != null) bytes -= b; }
+        /** A retired candidate releases its shared-input outputs; returns the bytes actually released. */
+        public long releaseRetiredR31(ModelGenomeSU2.Member m) {
+            long before = bytes; String key = m.modelKey();
+            if (cache.containsKey(key)) { dropR31(key); releasedR31++; }
+            if (cache.containsKey(key + "|CAL")) { dropR31(key + "|CAL"); releasedR31++; }
+            return before - bytes;
+        }
+        /** Hit rate and byte accounting that can be checked against the entries themselves. */
+        public Map<String, Object> snapshotR31() {
+            Map<String, Object> out = new LinkedHashMap<>();
+            long sum = 0; for (long b : charged.values()) sum += b;
+            out.put("entries", cache.size()); out.put("chargedBytes", bytes); out.put("entryBytesSum", sum); out.put("byteCap", byteCap);
+            out.put("hits", hitsR31); out.put("misses", missesR31); out.put("evicted", evictedR31); out.put("releasedEntries", releasedR31);
+            long lookups = hitsR31 + missesR31; out.put("hitRate", lookups == 0 ? null : (double) hitsR31 / lookups);
+            return out;
+        }
         public Library(int[][] draws,long byteCap){this(draws,byteCap,null,0,null);}
         public Library(int[][] draws,long byteCap,String snapshot,long through,DurableOutputs durable){OnlineModelsSU2.requireDraws(draws);this.draws=draws;this.byteCap=byteCap;snapshotBinding=snapshot;sourceThrough=through;this.durable=durable;}
         public OnlineModelsSU2.Output get(ModelGenomeSU2.Member m) {
             if(WarmModelSeedR26.has(m.params))throw new IllegalArgumentException("R26_WARM_INITIALIZER_REQUIRED_FOR_REPLAY");
             String key = m.modelKey();
             OnlineModelsSU2.Output o = cache.get(key);
-            if (o != null) return o;
+            if (o != null) { hitsR31++; return o; }
+            missesR31++;
             o = durable==null?compute(draws,m.kind,m.params):durable.raw(m,draws);
-            cache.put(key, o); bytes += o.bytes();
+            chargeR31(key, o, o.bytes());
             Iterator<Map.Entry<String, OnlineModelsSU2.Output>> it = cache.entrySet().iterator();
-            while (bytes > byteCap && cache.size() > 1 && it.hasNext()) { Map.Entry<String, OnlineModelsSU2.Output> e = it.next(); if (e.getKey().equals(key)) continue; bytes -= e.getValue().bytes(); it.remove(); }
+            while (bytes > byteCap && cache.size() > 1 && it.hasNext()) { Map.Entry<String, OnlineModelsSU2.Output> e = it.next(); if (e.getKey().equals(key)) continue; Long b = charged.remove(e.getKey()); if (b != null) bytes -= b; it.remove(); evictedR31++; }
             return o;
         }
         final Map<Integer, float[][]> stateSeries = new HashMap<>();
@@ -50,12 +72,14 @@ public final class ModelReplaySU2 {
         public OnlineModelsSU2.Output getCal(ModelGenomeSU2.Member m) {
             String key = m.modelKey() + "|CAL";
             OnlineModelsSU2.Output o = cache.get(key);
-            if (o != null) return o;
+            if (o != null) { hitsR31++; return o; }
+            missesR31++;
             OnlineModelsSU2.Output raw = get(m);
             o = durable==null?new OnlineModelsSU2.Output(CalibrationSU2.calibrate(raw.p,draws),raw.state):durable.calibrated(m,draws,raw);
-            cache.put(key, o); bytes += (long) o.p.length * 400L;
+            // The calibrated table shares raw.state; only its own probability table is charged.
+            chargeR31(key, o, (long) o.p.length * 400L);
             Iterator<Map.Entry<String, OnlineModelsSU2.Output>> it = cache.entrySet().iterator();
-            while (bytes > byteCap && cache.size() > 2 && it.hasNext()) { Map.Entry<String, OnlineModelsSU2.Output> e = it.next(); if (e.getKey().equals(key) || e.getKey().equals(m.modelKey())) continue; bytes -= e.getValue().bytes(); it.remove(); }
+            while (bytes > byteCap && cache.size() > 2 && it.hasNext()) { Map.Entry<String, OnlineModelsSU2.Output> e = it.next(); if (e.getKey().equals(key) || e.getKey().equals(m.modelKey())) continue; Long b = charged.remove(e.getKey()); if (b != null) bytes -= b; it.remove(); evictedR31++; }
             return o;
         }
         public int[][] draws() { return draws; }

@@ -107,7 +107,7 @@ public final class AtomNetRuntimeR30 {
         if(recent.size()==0||recent.ordinals[recent.size()-1]+1!=targetOrdinal)return;
         ReplayDatasetR27 slot=recent.append(new ReplayDatasetR27.Row(target,targetOrdinal,new int[]{1,2,3,4,5,6,7,8,9,10}));
         AtomReplayR27.Frame frame=AtomReplayR27.build(slot,slot.size()-1,slot.size());
-        RuntimeR27.AtomPublicationR30 publication=rt.atomPublicationR30;if(publication==null||publication.state!=state||publication.model==null)return;
+        RuntimeR27.AtomPublicationR30 publication=rt.atomPublicationR30;if(publication==null||publication.state!=state||publication.model==null||!state.consumableR31())return; // R31-B06-C03: forecasts only from a complete ten-position model
         ModelSurfaceProviderR30.FrozenModelRef modelRef=publication.model;
         String modelHash=modelRef.modelHash;long at=System.currentTimeMillis();ResearchWriteQueueR27.Batch batch=new ResearchWriteQueueR27.Batch();
         OnlineResearchWindowR30R1.Window researchWindow=OnlineResearchWindowR30R1.find(w.ro,state.datasetHash,targetOrdinal);

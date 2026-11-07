@@ -65,7 +65,7 @@ with tempfile.TemporaryDirectory(prefix="r31-production-runtime-") as temporary:
         shim_files.append(target)
     run(["javac", "-nowarn", "-encoding", "UTF-8", "-cp", str(SDK) + os.pathsep + str(CLASSES), "-d", platform, *shim_files])
     production_names = ["DatabaseCoordinator", "TransactionSchemaCacheR941", "SchemaDomainCoordinatorR926"]
-    production_names += ["strategyv2/" + name for name in ["FailureDispositionR31", "RuntimeFaultEvidenceR31", "WaitKindR27", "SchemaR27", "RuntimeCoordinatorR26", "ResearchPoolR27", "PreparedTaskR30R1", "CooperativeContinuationR26", "ResearchWriteQueueR27","MemoryBudgetR31","BoundedResearchExecutorR31","SharedFeatureStoreR31","FeatureCacheR27","PolicyAstR27","RuntimeSchemaR26","TaskContinuationR26","LegacyGenerationR26","LegacyReplayContinuationR26"]]
+    production_names += ["strategyv2/" + name for name in ["ReplayCheckpointR31","FailureDispositionR31", "RuntimeFaultEvidenceR31", "WaitKindR27", "SchemaR27", "RuntimeCoordinatorR26", "ResearchPoolR27", "PreparedTaskR30R1", "CooperativeContinuationR26", "ResearchWriteQueueR27","MemoryBudgetR31","BoundedResearchExecutorR31","SharedFeatureStoreR31","FeatureCacheR27","PolicyAstR27","RuntimeSchemaR26","TaskContinuationR26","LegacyGenerationR26","LegacyReplayContinuationR26"]]
     production_paths={name:MAIN/(name+".java") for name in production_names}
     # An explicit isolated source override supports the recorded Android failure
     # negative control. It never edits the checkout or becomes an APK input.

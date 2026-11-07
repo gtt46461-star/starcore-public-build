@@ -45,7 +45,14 @@ public final class RuntimeR27 implements AutoCloseable {
                 || (persisted != null && (persisted.trainedThroughOrdinal != state.trainedThroughOrdinal()
                 || !persisted.weightsHash.equals(StatsR27.sha256(state.trainer.net.encode())))))
             throw new IllegalArgumentException("R31_ATOM_PUBLICATION_STATE_MISMATCH");
-        atomPublicationR30 = new AtomPublicationR30(state, persisted);
+        // R31-B06-C03: the durable checkpoint advances every position (resume), but consumers only see a model whose
+        // ten positions of an issue are all committed. A partial issue keeps the previous complete model (or none).
+        ModelSurfaceProviderR30.FrozenModelRef consumable = persisted;
+        if (persisted != null && !state.consumableR31()) {
+            AtomPublicationR30 prior = atomPublicationR30;
+            consumable = prior == null ? null : prior.model;
+        }
+        atomPublicationR30 = new AtomPublicationR30(state, consumable);
         atomSessionR30 = state;
     }
     volatile AtomNetSessionR30 atomSessionR30; ReplayDatasetR27 atomDataR30; long atomUnitsR30;
