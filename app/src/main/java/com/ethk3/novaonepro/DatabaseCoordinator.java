@@ -1577,36 +1577,13 @@ public final class DatabaseCoordinator {
         if(attempt==null||attempt.outcome==CommitOutcome.ROLLED_BACK){lastRollbackAt=System.currentTimeMillis();rollbackCount++;}
     }
 
+    /** Android SQLite adapter for the shared R31 cause-chain rule. Typed rejections keep their category;
+     * SQLiteDatabaseLocked/TableLocked/Busy map to LOCK_BUSY, Full to DISK_FULL, Corrupt to DB_CORRUPT and
+     * Constraint to INTEGRITY by explicit type name inside FailureDispositionR31, so R26, R27, direct research
+     * writes and task claims classify one root cause identically. */
     public static String failureCategoryR31(Throwable error) {
         if(error instanceof WriteRejectedR31)return ((WriteRejectedR31)error).category;
-        String deferred="BUG",declared=null;
-        java.util.Set<Throwable> visited=Collections.newSetFromMap(new java.util.IdentityHashMap<Throwable,Boolean>());
-        for(Throwable cause=error;cause!=null&&visited.size()<32&&visited.add(cause);cause=cause.getCause()) {
-            String name=cause.getClass().getSimpleName(),message=String.valueOf(cause.getMessage()).toUpperCase(Locale.ROOT);
-            if(name.contains("SQLiteFull")||message.contains("SQLITE_FULL")||message.contains("DATABASE OR DISK IS FULL"))return "DISK_FULL";
-            if(name.contains("Corrupt")||message.contains("SQLITE_CORRUPT")||message.contains("DATABASE DISK IMAGE IS MALFORMED"))return "DB_CORRUPT";
-            if(name.contains("Constraint")||message.contains("CONSTRAINT FAILED")||message.contains("INTEGRITY_CONFLICT"))return "INTEGRITY";
-            if(declared==null&&cause instanceof com.ethk3.novaonepro.strategyv2.FailureDispositionR31.ClassifiedFailure){
-                String category=((com.ethk3.novaonepro.strategyv2.FailureDispositionR31.ClassifiedFailure)cause).failureCategory();
-                // A producer's typed failure survives wrapping. Incidental message text cannot turn
-                // a dependency/integrity rejection into lock retry; real SQLite fatal errors above win.
-                switch(category==null?"":category){
-                    case "LOCK_BUSY":case "TEMP_TIMEOUT":case "CANCELLED":case "STALE_OWNER":
-                    case "DEPENDENCY":case "DISK_FULL":case "DB_CORRUPT":case "INTEGRITY":case "BUG":declared=category;break;
-                    default:declared="BUG";
-                }
-            }
-            if(cause instanceof InterruptedException||cause instanceof java.util.concurrent.CancellationException||message.contains("CANCELLED")||message.contains("WAIT_INTERRUPTED"))deferred="CANCELLED";
-            else if(message.contains("STALE_OWNER")||message.contains("STALE_FENCE")||message.contains("FENCE_LOST")||message.contains("OWNER_MISMATCH")||message.startsWith("R31_STALE_")||message.startsWith("R30_PREPARED_OWNER_CHANGED"))deferred="STALE_OWNER";
-            else if(name.contains("SQLiteDatabaseLocked")||name.contains("SQLiteTableLocked")||message.contains("DATABASE IS LOCKED")||message.contains("DATABASE TABLE IS LOCKED")||message.contains("CP3_DB_BUSY_")) {
-                if("BUG".equals(deferred))deferred="LOCK_BUSY";
-            } else if(message.contains("DEPENDENCY")||message.contains("SCHEMA_PENDING")||message.contains("NO SUCH TABLE")||message.contains("NO SUCH COLUMN")
-                    ||message.startsWith("MATRIX_ORIGINAL_STUDENT_UNAVAILABLE")||message.startsWith("MISSING_TEACHER")||message.startsWith("R31_COMPUTE_CAPACITY")
-                    ||message.startsWith("R31_CONTINUATION_CANCELLING")||message.startsWith("R31_CONTINUATION_SLICE_IN_FLIGHT")||message.startsWith("R26_UNSLICED_COMPUTATION_CAPACITY")||message.startsWith("R31_PREVIOUS_OWNER_DRAINING")||name.endsWith("CapacityUnavailable")) {
-                if("BUG".equals(deferred))deferred="DEPENDENCY";
-            } else if(cause instanceof java.util.concurrent.TimeoutException&&"BUG".equals(deferred))deferred="TEMP_TIMEOUT";
-        }
-        return declared==null?deferred:declared;
+        return com.ethk3.novaonepro.strategyv2.FailureDispositionR31.rootCategoryR31(error);
     }
     private static boolean isLocked(Throwable error) {
         if(error instanceof WriteRejectedR31&&((WriteRejectedR31)error).commitOutcome==CommitOutcome.UNKNOWN)return false;

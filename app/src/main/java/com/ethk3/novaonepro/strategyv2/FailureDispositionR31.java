@@ -26,50 +26,75 @@ public final class FailureDispositionR31 {
     public static Decision classify(Throwable failure) {
         if (failure == null) return new Decision(Disposition.RETRY_LATER, "NO_FAILURE", "NOT_APPLICABLE", false, false);
         if(processFatalCause(failure)!=null)return new Decision(Disposition.FATAL,"PROCESS_FATAL","UNKNOWN",false,false);
-        IdentityHashMap<Throwable, Boolean> seen = new IdentityHashMap<>();
-        Decision result = null; Throwable current = failure;
-        for (int i = 0; current != null && i < 16 && !seen.containsKey(current); i++) {
-            seen.put(current, Boolean.TRUE);
-            if (current instanceof VirtualMachineError || current instanceof ThreadDeath || current instanceof LinkageError)
-                return new Decision(Disposition.FATAL, "PROCESS_FATAL", "UNKNOWN", false, false);
-            if (current instanceof ClassifiedFailure) {
-                ClassifiedFailure typed = (ClassifiedFailure) current;
-                String outcome = typed.commitOutcomeName();
-                if ("COMMITTED".equals(outcome) || "COMMITTED_DIAGNOSTIC_FAILED".equals(outcome))
-                    return new Decision(Disposition.DEPENDENCY, "COMMITTED_ACK_RECOVERY", outcome, false, true);
-                if ("UNKNOWN".equals(outcome))
-                    return new Decision(Disposition.DEPENDENCY, "COMMIT_RESOLUTION_REQUIRED", outcome, true, false);
-                String physical = physicalCauseCategoryR31(failure);
-                result = category(physical == null ? typed.failureCategory() : physical, outcome);
-                // Physical storage failures refine the category; the typed owner still owns the outcome.
-                return result;
-            }
-            String name = current.getClass().getName(), message = String.valueOf(current.getMessage());
-            if (current instanceof InterruptedException || current instanceof java.util.concurrent.CancellationException
-                    || message.equals("R27_CANCELLED") || message.equals("R26_CONTINUATION_CANCELLED"))
-                result = category("CANCELLED", "NOT_SUBMITTED");
-            else if (current instanceof java.util.concurrent.TimeoutException) result = category("TEMP_TIMEOUT", "NOT_SUBMITTED");
-            else if (name.endsWith("SQLiteFullException")) result = category("DISK_FULL", "ROLLED_BACK");
-            else if (name.endsWith("SQLiteDatabaseCorruptException")) result = category("DB_CORRUPT", "UNKNOWN");
-            else if (name.endsWith("SQLiteConstraintException")) result = category("INTEGRITY", "ROLLED_BACK");
-            else if (name.endsWith("SQLiteDatabaseLockedException") || name.endsWith("SQLiteTableLockedException")
-                    || name.endsWith("SQLiteBusyException") || message.startsWith("CP3_DB_BUSY_")
-                    || message.startsWith("R909_BACKGROUND_WRITER_YIELD")) result = category("LOCK_BUSY", "NOT_SUBMITTED");
-            else if (message.startsWith("R26_STALE_FENCE") || message.startsWith("R31_STALE_")
-                    || message.startsWith("R30_PREPARED_OWNER_CHANGED")) result = category("STALE_OWNER", "NOT_SUBMITTED");
-            else if(message.startsWith("RESOURCE_WAIT:MEMORY_CANCELLED")||message.startsWith("R31_MEMORY_CAPACITY_WAIT:CANCELLED")||message.startsWith("QUEUE_CAPACITY_WAIT:MEMORY_CANCELLED"))result=category("CANCELLED","NOT_SUBMITTED");
-            else if(message.startsWith("R31_MEMORY_CAPACITY_WAIT")||message.startsWith("RESOURCE_WAIT:MEMORY_"))result=new Decision(Disposition.DEPENDENCY,"RESOURCE_MEMORY","NOT_SUBMITTED",false,false);
-            else if(message.startsWith("QUEUE_CAPACITY_WAIT")||name.endsWith("QueueCapacityWait"))result=new Decision(Disposition.DEPENDENCY,"RESOURCE_QUEUE","NOT_SUBMITTED",false,false);
-            else if (message.startsWith("MATRIX_ORIGINAL_STUDENT_UNAVAILABLE") || message.startsWith("MISSING_TEACHER")
-                    || message.contains("SCHEMA_PENDING") || message.startsWith("R31_COMPUTE_CAPACITY")
-                    || message.startsWith("R31_CONTINUATION_CANCELLING") || message.startsWith("R31_CONTINUATION_SLICE_IN_FLIGHT")
-                    || message.startsWith("R26_UNSLICED_COMPUTATION_CAPACITY") || message.startsWith("R31_PREVIOUS_OWNER_DRAINING")
-                    || name.endsWith("CapacityUnavailable")) result = category("DEPENDENCY", "NOT_SUBMITTED");
-            current = current.getCause();
+        ClassifiedFailure typed=firstTypedR31(failure);
+        if (typed != null) {
+            String outcome = typed.commitOutcomeName();
+            if ("COMMITTED".equals(outcome) || "COMMITTED_DIAGNOSTIC_FAILED".equals(outcome))
+                return new Decision(Disposition.DEPENDENCY, "COMMITTED_ACK_RECOVERY", outcome, false, true);
+            if ("UNKNOWN".equals(outcome))
+                return new Decision(Disposition.DEPENDENCY, "COMMIT_RESOLUTION_REQUIRED", outcome, true, false);
+            String physical = physicalCauseCategoryR31(failure);
+            // Physical storage failures refine the category; the typed owner still owns the outcome.
+            return category(physical == null ? typed.failureCategory() : physical, outcome);
         }
-        String physical = physicalCauseCategoryR31(failure);
-        if (physical != null) return category(physical, "DB_CORRUPT".equals(physical) ? "UNKNOWN" : "ROLLED_BACK");
-        return result == null ? category("BUG", "UNOBSERVED") : result;
+        String root=rootCategoryR31(failure);
+        String outcome;
+        switch(root){
+            case "DISK_FULL":case "INTEGRITY":outcome="ROLLED_BACK";break;
+            case "DB_CORRUPT":outcome="UNKNOWN";break;
+            case "BUG":outcome="UNOBSERVED";break;
+            default:outcome="NOT_SUBMITTED";
+        }
+        return category(root,outcome);
+    }
+    /** The one bounded cause-chain category shared by the R26 entry, the R27 pool, direct research writes,
+     * task claims and the DatabaseCoordinator adapter. Precedence: physical storage failure, then the first
+     * typed producer category, then cancellation, then stale owner, then the outermost transient/dependency
+     * cause. A cause chain without an explicit category is a BUG; no blanket IllegalStateException retry. */
+    public static String rootCategoryR31(Throwable failure){
+        if(failure==null)return "BUG";
+        String physical=physicalCauseCategoryR31(failure);if(physical!=null)return physical;
+        String declared=null,cancelled=null,stale=null,other=null;
+        IdentityHashMap<Throwable,Boolean> seen=new IdentityHashMap<>();
+        for(Throwable cause=failure;cause!=null&&seen.size()<16&&seen.put(cause,Boolean.TRUE)==null;cause=cause.getCause()){
+            if(declared==null&&cause instanceof ClassifiedFailure)declared=declaredCategoryR31(((ClassifiedFailure)cause).failureCategory());
+            String own=ownCategoryR31(cause);
+            if(own==null)continue;
+            if(own.equals("CANCELLED"))cancelled=own;else if(own.equals("STALE_OWNER"))stale=own;else if(other==null)other=own;
+        }
+        if(declared!=null)return declared;
+        if(cancelled!=null)return cancelled;
+        if(stale!=null)return stale;
+        return other==null?"BUG":other;
+    }
+    private static ClassifiedFailure firstTypedR31(Throwable failure){
+        IdentityHashMap<Throwable,Boolean> seen=new IdentityHashMap<>();
+        for(Throwable cause=failure;cause!=null&&seen.size()<16&&seen.put(cause,Boolean.TRUE)==null;cause=cause.getCause())
+            if(cause instanceof ClassifiedFailure)return (ClassifiedFailure)cause;
+        return null;
+    }
+    private static String declaredCategoryR31(String category){
+        switch(category==null?"":category){
+            case "LOCK_BUSY":case "TEMP_TIMEOUT":case "CANCELLED":case "STALE_OWNER":case "DEPENDENCY":case "RESOURCE_MEMORY":case "RESOURCE_QUEUE":
+            case "DISK_FULL":case "DB_CORRUPT":case "INTEGRITY":case "BUG":return category;
+            default:return "BUG";
+        }
+    }
+    /** Category of one throwable on its own (no cause walk). Explicit names and messages only. */
+    private static String ownCategoryR31(Throwable cause){
+        String name=cause.getClass().getName(),simple=cause.getClass().getSimpleName(),message=String.valueOf(cause.getMessage()).toUpperCase(java.util.Locale.ROOT);
+        if(cause instanceof InterruptedException||cause instanceof java.util.concurrent.CancellationException||message.contains("CANCELLED")||message.contains("WAIT_INTERRUPTED"))return "CANCELLED";
+        if(message.contains("STALE_OWNER")||message.contains("STALE_FENCE")||message.contains("FENCE_LOST")||message.contains("OWNER_MISMATCH")||message.startsWith("R31_STALE_")||message.startsWith("R30_PREPARED_OWNER_CHANGED"))return "STALE_OWNER";
+        if(simple.contains("SQLiteDatabaseLocked")||simple.contains("SQLiteTableLocked")||name.endsWith("SQLiteBusyException")||message.contains("DATABASE IS LOCKED")
+                ||message.contains("DATABASE TABLE IS LOCKED")||message.contains("CP3_DB_BUSY_")||message.startsWith("R909_BACKGROUND_WRITER_YIELD"))return "LOCK_BUSY";
+        if(message.startsWith("R31_MEMORY_CAPACITY_WAIT")||message.startsWith("RESOURCE_WAIT:MEMORY_"))return "RESOURCE_MEMORY";
+        if(message.startsWith("QUEUE_CAPACITY_WAIT")||name.endsWith("QueueCapacityWait"))return "RESOURCE_QUEUE";
+        if(message.contains("DEPENDENCY")||message.contains("SCHEMA_PENDING")||message.contains("NO SUCH TABLE")||message.contains("NO SUCH COLUMN")
+                ||message.startsWith("MATRIX_ORIGINAL_STUDENT_UNAVAILABLE")||message.startsWith("MISSING_TEACHER")||message.startsWith("R31_COMPUTE_CAPACITY")
+                ||message.startsWith("R31_CONTINUATION_CANCELLING")||message.startsWith("R31_CONTINUATION_SLICE_IN_FLIGHT")||message.startsWith("R26_UNSLICED_COMPUTATION_CAPACITY")
+                ||message.startsWith("R31_PREVIOUS_OWNER_DRAINING")||name.endsWith("CapacityUnavailable"))return "DEPENDENCY";
+        if(cause instanceof java.util.concurrent.TimeoutException)return "TEMP_TIMEOUT";
+        return null;
     }
     private static String physicalCauseCategoryR31(Throwable failure) {
         IdentityHashMap<Throwable,Boolean> seen = new IdentityHashMap<>();
@@ -92,7 +117,7 @@ public final class FailureDispositionR31 {
         switch (category == null ? "" : category) {
             case "LOCK_BUSY": case "TEMP_TIMEOUT": disposition = Disposition.RETRY_LATER; break;
             case "CANCELLED": disposition = Disposition.CANCELLED; break;
-            case "DEPENDENCY": disposition = Disposition.DEPENDENCY; break;
+            case "DEPENDENCY": case "RESOURCE_MEMORY": case "RESOURCE_QUEUE": disposition = Disposition.DEPENDENCY; break;
             case "STALE_OWNER": disposition = Disposition.STALE_OWNER; break;
             case "DISK_FULL": case "DB_CORRUPT": disposition = Disposition.FATAL; break;
             default: disposition = Disposition.FAULT;

@@ -30,15 +30,17 @@ def main():
     except subprocess.TimeoutExpired:child.kill();child.wait()
     code=124;stream.write('\nHOST_VERIFIER_TIME_LIMIT_SECONDS='+str(timeout)+'\n')
   contents=(OUT/log).read_text();process=subprocess.CompletedProcess(command,code,contents,'');state.update(status='TIMED_OUT' if code==124 else 'EXITED',exitCode=code,completedAt=datetime.now(timezone.utc).isoformat());status_path.write_text(json.dumps(state,indent=2)+'\n');commands.append(dict(state,log=log))
-  if process.returncode and not allow_failure:raise RuntimeError(log)
+  if process.returncode and not allow_failure:print('R31_HOST_STEP_FAILED '+log+' exit='+str(code)+'\n'+contents[-6000:],flush=True);raise RuntimeError(log)
   return process
  receipt={'status':'FAILED_OR_INCOMPLETE','sourceSha256':before,'supportJar':str(support),'supportJarSha256':support_sha,'scope':'CURRENT_FEATURE_SOURCE_ON_ACTUAL_ANDROID_SUPPORT_JAR_NOT_DEVICE_OR_APK','work':str(work),'device':'NOT_RUN','continuous24h':'NOT_RUN','continuous72h':'NOT_RUN','naturalQuality':'NOT_EVALUATED'}
  try:
   run([javac,'-cp',cp,'-d',classes,SRC/'FeatureCacheR27.java',*[TEST/(n+'.java') for n in names],*hosts],'compile.log')
   selected=['R31MemoryGovernanceTest','R31SharedFeatureIntegrationTest','R31AllocatedMemoryLifecycleTest','R31ScopedAstLifecycleTest','R31PrivateBackingReuseTest','R31FamilyScopeIsolationTest','R31FamilyAdmissionTest','R31FamilyBudgetResumeTest'];target=run([java,'-Xmx512m','-cp',cp,'org.junit.runner.JUnitCore',*['com.ethk3.novaonepro.strategyv2.'+n for n in selected]],'targeted-junit.log');count=int(re.search(r'OK \((\d+) tests\)',target.stdout).group(1));receipt['targetedJUnit']=count
   existing=run([java,'-Xmx512m','-cp',cp,'org.junit.runner.JUnitCore','com.ethk3.novaonepro.strategyv2.R27LeakageTest','com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest'],'original-pit-model-junit.log');receipt['originalPitModelJUnit']=int(re.search(r'OK \((\d+) tests\)',existing.stdout).group(1))
+  # Baseline fingerprints use the original sampler too: the current OperatorGoldenR27 consumes PolicyAstR27.evalScopedR31,
+  # which the original PolicyAstR27 does not have (NoSuchMethodError at baseline-golden). Current==original is still asserted.
   golden=ROOT/'app/src/main/assets/r27/golden_512.bin';old=[]
-  for name in ['FeatureCacheR27','PolicyAstR27','ReplayDatasetR27','ReplayEvaluatorR27']:
+  for name in ['FeatureCacheR27','PolicyAstR27','ReplayDatasetR27','ReplayEvaluatorR27','OperatorGoldenR27']:
    path=work/(name+'.java');path.write_bytes(subprocess.check_output(['git','show',BASE+':'+str((SRC/(name+'.java')).relative_to(ROOT))],cwd=ROOT));old.append(path)
   run([javac,'-cp',cp,'-d',baseline,*old,ROOT/'tools/r31/memory_host/FeatureGoldenR31Host.java'],'baseline-compile.log');a=json.loads(run([java,'-Xmx512m','-cp',str(baseline)+os.pathsep+str(support),'com.ethk3.novaonepro.strategyv2.FeatureGoldenR31Host',golden],'baseline-golden.json').stdout);b=json.loads(run([java,'-Xmx512m','-cp',cp,'com.ethk3.novaonepro.strategyv2.FeatureGoldenR31Host',golden],'current-golden.json').stdout);assert a==b;receipt['goldenFingerprints']=len(a)
   family=json.loads(run([java,'-Xmx512m','-cp',cp,'com.ethk3.novaonepro.strategyv2.FamilyStreamIsolationR31Host'],'family-isolation.json').stdout);values=0
