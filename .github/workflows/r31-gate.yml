@@ -45,6 +45,9 @@ jobs:
           BATCH="${{ github.event.inputs.batch }}"
           if [ -z "$BATCH" ]; then BATCH=$(python3 $G status | python3 -c 'import json,sys; print(json.load(sys.stdin)["open_batch"])'); fi
           echo "BATCH=$BATCH" >> "$GITHUB_ENV"
+          # Logs committed by an earlier (possibly cancelled) run are rewritten during this build. Untrack them first,
+          # otherwise a partial log equal to Gradle's fixed banner flips source_dirty between configuration and check.
+          git rm -r -q --cached --ignore-unmatch "verification/r31/batches/$BATCH/logs" || true
           python3 $G build --batch "$BATCH" || true
           L=verification/r31/batches/$BATCH/logs/gradle.log
           if [ -f "$L" ]; then

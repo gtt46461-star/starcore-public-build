@@ -96,7 +96,14 @@ public final class ModelLiveLoopSU2 {
         return rt;
     }
 
-    static synchronized Runtime ensure(DbStore store, EventFrameSU1 frame, long seq) {
+    /** R31-B07-C01: the numeric owner of every SU2 live model is the fenced R26 replay lane (LegacyReplayR26 under a
+     * RuntimeCoordinatorR26 claim). These compatibility entries used to build and checkpoint a second private runtime
+     * without a fence; they now only forward, so no second numeric runtime or second model writer can start. */
+    public static final String LEGACY_NUMERIC_OWNER_R31 = "R26_REPLAY_OWNER_FENCED";
+    static IllegalStateException forwardedR31(String entry) { return new IllegalStateException("R31_LEGACY_NUMERIC_ENTRY_FORWARDED:" + entry + "->" + LEGACY_NUMERIC_OWNER_R31); }
+    static synchronized Runtime ensure(DbStore store, EventFrameSU1 frame, long seq) { throw forwardedR31("ensure"); }
+    /** Retained exact catch-up body for forensic comparison only; unreachable from any entry point. */
+    private static Runtime ensureUnfencedPreR31(DbStore store, EventFrameSU1 frame, long seq) {
         int[][] h = frame.history(); long first = sequence(String.valueOf(frame.issue(0))), last = sequence(String.valueOf(frame.issue(h.length - 1)));
         if (last != seq - 1) throw new IllegalStateException("SU2_LIVE_FRAME_NOT_CONTIGUOUS");
         for (int i = 1; i < h.length; i++) if (sequence(String.valueOf(frame.issue(i))) != first + i) throw new IllegalStateException("SU2_LIVE_HISTORY_GAP");
@@ -143,7 +150,8 @@ public final class ModelLiveLoopSU2 {
         } catch (IOException | RuntimeException unusable) { return null; }
     }
 
-    static void checkpoint(SQLiteDatabase db, Runtime rt, long now) throws IOException {
+    static void checkpoint(SQLiteDatabase db, Runtime rt, long now) throws IOException { throw forwardedR31("checkpoint"); }
+    private static void checkpointUnfencedPreR31(SQLiteDatabase db, Runtime rt, long now) throws IOException {
         ByteArrayOutputStream hb = new ByteArrayOutputStream(); DataOutputStream ho = new DataOutputStream(hb);
         ho.writeLong(rt.genesisSeq); rt.hub.writeModels(ho); ho.flush();
         ModelStoreSU2.saveLive(db, "HUB", rt.through, ModelStoreSU2.gzip(hb.toByteArray()), now);

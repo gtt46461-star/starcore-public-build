@@ -47,6 +47,15 @@ public final class EvalContextR27 implements AutoCloseable {
         }
     }
     public Map<String,Object> scoreMemorySnapshotR31(){synchronized(scoreMemo){Map<String,Object> out=new LinkedHashMap<>();out.put("estimatedRetainedScoreBytes",scoreMemoBytesR31);out.put("byteCapacity",scoreByteCapacityR31);out.put("memoEntries",scoreMemo.size());out.put("distinctPrimitiveBackings",scoreReferencesR31.size());out.put("estimatedReferenceBytesDropped",scoreBytesDroppedR31);out.put("computations",scoreComputationsR31);out.put("hits",scoreHitsR31);out.put("actualHeapReleasedBytes",null);out.put("lifecycle","DROP_MEMO_REFERENCE_ONLY; RETURNED_ARRAYS_MAY_STILL_BE_IN_USE");return out;}}
+    private String scoreKeyR31(PolicySpecR27 spec){return data.datasetHash+"|"+spec.ast.toString()+"@"+spec.position+(spec.ast.modelPositions!=0?"|MODEL_SOURCE_"+cache.modelSourceVersion():"");}
+    public boolean holdsScoresR31(PolicySpecR27 spec){synchronized(scoreMemo){return scoreMemo.containsKey(scoreKeyR31(spec));}}
+    /** R31-B07-C03: releases a retired policy's memoized score backing and failure profile; returns the released bytes. */
+    public long releaseRetiredR31(PolicySpecR27 spec){
+        long released=0;
+        synchronized(scoreMemo){double[] array=scoreMemo.remove(scoreKeyR31(spec));if(array!=null){int refs=scoreReferencesR31.get(array);released=128;if(refs==1){scoreReferencesR31.remove(array);released+=16L+8L*array.length;}else scoreReferencesR31.put(array,refs-1);scoreMemoBytesR31-=released;scoreBytesDroppedR31+=released;}}
+        synchronized(failureMemo){failureMemo.remove(spec.policyHash());}
+        return released;
+    }
     public void trimUnusedScoresR31(){synchronized(scoreMemo){trimScoresR31(0);}synchronized(failureMemo){failureMemo.clear();}}
     static int trimRegisteredScoresR31(MemoryBudgetR31 memory){java.util.List<EvalContextR27> contexts;synchronized(REGISTERED_R31){contexts=new java.util.ArrayList<>(REGISTERED_R31.keySet());}int trimmed=0;for(EvalContextR27 context:contexts)if(context.cache.memoryBudgetR31()==memory){context.trimUnusedScoresR31();trimmed++;}return trimmed;}
     @Override public void close(){synchronized(scoreMemo){closedR31=true;trimScoresR31(0);}synchronized(failureMemo){failureMemo.clear();}REGISTERED_R31.remove(this);}

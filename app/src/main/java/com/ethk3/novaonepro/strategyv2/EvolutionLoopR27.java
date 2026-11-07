@@ -26,6 +26,10 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         public double mutationShare = 0.60, crossoverShare = 0.20, fusionShare = 0.10, expertShare = 0.10, nullShare = 0.10;
         public boolean nullControl = true;
         public long seed = 27;
+        /** R31-B07-C03: finite replay budget per generation and per slice, in deterministic cost units
+         * (program size x evaluated rows); pressure in [0,1) shrinks proposals and never removes a family minimum. */
+        public long creationCostUnits = 1L << 40, creationSliceUnits = 1L << 32;
+        public double creationPressure = 0;
     }
 
     /** Persistence target. The Android store wraps each step's calls and the cursor in one write transaction; every
@@ -106,11 +110,13 @@ public final class EvolutionLoopR27 implements AutoCloseable {
     public int generationsWithoutSelectImprovement;
     private double bestSelectSeen = Double.NEGATIVE_INFINITY;
     private final Map<String, Object> genStats = new LinkedHashMap<>();
+    public CreationBudgetR31 creation;
     public static final String[] COUNTERS = {"attempts", "uniquePolicies", "structuralCandidates", "behaviorNovel", "researchAccepted", "prospectiveQualified", "verifiedImprovements"};
 
     public EvolutionLoopR27(Config cfg, FeatureCacheR27 cache, Sink sink, Clock clock) {
         this.cfg = cfg; this.sink = sink; this.clock = clock; this.rng = new StatsR27.SplitMix(cfg.seed);
         for (String c : COUNTERS) counters.put(c, new long[1]);
+        creation = new CreationBudgetR31(cfg.seed, cfg.creationCostUnits, cfg.creationSliceUnits);
         bind(cache);
     }
 
@@ -185,18 +191,23 @@ public final class EvolutionLoopR27 implements AutoCloseable {
     }
 
     void stepBirth() {
-        IdeaFamilyR27.Context ic = ideaContext(); int total = cfg.births;
+        IdeaFamilyR27.Context ic = ideaContext(); int total = (int) Math.floor(cfg.births * (1 - cfg.creationPressure));
         if(researchContext!=null)opWeights=researchContext.weights(opWeights);
+        // R31-B07-C03: supported net operator credit modulates this generation's picks only (no compounding of opWeights).
+        double[] pickWeights = creation.weighted(opWeights, MutationOpsR27.OPS);
         // Every registered main family gets the minimum; a bonus (≤4× minimum) follows recent survivors.
         int familyCount = FAMILIES.length - 1;
         int minTotal = cfg.minPerFamily * familyCount, bonusPool = Math.max(0, Math.min(total / 4, total - minTotal));
         int survivors = 0; Map<String,Integer> researchCredit=new HashMap<>();for(IdeaFamilyR27 family:FAMILIES){int credit=researchContext==null?0:researchContext.familyCredit(family.id());researchCredit.put(family.id(),credit);survivors+=credit;}
         List<PolicySpecR27> births = new ArrayList<>();
+        List<String> familyIds = new ArrayList<>(); for (int f = 1; f < FAMILIES.length; f++) familyIds.add(FAMILIES[f].id());
+        Map<String, Integer> allocation = creation.allocate(generation, familyIds, null, researchCredit, minTotal + bonusPool, cfg.minPerFamily, cfg.creationPressure, false);
         for (int f = 1; f < FAMILIES.length; f++) {
-            int n = cfg.minPerFamily;
-            if (survivors > 0) n += Math.min(cfg.minPerFamily * 4, (int) Math.round(bonusPool * researchCredit.getOrDefault(FAMILIES[f].id(), 0) / (double) survivors));
+            int n = allocation.get(FAMILIES[f].id());
             for (int i = 0; i < n; i++) births.add(FAMILIES[f].propose(rng, ic));
+            creation.record(FAMILIES[f].id(), "attempts", n);
         }
+        int familyBirths = births.size();
         // Experts can propose a complete new program without a surviving parent. Reserve their requested share
         // before allocating the remaining operators; family minima and this quota may exceed a tiny target.
         int ex = cfg.expertShare > 0 ? Math.max(1, (int) Math.floor(total * cfg.expertShare)) : 0;
@@ -208,7 +219,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
             Member p = population.get(rng.nextInt(population.size()));
             IdeaFamilyR27 fam = family(p.island);
             PolicySpecR27 c = rng.chance(0.3) && fam != null ? fam.mutate(p.spec, rng, ic) : null;
-            if (c == null) c = MutationOpsR27.mutate(p.spec, MutationOpsR27.pick(opWeights, rng), rng, ic, this::pruneContribution);
+            if (c == null) c = MutationOpsR27.mutate(p.spec, MutationOpsR27.pick(pickWeights, rng), rng, ic, this::pruneContribution);
             if (c != null) births.add(c);
         }
         for (int i = 0; i < cx; i++) {
@@ -223,7 +234,8 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         }
         for(ResearchStoreR30R1.Ready r:directedResearch)births.add(r.child);
         // Fill any rounding/operator shortfall from generators so every generation has the configured size.
-        while (births.size() < total) births.add(FAMILIES[1 + rng.nextInt(familyCount)].propose(rng, ic));
+        for (PolicySpecR27 s : births.subList(familyBirths, births.size())) creation.record(familyR31(s), "attempts", 1); // operator/expert/research births
+        while (births.size() < total) { IdeaFamilyR27 filler = FAMILIES[1 + rng.nextInt(familyCount)]; births.add(filler.propose(rng, ic)); creation.record(filler.id(), "attempts", 1); }
         for (PolicySpecR27 s : births) { Pending p = new Pending(); p.spec = s; p.structural = s != null && (s.meta == null || MutationOpsR27.structural(s.meta.operator)); for(ResearchStoreR30R1.Ready r:directedResearch)if(s!=null&&s.policyHash().equals(r.child.policyHash())){p.researchProposal=r.proposal;break;}pending.add(p); }
         directedResearch=Collections.emptyList();
         count("attempts", births.size());
@@ -244,20 +256,21 @@ public final class EvolutionLoopR27 implements AutoCloseable {
                 if (pendingSpecJson(p) != null) sink.policy(p.spec, "REJECTED", "BIRTH_REJECTED(" + contract.reason + "):" + contract.detail, generation, ctx.data.datasetHash);
                 continue;
             }
+            String familyR31 = familyR31(p.spec); creation.record(familyR31, "contractValid", 1);
             String h = p.spec.policyHash();
-            if (existing.contains(h) || !seenThisGen.add(h)) { p.state = "DUPLICATE_BEHAVIOR"; p.reason = "SAME_POLICY_HASH"; dup++; continue; }
+            if (existing.contains(h) || !seenThisGen.add(h)) { p.state = "DUPLICATE_BEHAVIOR"; p.reason = "SAME_POLICY_HASH"; dup++; creation.record(familyR31, "duplicate", 1); continue; }
             BirthGateR27.Verdict v = gate.check(p.spec);
             if (!v.ok) { p.state = "REJECTED"; p.reason = v.reason + ":" + v.detail; rejected++; reasons.merge(v.reason.name(), 1, Integer::sum); sink.policy(p.spec, "REJECTED", "BIRTH_REJECTED(" + v.reason + "):" + v.detail, generation, ctx.data.datasetHash); continue; }
             p.sig = v.signature;
             if (p.spec.meta != null && p.spec.meta.parents.size() == 1 && !"LEGACY_SEED".equals(p.spec.meta.operator)) {
                 int[] parentSig = gate.signatureOf(p.spec.meta.parents.get(0));
-                if (parentSig != null && gate.sameTarget(p.spec.meta.parents.get(0),p.spec.position) && Arrays.equals(parentSig, v.signature)) { p.state = "NO_OP"; p.reason = "SIGNATURE_EQUALS_PARENT"; noop++; continue; }
+                if (parentSig != null && gate.sameTarget(p.spec.meta.parents.get(0),p.spec.position) && Arrays.equals(parentSig, v.signature)) { p.state = "NO_OP"; p.reason = "SIGNATURE_EQUALS_PARENT"; noop++; creation.record(familyR31, "duplicate", 1); continue; }
             }
             String d = gate.duplicateOf(v.signature,p.spec.position);double localSimilarity=Double.NaN;
             if(d==null)for(Pending sibling:bornThisGeneration)if(sibling.spec.position==p.spec.position||sibling.sig.length==0&&v.signature.length==0){double similarity=BirthGateR27.jaccard(sibling.sig,v.signature);if(similarity>=BirthGateR27.DUPLICATE_JACCARD){d=sibling.spec.policyHash();localSimilarity=similarity;break;}}
-            if (d != null) { p.state = "DUPLICATE_BEHAVIOR"; p.reason = "JACCARD>=0.95:" + d; dup++;
+            if (d != null) { p.state = "DUPLICATE_BEHAVIOR"; p.reason = "JACCARD>=0.95:" + d; dup++; creation.record(familyR31, "duplicate", 1);
                 if(Double.isFinite(localSimilarity))localBehaviorDuplicatesTotal++;if(Double.isFinite(localSimilarity)&&localBehaviorDuplicates.size()<256){Map<String,Object> receipt=new LinkedHashMap<>();receipt.put("keptPolicy",d);receipt.put("droppedPolicy",h);receipt.put("similarity",localSimilarity);receipt.put("droppedPosition",p.spec.position);receipt.put("stage","BIRTH_SAME_GENERATION");receipt.put("datasetHash",ctx.data.datasetHash);receipt.put("probeScope","ORIGINAL_BIRTH_GATE_PROBE_SAME_TARGET_OR_BOTH_NO_ACT");receipt.put("signatureHash",StatsR27.sha256(Arrays.toString(v.signature)));localBehaviorDuplicates.add(receipt);}continue; }
-            p.state = "BORN";bornThisGeneration.add(p); if (p.structural) structural++;
+            p.state = "BORN";bornThisGeneration.add(p); if (p.structural) structural++; creation.record(familyR31, "unique", 1);
             sink.policy(p.spec, "BORN", p.spec.meta == null ? "" : p.spec.meta.reason, generation, ctx.data.datasetHash);
             if (p.spec.meta != null) for (String parent : p.spec.meta.parents) sink.lineage(h, parent, role(p.spec.meta.operator), p.spec.meta.operator, generation);
         }
@@ -292,7 +305,15 @@ public final class EvolutionLoopR27 implements AutoCloseable {
     }
     private void stepReplayOwnedR31() {
         long t0 = System.nanoTime(); candidateReplayMs.clear();
-        List<Pending> born = new ArrayList<>(); for (Pending p : pending) if (p.state.equals("BORN")) born.add(p);
+        List<Pending> born = new ArrayList<>(); int rows = ctx.split.selectTo - ctx.split.selectFrom; long deferred = 0;
+        for (Pending p : pending) if (p.state.equals("BORN")) {
+            long units = CreationBudgetR31.costUnits(p.spec, rows);
+            if (creation.admit(familyR31(p.spec), units)) { born.add(p); continue; }
+            // R31-B07-C03: over the slice or the generation budget; deferred with its reason, never replayed now.
+            p.state = "DEFERRED_CREATION_BUDGET"; p.reason = "R31_CREATION_BUDGET:units=" + units + ":spent=" + creation.spentThisGeneration() + "/" + creation.generationCostUnits; deferred++;
+            sink.policy(p.spec, "RETIRED", "R31_CREATION_BUDGET_DEFERRED:units=" + units, generation, ctx.data.datasetHash);
+        }
+        genStats.put("creationDeferred", deferred); genStats.put("creationSpentUnits", creation.spentThisGeneration());
         // A parent continuation already owns its compute permit. The configured serial mode stays on that
         // research parent; executor saturation never falls back onto an arbitrary caller/realtime thread.
         if (executor == null || (serialWhile != null && serialWhile.getAsBoolean())) {
@@ -374,7 +395,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
 
     void stepHalving() {
         List<SuccessiveHalvingR27.Candidate> cands = new ArrayList<>();
-        Map<String, Pending> byHash = new HashMap<>();
+        Map<String, Pending> byHash = new HashMap<>(); retiredReleasedBytesR31 = 0; retiredReleasedR31 = 0;
         for (Pending p : pending) if (p.state.equals("BORN")) {
             if (p.trace == null) { if (Double.isNaN(p.tau)) p.tau = ctx.temperature(p.spec); p.trace = ctx.selectTrace(p.spec, p.tau); }
             cands.add(new SuccessiveHalvingR27.Candidate(p.spec, p.trace, p.tau)); byHash.put(p.spec.policyHash(), p);
@@ -384,11 +405,21 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         for (SuccessiveHalvingR27.Candidate c : r.retired) {
             sink.policy(c.spec, "RETIRED", c.retiredRound + ":" + c.retiredReason, generation, ctx.data.datasetHash);
             if (c.select != null) sink.score(c.spec.policyHash(), ctx.data.datasetHash, c.select);
+            Pending retired = byHash.get(c.spec.policyHash()); if (retired != null) retired.trace = null;
         }
         for (SuccessiveHalvingR27.Candidate c : r.survivors) {
             Pending p = byHash.get(c.spec.policyHash());
             Member m = new Member(); m.spec = c.spec; m.tau = c.temperature; m.trace = c.trace; m.sig = p.sig; m.island = island(c.spec);
-            refresh(m); population.add(m); gate.register(m.hash(), m.sig,m.spec.position);
+            refresh(m);
+            creation.record(familyR31(c.spec), "devSurvivor", 1);
+            if (c.spec.meta != null && c.spec.meta.parents.size() == 1 && c.spec.meta.operator != null) {
+                // Same SELECT window and same evaluator for parent and child; booked once per experiment key.
+                Member parent = null; for (Member x : population) if (x.hash().equals(c.spec.meta.parents.get(0))) { parent = x; break; }
+                if (parent != null && Double.isFinite(parent.u) && Double.isFinite(m.u))
+                    creation.creditOperator(c.spec.meta.operator, parent.hash(), m.hash(), ctx.data.datasetHash + "|" + ctx.split.selectFrom + "-" + ctx.split.selectTo, m.u - parent.u,
+                            CreationBudgetR31.costUnits(c.spec, ctx.split.selectTo - ctx.split.selectFrom) / (double) creation.generationCostUnits);
+            }
+            population.add(m); gate.register(m.hash(), m.sig,m.spec.position);
             sink.policy(c.spec, "ACTIVE", "SURVIVED_R0_R1_R2", generation, ctx.data.datasetHash); sink.score(m.hash(), ctx.data.datasetHash, c.select);
             famSurv.merge(m.island, 1, Integer::sum);
         }
@@ -413,7 +444,10 @@ public final class EvolutionLoopR27 implements AutoCloseable {
                 Member m = population.get(i);
                 if (pass == 0 && archive.occupies(m.hash())) continue; // elites leave only if nothing else can
                 population.remove(i); gate.unregister(m.hash()); removed++; sink.policy(m.spec, "RETIRED", "R3:POPULATION_CAP_WORST_H_SELECT", generation, ctx.data.datasetHash);
+                releaseRetiredR31(m);
             }
+        for (SuccessiveHalvingR27.Candidate c : r.retired) { Member transientMember = new Member(); transientMember.spec = c.spec; releaseRetiredR31(transientMember); }
+        // Released bytes depend on cache warmth (differs after a restore), so they are diagnostics, not generation stats.
         genStats.put("survivors", (long) r.survivors.size()); genStats.put("retired", (long) (r.retired.size() + removed));
         genStats.put("funnel", Arrays.asList((long) r.roundIn[0], (long) r.roundIn[1], (long) r.roundIn[2], (long) r.survivors.size()));
         Map<String, Object> fs = new LinkedHashMap<>(); for (Map.Entry<String, Integer> e : famSurv.entrySet()) fs.put(e.getKey(), (long) e.getValue());
@@ -425,6 +459,19 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         if (cfg.nullControl) nullEvolution.generation(ctx.cache, ctx.split, FAMILIES, Math.max(4, (int) Math.round(cfg.births * cfg.nullShare)), rng, generation, 26);
         if (cfg.nullControl) genStats.put("nullPipelineR30",nullEvolution.json());
         i00Generation();
+    }
+
+    public long retiredReleasedBytesR31; public int retiredReleasedR31;
+    /** R31-B07-C03#A4: a retired non-champion without an archive cell or a sibling sharing its score backing
+     * releases its memoized scores, failure profile and trace (real memory, not only a state label). */
+    void releaseRetiredR31(Member m) {
+        if (champion != null && champion.policyHash().equals(m.hash())) return;
+        if (archive.occupies(m.hash())) return;
+        String key = m.spec.ast.toString();
+        for (Member other : population) if (other.spec.position == m.spec.position && other.spec.ast.toString().equals(key)) return;
+        if (champion != null && champion.position == m.spec.position && champion.ast.toString().equals(key)) return;
+        long bytes = ctx.releaseRetiredR31(m.spec); m.trace = null;
+        if (bytes > 0) { retiredReleasedBytesR31 += bytes; retiredReleasedR31++; }
     }
 
     void i00Generation() {
@@ -439,6 +486,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
     /** Freeze comparison inputs only. Runtime executes confirmation between calls to step(), outside evolution. */
     void stepHoldout() {
         pendingConfirmation = FrozenConfirmationR30.freeze(this,clock.now());
+        if (pendingConfirmation != null) creation.record(familyR31(champion), "confirmQueued", 1);
         Map<String,Object> h = new LinkedHashMap<>();
         h.put("verified",false); h.put("holdoutBlock",ctx.split.holdoutBlock);
         h.put("status",pendingConfirmation == null ? "INSUFFICIENT" : "FROZEN_PENDING_EXTERNAL");
@@ -448,9 +496,14 @@ public final class EvolutionLoopR27 implements AutoCloseable {
     }
 
     void stepRecord() {
-        if (champion != null && previousChampion != null && !champion.policyHash().equals(previousChampion.policyHash()))
+        Map<String, Object> improvement = null;
+        if (champion != null && previousChampion != null && !champion.policyHash().equals(previousChampion.policyHash())) {
             sink.lineage(champion.policyHash(), previousChampion.policyHash(), "CHAMPION_FROZEN_FOR_CONFIRMATION", "SUCCESSION", generation);
+            // R31-B07-C04: paired same-opportunity receipt; development evidence never replaces a champion by itself.
+            improvement = VerifiedImprovementR31.developmentReceipt(previousChampion.policyHash(), champion.policyHash(), ctx.selectTrace(previousChampion, previousTau), ctx.selectTrace(champion, championTau), ctx.split.selectFrom, ctx.split.selectTo);
+        }
         Map<String, Object> rec = new LinkedHashMap<>(genStats);
+        if (improvement != null) rec.put("pairedImprovementReceiptR31", improvement);
         rec.put("generation", (long) generation); rec.put("startedAt", startedAt); rec.put("finishedAt", clock.now());
         Member ch = find(champion);
         rec.put("championHash", champion == null ? null : champion.policyHash()); rec.put("championSelectU", ch == null ? null : ch.u);
@@ -531,6 +584,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         if (idea.startsWith("EXPERT")) return "I10";
         return IslandModelR27.index(idea) == 8 && !idea.equals("I09") ? "I09" : idea;
     }
+    static String familyR31(PolicySpecR27 s) { return s == null || s.meta == null || s.meta.idea == null ? "UNKNOWN" : s.meta.idea; }
     static IdeaFamilyR27 family(String id) { for (IdeaFamilyR27 f : FAMILIES) if (f.id().equals(id)) return f; return null; }
     static Object fin(double d) { return Double.isFinite(d) ? (Object) d : null; }
 
@@ -618,6 +672,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         Map<String, Object> lg = new LinkedHashMap<>(); for (Map.Entry<Long, Set<String>> e : ledger.snapshot().entrySet()) lg.put(Long.toString(e.getKey()), new ArrayList<Object>(e.getValue())); s.put("ledger", lg);
         Map<String, Object> cl = new LinkedHashMap<>(); for (Map.Entry<Long, Set<String>> e : ledger.controlSnapshot().entrySet()) cl.put(Long.toString(e.getKey()), new ArrayList<Object>(e.getValue())); s.put("controlLedger", cl);
         s.put("genStats", genStats); s.put("startedAt", startedAt);
+        s.put("creationBudgetR31", creation.json());
         return JsonR27.write(s);
     }
 
@@ -678,6 +733,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
             l.confirmationDispatched = Boolean.TRUE.equals(s.get("confirmationDispatched"));
         }
         l.genStats.putAll((Map<String, Object>) s.get("genStats")); l.startedAt = ((Number) s.get("startedAt")).longValue();
+        if (s.get("creationBudgetR31") != null) l.creation = CreationBudgetR31.restore(s.get("creationBudgetR31"));
         restoredR31=true;return l;
         }finally{if(!restoredR31)l.close();}
     }

@@ -348,6 +348,35 @@ public final class R31TaskRuntimeHost {
         loopPool.close();need(loopPool.awaitResourcesTerminatedR31(2000),"actual worker and read connection drain");
         System.out.println("R31_ACTUAL_POOL_LOOP_HELPER_RACE_HOST_PASS no_replacement_after_parent_done=true manual_retry_waits_for_helper=true resumes_after_actual_exit=true");
     }
+    /** R31-B07-C01#A3: the fenced R26 replay lane and the SU2 compatibility entry target one model owner. The second
+     * claimer is refused while the lease is held, the compatibility entries only forward and start no thread, and after
+     * a takeover the old fence can no longer write the model checkpoint. */
+    static void dualEntrySameModelOwner()throws Exception{
+        String task="host-model-owner-dual";add(task);
+        RuntimeCoordinatorR26.Claim lane=claim(task,"owner-A");need(lane!=null,"replay lane claims the model owner");
+        need(claim(task,"owner-B")==null,"a second entry cannot claim a model owner whose lease is held");
+        Set<Thread> before=new HashSet<>(Thread.getAllStackTraces().keySet());
+        String ensure="",checkpoint="";
+        try{ModelLiveLoopSU2.ensure(store,null,1L);}catch(IllegalStateException forwarded){ensure=forwarded.getMessage();}
+        try{ModelLiveLoopSU2.checkpoint(db,null,1L);}catch(IllegalStateException forwarded){checkpoint=forwarded.getMessage();}
+        need(ensure.equals("R31_LEGACY_NUMERIC_ENTRY_FORWARDED:ensure->R26_REPLAY_OWNER_FENCED"),"compatibility ensure forwards: "+ensure);
+        need(checkpoint.equals("R31_LEGACY_NUMERIC_ENTRY_FORWARDED:checkpoint->R26_REPLAY_OWNER_FENCED"),"compatibility checkpoint forwards: "+checkpoint);
+        Set<Thread> started=new HashSet<>(Thread.getAllStackTraces().keySet());started.removeAll(before);started.removeIf(t->!t.isAlive());
+        need(started.isEmpty(),"compatibility entry starts no second numeric thread: "+started);
+        tx(()->{ReplayCheckpointR31.ensureSchemaR31(db);return 0;});
+        ReplayCheckpointR31.Envelope a1=ReplayCheckpointR31.prepare("model:host-dual","rev-1",10,10,replayStateR31(7));
+        need(tx(()->ReplayCheckpointR31.commitReference(db,a1,"",lane.fence,1000))==ReplayCheckpointR31.Outcome.COMMITTED,"owner writes its checkpoint");
+        restartR31(task);RuntimeCoordinatorR26.Claim takeover=claim(task,"owner-B");need(takeover!=null&&takeover.fence>lane.fence,"takeover advances the fence");
+        ReplayCheckpointR31.Envelope b1=ReplayCheckpointR31.prepare("model:host-dual","rev-1",20,20,replayStateR31(8));
+        need(tx(()->ReplayCheckpointR31.commitReference(db,b1,a1.stateHash,takeover.fence,2000))==ReplayCheckpointR31.Outcome.COMMITTED,"new owner continues from the committed state");
+        ReplayCheckpointR31.Envelope late=ReplayCheckpointR31.prepare("model:host-dual","rev-1",30,30,replayStateR31(9));
+        String category="";try{tx(()->ReplayCheckpointR31.commitReference(db,late,b1.stateHash,lane.fence,3000));}catch(ReplayCheckpointR31.Rejected expected){category=expected.category;}
+        need("STALE_OWNER".equals(category),"the superseded fence cannot write a second model state: "+category);
+        boolean fenced=false;try{tx(()->{RuntimeCoordinatorR26.requireFence(db,lane);return 0;});}catch(RuntimeException expected){fenced=true;}
+        need(fenced,"the old claim fails the unique fence check");
+        need(text("SELECT state_hash FROM r31_replay_checkpoint WHERE owner='model:host-dual'").equals(b1.stateHash)&&n("SELECT model_steps FROM r31_replay_checkpoint WHERE owner='model:host-dual'")==20,"only the fenced owner's state is committed");
+        System.out.println("R31_DUAL_ENTRY_MODEL_OWNER_HOST_PASS second_claim=refused compat=forwarded threads_started=0 stale_writer=STALE_OWNER");
+    }
     public static void main(String[] args)throws Exception{
         Class.forName("org.sqlite.JDBC");File file=new File(args[0]);
         try(Connection connection=DriverManager.getConnection("jdbc:sqlite:"+file)){
@@ -378,7 +407,7 @@ public final class R31TaskRuntimeHost {
             store=new DbStore(coordinator,db,new android.app.Application(file));pool=new ResearchPoolR27(store,"owner-A",2);
             record=Arrays.stream(ResearchPoolR27.class.getDeclaredMethods()).filter(method->method.getName().equals("record")).findFirst().orElseThrow();record.setAccessible(true);
             claimPrepared=Arrays.stream(ResearchPoolR27.class.getDeclaredMethods()).filter(method->method.getName().equals("claimPrepared")).findFirst().orElseThrow();claimPrepared.setAccessible(true);
-            staleAndClock();killPointsPublishExactlyOnce();ownerChangeIsTerminalForPrepared();classificationsAndRecovery();busyThirteen();thirteenMixedFailures();clockJumpReleasesOnePerSecond();twentyFourHourSchedule();tenThousandOwnerSwitches();sixtyMinuteWriterContention();hundredSessionsReleaseObjectsAndHandles();userStopNoNewWorkNoSelfRevival();replayCheckpointFaultInjection();actualPoolLoopRetainsHelperOwner();helperTermination();
+            staleAndClock();killPointsPublishExactlyOnce();ownerChangeIsTerminalForPrepared();classificationsAndRecovery();busyThirteen();thirteenMixedFailures();clockJumpReleasesOnePerSecond();twentyFourHourSchedule();tenThousandOwnerSwitches();sixtyMinuteWriterContention();hundredSessionsReleaseObjectsAndHandles();userStopNoNewWorkNoSelfRevival();replayCheckpointFaultInjection();dualEntrySameModelOwner();actualPoolLoopRetainsHelperOwner();helperTermination();
             System.out.println("R31_TASK_RUNTIME_HOST_PASS assertions="+assertions+" scope=ACTUAL_PRODUCTION_METHODS_NATIVE_SQLITE_WITH_HOST_FAULT_CLOCK_PLATFORM_ADAPTERS_NOT_ANDROID_NOT_DEVICE_NOT_24H_NOT_72H_NOT_QUALITY");
         }
     }

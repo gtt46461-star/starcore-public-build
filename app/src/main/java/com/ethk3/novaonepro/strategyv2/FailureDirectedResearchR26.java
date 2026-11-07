@@ -23,11 +23,18 @@ public final class FailureDirectedResearchR26 {
    List<StructuralProposalR26.Proposal> selected=new ArrayList<>();for(StructuralProposalR26.Proposal p:StructuralProposalR26.from(original,complement))if(p.category.equals("STRUCTURAL_CANDIDATE")&&!StructuralProposalR26.control(p.genome)){selected.add(p);if(selected.size()==2)break;}
    if(selected.isEmpty())continue;
    JSONObject metadata=new JSONObject().put("schema","R26_FAILURE_GUIDED_RESEARCH_V1").put("parentPolicy",parent).put("failureReason",reason).put("failureEvidenceDigest",digest).put("failureWindowFrom",c.getLong(4)).put("failureWindowToExclusive",end).put("failureActs",acts).put("failureHits",hits).put("failureRate",rate).put("researchSnapshot",snapshot).put("sourceThrough",sourceThrough).put("initialization","NEW_FROZEN_SOURCE_RETRAINING_NO_WEIGHTS_OR_EVIDENCE_INHERITED").put("nextResearch",StrategyAssessmentR26.repair(reason)).put("evidenceScope","FAILED_LOOK_IS_RESEARCH_INPUT_ONLY; CHILD_REQUIRES_NEW_BIRTH_AND_INDEPENDENT_FUTURE_EVIDENCE");
+   // R31-B07-C06: typed failure attribution travels with the batch; the original parent-structure control and cursor stay unchanged.
+   metadata.put("hypothesisR31",hypothesisR31(parent,digest,reason,end,acts,rate));
    // A fresh, equally scheduled parent-structure control accompanies at most two real edits.
    selected.add(0,new StructuralProposalR26.Proposal(original,parent,"PRESERVE_PARENT_STRUCTURE","NO_OP"));List<StructuralProposalR26.Proposal> bound=new ArrayList<>();JSONArray children=new JSONArray();
    for(StructuralProposalR26.Proposal p:selected){ModelGenomeSU2 child=p.genome.bindBirth(snapshot,sourceThrough);JSONObject event=new JSONObject(metadata.toString()).put("operator",p.operation).put("childPolicy",child.key()).put("category",p.category).put("birthStatus","REGISTERED_NOT_TRAINED_OR_QUALIFIED_AT_BIRTH");String operation="FAILURE_GUIDED_V1:"+event.toString();bound.add(new StructuralProposalR26.Proposal(child,parent,operation,p.category));children.put(new JSONObject().put("policy",child.key()).put("operator",p.operation).put("category",p.category));}
    metadata.put("children",children);batches.add(new Batch(parent,text,digest,reason,c.getString(10),end,c.getLong(9),metadata.toString(),bound));
   }}return batches;
+ }
+ static JSONObject hypothesisR31(String parent,String digest,String reason,long windowEnd,long acts,double rate)throws JSONException{
+  try{ResearchHypothesisR31.Hypothesis h=ResearchHypothesisR31.fromFailure(new ResearchHypothesisR31.Failure(parent,digest,ResearchHypothesisR31.mechanismOf(reason),reason,"","REVEALED_FAILED_LOOK",windowEnd,windowEnd-1,acts,rate));
+   return new JSONObject(h.json());}
+  catch(IllegalArgumentException unsupported){return new JSONObject().put("version",ResearchHypothesisR31.VERSION).put("status","UNSUPPORTED").put("unsupportedReason",unsupported.getMessage());}
  }
  /** Called in the same fenced campaign-birth transaction after every candidate and lineage row. */
  public static void recordWithin(SQLiteDatabase db,String campaign,List<Batch> batches){
