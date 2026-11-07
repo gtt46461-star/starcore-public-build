@@ -8,6 +8,8 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -83,6 +85,39 @@ public final class R31ServiceProtocolHost {
         need(scalar(db,"SELECT count(*) FROM draws d WHERE NOT EXISTS(SELECT 1 FROM "+task+" t WHERE t.target_issue=d.issue)")==0,"every known draw has a durable settlement task; none silently omitted");
         System.out.println("R31_INGEST_ORDERING_CONFLICT_HOST_PASS duplicates_one_task=true conflict_refused=true current_before_history=true every_draw_tasked=true");
     }
+    private static CanonicalObservationWriterR36.CanonicalRecord canonicalRecord(String base,String target,String source,String decision,String lane,String auth,long commit){
+        String h=V51ChecksumEngine.sha256("HOST_HISTORY|"+base),a=V51ChecksumEngine.sha256("HOST_ACTIONS|"+target),snap=V51ChecksumEngine.sha256("HOST_SNAPSHOT|"+source),record=V51ChecksumEngine.sha256("HOST_CANONICAL|"+target+"|"+source);
+        return new CanonicalObservationWriterR36.CanonicalRecord(base,target,1,1,2,3,0.4,0.5,lane,decision,"NONE","",""," ".equals(auth)?"":auth,record,"host-"+source,h,a,snap,9000,9000,commit,commit+60000);
+    }
+    /** R31-B03-C02#A1/#A3: the first canonical freeze is authoritative. An identical replay is idempotent, a later FULL
+     * (or any different) record is refused without changing the frozen row, the fixed deadline is enforced at +1 ms, a
+     * drawn target never receives a post-draw commit, and an unqualified fast path cannot produce a REAL bet. */
+    private static void canonicalFirstAuthoritative(SQLiteDatabase db,DatabaseCoordinator coordinator)throws Exception{
+        String base="202611040300",target="202611040301",table=DbHelper.TABLE_R35_SHADOW_OBSERVATION;
+        CanonicalObservationWriterR36.CanonicalRecord fast=canonicalRecord(base,target,"FAST","NO_BET","SHADOW","",9500),full=canonicalRecord(base,target,"FULL","NO_BET","SHADOW","",9800);
+        fast.validate();full.validate();
+        db.execSQL("INSERT INTO "+table+"(target_issue,base_issue,position,n1,n2,n3,selected_hit_p,created_at,commit_at,record_hash,pre_draw_frozen,model_proven,settled,history_hash,snapshot_hash,action_space_hash,game_code,history_max_issue) VALUES(?,?,1,1,2,3,0.4,9000,9500,?,1,0,0,?,?,?,?,?)",
+                new Object[]{target,base,fast.recordHash,fast.historyHash,fast.snapshotHash,fast.actionSpaceHash,V51Repository.GAME_CODE,base});
+        Constructor<DatabaseCoordinator.TransactionContext> context=DatabaseCoordinator.TransactionContext.class.getDeclaredConstructor(String.class,String.class,String.class);context.setAccessible(true);
+        DatabaseCoordinator.TransactionContext tx=context.newInstance("R31_HOST_CANONICAL",target,"host-canonical");
+        db.beginTransaction();try{CanonicalObservationWriterR36.WriteResult replay=CanonicalObservationWriterR36.insertWithinTransaction(db,tx,fast);need("REPLAY_IDEMPOTENT".equals(replay.status),"identical canonical replay is idempotent: "+replay.status);}finally{db.endTransaction();}
+        boolean conflict=false;db.beginTransaction();try{CanonicalObservationWriterR36.insertWithinTransaction(db,tx,full);}catch(IllegalStateException expected){conflict="R36_CANONICAL_INTEGRITY_CONFLICT".equals(expected.getMessage());}finally{db.endTransaction();}
+        need(conflict,"late FULL with a different record is refused");
+        need(scalar(db,"SELECT count(*) FROM "+table+" WHERE target_issue='"+target+"'")==1,"at most one canonical row per target");
+        try(Cursor row=db.rawQuery("SELECT record_hash,commit_at FROM "+table+" WHERE target_issue=?",new String[]{target})){need(row.moveToFirst()&&fast.recordHash.equals(row.getString(0))&&row.getLong(1)==9500,"late FULL cannot change canonical content or freeze time");}
+        Method preDraw=V51Repository.class.getDeclaredMethod("assertPreDrawR36",SQLiteDatabase.class,AnalysisSingleFlightR36.Request.class,V51RuntimeResult.class,DeferredEvidenceSnapshotR36.Header.class);preDraw.setAccessible(true);
+        String requestHash=V51ChecksumEngine.sha256("HOST_REQUEST|"+target);long now=System.currentTimeMillis();
+        AnalysisSingleFlightR36.Request late=new AnalysisSingleFlightR36.Request(base,"202611040302",1,now-5000,now-1,"HOST_DEADLINE_PLUS_1MS",requestHash,fast.historyHash);
+        String lateFailure="";db.beginTransaction();try{preDraw.invoke(null,db,late,null,null);}catch(InvocationTargetException expected){lateFailure=String.valueOf(expected.getCause().getMessage());}finally{db.endTransaction();}
+        need("R974_CANONICAL_DEADLINE_EXCEEDED".equals(lateFailure),"a commit 1 ms after the fixed deadline is refused: "+lateFailure);
+        insertDraw(db,draw("202611040303"));
+        AnalysisSingleFlightR36.Request drawn=new AnalysisSingleFlightR36.Request("202611040302","202611040303",1,now-5000,now+60000,"HOST_TARGET_ALREADY_DRAWN",requestHash,fast.historyHash);
+        String drawnFailure="";db.beginTransaction();try{preDraw.invoke(null,db,drawn,null,null);}catch(InvocationTargetException expected){drawnFailure=String.valueOf(expected.getCause().getMessage());}finally{db.endTransaction();}
+        need("R36_TARGET_ALREADY_DRAWN_NO_POST_DRAW_COMMIT".equals(drawnFailure),"a drawn target never receives a post-draw prediction: "+drawnFailure);
+        boolean unqualified=false;try{canonicalRecord(base,target,"FAST_REAL","BET","FAST_PATH","",9900).validate();}catch(IllegalStateException expected){unqualified="R915_CANONICAL_CONTROLLED_FIELDS_INVALID".equals(expected.getMessage());}
+        need(unqualified,"an unqualified fast path cannot produce a REAL bet");
+        System.out.println("R31_CANONICAL_FIRST_AUTHORITATIVE_HOST_PASS replay_idempotent=true late_full_refused=true one_row=true deadline_plus_1ms_refused=true post_draw_refused=true unqualified_real_refused=true");
+    }
     private static void transport(SQLiteDatabase db,DatabaseCoordinator coordinator)throws Exception{
         System.setProperty("http.nonProxyHosts","localhost|127.0.0.1");HttpServer server=HttpServer.create(new InetSocketAddress("127.0.0.1",0),0);
         server.createContext("/chunked",exchange->{try{byte[] a="{\"ok\":".getBytes(java.nio.charset.StandardCharsets.UTF_8),b="true}".getBytes(java.nio.charset.StandardCharsets.UTF_8);exchange.sendResponseHeaders(200,a.length+b.length);exchange.getResponseBody().write(a);exchange.getResponseBody().flush();try{Thread.sleep(80);}catch(InterruptedException e){Thread.currentThread().interrupt();}exchange.getResponseBody().write(b);}finally{exchange.close();}});
@@ -112,7 +147,7 @@ public final class R31ServiceProtocolHost {
         Class.forName("org.sqlite.JDBC");File path=new File(args[0]);ThreadPoolExecutor background=new ThreadPoolExecutor(1,1,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(32),r->{Thread t=new Thread(r,"HOST_EXISTING_WRITER_QUEUE");t.setDaemon(true);return t;},new ThreadPoolExecutor.AbortPolicy());
         try(Connection connection=DriverManager.getConnection("jdbc:sqlite:"+path.getPath())){
             SQLiteDatabase db=new SQLiteDatabase(connection);schema(db);Field uf=Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);DatabaseCoordinator coordinator=(DatabaseCoordinator)((Unsafe)uf.get(null)).allocateInstance(DatabaseCoordinator.class);Field lf=DatabaseCoordinator.class.getDeclaredField("WRITE_LOCK_CP3");lf.setAccessible(true);set(coordinator,"writeLock",(ReentrantLock)lf.get(null));set(coordinator,"helper",new DbHelper(db));set(coordinator,"app",new android.app.Application(path));set(coordinator,"waitingWriters",new AtomicInteger());set(coordinator,"criticalBusinessWaitersR914",new AtomicInteger());set(coordinator,"backgroundWriter",background);
-            outboxAndSettlement(db,coordinator);ingestOrderingAndConflicts(db,coordinator);transport(db,coordinator);R31ServiceHeartbeatHost.verify(path);
+            outboxAndSettlement(db,coordinator);ingestOrderingAndConflicts(db,coordinator);canonicalFirstAuthoritative(db,coordinator);transport(db,coordinator);R31ServiceHeartbeatHost.verify(path);
             System.out.println("R31_SERVICE_PROTOCOL_HOST_PASS scope=actual_production_sources_native_SQLite_HTTP_loopback_adapters_NOT_ANDROID_NOT_DEVICE_NOT_MODEL_QUALITY");
         }finally{background.shutdownNow();}
     }

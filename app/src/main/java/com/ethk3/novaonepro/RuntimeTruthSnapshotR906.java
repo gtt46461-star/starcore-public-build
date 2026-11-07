@@ -187,6 +187,7 @@ public final class RuntimeTruthSnapshotR906 {
                 +"｜命中统计已结算="+cov.settledPredictions
                 +"｜预测待结算="+cov.openEligible
                 +"｜无赛前预测排除="+cov.excludedNoPredraw
+                +"｜赛前预测覆盖="+cov.predictionPresenceText()
                 +"｜数据阻断="+cov.blocked;
         return new TruthCard[]{
             new TruthCard("WHY_HIT","为什么中",hitText,hit==null?target:hit.issue,"frozen_predraw+exact_draw",hit==null?"NO_SAMPLE":"AVAILABLE"),
@@ -923,6 +924,7 @@ public static TruthCard[] buildTruthCardsSnapshotCP4(com.ethk3.novaonepro.Report
                 +"｜命中统计已结算="+cov.settledPredictions
                 +"｜预测待结算="+cov.openEligible
                 +"｜无赛前预测排除="+cov.excludedNoPredraw
+                +"｜赛前预测覆盖="+cov.predictionPresenceText()
                 +"｜数据阻断="+cov.blocked;
         return new TruthCard[]{
             new TruthCard("WHY_HIT","为什么中",hitText,hit==null?target:hit.issue,"frozen_predraw+exact_draw",hit==null?"NO_SAMPLE":"AVAILABLE"),
