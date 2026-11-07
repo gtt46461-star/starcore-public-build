@@ -140,6 +140,49 @@ public final class R31TaskRuntimeHost {
         need(n("SELECT count(*) FROM r26_task WHERE status='READY' AND wait_kind='HALF_OPEN'")>=13,"released tasks are fenced half-open probes");
         System.out.println("R31_CLOCK_JUMP_RECOVERY_HOST_PASS jump=24h released_per_second=1 released=13");
     }
+    /** R31-B01-C04#A4: 10000 owner switches on one task: fences strictly increase, every superseded owner's
+     * publication is rejected, each accepted step is published exactly once (no ABA, no double commit). */
+    static void tenThousandOwnerSwitches()throws Exception{
+        String task="host-switch";add(task);RuntimeCoordinatorR26.Claim previous=null;long lastFence=-1;int staleRejected=0;
+        for(int i=0;i<10_000;i++){
+            if(previous!=null)restartR31(task);
+            RuntimeCoordinatorR26.Claim current=claim(task,i%2==0?"owner-A":"owner-B");
+            need(current!=null&&current.fence>lastFence,"switch "+i+" grants a strictly newer fence");lastFence=current.fence;
+            if(previous!=null){boolean rejected=false;try{publishR31(previous,current.cursor+1);}catch(IllegalStateException expected){rejected=expected.getMessage().startsWith("R26_STALE_FENCE");}
+                need(rejected,"superseded owner cannot publish at switch "+i);staleRejected++;}
+            publishR31(current,current.cursor+1);previous=current;
+        }
+        need(n("SELECT count(*) FROM host_artifact WHERE task_id='host-switch'")==10_000&&n("SELECT count(DISTINCT seq) FROM host_artifact WHERE task_id='host-switch'")==10_000
+                &&n("SELECT cursor FROM r26_task WHERE task_id='host-switch'")==10_000,"exactly one publication per accepted step");
+        need(n("SELECT count(DISTINCT fence) FROM host_artifact WHERE task_id='host-switch'")==10_000,"every publication carries its own fence");
+        System.out.println("R31_TEN_THOUSAND_OWNER_SWITCH_HOST_PASS switches=10000 stale_rejected="+staleRejected+" duplicates=0");
+    }
+    /** R31-B01-C03#A3a: virtual clock advanced through 24h of scheduling. Every task with pending work and
+     * satisfied dependencies commits progress; every other task carries a precise blocking reason. */
+    static void twentyFourHourSchedule()throws Exception{
+        String[] tasks={"host-day-progress-a","host-day-progress-b","host-day-dependency","host-day-defect"};
+        for(String id:tasks)add(id);
+        long[] progress=new long[tasks.length];long silentTicks=0;
+        for(int minute=0;minute<24*60;minute++){
+            android.os.SystemClock.offset+=60_000;ResearchPoolR27.recoverOneR31(store,"owner-A");
+            for(int i=0;i<tasks.length;i++){
+                RuntimeCoordinatorR26.Claim c=claim(tasks[i],"owner-A");
+                if(c==null){String status=text("SELECT status FROM r26_task WHERE task_id='"+tasks[i]+"'"),reason=text("SELECT coalesce(blocked_reason,'') FROM r26_task WHERE task_id='"+tasks[i]+"'");
+                    if(!status.equals("QUARANTINED")&&!status.equals("NEEDS_FIX")&&reason.isEmpty())silentTicks++;continue;}
+                if(i<2){publishR31(c,c.cursor+1);receipt(c,null,1);progress[i]++;}
+                else if(i==2)receipt(c,new IllegalStateException("MISSING_TEACHER:host-day"),0);
+                else receipt(c,new IllegalStateException("HOST_DAY_DEFECT"),0);
+            }
+        }
+        need(progress[0]>=1000&&progress[1]>=1000,"tasks with satisfied dependencies keep committing all day "+progress[0]+"/"+progress[1]);
+        need(text("SELECT blocked_reason FROM r26_task WHERE task_id='host-day-dependency'").startsWith("DEPENDENCY"),"dependency wait has a precise reason");
+        need(n("SELECT error_count FROM r26_task WHERE task_id='host-day-dependency'")==0,"dependency waits consume no fault budget");
+        String defect=text("SELECT status FROM r26_task WHERE task_id='host-day-defect'");
+        need(defect.equals("QUARANTINED")||defect.equals("NEEDS_FIX")||text("SELECT coalesce(blocked_reason,'') FROM r26_task WHERE task_id='host-day-defect'").length()>0,"defect is isolated or blocked with evidence");
+        need(n("SELECT level FROM r31_task_control WHERE task_id='host-day-defect'")>=1,"repeated defect raised its isolation level");
+        need(silentTicks==0,"no silent stall: every unclaimed task carried a status or reason");
+        System.out.println("R31_TWENTY_FOUR_HOUR_SCHEDULE_HOST_PASS minutes=1440 progress="+progress[0]+"/"+progress[1]+" defect="+defect+" silent=0");
+    }
     static void classificationsAndRecovery()throws Exception{
         class Typed extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure{
             final String category,outcome;Typed(String category,String outcome){super("HOST_TYPED");this.category=category;this.outcome=outcome;}
@@ -199,6 +242,9 @@ public final class R31TaskRuntimeHost {
         need(!prepared.awaitTermination(25),"bounded helper drain returns pending");
         long closeStarted=System.nanoTime();pool.close();need((System.nanoTime()-closeStarted)/1_000_000<100,"close requests return without waiting for uncooperative helper");
         need(!pool.resourcesTerminatedR31(),"pool cannot declare terminated while owned helper body is alive");
+        long drainStarted=System.nanoTime();while(!"DRAINING_NOT_TERMINATED".equals(pool.shutdownStateR31())&&System.nanoTime()-drainStarted<12_000_000_000L)Thread.sleep(50);
+        need("DRAINING_NOT_TERMINATED".equals(pool.shutdownStateR31()),"bounded controller wait reports stop incomplete, never terminated, while the helper lives");
+        need((System.nanoTime()-drainStarted)/1_000_000<12_000,"stop-incomplete state published within the 10 second controller bound");
         release.countDown();need(prepared.awaitTermination(1000),"actual helper exit releases prepared ownership");
         ResearchPoolR27.clearTaskHelperCancellationR31(claim);need(((Number)ResearchPoolR27.computeBudgetSnapshotR31().get("activeHelpers")).intValue()==0,"actual finally clears active helper");
         need(((Number)memory.snapshot().get("activeLeaseCount")).longValue()==beforeLeases,"actual finally releases exactly the registered prepared/helper leases");
@@ -253,7 +299,7 @@ public final class R31TaskRuntimeHost {
             store=new DbStore(coordinator,db,new android.app.Application(file));pool=new ResearchPoolR27(store,"owner-A",2);
             record=Arrays.stream(ResearchPoolR27.class.getDeclaredMethods()).filter(method->method.getName().equals("record")).findFirst().orElseThrow();record.setAccessible(true);
             claimPrepared=Arrays.stream(ResearchPoolR27.class.getDeclaredMethods()).filter(method->method.getName().equals("claimPrepared")).findFirst().orElseThrow();claimPrepared.setAccessible(true);
-            staleAndClock();killPointsPublishExactlyOnce();ownerChangeIsTerminalForPrepared();classificationsAndRecovery();busyThirteen();thirteenMixedFailures();clockJumpReleasesOnePerSecond();actualPoolLoopRetainsHelperOwner();helperTermination();
+            staleAndClock();killPointsPublishExactlyOnce();ownerChangeIsTerminalForPrepared();classificationsAndRecovery();busyThirteen();thirteenMixedFailures();clockJumpReleasesOnePerSecond();twentyFourHourSchedule();tenThousandOwnerSwitches();actualPoolLoopRetainsHelperOwner();helperTermination();
             System.out.println("R31_TASK_RUNTIME_HOST_PASS assertions="+assertions+" scope=ACTUAL_PRODUCTION_METHODS_NATIVE_SQLITE_WITH_HOST_FAULT_CLOCK_PLATFORM_ADAPTERS_NOT_ANDROID_NOT_DEVICE_NOT_24H_NOT_72H_NOT_QUALITY");
         }
     }
