@@ -25,12 +25,36 @@
     "K01 bindings",
     "verify_baseline revision-manifest sealing"
   ],
-  "ci_fallback": ".github/workflows/r31-gate.yml (fixed SDK setup); then gate close --batch Kxx --import BUILD_SUMMARY.json",
+  "ci_fallback": ".github/workflows/r31-gate.yml commits verification/r31/batches/<K> back; wait with tools/r31/ci_wait.sh",
   "superseded": "R31.1/R31.2 ledgers (PROGRESS.json, EXECUTION_LEDGER.json, r312/) are read-only history; progress = receipts in construction/r31/batches/",
   "claims_not_made": [
     "Application defects fixed",
     "Current full suite passes",
     "Android emulator or device acceptance passes",
     "Natural quality proven"
-  ]
+  ],
+  "continuation_2026_11_07": {
+    "read_first": "construction/r31/R31_3_接续施工说明.md",
+    "open_batch": "K02",
+    "per_batch": [
+      "edit code per batches/Kxx.md",
+      "python3 -B tools/r31/repin_scope.py --batch Kxx",
+      "local quick checks (r967 --check, test_verify_baseline, verify_baseline --identity-only)",
+      "BINDINGS.json",
+      "commit+push",
+      "bash tools/r31/ci_wait.sh Kxx (background)",
+      "fix until green",
+      "r31_gate.py close --batch Kxx on the CI summary",
+      "commit RECEIPT, push, next batch"
+    ],
+    "fixed": [
+      "0083d05 CI commits BUILD_SUMMARY back; repin tool",
+      "da186bb dual-seal verifier (K01 carries)"
+    ],
+    "k02_remaining": [
+      "11 CapacityWait unit failures (ENG-02)",
+      "HOST:verify_family_admission",
+      "bind 10 LOCAL items"
+    ]
+  }
 }
