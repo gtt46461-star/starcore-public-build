@@ -19,6 +19,14 @@ public final class R31RuntimeDdlHost {
     static void need(boolean value,String why){checks++;if(!value)throw new AssertionError(why);}
     static void stage(String stage){SQLiteDatabase.stage=stage;if(stage.startsWith("BUSINESS_")&&!businessStages.contains(stage))businessStages.add(stage);}
     static long count(String sql){String previous=SQLiteDatabase.stage;SQLiteDatabase.stage="ASSERTION_READ";try(Cursor rows=db.rawQuery(sql,null)){need(rows.moveToFirst(),sql);return rows.getLong(0);}finally{SQLiteDatabase.stage=previous;}}
+    /** Every row of a table, all columns quoted, in rowid order: a byte-exact row-by-row snapshot. */
+    static String rowsR31(String table){
+        List<String> columns=new ArrayList<>();String previous=SQLiteDatabase.stage;SQLiteDatabase.stage="ASSERTION_READ";
+        try(Cursor info=db.rawQuery("PRAGMA table_info("+table+")",null)){while(info.moveToNext())columns.add(info.getString(1));}finally{SQLiteDatabase.stage=previous;}
+        need(!columns.isEmpty(),"table exists for snapshot: "+table);StringBuilder row=new StringBuilder();
+        for(String column:columns){if(row.length()>0)row.append("||'|'||");row.append("quote(\"").append(column).append("\")");}
+        return text("SELECT coalesce(group_concat(r,char(10)),'') FROM (SELECT "+row+" AS r FROM "+table+" ORDER BY rowid)");
+    }
     static String text(String sql){String previous=SQLiteDatabase.stage;SQLiteDatabase.stage="ASSERTION_READ";try(Cursor rows=db.rawQuery(sql,null)){need(rows.moveToFirst(),sql);return rows.getString(0);}finally{SQLiteDatabase.stage=previous;}}
     static void field(Object target,String name,Object value)throws Exception{Field f=target.getClass().getDeclaredField(name);f.setAccessible(true);f.set(target,value);}
     static Object field(Object target,String name)throws Exception{Field f=target.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(target);}
@@ -36,7 +44,13 @@ public final class R31RuntimeDdlHost {
         stage("BUSINESS_CERT_REVOKE_READY");tx(()->CertificateRevocationR30.revokeWithin(db,"202611040001","HOST_CANONICAL_CONFLICT","quoted'fixture"));need(text("SELECT status FROM r27_certificate").equals("REVOKED"),"ready schema performs actual authority revocation");need(count("SELECT count(*) FROM r30_revoked_certificate WHERE evidence_digest='HOST_EVIDENCE'")==1,"original certificate retained in immutable archive");
         stage("BOOTSTRAP_CERT_DRIFT_INJECTION");db.execSQL("DROP TRIGGER r30_revoke_r27_reissue_insert");
         stage("BUSINESS_CERT_GUARD_DRIFT");boolean triggerMissing=false;try{tx(()->CertificateRevocationR30.revokeWithin(db,"202611040001","HOST_DRIFT","fixture"));}catch(DatabaseCoordinator.SchemaPendingR31 pending){dependency(pending,"missing anti-reissue trigger is dependency");triggerMissing=true;}need(triggerMissing,"table names alone cannot make authority schema ready");need(count("SELECT count(*) FROM sqlite_master WHERE name='r30_revoke_r27_reissue_insert'")==0,"business does not recreate missing trigger");
+        String[] revocationTables={"r27_certificate","r26_certificate_revocation","r30_revoked_certificate","r30_revoked_policy","r30_certificate_revocation_event"};Map<String,String> beforeRepair=new LinkedHashMap<>();
+        for(String table:revocationTables)beforeRepair.put(table,rowsR31(table));
+        need(count("SELECT count(*) FROM r30_revoked_certificate")>=1,"existing revocation records present before the upgrade");
         stage("BOOTSTRAP_CERT_REPAIR");tx(()->CertificateRevocationR30.ensure(db));
+        for(String table:revocationTables)need(beforeRepair.get(table).equals(rowsR31(table)),"R31-ENG-01#A2: existing revocation rows unchanged row by row across the upgrade: "+table);
+        tx(()->CertificateRevocationR30.ensure(db));
+        for(String table:revocationTables)need(beforeRepair.get(table).equals(rowsR31(table)),"repeated upgrade keeps revocation rows unchanged: "+table);
         System.out.println("R31_RUNTIME_CERT_DDL_HOST_PASS noAuthorityNoCreate=true missingAuthoritySchemaDependency=true actualRevokeAndArchive=true missingTriggerDependency=true");
     }
     static void transactionWrapper()throws Exception{

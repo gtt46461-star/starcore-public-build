@@ -1,0 +1,25 @@
+{
+ "items": {
+  "R31-B01-C03#A1": ["HOST:run_task_runtime_host"],
+  "R31-B01-C03#A2": ["HOST:run_task_runtime_host"],
+  "R31-B01-C03#A3a": ["HOST:run_task_runtime_host"],
+  "R31-B01-C04#A1a": ["HOST:run_task_runtime_host", "com.ethk3.novaonepro.strategyv2.R31ContinuationLifecycleTest#hardTimeoutCannotResumeOrSpawnReplacementBeforeExit", "com.ethk3.novaonepro.strategyv2.R27QualityTest#r27ResearchWritesYieldToCriticalBusiness"],
+  "R31-B01-C04#A2": ["com.ethk3.novaonepro.strategyv2.R31ContinuationLifecycleTest#writerCriticalRejectsPreparedYieldAndCriticalCloseIsIdempotent"],
+  "R31-B01-C04#A3a": ["com.ethk3.novaonepro.strategyv2.R31ContinuationStressTest#tenThousandClaimCancelCyclesStayBoundedAndDrainToZero"],
+  "R31-B01-C04#A4": ["HOST:run_task_runtime_host", "com.ethk3.novaonepro.strategyv2.R31ContinuationLifecycleTest#hardTimeoutCannotResumeOrSpawnReplacementBeforeExit"],
+  "R31-B02-C01#A1": ["com.ethk3.novaonepro.R31WriteOperationRegistryTest#everyLiteralProductionOperationIsRegistered", "com.ethk3.novaonepro.R31WriteOperationRegistryTest#criticalWritersAreExactlyThePreR31BusinessSet", "com.ethk3.novaonepro.R31WriteOperationRegistryTest#unregisteredOperationIsUnknownAndBackground", "HOST:run_write_protocol_host"],
+  "R31-B02-C01#A2a": ["HOST:run_task_runtime_host"],
+  "R31-B02-C01#A3": ["com.ethk3.novaonepro.strategyv2.R31WriterReportColumnsTest#perOperationColumnsAndBudgetOwnerAreReported"],
+  "R31-B02-C02#A1": ["HOST:run_runtime_ddl_host", "HOST:run_runtime_ddl_writer_regression"],
+  "R31-B02-C02#A2": ["HOST:run_atomnet_publication_host", "HOST:run_write_protocol_host"],
+  "R31-B02-C03#A1": ["HOST:run_write_protocol_host", "com.ethk3.novaonepro.strategyv2.R31WriterOutcomeCountsTest#failedDiagnosticOnCommittedTransactionIsNotRollback"],
+  "R31-B02-C03#A2": ["HOST:run_write_protocol_host"],
+  "R31-B02-C03#A3": ["HOST:run_write_protocol_host"],
+  "R31-ENG-01#A1": ["HOST:run_certificate_startup_host"],
+  "R31-ENG-01#A2": ["HOST:run_certificate_startup_host", "HOST:run_runtime_ddl_host"],
+  "R31-ENG-01#A3": ["HOST:run_certificate_startup_host"]
+ },
+ "scope_extensions": [
+  {"path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java", "reason": "B02-C01#A3：写锁报告在超过50ms软目标时记录具体owner文件（首个调用方源文件#方法），账本是DatabaseCoordinator写锁的唯一计量owner"}
+ ]
+}

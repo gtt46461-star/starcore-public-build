@@ -183,6 +183,29 @@ public final class R31TaskRuntimeHost {
         need(silentTicks==0,"no silent stall: every unclaimed task carried a status or reason");
         System.out.println("R31_TWENTY_FOUR_HOUR_SCHEDULE_HOST_PASS minutes=1440 progress="+progress[0]+"/"+progress[1]+" defect="+defect+" silent=0");
     }
+    /** R31-B02-C01#A2a: 60 minutes of 1 Hz draw ingest compressed in time against continuous research,
+     * history catch-up, report and retention writers on the real coordinator lock. */
+    static void sixtyMinuteWriterContention()throws Exception{
+        db.execSQL("CREATE TABLE host_contention(kind TEXT,seq INTEGER)");
+        AtomicBoolean stop=new AtomicBoolean();AtomicLong criticalMaxWait=new AtomicLong();AtomicReference<Throwable> crashed=new AtomicReference<>();
+        String[][] background={{"RESEARCH_DATA","R31_HOST_RESEARCH_CONTENTION"},{"RESEARCH_DATA","R914_DRAW_HISTORY_BATCH"},{"REPORT","R27_CHART_CACHE"},{"RETENTION","R26_ARTIFACT_RETENTION"}};
+        Map<String,AtomicInteger> done=new ConcurrentHashMap<>(),busy=new ConcurrentHashMap<>();List<Thread> threads=new ArrayList<>();
+        for(String[] b:background){done.put(b[1],new AtomicInteger());busy.put(b[1],new AtomicInteger());
+            Thread thread=new Thread(()->{try{while(!stop.get()){
+                try{coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.valueOf(b[0]),b[1]),tx->{tx.execSQL("INSERT INTO host_contention VALUES(?,0)",new Object[]{b[1]});long end=System.nanoTime()+2_000_000L;while(System.nanoTime()<end)Thread.onSpinWait();return 0;});done.get(b[1]).incrementAndGet();}
+                catch(RuntimeException rejected){if(FailureDispositionR31.classify(rejected).disposition!=FailureDispositionR31.Disposition.RETRY_LATER)throw rejected;busy.get(b[1]).incrementAndGet();}
+            }}catch(Throwable failure){crashed.compareAndSet(null,failure);}},"host-contention-"+b[1]);thread.start();threads.add(thread);}
+        int critical=0;
+        try{for(int tick=0;tick<3600;tick++){final int seq=tick;long started=System.nanoTime();
+            coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.DRAW_INGEST,"R914_DRAW_SAVE_ATOMIC"),tx->{tx.execSQL("INSERT INTO host_contention VALUES('DRAW',?)",new Object[]{seq});return 0;});
+            criticalMaxWait.accumulateAndGet((System.nanoTime()-started)/1_000_000L,Math::max);critical++;android.os.SystemClock.offset+=1000;}}
+        finally{stop.set(true);for(Thread thread:threads)thread.join(10_000);}
+        need(crashed.get()==null,"background writers only see transient busy: "+crashed.get());
+        need(critical==3600&&n("SELECT count(*) FROM host_contention WHERE kind='DRAW'")==3600,"every 1 Hz critical write committed");
+        need(criticalMaxWait.get()<2000,"critical writer never starved, max wait ms="+criticalMaxWait.get());
+        for(String[] b:background)need(done.get(b[1]).get()>0,"background "+b[1]+" keeps progressing, busy="+busy.get(b[1]).get());
+        System.out.println("R31_SIXTY_MINUTE_CONTENTION_HOST_PASS critical=3600 criticalMaxWaitMs="+criticalMaxWait.get()+" background="+done+" busy="+busy);
+    }
     static void classificationsAndRecovery()throws Exception{
         class Typed extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure{
             final String category,outcome;Typed(String category,String outcome){super("HOST_TYPED");this.category=category;this.outcome=outcome;}
@@ -299,7 +322,7 @@ public final class R31TaskRuntimeHost {
             store=new DbStore(coordinator,db,new android.app.Application(file));pool=new ResearchPoolR27(store,"owner-A",2);
             record=Arrays.stream(ResearchPoolR27.class.getDeclaredMethods()).filter(method->method.getName().equals("record")).findFirst().orElseThrow();record.setAccessible(true);
             claimPrepared=Arrays.stream(ResearchPoolR27.class.getDeclaredMethods()).filter(method->method.getName().equals("claimPrepared")).findFirst().orElseThrow();claimPrepared.setAccessible(true);
-            staleAndClock();killPointsPublishExactlyOnce();ownerChangeIsTerminalForPrepared();classificationsAndRecovery();busyThirteen();thirteenMixedFailures();clockJumpReleasesOnePerSecond();twentyFourHourSchedule();tenThousandOwnerSwitches();actualPoolLoopRetainsHelperOwner();helperTermination();
+            staleAndClock();killPointsPublishExactlyOnce();ownerChangeIsTerminalForPrepared();classificationsAndRecovery();busyThirteen();thirteenMixedFailures();clockJumpReleasesOnePerSecond();twentyFourHourSchedule();tenThousandOwnerSwitches();sixtyMinuteWriterContention();actualPoolLoopRetainsHelperOwner();helperTermination();
             System.out.println("R31_TASK_RUNTIME_HOST_PASS assertions="+assertions+" scope=ACTUAL_PRODUCTION_METHODS_NATIVE_SQLITE_WITH_HOST_FAULT_CLOCK_PLATFORM_ADAPTERS_NOT_ANDROID_NOT_DEVICE_NOT_24H_NOT_72H_NOT_QUALITY");
         }
     }

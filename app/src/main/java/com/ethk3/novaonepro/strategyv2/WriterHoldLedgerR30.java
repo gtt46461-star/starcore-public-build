@@ -49,6 +49,8 @@ public final class WriterHoldLedgerR30 {
         final AtomicLong outcomeUnknown = new AtomicLong();
         final AtomicLongArray holdHist = new AtomicLongArray(BOUNDS.length);
         final AtomicLongArray waitHist = new AtomicLongArray(BOUNDS.length);
+        /** First source owner (file#method) observed over the 50 ms soft budget; captured only on that rare path. */
+        volatile String overBudgetOwner;
         Stat(String operation, boolean critical) { this.operation = operation; this.critical = critical; }
         public long count() { return count.get(); }
         public long holdMax() { return holdMax.get(); }
@@ -95,11 +97,25 @@ public final class WriterHoldLedgerR30 {
             if ("ROLLED_BACK".equals(outcome)) s.rolledBackKnown.incrementAndGet();
             else if ("COMMITTED".equals(outcome)||"COMMITTED_DIAGNOSTIC_FAILED".equals(outcome)) s.committedKnown.incrementAndGet();
             else s.outcomeUnknown.incrementAndGet();
-            if (!critical && hold > BACKGROUND_HOLD_BUDGET_MS) s.overBudget.incrementAndGet();
+            if (!critical && hold > BACKGROUND_HOLD_BUDGET_MS) { s.overBudget.incrementAndGet(); if (s.overBudgetOwner == null) s.overBudgetOwner = ownerFrame(); }
             if (!critical && hold > BACKGROUND_HOLD_HARD_MS) s.overHard.incrementAndGet();
         } catch (RuntimeException ignored) {
             // 诊断失败不能影响写入结果。
         }
+    }
+
+    /** The first caller frame outside the coordinator, the ledger and the platform: the owner file to fix. */
+    static String ownerFrame() {
+        for (StackTraceElement frame : new Throwable().getStackTrace()) {
+            String type = frame.getClassName();
+            if (type.startsWith(WriterHoldLedgerR30.class.getName()) || type.startsWith("com.ethk3.novaonepro.DatabaseCoordinator")
+                    || type.startsWith("java.") || type.startsWith("javax.") || type.startsWith("android.") || type.startsWith("dalvik.")
+                    || type.startsWith("jdk.") || type.startsWith("sun.")) continue;
+            String file = frame.getFileName() == null ? type : frame.getFileName();
+            String owner = file + "#" + frame.getMethodName();
+            return owner.length() > 160 ? owner.substring(0, 160) : owner;
+        }
+        return "UNKNOWN_OWNER";
     }
 
     static String normalize(String operation, boolean critical) {
@@ -200,6 +216,7 @@ public final class WriterHoldLedgerR30 {
         m.put("waitMax", s.waitMax());
         m.put("overBudget50ms", s.overBudget());
         m.put("overHard200ms", s.overHard());
+        m.put("overBudgetOwner", s.overBudgetOwner);
         m.put("failures", s.failures());
         m.put("rolledBack",s.outcomeUnknown.get()==0?s.rolledBackKnown.get():null);m.put("rolledBackKnown",s.rolledBackKnown.get());m.put("commitOutcomeUnknown",s.outcomeUnknown.get());
         m.put("holdP95Interval",interval(s.holdP(0.95)));m.put("waitP95Interval",interval(s.waitP(0.95)));m.put("histogram",s.histogram());m.put("processSession",PROCESS_SESSION);
