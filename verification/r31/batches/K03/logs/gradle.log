@@ -15,7 +15,7 @@ To honour the JVM settings for this build a single-use Daemon process will be fo
 Daemon will be stopped at the end of the build 
 
 > Task :app:generateR27BuildIdentity
-R27_BUILD_IDENTITY_WRITTEN 9fa5cc631036cc641d5eb15e49360c6438f87026 b6c6c547924bc5e03ccf9c056f969679a1fae1b5
+R27_BUILD_IDENTITY_WRITTEN 37828f5f6e639e065b63f8c4fba92a579666377e 515b05e8cc26a1e7b1910360185fe3e9ec779117
 
 > Task :app:verifyR31Baseline
 > Task :app:generateR31BuildIdentity
@@ -36,10 +36,10 @@ R967_SEMANTIC_IDENTITY_GENERATED|c4930f0d22494001c37ede95ab546b6502580140e787c1a
 R967_SEMANTIC_IDENTITY_VERIFIED|c4930f0d22494001c37ede95ab546b6502580140e787c1ae7cf5288ff83d796b
 
 > Task :app:generateR815Provenance
-R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=87f94f8b17b79a55e9ca5e0a455ad610b1cbad927c40450a8cc841fb92a2616f|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=3d63823a8f0e747f889cd6a482484c685f50dd8de79879ca24a1a5e530b8827f|GENERATED_AT=2026-11-07T08:30:48Z
+R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=87f94f8b17b79a55e9ca5e0a455ad610b1cbad927c40450a8cc841fb92a2616f|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=3d63823a8f0e747f889cd6a482484c685f50dd8de79879ca24a1a5e530b8827f|GENERATED_AT=2026-11-07T09:01:58Z
 
 > Task :app:verifyR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=87f94f8b17b79a55e9ca5e0a455ad610b1cbad927c40450a8cc841fb92a2616f|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=3d63823a8f0e747f889cd6a482484c685f50dd8de79879ca24a1a5e530b8827f|GENERATED_AT=2026-11-07T08:30:48Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=87f94f8b17b79a55e9ca5e0a455ad610b1cbad927c40450a8cc841fb92a2616f|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=3d63823a8f0e747f889cd6a482484c685f50dd8de79879ca24a1a5e530b8827f|GENERATED_AT=2026-11-07T09:01:58Z
 
 > Task :app:preBuild
 > Task :app:preDebugBuild
@@ -49,8 +49,8 @@ R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=87f94f8b17b79a55e9ca5e0a455ad610b1cbad927
 > Task :app:generateDebugResValues
 > Task :app:mapDebugSourceSetPaths
 > Task :app:generateDebugResources
-> Task :app:packageDebugResources
 > Task :app:mergeDebugResources
+> Task :app:packageDebugResources
 > Task :app:createDebugCompatibleScreenManifests
 > Task :app:extractDeepLinksDebug
 > Task :app:parseDebugLocalResources
@@ -58,6 +58,7 @@ R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=87f94f8b17b79a55e9ca5e0a455ad610b1cbad927
 > Task :app:processDebugManifest
 > Task :app:preDebugAndroidTestBuild SKIPPED
 > Task :app:processDebugAndroidTestManifest
+> Task :app:processDebugManifestForPackage
 > Task :app:generateDebugAndroidTestBuildConfig
 > Task :app:javaPreCompileDebugAndroidTest FROM-CACHE
 > Task :app:prepareRawUpstreamAndroidTestHarness
@@ -67,13 +68,12 @@ R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=87f94f8b17b79a55e9ca5e0a455ad610b1cbad927
 > Task :app:generateDebugAndroidTestResources
 > Task :app:preDebugUnitTestBuild
 > Task :app:javaPreCompileDebugUnitTest FROM-CACHE
-> Task :app:processDebugManifestForPackage
 > Task :app:mergeDebugAndroidTestResources
 > Task :app:processDebugJavaRes NO-SOURCE
 > Task :app:processDebugUnitTestJavaRes
+> Task :app:processDebugResources
 > Task :app:extractProguardFiles
 > Task :app:processDebugAndroidTestResources
-> Task :app:processDebugResources
 
 > Task :app:compileDebugJavaWithJavac
 /home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java:14: warning: [strictfp] as of release 17, all floating-point expressions are evaluated strictly and 'strictfp' is not required
@@ -85,15 +85,15 @@ Note: Some input files use unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
 1 warning
 
-> Task :app:bundleDebugClassesToRuntimeJar
 > Task :app:bundleDebugClassesToCompileJar
+> Task :app:bundleDebugClassesToRuntimeJar
 > Task :app:generateDebugLintReportModel
 
 > Task :app:verifyFinalR967Semantics
 R967_SEMANTIC_IDENTITY_VERIFIED|c4930f0d22494001c37ede95ab546b6502580140e787c1ae7cf5288ff83d796b
 
 > Task :app:verifyFinalR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=87f94f8b17b79a55e9ca5e0a455ad610b1cbad927c40450a8cc841fb92a2616f|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=3d63823a8f0e747f889cd6a482484c685f50dd8de79879ca24a1a5e530b8827f|GENERATED_AT=2026-11-07T08:30:48Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=87f94f8b17b79a55e9ca5e0a455ad610b1cbad927c40450a8cc841fb92a2616f|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=3d63823a8f0e747f889cd6a482484c685f50dd8de79879ca24a1a5e530b8827f|GENERATED_AT=2026-11-07T09:01:58Z
 
 > Task :app:compileDebugAndroidTestJavaWithJavac
 Note: Some input files use or override a deprecated API.
@@ -125,5 +125,5 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 10m 36s
+BUILD SUCCESSFUL in 8m 29s
 54 actionable tasks: 51 executed, 3 from cache

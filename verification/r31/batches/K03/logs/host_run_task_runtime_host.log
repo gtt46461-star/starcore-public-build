@@ -1,14 +1,14 @@
-R31_HOST_DEPENDENCY_PROVENANCE {"androidSdk": {"path": "/usr/local/lib/android/sdk/platforms/android-36/android.jar", "sha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a"}, "classes": {"classTreeSha256": "781b22b46016b1c1d9d13a69c96f818d6ecae637446e8eb60f1ddc6c374ab359", "path": "/home/runner/work/starcore-public-build/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"}, "generatedResources": {"path": "/home/runner/work/starcore-public-build/starcore-public-build/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/processDebugResources/R.jar", "sha256": "ee74e9c8d95f2a1cb9d5477246207aac640b2e790edaaa495142f626318f4956"}, "sqliteJdbc": {"path": "/home/runner/.cache/r312-host/sqlite-jdbc-3.46.1.3.jar", "sha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa"}}
+R31_HOST_DEPENDENCY_PROVENANCE {"androidSdk": {"path": "/usr/local/lib/android/sdk/platforms/android-36/android.jar", "sha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a"}, "classes": {"classTreeSha256": "f4c101ad177b7a2a72910f0591a51eb359a2847c939249bfd1e28b5fc24a1e6c", "path": "/home/runner/work/starcore-public-build/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"}, "generatedResources": {"path": "/home/runner/work/starcore-public-build/starcore-public-build/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/processDebugResources/R.jar", "sha256": "ee74e9c8d95f2a1cb9d5477246207aac640b2e790edaaa495142f626318f4956"}, "sqliteJdbc": {"path": "/home/runner/.cache/r312-host/sqlite-jdbc-3.46.1.3.jar", "sha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa"}}
 /home/runner/work/starcore-public-build/starcore-public-build/tools/r31/host/R31TaskRuntimeHost.java:13: warning: Unsafe is internal proprietary API and may be removed in a future release
 import sun.misc.Unsafe;
                ^
-/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/host/R31TaskRuntimeHost.java:323: warning: Unsafe is internal proprietary API and may be removed in a future release
+/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/host/R31TaskRuntimeHost.java:326: warning: Unsafe is internal proprietary API and may be removed in a future release
             Field unsafeField=Unsafe.class.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);Unsafe unsafe=(Unsafe)unsafeField.get(null);coordinator=(DatabaseCoordinator)unsafe.allocateInstance(DatabaseCoordinator.class);
                               ^
-/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/host/R31TaskRuntimeHost.java:323: warning: Unsafe is internal proprietary API and may be removed in a future release
+/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/host/R31TaskRuntimeHost.java:326: warning: Unsafe is internal proprietary API and may be removed in a future release
             Field unsafeField=Unsafe.class.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);Unsafe unsafe=(Unsafe)unsafeField.get(null);coordinator=(DatabaseCoordinator)unsafe.allocateInstance(DatabaseCoordinator.class);
                                                                                                          ^
-/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/host/R31TaskRuntimeHost.java:323: warning: Unsafe is internal proprietary API and may be removed in a future release
+/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/host/R31TaskRuntimeHost.java:326: warning: Unsafe is internal proprietary API and may be removed in a future release
             Field unsafeField=Unsafe.class.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);Unsafe unsafe=(Unsafe)unsafeField.get(null);coordinator=(DatabaseCoordinator)unsafe.allocateInstance(DatabaseCoordinator.class);
                                                                                                                         ^
 4 warnings
@@ -21,13 +21,8 @@ R31_THIRTEEN_MIXED_FAILURE_HOST_PASS dependency_free=6 quarantined=4 needs_fix=3
 R31_CLOCK_JUMP_RECOVERY_HOST_PASS jump=24h released_per_second=1 released=13
 R31_TWENTY_FOUR_HOUR_SCHEDULE_HOST_PASS minutes=1440 progress=1440/1440 defect=NEEDS_FIX silent=0
 R31_TEN_THOUSAND_OWNER_SWITCH_HOST_PASS switches=10000 stale_rejected=9999 duplicates=0
-Exception in thread "main" java.lang.AssertionError: background R27_CHART_CACHE keeps progressing, busy=733
-	at com.ethk3.novaonepro.strategyv2.R31TaskRuntimeHost.need(R31TaskRuntimeHost.java:19)
-	at com.ethk3.novaonepro.strategyv2.R31TaskRuntimeHost.sixtyMinuteWriterContention(R31TaskRuntimeHost.java:210)
-	at com.ethk3.novaonepro.strategyv2.R31TaskRuntimeHost.main(R31TaskRuntimeHost.java:329)
-Traceback (most recent call last):
-  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/run_task_runtime_host.py", line 91, in <module>
-    completed.check_returncode()
-  File "/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/subprocess.py", line 502, in check_returncode
-    raise CalledProcessError(self.returncode, self.args, self.stdout,
-subprocess.CalledProcessError: Command '['java', '-Xmx512m', '-cp', '/tmp/r31-production-runtime-szcmkt61/platform:/tmp/r31-production-runtime-szcmkt61/production:/tmp/r31-production-runtime-szcmkt61/test:/home/runner/work/starcore-public-build/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/home/runner/.cache/r312-host/sqlite-jdbc-3.46.1.3.jar:/usr/local/lib/android/sdk/platforms/android-36/android.jar', 'com.ethk3.novaonepro.strategyv2.R31TaskRuntimeHost', '/tmp/r31-production-runtime-szcmkt61/runtime.db']' returned non-zero exit status 1.
+R31_SIXTY_MINUTE_CONTENTION_HOST_PASS critical=3600 criticalMaxWaitMs=47 background={R31_HOST_RESEARCH_CONTENTION=4532, R914_DRAW_HISTORY_BATCH=4603, R26_ARTIFACT_RETENTION=4540, R27_CHART_CACHE=4512} busy={R31_HOST_RESEARCH_CONTENTION=3595, R914_DRAW_HISTORY_BATCH=3593, R26_ARTIFACT_RETENTION=3596, R27_CHART_CACHE=3595} deferred={R31_HOST_RESEARCH_CONTENTION=0, R914_DRAW_HISTORY_BATCH=0, R26_ARTIFACT_RETENTION=0, R27_CHART_CACHE=0}
+R31_ACTUAL_POOL_LOOP_HELPER_RACE_HOST_PASS no_replacement_after_parent_done=true manual_retry_waits_for_helper=true resumes_after_actual_exit=true
+R31_HELPER_TERMINATION_HOST_PASS cancelled_future_not_exit=true parent_exit_not_group_exit=true permit_retained_until_real_finally=true bounded_drain=true
+R31_TASK_RUNTIME_HOST_PASS assertions=49200 scope=ACTUAL_PRODUCTION_METHODS_NATIVE_SQLITE_WITH_HOST_FAULT_CLOCK_PLATFORM_ADAPTERS_NOT_ANDROID_NOT_DEVICE_NOT_24H_NOT_72H_NOT_QUALITY
+R31_TASK_RUNTIME_NATIVE_SQLITE_HOST_PASS_NOT_ANDROID_NOT_DEVICE_NOT_SOAK
