@@ -1,0 +1,20 @@
+REPAIR_RETENTION_EXACT_KEY_FOLD_NATIVE_HOST_PASS periods=300 actions=150 hits=50 maxBatch=64 rollback_retry_no_duplicate=1 changed_source_rejected=1
+Exception in thread "main" com.ethk3.novaonepro.DatabaseCoordinator$SchemaPendingR31: SCHEMA_PENDING:R31_WARM_INDEX:EXACT_INDEX_REQUIRED
+	at com.ethk3.novaonepro.strategyv2.WarmPublicationR31.requireIndexR31(WarmPublicationR31.java:22)
+	at com.ethk3.novaonepro.strategyv2.WarmCandidateR26.requireInitializerPruneSchemaR31(WarmCandidateR26.java:66)
+	at com.ethk3.novaonepro.strategyv2.WarmCandidateR26.prepareInitializerPruneR31(WarmCandidateR26.java:64)
+	at com.ethk3.novaonepro.strategyv2.WarmCandidateR26.pruneInitializers(WarmCandidateR26.java:139)
+	at com.ethk3.novaonepro.strategyv2.RetentionR26.pruneStep(RetentionR26.java:59)
+	at com.ethk3.novaonepro.strategyv2.RepairRetentionR30HostTest.lambda$phases$8(RepairRetentionR30HostTest.java:44)
+	at com.ethk3.novaonepro.strategyv2.RepairRetentionR30HostTest.tx(RepairRetentionR30HostTest.java:12)
+	at com.ethk3.novaonepro.strategyv2.RepairRetentionR30HostTest.phases(RepairRetentionR30HostTest.java:44)
+	at com.ethk3.novaonepro.strategyv2.RepairRetentionR30HostTest.main(RepairRetentionR30HostTest.java:58)
+Traceback (most recent call last):
+  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r30-repair/run_retention_host.py", line 13, in <module>
+    run(['java','-Xmx512m','-cp',os.pathsep.join(map(str,[shim,tests,classes,jdbc,sdk])),'com.ethk3.novaonepro.strategyv2.RepairRetentionR30HostTest'])
+  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r30-repair/run_retention_host.py", line 8, in run
+    def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['java', '-Xmx512m', '-cp', '/tmp/repair-retention-host-nlixrvo1/shim:/tmp/repair-retention-host-nlixrvo1/tests:/home/runner/work/starcore-public-build/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/home/runner/.cache/r312-host/sqlite-jdbc-3.46.1.3.jar:/usr/local/lib/android/sdk/platforms/android-36/android.jar', 'com.ethk3.novaonepro.strategyv2.RepairRetentionR30HostTest']' returned non-zero exit status 1.
