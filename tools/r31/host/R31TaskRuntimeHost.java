@@ -226,6 +226,16 @@ public final class R31TaskRuntimeHost {
         long fdAfter=fdCountR31();need(fdAfter<=fdBefore,"reader/cursor/file handles return to baseline before="+fdBefore+" after="+fdAfter);
         System.out.println("R31_HUNDRED_SESSION_RELEASE_HOST_PASS sessions=100 reachable=0 fdBefore="+fdBefore+" fdAfter="+fdAfter);
     }
+    /** R31-B04-C02#A2a (coordinator layer): after a user stop no task is claimed, recovery never revives the session,
+     * and only an explicit user start resumes work. */
+    static void userStopNoNewWorkNoSelfRevival()throws Exception{
+        add("host-user-stop");db.execSQL("UPDATE r26_session SET user_enabled=0,state='STOPPED' WHERE session_id='owner-A'");
+        for(int i=0;i<20;i++){android.os.SystemClock.offset+=1100;ResearchPoolR27.recoverOneR31(store,"owner-A");need(claim("host-user-stop","owner-A")==null,"stopped session claims no new work "+i);}
+        need(text("SELECT user_enabled||':'||state FROM r26_session WHERE session_id='owner-A'").equals("0:STOPPED"),"stopped session never revives itself");
+        db.execSQL("UPDATE r26_session SET user_enabled=1,state='RUNNING' WHERE session_id='owner-A'");
+        need(claim("host-user-stop","owner-A")!=null,"explicit user start resumes the same task");
+        System.out.println("R31_USER_STOP_NATIVE_HOST_PASS claims_after_stop=0 self_revival=false explicit_start_resumes=true");
+    }
     static void classificationsAndRecovery()throws Exception{
         class Typed extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure{
             final String category,outcome;Typed(String category,String outcome){super("HOST_TYPED");this.category=category;this.outcome=outcome;}
@@ -342,7 +352,7 @@ public final class R31TaskRuntimeHost {
             store=new DbStore(coordinator,db,new android.app.Application(file));pool=new ResearchPoolR27(store,"owner-A",2);
             record=Arrays.stream(ResearchPoolR27.class.getDeclaredMethods()).filter(method->method.getName().equals("record")).findFirst().orElseThrow();record.setAccessible(true);
             claimPrepared=Arrays.stream(ResearchPoolR27.class.getDeclaredMethods()).filter(method->method.getName().equals("claimPrepared")).findFirst().orElseThrow();claimPrepared.setAccessible(true);
-            staleAndClock();killPointsPublishExactlyOnce();ownerChangeIsTerminalForPrepared();classificationsAndRecovery();busyThirteen();thirteenMixedFailures();clockJumpReleasesOnePerSecond();twentyFourHourSchedule();tenThousandOwnerSwitches();sixtyMinuteWriterContention();hundredSessionsReleaseObjectsAndHandles();actualPoolLoopRetainsHelperOwner();helperTermination();
+            staleAndClock();killPointsPublishExactlyOnce();ownerChangeIsTerminalForPrepared();classificationsAndRecovery();busyThirteen();thirteenMixedFailures();clockJumpReleasesOnePerSecond();twentyFourHourSchedule();tenThousandOwnerSwitches();sixtyMinuteWriterContention();hundredSessionsReleaseObjectsAndHandles();userStopNoNewWorkNoSelfRevival();actualPoolLoopRetainsHelperOwner();helperTermination();
             System.out.println("R31_TASK_RUNTIME_HOST_PASS assertions="+assertions+" scope=ACTUAL_PRODUCTION_METHODS_NATIVE_SQLITE_WITH_HOST_FAULT_CLOCK_PLATFORM_ADAPTERS_NOT_ANDROID_NOT_DEVICE_NOT_24H_NOT_72H_NOT_QUALITY");
         }
     }

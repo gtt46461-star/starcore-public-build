@@ -1,0 +1,29 @@
+{
+ "items": {
+  "R31-B03-C01#A1": ["HOST:run_service_protocol_host"],
+  "R31-B03-C01#A2a": ["com.ethk3.novaonepro.R31FetchLatencyDistributionTest#thousandFetchesReportFullDistributionDenominatorAndWorstTwenty", "com.ethk3.novaonepro.R31FetchLatencyDistributionTest#emptyOrAllFailedHasNoInventedPercentile"],
+  "R31-B03-C01#A3": ["HOST:run_service_protocol_host"],
+  "R31-B03-C02#A4": ["com.ethk3.novaonepro.AnalysisSingleFlightR36Test#hundredRequestsKeepOneOwnerAndLatestPending", "com.ethk3.novaonepro.AnalysisSingleFlightR36Test#noProgressCancelsExactlyOnce", "com.ethk3.novaonepro.AnalysisSingleFlightR36Test#supersededBeforeFinalizationCannotEnterCommitPhase"],
+  "R31-B03-C03#A1": ["HOST:run_service_protocol_host"],
+  "R31-B03-C03#A2": ["HOST:run_service_protocol_host"],
+  "R31-B04-C01#A1": ["HOST:run_runtime_health_host"],
+  "R31-B04-C01#A2": ["HOST:run_runtime_health_host"],
+  "R31-B04-C01#A3": ["HOST:run_runtime_health_host", "HOST:run_service_protocol_host"],
+  "R31-B04-C02#A2a": ["HOST:run_task_runtime_host", "com.ethk3.novaonepro.R31BackgroundCapabilityStateTest#userDisabledIsNotPromisedAutomaticRecovery"],
+  "R31-B04-C02#A4": ["com.ethk3.novaonepro.R31BackgroundCapabilityStateTest#onlyObservedRestrictionsAreOsRestricted", "com.ethk3.novaonepro.R31BackgroundCapabilityStateTest#configuredCapabilitiesAreNeverDeviceSoakEvidence"],
+  "R31-B05-C01#A1": ["com.ethk3.novaonepro.R31StorageGovernanceTest#categoriesAndScopesUseTheSameObservedFileLengths", "com.ethk3.novaonepro.RepairStorageCensusR30Test#backupSnapshotAndProtectedModelAreMeasuredOnceWithoutCopyingOrDeleting"],
+  "R31-B05-C01#A2": ["com.ethk3.novaonepro.R31StoragePhaseSamplingTest#stageSamplesLocatePeakAndSteadyState", "com.ethk3.novaonepro.R31StorageGovernanceTest#fixedRingsDoNotGrowBeyond288PointsAnd720Hours"],
+  "R31-B05-C02#A1": ["com.ethk3.novaonepro.R31StorageGovernanceTest#overlappingOwnerAndPhysicalGrowthAreDeniedBeforeTheWrite", "com.ethk3.novaonepro.R31StorageGovernanceTest#actualBytesAndOutstandingGrantAreNotDoubleCounted", "HOST:run_storage_report_host"],
+  "R31-B05-C03#A1": ["HOST:run_storage_report_host"],
+  "R31-B05-C03#A2": ["HOST:run_storage_report_host"],
+  "R31-B05-C03#A3": ["HOST:run_storage_report_host"],
+  "R31-B05-C11#A1": ["com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest#concurrentAdmissionsAndDoubleCloseHaveHardDeclaredBound", "com.ethk3.novaonepro.strategyv2.R31LiveHeapAdmissionTest#exceptionPathReleasesAndRepeatedCloseIsIdempotent", "com.ethk3.novaonepro.strategyv2.R31LiveHeapAdmissionTest#oversizedRequestIsRejectedUnderTheOriginalThresholds"],
+  "R31-B05-C11#A2": ["com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest#thousandRequestsCannotExceedCountOrQueuedBytesAndNeverRunOnCaller"],
+  "R31-B05-C11#A3a": ["HOST:run_task_runtime_host"],
+  "R31-B05-C11#A4": ["com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest#sixtyFourReadersShareOnePrivateImmutablePrimitiveBlock"],
+  "R31-B05-C11#A5a": ["HOST:run_task_runtime_host"]
+ },
+ "scope_extensions": [
+  {"path": "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java", "reason": "B03-C01#A2：抓取账本是HTTP/入库时延的唯一owner，在此增加全量延迟分布（分母、P50/P95/P99、最差20次及原因）并接入抓取报告"}
+ ]
+}

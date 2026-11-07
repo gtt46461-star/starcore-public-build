@@ -255,6 +255,40 @@ public final class FetchLedgerR925 {
         return changed[0];
     }
 
+    /** R31-B03-C01#A2: the complete latency distribution of every retained fetch attempt (at most
+     * R31_TIMING_MAX_ROWS), with its denominators and the worst 20 attempts with their outcome. Pure Java. */
+    public static final class LatencyDistributionR31 {
+        private LatencyDistributionR31() {}
+        public static java.util.Map<String,Object> summarize(long[] latencyMs,String[] outcome){
+            if(latencyMs==null||outcome==null||latencyMs.length!=outcome.length)throw new IllegalArgumentException("R31_FETCH_DISTRIBUTION_INPUT");
+            int n=latencyMs.length;java.util.Map<String,Long> outcomes=new java.util.TreeMap<>();java.util.List<Integer> measured=new java.util.ArrayList<>();
+            for(int i=0;i<n;i++){String o=outcome[i]==null||outcome[i].isEmpty()?"UNKNOWN":outcome[i];outcomes.merge(o.length()>64?o.substring(0,64):o,1L,Long::sum);if(latencyMs[i]>=0)measured.add(i);}
+            measured.sort((a,b)->Long.compare(latencyMs[a],latencyMs[b]));
+            java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();
+            out.put("attempts",n);out.put("measured",measured.size());out.put("unmeasured",n-measured.size());out.put("outcomeCounts",outcomes);
+            for(double q:new double[]{0.50,0.95,0.99}){String key="p"+(int)Math.round(q*100)+"Ms";
+                if(measured.isEmpty())out.put(key,null);else{int rank=(int)Math.ceil(q*measured.size());out.put(key,latencyMs[measured.get(Math.max(0,rank-1))]);}}
+            out.put("maxMs",measured.isEmpty()?null:latencyMs[measured.get(measured.size()-1)]);
+            java.util.List<String> worst=new java.util.ArrayList<>();
+            for(int i=measured.size()-1;i>=0&&worst.size()<20;i--){int at=measured.get(i);worst.add(latencyMs[at]+"ms|"+outcome[at]);}
+            out.put("worst20",worst);
+            out.put("denominator","ALL_RETAINED_ATTEMPTS_NOT_RECENT_WINDOW");
+            return out;
+        }
+    }
+    public static java.util.Map<String,Object> latencyDistributionR31(DbStore store){
+        java.util.List<Long> latency=new java.util.ArrayList<>();java.util.List<String> outcome=new java.util.ArrayList<>();
+        try(Cursor c=store.readable().rawQuery("SELECT latency_ms,status,error_code FROM "+SchemaRevisionR925.TABLE_FETCH_LEDGER+" ORDER BY request_at DESC LIMIT "+R31_TIMING_MAX_ROWS,null)){
+            while(c.moveToNext()){latency.add(c.isNull(0)?-1L:c.getLong(0));String status=c.isNull(1)?"UNKNOWN":c.getString(1),error=c.isNull(2)?"":c.getString(2);outcome.add(error.isEmpty()?status:status+":"+error);}
+        }
+        long[] values=new long[latency.size()];for(int i=0;i<values.length;i++)values[i]=latency.get(i);
+        return LatencyDistributionR31.summarize(values,outcome.toArray(new String[0]));
+    }
+
+    private static String distributionTextR31(DbStore store){
+        try{return String.valueOf(latencyDistributionR31(store));}
+        catch(RuntimeException unavailable){return "UNKNOWN:"+unavailable.getClass().getSimpleName();}
+    }
     public static String report(DbStore store, int limit) {
         reconcileInterruptedOnce(store);
         int capped = Math.max(1, Math.min(500, limit));
@@ -267,6 +301,7 @@ public final class FetchLedgerR925 {
         return "逐HTTP/SourceEvent账本｜传输/收到/业务接受/首次可用/开奖时间/时钟纪元分层；REQUESTED超时遗留会标记PROCESS_INTERRUPTED\n"
                 + "写入异常=" + (lastWriteError.length() == 0 ? "无已知异常" : lastWriteError) + "\n"
                 + "状态汇总\n" + summary
+                + "全量延迟分布(分母=全部保留请求)=" + distributionTextR31(store) + "\n"
                 + "最近请求\n"
                 + RuntimeObservabilityR925.query(
                         store,

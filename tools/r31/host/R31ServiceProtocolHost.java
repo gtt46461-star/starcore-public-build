@@ -62,6 +62,27 @@ public final class R31ServiceProtocolHost {
         R31FeedbackHost.verify(store,db,coordinator);
         System.out.println("R31_DRAW_OUTBOX_SETTLEMENT_HOST_PASS confirmed_draw_without_freeze_training_input=true strict_OOS_missing_refused=true existing_lease_generation_boot_CAS=true no_past_prediction_fabricated=true");
     }
+    /** R31-B03-C01#A1/#A3: duplicate, late and conflicting draw receipts through the production outbox entry that
+     * DbStore.saveDraw calls in the same transaction. One task per issue, conflicts never overwrite, the current
+     * target outranks late history, and every known draw has a durable settlement task (no silent omission). */
+    private static void ingestOrderingAndConflicts(SQLiteDatabase db,DatabaseCoordinator coordinator)throws Exception{
+        String task=DbHelper.TABLE_R36_SETTLEMENT_TASK;Models.Draw current=draw("202611040205"),late1=draw("202611040200"),late2=draw("202611040201");
+        coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.DRAW_INGEST,"R31_HOST_CURRENT_INGRESS"),tx->{insertDraw(tx,current);SettlementTaskStoreR36.enqueueConfirmedWithinWrite(tx,current,20000,SettlementTaskStoreR36.LIVE_CURRENT,SettlementTaskStoreR36.PRIORITY_LIVE_CURRENT,"HOST_CURRENT");return 0;});
+        long feedback=scalar(db,"SELECT count(*) FROM r26_feedback");
+        for(int i=0;i<5;i++)coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.DRAW_INGEST,"R31_HOST_DUPLICATE_RECEIPT"),tx->{SettlementTaskStoreR36.enqueueConfirmedWithinWrite(tx,current,20001,SettlementTaskStoreR36.LIVE_CURRENT,SettlementTaskStoreR36.PRIORITY_LIVE_CURRENT,"HOST_DUPLICATE");return 0;});
+        need(scalar(db,"SELECT count(*) FROM "+task+" WHERE target_issue='202611040205'")==1,"duplicate receipts keep exactly one settlement task");
+        need(scalar(db,"SELECT count(*) FROM r26_feedback")==feedback,"duplicate receipts do not repeat training feedback");
+        String hash=DrawHashR36.sha256V2(current);Models.Draw conflicting=draw("202611040205");conflicting.numbers[0]=10;conflicting.numbers[9]=1;
+        boolean refused=false;
+        try{coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.DRAW_INGEST,"R31_HOST_CONFLICTING_SOURCE"),tx->{SettlementTaskStoreR36.enqueueConfirmedWithinWrite(tx,conflicting,20002,SettlementTaskStoreR36.LIVE_CURRENT,SettlementTaskStoreR36.PRIORITY_LIVE_CURRENT,"HOST_SECOND_SOURCE");return 0;});}
+        catch(RuntimeException expected){String chain=String.valueOf(expected)+String.valueOf(expected.getCause());refused=chain.contains("R36_DRAW_HASH_CONFLICT")||chain.contains("R914_DRAW_NOT_CONFIRMED_BEFORE_TASK");}
+        need(refused,"a conflicting second source is refused, never accepted");
+        try(Cursor row=db.rawQuery("SELECT draw_hash FROM "+task+" WHERE target_issue='202611040205'",null)){need(row.moveToFirst()&&hash.equals(row.getString(0)),"conflict never overwrites the canonical task hash");}
+        for(Models.Draw late:new Models.Draw[]{late1,late2})coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RESEARCH_DATA,"R914_DRAW_HISTORY_BATCH"),tx->{insertDraw(tx,late);SettlementTaskStoreR36.enqueueConfirmedWithinWrite(tx,late,20010,SettlementTaskStoreR36.BACKLOG,SettlementTaskStoreR36.PRIORITY_BACKLOG,"HOST_LATE_HISTORY");return 0;});
+        need("202611040205".equals(SettlementTaskStoreR36.nextRunnable(new DbStore(db,coordinator),30000)),"the current target is served before late history backlog");
+        need(scalar(db,"SELECT count(*) FROM draws d WHERE NOT EXISTS(SELECT 1 FROM "+task+" t WHERE t.target_issue=d.issue)")==0,"every known draw has a durable settlement task; none silently omitted");
+        System.out.println("R31_INGEST_ORDERING_CONFLICT_HOST_PASS duplicates_one_task=true conflict_refused=true current_before_history=true every_draw_tasked=true");
+    }
     private static void transport(SQLiteDatabase db,DatabaseCoordinator coordinator)throws Exception{
         System.setProperty("http.nonProxyHosts","localhost|127.0.0.1");HttpServer server=HttpServer.create(new InetSocketAddress("127.0.0.1",0),0);
         server.createContext("/chunked",exchange->{try{byte[] a="{\"ok\":".getBytes(java.nio.charset.StandardCharsets.UTF_8),b="true}".getBytes(java.nio.charset.StandardCharsets.UTF_8);exchange.sendResponseHeaders(200,a.length+b.length);exchange.getResponseBody().write(a);exchange.getResponseBody().flush();try{Thread.sleep(80);}catch(InterruptedException e){Thread.currentThread().interrupt();}exchange.getResponseBody().write(b);}finally{exchange.close();}});
@@ -91,7 +112,7 @@ public final class R31ServiceProtocolHost {
         Class.forName("org.sqlite.JDBC");File path=new File(args[0]);ThreadPoolExecutor background=new ThreadPoolExecutor(1,1,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(32),r->{Thread t=new Thread(r,"HOST_EXISTING_WRITER_QUEUE");t.setDaemon(true);return t;},new ThreadPoolExecutor.AbortPolicy());
         try(Connection connection=DriverManager.getConnection("jdbc:sqlite:"+path.getPath())){
             SQLiteDatabase db=new SQLiteDatabase(connection);schema(db);Field uf=Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);DatabaseCoordinator coordinator=(DatabaseCoordinator)((Unsafe)uf.get(null)).allocateInstance(DatabaseCoordinator.class);Field lf=DatabaseCoordinator.class.getDeclaredField("WRITE_LOCK_CP3");lf.setAccessible(true);set(coordinator,"writeLock",(ReentrantLock)lf.get(null));set(coordinator,"helper",new DbHelper(db));set(coordinator,"app",new android.app.Application(path));set(coordinator,"waitingWriters",new AtomicInteger());set(coordinator,"criticalBusinessWaitersR914",new AtomicInteger());set(coordinator,"backgroundWriter",background);
-            outboxAndSettlement(db,coordinator);transport(db,coordinator);R31ServiceHeartbeatHost.verify(path);
+            outboxAndSettlement(db,coordinator);ingestOrderingAndConflicts(db,coordinator);transport(db,coordinator);R31ServiceHeartbeatHost.verify(path);
             System.out.println("R31_SERVICE_PROTOCOL_HOST_PASS scope=actual_production_sources_native_SQLite_HTTP_loopback_adapters_NOT_ANDROID_NOT_DEVICE_NOT_MODEL_QUALITY");
         }finally{background.shutdownNow();}
     }
