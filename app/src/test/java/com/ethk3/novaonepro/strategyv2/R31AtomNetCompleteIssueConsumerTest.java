@@ -3,7 +3,6 @@ package com.ethk3.novaonepro.strategyv2;
 import static org.junit.Assert.*;
 
 import java.lang.reflect.Field;
-import java.util.Map;
 import org.junit.Test;
 
 /** R31-B06-C03#A1-#A3: the durable checkpoint is published after every position, but the consumer-visible shared
@@ -34,19 +33,19 @@ public final class R31AtomNetCompleteIssueConsumerTest {
             ModelSurfaceProviderR30.FrozenModelRef checkpoint = persisted(s);
             rt.publishAtomStateR31(s, checkpoint);
             assertSame("the newest durable state is always tracked", s, rt.atomPublicationR30.state);
-            Map<String, Object> report = s.report();
             if (p < 10) {
                 assertFalse("partial issue is not consumable at position " + p, s.consumableR31());
                 assertSame("consumer keeps the previous complete model at position " + p, complete, rt.atomPublicationR30.model);
-                assertEquals("000000000999", report.get("completeTrainedThroughIssue"));
-                assertEquals("000000001000", report.get("partialObservedIssue"));
-                assertEquals((long) p, report.get("partialPositionsCommitted"));
+                assertEquals("complete watermark stays at the previous issue", "000000000999", s.completeIssue);
+                assertEquals("000000001000", s.partialIssue);
+                assertEquals("committed positions resume at the next one", p + 1, s.nextPosition);
             } else {
                 assertTrue(s.consumableR31());
                 assertSame("position 10 publishes the complete issue to consumers", checkpoint, rt.atomPublicationR30.model);
                 assertEquals(1000L, rt.atomPublicationR30.model.trainedThroughOrdinal);
-                assertEquals("000000001000", report.get("completeTrainedThroughIssue"));
-                assertNull(report.get("partialObservedIssue"));
+                assertEquals("000000001000", s.completeIssue);
+                assertEquals("", s.partialIssue);
+                assertEquals(1, s.nextPosition);
                 assertNotEquals("non-zero gradients really changed the consumed weights", complete.weightsHash, checkpoint.weightsHash);
                 assertNotEquals(complete.modelHash, rt.atomPublicationR30.model.modelHash);
             }
