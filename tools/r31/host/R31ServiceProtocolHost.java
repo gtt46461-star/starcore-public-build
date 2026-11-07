@@ -118,6 +118,32 @@ public final class R31ServiceProtocolHost {
         need(unqualified,"an unqualified fast path cannot produce a REAL bet");
         System.out.println("R31_CANONICAL_FIRST_AUTHORITATIVE_HOST_PASS replay_idempotent=true late_full_refused=true one_row=true deadline_plus_1ms_refused=true post_draw_refused=true unqualified_real_refused=true");
     }
+    /** R31-B03-C02#A2a: every known realtime opportunity reaches a terminal state under simulated timings (frozen early,
+     * missed, frozen, frozen only after the draw). The production labeler decides, the production terminal writer records. */
+    private static void everyOpportunityReachesTerminal(SQLiteDatabase db,DatabaseCoordinator coordinator)throws Exception{
+        String task=DbHelper.TABLE_R36_SETTLEMENT_TASK;String[] targets={"202611040401","202611040402","202611040403","202611040404"};long[] freezeCommit={9000,-1,9500,10500};
+        String proof=V51ChecksumEngine.sha256("HOST_TERMINAL_COVERAGE_FIXTURE_NOT_NATURAL");
+        for(int i=0;i<targets.length;i++){
+            Models.Draw d=draw(targets[i]);final int at=i;
+            coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.DRAW_INGEST,"R31_HOST_OPPORTUNITY_INGRESS"),tx->{insertDraw(tx,d);SettlementTaskStoreR36.enqueueConfirmedWithinWrite(tx,d,10020,SettlementTaskStoreR36.BACKLOG,0,"HOST_OPPORTUNITY");return 0;});
+            if(freezeCommit[i]>0)db.execSQL("INSERT INTO "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+"(target_issue,base_issue,position,n1,n2,n3,selected_hit_p,created_at,commit_at,record_hash,pre_draw_frozen,model_proven,settled,history_hash,snapshot_hash,action_space_hash,game_code,history_max_issue) VALUES(?,?,1,1,2,3,0.4,9000,?,?,1,0,0,?,?,?,?,?)",
+                    new Object[]{targets[i],"20261104040"+i,freezeCommit[i],proof,proof,proof,proof,V51Repository.GAME_CODE,"20261104040"+i});
+            db.execSQL("UPDATE "+task+" SET status='RUNNING',lease_owner='host-terminal',lease_generation=3,process_boot_id='boot-3' WHERE target_issue=?",new Object[]{targets[i]});
+            SettlementTaskStoreR36.TaskClaim claim=new SettlementTaskStoreR36.TaskClaim(targets[i],DrawHashR36.sha256V2(d),"host-terminal",1,SettlementTaskStoreR36.BACKLOG,0,"HOST",3,"boot-3");
+            SettlementEngine.OwnerToken owner=token(targets[i]);
+            coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.SETTLEMENT,"R31_HOST_OPPORTUNITY_TERMINAL"),tx->{
+                OosAfterDrawWriterR36.LabelResult label=OosAfterDrawWriterR36.settleFrozenWithinTransaction(tx,owner,d);
+                String status=label.success?SettlementTaskStoreR36.COMPLETED:SettlementTaskStoreR36.NO_PREDRAW_CANONICAL_TERMINAL;
+                SettlementTaskStoreR36.markTerminalWithinTransaction(tx,claim,status,label.success?proof:"",label.success?"":String.valueOf(label.status),20000+at);return 0;});
+        }
+        String list="'"+String.join("','",targets)+"'";
+        need(scalar(db,"SELECT count(*) FROM "+task+" WHERE target_issue IN ("+list+") AND status NOT IN ('COMPLETED','NO_PREDRAW_CANONICAL_TERMINAL','FAILED_TERMINAL','INVALID_DRAW_TERMINAL')")==0,"100% of known opportunities reach a terminal state");
+        need(scalar(db,"SELECT count(*) FROM "+task+" WHERE target_issue IN ("+list+") AND status='NO_PREDRAW_CANONICAL_TERMINAL' AND coalesce(last_error,'')=''")==0,"every exclusion carries its explicit reason");
+        need(scalar(db,"SELECT count(*) FROM "+task+" WHERE target_issue='202611040402' AND status='NO_PREDRAW_CANONICAL_TERMINAL'")==1,"a missed freeze is an explicit no-predraw terminal");
+        need(scalar(db,"SELECT count(*) FROM "+task+" WHERE target_issue='202611040404' AND status='COMPLETED'")==0,"a freeze committed after the draw never becomes a valid OOS completion");
+        need(scalar(db,"SELECT count(*) FROM "+task+" WHERE target_issue IN ('202611040401','202611040403') AND status='COMPLETED'")==2,"pre-draw freezes settle to completed terminals");
+        System.out.println("R31_OPPORTUNITY_TERMINAL_COVERAGE_HOST_PASS opportunities=4 terminal=4 explicit_exclusions=true post_draw_freeze_not_completed=true");
+    }
     private static void transport(SQLiteDatabase db,DatabaseCoordinator coordinator)throws Exception{
         System.setProperty("http.nonProxyHosts","localhost|127.0.0.1");HttpServer server=HttpServer.create(new InetSocketAddress("127.0.0.1",0),0);
         server.createContext("/chunked",exchange->{try{byte[] a="{\"ok\":".getBytes(java.nio.charset.StandardCharsets.UTF_8),b="true}".getBytes(java.nio.charset.StandardCharsets.UTF_8);exchange.sendResponseHeaders(200,a.length+b.length);exchange.getResponseBody().write(a);exchange.getResponseBody().flush();try{Thread.sleep(80);}catch(InterruptedException e){Thread.currentThread().interrupt();}exchange.getResponseBody().write(b);}finally{exchange.close();}});
@@ -147,7 +173,7 @@ public final class R31ServiceProtocolHost {
         Class.forName("org.sqlite.JDBC");File path=new File(args[0]);ThreadPoolExecutor background=new ThreadPoolExecutor(1,1,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(32),r->{Thread t=new Thread(r,"HOST_EXISTING_WRITER_QUEUE");t.setDaemon(true);return t;},new ThreadPoolExecutor.AbortPolicy());
         try(Connection connection=DriverManager.getConnection("jdbc:sqlite:"+path.getPath())){
             SQLiteDatabase db=new SQLiteDatabase(connection);schema(db);Field uf=Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);DatabaseCoordinator coordinator=(DatabaseCoordinator)((Unsafe)uf.get(null)).allocateInstance(DatabaseCoordinator.class);Field lf=DatabaseCoordinator.class.getDeclaredField("WRITE_LOCK_CP3");lf.setAccessible(true);set(coordinator,"writeLock",(ReentrantLock)lf.get(null));set(coordinator,"helper",new DbHelper(db));set(coordinator,"app",new android.app.Application(path));set(coordinator,"waitingWriters",new AtomicInteger());set(coordinator,"criticalBusinessWaitersR914",new AtomicInteger());set(coordinator,"backgroundWriter",background);
-            outboxAndSettlement(db,coordinator);ingestOrderingAndConflicts(db,coordinator);canonicalFirstAuthoritative(db,coordinator);transport(db,coordinator);R31ServiceHeartbeatHost.verify(path);
+            outboxAndSettlement(db,coordinator);ingestOrderingAndConflicts(db,coordinator);canonicalFirstAuthoritative(db,coordinator);everyOpportunityReachesTerminal(db,coordinator);transport(db,coordinator);R31ServiceHeartbeatHost.verify(path);
             System.out.println("R31_SERVICE_PROTOCOL_HOST_PASS scope=actual_production_sources_native_SQLite_HTTP_loopback_adapters_NOT_ANDROID_NOT_DEVICE_NOT_MODEL_QUALITY");
         }finally{background.shutdownNow();}
     }
