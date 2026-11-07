@@ -135,11 +135,13 @@ class PlanRevisionRoleTest(unittest.TestCase):
                                    (v.ORIGINAL_PLAN_REL, v.ORIGINAL_PLAN_MANIFEST_SHA256)):
             sealed = v.git(v.ROOT, "show", v.PLAN_AUTHORIZATION_COMMIT + ":" + relative + "/MANIFEST_SHA256.json")
             self.assertEqual(expected, v.sha256(sealed))
+        authorized = json.loads(v.git(v.ROOT, "show", v.PLAN_AUTHORIZATION_COMMIT + ":" + v.PLAN_REL + "/MANIFEST_SHA256.json"))
+        self.assertEqual(v.PLAN_MEMBER_COUNT, len(authorized["files"]))
         self.assertNotEqual(v.PLAN_MANIFEST_SHA256, v.ORIGINAL_PLAN_MANIFEST_SHA256)
 
     def test_real_active_and_original_archive_are_independently_sealed(self):
         results = v.require_plan_packages(v.ROOT, v.ROOT / v.PLAN_REL)
-        self.assertEqual([452, 405], [results[r]["member_count"] for r in ("active", "original_archive")])
+        self.assertEqual([v.PLAN_MEMBER_COUNT, 405], [results[r]["member_count"] for r in ("active", "original_archive")])
         for result in results.values():
             self.assertEqual("PASS", result["status"])
             self.assertEqual([1832, 299, 1832], [r["rows"] for r in result["preservation"]])

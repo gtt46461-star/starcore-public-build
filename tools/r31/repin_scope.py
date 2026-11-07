@@ -48,6 +48,7 @@ def sha(p):
 
 def gate_module():
     import importlib.util
+    sys.dont_write_bytecode = True  # never leave __pycache__ inside the sealed plan directory
     spec = importlib.util.spec_from_file_location('r31_gate', PLAN / 'tools/r31_gate.py')
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m)

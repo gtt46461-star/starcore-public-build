@@ -19,15 +19,25 @@ import sys
 import zipfile
 
 BASELINE = "5237b265a27fe5ad27fd842901c445d5f8c27749"
-# R31.1 revised the plan in place and archived the original R31 tree byte-for-byte.
-# The original pin and every original member/preservation check are verified unchanged at the archive;
-# the in-place R31.1 revision is pinned separately (it changes execution policy, not acceptance).
-PLAN_REL = "construction/archives/STARCORE_R31_FINAL_20261104"
-PLAN_MANIFEST_SHA256 = "13f34908b624c74e2852ce8f944b99f8978348820aab23f83043fab1d72753ce"
-REVISION_PLAN_REL = "construction/STARCORE_R31_FINAL_20261104"
-# The in-place revision (R31.1, R31.2, ...) is sealed by its own member manifest: every listed member must
-# exist with exact bytes/sha256 and the acceptance config must equal the original. Its manifest hash is recorded
-# in the build identity; it is never silently rewritten by this tool.
+# Two independently sealed plan roles:
+#   active           - the in-place revision being executed, pinned to the manifest the user's
+#                      authorization commit adopted (R31.3: beaf4f16, "adopt R31.3 construction-first plan");
+#   original_archive - the original R31 tree, archived byte-for-byte, pinned to the original hash.
+# Either role failing (member tamper, missing/unsealed member, or a resealed manifest) fails identity.
+# A later plan revision must change PLAN_* below in its own authorization commit; this tool never
+# rewrites an expected hash.
+PLAN_REL = "construction/STARCORE_R31_FINAL_20261104"
+PLAN_REVISION = "R31.3-CONSTRUCTION-20261105"
+PLAN_AUTHORIZATION_COMMIT = "beaf4f16f55a29d096b6216335c50c7752cf21b3"
+PLAN_MANIFEST_SHA256 = "b66f01f3f4f4d980a5eed4a6ede09801ed54dcc5fed65fa3fd807672adaf0836"
+PLAN_MEMBER_COUNT = 448
+ORIGINAL_PLAN_REL = "construction/archives/STARCORE_R31_FINAL_20261104"
+ORIGINAL_PLAN_REVISION = "R31-FINAL-20261104"
+ORIGINAL_PLAN_MANIFEST_SHA256 = "13f34908b624c74e2852ce8f944b99f8978348820aab23f83043fab1d72753ce"
+ORIGINAL_PLAN_MEMBER_COUNT = 405
+# Member-manifest sealing of the active revision (kept for callers that check only members and the
+# unchanged acceptance config).
+REVISION_PLAN_REL = PLAN_REL
 
 
 def verify_revision_plan(root: Path, original_plan: Path) -> str:
@@ -120,6 +130,33 @@ def verify_manifest(plan: Path, expected_hash: str = PLAN_MANIFEST_SHA256) -> di
             "manifest_sha256": sha256(manifest_bytes), "member_count": len(seen),
             "errors": errors, "missing": sorted(missing), "mismatch": sorted(mismatch),
             "unexpected": unexpected, "preservation": preservation}
+
+
+def verify_plan_packages(root: Path, plan: Path) -> dict:
+    """Verify both roles; `plan` is what the caller claims is the active revision."""
+    active = verify_manifest(plan, PLAN_MANIFEST_SHA256)
+    original = verify_manifest(root / ORIGINAL_PLAN_REL, ORIGINAL_PLAN_MANIFEST_SHA256)
+    for result, count in ((active, PLAN_MEMBER_COUNT), (original, ORIGINAL_PLAN_MEMBER_COUNT)):
+        if result["status"] == "PASS" and result["member_count"] != count:
+            result["errors"].append("PLAN_MEMBER_COUNT_MISMATCH")
+            result["status"] = "FAIL"
+    if active["status"] == "PASS":
+        same = (plan / "ledgers/acceptance_config.json").read_bytes() == \
+            (root / ORIGINAL_PLAN_REL / "ledgers/acceptance_config.json").read_bytes()
+        if not same:
+            active["errors"].append("REVISION_CHANGED_ACCEPTANCE_CONFIG")
+            active["status"] = "FAIL"
+    return {"active": active, "original_archive": original}
+
+
+def require_plan_packages(root: Path, plan: Path) -> dict:
+    results = verify_plan_packages(root, plan)
+    for role, result in results.items():
+        if result["status"] != "PASS":
+            reasons = (list(result["errors"]) + ["MISSING:" + m for m in result["missing"]]
+                       + ["MISMATCH:" + m for m in result["mismatch"]] + ["UNKNOWN"])
+            raise ValueError(role.upper() + "_PLAN_INTEGRITY_FAILED:" + reasons[0])
+    return results
 
 
 def tree_entries(root: Path, revision: str) -> dict:
@@ -223,10 +260,8 @@ def product_inputs(root: Path) -> list[dict]:
 
 
 def build_identity(root: Path, plan: Path) -> dict:
+    packages = require_plan_packages(root, plan)
     manifest = safe_file(plan, "MANIFEST_SHA256.json").read_bytes()
-    if sha256(manifest) != PLAN_MANIFEST_SHA256:
-        raise ValueError("PINNED_PLAN_MANIFEST_MISMATCH")
-    revision_manifest_sha256 = verify_revision_plan(root, plan)
     head = git(root, "rev-parse", "HEAD").decode().strip()
     ancestry = subprocess.run(["git", "-C", str(root), "merge-base", "--is-ancestor", BASELINE, head],
                               capture_output=True)
@@ -247,8 +282,12 @@ def build_identity(root: Path, plan: Path) -> dict:
             "product_worktree_sha256": sha256(canonical(inputs)), "product_input_count": len(inputs),
             "product_digest_excludes": ["app/build (generated outputs)", "verification (test evidence)",
                                         "construction (plan separately sealed)", "private signing inputs"],
-            "plan_manifest_sha256": sha256(manifest),
-            "revision_plan_manifest_sha256": revision_manifest_sha256,
+            "plan_manifest_sha256": sha256(manifest), "plan_revision": PLAN_REVISION,
+            "plan_authorization_commit": PLAN_AUTHORIZATION_COMMIT,
+            "revision_plan_manifest_sha256": sha256(manifest),
+            "original_plan_manifest_sha256": packages["original_archive"]["manifest_sha256"],
+            "original_plan_revision": ORIGINAL_PLAN_REVISION, "original_plan_path": ORIGINAL_PLAN_REL,
+            "original_plan_member_count": packages["original_archive"]["member_count"],
             "migration_contract_sha256": sha256(canonical(migration)), "schema": schema,
             "device_identity": "NOT_RUN", "signature_identity": "NOT_VERIFIED_HERE",
             "natural_quality": "NOT_PROVEN"}
@@ -337,16 +376,18 @@ def main(argv=None) -> int:
             result = identity
             errors = ["DIRTY_SOURCE_NOT_PUBLISHABLE"] if args.require_clean and identity["source_dirty"] else []
         else:
-            manifest = verify_manifest(plan)
+            packages = verify_plan_packages(root, plan)
+            manifest = packages["active"]
             baseline = compare_tree(root, plan)
             errors = list(manifest["errors"]) + list(baseline["errors"])
-            if manifest["status"] != "PASS":
+            if any(r["status"] != "PASS" for r in packages.values()):
                 errors.append("PACKAGE_MEMBER_INTEGRITY_FAILED")
             if args.require_clean and identity["source_dirty"]:
                 errors.append("DIRTY_SOURCE_NOT_PUBLISHABLE")
             if args.strict_baseline and baseline["current_anchor_differences"]:
                 errors.append("CURRENT_SOURCE_DIFFERS_FROM_FROZEN_ANCHORS")
             result = {"scope": "R31_BASELINE_AND_BUILD_IDENTITY_ONLY", "manifest": manifest,
+                      "original_archive_manifest": packages["original_archive"],
                       "baseline": baseline, "identity": identity, "errors": errors,
                       "status": "FAIL" if errors else "PASS",
                       "device_acceptance": "NOT_RUN", "natural_quality": "NOT_PROVEN"}
