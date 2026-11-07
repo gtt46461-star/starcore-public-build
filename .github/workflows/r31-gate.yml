@@ -51,6 +51,19 @@ jobs:
             { echo '### gradle failures'; echo '```'; grep -n -A12 -E "What went wrong|FAILED$" "$L" | head -150; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
             grep -n -A12 -E "What went wrong" "$L" | head -80 || true
           fi
+          S=verification/r31/batches/$BATCH/BUILD_SUMMARY.json
+          if [ -f "$S" ]; then
+            python3 - "$S" <<'PY'
+          import json, sys
+          s = json.load(open(sys.argv[1]))
+          for k, v in sorted(s["tests"].items()):
+              if v["status"] != "PASS": print("R31_FAILED_TEST", k, v["status"], v["message"][:300])
+          for h in s["host_failed"]: print("R31_FAILED_HOST", h)
+          PY
+            for h in $(python3 -c "import json;print(' '.join(json.load(open('$S'))['host_failed']))"); do
+              echo "== host_$h.log (tail)"; tail -40 "verification/r31/batches/$BATCH/logs/host_$h.log" || true
+            done
+          fi
       - name: Commit build summary back to the branch
         if: always()
         run: |
@@ -58,6 +71,8 @@ jobs:
           git config user.email "r31-gate-ci@users.noreply.github.com"
           git add -f "verification/r31/batches/$BATCH"
           git commit -q -m "evidence(r31/$BATCH): CI build summary for ${GITHUB_SHA::12} [skip ci]" || exit 0
+          # HOST tools rewrite tracked receipts under verification/r31/p0x; they are not batch evidence.
+          git stash -q --include-untracked || true
           for i in 1 2 3 4 5; do
             git pull -q --rebase origin "$GITHUB_REF_NAME" && git push -q origin "HEAD:$GITHUB_REF_NAME" && exit 0
             sleep 15
