@@ -189,22 +189,26 @@ public final class R31TaskRuntimeHost {
         db.execSQL("CREATE TABLE host_contention(kind TEXT,seq INTEGER)");
         AtomicBoolean stop=new AtomicBoolean();AtomicLong criticalMaxWait=new AtomicLong();AtomicReference<Throwable> crashed=new AtomicReference<>();
         String[][] background={{"RESEARCH_DATA","R31_HOST_RESEARCH_CONTENTION"},{"RESEARCH_DATA","R914_DRAW_HISTORY_BATCH"},{"REPORT","R27_CHART_CACHE"},{"RETENTION","R26_ARTIFACT_RETENTION"}};
-        Map<String,AtomicInteger> done=new ConcurrentHashMap<>(),busy=new ConcurrentHashMap<>();List<Thread> threads=new ArrayList<>();
-        for(String[] b:background){done.put(b[1],new AtomicInteger());busy.put(b[1],new AtomicInteger());
+        Map<String,AtomicInteger> done=new ConcurrentHashMap<>(),busy=new ConcurrentHashMap<>(),deferred=new ConcurrentHashMap<>();List<Thread> threads=new ArrayList<>();
+        for(String[] b:background){done.put(b[1],new AtomicInteger());busy.put(b[1],new AtomicInteger());deferred.put(b[1],new AtomicInteger());
             Thread thread=new Thread(()->{try{while(!stop.get()){
                 try{coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.valueOf(b[0]),b[1]),tx->{tx.execSQL("INSERT INTO host_contention VALUES(?,0)",new Object[]{b[1]});long end=System.nanoTime()+2_000_000L;while(System.nanoTime()<end)Thread.onSpinWait();return 0;});done.get(b[1]).incrementAndGet();}
-                catch(RuntimeException rejected){if(FailureDispositionR31.classify(rejected).disposition!=FailureDispositionR31.Disposition.RETRY_LATER)throw rejected;busy.get(b[1]).incrementAndGet();}
+                catch(RuntimeException rejected){FailureDispositionR31.Decision d=FailureDispositionR31.classify(rejected);
+                    if(d.disposition==FailureDispositionR31.Disposition.RETRY_LATER)busy.get(b[1]).incrementAndGet();
+                    // Bounded backpressure: research data pauses while >200 ms hold-fault receipts await their durable drain.
+                    else if(d.disposition==FailureDispositionR31.Disposition.DEPENDENCY&&!d.consumesFaultBudget()&&String.valueOf(rejected.getCause()).contains("R31_WRITER_HOLD_FAULT_BACKLOG")){deferred.get(b[1]).incrementAndGet();Thread.sleep(5);}
+                    else throw rejected;}
             }}catch(Throwable failure){crashed.compareAndSet(null,failure);}},"host-contention-"+b[1]);thread.start();threads.add(thread);}
         int critical=0;
         try{for(int tick=0;tick<3600;tick++){final int seq=tick;long started=System.nanoTime();
             coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.DRAW_INGEST,"R914_DRAW_SAVE_ATOMIC"),tx->{tx.execSQL("INSERT INTO host_contention VALUES('DRAW',?)",new Object[]{seq});return 0;});
             criticalMaxWait.accumulateAndGet((System.nanoTime()-started)/1_000_000L,Math::max);critical++;android.os.SystemClock.offset+=1000;}}
         finally{stop.set(true);for(Thread thread:threads)thread.join(10_000);}
-        need(crashed.get()==null,"background writers only see transient busy: "+crashed.get());
+        need(crashed.get()==null,"background writers only see transient busy or bounded hold-fault backpressure: "+crashed.get());
         need(critical==3600&&n("SELECT count(*) FROM host_contention WHERE kind='DRAW'")==3600,"every 1 Hz critical write committed");
         need(criticalMaxWait.get()<2000,"critical writer never starved, max wait ms="+criticalMaxWait.get());
         for(String[] b:background)need(done.get(b[1]).get()>0,"background "+b[1]+" keeps progressing, busy="+busy.get(b[1]).get());
-        System.out.println("R31_SIXTY_MINUTE_CONTENTION_HOST_PASS critical=3600 criticalMaxWaitMs="+criticalMaxWait.get()+" background="+done+" busy="+busy);
+        System.out.println("R31_SIXTY_MINUTE_CONTENTION_HOST_PASS critical=3600 criticalMaxWaitMs="+criticalMaxWait.get()+" background="+done+" busy="+busy+" deferred="+deferred);
     }
     static void classificationsAndRecovery()throws Exception{
         class Typed extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure{

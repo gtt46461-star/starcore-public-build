@@ -74,7 +74,9 @@ jobs:
           # HOST tools rewrite tracked receipts under verification/r31/p0x; they are not batch evidence.
           git stash -q --include-untracked || true
           for i in 1 2 3 4 5; do
-            git pull -q --rebase origin "$GITHUB_REF_NAME" && git push -q origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            # A superseded run may already have committed this batch's logs; this run's evidence wins.
+            git pull -q --rebase -X theirs origin "$GITHUB_REF_NAME" && git push -q origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            git rebase --abort 2>/dev/null || true
             sleep 15
           done
           exit 1
