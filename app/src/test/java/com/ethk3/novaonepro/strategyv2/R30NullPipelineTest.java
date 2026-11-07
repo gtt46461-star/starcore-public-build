@@ -5,6 +5,13 @@ import java.util.*;
 import org.junit.Test;
 
 public final class R30NullPipelineTest {
+    // R31-ENG-02#A2: every test returns all explicit-owner memory leases it opened (production APIs only).
+    private int r31LeasesBeforeTest;
+    @org.junit.Before public void r31OutstandingLeaseGuardBefore(){FeatureCacheR27.trimRegisteredCachesR31();r31LeasesBeforeTest=MemoryBudgetR31.processBudget().explicitOwnerLeaseCountR31();}
+    @org.junit.After public void r31OutstandingLeaseGuardAfter(){
+        FeatureCacheR27.trimRegisteredCachesR31();MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();int after=memory.explicitOwnerLeaseCountR31();
+        org.junit.Assert.assertTrue("R31_OUTSTANDING_LEASES before="+r31LeasesBeforeTest+" after="+after+" owners="+memory.explicitOwnerLeasesR31(64),after<=r31LeasesBeforeTest);
+    }
     @Test public void completeDrawPermutationHasARealIdentityAndLeavesConfirmUntouched() {
         ReplayDatasetR27 data=ReplayDatasetR27.synthetic(3000,123,new int[0]);SplitR27 split=SplitR27.of(data,null);
         ReplayDatasetR27 shuffled=ReplayEvaluatorR27.shuffledDataset(data,split.trainFrom,split.selectTo,29);

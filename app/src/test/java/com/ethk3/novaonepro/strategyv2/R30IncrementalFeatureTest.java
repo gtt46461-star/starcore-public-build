@@ -8,6 +8,13 @@ import static org.junit.Assert.*;
 /** R30-B03-04: features extended one row at a time equal a full recomputation bit for bit; a changed prefix is
  * detected by the 100-row hash check and the stream is rebuilt to the full-recomputation values. */
 public final class R30IncrementalFeatureTest {
+    // R31-ENG-02#A2: every test returns all explicit-owner memory leases it opened (production APIs only).
+    private int r31LeasesBeforeTest;
+    @org.junit.Before public void r31OutstandingLeaseGuardBefore(){FeatureCacheR27.trimRegisteredCachesR31();r31LeasesBeforeTest=MemoryBudgetR31.processBudget().explicitOwnerLeaseCountR31();}
+    @org.junit.After public void r31OutstandingLeaseGuardAfter(){
+        FeatureCacheR27.trimRegisteredCachesR31();MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();int after=memory.explicitOwnerLeaseCountR31();
+        org.junit.Assert.assertTrue("R31_OUTSTANDING_LEASES before="+r31LeasesBeforeTest+" after="+after+" owners="+memory.explicitOwnerLeasesR31(64),after<=r31LeasesBeforeTest);
+    }
     static ReplayDatasetR27 prefix(ReplayDatasetR27 d, int n) {
         List<ReplayDatasetR27.Row> rows = new ArrayList<>(); for (int i = 0; i < n; i++) rows.add(new ReplayDatasetR27.Row(d.issues[i], d.ordinals[i], d.draws[i])); return ReplayDatasetR27.of(rows);
     }

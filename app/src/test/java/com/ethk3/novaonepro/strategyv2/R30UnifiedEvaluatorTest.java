@@ -6,6 +6,13 @@ import static org.junit.Assert.*;
 /** R30-B03-06: same policy + same dataset scores identically twice; a new dataset does not reuse cached scores;
  * H_CONFIRM goes through the ledger once. */
 public final class R30UnifiedEvaluatorTest {
+    // R31-ENG-02#A2: every test returns all explicit-owner memory leases it opened (production APIs only).
+    private int r31LeasesBeforeTest;
+    @org.junit.Before public void r31OutstandingLeaseGuardBefore(){FeatureCacheR27.trimRegisteredCachesR31();r31LeasesBeforeTest=MemoryBudgetR31.processBudget().explicitOwnerLeaseCountR31();}
+    @org.junit.After public void r31OutstandingLeaseGuardAfter(){
+        FeatureCacheR27.trimRegisteredCachesR31();MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();int after=memory.explicitOwnerLeaseCountR31();
+        org.junit.Assert.assertTrue("R31_OUTSTANDING_LEASES before="+r31LeasesBeforeTest+" after="+after+" owners="+memory.explicitOwnerLeasesR31(64),after<=r31LeasesBeforeTest);
+    }
     static PolicySpecR27 spec() { return R27ReplayTest.spec(PolicyAstR27.op("zscore", PolicyAstR27.leaf("trans1")), 2); }
 
     @Test public void deterministicAndDatasetKeyed() {

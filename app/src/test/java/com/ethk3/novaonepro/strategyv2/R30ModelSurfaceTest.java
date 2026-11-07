@@ -5,6 +5,13 @@ import java.util.*;
 import org.junit.Test;
 
 public class R30ModelSurfaceTest {
+    // R31-ENG-02#A2: every test returns all explicit-owner memory leases it opened (production APIs only).
+    private int r31LeasesBeforeTest;
+    @org.junit.Before public void r31OutstandingLeaseGuardBefore(){FeatureCacheR27.trimRegisteredCachesR31();r31LeasesBeforeTest=MemoryBudgetR31.processBudget().explicitOwnerLeaseCountR31();}
+    @org.junit.After public void r31OutstandingLeaseGuardAfter(){
+        FeatureCacheR27.trimRegisteredCachesR31();MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();int after=memory.explicitOwnerLeaseCountR31();
+        org.junit.Assert.assertTrue("R31_OUTSTANDING_LEASES before="+r31LeasesBeforeTest+" after="+after+" owners="+memory.explicitOwnerLeasesR31(64),after<=r31LeasesBeforeTest);
+    }
     static ModelSurfaceProviderR30.Pit pit(long through,long available){return new ModelSurfaceProviderR30.Pit(100,through,1,"history",AtomNetR27.positionedInput(new double[]{.2,.8},1),available,20_000,20_000,30_000);}
     static void rejected(Runnable r,String reason){try{r.run();fail("accepted "+reason);}catch(ModelSurfaceProviderR30.Blocked expected){assertTrue(expected.getMessage(),expected.getMessage().contains(reason));}}
     @Test public void actualNumberHeadAndBothInputsAndOutputsAreImmutable(){

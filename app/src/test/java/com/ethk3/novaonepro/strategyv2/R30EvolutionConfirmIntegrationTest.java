@@ -8,6 +8,13 @@ import org.junit.Test;
 
 /** Actual evolution phase, frozen confirmation, and once-only evidence reuse. */
 public final class R30EvolutionConfirmIntegrationTest {
+    // R31-ENG-02#A2: every test returns all explicit-owner memory leases it opened (production APIs only).
+    private int r31LeasesBeforeTest;
+    @org.junit.Before public void r31OutstandingLeaseGuardBefore(){FeatureCacheR27.trimRegisteredCachesR31();r31LeasesBeforeTest=MemoryBudgetR31.processBudget().explicitOwnerLeaseCountR31();}
+    @org.junit.After public void r31OutstandingLeaseGuardAfter(){
+        FeatureCacheR27.trimRegisteredCachesR31();MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();int after=memory.explicitOwnerLeaseCountR31();
+        org.junit.Assert.assertTrue("R31_OUTSTANDING_LEASES before="+r31LeasesBeforeTest+" after="+after+" owners="+memory.explicitOwnerLeasesR31(64),after<=r31LeasesBeforeTest);
+    }
     static final class MemoryEvidence implements FrozenConfirmationR30.Evidence {
         final Map<String,ReplayEvaluatorR27.Trace> traces = new HashMap<>();
         public ReplayEvaluatorR27.Trace load(FrozenConfirmationR30.Task task, FrozenConfirmationR30.Policy p) { return traces.get(p.experimentId+"|"+task.datasetHash+"|"+task.block); }
