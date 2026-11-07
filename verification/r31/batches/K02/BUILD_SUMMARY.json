@@ -1,11 +1,11 @@
 {
  "format": "R31_BUILD_SUMMARY_V2",
  "batch": "K02",
- "source_head": "a58f2fc66b99310b537d607dea3ca0ae2d3e3fe8",
- "started_at": "2026-11-07T06:32:03.429966+00:00",
- "finished_at": "2026-11-07T06:53:03.549235+00:00",
+ "source_head": "cb4462f631ff8025374ec446895b435fea6f8256",
+ "started_at": "2026-11-07T06:56:56.589706+00:00",
+ "finished_at": "2026-11-07T07:14:26.256831+00:00",
  "environment": "CI",
- "ci_run": "42347377056",
+ "ci_run": "42349122410",
  "pre_build": [],
  "gradle": {
   "state": "FAIL",
@@ -24,7 +24,7 @@
  },
  "unit": {
   "tests": 509,
-  "failures": 2,
+  "failures": 1,
   "errors": 0,
   "skipped": 0
  },
@@ -1034,8 +1034,8 @@
    "message": ""
   },
   "com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest#typedAstConsumesActualSurfaceAndMissingRowsCannotCarryThroughEma": {
-   "status": "FAIL",
-   "message": "java.lang.AssertionError: R31_OUTSTANDING_LEASES before=0 after=2 owners=[raw-leaf:9765ca3209020304/FEATURE_CACHE/4128, raw-leaf:9765ca3209020304/FEATURE_CACHE/4128]"
+   "status": "PASS",
+   "message": ""
   },
   "com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest#targetTrainingLateAvailabilityAndBadArchivedProbabilitiesAreBlocked": {
    "status": "PASS",
@@ -1154,8 +1154,8 @@
    "message": ""
   },
   "com.ethk3.novaonepro.strategyv2.R30StructureRegistryTest#realMainBirthLoopProducesEveryNewFamily": {
-   "status": "FAIL",
-   "message": "java.lang.AssertionError: R31_OUTSTANDING_LEASES before=0 after=5 owners=[family-model:F21/MODEL/28672, family-model:F20/MODEL/98304, family-model:F8/MODEL/16384, family-model:F11/MODEL/65536, family-model:F12/MODEL/184320]"
+   "status": "PASS",
+   "message": ""
   },
   "com.ethk3.novaonepro.strategyv2.R30StructureRegistryTest#intersectionPositionSelectionCannotUseConfirmOrFutureRows": {
    "status": "PASS",
@@ -1710,8 +1710,8 @@
    "message": ""
   },
   "com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest#rawAliasBudgetOnlyReturnsAfterIsolatedObservedGc": {
-   "status": "PASS",
-   "message": ""
+   "status": "FAIL",
+   "message": "java.lang.AssertionError: expected:<0> but was:<1>"
   },
   "com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest#sixtyFourCandidatesConsumeOneImmutableLeafAndMatchOriginalRowArithmetic": {
    "status": "PASS",
@@ -2074,8 +2074,8 @@
   },
   {
    "id": "run_atomnet_publication_host",
-   "status": "FAIL",
-   "exit": 1
+   "status": "PASS",
+   "exit": 0
   },
   {
    "id": "run_certificate_startup_host",
@@ -2194,8 +2194,8 @@
   },
   {
    "id": "verify_resource_recovery",
-   "status": "PASS",
-   "exit": 0
+   "status": "FAIL",
+   "exit": 1
   },
   {
    "id": "verify_runtime_memory_control",
@@ -2289,13 +2289,13 @@
   }
  ],
  "host_failed": [
-  "run_atomnet_publication_host",
   "run_legacy_qualification_contract",
   "run_writer_hold_fault_host",
   "verify_ast_family_scope",
   "verify_family_admission",
   "verify_memory",
   "verify_pin_capacity",
+  "verify_resource_recovery",
   "r30repair_commit_failure",
   "r30repair_retention"
  ],

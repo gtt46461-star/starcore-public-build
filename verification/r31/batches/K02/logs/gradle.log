@@ -15,7 +15,7 @@ To honour the JVM settings for this build a single-use Daemon process will be fo
 Daemon will be stopped at the end of the build 
 
 > Task :app:generateR27BuildIdentity
-R27_BUILD_IDENTITY_WRITTEN a58f2fc66b99310b537d607dea3ca0ae2d3e3fe8 2245b4d056dc690107edc712ec036067b81a90b8
+R27_BUILD_IDENTITY_WRITTEN cb4462f631ff8025374ec446895b435fea6f8256 c36f608f163c75b656dd51dd8aef292452df0e51
 
 > Task :app:verifyR31Baseline
 > Task :app:generateR31BuildIdentity
@@ -30,16 +30,16 @@ CATALOG_IDENTITY_PASS|atoms=25350|seeds=4200|stream_line_cap=65536
 SU2 production DDL: reproducible and executable
 
 > Task :app:generateR967Semantics
-R967_SEMANTIC_IDENTITY_GENERATED|fb4a623b26b9b11043822c8ec0f4a758ca5f3fda71ecfc8264d6ff440a0911a2
+R967_SEMANTIC_IDENTITY_GENERATED|ffe44645d71e9b9991674096f79078d6ccb1cc8ae5d803f56ee0d4aea57ae714
 
 > Task :app:verifyR967Semantics
-R967_SEMANTIC_IDENTITY_VERIFIED|fb4a623b26b9b11043822c8ec0f4a758ca5f3fda71ecfc8264d6ff440a0911a2
+R967_SEMANTIC_IDENTITY_VERIFIED|ffe44645d71e9b9991674096f79078d6ccb1cc8ae5d803f56ee0d4aea57ae714
 
 > Task :app:generateR815Provenance
-R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=4a17fcfc6e2a113496e4deb4d3cfe2ebd665872c2868739c3bea5f562bf4b84b|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=62a7c5729cf6def7e4ecad9363cbebaafcb37dea9faa3585ccd26f0ee0d35d8f|GENERATED_AT=2026-11-07T06:32:46Z
+R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=fd418d9b2d3a0df1a537a904a0e0dc67f7ca7d132ccd8fd2429772bbf8b43b06|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=c3c5613987cb4b7e7275e9217d61fc497bf18e3aa3289d6b3c05112e373e873d|GENERATED_AT=2026-11-07T06:57:38Z
 
 > Task :app:verifyR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=4a17fcfc6e2a113496e4deb4d3cfe2ebd665872c2868739c3bea5f562bf4b84b|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=62a7c5729cf6def7e4ecad9363cbebaafcb37dea9faa3585ccd26f0ee0d35d8f|GENERATED_AT=2026-11-07T06:32:46Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=fd418d9b2d3a0df1a537a904a0e0dc67f7ca7d132ccd8fd2429772bbf8b43b06|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=c3c5613987cb4b7e7275e9217d61fc497bf18e3aa3289d6b3c05112e373e873d|GENERATED_AT=2026-11-07T06:57:38Z
 
 > Task :app:preBuild
 > Task :app:preDebugBuild
@@ -53,13 +53,12 @@ R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=4a17fcfc6e2a113496e4deb4d3cfe2ebd665872c2
 > Task :app:mergeDebugResources
 > Task :app:createDebugCompatibleScreenManifests
 > Task :app:extractDeepLinksDebug
-> Task :app:processDebugMainManifest
 > Task :app:parseDebugLocalResources
+> Task :app:processDebugMainManifest
 > Task :app:processDebugManifest
 > Task :app:preDebugAndroidTestBuild SKIPPED
 > Task :app:processDebugAndroidTestManifest
 > Task :app:generateDebugAndroidTestBuildConfig
-> Task :app:processDebugManifestForPackage
 > Task :app:javaPreCompileDebugAndroidTest FROM-CACHE
 > Task :app:prepareRawUpstreamAndroidTestHarness
 > Task :app:checkDebugAndroidTestAarMetadata
@@ -68,12 +67,13 @@ R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=4a17fcfc6e2a113496e4deb4d3cfe2ebd665872c2
 > Task :app:generateDebugAndroidTestResources
 > Task :app:preDebugUnitTestBuild
 > Task :app:javaPreCompileDebugUnitTest FROM-CACHE
-> Task :app:processDebugJavaRes NO-SOURCE
 > Task :app:mergeDebugAndroidTestResources
-> Task :app:processDebugUnitTestJavaRes
-> Task :app:processDebugResources
-> Task :app:extractProguardFiles
+> Task :app:processDebugJavaRes NO-SOURCE
+> Task :app:processDebugManifestForPackage
 > Task :app:processDebugAndroidTestResources
+> Task :app:processDebugUnitTestJavaRes
+> Task :app:extractProguardFiles
+> Task :app:processDebugResources
 
 > Task :app:compileDebugJavaWithJavac
 /home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java:14: warning: [strictfp] as of release 17, all floating-point expressions are evaluated strictly and 'strictfp' is not required
@@ -85,15 +85,15 @@ Note: Some input files use unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
 1 warning
 
-> Task :app:bundleDebugClassesToCompileJar
 > Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:bundleDebugClassesToCompileJar
 > Task :app:generateDebugLintReportModel
 
 > Task :app:verifyFinalR967Semantics
-R967_SEMANTIC_IDENTITY_VERIFIED|fb4a623b26b9b11043822c8ec0f4a758ca5f3fda71ecfc8264d6ff440a0911a2
+R967_SEMANTIC_IDENTITY_VERIFIED|ffe44645d71e9b9991674096f79078d6ccb1cc8ae5d803f56ee0d4aea57ae714
 
 > Task :app:verifyFinalR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=4a17fcfc6e2a113496e4deb4d3cfe2ebd665872c2868739c3bea5f562bf4b84b|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=62a7c5729cf6def7e4ecad9363cbebaafcb37dea9faa3585ccd26f0ee0d35d8f|GENERATED_AT=2026-11-07T06:32:46Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=fd418d9b2d3a0df1a537a904a0e0dc67f7ca7d132ccd8fd2429772bbf8b43b06|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=c3c5613987cb4b7e7275e9217d61fc497bf18e3aa3289d6b3c05112e373e873d|GENERATED_AT=2026-11-07T06:57:38Z
 
 > Task :app:compileDebugAndroidTestJavaWithJavac
 Note: Some input files use or override a deprecated API.
@@ -105,13 +105,10 @@ Note: Recompile with -Xlint:unchecked for details.
 
 > Task :app:testDebugUnitTest
 
-R30ModelSurfaceTest > typedAstConsumesActualSurfaceAndMissingRowsCannotCarryThroughEma FAILED
-    java.lang.AssertionError at R30ModelSurfaceTest.java:13
+R31SharedFeatureIntegrationTest > rawAliasBudgetOnlyReturnsAfterIsolatedObservedGc FAILED
+    java.lang.AssertionError at R31SharedFeatureIntegrationTest.java:47
 
-R30StructureRegistryTest > realMainBirthLoopProducesEveryNewFamily FAILED
-    java.lang.AssertionError at R30StructureRegistryTest.java:13
-
-509 tests completed, 2 failed
+509 tests completed, 1 failed
 
 > Task :app:testDebugUnitTest FAILED
 > Task :app:generateDebugAndroidTestLintModel
@@ -144,5 +141,5 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD FAILED in 10m 46s
+BUILD FAILED in 8m 41s
 54 actionable tasks: 51 executed, 3 from cache
