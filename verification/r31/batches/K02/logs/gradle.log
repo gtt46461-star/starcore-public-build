@@ -15,7 +15,7 @@ To honour the JVM settings for this build a single-use Daemon process will be fo
 Daemon will be stopped at the end of the build 
 
 > Task :app:generateR27BuildIdentity
-R27_BUILD_IDENTITY_WRITTEN 4dcd252640db961b89ccac31f4d53e1e3631709b ab9c1727f57983609e4abde710ee6aacf4102ce1
+R27_BUILD_IDENTITY_WRITTEN a58f2fc66b99310b537d607dea3ca0ae2d3e3fe8 2245b4d056dc690107edc712ec036067b81a90b8
 
 > Task :app:verifyR31Baseline
 > Task :app:generateR31BuildIdentity
@@ -36,10 +36,10 @@ R967_SEMANTIC_IDENTITY_GENERATED|fb4a623b26b9b11043822c8ec0f4a758ca5f3fda71ecfc8
 R967_SEMANTIC_IDENTITY_VERIFIED|fb4a623b26b9b11043822c8ec0f4a758ca5f3fda71ecfc8264d6ff440a0911a2
 
 > Task :app:generateR815Provenance
-R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=4a17fcfc6e2a113496e4deb4d3cfe2ebd665872c2868739c3bea5f562bf4b84b|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=62a7c5729cf6def7e4ecad9363cbebaafcb37dea9faa3585ccd26f0ee0d35d8f|GENERATED_AT=2026-11-07T06:01:55Z
+R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=4a17fcfc6e2a113496e4deb4d3cfe2ebd665872c2868739c3bea5f562bf4b84b|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=62a7c5729cf6def7e4ecad9363cbebaafcb37dea9faa3585ccd26f0ee0d35d8f|GENERATED_AT=2026-11-07T06:32:46Z
 
 > Task :app:verifyR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=4a17fcfc6e2a113496e4deb4d3cfe2ebd665872c2868739c3bea5f562bf4b84b|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=62a7c5729cf6def7e4ecad9363cbebaafcb37dea9faa3585ccd26f0ee0d35d8f|GENERATED_AT=2026-11-07T06:01:55Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=4a17fcfc6e2a113496e4deb4d3cfe2ebd665872c2868739c3bea5f562bf4b84b|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=62a7c5729cf6def7e4ecad9363cbebaafcb37dea9faa3585ccd26f0ee0d35d8f|GENERATED_AT=2026-11-07T06:32:46Z
 
 > Task :app:preBuild
 > Task :app:preDebugBuild
@@ -53,27 +53,27 @@ R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=4a17fcfc6e2a113496e4deb4d3cfe2ebd665872c2
 > Task :app:mergeDebugResources
 > Task :app:createDebugCompatibleScreenManifests
 > Task :app:extractDeepLinksDebug
-> Task :app:parseDebugLocalResources
 > Task :app:processDebugMainManifest
+> Task :app:parseDebugLocalResources
 > Task :app:processDebugManifest
 > Task :app:preDebugAndroidTestBuild SKIPPED
 > Task :app:processDebugAndroidTestManifest
 > Task :app:generateDebugAndroidTestBuildConfig
+> Task :app:processDebugManifestForPackage
 > Task :app:javaPreCompileDebugAndroidTest FROM-CACHE
 > Task :app:prepareRawUpstreamAndroidTestHarness
 > Task :app:checkDebugAndroidTestAarMetadata
 > Task :app:generateDebugAndroidTestResValues FROM-CACHE
 > Task :app:mapDebugAndroidTestSourceSetPaths
 > Task :app:generateDebugAndroidTestResources
-> Task :app:processDebugManifestForPackage
-> Task :app:mergeDebugAndroidTestResources
 > Task :app:preDebugUnitTestBuild
 > Task :app:javaPreCompileDebugUnitTest FROM-CACHE
 > Task :app:processDebugJavaRes NO-SOURCE
+> Task :app:mergeDebugAndroidTestResources
 > Task :app:processDebugUnitTestJavaRes
+> Task :app:processDebugResources
 > Task :app:extractProguardFiles
 > Task :app:processDebugAndroidTestResources
-> Task :app:processDebugResources
 
 > Task :app:compileDebugJavaWithJavac
 /home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java:14: warning: [strictfp] as of release 17, all floating-point expressions are evaluated strictly and 'strictfp' is not required
@@ -85,15 +85,15 @@ Note: Some input files use unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
 1 warning
 
-> Task :app:bundleDebugClassesToRuntimeJar
 > Task :app:bundleDebugClassesToCompileJar
+> Task :app:bundleDebugClassesToRuntimeJar
 > Task :app:generateDebugLintReportModel
 
 > Task :app:verifyFinalR967Semantics
 R967_SEMANTIC_IDENTITY_VERIFIED|fb4a623b26b9b11043822c8ec0f4a758ca5f3fda71ecfc8264d6ff440a0911a2
 
 > Task :app:verifyFinalR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=4a17fcfc6e2a113496e4deb4d3cfe2ebd665872c2868739c3bea5f562bf4b84b|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=62a7c5729cf6def7e4ecad9363cbebaafcb37dea9faa3585ccd26f0ee0d35d8f|GENERATED_AT=2026-11-07T06:01:55Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=4a17fcfc6e2a113496e4deb4d3cfe2ebd665872c2868739c3bea5f562bf4b84b|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=62a7c5729cf6def7e4ecad9363cbebaafcb37dea9faa3585ccd26f0ee0d35d8f|GENERATED_AT=2026-11-07T06:32:46Z
 
 > Task :app:compileDebugAndroidTestJavaWithJavac
 Note: Some input files use or override a deprecated API.
@@ -104,5 +104,45 @@ Note: Some input files use unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
 
 > Task :app:testDebugUnitTest
+
+R30ModelSurfaceTest > typedAstConsumesActualSurfaceAndMissingRowsCannotCarryThroughEma FAILED
+    java.lang.AssertionError at R30ModelSurfaceTest.java:13
+
+R30StructureRegistryTest > realMainBirthLoopProducesEveryNewFamily FAILED
+    java.lang.AssertionError at R30StructureRegistryTest.java:13
+
+509 tests completed, 2 failed
+
+> Task :app:testDebugUnitTest FAILED
 > Task :app:generateDebugAndroidTestLintModel
 > Task :app:generateDebugUnitTestLintModel
+> Task :app:lintAnalyzeDebugAndroidTest
+> Task :app:lintAnalyzeDebugUnitTest
+> Task :app:lintAnalyzeDebug
+
+> Task :app:lintReportDebug
+Lint found no new issues (and 51 errors filtered by baseline lint-baseline.xml)
+
+7 errors/warnings were listed in the baseline file (/home/runner/work/starcore-public-build/starcore-public-build/app/lint-baseline.xml) but not found in the project; perhaps they have been fixed?
+
+> Task :app:lintDebug
+
+[Incubating] Problems report is available at: file:///home/runner/work/starcore-public-build/starcore-public-build/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:testDebugUnitTest'.
+> There were failing tests. See the report at: file:///home/runner/work/starcore-public-build/starcore-public-build/app/build/reports/tests/testDebugUnitTest/index.html
+
+* Try:
+> Run with --scan to get full insights.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 10m 46s
+54 actionable tasks: 51 executed, 3 from cache

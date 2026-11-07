@@ -1,0 +1,37 @@
+/home/runner/work/starcore-public-build/starcore-public-build/tools/r30-repair/qual_host/RepairCommitFailureR30HostTest.java:7: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/home/runner/work/starcore-public-build/starcore-public-build/tools/r30-repair/qual_host/RepairCommitFailureR30HostTest.java:69: warning: Unsafe is internal proprietary API and may be removed in a future release
+            SQLiteDatabase db=new SQLiteDatabase(connection);Field uf=Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);Unsafe unsafe=(Unsafe)uf.get(null);DatabaseCoordinator coordinator=(DatabaseCoordinator)unsafe.allocateInstance(DatabaseCoordinator.class);
+                                                                      ^
+/home/runner/work/starcore-public-build/starcore-public-build/tools/r30-repair/qual_host/RepairCommitFailureR30HostTest.java:69: warning: Unsafe is internal proprietary API and may be removed in a future release
+            SQLiteDatabase db=new SQLiteDatabase(connection);Field uf=Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);Unsafe unsafe=(Unsafe)uf.get(null);DatabaseCoordinator coordinator=(DatabaseCoordinator)unsafe.allocateInstance(DatabaseCoordinator.class);
+                                                                                                                                        ^
+/home/runner/work/starcore-public-build/starcore-public-build/tools/r30-repair/qual_host/RepairCommitFailureR30HostTest.java:69: warning: Unsafe is internal proprietary API and may be removed in a future release
+            SQLiteDatabase db=new SQLiteDatabase(connection);Field uf=Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);Unsafe unsafe=(Unsafe)uf.get(null);DatabaseCoordinator coordinator=(DatabaseCoordinator)unsafe.allocateInstance(DatabaseCoordinator.class);
+                                                                                                                                                       ^
+4 warnings
+BASELINE_REAL_NATIVE_COMMIT_FAILURE_REPRODUCED false_success=true committed_rows=0 telemetry_called_while_writer_locked=true
+Exception in thread "main" java.lang.reflect.InvocationTargetException
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at com.ethk3.novaonepro.RepairCommitFailureR30HostTest.main(RepairCommitFailureR30HostTest.java:74)
+Caused by: java.lang.NoSuchMethodError: 'void com.ethk3.novaonepro.strategyv2.WriterHoldLedgerR30.record(java.lang.String, boolean, long, long, boolean, java.lang.String)'
+	at com.ethk3.novaonepro.DatabaseCoordinator.recordUnlockedWriterR30(DatabaseCoordinator.java:893)
+	at com.ethk3.novaonepro.DatabaseCoordinator.lambda$runWrite$9(DatabaseCoordinator.java:873)
+	at com.ethk3.novaonepro.DatabaseCoordinator.diagnosticR31(DatabaseCoordinator.java:121)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:873)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:771)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runSettlementCoreTransactionR911(DatabaseCoordinator.java:1289)
+	... 5 more
+Traceback (most recent call last):
+  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r30-repair/run_commit_failure_host.py", line 37, in <module>
+    run(['java','-Xmx512m','-cp',os.pathsep.join(map(str,[platform,directory,test,classes,jdbc,sdk])),'com.ethk3.novaonepro.RepairCommitFailureR30HostTest',mode])
+  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r30-repair/run_commit_failure_host.py", line 6, in run
+    def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['java', '-Xmx512m', '-cp', '/tmp/repair-actual-commit-46dca1yh/platform:/tmp/repair-actual-commit-46dca1yh/production:/tmp/repair-actual-commit-46dca1yh/test:/home/runner/work/starcore-public-build/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/home/runner/.cache/r312-host/sqlite-jdbc-3.46.1.3.jar:/usr/local/lib/android/sdk/platforms/android-36/android.jar', 'com.ethk3.novaonepro.RepairCommitFailureR30HostTest', 'fixed']' returned non-zero exit status 1.

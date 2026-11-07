@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/verify_memory.py", line 90, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/verify_memory.py", line 43, in main
+    original=run([java,'-Xmx512m','-cp',current_cp,'org.junit.runner.JUnitCore','com.ethk3.novaonepro.strategyv2.R27LeakageTest','com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest'],'original-pit-model-junit.log')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/verify_memory.py", line 32, in run
+    raise RuntimeError(log)
+RuntimeError: original-pit-model-junit.log

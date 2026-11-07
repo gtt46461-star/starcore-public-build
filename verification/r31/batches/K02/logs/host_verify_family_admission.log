@@ -1,0 +1,29 @@
+R31_HOST_STEP_FAILED original-pit-model-junit.log exit=1
+JUnit version 4.13.2
+.R27_HOST|H01_ATOMS_PASS atoms=240 rows=3
+.R27_HOST|H01_LEAVES_PASS leaves=26 checks=156
+.E..R30_I08|MODEL_PROPOSALS=524|FAMILY_PROPOSALS=476|NO_UNAVAILABLE_MODEL_BIRTH_CLAIM
+.
+Time: 5.472
+There was 1 failure:
+1) typedAstConsumesActualSurfaceAndMissingRowsCannotCarryThroughEma(com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest)
+java.lang.AssertionError: R31_OUTSTANDING_LEASES before=13 after=15 owners=[raw-leaf:b610f1ecae3a299a/FEATURE_CACHE/72128, raw-leaf:8591105c6450afdf/FEATURE_CACHE/72128, family-model:F21/MODEL/28672, raw-leaf:524283fcdc65b391/FEATURE_CACHE/72128, family-model:F21/MODEL/28672, raw-leaf:b610f1ecae3a299a/FEATURE_CACHE/72128, raw-leaf:0d4cbdb918ff6622/FEATURE_CACHE/72128, raw-leaf:bc5033635174e7d8/FEATURE_CACHE/72128, raw-leaf:7b3a622fd7dbfe4e/FEATURE_CACHE/72128, raw-leaf:b610f1ecae3a299a/FEATURE_CACHE/72128, raw-leaf:611c3c9b58fa5eff/FEATURE_CACHE/72128, raw-leaf:8591105c6450afdf/FEATURE_CACHE/72128, raw-leaf:524283fcdc65b391/FEATURE_CACHE/72128, raw-leaf:9765ca3209020304/FEATURE_CACHE/4128, raw-leaf:9765ca3209020304/FEATURE_CACHE/4128]
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest.r31OutstandingLeaseGuardAfter(R30ModelSurfaceTest.java:13)
+
+FAILURES!!!
+Tests run: 6,  Failures: 1
+
+
+Traceback (most recent call last):
+  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/verify_family_admission.py", line 67, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/verify_family_admission.py", line 39, in main
+    existing=run([java,'-Xmx512m','-cp',cp,'org.junit.runner.JUnitCore','com.ethk3.novaonepro.strategyv2.R27LeakageTest','com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest'],'original-pit-model-junit.log');receipt['originalPitModelJUnit']=int(re.search(r'OK \((\d+) tests\)',existing.stdout).group(1))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/verify_family_admission.py", line 33, in run
+    if process.returncode and not allow_failure:print('R31_HOST_STEP_FAILED '+log+' exit='+str(code)+'\n'+contents[-6000:],flush=True);raise RuntimeError(log)
+                                                                                                                                       ^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: original-pit-model-junit.log
