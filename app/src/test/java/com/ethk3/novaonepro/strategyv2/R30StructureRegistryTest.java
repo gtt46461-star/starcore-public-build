@@ -42,8 +42,10 @@ public final class R30StructureRegistryTest {
         };
         EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.births = 80; cfg.minPerFamily = 3; cfg.nullControl = false; cfg.i00PerGeneration = 0; cfg.seed = 307;
         ReplayDatasetR27 data = ReplayDatasetR27.synthetic(1800, 9, new int[0]);
-        EvolutionLoopR27 loop = new EvolutionLoopR27(cfg, new FeatureCacheR27(data), sink, () -> 0L);
-        loop.step(); loop.step(); loop.step(); // actual DATASET -> BIRTH -> GATE, not manual pending injection
+        // The test owns its cache and loop; closing them returns the family-model leases (R31-ENG-02#A2).
+        try (FeatureCacheR27 cache = new FeatureCacheR27(data); EvolutionLoopR27 loop = new EvolutionLoopR27(cfg, cache, sink, () -> 0L)) {
+            loop.step(); loop.step(); loop.step(); // actual DATASET -> BIRTH -> GATE, not manual pending injection
+        }
         for (int f = 14; f <= 20; f++) {
             String id = String.format(Locale.ROOT,"I%02d",f); assertTrue(id + " absent from actual births: " + births, births.getOrDefault(id, 0) > 0);
         }

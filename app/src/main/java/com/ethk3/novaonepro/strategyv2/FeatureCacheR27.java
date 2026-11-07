@@ -43,7 +43,7 @@ public final class FeatureCacheR27 implements AutoCloseable {
     private static final class BuildLockR31 {final ReentrantLock lock=new ReentrantLock();int users;}
     private final Map<String,BuildLockR31> buildLocksR31=new LinkedHashMap<>();
     public static void reapReleasedArraysR31(){synchronized(RAW_LEASES_R31){Reference<? extends double[]> ref;while((ref=RAW_QUEUE_R31.poll())!=null){MemoryBudgetR31.Lease lease=RAW_LEASES_R31.remove(ref);if(lease!=null)lease.close();}}synchronized(FAMILY_FORK_LEASES_R31){Reference<? extends FamilyStream> ref;while((ref=FAMILY_FORK_QUEUE_R31.poll())!=null){FamilyOwnerR31 owner=FAMILY_FORK_LEASES_R31.remove(ref);if(owner!=null)owner.close();}}}
-    private static void trackRawR31(double[] array,MemoryBudgetR31.Lease lease){synchronized(RAW_LEASES_R31){RAW_LEASES_R31.put(new WeakReference<>(array,RAW_QUEUE_R31),lease);}}
+    // Escaped raw leaf arrays are fixed private backings: MemoryBudgetR31 releases their lease when the array is collected.
     private static long arrayBytesR31(double[] array){return 128L+8L*array.length;}
     private void clearRawR31(){rawMapBytesDropped+=rawBytes;cache.clear();rawBytes=0;}
     private void trimRawR31(){java.util.Iterator<Map.Entry<String,double[]>> it=cache.entrySet().iterator();while((cache.size()>capacity||rawBytes>rawByteCapacity)&&it.hasNext()){double[] value=it.next().getValue();it.remove();long bytes=arrayBytesR31(value);rawBytes-=bytes;rawMapBytesDropped+=bytes;}}
@@ -104,7 +104,7 @@ public final class FeatureCacheR27 implements AutoCloseable {
         MemoryBudgetR31.Admission admission=memory.tryAcquire("raw-leaf:"+data.datasetHash.substring(0,16),Boolean.TRUE.equals(CRITICAL_ALLOCATION_R31.get())?MemoryBudgetR31.Kind.REALTIME:MemoryBudgetR31.Kind.FEATURE_CACHE,128L+80L*data.size(),()->Thread.currentThread().isInterrupted());
         if(!admission.acquired())throw leafCapacityWaitR31(admission.reason,kind,tp,a,b);
         double[] v;
-        try{v=compute(kind,tp,a,b);if(v.length!=data.size()*10)throw new IllegalStateException("R31_LEAF_LENGTH");admission.lease.allocatedPrimitiveArrayR31(v);trackRawR31(v,admission.lease);}
+        try{v=compute(kind,tp,a,b);if(v.length!=data.size()*10)throw new IllegalStateException("R31_LEAF_LENGTH");admission.lease.allocatedPrimitiveArrayR31(v);admission.lease.closeWhenPrivateBackingCollectedR31(v);}
         catch(RuntimeException|Error failure){admission.lease.close();throw failure;}
         synchronized (this) { double[] raced = cache.get(key); if (raced != null) return raced; computed++;if(!closedR31){cache.put(key,v);rawBytes+=arrayBytesR31(v);trimRawR31();} }
         return v;

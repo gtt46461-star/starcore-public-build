@@ -14,7 +14,7 @@ def main():
   b=p.read_bytes();q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(b);receipt['sources'].append({'origin':str(p),'snapshot':str(q),'sha256':SHA(b)});return q
  def run(name,argv):
   p=subprocess.run(list(map(str,argv)),cwd=work,capture_output=True,text=True,timeout=180);(out/(name+'.stdout.log')).write_text(p.stdout);(out/(name+'.stderr.log')).write_text(p.stderr);receipt['commands'].append({'name':name,'argv':list(map(str,argv)),'exit':p.returncode,'stdoutSha256':SHA(p.stdout.encode()),'stderrSha256':SHA(p.stderr.encode())});save();print(json.dumps({'name':name,'exit':p.returncode,'out':str(out)}),flush=True)
-  if p.returncode:raise RuntimeError(name+' failed; raw stdout/stderr retained')
+  if p.returncode:print('R31_HOST_STEP_FAILED '+name+'\n'+p.stdout[-4000:]+'\n'+p.stderr[-4000:],flush=True);raise RuntimeError(name+' failed; raw stdout/stderr retained')
   return p.stdout
  try:
   shims=[]

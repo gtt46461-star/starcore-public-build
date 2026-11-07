@@ -9,7 +9,9 @@ def main():
  OUT.mkdir(parents=True,exist_ok=True);work=Path(tempfile.mkdtemp(prefix='r31-real-resource-recovery-'));classes=work/'classes';classes.mkdir();gradle=Path(os.environ.get('GRADLE_USER_HOME',str(Path.home()/'.gradle')));local=Path('/workspace/starcore-environment/gradle-home');gradle=gradle if gradle.exists() else local
  junit=next(gradle.glob('caches/modules-2/files-2.1/junit/junit/4.13.2/*/*.jar'));hamcrest=next(gradle.glob('caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/*/*.jar'));java,javac=shutil.which('java'),shutil.which('javac');paths=[SOURCE/'MemoryBudgetR31.java',SOURCE/'JsonR27.java',HOST,TEST,Path(__file__).resolve()];before={str(p.relative_to(ROOT)):sha(p) for p in paths};commands=[];cp=os.pathsep.join(map(str,[classes,junit,hamcrest]))
  def run(command,log,timeout=200):
-  command=list(map(str,command));p=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=timeout);(OUT/log).write_text(p.stdout+p.stderr);commands.append(dict(command=command,log=log,exitCode=p.returncode));p.check_returncode();return p.stdout
+  command=list(map(str,command));p=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=timeout);(OUT/log).write_text(p.stdout+p.stderr);commands.append(dict(command=command,log=log,exitCode=p.returncode))
+  if p.returncode:print('R31_HOST_STEP_FAILED '+log+'\n'+p.stdout[-4000:]+'\n'+p.stderr[-4000:],flush=True)
+  p.check_returncode();return p.stdout
  run([javac,'-encoding','UTF-8','-cp',cp,'-d',classes,*[SOURCE/n for n in ['MemoryBudgetR31.java','JsonR27.java']],HOST,TEST],'javac.log');unit=run([java,'-Xmx512m','-cp',cp,'org.junit.runner.JUnitCore','com.ethk3.novaonepro.strategyv2.R31OptionalHeapRecoveryTest'],'unit.log');count=int(re.search(r'OK \((\d+) tests\)',unit).group(1))
  def mode(name):
   result=json.loads(run([java,'-Xmx512m','-cp',cp,'com.ethk3.novaonepro.strategyv2.ResourceRecoveryR31Host',name],name+'.log'));(OUT/(name+'.json')).write_text(json.dumps(result,indent=2)+'\n');return result
