@@ -21,16 +21,17 @@ import zipfile
 BASELINE = "5237b265a27fe5ad27fd842901c445d5f8c27749"
 # Two independently sealed plan roles:
 #   active           - the in-place revision being executed, pinned to the manifest the user's
-#                      authorization commit adopted (R31.3: beaf4f16, "adopt R31.3 construction-first plan");
+#                      authorization commit adopted (R31.4: 823fafbe, "merge the 21 construction batches into 11";
+#                      R31.3 was beaf4f16);
 #   original_archive - the original R31 tree, archived byte-for-byte, pinned to the original hash.
 # Either role failing (member tamper, missing/unsealed member, or a resealed manifest) fails identity.
 # A later plan revision must change PLAN_* below in its own authorization commit; this tool never
 # rewrites an expected hash.
 PLAN_REL = "construction/STARCORE_R31_FINAL_20261104"
-PLAN_REVISION = "R31.3-CONSTRUCTION-20261105"
-PLAN_AUTHORIZATION_COMMIT = "beaf4f16f55a29d096b6216335c50c7752cf21b3"
-PLAN_MANIFEST_SHA256 = "b66f01f3f4f4d980a5eed4a6ede09801ed54dcc5fed65fa3fd807672adaf0836"
-PLAN_MEMBER_COUNT = 448
+PLAN_REVISION = "R31.4-MERGED-11-20261107"
+PLAN_AUTHORIZATION_COMMIT = "823fafbed4284fafe1e440519e3f58170d198415"
+PLAN_MANIFEST_SHA256 = "2babbf80ebeaba90c58ff9faa6ade6508a8362dcf07294b955ce5a4b7b17a1a8"
+PLAN_MEMBER_COUNT = 442
 ORIGINAL_PLAN_REL = "construction/archives/STARCORE_R31_FINAL_20261104"
 ORIGINAL_PLAN_REVISION = "R31-FINAL-20261104"
 ORIGINAL_PLAN_MANIFEST_SHA256 = "13f34908b624c74e2852ce8f944b99f8978348820aab23f83043fab1d72753ce"
