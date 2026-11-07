@@ -15,7 +15,7 @@ To honour the JVM settings for this build a single-use Daemon process will be fo
 Daemon will be stopped at the end of the build 
 
 > Task :app:generateR27BuildIdentity
-R27_BUILD_IDENTITY_WRITTEN 0083d0590ed47d4f73758fd2f6057bb213809d93 8e1cdabdda4d8dd2b48430eac8013b1cebed6d60
+R27_BUILD_IDENTITY_WRITTEN 4dcd252640db961b89ccac31f4d53e1e3631709b ab9c1727f57983609e4abde710ee6aacf4102ce1
 
 > Task :app:verifyR31Baseline
 > Task :app:generateR31BuildIdentity
@@ -30,16 +30,16 @@ CATALOG_IDENTITY_PASS|atoms=25350|seeds=4200|stream_line_cap=65536
 SU2 production DDL: reproducible and executable
 
 > Task :app:generateR967Semantics
-R967_SEMANTIC_IDENTITY_GENERATED|899915ce8b03a6a9051f44e406420e63dd8626a84d74d9cebfa930355a5ff289
+R967_SEMANTIC_IDENTITY_GENERATED|fb4a623b26b9b11043822c8ec0f4a758ca5f3fda71ecfc8264d6ff440a0911a2
 
 > Task :app:verifyR967Semantics
-R967_SEMANTIC_IDENTITY_VERIFIED|899915ce8b03a6a9051f44e406420e63dd8626a84d74d9cebfa930355a5ff289
+R967_SEMANTIC_IDENTITY_VERIFIED|fb4a623b26b9b11043822c8ec0f4a758ca5f3fda71ecfc8264d6ff440a0911a2
 
 > Task :app:generateR815Provenance
-R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=be26c631502217b2aec97de30fabfd2b46270b1ee52e328d3b7ed156267c68aa|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=5fbf9236a3c70d8caa117600472cfc1094a8e31644981b94fda19dd949a34fd3|GENERATED_AT=2026-11-07T05:31:58Z
+R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=4a17fcfc6e2a113496e4deb4d3cfe2ebd665872c2868739c3bea5f562bf4b84b|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=62a7c5729cf6def7e4ecad9363cbebaafcb37dea9faa3585ccd26f0ee0d35d8f|GENERATED_AT=2026-11-07T06:01:55Z
 
 > Task :app:verifyR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=be26c631502217b2aec97de30fabfd2b46270b1ee52e328d3b7ed156267c68aa|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=5fbf9236a3c70d8caa117600472cfc1094a8e31644981b94fda19dd949a34fd3|GENERATED_AT=2026-11-07T05:31:58Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=4a17fcfc6e2a113496e4deb4d3cfe2ebd665872c2868739c3bea5f562bf4b84b|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=62a7c5729cf6def7e4ecad9363cbebaafcb37dea9faa3585ccd26f0ee0d35d8f|GENERATED_AT=2026-11-07T06:01:55Z
 
 > Task :app:preBuild
 > Task :app:preDebugBuild
@@ -65,15 +65,15 @@ R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=be26c631502217b2aec97de30fabfd2b46270b1ee
 > Task :app:generateDebugAndroidTestResValues FROM-CACHE
 > Task :app:mapDebugAndroidTestSourceSetPaths
 > Task :app:generateDebugAndroidTestResources
-> Task :app:preDebugUnitTestBuild
-> Task :app:javaPreCompileDebugUnitTest FROM-CACHE
 > Task :app:processDebugManifestForPackage
 > Task :app:mergeDebugAndroidTestResources
+> Task :app:preDebugUnitTestBuild
+> Task :app:javaPreCompileDebugUnitTest FROM-CACHE
 > Task :app:processDebugJavaRes NO-SOURCE
 > Task :app:processDebugUnitTestJavaRes
 > Task :app:extractProguardFiles
-> Task :app:processDebugResources
 > Task :app:processDebugAndroidTestResources
+> Task :app:processDebugResources
 
 > Task :app:compileDebugJavaWithJavac
 /home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java:14: warning: [strictfp] as of release 17, all floating-point expressions are evaluated strictly and 'strictfp' is not required
@@ -85,15 +85,15 @@ Note: Some input files use unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
 1 warning
 
-> Task :app:bundleDebugClassesToCompileJar
 > Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:bundleDebugClassesToCompileJar
 > Task :app:generateDebugLintReportModel
 
 > Task :app:verifyFinalR967Semantics
-R967_SEMANTIC_IDENTITY_VERIFIED|899915ce8b03a6a9051f44e406420e63dd8626a84d74d9cebfa930355a5ff289
+R967_SEMANTIC_IDENTITY_VERIFIED|fb4a623b26b9b11043822c8ec0f4a758ca5f3fda71ecfc8264d6ff440a0911a2
 
 > Task :app:verifyFinalR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=be26c631502217b2aec97de30fabfd2b46270b1ee52e328d3b7ed156267c68aa|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=5fbf9236a3c70d8caa117600472cfc1094a8e31644981b94fda19dd949a34fd3|GENERATED_AT=2026-11-07T05:31:58Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=4a17fcfc6e2a113496e4deb4d3cfe2ebd665872c2868739c3bea5f562bf4b84b|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=62a7c5729cf6def7e4ecad9363cbebaafcb37dea9faa3585ccd26f0ee0d35d8f|GENERATED_AT=2026-11-07T06:01:55Z
 
 > Task :app:compileDebugAndroidTestJavaWithJavac
 Note: Some input files use or override a deprecated API.
@@ -104,3 +104,5 @@ Note: Some input files use unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
 
 > Task :app:testDebugUnitTest
+> Task :app:generateDebugAndroidTestLintModel
+> Task :app:generateDebugUnitTestLintModel
