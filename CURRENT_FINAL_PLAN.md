@@ -1,5 +1,7 @@
 # STARCORE R31 唯一施工入口
 
+> **2026-11-07 接续（先读）**：卡住的原因与修复、每批“改代码→重钉→推送→CI回写→close”流程，见施工分支 [construction/r31/R31_3_接续施工说明.md](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/r31/R31_3_接续施工说明.md)。当前开放批次 K02。
+
 当前方案：**R31.3-CONSTRUCTION-20261105，21个顺序批次（K01→K21），56张原卡+2张在制品修复卡**。批次序号就是施工顺序；每批先改代码，批末一次机器关门。冻结方案与应用源码分别读取，禁止把main当作最新应用源码。
 
 - [R31.3施工推进合同（根因、规则、21批总表）](https://github.com/gtt46461-star/starcore-public-build/blob/main/construction/STARCORE_R31_FINAL_20261104/docs/16_R31.3施工推进合同.md)
