@@ -1,36 +1,2117 @@
 {
  "format": "R31_BUILD_SUMMARY_V2",
  "batch": "K04",
- "source_head": "ac26308c054f68357add25b9768cfaf3b84d8f30",
- "started_at": "2026-11-07T10:31:42.968389+00:00",
- "finished_at": "2026-11-07T10:58:58.953631+00:00",
+ "source_head": "2996a1ef8ea2a980dad538baf0ba71a71fb0d1a3",
+ "started_at": "2026-11-07T11:02:13.156187+00:00",
+ "finished_at": "2026-11-07T11:33:12.627536+00:00",
  "environment": "CI",
- "ci_run": "42364247581",
+ "ci_run": "42366374516",
  "pre_build": [],
  "gradle": {
-  "state": "FAIL",
+  "state": "PASS",
   "tasks": [
    ":app:compileDebugJavaWithJavac",
    ":app:compileDebugAndroidTestJavaWithJavac",
    ":app:testDebugUnitTest",
    ":app:lintDebug"
   ],
-  "exit": 1,
-  "failed_tasks": [
-   ":app:compileDebugUnitTestJavaWithJavac"
-  ],
-  "compile_failed": [
-   ":app:compileDebugUnitTestJavaWithJavac"
-  ],
-  "unit_task_executed": false
+  "exit": 0,
+  "failed_tasks": [],
+  "compile_failed": [],
+  "unit_task_executed": true
  },
  "unit": {
-  "tests": 0,
+  "tests": 521,
   "failures": 0,
   "errors": 0,
   "skipped": 0
  },
- "tests": {},
+ "tests": {
+  "com.ethk3.novaonepro.AnalysisSingleFlightR36Test#noProgressCancelsExactlyOnce": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.AnalysisSingleFlightR36Test#progressPulsePreventsTwelveSecondBudgetFromCancelling": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.AnalysisSingleFlightR36Test#latestWinsAndNewerTargetRequestsCooperativeCancellation": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.AnalysisSingleFlightR36Test#supersededBeforeFinalizationCannotEnterCommitPhase": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.AnalysisSingleFlightR36Test#newerTargetAfterFinalizationQueuesUntilDurableCommit": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.AnalysisSingleFlightR36Test#hundredRequestsKeepOneOwnerAndLatestPending": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch3ContractsR929Test#matrixAndLearnerAreDeterministicAndIdempotent": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch3ContractsR929Test#rawScoreCannotPassAsProbabilityAndPolicyChangeRejectsCalibration": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch3ContractsR929Test#sealedTokenIsConsumedOnlyOnce": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch3ContractsR929Test#actionSurfaceHasExactly1200And360PositiveLabels": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch3ContractsR929Test#legalZeroIsPresentAndMissingIsDistinct": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch3ContractsR929Test#pitDagRejectsCycleAndFutureSource": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch3ContractsR929Test#splitPlanRequiresFiveExpandingChronologicalFolds": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch3ContractsR929Test#sameCertificateContractAppliesToEveryConsumerAndNeverCreatesReal": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch4ContractsR930Test#dedupeRejectsBehaviorCloneAndQuarantineIsOnlyDependencyClosure": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch4ContractsR930Test#typedGraphEvaluatesRealCompositeAndPreservesLegacyIdentity": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch4ContractsR930Test#ablationMustActuallyRecomputeAndSummaryIsPaired": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch4ContractsR930Test#matrixModelIdentityDriftIsRejectedBeforeSettlement": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch4ContractsR930Test#typedGraphEnforcesOriginalHardCostBoundary": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch4ContractsR930Test#schedulerEnforcesEightTwentyFourSixtyFourAndFamilyFairness": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch4ContractsR930Test#typedGraphRejectsPostdrawParentForPredrawMolecule": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch4ContractsR930Test#frontierNeverCreatesFrequencyDebtAndNeedsIndependentFuture": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch4ContractsR930Test#lifecycleConsumesEachWindowOnlyOnceAndDoesNotJumpLevels": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.Batch4ContractsR930Test#matrixSnapshotRequiresOneFreezeAndFeedbackIsDelayed": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.ChartGeometryR82Test#legacy64BudgetAndCardinalCoordinatesRemainUnchanged": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.ChartGeometryR82Test#researchGraphAcceptsExactly120AndRejects121WithoutTruncation": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.ChartGeometryR82Test#actualR03PositionPairsKeepAll100OriginalNodes": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.FtrlWriteTraceR30Test#boundedObservationNeverBecomesAnAllTimeOrSloClaim": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.FtrlWriteTraceR30Test#publishesAfterTransactionScopeAndRetainsNegativeOutcome": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.HistoricalSeedAssetTest#malformedAndNonvalidRowsDoNotBecomeDraws": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.HistoricalSeedAssetTest#mergedCsvIsDecodedByTheRealImporterWithoutGzip": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.HistoricalSeedAssetTest#decoderPropagatesIoFailureAndClosesItsInput": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.HistoryWatermarkR46Test#targetRollsForwardFromConfirmedWatermark": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.HistoryWatermarkR46Test#confirmedProviderSurvivesLaggingHistoricalWatermark": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.HistoryWatermarkR46Test#lateProviderCannotRegressNewerCommittedHistory": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.HistoryWatermarkR46Test#missingProviderUsesVerifiedHistory": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.HistoryWatermarkR46Test#malformedBothDoNotInventAnIssue": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.HistoryWatermarkR46Test#malformedHistoryCannotMaskValidProvider": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.MotifSurfaceParityTest#equalDistancesRetainFirstSuccessorAndCallsAreIsolated": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.MotifSurfaceParityTest#allCellsMatchShippedEstimatorExactly": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.MultiHorizonProbeR80Test#missingHistoryIsNotZero": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.MultiHorizonProbeR80Test#exact1440RolloverIncludingLeapDay": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.MultiHorizonProbeR80Test#changedObservedPrefixChangesSourceAndModel": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.MultiHorizonProbeR80Test#targetOrLaterCannotEnterHistory": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.MultiHorizonProbeR80Test#fixedMathMatchesIndependentFullMatrixOracle": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.MultiHorizonProbeR80Test#futureObservationCannotEnterFrozenPrefix": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.MultiHorizonProbeR80Test#gapIsNotFilledWithZero": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.MultiHorizonProbeR80Test#noRetrospectiveHorizonSelection": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.MultiHorizonProbeR80Test#noGrowingHistoryBeyond5000": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.MultiHorizonProbeR80Test#prefixOutsideFixed960DoesNotAffectModel": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.MultiHorizonProbeR80Test#deterministicTieUsesSmallestThreeNumbers": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R30SelectiveScopeIdentityTest#everySelectiveIdentityFieldIsBound": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R30SelectiveScopeIdentityTest#originalR958VectorAndIdentityFenceRemainExact": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R30SelectiveScopeIdentityTest#selectiveNamespacesCannotReplayEachOtherOrTheR958Scope": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R30SelectiveScopeIdentityTest#absentMalformedOrUnrecognizedIdentitiesNeverGainAScope": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31AnalysisPhaseBudgetTest#pulsesAndRepeatedPhaseEntryCannotExtendBudget": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31AnalysisPhaseBudgetTest#pollCadenceAnchorsToStartCountsLateSlotsAndNeverReplaysMissedTicks": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31AnalysisPhaseBudgetTest#phaseRegressionIsRejectedAndSourceChoiceIsHonest": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31AnalysisPhaseBudgetTest#backoffAndExplicitWakePreserveMissedDenominatorAndInactiveTime": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31AnalysisPhaseBudgetTest#fixedPredrawDeadlineDominatesEachPhaseAllowance": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31AnalysisPhaseBudgetTest#committedPublicationCannotBeCancelledOrReclassifiedByLateWork": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31BackgroundCapabilityStateTest#configuredCapabilitiesAreNeverDeviceSoakEvidence": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31BackgroundCapabilityStateTest#onlyObservedRestrictionsAreOsRestricted": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31BackgroundCapabilityStateTest#detailsCarrySourceClockUnknownsAndUnverifiedOem": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31BackgroundCapabilityStateTest#forceStopRequiresActualStartEvidenceAndIntervalsAreNotUptime": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31BackgroundCapabilityStateTest#unknownAndUnsupportedArePreservedSeparately": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31BackgroundCapabilityStateTest#userDisabledIsNotPromisedAutomaticRecovery": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31FetchLatencyDistributionTest#emptyOrAllFailedHasNoInventedPercentile": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31FetchLatencyDistributionTest#thousandFetchesReportFullDistributionDenominatorAndWorstTwenty": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31SettlementCoverageColumnsTest#healthySettlementDoesNotHidePredictionCoverageGap": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31SettlementCoverageColumnsTest#noEligibleDrawIsUnknownNotZeroOrFull": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31SqliteSpaceUnavailableTest#unavailableDbstatIsExplicitUnknownNotZeroOrRowEstimate": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31StorageGovernanceTest#unregisteredOvershootIsReportedAtFinishAndNeverDeletesEvidence": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31StorageGovernanceTest#freeSpaceChangeStopsFurtherOutputAndProtectedDebtPreservesOriginal": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31StorageGovernanceTest#categoriesAndScopesUseTheSameObservedFileLengths": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31StorageGovernanceTest#closedOldOwnerCannotWriteIntoNewReservation": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31StorageGovernanceTest#actualBytesAndOutstandingGrantAreNotDoubleCounted": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31StorageGovernanceTest#directoryEntryBoundIsAppliedBeforeResultAllocation": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31StorageGovernanceTest#overlappingOwnerAndPhysicalGrowthAreDeniedBeforeTheWrite": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31StorageGovernanceTest#pre26UnsupportedEnumerationFailsExplicitlyWithoutListFiles": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31StorageGovernanceTest#realAdmissionRejectionsUseSharedDispositionWithoutFaultQuarantine": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31StorageGovernanceTest#symlinksAndInterruptedOrDeepCensusStayExplicit": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31StorageGovernanceTest#productionAdmissionDeniesUnknownAllocatedBytesOnHost": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31StorageGovernanceTest#metadataSymlinkAndCorruptLedgerArePreservedAndRejected": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31StorageGovernanceTest#fixedRingsDoNotGrowBeyond288PointsAnd720Hours": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31StorageGrowthBoundTest#twentyFourHourGrowthIsBoundedAndProtectedDataSurvives": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31StoragePhaseSamplingTest#stageSamplesLocatePeakAndSteadyState": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31WriteOperationRegistryTest#criticalWritersAreExactlyThePreR31BusinessSet": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31WriteOperationRegistryTest#everyLiteralProductionOperationIsRegistered": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R31WriteOperationRegistryTest#unregisteredOperationIsUnknownAndBackground": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R940RecoveryContinuationTest#emptyOrStoppedDrainDoesNotRestart": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R940RecoveryContinuationTest#pendingDrainYieldsToRealtime": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.R940RecoveryContinuationTest#unknownBacklogRetriesWithoutSpinning": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.RepairStorageCensusR30Test#canonicalRootAliasMeasuresSamePhysicalFilesWithoutFollowingChildLinks": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.RepairStorageCensusR30Test#depthAndSymlinkCannotSilentlyReportComplete": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.RepairStorageCensusR30Test#backupSnapshotAndProtectedModelAreMeasuredOnceWithoutCopyingOrDeleting": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.RetentionRegistryArgumentsTest#timeTailBindsTheProjectedOpenTime": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.RetentionRegistryArgumentsTest#issueTailBindsTheTargetCutoff": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.RetentionRegistryArgumentsTest#disabledPredicateWithForeignKeyGuardsHasNoArguments": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.RetentionRegistryArgumentsTest#aggregateOverflowHasNoTailArgument": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.SchemaBackupSpaceR815Test#interruptionNeverPublishesAnIncompleteBackup": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.SchemaBackupSpaceR815Test#leavesPreexistingTemporaryAndBackupUntouched": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.SchemaBackupSpaceR815Test#copyHashesTheSameBytesAndDoesNotReplaceBackup": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.SchemaBackupSpaceR815Test#requiresFullCopyAndMarginWithoutOverflow": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.ShadowWaitingUiR45Test#idleProducesNoPrediction": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.ShadowWaitingUiR45Test#actualRetryExecutionSupersedesEarlierFailure": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.ShadowWaitingUiR45Test#queuedIsExplicit": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.ShadowWaitingUiR45Test#currentFailureRemainsVisibleAfterAWaitingPulse": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.ShadowWaitingUiR45Test#previousIssueFailureCannotLabelCurrentIssue": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.ShadowWaitingUiR45Test#runningIsAnalysisRatherThanGenericWaiting": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.SourceProvenanceBuildTest#productionSnapshotConsumesThisBuildAndPreservesRuntimeBoundary": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.SourceProvenanceBuildTest#runtimeTrainingIdentityMatchesCurrentGeneratedBuild": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.SourceProvenanceBuildTest#generatedIdentityEqualsEveryCurrentJavaInput": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.TargetIssueResolverTest#compareAndDistanceAreCrossDayConsistent": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.TargetIssueResolverTest#rejectsMalformedAndImpossibleIssues": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.TargetIssueResolverTest#rollsExactlyAcrossUtcDay": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.ProductionContractsSU1Test#foundryCheckpointRestoresAnInterruptedAtomicScan": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.ProductionContractsSU1Test#futureRowsDoNotChangeLearnedScores": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.ProductionContractsSU1Test#canonicalSequenceOwnerHandlesDayAndEpochBoundaries": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.ProductionContractsSU1Test#modelTransportRejectsTamperingAndPreservesProbabilities": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.ProductionContractsSU1Test#portableImportRejectsTamperingAndAuthorityFields": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.ProductionContractsSU1Test#periodCheckpointReproducesUninterruptedReplay": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.ProductionContractsSU1Test#relationAndStateGradientsMatchFiniteDifferences": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27BirthGateTest#everyIdeaFamilyProducesExecutableBirths": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27BirthGateTest#everyRejectionReasonIsProducedAndEnumerated": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27BirthGateTest#canonicalIdentityIsLosslessAndStable": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27BirthGateTest#noOpChildIsDetectedAndNotRegistered": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27ComponentTest#derivedAtomsAndMoleculesArePitAndRanked": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27ComponentTest#atomScoringSeparatesUsefulNeutralAndMissing": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27ComponentTest#expertProposalsAreCompleteAndSurvivalIsMeasured": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27ComponentTest#ftrlWarmStartsAndLearnsOnlyRealSignal": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27EvolutionTest#plantedSignalIsFoundAndVerifiedWithin50Generations": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27EvolutionTest#killAfterEveryStepAndResume": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27EvolutionTest#noSignalRarelyClaimsImprovement": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27LeakageTest#all240AtomsArePointInTime": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27LeakageTest#everyLeafKindIsPointInTime": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27NullBaselineTest#javaIsomorphMatchesPublishedResults": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#h15MainlineRedLines": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#h11ChangedFdecayChangesOnlyItsPolicies": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#continuationSlicesUseAnAcceptedQuantum": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#r274ReportCarriesObserversWithoutChangingTheConclusion": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#r27ResearchWritesYieldToCriticalBusiness": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#r274RealtimeChainOutranksResearchThreads": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#waitKindsAreSpecific": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#h10UiOnlyChangeIsEquivalent": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#r274ObserversRecordEveryPeriodButNeverQualify": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#h13LateRowsAreExcludedNotFatal": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#h14HundredSurfacesTwelveHundredActions": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#r27ComputeHelpersRunAtBackgroundPriorityAndNarrowDuringP0": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#r27BusyWriterIsAWaitNotATaskError": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#r27005ResearchSessionNoLongerYieldsToDeadlines": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#r27ControlLooksDoNotSpendTheHoldoutBudget": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#r27BackgroundWritersNeverQueueAheadOfCriticalWriters": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#h16AtomNetFindsSignalAndDoesNotInventOne": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#h17EmptyReportIsInsufficientWithoutPass": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27QualityTest#r27SettlementNeverRunsTheWholeResearchMigration": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27ReplayTest#su1SegmentedHistoryDoesNotThrowOnGaps": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27ReplayTest#replayAndLiveAreBitIdenticalOverLast200": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27ReplayTest#datasetHashAndIncrementalAppend": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27ReplayTest#threeGapsGiveFourSegmentsAndCountedSkips": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27ReplayTest#linearCandidateFullReplaySpeed": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27SequentialTest#powerAtHr35Act15": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27SequentialTest#falseAuthorizationAtMostFivePercent": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R27SequentialTest#alphaAllocationSumsToRoot": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29BaselineTest#identityAndPreservationProbes": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29BaselineTest#crossStrategyRepeatedIssuesAreNotIndependentSamples": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29BaselineTest#droppedDuplicatedOrClaimedRequirementsFail": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29BaselineTest#missingReceiptsNeverBecomePassOrNumbers": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29BaselineTest#packagedLedgerKeepsEveryRequirementAndCard": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29FindingsTest#measuredGapsBecomeActionableFindings": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29FindingsTest#unmeasuredIsUnknownNotPass": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29GateV2Test#sparseBinsStayInEceAndSupportMassIsEnforced": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29GateV2Test#singleBinIsSupportedAndNotRejected": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29GateV2Test#invalidCalibrationNeverBecomesZeroOrSupported": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29GateV2Test#frequencyIsReportedNotRequiredAndNotDeployedBeforeReal": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29GateV2Test#emptyRegisteredBlocksCannotBeReplacedByLaterGoodBlocks": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29GateV2Test#streakTailIsExact": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29GateV2Test#fewerThan200IsInsufficient": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29GateV2Test#probabilityOneBelongsToLastBin": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29ModelArtifactTest#abandonedStageDoesNotMutateCommittedModel": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29ModelArtifactTest#rollingDatasetChangeDoesNotResetLearningState": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29ModelArtifactTest#checkpoint04FormatRetainsLearningStateDuringUpgrade": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29ModelArtifactTest#periodicScoreReceiptIdentitySurvivesRestart": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29ModelArtifactTest#corruptAndTrailingBytesFailClosed": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29ModelArtifactTest#completeStateRestoreProducesIdenticalNextUpdates": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29ResearchSlotsTest#p0ThermalSingleWorkerLimitUnderContention": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29ResearchSlotsTest#normalTwoWorkerLimitUnderContention": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29ThermalPolicyTest#renewedHeatRestartsRecoveryTimer": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29ThermalPolicyTest#nanFallsBackToSystemStatusAndSevereKeepsOneWorker": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R29ThermalPolicyTest#higherHeadroomLimitsAndRecoveryHasHysteresis": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30B04StructureTest#i14ProposalsAreCompleteContracts": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30B04StructureTest#windowUnderflowRejected": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30B04StructureTest#windowReadsOnlyThePast": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30B04StructureTest#i14MutationsStayComplete": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30BehaviorSignatureTest#probesAndFingerprintReadOnlyTrainOutputs": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30BehaviorSignatureTest#productionEvolutionEmitsArchiveAndMigrationReceipts": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30BehaviorSignatureTest#receivingIslandRejectsAnEquivalentMigrant": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30BehaviorSignatureTest#behaviorSignatureIgnoresNonActDetails": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30BehaviorSignatureTest#syntaxTwinsCannotTakeSeparateArchiveCells": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30BrierContributionTest#zeroWeightedSubtreeIsNotGivenPositiveBrierContribution": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30BrierContributionTest#constantAtomHasZeroContributionAndNeverReadsConfirm": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30BrierContributionTest#ablationUsesOriginalK3EventAndCountsUniquePeriodsNotPolicyCopies": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30CalibrationTest#calibrationPerfectAndBiased": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30CalibrationTest#identicalConstantProbabilityHistogramsDoNotAcquireOrderDependentBinJitter": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30CalibrationTest#duplicateConflictUnknownOrdinalAndLateRowsAreExplicitlyExcluded": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30CalibrationTest#originalFutureActionWinsOverDifferentCounterfactualReplay": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30CalibrationTest#rollingFitIsOrdinalSortedAndCannotUseCurrentOrFutureLabels": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30CapabilityRegistryTest#auditExpertsAreReceiptsAndI00RemainsControlOnly": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30CapabilityRegistryTest#everyActualObjectHasOneRowAndDependenciesArePreserved": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30CertificateVersionTest#incomparableVersionCannotWinCurrentChoice": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30CertificateVersionTest#versionIsBoundWithoutChangingAnyNumericGate": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ChartSnapshotTest#codeCoverageCategoriesAreDisjointAndEffectivenessRemainsUnknown": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ChartSnapshotTest#realZeroReferenceIsVisibleWithoutInventingAPointOrInterval": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ChartSnapshotTest#missingOrConflictingEvidenceShowsUnknownOrEmptyInsteadOfZeroCurve": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ChartSnapshotTest#pairedLowerUsesIndependentCapturedEvidenceAndNeverRecountsReusedPacket": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ChunkedWriterTest#timeBudgetCutsChunkAtRowBoundary": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ChunkedWriterTest#oversizedChunksRejected": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ChunkedWriterTest#drainsInBoundedTransactions": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ChunkedWriterTest#yieldsBetweenChunksWhenCriticalWriterWaits": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ChunkedWriterTest#nonIncreasingKeysRejected": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ChunkedWriterTest#failedChunkRollsBackCursorAndResumesWithoutDuplicates": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ConfirmLedgerTest#secondConfirmReadOfSameCandidateIsRejected": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ConfirmLedgerTest#atomScoreIgnoresConfirmRows": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ConfirmLedgerTest#splitRolesAreFixedByTheDataset": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ConfirmPersistenceTest#writerFailureDoesNotAuthorizeOrConsumeRead": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ConfirmPersistenceTest#controlsStayOutsideMainExposureBudgetAfterRestore": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ConfirmPersistenceTest#pendingWriteDoesNotHoldLedgerMonitorAndRejectsConcurrentReuse": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ConfirmationQueueTest#queueOwnsSlotsAndDuplicateBaseCannotReenterExploration": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ConfirmationQueueTest#existingQueueOverCapacityKeepsEveryRegistrationAndAdmitsNoExploration": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30DecisionChainTest#realRequiresEveryItemAndDefaultsOff": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30DecisionTraceTest#everyRequiredFactIndependentlyBlocksAndUnknownIsPreserved": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30DecisionTraceTest#mismatchesKeepTheirActualDirectionAndReceiptIdentity": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30DiagnosisRulesTest#missingAndInvalidCountsProduceUnknownWithConcreteCollectionActions": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30DiagnosisRulesTest#unknownTasksAndCaptureFailureCannotBecomeHealthy": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30DiagnosisRulesTest#actualConditionsFindDefectsWithoutPromotingRecordCountsToQuality": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30DiagnosisRulesTest#everyPrescriptionNamesAnExistingOwnerMethodAndValidation": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30EvolutionConfirmIntegrationTest#productionFreezeDoesNotReadAndIndependentStageCommitsBeforeScoring": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30EvolutionConfirmIntegrationTest#actualEvolutionCanRunWithUnreadableConfirmLabels": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30EvolutionConfirmIntegrationTest#roleAndLowLevelReadsAreRejectedBeforeAnyReservationDuringEvolution": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30EvolutionConfirmIntegrationTest#frozenParametersAndControlsCannotBeChangedByLaterEvolution": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30EvolutionConfirmIntegrationTest#cachedConfirmationIsReusableButConsumedEvidenceCannotBeReopened": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30EvolutionConfirmIntegrationTest#identicalControlProgramsKeepTheirOwnFrozenLabelViewAndBudget": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30FailureRepairTest#allOperatorProductsAreCompleteAndCarryRealProfiles": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30FailureRepairTest#measuredFailureDrivesActualWindowMutationAndFamilyRepair": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30FailureRepairTest#confirmAndFutureLabelsCannotChangeTheProfile": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30FetchBackoffTest#singleFlightRejectsConcurrentRequests": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30FetchBackoffTest#backoffGrowsCapsAndResets": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30HistoryGovernTest#datasetHashIsANewGenerationWhenRowsChange": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30HistoryGovernTest#governsOrderDuplicatesGapsAndDayBoundary": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30IdeaFamilyContractTest#thirteenFamiliesHaveCompleteProposalsAndRealBirthRecords": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30IdeaFamilyContractTest#expertsPublishCompletePoliciesOrExplicitAuditReceipts": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30IncrementalFeatureTest#changedPrefixIsRebuiltToFullValues": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30IncrementalFeatureTest#incrementalEqualsFull": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30IssueTimelineTest#timelineSummaryP95AndM05": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30IssueTimelineTest#timelineMarkSqlIsFirstWriterWins": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30IssueTimelineTest#timelineElapsedRequiresSameBoot": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30MatrixRegistryTest#producerAndConsumerMethodsActuallyExistWithoutStartingModels": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30MatrixRegistryTest#twentyObjectsCoverEveryNativeKindAndExistingLearnedCheckpoint": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30MetricEvaluatorTest#everyMetricHasMeasurementSource": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30MetricEvaluatorTest#emptyReportIsInsufficientNeverZeroOrPass": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30MetricEvaluatorTest#zeroSampleProbeIsInsufficientButFailStaysFail": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest#typedAstConsumesActualSurfaceAndMissingRowsCannotCarryThroughEma": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest#targetTrainingLateAvailabilityAndBadArchivedProbabilitiesAreBlocked": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest#i08ActuallyProposesModelLeavesAndRetainsFamilyCapability": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest#actualNumberHeadAndBothInputsAndOutputsAreImmutable": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30NullPipelineTest#completeDrawPermutationHasARealIdentityAndLeavesConfirmUntouched": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30NullPipelineTest#powerAndFullPipelineQualificationHaveRecoverableSyntheticReceipts": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30NullPipelineTest#sameFullEvolutionPipelineResumesItsControlState": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30NumberRankerTest#invalidNumberSurfaceIsRejectedWithoutRepairingIt": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30NumberRankerTest#trainerProviderAndRestoredModelUseIdenticalLearnedNumberHead": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30PitGuardTest#pitGuardRejectsLeakageAndShape": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30PitGuardTest#pitGuardAcceptsLegalFreeze": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30PitReplayInjectionTest#injectedTrainedThroughTargetIsRejectedAndRecorded": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30PolicyContractTest#completeCandidateIsBornAndExplicitControlRemainsExecutable": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30PolicyContractTest#mainBirthIntakeRejectsShellsAndPreservesReasonsAcrossRestart": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30PolicyContractTest#emptyShellsRejected": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30PolicyContractTest#completePolicyPasses": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ReportSnapshotTest#twelveChaptersShareDetachedImmutableFactsAndWatermarks": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ReportSnapshotTest#missingSourceRemainsUnknownAndRealReceiptConflictIsNotHidden": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ResearchRetentionTest#retiredDuplicateRequiresProofAndDurableAuditBeforeUnlink": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ResearchRetentionTest#overBudgetDeletesOnlyRecomputableFilesAndPreservesModelAndEvidence": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ResearchRetentionTest#unresolvedLinksOrInvalidBudgetCannotBecomeMeasuredSuccessOrEvictData": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ResumeTrainingTest#sameEventIsNotLearnedTwice": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ResumeTrainingTest#resumedTrainingEqualsUninterrupted": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30SelectorPolicyTest#selectorPreservesScoringAndUpdaterAndCannotReadConfirmLabels": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30SelectorPolicyTest#quantileExecutionRateStaysFixedAndActualFamilyUsesTheStudy": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30SelectorPolicyTest#missingStudyIsExplicitAndLegacyMarginFallbackIsPreserved": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30SequentialNullSimTest#nullStrategiesRarelyQualify": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30SequentialNullSimTest#realEdgeIsDetectable": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30StructureRegistryTest#expandedFamilyMinimaCannotStarveExpertProposals": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30StructureRegistryTest#sevenRegisteredFamiliesEachProduceFiveHundredCompleteContracts": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30StructureRegistryTest#realMainBirthLoopProducesEveryNewFamily": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30StructureRegistryTest#intersectionPositionSelectionCannotUseConfirmOrFutureRows": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30TaskLivenessTest#livenessClassification": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30TenPositionTrainingTest#everyPretrainAndOnlineBoundaryResumesExactlyWithinOriginalBudget": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30TenPositionTrainingTest#periodicDiagnosticStillRollsBackWithoutRewindingLearningCursor": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30TenPositionTrainingTest#legacyModelIsSeparateAndChecksumAndInputShapeAreEnforced": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30TenPositionTrainingTest#everyPeriodProducesTenPositionSamplesAndAllTenArePit": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ThermalPolicyTest#interruptedSequenceByUnknownRestarts": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ThermalPolicyTest#recoveryNeedsThreeConsecutiveCoolerReadings": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30ThermalPolicyTest#tiersAndUnknownHeadroom": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30UnifiedEvaluatorTest#deterministicAndDatasetKeyed": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30UnifiedEvaluatorTest#productionContextUsesTheSameRoleCheckedTrace": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30UnifiedEvaluatorTest#confirmOnlyThroughLedgerOnce": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30UpgradeEvidenceTest#currentRenderingAddsSourceStatesWithoutChangingLegacyDiagnosisMath": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30UpgradeEvidenceTest#emptySnapshotHasExplicitReasonsInsteadOfEmptyStructureTables": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30UpgradeEvidenceTest#missingZeroAndStoredAblationAreDifferentAndReferencesSurvive": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30WriteWaitTest#cancellationAndInterruptNeverSubmitAndKeepPendingWork": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30WriteWaitTest#releasedCriticalWorkResumesAndGenuineBusinessFailureIsNotSilenced": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30WriteWaitTest#rejectionRetainsExactBatchAndNormalRetryWritesOnce": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30WriterHoldLedgerTest#criticalOperationsNeverCountAsOverBudget": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30WriterHoldLedgerTest#ledgerIsThreadSafe": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30WriterHoldLedgerTest#ledgerPercentilesUseBucketUpperBounds": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30WriterHoldLedgerTest#operationNamesAreSanitizedAndBounded": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30WriterHoldLedgerTest#offendersSortedByHardThenBudget": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R30WriterHoldLedgerTest#criticalWaitWithoutSamplesIsUnknownNotZero": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest#birthGateKeepsGenuineInvalidEvaluationRejectionAndRethrowsWrappedFatal": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest#aStaleProbeCannotSpendAConcurrentCompletedAllocationTwice": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest#resourceWaitAndCancellationDoNotPermanentlyRejectTheCandidate": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest#scoreMemoHasAByteBoundAndEvictionCannotChangeEscapedScores": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest#capacityTrimDropsOnlyRebuildableReferencesAndRequiresObservedHeadroomToResume": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest#optionalCapacityEpisodeIsSeparateFromTheHeapHighWaterAndRechecksActualRequest": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest#privateFeatureProductionHasOneBackingAndNoCloneReservation": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest#unknownWorkingSetGrowthAndCancelledOwnerRemainReservations": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest#evolutionPreservesPendingCandidateAcrossResourceWaitThenRetriesRealGate": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest#failedOrCancelledPrivateProducerReturnsOnlyAfterItActuallyExits": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest#coldLiveLeafAndNestedDependenciesUseReservedRealtimeCapacityOnlyInExplicitLiveScope": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest#unknownObjectsOrUnreservedPayloadCannotBeMaterialized": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest#concurrentRealAllocationsCannotExceedOriginalHeapAndHeadroomEnvelope": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest#concurrentOverrideCannotDonateAnExternallyMutableBackingToSharedStore": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest#allocatedPayloadIsCoveredOnlyByAFreshHeapSampleAndStillOwned": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31BoundedReplayTest#cancellingParentStopsActualHelperBodiesWithoutContinuation": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31BoundedReplayTest#helpersInheritSelectRangeAndCannotReadConfirm": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31BoundedReplayTest#capacityWaitIsBoundedAndKeepsAllCandidatesForRetry": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31BoundedReplayTest#all128CandidatesReplayWithTwoHelpersAndMatchSerialExactly": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31ContinuationLifecycleTest#startupClockFailureStillTerminatesAndReturnsPermit": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31ContinuationLifecycleTest#writerCriticalRejectsPreparedYieldAndCriticalCloseIsIdempotent": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31ContinuationLifecycleTest#cancellationKeepsUncooperativeWorkerOwnedAndWaitPreservesInterrupt": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31ContinuationLifecycleTest#pausedContinuationKeepsItsStackAndPermit": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31ContinuationLifecycleTest#hardTimeoutCannotResumeOrSpawnReplacementBeforeExit": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31ContinuationLifecycleTest#diagnosticsDistinguishPhaseFromDurableCheckpointAndBoundStack": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31ContinuationLifecycleTest#helperWithoutContinuationActuallyExitsAfterFutureCancellation": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31ContinuationLifecycleTest#concurrentSliceFailsPromptlyAndControllerInterruptCancels": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31ContinuationStressTest#tenThousandClaimCancelCyclesStayBoundedAndDrainToZero": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FailureEntryConsistencyTest#busyBackoffIsBoundedExponentialWithDeterministicJitter": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FailureEntryConsistencyTest#expectedDispositionsForEachRoot": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FailureEntryConsistencyTest#fullConstraintAndCorruptAreNeverTransientRetry": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FailureEntryConsistencyTest#fourEntriesClassifyTheSameRootIdentically": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FamilyAdmissionTest#matrixRefusalKeepsAValidEmptyModelThenRecoversWithoutReset": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FamilyAdmissionTest#historyCannotSpendRealtimeReserveAndExplicitLiveContextDoesNotLeak": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FamilyAdmissionTest#oldAndNewMatricesKeepSeparateDeclarationsWhileOldBackingIsStillReachable": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FamilyAdmissionTest#deniedConstructorDoesNotPublishAModelOrMatrix": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FamilyAdmissionTest#reusableRowWriterPreservesTheExactDataOutputPrimitiveAndModifiedUtfContract": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FamilyAdmissionTest#everyBuiltinModelDeclaresItsSourceBoundAndNeuralPrivateTapeBeforePublication": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FamilyAdmissionTest#closeAndCancelledFutureCannotReleaseModelOrMatrixBeforeBodyExits": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FamilyBudgetResumeTest#deepForkOfAPartiallyCompletedStreamKeepsParentStateAndBothOutputsExact": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FamilyBudgetResumeTest#shortExecutionBudgetsKeepCommittedRowsAndEventuallyMatchFreshWithoutReset": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FamilyScopeIsolationTest#internalFamilyOutputNeverEntersRawMapAndUnchangedLengthPreservesBackingAndState": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FamilyScopeIsolationTest#neuralForkShapeIncludesUnserializedAutodiffWorkspace": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FamilyScopeIsolationTest#deniedDeepForkLeavesParentStateIntactAndChildUninitialized": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FaultObservationContractTest#diagnosticProjectionHasHardDisplayBoundsWithoutChangingInput": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FaultObservationContractTest#declaredTransactionPhaseSurvivesWrapperAndSeparatesAggregation": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FaultObservationContractTest#absentAndUnclaimedSamplesNeverProveNoError": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FaultObservationContractTest#actualReportTaskChapterExportsFaultsLinksAndIncompleteCounters": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FaultObservationContractTest#eventLinkMatchesBothOwnerAndFenceAndKeepsRawQuarantine": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31FaultObservationContractTest#boundedRedactionCannotExposeUserinfoWhenItsTerminatorIsCut": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31InjectedCauseChainContractTest#fiveInjectedCausesHaveDistinctCategoriesAndDispositions": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31LiveHeapAdmissionTest#uncollectedGarbageAboveHighWaterDoesNotDenyWhenLiveSetIsLow": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31LiveHeapAdmissionTest#liveBasisCannotExceedRawSampleOrComeFromTheFuture": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31LiveHeapAdmissionTest#exceptionPathReleasesAndRepeatedCloseIsIdempotent": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31LiveHeapAdmissionTest#oversizedRequestIsRejectedUnderTheOriginalThresholds": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31LiveHeapAdmissionTest#liveOccupancyAboveHighWaterStillDeniesOptionalWork": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest#nativeConfigurationCannotSilentlyExpand": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest#cancellationDoesNotReturnLeaseAndGrowthMustPrecedeAllocation": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest#cacheCloseRetainsPinnedBlockUntilLastActualReaderCloses": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest#pitAbiNormalizerAndFeatureKeysDoNotAlias": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest#failedWorkerStartReturnsDeclarationsAndLeavesNoOwner": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest#fatalWorkingAdmissionReturnsAlreadyHeldDescriptor": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest#concurrentAdmissionsAndDoubleCloseHaveHardDeclaredBound": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest#sixtyFourReadersShareOnePrivateImmutablePrimitiveBlock": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest#futureCancelKeepsRunningOwnerAndMemoryUntilBodyFinallyExits": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest#nativeCapacityAndUnknownMeasurementsAreNotInventedFromHeap": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest#thousandRequestsCannotExceedCountOrQueuedBytesAndNeverRunOnCaller": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest#workerFactoryDefectIsNotMislabelledAsResourceWait": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest#realWatermarksLatchAndCriticalHeadroomAreSeparate": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest#queuedFutureCancellationRemovesClosureAndReleasesOnlyThatLease": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31OptionalHeapRecoveryTest#pendingPromisesAndOrdinaryAdmissionNeverRequestCollector": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31OptionalHeapRecoveryTest#unsafeOrInterruptedWindowNeverRequestsCollector": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31OptionalHeapRecoveryTest#customProbeCannotRequestCollector": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31OptionalHeapRecoveryTest#noDenialDoesNotRequestCollectionAndDecisionIsImmutable": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31OwnedModelMaterializationTest#actualNeuralConstructorKeepsDeclarationWithoutDoubleCountingPrivateTape": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31OwnedModelMaterializationTest#malformedWitnessCannotReducePromisesOrCloseAComplexModelAsOneBacking": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31OwnedModelMaterializationTest#actualProbeSampleStartedBeforeAllocationCannotSpendTheGraphPromise": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PreparedWriteContractTest#coordinatorAdaptationMatchesTheRuntimeFailureContract": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PreparedWriteContractTest#typedDependencyDoesNotBecomeLockRetryBecauseOfIncidentalMessage": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PreparedWriteContractTest#typedLengthEncodingPreventsAmbiguousPayloadHashes": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PreparedWriteContractTest#nativeDiskFailureCannotBeHiddenByProducerDependency": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PreparedWriteContractTest#persistentIdentitySurvivesOwnerChangeAndPayloadStillDetectsChanges": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PreparedWriteContractTest#unknownTypedCategoryCannotCreateAnUnspecifiedRetryPolicy": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PreparedWriteContractTest#typedProducerCategoriesSurviveCoordinatorWrappingWithoutMessageKeywords": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PreparedWriteContractTest#cancellationUnknownCommitAndRealFaultNeverMasqueradeAsBusy": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PreparedWriteContractTest#preparedRuntimeDdlIsRejectedBeforeTheWriter": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PreparedWriteContractTest#largeAtomicBatchIsRetainedAndReportedForItsOwner": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PreparedWriteContractTest#callerAndExportMutationsCannotChangePreparedPayload": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PrivateBackingReuseTest#cancelledWorkingBodyKeepsExclusiveBackingUntilItsActualFinally": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PrivateBackingReuseTest#duplicatePrivateProducersHaveOneTruthAndNeverRecyclePinnedBacking": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PrivateBackingReuseTest#realBuiltinNestedDependenciesCannotStealThePrivateOutputTarget": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PrivateBackingReuseTest#physicalBackingRebindsOnlyAfterOldReaderClosesAndPublicCopiesStayIndependent": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PrivateBackingReuseTest#storeCloseAndFutureCancelKeepInflightBytesUntilActualProducerExit": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PrivateBackingReuseTest#concurrentDifferentKeysRetainEveryResultWithinEntryPoolInflightBound": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PrivateBackingReuseTest#rootedStoreDoesNotStronglyRetainAnAbandonedExclusiveWorkingArray": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PrivateBackingReuseTest#lastScoreScopeReturnsBackingToGlobalIdleBeforeItsCacheCloses": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31PrivateBackingReuseTest#cancelledPartialFillIsUnpublishedThenCompletelyReinitialized": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31RuntimeMemoryControlTest#watermarkAndAdmissionAgesRemainSeparateAcrossChanges": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31RuntimeMemoryControlTest#normalWatermarkDoesNotHideActuallyDeniedLargerRequest": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31RuntimeMemoryControlTest#missingOrCrossProcessTelemetryIsNotRecoveredOrOldDenialProof": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31RuntimeMemoryControlTest#actualAdmissionRecoveryDoesNotClaimHeapReleaseOrProgress": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31RuntimeMemoryControlTest#productionBudgetRealDenialAndRecheckDriveController": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31RuntimeMemoryControlTest#denialEpisodeCanAlreadyBeOldWhenControllerFirstObserves": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31RuntimeMemoryControlTest#zeroHeadroomIsCapacityConstraintWithoutInventedThreadWait": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31RuntimeMemoryControlTest#measurementFailureAndPublishedFactsAreExplicitAndImmutable": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31ScopedAstLifecycleTest#closeAndPressureCannotReuseOrReleaseAStillOpenScoreReader": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31ScopedAstLifecycleTest#privateIntermediateBuffersAreReusedButPublicOutputsNeverAlias": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31ScopedAstLifecycleTest#concurrentReadersHaveExclusiveMutableScratchAndExactlyEqualResults": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31ScopedAstLifecycleTest#actualCancelledWorkerUnwindsEveryNestedScratchScopeBeforeReuse": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31ScopedAstLifecycleTest#orphanScratchDeclarationEndsOnlyAfterActualBackingCollection": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest#duplicatePublicationRaceReleasesEveryUnadoptedCloneDeclaration": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest#withDrawsOwnsReplacementRowsButPublicDatasetApiStillHasMutableArrays": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest#actualOsLowMemoryObservationSurvivesUnknownProbeUntilExplicitRecovery": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest#sharedAstRemainsPointInTimeAndOverridesCannotReuseOldBlocks": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest#cancellationClosesActualHotPathReaderBeforeItCanBeEvicted": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest#rawAliasBudgetOnlyReturnsAfterIsolatedObservedGc": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest#sixtyFourCandidatesConsumeOneImmutableLeafAndMatchOriginalRowArithmetic": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest#directModelLeafMaskCannotModifyCachedInput": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest#nativeReflectionDoesNotTurnWrappedProcessFatalIntoUnknown": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31TaskFailureDispositionTest#actualMemoryAndBoundedQueueExceptionsNeverConsumeFaultBudget": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31TaskFailureDispositionTest#processFatalCannotBeHiddenByTypedOrNestedWrappers": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31TaskFailureDispositionTest#committedDiagnosticsCannotBecomeBusinessFailure": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31TaskFailureDispositionTest#backoffQuarantineAndWaitKindsAreExplicit": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31TaskFailureDispositionTest#boundedCauseCycleAndCancellationPreserveInterrupt": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31TaskFailureDispositionTest#anUnknownCommitCannotBecomeBusyRetry": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31TaskFailureDispositionTest#retryCancelDependencyAndFaultHaveSeparateBudgets": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31TaskStatusPrecedenceTest#typedProjectionPreservesRawStateAndMissingFacts": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31TaskStatusPrecedenceTest#quarantineCannotPassHealthSummary": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31TaskStatusPrecedenceTest#controlStateOutranksMissingOrIdleCounters": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31WriterOutcomeCountsTest#reportExportsActualWriterProtocolObservation": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31WriterOutcomeCountsTest#failedDiagnosticOnCommittedTransactionIsNotRollback": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31WriterOutcomeCountsTest#malformedOrInconsistentCountsCannotProduceKnownRollback": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31WriterOutcomeCountsTest#legacyCallerAndLegacyPersistedWindowStayUnknown": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31WriterOutcomeCountsTest#unknownCommitDoesNotBecomeZeroOrAFailureCount": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.R31WriterReportColumnsTest#perOperationColumnsAndBudgetOwnerAreReported": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairBehaviorBirthR30Test#renamedOrDifferentWindowAbstainingSiblingsAreOneBehavior": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairBehaviorBirthR30Test#differentActingTargetIsNotTheSameDecision": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairCalibrationRoleR30Test#formalOnlyNeverFitsAndInvalidArraysDoNotBecomeHealthy": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairCalibrationRoleR30Test#q05UsesTheOriginalPredrawActCondition": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairCalibrationRoleR30Test#allFormalLabelsCanChangeWithoutChangingAnyFit": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairCommitGuardsR30Test#formalAndSyntheticLabelsNeverDriveAdvice": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairCommitGuardsR30Test#twoThreadsCannotPublishOneEnvelopeTwice": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairCommitGuardsR30Test#retryAndFailurePublishNoPreparedState": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairCommitGuardsR30Test#composedGuardsRetainOriginalOwnerAndRefuseUnknown": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairCommitGuardsR30Test#sourceConflictRequiresNewComputation": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairCompatibilityR30Test#inputBoundaryRecoveryRetainsRngExposureAndChampion": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairCompatibilityR30Test#newHardSetsHaveAnIsolatedLiveParserNamespace": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairConfirmationR30Test#negativeAndInsufficientAreCompleteOutcomesInsteadOfRegistrationFailures": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairConfirmationR30Test#aPositiveResultForAnotherPacketCannotCompleteThisOne": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairConfirmationR30Test#originalGateThresholdsAreImmutableAndV2HasNoAuthority": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairConfirmationR30Test#completeInputHashIncludesPairedControlsAndProbabilitiesAndCannotDriftBeforeRecording": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairDirectedResearchR30Test#measuredChildCannotBeSubstitutedAndParentNeverChanges": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairDirectedResearchR30Test#crossBuildOrUnknownAbiCannotResumeAPendingResearchAdmission": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairFusionStudyR30Test#samePredictionHasSameResidualAndNoPairedImprovement": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairFusionStudyR30Test#crossTargetParentsCannotBeCompared": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairIssueTimelineR30Test#negativeAndCrossBootAreSeparateUnknownsNotFastSamples": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairIssueTimelineR30Test#wrongBaseHashDoesNotBorrowSomeOtherIssuesSettlement": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairIssueTimelineR30Test#actualCommitObservationAndExactBaseIssueDetermineDurations": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairIssueTimelineR30Test#wallClockJumpCannotChangeMonotonicDuration": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairIssueTimelineR30Test#nestedBackfillScopePreservesActualLiveFetchAndRestoresAfterReturn": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairIssueTimelineR30Test#missingCommitObservationNeverUsesThePrecommitClock": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairLegacyTeacherR30Test#invalidRebindCannotChangeOriginalBinding": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairMatrixEvidenceR30Test#eightKindsComputeActualDistinctTypedResearchProducts": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairMatrixEvidenceR30Test#invarianceOnlyUsesPreregisteredLegalTransformsAndMissingTeacherIsNotMadeUp": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairMatrixR30Test#typedShapeHashAndFormalRoleAreEnforced": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairMatrixR30Test#contractsAreDistinctAndDoNotRebrandCorrelationAsCausality": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairModelReplayR30Test#actualTwoModelsUseOnePastInputAndNoLabel": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairModelReplayR30Test#replayModeAndEvidenceSurviveLosslessOuterStateCodec": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairModelReplayR30Test#collectionRegisteredAfterFreezeCannotBeInvented": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairModelReplayR30Test#replayAllocationNeedsActualEligibleOnlineBlockEvidenceAndNeverResetsTheModel": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairModelReplayR30Test#changedReceiptIsRejectedAndLabelsAreNotInTheFreezeIdentity": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairNeuralR30Test#allOptimizationAndRiskValidationExcludeOriginalConfirmRows": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairNeuralR30Test#preregisteredOnlineWindowCannotConsumeOldOrAlreadyObservedInput": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairNeuralR30Test#oldOuterRestoresFullNumericStateAndNamesUnknownValidationOrigin": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairNeuralR30Test#everyPhaseBuildsACheckpointWithUnknownPendingAllowed": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairNeuralR30Test#modelDescriptorBindsTheExactAvailabilityAndTrainingBoundary": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairNeuralR30Test#preparedSamplesAreNotGradientOrPublishedWeights": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairNullBudgetR30Test#productionBudgetAndRestoreNeverSilentlyBecomeTwoTests": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairNullBudgetR30Test#zeroEventsHaveAWideNonzeroUpperBoundAndDoNotProveZeroRisk": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairObservatoryR30Test#distinctResearchViewsRetainTheirRealTargetAndMissingSources": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairObservatoryR30Test#formalLabelPerturbationDoesNotChangeAnySelectAnalysis": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairPairedResearchR30Test#resumableRunnerMatchesActualOriginalProbabilitiesAndNeverReadsFormalLabels": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairPairedResearchR30Test#fixedCalendarBlocksDiscloseMissingAndTailWithoutSelectingGoodBlocks": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairReportFactsR30Test#historicalBackfillCannotPassLiveLatencyMetric": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairReportFactsR30Test#sameMetricObjectIsUsedByAllChaptersAndCharts": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairReportFactsR30Test#emptyAndFailedSourcesNeverBecomeZeroOrPass": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairReportFactsR30Test#negativeWriterEvidenceRemainsFailureAndMissingFailuresAreNull": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairReportIndexR30Test#repeatedBIsNotAThirdPeriod": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairReportIndexR30Test#completeIndexNeverMeansProductEfficacy": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairReportIndexR30Test#roleAndProcessCountersNeverSubtract": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairResearchFrameBoundR30Test#same120EdgeBudgetAsActualPhoneReaderPreservesFullEvidence": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairResearchFrameBoundR30Test#fullMachineEvidenceStaysExactWhileDisplayIsBoundedAndExplicit": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairSetIntersectionR30Test#tooSmallIntersectionExplicitlyAbstainsWithoutFilling": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairSetIntersectionR30Test#completeInputAbstentionIsLawfulButGapsStillFailTheOriginalAvailabilityGate": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairSetIntersectionR30Test#futureLabelsDoNotChangePastSupportAndUpdaterCannotChangeTheSet": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairSetIntersectionR30Test#supportedK3CannotEscapeOriginalIntersection": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairStructureStudyR30Test#fixedWindowsAndSameTargetScoresDoNotReadFormalLabels": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairStructureStudyR30Test#binaryEstimateCannotMasqueradeAsMulticlassComponentAdvice": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairTaskProgressR30Test#all57OwnersAppearAndMissingFactsCannotProduceZeroM12": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairTaskProgressR30Test#busyPreparedWriteRetainsStackAndYieldsOtherWork": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairTaskProgressR30Test#actualResourceBudgetKeepsBothTasksAndExcludesOtherSessions": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairTaskProgressR30Test#phaseCursorCannotBecomeCalendarLag": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairTaskProgressR30Test#uncommittedEvolutionDraftDoesNotAdvanceOriginalRngOrPending": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairWriterLedgerR30Test#openUpperPercentileIsAnIntervalNotNineQuintillionMs": {
+   "status": "PASS",
+   "message": ""
+  },
+  "com.ethk3.novaonepro.strategyv2.RepairWriterLedgerR30Test#concurrentRotateRetains160000ActualRecords": {
+   "status": "PASS",
+   "message": ""
+  }
+ },
  "host": [
   {
    "id": "run_atom_publication_host",
@@ -144,8 +2225,8 @@
   },
   {
    "id": "verify_pin_capacity",
-   "status": "FAIL",
-   "exit": 1
+   "status": "PASS",
+   "exit": 0
   },
   {
    "id": "verify_pitguard_allocation",
@@ -159,8 +2240,8 @@
   },
   {
    "id": "verify_resource_recovery",
-   "status": "PASS",
-   "exit": 0
+   "status": "FAIL",
+   "exit": 1
   },
   {
    "id": "verify_runtime_memory_control",
@@ -271,7 +2352,7 @@
  "host_failed": [
   "run_legacy_qualification_contract",
   "verify_ast_family_scope",
-  "verify_pin_capacity",
+  "verify_resource_recovery",
   "r30repair_retention"
  ],
  "release_only_tasks_not_run": [

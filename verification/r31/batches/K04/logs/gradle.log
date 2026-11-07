@@ -15,7 +15,7 @@ To honour the JVM settings for this build a single-use Daemon process will be fo
 Daemon will be stopped at the end of the build 
 
 > Task :app:generateR27BuildIdentity
-R27_BUILD_IDENTITY_WRITTEN ac26308c054f68357add25b9768cfaf3b84d8f30 7bde264758f743717b28456359494c8b79fe9fd3
+R27_BUILD_IDENTITY_WRITTEN 2996a1ef8ea2a980dad538baf0ba71a71fb0d1a3 be341adb602ccbb3a28cdac7df326d2e800ae7bd
 
 > Task :app:verifyR31Baseline
 > Task :app:generateR31BuildIdentity
@@ -36,17 +36,17 @@ R967_SEMANTIC_IDENTITY_GENERATED|f1525cb37f92c6e6ad0b715e2032e56a23513c875a771e6
 R967_SEMANTIC_IDENTITY_VERIFIED|f1525cb37f92c6e6ad0b715e2032e56a23513c875a771e6d2a23ff007977398d
 
 > Task :app:generateR815Provenance
-R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=e2629d1645aad805f5d5906e3ef2ad29c0eac68c3f80a78cfa61f7455971dd0d|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=d40a4cc4edf5a0d0630bbdd877e88692ef669ca2f6753ef182f5e178abea1b12|GENERATED_AT=2026-11-07T10:32:25Z
+R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=e2629d1645aad805f5d5906e3ef2ad29c0eac68c3f80a78cfa61f7455971dd0d|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=d40a4cc4edf5a0d0630bbdd877e88692ef669ca2f6753ef182f5e178abea1b12|GENERATED_AT=2026-11-07T11:02:51Z
 
 > Task :app:verifyR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=e2629d1645aad805f5d5906e3ef2ad29c0eac68c3f80a78cfa61f7455971dd0d|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=d40a4cc4edf5a0d0630bbdd877e88692ef669ca2f6753ef182f5e178abea1b12|GENERATED_AT=2026-11-07T10:32:25Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=e2629d1645aad805f5d5906e3ef2ad29c0eac68c3f80a78cfa61f7455971dd0d|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=d40a4cc4edf5a0d0630bbdd877e88692ef669ca2f6753ef182f5e178abea1b12|GENERATED_AT=2026-11-07T11:02:51Z
 
 > Task :app:preBuild
 > Task :app:preDebugBuild
 > Task :app:generateDebugBuildConfig
 > Task :app:javaPreCompileDebug
-> Task :app:generateDebugResValues
 > Task :app:checkDebugAarMetadata
+> Task :app:generateDebugResValues
 > Task :app:mapDebugSourceSetPaths
 > Task :app:generateDebugResources
 > Task :app:packageDebugResources
@@ -58,22 +58,21 @@ R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=e2629d1645aad805f5d5906e3ef2ad29c0eac68c3
 > Task :app:processDebugManifest
 > Task :app:preDebugAndroidTestBuild SKIPPED
 > Task :app:processDebugAndroidTestManifest
+> Task :app:processDebugManifestForPackage
 > Task :app:generateDebugAndroidTestBuildConfig
 > Task :app:javaPreCompileDebugAndroidTest FROM-CACHE
-> Task :app:processDebugManifestForPackage
 > Task :app:prepareRawUpstreamAndroidTestHarness
 > Task :app:checkDebugAndroidTestAarMetadata
 > Task :app:generateDebugAndroidTestResValues FROM-CACHE
 > Task :app:mapDebugAndroidTestSourceSetPaths
-> Task :app:processDebugManifestForPackage
 > Task :app:generateDebugAndroidTestResources
 > Task :app:preDebugUnitTestBuild
 > Task :app:javaPreCompileDebugUnitTest FROM-CACHE
-> Task :app:mergeDebugAndroidTestResources
 > Task :app:processDebugJavaRes NO-SOURCE
+> Task :app:mergeDebugAndroidTestResources
 > Task :app:processDebugUnitTestJavaRes
-> Task :app:extractProguardFiles
 > Task :app:processDebugResources
+> Task :app:extractProguardFiles
 > Task :app:processDebugAndroidTestResources
 
 > Task :app:compileDebugJavaWithJavac
@@ -94,30 +93,21 @@ Note: Recompile with -Xlint:unchecked for details.
 R967_SEMANTIC_IDENTITY_VERIFIED|f1525cb37f92c6e6ad0b715e2032e56a23513c875a771e6d2a23ff007977398d
 
 > Task :app:verifyFinalR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=e2629d1645aad805f5d5906e3ef2ad29c0eac68c3f80a78cfa61f7455971dd0d|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=d40a4cc4edf5a0d0630bbdd877e88692ef669ca2f6753ef182f5e178abea1b12|GENERATED_AT=2026-11-07T10:32:25Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=e2629d1645aad805f5d5906e3ef2ad29c0eac68c3f80a78cfa61f7455971dd0d|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=d40a4cc4edf5a0d0630bbdd877e88692ef669ca2f6753ef182f5e178abea1b12|GENERATED_AT=2026-11-07T11:02:51Z
 
 > Task :app:compileDebugAndroidTestJavaWithJavac
 Note: Some input files use or override a deprecated API.
 Note: Recompile with -Xlint:deprecation for details.
 
-> Task :app:compileDebugUnitTestJavaWithJavac FAILED
-/home/runner/work/starcore-public-build/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/R31SqliteSpaceUnavailableTest.java:13: error: package sun.misc does not exist
-        Field unsafeField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe"); unsafeField.setAccessible(true);
-                                    ^
-/home/runner/work/starcore-public-build/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/R31SqliteSpaceUnavailableTest.java:14: error: package sun.misc does not exist
-        sun.misc.Unsafe unsafe = (sun.misc.Unsafe) unsafeField.get(null);
-                ^
-/home/runner/work/starcore-public-build/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/R31SqliteSpaceUnavailableTest.java:14: error: package sun.misc does not exist
-        sun.misc.Unsafe unsafe = (sun.misc.Unsafe) unsafeField.get(null);
-                                          ^
+> Task :app:compileDebugUnitTestJavaWithJavac
 Note: Some input files use unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
-3 errors
 
+> Task :app:testDebugUnitTest
 > Task :app:generateDebugAndroidTestLintModel
 > Task :app:generateDebugUnitTestLintModel
-> Task :app:lintAnalyzeDebugAndroidTest
 > Task :app:lintAnalyzeDebugUnitTest
+> Task :app:lintAnalyzeDebugAndroidTest
 > Task :app:lintAnalyzeDebug
 
 > Task :app:lintReportDebug
@@ -129,33 +119,11 @@ Lint found no new issues (and 51 errors filtered by baseline lint-baseline.xml)
 
 [Incubating] Problems report is available at: file:///home/runner/work/starcore-public-build/starcore-public-build/build/reports/problems/problems-report.html
 
-FAILURE: Build failed with an exception.
-
-* What went wrong:
-Execution failed for task ':app:compileDebugUnitTestJavaWithJavac'.
-> Compilation failed; see the compiler output below.
-  Note: Recompile with -Xlint:unchecked for details.
-  Note: Some input files use unchecked or unsafe operations.
-  /home/runner/work/starcore-public-build/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/R31SqliteSpaceUnavailableTest.java:13: error: package sun.misc does not exist
-          Field unsafeField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe"); unsafeField.setAccessible(true);
-                                      ^
-  /home/runner/work/starcore-public-build/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/R31SqliteSpaceUnavailableTest.java:14: error: package sun.misc does not exist
-          sun.misc.Unsafe unsafe = (sun.misc.Unsafe) unsafeField.get(null);
-                  ^
-  /home/runner/work/starcore-public-build/starcore-public-build/app/src/test/java/com/ethk3/novaonepro/R31SqliteSpaceUnavailableTest.java:14: error: package sun.misc does not exist
-          sun.misc.Unsafe unsafe = (sun.misc.Unsafe) unsafeField.get(null);
-                                            ^
-  3 errors
-
-* Try:
-> Check your code and dependencies to fix the compilation error(s)
-> Run with --scan to get full insights.
-
 Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
 
 You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
 
 For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD FAILED in 3m 2s
-53 actionable tasks: 50 executed, 3 from cache
+BUILD SUCCESSFUL in 8m 32s
+54 actionable tasks: 51 executed, 3 from cache
