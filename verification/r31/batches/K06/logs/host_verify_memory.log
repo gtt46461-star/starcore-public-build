@@ -1,1 +1,10 @@
-R312_HOST_CLASSES_MISSING (gradle compileDebugJavaWithJavac must run first)
+Traceback (most recent call last):
+  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/verify_memory.py", line 90, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/verify_memory.py", line 61, in main
+    for mode in ['healthy','resume']:factory.append(json.loads(run([java,'-Xmx512m','-cp',current_cp,'com.ethk3.novaonepro.strategyv2.FactoryPressureR31Host',mode],f'factory-real-process-{mode}.json')))
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/verify_memory.py", line 32, in run
+    raise RuntimeError(log)
+RuntimeError: factory-real-process-resume.json

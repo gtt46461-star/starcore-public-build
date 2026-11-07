@@ -1,1 +1,14 @@
-R312_HOST_CLASSES_MISSING (gradle compileDebugJavaWithJavac must run first)
+REPAIR_RESEARCH_RUNNER|ACTUAL_JVM_HALT_TRAIN256_AND_WITHIN_REGISTERED_SELECT|FAILED_CHECKPOINT_NO_ADVANCE|EXACT_BIAS_AND_PAIRED_LOSS_NUMERICS_AFTER_RESTART|PASS|HOST_SYNTHETIC_ONLY
+Exception in thread "main" java.lang.AssertionError: ACTUAL_BIRTH_CONSUME_CURSOR_NOT_ATOMIC
+	at com.ethk3.novaonepro.strategyv2.RepairResearchR30HostTest.check(RepairResearchR30HostTest.java:5)
+	at com.ethk3.novaonepro.strategyv2.RepairResearchR30HostTest.main(RepairResearchR30HostTest.java:34)
+Traceback (most recent call last):
+  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r30-repair/run_research_host.py", line 12, in <module>
+    for name in ['RepairResearchR30HostTest']:run(['java','-Xmx768m','-cp',cp,'com.ethk3.novaonepro.strategyv2.'+name])
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r30-repair/run_research_host.py", line 5, in run
+    def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['java', '-Xmx768m', '-cp', '/tmp/repair-research-host-h74pmrxx/shim:/tmp/repair-research-host-h74pmrxx/test:/home/runner/work/starcore-public-build/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/home/runner/.cache/r312-host/sqlite-jdbc-3.46.1.3.jar:/usr/local/lib/android/sdk/platforms/android-36/android.jar', 'com.ethk3.novaonepro.strategyv2.RepairResearchR30HostTest']' returned non-zero exit status 1.
