@@ -6,7 +6,7 @@ cd "$(git rev-parse --show-toplevel)"
 B="${1:?batch id}"
 # The gate runs on pushes that touch anything except construction/, verification/ and *.md (see r31-gate.yml),
 # so wait for the last commit outside those paths, not for an evidence/docs commit on top of it.
-SHA="$(git log -1 --format=%H -- . ':(exclude)construction' ':(exclude)verification' ':(exclude)*.md')"
+SHA="$(git log -1 --format=%H --invert-grep --grep='\[skip ci\]' -- . ':(exclude)construction' ':(exclude)verification' ':(exclude)*.md')"
 BR="construction/r31-final-20261104"; REPO="gtt46461-star/starcore-public-build"
 echo "waiting for CI gate of ${SHA:0:12} ($B)"
 for i in $(seq 1 90); do
