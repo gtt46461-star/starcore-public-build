@@ -15,10 +15,10 @@ To honour the JVM settings for this build a single-use Daemon process will be fo
 Daemon will be stopped at the end of the build 
 
 > Task :app:generateR27BuildIdentity
-R27_BUILD_IDENTITY_WRITTEN 428c487e0b4840d797f1d819bc8f4a8a991fb4b4 21dd3e137ba833be2af08d356c040151d9b86d16
+R27_BUILD_IDENTITY_WRITTEN 3db0f9ab9da2af67896d72c5c1360139460153fd 78ff7b3cc044fe9ce8115bd0f127042c2118e531
 
 > Task :app:verifyR31Baseline
-> Task :app:generateR31BuildIdentity
+> Task :app:generateR31BuildIdentity FAILED
 
 > Task :app:generateR997ConstructionAssets
 R997_CONSTRUCTION_ASSETS_GENERATED requirements=1832 statuses_preserved=TRUE
@@ -30,77 +30,41 @@ CATALOG_IDENTITY_PASS|atoms=25350|seeds=4200|stream_line_cap=65536
 SU2 production DDL: reproducible and executable
 
 > Task :app:generateR967Semantics
-R967_SEMANTIC_IDENTITY_GENERATED|98b2d2fd9a0da1b46e254a88e006dbfbd23a991917eae0c10848627f8cd74e1b
+R967_SEMANTIC_IDENTITY_GENERATED|e4c2e4d03fbd9ff3f0b4ec7e74bb9b6d443f8a2e95b2c21cd01c6429177b0e08
 
 > Task :app:verifyR967Semantics
-R967_SEMANTIC_IDENTITY_VERIFIED|98b2d2fd9a0da1b46e254a88e006dbfbd23a991917eae0c10848627f8cd74e1b
+R967_SEMANTIC_IDENTITY_VERIFIED|e4c2e4d03fbd9ff3f0b4ec7e74bb9b6d443f8a2e95b2c21cd01c6429177b0e08
 
 > Task :app:generateR815Provenance
-R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=6362c58f42fdb01be29ea09fcb2685df23cfad6304c8ed99f010c35784edde12|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=60f002401327a87569ccdae28ddd4d18ef78795ccd9fd482acc19a92a78ba099|GENERATED_AT=2026-11-07T13:37:27Z
+R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=4c82f84b5e0c8b79f018e0bc5b61297068cdf52d4d582f2926f7ac175c2321cc|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=67efdae7cd2453ef5d4520d04012e35711505b7de6ee8d6ea3be2b61e8b81be6|GENERATED_AT=2026-11-07T13:41:54Z
 
 > Task :app:verifyR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=6362c58f42fdb01be29ea09fcb2685df23cfad6304c8ed99f010c35784edde12|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=60f002401327a87569ccdae28ddd4d18ef78795ccd9fd482acc19a92a78ba099|GENERATED_AT=2026-11-07T13:37:27Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=4c82f84b5e0c8b79f018e0bc5b61297068cdf52d4d582f2926f7ac175c2321cc|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=67efdae7cd2453ef5d4520d04012e35711505b7de6ee8d6ea3be2b61e8b81be6|GENERATED_AT=2026-11-07T13:41:54Z
 
-> Task :app:preBuild
-> Task :app:preDebugBuild
-> Task :app:generateDebugBuildConfig
-> Task :app:javaPreCompileDebug
-> Task :app:checkDebugAarMetadata
-> Task :app:generateDebugResValues
-> Task :app:mapDebugSourceSetPaths
-> Task :app:generateDebugResources
-> Task :app:packageDebugResources
-> Task :app:mergeDebugResources
-> Task :app:createDebugCompatibleScreenManifests
-> Task :app:extractDeepLinksDebug
-> Task :app:parseDebugLocalResources
-> Task :app:processDebugMainManifest
-> Task :app:processDebugManifest
-> Task :app:preDebugAndroidTestBuild SKIPPED
-> Task :app:processDebugAndroidTestManifest
-> Task :app:generateDebugAndroidTestBuildConfig
-> Task :app:javaPreCompileDebugAndroidTest FROM-CACHE
 > Task :app:prepareRawUpstreamAndroidTestHarness
-> Task :app:checkDebugAndroidTestAarMetadata
-> Task :app:generateDebugAndroidTestResValues FROM-CACHE
-> Task :app:mapDebugAndroidTestSourceSetPaths
-> Task :app:generateDebugAndroidTestResources
-> Task :app:processDebugManifestForPackage
-> Task :app:mergeDebugAndroidTestResources
-> Task :app:preDebugUnitTestBuild
-> Task :app:javaPreCompileDebugUnitTest FROM-CACHE
-> Task :app:processDebugJavaRes NO-SOURCE
-> Task :app:processDebugUnitTestJavaRes
-> Task :app:extractProguardFiles
-> Task :app:processDebugAndroidTestResources
-> Task :app:processDebugResources
 
-> Task :app:compileDebugJavaWithJavac
-/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java:14: warning: [strictfp] as of release 17, all floating-point expressions are evaluated strictly and 'strictfp' is not required
-public strictfp final class DevelopmentTrainerCP9 {
-                      ^
-Note: Some input files use or override a deprecated API.
-Note: Recompile with -Xlint:deprecation for details.
-Note: Some input files use unchecked or unsafe operations.
-Note: Recompile with -Xlint:unchecked for details.
-1 warning
+[Incubating] Problems report is available at: file:///home/runner/work/starcore-public-build/starcore-public-build/build/reports/problems/problems-report.html
 
-> Task :app:bundleDebugClassesToRuntimeJar
-> Task :app:bundleDebugClassesToCompileJar
-> Task :app:generateDebugLintReportModel
+FAILURE: Build failed with an exception.
 
-> Task :app:verifyFinalR967Semantics
-R967_SEMANTIC_IDENTITY_VERIFIED|98b2d2fd9a0da1b46e254a88e006dbfbd23a991917eae0c10848627f8cd74e1b
+* Where:
+Build file '/home/runner/work/starcore-public-build/starcore-public-build/app/build.gradle' line: 346
 
-> Task :app:verifyFinalR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=6362c58f42fdb01be29ea09fcb2685df23cfad6304c8ed99f010c35784edde12|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=60f002401327a87569ccdae28ddd4d18ef78795ccd9fd482acc19a92a78ba099|GENERATED_AT=2026-11-07T13:37:27Z
+* What went wrong:
+Execution failed for task ':app:generateR31BuildIdentity'.
+> R31_BUILD_INPUT_CHANGED_source_dirty
 
-> Task :app:compileDebugAndroidTestJavaWithJavac
-Note: Some input files use or override a deprecated API.
-Note: Recompile with -Xlint:deprecation for details.
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
 
-> Task :app:compileDebugUnitTestJavaWithJavac
-Note: Some input files use unchecked or unsafe operations.
-Note: Recompile with -Xlint:unchecked for details.
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
 
-> Task :app:testDebugUnitTest
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 47s
+11 actionable tasks: 11 executed
