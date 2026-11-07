@@ -202,7 +202,10 @@ public final class R31TaskRuntimeHost {
         int critical=0;
         try{for(int tick=0;tick<3600;tick++){final int seq=tick;long started=System.nanoTime();
             coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.DRAW_INGEST,"R914_DRAW_SAVE_ATOMIC"),tx->{tx.execSQL("INSERT INTO host_contention VALUES('DRAW',?)",new Object[]{seq});return 0;});
-            criticalMaxWait.accumulateAndGet((System.nanoTime()-started)/1_000_000L,Math::max);critical++;android.os.SystemClock.offset+=1000;}}
+            criticalMaxWait.accumulateAndGet((System.nanoTime()-started)/1_000_000L,Math::max);critical++;android.os.SystemClock.offset+=1000;
+            // Each 1 s polling interval is compressed 100x to 10 ms of idle: critical duty stays >10x heavier than 1 Hz on device,
+            // but the idle share that lets background classes in between draw writes is preserved (zero idle is not 1 Hz).
+            Thread.sleep(10);}}
         finally{stop.set(true);for(Thread thread:threads)thread.join(10_000);}
         need(crashed.get()==null,"background writers only see transient busy or bounded hold-fault backpressure: "+crashed.get());
         need(critical==3600&&n("SELECT count(*) FROM host_contention WHERE kind='DRAW'")==3600,"every 1 Hz critical write committed");
