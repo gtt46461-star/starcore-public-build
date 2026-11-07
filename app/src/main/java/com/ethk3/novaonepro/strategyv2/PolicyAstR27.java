@@ -61,10 +61,42 @@ public final class PolicyAstR27 {
     /** Lossless decimal text: Double.toString round-trips exactly; never truncated (R27-021). */
     static String num(double v) { if (!Double.isFinite(v)) throw new IllegalArgumentException("R27_NONFINITE_CONSTANT"); return Double.toString(v); }
 
-    public static Node parse(String text) {
-        int[] at = {0}; Node n = parse(text, at); skip(text, at);
+    /** R31-B07-C02: the import budget (64 KiB UTF-8, depth 64, 4096 nodes) is charged before each recursion, so a
+     * deep or huge input is refused with a typed error instead of a StackOverflowError or OOM. The formal birth
+     * limits stay in BirthGateR27 and are never widened by this import budget. */
+    public static final int IMPORT_MAX_BYTES = 64 * 1024, IMPORT_MAX_DEPTH = 64, IMPORT_MAX_NODES = 4096;
+    public static final class ParseBudget {
+        final int maxBytes, maxDepth, maxNodes; int nodes;
+        public ParseBudget(int maxBytes, int maxDepth, int maxNodes) {
+            if (maxBytes < 1 || maxBytes > IMPORT_MAX_BYTES || maxDepth < 1 || maxDepth > IMPORT_MAX_DEPTH || maxNodes < 1 || maxNodes > IMPORT_MAX_NODES)
+                throw new IllegalArgumentException("R31_AST_BUDGET_WIDER_THAN_IMPORT");
+            this.maxBytes = maxBytes; this.maxDepth = maxDepth; this.maxNodes = maxNodes;
+        }
+        public static ParseBudget importBudget() { return new ParseBudget(IMPORT_MAX_BYTES, IMPORT_MAX_DEPTH, IMPORT_MAX_NODES); }
+    }
+    static int utf8Bytes(String s, int stopAfter) {
+        int bytes = 0;
+        for (int i = 0; i < s.length() && bytes <= stopAfter; i++) {
+            char c = s.charAt(i);
+            if (c < 0x80) bytes++; else if (c < 0x800) bytes += 2;
+            else if (Character.isHighSurrogate(c) && i + 1 < s.length() && Character.isLowSurrogate(s.charAt(i + 1))) { bytes += 4; i++; }
+            else bytes += 3;
+        }
+        return bytes;
+    }
+    public static Node parse(String text) { return parse(text, ParseBudget.importBudget()); }
+    public static Node parse(String text, ParseBudget budget) {
+        if (text == null || budget == null) throw new IllegalArgumentException("R31_AST_INPUT_REQUIRED");
+        if (utf8Bytes(text, budget.maxBytes) > budget.maxBytes) throw new IllegalArgumentException("R31_AST_BYTES_EXCEEDED");
+        int[] at = {0}; Node n = parse(text, at, budget, 1); skip(text, at);
         if (at[0] != text.length()) throw new IllegalArgumentException("R27_AST_TRAILING");
         return n;
+    }
+    private static double finiteParameter(String token) {
+        double v;
+        try { v = Double.parseDouble(token); } catch (NumberFormatException invalid) { throw new IllegalArgumentException("R27_AST_PARAMETER:" + token, invalid); }
+        if (!Double.isFinite(v)) throw new IllegalArgumentException("R27_NONFINITE_CONSTANT");
+        return v;
     }
     private static void skip(String s, int[] at) { while (at[0] < s.length() && Character.isWhitespace(s.charAt(at[0]))) at[0]++; }
     private static String token(String s, int[] at) {
@@ -73,20 +105,23 @@ public final class PolicyAstR27 {
         if (st == at[0]) throw new IllegalArgumentException("R27_AST_TOKEN@" + st);
         return s.substring(st, at[0]);
     }
-    private static Node parse(String s, int[] at) {
+    private static Node parse(String s, int[] at, ParseBudget budget, int depth) {
+        if (depth > budget.maxDepth) throw new IllegalArgumentException("R31_AST_DEPTH_EXCEEDED");
+        if (++budget.nodes > budget.maxNodes) throw new IllegalArgumentException("R31_AST_NODES_EXCEEDED");
         skip(s, at);
         if (at[0] >= s.length() || s.charAt(at[0]) != '(') throw new IllegalArgumentException("R27_AST_OPEN@" + at[0]);
         at[0]++;
         String op = token(s, at);
         if (!LEAVES.containsKey(op) && !ARITY.containsKey(op) && !op.equals("c")) throw new IllegalArgumentException("R27_AST_UNKNOWN_OP:" + op);
         double param = 0; List<Integer> ints = new ArrayList<>(); List<Node> kids = new ArrayList<>();
-        if (hasParam(op)) param = Double.parseDouble(token(s, at));
+        if (hasParam(op)) param = finiteParameter(token(s, at));
         while (true) {
             skip(s, at);
             if (at[0] >= s.length()) throw new IllegalArgumentException("R27_AST_EOF");
             char c = s.charAt(at[0]);
             if (c == ')') { at[0]++; break; }
-            if (c == '(') kids.add(parse(s, at)); else ints.add(Integer.parseInt(token(s, at)));
+            if (c == '(') kids.add(parse(s, at, budget, depth + 1));
+            else { String value = token(s, at); try { ints.add(Integer.parseInt(value)); } catch (NumberFormatException invalid) { throw new IllegalArgumentException("R27_AST_INT:" + value, invalid); } }
         }
         int[] iv = new int[ints.size()]; for (int i = 0; i < iv.length; i++) iv[i] = ints.get(i);
         return new Node(op, iv, param, kids.toArray(new Node[0]));
