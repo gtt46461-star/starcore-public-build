@@ -1,5 +1,7 @@
 # STARCORE R31.3 最终施工入口
 
+> **2026-11-07 R31.4：批次已合并为11批（K01→K11）**，在各原阶段内相邻合并，卡片、验收原文、阈值、棘轮规则不变；对照表见施工分支 [docs/17_R31.4批次合并说明.md](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/STARCORE_R31_FINAL_20261104/docs/17_R31.4批次合并说明.md)。K01已关门，当前开放批次K02。
+>
 > **2026-11-07 接续（先读）**：卡住的原因与修复、每批“改代码→重钉→推送→CI回写→close”流程，见施工分支 [construction/r31/R31_3_接续施工说明.md](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/r31/R31_3_接续施工说明.md)。当前开放批次 K02。
 
 当前唯一入口：[CURRENT_FINAL_PLAN.md](CURRENT_FINAL_PLAN.md)。
