@@ -213,6 +213,19 @@ public final class R31TaskRuntimeHost {
         for(String[] b:background)need(done.get(b[1]).get()>0,"background "+b[1]+" keeps progressing, busy="+busy.get(b[1]).get());
         System.out.println("R31_SIXTY_MINUTE_CONTENTION_HOST_PASS critical=3600 criticalMaxWaitMs="+criticalMaxWait.get()+" background="+done+" busy="+busy+" deferred="+deferred);
     }
+    static long fdCountR31(){String[] entries=new File("/proc/self/fd").list();return entries==null?-1:entries.length;}
+    /** R31-B05-C11#A3a/#A5a: 100 session open/cancel rounds leave no reachable old session pool and file handles return to baseline. */
+    static void hundredSessionsReleaseObjectsAndHandles()throws Exception{
+        // Warm-up round first: lazily opened class/jar handles belong to the JVM, not to a session.
+        ResearchPoolR27 warm=new ResearchPoolR27(store,"host-session-warmup",1);warm.start();warm.close();need(warm.awaitResourcesTerminatedR31(5000),"warm-up session drains");warm=null;
+        long fdBefore=fdCountR31();need(fdBefore>0,"fd census available on this host");List<java.lang.ref.WeakReference<ResearchPoolR27>> sessions=new ArrayList<>();
+        for(int i=0;i<100;i++){ResearchPoolR27 session=new ResearchPoolR27(store,"host-session-"+i,1);session.start();session.close();
+            need(session.awaitResourcesTerminatedR31(5000),"session "+i+" really drains its worker and read connections");sessions.add(new java.lang.ref.WeakReference<>(session));}
+        long alive=100;for(int round=0;round<40&&alive>0;round++){System.gc();Thread.sleep(25);alive=sessions.stream().filter(ref->ref.get()!=null).count();}
+        need(alive==0,"old session/epoch pools are collectable after cancellation, still reachable="+alive);
+        long fdAfter=fdCountR31();need(fdAfter<=fdBefore,"reader/cursor/file handles return to baseline before="+fdBefore+" after="+fdAfter);
+        System.out.println("R31_HUNDRED_SESSION_RELEASE_HOST_PASS sessions=100 reachable=0 fdBefore="+fdBefore+" fdAfter="+fdAfter);
+    }
     static void classificationsAndRecovery()throws Exception{
         class Typed extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure{
             final String category,outcome;Typed(String category,String outcome){super("HOST_TYPED");this.category=category;this.outcome=outcome;}
@@ -329,7 +342,7 @@ public final class R31TaskRuntimeHost {
             store=new DbStore(coordinator,db,new android.app.Application(file));pool=new ResearchPoolR27(store,"owner-A",2);
             record=Arrays.stream(ResearchPoolR27.class.getDeclaredMethods()).filter(method->method.getName().equals("record")).findFirst().orElseThrow();record.setAccessible(true);
             claimPrepared=Arrays.stream(ResearchPoolR27.class.getDeclaredMethods()).filter(method->method.getName().equals("claimPrepared")).findFirst().orElseThrow();claimPrepared.setAccessible(true);
-            staleAndClock();killPointsPublishExactlyOnce();ownerChangeIsTerminalForPrepared();classificationsAndRecovery();busyThirteen();thirteenMixedFailures();clockJumpReleasesOnePerSecond();twentyFourHourSchedule();tenThousandOwnerSwitches();sixtyMinuteWriterContention();actualPoolLoopRetainsHelperOwner();helperTermination();
+            staleAndClock();killPointsPublishExactlyOnce();ownerChangeIsTerminalForPrepared();classificationsAndRecovery();busyThirteen();thirteenMixedFailures();clockJumpReleasesOnePerSecond();twentyFourHourSchedule();tenThousandOwnerSwitches();sixtyMinuteWriterContention();hundredSessionsReleaseObjectsAndHandles();actualPoolLoopRetainsHelperOwner();helperTermination();
             System.out.println("R31_TASK_RUNTIME_HOST_PASS assertions="+assertions+" scope=ACTUAL_PRODUCTION_METHODS_NATIVE_SQLITE_WITH_HOST_FAULT_CLOCK_PLATFORM_ADAPTERS_NOT_ANDROID_NOT_DEVICE_NOT_24H_NOT_72H_NOT_QUALITY");
         }
     }

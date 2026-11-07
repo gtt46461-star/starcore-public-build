@@ -410,6 +410,41 @@
    "retired": false,
    "replacement": null,
    "origin": "original device report recount (R27 13/13/11/1/1, all tasks 60/14)"
+  },
+  {
+   "id": "run_runtime_health_host",
+   "command": "bash tools/r312/host.sh run_runtime_health_host",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B04-C01"
+   ],
+   "retired": false,
+   "replacement": null,
+   "origin": "tools/r31/host/R31RuntimeHealthHost.java via run_task_runtime_host.py (existing harness, not previously in the suite)"
+  },
+  {
+   "id": "run_resource_recovery_consumer_host",
+   "command": "bash tools/r312/host.sh run_resource_recovery_consumer_host",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B05-C11"
+   ],
+   "retired": false,
+   "replacement": null,
+   "origin": "tools/r31/host/R31ResourceRecoveryConsumerHost.java via run_task_runtime_host.py (existing harness, not previously in the suite)"
+  },
+  {
+   "id": "run_storage_report_host",
+   "command": "bash tools/r312/host.sh run_storage_report_host",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B05-C01",
+    "R31-B05-C02",
+    "R31-B05-C03"
+   ],
+   "retired": false,
+   "replacement": null,
+   "origin": "tools/r31/storage_host/run_storage_report_host.sh (existing storage/report native host, not previously in the suite)"
   }
  ],
  "installed_in": "S00 (R31.2); moved to construction/r31/HOST_SUITE.json for R31.3"
