@@ -52,6 +52,61 @@ public final class R31TaskRuntimeHost {
         need(text("SELECT status FROM r26_task WHERE task_id='host-health-cas'").equals("CANCELLING"),"late old-owner drain receipt cannot ready a newer owner");
         System.out.println("R31_TASK_FENCE_NATIVE_HOST_PASS late_success_and_failure_ignored=true wall_deadline_plus_minus_24h_ignored=true boot_mismatch_rejected=true");
     }
+    static void restartR31(String task){db.execSQL("UPDATE r31_task_lease SET boot_id='OLD_BOOT' WHERE task_id=?",new Object[]{task});}
+    static void publishR31(RuntimeCoordinatorR26.Claim claim,long seq)throws Exception{
+        tx(()->{RuntimeCoordinatorR26.requireFence(db,claim);
+            db.execSQL("INSERT INTO host_artifact(task_id,seq,fence) VALUES(?,?,?)",new Object[]{claim.task,seq,claim.fence});
+            db.execSQL("UPDATE r26_task SET cursor=? WHERE task_id=? AND owner=? AND fence=? AND cursor=?",new Object[]{seq,claim.task,claim.owner,claim.fence,seq-1});
+            need(n("SELECT changes()")==1,"fenced cursor CAS advances exactly once");return 0;});
+    }
+    /** R31-B01-C02#A2: process death after claim, before commit and after commit before receipt. */
+    static void killPointsPublishExactlyOnce()throws Exception{
+        db.execSQL("CREATE TABLE host_artifact(task_id TEXT,seq INTEGER,fence INTEGER,PRIMARY KEY(task_id,seq))");
+        add("host-kill");String task="host-kill";
+        RuntimeCoordinatorR26.Claim a=claim(task,"owner-A");need(a!=null&&a.cursor==0,"initial claim at durable cursor 0");
+        restartR31(task);
+        RuntimeCoordinatorR26.Claim b=claim(task,"owner-B");need(b!=null&&b.fence>a.fence&&b.cursor==0,"death after claim: recovery starts from durable cursor");
+        boolean staleRejected=false;try{publishR31(a,1);}catch(IllegalStateException expected){staleRejected=expected.getMessage().startsWith("R26_STALE_FENCE");}
+        need(staleRejected,"pre-restart claim cannot publish");
+        publishR31(b,b.cursor+1);
+        boolean killed=false;
+        try{tx(()->{RuntimeCoordinatorR26.requireFence(db,b);
+            db.execSQL("INSERT INTO host_artifact(task_id,seq,fence) VALUES(?,?,?)",new Object[]{task,2,b.fence});
+            db.execSQL("UPDATE r26_task SET cursor=2 WHERE task_id=? AND owner=? AND fence=?",new Object[]{task,b.owner,b.fence});
+            throw new IllegalStateException("HOST_KILL_BEFORE_COMMIT");});}
+        catch(IllegalStateException expected){killed="HOST_KILL_BEFORE_COMMIT".equals(expected.getMessage());}
+        need(killed&&n("SELECT cursor FROM r26_task WHERE task_id='host-kill'")==1&&n("SELECT count(*) FROM host_artifact WHERE task_id='host-kill'")==1,"death before commit leaves nothing durable");
+        restartR31(task);
+        RuntimeCoordinatorR26.Claim c=claim(task,"owner-A");need(c!=null&&c.fence>b.fence&&c.cursor==1,"death before commit repeats only the uncommitted step");
+        publishR31(c,c.cursor+1);
+        restartR31(task);
+        RuntimeCoordinatorR26.Claim d=claim(task,"owner-B");need(d!=null&&d.fence>c.fence&&d.cursor==2,"death after commit before receipt does not repeat the committed step");
+        receipt(c,null,1);
+        need(text("SELECT owner FROM r26_task WHERE task_id='host-kill'").equals("owner-B")&&text("SELECT status FROM r26_task WHERE task_id='host-kill'").equals("RUNNING"),"late receipt of the killed owner is ignored");
+        publishR31(d,d.cursor+1);
+        need(n("SELECT count(*) FROM host_artifact WHERE task_id='host-kill'")==3&&n("SELECT count(DISTINCT seq) FROM host_artifact WHERE task_id='host-kill'")==3
+                &&n("SELECT max(seq) FROM host_artifact WHERE task_id='host-kill'")==3&&n("SELECT cursor FROM r26_task WHERE task_id='host-kill'")==3,"artifact and cursor published exactly once per step");
+        need(n("SELECT error_count FROM r26_task WHERE task_id='host-kill'")==0,"process deaths consume no fault budget");
+        System.out.println("R31_KILL_POINT_NATIVE_HOST_PASS after_claim=true before_commit=true after_commit_before_receipt=true artifacts=3 cursor=3 duplicates=0 scope=HOST_RESTART_SIMULATED_BY_BOOT_EPOCH");
+    }
+    /** R31-B01-C02#A4: an owner change makes the old prepared claim terminal (STALE_OWNER), never an endless retry. */
+    static void ownerChangeIsTerminalForPrepared()throws Exception{
+        String task="host-owner-change";add(task);
+        RuntimeCoordinatorR26.Claim a=claim(task,"owner-A");need(a!=null,"owner-A claim");
+        restartR31(task);RuntimeCoordinatorR26.Claim b=claim(task,"owner-B");need(b!=null&&b.fence>a.fence,"owner-B takes over");
+        for(int i=0;i<50;i++){
+            IllegalStateException stale=null;
+            try{tx(()->RuntimeCoordinatorR26.claimWithinR31(db,task,"owner-A","R27",a));}catch(IllegalStateException expected){stale=expected;}
+            need(stale!=null&&FailureDispositionR31.classify(stale).disposition==FailureDispositionR31.Disposition.STALE_OWNER,"old prepared claim is STALE_OWNER "+i);
+            need(!ResearchWriteQueueR27.writerBusy(stale),"stale owner is not a busy retry "+i);
+            receipt(a,stale,0);
+            need(tx(()->RuntimeCoordinatorR26.claimWithinR31(db,task,"owner-A","R27",null))==null,"fresh claim waits while the new owner holds the lease "+i);
+        }
+        need(text("SELECT owner FROM r26_task WHERE task_id='host-owner-change'").equals("owner-B")&&text("SELECT status FROM r26_task WHERE task_id='host-owner-change'").equals("RUNNING"),"new owner keeps RUNNING");
+        need(n("SELECT fence FROM r26_task WHERE task_id='host-owner-change'")==b.fence,"stale attempts never advance the fence");
+        need(n("SELECT error_count FROM r26_task WHERE task_id='host-owner-change'")==0,"stale attempts consume no fault budget");
+        System.out.println("R31_OWNER_CHANGE_NATIVE_HOST_PASS stale_prepared_terminal=true attempts=50 fence_stable=true faults=0");
+    }
     static void classificationsAndRecovery()throws Exception{
         class Typed extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure{
             final String category,outcome;Typed(String category,String outcome){super("HOST_TYPED");this.category=category;this.outcome=outcome;}
@@ -165,7 +220,7 @@ public final class R31TaskRuntimeHost {
             store=new DbStore(coordinator,db,new android.app.Application(file));pool=new ResearchPoolR27(store,"owner-A",2);
             record=Arrays.stream(ResearchPoolR27.class.getDeclaredMethods()).filter(method->method.getName().equals("record")).findFirst().orElseThrow();record.setAccessible(true);
             claimPrepared=Arrays.stream(ResearchPoolR27.class.getDeclaredMethods()).filter(method->method.getName().equals("claimPrepared")).findFirst().orElseThrow();claimPrepared.setAccessible(true);
-            staleAndClock();classificationsAndRecovery();busyThirteen();actualPoolLoopRetainsHelperOwner();helperTermination();
+            staleAndClock();killPointsPublishExactlyOnce();ownerChangeIsTerminalForPrepared();classificationsAndRecovery();busyThirteen();actualPoolLoopRetainsHelperOwner();helperTermination();
             System.out.println("R31_TASK_RUNTIME_HOST_PASS assertions="+assertions+" scope=ACTUAL_PRODUCTION_METHODS_NATIVE_SQLITE_WITH_HOST_FAULT_CLOCK_PLATFORM_ADAPTERS_NOT_ANDROID_NOT_DEVICE_NOT_24H_NOT_72H_NOT_QUALITY");
         }
     }
