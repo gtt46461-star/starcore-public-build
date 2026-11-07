@@ -36,7 +36,7 @@ case "$id" in
   run_writer_hold_fault_host) exec python3 tools/r31/run_writer_hold_fault_host.py --classes "$JAR" --joint-classes "$CL" --out "$OUT" ;;
   run_research_schema_host|run_runtime_ddl_host|run_runtime_ddl_writer_regression|run_service_protocol_host|run_task_runtime_host|run_write_protocol_host)
     exec python3 "tools/r31/$id.py" ;;
-  verify_ast_family_scope) exec python3 tools/r31/verify_ast_family_scope.py --support-jar "$JAR" --main-source app/src/main/java ;;
+  verify_ast_family_scope) exec python3 tools/r31/verify_ast_family_scope.py --support-jar "$JAR" --main-source app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java ;;
   verify_baseline) exec python3 tools/r31/verify_baseline.py --output "$OUT/baseline.json" ;;
   verify_continuation) exec python3 tools/r31/verify_continuation.py --classes "$CL" --out "$OUT" ;;
   verify_family_admission|verify_pin_capacity) exec python3 "tools/r31/$id.py" --support-jar "$JAR" ;;
