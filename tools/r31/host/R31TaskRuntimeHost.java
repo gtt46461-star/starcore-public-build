@@ -107,6 +107,39 @@ public final class R31TaskRuntimeHost {
         need(n("SELECT error_count FROM r26_task WHERE task_id='host-owner-change'")==0,"stale attempts consume no fault budget");
         System.out.println("R31_OWNER_CHANGE_NATIVE_HOST_PASS stale_prepared_terminal=true attempts=50 fence_stable=true faults=0");
     }
+    /** R31-B01-C03#A2: 13 tasks with mixed failures. Dependencies never quarantine and spend no fault budget,
+     * genuine repeated defects are isolated, storage fatal requires repair; every task reports a precise reason. */
+    static void thirteenMixedFailures()throws Exception{
+        String[] kinds={"DEP","DEP","DEP","DEP","DEP","BUG","BUG","BUG","BUG","FATAL","FATAL","FATAL","DEP"};
+        for(int i=0;i<kinds.length;i++)add("host-mixed-"+i);
+        for(int round=0;round<6;round++){android.os.SystemClock.offset+=1100;
+            for(int i=0;i<kinds.length;i++){String id="host-mixed-"+i;if(round>0&&kinds[i].equals("FATAL"))continue;
+                RuntimeCoordinatorR26.Claim c=claim(id,"owner-A");need(c!=null,"mixed claim "+id+" round "+round);
+                Throwable failure=kinds[i].equals("DEP")?new IllegalStateException("MATRIX_ORIGINAL_STUDENT_UNAVAILABLE:m"+i)
+                        :kinds[i].equals("BUG")?new IllegalStateException("HOST_MIXED_BUG_"+i)
+                        :new IllegalStateException("commit",new IllegalStateException("SQLITE_FULL: database or disk is full"));
+                receipt(c,failure,0);}}
+        int dependencyFree=0,quarantined=0,needsFix=0;
+        for(int i=0;i<kinds.length;i++){String id="host-mixed-"+i,status=text("SELECT status FROM r26_task WHERE task_id='"+id+"'"),reason=text("SELECT coalesce(blocked_reason,'') FROM r26_task WHERE task_id='"+id+"'");
+            need(!reason.isEmpty(),"every blocked task reports a precise reason "+id);
+            if(kinds[i].equals("DEP")){need(!status.equals("QUARANTINED")&&!status.equals("NEEDS_FIX"),"dependency is not quarantined "+id+" status="+status);need(n("SELECT error_count FROM r26_task WHERE task_id='"+id+"'")==0,"dependency consumes no fault budget "+id);need(reason.contains("DEPENDENCY"),"dependency reason "+id+" "+reason);dependencyFree++;}
+            else if(kinds[i].equals("BUG")){need(status.equals("QUARANTINED"),"real defect isolated after six faults "+id+" status="+status);quarantined++;}
+            else{need(status.equals("NEEDS_FIX"),"storage fatal requires repair "+id+" status="+status);needsFix++;}}
+        System.out.println("R31_THIRTEEN_MIXED_FAILURE_HOST_PASS dependency_free="+dependencyFree+" quarantined="+quarantined+" needs_fix="+needsFix);
+    }
+    /** R31-B01-C03#A1: a 24h elapsed-clock jump does not release every quarantine at once: one task per second. */
+    static void clockJumpReleasesOnePerSecond()throws Exception{
+        for(int i=0;i<13;i++){String id="host-jump-"+i;add(id);db.execSQL("UPDATE r26_task SET status='QUARANTINED' WHERE task_id=?",new Object[]{id});
+            db.execSQL("INSERT INTO r31_task_control(task_id,level,quarantine_boot_id,quarantine_deadline_elapsed_ms) VALUES(?,1,?,?)",new Object[]{id,IssueTimelineWriterR30.bootId(),android.os.SystemClock.elapsedRealtime()+30_000});}
+        long before=n("SELECT count(*) FROM r26_task WHERE status='QUARANTINED'");need(before>=13,"quarantined fixture");
+        android.os.SystemClock.offset+=86_400_000L;
+        for(int i=0;i<13;i++)ResearchPoolR27.recoverOneR31(store,"owner-A");
+        need(n("SELECT count(*) FROM r26_task WHERE status='QUARANTINED'")==before-1,"24h jump releases exactly one quarantined task");
+        for(int second=2;second<=13;second++){android.os.SystemClock.offset+=1000;ResearchPoolR27.recoverOneR31(store,"owner-A");ResearchPoolR27.recoverOneR31(store,"owner-A");
+            need(n("SELECT count(*) FROM r26_task WHERE status='QUARANTINED'")==before-second,"one release per elapsed second "+second);}
+        need(n("SELECT count(*) FROM r26_task WHERE status='READY' AND wait_kind='HALF_OPEN'")>=13,"released tasks are fenced half-open probes");
+        System.out.println("R31_CLOCK_JUMP_RECOVERY_HOST_PASS jump=24h released_per_second=1 released=13");
+    }
     static void classificationsAndRecovery()throws Exception{
         class Typed extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure{
             final String category,outcome;Typed(String category,String outcome){super("HOST_TYPED");this.category=category;this.outcome=outcome;}
@@ -220,7 +253,7 @@ public final class R31TaskRuntimeHost {
             store=new DbStore(coordinator,db,new android.app.Application(file));pool=new ResearchPoolR27(store,"owner-A",2);
             record=Arrays.stream(ResearchPoolR27.class.getDeclaredMethods()).filter(method->method.getName().equals("record")).findFirst().orElseThrow();record.setAccessible(true);
             claimPrepared=Arrays.stream(ResearchPoolR27.class.getDeclaredMethods()).filter(method->method.getName().equals("claimPrepared")).findFirst().orElseThrow();claimPrepared.setAccessible(true);
-            staleAndClock();killPointsPublishExactlyOnce();ownerChangeIsTerminalForPrepared();classificationsAndRecovery();busyThirteen();actualPoolLoopRetainsHelperOwner();helperTermination();
+            staleAndClock();killPointsPublishExactlyOnce();ownerChangeIsTerminalForPrepared();classificationsAndRecovery();busyThirteen();thirteenMixedFailures();clockJumpReleasesOnePerSecond();actualPoolLoopRetainsHelperOwner();helperTermination();
             System.out.println("R31_TASK_RUNTIME_HOST_PASS assertions="+assertions+" scope=ACTUAL_PRODUCTION_METHODS_NATIVE_SQLITE_WITH_HOST_FAULT_CLOCK_PLATFORM_ADAPTERS_NOT_ANDROID_NOT_DEVICE_NOT_24H_NOT_72H_NOT_QUALITY");
         }
     }
