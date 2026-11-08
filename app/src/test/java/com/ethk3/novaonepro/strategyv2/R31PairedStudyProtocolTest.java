@@ -7,6 +7,12 @@ import org.junit.Test;
 
 /** R31-B08-C03#A1-#A4: component registry, separate MASK_FROZEN / RETRAIN_REMOVED protocols, descriptive intervals. */
 public final class R31PairedStudyProtocolTest {
+    private int r31LeasesBeforeTest;
+    @org.junit.Before public void r31OutstandingLeaseGuardBefore(){FeatureCacheR27.trimRegisteredCachesR31();r31LeasesBeforeTest=MemoryBudgetR31.processBudget().explicitOwnerLeaseCountR31();}
+    @org.junit.After public void r31OutstandingLeaseGuardAfter(){
+        FeatureCacheR27.trimRegisteredCachesR31();MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();int after=memory.explicitOwnerLeaseCountR31();
+        org.junit.Assert.assertTrue("R31_OUTSTANDING_LEASES before="+r31LeasesBeforeTest+" after="+after+" owners="+memory.explicitOwnerLeasesR31(64),after<=r31LeasesBeforeTest);
+    }
     static final class Owned implements AutoCloseable {
         final FeatureCacheR27 cache; final EvalContextR27 ctx;
         Owned() { ReplayDatasetR27 d = ReplayDatasetR27.synthetic(3000, 30, new int[0]); cache = new FeatureCacheR27(d); ctx = new EvalContextR27(cache, SplitR27.of(d, null), null); }

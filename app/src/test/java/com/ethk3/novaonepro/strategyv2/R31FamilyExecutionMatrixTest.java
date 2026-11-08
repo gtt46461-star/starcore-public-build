@@ -10,6 +10,12 @@ import org.junit.Test;
  * serialized, restored into a fresh instance and must then continue bit-exactly. Every failing family is listed red;
  * a supported-family declaration is never counted as a pass. F23 is not executable without its bound teacher. */
 public final class R31FamilyExecutionMatrixTest {
+    private int r31LeasesBeforeTest;
+    @org.junit.Before public void r31OutstandingLeaseGuardBefore(){FeatureCacheR27.trimRegisteredCachesR31();r31LeasesBeforeTest=MemoryBudgetR31.processBudget().explicitOwnerLeaseCountR31();}
+    @org.junit.After public void r31OutstandingLeaseGuardAfter(){
+        FeatureCacheR27.trimRegisteredCachesR31();MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();int after=memory.explicitOwnerLeaseCountR31();
+        org.junit.Assert.assertTrue("R31_OUTSTANDING_LEASES before="+r31LeasesBeforeTest+" after="+after+" owners="+memory.explicitOwnerLeasesR31(64),after<=r31LeasesBeforeTest);
+    }
     private static int[][] draws(int n) {
         Random r = new Random(23_2026); int[][] d = new int[n][];
         for (int t = 0; t < n; t++) { int[] v = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}; for (int k = 9; k > 0; k--) { int j = r.nextInt(k + 1), x = v[k]; v[k] = v[j]; v[j] = x; } d[t] = v; }

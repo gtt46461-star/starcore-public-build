@@ -10,6 +10,12 @@ import org.junit.Test;
  * cost class, dependency and an executed acceptance; a row is either executed or names why it did not run. The
  * compatibility numeric entries of the SU2 live loop only forward to the fenced R26 owner. */
 public final class R31FamilyCapabilityAcceptanceTest {
+    private int r31LeasesBeforeTest;
+    @org.junit.Before public void r31OutstandingLeaseGuardBefore(){FeatureCacheR27.trimRegisteredCachesR31();r31LeasesBeforeTest=MemoryBudgetR31.processBudget().explicitOwnerLeaseCountR31();}
+    @org.junit.After public void r31OutstandingLeaseGuardAfter(){
+        FeatureCacheR27.trimRegisteredCachesR31();MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();int after=memory.explicitOwnerLeaseCountR31();
+        org.junit.Assert.assertTrue("R31_OUTSTANDING_LEASES before="+r31LeasesBeforeTest+" after="+after+" owners="+memory.explicitOwnerLeasesR31(64),after<=r31LeasesBeforeTest);
+    }
     static int[][] stream(int n, long seed) {
         Random r = new Random(seed); int[][] d = new int[n][];
         for (int t = 0; t < n; t++) { int[] v = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}; for (int k = 9; k > 0; k--) { int j = r.nextInt(k + 1), x = v[k]; v[k] = v[j]; v[j] = x; } d[t] = v; }

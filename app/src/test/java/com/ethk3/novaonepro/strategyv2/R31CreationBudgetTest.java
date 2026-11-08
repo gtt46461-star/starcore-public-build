@@ -11,6 +11,12 @@ import org.junit.Test;
  * cost budget is never exceeded while research continues; allocation, seed and credit survive a restart; retired
  * non-champions release their memoized scores. */
 public final class R31CreationBudgetTest {
+    private int r31LeasesBeforeTest;
+    @org.junit.Before public void r31OutstandingLeaseGuardBefore(){FeatureCacheR27.trimRegisteredCachesR31();r31LeasesBeforeTest=MemoryBudgetR31.processBudget().explicitOwnerLeaseCountR31();}
+    @org.junit.After public void r31OutstandingLeaseGuardAfter(){
+        FeatureCacheR27.trimRegisteredCachesR31();MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();int after=memory.explicitOwnerLeaseCountR31();
+        org.junit.Assert.assertTrue("R31_OUTSTANDING_LEASES before="+r31LeasesBeforeTest+" after="+after+" owners="+memory.explicitOwnerLeasesR31(64),after<=r31LeasesBeforeTest);
+    }
     static EvolutionLoopR27.Config config(long seed) { EvolutionLoopR27.Config c = new EvolutionLoopR27.Config(); c.births = 48; c.seed = seed; c.i00PerGeneration = 2; c.nullControl = false; return c; }
     @SuppressWarnings("unchecked") static List<Object> pending(EvolutionLoopR27 loop) throws Exception { Field f = EvolutionLoopR27.class.getDeclaredField("pending"); f.setAccessible(true); return (List<Object>) f.get(loop); }
     static Object get(Object pending, String name) throws Exception { Field f = pending.getClass().getDeclaredField(name); f.setAccessible(true); return f.get(pending); }

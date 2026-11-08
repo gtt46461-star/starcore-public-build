@@ -7,6 +7,12 @@ import org.junit.Test;
 
 /** R31-B10-C02#A1-#A4 and R31-B10-C03#A1/#A2: streak-gate DP, V1 preserved, validated contracts, no alpha reset, frequency. */
 public final class R31EvidenceContractTest {
+    private int r31LeasesBeforeTest;
+    @org.junit.Before public void r31OutstandingLeaseGuardBefore(){FeatureCacheR27.trimRegisteredCachesR31();r31LeasesBeforeTest=MemoryBudgetR31.processBudget().explicitOwnerLeaseCountR31();}
+    @org.junit.After public void r31OutstandingLeaseGuardAfter(){
+        FeatureCacheR27.trimRegisteredCachesR31();MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();int after=memory.explicitOwnerLeaseCountR31();
+        org.junit.Assert.assertTrue("R31_OUTSTANDING_LEASES before="+r31LeasesBeforeTest+" after="+after+" owners="+memory.explicitOwnerLeasesR31(64),after<=r31LeasesBeforeTest);
+    }
     @Test public void streakDpMatchesAnalyticValues() {
         for (double p : new double[]{0, .3, .34, .4, 1}) assertEquals("n=0", 1, CertificateGateR27.streakGatePassProbabilityR31(0, p, 6), 0);
         for (int n = 0; n <= 6; n++) assertEquals("n<=6 can never exceed 6", 1, CertificateGateR27.streakGatePassProbabilityR31(n, 0, 6), 1e-15);

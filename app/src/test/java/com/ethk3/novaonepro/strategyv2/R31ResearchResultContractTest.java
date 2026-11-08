@@ -8,6 +8,12 @@ import org.junit.Test;
 
 /** R31-B08-C02#A2/#A4, R31-B08-C04#A1-#A3: research products reach consumers through a typed, verifiable contract. */
 public final class R31ResearchResultContractTest {
+    private int r31LeasesBeforeTest;
+    @org.junit.Before public void r31OutstandingLeaseGuardBefore(){FeatureCacheR27.trimRegisteredCachesR31();r31LeasesBeforeTest=MemoryBudgetR31.processBudget().explicitOwnerLeaseCountR31();}
+    @org.junit.After public void r31OutstandingLeaseGuardAfter(){
+        FeatureCacheR27.trimRegisteredCachesR31();MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();int after=memory.explicitOwnerLeaseCountR31();
+        org.junit.Assert.assertTrue("R31_OUTSTANDING_LEASES before="+r31LeasesBeforeTest+" after="+after+" owners="+memory.explicitOwnerLeasesR31(64),after<=r31LeasesBeforeTest);
+    }
     static ResearchContextR30R1 context(boolean signal, String run) throws Exception {
         Constructor<ResearchContextR30R1> c = ResearchContextR30R1.class.getDeclaredConstructor(String.class, long.class); c.setAccessible(true);
         ResearchContextR30R1 ctx = c.newInstance(StatsR27.sha256("dataset"), 3L);

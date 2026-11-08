@@ -10,6 +10,12 @@ import org.junit.Test;
  * evaluated sample is a finite normalized 10-way distribution and either acts with three distinct numbers at the
  * single target position (the top three of that distribution) or explicitly abstains; rows never read later labels. */
 public final class R31PolicyIdentityOutputContractTest {
+    private int r31LeasesBeforeTest;
+    @org.junit.Before public void r31OutstandingLeaseGuardBefore(){FeatureCacheR27.trimRegisteredCachesR31();r31LeasesBeforeTest=MemoryBudgetR31.processBudget().explicitOwnerLeaseCountR31();}
+    @org.junit.After public void r31OutstandingLeaseGuardAfter(){
+        FeatureCacheR27.trimRegisteredCachesR31();MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();int after=memory.explicitOwnerLeaseCountR31();
+        org.junit.Assert.assertTrue("R31_OUTSTANDING_LEASES before="+r31LeasesBeforeTest+" after="+after+" owners="+memory.explicitOwnerLeasesR31(64),after<=r31LeasesBeforeTest);
+    }
     static PolicyAstR27.Node z(PolicyAstR27.Node n) { return PolicyAstR27.op("zscore", n); }
     static List<PolicySpecR27> policies() {
         PolicyAstR27.Node freq = z(PolicyAstR27.leaf("freq", 2, 512)), gap = z(PolicyAstR27.leaf("gap", 4));

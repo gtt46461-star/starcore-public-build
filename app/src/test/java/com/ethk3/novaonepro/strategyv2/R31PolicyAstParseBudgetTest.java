@@ -7,6 +7,12 @@ import org.junit.Test;
 /** R31-B07-C02#A1/#A2: oversized, too deep, too many nodes, unknown op, non-finite constant, bad integer and wrong
  * arity are refused as typed errors before recursion (never StackOverflowError/OOM); legal policies round-trip. */
 public final class R31PolicyAstParseBudgetTest {
+    private int r31LeasesBeforeTest;
+    @org.junit.Before public void r31OutstandingLeaseGuardBefore(){FeatureCacheR27.trimRegisteredCachesR31();r31LeasesBeforeTest=MemoryBudgetR31.processBudget().explicitOwnerLeaseCountR31();}
+    @org.junit.After public void r31OutstandingLeaseGuardAfter(){
+        FeatureCacheR27.trimRegisteredCachesR31();MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();int after=memory.explicitOwnerLeaseCountR31();
+        org.junit.Assert.assertTrue("R31_OUTSTANDING_LEASES before="+r31LeasesBeforeTest+" after="+after+" owners="+memory.explicitOwnerLeasesR31(64),after<=r31LeasesBeforeTest);
+    }
     private static String rejected(String text) {
         try { PolicyAstR27.parse(text); fail("accepted: " + text.substring(0, Math.min(80, text.length()))); return null; }
         catch (IllegalArgumentException expected) { return expected.getMessage(); }

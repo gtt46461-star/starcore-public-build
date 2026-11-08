@@ -7,6 +7,12 @@ import org.junit.Test;
 /** R31-B07-C02#A3: an identical behavior signature from another position, another probe input hash or another probe
  * window/role is not the same evidence; copied registrations keep their full reference but stay in their own scope. */
 public final class R31BirthGateEvidenceScopeTest {
+    private int r31LeasesBeforeTest;
+    @org.junit.Before public void r31OutstandingLeaseGuardBefore(){FeatureCacheR27.trimRegisteredCachesR31();r31LeasesBeforeTest=MemoryBudgetR31.processBudget().explicitOwnerLeaseCountR31();}
+    @org.junit.After public void r31OutstandingLeaseGuardAfter(){
+        FeatureCacheR27.trimRegisteredCachesR31();MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();int after=memory.explicitOwnerLeaseCountR31();
+        org.junit.Assert.assertTrue("R31_OUTSTANDING_LEASES before="+r31LeasesBeforeTest+" after="+after+" owners="+memory.explicitOwnerLeasesR31(64),after<=r31LeasesBeforeTest);
+    }
     private static final int[] SIG = {11, 205, 3307, 4410, 5123};
     @Test public void signaturesAreDuplicatesOnlyWithinTheSameInputRoleAndPosition() {
         try (FeatureCacheR27 a = new FeatureCacheR27(ReplayDatasetR27.synthetic(700, 9101, null));

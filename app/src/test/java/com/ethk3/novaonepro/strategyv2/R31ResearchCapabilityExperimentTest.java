@@ -7,6 +7,12 @@ import org.junit.Test;
 
 /** R31-B07-C05#A1-#A4: registered whole-pipeline null/power trials through the production stages. */
 public final class R31ResearchCapabilityExperimentTest {
+    private int r31LeasesBeforeTest;
+    @org.junit.Before public void r31OutstandingLeaseGuardBefore(){FeatureCacheR27.trimRegisteredCachesR31();r31LeasesBeforeTest=MemoryBudgetR31.processBudget().explicitOwnerLeaseCountR31();}
+    @org.junit.After public void r31OutstandingLeaseGuardAfter(){
+        FeatureCacheR27.trimRegisteredCachesR31();MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();int after=memory.explicitOwnerLeaseCountR31();
+        org.junit.Assert.assertTrue("R31_OUTSTANDING_LEASES before="+r31LeasesBeforeTest+" after="+after+" owners="+memory.explicitOwnerLeasesR31(64),after<=r31LeasesBeforeTest);
+    }
     static long[] seeds(long base, int n) { long[] s = new long[n]; for (int i = 0; i < n; i++) s[i] = base + i; return s; }
     static ResearchCapabilityExperimentR31.Protocol protocol() {
         Map<ResearchCapabilityExperimentR31.Arm, long[]> arms = new EnumMap<>(ResearchCapabilityExperimentR31.Arm.class);

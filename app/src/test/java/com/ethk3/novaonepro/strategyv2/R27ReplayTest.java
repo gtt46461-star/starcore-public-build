@@ -5,6 +5,12 @@ import org.junit.Test;
 
 /** H02 (replay vs live identical), H03 (gap segments and SKIPPED_GAP), R27-013/015/017 and the replay speed. */
 public class R27ReplayTest {
+    private int r31LeasesBeforeTest;
+    @org.junit.Before public void r31OutstandingLeaseGuardBefore(){FeatureCacheR27.trimRegisteredCachesR31();r31LeasesBeforeTest=MemoryBudgetR31.processBudget().explicitOwnerLeaseCountR31();}
+    @org.junit.After public void r31OutstandingLeaseGuardAfter(){
+        FeatureCacheR27.trimRegisteredCachesR31();MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();int after=memory.explicitOwnerLeaseCountR31();
+        org.junit.Assert.assertTrue("R31_OUTSTANDING_LEASES before="+r31LeasesBeforeTest+" after="+after+" owners="+memory.explicitOwnerLeasesR31(64),after<=r31LeasesBeforeTest);
+    }
     static PolicySpecR27 spec(PolicyAstR27.Node ast, int tp) { return new PolicySpecR27(ast, tp, PolicySpecR27.Rule.QUANTILE, 0, 0.2, 1.0, false, 0.02, 0.01, null); }
 
     @Test public void replayAndLiveAreBitIdenticalOverLast200() throws Exception {
