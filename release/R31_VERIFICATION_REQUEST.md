@@ -4,3 +4,4 @@ Changing this file starts .github/workflows/r31-verification.yml on construction
 (a new workflow cannot be dispatched from a non-default branch). It is ignored by the construction gate.
 
 - 2026-11-08: final K11 run (gate source 64db91b6 + this request)
+- 2026-11-08: rerun after the Gradle distribution timeout (run 42464955166 built nothing); workflow now fetches it with retries
