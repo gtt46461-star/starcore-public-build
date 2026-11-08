@@ -1,0 +1,44 @@
+{
+ "format": "R31_DELIVERY_DECLARATION_V1",
+ "card": "R31-B12-C05",
+ "rule": "This file declares the one R31 deliverable and its layers. The ZIP itself is produced only by .github/workflows/r31-verification.yml (artifact_receipt job, artifact 'r31-verification-receipt', folder delivery/) from the real APK built in the same run; tools/r31/package_release.py refuses an APK whose bytes, identity or signature differ from that build. PENDING_CI fields are filled from that run's receipt, never by hand-written values.",
+ "deliverable": "PENDING_CI: delivery/STARCORE-R31-<versionName>-<OFFICIAL|DEBUG-NOT-OFFICIAL>-<commit12>.zip in artifact r31-verification-receipt",
+ "sourceCommit": "PENDING_CI",
+ "identity": {
+  "applicationId": "com.starcore.research.r13",
+  "versionName": "R31-CHECKPOINT-P01-2026.11.05-016",
+  "versionCode": "577311016",
+  "databaseName": "binance_k3_nova_one_pro_v57.db",
+  "releaseMode": "CONTROLLED_CANDIDATE_MODEL_NOT_PROVEN"
+ },
+ "apk": {
+  "sha256": null,
+  "signerCertSha256": null,
+  "variant": "release when the sealed R13 key opens in CI, otherwise debug labelled DEBUG-NOT-OFFICIAL"
+ },
+ "signing": "PENDING_CI: official only if scripts/load_r13_signing.py opens .github/r13-signing.sealed.json in that run; the transport private key is not in this repository, so NOT_OFFICIAL is expected and is written as such",
+ "layers": {
+  "L2_ENGINEERING_HOST_AND_UNIT": {
+   "status": "PENDING_CI",
+   "evidence": "construction gate RECEIPT K01..K11 (construction/r31/batches/*/RECEIPT.json) and r31-verification contracts stage"
+  },
+  "L3_ANDROID_EMULATOR": {
+   "status": "PENDING_CI",
+   "evidence": "r31-verification instrumentation stage, API 29/35 disposable emulators; EMU only, never a device claim"
+  },
+  "L4_PHYSICAL_DEVICE_24H_72H": {
+   "status": "NOT_RUN",
+   "evidence": "R31-B12-C03#A1-#A3 and R31-B12-C05#A1b are DEVICE items (tools/r31/collect_device_receipts.py, accept_device_receipts.py)"
+  },
+  "NATURAL_QUALITY": {
+   "status": "NOT_PROVEN",
+   "evidence": "no natural-advantage proof exists; engineering passes are not quality"
+  }
+ },
+ "remainingLimits": [
+  "natural predictive advantage NOT_PROVEN",
+  "24h/72h physical device runs NOT_RUN",
+  "old-APK read of an upgraded database NOT_RUN (EMU/DEVICE)",
+  "30GB original database NOT_RUN; upgrade STRESS run is SIMULATED"
+ ]
+}

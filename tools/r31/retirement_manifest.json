@@ -1,0 +1,8210 @@
+{
+ "format": "R31_RETIREMENT_MANIFEST_V1",
+ "card": "R31-B12-C04",
+ "rule": "Static scan lists candidates only. DROP of data is approved only with inactivity, no reference (static, dynamic SQL, reflection, persistent), an equivalent replacement and a recovery path; none qualifies in R31. Empty tables or few tasks are not a reason.",
+ "approved_drops": [],
+ "rebuild_in_place": [
+  {
+   "object": "b03_selected_event (legacy shape)",
+   "file": "com/ethk3/novaonepro/DbHelper.java",
+   "dropped": "TABLE_B03_SELECTED_EVENT + \"_r30_shadow\"",
+   "copy": "INSERT INTO TABLE_B03_SELECTED_EVENT(all columns) SELECT ... FROM legacy",
+   "recreated_as": "TABLE_B03_SELECTED_EVENT",
+   "transaction": "caller migration transaction (DbHelper upgrade owner)",
+   "rows": "every column copied, then indexes and immutable triggers recreated",
+   "reason": "decision_action CHECK widened (BET/SHADOW/HOLD); SQLite cannot ALTER a CHECK"
+  },
+  {
+   "object": "su2_model_genome",
+   "file": "com/ethk3/novaonepro/strategyv2/StrategySchemaSU2.java",
+   "dropped": "su2_model_genome",
+   "copy": "INSERT INTO su2_model_genome_r16(columns) SELECT columns FROM su2_model_genome",
+   "recreated_as": "su2_model_genome (renamed from su2_model_genome_r16)",
+   "transaction": "SU2 schema writer transaction (ensure requires inTransaction)",
+   "rows": "all 13 columns copied",
+   "reason": "R13 2048-character program constraint widened for committees"
+  },
+  {
+   "object": "research_development_receipt_v2",
+   "file": "com/ethk3/novaonepro/RetentionArtifactIdentityCP12.java",
+   "dropped": "research_development_receipt_v2",
+   "copy": "INSERT INTO research_development_receipt_cp12_rebuild SELECT * FROM research_development_receipt_v2",
+   "recreated_as": "research_development_receipt_v2 (renamed rebuild)",
+   "transaction": "CP12 retention-identity rebuild statement list, one writer transaction",
+   "rows": "SELECT * copy after a foreign_key_check",
+   "reason": "artifact identity foreign key added; triggers recreated after the rebuild"
+  }
+ ],
+ "drop_table_sites": [
+  {
+   "file": "com/ethk3/novaonepro/DbHelper.java",
+   "line": 7721,
+   "kind": "TABLE",
+   "target": "expr:legacy"
+  },
+  {
+   "file": "com/ethk3/novaonepro/DbHelper.java",
+   "line": 7746,
+   "kind": "TABLE",
+   "target": "expr:legacy"
+  },
+  {
+   "file": "com/ethk3/novaonepro/RetentionArtifactIdentityCP12.java",
+   "line": 30,
+   "kind": "TABLE",
+   "target": "research_development_receipt_v2"
+  },
+  {
+   "file": "com/ethk3/novaonepro/strategyv2/StrategySchemaSU2.java",
+   "line": 50,
+   "kind": "TABLE",
+   "target": "su2_model_genome"
+  }
+ ],
+ "derived_rebuilds": [
+  {
+   "file": "com/ethk3/novaonepro/DbHelper.java",
+   "objects": [
+    "expr:trigger",
+    "idx_b03_selected_lane",
+    "idx_v26_oos_one_action_target",
+    "trg_"
+   ],
+   "recreated_by": "the same owner re-executes its CREATE after the drop"
+  },
+  {
+   "file": "com/ethk3/novaonepro/RetentionArtifactIdentityCP12.java",
+   "objects": [
+    "cp8_development_receipt_identity",
+    "cp8_development_receipt_immutable",
+    "cp8_development_receipt_no_replace",
+    "cp8_development_receipt_permanent"
+   ],
+   "recreated_by": "the same owner re-executes its CREATE after the drop"
+  },
+  {
+   "file": "com/ethk3/novaonepro/r952/ResearchMigrationRegistryR952.java",
+   "objects": [
+    "IF",
+    "r967_input_pin_active_delete"
+   ],
+   "recreated_by": "archive-only bypass of DELETE guards, generated from the actual sqlite_master; the same script recreates every guard"
+  },
+  {
+   "file": "com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+   "objects": [
+    "r31_qual_receipt_no_replace"
+   ],
+   "recreated_by": "the same owner re-executes its CREATE after the drop"
+  },
+  {
+   "file": "com/ethk3/novaonepro/strategyv2/R29FoldBackR30.java",
+   "objects": [
+    "expr:TableCopierR30.qt"
+   ],
+   "recreated_by": "RETIRED_DERIVED (not recreated): R29 CP07-CP16 root triggers retired by the R30-B00-03 fold-back; replacement = R30 fenced owner protocol; data rows untouched; recovery = the fold-back route stays registered and retries on the next start (r30_foldback_error)"
+  },
+  {
+   "file": "com/ethk3/novaonepro/strategyv2/ResearchSourceJournalR31.java",
+   "objects": [
+    "expr:namesql"
+   ],
+   "recreated_by": "the same owner re-executes its CREATE after the drop"
+  },
+  {
+   "file": "com/ethk3/novaonepro/strategyv2/StrategySchemaSU1.java",
+   "objects": [
+    "su1_cohort_runtime_immutable"
+   ],
+   "recreated_by": "the same owner re-executes its CREATE after the drop"
+  }
+ ],
+ "candidates": [
+  {
+   "object": "r30_keep_* tables",
+   "kind": "TABLE_FAMILY",
+   "owner": "KeepMigrationR31 / ResearchRetentionStoreR30",
+   "readers": [
+    "ResearchRetentionStoreR30",
+    "KeepMigrationR31"
+   ],
+   "writers": [
+    "copy-on-delete triggers until SWITCH"
+   ],
+   "dynamic_sql_or_reflection": "table names built at run time by the retention owner",
+   "persistent_references": "archive index r30_retention_archive_index",
+   "replacement": "evidence lifecycle references (KeepMigrationR31 REGISTER_REFERENCE/MIGRATE/SWITCH)",
+   "observation": "NOT_RUN on device (72h observation is a DEVICE item); upgrade paths not yet triggered cannot be excluded",
+   "equivalence": "R31KeepMigrationTest#aKillAtEveryStageLosesAndDuplicatesNothing (row digests equal through migration)",
+   "decision": "RETAIN_UNTIL_READERS_MIGRATED_AND_SCHEMA_MIGRATION_DECLARES_DROP"
+  },
+  {
+   "object": "r27_chart_cache legacy mainline projection (panel mainline/choice)",
+   "kind": "ROW_FAMILY",
+   "owner": "MainlineChoiceStoreR31",
+   "readers": [
+    "MainlineChoiceStoreR31.legacyChoice",
+    "MainlineBridgeSU2 (before TYPED_READ)"
+   ],
+   "writers": [
+    "LiveShadowsR27.certify dual-write"
+   ],
+   "dynamic_sql_or_reflection": "none",
+   "persistent_references": "r31_mainline_authority mode LEGACY_READ protects it by trigger",
+   "replacement": "r31_mainline_choice typed store (TYPED_READ after compareLegacyProjection)",
+   "observation": "dual read compared on host; device switch NOT_RUN",
+   "equivalence": "HOST:r30repair_mainline_authority",
+   "decision": "RETAIN_DUAL_WRITE_UNTIL_TYPED_READ_SWITCH"
+  },
+  {
+   "object": "su1/su2 legacy research engines (SU1_*/SU2_* operations)",
+   "kind": "ENGINE",
+   "owner": "StrategySchemaSU1 / StrategySchemaSU2",
+   "readers": [
+    "MainlineBridgeSU2",
+    "ReportObjectIndexR30"
+   ],
+   "writers": [
+    "SU1/SU2 registered operations in DatabaseCoordinator.OPERATION_REGISTRY_R31"
+   ],
+   "dynamic_sql_or_reflection": "SqlStatementsSU1 generated statement list",
+   "persistent_references": "su1_migration_unit_v2 journal, certificates, matrix snapshots",
+   "replacement": "none proven equivalent",
+   "observation": "NOT_RUN",
+   "equivalence": "NOT_PROVEN",
+   "decision": "RETAIN"
+  },
+  {
+   "object": "DbStore legacy generation methods",
+   "kind": "CLASS_METHODS",
+   "owner": "DbStore (sole DatabaseCoordinator writer)",
+   "readers": [
+    "see dbstore.methods[].callers"
+   ],
+   "writers": [
+    "see dbstore.methods[].writes"
+   ],
+   "dynamic_sql_or_reflection": "see dbstore.methods[].dynamic",
+   "persistent_references": "see dbstore.methods[].tables",
+   "replacement": "none selected",
+   "observation": "coverage map only",
+   "equivalence": "NOT_PROVEN",
+   "decision": "DEFERRED_TARGET_SELECTION_AFTER_COVERAGE"
+  }
+ ],
+ "preserved_capabilities": [
+  {
+   "capability": "Replay evaluation with probabilities",
+   "implementation": "com.ethk3.novaonepro.strategyv2.ReplayEvaluatorR27#selectTraceWithProbabilities",
+   "tests": [
+    "com.ethk3.novaonepro.strategyv2.RepairPairedResearchR30Test#resumableRunnerMatchesActualOriginalProbabilitiesAndNeverReadsFormalLabels"
+   ]
+  },
+  {
+   "capability": "Paired component study (MASK_FROZEN / RETRAIN_REMOVED)",
+   "implementation": "com.ethk3.novaonepro.strategyv2.PairedReplayRunnerR30R1#advance",
+   "tests": [
+    "com.ethk3.novaonepro.strategyv2.R31PairedStudyProtocolTest#bothProtocolsResumeExactlyAndTheRemovedArmNeverTouchesTheParentState"
+   ]
+  },
+  {
+   "capability": "Verified paired improvement",
+   "implementation": "com.ethk3.novaonepro.strategyv2.VerifiedImprovementR31#record",
+   "tests": [
+    "com.ethk3.novaonepro.strategyv2.R31VerifiedImprovementTest#futureLabelsAreDetectedAndCannotForgeAnImprovement"
+   ]
+  },
+  {
+   "capability": "Research result consumption contract",
+   "implementation": "com.ethk3.novaonepro.strategyv2.ResearchResultContractR31#validateForConsumption",
+   "tests": [
+    "com.ethk3.novaonepro.strategyv2.R31ResearchResultContractTest#lateLabelsWrongAbiRevisionParentAndRepeatedConsumptionAreRefused"
+   ]
+  },
+  {
+   "capability": "Certificate streak gate",
+   "implementation": "com.ethk3.novaonepro.strategyv2.CertificateGateR27#streakGatePassProbabilityR31",
+   "tests": [
+    "com.ethk3.novaonepro.strategyv2.R31EvidenceContractTest#streakDpMatchesAnalyticValues"
+   ]
+  },
+  {
+   "capability": "Metric evaluation of 44 metrics",
+   "implementation": "com.ethk3.novaonepro.strategyv2.MetricEvaluatorR29#evaluateR31",
+   "tests": [
+    "com.ethk3.novaonepro.strategyv2.R31MetricReportTest#all44MetricsAreDefinedComputedCollectedAndAcceptedWithoutFillingUnknowns"
+   ]
+  },
+  {
+   "capability": "Check/metric crosswalk",
+   "implementation": "com.ethk3.novaonepro.strategyv2.CheckMetricCrosswalkR31#coverage",
+   "tests": [
+    "com.ethk3.novaonepro.strategyv2.R31MetricReportTest#checkIdsEqualTheReal96AndEveryMetricHasIndependentEvidence"
+   ]
+  },
+  {
+   "capability": "Family registry acceptance",
+   "implementation": "com.ethk3.novaonepro.strategyv2.FamilyRegistryR26#acceptR31",
+   "tests": [
+    "com.ethk3.novaonepro.strategyv2.R31FamilyCapabilityAcceptanceTest#everyFamilyRowIsExecutedOrNamesItsDependency"
+   ]
+  },
+  {
+   "capability": "Creation budget",
+   "implementation": "com.ethk3.novaonepro.strategyv2.CreationBudgetR31",
+   "tests": [
+    "com.ethk3.novaonepro.strategyv2.R31CreationBudgetTest#everyFamilyIsExploredEveryRoundOrNamesItsDependency"
+   ]
+  },
+  {
+   "capability": "Matrix research dependency state",
+   "implementation": "com.ethk3.novaonepro.strategyv2.MatrixResearchR30R1#produceR31",
+   "tests": [
+    "com.ethk3.novaonepro.strategyv2.R31MatrixKindStateTest#missingStudentWaitsWhileSourceOnlyMatricesStillProduce"
+   ]
+  },
+  {
+   "capability": "Research measure tables",
+   "implementation": "com.ethk3.novaonepro.strategyv2.ResearchMeasureProjectionR31",
+   "tests": [
+    "com.ethk3.novaonepro.strategyv2.R31ResearchMeasureTablesTest#unknownKindsAndWrongUnitsAreRefusedNotPlottedAsZero"
+   ]
+  },
+  {
+   "capability": "Keep-table migration",
+   "implementation": "com.ethk3.novaonepro.strategyv2.KeepMigrationR31#step",
+   "tests": [
+    "com.ethk3.novaonepro.strategyv2.R31KeepMigrationTest#aKillAtEveryStageLosesAndDuplicatesNothing"
+   ]
+  },
+  {
+   "capability": "Evidence reachability GC",
+   "implementation": "com.ethk3.novaonepro.StorageGcR31#claim",
+   "tests": [
+    "com.ethk3.novaonepro.R31EvidenceGcTest#rootedClosureIsKeptRootlessCycleCollectedAndPinOrClaimWinsAlone"
+   ]
+  },
+  {
+   "capability": "Chart registry",
+   "implementation": "com.ethk3.novaonepro.ChartRegistryR31",
+   "tests": [
+    "com.ethk3.novaonepro.R31ChartRegistryTest#oneBlockedOrMalformedPanelLeavesTheOthersInBudget"
+   ]
+  },
+  {
+   "capability": "Mainline typed choice",
+   "implementation": "com.ethk3.novaonepro.strategyv2.MainlineChoiceStoreR31#appendChoice",
+   "tests": [
+    "HOST:r30repair_mainline_authority",
+    "HOST:run_full_chain_fault_host"
+   ]
+  },
+  {
+   "capability": "Live settlement",
+   "implementation": "com.ethk3.novaonepro.strategyv2.LiveShadowsR27#settle",
+   "tests": [
+    "HOST:run_full_chain_fault_host"
+   ]
+  },
+  {
+   "capability": "Overlay-install upgrade journal",
+   "implementation": "com.ethk3.novaonepro.SchemaDomainCoordinatorR926#runUpgradeR31",
+   "tests": [
+    "HOST:run_upgrade_matrix_host"
+   ]
+  }
+ ],
+ "dbstore": {
+  "source_sha256": "f8a4a140515d5f773c36dd256b3116787f93e9a44163d2c64262f5c837c68041",
+  "method_declarations": 769,
+  "distinct_names": 728,
+  "no_external_caller": [
+   "DbStore",
+   "addColumnArray",
+   "addColumnIfMissing",
+   "addFieldChainColumnsToDecisionLikeTable",
+   "addSegmentsToList",
+   "addTeacherMatrixColumnsToDecisionLikeTable",
+   "appendSep",
+   "applyTeacherMatrixToCandidate",
+   "applyTeacherMatrixToDecision",
+   "applyTeacherMatrixToTrade",
+   "attachTeacherMatrixFieldsToCandidate",
+   "attachTeacherMatrixFieldsToDecision",
+   "attachTeacherMatrixFieldsToTrade",
+   "auditBucketHigh",
+   "auditBucketKey",
+   "auditBucketLow",
+   "b03Count",
+   "b03Scalar",
+   "b03ScalarInt",
+   "backfillSettledShadowDomainsV17",
+   "backtestReportToValues",
+   "batchSaveCandidateSnapshot",
+   "batchSaveShadowFields",
+   "bucketKey",
+   "bucketRawMax",
+   "bucketRawMin",
+   "bucketSignedText",
+   "bucketText",
+   "bucketWindow",
+   "buildAutoLearnCursorSummary",
+   "buildAutoLearnSummary",
+   "buildBacktestSummaryText",
+   "buildCoarseDomainKeyV20",
+   "buildCounterEvidenceText",
+   "buildDeterministicWindowStateKey",
+   "buildDiagnosisClosedLoopStorageSummary",
+   "buildEvidenceSupportText",
+   "buildFalseStrongKeyFromCv",
+   "buildFieldChainSummary",
+   "buildLinkCandidateValues",
+   "buildMainChainCandidateKey",
+   "buildNumberProfileWhyText",
+   "buildPendingDecisionForTargetIssue",
+   "buildProfileCacheSummary",
+   "buildRuntimeProfileSummaryText",
+   "buildRuntimeSchedulerSummary",
+   "buildSafePreDrawPromotionDomain",
+   "buildSafePreDrawPromotionDomainFromCursor",
+   "buildStateKey",
+   "buildTeacherMatrixApplyResult",
+   "buildTeacherMatrixComboKey",
+   "buildTeacherMatrixProfileKey",
+   "buildV20ActionAdvice",
+   "buildV20RecordKey",
+   "buildV20ReplaySummary",
+   "buildV20WindowStateEvidence",
+   "calcFrequency",
+   "calcLoseStreak",
+   "calcMaxDrawdown",
+   "calcTeacherGateAdjust",
+   "calcTeacherMatrixAvg",
+   "chooseBestTradeToKeep",
+   "clampLocal01",
+   "cleanKeyPart",
+   "cleanupDuplicateDecisionsForTarget",
+   "cleanupDuplicateRealTradesAll",
+   "cleanupDuplicateTradesForTarget",
+   "cleanupOldManualRunningTasks",
+   "cleanupOldTeacherSnapshots",
+   "clearColumnCache",
+   "closeCursor",
+   "comboCandidateToValues",
+   "confidenceFromSample",
+   "containsFieldChainText",
+   "containsSegment",
+   "copyDomainEvidenceV20",
+   "copyFieldChainDouble",
+   "copyFieldChainFields",
+   "copyFieldChainInt",
+   "copyFieldChainString",
+   "copyLinkModificationV2Values",
+   "copyMainChainClosedLoopFields",
+   "copySettlementFields",
+   "countDecisionByType",
+   "countDraws",
+   "countLearningCases",
+   "countLearningCasesByTask",
+   "countOtherOpenV50Trades",
+   "countRealBetIssueInRecentDrawIssues",
+   "countRealBetIssuesFromDecisions",
+   "countRealBetIssuesFromTrades",
+   "countSettledShadowSamplesV20",
+   "countTable",
+   "countTable",
+   "countTeacherMatrixProfiles",
+   "countTeacherMatrixRiskProfiles",
+   "countTeacherMatrixSamples",
+   "countTeacherMatrixStrongProfiles",
+   "countV20Table",
+   "createDynamicTable",
+   "createV20GenericTable",
+   "cursorRowToContentValues",
+   "cursorToContentValues",
+   "cursorToContentValuesB03",
+   "decisionPriority",
+   "decisionToValues",
+   "deepProfileToValues",
+   "deleteDecisionByTargetIssue",
+   "deleteHoldOrShadowDecisionByTargetIssue",
+   "diagnosisObjectToValues",
+   "diagnosticSnapshotR811",
+   "dynamicCausalDecisionColumnDefs",
+   "dynamicCausalDoubleMap",
+   "dynamicCausalIntMap",
+   "dynamicCausalTextMap",
+   "ensureAuditBucket",
+   "ensureAutoLearnCursorTable",
+   "ensureCalibrationBucket",
+   "ensureDiagnosisBaselineRecords",
+   "ensureDiagnosisLoopTablesNow",
+   "ensureDiagnosticLoopTables",
+   "ensureDynamicCausalDecisionLikeColumns",
+   "ensureDynamicCausalDefaultState",
+   "ensureDynamicCausalIndexes",
+   "ensureDynamicCausalTables",
+   "ensureDynamicCausalWindowReady",
+   "ensureDynamicClusterColumns",
+   "ensureDynamicSampleColumns",
+   "ensureFieldChainColumns",
+   "ensureLearningCaseLogTable",
+   "ensureLearningTables",
+   "ensureLedgerColumns",
+   "ensureLedgerIndexes",
+   "ensureLinkModificationV2Ready",
+   "ensureMainChainClosedLoopReady",
+   "ensureMainChainColumns",
+   "ensureMainChainDefaultState",
+   "ensureMainChainFactorColumns",
+   "ensureMainChainIndexes",
+   "ensureMainChainRejectBucketColumns",
+   "ensureModuleRegistryR363",
+   "ensureRealtimeValidationReportTable",
+   "ensureRuntimeExtraColumns",
+   "ensureRuntimeExtraTables",
+   "ensureRuntimeExtraTablesOnce",
+   "ensureRuntimeProfileCacheTable",
+   "ensureStableEvidenceDomainsV17",
+   "ensureStateNumberProfileTable",
+   "ensureTeacherMatrixColumns",
+   "ensureTeacherMatrixComboProfileTable",
+   "ensureTeacherMatrixProfileTable",
+   "ensureTeacherMatrixReportTable",
+   "ensureTeacherMatrixSampleTable",
+   "ensureTeacherSnapshotTable",
+   "ensureTianshuB03Storage",
+   "ensureTradeForRealBetDecision",
+   "ensureV20BaseTables",
+   "ensureV20CauseChainReady",
+   "ensureV20CauseChainTablesNow",
+   "ensureV20ColumnsForTable",
+   "ensureV20CommonColumns",
+   "ensureV20Indexes",
+   "ensureV20IndexesForTable",
+   "execQuiet",
+   "fallbackCalibrated",
+   "filterContentValuesForTable",
+   "filterValuesForTable",
+   "firstNonEmpty",
+   "firstNonEmpty",
+   "firstNonEmpty",
+   "firstNonEmpty",
+   "formatMoney",
+   "formatTime",
+   "getActualNumberByPosition",
+   "getAdaptiveJudgeRecentLogs",
+   "getAllRecentTrades",
+   "getAutoLearnLastStartIndex",
+   "getAutoLearnStatusText",
+   "getAutoLearnUsedSegments",
+   "getBestDecisionByTargetIssue",
+   "getBestDynamicCauseChain",
+   "getCandidateAudits",
+   "getCandidateEvidence",
+   "getCausalFactorEdge",
+   "getCausalFactorMatrix",
+   "getCounterfactualRank",
+   "getCurrentDecisionTradeLinkStatus",
+   "getCvDouble",
+   "getCvInt",
+   "getCvLong",
+   "getCvString",
+   "getDecisionAudit",
+   "getDeepProfile",
+   "getDiagnosisFixPlan",
+   "getDiagnosisRecordId",
+   "getDoubleField",
+   "getDrawByIssueForDiagnosis",
+   "getDrawsAsc",
+   "getDrawsBetweenIssues",
+   "getDynamicCausalState",
+   "getDynamicCauseChains",
+   "getDynamicFreezeState",
+   "getFalseStrongFreeze",
+   "getFirstDraw",
+   "getFirstDrawIssue",
+   "getFirstDrawTime",
+   "getFullCandidateScans",
+   "getIntAny",
+   "getIntField",
+   "getLatestAiJudgeResult",
+   "getLatestAutoLearnCursor",
+   "getLatestBiasEvidence",
+   "getLatestDecisionForCurrentTargetStrict",
+   "getLatestDiagnosisRecord",
+   "getLatestDrawTime",
+   "getLatestPointInTimeSnapshot",
+   "getLatestRealtimeValidationReport",
+   "getLatestRealtimeValidationReport",
+   "getLatestTeacherGateAdjust",
+   "getLatestTeacherSnapshotReport",
+   "getLatestTeacherSnapshotReport",
+   "getLatestUsableTeacherSnapshotReport",
+   "getLearningCase",
+   "getLearningCaseK3Mask",
+   "getManualTaskRowId",
+   "getModelWeight",
+   "getModuleBuildConsistencyV20",
+   "getModuleEffectCache",
+   "getObject",
+   "getOptionalDoubleField",
+   "getOptionalIntField",
+   "getOptionalLongField",
+   "getOptionalStringField",
+   "getPositionCauseMatrix",
+   "getPositionHealthScore",
+   "getPreDrawFeature",
+   "getPreDrawNumberSamples",
+   "getProbabilityAuditBucket",
+   "getProbabilityAuditBucketForP",
+   "getPromotionCandidate",
+   "getRankCounterEdge",
+   "getRealBetDiagnosisDetailState",
+   "getRealBetDiagnosisSummaryState",
+   "getRealtimeStageCostSummary",
+   "getRecentAttributions",
+   "getRecentBacktestReports",
+   "getRecentDecisionFrequency",
+   "getRecentDecisionFrequency",
+   "getRecentDecisionsForDiagnosis",
+   "getRecentDiagnosisCases",
+   "getRecentDiagnosisSourceDecisions",
+   "getRecentLearningCases",
+   "getRecentRealBetTradesForDiagnosis",
+   "getRecentSettledRealBetTradesForDiagnosis",
+   "getRecentShadowCases",
+   "getRecentTradeList",
+   "getRuleHealthEdge",
+   "getRuleHealthMatrix",
+   "getRunningAutoLearnCursor",
+   "getRuntimeProfileCache",
+   "getRuntimeProfileCaches",
+   "getSeedCauseMatrix",
+   "getSeedSimilarityNet",
+   "getServiceHeartbeatAgeMs",
+   "getShadowHealthGate",
+   "getShadowPromotionCache",
+   "getStateNumberProfile",
+   "getStateNumberProfiles",
+   "getStringField",
+   "getStringFromCv",
+   "getTableColumns",
+   "getTeacherMatrixComboGateAdjust",
+   "getTeacherMatrixComboProbAdjust",
+   "getTeacherMatrixComboProfileValues",
+   "getTeacherMatrixComboProfileValues",
+   "getTeacherMatrixNumberGateAdjust",
+   "getTeacherMatrixNumberProbAdjust",
+   "getTeacherMatrixProfileValues",
+   "getTeacherMatrixProfileValues",
+   "getTeacherNumberMatrix",
+   "getTeacherNumberSupport",
+   "getThirdGuardMatrix",
+   "getThirdGuardNet",
+   "getTianshuB03StorageStatus",
+   "getTodayDrawCount",
+   "getTopCandidateScans",
+   "getTopDeepProfiles",
+   "getTopRuntimeProfileCaches",
+   "getTopStateNumberProfiles",
+   "getTradeByTargetIssueLoose",
+   "getTrades",
+   "getV20CauseChainSummaryText",
+   "getV20Record",
+   "getV20RecordByKey",
+   "hasTianshuB03Prediction",
+   "hasTianshuB03Settlement",
+   "incrementServiceRestartCount",
+   "insertDrawInternal",
+   "insertFiltered",
+   "insertMainChainRowR31",
+   "insertOrIgnoreLearningCase",
+   "isAutoLearnSegmentUsed",
+   "isDiagnosisBetText",
+   "isDiagnosisRealBetTrade",
+   "isDiagnosisRealScope",
+   "isDrawHistoryReady240",
+   "isFalseStrongFrozen",
+   "isFieldChainUnsafeRealBetDecision",
+   "isLearningCaseExists",
+   "isQuickObservationDecision",
+   "isRealtimeValidationUsable",
+   "isServiceUserEnabled",
+   "isShadowHealthPromotePass",
+   "isTeacherSnapshotUsable",
+   "isTradeK3HitStrict",
+   "isV20RuleFrozen",
+   "isV20Table",
+   "isValidBetDecision",
+   "isValidRealTrade",
+   "isValidRealTradeLoose",
+   "isWeakPlaceholderDecision",
+   "javaFieldToDbColumn",
+   "learnRuntimeProfile",
+   "learnRuntimeProfile",
+   "learnStateNumberProfile",
+   "learningCaseToValues",
+   "limitAdjustLocal",
+   "linkDecisionTradeAfterSave",
+   "linkModificationV2ColumnDefs",
+   "linkModificationV2DoubleMap",
+   "linkModificationV2IntMap",
+   "linkModificationV2TextMap",
+   "listLegacyDrawQuarantine",
+   "listRecentTrades",
+   "loadAutoLearnCursor",
+   "loadDeepSnapshot",
+   "loadDrawsAsc",
+   "loadLastDecision",
+   "loadLastTrade",
+   "loadLatestLayerSnapshot",
+   "loadLatestRuntimeStats",
+   "loadNumberProfiles",
+   "loadOneShadowDomainV17",
+   "loadRecentDraws",
+   "loadRecentLearningCases",
+   "loadRuntimeProfile",
+   "loadServiceHealthState",
+   "mainChainDoubleMap",
+   "mainChainIntMap",
+   "mainChainTextMap",
+   "markLegacyDrawReview",
+   "markSegmentDone",
+   "markV20CandidateSettlement",
+   "markV20CandidateSettlementByDraw",
+   "markV20TableCandidateSettlement",
+   "markovColumn",
+   "maxDouble",
+   "maxOptionalDouble",
+   "maxOptionalInt",
+   "mergeUsedSegments",
+   "migrateLegacyDrawsToQuarantine",
+   "normalizeDecisionBeforeSave",
+   "normalizeDiagnosisTradeForRead",
+   "normalizeExplicitCoverageAndRejectFields",
+   "normalizeLegacyLedgerScopes",
+   "normalizeReportStatusForSnapshot",
+   "normalizeRisk",
+   "normalizeTradeBeforeSave",
+   "normalizeV20EvidenceCv",
+   "normalizeV50DecisionBeforeSave",
+   "normalizeV50TradeBeforeSave",
+   "openResearchAssetCP12",
+   "parseIntSafeV20",
+   "parseIssueLong",
+   "parseLongSafeV20",
+   "percent",
+   "percentLocal",
+   "persistTianshuB03Prediction",
+   "persistV50DecisionAndTrade",
+   "pnlForHitLocal",
+   "probColumn",
+   "putDoubleField",
+   "putDoubleRawField",
+   "putDynamicCausalState",
+   "putDynamicCausalValues",
+   "putFieldChainDouble",
+   "putFieldChainInt",
+   "putFieldChainString",
+   "putFieldChainValues",
+   "putFinalVersionFallback",
+   "putIntField",
+   "putLinkModificationV2Values",
+   "putMainChainAliases",
+   "putMainChainClosedLoopValues",
+   "putObject",
+   "putObjectToContentValues",
+   "putShadowDynamicBridgeAliases",
+   "putStringField",
+   "putTeacherMatrixFieldsFromObject",
+   "putV24ContractValues",
+   "quarantineUnauthorizedV24LedgerRows",
+   "queryDiagnosisTable",
+   "querySimilarWindowRecords",
+   "queryV20Records",
+   "readAiJudgeResult",
+   "readAppDoubleLocal",
+   "readAttributionResult",
+   "readAutoLearnCursor",
+   "readAutoLearnTask",
+   "readBacktestReport",
+   "readBiasEvidence",
+   "readCandidateEvidence",
+   "readDecision",
+   "readDeepProfile",
+   "readDraw",
+   "readDynamicCausalFields",
+   "readDynamicWindowCluster",
+   "readExistingV50Legacy",
+   "readFieldChainDouble",
+   "readFieldChainInt",
+   "readFieldChainString",
+   "readFieldChainValues",
+   "readLearningCase",
+   "readLinkModificationV2Values",
+   "readMainChainClosedLoopFields",
+   "readManualBacktestTask",
+   "readObjectLong",
+   "readObjectString",
+   "readPointInTimeSnapshot",
+   "readProbabilityAuditBucket",
+   "readPromotionCandidate",
+   "readRealtimeValidationReport",
+   "readRuntimeProfileCache",
+   "readShadowCandidate",
+   "readShapeVector",
+   "readStateNumberProfile",
+   "readTeacherMatrixFieldsToObject",
+   "readTeacherSnapshotReport",
+   "readTrade",
+   "readV24ContractValues",
+   "recalcProbabilityAuditBucket",
+   "recalcTeacherMatrixComboProfile",
+   "recalcTeacherMatrixProfile",
+   "recordMainChainRejectBucket",
+   "refreshDiagnosisClosedLoopState",
+   "refreshRealBetDiagnosisState",
+   "repairDecisionTradeEvidenceV17",
+   "repairDrawMetadataR816",
+   "repairLedgerIntegrityNow",
+   "repairLedgerIntegrityQuiet",
+   "repairMissingRealTradesFromBetDecisions",
+   "repairSettledTradePnl",
+   "repairShadowEvidenceFromCandidateSnapshot",
+   "repairTradeDecisionLinks",
+   "replaceDecisionFull",
+   "replaceTradeFull",
+   "replayTianshuB03Target",
+   "resolveEvidenceDomainStatusV20",
+   "rollingAverage",
+   "runEvidenceMaintenanceSliceV20",
+   "runtimeProfileToValues",
+   "runtimeStateValuesR77",
+   "safeDbKey",
+   "safeStateKeyFromCandidate",
+   "safeStateKeyFromDecision",
+   "safeString",
+   "safeText",
+   "safeTradeStateKey",
+   "safeV50Text",
+   "sameV50Legacy",
+   "sampleTrustFromCount",
+   "saveAdaptiveJudgeInputCandidates",
+   "saveAdaptiveJudgeLog",
+   "saveAdaptiveJudgeLog",
+   "saveAdaptiveJudgeLog",
+   "saveAiJudgeResult",
+   "saveAttributionResult",
+   "saveBiasEvidence",
+   "saveCandidateAudit",
+   "saveCandidateAudits",
+   "saveCandidateEvidence",
+   "saveCandidateEvidences",
+   "saveCausalFactorMatrix",
+   "saveColdSnapshot",
+   "saveCounterfactualRank",
+   "saveDecisionAudit",
+   "saveDecisionInternal",
+   "saveDeepSnapshot",
+   "saveDiagnosisCaseLog",
+   "saveDiagnosisCaseLog",
+   "saveDiagnosisCaseLog",
+   "saveDiagnosisFixPlan",
+   "saveDiagnosisFixPlan",
+   "saveDiagnosisFixPlan",
+   "saveDiagnosisRecord",
+   "saveDynamicCauseChain",
+   "saveDynamicCauseChains",
+   "saveDynamicFreezeState",
+   "saveDynamicFreezeState",
+   "saveDynamicFreezeState",
+   "saveFalseStrongFreeze",
+   "saveFullCandidateScan",
+   "saveFullCandidateScans",
+   "saveLearningSnapshot",
+   "saveMainChainCandidateSnapshot",
+   "saveModelWeight",
+   "saveModuleEffectCache",
+   "saveModuleEffectCache",
+   "saveModuleEffectCache",
+   "savePositionCauseMatrix",
+   "savePreDrawFeature",
+   "savePreDrawNumberSample",
+   "savePreDrawNumberSamples",
+   "savePromotionCandidate",
+   "saveRealBetDiagnosisState",
+   "saveRealBetDiagnosisState",
+   "saveRealTradeLedgerFromTrade",
+   "saveRealtimeTop40Candidates",
+   "saveRuleHealthMatrix",
+   "saveSeedCauseMatrix",
+   "saveSelfDiagnosisResult",
+   "saveServiceHeartbeat",
+   "saveServiceRecoveryEvent",
+   "saveServiceRecoveryEventV20",
+   "saveShadowHealthGate",
+   "saveShadowPromotionCache",
+   "saveShadowPromotionCache",
+   "saveShadowPromotionCache",
+   "saveTeacherMatrixFromLearningCases",
+   "saveTeacherMatrixSample",
+   "saveTeacherMatrixSamples",
+   "saveTeacherNumberMatrix",
+   "saveThirdGuardMatrix",
+   "saveTrade",
+   "saveTradeFromDecision",
+   "saveV20Record",
+   "saveV20Records",
+   "saveV20SettlementFromTrade",
+   "saveV20WindowStateEvidence",
+   "saveWarmSnapshot",
+   "setDoubleField",
+   "setDoubleRawField",
+   "setIntField",
+   "setLearningCaseK3Mask",
+   "setOptionalDoubleField",
+   "setOptionalIntField",
+   "setOptionalLongField",
+   "setOptionalStringField",
+   "setServiceUserEnabled",
+   "setStringField",
+   "settleOpenTradesByDraw",
+   "settleTianshuB03Shadow",
+   "settleTrade",
+   "settleTradeByTargetIssue",
+   "shouldKeepOldDecision",
+   "signedPercent",
+   "stateNumberProfileToValues",
+   "syncFieldChainAliases",
+   "tianshuB03SelfTest",
+   "tianshuB03StoreRuleHash",
+   "tianshuB03StoreRules",
+   "todayIssuePrefix",
+   "todayStartMs",
+   "tradeKeepPriority",
+   "tradeToValues",
+   "trimDrawHistoryIfNeeded",
+   "trimUsedSegments",
+   "updateDecisionSettlementFromTrade",
+   "updateDecisionStateAfterSave",
+   "updateDeepProfileFromSample",
+   "updateDeepRuntimeSummaries",
+   "updateFiltered",
+   "updateProbabilityAudit",
+   "updateRuntimeProfile",
+   "updateRuntimeProfile",
+   "updateRuntimeProfileCache",
+   "updateRuntimeProfileCache",
+   "updateRuntimeProfileDirect",
+   "updateRuntimeProfileFromLearningCase",
+   "updateRuntimeProfileFromLearningCaseInternal",
+   "updateStateNumberProfile",
+   "updateStateNumberProfileCache",
+   "updateStateNumberProfileDirect",
+   "updateStateNumberProfileFromLearningCase",
+   "updateStateNumberProfileFromLearningCaseInternal",
+   "updateTeacherMatrixComboProfileFromSample",
+   "updateTeacherMatrixProfileFromSample",
+   "updateTeacherMatrixSummaryState",
+   "updateTrade",
+   "updateTradeFull",
+   "upsertDiagnosisRecord",
+   "upsertRuntimeProfile",
+   "upsertRuntimeProfile",
+   "upsertRuntimeProfile",
+   "upsertStateNumberProfile",
+   "upsertStateNumberProfile",
+   "v24DoubleMap",
+   "v24IntMap",
+   "v24LongMap",
+   "v24StringMap",
+   "v50CommonValues",
+   "v50DecisionValues",
+   "v50TradeValues",
+   "verifyLegacyRuntimeTablesR363",
+   "verifyTianshuB03Storage",
+   "weakTeacherText",
+   "weakV20Text"
+  ],
+  "status": "DEFERRED_TARGET_SELECTION_AFTER_COVERAGE",
+  "removed_by_this_card": [],
+  "methods": [
+   {
+    "name": "contextForR26",
+    "callers": 8,
+    "caller_files": [
+     "com/ethk3/novaonepro/strategyv2/ArtifactMaintenanceR26.java",
+     "com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
+     "com/ethk3/novaonepro/strategyv2/HistoryImportR27.java",
+     "com/ethk3/novaonepro/strategyv2/R29FoldBackR30.java",
+     "com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+     "com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "requestLegacySchemaMigrationR31",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [
+     "TABLE_JOURNAL"
+    ],
+    "writes": false,
+    "dynamic": true
+   },
+   {
+    "name": "openResearchAssetCP12",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "openResearchAtomCatalogAtCP12",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/r952/AtomCatalogImportCP12.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "openResearchMoleculeCatalogAtCP12",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/r952/ModernSeedFactoryCP12.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "researchInputRootCP11",
+    "callers": 3,
+    "caller_files": [
+     "com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+     "com/ethk3/novaonepro/r952/HistoricalTrainingReceiptCP12.java",
+     "com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "DbStore",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "close",
+    "callers": 256,
+    "caller_files": [
+     "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+     "com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
+     "com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+     "com/ethk3/novaonepro/ApiClient.java",
+     "com/ethk3/novaonepro/AssetGenesisEngineR915.java",
+     "com/ethk3/novaonepro/AtomicToolWorldR943.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readable",
+    "callers": 233,
+    "caller_files": [
+     "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
+     "com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
+     "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+     "com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
+     "com/ethk3/novaonepro/AlgorithmProductionGovernorR915.java",
+     "com/ethk3/novaonepro/AlgorithmProofRecoveryR948.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "writable",
+    "callers": 18,
+    "caller_files": [
+     "com/ethk3/novaonepro/DecisionAuthorizationEngine.java",
+     "com/ethk3/novaonepro/DiagnosticObservationEngine.java",
+     "com/ethk3/novaonepro/FullInformationLearningEngine.java",
+     "com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java",
+     "com/ethk3/novaonepro/MicroWalkForwardEngine.java",
+     "com/ethk3/novaonepro/OosActionLogEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "coordinatorR36",
+    "callers": 91,
+    "caller_files": [
+     "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+     "com/ethk3/novaonepro/AlgorithmProofRecoveryR948.java",
+     "com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+     "com/ethk3/novaonepro/AssetGenesisEngineR915.java",
+     "com/ethk3/novaonepro/AtomCaptureR932.java",
+     "com/ethk3/novaonepro/AtomicToolWorldR943.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "coordinatorForResearchR952",
+    "callers": 66,
+    "caller_files": [
+     "com/ethk3/novaonepro/CalibrationRepairR75.java",
+     "com/ethk3/novaonepro/DecisionExplanationR30.java",
+     "com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+     "com/ethk3/novaonepro/r952/AtomCatalogImportCP12.java",
+     "com/ethk3/novaonepro/r952/BoundAtomLifecycleR80.java",
+     "com/ethk3/novaonepro/r952/DevelopmentFeatureRepairR78.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "startupSchemaSummaryR363",
+    "callers": 3,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/ReportCheckRegistryCP12.java",
+     "com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putStatesR36",
+    "callers": 14,
+    "caller_files": [
+     "com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+     "com/ethk3/novaonepro/AtomCaptureR932.java",
+     "com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+     "com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+     "com/ethk3/novaonepro/DomainRouterR929.java",
+     "com/ethk3/novaonepro/ExplorationLaneR83.java"
+    ],
+    "tables": [
+     "TABLE_APP_STATE"
+    ],
+    "writes": true,
+    "dynamic": false
+   },
+   {
+    "name": "clearColumnCache",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "repairLedgerIntegrityNow",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureRuntimeExtraTablesOnce",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_APP_STATE",
+     "TABLE_DYNAMIC_CAUSAL_STATE",
+     "TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT",
+     "TABLE_MAIN_CHAIN_REJECT_BUCKET"
+    ],
+    "writes": false,
+    "dynamic": true
+   },
+   {
+    "name": "verifyLegacyRuntimeTablesR363",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_AUTO_LEARN_CURSOR",
+     "TABLE_LEARNING_CASE_LOG",
+     "TABLE_REALTIME_VALIDATION_REPORT",
+     "TABLE_RUNTIME_PROFILE_CACHE",
+     "TABLE_STATE_NUMBER_PROFILE",
+     "TABLE_TEACHER_MATRIX_COMBO_PROFILE",
+     "TABLE_TEACHER_MATRIX_PROFILE",
+     "TABLE_TEACHER_MATRIX_REPORT",
+     "TABLE_TEACHER_MATRIX_SAMPLE",
+     "TABLE_TEACHER_SNAPSHOT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureRuntimeExtraTables",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureLearningTables",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureDynamicCausalWindowReady",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_CANDIDATE_AUDIT",
+     "TABLE_DECISIONS",
+     "TABLE_DECISION_AUDIT",
+     "TABLE_DYNAMIC_CAUSE_CHAIN",
+     "TABLE_FULL_CANDIDATE_SCAN",
+     "TABLE_SHADOW",
+     "TABLE_TRADES",
+     "TABLE_V20_CLOSED_LOOP"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureMainChainClosedLoopReady",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureMainChainColumns",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "mainChainClosedLoopColumnDefs",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/DbHelper.java",
+     "com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureMainChainFactorColumns",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_CAUSAL_FACTOR_MATRIX",
+     "TABLE_COUNTERFACTUAL_RANK",
+     "TABLE_COUNTERFACTUAL_REASON_SAMPLE",
+     "TABLE_DYNAMIC_WINDOW_CLUSTER",
+     "TABLE_NEED_SUPPLY_MATCH_SAMPLE",
+     "TABLE_NUMBER_SUPPLY_SAMPLE",
+     "TABLE_POSITION_CAUSE_MATRIX",
+     "TABLE_POSITION_NEED_SAMPLE",
+     "TABLE_PROMOTION_DOMAIN_SNAPSHOT",
+     "TABLE_RULE_HEALTH_MATRIX",
+     "TABLE_SHADOW_HEALTH_GATE",
+     "TABLE_SOURCE_HEALTH_MATRIX"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "mainChainFactorColumnDefs",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/DbHelper.java",
+     "com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureMainChainRejectBucketColumns",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_MAIN_CHAIN_REJECT_BUCKET"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureMainChainIndexes",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DECISIONS",
+     "TABLE_FULL_CANDIDATE_SCAN",
+     "TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT",
+     "TABLE_MAIN_CHAIN_REJECT_BUCKET",
+     "TABLE_SHADOW",
+     "TABLE_TRADES"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureMainChainDefaultState",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT",
+     "TABLE_MAIN_CHAIN_REJECT_BUCKET"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "execQuiet",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": true,
+    "dynamic": false
+   },
+   {
+    "name": "ensureDynamicCausalTables",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_ADAPTIVE_JUDGE_SAMPLE",
+     "TABLE_CAUSE_ABLATION_SAMPLE",
+     "TABLE_COUNTERFACTUAL_REASON_SAMPLE",
+     "TABLE_DYNAMIC_CAUSAL_STATE",
+     "TABLE_DYNAMIC_WINDOW_CLUSTER",
+     "TABLE_MISS_REASON_SAMPLE",
+     "TABLE_NEED_SUPPLY_MATCH_SAMPLE",
+     "TABLE_NUMBER_SUPPLY_SAMPLE",
+     "TABLE_POSITION_NEED_SAMPLE",
+     "TABLE_PROMOTION_DOMAIN_SNAPSHOT",
+     "TABLE_WINDOW_FEATURE_SAMPLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "createDynamicTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureDynamicClusterColumns",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DYNAMIC_CAUSAL_STATE",
+     "TABLE_DYNAMIC_WINDOW_CLUSTER",
+     "TABLE_PROMOTION_DOMAIN_SNAPSHOT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureDynamicSampleColumns",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_ADAPTIVE_JUDGE_SAMPLE",
+     "TABLE_CAUSE_ABLATION_SAMPLE",
+     "TABLE_COUNTERFACTUAL_REASON_SAMPLE",
+     "TABLE_MISS_REASON_SAMPLE",
+     "TABLE_NEED_SUPPLY_MATCH_SAMPLE",
+     "TABLE_NUMBER_SUPPLY_SAMPLE",
+     "TABLE_POSITION_NEED_SAMPLE",
+     "TABLE_WINDOW_FEATURE_SAMPLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "addColumnArray",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureDynamicCausalDecisionLikeColumns",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "dynamicCausalDecisionColumnDefs",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureDynamicCausalIndexes",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_ADAPTIVE_JUDGE_SAMPLE",
+     "TABLE_COUNTERFACTUAL_REASON_SAMPLE",
+     "TABLE_DYNAMIC_WINDOW_CLUSTER",
+     "TABLE_MISS_REASON_SAMPLE",
+     "TABLE_NEED_SUPPLY_MATCH_SAMPLE",
+     "TABLE_NUMBER_SUPPLY_SAMPLE",
+     "TABLE_PROMOTION_DOMAIN_SNAPSHOT",
+     "TABLE_WINDOW_FEATURE_SAMPLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureDynamicCausalDefaultState",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putDynamicCausalState",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_APP_STATE",
+     "TABLE_DYNAMIC_CAUSAL_STATE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureLearningCaseLogTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_LEARNING_CASE_LOG"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "ensureRuntimeProfileCacheTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_RUNTIME_PROFILE_CACHE"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "ensureStateNumberProfileTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_STATE_NUMBER_PROFILE"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "ensureAutoLearnCursorTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_AUTO_LEARN_CURSOR"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "ensureTeacherMatrixSampleTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_SAMPLE"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "ensureTeacherMatrixProfileTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_PROFILE"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "ensureTeacherMatrixComboProfileTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_COMBO_PROFILE"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "ensureTeacherMatrixReportTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_REPORT"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "ensureRuntimeExtraColumns",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_BACKTEST",
+     "TABLE_CANDIDATE_EVIDENCE",
+     "TABLE_DECISIONS",
+     "TABLE_MODEL_WEIGHT",
+     "TABLE_SELF_DIAGNOSIS_LOG",
+     "TABLE_SHADOW",
+     "TABLE_SHAPE_VECTOR",
+     "TABLE_TRADES"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "ensureTeacherMatrixColumns",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_BACKTEST",
+     "TABLE_CANDIDATE_EVIDENCE",
+     "TABLE_DECISIONS",
+     "TABLE_DEEP_ATTRIBUTION",
+     "TABLE_DEEP_PROFILE",
+     "TABLE_LEARNING_SNAPSHOT",
+     "TABLE_MODEL_WEIGHT",
+     "TABLE_POINT_IN_TIME_SNAPSHOT",
+     "TABLE_PROMOTION_CANDIDATE",
+     "TABLE_REALTIME_VALIDATION_REPORT",
+     "TABLE_SELF_DIAGNOSIS_LOG",
+     "TABLE_SHADOW"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "addTeacherMatrixColumnsToDecisionLikeTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureLedgerColumns",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DECISIONS",
+     "TABLE_TRADES"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureLedgerIndexes",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DECISIONS",
+     "TABLE_TRADES"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "ensureFieldChainColumns",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DECISIONS",
+     "TABLE_SHADOW",
+     "TABLE_TRADES"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "addFieldChainColumnsToDecisionLikeTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "addColumnIfMissing",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "repairLedgerIntegrityQuiet",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "normalizeLegacyLedgerScopes",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "quarantineUnauthorizedV24LedgerRows",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "repairMissingRealTradesFromBetDecisions",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "repairTradeDecisionLinks",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "repairSettledTradePnl",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "cleanupDuplicateRealTradesAll",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "cleanupDuplicateTradesForTarget",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "chooseBestTradeToKeep",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "tradeKeepPriority",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDraw",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "insertDrawInternal",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DRAWS",
+     "app_state",
+     "draws"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "repairDrawMetadataR816",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DRAWS"
+    ],
+    "writes": true,
+    "dynamic": false
+   },
+   {
+    "name": "saveDraws",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/HistoricalDrawImportEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDraws",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/HistoricalDrawImportEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "trimDrawHistoryIfNeeded",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "app_state"
+    ],
+    "writes": true,
+    "dynamic": false
+   },
+   {
+    "name": "hasDrawIssue",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/CertifiedPredictionR974.java",
+     "com/ethk3/novaonepro/strategyv2/MainlineAdapterSU1.java"
+    ],
+    "tables": [
+     "TABLE_DRAWS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestDraw",
+    "callers": 19,
+    "caller_files": [
+     "com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/LearningEngine.java",
+     "com/ethk3/novaonepro/MainActivity.java",
+     "com/ethk3/novaonepro/TeacherMatrixEngine.java",
+     "com/ethk3/novaonepro/TeacherNumberMatrixEngine.java"
+    ],
+    "tables": [
+     "TABLE_DRAWS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getFirstDraw",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DRAWS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDrawByIssue",
+    "callers": 29,
+    "caller_files": [
+     "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+     "com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+     "com/ethk3/novaonepro/AssetGenesisEngineR915.java",
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/EssentialSettlementFeedbackR923.java",
+     "com/ethk3/novaonepro/FixedResearchWindowR932.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadDrawByIssue",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java",
+     "com/ethk3/novaonepro/SettlementEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentDraws",
+    "callers": 15,
+    "caller_files": [
+     "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/FullCandidateScanEngine.java",
+     "com/ethk3/novaonepro/HistoricalStrategyInventionR908.java",
+     "com/ethk3/novaonepro/LearningEngine.java",
+     "com/ethk3/novaonepro/MainActivity.java"
+    ],
+    "tables": [
+     "TABLE_DRAWS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadRecentDraws",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDrawsAsc",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DRAWS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadDrawsAsc",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDrawsBeforeIssue",
+    "callers": 10,
+    "caller_files": [
+     "com/ethk3/novaonepro/FullCandidateScanEngine.java",
+     "com/ethk3/novaonepro/MultiHorizonProbeR80.java",
+     "com/ethk3/novaonepro/PreDrawFeatureEngine.java",
+     "com/ethk3/novaonepro/ResearchDynamicBootstrapR922.java",
+     "com/ethk3/novaonepro/ResearchSchedulerR815.java",
+     "com/ethk3/novaonepro/TeacherNumberMatrixEngine.java"
+    ],
+    "tables": [
+     "TABLE_DRAWS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDrawsBetweenIssues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DRAWS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "countDraws",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DRAWS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDrawCount",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/MainActivity.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getValidDrawCount",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/HistoricalDrawImportEngine.java",
+     "com/ethk3/novaonepro/LearningEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTodayDrawCount",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DRAWS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDrawRemainTo240",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isDrawHistoryReady240",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestDrawIssue",
+    "callers": 5,
+    "caller_files": [
+     "com/ethk3/novaonepro/CanonicalDecisionViewAdapterR36.java",
+     "com/ethk3/novaonepro/RuntimeHealthLedgerR36.java",
+     "com/ethk3/novaonepro/TrainingSnapshotExportR925.java",
+     "com/ethk3/novaonepro/r952/DevelopmentFeatureRepairR78.java",
+     "com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getFirstDrawIssue",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestDrawTime",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getFirstDrawTime",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentIssueGapCount",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDrawDataProgressText",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/MainActivity.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateBackfillStatus",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getBackfillStatusText",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/MainActivity.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDynamicWindowCluster",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/DynamicCauseChainEngine.java",
+     "com/ethk3/novaonepro/DynamicWindowClusterEngine.java"
+    ],
+    "tables": [
+     "TABLE_DYNAMIC_WINDOW_CLUSTER"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadActiveDynamicWindowClusters",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/DynamicWindowClusterEngine.java"
+    ],
+    "tables": [
+     "TABLE_DYNAMIC_WINDOW_CLUSTER"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDynamicWindowCluster",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/DynamicWindowClusterEngine.java"
+    ],
+    "tables": [
+     "TABLE_DYNAMIC_WINDOW_CLUSTER"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readDynamicWindowCluster",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveWindowFeatureSample",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/DynamicCauseChainEngine.java",
+     "com/ethk3/novaonepro/DynamicWindowClusterEngine.java"
+    ],
+    "tables": [
+     "TABLE_WINDOW_FEATURE_SAMPLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "savePositionNeedSample",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/DynamicCauseChainEngine.java",
+     "com/ethk3/novaonepro/NeedSupplyReasonEngine.java"
+    ],
+    "tables": [
+     "TABLE_POSITION_NEED_SAMPLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveNumberSupplySample",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/DynamicCauseChainEngine.java",
+     "com/ethk3/novaonepro/NeedSupplyReasonEngine.java"
+    ],
+    "tables": [
+     "TABLE_NUMBER_SUPPLY_SAMPLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveNeedSupplyMatchSample",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/DynamicCauseChainEngine.java",
+     "com/ethk3/novaonepro/NeedSupplyReasonEngine.java"
+    ],
+    "tables": [
+     "TABLE_NEED_SUPPLY_MATCH_SAMPLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveCounterfactualReasonSample",
+    "callers": 3,
+    "caller_files": [
+     "com/ethk3/novaonepro/CounterfactualReasonEngine.java",
+     "com/ethk3/novaonepro/DynamicCauseChainEngine.java",
+     "com/ethk3/novaonepro/NeedSupplyReasonEngine.java"
+    ],
+    "tables": [
+     "TABLE_COUNTERFACTUAL_REASON_SAMPLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveCauseAblationSample",
+    "callers": 3,
+    "caller_files": [
+     "com/ethk3/novaonepro/CounterfactualReasonEngine.java",
+     "com/ethk3/novaonepro/DynamicCauseChainEngine.java",
+     "com/ethk3/novaonepro/NeedSupplyReasonEngine.java"
+    ],
+    "tables": [
+     "TABLE_CAUSE_ABLATION_SAMPLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveMissReasonSample",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/CounterfactualReasonEngine.java",
+     "com/ethk3/novaonepro/DynamicWindowClusterEngine.java"
+    ],
+    "tables": [
+     "TABLE_MISS_REASON_SAMPLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveAdaptiveJudgeSample",
+    "callers": 4,
+    "caller_files": [
+     "com/ethk3/novaonepro/AdaptiveLearningJudgeEngine.java",
+     "com/ethk3/novaonepro/DynamicCauseChainEngine.java",
+     "com/ethk3/novaonepro/DynamicWindowClusterEngine.java",
+     "com/ethk3/novaonepro/NeedSupplyReasonEngine.java"
+    ],
+    "tables": [
+     "TABLE_ADAPTIVE_JUDGE_SAMPLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "savePromotionDomainSnapshot",
+    "callers": 3,
+    "caller_files": [
+     "com/ethk3/novaonepro/DynamicCauseChainEngine.java",
+     "com/ethk3/novaonepro/DynamicWindowClusterEngine.java",
+     "com/ethk3/novaonepro/ShadowPromotionVerifierEngine.java"
+    ],
+    "tables": [
+     "TABLE_PROMOTION_DOMAIN_SNAPSHOT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateDynamicCausalState",
+    "callers": 4,
+    "caller_files": [
+     "com/ethk3/novaonepro/CounterfactualReasonEngine.java",
+     "com/ethk3/novaonepro/DynamicCauseChainEngine.java",
+     "com/ethk3/novaonepro/DynamicWindowClusterEngine.java",
+     "com/ethk3/novaonepro/NeedSupplyReasonEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDynamicCausalState",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DYNAMIC_CAUSAL_STATE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "safeDbKey",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDecision",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "replaceDecisionFull",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "persistV50DecisionAndTrade",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readExistingV50Legacy",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "sameV50Legacy",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "countOtherOpenV50Trades",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TRADES"
+    ],
+    "writes": false,
+    "dynamic": true
+   },
+   {
+    "name": "v50DecisionValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "v50TradeValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "v50CommonValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "safeV50Text",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDecisionInternal",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildFieldChainSummary",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateDecisionStateAfterSave",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "normalizeDecisionBeforeSave",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "normalizeV50DecisionBeforeSave",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "shouldKeepOldDecision",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "decisionPriority",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isValidBetDecision",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isWeakPlaceholderDecision",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isQuickObservationDecision",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getBestDecisionByTargetIssue",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "cleanupDuplicateDecisionsForTarget",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": true,
+    "dynamic": false
+   },
+   {
+    "name": "deleteDecisionByTargetIssue",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": true,
+    "dynamic": false
+   },
+   {
+    "name": "deleteHoldOrShadowDecisionByTargetIssue",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": true,
+    "dynamic": false
+   },
+   {
+    "name": "putDynamicCausalValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readDynamicCausalFields",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "dynamicCausalTextMap",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "dynamicCausalIntMap",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "dynamicCausalDoubleMap",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putStringField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putIntField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putDoubleField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "setStringField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "setIntField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "setDoubleField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "v24StringMap",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "v24IntMap",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "v24LongMap",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "v24DoubleMap",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putV24ContractValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readV24ContractValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putFieldChainValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readFieldChainValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putFieldChainInt",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putFieldChainDouble",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putFieldChainString",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readFieldChainInt",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readFieldChainDouble",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readFieldChainString",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "syncFieldChainAliases",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "maxOptionalInt",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "maxOptionalDouble",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "decisionToValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateDecisionDeepFields",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestDecision",
+    "callers": 3,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/MainActivity.java",
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java"
+    ],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadLastDecision",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestDecisionForCurrentTargetStrict",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildPendingDecisionForTargetIssue",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDecisionByTargetIssue",
+    "callers": 4,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/LearningEngine.java",
+     "com/ethk3/novaonepro/MainActivity.java",
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentDecisions",
+    "callers": 5,
+    "caller_files": [
+     "com/ethk3/novaonepro/DecisionGateEngine.java",
+     "com/ethk3/novaonepro/LearningEngine.java",
+     "com/ethk3/novaonepro/MainActivity.java",
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java",
+     "com/ethk3/novaonepro/SettlementEngine.java"
+    ],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureTradeForRealBetDecision",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveTradeFromDecision",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "insertAuthorizedTradeWithinCanonicalR915",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/V51Repository.java"
+    ],
+    "tables": [
+     "TABLE_DRAWS",
+     "TABLE_TRADES",
+     "r974_exact_real_receipt",
+     "research_exact_probability_f05"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "saveTrade",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "normalizeTradeBeforeSave",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "normalizeV50TradeBeforeSave",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "copySettlementFields",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "linkDecisionTradeAfterSave",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateTradeFull",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateTrade",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "replaceTradeFull",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "copyFieldChainFields",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "copyFieldChainInt",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "copyFieldChainDouble",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "copyFieldChainString",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isFieldChainUnsafeRealBetDecision",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "weakTeacherText",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "weakV20Text",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "containsFieldChainText",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "tradeToValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getOpenTrade",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/SettlementEngine.java"
+    ],
+    "tables": [
+     "TABLE_TRADES"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "hasOpenRealTrade",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/DecisionGateEngine.java",
+     "com/ethk3/novaonepro/V51DecisionGateCore.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getOpenTrades",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/SettlementEngine.java"
+    ],
+    "tables": [
+     "TABLE_TRADES"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTradeByTargetIssue",
+    "callers": 10,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/CanonicalDecisionViewAdapterR36.java",
+     "com/ethk3/novaonepro/CertifiedPredictionR974.java",
+     "com/ethk3/novaonepro/DecisionExplanationR30.java",
+     "com/ethk3/novaonepro/DecisionGateEngine.java",
+     "com/ethk3/novaonepro/MainActivity.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTradeByTargetIssueLoose",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TRADES"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadLastTrade",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TRADES"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isValidRealTrade",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isValidRealTradeLoose",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "settleTrade",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "settleTradeByDraw",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isTradeK3HitStrict",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getActualNumberByPosition",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "settleTradeByTargetIssue",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "settleOpenTradesByDraw",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateDecisionSettlementFromTrade",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveShadowCandidates",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/FullCandidateScanEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveShadowCandidates",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/FullCandidateScanEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveShadowCandidates",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/FullCandidateScanEngine.java"
+    ],
+    "tables": [
+     "TABLE_SHADOW"
+    ],
+    "writes": true,
+    "dynamic": false
+   },
+   {
+    "name": "comboCandidateToValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putMainChainClosedLoopValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readMainChainClosedLoopFields",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "mainChainTextMap",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "mainChainIntMap",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "mainChainDoubleMap",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putMainChainAliases",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "copyMainChainClosedLoopFields",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putLinkModificationV2Values",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readLinkModificationV2Values",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "copyLinkModificationV2Values",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "linkModificationV2TextMap",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "linkModificationV2IntMap",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "linkModificationV2DoubleMap",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putDoubleRawField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "setDoubleRawField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getIntField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "maxDouble",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildMainChainCandidateKey",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveMainChainCandidateSnapshot",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_CANDIDATE_AUDIT",
+     "TABLE_FULL_CANDIDATE_SCAN",
+     "TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "insertMainChainRowR31",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveRealtimeTop40Candidates",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveAdaptiveJudgeInputCandidates",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "recordMainChainRejectBucket",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_MAIN_CHAIN_REJECT_BUCKET"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putFinalVersionFallback",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putShadowDynamicBridgeAliases",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getStringField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDoubleField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getShadowCandidates",
+    "callers": 3,
+    "caller_files": [
+     "com/ethk3/novaonepro/LearningEngine.java",
+     "com/ethk3/novaonepro/SettlementEngine.java",
+     "com/ethk3/novaonepro/ShapeMemoryEngine.java"
+    ],
+    "tables": [
+     "TABLE_SHADOW"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "markShadowLearned",
+    "callers": 3,
+    "caller_files": [
+     "com/ethk3/novaonepro/LearningEngine.java",
+     "com/ethk3/novaonepro/SettlementEngine.java",
+     "com/ethk3/novaonepro/ShapeMemoryEngine.java"
+    ],
+    "tables": [
+     "TABLE_SHADOW"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveTeacherMatrixSample",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_SAMPLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveTeacherMatrixSamples",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_SAMPLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveTeacherMatrixFromLearningCases",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateTeacherMatrixProfileFromSample",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_PROFILE"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "updateTeacherMatrixComboProfileFromSample",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_COMBO_PROFILE"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "recalcTeacherMatrixProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_PROFILE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "recalcTeacherMatrixComboProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_COMBO_PROFILE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTeacherMatrixProfileValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_PROFILE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTeacherMatrixProfileValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTeacherMatrixComboProfileValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_COMBO_PROFILE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTeacherMatrixComboProfileValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTeacherMatrixNumberProbAdjust",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTeacherMatrixNumberGateAdjust",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTeacherMatrixComboProbAdjust",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTeacherMatrixComboGateAdjust",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "countTeacherMatrixSamples",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_SAMPLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "countTeacherMatrixProfiles",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_PROFILE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "countTeacherMatrixStrongProfiles",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_PROFILE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "countTeacherMatrixRiskProfiles",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_PROFILE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateTeacherMatrixSummaryState",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_PROFILE",
+     "TABLE_TEACHER_MATRIX_SAMPLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "applyTeacherMatrixToCandidate",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "attachTeacherMatrixFieldsToCandidate",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "applyTeacherMatrixToDecision",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "attachTeacherMatrixFieldsToDecision",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "applyTeacherMatrixToTrade",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "attachTeacherMatrixFieldsToTrade",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildTeacherMatrixApplyResult",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putTeacherMatrixFieldsFromObject",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveShapeVector",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [
+     "TABLE_SHAPE_VECTOR"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentShapeVectors",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentShapeVectors",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [
+     "TABLE_SHAPE_VECTOR"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getShapeVectorsForIssue",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [
+     "TABLE_SHAPE_VECTOR"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateShapeMemory",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/LearningEngine.java",
+     "com/ethk3/novaonepro/ShapeMemoryEngine.java"
+    ],
+    "tables": [
+     "TABLE_SHAPE_MEMORY"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "updateComboMemory",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/LearningEngine.java",
+     "com/ethk3/novaonepro/ShapeMemoryEngine.java"
+    ],
+    "tables": [
+     "TABLE_COMBO_MEMORY"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "updateBreakMemory",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/BreakRecoveryEngine.java"
+    ],
+    "tables": [
+     "TABLE_BREAK_MEMORY"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "updateCalibration",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/CalibrationEngine.java",
+     "com/ethk3/novaonepro/ShapeMemoryEngine.java"
+    ],
+    "tables": [
+     "TABLE_CALIBRATION"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "ensureCalibrationBucket",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_CALIBRATION"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getCalibratedProbability",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/CalibrationEngine.java"
+    ],
+    "tables": [
+     "TABLE_CALIBRATION"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "fallbackCalibrated",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getModelWeight",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_MODEL_WEIGHT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveModelWeight",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_MODEL_WEIGHT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveLearningCase",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/LearningEngine.java"
+    ],
+    "tables": [
+     "TABLE_LEARNING_CASE_LOG"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "insertOrIgnoreLearningCase",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_LEARNING_CASE_LOG"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveLearningCases",
+    "callers": 3,
+    "caller_files": [
+     "com/ethk3/novaonepro/LearningEngine.java",
+     "com/ethk3/novaonepro/TeacherMatrixEngine.java",
+     "com/ethk3/novaonepro/WalkForwardBacktestEngine.java"
+    ],
+    "tables": [
+     "TABLE_LEARNING_CASE_LOG"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "learningCaseToValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isLearningCaseExists",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_LEARNING_CASE_LOG"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLearningCase",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_LEARNING_CASE_LOG"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentLearningCases",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_LEARNING_CASE_LOG"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadRecentLearningCases",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "countLearningCases",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_LEARNING_CASE_LOG"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "countLearningCasesByTask",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_LEARNING_CASE_LOG"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readLearningCase",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "upsertRuntimeProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_RUNTIME_PROFILE_CACHE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "runtimeProfileToValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateRuntimeProfileFromLearningCase",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateRuntimeProfileFromLearningCaseInternal",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateRuntimeProfileCache",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateRuntimeProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "learnRuntimeProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "upsertRuntimeProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateRuntimeProfileCache",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateRuntimeProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "learnRuntimeProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "upsertRuntimeProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateRuntimeProfileDirect",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_RUNTIME_PROFILE_CACHE"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "getRuntimeProfileCache",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_RUNTIME_PROFILE_CACHE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadRuntimeProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRuntimeProfileCaches",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_RUNTIME_PROFILE_CACHE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTopRuntimeProfileCaches",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_RUNTIME_PROFILE_CACHE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readRuntimeProfileCache",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "upsertStateNumberProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_STATE_NUMBER_PROFILE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "stateNumberProfileToValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateStateNumberProfileFromLearningCase",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateStateNumberProfileFromLearningCaseInternal",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateStateNumberProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateStateNumberProfileCache",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "learnStateNumberProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "upsertStateNumberProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateStateNumberProfileDirect",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_STATE_NUMBER_PROFILE"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "getStateNumberProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_STATE_NUMBER_PROFILE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getStateNumberProfiles",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_STATE_NUMBER_PROFILE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadNumberProfiles",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTopStateNumberProfiles",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_STATE_NUMBER_PROFILE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readStateNumberProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveAutoLearnCursor",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/LearningEngine.java",
+     "com/ethk3/novaonepro/WalkForwardBacktestEngine.java"
+    ],
+    "tables": [
+     "TABLE_AUTO_LEARN_CURSOR"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveAutoLearnCursor",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/LearningEngine.java",
+     "com/ethk3/novaonepro/WalkForwardBacktestEngine.java"
+    ],
+    "tables": [
+     "TABLE_AUTO_LEARN_CURSOR"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getAutoLearnCursor",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/LearningEngine.java",
+     "com/ethk3/novaonepro/WalkForwardBacktestEngine.java"
+    ],
+    "tables": [
+     "TABLE_AUTO_LEARN_CURSOR"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadAutoLearnCursor",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_AUTO_LEARN_CURSOR"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestAutoLearnCursor",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_AUTO_LEARN_CURSOR"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRunningAutoLearnCursor",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_AUTO_LEARN_CURSOR"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "markAutoLearnSegmentDone",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/LearningEngine.java"
+    ],
+    "tables": [
+     "TABLE_AUTO_LEARN_CURSOR"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "markSegmentDone",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isAutoLearnSegmentUsed",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getAutoLearnUsedSegments",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_AUTO_LEARN_CURSOR"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getAutoLearnLastStartIndex",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_AUTO_LEARN_CURSOR"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "containsSegment",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "mergeUsedSegments",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "addSegmentsToList",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "trimUsedSegments",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readAutoLearnTask",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readAutoLearnCursor",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getAutoLearnStatusText",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildAutoLearnSummary",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildAutoLearnCursorSummary",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveBacktestReport",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/WalkForwardBacktestEngine.java"
+    ],
+    "tables": [
+     "TABLE_BACKTEST"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "backtestReportToValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_LEARNING_CASE_LOG",
+     "TABLE_RUNTIME_PROFILE_CACHE",
+     "TABLE_STATE_NUMBER_PROFILE",
+     "TABLE_TEACHER_MATRIX_PROFILE",
+     "TABLE_TEACHER_MATRIX_SAMPLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestBacktestReport",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/MainActivity.java"
+    ],
+    "tables": [
+     "TABLE_BACKTEST"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentBacktestReports",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_BACKTEST"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRuntimeStats",
+    "callers": 3,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/MainActivity.java",
+     "com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java"
+    ],
+    "tables": [
+     "TABLE_R35_SHADOW_OBSERVATION",
+     "TABLE_TRADES"
+    ],
+    "writes": false,
+    "dynamic": true
+   },
+   {
+    "name": "loadLatestRuntimeStats",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildProfileCacheSummary",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_LEARNING_CASE_LOG",
+     "TABLE_RUNTIME_PROFILE_CACHE",
+     "TABLE_STATE_NUMBER_PROFILE",
+     "TABLE_TEACHER_MATRIX_PROFILE",
+     "TABLE_TEACHER_MATRIX_SAMPLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "setState",
+    "callers": 135,
+    "caller_files": [
+     "com/ethk3/novaonepro/ActionUtilityEngine.java",
+     "com/ethk3/novaonepro/AdaptiveExpertConsensusEngine.java",
+     "com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
+     "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+     "com/ethk3/novaonepro/AnalysisSingleFlightR35.java",
+     "com/ethk3/novaonepro/AssetGenesisEngineR915.java"
+    ],
+    "tables": [
+     "TABLE_APP_STATE"
+    ],
+    "writes": true,
+    "dynamic": false
+   },
+   {
+    "name": "getUiRuntimeStateR945",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/MainActivity.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getState",
+    "callers": 108,
+    "caller_files": [
+     "com/ethk3/novaonepro/ActionUtilityEngine.java",
+     "com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+     "com/ethk3/novaonepro/AssetGenesisEngineR915.java",
+     "com/ethk3/novaonepro/AtomQualityGraphR930.java",
+     "com/ethk3/novaonepro/AtomicToolWorldR943.java",
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [
+     "TABLE_APP_STATE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readStatePrefixR923",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/StarcoreEvidenceKernel.java"
+    ],
+    "tables": [
+     "TABLE_APP_STATE"
+    ],
+    "writes": false,
+    "dynamic": true
+   },
+   {
+    "name": "readUiStateSnapshotR816",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/MainActivity.java"
+    ],
+    "tables": [
+     "TABLE_APP_STATE"
+    ],
+    "writes": false,
+    "dynamic": true
+   },
+   {
+    "name": "businessTruthR811",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/DiagnosisFixPlanEngine.java",
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "diagnosticSnapshotR811",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureResearchSidecarR811",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getResearchStateR811",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/LiveDiagnosticReportEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readRealtimeUiStateR71",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/MainActivity.java"
+    ],
+    "tables": [
+     "TABLE_APP_STATE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRuntimeState",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildRuntimeSchedulerSummary",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateRuntimeState",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateRuntimeState",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "runtimeStateValuesR77",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateDeepRuntimeSummaries",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "savePointInTimeSnapshot",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [
+     "TABLE_POINT_IN_TIME_SNAPSHOT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestPointInTimeSnapshot",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_POINT_IN_TIME_SNAPSHOT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveCandidateEvidence",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_CANDIDATE_EVIDENCE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveCandidateEvidences",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getCandidateEvidence",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_CANDIDATE_EVIDENCE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveAiJudgeResult",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_AI_JUDGE_LOG"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestAiJudgeResult",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_AI_JUDGE_LOG"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveBiasEvidence",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_BIAS_EVIDENCE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestBiasEvidence",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_BIAS_EVIDENCE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDeepProfile",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/DeepProfileEngine.java"
+    ],
+    "tables": [
+     "TABLE_DEEP_PROFILE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "deepProfileToValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDeepProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DEEP_PROFILE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTopDeepProfiles",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DEEP_PROFILE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateDeepProfileFromSample",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveAttributionResult",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DEEP_ATTRIBUTION"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentAttributions",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DEEP_ATTRIBUTION"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "savePromotionCandidate",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_PROMOTION_CANDIDATE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getPromotionCandidate",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_PROMOTION_CANDIDATE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveManualBacktestTask",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [
+     "TABLE_MANUAL_BACKTEST_TASK"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getManualTaskRowId",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_MANUAL_BACKTEST_TASK"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "cleanupOldManualRunningTasks",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_MANUAL_BACKTEST_TASK"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestManualBacktestTask",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/MainActivity.java"
+    ],
+    "tables": [
+     "TABLE_MANUAL_BACKTEST_TASK"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateProbabilityAudit",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_PROBABILITY_AUDIT_BUCKET"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "ensureAuditBucket",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_PROBABILITY_AUDIT_BUCKET"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "recalcProbabilityAuditBucket",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_PROBABILITY_AUDIT_BUCKET"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getProbabilityAuditBucket",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_PROBABILITY_AUDIT_BUCKET"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getProbabilityAuditBucketForP",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveLearningSnapshot",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_LEARNING_SNAPSHOT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveSelfDiagnosisResult",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_LEARNING_CASE_LOG",
+     "TABLE_RUNTIME_PROFILE_CACHE",
+     "TABLE_SELF_DIAGNOSIS_LOG",
+     "TABLE_STATE_NUMBER_PROFILE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveRealtimeValidationReport",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/WalkForwardBacktestEngine.java"
+    ],
+    "tables": [
+     "TABLE_REALTIME_VALIDATION_REPORT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestRealtimeValidationReport",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestRealtimeValidationReport",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_REALTIME_VALIDATION_REPORT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveTeacherSnapshotFromBacktest",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/WalkForwardBacktestEngine.java"
+    ],
+    "tables": [
+     "TABLE_TEACHER_SNAPSHOT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestTeacherSnapshotReport",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestUsableTeacherSnapshotReport",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestTeacherSnapshotReport",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_SNAPSHOT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestTeacherGateAdjust",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_SNAPSHOT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isRealtimeValidationUsable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isTeacherSnapshotUsable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "normalizeReportStatusForSnapshot",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "calcTeacherGateAdjust",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "cleanupOldTeacherSnapshots",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_SNAPSHOT"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "ensureRealtimeValidationReportTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_REALTIME_VALIDATION_REPORT"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "ensureTeacherSnapshotTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_SNAPSHOT"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "calcFrequency",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "countRealBetIssueInRecentDrawIssues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "countRealBetIssuesFromTrades",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TRADES"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "countRealBetIssuesFromDecisions",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "countDecisionByType",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "calcMaxDrawdown",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TRADES"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "calcLoseStreak",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TRADES"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readDraw",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readDecision",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readTrade",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readShadowCandidate",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readShapeVector",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readBacktestReport",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readRealtimeValidationReport",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readTeacherSnapshotReport",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readPointInTimeSnapshot",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readCandidateEvidence",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readAiJudgeResult",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readBiasEvidence",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readDeepProfile",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readAttributionResult",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readPromotionCandidate",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readManualBacktestTask",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readProbabilityAuditBucket",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildBacktestSummaryText",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "bucketKey",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "bucketRawMin",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "bucketRawMax",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "auditBucketKey",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "auditBucketLow",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "auditBucketHigh",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "brier",
+    "callers": 3,
+    "caller_files": [
+     "com/ethk3/novaonepro/AblationRepairCreationR930.java",
+     "com/ethk3/novaonepro/Batch34ChallengerCertificateBridgeR930.java",
+     "com/ethk3/novaonepro/r952/CausalValidationEngineR952.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "rollingAverage",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "normalizeRisk",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "limitAdjustLocal",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "confidenceFromSample",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "percent",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "signedPercent",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "formatMoney",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "probColumn",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "markovColumn",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "todayStartMs",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "todayIssuePrefix",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "formatTime",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "parseIssueLong",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "parseInt",
+    "callers": 132,
+    "caller_files": [
+     "com/ethk3/novaonepro/ActionUtilityEngine.java",
+     "com/ethk3/novaonepro/AdaptiveLearningJudgeEngine.java",
+     "com/ethk3/novaonepro/AlgorithmGenomeR908.java",
+     "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+     "com/ethk3/novaonepro/ApiParser.java",
+     "com/ethk3/novaonepro/AssetGenesisEngineR915.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "parseLong",
+    "callers": 94,
+    "caller_files": [
+     "com/ethk3/novaonepro/AdaptiveLearningJudgeEngine.java",
+     "com/ethk3/novaonepro/AdaptiveShadowLearnerEngine.java",
+     "com/ethk3/novaonepro/AlgorithmGenomeVmR908.java",
+     "com/ethk3/novaonepro/AppConfig.java",
+     "com/ethk3/novaonepro/AtomQualityGraphR930.java",
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "firstNonEmpty",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "appendSep",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "safeString",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "maskContainsNumber",
+    "callers": 3,
+    "caller_files": [
+     "com/ethk3/novaonepro/DeepLearningBridgeEngine.java",
+     "com/ethk3/novaonepro/Models.java",
+     "com/ethk3/novaonepro/r952/EvolutionEvidenceR975.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "safeStateKeyFromDecision",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "safeTradeStateKey",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "safeStateKeyFromCandidate",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildStateKey",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "bucketText",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "cleanKeyPart",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildLearningCaseKey",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/Models.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildRuntimeProfileKey",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/Models.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildStateNumberProfileKey",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/Models.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildTeacherMatrixSampleKey",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/Models.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildTeacherMatrixProfileKey",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildTeacherMatrixComboKey",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildRuntimeProfileSummaryText",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildNumberProfileWhyText",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "insertFiltered",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TRADES"
+    ],
+    "writes": true,
+    "dynamic": false
+   },
+   {
+    "name": "updateFiltered",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TRADES"
+    ],
+    "writes": true,
+    "dynamic": false
+   },
+   {
+    "name": "filterValuesForTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTableColumns",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": true
+   },
+   {
+    "name": "getLearningCaseK3Mask",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "setLearningCaseK3Mask",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readTeacherMatrixFieldsToObject",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "cursorRowToContentValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "calcTeacherMatrixAvg",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TEACHER_MATRIX_PROFILE"
+    ],
+    "writes": false,
+    "dynamic": true
+   },
+   {
+    "name": "getCvString",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getCvInt",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getCvLong",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getCvDouble",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getOptionalIntField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getOptionalLongField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getOptionalDoubleField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getOptionalStringField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "setOptionalIntField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "setOptionalLongField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "setOptionalDoubleField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "setOptionalStringField",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putObject",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getStringFromCv",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "countTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "countTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getInt",
+    "callers": 303,
+    "caller_files": [
+     "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
+     "com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
+     "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+     "com/ethk3/novaonepro/AlgorithmProductionGovernorR915.java",
+     "com/ethk3/novaonepro/AlgorithmProofRecoveryR948.java",
+     "com/ethk3/novaonepro/AssetGenesisEngineR915.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getIntAny",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLong",
+    "callers": 258,
+    "caller_files": [
+     "com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
+     "com/ethk3/novaonepro/AlgorithmProofRecoveryR948.java",
+     "com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+     "com/ethk3/novaonepro/AtomCaptureR932.java",
+     "com/ethk3/novaonepro/AutonomousResearchEvolutionEngine.java",
+     "com/ethk3/novaonepro/B07R2FullDiagnosticEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDouble",
+    "callers": 147,
+    "caller_files": [
+     "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
+     "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+     "com/ethk3/novaonepro/AlgorithmProductionGovernorR915.java",
+     "com/ethk3/novaonepro/AssetGenesisEngineR915.java",
+     "com/ethk3/novaonepro/AtomCaptureR932.java",
+     "com/ethk3/novaonepro/AtomicToolWorldR943.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getString",
+    "callers": 387,
+    "caller_files": [
+     "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
+     "com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
+     "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+     "com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
+     "com/ethk3/novaonepro/AlgorithmProductionGovernorR915.java",
+     "com/ethk3/novaonepro/AlgorithmProofRecoveryR948.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "closeCursor",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "pnlForHitLocal",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readAppDoubleLocal",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureV20CauseChainTablesNow",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureV20CauseChainReady",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureV20BaseTables",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "createV20GenericTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "ensureV20CommonColumns",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureV20ColumnsForTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureV20Indexes",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureV20IndexesForTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "normalizeV20EvidenceCv",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildDeterministicWindowStateKey",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildEvidenceSupportText",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildCounterEvidenceText",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildV20ActionAdvice",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildV20ReplaySummary",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildV20WindowStateEvidence",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveV20WindowStateEvidence",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "querySimilarWindowRecords",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "sampleTrustFromCount",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "clampLocal01",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "bucketWindow",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "bucketSignedText",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "percentLocal",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveV20Record",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveV20Records",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getV20RecordByKey",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getV20Record",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "queryV20Records",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "savePreDrawFeature",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getPreDrawFeature",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "savePreDrawNumberSample",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "savePreDrawNumberSamples",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getPreDrawNumberSamples",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveFullCandidateScan",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveFullCandidateScans",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getFullCandidateScans",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTopCandidateScans",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveCandidateAudit",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveCandidateAudits",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getCandidateAudits",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveCausalFactorMatrix",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getCausalFactorMatrix",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getCausalFactorEdge",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "savePositionCauseMatrix",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getPositionCauseMatrix",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getPositionHealthScore",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveTeacherNumberMatrix",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTeacherNumberMatrix",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTeacherNumberSupport",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveCounterfactualRank",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getCounterfactualRank",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRankCounterEdge",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveThirdGuardMatrix",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getThirdGuardMatrix",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getThirdGuardNet",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveRuleHealthMatrix",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRuleHealthMatrix",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isV20RuleFrozen",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRuleHealthEdge",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveShadowHealthGate",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getShadowHealthGate",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isShadowHealthPromotePass",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveFalseStrongFreeze",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getFalseStrongFreeze",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isFalseStrongFrozen",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveSeedCauseMatrix",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getSeedCauseMatrix",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getSeedSimilarityNet",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDynamicCauseChain",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDynamicCauseChains",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getBestDynamicCauseChain",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDynamicCauseChains",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDecisionAudit",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDecisionAudit",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveRealTradeLedgerFromTrade",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "markV20CandidateSettlement",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "markV20TableCandidateSettlement",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "markV20CandidateSettlementByDraw",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveV20SettlementFromTrade",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "countV20Table",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getV20CauseChainSummaryText",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isV20Table",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildV20RecordKey",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildFalseStrongKeyFromCv",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentTrades",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/MainActivity.java",
+     "com/ethk3/novaonepro/RuleHealthMatrixEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentTradeList",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "listRecentTrades",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getAllRecentTrades",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTrades",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentRealBetTradesForDiagnosis",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TRADES"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentSettledRealBetTradesForDiagnosis",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_TRADES"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentBetDecisionsForDiagnosis",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/EvidenceHealthSnapshotEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentShadowDecisionsForDiagnosis",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/EvidenceHealthSnapshotEngine.java",
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentDiagnosisSourceDecisions",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentDecisionsForDiagnosis",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDrawByIssueForDiagnosis",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "refreshRealBetDiagnosisState",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildRealBetDiagnosisSummary",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/MainActivity.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildRealBetDiagnosisDetail",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/MainActivity.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildRealBetDiagnosisCopyText",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/MainActivity.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveRealBetDiagnosisState",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveRealBetDiagnosisState",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRealBetDiagnosisSummaryState",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRealBetDiagnosisDetailState",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isDiagnosisRealBetTrade",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isDiagnosisBetText",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isDiagnosisRealScope",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "normalizeDiagnosisTradeForRead",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureDiagnosisLoopTablesNow",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureDiagnosticLoopTables",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentDiagnosisCases",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentShadowCases",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getModuleEffectCache",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getShadowPromotionCache",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDynamicFreezeState",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getAdaptiveJudgeRecentLogs",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDiagnosisFixPlan",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDiagnosisCaseLog",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDiagnosisCaseLog",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDiagnosisCaseLog",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveModuleEffectCache",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveModuleEffectCache",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveModuleEffectCache",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveShadowPromotionCache",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveShadowPromotionCache",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveShadowPromotionCache",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDynamicFreezeState",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDynamicFreezeState",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDynamicFreezeState",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveAdaptiveJudgeLog",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveAdaptiveJudgeLog",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveAdaptiveJudgeLog",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDiagnosisFixPlan",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDiagnosisFixPlan",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDiagnosisFixPlan",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureDiagnosisBaselineRecords",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "refreshDiagnosisClosedLoopState",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildDiagnosisClosedLoopStorageSummary",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDiagnosisRecord",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": true,
+    "dynamic": false
+   },
+   {
+    "name": "upsertDiagnosisRecord",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDiagnosisRecordId",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLatestDiagnosisRecord",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "queryDiagnosisTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "cursorToContentValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "filterContentValuesForTable",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "diagnosisObjectToValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "putObjectToContentValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "javaFieldToDbColumn",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getObject",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getString",
+    "callers": 387,
+    "caller_files": [
+     "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
+     "com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
+     "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+     "com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
+     "com/ethk3/novaonepro/AlgorithmProductionGovernorR915.java",
+     "com/ethk3/novaonepro/AlgorithmProofRecoveryR948.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getInt",
+    "callers": 303,
+    "caller_files": [
+     "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
+     "com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
+     "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+     "com/ethk3/novaonepro/AlgorithmProductionGovernorR915.java",
+     "com/ethk3/novaonepro/AlgorithmProofRecoveryR948.java",
+     "com/ethk3/novaonepro/AssetGenesisEngineR915.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getLong",
+    "callers": 258,
+    "caller_files": [
+     "com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
+     "com/ethk3/novaonepro/AlgorithmProofRecoveryR948.java",
+     "com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+     "com/ethk3/novaonepro/AtomCaptureR932.java",
+     "com/ethk3/novaonepro/AutonomousResearchEvolutionEngine.java",
+     "com/ethk3/novaonepro/B07R2FullDiagnosticEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getDouble",
+    "callers": 147,
+    "caller_files": [
+     "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
+     "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+     "com/ethk3/novaonepro/AlgorithmProductionGovernorR915.java",
+     "com/ethk3/novaonepro/AssetGenesisEngineR915.java",
+     "com/ethk3/novaonepro/AtomCaptureR932.java",
+     "com/ethk3/novaonepro/AtomicToolWorldR943.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readObjectString",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "readObjectLong",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "firstNonEmpty",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "firstNonEmpty",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "firstNonEmpty",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "safeText",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureLinkModificationV2Ready",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_CANDIDATE_AUDIT",
+     "TABLE_DECISIONS",
+     "TABLE_DECISION_AUDIT",
+     "TABLE_DYNAMIC_CAUSE_CHAIN",
+     "TABLE_FULL_CANDIDATE_SCAN",
+     "TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT",
+     "TABLE_REAL_TRADE_LEDGER",
+     "TABLE_SHADOW",
+     "TABLE_TRADES",
+     "TABLE_V20_BACKGROUND_CURSOR",
+     "TABLE_V20_CLOSED_LOOP",
+     "TABLE_V20_FREQUENCY_STATE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "linkModificationV2ColumnDefs",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureLinkModificationV2TablesNow",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveFrequencyState",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [
+     "TABLE_V20_FREQUENCY_STATE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadFrequencyState",
+    "callers": 6,
+    "caller_files": [
+     "com/ethk3/novaonepro/AdaptiveLearningJudgeEngine.java",
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/DecisionGateEngine.java",
+     "com/ethk3/novaonepro/DynamicGateEngine.java",
+     "com/ethk3/novaonepro/ProbabilityEngine.java",
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadFrequencyState",
+    "callers": 6,
+    "caller_files": [
+     "com/ethk3/novaonepro/AdaptiveLearningJudgeEngine.java",
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/DecisionGateEngine.java",
+     "com/ethk3/novaonepro/DynamicGateEngine.java",
+     "com/ethk3/novaonepro/ProbabilityEngine.java",
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java"
+    ],
+    "tables": [
+     "TABLE_V20_FREQUENCY_STATE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveLayerSnapshot",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/TeacherNumberMatrixEngine.java"
+    ],
+    "tables": [
+     "TABLE_V20_LAYER_SNAPSHOT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveWarmSnapshot",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveColdSnapshot",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDeepSnapshot",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadWarmSnapshot",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/RuleHealthMatrixEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadColdSnapshot",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/RuleHealthMatrixEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadDeepSnapshot",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadTeacherWarmSnapshot",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadTeacherColdSnapshot",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadTeacherDeepSnapshot",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadLatestLayerSnapshot",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_V20_LAYER_SNAPSHOT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveBackgroundCursor",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/TeacherNumberMatrixEngine.java"
+    ],
+    "tables": [
+     "TABLE_V20_BACKGROUND_CURSOR"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadBackgroundCursor",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [
+     "TABLE_V20_BACKGROUND_CURSOR"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "batchSaveCandidateSnapshot",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_V20_LINK_CANDIDATE_SNAPSHOT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "batchSaveShadowFields",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_SHADOW"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildLinkCandidateValues",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentDecisionFrequency",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentDecisionFrequency",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentRealBetFrequency",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentRealBetFrequency",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": true
+   },
+   {
+    "name": "getRecentProbeFrequency",
+    "callers": 4,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/DecisionGateEngine.java",
+     "com/ethk3/novaonepro/DynamicGateEngine.java",
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java"
+    ],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": true
+   },
+   {
+    "name": "getRecentDecisionCount",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": true
+   },
+   {
+    "name": "getRecentQualifiedOpportunityCount",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java"
+    ],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRecentRealBetCount",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": true
+   },
+   {
+    "name": "getRecentRealLoseCount",
+    "callers": 3,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/DecisionGateEngine.java",
+     "com/ethk3/novaonepro/DynamicGateEngine.java"
+    ],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": true
+   },
+   {
+    "name": "saveShadowDomainStat",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/SettlementEngine.java"
+    ],
+    "tables": [
+     "TABLE_DYNAMIC_DOMAIN_STAT_V20",
+     "TABLE_PROMOTION_DOMAIN_STAT_V20",
+     "TABLE_TEACHER_DOMAIN_STAT_V20",
+     "TABLE_V20_SHADOW_DOMAIN_STAT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "copyDomainEvidenceV20",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "resolveEvidenceDomainStatusV20",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildCoarseDomainKeyV20",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getShadowPromotionDomainStats",
+    "callers": 5,
+    "caller_files": [
+     "com/ethk3/novaonepro/DynamicCauseChainEngine.java",
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java",
+     "com/ethk3/novaonepro/SettlementEngine.java",
+     "com/ethk3/novaonepro/ShadowPromotionVerifierEngine.java",
+     "com/ethk3/novaonepro/TeacherNumberMatrixEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getShadowPromotionDomainStats",
+    "callers": 5,
+    "caller_files": [
+     "com/ethk3/novaonepro/DynamicCauseChainEngine.java",
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java",
+     "com/ethk3/novaonepro/SettlementEngine.java",
+     "com/ethk3/novaonepro/ShadowPromotionVerifierEngine.java",
+     "com/ethk3/novaonepro/TeacherNumberMatrixEngine.java"
+    ],
+    "tables": [
+     "TABLE_V20_SHADOW_DOMAIN_STAT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "resetRealtimeStageCosts",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveRealtimeStageCost",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getRealtimeStageCostSummary",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadLayerSnapshot",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/TeacherNumberMatrixEngine.java"
+    ],
+    "tables": [
+     "TABLE_V20_LAYER_SNAPSHOT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isLayerSnapshotDue",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/TeacherNumberMatrixEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "updateShadowSettlementEvidence",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/SettlementEngine.java"
+    ],
+    "tables": [
+     "TABLE_SHADOW"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "repairShadowEvidenceFromCandidateSnapshot",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT",
+     "TABLE_SHADOW"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureSafePreDrawPromotionDomain",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildSafePreDrawPromotionDomain",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "buildSafePreDrawPromotionDomainFromCursor",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getCurrentDecisionTradeLinkStatus",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "countUnsafePromotionDomains",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java"
+    ],
+    "tables": [
+     "TABLE_V20_SHADOW_DOMAIN_STAT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "setServiceUserEnabled",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "isServiceUserEnabled",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveServiceHeartbeat",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getServiceHeartbeatAgeMs",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "incrementServiceRestartCount",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveBackgroundSliceState",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/TeacherNumberMatrixEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getBackgroundSliceSummary",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadServiceHealthState",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadTeacherSliceState",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveProbabilityAuditState",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/ProbabilityEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "normalizeExplicitCoverageAndRejectFields",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "parseLongSafeV20",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "parseIntSafeV20",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "normalizeClosedLoopEvidenceAliases",
+    "callers": 2,
+    "caller_files": [
+     "com/ethk3/novaonepro/DecisionGateEngine.java",
+     "com/ethk3/novaonepro/SettlementEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadDatabaseQueueState",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/ProbabilityEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "setStates",
+    "callers": 15,
+    "caller_files": [
+     "com/ethk3/novaonepro/AlgorithmProductionGovernorR915.java",
+     "com/ethk3/novaonepro/AtomQualityGraphR930.java",
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/Batch34ChallengerCertificateBridgeR930.java",
+     "com/ethk3/novaonepro/CertifiedResearchMixerR915.java",
+     "com/ethk3/novaonepro/EssentialSettlementFeedbackR923.java"
+    ],
+    "tables": [
+     "TABLE_APP_STATE"
+    ],
+    "writes": true,
+    "dynamic": false
+   },
+   {
+    "name": "trySetTelemetryStatesR77",
+    "callers": 8,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/BusinessReconcilerR36.java",
+     "com/ethk3/novaonepro/LiveTelemetryProjectionR81.java",
+     "com/ethk3/novaonepro/ResearchAdaptiveLearnerStoreR811.java",
+     "com/ethk3/novaonepro/ResearchLearningContinuityR912.java",
+     "com/ethk3/novaonepro/ResearchSettlementSidecarR811.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveDomainEvidenceStat",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/SettlementEngine.java"
+    ],
+    "tables": [],
+    "writes": true,
+    "dynamic": false
+   },
+   {
+    "name": "loadDomainEvidenceStat",
+    "callers": 3,
+    "caller_files": [
+     "com/ethk3/novaonepro/DynamicCauseChainEngine.java",
+     "com/ethk3/novaonepro/SettlementEngine.java",
+     "com/ethk3/novaonepro/TeacherNumberMatrixEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveServiceRecoveryEvent",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_SERVICE_RECOVERY_EVENT_V20"
+    ],
+    "writes": true,
+    "dynamic": false
+   },
+   {
+    "name": "saveServiceRecoveryEventV20",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_SERVICE_RECOVERY_EVENT_V20"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "countSettledShadowSamplesV20",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_SHADOW"
+    ],
+    "writes": false,
+    "dynamic": true
+   },
+   {
+    "name": "getRecentValidDecisionCountV17",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/DecisionGateEngine.java"
+    ],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": true
+   },
+   {
+    "name": "getRecentRealBetCountBeforeCurrentV17",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/DecisionGateEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureStableEvidenceDomainsV17",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "backfillSettledShadowDomainsV17",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_SHADOW"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadOneShadowDomainV17",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "repairDecisionTradeEvidenceV17",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "loadRollingFrequencyStateV20",
+    "callers": 3,
+    "caller_files": [
+     "com/ethk3/novaonepro/DecisionGateEngine.java",
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java",
+     "com/ethk3/novaonepro/RiskCoverageController.java"
+    ],
+    "tables": [
+     "TABLE_DECISIONS"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "registerModuleBuildV20",
+    "callers": 16,
+    "caller_files": [
+     "com/ethk3/novaonepro/AdaptiveExpertConsensusEngine.java",
+     "com/ethk3/novaonepro/AutoFetchService.java",
+     "com/ethk3/novaonepro/BuildIdentity.java",
+     "com/ethk3/novaonepro/DecisionGateEngine.java",
+     "com/ethk3/novaonepro/DynamicCauseChainEngine.java",
+     "com/ethk3/novaonepro/EvidenceHealthSnapshotEngine.java"
+    ],
+    "tables": [
+     "TABLE_V20_MODULE_REGISTRY"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureModuleRegistryR363",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_V20_MODULE_REGISTRY"
+    ],
+    "writes": true,
+    "dynamic": true
+   },
+   {
+    "name": "checkModuleBuildConsistencyV20",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/RealBetDiagnosisEngine.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getModuleBuildConsistencyV20",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_V20_MODULE_REGISTRY"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "runEvidenceMaintenanceSliceV20",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "ensureTianshuB03Storage",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "persistTianshuB03Prediction",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "settleTianshuB03Shadow",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "migrateLegacyDrawsToQuarantine",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "verifyTianshuB03Storage",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "getTianshuB03StorageStatus",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_B03_DRAW_QUARANTINE",
+     "TABLE_B03_PREDICTION_BUNDLE",
+     "TABLE_B03_SETTLEMENT_EVENT",
+     "TABLE_B03_TRANSACTION_AUDIT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "replayTianshuB03Target",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_B03_PREDICTION_BUNDLE",
+     "TABLE_B03_REPLAY_AUDIT"
+    ],
+    "writes": true,
+    "dynamic": false
+   },
+   {
+    "name": "listLegacyDrawQuarantine",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_B03_DRAW_QUARANTINE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "markLegacyDrawReview",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_B03_DRAW_QUARANTINE"
+    ],
+    "writes": true,
+    "dynamic": false
+   },
+   {
+    "name": "hasTianshuB03Prediction",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_B03_PREDICTION_BUNDLE"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "hasTianshuB03Settlement",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_B03_SETTLEMENT_EVENT"
+    ],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "b03Count",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "b03ScalarInt",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "b03Scalar",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "cursorToContentValuesB03",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "tianshuB03StoreRules",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "tianshuB03StoreRuleHash",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "tianshuB03SelfTest",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "TABLE_R811_DRAW_CANONICAL",
+     "TABLE_R811_DRAW_PROVENANCE",
+     "draws"
+    ],
+    "writes": false,
+    "dynamic": false
+   }
+  ]
+ }
+}
