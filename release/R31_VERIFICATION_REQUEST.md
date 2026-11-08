@@ -9,3 +9,4 @@ Changing this file starts .github/workflows/r31-verification.yml on construction
 - 2026-11-08: gate green at 28d5affc (622/622, lint, all hosts); run with the temporary-CI-key debug build
 - 2026-11-08: refreeze the r982 source-call inventory (run 42471588575: SOURCE_CALL_INDEX_STALE)
 - 2026-11-08: retrigger (179a97b0 carried a skip marker in its message body)
+- 2026-11-08: build, emulator matrix and delivery on the committed r982 inventory (2101e674)
