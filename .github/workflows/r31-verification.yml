@@ -71,8 +71,12 @@ jobs:
           packages: platform-tools
           log-accepted-android-sdk-licenses: false
       - run: eval sdkmanager $SDK_PACKAGES > /dev/null
-      - name: Gradle distribution (fetched with retries; a download timeout is infrastructure, not a result)
-        run: for i in 1 2 3 4 5; do ./gradlew --no-daemon --version > /dev/null && exit 0; echo "gradle distribution attempt $i failed"; sleep $((i*30)); done; exit 1
+      - uses: actions/cache@v4
+        with:
+          path: ~/.gradle/wrapper/dists
+          key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+      - name: Gradle distribution (cached; fetched with retries; a download timeout is infrastructure, not a result)
+        run: for i in 1 2 3 4 5 6 7 8; do ./gradlew --no-daemon --version > /dev/null && exit 0; echo "gradle distribution attempt $i failed"; sleep $((i*45)); done; exit 1
       - name: Compile, unit tests and lint (every existing suite, none excluded)
         run: ./gradlew --no-daemon --continue -Pr30Instrumentation=true :app:compileDebugJavaWithJavac :app:compileDebugAndroidTestJavaWithJavac :app:testDebugUnitTest :app:lintDebug
       - name: Every registered HOST_SUITE entry
@@ -138,8 +142,12 @@ jobs:
           packages: platform-tools
           log-accepted-android-sdk-licenses: false
       - run: eval sdkmanager $SDK_PACKAGES > /dev/null
-      - name: Gradle distribution (fetched with retries; a download timeout is infrastructure, not a result)
-        run: for i in 1 2 3 4 5; do ./gradlew --no-daemon --version > /dev/null && exit 0; echo "gradle distribution attempt $i failed"; sleep $((i*30)); done; exit 1
+      - uses: actions/cache@v4
+        with:
+          path: ~/.gradle/wrapper/dists
+          key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+      - name: Gradle distribution (cached; fetched with retries; a download timeout is infrastructure, not a result)
+        run: for i in 1 2 3 4 5 6 7 8; do ./gradlew --no-daemon --version > /dev/null && exit 0; echo "gradle distribution attempt $i failed"; sleep $((i*45)); done; exit 1
       - name: Build the real APKs
         run: |
           set -o pipefail

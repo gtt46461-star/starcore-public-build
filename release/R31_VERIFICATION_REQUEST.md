@@ -5,3 +5,4 @@ Changing this file starts .github/workflows/r31-verification.yml on construction
 
 - 2026-11-08: final K11 run (gate source 64db91b6 + this request)
 - 2026-11-08: rerun after the Gradle distribution timeout (run 42464955166 built nothing); workflow now fetches it with retries
+- 2026-11-08: rerun with the Gradle wrapper distribution cached (run 42465197650: contracts PASS, android_build failed on the download)
