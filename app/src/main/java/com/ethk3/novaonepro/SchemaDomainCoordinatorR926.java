@@ -991,7 +991,9 @@ public final class SchemaDomainCoordinatorR926 {
         boolean ownTx = !db.inTransaction();
         try {
             if (ownTx) db.beginTransaction();
+            cutPointR31(contract.domain, stepId, "STEP_STARTED");
             step.run(db);
+            cutPointR31(contract.domain, stepId, "STEP_BODY_DONE");
             String after = safeFingerprint(db, contract);
             db.execSQL("UPDATE " + TABLE_JOURNAL
                             + " SET status='COMPLETED',cursor='DONE',after_hash=?,completed_at=?,error_code=''"
@@ -1014,6 +1016,303 @@ public final class SchemaDomainCoordinatorR926 {
         } finally {
             if (ownTx && db.inTransaction()) db.endTransaction();
         }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // R31-B12-C01: overlay-install upgrade journal.
+    //
+    // PREPARE -> VERIFY_SOURCE -> TRANSFORM -> VERIFY_TARGET -> PUBLISH -> CLEANUP. Every phase is one
+    // short durable commit of its work plus its journal row and completion hash, preceded by a durable
+    // STARTED row, so a process killed at any point re-enters at the first phase that has not committed:
+    // a COMPLETED phase is never run again (its attempt never grows) and a STARTED one is re-executed
+    // from its committed predecessor. Rows live in the existing R926 domain/journal tables (domain
+    // R31_UPGRADE:<id>), so the journal adds no schema object of its own.
+    //
+    // Protected roots (draws, models, certificates, frozen predictions) are hashed over the columns
+    // they had before the upgrade, inside the TRANSFORM write transaction, before and after the
+    // transform body: a transform that changes one original value is rolled back before it commits.
+    // Added columns keep old-value semantics (NULL/unknown or their declared default); the journal
+    // never back-fills a historical value. The journal never deletes, renames or rebuilds a source
+    // table and never changes PRAGMA user_version, so an older reader keeps reading the original
+    // objects; CLEANUP runs only after PUBLISH and only the spec's declared, non-destructive step.
+    // Low disk blocks before TRANSFORM (no new additions) and deletes nothing.
+    // ---------------------------------------------------------------------------------------------
+    public enum UpgradePhaseR31 { PREPARE, VERIFY_SOURCE, TRANSFORM, VERIFY_TARGET, PUBLISH, CLEANUP }
+    public static final String UPGRADE_PREFIX_R31 = "R31_UPGRADE:";
+    public static final String[] PROTECTED_ROOTS_R31 = {"draws", "r27_policy", "r27_live_shadow", "r27_live_frozen",
+            "r27_atomnet_state", "r27_certificate"};
+    public static final long UPGRADE_MIN_FREE_BYTES_R31 = 64L * 1024L * 1024L;
+
+    /** One durable write transaction (production: the sole MIGRATION writer). */
+    public interface WriterR31 { void write(String label, Step body) throws Exception; }
+    /** Test seam: called at every durable boundary; production installs none. */
+    public interface CutPointR31 { void reached(String domain, String step, String point); }
+    private static volatile CutPointR31 cutPointsR31;
+    public static void installCutPointsR31(CutPointR31 hook) { cutPointsR31 = hook; }
+    static void cutPointR31(String domain, String step, String point) {
+        CutPointR31 hook = cutPointsR31; if (hook != null) hook.reached(domain, safe(step), point);
+    }
+    /** Free bytes next to the database file; the default reads the filesystem. */
+    public interface DiskProbeR31 { long usableBytes(SQLiteDatabase db); }
+    public static final DiskProbeR31 FILESYSTEM_DISK_R31 = db -> {
+        String path = db.getPath();
+        if (path == null || path.length() == 0 || path.startsWith(":memory:")) return Long.MAX_VALUE;
+        java.io.File dir = new java.io.File(path).getAbsoluteFile().getParentFile();
+        return dir == null ? Long.MAX_VALUE : dir.getUsableSpace();
+    };
+
+    public static final class UpgradeSpecR31 {
+        public final String id, contractHash; public final int revision; public final String[] roots;
+        public final long requiredFreeBytes; public final Step transform, cleanup; public final DiskProbeR31 disk;
+        public UpgradeSpecR31(String id, int revision, String contractHash, String[] roots, long requiredFreeBytes,
+                              DiskProbeR31 disk, Step transform, Step cleanup) {
+            if (safe(id).isEmpty() || transform == null) throw new IllegalArgumentException("R31_UPGRADE_SPEC_INCOMPLETE");
+            this.id = safe(id); this.revision = revision; this.contractHash = safe(contractHash);
+            this.roots = roots == null ? new String[0] : roots.clone(); this.requiredFreeBytes = Math.max(0, requiredFreeBytes);
+            this.disk = disk == null ? FILESYSTEM_DISK_R31 : disk; this.transform = transform; this.cleanup = cleanup;
+        }
+        /** The journal key changes whenever the upgrade contract changes, so a new contract is a new upgrade. */
+        public String domain() { return UPGRADE_PREFIX_R31 + id + ":" + V51ChecksumEngine.sha256(id + '|' + revision + '|' + contractHash + '|' + join(Arrays.asList(roots))).substring(0, 16); }
+    }
+
+    public static final class UpgradeOutcomeR31 {
+        public final String state, domain; public final java.util.Map<String, String> phaseHashes; public final java.util.Map<String, Integer> attempts;
+        public final String forwardCompatibility;
+        UpgradeOutcomeR31(String state, String domain, java.util.Map<String, String> hashes, java.util.Map<String, Integer> attempts, String forward) {
+            this.state = state; this.domain = domain; this.phaseHashes = Collections.unmodifiableMap(hashes); this.attempts = Collections.unmodifiableMap(attempts); this.forwardCompatibility = forward;
+        }
+    }
+
+    /** Phase status/attempt/hash as committed; absent phases are not in the maps. */
+    public static UpgradeOutcomeR31 upgradeStateR31(SQLiteDatabase db, UpgradeSpecR31 spec) {
+        java.util.Map<String, String> hashes = new java.util.LinkedHashMap<>(); java.util.Map<String, Integer> attempts = new java.util.LinkedHashMap<>();
+        String domain = spec.domain(), state = "NOT_STARTED";
+        if (!schemaObjectExists(db, TABLE_JOURNAL)) return new UpgradeOutcomeR31(state, domain, hashes, attempts, forwardCompatibilityR31(false));
+        boolean cleaned = false;
+        try (Cursor c = db.rawQuery("SELECT step_id,status,attempt,after_hash FROM " + TABLE_JOURNAL + " WHERE domain=? AND revision=?",
+                new String[] {domain, String.valueOf(spec.revision)})) {
+            while (c.moveToNext()) {
+                String phase = c.getString(0); attempts.put(phase, c.getInt(2));
+                if ("COMPLETED".equals(c.getString(1))) { hashes.put(phase, c.getString(3)); if (UpgradePhaseR31.CLEANUP.name().equals(phase)) cleaned = true; }
+            }
+        }
+        try (Cursor c = db.rawQuery("SELECT state FROM " + TABLE_DOMAIN + " WHERE domain=?", new String[] {domain})) { if (c.moveToFirst()) state = c.getString(0); }
+        return new UpgradeOutcomeR31(state, domain, hashes, attempts, forwardCompatibilityR31(cleaned));
+    }
+    /** What an older APK can rely on. Measured on a device only; the host never claims an old-APK read. */
+    private static String forwardCompatibilityR31(boolean cleaned) {
+        return (cleaned ? "PUBLISHED" : "IN_PROGRESS") + "|ADDITIVE_ONLY|SOURCE_OBJECTS_RETAINED|USER_VERSION_UNCHANGED|OLD_APK_READ=NOT_RUN_HOST|RECOVERY=ROLL_FORWARD";
+    }
+
+    /**
+     * Runs or resumes the upgrade. Call from a background thread with no open transaction; each phase
+     * takes the writer for one short commit. Returns COMPLETE (also on a re-entry after completion) or
+     * BLOCKED_LOW_DISK; throws when a phase fails, with the failure journaled and nothing published.
+     */
+    public static UpgradeOutcomeR31 runUpgradeR31(SQLiteDatabase reader, WriterR31 writer, UpgradeSpecR31 spec) throws Exception {
+        if (android.os.Looper.myLooper() != null && android.os.Looper.myLooper() == android.os.Looper.getMainLooper())
+            throw new IllegalStateException("R31_UPGRADE_ON_MAIN_THREAD");
+        if (reader != null && reader.inTransaction()) throw new IllegalStateException("R31_UPGRADE_INSIDE_TRANSACTION");
+        final String domain = spec.domain();
+        final java.util.Map<String, String> done = new java.util.LinkedHashMap<>();
+        writer.write("R31_UPGRADE_INFRA", db -> { ensureInfrastructure(db); done.putAll(completedPhasesR31(db, domain, spec.revision)); });
+        if (done.containsKey(UpgradePhaseR31.CLEANUP.name())) {
+            // The schema owner is still re-entered on every start (its steps are idempotent and their own
+            // journal skips completed DDL); only the upgrade's verification phases are not repeated.
+            writer.write(spec.id, spec.transform); // same operation label as before the journal
+            return new UpgradeOutcomeR31("COMPLETE", domain, done, Collections.<String, Integer>emptyMap(), forwardCompatibilityR31(true));
+        }
+        final String[] sourceColumns = new String[1];
+        for (final UpgradePhaseR31 phase : UpgradePhaseR31.values()) {
+            if (done.containsKey(phase.name())) { if (phase == UpgradePhaseR31.VERIFY_SOURCE) sourceColumns[0] = cursorR31(writer, domain, spec.revision, phase); continue; }
+            writer.write("R31_UPGRADE_" + phase + "_START", db -> {
+                // Plain INSERT OR IGNORE + UPDATE: minSdk 21 SQLite has no UPSERT.
+                Long now = Long.valueOf(System.currentTimeMillis());
+                db.execSQL("INSERT OR IGNORE INTO " + TABLE_JOURNAL + "(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code)"
+                        + " VALUES(?,?,?,'NEW',0,'START','','',?,0,'')", new Object[] {domain, Integer.valueOf(spec.revision), phase.name(), now});
+                db.execSQL("UPDATE " + TABLE_JOURNAL + " SET status='STARTED',attempt=attempt+1,cursor='START',started_at=?,error_code='' WHERE domain=? AND revision=? AND step_id=? AND status<>'COMPLETED'",
+                        new Object[] {now, domain, Integer.valueOf(spec.revision), phase.name()});
+                if (phase == UpgradePhaseR31.PREPARE) markUpgradeR31(db, spec, "MIGRATING", "PREPARE", "");
+            });
+            cutPointR31(domain, phase.name(), "PHASE_STARTED_COMMITTED");
+            final String[] result = new String[2];
+            try {
+                writer.write(phase == UpgradePhaseR31.TRANSFORM ? spec.id : "R31_UPGRADE_" + phase, db -> {
+                    cutPointR31(domain, phase.name(), "PHASE_TX_OPEN");
+                    String before = previousPhaseHashR31(db, domain, spec.revision, phase);
+                    switch (phase) {
+                        case PREPARE: {
+                            long free = spec.disk.usableBytes(db);
+                            if (free < spec.requiredFreeBytes) { result[0] = "BLOCKED_LOW_DISK"; markUpgradeR31(db, spec, "BLOCKED_LOW_DISK", "PREPARE", "free=" + free + "<" + spec.requiredFreeBytes); break; }
+                            result[1] = "free=" + free;
+                            result[0] = V51ChecksumEngine.sha256("PREPARE|" + scalarInt(db, "PRAGMA user_version", null, -1) + '|' + spec.contractHash + '|' + domain);
+                            break;
+                        }
+                        case VERIFY_SOURCE: {
+                            String columns = rootColumnsR31(db, spec.roots); result[1] = columns;
+                            result[0] = rootsHashR31(tableHashesR31(db, columns)); break;
+                        }
+                        case TRANSFORM: {
+                            String columns = sourceColumns[0];
+                            java.util.Map<String, String> sourceTables = tableHashesR31(db, columns);
+                            String source = rootsHashR31(sourceTables);
+                            String recorded = phaseHashR31(db, domain, spec.revision, UpgradePhaseR31.VERIFY_SOURCE);
+                            if (!source.equals(recorded)) result[1] = "SOURCE_CHANGED_BETWEEN_PHASES_REBASED";
+                            spec.transform.run(db);
+                            cutPointR31(domain, phase.name(), "TRANSFORM_BODY_DONE");
+                            java.util.Map<String, String> afterTables = tableHashesR31(db, columns);
+                            String after = rootsHashR31(afterTables);
+                            if (!after.equals(source)) throw new IllegalStateException("R31_UPGRADE_ROOT_CHANGED:" + changedRootsR31(sourceTables, afterTables));
+                            result[0] = after; break;
+                        }
+                        case VERIFY_TARGET: {
+                            String target = rootsHashR31(tableHashesR31(db, sourceColumns[0]));
+                            String transformed = phaseHashR31(db, domain, spec.revision, UpgradePhaseR31.TRANSFORM);
+                            result[1] = target.equals(transformed) ? "ROOTS_EQUAL_TRANSFORM" : "ROOTS_ADVANCED_BY_LIVE_WRITERS_AFTER_TRANSFORM";
+                            result[0] = V51ChecksumEngine.sha256("VERIFY_TARGET|" + transformed + '|' + objectCensusR31(db, spec.roots));
+                            break;
+                        }
+                        case PUBLISH: {
+                            markUpgradeR31(db, spec, "PUBLISHED", "PUBLISH", "");
+                            result[0] = V51ChecksumEngine.sha256("PUBLISH|" + before); break;
+                        }
+                        case CLEANUP: {
+                            if (spec.cleanup != null) spec.cleanup.run(db);
+                            markUpgradeR31(db, spec, "READY", "COMPLETE", "");
+                            result[0] = V51ChecksumEngine.sha256("CLEANUP|" + before); break;
+                        }
+                    }
+                    if (!"BLOCKED_LOW_DISK".equals(result[0])) {
+                        db.execSQL("UPDATE " + TABLE_JOURNAL + " SET status='COMPLETED',cursor=?,before_hash=?,after_hash=?,completed_at=?,error_code=''"
+                                        + " WHERE domain=? AND revision=? AND step_id=?",
+                                new Object[] {safe(result[1]), before, result[0], Long.valueOf(System.currentTimeMillis()), domain, Integer.valueOf(spec.revision), phase.name()});
+                    }
+                    cutPointR31(domain, phase.name(), "PHASE_BEFORE_COMMIT");
+                });
+            } catch (Exception failure) {
+                writer.write("R31_UPGRADE_" + phase + "_FAILED", db -> {
+                    db.execSQL("UPDATE " + TABLE_JOURNAL + " SET status='FAILED',cursor='RETRY',completed_at=?,error_code=? WHERE domain=? AND revision=? AND step_id=?",
+                            new Object[] {Long.valueOf(System.currentTimeMillis()), error(failure), domain, Integer.valueOf(spec.revision), phase.name()});
+                    markUpgradeR31(db, spec, "FAILED", phase.name(), error(failure));
+                });
+                throw failure;
+            }
+            if ("BLOCKED_LOW_DISK".equals(result[0])) {
+                java.util.Map<String, String> partial = new java.util.LinkedHashMap<>(done);
+                return new UpgradeOutcomeR31("BLOCKED_LOW_DISK", domain, partial, attemptsR31(writer, domain, spec.revision), forwardCompatibilityR31(false));
+            }
+            cutPointR31(domain, phase.name(), "PHASE_COMMITTED");
+            done.put(phase.name(), result[0]);
+            if (phase == UpgradePhaseR31.VERIFY_SOURCE) sourceColumns[0] = result[1];
+        }
+        return new UpgradeOutcomeR31("COMPLETE", domain, done, attemptsR31(writer, domain, spec.revision), forwardCompatibilityR31(true));
+    }
+
+    private static void markUpgradeR31(SQLiteDatabase db, UpgradeSpecR31 spec, String state, String cursor, String error) {
+        Long now = Long.valueOf(System.currentTimeMillis());
+        db.execSQL("INSERT OR IGNORE INTO " + TABLE_DOMAIN + "(domain,revision,contract_hash,fingerprint,state,cursor,started_at,updated_at,last_error) VALUES(?,?,?,?,?,?,?,?,?)",
+                new Object[] {spec.domain(), Integer.valueOf(spec.revision), V51ChecksumEngine.sha256(spec.contractHash + '|' + spec.id), spec.id, safe(state), safe(cursor), now, now, bounded(error, 900)});
+        db.execSQL("UPDATE " + TABLE_DOMAIN + " SET state=?,cursor=?,updated_at=?,last_error=? WHERE domain=?",
+                new Object[] {safe(state), safe(cursor), now, bounded(error, 900), spec.domain()});
+    }
+    private static java.util.Map<String, String> completedPhasesR31(SQLiteDatabase db, String domain, int revision) {
+        java.util.Map<String, String> out = new java.util.LinkedHashMap<>();
+        try (Cursor c = db.rawQuery("SELECT step_id,after_hash FROM " + TABLE_JOURNAL + " WHERE domain=? AND revision=? AND status='COMPLETED'",
+                new String[] {domain, String.valueOf(revision)})) { while (c.moveToNext()) out.put(c.getString(0), c.getString(1)); }
+        java.util.Map<String, String> ordered = new java.util.LinkedHashMap<>();
+        for (UpgradePhaseR31 p : UpgradePhaseR31.values()) { if (!out.containsKey(p.name())) break; ordered.put(p.name(), out.get(p.name())); }
+        return ordered;
+    }
+    private static String previousPhaseHashR31(SQLiteDatabase db, String domain, int revision, UpgradePhaseR31 phase) {
+        if (phase.ordinal() == 0) return "";
+        return phaseHashR31(db, domain, revision, UpgradePhaseR31.values()[phase.ordinal() - 1]);
+    }
+    private static String phaseHashR31(SQLiteDatabase db, String domain, int revision, UpgradePhaseR31 phase) {
+        try (Cursor c = db.rawQuery("SELECT after_hash FROM " + TABLE_JOURNAL + " WHERE domain=? AND revision=? AND step_id=? AND status='COMPLETED'",
+                new String[] {domain, String.valueOf(revision), phase.name()})) { return c.moveToFirst() ? safe(c.getString(0)) : ""; }
+    }
+    private static String cursorR31(WriterR31 writer, final String domain, final int revision, final UpgradePhaseR31 phase) throws Exception {
+        final String[] out = {""};
+        writer.write("R31_UPGRADE_READ_CURSOR", db -> { try (Cursor c = db.rawQuery("SELECT cursor FROM " + TABLE_JOURNAL + " WHERE domain=? AND revision=? AND step_id=?",
+                new String[] {domain, String.valueOf(revision), phase.name()})) { if (c.moveToFirst()) out[0] = safe(c.getString(0)); } });
+        return out[0];
+    }
+    private static java.util.Map<String, Integer> attemptsR31(WriterR31 writer, final String domain, final int revision) throws Exception {
+        final java.util.Map<String, Integer> out = new java.util.LinkedHashMap<>();
+        writer.write("R31_UPGRADE_READ_ATTEMPTS", db -> { try (Cursor c = db.rawQuery("SELECT step_id,attempt FROM " + TABLE_JOURNAL + " WHERE domain=? AND revision=?",
+                new String[] {domain, String.valueOf(revision)})) { while (c.moveToNext()) out.put(c.getString(0), c.getInt(1)); } });
+        return out;
+    }
+    /** "table:col1,col2;table2:..." for the roots that exist now (absent roots hash as absent). */
+    static String rootColumnsR31(SQLiteDatabase db, String[] roots) {
+        StringBuilder b = new StringBuilder();
+        for (String table : roots) {
+            if (!isPlainIdentifierR31(table) || !schemaObjectExists(db, table)) continue;
+            List<String> columns = new ArrayList<>();
+            try (Cursor c = db.rawQuery("PRAGMA table_info(" + table + ")", null)) { while (c.moveToNext()) columns.add(c.getString(1)); }
+            if (b.length() > 0) b.append(';');
+            b.append(table).append(':').append(join(columns));
+        }
+        return b.toString();
+    }
+    private static boolean isPlainIdentifierR31(String name) {
+        if (name == null || name.isEmpty()) return false;
+        for (int i = 0; i < name.length(); i++) { char ch = name.charAt(i); if (!(ch == '_' || ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9')) return false; }
+        return true;
+    }
+    /** Hash of every original row value of every root, read in bounded rowid pages. */
+    static java.util.Map<String, String> tableHashesR31(SQLiteDatabase db, String columns) {
+        java.util.Map<String, String> out = new java.util.LinkedHashMap<>();
+        for (String entry : safe(columns).isEmpty() ? new String[0] : columns.split(";")) out.put(entry.substring(0, entry.indexOf(':')), tableHashR31(db, entry));
+        return out;
+    }
+    static String rootsHashR31(java.util.Map<String, String> tables) {
+        StringBuilder all = new StringBuilder("R31_ROOTS_V1");
+        for (java.util.Map.Entry<String, String> e : tables.entrySet()) all.append('|').append(e.getKey()).append('=').append(e.getValue());
+        return V51ChecksumEngine.sha256(all.toString());
+    }
+    private static String tableHashR31(SQLiteDatabase db, String entry) {
+        String table = entry.substring(0, entry.indexOf(':'));
+        String[] names = entry.substring(entry.indexOf(':') + 1).split(",");
+        for (String n : names) if (!isPlainIdentifierR31(n)) throw new IllegalStateException("R31_UPGRADE_ROOT_COLUMN_NAME:" + table);
+        java.security.MessageDigest digest;
+        try { digest = java.security.MessageDigest.getInstance("SHA-256"); } catch (java.security.NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
+        if (!schemaObjectExists(db, table)) return "ABSENT";
+        StringBuilder select = new StringBuilder("SELECT rowid");
+        for (String n : names) select.append(',').append(n);
+        select.append(" FROM ").append(table).append(" WHERE rowid>? ORDER BY rowid LIMIT 256");
+        long last = Long.MIN_VALUE, rows = 0;
+        while (true) {
+            int page = 0;
+            try (Cursor c = db.rawQuery(select.toString(), new String[] {String.valueOf(last)})) {
+                while (c.moveToNext()) {
+                    page++; rows++; last = c.getLong(0);
+                    StringBuilder row = new StringBuilder().append(last);
+                    for (int i = 1; i <= names.length; i++) {
+                        int type = c.getType(i); row.append('|').append(type).append(':');
+                        if (type == Cursor.FIELD_TYPE_BLOB) { digest.update(row.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8)); row.setLength(0); byte[] blob = c.getBlob(i); digest.update(blob); row.append('#').append(blob.length); }
+                        else if (type == Cursor.FIELD_TYPE_INTEGER) row.append(c.getLong(i));
+                        else if (type == Cursor.FIELD_TYPE_FLOAT) row.append(Double.doubleToLongBits(c.getDouble(i)));
+                        else if (type != Cursor.FIELD_TYPE_NULL) { String v = c.getString(i); row.append(v.length()).append('~').append(v); }
+                    }
+                    digest.update(row.append('\n').toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                }
+            }
+            if (page < 256) break;
+        }
+        byte[] out = digest.digest(); StringBuilder hex = new StringBuilder(rows + "/");
+        for (byte x : out) hex.append(String.format(java.util.Locale.ROOT, "%02x", x & 0xff));
+        return hex.toString();
+    }
+    private static String changedRootsR31(java.util.Map<String, String> before, java.util.Map<String, String> after) {
+        List<String> changed = new ArrayList<>();
+        for (java.util.Map.Entry<String, String> e : before.entrySet()) if (!e.getValue().equals(after.get(e.getKey()))) changed.add(e.getKey());
+        return join(changed);
+    }
+    private static String objectCensusR31(SQLiteDatabase db, String[] roots) {
+        StringBuilder b = new StringBuilder();
+        for (String table : roots) b.append(table).append('=').append(schemaObjectExists(db, table) ? 1 : 0).append(';');
+        return b.toString();
     }
 
     public static String fingerprint(SQLiteDatabase db, Contract contract) {

@@ -45,6 +45,7 @@ case "$id" in
   run_runtime_health_host) R31_RUNTIME_HOST_CLASS=R31RuntimeHealthHost R31_RUNTIME_OUTPUT="app/build/r312-host/$id-receipt" exec python3 tools/r31/run_task_runtime_host.py ;;
   run_resource_recovery_consumer_host) R31_RUNTIME_HOST_CLASS=R31ResourceRecoveryConsumerHost R31_RUNTIME_OUTPUT="app/build/r312-host/$id-receipt" exec python3 tools/r31/run_task_runtime_host.py ;;
   run_storage_report_host) R31_STORAGE_OUT="$OUT" exec bash tools/r31/storage_host/run_storage_report_host.sh ;;
+  run_upgrade_matrix_host) exec python3 tools/r31/upgrade_matrix.py --out "$OUT" ;;
   r30repair_*) exec python3 "tools/r30-repair/run_${id#r30repair_}_host.py" ;;
   *) echo "R312_HOST_UNKNOWN_ENTRY:$id"; exit 2 ;;
 esac

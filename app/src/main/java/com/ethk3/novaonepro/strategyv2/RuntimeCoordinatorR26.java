@@ -365,12 +365,11 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     static void releaseLeaseR31(SQLiteDatabase db,Claim claim,long nextDelay,boolean keepPrepared){
         long mono=SystemClock.elapsedRealtime();db.execSQL("UPDATE r31_task_lease SET deadline_elapsed_ms=?,next_elapsed_ms=? WHERE task_id=? AND owner_epoch=? AND fence=? AND boot_id=?",new Object[]{keepPrepared?mono+30_000:0,keepPrepared?0:mono+nextDelay,claim.task,claim.owner,claim.fence,IssueTimelineWriterR30.bootId()});
     }
-    private void initialize(){
-        // R30-B00-03: retire R29 CP07-CP16 Root triggers / independent RP before any worker starts (idempotent, no-op on CP06 data).
-        try{String foldR30=R29FoldBackR30.run(store);if(!"NONE".equals(foldR30))android.util.Log.i("STARCORE_R30","R29 fold-back "+foldR30);}
-        catch(Exception foldFailedR30){android.util.Log.e("STARCORE_R30","R29 fold-back incomplete; route kept for next start",foldFailedR30);store.setState("r30_foldback_error",String.valueOf(foldFailedR30));}
-        try{LegacyTeacherOwnerR26.register(store.contextForR26());}catch(RuntimeException blocked){android.util.Log.w("STARCORE_R26","original teacher blocked",blocked);store.setState("r26_teacher_blocked",blocked.toString());}
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R26_RUNTIME_SCHEMA"),db->{RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);ResearchRetentionStoreR30.ensureProtected(db);SchemaDomainCoordinatorR926.migrateR31WarmPublication(db);
+    /** R31-B12-C01: the production startup schema owner as one journaled overlay-install upgrade (also run by the HOST upgrade matrix). */
+    public static SchemaDomainCoordinatorR926.UpgradeSpecR31 startupUpgradeSpecR31(String owner){
+        // R31-B12-C01: the startup schema owner runs inside the overlay-install upgrade journal (PREPARE..CLEANUP,
+        // protected roots verified inside the TRANSFORM commit). Steady starts re-enter only the idempotent owner.
+        SchemaDomainCoordinatorR926.Step startupSchemaR31=db->{RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);ResearchRetentionStoreR30.ensureProtected(db);SchemaDomainCoordinatorR926.migrateR31WarmPublication(db);
             // R27.1: tasks quarantined only by the fixed continuation-quantum bug get their normal retry back.
             // R31 inherited quarantines are recovered one fenced half-open probe at a time.
             RuntimeSchemaR26.bindCapabilitySource(db,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);long now=System.currentTimeMillis();
@@ -388,7 +387,23 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             db.execSQL("UPDATE r26_task SET status='BLOCKED',blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE',next_at=0 WHERE task_id<>'schema' AND lane<>'R27' AND status NOT IN ('QUARANTINED','NEEDS_FIX')");
             for(String r27Task:new String[]{"r27-replay-dataset","r27-evolution","r27-live","r27-atoms","r27-atomnet","r27-abi","r27-calibration","r27-chart-cache","r27-legacy-export","r27-health"})
                 db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism,status,registered_at) VALUES(?,'R27',?,'READY',?)",new Object[]{r27Task,r27Task,now});
-            return 0;});
+            };
+        return new SchemaDomainCoordinatorR926.UpgradeSpecR31("R26_RUNTIME_SCHEMA",SchemaR27.REVISION,
+                BuildConfig.SOURCE_COMMIT_R26+"|"+ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256,SchemaDomainCoordinatorR926.PROTECTED_ROOTS_R31,
+                SchemaDomainCoordinatorR926.UPGRADE_MIN_FREE_BYTES_R31,null,startupSchemaR31,null);
+    }
+    private void initialize(){
+        // R30-B00-03: retire R29 CP07-CP16 Root triggers / independent RP before any worker starts (idempotent, no-op on CP06 data).
+        try{String foldR30=R29FoldBackR30.run(store);if(!"NONE".equals(foldR30))android.util.Log.i("STARCORE_R30","R29 fold-back "+foldR30);}
+        catch(Exception foldFailedR30){android.util.Log.e("STARCORE_R30","R29 fold-back incomplete; route kept for next start",foldFailedR30);store.setState("r30_foldback_error",String.valueOf(foldFailedR30));}
+        try{LegacyTeacherOwnerR26.register(store.contextForR26());}catch(RuntimeException blocked){android.util.Log.w("STARCORE_R26","original teacher blocked",blocked);store.setState("r26_teacher_blocked",blocked.toString());}
+        SchemaDomainCoordinatorR926.UpgradeSpecR31 upgradeR31=startupUpgradeSpecR31(owner);
+        SchemaDomainCoordinatorR926.UpgradeOutcomeR31 upgradedR31;
+        try{upgradedR31=SchemaDomainCoordinatorR926.runUpgradeR31(null,(label,body)->store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,label),db->{body.run(db);return 0;}),upgradeR31);}
+        catch(RuntimeException failure){throw failure;}
+        catch(Exception failure){throw new IllegalStateException("R31_UPGRADE_FAILED:"+failure.getMessage(),failure);}
+        if("BLOCKED_LOW_DISK".equals(upgradedR31.state))throw new IllegalStateException("R31_UPGRADE_BLOCKED_LOW_DISK:DEPENDENCY");
         retentionProtectionReadyR31=true;
         ReplayBurstSchedulerSU1.cancel(store.contextForR26());
     }
