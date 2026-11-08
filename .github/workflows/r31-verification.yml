@@ -127,22 +127,35 @@ jobs:
         with:
           path: ~/.starcore/su1-api-transport
           key: starcore-su1-api-transport-v1
-      - name: Signing identity (official only when the sealed R13 key can be opened; never a substitute)
+      # The installed phone app (R30-REPAIR1, com.starcore.research.r13, versionCode 577311009) is signed with the
+      # R27 CI key d8d8cee7...; only that key gives an overlay install that keeps the phone's data.
+      - id: devicekey
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/r27-ci-temp-key
+          key: starcore-r27-ci-temp-signing-v1
+      - name: Signing identity (official R13 > the installed device identity > a labelled temporary key)
         env:
           DUOQU_SECRET: ${{ secrets.DUOQU_API_KEY }}
         run: |
-          mkdir -p r31v
+          # Records go to RUNNER_TEMP until the APKs are built: an untracked file in the checkout makes the source dirty.
+          V="$RUNNER_TEMP/r31v"; mkdir -p "$V"
+          K="$HOME/.starcore/r27-ci-temp-key"; DEVICE_CERT=d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
           if [ "${{ steps.transport.outputs.cache-hit }}" = "true" ] && python3 scripts/load_r13_signing.py; then
-            echo "R31_SIGNING=OFFICIAL_R13" >> "$GITHUB_ENV"; echo "OFFICIAL_R13" > r31v/signing.txt
+            echo "R31_SIGNING=OFFICIAL_R13" >> "$GITHUB_ENV"; echo "OFFICIAL_R13" > "$V/signing.txt"
+          elif [ -f "$K/r27-ci.p12" ] && [ -s "$K/pw" ]; then
+            pw=$(cat "$K/pw"); echo "::add-mask::$pw"
+            cert=$(keytool -exportcert -keystore "$K/r27-ci.p12" -storetype PKCS12 -alias starcore-r13 -storepass "$pw" | sha256sum | cut -c1-64)
+            [ "$cert" = "$DEVICE_CERT" ] || { echo "R27_DEVICE_SIGNING_CHANGED $cert"; exit 1; }
+            { echo "R13_SIGNING_P12=$K/r27-ci.p12"; echo "R13_SIGNING_PASSWORD=$pw"; echo "R13_EXPECTED_CERT_SHA256=$cert"; echo "R31_SIGNING=EXISTING_DEVICE_IDENTITY"; } >> "$GITHUB_ENV"
+            echo "EXISTING_DEVICE_IDENTITY: R27 CI key $cert, the certificate of the installed R30-REPAIR1 (overlay install keeps data); not the official R13 identity 9e6d5dc7..." > "$V/signing.txt"
           else
-            # Same fallback as r27.yml: the build requires an R13 key even for debug APKs. A temporary key generated
-            # in this run signs the debug APK; it is NOT the official identity and is recorded as such.
             pw=$(python3 -c 'import secrets;print(secrets.token_hex(16))'); echo "::add-mask::$pw"
             keytool -genkeypair -storetype PKCS12 -keystore "$RUNNER_TEMP/r31-ci.p12" -alias starcore-r13 -keyalg RSA -keysize 3072 -validity 3650 \
               -storepass "$pw" -keypass "$pw" -dname "CN=STARCORE R31 CI TEMPORARY KEY - NOT THE RELEASE IDENTITY" > /dev/null 2>&1
             cert=$(keytool -exportcert -keystore "$RUNNER_TEMP/r31-ci.p12" -storetype PKCS12 -alias starcore-r13 -storepass "$pw" | sha256sum | cut -c1-64)
             { echo "R13_SIGNING_P12=$RUNNER_TEMP/r31-ci.p12"; echo "R13_SIGNING_PASSWORD=$pw"; echo "R13_EXPECTED_CERT_SHA256=$cert"; echo "R31_SIGNING=NOT_AVAILABLE"; } >> "$GITHUB_ENV"
-            echo "NOT_AVAILABLE: sealed R13 envelope present but its transport private key is not reachable from this run; debug APK signed with TEMPORARY_CI_KEY $cert (not the official identity); release APK NOT_BUILT" > r31v/signing.txt
+            echo "NOT_AVAILABLE: neither the official R13 key nor the installed device identity is reachable; debug APK signed with TEMPORARY_CI_KEY $cert (no overlay install); release APK NOT_BUILT" > "$V/signing.txt"
           fi
           if [ -n "$DUOQU_SECRET" ]; then echo "::add-mask::$DUOQU_SECRET"; echo "DUOQU_API_KEY=$DUOQU_SECRET" >> "$GITHUB_ENV"; fi
       - uses: android-actions/setup-android@v3
@@ -158,7 +171,7 @@ jobs:
         run: for i in 1 2 3 4 5 6 7 8; do ./gradlew --no-daemon --version > /dev/null && exit 0; echo "gradle distribution attempt $i failed"; sleep $((i*45)); done; exit 1
       - name: r982 source-call inventory (B12-C05; refrozen from freshly compiled classes when stale)
         run: |
-          if python3 scripts/r982_source_call_asset.py; then echo "R982_INVENTORY_CURRENT" | tee -a r31v/signing.txt; exit 0; fi
+          if python3 scripts/r982_source_call_asset.py; then echo "R982_INVENTORY_CURRENT" | tee -a "$RUNNER_TEMP/r31v/signing.txt"; exit 0; fi
           # Stale against the current sources: compile the product classes without the APK pipeline, freeze the
           # index from them, commit it back, and stop. The next run builds a clean (non-dirty) APK from it.
           ./gradlew --no-daemon -Pr312Development=true :app:compileDebugJavaWithJavac 2>&1 | tail -n 30
@@ -172,11 +185,12 @@ jobs:
         run: |
           set -o pipefail
           REL=""
-          if [ "$R31_SIGNING" = "OFFICIAL_R13" ] && [ -n "${DUOQU_API_KEY:-}" ]; then REL=":app:assembleRelease"; else echo "RELEASE_NOT_BUILT signing=$R31_SIGNING" >> r31v/signing.txt; fi
+          if [ "$R31_SIGNING" != "NOT_AVAILABLE" ] && [ -n "${DUOQU_API_KEY:-}" ]; then REL=":app:assembleRelease"; else echo "RELEASE_NOT_BUILT signing=$R31_SIGNING" >> "$RUNNER_TEMP/r31v/signing.txt"; fi
           ./gradlew --no-daemon -Pr30Instrumentation=true :app:assembleDebug :app:assembleDebugAndroidTest $REL 2>&1 | tail -n 150
       - name: Signature, badging and digests of what was built
         run: |
           B="$ANDROID_HOME/build-tools/36.0.0"
+          mkdir -p r31v && cp "$RUNNER_TEMP/r31v/signing.txt" r31v/signing.txt
           for f in $(ls app/build/outputs/apk/*/*.apk app/build/outputs/apk/androidTest/*/*.apk 2>/dev/null); do
             n=$(basename "$f" .apk)
             "$B/apksigner" verify --verbose --print-certs "$f" > "r31v/signature-$n.txt" 2>&1 || true

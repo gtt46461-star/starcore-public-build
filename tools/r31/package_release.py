@@ -16,6 +16,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 IDENTITY = ROOT / 'release/release_identity.properties'
+# The phone's installed build (device report of the R31 plan: R30-REPAIR1) and its signer, the R27 CI key.
+INSTALLED = {'package': 'com.starcore.research.r13', 'versionCode': 577311009, 'versionName': 'R30-REPAIR1-2026.11.02-009',
+             'signerCertSha256': 'd8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'}
 
 
 class Refused(Exception):
@@ -88,18 +91,23 @@ def create_delivery(built, verification_path, out, ident=None):
         signing = (r31v / 'signing.txt').read_text().strip() if (r31v / 'signing.txt').is_file() else 'UNKNOWN'
         commit = (r31v / 'source-commit.txt').read_text().strip() if (r31v / 'source-commit.txt').is_file() else ''
         need(re.fullmatch(r'[0-9a-f]{40}', commit) is not None, 'R31_DELIVERY_SOURCE_COMMIT_UNKNOWN')
-        official = signing.startswith('OFFICIAL_R13')
-        variant = 'release' if official else 'debug'
+        official = signing.startswith('OFFICIAL_R13'); device = signing.startswith('EXISTING_DEVICE_IDENTITY')
+        variant = 'release' if (official or device) and list((built / 'app/build/outputs/apk/release').glob('*.apk')) else 'debug'
         apks = sorted((built / 'app/build/outputs/apk' / variant).glob('*.apk'))
         need(len(apks) == 1, 'R31_DELIVERY_EXPECTED_ONE_%s_APK:%d' % (variant.upper(), len(apks)))
         apk = apks[0]; stem = apk.stem
         facts = verify_apk(apk, r31v / ('badging-%s.txt' % stem), r31v / ('signature-%s.txt' % stem), r31v / 'SHA256SUMS.txt', ident)
-        label = 'OFFICIAL' if official else 'DEBUG-NOT-OFFICIAL'
+        label = 'OFFICIAL' if official else ('OVERLAY-INSTALL-R27-IDENTITY' if device else 'DEBUG-NOT-OFFICIAL')
+        overlay = {'installed': INSTALLED, 'sameSigner': facts['signerCertSha256'] == INSTALLED['signerCertSha256'],
+                   'samePackage': facts['package'] == INSTALLED['package'], 'versionCodeHigher': facts['versionCode'] > INSTALLED['versionCode']}
+        overlay['overlayInstallKeepsData'] = overlay['sameSigner'] and overlay['samePackage'] and overlay['versionCodeHigher']
+        need(not device or overlay['overlayInstallKeepsData'], 'R31_DELIVERY_DEVICE_IDENTITY_NOT_OVERLAY_COMPATIBLE')
         name = 'STARCORE-R31-%s-%s-%s' % (facts['versionName'], label, commit[:12])
         delivery = {
             'format': 'R31_DELIVERY_V1', 'deliverable': name + '.zip', 'sourceCommit': commit,
             'apk': dict(facts, deliveredAs=name + '.apk', variant=variant),
-            'signing': 'OFFICIAL_R13' if official else 'NOT_OFFICIAL: ' + signing,
+            'signing': 'OFFICIAL_R13' if official else (signing if device else 'NOT_OFFICIAL: ' + signing),
+            'overlayInstall': overlay,
             'identity': {k: ident[k] for k in ('applicationId', 'versionName', 'versionCode', 'databaseName', 'releaseMode')},
             'layers': _layers(verification),
             'remainingLimits': ['natural predictive advantage NOT_PROVEN', '24h/72h device runs NOT_RUN', 'old-APK read of the upgraded database NOT_RUN (EMU/DEVICE)'],
@@ -108,7 +116,8 @@ def create_delivery(built, verification_path, out, ident=None):
         need(delivery['layers']['NATURAL_QUALITY']['status'] == 'NOT_PROVEN' and delivery['layers']['L4_PHYSICAL_DEVICE_24H_72H']['status'] == 'NOT_RUN', 'R31_DELIVERY_UNPROVEN_LAYER_CLAIMED')
         members = {name + '.apk': apk.read_bytes(), 'R31_DELIVERY.json': (json.dumps(delivery, indent=1, ensure_ascii=False) + '\n').encode(),
                    'R31_VERIFICATION_RECEIPT.json': Path(verification_path).read_bytes(),
-                   'README.txt': ('安装 %s.apk（%s）。工程通过与自然质量分栏：自然优势 NOT_PROVEN；真机 24h/72h NOT_RUN。\n' % (name, 'official signing' if official else 'debug key, not the official identity')).encode()}
+                   'README.txt': ('安装 %s.apk（%s）。工程通过与自然质量分栏：自然优势 NOT_PROVEN；真机 24h/72h NOT_RUN。\n' % (name,
+                       'official signing' if official else ('与手机已装 R30-REPAIR1 同包名同签名（R27 CI 证书 d8d8cee7…），versionCode 更高，可直接覆盖安装并保留数据；不是正式 R13 签名' if overlay['overlayInstallKeepsData'] else 'debug key, not the official identity; cannot overlay the installed app'))).encode()}
         sums = ''.join('%s  %s\n' % (sha256(v), k) for k, v in sorted(members.items()))
         members['SHA256SUMS.txt'] = sums.encode()
         z = out / (name + '.zip')

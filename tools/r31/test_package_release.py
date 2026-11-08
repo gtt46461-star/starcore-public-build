@@ -104,6 +104,17 @@ class Package(unittest.TestCase):
         with self.assertRaises(pr.Refused) as e: pr.verify_zip(self.tmp / dl['deliverable'], IDENT)
         self.assertEqual(str(e.exception), 'R31_ZIP_NATURAL_QUALITY_CLAIMED')
 
+    def test_the_installed_device_identity_gives_a_release_overlay_install_never_called_official(self):
+        dev = pr.INSTALLED['signerCertSha256']
+        t = Path(tempfile.mkdtemp()); built = layout(t, signing='EXISTING_DEVICE_IDENTITY: R27 CI key %s' % dev, variant='release')
+        for f in (built / 'r31v').glob('signature-*.txt'): f.write_text(f.read_text().replace(CERT, dev))
+        d = pr.verify_zip(pr.create_delivery(built, receipt(t), t / 'out', IDENT), IDENT)
+        self.assertEqual(d['apk']['variant'], 'release'); self.assertIn('OVERLAY-INSTALL-R27-IDENTITY', d['deliverable']); self.assertNotIn('OFFICIAL', d['deliverable'])
+        self.assertTrue(d['overlayInstall']['overlayInstallKeepsData']); self.assertTrue(d['signing'].startswith('EXISTING_DEVICE_IDENTITY'))
+        t = Path(tempfile.mkdtemp()); built = layout(t, signing='EXISTING_DEVICE_IDENTITY: changed key', variant='release')
+        with self.assertRaises(pr.Refused) as e: pr.create_delivery(built, receipt(t), t / 'out', IDENT)
+        self.assertEqual(str(e.exception), 'R31_DELIVERY_DEVICE_IDENTITY_NOT_OVERLAY_COMPATIBLE')
+
     def test_the_committed_delivery_declaration_keeps_the_columns_apart(self):
         d = json.loads((ROOT / 'release/R31_DELIVERY.json').read_text())
         self.assertEqual(d['layers']['NATURAL_QUALITY']['status'], 'NOT_PROVEN')
