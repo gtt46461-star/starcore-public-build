@@ -87,7 +87,7 @@ public final class UpgradeMatrixR31Host {
         SchemaDomainCoordinatorR926.UpgradeSpecR31 production = RuntimeCoordinatorR26.startupUpgradeSpecR31("host-upgrade-owner");
         SchemaDomainCoordinatorR926.Step transform = tamper ? d -> { production.transform.run(d); d.execSQL("UPDATE r27_certificate SET status='HOST_TAMPER' WHERE rowid=(SELECT min(rowid) FROM r27_certificate)"); } : production.transform;
         SchemaDomainCoordinatorR926.UpgradeSpecR31 spec = new SchemaDomainCoordinatorR926.UpgradeSpecR31(production.id, production.revision, production.contractHash,
-                production.roots, production.requiredFreeBytes, freeBytes < 0 ? null : d -> freeBytes, transform, production.cleanup);
+                production.roots, production.requiredFreeBytes, freeBytes < 0 ? d -> new java.io.File(d.getPath()).getAbsoluteFile().getParentFile().getUsableSpace() : d -> freeBytes, transform, production.cleanup);
         try {
             SchemaDomainCoordinatorR926.UpgradeOutcomeR31 out = SchemaDomainCoordinatorR926.runUpgradeR31(db, writer(db), spec);
             System.out.println("UPGRADE|" + out.state + "|" + out.domain + "|cuts=" + cuts + "|attempts=" + out.attempts + "|forward=" + out.forwardCompatibility);

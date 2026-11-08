@@ -1058,7 +1058,8 @@ public final class SchemaDomainCoordinatorR926 {
         String path = db.getPath();
         if (path == null || path.length() == 0 || path.startsWith(":memory:")) return Long.MAX_VALUE;
         java.io.File dir = new java.io.File(path).getAbsoluteFile().getParentFile();
-        return dir == null ? Long.MAX_VALUE : dir.getUsableSpace();
+        // Same API as StorageHealthR811 (minSdk 21). HOST runs pass their own probe (no android.os.StatFs there).
+        return dir == null ? Long.MAX_VALUE : new android.os.StatFs(dir.getPath()).getAvailableBytes();
     };
 
     public static final class UpgradeSpecR31 {

@@ -37,7 +37,10 @@ def main():
     manifest = json.loads(MANIFEST.read_text())
     covered = sorted(s['id'] for s in manifest['scenarios'] if 'HOST:run_full_chain_fault_host' in s['executed_by'])
     text = json.dumps(receipt)
-    missing = [i for i in covered if i not in text]
+    kills = receipt.get('processDeath', [])
+    # F02 is proven by the recorded real JVM halts (each resumed and re-checked by the host), not by a label
+    f02 = bool(kills) and all(k.get('halted') for k in kills)
+    missing = [i for i in covered if (i == 'F02_PROCESS_DEATH' and not f02) or (i != 'F02_PROCESS_DEATH' and i not in text)]
     if receipt.get('status') != 'PASS' or missing:
         print('R31_FULL_CHAIN_FAULT_HOST_FAIL missing manifest scenarios in receipt: %s' % missing); sys.exit(1)
     receipt['manifestScenariosExecuted'] = covered

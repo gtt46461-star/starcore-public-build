@@ -23,12 +23,12 @@ public final class R31CrossBatchRegressionTest {
 
     static final Map<String, String> BEFORE = new TreeMap<>();
     static {
-        BEFORE.put("replay.selectTrace", "PENDING");
-        BEFORE.put("paired.MASK_FROZEN", "PENDING");
-        BEFORE.put("paired.RETRAIN_REMOVED", "PENDING");
-        BEFORE.put("gain.estimate", "PENDING");
-        BEFORE.put("improvement.claims", "PENDING");
-        BEFORE.put("certificate.streakProbability", "PENDING");
+        BEFORE.put("replay.selectTrace", "629412ff059165c8125ca85978fe6f0f");
+        BEFORE.put("paired.MASK_FROZEN", "5d59635ec73a06ff4a43392bab8bfe34");
+        BEFORE.put("paired.RETRAIN_REMOVED", "661c4bfc8e02aa071e2c25081d4d3ee8");
+        BEFORE.put("gain.estimate", "fd221a41806255024f635a7708d6aa6b");
+        BEFORE.put("improvement.claims", "f9c51cc3c7aa948a0c7a710675de31d5");
+        BEFORE.put("certificate.streakProbability", "368520c871b917aa6693f71ec6a8b8fb");
     }
 
     static String digest(Object o) { return StatsR27.sha256(JsonR27.write(o)); }
@@ -86,10 +86,10 @@ public final class R31CrossBatchRegressionTest {
         assertEquals("the fixture set is unchanged", BEFORE.keySet(), now.keySet());
         StringBuilder observed = new StringBuilder("R31_REGRESSION_OBSERVED"); List<String> changed = new ArrayList<>(); int i = 0;
         for (Map.Entry<String, String> e : BEFORE.entrySet()) {
-            String prefix = now.get(e.getKey()).substring(0, 40); observed.append('|').append(i++).append(':').append(prefix);
+            String prefix = now.get(e.getKey()).substring(0, 32); observed.append('|').append(i++).append(':').append(prefix);
             if (!prefix.equals(e.getValue())) changed.add(e.getKey());
         }
-        // 160-bit prefixes of the SHA-256 output digests (the message must fit the 300-character gate summary)
+        // 128-bit prefixes of the SHA-256 output digests (the message must fit the 300-character gate summary)
         assertTrue(observed + " changed=" + changed, changed.isEmpty());
     }
 
