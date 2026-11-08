@@ -1,31 +1,28 @@
 {
  "format": "R31_BUILD_SUMMARY_V2",
  "batch": "K11",
- "source_head": "e4e696d2242b3a1652914e4fa9b79cd1a4f66145",
- "started_at": "2026-11-08T07:32:27.459392+00:00",
- "finished_at": "2026-11-08T08:11:33.090883+00:00",
+ "source_head": "4e4e0b47f179d568cae1aae330d87c5d031e460b",
+ "started_at": "2026-11-08T08:14:53.914770+00:00",
+ "finished_at": "2026-11-08T08:53:30.970715+00:00",
  "environment": "CI",
- "ci_run": "42459134871",
+ "ci_run": "42462033787",
  "pre_build": [],
  "gradle": {
-  "state": "FAIL",
+  "state": "PASS",
   "tasks": [
    ":app:compileDebugJavaWithJavac",
    ":app:compileDebugAndroidTestJavaWithJavac",
    ":app:testDebugUnitTest",
    ":app:lintDebug"
   ],
-  "exit": 1,
-  "failed_tasks": [
-   ":app:lintDebug",
-   ":app:testDebugUnitTest"
-  ],
+  "exit": 0,
+  "failed_tasks": [],
   "compile_failed": [],
   "unit_task_executed": true
  },
  "unit": {
   "tests": 622,
-  "failures": 1,
+  "failures": 0,
   "errors": 0,
   "skipped": 0
  },
@@ -1519,8 +1516,8 @@
    "message": ""
   },
   "com.ethk3.novaonepro.strategyv2.R31CrossBatchRegressionTest#theSameFixturesGiveTheSameResultsAsBeforeK11": {
-   "status": "FAIL",
-   "message": "java.lang.AssertionError: R31_REGRESSION_OBSERVED|0:368520c871b917aa6693f71ec6a8b8fbe009d229|1:fd221a41806255024f635a7708d6aa6bd3ef4afc|2:f9c51cc3c7aa948a0c7a710675de31d5d2fc44dc|3:5d59635ec73a06ff4a43392bab8bfe3419ef3702|4:661c4bfc8e02aa071e2c25081d4d3ee89a5ce400|5:629412ff059165c8125ca85978fe6f0fb"
+   "status": "PASS",
+   "message": ""
   },
   "com.ethk3.novaonepro.strategyv2.R31CrossBatchRegressionTest#theComparedCapabilitiesStillSeparateAnEffectFromNoEffect": {
    "status": "PASS",
@@ -2632,8 +2629,8 @@
   },
   {
    "id": "verify_pin_capacity",
-   "status": "PASS",
-   "exit": 0
+   "status": "FAIL",
+   "exit": 1
   },
   {
    "id": "verify_pitguard_allocation",
@@ -2777,8 +2774,8 @@
   },
   {
    "id": "run_full_chain_fault_host",
-   "status": "FAIL",
-   "exit": 1
+   "status": "PASS",
+   "exit": 0
   },
   {
    "id": "r31_verification_receipt_selftest",
@@ -2802,7 +2799,7 @@
   }
  ],
  "host_failed": [
-  "run_full_chain_fault_host"
+  "verify_pin_capacity"
  ],
  "release_only_tasks_not_run": [
   ":app:verifyFinalR31BuildIdentity",
