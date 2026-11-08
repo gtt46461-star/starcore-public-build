@@ -1,0 +1,49 @@
+{
+  "scope": "P01_PRODUCTION_OBSERVATION_HELPER_AND_ADDITIVE_SQL_HOST_CHECKS",
+  "status": "PASS",
+  "capturedAt": "2026-11-08T02:37:26.427140+00:00",
+  "java": {
+    "assertions": 34,
+    "scope": "PRODUCTION_JAVA_OBSERVATION_HELPER_HOST_FAULT_DOUBLES_NOT_ANDROID_SQLITE",
+    "status": "PASS"
+  },
+  "originalReportFacts": {
+    "tasks": 60,
+    "quarantined": 14,
+    "r27Tasks": 13,
+    "r27Quarantined": 13,
+    "r27ClaimFailure": 11,
+    "r27Cancelled": 1,
+    "r27StudentDependency": 1,
+    "claimRootCause": "UNOBSERVED_IN_ORIGINAL_REPORT",
+    "reportSha256": "d652fd3f94c9b515ff9be281e567bbfda70f82091c9b1a979c00286fbd4f5431"
+  },
+  "sqlite": {
+    "version": "3.46.1",
+    "ddlStatements": 6,
+    "idempotentApply": "PASS",
+    "preservedUnrelatedBlob": "PASS",
+    "aggregateRetainsFirstAndLast": "PASS",
+    "duplicateIdentityRejected": "PASS",
+    "negativeByteCountRejected": "PASS"
+  },
+  "productionSources": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java": "35fce88a64f2f5bc1a88f863d0d3cf632179943873b3500b9a54e3fd1101159a",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java": "a7b4645a2247af79c2db75389f7c1c044bf31d20cb0b100fe4b2fa09bdfd9daa",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeFaultEvidenceR31.java": "7bfe024663edfa744913112c671b3af4ae6129b4d07dcc2befef6c463e97eb4e",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java": "2b9384e18e245cf133a5b125577e42ae976bfe0257caee38e8d9eb49325e9cef",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java": "ec98ea0e2a672caa8ac4d61e5172e84d243b546c5867644d15e3565d170b23a0",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java": "6030534c81198cf0bf61af19f7ff323c98ebc30e15eb2a94517daf26c907537c",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java": "2fda6286322d1344ef19934d4810839598d1fbb0cf319c11eabae609b314e706",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java": "98fc0bc205ea4187e43b7e7057cfd52447ff30d5c90c4f933405c31b5b93f1f7"
+  },
+  "androidBuild": "NOT_RUN_BY_THIS_SCRIPT",
+  "device": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "remaining": [
+    "Android SQLite adapter fault injection",
+    "runtime observation failure after real business commit",
+    "device report evidence",
+    "Full Android instrumented and physical-device validation"
+  ]
+}
