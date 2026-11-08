@@ -39,6 +39,8 @@ jobs:
           packages: platform-tools
           log-accepted-android-sdk-licenses: false
       - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+      - name: Gradle distribution (fetched with retries; a download timeout is infrastructure, not a result)
+        run: for i in 1 2 3 4 5; do ./gradlew --no-daemon --version > /dev/null && exit 0; echo "gradle distribution attempt $i failed"; sleep $((i*30)); done; exit 1
       - name: Gate build
         run: |
           G=construction/STARCORE_R31_FINAL_20261104/tools/r31_gate.py
