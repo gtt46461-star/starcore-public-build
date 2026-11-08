@@ -6,10 +6,10 @@
 name: STARCORE R31 verification
 on:
   # A new workflow is dispatchable only from the default branch, so the construction branch requests a run by
-  # changing release/R31_VERIFICATION_REQUEST.txt (or this file). Nothing else on the branch triggers it.
+  # changing release/R31_VERIFICATION_REQUEST.md (or this file). Nothing else on the branch triggers it.
   push:
     branches: ['construction/r31-final-20261104']
-    paths: ['release/R31_VERIFICATION_REQUEST.txt', '.github/workflows/r31-verification.yml']
+    paths: ['release/R31_VERIFICATION_REQUEST.md', '.github/workflows/r31-verification.yml']
   workflow_dispatch:
     inputs:
       instrumentation:
