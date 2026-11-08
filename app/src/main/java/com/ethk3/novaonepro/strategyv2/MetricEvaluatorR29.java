@@ -162,4 +162,48 @@ public final class MetricEvaluatorR29 {
         if(id.equals("M05")){r.put("pendingTargetsExcluded",pendingTargets);r.put("missingDurableObservationTargets",missingDurable);if(conflictingDeadlines==0&&missingDurable>0){r.put("coverageLowerBound",r.get("value"));r.put("value",null);r.put("status","UNKNOWN_DURABLE_OBSERVATION_MISSING");r.put("missingReason","缺少已持久化的提交后时刻，无法区分准时与超时；不以0或成功替代，已记录迟到和下界仍保留");}}
         r.put("eventIdentityConflicts",eventConflicts);if(eventConflicts>0&&!"FAIL".equals(r.get("status"))){r.put("status","DATA_CONFLICT");r.put("missingReason","事件身份冲突已隔离；不借其他实例填补阶段，保持真实冲突等待核对");}
     }
+    // ---------------------------------------------------------------- R31-B11-C01
+    /** One measurement receipt (hashed); a missing source has no receipt at all. */
+    public static final class MeasurementR31 {
+        public final String receiptHash, role; public final long samples; public final Double value; public final boolean met;
+        public MeasurementR31(String receiptHash, String role, long samples, Double value, boolean met) { this.receiptHash = receiptHash; this.role = role; this.samples = samples; this.value = value; this.met = met; }
+    }
+    /** Evaluates one R31 definition: missing source = UNKNOWN (no value), zero/too few samples = INSUFFICIENT, failure = FAIL,
+     * success = PASS. Quality metrics only consume natural future-role receipts; value and coverage are separate fields. */
+    public static Map<String,Object> evaluateR31(Map<String,Object> def, MeasurementR31 m) {
+        Map<String,Object> r = new LinkedHashMap<>(); String id = String.valueOf(def.get("id")); long min = ((Number) def.get("minimumSample")).longValue();
+        r.put("id", id); r.put("version", def.get("version")); r.put("denominator", def.get("denominator")); r.put("minimumSample", min);
+        String status; Object value = null; Object coverage = null;
+        if (m == null || m.receiptHash == null || !m.receiptHash.matches("[0-9a-f]{64}")) status = "UNKNOWN_SOURCE_MISSING";
+        else if ("QUALITY".equals(def.get("kind")) && !"NATURAL_FUTURE".equals(m.role)) status = "NOT_PROVEN_NOT_NATURAL_ROLE";
+        else if (m.samples <= 0) { status = "INSUFFICIENT_ZERO_SAMPLES"; coverage = 0.0; }
+        else { coverage = Math.min(1.0, m.samples / (double) min); value = m.value; status = m.samples < min ? "INSUFFICIENT_BELOW_MINIMUM_SAMPLE" : m.met ? "PASS" : "FAIL"; }
+        r.put("status", status); r.put("value", value); r.put("coverage", coverage); r.put("samples", m == null ? null : (Object) m.samples); r.put("receiptHash", m == null ? null : m.receiptHash);
+        return r;
+    }
+    /** The same row, rendered for the HTML report; the JSON and HTML carry identical id/value/status/denominator. */
+    public static String htmlRowR31(Map<String,Object> row) {
+        StringBuilder b = new StringBuilder("<tr");
+        for (String k : new String[]{"id", "status", "value", "denominator"}) b.append(" data-").append(k).append("=\"").append(escapeR31(String.valueOf(row.get(k)))).append('"');
+        return b.append("><td>").append(escapeR31(String.valueOf(row.get("id")))).append("</td><td>").append(escapeR31(String.valueOf(row.get("status")))).append("</td><td>").append(escapeR31(String.valueOf(row.get("value")))).append("</td></tr>").toString();
+    }
+    static String escapeR31(String s) { return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;"); }
+    /** M32: one cross-source observation of the same business fact. */
+    public static final class SourceValueR31 {
+        public final String source, owner, role, scope, watermark; public final long capturedAt; public final String value;
+        public SourceValueR31(String source, String owner, String role, String scope, long capturedAt, String watermark, String value) { this.source = source; this.owner = owner; this.role = role; this.scope = scope; this.capturedAt = capturedAt; this.watermark = watermark; this.value = value; }
+    }
+    /** Values are compared only within the same scope and watermark; different watermarks or scopes are a reported
+     * STALE_OR_SCOPE_CONFLICT with every source listed, never a numeric contradiction and never a claim that settlement stopped. */
+    public static Map<String,Object> crossSourceR31(List<SourceValueR31> values) {
+        Map<String,Object> r = new LinkedHashMap<>(); List<Object> conflicts = new ArrayList<>(), scopes = new ArrayList<>(); Map<String, SourceValueR31> byKey = new LinkedHashMap<>();
+        for (SourceValueR31 v : values) {
+            for (String f : new String[]{v.source, v.owner, v.role, v.scope, v.watermark}) if (f == null || f.isEmpty()) throw new IllegalArgumentException("R31_M32_SOURCE_FIELDS_REQUIRED:" + v.source);
+            String key = v.scope + "@" + v.watermark; SourceValueR31 first = byKey.putIfAbsent(key, v);
+            if (first != null && !first.value.equals(v.value)) conflicts.add(first.source + "=" + first.value + " vs " + v.source + "=" + v.value + " @" + key);
+        }
+        java.util.Set<String> watermarks = new java.util.TreeSet<>(); for (SourceValueR31 v : values) { watermarks.add(v.scope + "@" + v.watermark); Map<String,Object> x = new LinkedHashMap<>(); x.put("source", v.source); x.put("owner", v.owner); x.put("role", v.role); x.put("scope", v.scope); x.put("capturedAt", v.capturedAt); x.put("watermark", v.watermark); x.put("value", v.value); scopes.add(x); }
+        r.put("status", !conflicts.isEmpty() ? "VALUE_CONFLICT_SAME_SCOPE_AND_WATERMARK" : watermarks.size() > 1 ? "STALE_OR_SCOPE_CONFLICT" : "CONSISTENT");
+        r.put("conflicts", conflicts); r.put("sources", scopes); r.put("settlementStoppedInferred", false); return r;
+    }
 }

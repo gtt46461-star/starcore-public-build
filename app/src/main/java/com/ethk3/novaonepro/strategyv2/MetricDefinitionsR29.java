@@ -14,4 +14,21 @@ public final class MetricDefinitionsR29 {
         for(Object x:(java.util.List<?>)JsonR27.parse(CURRENT_JSON))out.add(ReportR27.freezeMap((java.util.Map<String,Object>)x));
         return java.util.Collections.unmodifiableList(out);
     }
+    /** R31-B11-C01: versioned R31 definitions: owner, collection source, numerator/denominator, role, window, minimum
+     * sample, missing policy and card mapping per metric, plus the checks that support it and what is still uncovered. */
+    public static final String R31_VERSION="R31_METRICS_20261108";
+    public static java.util.List<java.util.Map<String,Object>> r31Definitions(){
+        java.util.List<java.util.Map<String,Object>> out=new java.util.ArrayList<>();java.util.Map<String,java.util.Map<String,Object>> base=new java.util.HashMap<>();
+        for(java.util.Map<String,Object> d:currentR30())base.put(String.valueOf(d.get("id")),d);
+        for(CheckMetricCrosswalkR31.Metric x:CheckMetricCrosswalkR31.definitions()){
+            java.util.Map<String,Object> d=new java.util.LinkedHashMap<>();java.util.Map<String,Object> old=base.get(x.id);
+            d.put("id",x.id);d.put("version",R31_VERSION);d.put("name",x.name);d.put("kind",x.kind);d.put("owner","MetricEvaluatorR29.evaluateR31");d.put("collectionSource",x.source);
+            boolean quality=x.quality();d.put("numerator",quality?"QUALIFYING_NATURAL_OUTCOMES_IN_WINDOW":"MEASURED_EVENTS_MEETING_TARGET");d.put("denominator",quality?"REGISTERED_ELIGIBLE_OPPORTUNITIES_IN_WINDOW":"MEASURED_EVENTS_IN_SCOPE");
+            d.put("role",quality?"NATURAL_FUTURE_ONLY":"ENGINEERING_RUNTIME");d.put("window",quality?"PREREGISTERED_FUTURE_WINDOW":"CURRENT_REPORT_SNAPSHOT");d.put("minimumSample",(long)(quality?250:1));
+            d.put("missingPolicy","UNKNOWN_NOT_ZERO");d.put("target",x.target);d.put("requiredEvidence",x.requiredEvidence);d.put("cards",x.batch);
+            java.util.List<Object> checks=new java.util.ArrayList<>();for(CheckMetricCrosswalkR31.Check k:CheckMetricCrosswalkR31.supportingChecks(x.id))checks.add(k.id);d.put("supportingChecks",checks);
+            d.put("uncoveredConditions",new java.util.ArrayList<Object>(CheckMetricCrosswalkR31.uncoveredConditions(x.id)));d.put("r30Definition",old==null?null:old.get("definition"));out.add(d);
+        }
+        return java.util.Collections.unmodifiableList(out);
+    }
 }

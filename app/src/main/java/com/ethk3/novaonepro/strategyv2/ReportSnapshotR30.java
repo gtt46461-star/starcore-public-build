@@ -292,4 +292,50 @@ public final class ReportSnapshotR30 {
     static void confirmationViewsR30(Map<String,Object> data){Object source=data.get("confirmation");if(!(source instanceof List))return;List<Object> views=new ArrayList<>();for(Object value:(List<?>)source){Map<String,Object> row=new LinkedHashMap<>(MetricEvaluatorR29.map(value));Map<String,Object> result=new LinkedHashMap<>();try{if(row.get("result_json") instanceof String)result=MetricEvaluatorR29.map(JsonR27.parse((String)row.get("result_json")));}catch(RuntimeException malformed){row.put("resultReadFailure",malformed.getClass().getSimpleName());}row.put("confirmationState",ConfirmationViewR30R1.state(String.valueOf(row.get("state")),String.valueOf(result.get("status")),longValue(row.get("verified"))==1,longValue(row.get("registered_at"))));row.put("originalResult",result);row.put("role","CONFIRM_READ_ONLY_NOT_OPTIMIZER_REWARD");views.add(row);}data.put("confirmationViews",views);}
     static Number numberValueR30(Object value){return MetricEvaluatorR29.number(value);}
     static String id(String name){return "\""+name.replace("\"","\"\"")+"\"";}
+    // ---------------------------------------------------------------- R31-B11-C03
+    /** Bounded diagnostic package: every rowset states total/shown/omitted/byteBudget/denominatorScope; a large original is an
+     * attachment identified by hash and size, included only within the budget; an omitted one leaves its metric UNKNOWN. */
+    public static final class AttachmentsR31 {
+        public static final class Item { public final String name, sha256, needsForRecompute; public final long bytes; public Item(String name, long bytes, String sha256, String needsForRecompute) { this.name = name; this.bytes = bytes; this.sha256 = sha256; this.needsForRecompute = needsForRecompute; } }
+        public static java.util.Map<String, Object> rowset(String id, long total, long shown, long byteBudget, String denominatorScope) {
+            if (shown > total || shown < 0) throw new IllegalArgumentException("R31_ROWSET_COUNTS");
+            java.util.Map<String, Object> m = new java.util.LinkedHashMap<>(); m.put("id", id); m.put("total", total); m.put("shown", shown); m.put("omitted", total - shown); m.put("byteBudget", byteBudget);
+            m.put("denominatorScope", denominatorScope); m.put("shownIsDenominator", false); return m;
+        }
+        /** Which attachments fit the budget; omitted ones are listed with the metric they would have supported (UNKNOWN). */
+        public static java.util.Map<String, Object> plan(java.util.List<Item> items, long budgetBytes) {
+            java.util.List<Object> included = new java.util.ArrayList<>(), omitted = new java.util.ArrayList<>(); java.util.Map<String, Object> unknown = new java.util.LinkedHashMap<>(); long used = 0;
+            for (Item x : items) {
+                java.util.Map<String, Object> e = new java.util.LinkedHashMap<>(); e.put("name", x.name); e.put("bytes", x.bytes); e.put("sha256", x.sha256); e.put("retainedLocation", "app_data/report_attachments/" + x.name);
+                if (used + x.bytes <= budgetBytes) { used += x.bytes; e.put("included", true); e.put("exportable", true); included.add(e); }
+                else { e.put("included", false); e.put("exportable", false); e.put("reason", "BYTE_BUDGET"); omitted.add(e); if (x.needsForRecompute != null) unknown.put(x.needsForRecompute, "UNKNOWN_ATTACHMENT_NOT_INCLUDED"); }
+            }
+            java.util.Map<String, Object> m = new java.util.LinkedHashMap<>(); m.put("budgetBytes", budgetBytes); m.put("usedBytes", used); m.put("included", included); m.put("omitted", omitted); m.put("metricsUnknownBecauseOmitted", unknown);
+            m.put("referenceOnlyIsCompleteRawPackage", false); return m;
+        }
+        /** An included attachment is recomputable only when the file exists with the declared size and hash. */
+        public static String verify(java.io.File dir, Item x) throws java.io.IOException {
+            java.io.File f = new java.io.File(dir, x.name);
+            if (!f.getCanonicalPath().startsWith(dir.getCanonicalPath() + java.io.File.separator)) return "REJECTED_PATH";
+            if (!f.isFile()) return "MISSING_NOT_RECOMPUTABLE";
+            if (f.length() != x.bytes) return "SIZE_MISMATCH_NOT_RECOMPUTABLE";
+            return StatsR27.sha256(java.nio.file.Files.readAllBytes(f.toPath())).equals(x.sha256) ? "VERIFIED" : "HASH_MISMATCH_NOT_RECOMPUTABLE";
+        }
+        public interface Cancel { boolean cancelled(); }
+        /** Streams one attachment into the export directory through a temp file; cancel/kill leaves no permanent partial copy
+         * and never touches the live database or the original (the source is only read). */
+        public static String export(java.io.File source, java.io.File dir, Item x, Cancel cancel) throws java.io.IOException {
+            java.io.File tmp = new java.io.File(dir, x.name + ".part"), out = new java.io.File(dir, x.name); dir.mkdirs();
+            java.security.MessageDigest md; try { md = java.security.MessageDigest.getInstance("SHA-256"); } catch (java.security.NoSuchAlgorithmException e) { throw new java.io.IOException(e); }
+            try (java.io.InputStream in = new java.io.FileInputStream(source); java.io.OutputStream o = new java.io.FileOutputStream(tmp)) {
+                byte[] b = new byte[64 << 10]; for (int n; (n = in.read(b)) != -1; ) { if (cancel != null && cancel.cancelled()) { o.close(); tmp.delete(); return "CANCELLED_NO_PARTIAL_EXPORT"; } md.update(b, 0, n); o.write(b, 0, n); }
+            } catch (java.io.IOException failed) { tmp.delete(); throw failed; }
+            StringBuilder h = new StringBuilder(); for (byte v : md.digest()) h.append(String.format(java.util.Locale.ROOT, "%02x", v & 255));
+            if (!h.toString().equals(x.sha256)) { tmp.delete(); return "SOURCE_CHANGED_OR_CORRUPT_NOT_EXPORTED"; }
+            if (!tmp.renameTo(out)) { tmp.delete(); throw new java.io.IOException("R31_EXPORT_RENAME"); }
+            return "EXPORTED";
+        }
+        /** Clears leftovers of a killed export (only *.part files of the export directory). */
+        public static int recover(java.io.File dir) { int n = 0; java.io.File[] f = dir.listFiles((d, name) -> name.endsWith(".part")); if (f != null) for (java.io.File x : f) if (x.delete()) n++; return n; }
+    }
 }
