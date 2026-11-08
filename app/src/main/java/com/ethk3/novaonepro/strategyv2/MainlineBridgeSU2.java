@@ -114,9 +114,9 @@ public final class MainlineBridgeSU2 {
     public static ProjectionR30 projectionR30(SQLiteDatabase db,long seq,long now,String actualCandidate) {
         ProjectionR30 out=new ProjectionR30();
         String choice=null;
-        try(Cursor c=db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id='mainline' AND key='choice'",null)){
-            if(c.moveToFirst()){Object x=((Map<?,?>)JsonR27.parse(c.getString(0))).get("choice");if(x instanceof String&&!((String)x).startsWith("PRODUCTION_FALLBACK"))choice=(String)x;}
-        }catch(RuntimeException missing){out.sources.put("r27ChoiceSource","UNKNOWN:"+missing.getClass().getSimpleName());}
+        // R31-B10-C01: the explanation reads the same single authorization path as the request lane.
+        try{MainlineChoiceStoreR31.Authorization auth=MainlineChoiceStoreR31.authorizedChoice(db,now);choice=auth.policyHash;out.sources.put("mainlineAuthorityR31",auth.mode+":"+auth.reason);}
+        catch(RuntimeException missing){out.sources.put("r27ChoiceSource","UNKNOWN:"+missing.getClass().getSimpleName());}
         if(choice!=null&&!choice.isEmpty()&&(actualCandidate==null||actualCandidate.equals(choice)||actualCandidate.equals("R27:"+choice))) {
             out.member="R27:"+choice;out.candidate=choice;out.sources.put("lane","R27_REQUEST_ONLY");
             out.sources.put("authorizationState","AWAITING_EXISTING_AUTHORIZATION_CHAIN");
@@ -160,12 +160,11 @@ public final class MainlineBridgeSU2 {
     }
 
     static Intent r27Intent(SQLiteDatabase db, long seq) {
-        String choice;
-        try (Cursor c = db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id='mainline' AND key='choice'", null)) {
-            if (!c.moveToFirst()) return null; Object v = ((Map<?, ?>) JsonR27.parse(c.getString(0))).get("choice"); choice = v == null ? null : v.toString();
-        } catch (RuntimeException schemaPending) { return null; }
+        String choice; long now = System.currentTimeMillis();
+        // R31-B10-C01: one authorization path (legacy projection only while it agrees with the typed row, then typed only).
+        try { MainlineChoiceStoreR31.Authorization auth = MainlineChoiceStoreR31.authorizedChoice(db, now); choice = auth.policyHash; }
+        catch (RuntimeException schemaPending) { return null; }
         if (choice == null || choice.startsWith("PRODUCTION_FALLBACK")) return null;
-        long now = System.currentTimeMillis();
         try (Cursor c = db.rawQuery(R27_INTENT_SQL, new String[] {choice, String.valueOf(seq), String.valueOf(now), SequentialQualificationR27.QUALIFIED})) {
             if (!c.moveToFirst() || !"FROZEN".equals(c.getString(6)) || c.getInt(4) != 1) return null; // MISSING / abstain is never turned into an action
             int position = c.getInt(0), n1 = c.getInt(1), n2 = c.getInt(2), n3 = c.getInt(3); double[] p = StoreR27.unpack(c.getBlob(5));

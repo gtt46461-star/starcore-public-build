@@ -127,6 +127,26 @@ public final class SchemaDomainCoordinatorR926 {
         }
     }
 
+    /** R31-B10-C01: typed mainline choice authority (one writer: the certificate transaction). */
+    public static Contract r31MainlineChoiceContract() {
+        return new Contract(com.ethk3.novaonepro.strategyv2.MainlineChoiceStoreR31.DOMAIN, 1, com.ethk3.novaonepro.strategyv2.MainlineChoiceStoreR31.OBJECTS);
+    }
+
+    /** The existing startup migration writer is the sole schema owner. */
+    public static void migrateR31MainlineChoice(SQLiteDatabase db) {
+        if (!db.inTransaction()) throw new IllegalStateException("R31_MIGRATION_OWNER_REQUIRED");
+        Contract contract = r31MainlineChoiceContract();
+        prepareRepairIfDrift(db, contract);
+        try {
+            runStep(db, contract, "R31_MAINLINE_CHOICE_V1", com.ethk3.novaonepro.strategyv2.MainlineChoiceStoreR31::ensureSchemaR31);
+            verifyAndStamp(db, contract);
+        } catch (RuntimeException failure) {
+            throw failure;
+        } catch (Exception failure) {
+            throw new IllegalStateException("R31_MAINLINE_CHOICE_MIGRATION_FAILED", failure);
+        }
+    }
+
     public static Contract r31HistoryImportContract() {
         return new Contract("RESEARCH_R31_HISTORY_IMPORT", 1, new String[] {
                 "r31_history_import_run", "r31_history_import_row", "r31_history_import_order",

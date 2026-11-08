@@ -70,6 +70,8 @@ public final class SequentialQualificationR27 {
             o.put("deltaMinSource","PRE_REGISTERED_TARGET_ACT_RATE: clamp(rate,0.01,1)*(0.34-0.30); legacy unknown MARGIN uses 0.15; no FUTURE refit");
             o.put("logEUp", logUp); o.put("logEDown", logDown); o.put("threshold", threshold()); o.put("n", n); o.put("acts", acts); o.put("hits", hits);
             o.put("state", state); o.put("progress", progress()); double r = expectedRemaining(); o.put("expectedRemaining", Double.isFinite(r) ? (Object) r : null);
+            // R31-B10-C02: shown with its conditions; the global index, exposure and alpha are never reset.
+            o.put("opportunities", n); o.put("expectedRemainingScope", "PLANNING_ESTIMATE_AT_CURRENT_EFFECT_ESTIMATE_NOT_A_COMPLETION_PROMISE"); o.put("alphaIndexScope", "PERMANENT_GLOBAL_INDEX_NEVER_REUSED_ON_RESTART_RENAME_OR_CHILD");
             return o;
         }
     }

@@ -29,7 +29,7 @@ case "$id" in
       echo "== R31_ORDER=$order"; R31_ORDER=$order python3 tools/r31/run_certificate_startup_host.py; done ;;
   run_checkpoint_startup_host) exec python3 tools/r31/run_checkpoint_startup_host.py --out "$OUT" --classes "$CL" ;;
   run_evolution_publication_host) exec python3 tools/r31/run_evolution_publication_host.py --case all --output "$OUT" ;;
-  run_legacy_qualification_contract) exec python3 tools/r31/run_legacy_qualification_contract.py --classes "$CL" --out "$OUT" ;;
+  run_legacy_qualification_contract) exec python3 tools/r31/run_legacy_qualification_contract.py --classes "$JAR" --out "$OUT" ;;
   run_report_cas_scope_host) exec python3 tools/r31/run_report_cas_scope_host.py --out "$OUT" --classes "$CL" ;;
   run_report_history_reader_host) exec python3 tools/r31/run_report_history_reader_host.py --out "$OUT" --classes "$CL" ;;
   run_telemetry_budget_host) exec python3 tools/r31/run_telemetry_budget_host.py --output "$OUT" ;;

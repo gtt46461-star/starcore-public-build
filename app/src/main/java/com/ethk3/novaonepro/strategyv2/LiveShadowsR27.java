@@ -246,6 +246,7 @@ public final class LiveShadowsR27 {
     static long certify(RuntimeR27 rt, ResearchPoolR27.Worker w, long latestOrd) throws Exception {
         List<CertificateGateR27.Evidence> active = new ArrayList<>(); List<Object[]> nearest = new ArrayList<>();
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long now = System.currentTimeMillis();final long sourceRevision=SchemaR27.liveSourceRevision(w.ro);
+        RuntimeCoordinatorR26.Claim certifierR31=RuntimeCoordinatorR26.currentClaimR30();final long selectionFenceR31=certifierR31==null?0:certifierR31.fence;
         String i00 = controlId(w.ro, "CONTROL_I00"), nul = controlId(w.ro, "CONTROL_NULL");
         String deployed = null;
         try (Cursor c = w.ro.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id='mainline' AND key='choice'", null)) {
@@ -287,7 +288,14 @@ public final class LiveShadowsR27 {
                 if(c.moveToFirst()&&!CertificateRevocationR30.blockedPolicy(db,"R27",e.policyHash))committed.add(e);
             }
             String actual=CertificateGateR27.choose(committed);Map<String,Object> saved=new LinkedHashMap<>(m);saved.put("qualified",(long)committed.size());saved.put("choice",actual==null?"PRODUCTION_FALLBACK|NO_VALID_CERTIFICATE":actual);saved.put("at",committedAt);
-            db.execSQL("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('mainline','choice',?,?)",new Object[]{JsonR27.write(saved),committedAt});return 0;
+            db.execSQL("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('mainline','choice',?,?)",new Object[]{JsonR27.write(saved),committedAt});
+            // R31-B10-C01: the same transaction is the only writer of the typed authority; a failure rolls both back.
+            if(MainlineChoiceStoreR31.ready(db)){
+                String digest="",modelState="";
+                if(actual!=null)try(Cursor c=db.rawQuery("SELECT evidence_digest,gates_json FROM r27_certificate WHERE policy_hash=?",new String[]{actual})){if(c.moveToFirst()){digest=c.getString(0);Object abi=((Map<?,?>)JsonR27.parse(c.getString(1))).get("semanticAbi");modelState=StatsR27.sha256("SEMANTIC_ABI|"+abi);}}
+                MainlineChoiceStoreR31.appendChoice(db,actual,actual,CertificateGateR27.GATE_VERSION+"|"+CertificateGateR27.contract().get("contractHash"),digest,modelState,sourceRevision,latestOrd+1,selectionFenceR31,committedAt);
+            }
+            return 0;
         };
         b.guardBefore(db->sourceRevision>=0&&sourceRevision==SchemaR27.liveSourceRevision(db)?0:-1);
         try{RuntimeR27.submit(w,"LIVE_CERTIFY",b);}catch(IllegalStateException changed){if(!QualificationInboxR29.precondition(changed))throw changed;}

@@ -107,6 +107,7 @@ public final class SchemaR27 {
         SchemaDomainCoordinatorR926.migrateR31AtomPublication(db);
         SchemaDomainCoordinatorR926.migrateR31HistoryImport(db);
         SchemaDomainCoordinatorR926.migrateR31EvolutionPublication(db);
+        SchemaDomainCoordinatorR926.migrateR31MainlineChoice(db); // after r27_certificate/r27_chart_cache exist
         db.execSQL(BehaviorSignatureR30.DDL); // R30-B04-02: idempotent duplicate rejection receipts
         for (String sql : ModelSurfaceStoreR30.DDL) db.execSQL(sql);
         for (String sql : AtomNetStoreR30.DDL) db.execSQL(sql);
