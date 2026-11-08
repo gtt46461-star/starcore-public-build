@@ -1,24 +1,9 @@
-{"name": "platform-javac", "exit": 0, "out": "/home/runner/work/starcore-public-build/starcore-public-build/verification/r31/p02/pin-capacity/runs/20261108T031633Z"}
-{"name": "production-javac", "exit": 0, "out": "/home/runner/work/starcore-public-build/starcore-public-build/verification/r31/p02/pin-capacity/runs/20261108T031633Z"}
-{"name": "host-javac", "exit": 0, "out": "/home/runner/work/starcore-public-build/starcore-public-build/verification/r31/p02/pin-capacity/runs/20261108T031633Z"}
-{"name": "baseline-pin-measurement", "exit": 0, "out": "/home/runner/work/starcore-public-build/starcore-public-build/verification/r31/p02/pin-capacity/runs/20261108T031633Z"}
-{"name": "current-pin-measurement", "exit": 0, "out": "/home/runner/work/starcore-public-build/starcore-public-build/verification/r31/p02/pin-capacity/runs/20261108T031633Z"}
-{"name": "PinAdmissionR31Host", "exit": 1, "out": "/home/runner/work/starcore-public-build/starcore-public-build/verification/r31/p02/pin-capacity/runs/20261108T031633Z"}
-R31_HOST_STEP_FAILED PinAdmissionR31Host
-
-Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
-	at com.ethk3.novaonepro.strategyv2.PinAdmissionR31Host.realMemoryPressure(PinAdmissionR31Host.java:51)
-	at com.ethk3.novaonepro.strategyv2.PinAdmissionR31Host.main(PinAdmissionR31Host.java:53)
-
-RECEIPT /home/runner/work/starcore-public-build/starcore-public-build/verification/r31/p02/pin-capacity/runs/20261108T031633Z/RECEIPT.json
-Traceback (most recent call last):
-  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/verify_pin_capacity.py", line 59, in <module>
-    if __name__=='__main__':main()
-                            ^^^^^^
-  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/verify_pin_capacity.py", line 48, in main
-    for name in ['PinAdmissionR31Host','RepairInputPinR30HostTest','InputPinJournalR31Host']:run(name,[jdk/'java','-Xmx512m','-cp',current,'com.ethk3.novaonepro.strategyv2.'+name])
-                                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/verify_pin_capacity.py", line 17, in run
-    if p.returncode:print('R31_HOST_STEP_FAILED '+name+'\n'+p.stdout[-4000:]+'\n'+p.stderr[-4000:],flush=True);raise RuntimeError(name+' failed; raw stdout/stderr retained')
-                                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-RuntimeError: PinAdmissionR31Host failed; raw stdout/stderr retained
+{"name": "platform-javac", "exit": 0, "out": "/home/runner/work/starcore-public-build/starcore-public-build/verification/r31/p02/pin-capacity/runs/20261108T035301Z"}
+{"name": "production-javac", "exit": 0, "out": "/home/runner/work/starcore-public-build/starcore-public-build/verification/r31/p02/pin-capacity/runs/20261108T035301Z"}
+{"name": "host-javac", "exit": 0, "out": "/home/runner/work/starcore-public-build/starcore-public-build/verification/r31/p02/pin-capacity/runs/20261108T035301Z"}
+{"name": "baseline-pin-measurement", "exit": 0, "out": "/home/runner/work/starcore-public-build/starcore-public-build/verification/r31/p02/pin-capacity/runs/20261108T035301Z"}
+{"name": "current-pin-measurement", "exit": 0, "out": "/home/runner/work/starcore-public-build/starcore-public-build/verification/r31/p02/pin-capacity/runs/20261108T035301Z"}
+{"name": "PinAdmissionR31Host", "exit": 0, "out": "/home/runner/work/starcore-public-build/starcore-public-build/verification/r31/p02/pin-capacity/runs/20261108T035301Z"}
+{"name": "RepairInputPinR30HostTest", "exit": 0, "out": "/home/runner/work/starcore-public-build/starcore-public-build/verification/r31/p02/pin-capacity/runs/20261108T035301Z"}
+{"name": "InputPinJournalR31Host", "exit": 0, "out": "/home/runner/work/starcore-public-build/starcore-public-build/verification/r31/p02/pin-capacity/runs/20261108T035301Z"}
+RECEIPT /home/runner/work/starcore-public-build/starcore-public-build/verification/r31/p02/pin-capacity/runs/20261108T035301Z/RECEIPT.json
