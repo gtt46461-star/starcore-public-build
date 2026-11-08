@@ -252,7 +252,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         Set<String> existing = new HashSet<>(); for (Member m : population) existing.add(m.hash());
         Set<String> seenThisGen = new HashSet<>();
         List<Pending> bornThisGeneration=new ArrayList<>();List<Object> localBehaviorDuplicates=new ArrayList<>();int localBehaviorDuplicatesTotal=0;
-        int rejected = 0, noop = 0, dup = 0, structural = 0; Map<String, Integer> reasons = new LinkedHashMap<>();
+        int rejected = 0, noop = 0, dup = 0, structural = 0; Map<String, Integer> reasons = new LinkedHashMap<>(); researchInfluencedR31 = 0;
         for (Pending p : pending) {
             if("RESEARCH_STALE".equals(p.state)){rejected++;continue;}
             BirthGateR27.Verdict contract = BirthGateR27.candidateContract(p.spec);
@@ -277,9 +277,12 @@ public final class EvolutionLoopR27 implements AutoCloseable {
             if (d != null) { p.state = "DUPLICATE_BEHAVIOR"; p.reason = "JACCARD>=0.95:" + d; dup++; creation.record(familyR31, "duplicate", 1);
                 if(Double.isFinite(localSimilarity))localBehaviorDuplicatesTotal++;if(Double.isFinite(localSimilarity)&&localBehaviorDuplicates.size()<256){Map<String,Object> receipt=new LinkedHashMap<>();receipt.put("keptPolicy",d);receipt.put("droppedPolicy",h);receipt.put("similarity",localSimilarity);receipt.put("droppedPosition",p.spec.position);receipt.put("stage","BIRTH_SAME_GENERATION");receipt.put("datasetHash",ctx.data.datasetHash);receipt.put("probeScope","ORIGINAL_BIRTH_GATE_PROBE_SAME_TARGET_OR_BOTH_NO_ACT");receipt.put("signatureHash",StatsR27.sha256(Arrays.toString(v.signature)));localBehaviorDuplicates.add(receipt);}continue; }
             p.state = "BORN";bornThisGeneration.add(p); if (p.structural) structural++; creation.record(familyR31, "unique", 1);
+            // R31-B08-C02: influenced = born with a research reference AND different from every parent (an unchanged child is no consumption).
+            if (!ResearchContextR30R1.references(p.spec).isEmpty() && (p.spec.meta == null || !p.spec.meta.parents.contains(h))) researchInfluencedR31++;
             sink.policy(p.spec, "BORN", p.spec.meta == null ? "" : p.spec.meta.reason, generation, ctx.data.datasetHash);
             if (p.spec.meta != null) for (String parent : p.spec.meta.parents) sink.lineage(h, parent, role(p.spec.meta.operator), p.spec.meta.operator, generation);
         }
+        genStats.put("researchInfluencedBirths", (long) researchInfluencedR31); researchInfluencedR31 = 0;
         count("uniquePolicies", seenThisGen.size()); count("structuralCandidates", structural); count("behaviorNovel", pending.size() - rejected - noop - dup);
         genStats.put("rejected", (long) rejected); genStats.put("noOp", (long) noop); genStats.put("duplicates", (long) dup); genStats.put("rejectReasons", new LinkedHashMap<String, Object>(reasons));genStats.put("sameGenerationBehaviorDuplicates",localBehaviorDuplicates);genStats.put("sameGenerationBehaviorDuplicatesTotal",localBehaviorDuplicatesTotal);genStats.put("sameGenerationBehaviorDuplicatesOmitted",Math.max(0,localBehaviorDuplicatesTotal-localBehaviorDuplicates.size()));
     }
@@ -412,7 +415,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
 
     void stepHalving() {
         List<SuccessiveHalvingR27.Candidate> cands = new ArrayList<>();
-        Map<String, Pending> byHash = new HashMap<>(); retiredReleasedBytesR31 = 0; retiredReleasedR31 = 0;
+        Map<String, Pending> byHash = new HashMap<>(); retiredReleasedBytesR31 = 0; retiredReleasedR31 = 0; researchPairedGainR31 = 0;
         for (Pending p : pending) if (p.state.equals("BORN")) {
             if (p.trace == null) { if (Double.isNaN(p.tau)) p.tau = ctx.temperature(p.spec); p.trace = ctx.selectTrace(p.spec, p.tau); }
             cands.add(new SuccessiveHalvingR27.Candidate(p.spec, p.trace, p.tau)); byHash.put(p.spec.policyHash(), p);
@@ -432,6 +435,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
             if (c.spec.meta != null && c.spec.meta.parents.size() == 1 && c.spec.meta.operator != null) {
                 // Same SELECT window and same evaluator for parent and child; booked once per experiment key.
                 Member parent = null; for (Member x : population) if (x.hash().equals(c.spec.meta.parents.get(0))) { parent = x; break; }
+                if (parent != null && Double.isFinite(parent.u) && Double.isFinite(m.u) && m.u > parent.u && !ResearchContextR30R1.references(c.spec).isEmpty()) researchPairedGainR31++;
                 if (parent != null && Double.isFinite(parent.u) && Double.isFinite(m.u))
                     creation.creditOperator(c.spec.meta.operator, parent.hash(), m.hash(), ctx.data.datasetHash + "|" + ctx.split.selectFrom + "-" + ctx.split.selectTo, m.u - parent.u,
                             CreationBudgetR31.costUnits(c.spec, ctx.split.selectTo - ctx.split.selectFrom) / (double) creation.generationCostUnits);
@@ -441,6 +445,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
             famSurv.merge(m.island, 1, Integer::sum);
         }
         count("researchAccepted", r.survivors.size());
+        genStats.put("researchPairedGainSurvivors", (long) researchPairedGainR31);
         familySurvivors.clear(); familySurvivors.putAll(famSurv);
         // Archive offers and population cap (worst non-elite members leave, archived as RETIRED).
         // Cells are taken against the current champion at offer time so a resumed loop files elites identically (H12).
@@ -479,6 +484,8 @@ public final class EvolutionLoopR27 implements AutoCloseable {
     }
 
     public long retiredReleasedBytesR31; public int retiredReleasedR31;
+    /** R31-B08-C02: births influenced by research, and survivors whose same-window paired SELECT gain over the parent is positive. */
+    int researchInfluencedR31, researchPairedGainR31;
     /** R31-B07-C03#A4: a retired non-champion without an archive cell or a sibling sharing its score backing
      * releases its memoized scores, failure profile and trace (real memory, not only a state label). */
     void releaseRetiredR31(Member m) {

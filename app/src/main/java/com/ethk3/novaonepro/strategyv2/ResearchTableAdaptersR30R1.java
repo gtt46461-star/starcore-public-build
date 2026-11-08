@@ -12,7 +12,8 @@ public final class ResearchTableAdaptersR30R1 {
   SQL.put("T06","SELECT run_id,measure_key,parent_hash,payload_json FROM r30r1_research_measure WHERE kind='MOLECULE_SYNERGY' ORDER BY run_id,measure_key");
   SQL.put("T07","SELECT dataset_hash,probe_set_hash,signature,kept_policy,dropped_policy,stage,recorded_at FROM r30_behavior_dup ORDER BY recorded_at DESC,kept_policy,dropped_policy");
   SQL.put("T08","SELECT generation,expert,proposal_json,policy_hash,recorded_at FROM r27_expert_proposal ORDER BY generation DESC,expert");
-  SQL.put("T09","SELECT r.run_id,r.role,r.policy_hash,m.measure_key,m.kind,m.mean_gain,m.payload_json FROM r30r1_analysis_run r JOIN r30r1_research_measure m ON m.run_id=r.run_id WHERE m.kind IN ('OPERATOR_COST','PARENT_CHILD_GAIN','RESEARCH_BUDGET') ORDER BY r.recorded_at DESC,m.measure_key");
+  // R31-B08-C05: R10 writes OPERATOR_GAIN_COST (ResearchMeasureKindR31); pre-R31 names are listed only as HISTORICAL rows.
+  SQL.put("T09","SELECT r.run_id,r.role,r.policy_hash,m.measure_key,m.kind,CASE m.kind "+unitCases(ResearchMeasureKindR31.OPERATOR_GAIN_COST,ResearchMeasureKindR31.PARENT_CHILD_PAIRED,ResearchMeasureKindR31.RESEARCH_BUDGET)+" ELSE 'HISTORICAL_UNIT_UNVERIFIED' END AS unit,CASE WHEN m.kind IN ("+ResearchMeasureKindR31.sqlList(ResearchMeasureKindR31.OPERATOR_GAIN_COST,ResearchMeasureKindR31.PARENT_CHILD_PAIRED,ResearchMeasureKindR31.RESEARCH_BUDGET)+") THEN 'CURRENT' ELSE 'HISTORICAL' END AS tier,m.mean_gain,m.payload_json FROM r30r1_analysis_run r JOIN r30r1_research_measure m ON m.run_id=r.run_id WHERE m.kind IN ("+ResearchMeasureKindR31.sqlList(ResearchMeasureKindR31.OPERATOR_GAIN_COST,ResearchMeasureKindR31.PARENT_CHILD_PAIRED,ResearchMeasureKindR31.RESEARCH_BUDGET)+",'OPERATOR_COST','PARENT_CHILD_GAIN') ORDER BY r.recorded_at DESC,m.measure_key");
   SQL.put("T10","SELECT run_id,measure_key,parent_hash,payload_json FROM r30r1_research_measure WHERE kind='FUSION_COMPLEMENTARITY' ORDER BY run_id,measure_key");
   SQL.put("T11","SELECT target_ordinal,position,model_hash,history_hash,probabilities,probability_hash,trained_through_ordinal,model_available_at,feature_through_ordinal,frozen_at,deadline_at FROM r30_model_surface ORDER BY target_ordinal DESC,position,model_hash");
   SQL.put("T12","SELECT key AS policy_hash,payload_json,updated_at FROM r27_chart_cache WHERE panel_id='calibration-r30' ORDER BY key");
@@ -21,6 +22,22 @@ public final class ResearchTableAdaptersR30R1 {
   SQL.put("T15","SELECT p.proposal_id,p.run_id,p.parent_hash,p.kind,p.payload_json,p.state,p.reason,c.child_policy_hash,c.source_generation,c.consumer_version,c.receipt_hash,c.consumed_at FROM r30r1_proposal p LEFT JOIN r30r1_consume c ON c.proposal_id=p.proposal_id ORDER BY p.created_at DESC,p.proposal_id");
   SQL.put("T16","SELECT issue,decision_key,entry_point,original_allow,original_reason,certificate_active,items_json,source_json,recorded_at,'FORMAL_READ_ONLY' AS role FROM r30_decision_explain ORDER BY recorded_at DESC,issue");
 }
+ private static String unitCases(ResearchMeasureKindR31... kinds){StringBuilder b=new StringBuilder();for(ResearchMeasureKindR31 k:kinds)b.append("WHEN '").append(k.name()).append("' THEN '").append(k.unit).append("' ");return b.toString();}
  public static String query(String id){return SQL.get(id);}
- public static List<Map<String,Object>> contracts(){List<Map<String,Object>> out=new ArrayList<>();for(Map.Entry<String,String> e:SQL.entrySet()){Map<String,Object> m=new LinkedHashMap<>();m.put("id",e.getKey());m.put("sourceSql",e.getValue());m.put("owner","ORIGINAL_SOURCE_OWNER_AND_SchemaR27");m.put("newPhysicalTable",false);m.put("displayIsFullDenominator",false);m.put("fullSource","verified snapshot.db; construction/r30-repair/RESEARCH_TABLE_CONTRACTS.json");out.add(m);}return Collections.unmodifiableList(out);}
+ public static final int MAX_PAGE_R31=200;
+ /** Columns a reader may bind per view; everything else is fixed by the view's own SQL. */
+ private static final Map<String,List<String>> FILTERS_R31=new LinkedHashMap<>();
+ static{FILTERS_R31.put("T01",Arrays.asList("dataset_hash","role"));FILTERS_R31.put("T02",Collections.singletonList("dataset_hash"));FILTERS_R31.put("T07",Collections.singletonList("dataset_hash"));FILTERS_R31.put("T09",Collections.singletonList("role"));FILTERS_R31.put("T13",Collections.singletonList("dataset_hash"));}
+ public static final class Page{public final String sql;public final String[] args;Page(String sql,String[] args){this.sql=sql;this.args=args;}}
+ /** R31-B08-C05: one bound, bounded page of a logical view: declared filter columns only, LIMIT/OFFSET as parameters. */
+ public static Page page(String id,Map<String,String> filters,long offset,int pageSize){
+  String base=SQL.get(id);if(base==null)throw new IllegalArgumentException("R31_RESEARCH_TABLE_UNKNOWN:"+id);
+  if(pageSize<1||pageSize>MAX_PAGE_R31||offset<0)throw new IllegalArgumentException("R31_RESEARCH_TABLE_PAGE");
+  List<String> allowed=FILTERS_R31.getOrDefault(id,Collections.<String>emptyList());StringBuilder where=new StringBuilder();List<String> args=new ArrayList<>();
+  if(filters!=null)for(Map.Entry<String,String> f:new TreeMap<>(filters).entrySet()){if(!allowed.contains(f.getKey())||f.getValue()==null)throw new IllegalArgumentException("R31_RESEARCH_TABLE_FILTER:"+id+":"+f.getKey());where.append(where.length()==0?" WHERE ":" AND ").append(f.getKey()).append("=?");args.add(f.getValue());}
+  args.add(Integer.toString(pageSize));args.add(Long.toString(offset));
+  return new Page("SELECT * FROM ("+base+")"+where+" LIMIT ? OFFSET ?",args.toArray(new String[0]));
+ }
+ public static Set<String> ids(){return Collections.unmodifiableSet(SQL.keySet());}
+ public static List<Map<String,Object>> contracts(){List<Map<String,Object>> out=new ArrayList<>();for(Map.Entry<String,String> e:SQL.entrySet()){Map<String,Object> m=new LinkedHashMap<>();m.put("id",e.getKey());m.put("sourceSql",e.getValue());m.put("owner","ORIGINAL_SOURCE_OWNER_AND_SchemaR27");m.put("filters",FILTERS_R31.getOrDefault(e.getKey(),Collections.<String>emptyList()));m.put("maxPage",(long)MAX_PAGE_R31);m.put("newPhysicalTable",false);m.put("displayIsFullDenominator",false);m.put("fullSource","verified snapshot.db; construction/r30-repair/RESEARCH_TABLE_CONTRACTS.json");out.add(m);}return Collections.unmodifiableList(out);}
 }

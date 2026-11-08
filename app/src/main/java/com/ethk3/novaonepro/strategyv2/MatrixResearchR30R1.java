@@ -22,6 +22,50 @@ public final class MatrixResearchR30R1 {
         case "RESOURCE_EFFICIENCY":return "PER_TASK_CPU_MEMORY_QUEUE_AND_ARTIFACT_COMMIT_JOIN_REQUIRED";
         default:return "LEGAL_TYPED_SOURCE_NOT_AVAILABLE:"+kind;
     }}
+    /** R31-B08-C01: per-kind state of one round. Only PRODUCED appends a tensor; every other state keeps the last valid one. */
+    public enum StatusR31{PRODUCED,WAITING_STUDENT,WAITING_SOURCE,INSUFFICIENT,INVALID}
+    public static final List<String> STUDENT_KINDS_R31=Collections.unmodifiableList(Arrays.asList("STUDENT_ERROR","FEEDBACK","RESIDUAL_MECHANISM"));
+    public static final List<String> SOURCE_ONLY_KINDS_R31=Collections.unmodifiableList(Arrays.asList("NUMBER_POSITION_COMPATIBILITY","CROSS_POSITION_FLOW","REVERSE_REASONING"));
+    public static final class OutcomeR31{
+        public final StatusR31 status;public final MatrixTensorR30R1.Tensor tensor;public final String reason;
+        OutcomeR31(StatusR31 status,MatrixTensorR30R1.Tensor tensor,String reason){this.status=status;this.tensor=tensor;this.reason=reason==null?"":reason;}
+    }
+    public interface ProducerR31{MatrixTensorR30R1.Tensor produce()throws Exception;}
+    /** Dependency key: dataset, source revision, kind, policy set and measured version. An unchanged key is never re-run. */
+    public static String dependencyKeyR31(String datasetHash,long revision,String kind,String policySetHash,long measuredVersion,String sourceCommit){
+        return StatsR27.sha256("R31_MATRIX_DEPENDENCY_V1|"+datasetHash+"|"+revision+"|"+kind+"|"+policySetHash+"|"+measuredVersion+"|"+sourceCommit);
+    }
+    /** Runs one kind in isolation: a missing student, an empty window or an invalid tensor only affects this kind. */
+    public static OutcomeR31 produceR31(String kind,boolean studentAvailable,String datasetHash,long revision,ProducerR31 producer)throws Exception{
+        if(STUDENT_KINDS_R31.contains(kind)&&!studentAvailable)return new OutcomeR31(StatusR31.WAITING_STUDENT,null,"MATRIX_ORIGINAL_STUDENT_UNAVAILABLE");
+        MatrixTensorR30R1.Tensor t;
+        try{t=producer.produce();}
+        catch(IllegalArgumentException|IllegalStateException|ArithmeticException|IndexOutOfBoundsException invalid){
+            if(isStorageFaultR31(invalid))throw invalid; // database integrity stays on the B01/B02 fault path
+            String m=String.valueOf(invalid.getMessage());
+            if(m.contains("MATRIX_ORIGINAL_STUDENT_UNAVAILABLE"))return new OutcomeR31(StatusR31.WAITING_STUDENT,null,m);
+            if(m.contains("MATRIX_SELECT_EMPTY"))return new OutcomeR31(StatusR31.INSUFFICIENT,null,m);
+            return new OutcomeR31(StatusR31.INVALID,null,invalid.getClass().getSimpleName()+":"+m);
+        }
+        if(t==null)return new OutcomeR31(StatusR31.WAITING_SOURCE,null,dependency(kind));
+        if(!t.datasetHash.equals(datasetHash)||t.revision!=revision)return new OutcomeR31(StatusR31.INVALID,null,"MATRIX_SOURCE_IDENTITY_CHANGED");
+        if(t.presentCells==0)return new OutcomeR31(StatusR31.INSUFFICIENT,null,"MATRIX_NO_SUPPORTED_CELL");
+        return new OutcomeR31(StatusR31.PRODUCED,t,"");
+    }
+    static boolean isStorageFaultR31(Throwable t){for(Throwable c=t;c!=null;c=c.getCause()==c?null:c.getCause()){String n=c.getClass().getName();if(n.startsWith("android.database.sqlite.")||n.equals("java.sql.SQLException"))return true;}return false;}
+    /** Receipt of one kind; a non-PRODUCED state carries the previous valid tensor hash forward, flagged as stale. */
+    public static Map<String,Object> receiptR31(String matrixId,String dependencyKey,String datasetHash,long revision,OutcomeR31 o,Map<?,?> previous,long costNs){
+        Map<String,Object> r=new LinkedHashMap<>();r.put("matrixId",matrixId);r.put("inputIdentity",dependencyKey);r.put("datasetHash",datasetHash);r.put("sourceRevision",revision);r.put("role","SELECT");
+        r.put("producerVersion",MatrixTensorR30R1.VERSION);r.put("status",o.status==StatusR31.PRODUCED?"PRODUCED":o.status==StatusR31.WAITING_SOURCE?"BLOCKED_DEPENDENCY":o.status.name());r.put("statusR31",o.status.name());
+        r.put("reason",o.status==StatusR31.PRODUCED?null:o.reason);r.put("matrixHash",o.tensor==null?null:o.tensor.hash);
+        Object lastValid=o.tensor!=null?o.tensor.hash:previous==null?null:previous.get("matrixHash")!=null?previous.get("matrixHash"):previous.get("lastValidMatrixHash");
+        Object lastValidRevision=o.tensor!=null?(Object)revision:previous==null?null:previous.get("matrixHash")!=null?previous.get("sourceRevision"):previous.get("lastValidSourceRevision");
+        r.put("lastValidMatrixHash",lastValid);r.put("lastValidSourceRevision",lastValidRevision);r.put("lastValidIsStale",o.tensor==null&&lastValid!=null);
+        r.put("costNs",costNs);r.put("qualityEffective",null);return r;
+    }
+    /** True when this kind was already decided for the same dependency key (no repeated waiting job). */
+    public static boolean decidedR31(Map<?,?> previous,String dependencyKey){return previous!=null&&dependencyKey.equals(previous.get("inputIdentity"));}
+
     static MatrixTensorR30R1.Tensor build(String kind,EvalContextR27 ctx,PolicySpecR27 policy,long revision){
         int from=Math.max(ctx.split.selectFrom,ctx.split.selectTo-256),to=ctx.split.selectTo;
         if(from>=to)throw new IllegalArgumentException("MATRIX_SELECT_EMPTY");
@@ -56,6 +100,12 @@ public final class MatrixResearchR30R1 {
             for(int r=0;r<v.length;r++)for(int c=0;c<v[r].length;c++)if(n[r][c]>0)v[r][c]/=n[r][c];
             more.put("estimator","STUDENT_ERROR".equals(kind)?"SAME_TARGET_HIT_MISS_AND_NORMALIZED_TEN_CLASS_BRIER":"FEEDBACK".equals(kind)?"PREDRAW_CONFIDENCE_CONDITIONED_K3_ERROR":"PREDRAW_CONFIDENCE_CONDITIONED_TEN_CLASS_RESIDUAL");List<Object> confidenceMeans=new ArrayList<>();for(int bin=0;bin<3;bin++)confidenceMeans.add(confidenceN[bin]==0?null:confidenceSum[bin]/confidenceN[bin]);more.put("confidenceBinMeanProbability",confidenceMeans);more.put("position",policy.position);more.put("conditionScope","FROZEN_BEFORE_LABEL_FROM_CAUSAL_REPLAY");
         }else return null;
+        // R31-B08-C02: unit, axes, support, calendar span, role and semantics travel with the tensor; association is
+        // never an intervention and a tensor alone grants no main-chain permission.
+        more.put("unitR31","NUMBER_POSITION_COMPATIBILITY".equals(kind)?"LAPLACE_PROBABILITY":"CROSS_POSITION_FLOW".equals(kind)?"EXCESS_SAME_CLASS_RATE_OVER_0.10":"STUDENT_ERROR".equals(kind)?"RATE_AND_HALF_BRIER":"PER_CONDITION_RATE_OR_RESIDUAL");
+        more.put("axesR31",Arrays.asList(rows.size()+"_ROWS",cols.size()+"_COLUMNS"));more.put("supportScopeR31","PER_CELL_SUPPORT_COUNT");more.put("calendarSpanR31",(long)(to-from));
+        more.put("semanticsR31",STUDENT_KINDS_R31.contains(kind)?"STUDENT_DIAGNOSTIC_FROZEN_BEFORE_LABEL":"OBSERVATIONAL_ASSOCIATION_NOT_INTERVENTION");
+        more.put("consumersR31",MatrixRegistryR30.typedConsumers(kind));more.put("pairedAblationR31","NOT_RUN_UNTIL_A_CONSUMER_ABLATION_RECEIPT");more.put("mainChainPermissionR31",false);
         return new MatrixTensorR30R1.Tensor(kind,"SELECT",d.datasetHash,policy==null?StatsR27.sha256("SOURCE_ONLY"):policy.policyHash(),through,target,revision,rows,cols,v,n,more);
     }
     static ResearchPoolR27.Outcome step(RuntimeR27 rt,ResearchPoolR27.Worker w)throws Exception{
@@ -67,16 +117,23 @@ public final class MatrixResearchR30R1 {
         String baseInput=ctx.data.datasetHash+"|"+revision+"|"+com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26;
 
         for(MatrixRegistryR30.Definition def:MatrixRegistryR30.all())if(def.namespace.equals("R930")&&!def.kind.equals("COUNTERFACTUAL")){
-            boolean sourceOnly=Arrays.asList("NUMBER_POSITION_COMPATIBILITY","CROSS_POSITION_FLOW","REVERSE_REASONING").contains(def.kind);String input=StatsR27.sha256(baseInput+"|"+(sourceOnly?"SOURCE_ONLY":policyIdentity)+"|"+(Arrays.asList("CAUSAL_SUPPORT","COUNTER_EVIDENCE","EVOLUTION_CREDIT","TEMPORAL_PRECEDENCE").contains(def.kind)?measuredVersion:def.kind.equals("RESOURCE_EFFICIENCY")?ResearchStoreR30R1.calendar(w.ro):0));
-            try(Cursor c=w.ro.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id=? AND key=?",new String[]{PANEL,def.kind})){if(c.moveToFirst()){Object saved=JsonR27.parse(c.getString(0));if(saved instanceof Map&&input.equals(((Map<?,?>)saved).get("inputIdentity")))continue;}}
-            long started=System.nanoTime();MatrixTensorR30R1.Tensor tensor=build(def.kind,ctx,sourceOnly?null:policy,revision);if(tensor==null)tensor=MatrixEvidenceR30R1.compute(def.kind,ctx,policies,revision);if(tensor==null)tensor=MatrixEvidenceR30R1.stored(def.kind,w.ro,ctx,revision,rt);long now=System.currentTimeMillis();Map<String,Object> receipt=new LinkedHashMap<>();receipt.put("matrixId",def.id);receipt.put("inputIdentity",input);receipt.put("datasetHash",ctx.data.datasetHash);receipt.put("sourceRevision",revision);receipt.put("role","SELECT");receipt.put("producerVersion",MatrixTensorR30R1.VERSION);receipt.put("status",tensor==null?"BLOCKED_DEPENDENCY":"PRODUCED");receipt.put("reason",tensor==null?dependency(def.kind):null);receipt.put("matrixHash",tensor==null?null:tensor.hash);receipt.put("costNs",System.nanoTime()-started);receipt.put("qualityEffective",null);
+            boolean sourceOnly=SOURCE_ONLY_KINDS_R31.contains(def.kind);
+            long measured=Arrays.asList("CAUSAL_SUPPORT","COUNTER_EVIDENCE","EVOLUTION_CREDIT","TEMPORAL_PRECEDENCE").contains(def.kind)?measuredVersion:def.kind.equals("RESOURCE_EFFICIENCY")?ResearchStoreR30R1.calendar(w.ro):0;
+            String input=dependencyKeyR31(ctx.data.datasetHash,revision,def.kind,sourceOnly?"SOURCE_ONLY":StatsR27.sha256(policyIdentity.toString()),measured,com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26);
+            Map<?,?> previous=null;
+            try(Cursor c=w.ro.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id=? AND key=?",new String[]{PANEL,def.kind})){if(c.moveToFirst()){Object saved=JsonR27.parse(c.getString(0));if(saved instanceof Map)previous=(Map<?,?>)saved;}}
+            if(decidedR31(previous,input))continue; // R31-B08-C01#A2: unchanged dependency -> no new waiting job
+            long started=System.nanoTime();final PolicySpecR27 student=sourceOnly?null:policy;
+            OutcomeR31 outcome=produceR31(def.kind,policy!=null,ctx.data.datasetHash,revision,()->{MatrixTensorR30R1.Tensor t=build(def.kind,ctx,student,revision);if(t==null)t=MatrixEvidenceR30R1.compute(def.kind,ctx,policies,revision);if(t==null)t=MatrixEvidenceR30R1.stored(def.kind,w.ro,ctx,revision,rt);return t;});
+            MatrixTensorR30R1.Tensor tensor=outcome.tensor;long now=System.currentTimeMillis();Map<String,Object> receipt=receiptR31(def.id,input,ctx.data.datasetHash,revision,outcome,previous,System.nanoTime()-started);
             ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();if(tensor!=null)MatrixTensorR30R1.append(b,tensor,now);
             b.add("INSERT OR REPLACE INTO r27_chart_cache VALUES(?,?,?,?)",PANEL,def.kind,JsonR27.write(receipt),now);
             final MatrixTensorR30R1.Tensor preparedTensor=tensor;
             b.guardBefore(db->{ResearchInputPinR30R1.require(db,ctx.data.datasetHash,revision);if(preparedTensor!=null&&"ONLINE_RESEARCH".equals(preparedTensor.role)){Object parsed=JsonR27.parse(preparedTensor.payload);Object raw=((Map<?,?>)((Map<?,?>)parsed).get("details")).get("sourceRun");if(!(raw instanceof String))throw new IllegalStateException("MATRIX_ONLINE_SOURCE_REFERENCE");ResearchInputPinR30R1.requireRun(db,(String)raw);}return 0;});
             if(tensor!=null)ResearchStoreR30R1.appendOwnedProgress(b,-1,new ResearchStoreR30R1.Facts(tensor.throughOrdinal,tensor.throughOrdinal,null,null,tensor.throughOrdinal,tensor.hash));
             try{RuntimeR27.submit(w,"MATRIX_TYPED",b);}catch(RuntimeException sourceChanged){if(ResearchStoreR30R1.stale(sourceChanged))return ResearchPoolR27.Outcome.idle("DEPENDENCY(MATRIX_SOURCE_CHANGED_RETRY)",0,-1);throw sourceChanged;}
-            return tensor==null?ResearchPoolR27.Outcome.idle("DEPENDENCY("+dependency(def.kind)+")",0,-1):ResearchPoolR27.Outcome.progress(1,tensor.throughOrdinal);
+            // A non-produced kind records its state and lets the round continue with the next kind on the next slice.
+            return tensor==null?ResearchPoolR27.Outcome.progress(1,0):ResearchPoolR27.Outcome.progress(1,tensor.throughOrdinal);
         }
         return ResearchPoolR27.Outcome.idle("WAITING_NEW_RESEARCH_INPUT",0,-1);
     }

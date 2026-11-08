@@ -47,5 +47,12 @@ public final class ResearchGainR30R1 {
         return new Estimate(loss,from,to,blockSize,minimumBlocks,minimumIssues,differences.size(),completeIssues,means.size(),incomplete,incompleteFull,tail,missing,mean,mean-t*se,mean+t*se);
     }
     public List<Map<String,Object>> blocks(){List<Map<String,Object>> rows=new ArrayList<>();for(long start=from;start<=to;){int expected=(int)Math.min((long)blockSize,to-start+1);int present=0;double sum=0;for(int i=0;i<expected;i++){Double d=differences.get(start+i);if(d!=null){present++;sum+=d;}}Map<String,Object> m=new LinkedHashMap<>();m.put("fromOrdinal",start);m.put("throughOrdinal",start+expected-1);m.put("expectedIssues",expected);m.put("presentIssues",present);m.put("included",expected==blockSize&&present==expected);m.put("meanGain",present==0?null:sum/present);rows.add(m);if(to-start+1<=blockSize)break;start+=blockSize;}return Collections.unmodifiableList(rows);}
+    /** R31-B08-C03#A4: a development interval found after a search is descriptive; it can never be relabelled as a
+     * certificate or a formal qualification. Formal promotion goes through independent confirmation / future gates. */
+    public static String labelR31(Estimate e,String requested){
+        if(e==null)throw new IllegalArgumentException("R31_GAIN_ESTIMATE_REQUIRED");
+        if(!"DESCRIPTIVE".equals(requested)&&!"DESCRIPTIVE_RESEARCH_ONLY".equals(requested))throw new IllegalStateException("R31_DESCRIPTIVE_RESEARCH_NOT_CERTIFIABLE:"+requested);
+        return e.status;
+    }
     static double critical95(int df){double[] t={0,12.706,4.303,3.182,2.776,2.571,2.447,2.365,2.306,2.262,2.228,2.201,2.179,2.160,2.145,2.131,2.120,2.110,2.101,2.093,2.086,2.080,2.074,2.069,2.064,2.060,2.056,2.052,2.048,2.045,2.042};if(df<1)throw new IllegalArgumentException("DF");return df<t.length?t[df]:2.042;}
 }

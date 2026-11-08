@@ -5,8 +5,13 @@ import java.util.*;
 /** Each view has a real analytical product and a named research consumer. No view itself mutates REAL state. */
 public final class ResearchGraphSpecsR30R1 {
     public static final class Spec {
-        public final String id,title,kind,measure,consumer,verification;public final int group;
-        Spec(String id,String title,String kind,int group,String measure,String consumer,String verification){this.id=id;this.title=title;this.kind=kind;this.group=group;this.measure=measure;this.consumer=consumer;this.verification=verification;}
+        public final String id,title,kind,measure,consumer,verification,role,producerVersion;public final int group;public final ResearchMeasureKindR31 measureKind;
+        public final ResearchResultContractR31.ConsumptionKind consumerKind;public final List<String> requiredReceipts;
+        Spec(String id,String title,String kind,int group,String measure,String consumer,String verification){this.id=id;this.title=title;this.kind=kind;this.group=group;this.measure=measure;this.consumer=consumer;this.verification=verification;
+            // R31-B08-C05: the measure is the enum's kind for this view, so producer and T01-T16 readers cannot drift apart.
+            measureKind=ResearchMeasureKindR31.fromViewId(id);if(!measureKind.name().equals(measure))throw new IllegalStateException("R31_RESEARCH_VIEW_MEASURE_MISMATCH:"+id+":"+measure);
+            consumerKind=ResearchResultContractR31.consumptionKindOf(id);role=consumerKind==ResearchResultContractR31.ConsumptionKind.FORMAL_READ_ONLY?(id.equals("R11")?"CONFIRM":"FUTURE"):"SELECT";
+            producerVersion="R30_REPAIR_OBSERVATORY_SOURCE_V1";requiredReceipts=consumerKind==ResearchResultContractR31.ConsumptionKind.RESEARCH_ACTION?ResearchResultContractR31.REQUIRED_ACTION_RECEIPTS:Collections.<String>emptyList();}
     }
     private static Spec s(String id,String title,String kind,int group,String measure,String consumer,String verification){return new Spec(id,title,kind,group,measure,consumer,verification);}
     public static final List<Spec> ALL=Collections.unmodifiableList(Arrays.asList(
