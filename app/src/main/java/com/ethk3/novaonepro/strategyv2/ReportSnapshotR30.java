@@ -319,7 +319,13 @@ public final class ReportSnapshotR30 {
             if (!f.getCanonicalPath().startsWith(dir.getCanonicalPath() + java.io.File.separator)) return "REJECTED_PATH";
             if (!f.isFile()) return "MISSING_NOT_RECOMPUTABLE";
             if (f.length() != x.bytes) return "SIZE_MISMATCH_NOT_RECOMPUTABLE";
-            return StatsR27.sha256(java.nio.file.Files.readAllBytes(f.toPath())).equals(x.sha256) ? "VERIFIED" : "HASH_MISMATCH_NOT_RECOMPUTABLE";
+            return streamSha256(f).equals(x.sha256) ? "VERIFIED" : "HASH_MISMATCH_NOT_RECOMPUTABLE";
+        }
+        /** Streamed SHA-256 (API 21: no java.nio.file). */
+        static String streamSha256(java.io.File f) throws java.io.IOException {
+            java.security.MessageDigest md; try { md = java.security.MessageDigest.getInstance("SHA-256"); } catch (java.security.NoSuchAlgorithmException e) { throw new java.io.IOException(e); }
+            try (java.io.InputStream in = new java.io.FileInputStream(f)) { byte[] b = new byte[64 << 10]; for (int n; (n = in.read(b)) != -1; ) md.update(b, 0, n); }
+            StringBuilder h = new StringBuilder(); for (byte v : md.digest()) h.append(String.format(java.util.Locale.ROOT, "%02x", v & 255)); return h.toString();
         }
         public interface Cancel { boolean cancelled(); }
         /** Streams one attachment into the export directory through a temp file; cancel/kill leaves no permanent partial copy
