@@ -45,7 +45,11 @@ public final class StorageMaintenanceFileR82 {
             StringBuilder s=new StringBuilder();for(byte v:md.digest())s.append(String.format(java.util.Locale.US,"%02x",v&255));return s.toString();
         }catch(java.security.NoSuchAlgorithmException e){throw new IOException(e);}
     }
-    private static void syncParent(File f)throws IOException{nativeFsyncDirectory(f.getParentFile().getCanonicalPath());}
+    /** Directory durability barrier. Production uses the native fsync; host/JVM tests of the journal state machine
+     * substitute an equivalent barrier (the swap protocol itself is unchanged). */
+    interface DirectorySyncR31{void sync(String directory)throws IOException;}
+    static DirectorySyncR31 directorySyncR31=StorageMaintenanceFileR82::nativeFsyncDirectory;
+    private static void syncParent(File f)throws IOException{directorySyncR31.sync(f.getParentFile().getCanonicalPath());}
     private static void write(File f,Properties p)throws IOException {
         File t=new File(f.getPath()+".tmp");if(t.exists()&&!t.delete())throw new IOException("cannot clear stale journal temp");
         try(FileOutputStream out=new FileOutputStream(t)){p.store(out,"R82 durable maintenance protocol");out.getFD().sync();}
@@ -105,11 +109,30 @@ public final class StorageMaintenanceFileR82 {
         move(out,db);p.setProperty("state","INSTALLED");write(j,p);write(receipt(db),p);remove(j);
         return new Receipt(before,db.length(),old.length(),proof,oldHash,newHash);
     }
-    /** Explicit independent user action after the newly rebuilt DB is accepted. */
+    /** R31-B05-C10: what a restore proof of the rebuilt database must contain. quick_check or a file time alone
+     * never proves completeness; the proof binds the exact active bytes. */
+    public static final String[] RESTORE_PROOF_KEYS_R31={"restore_active_sha256","restore_schema_sha256","restore_business_row_counts","restore_rowid_dependencies","restore_blob_and_locators","restore_pending_settlement_evidence","restore_model_load","restore_reference_closure","restore_startup_recovery","restore_method"};
+    /** Null when the receipt holds a complete restore proof for exactly `activeSha256`; otherwise the refusal reason. */
+    public static String restoreProofRefusalR31(Properties p,String activeSha256){
+        for(String k:RESTORE_PROOF_KEYS_R31){String v=p.getProperty(k);if(v==null||v.trim().isEmpty())return "REFUSED_NO_RESTORE_PROOF:"+k;}
+        String method=p.getProperty("restore_method");
+        if(method.equals("QUICK_CHECK_ONLY")||method.equals("MTIME")||method.equals("FILE_SIZE"))return "REFUSED_RESTORE_PROOF_METHOD:"+method;
+        if(!p.getProperty("restore_active_sha256").equals(activeSha256))return "REFUSED_RESTORE_PROOF_FOR_OTHER_BYTES";
+        for(String k:new String[]{"restore_model_load","restore_reference_closure","restore_startup_recovery","restore_pending_settlement_evidence"})if(!p.getProperty(k).startsWith("PASS"))return "REFUSED_RESTORE_PROOF_NOT_PASSED:"+k;
+        return null;
+    }
+    /** Records the restore proof of the installed database into its backup receipt (after an actual restart test). */
+    public static void recordRestoreProofR31(File database,Properties proof)throws IOException{
+        File db=database.getCanonicalFile(),r=receipt(db);if(!r.isFile())throw new IOException("verified backup receipt missing");
+        Properties p=read(r);for(String k:RESTORE_PROOF_KEYS_R31)if(proof.getProperty(k)!=null)p.setProperty(k,proof.getProperty(k));
+        String refusal=restoreProofRefusalR31(p,sha256(db));if(refusal!=null)throw new IOException(refusal);write(r,p);
+    }
+    /** Explicit independent user action after the newly rebuilt DB is accepted and its restore proof recorded. */
     public static long deleteVerifiedBackup(File database)throws IOException {
         File db=database.getCanonicalFile();if(journal(db).exists())throw new IOException("pending swap must recover first");
         File r=receipt(db),old=backup(db);if(!r.isFile())throw new IOException("verified backup receipt missing");
         Properties p=read(r);if(!db.getPath().equals(p.getProperty("database")))throw new IOException("backup receipt database mismatch");
+        String refusal=restoreProofRefusalR31(p,sha256(db));if(refusal!=null)throw new IOException(refusal); // backup kept
         requireHash(old,p.getProperty("source_sha256"),"original backup");long n=old.length();remove(old);remove(r);return n;
     }
     public static String backupSummary(File database) {

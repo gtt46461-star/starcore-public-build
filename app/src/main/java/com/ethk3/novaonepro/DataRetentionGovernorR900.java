@@ -51,6 +51,7 @@ public final class DataRetentionGovernorR900 {
                         org.json.JSONObject result=readAckCP12(ack);if(!current.equals(result.optString("requestId","")))throw new IOException("RETENTION_ACK_IDENTITY");
                         String stage=result.optString("stage","");if(stage.equals("FAILED")||stage.equals("CANCELLED")){
                             String reason=result.optString("reason","RETENTION_DIAGNOSTIC_FAILURE");if(reason.length()>512)throw new IOException("RETENTION_ACK_REASON_BOUND");
+                            if(reason.contains("STALE_PAGE"))StalePageR31.onStale(activePage.table); // R31-B05-C06: next page is smaller
                             final String failedRequest=current,failedReason=reason;final long failedAt=System.currentTimeMillis();
                             Boolean applied=store.coordinatorR36().runAtomicWrite("RETENTION_CP12_TERMINAL_IO",new DatabaseCoordinator.WriteCallable<Boolean>(){
                                 public Boolean call(SQLiteDatabase db){return retryFailedRequestWithinWriteCP12(db,failedRequest,failedReason,failedAt);}
@@ -78,6 +79,7 @@ public final class DataRetentionGovernorR900 {
                         },Integer.valueOf(-1));
                         if(deleted==null||deleted==-1)return "RETENTION_WRITE_DEFERRED";
                         if(deleted==-2)return "RETENTION_PUBLICATION_YIELDED";
+                        StalePageR31.onSuccess(activePage.table);
                         store.setState(INFLIGHT,"");store.setState("r900_retention_truth","RETENTION_PAGE_APPLIED:"+deleted+":"+verified.archiveId);return "RETENTION_PAGE_APPLIED:"+deleted;
                     }finally{lease.release();}
                 }
@@ -122,6 +124,7 @@ public final class DataRetentionGovernorR900 {
     public static RetentionArchiveProtocolCP12.Page prepareArchivePageCP12(SQLiteDatabase db,String table){
         if(db==null||db.inTransaction()||Looper.myLooper()==Looper.getMainLooper())throw new IllegalStateException("RETENTION_PREPARE_THREAD");
         RetentionTableRegistryCP12.Rule rule=RetentionTableRegistryCP12.require(table);if(!rule.archiveAndPrune())return null;
+        if(StalePageR31.waitingForStableRows(table)){StalePageR31.cooldown(table);return null;} // only this changing table waits
         Cutoff cutoff;String unarchived="";
         if(table.equals(DbHelper.TABLE_DRAWS)){
             long count;try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM draws WHERE dirty=0",null)){if(!c.moveToFirst())throw new IllegalStateException("RETENTION_DRAW_COUNT");count=c.getLong(0);}
@@ -140,7 +143,7 @@ public final class DataRetentionGovernorR900 {
         ArrayList<RetentionArchiveProtocolCP12.RowVersion> rows=new ArrayList<>();int keyBytes=0;LiveKeyShapeCP12 keyShape=new LiveKeyShapeCP12(db,table);
         String sql="SELECT \""+table+"\".rowid,COALESCE((SELECT r.generation FROM research_row_revision_v2 r WHERE r.source_table=? AND r.source_rowid=\""+table+"\".rowid),0) FROM \""+table+"\" WHERE "+rule.eligibleSql+unarchived+" ORDER BY \""+table+"\".rowid LIMIT 128";
         String[] predicate=rule.args(cutoff.issue,cutoff.openTime),args=new String[predicate.length+1];args[0]=table;System.arraycopy(predicate,0,args,1,predicate.length);
-        try(Cursor c=db.rawQuery(sql,args)){while(c.moveToNext()){int bytes=canonicalLiveKeyCP12(db,keyShape,c.getLong(0),"0000000000000000000000000000000000000000000000000000000000000000").length;if(keyBytes>RetentionArchiveProtocolCP12.MAX_KEY_TOTAL-bytes)break;keyBytes+=bytes;rows.add(new RetentionArchiveProtocolCP12.RowVersion(c.getLong(0),c.getLong(1)));if(ResearchWorkBudgetR927.remainingMs()<20)break;}}
+        try(Cursor c=db.rawQuery(sql,args)){while(c.moveToNext()){int bytes=canonicalLiveKeyCP12(db,keyShape,c.getLong(0),"0000000000000000000000000000000000000000000000000000000000000000").length;if(keyBytes>RetentionArchiveProtocolCP12.MAX_KEY_TOTAL-bytes)break;keyBytes+=bytes;if(rows.size()>=StalePageR31.cap(table))break;rows.add(new RetentionArchiveProtocolCP12.RowVersion(c.getLong(0),c.getLong(1)));if(ResearchWorkBudgetR927.remainingMs()<20)break;}}
         if(rows.isEmpty())return null;
         return new RetentionArchiveProtocolCP12.Page(table,cutoff.issue,cutoff.openTime,schemaHashCP12(db,table),ReleaseManifestR926.MANIFEST_SHA256,RetentionTableRegistryCP12.hashForTable(table),rows);
     }
@@ -213,6 +216,33 @@ public final class DataRetentionGovernorR900 {
         return deleted;
     }
     /** Terminal diagnostics ACK was validated off-writer; record cleanup+retry atomically before retiring inflight. */
+    /** R31-B05-C06: bounded STALE_PAGE recovery. A page whose rows changed is re-prepared smaller (256 -> 64 -> 32 -> 8);
+     * at the smallest size a table that keeps changing waits on its own (other tables continue). One inflight request
+     * per owner is kept by the INFLIGHT state; this only bounds the next page, never relaxes a generation/hash check. */
+    /** R31-B05-C07: one bounded page of the orphan revision sweep. Only revisions whose source row is gone are
+     * orphans; the generation of a live row is never removed; the cursor always advances (progress, no full rescan). */
+    public static final class RevisionSweepR31 {
+        public final java.util.List<Long> orphans;public final long nextCursor;public final boolean complete;
+        RevisionSweepR31(java.util.List<Long> orphans,long nextCursor,boolean complete){this.orphans=orphans;this.nextCursor=nextCursor;this.complete=complete;}
+        public static RevisionSweepR31 page(java.util.SortedMap<Long,Long> revisionRowToGeneration,java.util.Set<Long> liveRows,long cursor,int pageRows){
+            java.util.List<Long> out=new java.util.ArrayList<>();long last=cursor;int seen=0;
+            for(java.util.Map.Entry<Long,Long> e:revisionRowToGeneration.tailMap(cursor+1).entrySet()){if(seen++>=pageRows)break;last=e.getKey();if(!liveRows.contains(e.getKey()))out.add(e.getKey());}
+            boolean complete=revisionRowToGeneration.tailMap(last+1).isEmpty();return new RevisionSweepR31(java.util.Collections.unmodifiableList(out),complete?-1:last,complete);
+        }
+    }
+    public static final class StalePageR31 {
+        public static final int[] SIZES={256,64,32,8};public static final int WAIT_AFTER_SMALLEST=3;
+        private static final java.util.Map<String,int[]> STATE=new java.util.concurrent.ConcurrentHashMap<>(); // table -> {sizeIndex, staleAtSmallest}
+        public static int cap(String table){int[] s=STATE.get(table);return s==null?SIZES[0]:SIZES[s[0]];}
+        public static synchronized void onStale(String table){int[] s=STATE.computeIfAbsent(table,k->new int[2]);if(s[0]<SIZES.length-1)s[0]++;else s[1]++;}
+        public static synchronized void onSuccess(String table){STATE.remove(table);}
+        /** Only the changing table waits; every other table keeps its own page size. */
+        public static boolean waitingForStableRows(String table){int[] s=STATE.get(table);return s!=null&&s[0]==SIZES.length-1&&s[1]>=WAIT_AFTER_SMALLEST;}
+        /** Each skipped prepare counts down the wait; the table is retried at the smallest page afterwards. */
+        public static synchronized void cooldown(String table){int[] s=STATE.get(table);if(s!=null&&s[1]>0)s[1]--;}
+        public static long temporaryBytesBound(String table,int maxRowBytes){return (long)cap(table)*maxRowBytes;}
+        static void resetForTest(){STATE.clear();}
+    }
     public static boolean retryFailedRequestWithinWriteCP12(SQLiteDatabase db,String requestId,String reason,long now){
         if(db==null||!db.inTransaction()||reason==null||reason.length()>512||now<0)throw new IllegalStateException("RETENTION_RETRY_WRITER");
         RetentionArchiveProtocolCP12.hash(requestId);

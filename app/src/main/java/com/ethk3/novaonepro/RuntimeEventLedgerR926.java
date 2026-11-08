@@ -297,6 +297,33 @@ public final class RuntimeEventLedgerR926 {
      * DML only. The caller owns the transaction. Returning false means the event already existed by
      * event_id/dedup_key; that is a successful idempotent replay, not an error.
      */
+    /**
+     * R31-B05-C07: bounded event lifecycle. Business state transitions keep their original row (with payload hash and
+     * time); repeated diagnostics are folded at the source into one row per (issue, type, fingerprint) with a count and
+     * first/last time. Row and byte caps hold for any write rate; the oldest diagnostic aggregates leave first, original
+     * business facts of the retained window never leave by this path.
+     */
+    public static final class EventBoundR31 {
+        public final int maxDiagnosticRows; public final long maxDiagnosticBytes;
+        private final java.util.LinkedHashMap<String, long[]> aggregates = new java.util.LinkedHashMap<>(); // key -> {count, first, last, bytes}
+        private final java.util.LinkedHashMap<String, String> business = new java.util.LinkedHashMap<>();   // event id -> payload hash
+        private long diagnosticBytes, dropped;
+        public EventBoundR31(int maxDiagnosticRows, long maxDiagnosticBytes) { this.maxDiagnosticRows = maxDiagnosticRows; this.maxDiagnosticBytes = maxDiagnosticBytes; }
+        public void business(String eventId, String payloadHash) { business.putIfAbsent(eventId, payloadHash); }
+        public void diagnostic(String issue, String type, String fingerprint, long at, int bytes) {
+            String key = issue + "|" + type + "|" + fingerprint; long[] a = aggregates.get(key);
+            if (a != null) { a[0]++; a[2] = at; return; }
+            aggregates.put(key, new long[]{1, at, at, bytes}); diagnosticBytes += bytes;
+            java.util.Iterator<java.util.Map.Entry<String, long[]>> oldest = aggregates.entrySet().iterator();
+            while ((aggregates.size() > maxDiagnosticRows || diagnosticBytes > maxDiagnosticBytes) && oldest.hasNext()) { long[] gone = oldest.next().getValue(); diagnosticBytes -= gone[3]; dropped += gone[0]; oldest.remove(); }
+        }
+        public int diagnosticRows() { return aggregates.size(); }
+        public long diagnosticBytes() { return diagnosticBytes; }
+        public long droppedDiagnosticEvents() { return dropped; }
+        public long countOf(String issue, String type, String fingerprint) { long[] a = aggregates.get(issue + "|" + type + "|" + fingerprint); return a == null ? 0 : a[0]; }
+        public java.util.Map<String, String> businessFacts() { return java.util.Collections.unmodifiableMap(business); }
+    }
+
     public static boolean appendWithinTransaction(SQLiteDatabase db, Event event) {
         if (db == null || event == null || !event.valid()) return false;
         ContentValues cv = new ContentValues();

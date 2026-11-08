@@ -18,24 +18,34 @@ import static com.ethk3.novaonepro.ResearchVisualDataR82.*;
 final class ChartsRepositoryR27 {
     private ChartsRepositoryR27() {}
     static final String PAGE = "charts";
+    /** R31-B09-C03: per-chart frame budget (characters of the stored JSON). */
+    static final int MAX_PANEL_CHARS_R31 = 512 * 1024;
 
+    /** R31-B09-C01: page order and membership come from ChartRegistryR31 stable ids; titles never filter or route. */
     static List<Panel> load(SQLiteDatabase db, CancellationSignal cancel) {
         List<Panel> out = new ArrayList<>();
         Map<String,Object> frame=snapshotR30(db,cancel);
-        out.add(frame==null?headline(db,cancel):headlineSnapshotR30(frame));
-        for (String id : ChartCacheR27.PANELS) out.add(cached(db, cancel, id));
-        for(int i=0;i<2;i++)out.add(snapshotPanelR30(frame,i));
-        for (Panel p : ChartsRepositoryR83.load(db, cancel)) {
-            if (p.title.startsWith("算法迭代进化事件") || p.title.startsWith("算法父子谱系") || p.title.startsWith("主链算法参与权重")) continue;
-            if (p.title.startsWith("深度学习训练误差")) {
-                out.add(new Panel(PAGE, "短期波动（仅参考）：滚动20期Brier", p.kind, p.source, p.window,
-                        "纯噪声下滚动20期Brier即可在0.11—0.35摆动（docs/01 E）；不能用来判断“越学越准”。请看上方图A/图B。", p.status, p.points, p.edges));
-                continue;
+        ChartsRepositoryR83.ReadContext r83=null;
+        for (String id : ChartRegistryR31.visibleLegacyIds()) {
+            ChartRegistryR31.Entry e = ChartRegistryR31.find(id);
+            switch (e.group) {
+                case LEGACY_STATUS: out.add(frame==null?headline(db,cancel):headlineSnapshotR30(frame)); break;
+                case LEGACY_CACHED: out.add(cached(db, cancel, id)); break;
+                case LEGACY_SNAPSHOT: out.add(snapshotPanelR30(frame, java.util.Arrays.asList(com.ethk3.novaonepro.strategyv2.ReportChartsR30.IDS).indexOf(id))); break;
+                case LEGACY_R83: {
+                    if (r83 == null) r83 = new ChartsRepositoryR83.ReadContext(db, cancel);
+                    Panel p = ChartsRepositoryR83.loadPanel(id, db, cancel, r83);
+                    if (id.equals("r83_brier20")) p = new Panel(PAGE, "短期波动（仅参考）：滚动20期Brier", p.kind, p.source, p.window,
+                            "纯噪声下滚动20期Brier即可在0.11—0.35摆动（docs/01 E）；不能用来判断“越学越准”。请看上方图A/图B。", p.status, p.points, p.edges);
+                    out.add(p); break;
+                }
+                default: throw new IllegalStateException("R31_CHART_GROUP_NOT_ON_LEGACY_PAGE:" + id);
             }
-            out.add(p);
         }
         return out;
     }
+    /** The ids this page shows, in order (the same set the report index and machine tables use). */
+    static List<String> panelIdsR31() { return ChartRegistryR31.visibleLegacyIds(); }
 
     static Panel headline(SQLiteDatabase db, CancellationSignal cancel) {
         String text = "当前合格策略：UNKNOWN；尚未取得资格计数，请等待真实快照。";
@@ -53,7 +63,12 @@ final class ChartsRepositoryR27 {
     static Panel cached(SQLiteDatabase db, CancellationSignal cancel, String id) {
         try (Cursor c = db.rawQuery("SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id=? AND key='panel'", new String[] {id}, cancel)) {
             if (!c.moveToFirst()) return new Panel(PAGE, id, "STATUS", "r27_chart_cache", "", "等待研究线程生成本图（每30秒刷新）。", "INSUFFICIENT", null, null);
-            Map<String, Object> m = (Map<String, Object>) JsonR27.parse(c.getString(0));
+            // R31-B09-C03: validate the frame before expanding it; a too large, unparsable or non-object frame fails only this chart.
+            String raw = c.getString(0);
+            if (raw == null || raw.length() > MAX_PANEL_CHARS_R31) return new Panel(PAGE, id, "STATUS", "r27_chart_cache", "", "本图缓存帧超过显示预算，未展开（不影响其他图）。", "STALE_FRAME_TOO_LARGE", null, null);
+            Object parsed; try { parsed = JsonR27.parse(raw); } catch (RuntimeException bad) { return new Panel(PAGE, id, "STATUS", "r27_chart_cache", "", "本图缓存帧损坏：" + bad.getClass().getSimpleName() + "（不影响其他图）。", "STALE_FRAME_INVALID", null, null); }
+            if (!(parsed instanceof Map) || !(((Map<?, ?>) parsed).get("points") instanceof List)) return new Panel(PAGE, id, "STATUS", "r27_chart_cache", "", "本图缓存帧版本不符，等待重建。", "STALE_FRAME_ABI", null, null);
+            Map<String, Object> m = (Map<String, Object>) parsed;
             List<Point> pts = new ArrayList<>();
             for (Object o : (List<Object>) m.get("points")) {
                 Map<String, Object> p = (Map<String, Object>) o; double[] stack = null;

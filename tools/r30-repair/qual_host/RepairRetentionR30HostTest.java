@@ -35,7 +35,10 @@ public final class RepairRetentionR30HostTest {
         Path path=Files.createTempFile("repair-retention-phase-",".db");byte[] original=new byte[400];new Random(29).nextBytes(original);
         try{
             try(Connection connection=DriverManager.getConnection("jdbc:sqlite:"+path)){
-                SQLiteDatabase db=new SQLiteDatabase(connection);schema(db);tx(db,()->ResearchRetentionStoreR30.ensureProtected(db));
+                SQLiteDatabase db=new SQLiteDatabase(connection);schema(db);
+                // Same order as the production startup owner: retention archives first, then the R31 warm-publication index
+                // that WarmCandidateR26.pruneInitializers requires (SchemaDomainCoordinatorR926.migrateR31WarmPublication).
+                tx(db,()->{ResearchRetentionStoreR30.ensureProtected(db);com.ethk3.novaonepro.SchemaDomainCoordinatorR926.migrateR31WarmPublication(db);});
                 db.execSQL("INSERT INTO r26_frozen VALUES('SYNTHETIC_ORIGINAL_MODEL',1,0,'checkpoint','state','source',1,1,2,?)",new Object[]{original});
                 RetentionR26.Checkpoint initial=RetentionR26.checkpoint(db);need(initial.phase==0,"fresh phase");
                 for(int phase=0;phase<13;phase++){

@@ -23,27 +23,59 @@ final class ChartsRepositoryR83 {
     static final double BREAK_EVEN = AppConfig.MISS_LOSS / (AppConfig.WIN_NET_PROFIT + AppConfig.MISS_LOSS);
     private ChartsRepositoryR83() {}
 
+    /** R31-B09-C01/C02: shared inputs of one page read; a failed draw read fails only the panels that use draws. */
+    static final class ReadContext {
+        final int position; final List<String> drawIssues = new ArrayList<>(); final List<int[]> draws; final RuntimeException drawFailure;
+        ReadContext(SQLiteDatabase db, CancellationSignal cancel) {
+            position = latestPosition(db, cancel); List<int[]> d = null; RuntimeException failure = null;
+            try { d = draws(db, cancel, drawIssues); } catch (android.os.OperationCanceledException canceled) { throw canceled; } catch (RuntimeException failed) { failure = failed; }
+            draws = d; drawFailure = failure;
+        }
+    }
+    /** The 12 mounted R83 panels by stable id; retired builders (lineage, evolution events, mainline weight) never run. */
     static List<Panel> load(SQLiteDatabase db, CancellationSignal cancel) {
-        List<Panel> out = new ArrayList<>();
-        int position = latestPosition(db, cancel);
-        List<String> drawIssues = new ArrayList<>();
-        List<int[]> draws = draws(db, cancel, drawIssues);
-        out.add(safe("全部算法逐期实盘榜", () -> r27AlgorithmBoard(db, cancel)));
-        out.add(safe("算法实盘排行榜", () -> algorithmBoard(db, cancel)));
-        out.add(safe("最佳算法累计命中率", () -> bestAlgorithmCurve(db, cancel)));
-        out.add(safe("出手资金K线", () -> actionCandles(db, cancel)));
-        out.add(safe("全部预测命中率走势", () -> hitTrend(db, cancel, false)));
-        out.add(safe("出手命中率走势", () -> hitTrend(db, cancel, true)));
-        out.add(safe("第" + position + "位置号码K线", () -> numberCandles(draws, drawIssues, position)));
-        out.add(safe("第" + position + "位置号码轨迹", () -> numberLine(draws, drawIssues, position)));
-        out.add(safe("号码遗漏热力图", () -> omissionHeat(draws)));
-        out.add(safe("第" + position + "位置冷热号", () -> hotCold(draws, position)));
-        out.add(safe("预测概率校准", () -> calibration(db, cancel)));
-        out.add(safe("主链算法参与权重", () -> mainlineWeight(db, cancel)));
-        out.add(safe("算法迭代进化事件", () -> evolutionEvents(db, cancel)));
-        out.add(safe("深度学习训练误差", () -> networkBrier(db, cancel)));
-        out.add(safe("算法父子谱系", () -> lineage(db, cancel)));
+        List<Panel> out = new ArrayList<>(); ReadContext ctx = new ReadContext(db, cancel);
+        for (String id : ChartRegistryR31.R83_VISIBLE) out.add(loadPanel(id, db, cancel, ctx));
         return out;
+    }
+    static Panel loadPanel(String id, SQLiteDatabase db, CancellationSignal cancel, ReadContext ctx) {
+        if (ChartRegistryR31.R83_DRAW_INPUT.contains(id) && ctx.drawFailure != null)
+            return new Panel(PAGE, id, "STATUS", "draws", "", "开奖输入读取失败：" + ctx.drawFailure.getClass().getSimpleName() + "；仅影响依赖开奖序列的图，不按0处理。", "READ_ERROR", null, null);
+        int position = ctx.position;
+        switch (id) {
+            case "r83_algorithm_all": return safe("全部算法逐期实盘榜", () -> r27AlgorithmBoard(db, cancel));
+            case "r83_algorithm_rank": return safe("算法实盘排行榜", () -> algorithmBoard(db, cancel));
+            case "r83_best_curve": return safe("最佳算法累计命中率", () -> bestAlgorithmCurve(db, cancel));
+            case "r83_action_candles": return safe("出手资金K线", () -> actionCandles(db, cancel));
+            case "r83_all_hit": return safe("全部预测命中率走势", () -> hitTrend(db, cancel, false));
+            case "r83_act_hit": return safe("出手命中率走势", () -> hitTrend(db, cancel, true));
+            case "r83_number_candles": return safe("第" + position + "位置号码K线", () -> numberCandles(ctx.draws, ctx.drawIssues, position));
+            case "r83_number_line": return safe("第" + position + "位置号码轨迹", () -> numberLine(ctx.draws, ctx.drawIssues, position));
+            case "r83_omission_heat": return safe("号码遗漏热力图", () -> omissionHeat(ctx.draws));
+            case "r83_hot_cold": return safe("第" + position + "位置冷热号", () -> hotCold(ctx.draws, position));
+            case "r83_calibration": return safe("预测概率校准", () -> calibration(db, cancel));
+            case "r83_brier20": return safe("深度学习训练误差", () -> networkBrier(db, cancel));
+            default: throw new IllegalArgumentException("R31_R83_PANEL_NOT_MOUNTED:" + id);
+        }
+    }
+
+    /** R31-B09-C04: one evidence accounting for boards, calibration and money charts. */
+    static final class EvidenceAccountingR31 {
+        private EvidenceAccountingR31() {}
+        /** Bonferroni m: every candidate evaluated, never the displayed subset. */
+        static int multipleTestingCount(int fullCandidateCount, int displayed) { if (fullCandidateCount < displayed) throw new IllegalStateException("R31_FULL_CANDIDATES_BELOW_DISPLAYED"); return Math.max(1, fullCandidateCount); }
+        /** Distinct calendar issues: the same result seen under another role (shadow/real/research) is one sample. */
+        static int distinctIssues(java.util.List<String[]> roleIssueRows) { java.util.Set<String> issues = new java.util.HashSet<>(); for (String[] r : roleIssueRows) issues.add(r[1]); return issues.size(); }
+        /** Mixed ABIs never collapse into one average. */
+        static Double averageWithinOneAbi(java.util.List<Object[]> abiValueRows) {
+            java.util.Set<Object> abis = new java.util.HashSet<>(); double sum = 0; for (Object[] r : abiValueRows) { abis.add(r[0]); sum += ((Number) r[1]).doubleValue(); }
+            return abis.size() == 1 && !abiValueRows.isEmpty() ? sum / abiValueRows.size() : null;
+        }
+        /** No valid asset: show 0 valid assets and the full research output; no REAL action is synthesised. */
+        static java.util.Map<String, Object> validAssetSummary(int validAssets, int realDecisions, int researchOutputs) {
+            java.util.Map<String, Object> m = new java.util.LinkedHashMap<>(); m.put("validAssets", (long) validAssets); m.put("realDecisions", (long) realDecisions); m.put("researchOutputs", (long) researchOutputs);
+            m.put("realActionsShown", (long) realDecisions); m.put("status", validAssets == 0 ? "NO_VALID_ASSET_RESEARCH_SHOWN_IN_FULL" : "VALID_ASSETS_PRESENT"); return m;
+        }
     }
 
     interface Builder { Panel build(); }
@@ -331,7 +363,12 @@ final class ChartsRepositoryR83 {
             while (c.moveToNext())
                 rows.add(new Object[] {c.getString(0), c.getString(1), c.getString(2), c.getString(3), c.getInt(4), c.getInt(5), c.getInt(6), c.getInt(7), c.getString(8), c.getString(9)});
         }
-        int m = Math.max(1, rows.size());
+        // R31-B09-C04: the multiple-comparison budget is the full candidate set, not the LIMIT shown on screen.
+        int fullCandidates = rows.size();
+        try (Cursor c = db.rawQuery("SELECT COUNT(DISTINCT s.policy_hash) FROM r27_live_shadow s JOIN r27_live_frozen f ON f.policy_hash=s.policy_hash AND f.status='FROZEN' AND f.hit>=0", null, cancel)) {
+            if (c.moveToFirst()) fullCandidates = c.getInt(0);
+        }
+        int m = EvidenceAccountingR31.multipleTestingCount(fullCandidates, rows.size());
         double zBonf = normalQuantile(1 - 0.05 / m);
         int observers = 0, scheduled = 0;
         try (Cursor c = db.rawQuery("SELECT COUNT(*) FROM r27_live_shadow WHERE status IN ('OBSERVE','ACTIVE','CONTROL_I00','CONTROL_NULL')", null, cancel)) {

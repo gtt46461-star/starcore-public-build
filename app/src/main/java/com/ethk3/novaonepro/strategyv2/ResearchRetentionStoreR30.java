@@ -207,7 +207,8 @@ public final class ResearchRetentionStoreR30 {
         });
     }
     public static String visualCacheDeleteSql(){
-        StringJoiner panels=new StringJoiner(",");for(String panel:ChartCacheR27.PANELS)panels.add(lit(panel));
+        // R31-B05-C08: only panels classified DISPLAY; business state (mainline/choice), checkpoints and timelines are never scanned.
+        StringJoiner panels=new StringJoiner(",");for(String panel:ChartCacheR27.displayPanelsR31())panels.add(lit(panel));
         return "DELETE FROM r27_chart_cache WHERE rowid IN (SELECT rowid FROM r27_chart_cache WHERE panel_id IN ("+panels+") ORDER BY updated_at,panel_id,key LIMIT 500)";
     }
     public static ResearchRetentionR30.Result step(DbStore store,RuntimeCoordinatorR26.Claim claim)throws Exception{

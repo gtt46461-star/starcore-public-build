@@ -14,6 +14,20 @@ import java.util.Map;
  * never a zero line. REPLAY, HOLDOUT and FUTURE are always separate series. */
 public final class ChartCacheR27 {
     private ChartCacheR27() {}
+    /** R31-B05-C08 / B09-C03: what each r27_chart_cache panel really is. Only DISPLAY may be cleared by the cache GC;
+     * BUSINESS_STATE (mainline choice, asset and report state), CHECKPOINT (research/matrix/qualification progress)
+     * and TIMELINE keep their own owners. An unknown panel is BUSINESS_STATE: never inferred deletable from the table name. */
+    public enum CacheClassR31 { DISPLAY, BUSINESS_STATE, CHECKPOINT, TIMELINE }
+    public static CacheClassR31 classR31(String panel) {
+        if (panel == null) return CacheClassR31.BUSINESS_STATE;
+        for (String p : PANELS) if (p.equals(panel)) return CacheClassR31.DISPLAY;
+        switch (panel) {
+            case "r30-charts": return CacheClassR31.DISPLAY;
+            case "research-study-r1": case "matrix-r30-r1": case "research-observatory-r1": case "r30-qualification-gap": case "r30-qualification-gap-retry": case "r30-retention-control": case "atomnet": case "calibration-r30": return CacheClassR31.CHECKPOINT;
+            default: return panel.startsWith("timeline") || panel.startsWith("r30-timeline") ? CacheClassR31.TIMELINE : CacheClassR31.BUSINESS_STATE;
+        }
+    }
+    public static java.util.List<String> displayPanelsR31() { java.util.List<String> out = new java.util.ArrayList<>(); for (String p : PANELS) if (classR31(p) == CacheClassR31.DISPLAY) out.add(p); return java.util.Collections.unmodifiableList(out); }
     public static final String[] PANELS = {"p01_three_scores", "p02_generation_holdout", "p03_evolution_events", "p04_seven_counters", "p05_lineage", "p06_idea_survival",
             "p07_funnel", "p08_bss", "p09_rolling200", "p10_train_holdout_loss", "p11_eprocess", "p12_mainline_weight", "p13_runtime_health", "p14_atom_scores"};
 

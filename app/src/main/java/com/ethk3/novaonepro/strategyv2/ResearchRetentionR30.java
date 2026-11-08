@@ -16,6 +16,21 @@ public final class ResearchRetentionR30 {
         "r30r1_analysis_run","r30r1_research_measure","r30r1_proposal","r30r1_consume","research_matrix_snapshot_r930",
         "su2_certificate","su2_mainline_choice","su2_mainline_binding","su2_live_state","su2_matrix_snapshot","su2_diag_snapshot","su2_live_decision","su2_model_genome","su2_lineage",
         "su1_model_ablation","su1_campaign_audit","su1_live_prediction","su1_live_result","su1_sealed_plan","su1_sealed_result","su1_certificate","su1_alpha_ledger"));
+    /** R31-B05-C04: each protected table as a lifecycle entry (producer, consumer, key, bytes class, reference kind,
+     * expiry and replay requirement). The default is deny: nothing in this registry is deletable by age or FIFO. */
+    public static final class TablePolicyR31 {
+        public final String table,producer,consumer,key,bytesClass,reference,expiry,replay;
+        TablePolicyR31(String table){this.table=table;String prefix=table.substring(0,table.indexOf('_'));
+            producer=prefix.equals("research")?"ResearchEvolutionStoreR930":"Runtime"+prefix.toUpperCase(Locale.ROOT)+"_OWNER";consumer=prefix.toUpperCase(Locale.ROOT)+"_READERS_AND_REPORT";key="DECLARED_PRIMARY_KEY";
+            boolean original=table.contains("frozen")||table.contains("certificate")||table.contains("mainline")||table.contains("eprocess")||table.contains("checkpoint")||table.contains("revoked")||table.contains("revocation")||table.contains("alpha_ledger")||table.contains("exposure");
+            bytesClass=original?"ORIGINAL_EVIDENCE":"RESEARCH_RECORD";reference=original?"ROOT_OR_PINNED_BY_LIVE_STATE":"REFERENCED_BY_RUN_OR_LINEAGE";
+            expiry="NONE_DEFAULT_DENY";replay=original?"ORIGINAL_ROWS_REQUIRED_NO_SUMMARY_SUBSTITUTE":"SUMMARY_ONLY_AFTER_CONSUMERS_MIGRATED";}
+        public Map<String,Object> json(){Map<String,Object> m=new LinkedHashMap<>();m.put("table",table);m.put("producer",producer);m.put("consumer",consumer);m.put("key",key);m.put("bytesClass",bytesClass);m.put("reference",reference);m.put("expiry",expiry);m.put("replayRequirement",replay);m.put("deletable",false);return m;}
+    }
+    public static final List<TablePolicyR31> POLICIES_R31;
+    static{List<TablePolicyR31> p=new ArrayList<>();for(String t:PROTECTED_TABLES)p.add(new TablePolicyR31(t));POLICIES_R31=Collections.unmodifiableList(p);}
+    /** Default deny: an unregistered table is protected too; registered ones only via KeepMigrationR31.dropDecision. */
+    public static boolean deletableByAgeR31(String table){return false;}
     public static final class Candidate {
         public final File file;public final String relative,kind;public final long bytes,modified;
         Candidate(File file,String relative,String kind){this.file=file;this.relative=relative;this.kind=kind;this.bytes=file.length();this.modified=file.lastModified();}
