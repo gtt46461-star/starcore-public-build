@@ -107,6 +107,8 @@ jobs:
   android_build:
     needs: baseline
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
@@ -154,6 +156,18 @@ jobs:
           key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
       - name: Gradle distribution (cached; fetched with retries; a download timeout is infrastructure, not a result)
         run: for i in 1 2 3 4 5 6 7 8; do ./gradlew --no-daemon --version > /dev/null && exit 0; echo "gradle distribution attempt $i failed"; sleep $((i*45)); done; exit 1
+      - name: r982 source-call inventory (B12-C05; refrozen from freshly compiled classes when stale)
+        run: |
+          if python3 scripts/r982_source_call_asset.py; then echo "R982_INVENTORY_CURRENT" | tee -a r31v/signing.txt; exit 0; fi
+          # Stale against the current sources: compile the product classes without the APK pipeline, freeze the
+          # index from them, commit it back, and stop. The next run builds a clean (non-dirty) APK from it.
+          ./gradlew --no-daemon -Pr312Development=true :app:compileDebugJavaWithJavac 2>&1 | tail -n 30
+          python3 scripts/r982_source_call_asset.py --freeze --classes app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes
+          git config user.name "r31-verification-ci"; git config user.email "r31-verification-ci@users.noreply.github.com"
+          git add release/r982_source_calls.tsv.gz release/r982_source_calls.manifest.json
+          git commit -q -m "evidence(r31/K11): r982 source-call inventory refrozen from the compiled classes of ${GITHUB_SHA::12} [skip ci]"
+          for i in 1 2 3 4 5; do git pull -q --rebase origin "$GITHUB_REF_NAME" && git push -q origin "HEAD:$GITHUB_REF_NAME" && break; sleep 15; done
+          echo "R982_INVENTORY_REFROZEN_RERUN_REQUIRED (the APK is built only from a committed inventory)"; exit 1
       - name: Build the real APKs
         run: |
           set -o pipefail
