@@ -133,8 +133,14 @@ jobs:
           if [ "${{ steps.transport.outputs.cache-hit }}" = "true" ] && python3 scripts/load_r13_signing.py; then
             echo "R31_SIGNING=OFFICIAL_R13" >> "$GITHUB_ENV"; echo "OFFICIAL_R13" > r31v/signing.txt
           else
-            echo "R31_SIGNING=NOT_AVAILABLE" >> "$GITHUB_ENV"
-            echo "NOT_AVAILABLE: sealed R13 envelope present but its transport private key is not reachable from this run; release APK NOT_BUILT" > r31v/signing.txt
+            # Same fallback as r27.yml: the build requires an R13 key even for debug APKs. A temporary key generated
+            # in this run signs the debug APK; it is NOT the official identity and is recorded as such.
+            pw=$(python3 -c 'import secrets;print(secrets.token_hex(16))'); echo "::add-mask::$pw"
+            keytool -genkeypair -storetype PKCS12 -keystore "$RUNNER_TEMP/r31-ci.p12" -alias starcore-r13 -keyalg RSA -keysize 3072 -validity 3650 \
+              -storepass "$pw" -keypass "$pw" -dname "CN=STARCORE R31 CI TEMPORARY KEY - NOT THE RELEASE IDENTITY" > /dev/null 2>&1
+            cert=$(keytool -exportcert -keystore "$RUNNER_TEMP/r31-ci.p12" -storetype PKCS12 -alias starcore-r13 -storepass "$pw" | sha256sum | cut -c1-64)
+            { echo "R13_SIGNING_P12=$RUNNER_TEMP/r31-ci.p12"; echo "R13_SIGNING_PASSWORD=$pw"; echo "R13_EXPECTED_CERT_SHA256=$cert"; echo "R31_SIGNING=NOT_AVAILABLE"; } >> "$GITHUB_ENV"
+            echo "NOT_AVAILABLE: sealed R13 envelope present but its transport private key is not reachable from this run; debug APK signed with TEMPORARY_CI_KEY $cert (not the official identity); release APK NOT_BUILT" > r31v/signing.txt
           fi
           if [ -n "$DUOQU_SECRET" ]; then echo "::add-mask::$DUOQU_SECRET"; echo "DUOQU_API_KEY=$DUOQU_SECRET" >> "$GITHUB_ENV"; fi
       - uses: android-actions/setup-android@v3
