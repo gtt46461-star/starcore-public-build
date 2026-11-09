@@ -42,7 +42,8 @@ jobs:
           grep -qE "Signer( #1|): certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7" cert.txt
           mkdir -p pub all && cp "$f" pub/ && cp cert.txt pub/public-certificate.txt && cp "$(python3 -c "import json;print(json.load(open('release/R31_PUBLISH_REQUEST.json')).get('delivery','release/R31_DELIVERY.json'))")" pub/delivery.json
           find built -type f -exec cp {} all/ \;
-          (cd all && zip -q -r "../pub/$(python3 -c "import json;print(json.load(open('release/R31_PUBLISH_REQUEST.json')).get('zipName','STARCORE_R31_577311016_COMPLETE.zip'))")" .)
+          Z=$(python3 -c "import json;print(json.load(open('release/R31_PUBLISH_REQUEST.json')).get('zipName','STARCORE_R31_577311016_COMPLETE.zip'))")
+          (cd all && zip -q -r "../pub/$Z" .)
           (cd pub && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt)
       - name: Create the release
         env:
