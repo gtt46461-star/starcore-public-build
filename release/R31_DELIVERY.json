@@ -2,8 +2,8 @@
  "format": "R31_DELIVERY_DECLARATION_V1",
  "card": "R31-B12-C05",
  "rule": "This file declares the one R31 deliverable and its layers. The ZIP itself is produced only by .github/workflows/r31-verification.yml (artifact_receipt job, artifact 'r31-verification-receipt', folder delivery/) from the real APK built in the same run; tools/r31/package_release.py refuses an APK whose bytes, identity or signature differ from that build. PENDING_CI fields are filled from that run's receipt, never by hand-written values.",
- "deliverable": "STARCORE-R31-R31-CHECKPOINT-P01-2026.11.05-016-DEBUG-NOT-OFFICIAL-6ff407b2c0cc.zip",
- "sourceCommit": "6ff407b2c0cc936452f5331f8ce1a0aff73e121c",
+ "deliverable": "STARCORE-R31-EXISTING_R27-a99e3c5bb1bb-release.apk (in artifact R31-EXISTING_R27-CANDIDATE-a99e3c5bb1bbcb0553c9964fa92203c524acf7f5)",
+ "sourceCommit": "a99e3c5bb1bbcb0553c9964fa92203c524acf7f5",
  "identity": {
   "applicationId": "com.starcore.research.r13",
   "versionName": "R31-CHECKPOINT-P01-2026.11.05-016",
@@ -12,21 +12,22 @@
   "releaseMode": "CONTROLLED_CANDIDATE_MODEL_NOT_PROVEN"
  },
  "apk": {
-  "file": "Starcore-Tianshu-R31-CHECKPOINT-P01-2026.11.05-016-debug.apk",
-  "sha256": "4991493f85b1400fdc3aecea3ef077d65350c2fcb4c37f36a929ecd834fcabd6",
-  "bytes": 33299416,
+  "release": {
+   "file": "STARCORE-R31-EXISTING_R27-a99e3c5bb1bb-release.apk",
+   "sha256": "d40728e114740924d506dbd19130210d46ea049f9e63c8ea163bf1c77e495fec",
+   "bytes": 28720092
+  },
+  "debug": {
+   "file": "STARCORE-R31-EXISTING_R27-a99e3c5bb1bb-debug.apk",
+   "sha256": "7fba2dad8011e59f8a92f5df2dd914962c5176b8760cabfe27ed1503087400c8",
+   "bytes": 33298761
+  },
   "package": "com.starcore.research.r13",
   "versionCode": 577311016,
   "versionName": "R31-CHECKPOINT-P01-2026.11.05-016",
-  "signerCertSha256": "ab6daff8ac9af159121710b2a859416acd16571bb54999d1854498a8d67a7178",
-  "signatureSchemes": [
-   "v1",
-   "v2"
-  ],
-  "deliveredAs": "STARCORE-R31-R31-CHECKPOINT-P01-2026.11.05-016-DEBUG-NOT-OFFICIAL-6ff407b2c0cc.apk",
-  "variant": "debug"
+  "signerCertSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7"
  },
- "signing": "NOT_OFFICIAL: debug APK signed with a temporary CI key (certificate SHA-256 ab6daff8ac9af159121710b2a859416acd16571bb54999d1854498a8d67a7178); the sealed official R13 key could not be opened in CI because its transport private key is not available; release APK NOT_BUILT",
+ "signing": "EXISTING_DEVICE_IDENTITY: R27 CI key d8d8cee7... restored from Actions cache starcore-r27-ci-temp-signing-v1 on construction/r27-20261028 - the certificate of the installed R30-REPAIR1; NOT the official R13 identity 9e6d5dc7... (its transport key is unavailable)",
  "layers": {
   "L2_ENGINEERING_HOST_AND_UNIT": {
    "status": "PASS",
@@ -52,12 +53,10 @@
   "30GB original database NOT_RUN; upgrade STRESS run is SIMULATED"
  ],
  "download": {
-  "workflow_run": 42480296790,
-  "artifact": "r31-verification-receipt (id 13618976403)",
-  "path_in_artifact": "delivery/STARCORE-R31-R31-CHECKPOINT-P01-2026.11.05-016-DEBUG-NOT-OFFICIAL-6ff407b2c0cc.zip",
-  "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/42480296790",
-  "zipSha256": "9f00b49ca3a4da910b39b8fcfbf7d3f655bef5f8ec2d828b8e97143506308ccf",
-  "zipBytes": 21115221
+  "workflow_run": 42539251259,
+  "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/42539251259",
+  "artifact": "R31-EXISTING_R27-CANDIDATE-a99e3c5bb1bbcb0553c9964fa92203c524acf7f5 (id 13641748721)",
+  "workflow": ".github/workflows/r31-build-r27.yml on construction/r27-20261028 (request commit 230452c4)"
  },
  "emulator": {
   "api29": "OBSERVED_PASS",
@@ -69,5 +68,52 @@
   },
   "gate_receipt_rule": "deferred EMU/DEVICE items stay NOT_PROVEN in the gate RECEIPT; these are separate emulator observations"
  },
- "r982SourceCallInventory": "refrozen from the compiled classes of 0b28b2c3 (commit 2101e674); verified current in run 42480296790"
+ "r982SourceCallInventory": "refrozen from the compiled classes of 0b28b2c3 (commit 2101e674); verified current in run 42480296790",
+ "overlayInstall": {
+  "installed": {
+   "package": "com.starcore.research.r13",
+   "versionCode": 577311009,
+   "versionName": "R30-REPAIR1-2026.11.02-009",
+   "signerCertSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7"
+  },
+  "samePackage": true,
+  "sameSigner": true,
+  "versionCodeHigher": true,
+  "overlayInstallKeepsData": true,
+  "deviceInstallObserved": "NOT_RUN"
+ },
+ "existingR27LaneAndroid": {
+  "joint_protocol_groups": "4/4 PASS on API 29 and 35 (run 42539251259)",
+  "r30_fault_matrix": "FAIL on API 29/35 (fetch_timeout, draw_conflict, sqlite_full, kill points, clock rollback cells) - the same matrix also failed on 2026-11-04 (checkpoint 014: FULL_ANDROID_FAILED); not introduced by K11, not claimed as PASS"
+ },
+ "superseded": {
+  "reason": "debug APK with a temporary key could not overlay the installed app",
+  "previous": {
+   "deliverable": "STARCORE-R31-R31-CHECKPOINT-P01-2026.11.05-016-DEBUG-NOT-OFFICIAL-6ff407b2c0cc.zip",
+   "download": {
+    "workflow_run": 42480296790,
+    "artifact": "r31-verification-receipt (id 13618976403)",
+    "path_in_artifact": "delivery/STARCORE-R31-R31-CHECKPOINT-P01-2026.11.05-016-DEBUG-NOT-OFFICIAL-6ff407b2c0cc.zip",
+    "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/42480296790",
+    "zipSha256": "9f00b49ca3a4da910b39b8fcfbf7d3f655bef5f8ec2d828b8e97143506308ccf",
+    "zipBytes": 21115221
+   },
+   "apk": {
+    "file": "Starcore-Tianshu-R31-CHECKPOINT-P01-2026.11.05-016-debug.apk",
+    "sha256": "4991493f85b1400fdc3aecea3ef077d65350c2fcb4c37f36a929ecd834fcabd6",
+    "bytes": 33299416,
+    "package": "com.starcore.research.r13",
+    "versionCode": 577311016,
+    "versionName": "R31-CHECKPOINT-P01-2026.11.05-016",
+    "signerCertSha256": "ab6daff8ac9af159121710b2a859416acd16571bb54999d1854498a8d67a7178",
+    "signatureSchemes": [
+     "v1",
+     "v2"
+    ],
+    "deliveredAs": "STARCORE-R31-R31-CHECKPOINT-P01-2026.11.05-016-DEBUG-NOT-OFFICIAL-6ff407b2c0cc.apk",
+    "variant": "debug"
+   },
+   "signing": "NOT_OFFICIAL: debug APK signed with a temporary CI key (certificate SHA-256 ab6daff8ac9af159121710b2a859416acd16571bb54999d1854498a8d67a7178); the sealed official R13 key could not be opened in CI because its transport private key is not available; release APK NOT_BUILT"
+  }
+ }
 }
