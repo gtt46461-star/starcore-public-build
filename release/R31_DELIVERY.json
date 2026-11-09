@@ -2,7 +2,7 @@
  "format": "R31_DELIVERY_DECLARATION_V1",
  "card": "R31-B12-C05",
  "rule": "This file declares the one R31 deliverable and its layers. The ZIP itself is produced only by .github/workflows/r31-verification.yml (artifact_receipt job, artifact 'r31-verification-receipt', folder delivery/) from the real APK built in the same run; tools/r31/package_release.py refuses an APK whose bytes, identity or signature differ from that build. PENDING_CI fields are filled from that run's receipt, never by hand-written values.",
- "deliverable": "STARCORE-R31-EXISTING_R27-a99e3c5bb1bb-release.apk (in artifact R31-EXISTING_R27-CANDIDATE-a99e3c5bb1bbcb0553c9964fa92203c524acf7f5)",
+ "deliverable": "R31-EXISTING_R27-CANDIDATE-a99e3c5bb1bbcb0553c9964fa92203c524acf7f5.zip",
  "sourceCommit": "a99e3c5bb1bbcb0553c9964fa92203c524acf7f5",
  "identity": {
   "applicationId": "com.starcore.research.r13",
@@ -56,7 +56,8 @@
   "workflow_run": 42539251259,
   "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/42539251259",
   "artifact": "R31-EXISTING_R27-CANDIDATE-a99e3c5bb1bbcb0553c9964fa92203c524acf7f5 (id 13641748721)",
-  "workflow": ".github/workflows/r31-build-r27.yml on construction/r27-20261028 (request commit 230452c4)"
+  "workflow": ".github/workflows/r31-build-r27.yml on construction/r27-20261028 (request commit 230452c4)",
+  "contains": "STARCORE-R31-EXISTING_R27-a99e3c5bb1bb-release.apk (install this one), the debug APK, the androidTest APK and receipts"
  },
  "emulator": {
   "api29": "OBSERVED_PASS",
