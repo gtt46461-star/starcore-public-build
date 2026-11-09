@@ -1,0 +1,57 @@
+# Publishes an already-built, already-verified R31 APK as a GitHub Release (direct browser download), as the R30 repair
+# releases were. It never builds or re-signs: it takes the artifact of the signing run named in
+# release/R31_PUBLISH_REQUEST.json and refuses unless the release APK's SHA-256 and signer match the request.
+name: STARCORE R31 publish release
+on:
+  push:
+    branches: ['construction/r31-final-20261104']
+    paths: ['release/R31_PUBLISH_REQUEST.json']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - id: req
+        run: |
+          python3 - <<'PY'
+          import json,os,re
+          r=json.load(open('release/R31_PUBLISH_REQUEST.json'))
+          keys=('runId','artifact','apk','sha256','tag','sourceCommit','title')
+          for k in keys: assert r.get(k),k
+          assert re.fullmatch('[0-9a-f]{64}',r['sha256']) and re.fullmatch('[0-9a-f]{40}',r['sourceCommit'])
+          with open(os.environ['GITHUB_OUTPUT'],'a') as o:
+              for k in keys: o.write(k+'='+str(r[k])+'\n')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.req.outputs.artifact }}
+          run-id: ${{ steps.req.outputs.runId }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: built
+      - name: Verify the exact signed bytes and assemble the package
+        run: |
+          set -euo pipefail
+          f=$(find built -name "${{ steps.req.outputs.apk }}" | head -1); test -n "$f"
+          echo "${{ steps.req.outputs.sha256 }}  $f" | sha256sum -c -
+          B="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          "$B/apksigner" verify --print-certs "$f" | tee cert.txt
+          grep -q "Signer #1 certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7" cert.txt
+          mkdir -p pub all && cp "$f" pub/ && cp cert.txt pub/public-certificate.txt && cp release/R31_DELIVERY.json pub/delivery.json
+          find built -type f -exec cp {} all/ \;
+          (cd all && zip -q -r "../pub/STARCORE_R31_577311016_COMPLETE.zip" .)
+          (cd pub && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt)
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s\n\n%s\n\n%s\n%s\n' \
+            "R31 全部11批施工关门。原R27证书 d8d8cee7…，与手机上 R30返修 577311009 同包同签名，versionCode 577311016，直接覆盖安装、保留数据。" \
+            "源码：${{ steps.req.outputs.sourceCommit }}" \
+            "门禁：单测622/622、lint、全部主机测试通过；模拟器API 29/35 联合协议4/4、覆盖安装杀进程恢复通过。" \
+            "仍未证明：不是正式R13签名；旧R30故障矩阵在模拟器上仍失败（11/4起即如此）；V2353A真机24h/72h与自然质量未执行/未证明。" > notes.md
+          gh release create "${{ steps.req.outputs.tag }}" pub/* --target "${{ steps.req.outputs.sourceCommit }}" --title "${{ steps.req.outputs.title }}" --notes-file notes.md
+          gh release view "${{ steps.req.outputs.tag }}" --json assets --jq '.assets[]|.name+" "+.url'
