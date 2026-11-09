@@ -40,18 +40,14 @@ jobs:
           B="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           "$B/apksigner" verify --print-certs "$f" | tee cert.txt
           grep -qE "Signer( #1|): certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7" cert.txt
-          mkdir -p pub all && cp "$f" pub/ && cp cert.txt pub/public-certificate.txt && cp release/R31_DELIVERY.json pub/delivery.json
+          mkdir -p pub all && cp "$f" pub/ && cp cert.txt pub/public-certificate.txt && cp "$(python3 -c "import json;print(json.load(open('release/R31_PUBLISH_REQUEST.json')).get('delivery','release/R31_DELIVERY.json'))")" pub/delivery.json
           find built -type f -exec cp {} all/ \;
-          (cd all && zip -q -r "../pub/STARCORE_R31_577311016_COMPLETE.zip" .)
+          (cd all && zip -q -r "../pub/$(python3 -c "import json;print(json.load(open('release/R31_PUBLISH_REQUEST.json')).get('zipName','STARCORE_R31_577311016_COMPLETE.zip'))")" .)
           (cd pub && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt)
       - name: Create the release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          printf '%s\n\n%s\n\n%s\n%s\n' \
-            "R31 全部11批施工关门。原R27证书 d8d8cee7…，与手机上 R30返修 577311009 同包同签名，versionCode 577311016，直接覆盖安装、保留数据。" \
-            "源码：${{ steps.req.outputs.sourceCommit }}" \
-            "门禁：单测622/622、lint、全部主机测试通过；模拟器API 29/35 联合协议4/4、覆盖安装杀进程恢复通过。" \
-            "仍未证明：不是正式R13签名；旧R30故障矩阵在模拟器上仍失败（11/4起即如此）；V2353A真机24h/72h与自然质量未执行/未证明。" > notes.md
+          python3 -c "import json;r=json.load(open('release/R31_PUBLISH_REQUEST.json'));open('notes.md','w',encoding='utf-8').write(r['notes'] if r.get('notes') else 'R31 overlay-install release')"
           gh release create "${{ steps.req.outputs.tag }}" pub/* --target "${{ steps.req.outputs.sourceCommit }}" --title "${{ steps.req.outputs.title }}" --notes-file notes.md
           gh release view "${{ steps.req.outputs.tag }}" --json assets --jq '.assets[]|.name+" "+.url'
