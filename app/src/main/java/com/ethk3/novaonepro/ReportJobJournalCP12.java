@@ -189,11 +189,35 @@ public final class ReportJobJournalCP12 implements Closeable {
         org.json.JSONArray refs=observation.optJSONArray("fullObservations");if(refs==null){refs=new org.json.JSONArray();observation.put("fullObservations",refs);}refs.put(ref);
         observation.put(key,"FULL_OBSERVATION_MEMBER:"+key+"|bytes="+file.length()+"|sha256="+ref.getString("sha256"));
     }
+    private static final long OBSERVATION_TIMEOUT_MS_R31Q=5000L;
+    private static final java.util.concurrent.ExecutorService OBSERVERS_R31Q=java.util.concurrent.Executors.newCachedThreadPool(r->{Thread t=new Thread(r,"report-observer-r31q");t.setDaemon(true);return t;});
     /** Optional observers may fail without preventing the immutable DB snapshot or other observations. */
     public static void collectObservation(File root,String requestId,JSONObject observation,String key,
             java.util.concurrent.Callable<String> observer)throws Exception {
         String value;
-        try { value=observer.call(); }
+        // R31Q: an observer that blocks (on a lock held by a stalled business thread) must not hold the
+        // report request forever. After the limit the observation records where its reader is blocked.
+        final java.util.concurrent.atomic.AtomicReference<Thread> reader=new java.util.concurrent.atomic.AtomicReference<>();
+        java.util.concurrent.Future<String> pending=OBSERVERS_R31Q.submit(()->{reader.set(Thread.currentThread());return observer.call();});
+        try { value=pending.get(OBSERVATION_TIMEOUT_MS_R31Q,java.util.concurrent.TimeUnit.MILLISECONDS); }
+        catch(java.util.concurrent.TimeoutException blocked) {
+            pending.cancel(true);
+            observation.put(key,"OBSERVATION_TIMEOUT");
+            StringBuilder frames=new StringBuilder("OBSERVATION_TIMEOUT_AFTER_MS="+OBSERVATION_TIMEOUT_MS_R31Q+"\n");
+            Thread t=reader.get();
+            if(t!=null){frames.append(t.getName()).append(' ').append(t.getState()).append('\n');for(StackTraceElement e:t.getStackTrace())frames.append("  at ").append(e).append('\n');}
+            putObservation(root,requestId,observation,key+"Error",frames.toString());
+            return;
+        }
+        catch(java.util.concurrent.ExecutionException failed) {
+            Throwable cause=failed.getCause()==null?failed:failed.getCause();
+            if(cause instanceof Error&&!(cause instanceof LinkageError))throw (Error)cause;
+            observation.put(key,"OBSERVATION_READ_ERROR");
+            StringWriter original=new StringWriter();PrintWriter writer=new PrintWriter(original);
+            cause.printStackTrace(writer);writer.flush();
+            putObservation(root,requestId,observation,key+"Error",original.toString());
+            return;
+        }
         catch(Exception | LinkageError unavailable) {
             observation.put(key,"OBSERVATION_READ_ERROR");
             StringWriter original=new StringWriter();PrintWriter writer=new PrintWriter(original);

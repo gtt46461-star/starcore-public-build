@@ -9263,6 +9263,16 @@ public final class MainActivity extends Activity {
             final Button forensic = new Button(this);
             forensic.setText("查看运行、结算与真实出手详情");
             panel.addView(forensic);
+            final Button quickDiagnostic = new Button(this);
+            quickDiagnostic.setText("快速诊断（不经过导出，可复制发送）");
+            panel.addView(quickDiagnostic);
+            quickDiagnostic.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            CompleteReportFileR927.QuickDiagnosticR31Q.show(MainActivity.this);
+                        }
+                    });
 
             // R919: insert into the single root ScrollView instead of addContentView().
             // This makes the entire panel participate in the page's vertical scrolling.

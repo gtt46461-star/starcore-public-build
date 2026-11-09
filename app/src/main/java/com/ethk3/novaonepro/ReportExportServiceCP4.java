@@ -109,6 +109,8 @@ public final class ReportExportServiceCP4 extends Service {
         out.put("sampleWallMs",value.sampleWallMs);out.put("sampleElapsedMs",value.sampleElapsedMs);out.put("observerPid",android.os.Process.myPid());out.put("runtimeSdk",value.runtimeSdk);out.put("targetSdk",value.targetSdk);out.put("userEnabled",value.userEnabled);
         out.put("batteryExemption",value.batteryExemption.name());out.put("deviceIdle",value.deviceIdle.name());out.put("powerSave",value.powerSave.name());out.put("backgroundRestricted",value.backgroundRestricted.name());out.put("foregroundService",value.foregroundService.name());out.put("notifications",value.notifications.name());out.put("exactAlarm",value.exactAlarm.name());out.put("errors",value.errors);out.put("continuous24h","NOT_RUN");out.put("continuous72h","NOT_RUN");return out;
     }
+    /** R31Q: request-thread state for the quick diagnostic (a blocked request never reaches the service). */
+    static String requestQueueStateR31Q(){return "active="+REQUESTS.getActiveCount()+"|queued="+REQUESTS.getQueue().size()+"|completed="+REQUESTS.getCompletedTaskCount()+"|taskCount="+REQUESTS.getTaskCount();}
     static String threadStacksR27() {
         StringBuilder b = new StringBuilder();
         java.util.List<java.util.Map.Entry<Thread, StackTraceElement[]>> all = new java.util.ArrayList<>(Thread.getAllStackTraces().entrySet());

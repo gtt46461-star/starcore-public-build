@@ -11,3 +11,4 @@ Changing this file starts .github/workflows/r31-verification.yml on construction
 - 2026-11-08: retrigger (179a97b0 carried a skip marker in its message body)
 - 2026-11-08: build, emulator matrix and delivery on the committed r982 inventory (2101e674)
 - 2026-11-08: overlay-install build signed with the installed device identity (R27 CI key d8d8cee7, cache starcore-r27-ci-temp-signing-v1)
+- 2026-11-09: R31Q 017 device hotfix (phone: start shows no countdown, report stays queued): bounded report observers, visible export wait, quick diagnostic; refreeze r982 then build

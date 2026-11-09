@@ -52,7 +52,7 @@ public final class CompleteReportFileR927 {
   final long session=POLL_SESSION.incrementAndGet();final Context app=activity.getApplicationContext();final String request;try{request=ReportExportServiceCP4.requestExport(app,ReportExportServiceCP4.ExportMode.FULL_REPORT,raw);}catch(RuntimeException error){RUNNING.set(false);show(activity,button,status,"完整报告请求失败："+error.getMessage(),true);return;}WeakReference<Activity> weak=new WeakReference<>(activity);WeakReference<Button> b=new WeakReference<>(button);WeakReference<TextView> s=new WeakReference<>(status);show(activity,button,status,raw?"原始备份已排队；包含数据库和二进制，体积可能很大。":"完整检测已排队；一个ZIP保留全部检测结果、运行证据、算法训练状态、文件状态和源码调用索引。",false);poll(app,request,weak,b,s,0,session);
  }
  private static void poll(Context app,String request,WeakReference<Activity> a,WeakReference<Button>b,WeakReference<TextView>s,int attempt,long session){UI_IO.schedule(()->{if(session!=POLL_SESSION.get())return;Activity activity=a.get();try{
-   File ack=new File(ReportDirectoriesCP12.root(app.getFilesDir()),"requests/"+request+".ack.json");if(!ack.exists()){if(attempt<1200){poll(app,request,a,b,s,attempt+1,session);return;}throw new IOException("REPORT_REQUEST_ACK_TIMEOUT");}
+   File ack=new File(ReportDirectoriesCP12.root(app.getFilesDir()),"requests/"+request+".ack.json");if(!ack.exists()){if(attempt>0&&attempt%8==0&&activity!=null){final long waited=attempt*750L/1000L;activity.runOnUiThread(()->{if(session==POLL_SESSION.get())show(activity,b.get(),s.get(),"完整检测请求已提交，导出服务尚未接收（已等待 "+waited+" 秒）。若超过1分钟仍无进展，请点“快速诊断”复制结果发送。",true);});}if(attempt<1200){poll(app,request,a,b,s,attempt+1,session);return;}throw new IOException("REPORT_REQUEST_ACK_TIMEOUT");}
    JSONObject value=new JSONObject(ReportJobJournalCP12.readAtomic(ack,4096));String stage=value.getString("stage"),reason=value.optString("reason","");
    if(stage.equals("READY_TO_SHARE")){String id=value.getString("jobId");File job=ReportPublicationCP12.job(app.getFilesDir(),id);JSONObject index=ReportPublicationCP12.delivery(job);ReportPublicationCP12.grant(job,System.currentTimeMillis());ArrayList<Uri> volumes=new ArrayList<>();JSONArray files=index.getJSONArray("files");boolean single="SCREPORT_SINGLE_ZIP_R992".equals(index.optString("format"));boolean r30Parts=ReportPublicationCP12.ZIP_PART_FORMAT_R30.equals(index.optString("format"));if(!single)volumes.add(uri(app,id,"index.json"));for(int i=0;i<files.length();i++)volumes.add(uri(app,id,files.getJSONObject(i).getString("name")));boolean healthy=index.getBoolean("allChecksPassed");RUNNING.set(false);if(activity!=null)activity.runOnUiThread(()->{show(activity,b.get(),s.get(),"完整报告已生成｜"+files.length()+(r30Parts?"个ZIP分卷（按索引合并）｜":"个完整文件｜")+String.format(Locale.ROOT,"%.2f MB",index.optLong("totalVolumeBytes")/(1024.0*1024.0))+"｜证据完整="+index.optBoolean("evidenceComplete")+"｜检查执行完整="+index.optBoolean("checksComplete")+"｜全部健康检查通过="+healthy,true);Intent share=new Intent(Intent.ACTION_SEND_MULTIPLE).setType(single?"application/zip":"application/octet-stream").putParcelableArrayListExtra(Intent.EXTRA_STREAM,volumes).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);ClipData clip=ClipData.newRawUri("STARCORE report",volumes.get(0));for(int i=1;i<volumes.size();i++)clip.addItem(new ClipData.Item(volumes.get(i)));share.setClipData(clip);if(activity.isFinishing()||activity.isDestroyed())return;new AlertDialog.Builder(activity).setTitle("完整检测报告交付").setItems(single?new String[]{"一次保存完整ZIP文件","分享完整ZIP","保存到文件夹"}:new String[]{"一次保存完整报告到文件夹","分享全部分卷","保存一个分卷到文件"},(dialog,which)->{try{if(which==0)chooseSafDestination(activity,id,single?"STARCORE_FULL_REPORT.zip":"*");else if(which==1)activity.startActivity(Intent.createChooser(share,"分享完整检测报告"));else if(single)chooseSafDestination(activity,id,"*");else chooseSafVolume(activity,id,volumes);}catch(Exception unavailable){show(activity,b.get(),s.get(),"报告已生成；交付入口不可用："+unavailable.getMessage(),true);}}).show();});return;}
    if(stage.equals("FAILED")&&value.has("recovery")){JSONObject recovery=value.getJSONObject("recovery");String sha=recovery.getString("sha256");if(!sha.matches("[0-9a-f]{64}"))throw new IOException("REPORT_RECOVERY_HASH");Uri uri=new Uri.Builder().scheme("content").authority(app.getPackageName()+".diagnostic.reports").appendPath("recovery").appendPath(request).appendPath(sha+".zip").build();RUNNING.set(false);if(activity!=null)activity.runOnUiThread(()->{show(activity,b.get(),s.get(),"完整报告失败："+reason+"。恢复诊断可导出；它不包含完整数据库或全部检测结果。",true);if(activity.isFinishing()||activity.isDestroyed())return;new AlertDialog.Builder(activity).setTitle("导出失败的恢复诊断").setMessage("证据范围：原始异常和可取得的请求诊断。完整检测尚未完成。\n原因："+reason).setPositiveButton("分享恢复诊断",(dialog,which)->{Intent share=new Intent(Intent.ACTION_SEND).setType("application/zip").putExtra(Intent.EXTRA_STREAM,uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);share.setClipData(ClipData.newRawUri("STARCORE recovery",uri));try{activity.startActivity(Intent.createChooser(share,"分享导出失败恢复诊断"));}catch(Exception unavailable){show(activity,b.get(),s.get(),"恢复诊断分享失败："+unavailable.getMessage(),true);}}).setNegativeButton("关闭",null).show();});return;}
@@ -87,4 +87,215 @@ public final class CompleteReportFileR927 {
   private void remove(){if(isAdded())getFragmentManager().beginTransaction().remove(this).commitAllowingStateLoss();}
  }
  private static void pollSaf(Context app,String id,WeakReference<Activity> weak,int attempts){UI_IO.schedule(()->{try{File ack=new File(app.getFilesDir(),"r981_reports/requests/"+id+".ack.json");if(!ack.exists()){if(attempts<1200){pollSaf(app,id,weak,attempts+1);return;}throw new IOException("REPORT_SAF_ACK_TIMEOUT|后台任务可能仍在运行，尚未取得保存回读凭据");}JSONObject state=new JSONObject(ReportJobJournalCP12.readAtomic(ack,8192));String stage=state.optString("state",state.optString("stage",""));if(stage.equals("VERIFIED_READBACK")||stage.equals("FAILED")||stage.equals("CANCELLED")){Activity activity=weak.get();if(activity!=null)activity.runOnUiThread(()->show(activity,null,null,stage.equals("VERIFIED_READBACK")?state.optBoolean("allVolumesSaved")?"完整报告已全部保存并核验。":"分卷已保存并核验。":"分卷保存失败："+state.optString("reason",stage),true));}else if(attempts<1200)pollSaf(app,id,weak,attempts+1);else throw new IOException("REPORT_SAF_PENDING_TIMEOUT|state="+stage+"|后台任务仍保留，尚未完成保存回读核验");}catch(Exception error){Activity activity=weak.get();if(activity!=null)activity.runOnUiThread(()->show(activity,null,null,"保存状态读取失败："+error.getMessage(),true));}},750,TimeUnit.MILLISECONDS);}
+
+ /**
+  * R31Q quick diagnostic. It does not use the report export service, the diagnostics process, the
+  * report job lock or any SQLite query, so it still works when the business loop or the export is
+  * stalled. Every section has its own time limit; a section that does not return records the
+  * frame its reader thread is blocked in, which is itself the evidence of the stall.
+  */
+ public static final class QuickDiagnosticR31Q {
+     private static final long SECTION_TIMEOUT_MS = 3000L;
+     private static final int SHARE_LIMIT_CHARS = 300_000;
+     private static final AtomicBoolean RUNNING = new AtomicBoolean();
+     private static final ExecutorService READERS =
+             Executors.newCachedThreadPool(
+                     r -> {
+                         Thread t = new Thread(r, "quick-diagnostic-r31q");
+                         t.setDaemon(true);
+                         return t;
+                     });
+
+     private QuickDiagnosticR31Q() {}
+
+     public static void show(final Activity activity) {
+         if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
+         if (!RUNNING.compareAndSet(false, true)) {
+             Toast.makeText(activity, "快速诊断正在采集，请稍候", Toast.LENGTH_SHORT).show();
+             return;
+         }
+         Toast.makeText(activity, "正在采集快速诊断（约10秒）", Toast.LENGTH_SHORT).show();
+         final Context app = activity.getApplicationContext();
+         final java.lang.ref.WeakReference<Activity> weak = new java.lang.ref.WeakReference<>(activity);
+         Thread worker =
+                 new Thread(
+                         () -> {
+                             String text;
+                             try {
+                                 text = collect(app);
+                             } catch (Throwable error) {
+                                 text = "QUICK_DIAGNOSTIC_FAILED|" + error;
+                             } finally {
+                                 RUNNING.set(false);
+                             }
+                             final String result = text;
+                             Activity current = weak.get();
+                             if (current == null) return;
+                             current.runOnUiThread(() -> present(current, result));
+                         },
+                         "quick-diagnostic-r31q-owner");
+         worker.setDaemon(true);
+         worker.start();
+     }
+
+     static String collect(final Context app) {
+         StringBuilder b = new StringBuilder(64 * 1024);
+         b.append("STARCORE 快速诊断 R31Q\n");
+         b.append("time=")
+                 .append(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.ROOT).format(new Date()))
+                 .append("|uptimeMs=")
+                 .append(android.os.SystemClock.elapsedRealtime())
+                 .append("|pid=")
+                 .append(android.os.Process.myPid())
+                 .append('\n');
+         section(b, "build", () -> {
+             android.content.pm.PackageInfo info = app.getPackageManager().getPackageInfo(app.getPackageName(), 0);
+             return app.getPackageName() + "|versionName=" + info.versionName + "|manifestVersionCode=" + ReleaseManifestR926.VERSION_CODE
+                     + "|device=" + android.os.Build.MANUFACTURER + " " + android.os.Build.MODEL + "|android=" + android.os.Build.VERSION.RELEASE
+                     + "|sdk=" + android.os.Build.VERSION.SDK_INT;
+         });
+         section(b, "heartbeatTruth", () -> new ServiceHeartbeatStore(app).runtimeTruthSummary());
+         section(b, "heartbeatDetail", () -> new ServiceHeartbeatStore(app).detailedSummary());
+         section(b, "fetchCadence", () -> new ServiceHeartbeatStore(app).fetchCadenceJsonR31());
+         section(b, "schemaStartup", () -> {
+             DatabaseCoordinator c = DatabaseCoordinator.peek();
+             if (c == null) return "NO_COORDINATOR_IN_THIS_PROCESS";
+             return c.startupSchemaSummary() + "|dbLockWaitMs=" + c.lastDbLockWaitMs()
+                     + "|dbLockWaitMaxMs=" + c.longestDbLockWaitMs()
+                     + "|explicitMaintenance=" + DatabaseCoordinator.isExplicitMaintenanceActiveR82();
+         });
+         section(b, "storageMaintenance", () -> StorageMaintenanceServiceR82.summary(app));
+         section(b, "storage", () -> {
+             File db = app.getDatabasePath(AppConfig.DB_NAME);
+             File wal = new File(db.getPath() + "-wal");
+             android.os.StatFs fs = new android.os.StatFs(app.getFilesDir().getPath());
+             return "dbBytes=" + (db.isFile() ? db.length() : -1) + "|walBytes=" + (wal.isFile() ? wal.length() : -1)
+                     + "|freeBytes=" + fs.getAvailableBytes() + "|totalBytes=" + fs.getTotalBytes();
+         });
+         section(b, "processes", () -> {
+             android.app.ActivityManager am = (android.app.ActivityManager) app.getSystemService(Context.ACTIVITY_SERVICE);
+             List<android.app.ActivityManager.RunningAppProcessInfo> all = am == null ? null : am.getRunningAppProcesses();
+             if (all == null) return "UNAVAILABLE";
+             StringBuilder p = new StringBuilder();
+             for (android.app.ActivityManager.RunningAppProcessInfo i : all) {
+                 if (i.processName == null || !i.processName.startsWith(app.getPackageName())) continue;
+                 p.append(i.processName).append(" pid=").append(i.pid).append(" importance=").append(i.importance).append('\n');
+             }
+             return p.length() == 0 ? "NONE_VISIBLE" : p.toString();
+         });
+         section(b, "reportRequestQueue", ReportExportServiceCP4::requestQueueStateR31Q);
+         section(b, "reportFiles", () -> reportFiles(app));
+         section(b, "crash", () -> CrashRecorder.detailedSummary(app));
+         section(b, "threadStacks", ReportExportServiceCP4::threadStacksR27);
+         return b.toString();
+     }
+
+     private static String reportFiles(Context app) throws Exception {
+         File root = ReportDirectoriesCP12.root(app.getFilesDir());
+         StringBuilder r = new StringBuilder();
+         r.append("root=").append(root.getName()).append('\n');
+         File current = new File(root, "current-job.json");
+         r.append("current-job.json=");
+         if (current.isFile()) r.append(ReportJobJournalCP12.readAtomic(current, 4096));
+         else r.append("ABSENT");
+         r.append('\n');
+         File lock = new File(root, "job.lock");
+         r.append("job.lock exists=").append(lock.isFile()).append(" mtime=").append(lock.lastModified()).append('\n');
+         appendNewest(r, new File(root, "requests"), 20);
+         appendNewest(r, new File(root, "failures"), 5);
+         appendNewest(r, new File(root, "jobs"), 5);
+         return r.toString();
+     }
+
+     private static void appendNewest(StringBuilder r, File dir, int limit) {
+         File[] files = dir.listFiles();
+         r.append(dir.getName()).append("/ count=").append(files == null ? -1 : files.length).append('\n');
+         if (files == null) return;
+         Arrays.sort(files, (x, y) -> Long.compare(y.lastModified(), x.lastModified()));
+         for (int i = 0; i < files.length && i < limit; i++) {
+             r.append("  ").append(files[i].getName()).append(" bytes=").append(files[i].length())
+                     .append(" mtime=").append(files[i].lastModified()).append('\n');
+         }
+     }
+
+     /** Runs one reader with a time limit. A reader that does not return leaves its blocked frames. */
+     private static void section(StringBuilder b, String name, Callable<String> reader) {
+         b.append("\n===== ").append(name).append(" =====\n");
+         final java.util.concurrent.atomic.AtomicReference<Thread> owner = new java.util.concurrent.atomic.AtomicReference<>();
+         long started = android.os.SystemClock.elapsedRealtime();
+         Future<String> future;
+         try {
+             future = READERS.submit(() -> {
+                 owner.set(Thread.currentThread());
+                 return reader.call();
+             });
+         } catch (Throwable rejected) {
+             b.append("SECTION_NOT_STARTED|").append(rejected).append('\n');
+             return;
+         }
+         try {
+             String value = future.get(SECTION_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+             b.append(value == null ? "null" : value).append('\n');
+         } catch (TimeoutException blocked) {
+             b.append("SECTION_TIMEOUT_AFTER_MS=").append(android.os.SystemClock.elapsedRealtime() - started).append('\n');
+             Thread t = owner.get();
+             if (t != null) {
+                 b.append("blocked reader ").append(t.getName()).append(' ').append(t.getState()).append('\n');
+                 StackTraceElement[] stack = t.getStackTrace();
+                 for (int i = 0; i < stack.length && i < 40; i++) b.append("  at ").append(stack[i]).append('\n');
+             }
+             future.cancel(true);
+         } catch (java.util.concurrent.ExecutionException failed) {
+             Throwable cause = failed.getCause() == null ? failed : failed.getCause();
+             b.append("SECTION_ERROR|").append(cause).append('\n');
+             StackTraceElement[] stack = cause.getStackTrace();
+             for (int i = 0; i < stack.length && i < 12; i++) b.append("  at ").append(stack[i]).append('\n');
+         } catch (InterruptedException interrupted) {
+             Thread.currentThread().interrupt();
+             b.append("SECTION_INTERRUPTED\n");
+         }
+     }
+
+     private static void present(final Activity activity, final String text) {
+         if (activity.isFinishing() || activity.isDestroyed()) return;
+         final String bounded =
+                 text.length() <= SHARE_LIMIT_CHARS
+                         ? text
+                         : text.substring(0, SHARE_LIMIT_CHARS) + "\nTRUNCATED_FOR_SHARE|total=" + text.length();
+         TextView content = new TextView(activity);
+         content.setTextIsSelectable(true);
+         content.setTextSize(11f);
+         content.setPadding(24, 24, 24, 24);
+         content.setText(bounded.length() > 60_000 ? bounded.substring(0, 60_000) + "\n…（完整内容请用复制或分享）" : bounded);
+         ScrollView scroll = new ScrollView(activity);
+         scroll.addView(content);
+         new AlertDialog.Builder(activity)
+                 .setTitle("快速诊断（不经过导出服务）")
+                 .setView(scroll)
+                 .setPositiveButton(
+                         "复制全部",
+                         (d, w) -> {
+                             ClipboardManager clipboard =
+                                     (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
+                             if (clipboard != null) {
+                                 clipboard.setPrimaryClip(ClipData.newPlainText("STARCORE 快速诊断", bounded));
+                                 Toast.makeText(activity, "已复制，可直接粘贴发送", Toast.LENGTH_LONG).show();
+                             }
+                         })
+                 .setNeutralButton(
+                         "分享",
+                         (d, w) -> {
+                             try {
+                                 Intent share = new Intent(Intent.ACTION_SEND).setType("text/plain")
+                                         .putExtra(Intent.EXTRA_SUBJECT, "STARCORE 快速诊断")
+                                         .putExtra(Intent.EXTRA_TEXT, bounded);
+                                 activity.startActivity(Intent.createChooser(share, "分享快速诊断"));
+                             } catch (Exception unavailable) {
+                                 Toast.makeText(activity, "分享失败：" + unavailable.getMessage(), Toast.LENGTH_LONG).show();
+                             }
+                         })
+                 .setNegativeButton("关闭", null)
+                 .show();
+     }
+ }
 }
