@@ -9,5 +9,5 @@
   "zipName": "STARCORE_R31Q_577311017_COMPLETE.zip",
   "delivery": "release/R31Q_017_DELIVERY.json",
   "notes": "R31Q 017 设备热修复（覆盖安装，原R27证书 d8d8cee7…，与手机上 016 同包同签名，versionCode 577311017，保留数据）。\n\n修改：\n- 完整报告请求的每项状态采集限时5秒，超时记录阻塞线程栈后继续交给导出服务，不再无限“已排队”；界面显示已等待秒数。\n- 新增「快速诊断（不经过导出，可复制发送）」：心跳真值、数据库结构启动状态、存储、本应用进程、报告请求线程、报告任务文件、崩溃摘要、全部线程栈；不查SQLite、不走诊断进程、每段限时3秒。\n\n源码：2c65ca694e878fb29372e4617b940bec47841df3\n门禁：编译、全部单元测试、lint、签名核验通过（CI run 42570392666）。\n\n未修复/未证明：后台业务循环停在11/3目标期的根因尚未定位（需要本版快速诊断结果）；R929_PLATFORM结构待定问题仍在；不是正式R13签名；真机24h/72h与自然质量未执行/未证明。",
-  "republish": "zip name read before entering the zip directory"
+  "republish": "release API refused (403); fall back to a delivery branch"
 }
