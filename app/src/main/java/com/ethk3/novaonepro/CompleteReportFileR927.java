@@ -160,7 +160,7 @@ public final class CompleteReportFileR927 {
          section(b, "schemaStartup", () -> {
              DatabaseCoordinator c = DatabaseCoordinator.peek();
              if (c == null) return "NO_COORDINATOR_IN_THIS_PROCESS";
-             return c.startupSchemaSummary() + "|dbLockWaitMs=" + c.lastDbLockWaitMs()
+             return c.startupSchemaSummary() + "|legacyRunningMs=" + c.legacyMigrationRunningMsR31Q() + "|dbLockWaitMs=" + c.lastDbLockWaitMs()
                      + "|dbLockWaitMaxMs=" + c.longestDbLockWaitMs()
                      + "|explicitMaintenance=" + DatabaseCoordinator.isExplicitMaintenanceActiveR82();
          });
