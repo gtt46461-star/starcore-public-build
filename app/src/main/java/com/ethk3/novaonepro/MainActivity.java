@@ -3889,6 +3889,15 @@ public final class MainActivity extends Activity {
             sb.append(serviceAction);
         }
 
+        try {
+            DatabaseCoordinator migrating = DatabaseCoordinator.peek();
+            long migratingMs = migrating == null ? 0L : migrating.legacyMigrationRunningMsR31Q();
+            if (migratingMs > 0L) {
+                sb.append("\n数据库结构升级中：已运行 ").append(migratingMs / 60000L)
+                        .append(" 分钟（逐条提交，中断后可续跑；开奖保存与结算优先插队，升级完成前分析可能暂停）");
+            }
+        } catch (RuntimeException ignored) {
+        }
         String scheduler = state == null ? "" : safeText(getFieldText(state, "schedulerSummary"));
         if (scheduler.length() > 0) {
             sb.append("\n上次调度记录：");

@@ -430,7 +430,9 @@ public final class DatabaseCoordinator {
                             public Thread newThread(Runnable r) {
                                 Thread t = new Thread(r, "binance_k3_b03_db_writer");
                                 try {
-                                    t.setPriority(Thread.MIN_PRIORITY);
+                                    // R31Q: this thread holds the single global writer lock; at MIN_PRIORITY
+                                    // (nice 19) a long migration starved every critical write (priority inversion).
+                                    t.setPriority(Thread.NORM_PRIORITY - 1);
                                 } catch (Throwable ignore) {
                                 }
                                 return t;
@@ -658,6 +660,46 @@ public final class DatabaseCoordinator {
      * failed schema sweep for success.
      */
     /** Readiness invalidation only. The existing bounded migration writer owns any later DDL. */
+    /**
+     * R31Q: called between idempotent autocommit DDL statements of the legacy migration. When a critical
+     * business write (draw save, settlement, freeze) is waiting, the migration hands the writer lock over,
+     * lets the waiting writes commit, and takes the lock back. Never inside a SQLite transaction and never
+     * when the lock is held re-entrantly, so no caller's atomic unit is split.
+     */
+    public void yieldWriterToCriticalR31Q(SQLiteDatabase db) {
+        try {
+            if (db == null || db.inTransaction()) return;
+            if (!writeLock.isHeldByCurrentThread() || legacyMigrationOwnerR31Q != Thread.currentThread()) return;
+            if (criticalBusinessWaitersR914.get() <= 0 && FREEZE_WAITERS_R31.get() <= 0) return;
+            // Guarantee migration progress: at most one hand-over per 100 ms of migration work.
+            if (TimeSourceR811.monoNowMs() - lastLegacyYieldEndR31Q < 100L) return;
+            LEGACY_YIELDS_R31Q.incrementAndGet();
+            // The migration holds the lock twice (runWrite + the schema guard); release both, restore both.
+            final int holds = writeLock.getHoldCount();
+            for (int i = 0; i < holds; i++) writeLock.unlock();
+            try {
+                long until = TimeSourceR811.monoNowMs() + 3000L;
+                Thread.sleep(5L);
+                while ((criticalBusinessWaitersR914.get() > 0 || FREEZE_WAITERS_R31.get() > 0)
+                        && TimeSourceR811.monoNowMs() < until) Thread.sleep(5L);
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+            } finally {
+                for (int i = 0; i < holds; i++) writeLock.lock();
+                lastLegacyYieldEndR31Q = TimeSourceR811.monoNowMs();
+            }
+        } catch (RuntimeException ignored) {
+            // A yield is an optimisation; the migration continues holding the lock.
+        }
+    }
+    private static final java.util.concurrent.atomic.AtomicLong LEGACY_YIELDS_R31Q = new java.util.concurrent.atomic.AtomicLong();
+    public static long legacyYieldsR31Q() { return LEGACY_YIELDS_R31Q.get(); }
+    /** R31Q: wall ms the legacy migration has been running in this process, or 0 when it is not running. */
+    public long legacyMigrationRunningMsR31Q() { return legacyMigrationOwnerR31Q == null || legacySchemaStartedAt <= 0 ? 0L : Math.max(0L, System.currentTimeMillis() - legacySchemaStartedAt); }
+    /** Thread currently running the legacy migration; other threads must not start a second one during a yield. */
+    private volatile Thread legacyMigrationOwnerR31Q;
+    private volatile long lastLegacyYieldEndR31Q;
+
     public void invalidateLegacyRuntimeSchemaR31(String reason){
         String detail=safe(reason);legacySchemaStage="SCHEMA_PENDING";
         legacySchemaError="SCHEMA_PENDING:"+detail.substring(0,Math.min(224,detail.length()));
@@ -667,8 +709,13 @@ public final class DatabaseCoordinator {
     public boolean ensureRuntimeSchemaOnce(SchemaInitializer initializer) {
         if (runtimeSchemaReady.get()) return true;
         if (initializer == null) return false;
+        Thread owner = legacyMigrationOwnerR31Q;
+        if (owner != null && owner != Thread.currentThread()) return false; // migration yielded its lock; still pending
         try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard2 = DatabaseCoordinator.acquireWriterGuardCP3()) {
             if (runtimeSchemaReady.get()) return true;
+            if (legacyMigrationOwnerR31Q != null) return false;
+            legacyMigrationOwnerR31Q = Thread.currentThread();
+            try {
             long started = System.currentTimeMillis();
             legacySchemaStartedAt = started;
             legacySchemaCompletedAt = 0L;
@@ -685,6 +732,7 @@ public final class DatabaseCoordinator {
                 lastError = "LEGACY_SCHEMA_FAILED|cause=" + legacySchemaError;
             } else lastError = "";
             return ready;
+            } finally { legacyMigrationOwnerR31Q = null; }
         }
     }
 
@@ -716,7 +764,9 @@ public final class DatabaseCoordinator {
     }
 
     public String startupSchemaSummary() {
-        return "critical="
+        return "legacyYields=" + LEGACY_YIELDS_R31Q.get() + "|legacyCostMs=" + legacySchemaCostMs
+                + "|legacyRunningMs=" + (legacySchemaStartedAt > 0 && legacySchemaCompletedAt == 0 ? Math.max(0L, System.currentTimeMillis() - legacySchemaStartedAt) : 0L)
+                + "|critical="
                 + (criticalSchemaReady.get() ? "READY" : safe(criticalSchemaStage))
                 + "@"
                 + criticalSchemaCostMs

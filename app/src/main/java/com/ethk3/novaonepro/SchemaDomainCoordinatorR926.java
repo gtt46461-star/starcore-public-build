@@ -975,6 +975,19 @@ public final class SchemaDomainCoordinatorR926 {
         } finally { if (c != null) c.close(); }
     }
 
+    /**
+     * R31Q: runs an idempotent ensure-style step WITHOUT one wrapping transaction. Every DDL statement
+     * commits on its own, so a process killed part-way (vivo cleaner, overlay install) keeps the work it
+     * finished instead of rolling hours of ALTER/INDEX work back and restarting from zero next launch.
+     * Only for steps whose body is safe to re-run (CREATE IF NOT EXISTS / add-column-if-missing).
+     */
+    public static void runStepAutocommitR31(SQLiteDatabase db, Contract contract, String stepId, Step step) throws Exception {
+        AUTOCOMMIT_STEP_R31Q.set(Boolean.TRUE);
+        try { runStep(db, contract, stepId, step); }
+        finally { AUTOCOMMIT_STEP_R31Q.remove(); }
+    }
+    private static final ThreadLocal<Boolean> AUTOCOMMIT_STEP_R31Q = new ThreadLocal<>();
+
     public static void runStep(SQLiteDatabase db, Contract contract, String stepId, Step step) throws Exception {
         if (stepComplete(db, contract, stepId)) return;
         ensureInfrastructure(db);
@@ -988,7 +1001,7 @@ public final class SchemaDomainCoordinatorR926 {
                         + " VALUES(?,?,?,?,?,?,?,?,?,?,?)",
                 new Object[] {contract.domain, Integer.valueOf(contract.revision), safe(stepId), "RUNNING",
                         Integer.valueOf(attempt), "START", before, "", Long.valueOf(now), Long.valueOf(0L), ""});
-        boolean ownTx = !db.inTransaction();
+        boolean ownTx = !db.inTransaction() && AUTOCOMMIT_STEP_R31Q.get() == null;
         try {
             if (ownTx) db.beginTransaction();
             cutPointR31(contract.domain, stepId, "STEP_STARTED");

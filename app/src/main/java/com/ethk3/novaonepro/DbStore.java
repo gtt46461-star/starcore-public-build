@@ -364,27 +364,49 @@ public final class DbStore {
         }
     }
 
+    /** R31Q: cooperative hand-over point between idempotent legacy migration steps. */
+    private void yieldMigrationR31Q(SQLiteDatabase db) {
+        if (coordinator != null) coordinator.yieldWriterToCriticalR31Q(db);
+    }
+
     private void ensureRuntimeExtraTables(SQLiteDatabase db) {
         if (db == null) {
             return;
         }
 
+        yieldMigrationR31Q(db);
         ensureRealtimeValidationReportTable(db);
+        yieldMigrationR31Q(db);
         ensureTeacherSnapshotTable(db);
+        yieldMigrationR31Q(db);
         ensureLearningCaseLogTable(db);
+        yieldMigrationR31Q(db);
         ensureRuntimeProfileCacheTable(db);
+        yieldMigrationR31Q(db);
         ensureStateNumberProfileTable(db);
+        yieldMigrationR31Q(db);
         ensureAutoLearnCursorTable(db);
+        yieldMigrationR31Q(db);
         ensureTeacherMatrixSampleTable(db);
+        yieldMigrationR31Q(db);
         ensureTeacherMatrixProfileTable(db);
+        yieldMigrationR31Q(db);
         ensureTeacherMatrixComboProfileTable(db);
+        yieldMigrationR31Q(db);
         ensureTeacherMatrixReportTable(db);
+        yieldMigrationR31Q(db);
         ensureRuntimeExtraColumns(db);
+        yieldMigrationR31Q(db);
         ensureTeacherMatrixColumns(db);
+        yieldMigrationR31Q(db);
         ensureLedgerColumns(db);
+        yieldMigrationR31Q(db);
         ensureLedgerIndexes(db);
+        yieldMigrationR31Q(db);
         ensureV20CauseChainReady(db);
+        yieldMigrationR31Q(db);
         ensureFieldChainColumns(db);
+        yieldMigrationR31Q(db);
         ensureDynamicCausalWindowReady(db);
     }
 
@@ -2069,6 +2091,8 @@ public final class DbStore {
                 return;
             }
 
+            // R31Q: between autocommit migration statements, let waiting critical writes through.
+            if (coordinator != null) coordinator.yieldWriterToCriticalR31Q(db);
             db.execSQL("ALTER TABLE " + table + " ADD COLUMN " + column + " " + typeSql);
             /* Keep the just-read table cache and advance it in place.  Clearing the complete
              * cache after each ALTER made a first upgrade re-run PRAGMA table_info for every

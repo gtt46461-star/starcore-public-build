@@ -92,7 +92,7 @@ public final class LegacySchemaCoordinatorR926 {
         try {
             SchemaDomainCoordinatorR926.prepareRepairIfDrift(db, c);
             SchemaDomainCoordinatorR926.markState(db, c, "INITIALIZING", "LEGACY_RUNTIME", "");
-            SchemaDomainCoordinatorR926.runStep(db, c, "LEGACY_RUNTIME",
+            SchemaDomainCoordinatorR926.runStepAutocommitR31(db, c, "LEGACY_RUNTIME",
                     new SchemaDomainCoordinatorR926.Step() { public void run(SQLiteDatabase x) throws Exception { initializer.run(x); }});
             // A matching old LEGACY_RUNTIME stamp cannot skip this additive owner step.
             SchemaDomainCoordinatorR926.runStep(db,c,MAIN_CHAIN_STEP_R31,x->{
