@@ -51,6 +51,41 @@ public final class R31QDeliveryInstrumentedTest {
             System.out.println("R31Q_ANDROID|FAILED_PROBE_NOT_SWALLOWED|REMAINING_COLUMNS_NOT_EXECUTED|NO_REPEATED_BUSY_WAITS|PASS");
         }finally{audit.remove();failures.remove();store.close();}
     }
+    @Test public void oldReadyStampCannotSkipTheNewAuditedMigrationPass()throws Exception{
+        DbStore store=new DbStore(app());ready(store);
+        SchemaDomainCoordinatorR926.Contract contract=SchemaDomainCoordinatorR926.legacyContract();
+        try{
+            // Disposable fixture only: remove new-version unit receipts to
+            // reproduce an old READY database, retaining both old markers.
+            store.coordinatorR36().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R31Q_OLD_READY_FIXTURE"),db->{
+                db.execSQL("DELETE FROM "+SchemaDomainCoordinatorR926.TABLE_JOURNAL+" WHERE domain=? AND revision=? AND (step_id LIKE 'R31Q21_%' OR step_id=?)",new Object[]{contract.domain,contract.revision,LegacySchemaCoordinatorR926.AUDITED_RUNTIME_STEP_R31Q21});return 1;
+            });
+            assertTrue(SchemaDomainCoordinatorR926.matches(store.readable(),contract));
+            assertTrue(SchemaDomainCoordinatorR926.stepComplete(store.readable(),contract,"LEGACY_RUNTIME"));
+            assertFalse(SchemaDomainCoordinatorR926.stepComplete(store.readable(),contract,LegacySchemaCoordinatorR926.AUDITED_RUNTIME_STEP_R31Q21));
+            store.coordinatorR36().invalidateLegacyRuntimeSchemaR31("R31Q_OLD_READY_FIXTURE");ready(store);
+            assertTrue("old READY incorrectly bypassed audited pass",SchemaDomainCoordinatorR926.stepComplete(store.readable(),contract,LegacySchemaCoordinatorR926.AUDITED_RUNTIME_STEP_R31Q21));
+            System.out.println("R31Q_ANDROID|OLD_READY_REAUDITED|LEGACY_MARKERS_PRESERVED|NEW_UNITS_DURABLE|PASS");
+        }finally{store.close();}
+    }
+    @Test public void blockedOptionalObserversStayBoundedAndDoNotBlockTheNextRequest()throws Exception{
+        File root=ReportDirectoriesCP12.root(app().getFilesDir());String id=String.format(java.util.Locale.ROOT,"%064x",2106);
+        java.util.concurrent.CountDownLatch entered=new java.util.concurrent.CountDownLatch(2),release=new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicReference<Throwable> error=new java.util.concurrent.atomic.AtomicReference<>();
+        Runnable caller=()->{try{ReportJobJournalCP12.collectObservation(root,id,new JSONObject(),"fixture",()->{entered.countDown();release.await();return "OBSERVED_FIXTURE";});}catch(Throwable failure){error.compareAndSet(null,failure);}};
+        Thread a=new Thread(caller),b=new Thread(caller);a.start();b.start();
+        try{
+            assertTrue("two actual observer slots did not start",entered.await(3,java.util.concurrent.TimeUnit.SECONDS));
+            for(int i=0;i<12;i++){
+                JSONObject observation=new JSONObject();ReportJobJournalCP12.collectObservation(root,id,observation,"extra",()->"SHOULD_NOT_RUN");
+                assertEquals("OBSERVATION_CAPACITY_WAIT",observation.getString("extra"));
+            }
+            int workers=0;for(Thread t:Thread.getAllStackTraces().keySet())if(t.isAlive()&&t.getName().equals("report-observer-r31q"))workers++;
+            assertEquals(2,workers);
+        }finally{release.countDown();a.join(10000);b.join(10000);}
+        assertFalse(a.isAlive());assertFalse(b.isAlive());assertNull(String.valueOf(error.get()),error.get());
+        System.out.println("R31Q_ANDROID|OPTIONAL_OBSERVERS_BOUNDED_AT_TWO|TWELVE_ADDITIONAL_REQUESTS_EXPLICIT_UNKNOWN|PASS");
+    }
     @Test public void legacyMigrationResumesAndAllowsCriticalCommitsBetweenUnits()throws Exception{
         DbStore store=new DbStore(app());String key=UUID.randomUUID().toString();int committed=0,during=0;
         try{

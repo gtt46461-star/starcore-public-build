@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 public final class LegacySchemaCoordinatorR926 {
     private LegacySchemaCoordinatorR926() {}
     public static final String MAIN_CHAIN_STEP_R31 = "LEGACY_MAIN_CHAIN_R31_V1";
+    public static final String AUDITED_RUNTIME_STEP_R31Q21 = "LEGACY_RUNTIME_R31Q21_AUDITED_V1";
     public interface MainChainInitializerR31 extends DatabaseCoordinator.SchemaInitializer {
         void initializeMainChainDefaultsR31(SQLiteDatabase db) throws Exception;
     }
@@ -116,21 +117,28 @@ public final class LegacySchemaCoordinatorR926 {
         if (owner == null || db == null || initializer == null) return false;
         final SchemaDomainCoordinatorR926.Contract c = SchemaDomainCoordinatorR926.legacyContract();
         if (SchemaDomainCoordinatorR926.matches(db, c)
-                && SchemaDomainCoordinatorR926.stepComplete(db,c,MAIN_CHAIN_STEP_R31)) {
+                && SchemaDomainCoordinatorR926.stepComplete(db,c,MAIN_CHAIN_STEP_R31)
+                && (!(initializer instanceof SlicedInitializerR31)
+                    ||SchemaDomainCoordinatorR926.stepComplete(db,c,AUDITED_RUNTIME_STEP_R31Q21))) {
             try { requireMainChainClosedLoopReadyR31(db);return true; }
             catch(DatabaseCoordinator.SchemaPendingR31 drift) { /* the owner repairs below */ }
         }
         try {
             SchemaDomainCoordinatorR926.prepareRepairIfDrift(db, c);
             SchemaDomainCoordinatorR926.markState(db, c, "INITIALIZING", "LEGACY_RUNTIME", "");
-            if(!SchemaDomainCoordinatorR926.stepComplete(db,c,"LEGACY_RUNTIME")){
+            // A pre-021 READY stamp may have swallowed failed optional-column
+            // ALTERs. Its old LEGACY_RUNTIME marker cannot skip the audited pass.
+            final String runtimeStep=initializer instanceof SlicedInitializerR31?AUDITED_RUNTIME_STEP_R31Q21:"LEGACY_RUNTIME";
+            if(!SchemaDomainCoordinatorR926.stepComplete(db,c,runtimeStep)){
                 if(initializer instanceof SlicedInitializerR31){
                     if(!((SlicedInitializerR31)initializer).advanceRuntimeR31(db)){
                         owner.noteLegacySlicePendingR31("LEGACY_RUNTIME_UNIT_COMMITTED");return false;
                     }
-                    SchemaDomainCoordinatorR926.runStepAutocommitR31(db,c,"LEGACY_RUNTIME",x->{});
+                    SchemaDomainCoordinatorR926.runStepAutocommitR31(db,c,runtimeStep,x->{});
                 }else SchemaDomainCoordinatorR926.runStepAutocommitR31(db,c,"LEGACY_RUNTIME",x->initializer.run(x));
             }
+            // Preserve the historical marker for existing read-only consumers.
+            SchemaDomainCoordinatorR926.runStepAutocommitR31(db,c,"LEGACY_RUNTIME",x->{});
             // A matching old LEGACY_RUNTIME stamp cannot skip this additive owner step.
             if(initializer instanceof SlicedInitializerR31&&!SchemaDomainCoordinatorR926.stepComplete(db,c,MAIN_CHAIN_STEP_R31)
                     &&!owner.getHelper().advanceMainChainClosedLoopSchemaR31(db)){

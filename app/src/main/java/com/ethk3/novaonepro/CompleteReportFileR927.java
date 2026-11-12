@@ -99,12 +99,12 @@ public final class CompleteReportFileR927 {
      private static final int SHARE_LIMIT_CHARS = 300_000;
      private static final AtomicBoolean RUNNING = new AtomicBoolean();
      private static final ExecutorService READERS =
-             Executors.newCachedThreadPool(
+             new ThreadPoolExecutor(0,3,30L,TimeUnit.SECONDS,new SynchronousQueue<Runnable>(),
                      r -> {
                          Thread t = new Thread(r, "quick-diagnostic-r31q");
                          t.setDaemon(true);
                          return t;
-                     });
+                     },new ThreadPoolExecutor.AbortPolicy());
 
      private QuickDiagnosticR31Q() {}
 

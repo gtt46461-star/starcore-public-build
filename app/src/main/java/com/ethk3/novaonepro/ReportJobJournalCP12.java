@@ -190,7 +190,11 @@ public final class ReportJobJournalCP12 implements Closeable {
         observation.put(key,"FULL_OBSERVATION_MEMBER:"+key+"|bytes="+file.length()+"|sha256="+ref.getString("sha256"));
     }
     private static final long OBSERVATION_TIMEOUT_MS_R31Q=5000L;
-    private static final java.util.concurrent.ExecutorService OBSERVERS_R31Q=java.util.concurrent.Executors.newCachedThreadPool(r->{Thread t=new Thread(r,"report-observer-r31q");t.setDaemon(true);return t;});
+    // A timed-out SQLite observer may ignore interruption. It still occupies its
+    // slot until it really exits; repeated exports must not create new threads.
+    private static final java.util.concurrent.ExecutorService OBSERVERS_R31Q=new java.util.concurrent.ThreadPoolExecutor(
+            0,2,30L,java.util.concurrent.TimeUnit.SECONDS,new java.util.concurrent.SynchronousQueue<Runnable>(),
+            r->{Thread t=new Thread(r,"report-observer-r31q");t.setDaemon(true);return t;},new java.util.concurrent.ThreadPoolExecutor.AbortPolicy());
     /** Optional observers may fail without preventing the immutable DB snapshot or other observations. */
     public static void collectObservation(File root,String requestId,JSONObject observation,String key,
             java.util.concurrent.Callable<String> observer)throws Exception {
@@ -198,8 +202,15 @@ public final class ReportJobJournalCP12 implements Closeable {
         // R31Q: an observer that blocks (on a lock held by a stalled business thread) must not hold the
         // report request forever. After the limit the observation records where its reader is blocked.
         final java.util.concurrent.atomic.AtomicReference<Thread> reader=new java.util.concurrent.atomic.AtomicReference<>();
-        java.util.concurrent.Future<String> pending=OBSERVERS_R31Q.submit(()->{reader.set(Thread.currentThread());return observer.call();});
+        java.util.concurrent.Future<String> pending;
+        try{pending=OBSERVERS_R31Q.submit(()->{reader.set(Thread.currentThread());return observer.call();});}
+        catch(java.util.concurrent.RejectedExecutionException full){
+            observation.put(key,"OBSERVATION_CAPACITY_WAIT");
+            observation.put(key+"Error","Two optional observers are still active; not sampled. No unbounded worker or queue was created.");
+            return;
+        }
         try { value=pending.get(OBSERVATION_TIMEOUT_MS_R31Q,java.util.concurrent.TimeUnit.MILLISECONDS); }
+        catch(InterruptedException cancelled){pending.cancel(true);Thread.currentThread().interrupt();throw new IOException("REPORT_OBSERVATION_CANCELLED",cancelled);}
         catch(java.util.concurrent.TimeoutException blocked) {
             pending.cancel(true);
             observation.put(key,"OBSERVATION_TIMEOUT");
