@@ -1,110 +1,107 @@
-name: STARCORE R31 verified source transfer
+name: STARCORE R31 exact-source verification and live observation
 on:
   push:
     branches: ['construction/r27-20261028']
     paths: ['.github/r31-build-request.json', '.github/workflows/r31-build-r27.yml']
 permissions:
-  contents: write
+  contents: read
   actions: read
-concurrency:
-  group: r31-exact-source-transfer
-  cancel-in-progress: false
 jobs:
-  transfer:
+  request:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    outputs:
+      mode: ${{ steps.request.outputs.mode }}
+      build_run: ${{ steps.request.outputs.build_run }}
     steps:
       - uses: actions/checkout@v4
         with:
-          path: caller
-      - name: Validate the source transfer, not an acceptance run
-        id: request
+          sparse-checkout: .github/r31-build-request.json
+          sparse-checkout-cone-mode: false
+      - id: request
         run: |
           python3 - <<'PY'
-          import base64,gzip,hashlib,json,os,pathlib,re
-          r=json.load(open('caller/.github/r31-build-request.json'))
+          import json,os
+          r=json.load(open('.github/r31-build-request.json'))
           assert r['sourceBranch']=='construction/r31-final-20261104'
+          assert r['source']=='cd7552121ca01e3c77e8de1e2f2c68ea703d6c21'
           assert r['expectedVersionCode']==577311021
-          for k in ['base','tree']:assert re.fullmatch('[0-9a-f]{40}',r[k])
-          data=base64.b64decode(r['patchGzipBase64'],validate=True)
-          assert hashlib.sha256(data).hexdigest()==r['patchSha256']
-          patch=gzip.decompress(data);assert len(patch)<2000000
-          pathlib.Path('source.patch').write_bytes(patch)
+          assert r['expectedVersionName']=='R31-REPAIR-2026.11.12-021'
+          assert r['mode'] in ['verify','live']
+          if r['mode']=='live':assert str(r['buildRunId']).isdigit()
           with open(os.environ['GITHUB_OUTPUT'],'a') as f:
-              f.write('base='+r['base']+'\n')
-          print('TRANSFER_ONLY_NO_ACCEPTANCE_CLAIM patchBytes='+str(len(patch)))
+              f.write('mode='+r['mode']+'\n')
+              f.write('build_run='+str(r.get('buildRunId',''))+'\n')
+          print('PINNED_R31_SOURCE='+r['source']+' mode='+r['mode'])
           PY
+  verify:
+    needs: request
+    if: needs.request.outputs.mode == 'verify'
+    uses: gtt46461-star/starcore-public-build/.github/workflows/r31-verification.yml@cd7552121ca01e3c77e8de1e2f2c68ea703d6c21
+    with:
+      source: cd7552121ca01e3c77e8de1e2f2c68ea703d6c21
+    secrets: inherit
+  live:
+    needs: request
+    if: needs.request.outputs.mode == 'live'
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    env:
+      DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+    steps:
       - uses: actions/checkout@v4
         with:
-          ref: construction/r31-final-20261104
-          fetch-depth: 0
-          path: source
-      - name: Apply to the exact current R31 source
-        working-directory: source
+          sparse-checkout: .github/r31-build-request.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31v-android-build
+          run-id: ${{ needs.request.outputs.build_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: built
+      - name: Bind the actual APK and the observer to the exact verified source
         run: |
-          set -euo pipefail
-          test "$(git rev-parse HEAD)" = "${{ steps.request.outputs.base }}"
-          git apply --check ../source.patch
-          git apply --index ../source.patch
-          git -c user.name=github-actions -c user.email=github-actions@users.noreply.github.com commit -m 'build(r31): provisional call-index compilation, not an APK [skip ci]'
+          python3 - <<'PY'
+          import base64,hashlib,json,os,pathlib
+          r=json.load(open('.github/r31-build-request.json'))
+          root=pathlib.Path('built')
+          sources=list(root.rglob('source-commit.txt'));assert len(sources)==1
+          assert sources[0].read_text().strip()=='cd7552121ca01e3c77e8de1e2f2c68ea703d6c21'
+          apks=[p for p in root.rglob('*.apk') if p.parent.name=='debug' and 'androidTest' not in p.parts];assert len(apks)==1
+          apk=apks[0];sha=hashlib.sha256(apk.read_bytes()).hexdigest()
+          sums=list(root.rglob('SHA256SUMS.txt'));assert len(sums)==1
+          assert any(line.split()[0]==sha and line.split()[-1].endswith('/'+apk.name) for line in sums[0].read_text().splitlines())
+          code=base64.b64decode(r['scriptBase64'],validate=True)
+          assert hashlib.sha256(code).hexdigest()==r['scriptSha256']
+          (pathlib.Path(os.environ['RUNNER_TEMP'])/'r31_live_observation.py').write_bytes(code)
+          pathlib.Path('live').mkdir()
+          pathlib.Path('live/APK_BINDING.json').write_text(json.dumps({'source':'cd7552121ca01e3c77e8de1e2f2c68ea703d6c21','apkSha256':sha,'buildRunId':r['buildRunId'],'observerSha256':r['scriptSha256'],'layer':'DEBUG_LIVE_EMULATOR_NOT_PHONE_NOT_NATURAL_ADVANTAGE'},indent=2))
+          with open(os.environ['GITHUB_ENV'],'a') as f:f.write('LIVE_APP_APK='+str(apk.resolve())+'\n')
+          PY
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
       - uses: android-actions/setup-android@v3
         with:
           packages: platform-tools
           log-accepted-android-sdk-licenses: false
-      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
-      - uses: actions/cache@v4
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
         with:
-          path: ~/.gradle/wrapper/dists
-          key: gradle-wrapper-${{ hashFiles('source/gradle/wrapper/gradle-wrapper.properties') }}
-      - name: Compile only to regenerate the byte-for-byte pinned call archive
-        working-directory: source
-        env:
-          PYTHONDONTWRITEBYTECODE: '1'
-        run: |
-          set -euo pipefail
-          # These exclusions belong only to this provisional index reconstruction.
-          # No test, APK or acceptance result is produced here. The final exact
-          # source runs the original complete gate and every release check.
-          ./gradlew --no-daemon -Pr312Development=true :app:compileDebugJavaWithJavac -x :app:generateR997ConstructionAssets -x :app:generateR967Semantics -x :app:verifyR967Semantics -x :app:verifyFinalR967Semantics 2>&1 | tail -n 100
-          python3 -B scripts/r982_source_call_asset.py --freeze --classes app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes
-      - name: Verify the entire tree and fast-forward only the R31 source branch
-        working-directory: source
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          import hashlib,json,pathlib,subprocess
-          r=json.load(open('../caller/.github/r31-build-request.json'))
-          assert hashlib.sha256(pathlib.Path('release/r982_source_calls.tsv.gz').read_bytes()).hexdigest()==r['archiveSha256'],'CALL_ARCHIVE_BYTES_DIFFER'
-          subprocess.run(['git','add','release/r982_source_calls.tsv.gz','release/r982_source_calls.manifest.json'],check=True)
-          tree=subprocess.check_output(['git','write-tree'],text=True).strip()
-          assert tree==r['tree'],'FULL_SOURCE_TREE_DIFFERS:'+tree
-          remote=subprocess.check_output(['git','ls-remote','origin','refs/heads/construction/r31-final-20261104'],text=True).split()[0]
-          assert remote==r['base'],'REMOTE_SOURCE_ADVANCED'
-          print('VERIFIED_FULL_TREE='+tree)
-          PY
-          git config user.name github-actions
-          git config user.email github-actions@users.noreply.github.com
-          BASE="${{ steps.request.outputs.base }}"
-          TREE=$(git write-tree)
-          COMMIT=$(git commit-tree "$TREE" -p "$BASE" -m 'fix(r31): integrate unified production repairs and current source verification [skip ci]')
-          if git push origin "$COMMIT:refs/heads/construction/r31-final-20261104"; then
-            echo "SOURCE_FULL_COMMIT=$COMMIT"
-          else
-            # Some Actions tokens cannot change workflow files. Transfer the app
-            # unchanged, then the authorized connector applies those three files.
-            git restore --source="$BASE" --staged --worktree -- .github/workflows/r31-gate.yml .github/workflows/r31-verification.yml .github/workflows/r31-publish-release.yml
-            APP_TREE=$(git write-tree)
-            APP_COMMIT=$(git commit-tree "$APP_TREE" -p "$BASE" -m 'fix(r31): transfer exact application source; workflow integration follows [skip ci]')
-            git push origin "$APP_COMMIT:refs/heads/construction/r31-final-20261104"
-            echo "SOURCE_APP_COMMIT=$APP_COMMIT"
-            echo "SOURCE_APP_TREE=$APP_TREE"
-          fi
-          echo "INDEX_TRANSFER_IS_NOT_AN_ENGINEERING_ACCEPTANCE_RESULT"
+          api-level: 35
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: python3 "$RUNNER_TEMP/r31_live_observation.py" --apk "$LIVE_APP_APK" --source cd7552121ca01e3c77e8de1e2f2c68ea703d6c21 --seconds 1200 --out live
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31-live-observation
+          path: live/
