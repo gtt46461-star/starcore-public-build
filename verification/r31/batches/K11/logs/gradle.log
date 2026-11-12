@@ -2,7 +2,7 @@ To honour the JVM settings for this build a single-use Daemon process will be fo
 Daemon will be stopped at the end of the build 
 
 > Task :app:generateR27BuildIdentity
-R27_BUILD_IDENTITY_WRITTEN 72eeed7a8761ab3907eb09aaf932f1b08ea161e3 05670a17dafb32db8aed02b9999a6b477f289518
+R27_BUILD_IDENTITY_WRITTEN 86e49e8777ba0ba34f00afeb01c539e783a8d043 98de312b938794dd1cac03559994a14d102f9b7a
 
 > Task :app:verifyR31Baseline
 > Task :app:generateR31BuildIdentity
@@ -23,10 +23,10 @@ R967_SEMANTIC_IDENTITY_GENERATED|22d97197c1f76e07ad79f86bf8fa66e9f1c5c5071c2e1b5
 R967_SEMANTIC_IDENTITY_VERIFIED|22d97197c1f76e07ad79f86bf8fa66e9f1c5c5071c2e1b5361b2a2c03f7f0b50
 
 > Task :app:generateR815Provenance
-R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=06f2840c86037c1a1e520043e1463fb3520dcc36bc53d157cab6ca056ee981e1|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=77ab00ac2bea0cc64935943631785ae9d03238e03d3859776db7e4154b7870cd|GENERATED_AT=2026-11-12T13:18:35Z
+R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=06f2840c86037c1a1e520043e1463fb3520dcc36bc53d157cab6ca056ee981e1|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=77ab00ac2bea0cc64935943631785ae9d03238e03d3859776db7e4154b7870cd|GENERATED_AT=2026-11-12T13:28:32Z
 
 > Task :app:verifyR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=06f2840c86037c1a1e520043e1463fb3520dcc36bc53d157cab6ca056ee981e1|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=77ab00ac2bea0cc64935943631785ae9d03238e03d3859776db7e4154b7870cd|GENERATED_AT=2026-11-12T13:18:35Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=06f2840c86037c1a1e520043e1463fb3520dcc36bc53d157cab6ca056ee981e1|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=77ab00ac2bea0cc64935943631785ae9d03238e03d3859776db7e4154b7870cd|GENERATED_AT=2026-11-12T13:28:32Z
 
 > Task :app:preBuild
 > Task :app:preDebugBuild
@@ -45,19 +45,20 @@ R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=06f2840c86037c1a1e520043e1463fb3520dcc36b
 > Task :app:processDebugManifest
 > Task :app:preDebugAndroidTestBuild SKIPPED
 > Task :app:processDebugAndroidTestManifest
-> Task :app:processDebugManifestForPackage
 > Task :app:generateDebugAndroidTestBuildConfig
 > Task :app:javaPreCompileDebugAndroidTest FROM-CACHE
 > Task :app:prepareRawUpstreamAndroidTestHarness
+> Task :app:processDebugManifestForPackage
 > Task :app:checkDebugAndroidTestAarMetadata
 > Task :app:generateDebugAndroidTestResValues FROM-CACHE
 > Task :app:mapDebugAndroidTestSourceSetPaths
 > Task :app:generateDebugAndroidTestResources
 > Task :app:preDebugUnitTestBuild
 > Task :app:javaPreCompileDebugUnitTest FROM-CACHE
-> Task :app:processDebugJavaRes NO-SOURCE
 > Task :app:mergeDebugAndroidTestResources
+> Task :app:processDebugJavaRes NO-SOURCE
 > Task :app:processDebugUnitTestJavaRes
+> Task :app:extractProguardFiles
 > Task :app:processDebugResources
 > Task :app:extractProguardFiles
 > Task :app:processDebugAndroidTestResources
@@ -80,7 +81,7 @@ Note: Recompile with -Xlint:unchecked for details.
 R967_SEMANTIC_IDENTITY_VERIFIED|22d97197c1f76e07ad79f86bf8fa66e9f1c5c5071c2e1b5361b2a2c03f7f0b50
 
 > Task :app:verifyFinalR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=06f2840c86037c1a1e520043e1463fb3520dcc36bc53d157cab6ca056ee981e1|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=77ab00ac2bea0cc64935943631785ae9d03238e03d3859776db7e4154b7870cd|GENERATED_AT=2026-11-12T13:18:35Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=06f2840c86037c1a1e520043e1463fb3520dcc36bc53d157cab6ca056ee981e1|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=77ab00ac2bea0cc64935943631785ae9d03238e03d3859776db7e4154b7870cd|GENERATED_AT=2026-11-12T13:28:32Z
 
 > Task :app:compileDebugAndroidTestJavaWithJavac
 Note: Some input files use or override a deprecated API.
@@ -94,6 +95,3 @@ Note: Recompile with -Xlint:unchecked for details.
 
 R31RetirementManifestTest > retirementKeepsSchemaRetentionAndReportRegistriesAndTheUpgradePath FAILED
     org.junit.ComparisonFailure at R31RetirementManifestTest.java:125
-
-R27QualityTest > h15MainlineRedLines FAILED
-    org.junit.ComparisonFailure at R27QualityTest.java:181
