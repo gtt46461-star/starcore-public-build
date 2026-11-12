@@ -129,6 +129,7 @@ jobs:
           python3 scripts/test_r13_production_ddl.py
           python3 scripts/generate_strategy_su2_schema.py --check
           ./gradlew --no-daemon --max-workers=4 -Pr30Instrumentation=true :app:compileDebugJavaWithJavac 2>&1 | tee "$RUNNER_TEMP/r31-evidence/compile-before-host.log"
+          python3 -B tools/r31/run_r31q_lock_regression.py > "$RUNNER_TEMP/r31-evidence/r31q-lock-regression.log" 2>&1
           python3 scripts/verify_strategy_su1.py > "$RUNNER_TEMP/r31-evidence/su1.log" 2>&1
           python3 scripts/verify_plan1025.py > "$RUNNER_TEMP/r31-evidence/plan1025.log" 2>&1
           python3 scripts/verify_r26.py > "$RUNNER_TEMP/r31-evidence/r26.log" 2>&1
@@ -1073,5 +1074,44 @@ jobs:
         with:
           name: R31-ORIGINAL-HOST-FAILURES-${{ steps.host_request.outputs.source }}
           path: ${{ runner.temp }}/r31-host-readonly-audit/
+          if-no-files-found: error
+          retention-days: 90
+
+
+  r31q-delivery:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.source }}
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/download-artifact@v4
+        with:
+          name: R31-EXISTING_R27-CANDIDATE-${{ needs.build.outputs.source }}
+          path: candidate
+      - name: Enable disposable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+          script: bash tools/r31/run_r31q_android_delivery.sh candidate "$RUNNER_TEMP/r31q-delivery"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R31Q-ANDROID34-DELIVERY-${{ needs.build.outputs.source }}
+          path: ${{ runner.temp }}/r31q-delivery/
           if-no-files-found: error
           retention-days: 90
