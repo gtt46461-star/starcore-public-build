@@ -26,8 +26,8 @@ jobs:
           assert r['source']=='8f639e4f95851f7dad3405f067e085040e5a44fc'
           assert r['expectedVersionCode']==577311021
           assert r['expectedVersionName']=='R31-REPAIR-2026.11.12-021'
-          assert r['mode'] in ['verify','live']
-          if r['mode']=='live':assert str(r['buildRunId']).isdigit()
+          assert r['mode'] in ['verify','live','overlay']
+          if r['mode'] in ['live','overlay']:assert str(r['buildRunId']).isdigit()
           with open(os.environ['GITHUB_OUTPUT'],'a') as f:
               f.write('mode='+r['mode']+'\n')
               f.write('build_run='+str(r.get('buildRunId',''))+'\n')
@@ -175,7 +175,7 @@ jobs:
            d=read('RELEASE_OVERLAY.json');receipt={'format':'R31_PUBLIC_RELEASE_OVERLAY_1','sourceCommit':source(d.get('sourceCommit')),'oldApkSha256':digest(d.get('oldApkSha256')),'newApkSha256':digest(d.get('newApkSha256')),'fromVersionCode':577311020,'toVersionCode':577311021,'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_RELEASE_OVERLAY_AND_ORIGINAL_ROWS','OBSERVED_OVERLAY_ONLY_NO_OLD_DRAW_ROWS']),
            'actualReleaseOverlayInstall':fixed(d.get('actualReleaseOverlayInstall'),['PASS']),'oldObservedRowsPreserved':d.get('oldObservedRowsPreserved') is True,'checks':[],
            'trainedAssetMigration':'NOT_PROVEN_FRESH_VM_ASSET_SET_MAY_BE_EMPTY','physicalDevice':'NOT_RUN','old670MHandsetDatabase':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsPublished':False}
-           for row in d.get('checks',[])[:2]:receipt['checks'].append({'oldObservedRows':integer(row.get('oldObservedRows'),64),'preservedObservedRows':integer(row.get('preservedObservedRows'),64),'databaseIntegrity':fixed(row.get('databaseIntegrity'),['ok'])})
+           for row in d.get('checks',[])[:2]:receipt['checks'].append({'oldObservedRows':integer(row.get('oldObservedRows'),64),'preservedObservedRows':integer(row.get('preservedObservedRows'),64),'missingOldIssues':integer(row.get('missingOldIssues'),64),'changedFieldCounts':{k:integer(row.get('changedFieldCounts',{}).get(k),64) for k in ['issue','draw_hash_v2','open_time','first_seen_at']},'databaseIntegrity':fixed(row.get('databaseIntegrity'),['ok'])})
            write('RELEASE_OVERLAY.json',receipt)
           elif root.name=='faults':
            d=read('RESULTS.json');receipt={'sourceCommit':source(d.get('sourceCommit')),'buildRunId':integer(d.get('buildRunId')),'physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawRuntimeLogsPublished':False}
@@ -382,7 +382,7 @@ jobs:
            d=read('RELEASE_OVERLAY.json');receipt={'format':'R31_PUBLIC_RELEASE_OVERLAY_1','sourceCommit':source(d.get('sourceCommit')),'oldApkSha256':digest(d.get('oldApkSha256')),'newApkSha256':digest(d.get('newApkSha256')),'fromVersionCode':577311020,'toVersionCode':577311021,'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_RELEASE_OVERLAY_AND_ORIGINAL_ROWS','OBSERVED_OVERLAY_ONLY_NO_OLD_DRAW_ROWS']),
            'actualReleaseOverlayInstall':fixed(d.get('actualReleaseOverlayInstall'),['PASS']),'oldObservedRowsPreserved':d.get('oldObservedRowsPreserved') is True,'checks':[],
            'trainedAssetMigration':'NOT_PROVEN_FRESH_VM_ASSET_SET_MAY_BE_EMPTY','physicalDevice':'NOT_RUN','old670MHandsetDatabase':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsPublished':False}
-           for row in d.get('checks',[])[:2]:receipt['checks'].append({'oldObservedRows':integer(row.get('oldObservedRows'),64),'preservedObservedRows':integer(row.get('preservedObservedRows'),64),'databaseIntegrity':fixed(row.get('databaseIntegrity'),['ok'])})
+           for row in d.get('checks',[])[:2]:receipt['checks'].append({'oldObservedRows':integer(row.get('oldObservedRows'),64),'preservedObservedRows':integer(row.get('preservedObservedRows'),64),'missingOldIssues':integer(row.get('missingOldIssues'),64),'changedFieldCounts':{k:integer(row.get('changedFieldCounts',{}).get(k),64) for k in ['issue','draw_hash_v2','open_time','first_seen_at']},'databaseIntegrity':fixed(row.get('databaseIntegrity'),['ok'])})
            write('RELEASE_OVERLAY.json',receipt)
           elif root.name=='faults':
            d=read('RESULTS.json');receipt={'sourceCommit':source(d.get('sourceCommit')),'buildRunId':integer(d.get('buildRunId')),'physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawRuntimeLogsPublished':False}
@@ -416,7 +416,7 @@ jobs:
 
   release_overlay:
     needs: request
-    if: needs.request.outputs.mode == 'live'
+    if: needs.request.outputs.mode == 'live' || needs.request.outputs.mode == 'overlay'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -554,7 +554,7 @@ jobs:
            d=read('RELEASE_OVERLAY.json');receipt={'format':'R31_PUBLIC_RELEASE_OVERLAY_1','sourceCommit':source(d.get('sourceCommit')),'oldApkSha256':digest(d.get('oldApkSha256')),'newApkSha256':digest(d.get('newApkSha256')),'fromVersionCode':577311020,'toVersionCode':577311021,'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_RELEASE_OVERLAY_AND_ORIGINAL_ROWS','OBSERVED_OVERLAY_ONLY_NO_OLD_DRAW_ROWS']),
            'actualReleaseOverlayInstall':fixed(d.get('actualReleaseOverlayInstall'),['PASS']),'oldObservedRowsPreserved':d.get('oldObservedRowsPreserved') is True,'checks':[],
            'trainedAssetMigration':'NOT_PROVEN_FRESH_VM_ASSET_SET_MAY_BE_EMPTY','physicalDevice':'NOT_RUN','old670MHandsetDatabase':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsPublished':False}
-           for row in d.get('checks',[])[:2]:receipt['checks'].append({'oldObservedRows':integer(row.get('oldObservedRows'),64),'preservedObservedRows':integer(row.get('preservedObservedRows'),64),'databaseIntegrity':fixed(row.get('databaseIntegrity'),['ok'])})
+           for row in d.get('checks',[])[:2]:receipt['checks'].append({'oldObservedRows':integer(row.get('oldObservedRows'),64),'preservedObservedRows':integer(row.get('preservedObservedRows'),64),'missingOldIssues':integer(row.get('missingOldIssues'),64),'changedFieldCounts':{k:integer(row.get('changedFieldCounts',{}).get(k),64) for k in ['issue','draw_hash_v2','open_time','first_seen_at']},'databaseIntegrity':fixed(row.get('databaseIntegrity'),['ok'])})
            write('RELEASE_OVERLAY.json',receipt)
           elif root.name=='faults':
            d=read('RESULTS.json');receipt={'sourceCommit':source(d.get('sourceCommit')),'buildRunId':integer(d.get('buildRunId')),'physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawRuntimeLogsPublished':False}
