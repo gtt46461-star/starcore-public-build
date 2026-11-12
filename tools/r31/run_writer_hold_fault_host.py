@@ -76,7 +76,7 @@ def main():
         text = text[:at] + '    public void close(){try{jdbc.close();}catch(java.sql.SQLException failure){throw new SQLiteException(failure.getMessage());}}\n' + text[at:]
         sqlite.write_text(text)
         receipt['hostSqliteCloseAdapterSha256'] = digest(sqlite)
-        run('compile-real-close-adapter', ['javac', '-encoding', 'UTF-8', '-cp', str(platform), '-d', platform, sqlite])
+        run('compile-real-close-adapter', ['javac', '-encoding', 'UTF-8', '-cp', os.pathsep.join(map(str, (platform, sdk))), '-d', platform, sqlite])
         production = work / 'production'; production.mkdir()
         base = ROOT / 'app/src/main/java/com/ethk3/novaonepro'
         names = ['DatabaseCoordinator.java', 'strategyv2/WriterHoldFaultsR31.java', 'strategyv2/RuntimeR27.java']

@@ -5,6 +5,7 @@ set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/../.." && pwd); cd "$ROOT"
 OUT=${OUT:-evidence/r29/host}; mkdir -p "$OUT"
 T=$(mktemp -d)
-javac -nowarn -encoding UTF-8 -proc:none -d "$T/shim" $(find tools/r29/qual_host/shim -name '*.java')
-javac -nowarn -encoding UTF-8 -proc:none -cp "$T/shim:$CLASSES" -d "$T/test" tools/r29/qual_host/QualInboxR29HostTest.java
-java -cp "$T/shim:$T/test:$CLASSES:$SQLITE_JDBC" com.ethk3.novaonepro.strategyv2.QualInboxR29HostTest | tee "$OUT/r29_qual_host.log"
+SDK="${ANDROID_HOME:?Android SDK required}/platforms/android-36/android.jar"
+javac -nowarn -encoding UTF-8 -proc:none -cp "$SDK" -d "$T/shim" $(find tools/r29/qual_host/shim -name '*.java')
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T/shim:$CLASSES:$SDK" -d "$T/test" tools/r29/qual_host/QualInboxR29HostTest.java
+java -cp "$T/shim:$T/test:$CLASSES:$SQLITE_JDBC:$SDK" com.ethk3.novaonepro.strategyv2.QualInboxR29HostTest | tee "$OUT/r29_qual_host.log"
