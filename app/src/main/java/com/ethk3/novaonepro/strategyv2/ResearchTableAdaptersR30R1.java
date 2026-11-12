@@ -38,6 +38,41 @@ public final class ResearchTableAdaptersR30R1 {
   args.add(Integer.toString(pageSize));args.add(Long.toString(offset));
   return new Page("SELECT * FROM ("+base+")"+where+" LIMIT ? OFFSET ?",args.toArray(new String[0]));
  }
+ /** Shared actual reader for report export and the paged research-table screen. */
+ public static Map<String,Object> readPageR31(android.database.sqlite.SQLiteDatabase db,String id,Map<String,String> filters,long offset,int size,android.os.CancellationSignal cancellation) {
+  Page query=page(id,filters,offset,size);Map<String,Object> out=new LinkedHashMap<>();List<Object> rows=new ArrayList<>();
+  out.put("id",id);out.put("offset",offset);out.put("pageSize",size);out.put("filters",filters);out.put("readStartedAt",System.currentTimeMillis());out.put("readOnly",true);
+  long bytes=0;
+  try(android.database.Cursor cursor=db.rawQuery(query.sql,query.args,cancellation)) {
+   while(cursor.moveToNext()) {
+    if(cancellation!=null)cancellation.throwIfCanceled();Map<String,Object> row=new LinkedHashMap<>();
+    for(int column=0;column<cursor.getColumnCount();column++) {
+     String name=cursor.getColumnName(column);Object value=null;
+     if(!cursor.isNull(column))switch(cursor.getType(column)) {
+      case android.database.Cursor.FIELD_TYPE_INTEGER:value=cursor.getLong(column);break;
+      case android.database.Cursor.FIELD_TYPE_FLOAT:value=cursor.getDouble(column);break;
+      case android.database.Cursor.FIELD_TYPE_BLOB:value="BINARY_ORIGINAL_IN_SOURCE";break;
+      case android.database.Cursor.FIELD_TYPE_NULL:break;
+      case android.database.Cursor.FIELD_TYPE_STRING:String raw=cursor.getString(column);if(raw.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>262144)throw new IllegalStateException("TABLE_CELL_BYTE_BUDGET:"+name);value=raw;break;
+      default:throw new IllegalStateException("TABLE_CELL_UNKNOWN_TYPE:"+name);
+     }
+     row.put(name,value);
+    }
+    if("T09".equals(id)&&row.get("payload_json") instanceof String) {
+     String kind=String.valueOf(row.get("kind"));
+     if(kind.equals("OPERATOR_GAIN_COST")||kind.equals("PARENT_CHILD_PAIRED")||kind.equals("RESEARCH_BUDGET")) {
+      List<Object> objects=new ArrayList<>();for(ResearchMeasureProjectionR31.ObjectRow object:ResearchMeasureProjectionR31.projectObjects(kind,(String)row.get("payload_json")))objects.add(object.json());
+      row.put("objects",objects);row.put("valueSource","payload_json.frame.points; top-level NULL is not zero");
+     }
+    }
+    int rowBytes=JsonR27.write(row).getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
+    if(bytes+rowBytes>524288){out.put("truncatedReason","TABLE_PAGE_BYTE_BUDGET");break;}bytes+=rowBytes;rows.add(row);
+   }
+   out.put("status",rows.isEmpty()?"EMPTY_NO_ROWS":"READ_OK");
+  }catch(android.os.OperationCanceledException cancelled){throw cancelled;}
+   catch(RuntimeException error){out.put("status","READ_ERROR");out.put("reason",error.getClass().getSimpleName()+":"+String.valueOf(error.getMessage()));}
+  out.put("rows",rows);out.put("shown",rows.size());out.put("hasMore",rows.size()==size||out.containsKey("truncatedReason"));out.put("bytes",bytes);out.put("readFinishedAt",System.currentTimeMillis());out.put("receiptSha256",StatsR27.sha256(JsonR27.write(out)));return Collections.unmodifiableMap(out);
+ }
  public static Set<String> ids(){return Collections.unmodifiableSet(SQL.keySet());}
  public static List<Map<String,Object>> contracts(){List<Map<String,Object>> out=new ArrayList<>();for(Map.Entry<String,String> e:SQL.entrySet()){Map<String,Object> m=new LinkedHashMap<>();m.put("id",e.getKey());m.put("sourceSql",e.getValue());m.put("owner","ORIGINAL_SOURCE_OWNER_AND_SchemaR27");m.put("filters",FILTERS_R31.getOrDefault(e.getKey(),Collections.<String>emptyList()));m.put("maxPage",(long)MAX_PAGE_R31);m.put("newPhysicalTable",false);m.put("displayIsFullDenominator",false);m.put("fullSource","verified snapshot.db; construction/r30-repair/RESEARCH_TABLE_CONTRACTS.json");out.add(m);}return Collections.unmodifiableList(out);}
 }

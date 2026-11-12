@@ -174,7 +174,7 @@ public final class ReportPublicationCP12 {
      if(!part.getAbsoluteFile().equals(part.getCanonicalFile())||!part.isFile()||!part.delete())throw new IOException("REPORT_PART_CLEANUP_FAILED");
     }
    }
-   cleanChildren(job,new HashSet<String>(Arrays.asList("job.json","published.json","delivery","share.lock","share-until.json","R30_SUCCESSFUL_SUMMARY_CANDIDATE.json","cleanup-r31.json",archive)));
+   cleanChildren(job,new HashSet<String>(Arrays.asList("job.json","published.json","delivery","share.lock","share-until.json","R30_SUCCESSFUL_SUMMARY_CANDIDATE.json",ReportSemanticVerifierR31.RECEIPT,"cleanup-r31.json",archive)));
   }catch(IOException error){throw error;}catch(Exception error){throw new IOException("REPORT_CLEANUP_VERIFICATION_FAILED",error);}
  }
  /** FULL_RAW can retire its private DB only when the verified archive actually contains that exact DB. */
@@ -242,6 +242,12 @@ public final class ReportPublicationCP12 {
    boolean protectedRecovery=false;for(String kind:new String[]{"recovery","saf-parts"})if(new File(root,kind+"/"+id).isDirectory()&&!ReportBudgetSU2.retirableRecovery(root,id))protectedRecovery=true;if(protectedRecovery)continue;
    String cancelJob=new JSONObject(ReportJobJournalCP12.readAtomic(ack,8192)).optString("jobId","");
    File request=new File(requests,id+".json");
+   boolean allRetired=true;
+   for(String relative:new String[]{"observations/"+id,"recovery/"+id,"saf-parts/"+id}) {
+    File generated=ReportArchiveVerifierCP12.inside(root,relative);
+    if(generated.isDirectory()&&!tryDeleteRecoveryR31(generated))allRetired=false;
+   }
+   if(!allRetired)continue; // ACK remains discoverable after the final reader closes.
    if(request.exists()&&!request.delete())throw new IOException("REPORT_REQUEST_METADATA_CLEANUP");
    if(!ack.delete())throw new IOException("REPORT_REQUEST_METADATA_CLEANUP");
    ReportJobJournalCP12.removeCancellation(root,id);

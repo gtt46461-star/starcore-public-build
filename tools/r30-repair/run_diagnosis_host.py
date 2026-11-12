@@ -19,7 +19,7 @@ with tempfile.TemporaryDirectory(prefix='fr-diagnosis-') as temporary:
  # native allocation and unavailable Android owner facts retain their UNKNOWN states.
  pid_source=out/'Process.java'
  pid_source.write_text('package android.os;public final class Process{public static int myPid(){long pid=java.lang.ProcessHandle.current().pid();if(pid<=0||pid>Integer.MAX_VALUE)throw new IllegalStateException("HOST_PID_OUT_OF_ANDROID_INT_RANGE");return(int)pid;}}\n')
- run(['javac','-encoding','UTF-8','-d',shim,*sorted((root/'tools/r29/qual_host/shim').rglob('*.java')),pid_source])
+ run(['javac','-encoding','UTF-8','-cp',sdk,'-d',shim,*sorted((root/'tools/r29/qual_host/shim').rglob('*.java')),pid_source])
  test=out/'test';test.mkdir();cp=os.pathsep.join(map(str,[shim,classes,sdk]))
  run(['javac','-encoding','UTF-8','-cp',cp,'-d',test,root/'tools/r30-repair/qual_host/DiagnosisReportR30R1HostTest.java'])
  run(['java','-cp',os.pathsep.join(map(str,[shim,test,classes,jdbc,sdk])),'com.ethk3.novaonepro.strategyv2.DiagnosisReportR30R1HostTest'])

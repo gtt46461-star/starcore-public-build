@@ -718,6 +718,9 @@ public final class RuntimeR27 implements AutoCloseable {
                 nextQ08.step(); // one checkpointable unit, no database writer is held during computation
             }
             NullPipelineSimulationStoreR30.checkpoint(b,nextQ08,preparedAt);
+            // The four-program kernel power test and original null pipeline stay
+            // intact. This is the independent, resumable full factory experiment.
+            FactoryCapabilityStoreR31.advance(w.ro,b,BuildConfig.SOURCE_COMMIT_R26,preparedAt,!pool.narrow(System.currentTimeMillis()));
             if (!assetsCached) {
                 // R27-053/054: build identity, card registry, source audit and R26→R27 merge status packaged as assets.
                 for (String name : new String[] {"build-identity", "r27_cards", "source-audit", "merge-status"}) {

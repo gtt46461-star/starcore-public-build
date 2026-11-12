@@ -91,6 +91,7 @@ public final class CertificateRevocationR30 {
         for(String protocol:new String[]{"R27","SU2"})if(table(db,protocol.equals("R27")?"r27_certificate":"su2_certificate")) {
             for(String statement:statementParts(db,protocol,quote(issue),quote(cause),quote(eventKey),String.valueOf(System.currentTimeMillis())))db.execSQL(statement);
         }
+        if(MainlineChoiceStoreR31.ready(db))MainlineChoiceStoreR31.reconcileRevocationR31(db,SchemaR27.liveSourceRevision(db),System.currentTimeMillis());
     }
     private static void requireRevocationSchemaR31(SQLiteDatabase db,boolean r27,boolean su2){
         List<String[]> tables=new ArrayList<>(),objects=new ArrayList<>();

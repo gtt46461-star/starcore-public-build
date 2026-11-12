@@ -9,7 +9,7 @@ public final class ReportChartsR30 {
     static Map<String,Object> point(String label,Object value,String detail){Map<String,Object> p=new LinkedHashMap<>();p.put("label",label);p.put("value",value);p.put("lower",null);p.put("upper",null);p.put("n",-1L);p.put("details",detail);return p;}
     static Map<String,Object> panel(ReportR27.R30Input in,String id,String title,String kind,String source,String note,List<Object> points){
         Map<String,Object> m=new LinkedHashMap<>();m.put("id",id);m.put("title",title);m.put("kind",kind);m.put("source",source);m.put("window","报告快照期号 "+in.watermark.get("latestIssue"));m.put("note",note);m.put("points",points);
-        m.put("status",points.isEmpty()?"INSUFFICIENT":"READY");m.put("snapshotWatermark",in.watermark);Map<String,Object> common=new LinkedHashMap<>();for(String key:COMMON)common.put(key,in.facts.get(key));m.put("commonMetrics",common);m.put("metricResults",in.metricResults);m.put("metricRegistryVersion",MetricDefinitionsR29.CURRENT_VERSION);return m;
+        m.put("status",points.isEmpty()?"INSUFFICIENT":"READY");m.put("snapshotWatermark",in.watermark);Map<String,Object> common=new LinkedHashMap<>();for(String key:COMMON)common.put(key,in.facts.get(key));m.put("commonMetrics",common);m.put("metricResults",in.metricResults);m.put("metricRegistryVersion",MetricDefinitionsR29.R31_VERSION);return m;
     }
     @SuppressWarnings("unchecked") public static Map<String,Object> evolution(ReportR27.R30Input in){
         List<Object> points=new ArrayList<>();Set<String> tasks=new HashSet<>();Object raw=in.data.get("evolution");int drawn=0,conflicts=0,reused=0,verified=0;
@@ -54,4 +54,12 @@ public final class ReportChartsR30 {
     }
     public static List<Map<String,Object>> panels(ReportR27.R30Input in){return Arrays.asList(evolution(in),capabilities(in));}
     public static Map<String,Object> packet(ReportR27.R30Input in){List<Map<String,Object>> panels=panels(in);Map<String,Object> out=new LinkedHashMap<>();out.put("version","R30_CHART_SNAPSHOT_1");out.put("snapshotWatermark",in.watermark);out.put("commonMetrics",panels.get(0).get("commonMetrics"));out.put("panels",panels);out.put("researchWorkbench",in.data.get("objectIndex") instanceof Map?((Map<?,?>)in.data.get("objectIndex")).get("researchCharts"):null);out.put("researchFrameIndex",in.data.get("repairFrameIndex"));out.put("chartTotalContract",47);out.put("mountedViewLimit",40);return out;}
+    /** Persisted display only: full report/pure packet retain identical metric
+     * objects; the small cache explicitly carries a projection of their values. */
+    @SuppressWarnings("unchecked") public static Map<String,Object> displayPacketR31(ReportR27.R30Input in){
+        Map<String,Object> out=packet(in);List<Object> metrics=new ArrayList<>();
+        for(Map<String,Object> full:in.metricResults){Map<String,Object> row=new LinkedHashMap<>();for(String key:new String[]{"metricId","value","status","sampleCount","numerator","denominator","definitionVersion"})row.put(key,full.get(key));metrics.add(row);}
+        List<Object> compact=new ArrayList<>();for(Map<String,Object> full:(List<Map<String,Object>>)out.get("panels")){Map<String,Object> panel=new LinkedHashMap<>(full);panel.put("metricResults",metrics);panel.put("metricPayloadScope","DISPLAY_PROJECTION; FULL_DEFINITIONS_AND_EVIDENCE_IN_R30_REPORT.json");compact.add(panel);}
+        out.put("panels",compact);return out;
+    }
 }

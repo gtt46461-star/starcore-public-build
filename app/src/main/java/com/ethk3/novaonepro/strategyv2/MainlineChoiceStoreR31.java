@@ -91,6 +91,14 @@ public final class MainlineChoiceStoreR31 {
         db.execSQL("INSERT OR IGNORE INTO r31_mainline_revocation VALUES(?,?,?,?,?)", new Object[]{StatsR27.sha256(choiceId + "|" + reason + "|" + sourceRevision), choiceId, reason, sourceRevision, now});
         db.execSQL("UPDATE r31_mainline_choice SET status='REVOKED' WHERE choice_id=? AND status IN ('ACTIVE','FALLBACK')", new Object[]{choiceId});
     }
+    /** Runs in the real certificate/source-correction writer. Expiry and changed
+     * evidence revoke only future authority; original freezes remain immutable. */
+    public static void reconcileRevocationR31(SQLiteDatabase db,long sourceRevision,long now) {
+        if(!db.inTransaction())throw new IllegalStateException("R31_MAINLINE_WRITER_REQUIRED");
+        Choice prior=current(db);if(prior==null||prior.fallback())return;
+        if(prior.sourceRevision!=sourceRevision||effectiveChoice(db,now)==null)
+            revoke(db,prior.choiceId,prior.sourceRevision!=sourceRevision?"SOURCE_REVISION_CHANGED":"CERTIFICATE_EXPIRED_REVOKED_OR_REPLACED",sourceRevision,now);
+    }
 
     public static String legacyChoice(SQLiteDatabase db) {
         try (Cursor c = db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id='mainline' AND key='choice'", null)) {
@@ -134,5 +142,14 @@ public final class MainlineChoiceStoreR31 {
         if (compared.startsWith("DIVERGED")) return new Authorization(null, "WAIT_MAINLINE_DIVERGED:" + compared, mode); // never pick one of two authorities
         if (legacy == null || legacy.startsWith("PRODUCTION_FALLBACK")) return new Authorization(null, "WAIT_NO_VALID_CERTIFICATE", mode);
         return new Authorization(legacy, "LEGACY_AUTHORITY_" + compared, mode);
+    }
+    /** Production request/explanation path also checks the choice's effective
+     * period and the current canonical source revision. */
+    public static Authorization authorizedChoice(SQLiteDatabase db,long now,long targetOrdinal) {
+        Authorization result=authorizedChoice(db,now);if(!result.authorized()||!"TYPED_READ".equals(result.mode))return result;
+        Choice choice=current(db);if(choice==null||choice.effectiveFromOrdinal>targetOrdinal)return new Authorization(null,"WAIT_CHOICE_NOT_EFFECTIVE",result.mode);
+        long source=SchemaR27.liveSourceRevision(db);
+        if(source<0||source!=choice.sourceRevision)return new Authorization(null,"WAIT_CHOICE_SOURCE_REVISION",result.mode);
+        return result;
     }
 }

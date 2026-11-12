@@ -38,7 +38,7 @@ public final class CheckpointArtifactsR26 {
             if(!root.mkdirs()&&!root.isDirectory())throw new IOException("R26_ARTIFACT_DIRECTORY");
             syncDirectory(root.getParentFile());
         }
-        synchronized(FILES_LOCK){if(!USAGE.containsKey(root.getPath())){Usage u=new Usage();File[] all=root.listFiles();if(all==null)throw new IOException("R26_ARTIFACT_LIST");for(File file:all)if(file.isFile()){u.bytes+=file.length();u.files++;}USAGE.put(root.getPath(),u);}}
+        synchronized(FILES_LOCK){if(!USAGE.containsKey(root.getPath())){Usage u=new Usage();File[] all=com.ethk3.novaonepro.DirectoryCursorR31.children(root,FILE_LIMIT*2);for(File file:all)if(file.isFile()){u.bytes+=file.length();u.files++;}USAGE.put(root.getPath(),u);}}
     }
     public static CheckpointArtifactsR26 forStore(DbStore store)throws IOException {
         CheckpointArtifactsR26 files=new CheckpointArtifactsR26(new File(store.contextForR26().getFilesDir(),"r26-checkpoints"));
@@ -134,12 +134,28 @@ public final class CheckpointArtifactsR26 {
     }
     public InputStream openState(byte[] reference)throws IOException{return ChunkedCheckpointR26.open(resolve(reference),readStore());}
     public Set<String> reachableHashes(Set<String> roots)throws IOException {
-        Set<String> closure=new TreeSet<>(roots);for(String hash:roots){byte[] header=new byte[4];int n;try(InputStream in=new FileInputStream(path(hash))){n=in.read(header);}if(n==4&&ChunkedCheckpointR26.isManifest(header))closure.addAll(ChunkedCheckpointR26.children(readHash(hash)));else if(n>=3&&header[0]==0x26&&header[1]==0x43&&header[2]==0x53)throw new IOException("R31_UNKNOWN_CHECKPOINT_MANIFEST_VERSION_RETENTION_BLOCKED");}return closure;
+        final Set<String> initial=new TreeSet<>(roots);final Map<String,Set<String>> edges=new HashMap<>();
+        com.ethk3.novaonepro.EvidenceReachabilityR31.Graph graph=new com.ethk3.novaonepro.EvidenceReachabilityR31.Graph(){
+            public Map<String,com.ethk3.novaonepro.EvidenceReachabilityR31.RootKind> roots(){Map<String,com.ethk3.novaonepro.EvidenceReachabilityR31.RootKind> m=new LinkedHashMap<>();for(String hash:initial)m.put(hash,com.ethk3.novaonepro.EvidenceReachabilityR31.RootKind.PERSISTED_REFERENCE);return m;}
+            public Set<String> artifacts(){Set<String> all=new TreeSet<>(initial);for(Set<String> children:edges.values())all.addAll(children);return all;}
+            public long bytes(String hash){try{return path(hash).length();}catch(IOException invalid){throw new UncheckedIOException(invalid);}}
+            public Set<String> edgesFrom(String hash){
+                if(edges.containsKey(hash))return edges.get(hash);
+                try{byte[] header=new byte[4];int n;try(InputStream in=new FileInputStream(path(hash))){n=in.read(header);}Set<String> children=Collections.emptySet();
+                    if(n==4&&ChunkedCheckpointR26.isManifest(header))children=ChunkedCheckpointR26.children(readHash(hash));
+                    else if(n>=3&&header[0]==0x26&&header[1]==0x43&&header[2]==0x53)throw new IOException("R31_UNKNOWN_CHECKPOINT_MANIFEST_VERSION_RETENTION_BLOCKED");
+                    edges.put(hash,children);return children;
+                }catch(IOException unavailable){throw new UncheckedIOException(unavailable);}
+            }
+        };
+        try{return new TreeSet<>(com.ethk3.novaonepro.EvidenceReachabilityR31.mark(graph,FILE_LIMIT*2));}
+        catch(UncheckedIOException unavailable){throw unavailable.getCause();}
+        catch(com.ethk3.novaonepro.EvidenceReachabilityR31.MarkIncomplete incomplete){throw new IOException("R31_CAS_REFERENCE_MARK_INCOMPLETE_PRESERVED",incomplete);}
     }
     /** Called with DB references frozen by the P3 owner. New, not-yet-committed files have an age grace. */
     public long prune(Set<String> references,long now,long graceMillis,int limit)throws IOException {return prune(()->references,now,graceMillis,limit);}
     public long prune(java.util.function.Supplier<Set<String>> referenceSource,long now,long graceMillis,int limit)throws IOException {
-        synchronized(FILES_LOCK){Set<String> references=reachableHashes(referenceSource.get());File[] files=root.listFiles();if(files==null)throw new IOException("R26_ARTIFACT_LIST");Arrays.sort(files,Comparator.comparingLong(File::lastModified));long removed=0;int count=0;
+        synchronized(FILES_LOCK){Set<String> references=reachableHashes(referenceSource.get());File[] files=com.ethk3.novaonepro.DirectoryCursorR31.children(root,FILE_LIMIT*2);Arrays.sort(files,Comparator.comparingLong(File::lastModified));long removed=0;int count=0;
         for(File file:files){if(count>=limit)break;String name=file.getName();if(now-file.lastModified()<graceMillis)continue;
             boolean temporary=name.startsWith(".tmp-");if(temporary&&IN_FLIGHT.keySet().stream().anyMatch(k->k.startsWith(root.getPath()+"/")))continue;String hash=name.endsWith(".bin")?name.substring(0,name.length()-4):"";
             if(!temporary&&(references.contains(hash)||IN_FLIGHT.containsKey(root.getPath()+"/"+hash)||!hash.matches("[0-9a-f]{64}")))continue;

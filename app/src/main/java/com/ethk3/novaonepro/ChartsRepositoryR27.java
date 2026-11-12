@@ -55,7 +55,7 @@ final class ChartsRepositoryR27 {
                 long q = ((Number) m.get("qualified")).longValue();
                 text = "当前合格策略：" + q + "个；主链：" + m.get("choice") + (q == 0 ? "；最接近合格：" + m.get("nearest") : "");
             }
-        } catch (RuntimeException schemaPending) { text = "R27 数据尚未生成（升级后首次运行会自动建立）。"; }
+        } catch (android.os.OperationCanceledException cancelled) { throw cancelled; } catch (RuntimeException schemaPending) { text = "R27 数据尚未生成（升级后首次运行会自动建立）。"; }
         return new Panel(PAGE, "研究状态", "STATUS", "r27_chart_cache", "", text, "READY", null, null);
     }
 
@@ -65,10 +65,13 @@ final class ChartsRepositoryR27 {
             if (!c.moveToFirst()) return new Panel(PAGE, id, "STATUS", "r27_chart_cache", "", "等待研究线程生成本图（每30秒刷新）。", "INSUFFICIENT", null, null);
             // R31-B09-C03: validate the frame before expanding it; a too large, unparsable or non-object frame fails only this chart.
             String raw = c.getString(0);
-            if (raw == null || raw.length() > MAX_PANEL_CHARS_R31) return new Panel(PAGE, id, "STATUS", "r27_chart_cache", "", "本图缓存帧超过显示预算，未展开（不影响其他图）。", "STALE_FRAME_TOO_LARGE", null, null);
+            if (raw == null || raw.length() > MAX_PANEL_CHARS_R31 || raw.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > MAX_PANEL_CHARS_R31) return new Panel(PAGE, id, "STATUS", "r27_chart_cache", "", "本图缓存帧超过显示预算，未展开（不影响其他图）。", "STALE_FRAME_TOO_LARGE", null, null);
             Object parsed; try { parsed = JsonR27.parse(raw); } catch (RuntimeException bad) { return new Panel(PAGE, id, "STATUS", "r27_chart_cache", "", "本图缓存帧损坏：" + bad.getClass().getSimpleName() + "（不影响其他图）。", "STALE_FRAME_INVALID", null, null); }
             if (!(parsed instanceof Map) || !(((Map<?, ?>) parsed).get("points") instanceof List)) return new Panel(PAGE, id, "STATUS", "r27_chart_cache", "", "本图缓存帧版本不符，等待重建。", "STALE_FRAME_ABI", null, null);
             Map<String, Object> m = (Map<String, Object>) parsed;
+            String latest=null;try(Cursor issue=db.rawQuery("SELECT max(issue) FROM draws WHERE dirty=0",null,cancel)){if(issue.moveToFirst())latest=issue.getString(0);}
+            String invalid=com.ethk3.novaonepro.strategyv2.ChartCacheR27.validateR31(m,latest,c.getLong(1),System.currentTimeMillis());
+            if(invalid!=null)return new Panel(PAGE,id,"STATUS","r27_chart_cache","",invalid+"；等待真实源帧重新生成。",invalid,null,null);
             List<Point> pts = new ArrayList<>();
             for (Object o : (List<Object>) m.get("points")) {
                 Map<String, Object> p = (Map<String, Object>) o; double[] stack = null;
@@ -95,9 +98,9 @@ final class ChartsRepositoryR27 {
         }
     }
     @SuppressWarnings("unchecked") static Map<String,Object> snapshotR30(SQLiteDatabase db,CancellationSignal cancel){
-        try(Cursor c=db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id='r30-charts' AND key='snapshot'",null,cancel)){
-            if(!c.moveToFirst())return null;Object parsed=JsonR27.parse(c.getString(0));if(!(parsed instanceof Map))throw new IllegalStateException("R30_CHART_PACKET_FORMAT");
-            Map<String,Object> packet=(Map<String,Object>)parsed;if(!"R30_CHART_SNAPSHOT_1".equals(packet.get("version")))throw new IllegalStateException("R30_CHART_PACKET_VERSION");return packet;
+        try(Cursor c=db.rawQuery("SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id='r30-charts' AND key='snapshot'",null,cancel)){
+            if(!c.moveToFirst())return null;String raw=c.getString(0);if(raw==null||raw.length()>2*1024*1024||raw.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>2*1024*1024)throw new IllegalStateException("R31_CHART_PACKET_BYTE_BOUND");Object parsed=JsonR27.parse(raw);if(!(parsed instanceof Map))throw new IllegalStateException("R30_CHART_PACKET_FORMAT");
+            Map<String,Object> packet=(Map<String,Object>)parsed;String latest=null;try(Cursor issue=db.rawQuery("SELECT max(issue) FROM draws WHERE dirty=0",null,cancel)){if(issue.moveToFirst())latest=issue.getString(0);}String invalid=com.ethk3.novaonepro.strategyv2.ChartCacheR27.validateR31(packet,latest,c.getLong(1),System.currentTimeMillis());if(invalid!=null)throw new IllegalStateException(invalid);if(!"R30_CHART_SNAPSHOT_1".equals(packet.get("version")))throw new IllegalStateException("R30_CHART_PACKET_VERSION");return packet;
         }catch(android.os.OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException malformed){Map<String,Object> failed=new java.util.LinkedHashMap<>();failed.put("readError",malformed.getClass().getSimpleName());return failed;}
     }
     static Panel headlineSnapshotR30(Map<String,Object> frame){
@@ -119,7 +122,7 @@ final class ChartsRepositoryR27 {
             String window=String.valueOf(panel.get("window"));Object mark=frame.get("snapshotWatermark");if(mark instanceof Map)window+="｜快照 "+((Map<?,?>)mark).get("factsSha256");
             String note=panel.get("note")+"\n"+panel.get("collectionAction");
             return new Panel(PAGE,String.valueOf(panel.get("title")),String.valueOf(panel.get("kind")),String.valueOf(panel.get("source")),window,note,String.valueOf(panel.get("status")),points,null,refs,series);
-        }catch(RuntimeException malformed){return new Panel(PAGE,id,"STATUS","r30-charts/snapshot","","快照图读取失败："+malformed.getClass().getSimpleName()+"；不按0处理。","READ_ERROR",null,null);}
+        }catch(android.os.OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException malformed){return new Panel(PAGE,id,"STATUS","r30-charts/snapshot","","快照图读取失败："+malformed.getClass().getSimpleName()+"；不按0处理。","READ_ERROR",null,null);}
     }
     /** R30-B02-05: one panel page holds at most this many points (the most recent ones); older points stay in the cache. */
     static final int POINTS_PER_PAGE_R30 = 500;

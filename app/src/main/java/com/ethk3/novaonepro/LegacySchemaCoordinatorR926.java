@@ -6,12 +6,19 @@ import android.database.sqlite.SQLiteDatabase;
 public final class LegacySchemaCoordinatorR926 {
     private LegacySchemaCoordinatorR926() {}
     public static final String MAIN_CHAIN_STEP_R31 = "LEGACY_MAIN_CHAIN_R31_V1";
-    public static final String AUDITED_RUNTIME_STEP_R31Q21 = "LEGACY_RUNTIME_R31Q21_AUDITED_V1";
+    public static final String AUDITED_RUNTIME_STEP_R31Q21 = "LEGACY_RUNTIME_UF20261112_STRICT_V2";
     public interface MainChainInitializerR31 extends DatabaseCoordinator.SchemaInitializer {
         void initializeMainChainDefaultsR31(SQLiteDatabase db) throws Exception;
     }
     public interface SlicedInitializerR31 extends MainChainInitializerR31 {
         boolean advanceRuntimeR31(SQLiteDatabase db) throws Exception;
+        default void validateRuntimeR31(SQLiteDatabase db) throws Exception {}
+    }
+
+    static void validateUnitsReadOnlyR31(SQLiteDatabase db,java.util.LinkedHashMap<String,Runnable> units) {
+        for(Runnable unit:units.values())try(LegacyDdlR31.Scope audit=new LegacyDdlR31.Scope(db,true)) {
+            try{unit.run();}finally{audit.check();}
+        }
     }
 
     /** One durable idempotent unit per writer callback. A later callback reads
@@ -27,9 +34,24 @@ public final class LegacySchemaCoordinatorR926 {
         for(java.util.Map.Entry<String,Runnable> unit:units.entrySet()){
             String step=prefix+unit.getKey();if(completed.contains(step))continue;
             SchemaDomainCoordinatorR926.markState(db,c,"INITIALIZING",step,"");
-            if(atomic)SchemaDomainCoordinatorR926.runStep(db,c,step,x->unit.getValue().run());
-            else SchemaDomainCoordinatorR926.runStepAutocommitR31(db,c,step,x->unit.getValue().run());
+            try(LegacyDdlR31.Scope slice=new LegacyDdlR31.Scope(db,false)) {
+                // Each statement is idempotent and autocommitted. Rolling a group back
+                // on yield would discard the one useful statement and never advance.
+                SchemaDomainCoordinatorR926.runStepAutocommitR31(db,c,step,x->{
+                    try { unit.getValue().run(); } finally { slice.check(); }
+                });
+            } catch(LegacyDdlR31.Pending yielded) { return false; }
             return false;
+        }
+        // An old COMPLETED journal is not an object postcondition. Reopen only
+        // the responsible group, including when a failed final VERIFY row exists.
+        for(java.util.Map.Entry<String,Runnable> unit:units.entrySet()) {
+            try(LegacyDdlR31.Scope audit=new LegacyDdlR31.Scope(db,true)) {
+                try { unit.getValue().run(); } finally { audit.check(); }
+            } catch(LegacyDdlR31.Pending drift) {
+                SchemaDomainCoordinatorR926.invalidateStepR31(db,c,prefix+unit.getKey(),drift.getMessage());
+                return false;
+            }
         }
         return true;
     }
@@ -120,16 +142,20 @@ public final class LegacySchemaCoordinatorR926 {
                 && SchemaDomainCoordinatorR926.stepComplete(db,c,MAIN_CHAIN_STEP_R31)
                 && (!(initializer instanceof SlicedInitializerR31)
                     ||SchemaDomainCoordinatorR926.stepComplete(db,c,AUDITED_RUNTIME_STEP_R31Q21))) {
-            try { requireMainChainClosedLoopReadyR31(db);return true; }
-            catch(DatabaseCoordinator.SchemaPendingR31 drift) { /* the owner repairs below */ }
+            try {
+                requireMainChainClosedLoopReadyR31(db);
+                if(initializer instanceof SlicedInitializerR31)((SlicedInitializerR31)initializer).validateRuntimeR31(db);
+                return true;
+            } catch(Exception drift) { /* strict owner audits and replays the responsible unit below */ }
         }
         try {
-            SchemaDomainCoordinatorR926.prepareRepairIfDrift(db, c);
+            // The strict unit audit below repairs its own objects. A failed final
+            // verification must not prevent a completed index unit from reopening.
             SchemaDomainCoordinatorR926.markState(db, c, "INITIALIZING", "LEGACY_RUNTIME", "");
             // A pre-021 READY stamp may have swallowed failed optional-column
             // ALTERs. Its old LEGACY_RUNTIME marker cannot skip the audited pass.
             final String runtimeStep=initializer instanceof SlicedInitializerR31?AUDITED_RUNTIME_STEP_R31Q21:"LEGACY_RUNTIME";
-            if(!SchemaDomainCoordinatorR926.stepComplete(db,c,runtimeStep)){
+            {
                 if(initializer instanceof SlicedInitializerR31){
                     if(!((SlicedInitializerR31)initializer).advanceRuntimeR31(db)){
                         owner.noteLegacySlicePendingR31("LEGACY_RUNTIME_UNIT_COMMITTED");return false;
@@ -140,7 +166,7 @@ public final class LegacySchemaCoordinatorR926 {
             // Preserve the historical marker for existing read-only consumers.
             SchemaDomainCoordinatorR926.runStepAutocommitR31(db,c,"LEGACY_RUNTIME",x->{});
             // A matching old LEGACY_RUNTIME stamp cannot skip this additive owner step.
-            if(initializer instanceof SlicedInitializerR31&&!SchemaDomainCoordinatorR926.stepComplete(db,c,MAIN_CHAIN_STEP_R31)
+            if(initializer instanceof SlicedInitializerR31
                     &&!owner.getHelper().advanceMainChainClosedLoopSchemaR31(db)){
                 owner.noteLegacySlicePendingR31("LEGACY_MAIN_CHAIN_UNIT_COMMITTED");return false;
             }

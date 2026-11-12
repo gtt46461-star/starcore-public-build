@@ -670,6 +670,7 @@ public final class DatabaseCoordinator {
         String detail=safe(reason);legacySchemaStage="SCHEMA_PENDING";
         legacySchemaError="SCHEMA_PENDING:"+detail.substring(0,Math.min(224,detail.length()));
         runtimeSchemaReady.set(false);
+        legacyVerifiedSchemaVersionR31=-1L;
     }
 
     private String legacySlicePendingR31="";
@@ -689,6 +690,8 @@ public final class DatabaseCoordinator {
 
     public boolean ensureRuntimeSchemaOnce(SQLiteDatabase migrationDb,SchemaInitializer initializer) {
         if (runtimeSchemaReady.get()) return true;
+        if(!Boolean.TRUE.equals(LEGACY_MIGRATION_OWNER_R31.get()))
+            throw new SchemaPendingR31("LEGACY_RUNTIME_SCHEMA","DEDICATED_MIGRATION_OWNER_REQUIRED");
         if (initializer == null) return false;
         try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard2 = DatabaseCoordinator.acquireWriterGuardCP3()) {
             if (runtimeSchemaReady.get()) return true;
@@ -701,6 +704,10 @@ public final class DatabaseCoordinator {
             legacySlicePendingR31="";
             boolean ready = LegacySchemaCoordinatorR926.ensure(this,
                     migrationDb==null?writable():migrationDb, initializer);
+            if(ready)try(Cursor version=(migrationDb==null?writable():migrationDb).rawQuery("PRAGMA schema_version",null)) {
+                if(!version.moveToFirst())throw new SchemaPendingR31("LEGACY_RUNTIME_SCHEMA","SCHEMA_VERSION_UNAVAILABLE");
+                legacyVerifiedSchemaVersionR31=version.getLong(0);
+            }
             runtimeSchemaReady.set(ready);
             legacySchemaCompletedAt = System.currentTimeMillis();
             legacySchemaCostMs = Math.max(0L, legacySchemaCompletedAt - started);
@@ -739,6 +746,8 @@ public final class DatabaseCoordinator {
     public boolean isLegacyRuntimeSchemaReady() {
         return runtimeSchemaReady.get();
     }
+    private volatile long legacyVerifiedSchemaVersionR31=-1L;
+    long legacyVerifiedSchemaVersionR31(){return legacyVerifiedSchemaVersionR31;}
 
     public String startupSchemaSummary() {
         return "critical="
@@ -1143,8 +1152,10 @@ public final class DatabaseCoordinator {
                 legacyDdlHandleStateR31Q = ddl == null ? "SHARED_POOL_FALLBACK"
                         : raiseBusyTimeoutR31Q(ddl) ? "DEDICATED|BUSY_TIMEOUT_2S|SAME_HANDLE_JOURNAL" : "DEDICATED|BUSY_TIMEOUT_DEFAULT|SAME_HANDLE_JOURNAL";
                 try {
+                    LEGACY_MIGRATION_OWNER_R31.set(Boolean.TRUE);
                     task.run(ddl == null ? db : ddl);
                 } finally {
+                    LEGACY_MIGRATION_OWNER_R31.remove();
                     if (ddl != null) {
                         try { ddl.close(); } catch (RuntimeException ignored) { }
                         // One DDL-typed statement on the app handle: Android drops its cached statements and
@@ -1156,6 +1167,7 @@ public final class DatabaseCoordinator {
             }
         };
     }
+    private static final ThreadLocal<Boolean> LEGACY_MIGRATION_OWNER_R31=new ThreadLocal<>();
     /**
      * R31Q 020. The dedicated handle has its own primary connection, so a same-process write that does not go
      * through this coordinator now makes its DDL wait on SQLite's file lock, and Android gives up after 2.5 s.

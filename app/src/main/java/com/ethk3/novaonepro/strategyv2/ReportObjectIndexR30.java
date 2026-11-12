@@ -35,6 +35,29 @@ public final class ReportObjectIndexR30 {
         Map<String,Object> samples=new LinkedHashMap<>();for(Object x:list(data.get("rowsetIndexes"))){Map<String,Object> row=map(x);samples.put(String.valueOf(row.get("key")),row);}out.put("boundedPayloads",samples);
         out.put("detectionExecutionRate",null);out.put("productPassRate",null);out.put("rateReason","96项检测执行率与产品通过率分开；未载入逐项检测原件不从索引覆盖率推导");return out;
     }
+    /** Production facts, original source references and six independent lifecycle layers. */
+    public static Map<String,Object> buildProductionR31(Map<String,Object> facts,Map<String,Object> watermark,Map<String,Object> data) {
+        Map<String,Object> out=build(facts,watermark,data);List<Object> entries=new ArrayList<>();
+        for(String category:new String[]{"legacyCharts","researchCharts","matrices","capabilities"}) {
+            for(Object raw:list(map(out.get(category)).get("objects"))) {
+                Map<String,Object> row=map(raw);String id=String.valueOf(row.get("objectId")),kind=String.valueOf(row.get("objectKind"));
+                Number current=number(row.get("currentSourceProducedFrames"));Map<String,Object> reference=map(row.get("runtimeReference"));
+                Boolean committed=current==null?null:current.longValue()>0?Boolean.TRUE:null;
+                if(reference.get("latestOriginalHash") instanceof String&&String.valueOf(reference.get("latestOriginalHash")).matches("[0-9a-f]{64}"))committed=Boolean.TRUE;
+                Boolean implemented=row.get("implemented") instanceof Boolean?(Boolean)row.get("implemented"):null;
+                Boolean consumed=row.get("consumed") instanceof Boolean?(Boolean)row.get("consumed"):null;
+                String card=kind.equals("MATRIX")?"R31-B08-C01":kind.equals("RESEARCH_CHART")?"R31-B08-C04":kind.equals("CAPABILITY")?"R31-B07-C01":"R31-B09-C01";
+                // A stored frame or object count does not establish finite values or an advantage.
+                Map<String,Object> layers=layersR31(new ObjectFactsR31(id,kind,card,implemented,null,committed,null,consumed,null,true));
+                layers.put("sourceSnapshot",watermark);layers.put("originalReference",reference);layers.put("inputAvailable",row.get("inputAvailable"));layers.put("deployment",row.get("callable"));
+                row.put("lifecycleR31",layers);entries.add(layers);
+            }
+        }
+        List<Object> tableRows=new ArrayList<>();for(Object raw:list(data.get("researchTablesR31"))) {
+            Map<String,Object> row=map(raw);Map<String,Object> entry=new LinkedHashMap<>(row);entry.put("objectKind","LOGICAL_TABLE");entry.put("defined",true);entry.put("consumer","ResearchTablesActivityR31 / ReportR29.document");tableRows.add(entry);
+        }
+        out.put("logicalTables",category(16,tableRows));out.put("lifecycleEntriesR31",entries);out.put("schemaVersion","R31_PRODUCTION_OBJECT_INDEX_1");out.put("diagnosisScope",DIAGNOSIS_SCOPE_R31);return out;
+    }
     public static final String SCHEMA="R30_REPAIR_OBJECT_INDEX_1";
     /** R31-B09-C01: the chart ids this report indexes (29 legacy + 18 research); must equal ChartRegistryR31.ids(). */
     public static List<String> chartIdsR31(){List<String> out=new ArrayList<>();for(String raw:new String[]{OLD_CHARTS,RESEARCH_CHARTS})for(Object o:(List<?>)JsonR27.parse(raw))out.add(String.valueOf(((Map<?,?>)o).get("id")));return Collections.unmodifiableList(out);}

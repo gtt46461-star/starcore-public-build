@@ -115,7 +115,7 @@ public final class MainlineBridgeSU2 {
         ProjectionR30 out=new ProjectionR30();
         String choice=null;
         // R31-B10-C01: the explanation reads the same single authorization path as the request lane.
-        try{MainlineChoiceStoreR31.Authorization auth=MainlineChoiceStoreR31.authorizedChoice(db,now);choice=auth.policyHash;out.sources.put("mainlineAuthorityR31",auth.mode+":"+auth.reason);}
+        try{MainlineChoiceStoreR31.Authorization auth=MainlineChoiceStoreR31.authorizedChoice(db,now,seq);choice=auth.policyHash;out.sources.put("mainlineAuthorityR31",auth.mode+":"+auth.reason);}
         catch(RuntimeException missing){out.sources.put("r27ChoiceSource","UNKNOWN:"+missing.getClass().getSimpleName());}
         if(choice!=null&&!choice.isEmpty()&&(actualCandidate==null||actualCandidate.equals(choice)||actualCandidate.equals("R27:"+choice))) {
             out.member="R27:"+choice;out.candidate=choice;out.sources.put("lane","R27_REQUEST_ONLY");
@@ -162,7 +162,7 @@ public final class MainlineBridgeSU2 {
     static Intent r27Intent(SQLiteDatabase db, long seq) {
         String choice; long now = System.currentTimeMillis();
         // R31-B10-C01: one authorization path (legacy projection only while it agrees with the typed row, then typed only).
-        try { MainlineChoiceStoreR31.Authorization auth = MainlineChoiceStoreR31.authorizedChoice(db, now); choice = auth.policyHash; }
+        try { MainlineChoiceStoreR31.Authorization auth = MainlineChoiceStoreR31.authorizedChoice(db, now,seq); choice = auth.policyHash; }
         catch (RuntimeException schemaPending) { return null; }
         if (choice == null || choice.startsWith("PRODUCTION_FALLBACK")) return null;
         try (Cursor c = db.rawQuery(R27_INTENT_SQL, new String[] {choice, String.valueOf(seq), String.valueOf(now), SequentialQualificationR27.QUALIFIED})) {

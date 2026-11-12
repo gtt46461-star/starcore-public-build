@@ -17,7 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 IDENTITY = ROOT / 'release/release_identity.properties'
 # The phone's installed build (device report of the R31 plan: R30-REPAIR1) and its signer, the R27 CI key.
-INSTALLED = {'package': 'com.starcore.research.r13', 'versionCode': 577311009, 'versionName': 'R30-REPAIR1-2026.11.02-009',
+INSTALLED = {'package': 'com.starcore.research.r13', 'versionCode': 577311020, 'versionName': 'R31-CHECKPOINT-P01-2026.11.12-020',
              'signerCertSha256': 'd8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'}
 
 
@@ -80,7 +80,7 @@ def _layers(verification):
     }
 
 
-def create_delivery(built, verification_path, out, ident=None):
+def create_delivery(built, verification_path, out, ident=None, acceptance_dir=None):
     ident = ident or identity()
     built, out = Path(built), Path(out); out.mkdir(parents=True, exist_ok=True)
     try:
@@ -117,7 +117,16 @@ def create_delivery(built, verification_path, out, ident=None):
         members = {name + '.apk': apk.read_bytes(), 'R31_DELIVERY.json': (json.dumps(delivery, indent=1, ensure_ascii=False) + '\n').encode(),
                    'R31_VERIFICATION_RECEIPT.json': Path(verification_path).read_bytes(),
                    'README.txt': ('安装 %s.apk（%s）。工程通过与自然质量分栏：自然优势 NOT_PROVEN；真机 24h/72h NOT_RUN。\n' % (name,
-                       'official signing' if official else ('与手机已装 R30-REPAIR1 同包名同签名（R27 CI 证书 d8d8cee7…），versionCode 更高，可直接覆盖安装并保留数据；不是正式 R13 签名' if overlay['overlayInstallKeepsData'] else 'debug key, not the official identity; cannot overlay the installed app'))).encode()}
+                       'official signing' if official else ('与手机已装 R31 577311020 同包名同签名（R27 CI 证书 d8d8cee7…），versionCode 更高，可直接覆盖安装并保留数据；不是正式 R13 签名' if overlay['overlayInstallKeepsData'] else 'debug key, not the official identity; cannot overlay the installed app'))).encode()}
+        if acceptance_dir is not None:
+            acceptance_dir=Path(acceptance_dir)
+            need((acceptance_dir/'ACCEPTANCE_RESULTS.json').is_file() and (acceptance_dir/'ACCEPTANCE_RESULTS.csv').is_file(),'R31_DELIVERY_ITEMIZED_ACCEPTANCE_MISSING')
+            itemized=json.loads((acceptance_dir/'ACCEPTANCE_RESULTS.json').read_text())
+            need(itemized['identity']['source_head']==commit,'R31_DELIVERY_ITEMIZED_ACCEPTANCE_SOURCE_MISMATCH')
+            need(len(itemized['items'])==222 and len(itemized['cards'])==58,'R31_DELIVERY_ITEMIZED_ACCEPTANCE_SET')
+            for filename in ['ACCEPTANCE_RESULTS.json','ACCEPTANCE_RESULTS.csv']:members['acceptance/'+filename]=(acceptance_dir/filename).read_bytes()
+            delivery['itemizedAcceptance']={'items':222,'cards':58,'bindingResults':itemized['itemCounts'],'wholeProductClosure':'NOT_INFERRED_FROM_ENGINEERING_TESTS'}
+            members['R31_DELIVERY.json']=(json.dumps(delivery,indent=1,ensure_ascii=False)+'\n').encode()
         sums = ''.join('%s  %s\n' % (sha256(v), k) for k, v in sorted(members.items()))
         members['SHA256SUMS.txt'] = sums.encode()
         z = out / (name + '.zip')
@@ -156,11 +165,11 @@ def verify_zip(path, ident=None):
 
 def main():
     ap = argparse.ArgumentParser(); sub = ap.add_subparsers(dest='cmd', required=True)
-    c = sub.add_parser('create'); c.add_argument('--built', required=True); c.add_argument('--verification', required=True); c.add_argument('--out', required=True)
+    c = sub.add_parser('create'); c.add_argument('--built', required=True); c.add_argument('--verification', required=True); c.add_argument('--out', required=True);c.add_argument('--acceptance',default=None)
     v = sub.add_parser('verify'); v.add_argument('zip')
     a = ap.parse_args()
     try:
-        if a.cmd == 'create': create_delivery(a.built, a.verification, a.out)
+        if a.cmd == 'create': create_delivery(a.built, a.verification, a.out,acceptance_dir=a.acceptance)
         else: print(json.dumps(verify_zip(a.zip), ensure_ascii=False)[:2000])
     except Refused:
         sys.exit(1)

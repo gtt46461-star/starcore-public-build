@@ -334,6 +334,8 @@ public final class ResearchPoolR27 implements AutoCloseable {
         }finally{synchronized(this){running.put(task,false);}}
     }
     private void invalidateDraftR31(String task){RuntimeR27 runtime=RuntimeR27.active();if(runtime!=null&&runtime.pool()==this)runtime.invalidateTaskDraftR31(task);}
+    private static final java.util.concurrent.atomic.AtomicLong RECOVERY_FAILURES_R31=new java.util.concurrent.atomic.AtomicLong();
+    private static volatile RuntimeFaultEvidenceR31 lastRecoveryFailureR31;
     private static final java.util.concurrent.atomic.AtomicLong RECOVERY_POLL_R31=new java.util.concurrent.atomic.AtomicLong();
     /** One fenced half-open probe per second, shared by R26 and R27, driven by a boot-scoped clock. */
     static void recoverOneR31(DbStore store,String owner){
@@ -356,7 +358,15 @@ public final class ResearchPoolR27 implements AutoCloseable {
                     return 1;
                 }
             }return 0;
-        });}catch(RuntimeException unavailable){/* Pending schema/busy remains observable in task rows; no recursive fault receipt. */}
+        });}catch(RuntimeException unavailable){
+            RECOVERY_FAILURES_R31.incrementAndGet();
+            final RuntimeFaultEvidenceR31 evidence=RuntimeFaultEvidenceR31.capture(unavailable,"R31_TASK_RECOVERY_CONTROL");lastRecoveryFailureR31=evidence;
+            // One independent best-effort telemetry transaction; failure only updates
+            // the existing dropped-observation counter, never calls recovery again.
+            try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.TELEMETRY,"R31_RUNTIME_OBSERVATION"),db->{
+                persistFaultR31(db,"R31_RECOVERY_CONTROL",owner,null,"RECOVERY_CONTROL",evidence,System.currentTimeMillis(),SystemClock.elapsedRealtime());return 0;
+            });}catch(RuntimeException telemetryUnavailable){TELEMETRY_DROPPED_R31.incrementAndGet();}
+        }
     }
     public boolean quarantined(String id) {
         try (Cursor c = store.readable().rawQuery("SELECT 1 FROM r26_task WHERE task_id=? AND status=?", new String[] {id, WaitKindR27.QUARANTINED})) { return c.moveToFirst(); }
@@ -438,6 +448,8 @@ public final class ResearchPoolR27 implements AutoCloseable {
         out.put("observationEpoch", OBSERVATION_EPOCH_R31);
         out.put("telemetry_incomplete", TELEMETRY_DROPPED_R31.get() > 0 || FAULT_SAMPLES_DROPPED_R31.get() > 0 || RECEIPTS_FAILED_R31.get() > 0);
         out.put("observationWritesFailed", TELEMETRY_DROPPED_R31.get());
+        out.put("recoveryControlFailures",RECOVERY_FAILURES_R31.get());
+        RuntimeFaultEvidenceR31 recovery=lastRecoveryFailureR31;if(recovery!=null){Map<String,Object> failure=new java.util.LinkedHashMap<>();failure.put("category",recovery.category);failure.put("phase",recovery.phase);failure.put("causeChainJson",recovery.causeChainJson);failure.put("stack",recovery.stack);failure.put("fingerprint",recovery.fingerprint);out.put("lastRecoveryControlFailure",failure);}
         out.put("taskReceiptsFailed", RECEIPTS_FAILED_R31.get());
         out.put("faultSamplesDropped", FAULT_SAMPLES_DROPPED_R31.get());
         return out;

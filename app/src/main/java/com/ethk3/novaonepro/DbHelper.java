@@ -2039,7 +2039,7 @@ public final class DbHelper extends SQLiteOpenHelper {
      * The final defaults/verification stamp is still one atomic owner step. */
     public boolean advanceMainChainClosedLoopSchemaR31(SQLiteDatabase db) throws Exception {
         SchemaDomainCoordinatorR926.verifyObjects(db,SchemaDomainCoordinatorR926.criticalContract());
-        return LegacySchemaCoordinatorR926.advanceUnitsR31(db,"R31Q21_MAIN_",mainChainUnitsR31(db),true);
+        return LegacySchemaCoordinatorR926.advanceUnitsR31(db,"R31UF_MAIN_",mainChainUnitsR31(db),false);
     }
 
     private java.util.LinkedHashMap<String,Runnable> mainChainUnitsR31(final SQLiteDatabase db) {
@@ -2084,7 +2084,7 @@ public final class DbHelper extends SQLiteOpenHelper {
         for(String definition:definitions) {
             String column=definition.substring(0,definition.indexOf(' '));
             if(!present.contains(column)) {
-                db.execSQL("ALTER TABLE \""+table+"\" ADD COLUMN "+definition);
+                LegacyDdlR31.exec(db,"ALTER TABLE \""+table+"\" ADD COLUMN "+definition);
                 present.add(column);
             }
         }
@@ -6835,12 +6835,7 @@ public final class DbHelper extends SQLiteOpenHelper {
     }
 
     private void execQuiet(SQLiteDatabase db, String sql) {
-        try {
-            db.execSQL(sql);
-        } catch (Throwable e) {
-            Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(e);
-            if(fatal!=null)throw fatal;
-        }
+        LegacyDdlR31.exec(db, sql);
     }
 
     private String quote(String value) {
@@ -7797,7 +7792,7 @@ public final class DbHelper extends SQLiteOpenHelper {
                     + TABLE_B03_REPLAY_AUDIT
                     + "(game_code,target_issue,created_at)"
         };
-        for (int i = 0; i < sql.length; i++) db.execSQL(sql[i]);
+        for (int i = 0; i < sql.length; i++) LegacyDdlR31.exec(db,sql[i]);
     }
 
     private static void createB03ImmutableTriggers(SQLiteDatabase db) {
@@ -7812,26 +7807,26 @@ public final class DbHelper extends SQLiteOpenHelper {
         };
         for (int i = 0; i < tables.length; i++) {
             String t = tables[i];
-            db.execSQL(
+            LegacyDdlR31.exec(db,
                     "CREATE TRIGGER IF NOT EXISTS trg_"
                             + t
                             + "_no_delete BEFORE DELETE ON "
                             + t
                             + " BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_DELETE'); END");
-            db.execSQL(
+            LegacyDdlR31.exec(db,
                     "CREATE TRIGGER IF NOT EXISTS trg_"
                             + t
                             + "_no_update BEFORE UPDATE ON "
                             + t
                             + " BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_UPDATE'); END");
         }
-        db.execSQL(
+        LegacyDdlR31.exec(db,
                 "CREATE TRIGGER IF NOT EXISTS trg_"
                         + TABLE_B03_DRAW_QUARANTINE
                         + "_no_delete BEFORE DELETE ON "
                         + TABLE_B03_DRAW_QUARANTINE
                         + " BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_DELETE'); END");
-        db.execSQL(
+        LegacyDdlR31.exec(db,
                 "CREATE TRIGGER IF NOT EXISTS trg_"
                         + TABLE_B03_DRAW_QUARANTINE
                         + "_no_update BEFORE UPDATE ON "

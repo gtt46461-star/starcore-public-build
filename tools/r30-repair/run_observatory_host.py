@@ -5,7 +5,7 @@ sdk=pathlib.Path(os.environ['ANDROID_HOME'])/'platforms/android-36/android.jar';
 def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
 with tempfile.TemporaryDirectory(prefix='repair-observatory-host-') as temporary:
  out=pathlib.Path(temporary);shim=out/'shim';shim.mkdir();test=out/'test';test.mkdir();log=out/'Log.java';log.write_text('package android.util;public final class Log{public static int w(String t,String v){return 0;}public static int w(String t,String v,Throwable e){return 0;}public static int e(String t,String v){return 0;}}')
- run(['javac','-nowarn','-encoding','UTF-8','-d',shim,*sorted((root/'tools/r29/qual_host/shim').rglob('*.java')),log])
+ run(['javac','-nowarn','-encoding','UTF-8','-cp',sdk,'-d',shim,*sorted((root/'tools/r29/qual_host/shim').rglob('*.java')),log])
  cp=os.pathsep.join(map(str,[shim,classes,sdk]))
  run(['javac','-nowarn','-encoding','UTF-8','-cp',cp,'-d',test,root/'tools/r30-repair/qual_host/RepairObservatoryR30HostTest.java'])
  cp=os.pathsep.join(map(str,[shim,test,classes,jdbc,sdk]))

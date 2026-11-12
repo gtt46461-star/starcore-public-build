@@ -13,7 +13,7 @@ import java.util.*;
  */
 public final class EvidenceReachabilityR31 {
     private EvidenceReachabilityR31() {}
-    public enum RootKind { CURRENT_MODEL, ROLLBACK_MODEL, PENDING_FREEZE, OPEN_TASK, OPEN_VALIDATION, SHARE, MIGRATION }
+    public enum RootKind { CURRENT_MODEL, ROLLBACK_MODEL, PENDING_FREEZE, OPEN_TASK, OPEN_VALIDATION, SHARE, MIGRATION, PERSISTED_REFERENCE }
     public static final Map<RootKind, String> RELEASE_CONDITION;
     static {
         Map<RootKind, String> m = new EnumMap<>(RootKind.class);
@@ -24,6 +24,7 @@ public final class EvidenceReachabilityR31 {
         m.put(RootKind.OPEN_VALIDATION, "THE_VALIDATION_SEGMENT_IS_COMPLETED");
         m.put(RootKind.SHARE, "THE_SHARE_IS_REVOKED_OR_EXPIRES");
         m.put(RootKind.MIGRATION, "THE_MIGRATION_COMMITS_ITS_COVERAGE_RECEIPT");
+        m.put(RootKind.PERSISTED_REFERENCE,"THE_ORIGINAL_OWNER_RETIRES_ITS_REFERENCE_UNDER_THE_EXISTING_ROLLBACK_AND_EVIDENCE_POLICY");
         RELEASE_CONDITION = Collections.unmodifiableMap(m);
     }
     public interface Graph {

@@ -50,8 +50,10 @@ public final class R31MetricReportTest {
         Map<String, Object> r = MetricEvaluatorR29.crossSourceR31(fixture);
         assertEquals("the report that claimed 0 conflicts hides a stale/scope difference", "STALE_OR_SCOPE_CONFLICT", r.get("status"));
         assertEquals(false, r.get("settlementStoppedInferred")); assertEquals(3, ((List<?>) r.get("sources")).size());
-        assertEquals("different roles/owners on the same scope and watermark agree", "CONSISTENT", MetricEvaluatorR29.crossSourceR31(fixture.subList(1, 3)).get("status"));
-        List<MetricEvaluatorR29.SourceValueR31> contradiction = Arrays.asList(fixture.get(1), new MetricEvaluatorR29.SourceValueR31("RSEC-305", "R923", "REPORT", "SETTLEMENT_TASKS", 1793664653944L, "202611030010", "202611030009"));
+        assertEquals("different sample roles stay incomparable even when values agree", "STALE_OR_SCOPE_CONFLICT", MetricEvaluatorR29.crossSourceR31(fixture.subList(1, 3)).get("status"));
+        MetricEvaluatorR29.SourceValueR31 reportSameRole=new MetricEvaluatorR29.SourceValueR31("RSEC-305", "R923", "SETTLEMENT", "SETTLEMENT_TASKS", 1793664653944L, "202611030010", "202611030010");
+        assertEquals("same role/scope/watermark from independent owners agrees", "CONSISTENT", MetricEvaluatorR29.crossSourceR31(Arrays.asList(fixture.get(1),reportSameRole)).get("status"));
+        List<MetricEvaluatorR29.SourceValueR31> contradiction = Arrays.asList(fixture.get(1), new MetricEvaluatorR29.SourceValueR31("RSEC-305", "R923", "SETTLEMENT", "SETTLEMENT_TASKS", 1793664653944L, "202611030010", "202611030009"));
         assertEquals("VALUE_CONFLICT_SAME_SCOPE_AND_WATERMARK", MetricEvaluatorR29.crossSourceR31(contradiction).get("status"));
         try { MetricEvaluatorR29.crossSourceR31(Collections.singletonList(new MetricEvaluatorR29.SourceValueR31("x", "", "r", "s", 1, "w", "v"))); fail(); } catch (IllegalArgumentException e) { assertEquals("R31_M32_SOURCE_FIELDS_REQUIRED:x", e.getMessage()); }
     }

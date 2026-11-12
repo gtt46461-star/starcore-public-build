@@ -14,7 +14,7 @@ test -f "$ANDROID_HOME/platforms/android-36/android.jar" || { echo "R312_HOST_AN
 export GRADLE_USER_HOME="${GRADLE_USER_HOME:-$HOME/.gradle}"
 JDBC="$CACHE/sqlite-jdbc-3.46.1.3.jar"
 if [ ! -f "$JDBC" ]; then
-  curl -fLsS --retry 4 --connect-timeout 15 --max-time 120 -o "$JDBC.tmp" https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.46.1.3/sqlite-jdbc-3.46.1.3.jar
+  curl -fLsS --retry 4 --connect-timeout 15 --max-time 120 -o "$JDBC.tmp" https://repo.maven.apache.org/maven2/org/xerial/sqlite-jdbc/3.46.1.3/sqlite-jdbc-3.46.1.3.jar
   mv "$JDBC.tmp" "$JDBC"
 fi
 echo "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa  $JDBC" | sha256sum -c - >/dev/null
@@ -45,6 +45,9 @@ case "$id" in
   run_runtime_health_host) R31_RUNTIME_HOST_CLASS=R31RuntimeHealthHost R31_RUNTIME_OUTPUT="app/build/r312-host/$id-receipt" exec python3 tools/r31/run_task_runtime_host.py ;;
   run_resource_recovery_consumer_host) R31_RUNTIME_HOST_CLASS=R31ResourceRecoveryConsumerHost R31_RUNTIME_OUTPUT="app/build/r312-host/$id-receipt" exec python3 tools/r31/run_task_runtime_host.py ;;
   run_storage_report_host) R31_STORAGE_OUT="$OUT" exec bash tools/r31/storage_host/run_storage_report_host.sh ;;
+  run_unified_migration_host) exec python3 tools/r31/run_unified_migration_host.py --out "$OUT" ;;
+  run_r31q_lock_regression) R31Q_OUTPUT="$OUT" exec python3 tools/r31/run_r31q_lock_regression.py ;;
+  test_current_acceptance) exec python3 tools/r31/test_current_acceptance.py ;;
   run_upgrade_matrix_host) exec python3 tools/r31/upgrade_matrix.py --out "$OUT" ;;
   run_full_chain_fault_host) exec python3 tools/r31/run_full_chain_fault_host.py --out "$OUT" ;;
   r31_verification_receipt_selftest) exec python3 tools/r31/test_verification_receipt.py ;;

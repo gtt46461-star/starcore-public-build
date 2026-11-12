@@ -19,5 +19,6 @@ public interface Cursor extends java.io.Closeable {
     boolean isNull(int i);
     int getCount();
     default int getColumnCount() { throw new UnsupportedOperationException("HOST_CURSOR_COLUMN_METADATA_UNAVAILABLE"); }
+    default String getColumnName(int column) { throw new UnsupportedOperationException("HOST_CURSOR_COLUMN_METADATA_UNAVAILABLE"); }
     void close();
 }

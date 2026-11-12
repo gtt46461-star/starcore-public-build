@@ -39,7 +39,7 @@ public final class StorageBudgetR31 {
         public String failureCategory(){switch(reason){
             case "STALE_RESERVATION":case "OWNER_CLOSED":return "STALE_OWNER";
             case "CANCELLED":return "CANCELLED";
-            case "COORDINATOR_BUSY":case "CONFIG_CHANGED_WITH_ACTIVE_OWNER":case "SCOPE_ALREADY_OWNED":case "RESERVATION_CAPACITY":case "CENSUS_INCOMPLETE":case "ALLOCATED_BYTES_UNKNOWN":case "BLOCKED_PROTECTED_DEBT":case "FREE_SPACE_RESERVE":case "OWNER_LEASE_BUSY":case "SPACE_MEASUREMENT_UNKNOWN":case "WRITE_BOUND_EXCEEDED":case "PHYSICAL_GROWTH_BOUND":case "SCOPE_ENTRY_BUDGET":case "SCOPE_DEPTH_BUDGET":return "DEPENDENCY";
+            case "CENSUS_STALE":case "COORDINATOR_BUSY":case "CONFIG_CHANGED_WITH_ACTIVE_OWNER":case "SCOPE_ALREADY_OWNED":case "RESERVATION_CAPACITY":case "CENSUS_INCOMPLETE":case "ALLOCATED_BYTES_UNKNOWN":case "BLOCKED_PROTECTED_DEBT":case "FREE_SPACE_RESERVE":case "OWNER_LEASE_BUSY":case "SPACE_MEASUREMENT_UNKNOWN":case "WRITE_BOUND_EXCEEDED":case "PHYSICAL_GROWTH_BOUND":case "SCOPE_ENTRY_BUDGET":case "SCOPE_DEPTH_BUDGET":return "DEPENDENCY";
             default:return "BUG";
         }}
         public String operation(){return admissionOperation;}public String phase(){return "STORAGE_ADMISSION";}
@@ -87,16 +87,39 @@ public final class StorageBudgetR31 {
         return reserve(owner,fence,category,relativeScope,maximumGrowth,maximumGrowth,transientWork);
     }
     private <T>T lockedContext(String owner,long fence,String operation,Work<T> work)throws IOException{try{return locked(work);}catch(Rejected rejected){throw rejected.context(owner,fence,operation);}}
+    /** Census never runs under admission.lock. The commit checks the exact ledger
+     * generation and scope set sampled before traversal; stale measurements fail closed. */
+    private final class CensusTicket {
+        long generation,started=System.nanoTime();List<String> scopes;StorageCensusSU2.Census census;
+        void validate(State state)throws IOException {
+            if(state.generation!=generation || System.nanoTime()-started>java.util.concurrent.TimeUnit.SECONDS.toNanos(30))
+                throw new Rejected("CENSUS_STALE");
+        }
+    }
+    private CensusTicket measureOutside(String extra)throws IOException {
+        CensusTicket ticket=locked(state->{CensusTicket t=new CensusTicket();t.generation=state.generation;t.scopes=new ArrayList<>();
+            for(Row row:state.active.values())t.scopes.add(row.scope);if(extra!=null&&!t.scopes.contains(extra))t.scopes.add(extra);return t;});
+        ticket.census=StorageCensusSU2.measure(root,ticket.scopes);
+        if(Thread.currentThread().isInterrupted())throw new Rejected("CANCELLED");
+        // A diagnostic snapshot must still expose incomplete/unknown allocation.
+        // reserve/ensureAdditional check completeness under their commit lease
+        // and continue to refuse every write admission from that measurement.
+        return ticket;
+    }
+    private CensusTicket measureOutsideContextR31(String owner,long fence,String operation,String scope)throws IOException {
+        try{return measureOutside(scope);}catch(Rejected rejected){throw rejected.context(owner,fence,operation);}
+    }
     public Reservation reserve(String owner,long fence,Category category,String relativeScope,long maximumGrowth,long maximumWritten,boolean transientWork)throws IOException{
         if(owner==null||owner.isEmpty()||owner.length()>160||fence<0||category==null||maximumGrowth<1||maximumWritten<maximumGrowth)throw new IllegalArgumentException("STORAGE_RESERVATION");
         final File scope=inside(root,relativeScope);final String relative=scope.getPath().substring(root.getPath().length()+1);
         if(Thread.currentThread().isInterrupted())throw new Rejected("CANCELLED").context(owner,fence,"RESERVE");
+        try{recoverReservations();}catch(Rejected rejected){throw rejected.context(owner,fence,"RESERVE");}
+        final CensusTicket ticket=measureOutsideContextR31(owner,fence,"RESERVE",relative);
         return lockedContext(owner,fence,"RESERVE",state->{
-            recoverWithin(state);
+            ticket.validate(state);
             for(Row row:state.active.values())if(overlap(row.scope,relative))throw new Rejected("SCOPE_ALREADY_OWNED");
             if(state.active.size()>=MAX_ACTIVE)throw new Rejected("RESERVATION_CAPACITY");
-            List<String> scopes=new ArrayList<>();for(Row row:state.active.values())scopes.add(row.scope);scopes.add(relative);
-            StorageCensusSU2.Census census=StorageCensusSU2.measure(root,scopes);
+            StorageCensusSU2.Census census=ticket.census;
             if(census.truncated)throw new Rejected("CENSUS_INCOMPLETE");if(config.requireAllocated&&!census.allocatedBytesKnown)throw new Rejected("ALLOCATED_BYTES_UNKNOWN");
             long outstanding=0;for(Row row:state.active.values()){
                 long measured=censusAccounted(census,row.scope);long growth=Math.max(0,measured-row.baseline);
@@ -105,7 +128,7 @@ public final class StorageBudgetR31 {
             }
             long limit=transientWork?config.transientHard:config.normalHard;
             if(add(add(add(censusAccounted(census,null),outstanding),maximumGrowth),config.metadataHeadroom)>limit)throw new Rejected("BLOCKED_PROTECTED_DEBT");
-            long available=available();if(add(add(outstanding,maximumGrowth),config.freeFloor)>available)throw new Rejected("FREE_SPACE_RESERVE");
+            long available=available();if(add(add(add(outstanding,maximumGrowth),config.freeFloor),config.metadataHeadroom)>available)throw new Rejected("FREE_SPACE_RESERVE");
             String id=sha((owner+"|"+fence+"|"+relative+"|"+UUID.randomUUID()).getBytes(StandardCharsets.UTF_8));File leaseFile=inside(directory,id+".lease");
             RandomAccessFile io=new RandomAccessFile(leaseFile,"rw");FileLock lifetime=null;
             try{
@@ -123,28 +146,30 @@ public final class StorageBudgetR31 {
         /** Durable admission before the chunk is written. A failed write stays charged until measured reconciliation. */
         public synchronized void beforeChunk(long bytes)throws IOException{
             if(Thread.currentThread().isInterrupted())throw new Rejected("CANCELLED").context(owner,fence,"BEFORE_CHUNK");if(bytes<0)throw new IllegalArgumentException("STORAGE_CHUNK");if(closed||!lifetime.isValid())throw new Rejected("OWNER_CLOSED").context(owner,fence,"BEFORE_CHUNK");if(bytes==0)return;
+            boolean needsMeasurement=owned("CHUNK_PREFLIGHT",state->{Row row=require(state);return add(add(Math.max(0,row.observed-row.baseline),row.charged-row.observedCharged),bytes)>row.bound;});
+            if(needsMeasurement)reconcile();
             owned("BEFORE_CHUNK",state->{Row row=require(state);if(bytes>row.writeBound-row.charged)throw new Rejected("WRITE_BOUND_EXCEEDED");
                 long upper=add(Math.max(0,row.observed-row.baseline),row.charged-row.observedCharged);
-                if(add(upper,bytes)>row.bound){row.observed=accountedScopeBytes(inside(root,row.scope));row.observedCharged=row.charged;upper=Math.max(0,row.observed-row.baseline);}
                 if(add(upper,bytes)>row.bound)throw new Rejected("PHYSICAL_GROWTH_BOUND");
-                if(add(bytes,config.freeFloor)>available())throw new Rejected("FREE_SPACE_RESERVE");
+                if(add(add(bytes,config.freeFloor),config.metadataHeadroom)>available())throw new Rejected("FREE_SPACE_RESERVE");
                 row.charged=add(row.charged,bytes);writeState(state);return null;
             });
         }
         /** Reserve a measured next phase before materialization; no physical bytes are reclaimed here. */
         public synchronized void ensureAdditional(long futureBytes,long maximumWritten,boolean transientWork)throws IOException{
             if(closed)throw new Rejected("OWNER_CLOSED").context(owner,fence,"NEXT_PHASE");if(futureBytes<0||maximumWritten<0)throw new IllegalArgumentException("STORAGE_PHASE_BYTES");if(Thread.currentThread().isInterrupted())throw new Rejected("CANCELLED").context(owner,fence,"NEXT_PHASE");
-            owned("NEXT_PHASE",state->{Row own=require(state);List<String> scopes=new ArrayList<>();for(Row row:state.active.values())scopes.add(row.scope);
-                StorageCensusSU2.Census census=StorageCensusSU2.measure(root,scopes);if(census.truncated)throw new Rejected("CENSUS_INCOMPLETE");if(config.requireAllocated&&!census.allocatedBytesKnown)throw new Rejected("ALLOCATED_BYTES_UNKNOWN");
+            final CensusTicket ticket=measureOutsideContextR31(owner,fence,"NEXT_PHASE",null);
+            owned("NEXT_PHASE",state->{ticket.validate(state);Row own=require(state);
+                StorageCensusSU2.Census census=ticket.census;if(census.truncated)throw new Rejected("CENSUS_INCOMPLETE");if(config.requireAllocated&&!census.allocatedBytesKnown)throw new Rejected("ALLOCATED_BYTES_UNKNOWN");
                 long pending=0,ownActual=censusAccounted(census,own.scope),growth=Math.max(0,ownActual-own.baseline),target=Math.max(own.bound,add(growth,futureBytes));
                 for(Row row:state.active.values()){long actual=censusAccounted(census,row.scope),used=Math.max(0,actual-row.baseline);if(used>row.bound)throw new Rejected("EXISTING_OWNER_EXCEEDED_BOUND");pending=add(pending,(row==own?target:row.bound)-used);}
                 if(add(add(censusAccounted(census,null),pending),config.metadataHeadroom)>(transientWork?config.transientHard:config.normalHard))throw new Rejected("BLOCKED_PROTECTED_DEBT");
-                if(add(pending,config.freeFloor)>available())throw new Rejected("FREE_SPACE_RESERVE");own.bound=target;own.writeBound=Math.max(own.writeBound,Math.max(target,maximumWritten));own.observed=ownActual;own.observedCharged=own.charged;writeState(state);return null;
+                if(add(add(pending,config.freeFloor),config.metadataHeadroom)>available())throw new Rejected("FREE_SPACE_RESERVE");own.bound=target;own.writeBound=Math.max(own.writeBound,Math.max(target,maximumWritten));own.observed=ownActual;own.observedCharged=own.charged;writeState(state);return null;
             });
         }
         public synchronized long maximumGrowthBytes()throws IOException{if(closed)throw new Rejected("OWNER_CLOSED").context(owner,fence,"OBSERVE_RESERVATION");return owned("OBSERVE_RESERVATION",state->require(state).bound);}
         public synchronized void reconcile()throws IOException{
-            if(closed)throw new Rejected("OWNER_CLOSED").context(owner,fence,"RECONCILE");owned("RECONCILE",state->{Row row=require(state);row.observed=accountedScopeBytes(inside(root,row.scope));row.observedCharged=row.charged;if(Math.max(0,row.observed-row.baseline)>row.bound)throw new Rejected("PHYSICAL_GROWTH_BOUND");writeState(state);return null;});
+            if(closed)throw new Rejected("OWNER_CLOSED").context(owner,fence,"RECONCILE");final long measured=accountedScopeBytes(inside(root,scope));owned("RECONCILE",state->{Row row=require(state);row.observed=measured;row.observedCharged=row.charged;if(Math.max(0,row.observed-row.baseline)>row.bound)throw new Rejected("PHYSICAL_GROWTH_BOUND");writeState(state);return null;});
         }
         /** Native backup reserves a worst-case page chunk first; only a measured unwritten remainder is refunded. */
         public synchronized void refundUnwritten(long admitted,long actualGrowth)throws IOException{
@@ -159,7 +184,7 @@ public final class StorageBudgetR31 {
         /** Caller invokes only after its actual streams/native work have terminated, never from Future.cancel(). */
         public synchronized void close()throws IOException{
             if(closed)return;IOException failure=null;
-            try{owned("FINISH",state->{Row row=require(state);long actual=accountedScopeBytes(inside(root,row.scope));boolean exceeded=Math.max(0,actual-row.baseline)>row.bound;state.active.remove(id);receipt(state,row,exceeded?"FINISHED_BOUND_EXCEEDED_FILES_PRESERVED":"FINISHED",actual);writeState(state);if(exceeded)throw new Rejected("FINISHED_PHYSICAL_GROWTH_BOUND_EXCEEDED");return null;});}
+            try{final long measured=accountedScopeBytes(inside(root,scope));owned("FINISH",state->{Row row=require(state);long actual=measured;boolean exceeded=Math.max(0,actual-row.baseline)>row.bound;state.active.remove(id);receipt(state,row,exceeded?"FINISHED_BOUND_EXCEEDED_FILES_PRESERVED":"FINISHED",actual);writeState(state);if(exceeded)throw new Rejected("FINISHED_PHYSICAL_GROWTH_BOUND_EXCEEDED");return null;});}
             catch(IOException error){failure=error;}
             finally{closed=true;OPEN.remove(key);try{lifetime.release();}catch(IOException error){if(failure==null)failure=error;else failure.addSuppressed(error);}try{io.close();}catch(IOException error){if(failure==null)failure=error;else failure.addSuppressed(error);}File leaseFile=new File(key);if(leaseFile.exists()&&!leaseFile.delete()){IOException error=new IOException("STORAGE_OWNER_METADATA_CLEANUP_PENDING");if(failure==null)failure=error;else failure.addSuppressed(error);}}
             if(failure!=null)throw failure;
@@ -172,13 +197,16 @@ public final class StorageBudgetR31 {
             File file=inside(directory,row.id+".lease");if(OPEN.contains(file.getCanonicalPath()))continue;
             boolean recovered=false;try(RandomAccessFile io=new RandomAccessFile(file,"rw")){
                 FileLock lock;try{lock=io.getChannel().tryLock();}catch(OverlappingFileLockException busy){continue;}if(lock==null)continue;
-                try{long physical=accountedScopeBytes(inside(root,row.scope));state.active.remove(row.id);receipt(state,row,"RECOVERED_OWNER_TERMINATED_FILES_PRESERVED",physical);count++;recovered=true;}finally{lock.release();}
+                try{state.active.remove(row.id);receipt(state,row,"RECOVERED_OWNER_TERMINATED_FILES_PRESERVED_MEASUREMENT_PENDING",-1L);count++;recovered=true;}finally{lock.release();}
             }if(recovered&&file.exists()&&!file.delete())throw new IOException("STORAGE_OWNER_METADATA_CLEANUP_PENDING");
         }return count;
     }
-    public Map<String,Object> snapshot()throws IOException{return locked(state->{List<String> scopes=new ArrayList<>();for(Row row:state.active.values())scopes.add(row.scope);StorageCensusSU2.Census c=StorageCensusSU2.measure(root,scopes);long pending=0;List<Map<String,Object>> owners=new ArrayList<>();
+    public Map<String,Object> snapshot()throws IOException{final CensusTicket ticket=measureOutside(null);return locked(state->{ticket.validate(state);StorageCensusSU2.Census c=ticket.census;long pending=0;List<Map<String,Object>> owners=new ArrayList<>();
         for(Row row:state.active.values()){long actual=censusAccounted(c,row.scope),remaining=Math.max(0,row.bound-Math.max(0,actual-row.baseline));pending=add(pending,remaining);Map<String,Object> x=new LinkedHashMap<>();x.put("id",row.id);x.put("owner",row.owner);x.put("fence",row.fence);x.put("category",row.category);x.put("scope",row.scope);x.put("maximumGrowthBytes",row.bound);x.put("chargedWriteBytes",row.charged);x.put("scopeAccountedBytes",actual);x.put("scopeRegularFileBytes",c.scopeBytes.get(row.scope));x.put("scopeAllocatedBytes",c.allocatedBytesKnown&&!c.truncated?c.allocatedScopeBytes.get(row.scope):null);x.put("unallocatedReservationBytes",remaining);x.put("boot",row.boot);x.put("pid",row.pid);owners.add(x);}
         Map<String,Object> out=new LinkedHashMap<>();out.put("version",VERSION);out.put("configurationHash",config.hash());out.put("measuredRegularFileBytes",c.total);out.put("measuredAllocatedBytes",c.allocatedBytesKnown&&!c.truncated?c.allocatedFileAndDirectoryBytes:null);out.put("accountingBasis",config.requireAllocated?"MAX_REGULAR_AND_ALLOCATED; UNKNOWN_BLOCKS_DENY_ADMISSION":"EXPLICIT_FIXTURE_FILE_LENGTH_WITH_ALLOCATED_IF_AVAILABLE");out.put("complete",!c.truncated&&(!config.requireAllocated||c.allocatedBytesKnown));out.put("incompleteReasons",new ArrayList<>(c.incompleteReasons));out.put("unallocatedReservationBytes",pending);out.put("accountedPlusPendingBytes",add(censusAccounted(c,null),pending));out.put("normalAdmissionBytes",config.normalHard);out.put("transientAdmissionBytes",config.transientHard);out.put("freeSpaceBytes",available());out.put("owners",owners);out.put("receipts",new ArrayList<>(state.receipts));out.put("state",c.truncated?"UNKNOWN_INCOMPLETE_CENSUS":config.requireAllocated&&!c.allocatedBytesKnown?"UNKNOWN_ALLOCATION_DENY_ADMISSION":censusAccounted(c,null)>config.normalHard?"BLOCKED_PROTECTED_DEBT":"MEASURED");out.put("coverage","REGISTERED_WRITERS_ONLY; other growth sources must be explicitly integrated");out.put("memoryMetric",false);return out;});}
+    long controlHeadroomR31(){return config.metadataHeadroom;}
+    long controlFloorR31(){return config.freeFloor;}
+    long controlAvailableR31()throws IOException{return available();}
     private long available()throws IOException{long bytes=space.available(root);if(bytes<0)throw new Rejected("SPACE_MEASUREMENT_UNKNOWN");return bytes;}
     private static boolean overlap(String a,String b){return a.equals(b)||a.startsWith(b+"/")||b.startsWith(a+"/");}
     private static void receipt(State state,Row row,String reason,long actual){state.receipts.addLast(row.id+"|"+row.owner+"|"+row.fence+"|"+reason+"|physical="+actual+"|wall="+System.currentTimeMillis());while(state.receipts.size()>MAX_RECEIPTS)state.receipts.removeFirst();state.generation++;}
@@ -214,6 +242,7 @@ public final class StorageBudgetR31 {
         State state=new State();try(DataInputStream in=new DataInputStream(new ByteArrayInputStream(payload))){if(in.readInt()!=MAGIC)throw new IOException("STORAGE_LEDGER_VERSION");state.generation=in.readLong();state.configHash=in.readUTF();int active=in.readInt();if(active<0||active>MAX_ACTIVE)throw new IOException("STORAGE_LEDGER_BOUND");for(int i=0;i<active;i++){Row row=Row.read(in);if(state.active.put(row.id,row)!=null)throw new IOException("STORAGE_LEDGER_DUPLICATE");}int receipts=in.readInt();if(receipts<0||receipts>MAX_RECEIPTS)throw new IOException("STORAGE_RECEIPT_BOUND");for(int i=0;i<receipts;i++)state.receipts.add(in.readUTF());if(in.read()!=-1)throw new IOException("STORAGE_LEDGER_TRAILING");}catch(IllegalArgumentException malformed){throw new IOException("STORAGE_LEDGER_ENUM",malformed);}return state;
     }
     private void writeState(State state)throws IOException{
+        state.generation=Math.addExact(state.generation,1L);
         ByteArrayOutputStream bytes=new ByteArrayOutputStream();try(DataOutputStream out=new DataOutputStream(bytes)){out.writeInt(MAGIC);out.writeLong(state.generation);out.writeUTF(state.configHash);out.writeInt(state.active.size());for(Row row:state.active.values())row.write(out);out.writeInt(state.receipts.size());for(String row:state.receipts)out.writeUTF(row);}
         byte[] payload=bytes.toByteArray();bytes.write(digest(payload));if(bytes.size()>MAX_LEDGER_BYTES)throw new Rejected("LEDGER_CAPACITY");atomicWrite(inside(directory,"ledger.bin"),bytes.toByteArray());
     }

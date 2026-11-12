@@ -117,10 +117,12 @@ public final class DbStore {
     private final ThreadLocal<Boolean> legacyColumnAuditR31=new ThreadLocal<>();
 
     private void recordLegacyColumnFailureR31(Throwable failure) {
+        LegacyDdlR31.failed(failure);
         if(Boolean.TRUE.equals(legacyColumnAuditR31.get())&&legacyColumnFailureR31.get()==null)
             legacyColumnFailureR31.set(failure);
     }
     private void requireLegacyColumnSuccessR31() {
+        LegacyDdlR31.check();
         if(!Boolean.TRUE.equals(legacyColumnAuditR31.get()))return;
         Throwable failure=legacyColumnFailureR31.get();if(failure==null)return;
         Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failure);
@@ -167,7 +169,7 @@ public final class DbStore {
                 try {
                     // invalidate above prevents the old in-memory READY flag from
                     // permanently bypassing a real schema-drift repair.
-                    ensureRuntimeExtraTablesOnce(db);
+                    advanceMigrationOwnedR31(db);
                     LegacySchemaCoordinatorR926.requireMainChainClosedLoopReadyR31(db);
                 } finally {
                     flight.exited=true;
@@ -332,12 +334,39 @@ public final class DbStore {
     }
 
     private void ensureRuntimeExtraTablesOnce(final SQLiteDatabase db) {
+        requireRuntimeReadyReadOnlyR31(db);
+    }
+
+    public void requireRuntimeReadyReadOnlyR31(final SQLiteDatabase db) {
+        try {
+            if (!coordinator.isLegacyRuntimeSchemaReady())
+                throw new DatabaseCoordinator.SchemaPendingR31("LEGACY_RUNTIME_SCHEMA", coordinator.startupSchemaSummary());
+            long schemaVersion;
+            try (Cursor c=db.rawQuery("PRAGMA schema_version",null)) {
+                if(!c.moveToFirst())throw new IllegalStateException("SCHEMA_VERSION_UNAVAILABLE");
+                schemaVersion=c.getLong(0);
+            }
+            if(schemaVersion!=coordinator.legacyVerifiedSchemaVersionR31())
+                throw new DatabaseCoordinator.SchemaPendingR31("LEGACY_RUNTIME_SCHEMA","SCHEMA_CHANGED_REVALIDATION_PENDING");
+        } catch (RuntimeException pending) {
+            coordinator.invalidateLegacyRuntimeSchemaR31(DatabaseCoordinator.describeCauseChain(pending,400));
+            requestLegacySchemaMigrationR31();
+            if(pending instanceof DatabaseCoordinator.SchemaPendingR31)throw pending;
+            throw new DatabaseCoordinator.SchemaPendingR31("LEGACY_RUNTIME_SCHEMA",DatabaseCoordinator.describeCauseChain(pending,400));
+        }
+    }
+
+    /** Only requestLegacySchemaMigrationR31's dedicated writer callback calls this. */
+    private void advanceMigrationOwnedR31(final SQLiteDatabase db) {
         boolean ready =
                 coordinator.ensureRuntimeSchemaOnce(db,
                         new LegacySchemaCoordinatorR926.SlicedInitializerR31() {
                             @Override
                             public boolean advanceRuntimeR31(SQLiteDatabase target) throws Exception {
                                 return advanceLegacyRuntimeSchemaR31(target);
+                            }
+                            @Override public void validateRuntimeR31(SQLiteDatabase target) {
+                                LegacySchemaCoordinatorR926.validateUnitsReadOnlyR31(target,legacyRuntimeUnitsR31(target));
                             }
                             @Override
                             public void run(SQLiteDatabase target) {
@@ -423,6 +452,9 @@ public final class DbStore {
      * asynchronous runtime owner advances one group/table, then releases its
      * writer callback so draw commit/freeze/settlement can enter between units. */
     private boolean advanceLegacyRuntimeSchemaR31(final SQLiteDatabase db) throws Exception {
+        return LegacySchemaCoordinatorR926.advanceUnitsR31(db,"R31UF_RUNTIME_",legacyRuntimeUnitsR31(db),false);
+    }
+    private java.util.LinkedHashMap<String,Runnable> legacyRuntimeUnitsR31(final SQLiteDatabase db) {
         java.util.LinkedHashMap<String,Runnable> units=new java.util.LinkedHashMap<>();
         units.put("REALTIME_REPORT",()->ensureRealtimeValidationReportTable(db));
         units.put("TEACHER_SNAPSHOT",()->ensureTeacherSnapshotTable(db));
@@ -448,6 +480,8 @@ public final class DbStore {
         units.put("V20_INDEXES",()->ensureV20Indexes(db));
         units.put("FIELD_COLUMNS",()->ensureFieldChainColumns(db));
         units.put("DYNAMIC_WINDOW",()->ensureDynamicCausalWindowReady(db));
+        units.put("LINK_COLUMNS",()->ensureLinkModificationV2Ready(db));
+        units.put("MODULE_REGISTRY",()->ensureModuleRegistryR363(db));
         units.put("VERIFY",()->{clearColumnCache();verifyLegacyRuntimeTablesR363(db);});
         java.util.LinkedHashMap<String,Runnable> audited=new java.util.LinkedHashMap<>();
         for(java.util.Map.Entry<String,Runnable> unit:units.entrySet())audited.put(unit.getKey(),()->{
@@ -457,34 +491,15 @@ public final class DbStore {
                 if(fatal!=null)throw fatal;throw new IllegalStateException("LEGACY_COLUMN_MIGRATION_FAILED",failed);
             }}finally{legacyColumnAuditR31.remove();legacyColumnFailureR31.remove();}
         });
-        return LegacySchemaCoordinatorR926.advanceUnitsR31(db,"R31Q21_RUNTIME_",audited,false);
+        return audited;
     }
 
     public void ensureLearningTables() {
-        try {
-            SQLiteDatabase db = writable();
-            ensureLearningCaseLogTable(db);
-            ensureRuntimeProfileCacheTable(db);
-            ensureStateNumberProfileTable(db);
-            ensureAutoLearnCursorTable(db);
-            ensureTeacherMatrixSampleTable(db);
-            ensureTeacherMatrixProfileTable(db);
-            ensureTeacherMatrixComboProfileTable(db);
-            ensureTeacherMatrixReportTable(db);
-            ensureRuntimeExtraColumns(db);
-            ensureTeacherMatrixColumns(db);
-            ensureLedgerColumns(db);
-            ensureLedgerIndexes(db);
-            ensureV20CauseChainReady(db);
-            ensureFieldChainColumns(db);
-            ensureDynamicCausalWindowReady(db);
-            ensureLinkModificationV2Ready(db);
-            clearColumnCache();
-        } catch (Throwable e) {
-        }
+        requireRuntimeReadyReadOnlyR31(readable());
     }
 
     private void ensureDynamicCausalWindowReady(SQLiteDatabase db) {
+        if (!LegacyDdlR31.owned(db)) { requireRuntimeReadyReadOnlyR31(db); return; }
         if (db == null) return;
         try {
             ensureDynamicCausalTables(db);
@@ -500,6 +515,7 @@ public final class DbStore {
             ensureDynamicCausalDefaultState(db);
             clearColumnCache();
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -718,13 +734,21 @@ public final class DbStore {
         putDynamicCausalState(db, "dbstore_main_chain_scope", "SAVE_READ_REPAIR_ONLY", now);
     }
 
+    /** Every legacy runtime DDL site passes this boundary, including helpers
+     * reached directly rather than through ensureRuntimeExtraTablesOnce. */
+    private void execMigrationDdlOnlyR31(SQLiteDatabase db,String sql) {
+        if(!LegacyDdlR31.owned(db)) { requireRuntimeReadyReadOnlyR31(db); return; }
+        LegacyDdlR31.exec(db,sql);
+    }
+
     private void execQuiet(SQLiteDatabase db, String sql) {
         if (db == null || sql == null || sql.length() == 0) {
             return;
         }
         try {
-            db.execSQL(sql);
+            execMigrationDdlOnlyR31(db,sql);
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -1183,6 +1207,7 @@ public final class DbStore {
     }
 
     private void ensureDynamicCausalDefaultState(SQLiteDatabase db) {
+        if(LegacyDdlR31.owned(db))return;
         long now = System.currentTimeMillis();
         putDynamicCausalState(
                 db,
@@ -1228,7 +1253,7 @@ public final class DbStore {
         }
 
         try {
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE TABLE IF NOT EXISTS "
                             + TABLE_LEARNING_CASE_LOG
                             + " ("
@@ -1282,23 +1307,24 @@ public final class DbStore {
                             + "saved INTEGER DEFAULT 0"
                             + ")");
 
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_learning_case_target ON "
                             + TABLE_LEARNING_CASE_LOG
                             + "(target_issue,position)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_learning_case_state ON "
                             + TABLE_LEARNING_CASE_LOG
                             + "(state_key,position)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_learning_case_task ON "
                             + TABLE_LEARNING_CASE_LOG
                             + "(task_key,segment_key)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_learning_case_created ON "
                             + TABLE_LEARNING_CASE_LOG
                             + "(created_at)");
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -1308,7 +1334,7 @@ public final class DbStore {
         }
 
         try {
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE TABLE IF NOT EXISTS "
                             + TABLE_RUNTIME_PROFILE_CACHE
                             + " ("
@@ -1333,19 +1359,20 @@ public final class DbStore {
                             + "summary_text TEXT"
                             + ")");
 
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_runtime_profile_state ON "
                             + TABLE_RUNTIME_PROFILE_CACHE
                             + "(state_key,position)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_runtime_profile_score ON "
                             + TABLE_RUNTIME_PROFILE_CACHE
                             + "(profile_score DESC,state_confidence DESC)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_runtime_profile_updated ON "
                             + TABLE_RUNTIME_PROFILE_CACHE
                             + "(updated_at)");
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -1355,7 +1382,7 @@ public final class DbStore {
         }
 
         try {
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE TABLE IF NOT EXISTS "
                             + TABLE_STATE_NUMBER_PROFILE
                             + " ("
@@ -1379,23 +1406,24 @@ public final class DbStore {
                             + "updated_at INTEGER DEFAULT 0"
                             + ")");
 
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_state_number_state ON "
                             + TABLE_STATE_NUMBER_PROFILE
                             + "(state_key,position)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_state_number_number ON "
                             + TABLE_STATE_NUMBER_PROFILE
                             + "(position,number)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_state_number_bias ON "
                             + TABLE_STATE_NUMBER_PROFILE
                             + "(number_bias DESC,confidence DESC)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_state_number_updated ON "
                             + TABLE_STATE_NUMBER_PROFILE
                             + "(updated_at)");
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -1405,7 +1433,7 @@ public final class DbStore {
         }
 
         try {
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE TABLE IF NOT EXISTS "
                             + TABLE_AUTO_LEARN_CURSOR
                             + " ("
@@ -1425,15 +1453,16 @@ public final class DbStore {
                             + "updated_at INTEGER DEFAULT 0"
                             + ")");
 
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_auto_learn_status ON "
                             + TABLE_AUTO_LEARN_CURSOR
                             + "(status,updated_at)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_auto_learn_task ON "
                             + TABLE_AUTO_LEARN_CURSOR
                             + "(task_type,window_size)");
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -1443,7 +1472,7 @@ public final class DbStore {
         }
 
         try {
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE TABLE IF NOT EXISTS "
                             + TABLE_TEACHER_MATRIX_SAMPLE
                             + " ("
@@ -1495,39 +1524,40 @@ public final class DbStore {
                             + "saved INTEGER DEFAULT 0"
                             + ")");
 
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_sample_target ON "
                             + TABLE_TEACHER_MATRIX_SAMPLE
                             + "(target_issue)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_sample_base ON "
                             + TABLE_TEACHER_MATRIX_SAMPLE
                             + "(base_issue)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_sample_pos_num ON "
                             + TABLE_TEACHER_MATRIX_SAMPLE
                             + "(position,number)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_sample_state ON "
                             + TABLE_TEACHER_MATRIX_SAMPLE
                             + "(state_key)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_sample_profile ON "
                             + TABLE_TEACHER_MATRIX_SAMPLE
                             + "(profile_key)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_sample_combo ON "
                             + TABLE_TEACHER_MATRIX_SAMPLE
                             + "(combo_key)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_sample_label ON "
                             + TABLE_TEACHER_MATRIX_SAMPLE
                             + "(label)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_sample_created ON "
                             + TABLE_TEACHER_MATRIX_SAMPLE
                             + "(created_at)");
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -1537,7 +1567,7 @@ public final class DbStore {
         }
 
         try {
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE TABLE IF NOT EXISTS "
                             + TABLE_TEACHER_MATRIX_PROFILE
                             + " ("
@@ -1573,27 +1603,28 @@ public final class DbStore {
                             + "summary_text TEXT"
                             + ")");
 
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_profile_state ON "
                             + TABLE_TEACHER_MATRIX_PROFILE
                             + "(state_key)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_profile_pos_num ON "
                             + TABLE_TEACHER_MATRIX_PROFILE
                             + "(position,number)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_profile_status ON "
                             + TABLE_TEACHER_MATRIX_PROFILE
                             + "(status)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_profile_score ON "
                             + TABLE_TEACHER_MATRIX_PROFILE
                             + "(confidence DESC, hit_rate DESC, sample_count DESC)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_profile_updated ON "
                             + TABLE_TEACHER_MATRIX_PROFILE
                             + "(updated_at)");
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -1603,7 +1634,7 @@ public final class DbStore {
         }
 
         try {
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE TABLE IF NOT EXISTS "
                             + TABLE_TEACHER_MATRIX_COMBO_PROFILE
                             + " ("
@@ -1629,23 +1660,24 @@ public final class DbStore {
                             + "summary_text TEXT"
                             + ")");
 
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_combo_state ON "
                             + TABLE_TEACHER_MATRIX_COMBO_PROFILE
                             + "(state_key)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_combo_pos_mask ON "
                             + TABLE_TEACHER_MATRIX_COMBO_PROFILE
                             + "(position,k3_mask)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_combo_status ON "
                             + TABLE_TEACHER_MATRIX_COMBO_PROFILE
                             + "(status)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_combo_score ON "
                             + TABLE_TEACHER_MATRIX_COMBO_PROFILE
                             + "(confidence DESC, hit_rate DESC, sample_count DESC)");
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -1655,7 +1687,7 @@ public final class DbStore {
         }
 
         try {
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE TABLE IF NOT EXISTS "
                             + TABLE_TEACHER_MATRIX_REPORT
                             + " ("
@@ -1687,23 +1719,24 @@ public final class DbStore {
                             + "error_text TEXT"
                             + ")");
 
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_report_created ON "
                             + TABLE_TEACHER_MATRIX_REPORT
                             + "(created_at)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_report_task ON "
                             + TABLE_TEACHER_MATRIX_REPORT
                             + "(task_key)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_report_segment ON "
                             + TABLE_TEACHER_MATRIX_REPORT
                             + "(segment_key)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_tm_report_status ON "
                             + TABLE_TEACHER_MATRIX_REPORT
                             + "(status)");
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -1811,19 +1844,20 @@ public final class DbStore {
                     "INTEGER DEFAULT 0");
 
             ensureFieldChainColumns(db);
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_decisions_state_key ON "
                             + DbHelper.TABLE_DECISIONS
                             + "(state_key,position)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_decisions_target_created ON "
                             + DbHelper.TABLE_DECISIONS
                             + "(target_issue,created_at)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_trades_state_key ON "
                             + DbHelper.TABLE_TRADES
                             + "(state_key,position)");
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -1936,6 +1970,7 @@ public final class DbStore {
             addColumnIfMissing(
                     db, TABLE_REALTIME_VALIDATION_REPORT, "teacher_matrix_summary", "TEXT");
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -1954,6 +1989,7 @@ public final class DbStore {
     }
 
     private void ensureLedgerColumns(SQLiteDatabase db) {
+        if (!LegacyDdlR31.owned(db)) { requireRuntimeReadyReadOnlyR31(db); return; }
         if (db == null) {
             return;
         }
@@ -1984,44 +2020,47 @@ public final class DbStore {
             addColumnIfMissing(db, DbHelper.TABLE_TRADES, "settled", "INTEGER DEFAULT 0");
             addColumnIfMissing(db, DbHelper.TABLE_TRADES, "result", "TEXT");
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
     private void ensureLedgerIndexes(SQLiteDatabase db) {
+        if (!LegacyDdlR31.owned(db)) { requireRuntimeReadyReadOnlyR31(db); return; }
         if (db == null) {
             return;
         }
 
         try {
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_decisions_trade_id ON "
                             + DbHelper.TABLE_DECISIONS
                             + "(trade_id)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_decisions_scope_settled ON "
                             + DbHelper.TABLE_DECISIONS
                             + "(stat_scope,settled)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_decisions_target_decision_scope ON "
                             + DbHelper.TABLE_DECISIONS
                             + "(target_issue,decision,stat_scope)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_trades_target_scope ON "
                             + DbHelper.TABLE_TRADES
                             + "(target_issue,stat_scope)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_trades_settled_scope ON "
                             + DbHelper.TABLE_TRADES
                             + "(settled,stat_scope)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_trades_decision_id ON "
                             + DbHelper.TABLE_TRADES
                             + "(decision_id)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_trades_action_scope_settled ON "
                             + DbHelper.TABLE_TRADES
                             + "(action,stat_scope,settled)");
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -2033,20 +2072,21 @@ public final class DbStore {
             addFieldChainColumnsToDecisionLikeTable(db, DbHelper.TABLE_DECISIONS);
             addFieldChainColumnsToDecisionLikeTable(db, DbHelper.TABLE_TRADES);
             addFieldChainColumnsToDecisionLikeTable(db, DbHelper.TABLE_SHADOW);
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_decisions_field_chain_reject ON "
                             + DbHelper.TABLE_DECISIONS
                             + "(final_decision_reject_code,target_issue)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_trades_field_chain_reject ON "
                             + DbHelper.TABLE_TRADES
                             + "(final_decision_reject_code,target_issue)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_trades_field_chain_teacher ON "
                             + DbHelper.TABLE_TRADES
                             + "(teacher_matrix_status,v20_status,target_issue)");
             clearColumnCache();
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -2145,7 +2185,7 @@ public final class DbStore {
                 return;
             }
 
-            db.execSQL("ALTER TABLE " + table + " ADD COLUMN " + column + " " + typeSql);
+            execMigrationDdlOnlyR31(db,"ALTER TABLE " + table + " ADD COLUMN " + column + " " + typeSql);
             /* Keep the just-read table cache and advance it in place.  Clearing the complete
              * cache after each ALTER made a first upgrade re-run PRAGMA table_info for every
              * remaining column (quadratic startup work across the historical schema). */
@@ -2154,6 +2194,7 @@ public final class DbStore {
                 if (cached != null) cached.add(column);
             }
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
             recordLegacyColumnFailureR31(e);
         }
         requireLegacyColumnSuccessR31();
@@ -12962,7 +13003,7 @@ public final class DbStore {
         }
 
         try {
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE TABLE IF NOT EXISTS "
                             + TABLE_REALTIME_VALIDATION_REPORT
                             + " ("
@@ -12999,15 +13040,16 @@ public final class DbStore {
                             + "usable INTEGER DEFAULT 0"
                             + ")");
 
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_realtime_validation_target ON "
                             + TABLE_REALTIME_VALIDATION_REPORT
                             + "(target_issue)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_realtime_validation_created ON "
                             + TABLE_REALTIME_VALIDATION_REPORT
                             + "(created_at)");
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -13017,7 +13059,7 @@ public final class DbStore {
         }
 
         try {
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE TABLE IF NOT EXISTS "
                             + TABLE_TEACHER_SNAPSHOT
                             + " ("
@@ -13066,15 +13108,16 @@ public final class DbStore {
                             + "usable INTEGER DEFAULT 0"
                             + ")");
 
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_teacher_snapshot_created ON "
                             + TABLE_TEACHER_SNAPSHOT
                             + "(created_at)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_teacher_snapshot_usable ON "
                             + TABLE_TEACHER_SNAPSHOT
                             + "(usable,status)");
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -15605,10 +15648,12 @@ public final class DbStore {
             ensureV20CauseChainReady(db);
             clearColumnCache();
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
     private void ensureV20CauseChainReady(SQLiteDatabase db) {
+        if (!LegacyDdlR31.owned(db)) { requireRuntimeReadyReadOnlyR31(db); return; }
         if (db == null) {
             return;
         }
@@ -15618,6 +15663,7 @@ public final class DbStore {
             ensureV20CommonColumns(db);
             ensureV20Indexes(db);
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -15657,7 +15703,7 @@ public final class DbStore {
         }
 
         try {
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE TABLE IF NOT EXISTS "
                             + table
                             + " ("
@@ -15680,6 +15726,7 @@ public final class DbStore {
                             + "ext_json TEXT"
                             + ")");
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -15915,61 +15962,62 @@ public final class DbStore {
         }
 
         try {
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_"
                             + table
                             + "_target ON "
                             + table
                             + "(target_issue)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_"
                             + table
                             + "_state ON "
                             + table
                             + "(state_key,position)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_"
                             + table
                             + "_pos_num ON "
                             + table
                             + "(position,number)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_"
                             + table
                             + "_rank ON "
                             + table
                             + "(target_issue,rank_no)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_"
                             + table
                             + "_rule ON "
                             + table
                             + "(rule_key,source_key,state_key)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_"
                             + table
                             + "_false ON "
                             + table
                             + "(false_strong_key,frozen,freeze_level)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_"
                             + table
                             + "_window_state ON "
                             + table
                             + "(window_state_key,position,feature_distance)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_"
                             + table
                             + "_replay ON "
                             + table
                             + "(replay_key)");
-            db.execSQL(
+            execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_"
                             + table
                             + "_updated ON "
                             + table
                             + "(updated_at)");
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -18275,10 +18323,12 @@ public final class DbStore {
             setState("b07_diagnosis_baseline_at", String.valueOf(now));
             return "READY_NO_SAMPLE_TRUTHFUL";
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
             String err = "ERROR:" + e.getClass().getSimpleName();
             try {
                 setState("b07_diagnosis_baseline_status", err);
             } catch (Throwable ignore) {
+            LegacyDdlR31.failed(ignore);
             }
             return err;
         }
@@ -18801,8 +18851,9 @@ public final class DbStore {
      * 只负责建列、保存、读取、聚合统计与账本保护；不计算概率、不救援BET、不新增BET。
      */
     private void ensureLinkModificationV2Ready(SQLiteDatabase db) {
+        if (!LegacyDdlR31.owned(db)) { requireRuntimeReadyReadOnlyR31(db); return; }
         if (db == null) return;
-        if (!coordinator.beginLinkSchemaEnsure()) return;
+        // Unit journal, not the old process boolean, owns strict replay.
         boolean ok = false;
         try {
             execQuiet(
@@ -18993,6 +19044,7 @@ public final class DbStore {
         try {
             ensureLinkModificationV2Ready(writable());
         } catch (Throwable e) {
+            LegacyDdlR31.failed(e);
         }
     }
 
@@ -20931,8 +20983,9 @@ public final class DbStore {
 
     /** The build-identity write must not trigger the full historical link-schema migration. */
     private void ensureModuleRegistryR363(SQLiteDatabase db) {
+        if (!LegacyDdlR31.owned(db)) { requireRuntimeReadyReadOnlyR31(db); return; }
         if (db == null) throw new IllegalArgumentException("MODULE_REGISTRY_DB_NULL");
-        db.execSQL(
+        execMigrationDdlOnlyR31(db,
                 "CREATE TABLE IF NOT EXISTS "
                         + DbHelper.TABLE_V20_MODULE_REGISTRY
                         + " (module_name TEXT PRIMARY KEY)");
@@ -21083,9 +21136,7 @@ public final class DbStore {
     }
 
     public void ensureTianshuB03Storage() {
-        SQLiteDatabase db = writable();
-        DbHelper.ensureTianshuB03(db);
-        V51Repository.ensure(db);
+        V51Repository.requireBusinessSchemaR31(readable(), "TIANSHU_B03");
     }
 
     public V51Repository.PersistReport persistTianshuB03Prediction(V51RuntimeResult result) {

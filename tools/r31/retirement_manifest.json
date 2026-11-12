@@ -38,13 +38,13 @@
  "drop_table_sites": [
   {
    "file": "com/ethk3/novaonepro/DbHelper.java",
-   "line": 7736,
+   "line": 7731,
    "kind": "TABLE",
    "target": "expr:legacy"
   },
   {
    "file": "com/ethk3/novaonepro/DbHelper.java",
-   "line": 7761,
+   "line": 7756,
    "kind": "TABLE",
    "target": "expr:legacy"
   },
@@ -315,9 +315,9 @@
   }
  ],
  "dbstore": {
-  "source_sha256": "20e8419ce3cd3734b8f8c5a86c6c10917f972f4643c4027ec3257eff7c85f170",
-  "method_declarations": 772,
-  "distinct_names": 731,
+  "source_sha256": "dbbdb38112f70ea39a64bd5a8edc4e40fd2ba4f7dcae4a326b55c7233416fe19",
+  "method_declarations": 776,
+  "distinct_names": 735,
   "no_external_caller": [
    "DbStore",
    "addColumnArray",
@@ -326,6 +326,7 @@
    "addSegmentsToList",
    "addTeacherMatrixColumnsToDecisionLikeTable",
    "advanceLegacyRuntimeSchemaR31",
+   "advanceMigrationOwnedR31",
    "appendSep",
    "applyTeacherMatrixToCandidate",
    "applyTeacherMatrixToDecision",
@@ -483,6 +484,7 @@
    "ensureV20CommonColumns",
    "ensureV20Indexes",
    "ensureV20IndexesForTable",
+   "execMigrationDdlOnlyR31",
    "execQuiet",
    "fallbackCalibrated",
    "filterContentValuesForTable",
@@ -646,6 +648,7 @@
    "learnRuntimeProfile",
    "learnStateNumberProfile",
    "learningCaseToValues",
+   "legacyRuntimeUnitsR31",
    "limitAdjustLocal",
    "linkDecisionTradeAfterSave",
    "linkModificationV2ColumnDefs",
@@ -779,6 +782,7 @@
    "replaceTradeFull",
    "replayTianshuB03Target",
    "requireLegacyColumnSuccessR31",
+   "requireRuntimeReadyReadOnlyR31",
    "resolveEvidenceDomainStatusV20",
    "rollingAverage",
    "runEvidenceMaintenanceSliceV20",
@@ -1026,7 +1030,7 @@
    },
    {
     "name": "close",
-    "callers": 256,
+    "callers": 260,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
      "com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
@@ -1148,6 +1152,22 @@
     "name": "ensureRuntimeExtraTablesOnce",
     "callers": 0,
     "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "requireRuntimeReadyReadOnlyR31",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "advanceMigrationOwnedR31",
+    "callers": 0,
+    "caller_files": [],
     "tables": [
      "TABLE_APP_STATE",
      "TABLE_DYNAMIC_CAUSAL_STATE",
@@ -1186,6 +1206,14 @@
    },
    {
     "name": "advanceLegacyRuntimeSchemaR31",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "legacyRuntimeUnitsR31",
     "callers": 0,
     "caller_files": [],
     "tables": [],
@@ -1313,11 +1341,19 @@
     "dynamic": false
    },
    {
+    "name": "execMigrationDdlOnlyR31",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
     "name": "execQuiet",
     "callers": 0,
     "caller_files": [],
     "tables": [],
-    "writes": true,
+    "writes": false,
     "dynamic": false
    },
    {
@@ -1444,8 +1480,8 @@
     "tables": [
      "TABLE_LEARNING_CASE_LOG"
     ],
-    "writes": true,
-    "dynamic": true
+    "writes": false,
+    "dynamic": false
    },
    {
     "name": "ensureRuntimeProfileCacheTable",
@@ -1454,8 +1490,8 @@
     "tables": [
      "TABLE_RUNTIME_PROFILE_CACHE"
     ],
-    "writes": true,
-    "dynamic": true
+    "writes": false,
+    "dynamic": false
    },
    {
     "name": "ensureStateNumberProfileTable",
@@ -1464,8 +1500,8 @@
     "tables": [
      "TABLE_STATE_NUMBER_PROFILE"
     ],
-    "writes": true,
-    "dynamic": true
+    "writes": false,
+    "dynamic": false
    },
    {
     "name": "ensureAutoLearnCursorTable",
@@ -1474,8 +1510,8 @@
     "tables": [
      "TABLE_AUTO_LEARN_CURSOR"
     ],
-    "writes": true,
-    "dynamic": true
+    "writes": false,
+    "dynamic": false
    },
    {
     "name": "ensureTeacherMatrixSampleTable",
@@ -1484,8 +1520,8 @@
     "tables": [
      "TABLE_TEACHER_MATRIX_SAMPLE"
     ],
-    "writes": true,
-    "dynamic": true
+    "writes": false,
+    "dynamic": false
    },
    {
     "name": "ensureTeacherMatrixProfileTable",
@@ -1494,8 +1530,8 @@
     "tables": [
      "TABLE_TEACHER_MATRIX_PROFILE"
     ],
-    "writes": true,
-    "dynamic": true
+    "writes": false,
+    "dynamic": false
    },
    {
     "name": "ensureTeacherMatrixComboProfileTable",
@@ -1504,8 +1540,8 @@
     "tables": [
      "TABLE_TEACHER_MATRIX_COMBO_PROFILE"
     ],
-    "writes": true,
-    "dynamic": true
+    "writes": false,
+    "dynamic": false
    },
    {
     "name": "ensureTeacherMatrixReportTable",
@@ -1514,8 +1550,8 @@
     "tables": [
      "TABLE_TEACHER_MATRIX_REPORT"
     ],
-    "writes": true,
-    "dynamic": true
+    "writes": false,
+    "dynamic": false
    },
    {
     "name": "ensureRuntimeExtraColumns",
@@ -1531,8 +1567,8 @@
      "TABLE_SHAPE_VECTOR",
      "TABLE_TRADES"
     ],
-    "writes": true,
-    "dynamic": true
+    "writes": false,
+    "dynamic": false
    },
    {
     "name": "ensureTeacherMatrixColumns",
@@ -1582,8 +1618,8 @@
      "TABLE_DECISIONS",
      "TABLE_TRADES"
     ],
-    "writes": true,
-    "dynamic": true
+    "writes": false,
+    "dynamic": false
    },
    {
     "name": "ensureFieldChainColumns",
@@ -1594,8 +1630,8 @@
      "TABLE_SHADOW",
      "TABLE_TRADES"
     ],
-    "writes": true,
-    "dynamic": true
+    "writes": false,
+    "dynamic": false
    },
    {
     "name": "addFieldChainColumnsToDecisionLikeTable",
@@ -1610,8 +1646,8 @@
     "callers": 0,
     "caller_files": [],
     "tables": [],
-    "writes": true,
-    "dynamic": true
+    "writes": false,
+    "dynamic": false
    },
    {
     "name": "repairLedgerIntegrityQuiet",
@@ -5010,8 +5046,8 @@
     "tables": [
      "TABLE_REALTIME_VALIDATION_REPORT"
     ],
-    "writes": true,
-    "dynamic": true
+    "writes": false,
+    "dynamic": false
    },
    {
     "name": "ensureTeacherSnapshotTable",
@@ -5020,8 +5056,8 @@
     "tables": [
      "TABLE_TEACHER_SNAPSHOT"
     ],
-    "writes": true,
-    "dynamic": true
+    "writes": false,
+    "dynamic": false
    },
    {
     "name": "calcFrequency",
@@ -5791,7 +5827,7 @@
    },
    {
     "name": "getInt",
-    "callers": 303,
+    "callers": 304,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
      "com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
@@ -5814,7 +5850,7 @@
    },
    {
     "name": "getLong",
-    "callers": 259,
+    "callers": 262,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
      "com/ethk3/novaonepro/AlgorithmProofRecoveryR948.java",
@@ -5829,7 +5865,7 @@
    },
    {
     "name": "getDouble",
-    "callers": 147,
+    "callers": 149,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
      "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
@@ -5844,7 +5880,7 @@
    },
    {
     "name": "getString",
-    "callers": 388,
+    "callers": 393,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
      "com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
@@ -5910,8 +5946,8 @@
     "callers": 0,
     "caller_files": [],
     "tables": [],
-    "writes": true,
-    "dynamic": true
+    "writes": false,
+    "dynamic": false
    },
    {
     "name": "ensureV20CommonColumns",
@@ -5942,8 +5978,8 @@
     "callers": 0,
     "caller_files": [],
     "tables": [],
-    "writes": true,
-    "dynamic": true
+    "writes": false,
+    "dynamic": false
    },
    {
     "name": "normalizeV20EvidenceCv",
@@ -7089,7 +7125,7 @@
    },
    {
     "name": "getString",
-    "callers": 388,
+    "callers": 393,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
      "com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
@@ -7104,7 +7140,7 @@
    },
    {
     "name": "getInt",
-    "callers": 303,
+    "callers": 304,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
      "com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
@@ -7119,7 +7155,7 @@
    },
    {
     "name": "getLong",
-    "callers": 259,
+    "callers": 262,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
      "com/ethk3/novaonepro/AlgorithmProofRecoveryR948.java",
@@ -7134,7 +7170,7 @@
    },
    {
     "name": "getDouble",
-    "callers": 147,
+    "callers": 149,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
      "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
@@ -8037,8 +8073,8 @@
     "tables": [
      "TABLE_V20_MODULE_REGISTRY"
     ],
-    "writes": true,
-    "dynamic": true
+    "writes": false,
+    "dynamic": false
    },
    {
     "name": "checkModuleBuildConsistencyV20",

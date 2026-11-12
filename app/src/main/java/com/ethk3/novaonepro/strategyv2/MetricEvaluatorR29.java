@@ -63,6 +63,51 @@ public final class MetricEvaluatorR29 {
         }
         return java.util.Collections.unmodifiableList(out);
     }
+    /** Production adapter retains the original measured values, denominators and
+     * uncertainty, and evaluates the versioned R31 contract from this same snapshot. */
+    public static List<Map<String,Object>> evaluateCurrentR31(ReportR27.R30Input in) {
+        Map<String,Map<String,Object>> definitions=new LinkedHashMap<>();
+        for(Map<String,Object> d:MetricDefinitionsR29.r31Definitions())definitions.put(String.valueOf(d.get("id")),d);
+        List<Map<String,Object>> out=new ArrayList<>();
+        for(Map<String,Object> prior:evaluateR30(in)) {
+            Map<String,Object> row=new LinkedHashMap<>(prior);String id=String.valueOf(row.get("metricId"));
+            Map<String,Object> definition=definitions.get(id);if(definition==null)throw new IllegalStateException("R31_METRIC_DEFINITION_MISSING:"+id);
+            Number sample=number(row.get("sampleCount")),value=number(row.get("value"));
+            String status=String.valueOf(row.get("status"));
+            MeasurementR31 receipt=null;
+            if(sample!=null && value!=null && in.errors.isEmpty()) {
+                String hash=StatsR27.sha256(JsonR27.write(in.watermark)+"|"+JsonR27.write(prior));
+                // A generic FUTURE label is not a registered natural-quality receipt.
+                String role="ENGINEERING".equals(definition.get("kind"))?"ENGINEERING_RUNTIME":String.valueOf(row.get("role"));
+                receipt=new MeasurementR31(hash,role,sample.longValue(),value.doubleValue(),!status.equals("FAIL")&&!status.startsWith("DATA_CONFLICT"));
+            }
+            Map<String,Object> evaluated=evaluateR31(definition,receipt);
+            if("PASS".equals(evaluated.get("status"))&&!"PASS".equals(status))evaluated.put("status","MEASURED_REQUIRES_VALIDATION");
+            row.put("definitionVersion",MetricDefinitionsR29.R31_VERSION);row.put("r31Definition",definition);row.put("r31Evaluation",evaluated);
+            row.put("sourceReceiptSha256",receipt==null?null:receipt.receiptHash);out.add(ReportR27.freezeMap(row));
+        }
+        if(out.size()!=44)throw new IllegalStateException("R31_METRIC_COUNT:"+out.size());
+        return java.util.Collections.unmodifiableList(out);
+    }
+    static void crossSourceMeasurementR31(ReportR27.R30Input in,Map<String,Object> result) {
+        List<SourceValueR31> sources=new ArrayList<>();List<Object> invalid=new ArrayList<>();
+        for(Object raw:rows(in,"crossSourceObservations")) {
+            Map<String,Object> row=map(raw);if(row.get("value")==null)continue;
+            boolean complete=true;for(String field:new String[]{"source","owner","role","scope","watermark"}){Object text=row.get(field);complete&=text instanceof String&&!((String)text).trim().isEmpty()&&!"null".equals(text);}
+            Number at=number(row.get("capturedAt"));complete&=at!=null&&at.longValue()>0;
+            if(!complete){Map<String,Object> warning=new LinkedHashMap<>();warning.put("source",row.get("source"));warning.put("state","UNKNOWN_INVALID_SOURCE_IDENTITY_OR_CAPTURE_TIME");invalid.add(warning);continue;}
+            sources.add(new SourceValueR31(String.valueOf(row.get("source")),String.valueOf(row.get("owner")),String.valueOf(row.get("role")),String.valueOf(row.get("scope")),at==null?0:at.longValue(),String.valueOf(row.get("watermark")),String.valueOf(row.get("value"))));
+        }
+        Map<String,Object> comparison=crossSourceR31(sources);String status=String.valueOf(comparison.get("status"));
+        int conflicts=((List<?>)comparison.get("conflicts")).size();
+        long comparable=0;Map<String,java.util.Set<String>> groups=new LinkedHashMap<>();
+        for(SourceValueR31 v:sources)groups.computeIfAbsent(v.role+"|"+v.scope+"@"+v.watermark,k->new java.util.HashSet<>()).add(v.source);
+        for(java.util.Set<String> group:groups.values())if(group.size()>1)comparable++;
+        observed(result,comparable==0?null:conflicts,comparable==0?null:conflicts,comparable,comparable,
+                "SAME_ROLE_SCOPE_WATERMARK_INDEPENDENT_SOURCES",conflicts>0?"DATA_CONFLICT":comparable==0?"UNKNOWN_SOURCE_MISSING":"RECORDED_UNVALIDATED",
+                comparable==0?"没有同角色、同水位的独立源对照；不能用同一对象重复渲染填0":"已比较实际持久缓存与权威事实；不同scope/水位另列，不推断结算停止");
+        comparison.put("invalidSources",invalid);result.put("observations",comparison);result.put("crossSourceState",status);
+    }
     @SuppressWarnings("unchecked") static Map<String,Object> map(Object x){return x instanceof Map?(Map<String,Object>)x:java.util.Collections.emptyMap();}
     static Number number(Object x){return x instanceof Number&&Double.isFinite(((Number)x).doubleValue())?(Number)x:null;}
     static long count(Object x){Number n=number(x);return n==null?-1:n.longValue();}
@@ -116,9 +161,9 @@ public final class MetricEvaluatorR29 {
                 Map<String,Object> d=DiagnosisRulesR30.evaluate(in.facts,in.data,in.watermark,in.errors);source(in,r,"upgradeSnapshots","upgradeState");
                 Number a=number(d.get("actionableRules")),n=number(d.get("expectedRules"));if(a!=null&&n!=null&&n.longValue()>0)observed(r,a.doubleValue()/n.doubleValue(),a,n,n.longValue(),"DIAGNOSTIC_RULE_ACTION_COVERAGE","RECORDED_UNVALIDATED","行动字段覆盖，不能代替诊断结论正确性及修复验收");break;
             }
-            case "M32":observed(r,0,0,44,44,"SINGLE_IMMUTABLE_METRIC_OBJECT_PER_CAPTURE","RECORDED_UNVALIDATED","12章与同源图引用同一MetricResult；跨设备UI对照和历史缓存必须另验，不算真机PASS");break;
+            case "M32":crossSourceMeasurementR31(in,r);break;
             case "M35":source(in,r,"revocations","revocationEvents");break;
-            case "M36":case "Q08":source(in,r,"syntheticControl");r.put("role","SYNTHETIC");r.put("missingReason","原合成对照可复算性与多轮功效区间单独验收；合成不计入自然质量");break;
+            case "M36":case "Q08":source(in,r,"syntheticControl","factoryCapabilityExperiment");r.put("role","SYNTHETIC");r.put("missingReason","原合成对照与完整创造工厂实验的多轮功效区间分别验收；缺失或未完成不算通过，合成不计入自然质量");break;
             case "Q01": {
                 Number hits=number(in.facts.get("futureHits")),acts=number(in.facts.get("futureActs"));source(in,r,"qualification");
                 if(hits!=null&&acts!=null&&acts.longValue()>0)observed(r,hits.doubleValue()/acts.doubleValue(),hits,acts,acts.longValue(),"ACTIVE_EXPERIMENT_FUTURE_ACT_ROWS_NOT_INDEPENDENT_ISSUES","DESCRIPTIVE_ONLY","多策略重叠期不能合并为独立样本或证明自然质量；按每个预登记策略原件验证Q01");break;
@@ -199,11 +244,11 @@ public final class MetricEvaluatorR29 {
         Map<String,Object> r = new LinkedHashMap<>(); List<Object> conflicts = new ArrayList<>(), scopes = new ArrayList<>(); Map<String, SourceValueR31> byKey = new LinkedHashMap<>();
         for (SourceValueR31 v : values) {
             for (String f : new String[]{v.source, v.owner, v.role, v.scope, v.watermark}) if (f == null || f.isEmpty()) throw new IllegalArgumentException("R31_M32_SOURCE_FIELDS_REQUIRED:" + v.source);
-            String key = v.scope + "@" + v.watermark; SourceValueR31 first = byKey.putIfAbsent(key, v);
+            String key = v.role + "|" + v.scope + "@" + v.watermark; SourceValueR31 first = byKey.putIfAbsent(key, v);
             if (first != null && !first.value.equals(v.value)) conflicts.add(first.source + "=" + first.value + " vs " + v.source + "=" + v.value + " @" + key);
         }
-        java.util.Set<String> watermarks = new java.util.TreeSet<>(); for (SourceValueR31 v : values) { watermarks.add(v.scope + "@" + v.watermark); Map<String,Object> x = new LinkedHashMap<>(); x.put("source", v.source); x.put("owner", v.owner); x.put("role", v.role); x.put("scope", v.scope); x.put("capturedAt", v.capturedAt); x.put("watermark", v.watermark); x.put("value", v.value); scopes.add(x); }
-        r.put("status", !conflicts.isEmpty() ? "VALUE_CONFLICT_SAME_SCOPE_AND_WATERMARK" : watermarks.size() > 1 ? "STALE_OR_SCOPE_CONFLICT" : "CONSISTENT");
+        java.util.Set<String> watermarks = new java.util.TreeSet<>(); for (SourceValueR31 v : values) { watermarks.add(v.role + "|" + v.scope + "@" + v.watermark); Map<String,Object> x = new LinkedHashMap<>(); x.put("source", v.source); x.put("owner", v.owner); x.put("role", v.role); x.put("scope", v.scope); x.put("capturedAt", v.capturedAt); x.put("watermark", v.watermark); x.put("value", v.value); scopes.add(x); }
+        r.put("status", values.size()<2 ? "UNKNOWN_INSUFFICIENT_SOURCES" : !conflicts.isEmpty() ? "VALUE_CONFLICT_SAME_SCOPE_AND_WATERMARK" : watermarks.size() > 1 ? "STALE_OR_SCOPE_CONFLICT" : "CONSISTENT");
         r.put("conflicts", conflicts); r.put("sources", scopes); r.put("settlementStoppedInferred", false); return r;
     }
 }

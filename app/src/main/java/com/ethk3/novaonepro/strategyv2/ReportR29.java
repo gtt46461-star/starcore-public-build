@@ -40,10 +40,12 @@ public final class ReportR29 {
         String[] chapterMetrics={"Q01 Q02 Q03 Q04 Q07","M19 M21 M22 M27 M29 Q06","M03 M04 M05 M06 M07 M10","M11 M12 M13 M14","M08 M09 M18 M19 M27","M20 M24 M26 Q05","M23 M25","M28 M30 M35 Q03 Q07","M01 M02 M20 M34","M21 M22 M31 M36 Q06 Q08","M15 M16 M17","M01 M02 M17 M31 M32 M33 M34 Q01 Q02 Q03 Q04 Q05 Q06 Q07 Q08"};
         for(int i=0;i<chapters.size();i++){
             List<Map<String,Object>> projected=new ArrayList<>();for(Map<String,Object> metric:input.metricResults)if((" "+chapterMetrics[i]+" ").contains(" "+metric.get("metricId")+" "))projected.add(metric);
-            chapters.get(i).put("metricResults",java.util.Collections.unmodifiableList(projected));chapters.get(i).put("metricRegistryVersion",MetricDefinitionsR29.CURRENT_VERSION);
+            chapters.get(i).put("metricResults",java.util.Collections.unmodifiableList(projected));chapters.get(i).put("metricRegistryVersion",MetricDefinitionsR29.R31_VERSION);
         }
         chapters.get(11).put("allMetricResults",input.metricResults);
         chapters.get(11).put("objectIndex",input.data.get("objectIndex"));
+        chapters.get(11).put("researchTables",input.data.get("researchTablesR31"));
+        chapters.get(11).put("fullFactorySyntheticExperiment",input.data.get("factoryCapabilityExperiment"));
         chapters.get(11).put("previousReportComparison",ReportDataR27.compareSuccessfulR30(input));
         chapters.get(11).put("successfulSummaryCandidate",ReportDataR27.successfulSummaryR30(input));
         return chapters;
@@ -53,8 +55,9 @@ public final class ReportR29 {
         Map<String,Object> out=new LinkedHashMap<>();out.put("schemaVersion","R30_REPORT_1");out.put("chapters",chapters);out.put("expectedChapters",12);out.put("exportedChapters",chapters.size());
         out.put("snapshotWatermark",chapters.isEmpty()?null:chapters.get(0).get("snapshotWatermark"));out.put("reportConsistencyConflicts",chapters.isEmpty()?null:chapters.get(0).get("reportConsistencyConflicts"));
         out.put("diagnosis",chapters.size()<12?null:chapters.get(11).get("diagnosis"));
-        out.put("metricRegistryVersion",MetricDefinitionsR29.CURRENT_VERSION);out.put("metricResults",chapters.size()<12?null:chapters.get(11).get("allMetricResults"));
+        out.put("metricRegistryVersion",MetricDefinitionsR29.R31_VERSION);out.put("metricResults",chapters.size()<12?null:chapters.get(11).get("allMetricResults"));
         out.put("objectIndex",chapters.size()<12?null:chapters.get(11).get("objectIndex"));out.put("previousReportComparison",chapters.size()<12?null:chapters.get(11).get("previousReportComparison"));
+        out.put("researchTables",chapters.size()<12?null:chapters.get(11).get("researchTables"));
         out.put("overallAcceptance","INCOMPLETE");out.put("naturalQuality","INSUFFICIENT");out.put("physicalDevice","NOT_RUN");out.put("legacyDetails",java.util.Arrays.asList("R26_REPORT.json","R27_REPORT.md","snapshot.db"));return out;
     }
     public static Map<String,Object> chapter(SQLiteDatabase db) {
@@ -63,7 +66,7 @@ public final class ReportR29 {
         snapshot.put("timeRange",timeRange(db)); snapshot.put("session",null); snapshot.put("planCommit",BaselineIdentityR29.PLAN_COMMIT);
         Map<String,Object> baseline=cached(db,"baseline-identity"), preservation=cached(db,"legacy-preservation");
         out.put("sectionId","R29_12_ACCEPTANCE_GAPS"); out.put("title","R29.1 实施、运行与验收差距"); out.put("schemaVersion","R29_REPORT_1");
-        out.put("historicalAttachment",true);out.put("currentRegistry",MetricDefinitionsR29.CURRENT_VERSION);out.put("legacyNotice","历史R29.1原件；原定义/卡号只读保留，当前44指标以R30_REPORT.json为准，禁止跨版本相减或混入当前通过率");
+        out.put("historicalAttachment",true);out.put("currentRegistry",MetricDefinitionsR29.R31_VERSION);out.put("legacyNotice","历史R29.1原件；原定义/卡号只读保留，当前44指标以R30_REPORT.json为准，禁止跨版本相减或混入当前通过率");
         out.put("status","PARTIAL"); out.put("overall","IMPLEMENTATION_IN_PROGRESS"); out.put("evidenceLevel","ANDROID_DATABASE_SNAPSHOT");
         out.put("reason","52卡/44指标逐项验收；缺少回执不能作为0或PASS。设备长测和未来质量独立验收。");
         out.put("baselineIdentity",baseline); out.put("legacyPreservation",preservation);

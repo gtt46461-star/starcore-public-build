@@ -15,7 +15,7 @@ public final class RepairReportFactsR30Test {
         for(Map<String,Object> chart:ReportChartsR30.panels(in))assertSame(in.metricResults,chart.get("metricResults"));
         assertSame(in.metricResults,ReportR29.document(chapters).get("metricResults"));
         try{metric(in,"Q01").put("value",0.99);fail("metric mutable");}catch(UnsupportedOperationException expected){}
-        for(Map<String,Object> row:in.metricResults){assertEquals(MetricDefinitionsR29.CURRENT_VERSION,row.get("definitionVersion"));assertTrue(((List<?>)row.get("repairCardIds")).get(0).toString().startsWith("FR-"));}
+        for(Map<String,Object> row:in.metricResults){assertEquals(MetricDefinitionsR29.R31_VERSION,row.get("definitionVersion"));assertTrue(((List<?>)row.get("repairCardIds")).get(0).toString().startsWith("FR-"));}
     }
     @Test public void emptyAndFailedSourcesNeverBecomeZeroOrPass(){
         ReportR27.R30Input empty=input(m(),m(),Collections.emptyList());

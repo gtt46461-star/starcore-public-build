@@ -14,7 +14,14 @@ public final class R31ChartPageHost {
    for(String sql:SchemaR27.DDL)if(sql.startsWith("CREATE TABLE"))db.execSQL(sql);
    connection.setAutoCommit(false);MainlineChoiceStoreR31.ensureSchemaR31(db);connection.commit();connection.setAutoCommit(true);
    long now=System.currentTimeMillis();
-   for(String id:ChartCacheR27.PANELS)db.execSQL("INSERT INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES(?,'panel',?,?)",new Object[]{id,frame(id,5),now});
+   // The current reader requires the same source issue, ABI and content hash
+   // as production. Keep the draw schema deliberately too small for R83 so
+   // its original per-panel SQL-failure isolation assertion still executes.
+   db.execSQL("CREATE TABLE draws(issue TEXT,dirty INTEGER)");db.execSQL("INSERT INTO draws VALUES('HOST_FIXTURE_1',0)");
+   for(String id:ChartCacheR27.PANELS){
+    Map<String,Object> current=(Map<String,Object>)JsonR27.parse(frame(id,5));ChartCacheR27.sealR31(current,"HOST_FIXTURE_1",now);
+    db.execSQL("INSERT INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES(?,'panel',?,?)",new Object[]{id,JsonR27.write(current),now});
+   }
    StringBuilder huge=new StringBuilder("{\"points\":[],\"pad\":\"");for(int i=0;i<600_000;i++)huge.append('x');huge.append("\"}");
    db.execSQL("UPDATE r27_chart_cache SET payload_json=? WHERE panel_id='p03_evolution_events'",new Object[]{huge.toString()});
    db.execSQL("UPDATE r27_chart_cache SET payload_json='{broken' WHERE panel_id='p05_lineage'");

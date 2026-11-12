@@ -179,7 +179,7 @@ public final class ReportR27 {
         public final List<Map<String,Object>> metricResults;
         public R30Input(Map<String,Object> facts,Map<String,Object> watermark,Map<String,Object> data,List<String> errors){
             this.facts=freezeMap(facts);this.watermark=freezeMap(watermark);this.data=freezeMap(data);this.errors=java.util.Collections.unmodifiableList(new ArrayList<>(errors));
-            this.metricResults=MetricEvaluatorR29.evaluateR30(this);
+            this.metricResults=MetricEvaluatorR29.evaluateCurrentR31(this);
         }
     }
     @SuppressWarnings("unchecked") static Object freezeR30(Object x){

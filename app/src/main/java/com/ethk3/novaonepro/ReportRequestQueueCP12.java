@@ -15,9 +15,25 @@ public final class ReportRequestQueueCP12 {
  /** Bounded snapshot used by the single report owner so maintenance never expires queued work. */
  public static java.util.Set<String> pendingIds(File root)throws Exception{return locked(root,queue->{java.util.Set<String> ids=new java.util.HashSet<>();JSONArray rows=queue.getJSONArray("requests");for(int i=0;i<rows.length();i++)ids.add(rows.getJSONObject(i).getString("requestId"));return ids;});}
  public static void removeHead(File root,String id)throws Exception{hash(id);locked(root,queue->{JSONArray rows=queue.getJSONArray("requests");if(rows.length()==0||!rows.getJSONObject(0).getString("requestId").equals(id))return null;JSONArray remaining=new JSONArray();for(int i=1;i<rows.length();i++)remaining.put(rows.getJSONObject(i));queue.put("requests",remaining);return null;});}
+ /** Rebuild the FIFO from committed request intents, without creating a second job.
+  * A durable job owns its ACK outbox; terminal requests must never be re-enqueued. */
+ public static void reconcileRequestsR31(File root)throws Exception {
+  File directory=new File(root,"requests");if(!directory.isDirectory())return;
+  File[] files=DirectoryCursorR31.children(directory,4096);
+  java.util.Arrays.sort(files,java.util.Comparator.comparingLong(File::lastModified).thenComparing(File::getName));
+  int admitted=0;
+  for(File file:files){if(!file.getName().matches("[0-9a-f]{64}\\.json"))continue;
+   try{JSONObject request=new JSONObject(ReportJobJournalCP12.readAtomic(file,65536));String id=request.getString("requestId");hash(id);
+    if(!file.getName().equals(id+".json"))throw new IOException("REPORT_REQUEST_INTENT_IDENTITY");
+    if(ReportJobJournalCP12.findRequestR31(root,id)!=null)continue;
+    File ack=new File(directory,id+".ack.json");if(ack.exists())continue;
+    if(admitted>=32)break;enqueue(root,id,request.getString("mode"));admitted++;
+   }catch(IOException|org.json.JSONException invalid){android.util.Log.w("ReportQueueCP12","Request intent preserved for recovery: "+file.getName(),invalid);}
+  }
+ }
  private static <T>T locked(File root,Work<T> work)throws Exception{synchronized(JVM_LOCK){if(!root.isDirectory()&&!root.mkdirs())throw new IOException("REPORT_QUEUE_ROOT");File journal=ReportArchiveVerifierCP12.inside(root,"request-queue.json");try(RandomAccessFile io=new RandomAccessFile(ReportArchiveVerifierCP12.inside(root,"request-queue.lock"),"rw");FileLock lock=io.getChannel().lock()){
   JSONObject queue=journal.exists()?new JSONObject(ReportJobJournalCP12.readAtomic(journal,16384)):new JSONObject();if(!journal.exists()){queue.put("format","REPORT_FIFO_CP12_1");queue.put("generation",0);queue.put("requests",new JSONArray());}
-  if(!queue.getString("format").equals("REPORT_FIFO_CP12_1"))throw new IOException("REPORT_QUEUE_FORMAT");JSONArray rows=queue.getJSONArray("requests");if(rows.length()>32)throw new IOException("REPORT_QUEUE_BOUND");for(int i=0;i<rows.length();i++)hash(rows.getJSONObject(i).getString("requestId"));T result=work.run(queue);queue.put("generation",Math.addExact(queue.getLong("generation"),1));ReportJobJournalCP12.writeAtomic(journal,queue.toString());
+  if(!queue.getString("format").equals("REPORT_FIFO_CP12_1"))throw new IOException("REPORT_QUEUE_FORMAT");JSONArray rows=queue.getJSONArray("requests");if(rows.length()>32)throw new IOException("REPORT_QUEUE_BOUND");for(int i=0;i<rows.length();i++)hash(rows.getJSONObject(i).getString("requestId"));String before=queue.toString();T result=work.run(queue);if(!before.equals(queue.toString())||!journal.exists()){queue.put("generation",Math.addExact(queue.getLong("generation"),1));ReportJobJournalCP12.writeAtomic(journal,queue.toString());}
   boolean interactive=false;JSONArray pending=queue.getJSONArray("requests");for(int i=0;i<pending.length();i++)if(!"RETENTION_PAGE".equals(pending.getJSONObject(i).getString("mode")))interactive=true;
   File signal=ReportArchiveVerifierCP12.inside(root,"interactive-pending-r69.json");if(interactive&&!signal.exists())ReportJobJournalCP12.writeAtomic(signal,"{}");else if(!interactive&&signal.exists()&&!signal.delete())throw new IOException("REPORT_QUEUE_SIGNAL_CLEANUP");return result;
  }}}

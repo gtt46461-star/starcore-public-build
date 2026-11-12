@@ -18,10 +18,10 @@ final class ResearchWorkbenchRepositoryR30R1 {
         String error=null;
         try(Cursor c=db.rawQuery(sql,args,cancel)){
             while(c.moveToNext())for(ResearchGraphSpecsR30R1.Spec spec:specs)if(spec.id.equals(c.getString(0))){
-                try{String payload=c.getString(1);if(payload==null||payload.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>262144)throw new IllegalStateException("FRAME_BYTE_BUDGET");if(!ResearchContractR30R1.hash(payload).equals(c.getString(2)))throw new IllegalStateException("FRAME_HASH_MISMATCH");
+                try{if(cancel!=null)cancel.throwIfCanceled();String payload=c.getString(1);if(payload==null||payload.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>262144)throw new IllegalStateException("FRAME_BYTE_BUDGET");if(!ResearchContractR30R1.hash(payload).equals(c.getString(2)))throw new IllegalStateException("FRAME_HASH_MISMATCH");
                     @SuppressWarnings("unchecked") Map<String,Object> frame=(Map<String,Object>)JsonR27.parse(payload);
                     found.put(spec.id,panel(spec,frame,c.getString(3),c.getString(4),c.getLong(5),c.getString(6)));
-                }catch(RuntimeException malformed){found.put(spec.id,missing(spec,"READ_ERROR",malformed.getClass().getSimpleName()+":"+String.valueOf(malformed.getMessage())));}
+                }catch(OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException malformed){found.put(spec.id,missing(spec,"READ_ERROR",malformed.getClass().getSimpleName()+":"+String.valueOf(malformed.getMessage())));}
             }
         }catch(OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException missing){error=missing.getClass().getSimpleName();}
         List<Panel> out=new ArrayList<>();for(ResearchGraphSpecsR30R1.Spec spec:specs)out.add(found.containsKey(spec.id)?found.get(spec.id):missing(spec,error==null?"WAITING_ANALYSIS":"BLOCKED_SOURCE",error==null?"尚无已提交分析产物；不能以统计行数代替分析":error));return out;

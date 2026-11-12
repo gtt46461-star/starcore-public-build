@@ -261,15 +261,20 @@ public final class LiveShadowsR27 {
             CertificateGateR27.Verdict v = CertificateGateR27.evaluate(e);
             // R29-035: an isolated result conflict blocks the certificate until it is resolved (never overwritten).
             List<String> failing = new ArrayList<>(v.failing); boolean issued = v.active;
+            RuntimeR27.AtomPublicationR30 modelPublication=rt.atomPublicationR30;
+            final Map<String,Object> modelBinding=MainlineModelBindingR31.capture(w.ro,s.id,s.spec,s.tau,s.semanticAbi,modelPublication==null?null:modelPublication.model);
+            if(!"BOUND".equals(modelBinding.get("state"))){issued=false;failing.add("MODEL_PUBLICATION_RECEIPT_REQUIRED");}
             boolean sourceRevoked=CertificateRevocationR30.blockedPolicy(w.ro,"R27",s.id);
             if(sourceRevoked){issued=false;failing.add("SOURCE_REVISION_REQUIRES_NEW_FUTURE_BINDING");}
             if (QualificationInboxR29.blockedForCertificate(w.ro, s.id)) { issued = false; failing.add("QUALIFICATION_GAP_OR_CONFLICT"); }
             Map<String, Object> g = new LinkedHashMap<>(v.gates); g.put("gateVersion",CertificateGateR27.GATE_VERSION); g.put("failing", new ArrayList<Object>(failing));
+            g.put("modelStateBindingR31",modelBinding);
             GateV2R29.Evidence v2=GateV2R29.evidence(w.ro,s.id,latestOrd);v2.pairedLcbVsI00=e.pairedLcbVsI00;v2.pairedLcbVsNull=e.pairedLcbVsNull;v2.deployed=s.id.equals(deployed);
             g.put("authority",CertificateGateR27.GATE_VERSION);g.put("semanticAbi",s.semanticAbi);g.put("throughOrdinal",latestOrd);g.put("qualificationPrefix",st.lastOrdinal);g.put("canonicalPrefixInputHash",v2.inputHash);g.put("sourceRevision",sourceRevision);g.put("thresholdContractHash",CertificateGateR27.contract().get("contractHash"));
             String digest=StatsR27.sha256(JsonR27.write(g));g.put("inputHash",digest);g.put("evaluatedAt",now);
             final long expectedN=st.n,expectedLast=st.lastOrdinal;final String experiment=s.id;
             b.guardBefore(db->{try(Cursor current=db.rawQuery("SELECT n,last_ordinal FROM r27_eprocess WHERE policy_hash=?",new String[]{experiment})){return current.moveToFirst()&&current.getLong(0)==expectedN&&current.getLong(1)==expectedLast?0:-1;}});
+            if("BOUND".equals(modelBinding.get("state")))b.guardBefore(db->MainlineModelBindingR31.stillCommitted(db,modelBinding)?0:-1);
             b.add("INSERT OR REPLACE INTO r27_certificate(policy_hash,status,gates_json,evidence_digest,issued_at,expires_at,gate_version) VALUES(?,?,?,?,?,?,?)", s.id, sourceRevoked ? "REVOKED" : issued ? "ACTIVE" : "NOT_ISSUED", JsonR27.write(g), digest, now, now + CertificateGateR27.VALID_MS, CertificateGateR27.GATE_VERSION);
             // R29-036: R29_GATE_V2 evaluated beside the unchanged R27 gate and recorded separately (report only).
             GateV2R29.record(b, v2, GateV2R29.evaluate(v2));
@@ -284,6 +289,7 @@ public final class LiveShadowsR27 {
         // certificates that actually survived this same write transaction, using the unchanged choice rule.
         b.after=db->{
             long committedAt=System.currentTimeMillis();List<CertificateGateR27.Evidence> committed=new ArrayList<>();
+            if(MainlineChoiceStoreR31.ready(db))MainlineChoiceStoreR31.reconcileRevocationR31(db,sourceRevision,committedAt);
             for(CertificateGateR27.Evidence e:active)try(Cursor c=db.rawQuery("SELECT 1 FROM r27_certificate WHERE policy_hash=? AND status='ACTIVE' AND gate_version=? AND issued_at<=? AND expires_at>?",new String[]{e.policyHash,CertificateGateR27.GATE_VERSION,String.valueOf(committedAt),String.valueOf(committedAt)})){
                 if(c.moveToFirst()&&!CertificateRevocationR30.blockedPolicy(db,"R27",e.policyHash))committed.add(e);
             }
@@ -292,8 +298,15 @@ public final class LiveShadowsR27 {
             // R31-B10-C01: the same transaction is the only writer of the typed authority; a failure rolls both back.
             if(MainlineChoiceStoreR31.ready(db)){
                 String digest="",modelState="";
-                if(actual!=null)try(Cursor c=db.rawQuery("SELECT evidence_digest,gates_json FROM r27_certificate WHERE policy_hash=?",new String[]{actual})){if(c.moveToFirst()){digest=c.getString(0);Object abi=((Map<?,?>)JsonR27.parse(c.getString(1))).get("semanticAbi");modelState=StatsR27.sha256("SEMANTIC_ABI|"+abi);}}
+                if(actual!=null)try(Cursor c=db.rawQuery("SELECT evidence_digest,gates_json FROM r27_certificate WHERE policy_hash=?",new String[]{actual})){if(c.moveToFirst()){
+                    digest=c.getString(0);Object raw=((Map<?,?>)JsonR27.parse(c.getString(1))).get("modelStateBindingR31");
+                    if(!(raw instanceof Map)||!MainlineModelBindingR31.stillCommitted(db,(Map<String,Object>)raw))throw new IllegalStateException("R31_MAINLINE_MODEL_RECEIPT_CHANGED");
+                    modelState=String.valueOf(((Map<?,?>)raw).get("bindingSha256"));
+                }}
                 MainlineChoiceStoreR31.appendChoice(db,actual,actual,CertificateGateR27.GATE_VERSION+"|"+CertificateGateR27.contract().get("contractHash"),digest,modelState,sourceRevision,latestOrd+1,selectionFenceR31,committedAt);
+                // The existing certificate owner performs the migration only after
+                // this same atomic dual write compares equal. Fallback stays legal.
+                if(!"TYPED_READ".equals(MainlineChoiceStoreR31.authorityMode(db)))MainlineChoiceStoreR31.switchToTypedRead(db,committedAt);
             }
             return 0;
         };

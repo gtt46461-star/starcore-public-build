@@ -161,7 +161,25 @@ public final class R27QualityTest {
     /** Each permitted schema/sidecar block is independently pinned; the rest of DbStore
      * still must reproduce the original 9edd4e0f whole-file hash. The baseline is the
      * immutable plan fixture, not a replacement production implementation. */
+    @SuppressWarnings("unchecked")
+    static String restoreUnifiedSchemaBlocksR31(String source) {
+        try {
+            String review=new String(Files.readAllBytes(new File(R27TestSupport.root(),"verification/r31/unified-schema-review.json").toPath()),java.nio.charset.StandardCharsets.UTF_8);
+            assertEquals("Only the explicitly reviewed schema-only patch is allowed","7a24b33a4218284fcbbde98e381f2022c0ff8c4a8b270da09422272dfde10f31",StatsR27.sha256(review));
+            Map<String,Object> document=(Map<String,Object>)JsonR27.parse(review);
+            List<Object> hunks=(List<Object>)document.get("hunks");
+            for(int i=hunks.size()-1;i>=0;i--) {
+                Map<String,Object> hunk=(Map<String,Object>)hunks.get(i);String after=(String)hunk.get("after"),before=(String)hunk.get("before");
+                assertEquals(hunk.get("afterSha256"),StatsR27.sha256(after));assertEquals(hunk.get("beforeSha256"),StatsR27.sha256(before));
+                int at=source.indexOf(after);assertTrue("Exact reviewed migration block missing/tampered",at>=0);assertEquals("Reviewed block must be unique",at,source.lastIndexOf(after));
+                source=source.substring(0,at)+before+source.substring(at+after.length());
+            }
+            return source;
+        }catch(java.io.IOException failure){throw new AssertionError("Schema review original missing",failure);}
+    }
+
     static String restoreR31DbSchemaSidecarsForH15(String source,String baseline) {
+        source=restoreUnifiedSchemaBlocksR31(source);
         assertEquals("Original DbStore fixture must itself retain the old owner identity",
                 "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",
                 StatsR27.sha256(baseline.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
@@ -247,6 +265,9 @@ public final class R27QualityTest {
                 String source=new String(bytes,java.nio.charset.StandardCharsets.UTF_8);
                 String baseline=new String(Files.readAllBytes(new File(root,"construction/STARCORE_R31_FINAL_20261104/baseline_source/"+f[0]).toPath()),java.nio.charset.StandardCharsets.UTF_8);
                 bytes=restoreR31DbSchemaSidecarsForH15(source,baseline).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                String illegalDdl=source.replace("LegacyDdlR31.exec(db,", "LegacyDdlR31.exec(db, /* unreviewed */");
+                assertNotEquals(source,illegalDdl);
+                assertThrows("Reviewed DDL blocks still reject arbitrary tampering",AssertionError.class,()->restoreR31DbSchemaSidecarsForH15(illegalDdl,baseline));
                 String illegalPnl=source.replace("dcv.put(\"pnl\", t.pnl);","dcv.put(\"pnl\", t.pnl + 1);");
                 assertNotEquals(source,illegalPnl);
                 assertNotEquals("DbStore REAL payout outside the registered blocks stays protected",f[1],

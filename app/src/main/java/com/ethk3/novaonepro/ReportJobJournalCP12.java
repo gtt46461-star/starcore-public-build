@@ -65,6 +65,8 @@ public final class ReportJobJournalCP12 implements Closeable {
         public long revision,attempt,createdWallMs,updatedWallMs,snapshotWallMs,snapshotBytes,temporaryReservationBytes,publishedQuotaBytes;
         public int compressionAttempt,preemptions,failureAttempts;
         public boolean evidenceComplete,checksComplete,allChecksPassed;
+        public long acknowledgedRevision=-1L;
+        public String semanticVerificationR31="LEGACY_NO_SEMANTIC_RECEIPT";
         public Job(String id,String request,String release,String mode,long now) {
             hash(id);hash(request);hash(release);if(!"FULL_REPORT".equals(mode)&&!"RETENTION_PAGE".equals(mode))throw new IllegalArgumentException("REPORT_MODE");
             jobId=id;requestId=request;releaseHash=release;this.mode=mode;createdWallMs=updatedWallMs=now;
@@ -74,7 +76,7 @@ public final class ReportJobJournalCP12 implements Closeable {
             o.put("stage",stage);o.put("resumeStage",resumeStage);o.put("lastReason",lastReason);o.put("snapshotSha",snapshotSha);o.put("publishedDir",publishedDir);o.put("manifestSha",manifestSha);
             o.put("revision",revision);o.put("attempt",attempt);o.put("createdWallMs",createdWallMs);o.put("updatedWallMs",updatedWallMs);o.put("snapshotWallMs",snapshotWallMs);o.put("snapshotBytes",snapshotBytes);
             o.put("temporaryReservationBytes",temporaryReservationBytes);o.put("publishedQuotaBytes",publishedQuotaBytes);o.put("compressionAttempt",compressionAttempt);o.put("preemptions",preemptions);o.put("failureAttempts",failureAttempts);
-            o.put("evidenceComplete",evidenceComplete);o.put("checksComplete",checksComplete);o.put("allChecksPassed",allChecksPassed);return o;
+            o.put("evidenceComplete",evidenceComplete);o.put("checksComplete",checksComplete);o.put("allChecksPassed",allChecksPassed);o.put("acknowledgedRevision",acknowledgedRevision);o.put("semanticVerificationR31",semanticVerificationR31);return o;
         }
         public static Job parse(String json)throws Exception {
             JSONObject o=new JSONObject(json);if(!"REPORT_JOB_CP12_1".equals(o.getString("revision_name")))throw new IOException("REPORT_JOB_REVISION");
@@ -86,6 +88,9 @@ public final class ReportJobJournalCP12 implements Closeable {
             j.revision=o.getLong("revision");j.attempt=o.getLong("attempt");j.updatedWallMs=o.getLong("updatedWallMs");j.snapshotWallMs=o.getLong("snapshotWallMs");j.snapshotBytes=o.getLong("snapshotBytes");
             j.temporaryReservationBytes=o.getLong("temporaryReservationBytes");j.publishedQuotaBytes=o.getLong("publishedQuotaBytes");j.compressionAttempt=o.getInt("compressionAttempt");j.preemptions=o.getInt("preemptions");j.failureAttempts=o.optInt("failureAttempts",0);
             j.evidenceComplete=o.getBoolean("evidenceComplete");j.checksComplete=o.getBoolean("checksComplete");j.allChecksPassed=o.getBoolean("allChecksPassed");
+            j.acknowledgedRevision=o.optLong("acknowledgedRevision",-1L);
+            j.semanticVerificationR31=o.optString("semanticVerificationR31","LEGACY_NO_SEMANTIC_RECEIPT");
+            if(!java.util.Arrays.asList("LEGACY_NO_SEMANTIC_RECEIPT","REQUIRES_ZIP_READBACK","ZIP_READBACK_VERIFIED").contains(j.semanticVerificationR31))throw new IOException("REPORT_JOB_SEMANTIC_STATE");
             if(j.revision<0||j.attempt<0||j.compressionAttempt<0||j.preemptions<0||j.failureAttempts<0||j.snapshotBytes<0||j.temporaryReservationBytes<0||j.publishedQuotaBytes<0)throw new IOException("REPORT_JOB_RANGE");
             return j;
         }
@@ -106,22 +111,35 @@ public final class ReportJobJournalCP12 implements Closeable {
         if(pointer.exists()&&id.equals(new JSONObject(readAtomic(pointer,4096)).getString("jobId"))){new AtomicFile(pointer).delete();if(pointer.exists())throw new IOException("REPORT_CURRENT_POINTER_DELETE");}}
     public File directory(Job j)throws IOException {check();File directory=ReportArchiveVerifierCP12.inside(root,"jobs/"+j.jobId);
         if(!directory.isDirectory()&&!directory.mkdirs())throw new IOException("REPORT_JOB_CREATE");return directory;}
-    public Job current()throws Exception {check();File current=new File(root,"current-job.json");if(!current.exists())return null;
-        JSONObject pointer=new JSONObject(readAtomic(current,4096));String id=pointer.getString("jobId");hash(id);
-        Job j=Job.parse(readAtomic(ReportArchiveVerifierCP12.inside(root,"jobs/"+id+"/job.json"),MAX_JSON));
-        if(!id.equals(j.jobId))throw new IOException("REPORT_JOB_POINTER");return j;}
+    public Job current()throws Exception {
+        check();File current=new File(root,"current-job.json");if(!current.exists())return null;
+        String original=readAtomic(current,4096);
+        try {
+            JSONObject pointer=new JSONObject(original);String id=pointer.getString("jobId");hash(id);
+            Job job=Job.parse(readAtomic(ReportArchiveVerifierCP12.inside(root,"jobs/"+id+"/job.json"),MAX_JSON));
+            if(!id.equals(job.jobId))throw new IOException("REPORT_JOB_POINTER");return job;
+        } catch(Exception malformed) {
+            String quarantine=StorageBudgetR31.sha((original+"|"+UUID.randomUUID()).getBytes(StandardCharsets.UTF_8));
+            // Preserve the exact pointer; the suspect job directory is untouched.
+            writeAtomic(new File(root,"quarantine/"+quarantine+".json"),new JSONObject().put("originalPointer",original).put("reason",malformed.getClass().getSimpleName()+":"+String.valueOf(malformed.getMessage())).toString());
+            new AtomicFile(current).delete();if(current.exists())throw new IOException("REPORT_ORPHAN_POINTER_QUARANTINE_PENDING",malformed);
+            android.util.Log.w("ReportJournalCP12","Orphan current pointer quarantined; other durable requests can continue",malformed);return null;
+        }
+    }
     /** Read-only UI recovery lookup: retention jobs cannot hide the latest full export. */
     public static Job latestFullReport(File root)throws Exception {
         File jobs=ReportArchiveVerifierCP12.inside(root,"jobs");File[] directories=DirectoryCursorR31.children(jobs,1024);
         if(directories==null)return null;if(directories.length>1024)throw new IOException("REPORT_RECOVERY_JOB_LIMIT");
         Job latest=null;
         for(File directory:directories){
+          try {
             if(!directory.getName().matches("[0-9a-f]{64}"))throw new IOException("REPORT_RECOVERY_JOB_PATH");
             File journal=ReportArchiveVerifierCP12.inside(root,"jobs/"+directory.getName()+"/job.json");
             Job job=Job.parse(readAtomic(journal,MAX_JSON));
             if(!directory.getName().equals(job.jobId))throw new IOException("REPORT_RECOVERY_JOB_IDENTITY");
             if(job.mode.equals("FULL_REPORT")&&(latest==null||job.createdWallMs>latest.createdWallMs
                     ||job.createdWallMs==latest.createdWallMs&&job.jobId.compareTo(latest.jobId)>0))latest=job;
+          } catch(Exception invalid) { android.util.Log.w("ReportJournalCP12","Unrelated orphan or damaged journal preserved: "+directory.getName(),invalid); }
         }
         return latest;
     }
@@ -130,11 +148,73 @@ public final class ReportJobJournalCP12 implements Closeable {
     public void transition(Job j,Stage next,long now)throws Exception {check();Stage prior=Stage.valueOf(j.stage);if(!allowed(prior,next))throw new IOException("REPORT_STAGE_TRANSITION|"+prior+"|"+next);
         // Persist a detached copy first. The in-memory state must not claim success if fsync fails.
         Job copy=Job.parse(j.json().toString());copy.stage=next.name();copy.updatedWallMs=now;copy.revision=Math.addExact(copy.revision,1);
-        writeAtomic(new File(directory(j),"job.json"),copy.json().toString());j.stage=copy.stage;j.updatedWallMs=copy.updatedWallMs;j.revision=copy.revision;acknowledge(j.requestId,j);
+        writeAtomic(new File(directory(j),"job.json"),copy.json().toString());j.stage=copy.stage;j.updatedWallMs=copy.updatedWallMs;j.revision=copy.revision;
+        try{acknowledge(j.requestId,j);}catch(IOException retry){android.util.Log.w("ReportJournalCP12","Durable ACK outbox pending for "+j.requestId+"@"+j.revision,retry);}
     }
     public void checkpoint(Job j,long now)throws Exception {check();Job copy=Job.parse(j.json().toString());copy.updatedWallMs=now;copy.revision=Math.addExact(copy.revision,1);
         writeAtomic(new File(directory(j),"job.json"),copy.json().toString());j.updatedWallMs=copy.updatedWallMs;j.revision=copy.revision;}
-    public void acknowledge(String requestId,Job j)throws Exception {hash(requestId);JSONObject ack=new JSONObject();ack.put("requestId",requestId);ack.put("jobId",j.jobId);ack.put("mode",j.mode);ack.put("stage",j.stage);ack.put("revision",j.revision);ack.put("reason",j.lastReason);ack.put("evidenceComplete",j.evidenceComplete);ack.put("checksComplete",j.checksComplete);ack.put("allChecksPassed",j.allChecksPassed);addRecoveryReceipt(root,requestId,ack);writeAtomic(new File(root,"requests/"+requestId+".ack.json"),ack.toString());}
+    /** Job revision is the outbox sequence. Persisting READY never depends on ACK I/O. */
+    public void acknowledge(String requestId,Job j)throws Exception {
+        check();hash(requestId);if(!j.requestId.equals(requestId))throw new IOException("REPORT_ACK_IDENTITY");
+        File target=new File(root,"requests/"+requestId+".ack.json");
+        if(target.exists()) {
+            String original=readAtomic(target,8192);
+            try {
+                JSONObject prior=new JSONObject(original);
+                if(!requestId.equals(prior.getString("requestId"))||!j.jobId.equals(prior.getString("jobId")))throw new org.json.JSONException("ACK_IDENTITY");
+                if(prior.optLong("revision",-1)>j.revision)return; // never regress an observer
+            }catch(org.json.JSONException corrupt){
+                String id=StorageBudgetR31.sha((target.getName()+"|"+original).getBytes(StandardCharsets.UTF_8));
+                writeAtomic(new File(root,"quarantine/"+id+".json"),new JSONObject().put("originalAck",original).put("reason","ACK_INVALID:"+corrupt.getMessage()).toString());
+            }
+        }
+        JSONObject ack=new JSONObject();ack.put("requestId",requestId);ack.put("jobId",j.jobId);ack.put("mode",j.mode);ack.put("stage",j.stage);ack.put("revision",j.revision);ack.put("reason",j.lastReason);ack.put("evidenceComplete",j.evidenceComplete);ack.put("checksComplete",j.checksComplete);ack.put("allChecksPassed",j.allChecksPassed);
+        ack.put("semanticVerificationR31",j.semanticVerificationR31);
+        addRecoveryReceipt(root,requestId,ack);writeAtomic(target,ack.toString());
+        // Crash after ACK and before this receipt only causes an idempotent resend.
+        j.acknowledgedRevision=j.revision;writeAtomic(new File(directory(j),"job.json"),j.json().toString());
+    }
+    public static Job findRequestR31(File root,String request)throws Exception {
+        hash(request);File jobs=new File(root,"jobs");if(!jobs.isDirectory())return null;
+        Job found=null;boolean conflict=false;
+        for(File directory:DirectoryCursorR31.children(jobs,1024)) {
+            try {
+                Job job=Job.parse(readAtomic(new File(directory,"job.json"),MAX_JSON));
+                if(!directory.getName().equals(job.jobId))throw new IOException("REPORT_JOB_IDENTITY");
+                if(request.equals(job.requestId)) {
+                    if(found!=null&&!found.jobId.equals(job.jobId))conflict=true;
+                    found=job;
+                }
+            }catch(IOException|org.json.JSONException damaged){android.util.Log.w("ReportJournalCP12","Orphan journal preserved: "+directory.getName(),damaged);}
+        }
+        if(conflict)throw new IOException("REPORT_DUPLICATE_REQUEST_JOBS");return found;
+    }
+    public Job recoverOrCreateR31(String request,String release,String mode)throws Exception {
+        check();Job existing=findRequestR31(root,request);
+        if(existing==null){existing=new Job(request,request,release,mode,System.currentTimeMillis());create(existing);return existing;}
+        if(!existing.releaseHash.equals(release)||!existing.mode.equals(mode))throw new IOException("REPORT_RECOVERY_IDENTITY");
+        JSONObject pointer=new JSONObject();pointer.put("jobId",existing.jobId);pointer.put("requestId",request);writeAtomic(new File(root,"current-job.json"),pointer.toString());return existing;
+    }
+    public void reconcileAcknowledgementsR31()throws Exception {
+        check();File jobs=new File(root,"jobs");if(!jobs.isDirectory())return;
+        for(File directory:DirectoryCursorR31.children(jobs,1024))try {
+            Job job=Job.parse(readAtomic(new File(directory,"job.json"),MAX_JSON));
+            if(!directory.getName().equals(job.jobId))throw new IOException("REPORT_JOB_IDENTITY");
+            if(needsAcknowledgementR31(job))acknowledge(job.requestId,job);
+        }catch(Exception retry){android.util.Log.w("ReportJournalCP12","ACK reconciliation pending: "+directory.getName(),retry);}
+    }
+    private boolean needsAcknowledgementR31(Job job)throws Exception {
+        if(job.acknowledgedRevision<job.revision)return true;
+        File ack=new File(root,"requests/"+job.requestId+".ack.json");if(!ack.exists())return true;
+        try{JSONObject row=new JSONObject(readAtomic(ack,8192));return !job.requestId.equals(row.optString("requestId"))||!job.jobId.equals(row.optString("jobId"))||row.optLong("revision",-1)!=job.revision||!job.stage.equals(row.optString("stage"));}
+        catch(org.json.JSONException malformed){return true;}
+    }
+    /** Read-only reattachment to the authoritative job also recovers a missing ACK.
+     * Consumers still verify published.json, manifest and ZIP before opening it. */
+    public static JSONObject authoritativeStateR31(File root,String request)throws Exception {
+        Job job=findRequestR31(root,request);if(job==null)return null;
+        JSONObject value=new JSONObject();value.put("requestId",request);value.put("jobId",job.jobId);value.put("mode",job.mode);value.put("stage",job.stage);value.put("revision",job.revision);value.put("reason",job.lastReason);value.put("evidenceComplete",job.evidenceComplete);value.put("checksComplete",job.checksComplete);value.put("allChecksPassed",job.allChecksPassed);value.put("semanticVerificationR31",job.semanticVerificationR31);return value;
+    }
     public static Recovery recovery(Job j,boolean snapshotValid,boolean finishedManifest,boolean publishedValid) {
         Stage stage=Stage.valueOf(j.stage);
         if(stage==Stage.READY_TO_SHARE||stage==Stage.RETENTION_READY)return publishedValid?Recovery.READ_PUBLISHED:Recovery.TERMINAL;

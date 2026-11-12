@@ -77,6 +77,7 @@ public final class ReportSnapshotR30 {
             if(source!=null){Map<String,Object> original=new LinkedHashMap<>(source);data.put("previousSuccessfulReport",original.remove("previousSuccessfulReport"));watermark.put("reportJobId",original.remove("reportJobId"));watermark.put("sourceManifest",original);}
             List<CapabilityRegistryR30.Definition> definitions=CapabilityRegistryR30.all();facts.put("registeredCapabilities",(long)definitions.size());List<Object> capabilities=new ArrayList<>();for(CapabilityRegistryR30.Definition def:definitions){Map<String,Object> row=new LinkedHashMap<>(def.json());row.put("effective",null);row.put("availabilityScope","CODE_AND_CURRENT_BINDINGS_SEPARATE_FROM_STATISTICAL_SNAPSHOT");row.put("evidenceState","SEPARATE_PERSISTED_SOURCE_REQUIRED");capabilities.add(row);}data.put("capabilities",capabilities);
             cachedViews(data);
+            collectCrossSourceR31(facts,watermark,data);
             timelineViewsR30(data);
             writerOutcomeViewsR31(data);
             confirmationViewsR30(data);data.put("qualificationGapProcessObservation",QualificationGapRepairR30R1.failureObservation());
@@ -84,6 +85,11 @@ public final class ReportSnapshotR30 {
             data.put("modelConsumption",ModelConsumptionCensusR30R1.parse(values.get("modelConsumptionCensus") instanceof String?(String)values.get("modelConsumptionCensus"):null));
             long taskCalendar=-1;try{if(values.get("latestIssue") instanceof String)taskCalendar=TargetIssueResolver.sequenceOrdinalSU1((String)values.get("latestIssue"));}catch(RuntimeException invalid){}
             data.put("researchTableContracts",ResearchTableAdaptersR30R1.contracts());
+            // The export connection is the immutable backup. Live callers receive
+            // separate per-view read receipts rather than pretending a shared SQL waterline.
+            List<Object> tablePages=new ArrayList<>();
+            for(String id:ResearchTableAdaptersR30R1.ids())tablePages.add(ResearchTableAdaptersR30R1.readPageR31(db,id,java.util.Collections.emptyMap(),0,8,cancellation));
+            data.put("researchTablesR31",tablePages);
             // Explicitly outside the SQL watermark: process counters are diagnostic observations.
             data.put("r31ProcessTelemetry",ResearchPoolR27.telemetrySnapshotR31());
             data.put("r31WriterProtocolObservation",com.ethk3.novaonepro.DatabaseCoordinator.writeProtocolSnapshotR31());
@@ -94,12 +100,25 @@ public final class ReportSnapshotR30 {
             data.put("r31ProcessObservationScope","PER_PID_OUTSIDE_DATABASE_WATERMARK; diagnostics PID may have no main runtime owner");
             data.put("taskLiveness",TaskProgressR30R1.summarize(data.get("tasks"),data.get("typedTaskProgress"),taskCalendar));
             data.put("runtimeDiagnosticLinks",RuntimeDiagnosticLinksR31.summarize(data.get("tasks"),data.get("r31RuntimeFaults")));
-            data.put("objectIndex",ReportObjectIndexR30.build(facts,watermark,data));
+            data.put("objectIndex",ReportObjectIndexR30.buildProductionR31(facts,watermark,data));
             Map<String,Object> refs=new LinkedHashMap<>();refs.put("tables",marks);refs.put("inlineRowsAreBounded",true);refs.put("inlineRowsetEncodedByteBudget",768*1024);refs.put("fullModelCensusEncodedByteBudget",1048576);refs.put("truncationRule","Only complete display rows; complete SQL totals and original snapshot remain authoritative");refs.put("fullEvidence","verified snapshot.db and legacy R26/R27 report attachments");data.put("snapshotSources",refs);
             String digest=StatsR27.sha256(JsonR27.write(facts)+"|"+JsonR27.write(watermark));watermark.put("factsSha256",digest);watermark.put("digestScope","DETACHED_REPORT_FACTS_AND_WATERMARK_NOT_FULL_DATABASE_HASH");
             if(own)db.setTransactionSuccessful();
         }catch(android.os.OperationCanceledException cancelled){throw cancelled;}
-        catch(RuntimeException unavailable){errors.add(unavailable.getClass().getSimpleName()+":"+unavailable.getMessage());watermark.put("status","UNKNOWN_CAPTURE_FAILED");facts.clear();data.clear();}
+        catch(RuntimeException unavailable){
+            errors.add(unavailable.getClass().getSimpleName()+":"+unavailable.getMessage());watermark.put("status","UNKNOWN_CAPTURE_FAILED");facts.clear();data.clear();
+            // Missing source facts must not erase the registry or prevent a complete
+            // diagnostic report. These entries explicitly contain no execution evidence.
+            watermark.put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26);
+            if(source!=null){Map<String,Object> original=new LinkedHashMap<>(source);data.put("previousSuccessfulReport",original.remove("previousSuccessfulReport"));watermark.put("reportJobId",original.remove("reportJobId"));watermark.put("sourceManifest",original);}
+            List<Object> capabilities=new ArrayList<>();for(CapabilityRegistryR30.Definition definition:CapabilityRegistryR30.all()){
+                Map<String,Object> row=new LinkedHashMap<>(definition.json());row.put("effective",null);row.put("evidenceState","UNKNOWN_CAPTURE_FAILED");capabilities.add(row);
+            }data.put("capabilities",capabilities);
+            List<Object> pages=new ArrayList<>();for(String id:ResearchTableAdaptersR30R1.ids()){
+                Map<String,Object> row=new LinkedHashMap<>();row.put("id",id);row.put("status","NOT_RUN_CAPTURE_FAILED");row.put("rows",java.util.Collections.emptyList());row.put("reason",errors.get(errors.size()-1));pages.add(row);
+            }data.put("researchTablesR31",pages);data.put("researchTableContracts",ResearchTableAdaptersR30R1.contracts());
+            data.put("objectIndex",ReportObjectIndexR30.buildProductionR31(facts,watermark,data));
+        }
         finally{if(own)db.endTransaction();}
         return new ReportR27.R30Input(facts,watermark,data,errors);
     }
@@ -145,6 +164,37 @@ public final class ReportSnapshotR30 {
         String published="EXISTS(SELECT 1 FROM r27_history_import) OR EXISTS(SELECT 1 FROM r31_history_import_row r JOIN r31_history_import_run j ON j.job_id=r.job_id WHERE j.status='COMPLETE' AND r.duplicate_conflicts=0)";
         q.add("historyImportPublicationState",ready?"CASE WHEN ("+published+") THEN CASE WHEN "+staging+" THEN 'READY_PUBLISHED_WITH_STAGING_EXCLUDED' ELSE 'READY_PUBLISHED' END ELSE CASE WHEN "+staging+" THEN 'READY_ONLY_STAGING_NO_PUBLISHED_ROWS' ELSE 'READY_NO_PUBLISHED_ROWS' END END":"'"+unavailable+"'",false);
     }
+    static void qualificationMetricsR31(Query q) {
+        boolean active=q.has("r27_live_shadow","policy_hash","status")&&q.has("r27_eprocess","policy_hash","global_index","state","n","acts","hits");
+        String join=" FROM r27_eprocess e JOIN r27_live_shadow s ON s.policy_hash=e.policy_hash WHERE s.status IN ('ACTIVE','ACTIVE_REPAIR1') AND e.global_index>0";
+        q.add("qualifiedExperiments",active?"(SELECT count(*)"+join+" AND e.state='"+SequentialQualificationR27.QUALIFIED+"')":"NULL",true);
+        q.add("maxFuturePeriods",active?"(SELECT coalesce(max(e.n),0)"+join+")":"NULL",true);
+        q.add("bestFutureHr",active?"(SELECT max(CASE WHEN e.acts>0 THEN 1.0*e.hits/e.acts END)"+join+")":"NULL",true);
+        boolean receipts=active&&q.has("r29_qual_receipt","experiment_id","target_issue","act","hit");
+        String rjoin=" FROM r29_qual_receipt r JOIN r27_live_shadow s ON s.policy_hash=r.experiment_id JOIN r27_eprocess e ON e.policy_hash=s.policy_hash WHERE s.status IN ('ACTIVE','ACTIVE_REPAIR1') AND e.global_index>0";
+        for(String[] value:new String[][]{{"futurePeriods","count(*)"},{"futureActs","coalesce(sum(r.act),0)"},{"futureHits","coalesce(sum(CASE WHEN r.act=1 AND r.hit=1 THEN 1 ELSE 0 END),0)"},{"independentFutureIssues","count(DISTINCT r.target_issue)"}})q.add(value[0],receipts?"(SELECT "+value[1]+rjoin+")":"NULL",true);
+        q.add("receiptStateMismatches",receipts?"(SELECT count(*)"+join+" AND e.n<>(SELECT count(*) FROM r29_qual_receipt r WHERE r.experiment_id=e.policy_hash))":"NULL",true);
+        q.add("activeCertificates",active&&q.has("r27_certificate","policy_hash","status","gate_version","issued_at","expires_at")?"(SELECT count(*) FROM r27_certificate k JOIN r27_live_shadow s ON s.policy_hash=k.policy_hash JOIN r27_eprocess e ON e.policy_hash=k.policy_hash WHERE s.status IN ('ACTIVE','ACTIVE_REPAIR1') AND e.state='"+SequentialQualificationR27.QUALIFIED+"' AND k.status='ACTIVE' AND k.gate_version='"+CertificateGateR27.GATE_VERSION+"' AND k.issued_at<="+READ_CLOCK+" AND k.expires_at>"+READ_CLOCK+")":"NULL",true);
+        q.add("evolutionAttempts",q.has("r26_evolution")?"(SELECT count(*) FROM r26_evolution)":"NULL",true);
+    }
+    /** A chart refresh reads only its own facts and bounded series, never the full
+     * report, table payloads, storage census, model inventory or process observers. */
+    public static ReportR27.R30Input captureChartsR31(SQLiteDatabase db) {
+        Map<String,Object> facts=new LinkedHashMap<>(),watermark=new LinkedHashMap<>(),data=new LinkedHashMap<>();List<String> errors=new ArrayList<>();
+        try {
+            Map<String,Table> tables=metadata(db);Query query=new Query(tables,errors);
+            query.add("factsReadAt",READ_CLOCK,true);query.add("latestIssue",query.has("draws","issue","dirty")?"(SELECT max(issue) FROM draws WHERE dirty=0)":"NULL",false);
+            qualificationMetricsR31(query);query.count("policyObjects","r27_policy");query.count("generations","r27_generation");
+            query.rows("evolution","r27_generation",new String[]{"generation","loop","dataset_hash","champion_hash","paired_lcb","detail_json","finished_at"},query.has("r27_generation","generation")?"generation DESC":null,20,null,65536);
+            try(Cursor cursor=db.rawQuery(query.sql(),null)) {
+                if(!cursor.moveToFirst())throw new IllegalStateException("CHART_FACT_ROW_MISSING");
+                for(int i=0;i<query.cells.size();i++){Cell cell=query.cells.get(i);Object value=cursor.isNull(i)?null:cell.numeric?number(cursor,i):cursor.getString(i);if(cell.fields!=null)data.put(cell.key.substring(5),decode((String)value,cell.table,cell.fields));else facts.put(cell.key,value);}
+            }
+            List<Object> capabilities=new ArrayList<>();for(CapabilityRegistryR30.Definition definition:CapabilityRegistryR30.all())capabilities.add(definition.json());data.put("capabilities",capabilities);facts.put("registeredCapabilities",(long)capabilities.size());
+            watermark.put("factsReadAt",facts.get("factsReadAt"));watermark.put("latestIssue",facts.get("latestIssue"));watermark.put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26);watermark.put("scope","BOUNDED_CHART_FACTS_NOT_COMPLETE_REPORT");watermark.put("factsSha256",StatsR27.sha256(JsonR27.write(facts)));
+        }catch(android.os.OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException error){errors.add(error.getClass().getSimpleName()+":"+error.getMessage());}
+        return new ReportR27.R30Input(facts,watermark,data,errors);
+    }
     static void metrics(Query q,long at){
         boolean census=q.has("r30_model_call","status","policy_hash","target_ordinal","position","required_count","model_hash","probability_hash","frozen_at","reason")&&q.has("r27_live_shadow","policy_hash","spec_json")&&q.has("r27_live_frozen","policy_hash","target_ordinal","status","frozen_at")&&q.has("r30_model_artifact","model_hash","feature_abi")&&q.has("r30_model_surface","target_ordinal","position","model_hash","probability_hash");
         q.add("modelConsumptionCensus",census?ModelConsumptionCensusR30R1.packedSql():"NULL",false);
@@ -157,17 +207,7 @@ public final class ReportSnapshotR30 {
         q.add("atomnetConsumedPublishedModels",atomPub&&atomUse?"(SELECT count(DISTINCT f.model_hash) FROM r30_atomnet_forecast f WHERE EXISTS(SELECT 1 FROM r31_atomnet_publication p WHERE p.status='PUBLISHED' AND p.model_hash=f.model_hash))":"NULL",true);
         historyImportMetricsR31(q);
         q.add("timelineEvents",q.has("r27_chart_cache","panel_id","key")?"(SELECT count(*) FROM r27_chart_cache WHERE panel_id IN ('"+IssueTimelineR30.EVENT_RAW_PANEL+"','"+IssueTimelineR30.EVENT_DRAW_PANEL+"','"+IssueTimelineR30.EVENT_PRED_PANEL+"'))":"NULL",true);
-        boolean active=q.has("r27_live_shadow","policy_hash","status")&&q.has("r27_eprocess","policy_hash","global_index","state","n","acts","hits");
-        String join=" FROM r27_eprocess e JOIN r27_live_shadow s ON s.policy_hash=e.policy_hash WHERE s.status IN ('ACTIVE','ACTIVE_REPAIR1') AND e.global_index>0";
-        q.add("qualifiedExperiments",active?"(SELECT count(*)"+join+" AND e.state='"+SequentialQualificationR27.QUALIFIED+"')":"NULL",true);
-        q.add("maxFuturePeriods",active?"(SELECT coalesce(max(e.n),0)"+join+")":"NULL",true);
-        q.add("bestFutureHr",active?"(SELECT max(CASE WHEN e.acts>0 THEN 1.0*e.hits/e.acts END)"+join+")":"NULL",true);
-        boolean receipts=active&&q.has("r29_qual_receipt","experiment_id","target_issue","act","hit");
-        String rjoin=" FROM r29_qual_receipt r JOIN r27_live_shadow s ON s.policy_hash=r.experiment_id JOIN r27_eprocess e ON e.policy_hash=s.policy_hash WHERE s.status IN ('ACTIVE','ACTIVE_REPAIR1') AND e.global_index>0";
-        for(String[] value:new String[][]{{"futurePeriods","count(*)"},{"futureActs","coalesce(sum(r.act),0)"},{"futureHits","coalesce(sum(CASE WHEN r.act=1 AND r.hit=1 THEN 1 ELSE 0 END),0)"},{"independentFutureIssues","count(DISTINCT r.target_issue)"}})q.add(value[0],receipts?"(SELECT "+value[1]+rjoin+")":"NULL",true);
-        q.add("receiptStateMismatches",receipts?"(SELECT count(*)"+join+" AND e.n<>(SELECT count(*) FROM r29_qual_receipt r WHERE r.experiment_id=e.policy_hash))":"NULL",true);
-        q.add("activeCertificates",active&&q.has("r27_certificate","policy_hash","status","gate_version","issued_at","expires_at")?"(SELECT count(*) FROM r27_certificate k JOIN r27_live_shadow s ON s.policy_hash=k.policy_hash JOIN r27_eprocess e ON e.policy_hash=k.policy_hash WHERE s.status IN ('ACTIVE','ACTIVE_REPAIR1') AND e.state='"+SequentialQualificationR27.QUALIFIED+"' AND k.status='ACTIVE' AND k.gate_version='"+CertificateGateR27.GATE_VERSION+"' AND k.issued_at<="+READ_CLOCK+" AND k.expires_at>"+READ_CLOCK+")":"NULL",true);
-        q.add("evolutionAttempts",q.has("r26_evolution")?"(SELECT count(*) FROM r26_evolution)":"NULL",true);
+        qualificationMetricsR31(q);
         q.add("confirmedPackets",q.has("r30_frozen_confirm","state","verified")?"(SELECT count(*) FROM r30_frozen_confirm WHERE state='DONE' AND verified=1)":"NULL",true);
         q.add("modelCheckpoints",q.has("r29_model_checkpoint","owner")?"(SELECT count(*) FROM r29_model_checkpoint WHERE owner IN ('ATOMNET_TEN_R30','ATOMNET_TEN_R30_REPAIR1','ATOMNET_FTRL'))":"NULL",true);
         q.add("birthRejections",q.has("r27_generation","rejected")?"(SELECT coalesce(sum(rejected),0) FROM r27_generation)":"NULL",true);
@@ -221,7 +261,7 @@ public final class ReportSnapshotR30 {
         q.rows("checkpoints","r29_model_checkpoint",new String[]{"owner","feature_abi","dataset_hash","trained_through","state_hash","updated_at"},null,16,null,256);
         q.rows("calibration","r27_calibration",new String[]{"policy_hash","method","fit_rows","validation_rows","excluded_late","excluded_gap","ece","state","updated_at"},null,32,null,256);
         q.rows("modelCalls","r30_model_call",new String[]{"policy_hash","model_hash","target_ordinal","position","status","reason"},null,20,null,256);
-        q.rows("runtimeCaches","r27_chart_cache",new String[]{"panel_id","key","payload_json","updated_at"},q.has("r27_chart_cache","updated_at")?"updated_at DESC,panel_id,key":null,64,q.has("r27_chart_cache","panel_id","key")?"(panel_id IN ('health','atomnet','calibration-r30','r30','mainline') OR (panel_id IN ('asset','r29') AND key IN ('build-identity','baseline-identity','legacy-preservation')) )":null,16384);
+        q.rows("runtimeCaches","r27_chart_cache",new String[]{"panel_id","key","payload_json","updated_at"},q.has("r27_chart_cache","updated_at")?"updated_at DESC,panel_id,key":null,64,q.has("r27_chart_cache","panel_id","key")?"(panel_id IN ('health','atomnet','calibration-r30','r30','mainline','r30-charts') OR (panel_id IN ('asset','r29') AND key IN ('build-identity','baseline-identity','legacy-preservation')) )":null,16384);
         q.rows("chartObjectIndex","r27_chart_cache",new String[]{"panel_id","key","updated_at"},"panel_id,key",512,q.has("r27_chart_cache","key")?"key='panel'":null,256);
         q.rows("repairFrameIndex","r30r1_chart_cache",new String[]{"view_id","frame_id","run_id","payload_hash","updated_at"},"view_id",18,"frame_id=(SELECT f.frame_id FROM r30r1_chart_cache f WHERE f.view_id=r30r1_chart_cache.view_id ORDER BY f.updated_at DESC,f.frame_id LIMIT 1)",256);
         for(ResearchGraphSpecsR30R1.Spec graph:ResearchGraphSpecsR30R1.ALL){q.add("researchProduced:"+graph.id,q.has("r30r1_chart_cache","view_id","run_id")&&q.has("r30r1_analysis_run","run_id","source_commit")?"(SELECT count(*) FROM r30r1_chart_cache f JOIN r30r1_analysis_run r ON r.run_id=f.run_id WHERE f.view_id='"+graph.id+"' AND r.source_commit='"+BuildConfig.SOURCE_COMMIT_R26+"')":"NULL",true);q.add("researchConsumed:"+graph.id,q.has("r30r1_research_measure","run_id","kind","measure_key")&&q.has("r30r1_chart_cache","view_id","run_id")?"(SELECT count(DISTINCT m.measure_key) FROM r30r1_research_measure m JOIN r30r1_chart_cache f ON f.run_id=m.run_id WHERE f.view_id='"+graph.id+"' AND m.kind='RESEARCH_SOURCE_CONSUMPTION')":"NULL",true);}
@@ -260,12 +300,34 @@ public final class ReportSnapshotR30 {
         for(Object item:(List<?>)raw){Map<String,Object> row=(Map<String,Object>)item;long pending=longValue(row.get("pending")),commit=longValue(row.get("last_committed_seq")),since=commit<0||ordinal<0?-1:Math.max(0,ordinal-commit);String reason=String.valueOf(row.get("blocked_reason")),wait=String.valueOf(row.get("wait_kind"))+" "+row.get("wait_detail");if(row.get("blocked_reason") instanceof Map||row.get("wait_detail") instanceof Map||row.get("wait_kind") instanceof Map)pending=-1;TaskLivenessR30.State state=TaskLivenessR30.classify(String.valueOf(row.get("status")),pending,since,reason.startsWith("DEPENDENCY")||reason.startsWith("WAITING_"),reason.contains("WAITING_NEW_DRAW")||wait.contains("WAITING_NEW_DRAW"),"RUNNING".equals(row.get("status")));states.add(state);Map<String,Object> value=new LinkedHashMap<>();value.put("taskId",row.get("task_id"));value.put("state",state.name());value.put("pending",pending<0?null:pending);value.put("periodsSinceCommit",since<0?null:since);rows.add(value);}
         out.put("tasks",rows);Map<String,Object> summary=new LinkedHashMap<>(TaskLivenessR30.summarize(states.toArray(new TaskLivenessR30.State[0])));long omitted=total instanceof Number?Math.max(0,((Number)total).longValue()-rows.size()):-1;out.put("omittedTasks",omitted<0?null:omitted);if(omitted!=0)summary.put("m12",null);out.put("summary",summary);out.put("scope","BOUNDED_DISPLAY; omitted task rows remain in the snapshot, never a measured healthy state");return out;
     }
+    static void collectCrossSourceR31(Map<String,Object> facts,Map<String,Object> mark,Map<String,Object> data) {
+        List<Object> rows=new ArrayList<>();Object source=data.get("runtimeCaches");
+        if(source instanceof List)for(Object raw:(List<?>)source) {
+            Map<String,Object> cache=MetricEvaluatorR29.map(raw);
+            if(!"r30-charts".equals(cache.get("panel_id"))||!"facts-r31".equals(cache.get("key")))continue;
+            try {
+                Map<String,Object> packet=MetricEvaluatorR29.map(JsonR27.parse(String.valueOf(cache.get("payload_json"))));
+                Map<String,Object> saved=MetricEvaluatorR29.map(packet.get("commonMetrics"));
+                Map<String,Object> water=MetricEvaluatorR29.map(packet.get("snapshotWatermark"));
+                for(String key:saved.keySet()) {
+                    for(int side=0;side<2;side++) {
+                        Object value=side==0?facts.get(key):saved.get(key);if(value==null)continue;
+                        Map<String,Object> row=new LinkedHashMap<>();row.put("source",side==0?"SQL_FACTS":"PERSISTED_CHART_FACTS");row.put("owner",side==0?"ReportSnapshotR30":"ChartCacheR27");
+                        row.put("role","ENGINEERING_RUNTIME");row.put("scope","COMMON_METRIC:"+key);row.put("capturedAt",side==0?mark.get("factsReadAt"):cache.get("updated_at"));
+                        row.put("watermark",String.valueOf(side==0?mark.get("latestIssue"):water.get("latestIssue"))+"|capture="+String.valueOf(side==0?mark.get("factsReadAt"):water.get("factsReadAt")));row.put("value",value);rows.add(row);
+                    }
+                }
+            }catch(RuntimeException malformed){Map<String,Object> warning=new LinkedHashMap<>();warning.put("state","UNKNOWN_CACHED_FACTS_INVALID");warning.put("error",malformed.getClass().getSimpleName());data.put("crossSourceWarning",warning);}
+        }
+        data.put("crossSourceObservations",rows);
+    }
     @SuppressWarnings("unchecked") static void cachedViews(Map<String,Object> data){
         Object rows=data.get("runtimeCaches");if(!(rows instanceof List))return;
         for(Object item:(List<?>)rows){Map<String,Object> row=(Map<String,Object>)item;String panel=String.valueOf(row.get("panel_id")),key=String.valueOf(row.get("key"));Object payload=row.get("payload_json");
             if(payload instanceof String)try{payload=JsonR27.parse((String)payload);}catch(RuntimeException malformed){Map<String,Object> error=new LinkedHashMap<>();error.put("status","UNREADABLE_CACHED_REPORT");error.put("source",panel+"/"+key);payload=error;}
             Map<String,Object> view=new LinkedHashMap<>();view.put("payload",payload);view.put("updatedAt",row.get("updated_at"));view.put("source",panel+"/"+key);view.put("scope","PERSISTED_REPORT_CACHE; NOT_MODEL_ARTIFACT_OR_NATURAL_QUALITY_VALIDATION");
             if(panel.equals("r30")&&key.equals("q08"))data.put("syntheticControl",view);
+            if(panel.equals("r30")&&key.equals("q08-factory-r31"))data.put("factoryCapabilityExperiment",view);
             if(panel.equals("atomnet")&&key.equals("ten-position-r30"))data.put("neuralTraining",view);
             if(key.equals("baseline-identity"))data.put("baselineIdentity",payload);
             if(key.equals("legacy-preservation"))data.put("legacyPreservation",payload);

@@ -54,9 +54,9 @@
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF16: register one non-exported read-only research-table activity; retain all existing package, permissions, services and provider declarations.",
       "role": "PRESENTATION",
-      "sha256": "94aef24f5094e0fb2a5f40d3ac239b8d9c27cfb4a8161b4de4907006e41d6d82"
+      "sha256": "2a67b1062f84dc549b4616befb4d993b3c9ea28a1059615e42b710b81c5edf90"
     },
     {
       "path": "app/src/main/assets/r27/golden_512.bin",
@@ -185,9 +185,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF15: validate actual frame bytes, hash, ABI and freshness before display; separately report stale, unknown and read errors and propagate cancellation.",
       "role": "PRESENTATION",
-      "sha256": "c17bc4354ecd17bfe73367d978b9c1979a46248ea2c2ae915cbf6689d4e9d0b0"
+      "sha256": "28e727962f4fc56a5768de57aee128d8e98eefd7984fab25feb2992d442dba03"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
@@ -197,9 +197,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF07: recover authoritative job state independently of ACK delivery and retry durable waiting requests; retain manifest, provider and ZIP verification before delivery.",
       "role": "PRESENTATION",
-      "sha256": "4eeae8930353a261f3d655b779c1c9033fc2afafc96a24c239446a38cf14882a"
+      "sha256": "a38fc6eec372313ff28e332ac3b6225509f715e49ca03414f8ecea427f40cbf3"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
@@ -220,9 +220,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF02/03/04: require the dedicated Legacy migration callback token and bind readiness to the owner-verified SQLite schema version; preserve write classes, fences, priorities and commit semantics.",
       "role": "NUMERIC",
-      "sha256": "3429c3b1bd9a496912c4df371fe4fd49862d949ff8f2ee2a7fbfda6928972bc1"
+      "sha256": "b4d711ff52d589f68150bc4d72f27b0bf38f78a880064c65e10dfdc889fe5a3b"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
@@ -231,15 +231,15 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF03/04: strict CREATE/INDEX and ALTER postconditions under the existing migration owner; one actual DDL per resumable callback. No DROP, payout or numerical threshold change.",
       "role": "NUMERIC",
-      "sha256": "e16b3039e86a1d2db2237a383ca7999a78198bc05bb05a16e13fed14033bd7ba"
+      "sha256": "1224b88bf72171ee4cce85255f818b14a61d838be064a72ae31f689843ca51bd"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF02/03/04: route legacy schema-only helpers to a dedicated asynchronous owner, strict single-DDL slices, read-only business readiness and durable drift replay; preserve numeric, DecisionGate, original REAL/PnL and threshold methods. Every DbStore DDL site, including directly reached helpers, now refuses unscoped execution at one owner boundary.",
       "role": "NUMERIC",
-      "sha256": "20e8419ce3cd3734b8f8c5a86c6c10917f972f4643c4027ec3257eff7c85f170"
+      "sha256": "dbbdb38112f70ea39a64bd5a8edc4e40fd2ba4f7dcae4a326b55c7233416fe19"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DecisionExplanationR30.java",
@@ -294,9 +294,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/EvidenceReachabilityR31.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF09: name opaque existing SQL roots PERSISTED_REFERENCE with an explicit original-owner retirement condition rather than incorrectly labeling every root as a current model; integrate actual CAS mark without claiming a full new GC-store migration.",
       "role": "PROVENANCE",
-      "sha256": "04297aa035724669688b04042ae10c149f885bd8b66929ae80b60f030b59b734"
+      "sha256": "5f644c992348dd4ad9923727790fcc35a9b86c704a934ef1c041243cce7b19dd"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ExplorationLaneR83.java",
@@ -342,6 +342,12 @@
       "sha256": "d1c04fe01de50ff6e51613994fc93ca7cf07f34416e7a36d1d0f94f3f72b5343"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/LegacyDdlR31.java",
+      "rationale": "UF03/04: strict same-handle DDL executor with sticky first failure, actual postconditions and at most one new DDL per owner slice. No quality or business authorization.",
+      "role": "NUMERIC",
+      "sha256": "ef81c65f1be266a1d5fe3018a7708313a9524a1bd5a161d5ce0a078310f31727"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/LegacyPredrawContextBridgeR915.java",
       "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
       "role": "NUMERIC",
@@ -349,9 +355,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF03/04: durable strict units, automatic responsible-unit replay independent of a failed final verification; retain every additive schema definition and protected business row.",
       "role": "NUMERIC",
-      "sha256": "1061007082af7003152508388c75943e289381667459fa907e1bef974ef36c3b"
+      "sha256": "295a4e05adc61f749ee6392e979ccee0c519dc4315d9f8c296fd855a32819d7b"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/LegacyTeacherOwnerR26.java",
@@ -451,6 +457,12 @@
       "sha256": "f26afd19f4fd441389570a5dc3decd34697ab37bced693a28854e0196657d859"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportControlBudgetR31.java",
+      "rationale": "UF05/06/07: separate bounded cross-process control-record admission, precharged 2MiB metadata quota including atomic-file versions and free-space floor; no bulk files allowed.",
+      "role": "PRESENTATION",
+      "sha256": "97e5b9ba6bd074850134d5325ffff6b20b8c4c9c4e53e6095a56802b86697a58"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
       "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
       "role": "NUMERIC",
@@ -464,9 +476,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF06/08: persist minimal request before optional collection; queue/kick failures keep durable intent; release verified workspace admission before READY; no snapshot/source substitution.",
       "role": "NUMERIC",
-      "sha256": "039997ffc886ad163594211bcb993759b46cc569a66c537319d522a547d4266e"
+      "sha256": "201954fafdfa537be5cd7f834ed141bc3a143214d50c2bc1e495e73faa70ad5a"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportInputsLeaseCP12.java",
@@ -476,15 +488,15 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportIoR31.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF05/08: route bounded request and acknowledgement control records through precharged metadata headroom and retain existing budgeted bulk stream routing.",
       "role": "NUMERIC",
-      "sha256": "5df6f28e20103d4d92fe783418bd7bd2ecd89703128aaf3b640be3256a4e8acf"
+      "sha256": "8b6137ca6c0d5b2986beb2b4a12d10af005b76d4649e6333ff291eb756d213a0"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF07/09: use authoritative job revisions as durable ACK outbox, startup reconciliation, deterministic request-to-job recovery and isolation of unrelated corrupt journals.",
       "role": "NUMERIC",
-      "sha256": "a2151658c223dbc62b3f05497d9a05aa66310c8f59d19ba0963fe25181417388"
+      "sha256": "51d2c2b17799e10a01f6bc55b160ba7881e22f054dd395ef9fd5005f1084eec9"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportMemberPlanCP12.java",
@@ -512,9 +524,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF09: retain the discoverable terminal ACK as a cleanup tombstone until all generated directories retire after active readers release their leases.",
       "role": "NUMERIC",
-      "sha256": "af7f0e201bf2f1193e2004624d14380a1efa4c449cf74b7a346079f1af0a3617"
+      "sha256": "8f185c9333661dd73fed40f475b3af2e35ac1fe5383d906c0466fe66adfaeed0"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
@@ -523,10 +535,22 @@
       "sha256": "80ac0f57c3f2a8767c090dcf438c92ca202a188421fd8c3a5ff3d159944f9f27"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportRequestQueueCP12.java",
+      "rationale": "UF06: reconstruct FIFO from durable intents on restart; do not repeat jobs or rewrite the FIFO for read-only polling.",
+      "role": "NUMERIC",
+      "sha256": "9429b7424603ab4b6ec3bcf3c67cb2aeb1555b7ba725b4895595c5355b1df6e7"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportRequestStatusR31.java",
       "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
       "role": "PRESENTATION",
       "sha256": "3eae47cde2d4fcdd923b8bbcc9791fb6288bc3fb5ca613e5228d52aa7d5df876"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+      "rationale": "UF08/10/11: require all twelve same-snapshot chapters, 44 current metrics, complete object registry and 96 actual check-result receipts; stream the actual delivered ZIP and split ZIP for CRC, content hash, snapshot and catalog closure before READY. Explicit legacy boundary, no health or natural-quality claim.",
+      "role": "PRESENTATION",
+      "sha256": "a3d7e3f13e99a395b24d866dcc79b2915f5b624fb2596ad21c6b5d557c6c3f66"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportTaskControlR69.java",
@@ -596,6 +620,12 @@
       "sha256": "05dde8d1f67f1f38c155be98f4d4c568a3862edf35b4e7892712cf49e07acd51"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
+      "rationale": "UF16: bounded cancellable read-only pagination for all sixteen existing research SQL views; explicit role filters, source receipts and honest errors without new database write authority.",
+      "role": "PRESENTATION",
+      "sha256": "ef4ebeadf03d1a4d46407b4325490d082f05c1c34ef2866f8811aa984d3c5fd5"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/ResearchVisualDataR82.java",
       "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
       "role": "PRESENTATION",
@@ -608,15 +638,15 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF16: connect the real sixteen-view table screen from the existing workbench; preserve all eighteen research charts and their existing routes.",
       "role": "NUMERIC",
-      "sha256": "9a7ed5af219f2558e97b33bbc7ffff6e714b570ad717a40bb56cb807dc4aaf01"
+      "sha256": "3059732f852e719a04cc6d282a8e0145f5458b2ce096cb021fca0c2a90d07cfb"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF15: propagate cancellation from real frame readers instead of converting it to a chart error; preserve existing payload hash and byte checks.",
       "role": "NUMERIC",
-      "sha256": "c97bb01b6e94997839769a2350eda2cf5c21b08a3f9fb6f5a73309493b47f176"
+      "sha256": "a6fb41d285c37e5f5b565c08ae9f963b658ecc3c7b4ef9e49fc79a45024be060"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/RetentionRevisionSchemaCP12.java",
@@ -661,9 +691,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF03/04: distinguish slice PENDING from failure and invalidate only responsible journal unit; original critical domain and upgrade proof contracts remain enforced.",
       "role": "NUMERIC",
-      "sha256": "7670f298b1333a7bc0d7f643e7b231c84544e2c1cc3381c6a5d9e0202f4cf162"
+      "sha256": "5370fd784b0f775f12bc9d5fe426aa14f15edf455015cd5529658733bb74890f"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/SchemaObjectSnapshotR26.java",
@@ -733,9 +763,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF05: move directory census and reconciliation outside cross-process admission lease; check exact ledger generation at commit, preserve reservation and hard/free-space thresholds.",
       "role": "NUMERIC",
-      "sha256": "0f1eb2c3ed2ee9e1ada0bc82b73795ac669a260b3caf83bf0a14a8db395a2676"
+      "sha256": "e787938831b9faa8d78cbdbf301219895d084b766ff6e9ee13ac75e651d185e7"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
@@ -1151,9 +1181,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF17: connect the existing canonical source-correction transaction to typed choice revocation; original raw evidence and archived certificates are retained.",
       "role": "NUMERIC",
-      "sha256": "f46c6b02aa86041846c7a91780ac32387d46377d58a9fd254420681b78285756"
+      "sha256": "680637f7f9de0079fe0c29b6f3c6452b0bc99c731a2281bf724d9616ad1f4bd6"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU1.java",
@@ -1168,9 +1198,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF15: stamp current display frames with schema/build/source watermark and hash; create compact projections using bounded chart-only facts instead of a full report capture on each refresh.",
       "role": "NUMERIC",
-      "sha256": "4eb18f6dd689f286c78dbc6f4874180d32ccc8f6e26952e2ab79db9f53ed269e"
+      "sha256": "bb40a5e51ba19ecf21ef470037869a302a87f90f67e84e323ac13f0e1e00a148"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckMetricCrosswalkR31.java",
@@ -1180,9 +1210,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF09: actual P3 CAS pruning calls bounded reference-graph marking and follows manifest/chunk edges to closure; missing/unknown/over-bound references stop pruning. Bound constructor and prune directory enumeration. Existing SQL reference census, prepared-file leases, report input pins, root/file/age limits and original training/checkpoint assets remain protected.",
       "role": "NUMERIC",
-      "sha256": "984da23fe1ee9efa1cc5cb931d94d008672d02f76ce584574c9e8e24d11c2789"
+      "sha256": "3dc924547409b6e7dbffbcadbb2b17e85fd09f0e146acfc72b22e9d9f545d9c9"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointManifestR26.java",
@@ -1466,10 +1496,22 @@
       "sha256": "869c05bed75f01d1f83c2a94917237e454dc61c68fce3bebb4ab90f6efa0ea2f"
     },
     {
-      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+      "rationale": "UF14: add separate resumable complete production factory experiment with original family/expert mutation fusion birth selection controls and unchanged confirmation/certificate gates, six registered synthetic arms and all search ledger originals; never grant REAL or natural-quality credit.",
       "role": "NUMERIC",
-      "sha256": "a4f7186fc829897d41a63a7ae0fd88742ea9cb83d00118a77ddfe9191f2d49e5"
+      "sha256": "98c189d2c4d690bcbccf1cfce446ca790e74302c8ef274bdb107d6adc003d862"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityStoreR31.java",
+      "rationale": "UF14: persist factory protocol, exact previous checkpoint CAS, full search artifacts and summary atomically through the original fenced HEALTH batch; no new business schema or training asset replacement.",
+      "role": "NUMERIC",
+      "sha256": "b5b066fda61b6be731a102322feb5e3017fb284252e64918387278669bf70f60"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
+      "rationale": "UF13: route revealed qualification failures before birth to real calibration and coverage adapters; persist past ACT CUSUM detector, nested past-only window selection and a BOCPD GATED child only when actual regime evidence applies. Explicitly refuse an unavailable R26 strict intersection adapter: F15 is a risk head, not the R27 I14 mechanism. Keep original family assets, controls, source fences and independent child evidence.",
+      "role": "NUMERIC",
+      "sha256": "a27f9e9e28b0537d6366072eead35547db81605037295d57713ed6362b174421"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
@@ -1592,9 +1634,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF14: close only the temporary shuffled-control EvalContext and FeatureCache in an actual finally after detached trace production; preserve the parent cache, confirmation boundaries and all statistical rules.",
       "role": "NUMERIC",
-      "sha256": "b77544b3b1b5c6b6d62c0ddd01b1640bff9ce3a3b6704f4d0d114d3614992489"
+      "sha256": "1b51ac31e167c29163351a6ea7fe3aee1945877318ad191022ac9c89592669c5"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
@@ -1897,9 +1939,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF17: attach actual policy/model publication binding before certificate choice, guard it in the same writer, perform atomic dual-write reconciliation and production typed switch, and record expiry/source revocation without rewriting freezes.",
       "role": "NUMERIC",
-      "sha256": "5257bce4b1a5192e5608223439c57293d8f1cbc35eadae58f3c71b2cd5f8b12f"
+      "sha256": "34575aaa033e51263993e698cd3b93f86a1f9bf02e094da0fe096880a4974a5a"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveStateR26.java",
@@ -1937,9 +1979,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF17: use the same target-period/source-revision typed authorization for real requests and report explanation; DecisionGate and original REAL numerical rules remain unchanged.",
       "role": "NUMERIC",
-      "sha256": "971f4e3975bb0eb132849eb0cfe3877d7576f2f1e6116a857839f96328092ed9"
+      "sha256": "a5f8d2caabb27037b4d3fb1f1e0ca374f50f82cb051135f09cfa72fdff5a27c3"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceSU1.java",
@@ -1948,14 +1990,20 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF17: reconcile current typed choice revocation in the existing certificate/source-correction writer; production request overload checks effective period and canonical source revision. Preserve all original certificate thresholds and history.",
       "role": "POLICY",
-      "sha256": "0c28afdfc4c31d4bc2cea2fdf7c5f17220438b377b7ff639f32b6ea9b3f9498a"
+      "sha256": "adbeee428cbc2b7a0fcfbc32dc3b159dcd90609ccf0142213a52864ba091879b"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineHeadSU1.java",
       "role": "NUMERIC",
       "sha256": "218df172fff54ad93deb0d7b7a0ff6e7ae4e13d15a21d85f8ba372365e00e53e"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineModelBindingR31.java",
+      "rationale": "UF17: bind actual executable policy, frozen readout and shadow checkpoint plus required committed AtomNet publication/state/weights receipt. Keep ABI separate from actual model state; verify the small identity tuple in the real writer.",
+      "role": "NUMERIC",
+      "sha256": "a0beb311310cded3e9eed18173d93c68505d0553513d2296db51d3ee85643cb6"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlinePolicySU2.java",
@@ -2030,9 +2078,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF10: connect R31 versioned evaluation to the actual production collector; M32 compares real independently sourced same-role/scope/watermark facts, with missing sources remaining unknown.",
       "role": "NUMERIC",
-      "sha256": "f0d82a3273c3a1b167197c47f8019d7d1cd4113f2fd70dd841c98cc2c87ebbda"
+      "sha256": "9444a29c3690d931004d6fb732a3823e3c7590536dd31ebb7e7a3ab40cdb8ba1"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelAblationSessionSU1.java",
@@ -2384,9 +2432,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RegimeHypothesisR31.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF13: expose the actual detector observation cursor for monotonic persistent replay; keep the registered likelihood/threshold, strictly past input and window rules unchanged.",
       "role": "NUMERIC",
-      "sha256": "e0610a877b6711fa43ed9859428ef23d7fc43b0f8e8e0a2761381ee19cf59761"
+      "sha256": "cce43a2218a596696e3fe2fb4151f2c4dde83f3a09f558ffa90f9b8a7fe24068"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RelGraphCheckpointSU1.java",
@@ -2498,9 +2546,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportChartsR30.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF15: bound persisted display packets to projections of the same metric objects; full human/machine report retains every definition and evidence record.",
       "role": "NUMERIC",
-      "sha256": "bfdefa4f638571e2e18349d3e54010da1e41532348bbfc1df221dbfd494942f8"
+      "sha256": "d420060adab40bae0e803321afbbe293193cf168a713b059eabc4002010d4932"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java",
@@ -2516,27 +2564,27 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF10: populate six independent lifecycle layers from real source facts and preserve UNKNOWN for unmeasured values/effect; enumerate all logical table reader receipts.",
       "role": "NUMERIC",
-      "sha256": "d34985e7364b1175980edfa8a4f75ccc46e39d42842866943c84b2c587f03714"
+      "sha256": "58ffe7e2f91975d29a46b8c7adea84943a1ac87d19086b96f25346e179abe385"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF10: use the production R31 metric adapter at the immutable report input constructor; retain original measured numerators, denominators and values.",
       "role": "PRESENTATION",
-      "sha256": "719a0100dddcb5ea90a4498b6f2576e199f52a2fc54aa0bb636e5b3410fe303f"
+      "sha256": "d4093176a9c78910d9af7db52d0dc743cd7d41af3c028835ee93a6046ed08ce4"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF10/11/16: derive current JSON/chapters and sixteen actual research-table read receipts from the same report input, preserving quality evidence boundaries.",
       "role": "NUMERIC",
-      "sha256": "c22d7eab11d611acbf655d527d59b0f8bfddaad6313a9b15ed09cdc9cc9372c9"
+      "sha256": "fe0622ca7c522cba816b7f49e9c965b45905849cc0a9d2ea74eafb6dfe98b82b"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF10/15/16: collect source-bound lifecycle and cross-source facts and actual bounded table pages; add a chart-only read projection without training or report-wide inventory work.",
       "role": "NUMERIC",
-      "sha256": "eb1246266cb9afc0b5e7dc51e6644d2f947a5b6ce353ba504948360d482e8375"
+      "sha256": "d5c611887b82c6a65e904a4b23c9dcfdd2c393342ac332a8066b467586d7d3e9"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchAdviceR30R1.java",
@@ -2638,9 +2686,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF13: classify recovery-control failures, count and expose bounded cause-chain evidence, and attempt one non-recursive independent telemetry commit without marking task progress.",
       "role": "NUMERIC",
-      "sha256": "2fda6286322d1344ef19934d4810839598d1fbb0cf319c11eabae609b314e706"
+      "sha256": "76787ed0332dd352fa99b8d4b1ffa42207174375626071580aaab0b36ee3caaa"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchProvenanceGraphR30R1.java",
@@ -2704,9 +2752,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF16: execute the real read-only bounded pages and project T09 object values from original frame.points with hashes, uncertainty and honest unknown CPU.",
       "role": "NUMERIC",
-      "sha256": "d1bb2238771a09452cad795594b3e7c3bfbe8a01bcb9b234337ce912b3e3a6d5"
+      "sha256": "1ec7f904163461e6661731f004d3600ff3bb0e17f92ddf95eacd77c73e41fb3b"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTaskRegistryR30R1.java",
@@ -2758,9 +2806,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
-      "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
+      "rationale": "UF14: invoke one independent full-factory experiment unit in the existing low-priority health/research owner with original realtime-window protection; retain original Q08/null pipeline and existing tasks.",
       "role": "NUMERIC",
-      "sha256": "ce0b7723ab1ba1c96e267fc319dc7a3cd186c4ef8ea2481b67ee90f91d579e53"
+      "sha256": "f8bec71cb3429e20b7b906d9ae7db61cd1151f6135174621832565db703cf75b"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeReportR26.java",
@@ -3206,19 +3254,19 @@
       "path": "release/r82_training_invalidation.json",
       "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
       "role": "PROVENANCE",
-      "sha256": "f5820e38848478ce061a6483586271fc2d8682207a0ecefcdc9d2afd48933db4"
+      "sha256": "335aa0d2d5a0d7870a60ef63d578efb267005c8bae8e5e092743b027686461f7"
     },
     {
       "path": "release/r982_source_calls.manifest.json",
       "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
       "role": "PROVENANCE",
-      "sha256": "3d342f3af06c8c3824d68a6501f81818d99d9869b80ede48f9aa1ed9df92c749"
+      "sha256": "9ad9b9ec4019e8ebd8a9dba255db9e533a8b14dd4e08f183ac381b7b8f68f521"
     },
     {
       "path": "release/r982_source_calls.tsv.gz",
       "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
       "role": "PROVENANCE",
-      "sha256": "a1413f5800231ef14589d76b08e220c079fa38e1be77e22f8f972b236d100eaf"
+      "sha256": "f166cd1c7c8e2233406d367f898cb4872eb7b6b688422c1968e0437215e8b192"
     },
     {
       "path": "release/release_identity.properties",

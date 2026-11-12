@@ -55,8 +55,8 @@ public final class ReportIoR31 {
     }
     /** Known-size metadata is admitted in full before AtomicFile can detach/truncate an old version. */
     public static final class AtomicPermit implements Closeable {
-        private final StorageBudgetR31.Reservation reservation;private final long maximum;private long written;private boolean closed;
-        AtomicPermit(StorageBudgetR31.Reservation reservation,long maximum){this.reservation=reservation;this.maximum=maximum;}
+        private final Closeable reservation;private final long maximum;private long written;private boolean closed;
+        AtomicPermit(Closeable reservation,long maximum){this.reservation=reservation;this.maximum=maximum;}
         public OutputStream stream(OutputStream raw){return new FilterOutputStream(raw){
             private void allow(int count)throws IOException{if(closed||count<0||count>maximum-written)throw new IOException("REPORT_ATOMIC_ADMISSION_SIZE");written+=count;}
             public void write(int value)throws IOException{allow(1);out.write(value);}public void write(byte[] bytes,int offset,int count)throws IOException{if(bytes==null||offset<0||count<0||offset>bytes.length-count)throw new IndexOutOfBoundsException();allow(count);out.write(bytes,offset,count);}
@@ -66,6 +66,11 @@ public final class ReportIoR31 {
     public static AtomicPermit beforeAtomic(File file,long bytes)throws IOException{
         if(bytes<0)throw new IllegalArgumentException("REPORT_ATOMIC_BYTES");
         for(File path:new File[]{file,new File(file.getPath()+".new"),new File(file.getPath()+".bak")})if(!path.getAbsoluteFile().equals(path.getCanonicalFile()))throw new IOException("REPORT_ATOMIC_SYMLINK");
+        File reportRoot=file.getParentFile();while(reportRoot!=null&&!reportRoot.getName().equals("r981_reports"))reportRoot=reportRoot.getParentFile();
+        if(reportRoot!=null&&ReportControlBudgetR31.accepts(reportRoot,file)) {
+            StorageBudgetR31 controlBudget=budget(dataRoot(file));
+            if(controlBudget.controlHeadroomR31()>0)return new AtomicPermit(ReportControlBudgetR31.admit(reportRoot,file,bytes,controlBudget),bytes);
+        }
         ReportNativeCP4.Control owner=control(file,null);if(owner!=null){owner.beforeOutputBytesR31(file,bytes);return new AtomicPermit(null,bytes);}
         File root=dataRoot(file);if(root==null)return new AtomicPermit(null,bytes);
         long maximum=Math.max(1,Math.addExact(bytes,ATOMIC_HEADROOM));StorageBudgetR31.Reservation reservation=budget(root).reserve("report-atomic:"+StorageBudgetR31.sha(file.getPath().getBytes(StandardCharsets.UTF_8)),0,StorageBudgetR31.Category.REPORT_WORKSPACE,relative(root,file),maximum,Math.multiplyExact(maximum,4),true);

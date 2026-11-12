@@ -13,6 +13,9 @@ public final class R31MainlineAuthorityHost {
  static String policy(String name){return StatsR27.sha256("R31_TEST_NAMESPACE|"+name);}
  static SQLiteDatabase open(Connection connection)throws Exception{
   SQLiteDatabase db=new SQLiteDatabase(connection);for(String sql:SchemaR27.DDL)if(sql.startsWith("CREATE TABLE"))db.execSQL(sql);
+  // Explicit canonical-source fixture, not a natural source revision claim.
+  db.execSQL("CREATE TABLE r30_live_source_revision(singleton INTEGER PRIMARY KEY,generation INTEGER NOT NULL)");
+  db.execSQL("INSERT INTO r30_live_source_revision VALUES(1,1)");
   tx(connection,()->MainlineChoiceStoreR31.ensureSchemaR31(db));return db;
  }
  /** A test-namespace policy with an ACTIVE V1 certificate, a QUALIFIED e-process and one FROZEN acting row. */
@@ -41,6 +44,10 @@ public final class R31MainlineAuthorityHost {
    tx(connection,()->db.execSQL("DELETE FROM r27_chart_cache WHERE panel_id='mainline' AND key='choice'"));
    a=MainlineChoiceStoreR31.authorizedChoice(db,NOW);check(p.equals(a.policyHash)&&a.reason.startsWith("TYPED_AUTHORITY:"),"TYPED_AUTHORITY_AFTER_PROJECTION_DELETED");
    check(MainlineBridgeSU2.r27Intent(db,TARGET)!=null,"TYPED_ONLY_REQUEST_LANE");
+   check(MainlineChoiceStoreR31.authorizedChoice(db,NOW,TARGET-1).reason.equals("WAIT_CHOICE_NOT_EFFECTIVE"),"FUTURE_CHOICE_WAITS");
+   db.execSQL("UPDATE r30_live_source_revision SET generation=2");
+   check(MainlineBridgeSU2.r27Intent(db,TARGET)==null,"SOURCE_CHANGE_STOPS_NEW_REAL");
+   db.execSQL("UPDATE r30_live_source_revision SET generation=1");
    // C01#A3: a stale fence and a conflicting choice for the same effective period are refused
    String q=certified(db,"Q",2,true);
    check(refused(connection,()->certify(db,q,TARGET,3)).contains("R31_MAINLINE_STALE_FENCE"),"STALE_FENCE_REFUSED");

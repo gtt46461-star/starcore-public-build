@@ -31,6 +31,19 @@ public final class ChartCacheR27 {
     public static final String[] PANELS = {"p01_three_scores", "p02_generation_holdout", "p03_evolution_events", "p04_seven_counters", "p05_lineage", "p06_idea_survival",
             "p07_funnel", "p08_bss", "p09_rolling200", "p10_train_holdout_loss", "p11_eprocess", "p12_mainline_weight", "p13_runtime_health", "p14_atom_scores"};
 
+    public static final String FRAME_SCHEMA_R31="R31_CHART_FRAME_V1";
+    public static void sealR31(Map<String,Object> panel,String issue,long now) {
+        panel.put("frameSchema",FRAME_SCHEMA_R31);panel.put("buildVersionCode",(long)BuildConfig.VERSION_CODE);panel.put("sourceIssue",issue);panel.put("capturedAt",now);
+        panel.remove("payloadSha256");panel.put("payloadSha256",StatsR27.sha256(JsonR27.write(panel)));
+    }
+    public static String validateR31(Map<String,Object> panel,String latestIssue,long updatedAt,long now) {
+        if(!FRAME_SCHEMA_R31.equals(panel.get("frameSchema"))||!Long.valueOf(BuildConfig.VERSION_CODE).equals(panel.get("buildVersionCode")))return "STALE_FRAME_ABI";
+        Map<String,Object> original=new LinkedHashMap<>(panel);Object hash=original.remove("payloadSha256");
+        if(!(hash instanceof String)||!hash.equals(StatsR27.sha256(JsonR27.write(original))))return "READ_ERROR_FRAME_HASH";
+        if(updatedAt>now+5000L)return "UNKNOWN_CLOCK_EPOCH";
+        if(now-updatedAt>90000L||latestIssue==null||!latestIssue.equals(panel.get("sourceIssue")))return "STALE_SOURCE_WATERMARK";
+        return null;
+    }
     static Map<String, Object> panel(String title, String kind, String source, String window, String note, List<Object> points) {
         Map<String, Object> m = new LinkedHashMap<>(); m.put("title", title); m.put("kind", kind); m.put("source", source); m.put("window", window); m.put("note", note);
         m.put("status", points.isEmpty() ? "INSUFFICIENT" : "READY"); m.put("points", points); return m;
@@ -60,15 +73,20 @@ public final class ChartCacheR27 {
         panels.add(safe("原子回放评分分布", () -> atoms(db)));
         try { b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('report','ranking',?,?)", JsonR27.write(ranking(db)), now); } catch (RuntimeException e) { }
         try { b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('report','action_surface',?,?)", JsonR27.write(actionSurface(db)), now); } catch (RuntimeException e) { }
+        String sourceIssue="UNKNOWN";try(Cursor issue=db.rawQuery("SELECT max(issue) FROM draws WHERE dirty=0",null)){if(issue.moveToFirst()&&!issue.isNull(0))sourceIssue=issue.getString(0);}
+        for(Map<String,Object> panel:panels)sealR31(panel,sourceIssue,now);
         for (int i = 0; i < panels.size(); i++) b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES(?,?,?,?)", PANELS[i], "panel", JsonR27.write(panels.get(i)), now);
-        ReportR27.R30Input snapshot=ReportSnapshotR30.capture(db);
-        b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r30-charts','snapshot',?,?)",JsonR27.write(ReportChartsR30.packet(snapshot)),now);
+        ReportR27.R30Input snapshot=ReportSnapshotR30.captureChartsR31(db);
+        Map<String,Object> packet=ReportChartsR30.displayPacketR31(snapshot);sealR31(packet,sourceIssue,now);
+        b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r30-charts','snapshot',?,?)",JsonR27.write(packet),now);
+        Map<String,Object> chartFacts=new LinkedHashMap<>();chartFacts.put("commonMetrics",snapshot.facts);chartFacts.put("snapshotWatermark",snapshot.watermark);
+        b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r30-charts','facts-r31',?,?)",JsonR27.write(chartFacts),now);
         return b;
     }
     interface Builder { Map<String, Object> build(); }
     static Map<String, Object> safe(String title, Builder bld) {
         try { Map<String, Object> m = bld.build(); m.put("title", title); return m; }
-        catch (RuntimeException e) { List<Object> none = new ArrayList<>(); Map<String, Object> m = panel(title, "STATUS", "", "", "读取失败：" + e.getClass().getSimpleName() + "；不按0处理。", none); m.put("status", "READ_ERROR"); return m; }
+        catch (android.os.OperationCanceledException cancelled) { throw cancelled; } catch (RuntimeException e) { List<Object> none = new ArrayList<>(); Map<String, Object> m = panel(title, "STATUS", "", "", "读取失败：" + e.getClass().getSimpleName() + "；不按0处理。", none); m.put("status", "READ_ERROR"); return m; }
     }
 
     static Map<String, Object> threeScores(SQLiteDatabase db) {

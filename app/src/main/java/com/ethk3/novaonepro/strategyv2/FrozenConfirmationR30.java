@@ -137,11 +137,13 @@ public final class FrozenConfirmationR30 {
         if (!policy.control && ledger.remaining(task.block) == 0 && !ledger.confirmed(policy.experimentId,policy.evaluationDatasetHash,task.block))
             throw new IllegalStateException("R30_CONFIRM_BUDGET_EXHAUSTED");
         ReplayDatasetR27 controlData = policy.shuffled ? ReplayEvaluatorR27.shuffledDataset(ctx.data,ctx.split.trainFrom,ctx.split.selectTo,policy.labelSeed) : null;
-        EvalContextR27 view = policy.shuffled ? new EvalContextR27(new FeatureCacheR27(controlData),ctx.split,null) : ctx;
-        if (!view.data.datasetHash.equals(policy.evaluationDatasetHash)) throw new IllegalStateException("R30_CONFIRM_CONTROL_DATASET_MISMATCH");
-        ReplayEvaluatorR27.Trace trace = ReplayEvaluatorR27.confirmTrace(policy.spec(),view,policy.temperature,ledger,policy.experimentId,policy.control);
-        evidence.save(task,policy,trace);
-        return trace;
+        FeatureCacheR27 owned=policy.shuffled?new FeatureCacheR27(controlData):null;EvalContextR27 view=null;
+        try {
+            view=policy.shuffled?new EvalContextR27(owned,ctx.split,null):ctx;
+            if (!view.data.datasetHash.equals(policy.evaluationDatasetHash)) throw new IllegalStateException("R30_CONFIRM_CONTROL_DATASET_MISMATCH");
+            ReplayEvaluatorR27.Trace trace=ReplayEvaluatorR27.confirmTrace(policy.spec(),view,policy.temperature,ledger,policy.experimentId,policy.control);
+            evidence.save(task,policy,trace);return trace;
+        }finally{if(owned!=null)try{if(view!=null)view.close();}finally{owned.close();}}
     }
     private static Object finite(double n) { return Double.isFinite(n) ? n : null; }
     static String currentSemantics() { return com.ethk3.novaonepro.ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256; }

@@ -52,11 +52,22 @@ public final class ReportExportServiceCP4 extends Service {
     public static String requestExport(Context context,ExportMode mode,boolean includeRawEvidence) {
         if(mode!=ExportMode.FULL_REPORT)throw new IllegalArgumentException("REPORT_MODE");
         final Context app=context.getApplicationContext();final String id=id("FULL_REPORT");final long generation=USER_REQUEST_GENERATION.get();
-        try{REQUESTS.execute(()->{try{
+        try{REQUESTS.execute(()->{boolean durable=false;try{
             JSONObject request=new JSONObject();request.put("revision","REPORT_REQUEST_CP12_1");request.put("requestId",id);request.put("mode","FULL_REPORT");
             request.put("releaseHash",ReleaseManifestR926.MANIFEST_SHA256);request.put("createdWallMs",System.currentTimeMillis());
             request.put("includeRawEvidence",includeRawEvidence);
-            File root=requestRoot(app);JSONObject observation=new JSONObject();observation.put("pid",android.os.Process.myPid());observation.put("sampleWallMs",System.currentTimeMillis());observation.put("sampleElapsedMs",SystemClock.elapsedRealtime());
+            File root=requestRoot(app);
+            request.put("submissionState","PERSISTED_WAITING_FOR_SERVICE");request.put("observationState","UNKNOWN_NOT_COLLECTED");
+            synchronized(USER_REQUEST_GENERATION){
+                if(generation!=USER_REQUEST_GENERATION.get())throw new IOException("REPORT_SUPERSEDED_BY_USER");
+                ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+id+".json"),request.toString());durable=true;
+            }
+            // Request publication is the durable intent. Queue/kick can be reconstructed
+            // after process death; optional observations can never erase that intent.
+            try{ReportRequestQueueCP12.enqueue(root,id,"FULL_REPORT");kick(app,ACTION_EXPORT,id);
+                lastRequestOutcomeR31Q="KICKED|request="+id+"|at="+System.currentTimeMillis();
+            }catch(Exception wait){lastRequestOutcomeR31Q="PERSISTED_WAITING_FOR_SERVICE|request="+id+"|"+describeR31Q(wait);}
+            JSONObject observation=new JSONObject();observation.put("pid",android.os.Process.myPid());observation.put("sampleWallMs",System.currentTimeMillis());observation.put("sampleElapsedMs",SystemClock.elapsedRealtime());
             ReportJobJournalCP12.collectObservation(root,id,observation,"frameSummary",()->FrameMetricsR906.latestSummary());observation.put("process",app.getPackageName());
             // Filesystem observations are sampled before backup and remain distinct from
             // immutable snapshot page/size evidence. A missing source is not zero bytes.
@@ -88,8 +99,12 @@ public final class ReportExportServiceCP4 extends Service {
             observation.put("analysisDepth",pressure.analysisDepth).put("settlementDepth",pressure.settlementDepth)
                     .put("quietForMs",pressure.quietForMs).put("settlementExecutionActive",SettlementExecutionGateR819.isActive());
             request.put("observation",observation);
-            enqueueUserRequest(root,id,"FULL_REPORT",request,generation);lastRequestOutcomeR31Q="ENQUEUED|request="+id+"|at="+System.currentTimeMillis();kick(app,ACTION_EXPORT,id);lastRequestOutcomeR31Q="KICKED|request="+id+"|at="+System.currentTimeMillis();
-        }catch(Throwable error){requestFailure(app,id,error);}});}catch(RejectedExecutionException full){requestFailure(app,id,new IOException("REPORT_REQUEST_QUEUE_FULL"));}
+            request.put("observationState","COLLECTED_OUTSIDE_SQL_WATERMARK");
+            ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+id+".json"),request.toString());
+        }catch(Throwable error){
+            if(!durable)requestFailure(app,id,error);
+            else {lastRequestOutcomeR31Q="PERSISTED_OBSERVATION_OR_KICK_PENDING|request="+id+"|"+describeR31Q(error);android.util.Log.w("ReportExportCP12","Optional request observation unavailable; durable export retained",error);}
+        }});}catch(RejectedExecutionException full){requestFailure(app,id,new IOException("REPORT_REQUEST_QUEUE_FULL"));}
         return id;
     }
     private static String backgroundRuntimeObservationR31(Context app)throws Exception{
@@ -198,7 +213,10 @@ public final class ReportExportServiceCP4 extends Service {
         final int ownerStartId=lastStartId;
         String currentRequest="";
         try(ReportJobJournalCP12 journal=ReportJobJournalCP12.tryClaim(getFilesDir())) {
-            if(journal==null)return;String queued=ReportRequestQueueCP12.head(journal.root());if(queued!=null)currentRequest=queued;
+            if(journal==null)return;
+            journal.reconcileAcknowledgementsR31();
+            ReportRequestQueueCP12.reconcileRequestsR31(journal.root());
+            String queued=ReportRequestQueueCP12.head(journal.root());if(queued!=null)currentRequest=queued;
             ReportTaskControlR69.applyPending(journal);
             ReportJobJournalCP12.Job publishedCleanup=journal.current();if(publishedCleanup!=null&&publishedCleanup.stage.equals("READY_TO_SHARE"))enqueueCleanupR31(journal,publishedCleanup);
             runCleanupR31(journal);
@@ -214,7 +232,7 @@ public final class ReportExportServiceCP4 extends Service {
                 String requestId=request.getString("requestId"),mode=request.getString("mode");requireHash(requestId);
                 if(mode.equals("SAF_TRANSFER")){runSafRequest(request,journal.root());return;}
                 if(job!=null&&(job.stage.equals("READY_TO_SHARE")||job.stage.equals("RETENTION_READY"))&&job.requestId.equals(requestId)){ActiveControl ready=new ActiveControl(job,journal.root());try(ReportIoR31.Scope outputScope=ReportIoR31.bind(journal.directory(job),ready)){verifyReady(job,journal.directory(job),ready);enqueueCleanupR31(journal,job);journal.acknowledge(requestId,job);clearPending(journal.root(),request);}catch(Exception callback){if(!ready.validatedDeliveryR31)throw callback;android.util.Log.w("ReportExportCP12","Verified READY replay callback pending",callback);}finally{ready.releaseResourcesR31();}runCleanupR31(journal);return;}
-                job=new ReportJobJournalCP12.Job(id(mode),requestId,request.getString("releaseHash"),mode,System.currentTimeMillis());journal.create(job);ReportPublicationCP12.pruneTerminal(journal.root(),job.jobId);clearPending(journal.root(),request);}
+                job=journal.recoverOrCreateR31(requestId,request.getString("releaseHash"),mode);ReportPublicationCP12.pruneTerminal(journal.root(),job.jobId);clearPending(journal.root(),request);}
             journal.acknowledge(job.requestId,job);ActiveControl active=new ActiveControl(job,journal.root());control=active;foreground("报告采集与核验进行中");
             try(ReportIoR31.Scope outputScope=ReportIoR31.bind(journal.directory(job),active);ReportInputsLeaseCP12 inputPin=job.mode.equals("FULL_REPORT")?ReportInputsLeaseCP12.acquire(getFilesDir()):null) {
                 if(!job.releaseHash.equals(ReleaseManifestR926.MANIFEST_SHA256))throw new IOException("REPORT_VERSION_CHANGED");
@@ -325,10 +343,15 @@ public final class ReportExportServiceCP4 extends Service {
                     try{r30Chapters=com.ethk3.novaonepro.strategyv2.ReportR29.chapters(copy,r30Source,r30ReadCancellation);}finally{active.readCancellationR30=null;}
                     active.checkpoint();
                     File r30Json=new File(directory,"R30_REPORT.json"),r30Markdown=new File(directory,"R30_REPORT.md");
-                    try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r30Json,new java.io.FileOutputStream(r30Json)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.JsonR27.write(com.ethk3.novaonepro.strategyv2.ReportR29.document(r30Chapters)));}
+                    java.util.Map<String,Object> r31Document=com.ethk3.novaonepro.strategyv2.ReportR29.document(r30Chapters);
+                    ReportSemanticVerifierR31.validateDocument(r31Document,job);
+                    try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r30Json,new java.io.FileOutputStream(r30Json)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.JsonR27.write(r31Document));}
                     try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r30Markdown,new java.io.FileOutputStream(r30Markdown)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.ReportR27.markdownR30(r30Chapters));}
                     ReportMemberPlanCP12.append(members,r30Json.getName(),r30Json.getName(),ReportArchiveCP4.hash(r30Json,active),r30Json.length());
                     ReportMemberPlanCP12.append(members,r30Markdown.getName(),r30Markdown.getName(),ReportArchiveCP4.hash(r30Markdown,active),r30Markdown.length());
+                    File r31Receipt=ReportSemanticVerifierR31.writeReceipt(directory,r31Document,catalog,job,request.optBoolean("includeRawEvidence",false),active);
+                    ReportMemberPlanCP12.append(members,r31Receipt.getName(),r31Receipt.getName(),ReportArchiveCP4.hash(r31Receipt,active),r31Receipt.length());
+                    job.semanticVerificationR31="REQUIRES_ZIP_READBACK";
                     File r30SummaryCandidate=new File(directory,"R30_SUCCESSFUL_SUMMARY_CANDIDATE.json");
                     ReportJobJournalCP12.writeAtomic(r30SummaryCandidate,com.ethk3.novaonepro.strategyv2.JsonR27.write(r30Chapters.get(11).get("successfulSummaryCandidate")));
                     ReportMemberPlanCP12.append(members,r30SummaryCandidate.getName(),r30SummaryCandidate.getName(),ReportArchiveCP4.hash(r30SummaryCandidate,active),r30SummaryCandidate.length());
@@ -382,7 +405,7 @@ public final class ReportExportServiceCP4 extends Service {
                     try{ReportTaskControlR69.finishCancellationR30(journal.root(),journal.directory(job),job);}catch(Exception cleanup){job.lastReason="REPORT_CANCEL_CLEANUP_FAILED:"+cleanup.getClass().getSimpleName();journal.checkpoint(job,System.currentTimeMillis());android.util.Log.e("ReportExportCP12","cancelled job cleanup requires retry",cleanup);}
                 }
                 else if(reason.equals("REPORT_REALTIME_PREEMPT")||reason.equals("REPORT_PROCESS_SHUTDOWN")||reason.equals("REPORT_WORKER_INTERRUPTED")){job.preemptions++;job.resumeStage=job.snapshotSha.isEmpty()?"BACKUP":"INDEXING";if(job.preemptions>30){job.lastReason="REPORT_PREEMPTION_LIMIT";journal.transition(job,ReportJobJournalCP12.Stage.FAILED,System.currentTimeMillis());}else{journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());scheduleResume(job.jobId);}}
-                else if(isRetryable(reason)&&++job.failureAttempts<3){job.resumeStage=job.snapshotSha.isEmpty()?"BACKUP":"INDEXING";journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());scheduleResume(job.jobId);}
+                else if(isRetryable(reason)&&++job.failureAttempts<30){job.resumeStage=job.snapshotSha.isEmpty()?"BACKUP":"INDEXING";journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());scheduleResume(job.jobId,Math.min(60000L,1000L<<Math.min(6,job.failureAttempts)));}
                 else {journal.transition(job,ReportJobJournalCP12.Stage.FAILED,System.currentTimeMillis());}
                 if(job.stage.equals("FAILED")&&job.mode.equals("FULL_REPORT"))try{ReportJobJournalCP12.writeFailureArtifact(journal.root(),job.requestId,error,job,active::recoveryCancelledR31);}catch(Exception unavailable){android.util.Log.e("ReportExportCP12","recovery evidence unavailable",unavailable);}
                 journal.acknowledge(job.requestId,job);
@@ -421,10 +444,13 @@ public final class ReportExportServiceCP4 extends Service {
         JSONObject pointer=new JSONObject();pointer.put("jobId",job.jobId);pointer.put("relativeDir",job.publishedDir);pointer.put("manifestSha256",job.manifestSha);pointer.put("evidenceComplete",job.evidenceComplete);pointer.put("checksComplete",job.checksComplete);
         active.enter("ZIP_DELIVERY",120000);
         ReportPublicationCP12.prepareBoundedZipR30(directory,archive,job.jobId,job.manifestSha,job.evidenceComplete,job.checksComplete,job.allChecksPassed,active);
+        ReportSemanticVerifierR31.verifyDelivery(directory,job,active);
+        job.semanticVerificationR31="ZIP_READBACK_VERIFIED";
         pointer.put("deliveryIndexSha256",ReportArchiveCP4.hash(new File(directory,"delivery/index.json"),active));
         ReportPublicationCP12.pruneOldReports(journal.root(),directory,System.currentTimeMillis());
         ReportPublicationCP12.enforceQuota(journal.root(),directory,job.publishedQuotaBytes);   // R13-P34: the quota existed but was never called
         ReportJobJournalCP12.writeAtomic(new File(directory,"published.json"),pointer.toString());
+        active.releaseResourcesForPublicationR31();
         active.validatedDeliveryR31=true;journal.transition(job,ReportJobJournalCP12.Stage.READY_TO_SHARE,System.currentTimeMillis());
         recordSuccessfulSummaryR30(job,directory);
         // The sealed verified ZIP is now the durable delivery. Remove redundant private parts only
@@ -443,7 +469,12 @@ public final class ReportExportServiceCP4 extends Service {
         if(job.mode.equals("RETENTION_PAGE")){RetentionArchiveProtocolCP12.Receipt receipt=RetentionArchiveIoCP12.readReceipt(new File(getFilesDir(),"retention-replies-cp12/"+job.requestId+".receipt"));if(!receipt.page.requestId.equals(job.requestId))throw new IOException("RETENTION_REPLY_IDENTITY");active.validatedDeliveryR31=true;return;}
         active.enter("VERIFYING",120000);JSONObject pointer=new JSONObject(ReportJobJournalCP12.readAtomic(new File(directory,"published.json"),4096));
         if(!pointer.getString("jobId").equals(job.jobId)||!pointer.getString("relativeDir").equals(job.publishedDir))throw new IOException("REPORT_PUBLISH_IDENTITY");
-        if(ReportPublicationCP12.verifyPublishedZip(directory,active)){active.validatedDeliveryR31=true;recordSuccessfulSummaryR30(job,directory);return;}
+        if(ReportPublicationCP12.verifyPublishedZip(directory,active)){
+            // Historical deliveries remain readable with an explicit legacy boundary.
+            // A new-format report must retain and recheck its actual semantic receipt.
+            if(!job.semanticVerificationR31.equals("LEGACY_NO_SEMANTIC_RECEIPT"))ReportSemanticVerifierR31.verifyDelivery(directory,job,active);
+            active.validatedDeliveryR31=true;recordSuccessfulSummaryR30(job,directory);return;
+        }
         ReportArchiveVerifierCP12.Receipt proof=ReportArchiveVerifierCP12.verify(ReportArchiveVerifierCP12.inside(directory,job.publishedDir),job.jobId,ReportArchiveVerifierCP12.nativeDecoder(NATIVE_BUDGET),active,null);
         if(!proof.manifestSha256.equals(job.manifestSha)||!proof.manifestSha256.equals(pointer.getString("manifestSha256")))throw new IOException("REPORT_PUBLISH_HASH");ReportPublicationCP12.delivery(directory);active.validatedDeliveryR31=true;
     }
@@ -482,7 +513,16 @@ public final class ReportExportServiceCP4 extends Service {
     private static void sync(File file)throws IOException{try(RandomAccessFile io=new RandomAccessFile(file,"rw")){io.getFD().sync();}}
     private static String boundedReason(String value){if(value==null)return "REPORT_UNCLASSIFIED_FAILURE";return value.length()<=512?value:value.substring(0,512);}
     private static boolean storageFull(Throwable error){for(int depth=0;error!=null&&depth<16;depth++,error=error.getCause())if(error instanceof android.system.ErrnoException&&((android.system.ErrnoException)error).errno==android.system.OsConstants.ENOSPC)return true;return false;}
-    private static String classify(Throwable error){if(storageFull(error))return "REPORT_STORAGE_FULL";if(error instanceof ReportNativeCP4.Failure){ReportNativeCP4.Failure failure=(ReportNativeCP4.Failure)error;return boundedReason("REPORT_NATIVE_"+failure.stage+"_"+failure.nativeCode);}String text=error.getMessage();return boundedReason(text!=null&&(text.startsWith("REPORT_")||text.startsWith("RETENTION_")||text.startsWith("ARCHIVE_")||text.equals("STALE_PAGE"))?text:error.getClass().getSimpleName());}
+    private static String classify(Throwable error){
+        int depth=0;for(Throwable cause=error;cause!=null&&depth++<16;cause=cause.getCause()) {
+            if(cause instanceof StorageBudgetR31.Rejected) {
+                StorageBudgetR31.Rejected rejection=(StorageBudgetR31.Rejected)cause;
+                if("CANCELLED".equals(rejection.reason))return "REPORT_WORKER_INTERRUPTED";
+                return boundedReason(("DEPENDENCY".equals(rejection.failureCategory())?"REPORT_RESOURCE_WAIT|":"REPORT_STORAGE_ADMISSION_FAILURE|")+rejection.reason);
+            }
+            if(cause.getCause()==cause)break;
+        }
+        if(storageFull(error))return "REPORT_STORAGE_FULL";if(error instanceof ReportNativeCP4.Failure){ReportNativeCP4.Failure failure=(ReportNativeCP4.Failure)error;return boundedReason("REPORT_NATIVE_"+failure.stage+"_"+failure.nativeCode);}String text=error.getMessage();return boundedReason(text!=null&&(text.startsWith("REPORT_")||text.startsWith("RETENTION_")||text.startsWith("ARCHIVE_")||text.equals("STALE_PAGE"))?text:error.getClass().getSimpleName());}
     private static void recordSafStorageFailure(JSONObject state,Throwable error,String reason)throws Exception {
         if(!reason.equals("REPORT_STORAGE_FULL"))return;
         // Retain the original typed errno without persisting arbitrary provider text/credentials.
@@ -533,6 +573,10 @@ public final class ReportExportServiceCP4 extends Service {
             catch(IOException|RuntimeException|Error error){try{sink.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
         }
         private void closePhaseR31(){if(phaseMemoryR31!=null){phaseMemoryR31.close();phaseMemoryR31=null;}}
+        void releaseResourcesForPublicationR31()throws IOException {
+            closePhaseR31();StorageBudgetR31.Reservation reserved=storageReservationR31;storageReservationR31=null;
+            if(reserved!=null)reserved.close();
+        }
         void releaseResourcesR31(){closePhaseR31();StorageBudgetR31.Reservation reserved=storageReservationR31;storageReservationR31=null;if(reserved!=null)try{reserved.close();}catch(IOException release){android.util.Log.w("ReportExportCP12","Disk reservation release needs recovery",release);}}
         public synchronized boolean shouldContinue(){if(!stopReason.isEmpty())return false;if(cancel.get()){stopReason="REPORT_USER_CANCEL";return false;}if(destroyed.get()){stopReason="REPORT_PROCESS_SHUTDOWN";return false;}if(Thread.currentThread().isInterrupted()){stopReason="REPORT_WORKER_INTERRUPTED";return false;}
             long now=SystemClock.elapsedRealtime();if(now>=deadline){stopReason="REPORT_STAGE_TIMEOUT";return false;}
@@ -557,7 +601,7 @@ public final class ReportExportServiceCP4 extends Service {
         Context app=context.getApplicationContext();ReportSafCopyCP12.copy(completedPart,expectedSha,expectedBytes,new ReportSafCopyCP12.Destination(){public OutputStream openOutputTruncating()throws IOException{return app.getContentResolver().openOutputStream(destination,"wt");}public InputStream openInput()throws IOException{return app.getContentResolver().openInputStream(destination);}},control);
     }
 
-    private static boolean isRetryable(String reason){return reason.equals("REPORT_STAGE_TIMEOUT")||reason.equals("REPORT_INPUT_LEASE_BUSY")||reason.equals("REPORT_ATTACHMENT_LEASE_BUSY")||reason.startsWith("REPORT_MEMORY_BUDGET_WAIT")||reason.equals("IOException");}
+    private static boolean isRetryable(String reason){return reason.startsWith("REPORT_RESOURCE_WAIT|")||reason.equals("REPORT_STAGE_TIMEOUT")||reason.equals("REPORT_INPUT_LEASE_BUSY")||reason.equals("REPORT_ATTACHMENT_LEASE_BUSY")||reason.startsWith("REPORT_MEMORY_BUDGET_WAIT")||reason.equals("IOException");}
 
     public static String requestSafTransfer(Context context,String jobId,String volumeName,Uri destination){final Context app=context.getApplicationContext();final String transfer=id("SAF_TRANSFER");final long generation=USER_REQUEST_GENERATION.get();
         try{REQUESTS.execute(()->{try{requireHash(jobId);if(destination==null||!"content".equals(destination.getScheme())||destination.toString().length()>2048||volumeName==null||!(volumeName.equals("*")||volumeName.matches("STARCORE_FULL_REPORT\\.zip|STARCORE_FULL_REPORT\\.zip\\.part[0-9]{2,3}|index\\.json|P[0-9]{6}\\.bin|M[0-9]{6}\\.manifest")))throw new IOException("REPORT_SAF_REQUEST");if(volumeName.equals("*")&&!(destination.getPathSegments().size()==2&&"tree".equals(destination.getPathSegments().get(0))&&!android.provider.DocumentsContract.getTreeDocumentId(destination).isEmpty()))throw new IOException("REPORT_SAF_TREE_REQUIRED");JSONObject request=new JSONObject();request.put("requestId",transfer);request.put("mode","SAF_TRANSFER");request.put("jobId",jobId);request.put("volumeName",volumeName);request.put("destination",destination.toString());request.put("state","PENDING");request.put("attempt",0);File root=requestRoot(app);enqueueUserRequest(root,transfer,"SAF_TRANSFER",request,generation);kick(app,ACTION_EXPORT,transfer);}catch(Exception error){requestFailure(app,transfer,error);}});}catch(RejectedExecutionException full){requestFailure(app,transfer,full);}return transfer;

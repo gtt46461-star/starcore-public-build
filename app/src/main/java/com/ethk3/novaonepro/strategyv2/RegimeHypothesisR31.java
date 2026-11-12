@@ -51,6 +51,7 @@ public final class RegimeHypothesisR31 {
         }
         public List<Long> onsets() { return Collections.unmodifiableList(onsets); }
         public List<Long> expiries() { return Collections.unmodifiableList(expiries); }
+        public long observedThrough(){return lastOrdinal;}
         public boolean expired() { return !active && !expiries.isEmpty(); }
         public String encode() {
             StringBuilder b = new StringBuilder(protocol.hash()).append('|').append(Double.doubleToLongBits(up)).append('|').append(Double.doubleToLongBits(down)).append('|').append(active).append('|').append(lastOrdinal);

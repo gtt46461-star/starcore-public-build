@@ -988,6 +988,12 @@ public final class SchemaDomainCoordinatorR926 {
     }
     private static final ThreadLocal<Boolean> AUTOCOMMIT_STEP_R31Q = new ThreadLocal<>();
 
+    /** Targeted re-arm: unrelated completed units and every business row survive. */
+    static void invalidateStepR31(SQLiteDatabase db,Contract contract,String step,String reason) {
+        db.execSQL("UPDATE "+TABLE_JOURNAL+" SET status='REPAIR_REQUIRED',cursor='POSTCONDITION_DRIFT',completed_at=0,error_code=? WHERE domain=? AND revision=? AND step_id=?",
+                new Object[]{bounded(reason,1800),contract.domain,contract.revision,step});
+    }
+
     public static void runStep(SQLiteDatabase db, Contract contract, String stepId, Step step) throws Exception {
         if (stepComplete(db, contract, stepId)) return;
         ensureInfrastructure(db);
@@ -1020,9 +1026,9 @@ public final class SchemaDomainCoordinatorR926 {
                 ownTx = false;
             }
             db.execSQL("UPDATE " + TABLE_JOURNAL
-                            + " SET status='FAILED',cursor='RETRY',completed_at=?,error_code=?"
+                            + " SET status=?,cursor='RETRY',completed_at=?,error_code=?"
                             + " WHERE domain=? AND revision=? AND step_id=?",
-                    new Object[] {Long.valueOf(System.currentTimeMillis()), error(failure), contract.domain,
+                    new Object[] {failure instanceof LegacyDdlR31.Pending ? "PENDING" : "FAILED", Long.valueOf(System.currentTimeMillis()), error(failure), contract.domain,
                             Integer.valueOf(contract.revision), safe(stepId)});
             if (failure instanceof Exception) throw (Exception) failure;
             throw new IllegalStateException("R926_MIGRATION_STEP_FAILED:" + stepId, failure);
