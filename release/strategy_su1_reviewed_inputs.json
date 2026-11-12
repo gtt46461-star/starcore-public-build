@@ -220,9 +220,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
-      "rationale": "R31Q 019 device fix: legacy migration DDL on a dedicated handle (no pool-wide reader reconnect per DDL), report request failures always leave a receipt; no qualification inheritance.",
+      "rationale": "R31Q 020 device fix: legacy migration DDL on a dedicated handle with a 60 s busy timeout (no pool-wide reader reconnect per DDL, no silently dropped column); no qualification inheritance.",
       "role": "NUMERIC",
-      "sha256": "6c786b8b939d8a02301ebf32fed7a42a371be8157f1bdb8636d2d699ec7e2a3d"
+      "sha256": "3f7bc8a14a2c4aaf326f5dd5e8aa91c26993b5087d16a2d897eca1c3f89783c4"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
@@ -412,7 +412,7 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
       "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
       "role": "PROVENANCE",
-      "sha256": "883dd67a1228297a5a28e5c54b54713d52eca7c0197acc29b68978572df54a46"
+      "sha256": "8ec5f3267e3975bfa0cc72843771e790a376bbb78fee3e2b8eaf39e3d4bd1825"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveCP4.java",
@@ -3206,25 +3206,25 @@
       "path": "release/r982_source_calls.manifest.json",
       "rationale": "R31Q 019 device fix: legacy migration DDL on a dedicated handle (no pool-wide reader reconnect per DDL), report request failures always leave a receipt; no qualification inheritance.",
       "role": "PROVENANCE",
-      "sha256": "0432708c0e3b538c14a7be8310011f4c1bffdbf1c12ffc03aee4b15a08b2e81b"
+      "sha256": "783e9d678e40e31436876a6701a436629f5ae5edf357602c7d51f6750e8421b5"
     },
     {
       "path": "release/r982_source_calls.tsv.gz",
       "rationale": "R31Q 019 device fix: legacy migration DDL on a dedicated handle (no pool-wide reader reconnect per DDL), report request failures always leave a receipt; no qualification inheritance.",
       "role": "PROVENANCE",
-      "sha256": "53487ab020e176b4e32e0965b36a614b15ddf633e210032672d358e17009e63b"
+      "sha256": "c3013cf7f934c797f9dda1c465436319ae0d0ea4fcda91d1625364dc3dd594ee"
     },
     {
       "path": "release/release_identity.properties",
       "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
       "role": "PROVENANCE",
-      "sha256": "a0bc51f94299ad807b4ebe674b037f8106c47bbb3ef61138f6bff67a761b61a8"
+      "sha256": "58c5404c7006d864a78a97be0dd5d32c54aa84a2fea441a98ca2c89c0b1654aa"
     },
     {
       "path": "release/release_manifest.json",
       "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
       "role": "NUMERIC",
-      "sha256": "a6217c6288b1c8b12977f8ab801cd02f4e659dd40783cbec6da0bfc870655e8e"
+      "sha256": "1a2d05ccb2ef3c30a5d9d6eb7f317932572195771c8945c35f614cc2a5a951a0"
     },
     {
       "path": "schema/strategy_su1.sql",
@@ -3345,7 +3345,7 @@
       "path": "verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java",
       "rationale": "R31Q 019 device fix: legacy migration DDL on a dedicated handle (no pool-wide reader reconnect per DDL), report request failures always leave a receipt; no qualification inheritance.",
       "role": "PROVENANCE",
-      "sha256": "5c2758e025b91ecf682fb9460604ceb9462a9804c87b16a15dffcc0b7984f6e0"
+      "sha256": "b0f3e487ebf5ad2577c82b0620ab2e335c32a9adf0b32656dd0018a3a662dd5a"
     }
   ],
   "qualification_inheritance": false,

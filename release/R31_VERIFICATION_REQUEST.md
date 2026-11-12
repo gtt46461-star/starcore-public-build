@@ -16,3 +16,4 @@ Changing this file starts .github/workflows/r31-verification.yml on construction
 - 2026-11-11: R31Q 018 device fix (quick diagnostic from V2353A: legacy schema migration held the writer lock >90 min in one transaction at MIN_PRIORITY; draw save failed CP3_DB_BUSY_DEADLINE): refreeze r982 then build
 - 2026-11-11: R31Q 018 second request (DbStore left byte-identical so its owner pins hold; Gradle-update lint notice disabled): refreeze r982 then build
 - 2026-11-12: R31Q 019 (V2353A 018 diagnostic: every thread BLOCKED in SQLiteConnectionPool.waitForConnection while the legacy migration ran DDL; report request left no receipt): refreeze r982 then build
+- 2026-11-12: R31Q 020 (takes over 019, never built): the dedicated legacy-DDL handle gets a 60 s busy timeout so a same-process writer cannot make an ALTER fail silently; refreeze r982 then build

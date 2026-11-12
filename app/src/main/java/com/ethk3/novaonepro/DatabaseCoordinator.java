@@ -1123,7 +1123,8 @@ public final class DatabaseCoordinator {
         return new WriteRunnable() {
             public void run(SQLiteDatabase db) throws Exception {
                 SQLiteDatabase ddl = openDdlHandleR31Q(db);
-                legacyDdlHandleStateR31Q = ddl == null ? "SHARED_POOL_FALLBACK" : "DEDICATED";
+                legacyDdlHandleStateR31Q = ddl == null ? "SHARED_POOL_FALLBACK"
+                        : raiseBusyTimeoutR31Q(ddl) ? "DEDICATED|BUSY_TIMEOUT_60S" : "DEDICATED|BUSY_TIMEOUT_DEFAULT";
                 try {
                     task.run(ddl == null ? db : ddl);
                 } finally {
@@ -1136,6 +1137,28 @@ public final class DatabaseCoordinator {
                 }
             }
         };
+    }
+    /**
+     * R31Q 020. The dedicated handle has its own primary connection, so a same-process write that does not go
+     * through this coordinator now makes its DDL wait on SQLite's file lock, and Android gives up after 2.5 s.
+     * DbStore.addColumnIfMissing swallows that failure and the column stays missing (the migration only checks
+     * tables afterwards). The pragma runs inside a transaction so it reaches the handle's writing connection.
+     */
+    private static boolean raiseBusyTimeoutR31Q(SQLiteDatabase ddl) {
+        try {
+            SQLiteDatabase.class.getMethod("beginTransactionNonExclusive").invoke(ddl);
+            try {
+                long applied = -1L;
+                Cursor c = ddl.rawQuery("PRAGMA busy_timeout=60000", null);
+                try { if (c.moveToFirst()) applied = c.getLong(0); } finally { c.close(); }
+                SQLiteDatabase.class.getMethod("setTransactionSuccessful").invoke(ddl);
+                return applied >= 60000L;
+            } finally {
+                SQLiteDatabase.class.getMethod("endTransaction").invoke(ddl);
+            }
+        } catch (Throwable unavailable) {
+            return false;
+        }
     }
     private static volatile String legacyDdlHandleStateR31Q = "NOT_STARTED";
     public static String legacyDdlHandleStateR31Q() { return legacyDdlHandleStateR31Q; }
