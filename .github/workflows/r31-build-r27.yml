@@ -129,7 +129,7 @@ jobs:
           python3 scripts/test_r13_production_ddl.py
           python3 scripts/generate_strategy_su2_schema.py --check
           ./gradlew --no-daemon --max-workers=4 -Pr30Instrumentation=true :app:compileDebugJavaWithJavac 2>&1 | tee "$RUNNER_TEMP/r31-evidence/compile-before-host.log"
-          python3 -B tools/r31/run_r31q_lock_regression.py > "$RUNNER_TEMP/r31-evidence/r31q-lock-regression.log" 2>&1
+          R31Q_OUTPUT="$RUNNER_TEMP/r31-evidence/r31q-lock" python3 -B tools/r31/run_r31q_lock_regression.py > "$RUNNER_TEMP/r31-evidence/r31q-lock-regression.log" 2>&1
           python3 scripts/verify_strategy_su1.py > "$RUNNER_TEMP/r31-evidence/su1.log" 2>&1
           python3 scripts/verify_plan1025.py > "$RUNNER_TEMP/r31-evidence/plan1025.log" 2>&1
           python3 scripts/verify_r26.py > "$RUNNER_TEMP/r31-evidence/r26.log" 2>&1
