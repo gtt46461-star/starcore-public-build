@@ -1,4 +1,4 @@
-name: STARCORE R31 exact-source verification with existing signer
+name: STARCORE R31 stop superseded source
 on:
   push:
     branches: ['construction/r27-20261028']
@@ -7,43 +7,16 @@ permissions:
   contents: read
   actions: write
 jobs:
-  cancel_obsolete:
+  cancel:
     runs-on: ubuntu-latest
     steps:
-      - name: Stop the previous source with the confirmed adapter compile failure
+      - name: Stop the source superseded by the large-state production fix
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if gh api -X POST repos/gtt46461-star/starcore-public-build/actions/runs/43288077114/cancel --silent; then
-            echo OBSOLETE_FAILED_SOURCE_CANCEL_REQUESTED
+          if gh api -X POST repos/gtt46461-star/starcore-public-build/actions/runs/43290936026/cancel --silent; then
+            echo SUPERSEDED_SOURCE_CANCEL_REQUESTED
           else
-            state=$(gh api repos/gtt46461-star/starcore-public-build/actions/runs/43288077114 --jq .status)
+            state=$(gh api repos/gtt46461-star/starcore-public-build/actions/runs/43290936026 --jq .status)
             test "$state" = completed
           fi
-  request:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: .github/r31-build-request.json
-          sparse-checkout-cone-mode: false
-      - name: Verify the unique R31 application source request
-        run: |
-          python3 - <<'PY'
-          import json
-          r=json.load(open('.github/r31-build-request.json'))
-          assert r['sourceBranch']=='construction/r31-final-20261104'
-          assert r['source']=='4d57fd6c2b26c025474f287f7d33f2772ded65b5'
-          assert r['expectedVersionCode']==577311021
-          assert r['expectedVersionName']=='R31-REPAIR-2026.11.12-021'
-          print('PINNED_R31_SOURCE='+r['source'])
-          PY
-  verify:
-    needs: [request, cancel_obsolete]
-    permissions:
-      contents: read
-      actions: read
-    uses: gtt46461-star/starcore-public-build/.github/workflows/r31-verification.yml@4d57fd6c2b26c025474f287f7d33f2772ded65b5
-    with:
-      source: 4d57fd6c2b26c025474f287f7d33f2772ded65b5
-    secrets: inherit
