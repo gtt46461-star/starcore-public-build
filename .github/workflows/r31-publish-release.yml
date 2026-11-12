@@ -23,8 +23,10 @@ jobs:
           keys=('runId','artifact','apk','sha256','tag','sourceCommit','title')
           for k in keys: assert r.get(k),k
           assert re.fullmatch('[0-9a-f]{64}',r['sha256']) and re.fullmatch('[0-9a-f]{40}',r['sourceCommit'])
+          assert str(r.get('observationsRunId','')).isdigit(),'CURRENT_ANDROID_EXECUTION_REQUIRED'
           with open(os.environ['GITHUB_OUTPUT'],'a') as o:
               for k in keys: o.write(k+'='+str(r[k])+'\n')
+              o.write('runtime_run='+str(r['observationsRunId'])+'\n')
           PY
       - uses: actions/download-artifact@v4
         with:
@@ -32,6 +34,24 @@ jobs:
           run-id: ${{ steps.req.outputs.runId }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: built
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31-live-observation
+          run-id: ${{ steps.req.outputs.runtime_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: runtime/live
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31-current-original-faults-and-charts
+          run-id: ${{ steps.req.outputs.runtime_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: runtime/faults
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31-real-release-overlay
+          run-id: ${{ steps.req.outputs.runtime_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: runtime/overlay
       - name: Verify the exact signed bytes and assemble the package
         run: |
           set -euo pipefail
@@ -56,6 +76,47 @@ jobs:
               for name in ['R31_DELIVERY.json','R31_VERIFICATION_RECEIPT.json','acceptance/ACCEPTANCE_RESULTS.json','acceptance/ACCEPTANCE_RESULTS.csv']:
                   (out/pathlib.Path(name).name).write_bytes(z.read(name))
           shutil.copyfile(archive,out/archive.name)
+          def only(folder,name):
+              paths=list(pathlib.Path(folder).rglob(name));assert len(paths)==1,(folder,name,len(paths))
+              return json.loads(paths[0].read_text())
+          live=only('runtime/live','LIVE_RECEIPT.json')
+          live_binding=only('runtime/live','APK_BINDING.json')
+          faults=only('runtime/faults','RESULTS.json')
+          fault_binding=only('runtime/faults','APK_BINDING.json')
+          overlay=only('runtime/overlay','RELEASE_OVERLAY.json')
+          overlay_binding=only('runtime/overlay','APK_BINDING.json')
+          for document in [live,faults,fault_binding,overlay,overlay_binding]:
+              assert document['sourceCommit']==request['sourceCommit'],'OBSERVATION_SOURCE_MISMATCH'
+          assert live_binding['source']==request['sourceCommit']
+          for binding in [live_binding,fault_binding,overlay_binding]:
+              assert int(binding['buildRunId'])==int(request['runId']),'OBSERVATION_APK_RUN_MISMATCH'
+          assert overlay_binding['newReleaseSha256']==request['sha256']==overlay['newApkSha256']
+          assert live_binding['apkSha256']==live['apkSha256']
+          assert any(a['sha256']==live['apkSha256'] for a in fault_binding['apks'])
+          for key in ['service6Exit','original14Exit','research12Exit','charts47Exit']:
+              assert faults.get(key)==0,'CURRENT_ANDROID_ENGINEERING_FAILURE:'+key
+          assert live.get('safReadbackVerified') is True,'ACTUAL_SAF_READBACK_NOT_VERIFIED'
+          assert live.get('tablesUi',{}).get('state')=='OBSERVED_16_ACTUAL_READERS','SIXTEEN_ACTIVITY_READERS_NOT_VERIFIED'
+          assert overlay.get('actualReleaseOverlayInstall')=='PASS','RELEASE_OVERLAY_NOT_OBSERVED'
+          # New natural periods and specific forecast/model binding remain separate facts.
+          # No promotion from an export, mechanics fixture, heartbeat or NO_BET count.
+          # Construct the public summary again from an exhaustive whitelist.
+          # Never serialize a downloaded document or arbitrary runtime string.
+          reads=live.get('tablesUi',{}).get('reads',[])
+          assert len(reads)==16 and {r.get('id') for r in reads}=={'T%02d'%i for i in range(1,17)}
+          assert all(r.get('actualStatus') in ['READ_OK','EMPTY_NO_ROWS'] for r in reads)
+          public_live={'safReadbackVerified':True,'tableReaderStates':[{'id':r['id'],'actualStatus':r['actualStatus'],'shown':r['shown'] if type(r.get('shown'))==int and 0<=r['shown']<=20 else None} for r in reads],'observed':{k:live.get('observed',{}).get(k) is True for k in ['newDraws','naturalClosedForecasts','feedbackAndConsumers','verifiedModelConsumer','followingForecasts']},'forecastConsumesSpecificUpdatedModelPublication':'NOT_PROVEN_REQUIRES_ACTUAL_FORECAST_BINDING'}
+          public_overlay={'fromVersionCode':577311020,'toVersionCode':577311021,'actualReleaseOverlayInstall':'PASS','oldObservedRowsPreserved':overlay.get('oldObservedRowsPreserved') is True,'trainedAssetMigration':'NOT_PROVEN_FRESH_VM_ASSET_SET_MAY_BE_EMPTY','checks':[]}
+          for c in overlay.get('checks',[])[:2]:
+              old=c.get('oldObservedRows');kept=c.get('preservedObservedRows')
+              public_overlay['checks'].append({'oldObservedRows':old if type(old)==int and 0<=old<=64 else None,'preservedObservedRows':kept if type(kept)==int and 0<=kept<=64 else None,'databaseIntegrity':'ok' if c.get('databaseIntegrity')=='ok' else 'UNAVAILABLE'})
+          execution={'format':'R31_CURRENT_ANDROID_EXECUTION_1','sourceCommit':request['sourceCommit'],'releaseApkSha256':request['sha256'],'buildRunId':int(request['runId']),'observationsRunId':int(request['observationsRunId']),'faultExitCodes':{key:0 for key in ['service6Exit','original14Exit','research12Exit','charts47Exit']},'live':public_live,'overlay':public_overlay,'physicalDevice':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsOrUiTextPublished':False,'wholeR31ProductClosure':'NOT_INFERRED_FROM_ENGINEERING_OR_SHORT_EMULATOR_RUNS'}
+          (out/'R31_ANDROID_EXECUTION_RESULTS.json').write_text(json.dumps(execution,ensure_ascii=False,indent=2)+'\n')
+          # Only the audited, fixed-field summary enters the public evidence ZIP.
+          # Do not copy runtime directories, raw DB rows, UI text or fault logs.
+          evidence=out/'STARCORE_R31_577311021_ANDROID_EVIDENCE.zip'
+          with zipfile.ZipFile(evidence,'w',zipfile.ZIP_DEFLATED) as z:
+              z.writestr('R31_ANDROID_EXECUTION_RESULTS.json',(out/'R31_ANDROID_EXECUTION_RESULTS.json').read_bytes())
           PY
           f="pub/${{ steps.req.outputs.apk }}"
           echo "${{ steps.req.outputs.sha256 }}  $f" | sha256sum -c -
