@@ -160,7 +160,7 @@ public final class CompleteReportFileR927 {
          section(b, "schemaStartup", () -> {
              DatabaseCoordinator c = DatabaseCoordinator.peek();
              if (c == null) return "NO_COORDINATOR_IN_THIS_PROCESS";
-             return c.startupSchemaSummary() + "|legacyRunningMs=" + c.legacyMigrationRunningMsR31Q() + "|dbLockWaitMs=" + c.lastDbLockWaitMs()
+             return c.startupSchemaSummary() + "|legacyRunningMs=" + c.legacyMigrationRunningMsR31Q() + "|legacyDdlHandle=" + DatabaseCoordinator.legacyDdlHandleStateR31Q() + "|dbLockWaitMs=" + c.lastDbLockWaitMs()
                      + "|dbLockWaitMaxMs=" + c.longestDbLockWaitMs()
                      + "|explicitMaintenance=" + DatabaseCoordinator.isExplicitMaintenanceActiveR82();
          });
@@ -183,7 +183,7 @@ public final class CompleteReportFileR927 {
              }
              return p.length() == 0 ? "NONE_VISIBLE" : p.toString();
          });
-         section(b, "reportRequestQueue", ReportExportServiceCP4::requestQueueStateR31Q);
+         section(b, "reportRequestQueue", () -> ReportExportServiceCP4.requestQueueStateR31Q() + "\nlastRequestOutcome=" + ReportExportServiceCP4.lastRequestOutcomeR31Q());
          section(b, "reportFiles", () -> reportFiles(app));
          section(b, "crash", () -> CrashRecorder.detailedSummary(app));
          section(b, "threadStacks", ReportExportServiceCP4::threadStacksR27);
@@ -201,6 +201,26 @@ public final class CompleteReportFileR927 {
          r.append('\n');
          File lock = new File(root, "job.lock");
          r.append("job.lock exists=").append(lock.isFile()).append(" mtime=").append(lock.lastModified()).append('\n');
+         for (String name : new String[] {"request-queue.json", "interactive-pending-r69.json"}) {
+             File f = new File(root, name);
+             r.append(name).append('=').append(f.isFile() ? ReportJobJournalCP12.readAtomic(f, 16384) : "ABSENT").append('\n');
+         }
+         File[] top = root.listFiles();
+         r.append("root/ count=").append(top == null ? -1 : top.length).append('\n');
+         if (top != null) {
+             Arrays.sort(top, (x, y) -> Long.compare(y.lastModified(), x.lastModified()));
+             for (int n = 0; n < top.length && n < 40; n++) {
+                 r.append("  ").append(top[n].getName()).append(top[n].isDirectory() ? "/" : "").append(" bytes=").append(top[n].length()).append(" mtime=").append(top[n].lastModified()).append('\n');
+                 String nm = top[n].getName();
+                 if (top[n].isFile() && top[n].length() <= 4096 && (nm.startsWith("status-") || nm.startsWith("command-")) && n < 8)
+                     r.append("    ").append(ReportJobJournalCP12.readAtomic(top[n], 4096)).append('\n');
+             }
+         }
+         File[] acks = new File(root, "requests").listFiles();
+         if (acks != null) {
+             Arrays.sort(acks, (x, y) -> Long.compare(y.lastModified(), x.lastModified()));
+             for (int n = 0, shown = 0; n < acks.length && shown < 3; n++) if (acks[n].getName().endsWith(".ack.json")) { shown++; r.append("ack ").append(acks[n].getName(), 0, 12).append('=').append(ReportJobJournalCP12.readAtomic(acks[n], 4096)).append('\n'); }
+         }
          appendNewest(r, new File(root, "requests"), 20);
          appendNewest(r, new File(root, "failures"), 5);
          appendNewest(r, new File(root, "jobs"), 5);

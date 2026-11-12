@@ -1099,13 +1099,68 @@ public final class DatabaseCoordinator {
         return ok != null && ok.booleanValue();
     }
 
-    public Future<?> submitBackgroundWrite(final String operation, final WriteRunnable task) {
+    public Future<?> submitBackgroundWrite(final String operation, final WriteRunnable requested) {
+        final WriteRunnable task = "R31_LEGACY_SCHEMA_PREPARE".equals(operation) ? dedicatedDdlTaskR31Q(requested) : requested;
         return backgroundWriter.submit(
                 new Runnable() {
                     public void run() {
                         runWrite(operation, task);
                     }
                 });
+    }
+
+    /**
+     * R31Q 019. Android closes every non-primary pooled connection after EACH DDL statement executed
+     * through a SQLiteDatabase handle. During the legacy migration (thousands of CREATE/ALTER statements)
+     * every reader therefore reopened its connection again and again; reopening parses the whole schema
+     * under the pool lock, so fetch, analysis, UI reads and the migration itself queued behind it
+     * (phone evidence: all threads BLOCKED in SQLiteConnectionPool.waitForConnection for minutes).
+     * The migration now runs its DDL on its own handle to the same file. The app pool keeps its
+     * connections; SQLite itself reloads their schema only when a statement really changed it.
+     * Any failure to open the extra handle falls back to the previous behaviour.
+     */
+    private WriteRunnable dedicatedDdlTaskR31Q(final WriteRunnable task) {
+        return new WriteRunnable() {
+            public void run(SQLiteDatabase db) throws Exception {
+                SQLiteDatabase ddl = openDdlHandleR31Q(db);
+                legacyDdlHandleStateR31Q = ddl == null ? "SHARED_POOL_FALLBACK" : "DEDICATED";
+                try {
+                    task.run(ddl == null ? db : ddl);
+                } finally {
+                    if (ddl != null) {
+                        try { ddl.close(); } catch (RuntimeException ignored) { }
+                        // One DDL-typed no-op on the app handle: Android drops its cached statements and
+                        // idle reader connections once, so nothing keeps a pre-migration statement.
+                        try { db.execSQL("DROP TABLE IF EXISTS r31q_ddl_cache_flush_noop"); } catch (RuntimeException ignored) { }
+                    }
+                }
+            }
+        };
+    }
+    private static volatile String legacyDdlHandleStateR31Q = "NOT_STARTED";
+    public static String legacyDdlHandleStateR31Q() { return legacyDdlHandleStateR31Q; }
+
+    /** Reflection only: the host test adapters of SQLiteDatabase do not all declare these SDK members. */
+    private static SQLiteDatabase openDdlHandleR31Q(SQLiteDatabase main) {
+        try {
+            if (main == null || main.inTransaction()) return null;
+            Object located = SQLiteDatabase.class.getMethod("getPath").invoke(main);
+            String path = located instanceof String ? (String) located : null;
+            if (path == null || !new java.io.File(path).isFile()) return null;
+            Class<?> handlerType = Class.forName("android.database.DatabaseErrorHandler");
+            // A no-op handler: the platform default deletes the database file when it reports corruption.
+            Object handler = java.lang.reflect.Proxy.newProxyInstance(handlerType.getClassLoader(), new Class<?>[] {handlerType},
+                    new java.lang.reflect.InvocationHandler() {
+                        public Object invoke(Object proxy, java.lang.reflect.Method method, Object[] args) { return null; }
+                    });
+            Class<?> factoryType = Class.forName("android.database.sqlite.SQLiteDatabase$CursorFactory");
+            java.lang.reflect.Method open = SQLiteDatabase.class.getMethod("openDatabase", String.class, factoryType, int.class, handlerType);
+            final int openReadWrite = 0, enableWriteAheadLogging = 0x20000000;
+            Object opened = open.invoke(null, path, null, openReadWrite | enableWriteAheadLogging, handler);
+            return opened instanceof SQLiteDatabase ? (SQLiteDatabase) opened : null;
+        } catch (Throwable unavailable) {
+            return null;
+        }
     }
 
     public <T> TransactionResult<T> runTransaction(

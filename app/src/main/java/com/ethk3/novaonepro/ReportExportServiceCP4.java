@@ -88,7 +88,7 @@ public final class ReportExportServiceCP4 extends Service {
             observation.put("analysisDepth",pressure.analysisDepth).put("settlementDepth",pressure.settlementDepth)
                     .put("quietForMs",pressure.quietForMs).put("settlementExecutionActive",SettlementExecutionGateR819.isActive());
             request.put("observation",observation);
-            enqueueUserRequest(root,id,"FULL_REPORT",request,generation);kick(app,ACTION_EXPORT,id);
+            enqueueUserRequest(root,id,"FULL_REPORT",request,generation);lastRequestOutcomeR31Q="ENQUEUED|request="+id+"|at="+System.currentTimeMillis();kick(app,ACTION_EXPORT,id);lastRequestOutcomeR31Q="KICKED|request="+id+"|at="+System.currentTimeMillis();
         }catch(Throwable error){requestFailure(app,id,error);}});}catch(RejectedExecutionException full){requestFailure(app,id,new IOException("REPORT_REQUEST_QUEUE_FULL"));}
         return id;
     }
@@ -157,7 +157,21 @@ public final class ReportExportServiceCP4 extends Service {
     private static void kick(Context app,String action,String id){Intent intent=new Intent(app,ReportExportServiceCP4.class).setAction(action).putExtra("id",id);
         if(Build.VERSION.SDK_INT>=26)app.startForegroundService(intent);else app.startService(intent);}
     private static File requestRoot(Context app)throws IOException{return ReportDirectoriesCP12.root(app.getFilesDir());}
-    private static void requestFailure(Context app,String id,Throwable error){try{JSONObject failure=new JSONObject();failure.put("requestId",id);failure.put("stage","FAILED");failure.put("reason",boundedReason(error.getClass().getSimpleName()+":"+String.valueOf(error.getMessage())));File root=requestRoot(app);try{failure.put("recovery",ReportJobJournalCP12.writeFailureArtifact(root,id,error));}catch(Exception unavailable){failure.put("recoveryFailure",boundedReason(unavailable.getClass().getSimpleName()+":"+unavailable.getMessage()));}ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+id+".ack.json"),failure.toString());}catch(Exception ignored){/* No success acknowledgement is generated. */}}
+    /** R31Q 019: the last request-side outcome of this process; a request must never end without a trace. */
+    private static volatile String lastRequestOutcomeR31Q="NONE";
+    static String lastRequestOutcomeR31Q(){return lastRequestOutcomeR31Q;}
+    private static String describeR31Q(Throwable error){StringBuilder b=new StringBuilder();int depth=0;for(Throwable t=error;t!=null&&depth<4;t=t.getCause(),depth++){if(depth>0)b.append(" <- ");b.append(t.getClass().getName()).append(':').append(t.getMessage());StackTraceElement[] st=t.getStackTrace();for(int i=0;i<st.length&&i<6;i++)b.append(" @").append(st[i]);}return b.length()<=3000?b.toString():b.substring(0,3000);}
+    private static void requestFailure(Context app,String id,Throwable error){
+        lastRequestOutcomeR31Q="FAILED|request="+id+"|at="+System.currentTimeMillis()+"|"+describeR31Q(error);
+        try{requestFailureCP12(app,id,error);if(!new File(requestRoot(app),"requests/"+id+".ack.json").isFile())throw new IOException("REPORT_FAILURE_ACK_NOT_WRITTEN");}
+        catch(Throwable receipt){
+            lastRequestOutcomeR31Q=lastRequestOutcomeR31Q+"|ackError="+describeR31Q(receipt);
+            // Minimal receipt so the UI reports the failure instead of waiting for an acknowledgement.
+            try{JSONObject failure=new JSONObject();failure.put("requestId",id);failure.put("stage","FAILED");failure.put("reason",boundedReason(error.getClass().getSimpleName()+":"+String.valueOf(error.getMessage())));ReportJobJournalCP12.writeAtomic(new File(requestRoot(app),"requests/"+id+".ack.json"),failure.toString());}
+            catch(Throwable second){lastRequestOutcomeR31Q=lastRequestOutcomeR31Q+"|minimalAckError="+describeR31Q(second);}
+        }
+    }
+    private static void requestFailureCP12(Context app,String id,Throwable error){try{JSONObject failure=new JSONObject();failure.put("requestId",id);failure.put("stage","FAILED");failure.put("reason",boundedReason(error.getClass().getSimpleName()+":"+String.valueOf(error.getMessage())));File root=requestRoot(app);try{failure.put("recovery",ReportJobJournalCP12.writeFailureArtifact(root,id,error));}catch(Exception unavailable){failure.put("recoveryFailure",boundedReason(unavailable.getClass().getSimpleName()+":"+unavailable.getMessage()));}ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+id+".ack.json"),failure.toString());}catch(Exception ignored){/* No success acknowledgement is generated. */}}
     private static String id(String mode){return RetentionArchiveProtocolCP12.sha(("REPORT_CP12|"+ReleaseManifestR926.MANIFEST_SHA256+"|"+mode+"|"+UUID.randomUUID()).getBytes(StandardCharsets.UTF_8));}
     private static void requireHash(String value)throws IOException{if(value==null||!value.matches("[0-9a-f]{64}"))throw new IOException("REPORT_HASH");}
 
