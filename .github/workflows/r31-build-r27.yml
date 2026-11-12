@@ -26,8 +26,8 @@ jobs:
           assert r['source']=='8f639e4f95851f7dad3405f067e085040e5a44fc'
           assert r['expectedVersionCode']==577311021
           assert r['expectedVersionName']=='R31-REPAIR-2026.11.12-021'
-          assert r['mode'] in ['verify','live','overlay']
-          if r['mode'] in ['live','overlay']:assert str(r['buildRunId']).isdigit()
+          assert r['mode'] in ['verify','live','overlay','diagnose']
+          if r['mode'] in ['live','overlay','diagnose']:assert str(r['buildRunId']).isdigit()
           with open(os.environ['GITHUB_OUTPUT'],'a') as f:
               f.write('mode='+r['mode']+'\n')
               f.write('build_run='+str(r.get('buildRunId',''))+'\n')
@@ -42,7 +42,7 @@ jobs:
     secrets: inherit
   live:
     needs: request
-    if: needs.request.outputs.mode == 'live'
+    if: needs.request.outputs.mode == 'live' || needs.request.outputs.mode == 'diagnose'
     runs-on: ubuntu-latest
     timeout-minutes: 65
     env:
@@ -152,7 +152,7 @@ jobs:
            # Fixed diagnostic codes reveal no exception messages, database rows or UI text.
            def diagnostic(value):
             text=str(value or '')
-            codes=['DISPOSABLE_EMULATOR_REQUIRED','PRODUCTION_START_UI_UNAVAILABLE','LIVE_APP_PROCESS_MISSING','OBSERVER_DB_SIZE_BOUND','CHARTS_BUTTON_UNAVAILABLE','WORKBENCH_BUTTON_UNAVAILABLE','TABLES_BUTTON_UNAVAILABLE','TABLE_READ_BUTTON_UNAVAILABLE','TABLE_ACTUAL_RENDER_NOT_OBSERVED','OLD_APPLICATION_DATABASE_NOT_OBSERVED','OBSERVED_OLD_DRAW_ORIGINAL_CHANGED']
+            codes=['DISPOSABLE_EMULATOR_REQUIRED','PRODUCTION_START_UI_UNAVAILABLE','LIVE_APP_PROCESS_MISSING','REAL_APP_PROCESS_EXIT_TRANSPORT_VERIFIED','OBSERVER_ADB_TRANSPORT_UNAVAILABLE','OBSERVER_ADB_COMMAND_FAILED','OBSERVER_DB_SIZE_BOUND','CHARTS_BUTTON_UNAVAILABLE','WORKBENCH_BUTTON_UNAVAILABLE','TABLES_BUTTON_UNAVAILABLE','TABLE_READ_BUTTON_UNAVAILABLE','TABLE_ACTUAL_RENDER_NOT_OBSERVED','OLD_APPLICATION_DATABASE_NOT_OBSERVED','OBSERVED_OLD_DRAW_ORIGINAL_CHANGED']
             for code in codes:
              if code in text:return code
             for kind in ['TimeoutExpired','ParseError','JSONDecodeError','BadZipFile','AssertionError','RuntimeError','OperationalError','IntegrityError']:
@@ -169,13 +169,41 @@ jobs:
               state['queries'][key]={'state':fixed(query.get('state'),['READ_OK','UNAVAILABLE']),'boundedRowCount':len(query.get('rows',[])[:65])}
              state['exactCheckpointState']=fixed(database.get('r26ExactFeedbackForecastBinding',{}).get('state'),['NOT_OBSERVED','OBSERVED_EXACT_SHADOW_CHECKPOINT_CONSUMPTION','UNAVAILABLE_OR_FAILED_VALIDATION'])
              receipt['queryHealth'].append(state)
-           receipt['reportStates']=[{'stage':fixed(row.get('stage'),['REQUESTED','ENQUEUED','QUEUED','WAITING','WAITING_RESOURCE','CAPTURING','SNAPSHOT','BUILDING','VERIFYING','READY','FAILED','CANCELLED','DELIVERED']),'ackState':fixed(row.get('state'),['PENDING','VERIFIED_READBACK','FAILED','REQUESTED','READY']),'semanticVerification':fixed(row.get('semanticVerificationR31'),['ZIP_READBACK_VERIFIED'])} for row in d.get('reportStates',[])[:64]]
+           receipt['reportStates']=[{'stage':fixed(row.get('stage'),['REQUESTED','ENQUEUED','QUEUED','WAITING','WAITING_RESOURCE','CLAIMED','BACKUP','SNAPSHOT_DURABLE','INDEXING','INDEX_DURABLE','COMPRESSING','VERIFYING','READY_TO_SHARE','RETENTION_ENCODING','RETENTION_RECEIPT_DURABLE','RETENTION_READY','PAUSED','FAILED','CANCELLED']),'ackState':fixed(row.get('state'),['PENDING','VERIFIED_READBACK','FAILED','REQUESTED','READY']),'semanticVerification':fixed(row.get('semanticVerificationR31'),['ZIP_READBACK_VERIFIED'])} for row in d.get('reportStates',[])[:64]]
+           def error_codes(value):
+            text=str(value or '')
+            codes={'OUT_OF_MEMORY':'OutOfMemoryError','NO_SUCH_TABLE':'no such table','NO_SUCH_COLUMN':'no such column','SQLITE_BUSY':'locked','SQLITE_FULL':'database or disk is full','SCHEMA_PENDING':'SCHEMA_PENDING','DDL_NOT_ALLOWED':'R31_LEGACY','SOURCE_CHANGED':'SOURCE_CHANGED','STALE_OWNER':'STALE_OWNER','CANCELLED':'CancellationException','CAPACITY_WAIT':'CapacityWait'}
+            return [code for code,part in codes.items() if part in text]
+           def source_frames(value):
+            return re.findall(r'(?:at )?((?:com\.ethk3\.novaonepro)[A-Za-z0-9_.$]+\([A-Za-z0-9_.$: ]+\))',str(value or ''))[:120]
+           receipt['crashForPackage']=d.get('crashForPackage') is True
+           receipt['crashErrorCodes']=error_codes(d.get('crashPrivate'))
+           receipt['crashSourceFrames']=source_frames(d.get('crashPrivate'))
+           receipt['processMissingWithHealthyTransport']=d.get('processMissingWithHealthyTransport') is True
+           receipt['adbReconnectAttempts']=integer(d.get('adbReconnectAttempts',0),100)
+           receipt['nonStoppingSnapshots']=integer(d.get('nonStoppingSnapshots',0),100)
+           receipt['historicalProcessExitReasons']=[int(value) for value in re.findall(r'reason=(\d+)',str(d.get('exitInfoPrivate',''))) if 0<=int(value)<=32][:16]
+           receipt['runtimeHealthSamples']=[]
+           for sample in d.get('samples',[])[:16]:
+            for database in sample.get('databases',[])[:2]:
+             queries=database.get('queries',{});health={'schema':[],'tasks':[],'failedMigration':[],'runtimeFaults':[],'feedbackConsumerCounts':[]}
+             rows=queries.get('totalDrawCount',{}).get('rows',[]);health['totalDrawCount']=integer(rows[0][0]) if rows else None
+             for row in queries.get('schemaDiagnostics',{}).get('rows',[])[:32]:
+              health['schema'].append({'domain':fixed(row[0],['CRITICAL','RESEARCH','LEGACY'],'OTHER_DOMAIN'),'state':fixed(row[1],['READY','INITIALIZING','FAILED','PENDING','MIGRATING']),'cursorSha256':hashlib.sha256(str(row[2]).encode()).hexdigest(),'errorCodes':error_codes(row[3])})
+             for row in queries.get('taskDiagnostics',{}).get('rows',[])[:64]:
+              health['tasks'].append({'lane':fixed(row[0],['REALTIME','REPLAY','HEALTH','RESEARCH','BACKGROUND','GC'],'OTHER_LANE'),'state':fixed(row[1],['READY','RUNNING','WAITING','WAIT_DATA','WAIT_RESOURCE','BLOCKED','RETRY','DONE','FAILED','CANCELLED','STALE','PAUSED','HEALTHY','DEPENDENCY']),'reasonSha256':hashlib.sha256(str(row[2]).encode()).hexdigest(),'reasonCodes':error_codes(row[2]),'tasks':integer(row[3]),'actualSteps':integer(row[4]),'lastProgressWallMs':integer(row[5])})
+             for row in queries.get('failedMigrationDiagnostics',{}).get('rows',[])[:32]:
+              health['failedMigration'].append({'domain':fixed(row[0],['CRITICAL','RESEARCH','LEGACY'],'OTHER_DOMAIN'),'stepSha256':hashlib.sha256(str(row[1]).encode()).hexdigest(),'errorCodes':error_codes(row[2]),'attempt':integer(row[3])})
+             for row in queries.get('runtimeFaultDiagnostics',{}).get('rows',[])[:8]:
+              health['runtimeFaults'].append({'categorySha256':hashlib.sha256(str(row[0]).encode()).hexdigest(),'commitOutcome':fixed(row[1],['ROLLED_BACK','COMMITTED_DIAGNOSTIC_FAILED','UNKNOWN','COMMITTED']),'errorCodes':error_codes(row[2]),'sourceFrames':source_frames(row[3])[:12],'occurrences':integer(row[4])})
+             for row in queries.get('feedbackConsumerCounts',{}).get('rows',[])[:32]:health['feedbackConsumerCounts'].append({'scope':fixed(row[0],['REVEALED_LIVE_LABEL','REPLAY_TRAINING','HISTORICAL_TRAINING','FROZEN_FORECAST'],'OTHER_SCOPE'),'receipts':integer(row[1])})
+             receipt['runtimeHealthSamples'].append(health)
            write('LIVE_RECEIPT.json',receipt)
           elif root.name=='overlay':
            d=read('RELEASE_OVERLAY.json');receipt={'format':'R31_PUBLIC_RELEASE_OVERLAY_1','sourceCommit':source(d.get('sourceCommit')),'oldApkSha256':digest(d.get('oldApkSha256')),'newApkSha256':digest(d.get('newApkSha256')),'fromVersionCode':577311020,'toVersionCode':577311021,'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_RELEASE_OVERLAY_AND_ORIGINAL_ROWS','OBSERVED_OVERLAY_ONLY_NO_OLD_DRAW_ROWS']),
            'actualReleaseOverlayInstall':fixed(d.get('actualReleaseOverlayInstall'),['PASS']),'oldObservedRowsPreserved':d.get('oldObservedRowsPreserved') is True,'checks':[],
            'trainedAssetMigration':'NOT_PROVEN_FRESH_VM_ASSET_SET_MAY_BE_EMPTY','physicalDevice':'NOT_RUN','old670MHandsetDatabase':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsPublished':False}
-           for row in d.get('checks',[])[:2]:receipt['checks'].append({'oldObservedRows':integer(row.get('oldObservedRows'),64),'preservedObservedRows':integer(row.get('preservedObservedRows'),64),'missingOldIssues':integer(row.get('missingOldIssues'),64),'changedFieldCounts':{k:integer(row.get('changedFieldCounts',{}).get(k),64) for k in ['issue','draw_hash_v2','open_time','first_seen_at']},'databaseIntegrity':fixed(row.get('databaseIntegrity'),['ok'])})
+           for row in d.get('checks',[])[:2]:receipt['checks'].append({'oldObservedRows':integer(row.get('oldObservedRows'),64),'preservedObservedRows':integer(row.get('preservedObservedRows'),64),'databaseIntegrity':fixed(row.get('databaseIntegrity'),['ok'])})
            write('RELEASE_OVERLAY.json',receipt)
           elif root.name=='faults':
            d=read('RESULTS.json');receipt={'sourceCommit':source(d.get('sourceCommit')),'buildRunId':integer(d.get('buildRunId')),'physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawRuntimeLogsPublished':False}
@@ -359,7 +387,7 @@ jobs:
            # Fixed diagnostic codes reveal no exception messages, database rows or UI text.
            def diagnostic(value):
             text=str(value or '')
-            codes=['DISPOSABLE_EMULATOR_REQUIRED','PRODUCTION_START_UI_UNAVAILABLE','LIVE_APP_PROCESS_MISSING','OBSERVER_DB_SIZE_BOUND','CHARTS_BUTTON_UNAVAILABLE','WORKBENCH_BUTTON_UNAVAILABLE','TABLES_BUTTON_UNAVAILABLE','TABLE_READ_BUTTON_UNAVAILABLE','TABLE_ACTUAL_RENDER_NOT_OBSERVED','OLD_APPLICATION_DATABASE_NOT_OBSERVED','OBSERVED_OLD_DRAW_ORIGINAL_CHANGED']
+            codes=['DISPOSABLE_EMULATOR_REQUIRED','PRODUCTION_START_UI_UNAVAILABLE','LIVE_APP_PROCESS_MISSING','REAL_APP_PROCESS_EXIT_TRANSPORT_VERIFIED','OBSERVER_ADB_TRANSPORT_UNAVAILABLE','OBSERVER_ADB_COMMAND_FAILED','OBSERVER_DB_SIZE_BOUND','CHARTS_BUTTON_UNAVAILABLE','WORKBENCH_BUTTON_UNAVAILABLE','TABLES_BUTTON_UNAVAILABLE','TABLE_READ_BUTTON_UNAVAILABLE','TABLE_ACTUAL_RENDER_NOT_OBSERVED','OLD_APPLICATION_DATABASE_NOT_OBSERVED','OBSERVED_OLD_DRAW_ORIGINAL_CHANGED']
             for code in codes:
              if code in text:return code
             for kind in ['TimeoutExpired','ParseError','JSONDecodeError','BadZipFile','AssertionError','RuntimeError','OperationalError','IntegrityError']:
@@ -376,13 +404,41 @@ jobs:
               state['queries'][key]={'state':fixed(query.get('state'),['READ_OK','UNAVAILABLE']),'boundedRowCount':len(query.get('rows',[])[:65])}
              state['exactCheckpointState']=fixed(database.get('r26ExactFeedbackForecastBinding',{}).get('state'),['NOT_OBSERVED','OBSERVED_EXACT_SHADOW_CHECKPOINT_CONSUMPTION','UNAVAILABLE_OR_FAILED_VALIDATION'])
              receipt['queryHealth'].append(state)
-           receipt['reportStates']=[{'stage':fixed(row.get('stage'),['REQUESTED','ENQUEUED','QUEUED','WAITING','WAITING_RESOURCE','CAPTURING','SNAPSHOT','BUILDING','VERIFYING','READY','FAILED','CANCELLED','DELIVERED']),'ackState':fixed(row.get('state'),['PENDING','VERIFIED_READBACK','FAILED','REQUESTED','READY']),'semanticVerification':fixed(row.get('semanticVerificationR31'),['ZIP_READBACK_VERIFIED'])} for row in d.get('reportStates',[])[:64]]
+           receipt['reportStates']=[{'stage':fixed(row.get('stage'),['REQUESTED','ENQUEUED','QUEUED','WAITING','WAITING_RESOURCE','CLAIMED','BACKUP','SNAPSHOT_DURABLE','INDEXING','INDEX_DURABLE','COMPRESSING','VERIFYING','READY_TO_SHARE','RETENTION_ENCODING','RETENTION_RECEIPT_DURABLE','RETENTION_READY','PAUSED','FAILED','CANCELLED']),'ackState':fixed(row.get('state'),['PENDING','VERIFIED_READBACK','FAILED','REQUESTED','READY']),'semanticVerification':fixed(row.get('semanticVerificationR31'),['ZIP_READBACK_VERIFIED'])} for row in d.get('reportStates',[])[:64]]
+           def error_codes(value):
+            text=str(value or '')
+            codes={'OUT_OF_MEMORY':'OutOfMemoryError','NO_SUCH_TABLE':'no such table','NO_SUCH_COLUMN':'no such column','SQLITE_BUSY':'locked','SQLITE_FULL':'database or disk is full','SCHEMA_PENDING':'SCHEMA_PENDING','DDL_NOT_ALLOWED':'R31_LEGACY','SOURCE_CHANGED':'SOURCE_CHANGED','STALE_OWNER':'STALE_OWNER','CANCELLED':'CancellationException','CAPACITY_WAIT':'CapacityWait'}
+            return [code for code,part in codes.items() if part in text]
+           def source_frames(value):
+            return re.findall(r'(?:at )?((?:com\.ethk3\.novaonepro)[A-Za-z0-9_.$]+\([A-Za-z0-9_.$: ]+\))',str(value or ''))[:120]
+           receipt['crashForPackage']=d.get('crashForPackage') is True
+           receipt['crashErrorCodes']=error_codes(d.get('crashPrivate'))
+           receipt['crashSourceFrames']=source_frames(d.get('crashPrivate'))
+           receipt['processMissingWithHealthyTransport']=d.get('processMissingWithHealthyTransport') is True
+           receipt['adbReconnectAttempts']=integer(d.get('adbReconnectAttempts',0),100)
+           receipt['nonStoppingSnapshots']=integer(d.get('nonStoppingSnapshots',0),100)
+           receipt['historicalProcessExitReasons']=[int(value) for value in re.findall(r'reason=(\d+)',str(d.get('exitInfoPrivate',''))) if 0<=int(value)<=32][:16]
+           receipt['runtimeHealthSamples']=[]
+           for sample in d.get('samples',[])[:16]:
+            for database in sample.get('databases',[])[:2]:
+             queries=database.get('queries',{});health={'schema':[],'tasks':[],'failedMigration':[],'runtimeFaults':[],'feedbackConsumerCounts':[]}
+             rows=queries.get('totalDrawCount',{}).get('rows',[]);health['totalDrawCount']=integer(rows[0][0]) if rows else None
+             for row in queries.get('schemaDiagnostics',{}).get('rows',[])[:32]:
+              health['schema'].append({'domain':fixed(row[0],['CRITICAL','RESEARCH','LEGACY'],'OTHER_DOMAIN'),'state':fixed(row[1],['READY','INITIALIZING','FAILED','PENDING','MIGRATING']),'cursorSha256':hashlib.sha256(str(row[2]).encode()).hexdigest(),'errorCodes':error_codes(row[3])})
+             for row in queries.get('taskDiagnostics',{}).get('rows',[])[:64]:
+              health['tasks'].append({'lane':fixed(row[0],['REALTIME','REPLAY','HEALTH','RESEARCH','BACKGROUND','GC'],'OTHER_LANE'),'state':fixed(row[1],['READY','RUNNING','WAITING','WAIT_DATA','WAIT_RESOURCE','BLOCKED','RETRY','DONE','FAILED','CANCELLED','STALE','PAUSED','HEALTHY','DEPENDENCY']),'reasonSha256':hashlib.sha256(str(row[2]).encode()).hexdigest(),'reasonCodes':error_codes(row[2]),'tasks':integer(row[3]),'actualSteps':integer(row[4]),'lastProgressWallMs':integer(row[5])})
+             for row in queries.get('failedMigrationDiagnostics',{}).get('rows',[])[:32]:
+              health['failedMigration'].append({'domain':fixed(row[0],['CRITICAL','RESEARCH','LEGACY'],'OTHER_DOMAIN'),'stepSha256':hashlib.sha256(str(row[1]).encode()).hexdigest(),'errorCodes':error_codes(row[2]),'attempt':integer(row[3])})
+             for row in queries.get('runtimeFaultDiagnostics',{}).get('rows',[])[:8]:
+              health['runtimeFaults'].append({'categorySha256':hashlib.sha256(str(row[0]).encode()).hexdigest(),'commitOutcome':fixed(row[1],['ROLLED_BACK','COMMITTED_DIAGNOSTIC_FAILED','UNKNOWN','COMMITTED']),'errorCodes':error_codes(row[2]),'sourceFrames':source_frames(row[3])[:12],'occurrences':integer(row[4])})
+             for row in queries.get('feedbackConsumerCounts',{}).get('rows',[])[:32]:health['feedbackConsumerCounts'].append({'scope':fixed(row[0],['REVEALED_LIVE_LABEL','REPLAY_TRAINING','HISTORICAL_TRAINING','FROZEN_FORECAST'],'OTHER_SCOPE'),'receipts':integer(row[1])})
+             receipt['runtimeHealthSamples'].append(health)
            write('LIVE_RECEIPT.json',receipt)
           elif root.name=='overlay':
            d=read('RELEASE_OVERLAY.json');receipt={'format':'R31_PUBLIC_RELEASE_OVERLAY_1','sourceCommit':source(d.get('sourceCommit')),'oldApkSha256':digest(d.get('oldApkSha256')),'newApkSha256':digest(d.get('newApkSha256')),'fromVersionCode':577311020,'toVersionCode':577311021,'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_RELEASE_OVERLAY_AND_ORIGINAL_ROWS','OBSERVED_OVERLAY_ONLY_NO_OLD_DRAW_ROWS']),
            'actualReleaseOverlayInstall':fixed(d.get('actualReleaseOverlayInstall'),['PASS']),'oldObservedRowsPreserved':d.get('oldObservedRowsPreserved') is True,'checks':[],
            'trainedAssetMigration':'NOT_PROVEN_FRESH_VM_ASSET_SET_MAY_BE_EMPTY','physicalDevice':'NOT_RUN','old670MHandsetDatabase':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsPublished':False}
-           for row in d.get('checks',[])[:2]:receipt['checks'].append({'oldObservedRows':integer(row.get('oldObservedRows'),64),'preservedObservedRows':integer(row.get('preservedObservedRows'),64),'missingOldIssues':integer(row.get('missingOldIssues'),64),'changedFieldCounts':{k:integer(row.get('changedFieldCounts',{}).get(k),64) for k in ['issue','draw_hash_v2','open_time','first_seen_at']},'databaseIntegrity':fixed(row.get('databaseIntegrity'),['ok'])})
+           for row in d.get('checks',[])[:2]:receipt['checks'].append({'oldObservedRows':integer(row.get('oldObservedRows'),64),'preservedObservedRows':integer(row.get('preservedObservedRows'),64),'databaseIntegrity':fixed(row.get('databaseIntegrity'),['ok'])})
            write('RELEASE_OVERLAY.json',receipt)
           elif root.name=='faults':
            d=read('RESULTS.json');receipt={'sourceCommit':source(d.get('sourceCommit')),'buildRunId':integer(d.get('buildRunId')),'physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawRuntimeLogsPublished':False}
@@ -553,7 +609,7 @@ jobs:
            # Fixed diagnostic codes reveal no exception messages, database rows or UI text.
            def diagnostic(value):
             text=str(value or '')
-            codes=['DISPOSABLE_EMULATOR_REQUIRED','PRODUCTION_START_UI_UNAVAILABLE','LIVE_APP_PROCESS_MISSING','OBSERVER_DB_SIZE_BOUND','CHARTS_BUTTON_UNAVAILABLE','WORKBENCH_BUTTON_UNAVAILABLE','TABLES_BUTTON_UNAVAILABLE','TABLE_READ_BUTTON_UNAVAILABLE','TABLE_ACTUAL_RENDER_NOT_OBSERVED','OLD_APPLICATION_DATABASE_NOT_OBSERVED','OBSERVED_OLD_DRAW_ORIGINAL_CHANGED']
+            codes=['DISPOSABLE_EMULATOR_REQUIRED','PRODUCTION_START_UI_UNAVAILABLE','LIVE_APP_PROCESS_MISSING','REAL_APP_PROCESS_EXIT_TRANSPORT_VERIFIED','OBSERVER_ADB_TRANSPORT_UNAVAILABLE','OBSERVER_ADB_COMMAND_FAILED','OBSERVER_DB_SIZE_BOUND','CHARTS_BUTTON_UNAVAILABLE','WORKBENCH_BUTTON_UNAVAILABLE','TABLES_BUTTON_UNAVAILABLE','TABLE_READ_BUTTON_UNAVAILABLE','TABLE_ACTUAL_RENDER_NOT_OBSERVED','OLD_APPLICATION_DATABASE_NOT_OBSERVED','OBSERVED_OLD_DRAW_ORIGINAL_CHANGED']
             for code in codes:
              if code in text:return code
             for kind in ['TimeoutExpired','ParseError','JSONDecodeError','BadZipFile','AssertionError','RuntimeError','OperationalError','IntegrityError']:
@@ -570,13 +626,41 @@ jobs:
               state['queries'][key]={'state':fixed(query.get('state'),['READ_OK','UNAVAILABLE']),'boundedRowCount':len(query.get('rows',[])[:65])}
              state['exactCheckpointState']=fixed(database.get('r26ExactFeedbackForecastBinding',{}).get('state'),['NOT_OBSERVED','OBSERVED_EXACT_SHADOW_CHECKPOINT_CONSUMPTION','UNAVAILABLE_OR_FAILED_VALIDATION'])
              receipt['queryHealth'].append(state)
-           receipt['reportStates']=[{'stage':fixed(row.get('stage'),['REQUESTED','ENQUEUED','QUEUED','WAITING','WAITING_RESOURCE','CAPTURING','SNAPSHOT','BUILDING','VERIFYING','READY','FAILED','CANCELLED','DELIVERED']),'ackState':fixed(row.get('state'),['PENDING','VERIFIED_READBACK','FAILED','REQUESTED','READY']),'semanticVerification':fixed(row.get('semanticVerificationR31'),['ZIP_READBACK_VERIFIED'])} for row in d.get('reportStates',[])[:64]]
+           receipt['reportStates']=[{'stage':fixed(row.get('stage'),['REQUESTED','ENQUEUED','QUEUED','WAITING','WAITING_RESOURCE','CLAIMED','BACKUP','SNAPSHOT_DURABLE','INDEXING','INDEX_DURABLE','COMPRESSING','VERIFYING','READY_TO_SHARE','RETENTION_ENCODING','RETENTION_RECEIPT_DURABLE','RETENTION_READY','PAUSED','FAILED','CANCELLED']),'ackState':fixed(row.get('state'),['PENDING','VERIFIED_READBACK','FAILED','REQUESTED','READY']),'semanticVerification':fixed(row.get('semanticVerificationR31'),['ZIP_READBACK_VERIFIED'])} for row in d.get('reportStates',[])[:64]]
+           def error_codes(value):
+            text=str(value or '')
+            codes={'OUT_OF_MEMORY':'OutOfMemoryError','NO_SUCH_TABLE':'no such table','NO_SUCH_COLUMN':'no such column','SQLITE_BUSY':'locked','SQLITE_FULL':'database or disk is full','SCHEMA_PENDING':'SCHEMA_PENDING','DDL_NOT_ALLOWED':'R31_LEGACY','SOURCE_CHANGED':'SOURCE_CHANGED','STALE_OWNER':'STALE_OWNER','CANCELLED':'CancellationException','CAPACITY_WAIT':'CapacityWait'}
+            return [code for code,part in codes.items() if part in text]
+           def source_frames(value):
+            return re.findall(r'(?:at )?((?:com\.ethk3\.novaonepro)[A-Za-z0-9_.$]+\([A-Za-z0-9_.$: ]+\))',str(value or ''))[:120]
+           receipt['crashForPackage']=d.get('crashForPackage') is True
+           receipt['crashErrorCodes']=error_codes(d.get('crashPrivate'))
+           receipt['crashSourceFrames']=source_frames(d.get('crashPrivate'))
+           receipt['processMissingWithHealthyTransport']=d.get('processMissingWithHealthyTransport') is True
+           receipt['adbReconnectAttempts']=integer(d.get('adbReconnectAttempts',0),100)
+           receipt['nonStoppingSnapshots']=integer(d.get('nonStoppingSnapshots',0),100)
+           receipt['historicalProcessExitReasons']=[int(value) for value in re.findall(r'reason=(\d+)',str(d.get('exitInfoPrivate',''))) if 0<=int(value)<=32][:16]
+           receipt['runtimeHealthSamples']=[]
+           for sample in d.get('samples',[])[:16]:
+            for database in sample.get('databases',[])[:2]:
+             queries=database.get('queries',{});health={'schema':[],'tasks':[],'failedMigration':[],'runtimeFaults':[],'feedbackConsumerCounts':[]}
+             rows=queries.get('totalDrawCount',{}).get('rows',[]);health['totalDrawCount']=integer(rows[0][0]) if rows else None
+             for row in queries.get('schemaDiagnostics',{}).get('rows',[])[:32]:
+              health['schema'].append({'domain':fixed(row[0],['CRITICAL','RESEARCH','LEGACY'],'OTHER_DOMAIN'),'state':fixed(row[1],['READY','INITIALIZING','FAILED','PENDING','MIGRATING']),'cursorSha256':hashlib.sha256(str(row[2]).encode()).hexdigest(),'errorCodes':error_codes(row[3])})
+             for row in queries.get('taskDiagnostics',{}).get('rows',[])[:64]:
+              health['tasks'].append({'lane':fixed(row[0],['REALTIME','REPLAY','HEALTH','RESEARCH','BACKGROUND','GC'],'OTHER_LANE'),'state':fixed(row[1],['READY','RUNNING','WAITING','WAIT_DATA','WAIT_RESOURCE','BLOCKED','RETRY','DONE','FAILED','CANCELLED','STALE','PAUSED','HEALTHY','DEPENDENCY']),'reasonSha256':hashlib.sha256(str(row[2]).encode()).hexdigest(),'reasonCodes':error_codes(row[2]),'tasks':integer(row[3]),'actualSteps':integer(row[4]),'lastProgressWallMs':integer(row[5])})
+             for row in queries.get('failedMigrationDiagnostics',{}).get('rows',[])[:32]:
+              health['failedMigration'].append({'domain':fixed(row[0],['CRITICAL','RESEARCH','LEGACY'],'OTHER_DOMAIN'),'stepSha256':hashlib.sha256(str(row[1]).encode()).hexdigest(),'errorCodes':error_codes(row[2]),'attempt':integer(row[3])})
+             for row in queries.get('runtimeFaultDiagnostics',{}).get('rows',[])[:8]:
+              health['runtimeFaults'].append({'categorySha256':hashlib.sha256(str(row[0]).encode()).hexdigest(),'commitOutcome':fixed(row[1],['ROLLED_BACK','COMMITTED_DIAGNOSTIC_FAILED','UNKNOWN','COMMITTED']),'errorCodes':error_codes(row[2]),'sourceFrames':source_frames(row[3])[:12],'occurrences':integer(row[4])})
+             for row in queries.get('feedbackConsumerCounts',{}).get('rows',[])[:32]:health['feedbackConsumerCounts'].append({'scope':fixed(row[0],['REVEALED_LIVE_LABEL','REPLAY_TRAINING','HISTORICAL_TRAINING','FROZEN_FORECAST'],'OTHER_SCOPE'),'receipts':integer(row[1])})
+             receipt['runtimeHealthSamples'].append(health)
            write('LIVE_RECEIPT.json',receipt)
           elif root.name=='overlay':
            d=read('RELEASE_OVERLAY.json');receipt={'format':'R31_PUBLIC_RELEASE_OVERLAY_1','sourceCommit':source(d.get('sourceCommit')),'oldApkSha256':digest(d.get('oldApkSha256')),'newApkSha256':digest(d.get('newApkSha256')),'fromVersionCode':577311020,'toVersionCode':577311021,'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_RELEASE_OVERLAY_AND_ORIGINAL_ROWS','OBSERVED_OVERLAY_ONLY_NO_OLD_DRAW_ROWS']),
            'actualReleaseOverlayInstall':fixed(d.get('actualReleaseOverlayInstall'),['PASS']),'oldObservedRowsPreserved':d.get('oldObservedRowsPreserved') is True,'checks':[],
            'trainedAssetMigration':'NOT_PROVEN_FRESH_VM_ASSET_SET_MAY_BE_EMPTY','physicalDevice':'NOT_RUN','old670MHandsetDatabase':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsPublished':False}
-           for row in d.get('checks',[])[:2]:receipt['checks'].append({'oldObservedRows':integer(row.get('oldObservedRows'),64),'preservedObservedRows':integer(row.get('preservedObservedRows'),64),'missingOldIssues':integer(row.get('missingOldIssues'),64),'changedFieldCounts':{k:integer(row.get('changedFieldCounts',{}).get(k),64) for k in ['issue','draw_hash_v2','open_time','first_seen_at']},'databaseIntegrity':fixed(row.get('databaseIntegrity'),['ok'])})
+           for row in d.get('checks',[])[:2]:receipt['checks'].append({'oldObservedRows':integer(row.get('oldObservedRows'),64),'preservedObservedRows':integer(row.get('preservedObservedRows'),64),'databaseIntegrity':fixed(row.get('databaseIntegrity'),['ok'])})
            write('RELEASE_OVERLAY.json',receipt)
           elif root.name=='faults':
            d=read('RESULTS.json');receipt={'sourceCommit':source(d.get('sourceCommit')),'buildRunId':integer(d.get('buildRunId')),'physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawRuntimeLogsPublished':False}
