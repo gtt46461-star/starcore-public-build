@@ -220,9 +220,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
-      "rationale": "R31Q 020 device fix: legacy migration DDL on a dedicated handle with a 60 s busy timeout (no pool-wide reader reconnect per DDL, no silently dropped column); no qualification inheritance.",
+      "rationale": "R31Q 020 device fix: legacy migration DDL on a dedicated handle with a 60 s busy timeout, cache flush by a TEMP table instead of a DROP; no qualification inheritance.",
       "role": "NUMERIC",
-      "sha256": "3f7bc8a14a2c4aaf326f5dd5e8aa91c26993b5087d16a2d897eca1c3f89783c4"
+      "sha256": "1ebcab75b5efc296eb654e4c25d66db3868c746313ff0cb82407baf709493e7b"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
@@ -3200,19 +3200,19 @@
       "path": "release/r82_training_invalidation.json",
       "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
       "role": "PROVENANCE",
-      "sha256": "78b5784a1f6ec1fb481d9186ea73f91a7092505fe96ced705980bc38081fcf3e"
+      "sha256": "938ec01ca56e61494e7bec7183aebba7e97e436dabe7d1fb0f7e658628f11943"
     },
     {
       "path": "release/r982_source_calls.manifest.json",
       "rationale": "R31Q 019 device fix: legacy migration DDL on a dedicated handle (no pool-wide reader reconnect per DDL), report request failures always leave a receipt; no qualification inheritance.",
       "role": "PROVENANCE",
-      "sha256": "783e9d678e40e31436876a6701a436629f5ae5edf357602c7d51f6750e8421b5"
+      "sha256": "dd9a449e5a98fdc0d43f2921dba7ed8b6113e6dc93a960aa576a2e92e3003d32"
     },
     {
       "path": "release/r982_source_calls.tsv.gz",
       "rationale": "R31Q 019 device fix: legacy migration DDL on a dedicated handle (no pool-wide reader reconnect per DDL), report request failures always leave a receipt; no qualification inheritance.",
       "role": "PROVENANCE",
-      "sha256": "c3013cf7f934c797f9dda1c465436319ae0d0ea4fcda91d1625364dc3dd594ee"
+      "sha256": "e34168fdfd485b243d86989caccfe9d8f27da1b3326c3d4bbb61bd509693a926"
     },
     {
       "path": "release/release_identity.properties",

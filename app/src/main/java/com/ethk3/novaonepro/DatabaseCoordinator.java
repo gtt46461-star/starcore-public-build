@@ -1130,9 +1130,10 @@ public final class DatabaseCoordinator {
                 } finally {
                     if (ddl != null) {
                         try { ddl.close(); } catch (RuntimeException ignored) { }
-                        // One DDL-typed no-op on the app handle: Android drops its cached statements and
-                        // idle reader connections once, so nothing keeps a pre-migration statement.
-                        try { db.execSQL("DROP TABLE IF EXISTS r31q_ddl_cache_flush_noop"); } catch (RuntimeException ignored) { }
+                        // One DDL-typed statement on the app handle: Android drops its cached statements and
+                        // idle reader connections once, so nothing keeps a pre-migration statement. A TEMP
+                        // table lives only on this connection; no DROP (R31RetirementManifestTest owns drops).
+                        try { db.execSQL("CREATE TEMP TABLE IF NOT EXISTS r31q_ddl_cache_flush(x INTEGER)"); } catch (RuntimeException ignored) { }
                     }
                 }
             }
