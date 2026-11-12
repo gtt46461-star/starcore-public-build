@@ -87,4 +87,33 @@ public final class R31QDeliveryInstrumentedTest {
         System.out.println("R31Q_ANDROID|FULL_REPORT_PUBLISHED|PROVIDER_READBACK_HASH_PASS|BYTES="+bytes+"|CHECKS_COMPLETE="+index.optBoolean("checksComplete")+"|HEALTH="+index.optBoolean("allChecksPassed")+"|NO_QUALITY_CLAIM|PASS");
         store.close();
     }
+
+    @Test public void liveServiceFetchesFreezesAndSettlesNewFutureObservations()throws Exception{
+        Context app=app();DbStore store=new DbStore(app());ready(store);
+        ServiceHeartbeatStore heartbeat=new ServiceHeartbeatStore(app);long started=System.currentTimeMillis();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(()->app.startActivity(new Intent(app,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)));
+        heartbeat.setUserEnabled(true);BootReceiver.persistServiceUserEnabled(app,true);
+        Intent start=new Intent(app,AutoFetchService.class).setAction(AppConfig.ACTION_SERVICE_START);
+        if(android.os.Build.VERSION.SDK_INT>=26)app.startForegroundService(start);else app.startService(start);
+        long frozen=0,settled=0;long until=SystemClock.elapsedRealtime()+360000L;
+        try{
+            do{
+                try(Cursor rows=store.readable().rawQuery("SELECT count(*),COALESCE(SUM(CASE WHEN settled=1 THEN 1 ELSE 0 END),0) FROM "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" WHERE commit_at>? AND pre_draw_frozen=1",new String[]{String.valueOf(started)})){
+                    assertTrue(rows.moveToFirst());frozen=rows.getLong(0);settled=rows.getLong(1);
+                }
+                if(heartbeat.getLastFetchSuccessAt()>started&&frozen>0&&settled>0)break;
+                Thread.sleep(500);
+            }while(SystemClock.elapsedRealtime()<until);
+            assertTrue("NO_FRESH_API_FETCH: "+heartbeat.detailedSummary(),heartbeat.getLastFetchSuccessAt()>started);
+            assertTrue("NO_NEW_FUTURE_FREEZE: "+heartbeat.detailedSummary(),frozen>0);
+            assertTrue("NO_NEW_FROZEN_SETTLEMENT: "+heartbeat.detailedSummary(),settled>0);
+            try(Cursor rows=store.readable().rawQuery("SELECT count(*) FROM "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" WHERE commit_at>? AND commit_at>=deadline_at",new String[]{String.valueOf(started)})){
+                assertTrue(rows.moveToFirst());assertEquals("late records must never masquerade as pre-draw",0,rows.getLong(0));
+            }
+            System.out.println("R31Q_ANDROID|REAL_API_FETCH_AND_NEW_FREEZE_SETTLEMENT|FROZEN="+frozen+"|SETTLED="+settled+"|PIT_DEADLINE_VALID|NO_WIN_RATE_CLAIM|PASS");
+        }finally{
+            heartbeat.setUserEnabled(false);BootReceiver.persistServiceUserEnabled(app,false);
+            app.stopService(new Intent(app,AutoFetchService.class));store.close();
+        }
+    }
 }

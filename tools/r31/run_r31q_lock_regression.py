@@ -3,13 +3,13 @@
 Compile-time Android signatures throw if used; the exercised filesystem census,
 OS locks and scheduling use current product code. No Android runtime is claimed.
 """
-import hashlib,json,subprocess,tempfile
+import hashlib,json,os,subprocess,tempfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 MAIN=ROOT/'app/src/main/java/com/ethk3/novaonepro'
 sources=[MAIN/(p+'.java') for p in ['DirectoryCursorR31','StorageCensusSU2','StorageBudgetR31','ReportRequestStatusR31','strategyv2/FailureDispositionR31']]
 drivers=[ROOT/'tools/r31/host/R31QLockRegressionHost.java']
-out=ROOT/'verification/r31q/021'
+out=Path(os.environ.get('R31Q_OUTPUT',str(ROOT/'verification/r31q/021')))
 out.mkdir(parents=True,exist_ok=True)
 logs=[]
 def run(args,expect=0):
