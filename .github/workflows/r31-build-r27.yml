@@ -1,110 +1,33 @@
-name: STARCORE R31 verified source transfer
+name: STARCORE R31 exact-source verification with existing signer
 on:
   push:
     branches: ['construction/r27-20261028']
     paths: ['.github/r31-build-request.json', '.github/workflows/r31-build-r27.yml']
 permissions:
-  contents: write
+  contents: read
   actions: read
-concurrency:
-  group: r31-exact-source-transfer
-  cancel-in-progress: false
 jobs:
-  transfer:
+  request:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
-          path: caller
-      - name: Validate the source transfer, not an acceptance run
-        id: request
+          sparse-checkout: .github/r31-build-request.json
+          sparse-checkout-cone-mode: false
+      - name: Verify the unique R31 application source request
         run: |
           python3 - <<'PY'
-          import base64,gzip,hashlib,json,os,pathlib,re
-          r=json.load(open('caller/.github/r31-build-request.json'))
+          import json
+          r=json.load(open('.github/r31-build-request.json'))
           assert r['sourceBranch']=='construction/r31-final-20261104'
+          assert r['source']=='47ce763a7d5e1378ae00b42fb01dff3b012922fc'
           assert r['expectedVersionCode']==577311021
-          for k in ['base','tree']:assert re.fullmatch('[0-9a-f]{40}',r[k])
-          data=base64.b64decode(r['patchGzipBase64'],validate=True)
-          assert hashlib.sha256(data).hexdigest()==r['patchSha256']
-          patch=gzip.decompress(data);assert len(patch)<2000000
-          pathlib.Path('source.patch').write_bytes(patch)
-          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
-              f.write('base='+r['base']+'\n')
-          print('TRANSFER_ONLY_NO_ACCEPTANCE_CLAIM patchBytes='+str(len(patch)))
+          assert r['expectedVersionName']=='R31-REPAIR-2026.11.12-021'
+          print('PINNED_R31_SOURCE='+r['source'])
           PY
-      - uses: actions/checkout@v4
-        with:
-          ref: construction/r31-final-20261104
-          fetch-depth: 0
-          path: source
-      - name: Apply to the exact current R31 source
-        working-directory: source
-        run: |
-          set -euo pipefail
-          test "$(git rev-parse HEAD)" = "${{ steps.request.outputs.base }}"
-          git apply --check ../source.patch
-          git apply --index ../source.patch
-          git -c user.name=github-actions -c user.email=github-actions@users.noreply.github.com commit -m 'build(r31): provisional call-index compilation, not an APK [skip ci]'
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
-      - uses: android-actions/setup-android@v3
-        with:
-          packages: platform-tools
-          log-accepted-android-sdk-licenses: false
-      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
-      - uses: actions/cache@v4
-        with:
-          path: ~/.gradle/wrapper/dists
-          key: gradle-wrapper-${{ hashFiles('source/gradle/wrapper/gradle-wrapper.properties') }}
-      - name: Compile only to regenerate the byte-for-byte pinned call archive
-        working-directory: source
-        env:
-          PYTHONDONTWRITEBYTECODE: '1'
-        run: |
-          set -euo pipefail
-          # These exclusions belong only to this provisional index reconstruction.
-          # No test, APK or acceptance result is produced here. The final exact
-          # source runs the original complete gate and every release check.
-          ./gradlew --no-daemon -Pr312Development=true :app:compileDebugJavaWithJavac -x :app:generateR997ConstructionAssets -x :app:generateR967Semantics -x :app:verifyR967Semantics -x :app:verifyFinalR967Semantics 2>&1 | tail -n 100
-          python3 -B scripts/r982_source_call_asset.py --freeze --classes app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes
-      - name: Verify the entire tree and fast-forward only the R31 source branch
-        working-directory: source
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          import hashlib,json,pathlib,subprocess
-          r=json.load(open('../caller/.github/r31-build-request.json'))
-          assert hashlib.sha256(pathlib.Path('release/r982_source_calls.tsv.gz').read_bytes()).hexdigest()==r['archiveSha256'],'CALL_ARCHIVE_BYTES_DIFFER'
-          subprocess.run(['git','add','release/r982_source_calls.tsv.gz','release/r982_source_calls.manifest.json'],check=True)
-          tree=subprocess.check_output(['git','write-tree'],text=True).strip()
-          assert tree==r['tree'],'FULL_SOURCE_TREE_DIFFERS:'+tree
-          remote=subprocess.check_output(['git','ls-remote','origin','refs/heads/construction/r31-final-20261104'],text=True).split()[0]
-          assert remote==r['base'],'REMOTE_SOURCE_ADVANCED'
-          print('VERIFIED_FULL_TREE='+tree)
-          PY
-          git config user.name github-actions
-          git config user.email github-actions@users.noreply.github.com
-          BASE="${{ steps.request.outputs.base }}"
-          TREE=$(git write-tree)
-          COMMIT=$(git commit-tree "$TREE" -p "$BASE" -m 'fix(r31): integrate unified production repairs and current source verification [skip ci]')
-          if git push origin "$COMMIT:refs/heads/construction/r31-final-20261104"; then
-            echo "SOURCE_FULL_COMMIT=$COMMIT"
-          else
-            # Some Actions tokens cannot change workflow files. Transfer the app
-            # unchanged, then the authorized connector applies those three files.
-            git restore --source="$BASE" --staged --worktree -- .github/workflows/r31-gate.yml .github/workflows/r31-verification.yml .github/workflows/r31-publish-release.yml
-            APP_TREE=$(git write-tree)
-            APP_COMMIT=$(git commit-tree "$APP_TREE" -p "$BASE" -m 'fix(r31): transfer exact application source; workflow integration follows [skip ci]')
-            git push origin "$APP_COMMIT:refs/heads/construction/r31-final-20261104"
-            echo "SOURCE_APP_COMMIT=$APP_COMMIT"
-            echo "SOURCE_APP_TREE=$APP_TREE"
-          fi
-          echo "INDEX_TRANSFER_IS_NOT_AN_ENGINEERING_ACCEPTANCE_RESULT"
+  verify:
+    needs: request
+    uses: gtt46461-star/starcore-public-build/.github/workflows/r31-verification.yml@47ce763a7d5e1378ae00b42fb01dff3b012922fc
+    with:
+      source: 47ce763a7d5e1378ae00b42fb01dff3b012922fc
+    secrets: inherit
