@@ -168,14 +168,18 @@ jobs:
           adb install -r -g "$FAULT_APP_APK"
           adb install -r -t -g "$FAULT_TEST_APK"
           set +e
+          mkdir -p faults/service6
+          adb shell am instrument -w -r -e r30Sandbox "r31-current-service-${{ github.run_id }}" -e r31qRealService true -e class com.ethk3.novaonepro.R31QDeliveryInstrumentedTest com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner > faults/service6/instrumentation.txt 2>&1
+          service_rc=$?
+          grep -Fq "OK (6 tests)" faults/service6/instrumentation.txt || service_rc=1
           bash tools/r30/run_fault_matrix.sh faults/original14 > faults/original14.log 2>&1
           original_rc=$?
           bash tools/r30-repair/run_research_fault_matrix.sh faults/research12 > faults/research12.log 2>&1
           research_rc=$?
           bash tools/r30-repair/run_android_regression.sh faults/charts47 > faults/charts47.log 2>&1
           charts_rc=$?
-          python3 -c "import json,pathlib;pathlib.Path('faults/RESULTS.json').write_text(json.dumps({'sourceCommit':'cd7552121ca01e3c77e8de1e2f2c68ea703d6c21','buildRunId':${{ needs.request.outputs.build_run }},'original14Exit':$original_rc,'research12Exit':$research_rc,'charts47Exit':$charts_rc,'physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN'},indent=2))"
-          test "$original_rc" -eq 0 -a "$research_rc" -eq 0 -a "$charts_rc" -eq 0
+          python3 -c "import json,pathlib;pathlib.Path('faults/RESULTS.json').write_text(json.dumps({'sourceCommit':'cd7552121ca01e3c77e8de1e2f2c68ea703d6c21','buildRunId':${{ needs.request.outputs.build_run }},'service6Exit':$service_rc,'original14Exit':$original_rc,'research12Exit':$research_rc,'charts47Exit':$charts_rc,'physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN'},indent=2))"
+          test "$service_rc" -eq 0 -a "$original_rc" -eq 0 -a "$research_rc" -eq 0 -a "$charts_rc" -eq 0
           SH
       - uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -193,6 +197,7 @@ jobs:
           python3 - <<'PY'
           import os,pathlib,re
           key=os.environ.get('DUOQU_API_KEY','')
+          for private in pathlib.Path('faults').rglob('UI_EXPORTED_FULL_REPORT.zip'):private.unlink()
           for p in pathlib.Path('faults').rglob('*'):
               if not p.is_file() or p.suffix not in ('.json','.xml','.txt','.log','.tsv'):continue
               s=p.read_text(errors='replace')
@@ -206,3 +211,74 @@ jobs:
         with:
           name: r31-current-original-faults-and-charts
           path: faults/
+
+  release_overlay:
+    needs: request
+    if: needs.request.outputs.mode == 'live'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/r31-build-request.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31v-android-build
+          run-id: ${{ needs.request.outputs.build_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: built
+      - name: Bind both genuine release APKs and the observer
+        run: |
+          mkdir -p overlay
+          curl --fail --location --retry 2 --output "$RUNNER_TEMP/old-020.apk" https://github.com/gtt46461-star/starcore-public-build/releases/download/r31q-fix-577311020-5e05e6689f64/STARCORE-R31-EXISTING_R27-5e05e6689f64-release.apk
+          python3 - <<'PY'
+          import base64,hashlib,json,os,pathlib
+          r=json.load(open('.github/r31-build-request.json'));root=pathlib.Path('built')
+          sources=list(root.rglob('source-commit.txt'));assert len(sources)==1 and sources[0].read_text().strip()==r['source']
+          apks=[p for p in root.rglob('*.apk') if p.parent.name=='release'];assert len(apks)==1
+          apk=apks[0];sha=hashlib.sha256(apk.read_bytes()).hexdigest()
+          sums=list(root.rglob('SHA256SUMS.txt'));assert len(sums)==1
+          assert any(line.split()[0]==sha and line.split()[-1].endswith('/'+apk.name) for line in sums[0].read_text().splitlines())
+          old=pathlib.Path(os.environ['RUNNER_TEMP'])/'old-020.apk';assert hashlib.sha256(old.read_bytes()).hexdigest()=='271c4ce17f345306f80e9f686acdf68b0d1cf47c3da857fed811cc69feb1a4f8'
+          code=base64.b64decode(r['overlayScriptBase64'],validate=True);assert hashlib.sha256(code).hexdigest()==r['overlayScriptSha256']
+          (pathlib.Path(os.environ['RUNNER_TEMP'])/'r31_release_overlay.py').write_bytes(code)
+          pathlib.Path('overlay/APK_BINDING.json').write_text(json.dumps({'sourceCommit':r['source'],'buildRunId':r['buildRunId'],'newReleaseSha256':sha,'oldReleaseSha256':hashlib.sha256(old.read_bytes()).hexdigest(),'observerSha256':r['overlayScriptSha256']},indent=2))
+          with open(os.environ['GITHUB_ENV'],'a') as f:f.write('OVERLAY_RELEASE_APK='+str(apk.resolve())+'\n')
+          PY
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - name: Verify the unchanged public signer of both release APKs
+        run: |
+          set -euo pipefail
+          B=$(find "$ANDROID_HOME/build-tools" -mindepth 2 -maxdepth 2 -name apksigner | sort -V | tail -1)
+          test -n "$B"
+          "$B" verify --print-certs "$RUNNER_TEMP/old-020.apk" > overlay/old-certificate.txt
+          "$B" verify --print-certs "$OVERLAY_RELEASE_APK" > overlay/new-certificate.txt
+          for f in overlay/*-certificate.txt; do grep -q 'certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7' "$f"; done
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: adb root && adb wait-for-device && python3 "$RUNNER_TEMP/r31_release_overlay.py" --old "$RUNNER_TEMP/old-020.apk" --new "$OVERLAY_RELEASE_APK" --out overlay
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31-real-release-overlay
+          path: overlay/
