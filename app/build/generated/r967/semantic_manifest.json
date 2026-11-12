@@ -1,12 +1,12 @@
 {
   "revision": "R967_SEMANTIC_BUILD_V1",
-  "training_rule_sha256": "8b372b2580e55321e40a4628394855d204757c1e07147a344a15d0a717aececa",
+  "training_rule_sha256": "bb28aaf3d959c84820291aa99710c1eae2a568e53affce43391ac8f693c05385",
   "policy_hash": "04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8",
   "policy_json": "{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}",
-  "manifest_sha256": "d137a011c1727214228ce980ee18463ffbf294bdfd7bb72d8b522713184e511a",
-  "controlled_file_count": 1480,
-  "numeric_dependency_count": 1341,
-  "source_provenance_sha256": "977f86761721eb7cca3aabbf5a9788c7fa92a150c87e0e7b39618b07789bafce",
+  "manifest_sha256": "14ff687c0f231543b65099e099144a784697ece536ddf5e99b061336e3421c4e",
+  "controlled_file_count": 1481,
+  "numeric_dependency_count": 1342,
+  "source_provenance_sha256": "82fa66d74cac4880cf65f3900d600a037ad586b0b83a117c0d92c9c9f2fe387b",
   "dependencies": [
     [
       "app/build.gradle",
@@ -5191,7 +5191,12 @@
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityStoreR31.java",
       "NUMERIC",
-      "b5b066fda61b6be731a102322feb5e3017fb284252e64918387278669bf70f60"
+      "c3a5a77db7a40d1443798e0b8462730ce6be25d30b011f4eeb6980232b42cd1d"
+    ],
+    [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryStateCodecR31.java",
+      "NUMERIC",
+      "44df1fa4d633540e5d680d4498bd877bfd1c650de7ebf45f6d6499c7ec451e11"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
@@ -6256,7 +6261,7 @@
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
       "NUMERIC",
-      "f8bec71cb3429e20b7b906d9ae7db61cd1151f6135174621832565db703cf75b"
+      "2817240dcd261c62af730fb8d51a7fff000969b3f204302a99ab5945c88a6ba2"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeReportR26.java",
@@ -6716,6 +6721,6 @@
   ],
   "compatible_predecessor_rule_sha256": "",
   "compatible_predecessor_rules_sha256": [],
-  "continuation_proof_sha256": "335aa0d2d5a0d7870a60ef63d578efb267005c8bae8e5e092743b027686461f7",
+  "continuation_proof_sha256": "d8669b5606ef61ec5038fd078abc5471d565c8d436d19a90cc747be8f9bdb540",
   "compatibility_scope": "DEV_ONLY; historical_evidence_and_certificate_compatibility_NOT_GRANTED"
 }

@@ -229,11 +229,20 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityStoreR31.java",
       "beforeReviewedSha256": "b5b066fda61b6be731a102322feb5e3017fb284252e64918387278669bf70f60",
-      "afterSha256": "b5b066fda61b6be731a102322feb5e3017fb284252e64918387278669bf70f60",
+      "afterSha256": "c3a5a77db7a40d1443798e0b8462730ce6be25d30b011f4eeb6980232b42cd1d",
       "role": "NUMERIC",
-      "rationale": "UF14: persist factory protocol, exact previous checkpoint CAS, full search artifacts and summary atomically through the original fenced HEALTH batch; no new business schema or training asset replacement.",
+      "rationale": "UF14: lossless hash-checked bounded factory checkpoint/ledger transport before the writer; preserve originals, exact predecessor CAS and independent experiment namespace; isolate optional experiment transport/resource failures from unrelated health/feedback commits. No gate, family, birth, data or trial-count change.",
       "baseSourceHead": "1a3c6463fb2cb3171c49ca6cded69de678483819",
       "baseFileSha256": null
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryStateCodecR31.java",
+      "beforeReviewedSha256": null,
+      "role": "NUMERIC",
+      "baseSourceHead": "1a3c6463fb2cb3171c49ca6cded69de678483819",
+      "baseFileSha256": null,
+      "afterSha256": "44df1fa4d633540e5d680d4498bd877bfd1c650de7ebf45f6d6499c7ec451e11",
+      "rationale": "UF14: lossless hash-checked bounded factory checkpoint/ledger transport before the writer; preserve originals, exact predecessor CAS and independent experiment namespace; isolate optional experiment transport/resource failures from unrelated health/feedback commits. No gate, family, birth, data or trial-count change."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
@@ -373,9 +382,9 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
       "beforeReviewedSha256": "f8bec71cb3429e20b7b906d9ae7db61cd1151f6135174621832565db703cf75b",
-      "afterSha256": "f8bec71cb3429e20b7b906d9ae7db61cd1151f6135174621832565db703cf75b",
+      "afterSha256": "2817240dcd261c62af730fb8d51a7fff000969b3f204302a99ab5945c88a6ba2",
       "role": "NUMERIC",
-      "rationale": "UF14: invoke one independent full-factory experiment unit in the existing low-priority health/research owner with original realtime-window protection; retain original Q08/null pipeline and existing tasks.",
+      "rationale": "UF14: lossless hash-checked bounded factory checkpoint/ledger transport before the writer; preserve originals, exact predecessor CAS and independent experiment namespace; isolate optional experiment transport/resource failures from unrelated health/feedback commits. No gate, family, birth, data or trial-count change.",
       "baseSourceHead": "1a3c6463fb2cb3171c49ca6cded69de678483819",
       "baseFileSha256": "ce0b7723ab1ba1c96e267fc319dc7a3cd186c4ef8ea2481b67ee90f91d579e53"
     }

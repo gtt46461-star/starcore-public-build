@@ -46,6 +46,7 @@ case "$id" in
   run_resource_recovery_consumer_host) R31_RUNTIME_HOST_CLASS=R31ResourceRecoveryConsumerHost R31_RUNTIME_OUTPUT="app/build/r312-host/$id-receipt" exec python3 tools/r31/run_task_runtime_host.py ;;
   run_storage_report_host) R31_STORAGE_OUT="$OUT" exec bash tools/r31/storage_host/run_storage_report_host.sh ;;
   run_unified_migration_host) exec python3 tools/r31/run_unified_migration_host.py --out "$OUT" ;;
+  run_factory_transport_host) R31_FACTORY_TRANSPORT_OUT="$OUT" exec python3 tools/r31/run_factory_transport_host.py ;;
   run_r31q_lock_regression) R31Q_OUTPUT="$OUT" exec python3 tools/r31/run_r31q_lock_regression.py ;;
   test_current_acceptance) exec python3 tools/r31/test_current_acceptance.py ;;
   run_upgrade_matrix_host) exec python3 tools/r31/upgrade_matrix.py --out "$OUT" ;;
