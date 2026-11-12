@@ -56,7 +56,13 @@ jobs:
           # Logs committed by an earlier (possibly cancelled) run are rewritten during this build. Untrack them first,
           # otherwise a partial log equal to Gradle's fixed banner flips source_dirty between configuration and check.
           git rm -r -q --cached --ignore-unmatch "verification/r31/batches/$BATCH/logs" || true
-          python3 $G build --batch "$BATCH" || true
+          R31_INVOCATION_ID=$(python3 -c 'import uuid;print(uuid.uuid4())')
+          export R31_INVOCATION_ID
+          echo "R31_INVOCATION_ID=$R31_INVOCATION_ID" >> "$GITHUB_ENV"
+          set +e
+          python3 -B tools/r31/run_current_acceptance.py --batch "$BATCH"
+          current_build_exit=$?
+          set -e
           L=verification/r31/batches/$BATCH/logs/gradle.log
           if [ -f "$L" ]; then
             { echo '### gradle failures'; echo '```'; grep -n -A12 -E "What went wrong|FAILED$" "$L" | head -150; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
@@ -76,10 +82,13 @@ jobs:
             done
           fi
           # The job result must describe this build, never an old green summary.
-          python3 - "$S" "$GITHUB_SHA" <<'PYRESULT'
-          import json,sys
+          python3 - "$S" "$GITHUB_SHA" "$R31_INVOCATION_ID" "$current_build_exit" <<'PYRESULT'
+          import json,sys,os
           s=json.load(open(sys.argv[1]))
           assert s['source_head']==sys.argv[2], 'STALE_BUILD_SUMMARY'
+          assert s['invocationId']==sys.argv[3] and s['runId']==os.environ['GITHUB_RUN_ID'], 'STALE_INVOCATION'
+          assert sys.argv[4]=='0' and s['exitCode']==0, 'CURRENT_COMMAND_FAILED'
+          assert s['state']=='PASS_ENGINEERING_ONLY' and not s['problems'], s['problems']
           assert s['gradle']['state']=='PASS', s['gradle']
           assert s['unit']['tests']>0 and s['unit']['failures']==s['unit']['errors']==0, s['unit']
           assert not s['host_failed'], s['host_failed']

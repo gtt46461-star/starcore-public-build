@@ -35,15 +35,33 @@ jobs:
       - name: Verify the exact signed bytes and assemble the package
         run: |
           set -euo pipefail
-          f=$(find built -name "${{ steps.req.outputs.apk }}" | head -1); test -n "$f"
+          python3 -B - <<'PY'
+          import hashlib,importlib.util,json,pathlib,shutil,zipfile
+          request=json.load(open('release/R31_PUBLISH_REQUEST.json'))
+          root=pathlib.Path('built');out=pathlib.Path('pub');out.mkdir()
+          spec=importlib.util.spec_from_file_location('package_release','tools/r31/package_release.py')
+          package=importlib.util.module_from_spec(spec);spec.loader.exec_module(package)
+          candidates=list(root.rglob(request['zipName']));assert len(candidates)==1,'EXACT_DELIVERY_ZIP_REQUIRED'
+          archive=candidates[0];delivery=package.verify_zip(archive)
+          assert delivery['sourceCommit']==request['sourceCommit'],'DELIVERY_SOURCE_MISMATCH'
+          assert delivery['apk']['variant']=='release' and delivery['overlayInstall']['overlayInstallKeepsData']
+          assert delivery['apk']['deliveredAs']==request['apk'],'DELIVERY_APK_NAME_MISMATCH'
+          with zipfile.ZipFile(archive) as z:
+              apk=z.read(request['apk']);assert hashlib.sha256(apk).hexdigest()==request['sha256']
+              evidence=json.loads(z.read('acceptance/ACCEPTANCE_RESULTS.json'))
+              assert evidence['identity']['source_head']==request['sourceCommit']
+              assert evidence['identity']['state']=='PASS_ENGINEERING_ONLY','CURRENT_ENGINEERING_FAILURE'
+              assert len(evidence['items'])==222 and len(evidence['cards'])==58
+              (out/request['apk']).write_bytes(apk)
+              for name in ['R31_DELIVERY.json','R31_VERIFICATION_RECEIPT.json','acceptance/ACCEPTANCE_RESULTS.json','acceptance/ACCEPTANCE_RESULTS.csv']:
+                  (out/pathlib.Path(name).name).write_bytes(z.read(name))
+          shutil.copyfile(archive,out/archive.name)
+          PY
+          f="pub/${{ steps.req.outputs.apk }}"
           echo "${{ steps.req.outputs.sha256 }}  $f" | sha256sum -c -
           B="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
-          "$B/apksigner" verify --print-certs "$f" | tee cert.txt
-          grep -qE "Signer( #1|): certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7" cert.txt
-          mkdir -p pub all && cp "$f" pub/ && cp cert.txt pub/public-certificate.txt && cp "$(python3 -c "import json;print(json.load(open('release/R31_PUBLISH_REQUEST.json')).get('delivery','release/R31_DELIVERY.json'))")" pub/delivery.json
-          find built -type f -exec cp {} all/ \;
-          Z=$(python3 -c "import json;print(json.load(open('release/R31_PUBLISH_REQUEST.json')).get('zipName','STARCORE_R31_577311016_COMPLETE.zip'))")
-          (cd all && zip -q -r "../pub/$Z" .)
+          "$B/apksigner" verify --print-certs "$f" > pub/public-certificate.txt
+          grep -qE "Signer( #1|): certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7" pub/public-certificate.txt
           (cd pub && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt)
       - name: Create the release
         env:
