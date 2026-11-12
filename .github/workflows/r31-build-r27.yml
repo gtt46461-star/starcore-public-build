@@ -105,3 +105,104 @@ jobs:
         with:
           name: r31-live-observation
           path: live/
+
+  faults:
+    needs: request
+    if: needs.request.outputs.mode == 'live'
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    env:
+      DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cd7552121ca01e3c77e8de1e2f2c68ea703d6c21
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31v-android-build
+          run-id: ${{ needs.request.outputs.build_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: built
+      - name: Require the actual APKs from the exact source
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib
+          root=pathlib.Path('built')
+          sources=list(root.rglob('source-commit.txt'));assert len(sources)==1
+          assert sources[0].read_text().strip()=='cd7552121ca01e3c77e8de1e2f2c68ea703d6c21'
+          sums=list(root.rglob('SHA256SUMS.txt'));assert len(sums)==1
+          originals=sums[0].read_text().splitlines()
+          apks=[p for p in root.rglob('*.apk') if p.parent.name=='debug' and 'androidTest' not in p.parts]
+          tests=[p for p in root.rglob('*.apk') if 'androidTest' in p.parts]
+          assert len(apks)==len(tests)==1
+          binding={'sourceCommit':sources[0].read_text().strip(),'buildRunId':${{ needs.request.outputs.build_run }},'apks':[]}
+          with open(os.environ['GITHUB_ENV'],'a') as env:
+              for name,p in [('FAULT_APP_APK',apks[0]),('FAULT_TEST_APK',tests[0])]:
+                  sha=hashlib.sha256(p.read_bytes()).hexdigest()
+                  assert any(line.split()[0]==sha and line.split()[-1].endswith('/'+p.name) for line in originals)
+                  binding['apks'].append({'file':p.name,'sha256':sha})
+                  env.write(name+'='+str(p.resolve())+'\n')
+          pathlib.Path('faults').mkdir()
+          pathlib.Path('faults/APK_BINDING.json').write_text(json.dumps(binding,indent=2))
+          PY
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Prepare one shell for the complete original Android regressions
+        run: |
+          cat > "$RUNNER_TEMP/r31_actual_faults.sh" <<'SH'
+          set -uo pipefail
+          adb root
+          adb wait-for-device
+          adb install -r -g "$FAULT_APP_APK"
+          adb install -r -t -g "$FAULT_TEST_APK"
+          set +e
+          bash tools/r30/run_fault_matrix.sh faults/original14 > faults/original14.log 2>&1
+          original_rc=$?
+          bash tools/r30-repair/run_research_fault_matrix.sh faults/research12 > faults/research12.log 2>&1
+          research_rc=$?
+          bash tools/r30-repair/run_android_regression.sh faults/charts47 > faults/charts47.log 2>&1
+          charts_rc=$?
+          python3 -c "import json,pathlib;pathlib.Path('faults/RESULTS.json').write_text(json.dumps({'sourceCommit':'cd7552121ca01e3c77e8de1e2f2c68ea703d6c21','buildRunId':${{ needs.request.outputs.build_run }},'original14Exit':$original_rc,'research12Exit':$research_rc,'charts47Exit':$charts_rc,'physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN'},indent=2))"
+          test "$original_rc" -eq 0 -a "$research_rc" -eq 0 -a "$charts_rc" -eq 0
+          SH
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: bash "$RUNNER_TEMP/r31_actual_faults.sh"
+      - name: Redact credentials from actual fault receipts
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os,pathlib,re
+          key=os.environ.get('DUOQU_API_KEY','')
+          for p in pathlib.Path('faults').rglob('*'):
+              if not p.is_file() or p.suffix not in ('.json','.xml','.txt','.log','.tsv'):continue
+              s=p.read_text(errors='replace')
+              if key:s=s.replace(key,'[REDACTED]')
+              s=re.sub(r'(?i)([?&](?:key|token|secret|api_key|apikey)=)[^&\s"<>]+',r'\1[REDACTED]',s)
+              s=re.sub(r'(?i)Bearer\s+[^\s,;"}]+','Bearer [REDACTED]',s)
+              p.write_text(s)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31-current-original-faults-and-charts
+          path: faults/
