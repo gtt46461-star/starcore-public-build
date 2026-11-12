@@ -49,7 +49,7 @@ jobs:
         run: |
           G=construction/STARCORE_R31_FINAL_20261104/tools/r31_gate.py
           BATCH="${{ github.event.inputs.batch }}"
-          if [ -z "$BATCH" ]; then BATCH=$(python3 $G status | python3 -c 'import json,sys; print(json.load(sys.stdin)["open_batch"] or "K11")'); fi
+          if [ -z "$BATCH" ]; then BATCH=$(python3 $G status | python3 -c 'import json,sys; print(json.load(sys.stdin).get("open_batch") or "K11")'); fi
           # Once K11 is closed, later source repairs still need the full suite.
           # This refreshes build evidence only; historical receipts are not rewritten.
           echo "BATCH=$BATCH" >> "$GITHUB_ENV"
@@ -75,6 +75,15 @@ jobs:
               echo "== host_$h.log (tail)"; tail -40 "verification/r31/batches/$BATCH/logs/host_$h.log" || true
             done
           fi
+          # The job result must describe this build, never an old green summary.
+          python3 - "$S" "$GITHUB_SHA" <<'PYRESULT'
+          import json,sys
+          s=json.load(open(sys.argv[1]))
+          assert s['source_head']==sys.argv[2], 'STALE_BUILD_SUMMARY'
+          assert s['gradle']['state']=='PASS', s['gradle']
+          assert s['unit']['tests']>0 and s['unit']['failures']==s['unit']['errors']==0, s['unit']
+          assert not s['host_failed'], s['host_failed']
+          PYRESULT
       - name: Commit build summary back to the branch
         if: always()
         run: |
