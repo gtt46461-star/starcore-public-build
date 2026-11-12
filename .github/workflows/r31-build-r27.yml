@@ -26,7 +26,7 @@ jobs:
           assert r['source']=='cd7552121ca01e3c77e8de1e2f2c68ea703d6c21'
           assert r['expectedVersionCode']==577311021
           assert r['expectedVersionName']=='R31-REPAIR-2026.11.12-021'
-          assert r['mode'] in ['verify','live']
+          assert r['mode'] in ['verify','live','diagnose']
           if r['mode']=='live':assert str(r['buildRunId']).isdigit()
           with open(os.environ['GITHUB_OUTPUT'],'a') as f:
               f.write('mode='+r['mode']+'\n')
@@ -483,3 +483,37 @@ jobs:
         with:
           name: r31-real-release-overlay
           path: public-overlay/
+
+  diagnose:
+    needs: request
+    if: needs.request.outputs.mode == 'diagnose'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31v-emu-35
+          run-id: 43302371411
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: inspect
+      - name: Read existing sandbox-test failures; do not rerun tests or export live data
+        run: |
+          python3 - <<'PY'
+          import os,pathlib,re
+          key=os.environ.get('DUOQU_API_KEY','')
+          for name in ['original-runtime-storage-owner.txt','history-publication.txt','platform-startup-readiness.txt']:
+              files=list(pathlib.Path('inspect').rglob(name));assert len(files)==1
+              raw=files[0].read_text()
+              classes=sorted(set(re.findall(r'(?:Caused by: |stack=|^)([a-z][A-Za-z0-9_.$]+(?:Exception|Error))(?:[:\n])',raw,re.M)))
+              frames=re.findall(r'^\s*at ((?:com\.ethk3\.novaonepro|android\.database|org\.junit)[A-Za-z0-9_.$]+\([A-Za-z0-9_.$: ]+\))\s*$',raw,re.M)
+              tests=re.findall(r'^INSTRUMENTATION_STATUS: test=([A-Za-z0-9_]+)$',raw,re.M)
+              codes=sorted(set(re.findall(r'\b(?:R31[A-Z0-9]*|R26|R27|LEGACY|SCHEMA|SQLITE)_[A-Z0-9_]{2,100}\b',raw)))
+              # Schema identifiers and source stack locations are metadata,
+              # never SQL results, row values, UI text or exception messages.
+              missing_tables=re.findall(r'no such table: ((?:r26_|r27_|r30_|r31_|v57_|su1_|su2_)[a-z0-9_]{1,80})\b',raw)
+              missing_columns=re.findall(r'(?:no such column: |has no column named )([a-z_][a-z0-9_]{1,60})\b',raw)
+              import json
+              print('SANDBOX_FAILURE_PROJECTION:'+json.dumps({'fixture':name,'tests':tests[:30],'exceptionClasses':classes[:20],'sourceFrames':frames[:120],'fixedErrorCodes':codes[:30],'missingSchemaTables':missing_tables[:10],'missingSchemaColumns':missing_columns[:10],'rawDataOrMessagesExported':False}))
+          PY
