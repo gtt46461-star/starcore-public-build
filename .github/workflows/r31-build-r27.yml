@@ -117,7 +117,9 @@ jobs:
           def digest(value):return value if isinstance(value,str) and re.fullmatch('[0-9a-f]{64}',value) else None
           def source(value):return value if value=='8f639e4f95851f7dad3405f067e085040e5a44fc' else None
           def integer(value,maximum=10**15):return value if type(value)==int and 0<=value<=maximum else None
-          def write(name,value):(out/name).write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n')
+          def write(name,value):
+           (out/name).write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n')
+           print('R31_PUBLIC_JSON='+json.dumps({'file':name,'value':value},ensure_ascii=False,separators=(',',':')))
           b=read('APK_BINDING.json');binding={}
           for key in ['source','sourceCommit']:
            if key in b:binding[key]=source(b[key])
@@ -128,14 +130,46 @@ jobs:
           write('APK_BINDING.json',binding)
           if root.name=='live':
            d=read('LIVE_RECEIPT.json');t=d.get('tablesUi',{});z=d.get('safZip',{})
+           bindings=set()
+           for sample in d.get('samples',[])[:16]:
+            for database in sample.get('databases',[])[:2]:
+             link=database.get('r26ExactFeedbackForecastBinding',{})
+             if link.get('state')!='OBSERVED_EXACT_SHADOW_CHECKPOINT_CONSUMPTION':continue
+             for row in link.get('verified',[])[:32]:
+              if row.get('actualModelUpdateAndFutureSettlementVerified') is True:
+               bindings.add(tuple(str(row.get(k,'')) for k in ['eventId','policyHash','checkpointHash','targetOrdinal']))
+           exact_observed=bool(bindings) and d.get('forecastConsumesSpecificUpdatedModelPublication')=='OBSERVED_R26_SHADOW_SAME_CHECKPOINT_AND_TRAINING_RECEIPT'
            receipt={'format':'R31_PUBLIC_LIVE_EXECUTION_1','sourceCommit':source(d.get('sourceCommit')),'runId':integer(int(d['runId'])) if str(d.get('runId','')).isdigit() else None,'apkSha256':digest(d.get('apkSha256')),'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_PARTIAL_NO_WHOLE_LOOP_CLAIM']),
            'observed':{key:d.get('observed',{}).get(key) is True for key in ['newDraws','naturalClosedForecasts','feedbackAndConsumers','verifiedModelConsumer','followingForecasts']},
            'safReadbackVerified':d.get('safReadbackVerified') is True,'safZip':{'sha256':digest(z.get('sha256')),'bytes':integer(z.get('bytes')),'reportHashVerified':z.get('reportHashVerified') is True,'crcVerified':z.get('crcVerified') is True},
            'tablesUi':{'state':fixed(t.get('state'),['STARTED_NOT_PASS','OBSERVED_16_ACTUAL_READERS','OBSERVED_READ_FAILURES']),'reads':[]},
-           'forecastConsumesSpecificUpdatedModelPublication':'NOT_PROVEN_REQUIRES_ACTUAL_FORECAST_BINDING','observerPauseCount':len(d.get('observerPauses',[])),'physicalDevice':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsOrUiTextPublished':False}
+           'forecastConsumesSpecificUpdatedModelPublication':'OBSERVED_R26_SHADOW_SAME_CHECKPOINT_AND_TRAINING_RECEIPT' if exact_observed else 'NOT_PROVEN_REQUIRES_ACTUAL_FORECAST_BINDING',
+           'r26ShadowModelBinding':{'observed':exact_observed,'verifiedUniqueBindings':len(bindings),'scope':'SHADOW_SAME_CHECKPOINT_ACTUAL_UPDATE_AND_FUTURE_SETTLEMENT; NO_REAL_OR_QUALITY_CLAIM'},
+           'observerPauseCount':len(d.get('observerPauses',[])),'physicalDevice':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsOrUiTextPublished':False}
            for row in t.get('reads',[])[:16]:
             identity=row.get('id');identity=identity if identity in ['T%02d'%i for i in range(1,17)] else None
             receipt['tablesUi']['reads'].append({'id':identity,'actualStatus':fixed(row.get('actualStatus'),['READ_OK','EMPTY_NO_ROWS','READ_ERROR']),'shown':integer(row.get('shown'),20),'receiptSha256':digest(row.get('receiptSha256')),'uiPayloadSha256':digest(row.get('uiPayloadSha256'))})
+           # Fixed diagnostic codes reveal no exception messages, database rows or UI text.
+           def diagnostic(value):
+            text=str(value or '')
+            codes=['DISPOSABLE_EMULATOR_REQUIRED','PRODUCTION_START_UI_UNAVAILABLE','LIVE_APP_PROCESS_MISSING','OBSERVER_DB_SIZE_BOUND','CHARTS_BUTTON_UNAVAILABLE','WORKBENCH_BUTTON_UNAVAILABLE','TABLES_BUTTON_UNAVAILABLE','TABLE_READ_BUTTON_UNAVAILABLE','TABLE_ACTUAL_RENDER_NOT_OBSERVED','OLD_APPLICATION_DATABASE_NOT_OBSERVED','OBSERVED_OLD_DRAW_ORIGINAL_CHANGED']
+            for code in codes:
+             if code in text:return code
+            for kind in ['TimeoutExpired','ParseError','JSONDecodeError','BadZipFile','AssertionError','RuntimeError','OperationalError','IntegrityError']:
+             if text.startswith(kind+':'):return kind
+            return 'NONE' if not text else 'UNCLASSIFIED'
+           receipt['observerDiagnostic']=diagnostic(d.get('error'))
+           receipt['tablesUi']['diagnostic']=diagnostic(t.get('error'))
+           receipt['queryHealth']=[]
+           for sample in d.get('samples',[])[:16]:
+            for database in sample.get('databases',[])[:2]:
+             state={'queries':{}}
+             for key in ['newDraws','naturalClosedForecasts','feedbackAndConsumers','verifiedModelConsumer','followingForecasts','typedAuthority','schema']:
+              query=database.get('queries',{}).get(key,{})
+              state['queries'][key]={'state':fixed(query.get('state'),['READ_OK','UNAVAILABLE']),'boundedRowCount':len(query.get('rows',[])[:65])}
+             state['exactCheckpointState']=fixed(database.get('r26ExactFeedbackForecastBinding',{}).get('state'),['NOT_OBSERVED','OBSERVED_EXACT_SHADOW_CHECKPOINT_CONSUMPTION','UNAVAILABLE_OR_FAILED_VALIDATION'])
+             receipt['queryHealth'].append(state)
+           receipt['reportStates']=[{'stage':fixed(row.get('stage'),['REQUESTED','ENQUEUED','QUEUED','WAITING','WAITING_RESOURCE','CAPTURING','SNAPSHOT','BUILDING','VERIFYING','READY','FAILED','CANCELLED','DELIVERED']),'ackState':fixed(row.get('state'),['PENDING','VERIFIED_READBACK','FAILED','REQUESTED','READY']),'semanticVerification':fixed(row.get('semanticVerificationR31'),['ZIP_READBACK_VERIFIED'])} for row in d.get('reportStates',[])[:64]]
            write('LIVE_RECEIPT.json',receipt)
           elif root.name=='overlay':
            d=read('RELEASE_OVERLAY.json');receipt={'format':'R31_PUBLIC_RELEASE_OVERLAY_1','sourceCommit':source(d.get('sourceCommit')),'oldApkSha256':digest(d.get('oldApkSha256')),'newApkSha256':digest(d.get('newApkSha256')),'fromVersionCode':577311020,'toVersionCode':577311021,'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_RELEASE_OVERLAY_AND_ORIGINAL_ROWS','OBSERVED_OVERLAY_ONLY_NO_OLD_DRAW_ROWS']),
@@ -290,7 +324,9 @@ jobs:
           def digest(value):return value if isinstance(value,str) and re.fullmatch('[0-9a-f]{64}',value) else None
           def source(value):return value if value=='8f639e4f95851f7dad3405f067e085040e5a44fc' else None
           def integer(value,maximum=10**15):return value if type(value)==int and 0<=value<=maximum else None
-          def write(name,value):(out/name).write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n')
+          def write(name,value):
+           (out/name).write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n')
+           print('R31_PUBLIC_JSON='+json.dumps({'file':name,'value':value},ensure_ascii=False,separators=(',',':')))
           b=read('APK_BINDING.json');binding={}
           for key in ['source','sourceCommit']:
            if key in b:binding[key]=source(b[key])
@@ -301,14 +337,46 @@ jobs:
           write('APK_BINDING.json',binding)
           if root.name=='live':
            d=read('LIVE_RECEIPT.json');t=d.get('tablesUi',{});z=d.get('safZip',{})
+           bindings=set()
+           for sample in d.get('samples',[])[:16]:
+            for database in sample.get('databases',[])[:2]:
+             link=database.get('r26ExactFeedbackForecastBinding',{})
+             if link.get('state')!='OBSERVED_EXACT_SHADOW_CHECKPOINT_CONSUMPTION':continue
+             for row in link.get('verified',[])[:32]:
+              if row.get('actualModelUpdateAndFutureSettlementVerified') is True:
+               bindings.add(tuple(str(row.get(k,'')) for k in ['eventId','policyHash','checkpointHash','targetOrdinal']))
+           exact_observed=bool(bindings) and d.get('forecastConsumesSpecificUpdatedModelPublication')=='OBSERVED_R26_SHADOW_SAME_CHECKPOINT_AND_TRAINING_RECEIPT'
            receipt={'format':'R31_PUBLIC_LIVE_EXECUTION_1','sourceCommit':source(d.get('sourceCommit')),'runId':integer(int(d['runId'])) if str(d.get('runId','')).isdigit() else None,'apkSha256':digest(d.get('apkSha256')),'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_PARTIAL_NO_WHOLE_LOOP_CLAIM']),
            'observed':{key:d.get('observed',{}).get(key) is True for key in ['newDraws','naturalClosedForecasts','feedbackAndConsumers','verifiedModelConsumer','followingForecasts']},
            'safReadbackVerified':d.get('safReadbackVerified') is True,'safZip':{'sha256':digest(z.get('sha256')),'bytes':integer(z.get('bytes')),'reportHashVerified':z.get('reportHashVerified') is True,'crcVerified':z.get('crcVerified') is True},
            'tablesUi':{'state':fixed(t.get('state'),['STARTED_NOT_PASS','OBSERVED_16_ACTUAL_READERS','OBSERVED_READ_FAILURES']),'reads':[]},
-           'forecastConsumesSpecificUpdatedModelPublication':'NOT_PROVEN_REQUIRES_ACTUAL_FORECAST_BINDING','observerPauseCount':len(d.get('observerPauses',[])),'physicalDevice':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsOrUiTextPublished':False}
+           'forecastConsumesSpecificUpdatedModelPublication':'OBSERVED_R26_SHADOW_SAME_CHECKPOINT_AND_TRAINING_RECEIPT' if exact_observed else 'NOT_PROVEN_REQUIRES_ACTUAL_FORECAST_BINDING',
+           'r26ShadowModelBinding':{'observed':exact_observed,'verifiedUniqueBindings':len(bindings),'scope':'SHADOW_SAME_CHECKPOINT_ACTUAL_UPDATE_AND_FUTURE_SETTLEMENT; NO_REAL_OR_QUALITY_CLAIM'},
+           'observerPauseCount':len(d.get('observerPauses',[])),'physicalDevice':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsOrUiTextPublished':False}
            for row in t.get('reads',[])[:16]:
             identity=row.get('id');identity=identity if identity in ['T%02d'%i for i in range(1,17)] else None
             receipt['tablesUi']['reads'].append({'id':identity,'actualStatus':fixed(row.get('actualStatus'),['READ_OK','EMPTY_NO_ROWS','READ_ERROR']),'shown':integer(row.get('shown'),20),'receiptSha256':digest(row.get('receiptSha256')),'uiPayloadSha256':digest(row.get('uiPayloadSha256'))})
+           # Fixed diagnostic codes reveal no exception messages, database rows or UI text.
+           def diagnostic(value):
+            text=str(value or '')
+            codes=['DISPOSABLE_EMULATOR_REQUIRED','PRODUCTION_START_UI_UNAVAILABLE','LIVE_APP_PROCESS_MISSING','OBSERVER_DB_SIZE_BOUND','CHARTS_BUTTON_UNAVAILABLE','WORKBENCH_BUTTON_UNAVAILABLE','TABLES_BUTTON_UNAVAILABLE','TABLE_READ_BUTTON_UNAVAILABLE','TABLE_ACTUAL_RENDER_NOT_OBSERVED','OLD_APPLICATION_DATABASE_NOT_OBSERVED','OBSERVED_OLD_DRAW_ORIGINAL_CHANGED']
+            for code in codes:
+             if code in text:return code
+            for kind in ['TimeoutExpired','ParseError','JSONDecodeError','BadZipFile','AssertionError','RuntimeError','OperationalError','IntegrityError']:
+             if text.startswith(kind+':'):return kind
+            return 'NONE' if not text else 'UNCLASSIFIED'
+           receipt['observerDiagnostic']=diagnostic(d.get('error'))
+           receipt['tablesUi']['diagnostic']=diagnostic(t.get('error'))
+           receipt['queryHealth']=[]
+           for sample in d.get('samples',[])[:16]:
+            for database in sample.get('databases',[])[:2]:
+             state={'queries':{}}
+             for key in ['newDraws','naturalClosedForecasts','feedbackAndConsumers','verifiedModelConsumer','followingForecasts','typedAuthority','schema']:
+              query=database.get('queries',{}).get(key,{})
+              state['queries'][key]={'state':fixed(query.get('state'),['READ_OK','UNAVAILABLE']),'boundedRowCount':len(query.get('rows',[])[:65])}
+             state['exactCheckpointState']=fixed(database.get('r26ExactFeedbackForecastBinding',{}).get('state'),['NOT_OBSERVED','OBSERVED_EXACT_SHADOW_CHECKPOINT_CONSUMPTION','UNAVAILABLE_OR_FAILED_VALIDATION'])
+             receipt['queryHealth'].append(state)
+           receipt['reportStates']=[{'stage':fixed(row.get('stage'),['REQUESTED','ENQUEUED','QUEUED','WAITING','WAITING_RESOURCE','CAPTURING','SNAPSHOT','BUILDING','VERIFYING','READY','FAILED','CANCELLED','DELIVERED']),'ackState':fixed(row.get('state'),['PENDING','VERIFIED_READBACK','FAILED','REQUESTED','READY']),'semanticVerification':fixed(row.get('semanticVerificationR31'),['ZIP_READBACK_VERIFIED'])} for row in d.get('reportStates',[])[:64]]
            write('LIVE_RECEIPT.json',receipt)
           elif root.name=='overlay':
            d=read('RELEASE_OVERLAY.json');receipt={'format':'R31_PUBLIC_RELEASE_OVERLAY_1','sourceCommit':source(d.get('sourceCommit')),'oldApkSha256':digest(d.get('oldApkSha256')),'newApkSha256':digest(d.get('newApkSha256')),'fromVersionCode':577311020,'toVersionCode':577311021,'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_RELEASE_OVERLAY_AND_ORIGINAL_ROWS','OBSERVED_OVERLAY_ONLY_NO_OLD_DRAW_ROWS']),
@@ -428,7 +496,9 @@ jobs:
           def digest(value):return value if isinstance(value,str) and re.fullmatch('[0-9a-f]{64}',value) else None
           def source(value):return value if value=='8f639e4f95851f7dad3405f067e085040e5a44fc' else None
           def integer(value,maximum=10**15):return value if type(value)==int and 0<=value<=maximum else None
-          def write(name,value):(out/name).write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n')
+          def write(name,value):
+           (out/name).write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n')
+           print('R31_PUBLIC_JSON='+json.dumps({'file':name,'value':value},ensure_ascii=False,separators=(',',':')))
           b=read('APK_BINDING.json');binding={}
           for key in ['source','sourceCommit']:
            if key in b:binding[key]=source(b[key])
@@ -439,14 +509,46 @@ jobs:
           write('APK_BINDING.json',binding)
           if root.name=='live':
            d=read('LIVE_RECEIPT.json');t=d.get('tablesUi',{});z=d.get('safZip',{})
+           bindings=set()
+           for sample in d.get('samples',[])[:16]:
+            for database in sample.get('databases',[])[:2]:
+             link=database.get('r26ExactFeedbackForecastBinding',{})
+             if link.get('state')!='OBSERVED_EXACT_SHADOW_CHECKPOINT_CONSUMPTION':continue
+             for row in link.get('verified',[])[:32]:
+              if row.get('actualModelUpdateAndFutureSettlementVerified') is True:
+               bindings.add(tuple(str(row.get(k,'')) for k in ['eventId','policyHash','checkpointHash','targetOrdinal']))
+           exact_observed=bool(bindings) and d.get('forecastConsumesSpecificUpdatedModelPublication')=='OBSERVED_R26_SHADOW_SAME_CHECKPOINT_AND_TRAINING_RECEIPT'
            receipt={'format':'R31_PUBLIC_LIVE_EXECUTION_1','sourceCommit':source(d.get('sourceCommit')),'runId':integer(int(d['runId'])) if str(d.get('runId','')).isdigit() else None,'apkSha256':digest(d.get('apkSha256')),'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_PARTIAL_NO_WHOLE_LOOP_CLAIM']),
            'observed':{key:d.get('observed',{}).get(key) is True for key in ['newDraws','naturalClosedForecasts','feedbackAndConsumers','verifiedModelConsumer','followingForecasts']},
            'safReadbackVerified':d.get('safReadbackVerified') is True,'safZip':{'sha256':digest(z.get('sha256')),'bytes':integer(z.get('bytes')),'reportHashVerified':z.get('reportHashVerified') is True,'crcVerified':z.get('crcVerified') is True},
            'tablesUi':{'state':fixed(t.get('state'),['STARTED_NOT_PASS','OBSERVED_16_ACTUAL_READERS','OBSERVED_READ_FAILURES']),'reads':[]},
-           'forecastConsumesSpecificUpdatedModelPublication':'NOT_PROVEN_REQUIRES_ACTUAL_FORECAST_BINDING','observerPauseCount':len(d.get('observerPauses',[])),'physicalDevice':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsOrUiTextPublished':False}
+           'forecastConsumesSpecificUpdatedModelPublication':'OBSERVED_R26_SHADOW_SAME_CHECKPOINT_AND_TRAINING_RECEIPT' if exact_observed else 'NOT_PROVEN_REQUIRES_ACTUAL_FORECAST_BINDING',
+           'r26ShadowModelBinding':{'observed':exact_observed,'verifiedUniqueBindings':len(bindings),'scope':'SHADOW_SAME_CHECKPOINT_ACTUAL_UPDATE_AND_FUTURE_SETTLEMENT; NO_REAL_OR_QUALITY_CLAIM'},
+           'observerPauseCount':len(d.get('observerPauses',[])),'physicalDevice':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsOrUiTextPublished':False}
            for row in t.get('reads',[])[:16]:
             identity=row.get('id');identity=identity if identity in ['T%02d'%i for i in range(1,17)] else None
             receipt['tablesUi']['reads'].append({'id':identity,'actualStatus':fixed(row.get('actualStatus'),['READ_OK','EMPTY_NO_ROWS','READ_ERROR']),'shown':integer(row.get('shown'),20),'receiptSha256':digest(row.get('receiptSha256')),'uiPayloadSha256':digest(row.get('uiPayloadSha256'))})
+           # Fixed diagnostic codes reveal no exception messages, database rows or UI text.
+           def diagnostic(value):
+            text=str(value or '')
+            codes=['DISPOSABLE_EMULATOR_REQUIRED','PRODUCTION_START_UI_UNAVAILABLE','LIVE_APP_PROCESS_MISSING','OBSERVER_DB_SIZE_BOUND','CHARTS_BUTTON_UNAVAILABLE','WORKBENCH_BUTTON_UNAVAILABLE','TABLES_BUTTON_UNAVAILABLE','TABLE_READ_BUTTON_UNAVAILABLE','TABLE_ACTUAL_RENDER_NOT_OBSERVED','OLD_APPLICATION_DATABASE_NOT_OBSERVED','OBSERVED_OLD_DRAW_ORIGINAL_CHANGED']
+            for code in codes:
+             if code in text:return code
+            for kind in ['TimeoutExpired','ParseError','JSONDecodeError','BadZipFile','AssertionError','RuntimeError','OperationalError','IntegrityError']:
+             if text.startswith(kind+':'):return kind
+            return 'NONE' if not text else 'UNCLASSIFIED'
+           receipt['observerDiagnostic']=diagnostic(d.get('error'))
+           receipt['tablesUi']['diagnostic']=diagnostic(t.get('error'))
+           receipt['queryHealth']=[]
+           for sample in d.get('samples',[])[:16]:
+            for database in sample.get('databases',[])[:2]:
+             state={'queries':{}}
+             for key in ['newDraws','naturalClosedForecasts','feedbackAndConsumers','verifiedModelConsumer','followingForecasts','typedAuthority','schema']:
+              query=database.get('queries',{}).get(key,{})
+              state['queries'][key]={'state':fixed(query.get('state'),['READ_OK','UNAVAILABLE']),'boundedRowCount':len(query.get('rows',[])[:65])}
+             state['exactCheckpointState']=fixed(database.get('r26ExactFeedbackForecastBinding',{}).get('state'),['NOT_OBSERVED','OBSERVED_EXACT_SHADOW_CHECKPOINT_CONSUMPTION','UNAVAILABLE_OR_FAILED_VALIDATION'])
+             receipt['queryHealth'].append(state)
+           receipt['reportStates']=[{'stage':fixed(row.get('stage'),['REQUESTED','ENQUEUED','QUEUED','WAITING','WAITING_RESOURCE','CAPTURING','SNAPSHOT','BUILDING','VERIFYING','READY','FAILED','CANCELLED','DELIVERED']),'ackState':fixed(row.get('state'),['PENDING','VERIFIED_READBACK','FAILED','REQUESTED','READY']),'semanticVerification':fixed(row.get('semanticVerificationR31'),['ZIP_READBACK_VERIFIED'])} for row in d.get('reportStates',[])[:64]]
            write('LIVE_RECEIPT.json',receipt)
           elif root.name=='overlay':
            d=read('RELEASE_OVERLAY.json');receipt={'format':'R31_PUBLIC_RELEASE_OVERLAY_1','sourceCommit':source(d.get('sourceCommit')),'oldApkSha256':digest(d.get('oldApkSha256')),'newApkSha256':digest(d.get('newApkSha256')),'fromVersionCode':577311020,'toVersionCode':577311021,'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_RELEASE_OVERLAY_AND_ORIGINAL_ROWS','OBSERVED_OVERLAY_ONLY_NO_OLD_DRAW_ROWS']),
@@ -483,4 +585,5 @@ jobs:
         with:
           name: r31-real-release-overlay
           path: public-overlay/
+
 
