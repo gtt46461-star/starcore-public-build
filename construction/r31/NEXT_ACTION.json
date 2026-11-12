@@ -1,67 +1,32 @@
 {
-  "scope": "R31_3_CONSTRUCTION_FIRST_NOT_APPLICATION_FIX",
+  "scope": "R31Q21_REAL_SOURCE_RUNTIME_REPAIR_AND_SIGNED_APK_DELIVERY",
+  "source_branch": "construction/r31-final-20261104",
   "plan_revision": "R31.4-MERGED-11-20261107",
-  "plan_contract": "construction/STARCORE_R31_FINAL_20261104/docs/16_R31.3施工推进合同.md",
-  "batch_pages": "construction/STARCORE_R31_FINAL_20261104/batches/K01.md ... K11.md",
-  "gate": "python3 construction/STARCORE_R31_FINAL_20261104/tools/r31_gate.py",
-  "current_batch_selection": "FIRST_BATCH_WITHOUT construction/r31/batches/<K>/RECEIPT.json (gate status)",
-  "current_batch_at_revision": "K01",
-  "k01_todo": [
-    "construction/r31/batches/K01/BINDINGS.json already binds the six B00 items (from S00)",
-    "Run gate close --batch K01 once; it builds and lists current failures",
-    "Assign each listed failure an owner batch in known_failure_owners (CapacityWait tests -> K02; certificate startup -> K04; others to the batch owning the failing file; none later than K20)",
-    "Commit and run close again; commit RECEIPT + BUILD_SUMMARY; go to K02"
-  ],
-  "per_batch_loop": [
-    "gate status -> open batches/Kxx.md",
-    "Change the code listed under 施工内容 (this is the work)",
-    "Bind each LOCAL item to tests in construction/r31/batches/Kxx/BINDINGS.json (reuse existing tests where they prove the item)",
-    "gate quick --batch Kxx while coding",
-    "commit; gate close --batch Kxx once; fix what it lists; commit RECEIPT + BUILD_SUMMARY; push; next batch"
-  ],
-  "r31_2_reused": [
-    "construction/r31/HOST_SUITE.json (moved from r312/)",
-    "tools/r312/host.sh",
-    "K01 bindings",
-    "verify_baseline revision-manifest sealing"
-  ],
-  "ci_fallback": ".github/workflows/r31-gate.yml commits verification/r31/batches/<K> back; wait with tools/r31/ci_wait.sh",
-  "superseded": "R31.1/R31.2 ledgers (PROGRESS.json, EXECUTION_LEDGER.json, r312/) are read-only history; progress = receipts in construction/r31/batches/",
-  "claims_not_made": [
-    "Application defects fixed",
-    "Current full suite passes",
-    "Android emulator or device acceptance passes",
-    "Natural quality proven"
-  ],
-  "continuation_2026_11_07": {
-    "read_first": "construction/r31/R31_3_接续施工说明.md",
-    "open_batch": "K02",
-    "per_batch": [
-      "edit code per batches/Kxx.md",
-      "python3 -B tools/r31/repin_scope.py --batch Kxx",
-      "local quick checks (r967 --check, test_verify_baseline, verify_baseline --identity-only)",
-      "BINDINGS.json",
-      "commit+push",
-      "bash tools/r31/ci_wait.sh Kxx (background)",
-      "fix until green",
-      "r31_gate.py close --batch Kxx on the CI summary",
-      "commit RECEIPT, push, next batch"
-    ],
-    "fixed": [
-      "0083d05 CI commits BUILD_SUMMARY back; repin tool",
-      "da186bb dual-seal verifier (K01 carries)"
-    ],
-    "k02_remaining": [
-      "11 CapacityWait unit failures (ENG-02)",
-      "HOST:verify_family_admission",
-      "bind 10 LOCAL items"
-    ]
+  "original_batches": "K01..K11_LOCAL_RECEIPTS_EXIST; current handset counterexample reopens runtime acceptance",
+  "device_counterexample": "2026-11-12 19:35:39 +0800 V2353A/577311020: WAITING_CANONICAL, legacy ALTER writer, report FAILED before durable enqueue, both failure ACK writes rejected",
+  "read_first": "construction/r31q/021/README_ZH.md",
+  "work_items": "construction/r31q/021/REPAIR_WORK_ITEMS.json",
+  "source_and_acceptance_audit": "construction/r31q/021/SOURCE_ACCEPTANCE_AUDIT.json",
+  "current_action": "Complete current exact-source CI, fix every real failure, run actual Android report ZIP/provider readback and live fetch/freeze/settlement, deliver same-signer APK. Do not stop at documentation or a version bump.",
+  "full_regression": "python3 -B construction/STARCORE_R31_FINAL_20261104/tools/r31_gate.py build --batch K11",
+  "signing_lane": ".github/workflows/r31-build-r27.yml on construction/r27-20261028",
+  "candidate_identity": {
+    "applicationId": "com.starcore.research.r13",
+    "versionCode": 577311021,
+    "versionName": "R31-REPAIR-2026.11.12-021",
+    "signerCertSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7"
   },
-  "r31_4": {
-    "merge_doc": "construction/STARCORE_R31_FINAL_20261104/docs/17_R31.4批次合并说明.md",
-    "batches": 11,
-    "k01_k02_unchanged": true,
-    "last_batch_zero_failures_emu_and_release": "K11",
-    "authorization_commit": "823fafbed4284fafe1e440519e3f58170d198415"
-  }
+  "preserve": [
+    "original sealed plan and thresholds",
+    "PIT, immutable canonical, fixed single-position K3",
+    "DecisionGate, typed qualification/revocation; SHADOW excluded from REAL",
+    "useful training/evolution/matrix/chart capabilities",
+    "original database and historical audit"
+  ],
+  "not_proven": [
+    "V2353A original 670MB database recovery",
+    "24h/72h handset continuity",
+    "natural predictive advantage"
+  ],
+  "receipt_rule": "Each result names actual source and execution layer; old LOCAL receipts, file presence, heartbeat, empty samples or successful export do not become product/model quality PASS"
 }

@@ -1,0 +1,80 @@
+{
+  "version": "R31Q21",
+  "originalPlan": "R31.4-MERGED-11-20261107",
+  "originalCardAndThresholdChanges": false,
+  "releaseGate": "exact clean source; all registered local checks; Android protocols and fault matrix; actual report ZIP/provider readback; live fetch/new PIT freeze/settlement; same package/signer/increased version",
+  "workItems": [
+    {
+      "id": "Q01",
+      "goal": "身份、旧库保全、迁移与持续进展",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+        "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java"
+      ],
+      "state": "IMPLEMENTED_PENDING_ANDROID_AND_OLD_DEVICE_DB"
+    },
+    {
+      "id": "Q02",
+      "goal": "跨进程存储准入、取消与失败显示",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportRequestStatusR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java"
+      ],
+      "state": "HOST_LOCK_REGRESSION_PASS_ANDROID_PENDING"
+    },
+    {
+      "id": "Q03",
+      "goal": "报告真实生成、发布、分享与回读",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/DiagnosticReportProviderR923.java"
+      ],
+      "state": "REAL_SERVICE_REGRESSION_ADDED_PENDING_EXECUTION"
+    },
+    {
+      "id": "Q04",
+      "goal": "抓取、冻结、结算与倒计时并发",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/MainActivity.java"
+      ],
+      "state": "UPSTREAM_WRITER_REPAIR_PLUS_REAL_API_REGRESSION_PENDING"
+    },
+    {
+      "id": "Q05",
+      "goal": "训练、反馈、进化、变异、融合与主链资格",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java"
+      ],
+      "state": "EXISTING_IMPLEMENTATION_RETAINED_FULL_REGRESSION_PENDING_RUNTIME_UNPROVEN"
+    },
+    {
+      "id": "Q06",
+      "goal": "47图、20矩阵、16表、44指标与96检查",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckMetricCrosswalkR31.java"
+      ],
+      "state": "PER_ITEM_AUDIT_GENERATED_ACTUAL_REPORT_PENDING"
+    },
+    {
+      "id": "Q07",
+      "goal": "覆盖安装、回归、签名与APK交付",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java"
+      ],
+      "state": "VERSION_577311021_BUILD_AND_ANDROID_PENDING"
+    }
+  ],
+  "deviceBoundary": "V2353A 670MB original DB unavailable here; physical 24h/72h NOT_RUN; natural quality NOT_PROVEN"
+}

@@ -166,8 +166,13 @@ public final class R27QualityTest {
                 "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",
                 StatsR27.sha256(baseline.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
         String[][] blocks={
-            {"    private static final java.util.Map<DatabaseCoordinator,LegacySchemaFlightR31> LEGACY_SCHEMA_FLIGHTS_R31=","    public java.io.InputStream openResearchAssetCP12(","7e9b5721810883f8776e5d1dd22339bdf983669e12bcf034b7c7e7bbcdb772f1","INSERTION"},
-            {"    private void ensureRuntimeExtraTablesOnce(final SQLiteDatabase db) {","    private void verifyLegacyRuntimeTablesR363(","6b3f167e263c8bc81ec53ae5746431e3137c8b9077770e7e94f39ca240001cc5","REPLACE"},
+            // R31Q21 reviewed schema-only additions. Original whole-owner hash and tamper checks remain unchanged.
+            {"    private final ThreadLocal<Throwable> legacyColumnFailureR31=","    private static final java.util.Map<DatabaseCoordinator,LegacySchemaFlightR31> LEGACY_SCHEMA_FLIGHTS_R31=","235d911763b4d52bd13b6e4e0129a3144c5fa605b5ecf0fa962d4862daf409c2","INSERTION_INLINE"},
+            {"    /** The old one-shot initializer remains available to legacy contracts.","    public void ensureLearningTables()","fafccf753a4b1520eca85d79d1e16828939ec02a5e53e839d6cbda45c88f8385","INSERTION_INLINE"},
+            {"    private void addColumnIfMissing(","    private void repairLedgerIntegrityQuiet(","a541ee22090e9ae91a3b2e08b559e6649317d574b08a59932c83ba91e615290d","REPLACE"},
+            {"    private HashSet<String> getTableColumns(","    private int getLearningCaseK3Mask(","922ea2178b287f131f3d78eefb9613d7d27094cb8a259aea1b4f5a0b414030db","REPLACE"},
+            {"    private static final java.util.Map<DatabaseCoordinator,LegacySchemaFlightR31> LEGACY_SCHEMA_FLIGHTS_R31=","    public java.io.InputStream openResearchAssetCP12(","751d6ad3983b7e3102a6e95cbc39c7ea106b2a75dc37d043c0e91877743ac3eb","INSERTION"},
+            {"    private void ensureRuntimeExtraTablesOnce(final SQLiteDatabase db) {","    private void verifyLegacyRuntimeTablesR363(","9ede931b8bb00e08bc03d9ed55d67b8f86f7e9e98f4779346bed9f061becd35a","REPLACE"},
             {"    private void ensureMainChainClosedLoopReady(SQLiteDatabase db) {","    private void ensureMainChainColumns(","97c5e3abe28683190a2c92ba10413490faa5ed9b16b8c87e78e221fe8b3c7158","REPLACE"},
             {"    public int saveMainChainCandidateSnapshot(","    public int saveRealtimeTop40Candidates(","e83ca46b42aa0b524437a15d4a5dea2ba0f1648eebfe9938bda1cd1a87f74419","REPLACE"},
             {"    private void recordMainChainRejectBucket(","    private void putFinalVersionFallback(","5ae257ee60cfc081b1baa1ca2296b007e21ef21b31f8723afce780261f476b52","REPLACE"},

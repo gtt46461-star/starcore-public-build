@@ -38,13 +38,13 @@
  "drop_table_sites": [
   {
    "file": "com/ethk3/novaonepro/DbHelper.java",
-   "line": 7721,
+   "line": 7736,
    "kind": "TABLE",
    "target": "expr:legacy"
   },
   {
    "file": "com/ethk3/novaonepro/DbHelper.java",
-   "line": 7746,
+   "line": 7761,
    "kind": "TABLE",
    "target": "expr:legacy"
   },
@@ -315,9 +315,9 @@
   }
  ],
  "dbstore": {
-  "source_sha256": "f8a4a140515d5f773c36dd256b3116787f93e9a44163d2c64262f5c837c68041",
-  "method_declarations": 769,
-  "distinct_names": 728,
+  "source_sha256": "2bf05303e5e4e30de426cf983e3a7305b6deec5ef01fda7da0834b81bcc7121e",
+  "method_declarations": 771,
+  "distinct_names": 730,
   "no_external_caller": [
    "DbStore",
    "addColumnArray",
@@ -325,6 +325,7 @@
    "addFieldChainColumnsToDecisionLikeTable",
    "addSegmentsToList",
    "addTeacherMatrixColumnsToDecisionLikeTable",
+   "advanceLegacyRuntimeSchemaR31",
    "appendSep",
    "applyTeacherMatrixToCandidate",
    "applyTeacherMatrixToDecision",
@@ -762,6 +763,7 @@
    "recalcProbabilityAuditBucket",
    "recalcTeacherMatrixComboProfile",
    "recalcTeacherMatrixProfile",
+   "recordLegacyColumnFailureR31",
    "recordMainChainRejectBucket",
    "refreshDiagnosisClosedLoopState",
    "refreshRealBetDiagnosisState",
@@ -941,6 +943,14 @@
      "com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
      "com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java"
     ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "recordLegacyColumnFailureR31",
+    "callers": 0,
+    "caller_files": [],
     "tables": [],
     "writes": false,
     "dynamic": false
@@ -1159,6 +1169,14 @@
    },
    {
     "name": "ensureRuntimeExtraTables",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "advanceLegacyRuntimeSchemaR31",
     "callers": 0,
     "caller_files": [],
     "tables": [],
@@ -4418,7 +4436,7 @@
    },
    {
     "name": "getState",
-    "callers": 108,
+    "callers": 110,
     "caller_files": [
      "com/ethk3/novaonepro/ActionUtilityEngine.java",
      "com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
@@ -5787,7 +5805,7 @@
    },
    {
     "name": "getLong",
-    "callers": 258,
+    "callers": 259,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
      "com/ethk3/novaonepro/AlgorithmProofRecoveryR948.java",
@@ -5817,7 +5835,7 @@
    },
    {
     "name": "getString",
-    "callers": 387,
+    "callers": 388,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
      "com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
@@ -7062,7 +7080,7 @@
    },
    {
     "name": "getString",
-    "callers": 387,
+    "callers": 388,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
      "com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
@@ -7092,7 +7110,7 @@
    },
    {
     "name": "getLong",
-    "callers": 258,
+    "callers": 259,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
      "com/ethk3/novaonepro/AlgorithmProofRecoveryR948.java",
