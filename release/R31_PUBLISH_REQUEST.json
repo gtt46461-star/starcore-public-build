@@ -1,12 +1,13 @@
 {
-  "runId": 43053006848,
-  "artifact": "R31-EXISTING_R27-CANDIDATE-fdfdd92c4da367c066da316fa2982bedd810db56",
-  "apk": "STARCORE-R31-EXISTING_R27-fdfdd92c4da3-release.apk",
-  "sha256": "0dfd15011e2b2b90826e3eb891ea9b5c8eacbfc7dbe4bee181de70fe28ca1079",
-  "sourceCommit": "fdfdd92c4da367c066da316fa2982bedd810db56",
-  "tag": "r31q-fix-577311018-fdfdd92c4da3",
-  "title": "STARCORE R31Q 修复 577311018（结构升级逐条提交）",
-  "zipName": "STARCORE_R31Q_577311018_COMPLETE.zip",
-  "delivery": "release/R31Q_018_DELIVERY.json",
-  "notes": "R31Q 018 设备修复（覆盖安装，原R27证书 d8d8cee7…，versionCode 577311018，保留数据）。\n\n根因（来自 V2353A 快速诊断）：数据库写线程在一个大事务里做旧表结构升级，最低优先级，持有唯一写锁超过90分钟；开奖保存 R914_DRAW_SAVE_ATOMIC 以 CP3_DB_BUSY_DEADLINE 失败，分析停在 202611030728；进程被杀后事务整体回滚，下次从零重来。\n\n修改：\n- LEGACY_RUNTIME 结构升级逐条提交，被杀或后续检查失败都保留已完成部分，下次接着做。\n- 数据库写线程优先级由最低改为 NORM-1。\n- 状态卡显示“数据库结构升级中：已运行 X 分钟”；快速诊断增加 legacyRunningMs。\n\n源码：fdfdd92c4da367c066da316fa2982bedd810db56；编译、单元测试、lint、签名核验通过（CI run 43053006848 build 步骤）。\n\n未修复/未证明：首次升级完成前抓取保存、分析、导出仍会等待写锁；升级耗时未知；未在真机验证；R929_PLATFORM 结构待定问题仍在；不是正式R13签名；真机24h/72h与自然质量未执行/未证明。"
+  "runId": 43139385490,
+  "artifact": "R31-EXISTING_R27-CANDIDATE-5e05e6689f64b1db11a524993681d49510648f8c",
+  "apk": "STARCORE-R31-EXISTING_R27-5e05e6689f64-release.apk",
+  "sha256": "271c4ce17f345306f80e9f686acdf68b0d1cf47c3da857fed811cc69feb1a4f8",
+  "sourceCommit": "5e05e6689f64b1db11a524993681d49510648f8c",
+  "tag": "r31q-fix-577311020-5e05e6689f64",
+  "title": "STARCORE R31Q 修复 577311020（结构升级独立连接）",
+  "zipName": "STARCORE_R31Q_577311020_COMPLETE.zip",
+  "delivery": "release/R31Q_020_DELIVERY.json",
+  "notes": "R31Q 020 设备修复（覆盖安装，原R27证书 d8d8cee7…，versionCode 577311020，保留数据）。\n\n根因（V2353A 018 快速诊断）：旧数据库结构升级执行的每条建表/加列语句，都会让安卓关闭全部读连接；抓取、分析、界面线程反复重连并在连接池锁里重新解析几百张表，全部卡在 SQLiteConnectionPool.waitForConnection，分析报 R366_ANALYSIS_CLAIM LOCK_BUSY，完整报告也排不上。\n\n修改：\n- 结构升级改用单独的数据库连接执行（019 的思路），其他线程不再反复重连。\n- 该连接加 60 秒锁等待：避免加列因 2.5 秒超时静默失败、列永久缺失。快速诊断里显示 legacyDdlHandle=DEDICATED|BUSY_TIMEOUT_60S。\n- 升级后刷新语句缓存改用临时表，不再用 DROP TABLE（019 因此未通过单元测试，从未出包）。\n- 报告请求失败一定写回执（019）。\n\n源码：5e05e6689f64b1db11a524993681d49510648f8c\n门禁：编译、622 项单元测试、lint、签名核验、37 项主机回归全部通过（CI run 43139385490）。\n\n未证明：真机未运行；模拟器 android-runtime 任务结果另见同一 CI；不是正式 R13 签名；24h/72h 与自然质量未执行/未证明。",
+  "republish": "release API refused (403); fall back to a delivery branch"
 }
