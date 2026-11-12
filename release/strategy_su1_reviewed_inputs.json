@@ -231,9 +231,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
-      "rationale": "UF03/04: strict CREATE/INDEX and ALTER postconditions under the existing migration owner; one actual DDL per resumable callback. No DROP, payout or numerical threshold change.",
+      "rationale": "UF03 Android cold-start repair: distinguish original cold-only repair/default DML from strict DDL; propagate first CREATE/ALTER/DML/commit failure and roll back instead of returning an empty database; install the three actual link-index prerequisite columns. Preserve original repairLedgerRows/default values and business/DecisionGate methods.",
       "role": "NUMERIC",
-      "sha256": "1224b88bf72171ee4cce85255f818b14a61d838be064a72ae31f689843ca51bd"
+      "sha256": "1c3b576e7360ca8a483589d3531e6d48fd34fb865691b39f89e76a68efce2565"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
@@ -343,9 +343,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/LegacyDdlR31.java",
-      "rationale": "UF03/04: strict same-handle DDL executor with sticky first failure, actual postconditions and at most one new DDL per owner slice. No quality or business authorization.",
+      "rationale": "UF03 Android cold-start repair: permit only the original DROP INDEX IF EXISTS idx_v26_oos_one_action_target retirement, with absence postcondition, read-only refusal and the existing one-DDL slice limit; every other DROP remains rejected.",
       "role": "NUMERIC",
-      "sha256": "ef81c65f1be266a1d5fe3018a7708313a9524a1bd5a161d5ce0a078310f31727"
+      "sha256": "98047858b21f7f203f80256c5cbbd53c2b18a25f9823e284466de0e8cf6a3042"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/LegacyPredrawContextBridgeR915.java",
@@ -3260,19 +3260,19 @@
       "path": "release/r82_training_invalidation.json",
       "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
       "role": "PROVENANCE",
-      "sha256": "d8669b5606ef61ec5038fd078abc5471d565c8d436d19a90cc747be8f9bdb540"
+      "sha256": "4c865f846dc82e2f2b8ae14856cc231ab18edda339aa7adc4198352cae3734de"
     },
     {
       "path": "release/r982_source_calls.manifest.json",
       "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
       "role": "PROVENANCE",
-      "sha256": "a8542845bdde2e243ab57485ae8f873a558a97440c5a549bbf93d4de65326f32"
+      "sha256": "e109e6cd6c1967fcc4eabf9c89b7eaba4e36b1bf6a6ddc380be5d87249e3b504"
     },
     {
       "path": "release/r982_source_calls.tsv.gz",
       "rationale": "R29.1 authorized implementation; no inherited qualification. Runtime validation remains separate.",
       "role": "PROVENANCE",
-      "sha256": "df838e8b635e148ea719c4292462fb8da02c0e905a810d8d10e29148dfb30b30"
+      "sha256": "66f549dbfd03bb9ce061c41d3b63325eb6296a77ebfca65ae5f40f0db258dc41"
     },
     {
       "path": "release/release_identity.properties",

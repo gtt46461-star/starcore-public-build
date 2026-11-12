@@ -16,6 +16,8 @@ final class LegacyDdlR31 {
             "(?is)^\\s*CREATE\\s+(?:UNIQUE\\s+)?(TABLE|INDEX|TRIGGER)\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?[\\\"`\\[]?([a-zA-Z0-9_]+)");
     private static final Pattern ALTER = Pattern.compile(
             "(?is)^\\s*ALTER\\s+TABLE\\s+[\\\"`\\[]?([a-zA-Z0-9_]+)[\\\"`\\]]?\\s+ADD\\s+(?:COLUMN\\s+)?[\\\"`\\[]?([a-zA-Z0-9_]+)");
+    private static final Pattern RETIRE_INDEX = Pattern.compile(
+            "(?is)^\\s*DROP\\s+INDEX\\s+IF\\s+EXISTS\\s+idx_v26_oos_one_action_target\\s*;?\\s*$");
 
     static final class Pending extends RuntimeException {
         private static final long serialVersionUID = 1L;
@@ -58,6 +60,15 @@ final class LegacyDdlR31 {
                 s.check();
                 if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException("LEGACY_DDL_CANCELLED");
             }
+            // This exact retirement belongs to the original V28 migration.
+            // No general DROP TABLE/INDEX authority is introduced.
+            if(RETIRE_INDEX.matcher(sql).matches()) {
+                if(!retiredIndexPresent(db))return;
+                if(s!=null&&(s.readOnly||s.statements>=1))throw new Pending("LEGACY_DDL_PENDING:RETIRE_V26_INDEX");
+                db.execSQL(sql);if(s!=null)s.statements++;
+                if(retiredIndexPresent(db))throw new IllegalStateException("LEGACY_DDL_POSTCONDITION:RETIRE_V26_INDEX");
+                return;
+            }
             Matcher create=CREATE.matcher(sql),alter=ALTER.matcher(sql);
             boolean isCreate=create.find(),isAlter=alter.find();
             if(!isCreate&&!isAlter)throw new IllegalArgumentException("LEGACY_DDL_UNSUPPORTED:"+sql);
@@ -68,6 +79,9 @@ final class LegacyDdlR31 {
             if(!present(db,sql,isCreate?create:null,isAlter?alter:null))
                 throw new IllegalStateException("LEGACY_DDL_POSTCONDITION:"+sql);
         } catch(RuntimeException e) { failed(e); throw e; }
+    }
+    private static boolean retiredIndexPresent(SQLiteDatabase db) {
+        try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='index' AND name='idx_v26_oos_one_action_target'",null)){return c.moveToFirst();}
     }
     private static boolean present(SQLiteDatabase db,String sql,Matcher create,Matcher alter) {
         if(alter!=null) {

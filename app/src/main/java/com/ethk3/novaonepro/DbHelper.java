@@ -180,6 +180,9 @@ public final class DbHelper extends SQLiteOpenHelper {
     /** Valid only inside this helper's current legacy-schema transaction. Never retained
      * across commit, rollback, process restart, or another database/DDL owner. */
     private SchemaColumnsR94 schemaColumnsR94;
+    /** Only the original cold/old-version initializer may execute its historical
+     * repair/default DML. Legacy audits and business callbacks never gain it. */
+    private static final ThreadLocal<SQLiteDatabase> COLD_INITIALIZER_R31 = new ThreadLocal<>();
     private static final class SchemaColumnsR94 {
         final SQLiteDatabase database;
         final Thread owner = Thread.currentThread();
@@ -385,7 +388,10 @@ public final class DbHelper extends SQLiteOpenHelper {
             return;
         }
 
+        if(COLD_INITIALIZER_R31.get()!=null)throw new IllegalStateException("R31_COLD_SCHEMA_NESTED_OWNER");
         db.beginTransaction();
+        COLD_INITIALIZER_R31.set(db);
+        Throwable firstFailure=null;
         final SchemaColumnsR94 previousColumnsR94 = schemaColumnsR94;
         try {
             schemaColumnsR94 = new SchemaColumnsR94(db);
@@ -397,24 +403,20 @@ public final class DbHelper extends SQLiteOpenHelper {
             insertDefaultRows(db);
             ensureTianshuB03(db);
             db.setTransactionSuccessful();
-        } catch (Throwable e) {
-            // A failed DDL/transaction must never leave an optimistic column snapshot for
-            // the existing recovery pass. Re-read the actual database on that path.
+        } catch (RuntimeException | Error e) {
+            firstFailure=e;
             schemaColumnsR94 = null;
-            try {
-                createBaseTables(db);
-                migrateColumns(db);
-                ensureLinkModificationV2Schema(db);
-                createIndexes(db);
-                insertDefaultRows(db);
-            } catch (Throwable ignore) {
-            }
+            // Do not continue in a transaction already marked for rollback or
+            // return an empty database as a successful SQLiteOpenHelper create.
+            throw e;
         } finally {
+            COLD_INITIALIZER_R31.remove();
             if (previousColumnsR94 != null) previousColumnsR94.tables.clear();
             schemaColumnsR94 = previousColumnsR94;
             try {
                 db.endTransaction();
-            } catch (Throwable ignore) {
+            } catch (RuntimeException | Error completion) {
+                if(firstFailure!=null)firstFailure.addSuppressed(completion);else throw completion;
             }
         }
     }
@@ -6469,6 +6471,12 @@ public final class DbHelper extends SQLiteOpenHelper {
                 TABLE_V20_LINK_CANDIDATE_SNAPSHOT,
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT, snapshot_key TEXT NOT NULL UNIQUE");
 
+        // The original indexes below precede asynchronous main-chain migration.
+        // A fresh/partial table needs their actual columns before CREATE INDEX.
+        addColumn(db,TABLE_V20_LINK_CANDIDATE_SNAPSHOT,"target_issue TEXT");
+        addColumn(db,TABLE_V20_LINK_CANDIDATE_SNAPSHOT,"candidate_rank INTEGER DEFAULT 0");
+        addColumn(db,TABLE_V20_LINK_CANDIDATE_SNAPSHOT,"candidate_key TEXT");
+
         String[] decisionLike =
                 new String[] {
                     TABLE_DECISIONS,
@@ -6763,16 +6771,18 @@ public final class DbHelper extends SQLiteOpenHelper {
         }
 
         try {
-            db.execSQL("ALTER TABLE " + table + " ADD COLUMN " + columnSql);
+            LegacyDdlR31.exec(db,"ALTER TABLE " + table + " ADD COLUMN " + columnSql);
             SchemaColumnsR94 scope = schemaColumnsR94;
             if (scope != null && scope.owns(db)) {
                 java.util.HashSet<String> columns = scope.tables.get(table);
                 if (columns != null) columns.add(columnName.toLowerCase(java.util.Locale.ROOT));
             }
-        } catch (Throwable e) {
+        } catch (RuntimeException | Error e) {
             // SQLite can roll back a transaction after storage/I/O failures. An ALTER
             // failure invalidates every optimistic observation from this scope.
             if (schemaColumnsR94 != null) schemaColumnsR94.tables.clear();
+            LegacyDdlR31.failed(e);
+            throw e;
         }
     }
 
@@ -6806,9 +6816,10 @@ public final class DbHelper extends SQLiteOpenHelper {
             // establish it inside this transaction.
             if (scope != null && !observed.isEmpty()) scope.tables.put(table, observed);
             return found;
-        } catch (Throwable e) {
+        } catch (RuntimeException | Error e) {
             if (scope != null) scope.tables.clear();
-            return false;
+            LegacyDdlR31.failed(e);
+            throw e;
         } finally {
             if (c != null) {
                 try {
@@ -6835,7 +6846,17 @@ public final class DbHelper extends SQLiteOpenHelper {
     }
 
     private void execQuiet(SQLiteDatabase db, String sql) {
-        LegacyDdlR31.exec(db, sql);
+        LegacyDdlR31.check();
+        String kind=sql.trim().toUpperCase(java.util.Locale.ROOT);
+        if(kind.startsWith("CREATE ")||kind.startsWith("ALTER ")||kind.startsWith("DROP ")) {
+            LegacyDdlR31.exec(db, sql);return;
+        }
+        if(COLD_INITIALIZER_R31.get()!=db||!db.inTransaction()
+                ||!(kind.startsWith("UPDATE ")||kind.startsWith("INSERT OR IGNORE INTO ")))
+            throw new IllegalStateException("R31_LEGACY_DML_REQUIRES_COLD_INITIALIZER");
+        // Preserve the original repair/default statements, without granting
+        // DDL or row rewriting to a business/read-only migration callback.
+        db.execSQL(sql);
     }
 
     private String quote(String value) {

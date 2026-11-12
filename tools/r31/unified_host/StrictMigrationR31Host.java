@@ -53,6 +53,19 @@ public final class StrictMigrationR31Host {
                 if(sql.startsWith("ALTER"))advance(db,false);
             }
             db.blocked="";finish(db);
+            db.execSQL("CREATE INDEX idx_v26_oos_one_action_target ON protected_rows(value)");
+            try(LegacyDdlR31.Scope audit=new LegacyDdlR31.Scope(db,true)){
+                boolean pending=false;try{LegacyDdlR31.exec(db,"DROP INDEX IF EXISTS idx_v26_oos_one_action_target");}catch(LegacyDdlR31.Pending expected){pending=true;}
+                need(pending&&audit.statements==0,"read-only audit cannot perform retirement");
+            }
+            try(LegacyDdlR31.Scope owner=new LegacyDdlR31.Scope(db,false)){
+                LegacyDdlR31.exec(db,"DROP INDEX IF EXISTS idx_v26_oos_one_action_target");need(owner.statements==1,"retirement consumes the one actual DDL unit");
+                boolean pending=false;try{LegacyDdlR31.exec(db,"CREATE INDEX uf_pending_after_retirement ON protected_rows(value)");}catch(LegacyDdlR31.Pending expected){pending=true;}
+                need(pending,"retirement cannot share a slice with another DDL");
+            }
+            need(scalar(db,"SELECT count(*) FROM sqlite_master WHERE name='idx_v26_oos_one_action_target'")==0,"explicit old index retired");
+            boolean refused=false;try{LegacyDdlR31.exec(db,"DROP INDEX IF EXISTS uf_sample_value");}catch(IllegalArgumentException expected){refused=true;}
+            need(refused&&scalar(db,"SELECT count(*) FROM sqlite_master WHERE name='uf_sample_value'")==1,"unregistered DROP cannot remove a current index");
             db.execSQL("INSERT INTO uf_sample(id,value) VALUES(1,'KEEP')");
             db.execSQL("DROP INDEX uf_sample_value"); // fixture-only simulated old swallowed index failure
             db.execSQL("INSERT OR REPLACE INTO v57_schema_migration_journal_r926(domain,revision,step_id,status) VALUES('LEGACY',2,'FINAL_VERIFY','FAILED')");

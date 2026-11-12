@@ -40,9 +40,9 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
       "beforeReviewedSha256": "1224b88bf72171ee4cce85255f818b14a61d838be064a72ae31f689843ca51bd",
-      "afterSha256": "1224b88bf72171ee4cce85255f818b14a61d838be064a72ae31f689843ca51bd",
+      "afterSha256": "1c3b576e7360ca8a483589d3531e6d48fd34fb865691b39f89e76a68efce2565",
       "role": "NUMERIC",
-      "rationale": "UF03/04: strict CREATE/INDEX and ALTER postconditions under the existing migration owner; one actual DDL per resumable callback. No DROP, payout or numerical threshold change.",
+      "rationale": "UF03 Android cold-start repair: distinguish original cold-only repair/default DML from strict DDL; propagate first CREATE/ALTER/DML/commit failure and roll back instead of returning an empty database; install the three actual link-index prerequisite columns. Preserve original repairLedgerRows/default values and business/DecisionGate methods.",
       "baseSourceHead": "1a3c6463fb2cb3171c49ca6cded69de678483819",
       "baseFileSha256": "e16b3039e86a1d2db2237a383ca7999a78198bc05bb05a16e13fed14033bd7ba"
     },
@@ -67,9 +67,9 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/LegacyDdlR31.java",
       "beforeReviewedSha256": "ef81c65f1be266a1d5fe3018a7708313a9524a1bd5a161d5ce0a078310f31727",
-      "afterSha256": "ef81c65f1be266a1d5fe3018a7708313a9524a1bd5a161d5ce0a078310f31727",
+      "afterSha256": "98047858b21f7f203f80256c5cbbd53c2b18a25f9823e284466de0e8cf6a3042",
       "role": "NUMERIC",
-      "rationale": "UF03/04: strict same-handle DDL executor with sticky first failure, actual postconditions and at most one new DDL per owner slice. No quality or business authorization.",
+      "rationale": "UF03 Android cold-start repair: permit only the original DROP INDEX IF EXISTS idx_v26_oos_one_action_target retirement, with absence postcondition, read-only refusal and the existing one-DDL slice limit; every other DROP remains rejected.",
       "baseSourceHead": "1a3c6463fb2cb3171c49ca6cded69de678483819",
       "baseFileSha256": null
     },
