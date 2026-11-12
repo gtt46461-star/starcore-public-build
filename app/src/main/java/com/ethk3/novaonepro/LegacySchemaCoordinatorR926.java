@@ -149,7 +149,7 @@ public final class LegacySchemaCoordinatorR926 {
             Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failure);
             if(fatal!=null)throw fatal;
             SchemaDomainCoordinatorR926.markState(db, c, "FAILED", "LEGACY_RUNTIME",
-                    failure.getClass().getSimpleName() + ':' + String.valueOf(failure.getMessage()));
+                    DatabaseCoordinator.describeCauseChain(failure,1800));
             return false;
         }
     }

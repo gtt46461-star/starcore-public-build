@@ -13,6 +13,7 @@ def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 def h(x):return html.escape(str(x))
 def li(xs):return '<ul>'+''.join('<li>'+h(x)+'</li>' for x in xs)+'</ul>'
 def table(head,rows):return '<div class="table"><table><thead><tr>'+''.join('<th>'+h(x)+'</th>' for x in head)+'</tr></thead><tbody>'+''.join('<tr>'+''.join('<td>'+str(x)+'</td>' for x in row)+'</tr>' for row in rows)+'</tbody></table></div>'
+dirty=bool(subprocess.check_output(['git','status','--porcelain','--','app/src/main'],cwd=ROOT,text=True).strip())
 source=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
 cards=read('cards.json');repairs=read('repair_cards.json');items=read('acceptance_items.json')
 receipts={p.parent.name:json.loads(p.read_text()) for p in (ROOT/'construction/r31/batches').glob('*/RECEIPT.json')}
@@ -35,7 +36,7 @@ for c in cards+repairs:
         'deferred':{i['item']:receipt.get('deferred_items',{}).get(i['item'],'NOT_RUN_CURRENT_DEVICE') for i in items if i['card']==cid and i['level']!='LOCAL'},
         'currentRuntimeState':runtime,'currentRepairAcceptance':'PENDING_CURRENT_CI_AND_DEVICE','scope':'source presence and historical exact receipt bindings; no implementation-completeness or runtime inference from file presence'})
 paths=sorted({f['path'] for c in card_rows for f in c['sourceFiles']})
-audit={'format':'R31Q21_SOURCE_AND_DELIVERY_REVIEW_V1','sourceCommit':source,'installedApkSource':'5e05e6689f64b1db11a524993681d49510648f8c','installedVersionCode':577311020,
+audit={'format':'R31Q21_SOURCE_AND_DELIVERY_REVIEW_V1','sourceCommit':source,'sourceWorktreeDirty':dirty,'installedApkSource':'5e05e6689f64b1db11a524993681d49510648f8c','installedVersionCode':577311020,
        'plan':'R31.4-MERGED-11-20261107','originalPlanPreserved':True,'acceptanceConfigSha256':sha(PLAN/'ledgers/acceptance_config.json'),
        'counts':{'cards':len(card_rows),'originalCards':len(cards),'repairCards':len(repairs),'acceptanceLevels':dict(Counter(i['level'] for i in items)),'distinctPlanFiles':len(paths),'missingPlanFiles':sum(not (ROOT/p).is_file() for p in paths),'currentProductJavaFiles':len(list((ROOT/'app/src/main/java').rglob('*.java')))},
        'cards':card_rows,'metrics':read('metric_coverage_44.json'),'charts':read('charts.json'),'researchTables':read('research_tables_16.json'),'userRequirements':read('user_requirements_40.json'),
@@ -44,7 +45,7 @@ audit={'format':'R31Q21_SOURCE_AND_DELIVERY_REVIEW_V1','sourceCommit':source,'in
 body=[]
 def section(title,text):body.append('<section><h2>'+h(title)+'</h2>'+text+'</section>')
 section('先纠正“全部完成”的含义','<p>R31.4 的 K01—K11 均有施工关门收据，K11记录622项单测零失败；原方案只把LOCAL层列为关门条件。原交付声明明确保留真机24/72小时NOT_RUN、自然质量NOT_PROVEN，并记录一组Android故障矩阵未通过。因此，存在施工收据，与手机上的抓取—冻结—结算—研究—报告完整闭环已经正常，是两个不同的事实。本次真机反例必须重新打开相关运行验收。</p>'+
-      table(['对象','精确身份/范围'],[['已安装APK',h('577311020 / R31-CHECKPOINT-P01-2026.11.12-020')],['已安装APK源码',h(audit['installedApkSource'])],['本次复核源码',h(source)],['唯一施工分支',h('construction/r31-final-20261104')],['方案与原阈值',h(audit['plan'])+'；验收配置 SHA256 '+h(audit['acceptanceConfigSha256'])],['源码清点',h(str(len(paths))+'个方案路径均存在；产品Java '+str(audit['counts']['currentProductJavaFiles'])+'个。存在不等于实现与运行已通过。')]]))
+      table(['对象','精确身份/范围'],[['已安装APK',h('577311020 / R31-CHECKPOINT-P01-2026.11.12-020')],['已安装APK源码',h(audit['installedApkSource'])],['本次复核源码',h(source)+'；工作区源码未提交改动='+h(dirty)+'；逐文件哈希见机器对照，交付身份另以APK回执为准'],['唯一施工分支',h('construction/r31-final-20261104')],['方案与原阈值',h(audit['plan'])+'；验收配置 SHA256 '+h(audit['acceptanceConfigSha256'])],['源码清点',h(str(len(paths))+'个方案路径均存在；产品Java '+str(audit['counts']['currentProductJavaFiles'])+'个。存在不等于实现与运行已通过。')]]))
 section('2026-11-12 19:35快检：已证实、推断与未知',table(['观察','可支持的结论','不能据此宣称'],[
  ['心跳约1.1秒，init=READY，business=WAITING_CANONICAL','主进程/服务活着，但业务终端没有完成','不能把RUNNING或BUSINESS_READY视为出号、结算和研究正常'],
  ['lastRequestOutcome=FAILED；队列active=0/queued=0；COORDINATOR_BUSY；两次ACK也失败','本次请求已在入队前失败，界面无终态反馈','不是“只要再等队列就会完成”；也不是磁盘物理写满'],

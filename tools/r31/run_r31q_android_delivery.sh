@@ -21,7 +21,7 @@ clean=re.sub(r'(?i)Bearer\s+[^\s]+','Bearer [REDACTED]',clean)
 raw=(out/'delivery-protocol.txt').read_bytes();text=raw.decode(errors='replace')
 print(text[-16000:])
 found=re.search(r'OK \((\d+) tests?\)',text)
-ok=bool(found and int(found.group(1))==3 and 'FAILURES!!!' not in text and 'FULL_REPORT_PUBLISHED|PROVIDER_READBACK_HASH_PASS' in text and 'REAL_API_FETCH_AND_NEW_FREEZE_SETTLEMENT' in text)
+ok=bool(found and int(found.group(1))==4 and 'FAILURES!!!' not in text and 'FULL_REPORT_PUBLISHED|PROVIDER_READBACK_HASH_PASS' in text and 'REAL_API_FETCH_AND_NEW_FREEZE_SETTLEMENT' in text and 'FAILED_PROBE_NOT_SWALLOWED' in text)
 (out/'DELIVERY_REGRESSION.json').write_text(json.dumps({'status':'PASS_ANDROID_EMULATOR' if ok else 'FAIL','tests':int(found.group(1)) if found else None,'protocolSha256':hashlib.sha256(raw).hexdigest(),'scope':'real Android main-process request, diagnostics Service, published ZIP and ContentProvider hash readback; injected/empty data; not handset or natural quality','handset':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN'},indent=2)+'\n')
 assert ok,'R31Q_REAL_SERVICE_EXPORT_REGRESSION_FAILED'
 PY

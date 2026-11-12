@@ -120,6 +120,13 @@ public final class DbStore {
         if(Boolean.TRUE.equals(legacyColumnAuditR31.get())&&legacyColumnFailureR31.get()==null)
             legacyColumnFailureR31.set(failure);
     }
+    private void requireLegacyColumnSuccessR31() {
+        if(!Boolean.TRUE.equals(legacyColumnAuditR31.get()))return;
+        Throwable failure=legacyColumnFailureR31.get();if(failure==null)return;
+        Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failure);
+        if(fatal!=null)throw fatal;
+        throw new IllegalStateException("LEGACY_COLUMN_MIGRATION_FAILED",failure);
+    }
     private static final java.util.Map<DatabaseCoordinator,LegacySchemaFlightR31> LEGACY_SCHEMA_FLIGHTS_R31=
             new java.util.WeakHashMap<>();
     private static final class LegacySchemaFlightR31 {
@@ -2119,6 +2126,10 @@ public final class DbStore {
 
     private void addColumnIfMissing(
             SQLiteDatabase db, String table, String column, String typeSql) {
+        // Once one probe/ALTER has failed, the rest of this unit must not wait
+        // another busy_timeout for every remaining column. Outer legacy helpers
+        // may catch Throwable; the next call still sees this attempt's failure.
+        requireLegacyColumnSuccessR31();
         if (db == null
                 || table == null
                 || table.length() == 0
@@ -2145,6 +2156,7 @@ public final class DbStore {
         } catch (Throwable e) {
             recordLegacyColumnFailureR31(e);
         }
+        requireLegacyColumnSuccessR31();
     }
 
     private void repairLedgerIntegrityQuiet(SQLiteDatabase db) {
@@ -14923,6 +14935,7 @@ public final class DbStore {
     }
 
     private HashSet<String> getTableColumns(SQLiteDatabase db, String table) {
+        requireLegacyColumnSuccessR31();
         synchronized (columnCache) {
             HashSet<String> cached = columnCache.get(table);
 
@@ -14953,6 +14966,7 @@ public final class DbStore {
             closeCursor(c);
         }
 
+        requireLegacyColumnSuccessR31();
         if(readSucceeded&&!set.isEmpty())synchronized (columnCache) {columnCache.put(table, set);}
 
         return set;

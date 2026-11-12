@@ -29,6 +29,28 @@ public final class R31QDeliveryInstrumentedTest {
         while(SystemClock.elapsedRealtime()<until);
         fail("LEGACY_NOT_READY: "+store.coordinatorR36().startupSchemaSummary());
     }
+    @Test public void firstSchemaProbeFailureStopsRemainingColumns()throws Exception{
+        Context app=app();DbStore store=new DbStore(app());ready(store);
+        java.lang.reflect.Field auditField=DbStore.class.getDeclaredField("legacyColumnAuditR31");auditField.setAccessible(true);
+        java.lang.reflect.Field failureField=DbStore.class.getDeclaredField("legacyColumnFailureR31");failureField.setAccessible(true);
+        @SuppressWarnings("unchecked") ThreadLocal<Boolean> audit=(ThreadLocal<Boolean>)auditField.get(store);
+        @SuppressWarnings("unchecked") ThreadLocal<Throwable> failures=(ThreadLocal<Throwable>)failureField.get(store);
+        java.lang.reflect.Method add=DbStore.class.getDeclaredMethod("addColumnIfMissing",android.database.sqlite.SQLiteDatabase.class,String.class,String.class,String.class);add.setAccessible(true);
+        android.database.sqlite.SQLiteDatabase closed=android.database.sqlite.SQLiteDatabase.openOrCreateDatabase(new File(app.getCacheDir(),"r31q_closed_"+UUID.randomUUID()+".db"),null);closed.close();
+        audit.set(Boolean.TRUE);failures.remove();
+        try{
+            try{add.invoke(store,closed,"r31q_closed","probe","INTEGER");fail("first failing probe was silently accepted");}
+            catch(java.lang.reflect.InvocationTargetException expected){assertTrue(expected.getCause().getMessage().contains("LEGACY_COLUMN_MIGRATION_FAILED"));}
+            assertNotNull(failures.get());
+            for(int i=0;i<20;i++)try{
+                add.invoke(store,store.writable(),DbHelper.TABLE_APP_STATE,"r31q_must_not_be_added","INTEGER");fail("later column entered SQL after failed unit");
+            }catch(java.lang.reflect.InvocationTargetException expected){assertTrue(expected.getCause().getMessage().contains("LEGACY_COLUMN_MIGRATION_FAILED"));}
+            try(Cursor c=store.readable().rawQuery("PRAGMA table_info("+DbHelper.TABLE_APP_STATE+")",null)){
+                while(c.moveToNext())assertNotEquals("r31q_must_not_be_added",c.getString(1));
+            }
+            System.out.println("R31Q_ANDROID|FAILED_PROBE_NOT_SWALLOWED|REMAINING_COLUMNS_NOT_EXECUTED|NO_REPEATED_BUSY_WAITS|PASS");
+        }finally{audit.remove();failures.remove();store.close();}
+    }
     @Test public void legacyMigrationResumesAndAllowsCriticalCommitsBetweenUnits()throws Exception{
         DbStore store=new DbStore(app());String key=UUID.randomUUID().toString();int committed=0,during=0;
         try{
