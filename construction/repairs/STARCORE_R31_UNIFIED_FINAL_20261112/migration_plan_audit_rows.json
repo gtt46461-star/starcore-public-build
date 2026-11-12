@@ -1,0 +1,1109 @@
+{
+  "format": "R31_4_MIGRATION_BUSINESS_RECOVERY_SOURCE_AUDIT_ROWS_V1",
+  "audited_at_utc": "2026-11-12",
+  "repository": "/workspace/scratch/c8b09bfb741e/starcore",
+  "source_head": "19287895311212937bc114f9de0c0151d9ec86fd",
+  "scope": "仅本agent已读源码及迁移/业务/恢复接点；不是全部应用功能审计或测试收据；原卡关联按cards.json。 补审R31-B08-C01/C02/C03/C04真实生产入口及helper调用。",
+  "source_worktree_dirty": true,
+  "tests_executed_this_review": [],
+  "no_pass_inferred_from_code_presence": true,
+  "rows": [
+    {
+      "card_ids": [
+        "R31-B02-C01"
+      ],
+      "title": "写优先级、唯一写者与实际持锁预算",
+      "actual_implemented": [
+        "已有WriteClass/WriteContext和显式operation注册表；R30_PREPARED_TASK_CLAIM归RESEARCH_CONTROL，历史批次归RESEARCH_DATA，Legacy迁移归MIGRATION。",
+        "runWrite对后台队外让关键写，并提供每5秒研究服务机会；实际持锁时间交WriterHoldLedger/WriterHoldFaults记录。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "method": "WriteClass / WriteContext / operationRegistryR31",
+          "line": 27,
+          "evidence_type": "SOURCE_READ",
+          "fact": "枚举及显式注册表；R914_DRAW_HISTORY_BATCH是RESEARCH_DATA。",
+          "sha256": "3429c3b1bd9a496912c4df371fe4fd49862d949ff8f2ee2a7fbfda6928972bc1"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "method": "runWrite / recordUnlockedWriterR30",
+          "line": 830,
+          "evidence_type": "SOURCE_READ",
+          "fact": "关键等待计数、研究服务机会及独立wait/hold实测；deadline仅在进入callback前检查。",
+          "sha256": "3429c3b1bd9a496912c4df371fe4fd49862d949ff8f2ee2a7fbfda6928972bc1"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "CONFIRMED",
+          "detail": "250ms/2000ms入锁期限不约束task.call体；当前迁移单元仍可连续执行大量ALTER/CREATE，不能从deadline推导持锁满足P99≤50ms/硬目标≤200ms。"
+        },
+        {
+          "classification": "NOT_RUN_THIS_REVIEW",
+          "detail": "未重跑当前源码60分钟全负载竞争、每operation分布、1000次真实机会；历史收据不能自动继承。"
+        }
+      ],
+      "repair_UF": [
+        "UF04",
+        "UF12",
+        "UF19"
+      ],
+      "execution_status": "PARTIAL_SOURCE_CONFIRMED_REPAIR_REQUIRED",
+      "acceptance_to_close": [
+        "以真实旧库规模并行抓取/冻结/结算/研究/报告/保留60分钟，输出count、wait/hold全分布、最差20次及所有>200ms缺陷。",
+        "验证过期冻结优先且正常资源下已准备研究片不会永久饥饿。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B02-C02"
+      ],
+      "title": "运行期零DDL及owner层分片",
+      "actual_implemented": [
+        "ResearchWriteQueueR27.ImmutableBatch提交拒绝DDL，提交使用同一DatabaseCoordinator及持久幂等回执。",
+        "retentionStepR30已移除每phase的ensureProtected，改为只读就绪/缺schema依赖检查。",
+        "已有SlicedInitializerR31、R31Q21_RUNTIME_/MAIN_逐单元日志及原后台队列续跑，专用DDL连接贯穿迁移、journal和校验。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+          "method": "submit(ImmutableBatch)",
+          "line": 154,
+          "evidence_type": "SOURCE_READ",
+          "fact": "containsDdl时SCHEMA_PENDING；正常批次进runIdempotentAtomicWriteR31。",
+          "sha256": "edb385b55b7bacd99ebc323d481a7b4bbd0444a0501bb568b1542c127d0af0ea"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+          "method": "retentionStepR30",
+          "line": 631,
+          "evidence_type": "SOURCE_READ",
+          "fact": "保留phase检查retentionProtectionReadyR31，不现场ensureProtected。",
+          "sha256": "0865950811c53f6b719395b395bd760eb3c9eb74918941a0cf88c3c089e3deab"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+          "method": "advanceLegacyRuntimeSchemaR31 / ensureRuntimeExtraTablesOnce",
+          "line": 334,
+          "evidence_type": "SOURCE_READ",
+          "fact": "单元迁移入口；RUNTIME_COLUMNS、TEACHER_COLUMNS、FIELD_COLUMNS、DYNAMIC_WINDOW仍是多表组。",
+          "sha256": "20e8419ce3cd3734b8f8c5a86c6c10917f972f4643c4027ec3257eff7c85f170"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "method": "dedicatedDdlTaskR31Q / submitBackgroundWrite",
+          "line": 1119,
+          "evidence_type": "SOURCE_READ",
+          "fact": "只有R31_LEGACY_SCHEMA_PREPARE包装专用DDL连接。",
+          "sha256": "3429c3b1bd9a496912c4df371fe4fd49862d949ff8f2ee2a7fbfda6928972bc1"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+          "method": "saveDecisionInternal / saveTeacherMatrixSample / saveLearningCase",
+          "line": 3698,
+          "evidence_type": "SOURCE_READ",
+          "fact": "业务路径仍同步调用ensureRuntimeExtraTablesOnce，pending时实际执行一迁移单元后才抛依赖。",
+          "sha256": "20e8419ce3cd3734b8f8c5a86c6c10917f972f4643c4027ec3257eff7c85f170"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "CONFIRMED_BLOCKER",
+          "detail": "saveDecisionInternal:3713、saveTeacherMatrixSample:7286、saveLearningCase:8983等业务方法仍可在传入业务连接上推进DDL，绕过专用迁移连接；尚未满足运行期零DDL/唯一迁移入口。"
+        },
+        {
+          "classification": "CONFIRMED",
+          "detail": "RUNTIME_COLUMNS内又调用FIELD_COLUMNS；DYNAMIC_WINDOW遍历多表/索引；MAIN_BASE调用整个createBaseTables；单元数有限不等于单次持锁时长有界。"
+        },
+        {
+          "classification": "NOT_RUN_THIS_REVIEW",
+          "detail": "未取得当前改动下Android真实SQLite的WAL、长reader、旧库迁移并发时延收据。"
+        }
+      ],
+      "repair_UF": [
+        "UF02",
+        "UF03",
+        "UF04",
+        "UF19"
+      ],
+      "execution_status": "PROTOTYPE_SOURCE_PRESENT_BLOCKED_BY_CONFIRMED_GAPS",
+      "acceptance_to_close": [
+        "所有业务入口在缺schema/部分迁移状态下只返回SCHEMA_PENDING，DDL trace=0、journal不推进、业务数据不变。",
+        "把大组拆为稳定可恢复的语句/小单元，实测锁持有；单索引长操作需单独处理并明确阻塞/延期策略。",
+        "进程切点重启后已提交单位不重做，未提交单位可重入，保留业务原始数据。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B02-C03"
+      ],
+      "title": "提交结局与幂等receipt",
+      "actual_implemented": [
+        "DatabaseCoordinator有ROLLED_BACK/COMMITTED/COMMITTED_DIAGNOSTIC_FAILED/UNKNOWN及诊断失败隔离。",
+        "runIdempotentAtomicWriteR31在业务事务内插入commit_key+payload_hash；UNKNOWN使用独立只读连接查receipt，payload冲突拒绝。",
+        "ImmutableBatch提交已接入上述幂等入口。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "method": "CommitOutcome / diagnosticR31",
+          "line": 29,
+          "evidence_type": "SOURCE_READ",
+          "fact": "已提交与观测失败分离。",
+          "sha256": "3429c3b1bd9a496912c4df371fe4fd49862d949ff8f2ee2a7fbfda6928972bc1"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "method": "runIdempotentAtomicWriteR31 / resolveCommitReceiptR31",
+          "line": 1034,
+          "evidence_type": "SOURCE_READ",
+          "fact": "唯一receipt与业务原子提交；UNKNOWN独立连接回读。",
+          "sha256": "3429c3b1bd9a496912c4df371fe4fd49862d949ff8f2ee2a7fbfda6928972bc1"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+          "method": "submit(ImmutableBatch)",
+          "line": 162,
+          "evidence_type": "SOURCE_READ",
+          "fact": "批次identity传入持久去重事务。",
+          "sha256": "edb385b55b7bacd99ebc323d481a7b4bbd0444a0501bb568b1542c127d0af0ea"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "REVIEW_LIMIT",
+          "detail": "本次仅核查通用实现和ImmutableBatch接线，未逐个证明所有非幂等生产调用都携带稳定输入/输出identity；不能以框架存在宣布全调用闭环。"
+        },
+        {
+          "classification": "NOT_RUN_THIS_REVIEW",
+          "detail": "未执行当前源码commit完成返回前kill、afterCommit/timing失败、模型参数/样本计数/结算计数仅更新一次的集成测试。"
+        }
+      ],
+      "repair_UF": [
+        "UF18",
+        "UF19"
+      ],
+      "execution_status": "IMPLEMENTED_SOURCE_PATHS_CONFIRMED_CURRENT_ACCEPTANCE_NOT_RUN",
+      "acceptance_to_close": [
+        "提交后诊断注入失败，业务和cursor只推进一次；commit返回歧义时重启查receipt。",
+        "相同commit_key不同payload必须INTEGRITY_CONFLICT，全部实际生产非幂等入口列出覆盖映射。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B03-C01"
+      ],
+      "title": "抓取当期优先与后置历史回补",
+      "actual_implemented": [
+        "runFetchChannelOnce保留FETCH_R30单飞；最新draw校验后saveApiResultDraws的durable回调优先分发当前期，历史后置。",
+        "后台控制节拍申请Legacy迁移；显式写优先级将当前入库、冻结和结算与历史批次分级。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "method": "runFetchChannelOnce",
+          "line": 2725,
+          "evidence_type": "SOURCE_READ",
+          "fact": "FETCH_R30 begin/end及已验证latest处理。",
+          "sha256": "6c72fda27a2ce19fa0dde3784e8b613f970deeba20a610330996df0e7ff38eec"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "method": "saveApiResultDraws durable callback",
+          "line": 2844,
+          "evidence_type": "SOURCE_READ",
+          "fact": "R57_DURABLE_LATEST_BEFORE_HISTORY后续分发。",
+          "sha256": "6c72fda27a2ce19fa0dde3784e8b613f970deeba20a610330996df0e7ff38eec"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "method": "reconcileResearchOwner",
+          "line": 2429,
+          "evidence_type": "SOURCE_READ",
+          "fact": "现有5秒控制节拍申请Legacy迁移。",
+          "sha256": "6c72fda27a2ce19fa0dde3784e8b613f970deeba20a610330996df0e7ff38eec"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "method": "operationRegistryR31 / runWrite",
+          "line": 60,
+          "evidence_type": "SOURCE_READ",
+          "fact": "当期draw与history分类分离。",
+          "sha256": "3429c3b1bd9a496912c4df371fe4fd49862d949ff8f2ee2a7fbfda6928972bc1"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "CONFIRMED_CROSS_CARD_BLOCKER",
+          "detail": "迁移回调仍可长时间持有唯一写者；独立DDL连接不能排除应用写锁、SQLite文件锁及I/O争用，当前改动尚不足证明下一期准备及时。"
+        },
+        {
+          "classification": "NOT_RUN_THIS_REVIEW",
+          "detail": "未执行当前源码1000次分母完整测量、乱序/重复/晚到/断网恢复/HTTP卡住矩阵；手机旧版本快检不等于新版结果。"
+        }
+      ],
+      "repair_UF": [
+        "UF04",
+        "UF12",
+        "UF19"
+      ],
+      "execution_status": "PARTIAL_SOURCE_CONFIRMED_RUNTIME_CLOSURE_UNPROVEN",
+      "acceptance_to_close": [
+        "真实联网取得新draw、新赛前冻结、随后开奖结算，时间与原始hash可互证。",
+        "每个获知draw均有终态或明确排除原因；输出1000次全分布、漏期、source晚到及最差20次。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B03-C02"
+      ],
+      "title": "唯一canonical提交与owner终结",
+      "actual_implemented": [
+        "AnalysisSingleFlight.submit严格active=1，超时只请求协作取消；reapDeadWorker要求worker/handler已确证死亡。",
+        "CanonicalObservationWriterR36在事务内先查target hash；精确重放幂等，不一致R36_CANONICAL_INTEGRITY_CONFLICT；冻结事实含commit/deadline及history/snapshot hash。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
+          "method": "submit / cancelIfNoProgress / reapDeadWorker",
+          "line": 41,
+          "evidence_type": "SOURCE_READ",
+          "fact": "owner未终结不创建并行替身。",
+          "sha256": "bb445d7a3f5eb24ea475d77bf609781d1ae2f649da771a87a46407e6d26770e7"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+          "method": "insertWithinTransaction",
+          "line": 11,
+          "evidence_type": "SOURCE_READ",
+          "fact": "canonical hash及原始历史/快照匹配检查与唯一插入。",
+          "sha256": "75bb8de541d26dfc2de52e423f79cb1cf1e8e5a98b2b4b036df6bcf40f425b73"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+          "method": "fixedDeadlineF01",
+          "line": 482,
+          "evidence_type": "SOURCE_READ",
+          "fact": "请求deadline按当前base/target固定。",
+          "sha256": "093e214e5c227e9704269a5be12a0fcfea0c5cc027b81cd58f08a66b02ccf833"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "NOT_RUN_THIS_REVIEW",
+          "detail": "源码关键防线存在；未执行当前源码fast/full竞争、边界±1ms、时钟跳、model更新、活owner超时的跨Analysis/DecisionGate/Settlement联测。"
+        },
+        {
+          "classification": "RUNTIME_EVIDENCE_LIMIT",
+          "detail": "原手机WAITING_CANONICAL及旧分析时间戳只证明快检时无新canonical凭据，不能据此推断缺少哪些策略资格或伪造补预测。"
+        }
+      ],
+      "repair_UF": [
+        "UF12",
+        "UF19"
+      ],
+      "execution_status": "IMPLEMENTED_SOURCE_DEFENCES_CONFIRMED_ACCEPTANCE_NOT_RUN",
+      "acceptance_to_close": [
+        "同一期最多一个canonical hash；FULL迟到不改号码/时间/模型；标签一直使用原hash。",
+        "无合格策略产生真实带原因NO_BET，禁止随机K3和补造历史赛前冻结；可预测覆盖和终端覆盖分别统计。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B03-C03"
+      ],
+      "title": "draw标签、冻结结果与训练反馈解耦",
+      "actual_implemented": [
+        "SettlementTaskStoreR36为已确认draw调用兼容feedback入库；无赛前canonical有明确排除终态。",
+        "RuntimeSchemaR26分别生产DRAW_LABEL_REVEALED和经过原始canonical/赛前时间校验的FROZEN_RESULT；反馈receipt有consumer_version/event_id维度。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+          "method": "enqueueConfirmedWithinWrite / markTerminalWithinTransaction",
+          "line": 126,
+          "evidence_type": "SOURCE_READ",
+          "fact": "确认draw反馈与终态记录接点。",
+          "sha256": "73795ef6c1ffffaedb29dc150e902848a67aac2fe9692fe4187853c25625a86d"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+          "method": "feedbackWithinTransaction / typedDrawEventsR31 / typedFrozenEventsR31",
+          "line": 134,
+          "evidence_type": "SOURCE_READ",
+          "fact": "draw事件与严格未来冻结事件分别处理；FROZEN_RESULT查询校验commit_at早于open及first_seen。",
+          "sha256": "e321c2b23acb18d0d59ddf3372db6a9b0ea4dbb71f24dc77bd26f843bcce788e"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+          "method": "consumeFrozenEffectsR31",
+          "line": 192,
+          "evidence_type": "SOURCE_READ",
+          "fact": "独立消费者与receipt；统计消费者不冒充模型训练。",
+          "sha256": "e321c2b23acb18d0d59ddf3372db6a9b0ea4dbb71f24dc77bd26f843bcce788e"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "REVIEW_LIMIT",
+          "detail": "本次确认事件区分与关键接点，未逐消费者追完参数/checkpoint/receipt原子提交及全部五类独立水位报告。"
+        },
+        {
+          "classification": "NOT_RUN_THIS_REVIEW",
+          "detail": "未跑删某期冻结后draw训练继续、重复事件100次、消费者kill恢复、研究失败不回滚核心结算的当前源码联测。"
+        }
+      ],
+      "repair_UF": [
+        "UF12",
+        "UF18",
+        "UF19"
+      ],
+      "execution_status": "PARTIAL_SOURCE_CONFIRMED_CONSUMER_CLOSURE_NOT_ACCEPTED",
+      "acceptance_to_close": [
+        "缺冻结仅排除该期OOS，draw训练与下一期冻结继续；报告明确区分结算健康、预测覆盖和每消费者cursor。",
+        "相同事件100次只产生一次已证明参数/checkpoint更新，receipt与cursor不越过产物。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B05-C04"
+      ],
+      "title": "keep保护迁移与版本化DDL接点",
+      "actual_implemented": [
+        "ResearchRetentionStoreR30.ensureProtected已通过SchemaDomainCoordinator迁移owner；保留archive定义、guard定义验证和启动checkpoint保护。",
+        "retentionStepR30日常phase只检查保护schema就绪，缺失返回SCHEMA_PENDING。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+          "method": "ensureProtected / ensureProtectedObjectsR31 / preserveStartupCheckpoint",
+          "line": 114,
+          "evidence_type": "SOURCE_READ",
+          "fact": "版本化保护迁移及原始checkpoint保全。",
+          "sha256": "383c2e4041a146a411877cdd8cf8ad8d180b8eaa077050e8a851326904ba7f18"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+          "method": "startupUpgradeSpecR31 / retentionStepR30",
+          "line": 369,
+          "evidence_type": "SOURCE_READ",
+          "fact": "startup schema owner与日常保留路径分离。",
+          "sha256": "0865950811c53f6b719395b395bd760eb3c9eb74918941a0cf88c3c089e3deab"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "REVIEW_LIMIT",
+          "detail": "此审计只覆盖DDL/迁移接点；未逐表证明原件hash、consumer迁移、引用登记及旧keep有界缩减；不能把ensure入口存在算整张生命周期卡完成。"
+        },
+        {
+          "classification": "NOT_RUN_THIS_REVIEW",
+          "detail": "未执行本次版本ST-08各阶段kill与真实旧库数据保全。"
+        }
+      ],
+      "repair_UF": [
+        "UF02",
+        "UF03",
+        "UF19"
+      ],
+      "execution_status": "MIGRATION_CONTACT_IMPLEMENTED_FULL_CARD_REQUIRES_STORAGE_AUDIT",
+      "acceptance_to_close": [
+        "各保护迁移切点kill重启；原件、引用、模型checkpoint与guard不丢失不重复。",
+        "逐表consumer未迁完不得DROP，未知旧表不因空表直接删除。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B05-C09"
+      ],
+      "title": "WAL checkpoint策略与生产接线",
+      "actual_implemented": [
+        "StorageCheckpointR31.round实现实时窗口避让、PASSIVE、BUSY指数退避、owner取消reader及条件TRUNCATE；状态输出区分BUSY与corruption。",
+        "实际源树另有DatabaseCoordinator、StorageReclaimR943、StorageHealthR811、DatabaseCompactionSU2、SchemaUpgradeCoordinatorR815的直接checkpoint入口。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/StorageCheckpointR31.java",
+          "method": "round / json",
+          "line": 28,
+          "evidence_type": "SOURCE_READ",
+          "fact": "策略类实现了有限轮次及BUSY退避。",
+          "sha256": "1ebd3294aa561edbda6130774a47a4d8ff75fa63276f930727ba13a7a92624d8"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "method": "maintenance checkpoint",
+          "line": 382,
+          "evidence_type": "SOURCE_READ",
+          "fact": "仍有直接PRAGMA wal_checkpoint(TRUNCATE)。",
+          "sha256": "3429c3b1bd9a496912c4df371fe4fd49862d949ff8f2ee2a7fbfda6928972bc1"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "CONFIRMED_SOURCE_GAP",
+          "detail": "全app/src/main/java rg检索StorageCheckpointR31仅命中自身声明，未见生产构造/调用；策略类存在不能证明实际入口遵守该策略。"
+        },
+        {
+          "classification": "NOT_RUN_THIS_REVIEW",
+          "detail": "未逐入口审清是否只在受控离线维护中使用，未跑长reader/实时冻结窗口/旧库WAL恢复的当前版本Android测试。"
+        }
+      ],
+      "repair_UF": [
+        "UF02",
+        "UF04",
+        "UF19"
+      ],
+      "execution_status": "POLICY_IMPLEMENTED_PRODUCTION_WIRING_NOT_FOUND_REVIEW_REQUIRED",
+      "acceptance_to_close": [
+        "列清每个FULL/TRUNCATE/PASSIVE入口及owner、线程、deadline；统一实时策略或证明受控离线边界。",
+        "长reader注入无无限BUSY循环，reader由owner取消后关闭；测冻结/结算分布及WAL恢复证据。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B05-C10"
+      ],
+      "title": "旧库离线重建及备份删除恢复证明",
+      "actual_implemented": [
+        "StorageMaintenanceFileR82.rebuildAndSwap保留原库、检查空间及native proof，journal/rename采用fsync和摘要。",
+        "启动recoverIfNeeded持独占SourceReadLease恢复；deleteVerifiedBackup要求绑定active SHA的多项restore proof，拒绝仅quick_check/mtime/size。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
+          "method": "recoverIfNeeded / rebuildAndSwap",
+          "line": 13,
+          "evidence_type": "SOURCE_READ",
+          "fact": "独占恢复及保留原库的离线原子替换。",
+          "sha256": "bdd39c7a418cd50f8575658403e8c5436697ff31f793976106f7d59b15f39e73"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
+          "method": "restoreProofRefusalR31 / deleteVerifiedBackup",
+          "line": 114,
+          "evidence_type": "SOURCE_READ",
+          "fact": "恢复证明键、当前active hash和关键PASS前缀门。",
+          "sha256": "bdd39c7a418cd50f8575658403e8c5436697ff31f793976106f7d59b15f39e73"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "method": "constructor",
+          "line": 419,
+          "evidence_type": "SOURCE_READ",
+          "fact": "构建数据库协调器之前检查离线维护恢复。",
+          "sha256": "3429c3b1bd9a496912c4df371fe4fd49862d949ff8f2ee2a7fbfda6928972bc1"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "REVIEW_LIMIT",
+          "detail": "本次未审nativeRebuild内部rowid/模型/引用闭包等价验证，也未证明restore proof真实生产链完整；字符串字段检查本身不是恢复成功证据。"
+        },
+        {
+          "classification": "NOT_RUN_THIS_REVIEW",
+          "detail": "无用户670MB真实旧库，未做每rename/journal点kill、实际新库重启模型加载和待结算核验。"
+        }
+      ],
+      "repair_UF": [
+        "UF19"
+      ],
+      "execution_status": "SOURCE_SAFETY_PROTOCOL_PRESENT_DEVICE_RESTORE_NOT_ACCEPTED",
+      "acceptance_to_close": [
+        "每rename/journal切点中断后至少一份原/新库可恢复，逐根数据/rowid/blob/locator/模型/待结算/引用闭包一致。",
+        "没有独立绑定当前字节的完整恢复证明，删除备份必须拒绝。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B12-C01"
+      ],
+      "title": "覆盖升级阶段日志与真实旧库恢复",
+      "actual_implemented": [
+        "已有PREPARE/VERIFY_SOURCE/TRANSFORM/VERIFY_TARGET/PUBLISH/CLEANUP阶段、hash、attempt与重入接口；RuntimeCoordinator启动schema使用此入口。",
+        "Legacy新增逐单元journal、同handle校验及AUDITED_RUNTIME_STEP_R31Q21，旧LEGACY_RUNTIME/MAIN_CHAIN完成标记不能跳过新runtime审计。",
+        "upgrade_matrix明确区分HOST/SIMULATED，真实600MB/30GB、旧APK读新库、Android覆盖kill标NOT_RUN。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+          "method": "runUpgradeR31 / upgradeStateR31",
+          "line": 1053,
+          "evidence_type": "SOURCE_READ",
+          "fact": "阶段模型与保护根hash/恢复流程存在。",
+          "sha256": "7670f298b1333a7bc0d7f643e7b231c84544e2c1cc3381c6a5d9e0202f4cf162"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java",
+          "method": "advanceUnitsR31 / ensure",
+          "line": 19,
+          "evidence_type": "SOURCE_READ",
+          "fact": "一callback一unit、旧READY额外审计marker。",
+          "sha256": "1061007082af7003152508388c75943e289381667459fa907e1bef974ef36c3b"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/tools/r31/upgrade_matrix.py",
+          "method": "SCENARIOS / NOT_RUN / run_upgrade_matrix",
+          "line": 21,
+          "evidence_type": "SOURCE_READ",
+          "fact": "模拟场景不冒充真实设备旧库。",
+          "sha256": "4809a67602bc1a48dc7474db6c15b84ea4a9dadd443f45e9d4f47bf135715e50"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+          "method": "createMainChainClosedLoopIndexes / execQuiet",
+          "line": 6107,
+          "evidence_type": "SOURCE_READ",
+          "fact": "主链index使用吞普通SQLiteException的execQuiet。",
+          "sha256": "e16b3039e86a1d2db2237a383ca7999a78198bc05bb05a16e13fed14033bd7ba"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+          "method": "prepareRepairIfDrift",
+          "line": 934,
+          "evidence_type": "SOURCE_READ",
+          "fact": "FAILED域只有incompleteRows==0才重置completed；最终验证失败本身会使该条件不满足。",
+          "sha256": "7670f298b1333a7bc0d7f643e7b231c84544e2c1cc3381c6a5d9e0202f4cf162"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "CONFIRMED_BLOCKER",
+          "detail": "MAIN_INDEXES内CREATE INDEX普通失败被吞，单元可误标COMPLETED；最终MAIN_CHAIN校验FAILED后存在incomplete row，prepareRepairIfDrift不重置INDEXES，故去除外部故障也可能永久重试最终校验。"
+        },
+        {
+          "classification": "CONFIRMED_BLOCKER",
+          "detail": "运行期index helper也吞错误且audit只跟踪column/probe；未纳入最终合同的index丢失可被错误READY永久跳过。"
+        },
+        {
+          "classification": "NOT_RUN_THIS_REVIEW",
+          "detail": "当前Sliced新路径未完成真实旧库、实际进程kill及覆盖安装回滚/前滚验证；现有旧host无权替代Android结论。"
+        }
+      ],
+      "repair_UF": [
+        "UF02",
+        "UF03",
+        "UF04",
+        "UF19"
+      ],
+      "execution_status": "PROTOTYPE_MIGRATION_BLOCKED_REPAIR_REQUIRED",
+      "acceptance_to_close": [
+        "对每CREATE/ALTER/INDEX单独注入一次失败；失败unit不可COMPLETED/READY；撤去故障后自动推进且不人工删journal。",
+        "旧READY库真实缺必需column/index时重新审计并修复，保留原始行、BLOB、模型和证书根。",
+        "每unit开始/部分DDL后/完成前kill；真实代表性旧库及覆盖安装恢复单独出收据。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B12-C02"
+      ],
+      "title": "当前源码统一CI与迁移联测缺口",
+      "actual_implemented": [
+        "R31QDeliveryInstrumentedTest已有真实Android schema probe失败拒绝、旧READY新审计marker、迁移与关键写探针、完整报告provider回读、真实联网未来链测试入口。",
+        "run_r31q_android_delivery.sh按测试数及关键标志检查结果。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/androidTest/java/com/ethk3/novaonepro/R31QDeliveryInstrumentedTest.java",
+          "method": "firstSchemaProbeFailureStopsRemainingColumns",
+          "line": 32,
+          "evidence_type": "SOURCE_READ",
+          "fact": "首次失败后剩余column不执行。",
+          "sha256": "feb3ff0853de893cbef94a6b0bacd14a939dbc9887bde9a5d7cf27e63ed86d6f"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/androidTest/java/com/ethk3/novaonepro/R31QDeliveryInstrumentedTest.java",
+          "method": "oldReadyStampCannotSkipTheNewAuditedMigrationPass",
+          "line": 54,
+          "evidence_type": "SOURCE_READ",
+          "fact": "测试删除新receipt以模拟旧marker，但不制造真实缺列。",
+          "sha256": "feb3ff0853de893cbef94a6b0bacd14a939dbc9887bde9a5d7cf27e63ed86d6f"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/androidTest/java/com/ethk3/novaonepro/R31QDeliveryInstrumentedTest.java",
+          "method": "legacyMigrationResumesAndAllowsCriticalCommitsBetweenUnits",
+          "line": 89,
+          "evidence_type": "SOURCE_READ",
+          "fact": "只assert committed>0，during可为0；没有真实进程kill。",
+          "sha256": "feb3ff0853de893cbef94a6b0bacd14a939dbc9887bde9a5d7cf27e63ed86d6f"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/tools/r31/run_r31q_android_delivery.sh",
+          "method": "instrumentation result validation",
+          "line": 24,
+          "evidence_type": "SOURCE_READ",
+          "fact": "结果标志及测试数量检查存在。",
+          "sha256": "79ec3caaa5d9492eb02d82ead4eea9c244587085044e4e6ce40560f9d59b1f53"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "CONFIRMED_TEST_GAP",
+          "detail": "名为resumes的测试未kill/restart；允许现成READY数据库，WHILE_PENDING=0也能通过，不能证明迁移期间关键写实际前进。"
+        },
+        {
+          "classification": "CONFIRMED_TEST_GAP",
+          "detail": "旧READY测试只删除新日志，不能覆盖曾吞错导致真实缺column/index；probe测试用关闭数据库，不模拟真实busy/CREATE/INDEX失败。"
+        },
+        {
+          "classification": "NOT_RUN_THIS_REVIEW",
+          "detail": "本次只读审计未运行任何当前源码测试；已有测试入口不能记PASS。"
+        }
+      ],
+      "repair_UF": [
+        "UF03",
+        "UF04",
+        "UF18",
+        "UF19"
+      ],
+      "execution_status": "TEST_SOURCE_PRESENT_ACCEPTANCE_INCOMPLETE_NOT_RUN",
+      "acceptance_to_close": [
+        "强制pending fixture且during>0，断言每个长迁移期间关键写时限和完成进度。",
+        "加入真实锁忙、CREATE/INDEX失败、kill重启与大旧库覆盖；全部绑定实际编译source tree/hash，失败不得删断言。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B12-C03"
+      ],
+      "title": "24/72小时与真实设备范围",
+      "actual_implemented": [
+        "collect_device_receipts.py有collect/merge_windows/verify_scope；accept_device_receipts.py有evaluate_gate/write_verdict，具备按source/apk及窗口输出门结果的工具。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/tools/r31/collect_device_receipts.py",
+          "method": "collect / merge_windows / verify_scope",
+          "line": 72,
+          "evidence_type": "SOURCE_READ",
+          "fact": "采集/合窗/身份范围校验入口存在。",
+          "sha256": "7fa57489ff2d7f1dd0e05ac1107a596db10612b3993b18947e373d7ed8ac63f8"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/tools/r31/accept_device_receipts.py",
+          "method": "evaluate_gate / write_verdict",
+          "line": 37,
+          "evidence_type": "SOURCE_READ",
+          "fact": "门结果计算与输出入口存在。",
+          "sha256": "701053579c7bdea69e028eea6390aa79ace7b241b056f4a42e8a309b6db978f2"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "NOT_RUN_THIS_REVIEW",
+          "detail": "未执行当前源码目标手机24h/72h；快检、boot uptime、线程alive、旧时间戳均不能替代连续业务推进证据。"
+        },
+        {
+          "classification": "EVIDENCE_BOUNDARY",
+          "detail": "phone 577311020旧版本的运行反例应保留；不得自动转移成当前R31Q21验收结果，也不能将未知质量、未知训练推进写0/PASS。"
+        }
+      ],
+      "repair_UF": [
+        "UF12",
+        "UF19"
+      ],
+      "execution_status": "TOOLS_PRESENT_CURRENT_DEVICE_SOAK_NOT_RUN",
+      "acceptance_to_close": [
+        "目标手机按前台/熄屏/后台/断网恢复/清理器/force-stop分别记条件、缺口与source/apk/boot身份。",
+        "24/72h须实际累计，保留所有异常、未知、漏期和退出；五类业务水位与模型参数/cursor真实推进可复算。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B12-C04"
+      ],
+      "title": "受控退役与DbStore渐进拆分边界",
+      "actual_implemented": [
+        "DbHelper.dropAll已硬拒绝破坏性reset；原计划对DbStore方法选择明确为覆盖后另开精确卡，不授权整库重写。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+          "method": "dropAll",
+          "line": 6854,
+          "evidence_type": "SOURCE_READ",
+          "fact": "CP5_DESTRUCTIVE_RESET_RETIRED_USE_VERIFIED_RESTORE拒绝。",
+          "sha256": "e16b3039e86a1d2db2237a383ca7999a78198bc05bb05a16e13fed14033bd7ba"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/STARCORE_R31_FINAL_20261104/ledgers/cards.json",
+          "method": "R31-B12-C04",
+          "line": 1,
+          "evidence_type": "SOURCE_READ",
+          "fact": "DbStore目标选择DEFERRED_TARGET_SELECTION_AFTER_COVERAGE。",
+          "sha256": "5e7ca9e9d1ebdde75e1bc137d3a09dd403a45a3b041256a09e8e3cbb4ce9cb21"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "REVIEW_LIMIT",
+          "detail": "本审计未核验整份退役清单和动态SQL/反射消费者，不能确认B12-C04整体完成。",
+          "required_owner": "RETIREMENT_AUDIT"
+        },
+        {
+          "classification": "NOT_AUTHORIZED_BY_THIS_CARD",
+          "detail": "不得因DbStore大或schema迁移慢而删除旧方法/表、DROP keep、清空手机库过关。"
+        }
+      ],
+      "repair_UF": [
+        "UF02",
+        "UF03",
+        "UF19"
+      ],
+      "execution_status": "LIMITED_INTERFACE_REVIEW_NOT_FULL_CARD_ACCEPTANCE",
+      "acceptance_to_close": [
+        "每个退役对象必须有真实consumer/引用根/替代等价/恢复证据，方法提取逐方法立卡，原能力回归。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B12-C05"
+      ],
+      "title": "迁移修复与唯一成品身份交付",
+      "actual_implemented": [
+        "本次已定位同源码生产实现、测试入口和未闭环范围；未执行构建、签名、安装、打包或交付动作。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/STARCORE_R31_FINAL_20261104/ledgers/cards.json",
+          "method": "R31-B12-C05",
+          "line": 1,
+          "evidence_type": "SOURCE_READ",
+          "fact": "原卡要求source+plan+APK签名+设备收据+ZIP摘要闭包，工程与自然优势分栏。",
+          "sha256": "5e7ca9e9d1ebdde75e1bc137d3a09dd403a45a3b041256a09e8e3cbb4ce9cb21"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "NOT_RUN_THIS_REVIEW",
+          "detail": "当前工作树修改后的源码不能凭旧历史收据或已安装577311020旧APK认定完成；必须由release owner验证实际编译身份、同包名同签名递增版本。",
+          "required_owner": "RELEASE_AUDIT"
+        }
+      ],
+      "repair_UF": [
+        "UF18",
+        "UF19",
+        "UF20"
+      ],
+      "execution_status": "RELEASE_IDENTITY_ACCEPTANCE_NOT_RUN",
+      "acceptance_to_close": [
+        "修复后的同一源码树构建通过，APK内source/dirty/tree/plan摘要、签名、版本、覆盖安装和交付ZIP SHA互证。",
+        "没有实测的旧库恢复、24/72h及自然质量分别保持NOT_RUN/NOT_PROVEN。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B08-C01"
+      ],
+      "title": "矩阵按kind隔离依赖并持续推进",
+      "actual_implemented": [
+        "MatrixResearchR30R1已实际实现PRODUCED/WAITING_STUDENT/WAITING_SOURCE/INSUFFICIENT/INVALID；缺学生或非法数值只影响当前kind，SQLite完整性错误仍向上抛。",
+        "dependencyKeyR31含dataset/revision/kind/policy set/measured version/source commit；相同key已决定则跳过；非PRODUCED保留lastValidMatrixHash并标stale，不写全零替代。",
+        "RuntimeR27注册MatrixProductionTask并真实调用step；step每轮选一个未决定kind，提交状态/必要tensor后返回，后续slice继续下一个kind；source-only kind不要求population里有student。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+          "method": "produceR31 / dependencyKeyR31 / receiptR31",
+          "line": 25,
+          "evidence_type": "SOURCE_READ",
+          "fact": "状态与合法性判定、旧有效tensor保留；storage fault不被吞成INVALID。",
+          "sha256": "0b8acd11ee011e491d32b60166017ce99b88eac40a695f17bbba86caa49bb6a4"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+          "method": "step",
+          "line": 111,
+          "evidence_type": "SOURCE_READ",
+          "fact": "实际按kind产物和等待状态、同key跳过、source guard和RuntimeR27.submit。",
+          "sha256": "0b8acd11ee011e491d32b60166017ce99b88eac40a695f17bbba86caa49bb6a4"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "method": "constructor / MatrixProductionTask.step",
+          "line": 70,
+          "evidence_type": "SOURCE_READ",
+          "fact": "生产注册；635行委托MatrixResearchR30R1.step。",
+          "sha256": "ce0b7723ab1ba1c96e267fc319dc7a3cd186c4ef8ea2481b67ee90f91d579e53"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR30.java",
+          "method": "Definition / dependencyClassR31 / typedConsumers",
+          "line": 12,
+          "evidence_type": "SOURCE_READ",
+          "fact": "声明SOURCE_ONLY/STUDENT/EVIDENCE与跳过等待规则。",
+          "sha256": "f0c00876e882076d7c3da0e97444f26376969651a1e3cec5d2bd7085d38b5d5a"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "CONFIRMED_BOUNDARY",
+          "detail": "MatrixResearchR30R1.step:112仍以rt.evo/context为整个任务前置；没有evolution上下文时source-only同样DEPENDENCY(r27-evolution)，尚未彻底拆独立输入依赖。"
+        },
+        {
+          "classification": "CONFIRMED_DESIGN_LIMIT",
+          "detail": "kind决定状态与dependency key保存在r27_chart_cache而非独立typed状态表；这是生产实现而非helper-only，但清缓存后会重新决定，需要与UF16缓存生命周期合同核对。"
+        },
+        {
+          "classification": "NOT_RUN_THIS_REVIEW",
+          "detail": "未运行缺学生时source-only持续产出、依赖不变100次无重复等待、学生发布唤醒、NaN/维度/source修订等测试；不记PASS。"
+        }
+      ],
+      "repair_UF": [
+        "UF14",
+        "UF16"
+      ],
+      "execution_status": "SUBSTANTIAL_PRODUCTION_IMPLEMENTED_INDEPENDENT_INPUT_AND_ACCEPTANCE_UNCLOSED",
+      "acceptance_to_close": [
+        "缺学生但有合法SELECT输入：学生kind WAITING_STUDENT，号码位置/跨位flow仍产生合法tensor；没有evo时独立source生产策略明确。",
+        "同依赖100次不反复创建等待，源/学生变化才恢复；非法张量不覆盖旧有效值，报告明确旧源已过期。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B08-C02"
+      ],
+      "title": "typed研究来源到公式及真实消费链",
+      "actual_implemented": [
+        "ResearchContext.read直接读原r30r1_analysis_run/research_measure，严格SELECT、COMMITTED、dataset/revision/source/ABI及frame hash，不依赖图cache作为消费权威。",
+        "已有window/cross/molecule/position/fusion/校准/残差/动作等实际假设构造函数，annotate把source runs带入候选；RuntimeR27生产读取context，EvolutionLoop.stageResearchHypotheses与出生batch登记proposal。",
+        "ResearchStore.consume生产路径在同出生batch校验合法source、候选hash、实际BORN child并登记consume及source consumption measure；EvolutionLoop区分受研究影响出生与配对收益存活计数。",
+        "MatrixResearch及MatrixEvidence为tensor记录role、unit、axes、support、calendar span和关联/干预语义，tensor不直接授主链权限。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "method": "read / stage / annotate",
+          "line": 9,
+          "evidence_type": "SOURCE_READ",
+          "fact": "只读合法原始研究数据；stage守卫源身份并提交具体候选proposal。",
+          "sha256": "359e0cc15632260757d2a71c080241fdc7c716f0166d47630d7cf2204a134954"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "method": "EvolutionTask.step",
+          "line": 282,
+          "evidence_type": "SOURCE_READ",
+          "fact": "生产读取ResearchContext；295同batch调用stageResearchHypotheses。",
+          "sha256": "ce0b7723ab1ba1c96e267fc319dc7a3cd186c4ef8ea2481b67ee90f91d579e53"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+          "method": "currentSource / ready / consume",
+          "line": 96,
+          "evidence_type": "SOURCE_READ",
+          "fact": "原PRUNE_COMPONENT ready与同出生事务consume是真生产，不是只有命名consumer。",
+          "sha256": "85f4bb286cb570fb072bc8e6666cb38d7a65b94df838f1a010e0c4e58fe9d8bd"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+          "method": "stageResearchHypotheses / stepBirth / stepRecord",
+          "line": 88,
+          "evidence_type": "SOURCE_READ",
+          "fact": "source引用、researchInfluencedBirths及researchPairedGainSurvivors分栏。",
+          "sha256": "5470f71ab04f380337b75635c2c9019f7a3f7ea1332615bb502028f5e18c98ec"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+          "method": "build",
+          "line": 103,
+          "evidence_type": "SOURCE_READ",
+          "fact": "tensor来源语义及mainChainPermission=false。",
+          "sha256": "0b8acd11ee011e491d32b60166017ce99b88eac40a695f17bbba86caa49bb6a4"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "method": "recordUsageR31 / usagesR31 / withoutSourceRunR31",
+          "line": 38,
+          "evidence_type": "SOURCE_READ",
+          "fact": "新增usage/消融接口存在，但全main源码检索无getter/withoutSourceRun外部调用。",
+          "sha256": "359e0cc15632260757d2a71c080241fdc7c716f0166d47630d7cf2204a134954"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "CONFIRMED_PARTIAL_INTEGRATION",
+          "detail": "recordUsageR31记录在generation内List；usagesR31()全生产无外部读取，withoutSourceRunR31()全生产无调用。现有proposal→BORN消费链真实存在，但新增完整参数before/after、预算、实验级回执及同预算禁用sourceRun消融未证明接入。"
+        },
+        {
+          "classification": "CONFIRMED_SCOPE_LIMIT",
+          "detail": "ResearchStore.ready当前显式只路由PRUNE_COMPONENT；其他context假设通过stage/出生链实现，不能凭统一typedConsumers名字宣称每一数值产品动作合同均已满足。"
+        },
+        {
+          "classification": "NOT_RUN_THIS_REVIEW",
+          "detail": "未执行逐source raw→run→proposal→child→配对结果反查、删UI缓存不影响权威、source修订拒绝和同预算消融；不声称研究提高胜率。"
+        }
+      ],
+      "repair_UF": [
+        "UF14",
+        "UF16",
+        "UF13"
+      ],
+      "execution_status": "REAL_SOURCE_TO_BIRTH_PATH_PRESENT_FULL_ACTION_RECEIPTS_AND_ABLATION_UNCLOSED",
+      "acceptance_to_close": [
+        "逐允许矩阵/研究处方证明原始源、具体结构/参数变化、child hash与同事务回执；未改变结构不计有效消费。",
+        "禁用指定sourceRun与启用在同预算下可重算；独立样本按唯一日历事件计数，复用消费者不放大n。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B08-C03"
+      ],
+      "title": "配对子树、家族及融合研究协议",
+      "actual_implemented": [
+        "RuntimeR27真实注册ResearchStudyTask并委托ResearchStudyTaskR30R1.step；每代轮转8父代，避免永久只研究排序前8。",
+        "组件清单显式标SUPPORTED/UNSUPPORTED_PAIR；MASK_FROZEN与RETRAIN_REMOVED分别执行、分别保存protocol/effect，只有RETRAIN_REMOVED进入paired→proposal路径。",
+        "PairedReplayRunner约束SELECT及窗口、每片≤256样本、两边bias/state分离；snapshot/restore保存并验证两边状态、cursor、contract、counterfactual及hash。",
+        "ResearchGain按唯一日历期和固定完整块给DESCRIPTIVE区间，支持不足保持未知，拒绝直接认证。",
+        "生产step已有实际typed checkpoint双写：优先读analysis_run、兼容旧cache，同batch写typed run与cache并guard source revision。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "method": "constructor / ResearchStudyTask.step",
+          "line": 70,
+          "evidence_type": "SOURCE_READ",
+          "fact": "629-631实际委托Study.step，非helper-only。",
+          "sha256": "ce0b7723ab1ba1c96e267fc319dc7a3cd186c4ef8ea2481b67ee90f91d579e53"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java",
+          "method": "rotationR31 / componentsR31 / step",
+          "line": 17,
+          "evidence_type": "SOURCE_READ",
+          "fact": "轮转、显式不支持、两个协议和实际typed双写。",
+          "sha256": "3ee245fed3d42f5175129e995f7379a8de6e5b73c8959b48744fdd2698dcb793"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedReplayRunnerR30R1.java",
+          "method": "arm / advance / snapshot / restore",
+          "line": 19,
+          "evidence_type": "SOURCE_READ",
+          "fact": "SELECT配对与两侧状态恢复。",
+          "sha256": "af88904d39d7dbe0466d9f79c5c662349821b5131b86d54cf8767ab44129b383"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGainR30R1.java",
+          "method": "add / estimate / blocks / critical95",
+          "line": 17,
+          "evidence_type": "SOURCE_READ",
+          "fact": "唯一日历分块描述性区间，认证拒绝。",
+          "sha256": "51b22835f43cfab5a835a9773d7ba44ba9f12b87f61ffd9420afa56656743e2d"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyCheckpointR31.java",
+          "method": "Authority / migrate / put / get",
+          "line": 13,
+          "evidence_type": "SOURCE_READ",
+          "fact": "通用迁移helper存在；全生产源码未见外部调用，不能代替生产step已有typed双写或声称持久切权完成。",
+          "sha256": "ae7c49274035d4ea9d7afeedb3b0d467560d8f6113eea7cc06bb41ba9c136acf"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "CONFIRMED_UNIMPLEMENTED_CAPABILITY",
+          "detail": "componentsR31:19仅root/0、root/1；family、selector、calibrator在24-26明确UNSUPPORTED_PAIR，未见fusion成员adapter。诚实标边界已实现，但原卡扩展family/fusion/selector/calibrator能力未完整实现。"
+        },
+        {
+          "classification": "CONFIRMED_HELPER_ONLY",
+          "detail": "ResearchStudyCheckpointR31无生产外部调用；其通用迁移/authority helper不能当生产持久迁移完成收据。实际Study.step另有typed双写，不能误写checkpoint完全未迁。"
+        },
+        {
+          "classification": "NOT_RUN_THIS_REVIEW",
+          "detail": "未测清cache前迁移覆盖、中断恢复两侧参数等价、protocol分栏及持续覆盖；不记PASS。"
+        }
+      ],
+      "repair_UF": [
+        "UF14",
+        "UF16"
+      ],
+      "execution_status": "PARTIAL_PRODUCTION_IMPLEMENTED_ADAPTERS_AND_MIGRATION_ACCEPTANCE_UNCLOSED",
+      "acceptance_to_close": [
+        "对family/fusion/selector/calibrator实现语义正确adapter或明确列未实施；扩展不得删unsupported防线强行跑。",
+        "逐kill切点恢复with/without模型、bias、cursor一致；MASK与RETRAIN结论分栏，描述性区间不能获得CERTIFIED。",
+        "切换typed权威前按dataset/revision/protocol/parent/component证明迁移覆盖和数值hash相等，之后才清旧cache。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B08-C04"
+      ],
+      "title": "研究产物与消费的可验证数值合同",
+      "actual_implemented": [
+        "ResearchGraphSpecs已为18视图接共享measure枚举、role、producerVersion、consumerKind和required receipts；R11/R14/R18明确FORMAL_READ_ONLY。",
+        "ResearchResultContractR31实现ProductState、身份校验、行动receipt字段、TRAIN/SELECT限定、late label/parent/ABI/revision/重复consume/无实际变化拒绝及同预算effectiveness判定。",
+        "ResearchObservatory生产已由RuntimeR27注册，product真实写原始analysis_run/research_measure和可重建chart投影；正式只读视图不授主链权限。",
+        "原ResearchStore PRUNE及context→出生消费链实际存在，不能误写全部消费者都未实现。"
+      ],
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java",
+          "method": "Spec / ALL",
+          "line": 7,
+          "evidence_type": "SOURCE_READ",
+          "fact": "18视图角色及required receipt元数据接线。",
+          "sha256": "7be0a7aa789ceb70323c006c2e481066176e4a2a0919c0db13a530c955cf3d87"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+          "method": "Result / validateIdentity / validateForConsumption / effectiveness",
+          "line": 34,
+          "evidence_type": "SOURCE_READ",
+          "fact": "数值动作合同helper的校验逻辑存在。",
+          "sha256": "dabcbd6e19d43286fff6846a248b164eb847e7c4c749a9c0ab86368e77feeb8b"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "method": "product / step",
+          "line": 72,
+          "evidence_type": "SOURCE_READ",
+          "fact": "真实生产Batch仍用ResearchContractR30R1和原始payload，不构造Result；step整体依赖rt.evo。",
+          "sha256": "aad89f2c94c63e88354bffc2226aa16000296708e1a0c203b9292fbd645230da"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "method": "constructor / ObservatoryTask.step",
+          "line": 70,
+          "evidence_type": "SOURCE_READ",
+          "fact": "真实ObservatoryTask注册与step委托。",
+          "sha256": "ce0b7723ab1ba1c96e267fc319dc7a3cd186c4ef8ea2481b67ee90f91d579e53"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+          "method": "consume",
+          "line": 112,
+          "evidence_type": "SOURCE_READ",
+          "fact": "原出生事务实际消费检查；未调用新的validateForConsumption。",
+          "sha256": "85f4bb286cb570fb072bc8e6666cb38d7a65b94df838f1a010e0c4e58fe9d8bd"
+        }
+      ],
+      "unclosed_gap": [
+        {
+          "classification": "CONFIRMED_HELPER_ONLY_BLOCKER",
+          "detail": "全app/src/main/java检索validateForConsumption只命中其定义；未见new ResearchResultContractR31.Result或effectiveness生产调用。现有Spec对该类仅引用枚举/required字段/consumptionKind元数据。新统一数值合同未成为生产消费闸门。"
+        },
+        {
+          "classification": "CONFIRMED_PARTIAL_INTEGRATION",
+          "detail": "Observatory.step:78仍整体要求rt.evo；缺独立演化上下文时所有图都等待，未完全拆为每产品最小输入依赖。现有数值计算/原件生产真实存在。"
+        },
+        {
+          "classification": "NOT_RUN_THIS_REVIEW",
+          "detail": "未逐R01/02/03/04/07/08/09/10/12/13/15/16/17验证实际consumer动作及10类receipt、错误角色/ABI/revision/parent/late label拒绝和同预算消融；源码helper测试不能代替生产闭环。"
+        }
+      ],
+      "repair_UF": [
+        "UF14",
+        "UF16",
+        "UF13"
+      ],
+      "execution_status": "PRODUCERS_AND_METADATA_LIVE_UNIFIED_ACTION_VALIDATION_HELPER_ONLY",
+      "acceptance_to_close": [
+        "把统一合同或等价逐字段强校验接在每允许动作的真实出生/模型发布事务；错误身份/late label/重复消费全部拒绝且无半成品。",
+        "每数值输入用有信号fixture证明consumer具体产物hash变化；空信号可合法无产物，正式只读R11/R14/R18保持NOT_APPLICABLE_OPTIMIZATION。",
+        "同预算禁用数值输入消融证明才标effective；开发描述性正区间不能冒充确认或未来收益。"
+      ]
+    }
+  ]
+}

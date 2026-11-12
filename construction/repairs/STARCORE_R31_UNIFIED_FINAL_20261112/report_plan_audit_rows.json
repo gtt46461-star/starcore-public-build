@@ -1,0 +1,1337 @@
+{
+  "format": "R31_4_REPORT_STORAGE_EXPORT_CARD_AUDIT_V1",
+  "generated_at_utc": "2026-11-12T14:12:29.498916+00:00",
+  "repo": "/workspace/scratch/c8b09bfb741e/starcore",
+  "reviewed_head": "19287895311212937bc114f9de0c0151d9ec86fd",
+  "reviewed_worktree": "Existing staged/unstaged changes included; read-only audit; no build/test/push/production source modification performed by this subtask.",
+  "plan_scope": "R31.4-MERGED-11-20261107, original B05(11), B11(4), B12(5)",
+  "interpretation_rules": [
+    "当前仅静态源审，所有current tests/Android/device均NOT_RUN。",
+    "历史receipt内PASS仅作为历史claim原文保留，不升级成本次PASS。",
+    "SOURCE_NOT_AUDITED不等于未实现；HELPERS_IMPLEMENTED不等于生产链已接齐。",
+    "确认的控制流与推导的运行后果分开；本次没有Android故障复现。",
+    "报告结构/证据/执行完整性与allChecksPassed/自然预测质量分层。"
+  ],
+  "uf_source": "/workspace/scratch/c8b09bfb741e/starcore/construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/REPAIR_CARDS_20.json",
+  "rows": [
+    {
+      "card_ids": [
+        "R31-B05-C01"
+      ],
+      "title": "连续存储普查与准确口径",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K04/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K04",
+        "closed_commit": "93aa8b1e6f0b451effeb2f6267a19bba3ceb23ea",
+        "build_source_head": "958fbb7172ffe100971eef352df627dc5536cc6f",
+        "closed_at": "2026-11-07T12:11:37.114089+00:00",
+        "recorded_local_items": {
+          "R31-B05-C01#A1": "PASS",
+          "R31-B05-C01#A2": "PASS",
+          "R31-B05-C01#A3": "PASS"
+        },
+        "recorded_deferred_items": {},
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "IMPLEMENTED_PARTIAL_REOPEN",
+      "audit_scope": "REPORT_STORAGE_EXPORT",
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/StorageLedgerR31.java",
+          "line": 11,
+          "method": "POINTS/HOURS/INTERVAL_MS",
+          "source_fact": "固定288点和720小时槽"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/StorageLedgerR31.java",
+          "line": 17,
+          "method": "sample",
+          "source_fact": "measure后调用StorageBudget.snapshot"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/StorageLedgerR31.java",
+          "line": 54,
+          "method": "Point.map",
+          "source_fact": "protectedBytes/reclaimableBytes=null，scope=INTERVAL_NOT_ATOMIC_SNAPSHOT"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+          "line": 179,
+          "method": "snapshot",
+          "source_fact": "locked回调内部调用StorageCensus.measure"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "line": 389,
+          "method": "drain finally",
+          "source_fact": "owner释放后强制sampleIfDue"
+        }
+      ],
+      "actual_implemented_behavior": [
+        "已有固定类别目录普查，常规文件长度与分配块独立记录；有288个五分钟点与720小时槽。",
+        "报告准入和owner释放后均调用强制采样，采样回执标注非原子观测及磁盘并非内存。"
+      ],
+      "concrete_unclosed_gap": [
+        "StorageBudget.snapshot仍在全局准入锁内做目录普查；StorageLedger.sample先普查，再调用snapshot重复普查。五秒仅约束获取锁，未限制持锁测量耗时。",
+        "protected/reclaimable仍明确为null；此处应保持UNKNOWN，不能据历史关门宣称所有owner长期增长和回收债务已现场验证。"
+      ],
+      "inferred_runtime_consequences": [],
+      "repair_uf_ids": [
+        "UF05",
+        "UF19"
+      ],
+      "verification_status": {
+        "current_source_review": "READ_ONLY_STATIC_REVIEW",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "慢目录/大目录测量不长占全局准入锁；过期或不完整测量显示明确状态。",
+        "同一路径导出前/峰值/清理后分类和总量可核对；真机时长证据另列。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B05-C02"
+      ],
+      "title": "所有增长来源写前预算准入",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K04/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K04",
+        "closed_commit": "93aa8b1e6f0b451effeb2f6267a19bba3ceb23ea",
+        "build_source_head": "958fbb7172ffe100971eef352df627dc5536cc6f",
+        "closed_at": "2026-11-07T12:11:37.114089+00:00",
+        "recorded_local_items": {
+          "R31-B05-C02#A1": "PASS",
+          "R31-B05-C02#A2a": "PASS",
+          "R31-B05-C02#A3": "PASS"
+        },
+        "recorded_deferred_items": {
+          "R31-B05-C02#A2b": "NOT_RUN"
+        },
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "IMPLEMENTED_PARTIAL_REOPEN",
+      "audit_scope": "REPORT_STORAGE_EXPORT",
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+          "line": 66,
+          "method": "locked",
+          "source_fact": "JVM锁及OS锁共享五秒单调期限"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+          "line": 94,
+          "method": "reserve",
+          "source_fact": "recoverWithin与measure都在lockedContext中"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+          "line": 124,
+          "method": "Reservation.beforeChunk",
+          "source_fact": "写前持久计费与free floor"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportIoR31.java",
+          "line": 66,
+          "method": "beforeAtomic",
+          "source_fact": "元数据独立reserve同一StorageBudget"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "line": 164,
+          "method": "requestFailure",
+          "source_fact": "本进程fallback后尝试同一admission的full/minimal ACK"
+        }
+      ],
+      "actual_implemented_behavior": [
+        "已有跨PID OS锁、持久ledger、活跃owner lifetime lease、scope排他、写前beforeChunk与实际停止后finish/recovery。",
+        "新增单一monotonic五秒获取锁期限与中断保留，没有无锁写入。"
+      ],
+      "concrete_unclosed_gap": [
+        "锁内reserve/recover/ensureAdditional/snapshot执行目录普查或scope遍历，获取等待有界不等于临界区耗时有界。",
+        "REPORT请求可选观察文件与失败ACK仍依赖同一bulk admission，争用超过期限时请求和失败回执同时失败。",
+        "全部增长源接入属于卡要求；此次仅审报告路径，未验证所有DB/CAS/checkpoint/cache/log生产写路径覆盖，不得记全面完成。"
+      ],
+      "inferred_runtime_consequences": [
+        "静态控制流推断（本次未复现）：目录测量持锁超过五秒时，别的进程写者可收到COORDINATOR_BUSY；同锁ACK可能同时失败。"
+      ],
+      "repair_uf_ids": [
+        "UF05",
+        "UF06",
+        "UF08"
+      ],
+      "verification_status": {
+        "current_source_review": "READ_ONLY_STATIC_REVIEW",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "独立PID锁短暂争用后同请求推进；长期争用产生持久可重试状态且无丢失。",
+        "控制记录使用已计账、有容量界的预留通道，禁止绕开预算。",
+        "全部写者登记矩阵+拒绝/取消/死进程恢复故障回归。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B05-C03"
+      ],
+      "title": "报告当前作业清理闭环与全物理配额",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K04/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K04",
+        "closed_commit": "93aa8b1e6f0b451effeb2f6267a19bba3ceb23ea",
+        "build_source_head": "958fbb7172ffe100971eef352df627dc5536cc6f",
+        "closed_at": "2026-11-07T12:11:37.114089+00:00",
+        "recorded_local_items": {
+          "R31-B05-C03#A1": "PASS",
+          "R31-B05-C03#A2": "PASS",
+          "R31-B05-C03#A3": "PASS"
+        },
+        "recorded_deferred_items": {},
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "IMPLEMENTED_PARTIAL_REOPEN",
+      "audit_scope": "REPORT_STORAGE_EXPORT",
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportCleanupR31.java",
+          "line": 30,
+          "method": "runDue",
+          "source_fact": "每轮maximum<=4、输入关闭校验、失败持久defer"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+          "line": 245,
+          "method": "pruneRequestMetadata",
+          "source_fact": "先删request/ack，再在251-254尝试generated目录退休"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
+          "line": 73,
+          "method": "retirableRecovery",
+          "source_fact": "必须读取现存ACK并验证发布闭包"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+          "line": 114,
+          "method": "latestFullReport",
+          "source_fact": "逐目录parse无条目级隔离"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+          "line": 128,
+          "method": "create",
+          "source_fact": "directory(j)先创建目录后writeAtomic job"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
+          "line": 67,
+          "method": "abandoned",
+          "source_fact": "固定false保留不明原件"
+        }
+      ],
+      "actual_implemented_behavior": [
+        "已有发布后独立cleanup记录、有界每轮处理数量、指数退避、公开ZIP覆盖验证及读者锁保护；全物理量与delivery量分开。"
+      ],
+      "concrete_unclosed_gap": [
+        "pruneRequestMetadata先删request和ACK，随后才尝试删除读者保护的recovery/saf-parts；若被读者阻挡，后续retirableRecovery又依赖已删ACK，残留失去可发现的退休依据。",
+        "latestFullReport遇任一无效job.json直接中止；create先建目录再写journal，崩溃孤儿可遮住有效报告；abandoned始终false无法自动消除此障碍。"
+      ],
+      "inferred_runtime_consequences": [
+        "静态控制流推断（本次未复现）：reader阻挡退休且ACK先删时，残留可能永久不被自动退休；无关崩溃孤儿可能遮住本可取回的READY报告。"
+      ],
+      "repair_uf_ids": [
+        "UF09"
+      ],
+      "verification_status": {
+        "current_source_review": "READ_ONLY_STATIC_REVIEW",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "持有reader跨expiry，关闭后再次cleanup可退役原目录，且保留可发现墓碑直至完成。",
+        "有效READY报告旁放孤儿/损坏无关任务：保留原件并告警，仍取回有效报告。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B05-C04"
+      ],
+      "title": "keep保护机制迁为有界证据生命周期",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K09/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K09",
+        "closed_commit": "5ef475bb731d31c20d17129ed2f37da6b3669dfd",
+        "build_source_head": "4246c5f4149443fdcadadbf5695690508b4cb423",
+        "closed_at": "2026-11-08T04:03:28.210652+00:00",
+        "recorded_local_items": {
+          "R31-B05-C04#A1": "PASS",
+          "R31-B05-C04#A2": "PASS",
+          "R31-B05-C04#A3": "PASS"
+        },
+        "recorded_deferred_items": {},
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "NOT_AUDITED_IN_REPORT_SUBTASK",
+      "audit_scope": "OUTSIDE_THIS_SUBTASK",
+      "source_evidence": [],
+      "actual_implemented_behavior": [],
+      "concrete_unclosed_gap": [
+        "本子审阅未逐方法核验此卡生产链与历史测试原件；不据文件存在或历史LOCAL收据裁定当前完成，也不据未审判定未实现。"
+      ],
+      "inferred_runtime_consequences": [],
+      "repair_uf_ids": [],
+      "verification_status": {
+        "current_source_review": "NOT_AUDITED_IN_THIS_REPORT_SUBTASK",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "由对应生命周期/GC/WAL/备份专项源审补生产入口、故障验收与当前证据；此行禁止标PASS。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B05-C05"
+      ],
+      "title": "有效资产根引用闭包GC",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K09/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K09",
+        "closed_commit": "5ef475bb731d31c20d17129ed2f37da6b3669dfd",
+        "build_source_head": "4246c5f4149443fdcadadbf5695690508b4cb423",
+        "closed_at": "2026-11-08T04:03:28.210652+00:00",
+        "recorded_local_items": {
+          "R31-B05-C05#A1": "PASS",
+          "R31-B05-C05#A2": "PASS",
+          "R31-B05-C05#A3": "PASS"
+        },
+        "recorded_deferred_items": {},
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "NOT_AUDITED_IN_REPORT_SUBTASK",
+      "audit_scope": "OUTSIDE_THIS_SUBTASK",
+      "source_evidence": [],
+      "actual_implemented_behavior": [],
+      "concrete_unclosed_gap": [
+        "本子审阅未逐方法核验此卡生产链与历史测试原件；不据文件存在或历史LOCAL收据裁定当前完成，也不据未审判定未实现。"
+      ],
+      "inferred_runtime_consequences": [],
+      "repair_uf_ids": [],
+      "verification_status": {
+        "current_source_review": "NOT_AUDITED_IN_THIS_REPORT_SUBTASK",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "由对应生命周期/GC/WAL/备份专项源审补生产入口、故障验收与当前证据；此行禁止标PASS。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B05-C06"
+      ],
+      "title": "CAS归档STALE_PAGE有界恢复",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K09/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K09",
+        "closed_commit": "5ef475bb731d31c20d17129ed2f37da6b3669dfd",
+        "build_source_head": "4246c5f4149443fdcadadbf5695690508b4cb423",
+        "closed_at": "2026-11-08T04:03:28.210652+00:00",
+        "recorded_local_items": {
+          "R31-B05-C06#A1": "PASS",
+          "R31-B05-C06#A2": "PASS",
+          "R31-B05-C06#A3": "PASS"
+        },
+        "recorded_deferred_items": {},
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "NOT_AUDITED_IN_REPORT_SUBTASK",
+      "audit_scope": "OUTSIDE_THIS_SUBTASK",
+      "source_evidence": [],
+      "actual_implemented_behavior": [],
+      "concrete_unclosed_gap": [
+        "本子审阅未逐方法核验此卡生产链与历史测试原件；不据文件存在或历史LOCAL收据裁定当前完成，也不据未审判定未实现。"
+      ],
+      "inferred_runtime_consequences": [],
+      "repair_uf_ids": [],
+      "verification_status": {
+        "current_source_review": "NOT_AUDITED_IN_THIS_REPORT_SUBTASK",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "由对应生命周期/GC/WAL/备份专项源审补生产入口、故障验收与当前证据；此行禁止标PASS。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B05-C07"
+      ],
+      "title": "事件、revision与高基数诊断表有界化",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K09/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K09",
+        "closed_commit": "5ef475bb731d31c20d17129ed2f37da6b3669dfd",
+        "build_source_head": "4246c5f4149443fdcadadbf5695690508b4cb423",
+        "closed_at": "2026-11-08T04:03:28.210652+00:00",
+        "recorded_local_items": {
+          "R31-B05-C07#A1": "PASS",
+          "R31-B05-C07#A2": "PASS",
+          "R31-B05-C07#A3a": "PASS"
+        },
+        "recorded_deferred_items": {
+          "R31-B05-C07#A3b": "NOT_RUN"
+        },
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "NOT_AUDITED_IN_REPORT_SUBTASK",
+      "audit_scope": "OUTSIDE_THIS_SUBTASK",
+      "source_evidence": [],
+      "actual_implemented_behavior": [],
+      "concrete_unclosed_gap": [
+        "本子审阅未逐方法核验此卡生产链与历史测试原件；不据文件存在或历史LOCAL收据裁定当前完成，也不据未审判定未实现。"
+      ],
+      "inferred_runtime_consequences": [],
+      "repair_uf_ids": [],
+      "verification_status": {
+        "current_source_review": "NOT_AUDITED_IN_THIS_REPORT_SUBTASK",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "由对应生命周期/GC/WAL/备份专项源审补生产入口、故障验收与当前证据；此行禁止标PASS。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B05-C08"
+      ],
+      "title": "业务混用chart cache先迁权威再清理",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K09/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K09",
+        "closed_commit": "5ef475bb731d31c20d17129ed2f37da6b3669dfd",
+        "build_source_head": "4246c5f4149443fdcadadbf5695690508b4cb423",
+        "closed_at": "2026-11-08T04:03:28.210652+00:00",
+        "recorded_local_items": {
+          "R31-B05-C08#A1": "PASS",
+          "R31-B05-C08#A2": "PASS",
+          "R31-B05-C08#A3": "PASS"
+        },
+        "recorded_deferred_items": {},
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "NOT_AUDITED_IN_REPORT_SUBTASK",
+      "audit_scope": "OUTSIDE_THIS_SUBTASK",
+      "source_evidence": [],
+      "actual_implemented_behavior": [],
+      "concrete_unclosed_gap": [
+        "本子审阅未逐方法核验此卡生产链与历史测试原件；不据文件存在或历史LOCAL收据裁定当前完成，也不据未审判定未实现。"
+      ],
+      "inferred_runtime_consequences": [],
+      "repair_uf_ids": [],
+      "verification_status": {
+        "current_source_review": "NOT_AUDITED_IN_THIS_REPORT_SUBTASK",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "由对应生命周期/GC/WAL/备份专项源审补生产入口、故障验收与当前证据；此行禁止标PASS。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B05-C09"
+      ],
+      "title": "WAL与可重用页回收不阻塞实时链",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K09/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K09",
+        "closed_commit": "5ef475bb731d31c20d17129ed2f37da6b3669dfd",
+        "build_source_head": "4246c5f4149443fdcadadbf5695690508b4cb423",
+        "closed_at": "2026-11-08T04:03:28.210652+00:00",
+        "recorded_local_items": {
+          "R31-B05-C09#A1": "PASS",
+          "R31-B05-C09#A2a": "PASS",
+          "R31-B05-C09#A3": "PASS"
+        },
+        "recorded_deferred_items": {
+          "R31-B05-C09#A2b": "NOT_RUN"
+        },
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "NOT_AUDITED_IN_REPORT_SUBTASK",
+      "audit_scope": "OUTSIDE_THIS_SUBTASK",
+      "source_evidence": [],
+      "actual_implemented_behavior": [],
+      "concrete_unclosed_gap": [
+        "本子审阅未逐方法核验此卡生产链与历史测试原件；不据文件存在或历史LOCAL收据裁定当前完成，也不据未审判定未实现。"
+      ],
+      "inferred_runtime_consequences": [],
+      "repair_uf_ids": [
+        "UF04",
+        "UF19"
+      ],
+      "verification_status": {
+        "current_source_review": "NOT_AUDITED_IN_THIS_REPORT_SUBTASK",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "由对应生命周期/GC/WAL/备份专项源审补生产入口、故障验收与当前证据；此行禁止标PASS。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B05-C10"
+      ],
+      "title": "旧库重建与备份删除恢复证明",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K09/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K09",
+        "closed_commit": "5ef475bb731d31c20d17129ed2f37da6b3669dfd",
+        "build_source_head": "4246c5f4149443fdcadadbf5695690508b4cb423",
+        "closed_at": "2026-11-08T04:03:28.210652+00:00",
+        "recorded_local_items": {
+          "R31-B05-C10#A1": "PASS",
+          "R31-B05-C10#A2": "PASS",
+          "R31-B05-C10#A3": "PASS"
+        },
+        "recorded_deferred_items": {},
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "NOT_AUDITED_IN_REPORT_SUBTASK",
+      "audit_scope": "OUTSIDE_THIS_SUBTASK",
+      "source_evidence": [],
+      "actual_implemented_behavior": [],
+      "concrete_unclosed_gap": [
+        "本子审阅未逐方法核验此卡生产链与历史测试原件；不据文件存在或历史LOCAL收据裁定当前完成，也不据未审判定未实现。"
+      ],
+      "inferred_runtime_consequences": [],
+      "repair_uf_ids": [],
+      "verification_status": {
+        "current_source_review": "NOT_AUDITED_IN_THIS_REPORT_SUBTASK",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "由对应生命周期/GC/WAL/备份专项源审补生产入口、故障验收与当前证据；此行禁止标PASS。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B05-C11"
+      ],
+      "title": "Java堆/native/PSS与缓存队列有界治理",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K04/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K04",
+        "closed_commit": "93aa8b1e6f0b451effeb2f6267a19bba3ceb23ea",
+        "build_source_head": "958fbb7172ffe100971eef352df627dc5536cc6f",
+        "closed_at": "2026-11-07T12:11:37.114089+00:00",
+        "recorded_local_items": {
+          "R31-B05-C11#A1": "PASS",
+          "R31-B05-C11#A2": "PASS",
+          "R31-B05-C11#A3a": "PASS",
+          "R31-B05-C11#A4": "PASS",
+          "R31-B05-C11#A5a": "PASS"
+        },
+        "recorded_deferred_items": {
+          "R31-B05-C11#A3b": "NOT_RUN",
+          "R31-B05-C11#A5b": "NOT_RUN",
+          "R31-B05-C11#A6": "NOT_RUN"
+        },
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "PARTIALLY_AUDITED_IMPLEMENTED_PARTIAL_REOPEN",
+      "audit_scope": "REPORT_STORAGE_EXPORT",
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "line": 24,
+          "method": "REQUESTS",
+          "source_fact": "1worker、ArrayBlockingQueue(2)"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+          "line": 195,
+          "method": "OBSERVERS_R31Q",
+          "source_fact": "max2、SynchronousQueue、AbortPolicy"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+          "line": 212,
+          "method": "collectObservation",
+          "source_fact": "五秒timeout后cancel但不假装线程终止"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportRequestStatusR31.java",
+          "line": 9,
+          "method": "FAILURES",
+          "source_fact": "16条，单条4096字符"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/androidTest/java/com/ethk3/novaonepro/R31QDeliveryInstrumentedTest.java",
+          "line": 71,
+          "method": "blockedOptionalObserversStayBoundedAndDoNotBlockTheNextRequest",
+          "source_fact": "测试实际释放在finally，没有非合作超时reader"
+        }
+      ],
+      "actual_implemented_behavior": [
+        "报告REQUESTS队列为单worker+2排队；可选observer最多2个实际worker且无排队，超时后若未退出仍占slot。",
+        "快速诊断reader池最多3个worker；本地失败fallback最多16个4096字符原因。"
+      ],
+      "concrete_unclosed_gap": [
+        "当前Android observer测试仅在容量饱和时发12个额外调用，finally随即释放阻塞任务，未覆盖超时后忽略interrupt的真实线程。",
+        "生产report request仍在可选采样之后才durable enqueue，进程死亡或其输出写失败仍可失去请求。",
+        "此行仅审报告/诊断的资源边界，未重审ResearchPool、写队列、图表、模型全部内存卡范围。"
+      ],
+      "inferred_runtime_consequences": [],
+      "repair_uf_ids": [
+        "UF05",
+        "UF06",
+        "UF09"
+      ],
+      "verification_status": {
+        "current_source_review": "READ_ONLY_STATIC_REVIEW",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "阻塞observer忽略interrupt，超时后反复请求仍最多2worker；完整snapshot/交付不被可选reader阻死。",
+        "单独验证快速诊断三reader与重复Activity操作，无无限owner增长。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B11-C01"
+      ],
+      "title": "逐项接齐44指标及设备证据导入",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K10/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K10",
+        "closed_commit": "f4a2d0e52d2db6135dc33ef262499baaeb6d88ec",
+        "build_source_head": "64058996c0d715de5f70da3e693042ac5932c4aa",
+        "closed_at": "2026-11-08T05:25:33.331319+00:00",
+        "recorded_local_items": {
+          "R31-B11-C01#A1": "PASS",
+          "R31-B11-C01#A2": "PASS",
+          "R31-B11-C01#A3": "PASS",
+          "R31-B11-C01#A4": "PASS"
+        },
+        "recorded_deferred_items": {},
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "HELPERS_IMPLEMENTED_PRODUCTION_WIRING_NOT_CLOSED",
+      "audit_scope": "REPORT_STORAGE_EXPORT",
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricDefinitionsR29.java",
+          "line": 20,
+          "method": "r31Definitions",
+          "source_fact": "新版owner/窗口/最小样本/检查映射定义已存在"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+          "line": 173,
+          "method": "evaluateR31",
+          "source_fact": "独立helper按receiptHash形状和caller值判断"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+          "line": 198,
+          "method": "crossSourceR31",
+          "source_fact": "独立helper区分同scope冲突与watermark差异"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+          "line": 182,
+          "method": "R30Input constructor",
+          "source_fact": "生产输入仍evaluateR30(this)"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+          "line": 119,
+          "method": "currentMeasurement case M32",
+          "source_fact": "仍observed(r,0,0,44,44,...)"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "line": 325,
+          "method": "drain report chapters",
+          "source_fact": "调用ReportR29.chapters(copy,r30Source,cancellation)"
+        }
+      ],
+      "actual_implemented_behavior": [
+        "已有R31版本指标定义、receipt形状MeasurementR31、R31 evaluator及同scope/watermark跨源比较helper。",
+        "完整报告当前仍建立R30Input并执行evaluateR30；新helper的存在不等于生产指标已切换。"
+      ],
+      "concrete_unclosed_gap": [
+        "R30Input构造器仍调用evaluateR30；其M32仍写observed 0。evaluateR31/crossSourceR31生产搜索只有定义，未接capture导出链。",
+        "R31 evaluator仅接收caller传入receiptHash/value/met；实际测量源、内容hash/身份/窗口/角色验证必须由生产采集链闭合，不能以64hex字符串视已验真。"
+      ],
+      "inferred_runtime_consequences": [],
+      "repair_uf_ids": [
+        "UF10"
+      ],
+      "verification_status": {
+        "current_source_review": "READ_ONLY_STATIC_REVIEW",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "从真实Service导出的ZIP解析44项R31版本及原始receipt引用，每项缺失/失败/不足/成功可追到源。",
+        "同watermark故意冲突应显示冲突数>0；不同scope不得当矛盾，也不得固定0。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B11-C02"
+      ],
+      "title": "报告区分已存在、已运行、已消费与有效",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K10/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K10",
+        "closed_commit": "f4a2d0e52d2db6135dc33ef262499baaeb6d88ec",
+        "build_source_head": "64058996c0d715de5f70da3e693042ac5932c4aa",
+        "closed_at": "2026-11-08T05:25:33.331319+00:00",
+        "recorded_local_items": {
+          "R31-B11-C02#A1": "PASS",
+          "R31-B11-C02#A2": "PASS",
+          "R31-B11-C02#A3": "PASS"
+        },
+        "recorded_deferred_items": {},
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "HELPERS_IMPLEMENTED_PRODUCTION_WIRING_NOT_CLOSED",
+      "audit_scope": "REPORT_STORAGE_EXPORT",
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "line": 97,
+          "method": "capture",
+          "source_fact": "data.objectIndex=ReportObjectIndexR30.build(...)"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+          "line": 9,
+          "method": "state",
+          "source_fact": "consumed/effective默认null，artifactReference为静态字符串"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+          "line": 53,
+          "method": "layersR31",
+          "source_fact": "新增六层helper"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+          "line": 65,
+          "method": "objectEntriesR31",
+          "source_fact": "新helper只在内部调用layersR31"
+        }
+      ],
+      "actual_implemented_behavior": [
+        "旧生产索引已列29旧图、18研究图、矩阵/能力元数据，并明确存在与效果分开。",
+        "新增ObjectFactsR31/layersR31/objectEntriesR31可表达六层状态及NOT_APPLICABLE。"
+      ],
+      "concrete_unclosed_gap": [
+        "ReportSnapshot.capture仍调用旧build；新版objectEntriesR31/layersR31没有生产capture调用。旧state默认consumed/effective=null且artifactReference静态指向snapshot.db。",
+        "不能据新helper单测或对象清单总数认定每个生产对象实际运行、提交、消费、有效均有来源证据。"
+      ],
+      "inferred_runtime_consequences": [],
+      "repair_uf_ids": [
+        "UF10"
+      ],
+      "verification_status": {
+        "current_source_review": "READ_ONLY_STATIC_REVIEW",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "Service ZIP逐对象的implemented/running/committed/produced/consumed/effective含适用性、同源receipt、首阻断和对应卡；缺源明确UNKNOWN。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B11-C03"
+      ],
+      "title": "有界报告与可取回证据附件",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K10/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K10",
+        "closed_commit": "f4a2d0e52d2db6135dc33ef262499baaeb6d88ec",
+        "build_source_head": "64058996c0d715de5f70da3e693042ac5932c4aa",
+        "closed_at": "2026-11-08T05:25:33.331319+00:00",
+        "recorded_local_items": {
+          "R31-B11-C03#A1": "PASS",
+          "R31-B11-C03#A2": "PASS",
+          "R31-B11-C03#A3": "PASS"
+        },
+        "recorded_deferred_items": {},
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "IMPLEMENTED_PARTIAL_REOPEN_MULTIPLE_CONFIRMED_GAPS",
+      "audit_scope": "REPORT_STORAGE_EXPORT",
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "line": 59,
+          "method": "requestExport",
+          "source_fact": "观察在enqueueUserRequest之前"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "line": 91,
+          "method": "requestExport",
+          "source_fact": "enqueue后kick，同catch requestFailure"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+          "line": 133,
+          "method": "transition",
+          "source_fact": "durable job后acknowledge"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "line": 213,
+          "method": "drain",
+          "source_fact": "terminal current+空queue直接return"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java",
+          "line": 36,
+          "method": "recover",
+          "source_fact": "READY明确不resume，随后poll request ACK"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "line": 428,
+          "method": "publish",
+          "source_fact": "READY transition时reservation尚未在finally释放"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+          "line": 105,
+          "method": "grant",
+          "source_fact": "独立writeAtomic share-until"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "line": 40,
+          "method": "Query.rows",
+          "source_fact": "group_concat后substr"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "line": 73,
+          "method": "capture rowsetIndexes",
+          "source_fact": "fullOriginal静态snapshot.db/catalog路径"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "line": 298,
+          "method": "AttachmentsR31",
+          "source_fact": "新增独立helper"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/androidTest/java/com/ethk3/novaonepro/R31QDeliveryInstrumentedTest.java",
+          "line": 114,
+          "method": "fullReportReachesPublishedZipAndProviderReadback",
+          "source_fact": "只做发布与provider byte/hash回读"
+        }
+      ],
+      "actual_implemented_behavior": [
+        "已有单只读数据库快照、12章JSON/Markdown共享同一次章节对象、ZIP/分卷hash、provider与SAF输出回读代码。",
+        "已有AttachmentsR31的有界规划/流式hash/验证helper；默认不附snapshot.db，raw选项才附。"
+      ],
+      "concrete_unclosed_gap": [
+        "最小请求没有先持久化；可选观察文件失败时请求尚未入FIFO。kick失败发生在入队后却统一写FAILED，有队列中后续仍可运行的终态歧义。",
+        "READY journal先写再ACK；ACK及一次retry失败后，空FIFO启动与UI READY recover均不修ACK，完整ZIP可永远藏在旧回执后。",
+        "READY ACK暴露早于workspace reservation释放；UI grant的独立job/share-until admission可因scope overlap失败。",
+        "默认无snapshot.db，但生产rowsetIndexes/fullEvidence和对象artifactReference仍指snapshot.db；AttachmentsR31只见定义/测试，未接真实included/retained/exportable清单和重算依赖闭包。",
+        "Query.rows用group_concat聚合后再substr，不等于流式物化；超大输入下内存/SQLite聚合边界仍需真实压力验证。",
+        "新Android完整Service测试仅校验READY和交付文件hash，不解析ZIP必需成员、12章语义、raw边界、指标/对象引用闭包，也不走SAF。"
+      ],
+      "inferred_runtime_consequences": [
+        "静态控制流推断（本次未复现）：READY后的ACK双失败可令有效ZIP留在磁盘但UI只能等待旧/缺失ACK。",
+        "静态控制流推断（本次未复现）：在READY ACK暴露而workspace未释放的窗口，UI grant可能遇到SCOPE_ALREADY_OWNED并显示未交付。",
+        "静态控制流推断（本次未复现）：入队成功但kick失败时，FAILED ACK与仍可执行的FIFO产生状态冲突。"
+      ],
+      "repair_uf_ids": [
+        "UF06",
+        "UF07",
+        "UF08",
+        "UF09",
+        "UF11"
+      ],
+      "verification_status": {
+        "current_source_review": "READ_ONLY_STATIC_REVIEW",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "锁争用、提交各断点杀进程、kick失败均能辨认NOT_SUBMITTED与已入队；同请求幂等恢复。",
+        "READY ACK双失败后重启取回同job同ZIP，owner停在READY后UI grant成功。",
+        "重组并打开ZIP、逐成员CRC/hash、必需成员和12章/44指标/96检查交叉账/对象及附件闭包全部验证；SAF reopen/readback也覆盖。",
+        "evidenceComplete、checksComplete、allChecksPassed与自然质量分开断言，不要求健康全绿才算交付结构正确。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B11-C04"
+      ],
+      "title": "建立96检查与44指标的显式交叉账",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K10/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K10",
+        "closed_commit": "f4a2d0e52d2db6135dc33ef262499baaeb6d88ec",
+        "build_source_head": "64058996c0d715de5f70da3e693042ac5932c4aa",
+        "closed_at": "2026-11-08T05:25:33.331319+00:00",
+        "recorded_local_items": {
+          "R31-B11-C04#A1": "PASS",
+          "R31-B11-C04#A2": "PASS",
+          "R31-B11-C04#A3": "PASS"
+        },
+        "recorded_deferred_items": {},
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "HELPERS_IMPLEMENTED_PRODUCTION_WIRING_NOT_CLOSED",
+      "audit_scope": "REPORT_STORAGE_EXPORT",
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckMetricCrosswalkR31.java",
+          "line": 6,
+          "method": "class provenance/comment",
+          "source_fact": "明确来源历史checks_96.json"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckMetricCrosswalkR31.java",
+          "line": 34,
+          "method": "CHECKS",
+          "source_fact": "静态历史executionState/domainOutcome清单"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricDefinitionsR29.java",
+          "line": 23,
+          "method": "r31Definitions",
+          "source_fact": "通过crosswalk造R31定义"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+          "line": 52,
+          "method": "document",
+          "source_fact": "仍导出R30_REPORT_1与原metricResults/objectIndex，没有crosswalk字段"
+        }
+      ],
+      "actual_implemented_behavior": [
+        "CheckMetricCrosswalkR31列96条静态check与44个产品指标关系，明确EXECUTED不是domain PASS、结构检查不能替代设备或质量证据。"
+      ],
+      "concrete_unclosed_gap": [
+        "生产ReportR29.chapters/document未导出该交叉账；CheckMetricCrosswalk生产引用仅来自未接生产的r31Definitions。",
+        "静态CHECKS含历史EXECUTED/outcome，不能当本次Service同快照真实96结果；必须与本次ReportCatalog检查结果按id/source/window关联。"
+      ],
+      "inferred_runtime_consequences": [],
+      "repair_uf_ids": [
+        "UF10",
+        "UF11"
+      ],
+      "verification_status": {
+        "current_source_review": "READ_ONLY_STATIC_REVIEW",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "从本次ZIP的96实际check结果逐个映射44指标，分别列执行覆盖/领域结果/产品状态/设备自然缺口；未映射不得自动PASS。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B12-C01"
+      ],
+      "title": "覆盖安装与迁移可恢复性联合验收",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K11/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K11",
+        "closed_commit": "c130cb6cbd0ec9c4e6cc9c15a185ce8136651efc",
+        "build_source_head": "63fae8a4c1cb4a38a991293d1b48a97b5e6d8e84",
+        "closed_at": "2026-11-08T13:58:54.761659+00:00",
+        "recorded_local_items": {
+          "R31-B12-C01#A1a": "PASS",
+          "R31-B12-C01#A3": "PASS"
+        },
+        "recorded_deferred_items": {
+          "R31-B12-C01#A1b": "NOT_RUN",
+          "R31-B12-C01#A2": "NOT_RUN"
+        },
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "REPORT_RECOVERY_SUBSET_AUDITED_REOPEN",
+      "audit_scope": "REPORT_RECOVERY_SUBSET_ONLY",
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+          "line": 114,
+          "method": "latestFullReport",
+          "source_fact": "任何parse错误中断整轮恢复"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java",
+          "line": 34,
+          "method": "recover",
+          "source_fact": "latestFullReport后仅按ACK轮询"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "line": 374,
+          "method": "drain post-publication failure",
+          "source_fact": "保持READY但只一次ACK retry"
+        }
+      ],
+      "actual_implemented_behavior": [
+        "报告journal、只读快照与发布身份提供可恢复基础；迁移部分由独立源审负责，本行只核报告恢复边界。"
+      ],
+      "concrete_unclosed_gap": [
+        "READY ACK丢失后恢复入口只轮询ACK；无关损坏job可中断latestFullReport。",
+        "旧库升级/杀进程/低磁盘联合矩阵本次未执行，历史LOCAL关门不能替代安装020或当前树的设备证明。"
+      ],
+      "inferred_runtime_consequences": [],
+      "repair_uf_ids": [
+        "UF03",
+        "UF07",
+        "UF09",
+        "UF19"
+      ],
+      "verification_status": {
+        "current_source_review": "READ_ONLY_STATIC_REVIEW",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "旧READY缺ACK、无关orphan、升级各持久边界kill后恢复原job且不造第二快照。",
+        "迁移专项另行补空库/原库/部分迁移/大库分层证据。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B12-C02"
+      ],
+      "title": "统一CI、故障注入与跨批次不可回归测试",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K11/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K11",
+        "closed_commit": "c130cb6cbd0ec9c4e6cc9c15a185ce8136651efc",
+        "build_source_head": "63fae8a4c1cb4a38a991293d1b48a97b5e6d8e84",
+        "closed_at": "2026-11-08T13:58:54.761659+00:00",
+        "recorded_local_items": {
+          "R31-B12-C02#A1": "PASS",
+          "R31-B12-C02#A2": "PASS",
+          "R31-B12-C02#A3a": "PASS"
+        },
+        "recorded_deferred_items": {
+          "R31-B12-C02#A3b": "NOT_RUN"
+        },
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "HISTORICAL_LOCAL_CLOSED_CURRENT_INTEGRATION_UNVERIFIED",
+      "audit_scope": "REPORT_STORAGE_EXPORT",
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/.github/workflows/r31-verification.yml",
+          "line": 209,
+          "method": "instrumentation job",
+          "source_fact": "可配置instrumentation；分层作业存在"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/tools/r31/host/R31QLockRegressionHost.java",
+          "line": 30,
+          "method": "main",
+          "source_fact": "真实另一JVM短暂/长期持锁测试代码"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/androidTest/java/com/ethk3/novaonepro/R31QDeliveryInstrumentedTest.java",
+          "line": 114,
+          "method": "fullReportReachesPublishedZipAndProviderReadback",
+          "source_fact": "真实Service test源码"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/androidTest/java/com/ethk3/novaonepro/R31QDeliveryInstrumentedTest.java",
+          "line": 148,
+          "method": "liveServiceFetchesFreezesAndSettlesNewFutureObservations",
+          "source_fact": "真实抓取/新冻结/结算断言源码"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/tools/r31/run_r31q_android_delivery.sh",
+          "line": 8,
+          "method": "install/instrument",
+          "source_fact": "release后debug覆盖再运行6测试；不可称release APK单独实测"
+        }
+      ],
+      "actual_implemented_behavior": [
+        "统一workflow与host/Android分层存在；最新测试源码新增真实main/diagnostics Service+provider、真实live fetch/freeze/settle断言。",
+        "host锁测试使用两个JVM真实OS锁、短暂争用、五秒失败、中断与ledger不变断言。"
+      ],
+      "concrete_unclosed_gap": [
+        "本次未执行最新源码测试；历史K11收据不能覆盖当前未提交或较晚修订。",
+        "完整Service Android用例未覆盖admission争用/失败ACK重启/READY grant竞争/ZIP语义/SAF；observer用例不覆盖忽略中断。",
+        "live测试以真实网络六分钟窗口为条件，代码存在不是自然闭环或长期连续性已验证。"
+      ],
+      "inferred_runtime_consequences": [],
+      "repair_uf_ids": [
+        "UF18",
+        "UF19",
+        "UF11"
+      ],
+      "verification_status": {
+        "current_source_review": "READ_ONLY_STATIC_REVIEW",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "同一精确source+dirty scope+APK hash产生host/Android结果；故障矩阵每格EXECUTED与断言结果可核。",
+        "注入长锁、进程死、ACK失败、磁盘不足及交付竞争，均检查业务DB不变和可恢复；未执行保持NOT_RUN。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B12-C03"
+      ],
+      "title": "24h初测、72h全链与长期容量验证",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K11/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K11",
+        "closed_commit": "c130cb6cbd0ec9c4e6cc9c15a185ce8136651efc",
+        "build_source_head": "63fae8a4c1cb4a38a991293d1b48a97b5e6d8e84",
+        "closed_at": "2026-11-08T13:58:54.761659+00:00",
+        "recorded_local_items": {},
+        "recorded_deferred_items": {
+          "R31-B12-C03#A1": "NOT_RUN",
+          "R31-B12-C03#A2": "NOT_RUN",
+          "R31-B12-C03#A3": "NOT_RUN"
+        },
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "DEVICE_LONG_RUN_NOT_RUN",
+      "audit_scope": "REPORT_STORAGE_EXPORT",
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/release/R31_DELIVERY.json",
+          "line": 40,
+          "method": "layers.L4_PHYSICAL_DEVICE_24H_72H",
+          "source_fact": "声明设备长测NOT_RUN"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/app/src/androidTest/java/com/ethk3/novaonepro/R31QDeliveryInstrumentedTest.java",
+          "line": 155,
+          "method": "liveServiceFetchesFreezesAndSettlesNewFutureObservations",
+          "source_fact": "当前代码窗口上限360000ms，不是24h/72h"
+        }
+      ],
+      "actual_implemented_behavior": [
+        "存在按boot/source/hash采集与验收设备收据的脚本设计；历史K11和release声明均将设备层与工程层分开。"
+      ],
+      "concrete_unclosed_gap": [
+        "24h/72h、V2353A、30GB原库和自然质量均不能由本次只读源审或6分钟模拟器用例证明；历史交付remainingLimits明确NOT_RUN/NOT_PROVEN。"
+      ],
+      "inferred_runtime_consequences": [],
+      "repair_uf_ids": [
+        "UF19"
+      ],
+      "verification_status": {
+        "current_source_review": "READ_ONLY_STATIC_REVIEW",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "按原卡固定分母采集目标设备24h与72h，含持续新增、训练、重复报告/取消、heap/native/PSS/全目录bytes、后台/断网恢复；缺时间/缺样本禁止PASS。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B12-C04"
+      ],
+      "title": "受控退役与大型文件渐进拆分",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K11/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K11",
+        "closed_commit": "c130cb6cbd0ec9c4e6cc9c15a185ce8136651efc",
+        "build_source_head": "63fae8a4c1cb4a38a991293d1b48a97b5e6d8e84",
+        "closed_at": "2026-11-08T13:58:54.761659+00:00",
+        "recorded_local_items": {
+          "R31-B12-C04#A1": "PASS",
+          "R31-B12-C04#A2": "PASS",
+          "R31-B12-C04#A3": "PASS"
+        },
+        "recorded_deferred_items": {},
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "NOT_AUDITED_IN_REPORT_SUBTASK",
+      "audit_scope": "OUTSIDE_THIS_SUBTASK",
+      "source_evidence": [],
+      "actual_implemented_behavior": [],
+      "concrete_unclosed_gap": [
+        "受控退役/大型文件拆分专项不属于本次报告与预算源审；历史LOCAL收据不被本行重新验证。"
+      ],
+      "inferred_runtime_consequences": [],
+      "repair_uf_ids": [
+        "UF18"
+      ],
+      "verification_status": {
+        "current_source_review": "NOT_AUDITED_IN_THIS_REPORT_SUBTASK",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "由retirement专项核验owner/消费者/动态引用/替代等价性；不能据空表或方法多删代码。"
+      ]
+    },
+    {
+      "card_ids": [
+        "R31-B12-C05"
+      ],
+      "title": "唯一成品发布收据和APK压缩包交付",
+      "claimed_historical_receipt": {
+        "file": "/workspace/scratch/c8b09bfb741e/starcore/construction/r31/batches/K11/RECEIPT.json",
+        "plan": "R31.4-MERGED-11-20261107",
+        "batch": "K11",
+        "closed_commit": "c130cb6cbd0ec9c4e6cc9c15a185ce8136651efc",
+        "build_source_head": "63fae8a4c1cb4a38a991293d1b48a97b5e6d8e84",
+        "closed_at": "2026-11-08T13:58:54.761659+00:00",
+        "recorded_local_items": {
+          "R31-B12-C05#A1a": "PASS",
+          "R31-B12-C05#A2": "PASS",
+          "R31-B12-C05#A3": "PASS"
+        },
+        "recorded_deferred_items": {
+          "R31-B12-C05#A1b": "NOT_RUN"
+        },
+        "interpretation": "历史收据原文记录；本次未重跑，不等于当前源码、当前APK、真机或自然质量PASS。"
+      },
+      "current_source_status": "HISTORICAL_ARTIFACT_DECLARED_CURRENT_TREE_NOT_DELIVERED",
+      "audit_scope": "REPORT_STORAGE_EXPORT",
+      "source_evidence": [
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/release/R31Q_020_DELIVERY.json",
+          "line": 3,
+          "method": "sourceCommit/identity/apk",
+          "source_fact": "020声明源码、包hash、version与签名"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/release/R31Q_020_DELIVERY.json",
+          "line": 18,
+          "method": "scope",
+          "source_fact": "设备NOT_RUN、自然质量NOT_PROVEN"
+        },
+        {
+          "file": "/workspace/scratch/c8b09bfb741e/starcore/release/R31_DELIVERY.json",
+          "line": 34,
+          "method": "layers",
+          "source_fact": "历史LOCAL/模拟器与设备/自然分层"
+        }
+      ],
+      "actual_implemented_behavior": [
+        "release/R31_DELIVERY记录旧016的source/APK/signature和分层限制；R31Q_020_DELIVERY另记录020 source/hash/signer。"
+      ],
+      "concrete_unclosed_gap": [
+        "020收据source=5e05e668，不是当前审阅HEAD及staged修复；其scope仍physical device NOT_RUN/natural quality NOT_PROVEN。",
+        "本次无构建、安装或产物签名/字节校验，不能把当前修复源码称用户已收到或安装完成。"
+      ],
+      "inferred_runtime_consequences": [],
+      "repair_uf_ids": [
+        "UF01",
+        "UF18",
+        "UF20"
+      ],
+      "verification_status": {
+        "current_source_review": "READ_ONLY_STATIC_REVIEW",
+        "current_tests": "NOT_RUN",
+        "current_android": "NOT_RUN",
+        "current_physical_device": "NOT_RUN",
+        "current_natural_quality": "NOT_PROVEN",
+        "historical_receipt_revalidated": false
+      },
+      "required_acceptance": [
+        "最终精确commit构建同签名更高version APK，ZIP内hash/签名/source/测试收据一致；覆盖安装实测另记设备层。"
+      ]
+    }
+  ]
+}

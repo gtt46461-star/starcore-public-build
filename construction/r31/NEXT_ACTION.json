@@ -1,13 +1,13 @@
 {
-  "scope": "R31Q21_REAL_SOURCE_RUNTIME_REPAIR_AND_SIGNED_APK_DELIVERY",
+  "scope": "R31_CUMULATIVE_1_2_3_4_UNIFIED_REAL_SOURCE_REPAIR",
   "source_branch": "construction/r31-final-20261104",
-  "plan_revision": "R31.4-MERGED-11-20261107",
+  "plan_revision": "R31.4-MERGED-11-20261107 + cumulative 2026-11-12 source repair overlay",
   "original_batches": "K01..K11_LOCAL_RECEIPTS_EXIST; current handset counterexample reopens runtime acceptance",
   "device_counterexample": "2026-11-12 19:35:39 +0800 V2353A/577311020: WAITING_CANONICAL, legacy ALTER writer, report FAILED before durable enqueue, both failure ACK writes rejected",
-  "read_first": "construction/r31q/021/README_ZH.md",
-  "work_items": "construction/r31q/021/REPAIR_WORK_ITEMS.json",
+  "read_first": "construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/FINAL_CONSTRUCTION_PLAN.md",
+  "work_items": "construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/REPAIR_CARDS_20.json",
   "source_and_acceptance_audit": "construction/r31q/021/SOURCE_ACCEPTANCE_AUDIT.json",
-  "current_action": "Complete current exact-source CI, fix every real failure, run actual Android report ZIP/provider readback and live fetch/freeze/settlement, deliver same-signer APK. Do not stop at documentation or a version bump.",
+  "current_action": "Read the 58-card current implementation facts and all original requirements; implement original full scope plus UF01..20 through real production paths and persistent recovery; run fresh exact-source acceptance and deliver a same-signer APK. Do not equate historical receipts/helper tests/file presence with completion.",
   "full_regression": "python3 -B construction/STARCORE_R31_FINAL_20261104/tools/r31_gate.py build --batch K11",
   "signing_lane": ".github/workflows/r31-build-r27.yml on construction/r27-20261028",
   "candidate_identity": {
@@ -28,5 +28,10 @@
     "24h/72h handset continuity",
     "natural predictive advantage"
   ],
-  "receipt_rule": "Each result names actual source and execution layer; old LOCAL receipts, file presence, heartbeat, empty samples or successful export do not become product/model quality PASS"
+  "receipt_rule": "Each result names actual source and execution layer; old LOCAL receipts, file presence, heartbeat, empty samples or successful export do not become product/model quality PASS",
+  "unified_plan": "STARCORE_R31_UNIFIED_FINAL_20261112",
+  "source_status": "construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/CURRENT_SOURCE_STATUS_58.json",
+  "codex_prompt": "construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/CODEX_CONSTRUCTION_PROMPT.txt",
+  "source_checkpoint": "762de13d1b02e4e670e785d1bb7489cca5a0f9e0",
+  "checkpoint_status": "UNVERIFIED_NOT_DELIVERABLE"
 }

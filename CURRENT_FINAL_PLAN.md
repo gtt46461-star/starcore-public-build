@@ -1,17 +1,15 @@
-# STARCORE 唯一施工与交付入口
+# STARCORE R31 统一最终施工入口
 
-当前有效原方案：**R31.4-MERGED-11-20261107，K01—K11，56张原卡+2张修复卡**。
+R31.1/.2/.3/.4为同一累计功能方案的施工控制修订。当前唯一统合版本：**STARCORE_R31_UNIFIED_FINAL_20261112**，保留原56+2卡、194条原验收、222项现验收及原阈值；沿用31.4的11批和31.3先施工后批末验收。
 
-**2026-11-12运行验收重开：** K01—K11存在LOCAL关门收据，但V2353A的577311020快检证明业务尚未恢复、报告请求在入队前失败。不得把“11批关门”写成“手机全部正常”。原方案222项验收仍为LOCAL 189、EMU 8、DEVICE 24、NATURAL 1；原阈值和封存方案不改。
+- [最终施工方案](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/FINAL_CONSTRUCTION_PLAN.md)
+- [最新版源码58卡落实情况：已实现、缺口、返修及待验证](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/CURRENT_SOURCE_STATUS_58.md)
+- [Codex完整施工提示词](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/CODEX_CONSTRUCTION_PROMPT.txt)
+- [20张代码返修卡](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/REPAIR_CARDS_20.json) · [功能保全证明](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/PLAN_PRESERVATION_PROOF.json)
+- [原31.4完整方案](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/STARCORE_R31_FINAL_20261104/README.md) · [执行状态](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/r31/NEXT_ACTION.json)
 
-- 最新应用源码：[construction/r31-final-20261104](https://github.com/gtt46461-star/starcore-public-build/tree/construction/r31-final-20261104)。main不是最新应用源码。
-- 本次代码修复与交付验收：[R31Q21说明](construction/r31q/021/README_ZH.md)。
-- 58卡、123个方案路径、44指标、47图、16逻辑表、40项用户要求：[HTML审计](construction/r31q/021/STARCORE_R31Q21_SOURCE_AUDIT.html) · [机器对照](construction/r31q/021/SOURCE_ACCEPTANCE_AUDIT.json)。源码存在不等于功能运行通过。
-- [本次修复项](construction/r31q/021/REPAIR_WORK_ITEMS.json) · [源码红线复核](construction/r31q/021/SCHEMA_BLOCK_REVIEW.json) · [执行入口](construction/r31/NEXT_ACTION.json)。
-- 原31.4：[17分册](construction/STARCORE_R31_FINAL_20261104/docs/17_R31.4批次合并说明.md) · [完整方案](construction/STARCORE_R31_FINAL_20261104/README.md)。历史收据保持原提交身份。
+最新应用源码分支为construction/r31-final-20261104，main只是索引。当前已保存的源码检查点762de13d为未完成工程状态，不能拿旧K01—K11 LOCAL收据、helper测试、类存在、心跳或文件生成成功宣称全部功能正常。当前原机APK577311020不是本轮返修成品。
 
-交付流程：真实代码 → 实际编译调用索引与身份冻结 → 干净提交 → 原单测/lint/注册HOST全套 → Android协议及故障矩阵 → Android34完整报告ZIP发布和分享读取回算 → 真实服务新抓取/新赛前冻结/随后结算 → 同包名、既有签名、递增版本APK。
+源码审阅确认部分owner/fence、隔离/恢复、研究健康及历史训练实现真实存在，需要保留。已定位业务同步DDL/迁移完成条件、报告请求/ACK/发布恢复、新报告/研究/生命周期/主链辅助API的生产接线缺口，逐项见58卡现状与20张返修卡。继续真实代码施工、集成、故障验收和同签名APK交付，禁止只更新文档、版本号或旧PASS。
 
-全部关门后的返修仍执行 `python3 -B construction/STARCORE_R31_FINAL_20261104/tools/r31_gate.py build --batch K11`，只刷新本次构建证据，不伪造新关门。CI须检查摘要源码等于本次提交；缺失、过期、编译/单测/HOST失败不能算绿。
-
-当前R31Q21验收在进行中，以实际CI与交付回执为准。V2353A原670MB数据库未在云端取得；24/72小时真机与自然质量未实测时不得记PASS。
+方案完整保存不等于软件已完成。DEVICE、原机670MB旧库、24/72小时与自然质量无实测时如实列NOT_RUN/NOT_PROVEN。

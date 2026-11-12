@@ -1,0 +1,633 @@
+[
+  {
+    "id": "UF01",
+    "title": "唯一源码、修订合并、真实完成状态",
+    "batch": "K01",
+    "original_cards": [
+      "R31-B00-C01",
+      "R31-B00-C02",
+      "R31-B12-C05"
+    ],
+    "files": [
+      "CURRENT_FINAL_PLAN.md",
+      "construction/r31/NEXT_ACTION.json",
+      "tools/r31/verify_baseline.py"
+    ],
+    "evidence": [
+      "旧入口仍写K02，旧批次收据只证明记录源码的LOCAL层；123路径存在不能证明58卡功能已部署。"
+    ],
+    "implementation": [
+      "采用HANDOFF_BASE源码检查点；保留本地/远程未合入工作，不从5237或main覆盖重做。",
+      "建立56+2卡、194原验收→222现验收、1832旧要求/299旧卡的保全映射；旧1832账本原先仅路径重叠索引，未完成语义核查，必须继续逐项落实生产能力/验收归属及缺口，不能宣称1832项已实现；31.1/.2/.3/.4功能统一，不复活被替代的前置构建流程。",
+      "每项分列历史收据、当前生产入口、当前执行、设备/自然证据；一项辅助测试不能伪装整项运行。"
+    ],
+    "acceptance": [
+      "机器验证56卡六个功能字段跨修订完全一致；194原验收无孤项；阈值文件字节不变。",
+      "故意错源码、dirty、旧APK、旧结果或缺文件时必须拒绝当前PASS。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF02",
+    "title": "业务路径零DDL，迁移只由唯一owner执行",
+    "batch": "K03",
+    "original_cards": [
+      "R31-B02-C01",
+      "R31-B02-C02"
+    ],
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java"
+    ],
+    "evidence": [
+      "saveDecisionInternal、saveTeacherMatrixSample、saveLearningCase等仍调用ensureRuntimeExtraTablesOnce，能在业务池同步执行迁移；独立连接只包住显式后台操作。"
+    ],
+    "implementation": [
+      "拆分requireReadyReadOnly与advanceMigrationOwned；所有业务/报表/健康读取只能检查，不得建表、加列、补默认值或推进迁移日志。",
+      "业务遇缺表/缺列返回有类型的SCHEMA_PENDING并向唯一owner投递幂等请求；选定DDL连接贯穿schema、日志、验证。",
+      "扫描所有DDL入口及调用图，登记允许的owner操作；保留唯一写者和提交结果合同。"
+    ],
+    "acceptance": [
+      "schema缺失/迁移中的每个业务入口执行零DDL、零迁移日志推进、零业务误写。",
+      "并发100次请求只保留一个迁移owner；旧owner/fence不能写。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF03",
+    "title": "严格DDL、单元后置条件与失败自动重放",
+    "batch": "K03",
+    "original_cards": [
+      "R31-B02-C02",
+      "R31-B12-C01"
+    ],
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+      "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+      "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java",
+      "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java"
+    ],
+    "evidence": [
+      "ensureLedgerIndexes与execQuiet吞CREATE/INDEX错误；当前列错误审计不能覆盖它们。",
+      "MAIN_INDEXES可被写COMPLETED而缺索引，最终验证失败；incompleteRows>0又使completed单元无法重开，形成恢复死结。"
+    ],
+    "implementation": [
+      "列出所有生产必需表、列、索引定义、默认值、约束与域归属，逐单元严格验证实际产物后才能COMPLETED。",
+      "迁移禁止使用吞异常的execQuiet；失败保留第一条实际异常、SQL单元ID及完整cause chain。",
+      "最终校验发现漂移时仅使负责单元失效并重放，不能只无限重试最终验证；已正确完成单元保持进度。",
+      "旧READY必须经过当前审查，不能仅凭旧stamp跳过；第一条列/DDL失败即停止本单元后续SQL。"
+    ],
+    "acceptance": [
+      "逐个注入CREATE/ALTER/INDEX失败：失败必需操作绝不能COMPLETED或READY。",
+      "撤销故障后，无人工删journal/清数据，自动恢复READY；原行/列值和保护记录逐行不变。",
+      "旧READY且真实缺列/缺索引的旧库可修复；不仅是删除测试收据的空壳fixture。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF04",
+    "title": "真正短迁移切片与关键写者进展",
+    "batch": "K03",
+    "original_cards": [
+      "R31-B02-C01",
+      "R31-B03-C01",
+      "R31-B05-C09"
+    ],
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+      "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+      "app/src/main/java/com/ethk3/novaonepro/StorageCheckpointR31.java"
+    ],
+    "evidence": [
+      "当前RUNTIME_COLUMNS、FIELD、DYNAMIC_WINDOW、BASE、INDEXES仍含多表/多语句扫描；写者deadline只约束获取锁，不约束task.call。"
+    ],
+    "implementation": [
+      "持久游标细分至有限DDL单元，避免用“一个表/一个功能组”冒充耗时有界；每单元记录语句数、耗时、锁持有和取消状态。",
+      "切片之间释放写者并按原优先级允许当期draw/freeze/settle；大索引不能伪装短单元，须沿原B05-C09安全重建/校验/切换合同设计，保护活动pin、原件和新写入，单独可观测、可中断与可恢复，不把后台工作转到主线程。",
+      "维持原P99≤50ms与>200ms缺陷披露要求；不可宣称任何不可分索引天然满足该目标。",
+      "审计实际所有WAL checkpoint入口；StorageCheckpointR31静态未见生产调用，不能以策略helper替代真实入口的mode、deadline、结果与业务延迟验收。"
+    ],
+    "acceptance": [
+      "代表性约670MB有数据旧库下，迁移未结束期间必须观测多次关键写提交，during不得允许为0。",
+      "在单元前、部分autocommit DDL后、完成journal前杀进程，重开续做且不重复业务效果。",
+      "记录全分布、最坏20次及超标原因；不只展示一秒调度目标或锁获取时间。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF05",
+    "title": "存储普查与准入临界区分离",
+    "batch": "K04",
+    "original_cards": [
+      "R31-B05-C01",
+      "R31-B05-C02",
+      "R31-B05-C11"
+    ],
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportIoR31.java"
+    ],
+    "evidence": [
+      "5秒只限制获取锁；reserve/ensureAdditional/snapshot/recover仍在全局OS锁内遍历目录，无耗时上限。"
+    ],
+    "implementation": [
+      "昂贵普查移出临界区，使用generation/fence/作用域核对后提交保守会计；过期、不完整、取消的普查明确重试或拒绝。",
+      "控制元数据、bulk workspace、已发布报告分清预算，给必要ACK/取消/恢复元数据预留有界且预先计费的空间，不能无预算旁路。",
+      "保留OS租约、跨PID总预算、原子写、有效pin和原文件保护；不要只增timeout。"
+    ],
+    "acceptance": [
+      "两个真实进程、慢/大目录、并发文件增长、崩溃owner、取消、磁盘不足下会计正确。",
+      "报告锁竞争不再使实时写入或报告请求不可恢复；未持锁不能改账本。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF06",
+    "title": "最小请求先持久化，再采可选证据",
+    "batch": "K04→K10",
+    "original_cards": [
+      "R31-B05-C02",
+      "R31-B11-C03"
+    ],
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportRequestQueueCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java"
+    ],
+    "evidence": [
+      "requestExport仍先采集并写长观察，再写请求/FIFO；超出5秒占锁可再次导致从未入队。",
+      "enqueue成功但kick失败仍进入统一requestFailure，造成后台有任务、界面FAILED。"
+    ],
+    "implementation": [
+      "先原子持久化有界requestId/模式/身份/时间及可恢复提交意图，再补充可选观察；每个边界可幂等reconcile。",
+      "区分未提交、已提交待服务、采集、生成、等待资源、失败、取消；瞬时竞争变成持久等待/重试，服务start失败不等于请求从未提交。",
+      "可选观察失败记UNKNOWN/DEP/TIMEOUT，不虚构值；永久I/O故障有真实终态和可导出的恢复原因。"
+    ],
+    "acceptance": [
+      "在请求意图、请求文件、FIFO、kick前后逐点杀进程，重启不丢请求、不重复job。",
+      "存储锁被占超过5秒、FGS启动暂拒、观察器异常仍能恢复生成或明确失败，不停在假排队。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF07",
+    "title": "ACK outbox、READY重连与同一报告恢复",
+    "batch": "K04→K10",
+    "original_cards": [
+      "R31-B11-C03",
+      "R31-B12-C01"
+    ],
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java"
+    ],
+    "evidence": [
+      "transition先存READY再写ACK；两次ACK失败后FIFO已出队，服务终态+空队列直接返回，UI又不kick READY，只等ACK。"
+    ],
+    "implementation": [
+      "为ACK建立持久待发状态/单调revision，并在启动与drain中独立于FIFO修复；不依赖仅16条的进程内失败缓存。",
+      "取回已READY任务直接验证权威job、manifest、ZIP后恢复分享/保存，缺ACK不应永久遮蔽有效产物。",
+      "UI依据requestId/jobId/revision显示真实阶段、阻塞原因、最后进展和可执行恢复，不错误触发重做快照。"
+    ],
+    "acceptance": [
+      "故意让READY ACK及重试都失败，杀进程重开后恢复同一jobId、同一ZIP hash，备份次数不增加。",
+      "旧ACK不能覆盖更新状态；进程内缓存清空后恢复仍成立。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF08",
+    "title": "发布可分享的原子边界与租约竞争",
+    "batch": "K04→K10",
+    "original_cards": [
+      "R31-B05-C02",
+      "R31-B11-C03"
+    ],
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportIoR31.java"
+    ],
+    "evidence": [
+      "READY ACK发生在workspace目录reservation释放前；UI grant独立预约job/share-until.json会与目录scope冲突。"
+    ],
+    "implementation": [
+      "定义验证完成、stream/reader关闭、workspace owner释放、发布READY/ACK和分享控制元数据的明确顺序。",
+      "或采用经授权的独立发布后控制作用域；保留预算、文件hash、发布不可变性与reader pin，不靠跳过准入解决。"
+    ],
+    "acceptance": [
+      "在READY ACK后刻意暂停owner，立即执行UI grant及Provider读取/保存，必须成功或持久等待后自动成功。",
+      "并发取消、删除、分享、重启不损坏已验证ZIP与真实数据库。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF09",
+    "title": "证据生命周期生产接线、孤儿恢复与有界清理",
+    "batch": "K04/K09",
+    "original_cards": [
+      "R31-B05-C03",
+      "R31-B05-C04",
+      "R31-B05-C05",
+      "R31-B05-C06",
+      "R31-B05-C07",
+      "R31-B05-C08",
+      "R31-B05-C10",
+      "R31-B05-C11",
+      "R31-B12-C01"
+    ],
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java",
+      "app/src/main/java/com/ethk3/novaonepro/EvidenceReachabilityR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/StorageGcR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/KeepMigrationR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java"
+    ],
+    "evidence": [
+      "无关缺失/损坏job.json可使latestFullReport整次失败；先删ACK后遇读者租约会让遗留目录以后永远无法回收。",
+      "旧可选观察/快检使用cached线程池；当前有界原型未做忽略中断的超时长期测试。",
+      "KeepMigration/引用闭包GC/事件有界等新接口有实现，但静态未见完整生产Store、root/edge/pin与append接线；CAS缩页和部分revision/cache保护已有真实调用，须保留而非整体重写。"
+    ],
+    "implementation": [
+      "保留可疑原件，以类型化警告隔离孤儿/坏job，继续选择有效报告。",
+      "逐项把keep迁移、引用闭包GC、CAS陈旧页恢复、事件有界聚合及旧库重建接入原合同允许的实际owner/显式维护入口；静态未见调用的工具类不能算完成。必须先完成P05权威迁移再做P06清理，保留原件、活跃pin、迁移收据和新写入。",
+      "保留可恢复cleanup tombstone，直到所有生成目录真实退役；读者关闭后续清理必须能发现它。",
+      "报告观察器/快检工作者及队列有上界，超时不退出的读者继续占槽，容量不足记未知而非无限开线程；取消不得吞掉。"
+    ],
+    "acceptance": [
+      "有效READY旁放空目录、坏retention job和不可读无关journal，仍能取回有效报告。",
+      "持有读者跨过过期时间，清理不删原件；读者释放后下一轮能完整清理。",
+      "读者忽略中断并超过timeout，重复请求后线程/队列仍有界，完整报告不会被可选观察永久阻断。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF10",
+    "title": "R31指标、对象状态和真实跨源冲突进入生产报告",
+    "batch": "K10",
+    "original_cards": [
+      "R31-B11-C01",
+      "R31-B11-C02",
+      "R31-B11-C04"
+    ],
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckMetricCrosswalkR31.java"
+    ],
+    "evidence": [
+      "生产R30Input仍调用evaluateR30；evaluateR31/crossSourceR31主要为测试调用，M32固定0/44。",
+      "ReportSnapshot仍用旧build，新的六层对象状态辅助入口未接真实生产采集。"
+    ],
+    "implementation": [
+      "生产快照内接R31定义、collector、crosswalk及对象原六状态：DEFINED/IMPLEMENTED/RAN/PRODUCED/CONSUMED/EFFECTIVE（定义/实现/实际运行提交/产出/消费/有效）；输入与部署另列附加字段；每项绑定身份、role、scope、水位、时间、原件。",
+      "M32比较真实同scope/同水位事实；不同role/epoch区分不可比与矛盾；缺源为UNKNOWN，不能固定0。",
+      "单一事实快照派生JSON、HTML/Markdown和图表；44指标、96检查、47图、20矩阵、16表及能力集合逐项完整解释。"
+    ],
+    "acceptance": [
+      "通过ReportR29.fromSnapshotR30到document到真实ZIP验证，不只调用helper。",
+      "注入真实跨源矛盾、合法不同scope、零样本、缺源和有效样本；最终打包报告正确反映状态/分母/证据，不宣称全部健康。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF11",
+    "title": "完整报告语义、附件闭包及保存回读",
+    "batch": "K10",
+    "original_cards": [
+      "R31-B11-C03",
+      "R31-B09-C04"
+    ],
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/DiagnosticReportProviderR923.java",
+      "app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java"
+    ],
+    "evidence": [
+      "现有新增联测主要验证READY、Provider字节hash；没有验证ZIP内完整章节、对象、数据契约与可复算原件闭包。"
+    ],
+    "implementation": [
+      "生成同快照JSON与人读报告，逐项检查12章、44/96及全部对象、附件、失败/未知原因、修复卡；含运行、训练、家族、进化、模型资格与实盘状态。",
+      "验证ZIP解压/CRC、分卷重建hash、大小、路径、索引和必须成员；预算不足列出精确缺失，不伪装完整。",
+      "将生成、发布、分享Provider、SAF文件/目录保存、保存后回读分别验收；恢复诊断包明确不是完整报告。"
+    ],
+    "acceptance": [
+      "缺关键章/损坏附件/错水位/错jobId/同名旧报告必须被最终验收抓到。",
+      "真实Service生成后，经Provider与SAF落文件回读，hash和报告语义一致；证据完整、检查执行完整、业务健康三项独立。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF12",
+    "title": "抓取—下一期冻结—结算—训练事件闭环",
+    "batch": "K04/K05",
+    "original_cards": [
+      "R31-B03-C01",
+      "R31-B03-C02",
+      "R31-B03-C03",
+      "R31-B06-C01",
+      "R31-B06-C02",
+      "R31-B06-C03"
+    ],
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+    ],
+    "evidence": [
+      "快检有抓取成功样本但业务等待canonical，分析/结算显示旧时间；当前进程在本期开奖后启动，该期缺冻结不能反向伪造。"
+    ],
+    "implementation": [
+      "每期跟踪HTTP/解析/draw_commit/next_freeze_commit/settle_commit/label/feedback/research_commit各独立时间和水位，旧回补不挡当期。",
+      "唯一赛前冻结、同owner deadline不刷新、迟到结果只入研究；合法NO_BET说明原因但不能冒充有K3预测。",
+      "结算outbox幂等，训练标签与研究反馈不因无REAL/无冻结永久饥饿；历史回放与模型状态共同提交，5000期滚动及pin保护。",
+      "倒计时依据单调时钟投影与合法开奖时间；数据陈旧与倒计时单独显示。"
+    ],
+    "acceptance": [
+      "真实生产服务观测新抓取、新未来冻结、随后对应真实开奖结算、标签反馈及研究提交，不能只看心跳。",
+      "错序/重复/修正/缺号/网络超时/重启/回补下无重复结算、无未来泄漏。",
+      "原P95≤1秒结算、≤5秒冻结按真实子阶段分布验收，源晚到单列。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF13",
+    "title": "研究进展、可执行失败假设与regime接入",
+    "batch": "K06",
+    "original_cards": [
+      "R31-B04-C01",
+      "R31-B07-C06"
+    ],
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchHypothesisR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RegimeHypothesisR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java"
+    ],
+    "evidence": [
+      "FailureDirectedResearch仍先用F08/F17选子代，再追加假设metadata，component为空；dispatch/recordOutcome及Regime辅助逻辑未发现生产调用。"
+    ],
+    "implementation": [
+      "按真实失败证据在birth之前路由typed可执行adapter；有component证据才使用component假设；不支持的机制明确UNSUPPORTED。",
+      "连接实际Regime检测/窗口/路由/结构构建并持久化状态，保留原父代对照、fence、游标事务、家族与专家能力。",
+      "研究健康用已提交cursor/产物/反馈衡量，attempt、RUNNING、owner代数不当成进展。",
+      "子代独立训练/选择/确认/未来证据；outcome credit幂等写入，不继承父证书。",
+      "recoverOneR31的恢复控制异常必须分类并独立记录原因/次数，不得吞RuntimeException后显示健康；保留已有生产owner/fence、隔离、历史训练及AtomNet消费保护。"
+    ],
+    "acceptance": [
+      "六种受控失败经真实select→birth→recordWithin产生对应AST/谱系或UNSUPPORTED；不能只比dispatch字符串。",
+      "kill/restart后cursor、credit、产物一致；空转线程不能显示研究推进。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF14",
+    "title": "完整创造工厂实验而非四程序演示",
+    "batch": "K06",
+    "original_cards": [
+      "R31-B07-C01",
+      "R31-B07-C02",
+      "R31-B07-C03",
+      "R31-B07-C04",
+      "R31-B07-C05"
+    ],
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCapabilityExperimentR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java"
+    ],
+    "evidence": [
+      "当前candidates固定4程序，PRODUCTION_STAGES没有驱动实际family/expert/proposal/进化编排，不能证明完整工厂能力。"
+    ],
+    "implementation": [
+      "保留四程序测试为内核测试；另建驱动真实工厂的可复现adapter，使用隔离SYNTHETIC命名空间、预算、seed与真实搜索路径。",
+      "记录所有候选/淘汰/失败、搜索暴露、训练—选择—确认—资格门及成本；失败试验不能标COMPLETE。",
+      "保留所有有效家族、typed AST、变异/融合/淘汰和父子比较；历史快速训练筛劣继续可用。",
+      "家族kernel、Foundry遍历、AST出生门、CreationBudget和FrozenConfirmation已有生产实现，先核对新接口与这些实现的等价合同；FamilyRegistry新接口或VerifiedImprovement helper未调用既不能算新合同完成，也不能误判原创造能力全不存在；以同机会父子、冻结确认、未来证据的生产回执关门。"
+    ],
+    "acceptance": [
+      "null、注入信号/禁用信号、漂移、缺口实验经过完整工厂，给出trial级不确定性及完整搜索分母。",
+      "合成检出力不计自然胜率，不保证每代或每次变异必然更强。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF15",
+    "title": "图表新鲜度、ABI、取消和健康口径",
+    "batch": "K09",
+    "original_cards": [
+      "R31-B09-C01",
+      "R31-B09-C02",
+      "R31-B09-C03",
+      "R31-B09-C04",
+      "R31-B09-C05"
+    ],
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java"
+    ],
+    "evidence": [
+      "缓存READY直接透传；updated_at仅展示，points列表被当ABI；全快照缺普通panel字节上限；取消被RuntimeException吞掉。",
+      "每次缓存刷新又完整capture报告，健康文案仍用旧CPU/代数指标。"
+    ],
+    "implementation": [
+      "读取前检查字节、schema/ABI、hash、source watermark；根据时效独立判STALE/UNKNOWN，不能信缓存READY。",
+      "各panel错误有类型、相互隔离；取消向上传播；缓存由已有事实快照投影，避免图刷新触发完整报告。",
+      "分别显示服务活着、研究提交推进、资格/自然质量，47稳定ID与全部功能保留。"
+    ],
+    "acceptance": [
+      "陈旧合法READY、错ABI/hash、超大快照、取消、单图损坏均经真实repository/load/render验证。",
+      "线程RUNNING但无commit不得显示研究健康；一个坏图不拖垮其他面板。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF16",
+    "title": "16逻辑表实际读者与T09对象数值投影",
+    "batch": "K07",
+    "original_cards": [
+      "R31-B08-C01",
+      "R31-B08-C02",
+      "R31-B08-C03",
+      "R31-B08-C04",
+      "R31-B08-C05"
+    ],
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchMeasureProjectionR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java"
+    ],
+    "evidence": [
+      "T09仍读顶层mean_gain，产品原件可能为null；正确frame.points投影及page接口主要是测试调用；导出SQL合同不等于表格能用。",
+      "矩阵按kind状态/依赖及source→proposal→BORN同事务消费已有真实实现；新usages/withoutSourceRun及统一validateForConsumption/数值效果合同缺生产调用；部分family/selector/calibrator为UNSUPPORTED，未见fusion adapter，不能仅以通用helper通过关门。"
+    ],
+    "implementation": [
+      "接入有界、只读的真实产品读者/渲染及报告路径，执行16个逻辑查询、筛选与分页。",
+      "T09按对象展示gain、区间、样本、node cost和payload hash；CPU未知保持未知，role/dataset/source过滤严格。",
+      "矩阵产物的生产、消费与实验效果各有回执，不把统计表行数当学习。",
+      "将统一结果校验、真实消费效果/去源对照、完整source身份贯穿实际矩阵/研究/提案/出生/报告；不能仅输出Spec元数据。",
+      "按原卡落实family、selector、calibrator、fusion等应支持的真实适配；原要求未实现时UNSUPPORTED必须记未完成。缺学生/rt.evo按实际依赖kind隔离等待，已有可运行kind继续真实提交。"
+    ],
+    "acceptance": [
+      "顶层mean_gain=null但frame.points有值时，真实界面/报告呈现正确对象值。",
+      "16视图全过当前schema、分页、缺源、缺产品、错role/source和只读不改业务库测试。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF17",
+    "title": "主链资格、真实选择与撤销闭环",
+    "batch": "K08",
+    "original_cards": [
+      "R31-B10-C01",
+      "R31-B10-C02",
+      "R31-B10-C03"
+    ],
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationWindowR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceContractR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java"
+    ],
+    "evidence": [
+      "新快检没有足够新冻结/结算/未来样本，不能据此判定当前资格与高胜率；不能用工程修复强行主链非零。",
+      "typed双写及授权读取确已接入，但switchToTypedRead/revoke未见生产调用，默认LEGACY_READ；model_state_hash当前传semantic ABI hash，不是实际模型状态发布回执；新风险合同及机会分母仍缺生产编排。"
+    ],
+    "implementation": [
+      "原数值门槛字节不变，typed权威选择、缓存投影、唯一DecisionGate及撤销/过期生效期闭环。",
+      "达标策略真实进入主链且可追溯；不达标如实显示原因和缺证据，SHADOW/合成/回放不计REAL。",
+      "保留全部有效历史训练和高质量策略资产，GC按引用闭包，不为清理删除活跃证据。",
+      "落实原子双写→逐行对账→受控typed切换→启动恢复→真实事件撤销和资格过期的完整链；冻结绑定实际model publication receipt/state hash、choice、contract，ABI身份与模型状态不可混用。",
+      "实现新风险合同真实预注册/持久化/工厂验证/激活及eligible/ACT/ABSTAIN/MISSED_INPUT/MISSED_DEADLINE分母；未经验证的新合同不授权。"
+    ],
+    "acceptance": [
+      "合法资格正例可走真实Decision/Trade/结算路径；过期/撤销/篡改/旧build/旧source反例全拒绝。",
+      "生产实际执行typed切换与撤销，默认LEGACY_READ不能靠测试单独调用switch算迁移完成；新资格风险合同须接真实注册/校验/激活编排。",
+      "K3单位置、无马丁/追期/加倍、PIT、原收益与主链红线负例持续通过。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF18",
+    "title": "统一CI、同次运行结果与低消耗施工",
+    "batch": "K01基础/K11总验",
+    "original_cards": [
+      "R31-B00-C01",
+      "R31-B12-C02",
+      "R31-B12-C04",
+      "R31-B12-C05"
+    ],
+    "files": [
+      ".github/workflows/r31-gate.yml",
+      ".github/workflows/r31-verification.yml",
+      ".github/workflows/r31-build-r27.yml",
+      "tools/r31/verification_receipt.py",
+      "construction/r31/HOST_SUITE.json"
+    ],
+    "evidence": [
+      "post-K11 ||true及复用摘要仍可能把同SHA旧绿结果算新运行；只比较source_head不足。",
+      "新锁/Android34测试已加入部分签名路径，但未统一注册到完整HOST/Android验收集合。"
+    ],
+    "implementation": [
+      "每次run创建唯一invocationId、清理/归档旧摘要，验证进程exit、source/tree/控制输入、runId、开始时间、实跑任务与完整项集合。",
+      "复用原close的编译/测试数/跳过/覆盖/已知失败清偿验证器，post-K11不能仅检查0失败。",
+      "新锁测试和真实Android34报告/实时链测试进入统一注册集合；API29/35原矩阵继续；过期重复历史门单独标历史，不拿其错误代替当前结论。",
+      "检查工具链一次；缺SDK则使用已能运行的CI，无代理盲重试。先改业务代码、针对性测试，批末一次全量；同源码同失败不重复烧额度。",
+      "签名构建工作树必须干净，测试输出放临时目录；最后用真实编译classes重冻调用索引，再正式构建。"
+    ],
+    "acceptance": [
+      "同SHA上次绿、本次前置失败或无JUnit/跳过/漏suite时，必须红且不能消费旧摘要。",
+      "原整文件保护和窄schema块复核负例保持；不能批量改期望hash掩盖业务变化。",
+      "每份APK签名与源码身份和同次CI记录互证，旧APK改名/重压缩不算新交付。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM",
+    "source_file_branches": {
+      ".github/workflows/r31-build-r27.yml": "construction/r27-20261028"
+    }
+  },
+  {
+    "id": "UF19",
+    "title": "旧库、后台、故障与真机时长分层",
+    "batch": "K11",
+    "original_cards": [
+      "R31-B04-C02",
+      "R31-B05-C09",
+      "R31-B12-C01",
+      "R31-B12-C02",
+      "R31-B12-C03"
+    ],
+    "files": [
+      "tools/r31/collect_device_receipts.py",
+      "tools/r31/accept_device_receipts.py",
+      "tools/r31/run_r31q_android_delivery.sh"
+    ],
+    "evidence": [
+      "用户670MB旧库未取得，快检只是一瞬间；当前测试允许during=0且没有真正进程杀重启，不能证明旧库恢复。"
+    ],
+    "implementation": [
+      "代表性有数据旧库、真实迁移并发业务、报告生成/取消/分享/保存同时测试，原数据逐行对照。",
+      "杀主/诊断进程、磁盘满、错序开奖、超时、缓存坏、时钟回拨、系统回收逐点注入；保留所有失败，不让前置失败遮住后续场景。",
+      "正常系统条件下前后台/熄屏实测；force-stop未知区间如实记，不保证平台不允许的自动复活。",
+      "DEVICE24项和24/72小时无设备则NOT_RUN并给明确采集协议，继续源码工作，不能借缺设备停工或伪记PASS。",
+      "旧库恢复证明必须有真实采集/重建/验证/recordRestoreProofR31调用与回执，不以证明API存在替代旧库数据保全、恢复与备用文件删除验收。"
+    ],
+    "acceptance": [
+      "API29/34/35各自输出当前源码真实结果；原机验证另列。",
+      "完整报告导出后能回答真实进展、性能分布、研究状态和剩余失败；无新样本不显示虚假胜率/P95。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  },
+  {
+    "id": "UF20",
+    "title": "同签名成品APK与可核对交付",
+    "batch": "K11",
+    "original_cards": [
+      "R31-B12-C05"
+    ],
+    "files": [
+      "release/release_manifest.json",
+      "tools/r31/package_release.py",
+      "release/R31_DELIVERY.json"
+    ],
+    "evidence": [
+      "当前只有未完成检查点和历史APK声明，没有可以认定本轮全部验收通过的成品。"
+    ],
+    "implementation": [
+      "完成本轮所有工程闭环后，在单一干净提交冻结身份和实际编译调用清单，再构建release APK。",
+      "保持包com.starcore.research.r13、既有d8d8cee7…证书，核对现机版本后递增versionCode，覆盖安装保留数据。",
+      "交付release.apk、可直接解压ZIP、完整源码归档或精确仓库SHA、方案、diff、资产、公开签名指纹、SHA256及完整验收结果；不公开密钥或凭证。",
+      "提供用户能下载的文件，不只给Actions工件页；同时准确声明设备/自然证据边界。"
+    ],
+    "acceptance": [
+      "安装/覆盖/启动/核心闭环/完整报告保存实跑；包、签名、ABI、版本、嵌入source和外部receipt一致。",
+      "未完成或失败项逐项列出；不能把“方案写完/源码提交/测试helper通过”写成“软件全部完美完成”。"
+    ],
+    "status": "REOPENED_OR_REVERIFY_NOT_IMPLEMENTED_CLAIM"
+  }
+]

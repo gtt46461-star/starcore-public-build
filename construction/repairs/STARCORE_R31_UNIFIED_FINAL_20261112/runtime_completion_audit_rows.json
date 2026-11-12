@@ -1,0 +1,557 @@
+[
+  {
+    "card_ids": [
+      "R31-B00-C02"
+    ],
+    "actual_implemented": [
+      "ResearchPoolR27.record在实际任务循环后记录任务回执；observeAttemptR31用独立TELEMETRY写事务保存attempt/CPU/工作量/receipt失败。",
+      "有2000样本/8MiB故障上界、首末cause/stack、非递归失败计数；诊断失败不回滚已发布业务事务。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "methods": "loop:210, record:254-274, observeAttemptR31:447-476, persistFaultR31:486起",
+        "fact": "生产调用，不仅是辅助定义"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeFaultEvidenceR31.java",
+        "methods": "capture/clean",
+        "fact": "有界原因链与敏感文本清理实现"
+      }
+    ],
+    "unclosed_gap": [
+      "报告最终输出能否逐项消费这些实际事实，需随UF10/UF11修生产快照/文档链并联测；本卡报告fixture/错误注入尚未在本检查点重跑。",
+      "ResearchPoolR27.recoverOneR31:359捕获RuntimeException后静默返回，没有该次恢复控制失败的独立cause/次数；任务旧行能表达隔离但不能解释本次恢复为何失败，应补有界非递归控制失败事实。"
+    ],
+    "repair_UF": [
+      "UF10",
+      "UF11",
+      "UF13",
+      "UF18"
+    ],
+    "execution_status": "IMPLEMENTED_SOURCE_PATH_SEEN_CURRENT_EXECUTION_NOT_RUN",
+    "truth_boundary": "只读源码核查；本次未执行该卡完整LOCAL/Android/原机验收；已有实现不能写成没有，实现存在也不等于当前整机已通过。"
+  },
+  {
+    "card_ids": [
+      "R31-B01-C01"
+    ],
+    "actual_implemented": [
+      "WaitKindR27.classify与ResearchPoolR27.loop/record已生产接FailureDispositionR31；仅FAULT消耗fault预算，busy退避、取消/stale/fatal有独立处理。",
+      "分类器有16层identity防环cause walk；磁盘满/损坏与提交不确定/已提交诊断失败分开。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+        "methods": "classify:31起, rootCategoryR31:62起, category:130起"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java",
+        "methods": "classify:28起"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "methods": "loop:206-218, record:262-273"
+      }
+    ],
+    "unclosed_gap": [
+      "当前检查点的锁3秒/磁盘满/取消/四入口同根异常全套仍须重跑；不能凭分类器存在认为设备锁争用已解决。",
+      "迁移与连接池资源拥堵是上游实际阻塞，必须修UF02-04，而非把一切异常改成RETRY并隐藏真实故障。"
+    ],
+    "repair_UF": [
+      "UF02",
+      "UF03",
+      "UF04",
+      "UF18",
+      "UF19"
+    ],
+    "execution_status": "IMPLEMENTED_SOURCE_PATH_SEEN_CURRENT_EXECUTION_NOT_RUN",
+    "truth_boundary": "只读源码核查；本次未执行该卡完整LOCAL/Android/原机验收；已有实现不能写成没有，实现存在也不等于当前整机已通过。"
+  },
+  {
+    "card_ids": [
+      "R31-B01-C02"
+    ],
+    "actual_implemented": [
+      "claimWithinR31领取采用task+旧owner+fence+状态CAS；requireFence联查session、boot和elapsed租约；任务成功/失败回执也按owner/fence且检查affected_rows=1。",
+      "失效prepared发取消并等待实际termination；有效busy保留prepared，ClaimAttempt区分等待与领取。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "methods": "requireFence:335, CLAIM_CAS_R31/claimWithinR31:337-364, releaseLeaseR31:366"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "methods": "claimPrepared:228-234, TASK_RECEIPT_CAS_R31:253, record:259-273, retry:302起"
+      }
+    ],
+    "unclosed_gap": [
+      "本次未重跑旧owner晚到回执、claim/提交/回执三处真kill及时间跳变；应绑定当前源码执行原反例，不能沿用历史收据当当前通过。"
+    ],
+    "repair_UF": [
+      "UF18",
+      "UF19"
+    ],
+    "execution_status": "IMPLEMENTED_SOURCE_PATH_SEEN_CURRENT_EXECUTION_NOT_RUN",
+    "truth_boundary": "只读源码核查；本次未执行该卡完整LOCAL/Android/原机验收；已有实现不能写成没有，实现存在也不等于当前整机已通过。"
+  },
+  {
+    "card_ids": [
+      "R31-B01-C03"
+    ],
+    "actual_implemented": [
+      "生产loop和RuntimeCoordinator.run调用recoverOneR31；分级隔离30秒/2分钟/10分钟/30分钟，6轮同根因NEEDS_FIX。",
+      "恢复检查boot/elapsed、旧计算仍活则跳过；全局和持久时钟限速每秒1个半开，成功仅在新artifact身份提交后复位。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "methods": "loop:174, recordFaultBudgetR31:276-294, recordDurableRecoveryR31:295-300, recoverOneR31:339-359"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "methods": "run:480, claimWithinR31:359将half_open_fence绑定真实领取"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+        "methods": "quarantineMillis"
+      }
+    ],
+    "unclosed_gap": [
+      "recoverOneR31的控制失败被catch后不保存恢复失败cause/计数；需补有界观测，避免只知道隔离未恢复却不知道恢复控制失败。",
+      "13任务混合故障、半开唯一性、当前24小时无无声停摆尚未执行；依赖恢复与真实新artifact必须联测。"
+    ],
+    "repair_UF": [
+      "UF13",
+      "UF18",
+      "UF19"
+    ],
+    "execution_status": "IMPLEMENTED_SOURCE_PATH_SEEN_CURRENT_EXECUTION_NOT_RUN",
+    "truth_boundary": "只读源码核查；本次未执行该卡完整LOCAL/Android/原机验收；已有实现不能写成没有，实现存在也不等于当前整机已通过。"
+  },
+  {
+    "card_ids": [
+      "R31-B01-C04"
+    ],
+    "actual_implemented": [
+      "PreparedTask持有CooperativeContinuation，PAUSED/RUNNING/CANCELLING/TERMINATED与awaitTermination存在；超时先close，资源permit保留到Thread.isAlive=false。",
+      "pool.close异步取消、10秒控制等待和后续reaper；tryFinishResources仅在worker/helper/continuation都真正退出后关闭只读连接。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedTaskR30R1.java",
+        "methods": "slice:20起, isTerminated/awaitTermination:31-39, close:41"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java",
+        "methods": "slice:185-202, run:204-220, checkpoint/poll:230-242, close:272"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "methods": "close:383-394, DRAINER:396-400, tryFinishResourcesR31:401-409"
+      }
+    ],
+    "unclosed_gap": [
+      "每条实际长计算/编码/模型循环的poll覆盖、忽略中断任务不产生替身和线程/连接峰值，尚未在本次完整压力场景复验；需要保留DRAINING而不是超时后假TERMINATED。"
+    ],
+    "repair_UF": [
+      "UF09",
+      "UF18",
+      "UF19"
+    ],
+    "execution_status": "IMPLEMENTED_SOURCE_PATH_SEEN_CURRENT_EXECUTION_NOT_RUN",
+    "truth_boundary": "只读源码核查；本次未执行该卡完整LOCAL/Android/原机验收；已有实现不能写成没有，实现存在也不等于当前整机已通过。"
+  },
+  {
+    "card_ids": [
+      "R31-B04-C01"
+    ],
+    "actual_implemented": [
+      "RuntimeCoordinator.captureHealthSnapshotR31用有界128任务真实typed进度/提交水位/产物身份判定研究健康，attempt和owner心跳不当进展。",
+      "AutoFetchService.reconcileResearchOwner真实调用owner.reconcileResearchHealthR31，ReportSnapshot亦纳入activeHealthObservation；有异步有界health executor和stale/UNKNOWN表示。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "methods": "HEALTH_QUERY_R31:200, captureHealthSnapshotR31:203-253, healthSnapshotR31:272-284, reconcileResearchHealthR31:285-295"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "methods": "reconcileResearchOwner:2430-2440"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "methods": "capture:92"
+      }
+    ],
+    "unclosed_gap": [
+      "health只读查询本身仍需SQLite连接，用户栈显示controller等待池；调度/查询有界不等于底层连接获取有硬上限。先修迁移/连接争用并做持续无artifact的真实状态与恢复联测。",
+      "最终报告44指标/新对象状态生产接线仍未闭环，不能用此已接健康字段替代全报告能力验收。"
+    ],
+    "repair_UF": [
+      "UF02",
+      "UF04",
+      "UF10",
+      "UF13",
+      "UF18",
+      "UF19"
+    ],
+    "execution_status": "IMPLEMENTED_SOURCE_PATH_SEEN_CURRENT_EXECUTION_NOT_RUN",
+    "truth_boundary": "只读源码核查；本次未执行该卡完整LOCAL/Android/原机验收；已有实现不能写成没有，实现存在也不等于当前整机已通过。"
+  },
+  {
+    "card_ids": [
+      "R31-B04-C02"
+    ],
+    "actual_implemented": [
+      "RuntimePowerLeaseR26按明确连续会话持有最长60秒wake lease、15秒续租，close幂等释放，renew与数值进展分开。",
+      "AutoFetchService.onDestroy区分userRequestedStop；onTaskRemoved将恢复/抓取/分析重整投递工作线程，正常滑掉与用户stop行为不同。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimePowerLeaseR26.java",
+        "methods": "keepAlive:25, close:31"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "methods": "onDestroy:1874-1908, onTaskRemoved:1937-1957, user stop flags:1735/1805"
+      }
+    ],
+    "unclosed_gap": [
+      "尚无当前V2353A亮/熄屏、省电、Doze、断网重连、普通kill、force-stop/重启72小时原件；源码有重启安排不能证明OEM允许执行。",
+      "source中已有restart的吞异常分支仍需退出事实、限制原因与恢复结果验证；force-stop停止属平台边界，不能承诺自动复活或补造旧预测。"
+    ],
+    "repair_UF": [
+      "UF12",
+      "UF19",
+      "UF20"
+    ],
+    "execution_status": "IMPLEMENTED_SOURCE_PATH_SEEN_CURRENT_EXECUTION_NOT_RUN",
+    "truth_boundary": "只读源码核查；本次未执行该卡完整LOCAL/Android/原机验收；已有实现不能写成没有，实现存在也不等于当前整机已通过。"
+  },
+  {
+    "card_ids": [
+      "R31-B06-C01"
+    ],
+    "actual_implemented": [
+      "RuntimeR27.DatasetTask真实加载5000期数据，source revision双检，注册pin/事务提交后再发布cache；恢复先取持久pin。",
+      "EvolutionTask按边界切换合法输入，FrozenConfirmationStore的独立确认注册/消费路径仍存在；历史训练并非被删除。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "methods": "DatasetTask.step:176-226, EvolutionTask:249-311, frozen confirmation:322-359"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+        "methods": "hash:99起, gaps/segments:39-45"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "methods": "capture:22, step:28起"
+      }
+    ],
+    "unclosed_gap": [
+      "本次未完整执行缺期/修订/补期/跨日期/滚动尾窗及pin预算故障矩阵；需证实当前业务阻塞解除后既有生产任务实际提交，不可用文件存在或旧hash替代。",
+      "不同历史输入格式的known_at/source revision/role边界需对照原卡全面复验；本轮只读确认主链实现存在，不声称已覆盖所有恢复分支。"
+    ],
+    "repair_UF": [
+      "UF12",
+      "UF18",
+      "UF19"
+    ],
+    "execution_status": "IMPLEMENTED_SOURCE_PATH_SEEN_CURRENT_EXECUTION_NOT_RUN",
+    "truth_boundary": "只读源码核查；本次未执行该卡完整LOCAL/Android/原机验收；已有实现不能写成没有，实现存在也不等于当前整机已通过。"
+  },
+  {
+    "card_ids": [
+      "R31-B06-C02"
+    ],
+    "actual_implemented": [
+      "FoundryCampaign.step确实先decide再settle/update，单样本完整序列化后才推进cursor；事务内以旧cursor/checkpoint hash CAS同时写state、进度、训练/消费回执。",
+      "CheckpointArtifactsR26.prepareLease在事务外写校验内容；LegacyGeneration已用ModelPublicationR31.stageAndPublish及ReplayWorkspace；不是每次重启都毫无数值checkpoint。",
+      "ReplayCheckpointR31独立类只有自身定义，无生产引用；不能以helper单测关闭原卡，但现有替代链也应按等价完整性核实，不能因此声称全无回放。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "methods": "step:28-138（sampleLimit、lastGood编码、R26_CANDIDATE_STEP CAS）"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyGenerationR26.java",
+        "methods": "step:21起, compute:76起, ModelPublication调用:68"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayCheckpointR31.java",
+        "methods": "prepare/commitReference/restore；rg全生产只有该类自身定义"
+      }
+    ],
+    "unclosed_gap": [
+      "当前源码尚无此轮真kill/restart与不中断黄金模型的模型/Adam/RNG/游标/act/K3/hash完整对照；原机吞吐/峰值/实时P95门也未测。",
+      "需明确每条生产实现对原卡所有恢复、输入修订和GC合同的等价覆盖；未被生产调用的ReplayCheckpoint helper不能计作运行完成。"
+    ],
+    "repair_UF": [
+      "UF04",
+      "UF12",
+      "UF18",
+      "UF19"
+    ],
+    "execution_status": "IMPLEMENTED_SOURCE_PATH_SEEN_CURRENT_EXECUTION_NOT_RUN",
+    "truth_boundary": "只读源码核查；本次未执行该卡完整LOCAL/Android/原机验收；已有实现不能写成没有，实现存在也不等于当前整机已通过。"
+  },
+  {
+    "card_ids": [
+      "R31-B06-C03"
+    ],
+    "actual_implemented": [
+      "AtomNetSession.online每次一个position，nextPosition与完整期/部分期独立；consumableR31要求ONLINE且partialIssue为空。",
+      "AtomNetRuntime.step复制committed状态后计算，staging/校验/提交publication后才rt.publishAtomStateR31；forecast禁止部分期，Runtime.publish部分期保留上次完整model引用。",
+      "ModelSurfaceStoreR30消费rt.atomPublicationR30模型；所以完整十位置消费保护有真实生产接线。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+        "methods": "online:108-117, consumableR31:123, report:125-147"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "methods": "restore/step:12-79, forecast:106起"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "methods": "publishAtomStateR31:43-57"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+        "methods": "capture/bind:50起"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
+        "methods": "restore:81起, publicationModelR31:89起, checkpointReferenceR31:101起"
+      }
+    ],
+    "unclosed_gap": [
+      "当前未执行位置1..9每处真kill、位置10事务失败、非零梯度变化与实际消费者同hash证据联测；完整报告还要展示输入/partial/complete/published/consumed各自水位。",
+      "publicationReady=ready与consumable分字段已存在，读取端不得继续把ready或训练观察水位解释为完整可消费模型；需查全UI/报告消费者。"
+    ],
+    "repair_UF": [
+      "UF10",
+      "UF12",
+      "UF18",
+      "UF19"
+    ],
+    "execution_status": "IMPLEMENTED_SOURCE_PATH_SEEN_CURRENT_EXECUTION_NOT_RUN",
+    "truth_boundary": "只读源码核查；本次未执行该卡完整LOCAL/Android/原机验收；已有实现不能写成没有，实现存在也不等于当前整机已通过。"
+  },
+  {
+    "card_ids": [
+      "R31-ENG-02"
+    ],
+    "actual_implemented": [
+      "MemoryBudgetR31真实区分声明工作集与实测Java/native/PSS，按owner/fence维护lease、上限/压力/取消、幂等release，不是直接增堆。",
+      "PreparedTask、pool helper和BoundedResearchExecutor真实申请/close lease；SharedFeatureStore有共享reader、私有backing生命周期和回收队列。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+        "methods": "tryAcquire:114起, grow/release, recoverAgedOptionalHeapR31（独立控制，不作准入绕过）"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedTaskR30R1.java",
+        "methods": "constructor:11-17, isTerminated/awaitTermination:31-39"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BoundedResearchExecutorR31.java",
+        "methods": "prepare:36起, OwnedTask.run/cancel/release:28-33"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SharedFeatureStoreR31.java",
+        "methods": "Reader.close:65, drop/reapWorking:108/118, close:168"
+      }
+    ],
+    "unclosed_gap": [
+      "本次未以原512MiB重跑11项故障类单独/全量及outstanding lease=0守卫；当前压力环境/OOM恢复不能由历史LOCAL绿推断。",
+      "unscoped executor默认只申报512描述符+1工作字节，代码明确该值不是实际大载荷；需继续审计大工作调用是否都用显式owner/working estimate，未审全不能称全局内存有界。"
+    ],
+    "repair_UF": [
+      "UF09",
+      "UF18",
+      "UF19"
+    ],
+    "execution_status": "IMPLEMENTED_SOURCE_PATH_SEEN_CURRENT_EXECUTION_NOT_RUN",
+    "truth_boundary": "只读源码核查；本次未执行该卡完整LOCAL/Android/原机验收；已有实现不能写成没有，实现存在也不等于当前整机已通过。"
+  },
+  {
+    "card_ids": [
+      "R31-B07-C01"
+    ],
+    "actual_implemented": [
+      "FamilyRegistryR26默认23可用家族有具体build/kernel dispatch；F23不在默认可用列表，必须绑定真实teacher/ABI/hash后才能加入，无随机教师fallback。",
+      "FoundryCampaignR26.step真实遍历EXECUTABLE生成训练种子；ModelReplaySU2.build路由具体模型；RuntimeCoordinator注册F01..F24及E01..E16，专家通过TaskContinuation生产入口执行。",
+      "新增acceptR31/capabilitiesR31提供因果predict→update→serialize/restore验收辅助接口，但全生产搜索未发现调用；注册EXECUTABLE与有当前执行证据是不同状态。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java",
+        "methods": "AVAILABLE/EXECUTABLE:6-7, bindLegacyTeacher:10-15, build:17-37, acceptR31:64-81, capabilitiesR31:88"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "methods": "step:41-49真实家族seeds/机制children/失败研究提案"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java",
+        "methods": "build:120-144具体Fxx分派及参数合同"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "methods": "initialize:386注册家族/专家, registerCapability:412按implementation登记, execute:587 expert任务入口"
+      }
+    ],
+    "unclosed_gap": [
+      "当前源码无本轮23默认族全量因果执行/恢复/成本原件及F23真实teacher正反例；acceptR31辅助方法不能替代实际训练提交和消费者证据。",
+      "生产r26_capability登记EXECUTABLE基于实现名非空；最终报告必须结合last_progress/训练产物/消费/依赖事实展示，不能把注册状态当运行或有效策略。",
+      "尚未逐核所有23kernel数值细节及专家独占owner双入口反例，需按原卡逐族补当前验收，不能为表全绿填虚值。"
+    ],
+    "repair_UF": [
+      "UF10",
+      "UF13",
+      "UF14",
+      "UF18",
+      "UF19"
+    ],
+    "execution_status": "IMPLEMENTED_SOURCE_PATH_SEEN_HELPER_AND_PRODUCTION_DISTINGUISHED_CURRENT_EXECUTION_NOT_RUN",
+    "truth_boundary": "只读源码核查；本次未执行该卡完整LOCAL/Android/自然实验验收；不因未运行测试断言实现不存在，不因辅助方法或旧收据断言当前完整闭环。"
+  },
+  {
+    "card_ids": [
+      "R31-B07-C02"
+    ],
+    "actual_implemented": [
+      "PolicyAstR27.parse在字节扫描及每次递归前计费节点/深度，IMPORT上限64KiB/64层/4096节点；finiteParameter拒绝NaN/Infinity，类型/arity/因果合同存在。",
+      "EvolutionLoop.stepGate对所有pending候选先candidateContract、hash去重、gate.check和行为签名重复判定；不同位置/输入scope分离。",
+      "PolicySpecR27.executable/canonical/policyHash包含selector/readout/updater参数，withSelector/withUpdater产生对应执行身份；正式出生复杂度由BirthGate更严门约束。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
+        "methods": "ParseBudget/parse:64-110, type/arity:136起, rangeAndCausality"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicySpecR27.java",
+        "methods": "withSelector/withUpdater:41-42, executable/canonical/policyHash:57-70"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+        "methods": "candidateContract/checkCandidate:45-60, check:63起, duplicateOf/register:109-120"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "methods": "stepGate:251-289正式候选统一门及谱系"
+      }
+    ],
+    "unclosed_gap": [
+      "本轮未重跑超限/深递归/未知op/arity/非有限数、所有旧策略逐样本hash与行为兼容、改selector/updater身份、无未来标签及K3输出反例；不能由源代码限制存在替代当前回归。",
+      "尚须按全局调用图核实兼容导入/恢复/结构生成/变异交叉融合没有绕过正式出生门；本轮确认主Evolution入口，不声称全1278文件入口已穷尽。"
+    ],
+    "repair_UF": [
+      "UF13",
+      "UF14",
+      "UF18",
+      "UF19"
+    ],
+    "execution_status": "IMPLEMENTED_SOURCE_PATH_SEEN_HELPER_AND_PRODUCTION_DISTINGUISHED_CURRENT_EXECUTION_NOT_RUN",
+    "truth_boundary": "只读源码核查；本次未执行该卡完整LOCAL/Android/自然实验验收；不因未运行测试断言实现不存在，不因辅助方法或旧收据断言当前完整闭环。"
+  },
+  {
+    "card_ids": [
+      "R31-B07-C03"
+    ],
+    "actual_implemented": [
+      "EvolutionLoop.stepBirth实际按CreationBudget.allocate给每个主思路族最小探索并分配变异/交叉/融合/专家提案；stepReplay用costUnits×rows准入并明确记录预算DEFERRED。",
+      "CreationBudget.creditOperator按op+父子hash+window幂等，低支持回先验、权重保留25%探索；stepHalving实际同SELECT父子效用差减成本记credit。",
+      "RNG、creationBudget、creditedExperiments等进入EvolutionLoop.snapshot/restore；淘汰路径释放trace/cache；ResearchContext.weights/familyCredit/appendBudgetReceipt也接入真实出生与同事务stageResearchHypotheses。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "methods": "stageResearchHypotheses:88, stepBirth:199-247, stepReplayOwnedR31:316-333, stepHalving:416-441, snapshot/restore:668-761"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CreationBudgetR31.java",
+        "methods": "allocate:57-87, admit:95-101, creditOperator/weighted:105-132, json/restore:142起"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "methods": "weights/familyCredit/appendBudgetReceipt:19-21"
+      }
+    ],
+    "unclosed_gap": [
+      "这里costUnits是程序节点数×评估行数的确定性预算，不是逐候选实测CPU/峰值；必须在报告区分估计、实测和SLO证据，不能称已证明实时不劣化。",
+      "本轮尚未做各族轮次不饥饿、重复credit、昂贵低增益候选、重启seed/分配/credit一致、退役真实内存下降的当前全套验证。",
+      "失败机制/专家真实执行路由缺口仍按UF13、完整工厂检出力缺口按UF14返修；现有出生数和漏斗不能证明自然质量改善。"
+    ],
+    "repair_UF": [
+      "UF10",
+      "UF13",
+      "UF14",
+      "UF18",
+      "UF19"
+    ],
+    "execution_status": "IMPLEMENTED_SOURCE_PATH_SEEN_HELPER_AND_PRODUCTION_DISTINGUISHED_CURRENT_EXECUTION_NOT_RUN",
+    "truth_boundary": "只读源码核查；本次未执行该卡完整LOCAL/Android/自然实验验收；不因未运行测试断言实现不存在，不因辅助方法或旧收据断言当前完整闭环。"
+  },
+  {
+    "card_ids": [
+      "R31-B07-C04"
+    ],
+    "actual_implemented": [
+      "EvolutionLoop.stepHoldout把候选及对照冻结为外部确认；RuntimeR27独立处理FrozenConfirmation，不把确认分数送回同一个搜索循环。",
+      "FrozenConfirmationR30.evaluate对同窗口父子、I00及null做配对比较；FrozenConfirmationStore.complete/register/generationReport有不可变task/result identity与verified才登记未来观察的生产链。",
+      "EvolutionLoop.stepRecord实际输出VerifiedImprovementR31.developmentReceipt，明确开发证据至多PROVISIONAL；PairedReplayRunner经ResearchStudyTask真实用于受控反事实配对研究。",
+      "新版VerifiedImprovementR31.record/compareContract/isEligibleForChampionReplacement全局生产搜索无外部调用，不能凭其helper测试声称新改善合同全部进入生产；既有FrozenConfirmation链需按等价完整性核对。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "methods": "stepHoldout:511-520, stepRecord:522-544, stepPromote:546-548"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "methods": "冻结外部确认处理:322-359"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+        "methods": "evaluate/paired验证:109-124, confirm evidence ledger:132-142"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+        "methods": "complete:120-131, register:138-156, generationReport:160-184"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java",
+        "methods": "record/compareContract/isEligible为辅助接口；developmentReceipt有EvolutionLoop生产调用"
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java",
+        "methods": "step:44-52实际new/restore PairedReplayRunner、advance及持久研究结果"
+      }
+    ],
+    "unclosed_gap": [
+      "需核实生产改善声明逐项绑定独立segment消费、完整机会分母、frozen/outcome/selection哈希、error budget及cost；新helper未接线不可当完成，若旧确认链等价满足则保留并补证据，缺项才改真实链路。",
+      "本轮尚未执行未来标签泄漏、只挑子代赢的期、更名/重启重复确认不增独立证据、改善反查关键原件缺失必须PROVISIONAL等实际生产集成反例。",
+      "正式自然期数据与未来资格不能靠历史开发paired improvement替代；不能承诺每代必然更强或为主链非0降低门槛。"
+    ],
+    "repair_UF": [
+      "UF10",
+      "UF13",
+      "UF14",
+      "UF17",
+      "UF18",
+      "UF19"
+    ],
+    "execution_status": "IMPLEMENTED_SOURCE_PATH_SEEN_HELPER_AND_PRODUCTION_DISTINGUISHED_CURRENT_EXECUTION_NOT_RUN",
+    "truth_boundary": "只读源码核查；本次未执行该卡完整LOCAL/Android/自然实验验收；不因未运行测试断言实现不存在，不因辅助方法或旧收据断言当前完整闭环。"
+  }
+]

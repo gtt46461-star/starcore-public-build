@@ -1,0 +1,85 @@
+[
+  {
+    "card_ids": ["R31-B11-C01", "R31-B11-C04"],
+    "actual_implemented": "已实现44项R31定义、检查交叉账及独立评估辅助方法；现行生产报告仍由R30Input调用evaluateR30并使用currentR30定义。存在代码与历史绑定，不等于R31生产采集已完成。",
+    "source_evidence": [
+      {"file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java", "method": "R30Input constructor", "lines": "177-182", "fact": "生产metricResults调用MetricEvaluatorR29.evaluateR30"},
+      {"file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricDefinitionsR29.java", "method": "r31Definitions", "lines": "20-30", "fact": "R31定义与supportingChecks已实现"},
+      {"file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java", "method": "evaluateR30 / evaluateR31 / currentMeasurement", "lines": "49-61,119,173-182", "fact": "生产仍用旧定义；M32固定0/44；新R31辅助评估方法存在"},
+      {"file": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31MetricReportTest.java", "method": "jsonAndHtmlOfOneSnapshotRowCarryTheSameFields / crossSourceWatermarkConflictsAreDetectedAndLegalDifferentScopesAreNot", "lines": "25-56", "fact": "测试直接调用辅助方法，不能单独证明实际报告集成"}
+    ],
+    "unclosed_gap": "需把R31定义、真实collector、96检查证据范围和跨源同scope/同水位比较接入实际快照及最终ZIP；M32不得硬编码零冲突；缺源不得补0。",
+    "repair_UF": ["UF10", "UF11"],
+    "execution_status": "SOURCE_REVIEWED_PRODUCTION_INTEGRATION_GAP_CURRENT_TESTS_NOT_RUN"
+  },
+  {
+    "card_ids": ["R31-B11-C02"],
+    "actual_implemented": "旧生产索引已逐项列出29旧图、18研究图、20矩阵和82能力；新增六层状态与对象条目辅助方法也已实现。旧生产build仍沿用部分静态绑定及行数，并未调用新六层入口。",
+    "source_evidence": [
+      {"file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java", "method": "capture", "lines": "97", "fact": "调用ReportObjectIndexR30.build"},
+      {"file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java", "method": "state / build / layersR31 / objectEntriesR31", "lines": "9-36,53-70", "fact": "生产旧build与新增六层辅助入口并存；后者未发现生产调用"}
+    ],
+    "unclosed_gap": "各对象的真实输入、最近commit、有效数值、消费、独立效果及部署事实尚须接入同水位报告；不适用消费必须与未知分开。",
+    "repair_UF": ["UF10", "UF11"],
+    "execution_status": "SOURCE_REVIEWED_HELPER_IMPLEMENTED_PRODUCT_WIRING_UNCLOSED_CURRENT_TESTS_NOT_RUN"
+  },
+  {
+    "card_ids": ["R31-B09-C01", "R31-B09-C02", "R31-B09-C03", "R31-B09-C04", "R31-B09-C05"],
+    "actual_implemented": "稳定图ID路由、普通缓存帧字符上限、部分坏JSON隔离、500点展示截取和缓存分类已有实现；当前缓存READY仍直接透传，updated_at主要供显示，snapshot包解析缺同等大小前置约束。不能据此认定47图均已正确运行。",
+    "source_evidence": [
+      {"file": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java", "method": "load / cached / snapshotR30 / headline", "lines": "30-45,50-101", "fact": "已有稳定ID加载和部分坏帧隔离；未按年龄/source watermark/hash计算有效新鲜度，headline失败仍可能READY"},
+      {"file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java", "method": "classR31 / build / safe / health", "lines": "20-32,44-71,224-242", "fact": "已有缓存类别；build每次capture报告；部分异常及取消可被吞；健康展示仍引用旧CPU/代数口径"}
+    ],
+    "unclosed_gap": "真实repository/load/render链需补齐schema/ABI/hash/来源水位/新鲜度，取消传播、快照大小限制和图间隔离；缓存投影不得在刷新时重复全量报告采集；研究健康须依真实commit而非线程/代数。47图现版逐项渲染和同源数值回归未实跑。",
+    "repair_UF": ["UF15", "UF10", "UF11"],
+    "execution_status": "SOURCE_REVIEWED_PARTIAL_IMPLEMENTATION_ACTUAL_47_CHART_RUNTIME_NOT_VERIFIED"
+  },
+  {
+    "card_ids": ["R31-B08-C05"],
+    "actual_implemented": "T01-T16逻辑SQL、绑定分页接口、共享kind以及T09正确OPERATOR_GAIN_COST枚举已实现；ResearchMeasureProjectionR31已能提取frame.points对象数值。当前T09查询仍选择顶层mean_gain，分页和对象投影未发现实际产品读者调用。",
+    "source_evidence": [
+      {"file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java", "method": "SQL initialization / page / contracts", "lines": "7-23,33-42", "fact": "16个SQL及有界绑定分页已实现；T09保留顶层mean_gain"},
+      {"file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchMeasureProjectionR31.java", "method": "projectObjects / operatorGainCost", "lines": "42-68", "fact": "对象数值投影实现存在，但检索仅发现测试调用"},
+      {"file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java", "method": "capture", "lines": "86", "fact": "实际报告导出contracts，不等于执行并显示逻辑表结果"}
+    ],
+    "unclosed_gap": "接入真实只读读者及界面/报告，T09顶层null但frame有值时显示正确对象gain/区间/n/nodeCost/hash；16表按当前schema实际执行、角色/来源筛选、分页与缺数据状态均需验证。",
+    "repair_UF": ["UF16"],
+    "execution_status": "SOURCE_REVIEWED_QUERY_AND_PROJECTION_HELPERS_EXIST_PRODUCT_READER_UNCLOSED_CURRENT_TESTS_NOT_RUN"
+  },
+  {
+    "card_ids": ["R31-B07-C06"],
+    "actual_implemented": "原失败研究的来源校验、父结构对照、子代登记和游标事务存在；新增typed hypothesis可以描述机制并有dispatch/credit辅助逻辑。现生产select仍先按F08/F17产生结构变体，再把hypothesis附为metadata。",
+    "source_evidence": [
+      {"file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java", "method": "select / hypothesisR31 / recordWithin", "lines": "14-45", "fact": "22-23行选择F08/F17；27行追加metadata；35行component为空；39-45行保留同事务游标保护"},
+      {"file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchHypothesisR31.java", "method": "fromFailure / Registry.dispatch / Registry.recordOutcome", "lines": "61-109", "fact": "机制合同和辅助dispatch/credit存在，但未发现生产调用"},
+      {"file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RegimeHypothesisR31.java", "method": "proposeWindow / routePastState / toSinglePositionK3", "fact": "辅助实现存在；检索未发现生产调用"}
+    ],
+    "unclosed_gap": "typed机制必须在真实birth之前决定可执行adapter或UNSUPPORTED；component证据、regime持久状态、真实子代谱系及幂等outcome credit须接入生产。六类失败的helper字符串测试不能关闭实际路由。",
+    "repair_UF": ["UF13"],
+    "execution_status": "SOURCE_REVIEWED_METADATA_INTEGRATED_EXECUTABLE_ROUTING_UNCLOSED_CURRENT_TESTS_NOT_RUN"
+  },
+  {
+    "card_ids": ["R31-B07-C05"],
+    "actual_implemented": "预注册seed/样本/预算、流生成、trial失败区分、完整性及误报/功效区间汇总已实现；当前实验候选固定为4程序，管线使用生产数值内核，但并未驱动完整创造工厂编排。",
+    "source_evidence": [
+      {"file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCapabilityExperimentR31.java", "method": "register / candidates / PRODUCTION_STAGES / runPipeline / summarize", "lines": "44-49,90-119,124-174", "fact": "预注册与统计记录存在；候选固定4程序"},
+      {"file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java", "method": "stepSwitchR31 / stepBirth", "lines": "169-179,199-244", "fact": "实际family/expert/proposal工厂路径未由该实验适配器驱动"}
+    ],
+    "unclosed_gap": "须使用隔离命名空间的确定性适配器驱动真实家族/专家/提案/训练/筛选/确认/资格全流程，登记全部搜索暴露和成本；保留当前4程序为内核测试，不称完整工厂证据。",
+    "repair_UF": ["UF14"],
+    "execution_status": "SOURCE_REVIEWED_KERNEL_EXPERIMENT_IMPLEMENTED_FULL_FACTORY_VALIDATION_UNCLOSED_CURRENT_TESTS_NOT_RUN"
+  },
+  {
+    "card_ids": ["R31-B12-C02", "R31-B12-C04", "R31-B12-C05"],
+    "actual_implemented": "已有注册HOST、API29/35仪器矩阵、历史LOCAL绑定和构建摘要检查；新Q21锁与Android34测试存在，但完整统一验收注册及post-K11同次运行证明仍有缺口。",
+    "source_evidence": [
+      {"file": ".github/workflows/r31-verification.yml", "method": "Android matrix / instrumentation invocation", "lines": "217,241", "fact": "既有API29/35矩阵调用emulator_matrix.sh；新增API34路径未统一纳入该矩阵"},
+      {"file": ".github/workflows/r31-gate.yml", "method": "gate-build / summary acceptance", "lines": "59,79-85", "fact": "构建exit被||true遮蔽，已有同SHA摘要可能复用"},
+      {"file": "construction/STARCORE_R31_FINAL_20261104/tools/r31_gate.py", "method": "build / close acceptance", "lines": "313-324,430-440", "fact": "早期失败可先于摘要重写；常规close有更严格实跑/数量/跳过检查"},
+      {"file": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java", "method": "schema block guard / mutation negatives", "lines": "164-187,249-259", "fact": "整文件红线与窄schema块以及篡改负例已实现，应保留"}
+    ],
+    "unclosed_gap": "统一注册新锁及Android34实际导出/实时闭环；清旧摘要，要求exit=0及runId/invocationId/source/tree/输入和实跑集合；post-K11复用完整close验收，不仅检查0失败。",
+    "repair_UF": ["UF18", "UF19", "UF20"],
+    "execution_status": "SOURCE_REVIEWED_HISTORICAL_RECEIPTS_ONLY_CURRENT_FULL_CI_NOT_RUN"
+  }
+]

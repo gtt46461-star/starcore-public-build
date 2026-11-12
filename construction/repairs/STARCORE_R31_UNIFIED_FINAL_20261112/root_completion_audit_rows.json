@@ -1,0 +1,63 @@
+[
+  {
+    "card_ids": [
+      "R31-B00-C01"
+    ],
+    "actual_implemented": [
+      "app/build.gradle从同一release_manifest/identity核对版本、包及schema，生成SOURCE_COMMIT/SOURCE_TREE/DIRTY/PLAN_MANIFEST字段；release拒绝dirty。",
+      "verify_baseline.identity使用全git status和产品输入集合；已将123个原卡源码路径与远程762de13d检查点逐字节核对。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/build.gradle",
+        "method": "expectedIdentity / r31BuildIdentity / requestedRelease",
+        "line": 21
+      },
+      {
+        "file": "tools/r31/verify_baseline.py",
+        "method": "identity",
+        "line": 265
+      }
+    ],
+    "unclosed_gap": [
+      "旧审计器只检查app/src/main的dirty，不能证明构建配置、工具与元数据全部干净；身份工具和生产报告口径需统一。",
+      "当前检查点仍有未完成接线及故障验收；原机APK源码为5e05e668，与本轮代码检查点分开。"
+    ],
+    "repair_UF": [
+      "UF01",
+      "UF18",
+      "UF20"
+    ],
+    "execution_status": "SOURCE_REVIEW_ONLY_CURRENT_FULL_CARD_TEST_NOT_RUN"
+  },
+  {
+    "card_ids": [
+      "R31-ENG-01"
+    ],
+    "actual_implemented": [
+      "CertificateRevocation.ensure经SchemaDomainCoordinator迁移owner执行；sourceTrigger定义规范化、安装前后精确检查均存在。",
+      "migrateR31CertificateRevocationProtection检查原critical可信状态、相关trigger delta与无关core不变，受控变更后重新stamp，未见无条件信任旁路。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+        "method": "ensure / criticalSourceTriggersR31 / requireSourceTriggerDefinitionsR31",
+        "line": 20
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+        "method": "migrateR31CertificateRevocationProtection",
+        "line": 535
+      }
+    ],
+    "unclosed_gap": [
+      "当前源码的新库、真实R30旧库和篡改拒绝三类启动顺序未重新执行；不能沿用历史HOST/EMU PASS宣称原机fingerprint故障已全修。",
+      "整体迁移仍有UF02—04的同步DDL、严格后置条件及有界切片缺口；应区分本修复已有实现与整个启动链仍不闭合。"
+    ],
+    "repair_UF": [
+      "UF03",
+      "UF19"
+    ],
+    "execution_status": "IMPLEMENTATION_PRESENT_REVALIDATION_REQUIRED_NO_NEW_PASS"
+  }
+]

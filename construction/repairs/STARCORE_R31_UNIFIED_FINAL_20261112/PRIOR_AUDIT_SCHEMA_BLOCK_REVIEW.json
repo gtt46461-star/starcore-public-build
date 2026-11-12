@@ -1,0 +1,74 @@
+{
+  "originalWholeDbStoreSha256": "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",
+  "originalHashUnchanged": true,
+  "reviewedBlocks": [
+    {
+      "start": "    private void ensureRuntimeExtraTablesOnce(final SQLiteDatabase db) {",
+      "end": "    private void verifyLegacyRuntimeTablesR363(",
+      "oldSha256": "6b3f167e263c8bc81ec53ae5746431e3137c8b9077770e7e94f39ca240001cc5",
+      "reviewedSha256": "9ede931b8bb00e08bc03d9ed55d67b8f86f7e9e98f4779346bed9f061becd35a",
+      "change": "schema migration scheduling / selected handle / audit only"
+    },
+    {
+      "start": "    private static final java.util.Map<DatabaseCoordinator,LegacySchemaFlightR31> LEGACY_SCHEMA_FLIGHTS_R31=",
+      "end": "    public java.io.InputStream openResearchAssetCP12(",
+      "oldSha256": "7e9b5721810883f8776e5d1dd22339bdf983669e12bcf034b7c7e7bbcdb772f1",
+      "reviewedSha256": "751d6ad3983b7e3102a6e95cbc39c7ea106b2a75dc37d043c0e91877743ac3eb",
+      "change": "schema migration scheduling / selected handle / audit only"
+    },
+    {
+      "start": "    private final ThreadLocal<Throwable> legacyColumnFailureR31=",
+      "end": "    private static final java.util.Map<DatabaseCoordinator,LegacySchemaFlightR31> LEGACY_SCHEMA_FLIGHTS_R31=",
+      "reviewedSha256": "235d911763b4d52bd13b6e4e0129a3144c5fa605b5ecf0fa962d4862daf409c2",
+      "kind": "INSERTION_INLINE",
+      "change": "strict DDL failure/cache handling or durable migration units; no REAL/PnL/Gate logic"
+    },
+    {
+      "start": "    /** The old one-shot initializer remains available to legacy contracts.",
+      "end": "    public void ensureLearningTables()",
+      "reviewedSha256": "fafccf753a4b1520eca85d79d1e16828939ec02a5e53e839d6cbda45c88f8385",
+      "kind": "INSERTION_INLINE",
+      "change": "strict DDL failure/cache handling or durable migration units; no REAL/PnL/Gate logic"
+    },
+    {
+      "start": "    private void addColumnIfMissing(",
+      "end": "    private void repairLedgerIntegrityQuiet(",
+      "reviewedSha256": "a541ee22090e9ae91a3b2e08b559e6649317d574b08a59932c83ba91e615290d",
+      "kind": "REPLACE",
+      "change": "strict DDL failure/cache handling or durable migration units; no REAL/PnL/Gate logic"
+    },
+    {
+      "start": "    private HashSet<String> getTableColumns(",
+      "end": "    private int getLearningCaseK3Mask(",
+      "reviewedSha256": "922ea2178b287f131f3d78eefb9613d7d27094cb8a259aea1b4f5a0b414030db",
+      "kind": "REPLACE",
+      "change": "strict DDL failure/cache handling or durable migration units; no REAL/PnL/Gate logic"
+    }
+  ],
+  "restoredOriginalBytesExactly": true,
+  "numericThresholdsAndPayoutAndDecisionGate": "UNCHANGED_AND_STILL_HASH_PROTECTED",
+  "arbitraryBlockTampering": "STILL_REJECTED_BY_EXACT_REVIEWED_BLOCK_SHA256",
+  "failFastReview": [
+    {
+      "start": "    private HashSet<String> getTableColumns(",
+      "end": "    private int getLearningCaseK3Mask(",
+      "oldReviewedSha256": "922ea2178b287f131f3d78eefb9613d7d27094cb8a259aea1b4f5a0b414030db",
+      "reviewedSha256": "989dac9824f72079e17ecf16419857bf5420f30a62169f7f783fd47cc04fb8b7",
+      "reason": "fail fast after first audited DDL/probe failure; do not repeat two-second busy waits for every remaining column"
+    },
+    {
+      "start": "    private void addColumnIfMissing(",
+      "end": "    private void repairLedgerIntegrityQuiet(",
+      "oldReviewedSha256": "a541ee22090e9ae91a3b2e08b559e6649317d574b08a59932c83ba91e615290d",
+      "reviewedSha256": "a1466d4f7cc8c366af981e4c3e00cbe0c54c3645d8bf3d1d5fe86aabde34a958",
+      "reason": "fail fast after first audited DDL/probe failure; do not repeat two-second busy waits for every remaining column"
+    },
+    {
+      "start": "    private final ThreadLocal<Throwable> legacyColumnFailureR31=",
+      "end": "    private static final java.util.Map<DatabaseCoordinator,LegacySchemaFlightR31> LEGACY_SCHEMA_FLIGHTS_R31=",
+      "oldReviewedSha256": "235d911763b4d52bd13b6e4e0129a3144c5fa605b5ecf0fa962d4862daf409c2",
+      "reviewedSha256": "51c86772c5f987257f13a1d870aa18ef077e3a166ae27af481e1fccfbae26a48",
+      "reason": "fail fast after first audited DDL/probe failure; do not repeat two-second busy waits for every remaining column"
+    }
+  ]
+}

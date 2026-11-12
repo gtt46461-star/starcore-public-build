@@ -1,0 +1,558 @@
+[
+  {
+    "card_ids": [
+      "R31-B05-C04"
+    ],
+    "actual_implemented": [
+      "ResearchRetentionR30已有逐表TablePolicyR31及默认拒删；KeepMigrationR31实现VERIFY_HASH→REGISTER_REFERENCE→MIGRATE→SWITCH状态机接口。",
+      "ResearchRetentionStoreR30已迁至SchemaDomainCoordinator安装并精确校验旧keep/guard定义，保留原件保护。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/KeepMigrationR31.java",
+        "methods": [
+          "Store",
+          "tableDigest",
+          "step",
+          "dropDecision"
+        ],
+        "lines": [
+          15,
+          21,
+          30,
+          42,
+          76
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+        "methods": [
+          "ensureProtectedObjectsR31",
+          "guardsR31",
+          "step"
+        ],
+        "lines": [
+          25,
+          117,
+          214
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
+        "methods": [
+          "TablePolicyR31",
+          "POLICIES_R31",
+          "deletableByAgeR31"
+        ],
+        "lines": [
+          20,
+          30,
+          33
+        ]
+      }
+    ],
+    "unclosed_gap": [
+      "KeepMigrationR31在生产源码仅有类声明及注释引用，未见SQLite Store实现或生产step调用；实际guardsR31仍把删除/清payload复制到immutable keep表，尚未接有界迁移退出路径。",
+      "tableDigest、rowIds/maxId每步取全列表，现有抽象不能仅凭PAGE_ROWS=64宣称耗时有界。",
+      "逐表producer/consumer/key仍为前缀推导及DECLARED_PRIMARY_KEY文案，需对真实读者、主键、bytes/ref/expiry落实适配与持久回执。"
+    ],
+    "repair_UF": [
+      "UF09",
+      "UF19"
+    ],
+    "execution_status": "SOURCE_REVIEW_ONLY_CURRENT_FULL_CARD_TEST_NOT_RUN",
+    "fact_inference_boundary": "调用缺失结论来自当前app/src/main/java源码搜索；未运行Android/旧库/设备测试，不把历史LOCAL收据沿用为当前PASS。"
+  },
+  {
+    "card_ids": [
+      "R31-B05-C05"
+    ],
+    "actual_implemented": [
+      "EvidenceReachabilityR31具有RootKind、mark/unreachable/protectedBudget；StorageGcR31有claim、unlink、recover及LIVE/DELETING/DELETED协议。",
+      "原ResearchRetentionStoreR30.cleanFiles仍给允许删除的cache/retired duplicate写前后回执。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/EvidenceReachabilityR31.java",
+        "methods": [
+          "Graph",
+          "mark",
+          "unreachable",
+          "protectedBudget"
+        ],
+        "lines": [
+          16,
+          29,
+          38,
+          47,
+          51
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/StorageGcR31.java",
+        "methods": [
+          "Store",
+          "claim",
+          "unlink",
+          "recover"
+        ],
+        "lines": [
+          17,
+          29,
+          36,
+          44
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+        "methods": [
+          "cleanFiles",
+          "step"
+        ],
+        "lines": [
+          193,
+          214
+        ]
+      }
+    ],
+    "unclosed_gap": [
+      "全生产源码搜索EvidenceReachabilityR31/StorageGcR31仅定义及二者内部引用，未见真实数据库Graph/Store适配、调度或根/边/pin写入接线。",
+      "因此算法级GC存在不等于实际资产引用闭包GC完成；需把当前/回滚模型、待结算冻结、任务、验证、分享与迁移根接到同一writer并实测pin竞态/杀进程恢复。"
+    ],
+    "repair_UF": [
+      "UF09",
+      "UF17",
+      "UF19"
+    ],
+    "execution_status": "SOURCE_REVIEW_ONLY_CURRENT_FULL_CARD_TEST_NOT_RUN",
+    "fact_inference_boundary": "调用缺失结论来自当前app/src/main/java源码搜索；未运行Android/旧库/设备测试，不把历史LOCAL收据沿用为当前PASS。"
+  },
+  {
+    "card_ids": [
+      "R31-B05-C06"
+    ],
+    "actual_implemented": [
+      "DataRetentionGovernorR900.trimOwnedCP12实际调用StalePageR31.onStale/onSuccess，prepareArchivePageCP12使用per-table cap/cooldown；保留严格generation/schema/hash与INFLIGHT协议。",
+      "publishAndPruneCP12在writer里复核row generation，持久member/prune cursor，压力/时间到让出。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+        "methods": [
+          "trimOwnedCP12",
+          "prepareArchivePageCP12",
+          "publishAndPruneCP12",
+          "retryFailedRequestWithinWriteCP12",
+          "StalePageR31"
+        ],
+        "lines": [
+          54,
+          82,
+          127,
+          146,
+          162,
+          233,
+          253
+        ]
+      }
+    ],
+    "unclosed_gap": [
+      "这部分可确认有生产接线，不能判定完全未实施；本轮未执行同页100次变化/稳定后prune/进程重启及临时bytes上界。",
+      "归档IO仍走ReportExportServiceCP4，报告请求/ACK/发布恢复缺口可能阻断实际归档；需和UF06—09联合故障验证，不放松原permit证明。"
+    ],
+    "repair_UF": [
+      "UF09",
+      "UF19"
+    ],
+    "execution_status": "SOURCE_REVIEW_ONLY_CURRENT_FULL_CARD_TEST_NOT_RUN",
+    "fact_inference_boundary": "调用缺失结论来自当前app/src/main/java源码搜索；未运行Android/旧库/设备测试，不把历史LOCAL收据沿用为当前PASS。"
+  },
+  {
+    "card_ids": [
+      "R31-B05-C07"
+    ],
+    "actual_implemented": [
+      "DataRetentionGovernorR900有真实sweepOrphanRevisionIndexCP12持久pass/generation游标、64行页/2048预算及live row复核。",
+      "RuntimeEventLedgerR926增加EventBoundR31内存聚合器，限定诊断行/bytes并保留business事件。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+        "methods": [
+          "sweepOrphanRevisionIndexCP12",
+          "revisionSequenceR81"
+        ],
+        "lines": [
+          348,
+          359,
+          375,
+          388,
+          394,
+          407
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java",
+        "methods": [
+          "appendWithinTransaction",
+          "EventBoundR31.diagnostic"
+        ],
+        "lines": [
+          287,
+          306,
+          313
+        ]
+      }
+    ],
+    "unclosed_gap": [
+      "EventBoundR31在生产全app搜索仅定义，真实appendWithinTransaction未调用它；源头诊断聚合未证实生效，内存辅助器也不是持久业务事件生命周期。",
+      "本轮未复核所有RetentionTableRegistryCP12逐表consumer/physical bytes/归档政策及24h总上界；需补真实ledger接线及报告度量，不能只报删行数。"
+    ],
+    "repair_UF": [
+      "UF09",
+      "UF19"
+    ],
+    "execution_status": "SOURCE_REVIEW_ONLY_CURRENT_FULL_CARD_TEST_NOT_RUN",
+    "fact_inference_boundary": "调用缺失结论来自当前app/src/main/java源码搜索；未运行Android/旧库/设备测试，不把历史LOCAL收据沿用为当前PASS。"
+  },
+  {
+    "card_ids": [
+      "R31-B05-C08"
+    ],
+    "actual_implemented": [
+      "ChartCacheR27.classR31/displayPanelsR31将DISPLAY与BUSINESS_STATE/CHECKPOINT/TIMELINE分开，未知默认BUSINESS_STATE。",
+      "ResearchRetentionStoreR30.visualCacheDeleteSql实际使用displayPanelsR31白名单，不把mainline/choice纳入通用显示缓存删除。",
+      "MainlineBridgeSU2读授权已委托MainlineChoiceStoreR31.authorizedChoice。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+        "methods": [
+          "classR31",
+          "displayPanelsR31"
+        ],
+        "lines": [
+          20,
+          22,
+          30
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+        "methods": [
+          "visualCacheDeleteSql",
+          "step"
+        ],
+        "lines": [
+          209,
+          211,
+          220
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+        "methods": [
+          "authorizedChoice",
+          "switchToTypedRead"
+        ],
+        "lines": [
+          113,
+          125
+        ]
+      }
+    ],
+    "unclosed_gap": [
+      "生产搜索未见switchToTypedRead调用，默认模式仍LEGACY_READ；不能宣称已完成typed权威切换后可清旧choice。",
+      "白名单保护部分真实接线已存在，仍须补全逐panel全部动态/兼容消费者与每panel key/bytes/TTL、同PIT输入清理前后决策及重启证据。"
+    ],
+    "repair_UF": [
+      "UF15",
+      "UF17",
+      "UF19"
+    ],
+    "execution_status": "SOURCE_REVIEW_ONLY_CURRENT_FULL_CARD_TEST_NOT_RUN",
+    "fact_inference_boundary": "调用缺失结论来自当前app/src/main/java源码搜索；未运行Android/旧库/设备测试，不把历史LOCAL收据沿用为当前PASS。"
+  },
+  {
+    "card_ids": [
+      "R31-B05-C10"
+    ],
+    "actual_implemented": [
+      "StorageMaintenanceFileR82有原库/候选/备份hash、swap journal、fsync与recover，deleteVerifiedBackup已新增RESTORE_PROOF_KEYS_R31并拒绝仅quick_check/mtime/size。",
+      "recordRestoreProofR31可把新库恢复proof写回备份receipt并绑定当前active hash。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
+        "methods": [
+          "recover",
+          "rebuildAndSwap",
+          "restoreProofRefusalR31",
+          "recordRestoreProofR31",
+          "deleteVerifiedBackup"
+        ],
+        "lines": [
+          78,
+          92,
+          114,
+          116,
+          125,
+          131
+        ]
+      }
+    ],
+    "unclosed_gap": [
+      "recordRestoreProofR31生产源码只有定义，未见实际模型加载/rowid/BLOB/待结算/引用闭包/启动恢复检查采集与调用链；没有proof时备份正确保留，但闭环无法自行完成。",
+      "proof部分字段只检查非空或PASS前缀，不等于实际执行过检查；需由受信同源码验证器产出原件、逐行对照及真实重启证明。",
+      "本轮未取得原机670MB库，未执行每个rename/journal点真实中断恢复。"
+    ],
+    "repair_UF": [
+      "UF19",
+      "UF20"
+    ],
+    "execution_status": "SOURCE_REVIEW_ONLY_CURRENT_FULL_CARD_TEST_NOT_RUN",
+    "fact_inference_boundary": "调用缺失结论来自当前app/src/main/java源码搜索；未运行Android/旧库/设备测试，不把历史LOCAL收据沿用为当前PASS。"
+  },
+  {
+    "card_ids": [
+      "R31-B10-C01"
+    ],
+    "actual_implemented": [
+      "MainlineChoiceStoreR31实际DDL、历史/冲突/fence保护已实现；LiveShadowsR27.certify在同一batch.after中双写旧choice与appendChoice。",
+      "MainlineBridgeSU2.r27Intent/projectionR30实际读authorizedChoice，DIVERGED阻断而不是OR任选。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "methods": [
+          "certify",
+          "batch.after"
+        ],
+        "lines": [
+          285,
+          296
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+        "methods": [
+          "appendChoice",
+          "effectiveChoice",
+          "revoke",
+          "switchToTypedRead",
+          "authorizedChoice"
+        ],
+        "lines": [
+          58,
+          79,
+          89,
+          113,
+          125
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+        "methods": [
+          "projectionR30",
+          "r27Intent"
+        ],
+        "lines": [
+          118,
+          165
+        ]
+      }
+    ],
+    "unclosed_gap": [
+      "switchToTypedRead和MainlineChoiceStoreR31.revoke在全生产源码仅定义，未见受控切换及typed撤销事件消费者；默认LEGACY_READ，尚未完成唯一typed权威启用闭环。",
+      "effectiveChoice只接now并核认证书，不接目标ordinal；有效期序号、实际model publish receipt/state hash与冻结choice_id的绑定仍需真实路径核查和补齐，不能只存字段。",
+      "当前写入modelState用SEMANTIC_ABI字符串hash，不是已验证实际模型状态发布回执；需要按原卡合同接到真实模型身份。"
+    ],
+    "repair_UF": [
+      "UF17",
+      "UF19"
+    ],
+    "execution_status": "SOURCE_REVIEW_ONLY_CURRENT_FULL_CARD_TEST_NOT_RUN",
+    "fact_inference_boundary": "调用缺失结论来自当前app/src/main/java源码搜索；未运行Android/旧库/设备测试，不把历史LOCAL收据沿用为当前PASS。"
+  },
+  {
+    "card_ids": [
+      "R31-B10-C02"
+    ],
+    "actual_implemented": [
+      "CertificateGateR27保持V1阈值并增加精确iid最长连败DP及敏感性方法；GateV2R29仍报告用途，LiveShadows实际record v2结果。",
+      "EvidenceContractR31实现register/validateDesign/activate/authorityFor接口，要求工厂误报与功效Summary。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "methods": [
+          "contract",
+          "streakGatePassProbabilityR31",
+          "streakGateSensitivityR31"
+        ],
+        "lines": [
+          62,
+          76
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceContractR31.java",
+        "methods": [
+          "register",
+          "validateDesign",
+          "activate",
+          "authorityFor"
+        ],
+        "lines": [
+          30,
+          43,
+          58,
+          63
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "methods": [
+          "certify"
+        ],
+        "lines": [
+          268,
+          275
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "methods": [
+          "capture"
+        ],
+        "lines": [
+          83
+        ]
+      }
+    ],
+    "unclosed_gap": [
+      "EvidenceContractR31在全生产源码仅定义，无真实预注册/持久注册/完整工厂验证/新实验合同启用调用；报告当前gateAuthority仅旧contract和report-only标志，不能把新合同API当生效。",
+      "完整工厂Summary自身当前仅固定四程序实验（另审阅已证实），不能据其替代真实多候选搜索误报/功效验证；未验证新合同必须保持无授权。",
+      "本轮未运行DP边界/V1重放/alpha不重置等当前验收。"
+    ],
+    "repair_UF": [
+      "UF17",
+      "UF18",
+      "UF19"
+    ],
+    "execution_status": "SOURCE_REVIEW_ONLY_CURRENT_FULL_CARD_TEST_NOT_RUN",
+    "fact_inference_boundary": "调用缺失结论来自当前app/src/main/java源码搜索；未运行Android/旧库/设备测试，不把历史LOCAL收据沿用为当前PASS。"
+  },
+  {
+    "card_ids": [
+      "R31-B10-C03"
+    ],
+    "actual_implemented": [
+      "LiveShadowsR27已有未来冻结、迟到DEADLINE_MISSED、结算、资格与发证路径；Bridge用有效证书构造R27意图。",
+      "CertificateRevocationR30已有draw修订trigger与revokeWithin，在原writer事务中撤销证书，effectiveChoice拒绝失效证书。"
+    ],
+    "source_evidence": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "methods": [
+          "freeze",
+          "settleBatch",
+          "qualify",
+          "certify"
+        ],
+        "lines": [
+          187,
+          213,
+          285
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+        "methods": [
+          "sourceTrigger",
+          "revokeWithin",
+          "statementParts"
+        ],
+        "lines": [
+          66,
+          86,
+          137
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+        "methods": [
+          "effectiveChoice",
+          "revoke"
+        ],
+        "lines": [
+          79,
+          89
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterSU2.java",
+        "methods": [
+          "prepare"
+        ],
+        "lines": [
+          23
+        ]
+      }
+    ],
+    "unclosed_gap": [
+      "typed choice撤销方法未接入生产事件；当前R27冻结INSERT仅policy/target/probabilities/numbers/act/time等字段，choice/contract/实际model publish receipt的完整冻结绑定需核实补齐。",
+      "EvidenceContractR31.Opportunities/frequencyReport无外部生产调用，原卡要求eligible/ACT/ABSTAIN/MISSED_INPUT/MISSED_DEADLINE分母不能靠辅助对象存在判完成。",
+      "未运行合法测试证书经唯一DecisionGate→真实冻结→开奖→结算→反馈→新模型→下次预测的全链；自然合格不保证。"
+    ],
+    "repair_UF": [
+      "UF12",
+      "UF17",
+      "UF19"
+    ],
+    "execution_status": "SOURCE_REVIEW_ONLY_CURRENT_FULL_CARD_TEST_NOT_RUN",
+    "fact_inference_boundary": "调用缺失结论来自当前app/src/main/java源码搜索；未运行Android/旧库/设备测试，不把历史LOCAL收据沿用为当前PASS。"
+  },
+  {
+    "card_ids": [
+      "R31-B12-C04"
+    ],
+    "actual_implemented": [
+      "tools/r31/retirement_manifest.json存在实际静态DROP/重建及DbStore方法覆盖清单，approved_drops为空，规则保留无证不删；retirement_inventory.py可生成/检查。",
+      "当前大DbStore仍保留，未发现以本卡名义全面删除旧能力的授权。"
+    ],
+    "source_evidence": [
+      {
+        "file": "tools/r31/retirement_manifest.json",
+        "methods": [
+          "approved_drops",
+          "rebuild_in_place",
+          "drop_table_sites",
+          "dbstore"
+        ]
+      },
+      {
+        "file": "tools/r31/retirement_inventory.py",
+        "methods": [
+          "manifest generation",
+          "check"
+        ],
+        "lines": [
+          134,
+          150,
+          153
+        ]
+      }
+    ],
+    "unclosed_gap": [
+      "静态清单不等于运行owner/读写覆盖、动态SQL/反射/持久引用和等价性证据齐备；未逐条执行其全部验证。",
+      "最新迁移源码变化后清单/原文件窄块红线需重新生成核对，禁止通过批量改hash掩盖业务变更；具体提取方法仍必须另列精确卡，不准借“重构”无证删除。"
+    ],
+    "repair_UF": [
+      "UF18",
+      "UF19"
+    ],
+    "execution_status": "SOURCE_REVIEW_ONLY_CURRENT_FULL_CARD_TEST_NOT_RUN",
+    "fact_inference_boundary": "调用缺失结论来自当前app/src/main/java源码搜索；未运行Android/旧库/设备测试，不把历史LOCAL收据沿用为当前PASS。"
+  }
+]
