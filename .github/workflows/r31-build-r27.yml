@@ -469,6 +469,28 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+      - name: Verify root after a bounded ADB reconnect handshake
+        run: |
+          cat > "$RUNNER_TEMP/r31_overlay_bootstrap.py" <<'PY'
+          import os,pathlib,subprocess,sys,time
+          def run(*args,timeout=60):
+              try:return subprocess.run(['adb',*args],capture_output=True,text=True,timeout=timeout)
+              except subprocess.TimeoutExpired:return None
+          ready=False
+          for attempt in range(1,4):
+              run('wait-for-device')
+              run('root',timeout=45)
+              run('wait-for-device')
+              uid=run('shell','id','-u');boot=run('shell','getprop','sys.boot_completed')
+              if uid and uid.returncode==0 and uid.stdout.strip()=='0' and boot and boot.returncode==0 and boot.stdout.strip()=='1':
+                  ready=True;print('R31_OVERLAY_BOOTSTRAP_ROOT_VERIFIED attempt='+str(attempt),flush=True);break
+              print('R31_OVERLAY_BOOTSTRAP_RECONNECT attempt='+str(attempt),flush=True)
+              run('reconnect');time.sleep(2)
+          if not ready:raise SystemExit('R31_OVERLAY_BOOTSTRAP_ROOT_UNAVAILABLE')
+          assert run('shell','getprop','ro.kernel.qemu').stdout.strip()=='1'
+          script=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31_release_overlay.py'
+          raise SystemExit(subprocess.call([sys.executable,str(script),'--old',str(pathlib.Path(os.environ['RUNNER_TEMP'])/'old-020.apk'),'--new',os.environ['OVERLAY_RELEASE_APK'],'--out','overlay']))
+          PY
       - uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
@@ -478,7 +500,7 @@ jobs:
           ram-size: 3072M
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
-          script: adb root && adb wait-for-device && python3 "$RUNNER_TEMP/r31_release_overlay.py" --old "$RUNNER_TEMP/old-020.apk" --new "$OVERLAY_RELEASE_APK" --out overlay
+          script: python3 "$RUNNER_TEMP/r31_overlay_bootstrap.py"
       - name: Project audited public status fields; raw database rows stay ephemeral
         if: always()
         run: |
