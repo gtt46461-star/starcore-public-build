@@ -672,7 +672,22 @@ public final class DatabaseCoordinator {
         runtimeSchemaReady.set(false);
     }
 
+    private String legacySlicePendingR31="";
+    void noteLegacySlicePendingR31(String step){legacySlicePendingR31=step;}
+    boolean legacySliceCanContinueR31(){return legacySchemaStage.startsWith("INITIALIZING:");}
+    /** Queue behind the current writer callback, never recurse while holding its lock.
+     * Queue saturation falls back to the service's existing five-second control tick. */
+    void continueLegacySliceR31(Runnable next){
+        try{backgroundWriter.execute(next);}catch(java.util.concurrent.RejectedExecutionException full){
+            android.util.Log.w("DatabaseCoordinator","legacy continuation deferred to control tick");
+        }
+    }
+
     public boolean ensureRuntimeSchemaOnce(SchemaInitializer initializer) {
+        return ensureRuntimeSchemaOnce(null,initializer);
+    }
+
+    public boolean ensureRuntimeSchemaOnce(SQLiteDatabase migrationDb,SchemaInitializer initializer) {
         if (runtimeSchemaReady.get()) return true;
         if (initializer == null) return false;
         try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard2 = DatabaseCoordinator.acquireWriterGuardCP3()) {
@@ -683,12 +698,14 @@ public final class DatabaseCoordinator {
             legacySchemaCostMs = 0L;
             legacySchemaStage = "LEGACY_SCHEMA_RECONCILE";
             legacySchemaError = "";
-            boolean ready = LegacySchemaCoordinatorR926.ensure(this, initializer);
+            legacySlicePendingR31="";
+            boolean ready = LegacySchemaCoordinatorR926.ensure(this,
+                    migrationDb==null?writable():migrationDb, initializer);
             runtimeSchemaReady.set(ready);
             legacySchemaCompletedAt = System.currentTimeMillis();
             legacySchemaCostMs = Math.max(0L, legacySchemaCompletedAt - started);
-            legacySchemaStage = ready ? "READY" : "FAILED";
-            if (!ready) {
+            legacySchemaStage = ready ? "READY" : legacySlicePendingR31.isEmpty()?"FAILED":"INITIALIZING:"+legacySlicePendingR31;
+            if (!ready&&legacySlicePendingR31.isEmpty()) {
                 legacySchemaError = "R926_LEGACY_SCHEMA_NOT_READY";
                 lastError = "LEGACY_SCHEMA_FAILED|cause=" + legacySchemaError;
             } else lastError = "";
@@ -1124,7 +1141,7 @@ public final class DatabaseCoordinator {
             public void run(SQLiteDatabase db) throws Exception {
                 SQLiteDatabase ddl = openDdlHandleR31Q(db);
                 legacyDdlHandleStateR31Q = ddl == null ? "SHARED_POOL_FALLBACK"
-                        : raiseBusyTimeoutR31Q(ddl) ? "DEDICATED|BUSY_TIMEOUT_60S" : "DEDICATED|BUSY_TIMEOUT_DEFAULT";
+                        : raiseBusyTimeoutR31Q(ddl) ? "DEDICATED|BUSY_TIMEOUT_2S|SAME_HANDLE_JOURNAL" : "DEDICATED|BUSY_TIMEOUT_DEFAULT|SAME_HANDLE_JOURNAL";
                 try {
                     task.run(ddl == null ? db : ddl);
                 } finally {
@@ -1142,18 +1159,20 @@ public final class DatabaseCoordinator {
     /**
      * R31Q 020. The dedicated handle has its own primary connection, so a same-process write that does not go
      * through this coordinator now makes its DDL wait on SQLite's file lock, and Android gives up after 2.5 s.
-     * DbStore.addColumnIfMissing swallows that failure and the column stays missing (the migration only checks
-     * tables afterwards). The pragma runs inside a transaction so it reaches the handle's writing connection.
+     * The migration now records failed column probes/ALTERs and refuses READY.
+     * A busy statement yields for a later migration attempt instead of holding
+     * the sole application writer for 60 seconds per column. The pragma runs
+     * inside a transaction to reach the handle's writing connection.
      */
     private static boolean raiseBusyTimeoutR31Q(SQLiteDatabase ddl) {
         try {
             SQLiteDatabase.class.getMethod("beginTransactionNonExclusive").invoke(ddl);
             try {
                 long applied = -1L;
-                Cursor c = ddl.rawQuery("PRAGMA busy_timeout=60000", null);
+                Cursor c = ddl.rawQuery("PRAGMA busy_timeout=2000", null);
                 try { if (c.moveToFirst()) applied = c.getLong(0); } finally { c.close(); }
                 SQLiteDatabase.class.getMethod("setTransactionSuccessful").invoke(ddl);
-                return applied >= 60000L;
+                return applied == 2000L;
             } finally {
                 SQLiteDatabase.class.getMethod("endTransaction").invoke(ddl);
             }

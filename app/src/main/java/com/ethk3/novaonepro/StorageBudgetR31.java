@@ -15,8 +15,11 @@ public final class StorageBudgetR31 {
     public static final String VERSION="R31_STORAGE_ADMISSION_V1";
     public static final int MAX_ACTIVE=64,MAX_RECEIPTS=64,MAX_LEDGER_BYTES=262144;
     private static final int MAGIC=0x52333142;
-    private static final Object JVM_LOCK=new Object();
-    private static final Set<String> OPEN=new HashSet<>();
+    /** A competing process normally holds admission for milliseconds, not a failed export.
+     * Use one monotonic deadline for both locks; never enter work without the OS lease. */
+    public static final long COORDINATOR_WAIT_MS=5000L;
+    private static final java.util.concurrent.locks.ReentrantLock JVM_LOCK=new java.util.concurrent.locks.ReentrantLock(true);
+    private static final Set<String> OPEN=Collections.newSetFromMap(new java.util.concurrent.ConcurrentHashMap<String,Boolean>());
     public enum Category { DATABASE,WAL,INPUT_RESEARCH,MODEL,REPORT_WORKSPACE,REPORT_PUBLISHED,CACHE,DIAGNOSTICS,BACKUP }
     public interface Space { long available(File root)throws IOException; }
     public static final class Config {
@@ -61,10 +64,24 @@ public final class StorageBudgetR31 {
     public static StorageBudgetR31 forFiles(File files)throws IOException{return new StorageBudgetR31(files.getCanonicalFile().getParentFile());}
     private interface Work<T>{T run(State state)throws IOException;}
     private <T>T locked(Work<T> work)throws IOException{
-        synchronized(JVM_LOCK){File lockFile=inside(directory,"admission.lock");try(RandomAccessFile io=new RandomAccessFile(lockFile,"rw")){
-            FileLock lock;try{lock=io.getChannel().tryLock();}catch(OverlappingFileLockException busy){throw new Rejected("COORDINATOR_BUSY");}if(lock==null)throw new Rejected("COORDINATOR_BUSY");
+        final long deadline=System.nanoTime()+java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(COORDINATOR_WAIT_MS);
+        boolean entered=false;
+        try {
+            try { entered=JVM_LOCK.tryLock(Math.max(0L,deadline-System.nanoTime()),java.util.concurrent.TimeUnit.NANOSECONDS); }
+            catch(InterruptedException cancelled){Thread.currentThread().interrupt();throw new Rejected("CANCELLED");}
+            if(!entered)throw new Rejected("COORDINATOR_BUSY");
+            File lockFile=inside(directory,"admission.lock");try(RandomAccessFile io=new RandomAccessFile(lockFile,"rw")){
+            FileLock lock;
+            for(;;){
+                if(Thread.currentThread().isInterrupted())throw new Rejected("CANCELLED");
+                try{lock=io.getChannel().tryLock();}catch(OverlappingFileLockException busy){lock=null;}
+                if(lock!=null)break;
+                long left=deadline-System.nanoTime();if(left<=0L)throw new Rejected("COORDINATOR_BUSY");
+                java.util.concurrent.locks.LockSupport.parkNanos(Math.min(left,java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(10L)));
+            }
             try{State state=readState();if(!state.active.isEmpty()&&!state.configHash.equals(config.hash()))throw new Rejected("CONFIG_CHANGED_WITH_ACTIVE_OWNER");state.configHash=config.hash();return work.run(state);}finally{lock.release();}
-        }}
+            }
+        } finally {if(entered)JVM_LOCK.unlock();}
     }
     public Reservation reserve(String owner,long fence,Category category,String relativeScope,long maximumGrowth,boolean transientWork)throws IOException{
         return reserve(owner,fence,category,relativeScope,maximumGrowth,maximumGrowth,transientWork);
@@ -144,7 +161,7 @@ public final class StorageBudgetR31 {
             if(closed)return;IOException failure=null;
             try{owned("FINISH",state->{Row row=require(state);long actual=accountedScopeBytes(inside(root,row.scope));boolean exceeded=Math.max(0,actual-row.baseline)>row.bound;state.active.remove(id);receipt(state,row,exceeded?"FINISHED_BOUND_EXCEEDED_FILES_PRESERVED":"FINISHED",actual);writeState(state);if(exceeded)throw new Rejected("FINISHED_PHYSICAL_GROWTH_BOUND_EXCEEDED");return null;});}
             catch(IOException error){failure=error;}
-            finally{closed=true;synchronized(JVM_LOCK){OPEN.remove(key);}try{lifetime.release();}catch(IOException error){if(failure==null)failure=error;else failure.addSuppressed(error);}try{io.close();}catch(IOException error){if(failure==null)failure=error;else failure.addSuppressed(error);}File leaseFile=new File(key);if(leaseFile.exists()&&!leaseFile.delete()){IOException error=new IOException("STORAGE_OWNER_METADATA_CLEANUP_PENDING");if(failure==null)failure=error;else failure.addSuppressed(error);}}
+            finally{closed=true;OPEN.remove(key);try{lifetime.release();}catch(IOException error){if(failure==null)failure=error;else failure.addSuppressed(error);}try{io.close();}catch(IOException error){if(failure==null)failure=error;else failure.addSuppressed(error);}File leaseFile=new File(key);if(leaseFile.exists()&&!leaseFile.delete()){IOException error=new IOException("STORAGE_OWNER_METADATA_CLEANUP_PENDING");if(failure==null)failure=error;else failure.addSuppressed(error);}}
             if(failure!=null)throw failure;
         }
     }

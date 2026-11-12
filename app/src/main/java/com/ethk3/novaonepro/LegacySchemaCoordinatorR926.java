@@ -9,6 +9,29 @@ public final class LegacySchemaCoordinatorR926 {
     public interface MainChainInitializerR31 extends DatabaseCoordinator.SchemaInitializer {
         void initializeMainChainDefaultsR31(SQLiteDatabase db) throws Exception;
     }
+    public interface SlicedInitializerR31 extends MainChainInitializerR31 {
+        boolean advanceRuntimeR31(SQLiteDatabase db) throws Exception;
+    }
+
+    /** One durable idempotent unit per writer callback. A later callback reads
+     * the journal again; process death cannot turn an uncommitted unit into DONE. */
+    static boolean advanceUnitsR31(SQLiteDatabase db,String prefix,
+            java.util.LinkedHashMap<String,Runnable> units,boolean atomic) throws Exception {
+        SchemaDomainCoordinatorR926.Contract c=SchemaDomainCoordinatorR926.legacyContract();
+        java.util.Set<String> completed=new java.util.HashSet<>();
+        try(android.database.Cursor rows=db.rawQuery("SELECT step_id FROM "+SchemaDomainCoordinatorR926.TABLE_JOURNAL
+                +" WHERE domain=? AND revision=? AND status='COMPLETED'",new String[]{c.domain,String.valueOf(c.revision)})){
+            while(rows.moveToNext())completed.add(rows.getString(0));
+        }
+        for(java.util.Map.Entry<String,Runnable> unit:units.entrySet()){
+            String step=prefix+unit.getKey();if(completed.contains(step))continue;
+            SchemaDomainCoordinatorR926.markState(db,c,"INITIALIZING",step,"");
+            if(atomic)SchemaDomainCoordinatorR926.runStep(db,c,step,x->unit.getValue().run());
+            else SchemaDomainCoordinatorR926.runStepAutocommitR31(db,c,step,x->unit.getValue().run());
+            return false;
+        }
+        return true;
+    }
 
     private static String[] mainTablesR31() {
         return new String[]{DbHelper.TABLE_DECISIONS,DbHelper.TABLE_TRADES,DbHelper.TABLE_SHADOW,
@@ -82,7 +105,15 @@ public final class LegacySchemaCoordinatorR926 {
 
     public static boolean ensure(DatabaseCoordinator owner, final DatabaseCoordinator.SchemaInitializer initializer) {
         if (owner == null || initializer == null) return false;
-        SQLiteDatabase db = owner.writable();
+        return ensure(owner,owner.writable(),initializer);
+    }
+
+    /** The migration's DDL, journal, validation and final main-chain step must
+     * use the same handle. Reopening owner.writable() here silently selected
+     * the business pool even when the caller had acquired a dedicated handle. */
+    public static boolean ensure(DatabaseCoordinator owner, SQLiteDatabase db,
+            final DatabaseCoordinator.SchemaInitializer initializer) {
+        if (owner == null || db == null || initializer == null) return false;
         final SchemaDomainCoordinatorR926.Contract c = SchemaDomainCoordinatorR926.legacyContract();
         if (SchemaDomainCoordinatorR926.matches(db, c)
                 && SchemaDomainCoordinatorR926.stepComplete(db,c,MAIN_CHAIN_STEP_R31)) {
@@ -92,11 +123,21 @@ public final class LegacySchemaCoordinatorR926 {
         try {
             SchemaDomainCoordinatorR926.prepareRepairIfDrift(db, c);
             SchemaDomainCoordinatorR926.markState(db, c, "INITIALIZING", "LEGACY_RUNTIME", "");
-            SchemaDomainCoordinatorR926.runStepAutocommitR31(db, c, "LEGACY_RUNTIME",
-                    new SchemaDomainCoordinatorR926.Step() { public void run(SQLiteDatabase x) throws Exception { initializer.run(x); }});
+            if(!SchemaDomainCoordinatorR926.stepComplete(db,c,"LEGACY_RUNTIME")){
+                if(initializer instanceof SlicedInitializerR31){
+                    if(!((SlicedInitializerR31)initializer).advanceRuntimeR31(db)){
+                        owner.noteLegacySlicePendingR31("LEGACY_RUNTIME_UNIT_COMMITTED");return false;
+                    }
+                    SchemaDomainCoordinatorR926.runStepAutocommitR31(db,c,"LEGACY_RUNTIME",x->{});
+                }else SchemaDomainCoordinatorR926.runStepAutocommitR31(db,c,"LEGACY_RUNTIME",x->initializer.run(x));
+            }
             // A matching old LEGACY_RUNTIME stamp cannot skip this additive owner step.
+            if(initializer instanceof SlicedInitializerR31&&!SchemaDomainCoordinatorR926.stepComplete(db,c,MAIN_CHAIN_STEP_R31)
+                    &&!owner.getHelper().advanceMainChainClosedLoopSchemaR31(db)){
+                owner.noteLegacySlicePendingR31("LEGACY_MAIN_CHAIN_UNIT_COMMITTED");return false;
+            }
             SchemaDomainCoordinatorR926.runStep(db,c,MAIN_CHAIN_STEP_R31,x->{
-                owner.getHelper().ensureMainChainClosedLoopSchemaR31(x);
+                if(!(initializer instanceof SlicedInitializerR31))owner.getHelper().ensureMainChainClosedLoopSchemaR31(x);
                 if(initializer instanceof MainChainInitializerR31)
                     ((MainChainInitializerR31)initializer).initializeMainChainDefaultsR31(x);
                 requireMainChainClosedLoopReadyR31(x);

@@ -163,6 +163,10 @@ public final class ReportExportServiceCP4 extends Service {
     private static String describeR31Q(Throwable error){StringBuilder b=new StringBuilder();int depth=0;for(Throwable t=error;t!=null&&depth<4;t=t.getCause(),depth++){if(depth>0)b.append(" <- ");b.append(t.getClass().getName()).append(':').append(t.getMessage());StackTraceElement[] st=t.getStackTrace();for(int i=0;i<st.length&&i<6;i++)b.append(" @").append(st[i]);}return b.length()<=3000?b.toString():b.substring(0,3000);}
     private static void requestFailure(Context app,String id,Throwable error){
         lastRequestOutcomeR31Q="FAILED|request="+id+"|at="+System.currentTimeMillis()+"|"+describeR31Q(error);
+        // Publish to the submitting process before trying any fallible filesystem work.
+        // Both the full and minimal durable ACK use admission, so neither can be
+        // relied on when the admission coordinator itself is the failing dependency.
+        ReportRequestStatusR31.failed(id,describeR31Q(error));
         try{requestFailureCP12(app,id,error);if(!new File(requestRoot(app),"requests/"+id+".ack.json").isFile())throw new IOException("REPORT_FAILURE_ACK_NOT_WRITTEN");}
         catch(Throwable receipt){
             lastRequestOutcomeR31Q=lastRequestOutcomeR31Q+"|ackError="+describeR31Q(receipt);

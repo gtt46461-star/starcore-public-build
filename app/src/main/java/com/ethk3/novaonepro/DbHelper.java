@@ -2031,22 +2031,36 @@ public final class DbHelper extends SQLiteOpenHelper {
     public void ensureMainChainClosedLoopSchemaR31(SQLiteDatabase db) {
         if(db==null||!db.inTransaction())throw new IllegalStateException("R31_MAIN_CHAIN_MIGRATION_OWNER_REQUIRED");
         SchemaDomainCoordinatorR926.verifyObjects(db,SchemaDomainCoordinatorR926.criticalContract());
-        createBaseTables(db);
+        for(Runnable unit:mainChainUnitsR31(db).values())unit.run();
+        LegacySchemaCoordinatorR926.requireMainChainClosedLoopReadyR31(db);
+    }
+
+    /** Runtime migration releases the sole writer between these journaled units.
+     * The final defaults/verification stamp is still one atomic owner step. */
+    public boolean advanceMainChainClosedLoopSchemaR31(SQLiteDatabase db) throws Exception {
+        SchemaDomainCoordinatorR926.verifyObjects(db,SchemaDomainCoordinatorR926.criticalContract());
+        return LegacySchemaCoordinatorR926.advanceUnitsR31(db,"R31Q21_MAIN_",mainChainUnitsR31(db),true);
+    }
+
+    private java.util.LinkedHashMap<String,Runnable> mainChainUnitsR31(final SQLiteDatabase db) {
+        java.util.LinkedHashMap<String,Runnable> units=new java.util.LinkedHashMap<>();
+        units.put("BASE",()->createBaseTables(db));
         String[] main={TABLE_DECISIONS,TABLE_TRADES,TABLE_SHADOW,TABLE_FULL_CANDIDATE_SCAN,
                 TABLE_CANDIDATE_AUDIT,TABLE_DYNAMIC_CAUSE_CHAIN,TABLE_DECISION_AUDIT,TABLE_V20_CLOSED_LOOP,
                 TABLE_MAIN_CHAIN_CANDIDATE_SNAPSHOT,TABLE_REAL_TRADE_LEDGER,TABLE_ADAPTIVE_JUDGE_SAMPLE,
                 TABLE_PROMOTION_DOMAIN_SNAPSHOT};
-        for(String table:main) {
+        for(final String table:main)units.put("COLUMNS_"+table,()->{
             ensureColumnsR31(db,table,DbStore.mainChainClosedLoopColumnDefs());
             ensureColumnsR31(db,table,new String[]{"base_issue TEXT","target_issue TEXT","created_at INTEGER DEFAULT 0",
                     "position INTEGER DEFAULT 0","n1 INTEGER DEFAULT 0","n2 INTEGER DEFAULT 0","n3 INTEGER DEFAULT 0","k3_mask INTEGER DEFAULT 0"});
-        }
+        });
         String[] factors={TABLE_CAUSAL_FACTOR_MATRIX,TABLE_POSITION_CAUSE_MATRIX,TABLE_TEACHER_NUMBER_MATRIX,
                 TABLE_COUNTERFACTUAL_RANK,TABLE_THIRD_GUARD_MATRIX,TABLE_RULE_HEALTH_MATRIX,TABLE_SOURCE_HEALTH_MATRIX,
                 TABLE_STATE_HEALTH_MATRIX,TABLE_SHADOW_HEALTH_GATE,TABLE_DYNAMIC_WINDOW_CLUSTER,TABLE_WINDOW_FEATURE_SAMPLE,
                 TABLE_POSITION_NEED_SAMPLE,TABLE_NUMBER_SUPPLY_SAMPLE,TABLE_NEED_SUPPLY_MATCH_SAMPLE,
                 TABLE_COUNTERFACTUAL_REASON_SAMPLE,TABLE_PROMOTION_DOMAIN_SNAPSHOT};
-        for(String table:factors)ensureColumnsR31(db,table,DbStore.mainChainFactorColumnDefs());
+        for(final String table:factors)units.put("FACTORS_"+table,()->ensureColumnsR31(db,table,DbStore.mainChainFactorColumnDefs()));
+        units.put("FINAL_COLUMNS",()->{
         ensureColumnsR31(db,TABLE_DECISIONS,new String[]{"decision TEXT"});
         ensureColumnsR31(db,TABLE_TRADES,new String[]{"action TEXT"});
         ensureColumnsR31(db,TABLE_SHADOW,new String[]{"rank_no INTEGER DEFAULT 0"});
@@ -2055,8 +2069,9 @@ public final class DbHelper extends SQLiteOpenHelper {
                 "candidate_count INTEGER DEFAULT 0","bet_count INTEGER DEFAULT 0","shadow_count INTEGER DEFAULT 0",
                 "hold_count INTEGER DEFAULT 0","hit_count INTEGER DEFAULT 0","miss_count INTEGER DEFAULT 0",
                 "avg_final_p REAL DEFAULT 0","avg_gate REAL DEFAULT 0","avg_edge REAL DEFAULT 0","updated_at INTEGER DEFAULT 0"});
-        createMainChainClosedLoopIndexes(db);
-        LegacySchemaCoordinatorR926.requireMainChainClosedLoopReadyR31(db);
+        });
+        units.put("INDEXES",()->createMainChainClosedLoopIndexes(db));
+        return units;
     }
 
     /** Strict migration helper: failures remain failures; one column census per table. */

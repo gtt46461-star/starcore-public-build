@@ -113,6 +113,13 @@ public final class DbStore {
     private final DatabaseCoordinator coordinator;
     private final DbHelper helper;
     private final HashMap<String, HashSet<String>> columnCache;
+    private final ThreadLocal<Throwable> legacyColumnFailureR31=new ThreadLocal<>();
+    private final ThreadLocal<Boolean> legacyColumnAuditR31=new ThreadLocal<>();
+
+    private void recordLegacyColumnFailureR31(Throwable failure) {
+        if(Boolean.TRUE.equals(legacyColumnAuditR31.get())&&legacyColumnFailureR31.get()==null)
+            legacyColumnFailureR31.set(failure);
+    }
     private static final java.util.Map<DatabaseCoordinator,LegacySchemaFlightR31> LEGACY_SCHEMA_FLIGHTS_R31=
             new java.util.WeakHashMap<>();
     private static final class LegacySchemaFlightR31 {
@@ -132,7 +139,7 @@ public final class DbStore {
                 if(completion==null||!completion.isDone()||(completion.isCancelled()&&!prior.exited))return false;
                 LEGACY_SCHEMA_FLIGHTS_R31.remove(coordinator);
             }
-            try {
+            if(coordinator.isLegacyRuntimeSchemaReady())try {
                 LegacySchemaCoordinatorR926.requireMainChainClosedLoopReadyR31(readable());
                 SchemaDomainCoordinatorR926.Contract contract=SchemaDomainCoordinatorR926.legacyContract();
                 try(Cursor step=readable().rawQuery("SELECT status FROM "+SchemaDomainCoordinatorR926.TABLE_JOURNAL
@@ -155,7 +162,10 @@ public final class DbStore {
                     // permanently bypassing a real schema-drift repair.
                     ensureRuntimeExtraTablesOnce(db);
                     LegacySchemaCoordinatorR926.requireMainChainClosedLoopReadyR31(db);
-                } finally {flight.exited=true;}
+                } finally {
+                    flight.exited=true;
+                    if(coordinator.legacySliceCanContinueR31())coordinator.continueLegacySliceR31(()->requestLegacySchemaMigrationR31());
+                }
             });
             return true;
         } catch(java.util.concurrent.RejectedExecutionException busy) {
@@ -316,14 +326,28 @@ public final class DbStore {
 
     private void ensureRuntimeExtraTablesOnce(final SQLiteDatabase db) {
         boolean ready =
-                coordinator.ensureRuntimeSchemaOnce(
-                        new LegacySchemaCoordinatorR926.MainChainInitializerR31() {
+                coordinator.ensureRuntimeSchemaOnce(db,
+                        new LegacySchemaCoordinatorR926.SlicedInitializerR31() {
                             @Override
-                            public void run(SQLiteDatabase ignored) {
-                                SQLiteDatabase target = db == null ? ignored : db;
-                                ensureRuntimeExtraTables(target);
-                                verifyLegacyRuntimeTablesR363(target);
+                            public boolean advanceRuntimeR31(SQLiteDatabase target) throws Exception {
+                                return advanceLegacyRuntimeSchemaR31(target);
+                            }
+                            @Override
+                            public void run(SQLiteDatabase target) {
+                                legacyColumnFailureR31.remove();legacyColumnAuditR31.set(Boolean.TRUE);
+                                // A prior failed read must not poison every subsequent column probe.
                                 clearColumnCache();
+                                try {
+                                    ensureRuntimeExtraTables(target);
+                                    Throwable failure=legacyColumnFailureR31.get();
+                                    if(failure!=null){
+                                        Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failure);
+                                        if(fatal!=null)throw fatal;
+                                        throw new IllegalStateException("LEGACY_COLUMN_MIGRATION_FAILED",failure);
+                                    }
+                                    verifyLegacyRuntimeTablesR363(target);
+                                    clearColumnCache();
+                                } finally {legacyColumnAuditR31.remove();legacyColumnFailureR31.remove();}
                             }
                             @Override
                             public void initializeMainChainDefaultsR31(SQLiteDatabase target) {
@@ -386,6 +410,47 @@ public final class DbStore {
         ensureV20CauseChainReady(db);
         ensureFieldChainColumns(db);
         ensureDynamicCausalWindowReady(db);
+    }
+
+    /** The old one-shot initializer remains available to legacy contracts. The
+     * asynchronous runtime owner advances one group/table, then releases its
+     * writer callback so draw commit/freeze/settlement can enter between units. */
+    private boolean advanceLegacyRuntimeSchemaR31(final SQLiteDatabase db) throws Exception {
+        java.util.LinkedHashMap<String,Runnable> units=new java.util.LinkedHashMap<>();
+        units.put("REALTIME_REPORT",()->ensureRealtimeValidationReportTable(db));
+        units.put("TEACHER_SNAPSHOT",()->ensureTeacherSnapshotTable(db));
+        units.put("LEARNING_CASE",()->ensureLearningCaseLogTable(db));
+        units.put("PROFILE_CACHE",()->ensureRuntimeProfileCacheTable(db));
+        units.put("NUMBER_PROFILE",()->ensureStateNumberProfileTable(db));
+        units.put("LEARN_CURSOR",()->ensureAutoLearnCursorTable(db));
+        units.put("TEACHER_SAMPLE",()->ensureTeacherMatrixSampleTable(db));
+        units.put("TEACHER_PROFILE",()->ensureTeacherMatrixProfileTable(db));
+        units.put("TEACHER_COMBO",()->ensureTeacherMatrixComboProfileTable(db));
+        units.put("TEACHER_REPORT",()->ensureTeacherMatrixReportTable(db));
+        units.put("RUNTIME_COLUMNS",()->ensureRuntimeExtraColumns(db));
+        units.put("TEACHER_COLUMNS",()->ensureTeacherMatrixColumns(db));
+        units.put("LEDGER_COLUMNS",()->ensureLedgerColumns(db));
+        units.put("LEDGER_INDEXES",()->ensureLedgerIndexes(db));
+        String[] v20={V20_TABLE_PRE_DRAW_FEATURE,V20_TABLE_PRE_DRAW_NUMBER_SAMPLE,V20_TABLE_FULL_CANDIDATE_SCAN,
+                V20_TABLE_CANDIDATE_AUDIT,V20_TABLE_CAUSAL_FACTOR_MATRIX,V20_TABLE_POSITION_CAUSE_MATRIX,
+                V20_TABLE_TEACHER_NUMBER_MATRIX,V20_TABLE_COUNTERFACTUAL_RANK,V20_TABLE_THIRD_GUARD_MATRIX,
+                V20_TABLE_RULE_HEALTH_MATRIX,V20_TABLE_SHADOW_HEALTH_GATE,V20_TABLE_FALSE_STRONG_FREEZE,
+                V20_TABLE_SEED_CAUSE_MATRIX,V20_TABLE_DYNAMIC_CAUSE_CHAIN,V20_TABLE_DECISION_AUDIT,V20_TABLE_REAL_TRADE_LEDGER};
+        for(final String table:v20)units.put("V20_BASE_"+table,()->createV20GenericTable(db,table));
+        for(final String table:v20)units.put("V20_COLUMNS_"+table,()->ensureV20ColumnsForTable(db,table));
+        units.put("V20_INDEXES",()->ensureV20Indexes(db));
+        units.put("FIELD_COLUMNS",()->ensureFieldChainColumns(db));
+        units.put("DYNAMIC_WINDOW",()->ensureDynamicCausalWindowReady(db));
+        units.put("VERIFY",()->{clearColumnCache();verifyLegacyRuntimeTablesR363(db);});
+        java.util.LinkedHashMap<String,Runnable> audited=new java.util.LinkedHashMap<>();
+        for(java.util.Map.Entry<String,Runnable> unit:units.entrySet())audited.put(unit.getKey(),()->{
+            legacyColumnFailureR31.remove();legacyColumnAuditR31.set(Boolean.TRUE);clearColumnCache();
+            try{unit.getValue().run();Throwable failed=legacyColumnFailureR31.get();if(failed!=null){
+                Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failed);
+                if(fatal!=null)throw fatal;throw new IllegalStateException("LEGACY_COLUMN_MIGRATION_FAILED",failed);
+            }}finally{legacyColumnAuditR31.remove();legacyColumnFailureR31.remove();}
+        });
+        return LegacySchemaCoordinatorR926.advanceUnitsR31(db,"R31Q21_RUNTIME_",audited,false);
     }
 
     public void ensureLearningTables() {
@@ -2078,6 +2143,7 @@ public final class DbStore {
                 if (cached != null) cached.add(column);
             }
         } catch (Throwable e) {
+            recordLegacyColumnFailureR31(e);
         }
     }
 
@@ -14867,6 +14933,7 @@ public final class DbStore {
 
         HashSet<String> set = new HashSet<String>();
         Cursor c = null;
+        boolean readSucceeded=false;
 
         try {
             c = db.rawQuery("PRAGMA table_info(" + table + ")", null);
@@ -14878,15 +14945,15 @@ public final class DbStore {
                     set.add(name);
                 }
             }
+            readSucceeded=true;
         } catch (Throwable e) {
             set.clear();
+            recordLegacyColumnFailureR31(e);
         } finally {
             closeCursor(c);
         }
 
-        synchronized (columnCache) {
-            columnCache.put(table, set);
-        }
+        if(readSucceeded&&!set.isEmpty())synchronized (columnCache) {columnCache.put(table, set);}
 
         return set;
     }

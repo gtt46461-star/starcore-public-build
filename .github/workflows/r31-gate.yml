@@ -49,7 +49,9 @@ jobs:
         run: |
           G=construction/STARCORE_R31_FINAL_20261104/tools/r31_gate.py
           BATCH="${{ github.event.inputs.batch }}"
-          if [ -z "$BATCH" ]; then BATCH=$(python3 $G status | python3 -c 'import json,sys; print(json.load(sys.stdin)["open_batch"])'); fi
+          if [ -z "$BATCH" ]; then BATCH=$(python3 $G status | python3 -c 'import json,sys; print(json.load(sys.stdin)["open_batch"] or "K11")'); fi
+          # Once K11 is closed, later source repairs still need the full suite.
+          # This refreshes build evidence only; historical receipts are not rewritten.
           echo "BATCH=$BATCH" >> "$GITHUB_ENV"
           # Logs committed by an earlier (possibly cancelled) run are rewritten during this build. Untrack them first,
           # otherwise a partial log equal to Gradle's fixed banner flips source_dirty between configuration and check.
