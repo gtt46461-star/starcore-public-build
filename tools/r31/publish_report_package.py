@@ -58,6 +58,7 @@ def package(request_path, built, reports, out, tools):
         assert phone_host['fixture']['pages'] == 165824 and phone_host['snapshotBytes'] == 679215104
         assert result['failureUiExit'] == 0 and result['025To026OverlayMarkerPreserved'] is True
         assert phone_failure['existingEvidenceBytesPreserved'] is True and phone_failure['newDatabaseBackup'] is False
+        assert phone_failure['failedFullReportJobDirectoriesAbsent'] is True
         assert len(phone_failure['entrances']) == 2 and all(v['correctRequest'] and v['ackReason'] and v['originalFailure'] and v['credentialsMasked'] and v['recoveryShare'] for v in phone_failure['entrances'])
         if request.get('validationSourceCommit'):
             assert result['validationSourceCommit'] == request['validationSourceCommit'], 'VALIDATION_SOURCE_MISMATCH'

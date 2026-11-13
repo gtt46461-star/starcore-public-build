@@ -51,7 +51,7 @@ def main():
             receipt = dict(sha256=sha, bytes=len(data), scope='EXPORT_FAILURE_RECOVERY_ONLY', databaseIncluded=False)
             write('recovery/' + request + '/receipt.json', receipt)
             write('requests/' + request + '.json', request_value)
-            write('requests/' + request + '.ack.json', dict(requestId=request, jobId=format(int(request,16)+100,'064x'), mode='FULL_REPORT', stage='FAILED', revision=3, reason='REPORT_PROGRESS_WRITE_FAILED', recovery=receipt))
+            write('requests/' + request + '.ack.json', dict(requestId=request, jobId=format(int(request,16)+1000,'064x'), mode='FULL_REPORT', stage='FAILED', revision=3, reason='REPORT_PROGRESS_WRITE_FAILED', recovery=receipt))
         job = dict(revision_name='REPORT_JOB_CP12_1', jobId=retention, requestId=retention,
                    releaseHash=release, mode='RETENTION_PAGE', stage='RETENTION_READY', resumeStage='BACKUP',
                    lastReason='', snapshotSha='', publishedDir='', manifestSha='', revision=5, attempt=1,
@@ -94,9 +94,10 @@ def main():
             assert hashlib.sha256(actual).hexdigest() == expected_hash, 'RETRIEVAL_CHANGED_EXISTING_EVIDENCE'
         directories = ui.adb('shell', 'ls', ui.ROOT + '/jobs').split()
         assert directories == [retention], 'RETRIEVAL_RECREATED_JOB_OR_BACKUP'
+        assert all(format(int(request,16)+1000,'064x') not in directories for request in [expected,other]), 'FAILED_FULL_REPORT_JOB_DIRECTORY_NOT_ABSENT'
         receipt = dict(result='PASS', sourceCommit=source, scope='SIGNED_RELEASE_ANDROID14_REAL_MENU_SYNTHETIC_ACK_ONLY_LAYOUT',
                        requestId=expected, onlyRemainingJob='RETENTION_PAGE', failuresDirectory=False,
-                       entrances=results, existingEvidenceBytesPreserved=True, newDatabaseBackup=False,
+                       entrances=results, existingEvidenceBytesPreserved=True, newDatabaseBackup=False, failedFullReportJobDirectoriesAbsent=True,
                        physicalDevice='NOT_RUN', originalDeviceDatabase='NOT_RUN')
         (ui.args.out / 'failure-ui-acceptance.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2)+'\n')
         print('PHONE_FAILURE_TWO_REAL_UI_ENTRIES_PASS_EVIDENCE_PRESERVED')
