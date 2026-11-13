@@ -1,0 +1,38 @@
+name: STARCORE preserve failed Android evidence and stop superseded 028 full integration
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-failed-android-evidence.yml']
+permissions:
+  contents: read
+  actions: write
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Stop only the superseded integration with known unfixed fixture failures
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/$GITHUB_REPOSITORY/actions/runs/43490755017/cancel"
+      - uses: actions/checkout@v4
+        with:
+          ref: 595b1ffa2f5593a03cf3c0c28f34b7f9b979cc2e
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: r31v-emu-*
+          run-id: 43484576602
+          github-token: ${{ github.token }}
+          path: evidence
+      - name: Print only public failure identifiers and code frames from existing failed protocols
+        run: |
+          python3 - <<'PY'
+          import pathlib,re,json
+          source='\n'.join(p.read_text(errors='replace') for p in pathlib.Path('app/src').rglob('*.java'))
+          codes=set(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b',source))
+          files={p.name for p in pathlib.Path('app/src').rglob('*.java')}
+          for name in ['restore-proof-process.txt','delivery-and-live-service.txt']:
+              for p in sorted(pathlib.Path('evidence').rglob(name)):
+                  text=p.read_text(errors='replace')
+                  frames=[list(x) for x in re.findall(r'at (com\.ethk3\.novaonepro\.[A-Za-z0-9_.$]+)\(([A-Za-z0-9_]+\.java):([0-9]+)\)',text) if x[1] in files]
+                  print('ANDROID_FAILURE_METADATA|'+json.dumps({'artifact':p.parts[1],'protocol':name,'junitPass':bool(re.search(r'OK \([0-9]+ tests?\)',text)),'sourceCodes':sorted(codes.intersection(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b',text))),'frames':frames[:50],'processCrash':bool(re.search(r'Process crashed|shortMsg=Process',text))}))
+          PY
