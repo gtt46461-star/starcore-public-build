@@ -311,7 +311,7 @@ def verify_apk(root: Path, apk: Path, apksigner: Path, aapt: Path, expected_cert
     if signed.returncode:
         return {"status": "FAIL", "errors": ["APK_SIGNATURE_VERIFICATION_FAILED"],
                 "device_installation": "NOT_RUN"}
-    certificates = re.findall(r"Signer #\d+ certificate SHA-256 digest:\s*([0-9a-fA-F]+)", signed.stdout)
+    certificates = re.findall(r"^(?:V[0-9]+(?:\.[0-9]+)? )?Signer(?: #[0-9]+)?(?: \([^\r\n]*\))?:? certificate SHA-256 digest:\s*([0-9a-fA-F]{64})\s*$", signed.stdout, re.M)
     certificates = sorted(set(value.lower() for value in certificates))
     errors = []
     if certificates != [expected_certificate]:

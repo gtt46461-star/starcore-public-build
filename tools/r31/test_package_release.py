@@ -53,7 +53,7 @@ class Package(unittest.TestCase):
         built = layout(self.tmp)
         signature = next((built / 'r31v').glob('signature-*.txt'))
         original = signature.read_text()
-        for label in ['Signer:', 'Signer (minSdkVersion=21, maxSdkVersion=2147483647):', 'Signer #1']:
+        for label in ['V2 Signer:', 'Signer:', 'Signer (minSdkVersion=21, maxSdkVersion=2147483647):', 'Signer #1']:
             signature.write_text(original.replace('Signer #1', label))
             apk = built / 'app/build/outputs/apk/debug/app-debug.apk'
             result = pr.verify_apk(apk, built / 'r31v/badging-app-debug.txt', signature, built / 'r31v/SHA256SUMS.txt', IDENT)

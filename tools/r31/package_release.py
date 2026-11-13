@@ -63,7 +63,7 @@ def verify_apk(apk, badging, signature, sums, ident):
     # New build-tools include the signer's SDK range and a colon in this label.
     # Parse only complete verified-signer lines, and reject different signers.
     certs = sorted(set(v.lower() for v in re.findall(
-        r'^Signer(?: #[0-9]+)?(?: \([^\r\n]*\))?:? certificate SHA-256 digest: ([0-9a-fA-F]{64})\s*$', s, re.M)))
+        r'^(?:V[0-9]+(?:\.[0-9]+)? )?Signer(?: #[0-9]+)?(?: \([^\r\n]*\))?:? certificate SHA-256 digest: ([0-9a-fA-F]{64})\s*$', s, re.M)))
     need(len(certs) == 1, 'R31_APK_SIGNER_CERT_UNKNOWN')
     schemes = sorted(set(re.findall(r'Verified using (v[0-9.]+) scheme[^:]*: true', s)))
     return {'file': Path(apk).name, 'sha256': digest, 'bytes': len(data), 'package': m.group(1), 'versionCode': int(m.group(2)),
