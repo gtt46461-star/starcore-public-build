@@ -57,6 +57,9 @@ jobs:
               # from the explicit source-defined profiling record are emitted.
               costs=re.findall(r'R31Q_PHASE_COST\|([A-Z][A-Z0-9_]{1,60})\|elapsedMs=([0-9]{1,12})\|budgetMs=([0-9]{1,12})\|(OK|OVER_BUDGET|FAILED)',s)
               if costs:print(json.dumps({'protocol':selectors[p.name],'publicPhaseCosts':costs}),flush=True)
+              json_keys=set(re.findall(r'\.get(?:String|Long|Int|Double|Boolean|JSONObject|JSONArray)\("([A-Za-z][A-Za-z0-9_]*)"\)',public_text))
+              missing=set(re.findall(r'No value for ([A-Za-z][A-Za-z0-9_]*)',s))
+              print(json.dumps({'protocol':selectors[p.name],'missingPublicJsonKeys':sorted(json_keys.intersection(missing)),'nonfiniteJsonRejected':bool(re.search(r'Forbidden numeric value|not a finite double',s)),'publicReportFrames':[x for x in frames if 'Report' in x[2] or 'Json' in x[2]]}),flush=True)
               tokens=set(re.findall(r'[A-Z][A-Z0-9_]{3,}',s))
               # Schema identifiers are emitted only if they are already literal
               # public repository identifiers and occur in a failure cause.
