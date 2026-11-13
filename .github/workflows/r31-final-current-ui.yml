@@ -1,4 +1,4 @@
-name: STARCORE 027 exact release UI SAF live and sixteen readers
+name: STARCORE 027 table-reader public-schema diagnosis
 on:
   push:
     branches: ['construction/r27-20261028']
@@ -71,7 +71,7 @@ jobs:
           ram-size: 3072M
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
-          script: cd source && bash tools/r30-repair/prepare_emulator.sh && python3 -B ../harness/.github/r31-final-current-android.py --built ../built --source "$SOURCE" --out ../final-live-public
+          script: cd source && bash tools/r30-repair/prepare_emulator.sh && python3 -B ../harness/.github/r31-final-current-android.py --built ../built --source "$SOURCE" --out ../final-live-public --mode tables
       - uses: actions/upload-artifact@v4
         if: always()
         with:
