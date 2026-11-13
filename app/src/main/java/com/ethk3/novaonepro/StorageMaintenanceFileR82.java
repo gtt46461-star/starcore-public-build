@@ -142,13 +142,20 @@ public final class StorageMaintenanceFileR82 {
     /** Actual original JNI validates schema, every typed value, BLOB and intrinsic
      * rowid while creating the independent recovery copy. Caller owns a closed
      * source pool and both original maintenance locks. */
+    /** Only already available blocks count. Reclaimable cache is not promised
+     * capacity and no protected file is removed to satisfy this observation. */
+    static long availableRestoreBytesR31(File directory)throws IOException {
+        if(directory==null||!directory.isDirectory())throw new IOException("WAIT_RESTORE_DISK_DIRECTORY");
+        try{return new android.os.StatFs(directory.getPath()).getAvailableBytes();}
+        catch(IllegalArgumentException unavailable){throw new IOException("WAIT_RESTORE_DISK_OBSERVATION",unavailable);}
+    }
     static String prepareRestoreCopyR31(File database,File destination)throws IOException {
         File db=database.getCanonicalFile();requireNoSidecars(db);
         File r=receipt(db);if(!r.isFile()||journal(db).exists())throw new IOException("WAIT_VERIFIED_BACKUP_RECEIPT_REQUIRED");
         Properties prior=read(r);if(!db.getPath().equals(prior.getProperty("database")))throw new IOException("RESTORE_DATABASE_IDENTITY");
         requireHash(backup(db),prior.getProperty("source_sha256"),"retained original backup");
         long minimum=db.length()>Long.MAX_VALUE-(64L<<20)?Long.MAX_VALUE:db.length()+(64L<<20);
-        if(destination.getParentFile().getUsableSpace()<minimum)throw new IOException("WAIT_RESTORE_COPY_DISK_CAPACITY");
+        if(availableRestoreBytesR31(destination.getParentFile())<minimum)throw new IOException("WAIT_RESTORE_COPY_DISK_CAPACITY");
         String before=sha256(db),proof=nativeRebuild(db.getPath(),destination.getCanonicalPath());
         if(proof==null||!proof.matches("OK rows=[0-9]+ tables=[0-9]+ auto_vacuum=2 user_version=[0-9]+ application_id=[0-9]+"))throw new IOException("RESTORE_NATIVE_FULL_COPY_FAILED");
         requireHash(db,before,"active changed while preparing restore copy");requireNoSidecars(db);return proof;

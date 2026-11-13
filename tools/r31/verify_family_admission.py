@@ -8,7 +8,7 @@ import argparse,concurrent.futures,hashlib,json,os,re,shutil,subprocess,tempfile
 from datetime import datetime,timezone
 ROOT=Path(__file__).resolve().parents[2]
 SRC=ROOT/'app/src/main/java/com/ethk3/novaonepro/strategyv2';TEST=ROOT/'app/src/test/java/com/ethk3/novaonepro/strategyv2'
-OUT=ROOT/'verification/r31/p02/family-admission'
+OUT=Path(os.environ.get('R312_HOST_OUTPUT',ROOT/'verification/r31/p02/family-admission'))
 HOST=ROOT/'tools/r31/family_admission_host'
 BASE='5237b265a27fe5ad27fd842901c445d5f8c27749'
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
@@ -21,16 +21,16 @@ def main():
  paths=[SRC/'FeatureCacheR27.java',*[TEST/(n+'.java') for n in names],*hosts,*dependencies,Path(__file__).resolve()];before={str(p.relative_to(ROOT)):sha(p) for p in paths};commands=[];support_sha=sha(support);cp=os.pathsep.join(map(str,[classes,support,junit,hamcrest]))
  def run(cmd,log,allow_failure=False,timeout=240):
   command=list(map(str,cmd));started=datetime.now(timezone.utc).isoformat();state={'status':'IN_PROGRESS','command':command,'timeLimitSeconds':timeout,'startedAt':started};status_path=OUT/(log+'.status.json');status_path.write_text(json.dumps(state,indent=2)+'\n')
-  with (OUT/log).open('w',buffering=1) as stream:
-   child=subprocess.Popen(command,cwd=ROOT,stdout=stream,stderr=subprocess.STDOUT,text=True);state['pid']=child.pid;status_path.write_text(json.dumps(state,indent=2)+'\n')
+  with (OUT/log).open('w',buffering=1) as stream, (OUT/(log+'.stderr.log')).open('w',buffering=1) as errors:
+   child=subprocess.Popen(command,cwd=ROOT,stdout=stream,stderr=errors,text=True);state['pid']=child.pid;status_path.write_text(json.dumps(state,indent=2)+'\n')
    try:code=child.wait(timeout=timeout)
    except subprocess.TimeoutExpired:
     child.terminate()
     try:child.wait(timeout=5)
     except subprocess.TimeoutExpired:child.kill();child.wait()
     code=124;stream.write('\nHOST_VERIFIER_TIME_LIMIT_SECONDS='+str(timeout)+'\n')
-  contents=(OUT/log).read_text();process=subprocess.CompletedProcess(command,code,contents,'');state.update(status='TIMED_OUT' if code==124 else 'EXITED',exitCode=code,completedAt=datetime.now(timezone.utc).isoformat());status_path.write_text(json.dumps(state,indent=2)+'\n');commands.append(dict(state,log=log))
-  if process.returncode and not allow_failure:print('R31_HOST_STEP_FAILED '+log+' exit='+str(code)+'\n'+contents[-6000:],flush=True);raise RuntimeError(log)
+  contents=(OUT/log).read_text();stderr=(OUT/(log+'.stderr.log')).read_text();process=subprocess.CompletedProcess(command,code,contents,stderr);state.update(status='TIMED_OUT' if code==124 else 'EXITED',exitCode=code,completedAt=datetime.now(timezone.utc).isoformat());status_path.write_text(json.dumps(state,indent=2)+'\n');commands.append(dict(state,log=log,stderrLog=log+'.stderr.log'))
+  if process.returncode and not allow_failure:print('R31_HOST_STEP_FAILED '+log+' exit='+str(code)+'\n'+(contents+stderr)[-6000:],flush=True);raise RuntimeError(log)
   return process
  receipt={'status':'FAILED_OR_INCOMPLETE','sourceSha256':before,'supportJar':str(support),'supportJarSha256':support_sha,'scope':'CURRENT_FEATURE_SOURCE_ON_ACTUAL_ANDROID_SUPPORT_JAR_NOT_DEVICE_OR_APK','work':str(work),'device':'NOT_RUN','continuous24h':'NOT_RUN','continuous72h':'NOT_RUN','naturalQuality':'NOT_EVALUATED'}
  try:

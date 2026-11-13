@@ -1,0 +1,38 @@
+{
+  "scope": "CURRENT_ACTUAL_ANDROID_LINT_FAILURE_REPAIR_NOT_FUNCTIONAL_PASS",
+  "sourceHead": "bcfd527fb61008f178d141626f2d55f76c453ba9",
+  "lintErrors": 4,
+  "lintBaselineChanged": false,
+  "minSdkChanged": false,
+  "capacityThresholdsChanged": false,
+  "changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/StorageCheckpointClientR31.java",
+      "beforeSha256": "03e1252fed1005d1897a4ce56dacaff216ad2cbf3e1bedc913af2f4d37006de2",
+      "afterSha256": "b10bf354b8c9e2c2e00845026b8bc21a65be67d1fd76494a958b330275ecef35",
+      "role": "NUMERIC",
+      "rationale": "Only Application context is retained by the in-flight Binder owner; no Activity/Service Context may enter static owner state."
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/StorageCheckpointServiceR31.java",
+      "beforeSha256": "610798e86613e08b06fd4aeb781d743c8d3cced03582b9a5d276ce100fcbb0b6",
+      "afterSha256": "6b189c34e9d66e46d5b5f15cf19c2ad72d4de3df4f83c0ea56d8a08b3af9ec9c",
+      "role": "NUMERIC",
+      "rationale": "The API-24 device-protected call is explicitly guarded at its invocation; API21-23 returns unavailable without native execution."
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
+      "beforeSha256": "94183be9e8eedbd53a8b4c7ae0cfcecc7a98e7c4c589646085d6ce90ae3d785a",
+      "afterSha256": "7da44617eabc2b768bc18677cfadc36c7f0ae2bd6711ff45f17ac6a4fb32c3a2",
+      "role": "NUMERIC",
+      "rationale": "Observe already available blocks through API18 StatFs; unavailable/non-directory observations fail closed and retain the original 64MiB reserve."
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/StorageRestoreProofR31.java",
+      "beforeSha256": "b98e73b3ede806dac436b30d16768f6d250c51aa66280b875735d575d827a03d",
+      "afterSha256": "44230311a21b3509684b667f408c88420b921fa145d031353d3cda8b500b98ac",
+      "role": "NUMERIC",
+      "rationale": "Use the same conservative available-block observation for restored assets; preserve copy hash, size bounds and 64MiB headroom."
+    }
+  ]
+}

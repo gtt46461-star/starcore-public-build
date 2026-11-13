@@ -5,18 +5,18 @@ No production compilation/overlay, fake Probe, collector, math-suite repeat, And
 from pathlib import Path
 import argparse,hashlib,json,os,re,shutil,subprocess,tempfile,zipfile
 from datetime import datetime,timezone
-ROOT=Path(__file__).resolve().parents[2];HOST=ROOT/'tools/r31/ast_family_scope_host/AstFamilyScopeR31Host.java';OUT=ROOT/'verification/r31/p02/ast-family-scope'
+ROOT=Path(__file__).resolve().parents[2];HOST=ROOT/'tools/r31/ast_family_scope_host/AstFamilyScopeR31Host.java';OUT=Path(os.environ.get('R312_HOST_OUTPUT',ROOT/'verification/r31/p02/ast-family-scope'))
 # The jar and policy source are the ones this build produced; both must stay unchanged for the whole run.
 # (R31.1 pinned one historical jar/source hash, which no later build can reproduce.)
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main():
  parser=argparse.ArgumentParser();parser.add_argument('--support-jar',type=Path,default=Path('/tmp/r31-p02-013-actual-android-support/classes.jar'));parser.add_argument('--main-source',type=Path,default=Path('/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java'));args=parser.parse_args();jar=args.support_jar.resolve();assert jar.is_file(),'actual Android support jar missing';jar_sha=sha(jar);OUT.mkdir(parents=True,exist_ok=True);snapshot=OUT/'PolicyAstR27.java.source.snapshot';snapshot.write_bytes(args.main_source.read_bytes());observed_policy_sha=sha(snapshot);source_before={str(p.relative_to(ROOT)):sha(p) for p in [HOST,Path(__file__).resolve()]};java,javac,javap=[shutil.which(n) for n in ['java','javac','javap']];work=Path(tempfile.mkdtemp(prefix='r31-actual-ast-family-scope-'));commands=[]
  def run(cmd,log,timeout=60):
-  with (OUT/log).open('w') as stream:
-   child=subprocess.Popen(list(map(str,cmd)),cwd=ROOT,stdout=stream,stderr=subprocess.STDOUT,text=True)
+  with (OUT/log).open('w') as stream, (OUT/(log+'.stderr.log')).open('w') as errors:
+   child=subprocess.Popen(list(map(str,cmd)),cwd=ROOT,stdout=stream,stderr=errors,text=True)
    try:code=child.wait(timeout)
    except subprocess.TimeoutExpired:child.kill();child.wait();code=124;stream.write('\nHOST_VERIFICATION_TIME_LIMIT\n')
-  commands.append({'command':list(map(str,cmd)),'exitCode':code,'log':log});assert code==0,(log,code);return (OUT/log).read_text()
+  commands.append({'command':list(map(str,cmd)),'exitCode':code,'log':log,'stderrLog':log+'.stderr.log'});assert code==0,(log,code);return (OUT/log).read_text()
  bytecode=run([javap,'-p','-c','-s','-classpath',jar,'com.ethk3.novaonepro.strategyv2.PolicyAstR27'],'actual-policy-javap.txt');assert re.search(r'iload_3\s+\d+: invokevirtual\s+#\d+\s+// Method com/ethk3/novaonepro/strategyv2/FeatureCacheR27.familyIntoR31:\(II\[DZ\)V',bytecode),'actual critical argument not consumed by compiled family branch'
  with zipfile.ZipFile(jar) as z:class_sha={n:hashlib.sha256(z.read('com/ethk3/novaonepro/strategyv2/'+n+'.class')).hexdigest() for n in ['PolicyAstR27','FeatureCacheR27','ReplayEvaluatorR27','MemoryBudgetR31']}
  run([javac,'-cp',jar,'-d',work,HOST],'compile.log');data=json.loads(run([java,'-Xmx512m','-cp',str(work)+os.pathsep+str(jar),'com.ethk3.novaonepro.strategyv2.AstFamilyScopeR31Host'],'actual-consumer.json'))

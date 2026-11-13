@@ -19,7 +19,7 @@ def main():
  names=['DatabaseCoordinator','StorageMaintenanceFileR82','StorageMaintenanceServiceR82','StorageRestoreProofR31','StorageRestoreProbeServiceR31','StorageRestoreBusinessProbeR31','StorageCheckpointR31','ModelBundleManagerR929','ModelBundleRuntimeR932','SettlementTaskStoreR36']
  names += ['strategyv2/'+s for s in ['ResearchContextR30R1','ResearchResultContractR31','ResearchConsumptionStoreR31','ResearchStoreR30R1','EvolutionLoopR27','CheckpointArtifactsR26','ChunkedCheckpointR26','AtomNetSessionR30','AtomNetR27','ModelArtifactR29','LiveStateR26','LegacyReplayStateR26','ExpertExperimentR26','ReplayWorkspaceR26','CampaignStateSU1','ArchiveStoreSU1','KeepMigrationStoreR31','KeepMigrationR31']]
  production=[source/(n+'.java') for n in names];test=[root/'tools/r31/storage_host/R31RestoreProofHost.java',root/'app/src/test/java/com/ethk3/novaonepro/R31StorageCheckpointRebuildTest.java']
- original_platform=[*sorted((root/'tools/r29/qual_host/shim').rglob('*.java')),root/'tools/r31/storage_host/platform/android/os/SystemClock.java']
+ original_platform=[*sorted((root/'tools/r29/qual_host/shim').rglob('*.java')),root/'tools/r31/storage_host/platform/android/os/SystemClock.java',root/'tools/r31/storage_host/platform/android/os/StatFs.java']
  inputs=production+test+original_platform+[root/'app/src/androidTest/java/com/ethk3/novaonepro/R31RestoreProofInstrumentedTest.java',pathlib.Path(__file__).resolve(),root/'app/src/main/cpp/storage_maintenance_r82.inc'];before={str(f.relative_to(root)):sha(f) for f in inputs};(out/'source-before.json').write_text(json.dumps(before,indent=2)+'\n')
  support_before=classpath_identity(classes);libraries_before=file_identities([sdk,jdbc,junit,hamcrest]);(out/'compiled-support-before.json').write_text(json.dumps({'compiledSupport':support_before,'runtimeLibraries':libraries_before},indent=2)+'\n')
  def run(cmd,log,cwd=root):
@@ -43,6 +43,7 @@ def main():
  adapters={'android/util/Log.java':'package android.util;public final class Log{public static int w(String t,String v){return 0;}public static int w(String t,String v,Throwable e){return 0;}public static int e(String t,String v){return 0;}}','android/os/Build.java':'package android.os;public final class Build{public static final class VERSION{public static final int SDK_INT=35;}}'}
  for name,text in adapters.items():f=generated/name;f.parent.mkdir(parents=True,exist_ok=True);f.write_text(text);platform.append(f)
  platform.append(root/'tools/r31/storage_host/platform/android/os/SystemClock.java')
+ platform.append(root/'tools/r31/storage_host/platform/android/os/StatFs.java')
  platform_generated_hashes=file_identities(platform);(out/'generated-platform-source-sha256.json').write_text(json.dumps(platform_generated_hashes,indent=2)+'\n')
  run(['javac','-encoding','UTF-8','-cp',sdk,'-d',shim,*platform],'platform-javac.log')
  cp=os.pathsep.join(map(str,[classes,sdk]));run(['javac','-proc:none','-implicit:none','-sourcepath','','-cp',cp,'-d',compiled,*production],'production-javac.log')

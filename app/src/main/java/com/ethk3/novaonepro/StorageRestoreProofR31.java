@@ -40,7 +40,7 @@ final class StorageRestoreProofR31 {
         File target=child(copy,relative);
         if(source.isDirectory()){if(!target.mkdirs()&&!target.isDirectory())throw new IOException("RESTORE_ASSET_DIRECTORY");String[] names=source.list();if(names==null||names.length>16384)throw new IOException("WAIT_RESTORE_ASSET_ENUMERATION_BOUND");Arrays.sort(names);for(String name:names)copyTree(original,copy,relative+"/"+name,manifest,used,depth+1);return;}
         if(!source.isFile()||++used[1]>16384||(used[0]=Math.addExact(used[0],source.length()))>(1L<<30))throw new IOException("WAIT_RESTORE_ASSET_BOUND");
-        if(target.getParentFile().getUsableSpace()<source.length()+(64L<<20))throw new IOException("WAIT_RESTORE_ASSET_DISK_CAPACITY");
+        if(StorageMaintenanceFileR82.availableRestoreBytesR31(target.getParentFile())<source.length()+(64L<<20))throw new IOException("WAIT_RESTORE_ASSET_DISK_CAPACITY");
         String hash=StorageMaintenanceFileR82.sha256(source);try(InputStream in=new FileInputStream(source);FileOutputStream out=new FileOutputStream(target)){byte[] b=new byte[65536];for(int n;(n=in.read(b))!=-1;)out.write(b,0,n);out.getFD().sync();}
         if(!hash.equals(StorageMaintenanceFileR82.sha256(source))||!hash.equals(StorageMaintenanceFileR82.sha256(target)))throw new IOException("RESTORE_ASSET_CHANGED");manifest.setProperty(relative,hash+":"+source.length());
     }

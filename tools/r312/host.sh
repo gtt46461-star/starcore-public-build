@@ -8,6 +8,7 @@ id="${1:?entry id required}"
 CL="$PWD/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"
 JAR="$PWD/app/build/intermediates/runtime_app_classes_jar/debug/bundleDebugClassesToRuntimeJar/classes.jar"
 OUT="$PWD/app/build/r312-host/$id"; rm -rf "$OUT"; mkdir -p "$(dirname "$OUT")"
+export R312_HOST_OUTPUT="$OUT"
 CACHE="${R312_HOST_CACHE:-$HOME/.cache/r312-host}"; mkdir -p "$CACHE"
 export ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
 test -f "$ANDROID_HOME/platforms/android-36/android.jar" || { echo "R312_HOST_ANDROID_36_JAR_MISSING:$ANDROID_HOME"; exit 3; }

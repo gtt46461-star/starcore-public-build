@@ -23,9 +23,12 @@ public final class StorageCheckpointServiceR31 extends Service {
         owner=id;cancelled.set(false);worker.execute(()->{
             long[] result=null;String state="FAILED_OR_INCOMPLETE";long end=TimeSourceR811.monoNowMs()+40;
             try{
-                if(device&&Build.VERSION.SDK_INT<24)state="DEVICE_PROTECTED_STORAGE_UNAVAILABLE_BEFORE_API_24";
-                else{
-                Context source=device?createDeviceProtectedStorageContext():getApplicationContext();File file=source.getDatabasePath(AppConfig.DB_NAME);
+                Context source=getApplicationContext();
+                if(device){
+                    if(Build.VERSION.SDK_INT>=24)source=createDeviceProtectedStorageContext();
+                    else{state="DEVICE_PROTECTED_STORAGE_UNAVAILABLE_BEFORE_API_24";return;}
+                }
+                File file=source.getDatabasePath(AppConfig.DB_NAME);
                 // Cancel only stale readers registered by their owners in this
                 // diagnostics process. An unknown main/other-process reader is
                 // never declared closed; SQLite's zero-wait result is authoritative.
@@ -33,7 +36,6 @@ public final class StorageCheckpointServiceR31 extends Service {
                 else try(SourceReadLeaseR82 lease=SourceReadLeaseR82.tryExclusiveCheckpoint(file,()->!cancelled.get()&&TimeSourceR811.monoNowMs()<end)){
                     if(lease==null)state="SOURCE_OR_OFFLINE_LEASE_BUSY";
                     else{result=ReportNativeCP4.checkpointWalR31(source,file,0,Math.max(1,end-TimeSourceR811.monoNowMs()),lease,new ReportNativeCP4.Control(){public boolean shouldContinue(){return !cancelled.get()&&TimeSourceR811.monoNowMs()<end;}});state=resultStateR31(result);}
-                }
                 }
             }catch(Exception failure){state=cancelled.get()?"CANCELLED_OWNER_NOT_SUCCESS":"NATIVE_OR_SOURCE_UNAVAILABLE";}
             finally{owner="";active.set(false);respond(reply,id,result,state);}
