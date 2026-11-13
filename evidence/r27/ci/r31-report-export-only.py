@@ -229,6 +229,11 @@ def safe_liveness_snapshot(label):
     public_source='\n'.join(p.read_text(errors='replace') for p in Path('app/src').rglob('*.java'))
     known=set(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b',public_source))
     out={'label':label,'elapsedMs':int(time.monotonic()*1000),'rows':[]}
+    out['reportFileBytes']=[]
+    for filename in ['R30_REPORT.json','R30_REPORT.md','R27_REPORT.md','R26_REPORT.json']:
+        paths=adb('shell',f"find {ROOT}/jobs -name '{filename}' -type f 2>/dev/null || true").splitlines()
+        for path in paths[:5]:
+            out['reportFileBytes'].append({'name':filename,'bytes':int(adb('shell','stat','-c','%s',path).strip())})
     specs=[('requests','*.json'),('jobs','job.json'),('control-r69','*.json')]
     for folder,pattern in specs:
         paths=adb('shell',f"find {ROOT}/{folder} -name '{pattern}' -type f 2>/dev/null || true").splitlines()
@@ -278,6 +283,11 @@ def safe_timeout_frames():
     for path in paths[-6:]:
         try:raw+='\n'+adb('shell','cat',path,timeout=20)
         except RuntimeError:pass
+    framework=[]
+    for block in raw.split('\n\n'):
+        if not any(name in block[:400] for name in ['\"report-owner-cp12\"','\"report-control-cp12\"']):continue
+        for cls,where in re.findall(r' at ((?:java|android|libcore|sun|com\.ethk3)\.[A-Za-z0-9_.$]+)\(([^()]+)\)',block):
+            if re.fullmatch(r'[A-Za-z0-9_$.]+\.java:[0-9]+|Native method|Native Method|Unknown Source',where):framework.append(cls+'('+where+')')
     frames=[]
     for cls,method,file,line in re.findall(r'(com\.ethk3\.novaonepro\.[A-Za-z0-9_.$]+)\.([A-Za-z0-9_$]+)\(([A-Za-z0-9_]+\.java):(\d+)\)',raw):
         if file in public_files:
@@ -286,7 +296,7 @@ def safe_timeout_frames():
     source='\n'.join(p.read_text(errors='replace') for p in Path('app/src').rglob('*.java'))
     known=set(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b',source))
     codes=sorted(set(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b',raw)).intersection(known))
-    (args.out/'safe-timeout-source-frames.json').write_text(json.dumps({'frames':frames,'publicCodes':codes,'pidsObserved':len(pids),'scope':'PUBLIC_CODE_SYMBOLS_NO_LOG_VALUES'},indent=2)+'\n')
+    (args.out/'safe-timeout-source-frames.json').write_text(json.dumps({'frames':frames,'reportOwnerFrameworkFrames':framework,'publicCodes':codes,'pidsObserved':len(pids),'scope':'PUBLIC_CODE_SYMBOLS_NO_LOG_VALUES'},indent=2)+'\n')
 
 def main():
     assert adb('get-serialno').strip().startswith('emulator-'), 'EMULATOR_REQUIRED'
@@ -300,7 +310,7 @@ def main():
     # The production menu removes report cache only. This is the disposable CI
     # emulator, never the original phone or its protected database/backup files.
     click_text('清理旧报告并生成当前完整报告')
-    deadline = time.monotonic() + 360
+    deadline = time.monotonic() + int(os.environ.get('R31_REPORT_PROBE_SECONDS','360'))
     last = None
     publication = None
     while time.monotonic() < deadline:

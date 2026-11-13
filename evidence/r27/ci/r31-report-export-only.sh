@@ -27,6 +27,7 @@ import hashlib,json,os,pathlib,re,sys
 private=pathlib.Path(os.environ['R31_REPORT_PRIVATE']);public=pathlib.Path('report-only-public')
 source=__import__('subprocess').check_output(['git','rev-parse','HEAD'],text=True).strip()
 r={'sourceCommit':source,'apkSha256':os.environ['R31_REPORT_APK_SHA'],'runId':os.environ['GITHUB_RUN_ID'],'scope':'REPORT_GENERATION_COMPLETENESS_REAL_UI_SAF_ONLY','probeExit':int(sys.argv[1]),'result':'REPORT_PASS_REINSTALL_PENDING' if sys.argv[1]=='0' else 'FAIL','physicalDevice':'NOT_RUN','businessAndAlgorithmHealth':'DEFERRED_NOT_PASSED','rawReportsAndCredentials':'PRIVATE_NOT_PUBLISHED'}
+if os.environ.get('R31_DIAGNOSTIC_ONLY')=='1':r['scope']='REPORT_WRITER_SAMPLING_ONLY_NOT_ACCEPTANCE';r['result']='DIAGNOSTIC_ONLY_NOT_ACCEPTANCE'
 r['harnessSha256']=hashlib.sha256(pathlib.Path('../harness/evidence/r27/ci/r31-report-export-only.py').read_bytes()).hexdigest()
 for name in ['ui-report-acceptance.json','safe-recovery-failure.json','safe-report-semantics.json','safe-report-liveness.json','safe-timeout-source-frames.json']:
     p=private/name
