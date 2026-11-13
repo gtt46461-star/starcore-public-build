@@ -1,4 +1,4 @@
-name: STARCORE R31 failed current gate diagnostics
+name: STARCORE R31 exact current source verification
 on:
   push:
     branches: ['construction/r27-20261028']
@@ -7,44 +7,29 @@ permissions:
   contents: read
   actions: read
 jobs:
-  inspect:
+  request:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v4
         with:
-          name: r31v-contracts
-          run-id: 43336663168
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: evidence
-      - name: Public fixed diagnostic projection; never raw logs or test payloads
+          sparse-checkout: .github/r31-build-request.json
+          sparse-checkout-cone-mode: false
+      - name: Require the actual current R31 source, preserving the installed identity
         run: |
           python3 - <<'PY'
-          import hashlib,json,pathlib,re,xml.etree.ElementTree as ET
-          root=pathlib.Path('evidence')
-          summaries=list(root.rglob('BUILD_SUMMARY.json'));assert len(summaries)==1
-          summary=json.loads(summaries[0].read_text())
-          assert summary['source_head']=='97e53aee275238f73c2c0e5856f3fedcf8151324'
-          assert summary['invocationId']=='dccb1eb0-87b0-4cf9-b39d-d4ac2cfb98f1'
-          result={'source':summary['source_head'],'invocationId':summary['invocationId'],'runId':43336663168,'unit':summary['unit'],'failures':[],'failedHosts':[]}
-          def identifier(value):return value if isinstance(value,str) and re.fullmatch('[A-Za-z0-9_.$ #()\\[\\],:-]{1,300}',value) else 'UNAVAILABLE'
-          def frames(text):return re.findall(r'((?:com[.]ethk3[.]novaonepro)[A-Za-z0-9_.$]+[(][A-Za-z0-9_.$: /-]+[)])',text)[:60]
-          codes=['AssertionError','FileNotFoundException','IllegalStateException','SqliteException','SQLiteException','NullPointerException','NO_SUCH_TABLE','no such table','no such column','RETIREMENT_MANIFEST','SOURCE_CHANGED','hash','mismatch','MISMATCH','EXPECTED','expected','BOOTSTRAP','SCHEMA','TRIGGER']
-          for p in root.rglob('TEST-*.xml'):
-              if p.stat().st_size>8000000:continue
-              for case in ET.parse(p).getroot().iter('testcase'):
-                  for failure in list(case.findall('failure'))+list(case.findall('error')):
-                      raw=(failure.text or '')+' '+failure.get('message','')
-                      result['failures'].append({'class':identifier(case.get('classname')),'test':identifier(case.get('name')),'type':identifier(failure.get('type')),'sourceFrames':frames(raw),'memoryReasons':re.findall('RESOURCE_WAIT:MEMORY_[A-Z_]+',raw),'leafAdmission':re.findall('R31_LEAF_ADMISSION kind=[a-z0-9_]{1,48} tp=[0-9]{1,2} a=[0-9]{1,8} b=[0-9]{1,8} rows=[0-9]{1,8}',raw),'codes':[c for c in codes if c in raw],'xmlSha256':hashlib.sha256(p.read_bytes()).hexdigest()})
-          for host in summary.get('host',[]):
-              if host.get('status')=='PASS':continue
-              row={'id':identifier(host.get('id')),'status':identifier(host.get('status')),'exitCode':host.get('exit')}
-              path=host.get('log') or host.get('log_path') or ''
-              matches=[p for p in root.rglob('*') if p.is_file() and (p.name==pathlib.Path(path).name or host['id'] in p.name)]
-              row['logs']=[]
-              for p in matches[:5]:
-                  if p.stat().st_size>8000000:continue
-                  raw=p.read_text(errors='replace')
-                  row['logs'].append({'file':identifier(p.name),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'codes':[c for c in codes if c in raw],'sourceFrames':frames(raw)})
-              result['failedHosts'].append(row)
-          print('R31_PUBLIC_FAILED_GATE='+json.dumps(result,separators=(',',':')))
+          import json
+          r=json.load(open('.github/r31-build-request.json'))
+          assert r['sourceBranch']=='construction/r31-final-20261104'
+          assert r['source']=='56f230aad786c85ab220eed7090872a24cbd969e'
+          assert r['expectedTree']=='06aea904c3743b9fb91dcb44e0f54b8126050fae'
+          assert r['expectedVersionCode']==577311021
+          assert r['expectedVersionName']=='R31-REPAIR-2026.11.12-021'
+          assert r['mode']=='verify'
+          print('PINNED_R31_SOURCE='+r['source'])
           PY
+  verify:
+    needs: request
+    uses: gtt46461-star/starcore-public-build/.github/workflows/r31-verification.yml@56f230aad786c85ab220eed7090872a24cbd969e
+    with:
+      source: 56f230aad786c85ab220eed7090872a24cbd969e
+    secrets: inherit
