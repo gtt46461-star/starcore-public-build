@@ -1,134 +1,147 @@
-name: STARCORE 027 table-reader public-schema diagnosis
-on:
+name: STARCORE 028 exact signed report SAF and sixteen production readers
+'on':
   push:
-    branches: ['construction/r27-20261028']
-    paths: ['.github/workflows/r31-final-current-ui.yml']
+    branches:
+    - construction/r27-20261028
+    paths:
+    - .github/workflows/r31-final-current-ui.yml
 permissions:
   contents: read
   actions: read
 env:
-  SOURCE: 477f6c9ce42b8ab0968a3b43351c1af3d6a752f7
-  BUILD_RUN: '43484576602'
+  SOURCE: 0f2bd3b41427ae1e9addb1aa8a442a071afb7938
+  BUILD_RUN: '43496382530'
 jobs:
   build_artifact:
     runs-on: ubuntu-latest
     timeout-minutes: 22
     steps:
-      - name: Wait only for the requested immutable build artifact
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          for attempt in $(seq 1 60); do
-            count=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN/artifacts" --jq '[.artifacts[]|select(.name=="r31v-android-build" and .expired==false)]|length')
-            if [ "$count" = 1 ]; then exit 0; fi
-            sleep 20
-          done
-          echo EXACT_BUILD_ARTIFACT_UNAVAILABLE
-          exit 1
+    - name: Wait only for the requested immutable build artifact
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: "set -euo pipefail\nfor attempt in $(seq 1 60); do\n  count=$(gh api \"repos/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN/artifacts\"\
+        \ --jq '[.artifacts[]|select(.name==\"r31v-android-build\" and .expired==false)]|length')\n  if [ \"$count\" = 1 ];\
+        \ then exit 0; fi\n  sleep 20\ndone\necho EXACT_BUILD_ARTIFACT_UNAVAILABLE\nexit 1\n"
   live_tables:
     needs: build_artifact
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: 477f6c9ce42b8ab0968a3b43351c1af3d6a752f7
-          fetch-depth: 0
-          path: source
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }}
-          path: harness
-      - uses: actions/download-artifact@v4
-        with:
-          name: r31v-android-build
-          run-id: 43484576602
-          github-token: ${{ github.token }}
-          path: built
-      - uses: android-actions/setup-android@v3
-        with:
-          packages: platform-tools platforms;android-36 build-tools;36.0.0
-          log-accepted-android-sdk-licenses: false
-      - name: Verify exact source, build checksums and original installed certificate
-        working-directory: source
-        run: |
-          set -euo pipefail
-          test "$(cat ../built/r31v/source-commit.txt)" = "$SOURCE"
-          (cd ../built && sha256sum -c r31v/SHA256SUMS.txt)
-          python3 -B tools/r31/verify_baseline.py --require-clean --apk "$(find ../built -name '*-release.apk' -print -quit)" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --expected-cert-sha256 d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7 --output "$RUNNER_TEMP/exact-apk.json" > "$RUNNER_TEMP/exact-apk-check.txt"
-      - name: Enable emulator acceleration
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-      - uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 34
-          arch: x86_64
-          target: default
-          disable-animations: true
-          ram-size: 3072M
-          heap-size: 512M
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
-          script: cd source && bash tools/r30-repair/prepare_emulator.sh && python3 -B ../harness/.github/r31-final-current-android.py --built ../built --source "$SOURCE" --out ../final-live-public --mode tables
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: r31-027-exact-live-and-sixteen-readers
-          path: final-live-public/
-          if-no-files-found: error
+    - uses: actions/checkout@v4
+      with:
+        ref: 0f2bd3b41427ae1e9addb1aa8a442a071afb7938
+        fetch-depth: 0
+        path: source
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.sha }}
+        path: harness
+    - uses: actions/download-artifact@v4
+      with:
+        name: r31v-android-build
+        run-id: 43496382530
+        github-token: ${{ github.token }}
+        path: built
+    - uses: android-actions/setup-android@v3
+      with:
+        packages: platform-tools platforms;android-36 build-tools;36.0.0
+        log-accepted-android-sdk-licenses: false
+    - name: Verify exact source, build checksums and original installed certificate
+      working-directory: source
+      run: 'set -euo pipefail
+
+        test "$(cat ../built/r31v/source-commit.txt)" = "$SOURCE"
+
+        (cd ../built && sha256sum -c r31v/SHA256SUMS.txt)
+
+        python3 -B tools/r31/verify_baseline.py --require-clean --apk "$(find ../built -name ''*-release.apk'' -print -quit)"
+        --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --expected-cert-sha256
+        d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7 --output "$RUNNER_TEMP/exact-apk.json" > "$RUNNER_TEMP/exact-apk-check.txt"
+
+        '
+    - name: Enable emulator acceleration
+      run: 'echo ''KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"'' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+
+        sudo udevadm control --reload-rules
+
+        sudo udevadm trigger --name-match=kvm
+
+        '
+    - uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 34
+        arch: x86_64
+        target: default
+        disable-animations: true
+        ram-size: 3072M
+        heap-size: 512M
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+        script: cd source && bash tools/r30-repair/prepare_emulator.sh && python3 -B ../harness/.github/r31-final-current-android.py
+          --built ../built --source "$SOURCE" --out ../final-live-public --mode tables
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: r31-028-exact-live-and-sixteen-readers
+        path: final-live-public/
+        if-no-files-found: error
   report_saf:
-    # Existing run 43485964779 continues the same APK report/SAF checks independently.
-    if: false
     needs: build_artifact
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: 477f6c9ce42b8ab0968a3b43351c1af3d6a752f7
-          fetch-depth: 0
-      - uses: actions/download-artifact@v4
-        with:
-          name: r31v-android-build
-          run-id: 43484576602
-          github-token: ${{ github.token }}
-          path: built
-      - uses: actions/download-artifact@v4
-        with:
-          name: r31-report-025-signed-build
-          run-id: 43417298331
-          github-token: ${{ github.token }}
-          path: old-built
-      - name: Bind existing report harness to the exact current build
-        run: |
-          set -euo pipefail
-          test "$(cat built/r31v/source-commit.txt)" = "$SOURCE"
-          (cd built && sha256sum -c r31v/SHA256SUMS.txt)
-          mkdir final-built
-          cp built/app/build/outputs/apk/release/*.apk final-built/
-          cp built/r31v/source-commit.txt final-built/
-      - name: Enable emulator acceleration
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-      - uses: reactivecircus/android-emulator-runner@v2
-        env:
-          R31_REPORT_STARTUP_WAIT_SECONDS: '120'
-        with:
-          api-level: 34
-          arch: x86_64
-          target: default
-          disable-animations: true
-          ram-size: 3072M
-          heap-size: 512M
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
-          script: bash tools/r31/run_phone_report_android.sh final-built final-report-public old-built
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: r31-027-exact-report-saf-overlay
-          path: final-report-public/
-          if-no-files-found: error
+    - uses: actions/checkout@v4
+      with:
+        ref: 0f2bd3b41427ae1e9addb1aa8a442a071afb7938
+        fetch-depth: 0
+    - uses: actions/download-artifact@v4
+      with:
+        name: r31v-android-build
+        run-id: 43496382530
+        github-token: ${{ github.token }}
+        path: built
+    - uses: actions/download-artifact@v4
+      with:
+        name: r31-report-025-signed-build
+        run-id: 43417298331
+        github-token: ${{ github.token }}
+        path: old-built
+    - name: Bind existing report harness to the exact current build
+      run: 'set -euo pipefail
+
+        test "$(cat built/r31v/source-commit.txt)" = "$SOURCE"
+
+        (cd built && sha256sum -c r31v/SHA256SUMS.txt)
+
+        mkdir final-built
+
+        cp built/app/build/outputs/apk/release/*.apk final-built/
+
+        cp built/r31v/source-commit.txt final-built/
+
+        '
+    - name: Enable emulator acceleration
+      run: 'echo ''KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"'' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+
+        sudo udevadm control --reload-rules
+
+        sudo udevadm trigger --name-match=kvm
+
+        '
+    - uses: reactivecircus/android-emulator-runner@v2
+      env:
+        R31_REPORT_STARTUP_WAIT_SECONDS: '120'
+      with:
+        api-level: 34
+        arch: x86_64
+        target: default
+        disable-animations: true
+        ram-size: 3072M
+        heap-size: 512M
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+        script: bash tools/r31/run_phone_report_android.sh final-built final-report-public old-built
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: r31-028-exact-report-saf-overlay
+        path: final-report-public/
+        if-no-files-found: error
