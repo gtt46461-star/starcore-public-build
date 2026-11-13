@@ -1,4 +1,4 @@
-name: R31 current Android public source diagnostics
+name: R31 exact existing API34 APK deadline profiling
 on:
   push:
     branches: ['construction/r27-20261028']
@@ -7,43 +7,95 @@ permissions:
   contents: read
   actions: read
 jobs:
-  diagnose:
+  diagnosis:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
           ref: e6d9a99782cdf7fe7f69efef67d673259dd71c1d
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'cryptography>=41,<51'
       - uses: actions/download-artifact@v4
         with:
           github-token: ${{ github.token }}
-          run-id: 43395877630
-          name: r31v-contracts
-          path: ${{ runner.temp }}/private-current-artifact
-      - name: Emit only public source symbols and fixed source assertion identifiers
+          run-id: 43395922679
+          name: r31v-android-build
+          path: ${{ runner.temp }}/built
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools platforms;android-36 build-tools;36.0.0
+          log-accepted-android-sdk-licenses: false
+      - name: Verify existing APK bytes and signer before fresh execution
         run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/built"
+          sha256sum -c r31v/SHA256SUMS.txt > "$RUNNER_TEMP/apk-hash-check.txt"
+          cd "$GITHUB_WORKSPACE"
+          python3 -B tools/r31/verify_baseline.py --require-clean --apk "$(find "$RUNNER_TEMP/built/app/build/outputs/apk/debug" -name '*.apk' -print -quit)" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --expected-cert-sha256 d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7 --output "$RUNNER_TEMP/apk-identity.json" > "$RUNNER_TEMP/identity-output.txt"
+          cat > "$RUNNER_TEMP/diagnose.sh" <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          adb wait-for-device
+          adb install -r -g "$(find "$RUNNER_TEMP/built/app/build/outputs/apk/debug" -name '*.apk' -print -quit)" > "$RUNNER_TEMP/install-app.txt" 2>&1
+          adb install -r -g "$(find "$RUNNER_TEMP/built/app/build/outputs/apk/androidTest/debug" -name '*.apk' -print -quit)" > "$RUNNER_TEMP/install-test.txt" 2>&1
+          bash tools/r30-repair/prepare_emulator.sh > "$RUNNER_TEMP/prepare.txt" 2>&1
+          fault_status=0
+          bash tools/r30/run_fault_matrix.sh "$RUNNER_TEMP/selected-faults" kill_freeze,sqlite_full > "$RUNNER_TEMP/fault-output.txt" 2>&1 || fault_status=$?
           python3 - <<'PY'
-          import json,os,pathlib,re
-          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'private-current-artifact'
-          files=list(pathlib.Path('app/src').rglob('*.java'));names={x.name for x in files}
-          import xml.etree.ElementTree as ET
-          texts='\n'.join(p.read_text(errors='replace') for p in files)
-          enums=set(re.findall(r'\b[A-Z][A-Z0-9_]{5,80}\b',texts))
-          for p in root.rglob('TEST-*.xml'):
-              tree=ET.parse(p)
-              for case in tree.findall('.//testcase'):
-                  bad=case.find('failure')
-                  if bad is None:bad=case.find('error')
-                  if bad is None:continue
-                  cls=case.get('classname','');method=case.get('name','')
-                  assert cls.rsplit('.',1)[-1]+'.java' in names
-                  raw=(bad.text or '')+'\n'+bad.get('message','')
-                  frames=[list(x) for x in re.findall(r'at (com\.ethk3\.novaonepro\.[A-Za-z0-9_.$]+)\.([A-Za-z0-9_$]+)\(([A-Za-z0-9_]+\.java):(\d+)\)',raw) if x[2] in names]
-                  print('FAILED_UNIT_PUBLIC_SOURCE|'+json.dumps({'class':cls,'method':method,'publicEnums':sorted(enums.intersection(re.findall(r'\b[A-Z][A-Z0-9_]{5,80}\b',raw))),'numericComparisons':re.findall(r'expected:<(-?[0-9.]+)> but was:<(-?[0-9.]+)>',raw),'frames':frames[:30]},sort_keys=True))
-          java=files+list(pathlib.Path('tools').rglob('*.java'));public='\n'.join(p.read_text(errors='replace') for p in java)
-          literals=set(re.findall(r'"([^"\n]{8,200})"',public))
-          for p in root.rglob('*'):
-              if p.is_file() and 'verify_resource_recovery' in str(p) and p.suffix in ('.log','.txt'):
-                  raw=p.read_text(errors='replace')
-                  print('RESOURCE_PUBLIC_ASSERTIONS|'+json.dumps({'assertions':sorted(x for x in literals if x in raw and not x.startswith('{'))[:60],'numericComparisons':re.findall(r'expected:<(-?[0-9.]+)> but was:<(-?[0-9.]+)>',raw)},sort_keys=True))
+          import json,os,pathlib,re,sqlite3,subprocess,tempfile
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])
+          source=pathlib.Path('app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java').read_text()
+          allowed=set(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b',source))
+          raw=(root/'fault-output.txt').read_text(errors='replace')
+          print('SELECTED_FAULT_RESULTS|'+json.dumps(re.findall(r'R30_FAULT_MATRIX_PROGRESS:([a-z_-]+):(PASS|FAIL)',raw)))
+          pkg='com.starcore.research.r13';db='binance_k3_nova_one_pro_v57.db'
+          subprocess.run(['adb','shell','am','force-stop',pkg],check=True,capture_output=True)
+          with tempfile.TemporaryDirectory(prefix='private-profile-') as private:
+              for visibility in ['foreground','background']:
+                  scope='fault-'+os.environ['GITHUB_RUN_ID']+'-'+visibility+'-kill_freeze'
+                  folder=pathlib.Path(private)/visibility;folder.mkdir()
+                  remote='/data/user/0/'+pkg+'/no_backup/r30-instrumentation/'+scope+'/'+pkg+'/databases/'+db
+                  for suffix in ['', '-wal','-shm']:
+                      subprocess.run(['adb','pull',remote+suffix,str(folder/(db+suffix))],capture_output=True)
+                  path=folder/db
+                  if not path.exists():
+                      print('PROFILE_DATABASE_UNAVAILABLE|'+visibility);continue
+                  try:
+                      with sqlite3.connect(path) as sql:
+                          samples=[]
+                          for row in sql.execute("SELECT status,elapsed_ms,lock_wait_max_ms,db_body_max_ms,gc_count,gc_time_ms,stage_samples,started_at FROM v57_attempt_resource_r927 ORDER BY started_at DESC LIMIT 3"):
+                              phases=[{'stage':name,'elapsedMs':int(elapsed),'budgetMs':int(budget),'status':status} for name,elapsed,budget,status in re.findall(r'([A-Z][A-Z0-9_]{1,60}):([0-9]{1,12})/([0-9]{1,12}):(OK|OVER_BUDGET|FAILED)',row[6]) if name in allowed]
+                              deadline=sql.execute("SELECT deadline_at FROM v57_analysis_request_r36 ORDER BY request_at DESC LIMIT 1").fetchone()
+                              samples.append({'status':row[0] if row[0] in allowed else 'PUBLIC_STATUS_UNLISTED','elapsedMs':row[1],'lockWaitMaxMs':row[2],'dbBodyMaxMs':row[3],'gcCount':row[4],'gcTimeMs':row[5],'wallDeadlineRemainingAtStartMs':deadline[0]-row[7] if deadline else None,'phases':phases})
+                          print('ACTUAL_API34_PRIVATE_DB_PUBLIC_TIMINGS|'+json.dumps({'visibility':visibility,'source':'e6d9a99782cdf7fe7f69efef67d673259dd71c1d','samples':samples},sort_keys=True))
+                  except Exception as failure:
+                      print('PROFILE_COLLECTOR_CLASS|'+type(failure).__name__)
           PY
+          echo "SELECTED_FAULT_EXIT=$fault_status"
+          exit "$fault_status"
+          SH
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: bash "$RUNNER_TEMP/diagnose.sh"
 
