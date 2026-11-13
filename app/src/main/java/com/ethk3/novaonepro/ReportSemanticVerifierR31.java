@@ -21,6 +21,14 @@ public final class ReportSemanticVerifierR31 {
         if(!(value instanceof List))throw new IOException("REPORT_SEMANTIC_ARRAY_MISSING");return (List<?>)value;
     }
     private static void require(boolean condition,String reason)throws IOException {if(!condition)throw new IOException("REPORT_SEMANTIC_"+reason);}
+    private static void exactIds(Object values,String field,Set<String> expected,String reason)throws IOException {
+        Set<String> actual=new HashSet<>();
+        for(Object value:list(values)) {
+            Object id=map(value).get(field);
+            require(id instanceof String&&actual.add((String)id),reason+"_DUPLICATE_OR_MISSING_ID");
+        }
+        require(actual.equals(expected),reason+"_ID_SET");
+    }
     private static void checkpoint(ReportNativeCP4.Control control)throws IOException {
         if(Thread.currentThread().isInterrupted()||!control.shouldContinue())throw new InterruptedIOException("REPORT_SEMANTIC_CANCELLED");
     }
@@ -30,6 +38,8 @@ public final class ReportSemanticVerifierR31 {
         Map<?,?> watermark=map(document.get("snapshotWatermark"));
         require(job.jobId.equals(watermark.get("reportJobId")),"JOB_ID");
         require(job.snapshotSha.equals(map(watermark.get("sourceManifest")).get("snapshotSha256")),"SNAPSHOT_ID");
+        Set<String> chapters=new HashSet<>();for(int i=1;i<=12;i++)chapters.add(String.format(Locale.ROOT,"R30_%02d",i));
+        exactIds(document.get("chapters"),"sectionId",chapters,"CHAPTER");
         Set<String> metrics=new HashSet<>();for(Object raw:list(document.get("metricResults"))) {
             Map<?,?> metric=map(raw);String id=String.valueOf(metric.get("metricId"));
             require(metrics.add(id),"DUPLICATE_METRIC");require(metric.get("r31Definition") instanceof Map&&metric.get("r31Evaluation") instanceof Map,"UNWIRED_METRIC:"+id);
@@ -38,9 +48,26 @@ public final class ReportSemanticVerifierR31 {
         Map<?,?> objects=map(document.get("objectIndex"));
         for(Object[] expected:new Object[][]{{"legacyCharts",29},{"researchCharts",18},{"matrices",20},{"logicalTables",16},{"capabilities",82}})
             require(list(map(objects.get(expected[0])).get("objects")).size()==(Integer)expected[1],"OBJECT_COUNT:"+expected[0]);
+        Set<String> legacy=new HashSet<>(ChartRegistryR31.visibleLegacyIds()),research=new HashSet<>(),matrices=new HashSet<>(),capabilities=new HashSet<>();
+        for(ChartRegistryR31.Entry entry:ChartRegistryR31.all())if(entry.group==ChartRegistryR31.Group.RESEARCH)research.add(entry.id);
+        for(MatrixRegistryR30.Definition entry:MatrixRegistryR30.all())matrices.add(entry.id);
+        for(CapabilityRegistryR30.Definition entry:CapabilityRegistryR30.all())capabilities.add(entry.id);
+        for(Object[] expected:new Object[][]{{"legacyCharts",legacy},{"researchCharts",research},{"matrices",matrices},{"capabilities",capabilities}}) {
+            @SuppressWarnings("unchecked") Set<String> ids=(Set<String>)expected[1];
+            exactIds(map(objects.get(expected[0])).get("objects"),"objectId",ids,"OBJECT:"+expected[0]);
+        }
         require(list(document.get("researchTables")).size()==16,"TABLE_READ_RECEIPTS");
+        Set<String> tables=new HashSet<>(ResearchTableAdaptersR30R1.ids());
+        exactIds(document.get("researchTables"),"id",tables,"TABLE_READER");
+        exactIds(map(objects.get("logicalTables")).get("objects"),"id",tables,"TABLE_OBJECT");
         for(Object raw:list(document.get("chapters"))) {
             Map<?,?> chapter=map(raw);require(Objects.equals(watermark,chapter.get("snapshotWatermark")),"CHAPTER_WATERMARK");
+            if("R30_12".equals(chapter.get("sectionId"))) {
+                Map<?,?> complete=map(chapter.get("completeSnapshotEvidenceR31"));
+                require("R31_COMPLETE_CAPTURED_EVIDENCE_V1".equals(complete.get("format")),"COMPLETE_EVIDENCE_VERSION");
+                require(Objects.equals(watermark,complete.get("snapshotWatermark")),"COMPLETE_EVIDENCE_WATERMARK");
+                map(complete.get("facts"));map(complete.get("sources"));list(complete.get("sourceErrors"));
+            }
         }
     }
     private static void combine(byte[] total,String name,String hash)throws Exception {
@@ -88,7 +115,7 @@ public final class ReportSemanticVerifierR31 {
         if(ReportPublicationCP12.ZIP_PART_FORMAT_R30.equals(index.getString("format")))ReportPublicationCP12.verifyPartsR30(directory,index,control);
         JSONArray rows=index.getJSONArray("files");require(rows.length()>0&&rows.length()<=128,"DELIVERY_COUNT");List<File> files=new ArrayList<>();
         for(int i=0;i<rows.length();i++){JSONObject row=rows.getJSONObject(i);File file=ReportArchiveVerifierCP12.inside(directory,row.getString("path"));require(file.length()==row.getLong("bytes")&&ReportArchiveCP4.hash(file,control).equals(row.getString("sha256")),"DELIVERY_FILE_HASH");files.add(file);}
-        Set<String> required=new HashSet<>(Arrays.asList("R30_REPORT.json","R30_REPORT.md",RECEIPT,"REPORT_DETAILS.txt",receipt.getBoolean("rawEvidence")?"snapshot.db":"DIAGNOSTIC_SCOPE.json"));
+        Set<String> required=new HashSet<>(Arrays.asList("R30_REPORT.json","R30_REPORT.md",RECEIPT,"REPORT_DETAILS.txt","R26_REPORT.json","R27_REPORT.md","R26_POLICY_IDENTITIES.jsonl","R26_FROZEN_SURFACE.json","STORAGE_CENSUS.txt",receipt.getBoolean("rawEvidence")?"snapshot.db":"DIAGNOSTIC_SCOPE.json"));
         byte[] catalogDigest=new byte[32];int pages=0;String reportHash=null,receiptHash=null;Set<String> names=new HashSet<>();
         try(ZipInputStream zip=new ZipInputStream(new BufferedInputStream(new Parts(files),32768))) {
             ZipEntry entry;byte[] buffer=new byte[32768];while((entry=zip.getNextEntry())!=null) {

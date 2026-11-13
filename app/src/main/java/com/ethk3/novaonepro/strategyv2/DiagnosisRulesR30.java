@@ -138,6 +138,23 @@ public final class DiagnosisRulesR30 {
         case "SNAPSHOT_CAPTURE":cards="FR-B01-04 FR-B10-03";break;
         default:throw new IllegalArgumentException("UNMAPPED_REPAIR_DIAGNOSIS:"+id);
     }return Collections.unmodifiableList(Arrays.asList(cards.split(" ")));}
+    static List<String> unifiedRepairCardsR31(String id){
+        String cards;switch(id){
+            case "WRITER_HARD":cards="UF02 UF03 UF04";break;
+            case "TASK_STALLED":cards="UF02 UF04 UF12 UF13";break;
+            case "RECEIPT_STATE":case "QUAL_CONFLICT":cards="UF12 UF17";break;
+            case "UNSAFE_DECISION":cards="UF17";break;
+            case "PIT_REJECTIONS":cards="UF12 UF17";break;
+            case "CONFIRM_EVIDENCE":case "ABLATION":cards="UF13 UF14 UF16";break;
+            case "MODEL_STATE":case "ABI_CONTINUITY":case "MODEL_CONSUMER":cards="UF12 UF17";break;
+            case "CALIBRATION":cards="UF13 UF16";break;
+            case "NATIVE_MATRIX":case "SU2_MATRIX":cards="UF15 UF16";break;
+            case "NATURAL_SAMPLE":cards="UF17 UF19";break;
+            case "SNAPSHOT_CAPTURE":cards="UF06 UF07 UF10 UF11";break;
+            default:throw new IllegalArgumentException("UNMAPPED_R31_DIAGNOSIS:"+id);
+        }
+        return Collections.unmodifiableList(Arrays.asList(cards.split(" ")));
+    }
     static Long count(Object value) {
         if (!(value instanceof Number)) return null;
         double d=((Number)value).doubleValue();
@@ -167,6 +184,8 @@ public final class DiagnosisRulesR30 {
             if(rule.field.equals("captureErrors"))evidence.put("sourceErrors",errors);
             Map<String,Object> action=new LinkedHashMap<>();action.put("file",rule.file);action.put("method",rule.method);
             action.put("code",rule.file+":"+rule.method);action.put("card",currentRepairCards(rule.id).get(0));action.put("repairCards",currentRepairCards(rule.id));action.put("legacyCard",rule.card);action.put("plan","R30_REPAIR_FINAL_20261101");
+            action.put("currentPlan","STARCORE_R31_UNIFIED_FINAL_20261112");
+            action.put("currentRepairCards",unifiedRepairCardsR31(rule.id));
             action.put("instruction",value==null||state.equals("INSUFFICIENT")?rule.collect:rule.repair);
             action.put("verification",rule.verification);
             Map<String,Object> finding=new LinkedHashMap<>();finding.put("id",rule.id);finding.put("metric",rule.metric);

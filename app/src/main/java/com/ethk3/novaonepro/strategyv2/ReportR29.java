@@ -45,6 +45,17 @@ public final class ReportR29 {
         chapters.get(11).put("allMetricResults",input.metricResults);
         chapters.get(11).put("objectIndex",input.data.get("objectIndex"));
         chapters.get(11).put("researchTables",input.data.get("researchTablesR31"));
+        // The chapter projections are curated views. Keep every bounded source
+        // captured by the production snapshot as well: newly wired fetch,
+        // feedback, lease, publication and control receipts must not disappear
+        // merely because an older chapter's dataKeys list does not name them.
+        Map<String,Object> complete=new LinkedHashMap<>();
+        complete.put("format","R31_COMPLETE_CAPTURED_EVIDENCE_V1");
+        complete.put("snapshotWatermark",input.watermark);
+        complete.put("facts",input.facts);complete.put("sources",input.data);
+        complete.put("sourceErrors",input.errors);
+        complete.put("scope","EVERY_CAPTURED_SOURCE; ROWSET_LIMITS_AND_OMISSIONS_EXPLICIT; UNKNOWN_IS_NOT_ZERO_OR_HEALTHY");
+        chapters.get(11).put("completeSnapshotEvidenceR31",complete);
         chapters.get(11).put("fullFactorySyntheticExperiment",input.data.get("factoryCapabilityExperiment"));
         chapters.get(11).put("previousReportComparison",ReportDataR27.compareSuccessfulR30(input));
         chapters.get(11).put("successfulSummaryCandidate",ReportDataR27.successfulSummaryR30(input));
@@ -58,6 +69,7 @@ public final class ReportR29 {
         out.put("metricRegistryVersion",MetricDefinitionsR29.R31_VERSION);out.put("metricResults",chapters.size()<12?null:chapters.get(11).get("allMetricResults"));
         out.put("objectIndex",chapters.size()<12?null:chapters.get(11).get("objectIndex"));out.put("previousReportComparison",chapters.size()<12?null:chapters.get(11).get("previousReportComparison"));
         out.put("researchTables",chapters.size()<12?null:chapters.get(11).get("researchTables"));
+        out.put("completeEvidencePath","chapters[11].completeSnapshotEvidenceR31");
         out.put("overallAcceptance","INCOMPLETE");out.put("naturalQuality","INSUFFICIENT");out.put("physicalDevice","NOT_RUN");out.put("legacyDetails",java.util.Arrays.asList("R26_REPORT.json","R27_REPORT.md","snapshot.db"));return out;
     }
     public static Map<String,Object> chapter(SQLiteDatabase db) {

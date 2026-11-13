@@ -18,6 +18,21 @@ public final class R31AllocatedMemoryLifecycleTest {
         }
     }
     private static long value(MemoryBudgetR31 memory,String key){return((Number)memory.snapshot().get(key)).longValue();}
+    @Test public void normalHeapDenialDropsRawCacheReferencesWithoutInventingHeapRelease(){
+        Probe probe=new Probe();MemoryBudgetR31 memory=new MemoryBudgetR31(probe,new MemoryBudgetR31.Config());
+        try(SharedFeatureStoreR31 shared=new SharedFeatureStoreR31(memory,32000);
+            FeatureCacheR27 cache=new FeatureCacheR27(ReplayDatasetR27.synthetic(100,7,null),4,memory,shared)) {
+            double[] escaped=cache.leaf("freq",0,1,32),original=escaped.clone();
+            assertTrue(((Number)cache.memorySnapshotR31().get("rawCacheBytes")).longValue()>0);
+            probe.heap.set(599900);
+            MemoryBudgetR31.Admission denied=memory.tryAcquire("normal-heap-denied",MemoryBudgetR31.Kind.RESEARCH,4096,()->false);
+            assertEquals(MemoryBudgetR31.WaitReason.DECLARED_CAPACITY,denied.reason);
+            assertEquals("NORMAL",memory.snapshot().get("pressure"));
+            assertEquals(0L,((Number)cache.memorySnapshotR31().get("rawCacheBytes")).longValue());
+            assertArrayEquals(original,escaped,0);assertEquals(599900,value(memory,"heapUsedBytes"));
+            assertTrue(value(memory,"activeLeaseCount")>0);
+        }
+    }
     @Test public void allocatedPayloadIsCoveredOnlyByAFreshHeapSampleAndStillOwned(){
         Probe p=new Probe();MemoryBudgetR31 memory=new MemoryBudgetR31(p,new MemoryBudgetR31.Config());
         MemoryBudgetR31.Lease retained=memory.tryAcquire("retained",MemoryBudgetR31.Kind.FEATURE_CACHE,300128,()->false).lease;

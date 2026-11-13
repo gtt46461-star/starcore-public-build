@@ -33,6 +33,25 @@ public final class R31ProductionReportTest {
         assertEquals(29,((Number)((Map<?,?>)index.get("legacyCharts")).get("expected")).intValue());assertEquals(20,((Number)((Map<?,?>)index.get("matrices")).get("expected")).intValue());assertEquals(16,((Number)((Map<?,?>)index.get("logicalTables")).get("expected")).intValue());
         for(Object raw:(List<?>)index.get("lifecycleEntriesR31")){Map<?,?> row=(Map<?,?>)raw;assertEquals("NOT_PASS",row.get("status"));}
     }
+    @Test public void everyCapturedProductionSourceAndCurrentRepairActionReachTheFinalReport(){
+        Map<String,Object> sources=map("r31FeedbackEvents",Arrays.asList(map("event_id","actual-event")),
+                "r31FetchTiming",Arrays.asList(map("request_id","actual-request")),
+                "r31TaskControls",Arrays.asList(map("task_id","actual-task")),
+                "futureSourceAddedLater",map("status","UNKNOWN_WITH_ORIGINAL_REASON"));
+        ReportR27.R30Input input=new ReportR27.R30Input(map("draws",12L),map("factsReadAt",123L),sources,Arrays.asList("SOURCE_UNAVAILABLE:fixture"));
+        List<Map<String,Object>> chapters=ReportR29.fromSnapshotR30(input);Map<String,Object> doc=ReportR29.document(chapters);
+        Map<?,?> complete=(Map<?,?>)chapters.get(11).get("completeSnapshotEvidenceR31");
+        assertSame(input.data,complete.get("sources"));assertSame(input.facts,complete.get("facts"));
+        assertEquals(input.errors,complete.get("sourceErrors"));assertEquals(input.watermark,complete.get("snapshotWatermark"));
+        String json=JsonR27.write(doc),readable=ReportR27.markdownR30(chapters);
+        for(String key:sources.keySet()){assertTrue(json.contains(key));assertTrue(readable.contains(key));}
+        Map<?,?> diagnosis=(Map<?,?>)doc.get("diagnosis");
+        for(Object raw:(List<?>)diagnosis.get("findings")){
+            Map<?,?> action=(Map<?,?>)((Map<?,?>)raw).get("action");
+            assertEquals("STARCORE_R31_UNIFIED_FINAL_20261112",action.get("currentPlan"));
+            assertFalse(((List<?>)action.get("currentRepairCards")).isEmpty());
+        }
+    }
     @Test public void displayFrameChecksActualAbiHashAndFreshness(){
         Map<String,Object> frame=map("points",Collections.emptyList(),"status","READY");ChartCacheR27.sealR31(frame,"issue",1000L);
         assertNull(ChartCacheR27.validateR31(frame,"issue",1000L,2000L));assertEquals("STALE_SOURCE_WATERMARK",ChartCacheR27.validateR31(frame,"next",1000L,2000L));
@@ -50,6 +69,14 @@ public final class R31ProductionReportTest {
         data.put("capabilities",caps);data.put("researchTablesR31",tables);data.put("objectIndex",ReportObjectIndexR30.buildProductionR31(map(),watermark,data));
         ReportR27.R30Input input=new ReportR27.R30Input(map(),watermark,data,Collections.emptyList());
         Map<String,Object> doc=ReportR29.document(ReportR29.fromSnapshotR30(input));ReportSemanticVerifierR31.validateDocument(doc,job);
+        Map<String,Object> duplicate=new LinkedHashMap<>(doc);
+        List<Object> chapterCopies=new ArrayList<>((List<?>)doc.get("chapters"));chapterCopies.set(11,chapterCopies.get(0));duplicate.put("chapters",chapterCopies);
+        try{ReportSemanticVerifierR31.validateDocument(duplicate,job);fail("twelve entries with a duplicate chapter are incomplete");}catch(java.io.IOException expected){assertTrue(expected.getMessage().contains("CHAPTER_DUPLICATE_OR_MISSING_ID"));}
+        duplicate=new LinkedHashMap<>(doc);List<Object> tableCopies=new ArrayList<>((List<?>)doc.get("researchTables"));tableCopies.set(15,tableCopies.get(0));duplicate.put("researchTables",tableCopies);
+        try{ReportSemanticVerifierR31.validateDocument(duplicate,job);fail("sixteen entries with a missing table are incomplete");}catch(java.io.IOException expected){assertTrue(expected.getMessage().contains("TABLE_READER_DUPLICATE_OR_MISSING_ID"));}
+        duplicate=new LinkedHashMap<>(doc);Map<String,Object> objectCopies=new LinkedHashMap<>((Map<String,Object>)doc.get("objectIndex"));Map<String,Object> categoryCopy=new LinkedHashMap<>((Map<String,Object>)objectCopies.get("capabilities"));
+        List<Object> capabilityCopies=new ArrayList<>((List<?>)categoryCopy.get("objects"));capabilityCopies.set(81,capabilityCopies.get(0));categoryCopy.put("objects",capabilityCopies);objectCopies.put("capabilities",categoryCopy);duplicate.put("objectIndex",objectCopies);
+        try{ReportSemanticVerifierR31.validateDocument(duplicate,job);fail("same capability count must not hide a missing expert");}catch(java.io.IOException expected){assertTrue(expected.getMessage().contains("OBJECT:capabilities_DUPLICATE_OR_MISSING_ID"));}
         job.snapshotSha=StatsR27.sha256("other-snapshot");
         try{ReportSemanticVerifierR31.validateDocument(doc,job);fail("different backup must not share a receipt");}catch(java.io.IOException expected){assertTrue(expected.getMessage().contains("SNAPSHOT_ID"));}
         job.snapshotSha=sha;doc.put("researchTables",tables.subList(0,15));

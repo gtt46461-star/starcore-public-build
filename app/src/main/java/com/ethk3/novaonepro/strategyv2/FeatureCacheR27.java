@@ -56,7 +56,26 @@ public final class FeatureCacheR27 implements AutoCloseable {
     public synchronized Map<String,Object> memorySnapshotR31(){reapReleasedArraysR31();Map<String,Object> out=new LinkedHashMap<>();out.put("rawCacheBytes",rawBytes);out.put("rawCacheCapacityBytes",rawByteCapacity);out.put("rawMapBytesDropped",rawMapBytesDropped);out.put("rawDropEvidence","MAP_REFERENCE_REMOVED_NOT_ACTUAL_HEAP_FREE");out.put("sharedReads",sharedReads);out.put("sharedBuilds",sharedBuilds);out.put("featureAbi",featureAbiR31);out.put("overrideSharedDisabled",!overrides.isEmpty());synchronized(RAW_LEASES_R31){out.put("processRawArrayLeasesAwaitingGc",RAW_LEASES_R31.size());}out.put("sharedStore",sharedR31.snapshot());out.put("coveredOwners",java.util.Arrays.asList("IMMUTABLE_SHARED_FEATURE_BLOCKS_WITH_READER_REFS","PRIVATE_AST_SCRATCH_UNTIL_SCOPE_CLOSE","PUBLIC_SCORE_MEMO_BYTE_LRU_DROP_REFERENCES_ONLY","FAMILY_CONSTRUCTOR_AND_PRIVATE_MATRIX_WRITE_BEFORE_ALLOCATE","FAMILY_ROW_CODEC_AND_RECOVERY_WORKSPACE","FAMILY_PENDING_OUTPUT_AND_CURSOR_SURVIVE_CANCEL"));out.put("uncoveredOwners",java.util.Arrays.asList("ESCAPED_PUBLIC_SCORE_ARRAYS_NOT_REUSED_OR_DECLARED_FREED","PUBLIC_SCORE_RESULT_ALLOCATION_ESTIMATES_NOT_FULLY_REGISTERED","MODEL_KERNEL_PER_STEP_TEMPORARIES_AND_DYNAMIC_PRIVATE_STATE_NOT_FULLY_REGISTERED","LEAF_INTERNAL_TEMPORARY_SCRATCH"));return out;}
     public Map<String,Object> trimUnusedR31(){synchronized(this){clearRawR31();if(scratchPoolR31!=null)scratchPoolR31.trimUnused();}Map<String,Object> result=sharedR31.evictTo(0);reapReleasedArraysR31();return result;}
     public static Map<String,Object> trimRegisteredCachesR31(){return trimRegisteredCachesR31(MemoryBudgetR31.processBudget());}
-    private static Map<String,Object> trimRegisteredCachesR31(MemoryBudgetR31 memory){java.util.List<FeatureCacheR27> caches;synchronized(REGISTERED_R31){caches=new java.util.ArrayList<>(REGISTERED_R31.keySet());}boolean reuse="NORMAL".equals(memory.snapshot().get("pressure"));int trimmed=0;for(FeatureCacheR27 cache:caches)if(cache.memory==memory){if(reuse)cache.sharedR31.recycleUnpinnedR31();else cache.trimUnusedR31();trimmed++;}if(memory==MemoryBudgetR31.processBudget()){if(reuse)SharedHolderR31.STORE.recycleUnpinnedR31();else SharedHolderR31.STORE.evictTo(0);}int scoreContexts=EvalContextR27.trimRegisteredScoresR31(memory);boolean teacherReleased=memory==MemoryBudgetR31.processBudget()&&com.ethk3.novaonepro.LegacyTeacherOwnerR26.releaseUnusedOwnerR31();reapReleasedArraysR31();Map<String,Object> out=new LinkedHashMap<>();out.put("registeredCachesTrimmed",trimmed);out.put("scoreContextsTrimmed",scoreContexts);out.put("unusedOriginalTeacherOwnerAbsentAfterTrim",teacherReleased);out.put("actualHeapReleasedBytes",null);out.put("evidence",reuse?"PRIVATE_BACKING_RETAINED_FOR_BOUNDED_REUSE; NOT_HEAP_FREE":"UNPINNED_CACHE_REFERENCES_REMOVED; RAW_ARRAY_LEASES_WAIT_FOR_OBSERVED_GC");return out;}
+    private static Map<String,Object> trimRegisteredCachesR31(MemoryBudgetR31 memory){
+        java.util.List<FeatureCacheR27> caches;
+        synchronized(REGISTERED_R31){caches=new java.util.ArrayList<>(REGISTERED_R31.keySet());}
+        boolean reuse="NORMAL".equals(memory.snapshot().get("pressure"));int trimmed=0;
+        Set<SharedFeatureStoreR31> stores=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<SharedFeatureStoreR31,Boolean>());
+        for(FeatureCacheR27 cache:caches)if(cache.memory==memory){
+            // Optional admission reserves realtime headroom below the soft high
+            // water. A NORMAL heap can therefore still be out of capacity.
+            // Public raw arrays cannot be pooled: discard only cache references,
+            // retaining their leases until observed GC and any caller aliases.
+            synchronized(cache){cache.clearRawR31();if(cache.scratchPoolR31!=null)cache.scratchPoolR31.trimUnused();stores.add(cache.sharedR31);}
+            trimmed++;
+        }
+        if(memory==MemoryBudgetR31.processBudget())stores.add(SharedHolderR31.STORE);
+        for(SharedFeatureStoreR31 store:stores){if(reuse)store.recycleUnpinnedR31();else store.evictTo(0);}
+        int scoreContexts=EvalContextR27.trimRegisteredScoresR31(memory);
+        boolean teacherReleased=memory==MemoryBudgetR31.processBudget()&&com.ethk3.novaonepro.LegacyTeacherOwnerR26.releaseUnusedOwnerR31();
+        reapReleasedArraysR31();Map<String,Object> out=new LinkedHashMap<>();out.put("registeredCachesTrimmed",trimmed);out.put("scoreContextsTrimmed",scoreContexts);out.put("unusedOriginalTeacherOwnerAbsentAfterTrim",teacherReleased);out.put("actualHeapReleasedBytes",null);
+        out.put("evidence",reuse?"PUBLIC_CACHE_REFERENCES_REMOVED; PRIVATE_BACKING_RETAINED_FOR_BOUNDED_REUSE; NOT_HEAP_FREE":"UNPINNED_CACHE_REFERENCES_REMOVED; RAW_ARRAY_LEASES_WAIT_FOR_OBSERVED_GC");return out;
+    }
     @Override public synchronized void close(){closedR31=true;clearRawR31();if(scratchPoolR31!=null)scratchPoolR31.close();for(FamilyStream stream:streams.values())stream.closeForkOwnerR31();streams.clear();modelHistoryHashes.clear();overrides.clear();reapReleasedArraysR31();}
     private volatile ModelSurfaceProviderR30.Source modelSurfaces=ModelSurfaceProviderR30.NONE;
     private volatile long modelSourceVersion;
