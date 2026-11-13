@@ -19,6 +19,12 @@ jobs:
           run-id: 43395922679
           name: r31v-emu-35
           path: ${{ runner.temp }}/private-current-artifact
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 43395922679
+          name: r31v-emu-29
+          path: ${{ runner.temp }}/private-current-artifact/api29
       - name: Emit only public source symbols and fixed source assertion identifiers
         run: |
           python3 - <<'PY'
@@ -41,6 +47,14 @@ jobs:
           for p in root.rglob('probe-output.txt'):
               raw=p.read_text(errors='replace')
               print('UI_PROBE_PUBLIC_ASSERTIONS|'+json.dumps(sorted({x for x in allowed if x in raw})))
+          public_text='\n'.join(p.read_text(errors='replace') for p in files)
+          enums=set(re.findall(r'\b[A-Z][A-Z0-9_]{5,80}\b',public_text))
+          for filename in ['restore-proof-process.txt','delivery-and-live-service.txt']:
+              for p in root.rglob(filename):
+                  raw=p.read_text(errors='replace')
+                  frames=[list(x) for x in re.findall(r'at (com\.ethk3\.novaonepro\.[A-Za-z0-9_.$]+)\.([A-Za-z0-9_$]+)\(([A-Za-z0-9_]+\.java):(\d+)\)',raw) if x[2] in names]
+                  keys=[x for x in re.findall(r'No value for ([A-Za-z][A-Za-z0-9_]*)',raw) if '"'+x+'"' in public_text]
+                  print('GROUP_PUBLIC_FAILURE_SYMBOLS|'+json.dumps({'api':29 if 'api29' in p.parts else 35,'group':filename,'sourceEnums':sorted(enums.intersection(re.findall(r'\b[A-Z][A-Z0-9_]{5,80}\b',raw)))[:160],'frames':frames[:45],'missingPublicJsonKeys':sorted(set(keys))},sort_keys=True))
           print('PUBLIC_DIAGNOSTIC_FILES|'+json.dumps({'safeRecovery':len(safe),'ui100':len(logs)}))
           PY
 
