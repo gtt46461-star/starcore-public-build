@@ -1,0 +1,30 @@
+name: STARCORE inspect sanitized 028 report save failure
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-report-current-evidence.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31-028-exact-report-saf-overlay
+          run-id: 43498255622
+          github-token: ${{ github.token }}
+          path: evidence
+      - name: Only existing public code frames and bounded protocol counters
+        run: |
+          python3 - <<'PY'
+          import pathlib,json
+          root=pathlib.Path('evidence')
+          for name,keys in [('safe-timeout-source-frames.json',['frames','reportOwnerFrameworkFrames','publicCodes','pidsObserved','scope']),('safe-report-semantics.json',['evidenceComplete','checksComplete','allChecksPassed','catalogResults','incompleteChecks','catalogErrors']),('safe-report-liveness.json',['scope','rows','reportFileBytes','queueCount','uiFailurePrefixes','uiPublicFailureCodes'])]:
+              for p in root.rglob(name):
+                  value=json.loads(p.read_text())
+                  rows=value[-2:] if isinstance(value,list) else [value]
+                  for row in rows: print('PUBLIC_REPORT_SAVE_DIAG|'+json.dumps({'file':name,**{k:row.get(k) for k in keys}},ensure_ascii=False))
+          PY
