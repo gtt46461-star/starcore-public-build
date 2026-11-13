@@ -49,7 +49,8 @@ public final class DomainRouterR929 {
                 +(drift==null?"LEGACY_ROUTER_INPUT":drift.receiptJson)+"|"+runtimeReason+"|"
                 +(evidence==null?"NO_CERT":evidence.certificateHash+'|'+evidence.calibrationN+'|'+evidence.futureN+'|'+evidence.ece+'|'+evidence.pairedDelta+'|'+evidence.certificateActive));
         if(store==null)return new Decision(Route.GLOBAL_FALLBACK,current,"PERSISTENCE_REQUIRED_FOR_HYSTERESIS",0,binding,target);
-        Decision result=store.coordinatorR36().runAtomicWrite("R932_DOMAIN_ROUTE",new DatabaseCoordinator.WriteCallable<Decision>(){
+        Decision result=store.coordinatorR36().runAtomicWriteOrThrowF01(
+                DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.LIVE_FREEZE,"R932_DOMAIN_ROUTE"),new DatabaseCoordinator.WriteCallable<Decision>(){
             public Decision call(android.database.sqlite.SQLiteDatabase db){
                 String key="r932_domain_position_"+state.position+"_";
                 String last=read(db,key+"issue");
@@ -86,7 +87,7 @@ public final class DomainRouterR929 {
                 if(drift!=null){values.put(key+"drift_policy_hash",drift.policyHash);values.put(key+"drift_observation",drift.receiptJson);values.put(key+"drift_observation_hash",V51ChecksumEngine.sha256(drift.receiptJson));values.put(key+"drift_cooldown_until",Long.toString(cooldown));values.put(key+"runtime_health_reason",runtimeReason==null?"UNKNOWN":runtimeReason);}
                 DbStore.putStatesR36(db,values);
                 return new Decision(route,current,reason,route==Route.DOMAIN?1:0,binding,target);
-            }},null);
+            }});
         if(result==null)throw new IllegalStateException("R932_DOMAIN_ROUTE_COMMIT_FAILED");return result;
     }
     public static String installedSchemaHash(){return V51ChecksumEngine.sha256(REVISION+'|'+V51StateModelArtifact.ARTIFACT_ID+'|'

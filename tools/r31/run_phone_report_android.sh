@@ -34,7 +34,7 @@ python3 - "$phone_exit" <<'PY'
 import hashlib,json,os,re,subprocess,sys
 from pathlib import Path
 private=Path(os.environ['R31_PHONE_PRIVATE']);public=Path(os.environ['R31_PHONE_PUBLIC'])
-result={'sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'apkSha256':os.environ['R31_REPORT_APK_SHA'],'runId':os.environ['GITHUB_RUN_ID'],'scope':'REPORT_GENERATION_COMPLETENESS_REAL_UI_SAF_ONLY','probeExit':int(sys.argv[1]),'result':'REPORT_PASS_REINSTALL_PENDING' if sys.argv[1]=='0' else 'FAIL','physicalDevice':'NOT_RUN','businessAndAlgorithmHealth':'DEFERRED_NOT_PASSED','rawReportsAndCredentials':'PRIVATE_NOT_PUBLISHED','025To026OverlayMarkerPreserved':True}
+result={'sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'apkSha256':os.environ['R31_REPORT_APK_SHA'],'runId':os.environ['GITHUB_RUN_ID'],'scope':'REPORT_GENERATION_COMPLETENESS_REAL_UI_SAF_ONLY','probeExit':int(sys.argv[1]),'result':'REPORT_PASS_REINSTALL_PENDING' if sys.argv[1]=='0' else 'FAIL','physicalDevice':'NOT_RUN','businessAndAlgorithmHealth':'DEFERRED_NOT_PASSED','rawReportsAndCredentials':'PRIVATE_NOT_PUBLISHED','overlayMarkerPreserved':True,'overlayFromVersionCode':577311025}
 result['validationSourceCommit']=os.environ.get('R31_PHONE_VALIDATION_SOURCE',result['sourceCommit'])
 result['startupWarmupSeconds']=int(os.environ.get('R31_REPORT_STARTUP_WAIT_SECONDS','0'))
 for name in ['ui-report-acceptance.json','safe-recovery-failure.json','safe-report-semantics.json','safe-report-liveness.json','safe-timeout-source-frames.json']:
@@ -53,7 +53,7 @@ from pathlib import Path
 public=Path(os.environ['R31_PHONE_PUBLIC']);r=json.loads((public/'ui-report-acceptance.json').read_text());job=r['jobId']
 body=subprocess.check_output(['adb','exec-out','cat',f'/data/user/0/com.starcore.research.r13/files/r981_reports/jobs/{job}/delivery/STARCORE_FULL_REPORT.zip'])
 assert hashlib.sha256(body).hexdigest()==r['zipSha256'],'SIGNED_REINSTALL_LOST_REPORT'
-r['sameSignedApkReinstallPreservesReport']=True;r['025To026OverlayMarkerPreserved']=True
+r['sameSignedApkReinstallPreservesReport']=True;r['overlayMarkerPreserved']=True;r['overlayFromVersionCode']=577311025
 (public/'ui-report-acceptance.json').write_text(json.dumps(r,ensure_ascii=False,indent=2)+'\n')
 PY
 set +e

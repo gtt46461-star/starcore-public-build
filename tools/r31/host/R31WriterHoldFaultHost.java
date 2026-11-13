@@ -113,6 +113,19 @@ public final class R31WriterHoldFaultHost {
         need(typedRejected&&legacyBody.get()==0,"typed direct entry retains its recoverable pre-body rejection");
         int telemetry=coordinator.runWrite("R914_TELEMETRY_STATE",tx->{tx.execSQL("INSERT INTO critical_sentinel VALUES(2)");return 11;},-17);
         need(telemetry==11&&scalar("SELECT count(*) FROM critical_sentinel WHERE id=2")==1,"actual legacy backfill telemetry remains admitted under real research debt");
+        String[] liveOperations={"R932_DOMAIN_ROUTE","R915_SETTLEMENT_CURRENT_NORMALIZE_AND_CLAIM",
+                "R911_SETTLEMENT_CURRENT_SOLE_OWNER_RECOVER","R919_TERMINALIZE_AUDITED_NO_PREDRAW",
+                "R914_TELEMETRY_STATE_BATCH","R36_HEALTH"};
+        for(int i=0;i<liveOperations.length;i++) {
+            final int sentinel=10+i;
+            int live=coordinator.runAtomicWriteOrThrowF01(liveOperations[i],tx->{
+                need(writer.isHeldByCurrentThread()&&tx.inTransaction(),"real existing writer owns live operation");
+                tx.execSQL("INSERT INTO critical_sentinel VALUES(?)",new Object[]{sentinel});return sentinel;
+            });
+            need(live==sentinel&&scalar("SELECT count(*) FROM critical_sentinel WHERE id="+sentinel)==1,
+                    "actual production live/control operation commits under unchanged research debt: "+liveOperations[i]);
+        }
+        need(observation("pending")==debt&&WriterHoldFaultsR31.deferResearch(),"live admission never deletes evidence or lowers the backlog threshold");
         int retention=coordinator.runWrite("R817_DRAW_RAW_PAYLOAD_COMPACT",tx->{tx.execSQL("INSERT INTO critical_sentinel VALUES(3)");return 12;},-17);
         need(retention==12&&scalar("SELECT count(*) FROM critical_sentinel WHERE id=3")==1,"actual raw-payload retention operation has its own explicit class");
         need(WriterHoldFaultsR31.drainOne(store)&&!WriterHoldFaultsR31.deferResearch(),"actual durable delivery is the recovery condition");

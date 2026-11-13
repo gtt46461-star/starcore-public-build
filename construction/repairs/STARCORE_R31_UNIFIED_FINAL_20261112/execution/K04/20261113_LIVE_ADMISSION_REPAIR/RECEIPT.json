@@ -1,0 +1,60 @@
+{
+  "scope": "TARGETED_K04_LIVE_ADMISSION_FIX_NOT_FINAL_APK_OR_222_ITEM_ACCEPTANCE",
+  "baseSource": "a7475fc3d6f625cc7a5311a6633788000d7eeb08",
+  "observedRunId": 43423806728,
+  "observedApkSource": "971c376b317dba3acb6eb10ddee49b41a91593b2",
+  "observedFailure": "R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN at R932_DOMAIN_ROUTE; 202611130741 canonical committed but not settled; subsequent targets 0742..0744 terminal after 3 dependency retries",
+  "beforeRegistryTests": {
+    "tests": 5,
+    "failed": 2,
+    "expandedScanUnregisteredOperations": 50
+  },
+  "afterUnitClasses": [
+    {
+      "name": "com.ethk3.novaonepro.R31WriteOperationRegistryTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-11-13T13:00:29.992Z"
+    },
+    {
+      "name": "com.ethk3.novaonepro.strategyv2.R31TaskFailureDispositionTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-11-13T13:00:30.561Z"
+    },
+    {
+      "name": "com.ethk3.novaonepro.strategyv2.R31FailureEntryConsistencyTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-11-13T13:00:30.471Z"
+    }
+  ],
+  "nativeWriterState": "NATIVE_NAMED_PROTOCOLS_PASS_NOT_ANDROID_OR_DEVICE",
+  "nativeServiceProtocolExit": 0,
+  "nativeServiceProtocolLogSha256": "45032a600277473de16335697d5fb1305d8ea62e1772eed1d8b351a215e04f88",
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java": "e99d4124109e2f40ec5b437863b9af35a8ccae7c533a78e06e5e16c252ae2932",
+    "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java": "6c337f43b6318639dfa87907893b88c9a94ebc4694ebaf8d3a4791bcdf833ab0",
+    "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java": "dccdf5ad8421cb1d758bfec755e8f460452283ee6c6a89316648ee25ee966fc1",
+    "app/src/main/java/com/ethk3/novaonepro/DomainRouterR929.java": "e7e31a1e56963c79966612e148ce3b2464c4c8581c00489831d91f81b44e4db9"
+  },
+  "repair": [
+    "Explicit real predraw and exact-current settlement writer classes",
+    "Multiline production operation registration includes telemetry independent of research backpressure",
+    "One real durable fault drain per existing off-main control tick before research initialization",
+    "Typed transient/dependency retries preserve original owner fence, errors, attempts and deadline"
+  ],
+  "formalReleaseIdentity": "PENDING_CLEAN_SOURCE_BUILD",
+  "AndroidCurrentCandidate": "NOT_RUN",
+  "physicalDevice": "NOT_RUN",
+  "24h": "NOT_RUN",
+  "72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "at": "2026-11-13T13:04:34.318684+00:00"
+}

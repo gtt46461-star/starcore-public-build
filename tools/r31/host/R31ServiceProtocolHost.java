@@ -44,6 +44,31 @@ public final class R31ServiceProtocolHost {
         }finally{db.endTransaction();}
     }
     private static SettlementEngine.OwnerToken token(String issue)throws Exception{Constructor<SettlementEngine.OwnerToken> c=SettlementEngine.OwnerToken.class.getDeclaredConstructor(String.class,long.class);c.setAccessible(true);return c.newInstance(issue,System.currentTimeMillis());}
+    private static void analysisDependencyRetry(SQLiteDatabase db,DatabaseCoordinator coordinator) {
+        String table=DbHelper.TABLE_R36_ANALYSIS_REQUEST,base="202611040700",target="202611040701";
+        db.execSQL("CREATE TABLE "+table+"(base_issue TEXT,target_issue TEXT PRIMARY KEY,status TEXT,generation INTEGER,request_at INTEGER,deadline_at INTEGER,started_at INTEGER,finished_at INTEGER,lease_owner TEXT,lease_until INTEGER,attempts INTEGER,last_stage TEXT,error_code TEXT,history_hash TEXT,canonical_hash TEXT,request_hash TEXT,next_attempt_at INTEGER,repair_version TEXT,first_error_code TEXT,last_transition_at INTEGER)");
+        String hash=V51ChecksumEngine.sha256("HOST_RETRY_INPUT");long now=System.currentTimeMillis();
+        db.execSQL("INSERT INTO "+table+" VALUES(?,?,'RUNNING',1,?,?,?,0,'same-owner',?,100,'INFER','','','',?,0,'','original-first-error',?)",
+                new Object[]{base,target,now,now+55000,now,now+55000,hash,now});
+        AnalysisSingleFlightR36.Request request=new AnalysisSingleFlightR36.Request(base,target,1,now,now+55000,"HOST_RETRY",hash,"");
+        AnalysisRequestStoreR36 requests=new AnalysisRequestStoreR36(new DbStore(db,coordinator));
+        for(String category:new String[]{"DEPENDENCY","LOCK_BUSY","RESOURCE_MEMORY","RESOURCE_QUEUE","TEMP_TIMEOUT"}) {
+            db.execSQL("UPDATE "+table+" SET status='RUNNING',lease_owner='same-owner'");
+            Throwable failure=new DatabaseCoordinator.WriteRejectedR31(category,"R932_DOMAIN_ROUTE","ADMISSION",
+                    DatabaseCoordinator.CommitOutcome.ROLLED_BACK,new IllegalStateException("PRODUCER_WAIT"));
+            AnalysisRequestStoreR36.TransitionResult changed=requests.markRetry(request,"same-owner","unmodified diagnostic",failure,now+1);
+            need(changed.updated&&AnalysisRequestStoreR36.RETRY_WAIT.equals(changed.status),"typed "+category+" must remain retryable beyond the fault-attempt limit");
+            try(Cursor row=db.rawQuery("SELECT first_error_code,attempts,lease_owner FROM "+table,null)) {
+                need(row.moveToFirst()&&"original-first-error".equals(row.getString(0))&&row.getLong(1)==100&&"".equals(row.getString(2)),"retry keeps original error and attempts while releasing only its own lease");
+            }
+        }
+        db.execSQL("UPDATE "+table+" SET status='RUNNING',lease_owner='same-owner'");
+        AnalysisRequestStoreR36.TransitionResult stale=requests.markRetry(request,"stale-owner","wait",new IllegalStateException("DEPENDENCY"),now+1);
+        need(!stale.updated&&scalar(db,"SELECT count(*) FROM "+table+" WHERE status='RUNNING' AND lease_owner='same-owner'")==1,"dependency recovery retains the original owner fence");
+        AnalysisRequestStoreR36.TransitionResult fault=requests.markRetry(request,"same-owner","actual bug",new IllegalStateException("ACTUAL_BUG"),now+1);
+        need(fault.updated&&AnalysisRequestStoreR36.FAILED_TERMINAL.equals(fault.status),"actual faults still enforce the unchanged attempt limit");
+        System.out.println("R31_ANALYSIS_TYPED_RETRY_HOST_PASS typed_waits_not_terminal=true original_error_and_attempts_preserved=true stale_owner_refused=true actual_fault_limit_unchanged=true");
+    }
     private static void outboxAndSettlement(SQLiteDatabase db,DatabaseCoordinator coordinator)throws Exception{
         Models.Draw first=draw("202611040100"),second=draw("202611040101");
         coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.DRAW_INGEST,"R31_HOST_CONFIRMED_INGRESS"),tx->{insertDraw(tx,first);SettlementTaskStoreR36.enqueueConfirmedWithinWrite(tx,first,10020,SettlementTaskStoreR36.BACKLOG,0,"HOST_CONFIRMED_INGRESS");return 0;});
@@ -173,7 +198,7 @@ public final class R31ServiceProtocolHost {
         Class.forName("org.sqlite.JDBC");File path=new File(args[0]);ThreadPoolExecutor background=new ThreadPoolExecutor(1,1,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(32),r->{Thread t=new Thread(r,"HOST_EXISTING_WRITER_QUEUE");t.setDaemon(true);return t;},new ThreadPoolExecutor.AbortPolicy());
         try(Connection connection=DriverManager.getConnection("jdbc:sqlite:"+path.getPath())){
             SQLiteDatabase db=new SQLiteDatabase(connection);schema(db);Field uf=Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);DatabaseCoordinator coordinator=(DatabaseCoordinator)((Unsafe)uf.get(null)).allocateInstance(DatabaseCoordinator.class);Field lf=DatabaseCoordinator.class.getDeclaredField("WRITE_LOCK_CP3");lf.setAccessible(true);set(coordinator,"writeLock",(ReentrantLock)lf.get(null));set(coordinator,"helper",new DbHelper(db));set(coordinator,"app",new android.app.Application(path));set(coordinator,"waitingWriters",new AtomicInteger());set(coordinator,"criticalBusinessWaitersR914",new AtomicInteger());set(coordinator,"backgroundWriter",background);
-            outboxAndSettlement(db,coordinator);ingestOrderingAndConflicts(db,coordinator);canonicalFirstAuthoritative(db,coordinator);everyOpportunityReachesTerminal(db,coordinator);transport(db,coordinator);R31ServiceHeartbeatHost.verify(path);
+            outboxAndSettlement(db,coordinator);ingestOrderingAndConflicts(db,coordinator);canonicalFirstAuthoritative(db,coordinator);everyOpportunityReachesTerminal(db,coordinator);analysisDependencyRetry(db,coordinator);transport(db,coordinator);R31ServiceHeartbeatHost.verify(path);
             System.out.println("R31_SERVICE_PROTOCOL_HOST_PASS scope=actual_production_sources_native_SQLite_HTTP_loopback_adapters_NOT_ANDROID_NOT_DEVICE_NOT_MODEL_QUALITY");
         }finally{background.shutdownNow();}
     }

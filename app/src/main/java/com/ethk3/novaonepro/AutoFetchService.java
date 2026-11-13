@@ -2430,6 +2430,10 @@ public final class AutoFetchService extends Service {
         if(!running||userRequestedStopV5||store==null||!isServiceUserEnabledV5())return;
         long mono=android.os.SystemClock.elapsedRealtime();if(mono-lastResearchControlElapsedR31<5000L)return;lastResearchControlElapsedR31=mono;
         store.requestLegacySchemaMigrationR31();
+        // This existing off-main control lane runs while R26/R27 are still
+        // initializing. Fault delivery cannot depend on the research pool whose
+        // writes are waiting for these exact durable receipts.
+        com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.drainOne(store);
         ensureContinuousRuntimeR26();
         com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26 owner=continuousRuntimeR26;
         if(owner!=null){
@@ -3914,6 +3918,7 @@ public final class AutoFetchService extends Service {
                                                     ? "COOPERATIVE_CANCEL:"
                                                     : "")
                                             + lastError,
+                                    e,
                                     now);
             }
             durableExitFinishedR77 = !retryableExitTransitionR77(transition);

@@ -13,7 +13,7 @@ import org.junit.Test;
 /** R31-B02-C01#A1: every literal write operation in the production tree resolves to a registered WriteClass;
  * an unregistered operation is observable as unknown and never promoted to a critical writer. */
 public final class R31WriteOperationRegistryTest {
-    private static final Pattern LITERAL_ENTRY = Pattern.compile("\\.(?:runWrite[A-Za-z0-9]*|runAtomicWrite[A-Za-z0-9]*)\\(\"([^\"]+)\"");
+    private static final Pattern LITERAL_ENTRY = Pattern.compile("\\.(?:runWrite[A-Za-z0-9]*|runAtomicWrite[A-Za-z0-9]*)\\(\\s*\"([^\"]+)\"");
     private static File root() {
         File d = new File(System.getProperty("user.dir")).getAbsoluteFile();
         for (int i = 0; i < 5 && d != null; i++, d = d.getParentFile()) if (new File(d, "app/src/main/java").isDirectory()) return d;
@@ -43,7 +43,8 @@ public final class R31WriteOperationRegistryTest {
      * catch-up history is a background slice), plus the explicit R26 LIVE_FREEZE writers and
      * the one-row exact-current settlement recovery repaired after a real process-reopen failure. */
     private static final Set<String> CRITICAL_EXACT = new HashSet<>(Arrays.asList("R932_BUNDLE_CAPTURE", "R932_FREEZE_ONE_RESEARCH_CONSUMER",
-            "R925_FETCH_BEGIN", "R925_FETCH_PAYLOAD", "R925_FETCH_COMPLETE", "R26_INCUMBENT_FREEZE", "R26_LIVE_FREEZE", "R911_SETTLEMENT_REOPEN_CURRENT_FAILED"));
+            "R925_FETCH_BEGIN", "R925_FETCH_PAYLOAD", "R925_FETCH_COMPLETE", "R26_INCUMBENT_FREEZE", "R26_LIVE_FREEZE", "R911_SETTLEMENT_REOPEN_CURRENT_FAILED",
+            "R932_DOMAIN_ROUTE", "R911_SETTLEMENT_CURRENT_SOLE_OWNER_RECOVER", "R915_SETTLEMENT_CURRENT_NORMALIZE_AND_CLAIM", "R919_TERMINALIZE_AUDITED_NO_PREDRAW"));
     private static final String[] CRITICAL_PREFIX = {"R914_DRAW_SAVE_ATOMIC", "R914_SETTLEMENT_HANDOFF_CURRENT", "R36_CANONICAL", "R36_ANALYSIS",
             "R366_ANALYSIS", "R36_SETTLEMENT", "R811_SETTLEMENT_PROMOTE_CURRENT", "R909_SETTLEMENT_REOPEN_CURRENT", "R905_REOPEN_FALSE_NO_PREDRAW",
             "R820_SETTLEMENT", "R900_SETTLEMENT"};
@@ -75,5 +76,15 @@ public final class R31WriteOperationRegistryTest {
         assertEquals(DatabaseCoordinator.WriteClass.SETTLEMENT,current.writeClass);
         assertFalse(DatabaseCoordinator.WriteContext.legacy("R914_REOPEN_RETRYABLE_FAILED_SETTLEMENTS").critical());
         assertEquals(DatabaseCoordinator.WriteClass.TELEMETRY,DatabaseCoordinator.WriteContext.legacy("R31_BUILD_MODULE_REGISTRY").writeClass);
+    }
+    @Test public void predrawRoutingAndExactSettlementAdmissionSurviveResearchBackpressure() {
+        assertEquals(DatabaseCoordinator.WriteClass.LIVE_FREEZE,
+                DatabaseCoordinator.WriteContext.legacy("R932_DOMAIN_ROUTE").writeClass);
+        for (String op : Arrays.asList("R915_SETTLEMENT_CURRENT_NORMALIZE_AND_CLAIM",
+                "R911_SETTLEMENT_CURRENT_SOLE_OWNER_RECOVER")) {
+            DatabaseCoordinator.WriteContext context = DatabaseCoordinator.WriteContext.legacy(op);
+            assertTrue(op, context.registered);
+            assertEquals(op, DatabaseCoordinator.WriteClass.SETTLEMENT, context.writeClass);
+        }
     }
 }

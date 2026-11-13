@@ -26,24 +26,25 @@ def single(root, glob):
     return found[0]
 
 
-def observe(built, support, out):
+def observe(built, support, out, source=SOURCE, apk_sha=APK_SHA, test_source=TEST_SOURCE):
     out.mkdir(parents=True, exist_ok=False)
     assert run('adb', 'shell', 'getprop', 'ro.kernel.qemu').stdout.strip() == b'1'
     # The old test APK is transport only: the invoked test and runner are byte-identical.
     paths = ['app/src/androidTest/java/com/ethk3/novaonepro/' + x + '.java'
              for x in ['R31QDeliveryInstrumentedTest', 'R30FaultAndroidRunner']]
-    run('git', 'diff', '--exit-code', TEST_SOURCE, SOURCE, '--', *paths)
+    run('git', 'diff', '--exit-code', test_source, source, '--', *paths)
     apk = single(built, '*-release.apk')
     test = single(support, '*-androidTest.apk')
-    assert hashlib.sha256(apk.read_bytes()).hexdigest() == APK_SHA
-    assert single(built, 'source-commit.txt').read_text().strip() == SOURCE
+    assert re.fullmatch(r'[0-9a-f]{40}', source) and re.fullmatch(r'[0-9a-f]{64}', apk_sha)
+    assert hashlib.sha256(apk.read_bytes()).hexdigest() == apk_sha
+    assert single(built, 'source-commit.txt').read_text().strip() == source
     run('adb', 'install', '-r', '-g', str(apk), timeout=90)
     run('adb', 'install', '-r', '-t', str(test), timeout=90)
     installed = run('adb', 'shell', 'pm', 'path', PACKAGE).stdout.decode().strip().split(':', 1)[1]
-    assert hashlib.sha256(run('adb', 'exec-out', 'cat', installed, timeout=90).stdout).hexdigest() == APK_SHA
+    assert hashlib.sha256(run('adb', 'exec-out', 'cat', installed, timeout=90).stdout).hexdigest() == apk_sha
     run('adb', 'shell', 'pm', 'grant', PACKAGE, 'android.permission.POST_NOTIFICATIONS', check=False)
     run('adb', 'shell', 'am', 'force-stop', PACKAGE)
-    result = {'sourceCommit': SOURCE, 'apkSha256': APK_SHA, 'supportTestSource': TEST_SOURCE,
+    result = {'sourceCommit': source, 'apkSha256': apk_sha, 'supportTestSource': test_source,
               'supportTestAndRunnerSourceUnchanged': True, 'scope': 'EXACT_RELEASE_SERVICE_PHASE_AND_PERSISTENT_ERROR_DIAGNOSIS_NOT_ACCEPTANCE',
               'physicalDevice': 'NOT_RUN', '24h': 'NOT_RUN', '72h': 'NOT_RUN', 'naturalQuality': 'NOT_PROVEN'}
     with tempfile.TemporaryDirectory(prefix='r31-private-live-') as private:
@@ -87,7 +88,9 @@ def observe(built, support, out):
                     'events': ('v57_runtime_event_r926', ['target_issue', 'event_type', 'stage', 'source', 'created_at']),
                     'resources': ('v57_attempt_resource_r927', ['target_issue', 'status', 'elapsed_ms', 'lock_wait_max_ms', 'db_body_max_ms', 'gc_count', 'gc_time_ms', 'stage_samples', 'reason']),
                     'draws': ('draws', ['issue', 'open_time', 'fetch_time', 'dirty']),
-                    'settlementTasks': ('v57_settlement_task_r36', ['target_issue', 'status', 'attempts', 'error_code', 'first_error_code', 'last_stage', 'updated_at']),
+                    'settlementTasks': ('v57_settlement_task_r36', ['target_issue', 'status', 'attempts', 'last_error', 'failure_class', 'last_progress_at', 'updated_at']),
+                    'writerFaults': ('r31_runtime_fault', ['operation', 'phase', 'category', 'commit_outcome', 'occurrences', 'first_wall_ms', 'last_wall_ms']),
+                    'researchTasks': ('r26_task', ['task_id', 'status', 'wait_kind', 'blocked_reason', 'cursor', 'last_progress', 'last_served']),
                 }
                 for name, (table, allowed) in queries.items():
                     columns = {row[1] for row in db.execute('PRAGMA table_info(' + table + ')')}
@@ -120,4 +123,6 @@ def observe(built, support, out):
 if __name__ == '__main__':
     p = argparse.ArgumentParser();p.add_argument('--built', type=Path, required=True)
     p.add_argument('--support', type=Path, required=True);p.add_argument('--out', type=Path, required=True)
-    a = p.parse_args();raise SystemExit(observe(a.built, a.support, a.out))
+    p.add_argument('--expected-source', default=SOURCE);p.add_argument('--expected-apk-sha', default=APK_SHA)
+    p.add_argument('--test-source', default=TEST_SOURCE)
+    a = p.parse_args();raise SystemExit(observe(a.built, a.support, a.out, a.expected_source, a.expected_apk_sha, a.test_source))

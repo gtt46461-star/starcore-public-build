@@ -803,6 +803,17 @@ public final class AnalysisRequestStoreR36 {
         return transitionOwned(request, owner, error, now, false, false);
     }
 
+    /** Retain the producer's typed category before formatting its diagnostic text. */
+    public TransitionResult markRetry(
+            final AnalysisSingleFlightR36.Request request,
+            final String owner,
+            final String error,
+            final Throwable failure,
+            final long now) {
+        return transitionOwned(request, owner, error, now, false, false,
+                com.ethk3.novaonepro.strategyv2.FailureDispositionR31.classify(failure).consumesFaultBudget());
+    }
+
     public TransitionResult markExpired(
             final AnalysisSingleFlightR36.Request request,
             final String owner,
@@ -826,6 +837,18 @@ public final class AnalysisRequestStoreR36 {
             final long now,
             final boolean terminal,
             final boolean failed) {
+        return transitionOwned(request, owner, error, now, terminal, failed,
+                !safe(error).contains("R31_DEPENDENCY_"));
+    }
+
+    private TransitionResult transitionOwned(
+            final AnalysisSingleFlightR36.Request request,
+            final String owner,
+            final String error,
+            final long now,
+            final boolean terminal,
+            final boolean failed,
+            final boolean consumesFaultBudget) {
         if (request == null || !request.valid() || safe(owner).length() == 0)
             return TransitionResult.lost("TRANSITION_INPUT_INVALID");
         TransitionResult result =
@@ -843,7 +866,7 @@ public final class AnalysisRequestStoreR36 {
                                                 || !safe(owner).equals(row.leaseOwner))
                                             return TransitionResult.lost("LEASE_FENCE_LOST");
                                         boolean maxed =
-                                                !safe(error).contains("R31_DEPENDENCY_")&&row.attempts >= AppConfig.R36_ANALYSIS_MAX_ATTEMPTS;
+                                                consumesFaultBudget && row.attempts >= AppConfig.R36_ANALYSIS_MAX_ATTEMPTS;
                                         String nextStatus =
                                                 terminal
                                                         ? (failed ? FAILED_TERMINAL : EXPIRED)
