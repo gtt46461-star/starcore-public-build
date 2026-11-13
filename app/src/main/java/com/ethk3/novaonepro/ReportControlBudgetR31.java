@@ -19,6 +19,7 @@ final class ReportControlBudgetR31 {
                 || relative.matches("jobs/[0-9a-f]{64}/job\\.json")
                 || relative.matches("quarantine/[0-9a-f]{64}\\.json")
                 || relative.matches("cancel-commands/[0-9a-f]{64}\\.json")
+                || relative.matches("control-r69/(?:command|status|cancel)-[0-9a-f]{64}\\.json")
                 || relative.matches("(?:request-queue|interactive-pending-r69|current-job|cancel)\\.json");
     }
     static Closeable admit(File root,File file,long bytes,StorageBudgetR31 budget)throws IOException {
@@ -39,7 +40,10 @@ final class ReportControlBudgetR31 {
                 LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(5));
             }
             long used=0;int entries=0;
-            for(String name:new String[]{"requests","cancel-commands","quarantine"}) {
+            // User stop/clear must be durable before a new export is submitted.
+            // Its exact command/status/cancel records share this same precharged
+            // quota; count every existing child, including AtomicFile .bak/.new.
+            for(String name:new String[]{"requests","cancel-commands","quarantine","control-r69"}) {
                 File directory=new File(root,name);if(!directory.exists())continue;
                 try(DirectoryCursorR31 cursor=DirectoryCursorR31.open(directory)) {
                     File child;while((child=cursor.next())!=null) {

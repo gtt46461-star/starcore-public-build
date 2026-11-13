@@ -30,8 +30,56 @@ public final class R31ReportSinkHostTest {
         public void checkpoint(){}public File jobDirectory(){return directory;}public void trackRenderer(ReportTextCP12 text){held++;}public void releaseRenderer(ReportTextCP12 text){held--;}
         public void recordTextArtifact(File file,String hash,long bytes)throws IOException{try{need(hash.equals(ReportArchiveCP4.hash(file)),"RENDER_SHA");}catch(Exception error){throw new IOException(error);}recorded++;}
     }
+    static void controlMetadataHeadroom(File app)throws Exception {
+        app.mkdirs();File files=new File(app,"files");files.mkdirs();
+        File root=ReportDirectoriesCP12.root(files);
+        StorageBudgetR31 budget=new StorageBudgetR31(app,new StorageBudgetR31.Config(128*MiB,128*MiB,1024,2*MiB,"HOST_CONTROL_METADATA_FIXTURE"),f->1024*MiB);
+        try(Closeable fixture=ReportIoR31.hostFixture(app,budget);ReportJobJournalCP12 journal=ReportJobJournalCP12.tryClaim(files)) {
+            String pending=id(401);File intent=new File(root,"requests/"+pending+".json");
+            ReportJobJournalCP12.writeAtomic(intent,new JSONObject().put("requestId",pending).put("mode","FULL_REPORT").toString());
+            ReportRequestQueueCP12.enqueue(root,pending,"FULL_REPORT");
+            // Exercise the actual clear-before-export producer and owner while
+            // ordinary bulk reserve/census admission is unavailable.
+            try(RandomAccessFile io=new RandomAccessFile(new File(app,"files/r31-storage/admission.lock"),"rw");java.nio.channels.FileLock held=io.getChannel().lock()) {
+                String command=ReportTaskControlR69.request(files,true);
+                need(new File(root,"control-r69/command-"+command+".json").isFile(),"CONTROL_COMMAND_NOT_DURABLE_WITH_BULK_BUSY");
+                need(ReportTaskControlR69.cancelled(root,pending,pending),"CONTROL_CANCEL_NOT_DURABLE_WITH_BULK_BUSY");
+                ReportTaskControlR69.applyPending(journal);
+                need("CONTROL_DONE".equals(ReportTaskControlR69.status(files,command).getString("stage")),"CONTROL_STATUS_NOT_DURABLE_WITH_BULK_BUSY");
+                need(!ReportRequestQueueCP12.pendingIds(root).contains(pending),"CONTROL_DID_NOT_REMOVE_EXACT_PENDING_REQUEST");
+                for(String kind:new String[]{"command","status","cancel"}) {
+                    File record=new File(root,"control-r69/"+kind+"-"+id(402)+".json");
+                    need(ReportControlBudgetR31.accepts(root,record),"CONTROL_RECORD_NOT_REGISTERED:"+kind);
+                    try(ReportIoR31.AtomicPermit ignored=ReportIoR31.beforeAtomic(record,65537)){throw new AssertionError("CONTROL_RECORD_LIMIT_BYPASSED");}
+                    catch(IOException expected){need("REPORT_CONTROL_RECORD_BOUND".equals(expected.getMessage()),"CONTROL_RECORD_LIMIT_CHANGED");}
+                }
+            }
+            for(String name:new String[]{"command-"+id(1)+".json.payload","command-short.json","command-"+id(1).toUpperCase(Locale.ROOT).replace('0','A')+".json","payload-"+id(1)+".json","nested/command-"+id(1)+".json"})
+                need(!ReportControlBudgetR31.accepts(root,new File(root,"control-r69/"+name)),"UNREGISTERED_CONTROL_PAYLOAD_ADMITTED:"+name);
+            File atomic=new File(root,"control-r69/status-"+id(403)+".json"),outside=new File(app,"outside");Files.write(outside.toPath(),new byte[]{1});
+            Files.createSymbolicLink(new File(atomic.getPath()+".new").toPath(),outside.toPath());
+            try(ReportIoR31.AtomicPermit ignored=ReportIoR31.beforeAtomic(atomic,1)){throw new AssertionError("CONTROL_ATOMIC_SYMLINK_ADMITTED");}
+            catch(IOException expected){need("REPORT_ATOMIC_SYMLINK".equals(expected.getMessage()),"CONTROL_SYMLINK_GUARD_CHANGED");}
+            Files.delete(new File(atomic.getPath()+".new").toPath());
+        }
+        // Base, backup and pending atomic bytes all consume the configured
+        // headroom, and a larger configured reserve cannot raise the 2 MiB cap.
+        for(String scenario:new String[]{"atomic-versions","hard-quota","entry-bound","free-floor"}) {
+            File fixtureApp=new File(app,scenario);fixtureApp.mkdirs();File fixtureFiles=new File(fixtureApp,"files");fixtureFiles.mkdirs();File fixtureRoot=ReportDirectoriesCP12.root(fixtureFiles),controls=new File(fixtureRoot,"control-r69");controls.mkdirs();
+            long headroom=scenario.equals("atomic-versions")?16384:4*MiB;
+            StorageBudgetR31 limited=new StorageBudgetR31(fixtureApp,new StorageBudgetR31.Config(128*MiB,128*MiB,1024,headroom,"HOST_CONTROL_METADATA_"+scenario),f->scenario.equals("free-floor")?5119:1024*MiB);
+            if(scenario.equals("atomic-versions"))for(String suffix:new String[]{"",".bak",".new"})Files.write(new File(controls,"status-"+id(1)+".json"+suffix).toPath(),new byte[4096]);
+            if(scenario.equals("hard-quota"))for(int n=0;n<32;n++)Files.write(new File(controls,"status-"+id(n)+".json").toPath(),new byte[65536]);
+            if(scenario.equals("entry-bound"))for(int n=0;n<2049;n++)Files.write(new File(controls,"status-"+id(n)+".json").toPath(),new byte[0]);
+            String reason=scenario.equals("free-floor")?"REPORT_CONTROL_FREE_SPACE":scenario.equals("entry-bound")?"REPORT_CONTROL_SCOPE":"REPORT_CONTROL_QUOTA";
+            try(Closeable ignored=ReportControlBudgetR31.admit(fixtureRoot,new File(controls,"command-"+id(5000)+".json"),scenario.equals("atomic-versions")?8192:1,limited)){throw new AssertionError("CONTROL_BOUND_NOT_ENFORCED:"+scenario);}
+            catch(IOException expected){need(reason.equals(expected.getMessage()),"CONTROL_BOUND_REASON_CHANGED:"+scenario+":"+expected.getMessage());}
+        }
+        System.out.println("R31_CONTROL_METADATA_HOST_PASS ACTUAL_CLEAR_COMMAND_CANCEL_STATUS_WITH_BULK_BUSY EXACT_NAMES RECORD_LIMIT ATOMIC_BACKUP_NEW_ACCOUNTED HEADROOM_HARD_QUOTA ENTRY_BOUND FREE_FLOOR SYMLINK; HOST_ONLY_NOT_ANDROID_OR_CURRENT_TIMEOUT_ROOT_CAUSE");
+    }
     public static void main(String[] args)throws Exception{
-        File app=new File(args[0]);app.mkdirs();StorageBudgetR31 budget=new StorageBudgetR31(app,new StorageBudgetR31.Config(128*MiB,128*MiB,1024,65536,"HOST_REPORT_SINK_CAPACITY_FIXTURE"),f->1024*MiB);
+        if(args.length==2&&"--control-metadata-only".equals(args[0])){controlMetadataHeadroom(new File(args[1]));return;}
+        File app=new File(args[0]);app.mkdirs();controlMetadataHeadroom(new File(app,"control-metadata"));StorageBudgetR31 budget=new StorageBudgetR31(app,new StorageBudgetR31.Config(128*MiB,128*MiB,1024,65536,"HOST_REPORT_SINK_CAPACITY_FIXTURE"),f->1024*MiB);
         try(Closeable host=ReportIoR31.hostFixture(app,budget);ReportJobJournalCP12 journal=ReportJobJournalCP12.tryClaim(new File(app,"files"))){
             ReportJobJournalCP12.Job job=new ReportJobJournalCP12.Job(id(31),id(131),id(931),"FULL_REPORT",System.currentTimeMillis());
             // Hold the actual bulk-admission OS lease. Initial job/control
