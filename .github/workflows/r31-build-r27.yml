@@ -1,4 +1,4 @@
-name: STARCORE 026 exact signed APK Android14 report continuation
+name: STARCORE 026 failure-menu-only continuation with accepted report receipts
 permissions:
   contents: write
   actions: read
@@ -139,7 +139,7 @@ jobs:
         path: source
     - uses: actions/checkout@v4
       with:
-        ref: 70214dcf7114106f7b150d224abc4af9dc728ca5
+        ref: a7fb8e792258dbbf808ad6adffb560f779056f65
         path: harness
         fetch-depth: 1
     - uses: actions/download-artifact@v4
@@ -150,10 +150,10 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: actions/download-artifact@v4
       with:
-        name: r31-report-025-signed-build
-        run-id: 43417298331
+        name: r31-026-report-export-only
+        run-id: 43455367451
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        path: old025
+        path: accepted-report
     - name: Enable emulator acceleration
       run: 'echo ''KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"'' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
 
@@ -171,8 +171,7 @@ jobs:
         ram-size: 3072M
         heap-size: 512M
         emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
-        script: cd source && R31_PHONE_HARNESS_ROOT=../harness R31_PHONE_VALIDATION_SOURCE=70214dcf7114106f7b150d224abc4af9dc728ca5 R31_REPORT_STARTUP_WAIT_SECONDS=120
-          bash ../harness/tools/r31/run_phone_report_android.sh ../built report-only-public ../old025
+        script: bash harness/tools/r31/run_phone_failure_only.sh source harness built accepted-report
     - uses: actions/upload-artifact@v4
       if: always()
       with:
