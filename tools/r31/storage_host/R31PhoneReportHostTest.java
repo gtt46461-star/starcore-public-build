@@ -54,8 +54,14 @@ public final class R31PhoneReportHostTest {
             ReportJobJournalCP12.Job job=journal.recoverOrCreateR31(id(1),id(90),"FULL_REPORT");File directory=journal.directory(job),snapshot=new File(directory,"snapshot.db");
             Object active=active(job,root);ReportNativeCP4.Control actual=(ReportNativeCP4.Control)active;
             StorageBudgetR31.Reservation reservation=budget.reserve("report:"+job.jobId,job.revision,StorageBudgetR31.Category.REPORT_WORKSPACE,"files/r981_reports/jobs/"+job.jobId,2L<<30,8L<<30,true);set(active,"storageReservationR31",reservation);set(active,"backupTargetR31",snapshot);
-            Files.createDirectory(new File(directory,"stage-progress.json").toPath());Files.createDirectory(new File(directory,"backup-progress.json").toPath());
             try(ReportIoR31.Scope scope=ReportIoR31.bind(directory,actual)){
+                try(RandomAccessFile io=new RandomAccessFile(new File(root,"control-budget.lock"),"rw");java.nio.channels.FileLock lock=io.getChannel().lock()){
+                    long began=System.nanoTime();enter(active,"BACKUP");actual.onBackupProgress(100,100,0);
+                    need((System.nanoTime()-began)/1000000<1000,"OPTIONAL_SAMPLES_WAITED_ON_CONTROL_LOCK");
+                    long now=android.os.SystemClock.elapsedRealtime();long[] next=(long[])get(active,"nextProgressR31");need(next[0]>=now+4500&&next[1]>=now+4500,"BACKOFF_NOT_MEASURED_AFTER_FAILED_ATTEMPT");
+                }
+                Arrays.fill((long[])get(active,"nextProgressR31"),0);
+                Files.createDirectory(new File(directory,"stage-progress.json").toPath());Files.createDirectory(new File(directory,"backup-progress.json").toPath());
                 enter(active,"BACKUP");journal.transition(job,ReportJobJournalCP12.Stage.BACKUP,System.currentTimeMillis());
                 ReportNativeCP4.Control traced=new ReportNativeCP4.Control(){
                     public boolean shouldContinue(){return actual.shouldContinue();}

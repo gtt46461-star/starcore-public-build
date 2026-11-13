@@ -30,16 +30,20 @@ final class ReportControlBudgetR31 {
     static Closeable admit(File root,File file,long bytes,StorageBudgetR31 budget)throws IOException {
         if(bytes<0||bytes>RECORD_LIMIT||!accepts(root,file))throw new IOException("REPORT_CONTROL_RECORD_BOUND");
         if(file.exists()&&!file.isFile())throw new IOException("REPORT_CONTROL_TARGET_TYPE");
+        boolean progress=isProgress(root,file);
         long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(5);boolean entered=false;
         RandomAccessFile io=null;FileLock lease=null;
         try {
-            try{entered=JVM.tryLock(5,TimeUnit.SECONDS);}catch(InterruptedException e){Thread.currentThread().interrupt();throw new IOException("REPORT_CONTROL_CANCELLED",e);}
+            try{entered=progress?JVM.tryLock():JVM.tryLock(5,TimeUnit.SECONDS);}catch(InterruptedException e){Thread.currentThread().interrupt();throw new IOException("REPORT_CONTROL_CANCELLED",e);}
             if(!entered)throw new IOException("REPORT_CONTROL_BUSY");
             File lockFile=new File(root,"control-budget.lock");if(!lockFile.getAbsoluteFile().equals(lockFile.getCanonicalFile()))throw new IOException("REPORT_CONTROL_LOCK_PATH");
             io=new RandomAccessFile(lockFile,"rw");
             while(lease==null) {
                 try{lease=io.getChannel().tryLock();}catch(OverlappingFileLockException busy){/* bounded wait */}
                 if(lease!=null)break;
+                // Lowest-priority UI samples never stall a native copy while
+                // an authoritative request/journal/control record owns the lock.
+                if(progress)throw new IOException("REPORT_CONTROL_BUSY");
                 if(Thread.currentThread().isInterrupted())throw new IOException("REPORT_CONTROL_CANCELLED");
                 if(System.nanoTime()>=deadline)throw new IOException("REPORT_CONTROL_BUSY");
                 LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(5));

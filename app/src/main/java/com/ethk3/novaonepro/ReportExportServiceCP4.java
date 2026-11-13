@@ -601,10 +601,10 @@ public final class ReportExportServiceCP4 extends Service {
         private void sampleR31(int slot,JSONObject value,long now,boolean finalSample){
             if(now<nextProgressR31[slot]&&(!finalSample||progressFailuresR31[slot]>0))return;
             String name=slot==0?"stage-progress.json":"backup-progress.json";
-            try{ReportJobJournalCP12.writeAtomic(new File(root,"jobs/"+job.jobId+"/"+name),value.toString());nextProgressR31[slot]=now+1000;}
+            try{ReportJobJournalCP12.writeAtomic(new File(root,"jobs/"+job.jobId+"/"+name),value.toString());nextProgressR31[slot]=SystemClock.elapsedRealtime()+1000;}
             catch(IOException|RuntimeException error){
                 progressFailuresR31[slot]++;if(firstProgressFailureR31[slot]==null)firstProgressFailureR31[slot]=error;
-                nextProgressR31[slot]=now+5000;
+                nextProgressR31[slot]=SystemClock.elapsedRealtime()+5000;
                 android.util.Log.w("ReportExportCP12",ReportJobJournalCP12.redactFailureR31("UI sample unavailable file="+name+" stage="+progressStageR31+" job="+job.jobId+" failures="+progressFailuresR31[slot]+" cause="+describeR31Q(error)));
             }
         }
