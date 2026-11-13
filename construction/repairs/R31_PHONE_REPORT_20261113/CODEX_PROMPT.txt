@@ -1,0 +1,7 @@
+请直接在 gtt46461-star/starcore-public-build 的 construction/r31-final-20261104 最新源码上施工。先读 construction/repairs/R31_PHONE_REPORT_20261113/PLAN.md，并衔接 construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/FINAL_CONSTRUCTION_PLAN.md。025 已交付；先查当前分支及已有026工件，接着做，保留已完成的流式报告与同签名构建。
+
+第一优先级修 vivo Android14 真实故障：两次 FULL_REPORT 已领取后在 revision=3 以 REPORT_PROGRESS_WRITE_FAILED 失败。失败 ACK 和 recovery 包存在，jobs 只剩 RETENTION_PAGE，界面却显示没有失败详情。改 ReportExportServiceCP4.ActiveControl.enter/onBackupProgress 的两处进度写，把可选进度刷新同真实报告中止原因解耦。保留磁盘准入、实际写入、核账退款、取消和快照/ZIP 完整性校验。若进度走独立控制配额，限制两种固定文件并计算原子临时文件，禁止无预算旁路。修改 ReportJobJournalCP12、CompleteReportFileR927 的失败查找和取回逻辑，有界按 FULL_REPORT 请求身份找到 ACK 和匹配恢复包；即使 job 已清理也显示真实原因。普通失败恢复不要重新读取本就不会附带的整份大库。
+
+直接改生产源代码，先做能区分修复前后的进度写失败、真正取消/配额失败、job 已清理后的失败详情回归。用约等页数的合成大库覆盖备份路径，然后用签名 release 在 Android14 从原按钮生成完整 ZIP、用系统选择器保存并回读校验。保留全部12章、44指标、96检查、47图、20矩阵、16表和82项能力，以及原始附件和未知/未通过结果。不要清除手机数据；不要为了单一进度写修复重复跑不相关全量验收。
+
+成功后立即给我可在对话里直接下载的同包名同证书覆盖安装 APK 和 ZIP、版本号、源码提交、APK SHA-256 及本轮结果。026 尚未生成或未通过时如实说明并继续修。随后按原 R31 统合方案逐批修分析、赛前冻结、结算、反馈与研究链，使用同一新期号和真实持久记录证明推进。不能把 RETENTION_READY、心跳或新方案提交记成软件已全部完成。
