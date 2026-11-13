@@ -37,7 +37,12 @@ public final class R31RuntimeHealthHost {
         }
     }
     static void facts()throws Exception{
-        reset();RuntimeCoordinatorR26.RuntimeHealthSnapshot snapshot=capture();need(snapshot.tasksImmutable.size()==60,"all 57 original and 3 additional owners retained");need(snapshot.pendingKnown&&snapshot.pending==0,"known idle inputs are zero");need(snapshot.researchHealth.equals("IDLE_WAITING_INPUT"),"all current fixture owners idle");
+        reset();RuntimeCoordinatorR26.RuntimeHealthSnapshot snapshot=capture();
+        need(ResearchTaskRegistryR30R1.ENTRIES.size()==57,"all 57 original owners retained");
+        need(ResearchTaskRegistryR30R1.ADDITIONAL.keySet().equals(new java.util.HashSet<>(java.util.Arrays.asList("lifecycle-schema","r27-matrices-r1","r27-study-r1","r27-observatory-r1"))),"all four cumulative additional owners retained");
+        need(snapshot.tasksImmutable.size()==61,"all 57 original and 4 additional owners captured");
+        for(String id:ResearchTaskRegistryR30R1.all().keySet())need(id.equals(task(snapshot,id).get("taskId")),"actual health row for "+id);
+        need(snapshot.pendingKnown&&snapshot.pending==0,"known idle inputs are zero");need(snapshot.researchHealth.equals("IDLE_WAITING_INPUT"),"all current fixture owners idle");
         need(snapshot.lastArtifactHash!=null&&!snapshot.lastArtifactHash.contains("r27-health"),"time ticks do not supply model/artifact freshness");
         try{snapshot.asMap().put("pending",123);throw new AssertionError("mutable DTO");}catch(UnsupportedOperationException expected){checks++;}
         try{snapshot.tasksImmutable.clear();throw new AssertionError("mutable task list");}catch(UnsupportedOperationException expected){checks++;}

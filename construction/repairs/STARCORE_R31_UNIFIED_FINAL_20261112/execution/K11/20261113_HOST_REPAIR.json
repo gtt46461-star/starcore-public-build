@@ -1,0 +1,57 @@
+{
+  "scope": "TARGETED_CURRENT_SOURCE_HOST_FAILURE_REPAIR_NOT_WHOLE_PRODUCT_ACCEPTANCE",
+  "inputSource": "0124f5daa4fb296717c97b36a308f4d440d38457",
+  "failureRun": 43373100736,
+  "failedInputSource": "8e4160ebe20e220afd3d78c6df61ec198a3c202d",
+  "changes": [
+    {
+      "path": "tools/r30-repair/qual_host/RepairQualificationR30HostTest.java",
+      "sha256": "35d003d46ee108e65300e2f955038555e7f38a09e0748553ae2d8c15ca64512a"
+    },
+    {
+      "path": "tools/r31/host/R31RuntimeHealthHost.java",
+      "sha256": "4c5ff73245c726c576684e7d0210584477fe05fcd3b8c2a1311bac5f314f1fd3"
+    },
+    {
+      "path": "tools/r31/run_lifecycle_schema_host.py",
+      "sha256": "e6a98db575b19dc6438d60ea2192874d30564088e3c7e36bfd9dbea19d625556"
+    },
+    {
+      "path": "tools/r31/retirement_manifest.json",
+      "sha256": "5d7448e837ffb7f71a06962d2696f022b79b909b8fce2120cb7864556407a118"
+    }
+  ],
+  "logs": [
+    {
+      "path": "/tmp/r31-repaired-r30repair_qualification.log",
+      "sha256": "7eba8e5de72b3665c39d1ba44dfc904dff2260bbd12a948ca3449aebd23e4c1c",
+      "exitCode": 0
+    },
+    {
+      "path": "/tmp/r31-repaired-run_runtime_health_host.log",
+      "sha256": "bdaaf3a9dfbdd04baf550461de892f73cd06b8034fc8c4b84e100d1411921f1f",
+      "exitCode": 0
+    },
+    {
+      "path": "/tmp/r31-repaired-run_lifecycle_schema_host.log",
+      "sha256": "9122786d3c96d0d2f01b998676c3e156edb3085ef3945cf138c12bd1e54ea4ac",
+      "exitCode": 0
+    },
+    {
+      "path": "/tmp/r31-retirement-repaired-check.log",
+      "sha256": "6abdeaf54d4411beb013f1209ee352ae75a8d4888069faacc3be56b8f9ab8f33",
+      "exitCode": 0
+    }
+  ],
+  "notes": [
+    "Restore exactly the original production trigger SQL after injecting its absence; strict source authentication is preserved.",
+    "Assert original 57 owners plus all four cumulative owners and each of 61 actual health rows.",
+    "Explicit owner-only declaration fixture includes ImprovementStore dependency; no four-store execution claim.",
+    "Refresh source-derived indexes and DbStore map; approved_drops remains empty, candidates and all preserved capabilities unchanged."
+  ],
+  "currentWholeGate": "NOT_RUN_WITH_THESE_TOOL_REPAIRS",
+  "device": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "thresholdsLowered": false,
+  "featuresRemoved": false
+}

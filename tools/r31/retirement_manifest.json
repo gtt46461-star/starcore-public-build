@@ -91,6 +91,20 @@
    "recreated_by": "archive-only bypass of DELETE guards, generated from the actual sqlite_master; the same script recreates every guard"
   },
   {
+   "file": "com/ethk3/novaonepro/strategyv2/KeepArchiveRetirementR31.java",
+   "objects": [
+    "expr:qold"
+   ],
+   "recreated_by": "the same owner re-executes its CREATE after the drop"
+  },
+  {
+   "file": "com/ethk3/novaonepro/strategyv2/KeepMismatchReferenceR31.java",
+   "objects": [
+    "expr:qold"
+   ],
+   "recreated_by": "the same owner re-executes its CREATE after the drop"
+  },
+  {
    "file": "com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
    "objects": [
     "r31_qual_receipt_no_replace"
@@ -939,14 +953,14 @@
   "methods": [
    {
     "name": "contextForR26",
-    "callers": 8,
+    "callers": 14,
     "caller_files": [
+     "com/ethk3/novaonepro/StorageReclaimR943.java",
+     "com/ethk3/novaonepro/StorageRestoreBusinessProbeR31.java",
      "com/ethk3/novaonepro/strategyv2/ArtifactMaintenanceR26.java",
      "com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
-     "com/ethk3/novaonepro/strategyv2/HistoryImportR27.java",
-     "com/ethk3/novaonepro/strategyv2/R29FoldBackR30.java",
-     "com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
-     "com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java"
+     "com/ethk3/novaonepro/strategyv2/GapReferenceR31.java",
+     "com/ethk3/novaonepro/strategyv2/HistoryImportR27.java"
     ],
     "tables": [],
     "writes": false,
@@ -1030,7 +1044,7 @@
    },
    {
     "name": "close",
-    "callers": 260,
+    "callers": 261,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
      "com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
@@ -1045,7 +1059,7 @@
    },
    {
     "name": "readable",
-    "callers": 233,
+    "callers": 241,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
      "com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
@@ -1075,7 +1089,7 @@
    },
    {
     "name": "coordinatorR36",
-    "callers": 91,
+    "callers": 90,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
      "com/ethk3/novaonepro/AlgorithmProofRecoveryR948.java",
@@ -1090,7 +1104,7 @@
    },
    {
     "name": "coordinatorForResearchR952",
-    "callers": 66,
+    "callers": 71,
     "caller_files": [
      "com/ethk3/novaonepro/CalibrationRepairR75.java",
      "com/ethk3/novaonepro/DecisionExplanationR30.java",
@@ -1795,10 +1809,11 @@
    },
    {
     "name": "hasDrawIssue",
-    "callers": 2,
+    "callers": 3,
     "caller_files": [
      "com/ethk3/novaonepro/CertifiedPredictionR974.java",
-     "com/ethk3/novaonepro/strategyv2/MainlineAdapterSU1.java"
+     "com/ethk3/novaonepro/strategyv2/MainlineAdapterSU1.java",
+     "com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java"
     ],
     "tables": [
      "TABLE_DRAWS"
@@ -1808,7 +1823,7 @@
    },
    {
     "name": "getLatestDraw",
-    "callers": 19,
+    "callers": 20,
     "caller_files": [
      "com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
      "com/ethk3/novaonepro/AutoFetchService.java",
@@ -1835,7 +1850,7 @@
    },
    {
     "name": "getDrawByIssue",
-    "callers": 29,
+    "callers": 30,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
      "com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
@@ -2991,7 +3006,7 @@
    },
    {
     "name": "getTradeByTargetIssue",
-    "callers": 10,
+    "callers": 11,
     "caller_files": [
      "com/ethk3/novaonepro/AutoFetchService.java",
      "com/ethk3/novaonepro/CanonicalDecisionViewAdapterR36.java",
@@ -4481,7 +4496,7 @@
    },
    {
     "name": "getState",
-    "callers": 110,
+    "callers": 111,
     "caller_files": [
      "com/ethk3/novaonepro/ActionUtilityEngine.java",
      "com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
@@ -5435,7 +5450,7 @@
    },
    {
     "name": "parseInt",
-    "callers": 132,
+    "callers": 134,
     "caller_files": [
      "com/ethk3/novaonepro/ActionUtilityEngine.java",
      "com/ethk3/novaonepro/AdaptiveLearningJudgeEngine.java",
@@ -5450,7 +5465,7 @@
    },
    {
     "name": "parseLong",
-    "callers": 94,
+    "callers": 97,
     "caller_files": [
      "com/ethk3/novaonepro/AdaptiveLearningJudgeEngine.java",
      "com/ethk3/novaonepro/AdaptiveShadowLearnerEngine.java",
@@ -5827,7 +5842,7 @@
    },
    {
     "name": "getInt",
-    "callers": 304,
+    "callers": 315,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
      "com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
@@ -5850,7 +5865,7 @@
    },
    {
     "name": "getLong",
-    "callers": 263,
+    "callers": 279,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
      "com/ethk3/novaonepro/AlgorithmProofRecoveryR948.java",
@@ -5865,7 +5880,7 @@
    },
    {
     "name": "getDouble",
-    "callers": 149,
+    "callers": 154,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
      "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
@@ -5880,7 +5895,7 @@
    },
    {
     "name": "getString",
-    "callers": 393,
+    "callers": 411,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
      "com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
@@ -7125,7 +7140,7 @@
    },
    {
     "name": "getString",
-    "callers": 393,
+    "callers": 411,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
      "com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
@@ -7140,7 +7155,7 @@
    },
    {
     "name": "getInt",
-    "callers": 304,
+    "callers": 315,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
      "com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
@@ -7155,7 +7170,7 @@
    },
    {
     "name": "getLong",
-    "callers": 263,
+    "callers": 279,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
      "com/ethk3/novaonepro/AlgorithmProofRecoveryR948.java",
@@ -7170,7 +7185,7 @@
    },
    {
     "name": "getDouble",
-    "callers": 149,
+    "callers": 154,
     "caller_files": [
      "com/ethk3/novaonepro/AlgorithmAttributionR943.java",
      "com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
