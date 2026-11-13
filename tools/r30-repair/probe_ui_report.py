@@ -94,7 +94,18 @@ def safe_failure_symbols(ack_path, state):
               'recoveryAvailable': False, 'publicSourceFrames': [], 'missingPublicJsonKeys': []}
     original = str(state.get('recoveryFailure', ''))
     try:
-        receipt = read_json(f'{ROOT}/recovery/{request}/receipt.json')
+        # FAILED is durable and may be acknowledged before the owner finishes
+        # its immutable recovery ZIP. Wait for that independent publication;
+        # never misclassify this normal ordering as a missing original cause.
+        recovery_deadline = time.monotonic() + 90
+        while True:
+            try:
+                receipt = read_json(f'{ROOT}/recovery/{request}/receipt.json')
+                break
+            except (RuntimeError, json.JSONDecodeError):
+                if time.monotonic() >= recovery_deadline:
+                    raise
+                time.sleep(1)
         digest = receipt['sha256']
         assert re.fullmatch('[a-f0-9]{64}', digest), 'DIAGNOSTIC_RECOVERY_ID_INVALID'
         with tempfile.TemporaryDirectory(prefix='r31-private-recovery-') as private:
