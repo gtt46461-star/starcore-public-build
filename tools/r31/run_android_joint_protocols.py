@@ -21,6 +21,7 @@ SUITES = [
     ('storage-diagnostic-process', 2, ['com.ethk3.novaonepro.R31StorageCheckpointAndroidTest']),
     ('restore-proof-process', 1, ['com.ethk3.novaonepro.R31RestoreProofInstrumentedTest']),
     ('delivery-and-live-service', 6, ['com.ethk3.novaonepro.R31QDeliveryInstrumentedTest']),
+    ('ui-lifecycle-100', 1, ['com.ethk3.novaonepro.R31ChartLifecycleInstrumentedTest']),
 ]
 # Only these tests may use the disposable VM's real private directory: the
 # diagnostic service runs in another Android process and cannot share a test
@@ -33,7 +34,7 @@ REAL_PROCESS_ARGS = {
 # A new explicit offline restore contains two independently authenticated clone
 # probes, an expected refusal, and a separate cleanup. Its own existing waits
 # total at most 2160 seconds; the original seventeen protocols keep 240 seconds.
-GROUP_TIMEOUT_SECONDS = {'restore-proof-process': 2400, 'delivery-and-live-service': 2400}
+GROUP_TIMEOUT_SECONDS = {'restore-proof-process': 2400, 'delivery-and-live-service': 2400, 'ui-lifecycle-100': 1200}
 
 
 def redact(text):
@@ -57,12 +58,16 @@ def main():
                'api': subprocess.check_output(['adb', 'shell', 'getprop', 'ro.build.version.sdk'], text=True).strip(),
                'serial': subprocess.check_output(['adb', 'get-serialno'], text=True).strip(),
                'groups': [], 'physicalDevice': 'NOT_RUN', '24h': 'NOT_RUN', '72h': 'NOT_RUN', 'naturalQuality': 'NOT_PROVEN'}
+    # The 100 real UI lifecycle cycles are executed once on API35, not silently
+    # counted as executed on API29/34. Every original protocol remains on all APIs.
+    suites = [s for s in SUITES if s[0] != 'ui-lifecycle-100' or receipt['api'] == '35']
+    receipt['uiLifecycle100Scope'] = 'REQUIRED_ACTUAL_API35_RUN' if receipt['api'] == '35' else 'NOT_RUN_ON_THIS_API; SEE_SEPARATE_API35_RECEIPT'
 
     def save():
         (out / 'JOINT-ANDROID-RECEIPT.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n')
 
     save()
-    for name, expected, classes in SUITES:
+    for name, expected, classes in suites:
         timeout_seconds = GROUP_TIMEOUT_SECONDS.get(name, 240)
         sandbox = args.sandbox_prefix + '-' + name[:30]
         command = ['adb', 'shell', 'am', 'instrument', '-w', '-r', '-e', 'r30Sandbox', sandbox,
@@ -119,7 +124,7 @@ def main():
         print('R31_ANDROID_JOINT_GROUP|' + json.dumps(row, ensure_ascii=False, sort_keys=True), flush=True)
     receipt['finishedAt'] = dt.datetime.now(dt.timezone.utc).isoformat()
     receipt['passedGroups'] = sum(row['status'] == 'PASS_NAMED_ENGINEERING_PROTOCOLS' for row in receipt['groups'])
-    receipt['failedGroups'] = len(SUITES) - receipt['passedGroups']
+    receipt['failedGroups'] = len(suites) - receipt['passedGroups']
     receipt['state'] = 'PASS_NAMED_GROUPS_ONLY' if receipt['failedGroups'] == 0 else 'FAILED_OR_INCOMPLETE'
     receipt['existingFullFaultMatrices'] = 'MUST_RUN_SEPARATELY_NOT_INFERRED_FROM_THE_ORIGINAL_17_OR_NEW_PROCESS_TESTS'
     save()
