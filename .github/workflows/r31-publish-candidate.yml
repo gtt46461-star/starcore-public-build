@@ -137,3 +137,23 @@ jobs:
         with:
           name: r31-engineering-delivery
           path: ${{ runner.temp }}/r31-final/
+
+  diagnose-emulator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          repository: gtt46461-star/starcore-public-build
+          run-id: 43374763818
+          pattern: r31v-emu-*
+          path: emulator-evidence
+      - name: Read current failed instrumentation outputs without rebuilding
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          for p in sorted(pathlib.Path('emulator-evidence').rglob('*.txt')):
+              if p.name in ('restore-proof-process.txt','storage-diagnostic-process.txt'):
+                  print('CURRENT_EMULATOR_FAILURE_FILE:'+str(p),flush=True)
+                  print(p.read_text(errors='replace'),flush=True)
+          PY
