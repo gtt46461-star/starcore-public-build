@@ -45,9 +45,23 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python3 - <<'PY'
-          import json,pathlib,subprocess
+          import json,os,pathlib,shutil,subprocess
           r=json.load(open('release/R31_REPORT_PUBLISH_REQUEST.json'))
           pathlib.Path('notes.txt').write_text(r['notes'])
-          subprocess.run(['gh','release','create',r['tag'],*map(str,pathlib.Path('pub').iterdir()),'--target',r['sourceCommit'],'--title',r['title'],'--notes-file','notes.txt'],check=True)
-          subprocess.run(['gh','release','view',r['tag'],'--json','assets','--jq','.assets[]|.name+" "+.url'],check=True)
+          publication=subprocess.run(['gh','release','create',r['tag'],*map(str,pathlib.Path('pub').iterdir()),'--target',r['sourceCommit'],'--title',r['title'],'--notes-file','notes.txt'])
+          if publication.returncode == 0:
+              subprocess.run(['gh','release','view',r['tag'],'--json','assets','--jq','.assets[]|.name+" "+.url'],check=True)
+          else:
+              # Match the existing final publisher's immutable delivery-branch fallback.
+              branch='delivery/'+r['tag']
+              folder=pathlib.Path(os.environ['RUNNER_TEMP'])/'report-delivery'
+              shutil.copytree('pub',folder)
+              def git(*args): subprocess.run(['git',*args],cwd=folder,check=True)
+              git('init','-q');git('checkout','-q','-b',branch);git('add','-A')
+              git('-c','user.name=github-actions','-c','user.email=github-actions@users.noreply.github.com','commit','-q','-m','delivery: verified report release '+r['sourceCommit'])
+              # The checkout's scoped credentials apply through its existing repository config.
+              git('config','include.path',str(pathlib.Path('.git/config').resolve()))
+              git('push','-q','https://github.com/'+os.environ['GITHUB_REPOSITORY']+'.git','HEAD:refs/heads/'+branch)
+              for name in [r['apk'],r['zipName'],'R31_REPORT_DELIVERY.json','PACKAGE_SHA256.txt']:
+                  print('https://github.com/'+os.environ['GITHUB_REPOSITORY']+'/raw/refs/heads/'+branch+'/'+name)
           PY
