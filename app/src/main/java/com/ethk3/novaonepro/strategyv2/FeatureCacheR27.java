@@ -154,7 +154,18 @@ public final class FeatureCacheR27 implements AutoCloseable {
     }
     private boolean privateFillR31(){BuiltinTargetR31 target=BUILTIN_TARGET_R31.get();return target!=null&&target.owner==this;}
     private SharedFeatureStoreR31.Reader privateDependencyR31(String kind,int tp,int a,int b){SharedFeatureStoreR31.Reader reader=acquireLeafR31(kind,tp,a,b);if(reader==null)throw new java.util.concurrent.CancellationException("R31_PRIVATE_INPUT_SOURCE_CHANGED");return reader;}
-    private MemoryBudgetR31.CapacityWait leafCapacityWaitR31(MemoryBudgetR31.WaitReason reason,String kind,int tp,int a,int b){MemoryBudgetR31.CapacityWait wait=new MemoryBudgetR31.CapacityWait(reason);wait.addSuppressed(new IllegalStateException("R31_LEAF_ADMISSION kind="+kind.substring(0,Math.min(48,kind.length()))+" tp="+tp+" a="+a+" b="+b+" rows="+data.size()));return wait;}
+    private MemoryBudgetR31.CapacityWait leafCapacityWaitR31(MemoryBudgetR31.WaitReason reason,String kind,int tp,int a,int b){
+        MemoryBudgetR31.CapacityWait wait=new MemoryBudgetR31.CapacityWait(reason);
+        Map<String,Object> observation=memory.snapshot(),store=sharedR31.snapshot();
+        // Bounded numeric evidence distinguishes process headroom from a pinned
+        // store or a pending producer; no dataset values or owner payloads leak.
+        wait.addSuppressed(new IllegalStateException("R31_LEAF_ADMISSION kind="+kind.substring(0,Math.min(48,kind.length()))+" tp="+tp+" a="+a+" b="+b+" rows="+data.size()
+                +" heap="+observation.get("heapUsedBytes")+" admittedHeap="+observation.get("admissionHeapBytes")
+                +" headroom="+observation.get("optionalUnallocatedHeadroomBytes")+" pressure="+observation.get("pressure")
+                +" storeBytes="+store.get("declaredBytes")+" pinnedBytes="+store.get("pinnedBytes")
+                +" workingBytes="+store.get("workingBytesIncludedInInflight")+" productions="+store.get("activeProductions")));
+        return wait;
+    }
 
     // Shared ownership transfer is restricted to new private built-in outputs. A concurrent
     // test/operator override may return an externally aliased array and must never be adopted.
