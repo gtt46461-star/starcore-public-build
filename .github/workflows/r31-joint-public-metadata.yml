@@ -1,0 +1,31 @@
+name: STARCORE inspect existing joint report public diagnosis
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-joint-public-metadata.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31-existing-e058-report-joint-diagnosis
+          run-id: 43511955602
+          github-token: ${{ github.token }}
+          path: evidence
+      - name: Read bounded public protocol records and public source frames only
+        run: |
+          python3 - <<'PY'
+          import pathlib,json,re
+          p=pathlib.Path('evidence/REPORT_JOINT_DIAGNOSIS.json')
+          assert p.stat().st_size<2*1024*1024
+          d=json.loads(p.read_text())
+          for k in ['sourceCommit','harnessSourceCommit','debugApkSha256','testApkSha256']:
+            assert re.fullmatch('[a-f0-9]{40}|[a-f0-9]{64}',d[k])
+          assert d['scope']=='EXACT_EXISTING_DEBUG_APP_AND_SIGNED_TEST_TRANSPORT; RESTORE_THEN_ORIGINAL_SEVEN; DIAGNOSIS_NOT_ACCEPTANCE'
+          print('R31_JOINT_PUBLIC_DIAGNOSIS|'+json.dumps(d,sort_keys=True))
+          PY
