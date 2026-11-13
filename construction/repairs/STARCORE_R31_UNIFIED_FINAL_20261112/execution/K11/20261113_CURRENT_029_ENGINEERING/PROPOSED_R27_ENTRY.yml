@@ -1,0 +1,20 @@
+# UF18 signer-cache entry point; application sources remain exclusively on R31.
+name: STARCORE 029 cumulative final verification
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-build-r27.yml']
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: r31-029-final-1628f224031ae898d28f49425e1821c3a5aa7047
+  cancel-in-progress: false
+jobs:
+  verify:
+    uses: gtt46461-star/starcore-public-build/.github/workflows/r31-verification.yml@1628f224031ae898d28f49425e1821c3a5aa7047
+    with:
+      source: 1628f224031ae898d28f49425e1821c3a5aa7047
+    secrets:
+      DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+

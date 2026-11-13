@@ -1,0 +1,859 @@
+BUSINESS_CERT_NO_AUTHORITY	transaction	BEGIN
+BUSINESS_CERT_NO_AUTHORITY	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BUSINESS_CERT_NO_AUTHORITY	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BUSINESS_CERT_NO_AUTHORITY	transaction	COMMIT
+ASSERTION_READ	rawQuery	SELECT count(*) FROM sqlite_master WHERE name LIKE 'r30_revok%' OR name='r30_certificate_revocation_event'
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_migration(revision INTEGER PRIMARY KEY,applied_at INTEGER NOT NULL,source_commit TEXT NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_task_error(error_id INTEGER PRIMARY KEY,task_id TEXT NOT NULL,error_class TEXT NOT NULL,message TEXT NOT NULL,stack TEXT NOT NULL,recorded_at INTEGER NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_thread_cpu(session_id TEXT NOT NULL,thread_name TEXT NOT NULL,cpu_ms INTEGER NOT NULL DEFAULT 0,wall_ms INTEGER NOT NULL DEFAULT 0,slices INTEGER NOT NULL DEFAULT 0,updated_at INTEGER NOT NULL,PRIMARY KEY(session_id,thread_name))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_write_wait(hour_start INTEGER PRIMARY KEY,submits INTEGER NOT NULL DEFAULT 0,waits_over_200ms INTEGER NOT NULL DEFAULT 0,max_wait_ms INTEGER NOT NULL DEFAULT 0,requeues INTEGER NOT NULL DEFAULT 0)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_replay_dataset(dataset_hash TEXT PRIMARY KEY,from_issue TEXT NOT NULL,to_issue TEXT NOT NULL,rows INTEGER NOT NULL,segments INTEGER NOT NULL,split TEXT NOT NULL,built_at INTEGER NOT NULL,build_ms INTEGER NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_replay_score(policy_hash TEXT NOT NULL,dataset_hash TEXT NOT NULL,split TEXT NOT NULL CHECK(split IN ('H_TRAIN','H_SELECT','H_HOLDOUT')),n_sched INTEGER NOT NULL,n_act INTEGER NOT NULL,hits INTEGER NOT NULL,brier REAL,logloss REAL,ece REAL,worst_block_hr REAL,max_losing_streak INTEGER NOT NULL,paired_u_mean REAL NOT NULL,paired_u_lcb REAL,skipped_gap INTEGER NOT NULL DEFAULT 0,computed_at INTEGER NOT NULL,PRIMARY KEY(policy_hash,dataset_hash,split))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_holdout_exposure(block_id INTEGER NOT NULL,policy_hash TEXT NOT NULL,looked_at INTEGER NOT NULL,PRIMARY KEY(block_id,policy_hash))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_policy(policy_hash TEXT PRIMARY KEY,spec_json TEXT NOT NULL,idea_family TEXT NOT NULL,birth_generation INTEGER NOT NULL,birth_issue TEXT NOT NULL,dataset_hash TEXT NOT NULL,state TEXT NOT NULL,state_reason TEXT NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL DEFAULT 0)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_lineage(child_hash TEXT NOT NULL,parent_hash TEXT NOT NULL,role TEXT NOT NULL,operator TEXT NOT NULL,generation INTEGER NOT NULL,created_at INTEGER NOT NULL,origin TEXT NOT NULL DEFAULT 'R27',created_issue TEXT NOT NULL DEFAULT '',PRIMARY KEY(child_hash,parent_hash,role))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_generation(generation INTEGER NOT NULL,loop TEXT NOT NULL DEFAULT 'MAIN',dataset_hash TEXT NOT NULL,births INTEGER NOT NULL,rejected INTEGER NOT NULL,no_op INTEGER NOT NULL,duplicates INTEGER NOT NULL,survivors INTEGER NOT NULL,retired INTEGER NOT NULL,champion_hash TEXT,champion_select_u REAL,champion_holdout_hr REAL,prev_champion_holdout_hr REAL,null_champion_holdout_hr REAL,i00_champion_holdout_hr REAL,paired_lcb REAL,verified INTEGER NOT NULL,detail_json TEXT NOT NULL,started_at INTEGER NOT NULL,finished_at INTEGER NOT NULL,PRIMARY KEY(loop,generation))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_evolution_cursor(loop TEXT PRIMARY KEY,generation INTEGER NOT NULL,step INTEGER NOT NULL,dataset_hash TEXT NOT NULL,rng_state INTEGER NOT NULL,snapshot TEXT NOT NULL,updated_at INTEGER NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_expert_proposal(generation INTEGER NOT NULL,expert TEXT NOT NULL,proposal_json TEXT NOT NULL,policy_hash TEXT,recorded_at INTEGER NOT NULL,PRIMARY KEY(generation,expert,proposal_json))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_ablation(generation INTEGER NOT NULL,champion_hash TEXT NOT NULL,node_index INTEGER NOT NULL,removed_child INTEGER NOT NULL,branch TEXT NOT NULL,delta_u REAL,delta_logloss REAL,PRIMARY KEY(generation,node_index,removed_child))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_live_shadow(policy_hash TEXT PRIMARY KEY,spec_json TEXT NOT NULL,temperature REAL NOT NULL,bias BLOB NOT NULL,global_index INTEGER NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,promoted_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,through_ordinal INTEGER NOT NULL DEFAULT -1,base_policy TEXT NOT NULL DEFAULT '',semantic_abi TEXT NOT NULL DEFAULT '')
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_live_frozen(policy_hash TEXT NOT NULL,target_ordinal INTEGER NOT NULL,target_issue TEXT NOT NULL,position INTEGER NOT NULL,probabilities BLOB NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,act INTEGER NOT NULL,status TEXT NOT NULL,frozen_at INTEGER NOT NULL,deadline_at INTEGER NOT NULL,hit INTEGER NOT NULL DEFAULT -1,settled_at INTEGER NOT NULL DEFAULT 0,PRIMARY KEY(policy_hash,target_ordinal))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_eprocess(policy_hash TEXT PRIMARY KEY,global_index INTEGER NOT NULL UNIQUE,alpha REAL NOT NULL,log_e_up REAL NOT NULL,log_e_down REAL NOT NULL,n INTEGER NOT NULL,acts INTEGER NOT NULL DEFAULT 0,hits INTEGER NOT NULL DEFAULT 0,sum_u REAL NOT NULL,sum_u2 REAL NOT NULL,last_ordinal INTEGER NOT NULL,state TEXT NOT NULL,target_rate REAL NOT NULL DEFAULT 0.15,updated_at INTEGER NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_certificate(policy_hash TEXT PRIMARY KEY,status TEXT NOT NULL,gates_json TEXT NOT NULL,evidence_digest TEXT NOT NULL,issued_at INTEGER NOT NULL,expires_at INTEGER NOT NULL,gate_version TEXT NOT NULL DEFAULT 'LEGACY_UNVERSIONED' CHECK(length(trim(gate_version))>0))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_abi_continuity(policy_hash TEXT NOT NULL,old_build TEXT NOT NULL,new_build TEXT NOT NULL,result TEXT NOT NULL CHECK(result IN ('EQUIVALENT','CHANGED','ERROR')),first_diff_issue TEXT,first_diff_field TEXT,checked_at INTEGER NOT NULL,PRIMARY KEY(policy_hash,new_build))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_legacy_roster_alias(checkpoint_hash TEXT PRIMARY KEY,minted_roster TEXT NOT NULL,recorded_at INTEGER NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_semantic_fingerprint(policy_hash TEXT NOT NULL,build TEXT NOT NULL,fingerprint TEXT NOT NULL,operator_abi TEXT NOT NULL,rows_blob BLOB,computed_at INTEGER NOT NULL,PRIMARY KEY(policy_hash,build))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_atomnet_epoch(run_id TEXT NOT NULL,epoch INTEGER NOT NULL,split TEXT NOT NULL,logloss REAL NOT NULL,brier REAL NOT NULL,recorded_at INTEGER NOT NULL,PRIMARY KEY(run_id,epoch,split))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_brier_pair(target_issue TEXT NOT NULL,source TEXT NOT NULL CHECK(source IN ('FUTURE','REPLAY')),model TEXT NOT NULL DEFAULT 'ATOMNET',p_model REAL NOT NULL,p_base REAL NOT NULL,hit INTEGER NOT NULL,d REAL NOT NULL,recorded_at INTEGER NOT NULL,PRIMARY KEY(target_issue,source,model))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_atomnet_state(owner TEXT PRIMARY KEY,artifact BLOB NOT NULL,artifact_hash TEXT NOT NULL,trained_through TEXT NOT NULL,online_steps INTEGER NOT NULL,learning_rate REAL NOT NULL,last_check_logloss REAL,updated_at INTEGER NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_atomnet_pending(target_issue TEXT NOT NULL,model TEXT NOT NULL DEFAULT 'ATOMNET',p_model REAL NOT NULL,frozen_at INTEGER NOT NULL,deadline_at INTEGER NOT NULL,PRIMARY KEY(target_issue,model))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_atom_score(atom_id TEXT PRIMARY KEY,atom_index INTEGER NOT NULL,dataset_hash TEXT NOT NULL,n_select INTEGER NOT NULL,gain_select REAL,lcb_select REAL,ucb_select REAL,n_holdout INTEGER NOT NULL,gain_holdout REAL,lcb_holdout REAL,missing_rate REAL NOT NULL,state TEXT NOT NULL,derived INTEGER NOT NULL DEFAULT 0,definition TEXT NOT NULL DEFAULT '',computed_at INTEGER NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_molecule(molecule_hash TEXT PRIMARY KEY,definition TEXT NOT NULL,generation INTEGER NOT NULL,state TEXT NOT NULL,select_gain REAL,reason TEXT NOT NULL,created_at INTEGER NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_calibration(policy_hash TEXT PRIMARY KEY,method TEXT NOT NULL,fit_source TEXT NOT NULL,fit_rows INTEGER NOT NULL,validation_rows INTEGER NOT NULL,excluded_late INTEGER NOT NULL,excluded_gap INTEGER NOT NULL,a REAL,b REAL,ece REAL,ece_by_stratum TEXT NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL,updated_at INTEGER NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_chart_cache(panel_id TEXT NOT NULL,key TEXT NOT NULL,payload_json TEXT NOT NULL,updated_at INTEGER NOT NULL,PRIMARY KEY(panel_id,key))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_fetch_reject(reason TEXT PRIMARY KEY,count INTEGER NOT NULL,last_issue TEXT,last_at INTEGER NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_legacy_export(source_id TEXT PRIMARY KEY,source_table TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,policy_hash TEXT,reproduced INTEGER NOT NULL DEFAULT 0,compared INTEGER NOT NULL DEFAULT 0,exported_at INTEGER NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_history_import(issue TEXT PRIMARY KEY,ordinal INTEGER NOT NULL,numbers TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('IMPORTED','CONFLICT','MATCH')),db_numbers TEXT,source TEXT NOT NULL,imported_at INTEGER NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r29_qual_receipt(experiment_id TEXT NOT NULL,target_ordinal INTEGER NOT NULL,target_issue TEXT NOT NULL,act INTEGER NOT NULL,hit INTEGER NOT NULL,u REAL NOT NULL,digest TEXT NOT NULL,state_after TEXT NOT NULL,consumed_at INTEGER NOT NULL,PRIMARY KEY(experiment_id,target_ordinal))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r29_qual_conflict(experiment_id TEXT NOT NULL,target_ordinal INTEGER NOT NULL,kind TEXT NOT NULL,receipt_digest TEXT,observed_digest TEXT NOT NULL,detail TEXT NOT NULL,detected_at INTEGER NOT NULL,resolved_at INTEGER NOT NULL DEFAULT 0,PRIMARY KEY(experiment_id,target_ordinal,observed_digest))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r29_qual_rebuild(experiment_id TEXT NOT NULL,old_state_json TEXT NOT NULL,old_certificate TEXT,reason TEXT NOT NULL,rebuilt_at INTEGER NOT NULL,PRIMARY KEY(experiment_id,rebuilt_at))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r29_qual_cursor(experiment_id TEXT PRIMARY KEY,blocked_ordinal INTEGER NOT NULL,blocked_reason TEXT NOT NULL,consumed_total INTEGER NOT NULL DEFAULT 0,cas_retries INTEGER NOT NULL DEFAULT 0,updated_at INTEGER NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r29_pending_draw(target_ordinal INTEGER PRIMARY KEY,target_issue TEXT NOT NULL,rows INTEGER NOT NULL,act_rows INTEGER NOT NULL,first_seen_at INTEGER NOT NULL,last_checked_at INTEGER NOT NULL,checks INTEGER NOT NULL DEFAULT 0,resolved_at INTEGER NOT NULL DEFAULT 0)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r29_qual_calendar(experiment_id TEXT PRIMARY KEY,first_ordinal INTEGER NOT NULL,registered_at INTEGER NOT NULL,origin TEXT NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r29_gate_v2(policy_hash TEXT PRIMARY KEY,policy_version TEXT NOT NULL,would_issue INTEGER NOT NULL,failing TEXT NOT NULL,sections_json TEXT NOT NULL,evaluated_through INTEGER NOT NULL,evaluated_at INTEGER NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r29_model_checkpoint(owner TEXT PRIMARY KEY,feature_abi TEXT NOT NULL,dataset_hash TEXT NOT NULL,trained_through TEXT NOT NULL,state_hash TEXT NOT NULL,artifact BLOB NOT NULL,updated_at INTEGER NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r29_legacy_model_checkpoint(owner TEXT NOT NULL,artifact_hash TEXT NOT NULL,artifact BLOB NOT NULL,trained_through TEXT NOT NULL,online_steps INTEGER NOT NULL,learning_rate REAL NOT NULL,last_check_logloss REAL,archived_at INTEGER NOT NULL,reason TEXT NOT NULL,PRIMARY KEY(owner,artifact_hash))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r29_atomnet_forecast(target_issue TEXT NOT NULL,model TEXT NOT NULL,model_hash TEXT NOT NULL,trained_through TEXT NOT NULL,feature_abi TEXT NOT NULL,frozen_at INTEGER NOT NULL,deadline_at INTEGER NOT NULL,PRIMARY KEY(target_issue,model))
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE IF NOT EXISTS r27_opportunity(target_ordinal INTEGER PRIMARY KEY,target_issue TEXT NOT NULL,scheduled INTEGER NOT NULL,frozen INTEGER NOT NULL,acted INTEGER NOT NULL,settled INTEGER NOT NULL,deadline_missed INTEGER NOT NULL,recorded_at INTEGER NOT NULL)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	CREATE TABLE draws(issue TEXT PRIMARY KEY,dirty INT,n1 INT,n2 INT,n3 INT,n4 INT,n5 INT,n6 INT,n7 INT,n8 INT,n9 INT,n10 INT,draw_hash_v2 TEXT)
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	INSERT INTO draws VALUES('202611040001',0,1,2,3,4,5,6,7,8,9,10,'HOST_DRAW')
+BOOTSTRAP_CERT_AUTHORITY_ONLY	execSQL	INSERT INTO r27_certificate(policy_hash,status,gates_json,evidence_digest,issued_at,expires_at,gate_version) VALUES('HOST_POLICY','ACTIVE','HOST_GATES','HOST_EVIDENCE',1,9223372036854775807,'HOST_GATE')
+BUSINESS_CERT_SCHEMA_MISSING	transaction	BEGIN
+BUSINESS_CERT_SCHEMA_MISSING	execSQL	UPDATE draws SET dirty=1 WHERE issue='202611040001'
+BUSINESS_CERT_SCHEMA_MISSING	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BUSINESS_CERT_SCHEMA_MISSING	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BUSINESS_CERT_SCHEMA_MISSING	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BUSINESS_CERT_SCHEMA_MISSING	rawQuery	PRAGMA table_info(draws)
+BUSINESS_CERT_SCHEMA_MISSING	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?)
+BUSINESS_CERT_SCHEMA_MISSING	transaction	ROLLBACK
+ASSERTION_READ	rawQuery	SELECT status FROM r27_certificate
+ASSERTION_READ	rawQuery	SELECT dirty FROM draws
+ASSERTION_READ	rawQuery	SELECT count(*) FROM sqlite_master WHERE name='r30_certificate_revocation_event'
+BOOTSTRAP_CERT_MIGRATION	transaction	BEGIN
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+BOOTSTRAP_CERT_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS v57_schema_domain_r926(domain TEXT PRIMARY KEY,revision INTEGER NOT NULL,contract_hash TEXT NOT NULL,fingerprint TEXT NOT NULL,state TEXT NOT NULL,cursor TEXT NOT NULL DEFAULT '',started_at INTEGER NOT NULL DEFAULT 0,updated_at INTEGER NOT NULL,last_error TEXT NOT NULL DEFAULT '')
+BOOTSTRAP_CERT_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS v57_schema_migration_journal_r926(domain TEXT NOT NULL,revision INTEGER NOT NULL,step_id TEXT NOT NULL,status TEXT NOT NULL,attempt INTEGER NOT NULL DEFAULT 0,cursor TEXT NOT NULL DEFAULT '',before_hash TEXT NOT NULL DEFAULT '',after_hash TEXT NOT NULL DEFAULT '',started_at INTEGER NOT NULL DEFAULT 0,completed_at INTEGER NOT NULL DEFAULT 0,error_code TEXT NOT NULL DEFAULT '',PRIMARY KEY(domain,revision,step_id))
+BOOTSTRAP_CERT_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS idx_r926_migration_status ON v57_schema_migration_journal_r926(domain,revision,status,started_at)
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_MIGRATION	rawQuery	PRAGMA table_info(draws)
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_MIGRATION	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_MIGRATION	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT revision,contract_hash,fingerprint,state FROM v57_schema_domain_r926 WHERE domain=?
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP_CERT_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS r30_certificate_revocation_event(protocol TEXT NOT NULL,issue TEXT NOT NULL,cause TEXT NOT NULL,event_key TEXT NOT NULL,scope TEXT NOT NULL,affected INTEGER NOT NULL,detected_at INTEGER NOT NULL,PRIMARY KEY(protocol,issue,cause,event_key))
+BOOTSTRAP_CERT_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS r30_revoked_policy(protocol TEXT NOT NULL,policy_key TEXT NOT NULL,issue TEXT NOT NULL,cause TEXT NOT NULL,revoked_at INTEGER NOT NULL,PRIMARY KEY(protocol,policy_key))
+BOOTSTRAP_CERT_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS r30_revoked_certificate(protocol TEXT NOT NULL,certificate_key TEXT NOT NULL,policy_key TEXT NOT NULL,issue TEXT NOT NULL,cause TEXT NOT NULL,evidence_digest TEXT NOT NULL,gates_json TEXT NOT NULL,gate_version TEXT NOT NULL,issued_at INTEGER NOT NULL,expires_at INTEGER NOT NULL,old_status TEXT NOT NULL,revoked_at INTEGER NOT NULL,PRIMARY KEY(protocol,certificate_key,issue,cause,evidence_digest))
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_MIGRATION	rawQuery	PRAGMA table_info(draws)
+BOOTSTRAP_CERT_MIGRATION	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS r30_revoke_r27_draw_semantics AFTER UPDATE OF issue,dirty,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10 ON draws WHEN NEW.issue IS NOT OLD.issue OR NEW.dirty IS NOT OLD.dirty OR NEW.n1 IS NOT OLD.n1 OR NEW.n2 IS NOT OLD.n2 OR NEW.n3 IS NOT OLD.n3 OR NEW.n4 IS NOT OLD.n4 OR NEW.n5 IS NOT OLD.n5 OR NEW.n6 IS NOT OLD.n6 OR NEW.n7 IS NOT OLD.n7 OR NEW.n8 IS NOT OLD.n8 OR NEW.n9 IS NOT OLD.n9 OR NEW.n10 IS NOT OLD.n10 BEGIN INSERT OR IGNORE INTO r30_certificate_revocation_event(protocol,issue,cause,event_key,scope,affected,detected_at) SELECT 'R27',OLD.issue,'DRAW_NUMBERS_TIME_OR_STATUS_CHANGED',coalesce(CAST(OLD.issue AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.issue AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.dirty AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.dirty AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n1 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n1 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n2 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n2 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n3 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n3 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n4 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n4 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n5 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n5 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n6 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n6 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n7 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n7 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n8 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n8 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n9 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n9 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n10 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n10 AS TEXT),'NULL'),'CONSERVATIVE_CURRENT_CERTIFICATES_DEPENDENCY_GRAPH_UNAVAILABLE',count(*),CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);INSERT OR IGNORE INTO r30_revoked_policy(protocol,policy_key,issue,cause,revoked_at) SELECT DISTINCT 'R27',policy_hash,OLD.issue,'DRAW_NUMBERS_TIME_OR_STATUS_CHANGED',CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);INSERT OR IGNORE INTO r30_revoked_certificate(protocol,certificate_key,policy_key,issue,cause,evidence_digest,gates_json,gate_version,issued_at,expires_at,old_status,revoked_at) SELECT 'R27',policy_hash,policy_hash,OLD.issue,'DRAW_NUMBERS_TIME_OR_STATUS_CHANGED',evidence_digest,gates_json,gate_version,issued_at,expires_at,status,CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);UPDATE r27_certificate SET status='REVOKED' WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER); END
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_MIGRATION	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS r30_revoke_r27_draw_hash AFTER UPDATE OF draw_hash_v2 ON draws WHEN NEW.draw_hash_v2 IS NOT OLD.draw_hash_v2 BEGIN INSERT OR IGNORE INTO r30_certificate_revocation_event(protocol,issue,cause,event_key,scope,affected,detected_at) SELECT 'R27',OLD.issue,'DRAW_HASH_CHANGED',coalesce(CAST(OLD.draw_hash_v2 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.draw_hash_v2 AS TEXT),'NULL'),'CONSERVATIVE_CURRENT_CERTIFICATES_DEPENDENCY_GRAPH_UNAVAILABLE',count(*),CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);INSERT OR IGNORE INTO r30_revoked_policy(protocol,policy_key,issue,cause,revoked_at) SELECT DISTINCT 'R27',policy_hash,OLD.issue,'DRAW_HASH_CHANGED',CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);INSERT OR IGNORE INTO r30_revoked_certificate(protocol,certificate_key,policy_key,issue,cause,evidence_digest,gates_json,gate_version,issued_at,expires_at,old_status,revoked_at) SELECT 'R27',policy_hash,policy_hash,OLD.issue,'DRAW_HASH_CHANGED',evidence_digest,gates_json,gate_version,issued_at,expires_at,status,CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);UPDATE r27_certificate SET status='REVOKED' WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER); END
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_MIGRATION	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS r30_revoke_r27_reissue_insert AFTER INSERT ON r27_certificate WHEN NEW.status<>'REVOKED' AND EXISTS(SELECT 1 FROM r30_revoked_policy p WHERE p.protocol='R27' AND p.policy_key=NEW.policy_hash) BEGIN INSERT OR IGNORE INTO r30_revoked_certificate(protocol,certificate_key,policy_key,issue,cause,evidence_digest,gates_json,gate_version,issued_at,expires_at,old_status,revoked_at) SELECT 'R27',policy_hash,policy_hash,(SELECT issue FROM r30_revoked_policy WHERE protocol='R27' AND policy_key=NEW.policy_hash),'REISSUE_WITH_REVOKED_SOURCE',evidence_digest,gates_json,gate_version,issued_at,expires_at,status,CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE policy_hash=NEW.policy_hash; UPDATE r27_certificate SET status='REVOKED' WHERE policy_hash=NEW.policy_hash; END
+BOOTSTRAP_CERT_MIGRATION	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS r30_revoke_r27_reissue_update AFTER UPDATE OF status ON r27_certificate WHEN NEW.status<>'REVOKED' AND EXISTS(SELECT 1 FROM r30_revoked_policy p WHERE p.protocol='R27' AND p.policy_key=NEW.policy_hash) BEGIN INSERT OR IGNORE INTO r30_revoked_certificate(protocol,certificate_key,policy_key,issue,cause,evidence_digest,gates_json,gate_version,issued_at,expires_at,old_status,revoked_at) SELECT 'R27',policy_hash,policy_hash,(SELECT issue FROM r30_revoked_policy WHERE protocol='R27' AND policy_key=NEW.policy_hash),'REISSUE_WITH_REVOKED_SOURCE',evidence_digest,gates_json,gate_version,issued_at,expires_at,status,CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE policy_hash=NEW.policy_hash; UPDATE r27_certificate SET status='REVOKED' WHERE policy_hash=NEW.policy_hash; END
+BOOTSTRAP_CERT_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS r30_revoke_r27_expires ON r27_certificate(status,expires_at)
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP_CERT_MIGRATION	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP_CERT_MIGRATION	transaction	COMMIT
+BUSINESS_CERT_REVOKE_READY	transaction	BEGIN
+BUSINESS_CERT_REVOKE_READY	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BUSINESS_CERT_REVOKE_READY	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BUSINESS_CERT_REVOKE_READY	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BUSINESS_CERT_REVOKE_READY	rawQuery	PRAGMA table_info(draws)
+BUSINESS_CERT_REVOKE_READY	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?)
+BUSINESS_CERT_REVOKE_READY	rawQuery	PRAGMA table_info("r30_certificate_revocation_event")
+BUSINESS_CERT_REVOKE_READY	rawQuery	PRAGMA table_info("r30_revoked_policy")
+BUSINESS_CERT_REVOKE_READY	rawQuery	PRAGMA table_info("r30_revoked_certificate")
+BUSINESS_CERT_REVOKE_READY	rawQuery	PRAGMA table_info("r27_certificate")
+BUSINESS_CERT_REVOKE_READY	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BUSINESS_CERT_REVOKE_READY	rawQuery	PRAGMA table_info(r27_certificate)
+BUSINESS_CERT_REVOKE_READY	execSQL	INSERT OR IGNORE INTO r30_certificate_revocation_event(protocol,issue,cause,event_key,scope,affected,detected_at) SELECT 'R27','202611040001','HOST_CANONICAL_CONFLICT','quoted''fixture','CONSERVATIVE_CURRENT_CERTIFICATES_DEPENDENCY_GRAPH_UNAVAILABLE',count(*),1794600989460 FROM r27_certificate WHERE status='ACTIVE' AND expires_at>1794600989460;
+BUSINESS_CERT_REVOKE_READY	execSQL	INSERT OR IGNORE INTO r30_revoked_policy(protocol,policy_key,issue,cause,revoked_at) SELECT DISTINCT 'R27',policy_hash,'202611040001','HOST_CANONICAL_CONFLICT',1794600989460 FROM r27_certificate WHERE status='ACTIVE' AND expires_at>1794600989460;
+BUSINESS_CERT_REVOKE_READY	execSQL	INSERT OR IGNORE INTO r30_revoked_certificate(protocol,certificate_key,policy_key,issue,cause,evidence_digest,gates_json,gate_version,issued_at,expires_at,old_status,revoked_at) SELECT 'R27',policy_hash,policy_hash,'202611040001','HOST_CANONICAL_CONFLICT',evidence_digest,gates_json,gate_version,issued_at,expires_at,status,1794600989460 FROM r27_certificate WHERE status='ACTIVE' AND expires_at>1794600989460;
+BUSINESS_CERT_REVOKE_READY	execSQL	UPDATE r27_certificate SET status='REVOKED' WHERE status='ACTIVE' AND expires_at>1794600989460;
+BUSINESS_CERT_REVOKE_READY	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BUSINESS_CERT_REVOKE_READY	rawQuery	SELECT count(*) FROM sqlite_master WHERE name IN ('r31_mainline_choice','r31_mainline_authority')
+BUSINESS_CERT_REVOKE_READY	transaction	COMMIT
+ASSERTION_READ	rawQuery	SELECT status FROM r27_certificate
+ASSERTION_READ	rawQuery	SELECT count(*) FROM r30_revoked_certificate WHERE evidence_digest='HOST_EVIDENCE'
+BOOTSTRAP_CERT_DRIFT_INJECTION	execSQL	DROP TRIGGER r30_revoke_r27_reissue_insert
+BUSINESS_CERT_GUARD_DRIFT	transaction	BEGIN
+BUSINESS_CERT_GUARD_DRIFT	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BUSINESS_CERT_GUARD_DRIFT	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BUSINESS_CERT_GUARD_DRIFT	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BUSINESS_CERT_GUARD_DRIFT	rawQuery	PRAGMA table_info(draws)
+BUSINESS_CERT_GUARD_DRIFT	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?)
+BUSINESS_CERT_GUARD_DRIFT	transaction	ROLLBACK
+ASSERTION_READ	rawQuery	SELECT count(*) FROM sqlite_master WHERE name='r30_revoke_r27_reissue_insert'
+ASSERTION_READ	rawQuery	PRAGMA table_info(r27_certificate)
+ASSERTION_READ	rawQuery	SELECT coalesce(group_concat(r,char(10)),'') FROM (SELECT quote("policy_hash")||'|'||quote("status")||'|'||quote("gates_json")||'|'||quote("evidence_digest")||'|'||quote("issued_at")||'|'||quote("expires_at")||'|'||quote("gate_version") AS r FROM r27_certificate ORDER BY rowid)
+ASSERTION_READ	rawQuery	PRAGMA table_info(r30_revoked_certificate)
+ASSERTION_READ	rawQuery	SELECT coalesce(group_concat(r,char(10)),'') FROM (SELECT quote("protocol")||'|'||quote("certificate_key")||'|'||quote("policy_key")||'|'||quote("issue")||'|'||quote("cause")||'|'||quote("evidence_digest")||'|'||quote("gates_json")||'|'||quote("gate_version")||'|'||quote("issued_at")||'|'||quote("expires_at")||'|'||quote("old_status")||'|'||quote("revoked_at") AS r FROM r30_revoked_certificate ORDER BY rowid)
+ASSERTION_READ	rawQuery	PRAGMA table_info(r30_revoked_policy)
+ASSERTION_READ	rawQuery	SELECT coalesce(group_concat(r,char(10)),'') FROM (SELECT quote("protocol")||'|'||quote("policy_key")||'|'||quote("issue")||'|'||quote("cause")||'|'||quote("revoked_at") AS r FROM r30_revoked_policy ORDER BY rowid)
+ASSERTION_READ	rawQuery	PRAGMA table_info(r30_certificate_revocation_event)
+ASSERTION_READ	rawQuery	SELECT coalesce(group_concat(r,char(10)),'') FROM (SELECT quote("protocol")||'|'||quote("issue")||'|'||quote("cause")||'|'||quote("event_key")||'|'||quote("scope")||'|'||quote("affected")||'|'||quote("detected_at") AS r FROM r30_certificate_revocation_event ORDER BY rowid)
+ASSERTION_READ	rawQuery	SELECT count(*) FROM r30_revoked_certificate
+BOOTSTRAP_CERT_REPAIR	transaction	BEGIN
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	PRAGMA table_info(draws)
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_REPAIR	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT revision,contract_hash,fingerprint,state FROM v57_schema_domain_r926 WHERE domain=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP_CERT_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS r30_certificate_revocation_event(protocol TEXT NOT NULL,issue TEXT NOT NULL,cause TEXT NOT NULL,event_key TEXT NOT NULL,scope TEXT NOT NULL,affected INTEGER NOT NULL,detected_at INTEGER NOT NULL,PRIMARY KEY(protocol,issue,cause,event_key))
+BOOTSTRAP_CERT_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS r30_revoked_policy(protocol TEXT NOT NULL,policy_key TEXT NOT NULL,issue TEXT NOT NULL,cause TEXT NOT NULL,revoked_at INTEGER NOT NULL,PRIMARY KEY(protocol,policy_key))
+BOOTSTRAP_CERT_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS r30_revoked_certificate(protocol TEXT NOT NULL,certificate_key TEXT NOT NULL,policy_key TEXT NOT NULL,issue TEXT NOT NULL,cause TEXT NOT NULL,evidence_digest TEXT NOT NULL,gates_json TEXT NOT NULL,gate_version TEXT NOT NULL,issued_at INTEGER NOT NULL,expires_at INTEGER NOT NULL,old_status TEXT NOT NULL,revoked_at INTEGER NOT NULL,PRIMARY KEY(protocol,certificate_key,issue,cause,evidence_digest))
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	PRAGMA table_info(draws)
+BOOTSTRAP_CERT_REPAIR	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_REPAIR	execSQL	CREATE TRIGGER IF NOT EXISTS r30_revoke_r27_draw_semantics AFTER UPDATE OF issue,dirty,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10 ON draws WHEN NEW.issue IS NOT OLD.issue OR NEW.dirty IS NOT OLD.dirty OR NEW.n1 IS NOT OLD.n1 OR NEW.n2 IS NOT OLD.n2 OR NEW.n3 IS NOT OLD.n3 OR NEW.n4 IS NOT OLD.n4 OR NEW.n5 IS NOT OLD.n5 OR NEW.n6 IS NOT OLD.n6 OR NEW.n7 IS NOT OLD.n7 OR NEW.n8 IS NOT OLD.n8 OR NEW.n9 IS NOT OLD.n9 OR NEW.n10 IS NOT OLD.n10 BEGIN INSERT OR IGNORE INTO r30_certificate_revocation_event(protocol,issue,cause,event_key,scope,affected,detected_at) SELECT 'R27',OLD.issue,'DRAW_NUMBERS_TIME_OR_STATUS_CHANGED',coalesce(CAST(OLD.issue AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.issue AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.dirty AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.dirty AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n1 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n1 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n2 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n2 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n3 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n3 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n4 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n4 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n5 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n5 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n6 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n6 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n7 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n7 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n8 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n8 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n9 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n9 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n10 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n10 AS TEXT),'NULL'),'CONSERVATIVE_CURRENT_CERTIFICATES_DEPENDENCY_GRAPH_UNAVAILABLE',count(*),CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);INSERT OR IGNORE INTO r30_revoked_policy(protocol,policy_key,issue,cause,revoked_at) SELECT DISTINCT 'R27',policy_hash,OLD.issue,'DRAW_NUMBERS_TIME_OR_STATUS_CHANGED',CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);INSERT OR IGNORE INTO r30_revoked_certificate(protocol,certificate_key,policy_key,issue,cause,evidence_digest,gates_json,gate_version,issued_at,expires_at,old_status,revoked_at) SELECT 'R27',policy_hash,policy_hash,OLD.issue,'DRAW_NUMBERS_TIME_OR_STATUS_CHANGED',evidence_digest,gates_json,gate_version,issued_at,expires_at,status,CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);UPDATE r27_certificate SET status='REVOKED' WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER); END
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_REPAIR	execSQL	CREATE TRIGGER IF NOT EXISTS r30_revoke_r27_draw_hash AFTER UPDATE OF draw_hash_v2 ON draws WHEN NEW.draw_hash_v2 IS NOT OLD.draw_hash_v2 BEGIN INSERT OR IGNORE INTO r30_certificate_revocation_event(protocol,issue,cause,event_key,scope,affected,detected_at) SELECT 'R27',OLD.issue,'DRAW_HASH_CHANGED',coalesce(CAST(OLD.draw_hash_v2 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.draw_hash_v2 AS TEXT),'NULL'),'CONSERVATIVE_CURRENT_CERTIFICATES_DEPENDENCY_GRAPH_UNAVAILABLE',count(*),CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);INSERT OR IGNORE INTO r30_revoked_policy(protocol,policy_key,issue,cause,revoked_at) SELECT DISTINCT 'R27',policy_hash,OLD.issue,'DRAW_HASH_CHANGED',CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);INSERT OR IGNORE INTO r30_revoked_certificate(protocol,certificate_key,policy_key,issue,cause,evidence_digest,gates_json,gate_version,issued_at,expires_at,old_status,revoked_at) SELECT 'R27',policy_hash,policy_hash,OLD.issue,'DRAW_HASH_CHANGED',evidence_digest,gates_json,gate_version,issued_at,expires_at,status,CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);UPDATE r27_certificate SET status='REVOKED' WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER); END
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_REPAIR	execSQL	CREATE TRIGGER IF NOT EXISTS r30_revoke_r27_reissue_insert AFTER INSERT ON r27_certificate WHEN NEW.status<>'REVOKED' AND EXISTS(SELECT 1 FROM r30_revoked_policy p WHERE p.protocol='R27' AND p.policy_key=NEW.policy_hash) BEGIN INSERT OR IGNORE INTO r30_revoked_certificate(protocol,certificate_key,policy_key,issue,cause,evidence_digest,gates_json,gate_version,issued_at,expires_at,old_status,revoked_at) SELECT 'R27',policy_hash,policy_hash,(SELECT issue FROM r30_revoked_policy WHERE protocol='R27' AND policy_key=NEW.policy_hash),'REISSUE_WITH_REVOKED_SOURCE',evidence_digest,gates_json,gate_version,issued_at,expires_at,status,CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE policy_hash=NEW.policy_hash; UPDATE r27_certificate SET status='REVOKED' WHERE policy_hash=NEW.policy_hash; END
+BOOTSTRAP_CERT_REPAIR	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_REPAIR	execSQL	CREATE TRIGGER IF NOT EXISTS r30_revoke_r27_reissue_update AFTER UPDATE OF status ON r27_certificate WHEN NEW.status<>'REVOKED' AND EXISTS(SELECT 1 FROM r30_revoked_policy p WHERE p.protocol='R27' AND p.policy_key=NEW.policy_hash) BEGIN INSERT OR IGNORE INTO r30_revoked_certificate(protocol,certificate_key,policy_key,issue,cause,evidence_digest,gates_json,gate_version,issued_at,expires_at,old_status,revoked_at) SELECT 'R27',policy_hash,policy_hash,(SELECT issue FROM r30_revoked_policy WHERE protocol='R27' AND policy_key=NEW.policy_hash),'REISSUE_WITH_REVOKED_SOURCE',evidence_digest,gates_json,gate_version,issued_at,expires_at,status,CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE policy_hash=NEW.policy_hash; UPDATE r27_certificate SET status='REVOKED' WHERE policy_hash=NEW.policy_hash; END
+BOOTSTRAP_CERT_REPAIR	execSQL	CREATE INDEX IF NOT EXISTS r30_revoke_r27_expires ON r27_certificate(status,expires_at)
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP_CERT_REPAIR	transaction	COMMIT
+ASSERTION_READ	rawQuery	PRAGMA table_info(r27_certificate)
+ASSERTION_READ	rawQuery	SELECT coalesce(group_concat(r,char(10)),'') FROM (SELECT quote("policy_hash")||'|'||quote("status")||'|'||quote("gates_json")||'|'||quote("evidence_digest")||'|'||quote("issued_at")||'|'||quote("expires_at")||'|'||quote("gate_version") AS r FROM r27_certificate ORDER BY rowid)
+ASSERTION_READ	rawQuery	PRAGMA table_info(r30_revoked_certificate)
+ASSERTION_READ	rawQuery	SELECT coalesce(group_concat(r,char(10)),'') FROM (SELECT quote("protocol")||'|'||quote("certificate_key")||'|'||quote("policy_key")||'|'||quote("issue")||'|'||quote("cause")||'|'||quote("evidence_digest")||'|'||quote("gates_json")||'|'||quote("gate_version")||'|'||quote("issued_at")||'|'||quote("expires_at")||'|'||quote("old_status")||'|'||quote("revoked_at") AS r FROM r30_revoked_certificate ORDER BY rowid)
+ASSERTION_READ	rawQuery	PRAGMA table_info(r30_revoked_policy)
+ASSERTION_READ	rawQuery	SELECT coalesce(group_concat(r,char(10)),'') FROM (SELECT quote("protocol")||'|'||quote("policy_key")||'|'||quote("issue")||'|'||quote("cause")||'|'||quote("revoked_at") AS r FROM r30_revoked_policy ORDER BY rowid)
+ASSERTION_READ	rawQuery	PRAGMA table_info(r30_certificate_revocation_event)
+ASSERTION_READ	rawQuery	SELECT coalesce(group_concat(r,char(10)),'') FROM (SELECT quote("protocol")||'|'||quote("issue")||'|'||quote("cause")||'|'||quote("event_key")||'|'||quote("scope")||'|'||quote("affected")||'|'||quote("detected_at") AS r FROM r30_certificate_revocation_event ORDER BY rowid)
+BOOTSTRAP_CERT_REPAIR	transaction	BEGIN
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	PRAGMA table_info(draws)
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_REPAIR	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT revision,contract_hash,fingerprint,state FROM v57_schema_domain_r926 WHERE domain=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP_CERT_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS r30_certificate_revocation_event(protocol TEXT NOT NULL,issue TEXT NOT NULL,cause TEXT NOT NULL,event_key TEXT NOT NULL,scope TEXT NOT NULL,affected INTEGER NOT NULL,detected_at INTEGER NOT NULL,PRIMARY KEY(protocol,issue,cause,event_key))
+BOOTSTRAP_CERT_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS r30_revoked_policy(protocol TEXT NOT NULL,policy_key TEXT NOT NULL,issue TEXT NOT NULL,cause TEXT NOT NULL,revoked_at INTEGER NOT NULL,PRIMARY KEY(protocol,policy_key))
+BOOTSTRAP_CERT_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS r30_revoked_certificate(protocol TEXT NOT NULL,certificate_key TEXT NOT NULL,policy_key TEXT NOT NULL,issue TEXT NOT NULL,cause TEXT NOT NULL,evidence_digest TEXT NOT NULL,gates_json TEXT NOT NULL,gate_version TEXT NOT NULL,issued_at INTEGER NOT NULL,expires_at INTEGER NOT NULL,old_status TEXT NOT NULL,revoked_at INTEGER NOT NULL,PRIMARY KEY(protocol,certificate_key,issue,cause,evidence_digest))
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	PRAGMA table_info(draws)
+BOOTSTRAP_CERT_REPAIR	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_REPAIR	execSQL	CREATE TRIGGER IF NOT EXISTS r30_revoke_r27_draw_semantics AFTER UPDATE OF issue,dirty,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10 ON draws WHEN NEW.issue IS NOT OLD.issue OR NEW.dirty IS NOT OLD.dirty OR NEW.n1 IS NOT OLD.n1 OR NEW.n2 IS NOT OLD.n2 OR NEW.n3 IS NOT OLD.n3 OR NEW.n4 IS NOT OLD.n4 OR NEW.n5 IS NOT OLD.n5 OR NEW.n6 IS NOT OLD.n6 OR NEW.n7 IS NOT OLD.n7 OR NEW.n8 IS NOT OLD.n8 OR NEW.n9 IS NOT OLD.n9 OR NEW.n10 IS NOT OLD.n10 BEGIN INSERT OR IGNORE INTO r30_certificate_revocation_event(protocol,issue,cause,event_key,scope,affected,detected_at) SELECT 'R27',OLD.issue,'DRAW_NUMBERS_TIME_OR_STATUS_CHANGED',coalesce(CAST(OLD.issue AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.issue AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.dirty AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.dirty AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n1 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n1 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n2 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n2 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n3 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n3 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n4 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n4 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n5 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n5 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n6 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n6 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n7 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n7 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n8 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n8 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n9 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n9 AS TEXT),'NULL')||'|'||coalesce(CAST(OLD.n10 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.n10 AS TEXT),'NULL'),'CONSERVATIVE_CURRENT_CERTIFICATES_DEPENDENCY_GRAPH_UNAVAILABLE',count(*),CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);INSERT OR IGNORE INTO r30_revoked_policy(protocol,policy_key,issue,cause,revoked_at) SELECT DISTINCT 'R27',policy_hash,OLD.issue,'DRAW_NUMBERS_TIME_OR_STATUS_CHANGED',CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);INSERT OR IGNORE INTO r30_revoked_certificate(protocol,certificate_key,policy_key,issue,cause,evidence_digest,gates_json,gate_version,issued_at,expires_at,old_status,revoked_at) SELECT 'R27',policy_hash,policy_hash,OLD.issue,'DRAW_NUMBERS_TIME_OR_STATUS_CHANGED',evidence_digest,gates_json,gate_version,issued_at,expires_at,status,CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);UPDATE r27_certificate SET status='REVOKED' WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER); END
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_REPAIR	execSQL	CREATE TRIGGER IF NOT EXISTS r30_revoke_r27_draw_hash AFTER UPDATE OF draw_hash_v2 ON draws WHEN NEW.draw_hash_v2 IS NOT OLD.draw_hash_v2 BEGIN INSERT OR IGNORE INTO r30_certificate_revocation_event(protocol,issue,cause,event_key,scope,affected,detected_at) SELECT 'R27',OLD.issue,'DRAW_HASH_CHANGED',coalesce(CAST(OLD.draw_hash_v2 AS TEXT),'NULL')||'>'||coalesce(CAST(NEW.draw_hash_v2 AS TEXT),'NULL'),'CONSERVATIVE_CURRENT_CERTIFICATES_DEPENDENCY_GRAPH_UNAVAILABLE',count(*),CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);INSERT OR IGNORE INTO r30_revoked_policy(protocol,policy_key,issue,cause,revoked_at) SELECT DISTINCT 'R27',policy_hash,OLD.issue,'DRAW_HASH_CHANGED',CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);INSERT OR IGNORE INTO r30_revoked_certificate(protocol,certificate_key,policy_key,issue,cause,evidence_digest,gates_json,gate_version,issued_at,expires_at,old_status,revoked_at) SELECT 'R27',policy_hash,policy_hash,OLD.issue,'DRAW_HASH_CHANGED',evidence_digest,gates_json,gate_version,issued_at,expires_at,status,CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);UPDATE r27_certificate SET status='REVOKED' WHERE status='ACTIVE' AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER); END
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_REPAIR	execSQL	CREATE TRIGGER IF NOT EXISTS r30_revoke_r27_reissue_insert AFTER INSERT ON r27_certificate WHEN NEW.status<>'REVOKED' AND EXISTS(SELECT 1 FROM r30_revoked_policy p WHERE p.protocol='R27' AND p.policy_key=NEW.policy_hash) BEGIN INSERT OR IGNORE INTO r30_revoked_certificate(protocol,certificate_key,policy_key,issue,cause,evidence_digest,gates_json,gate_version,issued_at,expires_at,old_status,revoked_at) SELECT 'R27',policy_hash,policy_hash,(SELECT issue FROM r30_revoked_policy WHERE protocol='R27' AND policy_key=NEW.policy_hash),'REISSUE_WITH_REVOKED_SOURCE',evidence_digest,gates_json,gate_version,issued_at,expires_at,status,CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE policy_hash=NEW.policy_hash; UPDATE r27_certificate SET status='REVOKED' WHERE policy_hash=NEW.policy_hash; END
+BOOTSTRAP_CERT_REPAIR	rawQuery	PRAGMA table_info(r27_certificate)
+BOOTSTRAP_CERT_REPAIR	execSQL	CREATE TRIGGER IF NOT EXISTS r30_revoke_r27_reissue_update AFTER UPDATE OF status ON r27_certificate WHEN NEW.status<>'REVOKED' AND EXISTS(SELECT 1 FROM r30_revoked_policy p WHERE p.protocol='R27' AND p.policy_key=NEW.policy_hash) BEGIN INSERT OR IGNORE INTO r30_revoked_certificate(protocol,certificate_key,policy_key,issue,cause,evidence_digest,gates_json,gate_version,issued_at,expires_at,old_status,revoked_at) SELECT 'R27',policy_hash,policy_hash,(SELECT issue FROM r30_revoked_policy WHERE protocol='R27' AND policy_key=NEW.policy_hash),'REISSUE_WITH_REVOKED_SOURCE',evidence_digest,gates_json,gate_version,issued_at,expires_at,status,CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) FROM r27_certificate WHERE policy_hash=NEW.policy_hash; UPDATE r27_certificate SET status='REVOKED' WHERE policy_hash=NEW.policy_hash; END
+BOOTSTRAP_CERT_REPAIR	execSQL	CREATE INDEX IF NOT EXISTS r30_revoke_r27_expires ON r27_certificate(status,expires_at)
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT 1 FROM sqlite_master WHERE type='table' AND name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,sql FROM sqlite_master WHERE name=?
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP_CERT_REPAIR	rawQuery	SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND (name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR tbl_name COLLATE BINARY IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) OR unicode(substr(name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32 OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32 OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0 OR typeof(name)<>'text' OR typeof(tbl_name)<>'text') ORDER BY type,name
+BOOTSTRAP_CERT_REPAIR	transaction	COMMIT
+ASSERTION_READ	rawQuery	PRAGMA table_info(r27_certificate)
+ASSERTION_READ	rawQuery	SELECT coalesce(group_concat(r,char(10)),'') FROM (SELECT quote("policy_hash")||'|'||quote("status")||'|'||quote("gates_json")||'|'||quote("evidence_digest")||'|'||quote("issued_at")||'|'||quote("expires_at")||'|'||quote("gate_version") AS r FROM r27_certificate ORDER BY rowid)
+ASSERTION_READ	rawQuery	PRAGMA table_info(r30_revoked_certificate)
+ASSERTION_READ	rawQuery	SELECT coalesce(group_concat(r,char(10)),'') FROM (SELECT quote("protocol")||'|'||quote("certificate_key")||'|'||quote("policy_key")||'|'||quote("issue")||'|'||quote("cause")||'|'||quote("evidence_digest")||'|'||quote("gates_json")||'|'||quote("gate_version")||'|'||quote("issued_at")||'|'||quote("expires_at")||'|'||quote("old_status")||'|'||quote("revoked_at") AS r FROM r30_revoked_certificate ORDER BY rowid)
+ASSERTION_READ	rawQuery	PRAGMA table_info(r30_revoked_policy)
+ASSERTION_READ	rawQuery	SELECT coalesce(group_concat(r,char(10)),'') FROM (SELECT quote("protocol")||'|'||quote("policy_key")||'|'||quote("issue")||'|'||quote("cause")||'|'||quote("revoked_at") AS r FROM r30_revoked_policy ORDER BY rowid)
+ASSERTION_READ	rawQuery	PRAGMA table_info(r30_certificate_revocation_event)
+ASSERTION_READ	rawQuery	SELECT coalesce(group_concat(r,char(10)),'') FROM (SELECT quote("protocol")||'|'||quote("issue")||'|'||quote("cause")||'|'||quote("event_key")||'|'||quote("scope")||'|'||quote("affected")||'|'||quote("detected_at") AS r FROM r30_certificate_revocation_event ORDER BY rowid)
+BUSINESS_TX_SCHEMA_MISSING	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?)
+ASSERTION_READ	rawQuery	SELECT count(*) FROM sqlite_master WHERE name='b03_transaction_audit'
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS v51_issue_prediction(target_issue TEXT PRIMARY KEY,base_issue TEXT NOT NULL,history_hash TEXT NOT NULL,feature_hash TEXT NOT NULL,state_hash TEXT NOT NULL,expert_hash TEXT NOT NULL,artifact_bundle_hash TEXT NOT NULL,cohort_id TEXT NOT NULL,status TEXT NOT NULL,created_at INTEGER NOT NULL,settled INTEGER NOT NULL DEFAULT 0,actual_permutation TEXT DEFAULT '',result TEXT DEFAULT '')
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS v51_number_event(target_issue TEXT NOT NULL,position INTEGER NOT NULL,number INTEGER NOT NULL,raw_score REAL NOT NULL,number_p REAL NOT NULL,number_rank INTEGER NOT NULL,state_id TEXT NOT NULL,domain_id TEXT NOT NULL,actual_label INTEGER NOT NULL DEFAULT -1,expert_hash TEXT NOT NULL,PRIMARY KEY(target_issue,position,number))
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS v51_position_action(target_issue TEXT NOT NULL,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,n4 INTEGER NOT NULL,raw_action_p REAL NOT NULL,rank_score REAL NOT NULL,selected_hit_p REAL NOT NULL DEFAULT 0,rank_no INTEGER NOT NULL,hit_label INTEGER NOT NULL DEFAULT -1,fingerprint TEXT NOT NULL,meta_blob TEXT NOT NULL,action_hash TEXT NOT NULL,PRIMARY KEY(target_issue,position))
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS v57_k3_action_space_1200(target_issue TEXT NOT NULL,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,n4 INTEGER NOT NULL,raw_action_p REAL NOT NULL,rank_score REAL NOT NULL,selected_hit_p REAL NOT NULL DEFAULT 0,rank_no INTEGER NOT NULL,hit_label INTEGER NOT NULL DEFAULT -1,fingerprint TEXT NOT NULL,meta_blob TEXT NOT NULL,action_hash TEXT NOT NULL,game_code TEXT NOT NULL DEFAULT 'Binance1-PK10',bundle_hash TEXT NOT NULL DEFAULT '',contract_hash TEXT NOT NULL DEFAULT '',record_hash TEXT NOT NULL DEFAULT '',PRIMARY KEY(target_issue,position,n1,n2,n3))
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS idx_v57_action_space_rank ON v57_k3_action_space_1200(game_code,target_issue,rank_no)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS v57_k3_champion_freeze(target_issue TEXT PRIMARY KEY,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,rank_score REAL NOT NULL,action_hash TEXT NOT NULL,ranker_artifact TEXT NOT NULL,artifact_proven INTEGER NOT NULL,frozen INTEGER NOT NULL,game_code TEXT NOT NULL DEFAULT 'Binance1-PK10',bundle_hash TEXT NOT NULL DEFAULT '',record_hash TEXT NOT NULL DEFAULT '')
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS v57_k3_funnel_trace(target_issue TEXT NOT NULL,position INTEGER NOT NULL,trace_blob TEXT NOT NULL,final3 TEXT NOT NULL,matrix_hash TEXT NOT NULL,game_code TEXT NOT NULL DEFAULT 'Binance1-PK10',bundle_hash TEXT NOT NULL DEFAULT '',record_hash TEXT NOT NULL DEFAULT '',PRIMARY KEY(target_issue,position))
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS idx_v57_champion_game_issue ON v57_k3_champion_freeze(game_code,target_issue)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS idx_v57_funnel_game_issue ON v57_k3_funnel_trace(game_code,target_issue,position)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS v51_permutation_matrix(target_issue TEXT PRIMARY KEY,matrix_blob TEXT NOT NULL,row_error REAL NOT NULL,column_error REAL NOT NULL,iterations INTEGER NOT NULL,converged INTEGER NOT NULL,used_fallback INTEGER NOT NULL,map_blob TEXT NOT NULL,matrix_hash TEXT NOT NULL)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS v51_selected_action(target_issue TEXT PRIMARY KEY,decision_id TEXT NOT NULL UNIQUE,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,selected_hit_p REAL NOT NULL,predictability REAL NOT NULL,lane TEXT NOT NULL,decision_action TEXT NOT NULL,reject_code TEXT NOT NULL,contract_hash TEXT NOT NULL,authorization_hash TEXT NOT NULL,settled INTEGER NOT NULL DEFAULT 0,result TEXT DEFAULT '')
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS v51_decision_authorization(decision_id TEXT PRIMARY KEY,target_issue TEXT NOT NULL,contract_hash TEXT NOT NULL,artifact_bundle_hash TEXT NOT NULL,cohort_id TEXT NOT NULL,probability_owner TEXT NOT NULL,rank_owner TEXT NOT NULL,lane_owner TEXT NOT NULL,authorization_hash TEXT NOT NULL,created_at INTEGER NOT NULL)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS v51_performance_span(_id INTEGER PRIMARY KEY AUTOINCREMENT,target_issue TEXT NOT NULL,trace_id TEXT NOT NULL,span_name TEXT NOT NULL,parent_name TEXT NOT NULL,elapsed_ms INTEGER NOT NULL,exclusive_ms INTEGER NOT NULL,success INTEGER NOT NULL,failure_owner TEXT NOT NULL,created_at INTEGER NOT NULL)
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_issue_prediction)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_issue_prediction ADD COLUMN game_code TEXT NOT NULL DEFAULT 'Binance1-PK10'
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_issue_prediction)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_issue_prediction ADD COLUMN bundle_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_issue_prediction)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_issue_prediction ADD COLUMN contract_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_issue_prediction)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_issue_prediction ADD COLUMN record_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_number_event)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_number_event ADD COLUMN game_code TEXT NOT NULL DEFAULT 'Binance1-PK10'
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_number_event)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_number_event ADD COLUMN bundle_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_number_event)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_number_event ADD COLUMN contract_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_number_event)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_number_event ADD COLUMN record_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_position_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_position_action ADD COLUMN game_code TEXT NOT NULL DEFAULT 'Binance1-PK10'
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_position_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_position_action ADD COLUMN bundle_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_position_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_position_action ADD COLUMN contract_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_position_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_position_action ADD COLUMN record_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_permutation_matrix)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_permutation_matrix ADD COLUMN game_code TEXT NOT NULL DEFAULT 'Binance1-PK10'
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_permutation_matrix)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_permutation_matrix ADD COLUMN bundle_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_permutation_matrix)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_permutation_matrix ADD COLUMN contract_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_permutation_matrix)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_permutation_matrix ADD COLUMN record_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN game_code TEXT NOT NULL DEFAULT 'Binance1-PK10'
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN domain_id TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN rank_no INTEGER NOT NULL DEFAULT 0
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN bundle_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN record_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN settlement_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN raw_action_p REAL NOT NULL DEFAULT -1
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN rank_score REAL NOT NULL DEFAULT 0
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN third_margin REAL NOT NULL DEFAULT 0
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN entropy REAL NOT NULL DEFAULT -1
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN stability REAL NOT NULL DEFAULT -1
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN window_consensus REAL NOT NULL DEFAULT -1
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN assignment_support REAL NOT NULL DEFAULT -1
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN shape_lifecycle TEXT NOT NULL DEFAULT 'UNKNOWN'
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN shape_prototype TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN shape_run_length INTEGER NOT NULL DEFAULT 0
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN shape_change_risk REAL NOT NULL DEFAULT -1
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_selected_action ADD COLUMN shape_confidence REAL NOT NULL DEFAULT -1
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_decision_authorization)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_decision_authorization ADD COLUMN game_code TEXT NOT NULL DEFAULT 'Binance1-PK10'
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_decision_authorization)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_decision_authorization ADD COLUMN bundle_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_decision_authorization)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_decision_authorization ADD COLUMN record_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_performance_span)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_performance_span ADD COLUMN game_code TEXT NOT NULL DEFAULT 'Binance1-PK10'
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_performance_span)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_performance_span ADD COLUMN bundle_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	PRAGMA table_info(v51_performance_span)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	ALTER TABLE v51_performance_span ADD COLUMN record_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS idx_v51_number_issue ON v51_number_event(game_code,target_issue)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS idx_v51_action_issue_rank ON v51_position_action(game_code,target_issue,rank_no)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS idx_v51_selected_lane ON v51_selected_action(game_code,lane,decision_action,settled)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE UNIQUE INDEX IF NOT EXISTS uq_v51_issue_game_target ON v51_issue_prediction(game_code,target_issue)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS b03_schema_meta(meta_key TEXT PRIMARY KEY,meta_value TEXT NOT NULL,updated_at INTEGER NOT NULL)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS b03_transaction_audit(_id INTEGER PRIMARY KEY AUTOINCREMENT,idempotency_key TEXT NOT NULL UNIQUE,operation TEXT NOT NULL,game_code TEXT NOT NULL,target_issue TEXT NOT NULL DEFAULT '',transaction_hash TEXT NOT NULL,status TEXT NOT NULL,error_detail TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL,CHECK(game_code='Binance1-PK10'))
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS b03_migration_journal(migration_id TEXT PRIMARY KEY,source_database TEXT NOT NULL,source_game_code TEXT NOT NULL,policy TEXT NOT NULL,cursor_issue TEXT NOT NULL DEFAULT '',scanned_count INTEGER NOT NULL DEFAULT 0,imported_count INTEGER NOT NULL DEFAULT 0,replay_hash TEXT NOT NULL,status TEXT NOT NULL,updated_at INTEGER NOT NULL)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS b03_draw_quarantine(_id INTEGER PRIMARY KEY AUTOINCREMENT,source_database TEXT NOT NULL,source_game_code TEXT NOT NULL,source_table TEXT NOT NULL,source_issue TEXT NOT NULL,source_numbers TEXT NOT NULL,normalized_numbers TEXT NOT NULL DEFAULT '',draw_time INTEGER NOT NULL DEFAULT 0,quarantine_reason TEXT NOT NULL,review_status TEXT NOT NULL,row_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS b03_prediction_bundle(bundle_id TEXT PRIMARY KEY,game_code TEXT NOT NULL,target_issue TEXT NOT NULL,base_issue TEXT NOT NULL,history_hash TEXT NOT NULL,feature_hash TEXT NOT NULL,state_hash TEXT NOT NULL,expert_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,contract_hash TEXT NOT NULL,artifact_bundle_hash TEXT NOT NULL,cohort_id TEXT NOT NULL,status TEXT NOT NULL,record_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL,UNIQUE(game_code,target_issue),CHECK(game_code='Binance1-PK10'))
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS b03_number_event(_id INTEGER PRIMARY KEY AUTOINCREMENT,bundle_id TEXT NOT NULL,game_code TEXT NOT NULL,target_issue TEXT NOT NULL,position INTEGER NOT NULL,number INTEGER NOT NULL,raw_score REAL NOT NULL,number_p REAL NOT NULL,number_rank INTEGER NOT NULL,state_id TEXT NOT NULL,domain_id TEXT NOT NULL,contract_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,record_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL,UNIQUE(bundle_id,position,number),FOREIGN KEY(bundle_id) REFERENCES b03_prediction_bundle(bundle_id) ON DELETE RESTRICT,CHECK(game_code='Binance1-PK10'),CHECK(position BETWEEN 1 AND 10),CHECK(number BETWEEN 1 AND 10))
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS b03_action_event(_id INTEGER PRIMARY KEY AUTOINCREMENT,bundle_id TEXT NOT NULL,game_code TEXT NOT NULL,target_issue TEXT NOT NULL,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,n4 INTEGER NOT NULL DEFAULT 0,raw_action_p REAL NOT NULL,rank_score REAL NOT NULL,rank_no INTEGER NOT NULL,action_hash TEXT NOT NULL,contract_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,record_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL,UNIQUE(bundle_id,position),FOREIGN KEY(bundle_id) REFERENCES b03_prediction_bundle(bundle_id) ON DELETE RESTRICT,CHECK(game_code='Binance1-PK10'),CHECK(position BETWEEN 1 AND 10))
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS b03_permutation_event(bundle_id TEXT PRIMARY KEY,game_code TEXT NOT NULL,target_issue TEXT NOT NULL,matrix_blob TEXT NOT NULL,row_error REAL NOT NULL,column_error REAL NOT NULL,iterations INTEGER NOT NULL,converged INTEGER NOT NULL,used_fallback INTEGER NOT NULL,map_blob TEXT NOT NULL,matrix_hash TEXT NOT NULL,contract_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,record_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL,FOREIGN KEY(bundle_id) REFERENCES b03_prediction_bundle(bundle_id) ON DELETE RESTRICT,CHECK(game_code='Binance1-PK10'))
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS b03_selected_event(bundle_id TEXT PRIMARY KEY,game_code TEXT NOT NULL,target_issue TEXT NOT NULL,decision_id TEXT NOT NULL UNIQUE,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,selected_hit_p REAL NOT NULL,predictability REAL NOT NULL,lane TEXT NOT NULL,decision_action TEXT NOT NULL,reject_code TEXT NOT NULL,contract_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,authorization_hash TEXT NOT NULL,record_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL,FOREIGN KEY(bundle_id) REFERENCES b03_prediction_bundle(bundle_id) ON DELETE RESTRICT,CHECK(game_code='Binance1-PK10'),CHECK(decision_action IN ('BET','SHADOW','HOLD')))
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS b03_authorization_event(decision_id TEXT PRIMARY KEY,bundle_id TEXT NOT NULL,game_code TEXT NOT NULL,target_issue TEXT NOT NULL,contract_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,artifact_bundle_hash TEXT NOT NULL,cohort_id TEXT NOT NULL,authorization_hash TEXT NOT NULL,record_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL,FOREIGN KEY(bundle_id) REFERENCES b03_prediction_bundle(bundle_id) ON DELETE RESTRICT,CHECK(game_code='Binance1-PK10'))
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS b03_settlement_event(_id INTEGER PRIMARY KEY AUTOINCREMENT,bundle_id TEXT NOT NULL,game_code TEXT NOT NULL,target_issue TEXT NOT NULL,actual_permutation TEXT NOT NULL,result TEXT NOT NULL,settlement_hash TEXT NOT NULL UNIQUE,record_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL,UNIQUE(game_code,target_issue),FOREIGN KEY(bundle_id) REFERENCES b03_prediction_bundle(bundle_id) ON DELETE RESTRICT,CHECK(game_code='Binance1-PK10'))
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS b03_integrity_snapshot(_id INTEGER PRIMARY KEY AUTOINCREMENT,snapshot_hash TEXT NOT NULL UNIQUE,schema_hash TEXT NOT NULL,replay_hash TEXT NOT NULL,valid INTEGER NOT NULL,detail TEXT NOT NULL,created_at INTEGER NOT NULL)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE IF NOT EXISTS b03_replay_audit(_id INTEGER PRIMARY KEY AUTOINCREMENT,game_code TEXT NOT NULL,target_issue TEXT NOT NULL,replay_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,contract_hash TEXT NOT NULL,status TEXT NOT NULL,detail TEXT NOT NULL,created_at INTEGER NOT NULL,UNIQUE(game_code,target_issue,replay_hash),CHECK(game_code='Binance1-PK10'))
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS idx_b03_tx_target ON b03_transaction_audit(game_code,target_issue,created_at)
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS idx_b03_migration_status ON b03_migration_journal(status,updated_at)
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS idx_b03_quarantine_issue ON b03_draw_quarantine(source_game_code,source_issue)
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS idx_b03_bundle_target ON b03_prediction_bundle(game_code,target_issue)
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS idx_b03_number_target ON b03_number_event(game_code,target_issue,position,number)
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS idx_b03_action_rank ON b03_action_event(game_code,target_issue,rank_no)
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS idx_b03_selected_lane ON b03_selected_event(game_code,lane,decision_action)
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS idx_b03_settlement_target ON b03_settlement_event(game_code,target_issue,created_at)
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS idx_b03_integrity_created ON b03_integrity_snapshot(created_at)
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE INDEX IF NOT EXISTS idx_b03_replay_target ON b03_replay_audit(game_code,target_issue,created_at)
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS trg_b03_prediction_bundle_no_delete BEFORE DELETE ON b03_prediction_bundle BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_DELETE'); END
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS trg_b03_prediction_bundle_no_update BEFORE UPDATE ON b03_prediction_bundle BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_UPDATE'); END
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS trg_b03_number_event_no_delete BEFORE DELETE ON b03_number_event BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_DELETE'); END
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS trg_b03_number_event_no_update BEFORE UPDATE ON b03_number_event BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_UPDATE'); END
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS trg_b03_action_event_no_delete BEFORE DELETE ON b03_action_event BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_DELETE'); END
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS trg_b03_action_event_no_update BEFORE UPDATE ON b03_action_event BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_UPDATE'); END
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS trg_b03_permutation_event_no_delete BEFORE DELETE ON b03_permutation_event BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_DELETE'); END
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS trg_b03_permutation_event_no_update BEFORE UPDATE ON b03_permutation_event BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_UPDATE'); END
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS trg_b03_selected_event_no_delete BEFORE DELETE ON b03_selected_event BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_DELETE'); END
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS trg_b03_selected_event_no_update BEFORE UPDATE ON b03_selected_event BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_UPDATE'); END
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS trg_b03_authorization_event_no_delete BEFORE DELETE ON b03_authorization_event BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_DELETE'); END
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS trg_b03_authorization_event_no_update BEFORE UPDATE ON b03_authorization_event BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_UPDATE'); END
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS trg_b03_settlement_event_no_delete BEFORE DELETE ON b03_settlement_event BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_DELETE'); END
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS trg_b03_settlement_event_no_update BEFORE UPDATE ON b03_settlement_event BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_UPDATE'); END
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS trg_b03_draw_quarantine_no_delete BEFORE DELETE ON b03_draw_quarantine BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_DELETE'); END
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TRIGGER IF NOT EXISTS trg_b03_draw_quarantine_no_update BEFORE UPDATE ON b03_draw_quarantine WHEN OLD.source_database<>NEW.source_database OR OLD.source_game_code<>NEW.source_game_code OR OLD.source_table<>NEW.source_table OR OLD.source_issue<>NEW.source_issue OR OLD.source_numbers<>NEW.source_numbers OR OLD.row_hash<>NEW.row_hash BEGIN SELECT RAISE(ABORT,'B03_IMMUTABLE_SOURCE'); END
+BOOTSTRAP_V51_MANUAL_MIGRATION	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_MANUAL_MIGRATION	insert	INSERT OR REPLACE INTO b03_schema_meta("meta_key","meta_value","updated_at") VALUES(?,?,?)
+BOOTSTRAP_V51_MANUAL_MIGRATION	insert	INSERT OR REPLACE INTO b03_schema_meta("meta_key","meta_value","updated_at") VALUES(?,?,?)
+BOOTSTRAP_V51_MANUAL_MIGRATION	insert	INSERT OR REPLACE INTO b03_schema_meta("meta_key","meta_value","updated_at") VALUES(?,?,?)
+BOOTSTRAP_V51_MANUAL_MIGRATION	insert	INSERT OR REPLACE INTO b03_schema_meta("meta_key","meta_value","updated_at") VALUES(?,?,?)
+BOOTSTRAP_V51_MANUAL_MIGRATION	insert	INSERT OR REPLACE INTO b03_schema_meta("meta_key","meta_value","updated_at") VALUES(?,?,?)
+BOOTSTRAP_V51_MANUAL_MIGRATION	insert	INSERT OR REPLACE INTO b03_schema_meta("meta_key","meta_value","updated_at") VALUES(?,?,?)
+BOOTSTRAP_V51_MANUAL_MIGRATION	insert	INSERT OR REPLACE INTO b03_schema_meta("meta_key","meta_value","updated_at") VALUES(?,?,?)
+BOOTSTRAP_V51_MANUAL_MIGRATION	insert	INSERT OR REPLACE INTO b03_schema_meta("meta_key","meta_value","updated_at") VALUES(?,?,?)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	CREATE TABLE host_model(samples INTEGER)
+BOOTSTRAP_V51_MANUAL_MIGRATION	execSQL	INSERT INTO host_model VALUES(0)
+BUSINESS_TX_READY	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?)
+BUSINESS_TX_READY	rawQuery	PRAGMA table_info("b03_transaction_audit")
+BUSINESS_TX_READY	rawQuery	SELECT 1 FROM b03_transaction_audit WHERE idempotency_key=? AND status='COMMITTED' LIMIT 1
+BUSINESS_TX_READY	transaction	BEGIN
+BUSINESS_TX_READY	execSQL	UPDATE host_model SET samples=samples+1
+BUSINESS_TX_READY	insert	INSERT OR IGNORE INTO b03_transaction_audit("idempotency_key","operation","game_code","target_issue","transaction_hash","status","error_detail","created_at") VALUES(?,?,?,?,?,?,?,?)
+BUSINESS_TX_READY	transaction	COMMIT
+BUSINESS_TX_READY	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?)
+BUSINESS_TX_READY	rawQuery	PRAGMA table_info("b03_transaction_audit")
+BUSINESS_TX_READY	rawQuery	SELECT 1 FROM b03_transaction_audit WHERE idempotency_key=? AND status='COMMITTED' LIMIT 1
+ASSERTION_READ	rawQuery	SELECT samples FROM host_model
+ASSERTION_READ	rawQuery	SELECT count(*) FROM sqlite_master WHERE name='v57_shadow_observation_r35'
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	PRAGMA table_info("v51_issue_prediction")
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	PRAGMA table_info("v51_number_event")
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	PRAGMA table_info("v51_position_action")
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	PRAGMA table_info("v57_k3_action_space_1200")
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	PRAGMA table_info("v57_k3_champion_freeze")
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	PRAGMA table_info("v57_k3_funnel_trace")
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	PRAGMA table_info("v51_permutation_matrix")
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	PRAGMA table_info("v51_selected_action")
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	PRAGMA table_info("v51_decision_authorization")
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	PRAGMA table_info("v51_performance_span")
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	PRAGMA table_info("b03_prediction_bundle")
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	PRAGMA table_info("b03_number_event")
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	PRAGMA table_info("b03_action_event")
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	PRAGMA table_info("b03_permutation_event")
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	PRAGMA table_info("b03_selected_event")
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	PRAGMA table_info("b03_authorization_event")
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	rawQuery	PRAGMA table_info("b03_settlement_event")
+BOOTSTRAP_V51_EXISTING_FROZEN_BUNDLE	execSQL	INSERT INTO b03_prediction_bundle(bundle_id,game_code,target_issue,base_issue,history_hash,feature_hash,state_hash,expert_hash,bundle_hash,contract_hash,artifact_bundle_hash,cohort_id,status,record_hash,created_at) VALUES('HOST_FIRST','Binance1-PK10',?,'202611040001','HOST','HOST','HOST','HOST','HOST_FIRST_BUNDLE','HOST','HOST','HOST','HOST_FROZEN','HOST_FIRST_RECORD',1)
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?)
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("b03_transaction_audit")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	SELECT 1 FROM b03_transaction_audit WHERE idempotency_key=? AND status='COMMITTED' LIMIT 1
+BUSINESS_V51_PERSIST_CALLBACK	transaction	BEGIN
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("v51_issue_prediction")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("v51_number_event")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("v51_position_action")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("v57_k3_action_space_1200")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("v57_k3_champion_freeze")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("v57_k3_funnel_trace")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("v51_permutation_matrix")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("v51_selected_action")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("v51_decision_authorization")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("v51_performance_span")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("b03_prediction_bundle")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("b03_number_event")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("b03_action_event")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("b03_permutation_event")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("b03_selected_event")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("b03_authorization_event")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	PRAGMA table_info("b03_settlement_event")
+BUSINESS_V51_PERSIST_CALLBACK	rawQuery	SELECT bundle_hash FROM b03_prediction_bundle WHERE game_code=? AND target_issue=?
+BUSINESS_V51_PERSIST_CALLBACK	insert	INSERT OR IGNORE INTO b03_transaction_audit("idempotency_key","operation","game_code","target_issue","transaction_hash","status","error_detail","created_at") VALUES(?,?,?,?,?,?,?,?)
+BUSINESS_V51_PERSIST_CALLBACK	transaction	COMMIT
+ASSERTION_READ	rawQuery	SELECT bundle_hash FROM b03_prediction_bundle
+BUSINESS_V51_PERSIST_REPLAY	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?)
+BUSINESS_V51_PERSIST_REPLAY	rawQuery	PRAGMA table_info("b03_transaction_audit")
+BUSINESS_V51_PERSIST_REPLAY	rawQuery	SELECT 1 FROM b03_transaction_audit WHERE idempotency_key=? AND status='COMMITTED' LIMIT 1
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?)
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("b03_transaction_audit")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	SELECT 1 FROM b03_transaction_audit WHERE idempotency_key=? AND status='COMMITTED' LIMIT 1
+BUSINESS_V51_SETTLEMENT_CALLBACK	transaction	BEGIN
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("v51_issue_prediction")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("v51_number_event")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("v51_position_action")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("v57_k3_action_space_1200")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("v57_k3_champion_freeze")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("v57_k3_funnel_trace")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("v51_permutation_matrix")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("v51_selected_action")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("v51_decision_authorization")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("v51_performance_span")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("b03_prediction_bundle")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("b03_number_event")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("b03_action_event")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("b03_permutation_event")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("b03_selected_event")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("b03_authorization_event")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	PRAGMA table_info("b03_settlement_event")
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	SELECT bundle_id FROM b03_prediction_bundle WHERE game_code=? AND target_issue=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	SELECT settlement_hash FROM b03_settlement_event WHERE game_code=? AND target_issue=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	insert	INSERT INTO b03_settlement_event("bundle_id","game_code","target_issue","actual_permutation","result","settlement_hash","record_hash","created_at") VALUES(?,?,?,?,?,?,?,?)
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	SELECT n1,n2,n3 FROM v51_position_action WHERE game_code=? AND target_issue=? AND position=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	SELECT n1,n2,n3 FROM v51_position_action WHERE game_code=? AND target_issue=? AND position=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	SELECT n1,n2,n3 FROM v51_position_action WHERE game_code=? AND target_issue=? AND position=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	SELECT n1,n2,n3 FROM v51_position_action WHERE game_code=? AND target_issue=? AND position=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	SELECT n1,n2,n3 FROM v51_position_action WHERE game_code=? AND target_issue=? AND position=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	SELECT n1,n2,n3 FROM v51_position_action WHERE game_code=? AND target_issue=? AND position=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	SELECT n1,n2,n3 FROM v51_position_action WHERE game_code=? AND target_issue=? AND position=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	SELECT n1,n2,n3 FROM v51_position_action WHERE game_code=? AND target_issue=? AND position=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	SELECT n1,n2,n3 FROM v51_position_action WHERE game_code=? AND target_issue=? AND position=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_number_event SET "actual_label"=? WHERE game_code=? AND target_issue=? AND position=? AND number=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	SELECT n1,n2,n3 FROM v51_position_action WHERE game_code=? AND target_issue=? AND position=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	rawQuery	SELECT position,n1,n2,n3 FROM v57_k3_action_space_1200 WHERE game_code=? AND target_issue=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_issue_prediction SET "settled"=?,"actual_permutation"=?,"result"=? WHERE game_code=? AND target_issue=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	update	UPDATE v51_selected_action SET "settled"=?,"result"=?,"settlement_hash"=? WHERE game_code=? AND target_issue=?
+BUSINESS_V51_SETTLEMENT_CALLBACK	insert	INSERT OR IGNORE INTO b03_transaction_audit("idempotency_key","operation","game_code","target_issue","transaction_hash","status","error_detail","created_at") VALUES(?,?,?,?,?,?,?,?)
+BUSINESS_V51_SETTLEMENT_CALLBACK	transaction	COMMIT
+ASSERTION_READ	rawQuery	SELECT count(*) FROM b03_settlement_event
+BUSINESS_V51_SETTLEMENT_REPLAY	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?)
+BUSINESS_V51_SETTLEMENT_REPLAY	rawQuery	PRAGMA table_info("b03_transaction_audit")
+BUSINESS_V51_SETTLEMENT_REPLAY	rawQuery	SELECT 1 FROM b03_transaction_audit WHERE idempotency_key=? AND status='COMMITTED' LIMIT 1
+ASSERTION_READ	rawQuery	SELECT count(*) FROM b03_settlement_event
+BOOTSTRAP_V51_MISSING_TABLE_INJECTION	execSQL	DROP TABLE v51_performance_span
+BUSINESS_V51_MISSING_SCHEMA	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?)
+BUSINESS_V51_MISSING_SCHEMA	rawQuery	PRAGMA table_info("b03_transaction_audit")
+BUSINESS_V51_MISSING_SCHEMA	rawQuery	SELECT 1 FROM b03_transaction_audit WHERE idempotency_key=? AND status='COMMITTED' LIMIT 1
+BUSINESS_V51_MISSING_SCHEMA	transaction	BEGIN
+BUSINESS_V51_MISSING_SCHEMA	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+BUSINESS_V51_MISSING_SCHEMA	insert	INSERT OR IGNORE INTO b03_transaction_audit("idempotency_key","operation","game_code","target_issue","transaction_hash","status","error_detail","created_at") VALUES(?,?,?,?,?,?,?,?)
+BUSINESS_V51_MISSING_SCHEMA	transaction	ROLLBACK
+ASSERTION_READ	rawQuery	SELECT count(*) FROM sqlite_master WHERE name='v51_performance_span'
+ASSERTION_READ	rawQuery	SELECT count(*) FROM b03_settlement_event
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS v51_issue_prediction(target_issue TEXT PRIMARY KEY,base_issue TEXT NOT NULL,history_hash TEXT NOT NULL,feature_hash TEXT NOT NULL,state_hash TEXT NOT NULL,expert_hash TEXT NOT NULL,artifact_bundle_hash TEXT NOT NULL,cohort_id TEXT NOT NULL,status TEXT NOT NULL,created_at INTEGER NOT NULL,settled INTEGER NOT NULL DEFAULT 0,actual_permutation TEXT DEFAULT '',result TEXT DEFAULT '')
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS v51_number_event(target_issue TEXT NOT NULL,position INTEGER NOT NULL,number INTEGER NOT NULL,raw_score REAL NOT NULL,number_p REAL NOT NULL,number_rank INTEGER NOT NULL,state_id TEXT NOT NULL,domain_id TEXT NOT NULL,actual_label INTEGER NOT NULL DEFAULT -1,expert_hash TEXT NOT NULL,PRIMARY KEY(target_issue,position,number))
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS v51_position_action(target_issue TEXT NOT NULL,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,n4 INTEGER NOT NULL,raw_action_p REAL NOT NULL,rank_score REAL NOT NULL,selected_hit_p REAL NOT NULL DEFAULT 0,rank_no INTEGER NOT NULL,hit_label INTEGER NOT NULL DEFAULT -1,fingerprint TEXT NOT NULL,meta_blob TEXT NOT NULL,action_hash TEXT NOT NULL,PRIMARY KEY(target_issue,position))
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS v57_k3_action_space_1200(target_issue TEXT NOT NULL,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,n4 INTEGER NOT NULL,raw_action_p REAL NOT NULL,rank_score REAL NOT NULL,selected_hit_p REAL NOT NULL DEFAULT 0,rank_no INTEGER NOT NULL,hit_label INTEGER NOT NULL DEFAULT -1,fingerprint TEXT NOT NULL,meta_blob TEXT NOT NULL,action_hash TEXT NOT NULL,game_code TEXT NOT NULL DEFAULT 'Binance1-PK10',bundle_hash TEXT NOT NULL DEFAULT '',contract_hash TEXT NOT NULL DEFAULT '',record_hash TEXT NOT NULL DEFAULT '',PRIMARY KEY(target_issue,position,n1,n2,n3))
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE INDEX IF NOT EXISTS idx_v57_action_space_rank ON v57_k3_action_space_1200(game_code,target_issue,rank_no)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS v57_k3_champion_freeze(target_issue TEXT PRIMARY KEY,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,rank_score REAL NOT NULL,action_hash TEXT NOT NULL,ranker_artifact TEXT NOT NULL,artifact_proven INTEGER NOT NULL,frozen INTEGER NOT NULL,game_code TEXT NOT NULL DEFAULT 'Binance1-PK10',bundle_hash TEXT NOT NULL DEFAULT '',record_hash TEXT NOT NULL DEFAULT '')
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS v57_k3_funnel_trace(target_issue TEXT NOT NULL,position INTEGER NOT NULL,trace_blob TEXT NOT NULL,final3 TEXT NOT NULL,matrix_hash TEXT NOT NULL,game_code TEXT NOT NULL DEFAULT 'Binance1-PK10',bundle_hash TEXT NOT NULL DEFAULT '',record_hash TEXT NOT NULL DEFAULT '',PRIMARY KEY(target_issue,position))
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE INDEX IF NOT EXISTS idx_v57_champion_game_issue ON v57_k3_champion_freeze(game_code,target_issue)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE INDEX IF NOT EXISTS idx_v57_funnel_game_issue ON v57_k3_funnel_trace(game_code,target_issue,position)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS v51_permutation_matrix(target_issue TEXT PRIMARY KEY,matrix_blob TEXT NOT NULL,row_error REAL NOT NULL,column_error REAL NOT NULL,iterations INTEGER NOT NULL,converged INTEGER NOT NULL,used_fallback INTEGER NOT NULL,map_blob TEXT NOT NULL,matrix_hash TEXT NOT NULL)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS v51_selected_action(target_issue TEXT PRIMARY KEY,decision_id TEXT NOT NULL UNIQUE,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,selected_hit_p REAL NOT NULL,predictability REAL NOT NULL,lane TEXT NOT NULL,decision_action TEXT NOT NULL,reject_code TEXT NOT NULL,contract_hash TEXT NOT NULL,authorization_hash TEXT NOT NULL,settled INTEGER NOT NULL DEFAULT 0,result TEXT DEFAULT '')
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS v51_decision_authorization(decision_id TEXT PRIMARY KEY,target_issue TEXT NOT NULL,contract_hash TEXT NOT NULL,artifact_bundle_hash TEXT NOT NULL,cohort_id TEXT NOT NULL,probability_owner TEXT NOT NULL,rank_owner TEXT NOT NULL,lane_owner TEXT NOT NULL,authorization_hash TEXT NOT NULL,created_at INTEGER NOT NULL)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS v51_performance_span(_id INTEGER PRIMARY KEY AUTOINCREMENT,target_issue TEXT NOT NULL,trace_id TEXT NOT NULL,span_name TEXT NOT NULL,parent_name TEXT NOT NULL,elapsed_ms INTEGER NOT NULL,exclusive_ms INTEGER NOT NULL,success INTEGER NOT NULL,failure_owner TEXT NOT NULL,created_at INTEGER NOT NULL)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_issue_prediction)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_issue_prediction)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_issue_prediction)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_issue_prediction)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_number_event)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_number_event)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_number_event)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_number_event)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_position_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_position_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_position_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_position_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_permutation_matrix)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_permutation_matrix)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_permutation_matrix)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_permutation_matrix)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_selected_action)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_decision_authorization)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_decision_authorization)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_decision_authorization)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_performance_span)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	ALTER TABLE v51_performance_span ADD COLUMN game_code TEXT NOT NULL DEFAULT 'Binance1-PK10'
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_performance_span)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	ALTER TABLE v51_performance_span ADD COLUMN bundle_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info(v51_performance_span)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	ALTER TABLE v51_performance_span ADD COLUMN record_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE INDEX IF NOT EXISTS idx_v51_number_issue ON v51_number_event(game_code,target_issue)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE INDEX IF NOT EXISTS idx_v51_action_issue_rank ON v51_position_action(game_code,target_issue,rank_no)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE INDEX IF NOT EXISTS idx_v51_selected_lane ON v51_selected_action(game_code,lane,decision_action,settled)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE UNIQUE INDEX IF NOT EXISTS uq_v51_issue_game_target ON v51_issue_prediction(game_code,target_issue)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS b03_schema_meta(meta_key TEXT PRIMARY KEY,meta_value TEXT NOT NULL,updated_at INTEGER NOT NULL)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS b03_transaction_audit(_id INTEGER PRIMARY KEY AUTOINCREMENT,idempotency_key TEXT NOT NULL UNIQUE,operation TEXT NOT NULL,game_code TEXT NOT NULL,target_issue TEXT NOT NULL DEFAULT '',transaction_hash TEXT NOT NULL,status TEXT NOT NULL,error_detail TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL,CHECK(game_code='Binance1-PK10'))
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS b03_migration_journal(migration_id TEXT PRIMARY KEY,source_database TEXT NOT NULL,source_game_code TEXT NOT NULL,policy TEXT NOT NULL,cursor_issue TEXT NOT NULL DEFAULT '',scanned_count INTEGER NOT NULL DEFAULT 0,imported_count INTEGER NOT NULL DEFAULT 0,replay_hash TEXT NOT NULL,status TEXT NOT NULL,updated_at INTEGER NOT NULL)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS b03_draw_quarantine(_id INTEGER PRIMARY KEY AUTOINCREMENT,source_database TEXT NOT NULL,source_game_code TEXT NOT NULL,source_table TEXT NOT NULL,source_issue TEXT NOT NULL,source_numbers TEXT NOT NULL,normalized_numbers TEXT NOT NULL DEFAULT '',draw_time INTEGER NOT NULL DEFAULT 0,quarantine_reason TEXT NOT NULL,review_status TEXT NOT NULL,row_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS b03_prediction_bundle(bundle_id TEXT PRIMARY KEY,game_code TEXT NOT NULL,target_issue TEXT NOT NULL,base_issue TEXT NOT NULL,history_hash TEXT NOT NULL,feature_hash TEXT NOT NULL,state_hash TEXT NOT NULL,expert_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,contract_hash TEXT NOT NULL,artifact_bundle_hash TEXT NOT NULL,cohort_id TEXT NOT NULL,status TEXT NOT NULL,record_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL,UNIQUE(game_code,target_issue),CHECK(game_code='Binance1-PK10'))
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS b03_number_event(_id INTEGER PRIMARY KEY AUTOINCREMENT,bundle_id TEXT NOT NULL,game_code TEXT NOT NULL,target_issue TEXT NOT NULL,position INTEGER NOT NULL,number INTEGER NOT NULL,raw_score REAL NOT NULL,number_p REAL NOT NULL,number_rank INTEGER NOT NULL,state_id TEXT NOT NULL,domain_id TEXT NOT NULL,contract_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,record_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL,UNIQUE(bundle_id,position,number),FOREIGN KEY(bundle_id) REFERENCES b03_prediction_bundle(bundle_id) ON DELETE RESTRICT,CHECK(game_code='Binance1-PK10'),CHECK(position BETWEEN 1 AND 10),CHECK(number BETWEEN 1 AND 10))
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS b03_action_event(_id INTEGER PRIMARY KEY AUTOINCREMENT,bundle_id TEXT NOT NULL,game_code TEXT NOT NULL,target_issue TEXT NOT NULL,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,n4 INTEGER NOT NULL DEFAULT 0,raw_action_p REAL NOT NULL,rank_score REAL NOT NULL,rank_no INTEGER NOT NULL,action_hash TEXT NOT NULL,contract_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,record_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL,UNIQUE(bundle_id,position),FOREIGN KEY(bundle_id) REFERENCES b03_prediction_bundle(bundle_id) ON DELETE RESTRICT,CHECK(game_code='Binance1-PK10'),CHECK(position BETWEEN 1 AND 10))
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS b03_permutation_event(bundle_id TEXT PRIMARY KEY,game_code TEXT NOT NULL,target_issue TEXT NOT NULL,matrix_blob TEXT NOT NULL,row_error REAL NOT NULL,column_error REAL NOT NULL,iterations INTEGER NOT NULL,converged INTEGER NOT NULL,used_fallback INTEGER NOT NULL,map_blob TEXT NOT NULL,matrix_hash TEXT NOT NULL,contract_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,record_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL,FOREIGN KEY(bundle_id) REFERENCES b03_prediction_bundle(bundle_id) ON DELETE RESTRICT,CHECK(game_code='Binance1-PK10'))
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS b03_selected_event(bundle_id TEXT PRIMARY KEY,game_code TEXT NOT NULL,target_issue TEXT NOT NULL,decision_id TEXT NOT NULL UNIQUE,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,selected_hit_p REAL NOT NULL,predictability REAL NOT NULL,lane TEXT NOT NULL,decision_action TEXT NOT NULL,reject_code TEXT NOT NULL,contract_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,authorization_hash TEXT NOT NULL,record_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL,FOREIGN KEY(bundle_id) REFERENCES b03_prediction_bundle(bundle_id) ON DELETE RESTRICT,CHECK(game_code='Binance1-PK10'),CHECK(decision_action IN ('BET','SHADOW','HOLD')))
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS b03_authorization_event(decision_id TEXT PRIMARY KEY,bundle_id TEXT NOT NULL,game_code TEXT NOT NULL,target_issue TEXT NOT NULL,contract_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,artifact_bundle_hash TEXT NOT NULL,cohort_id TEXT NOT NULL,authorization_hash TEXT NOT NULL,record_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL,FOREIGN KEY(bundle_id) REFERENCES b03_prediction_bundle(bundle_id) ON DELETE RESTRICT,CHECK(game_code='Binance1-PK10'))
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS b03_settlement_event(_id INTEGER PRIMARY KEY AUTOINCREMENT,bundle_id TEXT NOT NULL,game_code TEXT NOT NULL,target_issue TEXT NOT NULL,actual_permutation TEXT NOT NULL,result TEXT NOT NULL,settlement_hash TEXT NOT NULL UNIQUE,record_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL,UNIQUE(game_code,target_issue),FOREIGN KEY(bundle_id) REFERENCES b03_prediction_bundle(bundle_id) ON DELETE RESTRICT,CHECK(game_code='Binance1-PK10'))
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS b03_integrity_snapshot(_id INTEGER PRIMARY KEY AUTOINCREMENT,snapshot_hash TEXT NOT NULL UNIQUE,schema_hash TEXT NOT NULL,replay_hash TEXT NOT NULL,valid INTEGER NOT NULL,detail TEXT NOT NULL,created_at INTEGER NOT NULL)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS b03_replay_audit(_id INTEGER PRIMARY KEY AUTOINCREMENT,game_code TEXT NOT NULL,target_issue TEXT NOT NULL,replay_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,contract_hash TEXT NOT NULL,status TEXT NOT NULL,detail TEXT NOT NULL,created_at INTEGER NOT NULL,UNIQUE(game_code,target_issue,replay_hash),CHECK(game_code='Binance1-PK10'))
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT sql FROM sqlite_master WHERE type=? AND name=?
+BOOTSTRAP_V51_ADDITIVE_REPAIR	insert	INSERT OR REPLACE INTO b03_schema_meta("meta_key","meta_value","updated_at") VALUES(?,?,?)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	insert	INSERT OR REPLACE INTO b03_schema_meta("meta_key","meta_value","updated_at") VALUES(?,?,?)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	insert	INSERT OR REPLACE INTO b03_schema_meta("meta_key","meta_value","updated_at") VALUES(?,?,?)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	insert	INSERT OR REPLACE INTO b03_schema_meta("meta_key","meta_value","updated_at") VALUES(?,?,?)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	insert	INSERT OR REPLACE INTO b03_schema_meta("meta_key","meta_value","updated_at") VALUES(?,?,?)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	insert	INSERT OR REPLACE INTO b03_schema_meta("meta_key","meta_value","updated_at") VALUES(?,?,?)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	insert	INSERT OR REPLACE INTO b03_schema_meta("meta_key","meta_value","updated_at") VALUES(?,?,?)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	insert	INSERT OR REPLACE INTO b03_schema_meta("meta_key","meta_value","updated_at") VALUES(?,?,?)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info("v51_issue_prediction")
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info("v51_number_event")
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info("v51_position_action")
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info("v57_k3_action_space_1200")
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info("v57_k3_champion_freeze")
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info("v57_k3_funnel_trace")
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info("v51_permutation_matrix")
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info("v51_selected_action")
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info("v51_decision_authorization")
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info("v51_performance_span")
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info("b03_prediction_bundle")
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info("b03_number_event")
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info("b03_action_event")
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info("b03_permutation_event")
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info("b03_selected_event")
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info("b03_authorization_event")
+BOOTSTRAP_V51_ADDITIVE_REPAIR	rawQuery	PRAGMA table_info("b03_settlement_event")
+ASSERTION_READ	rawQuery	SELECT count(*) FROM b03_settlement_event
+ASSERTION_READ	rawQuery	SELECT bundle_hash FROM b03_prediction_bundle
+BOOTSTRAP_R35_SCHEMA	execSQL	CREATE TABLE IF NOT EXISTS v57_shadow_observation_r35(target_issue TEXT PRIMARY KEY,game_code TEXT NOT NULL,base_issue TEXT NOT NULL,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,selected_hit_p REAL NOT NULL DEFAULT -1,predictability REAL NOT NULL DEFAULT 0,lane TEXT NOT NULL,decision_action TEXT NOT NULL,reject_code TEXT NOT NULL,bundle_hash TEXT NOT NULL,contract_hash TEXT NOT NULL,authorization_hash TEXT NOT NULL,record_hash TEXT NOT NULL UNIQUE,pre_draw_frozen INTEGER NOT NULL DEFAULT 1,model_proven INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL,settled INTEGER NOT NULL DEFAULT 0,actual_number INTEGER NOT NULL DEFAULT 0,hit_label INTEGER NOT NULL DEFAULT -1,settled_at INTEGER NOT NULL DEFAULT 0,settlement_hash TEXT NOT NULL DEFAULT '',error_code TEXT NOT NULL DEFAULT '',CHECK(game_code='Binance1-PK10'),CHECK(position BETWEEN 1 AND 10),CHECK(n1 BETWEEN 1 AND 10),CHECK(n2 BETWEEN 1 AND 10),CHECK(n3 BETWEEN 1 AND 10),CHECK(pre_draw_frozen=1),CHECK(model_proven IN (0,1)),CHECK(settled IN (0,1)))
+BOOTSTRAP_R35_SCHEMA	execSQL	CREATE TABLE IF NOT EXISTS v57_oos_label_r35(target_issue TEXT PRIMARY KEY,game_code TEXT NOT NULL,base_issue TEXT NOT NULL,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,selected_hit_p REAL NOT NULL DEFAULT -1,actual_number INTEGER NOT NULL,hit_label INTEGER NOT NULL,strict_oos INTEGER NOT NULL,pre_draw_frozen INTEGER NOT NULL,prediction_created_at INTEGER NOT NULL,draw_open_time INTEGER NOT NULL DEFAULT 0,settled_at INTEGER NOT NULL,brier REAL NOT NULL DEFAULT -1,provenance_hash TEXT NOT NULL UNIQUE,record_hash TEXT NOT NULL UNIQUE,error_code TEXT NOT NULL DEFAULT '',CHECK(game_code='Binance1-PK10'),CHECK(position BETWEEN 1 AND 10),CHECK(hit_label IN (0,1)),CHECK(strict_oos IN (0,1)),CHECK(pre_draw_frozen=1))
+BOOTSTRAP_R35_SCHEMA	execSQL	CREATE TABLE IF NOT EXISTS v57_runtime_health_r35(_id INTEGER PRIMARY KEY AUTOINCREMENT,event_at INTEGER NOT NULL,stage TEXT NOT NULL,target_issue TEXT NOT NULL DEFAULT '',status TEXT NOT NULL,elapsed_ms INTEGER NOT NULL DEFAULT 0,active_concurrency INTEGER NOT NULL DEFAULT 0,max_concurrency INTEGER NOT NULL DEFAULT 0,oom_count INTEGER NOT NULL DEFAULT 0,detail TEXT NOT NULL DEFAULT '',record_hash TEXT NOT NULL UNIQUE)
+BOOTSTRAP_R35_SCHEMA	execSQL	CREATE TABLE IF NOT EXISTS v57_deferred_evidence_job(target_issue TEXT PRIMARY KEY,job_type TEXT NOT NULL,status TEXT NOT NULL,attempts INTEGER NOT NULL DEFAULT 0,bundle_hash TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,last_error TEXT NOT NULL DEFAULT '',record_hash TEXT NOT NULL UNIQUE)
+BOOTSTRAP_R35_SCHEMA	execSQL	CREATE INDEX IF NOT EXISTS idx_r35_shadow_settled ON v57_shadow_observation_r35(settled,target_issue)
+BOOTSTRAP_R35_SCHEMA	execSQL	CREATE INDEX IF NOT EXISTS idx_r35_shadow_created ON v57_shadow_observation_r35(created_at DESC)
+BOOTSTRAP_R35_SCHEMA	execSQL	CREATE INDEX IF NOT EXISTS idx_r35_oos_settled ON v57_oos_label_r35(strict_oos,settled_at DESC)
+BOOTSTRAP_R35_SCHEMA	execSQL	CREATE INDEX IF NOT EXISTS idx_r35_health_stage ON v57_runtime_health_r35(stage,event_at DESC)
+BOOTSTRAP_R35_SCHEMA	execSQL	CREATE INDEX IF NOT EXISTS idx_r35_deferred_status ON v57_deferred_evidence_job(status,updated_at)
+BOOTSTRAP_R35_SCHEMA	transaction	BEGIN
+BOOTSTRAP_R35_SCHEMA	rawQuery	PRAGMA table_info(v57_shadow_observation_r35)
+BOOTSTRAP_R35_SCHEMA	execSQL	ALTER TABLE v57_shadow_observation_r35 ADD COLUMN canonical_reason_json TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_R35_SCHEMA	rawQuery	PRAGMA table_info(v57_shadow_observation_r35)
+BOOTSTRAP_R35_SCHEMA	execSQL	ALTER TABLE v57_shadow_observation_r35 ADD COLUMN canonical_reason_hash TEXT NOT NULL DEFAULT ''
+BOOTSTRAP_R35_SCHEMA	execSQL	CREATE TRIGGER IF NOT EXISTS cp12_canonical_reason_immutable BEFORE UPDATE OF canonical_reason_json,canonical_reason_hash ON v57_shadow_observation_r35 BEGIN SELECT RAISE(ABORT,'CANONICAL_REASON_IMMUTABLE'); END
+BOOTSTRAP_R35_SCHEMA	transaction	COMMIT
+BOOTSTRAP_R35_SCHEMA	execSQL	ALTER TABLE v57_deferred_evidence_job ADD COLUMN snapshot_blob BLOB
+BOOTSTRAP_R35_SCHEMA	execSQL	ALTER TABLE v57_deferred_evidence_job ADD COLUMN snapshot_hash TEXT
+BOOTSTRAP_R35_SCHEMA	execSQL	ALTER TABLE v57_deferred_evidence_job ADD COLUMN lease_owner TEXT
+BOOTSTRAP_R35_SCHEMA	execSQL	INSERT INTO v57_deferred_evidence_job(target_issue,job_type,status,attempts,bundle_hash,created_at,updated_at,record_hash,snapshot_blob,snapshot_hash,lease_owner) VALUES('202611040004','V51_FULL_EVIDENCE','PENDING',2,'HOST_JOB_BUNDLE',1,1,'HOST_JOB',X'01020304','HOST_SNAPSHOT_HASH','HOST_R36_OWNER')
+BUSINESS_R35_JOB_RETRY	transaction	BEGIN
+BUSINESS_R35_JOB_RETRY	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?)
+BUSINESS_R35_JOB_RETRY	rawQuery	PRAGMA table_info("v57_deferred_evidence_job")
+BUSINESS_R35_JOB_RETRY	rawQuery	SELECT attempts,created_at,bundle_hash,job_type FROM v57_deferred_evidence_job WHERE target_issue=?
+BUSINESS_R35_JOB_RETRY	update	UPDATE v57_deferred_evidence_job SET "status"=?,"attempts"=?,"updated_at"=?,"last_error"=? WHERE target_issue=? AND bundle_hash=?
+BUSINESS_R35_JOB_RETRY	transaction	COMMIT
+ASSERTION_READ	rawQuery	SELECT status FROM v57_deferred_evidence_job
+ASSERTION_READ	rawQuery	SELECT hex(snapshot_blob)||'|'||snapshot_hash||'|'||lease_owner FROM v57_deferred_evidence_job
+ASSERTION_READ	rawQuery	SELECT attempts FROM v57_deferred_evidence_job
+BUSINESS_R35_JOB_RETRY	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?)
+BUSINESS_R35_JOB_RETRY	rawQuery	PRAGMA table_info("v57_deferred_evidence_job")
+BUSINESS_R35_JOB_RETRY	rawQuery	SELECT COUNT(1) FROM v57_deferred_evidence_job WHERE status<>'COMPLETED'
+ASSERTION_READ	rawQuery	SELECT record_hash||'|'||job_type FROM v57_deferred_evidence_job
+BUSINESS_R35_JOB_STALE_BUNDLE	transaction	BEGIN
+BUSINESS_R35_JOB_STALE_BUNDLE	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?)
+BUSINESS_R35_JOB_STALE_BUNDLE	rawQuery	PRAGMA table_info("v57_deferred_evidence_job")
+BUSINESS_R35_JOB_STALE_BUNDLE	rawQuery	SELECT attempts,created_at,bundle_hash,job_type FROM v57_deferred_evidence_job WHERE target_issue=?
+BUSINESS_R35_JOB_STALE_BUNDLE	transaction	ROLLBACK
+ASSERTION_READ	rawQuery	SELECT status FROM v57_deferred_evidence_job
+BOOTSTRAP_R35_INDEX_DRIFT	execSQL	DROP INDEX idx_r35_deferred_status
+BUSINESS_R35_JOB_SCHEMA_MISSING	transaction	BEGIN
+BUSINESS_R35_JOB_SCHEMA_MISSING	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?)
+BUSINESS_R35_JOB_SCHEMA_MISSING	transaction	ROLLBACK
+ASSERTION_READ	rawQuery	SELECT count(*) FROM sqlite_master WHERE name='idx_r35_deferred_status'
+ASSERTION_READ	rawQuery	SELECT status FROM v57_deferred_evidence_job
+BUSINESS_R35_JOB_SCHEMA_MISSING	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?)
+BOOTSTRAP_R35_INDEX_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS v57_shadow_observation_r35(target_issue TEXT PRIMARY KEY,game_code TEXT NOT NULL,base_issue TEXT NOT NULL,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,selected_hit_p REAL NOT NULL DEFAULT -1,predictability REAL NOT NULL DEFAULT 0,lane TEXT NOT NULL,decision_action TEXT NOT NULL,reject_code TEXT NOT NULL,bundle_hash TEXT NOT NULL,contract_hash TEXT NOT NULL,authorization_hash TEXT NOT NULL,record_hash TEXT NOT NULL UNIQUE,pre_draw_frozen INTEGER NOT NULL DEFAULT 1,model_proven INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL,settled INTEGER NOT NULL DEFAULT 0,actual_number INTEGER NOT NULL DEFAULT 0,hit_label INTEGER NOT NULL DEFAULT -1,settled_at INTEGER NOT NULL DEFAULT 0,settlement_hash TEXT NOT NULL DEFAULT '',error_code TEXT NOT NULL DEFAULT '',CHECK(game_code='Binance1-PK10'),CHECK(position BETWEEN 1 AND 10),CHECK(n1 BETWEEN 1 AND 10),CHECK(n2 BETWEEN 1 AND 10),CHECK(n3 BETWEEN 1 AND 10),CHECK(pre_draw_frozen=1),CHECK(model_proven IN (0,1)),CHECK(settled IN (0,1)))
+BOOTSTRAP_R35_INDEX_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS v57_oos_label_r35(target_issue TEXT PRIMARY KEY,game_code TEXT NOT NULL,base_issue TEXT NOT NULL,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,selected_hit_p REAL NOT NULL DEFAULT -1,actual_number INTEGER NOT NULL,hit_label INTEGER NOT NULL,strict_oos INTEGER NOT NULL,pre_draw_frozen INTEGER NOT NULL,prediction_created_at INTEGER NOT NULL,draw_open_time INTEGER NOT NULL DEFAULT 0,settled_at INTEGER NOT NULL,brier REAL NOT NULL DEFAULT -1,provenance_hash TEXT NOT NULL UNIQUE,record_hash TEXT NOT NULL UNIQUE,error_code TEXT NOT NULL DEFAULT '',CHECK(game_code='Binance1-PK10'),CHECK(position BETWEEN 1 AND 10),CHECK(hit_label IN (0,1)),CHECK(strict_oos IN (0,1)),CHECK(pre_draw_frozen=1))
+BOOTSTRAP_R35_INDEX_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS v57_runtime_health_r35(_id INTEGER PRIMARY KEY AUTOINCREMENT,event_at INTEGER NOT NULL,stage TEXT NOT NULL,target_issue TEXT NOT NULL DEFAULT '',status TEXT NOT NULL,elapsed_ms INTEGER NOT NULL DEFAULT 0,active_concurrency INTEGER NOT NULL DEFAULT 0,max_concurrency INTEGER NOT NULL DEFAULT 0,oom_count INTEGER NOT NULL DEFAULT 0,detail TEXT NOT NULL DEFAULT '',record_hash TEXT NOT NULL UNIQUE)
+BOOTSTRAP_R35_INDEX_REPAIR	execSQL	CREATE TABLE IF NOT EXISTS v57_deferred_evidence_job(target_issue TEXT PRIMARY KEY,job_type TEXT NOT NULL,status TEXT NOT NULL,attempts INTEGER NOT NULL DEFAULT 0,bundle_hash TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,last_error TEXT NOT NULL DEFAULT '',record_hash TEXT NOT NULL UNIQUE)
+BOOTSTRAP_R35_INDEX_REPAIR	execSQL	CREATE INDEX IF NOT EXISTS idx_r35_shadow_settled ON v57_shadow_observation_r35(settled,target_issue)
+BOOTSTRAP_R35_INDEX_REPAIR	execSQL	CREATE INDEX IF NOT EXISTS idx_r35_shadow_created ON v57_shadow_observation_r35(created_at DESC)
+BOOTSTRAP_R35_INDEX_REPAIR	execSQL	CREATE INDEX IF NOT EXISTS idx_r35_oos_settled ON v57_oos_label_r35(strict_oos,settled_at DESC)
+BOOTSTRAP_R35_INDEX_REPAIR	execSQL	CREATE INDEX IF NOT EXISTS idx_r35_health_stage ON v57_runtime_health_r35(stage,event_at DESC)
+BOOTSTRAP_R35_INDEX_REPAIR	execSQL	CREATE INDEX IF NOT EXISTS idx_r35_deferred_status ON v57_deferred_evidence_job(status,updated_at)
+BOOTSTRAP_R35_INDEX_REPAIR	transaction	BEGIN
+BOOTSTRAP_R35_INDEX_REPAIR	rawQuery	PRAGMA table_info(v57_shadow_observation_r35)
+BOOTSTRAP_R35_INDEX_REPAIR	rawQuery	PRAGMA table_info(v57_shadow_observation_r35)
+BOOTSTRAP_R35_INDEX_REPAIR	execSQL	CREATE TRIGGER IF NOT EXISTS cp12_canonical_reason_immutable BEFORE UPDATE OF canonical_reason_json,canonical_reason_hash ON v57_shadow_observation_r35 BEGIN SELECT RAISE(ABORT,'CANONICAL_REASON_IMMUTABLE'); END
+BOOTSTRAP_R35_INDEX_REPAIR	transaction	COMMIT
+BOOTSTRAP_R35_INDEX_REPAIR	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?)
+BOOTSTRAP_R35_INDEX_REPAIR	rawQuery	PRAGMA table_info("v57_deferred_evidence_job")
+BOOTSTRAP_R35_INDEX_REPAIR	rawQuery	SELECT COUNT(1) FROM v57_deferred_evidence_job WHERE status<>'COMPLETED'
+BUSINESS_R35_HEALTH_RECORD_AND_SNAPSHOT	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?)
+BUSINESS_R35_HEALTH_RECORD_AND_SNAPSHOT	rawQuery	PRAGMA table_info("v57_runtime_health_r35")
+BUSINESS_R35_HEALTH_RECORD_AND_SNAPSHOT	insert	INSERT OR IGNORE INTO v57_runtime_health_r35("event_at","stage","target_issue","status","elapsed_ms","active_concurrency","max_concurrency","oom_count","detail","record_hash") VALUES(?,?,?,?,?,?,?,?,?,?)
+BUSINESS_R35_HEALTH_RECORD_AND_SNAPSHOT	execSQL	DELETE FROM v57_runtime_health_r35 WHERE _id NOT IN (SELECT _id FROM v57_runtime_health_r35 ORDER BY event_at DESC,_id DESC LIMIT 2000)
+BUSINESS_R35_HEALTH_RECORD_AND_SNAPSHOT	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?)
+BUSINESS_R35_HEALTH_RECORD_AND_SNAPSHOT	rawQuery	PRAGMA table_info("v57_runtime_health_r35")
+BUSINESS_R35_HEALTH_RECORD_AND_SNAPSHOT	rawQuery	SELECT COUNT(1) FROM v57_runtime_health_r35
+BUSINESS_R35_HEALTH_RECORD_AND_SNAPSHOT	rawQuery	SELECT COALESCE(SUM(oom_count),0) FROM v57_runtime_health_r35
+BUSINESS_R35_HEALTH_RECORD_AND_SNAPSHOT	rawQuery	SELECT COALESCE(MAX(max_concurrency),0) FROM v57_runtime_health_r35
+BUSINESS_R35_HEALTH_RECORD_AND_SNAPSHOT	rawQuery	SELECT COUNT(1) FROM v57_runtime_health_r35 WHERE stage='ANALYSIS' AND status='SUCCESS'
+BUSINESS_R35_HEALTH_RECORD_AND_SNAPSHOT	rawQuery	SELECT status,target_issue FROM v57_runtime_health_r35 ORDER BY event_at DESC,_id DESC LIMIT 1
+BOOTSTRAP_R35_HEALTH_MISSING	execSQL	DROP INDEX idx_r35_health_stage
+BUSINESS_R35_HEALTH_SCHEMA_MISSING	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?)
+ASSERTION_READ	rawQuery	SELECT count(*) FROM sqlite_master WHERE name='idx_r35_health_stage'
+BOOTSTRAP_R36_PROTOCOL_FIXTURE	execSQL	INSERT INTO v57_deferred_evidence_job(target_issue,job_type,status,attempts,bundle_hash,created_at,updated_at,record_hash,snapshot_blob,snapshot_hash,lease_owner) VALUES('202611040005','V51_FULL_EVIDENCE_R36','PENDING',0,'HOST_R36_BUNDLE',1,1,'HOST_R36_RECORD',X'05060708','HOST_R36_HASH','HOST_R36_OWNER')
+BUSINESS_R35_REJECT_R36_PROTOCOL_OWNER	transaction	BEGIN
+BUSINESS_R35_REJECT_R36_PROTOCOL_OWNER	rawQuery	SELECT name,type FROM sqlite_master WHERE name IN (?,?)
+BUSINESS_R35_REJECT_R36_PROTOCOL_OWNER	rawQuery	PRAGMA table_info("v57_deferred_evidence_job")
+BUSINESS_R35_REJECT_R36_PROTOCOL_OWNER	rawQuery	SELECT attempts,created_at,bundle_hash,job_type FROM v57_deferred_evidence_job WHERE target_issue=?
+BUSINESS_R35_REJECT_R36_PROTOCOL_OWNER	transaction	ROLLBACK
+ASSERTION_READ	rawQuery	SELECT status||'|'||record_hash||'|'||job_type||'|'||hex(snapshot_blob) FROM v57_deferred_evidence_job WHERE target_issue='202611040005'
