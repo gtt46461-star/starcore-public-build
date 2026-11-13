@@ -12,10 +12,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: 0164241c32c29430749f8da0e9a03d22ae20347a
+        ref: 57d009075a8dfec43ace99e5ed6a04f3f57ae0ba
         fetch-depth: 0
     - name: Require exact source and release identity
-      run: 'test "$(git rev-parse HEAD)" = "0164241c32c29430749f8da0e9a03d22ae20347a"
+      run: 'test "$(git rev-parse HEAD)" = "57d009075a8dfec43ace99e5ed6a04f3f57ae0ba"
 
         python3 - <<''PY''
 
@@ -80,7 +80,7 @@ jobs:
 
         remote=$(git ls-remote origin refs/heads/construction/r31-final-20261104 | cut -f1)
 
-        test "$remote" = "0164241c32c29430749f8da0e9a03d22ae20347a" || { echo "SOURCE_ADVANCED_REVIEW_REQUIRED"; exit 1; }
+        test "$remote" = "57d009075a8dfec43ace99e5ed6a04f3f57ae0ba" || { echo "SOURCE_ADVANCED_REVIEW_REQUIRED"; exit 1; }
 
         git add release/r982_source_calls.tsv.gz release/r982_source_calls.manifest.json
 
