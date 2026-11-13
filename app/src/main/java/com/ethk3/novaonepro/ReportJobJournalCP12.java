@@ -79,6 +79,7 @@ public final class ReportJobJournalCP12 implements Closeable {
             o.put("evidenceComplete",evidenceComplete);o.put("checksComplete",checksComplete);o.put("allChecksPassed",allChecksPassed);o.put("acknowledgedRevision",acknowledgedRevision);o.put("semanticVerificationR31",semanticVerificationR31);return o;
         }
         public static Job parse(String json)throws Exception {
+          try {
             JSONObject o=new JSONObject(json);if(!"REPORT_JOB_CP12_1".equals(o.getString("revision_name")))throw new IOException("REPORT_JOB_REVISION");
             Job j=new Job(o.getString("jobId"),o.getString("requestId"),o.getString("releaseHash"),o.getString("mode"),o.getLong("createdWallMs"));
             j.stage=o.getString("stage");j.resumeStage=o.getString("resumeStage");Stage.valueOf(j.stage);Stage.valueOf(j.resumeStage);
@@ -93,6 +94,11 @@ public final class ReportJobJournalCP12 implements Closeable {
             if(!java.util.Arrays.asList("LEGACY_NO_SEMANTIC_RECEIPT","REQUIRES_ZIP_READBACK","ZIP_READBACK_VERIFIED").contains(j.semanticVerificationR31))throw new IOException("REPORT_JOB_SEMANTIC_STATE");
             if(j.revision<0||j.attempt<0||j.compressionAttempt<0||j.preemptions<0||j.failureAttempts<0||j.snapshotBytes<0||j.temporaryReservationBytes<0||j.publishedQuotaBytes<0)throw new IOException("REPORT_JOB_RANGE");
             return j;
+          } catch(IllegalArgumentException malformed) {
+            // Journal identities and enum names are persisted input. A damaged
+            // unrelated entry must not hide another valid immutable report.
+            throw new IOException("REPORT_JOB_FORMAT",malformed);
+          }
         }
     }
     private final File root;private final RandomAccessFile lock;private final FileLock lease;private boolean closed;

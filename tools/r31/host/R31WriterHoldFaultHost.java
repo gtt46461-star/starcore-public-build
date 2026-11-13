@@ -71,13 +71,29 @@ public final class R31WriterHoldFaultHost {
         need(scalar("SELECT n FROM injected_counter")==1&&calls.get()==1,"no duplicate final business effect");
     }
     static void schema()throws Exception {
-        AtomicInteger calls=new AtomicInteger();slow("schema-slow",calls);
+        AtomicInteger calls=new AtomicInteger();
+        for(int n=0;n<WriterHoldFaultsR31.RESEARCH_BACKPRESSURE_AT;n++)slow("schema-slow-"+n,calls);
+        need(WriterHoldFaultsR31.deferResearch(),"real slow writes reach the unchanged evidence high water");
         coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"INJECTED_REMOVE_DIAGNOSTIC_SCHEMA"),tx->{tx.execSQL("DROP TABLE r31_runtime_fault");return 0;});
-        long pending=observation("pending");need(!WriterHoldFaultsR31.drainOne(store),"missing schema does not synthesize a receipt or execute DDL");
-        need(observation("pending")==pending&&calls.get()==1,"missing-source event remains queued");
-        coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R31_OBSERVATION_SCHEMA_REPAIR"),tx->{SchemaDomainCoordinatorR926.migrateR31Observations(tx);return 0;});
-        drainAll();need(scalar("SELECT count(*) FROM r31_runtime_fault WHERE operation='INJECTED_SLOW_COUNTER'")==1,"real migration restores independent delivery");
-        need(scalar("SELECT n FROM injected_counter")==1,"schema repair did not retrain counter fixture");
+        long pending=observation("pending"),failures=observation("drainFailures");
+        for(int n=0;n<3;n++)need(!WriterHoldFaultsR31.drainOne(store),"missing schema does not synthesize a receipt or execute DDL");
+        need(observation("pending")==pending&&observation("drainFailures")==failures+3,"failed drains retain each actual event and record the real failures");
+        need(WriterHoldFaultsR31.deferResearch(),"failed drains cannot falsely reopen research admission");
+        AtomicInteger resumed=new AtomicInteger();
+        try{coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RESEARCH_DATA,"INJECTED_MISSING_SCHEMA_RESEARCH"),tx->{resumed.incrementAndGet();return 1;});throw new AssertionError("RESEARCH_RAN_BEFORE_METADATA_AND_DRAIN");}
+        catch(DatabaseCoordinator.WriteRejectedR31 expected){need("DEPENDENCY".equals(expected.category),"missing-receipt debt retains the original recoverable rejection");}
+        need(resumed.get()==0,"rejected research body never ran");
+        coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R31_OBSERVATION_SCHEMA_REPAIR"),tx->{
+            SchemaDomainCoordinatorR926.migrateR31Observations(tx);
+            SchemaDomainCoordinatorR926.migrateR31WriteProtocol(tx);
+            return 0;
+        });
+        need(observation("pending")>=pending&&WriterHoldFaultsR31.deferResearch(),"metadata installation alone does not discard observations or clear backpressure");
+        drainAll();need(scalar("SELECT count(*) FROM r31_runtime_fault WHERE operation='INJECTED_SLOW_COUNTER'")==calls.get(),"existing migration owner plus actual durable drain persists every slow observation");
+        need(scalar("SELECT n FROM injected_counter")==calls.get(),"schema repair did not repeat any original counter body");
+        coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RESEARCH_DATA,"INJECTED_AFTER_METADATA_DRAIN"),tx->{resumed.incrementAndGet();return 1;});
+        need(resumed.get()==1&&!WriterHoldFaultsR31.deferResearch(),"the next real research body resumes only after evidence is durable");
+        drainAll();need(observation("pending")==0&&observation("declaredQueueBytes")==0,"all real pending observations and leases are normally settled, never reset");
     }
     static void backpressure()throws Exception {
         AtomicInteger calls=new AtomicInteger();

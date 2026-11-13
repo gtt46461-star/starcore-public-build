@@ -1,0 +1,29 @@
+{
+  "scope": "LOCAL_JOURNAL_REPAIR_ONLY_NOT_APK_OR_ANDROID_ACCEPTANCE",
+  "base": "53cb8fb08da647932e0da04e4817bc05fe46a0f8",
+  "journalRecovery": {
+    "before": {
+      "exitCode": 1,
+      "journalSha256": "8ef24eb2c65617414aa1219432be5da475a2610e0f98ed83d5f3cc4c7d4069e7"
+    },
+    "after": {
+      "exitCode": 0,
+      "journalSha256": "a6166504a90507c44b92b6b8132a18b2507d7c361751a2defe99c5bdf9e1a194"
+    },
+    "scope": "CURRENT_JOURNAL_AND_CURRENT_DIRECTORY_SOURCE_REAL_JSON_AND_FILES; ARCHIVED_DEPENDENCY_CLASSPATH_ONLY_FOR_UNEXERCISED_APIS; NOT_ANDROID_OR_FULL_SERVICE_NATIVE_SUITE"
+  },
+  "remainingExecution": [
+    "full current Gradle unit/lint",
+    "new writer backlog native regression",
+    "Android restore/order isolation",
+    "same-release-APK actual report and live service"
+  ],
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java": "a6166504a90507c44b92b6b8132a18b2507d7c361751a2defe99c5bdf9e1a194",
+    "tools/r31/storage_host/R31ReportJournalRecoveryHostTest.java": "edefce6af39cf2fa2fc871bf85a7ed38655dcc142993543747d2c8f00e3a5d2e"
+  },
+  "device": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "mergedCurrentSource": "709a1d1d568340a97bda34ba17348b5a9d6e972b",
+  "reviewNote": "Preserve concurrent current platform-alias and module redline review; its current full execution remains pending. This receipt claims only the reproduced journal input recovery."
+}

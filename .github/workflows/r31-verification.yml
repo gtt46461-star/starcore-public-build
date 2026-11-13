@@ -239,6 +239,44 @@ jobs:
         with:
           name: r31v-emu-${{ matrix.api }}
           path: r31v/
+  priority_report_runtime:
+    # User-prioritized real report and live-chain evidence, independent of the
+    # longer original fault/upgrade matrices. It never substitutes their results.
+    needs: android_build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31v-android-build
+          path: built
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: bash tools/r31/run_r31q_android_delivery.sh built r31v/priority-report-runtime
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31v-priority-report-runtime
+          path: r31v/
   artifact_receipt:
     needs: [baseline, contracts, android_build, instrumentation]
     if: always()

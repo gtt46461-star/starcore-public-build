@@ -51,7 +51,7 @@ storage_paths=();for name in "${storage_sources[@]}";do storage_paths+=("app/src
 # Dependencies use the prior canonical product classes. This subset compile is not a whole Android build.
 javac -encoding UTF-8 -proc:none -cp "$storage_sdk/platforms/android-36/android.jar:$product_classes:$storage_annotation" -sourcepath "$storage_out/no-implicit-source" -d "$storage_out/product" "${storage_paths[@]}" app/src/main/java/com/ethk3/novaonepro/strategyv2/{MemoryBudgetR31,FailureDispositionR31}.java > "$storage_out/product-javac.log" 2>&1
 storage_cp="$storage_out/runtime:$storage_out/product:$product_classes:$storage_sdk/platforms/android-36/android.jar:$storage_junit:$storage_hamcrest"
-javac -encoding UTF-8 -proc:none -cp "$storage_cp" -d "$storage_out/drivers" app/src/test/java/com/ethk3/novaonepro/R31StorageGovernanceTest.java app/src/test/java/com/ethk3/novaonepro/RepairStorageCensusR30Test.java tools/r31/storage_host/R31StorageProtocolHostTest.java tools/r31/storage_host/R31ReportStorageHostTest.java tools/r31/storage_host/R31ReportSinkHostTest.java tools/r31/storage_host/R31UnifiedReportHostTest.java tools/r31/storage_host/R31LegacyReportHostEntry.java tools/r30/qual_host/ReportDeliveryR30HostTest.java > "$storage_out/driver-javac.log" 2>&1
+javac -encoding UTF-8 -proc:none -cp "$storage_cp" -d "$storage_out/drivers" app/src/test/java/com/ethk3/novaonepro/R31StorageGovernanceTest.java app/src/test/java/com/ethk3/novaonepro/RepairStorageCensusR30Test.java tools/r31/storage_host/R31StorageProtocolHostTest.java tools/r31/storage_host/R31ReportStorageHostTest.java tools/r31/storage_host/R31ReportSinkHostTest.java tools/r31/storage_host/R31UnifiedReportHostTest.java tools/r31/storage_host/R31ReportJournalRecoveryHostTest.java tools/r31/storage_host/R31LegacyReportHostEntry.java tools/r30/qual_host/ReportDeliveryR30HostTest.java > "$storage_out/driver-javac.log" 2>&1
 java -Xmx128m -cp "$storage_out/drivers:$storage_cp" org.junit.runner.JUnitCore com.ethk3.novaonepro.R31StorageGovernanceTest com.ethk3.novaonepro.RepairStorageCensusR30Test > "$storage_out/junit.log" 2>&1
 java -Xmx128m -cp "$storage_out/drivers:$storage_cp" com.ethk3.novaonepro.R31StorageProtocolHostTest "$storage_out/fixtures/cross-pid" > "$storage_out/cross-pid.log" 2>&1
 python3 - "$storage_out" <<'PY'
@@ -73,6 +73,7 @@ java -Xmx128m -Djava.library.path="$storage_native" -cp "$storage_out/drivers:$s
 java -Xmx128m -Djava.library.path="$storage_native" -cp "$storage_out/drivers:$storage_cp" com.ethk3.novaonepro.R31LegacyReportHostEntry "$storage_out/fixtures/r30-regression" > "$storage_out/r30-regression.log" 2>&1
 java -Xmx128m -cp "$storage_out/drivers:$storage_cp" com.ethk3.novaonepro.R31ReportSinkHostTest "$storage_out/fixtures/sink-owner" > "$storage_out/report-sinks.log" 2>&1
 java -Xmx256m -Djava.library.path="$storage_native" -cp "$storage_out/drivers:$storage_cp" com.ethk3.novaonepro.R31UnifiedReportHostTest "$storage_out/fixtures/unified-owner" > "$storage_out/unified-report.log" 2>&1
+java -Xmx128m -cp "$storage_out/drivers:$storage_cp" com.ethk3.novaonepro.R31ReportJournalRecoveryHostTest "$storage_out/fixtures/journal-recovery" > "$storage_out/journal-recovery.log" 2>&1
 python3 - "$storage_out" "$product_classes" <<'PY'
 import sys,json,hashlib,subprocess,sqlite3,platform,re,os
 from pathlib import Path

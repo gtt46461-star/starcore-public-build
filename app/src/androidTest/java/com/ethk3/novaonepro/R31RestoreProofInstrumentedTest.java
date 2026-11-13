@@ -28,7 +28,7 @@ public final class R31RestoreProofInstrumentedTest {
     }
     private static void ready(DbStore store)throws Exception {
         long end=SystemClock.elapsedRealtime()+240000;
-        do{store.requestLegacySchemaMigrationR31();if(store.coordinatorR36().isLegacyRuntimeSchemaReady())return;Thread.sleep(100);}while(SystemClock.elapsedRealtime()<end);
+        do{store.requestLegacySchemaMigrationR31();WriterHoldFaultsR31.drainOne(store);if(store.coordinatorR36().isLegacyRuntimeSchemaReady())return;Thread.sleep(100);}while(SystemClock.elapsedRealtime()<end);
         fail("RESTORE_DISPOSABLE_LEGACY_SCHEMA_NOT_READY");
     }
     private static void await(Context app,String wanted)throws Exception {
@@ -46,22 +46,37 @@ public final class R31RestoreProofInstrumentedTest {
             assertEquals("FAILED_OR_RECOVERY_REQUIRED",app.getSharedPreferences("r82_storage_maintenance",0).getString("phase",""));return;
         }Thread.sleep(100);}while(SystemClock.elapsedRealtime()<end);fail("RESTORE_DISPOSABLE_REFUSAL_NOT_OBSERVED");
     }
-    private static void drainSetupWriterEvidence(DbStore store)throws Exception {
+    private static void prepareSetupWriterEvidence(DbStore store)throws Exception {
         // This offline fixture deliberately never starts Runtime/Health. Slow
         // emulator migration can fill the real writer-observation queue. Use
-        // Health's actual durable consumer before the research-class setup
-        // write; never clear the queue or bypass its admission gate.
+        // their existing migration owner to establish the independent receipt
+        // domains before calling Health's actual durable consumer. Legacy
+        // readiness alone does not install the research observation/write
+        // tables. Missing those tables correctly retains every pending event;
+        // repeated drain attempts cannot repair them or release admission.
+        store.coordinatorR36().runAtomicWriteOrThrowF01(
+                DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R31_RESTORE_DISPOSABLE_RECEIPT_SCHEMA"),db->{
+                    SchemaDomainCoordinatorR926.migrateR31Observations(db);
+                    SchemaDomainCoordinatorR926.migrateR31WriteProtocol(db);
+                    return 0;
+                });
+    }
+    private static void drainSetupWriterEvidence(DbStore store)throws Exception {
+        // Settle every real setup observation, not merely enough to drop below
+        // the high-water mark and leave debt for the next instrumentation group.
         long end=SystemClock.elapsedRealtime()+120000;
-        while(WriterHoldFaultsR31.deferResearch()&&SystemClock.elapsedRealtime()<end){
+        while(((Number)WriterHoldFaultsR31.snapshot().get("pending")).longValue()>0&&SystemClock.elapsedRealtime()<end){
             WriterHoldFaultsR31.drainOne(store);Thread.sleep(20);
         }
-        assertFalse("SETUP_WRITER_EVIDENCE_NOT_DURABLY_DRAINED: "+WriterHoldFaultsR31.snapshot(),WriterHoldFaultsR31.deferResearch());
+        assertEquals("SETUP_WRITER_EVIDENCE_NOT_DURABLY_DRAINED: "+WriterHoldFaultsR31.snapshot(),0L,((Number)WriterHoldFaultsR31.snapshot().get("pending")).longValue());
+        assertEquals("SETUP_WRITER_EVIDENCE_LEASES_NOT_RELEASED",0L,((Number)WriterHoldFaultsR31.snapshot().get("declaredQueueBytes")).longValue());
     }
     @Test public void independentRestoreBindsActualPidCloneAndCurrentBytesBeforeSeparateCleanup()throws Exception {
-        Context app=app();DbStore store=new DbStore(app);ready(store);new ServiceHeartbeatStore(app).setUserEnabled(false);
-        // Offline restore starts no Runtime/Health worker. Install the exact
-        // original metadata owners in their production dependency order so
-        // Health's real durable drain can consume slow-setup writer evidence.
+        Context app=app();DbStore store=new DbStore(app);
+        try {
+        prepareSetupWriterEvidence(store);ready(store);new ServiceHeartbeatStore(app).setUserEnabled(false);
+        // Retain the current source's full original startup dependency order as
+        // well as the early independent receipt domains used during migration.
         store.coordinatorR36().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R31_RESTORE_DISPOSABLE_FIXTURE"),sql->{RuntimeSchemaR26.ensure(sql);SchemaR27.ensure(sql);return 0;});
         assertFalse("LIVE_RUNTIME_MUST_ALREADY_BE_STOPPED",AutoFetchService.isLifecycleActiveR82());
         File db=app.getDatabasePath(AppConfig.DB_NAME),backup=new File(db.getPath()+".r82-original-backup"),receiptFile=new File(db.getPath()+".r82-backup-receipt");
@@ -93,5 +108,8 @@ public final class R31RestoreProofInstrumentedTest {
         StorageMaintenanceServiceR82.request(app,false);await(app,"RESTORE_VERIFIED_BACKUP_RETAINED");Properties second=StorageMaintenanceFileR82.read(receiptFile);assertNotEquals(first.getProperty("restore_nonce"),second.getProperty("restore_nonce"));assertNotEquals(first.getProperty("restore_active_sha256"),second.getProperty("restore_active_sha256"));assertTrue(backup.exists());
         StorageMaintenanceServiceR82.request(app,true);await(app,"BACKUP_EXPLICITLY_REMOVED");assertFalse(backup.exists());assertFalse(receiptFile.exists());assertFalse(new ServiceHeartbeatStore(app).isUserEnabled());
         System.out.println("R31_RESTORE_ANDROID|REAL_DISTINCT_PID_BINDER_PRIVATE_CLONE|ORIGINAL_MODEL_LOAD_AND_PENDING_RECOVERY|SOURCE_UNCHANGED_BY_PROBE|CHANGED_BYTES_REFUSE|FRESH_RESTORE_THEN_SEPARATE_EXPLICIT_CLEANUP|PASS|SYNTHETIC_DISPOSABLE_NOT_NATURAL_QUALITY");
+        } finally {
+            try{drainSetupWriterEvidence(store);}finally{store.close();}
+        }
     }
 }
