@@ -70,7 +70,16 @@ def package(request_path, built, reports, out, tools):
     for path in [ui_path, semantics_path, one(reports, 'REPORT_ONLY_RESULT.json')]:
         shutil.copyfile(path, out / path.name)
     archive = out / 'SOURCE_AND_ASSETS.zip'
-    subprocess.run(['git', 'archive', '--format=zip', '--output=' + str(archive.resolve()), source], check=True)
+    source_paths = ['app/src', 'app/build.gradle', 'app/proguard-rules.pro', 'build.gradle',
+                    'settings.gradle', 'gradle.properties', 'gradle', 'gradlew', 'gradlew.bat',
+                    'scripts', 'tools/r31', 'tools/r312', 'tools/r30-repair', 'schema', 'release',
+                    'CURRENT_FINAL_PLAN.md', 'construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112']
+    subprocess.run(['git', 'archive', '--format=zip', '--output=' + str(archive.resolve()), source, *source_paths], check=True)
+    (out / 'SOURCE_REFERENCE.json').write_text(json.dumps({
+        'sourceCommit': source, 'repository': 'https://github.com/gtt46461-star/starcore-public-build/tree/' + source,
+        'archiveScope': 'CURRENT_APPLICATION_ASSETS_AND_REPAIR_TOOLS; FULL_SEALED_PLANS_AND_HISTORICAL_AUDITS_AT_EXACT_REPOSITORY_SHA',
+        'includedPaths': source_paths,
+    }, indent=2) + '\n')
     receipt = {
         'format': 'R31_REPORT_ONLY_DELIVERY_1', 'sourceCommit': source,
         'buildAndReportRunId': int(request['runId']), 'apk': dict(facts, deliveredAs=delivered.name),
@@ -92,6 +101,7 @@ def package(request_path, built, reports, out, tools):
         assert z.testzip() is None, 'DELIVERY_ZIP_CRC'
         for path in members:
             assert hashlib.sha256(z.read(path.name)).hexdigest() == digest(path), 'DELIVERY_MEMBER_HASH'
+    assert bundle.stat().st_size < 95 * 1024 * 1024, 'DIRECT_REPOSITORY_DELIVERY_SIZE_LIMIT'
     (out / 'PACKAGE_SHA256.txt').write_text(digest(bundle) + '  ' + bundle.name + '\n')
     print(json.dumps({'sourceCommit': source, 'apkSha256': digest(delivered), 'zipSha256': digest(bundle), 'exportSha256': ui['zipSha256'], 'exportBytes': ui['zipBytes']}))
 
