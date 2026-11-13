@@ -249,11 +249,14 @@ def safe_liveness_snapshot(label):
             if isinstance(observation,dict):
                 row['researchSchemaReady']=observation.get('researchSchemaReady')
             out['rows'].append(row)
-    out['uiFailurePrefixes']=[]
+    out['uiFailurePrefixes']=[];out['uiPublicFailureCodes']=[]
     try:
         labels=[n.get('text','') for n in hierarchy().iter('node')]
         for prefix in ['报告操作未完成：','完整报告请求失败：','完整报告失败：','REPORT_REQUEST_FAILED_BEFORE_DURABLE_ACK']:
-            if any(prefix in label for label in labels):out['uiFailurePrefixes'].append(prefix)
+            if any(prefix in label for label in labels):
+                out['uiFailurePrefixes'].append(prefix)
+                for label in labels:
+                    if prefix in label:out['uiPublicFailureCodes'] += sorted(set(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b',label)).intersection(known))
     except Exception:pass
     q=ROOT+'/request-queue.json'
     try:
@@ -266,7 +269,7 @@ def safe_liveness_snapshot(label):
 
 def safe_timeout_frames():
     public_files={p.name for p in Path('app/src').rglob('*.java')}
-    pids=adb('shell',"pidof com.starcore.research.r13; pidof com.starcore.research.r13:diagnostics").split()
+    pids=adb('shell',"pidof com.starcore.research.r13 || true; pidof com.starcore.research.r13:diagnostics || true").split()
     for pid in pids:
         if pid.isdigit():adb('shell','kill','-3',pid)
     time.sleep(3)

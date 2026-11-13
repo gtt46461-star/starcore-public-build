@@ -1,34 +1,177 @@
-name: R31 023 exact same-signer report runtime validation
-on:
-  push:
-    branches: ['construction/r27-20261028']
-    paths: ['.github/r31-build-request.json', '.github/workflows/r31-build-r27.yml']
+name: STARCORE 024 report control repair signed APK and report export only
 permissions:
-  contents: read
+  contents: write
   actions: read
+concurrency:
+  group: r31-report-024-only
+  cancel-in-progress: false
 jobs:
-  request:
+  build:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: .github/r31-build-request.json
-          sparse-checkout-cone-mode: false
-      - name: Require exact frozen source and installed signing identity
-        run: |
-          python3 - <<'PY'
-          import json
-          r=json.load(open('.github/r31-build-request.json'))
-          assert r['sourceBranch']=='construction/r31-final-20261104'
-          assert r['source']=='c61d09a4f95055f2f95337f15fa83b284e8af693'
-          assert r['expectedTree']=='04c0af2809dfa6087374bee83c439349663f1b84'
-          assert r['expectedVersionCode']==577311023
-          assert r['expectedVersionName']=='R31-REPORT-RUNTIME-2026.11.13-023'
-          print('PINNED_REPORT_RUNTIME_SOURCE='+r['source'])
-          PY
-  verify:
-    needs: request
-    uses: gtt46461-star/starcore-public-build/.github/workflows/r31-verification.yml@c61d09a4f95055f2f95337f15fa83b284e8af693
-    with:
-      source: c61d09a4f95055f2f95337f15fa83b284e8af693
-    secrets: inherit
+    - uses: actions/checkout@v4
+      with:
+        ref: d6bdd2e26297608150d4050f93a80d18d979a3d5
+        fetch-depth: 0
+    - name: Require exact source and release identity
+      run: 'test "$(git rev-parse HEAD)" = "d6bdd2e26297608150d4050f93a80d18d979a3d5"
+
+        python3 - <<''PY''
+
+        import json
+
+        r=json.load(open(''release/release_manifest.json''))
+
+        assert r[''applicationId'']==''com.starcore.research.r13''
+
+        assert r[''versionCode'']==577311024
+
+        PY
+
+        '
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: '17'
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+    - id: devicekey
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/.starcore/r27-ci-temp-key
+        key: starcore-r27-ci-temp-signing-v1
+        fail-on-cache-miss: true
+    - name: Reuse the installed application's exact signing identity
+      env:
+        DUOQU_SECRET: ${{ secrets.DUOQU_API_KEY }}
+      run: "set -euo pipefail\nV=\"$RUNNER_TEMP/r31v\"; mkdir -p \"$V\"\nK=\"$HOME/.starcore/r27-ci-temp-key\"\nDEVICE_CERT=d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7\n\
+        if [ -f \"$K/r27-ci.p12\" ] && [ -s \"$K/pw\" ]; then\n  pw=$(cat \"$K/pw\"); echo \"::add-mask::$pw\"\n  cert=$(keytool -exportcert -keystore \"\
+        $K/r27-ci.p12\" -storetype PKCS12 -alias starcore-r13 -storepass \"$pw\" | sha256sum | cut -c1-64)\n  [ \"$cert\" = \"$DEVICE_CERT\" ] || { echo\
+        \ \"INSTALLED_SIGNER_MISMATCH $cert\"; exit 1; }\n  { echo \"R13_SIGNING_P12=$K/r27-ci.p12\"; echo \"R13_SIGNING_PASSWORD=$pw\"; echo \"R13_EXPECTED_CERT_SHA256=$cert\"\
+        ; echo \"R31_SIGNING=EXISTING_DEVICE_IDENTITY\"; } >> \"$GITHUB_ENV\"\n  echo \"EXISTING_DEVICE_IDENTITY: installed R31 577311020 signer $cert\"\
+        \ > \"$V/signing.txt\"\nelse\n  echo \"NOT_AVAILABLE: installed signer private material was not restored; no replacement key is generated\" > \"\
+        $V/signing.txt\"\n  exit 1\nfi\nif [ -n \"$DUOQU_SECRET\" ]; then echo \"::add-mask::$DUOQU_SECRET\"; echo \"DUOQU_API_KEY=$DUOQU_SECRET\" >> \"\
+        $GITHUB_ENV\"; else echo \"RELEASE_API_SECRET_UNAVAILABLE\"; exit 1; fi\n"
+    - uses: android-actions/setup-android@v3
+      with:
+        packages: platform-tools
+        log-accepted-android-sdk-licenses: false
+    - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+    - uses: actions/cache@v4
+      with:
+        path: ~/.gradle/wrapper/dists
+        key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+    - name: Compile actual product classes for the provisional inventory only
+      run: 'set -euo pipefail
+
+        ./gradlew --no-daemon -Pr312Development=true :app:compileDebugJavaWithJavac -x :app:generateR997ConstructionAssets -x :app:generateR967Semantics
+        -x :app:verifyR967Semantics -x :app:verifyFinalR967Semantics 2>&1 | tail -n 120
+
+        python3 -B scripts/r982_source_call_asset.py --freeze --classes app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes
+
+        python3 -B scripts/r967_semantic_identity.py --check
+
+        '
+    - name: Commit only the compiled inventory with a fast-forward lease
+      run: 'set -euo pipefail
+
+        remote=$(git ls-remote origin refs/heads/construction/r31-final-20261104 | cut -f1)
+
+        test "$remote" = "d6bdd2e26297608150d4050f93a80d18d979a3d5" || { echo "SOURCE_ADVANCED_REVIEW_REQUIRED"; exit 1; }
+
+        git add release/r982_source_calls.tsv.gz release/r982_source_calls.manifest.json
+
+        git -c user.name=github-actions -c user.email=github-actions@users.noreply.github.com commit -m ''build(r31): freeze actual 024 report recovery
+        compiled call inventory [skip ci]''
+
+        git push origin HEAD:refs/heads/construction/r31-final-20261104
+
+        echo "FROZEN_SOURCE=$(git rev-parse HEAD)"
+
+        echo "THIS_IS_COMPILE_PROVENANCE_NOT_APK_OR_RUNTIME_ACCEPTANCE"
+
+
+        echo "source=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+        '
+      id: freeze
+    - name: Build the actual signed release APK only
+      run: 'set -euo pipefail
+
+        ./gradlew --no-daemon -Pr30Instrumentation=true :app:assembleRelease 2>&1 | tail -n 140
+
+        '
+    - name: Signature, badging and digests of what was built
+      run: "B=\"$ANDROID_HOME/build-tools/36.0.0\"\nmkdir -p r31v && cp \"$RUNNER_TEMP/r31v/signing.txt\" r31v/signing.txt\nfor f in $(ls app/build/outputs/apk/release/*.apk\
+        \ 2>/dev/null); do\n  n=$(basename \"$f\" .apk)\n  \"$B/apksigner\" verify --verbose --print-certs \"$f\" > \"r31v/signature-$n.txt\" 2>&1\n  \"\
+        $B/aapt\" dump badging \"$f\" > \"r31v/badging-$n.txt\"\ndone\nsha256sum app/build/outputs/apk/release/*.apk > r31v/SHA256SUMS.txt\ngit rev-parse\
+        \ HEAD > r31v/source-commit.txt\ncat r31v/signing.txt r31v/SHA256SUMS.txt\n\napk=$(find app/build/outputs/apk/release -maxdepth 1 -name \"*.apk\"\
+        \ -type f)\nsha256sum \"$apk\" | cut -d \" \" -f1 | sed \"s/^/sha256=/\" >> \"$GITHUB_OUTPUT\"\n"
+      id: apk
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: r31-report-024-signed-build
+        path: 'r31v/
+
+          app/build/outputs/apk/release/'
+    outputs:
+      source: ${{ steps.freeze.outputs.source }}
+      apk_sha: ${{ steps.apk.outputs.sha256 }}
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        path: harness
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ needs.build.outputs.source }}
+        path: source
+        fetch-depth: 1
+    - uses: actions/download-artifact@v4
+      with:
+        name: r31-report-024-signed-build
+        path: built
+    - name: Enable emulator acceleration
+      run: 'echo ''KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"'' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+
+        sudo udevadm control --reload-rules
+
+        sudo udevadm trigger --name-match=kvm
+
+        '
+    - uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 34
+        arch: x86_64
+        target: default
+        disable-animations: true
+        ram-size: 3072M
+        heap-size: 512M
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+        script: bash harness/evidence/r27/ci/r31-report-export-only.sh
+      env:
+        R31_REPORT_APK_SHA: ${{ needs.build.outputs.apk_sha }}
+        R31_REPORT_EXPECTED_SOURCE: ${{ needs.build.outputs.source }}
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: r31-024-report-export-only
+        path: source/report-only-public/
+        if-no-files-found: error
+    needs: build
+    permissions:
+      contents: read
+      actions: read
+'on':
+  push:
+    branches:
+    - construction/r27-20261028
+    paths:
+    - .github/r31-build-request.json
+    - .github/workflows/r31-build-r27.yml

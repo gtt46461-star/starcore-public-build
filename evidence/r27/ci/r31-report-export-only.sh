@@ -2,13 +2,18 @@
 set -euo pipefail
 cd source
 bash tools/r30-repair/prepare_emulator.sh
-APK=../built/app/build/outputs/apk/release/Starcore-Tianshu-R31-REPORT-RUNTIME-2026.11.13-023-release.apk
+APK=$(find ../built/app/build/outputs/apk/release -maxdepth 1 -name "*.apk" -type f)
+test -n "$APK"
+export R31_REPORT_APK_SHA=${R31_REPORT_APK_SHA:-$(sha256sum "$APK" | cut -d " " -f1)}
 adb install -r "$APK"
 mkdir -p report-only-public "$RUNNER_TEMP/private-report"
 export R31_REPORT_PRIVATE="$RUNNER_TEMP/private-report"
 python3 - <<'PY'
 import hashlib,subprocess
-apk=next(__import__('pathlib').Path('../built/app/build/outputs/apk/release').glob('*.apk'))
+import os
+paths=list(__import__('pathlib').Path('../built/app/build/outputs/apk/release').glob('*.apk'));assert len(paths)==1,'ONE_RELEASE_REQUIRED';apk=paths[0]
+assert hashlib.sha256(apk.read_bytes()).hexdigest()==os.environ['R31_REPORT_APK_SHA'],'EXPECTED_SIGNED_APK_SHA'
+if os.environ.get('R31_REPORT_EXPECTED_SOURCE'):assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==os.environ['R31_REPORT_EXPECTED_SOURCE'],'EXPECTED_SOURCE_COMMIT'
 installed=subprocess.check_output(['adb','shell','pm','path','com.starcore.research.r13'],text=True).strip().split(':',1)[1]
 actual=subprocess.check_output(['adb','exec-out','cat',installed])
 assert hashlib.sha256(actual).hexdigest()==hashlib.sha256(apk.read_bytes()).hexdigest(),'INSTALLED_APK_MUST_BE_EXACT_RELEASE'
@@ -21,7 +26,7 @@ python3 - "$probe_status" <<'PY'
 import hashlib,json,os,pathlib,re,sys
 private=pathlib.Path(os.environ['R31_REPORT_PRIVATE']);public=pathlib.Path('report-only-public')
 source=__import__('subprocess').check_output(['git','rev-parse','HEAD'],text=True).strip()
-r={'sourceCommit':source,'apkSha256':'99153d61f03bf4fc8484bd421da3fdb1d35c9c0b15c5f46aea9db54bc58a29d5','runId':os.environ['GITHUB_RUN_ID'],'scope':'REPORT_GENERATION_COMPLETENESS_REAL_UI_SAF_ONLY','probeExit':int(sys.argv[1]),'result':'REPORT_PASS_REINSTALL_PENDING' if sys.argv[1]=='0' else 'FAIL','physicalDevice':'NOT_RUN','businessAndAlgorithmHealth':'DEFERRED_NOT_PASSED','rawReportsAndCredentials':'PRIVATE_NOT_PUBLISHED'}
+r={'sourceCommit':source,'apkSha256':os.environ['R31_REPORT_APK_SHA'],'runId':os.environ['GITHUB_RUN_ID'],'scope':'REPORT_GENERATION_COMPLETENESS_REAL_UI_SAF_ONLY','probeExit':int(sys.argv[1]),'result':'REPORT_PASS_REINSTALL_PENDING' if sys.argv[1]=='0' else 'FAIL','physicalDevice':'NOT_RUN','businessAndAlgorithmHealth':'DEFERRED_NOT_PASSED','rawReportsAndCredentials':'PRIVATE_NOT_PUBLISHED'}
 r['harnessSha256']=hashlib.sha256(pathlib.Path('../harness/evidence/r27/ci/r31-report-export-only.py').read_bytes()).hexdigest()
 for name in ['ui-report-acceptance.json','safe-recovery-failure.json','safe-report-semantics.json','safe-report-liveness.json','safe-timeout-source-frames.json']:
     p=private/name
@@ -43,7 +48,7 @@ public=pathlib.Path('report-only-public');r=json.loads((public/'ui-report-accept
 path=f'/data/user/0/com.starcore.research.r13/files/r981_reports/jobs/{job}/delivery/STARCORE_FULL_REPORT.zip'
 body=subprocess.check_output(['adb','exec-out','cat',path]);assert hashlib.sha256(body).hexdigest()==r['zipSha256'],'OVERLAY_REINSTALL_REPORT_NOT_PRESERVED'
 r['sameSignedApkReinstallPreservesReport']=True
-r['phone020To023Overlay']='SAME_PACKAGE_CERT_AND_HIGHER_VERSION_VERIFIED_PHONE_NOT_RUN'
+r['phone020ToCurrentOverlay']='SAME_PACKAGE_CERT_AND_HIGHER_VERSION_VERIFIED_PHONE_NOT_RUN'
 (public/'ui-report-acceptance.json').write_text(json.dumps(r,ensure_ascii=False,indent=2)+'\n')
 final=json.loads((public/'REPORT_ONLY_RESULT.json').read_text());final['result']='PASS';final['sameSignedApkReinstallPreservesReport']=True
 (public/'REPORT_ONLY_RESULT.json').write_text(json.dumps(final,ensure_ascii=False,indent=2)+'\n')
