@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 @RunWith(AndroidJUnit4.class)
 public final class R30WriteQueueAndroidTest {
     static long n(DbStore store,String key){try(Cursor c=store.readable().rawQuery("SELECT count(*) FROM r30_wait_probe WHERE id=?",new String[]{key})){assertTrue(c.moveToFirst());return c.getLong(0);}}
-    static DbStore open(){DbStore store=new DbStore(ApplicationProvider.getApplicationContext());store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R30_WAIT_SCHEMA",db->{SchemaR27.ensure(db);db.execSQL("CREATE TABLE IF NOT EXISTS r30_wait_probe(id TEXT PRIMARY KEY,value INT NOT NULL)");return 0;});return store;}
+    static DbStore open(){DbStore store=new DbStore(ApplicationProvider.getApplicationContext());store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R30_WAIT_SCHEMA",db->{RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);db.execSQL("CREATE TABLE IF NOT EXISTS r30_wait_probe(id TEXT PRIMARY KEY,value INT NOT NULL)");return 0;});return store;}
     @Test public void tighterCallerDeadlineRejectsBeforeBodyThenSamePendingBatchCommitsOnce(){
         DbStore store=open();try{ResearchWriteQueueR27 queue=new ResearchWriteQueueR27(store);ResearchWriteQueueR27.Batch batch=new ResearchWriteQueueR27.Batch().add("INSERT OR IGNORE INTO r30_wait_probe VALUES('deadline',1)");
             try(DatabaseCoordinator.WriterDeadlineScopeCP3 outer=DatabaseCoordinator.withWriterDeadlineCP3(TimeSourceR811.monoNowMs()-1)){assertFalse(queue.submit("WAIT_PROBE",batch,()->false));}

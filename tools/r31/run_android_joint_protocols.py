@@ -30,6 +30,7 @@ REAL_PROCESS_ARGS = {
     'storage-diagnostic-process': ['-e', 'r31qRealService', 'true', '-e', 'r31WalDisposable', 'true'],
     'restore-proof-process': ['-e', 'r31qRealService', 'true', '-e', 'r31RestoreDisposable', 'true'],
     'delivery-and-live-service': ['-e', 'r31qRealService', 'true'],
+    'ui-lifecycle-100': ['-e', 'r31qRealService', 'true'],
 }
 # A new explicit offline restore contains two independently authenticated clone
 # probes, an expected refusal, and a separate cleanup. Its own existing waits

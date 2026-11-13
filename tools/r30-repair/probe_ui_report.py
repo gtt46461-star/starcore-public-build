@@ -12,6 +12,7 @@ import subprocess
 import time
 import tempfile
 import os
+import io
 import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
@@ -137,6 +138,43 @@ def safe_failure_symbols(ack_path, state):
     print('R31_SAFE_UI_FAILURE|' + json.dumps(result, sort_keys=True), flush=True)
 
 
+def safe_report_semantics(archive, index):
+    """Export public check IDs/statuses/source frames, never report evidence."""
+    java = list(Path('app/src').rglob('*.java'))
+    source = '\n'.join(p.read_text(errors='replace') for p in java)
+    files = {p.name for p in java}
+    codes = set(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b', source))
+    keys = set(re.findall(r'"([A-Za-z][A-Za-z0-9_]{0,80})"', source))
+    result = {'sourceCommit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              'scope': 'PUBLIC_CHECK_IDENTIFIERS_AND_SOURCE_SYMBOLS_ONLY_NO_EVIDENCE_VALUES',
+              'evidenceComplete': bool(index['evidenceComplete']), 'checksComplete': bool(index['checksComplete']),
+              'allChecksPassed': bool(index['allChecksPassed']), 'incompleteChecks': [], 'catalogErrors': []}
+    def symbols(text):
+        return {'sourceEnums': sorted(codes.intersection(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b', text)))[:80],
+                'missingPublicJsonKeys': sorted(keys.intersection(re.findall(r'No value for ([A-Za-z][A-Za-z0-9_]*)', text))),
+                'publicFrames': [list(row) for row in re.findall(
+                    r'at (com\.ethk3\.novaonepro\.[A-Za-z0-9_.$]+)\.([A-Za-z0-9_$]+)\(([A-Za-z0-9_]+\.java):(\d+)\)', text) if row[2] in files][:30]}
+    for entry in archive.infolist():
+        if not re.fullmatch(r'catalog/catalog-[0-9]+\.jsonl', entry.filename):
+            continue
+        assert entry.file_size <= 4 * 1024 * 1024, 'DIAGNOSTIC_CATALOG_PAGE_BOUND'
+        with io.TextIOWrapper(archive.open(entry), encoding='utf-8') as rows:
+            for line in rows:
+                assert len(line) <= 256 * 1024, 'DIAGNOSTIC_CATALOG_ROW_BOUND'
+                row = json.loads(line)
+                if row.get('kind') == 'check_result' and not row.get('completes_contract'):
+                    check = row.get('id', '')
+                    assert re.fullmatch(r'RSEC-[0-9]{3}', check), 'DIAGNOSTIC_PUBLIC_CHECK_ID'
+                    record = {'id': check, **symbols(str(row.get('reason', '')) + '\n' + str(row.get('error_detail', '')))}
+                    for key in ('execution_state', 'domain_outcome', 'health'):
+                        record[key] = row.get(key) if row.get(key) in codes else 'UNLISTED_DYNAMIC_OUTCOME'
+                    result['incompleteChecks'].append(record)
+                if row.get('kind') == 'catalog_error':
+                    result['catalogErrors'].append(symbols(str(row.get('reason', '')) + '\n' + str(row.get('error_detail', ''))))
+    (args.out / 'safe-report-semantics.json').write_text(json.dumps(result, indent=2) + '\n')
+    print('R31_SAFE_REPORT_SEMANTICS|' + json.dumps(result, sort_keys=True), flush=True)
+
+
 def main():
     assert adb('get-serialno').strip().startswith('emulator-'), 'EMULATOR_REQUIRED'
     assert adb('shell', 'getprop', 'ro.kernel.qemu').strip() == '1', 'EMULATOR_REQUIRED'
@@ -177,7 +215,6 @@ def main():
     assert publication, 'UI_REPORT_PUBLICATION_TIMEOUT'
     job, index = publication
     assert index['format'] == 'SCREPORT_SINGLE_ZIP_R992', 'UI_REPORT_SINGLE_ZIP_REQUIRED'
-    assert index['evidenceComplete'] and index['checksComplete'], 'UI_REPORT_INCOMPLETE'
     files = index['files']
     assert len(files) == 1 and files[0]['name'] == 'STARCORE_FULL_REPORT.zip'
     member = files[0]
@@ -199,6 +236,8 @@ def main():
         source = json.loads(archive.read('source-manifest.json'))
         assert source['sourceCommit'] == expected_source, 'UI_REPORT_SOURCE_MISMATCH'
         runtime = json.loads(archive.read('runtime-observation.json'))
+        safe_report_semantics(archive, index)
+        assert index['evidenceComplete'] and index['checksComplete'], 'UI_REPORT_INCOMPLETE'
         assert runtime.get('researchSchemaReady') is True, 'UI_REPORT_RESEARCH_NOT_READY'
         summary = runtime.get('schemaStartupSummary', '')
         assert summary.startswith('critical=READY') and '|research=READY' in summary, 'UI_REPORT_STARTUP_SCHEMA_NOT_READY:' + summary
