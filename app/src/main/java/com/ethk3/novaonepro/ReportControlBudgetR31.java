@@ -13,9 +13,14 @@ final class ReportControlBudgetR31 {
     private ReportControlBudgetR31() {}
     private static final ReentrantLock JVM=new ReentrantLock(true);
     private static final long QUOTA=2L<<20,RECORD_LIMIT=65536;
+    static boolean isProgress(File root,File file)throws IOException {
+        String prefix=root.getCanonicalPath()+File.separator,path=file.getCanonicalPath();
+        return path.startsWith(prefix)&&path.substring(prefix.length()).matches("jobs/[0-9a-f]{64}/(?:stage|backup)-progress\\.json");
+    }
     static boolean accepts(File root,File file)throws IOException {
+        if(!file.getCanonicalPath().startsWith(root.getCanonicalPath()+File.separator))return false;
         String relative=file.getCanonicalPath().substring(root.getCanonicalPath().length()+1);
-        return relative.matches("requests/[0-9a-f]{64}(?:\\.ack)?\\.json")
+        return isProgress(root,file)||relative.matches("requests/[0-9a-f]{64}(?:\\.ack)?\\.json")
                 || relative.matches("jobs/[0-9a-f]{64}/job\\.json")
                 || relative.matches("quarantine/[0-9a-f]{64}\\.json")
                 || relative.matches("cancel-commands/[0-9a-f]{64}\\.json")
@@ -60,7 +65,8 @@ final class ReportControlBudgetR31 {
             if(jobs.exists())try(DirectoryCursorR31 cursor=DirectoryCursorR31.open(jobs)) {
                 File job;while((job=cursor.next())!=null) {
                     if(++entries>2048||!job.getName().matches("[0-9a-f]{64}")||!job.getAbsoluteFile().equals(job.getCanonicalFile())||!job.isDirectory())throw new IOException("REPORT_CONTROL_SCOPE");
-                    for(String suffix:new String[]{"",".bak",".new"})used=Math.addExact(used,accounted(new File(job,"job.json"+suffix)));
+                    for(String name:new String[]{"job.json","stage-progress.json","backup-progress.json"})
+                        for(String suffix:new String[]{"",".bak",".new"})used=Math.addExact(used,accountedControlEntryIfPresent(new File(job,name+suffix)));
                 }
             }
             for(String name:new String[]{"request-queue","interactive-pending-r69","current-job","cancel"})
@@ -76,6 +82,9 @@ final class ReportControlBudgetR31 {
             if(io!=null)try{io.close();}catch(IOException e){error.addSuppressed(e);}
             if(entered)JVM.unlock();throw error;
         }
+    }
+    private static long accountedControlEntryIfPresent(File file)throws IOException {
+        return file.exists()?accountedControlEntry(file):0;
     }
     private static long accounted(File file)throws IOException {
         if(!file.exists())return 0;

@@ -70,8 +70,13 @@ public final class ReportIoR31 {
         // remains charged to that grant. A corrupt/unwritable optional ACK in
         // the separate control scope must not prevent a verified READY commit.
         ReportNativeCP4.Control owner=control(file,null);
-        if(owner!=null&&owner.hasDiskAdmissionR31()){owner.beforeOutputBytesR31(file,bytes);return new AtomicPermit(null,bytes);}
         File reportRoot=file.getParentFile();while(reportRoot!=null&&!reportRoot.getName().equals("r981_reports"))reportRoot=reportRoot.getParentFile();
+        // UI samples must not charge an outstanding native backup chunk or
+        // need the bulk admission lock. Only these two fixed records use this
+        // route; a rejected sample is handled by the best-effort publisher.
+        if(reportRoot!=null&&ReportControlBudgetR31.isProgress(reportRoot,file))
+            return new AtomicPermit(ReportControlBudgetR31.admit(reportRoot,file,bytes,budget(dataRoot(file))),bytes);
+        if(owner!=null&&owner.hasDiskAdmissionR31()){owner.beforeOutputBytesR31(file,bytes);return new AtomicPermit(null,bytes);}
         if(reportRoot!=null&&ReportControlBudgetR31.accepts(reportRoot,file)) {
             StorageBudgetR31 controlBudget=budget(dataRoot(file));
             if(controlBudget.controlHeadroomR31()>0)return new AtomicPermit(ReportControlBudgetR31.admit(reportRoot,file,bytes,controlBudget),bytes);

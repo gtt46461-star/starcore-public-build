@@ -174,7 +174,7 @@ public final class ReportJobJournalCP12 implements Closeable {
                 writeAtomic(new File(root,"quarantine/"+id+".json"),new JSONObject().put("originalAck",original).put("reason","ACK_INVALID:"+corrupt.getMessage()).toString());
             }
         }
-        JSONObject ack=new JSONObject();ack.put("requestId",requestId);ack.put("jobId",j.jobId);ack.put("mode",j.mode);ack.put("stage",j.stage);ack.put("revision",j.revision);ack.put("reason",j.lastReason);ack.put("evidenceComplete",j.evidenceComplete);ack.put("checksComplete",j.checksComplete);ack.put("allChecksPassed",j.allChecksPassed);
+        JSONObject ack=new JSONObject();ack.put("requestId",requestId);ack.put("jobId",j.jobId);ack.put("mode",j.mode);ack.put("stage",j.stage);ack.put("revision",j.revision);ack.put("reason",j.lastReason);ack.put("createdWallMs",j.createdWallMs);ack.put("updatedWallMs",j.updatedWallMs);ack.put("resumeStage",j.resumeStage);ack.put("evidenceComplete",j.evidenceComplete);ack.put("checksComplete",j.checksComplete);ack.put("allChecksPassed",j.allChecksPassed);
         ack.put("semanticVerificationR31",j.semanticVerificationR31);
         addRecoveryReceipt(root,requestId,ack);writeAtomic(target,ack.toString());
         // Crash after ACK and before this receipt only causes an idempotent resend.
@@ -219,7 +219,7 @@ public final class ReportJobJournalCP12 implements Closeable {
      * Consumers still verify published.json, manifest and ZIP before opening it. */
     public static JSONObject authoritativeStateR31(File root,String request)throws Exception {
         Job job=findRequestR31(root,request);if(job==null)return null;
-        JSONObject value=new JSONObject();value.put("requestId",request);value.put("jobId",job.jobId);value.put("mode",job.mode);value.put("stage",job.stage);value.put("revision",job.revision);value.put("reason",job.lastReason);value.put("evidenceComplete",job.evidenceComplete);value.put("checksComplete",job.checksComplete);value.put("allChecksPassed",job.allChecksPassed);value.put("semanticVerificationR31",job.semanticVerificationR31);
+        JSONObject value=new JSONObject();value.put("requestId",request);value.put("jobId",job.jobId);value.put("mode",job.mode);value.put("stage",job.stage);value.put("revision",job.revision);value.put("reason",job.lastReason);value.put("createdWallMs",job.createdWallMs);value.put("updatedWallMs",job.updatedWallMs);value.put("resumeStage",job.resumeStage);value.put("evidenceComplete",job.evidenceComplete);value.put("checksComplete",job.checksComplete);value.put("allChecksPassed",job.allChecksPassed);value.put("semanticVerificationR31",job.semanticVerificationR31);
         // The UI prefers this authority over ACK. Preserve the independently
         // durable recovery receipt even when both ACK writes were lost.
         if(Stage.FAILED.name().equals(job.stage)) {
@@ -231,6 +231,100 @@ public final class ReportJobJournalCP12 implements Closeable {
             }
         }
         return value;
+    }
+    /** Read-only reattachment survives retention of ACKs after job cleanup. */
+    public static JSONObject requestStateR31(File root,String request)throws Exception {
+        hash(request);JSONObject job=authoritativeStateR31(root,request);if(job!=null)return job;
+        File file=ReportArchiveVerifierCP12.inside(root,"requests/"+request+".ack.json");
+        if(!file.isFile())return null;
+        JSONObject ack=new JSONObject(readAtomic(file,65536));
+        if(!request.equals(ack.getString("requestId")))throw new IOException("REPORT_ACK_REQUEST_IDENTITY");
+        if(ack.has("jobId"))hash(ack.getString("jobId"));Stage.valueOf(ack.getString("stage"));
+        File input=ReportArchiveVerifierCP12.inside(root,"requests/"+request+".json");
+        JSONObject envelope=null;
+        try{if(input.isFile())envelope=new JSONObject(readAtomic(input,MAX_JSON));}
+        catch(IOException|org.json.JSONException unavailable){ack.put("requestEnvelopeUnavailable",true);}
+        if(envelope!=null&&!request.equals(envelope.getString("requestId")))throw new IOException("REPORT_REQUEST_IDENTITY");
+        String mode=ack.optString("mode",envelope==null?"":envelope.optString("mode"));
+        if(envelope!=null&&envelope.has("mode")&&!mode.equals(envelope.getString("mode")))throw new IOException("REPORT_ACK_MODE_IDENTITY");
+        ack.put("mode",mode);
+        long created=envelope==null?0:envelope.optLong("createdWallMs",0);
+        if(created<=0)created=ack.optLong("createdWallMs",ack.optLong("updatedWallMs",file.lastModified()));
+        ack.put("createdWallMs",created);return ack;
+    }
+    /** Bounded, deterministic history merge. Never kicks work or cleans evidence. */
+    public static JSONObject latestFullReportStateR31(File root,boolean failedOnly)throws Exception {
+        java.util.Set<String> requests=new java.util.TreeSet<>();
+        File jobs=ReportArchiveVerifierCP12.inside(root,"jobs");
+        for(File directory:DirectoryCursorR31.children(jobs,1024))try{
+            File path=ReportArchiveVerifierCP12.inside(root,"jobs/"+directory.getName()+"/job.json");
+            Job job=Job.parse(readAtomic(path,MAX_JSON));
+            if(directory.getName().equals(job.jobId)&&job.mode.equals("FULL_REPORT"))requests.add(job.requestId);
+        }catch(Exception damaged){android.util.Log.w("ReportJournalCP12","Unrelated journal unavailable during history lookup");}
+        for(File file:DirectoryCursorR31.children(ReportArchiveVerifierCP12.inside(root,"requests"),2048))
+            if(file.getName().matches("[0-9a-f]{64}\\.ack\\.json"))requests.add(file.getName().substring(0,64));
+        JSONObject latest=null;
+        for(String request:requests)try{
+            JSONObject value=requestStateR31(root,request);if(value==null||!"FULL_REPORT".equals(value.optString("mode")))continue;
+            String stage=value.getString("stage");if("CANCELLED".equals(stage)||failedOnly&&!"FAILED".equals(stage))continue;
+            long time=value.optLong("createdWallMs",value.optLong("updatedWallMs",0));
+            if(latest==null||time>latest.optLong("createdWallMs",0)||time==latest.optLong("createdWallMs",0)&&request.compareTo(latest.getString("requestId"))>0)latest=value;
+        }catch(Exception damaged){android.util.Log.w("ReportJournalCP12","Unrelated ACK unavailable during history lookup");}
+        return latest;
+    }
+    public static final class FailureDetailR31 {
+        public final String text,requestId,recoverySha;
+        FailureDetailR31(String text,String request,String sha){this.text=redactFailureR31(text);requestId=request;recoverySha=sha;}
+    }
+    public static String redactFailureR31(String text){
+        String key=BuildConfig.DUOQU_API_KEY_A+BuildConfig.DUOQU_API_KEY_B;
+        if(key.length()>=8)text=text.replace(key,"[REDACTED]");
+        text=text.replaceAll("(?im)(authorization\\s*[:=]\\s*)(?:Bearer\\s+|Basic\\s+)?[^\\r\\n]+","$1[REDACTED]");
+        text=text.replaceAll("(?i)(Bearer\\s+)[A-Za-z0-9._~+/=-]+","$1[REDACTED]");
+        text=text.replaceAll("(?i)((?:[A-Za-z0-9_]*api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|[A-Za-z0-9_]*password|token|secret|cookie)[\\\"']?\\s*[:=]\\s*[\\\"']?)[^\\s\\\"'&,;<>}]+","$1[REDACTED]");
+        return text.replaceAll("(?i)(https?://)[^/\\s:@]+:[^/\\s@]+@","$1[REDACTED]@");
+    }
+    /** The ACK reason is always usable; recovery enriches it only after identity,
+     * exact size and SHA verification. No SQLite file is opened or hashed here. */
+    public static FailureDetailR31 failureDetailR31(File root,JSONObject state)throws Exception {
+        String request=state.getString("requestId");hash(request);
+        if(!"FULL_REPORT".equals(state.getString("mode"))||!"FAILED".equals(state.getString("stage")))throw new IOException("REPORT_FAILURE_STATE_IDENTITY");
+        StringBuilder text=new StringBuilder("完整报告失败\nrequestId="+request+"\njobId="+state.optString("jobId","未领取")+"\n阶段="+state.getString("stage")+" / "+state.optString("resumeStage","未记录")+"\n原因="+state.optString("reason","UNKNOWN")+"\n");
+        String share="";
+        try{
+            File directory=ReportArchiveVerifierCP12.inside(root,"recovery/"+request);
+            JSONObject receipt;
+            try{receipt=new JSONObject(readAtomic(ReportArchiveVerifierCP12.inside(directory,"receipt.json"),4096));}
+            catch(IOException|org.json.JSONException unavailable){receipt=state.optJSONObject("recovery");if(receipt==null)throw unavailable;}
+            String sha=receipt.getString("sha256");hash(sha);long bytes=receipt.getLong("bytes");
+            if(!"EXPORT_FAILURE_RECOVERY_ONLY".equals(receipt.getString("scope"))||bytes<=0||bytes>(512L<<20))throw new IOException("REPORT_RECOVERY_RECEIPT_BOUND");
+            JSONObject linked=state.optJSONObject("recovery");
+            if(linked!=null&&(!sha.equals(linked.getString("sha256"))||bytes!=linked.getLong("bytes")))throw new IOException("REPORT_RECOVERY_ACK_IDENTITY");
+            File archive=ReportArchiveVerifierCP12.inside(directory,sha+".zip");
+            try(ReportPublicationCP12.Lease pin=ReportPublicationCP12.shared(directory)){
+                if(!archive.isFile()||bytes!=archive.length()||!sha.equals(ReportArchiveCP4.hash(archive,()->!Thread.currentThread().isInterrupted())))throw new IOException("REPORT_RECOVERY_SIZE_OR_SHA256");
+                try(java.util.zip.ZipFile zip=new java.util.zip.ZipFile(archive)){
+                    if(zip.size()>64)throw new IOException("REPORT_RECOVERY_ENTRY_BOUND");
+                    JSONObject boundary=new JSONObject(recoveryTextR31(zip,"EVIDENCE_BOUNDARY.json",65536));
+                    if(!request.equals(boundary.getString("requestId"))||!"EXPORT_FAILURE_RECOVERY_ONLY".equals(boundary.getString("scope")))throw new IOException("REPORT_RECOVERY_REQUEST_IDENTITY");
+                    if(boundary.has("jobId")&&!state.optString("jobId").equals(boundary.getString("jobId")))throw new IOException("REPORT_RECOVERY_JOB_IDENTITY");
+                    JSONObject input=new JSONObject(recoveryTextR31(zip,"request.json",MAX_JSON));
+                    if(!request.equals(input.getString("requestId"))||!"FULL_REPORT".equals(input.getString("mode")))throw new IOException("REPORT_RECOVERY_REQUEST_IDENTITY");
+                    String original=recoveryTextR31(zip,"original-failure.txt",262144);
+                    text.append("\n原始异常（恢复包大小和 SHA-256 已核验）：\n").append(original);share=sha;
+                }
+            }
+        }catch(Exception unavailable){text.append("\n原始异常不可用；保留以上任务回执原因。恢复包：").append(unavailable.getClass().getSimpleName()).append(':').append(unavailable.getMessage());}
+        return new FailureDetailR31(text.toString(),request,share);
+    }
+    private static String recoveryTextR31(java.util.zip.ZipFile zip,String name,int maximum)throws IOException {
+        java.util.zip.ZipEntry entry=null;java.util.Enumeration<? extends java.util.zip.ZipEntry> entries=zip.entries();
+        while(entries.hasMoreElements()){java.util.zip.ZipEntry value=entries.nextElement();if(name.equals(value.getName())){if(entry!=null)throw new IOException("REPORT_RECOVERY_DUPLICATE_MEMBER");entry=value;}}
+        if(entry==null||entry.isDirectory()||entry.getSize()<0||entry.getSize()>maximum)throw new IOException("REPORT_RECOVERY_MEMBER_BOUND:"+name);
+        ByteArrayOutputStream out=new ByteArrayOutputStream();java.util.zip.CRC32 crc=new java.util.zip.CRC32();
+        try(InputStream in=zip.getInputStream(entry)){byte[] buffer=new byte[8192];int n;while((n=in.read(buffer))!=-1){if(n>maximum-out.size())throw new IOException("REPORT_RECOVERY_MEMBER_BOUND:"+name);crc.update(buffer,0,n);out.write(buffer,0,n);}}
+        if(out.size()!=entry.getSize()||crc.getValue()!=entry.getCrc())throw new IOException("REPORT_RECOVERY_MEMBER_CRC:"+name);
+        return new String(out.toByteArray(),StandardCharsets.UTF_8);
     }
     public static Recovery recovery(Job j,boolean snapshotValid,boolean finishedManifest,boolean publishedValid) {
         Stage stage=Stage.valueOf(j.stage);
@@ -348,7 +442,7 @@ public final class ReportJobJournalCP12 implements Closeable {
         if(job!=null) {
             if(!requestId.equals(job.requestId)||!"FULL_REPORT".equals(job.mode))throw new IOException("REPORT_RECOVERY_JOB_IDENTITY");
             hash(job.jobId);File candidate=ReportArchiveVerifierCP12.inside(root,"jobs/"+job.jobId+"/snapshot.db");
-            if(!job.snapshotSha.isEmpty()&&candidate.isFile()&&candidate.length()==job.snapshotBytes
+            if(!job.snapshotSha.isEmpty()&&ReportBudgetSU2.recoveryMayIncludeDatabase(ReportArchiveVerifierCP12.inside(root,"requests/"+requestId+".json"),job.snapshotBytes)&&candidate.isFile()&&candidate.length()==job.snapshotBytes
                     &&job.snapshotSha.equals(ReportArchiveCP4.hash(candidate,()->true)))snapshot=candidate;
         }
         // R13-P34: a recovery package never carries the whole database unless raw evidence was requested and it is small
@@ -363,6 +457,7 @@ public final class ReportJobJournalCP12 implements Closeable {
         File partial=File.createTempFile("recovery-",".partial",directory);
         JSONObject boundary=new JSONObject();boundary.put("scope","EXPORT_FAILURE_RECOVERY_ONLY");
         boundary.put("requestId",requestId);boundary.put("evidenceComplete",false);
+        if(job!=null)boundary.put("jobId",job.jobId);
         boundary.put("checksComplete",false);boundary.put("allChecksPassed",false);
         boundary.put("databaseIncluded",snapshot!=null);boundary.put("reason","Full report failed; available request observations, original exception and any identity-verified durable snapshot are retained. Diagnostic checks are incomplete.");
         if(snapshot!=null){boundary.put("snapshotSha256",job.snapshotSha);boundary.put("snapshotBytes",job.snapshotBytes);}
