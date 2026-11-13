@@ -34,6 +34,7 @@ jobs:
           enums={'CENSUS_STALE','STORAGE_BUDGET_CENSUS_STALE','NO_FRESH_API_FETCH','NO_NEW_FUTURE_FREEZE','NO_NEW_FROZEN_SETTLEMENT','BUILD_IDENTITY_ERROR','SCHEMA_PENDING','LEGACY_RUNTIME_SCHEMA','DEDICATED_MIGRATION_OWNER_REQUIRED','MISSING_COLUMN','MISSING_OR_WRONG_OBJECT','F02_CURRENT_RECOVERY_TRANSACTION_FAILED','R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN','REPORT_ACK_NEVER_WRITTEN','REPORT_RESOURCE_WAIT','SCHEMA_READINESS','DEPENDENCY'}
           enums.update(x for x in re.findall(r'"([A-Z][A-Z0-9_]{5,100})"',public_text))
           enums.update(re.findall(r'\b[A-Z][A-Z0-9_]{5,100}\b',public_text))
+          enums.update({'R31_PHASE_BUDGET_PREPARE','R31_PHASE_BUDGET_INFER','R31_PHASE_BUDGET_COMMIT','R31_FIXED_PREDRAW_DEADLINE'})
           public_schema=set(re.findall(r'\b(?:r26|r27|r29|r30|r31|r35|r36|su1|su2)_[a-z][a-z0-9_]+\b',public_text))
           for p in sorted(root.rglob('*.txt')):
               if p.name not in selectors:continue
@@ -57,5 +58,5 @@ jobs:
               # public repository identifiers and occur in a failure cause.
               cause='\n'.join(x for x in s.splitlines() if 'SCHEMA_PENDING:' in x or 'Caused by:' in x)
               schema=sorted(public_schema.intersection(re.findall(r'\b[a-z][a-z0-9_]+\b',cause)))
-              print(json.dumps({'protocol':selectors[p.name],'failedPublicTestMethods':bad_tests,'publicErrorEnums':sorted(tokens.intersection(enums)),'publicSchemaSymbols':schema,'publicSourceFrames':frames[-80:]},sort_keys=True),flush=True)
+              print(json.dumps({'protocol':selectors[p.name],'failedPublicTestMethods':bad_tests,'publicErrorEnums':sorted(tokens.intersection(enums)),'publicSchemaSymbols':schema,'publicSourceFrames':[x for x in frames if x[2] in {'AnalysisSingleFlightR36.java','V51RuntimeOrchestrator.java','V51RuntimeInputR36.java','AnalysisRequestStoreR36.java','CanonicalCommitGuardF01.java'}]+frames[:20]+frames[-20:]},sort_keys=True),flush=True)
           PY
