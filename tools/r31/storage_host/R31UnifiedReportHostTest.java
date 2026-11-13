@@ -111,7 +111,14 @@ public final class R31UnifiedReportHostTest {
                     need(readerError.get()==null,"READY_GRANT_RACE:"+readerError.get());need(immediateGrant.get(),"REAL_PUBLISH_DID_NOT_EXPOSE_READY_BEFORE_RETURN");need("ZIP_READBACK_VERIFIED".equals(job.semanticVerificationR31),"SEMANTIC_RECEIPT_NOT_COMMITTED");need(((List<?>)budget.snapshot().get("owners")).isEmpty(),"READY_PRECEDED_WORKSPACE_RESOURCE_RELEASE");
                     need("READY_TO_SHARE".equals(ReportJobJournalCP12.Job.parse(ReportJobJournalCP12.readAtomic(new File(directory,"job.json"),65536)).stage),"ACK_FAILURE_DEMOTED_READY");Files.delete(ack.toPath());
                 }
-                zipSha=ReportArchiveCP4.hash(new File(directory,"delivery/STARCORE_FULL_REPORT.zip"));ReportRequestQueueCP12.remove(root,request);
+                zipSha=ReportArchiveCP4.hash(new File(directory,"delivery/STARCORE_FULL_REPORT.zip"));
+                try(RandomAccessFile cleanup=new RandomAccessFile(new File(directory,"share.lock"),"rw");java.nio.channels.FileLock exclusive=cleanup.getChannel().lock()){
+                    try{ReportPublicationCP12.grant(directory,System.currentTimeMillis());throw new AssertionError("EXCLUSIVE_CLEANUP_GRANTED_READER");}
+                    catch(ReportPublicationCP12.ShareBusyR31 expected){need(expected.getCause() instanceof java.nio.channels.OverlappingFileLockException,"SHARE_CONFLICT_CAUSE_LOST");}
+                }
+                ReportPublicationCP12.grant(directory,System.currentTimeMillis());
+                need(zipSha.equals(ReportArchiveCP4.hash(new File(directory,"delivery/STARCORE_FULL_REPORT.zip"))),"TRANSIENT_LEASE_RETRY_CHANGED_PUBLISHED_ZIP");
+                ReportRequestQueueCP12.remove(root,request);
             }
             try(ReportJobJournalCP12 restarted=ReportJobJournalCP12.tryClaim(files)){
                 ReportJobJournalCP12.Job recovered=restarted.recoverOrCreateR31(request,release,"FULL_REPORT");need(job.jobId.equals(recovered.jobId),"SECOND_REPORT_AFTER_LOST_ACK");restarted.reconcileAcknowledgementsR31();

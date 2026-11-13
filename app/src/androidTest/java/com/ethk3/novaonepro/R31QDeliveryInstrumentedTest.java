@@ -29,6 +29,39 @@ public final class R31QDeliveryInstrumentedTest {
         while(SystemClock.elapsedRealtime()<until);
         fail("LEGACY_NOT_READY: "+store.coordinatorR36().startupSchemaSummary());
     }
+    /** Real UI adapter, real shared-file lease, same immutable READY request.
+     * The preceding service generated and verified this ZIP; no publication or
+     * health fixture is synthesized to make the lease recovery pass. */
+    private static void readyUiSurvivesBusyLeaseR31(Context app,File job,String request)throws Exception{
+        android.app.Instrumentation instrumentation=InstrumentationRegistry.getInstrumentation();
+        android.app.Activity activity=instrumentation.startActivitySync(new Intent(app,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        java.util.concurrent.atomic.AtomicReference<android.widget.TextView> statusView=new java.util.concurrent.atomic.AtomicReference<>();
+        instrumentation.runOnMainSync(()->statusView.set(new android.widget.TextView(activity)));
+        android.widget.TextView status=statusView.get();
+        java.lang.reflect.Field sessionField=CompleteReportFileR927.class.getDeclaredField("POLL_SESSION");sessionField.setAccessible(true);
+        long session=((java.util.concurrent.atomic.AtomicLong)sessionField.get(null)).incrementAndGet();
+        java.lang.reflect.Method poll=CompleteReportFileR927.class.getDeclaredMethod("poll",Context.class,String.class,java.lang.ref.WeakReference.class,java.lang.ref.WeakReference.class,java.lang.ref.WeakReference.class,int.class,long.class);poll.setAccessible(true);
+        java.util.concurrent.atomic.AtomicReference<String> text=new java.util.concurrent.atomic.AtomicReference<>("");
+        try(java.io.RandomAccessFile owner=new java.io.RandomAccessFile(new File(job,"share.lock"),"rw")){
+            java.nio.channels.FileLock held=null;long until=SystemClock.elapsedRealtime()+15000L;
+            do{try{held=owner.getChannel().tryLock();}catch(java.nio.channels.OverlappingFileLockException busy){}if(held==null)Thread.sleep(50);}
+            while(held==null&&SystemClock.elapsedRealtime()<until);
+            assertNotNull("existing cleanup never released the actual share lease",held);
+            try{
+                poll.invoke(null,app,request,new java.lang.ref.WeakReference<>(activity),new java.lang.ref.WeakReference<android.widget.Button>(null),new java.lang.ref.WeakReference<>(status),0,session);
+                Thread.sleep(2000L);
+                instrumentation.runOnMainSync(()->text.set(status.getText().toString()));
+                assertFalse("temporary cleanup lock ended UI delivery",text.get().contains("完整报告未交付"));
+                assertFalse("UI granted a report under an exclusive lease",text.get().startsWith("完整报告已生成"));
+            }finally{held.release();}
+            until=SystemClock.elapsedRealtime()+15000L;
+            do{instrumentation.runOnMainSync(()->text.set(status.getText().toString()));if(text.get().startsWith("完整报告已生成"))break;Thread.sleep(100L);}
+            while(SystemClock.elapsedRealtime()<until);
+            assertTrue("same READY request did not resume UI delivery: "+text.get(),text.get().startsWith("完整报告已生成"));
+            JSONObject state=ReportJobJournalCP12.requestStateR31(ReportDirectoriesCP12.root(app.getFilesDir()),request);
+            assertEquals("READY_TO_SHARE",state.getString("stage"));assertEquals(job.getName(),state.getString("jobId"));
+        }finally{instrumentation.runOnMainSync(activity::finish);}
+    }
     @Test public void firstSchemaProbeFailureStopsRemainingColumns()throws Exception{
         Context app=app();DbStore store=new DbStore(app());ready(store);
         java.lang.reflect.Field auditField=DbStore.class.getDeclaredField("legacyColumnAuditR31");auditField.setAccessible(true);
@@ -130,6 +163,7 @@ public final class R31QDeliveryInstrumentedTest {
         assertNotNull("REPORT_ACK_NEVER_WRITTEN",state);assertEquals(state.toString(),"READY_TO_SHARE",state.optString("stage"));
         String jobId=state.getString("jobId");File job=ReportPublicationCP12.job(app.getFilesDir(),jobId);
         assertTrue("published ZIP invalid",ReportPublicationCP12.verifyPublishedZip(job,()->true));
+        readyUiSurvivesBusyLeaseR31(app,job,request);
         JSONObject index=ReportPublicationCP12.delivery(job);ReportPublicationCP12.grant(job,System.currentTimeMillis());
         JSONArray files=index.getJSONArray("files");assertTrue(files.length()>0);
         long bytes=0;byte[] buffer=new byte[32768];

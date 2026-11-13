@@ -1,0 +1,88 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Task :app:generateR27BuildIdentity
+R27_BUILD_IDENTITY_WRITTEN 1628f224031ae898d28f49425e1821c3a5aa7047 12f313d17776e59b7612498f1b0708eae1d6bcbb
+
+> Task :app:verifyR31Baseline
+> Task :app:generateR31BuildIdentity
+
+> Task :app:verifyCatalogAssetsCP12
+CATALOG_IDENTITY_PASS|atoms=25350|seeds=4200|stream_line_cap=65536
+
+> Task :app:verifyPlan1025Schema
+SU2 production DDL: reproducible and executable
+
+> Task :app:generateR967Semantics
+R967_SEMANTIC_IDENTITY_GENERATED|7071983fd38ca7e01f53275a63c7a8e9819cb58474a070997c85caaf81026274
+
+> Task :app:verifyR967Semantics
+R967_SEMANTIC_IDENTITY_VERIFIED|7071983fd38ca7e01f53275a63c7a8e9819cb58474a070997c85caaf81026274
+
+> Task :app:generateR815Provenance
+R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=ba60fb6ecba3f13f518f523e2809d24a2c97648b3d3f86bd6b1753bdd7f7fbe1|RESOURCE=a3c9f96e5f0d01560cfdb527aafb83fc8c49945f76436995bf735cd96776b79a|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=ea1ac31dbe48618636d34b40eaeda2a8ed3ca29cc3e452f2f37e70570965425f|GENERATED_AT=2026-11-13T20:22:55Z
+
+> Task :app:verifyR815Provenance
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=ba60fb6ecba3f13f518f523e2809d24a2c97648b3d3f86bd6b1753bdd7f7fbe1|RESOURCE=a3c9f96e5f0d01560cfdb527aafb83fc8c49945f76436995bf735cd96776b79a|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=ea1ac31dbe48618636d34b40eaeda2a8ed3ca29cc3e452f2f37e70570965425f|GENERATED_AT=2026-11-13T20:22:55Z
+
+> Task :app:preBuild
+> Task :app:preDebugBuild
+> Task :app:generateDebugBuildConfig
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:preDebugAndroidTestBuild SKIPPED
+> Task :app:processDebugResources
+> Task :app:processDebugAndroidTestManifest
+
+> Task :app:compileDebugJavaWithJavac
+/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java:14: warning: [strictfp] as of release 17, all floating-point expressions are evaluated strictly and 'strictfp' is not required
+public strictfp final class DevelopmentTrainerCP9 {
+                      ^
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+1 warning
+
+> Task :app:generateDebugAndroidTestBuildConfig
+> Task :app:javaPreCompileDebugAndroidTest
+> Task :app:prepareRawUpstreamAndroidTestHarness
+> Task :app:checkDebugAndroidTestAarMetadata
+> Task :app:generateDebugAndroidTestResValues
+> Task :app:mapDebugAndroidTestSourceSetPaths
+> Task :app:generateDebugAndroidTestResources
+> Task :app:mergeDebugAndroidTestResources
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:processDebugAndroidTestResources
+
+> Task :app:verifyFinalR967Semantics
+R967_SEMANTIC_IDENTITY_VERIFIED|7071983fd38ca7e01f53275a63c7a8e9819cb58474a070997c85caaf81026274
+
+> Task :app:verifyFinalR815Provenance
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=ba60fb6ecba3f13f518f523e2809d24a2c97648b3d3f86bd6b1753bdd7f7fbe1|RESOURCE=a3c9f96e5f0d01560cfdb527aafb83fc8c49945f76436995bf735cd96776b79a|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=ea1ac31dbe48618636d34b40eaeda2a8ed3ca29cc3e452f2f37e70570965425f|GENERATED_AT=2026-11-13T20:22:55Z
+
+> Task :app:compileDebugAndroidTestJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+[Incubating] Problems report is available at: file:///workspace/starcore-public-build/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 48s
+39 actionable tasks: 26 executed, 13 up-to-date

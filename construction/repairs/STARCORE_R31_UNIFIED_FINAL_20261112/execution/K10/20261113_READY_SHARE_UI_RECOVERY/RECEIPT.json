@@ -1,0 +1,37 @@
+{
+  "state": "TARGETED_NATIVE_AND_COMPILE_PASS_ANDROID_CURRENT_INVOCATION_PENDING",
+  "baseSource": "1628f224031ae898d28f49425e1821c3a5aa7047",
+  "failure": {
+    "source": "0f2bd3b41427ae1e9addb1aa8a442a071afb7938",
+    "runId": 43498255622,
+    "jobId": 132136987612,
+    "requestId": "3952c130076a840d0b0f45f1abdc88328d8e0614545257c852dfac3c6229b20b",
+    "reportJobId": "3952c130076a840d0b0f45f1abdc88328d8e0614545257c852dfac3c6229b20b",
+    "function": "ReportPublicationCP12.shared -> CompleteReportFileR927.poll",
+    "code": "REPORT_SHARE_BUSY",
+    "completeChecks": 96,
+    "checksComplete": true,
+    "evidenceComplete": true,
+    "saveUi": "FAILED_TO_APPEAR_AFTER_REAL_READY",
+    "sameTaskTwoTimepoints": [
+      "COMPRESSING",
+      "READY_TO_SHARE"
+    ],
+    "rawReportBytesBeforeCleanup": {
+      "R30_REPORT.json": 90880776,
+      "R30_REPORT.md": 71546176
+    }
+  },
+  "repair": [
+    "Typed OS shared-lease conflict is retryable; permanent IO errors keep their original terminal error.",
+    "Production UI retries the same durable READY request inside its original 1200-poll ceiling. No new report, deleted lock or user data change.",
+    "Existing seven-test release protocol now verifies the actual UI adapter while holding an exclusive report lock, then releases it and requires same-job READY delivery."
+  ],
+  "native": "16 JUnit tests plus original cross-process/native/cleanup/unified publication drivers PASS; new exclusive-lease cause preservation and same ZIP hash after retry PASS",
+  "localCompile": "Debug production and Android test source compile PASS; development-only R997 uncommitted asset generation excluded, no APK built or published from that invocation. Final clean release retains all identity gates.",
+  "originalThresholdsSha256": "c577c58f63879ce8c9090d5b9d7494108db8f0d317b31d22639b4888b47bc08c",
+  "physicalDevice": "NOT_RUN",
+  "24h": "NOT_RUN",
+  "72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN"
+}
