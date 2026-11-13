@@ -65,8 +65,9 @@ jobs:
           test "$cert" = d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
           test -n "$DUOQU_SECRET"; echo "::add-mask::$DUOQU_SECRET"
           { echo "R13_SIGNING_P12=$K/r27-ci.p12"; echo "R13_SIGNING_PASSWORD=$pw"; echo "R13_EXPECTED_CERT_SHA256=$cert"; echo "DUOQU_API_KEY=$DUOQU_SECRET"; } >> "$GITHUB_ENV"
-          mkdir -p r31v
-          echo "EXISTING_DEVICE_IDENTITY: installed R31 577311020 signer $cert" > r31v/signing.txt
+          mkdir -p "$RUNNER_TEMP/r31v"
+          echo "R31_EVIDENCE_DIR=$RUNNER_TEMP/r31v" >> "$GITHUB_ENV"
+          echo "EXISTING_DEVICE_IDENTITY: installed R31 577311020 signer $cert" > "$RUNNER_TEMP/r31v/signing.txt"
       - uses: android-actions/setup-android@v3
         with:
           packages: platform-tools
@@ -86,11 +87,11 @@ jobs:
           git merge-base --is-ancestor "$EXPECTED_SOURCE" refs/remotes/origin/construction/r31-final-20261104
           python3 -B scripts/r967_semantic_identity.py --check
           python3 -B scripts/r982_source_call_asset.py
-          python3 -B tools/r31/verify_baseline.py --require-clean --output r31v/source-baseline.json
+          python3 -B tools/r31/verify_baseline.py --require-clean --output "$R31_EVIDENCE_DIR/source-baseline.json"
       - name: Compile and sign exact current product APKs
         run: |
           set -o pipefail
-          ./gradlew --no-daemon --max-workers=4 -Pr30Instrumentation=true :app:assembleRelease :app:assembleDebug :app:assembleDebugAndroidTest :app:verifyFinalR31BuildIdentity 2>&1 | tee r31v/assemble.log
+          ./gradlew --no-daemon --max-workers=4 -Pr30Instrumentation=true :app:assembleRelease :app:assembleDebug :app:assembleDebugAndroidTest :app:verifyFinalR31BuildIdentity 2>&1 | tee "$R31_EVIDENCE_DIR/assemble.log"
       - name: Verify actual signed APK identity and record exact bytes
         run: |
           set -euo pipefail
@@ -98,24 +99,29 @@ jobs:
           for variant in release debug; do
             apk=$(find "app/build/outputs/apk/$variant" -maxdepth 1 -name '*.apk' -print -quit)
             test -n "$apk"
-            python3 -B tools/r31/verify_baseline.py --require-clean --apk "$apk" --apksigner "$B/apksigner" --aapt "$B/aapt" --expected-cert-sha256 "$R13_EXPECTED_CERT_SHA256" --output "r31v/$variant-identity.json"
+            python3 -B tools/r31/verify_baseline.py --require-clean --apk "$apk" --apksigner "$B/apksigner" --aapt "$B/aapt" --expected-cert-sha256 "$R13_EXPECTED_CERT_SHA256" --output "$R31_EVIDENCE_DIR/$variant-identity.json"
           done
           for f in app/build/outputs/apk/release/*.apk app/build/outputs/apk/debug/*.apk app/build/outputs/apk/androidTest/debug/*.apk; do
             n=$(basename "$f" .apk)
-            "$B/apksigner" verify --verbose --print-certs "$f" > "r31v/signature-$n.txt"
-            grep -F "$R13_EXPECTED_CERT_SHA256" "r31v/signature-$n.txt"
-            "$B/aapt" dump badging "$f" > "r31v/badging-$n.txt"
+            "$B/apksigner" verify --verbose --print-certs "$f" > "$R31_EVIDENCE_DIR/signature-$n.txt"
+            grep -F "$R13_EXPECTED_CERT_SHA256" "$R31_EVIDENCE_DIR/signature-$n.txt"
+            "$B/aapt" dump badging "$f" > "$R31_EVIDENCE_DIR/badging-$n.txt"
           done
-          sha256sum app/build/outputs/apk/release/*.apk app/build/outputs/apk/debug/*.apk app/build/outputs/apk/androidTest/debug/*.apk > r31v/SHA256SUMS.txt
-          git rev-parse HEAD > r31v/source-commit.txt
+          sha256sum app/build/outputs/apk/release/*.apk app/build/outputs/apk/debug/*.apk app/build/outputs/apk/androidTest/debug/*.apk > "$R31_EVIDENCE_DIR/SHA256SUMS.txt"
+          git rev-parse HEAD > "$R31_EVIDENCE_DIR/source-commit.txt"
           git diff --exit-code
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Stage public outputs outside product checkout
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/r31-upload/r31v" "$RUNNER_TEMP/r31-upload/app/build/outputs"
+          if [ -d "$RUNNER_TEMP/r31v" ]; then cp -a "$RUNNER_TEMP/r31v/." "$RUNNER_TEMP/r31-upload/r31v/"; fi
+          if [ -d app/build/outputs/apk ]; then cp -a app/build/outputs/apk "$RUNNER_TEMP/r31-upload/app/build/outputs/"; fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: r31v-android-build
-          path: |
-            r31v/
-            app/build/outputs/apk/
+          path: ${{ runner.temp }}/r31-upload/
   instrumentation:
     needs: build
     if: github.event.inputs.instrumentation != 'false'
