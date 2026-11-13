@@ -1,16 +1,16 @@
 {
   "format": "R31_CURRENT_INVOCATION_V1",
   "batch": "K11",
-  "invocationId": "e5b84784-dd2c-478a-9eb0-5598dc8de9d9",
-  "runId": "43487769359",
-  "startedAt": "2026-11-13T19:00:01.805779+00:00",
-  "source_head": "bd7a3c0db89d43eb1ef0c307bb96d7dea9ac3bd3",
-  "source_tree": "6d24ff22aa24f78025d21d09a4d6a98fe1230ef2",
-  "inputsSha256": "4f6b9c1d0bd96997de91c188088715701fa3955a6fa2d29633a9321768e1716b",
-  "exitCode": 1,
-  "state": "FAILED_OR_INCOMPLETE",
+  "invocationId": "8fa5b2ae-5375-47e6-85d1-ac71fa595b9a",
+  "runId": "43511955407",
+  "startedAt": "2026-11-13T21:35:53.583403+00:00",
+  "source_head": "75614037ea7a79ed9d28509fd5f1accf9062b122",
+  "source_tree": "c9958ecb57e482ccab56617405ec7a8df8f60a72",
+  "inputsSha256": "e27bc844507da9e329eb1d015262440003d016f49e5891538a1e2c108e463be9",
+  "exitCode": 0,
+  "state": "PASS_ENGINEERING_ONLY",
   "unit": {
-    "tests": 647,
+    "tests": 648,
     "failures": 0,
     "errors": 0,
     "skipped": 0
@@ -261,8 +261,8 @@
     },
     {
       "id": "run_storage_report_host",
-      "status": "FAIL",
-      "exit": 1
+      "status": "PASS",
+      "exit": 0
     },
     {
       "id": "r30repair_research_contract",
@@ -400,9 +400,7 @@
       "exit": 0
     }
   ],
-  "host_failed": [
-    "run_storage_report_host"
-  ],
+  "host_failed": [],
   "tests": {
     "com.ethk3.novaonepro.AnalysisSingleFlightR36Test#noProgressCancelsExactlyOnce": {
       "status": "PASS",
@@ -1453,6 +1451,10 @@
       "message": ""
     },
     "com.ethk3.novaonepro.strategyv2.R30EvolutionConfirmIntegrationTest#cachedConfirmationIsReusableButConsumedEvidenceCannotBeReopened": {
+      "status": "PASS",
+      "message": ""
+    },
+    "com.ethk3.novaonepro.strategyv2.R30EvolutionConfirmIntegrationTest#forbiddenConfirmReadIsRejectedBeforeColdFeatureAdmissionUnderPressure": {
       "status": "PASS",
       "message": ""
     },
@@ -2993,10 +2995,10 @@
       "message": ""
     }
   },
-  "started_at": "2026-11-13T19:00:02.109834+00:00",
-  "finished_at": "2026-11-13T19:36:42.706730+00:00",
+  "started_at": "2026-11-13T21:35:54.109100+00:00",
+  "finished_at": "2026-11-13T22:23:40.678201+00:00",
   "environment": "CI",
-  "ci_run": "43487769359",
+  "ci_run": "43511955407",
   "pre_build": [],
   "release_only_tasks_not_run": [
     ":app:verifyFinalR31BuildIdentity",
@@ -3008,12 +3010,10 @@
     "NATURAL": "NOT_PROVEN"
   },
   "legacyGateSummaryFormat": "R31_BUILD_SUMMARY_V2",
-  "inputsAfterSha256": "4f6b9c1d0bd96997de91c188088715701fa3955a6fa2d29633a9321768e1716b",
+  "inputsAfterSha256": "e27bc844507da9e329eb1d015262440003d016f49e5891538a1e2c108e463be9",
   "wrapperFailure": null,
-  "finishedAt": "2026-11-13T19:36:42.954903+00:00",
-  "problems": [
-    "EARLY_FAILURE"
-  ],
+  "finishedAt": "2026-11-13T22:23:41.077808+00:00",
+  "problems": [],
   "device": "NOT_RUN",
   "naturalQuality": "NOT_PROVEN"
 }
