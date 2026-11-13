@@ -1,0 +1,49 @@
+name: STARCORE current 029 public release execution metadata
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-final-metadata.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31-029-exact-report-saf-overlay
+          run-id: 43501956011
+          github-token: ${{ github.token }}
+          path: report
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31v-priority-report-runtime
+          run-id: 43501956011
+          github-token: ${{ github.token }}
+          path: priority
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31-029-exact-live-and-sixteen-readers
+          run-id: 43501956011
+          github-token: ${{ github.token }}
+          path: tables
+      - name: Only whitelisted existing report identities and protocol status counts
+        run: |
+          python3 - <<'PY'
+          import json,pathlib,collections
+          def one(root,name):
+              p=list(pathlib.Path(root).rglob(name));assert len(p)==1
+              return json.loads(p[0].read_text())
+          report=one('report','ui-report-acceptance.json')
+          result=one('report','REPORT_ONLY_RESULT.json')
+          checks=one('report','safe-report-semantics.json')
+          failures=one('report','failure-ui-acceptance.json')
+          protocol=one('priority','DELIVERY_REGRESSION.json')
+          lifecycle=one('priority','ANDROID_PROTOCOL_VERIFICATION.json')
+          tables=one('tables','TABLE_UI_READERS.json')
+          assert result['result']=='PASS' and result['sourceCommit']=='e058a25b9fa52308188efef20528d46bcb1e708b' and result['apkSha256']=='8e81fa2ab3089ab5bf4387008f2a5a6c7a17ac96d0faa098282bdc83936f43ac'
+          record={'sourceCommit':result['sourceCommit'],'apkSha256':result['apkSha256'],'report':{k:report[k] for k in ['jobId','zipBytes','zipSha256','entryCount','evidenceComplete','checksComplete','allChecksPassed','saf','sameSignedApkReinstallPreservesReport','overlayMarkerPreserved','overlayFromVersionCode']},'executedChecks':checks['catalogResults'],'incompleteChecks':len(checks['incompleteChecks']),'failureUiEntrances':len(failures['entrances']),'priorityStatus':protocol['status'],'priorityTests':protocol['tests'],'priorityLifecycleVerified':lifecycle['passed'],'tableReaderState':tables['state'],'tableReaderStatuses':dict(collections.Counter(r['actualStatus'] for r in tables['reads'])),'allSixteenReadOnly':len(tables['reads'])==16 and all(r['readOnly'] for r in tables['reads']),'physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN','fullEngineeringAndThreeApiMatrices':'STILL_RUNNING_NOT_INFERRED'}
+          print('CURRENT_RELEASE_PUBLIC_PROOF|'+json.dumps(record))
+          PY
