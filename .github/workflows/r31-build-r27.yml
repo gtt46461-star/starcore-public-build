@@ -1,4 +1,4 @@
-name: STARCORE 026 phone report repair signed release and Android14
+name: STARCORE 026 inspect first incomplete report check
 permissions:
   contents: write
   actions: read
@@ -127,6 +127,7 @@ jobs:
     outputs:
       source: 3002e30d0ee8d5fe3a8795c2ed3b2f7040920f50
       apk_sha: ${{ steps.apk.outputs.sha256 }}
+    if: ${{ !contains(github.event.head_commit.message, 'artifact-inspection') }}
   report:
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -173,6 +174,23 @@ jobs:
     permissions:
       contents: read
       actions: read
+  inspect:
+    if: ${{ contains(github.event.head_commit.message, 'artifact-inspection') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: r31-026-report-export-only
+        run-id: 43452181664
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path: reports
+    - name: Read public protocol symbols from the first incomplete report
+      run: "python3 - <<'PYREPORT'\nimport json,pathlib\nfor p in sorted(pathlib.Path('reports').glob('*.json')):\n    print('PUBLIC_RECEIPT',p.name)\n\
+        \    print(json.dumps(json.loads(p.read_text()),ensure_ascii=False,indent=2))\nPYREPORT\n"
 'on':
   push:
     branches:
