@@ -4,7 +4,7 @@ import java.util.*;
 
 /** Fixed, predeclared calendar blocks. Descriptive research evidence, never a certificate test. */
 public final class ResearchGainR30R1 {
-    public enum Loss { MULTICLASS_BRIER_HALF, BINARY_BRIER }
+    public enum Loss { MULTICLASS_BRIER_HALF, BINARY_BRIER, OPPORTUNITY_K3_UTILITY_LOSS }
     private final Loss loss;
     private final long from, to; private final int blockSize,minimumBlocks,minimumIssues;
     private final TreeMap<Long,Double> differences=new TreeMap<>();

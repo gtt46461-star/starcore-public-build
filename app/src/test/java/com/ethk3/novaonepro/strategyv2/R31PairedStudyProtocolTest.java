@@ -26,7 +26,10 @@ public final class R31PairedStudyProtocolTest {
         PolicySpecR27 family = new PolicySpecR27(PolicyAstR27.op("add", PolicyAstR27.op("zscore", PolicyAstR27.leaf("family", 8)), PolicyAstR27.op("zscore", PolicyAstR27.leaf("freq", 1, 32))), 1, PolicySpecR27.Rule.ALWAYS, 0, 1, 1, true, .03, .01, IdeaFamilyR27.meta("I08", "TEST", 1, 3, "family fixture"));
         List<ResearchStudyTaskR30R1.ComponentR31> a = ResearchStudyTaskR30R1.componentsR31(plain, 1), b = ResearchStudyTaskR30R1.componentsR31(family, 1);
         assertTrue(a.get(0).supported()); assertEquals("root/0", a.get(0).path);
-        for (ResearchStudyTaskR30R1.ComponentR31 c : b) { assertFalse(c.path, c.supported()); assertEquals("UNSUPPORTED_PAIR", c.status); assertFalse("every unsupported component names why", c.reason.isEmpty()); }
+        Set<String> runnable=new HashSet<>();
+        for (ResearchStudyTaskR30R1.ComponentR31 c : b) { if(c.supported())runnable.add(c.path);else assertFalse("every unavailable component names why", c.reason.isEmpty()); }
+        assertTrue(runnable.containsAll(Arrays.asList("root/0","root/1","family:8","readout")));
+        assertFalse("ALWAYS has no selector to remove",runnable.contains("selector"));
         Set<String> kinds = new HashSet<>(); for (ResearchStudyTaskR30R1.ComponentR31 c : b) kinds.add(c.kind);
         assertEquals(new HashSet<>(Arrays.asList("AST_SUBTREE", "FAMILY_PARAMETER_MODULE", "SELECTOR", "CALIBRATOR")), kinds);
         List<EvolutionLoopR27.Member> population = new ArrayList<>();
@@ -34,6 +37,62 @@ public final class R31PairedStudyProtocolTest {
         Set<String> reached = new HashSet<>();
         for (int g = 0; g < 3; g++) { List<PolicySpecR27> window = ResearchStudyTaskR30R1.rotationR31(population, g, 8); assertEquals(8, window.size()); for (PolicySpecR27 p : window) reached.add(p.policyHash()); }
         assertEquals("rotation reaches every parent, not only the first eight", 21, reached.size());
+    }
+
+    static PolicySpecR27 fullComponentParent() {
+        PolicyAstR27.Node fusion=PolicyAstR27.op("mix",.4,PolicyAstR27.op("zscore",PolicyAstR27.leaf("family",8)),PolicyAstR27.op("zscore",PolicyAstR27.leaf("freq",1,32)));
+        return new PolicySpecR27(fusion,1,PolicySpecR27.Rule.QUANTILE,0,.2,1.4,true,.03,.01,IdeaFamilyR27.meta("I08","TEST",1,3,"same-source component fixture"));
+    }
+    @Test public void familyFusionSelectorAndCalibrationHaveExecutableSameSourceCounterfactuals() {
+        PolicySpecR27 p=fullComponentParent();Map<String,ResearchStudyTaskR30R1.ComponentR31> plan=new HashMap<>();
+        for(ResearchStudyTaskR30R1.ComponentR31 c:ResearchStudyTaskR30R1.componentsR31(p,2))plan.put(c.path,c);
+        for(String path:Arrays.asList("family:8","root/0","root/1","selector","readout")){
+            assertTrue(path,plan.get(path).supported());PolicySpecR27 child=DirectedResearchPolicyR30R1.counterfactualR31(p,path,2);
+            assertNotEquals(p.policyHash(),child.policyHash());assertEquals(p.position,child.position);
+            assertEquals(Collections.singletonList(p.policyHash()),child.meta.parents);
+        }
+        assertEquals("FUSION_MEMBER",plan.get("root/0").kind);
+        PolicySpecR27 simple=new PolicySpecR27(PolicyAstR27.op("zscore",PolicyAstR27.leaf("freq",1,32)),1,PolicySpecR27.Rule.ALWAYS,0,1,1,false,0,0,null);
+        assertEquals("a teacher needs no removable component",1,MatrixEvidenceR30R1.teachers(Collections.singletonList(simple)).size());
+        assertEquals("family policies use the actual replay evaluator",1,MatrixEvidenceR30R1.teachers(Collections.singletonList(p)).size());
+        PolicySpecR27 noFamily=DirectedResearchPolicyR30R1.counterfactualR31(p,"family:8",2);
+        for(PolicyAstR27.Node n:PolicyAstR27.nodes(noFamily.ast))assertFalse(n.op.equals("family")&&n.ints[0]==8);
+        assertEquals(PolicySpecR27.Rule.ALWAYS,DirectedResearchPolicyR30R1.counterfactualR31(p,"selector",2).rule);
+        PolicySpecR27 noCalibration=DirectedResearchPolicyR30R1.counterfactualR31(p,"readout",2);assertFalse(noCalibration.fitTemperature);assertEquals(1,noCalibration.temperature,0);
+    }
+    @Test public void allComponentKindsResumeTheirRealNumericalAndSelectorState() {
+        try(Owned o=new Owned()){
+            PolicySpecR27 p=fullComponentParent();ResearchContractR30R1 contract=RepairPairedResearchR30Test.contract(o.ctx,p);double tau=o.ctx.temperature(p);
+            for(String path:Arrays.asList("family:8","root/0","selector","readout"))for(PairedReplayRunnerR30R1.Protocol protocol:PairedReplayRunnerR30R1.Protocol.values()){
+                PairedReplayRunnerR30R1 full=new PairedReplayRunnerR30R1(contract,p,path,o.ctx,tau,2,64,protocol);
+                while(!full.complete())full.advance(o.ctx,256);
+                PairedReplayRunnerR30R1 resumed=new PairedReplayRunnerR30R1(contract,p,path,o.ctx,tau,2,64,protocol);
+                int checkpointAt=o.ctx.split.selectFrom+73;
+                while(resumed.cursor()<checkpointAt)resumed.advance(o.ctx,Math.min(137,checkpointAt-resumed.cursor()));
+                resumed=PairedReplayRunnerR30R1.restore(resumed.snapshot(),o.ctx);
+                while(!resumed.complete())resumed.advance(o.ctx,97);
+                assertEquals(path+":"+protocol,full.snapshot(),resumed.snapshot());
+                assertEquals(full.lossR31(),resumed.gain().estimate().loss);
+                assertTrue(path,resumed.gain().estimate().observedCalendarIssues>0);
+            }
+        }
+    }
+    @Test public void selectorStudyUsesEveryOpportunityAndMatchesTheProductionReplayDecisions() {
+        try(Owned o=new Owned()){
+            PolicySpecR27 p=fullComponentParent();ResearchContractR30R1 c=RepairPairedResearchR30Test.contract(o.ctx,p);double tau=o.ctx.temperature(p);
+            PairedReplayRunnerR30R1 r=new PairedReplayRunnerR30R1(c,p,"selector",o.ctx,tau,2,64);
+            while(!r.complete())r.advance(o.ctx,101);
+            ReplayEvaluatorR27.Trace a=ReplayEvaluatorR27.selectTraceWithProbabilities(p,o.ctx,tau),b=ReplayEvaluatorR27.selectTraceWithProbabilities(r.without,o.ctx,tau);
+            assertEquals(ResearchGainR30R1.Loss.OPPORTUNITY_K3_UTILITY_LOSS,r.gain().estimate().loss);
+            int blocks=0;
+            for(Map<String,Object> block:r.gain().blocks())if(Boolean.TRUE.equals(block.get("included"))){
+                long from=((Number)block.get("fromOrdinal")).longValue(),to=((Number)block.get("throughOrdinal")).longValue();double gain=0;int count=0;
+                for(int t=o.ctx.split.selectFrom;t<o.ctx.split.selectTo;t++)if(o.ctx.data.ordinals[t]>=from&&o.ctx.data.ordinals[t]<=to&&!a.skipped[t]&&!b.skipped[t]){gain+=a.u[t]-b.u[t];count++;}
+                assertEquals(64,count);assertEquals(gain/count,((Number)block.get("meanGain")).doubleValue(),1e-12);blocks++;
+            }
+            assertTrue(blocks>0);
+            assertTrue("descriptive study never changes formal qualification",r.advice().reason.contains("RESEARCH")||r.advice().reason.contains("COMPONENT_HARMFUL"));
+        }
     }
 
     @Test public void bothProtocolsResumeExactlyAndTheRemovedArmNeverTouchesTheParentState() {

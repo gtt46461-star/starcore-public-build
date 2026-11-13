@@ -10,8 +10,9 @@ public final class ResearchAdviceR30R1 {
         proposalId=ResearchContractR30R1.hash(evidenceKey+'|'+component+'|'+action.name());
     }
     public static ResearchAdviceR30R1 component(ResearchContractR30R1 c,String component,ResearchGainR30R1.Estimate e,long target,long preparedAt){
-        if(e.loss!=ResearchGainR30R1.Loss.MULTICLASS_BRIER_HALF)throw new IllegalArgumentException("COMPONENT_ADVICE_REQUIRES_SAME_TARGET_NORMALIZED_TEN_CLASS_LOSS");
-        c.requireAdvice(target,preparedAt);if(component==null||!component.matches("root(?:/[0-9]+)*"))throw new IllegalArgumentException("COMPONENT_PATH");
+        boolean selector="selector".equals(component);
+        if(e.loss!=(selector?ResearchGainR30R1.Loss.OPPORTUNITY_K3_UTILITY_LOSS:ResearchGainR30R1.Loss.MULTICLASS_BRIER_HALF))throw new IllegalArgumentException("COMPONENT_ADVICE_REQUIRES_SAME_TARGET_NORMALIZED_TEN_CLASS_LOSS");
+        c.requireAdvice(target,preparedAt);if(component==null||!component.matches("root(?:/[0-9]+)*|family:[0-9]{1,2}|selector|readout"))throw new IllegalArgumentException("COMPONENT_PATH");
         if(e.fromOrdinal!=c.fromOrdinal||e.throughOrdinal!=c.throughOrdinal)throw new IllegalArgumentException("GAIN_CONTRACT_WINDOW_MISMATCH");
         // estimate compares candidate-with-component to otherwise-identical baseline-without-component.
         if(!e.supported()||e.missingIssues>0||e.incompleteFullBlocks>0)return new ResearchAdviceR30R1(c,component,e,Action.NONE,"INSUFFICIENT_OR_INCOMPLETE_PAIRED_RESEARCH");

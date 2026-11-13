@@ -1,6 +1,9 @@
 package com.ethk3.novaonepro.strategyv2;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /** R27-015 prequential (walk-forward) evaluator, docs/03 3.3. One pass over rows: features(≤t−1) → predict →
  * record against draw t → online update with the rule fixed at birth. The temperature is the only quantity fitted,
@@ -143,32 +146,47 @@ public final class ReplayEvaluatorR27 {
         try(PolicyAstR27.ScopedScoresR31 input=PolicyAstR27.ScopedScoresR31.legacy(scores)){return runInputR31(spec,input,data,labels,temperature,from,to,capture);}
     }
     static Trace runScopedR31(PolicySpecR27 spec,PolicyAstR27.ScoreInputR31 scores,ReplayDatasetR27 data,int[][] labels,double temperature,int from,int to){return runInputR31(spec,scores,data,labels,temperature,from,to,false);}
+    /** Same causal selector in ordinary replay and resumable component studies. */
+    static final class SelectorStateR31 {
+        final PolicySpecR27 spec;final double[] ring=new double[QUANTILE_WINDOW];int filled,head;
+        SelectorStateR31(PolicySpecR27 spec){this.spec=spec;}
+        boolean step(long ordinal,double mass){
+            boolean act;
+            switch(spec.rule){
+                case ALWAYS:act=true;break;
+                case RANDOM:long gate=spec.ast.toString().hashCode()*0x9E3779B97F4A7C15L;act=unit(gate^(ordinal*0xBF58476D1CE4E5B9L))<spec.rate;break;
+                case QUANTILE:int below=0;for(int i=0;i<filled;i++)if(ring[i]<mass)below++;act=filled>=50&&below>=(1-spec.rate)*filled;break;
+                default:act=mass-StatsR27.BASE>=spec.threshold;break;
+            }
+            if(spec.rule==PolicySpecR27.Rule.QUANTILE){ring[head]=mass;head=(head+1)%QUANTILE_WINDOW;filled=Math.min(QUANTILE_WINDOW,filled+1);}
+            return act;
+        }
+        Map<String,Object> snapshot(){Map<String,Object> m=new LinkedHashMap<>();m.put("policy",spec.policyHash());m.put("filled",filled);m.put("head",head);m.put("ring",ring.clone());return m;}
+        void restore(Map<?,?> m){
+            if(m==null||!spec.policyHash().equals(m.get("policy"))||!(m.get("filled") instanceof Number)||!(m.get("head") instanceof Number)||!(m.get("ring") instanceof List))throw new IllegalArgumentException("PAIRED_SELECTOR_STATE_IDENTITY");
+            int f=((Number)m.get("filled")).intValue(),h=((Number)m.get("head")).intValue();List<?> values=(List<?>)m.get("ring");
+            if(f<0||f>QUANTILE_WINDOW||h<0||h>=QUANTILE_WINDOW||values.size()!=QUANTILE_WINDOW||(f<QUANTILE_WINDOW&&h!=f))throw new IllegalArgumentException("PAIRED_SELECTOR_STATE_CURSOR");
+            for(int i=0;i<ring.length;i++){Object value=values.get(i);if(!(value instanceof Number))throw new IllegalArgumentException("PAIRED_SELECTOR_STATE_VALUE");double v=((Number)value).doubleValue();if(!Double.isFinite(v)||v<0||v>1)throw new IllegalArgumentException("PAIRED_SELECTOR_STATE_VALUE");ring[i]=v;}
+            filled=f;head=h;
+        }
+    }
     private static Trace runInputR31(PolicySpecR27 spec,PolicyAstR27.ScoreInputR31 scores,ReplayDatasetR27 data,int[][] labels,double temperature,int from,int to,boolean capture){
         checkEvolutionRangeR30(to);
         int tp = spec.position - 1; Trace tr = new Trace(data.size(), from, to, spec.position, temperature,capture);
         double[] z = new double[10], p = new double[10]; int[] order = new int[10],sortedK3=new int[3],guardK3=new int[3];
-        long gate = spec.rule == PolicySpecR27.Rule.RANDOM ? spec.ast.toString().hashCode() * 0x9E3779B97F4A7C15L : 0;
-        double[] ring = new double[QUANTILE_WINDOW]; int filled = 0, head = 0;
+        SelectorStateR31 selector=new SelectorStateR31(spec);
         for (int t = 0; t < to; t++) {
             if((t&31)==0)CooperativeContinuationR26.poll();
             if (!standardizeScopedR31(scores, t, z)) continue;
             if(SetIntersectionPolicyR30.exact(spec))scores.copyRow(t,p);else softmax(z, temperature, tr.bias, p);
             int y = labels[t][tp] - 1;
+            boolean selected=false;
+            if(t>=from||spec.rule==PolicySpecR27.Rule.QUANTILE){top3(p,order);selected=selector.step(data.ordinals[t],p[order[0]]+p[order[1]]+p[order[2]]);}
             if (t >= from) {
                 top3(p, order);
                 int a = order[0], b = order[1], c = order[2];
                 double mass = p[a] + p[b] + p[c];
-                boolean act;
-                switch (spec.rule) {
-                    case ALWAYS: act = true; break;
-                    case RANDOM: act = unit(gate ^ (data.ordinals[t] * 0xBF58476D1CE4E5B9L)) < spec.rate; break;
-                    case QUANTILE: {
-                        int below = 0; for (int i = 0; i < filled; i++) if (ring[i] < mass) below++;
-                        act = filled >= 50 && below >= (1 - spec.rate) * filled;
-                        break;
-                    }
-                    default: act = mass - StatsR27.BASE >= spec.threshold; break;
-                }
+                boolean act=selected;
                 int[] s = sortedK3;s[0]=a;s[1]=b;s[2]=c;Arrays.sort(s);
                 // R30-B03-01: a sample failing the PIT guard stays skipped (not counted); the online state still advances.
                 guardK3[0]=s[0]+1;guardK3[1]=s[1]+1;guardK3[2]=s[2]+1;
@@ -181,7 +199,6 @@ public final class ReplayEvaluatorR27 {
                 if (t == to - 1) System.arraycopy(p, 0, tr.lastProbs, 0, 10);
                 }
             }
-            if (spec.rule == PolicySpecR27.Rule.QUANTILE) { top3(p,order);ring[head] = p[order[0]] + p[order[1]] + p[order[2]]; head = (head + 1) % QUANTILE_WINDOW; filled = Math.min(QUANTILE_WINDOW, filled + 1); }
             // Online update: identical in every segment and in live operation (registered rule).
             for (int k = 0; k < 10; k++) tr.bias[k] = tr.bias[k] * (1 - spec.forget) + spec.lr * ((k == y ? 1 : 0) - p[k]);
         }

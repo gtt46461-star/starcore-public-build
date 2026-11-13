@@ -4,7 +4,8 @@ import android.database.Cursor;import java.util.*;import com.ethk3.novaonepro.Bu
 /** Original pool/writer only: at most one prepared 256-row replay slice, or one atomic completed study. */
 public final class ResearchStudyTaskR30R1 {
  private ResearchStudyTaskR30R1(){}public static final String PANEL="research-study-r1";
- static boolean supported(PolicySpecR27 p){for(PolicyAstR27.Node n:PolicyAstR27.nodes(p.ast))if(n.op.equals("family"))return false;return true;}
+ /** Probability replay also accepts a simple policy with no removable component. */
+ static boolean supported(PolicySpecR27 p){return p!=null&&!SetIntersectionPolicyR30.exact(p);}
  /** R31-B08-C03: one component of a parent and whether a same-semantics paired experiment exists for it. */
  public static final class ComponentR31{
   public final String parentHash,path,kind,status,reason;
@@ -15,16 +16,22 @@ public final class ResearchStudyTaskR30R1 {
  /** Component registry of one parent: AST subtrees (removal), family parameter modules, selector and calibrator. A
   * component without a same-semantics counterfactual is UNSUPPORTED_PAIR with its reason, never silently skipped. */
  public static List<ComponentR31> componentsR31(PolicySpecR27 p,int generation){
-  List<ComponentR31> out=new ArrayList<>();String h=p.policyHash();boolean familyFree=supported(p);
-  for(String path:Arrays.asList("root/0","root/1")){
-   if(!familyFree){out.add(new ComponentR31(h,path,"AST_SUBTREE","UNSUPPORTED_PAIR","FAMILY_LEAF_SCORES_NEED_THE_SAME_MODEL_SOURCE_COUNTERFACTUAL"));continue;}
-   try{DirectedResearchPolicyR30R1.withoutChild(p,path,generation);out.add(new ComponentR31(h,path,"AST_SUBTREE","SUPPORTED",""));}
-   catch(IllegalArgumentException unsupported){out.add(new ComponentR31(h,path,"AST_SUBTREE","UNSUPPORTED_PAIR",unsupported.getMessage()));}
-  }
-  for(PolicyAstR27.Node n:PolicyAstR27.nodes(p.ast))if(n.op.equals("family"))out.add(new ComponentR31(h,"family:"+n.ints[0],"FAMILY_PARAMETER_MODULE","UNSUPPORTED_PAIR","FAMILY_ADAPTER_REQUIRES_SAME_SEMANTICS_COUNTERFACTUAL"));
-  out.add(new ComponentR31(h,"selector","SELECTOR","UNSUPPORTED_PAIR","SELECTOR_CHANGE_IS_A_NEW_POLICY_STUDIED_BY_SELECTOR_POLICY"));
-  if(p.fitTemperature)out.add(new ComponentR31(h,"readout","CALIBRATOR","UNSUPPORTED_PAIR","TEMPERATURE_REFIT_IS_TRAIN_ONLY_NOT_A_REMOVABLE_COMPONENT"));
+  List<ComponentR31> out=new ArrayList<>();String h=p.policyHash();
+  componentPathsR31(p,p.ast,"root",generation,out);
+  Set<Integer> families=new TreeSet<>();for(PolicyAstR27.Node n:PolicyAstR27.nodes(p.ast))if(n.op.equals("family"))families.add(n.ints[0]);
+  for(int family:families)addComponentR31(p,"family:"+family,"FAMILY_PARAMETER_MODULE",generation,out);
+  if(p.rule==PolicySpecR27.Rule.ALWAYS)out.add(new ComponentR31(h,"selector","SELECTOR","NOT_APPLICABLE","SELECTOR_ALREADY_ALWAYS"));
+  else addComponentR31(p,"selector","SELECTOR",generation,out);
+  if(p.fitTemperature||p.temperature!=1)addComponentR31(p,"readout","CALIBRATOR",generation,out);
+  else out.add(new ComponentR31(h,"readout","CALIBRATOR","NOT_APPLICABLE","CALIBRATOR_ALREADY_IDENTITY"));
   return out;
+ }
+ private static void componentPathsR31(PolicySpecR27 p,PolicyAstR27.Node node,String at,int generation,List<ComponentR31> out){
+  for(int i=0;i<node.kids.length;i++){String path=at+"/"+i;addComponentR31(p,path,node.op.equals("mix")?"FUSION_MEMBER":"AST_SUBTREE",generation,out);componentPathsR31(p,node.kids[i],path,generation,out);}
+ }
+ private static void addComponentR31(PolicySpecR27 p,String path,String kind,int generation,List<ComponentR31> out){
+  try{DirectedResearchPolicyR30R1.counterfactualR31(p,path,generation);out.add(new ComponentR31(p.policyHash(),path,kind,"SUPPORTED",""));}
+  catch(IllegalArgumentException unsupported){out.add(new ComponentR31(p.policyHash(),path,kind,"UNSUPPORTED_PAIR",unsupported.getMessage()));}
  }
  /** Parents studied this round: a window of 8 that rotates over the whole population, so no parent is never studied. */
  public static List<PolicySpecR27> rotationR31(List<EvolutionLoopR27.Member> population,int generation,int window){
@@ -46,7 +53,7 @@ public final class ResearchStudyTaskR30R1 {
    String key=StatsR27.sha256("PAIRED_STUDY_64_4_200_V1|"+ctx.data.datasetHash+'|'+parent.policyHash()+'|'+path+'|'+revision+'|'+BuildConfig.SOURCE_COMMIT_R26+(protocol==PairedReplayRunnerR30R1.Protocol.RETRAIN_REMOVED?"":"|"+protocol.name()));
    PairedReplayRunnerR30R1 runner=null;try(Cursor c=w.ro.rawQuery("SELECT summary_json FROM r30r1_analysis_run WHERE run_id=? AND status IN ('REPLAY_STUDY_PREPARED','REPLAY_STUDY_COMPLETE') UNION ALL SELECT payload_json FROM r27_chart_cache WHERE panel_id=? AND key=? LIMIT 1",new String[]{key,PANEL,key})){if(c.moveToFirst()){@SuppressWarnings("unchecked")Map<String,Object> saved=(Map<String,Object>)JsonR27.parse(c.getString(0));if("DONE".equals(saved.get("status")))continue;runner=PairedReplayRunnerR30R1.restore((String)saved.get("checkpoint"),ctx);}}
    if(runner==null){ResearchContractR30R1 contract=new ResearchContractR30R1(ctx.data.datasetHash,parent.policyHash(),FrozenConfirmationR30.currentSemantics(),BuildConfig.SOURCE_COMMIT_R26,key,ResearchContractR30R1.Role.SELECT,ctx.data.ordinals[ctx.split.selectFrom],ctx.data.ordinals[ctx.split.selectTo-1],System.currentTimeMillis(),revision);runner=new PairedReplayRunnerR30R1(contract,parent,path,ctx,ctx.temperature(parent),loop.generation,64,protocol);}
-   runner.advance(ctx,256);long now=System.currentTimeMillis();Map<String,Object> checkpoint=new LinkedHashMap<>();checkpoint.put("status",runner.complete()?"DONE":"PREPARED");checkpoint.put("checkpoint",runner.snapshot());checkpoint.put("role","SELECT");checkpoint.put("protocol",protocol.name());checkpoint.put("effect",runner.effectClaimR31(protocol));checkpoint.put("intervalStatus","DESCRIPTIVE_RESEARCH_ONLY");checkpoint.put("sourceRevision",revision);checkpoint.put("workCursor",runner.cursor());
+   runner.advance(ctx,256);long now=System.currentTimeMillis();Map<String,Object> checkpoint=new LinkedHashMap<>();checkpoint.put("status",runner.complete()?"DONE":"PREPARED");checkpoint.put("checkpoint",runner.snapshot());checkpoint.put("role","SELECT");checkpoint.put("protocol",protocol.name());checkpoint.put("loss",runner.lossR31().name());checkpoint.put("effect",runner.effectClaimR31(protocol));checkpoint.put("intervalStatus","DESCRIPTIVE_RESEARCH_ONLY");checkpoint.put("sourceRevision",revision);checkpoint.put("workCursor",runner.cursor());
    // Only the original RETRAIN_REMOVED protocol feeds the paired -> proposal -> consume chain; MASK_FROZEN is reported apart.
    if(runner.complete()&&protocol==PairedReplayRunnerR30R1.Protocol.MASK_FROZEN){ResearchGainR30R1.Estimate e=runner.gain().estimate();checkpoint.put("meanBlockGain",e.meanBlockGain);checkpoint.put("lower95",e.lower95);checkpoint.put("upper95",e.upper95);}
    ResearchWriteQueueR27.Batch b=runner.complete()&&protocol==PairedReplayRunnerR30R1.Protocol.RETRAIN_REMOVED?ResearchStoreR30R1.paired(runner,now):new ResearchWriteQueueR27.Batch();b.guardBefore(db->{ResearchInputPinR30R1.require(db,ctx.data.datasetHash,revision);return 0;});

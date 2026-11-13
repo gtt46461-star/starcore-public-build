@@ -14,6 +14,47 @@ public final class RepairResearchR30HostTest {
   check(count(db,"SELECT count(*) FROM research_matrix_snapshot_r930 m JOIN r30r1_proposal p ON p.run_id=m.analysis_run_id JOIN r30r1_consume c ON c.proposal_id=p.proposal_id WHERE m.kind='COUNTERFACTUAL'")==1,"ACTUAL_COUNTERFACTUAL_MATRIX_CONSUMER_NOT_LINKED");check(count(db,"SELECT count(*) FROM r27_certificate")==0,"SIGNAL_FIXTURE_MINTED_REAL_CERTIFICATE");System.out.println("REPAIR_ACTUAL_PAIRED_SIGNAL_CHAIN|PRODUCTION_RUNNER_COMPUTED_NEGATIVE_COMPONENT_GAIN="+runner.gain().estimate().meanBlockGain+"|EXACT_MEASURED_CHILD_HASH="+runner.without.policyHash()+"|ACTUAL_ANALYSIS_PROPOSAL_MATRIX_BIRTH_GATE_CHILD_CONSUME_CURSOR|PASS|HOST_PREREGISTERED_KNOWN_SYNTHETIC_SIGNAL_ONLY_NOT_NATURAL_QUALITY");
  }
  static EvalContextR27 runnerContext(){ReplayDatasetR27 d=ReplayDatasetR27.synthetic(3000,30,new int[0]);return new EvalContextR27(new FeatureCacheR27(d),SplitR27.of(d,null),null);}
+ @SuppressWarnings("unchecked") static void componentChains(Connection connection,SQLiteDatabase db)throws Exception{
+  // Fixed mechanism fixtures, chosen before evaluating SELECT. These are not natural-quality evidence.
+  for(String path:new String[]{"family:8","selector","readout"}){
+   ReplayDatasetR27 raw=ReplayDatasetR27.synthetic(6000,1841,new int[0]);
+   ReplayDatasetR27 generated=path.equals("readout")?raw:raw.planted(.85,1842);
+   List<ReplayDatasetR27.Row> calendarRows=new ArrayList<>();long start=com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1("202610240001");
+   for(int i=0;i<generated.size();i++)calendarRows.add(new ReplayDatasetR27.Row(com.ethk3.novaonepro.TargetIssueResolver.fromSequenceOrdinalSU1(start+i),start+i,generated.draws[i]));
+   ReplayDatasetR27 data=ReplayDatasetR27.of(calendarRows);
+   try(FeatureCacheR27 cache=new FeatureCacheR27(data);EvalContextR27 ctx=new EvalContextR27(cache,SplitR27.of(data,null),null)){
+    PolicyAstR27.Node signal=PolicyAstR27.op("zscore",PolicyAstR27.leaf("cross",2,1));
+    PolicyAstR27.Node ast=path.equals("family:8")?PolicyAstR27.op("add",PolicyAstR27.op("mul",PolicyAstR27.constant(5),PolicyAstR27.op("zscore",PolicyAstR27.leaf("family",8))),signal):path.equals("selector")?signal:PolicyAstR27.leaf("randu",1843);
+    PolicySpecR27 parent=new PolicySpecR27(ast,1,path.equals("selector")?PolicySpecR27.Rule.RANDOM:PolicySpecR27.Rule.ALWAYS,0,.05,path.equals("readout")?16:1,false,0,0,IdeaFamilyR27.meta("I09","HOST_PREREGISTERED_COMPONENT",0,1844,"HOST_SYNTHETIC_NOT_NATURAL_QUALITY"));
+    ResearchContractR30R1 contract=new ResearchContractR30R1(data.datasetHash,parent.policyHash(),FrozenConfirmationR30.currentSemantics(),com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26,StatsR27.sha256("component-fixture:"+path),ResearchContractR30R1.Role.SELECT,data.ordinals[ctx.split.selectFrom],data.ordinals[ctx.split.selectTo-1],0,0);
+    PairedReplayRunnerR30R1 runner=new PairedReplayRunnerR30R1(contract,parent,path,ctx,parent.temperature,0,64);
+    while(!runner.complete()){runner.advance(ctx,137);runner=PairedReplayRunnerR30R1.restore(runner.snapshot(),ctx);}
+    ResearchGainR30R1.Estimate estimate=runner.gain().estimate();
+    check(runner.advice().action==ResearchAdviceR30R1.Action.PRUNE_COMPONENT,"REGISTERED_COMPONENT_NO_MEASURED_HARM:"+path+":"+estimate.upper95);
+    tx(connection,db,ResearchStoreR30R1.paired(runner,20));
+    String run=contract.key("PAIRED_COMPONENT_ANALYSIS_V1|"+estimate.analysisContractHash+'|'+path);
+    try(Cursor c=db.rawQuery("SELECT summary_json FROM r30r1_analysis_run WHERE run_id=?",new String[]{run})){
+     check(c.moveToFirst(),"DURABLE_COMPONENT_ANALYSIS:"+path);Map<String,Object> summary=(Map<String,Object>)JsonR27.parse(c.getString(0));
+     check(estimate.loss.name().equals(summary.get("loss")),"DURABLE_REGISTERED_LOSS:"+path);
+     check(runner.without.policyHash().equals(summary.get("counterfactualHash")),"DURABLE_EXACT_COMPONENT_CHILD:"+path);
+    }
+    MatrixTensorR30R1.Tensor causal=MatrixEvidenceR30R1.stored("CAUSAL_SUPPORT",db,ctx,0,null),negative=MatrixEvidenceR30R1.stored("COUNTER_EVIDENCE",db,ctx,0,null);
+    check(causal!=null&&negative!=null,"ACTUAL_COMPONENT_MATRICES:"+path);
+    Map<String,Object> matrix=(Map<String,Object>)JsonR27.parse(negative.payload),detail=(Map<String,Object>)matrix.get("details");
+    check("PER_COMPONENT_PROTOCOL_AND_LOSS_NO_POOLED_INTERVAL".equals(detail.get("intervalScope")),"MATRIX_NO_MIXED_INTERVAL:"+path);
+    boolean linked=false;for(Object value:(List<?>)detail.get("sourceReceipts")){Map<?,?> receipt=(Map<?,?>)value;if(run.equals(receipt.get("sourceRun"))){linked=true;check(estimate.loss.name().equals(receipt.get("loss")),"MATRIX_PRESERVES_LOSS:"+path);}}
+    check(linked,"MATRIX_REFERENCES_REAL_COMPONENT_RUN:"+path);
+    EvolutionLoopR27.Config cfg=new EvolutionLoopR27.Config();cfg.births=1;cfg.minPerFamily=0;cfg.expertShare=0;cfg.nullControl=false;
+    StoreR27.EvolutionSink sink=new StoreR27.EvolutionSink("HOST_COMPONENT_"+path,data.issues[data.size()-1]);EvolutionLoopR27 loop=new EvolutionLoopR27(cfg,cache,sink,()->1);loop.step=2;
+    loop.directedResearch=ResearchStoreR30R1.ready(db,ctx,0,4);check(loop.directedResearch.size()==1,"COMPONENT_ACTUAL_READY_CONSUMER:"+path);
+    loop.step();loop.step();check("BORN".equals(loop.pendingState(runner.without.policyHash())),"COMPONENT_ORIGINAL_BIRTH_GATE:"+path);
+    loop.commitResearchAdmissions(sink.batch,21);tx(connection,db,sink.batch);
+    check(count(db,"SELECT count(*) FROM r30r1_consume WHERE proposal_id='"+runner.advice().proposalId+"' AND child_policy_hash='"+runner.without.policyHash()+"'")==1,"COMPONENT_EXACT_CHILD_DURABLE_CONSUMPTION:"+path);
+    check(count(db,"SELECT count(*) FROM r27_certificate")==0,"COMPONENT_STUDY_CANNOT_GRANT_CERTIFICATE");
+    System.out.println("R31_EXECUTABLE_COMPONENT_CHAIN|path="+path+"|loss="+estimate.loss+"|gain="+estimate.meanBlockGain+"|upper95="+estimate.upper95+"|ANALYSIS_PROPOSAL_CAUSAL_AND_NEGATIVE_MATRICES_ORIGINAL_BIRTH_CONSUME|PASS|HOST_PREREGISTERED_SYNTHETIC_NOT_NATURAL");
+   }
+  }
+ }
  static PairedReplayRunnerR30R1 newRunner(EvalContextR27 ctx){PolicySpecR27 p=parent();ResearchContractR30R1 c=new ResearchContractR30R1(ctx.data.datasetHash,p.policyHash(),FrozenConfirmationR30.currentSemantics(),com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26,StatsR27.sha256("runner-input"),ResearchContractR30R1.Role.SELECT,ctx.data.ordinals[ctx.split.selectFrom],ctx.data.ordinals[ctx.split.selectTo-1],0,0);return new PairedReplayRunnerR30R1(c,p,"root/0",ctx,1,0,64);}
  static String stored(String file)throws Exception{try(Connection c=DriverManager.getConnection("jdbc:sqlite:"+file);Statement st=c.createStatement();ResultSet r=st.executeQuery("SELECT payload FROM host_runner WHERE id=1")){return r.next()?r.getString(1):null;}}
  static void runnerWorker(String file,int target,boolean fail)throws Exception{EvalContextR27 ctx=runnerContext();try(Connection c=DriverManager.getConnection("jdbc:sqlite:"+file)){SQLiteDatabase db=new SQLiteDatabase(c);db.execSQL("CREATE TABLE IF NOT EXISTS host_runner(id INTEGER PRIMARY KEY,payload TEXT NOT NULL)");String saved=null;try(Cursor r=db.rawQuery("SELECT payload FROM host_runner WHERE id=1",null)){if(r.moveToFirst())saved=r.getString(0);}PairedReplayRunnerR30R1 r=saved==null?newRunner(ctx):PairedReplayRunnerR30R1.restore(saved,ctx);while(!r.complete()&&r.cursor()<target){r.advance(ctx,Math.min(256,target-r.cursor()));ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();b.add("INSERT OR REPLACE INTO host_runner VALUES(1,?)",r.snapshot());c.setAutoCommit(false);ResearchWriteQueueR27.execute(db,b,"HOST_RUNNER_CHECKPOINT");if(fail){c.rollback();Runtime.getRuntime().halt(91);}c.commit();c.setAutoCommit(true);}Runtime.getRuntime().halt(90);}}
@@ -35,6 +76,7 @@ public final class RepairResearchR30HostTest {
   try{tx(c,db,failedCursor);throw new AssertionError("DOUBLE_CONSUMPTION_ACCEPTED");}catch(RuntimeException expected){}check(count(db,"SELECT count(*) FROM r30r1_consume")==1,"DOUBLE_CONSUMPTION_INFLATED");
   check(count(db,"SELECT count(*) FROM r27_certificate")==0&&count(db,"SELECT count(*) FROM r27_holdout_exposure")==0,"RESEARCH_GRANTED_CERTIFICATE_OR_READ_CONFIRM");
   measuredSignalChain(c,db);
+  componentChains(c,db);
   System.out.println("REPAIR_RESEARCH_NATIVE|ANALYSIS_MEASURE_PROPOSAL_FRAME_ATOMIC|FAILED_CURSOR_ROLLBACKS_ACTUAL_BORN_CHILD_AND_RECEIPT|EXACT_CHILD_HASH|ACTUAL_ORIGINAL_EVOLUTION_BIRTH_GATE|RETRY_IDEMPOTENT|NO_DOUBLE_CONSUMPTION|NO_FORMAL_READ_NO_CERTIFICATE|PASS|HOST_SYNTHETIC_MECHANISM_ONLY");
  }}
 }
