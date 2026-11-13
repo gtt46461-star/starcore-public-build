@@ -20,6 +20,7 @@ SUITES = [
     ('platform-startup-readiness', 3, ['com.ethk3.novaonepro.R31PlatformReadinessInstrumentedTest']),
     ('storage-diagnostic-process', 2, ['com.ethk3.novaonepro.R31StorageCheckpointAndroidTest']),
     ('restore-proof-process', 1, ['com.ethk3.novaonepro.R31RestoreProofInstrumentedTest']),
+    ('delivery-and-live-service', 6, ['com.ethk3.novaonepro.R31QDeliveryInstrumentedTest']),
 ]
 # Only these tests may use the disposable VM's real private directory: the
 # diagnostic service runs in another Android process and cannot share a test
@@ -27,11 +28,12 @@ SUITES = [
 REAL_PROCESS_ARGS = {
     'storage-diagnostic-process': ['-e', 'r31qRealService', 'true', '-e', 'r31WalDisposable', 'true'],
     'restore-proof-process': ['-e', 'r31qRealService', 'true', '-e', 'r31RestoreDisposable', 'true'],
+    'delivery-and-live-service': ['-e', 'r31qRealService', 'true'],
 }
 # A new explicit offline restore contains two independently authenticated clone
 # probes, an expected refusal, and a separate cleanup. Its own existing waits
 # total at most 2160 seconds; the original seventeen protocols keep 240 seconds.
-GROUP_TIMEOUT_SECONDS = {'restore-proof-process': 2400}
+GROUP_TIMEOUT_SECONDS = {'restore-proof-process': 2400, 'delivery-and-live-service': 2400}
 
 
 def redact(text):
