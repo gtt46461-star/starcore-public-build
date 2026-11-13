@@ -66,6 +66,26 @@ public final class R31MatrixKindStateTest {
         }
     }
 
+    @Test public void reverseReasoningTargetChangeReopensThePersistedKindWithoutRequiringAStudent() throws Exception {
+        try (Owned o = new Owned()) {
+            String kind = "REVERSE_REASONING";
+            PolicySpecR27 first = student(), second = first.withSelector(2, first.rule, first.threshold, first.rate, first.meta);
+            MatrixTensorR30R1.Tensor before = MatrixEvidenceR30R1.compute(kind, o.ctx, Collections.singletonList(first), 3);
+            MatrixTensorR30R1.Tensor after = MatrixEvidenceR30R1.compute(kind, o.ctx, Collections.singletonList(second), 3);
+            assertNotEquals("the actual produced conditional matrix changes with the target", before.hash, after.hash);
+            String keyBefore = MatrixResearchR30R1.dependencyKeyR31(o.ctx.data.datasetHash, 3, kind,
+                    MatrixResearchR30R1.SOURCE_ONLY_KINDS_R31.contains(kind) ? "SOURCE_ONLY" : StatsR27.sha256(first.policyHash()), 0, "c");
+            String keyAfter = MatrixResearchR30R1.dependencyKeyR31(o.ctx.data.datasetHash, 3, kind,
+                    MatrixResearchR30R1.SOURCE_ONLY_KINDS_R31.contains(kind) ? "SOURCE_ONLY" : StatsR27.sha256(second.policyHash()), 0, "c");
+            MatrixResearchR30R1.OutcomeR31 produced = MatrixResearchR30R1.produceR31(kind, true, o.ctx.data.datasetHash, 3, () -> before);
+            Map<?, ?> persisted = (Map<?, ?>) JsonR27.parse(JsonR27.write(MatrixResearchR30R1.receiptR31("R930:" + kind, keyBefore, o.ctx.data.datasetHash, 3, produced, null, 1)));
+            assertFalse("a previous target's durable receipt cannot suppress the new target", MatrixResearchR30R1.decidedR31(persisted, keyAfter));
+            assertEquals("source-only fallback still runs with no student", MatrixResearchR30R1.StatusR31.PRODUCED,
+                    MatrixResearchR30R1.produceR31(kind, false, o.ctx.data.datasetHash, 3,
+                            () -> MatrixEvidenceR30R1.compute(kind, o.ctx, Collections.emptyList(), 3)).status);
+        }
+    }
+
     @Test public void invalidValuesNeverReplaceTheLastValidTensor() throws Exception {
         try (Owned o = new Owned()) {
             MatrixResearchR30R1.OutcomeR31 valid = produce(o, "NUMBER_POSITION_COMPATIBILITY", null);
@@ -104,6 +124,31 @@ public final class R31MatrixKindStateTest {
                 fail("database integrity fault was swallowed as a kind state");
             } catch (IllegalStateException expected) { assertEquals("WRAPPED", expected.getMessage()); }
             assertEquals(MatrixResearchR30R1.StatusR31.WAITING_SOURCE, MatrixResearchR30R1.produceR31("CONTRADICTION", true, o.ctx.data.datasetHash, 3, () -> null).status);
+        }
+    }
+
+    @Test public void schedulerFailuresPropagateWithoutPersistingAnInvalidMatrixDecision() throws Exception {
+        try (Owned o = new Owned()) {
+            for (RuntimeException control : Arrays.asList(
+                    new java.util.concurrent.CancellationException("MATRIX_CANCELLED"),
+                    new CooperativeContinuationR26.CapacityUnavailable(),
+                    new IllegalStateException("SCHEMA_PENDING:MATRIX_SOURCE"),
+                    new IllegalStateException("R31_STALE_OWNER:MATRIX"),
+                    new IllegalStateException("wrapped interruption", new InterruptedException("interrupted")),
+                    new IllegalStateException("wrapped transient", new java.util.concurrent.TimeoutException("transient")))) {
+                try {
+                    MatrixResearchR30R1.produceR31("CROSS_POSITION_FLOW", true, o.ctx.data.datasetHash, 3, () -> { throw control; });
+                    fail("scheduling control was converted into a durable INVALID outcome: " + control);
+                } catch (RuntimeException propagated) {
+                    assertSame("the owner must receive its original failure", control, propagated);
+                }
+            }
+            OutOfMemoryError fatal = new OutOfMemoryError("CONTROLLED_WRAPPED_FATAL");
+            try {
+                MatrixResearchR30R1.produceR31("CROSS_POSITION_FLOW", true, o.ctx.data.datasetHash, 3,
+                        () -> { throw new IllegalStateException("wrapped fatal", fatal); });
+                fail("a process-fatal cause became an invalid matrix receipt");
+            } catch (OutOfMemoryError propagated) { assertSame(fatal, propagated); }
         }
     }
 }

@@ -1,0 +1,44 @@
+{
+  "scope": "K07_UF16_CURRENT_PRODUCTION_MATRIX_REPAIR_NOT_WHOLE_PLAN_ACCEPTANCE",
+  "baseSource": "4bd5bfaa8ca4d805661c6c5a28c66bec0eb746f7",
+  "producer": "RuntimeR27.MatrixProductionTask -> MatrixResearchR30R1.step/produceR31",
+  "persistentProduct": "r27_chart_cache dependency inputIdentity; r30r1_research_measure typed matrix",
+  "consumer": "ResearchContextR30R1 and matrix read/report paths",
+  "fixes": [
+    "Reverse reasoning target/policy changes reopen its persisted dependency key; missing student still permits real source fallback",
+    "Cancellation, unavailable compute, missing schema, stale owner, wrapped interrupt/timeout and wrapped process-fatal causes return to the owner instead of persisting INVALID; invalid tensor values stay isolated; storage cause inspection is bounded and cycle-safe"
+  ],
+  "redTests": [
+    "reverseReasoningTargetChangeReopensThePersistedKindWithoutRequiringAStudent",
+    "schedulerFailuresPropagateWithoutPersistingAnInvalidMatrixDecision"
+  ],
+  "green": {
+    "tests": 14,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "classes": [
+      "R31MatrixKindStateTest",
+      "RepairMatrixEvidenceR30Test",
+      "R30MatrixRegistryTest",
+      "R31FailureEntryConsistencyTest"
+    ]
+  },
+  "developmentScope": "Targeted JUnit used -x generateR997ConstructionAssets only; no APK or full release acceptance inferred. Final must execute all identity generators.",
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java": "04365b49d1a79225fa006cddfac080de5150e9865a98f7e476a0e789f4bc965e",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31MatrixKindStateTest.java": "836d818a5ce0f18cd03e6b3dd6aca98bb5b43c1ac74d1fe69bcef533f6c1e9da"
+  },
+  "originalAcceptanceConfigSha256": "c577c58f63879ce8c9090d5b9d7494108db8f0d317b31d22639b4888b47bc08c",
+  "physicalDevice": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "rawJUnit": {
+    "reverse-red.xml": "d63d2dc0bb7f96bfe07449380a737944ecf0e93d356e7260d33f4e0042f4e20f",
+    "reverse-green.xml": "e220ee43d5542c280d2402e8d5a5e92d42d8f6fca3864336489f15de49f963f7",
+    "control-red.xml": "0379b2c50d6b8b7f04946a8a631210c766a2c12ccdbf2136c6470ed939513028",
+    "TEST-com.ethk3.novaonepro.strategyv2.RepairMatrixEvidenceR30Test.xml": "efd001b4f99f790f850eb40ce10844484e035bbbba4b276b07a7c37a56bd28f3",
+    "TEST-com.ethk3.novaonepro.strategyv2.R31MatrixKindStateTest.xml": "f3d44d5e3428820b1e883f95688ce2997309c3a90eb158a373fc35480ce40481",
+    "TEST-com.ethk3.novaonepro.strategyv2.R30MatrixRegistryTest.xml": "2673ed99e48f90ab65fa9248a207c02cd82f4b9186def148ebfdf2cca263fa0e",
+    "TEST-com.ethk3.novaonepro.strategyv2.R31FailureEntryConsistencyTest.xml": "d8313accc02750da020c6e98a84c5766b2381e521cb105de6baeb2eba037cd6d"
+  }
+}

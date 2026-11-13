@@ -25,7 +25,10 @@ public final class MatrixResearchR30R1 {
     /** R31-B08-C01: per-kind state of one round. Only PRODUCED appends a tensor; every other state keeps the last valid one. */
     public enum StatusR31{PRODUCED,WAITING_STUDENT,WAITING_SOURCE,INSUFFICIENT,INVALID}
     public static final List<String> STUDENT_KINDS_R31=Collections.unmodifiableList(Arrays.asList("STUDENT_ERROR","FEEDBACK","RESIDUAL_MECHANISM"));
-    public static final List<String> SOURCE_ONLY_KINDS_R31=Collections.unmodifiableList(Arrays.asList("NUMBER_POSITION_COMPATIBILITY","CROSS_POSITION_FLOW","REVERSE_REASONING"));
+    // Only these products are independent of the current policy/target set.
+    // Reverse reasoning can run without a student, but an available teacher's
+    // position changes its conditional matrix and must reopen the durable key.
+    public static final List<String> SOURCE_ONLY_KINDS_R31=Collections.unmodifiableList(Arrays.asList("NUMBER_POSITION_COMPATIBILITY","CROSS_POSITION_FLOW"));
     public static final class OutcomeR31{
         public final StatusR31 status;public final MatrixTensorR30R1.Tensor tensor;public final String reason;
         OutcomeR31(StatusR31 status,MatrixTensorR30R1.Tensor tensor,String reason){this.status=status;this.tensor=tensor;this.reason=reason==null?"":reason;}
@@ -41,10 +44,14 @@ public final class MatrixResearchR30R1 {
         MatrixTensorR30R1.Tensor t;
         try{t=producer.produce();}
         catch(IllegalArgumentException|IllegalStateException|ArithmeticException|IndexOutOfBoundsException invalid){
+            Error fatal=FailureDispositionR31.processFatalCause(invalid);if(fatal!=null)throw fatal;
             if(isStorageFaultR31(invalid))throw invalid; // database integrity stays on the B01/B02 fault path
             String m=String.valueOf(invalid.getMessage());
             if(m.contains("MATRIX_ORIGINAL_STUDENT_UNAVAILABLE"))return new OutcomeR31(StatusR31.WAITING_STUDENT,null,m);
             if(m.contains("MATRIX_SELECT_EMPTY"))return new OutcomeR31(StatusR31.INSUFFICIENT,null,m);
+            // Scheduling controls must reach the original owner. Persisting one
+            // as INVALID would mark this dependency key decided until inputs change.
+            if(FailureDispositionR31.classify(invalid).disposition!=FailureDispositionR31.Disposition.FAULT)throw invalid;
             return new OutcomeR31(StatusR31.INVALID,null,invalid.getClass().getSimpleName()+":"+m);
         }
         if(t==null)return new OutcomeR31(StatusR31.WAITING_SOURCE,null,dependency(kind));
@@ -52,7 +59,7 @@ public final class MatrixResearchR30R1 {
         if(t.presentCells==0)return new OutcomeR31(StatusR31.INSUFFICIENT,null,"MATRIX_NO_SUPPORTED_CELL");
         return new OutcomeR31(StatusR31.PRODUCED,t,"");
     }
-    static boolean isStorageFaultR31(Throwable t){for(Throwable c=t;c!=null;c=c.getCause()==c?null:c.getCause()){String n=c.getClass().getName();if(n.startsWith("android.database.sqlite.")||n.equals("java.sql.SQLException"))return true;}return false;}
+    static boolean isStorageFaultR31(Throwable t){IdentityHashMap<Throwable,Boolean> seen=new IdentityHashMap<>();for(Throwable c=t;c!=null&&seen.size()<16&&seen.put(c,Boolean.TRUE)==null;c=c.getCause()){String n=c.getClass().getName();if(n.startsWith("android.database.sqlite.")||n.equals("java.sql.SQLException"))return true;}return false;}
     /** Receipt of one kind; a non-PRODUCED state carries the previous valid tensor hash forward, flagged as stale. */
     public static Map<String,Object> receiptR31(String matrixId,String dependencyKey,String datasetHash,long revision,OutcomeR31 o,Map<?,?> previous,long costNs){
         Map<String,Object> r=new LinkedHashMap<>();r.put("matrixId",matrixId);r.put("inputIdentity",dependencyKey);r.put("datasetHash",datasetHash);r.put("sourceRevision",revision);r.put("role","SELECT");
