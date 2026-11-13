@@ -16,44 +16,34 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           github-token: ${{ github.token }}
-          run-id: 43395922679
-          name: r31v-emu-35
+          run-id: 43395877630
+          name: r31v-contracts
           path: ${{ runner.temp }}/private-current-artifact
-      - uses: actions/download-artifact@v4
-        with:
-          github-token: ${{ github.token }}
-          run-id: 43395922679
-          name: r31v-emu-29
-          path: ${{ runner.temp }}/private-current-artifact/api29
       - name: Emit only public source symbols and fixed source assertion identifiers
         run: |
           python3 - <<'PY'
           import json,os,pathlib,re
           root=pathlib.Path(os.environ['RUNNER_TEMP'])/'private-current-artifact'
           files=list(pathlib.Path('app/src').rglob('*.java'));names={x.name for x in files}
-          safe=list(root.rglob('safe-recovery-failure.json'))
-          for p in safe:
-              r=json.loads(p.read_text());assert r['sourceCommit']=='e6d9a99782cdf7fe7f69efef67d673259dd71c1d'
-              print('SAFE_RECOVERY|'+json.dumps(r,sort_keys=True))
-          test=pathlib.Path('app/src/androidTest/java/com/ethk3/novaonepro/R31ChartLifecycleInstrumentedTest.java').read_text()
-          literals=re.findall(r'"([^"\n]{12,180})"',test)
-          logs=list(root.rglob('ui-lifecycle-100.txt'))
-          for p in logs:
-              raw=p.read_text(errors='replace')
-              frames=[list(x) for x in re.findall(r'at (com\.ethk3\.novaonepro\.[A-Za-z0-9_.$]+)\.([A-Za-z0-9_$]+)\(([A-Za-z0-9_]+\.java):(\d+)\)',raw) if x[2] in names]
-              print('UI100_PUBLIC_SOURCE|'+json.dumps({'assertions':[x for x in literals if x in raw and not x.startswith('R31_UI_LIFECYCLE')],'frames':frames[:30]},sort_keys=True))
-          source=pathlib.Path('tools/r30-repair/probe_ui_report.py').read_text()
-          allowed=set(re.findall(r'[\x27"]([A-Z][A-Z0-9_]{5,})(?=[:\x27"])',source))
-          for p in root.rglob('probe-output.txt'):
-              raw=p.read_text(errors='replace')
-              print('UI_PROBE_PUBLIC_ASSERTIONS|'+json.dumps(sorted({x for x in allowed if x in raw})))
-          public_text='\n'.join(p.read_text(errors='replace') for p in files)
-          enums=set(re.findall(r'\b[A-Z][A-Z0-9_]{5,80}\b',public_text))
-          for p in root.rglob('failure-logcat.txt'):
-              raw=p.read_text(errors='replace')
-              selected='\n'.join(x for x in raw.splitlines() if re.search(r'\b(?:ReportExportCP12|ReportJournalCP12|ReportQueueCP12)\s*:',x))
-              frames=[list(x) for x in re.findall(r'at (com\.ethk3\.novaonepro\.[A-Za-z0-9_.$]+)\.([A-Za-z0-9_$]+)\(([A-Za-z0-9_]+\.java):(\d+)\)',selected) if x[2] in names]
-              print('REPORT_REQUEST_PUBLIC_CAUSES|'+json.dumps({'api':29 if 'api29' in p.parts else 35,'optionalObserverWarning':'Optional request observation unavailable' in selected,'publicSourceEnums':sorted(enums.intersection(re.findall(r'\b[A-Z][A-Z0-9_]{5,80}\b',selected)))[:120],'frames':frames[:60]},sort_keys=True))
-          print('PUBLIC_DIAGNOSTIC_FILES|'+json.dumps({'safeRecovery':len(safe),'ui100':len(logs)}))
+          import xml.etree.ElementTree as ET
+          texts='\n'.join(p.read_text(errors='replace') for p in files)
+          enums=set(re.findall(r'\b[A-Z][A-Z0-9_]{5,80}\b',texts))
+          for p in root.rglob('TEST-*.xml'):
+              tree=ET.parse(p)
+              for case in tree.findall('.//testcase'):
+                  bad=case.find('failure')
+                  if bad is None:bad=case.find('error')
+                  if bad is None:continue
+                  cls=case.get('classname','');method=case.get('name','')
+                  assert cls.rsplit('.',1)[-1]+'.java' in names
+                  raw=(bad.text or '')+'\n'+bad.get('message','')
+                  frames=[list(x) for x in re.findall(r'at (com\.ethk3\.novaonepro\.[A-Za-z0-9_.$]+)\.([A-Za-z0-9_$]+)\(([A-Za-z0-9_]+\.java):(\d+)\)',raw) if x[2] in names]
+                  print('FAILED_UNIT_PUBLIC_SOURCE|'+json.dumps({'class':cls,'method':method,'publicEnums':sorted(enums.intersection(re.findall(r'\b[A-Z][A-Z0-9_]{5,80}\b',raw))),'numericComparisons':re.findall(r'expected:<(-?[0-9.]+)> but was:<(-?[0-9.]+)>',raw),'frames':frames[:30]},sort_keys=True))
+          java=files+list(pathlib.Path('tools').rglob('*.java'));public='\n'.join(p.read_text(errors='replace') for p in java)
+          literals=set(re.findall(r'"([^"\n]{8,200})"',public))
+          for p in root.rglob('*'):
+              if p.is_file() and 'verify_resource_recovery' in str(p) and p.suffix in ('.log','.txt'):
+                  raw=p.read_text(errors='replace')
+                  print('RESOURCE_PUBLIC_ASSERTIONS|'+json.dumps({'assertions':sorted(x for x in literals if x in raw and not x.startswith('{'))[:60],'numericComparisons':re.findall(r'expected:<(-?[0-9.]+)> but was:<(-?[0-9.]+)>',raw)},sort_keys=True))
           PY
 
