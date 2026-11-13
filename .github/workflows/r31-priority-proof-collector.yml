@@ -1,0 +1,47 @@
+name: STARCORE 027 same-execution priority proof collection
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-priority-proof-collector.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31v-priority-report-runtime
+          run-id: 43484576602
+          github-token: ${{ github.token }}
+          path: observed
+      - name: Validate original seven tests and read their markers from their actual output stream
+        run: |
+          mkdir public
+          python3 - <<'PY'
+          import hashlib,json,pathlib,re
+          root=pathlib.Path('observed')
+          def one(name):
+              values=list(root.rglob(name));assert len(values)==1,(name,len(values));return values[0]
+          raw=one('delivery-protocol.txt').read_bytes();text=raw.decode(errors='replace')
+          log=one('logcat-redacted.txt').read_bytes();logs=log.decode(errors='replace')
+          sha=one('installed-release-sha256.txt').read_text().strip()
+          assert sha=='979fa72b25d91f5d8812ed8b8c13c47530f792637c2f9fbd2d21ed3b836a973d','EXACT_INSTALLED_RELEASE_MISMATCH'
+          markers=['FAILED_PROBE_NOT_SWALLOWED','OLD_READY_REAUDITED','OPTIONAL_OBSERVERS_BOUNDED_AT_TWO','LEGACY_READY','FULL_REPORT_PUBLISHED','DURABLE_INTENT_OBSERVER_DEATH','REAL_API_FETCH_AND_NEW_FREEZE_SETTLEMENT']
+          streams={name:('INSTRUMENTATION' if 'R31Q_ANDROID|'+name+'|' in text else 'LOGCAT' if 'R31Q_ANDROID|'+name+'|' in logs else 'MISSING') for name in markers}
+          tests=['firstSchemaProbeFailureStopsRemainingColumns','oldReadyStampCannotSkipTheNewAuditedMigrationPass','blockedOptionalObserversStayBoundedAndDoNotBlockTheNextRequest','legacyMigrationResumesAndAllowsCriticalCommitsBetweenUnits','fullReportReachesPublishedZipAndProviderReadback','committedIntentSurvivesObserverDeathAndExportsExplicitUnknown','liveServiceFetchesFreezesAndSettlesNewFutureObservations']
+          status=re.findall(r'INSTRUMENTATION_STATUS: test=([^\r\n]+)\r?\nINSTRUMENTATION_STATUS_CODE: (-?[0-9]+)',text)
+          completed={name for name,code in status if code=='0'}
+          ok=bool(re.search(r'OK \(7 tests\)',text) and not any(s in text for s in ['FAILURES!!!','INSTRUMENTATION_FAILED','Process crashed']) and set(tests)<=completed and all(v!='MISSING' for v in streams.values()))
+          result={'status':'PASS_ANDROID_EMULATOR' if ok else 'FAIL','sourceCommit':'477f6c9ce42b8ab0968a3b43351c1af3d6a752f7','tests':7,'installedReleaseSha256':sha,'originalBuildAndExecutionRunId':43484576602,'originalArtifactId':14067498291,'protocolSha256':hashlib.sha256(raw).hexdigest(),'logcatSha256':hashlib.sha256(log).hexdigest(),'completedOriginalTests':sorted(completed),'markerStreams':streams,'originalCollectorFailurePreserved':True,'scope':'SAME_EXECUTION_RECEIPT_RECOLLECTION_ONLY; NO_APK_BUILD_OR_TEST_RETRY; NO_DATABASE_RECORDS','physicalDevice':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN'}
+          pathlib.Path('public/DELIVERY_REGRESSION.json').write_text(json.dumps(result,indent=2)+'\n')
+          print(json.dumps({'status':result['status'],'completedTests':len(completed),'markerStreams':streams}))
+          assert ok,'ORIGINAL_PRIORITY_PROOF_NOT_ESTABLISHED'
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31-027-same-execution-priority-proof
+          path: public/
+          if-no-files-found: error
