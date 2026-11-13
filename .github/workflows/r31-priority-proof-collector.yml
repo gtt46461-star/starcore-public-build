@@ -45,3 +45,29 @@ jobs:
           name: r31-027-same-execution-priority-proof
           path: public/
           if-no-files-found: error
+  table_and_report_summary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31-027-exact-live-and-sixteen-readers
+          run-id: 43486351550
+          github-token: ${{ github.token }}
+          path: tables
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31-027-exact-report-saf-overlay
+          run-id: 43485964779
+          github-token: ${{ github.token }}
+          path: report
+      - name: Print only the already-public fixed status and export identity fields
+        run: |
+          python3 - <<'PY'
+          import pathlib,json
+          def one(root,name):
+              paths=list(pathlib.Path(root).rglob(name));assert len(paths)==1;return json.loads(paths[0].read_text())
+          t=one('tables','TABLE_UI_READERS.json');l=one('tables','SIGNED_LIVE_RESULT.json');r=one('report','ui-report-acceptance.json')
+          print('TABLE_STATUSES|'+json.dumps({'state':t['state'],'reads':[{k:row.get(k) for k in ['id','actualStatus','shown','readOnly','failureClass']} for row in t['reads']]}))
+          print('LIVE_COLLECTOR_STATUS|'+json.dumps({k:l.get(k) for k in ['testPassed','publicFailures','sourceCommit','apkSha256']}))
+          print('REPORT_EXPORT|'+json.dumps({k:r.get(k) for k in ['sourceCommit','jobId','zipBytes','zipSha256','saf','evidenceComplete','checksComplete','allChecksPassed']}))
+          PY
