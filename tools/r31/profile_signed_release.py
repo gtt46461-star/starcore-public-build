@@ -44,7 +44,7 @@ def observe(built, support, out):
     run('adb', 'shell', 'pm', 'grant', PACKAGE, 'android.permission.POST_NOTIFICATIONS', check=False)
     run('adb', 'shell', 'am', 'force-stop', PACKAGE)
     result = {'sourceCommit': SOURCE, 'apkSha256': APK_SHA, 'supportTestSource': TEST_SOURCE,
-              'supportTestAndRunnerSourceUnchanged': True, 'scope': 'EXACT_RELEASE_SERVICE_AND_PHASE_DIAGNOSIS',
+              'supportTestAndRunnerSourceUnchanged': True, 'scope': 'EXACT_RELEASE_SERVICE_PHASE_AND_PERSISTENT_ERROR_DIAGNOSIS_NOT_ACCEPTANCE',
               'physicalDevice': 'NOT_RUN', '24h': 'NOT_RUN', '72h': 'NOT_RUN', 'naturalQuality': 'NOT_PROVEN'}
     with tempfile.TemporaryDirectory(prefix='r31-private-live-') as private:
         private = Path(private)
@@ -56,7 +56,7 @@ def observe(built, support, out):
         with log.open('wb') as stream:
             process = subprocess.Popen(command, stdout=stream, stderr=subprocess.STDOUT)
             start = time.monotonic(); samples = 0
-            while process.poll() is None and time.monotonic() - start < 600:
+            while process.poll() is None and time.monotonic() - start < 300:
                 # First two minutes are uninstrumented; later stacks only diagnose failures.
                 elapsed = time.monotonic() - start
                 if elapsed >= 120 + samples * 7 and samples < 24:
@@ -66,7 +66,7 @@ def observe(built, support, out):
                     samples += 1
                 time.sleep(1)
             if process.poll() is None:
-                process.kill();process.wait();result['executionTimeout'] = True
+                process.kill();process.wait();result['diagnosticObservationWindowClosed'] = True
         text = log.read_text(errors='replace')
         result['processExit'] = process.returncode
         result['testPassed'] = bool(re.search(r'OK \(1 tests?\)', text) and 'FAILURES!!!' not in text)
@@ -82,10 +82,12 @@ def observe(built, support, out):
             with sqlite3.connect(local) as db:
                 result['databaseIntegrity'] = db.execute('PRAGMA integrity_check').fetchone()[0]
                 queries = {
-                    'requests': ('v57_analysis_request_r36', ['target_issue', 'status', 'stage', 'request_at', 'deadline_at', 'updated_at', 'reason']),
+                    'requests': ('v57_analysis_request_r36', ['target_issue', 'base_issue', 'status', 'attempts', 'last_stage', 'error_code', 'first_error_code', 'request_at', 'deadline_at', 'last_transition_at']),
                     'frozenAndSettled': ('v57_shadow_observation_r35', ['target_issue', 'pre_draw_frozen', 'commit_at', 'deadline_at', 'settled', 'settled_at', 'history_hash', 'snapshot_hash']),
                     'events': ('v57_runtime_event_r926', ['target_issue', 'event_type', 'stage', 'source', 'created_at']),
-                    'resources': ('v57_attempt_resource_r927', ['target_issue', 'status', 'elapsed_ms', 'lock_wait_max_ms', 'db_body_max_ms', 'gc_count', 'gc_time_ms', 'stage_samples']),
+                    'resources': ('v57_attempt_resource_r927', ['target_issue', 'status', 'elapsed_ms', 'lock_wait_max_ms', 'db_body_max_ms', 'gc_count', 'gc_time_ms', 'stage_samples', 'reason']),
+                    'draws': ('draws', ['issue', 'open_time', 'fetch_time', 'dirty']),
+                    'settlementTasks': ('v57_settlement_task_r36', ['target_issue', 'status', 'attempts', 'error_code', 'first_error_code', 'last_stage', 'updated_at']),
                 }
                 for name, (table, allowed) in queries.items():
                     columns = {row[1] for row in db.execute('PRAGMA table_info(' + table + ')')}
@@ -106,8 +108,11 @@ def observe(built, support, out):
                         frames[frame] = frames.get(frame, 0) + 1
         result['sampledSourceFrames'] = sorted(frames.items(), key=lambda row: (-row[1], row[0]))[:100]
         result['stackSamplesRequested'] = samples
-    (out / 'LIVE_PROFILE.json').write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
-    print(json.dumps(result, ensure_ascii=False), flush=True)
+    serialized = json.dumps(result, ensure_ascii=False, indent=2)
+    serialized = re.sub(r'(?i)((?:api[_-]?key|authorization|password|token|secret)[\\" ]*[:=][\\" ]*)[^\\" ,;&]+', r'\1[REDACTED]', serialized)
+    serialized = re.sub(r'(?i)Bearer\s+[^\\" ,;]+', 'Bearer [REDACTED]', serialized)
+    (out / 'LIVE_PROFILE.json').write_text(serialized + '\n')
+    print(json.dumps(json.loads(serialized), ensure_ascii=False), flush=True)
     # A completed diagnostic is not converted to a healthy service verdict.
     return 0 if result['testPassed'] else 1
 
