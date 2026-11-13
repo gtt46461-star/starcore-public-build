@@ -1,0 +1,42 @@
+name: STARCORE diagnose existing 029 matrix failures without new tests
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-matrix-failure-metadata.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: e058a25b9fa52308188efef20528d46bcb1e708b
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: r31v-emu-*
+          run-id: 43501956011
+          github-token: ${{ github.token }}
+          path: evidence
+      - name: Existing public source symbols and structural status only
+        run: |
+          python3 - <<'PY'
+          import pathlib,re,json
+          source='\n'.join(p.read_text(errors='replace') for p in pathlib.Path('app/src').rglob('*.java'))
+          codes=set(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b',source));files={p.name for p in pathlib.Path('app/src').rglob('*.java')}
+          for name in ['delivery-and-live-service.txt','probe-output.txt','schema-stamp-reason.txt']:
+            for p in pathlib.Path('evidence').rglob(name):
+              t=p.read_text(errors='replace')
+              frames=[list(x) for x in re.findall(r'at (com\.ethk3\.novaonepro\.[A-Za-z0-9_.$]+)\(([A-Za-z0-9_]+\.java):([0-9]+)\)',t) if x[1] in files]
+              print('MATRIX_PUBLIC_FAILURE|'+json.dumps({'artifact':p.parts[1],'protocol':name,'codes':sorted(codes.intersection(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b',t))),'assertions':sorted(set(re.findall(r'AssertionError: ([A-Z][A-Z0-9_]{3,80})',t))),'frames':frames[:60],'observedJUnitSuccess':bool(re.search(r'OK \([0-9]+ tests?\)',t)),'liveNoFutureFreeze':'NO_NEW_FUTURE_FREEZE' in t,'liveNoSettlement':'NO_NEW_FROZEN_SETTLEMENT' in t}))
+          for name in ['safe-report-semantics.json','safe-recovery-failure.json']:
+            for p in pathlib.Path('evidence').rglob(name):
+              d=json.loads(p.read_text());keys=['evidenceComplete','checksComplete','allChecksPassed','catalogResults','incompleteChecks','catalogErrors'] if name.startswith('safe-report') else ['publicSourceFrames','missingPublicJsonKeys','collectorFailureClass','nonfiniteJsonRejected','jsonTypeMismatch']
+              print('MATRIX_PUBLIC_REPORT|'+json.dumps({'artifact':p.parts[1],'file':name,**{k:d.get(k) for k in keys}}))
+          for p in pathlib.Path('evidence').rglob('EMU-UPGRADE-RECEIPT.json'):
+            d=json.loads(p.read_text());f=d.get('database',{});integrity=str(f.get('integrity',''))
+            identifiers=re.findall(r'(?:index|table) ([A-Za-z_][A-Za-z0-9_]*)',integrity)
+            print('MATRIX_PUBLIC_UPGRADE|'+json.dumps({'artifact':p.parts[1],'api':d.get('api'),'status':d.get('status'),'uiResumed':d.get('uiResumed'),'processAlive':d.get('processAlive'),'crashForPackage':d.get('crashForPackage'),'criticalStamp':d.get('criticalStamp'),'upgradeJournal':d.get('upgradeJournal'),'pulled':f.get('pulled'),'integrityOk':integrity=='ok','integrityClass':'ROW_MISSING_FROM_INDEX' if 'missing from index' in integrity else 'WRONG_INDEX_ENTRY_COUNT' if 'wrong # of entries' in integrity else 'UNLISTED_STRUCTURAL_RESULT','publicSchemaIdentifiers':[x for x in identifiers if x in source]}))
+          PY
