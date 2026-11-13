@@ -39,7 +39,6 @@ jobs:
             d=json.loads(p.read_text());f=d.get('database',{});integrity=str(f.get('integrity',''))
             identifiers=re.findall(r'(?:index|table) ([A-Za-z_][A-Za-z0-9_]*)',integrity)
             print('MATRIX_PUBLIC_UPGRADE|'+json.dumps({'artifact':p.parts[1],'api':d.get('api'),'status':d.get('status'),'uiResumed':d.get('uiResumed'),'processAlive':d.get('processAlive'),'crashForPackage':d.get('crashForPackage'),'criticalStamp':d.get('criticalStamp'),'upgradeJournal':d.get('upgradeJournal'),'pulled':f.get('pulled'),'integrityOk':integrity=='ok','integrityPublicPatterns':[p for p in ['null value in','non-unique entry','row missing','missing from index','wrong # of entries','never used','freelist','invalid page','out of order','on tree page','malformed','multiple uses','unsupported file format'] if p in integrity.lower()],'integrityPublicSchemaSymbols':sorted({x for x in re.findall(r'\b(?:r[0-9]+_|v57_|idx_)[A-Za-z0-9_]+\b',integrity) if x in source}),'integrityClass':'ROW_MISSING_FROM_INDEX' if 'missing from index' in integrity else 'WRONG_INDEX_ENTRY_COUNT' if 'wrong # of entries' in integrity else 'UNLISTED_STRUCTURAL_RESULT','publicSchemaIdentifiers':[x for x in identifiers if x in source]}))
-          PY
           for p in pathlib.Path('evidence').rglob('UI_EXPORTED_FULL_REPORT.zip'):
             with zipfile.ZipFile(p) as z:
               info=z.getinfo('runtime-observation.json');assert info.file_size<65536
@@ -48,3 +47,4 @@ jobs:
               symbols=sorted(codes.intersection(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b',summary)))
               names=[x for x in re.findall(r'\b(?:r[0-9]+_|v57_|idx_)[A-Za-z0-9_]+\b',summary) if x in source]
               print('MATRIX_PUBLIC_RUNTIME_SCHEMA|'+json.dumps({'artifact':p.parts[1],'researchSchemaReady':d.get('researchSchemaReady'),'publicSummaryCodes':symbols,'publicSchemaSymbols':names,'summarySha256':hashlib.sha256(summary.encode()).hexdigest(),'publicFrames':frames[:70]}))
+          PY
