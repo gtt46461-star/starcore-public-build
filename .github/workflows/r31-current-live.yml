@@ -1,0 +1,49 @@
+name: STARCORE current signed release live diagnosis
+on:
+  push:
+    branches: ['construction/r31-final-20261104']
+    paths: ['release/R31_LIVE_PROFILE_REQUEST.json']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31-report-025-signed-build
+          run-id: 43417298331
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: built
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31v-android-build
+          run-id: 43395922679
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: support
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: bash tools/r30-repair/prepare_emulator.sh && python3 -B tools/r31/profile_signed_release.py --built built --support support --out live-public
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31-current-signed-live-profile
+          path: live-public/
+          if-no-files-found: error
