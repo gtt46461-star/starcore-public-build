@@ -23,7 +23,7 @@ private=pathlib.Path(os.environ['R31_REPORT_PRIVATE']);public=pathlib.Path('repo
 source=__import__('subprocess').check_output(['git','rev-parse','HEAD'],text=True).strip()
 r={'sourceCommit':source,'apkSha256':'99153d61f03bf4fc8484bd421da3fdb1d35c9c0b15c5f46aea9db54bc58a29d5','runId':os.environ['GITHUB_RUN_ID'],'scope':'REPORT_GENERATION_COMPLETENESS_REAL_UI_SAF_ONLY','probeExit':int(sys.argv[1]),'result':'REPORT_PASS_REINSTALL_PENDING' if sys.argv[1]=='0' else 'FAIL','physicalDevice':'NOT_RUN','businessAndAlgorithmHealth':'DEFERRED_NOT_PASSED','rawReportsAndCredentials':'PRIVATE_NOT_PUBLISHED'}
 r['harnessSha256']=hashlib.sha256(pathlib.Path('../harness/evidence/r27/ci/r31-report-export-only.py').read_bytes()).hexdigest()
-for name in ['ui-report-acceptance.json','safe-recovery-failure.json','safe-report-semantics.json']:
+for name in ['ui-report-acceptance.json','safe-recovery-failure.json','safe-report-semantics.json','safe-report-liveness.json','safe-timeout-source-frames.json']:
     p=private/name
     if p.exists():
         (public/name).write_bytes(p.read_bytes())

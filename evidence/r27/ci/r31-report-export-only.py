@@ -224,6 +224,67 @@ def save_via_real_document_picker(job,member,local):
     assert digest==member['sha256'] and downloaded.stat().st_size==member['bytes'],'REPORT_SAF_EXTERNAL_READBACK_MISMATCH'
     return {'state':'VERIFIED_READBACK','externalFileSha256':digest,'bytes':downloaded.stat().st_size,'actualSystemPicker':True,'sameAsPublishedZip':True}
 
+def safe_liveness_snapshot(label):
+    """Only public protocol stages, counters and code symbols leave the emulator."""
+    public_source='\n'.join(p.read_text(errors='replace') for p in Path('app/src').rglob('*.java'))
+    known=set(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b',public_source))
+    out={'label':label,'elapsedMs':int(time.monotonic()*1000),'rows':[]}
+    specs=[('requests','*.json'),('jobs','job.json'),('control-r69','*.json')]
+    for folder,pattern in specs:
+        paths=adb('shell',f"find {ROOT}/{folder} -name '{pattern}' -type f 2>/dev/null || true").splitlines()
+        for path in paths[:100]:
+            try:r=read_json(path)
+            except (RuntimeError,json.JSONDecodeError):continue
+            row={'bytes':int(adb('shell','stat','-c','%s',path).strip()),'area':folder,'nameSha256':hashlib.sha256(path.rsplit('/',1)[-1].encode()).hexdigest()}
+            for k in ['stage','state','mode','submissionState','observationState']:
+                if k in r:row[k]=r[k] if r[k] in known else 'UNLISTED_PROTOCOL_VALUE'
+            for k in ['revision','attempt','createdWallMs','updatedWallMs']:
+                if type(r.get(k)) is int:row[k]=r[k]
+            for k in ['requestId','jobId','id']:
+                if re.fullmatch('[a-f0-9]{64}',str(r.get(k,''))):row[k]=r[k]
+            reason=str(r.get('reason',r.get('lastReason','')))
+            row['publicReasonCodes']=sorted(set(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b',reason)).intersection(known))
+            row['reasonSha256']=hashlib.sha256(reason.encode()).hexdigest()
+            observation=r.get('observation',{})
+            if isinstance(observation,dict):
+                row['researchSchemaReady']=observation.get('researchSchemaReady')
+            out['rows'].append(row)
+    out['uiFailurePrefixes']=[]
+    try:
+        labels=[n.get('text','') for n in hierarchy().iter('node')]
+        for prefix in ['报告操作未完成：','完整报告请求失败：','完整报告失败：','REPORT_REQUEST_FAILED_BEFORE_DURABLE_ACK']:
+            if any(prefix in label for label in labels):out['uiFailurePrefixes'].append(prefix)
+    except Exception:pass
+    q=ROOT+'/request-queue.json'
+    try:
+        queue=read_json(q);out['queueCount']=len(queue.get('requests',[]));out['queueGeneration']=queue.get('generation')
+    except (RuntimeError,json.JSONDecodeError):pass
+    path=args.out/'safe-report-liveness.json'
+    prior=json.loads(path.read_text()) if path.exists() else []
+    prior.append(out);path.write_text(json.dumps(prior,indent=2)+'\n')
+    return out
+
+def safe_timeout_frames():
+    public_files={p.name for p in Path('app/src').rglob('*.java')}
+    pids=adb('shell',"pidof com.starcore.research.r13; pidof com.starcore.research.r13:diagnostics").split()
+    for pid in pids:
+        if pid.isdigit():adb('shell','kill','-3',pid)
+    time.sleep(3)
+    raw=adb('logcat','-d','-v','threadtime',timeout=30)
+    paths=adb('shell',"find /data/anr -maxdepth 1 -type f 2>/dev/null || true").splitlines()
+    for path in paths[-6:]:
+        try:raw+='\n'+adb('shell','cat',path,timeout=20)
+        except RuntimeError:pass
+    frames=[]
+    for cls,method,file,line in re.findall(r'(com\.ethk3\.novaonepro\.[A-Za-z0-9_.$]+)\.([A-Za-z0-9_$]+)\(([A-Za-z0-9_]+\.java):(\d+)\)',raw):
+        if file in public_files:
+            row=[cls,method,file,int(line)]
+            if row not in frames:frames.append(row)
+    source='\n'.join(p.read_text(errors='replace') for p in Path('app/src').rglob('*.java'))
+    known=set(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b',source))
+    codes=sorted(set(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b',raw)).intersection(known))
+    (args.out/'safe-timeout-source-frames.json').write_text(json.dumps({'frames':frames,'publicCodes':codes,'pidsObserved':len(pids),'scope':'PUBLIC_CODE_SYMBOLS_NO_LOG_VALUES'},indent=2)+'\n')
+
 def main():
     assert adb('get-serialno').strip().startswith('emulator-'), 'EMULATOR_REQUIRED'
     assert adb('shell', 'getprop', 'ro.kernel.qemu').strip() == '1', 'EMULATOR_REQUIRED'
@@ -260,7 +321,15 @@ def main():
                 break
         if publication:
             break
+        if int(time.monotonic()) % 20 < 3:
+            live=safe_liveness_snapshot('WAITING')
+            if live.get('uiFailurePrefixes') or any(r.get('stage')=='CONTROL_FAILED' for r in live['rows']):
+                safe_timeout_frames()
+                raise AssertionError('UI_REPORT_CONTROL_OR_REQUEST_FAILED')
         time.sleep(2)
+    if not publication:
+        safe_liveness_snapshot('PUBLICATION_TIMEOUT')
+        safe_timeout_frames()
     assert publication, 'UI_REPORT_PUBLICATION_TIMEOUT'
     job, index = publication
     assert index['format'] == 'SCREPORT_SINGLE_ZIP_R992', 'UI_REPORT_SINGLE_ZIP_REQUIRED'
