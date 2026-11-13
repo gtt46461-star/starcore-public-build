@@ -1,4 +1,4 @@
-name: R31 current Android public source diagnostics
+name: R31 exact APK private recovery diagnosis
 on:
   push:
     branches: ['construction/r27-20261028']
@@ -7,54 +7,84 @@ permissions:
   contents: read
   actions: read
 jobs:
-  diagnose:
+  diagnosis:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
           ref: e6d9a99782cdf7fe7f69efef67d673259dd71c1d
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'cryptography>=41,<51'
       - uses: actions/download-artifact@v4
         with:
           github-token: ${{ github.token }}
           run-id: 43395922679
-          name: r31v-emu-35
-          path: ${{ runner.temp }}/private-current-artifact
-      - uses: actions/download-artifact@v4
+          name: r31v-android-build
+          path: ${{ runner.temp }}/built
+      - uses: android-actions/setup-android@v3
         with:
-          github-token: ${{ github.token }}
-          run-id: 43395922679
-          name: r31v-emu-29
-          path: ${{ runner.temp }}/private-current-artifact/api29
-      - name: Emit only public source symbols and fixed source assertion identifiers
+          packages: platform-tools platforms;android-36 build-tools;36.0.0
+          log-accepted-android-sdk-licenses: false
+      - name: Verify existing APK bytes and signer before fresh execution
         run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/built"
+          sha256sum -c r31v/SHA256SUMS.txt > "$RUNNER_TEMP/apk-hash-check.txt"
+          cd "$GITHUB_WORKSPACE"
+          python3 -B tools/r31/verify_baseline.py --require-clean --apk "$(find "$RUNNER_TEMP/built/app/build/outputs/apk/debug" -name '*.apk' -print -quit)" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --expected-cert-sha256 d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7 --output "$RUNNER_TEMP/apk-identity.json" > "$RUNNER_TEMP/identity-output.txt"
+          git show e64edf1bf775b05a4186e4cb3e35d40239b71edc:tools/r30-repair/probe_ui_report.py > "$RUNNER_TEMP/probe_ui_report.py"
+          echo "e73eeec4fca265e819ac34950411f7b59e22e36d95e4c3583c91af275bd990c8  $RUNNER_TEMP/probe_ui_report.py" | sha256sum -c -
+          cat > "$RUNNER_TEMP/diagnose.sh" <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          adb wait-for-device
+          adb install -r -g "$(find "$RUNNER_TEMP/built/app/build/outputs/apk/debug" -name '*.apk' -print -quit)" > "$RUNNER_TEMP/install-app.txt" 2>&1
+          adb install -r -g "$(find "$RUNNER_TEMP/built/app/build/outputs/apk/androidTest/debug" -name '*.apk' -print -quit)" > "$RUNNER_TEMP/install-test.txt" 2>&1
+          python3 -c 'import importlib.util,os,sys; spec=importlib.util.spec_from_file_location("diag_joint","tools/r31/run_android_joint_protocols.py"); m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);m.SUITES=[s for s in m.SUITES if s[0]!="ui-lifecycle-100"];sys.argv=["diag","--out",os.environ["RUNNER_TEMP"]+"/joint","--sandbox-prefix","r31jsondiag"];m.main()' > "$RUNNER_TEMP/joint-output.txt" 2>&1
           python3 - <<'PY'
-          import json,os,pathlib,re
-          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'private-current-artifact'
-          files=list(pathlib.Path('app/src').rglob('*.java'));names={x.name for x in files}
-          safe=list(root.rglob('safe-recovery-failure.json'))
-          for p in safe:
-              r=json.loads(p.read_text());assert r['sourceCommit']=='e6d9a99782cdf7fe7f69efef67d673259dd71c1d'
-              print('SAFE_RECOVERY|'+json.dumps(r,sort_keys=True))
-          test=pathlib.Path('app/src/androidTest/java/com/ethk3/novaonepro/R31ChartLifecycleInstrumentedTest.java').read_text()
-          literals=re.findall(r'"([^"\n]{12,180})"',test)
-          logs=list(root.rglob('ui-lifecycle-100.txt'))
-          for p in logs:
-              raw=p.read_text(errors='replace')
-              frames=[list(x) for x in re.findall(r'at (com\.ethk3\.novaonepro\.[A-Za-z0-9_.$]+)\.([A-Za-z0-9_$]+)\(([A-Za-z0-9_]+\.java):(\d+)\)',raw) if x[2] in names]
-              print('UI100_PUBLIC_SOURCE|'+json.dumps({'assertions':[x for x in literals if x in raw and not x.startswith('R31_UI_LIFECYCLE')],'frames':frames[:30]},sort_keys=True))
-          source=pathlib.Path('tools/r30-repair/probe_ui_report.py').read_text()
-          allowed=set(re.findall(r'[\x27"]([A-Z][A-Z0-9_]{5,})(?=[:\x27"])',source))
-          for p in root.rglob('probe-output.txt'):
-              raw=p.read_text(errors='replace')
-              print('UI_PROBE_PUBLIC_ASSERTIONS|'+json.dumps(sorted({x for x in allowed if x in raw})))
-          public_text='\n'.join(p.read_text(errors='replace') for p in files)
-          enums=set(re.findall(r'\b[A-Z][A-Z0-9_]{5,80}\b',public_text))
-          for filename in ['restore-proof-process.txt','delivery-and-live-service.txt']:
-              for p in root.rglob(filename):
-                  raw=p.read_text(errors='replace')
-                  frames=[list(x) for x in re.findall(r'at (com\.ethk3\.novaonepro\.[A-Za-z0-9_.$]+)\.([A-Za-z0-9_$]+)\(([A-Za-z0-9_]+\.java):(\d+)\)',raw) if x[2] in names]
-                  keys=[x for x in re.findall(r'No value for ([A-Za-z][A-Za-z0-9_]*)',raw) if '"'+x+'"' in public_text]
-                  print('GROUP_PUBLIC_FAILURE_SYMBOLS|'+json.dumps({'api':29 if 'api29' in p.parts else 35,'group':filename,'sourceEnums':sorted(enums.intersection(re.findall(r'\b[A-Z][A-Z0-9_]{5,80}\b',raw)))[:160],'frames':frames[:45],'missingPublicJsonKeys':sorted(set(keys))},sort_keys=True))
-          print('PUBLIC_DIAGNOSTIC_FILES|'+json.dumps({'safeRecovery':len(safe),'ui100':len(logs)}))
+          import json,os
+          r=json.load(open(os.environ['RUNNER_TEMP']+'/joint/JOINT-ANDROID-RECEIPT.json'))
+          print('FRESH_EXACT_APK_GROUPS|'+json.dumps([{'name':x['name'],'status':x['status'],'observedTests':x.get('observedTests')} for x in r['groups']]))
           PY
+          bash tools/r30-repair/prepare_emulator.sh > "$RUNNER_TEMP/prepare.txt" 2>&1
+          adb shell am force-stop com.starcore.research.r13
+          set +e
+          python3 "$RUNNER_TEMP/probe_ui_report.py" --out "$RUNNER_TEMP/private-ui" > "$RUNNER_TEMP/private-ui-output.txt" 2>&1
+          result=$?
+          set -e
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'private-ui'/'safe-recovery-failure.json'
+          if p.exists(): print('PUBLIC_RECOVERY_SYMBOLS|'+json.dumps(json.loads(p.read_text()),sort_keys=True))
+          else: print('RECOVERY_SYMBOL_COLLECTOR_NOT_PRODUCED')
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'private-ui'/'safe-report-semantics.json'
+          if p.exists(): print('PUBLIC_REPORT_SEMANTICS|'+json.dumps(json.loads(p.read_text()),sort_keys=True))
+          PY
+          echo "FRESH_EXACT_APK_UI_EXIT=$result"
+          exit "$result"
+          SH
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: bash "$RUNNER_TEMP/diagnose.sh"
 
