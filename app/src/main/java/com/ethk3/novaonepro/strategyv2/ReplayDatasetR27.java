@@ -20,14 +20,31 @@ public final class ReplayDatasetR27 {
     public final int[] segmentStart;
     public final String datasetHash;
     public final int rejectedRows;
+    public static final String READER_ABI_R31="R31_REPLAY_KNOWLEDGE_READER_1", CALENDAR_ABI_R31="SU1_2020_UTC_1440_1";
+    public static final int ORIGINAL_MAGIC_R31=0x52333144,MAX_ORIGINAL_BYTES_R31=1048576;
+    public final long[] openTimeR31,knownAtR31;
+    public final String[] readerAbiR31,knowledgeScopeR31;
+    public final boolean[] provenanceRecordedR31;
+    public final boolean legacyIdentityR31;
+    public final String provenanceHashR31;
 
     public static final class Row {
         public final String issue; public final long ordinal; public final int[] numbers;
-        public Row(String issue, long ordinal, int[] numbers) { this.issue = issue; this.ordinal = ordinal; this.numbers = numbers; }
+        public final long openTime,knownAt;public final String readerAbi,knowledgeScope;public final boolean provenanceRecorded;
+        /** Old original input remains readable with explicitly unknown knowledge time. */
+        public Row(String issue,long ordinal,int[] numbers){this(issue,ordinal,numbers,-1,-1,"LEGACY_UNRECORDED","LEGACY_KNOWN_AT_UNKNOWN",false);}
+        public Row(String issue,long ordinal,int[] numbers,long openTime,long knownAt,String readerAbi,String knowledgeScope){this(issue,ordinal,numbers,openTime,knownAt,readerAbi,knowledgeScope,true);}
+        private Row(String issue,long ordinal,int[] numbers,long openTime,long knownAt,String readerAbi,String knowledgeScope,boolean recorded){
+            if(readerAbi==null||knowledgeScope==null||!readerAbi.matches("[A-Za-z0-9_.-]{1,128}")||!knowledgeScope.matches("[A-Za-z0-9_.-]{1,128}"))throw new IllegalArgumentException("R31_REPLAY_READER_IDENTITY");
+            if(recorded&&(issue==null||!issue.matches("\\d{12}")||ordinal!=ordinalOf(issue)-java.time.LocalDate.of(2020,1,1).toEpochDay()*1440L))throw new IllegalArgumentException("R31_REPLAY_CANONICAL_CALENDAR");
+            if(!recorded&&(openTime>0||knownAt>0||!"LEGACY_UNRECORDED".equals(readerAbi)||!"LEGACY_KNOWN_AT_UNKNOWN".equals(knowledgeScope)))throw new IllegalArgumentException("R31_REPLAY_LEGACY_PROVENANCE_CONFLICT");
+            this.issue=issue;this.ordinal=ordinal;this.numbers=numbers;this.openTime=openTime>0?openTime:-1;this.knownAt=knownAt>0?knownAt:-1;this.readerAbi=readerAbi;this.knowledgeScope=knowledgeScope;provenanceRecorded=recorded;
+        }
     }
 
-    private ReplayDatasetR27(int[][] draws, String[] issues, long[] ordinals, int rejected) {
+    private ReplayDatasetR27(int[][] draws, String[] issues, long[] ordinals, int rejected,long[] opened,long[] known,String[] reader,String[] scope,boolean[] recorded) {
         this.draws = draws; this.issues = issues; this.ordinals = ordinals; this.rejectedRows = rejected;
+        openTimeR31=opened;knownAtR31=known;readerAbiR31=reader;knowledgeScopeR31=scope;provenanceRecordedR31=recorded;
         int t = draws.length; segment = new int[t];
         List<Integer> starts = new ArrayList<>();
         for (int i = 0; i < t; i++) {
@@ -36,7 +53,10 @@ public final class ReplayDatasetR27 {
         }
         segmentStart = new int[starts.size()];
         for (int i = 0; i < segmentStart.length; i++) segmentStart[i] = starts.get(i);
-        datasetHash = hash(issues, draws, segment);
+        boolean legacy=true;StringBuilder identity=new StringBuilder("R31_REPLAY_KNOWLEDGE_1|").append(CALENDAR_ABI_R31);
+        for(int i=0;i<t;i++){legacy&=!recorded[i];identity.append('|').append(issues[i]).append(':').append(ordinals[i]).append(':').append(opened[i]).append(':').append(known[i]).append(':').append(reader[i]).append(':').append(scope[i]).append(':').append(recorded[i]);}
+        legacyIdentityR31=legacy;provenanceHashR31=StatsR27.sha256(identity.toString());
+        String original=hash(issues,draws,segment);datasetHash=legacy?original:StatsR27.sha256("R31_REPLAY_DATASET_V3|"+original+"|"+provenanceHashR31);
     }
 
     public int size() { return draws.length; }
@@ -64,8 +84,9 @@ public final class ReplayDatasetR27 {
             kept.add(r);
         }
         int[][] d = new int[kept.size()][]; String[] is = new String[kept.size()]; long[] o = new long[kept.size()];
-        for (int i = 0; i < d.length; i++) { d[i] = kept.get(i).numbers.clone(); is[i] = kept.get(i).issue; o[i] = kept.get(i).ordinal; }
-        return new ReplayDatasetR27(d, is, o, rejected);
+        long[] opened=new long[d.length],known=new long[d.length];String[] reader=new String[d.length],scope=new String[d.length];boolean[] recorded=new boolean[d.length];
+        for (int i = 0; i < d.length; i++) {Row row=kept.get(i);d[i]=row.numbers.clone();is[i]=row.issue;o[i]=row.ordinal;opened[i]=row.openTime;known[i]=row.knownAt;reader[i]=row.readerAbi;scope[i]=row.knowledgeScope;recorded[i]=row.provenanceRecorded;}
+        return new ReplayDatasetR27(d,is,o,rejected,opened,known,reader,scope,recorded);
     }
 
     /** Incremental append of one newer draw (docs/03 3.2): old rows and their segments are unchanged. */
@@ -76,14 +97,17 @@ public final class ReplayDatasetR27 {
         int[][] d = Arrays.copyOf(draws, n + 1); d[n] = r.numbers.clone();
         String[] is = Arrays.copyOf(issues, n + 1); is[n] = r.issue;
         long[] o = Arrays.copyOf(ordinals, n + 1); o[n] = r.ordinal;
-        return new ReplayDatasetR27(d, is, o, rejectedRows);
+        long[] opened=Arrays.copyOf(openTimeR31,n+1),known=Arrays.copyOf(knownAtR31,n+1);opened[n]=r.openTime;known[n]=r.knownAt;
+        String[] reader=Arrays.copyOf(readerAbiR31,n+1),scope=Arrays.copyOf(knowledgeScopeR31,n+1);reader[n]=r.readerAbi;scope[n]=r.knowledgeScope;
+        boolean[] recorded=Arrays.copyOf(provenanceRecordedR31,n+1);recorded[n]=r.provenanceRecorded;
+        return new ReplayDatasetR27(d,is,o,rejectedRows,opened,known,reader,scope,recorded);
     }
 
     /** Keeps only the newest {@code limit} rows (the database retains ≤5000 draws). */
     public ReplayDatasetR27 tail(int limit) {
         if (size() <= limit) return this;
         int from = size() - limit;
-        return new ReplayDatasetR27(Arrays.copyOfRange(draws, from, size()), Arrays.copyOfRange(issues, from, size()), Arrays.copyOfRange(ordinals, from, size()), rejectedRows);
+        return new ReplayDatasetR27(Arrays.copyOfRange(draws, from, size()), Arrays.copyOfRange(issues, from, size()), Arrays.copyOfRange(ordinals, from, size()), rejectedRows,Arrays.copyOfRange(openTimeR31,from,size()),Arrays.copyOfRange(knownAtR31,from,size()),Arrays.copyOfRange(readerAbiR31,from,size()),Arrays.copyOfRange(knowledgeScopeR31,from,size()),Arrays.copyOfRange(provenanceRecordedR31,from,size()));
     }
 
     /** Same rows with a different label sequence (used by tests and the shuffled-label control). */
@@ -91,7 +115,38 @@ public final class ReplayDatasetR27 {
         if (replacement.length != size()) throw new IllegalArgumentException("R27_REPLAY_SHAPE");
         for (int[] p : replacement) if (!legal(p)) throw new IllegalArgumentException("R27_REPLAY_ILLEGAL_PERMUTATION");
         int[][] owned=new int[replacement.length][];for(int i=0;i<owned.length;i++)owned[i]=replacement[i].clone();
-        return new ReplayDatasetR27(owned, issues.clone(), ordinals.clone(), rejectedRows);
+        return new ReplayDatasetR27(owned,issues.clone(),ordinals.clone(),rejectedRows,openTimeR31.clone(),knownAtR31.clone(),readerAbiR31.clone(),knowledgeScopeR31.clone(),provenanceRecordedR31.clone());
+    }
+
+    /** Preserve provenance when producers split/tail an immutable input. */
+    public Row rowR31(int index){return new Row(issues[index],ordinals[index],draws[index].clone(),openTimeR31[index],knownAtR31[index],readerAbiR31[index],knowledgeScopeR31[index],provenanceRecordedR31[index]);}
+    /** Past availability check; UNKNOWN never becomes a positive PIT proof. */
+    public boolean knownBeforeR31(int index,long decisionTime){return provenanceRecordedR31[index]&&knownAtR31[index]>0&&knownAtR31[index]<decisionTime&&(!"DRAW_FIRST_SEEN".equals(knowledgeScopeR31[index])||(openTimeR31[index]>0&&knownAtR31[index]>=openTimeR31[index]));}
+    public java.util.Map<String,Object> provenanceR31(){
+        java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();int known=0,invalidChronology=0;java.util.Set<String> readers=new java.util.TreeSet<>(),scopes=new java.util.TreeSet<>();
+        for(int i=0;i<size();i++){if(provenanceRecordedR31[i]&&knownAtR31[i]>0){known++;if("DRAW_FIRST_SEEN".equals(knowledgeScopeR31[i])&&(openTimeR31[i]<=0||knownAtR31[i]<openTimeR31[i]))invalidChronology++;}readers.add(readerAbiR31[i]);scopes.add(knowledgeScopeR31[i]);}
+        out.put("identityVersion",legacyIdentityR31?"LEGACY_V2_KNOWN_AT_UNKNOWN":"R31_DATASET_V3");out.put("calendarAbi",legacyIdentityR31?"LEGACY_ORDINAL_ORIGIN_UNKNOWN":CALENDAR_ABI_R31);out.put("provenanceHash",provenanceHashR31);out.put("readerAbis",new ArrayList<>(readers));out.put("knowledgeScopes",new ArrayList<>(scopes));out.put("rows",size());out.put("recordedKnownAtRows",known);out.put("invalidKnownAtChronologyRows",invalidChronology);out.put("unknownKnownAtRows",size()-known);out.put("naturalPastVisibilityProven",false);return out;
+    }
+    /** Compact dictionaries keep 10k real original rows within the unchanged
+     * 1MiB recovery bound. No per-row timestamp is synthesized. */
+    public byte[] originalBytesR31(){
+        if(size()>10000)throw new IllegalArgumentException("R31_REPLAY_ORIGINAL_ROW_BOUND");
+        try{java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();java.io.DataOutputStream out=new java.io.DataOutputStream(bytes);
+            java.util.List<String> readers=new ArrayList<>(),scopes=new ArrayList<>();for(int i=0;i<size();i++){if(!readers.contains(readerAbiR31[i]))readers.add(readerAbiR31[i]);if(!scopes.contains(knowledgeScopeR31[i]))scopes.add(knowledgeScopeR31[i]);}
+            if(readers.size()>128||scopes.size()>128)throw new IllegalArgumentException("R31_REPLAY_READER_DICTIONARY_BOUND");
+            out.writeInt(ORIGINAL_MAGIC_R31);out.writeInt(1);out.writeInt(size());out.writeUTF(datasetHash);out.writeUTF(provenanceHashR31);
+            for(java.util.List<String> dictionary:Arrays.asList(readers,scopes)){out.writeInt(dictionary.size());for(String value:dictionary)out.writeUTF(value);}
+            for(int i=0;i<size();i++){out.writeUTF(issues[i]);out.writeLong(ordinals[i]);for(int n:draws[i])out.writeByte(n);out.writeLong(openTimeR31[i]);out.writeLong(knownAtR31[i]);out.writeByte(readers.indexOf(readerAbiR31[i]));out.writeByte(scopes.indexOf(knowledgeScopeR31[i]));out.writeBoolean(provenanceRecordedR31[i]);if(bytes.size()>MAX_ORIGINAL_BYTES_R31)throw new IllegalArgumentException("R31_REPLAY_ORIGINAL_BYTE_BOUND");}
+            out.close();return bytes.toByteArray();
+        }catch(java.io.IOException impossible){throw new IllegalStateException("R31_REPLAY_ORIGINAL_ENCODE",impossible);}
+    }
+    public static ReplayDatasetR27 originalBytesR31(byte[] bytes){
+        if(bytes==null||bytes.length>MAX_ORIGINAL_BYTES_R31)throw new IllegalArgumentException("R31_REPLAY_ORIGINAL_BYTE_BOUND");
+        try{java.io.DataInputStream in=new java.io.DataInputStream(new java.io.ByteArrayInputStream(bytes));if(in.readInt()!=ORIGINAL_MAGIC_R31||in.readInt()!=1)throw new java.io.IOException("READER_VERSION");int n=in.readInt();if(n<0||n>10000)throw new java.io.IOException("ROW_BOUND");String dataset=in.readUTF(),provenance=in.readUTF();
+            java.util.List<java.util.List<String>> dictionaries=new ArrayList<>();for(int d=0;d<2;d++){int count=in.readInt();if(count<0||count>128)throw new java.io.IOException("DICTIONARY_BOUND");java.util.List<String> dictionary=new ArrayList<>();for(int j=0;j<count;j++){String value=in.readUTF();if(!value.matches("[A-Za-z0-9_.-]{1,128}"))throw new java.io.IOException("READER_IDENTITY");dictionary.add(value);}dictionaries.add(dictionary);}
+            java.util.List<Row> rows=new ArrayList<>();for(int i=0;i<n;i++){String issue=in.readUTF();long ordinal=in.readLong();int[] numbers=new int[10];for(int p=0;p<10;p++)numbers[p]=in.readUnsignedByte();long opened=in.readLong(),known=in.readLong();int reader=in.readUnsignedByte(),scope=in.readUnsignedByte();boolean recorded=in.readBoolean();if(reader>=dictionaries.get(0).size()||scope>=dictionaries.get(1).size())throw new java.io.IOException("READER_DICTIONARY_INDEX");rows.add(new Row(issue,ordinal,numbers,opened,known,dictionaries.get(0).get(reader),dictionaries.get(1).get(scope),recorded));}
+            ReplayDatasetR27 result=of(rows);if(in.read()!=-1||result.rejectedRows!=0||result.size()!=n||!dataset.equals(result.datasetHash)||!provenance.equals(result.provenanceHashR31))throw new java.io.IOException("ORIGINAL_IDENTITY");return result;
+        }catch(java.io.IOException invalid){throw new IllegalArgumentException("R31_REPLAY_ORIGINAL_DECODE",invalid);}
     }
 
     /** R30-B03-02: sha256(first issue | last issue | row count | normalized rows). A new hash is a new dataset

@@ -366,10 +366,21 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         long mono=SystemClock.elapsedRealtime();db.execSQL("UPDATE r31_task_lease SET deadline_elapsed_ms=?,next_elapsed_ms=? WHERE task_id=? AND owner_epoch=? AND fence=? AND boot_id=?",new Object[]{keepPrepared?mono+30_000:0,keepPrepared?0:mono+nextDelay,claim.task,claim.owner,claim.fence,IssueTimelineWriterR30.bootId()});
     }
     /** R31-B12-C01: the production startup schema owner as one journaled overlay-install upgrade (also run by the HOST upgrade matrix). */
-    public static SchemaDomainCoordinatorR926.UpgradeSpecR31 startupUpgradeSpecR31(String owner){
+    /** Prepare the complete original comparison before the startup writer. An
+     * uncut legacy archive keeps its original equality path, including on a
+     * fresh install before a keep directory has ever existed. */
+    public static StartupCheckpointIdentityR31.Prepared prepareStartupCheckpointR31(DbStore store){
+        SQLiteDatabase read=store.readable();
+        if(!KeepArchiveRetirementR31.MODE.equals(KeepArchiveRetirementR31.mode(read,StartupCheckpointIdentityR31.SOURCE)))return null;
+        if(!StartupCheckpointIdentityR31.ready(read))throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","DECLARED_SOURCE_IDENTITY_NOT_READY");
+        try{return StartupCheckpointIdentityR31.prepare(read,new java.io.File(store.contextForR26().getFilesDir(),"r31-keep"));}
+        catch(java.io.IOException unavailable){throw new IllegalStateException("DEPENDENCY:R31_STARTUP_CHECKPOINT_ORIGINAL_COMPARISON",unavailable);}
+    }
+    public static SchemaDomainCoordinatorR926.UpgradeSpecR31 startupUpgradeSpecR31(String owner){return startupUpgradeSpecR31(owner,null);}
+    public static SchemaDomainCoordinatorR926.UpgradeSpecR31 startupUpgradeSpecR31(String owner,StartupCheckpointIdentityR31.Prepared startup){
         // R31-B12-C01: the startup schema owner runs inside the overlay-install upgrade journal (PREPARE..CLEANUP,
         // protected roots verified inside the TRANSFORM commit). Steady starts re-enter only the idempotent owner.
-        SchemaDomainCoordinatorR926.Step startupSchemaR31=db->{RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);ResearchRetentionStoreR30.ensureProtected(db);SchemaDomainCoordinatorR926.migrateR31WarmPublication(db);
+        SchemaDomainCoordinatorR926.Step startupSchemaR31=db->{RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);ResearchRetentionStoreR30.ensureProtected(db,startup);SchemaDomainCoordinatorR926.migrateR31WarmPublication(db);
             // R27.1: tasks quarantined only by the fixed continuation-quantum bug get their normal retry back.
             // R31 inherited quarantines are recovered one fenced half-open probe at a time.
             RuntimeSchemaR26.bindCapabilitySource(db,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);long now=System.currentTimeMillis();
@@ -381,7 +392,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             db.execSQL("UPDATE r26_session SET state='INTERRUPTED',user_enabled=0 WHERE user_enabled=1");
             db.execSQL("UPDATE r26_task SET status='YIELDED',lease_until=0,fence=fence+1,owner=NULL WHERE status IN ('RUNNING','CANCELLING')");
             db.execSQL("INSERT OR REPLACE INTO r26_session VALUES(?,1,?,'RUNNING',?,coalesce((SELECT actual_progress FROM r26_session WHERE session_id=?),0))",new Object[]{owner,String.valueOf(now-SystemClock.elapsedRealtime()),now,owner});
-            add(db,"schema","P1");add(db,"schema-base","P1");add(db,"kernel","P1");add(db,"shadow-recover","P1");add(db,"evidence-recover","P1");add(db,"evidence-quality","P1");add(db,"sealed-planner","P1");add(db,"calibration","P2");add(db,"su1-certificate","P1");add(db,"su2-mainline","P1");add(db,"su2-certificate","P1");add(db,"qualification","P1");add(db,"aggregate-evidence","P1");add(db,"feedback","P1");add(db,"seed-incumbent","P1");add(db,"incumbent-forecast","P1");
+            add(db,"schema","P1");add(db,"schema-base","P1");add(db,"lifecycle-schema","P1");add(db,"kernel","P1");add(db,"shadow-recover","P1");add(db,"evidence-recover","P1");add(db,"evidence-quality","P1");add(db,"sealed-planner","P1");add(db,"calibration","P2");add(db,"su1-certificate","P1");add(db,"su2-mainline","P1");add(db,"su2-certificate","P1");add(db,"qualification","P1");add(db,"aggregate-evidence","P1");add(db,"feedback","P1");add(db,"seed-incumbent","P1");add(db,"incumbent-forecast","P1");
             add(db,"legacy-generation","P2");add(db,"legacy-replay","P2");add(db,"artifact-retention","P3");add(db,"warm-candidates","P2");add(db,"publish-models","P2");add(db,"live-model-training","P2");add(db,"live-forecast-preparation","P2");add(db,"foundry-su2","P2");add(db,"foundry-su1","P2");add(db,"ablation","P2");add(db,"campaign-audit","P2");add(db,"archive","P3");add(db,"retention","P3");add(db,"diagnosis","P3");add(db,"daily-close","P3");
             for(int i=1;i<=24;i++)registerCapability(db,String.format(Locale.ROOT,"F%02d",i),"FAMILY");for(int i=1;i<=16;i++){String id=String.format(Locale.ROOT,"E%02d",i);registerCapability(db,id,"EXPERT");add(db,"expert-"+id,"P2");}
             db.execSQL("UPDATE r26_task SET status='BLOCKED',blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE',next_at=0 WHERE task_id<>'schema' AND lane<>'R27' AND status NOT IN ('QUARANTINED','NEEDS_FIX')");
@@ -393,11 +404,17 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 SchemaDomainCoordinatorR926.UPGRADE_MIN_FREE_BYTES_R31,null,startupSchemaR31,null);
     }
     private void initialize(){
+        // The live Context is an explicit authority for this private directory.
+        // A missing directory is never invented by a read-side SQLite pathname.
+        java.io.File keepDirectoryR31=new java.io.File(store.contextForR26().getFilesDir(),"r31-keep");
+        if(keepDirectoryR31.isDirectory())try{KeepMigrationStoreR31.registerLiveRoot(store.readable(),keepDirectoryR31);}
+        catch(java.io.IOException invalidRoot){throw new IllegalStateException("DEPENDENCY:R31_KEEP_LIVE_ROOT",invalidRoot);}
         // R30-B00-03: retire R29 CP07-CP16 Root triggers / independent RP before any worker starts (idempotent, no-op on CP06 data).
         try{String foldR30=R29FoldBackR30.run(store);if(!"NONE".equals(foldR30))android.util.Log.i("STARCORE_R30","R29 fold-back "+foldR30);}
         catch(Exception foldFailedR30){android.util.Log.e("STARCORE_R30","R29 fold-back incomplete; route kept for next start",foldFailedR30);store.setState("r30_foldback_error",String.valueOf(foldFailedR30));}
         try{LegacyTeacherOwnerR26.register(store.contextForR26());}catch(RuntimeException blocked){android.util.Log.w("STARCORE_R26","original teacher blocked",blocked);store.setState("r26_teacher_blocked",blocked.toString());}
-        SchemaDomainCoordinatorR926.UpgradeSpecR31 upgradeR31=startupUpgradeSpecR31(owner);
+        StartupCheckpointIdentityR31.Prepared incomingCheckpointR31=prepareStartupCheckpointR31(store);
+        SchemaDomainCoordinatorR926.UpgradeSpecR31 upgradeR31=startupUpgradeSpecR31(owner,incomingCheckpointR31);
         SchemaDomainCoordinatorR926.UpgradeOutcomeR31 upgradedR31;
         try{upgradedR31=SchemaDomainCoordinatorR926.runUpgradeR31(null,(label,body)->store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
                 DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,label),db->{body.run(db);return 0;}),upgradeR31);}
@@ -582,6 +599,15 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             ResearchSchemaCoordinatorR926.StepResult result=ResearchSchemaCoordinatorR926.ensureOneStepResult(store.coordinatorForResearchR952());c.reason("LEGACY_SCHEMA:"+result.status+":"+ResearchSchemaCoordinatorR926.summary()+":"+result.detail);return result.ready?1:0;
         }
         if(!strategyStorageReady){c.reason("WAITING_SELF_CONTAINED_STRATEGY_STORAGE");return 0;}
+        if(c.task.equals("lifecycle-schema")){
+            budget.checkpointOrYield();
+            LifecycleSchemaR31.Result result=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                    DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R31_LIFECYCLE_SCHEMA_UNIT"),db->{
+                        requireFence(db,c);return LifecycleSchemaR31.advanceWithinMigration(db);
+                    });
+            c.reason(result.committedUnit?"COOPERATIVE_LIFECYCLE_SCHEMA_UNIT_COMMITTED:"+result.object:"WAITING_NEW_LIFECYCLE_SCHEMA_OBJECTS");
+            return result.committedUnit?1:0;
+        }
         ProgramModelSU2.register();Models.Draw latest=store.getLatestDraw();if(latest==null||!TargetIssueResolver.isValid(latest.issue))return 0;
         long seq=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);String target=TargetIssueResolver.next(latest.issue).targetIssue;
         if(c.task.startsWith("expert-"))return TaskContinuationR26.step(store,c,budget,seq+1);
@@ -629,9 +655,25 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     }
     /** One recoverable maintenance phase per service slice, never all old maintenance inside one writer. */
     private long retentionStepR30(Claim claim,BudgetTokenSU1 budget,long latest)throws Exception{
+        // Existing permanent archive guards remain active while the dedicated
+        // lifecycle owner installs its separate storage. No business DDL here.
+        if(LifecycleSchemaR31.ready(store.readable())){
+            long keep=KeepMigrationStoreR31.step(store,claim,budget);
+            if(keep>0){claim.reason("COOPERATIVE_KEEP_LIFECYCLE_COMMITTED_UNIT:"+claim.reason);return keep;}
+        }
         SQLiteDatabase read=store.readable();try(Cursor c=read.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r27_chart_cache'",null)){if(!c.moveToFirst()){claim.reason("WAITING_R27_RETENTION_CHECKPOINT_SCHEMA");return 0;}}
         RetentionR26.Checkpoint checkpoint=RetentionR26.checkpoint(read);if(checkpoint.phase==0&&checkpoint.lastCompletedSequence>=latest){claim.reason("WAITING_NEW_DRAW");return 0;}
         long cycle=checkpoint.phase==0?latest:checkpoint.cycleSequence;
+        // A persisted reference cutover must never fall back to the legacy DELETE.
+        // Preparation and full CAS readback happen before taking any writer lock.
+        if(checkpoint.phase==GapReferenceR31.RUNTIME_PHASE&&GapReferenceR31.MODE.equals(GapReferenceR31.mode(read))){
+            if(!LifecycleSchemaR31.ready(read)||!GapReferenceR31.active(read)){
+                claim.reason("SCHEMA_PENDING:R31_GAP_REFERENCE_LIFECYCLE");return 0;
+            }
+            long work=GapReferenceR31.advance(store,claim,budget,checkpoint,cycle);
+            if(work>0)claim.completedEventCursor=claim.cursor+1;
+            return work;
+        }
         final RetentionRulesSU2.PreparedFold fold=checkpoint.phase==0?RetentionRulesSU2.prepareFold(read,cycle+1):null;
         budget.checkpointOrYield();
         if(checkpoint.phase==RetentionR26.PHASES_R30_REPAIR+2){ResearchRetentionR30.Result result=ResearchRetentionStoreR30.step(store,claim);claim.reason(result.state);if(result.state.equals("MORE_RECOMPUTABLE_WORK"))return Math.max(1,result.filesDeleted);}

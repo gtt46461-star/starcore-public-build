@@ -14,8 +14,14 @@ public final class RepairTaskProgressR30Test {
     }
     @SuppressWarnings("unchecked") @Test public void all57OwnersAppearAndMissingFactsCannotProduceZeroM12(){
         Map<String,Object> result=TaskProgressR30R1.summarize(Collections.emptyList(),Collections.emptyList(),1200);
-        assertEquals(60,((List<?>)result.get("tasks")).size());Map<String,Object> summary=(Map<String,Object>)result.get("summary");
-        assertEquals(60L,summary.get("unknown"));assertEquals(57,summary.get("originalEntrances"));assertEquals(3,summary.get("additionalRepairTasks"));assertNull(summary.get("m12"));assertNull(summary.get("oldestBacklogIssues"));
+        assertEquals(61,((List<?>)result.get("tasks")).size());Map<String,Object> summary=(Map<String,Object>)result.get("summary");
+        assertEquals(61L,summary.get("unknown"));assertEquals(57,summary.get("originalEntrances"));assertEquals(4,summary.get("additionalRepairTasks"));assertNull(summary.get("m12"));assertNull(summary.get("oldestBacklogIssues"));
+        Set<String> original=new HashSet<>(Arrays.asList(("schema schema-base kernel shadow-recover evidence-recover evidence-quality sealed-planner calibration su1-certificate su2-mainline su2-certificate qualification aggregate-evidence feedback seed-incumbent incumbent-forecast archive diagnosis daily-close legacy-generation foundry-su2 foundry-su1 ablation campaign-audit legacy-replay live-model-training artifact-retention warm-candidates publish-models live-forecast-preparation retention r27-replay-dataset r27-evolution r27-live r27-atoms r27-atomnet r27-abi r27-calibration r27-legacy-export r27-chart-cache r27-health").split(" ")));
+        for(int i=1;i<=16;i++)original.add(String.format(Locale.ROOT,"expert-E%02d",i));
+        assertEquals(57,original.size());assertEquals(original,ResearchTaskRegistryR30R1.ENTRIES.keySet());
+        assertEquals(new HashSet<>(Arrays.asList("r27-matrices-r1","r27-study-r1","r27-observatory-r1","lifecycle-schema")),ResearchTaskRegistryR30R1.ADDITIONAL.keySet());
+        assertEquals(TaskProgressR30R1.Unit.PHASE,ResearchTaskRegistryR30R1.require("lifecycle-schema").unit);
+        assertFalse(ResearchTaskRegistryR30R1.require("lifecycle-schema").training);
         assertEquals(TaskProgressR30R1.Unit.PHASE,ResearchTaskRegistryR30R1.require("r27-evolution").unit);
         assertEquals(TaskProgressR30R1.Unit.POSITION_SAMPLE,ResearchTaskRegistryR30R1.require("r27-atomnet").unit);
         assertEquals(TaskProgressR30R1.Unit.TIME_TICK,ResearchTaskRegistryR30R1.require("r27-health").unit);

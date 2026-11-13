@@ -163,6 +163,8 @@ public final class LiveShadowsR27 {
             if (sourceRevision<0 || sourceSchema<0 || !SchemaR27.liveSourceTriggersValid(w.ro)) {
                 recordSourceWait(w,todo,target,"SOURCE_REVISION_UNAVAILABLE"); return 0;
             }
+            final MainlineChoiceStoreR31.Choice typedChoice=MainlineChoiceStoreR31.ready(w.ro)?MainlineChoiceStoreR31.current(w.ro):null;
+            final boolean[] typedWasAbsent={false};
             FeatureCacheR27 cache = rt.liveCacheWithPlaceholder(w, latestOrd);
             if (cache == null) { recordSourceWait(w,todo,target,"SOURCE_HEAD_CHANGED_OR_INVALID"); return 0; }
             if (sourceRevision!=SchemaR27.liveSourceRevision(w.ro) || sourceSchema!=SchemaR27.liveSourceSchemaVersion(w.ro)) {
@@ -199,6 +201,14 @@ public final class LiveShadowsR27 {
                 return System.currentTimeMillis() < dl - FREEZE_MARGIN_MS ? 0 : -1;
             });
             b.after = b.before; // Both the source and the original 5 s margin must still hold before commit.
+            if(typedChoice!=null&&!typedChoice.fallback())b.guardBefore(db->{
+                try(Cursor current=db.rawQuery("SELECT 1 FROM r27_live_frozen WHERE policy_hash=? AND target_ordinal=?",new String[]{typedChoice.policyHash,String.valueOf(target)})){typedWasAbsent[0]=!current.moveToFirst();}return 0;
+            });
+            if(typedChoice!=null&&!typedChoice.fallback())b.guardAfter(db->{
+                // Only this transaction's fresh original freeze may gain a typed
+                // proof. A legacy/shadow row is never retroactively certified.
+                if(typedWasAbsent[0])MainlineFreezeProofR31.publishWithinFreeze(db,target,typedChoice.choiceId,sourceRevision,sourceSchema);return 0;
+            });
             if (opportunity) b.add("INSERT OR REPLACE INTO r27_opportunity(target_ordinal,target_issue,scheduled,frozen,acted,settled,deadline_missed,recorded_at) VALUES(?,?,?,?,?,0,0,?)", target, targetIssue, todo.size(), frozen, acted, System.currentTimeMillis());
             try { RuntimeR27.submit(w,opportunity ? "LIVE_FREEZE" : "OBSERVE_FREEZE",b,true);return todo.size(); }
             catch (IllegalStateException late) {
@@ -254,8 +264,10 @@ public final class LiveShadowsR27 {
         } catch (RuntimeException none) { deployed = null; }
         for (Shadow s : shadows(w.ro, "('ACTIVE','ACTIVE_REPAIR1')")) {
             SequentialQualificationR27.State st = StoreR27.readEprocess(w.ro, s.id); if (st == null) continue;
+            final Map<String,Object> qualificationBinding=MainlineFreezeProofR31.qualificationBinding(w.ro,s.id);
+            final Map<String,Object> calibrationBinding=MainlineFreezeProofR31.calibrationBinding(w.ro,s.id);
             CertificateGateR27.Evidence e = new CertificateGateR27.Evidence(); e.policyHash = s.id; e.sequentialState = st.state; e.acts = st.acts; e.hits = st.hits; e.logE = st.logUp;
-            e.abiEquivalent = s.semanticAbi!=null&&!s.semanticAbi.isEmpty()&&s.semanticAbi.equals(rt.semanticAbi(s.spec)); e.ece = ece(w.ro, s.id); e.calibrationQuality = CertificateGateR27.calibrationQuality(e.ece);
+            e.abiEquivalent = s.semanticAbi!=null&&!s.semanticAbi.isEmpty()&&s.semanticAbi.equals(rt.semanticAbi(s.spec)); e.ece = "BOUND".equals(calibrationBinding.get("state"))?((Number)calibrationBinding.get("ece")).doubleValue():ece(w.ro,s.id); e.calibrationQuality = CertificateGateR27.calibrationQuality(e.ece);
             double[] blocks = blocks(w.ro, s.id); e.worstBlock = blocks[0]; e.maxLosingStreak = (int) blocks[1];
             e.pairedLcbVsI00 = paired(w.ro, s.id, i00); e.pairedLcbVsNull = paired(w.ro, s.id, nul);
             CertificateGateR27.Verdict v = CertificateGateR27.evaluate(e);
@@ -264,18 +276,28 @@ public final class LiveShadowsR27 {
             RuntimeR27.AtomPublicationR30 modelPublication=rt.atomPublicationR30;
             final Map<String,Object> modelBinding=MainlineModelBindingR31.capture(w.ro,s.id,s.spec,s.tau,s.semanticAbi,modelPublication==null?null:modelPublication.model);
             if(!"BOUND".equals(modelBinding.get("state"))){issued=false;failing.add("MODEL_PUBLICATION_RECEIPT_REQUIRED");}
+            if(!"BOUND".equals(calibrationBinding.get("state"))){issued=false;failing.add("CALIBRATION_BINDING_REQUIRED");}
             boolean sourceRevoked=CertificateRevocationR30.blockedPolicy(w.ro,"R27",s.id);
             if(sourceRevoked){issued=false;failing.add("SOURCE_REVISION_REQUIRES_NEW_FUTURE_BINDING");}
             if (QualificationInboxR29.blockedForCertificate(w.ro, s.id)) { issued = false; failing.add("QUALIFICATION_GAP_OR_CONFLICT"); }
+            if(!"BOUND".equals(qualificationBinding.get("state"))){issued=false;failing.add("QUALIFICATION_ORIGINALS_BINDING_REQUIRED");}
             Map<String, Object> g = new LinkedHashMap<>(v.gates); g.put("gateVersion",CertificateGateR27.GATE_VERSION); g.put("failing", new ArrayList<Object>(failing));
             g.put("modelStateBindingR31",modelBinding);
+            g.put("gateEvidenceR31",MainlineFreezeProofR31.gateEvidence(e));g.put("calibrationBindingR31",calibrationBinding);
+            g.put("qualificationBindingR31",qualificationBinding);
             GateV2R29.Evidence v2=GateV2R29.evidence(w.ro,s.id,latestOrd);v2.pairedLcbVsI00=e.pairedLcbVsI00;v2.pairedLcbVsNull=e.pairedLcbVsNull;v2.deployed=s.id.equals(deployed);
             g.put("authority",CertificateGateR27.GATE_VERSION);g.put("semanticAbi",s.semanticAbi);g.put("throughOrdinal",latestOrd);g.put("qualificationPrefix",st.lastOrdinal);g.put("canonicalPrefixInputHash",v2.inputHash);g.put("sourceRevision",sourceRevision);g.put("thresholdContractHash",CertificateGateR27.contract().get("contractHash"));
             String digest=StatsR27.sha256(JsonR27.write(g));g.put("inputHash",digest);g.put("evaluatedAt",now);
             final long expectedN=st.n,expectedLast=st.lastOrdinal;final String experiment=s.id;
             b.guardBefore(db->{try(Cursor current=db.rawQuery("SELECT n,last_ordinal FROM r27_eprocess WHERE policy_hash=?",new String[]{experiment})){return current.moveToFirst()&&current.getLong(0)==expectedN&&current.getLong(1)==expectedLast?0:-1;}});
             if("BOUND".equals(modelBinding.get("state")))b.guardBefore(db->MainlineModelBindingR31.stillCommitted(db,modelBinding)?0:-1);
-            b.add("INSERT OR REPLACE INTO r27_certificate(policy_hash,status,gates_json,evidence_digest,issued_at,expires_at,gate_version) VALUES(?,?,?,?,?,?,?)", s.id, sourceRevoked ? "REVOKED" : issued ? "ACTIVE" : "NOT_ISSUED", JsonR27.write(g), digest, now, now + CertificateGateR27.VALID_MS, CertificateGateR27.GATE_VERSION);
+            if("BOUND".equals(calibrationBinding.get("state")))b.guardBefore(db->MainlineFreezeProofR31.calibrationStillCommitted(db,calibrationBinding)?0:-1);
+            if("BOUND".equals(qualificationBinding.get("state")))b.guardBefore(db->MainlineFreezeProofR31.qualificationStillCommitted(db,qualificationBinding)?0:-1);
+            String status=sourceRevoked?"REVOKED":issued?"ACTIVE":"NOT_ISSUED";
+            // An unchanged, unexpired certificate keeps its original issuance
+            // and expiry. Repeated scheduling must neither extend authority nor
+            // turn an earlier freeze into a post-certificate prediction.
+            b.add("INSERT OR REPLACE INTO r27_certificate(policy_hash,status,gates_json,evidence_digest,issued_at,expires_at,gate_version) SELECT ?,?,?,?,?,?,? WHERE NOT EXISTS(SELECT 1 FROM r27_certificate WHERE policy_hash=? AND status='ACTIVE' AND ?='ACTIVE' AND evidence_digest=? AND gate_version=? AND issued_at<=? AND expires_at>?)",s.id,status,JsonR27.write(g),digest,now,now+CertificateGateR27.VALID_MS,CertificateGateR27.GATE_VERSION,s.id,status,digest,CertificateGateR27.GATE_VERSION,now,now);
             // R29-036: R29_GATE_V2 evaluated beside the unchanged R27 gate and recorded separately (report only).
             GateV2R29.record(b, v2, GateV2R29.evaluate(v2));
             if (issued) active.add(e); else nearest.add(new Object[] {s.id, failing.size(), failing, st.progress()});

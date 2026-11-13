@@ -7,7 +7,7 @@ import java.util.*;
  * certificate gates). The old four-program kernel experiment remains separate.
  * One step is checkpointed by the existing fenced HEALTH writer. */
 public final class FactoryCapabilityExperimentR31 implements AutoCloseable {
-    public static final String VERSION="R31_FULL_FACTORY_EXPERIMENT_1",NAMESPACE="SYNTHETIC_FULL_FACTORY_R31";
+    public static final String VERSION="R31_FULL_FACTORY_EXPERIMENT_2_FIXED_FUTURE",NAMESPACE="SYNTHETIC_FULL_FACTORY_R31";
     public static final int REPLICATES=20,WARM=3000,FUTURE=6000,GENERATIONS=3;
     private final String source;
     private int trial;private long computeWallNanos,stepStarted;
@@ -22,6 +22,7 @@ public final class FactoryCapabilityExperimentR31 implements AutoCloseable {
     public String source(){return source;}
     public static Map<String,Object> protocol(){
         Map<String,Object> p=new LinkedHashMap<>();p.put("version",VERSION);p.put("namespace",NAMESPACE);p.put("replicatesPerArm",REPLICATES);p.put("warmRows",WARM);p.put("futureRows",FUTURE);p.put("generations",GENERATIONS);p.put("seedBase",710000L);p.put("signalStrength",.30);p.put("signalPosition",3);p.put("farUpper95Budget",.15);p.put("powerLower95Floor",.70);
+        p.put("futureWindowRule","FIXED_PRE_REGISTERED_6000_PERIODS;E_PROCESS_TERMINAL_STATE_NEVER_SHORTENS_RISK_OR_MIN_SUPPORT_EVALUATION");
         List<String> arms=new ArrayList<>();for(ResearchCapabilityExperimentR31.Arm arm:ResearchCapabilityExperimentR31.Arm.values())arms.add(arm.name());p.put("arms",arms);
         EvolutionLoopR27.Config cfg=new EvolutionLoopR27.Config();p.put("births",cfg.births);p.put("familyMinimum",cfg.minPerFamily);p.put("populationCap",cfg.populationCap);p.put("recursiveNullControl",cfg.nullControl);p.put("i00PerGeneration",cfg.i00PerGeneration);p.put("creationCostUnits",cfg.creationCostUnits);p.put("creationSliceUnits",cfg.creationSliceUnits);
         List<String> families=new ArrayList<>();for(IdeaFamilyR27 f:EvolutionLoopR27.FAMILIES)families.add(f.getClass().getName());p.put("factoryFamilies",families);p.put("semantics",FrozenConfirmationR30.currentSemantics());p.put("certificateContract",CertificateGateR27.contract());p.put("confirmationRule","ORIGINAL_FROZEN_CONFIRMATION_OUTSIDE_EVOLUTION");p.put("realPermission",false);return Collections.unmodifiableMap(p);
@@ -68,13 +69,27 @@ public final class FactoryCapabilityExperimentR31 implements AutoCloseable {
         try(FeatureCacheR27 future=new FeatureCacheR27(full)){
             ReplayEvaluatorR27.Trace actual=ReplayEvaluatorR27.run(frozen.champion.spec(),future,full.draws,frozen.champion.temperature,WARM,full.size());
             SequentialQualificationR27.State sequential=new SequentialQualificationR27.State(NAMESPACE+":"+protocolHash()+":"+trial,1,SelectorPolicyR30.registeredRate(frozen.champion.spec()));
-            int evaluatedTo=WARM;for(int i=WARM;i<full.size()&&SequentialQualificationR27.ACCUMULATING.equals(sequential.state);i++){sequential.observe(full.ordinals[i],!actual.skipped[i]&&actual.act[i],actual.hit[i]>0);evaluatedTo=i+1;}
+            // Statistical boundary crossing is not completion of the fixed risk
+            // window. observe() preserves its first terminal verdict while all
+            // future opportunities still contribute support/calibration/streaks.
+            int evaluatedTo=full.size();row.put("fixedFutureWindow",observeFixedFuture(sequential,actual,full.ordinals,WARM,evaluatedTo));
             ReplayScoreR27 score=ReplayScoreR27.of("SYNTHETIC_FUTURE",actual,WARM,evaluatedTo);row.put("futureFrom",full.ordinals[WARM]);row.put("futureThrough",full.ordinals[evaluatedTo-1]);
             CertificateGateR27.Evidence evidence=new CertificateGateR27.Evidence();evidence.policyHash=frozen.champion.policyHash;evidence.sequentialState=sequential.state;evidence.acts=sequential.acts;evidence.hits=sequential.hits;evidence.logE=sequential.logUp;evidence.ece=score.ece;evidence.calibrationQuality=CertificateGateR27.calibrationQuality(score.ece);evidence.worstBlock=score.worstBlockHr;evidence.maxLosingStreak=score.maxLosingStreak;evidence.abiEquivalent=frozen.researchSemanticHash.equals(FrozenConfirmationR30.currentSemantics());
             evidence.pairedLcbVsI00=paired(actual,frozen.i00,future,evaluatedTo);evidence.pairedLcbVsNull=paired(actual,frozen.nullPolicy,future,evaluatedTo);
             CertificateGateR27.Verdict verdict=CertificateGateR27.evaluate(evidence);row.put("qualification",sequential.json());row.put("certificateGates",verdict.gates);row.put("certificateFailures",verdict.failing);row.put("status",verdict.active?"DETECTED":"NOT_DETECTED");row.put("futureScore",score.json());
         }
         record(row);
+    }
+    static Map<String,Object> observeFixedFuture(SequentialQualificationR27.State state,ReplayEvaluatorR27.Trace trace,long[] ordinals,int from,int to){
+        if(from<0||to>ordinals.length||to-from!=FUTURE||state.n!=0)throw new IllegalArgumentException("FACTORY_FIXED_FUTURE_WINDOW");
+        long boundaryOrdinal=-1,boundaryActs=-1;String previous=state.state;
+        for(int i=from;i<to;i++){
+            state.observe(ordinals[i],!trace.skipped[i]&&trace.act[i],trace.hit[i]>0);
+            if(boundaryOrdinal<0&&SequentialQualificationR27.ACCUMULATING.equals(previous)&&!SequentialQualificationR27.ACCUMULATING.equals(state.state)){boundaryOrdinal=ordinals[i];boundaryActs=state.acts;}
+            previous=state.state;
+        }
+        if(state.n!=FUTURE)throw new IllegalStateException("FACTORY_FIXED_FUTURE_ORDINALS_NOT_UNIQUE");
+        Map<String,Object> result=new LinkedHashMap<>();result.put("registeredPeriods",FUTURE);result.put("observedPeriods",state.n);result.put("firstBoundaryOrdinal",boundaryOrdinal<0?null:boundaryOrdinal);result.put("firstBoundaryActs",boundaryActs<0?null:boundaryActs);result.put("firstBoundaryVerdict",state.state);result.put("riskAndControlsEvaluatedThrough",ordinals[to-1]);result.put("earlyStopping",false);return result;
     }
     private double paired(ReplayEvaluatorR27.Trace actual,FrozenConfirmationR30.Policy control,FeatureCacheR27 future,int to){
         if(control==null)return Double.NaN;

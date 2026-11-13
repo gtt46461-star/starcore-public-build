@@ -45,6 +45,11 @@
         <activity android:name=".DatabaseHealthActivity" android:exported="false" />
         <service android:name=".StorageMaintenanceServiceR82" android:exported="false"
             android:foregroundServiceType="dataSync" android:stopWithTask="false" />
+        <service android:name=".StorageCheckpointServiceR31" android:exported="false"
+            android:process=":diagnostics" />
+        <service android:name=".StorageRestoreProbeServiceR31" android:exported="false"
+            android:process=":restore_probe" android:foregroundServiceType="dataSync"
+            android:stopWithTask="false" />
 
         <provider
             android:name=".DiagnosticReportProviderR923"

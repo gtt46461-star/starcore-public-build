@@ -68,7 +68,11 @@ public final class ResearchTableAdaptersR30R1 {
     int rowBytes=JsonR27.write(row).getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
     if(bytes+rowBytes>524288){out.put("truncatedReason","TABLE_PAGE_BYTE_BUDGET");break;}bytes+=rowBytes;rows.add(row);
    }
-   out.put("status",rows.isEmpty()?"EMPTY_NO_ROWS":"READ_OK");
+   // Two individually legal cells can still exceed one page. An unreadable
+   // first row is a capacity failure, never evidence that the source is empty.
+   boolean firstRowBlocked=rows.isEmpty()&&out.containsKey("truncatedReason");
+   out.put("status",firstRowBlocked?"READ_ERROR":rows.isEmpty()?"EMPTY_NO_ROWS":"READ_OK");
+   if(firstRowBlocked)out.put("reason","TABLE_FIRST_ROW_BYTE_BUDGET");
   }catch(android.os.OperationCanceledException cancelled){throw cancelled;}
    catch(RuntimeException error){out.put("status","READ_ERROR");out.put("reason",error.getClass().getSimpleName()+":"+String.valueOf(error.getMessage()));}
   out.put("rows",rows);out.put("shown",rows.size());out.put("hasMore",rows.size()==size||out.containsKey("truncatedReason"));out.put("bytes",bytes);out.put("readFinishedAt",System.currentTimeMillis());out.put("receiptSha256",StatsR27.sha256(JsonR27.write(out)));return Collections.unmodifiableMap(out);

@@ -27,16 +27,38 @@ public final class LegacyReplayR26 {
             if(!c.moveToFirst())return null;Row r=new Row();r.roster=c.getString(0);r.source=c.getString(1);r.snapshot=c.getBlob(2);r.sourceThrough=c.getLong(3);r.genesis=c.getLong(4);r.through=c.getLong(5);r.cursor=c.getInt(6);r.state=c.getBlob(7);r.stateHash=c.getString(8);r.checkpoint=c.getString(9);r.parent=c.getString(10);r.abi=c.getString(11);r.status=c.getString(12);return r;
         }
     }
-    private static String roster(List<String> canonical){return HashingSU1.fields("R26_LEGACY_ROSTER_V1",ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256,PolicyIdentityR26.canonical(canonical));}
+    private static String roster(List<String> canonical){return roster(canonical,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);}
+    private static String roster(List<String> canonical,String abi){return HashingSU1.fields("R26_LEGACY_ROSTER_V1",abi,PolicyIdentityR26.canonical(canonical));}
+    /** The existing R26 chunked checkpoint is the production replay artifact. Authenticate
+     * its source/cursor envelope before using either a restored or a cached learner; a
+     * valid numerical blob alone does not authorize learning under a different snapshot. */
+    private static FoundryCampaignR26.Snapshot verifyCheckpoint(DbStore store,Row r)throws IOException {
+        String minted=LegacyContinuityR27.mintedRoster(store,r.checkpoint,r.roster);
+        String expected=r.parent.isEmpty()?HashingSU1.fields("R26_LEGACY_CHECKPOINT_V1",minted,r.source,"0",r.stateHash):HashingSU1.fields("R26_LEGACY_CHECKPOINT_V1",minted,r.source,r.parent,Long.toString(r.through),r.stateHash);
+        if(!expected.equals(r.checkpoint)||r.cursor<0)throw new IOException("R31_LEGACY_REPLAY_CHECKPOINT_IDENTITY");
+        try(Cursor c=store.readable().rawQuery("SELECT artifact_hash,policy_hash,source_hash,parent_hash,trained_through FROM r26_checkpoint_artifact WHERE checkpoint_hash=?",new String[]{r.checkpoint})){
+            if(!c.moveToFirst()||!CheckpointArtifactsR26.referenceHash(r.state).equals(c.getString(0))||!("LEGACY:"+r.roster).equals(c.getString(1))||!r.source.equals(c.getString(2))||!r.parent.equals(c.getString(3))||r.through!=c.getLong(4))throw new IOException("R31_LEGACY_REPLAY_MANIFEST");
+        }
+        if(!"BOOTSTRAP".equals(r.status))return null;
+        if(!LiveStateR26.hash(r.snapshot).equals(r.source))throw new IOException("R31_LEGACY_REPLAY_SOURCE_HASH");
+        FoundryCampaignR26.Snapshot source=FoundryCampaignR26.Snapshot.decode(r.snapshot);
+        if(r.sourceThrough!=source.through||r.cursor>=source.draws.length||(r.cursor==0?r.through>=source.ordinal[0]:r.through!=source.ordinal[r.cursor-1]))throw new IOException("R31_LEGACY_REPLAY_SOURCE_CURSOR");
+        return source;
+    }
     private static LegacyReplayStateR26 decode(DbStore store,Row r)throws IOException {
+        verifyCheckpoint(store,r);
         LegacyReplayStateR26 state=CheckpointArtifactsR26.forStore(store).restoreLegacy(r.state,r.stateHash);
-        if(state.through()!=r.through||state.genesis!=r.genesis)throw new IOException("R26_LEGACY_CHECKPOINT_CURSOR");return state;
+        if(state.through()!=r.through||state.genesis!=r.genesis||!roster(state.canonical,r.abi).equals(r.roster))throw new IOException("R26_LEGACY_CHECKPOINT_CURSOR_OR_ROSTER");return state;
     }
     static void clearWorking(){working=null;workingCheckpoint="";}
     public static long step(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget)throws IOException,JSONException {
         Models.Draw latest=store.getLatestDraw();if(latest==null)return 0;long latestOrdinal=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);Row r=row(store.readable());
         List<String> wanted=ModelLiveLoopSU2.liveGenomes(store.readable());String desired=roster(wanted),abi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
         if(wanted.isEmpty()){active=null;working=null;return 0;}
+        // A later build/ABI decision cannot turn damaged source/cursor evidence into LIVE.
+        if(r!=null&&"BLOCKED_REPLAY_CHECKPOINT_PRESERVED".equals(r.status))return 0;
+        FoundryCampaignR26.Snapshot verifiedSource=null;
+        if(r!=null&&!r.status.startsWith("BLOCKED")&&!"EXPIRED_RETENTION".equals(r.status))try{verifiedSource=verifyCheckpoint(store,r);}catch(IOException|IllegalArgumentException invalid){preserveBlocked(store,claims,r,"BLOCKED_REPLAY_CHECKPOINT_PRESERVED");return 0;}
         if(r!=null&&!abi.equals(r.abi)){return adoptAbi(store,claims,r,abi,wanted);}
         if(r!=null&&r.status.equals("EXPIRED_RETENTION"))return resumeExpired(store,claims,budget);
         if(r==null||(!desired.equals(r.roster)&&r.status.equals("LIVE"))){
@@ -54,9 +76,9 @@ public final class LegacyReplayR26 {
         }
         if(!abi.equals(r.abi)||r.status.startsWith("BLOCKED"))return 0;
         final Row previous=r;
-        if(r.status.equals("BOOTSTRAP")&&latestOrdinal-FoundryCampaignR26.Snapshot.decode(r.snapshot).ordinal[0]>=5000){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_BOOTSTRAP_EXPIRE",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());db.execSQL("UPDATE r26_legacy_runtime SET status='EXPIRED_RETENTION',snapshot=X'' WHERE singleton=1 AND checkpoint_hash=?",new Object[]{previous.checkpoint});return 0;});working=null;return 1;}
-        LegacyReplayStateR26 state=working!=null&&workingCheckpoint.equals(r.checkpoint)?working:decode(store,r);
-        FoundryCampaignR26.Snapshot snapshot=r.status.equals("BOOTSTRAP")?FoundryCampaignR26.Snapshot.decode(r.snapshot):null;
+        if(r.status.equals("BOOTSTRAP")&&latestOrdinal-verifiedSource.ordinal[0]>=5000){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_BOOTSTRAP_EXPIRE",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());db.execSQL("UPDATE r26_legacy_runtime SET status='EXPIRED_RETENTION',snapshot=X'' WHERE singleton=1 AND checkpoint_hash=?",new Object[]{previous.checkpoint});return 0;});working=null;return 1;}
+        LegacyReplayStateR26 state=working!=null&&workingCheckpoint.equals(r.checkpoint)&&working.through()==r.through&&working.genesis==r.genesis?working:decode(store,r);
+        FoundryCampaignR26.Snapshot snapshot=verifiedSource;
         int before=r.cursor,after=before;long oldThrough=r.through,newThrough=oldThrough;CheckpointArtifactsR26.Prepared lastGood=null;List<String[]> events=new ArrayList<>();
         boolean interrupted=false;long stop=budget.activeNanos()+140_000_000L;
         try{
@@ -76,7 +98,7 @@ public final class LegacyReplayR26 {
         try(CheckpointArtifactsR26.Prepared file=lastGood){
             final String hash=LiveStateR26.hash(CheckpointArtifactsR26.forStore(store).resolve(file.reference())),checkpoint=HashingSU1.fields("R26_LEGACY_CHECKPOINT_V1",r.roster,r.source,r.checkpoint,String.valueOf(committedThrough),hash);
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_REPLAY_COMMIT",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());
-                db.execSQL("UPDATE r26_legacy_runtime SET cursor=?,through_ordinal=?,state=?,state_hash=?,parent_hash=?,checkpoint_hash=?,status=?,snapshot=CASE WHEN ?=1 THEN X'' ELSE snapshot END,updated_at=? WHERE singleton=1 AND checkpoint_hash=? AND through_ordinal=?",new Object[]{committedCursor,committedThrough,file.reference(),hash,previous.checkpoint,checkpoint,bootDone?"LIVE":previous.status,bootDone?1:0,System.currentTimeMillis(),previous.checkpoint,oldThrough});
+                db.execSQL("UPDATE r26_legacy_runtime SET cursor=?,through_ordinal=?,state=?,state_hash=?,parent_hash=?,checkpoint_hash=?,status=?,snapshot=CASE WHEN ?=1 THEN X'' ELSE snapshot END,updated_at=? WHERE singleton=1 AND checkpoint_hash=? AND through_ordinal=? AND cursor=? AND snapshot_hash=? AND source_through=? AND state_hash=? AND numerical_abi=? AND status=? AND roster_hash=? AND parent_hash=? AND snapshot=?",new Object[]{committedCursor,committedThrough,file.reference(),hash,previous.checkpoint,checkpoint,bootDone?"LIVE":previous.status,bootDone?1:0,System.currentTimeMillis(),previous.checkpoint,oldThrough,previous.cursor,previous.source,previous.sourceThrough,previous.stateHash,previous.abi,previous.status,previous.roster,previous.parent,previous.snapshot});
                 try(Cursor c=db.rawQuery("SELECT changes()",null)){if(!c.moveToFirst()||c.getInt(0)!=1)throw new IllegalStateException("R26_LEGACY_PARENT_CAS");}
                 CheckpointManifestR26.record(db,checkpoint,"LEGACY:"+previous.roster,previous.source,previous.checkpoint,committedThrough,file.reference());
                 for(String[] event:events){long ordinal=Long.parseLong(event[3]);if(ordinal>committedThrough)continue;try(Cursor c=db.rawQuery("SELECT 1 FROM r26_feedback WHERE event_id=? AND source_hash=?",new String[]{event[0],event[2]})){if(!c.moveToFirst())throw new IllegalStateException("R26_LEGACY_EVENT_CAS");}for(String text:state.canonical)db.execSQL("INSERT OR IGNORE INTO r26_consumption VALUES(?,?,?,'REVEALED_LIVE_LABEL')",new Object[]{event[0],LegacyReplayStateR26.key(text),checkpoint});}
@@ -149,7 +171,7 @@ public final class LegacyReplayR26 {
         try(Cursor c=store.readable().rawQuery("SELECT event_id,source_hash FROM r26_feedback WHERE issue_ordinal=?",new String[]{String.valueOf(ordinal)})){if(c.moveToFirst()){if(!hash.equals(c.getString(1)))throw new IllegalStateException("R26_LEGACY_CANONICAL_CONFLICT");event=c.getString(0);}}
         return new String[]{event,issue,hash,String.valueOf(ordinal)};
     }
-    private static void activate(DbStore store,Row row)throws IOException {Prepared p=active;if(p!=null&&p.checkpoint.equals(row.checkpoint))return;LegacyReplayStateR26 ready=decode(store,row);active=new Prepared(row,ready);}
+    private static void activate(DbStore store,Row row)throws IOException {verifyCheckpoint(store,row);Prepared p=active;if(p!=null&&p.checkpoint.equals(row.checkpoint))return;LegacyReplayStateR26 ready=decode(store,row);active=new Prepared(row,ready);}
     public static int capture(DbStore store,String target){
         if(!RuntimeSchemaR26.ready(store.readable()))return 0;long seq=TargetIssueResolver.sequenceOrdinalSU1(target);Row current=row(store.readable());if(current==null||!current.status.equals("LIVE")||current.through!=seq-1||!current.abi.equals(ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256))return 0;
         try{activate(store,current);}catch(IOException bad){android.util.Log.w("STARCORE_R26","legacy restore blocked",bad);return 0;}

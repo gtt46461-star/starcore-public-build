@@ -66,7 +66,9 @@ public final class MainlineBridgeSU2 {
 
     public static final class Intent {
         public final String memberId, genomeKey, gate; public final int position, mask; public final double phat; public final boolean real;
-        Intent(String m, String g, int p, int mask, double phat, boolean real, String gate) { memberId = m; genomeKey = g; position = p; this.mask = mask; this.phat = phat; this.real = real; this.gate = gate; }
+        public final MainlineFreezeProofR31.Authority typedR31;
+        Intent(String m, String g, int p, int mask, double phat, boolean real, String gate) { this(m,g,p,mask,phat,real,gate,null); }
+        Intent(String m,String g,int p,int mask,double phat,boolean real,String gate,MainlineFreezeProofR31.Authority typed) { memberId=m;genomeKey=g;position=p;this.mask=mask;this.phat=phat;this.real=real;this.gate=gate;typedR31=typed; }
     }
 
     /**
@@ -117,7 +119,13 @@ public final class MainlineBridgeSU2 {
         // R31-B10-C01: the explanation reads the same single authorization path as the request lane.
         try{MainlineChoiceStoreR31.Authorization auth=MainlineChoiceStoreR31.authorizedChoice(db,now,seq);choice=auth.policyHash;out.sources.put("mainlineAuthorityR31",auth.mode+":"+auth.reason);}
         catch(RuntimeException missing){out.sources.put("r27ChoiceSource","UNKNOWN:"+missing.getClass().getSimpleName());}
-        if(choice!=null&&!choice.isEmpty()&&(actualCandidate==null||actualCandidate.equals(choice)||actualCandidate.equals("R27:"+choice))) {
+        if(choice!=null&&!choice.isEmpty()&&(actualCandidate==null||actualCandidate.equals(choice)||actualCandidate.equals("R27:"+choice)||actualCandidate.equals(MainlineFreezeProofR31.PREFIX+choice))) {
+            MainlineFreezeProofR31.Authority typed=MainlineFreezeProofR31.read(db,seq,now);
+            if(typed!=null){
+                out.member="R27:"+choice;out.candidate=typed.candidate;out.modelHash=typed.modelHash;out.certificate=typed.certificate;
+                out.certificateActive=true;out.freezeComplete=true;out.modelAvailable=true;out.selectorConfirmed=true;out.actRuleFired=true;
+                out.sources.put("lane","R31_TYPED_R27_ORIGINAL_GATE");out.sources.put("choiceId",typed.choiceId);out.sources.put("modelStateHash",typed.modelStateHash);out.sources.put("freezeProofHash",typed.proofHash);out.sources.put("sourceRevision",typed.sourceRevision);out.sources.put("frozenAt",typed.frozenAt);out.sources.put("deadlineAt",typed.deadlineAt);return out;
+            }
             out.member="R27:"+choice;out.candidate=choice;out.sources.put("lane","R27_REQUEST_ONLY");
             out.sources.put("authorizationState","AWAITING_EXISTING_AUTHORIZATION_CHAIN");
             // This original lane records a request; it has not acquired a typed mainline authorization proof.
@@ -169,7 +177,8 @@ public final class MainlineBridgeSU2 {
             if (!c.moveToFirst() || !"FROZEN".equals(c.getString(6)) || c.getInt(4) != 1) return null; // MISSING / abstain is never turned into an action
             int position = c.getInt(0), n1 = c.getInt(1), n2 = c.getInt(2), n3 = c.getInt(3); double[] p = StoreR27.unpack(c.getBlob(5));
             int mask = (1 << (n1 - 1)) | (1 << (n2 - 1)) | (1 << (n3 - 1));
-            return new Intent("R27:" + choice, choice, position, mask, p[n1 - 1] + p[n2 - 1] + p[n3 - 1], true, "R27_CERTIFIED:" + choice);
+            MainlineFreezeProofR31.Authority typed=MainlineFreezeProofR31.read(db,seq,now);
+            return new Intent("R27:"+choice,choice,position,mask,typed==null?p[n1-1]+p[n2-1]+p[n3-1]:typed.selectedHitP,typed!=null,typed==null?"R27_SHADOW_WAIT_TYPED_FREEZE_PROOF":"R31_TYPED_R27:"+typed.proofHash,typed);
         } catch (RuntimeException schemaPending) { return null; }
     }
 }

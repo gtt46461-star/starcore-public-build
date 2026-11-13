@@ -56,10 +56,12 @@ public final class FeatureCacheR27 implements AutoCloseable {
     public synchronized Map<String,Object> memorySnapshotR31(){reapReleasedArraysR31();Map<String,Object> out=new LinkedHashMap<>();out.put("rawCacheBytes",rawBytes);out.put("rawCacheCapacityBytes",rawByteCapacity);out.put("rawMapBytesDropped",rawMapBytesDropped);out.put("rawDropEvidence","MAP_REFERENCE_REMOVED_NOT_ACTUAL_HEAP_FREE");out.put("sharedReads",sharedReads);out.put("sharedBuilds",sharedBuilds);out.put("featureAbi",featureAbiR31);out.put("overrideSharedDisabled",!overrides.isEmpty());synchronized(RAW_LEASES_R31){out.put("processRawArrayLeasesAwaitingGc",RAW_LEASES_R31.size());}out.put("sharedStore",sharedR31.snapshot());out.put("coveredOwners",java.util.Arrays.asList("IMMUTABLE_SHARED_FEATURE_BLOCKS_WITH_READER_REFS","PRIVATE_AST_SCRATCH_UNTIL_SCOPE_CLOSE","PUBLIC_SCORE_MEMO_BYTE_LRU_DROP_REFERENCES_ONLY","FAMILY_CONSTRUCTOR_AND_PRIVATE_MATRIX_WRITE_BEFORE_ALLOCATE","FAMILY_ROW_CODEC_AND_RECOVERY_WORKSPACE","FAMILY_PENDING_OUTPUT_AND_CURSOR_SURVIVE_CANCEL"));out.put("uncoveredOwners",java.util.Arrays.asList("ESCAPED_PUBLIC_SCORE_ARRAYS_NOT_REUSED_OR_DECLARED_FREED","PUBLIC_SCORE_RESULT_ALLOCATION_ESTIMATES_NOT_FULLY_REGISTERED","MODEL_KERNEL_PER_STEP_TEMPORARIES_AND_DYNAMIC_PRIVATE_STATE_NOT_FULLY_REGISTERED","LEAF_INTERNAL_TEMPORARY_SCRATCH"));return out;}
     public Map<String,Object> trimUnusedR31(){synchronized(this){clearRawR31();if(scratchPoolR31!=null)scratchPoolR31.trimUnused();}Map<String,Object> result=sharedR31.evictTo(0);reapReleasedArraysR31();return result;}
     public static Map<String,Object> trimRegisteredCachesR31(){return trimRegisteredCachesR31(MemoryBudgetR31.processBudget());}
-    private static Map<String,Object> trimRegisteredCachesR31(MemoryBudgetR31 memory){
+    private static Map<String,Object> trimRegisteredCachesR31(MemoryBudgetR31 memory){return trimRegisteredCachesR31(memory,false);}
+    /** Admission denial also reclaims unused private buffers below the heap high-water. */
+    private static Map<String,Object> trimRegisteredCachesR31(MemoryBudgetR31 memory,boolean admissionDenied){
         java.util.List<FeatureCacheR27> caches;
         synchronized(REGISTERED_R31){caches=new java.util.ArrayList<>(REGISTERED_R31.keySet());}
-        boolean reuse="NORMAL".equals(memory.snapshot().get("pressure"));int trimmed=0;
+        boolean reuse=!admissionDenied&&"NORMAL".equals(memory.snapshot().get("pressure"));int trimmed=0;
         java.util.Set<SharedFeatureStoreR31> stores=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<SharedFeatureStoreR31,Boolean>());
         for(FeatureCacheR27 cache:caches)if(cache.memory==memory){
             // Optional admission reserves realtime headroom below the soft high
@@ -104,7 +106,7 @@ public final class FeatureCacheR27 implements AutoCloseable {
         this.data=data;this.capacity=Math.max(4,capacity);this.memory=java.util.Objects.requireNonNull(memory);this.sharedR31=java.util.Objects.requireNonNull(shared);
         this.rawByteCapacity=Math.max(128,Math.min(16L<<20,((Number)memory.snapshot().get("maxHeapBytes")).longValue()/32));
         memory.registerReclaimer(RAW_RECLAIMER_R31);
-        memory.registerPressureReclaimerR31("FEATURE_AND_SCORE_CACHE",()->trimRegisteredCachesR31(memory));
+        memory.registerPressureReclaimerR31("FEATURE_AND_SCORE_CACHE",()->trimRegisteredCachesR31(memory,true));
         cache=new LinkedHashMap<String,double[]>(64,.75f,true);REGISTERED_R31.put(this,Boolean.TRUE);
     }
     public synchronized long computedLeaves() { return computed; }

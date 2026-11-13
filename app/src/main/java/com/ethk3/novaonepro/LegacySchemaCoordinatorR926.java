@@ -33,8 +33,8 @@ public final class LegacySchemaCoordinatorR926 {
         }
         for(java.util.Map.Entry<String,Runnable> unit:units.entrySet()){
             String step=prefix+unit.getKey();if(completed.contains(step))continue;
-            SchemaDomainCoordinatorR926.markState(db,c,"INITIALIZING",step,"");
             try(LegacyDdlR31.Scope slice=new LegacyDdlR31.Scope(db,false)) {
+                SchemaDomainCoordinatorR926.markState(db,c,"INITIALIZING",step,"");
                 // Each statement is idempotent and autocommitted. Rolling a group back
                 // on yield would discard the one useful statement and never advance.
                 SchemaDomainCoordinatorR926.runStepAutocommitR31(db,c,step,x->{

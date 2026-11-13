@@ -25,6 +25,13 @@ public final class EvidenceContractR31 {
             this.minSupport = minSupport; this.errorBudget = errorBudget; this.powerTarget = powerTarget; this.targetActRate = targetActRate; actRateTolerance = tolerance; applicableDevices = devices;
             hash = StatsR27.sha256(VERSION + "|" + id + "|" + objective + "|" + risk + "|" + window + "|" + denominator + "|" + stop + "|" + calibration + "|" + minSupport + "|" + errorBudget + "|" + powerTarget + "|" + targetActRate + "|" + tolerance + "|" + devices);
         }
+        public Map<String,Object> json() {
+            Map<String,Object> m=new LinkedHashMap<>();m.put("version",VERSION);m.put("id",id);m.put("hash",hash);
+            m.put("primaryObjective",primaryObjective);m.put("riskDefinition",riskDefinition);m.put("evaluationWindow",evaluationWindow);
+            m.put("opportunityDenominator",opportunityDenominator);m.put("stopRule",stopRule);m.put("calibrationRule",calibrationRule);
+            m.put("minSupport",minSupport);m.put("errorBudget",errorBudget);m.put("powerTarget",powerTarget);
+            m.put("targetActRate",targetActRate);m.put("actRateTolerance",actRateTolerance);m.put("applicableDevices",applicableDevices);return m;
+        }
     }
     /** Registration requires every field; thresholds are fixed here, before any result is seen. */
     public static Contract register(String id, String objective, String risk, String window, String denominator, String stop, String calibration, long minSupport, double errorBudget, double powerTarget, double targetActRate, double tolerance, String devices) {

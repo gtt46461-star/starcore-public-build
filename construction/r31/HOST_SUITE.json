@@ -452,7 +452,8 @@
    "required_args": [],
    "owner_cards": [
     "R31-B08-C02",
-    "R31-B08-C05"
+    "R31-B08-C05",
+    "R31-B08-C04"
    ],
    "retired": false,
    "replacement": null,
@@ -588,10 +589,212 @@
    "command": "bash tools/r312/host.sh run_factory_transport_host",
    "required_args": [],
    "owner_cards": [
-    "R31-B07-C05"
+    "R31-B07-C05",
+    "R31-B10-C02"
    ],
    "retired": false,
    "replacement": null
+  },
+  {
+   "id": "run_keep_store_host",
+   "command": "bash tools/r312/host.sh run_keep_store_host",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B05-C04"
+   ],
+   "retired": false,
+   "replacement": null,
+   "configuration_state": "CONFIGURED_NOT_EXECUTED",
+   "evidence_scope": "ACTUAL_KEEP_SQLITE_STORE_CODEC_CONSUMERS_AND_DECLARED_CUTOVER; OTHER_TABLES_REQUIRE_THEIR_OWN_PROOF; NOT_ANDROID",
+   "current_build_binding": "Same invocation fresh compiled classes, actual current single source tree, unique output; no cached PASS import",
+   "whole_card_closure": false
+  },
+  {
+   "id": "run_gc_store_host",
+   "command": "bash tools/r312/host.sh run_gc_store_host",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B05-C05"
+   ],
+   "retired": false,
+   "replacement": null,
+   "configuration_state": "CONFIGURED_NOT_EXECUTED",
+   "evidence_scope": "ACTUAL_CHECKPOINT_GC_STORE_REAL_FILES_NATIVE_SQLITE_KILL_RECOVERY_AND_PENDING_PUBLICATION_PINS; NOT_ANDROID",
+   "current_build_binding": "Same invocation fresh compiled classes, actual current single source tree, unique output; no cached PASS import",
+   "whole_card_closure": false
+  },
+  {
+   "id": "run_hypothesis_store_host",
+   "command": "bash tools/r312/host.sh run_hypothesis_store_host",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B07-C06"
+   ],
+   "retired": false,
+   "replacement": null,
+   "configuration_state": "CONFIGURED_NOT_EXECUTED",
+   "evidence_scope": "ACTUAL_HYPOTHESIS_STORE_FOUNDRY_FINISH_AND_SYNTHETIC_SELECT_OUTPUT_CREDIT; NOT_NATURAL_OR_ANDROID",
+   "current_build_binding": "Same invocation fresh compiled classes, actual current single source tree, unique output; no cached PASS import",
+   "whole_card_closure": false
+  },
+  {
+   "id": "run_lifecycle_schema_host",
+   "command": "bash tools/r312/host.sh run_lifecycle_schema_host",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B02-C02"
+   ],
+   "retired": false,
+   "replacement": null,
+   "configuration_state": "CONFIGURED_NOT_EXECUTED",
+   "evidence_scope": "ACTUAL_ONE_OBJECT_MIGRATION_OWNER_AND_JOURNAL_WITH_DECLARATION_FIXTURES; NOT_PRODUCTION_STORE_EXECUTION",
+   "current_build_binding": "Same invocation fresh compiled classes, actual current single source tree, unique output; no cached PASS import",
+   "whole_card_closure": false
+  },
+  {
+   "id": "run_lifecycle_stores_host",
+   "command": "bash tools/r312/host.sh run_lifecycle_stores_host",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B02-C02",
+    "R31-B05-C04",
+    "R31-B05-C05",
+    "R31-B07-C06",
+    "R31-B10-C02"
+   ],
+   "retired": false,
+   "replacement": null,
+   "configuration_state": "CONFIGURED_NOT_EXECUTED",
+   "evidence_scope": "ACTUAL_CURRENT_STORE_DECLARATIONS_OWNER_AND_MINIMAL_REFERENCE_PUBLISHER_FIXTURES; COMPLETE_STORE_EXECUTION_REQUIRES_SEPARATE_HOSTS",
+   "current_build_binding": "Same invocation fresh compiled classes, actual current single source tree, unique output; no cached PASS import",
+   "whole_card_closure": false
+  },
+  {
+   "id": "run_report_keep_closure_host",
+   "command": "bash tools/r312/host.sh run_report_keep_closure_host",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B11-C03"
+   ],
+   "retired": false,
+   "replacement": null,
+   "configuration_state": "CONFIGURED_NOT_EXECUTED",
+   "evidence_scope": "ACTUAL_KEEP_CODEC_SNAPSHOT_REGISTRY_REPORT_DESCRIPTOR_GENERIC_COPY_READBACK_AND_FILE_PIN; NOT_SERVICE_SAF_OR_FULL_RESTORE",
+   "current_build_binding": "Same invocation fresh compiled classes, actual current single source tree, unique output; no cached PASS import",
+   "whole_card_closure": false
+  },
+  {
+   "id": "run_storage_checkpoint_host",
+   "command": "bash tools/r312/host.sh run_storage_checkpoint_host",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B05-C09"
+   ],
+   "retired": false,
+   "replacement": null,
+   "configuration_state": "CONFIGURED_NOT_EXECUTED",
+   "evidence_scope": "ACTUAL_NATIVE_SQLITE_LONG_READER_WAL_AND_SOURCE_LEASE_CRITICAL_COMMIT_CONCURRENCY; NOT_ANDROID_BINDER_OR_DEVICE_IO_BOUND",
+   "current_build_binding": "Same invocation fresh compiled classes, actual current single source tree, unique output; no cached PASS import",
+   "whole_card_closure": false
+  },
+  {
+   "id": "run_replay_knowledge_host",
+   "command": "bash tools/r312/host.sh run_replay_knowledge_host",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B06-C01"
+   ],
+   "retired": false,
+   "replacement": null,
+   "configuration_state": "CONFIGURED_NOT_EXECUTED",
+   "evidence_scope": "ACTUAL_5000_ROW_LOADER_PIN_SOURCE_GUARDS_CODECS_AND_FRESH_PROCESS_RESTORE; NOT_NATURAL_QUALITY",
+   "current_build_binding": "Same invocation fresh compiled classes, actual current single source tree, unique output; no cached PASS import",
+   "whole_card_closure": false
+  },
+  {
+   "id": "run_restore_proof_host",
+   "command": "bash tools/r312/host.sh run_restore_proof_host",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B05-C10"
+   ],
+   "retired": false,
+   "replacement": null,
+   "configuration_state": "CONFIGURED_NOT_EXECUTED",
+   "evidence_scope": "ACTUAL_NATIVE_REBUILD_FRESH_JVM_ROWS_MODELS_CAS_AND_FALSE_RESTORE_PROOF_REFUSAL; DOES_NOT_AUTHORIZE_ANDROID_BACKUP_DELETION",
+   "current_build_binding": "Same invocation fresh compiled classes, actual current single source tree, unique output; no cached PASS import",
+   "whole_card_closure": false
+  },
+  {
+   "id": "run_replay_knowledge_publication_host",
+   "command": "bash tools/r312/host.sh run_replay_knowledge_publication_host",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B06-C01"
+   ],
+   "retired": false,
+   "replacement": null,
+   "configuration_state": "CONFIGURED_NOT_EXECUTED",
+   "evidence_scope": "ACTUAL_RUNTIME_DATASET_TASK_NEW_PUBLICATION_TWO_RECOVERY_BRANCHES_AND_SOURCE_CHANGE_REFUSAL; HOST_SYNTHETIC_ROWS_NOT_ANDROID_OR_NATURAL",
+   "current_build_binding": "Same invocation fresh compiled classes, actual current single source tree, unique output; no cached PASS import",
+   "whole_card_closure": false
+  },
+  {
+   "id": "run_typed_mainline_host",
+   "command": "bash tools/r312/host.sh run_typed_mainline_host",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B10-C01",
+    "R31-B10-C03"
+   ],
+   "retired": false,
+   "replacement": null,
+   "configuration_state": "CONFIGURED_NOT_EXECUTED",
+   "evidence_scope": "ACTUAL_RUNTIME_CERTIFY_AND_FENCED_FREEZE_TYPED_CHOICE_ORIGINAL_R974_DECISION_GATE_AND_DBSTORE_TERMINAL_COMMIT_CLOSE_REOPEN_THREE_TABLE_READBACK; ISOLATED_SYNTHETIC_MECHANICS_NOT_ANDROID_NOT_NATURAL",
+   "current_build_binding": "Same invocation fresh compiled classes, actual current single source tree, unique output; no cached PASS import",
+   "whole_card_closure": false
+  },
+  {
+   "id": "run_gap_runtime_entry_host",
+   "command": "bash tools/r312/host.sh run_gap_runtime_entry_host",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B05-C04"
+   ],
+   "retired": false,
+   "replacement": null,
+   "configuration_state": "CONFIGURED_NOT_EXECUTED",
+   "evidence_scope": "ACTUAL_ORIGINAL_RUNTIME_RETENTION_P3_TASK_PHASE20_CLAIM_FENCE_TYPED_COORDINATOR_GAP_REFERENCE_PREPARE_APPLY_AND_CHECKPOINT; NATIVE_SQLITE_SYNTHETIC_NOT_ANDROID_NOT_WHOLE_KEEP_CARD",
+   "current_build_binding": "Same invocation fresh compiled classes, actual current single source tree, unique output; no cached PASS import",
+   "whole_card_closure": false
+  },
+  {
+   "id": "run_startup_checkpoint_host",
+   "command": "bash tools/r312/host.sh run_startup_checkpoint_host",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B05-C04"
+   ],
+   "retired": false,
+   "replacement": null,
+   "configuration_state": "CONFIGURED_NOT_EXECUTED",
+   "evidence_scope": "ACTUAL_STARTUP_PRESERVATION_FULL_STORAGE_CLASS_AND_BYTE_CAS_EQUALITY_OUTSIDE_WRITER_AND_GENERATION_GUARDED_REAL_CONSUMER; ISOLATED_NATIVE_NOT_ANDROID_NOT_WHOLE_KEEP_CARD",
+   "current_build_binding": "Same invocation fresh compiled classes, actual current single source tree, unique output; no cached PASS import",
+   "whole_card_closure": false
+  },
+  {
+   "id": "run_legacy_replay_checkpoint_host",
+   "command": "bash tools/r312/host.sh run_legacy_replay_checkpoint_host",
+   "required_args": [],
+   "owner_cards": [
+    "R31-B06-C02"
+   ],
+   "retired": false,
+   "replacement": null,
+   "configuration_state": "CONFIGURED_NOT_EXECUTED",
+   "evidence_scope": "ACTUAL_LEGACY_REPLAY_AND_GENERATION_SOURCE_BINDING_FULL_MODEL_OPTIMIZER_RNG_CALIBRATION_CURSOR_ATOMIC_COMMIT_AND_REAL_SIGKILL_CONTINUATION; HOST_NOT_DEVICE_OR_NATURAL",
+   "current_build_binding": "Same invocation fresh compiled classes, actual current single source tree, unique output; no cached PASS import",
+   "whole_card_closure": false
   }
  ],
  "installed_in": "S00 (R31.2); moved to construction/r31/HOST_SUITE.json for R31.3"

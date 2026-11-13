@@ -17,7 +17,7 @@ public final class AtomNetStoreR30 {
     public static void dataset(ResearchWriteQueueR27.Batch b,ReplayDatasetR27 data,long now){
         try{
             ByteArrayOutputStream bytes=new ByteArrayOutputStream();
-            try(DataOutputStream o=new DataOutputStream(new GZIPOutputStream(bytes))){o.writeInt(data.size());for(int i=0;i<data.size();i++){o.writeUTF(data.issues[i]);o.writeLong(data.ordinals[i]);for(int n:data.draws[i])o.writeByte(n);}}
+            try(DataOutputStream o=new DataOutputStream(new GZIPOutputStream(bytes))){if(!data.legacyIdentityR31)o.write(data.originalBytesR31());else{o.writeInt(data.size());for(int i=0;i<data.size();i++){o.writeUTF(data.issues[i]);o.writeLong(data.ordinals[i]);for(int n:data.draws[i])o.writeByte(n);}}}
             byte[] blob=bytes.toByteArray();b.add("INSERT OR IGNORE INTO r30_atomnet_dataset VALUES(?,?,?,?)",data.datasetHash,blob,StatsR27.sha256(blob),now);
         }catch(IOException e){throw new IllegalStateException("R30_TRAIN_DATASET_ENCODE",e);}
     }
@@ -26,9 +26,10 @@ public final class AtomNetStoreR30 {
             if(!c.moveToFirst())throw new IllegalStateException("R30_TRAIN_DATASET_MISSING");byte[] bytes=CheckpointArtifactsR26.resolveSerializedR31(ro,c.getBlob(0));
             if(!StatsR27.sha256(bytes).equals(c.getString(1)))throw new IllegalStateException("R30_TRAIN_DATASET_CHECKSUM");
             try(DataInputStream d=new DataInputStream(new GZIPInputStream(new ByteArrayInputStream(bytes)))){
-                int n=d.readInt();if(n<1||n>100_000)throw new IOException("rows");List<ReplayDatasetR27.Row> rows=new ArrayList<>();
-                for(int i=0;i<n;i++){String issue=d.readUTF();long ordinal=d.readLong();int[] draw=new int[10];for(int p=0;p<10;p++)draw[p]=d.readUnsignedByte();rows.add(new ReplayDatasetR27.Row(issue,ordinal,draw));}
-                ReplayDatasetR27 result=ReplayDatasetR27.of(rows);if(d.read()!=-1||!result.datasetHash.equals(hash))throw new IOException("content hash");return result;
+                int n=d.readInt();ReplayDatasetR27 result;
+                if(n==ReplayDatasetR27.ORIGINAL_MAGIC_R31){ByteArrayOutputStream raw=new ByteArrayOutputStream();new DataOutputStream(raw).writeInt(n);byte[] chunk=new byte[8192];int count;while((count=d.read(chunk))!=-1){if(count>ReplayDatasetR27.MAX_ORIGINAL_BYTES_R31-raw.size())throw new IOException("original bound");raw.write(chunk,0,count);}result=ReplayDatasetR27.originalBytesR31(raw.toByteArray());}
+                else{if(n<1||n>100_000)throw new IOException("rows");List<ReplayDatasetR27.Row> rows=new ArrayList<>();for(int i=0;i<n;i++){String issue=d.readUTF();long ordinal=d.readLong();int[] draw=new int[10];for(int p=0;p<10;p++)draw[p]=d.readUnsignedByte();rows.add(new ReplayDatasetR27.Row(issue,ordinal,draw));}result=ReplayDatasetR27.of(rows);}
+                if(d.read()!=-1||!result.datasetHash.equals(hash))throw new IOException("content hash");return result;
             }catch(IOException e){throw new IllegalStateException("R30_TRAIN_DATASET_DECODE",e);}
         }
     }

@@ -9,7 +9,9 @@ public final class FactoryTransportR31Host {
  @SuppressWarnings("unchecked") public static void main(String[] args)throws Exception{
   Class.forName("org.sqlite.JDBC");try(Connection connection=DriverManager.getConnection("jdbc:sqlite::memory:")){
    SQLiteDatabase db=new SQLiteDatabase(connection);db.execSQL("CREATE TABLE r27_chart_cache(panel_id TEXT,key TEXT,payload_json TEXT,updated_at INTEGER,PRIMARY KEY(panel_id,key))");db.execSQL("CREATE TABLE sentinel(value INTEGER)");db.execSQL("INSERT INTO sentinel VALUES(0)");
-   String source="HOST_TRANSPORT_FIXTURE_NOT_EXPERIMENTAL_EVIDENCE",key=source+":"+FactoryCapabilityExperimentR31.protocolHash();
+   String source="HOST_TRANSPORT_FIXTURE_NOT_EXPERIMENTAL_EVIDENCE";
+   ResearchWriteQueueR27.Batch registration=new ResearchWriteQueueR27.Batch();FactoryCapabilityStoreR31.advance(db,registration,source,1,false);execute(connection,db,registration);
+   EvidenceContractStoreR31.Registration registered=EvidenceContractStoreR31.beforeFactory(db,new ResearchWriteQueueR27.Batch(),source,2);check(registered!=null,"TRANSPORT_FIXTURE_USES_ACTUAL_PREREGISTERED_NAMESPACE");String key=registered.factoryKey();
    Map<String,Object> state;try(FactoryCapabilityExperimentR31 runner=new FactoryCapabilityExperimentR31(source)){state=(Map<String,Object>)JsonR27.parse(runner.snapshot());}
    List<Object> events=new ArrayList<>();StringBuilder text=new StringBuilder();for(int i=0;i<300;i++)text.append("ORIGINAL_STORAGE_FIXTURE_");
    for(int i=0;i<600;i++){Map<String,Object> event=new LinkedHashMap<>();event.put("kind","TRANSPORT_FIXTURE_ONLY");event.put("data",Arrays.asList(i,text.toString()));events.add(event);}

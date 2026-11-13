@@ -15,7 +15,7 @@ import java.util.*;
 public final class ReportSnapshotR30 {
     private ReportSnapshotR30() {}
     static final String READ_CLOCK="CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)";
-    static final String[] TABLES={"r31_atomnet_publication","r30_atomnet_forecast","r31_history_import_run","r31_history_import_row","r31_atom_score_visible","r31_molecule_visible","r31_atom_contribution_visible","r31_atom_result_run","r31_atom_result_chunk","r31_atom_result_active","r31_feedback_event","r31_feedback_receipt","r31_frozen_feedback_effect","r31_fetch_timing","r31_commit_receipt","r31_task_lease","r31_recovery_clock","r31_runtime_fault","r31_task_control","r31_task_observation","r31_telemetry_counter","r29_gate_v2","r29_qual_calendar","r30r1_task_progress","r30r1_analysis_run","r30r1_research_measure","r30r1_proposal","r30r1_consume","r30r1_chart_cache","trades","r952_research_outbox","r30_research_chart_frame","draws","r27_history_import","r26_task","r26_progress","r26_work_total","r26_capability","r26_capability_source","r26_live_model","r26_evolution","r26_cohort","r26_certificate_revocation","r27_policy","r27_lineage","r30_behavior_dup","r27_generation","r27_evolution_cursor","r27_replay_dataset","r27_replay_score","r27_live_shadow","r27_live_frozen","r27_eprocess","r27_certificate","r27_calibration","r27_atom_score","r27_molecule","r27_expert_proposal","r27_ablation","r27_chart_cache","r27_legacy_export","r27_opportunity","r27_semantic_fingerprint","r27_abi_continuity","r29_qual_receipt","r29_qual_conflict","r29_qual_cursor","r29_qual_rebuild","r29_pending_draw","r29_model_checkpoint","r30_frozen_confirm","r30_confirm_read","r30_writer_hold","r30_issue_timeline","r30_pit_violation","r30_atom_contribution","r30_model_artifact","r30_model_surface","r30_model_call","r30_decision_explain","r30_decision_mismatch","r30_certificate_revocation_event","r30_revoked_policy","r30_revoked_certificate","r30_live_source_revision","research_matrix_snapshot_r930","su2_matrix_snapshot","su2_live_decision","su2_certificate","su2_mainline_choice","su2_storage_budget","su2_track_block","su2_diag_snapshot","su2_diag_state","su1_model_ablation","r30_retention_archive_index","r30_retention_run","r30_retention_file_action"};
+    static final String[] TABLES={"r31_startup_checkpoint_source","r31_startup_checkpoint_receipt","r31_gap_reference_batch","r31_gap_reference_item","r31_gap_reference_permit","r31_gap_reference_original","r31_mainline_freeze","r31_keep_row_retirement","r31_gc_checkpoint_scratch","r31_keep_cutover","r31_keep_retire_permit","r31_keep_mismatch_original","r31_keep_mismatch_permit","r31_gc_publication","r31_keep_checkpoint","r31_keep_original","r31_gc_artifact","r31_gc_edge","r31_gc_pin","r31_gc_receipt","r31_gc_status","r31_hypothesis_registry","r31_hypothesis_binding","r31_hypothesis_select","r31_hypothesis_outcome","r31_hypothesis_quota","r31_atomnet_publication","r30_atomnet_forecast","r31_history_import_run","r31_history_import_row","r31_atom_score_visible","r31_molecule_visible","r31_atom_contribution_visible","r31_atom_result_run","r31_atom_result_chunk","r31_atom_result_active","r31_feedback_event","r31_feedback_receipt","r31_frozen_feedback_effect","r31_fetch_timing","r31_commit_receipt","r31_task_lease","r31_recovery_clock","r31_runtime_fault","r31_task_control","r31_task_observation","r31_telemetry_counter","r29_gate_v2","r29_qual_calendar","r30r1_task_progress","r30r1_analysis_run","r30r1_research_measure","r30r1_proposal","r30r1_consume","r30r1_chart_cache","trades","r952_research_outbox","r30_research_chart_frame","draws","r27_history_import","r26_task","r26_progress","r26_work_total","r26_capability","r26_capability_source","r26_live_model","r26_evolution","r26_cohort","r26_certificate_revocation","r27_policy","r27_lineage","r30_behavior_dup","r27_generation","r27_evolution_cursor","r27_replay_dataset","r27_replay_score","r27_live_shadow","r27_live_frozen","r27_eprocess","r27_certificate","r27_calibration","r27_atom_score","r27_molecule","r27_expert_proposal","r27_ablation","r27_chart_cache","r27_legacy_export","r27_opportunity","r27_semantic_fingerprint","r27_abi_continuity","r29_qual_receipt","r29_qual_conflict","r29_qual_cursor","r29_qual_rebuild","r29_pending_draw","r29_model_checkpoint","r30_frozen_confirm","r30_confirm_read","r30_writer_hold","r30_issue_timeline","r30_pit_violation","r30_atom_contribution","r30_model_artifact","r30_model_surface","r30_model_call","r30_decision_explain","r30_decision_mismatch","r30_certificate_revocation_event","r30_revoked_policy","r30_revoked_certificate","r30_live_source_revision","research_matrix_snapshot_r930","su2_matrix_snapshot","su2_live_decision","su2_certificate","su2_mainline_choice","su2_storage_budget","su2_track_block","su2_diag_snapshot","su2_diag_state","su1_model_ablation","r30_retention_archive_index","r30_retention_run","r30_retention_file_action"};
     static final class Table {
         final String name;final LinkedHashMap<String,String> columns=new LinkedHashMap<>();final List<String> pk=new ArrayList<>();boolean withoutRowid,view;
         Table(String name){this.name=name;}
@@ -59,7 +59,7 @@ public final class ReportSnapshotR30 {
                 q.add("rowid:"+name,alias==null?"NULL":"(SELECT max("+id(alias)+") FROM "+id(name)+")",true);
                 if(t!=null&&t.withoutRowid)for(String key:t.pk)q.add("pk:"+name+":"+key,"(SELECT max("+id(key)+") FROM "+id(name)+")",false);
             }
-            metrics(q,at);rowsets(q);
+            metrics(q,at,db);rowsets(q);
             Map<String,Object> values=new LinkedHashMap<>();try(Cursor c=cancellation==null?db.rawQuery(q.sql(),null):db.rawQuery(q.sql(),null,cancellation)){
                 if(!c.moveToFirst())throw new IllegalStateException("REPORT_SNAPSHOT_ROW_MISSING");
                 for(int i=0;i<q.cells.size();i++){Cell cell=q.cells.get(i);Object value=c.isNull(i)?null:cell.numeric?number(c,i):c.getString(i);values.put(cell.key,value);if(cell.fields!=null)data.put(cell.key.substring(5),decode((String)value,cell.table,cell.fields));}
@@ -90,6 +90,22 @@ public final class ReportSnapshotR30 {
             List<Object> tablePages=new ArrayList<>();
             for(String id:ResearchTableAdaptersR30R1.ids())tablePages.add(ResearchTableAdaptersR30R1.readPageR31(db,id,java.util.Collections.emptyMap(),0,8,cancellation));
             data.put("researchTablesR31",tablePages);
+            // Lifecycle owners expose only read-side status here. These separate
+            // reads are labeled explicitly on pre-35 live connections; an export
+            // uses its immutable backup and API35 owns a read-only transaction.
+            final boolean lifecyclePinnedRead=own;
+            Map<String,Object> lifecycle=new LinkedHashMap<>();
+            lifecycle.put("keepMigrationR31",lifecycleReadR31(()->KeepMigrationStoreR31.report(db),lifecyclePinnedRead));
+            lifecycle.put("checkpointGcR31",lifecycleReadR31(()->CheckpointGcStoreR31.report(db),lifecyclePinnedRead));
+            lifecycle.put("hypothesisCreditR31",lifecycleReadR31(()->HypothesisStoreR31.report(db),lifecyclePinnedRead));
+            lifecycle.put("evidenceContractR31",lifecycleReadR31(()->EvidenceContractStoreR31.report(db),lifecyclePinnedRead));
+            lifecycle.put("researchConsumptionR31",lifecycleReadR31(()->ResearchConsumptionStoreR31.report(db),lifecyclePinnedRead));
+            lifecycle.put("researchConsumptionScope","SELECT_DEVELOPMENT_SOURCE_ABLATION_ONLY; NOT_NATURAL_OR_REAL_QUALITY");
+            lifecycle.put("storageCheckpointR31",lifecycleReadR31(()->com.ethk3.novaonepro.StorageReclaimR943.checkpointReportR31(db),lifecyclePinnedRead));
+            lifecycle.put("replayKnowledgeR31",lifecycleReadR31(()->ReplayKnowledgeStoreR31.report(db),lifecyclePinnedRead));
+            lifecycle.put("startupCheckpointR31",lifecycleReadR31(()->StartupCheckpointIdentityR31.report(db),lifecyclePinnedRead));
+            data.put("lifecycleEvidenceR31",lifecycle);
+
             // Explicitly outside the SQL watermark: process counters are diagnostic observations.
             data.put("r31ProcessTelemetry",ResearchPoolR27.telemetrySnapshotR31());
             data.put("r31WriterProtocolObservation",com.ethk3.novaonepro.DatabaseCoordinator.writeProtocolSnapshotR31());
@@ -121,6 +137,23 @@ public final class ReportSnapshotR30 {
         }
         finally{if(own)db.endTransaction();}
         return new ReportR27.R30Input(facts,watermark,data,errors);
+    }
+    private static Map<String,Object> lifecycleReadR31(java.util.function.Supplier<Map<String,Object>> reader,boolean pinned){
+        Map<String,Object> receipt=new LinkedHashMap<>();receipt.put("readOnly",true);
+        receipt.put("sourceScope",pinned?"PINNED_READ_ONLY_TRANSACTION":"SEPARATE_LIFECYCLE_READS_AFTER_FACT_WATERMARK");
+        receipt.put("readStartedAt",System.currentTimeMillis());
+        try{
+            Map<String,Object> value=reader.get();String encoded=JsonR27.write(value);int bytes=encoded.getBytes(StandardCharsets.UTF_8).length;
+            receipt.put("originalProjectionSha256",StatsR27.sha256(encoded));receipt.put("originalProjectionBytes",bytes);
+            if(bytes<=65536){receipt.put("status","READ_OK_NOT_A_HEALTH_VERDICT");receipt.put("value",value);}
+            else{receipt.put("status","REFERENCE_ONLY_DISPLAY_BYTE_BOUND");receipt.put("value",null);}
+        }catch(android.os.OperationCanceledException|java.util.concurrent.CancellationException cancelled){throw cancelled;}
+        catch(RuntimeException unavailable){
+            Error fatal=FailureDispositionR31.processFatalCause(unavailable);if(fatal!=null)throw fatal;
+            receipt.put("status","UNKNOWN_LIFECYCLE_READ_FAILURE");receipt.put("value",null);receipt.put("exceptionClass",unavailable.getClass().getName());
+        }
+        receipt.put("fullOriginal","verified snapshot.db / lifecycle owner tables and r31-risk-contract cache panels");
+        receipt.put("readFinishedAt",System.currentTimeMillis());return receipt;
     }
     /** Counts are recorded by the transaction owner; attempt failures are never used as rollback facts. */
     @SuppressWarnings("unchecked") static void writerOutcomeViewsR31(Map<String,Object> data){
@@ -195,11 +228,14 @@ public final class ReportSnapshotR30 {
         }catch(android.os.OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException error){errors.add(error.getClass().getSimpleName()+":"+error.getMessage());}
         return new ReportR27.R30Input(facts,watermark,data,errors);
     }
-    static void metrics(Query q,long at){
+    static void metrics(Query q,long at,SQLiteDatabase db){
         boolean census=q.has("r30_model_call","status","policy_hash","target_ordinal","position","required_count","model_hash","probability_hash","frozen_at","reason")&&q.has("r27_live_shadow","policy_hash","spec_json")&&q.has("r27_live_frozen","policy_hash","target_ordinal","status","frozen_at")&&q.has("r30_model_artifact","model_hash","feature_abi")&&q.has("r30_model_surface","target_ordinal","position","model_hash","probability_hash");
         q.add("modelConsumptionCensus",census?ModelConsumptionCensusR30R1.packedSql():"NULL",false);
         String[][] counts={{"draws","draws"},{"runtimeTasks","r26_task"},{"taskProgressRows","r26_progress"},{"policyObjects","r27_policy"},{"generations","r27_generation"},{"confirmationPackets","r30_frozen_confirm"},{"confirmationReservations","r30_confirm_read"},{"behaviorDuplicates","r30_behavior_dup"},{"writerWindows","r30_writer_hold"},{"legacyTimelineEvents","r30_issue_timeline"},{"pitViolations","r30_pit_violation"},{"qualificationReceipts","r29_qual_receipt"},{"allCheckpointRows","r29_model_checkpoint"},{"modelSurfaceRows","r30_model_surface"},{"modelCalls","r30_model_call"},{"calibratedPolicies","r27_calibration"},{"atoms","r31_atom_score_visible"},{"molecules","r31_molecule_visible"},{"nativeMatrixRows","research_matrix_snapshot_r930"},{"su2MatrixRows","su2_matrix_snapshot"},{"decisionRecords","r30_decision_explain"},{"decisionMismatches","r30_decision_mismatch"},{"revocationEvents","r30_certificate_revocation_event"},{"revokedPolicies","r30_revoked_policy"},{"abiFingerprints","r27_semantic_fingerprint"},{"abiChecks","r27_abi_continuity"},{"legacyExports","r27_legacy_export"},{"ablationRows","r27_ablation"},{"storageCategories","su2_storage_budget"},{"retainedCertificateArchives","r30_revoked_certificate"},{"retainedModelObjects","r26_live_model"},{"upgradeSnapshots","su2_diag_snapshot"},{"upgradeStateRows","su2_diag_state"},{"modelAblationTasks","su1_model_ablation"},{"retentionRuns","r30_retention_run"},{"retentionArchives","r30_retention_archive_index"},{"retentionFileActions","r30_retention_file_action"}};
-        for(String[] count:counts)q.count(count[0],count[1]);
+        for(String[] count:counts){
+            if(count[0].equals("decisionMismatches"))q.add(count[0],q.has("r30_decision_mismatch","issue","decision_key","direction")?"("+KeepMismatchReferenceR31.countSql(db,null)+")":"NULL",true);
+            else q.count(count[0],count[1]);
+        }
         // R31-B06-C03: published and actually consumed AtomNet models are counted separately; NULL when unavailable.
         boolean atomPub=q.has("r31_atomnet_publication","status","model_hash"),atomUse=q.has("r30_atomnet_forecast","model_hash");
         q.add("atomnetPublishedModels",atomPub?"(SELECT count(DISTINCT model_hash) FROM r31_atomnet_publication WHERE status='PUBLISHED' AND model_hash IS NOT NULL)":"NULL",true);
@@ -213,7 +249,7 @@ public final class ReportSnapshotR30 {
         q.add("birthRejections",q.has("r27_generation","rejected")?"(SELECT coalesce(sum(rejected),0) FROM r27_generation)":"NULL",true);
         q.add("writerHardViolations",q.has("r30_writer_hold","over_hard")?"(SELECT coalesce(sum(over_hard),0) FROM r30_writer_hold)":"NULL",true);
         q.add("openQualificationConflicts",q.has("r29_qual_conflict","resolved_at")?"(SELECT count(*) FROM r29_qual_conflict WHERE resolved_at=0)":"NULL",true);
-        q.add("unsafeDecisionMismatches",q.has("r30_decision_mismatch","direction")?"(SELECT count(*) FROM r30_decision_mismatch WHERE direction='ORIGINAL_MORE_PERMISSIVE')":"NULL",true);
+        q.add("unsafeDecisionMismatches",q.has("r30_decision_mismatch","issue","decision_key","direction")?"("+KeepMismatchReferenceR31.countSql(db,"ORIGINAL_MORE_PERMISSIVE")+")":"NULL",true);
         q.add("realRows",q.has("trades","is_realtime_real")?"(SELECT count(*) FROM trades WHERE is_realtime_real=1)":"NULL",true);
         q.add("duplicateRealIssues",q.has("trades","is_realtime_real","target_issue")?"(SELECT count(*) FROM (SELECT target_issue FROM trades WHERE is_realtime_real=1 GROUP BY target_issue HAVING count(*)>1))":"NULL",true);
         for(MatrixRegistryR30.Definition def:MatrixRegistryR30.all())if(def.namespace.equals("R930")){

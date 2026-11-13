@@ -3,8 +3,38 @@ import java.io.*;
 /** Report/SQLite methods run only in :diagnostics; the separate CAS walker serves training without SQLite. */
 public final class ReportNativeCP4 {
  private ReportNativeCP4() {}
- private static boolean loaded, rowReaderActive;
+ private static boolean loaded; private static volatile boolean rowReaderActive;
  private static boolean casWalkerLoaded;
+ private static boolean checkpointLoaded;
+ private static final Object CHECKPOINT_LOAD=new Object();
+ private static final java.util.concurrent.atomic.AtomicBoolean SQLITE_OWNER_R31=new java.util.concurrent.atomic.AtomicBoolean();
+ /** Fixed-operation maintenance capability. It does not enable report SQL,
+  * backups, arbitrary PRAGMAs or row readers in the application process. */
+ static long[] checkpointWalR31(android.content.Context context,File database,int mode,long budgetMs,SourceReadLeaseR82 lease,Control control)throws IOException {
+  if(context==null||database==null||lease==null||control==null||mode<0||mode>2||budgetMs<1||budgetMs>50||!lease.shouldContinue()||(mode==1&&!lease.exclusiveCheckpointR31()))throw new IOException("WAL_OWNER_OR_LEASE_REQUIRED");
+  if(!(context.getPackageName()+":diagnostics").equals(checkpointProcessNameR31(context))||!context.getDatabasePath(AppConfig.DB_NAME).getCanonicalFile().equals(database.getAbsoluteFile())||!database.getAbsoluteFile().equals(database.getCanonicalFile()))throw new IOException("WAL_DIAGNOSTIC_APPLICATION_SOURCE_REQUIRED");
+  if(!SQLITE_OWNER_R31.compareAndSet(false,true))throw new IOException("DEPENDENCY:WAL_REPORT_SQL_OWNER_ACTIVE");
+  try{synchronized(CHECKPOINT_LOAD){if(!checkpointLoaded){System.loadLibrary("starcore_report_cp4");checkpointLoaded=true;}}
+   long[] result=checkpointWal0(database.getCanonicalPath(),mode,budgetMs,sourceControlR31(control,lease));if(result==null||result.length!=8)throw new IOException("WAL_NATIVE_RESULT_MISSING");return result;
+  }finally{SQLITE_OWNER_R31.set(false);}
+ }
+ private static String checkpointProcessNameR31(android.content.Context context){
+  if(android.os.Build.VERSION.SDK_INT>=28)return android.app.Application.getProcessName();
+  android.app.ActivityManager manager=(android.app.ActivityManager)context.getSystemService(android.content.Context.ACTIVITY_SERVICE);
+  java.util.List<android.app.ActivityManager.RunningAppProcessInfo> processes=manager==null?null:manager.getRunningAppProcesses();
+  if(processes!=null)for(android.app.ActivityManager.RunningAppProcessInfo process:processes)if(process.pid==android.os.Process.myPid())return process.processName;
+  return null; // Unknown identity never grants a native SQLite capability.
+ }
+ private static native long[] checkpointWal0(String source,int mode,long budgetMs,Control control);
+ private static Control sourceControlR31(Control original,SourceReadLeaseR82 lease){return new Control(){
+  public boolean shouldContinue(){return lease.shouldContinue()&&original.shouldContinue();}
+  public void onBackupProgress(long total,long remaining,int code){if(code==0||code==101)lease.progress(Math.max(0,total-remaining));original.onBackupProgress(total,remaining,code);}
+  public boolean hasDiskAdmissionR31(){return original.hasDiskAdmissionR31();}
+  public void beforeOutputBytesR31(File file,long bytes)throws IOException{original.beforeOutputBytesR31(file,bytes);}
+  public void reserveFutureBytesR31(long bytes)throws IOException{original.reserveFutureBytesR31(bytes);}
+  public void beforeBackupChunk(long bytes)throws IOException{original.beforeBackupChunk(bytes);}
+  public OutputStream protectOutput(File file,OutputStream sink)throws IOException{return original.protectOutput(file,sink);}
+ };}
  /** CAS directory-only JNI. Does not permit report/SQLite operations in the application process.
   * Caller holds admission.lock exclusively while accounting/publishing; partial cleanup never removes CAS. */
  public static synchronized long trainingCasBytesCP12(String directory,long nowMs,boolean cleanOldPartials){
@@ -33,10 +63,11 @@ public final class ReportNativeCP4 {
  public static synchronized void backup(File source, File dest, long nativeBudget, Control control) throws IOException {
   if(!loaded||rowReaderActive||source==null||dest==null||control==null)throw new IOException("REPORT_NATIVE_STATE");
   if(source.getCanonicalPath().equals(dest.getCanonicalPath())) throw new IOException("REPORT_SOURCE_EQUALS_DEST");
-  try(SourceReadLeaseR82 lease=SourceReadLeaseR82.acquire(source,()->control.shouldContinue(),2500L)) {
-   int code=backup0(source.getCanonicalPath(),dest.getCanonicalPath(),nativeBudget,0,control);
+  if(!SQLITE_OWNER_R31.compareAndSet(false,true))throw new IOException("DEPENDENCY:REPORT_NATIVE_WAL_OWNER_ACTIVE");
+  try{try(SourceReadLeaseR82 lease=SourceReadLeaseR82.acquire(source,()->control.shouldContinue(),2500L)) {
+   int code=backup0(source.getCanonicalPath(),dest.getCanonicalPath(),nativeBudget,0,sourceControlR31(control,lease));
    if(code!=0)throw new Failure("BACKUP",code);
-  }
+  }}finally{SQLITE_OWNER_R31.set(false);}
  }
  /** Private, selected-row SQLite snapshot. Main source is attached strictly read-only;
   * original DDL, encoding, rowids, cell storage classes and row generations are retained. */
@@ -47,10 +78,11 @@ public final class ReportNativeCP4 {
   if(rows==null||rows.length<1||rows.length>RetentionArchiveProtocolCP12.MAX_PAGE||maxBytes<65536)throw new IOException("RETENTION_PAGE_BOUND");
   for(int i=1;i<rows.length;i++)if(rows[i]<=rows[i-1])throw new IOException("RETENTION_PAGE_ORDER");
   if(source.getCanonicalPath().equals(dest.getCanonicalPath()))throw new IOException("REPORT_SOURCE_EQUALS_DEST");
-  try(SourceReadLeaseR82 lease=SourceReadLeaseR82.acquire(source,()->control.shouldContinue(),2500L)) {
-   int code=retentionPage0(source.getCanonicalPath(),dest.getCanonicalPath(),table,rows,nativeBudget,maxBytes,control);
+  if(!SQLITE_OWNER_R31.compareAndSet(false,true))throw new IOException("DEPENDENCY:REPORT_NATIVE_WAL_OWNER_ACTIVE");
+  try{try(SourceReadLeaseR82 lease=SourceReadLeaseR82.acquire(source,()->control.shouldContinue(),2500L)) {
+   int code=retentionPage0(source.getCanonicalPath(),dest.getCanonicalPath(),table,rows,nativeBudget,maxBytes,sourceControlR31(control,lease));
    if(code!=0)throw new Failure("RETENTION_PAGE",code);
-  }
+  }}finally{SQLITE_OWNER_R31.set(false);}
  }
  public static synchronized void compress(File source, OutputStream output, long nativeBudget, Control control) throws IOException {
   if(!loaded||rowReaderActive||source==null||output==null||control==null)throw new IOException("REPORT_NATIVE_STATE");
@@ -109,13 +141,14 @@ public final class ReportNativeCP4 {
   public synchronized long nativePeakBytes()throws IOException {check();return readerPeak0(handle);}
   public synchronized void close()throws IOException {
    if(handle==0)return;long old=handle;handle=0;
-   synchronized(ReportNativeCP4.class){try{int rc=readerClose0(old);if(rc!=0)throw new Failure("ROW_CLOSE",rc);}finally{rowReaderActive=false;}}
+   synchronized(ReportNativeCP4.class){try{int rc=readerClose0(old);if(rc!=0)throw new Failure("ROW_CLOSE",rc);}finally{rowReaderActive=false;SQLITE_OWNER_R31.set(false);}}
   }
  }
  public static synchronized RowReader openRows(File snapshot,long nativeBudget,Control control)throws IOException {
   if(!loaded||rowReaderActive)throw new IOException("REPORT_NATIVE_STATE");
   if(snapshot==null||!snapshot.isFile())throw new IOException("REPORT_SNAPSHOT_MISSING");
-  RowReader result=new RowReader(snapshot,nativeBudget,control);rowReaderActive=true;return result;
+  if(!SQLITE_OWNER_R31.compareAndSet(false,true))throw new IOException("DEPENDENCY:REPORT_NATIVE_WAL_OWNER_ACTIVE");
+  try{RowReader result=new RowReader(snapshot,nativeBudget,control);rowReaderActive=true;return result;}catch(IOException|RuntimeException|Error failure){SQLITE_OWNER_R31.set(false);throw failure;}
  }
  private static void identifier(String s){
   if(s==null||s.length()==0||s.length()>256)throw new IllegalArgumentException("ARCHIVE_IDENTIFIER");

@@ -85,7 +85,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
     ResearchContextR30R1 researchContext;
     List<ResearchStoreR30R1.Ready> directedResearch=Collections.emptyList();
     void revalidateResearchAdmissions(android.database.sqlite.SQLiteDatabase db){for(Pending p:pending)if(p.researchProposal!=null){try(android.database.Cursor c=db.rawQuery("SELECT p.state,r.source_revision,r.source_commit,r.summary_json FROM r30r1_proposal p JOIN r30r1_analysis_run r ON r.run_id=p.run_id WHERE p.proposal_id=?",new String[]{p.researchProposal})){if(!c.moveToFirst()||!"READY".equals(c.getString(0))||ResearchInputPinR30R1.invalid(db,ctx.data.datasetHash)||ResearchInputPinR30R1.revision(db,ctx.data.datasetHash)!=c.getLong(1)||!ResearchStoreR30R1.currentSource(c.getString(2),c.getString(3))){p.state="RESEARCH_STALE";p.reason="SOURCE_OR_PROPOSAL_CHANGED_BEFORE_ORIGINAL_GATE";}}}}
-    void stageResearchHypotheses(ResearchWriteQueueR27.Batch b,long now){if(researchContext==null)return;researchContext.appendBudgetReceipt(b,generation,ctx.data.ordinals[ctx.split.selectFrom],ctx.data.ordinals[ctx.split.selectTo-1]);for(Pending p:pending)if(p.researchProposal==null)p.researchProposal=ResearchContextR30R1.stage(b,p.spec,ctx.data.datasetHash,researchContext.revision,now);}
+    void stageResearchHypotheses(ResearchWriteQueueR27.Batch b,long now){if(researchContext==null)return;researchContext.appendBudgetReceipt(b,generation,ctx.data.ordinals[ctx.split.selectFrom],ctx.data.ordinals[ctx.split.selectTo-1]);for(Pending p:pending)if(p.researchProposal==null)p.researchProposal=researchContext.stageBoundR31(b,p.spec,ctx,creation.sliceCostUnits,now);}
     void commitResearchAdmissions(ResearchWriteQueueR27.Batch batch,long now){for(Pending p:pending)if(p.researchProposal!=null){
         if("BORN".equals(p.state))ResearchStoreR30R1.consume(batch,p.researchProposal,p.spec.policyHash(),generation,"ORIGINAL_BIRTH_GATE_R30_REPAIR1",now);
         else batch.add("UPDATE r30r1_proposal SET state=?,reason=? WHERE proposal_id=? AND state='READY'","RESEARCH_STALE".equals(p.state)?"STALE":"REJECTED",p.state+":"+p.reason,p.researchProposal);
@@ -210,7 +210,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         Map<String, Integer> allocation = creation.allocate(generation, familyIds, null, researchCredit, minTotal + bonusPool, cfg.minPerFamily, cfg.creationPressure, false);
         for (int f = 1; f < FAMILIES.length; f++) {
             int n = allocation.get(FAMILIES[f].id());
-            for (int i = 0; i < n; i++) births.add(FAMILIES[f].propose(rng, ic));
+            for (int i = 0; i < n; i++) births.add(researchContext==null?FAMILIES[f].propose(rng,ic):researchContext.proposeFamilyR31(FAMILIES[f],rng,ic));
             creation.record(FAMILIES[f].id(), "attempts", n);
         }
         int familyBirths = births.size();
@@ -241,7 +241,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         for(ResearchStoreR30R1.Ready r:directedResearch)births.add(r.child);
         // Fill any rounding/operator shortfall from generators so every generation has the configured size.
         for (PolicySpecR27 s : births.subList(familyBirths, births.size())) creation.record(familyR31(s), "attempts", 1); // operator/expert/research births
-        while (births.size() < total) { IdeaFamilyR27 filler = FAMILIES[1 + rng.nextInt(familyCount)]; births.add(filler.propose(rng, ic)); creation.record(filler.id(), "attempts", 1); }
+        while (births.size() < total) { IdeaFamilyR27 filler = FAMILIES[1 + rng.nextInt(familyCount)]; births.add(researchContext==null?filler.propose(rng,ic):researchContext.proposeFamilyR31(filler,rng,ic)); creation.record(filler.id(), "attempts", 1); }
         for (PolicySpecR27 s : births) { Pending p = new Pending(); p.spec = s; p.structural = s != null && (s.meta == null || MutationOpsR27.structural(s.meta.operator)); for(ResearchStoreR30R1.Ready r:directedResearch)if(s!=null&&s.policyHash().equals(r.child.policyHash())){p.researchProposal=r.proposal;break;}pending.add(p); }
         directedResearch=Collections.emptyList();
         count("attempts", births.size());

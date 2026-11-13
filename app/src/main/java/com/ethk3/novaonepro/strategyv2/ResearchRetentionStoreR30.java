@@ -43,9 +43,9 @@ public final class ResearchRetentionStoreR30 {
         if(!ResearchRetentionR30.PROTECTED_TABLES.contains(source))throw new IllegalArgumentException("R31_RETENTION_SOURCE_NOT_PROTECTED");
         if(!exists(db,source))return new String[0][];
         List<String[]> columns=columns(db,source);
-        LinkedHashMap<String,String> guards=guardsR31(source,columns,columnsHashR31(columns));
+        LinkedHashMap<String,String> guards=GapReferenceR31.expectedGuards(db,source,KeepArchiveRetirementR31.expectedGuards(db,source,KeepMismatchReferenceR31.expectedGuards(db,source,guardsR31(source,columns,columnsHashR31(columns)))));
         List<String[]> attached=new ArrayList<>();String archive="r30_keep_"+source;
-        for(Map.Entry<String,String> guard:guards.entrySet())if(!guard.getKey().startsWith(archive+"_immutable_"))attached.add(new String[]{guard.getKey(),guard.getValue()});
+        for(Map.Entry<String,String> guard:guards.entrySet())if(!guard.getKey().startsWith(archive+"_immutable_")&&!guard.getKey().equals(KeepMismatchReferenceR31.RETIRE_GUARD)&&!(KeepArchiveRetirementR31.eligible(source)&&guard.getKey().equals(KeepArchiveRetirementR31.guardName(source))))attached.add(new String[]{guard.getKey(),guard.getValue()});
         return attached.toArray(new String[0][]);
     }
     /** Return only exact guards attached to Critical's protected feedback table, not archive-table guards. */
@@ -81,10 +81,10 @@ public final class ResearchRetentionStoreR30 {
     }
     /** An existing archive is evidence. Refuse affinity/constraint drift instead of silently coercing or rebuilding it. */
     private static void requireArchiveDefinitionR31(SQLiteDatabase db,String target){
-        try(Cursor c=db.rawQuery("SELECT type,name FROM sqlite_master WHERE tbl_name=? AND type IN ('trigger','index') AND name NOT LIKE 'sqlite_%'",new String[]{target})){
+        try(Cursor c=db.rawQuery("SELECT type,name,sql FROM sqlite_master WHERE tbl_name=? AND type IN ('trigger','index') AND name NOT LIKE 'sqlite_%'",new String[]{target})){
             while(c.moveToNext()){
                 String name=c.getString(1);
-                if(!"trigger".equals(c.getString(0))||!(name.equals(target+"_immutable_update")||name.equals(target+"_immutable_delete")))
+                if(!"trigger".equals(c.getString(0))||!(name.equals(target+"_immutable_update")||name.equals(target+"_immutable_delete")||KeepMismatchReferenceR31.recognizedArchiveAttachment(db,target,name)||CheckpointGcStoreR31.knownReferenceGuard(db,target,c.getString(0),name,c.getString(2))||KeepArchiveRetirementR31.knownGuard(db,target,c.getString(0),name,c.getString(2))))
                     throw new DatabaseCoordinator.SchemaPendingR31("R31_RETENTION","UNKNOWN_ARCHIVE_ATTACHMENT:"+target+":"+name);
             }
         }
@@ -110,21 +110,35 @@ public final class ResearchRetentionStoreR30 {
                 throw new DatabaseCoordinator.SchemaPendingR31("R31_RETENTION","EXACT_ARCHIVE_DEFINITION:"+target);
         }
     }
+    /** Read-only exact archive contract used before preparing or committing migration work. */
+    public static void requireKeepMigrationSourceR31(SQLiteDatabase db,String archive){
+        String source=KeepMigrationStoreR31.source(archive);
+        if(!exists(db,source)||!exists(db,archive))throw new DatabaseCoordinator.SchemaPendingR31("R31_KEEP","SOURCE_NOT_PRESENT");
+        List<String[]> columns=columns(db,source);String hash=columnsHashR31(columns);
+        try(Cursor c=db.rawQuery("SELECT 1 FROM r30_retention_archive_index WHERE source_table=? AND archive_table=? AND schema_hash=?",new String[]{source,archive,KeepMismatchReferenceR31.effectiveSchemaHash(db,source,hash)})){if(!c.moveToFirst())throw new DatabaseCoordinator.SchemaPendingR31("R31_KEEP","OWNER_INDEX_CHANGED");}
+        requireArchiveDefinitionR31(db,archive);LinkedHashMap<String,String> guards=GapReferenceR31.expectedGuards(db,source,KeepArchiveRetirementR31.expectedGuards(db,source,KeepMismatchReferenceR31.expectedGuards(db,source,guardsR31(source,columns,hash))));String[][] definitions=new String[guards.size()][];int n=0;for(Map.Entry<String,String> entry:guards.entrySet())definitions[n++]=new String[]{entry.getKey(),entry.getValue()};requireGuardDefinitionsR31(db,definitions,true);
+    }
     /** Added archive columns have NONE affinity: SQLite storage classes, including full BLOB bytes, are preserved. */
     public static void ensureProtected(SQLiteDatabase db){
-        SchemaDomainCoordinatorR926.migrateR31RetentionProtection(db,ResearchRetentionStoreR30::ensureProtectedObjectsR31);
+        ensureProtected(db,null);
+    }
+    public static void ensureProtected(SQLiteDatabase db,StartupCheckpointIdentityR31.Prepared startup){
+        SchemaDomainCoordinatorR926.migrateR31RetentionProtection(db,x->ensureProtectedObjectsR31(x,startup));
     }
     private static void ensureProtectedObjectsR31(SQLiteDatabase db){
+        ensureProtectedObjectsR31(db,null);
+    }
+    private static void ensureProtectedObjectsR31(SQLiteDatabase db,StartupCheckpointIdentityR31.Prepared startup){
         if(!db.inTransaction())throw new IllegalStateException("R30_RETENTION_EXISTING_WRITER_REQUIRED");
         db.execSQL(INDEX_DDL);db.execSQL(RUN_DDL);db.execSQL(FILE_DDL);
         for(String source:ResearchRetentionR30.PROTECTED_TABLES){
             if(!exists(db,source))continue;List<String[]> columns=columns(db,source);if(columns.isEmpty())throw new IllegalStateException("R30_RETENTION_SOURCE_COLUMNS:"+source);
             String target="r30_keep_"+source;List<List<String>> metadata=new ArrayList<>();for(String[] c:columns)metadata.add(Arrays.asList(c));String encoded=JsonR27.write(metadata);String hash=StatsR27.sha256(encoded);
-            LinkedHashMap<String,String> guards=guardsR31(source,columns,hash);
+            LinkedHashMap<String,String> guards=GapReferenceR31.expectedGuards(db,source,KeepArchiveRetirementR31.expectedGuards(db,source,KeepMismatchReferenceR31.expectedGuards(db,source,guardsR31(source,columns,hash))));
             String[][] definitions=new String[guards.size()][];int guardIndex=0;for(Map.Entry<String,String> guard:guards.entrySet())definitions[guardIndex++]=new String[]{guard.getKey(),guard.getValue()};
             boolean complete=requireGuardDefinitionsR31(db,definitions,false);
             if(exists(db,target))requireArchiveDefinitionR31(db,target);
-            boolean same=false;try(Cursor c=db.rawQuery("SELECT 1 FROM r30_retention_archive_index WHERE source_table=? AND schema_hash=? AND archive_table=?",new String[]{source,hash,target})){same=c.moveToFirst();}
+            boolean same=false;try(Cursor c=db.rawQuery("SELECT 1 FROM r30_retention_archive_index WHERE source_table=? AND schema_hash=? AND archive_table=?",new String[]{source,KeepMismatchReferenceR31.effectiveSchemaHash(db,source,hash),target})){same=c.moveToFirst();}
             if(same&&exists(db,target)){
                 Set<String> archived=new HashSet<>();for(String[] column:columns(db,target))archived.add(column[0]);
                 for(String[] column:columns)if(!archived.contains(column[0]))throw new DatabaseCoordinator.SchemaPendingR31("R31_RETENTION","ARCHIVE_DECLARED_COLUMN_MISSING:"+target+":"+column[0]);
@@ -134,24 +148,29 @@ public final class ResearchRetentionStoreR30 {
             for(String[] column:columns){if(column[0].startsWith("__r30_"))throw new IllegalStateException("R30_RETENTION_RESERVED_COLUMN:"+source);ddl.append(',').append(q(column[0]));}ddl.append(')');db.execSQL(ddl.toString());
             Set<String> archivedColumns=new HashSet<>();for(String[] column:columns(db,target))archivedColumns.add(column[0]);
             for(String[] column:columns)if(!archivedColumns.contains(column[0]))db.execSQL("ALTER TABLE "+q(target)+" ADD COLUMN "+q(column[0]));
-            db.execSQL("INSERT OR IGNORE INTO r30_retention_archive_index(source_table,archive_table,schema_hash,columns_json,retained_rows,updated_at) VALUES(?,?,?,?,0,?)",new Object[]{source,target,hash,encoded,System.currentTimeMillis()});
-            db.execSQL("UPDATE r30_retention_archive_index SET schema_hash=?,columns_json=?,updated_at=?,archive_table=? WHERE source_table=? AND (schema_hash<>? OR archive_table<>?)",new Object[]{hash,encoded,System.currentTimeMillis(),target,source,hash,target});
+            db.execSQL("INSERT OR IGNORE INTO r30_retention_archive_index(source_table,archive_table,schema_hash,columns_json,retained_rows,updated_at) VALUES(?,?,?,?,0,?)",new Object[]{source,target,KeepMismatchReferenceR31.effectiveSchemaHash(db,source,hash),encoded,System.currentTimeMillis()});
+            db.execSQL("UPDATE r30_retention_archive_index SET schema_hash=?,columns_json=?,updated_at=?,archive_table=? WHERE source_table=? AND (schema_hash<>? OR archive_table<>?)",new Object[]{KeepMismatchReferenceR31.effectiveSchemaHash(db,source,hash),encoded,System.currentTimeMillis(),target,source,KeepMismatchReferenceR31.effectiveSchemaHash(db,source,hash),target});
             requireArchiveDefinitionR31(db,target);
             for(String sql:guards.values())db.execSQL(sql);
             requireGuardDefinitionsR31(db,definitions,true);
         }
-        preserveStartupCheckpoint(db);
+        preserveStartupCheckpoint(db,startup);
     }
     /** Preserve the incoming version's complete checkpoint before ordinary training replaces it.
      * The marker commits with the archive: a failed startup can retry, while repeated schema/retention
      * checks in this process never copy every intermediate training checkpoint. */
     private static void preserveStartupCheckpoint(SQLiteDatabase db){
+        preserveStartupCheckpoint(db,null);
+    }
+    private static void preserveStartupCheckpoint(SQLiteDatabase db,StartupCheckpointIdentityR31.Prepared startup){
         String source="r29_model_checkpoint",target="r30_keep_"+source;
         if(!exists(db,source)||!exists(db,target))return;
         db.execSQL(BOOT_DDL);
         try(Cursor c=db.rawQuery("SELECT 1 FROM r30_retention_boot_checkpoint WHERE process_nonce=?",new String[]{PROCESS_CHECKPOINT_SNAPSHOT})){
             if(c.moveToFirst())return;
         }
+        if(startup==null&&KeepArchiveRetirementR31.MODE.equals(KeepArchiveRetirementR31.mode(db,source)))
+            throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","CAS_EQUALITY_PREPARATION_REQUIRED");
         List<String[]> columns=columns(db,source);
         StringJoiner names=new StringJoiner(","),values=new StringJoiner(","),same=new StringJoiner(" AND ");
         for(String[] column:columns){
@@ -159,9 +178,11 @@ public final class ResearchRetentionStoreR30 {
             same.add("(typeof(saved."+name+")=typeof(incoming."+name+") AND saved."+name+" IS incoming."+name+")");
         }
         long now=System.currentTimeMillis();
+        List<Object> bindings=new ArrayList<>();bindings.add(now);bindings.add("PRE_TRAINING_STARTUP_CHECKPOINT");
+        String casExcluded=startup==null?"":" AND NOT ("+startup.excludeSql(db,"incoming",bindings)+")";
         db.execSQL("INSERT INTO "+q(target)+"(__r30_at,__r30_reason,"+names+") SELECT ?,?,"+values
-                +" FROM "+q(source)+" incoming WHERE length(incoming.artifact)>0 AND NOT EXISTS(SELECT 1 FROM "+q(target)+" saved WHERE "+same+")",
-                new Object[]{now,"PRE_TRAINING_STARTUP_CHECKPOINT"});
+                +" FROM "+q(source)+" incoming WHERE length(incoming.artifact)>0 AND NOT EXISTS(SELECT 1 FROM "+q(target)+" saved WHERE "+same+")"+casExcluded,
+                bindings.toArray());
         long retained;
         try(Cursor c=db.rawQuery("SELECT changes()",null)){
             if(!c.moveToFirst())throw new IllegalStateException("R30_CHECKPOINT_ARCHIVE_COUNT_UNKNOWN");
@@ -169,6 +190,7 @@ public final class ResearchRetentionStoreR30 {
         }
         db.execSQL("UPDATE r30_retention_archive_index SET retained_rows=retained_rows+?,updated_at=? WHERE source_table=?",new Object[]{retained,now,source});
         db.execSQL("INSERT INTO r30_retention_boot_checkpoint VALUES(?,?,?)",new Object[]{PROCESS_CHECKPOINT_SNAPSHOT,now,retained});
+        if(startup!=null)startup.recordWithin(db,PROCESS_CHECKPOINT_SNAPSHOT,retained);
     }
     static String verifiedFoldback(SQLiteDatabase db){
         try{

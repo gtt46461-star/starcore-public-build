@@ -38,11 +38,22 @@ public final class ReportExportServiceCP4 extends Service {
     }
     /** Caller supplies the same filesDir used by its enclosing FULL_REPORT input-pin resource. */
     static CheckpointSourceScopeR31 openCheckpointSourceR31(SQLiteDatabase snapshot,File pinnedFilesDir)throws IOException {
-        if(!ReportInputsLeaseCP12.currentThreadHoldsInput())throw new IOException("REPORT_CHECKPOINT_INPUT_PIN_REQUIRED");
-        File checkpointDirectory=new File(pinnedFilesDir,"r26-checkpoints").getCanonicalFile();
+        if(!ReportInputsLeaseCP12.currentThreadHoldsInput(pinnedFilesDir))throw new IOException("REPORT_CHECKPOINT_INPUT_PIN_REQUIRED");
+        File checkpointDirectory=new File(pinnedFilesDir,"r26-checkpoints");
+        if(checkpointDirectory.exists()&&!checkpointDirectory.getCanonicalFile().equals(checkpointDirectory.getAbsoluteFile()))throw new IOException("REPORT_CHECKPOINT_SOURCE_SYMLINK");
         // Inline checkpoints can still be reported. A real reference without its source stays typed DEPENDENCY.
         if(!checkpointDirectory.isDirectory())return new CheckpointSourceScopeR31(null,"DEPENDENCY_CAS_SOURCE_DIRECTORY_UNAVAILABLE");
         return new CheckpointSourceScopeR31(com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.openDatabaseRootR31(snapshot,checkpointDirectory),"SCOPED_TO_PINNED_CAS_ROOT_OBJECTS_UNVERIFIED");
+    }
+    /** The snapshot path never determines a live keep directory. The enclosing
+     * report input lease excludes maintenance; this explicit mapping expires
+     * when the immutable snapshot reader closes. */
+    static com.ethk3.novaonepro.strategyv2.KeepMigrationStoreR31.ReaderRootLease openKeepSourceR31(SQLiteDatabase snapshot,File pinnedFilesDir)throws IOException {
+        if(!ReportInputsLeaseCP12.currentThreadHoldsInput(pinnedFilesDir))throw new IOException("REPORT_KEEP_INPUT_PIN_REQUIRED");
+        File directory=new File(pinnedFilesDir,"r31-keep");
+        if(!directory.isDirectory())return null;
+        if(!directory.getCanonicalFile().equals(directory.getAbsoluteFile()))throw new IOException("REPORT_KEEP_SOURCE_SYMLINK");
+        return com.ethk3.novaonepro.strategyv2.KeepMigrationStoreR31.openReaderRoot(snapshot,directory);
     }
 
     /** May be called on UI. Heavy observation/file work stays on the request executor; no Activity is captured. */
@@ -292,7 +303,8 @@ public final class ReportExportServiceCP4 extends Service {
                 File memberInput=new File(directory,"members-unsorted-"+job.attempt+".jsonl");ReportCatalogCP4.Result catalog;
                 try(FileOutputStream fd=new FileOutputStream(memberInput);Writer members=new BufferedWriter(new OutputStreamWriter(active.protectOutput(memberInput,fd),StandardCharsets.UTF_8),8192);
                     SQLiteDatabase copy=SQLiteDatabase.openDatabase(snapshot.getPath(),null,SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-                    CheckpointSourceScopeR31 checkpointSource=openCheckpointSourceR31(copy,getFilesDir())) {
+                    CheckpointSourceScopeR31 checkpointSource=openCheckpointSourceR31(copy,getFilesDir());
+                    com.ethk3.novaonepro.strategyv2.KeepMigrationStoreR31.ReaderRootLease keepSource=openKeepSourceR31(copy,getFilesDir())) {
                     if(!copy.isReadOnly())throw new IOException("REPORT_READONLY_SNAPSHOT_REQUIRED");
                     if(ReportAttachmentClosureCP12.isComplete(directory,job.snapshotSha,active))ReportAttachmentClosureCP12.appendComplete(directory,members,active);
                     else ReportAttachmentClosureCP12.capture(this,copy,directory,request,active,members,job.snapshotSha,job.snapshotBytes);

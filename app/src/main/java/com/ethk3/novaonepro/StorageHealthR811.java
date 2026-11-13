@@ -27,35 +27,7 @@ public final class StorageHealthR811 {
     public static long walBytes(DbStore store) { return snapshot(store).walBytes; }
     public static long dbBytes(DbStore store) { return snapshot(store).dbBytes; }
     public static WalCheckpoint checkpointWalQuiet(final DbStore store) {
-        if (store == null) return WalCheckpoint.blocked("STORE_NULL");
-        if (RealtimePressureGateR811.isUnderPressure())
-            return WalCheckpoint.blocked("YIELD_REALTIME");
-        return store.coordinatorR36().runWrite(
-                "R811_WAL_PASSIVE_CHECKPOINT",
-                new DatabaseCoordinator.WriteCallable<WalCheckpoint>() {
-                    public WalCheckpoint call(SQLiteDatabase db) {
-                        if (RealtimePressureGateR811.isUnderPressure())
-                            return WalCheckpoint.blocked("YIELD_REALTIME");
-                        Cursor cursor = null;
-                        try {
-                            cursor = db.rawQuery("PRAGMA wal_checkpoint(PASSIVE)", null);
-                            if (!cursor.moveToFirst())
-                                return WalCheckpoint.blocked("CHECKPOINT_NO_RESULT");
-                            int busy = cursor.getInt(0);
-                            int logFrames = cursor.getInt(1);
-                            int checkpointed = cursor.getInt(2);
-                            return new WalCheckpoint(
-                                    busy == 0,
-                                    busy,
-                                    logFrames,
-                                    checkpointed,
-                                    busy == 0 ? "PASSIVE_OK" : "PASSIVE_BUSY");
-                        } finally {
-                            if (cursor != null) cursor.close();
-                        }
-                    }
-                },
-                WalCheckpoint.blocked("WRITE_FAILED"));
+        return StorageReclaimR943.checkpointOnlyR31(store);
     }
     public static final class Snapshot {
         public final long dbBytes, walBytes, shmBytes, freeBytes, totalBytes; public final double freeRatio; public final boolean lowStorage; public final String status;

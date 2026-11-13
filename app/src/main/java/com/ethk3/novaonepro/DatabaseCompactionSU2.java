@@ -11,8 +11,9 @@ import java.io.File;
  * full VACUUM; StorageReclaimR943 then returned LEGACY_COMPACTION_REQUIRED for mode 0
  * and never compacted. After the 5000-period cap deletes rows the file stays at its
  * high-water mark forever.
- * Fix: one-time conversion (auto_vacuum=INCREMENTAL + VACUUM) in a quiet window when
- * the free list is large; afterwards StorageReclaimR943's incremental path works.
+ * Existing mode-0 files require the explicit offline rebuild. A routine quiet
+ * turn reports that requirement; it never rewrites the database or stops the
+ * business service. New incremental databases retain their small-page path.
  */
 public final class DatabaseCompactionSU2 {
     private DatabaseCompactionSU2() {}
@@ -20,7 +21,8 @@ public final class DatabaseCompactionSU2 {
 
     static long scalar(SQLiteDatabase db, String pragma) { try (Cursor c = db.rawQuery("PRAGMA " + pragma, null)) { return c.moveToFirst() ? c.getLong(0) : 0; } }
 
-    /** Decide; executed by StorageReclaimR943.quiet() on the non-transactional writer handle. */
+    /** Read-only decision for the explicit offline maintenance UI. Ordinary
+     * maintenance never converts journal/auto_vacuum mode or rewrites a live DB. */
     public static String convertIfNeeded(SQLiteDatabase db, long freeDiskBytes) {
         if (db.inTransaction()) return "YIELD_TRANSACTION";
         if (RealtimePressureGateR811.hasActiveCriticalWork()) return "YIELD_REALTIME";
@@ -29,11 +31,6 @@ public final class DatabaseCompactionSU2 {
         if (mode == 2) return "ALREADY_INCREMENTAL";
         boolean worth = free > 1024 && free * 4 > pages;                // >= 25% reusable
         if (!worth && mode == 0 && pages * page < (64L << 20)) return "SMALL_NO_ACTION";
-        if (bytes > MAX_INLINE_BYTES) return "OFFLINE_REBUILD_REQUIRED|bytes=" + bytes;     // R82 explicit maintenance
-        if (freeDiskBytes < 2 * bytes + (64L << 20)) return "DISK_TOO_FULL_FOR_VACUUM|need=" + (2 * bytes + (64L << 20));
-        db.execSQL("PRAGMA auto_vacuum=INCREMENTAL");
-        db.execSQL("VACUUM");                                           // rewrites the file; auto_vacuum now takes effect
-        try (Cursor c = db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)", null)) { c.moveToFirst(); }
-        return "CONVERTED|before=" + bytes + "|after=" + new File(db.getPath()).length() + "|mode=" + scalar(db, "auto_vacuum");
+        return "OFFLINE_REBUILD_REQUIRED|bytes="+bytes+"|freeDiskBytes="+freeDiskBytes+"|reusablePages="+free+"|automaticServiceStart=false";
     }
 }

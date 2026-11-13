@@ -21,6 +21,11 @@ public final class StarcoreApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        // The isolated restore verifier receives only an authenticated private
+        // clone. It must not initialize the live credential owner before its
+        // clone-only context and process checks have been installed.
+        if (android.os.Build.VERSION.SDK_INT >= 28 &&
+                (getPackageName() + ":restore_probe").equals(Application.getProcessName())) return;
         KeyProvider.initialize(getApplicationContext());
         if (!isMainRuntimeProcess(this)) return;
         RealtimePressureGateR811.configureCrossProcess(this);

@@ -7,4 +7,5 @@ target_compile_definitions(starcore_report_cp4 PRIVATE SQLITE_THREADSAFE=1 SQLIT
 target_compile_options(starcore_report_cp4 PRIVATE -fvisibility=hidden -O2)
 target_include_directories(starcore_report_cp4 PRIVATE vendor vendor/zstd/lib)
 target_link_libraries(starcore_report_cp4 dl m)
-# Only :diagnostics loads this shared object. Existing product SQLite is not replaced.
+# SQLite/report entry points stay in :diagnostics; the application may load only
+# its directory-only CAS walker. Existing platform SQLite is never replaced.

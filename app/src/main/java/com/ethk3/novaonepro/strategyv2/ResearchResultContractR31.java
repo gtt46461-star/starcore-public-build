@@ -22,6 +22,12 @@ public final class ResearchResultContractR31 {
             "source_run", "input_hash", "role", "abi", "source_revision", "consumer_version", "before_hash", "after_hash", "budget", "product_hash"));
 
     public static ConsumptionKind consumptionKindOf(String viewId) {
+        if(viewId!=null&&viewId.startsWith("MATRIX:")){
+            String kind=viewId.substring("MATRIX:".length());
+            for(MatrixRegistryR30.Definition definition:MatrixRegistryR30.all())
+                if("R930".equals(definition.namespace)&&kind.equals(definition.kind))return ConsumptionKind.RESEARCH_ACTION;
+            throw new Rejected("R31_RESULT_UNKNOWN_MATRIX:"+kind);
+        }
         switch (viewId) {
             case "R11": case "R14": case "R18": return ConsumptionKind.FORMAL_READ_ONLY;
             default: ResearchMeasureKindR31.fromViewId(viewId); return ConsumptionKind.RESEARCH_ACTION;
@@ -65,6 +71,10 @@ public final class ResearchResultContractR31 {
         if (!"TRAIN".equals(r.role) && !"SELECT".equals(r.role)) throw new Rejected("R31_RESULT_FORMAL_ROLE:" + r.role);
         if (!r.role.equals(String.valueOf(r.receipts.get("role")))) throw new Rejected("R31_RESULT_ROLE_RECEIPT");
         validateIdentity(r, e);
+        if(!Objects.equals(r.abi,r.receipts.get("abi")))throw new Rejected("R31_RESULT_ABI_RECEIPT");
+        Object revision=r.receipts.get("source_revision"),budget=r.receipts.get("budget");
+        if(!(revision instanceof Number)||((Number)revision).longValue()!=r.sourceRevision)throw new Rejected("R31_RESULT_REVISION_RECEIPT");
+        if(!(budget instanceof Number)||!Double.isFinite(((Number)budget).doubleValue())||((Number)budget).doubleValue()<=0)throw new Rejected("R31_RESULT_BUDGET");
         if (r.latestLabelOrdinal >= e.decisionOrdinal) throw new Rejected("R31_RESULT_LATE_LABEL:" + r.latestLabelOrdinal + ">=" + e.decisionOrdinal);
         if (String.valueOf(r.receipts.get("before_hash")).equals(String.valueOf(r.receipts.get("after_hash")))) throw new Rejected("R31_RESULT_NO_EFFECTIVE_CHANGE");
         String key = r.consumeKey(consumer, child);

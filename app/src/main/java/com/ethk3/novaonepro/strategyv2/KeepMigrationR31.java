@@ -22,6 +22,17 @@ public final class KeepMigrationR31 {
     public interface Store {
         List<Long> rowIds(String table);                 // keep table rows, ascending
         String rowDigest(String table, long rowId);       // hash of the original row bytes
+        /** Production adapters override this keyset page; callers never need the entire table. */
+        default List<Long> page(String table, long after, int limit) {
+            List<Long> page=new ArrayList<>();for(long id:rowIds(table))if(id>after&&page.size()<limit)page.add(id);return page;
+        }
+        default boolean pageComplete(String table,long cursor,int size) { return size<PAGE_ROWS||cursor==lastRowId(table); }
+        default long lastRowId(String table) { List<Long> ids=rowIds(table);return ids.isEmpty()?-1:ids.get(ids.size()-1); }
+        /** Production uses durable capture/verification pages; the legacy in-memory contract remains compatible. */
+        default Map<String,Object> verifyHashUnit(String table,Map<String,Object> checkpoint) {
+            if(!tableDigest(this,table).equals(recordedDigest(table)))throw new IllegalStateException("R31_KEEP_ORIGINAL_HASH_MISMATCH:"+table);
+            return cp(Stage.REGISTER_REFERENCE,-1,0,0);
+        }
         String recordedDigest(String table);              // digest recorded when the keep table was sealed
         Map<String, Object> checkpoint(String table);     // null before the first commit
         /** One atomic commit: the work of a unit and the checkpoint that names it. */
@@ -44,26 +55,26 @@ public final class KeepMigrationR31 {
         long cursor = c == null ? -1 : ((Number) c.get("cursor")).longValue(), migrated = c == null ? 0 : ((Number) c.get("migrated")).longValue(), referenced = c == null ? 0 : ((Number) c.get("referenced")).longValue();
         switch (stage) {
             case VERIFY_HASH: {
-                if (!tableDigest(s, table).equals(s.recordedDigest(table))) throw new IllegalStateException("R31_KEEP_ORIGINAL_HASH_MISMATCH:" + table);
-                s.commit(table, cp(Stage.REGISTER_REFERENCE, -1, 0, 0), Collections.<Long, String>emptyMap(), Collections.<Long>emptyList(), false); return Stage.REGISTER_REFERENCE;
+                Map<String,Object> next=s.verifyHashUnit(table,c);
+                s.commit(table,next,Collections.<Long,String>emptyMap(),Collections.<Long>emptyList(),false);return stage(s,table);
             }
             case REGISTER_REFERENCE: {
                 Map<Long, String> page = new LinkedHashMap<>(); long last = cursor;
-                for (long id : s.rowIds(table)) if (id > cursor && page.size() < PAGE_ROWS) { page.put(id, s.rowDigest(table, id)); last = id; }
-                Stage next = page.size() < PAGE_ROWS || last == maxId(s, table) ? Stage.MIGRATE : Stage.REGISTER_REFERENCE;
+                for (long id : s.page(table,cursor,PAGE_ROWS)) { page.put(id, s.rowDigest(table, id)); last = id; }
+                Stage next = s.pageComplete(table,last,page.size()) ? Stage.MIGRATE : Stage.REGISTER_REFERENCE;
                 s.commit(table, cp(next, next == Stage.MIGRATE ? -1 : last, 0, referenced + page.size()), page, Collections.<Long>emptyList(), false); return next;
             }
             case MIGRATE: {
                 List<Long> page = new ArrayList<>(); long last = cursor;
-                for (long id : s.rowIds(table)) if (id > cursor && page.size() < PAGE_ROWS) { page.add(id); last = id; }
-                Stage next = page.size() < PAGE_ROWS || last == maxId(s, table) ? Stage.SWITCH : Stage.MIGRATE;
+                for (long id : s.page(table,cursor,PAGE_ROWS)) { page.add(id); last = id; }
+                Stage next = s.pageComplete(table,last,page.size()) ? Stage.SWITCH : Stage.MIGRATE;
                 s.commit(table, cp(next, next == Stage.SWITCH ? -1 : last, migrated + page.size(), referenced), Collections.<Long, String>emptyMap(), page, false); return next;
             }
-            case SWITCH: s.commit(table, cp(Stage.DONE, -1, migrated, referenced), Collections.<Long, String>emptyMap(), Collections.<Long>emptyList(), true); return Stage.DONE;
+            case SWITCH: s.commit(table, cp(Stage.DONE, -1, migrated, referenced), Collections.<Long, String>emptyMap(), Collections.<Long>emptyList(), true); return stage(s,table);
             default: return Stage.DONE;
         }
     }
-    static long maxId(Store s, String table) { List<Long> ids = s.rowIds(table); return ids.isEmpty() ? -1 : ids.get(ids.size() - 1); }
+    static long maxId(Store s, String table) { return s.lastRowId(table); }
 
     /** R31 writes after the switch: a reference to the original artifact, never a permanent copy. */
     public static String admitNewWrite(Store s, String table) { return stage(s, table) == Stage.DONE ? "REFERENCE_NOT_COPY" : "LEGACY_COPY_UNTIL_SWITCH"; }

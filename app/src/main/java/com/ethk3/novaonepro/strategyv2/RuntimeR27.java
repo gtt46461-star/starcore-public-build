@@ -182,7 +182,7 @@ public final class RuntimeR27 implements AutoCloseable {
             if(cur==null){
                 String savedHash=null;
                 try(Cursor x=w.ro.rawQuery("SELECT dataset_hash FROM r27_evolution_cursor WHERE loop IN (?,?) ORDER BY CASE loop WHEN ? THEN 0 ELSE 1 END LIMIT 1",new String[]{LOOP,"MAIN",LOOP})){if(x.moveToFirst())savedHash=x.getString(0);}
-                if(savedHash!=null){ResearchInputPinR30R1.Pin pin=ResearchInputPinR30R1.loadCurrent(w.ro,savedHash);if(pin!=null){evoData=pin.data;evoCache=featureCacheR31(pin.data,48);ModelSurfaceStoreR30.bindHistorical(w.ro,evoCache);return ResearchPoolR27.Outcome.progress(1,pin.data.ordinals[pin.data.size()-1]);}}
+                if(savedHash!=null){ResearchInputPinR30R1.Pin pin=ResearchInputPinR30R1.loadCurrent(w.ro,savedHash);if(pin!=null){publishRecoveredReplayKnowledgeR31(w,pin,"RECOVERED_COMMITTED_PIN",-1);evoData=pin.data;evoCache=featureCacheR31(pin.data,48);ModelSurfaceStoreR30.bindHistorical(w.ro,evoCache);return ResearchPoolR27.Outcome.progress(1,pin.data.ordinals[pin.data.size()-1]);}}
             }
 
             if (cur != null && !ResearchInputPinR30R1.invalid(w.ro,cur.datasetHash) && latestOrd - cur.ordinals[cur.size() - 1] < REFRESH_NEW_ROWS) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", cur.ordinals[cur.size() - 1], latestOrd);
@@ -210,6 +210,7 @@ public final class RuntimeR27 implements AutoCloseable {
                     if(current==null)throw new IllegalStateException("R31_DEPENDENCY_TASK_CLAIM_REQUIRED");
                     RuntimeCoordinatorR26.requireFence(w.ro,current);
                     if(capturedRevision!=SchemaR27.liveSourceRevision(w.ro)||ResearchInputPinR30R1.invalid(w.ro,d.datasetHash))throw new ResearchStoreR30R1.StaleResearch();
+                    publishRecoveredReplayKnowledgeR31(w,pinned,"RESTORED_PUBLISHED_DATASET",capturedRevision);
                     if(evoData==null){evoData=d;evoCache=c;}else{pendingData=d;pendingCache=c;}
                     published=true;
                     return ResearchPoolR27.Outcome.progress(1,d.ordinals[d.size()-1]);
@@ -218,6 +219,7 @@ public final class RuntimeR27 implements AutoCloseable {
                 b.add("INSERT OR IGNORE INTO r27_replay_dataset(dataset_hash,from_issue,to_issue,rows,segments,split,built_at,build_ms) VALUES(?,?,?,?,?,?,?,?)",
                         d.datasetHash, d.issues[0], d.issues[d.size() - 1], d.size(), d.segments(), sp.describe(), System.currentTimeMillis(), System.currentTimeMillis() - t0);
                 try(PinPublicationR31.Scope pin=ResearchInputPinR30R1.appendAdmitted(b,w.ro,store.researchInputRootCP11().getParentFile(),d,capturedRevision,System.currentTimeMillis())){
+                    ReplayKnowledgeStoreR31.appendR31(b,d,capturedRevision,"NEW_INPUT_PINNED",System.currentTimeMillis());
                     submit(w, "REPLAY_DATASET", b,false,d.datasetHash+"|sourceRevision="+capturedRevision);
                 }
                 if (evoData == null) { evoData = d; evoCache = c; } else { pendingData = d; pendingCache = c; }
@@ -225,6 +227,13 @@ public final class RuntimeR27 implements AutoCloseable {
                 return ResearchPoolR27.Outcome.progress(1, d.ordinals[d.size() - 1]);
             }finally{if(!published)c.close();}
         }
+    }
+
+    private static void publishRecoveredReplayKnowledgeR31(ResearchPoolR27.Worker worker,ResearchInputPinR30R1.Pin pin,String mode,long expectedGlobalRevision)throws InterruptedException{
+        ResearchWriteQueueR27.Batch metadata=new ResearchWriteQueueR27.Batch();
+        metadata.guardBefore(db->{ResearchInputPinR30R1.require(db,pin.data.datasetHash,pin.revision);if(expectedGlobalRevision>=0&&SchemaR27.liveSourceRevision(db)!=expectedGlobalRevision)throw new ResearchStoreR30R1.StaleResearch();return 0;});
+        ReplayKnowledgeStoreR31.appendR31(metadata,pin.data,pin.revision,mode,System.currentTimeMillis());
+        submit(worker,"REPLAY_KNOWLEDGE_RECOVERY",metadata,false,pin.data.datasetHash+"|pinSourceRevision="+pin.revision);
     }
 
     private static final class DatasetPublicationIntegrityR31 extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure{
@@ -315,6 +324,8 @@ public final class RuntimeR27 implements AutoCloseable {
             if (stepBefore == 9) refreshObservers(w, loop);
             if (stepBefore == 9) registerConfirmed(w,loop.cfg.liveCap);
             if (stepBefore == 9 && genBefore % 50 == 49) derivedDue = true;
+            // Optional forward observer runs only after original confirmation/evolution commits.
+            ImprovementStoreR31.advance(w.ro,(operation,paired)->{try{submit(w,operation,paired);}catch(InterruptedException cancelled){Thread.currentThread().interrupt();throw new java.util.concurrent.CancellationException("R31_IMPROVEMENT_CANCELLED");}});
             return ResearchPoolR27.Outcome.progress(1, (long) loop.generation * 10 + loop.step);
         }
     }
@@ -444,9 +455,12 @@ public final class RuntimeR27 implements AutoCloseable {
             units += LiveShadowsR27.qualify(RuntimeR27.this, w, latestOrd);
             try{units+=QualificationGapRepairR30R1.step(w.ro,(operation,batch)->{submit(w,operation,batch);return true;});}catch(RuntimeException sourceFailure){QualificationGapRepairR30R1.observeFailure(sourceFailure);}
             ensureControls(w);
+            // Publish authority from the already settled prefix before the next
+            // immutable freeze. A certificate issued after a freeze can never
+            // retroactively authorise that prediction.
+            units += LiveShadowsR27.certify(RuntimeR27.this, w, latestOrd);
             units += LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline);
             units += LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline, LiveShadowsR27.OBSERVE_STATES, false);
-            units += LiveShadowsR27.certify(RuntimeR27.this, w, latestOrd);
             return units > 0 ? ResearchPoolR27.Outcome.progress(units, latestOrd) : ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", latestOrd, latestOrd);
         }
     }

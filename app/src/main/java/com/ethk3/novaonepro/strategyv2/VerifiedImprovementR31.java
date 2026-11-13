@@ -56,7 +56,7 @@ public final class VerifiedImprovementR31 {
                 m.put("experimentId", evidence.experimentId); m.put("parentHash", evidence.parentHash); m.put("childHash", evidence.childHash);
                 m.put("windowFrom", evidence.windowFrom); m.put("windowTo", evidence.windowTo); m.put("segmentKey", evidence.segmentKey);
                 m.put("selectionProcessHash", evidence.selectionProcessHash); m.put("frozenPredictionsHash", evidence.frozenPredictionsHash); m.put("outcomesHash", evidence.outcomesHash);
-                m.put("errorBudget", evidence.errorBudget); m.put("costUnits", evidence.costUnits); m.put("costPenalty", evidence.costPenalty);
+                m.put("errorBudget", evidence.errorBudget); m.put("costUnits", evidence.costUnits); m.put("costPenalty", fin(evidence.costPenalty));
             }
             m.put("opportunities", opportunities); m.put("parentActs", parentActs); m.put("childActs", childActs);
             m.put("parentHitRate", fin(parentHitRate)); m.put("childHitRate", fin(childHitRate)); m.put("parentFrequency", parentFrequency); m.put("childFrequency", childFrequency);

@@ -33,12 +33,12 @@ def main():
         return p.stdout
     with tempfile.TemporaryDirectory(prefix='r31-memory-') as d:
         temp=Path(d);current=temp/'current';baseline=temp/'baseline';current.mkdir();baseline.mkdir()
-        test_names=['R31MemoryGovernanceTest','R31SharedFeatureIntegrationTest','R31AllocatedMemoryLifecycleTest','R31ScopedAstLifecycleTest','R31PrivateBackingReuseTest','R31FamilyScopeIsolationTest','R27LeakageTest','R30ModelSurfaceTest','R27TestSupport','R27BirthGateTest','R30PolicyContractTest']
+        test_names=['R31FeatureAdmissionReclaimTest','R31MemoryGovernanceTest','R31SharedFeatureIntegrationTest','R31AllocatedMemoryLifecycleTest','R31ScopedAstLifecycleTest','R31PrivateBackingReuseTest','R31FamilyScopeIsolationTest','R27LeakageTest','R30ModelSurfaceTest','R27TestSupport','R27BirthGateTest','R30PolicyContractTest']
         paths=[*[SOURCE/(n+'.java') for n in NAMES+DEPENDENCIES],*[TESTS/(n+'.java') for n in test_names],*sorted(HOST.glob('*.java')),Path(__file__).resolve()]
         source_before={str(p.relative_to(ROOT)):sha(p) for p in paths}
         run([javac,'-cp',cp,'-d',current,*[SOURCE/(n+'.java') for n in NAMES+DEPENDENCIES],*[TESTS/(n+'.java') for n in test_names],*sorted(HOST.glob('*.java'))],'javac.log')
         current_cp=str(current)+os.pathsep+runtime_cp
-        log=run([java,'-Xmx512m','-cp',current_cp,'org.junit.runner.JUnitCore','com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest','com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest','com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest','com.ethk3.novaonepro.strategyv2.R31ScopedAstLifecycleTest','com.ethk3.novaonepro.strategyv2.R31PrivateBackingReuseTest','com.ethk3.novaonepro.strategyv2.R31FamilyScopeIsolationTest'],'memory-integration-junit.log')
+        log=run([java,'-Xmx512m','-cp',current_cp,'org.junit.runner.JUnitCore','com.ethk3.novaonepro.strategyv2.R31FeatureAdmissionReclaimTest','com.ethk3.novaonepro.strategyv2.R31MemoryGovernanceTest','com.ethk3.novaonepro.strategyv2.R31SharedFeatureIntegrationTest','com.ethk3.novaonepro.strategyv2.R31AllocatedMemoryLifecycleTest','com.ethk3.novaonepro.strategyv2.R31ScopedAstLifecycleTest','com.ethk3.novaonepro.strategyv2.R31PrivateBackingReuseTest','com.ethk3.novaonepro.strategyv2.R31FamilyScopeIsolationTest'],'memory-integration-junit.log')
         count=int(re.search(r'OK \((\d+) tests\)',log).group(1))
         original=run([java,'-Xmx512m','-cp',current_cp,'org.junit.runner.JUnitCore','com.ethk3.novaonepro.strategyv2.R27LeakageTest','com.ethk3.novaonepro.strategyv2.R30ModelSurfaceTest'],'original-pit-model-junit.log')
         original_count=int(re.search(r'OK \((\d+) tests\)',original).group(1))

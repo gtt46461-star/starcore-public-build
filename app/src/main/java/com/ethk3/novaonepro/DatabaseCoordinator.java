@@ -356,6 +356,8 @@ public final class DatabaseCoordinator {
     static final Object RUNTIME_TRANSITION_R82 = new Object();
     private static volatile boolean explicitMaintenanceR82;
     private static final ThreadLocal<Boolean> maintenanceOwnerR82 = new ThreadLocal<Boolean>();
+    private static final ThreadLocal<Boolean> closedOfflineFilesR31 = new ThreadLocal<Boolean>();
+    static boolean isClosedOfflineOwnerR31(){return explicitMaintenanceR82&&Boolean.TRUE.equals(maintenanceOwnerR82.get())&&Boolean.TRUE.equals(closedOfflineFilesR31.get())&&WRITE_LOCK_CP3.isHeldByCurrentThread();}
     public static boolean isExplicitMaintenanceActiveR82() { return explicitMaintenanceR82; }
     private static void rejectMaintenanceR82() {
         if (explicitMaintenanceR82 && !Boolean.TRUE.equals(maintenanceOwnerR82.get()))
@@ -372,19 +374,29 @@ public final class DatabaseCoordinator {
     }
     static void endExplicitMaintenanceR82() { synchronized(RUNTIME_TRANSITION_R82) { explicitMaintenanceR82=false; } }
     static StorageMaintenanceFileR82.Receipt rebuildExplicitR82(Context context) throws Exception {
+        return withClosedDatabaseR31(context,StorageMaintenanceFileR82::rebuildAndSwap);
+    }
+    interface OfflineFilesR31<T>{T run(java.io.File database)throws Exception;}
+    /** No cross-process work is awaited while either actor lock is held. Every
+     * file permission (including backup cleanup) follows a checked checkpoint
+     * and pool close under the original maintenance owner. */
+    static <T> T withClosedDatabaseR31(Context context,OfflineFilesR31<T> files)throws Exception {
         if (!explicitMaintenanceR82) throw new IllegalStateException("MAINTENANCE_ADMISSION_REQUIRED");
-        DatabaseCoordinator owner=get(context);
-        if(!WRITE_LOCK_CP3.tryLock(30,TimeUnit.SECONDS))throw new java.io.IOException("MAINTENANCE_WRITER_BUSY");
-        maintenanceOwnerR82.set(Boolean.TRUE);
         try(SourceReadLeaseR82 source=SourceReadLeaseR82.exclusive(context.getDatabasePath(AppConfig.DB_NAME))) {
+            if(!WRITE_LOCK_CP3.tryLock())throw new java.io.IOException("MAINTENANCE_WRITER_BUSY_RETRY_OUTSIDE_ACTOR_LOCKS");
+            maintenanceOwnerR82.set(Boolean.TRUE);
+            try{
+            DatabaseCoordinator owner=get(context);
             SQLiteDatabase db=owner.helper.getWritableDatabase();
             if(db.inTransaction())throw new IllegalStateException("MAINTENANCE_OUTSIDE_TRANSACTION_REQUIRED");
             try(Cursor c=db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)",null)) {
                 if(!c.moveToFirst()||c.getInt(0)!=0||c.getInt(1)>c.getInt(2))throw new java.io.IOException("MAINTENANCE_CHECKPOINT_BUSY");
             }
             owner.helper.close();
-            return StorageMaintenanceFileR82.rebuildAndSwap(context.getDatabasePath(AppConfig.DB_NAME));
-        } finally { maintenanceOwnerR82.remove();WRITE_LOCK_CP3.unlock(); }
+            closedOfflineFilesR31.set(Boolean.TRUE);
+            try{return files.run(context.getDatabasePath(AppConfig.DB_NAME));}finally{closedOfflineFilesR31.remove();}
+            }finally { maintenanceOwnerR82.remove();WRITE_LOCK_CP3.unlock(); }
+        }
     }
     private static volatile DatabaseCoordinator instance;
     private final android.app.Application app;

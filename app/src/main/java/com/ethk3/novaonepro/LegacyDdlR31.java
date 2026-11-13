@@ -3,6 +3,7 @@ package com.ethk3.novaonepro;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import java.util.Locale;
+import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,6 +30,13 @@ final class LegacyDdlR31 {
         final long started = System.nanoTime();
         int statements;
         RuntimeException failure;
+        // At most one actual table census, owned by this callback only. A new
+        // callback starts empty; business/readiness calls cannot inherit it.
+        String columnTable;
+        HashSet<String> columnNames;
+        long columnSchemaVersion;
+        String fingerprintKey,fingerprintValue;
+        long fingerprintSchemaVersion;
         Scope(SQLiteDatabase db, boolean readOnly) {
             if (CURRENT.get() != null) throw new IllegalStateException("LEGACY_DDL_NESTED_OWNER");
             this.db = db; this.readOnly = readOnly; CURRENT.set(this);
@@ -39,6 +47,31 @@ final class LegacyDdlR31 {
                     + "|cancelled=" + Thread.currentThread().isInterrupted();
         }
         @Override public void close() { CURRENT.remove(); }
+    }
+    private static long schemaVersion(SQLiteDatabase db){try(Cursor c=db.rawQuery("PRAGMA schema_version",null)){if(!c.moveToFirst())throw new IllegalStateException("LEGACY_SCHEMA_VERSION_MISSING");return c.getLong(0);}}
+    // Unqualified legacy DDL/PRAGMA names may resolve TEMP or attached objects.
+    // Such connections retain the original fresh algorithm; never let a main
+    // schema cookie describe another schema's object or a previous attachment.
+    private static long cacheSchemaVersion(SQLiteDatabase db,Scope scope){
+        boolean mainOnly=true;
+        try(Cursor c=db.rawQuery("PRAGMA database_list",null)){
+            while(c.moveToNext()){String name=c.getString(1);if(!"main".equals(name)&&!"temp".equals(name))mainOnly=false;}
+        }
+        if(mainOnly)try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_temp_master LIMIT 1",null)){mainOnly=!c.moveToFirst();}
+        if(mainOnly)return schemaVersion(db);
+        scope.columnTable=null;scope.columnNames=null;scope.fingerprintKey=null;scope.fingerprintValue=null;
+        return -1;
+    }
+    /** Exact schema hashes may be reused only within this callback, on a main
+     * only connection and the same live schema_version. Unknown DDL is fresh. */
+    static String scopedFingerprint(SQLiteDatabase db,String key,java.util.function.Supplier<String> actual){
+        Scope scope=CURRENT.get();if(scope==null||scope.db!=db)return actual.get();
+        long before=cacheSchemaVersion(db,scope);
+        if(before>=0&&key.equals(scope.fingerprintKey)&&scope.fingerprintValue!=null&&before==scope.fingerprintSchemaVersion)return scope.fingerprintValue;
+        String value=actual.get();
+        if(before>=0&&cacheSchemaVersion(db,scope)==before){scope.fingerprintKey=key;scope.fingerprintValue=value;scope.fingerprintSchemaVersion=before;}
+        else{scope.fingerprintKey=null;scope.fingerprintValue=null;}
+        return value;
     }
     static boolean owned(SQLiteDatabase db) { Scope s=CURRENT.get(); return s!=null && s.db==db; }
     static boolean suppressDefaults(SQLiteDatabase db) {
@@ -76,7 +109,20 @@ final class LegacyDdlR31 {
             if(s!=null && (s.readOnly||s.statements>=1))throw new Pending("LEGACY_DDL_PENDING:"+sql);
             db.execSQL(sql);
             if(s!=null)s.statements++;
-            if(!present(db,sql,isCreate?create:null,isAlter?alter:null))
+            if(isAlter&&s!=null) {
+                // Qualified names cannot use SQLite's double-quoted string
+                // fallback. Preparation of this zero-row read proves the new
+                // column really exists without materializing the whole schema.
+                String table=alter.group(1),column=alter.group(2);
+                try(Cursor verified=db.rawQuery("SELECT r31_verify.\""+column+"\" FROM \""+table+"\" AS r31_verify LIMIT 0",null)) {
+                    if(verified.getColumnCount()!=1||verified.moveToFirst())throw new IllegalStateException("LEGACY_DDL_COLUMN_POSTCONDITION:"+column);
+                }
+                if(table.equalsIgnoreCase(s.columnTable)&&s.columnNames!=null){
+                    long version=cacheSchemaVersion(db,s);
+                    if(version>=0&&version==s.columnSchemaVersion+1){s.columnNames.add(column.toLowerCase(Locale.ROOT));s.columnSchemaVersion=version;}
+                    else{s.columnTable=null;s.columnNames=null;}
+                }
+            } else if(!present(db,sql,isCreate?create:null,isAlter?alter:null))
                 throw new IllegalStateException("LEGACY_DDL_POSTCONDITION:"+sql);
         } catch(RuntimeException e) { failed(e); throw e; }
     }
@@ -85,10 +131,20 @@ final class LegacyDdlR31 {
     }
     private static boolean present(SQLiteDatabase db,String sql,Matcher create,Matcher alter) {
         if(alter!=null) {
-            try(Cursor c=db.rawQuery("PRAGMA table_info(\""+alter.group(1)+"\")",null)) {
-                while(c.moveToNext())if(alter.group(2).equalsIgnoreCase(c.getString(1)))return true;
+            String table=alter.group(1);Scope scope=CURRENT.get();
+            long before=scope!=null&&scope.db==db?cacheSchemaVersion(db,scope):-1;
+            if(before>=0&&scope!=null&&scope.db==db&&table.equalsIgnoreCase(scope.columnTable)&&scope.columnNames!=null
+                    &&scope.columnSchemaVersion==before)
+                return scope.columnNames.contains(alter.group(2).toLowerCase(Locale.ROOT));
+            HashSet<String> names=new HashSet<>();
+            try(Cursor c=db.rawQuery("PRAGMA table_info(\""+table+"\")",null)) {
+                while(c.moveToNext())names.add(c.getString(1).toLowerCase(Locale.ROOT));
             }
-            return false;
+            if(before>=0&&scope!=null&&scope.db==db){
+                long after=cacheSchemaVersion(db,scope);if(after!=before)throw new Pending("LEGACY_SCHEMA_CHANGED_DURING_COLUMN_CENSUS");
+                scope.columnTable=table;scope.columnNames=names;scope.columnSchemaVersion=after;
+            }
+            return names.contains(alter.group(2).toLowerCase(Locale.ROOT));
         }
         String kind=create.group(1).toLowerCase(Locale.ROOT);
         try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE type=? AND name=?",new String[]{kind,create.group(2)})) {

@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 def main():
  p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);a=p.parse_args();out=a.out.resolve();out.mkdir(parents=True,exist_ok=False)
- source=ROOT/'app/src/main/java/com/ethk3/novaonepro';classes=ROOT/'app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes';sdk=Path(os.environ['ANDROID_HOME'])/'platforms/android-36/android.jar';jdbc=Path(os.environ.get('SQLITE_JDBC','/tmp/r31-baseline-deps/sqlite-jdbc.jar'));slf=next(Path(os.environ['GRADLE_USER_HOME']).glob('caches/modules-2/files-2.1/org.slf4j/slf4j-api/*/*/*.jar'))
+ source=ROOT/'app/src/main/java/com/ethk3/novaonepro';classes=Path(os.environ.get('R31_COMPILED_SUPPORT',ROOT/'app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes'));sdk=Path(os.environ['ANDROID_HOME'])/'platforms/android-36/android.jar';jdbc=Path(os.environ.get('SQLITE_JDBC','/tmp/r31-baseline-deps/sqlite-jdbc.jar'));slf=next(Path(os.environ['GRADLE_USER_HOME']).glob('caches/modules-2/files-2.1/org.slf4j/slf4j-api/*/*/*.jar'))
  sources=[source/(x+'.java') for x in ['LegacyDdlR31','LegacySchemaCoordinatorR926','SchemaDomainCoordinatorR926','DbHelper','DbStore']]
  sources += [ROOT/'tools/r31/unified_host/StrictMigrationR31Host.java',ROOT/'tools/r31/unified_host/ColdSchemaR31Host.java',ROOT/'tools/r31/unified_host/RuntimeSchemaR31Host.java',Path(__file__).resolve()]
  hashes={str(x.relative_to(ROOT)):hashlib.sha256(x.read_bytes()).hexdigest() for x in sources};commands=[]

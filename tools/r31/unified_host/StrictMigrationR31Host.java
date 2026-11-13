@@ -13,9 +13,10 @@ public final class StrictMigrationR31Host {
     static void need(boolean value,String detail){assertions++;if(!value)throw new AssertionError(detail);}
     static long scalar(SQLiteDatabase db,String sql){try(Cursor c=db.rawQuery(sql,null)){need(c.moveToFirst(),sql);return c.getLong(0);}}
     static class FaultDb extends SQLiteDatabase {
-        String blocked="";
+        String blocked="",ignoredAlter="";int tableInfoQueries,catalogQueries;
         FaultDb(Connection connection){super(connection);}
-        @Override public void execSQL(String sql){if(!blocked.isEmpty()&&sql.startsWith(blocked))throw new android.database.sqlite.SQLiteException("INJECTED_"+blocked);super.execSQL(sql);}
+        @Override public void execSQL(String sql){if(!blocked.isEmpty()&&sql.startsWith(blocked))throw new android.database.sqlite.SQLiteException("INJECTED_"+blocked);if(!ignoredAlter.isEmpty()&&sql.startsWith(ignoredAlter))return;super.execSQL(sql);}
+        @Override public Cursor rawQuery(String sql,String[] args){if(sql.startsWith("PRAGMA table_info"))tableInfoQueries++;if(sql.contains("COALESCE(sql,'')"))catalogQueries++;return super.rawQuery(sql,args);}
     }
     static LinkedHashMap<String,Runnable> units(SQLiteDatabase db,boolean halt){
         LinkedHashMap<String,Runnable> units=new LinkedHashMap<>();
@@ -41,6 +42,54 @@ public final class StrictMigrationR31Host {
                 LegacySchemaCoordinatorR926.advanceUnitsR31(db,"UF_KILL_",crash,false);throw new AssertionError("halt did not occur");
             }
             SchemaDomainCoordinatorR926.ensureInfrastructure(db);
+            db.execSQL("CREATE TABLE uf_scoped_columns(id INTEGER PRIMARY KEY)");
+            int initialProbes=db.tableInfoQueries;
+            try(LegacyDdlR31.Scope scope=new LegacyDdlR31.Scope(db,false)){
+                LegacyDdlR31.exec(db,"ALTER TABLE uf_scoped_columns ADD COLUMN first_col INTEGER");
+                boolean yielded=false;try{LegacyDdlR31.exec(db,"ALTER TABLE uf_scoped_columns ADD COLUMN next_col INTEGER");}catch(LegacyDdlR31.Pending expected){yielded=true;}
+                need(yielded&&scope.statements==1,"next missing column still yields after one actual DDL");
+            }
+            need(db.tableInfoQueries-initialProbes==1,"one fresh scoped census replaces redundant whole-table PRAGMA probes");
+            try(LegacyDdlR31.Scope scope=new LegacyDdlR31.Scope(db,false)){
+                LegacyDdlR31.exec(db,"ALTER TABLE uf_scoped_columns ADD COLUMN first_col INTEGER");need(scope.statements==0,"existing column is initially verified from a fresh scope");
+                int beforeChange=db.tableInfoQueries;
+                db.execSQL("ALTER TABLE uf_scoped_columns DROP COLUMN first_col"); // explicit fixture-only same-scope schema mutation
+                LegacyDdlR31.exec(db,"ALTER TABLE uf_scoped_columns ADD COLUMN first_col INTEGER");
+                need(scope.statements==1&&db.tableInfoQueries>beforeChange,"schema_version change invalidates an in-scope column census before reuse");
+            }
+            db.execSQL("ALTER TABLE uf_scoped_columns DROP COLUMN first_col"); // modern native fixture only; never production retirement authority
+            try(LegacyDdlR31.Scope scope=new LegacyDdlR31.Scope(db,true)){
+                boolean pending=false;try{LegacyDdlR31.exec(db,"ALTER TABLE uf_scoped_columns ADD COLUMN first_col INTEGER");}catch(LegacyDdlR31.Pending expected){pending=true;}
+                need(pending&&scope.statements==0,"a new read-only scope starts fresh and sees external column loss");
+            }
+            db.execSQL("CREATE TABLE uf_shadow(id INTEGER PRIMARY KEY)");
+            try(LegacyDdlR31.Scope scope=new LegacyDdlR31.Scope(db,true)){
+                db.execSQL("CREATE TEMP TABLE uf_shadow(id INTEGER PRIMARY KEY,kept INTEGER)");
+                LegacyDdlR31.exec(db,"ALTER TABLE uf_shadow ADD COLUMN kept INTEGER");
+                db.execSQL("DROP TABLE temp.uf_shadow");
+                boolean pending=false;try{LegacyDdlR31.exec(db,"ALTER TABLE uf_shadow ADD COLUMN kept INTEGER");}catch(LegacyDdlR31.Pending expected){pending=true;}
+                need(pending&&scope.statements==0,"TEMP shadow removal cannot reuse another schema's column census");
+            }
+            try(LegacyDdlR31.Scope scope=new LegacyDdlR31.Scope(db,true)){
+                db.execSQL("ATTACH DATABASE ':memory:' AS auxiliary");db.execSQL("CREATE TABLE auxiliary.uf_attached(id INTEGER PRIMARY KEY,kept INTEGER)");
+                LegacyDdlR31.exec(db,"ALTER TABLE uf_attached ADD COLUMN kept INTEGER");
+                db.execSQL("DETACH DATABASE auxiliary");db.execSQL("ATTACH DATABASE ':memory:' AS auxiliary");db.execSQL("CREATE TABLE auxiliary.uf_attached(id INTEGER PRIMARY KEY)");
+                boolean pending=false;try{LegacyDdlR31.exec(db,"ALTER TABLE uf_attached ADD COLUMN kept INTEGER");}catch(LegacyDdlR31.Pending expected){pending=true;}
+                need(pending&&scope.statements==0,"detach and same-name attachment swap always use fresh column metadata");
+            }finally{db.execSQL("DETACH DATABASE auxiliary");}
+            // A swallowed/no-op ALTER must fail a real SQLite compiler check.
+            // Unqualified double quotes would compile as a string literal.
+            try(Cursor c=db.rawQuery("SELECT \"ghost_col\" FROM uf_scoped_columns LIMIT 0",null)){need(c.getColumnCount()==1,"DQS control demonstrates why a qualified column is required");}
+            db.ignoredAlter="ALTER TABLE uf_scoped_columns ADD COLUMN ghost_col";
+            try(LegacyDdlR31.Scope scope=new LegacyDdlR31.Scope(db,false)){
+                boolean missing=false;try{LegacyDdlR31.exec(db,"ALTER TABLE uf_scoped_columns ADD COLUMN ghost_col INTEGER");}catch(android.database.sqlite.SQLiteException expected){missing=true;}
+                need(missing,"qualified SQLite parse rejects an ALTER that did not actually create the column");
+                boolean sticky=false;try{scope.check();}catch(RuntimeException expected){sticky=true;}
+                need(sticky,"the failed actual postcondition cannot be swallowed by a helper");
+            }finally{db.ignoredAlter="";}
+            try(LegacyDdlR31.Scope scope=new LegacyDdlR31.Scope(db,false)){
+                LegacyDdlR31.exec(db,"ALTER TABLE uf_scoped_columns ADD COLUMN ghost_col INTEGER");need(scope.statements==1,"a later real ALTER recovers without clearing durable evidence");
+            }
             db.execSQL("CREATE TABLE protected_rows(id INTEGER PRIMARY KEY,value TEXT NOT NULL)");db.execSQL("INSERT INTO protected_rows VALUES(1,'ORIGINAL_KEEP')");
             for(String sql:new String[]{"CREATE TABLE IF NOT EXISTS uf_sample","ALTER TABLE uf_sample","CREATE INDEX IF NOT EXISTS uf_sample_value"}) {
                 db.blocked=sql;boolean failed=false;
@@ -73,6 +122,25 @@ public final class StrictMigrationR31Host {
                 boolean drift=false;try{LegacyDdlR31.exec(db,exactPredicate.replace("Ready if not exists; X",changed));}catch(IllegalStateException expected){drift=expected.getMessage().startsWith("LEGACY_DDL_DEFINITION_DRIFT:");}
                 need(drift,"literal case, whitespace, semicolon and IF NOT EXISTS text retain their SQL meaning: "+changed);
             }
+            SchemaDomainCoordinatorR926.Contract scopedFingerprint=new SchemaDomainCoordinatorR926.Contract("UF_SCOPED_EXACT_FINGERPRINT",1,new String[]{"protected_rows","uf_exact_predicate"});
+            try(LegacyDdlR31.Scope scope=new LegacyDdlR31.Scope(db,false)){
+                int originalCatalog=db.catalogQueries;
+                String before=SchemaDomainCoordinatorR926.fingerprint(db,scopedFingerprint);
+                need(before.equals(SchemaDomainCoordinatorR926.fingerprint(db,scopedFingerprint))&&db.catalogQueries==originalCatalog+1,"exact fingerprint is reused only inside the same scope and live schema version");
+                db.execSQL("DROP INDEX uf_exact_predicate"); // explicit native fixture drift, not production retirement permission
+                db.execSQL(exactPredicate.replace("Ready if not exists; X","ready if not exists; X"));
+                need(!before.equals(SchemaDomainCoordinatorR926.fingerprint(db,scopedFingerprint)),"same-scope same-name literal mutation never reads an old exact fingerprint");
+                boolean mismatch=false;try{LegacyDdlR31.exec(db,exactPredicate);}catch(IllegalStateException expected){mismatch=expected.getMessage().startsWith("LEGACY_DDL_DEFINITION_DRIFT:");}
+                need(mismatch,"actual catalog definition is still checked after an in-scope schema mutation");
+            }
+            for(boolean temporary:new boolean[]{true,false}){
+                try(LegacyDdlR31.Scope scope=new LegacyDdlR31.Scope(db,true)){
+                    if(temporary)db.execSQL("CREATE TEMP TABLE uf_cache_guard(id INTEGER)");else db.execSQL("ATTACH DATABASE ':memory:' AS auxiliary");
+                    int probes=db.catalogQueries;SchemaDomainCoordinatorR926.fingerprint(db,scopedFingerprint);SchemaDomainCoordinatorR926.fingerprint(db,scopedFingerprint);
+                    need(db.catalogQueries==probes+2,"TEMP/attached connections never reuse exact catalog fingerprints: "+temporary);
+                }finally{if(temporary)db.execSQL("DROP TABLE temp.uf_cache_guard");else db.execSQL("DETACH DATABASE auxiliary");}
+            }
+            db.execSQL("DROP INDEX uf_exact_predicate");db.execSQL(exactPredicate);
             String escaped="CREATE INDEX IF NOT EXISTS uf_escaped_predicate ON protected_rows(value) WHERE value='Don''t Normalize'";
             db.execSQL(escaped);LegacyDdlR31.exec(db,escaped);need(scalar(db,"SELECT count(*) FROM sqlite_master WHERE name='uf_escaped_predicate'")==1,"escaped quotes keep the original predicate valid");
             boolean escapedDrift=false;try{LegacyDdlR31.exec(db,escaped.replace("Normalize","normalize"));}catch(IllegalStateException expected){escapedDrift=expected.getMessage().startsWith("LEGACY_DDL_DEFINITION_DRIFT:");}

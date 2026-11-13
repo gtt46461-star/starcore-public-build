@@ -42,6 +42,13 @@ public final class CertifiedPredictionR974 {
             calibrationHash=V51ChecksumEngine.sha256("SU2_PLATT|"+Double.toHexString(a.a)+"|"+Double.toHexString(a.b));selectionHash=com.ethk3.novaonepro.strategyv2.MainlineAdapterSU2.CONTRACT;
             scopePolicyHash=exactScopePolicyHash(candidate,structure,modelHash,selectionHash);selectedHitP=prepared.selectedHitP;hash=digest();
         }
+        private Proof(UnifiedResearchChoiceR932.Evidence e,com.ethk3.novaonepro.strategyv2.MainlineAdapterR31.Prepared prepared,V51Models.PredictionContext c,AnalysisSingleFlightR36.Request request){
+            com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.Authority a=prepared.authority;
+            candidate=e.id;structure=a.policy;certificate=a.certificate;evidence=a.proofHash;modelHash=a.modelHash;
+            base=c.baseIssue;target=c.targetIssue;bundle=c.artifactBundleHash;history=c.historyHash;
+            recipe=prepared.recipe;actionHash=prepared.rankOne.checksum;capturedAt=ModelBundleRuntimeR932.capturedAt();deadlineAt=request.deadlineAt;deadlineMono=request.deadlineMonoAt;
+            calibrationHash=a.calibrationHash;selectionHash=com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.SELECTOR;scopePolicyHash=exactScopePolicyHash(candidate,structure,modelHash,selectionHash);selectedHitP=a.selectedHitP;hash=digest();
+        }
         private String digest(){return V51ChecksumEngine.sha256(LANE+'|'+candidate+'|'+structure+'|'+certificate+'|'+evidence+'|'+modelHash+'|'+base+'|'+target+'|'+bundle+'|'+history+'|'+V51ChecksumEngine.sha256(recipe)+'|'+actionHash+'|'+capturedAt+'|'+deadlineAt+'|'+deadlineMono+'|'+calibrationHash+'|'+selectionHash+'|'+scopePolicyHash+'|'+Double.toHexString(selectedHitP));}
         public boolean expired(){return deadlineAt<=0||deadlineMono<=0||System.currentTimeMillis()>=deadlineAt||TimeSourceR811.monoNowMs()>=deadlineMono;}
         boolean matches(V51Models.SelectedActionEnvelope selected){
@@ -108,6 +115,10 @@ public final class CertifiedPredictionR974 {
     }
     public static final String EXACT_SCOPE_POLICY_F05=CalibrationRuntimeIdentityF04.EXACT_SCOPE_POLICY_F04;
     static String exactScopePolicyHash(String candidate,String structure,String model,String selector){
+        if(com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.candidate(candidate)){
+            if(!candidate.equals(com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.PREFIX+structure)||model==null||!model.matches("[0-9a-f]{64}")||!com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.SELECTOR.equals(selector))throw new IllegalArgumentException("R31_R27_EXACT_SCOPE_IDENTITY");
+            return V51ChecksumEngine.sha256("R31_R27_TYPED_ORIGINAL_FREEZE_SCOPE_V1|"+candidate+'|'+structure+'|'+model+'|'+selector);
+        }
         if(candidate!=null&&(candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU1.PREFIX)
                 ||candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX)))
             return CalibrationRuntimeIdentityF04.selectiveCertificateScopeR30(candidate,structure,model,selector);
@@ -222,12 +233,18 @@ public final class CertifiedPredictionR974 {
         private Prepared(FrozenConsumerRecipeR932.Mixed m,UnifiedResearchChoiceR932.Evidence e,Proof p){actions=m.actions;rankOne=m.rankOne;evidence=e;proof=p;}
         private Prepared(com.ethk3.novaonepro.strategyv2.MainlineAdapterSU1.Prepared m,UnifiedResearchChoiceR932.Evidence e,Proof p){actions=m.actions;rankOne=m.rankOne;evidence=e;proof=p;}
         private Prepared(com.ethk3.novaonepro.strategyv2.MainlineAdapterSU2.Prepared m,UnifiedResearchChoiceR932.Evidence e,Proof p){actions=m.actions;rankOne=m.rankOne;evidence=e;proof=p;}
+        private Prepared(com.ethk3.novaonepro.strategyv2.MainlineAdapterR31.Prepared m,UnifiedResearchChoiceR932.Evidence e,Proof p){actions=m.actions;rankOne=m.rankOne;evidence=e;proof=p;}
     }
     /** Called after the one-consumer selection is frozen. No fallback certificate is fabricated. */
     public static Prepared prepare(DbStore store,V51Models.PredictionContext context,V51Models.PositionAction[] actions,AnalysisSingleFlightR36.Request request){
         if(store==null||context==null||request==null||!request.valid()||!context.targetIssue.equals(request.targetIssue)
                 ||request.deadlineAt<=System.currentTimeMillis()||request.deadlineMonoAt<=TimeSourceR811.monoNowMs())return null;
         UnifiedResearchChoiceR932.Evidence e=UnifiedResearchChoiceR932.selected(store,context.targetIssue,CertificateBundleServiceR929.Consumer.INVENTED_ALGORITHM);
+        if(e!=null&&com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.candidate(e.id)){
+            com.ethk3.novaonepro.strategyv2.MainlineAdapterR31.Prepared m=com.ethk3.novaonepro.strategyv2.MainlineAdapterR31.prepare(store,context,actions,e.id,e.certificate);
+            if(m==null||m.authority.deadlineAt!=request.deadlineAt)return null;
+            Proof p=new Proof(e,m,context,request);if(p.expired())return null;return new Prepared(m,e,p);
+        }
         if(e!=null&&e.id.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU1.PREFIX)){
             com.ethk3.novaonepro.strategyv2.CertificateSU1.Authority a=com.ethk3.novaonepro.strategyv2.MainlineAdapterSU1.authority(store,e.id,e.structure,context.targetIssue,e.certificate);
             if(a==null)throw new IllegalStateException("SU1_CURRENT_CERTIFICATE_REQUIRED");
@@ -309,6 +326,12 @@ public final class CertifiedPredictionR974 {
     }
     static String verifyCertificate(DbStore store,Proof proof){
         try{
+            if(com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.candidate(proof.candidate)){
+                if(!com.ethk3.novaonepro.strategyv2.MainlineAdapterR31.verifyFrozen(store,proof,null))return "R31_R27_TYPED_PROOF_OR_AUTHORITY_CHANGED";
+                try(Cursor choice=store.readable().rawQuery("SELECT bundle_hash,consumer,candidate_id,certificate_hash FROM "+UnifiedResearchChoiceR932.TABLE+" WHERE target_issue=?",new String[]{proof.target})){
+                    if(!choice.moveToFirst()||!proof.bundle.equals(choice.getString(0))||!"INVENTED_ALGORITHM".equals(choice.getString(1))||!proof.candidate.equals(choice.getString(2))||!proof.certificate.equals(choice.getString(3)))return "R31_R27_FROZEN_SELECTION_CHANGED";
+                }return "";
+            }
             if(proof.candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX)){
                 com.ethk3.novaonepro.strategyv2.CertificateSU2.Authority a=com.ethk3.novaonepro.strategyv2.CertificateSU2.read(store.readable(),proof.candidate.substring(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX.length()),System.currentTimeMillis());
                 if(a==null||!a.certificate.equals(proof.certificate)||!a.program.equals(proof.structure))return "SU2_CERTIFICATE_CHANGED";
@@ -337,6 +360,9 @@ public final class CertifiedPredictionR974 {
         Proof proof=compiled.certifiedPrediction;if(proof==null)return;
         if(!db.inTransaction()||!proof.matches(compiled.selected))throw new IllegalStateException("R974_EXACT_COMMIT_PIT_OR_DEADLINE");
         String error=verifyCertificate(store,proof);if(!error.isEmpty())throw new IllegalStateException("R974_EXACT_COMMIT_"+error);
+        if(com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.candidate(proof.candidate)){
+            if(!com.ethk3.novaonepro.strategyv2.MainlineAdapterR31.verifyFrozen(store,proof,compiled.selected.action))throw new IllegalStateException("R31_R27_EXACT_COMMIT_ACTION_CHANGED");return;
+        }
         if(proof.candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX)){
             if(!com.ethk3.novaonepro.strategyv2.Su2CommitAuthorityR30.verifyFrozen(store,db,proof,compiled.selected.action))throw new IllegalStateException("SU2_EXACT_COMMIT_ACTION_CHANGED");return;
         }

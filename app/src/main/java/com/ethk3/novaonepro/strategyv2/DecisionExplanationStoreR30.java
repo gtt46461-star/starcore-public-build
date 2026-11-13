@@ -42,9 +42,9 @@ public final class DecisionExplanationStoreR30 {
         Map<String,Object> out=new LinkedHashMap<>();
         if(!table(db,"r30_decision_explain")){out.put("status","UNKNOWN_SOURCE_MISSING");out.put("decisions",null);out.put("mismatches",null);return out;}
         long n=count(db,"SELECT count(*) FROM r30_decision_explain");out.put("status",n==0?"NOT_RUN":"RECORDED");out.put("decisions",n);
-        out.put("mismatches",count(db,"SELECT count(*) FROM r30_decision_mismatch"));
-        out.put("originalMorePermissive",count(db,"SELECT count(*) FROM r30_decision_mismatch WHERE direction='ORIGINAL_MORE_PERMISSIVE'"));
-        out.put("originalStricter",count(db,"SELECT count(*) FROM r30_decision_mismatch WHERE direction='ORIGINAL_STRICTER'"));
+        out.put("mismatches",count(db,KeepMismatchReferenceR31.countSql(db,null)));
+        out.put("originalMorePermissive",count(db,KeepMismatchReferenceR31.countSql(db,"ORIGINAL_MORE_PERMISSIVE")));
+        out.put("originalStricter",count(db,KeepMismatchReferenceR31.countSql(db,"ORIGINAL_STRICTER")));
         Map<String,Object> blockers=new LinkedHashMap<>();
         try(Cursor c=db.rawQuery("SELECT coalesce(first_blocker,'NONE'),count(*) FROM r30_decision_explain WHERE certificate_active=1 AND original_allow=0 GROUP BY first_blocker ORDER BY count(*) DESC,first_blocker",null)){while(c.moveToNext())blockers.put(c.getString(0),c.getLong(1));}
         out.put("certificatePresentButNoReal",blockers);List<Object> recent=new ArrayList<>();

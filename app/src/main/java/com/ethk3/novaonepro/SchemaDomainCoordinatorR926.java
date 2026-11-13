@@ -132,6 +132,87 @@ public final class SchemaDomainCoordinatorR926 {
         return new Contract(com.ethk3.novaonepro.strategyv2.MainlineChoiceStoreR31.DOMAIN, 1, com.ethk3.novaonepro.strategyv2.MainlineChoiceStoreR31.OBJECTS);
     }
 
+    private static final String[] R31_MAINLINE_LOOKUP_INDEXES={
+        "CREATE INDEX IF NOT EXISTS idx_r31_mainline_choice_current ON r31_mainline_choice(selection_fence DESC,created_at DESC) WHERE status IN ('ACTIVE','FALLBACK')",
+        "CREATE INDEX IF NOT EXISTS idx_r31_mainline_choice_fence ON r31_mainline_choice(selection_fence)"
+    };
+    public static boolean isR31MainlineChoiceLookupIndex(String sql){for(String known:R31_MAINLINE_LOOKUP_INDEXES)if(known.equals(sql))return true;return false;}
+    private static String mainlineLookupNameR31(String sql){return sql.substring("CREATE INDEX IF NOT EXISTS ".length()).split(" ",2)[0];}
+    private static String mainlineLookupFingerprintR31(Contract contract,java.util.List<String> base,int mask){
+        java.util.ArrayList<String> rows=new java.util.ArrayList<>(base);
+        for(int i=0;i<R31_MAINLINE_LOOKUP_INDEXES.length;i++)if((mask&(1<<i))!=0){String ddl=R31_MAINLINE_LOOKUP_INDEXES[i];rows.add("index|"+mainlineLookupNameR31(ddl)+"|r31_mainline_choice|"+ddl.replaceFirst(" IF NOT EXISTS "," "));}
+        java.util.Collections.sort(rows);StringBuilder b=new StringBuilder(contract.domain).append('|').append(contract.revision).append('|').append(contract.contractHash);for(String row:rows)b.append('\n').append(row.length()).append(':').append(row);return V51ChecksumEngine.sha256(b.toString());
+    }
+    /** Two exact lifecycle-owned query indexes are the only permitted delta.
+     * Authenticate the previous domain stamp against the same complete catalogue
+     * with one of the four declared index-presence states. This also repairs a
+     * missing known index after a committed unit, without accepting any unknown
+     * attachment, table/trigger drift, literal change or an untrusted stamp. */
+    public static void installR31MainlineChoiceLookupIndex(SQLiteDatabase db,String sql){
+        if(!db.inTransaction())throw new IllegalStateException("R31_MAINLINE_LOOKUP_MIGRATION_WRITER_REQUIRED");
+        if(!isR31MainlineChoiceLookupIndex(sql))throw new IllegalArgumentException("R31_MAINLINE_LOOKUP_UNDECLARED");
+        Contract contract=r31MainlineChoiceContract();String sealed=null;
+        try(Cursor c=db.rawQuery("SELECT fingerprint FROM "+TABLE_DOMAIN+" WHERE domain=? AND revision=? AND contract_hash=? AND state='READY'",new String[]{contract.domain,Integer.toString(contract.revision),contract.contractHash})){if(c.moveToFirst())sealed=c.getString(0);}
+        if(sealed==null)throw new DatabaseCoordinator.SchemaPendingR31("R31_MAINLINE_LOOKUP","AUTHENTICATED_PRIOR_DOMAIN_REQUIRED");
+        java.util.Set<String> wanted=new java.util.HashSet<>(java.util.Arrays.asList(contract.objects));java.util.Map<String,String> known=new java.util.HashMap<>();for(String ddl:R31_MAINLINE_LOOKUP_INDEXES)known.put(mainlineLookupNameR31(ddl),ddl.replaceFirst(" IF NOT EXISTS "," "));
+        java.util.ArrayList<String> core=new java.util.ArrayList<>();
+        try(Cursor c=db.rawQuery("SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name",null)){
+            while(c.moveToNext()){String kind=safe(c.getString(0)),name=safe(c.getString(1)),table=safe(c.getString(2)),actual=safe(c.getString(3));if(!wanted.contains(name)&&!wanted.contains(table))continue;
+                if(known.containsKey(name)){if(!"index".equals(kind)||!"r31_mainline_choice".equals(table)||!known.get(name).equals(actual))throw new DatabaseCoordinator.SchemaPendingR31("R31_MAINLINE_LOOKUP","UNKNOWN_INDEX_DEFINITION:"+name);continue;}
+                core.add(kind+'|'+name+'|'+table+'|'+actual);
+            }
+        }
+        boolean authenticated=false;for(int mask=0;mask<4;mask++)if(sealed.equals(mainlineLookupFingerprintR31(contract,core,mask)))authenticated=true;
+        if(!authenticated)throw new DatabaseCoordinator.SchemaPendingR31("R31_MAINLINE_LOOKUP","UNRELATED_SCHEMA_DRIFT");
+        String before=fingerprint(db,contract);db.execSQL(sql);String installed=null;try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE type='index' AND name=?",new String[]{mainlineLookupNameR31(sql)})){if(c.moveToFirst())installed=c.getString(0);}
+        if(!sql.replaceFirst(" IF NOT EXISTS "," ").equals(installed))throw new IllegalStateException("R31_MAINLINE_LOOKUP_NOT_EXACT");
+        // Every remaining schema object must still be identical after this DDL.
+        java.util.Set<String> delta=known.keySet();String coreAfter=fingerprint(db,contract,false,null,delta);
+        if(!mainlineLookupFingerprintR31(contract,core,0).equals(coreAfter))throw new IllegalStateException("R31_MAINLINE_LOOKUP_CHANGED_UNRELATED_SCHEMA");
+        String after=fingerprint(db,contract);long now=System.currentTimeMillis();
+        db.execSQL("INSERT OR REPLACE INTO "+TABLE_JOURNAL+"(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code) VALUES(?,?,?,'COMPLETED',1,?,?,?,?,?,'')",new Object[]{contract.domain,contract.revision,"R31_EXACT_LOOKUP_INDEX:"+mainlineLookupNameR31(sql),"EXACT_DECLARED_INDEX_DELTA",before,after,now,now});
+        verifyAndStamp(db,contract);
+    }
+
+    private static final String R31_MAINLINE_PUBLICATION_LOOKUP="CREATE INDEX IF NOT EXISTS idx_r31_mainline_model_publication ON r31_atomnet_publication(model_hash,weights_hash,published_at DESC,publication_id) WHERE status='PUBLISHED'";
+    private static java.util.Map<String,String> publicationAttachmentsR31(SQLiteDatabase db,String table){
+        java.util.Map<String,String> known=new java.util.TreeMap<>();
+        if("r31_atomnet_publication".equals(table))known.put("idx_r31_mainline_model_publication",R31_MAINLINE_PUBLICATION_LOOKUP);
+        for(String ddl:com.ethk3.novaonepro.strategyv2.CheckpointGcStoreR31.referenceGuards(db))if(ddl.contains(" ON \""+table+"\" ")){
+            LifecycleSchemaR31.Definition d=new LifecycleSchemaR31.Definition(ddl);known.put(d.name,ddl);
+        }return known;
+    }
+    private static String publicationAttachmentTableR31(SQLiteDatabase db,String sql){
+        if(R31_MAINLINE_PUBLICATION_LOOKUP.equals(sql))return "r31_atomnet_publication";
+        for(String table:new String[]{"r31_atomnet_publication","r31_model_publication_item"})if(sql!=null&&sql.startsWith("CREATE TRIGGER IF NOT EXISTS \"r31_gc_ref_"+table+"_")&&publicationAttachmentsR31(db,table).containsValue(sql))return table;return null;
+    }
+    public static boolean isR31PublicationAttachment(SQLiteDatabase db,String sql){return publicationAttachmentTableR31(db,sql)!=null;}
+    /** Exact GC reference guards and the one query index may attach to these
+     * two existing publication domains. Preserve a durable authenticated core
+     * in the existing migration journal, rather than enumerating 2^32 states or
+     * accepting arbitrary current attachments. A missing declared attachment
+     * can be repaired only while the prior stamp and this core proof agree. */
+    public static void installR31PublicationAttachment(SQLiteDatabase db,String sql){
+        if(!db.inTransaction())throw new IllegalStateException("R31_PUBLICATION_ATTACHMENT_MIGRATION_WRITER_REQUIRED");
+        String table=publicationAttachmentTableR31(db,sql);if(table==null)throw new IllegalArgumentException("R31_PUBLICATION_ATTACHMENT_UNDECLARED");
+        Contract contract="r31_atomnet_publication".equals(table)?r31AtomNetPublicationContract():r31ModelPublicationContract();
+        java.util.Map<String,String> known=publicationAttachmentsR31(db,table);String manifest=V51ChecksumEngine.sha256(known.toString()),step="R31_EXACT_LIFECYCLE_CORE:"+manifest;
+        String sealed=null;try(Cursor c=db.rawQuery("SELECT fingerprint FROM "+TABLE_DOMAIN+" WHERE domain=? AND revision=? AND contract_hash=? AND state='READY'",new String[]{contract.domain,Integer.toString(contract.revision),contract.contractHash})){if(c.moveToFirst())sealed=c.getString(0);}
+        if(sealed==null)throw new DatabaseCoordinator.SchemaPendingR31("R31_PUBLICATION_ATTACHMENT","AUTHENTICATED_PRIOR_DOMAIN_REQUIRED:"+contract.domain);
+        // Definitions are checked even when the completed proof already exists.
+        for(java.util.Map.Entry<String,String> definition:known.entrySet())try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{definition.getKey()})){
+            if(c.moveToFirst()&&!LifecycleSchemaR31.canonical(definition.getValue()).equals(LifecycleSchemaR31.canonical(c.getString(0))))throw new DatabaseCoordinator.SchemaPendingR31("R31_PUBLICATION_ATTACHMENT","UNKNOWN_DEFINITION:"+definition.getKey());
+        }
+        String before=fingerprint(db,contract),core=fingerprint(db,contract,false,null,known.keySet());boolean trusted=sealed.equals(before)||sealed.equals(core);
+        if(!trusted)try(Cursor c=db.rawQuery("SELECT 1 FROM "+TABLE_JOURNAL+" WHERE domain=? AND revision=? AND step_id=? AND status='COMPLETED' AND before_hash=? AND after_hash=? AND cursor=?",new String[]{contract.domain,Integer.toString(contract.revision),step,core,sealed,"EXACT_ATTACHMENT_MANIFEST:"+manifest})){trusted=c.moveToFirst();}
+        if(!trusted)throw new DatabaseCoordinator.SchemaPendingR31("R31_PUBLICATION_ATTACHMENT","UNRELATED_SCHEMA_DRIFT:"+contract.domain);
+        db.execSQL(sql);LifecycleSchemaR31.Definition target=new LifecycleSchemaR31.Definition(sql);if(!target.present(db))throw new IllegalStateException("R31_PUBLICATION_ATTACHMENT_NOT_EXACT");
+        if(!core.equals(fingerprint(db,contract,false,null,known.keySet())))throw new IllegalStateException("R31_PUBLICATION_ATTACHMENT_CHANGED_UNRELATED_SCHEMA");
+        String after=fingerprint(db,contract);long now=System.currentTimeMillis();
+        db.execSQL("INSERT OR REPLACE INTO "+TABLE_JOURNAL+"(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code) VALUES(?,?,?,'COMPLETED',1,?,?,?,?,?,'')",new Object[]{contract.domain,contract.revision,step,"EXACT_ATTACHMENT_MANIFEST:"+manifest,core,after,now,now});
+        verifyAndStamp(db,contract);
+    }
+
     /** The existing startup migration writer is the sole schema owner. */
     public static void migrateR31MainlineChoice(SQLiteDatabase db) {
         if (!db.inTransaction()) throw new IllegalStateException("R31_MIGRATION_OWNER_REQUIRED");
@@ -206,7 +287,7 @@ public final class SchemaDomainCoordinatorR926 {
     }
 
     public static Contract r31SourceJournalContract() {
-        return new Contract("RESEARCH_R31_SOURCE_JOURNAL", 1,
+        return new Contract("RESEARCH_R31_SOURCE_JOURNAL", com.ethk3.novaonepro.strategyv2.ResearchSourceJournalR31.REVISION,
                 com.ethk3.novaonepro.strategyv2.ResearchSourceJournalR31.schemaObjectsR31());
     }
 
@@ -224,7 +305,7 @@ public final class SchemaDomainCoordinatorR926 {
         try {
             runStep(db, source, "R31_SOURCE_JOURNAL_V1", tx -> {
                 String upgrade = com.ethk3.novaonepro.strategyv2.ResearchSourceJournalR31.inspectUpgradeR31(tx);
-                if (!("OLD_EXACT".equals(upgrade) || "R31_EXACT".equals(upgrade) || "EMPTY".equals(upgrade)))
+                if (!("OLD_EXACT".equals(upgrade) || "R31_EXACT".equals(upgrade) || "R31_V1_EXACT".equals(upgrade) || "EMPTY".equals(upgrade)))
                     throw new IllegalStateException("R31_SOURCE_TRIGGER_UPGRADE_CONFLICT");
                 com.ethk3.novaonepro.strategyv2.ResearchSourceJournalR31.ensureSchemaR31(tx);
                 if (!"R31_EXACT".equals(com.ethk3.novaonepro.strategyv2.ResearchSourceJournalR31.inspectUpgradeR31(tx))
@@ -241,6 +322,9 @@ public final class SchemaDomainCoordinatorR926 {
                                     + " VALUES(?,?,?,'COMPLETED',1,'EXACT_DRAW_TRIGGER_DELTA',?,?,?,?, '')",
                             new Object[] {critical.domain, critical.revision, "R31_SOURCE_DRAW_CUTOVER_V1",
                                     beforeCritical, afterCritical, now, now});
+                    tx.execSQL("INSERT OR IGNORE INTO " + TABLE_JOURNAL
+                                    +"(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code) VALUES(?,?,?,'COMPLETED',1,'EXACT_FIRST_SEEN_UPDATE_DELTA',?,?,?,?, '')",
+                            new Object[]{critical.domain,critical.revision,"R31_SOURCE_KNOWN_AT_CUTOVER_V2",beforeCritical,afterCritical,now,now});
                     verifyAndStamp(tx, critical);
                 } else if (!"STAMP_MISSING".equals(priorReason) && !matches(tx, critical)) {
                     throw new IllegalStateException("R31_SOURCE_UPGRADE_UNTRUSTED_CRITICAL_STAMP:" + priorReason);
@@ -261,7 +345,7 @@ public final class SchemaDomainCoordinatorR926 {
                 com.ethk3.novaonepro.strategyv2.ResearchSourceJournalR31.sourceDrawTriggerSqlR31()}) {
             for (String sql : definitions) {
                 java.util.regex.Matcher match = java.util.regex.Pattern.compile(
-                        "(?is)^CREATE TRIGGER IF NOT EXISTS ([A-Za-z0-9_]+) AFTER (?:INSERT|UPDATE|DELETE) ON draws(?:\\s|$)").matcher(sql);
+                        "(?is)^CREATE TRIGGER IF NOT EXISTS ([A-Za-z0-9_]+) AFTER (?:INSERT|UPDATE(?: OF first_seen_at)?|DELETE) ON draws(?:\\s|$)").matcher(sql);
                 if (!match.find()) throw new IllegalStateException("R31_SOURCE_DRAW_TRIGGER_DELTA_CONTRACT");
                 names.add(match.group(1));
             }
@@ -489,7 +573,7 @@ public final class SchemaDomainCoordinatorR926 {
         com.ethk3.novaonepro.strategyv2.CertificateRevocationR30.requireSourceTriggerDefinitionsR31(db,
                 com.ethk3.novaonepro.strategyv2.CertificateRevocationR30.criticalSourceTriggersR31(db),false);
         String sourceShape=com.ethk3.novaonepro.strategyv2.ResearchSourceJournalR31.inspectUpgradeR31(db);
-        if(!("EMPTY".equals(sourceShape)||"OLD_EXACT".equals(sourceShape)||"R31_EXACT".equals(sourceShape)))
+        if(!("EMPTY".equals(sourceShape)||"OLD_EXACT".equals(sourceShape)||"R31_V1_EXACT".equals(sourceShape)||"R31_EXACT".equals(sourceShape)))
             throw new DatabaseCoordinator.SchemaPendingR31("R31_COLD_SOURCE_GUARDS","UNKNOWN_DRAW_OR_HISTORY_TRIGGER_DEFINITION");
     }
 
@@ -1336,7 +1420,8 @@ public final class SchemaDomainCoordinatorR926 {
     }
 
     public static String fingerprint(SQLiteDatabase db, Contract contract) {
-        return fingerprint(db, contract, false);
+        if(db==null||contract==null)return "";
+        return LegacyDdlR31.scopedFingerprint(db,contract.contractHash,()->fingerprint(db, contract, false));
     }
 
     private static String fingerprintWithoutResearchPinDrawTriggers(SQLiteDatabase db, Contract contract) {

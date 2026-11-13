@@ -21,9 +21,13 @@ def main():
  if len(original)!=222 or len({r['current_item'] for r in original})!=222:raise SystemExit('CURRENT_ACCEPTANCE_SET_CHANGED')
  bindings={}
  for file in (ROOT/'construction/r31/batches').glob('K*/BINDINGS.json'):bindings.update(json.loads(file.read_text()).get('items',{}))
+ hosts=json.loads((ROOT/'construction/r31/HOST_SUITE.json').read_text()).get('host',[])
+ host_scopes={entry['id']:entry.get('evidence_scope','EXISTING_HOST_SCOPE_PRESERVED; SEE_ACTUAL_PRODUCER_RECEIPT; NOT_WHOLE_PRODUCT_CLOSURE') for entry in hosts}
  rows=[]
  for item in original:
   refs=bindings.get(item['current_item'],[]);actual=[{'reference':ref,'currentInvocationResult':gate.ref_status(s,ref)} for ref in refs]
+  for check in actual:
+   if check['reference'].startswith('HOST:'):check['executionScope']=host_scopes.get(check['reference'][5:],'UNREGISTERED_HOST_NO_CLOSURE')
   status='NOT_RUN' if item['level']!='NATURAL' else 'NOT_PROVEN'
   if item['level']=='LOCAL':status='PASS' if actual and all(x['currentInvocationResult']=='PASS' for x in actual) else 'FAIL_OR_MISSING_CURRENT_BINDING'
   rows.append({**item,'textSha256':hashlib.sha256(item['text'].encode()).hexdigest(),'engineeringBindingResult':status,'boundChecks':actual,
@@ -41,6 +45,7 @@ def main():
  identity={k:s.get(k) for k in ['source_head','source_tree','invocationId','runId','inputsSha256','inputsAfterSha256','state','exitCode']}
  document={'format':'R31_UNIFIED_CURRENT_ACCEPTANCE_1','identity':identity,'summarySha256':sha(a.summary),'preservation':proof,'levels':dict(collections.Counter(x['level'] for x in rows)),
   'itemCounts':dict(collections.Counter(x['engineeringBindingResult'] for x in rows)),'items':rows,'cards':cards,
+  'hostExecutionScopes':[{'id':entry['id'],'scope':host_scopes[entry['id']],'currentInvocationResult':gate.ref_status(s,'HOST:'+entry['id']),'wholeProductClosure':False} for entry in hosts if not entry.get('retired')],
   'limits':{'physicalDevice':'NOT_RUN','oldDeviceDatabase':'UNAVAILABLE','device24h':'NOT_RUN','device72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','hostTestsAreWholeProductAcceptance':False}}
  (a.out/'ACCEPTANCE_RESULTS.json').write_text(json.dumps(document,ensure_ascii=False,indent=2)+'\n')
  with (a.out/'ACCEPTANCE_RESULTS.csv').open('w',encoding='utf-8-sig',newline='') as stream:

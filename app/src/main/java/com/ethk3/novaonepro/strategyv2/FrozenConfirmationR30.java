@@ -40,7 +40,12 @@ public final class FrozenConfirmationR30 {
         public final long block, frozenAt;
         public final boolean nullRequired;
         public final Policy champion, previous, i00, nullPolicy;
+        public final Map<String,Object> selectionProcessR31;
         private Task(String dataset, String source, String semantics, int gen, long block, int from, int to, long at, boolean needNull, Policy ch, Policy prev, Policy random, Policy nil) {
+            this(dataset,source,semantics,gen,block,from,to,at,needNull,ch,prev,random,nil,null);
+        }
+        private Task(String dataset,String source,String semantics,int gen,long block,int from,int to,long at,boolean needNull,Policy ch,Policy prev,Policy random,Policy nil,Map<String,Object> selection) {
+            selectionProcessR31=selection==null?null:java.util.Collections.unmodifiableMap(new LinkedHashMap<>(selection));
             datasetHash = dataset; generation = gen; this.block = block; this.from = from; this.to = to;
             sourceCommit = source;
             researchSemanticHash = semantics;
@@ -53,13 +58,14 @@ public final class FrozenConfirmationR30 {
             m.put("block",block); m.put("from",(long)from); m.put("to",(long)to); m.put("frozenAt",frozenAt); m.put("nullRequired",nullRequired);
             m.put("champion",champion.json()); m.put("previous",previous == null ? null : previous.json());
             m.put("i00",i00 == null ? null : i00.json()); m.put("null",nullPolicy == null ? null : nullPolicy.json());
+            if(selectionProcessR31!=null)m.put("selectionProcessR31",selectionProcessR31);
             return JsonR27.write(m);
         }
         @SuppressWarnings("unchecked") public static Task parse(String text) {
             Map<String,Object> m = (Map<String,Object>)JsonR27.parse(text);
             return new Task((String)m.get("dataset"),(String)m.get("sourceCommit"),m.get("researchSemanticHash") instanceof String ? (String)m.get("researchSemanticHash") : "",(int)JsonR27.num(m.get("generation")),((Number)m.get("block")).longValue(),
                     (int)JsonR27.num(m.get("from")),(int)JsonR27.num(m.get("to")),((Number)m.get("frozenAt")).longValue(),Boolean.TRUE.equals(m.get("nullRequired")),
-                    Policy.parse(m.get("champion"),(String)m.get("dataset")),Policy.parse(m.get("previous"),(String)m.get("dataset")),Policy.parse(m.get("i00"),(String)m.get("dataset")),Policy.parse(m.get("null"),(String)m.get("dataset")));
+                    Policy.parse(m.get("champion"),(String)m.get("dataset")),Policy.parse(m.get("previous"),(String)m.get("dataset")),Policy.parse(m.get("i00"),(String)m.get("dataset")),Policy.parse(m.get("null"),(String)m.get("dataset")),m.get("selectionProcessR31") instanceof Map?(Map<String,Object>)m.get("selectionProcessR31"):null);
         }
     }
 
@@ -72,7 +78,7 @@ public final class FrozenConfirmationR30 {
                 loop.previousChampion == null ? null : new Policy(loop.previousChampion,loop.previousTau,"MAIN",0,baseDataset),
                 loop.i00Champion == null ? null : new Policy(loop.i00Champion,loop.i00Tau,"I00",0,baseDataset),
                 !loop.cfg.nullControl || loop.nullEvolution.champion == null ? null : new Policy(loop.nullEvolution.champion,loop.nullEvolution.championTau,"NULL",loop.nullEvolution.lastSeed,
-                        ReplayEvaluatorR27.shuffledDataset(loop.context().data,sp.trainFrom,sp.selectTo,loop.nullEvolution.lastSeed).datasetHash));
+                        ReplayEvaluatorR27.shuffledDataset(loop.context().data,sp.trainFrom,sp.selectTo,loop.nullEvolution.lastSeed).datasetHash),ImprovementStoreR31.selection(loop));
     }
 
     public interface Evidence {
@@ -104,8 +110,9 @@ public final class FrozenConfirmationR30 {
         ReplayEvaluatorR27.Trace ch = read(task,task.champion,ctx,ledger,evidence);
         h.put("championHoldout",ReplayScoreR27.of(SplitR27.HOLDOUT,ch,task.from,task.to).json());
         boolean vsPrev = task.previous == null, vsI00 = false, vsNull = !task.nullRequired;
+        ReplayEvaluatorR27.Trace parentTraceR31=null;
         if (task.previous != null) {
-            ReplayEvaluatorR27.Trace prev = read(task,task.previous,ctx,ledger,evidence);
+            ReplayEvaluatorR27.Trace prev = read(task,task.previous,ctx,ledger,evidence);parentTraceR31=prev;
             double lcb = ReplayScoreR27.paired(ch,prev,task.from,task.to).lcb(StatsR27.Z95_ONE_SIDED);
             vsPrev = lcb > 0; h.put("pairedLcbVsPrevious",finite(lcb)); h.put("previousHoldout",ReplayScoreR27.of(SplitR27.HOLDOUT,prev,task.from,task.to).json());
         }
@@ -122,6 +129,7 @@ public final class FrozenConfirmationR30 {
         boolean verified = vsPrev && vsI00 && vsNull;
         h.put("verified",verified); h.put("status","COMPLETED");
         h.put("reason",verified ? "VERIFIED_IMPROVEMENT" : "UNVERIFIED:" + (vsPrev ? "" : "NOT_ABOVE_PREVIOUS;") + (vsI00 ? "" : "NOT_ABOVE_I00;") + (vsNull ? "" : "NOT_ABOVE_SHUFFLED_LABEL_CONTROL;"));
+        h.put("pairedImprovementR31",ImprovementStoreR31.outerReceipt(task,ctx,ch,parentTraceR31));
         h.put("blockExposures",(long)ledger.exposures(task.block)); h.put("controlExposures",(long)ledger.controlExposures(task.block));
         return new Result(h);
     }

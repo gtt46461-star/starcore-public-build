@@ -1,4 +1,5 @@
-/* SQLite/report JNI is diagnostics-only. Application process may use CAS directory walker only. */
+/* All SQLite/report/WAL maintenance JNI remains diagnostics-only. The
+ * application process has only the separate directory-only CAS walker. */
 #define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,6 +30,7 @@ typedef int (*backup_admit_fn)(void *,int64_t);
 typedef int (*write_fn)(void *,const void *,size_t);
 static int64_t now_ms(void){struct timespec t;clock_gettime(CLOCK_MONOTONIC,&t);return (int64_t)t.tv_sec*1000+t.tv_nsec/1000000;}
 static int allowed(check_fn fn,void *p,int64_t end){return now_ms()<end && (!fn||fn(p));}
+#include "storage_checkpoint_r31.inc"
 static void nap_ms(long ms){struct timespec t={ms/1000,(ms%1000)*1000000};nanosleep(&t,0);}
 static int configure(sqlite3 *db){
  sqlite3_busy_timeout(db,50);
@@ -376,6 +378,12 @@ int main(int argc,char **argv){
 #else
 typedef struct {JNIEnv *env;jobject control;jmethodID method;jmethodID progress;jmethodID backup_admit;} jcontrol_t;
 static int jcheck(void *p){jcontrol_t *c=p;jboolean r=(*c->env)->CallBooleanMethod(c->env,c->control,c->method);return !(*c->env)->ExceptionCheck(c->env)&&r;}
+JNIEXPORT jlongArray JNICALL Java_com_ethk3_novaonepro_ReportNativeCP4_checkpointWal0(JNIEnv *env,jclass type,jstring source,jint mode,jlong budget,jobject control){
+ (void)type;if(!source||!control)return 0;const char *path=(*env)->GetStringUTFChars(env,source,0);if(!path)return 0;
+ int64_t values[8];jclass klass=(*env)->GetObjectClass(env,control);jmethodID method=(*env)->GetMethodID(env,klass,"shouldContinue","()Z");
+ if(!method){(*env)->ReleaseStringUTFChars(env,source,path);return 0;}jcontrol_t guard={env,control,method,0,0};r31_storage_checkpoint(path,mode,budget,jcheck,&guard,values);
+ (*env)->ReleaseStringUTFChars(env,source,path);if((*env)->ExceptionCheck(env))return 0;jlongArray result=(*env)->NewLongArray(env,8);if(result){jlong converted[8];for(int i=0;i<8;i++)converted[i]=(jlong)values[i];(*env)->SetLongArrayRegion(env,result,0,8,converted);}return result;
+}
 static void jbackup_progress(void *p,int total,int remaining,int rc){jcontrol_t *c=p;if(c->progress&&!(*c->env)->ExceptionCheck(c->env))(*c->env)->CallVoidMethod(c->env,c->control,c->progress,(jlong)total,(jlong)remaining,(jint)rc);}
 static int jbackup_admit(void *p,int64_t bytes){jcontrol_t *c=p;if((*c->env)->ExceptionCheck(c->env))return 0;(*c->env)->CallVoidMethod(c->env,c->control,c->backup_admit,(jlong)bytes);return !(*c->env)->ExceptionCheck(c->env);}
 typedef struct {JNIEnv *env;jobject sink;jmethodID write;jbyteArray buffer;} jsink_t;

@@ -1,0 +1,88 @@
+{
+  "format": "R31_EXACT_SOURCE_FAILED_INVOCATION_1",
+  "capturedAt": "2026-11-13T01:17:40Z",
+  "source": "97e53aee275238f73c2c0e5856f3fedcf8151324",
+  "invocationId": "dccb1eb0-87b0-4cf9-b39d-d4ac2cfb98f1",
+  "runId": 43336663168,
+  "unit": {
+    "tests": 636,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  },
+  "failures": [
+    {
+      "class": "com.ethk3.novaonepro.R31RetirementManifestTest",
+      "test": "retirementKeepsSchemaRetentionAndReportRegistriesAndTheUpgradePath",
+      "type": "org.junit.ComparisonFailure",
+      "sourceFrames": [
+        "com.ethk3.novaonepro.R31RetirementManifestTest.retirementKeepsSchemaRetentionAndReportRegistriesAndTheUpgradePath(R31RetirementManifestTest.java:125)"
+      ],
+      "memoryReasons": [],
+      "leafAdmission": [],
+      "codes": [
+        "expected"
+      ],
+      "xmlSha256": "b7a5c770c3890ea7f2914ef57b98e57d2080edeb9641516099915881b2256665"
+    },
+    {
+      "class": "com.ethk3.novaonepro.strategyv2.R27ReplayTest",
+      "test": "threeGapsGiveFourSegmentsAndCountedSkips",
+      "type": "com.ethk3.novaonepro.strategyv2.MemoryBudgetR31$CapacityWait",
+      "sourceFrames": [
+        "com.ethk3.novaonepro.strategyv2.FeatureCacheR27.leafCapacityWaitR31(FeatureCacheR27.java:157)",
+        "com.ethk3.novaonepro.strategyv2.FeatureCacheR27.acquireLeafImplR31(FeatureCacheR27.java:125)",
+        "com.ethk3.novaonepro.strategyv2.FeatureCacheR27.acquireLeafR31(FeatureCacheR27.java:115)",
+        "com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:233)",
+        "com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:236)",
+        "com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:224)",
+        "com.ethk3.novaonepro.strategyv2.ReplayEvaluatorR27.run(ReplayEvaluatorR27.java:136)",
+        "com.ethk3.novaonepro.strategyv2.R27ReplayTest.threeGapsGiveFourSegmentsAndCountedSkips(R27ReplayTest.java:53)"
+      ],
+      "memoryReasons": [
+        "RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY",
+        "RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY"
+      ],
+      "leafAdmission": [
+        "R31_LEAF_ADMISSION kind=trans2 tp=1 a=0 b=0 rows=3000"
+      ],
+      "codes": [
+        "IllegalStateException"
+      ],
+      "xmlSha256": "1efc2f40d395d2c7b4a577f3062d271f0faff64746f4df629796bbdce743323f"
+    }
+  ],
+  "failedHosts": [
+    {
+      "id": "r31_retirement_manifest_check",
+      "status": "FAIL",
+      "exitCode": 1,
+      "logs": [
+        {
+          "file": "host_r31_retirement_manifest_check.log",
+          "sha256": "8ce58e4e300f19c1f847290d24ce0b1699484923974ca0910839f0c4a1c8bb9a",
+          "codes": [
+            "RETIREMENT_MANIFEST"
+          ],
+          "sourceFrames": []
+        }
+      ]
+    }
+  ],
+  "retiredHosts": [
+    {
+      "id": "verify_input_pin_joint",
+      "status": "RETIRED",
+      "exitCode": null,
+      "logs": []
+    },
+    {
+      "id": "verify_platform_readiness",
+      "status": "RETIRED",
+      "exitCode": null,
+      "logs": []
+    }
+  ],
+  "disposition": "FAILED_NO_APK_BUILT; REPAIRS_AND_FRESH_FINAL_INVOCATION_REQUIRED; NO_PRIOR_GREEN_REUSED",
+  "rawRuntimeOrUserDataPublished": false
+}

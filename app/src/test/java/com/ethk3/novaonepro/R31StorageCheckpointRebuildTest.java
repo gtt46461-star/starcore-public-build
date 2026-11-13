@@ -69,7 +69,7 @@ public final class R31StorageCheckpointRebuildTest {
     }
     @Test public void aBackupIsDeletedOnlyWithACompleteRestoreProofOfTheExactBytes() throws Exception {
         String sha = com.ethk3.novaonepro.strategyv2.StatsR27.sha256("active");
-        assertNull(StorageMaintenanceFileR82.restoreProofRefusalR31(proof(sha, "RESTART_AND_FULL_VERIFY"), sha));
+        assertEquals("REFUSED_UNAUTHENTICATED_RESTORE_COLLECTOR", StorageMaintenanceFileR82.restoreProofRefusalR31(proof(sha, "RESTART_AND_FULL_VERIFY"), sha));
         Properties none = new Properties(); assertEquals("REFUSED_NO_RESTORE_PROOF:restore_active_sha256", StorageMaintenanceFileR82.restoreProofRefusalR31(none, sha));
         for (String weak : new String[]{"QUICK_CHECK_ONLY", "MTIME", "FILE_SIZE"}) assertEquals("REFUSED_RESTORE_PROOF_METHOD:" + weak, StorageMaintenanceFileR82.restoreProofRefusalR31(proof(sha, weak), sha));
         assertEquals("REFUSED_RESTORE_PROOF_FOR_OTHER_BYTES", StorageMaintenanceFileR82.restoreProofRefusalR31(proof(sha, "RESTART_AND_FULL_VERIFY"), com.ethk3.novaonepro.strategyv2.StatsR27.sha256("other")));
@@ -81,7 +81,9 @@ public final class R31StorageCheckpointRebuildTest {
         try (OutputStream out = new FileOutputStream(new File(dir, "main.db.r82-backup-receipt"))) { receipt.store(out, "test"); }
         try { StorageMaintenanceFileR82.deleteVerifiedBackup(db); fail("backup deleted without restore proof"); } catch (IOException expected) { assertTrue(expected.getMessage().startsWith("REFUSED_NO_RESTORE_PROOF")); }
         assertTrue("backup kept", old.exists());
-        StorageMaintenanceFileR82.recordRestoreProofR31(db, proof(sha(db), "RESTART_AND_FULL_VERIFY"));
-        assertEquals("original".length(), StorageMaintenanceFileR82.deleteVerifiedBackup(db)); assertFalse(old.exists());
+        try { StorageMaintenanceFileR82.recordRestoreProofR31(db, proof(sha(db), "RESTART_AND_FULL_VERIFY")); fail("fabricated PASS attributes became an authenticated collector"); } catch (IOException expected) { assertTrue(expected.getMessage().startsWith("REFUSED_")); }
+        assertTrue("fabricated strings cannot authorize backup removal", old.exists());
+        // The success path now belongs to the actual private Android restore process, not this JVM properties fixture.
+        try { StorageMaintenanceFileR82.deleteVerifiedBackup(db); fail("unverified backup deleted after forged proof"); } catch (IOException expected) { assertTrue(expected.getMessage().startsWith("REFUSED_")); }
     }
 }

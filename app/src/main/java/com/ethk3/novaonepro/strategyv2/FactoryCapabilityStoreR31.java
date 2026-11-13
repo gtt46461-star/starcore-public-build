@@ -37,7 +37,14 @@ public final class FactoryCapabilityStoreR31 {
         }
     }
     public static void advance(SQLiteDatabase read,ResearchWriteQueueR27.Batch batch,String source,long at,boolean allowed){
-        String key=source+":"+FactoryCapabilityExperimentR31.protocolHash(),old=read(read,key),oldHash=old==null?null:StatsR27.sha256(old);
+        EvidenceContractStoreR31.Registration registration=EvidenceContractStoreR31.beforeFactory(read,batch,source,at);
+        if(registration==null){
+            Map<String,Object> waiting=new LinkedHashMap<>();waiting.put("sourceCommit",source);waiting.put("protocolHash",FactoryCapabilityExperimentR31.protocolHash());waiting.put("status","PREREGISTRATION_COMMIT_REQUIRED");waiting.put("realPermission",false);waiting.put("naturalQuality","NOT_PROVEN_SYNTHETIC_ONLY");
+            batch.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r30','q08-factory-r31',?,?)",JsonR27.write(waiting),at);return;
+        }
+        // An older already-started namespace is preserved as an original, never
+        // relabelled as an experiment preregistered by this registry.
+        String key=registration.factoryKey(),old=read(read,key),oldHash=old==null?null:StatsR27.sha256(old);
         try(FactoryCapabilityExperimentR31 state=old==null?new FactoryCapabilityExperimentR31(source):FactoryCapabilityExperimentR31.restore(FactoryStateCodecR31.decode(old))){
             if(!source.equals(state.source()))throw new IllegalStateException("FACTORY_SOURCE_IDENTITY");
             if(allowed&&!state.complete())state.step();
@@ -47,6 +54,7 @@ public final class FactoryCapabilityStoreR31 {
             batch.guardBefore(db->{String current=read(db,key);return Objects.equals(oldHash,current==null?null:StatsR27.sha256(current))?0:-1;});
             batch.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r31-factory',?,?,?)",key,checkpoint,at);
             if(artifact!=null){String identity=key+":"+artifact.get("arm")+":"+artifact.get("seed");batch.add("INSERT OR IGNORE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r31-factory-trial',?,?,?)",identity,artifactCell,at);}
+            summary.put("riskContractR31",EvidenceContractStoreR31.afterFactory(read,batch,registration,summary,artifact,artifactCell,at));
             batch.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r30','q08-factory-r31',?,?)",JsonR27.write(summary),at);
         }
     }

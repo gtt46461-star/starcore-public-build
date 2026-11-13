@@ -37,8 +37,15 @@ public final class StorageGcR31 {
         if (s.state(artifact) != State.DELETING) throw new IllegalStateException("R31_GC_NOT_CLAIMED:" + artifact);
         long bytes = s.bytes(artifact);
         if (!f.unlink(artifact) && f.exists(artifact)) { s.receipt(artifact, "TOMBSTONE_RETRY"); return 0; }
-        if (!s.compareAndSet(artifact, State.DELETING, s.version(artifact), State.DELETED)) throw new IllegalStateException("R31_GC_STATE_RACE:" + artifact);
-        s.receipt(artifact, "UNLINKED"); return bytes;
+        return completeUnlink(s, artifact, s.version(artifact));
+    }
+    /** The IO owner invokes this in one writer transaction only after the exact claimed
+     * file is verified absent. State and the release receipt therefore commit together. */
+    public static long completeUnlink(Store s, String artifact, long expectedVersion) {
+        if(s.state(artifact)!=State.DELETING)throw new IllegalStateException("R31_GC_NOT_CLAIMED:"+artifact);
+        long bytes=s.bytes(artifact);
+        if(!s.compareAndSet(artifact,State.DELETING,expectedVersion,State.DELETED))throw new IllegalStateException("R31_GC_STATE_RACE:"+artifact);
+        s.receipt(artifact,"UNLINKED");return bytes;
     }
     /** After a crash: finish DELETING artifacts whose file is gone; retry the others. Returns bytes released now. */
     public static long recover(Store s, Files f, Collection<String> deleting) {

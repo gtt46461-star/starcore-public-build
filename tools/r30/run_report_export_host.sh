@@ -8,6 +8,7 @@ android_sdk=${ANDROID_HOME:-${ANDROID_SDK_ROOT:?}}
 mkdir -p "$report_out/runtime" "$report_out/drivers"
 if [ -n "${REPORT_NATIVE_DIR:-}" ]; then
   report_native=$REPORT_NATIVE_DIR
+  python3 verification/batch01/build_host_report_native.py --verify-reuse "$report_native"
   python3 - "$report_native/receipt.json" <<'PY'
 import sys,json,hashlib
 from pathlib import Path

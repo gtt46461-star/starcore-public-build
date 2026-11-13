@@ -126,6 +126,7 @@ public final class RetentionR26 {
                 return 0;
             }
             case 18:{
+        if(GapReferenceR31.active(db))throw new com.ethk3.novaonepro.DatabaseCoordinator.SchemaPendingR31(GapReferenceR31.VERSION,"PREPARE_OUTSIDE_WRITER_USING_RUNTIME_PHASE20_REQUIRED");
         db.execSQL("DELETE FROM r26_gap_receipt WHERE rowid IN (SELECT rowid FROM r26_gap_receipt ORDER BY recorded_at DESC,rowid DESC LIMIT 256 OFFSET 2048)");
                 return 0;
             }

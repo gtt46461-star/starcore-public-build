@@ -88,6 +88,13 @@ public final class ResearchHypothesisR31 {
     }
     private static Hypothesis unsupported(Failure f, String family, String reason) { return new Hypothesis(f, family, "NONE", "", "", "", 0, 0, "UNSUPPORTED", reason); }
 
+    /** Restore an immutable, supported registry contract, never an arbitrary
+     * metadata action. Its public fields must reproduce the typed adapter. */
+    static Hypothesis restoreRegisteredR31(Map<String,Object> m) {
+        Hypothesis h=fromFailure(new Failure((String)m.get("parentHash"),(String)m.get("sourceRun"),Mechanism.valueOf((String)m.get("mechanism")),"",(String)m.get("component"),"SELECT",2,1,((Number)m.get("minimumSupport")).longValue(),0));
+        if(!h.supported()||!h.json().equals(m))throw new IllegalArgumentException("R31_HYPOTHESIS_REGISTERED_CONTRACT");return h;
+    }
+
     /** Registry of hypotheses and their development outcomes. */
     public static final class Registry {
         private final Map<String, Hypothesis> hypotheses = new LinkedHashMap<>();
@@ -98,12 +105,16 @@ public final class ResearchHypothesisR31 {
         /** Action for the hypothesis; unsupported hypotheses dispatch to nothing. */
         public String dispatch(Hypothesis h) { if (!hypotheses.containsKey(h.id)) throw new IllegalStateException("R31_HYPOTHESIS_NOT_REGISTERED"); return h.supported() ? h.family + ":" + h.action : "UNSUPPORTED:" + h.unsupportedReason; }
         /** Development (SELECT) outcome of one child; confirmation/future roles are refused. Returns whether it counted. */
-        public boolean recordOutcome(Hypothesis h, String childHash, String role, double pairedGain) {
+        public boolean recordOutcome(Hypothesis h, String childHash, String role, double pairedGain) { return recordOutcome(h,childHash,role,pairedGain,0); }
+        public boolean recordOutcome(Hypothesis h, String childHash, String role, double pairedGain,double costPenalty) {
+            if(!hypotheses.containsKey(h.id))throw new IllegalStateException("R31_HYPOTHESIS_NOT_REGISTERED");
+            if(childHash==null||childHash.isEmpty())throw new IllegalArgumentException("R31_HYPOTHESIS_CHILD");
+            if(!Double.isFinite(costPenalty)||costPenalty<0)throw new IllegalArgumentException("R31_HYPOTHESIS_COST");
             if (!h.supported()) throw new IllegalStateException("R31_HYPOTHESIS_UNSUPPORTED_OUTCOME");
             if (!"SELECT".equals(role)) throw new IllegalArgumentException("R31_HYPOTHESIS_FORMAL_OUTCOME:" + role);
             if (!Double.isFinite(pairedGain)) throw new IllegalArgumentException("R31_HYPOTHESIS_GAIN");
             if (!recorded.add(h.id + "|" + childHash)) return false;
-            double[] c = developmentCredit.computeIfAbsent(h.family, k -> new double[2]); c[0] += pairedGain; c[1]++;
+            double[] c = developmentCredit.computeIfAbsent(h.family, k -> new double[2]); c[0] += pairedGain-costPenalty; c[1]++;
             return true;
         }
         public double developmentCredit(String family) { double[] c = developmentCredit.get(family); return c == null || c[1] == 0 ? 0 : c[0] / c[1]; }

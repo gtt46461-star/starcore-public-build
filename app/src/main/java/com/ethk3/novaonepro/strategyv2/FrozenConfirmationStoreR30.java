@@ -32,6 +32,7 @@ public final class FrozenConfirmationStoreR30 {
         batch.add("INSERT OR IGNORE INTO r30_confirm_dataset(dataset_hash,payload,payload_hash,recorded_at) VALUES(?,?,?,?)",data.datasetHash,payload,hexHash(payload),task.frozenAt);
         batch.add("INSERT OR IGNORE INTO r30_frozen_confirm(task_key,policy_hash,dataset_hash,block_id,generation,packet_json,created_at) VALUES(?,?,?,?,?,?,?)",
                 task.key,task.champion.policyHash,task.datasetHash,task.block,task.generation,task.json(),task.frozenAt);
+        ImprovementStoreR31.appendRegistration(batch,task);
     }
     public static FrozenConfirmationR30.Task nextPending(SQLiteDatabase ro) {
         try (Cursor c = ro.rawQuery("SELECT packet_json FROM r30_frozen_confirm WHERE state='PENDING' ORDER BY created_at,task_key LIMIT 1",null)) {
@@ -46,13 +47,13 @@ public final class FrozenConfirmationStoreR30 {
             if (!hexHash(payload).equals(c.getString(1))) throw new IllegalStateException("R30_CONFIRM_DATASET_CORRUPT");
             try (GZIPInputStream zip = new GZIPInputStream(new ByteArrayInputStream(payload)); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
                 byte[] chunk = new byte[8192]; int n; while ((n=zip.read(chunk)) >= 0) out.write(chunk,0,n);
-                List<Object> raw = (List<Object>)JsonR27.parse(new String(out.toByteArray(),StandardCharsets.UTF_8));
-                List<ReplayDatasetR27.Row> rows = new ArrayList<>();
-                for (Object value : raw) {
-                    List<Object> r = (List<Object>)value; int[] draw = new int[10]; for (int p=0;p<10;p++) draw[p]=(int)JsonR27.num(r.get(p+2));
-                    rows.add(new ReplayDatasetR27.Row((String)r.get(0),((Number)r.get(1)).longValue(),draw));
+                byte[] original=out.toByteArray();ReplayDatasetR27 data;
+                if(original.length>=4&&java.nio.ByteBuffer.wrap(original).getInt()==ReplayDatasetR27.ORIGINAL_MAGIC_R31)data=ReplayDatasetR27.originalBytesR31(original);
+                else{
+                    List<Object> raw=(List<Object>)JsonR27.parse(new String(original,StandardCharsets.UTF_8));List<ReplayDatasetR27.Row> rows=new ArrayList<>();
+                    for(Object value:raw){List<Object> r=(List<Object>)value;int[] draw=new int[10];for(int p=0;p<10;p++)draw[p]=(int)JsonR27.num(r.get(p+2));rows.add(new ReplayDatasetR27.Row((String)r.get(0),((Number)r.get(1)).longValue(),draw));}
+                    data=ReplayDatasetR27.of(rows);
                 }
-                ReplayDatasetR27 data = ReplayDatasetR27.of(rows);
                 if (!data.datasetHash.equals(task.datasetHash)) throw new IllegalStateException("R30_CONFIRM_DATASET_CONTENT_MISMATCH");
                 FeatureCacheR27 cache=new FeatureCacheR27(data);ModelSurfaceStoreR30.bindHistorical(ro,cache);
                 return new EvalContextR27(cache,SplitR27.of(data,null),null);
@@ -63,7 +64,7 @@ public final class FrozenConfirmationStoreR30 {
         List<Object> rows = new ArrayList<>();
         for(int t=0;t<data.size();t++) { List<Object> row=new ArrayList<>();row.add(data.issues[t]);row.add(data.ordinals[t]);for(int n:data.draws[t])row.add((long)n);rows.add(row); }
         try (ByteArrayOutputStream out=new ByteArrayOutputStream()) {
-            try (GZIPOutputStream zip=new GZIPOutputStream(out)) { zip.write(JsonR27.write(rows).getBytes(StandardCharsets.UTF_8)); }
+            try (GZIPOutputStream zip=new GZIPOutputStream(out)) { zip.write(data.legacyIdentityR31?JsonR27.write(rows).getBytes(StandardCharsets.UTF_8):data.originalBytesR31()); }
             return out.toByteArray();
         } catch(java.io.IOException e) { throw new IllegalStateException("R30_CONFIRM_DATASET_ENCODE",e); }
     }
@@ -169,6 +170,7 @@ public final class FrozenConfirmationStoreR30 {
             holdout.put("sourceGeneration",(long)task.generation); holdout.put("reason","PREVIOUSLY_CONFIRMED_IMMUTABLE_EVIDENCE");
         }
         record.put("holdout",holdout);
+        record.put("pairedImprovementR31",result.report.get("pairedImprovementR31"));
         record.put("live",count(ro,"SELECT count(*) FROM r27_live_shadow WHERE status IN ('ACTIVE','ACTIVE_REPAIR1')"));
         Map<String,Object> counters = new LinkedHashMap<>((Map<String,Object>)record.get("counters"));
         String countSql = result.verified ? "SELECT count(*) FROM r30_frozen_confirm WHERE verified=1 OR task_key=?" : "SELECT count(*) FROM r30_frozen_confirm WHERE verified=1";
@@ -185,7 +187,7 @@ public final class FrozenConfirmationStoreR30 {
     }
     static long count(SQLiteDatabase ro, String sql) { try (Cursor c = ro.rawQuery(sql,null)) { return c.moveToFirst() ? c.getLong(0) : 0; } }
 
-    private static String encode(FrozenConfirmationR30.Task task, ReplayEvaluatorR27.Trace trace) {
+    static String encode(FrozenConfirmationR30.Task task, ReplayEvaluatorR27.Trace trace) {
         Map<String,Object> m = new LinkedHashMap<>(); m.put("n",(long)trace.u.length); m.put("from",(long)task.from); m.put("to",(long)task.to);
         m.put("position",(long)trace.position); m.put("temperature",trace.temperature); List<Object> rows = new ArrayList<>();
         for (int t = task.from; t < task.to; t++) rows.add(Arrays.asList(trace.skipped[t],trace.act[t],(long)trace.hit[t],trace.pHit[t],trace.pActual[t],trace.u[t],

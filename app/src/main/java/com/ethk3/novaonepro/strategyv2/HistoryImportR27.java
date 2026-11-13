@@ -43,7 +43,7 @@ public final class HistoryImportR27 {
     /** One read-only relation: append-only complete jobs override only issues actually present in that CSV. */
     public static String publishedRowsSqlR31() {
         String newer = "SELECT 1 FROM r31_history_import_row n JOIN r31_history_import_run k ON k.job_id=n.job_id WHERE k.status='COMPLETE' AND n.duplicate_conflicts=0 AND n.issue=";
-        return "(SELECT l.issue,l.ordinal,l.numbers,l.status,l.db_numbers FROM r27_history_import l WHERE NOT EXISTS(" + newer + "l.issue) UNION ALL SELECT r.issue,r.ordinal,r.numbers,r.status,r.db_numbers FROM r31_history_import_row r JOIN r31_history_import_run j ON j.job_id=r.job_id WHERE j.status='COMPLETE' AND r.duplicate_conflicts=0 AND NOT EXISTS(" + newer + "r.issue AND k.publish_seq>j.publish_seq))";
+        return "(SELECT l.issue,l.ordinal,l.numbers,l.status,l.db_numbers,NULL AS known_at FROM r27_history_import l WHERE NOT EXISTS(" + newer + "l.issue) UNION ALL SELECT r.issue,r.ordinal,r.numbers,r.status,r.db_numbers,(SELECT min(k.completed_at) FROM r31_history_import_row n JOIN r31_history_import_run k ON k.job_id=n.job_id WHERE k.status='COMPLETE' AND n.duplicate_conflicts=0 AND n.status='IMPORTED' AND n.issue=r.issue AND n.numbers=r.numbers AND k.completed_at>0) AS known_at FROM r31_history_import_row r JOIN r31_history_import_run j ON j.job_id=r.job_id WHERE j.status='COMPLETE' AND r.duplicate_conflicts=0 AND NOT EXISTS(" + newer + "r.issue AND k.publish_seq>j.publish_seq))";
     }
     /** Scalar expression for ReportSnapshot's one-SELECT contract, never a second detached database read. */
     public static String publishedCountSqlR31() { return "(SELECT count(*) FROM " + publishedRowsSqlR31() + ")"; }
@@ -300,13 +300,13 @@ public final class HistoryImportR27 {
         for(;;){checkCancelled(work);List<Long> inserts=new ArrayList<>(),replaces=new ArrayList<>();int fetched=0;
             try(Cursor c=store.readable().rawQuery("SELECT issue,ordinal,numbers,status FROM r31_history_import_row WHERE job_id=? AND duplicate_conflicts=0 AND issue>? ORDER BY issue LIMIT 16",new String[]{job.id,after})){
                 while(c.moveToNext()){
-                    fetched++;after=c.getString(0);long ordinal=c.getLong(1);String before=null;
+                    fetched++;after=c.getString(0);long ordinal=c.getLong(1);String before=null;boolean priorKnowledge=false;
                     if(!"IMPORTED".equals(c.getString(3)))continue; // Current canonical data wins in every reader.
-                    try(Cursor prior=store.readable().rawQuery("SELECT numbers FROM "+publishedRowsSqlR31()+" WHERE issue=? AND status='IMPORTED' LIMIT 1",new String[]{after})){if(prior.moveToFirst())before=prior.getString(0);}
+                    try(Cursor prior=store.readable().rawQuery("SELECT numbers,known_at FROM "+publishedRowsSqlR31()+" WHERE issue=? AND status='IMPORTED' LIMIT 1",new String[]{after})){if(prior.moveToFirst()){before=prior.getString(0);priorKnowledge=!prior.isNull(1)&&prior.getLong(1)>0;}}
                     // Different consumers use canonical tails of 544/5000 rows. Preserve their own cutoff;
                     // the shared source journal records changes to the actual published replay candidate pool.
                     String next=c.getString(2);
-                    if(java.util.Objects.equals(before,next))continue;
+                    if(java.util.Objects.equals(before,next)&&priorKnowledge)continue;
                     if(before==null){inserts.add(ordinal);if(changes.insertCount++==0)changes.insertFirst=ordinal;changes.insertLast=ordinal;}
                     else{replaces.add(ordinal);if(changes.replaceCount++==0)changes.replaceFirst=ordinal;changes.replaceLast=ordinal;}
                 }
@@ -465,14 +465,14 @@ public final class HistoryImportR27 {
         else{
             try(Cursor present=ro.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='r27_history_import'",null)){if(!present.moveToFirst())return;}
             try(Cursor pending=ro.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('r31_history_import_run','r31_history_import_row') LIMIT 1",null)){if(pending.moveToFirst())throw new IllegalStateException("HISTORY_IMPORT_PUBLICATION_SCHEMA_INVALID");}
-            relation="r27_history_import"; // Existing evidence remains readable before the additive startup migration.
+            relation="(SELECT issue,ordinal,numbers,status,db_numbers,NULL AS known_at FROM r27_history_import)"; // Older originals have no authenticated visibility time.
         }
-        try(Cursor c=ro.rawQuery("SELECT issue,ordinal,numbers FROM "+relation+" WHERE status='IMPORTED' AND issue<? ORDER BY issue DESC LIMIT "+Math.min(limit,10000),new String[]{oldestDbIssue})){
+        try(Cursor c=ro.rawQuery("SELECT issue,ordinal,numbers,known_at FROM "+relation+" WHERE status='IMPORTED' AND issue<? ORDER BY issue DESC LIMIT "+Math.min(limit,10000),new String[]{oldestDbIssue})){
             while(c.moveToNext()){
                 String issue=c.getString(0);String[] values=c.getString(2).split(",",-1);if(values.length!=10||!TargetIssueResolver.isValid(issue))throw new IllegalStateException("HISTORY_PUBLISHED_INPUT_INVALID");
                 int[] numbers=new int[10];for(int n=0;n<10;n++)numbers[n]=Integer.parseInt(values[n]);
                 if(!ReplayDatasetR27.legal(numbers)||c.getLong(1)!=TargetIssueResolver.sequenceOrdinalSU1(issue))throw new IllegalStateException("HISTORY_PUBLISHED_INPUT_INVALID");
-                rows.add(new ReplayDatasetR27.Row(issue,c.getLong(1),numbers));
+                rows.add(new ReplayDatasetR27.Row(issue,c.getLong(1),numbers,-1,c.isNull(3)?-1:c.getLong(3),ReplayDatasetR27.READER_ABI_R31,c.isNull(3)?"IMPORT_LEGACY_TIME_UNKNOWN":"IMPORT_APP_PUBLISHED"));
             }
         }
     }

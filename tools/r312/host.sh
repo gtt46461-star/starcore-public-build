@@ -46,6 +46,16 @@ case "$id" in
   run_resource_recovery_consumer_host) R31_RUNTIME_HOST_CLASS=R31ResourceRecoveryConsumerHost R31_RUNTIME_OUTPUT="app/build/r312-host/$id-receipt" exec python3 tools/r31/run_task_runtime_host.py ;;
   run_storage_report_host) R31_STORAGE_OUT="$OUT" exec bash tools/r31/storage_host/run_storage_report_host.sh ;;
   run_unified_migration_host) exec python3 tools/r31/run_unified_migration_host.py --out "$OUT" ;;
+  run_keep_store_host|run_gc_store_host|run_report_keep_closure_host|run_storage_checkpoint_host) exec python3 "tools/r31/$id.py" --out "$OUT" --classes "$CL" ;;
+  run_hypothesis_store_host) R31_HYPOTHESIS_SUPPORT_CLASSES="$CL" exec python3 tools/r31/run_hypothesis_store_host.py --out "$OUT" ;;
+  run_lifecycle_schema_host|run_lifecycle_stores_host) R31_COMPILED_SUPPORT="$CL" exec python3 "tools/r31/$id.py" --out "$OUT" ;;
+  run_replay_knowledge_host) R31_REPLAY_KNOWLEDGE_SUPPORT_CLASSES="$CL" exec python3 tools/r31/run_replay_knowledge_host.py --out "$OUT" ;;
+  run_replay_knowledge_publication_host) R31_HOST_CLASSES="$CL" exec python3 tools/r31/run_replay_knowledge_publication_host.py --out "$OUT" ;;
+  run_typed_mainline_host) exec python3 tools/r31/run_typed_mainline_host.py --out "$OUT" --classes "$CL" ;;
+  run_gap_runtime_entry_host) R31_COMPILED_SUPPORT="$CL" exec python3 tools/r31/run_gap_runtime_entry_host.py --out "$OUT" ;;
+  run_startup_checkpoint_host) exec python3 tools/r31/run_startup_checkpoint_host.py --out "$OUT" --classes "$CL" ;;
+  run_legacy_replay_checkpoint_host) exec python3 tools/r31/run_legacy_replay_checkpoint_host.py --output "$OUT" --classes "$CL" ;;
+  run_restore_proof_host) R31_HOST_CLASSES="$CL" exec python3 tools/r31/run_restore_proof_host.py --output "$OUT" ;;
   run_factory_transport_host) R31_FACTORY_TRANSPORT_OUT="$OUT" exec python3 tools/r31/run_factory_transport_host.py ;;
   run_r31q_lock_regression) R31Q_OUTPUT="$OUT" exec python3 tools/r31/run_r31q_lock_regression.py ;;
   test_current_acceptance) exec python3 tools/r31/test_current_acceptance.py ;;

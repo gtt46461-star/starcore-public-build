@@ -52,6 +52,11 @@ public final class UnifiedResearchChoiceR932 {
                             }
                             if(!prepared.consumer.isEmpty()){
                                 if(CertificateBundleServiceR929.Consumer.INVENTED_ALGORITHM.name().equals(prepared.consumer)
+                                        &&com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.candidate(prepared.candidate)){
+                                    if(currentR27ChoiceR31(db,prepared.candidate,prepared.structure,prepared.certificate,target)==null){
+                                        commitFailure[0]="R932_CHOICE_PREPARED_R27_TYPED_PROOF_CHANGED";throw new IllegalStateException(commitFailure[0]);
+                                    }
+                                }else if(CertificateBundleServiceR929.Consumer.INVENTED_ALGORITHM.name().equals(prepared.consumer)
                                         &&prepared.candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX)){
                                     if(currentSu2ChoiceR30(db,prepared.candidate,prepared.structure,prepared.certificate)==null){
                                         commitFailure[0]="R932_CHOICE_PREPARED_SU2_CERTIFICATE_CHANGED";
@@ -149,13 +154,12 @@ public final class UnifiedResearchChoiceR932 {
             // R13-P30: league choice; ACT + valid selective certificate -> certified lane, otherwise shadow only
             com.ethk3.novaonepro.strategyv2.MainlineBridgeSU2.Intent su2=com.ethk3.novaonepro.strategyv2.MainlineBridgeSU2.intent(store.readable(),TargetIssueResolver.sequenceOrdinalSU1(target));
             if(su2!=null&&su2.real&&su2.memberId.startsWith("R27:")){
-                // R27-042: a certified R27 intent is recorded; REAL still requires the existing authorization chain
-                // (ResearchPlatformStoreR929.authorizeCurrent → DecisionGateEngine), which R27 certificates do not bypass.
-                roster.append("|R27_CERTIFIED_INTENT:").append(su2.gate).append(":AWAITING_EXISTING_AUTHORIZATION_CHAIN");
+                com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.Authority typed=su2.typedR31;
+                if(typed!=null){consumer="INVENTED_ALGORITHM";candidate=typed.candidate;structure=typed.policy;certificate=typed.certificate;roster.append("|R31_TYPED_R27:").append(typed.proofHash);}
             }
             else if(su2!=null&&su2.real){com.ethk3.novaonepro.strategyv2.CertificateSU2.Authority a2=com.ethk3.novaonepro.strategyv2.CertificateSU2.read(store.readable(),su2.genomeKey,System.currentTimeMillis());
                 if(a2!=null){consumer="INVENTED_ALGORITHM";candidate=a2.candidate();structure=a2.program;certificate=a2.certificate;roster.append("|SU2_EXACT:").append(a2.certificate);}}
-            else if(su2!=null)roster.append("|SU2_SHADOW_ONLY:").append(su2.gate);
+            else if(su2!=null)roster.append(su2.memberId.startsWith("R27:")?"|R27_SHADOW_ONLY:":"|SU2_SHADOW_ONLY:").append(su2.gate);
         }
         if(consumer.isEmpty()&&rejections.isEmpty()){
             String latest="NO_CERTIFICATE_RECORD";
@@ -178,6 +182,10 @@ public final class UnifiedResearchChoiceR932 {
             consumer=choice.getString(0);candidate=choice.getString(1);certificate=choice.getString(2);
         }
         if(consumer!=null&&!consumer.isEmpty()){
+            if(com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.candidate(candidate)){
+                com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.Authority typed=currentR27ChoiceR31(store.readable(),candidate,null,certificate,target);
+                return typed==null?"NO_VALID_CERTIFICATE|raw=R27_TYPED_FREEZE_PROOF_INVALID_OR_REVOKED":"FROZEN_CERTIFIED_CHOICE|candidate="+candidate+"|certificate="+certificate+"|choice="+typed.choiceId+"|freeze="+typed.proofHash+"|authority=R27_GATE_V1_TYPED_FREEZE";
+            }
             try(Cursor cert=store.readable().rawQuery("SELECT state,reason FROM "+ResearchPlatformStoreR929.TABLE_CERTIFICATE+" WHERE certificate_hash=?",new String[]{certificate})){
                 if(cert.moveToFirst()&&"ACTIVE".equals(cert.getString(0)))return "FROZEN_CERTIFIED_CHOICE|candidate="+candidate+"|certificate="+certificate
                         +"|selection=LCB_DESC_BRIER_ASC_LATENCY_ASC_ID_HASH_ASC|pool_limit=NONE|remainder=NOT_PREFLIGHTED_AFTER_HIGHER_PRIORITY_SELECTION";
@@ -214,7 +222,24 @@ public final class UnifiedResearchChoiceR932 {
         return a!=null&&a.candidate().equals(candidate)&&a.certificate.equals(certificate)
                 &&(program==null||a.program.equals(program))?a:null;
     }
+    static com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.Authority currentR27ChoiceR31(SQLiteDatabase db,String candidate,String program,String certificate,String target){
+        if(!com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.candidate(candidate))return null;
+        com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.Authority proof=com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.read(db,TargetIssueResolver.sequenceOrdinalSU1(target),System.currentTimeMillis());
+        return proof!=null&&candidate.equals(proof.candidate)&&certificate.equals(proof.certificate)&&(program==null||program.equals(proof.policy))?proof:null;
+    }
     public static Evidence selected(DbStore store,String target,CertificateBundleServiceR929.Consumer consumer) {
+        if(consumer==CertificateBundleServiceR929.Consumer.INVENTED_ALGORITHM){
+            try(Cursor choice=store.readable().rawQuery("SELECT candidate_id,certificate_hash FROM "+TABLE+" WHERE target_issue=? AND consumer=? AND candidate_id LIKE 'R31-R27-%'",new String[]{target,consumer.name()})){
+                if(choice.moveToFirst()){
+                    com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.Authority proof=currentR27ChoiceR31(store.readable(),choice.getString(0),null,choice.getString(1),target);if(proof==null)return null;
+                    Map<String,Double> metrics=new HashMap<>();
+                    try(Cursor cert=store.readable().rawQuery("SELECT gates_json FROM r27_certificate WHERE policy_hash=? AND evidence_digest=? AND status='ACTIVE' AND length(CAST(gates_json AS BLOB))<=65536",new String[]{proof.policy,proof.certificate})){
+                        if(!cert.moveToFirst())return null;Map<?,?> g=(Map<?,?>)com.ethk3.novaonepro.strategyv2.JsonR27.parse(cert.getString(0));Map<?,?> ev=(Map<?,?>)g.get("gateEvidenceR31"),qualification=(Map<?,?>)((Map<?,?>)g.get("qualificationBindingR31")).get("eprocess");double acts=((Number)ev.get("acts")).doubleValue(),hits=((Number)ev.get("hits")).doubleValue(),opportunities=((Number)qualification.get("n")).doubleValue();metrics.put("ACT_N",acts);metrics.put("FUTURE_N",opportunities);metrics.put("HIT_RATE",acts>0?hits/acts:Double.NaN);metrics.put("COVERAGE",opportunities>0?acts/opportunities:Double.NaN);metrics.put("WILSON_LOWER",acts>0?com.ethk3.novaonepro.strategyv2.StatsR27.wilson(((Number)ev.get("hits")).longValue(),((Number)ev.get("acts")).longValue(),com.ethk3.novaonepro.strategyv2.StatsR27.Z95_ONE_SIDED)[0]:Double.NaN);metrics.put("ECE",((Number)ev.get("ece")).doubleValue());metrics.put("WORST_BLOCK",((Number)ev.get("worstBlock")).doubleValue());
+                    }
+                    return new Evidence(proof.candidate,proof.policy,proof.certificate,proof.proofHash,metrics);
+                }
+            }
+        }
         if(consumer==CertificateBundleServiceR929.Consumer.INVENTED_ALGORITHM&&com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.ready(store.readable())){
             try(Cursor choice=store.readable().rawQuery("SELECT candidate_id,certificate_hash FROM "+TABLE+" WHERE target_issue=? AND consumer=? AND candidate_id LIKE 'SU1-F-%'",new String[]{target,consumer.name()})){
                 if(choice.moveToFirst()){

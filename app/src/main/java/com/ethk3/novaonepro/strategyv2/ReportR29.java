@@ -32,6 +32,7 @@ public final class ReportR29 {
         retention.put("status",input.facts.get("retentionRuns")==null?"UNKNOWN":((Number)input.facts.get("retentionRuns")).longValue()==0?"INSUFFICIENT":"RECORDED_UNVALIDATED");
         retention.put("definition","Physical regular-file census, explicit cache and verified retired duplicate deletion; protected archive rows preserve original fields/BLOBs and never become current natural samples.");
         retention.put("collectionAction","ResearchRetentionStoreR30.step：运行原retention任务，采集完整物理目录与同快照受保护归档/文件删除引用；缺测不填预算通过");
+        retention.put("lifecycleEvidenceR31",input.data.get("lifecycleEvidenceR31"));
         chapters.get(10).put("retention",retention);
         List<Map<String,Object>> sameViewCharts=ReportChartsR30.panels(input);chapters.get(1).put("pairedImprovementChart",sameViewCharts.get(0));chapters.get(6).put("capabilityCoverageChart",sameViewCharts.get(1));
         Map<String,Object> diagnosis=DiagnosisRulesR30.evaluate(input.facts,input.data,input.watermark,input.errors);
@@ -57,6 +58,7 @@ public final class ReportR29 {
         complete.put("scope","EVERY_CAPTURED_SOURCE; ROWSET_LIMITS_AND_OMISSIONS_EXPLICIT; UNKNOWN_IS_NOT_ZERO_OR_HEALTHY");
         chapters.get(11).put("completeSnapshotEvidenceR31",complete);
         chapters.get(11).put("fullFactorySyntheticExperiment",input.data.get("factoryCapabilityExperiment"));
+        chapters.get(11).put("lifecycleEvidenceR31",input.data.get("lifecycleEvidenceR31"));
         chapters.get(11).put("previousReportComparison",ReportDataR27.compareSuccessfulR30(input));
         chapters.get(11).put("successfulSummaryCandidate",ReportDataR27.successfulSummaryR30(input));
         return chapters;
@@ -69,6 +71,7 @@ public final class ReportR29 {
         out.put("metricRegistryVersion",MetricDefinitionsR29.R31_VERSION);out.put("metricResults",chapters.size()<12?null:chapters.get(11).get("allMetricResults"));
         out.put("objectIndex",chapters.size()<12?null:chapters.get(11).get("objectIndex"));out.put("previousReportComparison",chapters.size()<12?null:chapters.get(11).get("previousReportComparison"));
         out.put("researchTables",chapters.size()<12?null:chapters.get(11).get("researchTables"));
+        out.put("lifecycleEvidenceR31",chapters.size()<12?null:chapters.get(11).get("lifecycleEvidenceR31"));
         out.put("completeEvidencePath","chapters[11].completeSnapshotEvidenceR31");
         out.put("overallAcceptance","INCOMPLETE");out.put("naturalQuality","INSUFFICIENT");out.put("physicalDevice","NOT_RUN");out.put("legacyDetails",java.util.Arrays.asList("R26_REPORT.json","R27_REPORT.md","snapshot.db"));return out;
     }

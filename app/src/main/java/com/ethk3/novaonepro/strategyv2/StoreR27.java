@@ -26,11 +26,13 @@ public final class StoreR27 {
     public static final int HOT_DRAWS_LIMIT_R30 = com.ethk3.novaonepro.AppConfig.MAX_LOCAL_HISTORY_SAVE;
     public static ReplayDatasetR27 loadDataset(SQLiteDatabase ro, int limit) {
         List<ReplayDatasetR27.Row> rows = new ArrayList<>(limit);
-        try (Cursor c = ro.rawQuery("SELECT issue,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10 FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT " + Math.min(limit, HOT_DRAWS_LIMIT_R30), null)) {
+        java.util.Set<String> sourceColumns=new java.util.HashSet<>();try(Cursor schema=ro.rawQuery("PRAGMA table_info(draws)",null)){while(schema.moveToNext())sourceColumns.add(schema.getString(1));}
+        String opened=sourceColumns.contains("open_time")?"open_time":"NULL",known=sourceColumns.contains("first_seen_at")?"first_seen_at":"NULL";
+        try (Cursor c = ro.rawQuery("SELECT issue,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,"+opened+","+known+" FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT " + Math.min(limit, HOT_DRAWS_LIMIT_R30), null)) {
             while (c.moveToNext()) {
                 String issue = c.getString(0); if (!TargetIssueResolver.isValid(issue)) continue;
                 int[] p = new int[10]; for (int i = 0; i < 10; i++) p[i] = c.getInt(i + 1);
-                rows.add(new ReplayDatasetR27.Row(issue, TargetIssueResolver.sequenceOrdinalSU1(issue), p));
+                rows.add(new ReplayDatasetR27.Row(issue,TargetIssueResolver.sequenceOrdinalSU1(issue),p,c.isNull(11)?-1:c.getLong(11),c.isNull(12)?-1:c.getLong(12),ReplayDatasetR27.READER_ABI_R31,"DRAW_FIRST_SEEN"));
             }
         }
         // R27-018: verified-imported CSV history older than the database (replay only), up to 10,000 rows in total.

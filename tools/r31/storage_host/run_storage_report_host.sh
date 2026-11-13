@@ -18,6 +18,7 @@ storage_annotation=$(rg_files "$GRADLE_USER_HOME/caches/modules-2/files-2.1/andr
 test -n "$storage_annotation" && test -f "$storage_annotation"
 if [ -n "${REPORT_NATIVE_DIR:-}" ]; then
     storage_native=$REPORT_NATIVE_DIR
+    python3 verification/batch01/build_host_report_native.py --verify-reuse "$storage_native"
     python3 - "$storage_native/receipt.json" <<'PY'
 import sys,json,hashlib
 from pathlib import Path

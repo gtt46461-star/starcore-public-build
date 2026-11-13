@@ -18,7 +18,20 @@ SUITES = [
     ('family-continuation', 2, ['com.ethk3.novaonepro.strategyv2.R31FamilyContinuationInstrumentedTest']),
     ('history-publication', 2, ['com.ethk3.novaonepro.R31HistoryImportInstrumentedTest']),
     ('platform-startup-readiness', 3, ['com.ethk3.novaonepro.R31PlatformReadinessInstrumentedTest']),
+    ('storage-diagnostic-process', 2, ['com.ethk3.novaonepro.R31StorageCheckpointAndroidTest']),
+    ('restore-proof-process', 1, ['com.ethk3.novaonepro.R31RestoreProofInstrumentedTest']),
 ]
+# Only these tests may use the disposable VM's real private directory: the
+# diagnostic service runs in another Android process and cannot share a test
+# ContextWrapper. All original protocol groups keep their existing sandboxes.
+REAL_PROCESS_ARGS = {
+    'storage-diagnostic-process': ['-e', 'r31qRealService', 'true', '-e', 'r31WalDisposable', 'true'],
+    'restore-proof-process': ['-e', 'r31qRealService', 'true', '-e', 'r31RestoreDisposable', 'true'],
+}
+# A new explicit offline restore contains two independently authenticated clone
+# probes, an expected refusal, and a separate cleanup. Its own existing waits
+# total at most 2160 seconds; the original seventeen protocols keep 240 seconds.
+GROUP_TIMEOUT_SECONDS = {'restore-proof-process': 2400}
 
 
 def redact(text):
@@ -48,15 +61,18 @@ def main():
 
     save()
     for name, expected, classes in SUITES:
+        timeout_seconds = GROUP_TIMEOUT_SECONDS.get(name, 240)
         sandbox = args.sandbox_prefix + '-' + name[:30]
         command = ['adb', 'shell', 'am', 'instrument', '-w', '-r', '-e', 'r30Sandbox', sandbox,
+                   *REAL_PROCESS_ARGS.get(name, []),
                    '-e', 'class', ','.join(classes),
                    'com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner']
         row = {'name': name, 'expectedTests': expected, 'classes': classes, 'command': command,
-               'startedAt': dt.datetime.now(dt.timezone.utc).isoformat(), 'status': 'IN_PROGRESS'}
+               'startedAt': dt.datetime.now(dt.timezone.utc).isoformat(), 'status': 'IN_PROGRESS',
+               'executionTimeoutSeconds': timeout_seconds}
         receipt['groups'].append(row); save()
         try:
-            result = subprocess.run(command, capture_output=True, text=True, timeout=240)
+            result = subprocess.run(command, capture_output=True, text=True, timeout=timeout_seconds)
             raw = result.stdout + result.stderr
             found = re.search(r'OK \((\d+) tests?\)', raw)
             passed = result.returncode == 0 and found is not None and int(found.group(1)) == expected
@@ -66,7 +82,7 @@ def main():
         except subprocess.TimeoutExpired as failure:
             def decoded(value): return value.decode(errors='replace') if isinstance(value, bytes) else value or ''
             raw = decoded(failure.stdout) + decoded(failure.stderr)
-            row.update(status='FAILED_REAL_TIMEOUT', observedTests=None, timeoutSeconds=240)
+            row.update(status='FAILED_REAL_TIMEOUT', observedTests=None, timeoutSeconds=timeout_seconds)
         except Exception as failure:
             raw = str(failure)
             row.update(status='FAILED_EXECUTION', observedTests=None)
@@ -103,7 +119,7 @@ def main():
     receipt['passedGroups'] = sum(row['status'] == 'PASS_NAMED_ENGINEERING_PROTOCOLS' for row in receipt['groups'])
     receipt['failedGroups'] = len(SUITES) - receipt['passedGroups']
     receipt['state'] = 'PASS_NAMED_GROUPS_ONLY' if receipt['failedGroups'] == 0 else 'FAILED_OR_INCOMPLETE'
-    receipt['existingFullFaultMatrices'] = 'MUST_RUN_SEPARATELY_NOT_INFERRED_FROM_THESE_17_TESTS'
+    receipt['existingFullFaultMatrices'] = 'MUST_RUN_SEPARATELY_NOT_INFERRED_FROM_THE_ORIGINAL_17_OR_NEW_PROCESS_TESTS'
     save()
     print('R31_ANDROID_JOINT_DONE|' + json.dumps({k: v for k, v in receipt.items() if k != 'groups'}, ensure_ascii=False), flush=True)
     sys.exit(0 if receipt['failedGroups'] == 0 else 1)

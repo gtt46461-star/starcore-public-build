@@ -39,7 +39,7 @@ public final class StorageMaintenanceFileR82 {
     private static File candidate(File db)throws IOException{return sibling(db,".r82-rebuilt");}
     private static File backup(File db)throws IOException{return sibling(db,".r82-original-backup");}
     private static File receipt(File db)throws IOException{return sibling(db,".r82-backup-receipt");}
-    private static String sha256(File f)throws IOException {
+    static String sha256(File f)throws IOException {
         try { MessageDigest md=MessageDigest.getInstance("SHA-256");byte[] b=new byte[1024*1024];
             try(InputStream in=new FileInputStream(f)){for(int n;(n=in.read(b))!=-1;)md.update(b,0,n);}
             StringBuilder s=new StringBuilder();for(byte v:md.digest())s.append(String.format(java.util.Locale.US,"%02x",v&255));return s.toString();
@@ -50,12 +50,12 @@ public final class StorageMaintenanceFileR82 {
     interface DirectorySyncR31{void sync(String directory)throws IOException;}
     static DirectorySyncR31 directorySyncR31=StorageMaintenanceFileR82::nativeFsyncDirectory;
     private static void syncParent(File f)throws IOException{directorySyncR31.sync(f.getParentFile().getCanonicalPath());}
-    private static void write(File f,Properties p)throws IOException {
+    static void write(File f,Properties p)throws IOException {
         File t=new File(f.getPath()+".tmp");if(t.exists()&&!t.delete())throw new IOException("cannot clear stale journal temp");
         try(FileOutputStream out=new FileOutputStream(t)){p.store(out,"R82 durable maintenance protocol");out.getFD().sync();}
         if(!t.renameTo(f))throw new IOException("cannot install maintenance journal");syncParent(f);
     }
-    private static Properties read(File f)throws IOException {Properties p=new Properties();try(InputStream in=new FileInputStream(f)){p.load(in);}return p;}
+    static Properties read(File f)throws IOException {Properties p=new Properties();try(InputStream in=new FileInputStream(f)){p.load(in);}return p;}
     private static void requireHash(File f,String wanted,String role)throws IOException{
         if(wanted==null||wanted.length()!=64||!f.isFile()||!sha256(f).equals(wanted))throw new IOException(role+" is missing or checksum differs");
     }
@@ -64,7 +64,7 @@ public final class StorageMaintenanceFileR82 {
         if(!from.renameTo(to))throw new IOException("rename failed: "+from.getName());syncParent(to);
     }
     private static void remove(File f)throws IOException{if(f.exists()&&!f.delete())throw new IOException("cannot remove "+f.getName());syncParent(f);}
-    private static void requireNoSidecars(File db)throws IOException {
+    static void requireNoSidecars(File db)throws IOException {
         for(String ext:new String[]{"-wal","-journal"}){File f=sibling(db,ext);if(f.exists()&&f.length()!=0)throw new IOException("SQLite pool/checkpoint not quiescent: "+ext);}
     }
     private static void clearClosedSidecars(File db)throws IOException {
@@ -119,21 +119,39 @@ public final class StorageMaintenanceFileR82 {
         if(method.equals("QUICK_CHECK_ONLY")||method.equals("MTIME")||method.equals("FILE_SIZE"))return "REFUSED_RESTORE_PROOF_METHOD:"+method;
         if(!p.getProperty("restore_active_sha256").equals(activeSha256))return "REFUSED_RESTORE_PROOF_FOR_OTHER_BYTES";
         for(String k:new String[]{"restore_model_load","restore_reference_closure","restore_startup_recovery","restore_pending_settlement_evidence"})if(!p.getProperty(k).startsWith("PASS"))return "REFUSED_RESTORE_PROOF_NOT_PASSED:"+k;
-        return null;
+        return StorageRestoreProofR31.receiptRefusal(p);
     }
     /** Records the restore proof of the installed database into its backup receipt (after an actual restart test). */
     public static void recordRestoreProofR31(File database,Properties proof)throws IOException{
+        StorageRestoreProofR31.requireRecordingAuthority(database,proof);
         File db=database.getCanonicalFile(),r=receipt(db);if(!r.isFile())throw new IOException("verified backup receipt missing");
-        Properties p=read(r);for(String k:RESTORE_PROOF_KEYS_R31)if(proof.getProperty(k)!=null)p.setProperty(k,proof.getProperty(k));
+        requireNoSidecars(db);
+        Properties p=read(r);for(String k:proof.stringPropertyNames())if(k.startsWith("restore_"))p.setProperty(k,proof.getProperty(k));
         String refusal=restoreProofRefusalR31(p,sha256(db));if(refusal!=null)throw new IOException(refusal);write(r,p);
     }
     /** Explicit independent user action after the newly rebuilt DB is accepted and its restore proof recorded. */
     public static long deleteVerifiedBackup(File database)throws IOException {
         File db=database.getCanonicalFile();if(journal(db).exists())throw new IOException("pending swap must recover first");
+        requireNoSidecars(db);
         File r=receipt(db),old=backup(db);if(!r.isFile())throw new IOException("verified backup receipt missing");
         Properties p=read(r);if(!db.getPath().equals(p.getProperty("database")))throw new IOException("backup receipt database mismatch");
         String refusal=restoreProofRefusalR31(p,sha256(db));if(refusal!=null)throw new IOException(refusal); // backup kept
+        if(!DatabaseCoordinator.isClosedOfflineOwnerR31())throw new IOException("REFUSED_RESTORE_CLOSED_OFFLINE_OWNER_REQUIRED");
         requireHash(old,p.getProperty("source_sha256"),"original backup");long n=old.length();remove(old);remove(r);return n;
+    }
+    /** Actual original JNI validates schema, every typed value, BLOB and intrinsic
+     * rowid while creating the independent recovery copy. Caller owns a closed
+     * source pool and both original maintenance locks. */
+    static String prepareRestoreCopyR31(File database,File destination)throws IOException {
+        File db=database.getCanonicalFile();requireNoSidecars(db);
+        File r=receipt(db);if(!r.isFile()||journal(db).exists())throw new IOException("WAIT_VERIFIED_BACKUP_RECEIPT_REQUIRED");
+        Properties prior=read(r);if(!db.getPath().equals(prior.getProperty("database")))throw new IOException("RESTORE_DATABASE_IDENTITY");
+        requireHash(backup(db),prior.getProperty("source_sha256"),"retained original backup");
+        long minimum=db.length()>Long.MAX_VALUE-(64L<<20)?Long.MAX_VALUE:db.length()+(64L<<20);
+        if(destination.getParentFile().getUsableSpace()<minimum)throw new IOException("WAIT_RESTORE_COPY_DISK_CAPACITY");
+        String before=sha256(db),proof=nativeRebuild(db.getPath(),destination.getCanonicalPath());
+        if(proof==null||!proof.matches("OK rows=[0-9]+ tables=[0-9]+ auto_vacuum=2 user_version=[0-9]+ application_id=[0-9]+"))throw new IOException("RESTORE_NATIVE_FULL_COPY_FAILED");
+        requireHash(db,before,"active changed while preparing restore copy");requireNoSidecars(db);return proof;
     }
     public static String backupSummary(File database) {
         try{File db=database.getCanonicalFile(),old=backup(db);return "retained_backup_bytes="+(old.isFile()?old.length():0)+
