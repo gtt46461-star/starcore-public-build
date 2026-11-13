@@ -1,0 +1,112 @@
+name: STARCORE final verified APK ZIP and complete frozen source delivery
+'on':
+  push:
+    branches:
+    - construction/r27-20261028
+    paths:
+    - .github/r31-final-publish-request.json
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        path: harness
+    - id: request
+      run: "python3 - <<'PYREQUEST'\nimport json,re,os\nr=json.load(open('harness/.github/r31-final-publish-request.json'))\n\
+        assert re.fullmatch('[a-f0-9]{40}',r['sourceCommit'])\nassert re.fullmatch('[a-f0-9]{64}',r['apkSha256'])\nassert\
+        \ r['versionCode']==577311029 and all(str(r[k]).isdigit() for k in ['verificationRunId','buildRunId','reportRunId','liveRunId'])\n\
+        assert len({int(r[k]) for k in ['verificationRunId','buildRunId','reportRunId','liveRunId']})==1,'ONE_FINAL_CURRENT_RUN_REQUIRED'\n\
+        assert r['apkName']=='STARCORE-R31-FINAL-577311029.apk' and r['zipName']=='STARCORE_R31_FINAL_577311029_COMPLETE.zip'\n\
+        assert r['tag']=='r31-final-577311029-'+r['sourceCommit'][:12]\nassert r['completeRepositoryArchive']['url']=='https://codeload.github.com/gtt46461-star/starcore-public-build/zip/'+r['sourceCommit']\n\
+        assert re.fullmatch('[a-f0-9]{64}',r['completeRepositoryArchive']['sha256'])\nwith open(os.environ['GITHUB_OUTPUT'],'a')\
+        \ as out:\n for key in ['sourceCommit','verificationRunId','buildRunId','apkName','zipName','tag']:out.write(key+'='+str(r[key])+'\\\
+        n')\nPYREQUEST\n"
+    - name: Require this exact completed final invocation and immutable build artifact
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: 'python3 - <<''PYRUN''
+
+        import json,subprocess,os
+
+        r=json.load(open(''harness/.github/r31-final-publish-request.json''))
+
+        def api(path):return json.loads(subprocess.check_output([''gh'',''api'',''repos/''+os.environ[''GITHUB_REPOSITORY'']+path],text=True))
+
+        run=api(''/actions/runs/''+str(r[''verificationRunId'']))
+
+        assert run[''status'']==''completed'' and run[''conclusion'']==''success'',''FINAL_WORKFLOW_NOT_SUCCESS''
+
+        assert run[''head_sha'']==r[''orchestrationCommit''],''FINAL_ORCHESTRATION_COMMIT_MISMATCH''
+
+        jobs=api(''/actions/runs/''+str(r[''verificationRunId''])+''/jobs?per_page=100'')[''jobs'']
+
+        expected={''freeze'',''baseline'',''contracts'',''android_build'',''instrumentation (29)'',''instrumentation (34)'',''instrumentation
+        (35)'',''priority_report_runtime'',''artifact_receipt'',''targeted_android (29)'',''targeted_android (35)'',''live_tables'',''report_saf''}
+
+        assert {j[''name''] for j in jobs}==expected and all(j[''status'']==''completed'' and j[''conclusion'']==''success''
+        for j in jobs),''CURRENT_FINAL_JOB_SET_NOT_PASS''
+
+        artifacts=api(''/actions/runs/''+str(r[''buildRunId''])+''/artifacts?per_page=100'')[''artifacts'']
+
+        a=[v for v in artifacts if v[''name'']==''r31v-android-build'' and not v[''expired'']]
+
+        assert len(a)==1 and a[0][''digest'']==r[''buildArtifactDigest''],''IMMUTABLE_APK_ARTIFACT_CHANGED''
+
+        print(''FINAL_CURRENT_RUN_AND_EXACT_BUILD_ARTIFACT_VERIFIED'')
+
+        PYRUN
+
+        '
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ steps.request.outputs.sourceCommit }}
+        fetch-depth: 0
+        path: source
+    - uses: actions/download-artifact@v4
+      with:
+        run-id: ${{ steps.request.outputs.verificationRunId }}
+        github-token: ${{ github.token }}
+        pattern: r31*
+        path: stages
+    - uses: android-actions/setup-android@v3
+      with:
+        packages: platform-tools platforms;android-36 build-tools;36.0.0
+        log-accepted-android-sdk-licenses: false
+    - name: Reverify the original certificate and exact source before packaging
+      working-directory: source
+      run: 'set -euo pipefail
+
+        apk=$(find ../stages/r31v-android-build/app/build/outputs/apk/release -name ''*-release.apk'' -print -quit)
+
+        python3 -B tools/r31/verify_baseline.py --require-clean --apk "$apk" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner"
+        --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --expected-cert-sha256 d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+        --output "$RUNNER_TEMP/final-baseline.json" > "$RUNNER_TEMP/final-baseline-check.txt"
+
+        python3 -B ../harness/.github/r31-final-delivery-package.py --request ../harness/.github/r31-final-publish-request.json
+        --stages ../stages --report ../stages/r31-029-exact-report-saf-overlay --live ../stages/r31-029-exact-live-and-sixteen-readers
+        --out ../pub
+
+        '
+    - name: Publish only accepted APK, self-contained delivery ZIP and public receipts
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: "python3 - <<'PYPUBLISH'\nimport json,pathlib,os,shutil,subprocess\nr=json.load(open('harness/.github/r31-final-publish-request.json'));branch='delivery/'+r['tag']\n\
+        folder=pathlib.Path(os.environ['RUNNER_TEMP'])/'final-delivery';shutil.copytree('pub',folder)\ndef git(*args):subprocess.run(['git',*args],cwd=folder,check=True)\n\
+        git('init','-q');git('checkout','-q','-b',branch);git('add','-A')\ngit('-c','user.name=github-actions','-c','user.email=github-actions@users.noreply.github.com','commit','-q','-m','delivery:\
+        \ verified cumulative R31 '+r['sourceCommit'])\ngit('config','include.path',str(pathlib.Path('source/.git/config').resolve()))\n\
+        git('push','-q','https://github.com/'+os.environ['GITHUB_REPOSITORY']+'.git','HEAD:refs/heads/'+branch)\nfor name\
+        \ in [r['apkName'],r['zipName'],'R31_FINAL_DELIVERY.json','PACKAGE_SHA256.txt','SOURCE_AND_ALL_R31_PLANS.zip']:\n\
+        \ print('https://github.com/'+os.environ['GITHUB_REPOSITORY']+'/raw/refs/heads/'+branch+'/'+name)\nprint(r['completeRepositoryArchive']['url'])\n\
+        PYPUBLISH\n"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: r31-final-published-package-receipts
+        path: pub/
+        if-no-files-found: error
