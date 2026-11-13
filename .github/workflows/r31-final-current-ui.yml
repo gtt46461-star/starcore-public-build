@@ -35,6 +35,7 @@ jobs:
         with:
           ref: 477f6c9ce42b8ab0968a3b43351c1af3d6a752f7
           fetch-depth: 0
+          path: source
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
@@ -50,11 +51,12 @@ jobs:
           packages: platform-tools platforms;android-36 build-tools;36.0.0
           log-accepted-android-sdk-licenses: false
       - name: Verify exact source, build checksums and original installed certificate
+        working-directory: source
         run: |
           set -euo pipefail
-          test "$(cat built/r31v/source-commit.txt)" = "$SOURCE"
-          (cd built && sha256sum -c r31v/SHA256SUMS.txt)
-          python3 -B tools/r31/verify_baseline.py --require-clean --apk "$(find built -name '*-release.apk' -print -quit)" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --expected-cert-sha256 d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7 --output "$RUNNER_TEMP/exact-apk.json" > "$RUNNER_TEMP/exact-apk-check.txt"
+          test "$(cat ../built/r31v/source-commit.txt)" = "$SOURCE"
+          (cd ../built && sha256sum -c r31v/SHA256SUMS.txt)
+          python3 -B tools/r31/verify_baseline.py --require-clean --apk "$(find ../built -name '*-release.apk' -print -quit)" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --expected-cert-sha256 d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7 --output "$RUNNER_TEMP/exact-apk.json" > "$RUNNER_TEMP/exact-apk-check.txt"
       - name: Enable emulator acceleration
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -69,7 +71,7 @@ jobs:
           ram-size: 3072M
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
-          script: bash tools/r30-repair/prepare_emulator.sh && python3 -B harness/.github/r31-final-current-android.py --built built --source "$SOURCE" --out final-live-public
+          script: cd source && bash tools/r30-repair/prepare_emulator.sh && python3 -B ../harness/.github/r31-final-current-android.py --built ../built --source "$SOURCE" --out ../final-live-public
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -77,6 +79,8 @@ jobs:
           path: final-live-public/
           if-no-files-found: error
   report_saf:
+    # Existing run 43485964779 continues the same APK report/SAF checks independently.
+    if: false
     needs: build_artifact
     runs-on: ubuntu-latest
     timeout-minutes: 30
