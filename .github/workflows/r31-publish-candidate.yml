@@ -1,158 +1,46 @@
-name: STARCORE R31 verified engineering candidate delivery
+name: R31 current Android public source diagnostics
 on:
   push:
     branches: ['construction/r27-20261028']
-    paths: ['.github/r31-publish-candidate.json', '.github/workflows/r31-publish-candidate.yml']
+    paths: ['.github/workflows/r31-publish-candidate.yml']
 permissions:
-  contents: write
+  contents: read
   actions: read
-concurrency:
-  group: r31-publish-candidate-e6d9a997
-  cancel-in-progress: false
 jobs:
-  publish:
+  diagnose:
     runs-on: ubuntu-latest
-    timeout-minutes: 150
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      REPO: gtt46461-star/starcore-public-build
-      SOURCE: e6d9a99782cdf7fe7f69efef67d673259dd71c1d
-      SIGN_RUN: '43395922679'
-      CONTRACT_RUN: '43395877630'
     steps:
       - uses: actions/checkout@v4
         with:
-          sparse-checkout: .github/r31-publish-candidate.json
-      - name: Bind the exact candidate request
+          ref: e6d9a99782cdf7fe7f69efef67d673259dd71c1d
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 43395922679
+          name: r31v-emu-35
+          path: ${{ runner.temp }}/private-current-artifact
+      - name: Emit only public source symbols and fixed source assertion identifiers
         run: |
           python3 - <<'PY'
-          import json,os
-          r=json.load(open('.github/r31-publish-candidate.json'))
-          assert r['source']==os.environ['SOURCE']
-          assert str(r['signRun'])==os.environ['SIGN_RUN']
-          assert str(r['contractRun'])==os.environ['CONTRACT_RUN']
-          assert r['mode']=='ENGINEERING_CANDIDATE_DEVICE_NOT_RUN_NATURAL_NOT_PROVEN'
+          import json,os,pathlib,re
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'private-current-artifact'
+          files=list(pathlib.Path('app/src').rglob('*.java'));names={x.name for x in files}
+          safe=list(root.rglob('safe-recovery-failure.json'))
+          for p in safe:
+              r=json.loads(p.read_text());assert r['sourceCommit']=='e6d9a99782cdf7fe7f69efef67d673259dd71c1d'
+              print('SAFE_RECOVERY|'+json.dumps(r,sort_keys=True))
+          test=pathlib.Path('app/src/androidTest/java/com/ethk3/novaonepro/R31ChartLifecycleInstrumentedTest.java').read_text()
+          literals=re.findall(r'"([^"\n]{12,180})"',test)
+          logs=list(root.rglob('ui-lifecycle-100.txt'))
+          for p in logs:
+              raw=p.read_text(errors='replace')
+              frames=[list(x) for x in re.findall(r'at (com\.ethk3\.novaonepro\.[A-Za-z0-9_.$]+)\.([A-Za-z0-9_$]+)\(([A-Za-z0-9_]+\.java):(\d+)\)',raw) if x[2] in names]
+              print('UI100_PUBLIC_SOURCE|'+json.dumps({'assertions':[x for x in literals if x in raw and not x.startswith('R31_UI_LIFECYCLE')],'frames':frames[:30]},sort_keys=True))
+          source=pathlib.Path('tools/r30-repair/probe_ui_report.py').read_text()
+          allowed=set(re.findall(r'[\x27"]([A-Z][A-Z0-9_]{5,})(?=[:\x27"])',source))
+          for p in root.rglob('probe-output.txt'):
+              raw=p.read_text(errors='replace')
+              print('UI_PROBE_PUBLIC_ASSERTIONS|'+json.dumps(sorted({x for x in allowed if x in raw})))
+          print('PUBLIC_DIAGNOSTIC_FILES|'+json.dumps({'safeRecovery':len(safe),'ui100':len(logs)}))
           PY
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ env.SOURCE }}
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Await actual current-source engineering and Android results
-        run: |
-          python3 - <<'PY'
-          import json,os,subprocess,time,pathlib
-          repo=os.environ['REPO'];end=time.monotonic()+7200
-          def get(path):return json.loads(subprocess.check_output(['gh','api',path],text=True))
-          while True:
-              contracts=get(f'repos/{repo}/actions/runs/{os.environ["CONTRACT_RUN"]}/jobs?per_page=100')['jobs']
-              signing=get(f'repos/{repo}/actions/runs/{os.environ["SIGN_RUN"]}/jobs?per_page=100')['jobs']
-              a=[j for j in contracts if j['name'] in ['baseline','contracts']]
-              b=[j for j in signing if j['name']=='build' or j['name'].startswith('instrumentation (')]
-              assert len(a)==2,'CURRENT_ENGINEERING_JOB_SET_MISSING'
-              for j in a+b:
-                  if j['status']=='completed' and j['conclusion']!='success':raise SystemExit('ACTUAL_REQUIRED_JOB_FAILED:'+j['name']+':'+str(j['conclusion']))
-              if len(b)==4 and all(j['status']=='completed' and j['conclusion']=='success' for j in a+b):break
-              if time.monotonic()>=end:raise SystemExit('CURRENT_VERIFICATION_WAIT_TIMED_OUT_NOT_PASS')
-              print('WAIT_CURRENT_REQUIRED_JOBS '+json.dumps([{k:j[k] for k in ['id','name','status','conclusion']} for j in a+b]),flush=True)
-              time.sleep(30)
-          out=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-final';out.mkdir()
-          (out/'required-jobs.json').write_text(json.dumps({'source':os.environ['SOURCE'],'contractRun':os.environ['CONTRACT_RUN'],'signRun':os.environ['SIGN_RUN'],'jobs':a+b},indent=2)+'\n')
-          PY
-      - name: Download only the bound runs' actual artifacts
-        run: |
-          set -euo pipefail
-          D="$RUNNER_TEMP/r31-final/stages"; mkdir -p "$D"
-          gh run download "$CONTRACT_RUN" --repo "$REPO" --name r31v-baseline --dir "$D/r31v-baseline"
-          gh run download "$CONTRACT_RUN" --repo "$REPO" --name r31v-contracts --dir "$D/r31v-contracts"
-          gh run download "$SIGN_RUN" --repo "$REPO" --name r31v-android-build --dir "$D/r31v-android-build"
-          for api in 29 34 35; do gh run download "$SIGN_RUN" --repo "$REPO" --name "r31v-emu-$api" --dir "$D/r31v-emu-$api"; done
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-      - uses: android-actions/setup-android@v3
-        with:
-          packages: platform-tools
-          log-accepted-android-sdk-licenses: false
-      - run: sdkmanager 'build-tools;36.0.0' > /dev/null
-      - name: Independently verify signed bytes and current source bindings
-        run: |
-          python3 - <<'PY'
-          import hashlib,json,os,pathlib,subprocess
-          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-final/stages';built=root/'r31v-android-build';source=os.environ['SOURCE']
-          summary=json.loads((root/'r31v-contracts/r31v/current/BUILD_SUMMARY.json').read_text())
-          assert summary['source_head']==source and summary['state']=='PASS_ENGINEERING_ONLY' and summary['exitCode']==0
-          assert summary['invocationId'] and summary['runId']==os.environ['CONTRACT_RUN']
-          assert summary['inputsSha256']==summary['inputsAfterSha256']
-          assert summary['unit']['tests']>=641 and summary['unit']['failures']==summary['unit']['errors']==summary['unit']['skipped']==0
-          assert not summary['host_failed'] and not summary['problems'] and summary['gradle']['state']=='PASS'
-          expected_hosts={x['id'] for x in json.loads(pathlib.Path('construction/r31/HOST_SUITE.json').read_text())['host'] if not x.get('retired')}
-          assert {x['id'] for x in summary['host'] if x['status']=='PASS'}==expected_hosts
-          assert (built/'r31v/source-commit.txt').read_text().strip()==source
-          tools=pathlib.Path(os.environ['ANDROID_HOME'])/'build-tools/36.0.0'
-          for variant in ['release','debug']:
-              apks=list((built/'app/build/outputs/apk'/variant).glob('*.apk'));assert len(apks)==1
-              subprocess.run(['python3','-B','tools/r31/verify_baseline.py','--require-clean','--apk',str(apks[0]),'--apksigner',str(tools/'apksigner'),'--aapt',str(tools/'aapt'),'--expected-cert-sha256','d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7','--output',str(root.parent/(variant+'-identity.json'))],check=True)
-          debug=next((built/'app/build/outputs/apk/debug').glob('*.apk'));digest=hashlib.sha256(debug.read_bytes()).hexdigest()
-          execution={'sourceCommit':source,'scope':'CURRENT_APK_ACTUAL_EMULATOR_ONLY_NOT_DEVICE_OR_NATURAL','apis':{}}
-          for api in [29,34,35]:
-              receipts=list((root/f'r31v-emu-{api}').rglob('EMU-UPGRADE-RECEIPT.json'));assert len(receipts)==1
-              r=json.loads(receipts[0].read_text());assert r['status']=='OBSERVED_PASS' and r['apkSha256']==digest and int(r['api'])==api
-              e=root/f'r31v-emu-{api}'/f'emu-{api}'
-              joint=json.loads((e/'joint/JOINT-ANDROID-RECEIPT.json').read_text())
-              assert joint['sourceCommit']==source and joint['state']=='PASS_NAMED_GROUPS_ONLY' and joint['passedGroups']==(8 if api==35 else 7) and joint['failedGroups']==0
-              assert sum(g['observedTests'] for g in joint['groups'])==(28 if api==35 else 27)
-              ui=json.loads((e/'original-regression/ui-report/ui-report-acceptance.json').read_text())
-              assert ui['sourceCommit']==source and ui['result']=='PASS' and ui['zipBytes']>0 and ui['evidenceComplete'] and ui['checksComplete']
-              gallery=json.loads((e/'original-regression/repair-chart-acceptance.json').read_text())
-              assert gallery['sourceCommit']==source and gallery['registeredObjects']==47 and gallery['screenshots']==188
-              faults=json.loads((e/'original-fault-matrix/matrix.json').read_text())
-              assert faults['source']==source and len(faults['cells'])==14 and all(x['mechanics']=='ANDROID_EMULATOR_MECHANICS_PASS' for x in faults['cells'])
-              research=json.loads((e/'research-fault-matrix/research-fault-matrix.json').read_text())
-              assert research['sourceCommit']==source and research['result']=='PASS' and len(research['cells'])==12
-              execution['apis'][str(api)]={'joint':joint,'upgrade':r,'productionUiReport':ui,'gallery':gallery,'runtimeFaultMatrix':faults,'researchFaultMatrix':research}
-          (root.parent/'CURRENT_ANDROID_EXECUTION.json').write_text(json.dumps(execution,ensure_ascii=False,indent=2)+'\n')
-          PY
-      - name: Build and reopen the itemized delivery ZIP
-        run: |
-          set -euo pipefail
-          D="$RUNNER_TEMP/r31-final"; S="$D/stages"; R="$D/receipt"; mkdir -p "$R"
-          V=tools/r31/verification_receipt.py
-          python3 -B "$V" --stage baseline --result success --no-tests-expected --artifact "$S/r31v-baseline/baseline.json" --out "$R/stage-baseline.json"
-          python3 -B "$V" --stage contracts --result success --junit "$S/r31v-contracts/app/build/test-results/testDebugUnitTest" --artifact "$S/r31v-contracts/r31v/host-results.json" --out "$R/stage-contracts.json"
-          python3 -B "$V" --stage android_build --result success --no-tests-expected --artifact "$S/r31v-android-build/r31v/SHA256SUMS.txt" --out "$R/stage-android_build.json"
-          python3 -B "$V" --stage instrumentation --result success --no-tests-expected --artifact "$S/r31v-emu-29/emu-29/upgrade/EMU-UPGRADE-RECEIPT.json" --artifact "$S/r31v-emu-34/emu-34/upgrade/EMU-UPGRADE-RECEIPT.json" --artifact "$S/r31v-emu-35/emu-35/upgrade/EMU-UPGRADE-RECEIPT.json" --out "$R/stage-instrumentation.json"
-          python3 -B "$V" --aggregate "$R" --out "$R/R31_VERIFICATION_RECEIPT.json"
-          python3 -B tools/r31/unified_acceptance_report.py --summary "$S/r31v-contracts/r31v/current/BUILD_SUMMARY.json" --out "$R/acceptance"
-          python3 -B tools/r31/package_release.py create --built "$S/r31v-android-build" --verification "$R/R31_VERIFICATION_RECEIPT.json" --acceptance "$R/acceptance" --out "$D/delivery"
-          python3 -B tools/r31/package_release.py verify "$(find "$D/delivery" -maxdepth 1 -name '*.zip' -print -quit)"
-      - name: Publish a new engineering prerelease without replacing older deliveries
-        run: |
-          set -euo pipefail
-          D="$RUNNER_TEMP/r31-final/delivery"
-          python3 - "$D" <<'PY'
-          import json,pathlib,sys,hashlib,os,shutil
-          p=pathlib.Path(sys.argv[1]);d=json.loads((p/'R31_DELIVERY.json').read_text())
-          assert d['sourceCommit']=='e6d9a99782cdf7fe7f69efef67d673259dd71c1d'
-          assert d['apk']['variant']=='release' and d['apk']['versionCode']==577311022 and d['overlayInstall']['overlayInstallKeepsData']
-          assert d['layers']['L4_PHYSICAL_DEVICE_24H_72H']['status']=='NOT_RUN' and d['layers']['NATURAL_QUALITY']['status']=='NOT_PROVEN'
-          original=next((pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-final/stages/r31v-android-build/app/build/outputs/apk/release').glob('*.apk'))
-          assert hashlib.sha256(original.read_bytes()).hexdigest()==d['apk']['sha256']
-          shutil.copyfile(original,p/d['apk']['deliveredAs'])
-          shutil.copyfile(pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-final/CURRENT_ANDROID_EXECUTION.json',p/'CURRENT_ANDROID_EXECUTION.json')
-          for name in ['ACCEPTANCE_RESULTS.json','ACCEPTANCE_RESULTS.csv']:shutil.copyfile(pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-final/receipt/acceptance'/name,p/name)
-          (p/'RELEASE_NOTES.txt').write_text('STARCORE R31 engineering candidate. Exact source '+d['sourceCommit']+'. Same stated installed package/certificate and greater versionCode. Current HOST/unit and Android emulator checks passed. Physical user-device overlay, original device database, 24h/72h and natural predictive advantage remain NOT_RUN/NOT_PROVEN. APK export success does not imply every product capability is healthy.\n')
-          PY
-          (cd "$D" && sha256sum *.apk *.zip > DOWNLOAD_SHA256SUMS.txt)
-          tag=r31-engineering-577311022-e6d9a99782cd
-          if gh release view "$tag" --repo "$REPO" >/dev/null 2>&1; then echo 'EXISTING_RELEASE_REFUSED_NO_OVERWRITE'; exit 1; fi
-          gh release create "$tag" "$D"/*.apk "$D"/*.zip "$D"/DOWNLOAD_SHA256SUMS.txt "$D"/R31_DELIVERY.json "$D"/ACCEPTANCE_RESULTS.json "$D"/ACCEPTANCE_RESULTS.csv "$D"/RELEASE_NOTES.txt "$D"/CURRENT_ANDROID_EXECUTION.json --repo "$REPO" --target "$SOURCE" --title 'STARCORE R31 577311022 engineering candidate' --notes-file "$D/RELEASE_NOTES.txt" --prerelease
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: r31-engineering-delivery
-          path: ${{ runner.temp }}/r31-final/
 
