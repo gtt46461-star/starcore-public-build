@@ -30,6 +30,52 @@ public final class R31ReportSinkHostTest {
         public void checkpoint(){}public File jobDirectory(){return directory;}public void trackRenderer(ReportTextCP12 text){held++;}public void releaseRenderer(ReportTextCP12 text){held--;}
         public void recordTextArtifact(File file,String hash,long bytes)throws IOException{try{need(hash.equals(ReportArchiveCP4.hash(file)),"RENDER_SHA");}catch(Exception error){throw new IOException(error);}recorded++;}
     }
+    static void setField(Object owner,String name,Object value)throws Exception{Field field=owner.getClass().getDeclaredField(name);field.setAccessible(true);field.set(owner,value);}
+    static ReportNativeCP4.Control activeOutputOwner(ReportJobJournalCP12.Job job,File root,StorageBudgetR31.Reservation reservation)throws Exception {
+        Class<?> serviceType=Class.forName("com.ethk3.novaonepro.ReportExportServiceCP4"),unsafeType=Class.forName("sun.misc.Unsafe");
+        Field unsafeField=unsafeType.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);
+        Object service=unsafeType.getMethod("allocateInstance",Class.class).invoke(unsafeField.get(null),serviceType);
+        setField(service,"destroyed",new java.util.concurrent.atomic.AtomicBoolean());
+        Class<?> activeType=Class.forName(serviceType.getName()+"$ActiveControl");Constructor<?> constructor=activeType.getDeclaredConstructor(serviceType,ReportJobJournalCP12.Job.class,File.class);constructor.setAccessible(true);
+        Object active=constructor.newInstance(service,job,root);setField(active,"storageReservationR31",reservation);
+        // This test exercises the actual output owner, not Android transport or
+        // elapsed-time policy. Keep its unrelated control-file poll dormant.
+        setField(active,"lastRead",Long.MAX_VALUE);setField(active,"deadline",Long.MAX_VALUE);
+        return (ReportNativeCP4.Control)active;
+    }
+    static void activeOwnerBufferedOutput(File app)throws Exception {
+        app.mkdirs();File files=new File(app,"files");files.mkdirs();File root=ReportDirectoriesCP12.root(files);
+        java.util.concurrent.atomic.AtomicInteger spaceChecks=new java.util.concurrent.atomic.AtomicInteger();
+        StorageBudgetR31 budget=new StorageBudgetR31(app,new StorageBudgetR31.Config(128*MiB,128*MiB,1024,2*MiB,"HOST_ACTIVE_REPORT_OUTPUT"),f->{spaceChecks.incrementAndGet();return 1024*MiB;});
+        for(String scenario:new String[]{"utf8","cancel-close","admission-denied"}) {
+            ReportJobJournalCP12.Job job=new ReportJobJournalCP12.Job(id(601+spaceChecks.get()),id(701),id(801),"FULL_REPORT",System.currentTimeMillis());
+            File directory=new File(root,"jobs/"+job.jobId);directory.mkdirs();File file=new File(directory,scenario+".txt");
+            long bound=scenario.equals("admission-denied")?32768:4*MiB;
+            try(StorageBudgetR31.Reservation reservation=budget.reserve("active-output-"+scenario,1,StorageBudgetR31.Category.REPORT_WORKSPACE,"files/r981_reports/jobs/"+job.jobId,bound,8*MiB,true)) {
+                ReportNativeCP4.Control owner=activeOutputOwner(job,root,reservation);
+                java.util.concurrent.atomic.AtomicBoolean closed=new java.util.concurrent.atomic.AtomicBoolean();
+                OutputStream raw=new FilterOutputStream(new FileOutputStream(file)){@Override public void close()throws IOException{closed.set(true);super.close();}};
+                if(scenario.equals("utf8")) {
+                    String text=String.join("",Collections.nCopies(24000,"完整报告🙂\n"));byte[] expected=text.getBytes(StandardCharsets.UTF_8);int before=spaceChecks.get();
+                    try(Writer writer=new OutputStreamWriter(owner.protectOutput(file,raw),StandardCharsets.UTF_8)){writer.write(text);}
+                    need(Arrays.equals(expected,Files.readAllBytes(file.toPath())),"ACTIVE_OUTPUT_UTF8_CHANGED");
+                    need(spaceChecks.get()-before<=(expected.length+65535)/65536,"ACTIVE_OUTPUT_SMALL_ENCODER_CHUNKS_NOT_COALESCED");
+                } else if(scenario.equals("cancel-close")) {
+                    Writer writer=new OutputStreamWriter(owner.protectOutput(file,raw),StandardCharsets.UTF_8);writer.write("pending report bytes");
+                    Field cancel=owner.getClass().getDeclaredField("cancel");cancel.setAccessible(true);((java.util.concurrent.atomic.AtomicBoolean)cancel.get(owner)).set(true);
+                    try{writer.close();throw new AssertionError("ACTIVE_OUTPUT_CLOSE_FLUSH_IGNORED_CANCEL");}
+                    catch(InterruptedIOException expected){need(expected.getMessage().equals("REPORT_USER_CANCEL"),"ACTIVE_OUTPUT_CANCEL_CAUSE_CHANGED");}
+                    need(file.length()==0,"ACTIVE_OUTPUT_CANCELLED_BYTES_REACHED_FILE");
+                } else {
+                    try(OutputStream output=owner.protectOutput(file,raw)){output.write(new byte[65536]);throw new AssertionError("ACTIVE_OUTPUT_BYPASSED_RESERVATION");}
+                    catch(StorageBudgetR31.Rejected expected){need(expected.reason.equals("PHYSICAL_GROWTH_BOUND"),"ACTIVE_OUTPUT_ADMISSION_CAUSE_CHANGED");}
+                    need(file.length()==0,"ACTIVE_OUTPUT_UNADMITTED_BYTES_REACHED_FILE");
+                }
+                need(closed.get(),"ACTIVE_OUTPUT_DESCRIPTOR_NOT_CLOSED");
+            }
+        }
+        System.out.println("R31_ACTIVE_REPORT_OUTPUT_HOST_PASS ACTUAL_OWNER UTF8_BYTES BULK_COALESCING CANCEL_CLOSE_FLUSH ADMISSION_DENIAL DESCRIPTOR_CLOSE; HOST_ONLY_NOT_ANDROID_TIMEOUT_ROOT_CAUSE");
+    }
     static void controlMetadataHeadroom(File app)throws Exception {
         app.mkdirs();File files=new File(app,"files");files.mkdirs();
         File root=ReportDirectoriesCP12.root(files);
@@ -79,7 +125,8 @@ public final class R31ReportSinkHostTest {
     }
     public static void main(String[] args)throws Exception{
         if(args.length==2&&"--control-metadata-only".equals(args[0])){controlMetadataHeadroom(new File(args[1]));return;}
-        File app=new File(args[0]);app.mkdirs();controlMetadataHeadroom(new File(app,"control-metadata"));StorageBudgetR31 budget=new StorageBudgetR31(app,new StorageBudgetR31.Config(128*MiB,128*MiB,1024,65536,"HOST_REPORT_SINK_CAPACITY_FIXTURE"),f->1024*MiB);
+        if(args.length==2&&"--active-output-only".equals(args[0])){activeOwnerBufferedOutput(new File(args[1]));return;}
+        File app=new File(args[0]);app.mkdirs();controlMetadataHeadroom(new File(app,"control-metadata"));activeOwnerBufferedOutput(new File(app,"active-output"));StorageBudgetR31 budget=new StorageBudgetR31(app,new StorageBudgetR31.Config(128*MiB,128*MiB,1024,65536,"HOST_REPORT_SINK_CAPACITY_FIXTURE"),f->1024*MiB);
         try(Closeable host=ReportIoR31.hostFixture(app,budget);ReportJobJournalCP12 journal=ReportJobJournalCP12.tryClaim(new File(app,"files"))){
             ReportJobJournalCP12.Job job=new ReportJobJournalCP12.Job(id(31),id(131),id(931),"FULL_REPORT",System.currentTimeMillis());
             // Hold the actual bulk-admission OS lease. Initial job/control

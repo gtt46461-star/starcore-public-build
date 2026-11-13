@@ -388,8 +388,8 @@ public final class ReportExportServiceCP4 extends Service {
                     File r30Json=new File(directory,"R30_REPORT.json"),r30Markdown=new File(directory,"R30_REPORT.md");
                     java.util.Map<String,Object> r31Document=com.ethk3.novaonepro.strategyv2.ReportR29.document(r30Chapters);
                     ReportSemanticVerifierR31.validateDocument(r31Document,job);
-                    try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r30Json,new java.io.FileOutputStream(r30Json)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.JsonR27.write(r31Document));}
-                    try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r30Markdown,new java.io.FileOutputStream(r30Markdown)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.ReportR27.markdownR30(r30Chapters));}
+                    try(java.io.Writer w=new java.io.BufferedWriter(new java.io.OutputStreamWriter(active.protectOutput(r30Json,new java.io.FileOutputStream(r30Json)),StandardCharsets.UTF_8),16384)){ReportJsonWriterR31.write(r31Document,w);}
+                    try(java.io.Writer w=new java.io.BufferedWriter(new java.io.OutputStreamWriter(active.protectOutput(r30Markdown,new java.io.FileOutputStream(r30Markdown)),StandardCharsets.UTF_8),16384)){ReportJsonWriterR31.markdownR30(r30Chapters,w);}
                     ReportMemberPlanCP12.append(members,r30Json.getName(),r30Json.getName(),ReportArchiveCP4.hash(r30Json,active),r30Json.length());
                     ReportMemberPlanCP12.append(members,r30Markdown.getName(),r30Markdown.getName(),ReportArchiveCP4.hash(r30Markdown,active),r30Markdown.length());
                     File r31Receipt=ReportSemanticVerifierR31.writeReceipt(directory,r31Document,catalog,job,request.optBoolean("includeRawEvidence",false),active);
@@ -625,7 +625,17 @@ public final class ReportExportServiceCP4 extends Service {
         @Override public void beforeOutputBytesR31(File file,long bytes)throws IOException{if(storageReservationR31==null)throw new IOException("REPORT_DISK_ADMISSION_MISSING");if(!shouldContinue())throw new InterruptedIOException(stopReason);storageReservationR31.beforeChunk(bytes);}
         @Override public void reserveFutureBytesR31(long bytes)throws IOException{if(storageReservationR31==null)throw new IOException("REPORT_DISK_ADMISSION_MISSING");storageReservationR31.ensureAdditional(bytes,ReportPhaseBudgetR31.MAX_WRITTEN,true);job.temporaryReservationBytes=storageReservationR31.maximumGrowthBytes();}
         @Override public OutputStream protectOutput(File file,OutputStream sink)throws IOException{
-            try{return storageReservationR31==null?sink:storageReservationR31.wrap(file,sink);}
+            try{
+                if(storageReservationR31==null)return sink;
+                OutputStream admitted=storageReservationR31.wrap(file,sink);
+                // The UTF-8 encoder emits small chunks. Coalesce them before
+                // durable admission, while every actual sink write (including
+                // close-time flush) still checks cancellation and its grant.
+                return new BufferedOutputStream(new FilterOutputStream(admitted){
+                    @Override public void write(int value)throws IOException{checkpoint();out.write(value);}
+                    @Override public void write(byte[] bytes,int offset,int count)throws IOException{checkpoint();out.write(bytes,offset,count);}
+                },65536);
+            }
             catch(IOException|RuntimeException|Error error){try{sink.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
         }
         private void closePhaseR31(){if(phaseMemoryR31!=null){phaseMemoryR31.close();phaseMemoryR31=null;}}
