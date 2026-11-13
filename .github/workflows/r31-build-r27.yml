@@ -1,4 +1,4 @@
-name: STARCORE 026 inspect first incomplete report check
+name: STARCORE 026 exact signed APK Android14 report continuation
 permissions:
   contents: write
   actions: read
@@ -127,7 +127,7 @@ jobs:
     outputs:
       source: 3002e30d0ee8d5fe3a8795c2ed3b2f7040920f50
       apk_sha: ${{ steps.apk.outputs.sha256 }}
-    if: ${{ !contains(github.event.head_commit.message, 'artifact-inspection') }}
+    if: false
   report:
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -136,10 +136,18 @@ jobs:
       with:
         ref: 3002e30d0ee8d5fe3a8795c2ed3b2f7040920f50
         fetch-depth: 1
+        path: source
+    - uses: actions/checkout@v4
+      with:
+        ref: 70214dcf7114106f7b150d224abc4af9dc728ca5
+        path: harness
+        fetch-depth: 1
     - uses: actions/download-artifact@v4
       with:
         name: r31-report-026-signed-build
         path: built
+        run-id: 43452181664
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: actions/download-artifact@v4
       with:
         name: r31-report-025-signed-build
@@ -163,34 +171,17 @@ jobs:
         ram-size: 3072M
         heap-size: 512M
         emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
-        script: bash tools/r31/run_phone_report_android.sh built report-only-public old025
+        script: cd source && R31_PHONE_HARNESS_ROOT=../harness R31_PHONE_VALIDATION_SOURCE=70214dcf7114106f7b150d224abc4af9dc728ca5 R31_REPORT_STARTUP_WAIT_SECONDS=120
+          bash ../harness/tools/r31/run_phone_report_android.sh ../built report-only-public ../old025
     - uses: actions/upload-artifact@v4
       if: always()
       with:
         name: r31-026-report-export-only
-        path: report-only-public/
+        path: source/report-only-public/
         if-no-files-found: error
-    needs: build
     permissions:
       contents: read
       actions: read
-  inspect:
-    if: ${{ contains(github.event.head_commit.message, 'artifact-inspection') }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      actions: read
-    steps:
-    - uses: actions/download-artifact@v4
-      with:
-        name: r31-026-report-export-only
-        run-id: 43452181664
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        path: reports
-    - name: Read public protocol symbols from the first incomplete report
-      run: "python3 - <<'PYREPORT'\nimport json,pathlib\nfor p in sorted(pathlib.Path('reports').glob('*.json')):\n    print('PUBLIC_RECEIPT',p.name)\n\
-        \    print(json.dumps(json.loads(p.read_text()),ensure_ascii=False,indent=2))\nPYREPORT\n"
 'on':
   push:
     branches:
