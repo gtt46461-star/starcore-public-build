@@ -13,7 +13,9 @@ jobs:
       - name: Stop only the superseded integration with known unfixed fixture failures
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh api --method POST "repos/$GITHUB_REPOSITORY/actions/runs/43490755017/cancel"
+        run: |
+          state=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/43490755017" --jq .status)
+          if [ "$state" != completed ]; then gh api --method POST "repos/$GITHUB_REPOSITORY/actions/runs/43490755017/cancel"; fi
       - uses: actions/checkout@v4
         with:
           ref: 595b1ffa2f5593a03cf3c0c28f34b7f9b979cc2e
@@ -35,4 +37,11 @@ jobs:
                   text=p.read_text(errors='replace')
                   frames=[list(x) for x in re.findall(r'at (com\.ethk3\.novaonepro\.[A-Za-z0-9_.$]+)\(([A-Za-z0-9_]+\.java):([0-9]+)\)',text) if x[1] in files]
                   print('ANDROID_FAILURE_METADATA|'+json.dumps({'artifact':p.parts[1],'protocol':name,'junitPass':bool(re.search(r'OK \([0-9]+ tests?\)',text)),'sourceCodes':sorted(codes.intersection(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b',text))),'frames':frames[:50],'processCrash':bool(re.search(r'Process crashed|shortMsg=Process',text))}))
+          for p in sorted(pathlib.Path('evidence').rglob('safe-report-semantics.json')):
+              d=json.loads(p.read_text());print('PUBLIC_REPORT_SEMANTICS|'+json.dumps({'artifact':p.parts[1],**{k:d.get(k) for k in ['evidenceComplete','checksComplete','allChecksPassed','catalogPages','catalogResults','incompleteChecks','catalogErrors']}}))
+          for p in sorted(pathlib.Path('evidence').rglob('safe-recovery-failure.json')):
+              d=json.loads(p.read_text());print('PUBLIC_REPORT_FAILURE|'+json.dumps({'artifact':p.parts[1],**{k:d.get(k) for k in ['publicSourceFrames','missingPublicJsonKeys','collectorFailureClass','nonfiniteJsonRejected','jsonTypeMismatch']}}))
+          for p in sorted(pathlib.Path('evidence').rglob('probe-output.txt')):
+              if p.parent.name=='ui-report':
+                  text=p.read_text(errors='replace');print('PUBLIC_UI_PROBE_FAILURE|'+json.dumps({'artifact':p.parts[1],'publicAssertionLabels':sorted(set(re.findall(r'AssertionError: ([A-Z][A-Z0-9_]{3,80})',text))),'mainExportButtonMissing':'UI_TEXT_NOT_FOUND:导出完整报告' in text,'systemSaveButtonMissing':'UI_TEXT_NOT_FOUND:一次保存完整ZIP文件' in text}))
           PY
