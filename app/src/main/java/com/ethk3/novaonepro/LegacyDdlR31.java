@@ -85,6 +85,38 @@ final class LegacyDdlR31 {
         if(s.failure==null)s.failure=error instanceof RuntimeException?(RuntimeException)error:
                 new IllegalStateException("LEGACY_DDL_FAILED",error);
     }
+    private interface VerifiedDdlR31 { void verify(); }
+    private static boolean hasCriticalStampTableR31(SQLiteDatabase db){
+        try(Cursor row=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+                new String[]{SchemaDomainCoordinatorR926.TABLE_DOMAIN})){return row.moveToFirst();}
+    }
+    /** An original Legacy unit may add columns/indexes to a Critical table. Keep
+     * that one verified statement and the already-authenticated stamp atomic.
+     * A pre-existing mismatch is never re-stamped by this path. */
+    private static void mutate(SQLiteDatabase db,String sql,VerifiedDdlR31 verified) {
+        Scope scope=CURRENT.get();
+        if(scope==null){db.execSQL(sql);verified.verify();return;}
+        boolean own=!db.inTransaction();
+        if(own)db.beginTransaction();
+        try{
+            SchemaDomainCoordinatorR926.Contract critical=SchemaDomainCoordinatorR926.criticalContract();
+            boolean trusted=hasCriticalStampTableR31(db)
+                    &&SchemaDomainCoordinatorR926.matchReason(db,critical).startsWith("MATCH");
+            String before=trusted?SchemaDomainCoordinatorR926.fingerprint(db,critical):"";
+            db.execSQL(sql);scope.statements++;verified.verify();
+            if(trusted){
+                String after=SchemaDomainCoordinatorR926.fingerprint(db,critical);
+                if(!before.equals(after)){
+                    long now=System.currentTimeMillis();
+                    db.execSQL("INSERT OR REPLACE INTO "+SchemaDomainCoordinatorR926.TABLE_JOURNAL
+                            +"(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code) VALUES(?,?,?,'COMPLETED',1,'EXACT_ORIGINAL_LEGACY_DDL',?,?,?,?, '')",
+                            new Object[]{critical.domain,critical.revision,"R31_LEGACY_CRITICAL_DDL:"+V51ChecksumEngine.sha256(sql),before,after,now,now});
+                    SchemaDomainCoordinatorR926.verifyAndStamp(db,critical);
+                }
+            }
+            if(own)db.setTransactionSuccessful();
+        }finally{if(own)db.endTransaction();}
+    }
     static void exec(SQLiteDatabase db,String sql) {
         Scope s=CURRENT.get();
         try {
@@ -98,8 +130,7 @@ final class LegacyDdlR31 {
             if(RETIRE_INDEX.matcher(sql).matches()) {
                 if(!retiredIndexPresent(db))return;
                 if(s!=null&&(s.readOnly||s.statements>=1))throw new Pending("LEGACY_DDL_PENDING:RETIRE_V26_INDEX");
-                db.execSQL(sql);if(s!=null)s.statements++;
-                if(retiredIndexPresent(db))throw new IllegalStateException("LEGACY_DDL_POSTCONDITION:RETIRE_V26_INDEX");
+                mutate(db,sql,()->{if(retiredIndexPresent(db))throw new IllegalStateException("LEGACY_DDL_POSTCONDITION:RETIRE_V26_INDEX");});
                 return;
             }
             Matcher create=CREATE.matcher(sql),alter=ALTER.matcher(sql);
@@ -107,8 +138,7 @@ final class LegacyDdlR31 {
             if(!isCreate&&!isAlter)throw new IllegalArgumentException("LEGACY_DDL_UNSUPPORTED:"+sql);
             if(present(db,sql,isCreate?create:null,isAlter?alter:null))return;
             if(s!=null && (s.readOnly||s.statements>=1))throw new Pending("LEGACY_DDL_PENDING:"+sql);
-            db.execSQL(sql);
-            if(s!=null)s.statements++;
+            mutate(db,sql,()->{
             if(isAlter&&s!=null) {
                 // Qualified names cannot use SQLite's double-quoted string
                 // fallback. Preparation of this zero-row read proves the new
@@ -124,6 +154,7 @@ final class LegacyDdlR31 {
                 }
             } else if(!present(db,sql,isCreate?create:null,isAlter?alter:null))
                 throw new IllegalStateException("LEGACY_DDL_POSTCONDITION:"+sql);
+            });
         } catch(RuntimeException e) { failed(e); throw e; }
     }
     private static boolean retiredIndexPresent(SQLiteDatabase db) {

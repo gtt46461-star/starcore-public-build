@@ -28,29 +28,38 @@ public final class SchemaStampReasonAndroidTest {
         }
     }
 
-    @Test public void completedUpgradeAcceptsOnlyVerifiedResearchPinAdditions() {
+    @Test public void completedUpgradeAcceptsOnlyVerifiedResearchPinAdditions() throws Exception {
         try (SQLiteDatabase db = SQLiteDatabase.create(null)) {
-            SchemaDomainCoordinatorR926.Contract c = new SchemaDomainCoordinatorR926.Contract("CRITICAL", 6, new String[]{"draws"});
+            SchemaDomainCoordinatorR926.Contract c = SchemaDomainCoordinatorR926.criticalContract();
+            loadOriginalCriticalSchema(db);
             SchemaDomainCoordinatorR926.ensureInfrastructure(db);
-            db.execSQL("CREATE TABLE draws(issue TEXT,open_time INTEGER,dirty INTEGER,n1 INTEGER,n2 INTEGER,n3 INTEGER,n4 INTEGER,n5 INTEGER,n6 INTEGER,n7 INTEGER,n8 INTEGER,n9 INTEGER,n10 INTEGER)");
             db.execSQL("CREATE TABLE r27_history_import(issue TEXT,ordinal INTEGER,numbers TEXT,status TEXT)");
-            db.execSQL("CREATE TABLE r30r1_analysis_run(status TEXT)");
+            for(String ddl:com.ethk3.novaonepro.strategyv2.ResearchSchemaR30R1.DDL)db.execSQL(ddl);
+            db.execSQL("DROP TRIGGER IF EXISTS r30r1_pin_draws_insert");
+            db.execSQL("DROP TRIGGER IF EXISTS r30r1_pin_draws_update");
             SchemaDomainCoordinatorR926.verifyAndStamp(db, c);
             for (String step : COMPLETED_STEPS)
                 db.execSQL("INSERT INTO " + SchemaDomainCoordinatorR926.TABLE_JOURNAL + "(domain,revision,step_id,status) VALUES('CRITICAL',6,?,'COMPLETED')", new Object[]{step});
+            java.lang.reflect.Method legacy=com.ethk3.novaonepro.strategyv2.ResearchSourceJournalR31.class.getDeclaredMethod("legacySql");
+            legacy.setAccessible(true);
+            for(String ddl:(String[])legacy.invoke(null))db.execSQL(ddl);
+            assertEquals("MATCH_R30_PIN_DRAW_ADDITION",SchemaDomainCoordinatorR926.matchReason(db,c));
+            db.execSQL("UPDATE " + SchemaDomainCoordinatorR926.TABLE_JOURNAL + " SET status='RUNNING'");
+            assertEquals("FINGERPRINT_MISMATCH", SchemaDomainCoordinatorR926.matchReason(db,c));
+            db.execSQL("UPDATE " + SchemaDomainCoordinatorR926.TABLE_JOURNAL + " SET status='COMPLETED'");
             db.beginTransaction();
             try {
                 com.ethk3.novaonepro.strategyv2.ResearchInputPinR30R1.ensure(db);
                 db.setTransactionSuccessful();
             } finally { db.endTransaction(); }
-            assertEquals("MATCH_R30_PIN_DRAW_ADDITION", SchemaDomainCoordinatorR926.matchReason(db,c));
+            assertEquals("MATCH", SchemaDomainCoordinatorR926.matchReason(db,c));
             assertTrue(SchemaDomainCoordinatorR926.matches(db,c));
             db.execSQL("CREATE INDEX unrelated_drift ON draws(issue)");
             assertEquals("FINGERPRINT_MISMATCH", SchemaDomainCoordinatorR926.matchReason(db,c));
             db.execSQL("DROP INDEX unrelated_drift");
-            db.execSQL("UPDATE " + SchemaDomainCoordinatorR926.TABLE_JOURNAL + " SET status='RUNNING'");
-            assertEquals("FINGERPRINT_MISMATCH", SchemaDomainCoordinatorR926.matchReason(db,c));
-            db.execSQL("UPDATE " + SchemaDomainCoordinatorR926.TABLE_JOURNAL + " SET status='COMPLETED'");
+            try(android.database.Cursor receipt=db.rawQuery("SELECT count(*) FROM "+SchemaDomainCoordinatorR926.TABLE_JOURNAL+" WHERE domain='CRITICAL' AND step_id='R31_SOURCE_DRAW_CUTOVER_V1' AND status='COMPLETED'",null)){
+                assertTrue(receipt.moveToFirst());assertEquals(1,receipt.getInt(0));
+            }
             db.execSQL("DROP TRIGGER r30r1_pin_draws_insert");
             assertEquals("FINGERPRINT_MISMATCH", SchemaDomainCoordinatorR926.matchReason(db,c));
         }
@@ -58,7 +67,7 @@ public final class SchemaStampReasonAndroidTest {
 
     @Test public void report003SchemaReproducesLegacyStampWithoutMigration() throws Exception {
         java.io.File fixture = java.io.File.createTempFile("r30-stamp-", ".db",
-                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getTargetContext().getCacheDir());
+                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getTargetContext().getCacheDir()).getCanonicalFile();
         try (SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(fixture, null);
              java.io.InputStream in = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
                      .getContext().getAssets().open("r30_report_003_critical_schema.json")) {
@@ -103,6 +112,15 @@ public final class SchemaStampReasonAndroidTest {
             assertFalse(SchemaDomainCoordinatorR926.matches(db,c));
             assertFalse(snapshotMatches(fixture, c));
         } finally { SQLiteDatabase.deleteDatabase(fixture); }
+    }
+
+    private static void loadOriginalCriticalSchema(SQLiteDatabase db)throws Exception{
+        try(java.io.InputStream in=androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("r30_report_003_critical_schema.json")){
+            java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();byte[] buffer=new byte[8192];int n;
+            while((n=in.read(buffer))!=-1)bytes.write(buffer,0,n);
+            org.json.JSONArray statements=new org.json.JSONObject(bytes.toString("UTF-8")).getJSONArray("statements");
+            assertEquals(253,statements.length());for(int i=0;i<statements.length();i++)db.execSQL(statements.getString(i));
+        }
     }
 
     private static boolean snapshotMatches(java.io.File fixture, SchemaDomainCoordinatorR926.Contract c) {

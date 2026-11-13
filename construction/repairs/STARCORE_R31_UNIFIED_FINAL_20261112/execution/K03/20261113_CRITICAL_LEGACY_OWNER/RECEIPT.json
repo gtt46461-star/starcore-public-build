@@ -1,0 +1,33 @@
+{
+  "scope": "UF02_UF03_K03_ACTUAL_LEGACY_DDL_CRITICAL_AUTHENTICATION_FIX; TARGETED_NATIVE_ONLY_ANDROID_PENDING",
+  "baseSource": "59693e8d828fd0983aa07065716878ff98f18337",
+  "observedAndroidFailure": {
+    "runId": 43484576602,
+    "apis": [
+      29,
+      34,
+      35
+    ],
+    "entry": "R31RestoreProofInstrumentedTest -> RuntimeSchemaR26.ensure -> migrateR31RuntimeBase",
+    "category": "DEPENDENCY",
+    "reason": "UNTRUSTED_CRITICAL:FINGERPRINT_MISMATCH"
+  },
+  "implementation": "One original owned DDL plus its verified postcondition and already-authenticated Critical stamp share one SQLite transaction. Existing mismatch is never re-stamped. Read-only readiness remains zero DML.",
+  "nativeAssertions": [
+    "actual DbStore 52 units / 2575 slices keep Critical authenticated",
+    "actual original RuntimeSchemaR26 initialization continues after Legacy readiness",
+    "actual journal failure rolls back DDL and original stamp",
+    "actual retry succeeds",
+    "unrelated pre-existing index drift never obtains a new stamp",
+    "original strict fault/kill/restart and original user state preserved"
+  ],
+  "androidFixtureRepairs": [
+    "use the whole original Critical schema and actual contract, preserving completed-journal and unrelated-drift negative checks",
+    "snapshot fixture uses canonical private path matching the production exporter; path guards unchanged"
+  ],
+  "originalThresholdsSha256": "c577c58f63879ce8c9090d5b9d7494108db8f0d317b31d22639b4888b47bc08c",
+  "physicalDevice": "NOT_RUN",
+  "24h": "NOT_RUN",
+  "72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN"
+}
