@@ -8,7 +8,6 @@ permissions:
   actions: read
 jobs:
   live:
-    if: ${{ !contains(github.event.head_commit.message, 'phone-signing-probe') }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -48,23 +47,3 @@ jobs:
           name: r31-current-signed-live-profile
           path: live-public/
           if-no-files-found: error
-
-  installed_signer_probe:
-    if: ${{ contains(github.event.head_commit.message, 'phone-signing-probe') }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/cache/restore@v4
-        with:
-          path: ~/.starcore/r27-ci-temp-key
-          key: starcore-r27-ci-temp-signing-v1
-          fail-on-cache-miss: true
-      - name: Verify original installed signer without exporting private material
-        run: |
-          set -euo pipefail
-          K="$HOME/.starcore/r27-ci-temp-key"
-          test -s "$K/r27-ci.p12" && test -s "$K/pw"
-          pw=$(cat "$K/pw"); echo "::add-mask::$pw"
-          cert=$(keytool -exportcert -keystore "$K/r27-ci.p12" -storetype PKCS12 -alias starcore-r13 -storepass "$pw" | sha256sum | cut -c1-64)
-          test "$cert" = d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
-          echo "R31_BRANCH_ORIGINAL_SIGNER_AVAILABLE $cert"
