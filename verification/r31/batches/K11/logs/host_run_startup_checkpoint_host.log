@@ -1,0 +1,27 @@
+/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/unified_host/StartupCheckpointR31Host.java:14: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/unified_host/StartupCheckpointR31Host.java:34: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Field field=Unsafe.class.getDeclaredField("theUnsafe");field.setAccessible(true);Unsafe unsafe=(Unsafe)field.get(null);
+                    ^
+/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/unified_host/StartupCheckpointR31Host.java:34: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Field field=Unsafe.class.getDeclaredField("theUnsafe");field.setAccessible(true);Unsafe unsafe=(Unsafe)field.get(null);
+                                                                                         ^
+/home/runner/work/starcore-public-build/starcore-public-build/tools/r31/unified_host/StartupCheckpointR31Host.java:34: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Field field=Unsafe.class.getDeclaredField("theUnsafe");field.setAccessible(true);Unsafe unsafe=(Unsafe)field.get(null);
+                                                                                                        ^
+4 warnings
+STARTUP_CHECKPOINT_NATIVE_PASS mode=init checks=7 actualConsumer=ResearchRetentionStoreR30.ensureProtectedObjectsR31 syntheticOnly=true
+STARTUP_CHECKPOINT_NATIVE_PASS mode=normal checks=15 actualConsumer=ResearchRetentionStoreR30.ensureProtectedObjectsR31 syntheticOnly=true
+STARTUP_CHECKPOINT_NATIVE_PASS mode=race-blob checks=16 actualConsumer=ResearchRetentionStoreR30.ensureProtectedObjectsR31 syntheticOnly=true
+STARTUP_CHECKPOINT_NATIVE_PASS mode=race-append checks=16 actualConsumer=ResearchRetentionStoreR30.ensureProtectedObjectsR31 syntheticOnly=true
+STARTUP_CHECKPOINT_NATIVE_PASS mode=race-replace checks=16 actualConsumer=ResearchRetentionStoreR30.ensureProtectedObjectsR31 syntheticOnly=true
+STARTUP_CHECKPOINT_NATIVE_PASS mode=race-storage checks=16 actualConsumer=ResearchRetentionStoreR30.ensureProtectedObjectsR31 syntheticOnly=true
+STARTUP_CHECKPOINT_NATIVE_PASS mode=race-null checks=16 actualConsumer=ResearchRetentionStoreR30.ensureProtectedObjectsR31 syntheticOnly=true
+STARTUP_CHECKPOINT_NATIVE_PASS mode=race-during checks=15 actualConsumer=ResearchRetentionStoreR30.ensureProtectedObjectsR31 syntheticOnly=true
+STARTUP_CHECKPOINT_NATIVE_PASS mode=trigger-drift checks=15 actualConsumer=ResearchRetentionStoreR30.ensureProtectedObjectsR31 syntheticOnly=true
+STARTUP_CHECKPOINT_NATIVE_PASS mode=corrupt-cas checks=16 actualConsumer=ResearchRetentionStoreR30.ensureProtectedObjectsR31 syntheticOnly=true
+STARTUP_REAL_KILL_BEFORE_CONSUMER checks=3
+STARTUP_CHECKPOINT_NATIVE_PASS mode=normal checks=15 actualConsumer=ResearchRetentionStoreR30.ensureProtectedObjectsR31 syntheticOnly=true
+STARTUP_REAL_KILL_AFTER_CONSUMER_COMMIT checks=12
+STARTUP_CHECKPOINT_NATIVE_PASS mode=normal checks=15 actualConsumer=ResearchRetentionStoreR30.ensureProtectedObjectsR31 syntheticOnly=true

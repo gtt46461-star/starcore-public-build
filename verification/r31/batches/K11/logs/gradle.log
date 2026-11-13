@@ -2,7 +2,7 @@ To honour the JVM settings for this build a single-use Daemon process will be fo
 Daemon will be stopped at the end of the build 
 
 > Task :app:generateR27BuildIdentity
-R27_BUILD_IDENTITY_WRITTEN 95b50907fcd3108b5ae1cec955754013c385cdc1 c536c8da8d24256c77871ed3a7dd20eb1a8456fd
+R27_BUILD_IDENTITY_WRITTEN e6d9a99782cdf7fe7f69efef67d673259dd71c1d b610c71286883f2fc071bd9fd7b975e5459cd463
 
 > Task :app:verifyR31Baseline
 > Task :app:generateR31BuildIdentity
@@ -17,16 +17,16 @@ CATALOG_IDENTITY_PASS|atoms=25350|seeds=4200|stream_line_cap=65536
 SU2 production DDL: reproducible and executable
 
 > Task :app:generateR967Semantics
-R967_SEMANTIC_IDENTITY_GENERATED|27455b62a09dadbd1bad421f97d5c361f2827594d2e707954a8ead4d36d6f00c
+R967_SEMANTIC_IDENTITY_GENERATED|e3cebcfd0a216726de21cfbf9718d48f8c9ef737a1cf6d9acd9e2c5ff894a498
 
 > Task :app:verifyR967Semantics
-R967_SEMANTIC_IDENTITY_VERIFIED|27455b62a09dadbd1bad421f97d5c361f2827594d2e707954a8ead4d36d6f00c
+R967_SEMANTIC_IDENTITY_VERIFIED|e3cebcfd0a216726de21cfbf9718d48f8c9ef737a1cf6d9acd9e2c5ff894a498
 
 > Task :app:generateR815Provenance
-R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=298796325e57488393b1148937f7d5ea9c88dd2c0db7420141280fb49cd384a4|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=0e0b1859191524cefe191f8714be3820dc94dae7da380fbc07f072086bb7f03f|GENERATED_AT=2026-11-12T13:42:37Z
+R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=78af35aa3ce92d83a72cec89cb65dd04dacedfecd20278fc0f696dc2b7ac0a3e|RESOURCE=a3c9f96e5f0d01560cfdb527aafb83fc8c49945f76436995bf735cd96776b79a|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=42454c4ce4864da8d7980b998f310cac4898c9b8b4f3e1aeb0650c589f05f094|GENERATED_AT=2026-11-13T08:48:36Z
 
 > Task :app:verifyR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=298796325e57488393b1148937f7d5ea9c88dd2c0db7420141280fb49cd384a4|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=0e0b1859191524cefe191f8714be3820dc94dae7da380fbc07f072086bb7f03f|GENERATED_AT=2026-11-12T13:42:37Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=78af35aa3ce92d83a72cec89cb65dd04dacedfecd20278fc0f696dc2b7ac0a3e|RESOURCE=a3c9f96e5f0d01560cfdb527aafb83fc8c49945f76436995bf735cd96776b79a|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=42454c4ce4864da8d7980b998f310cac4898c9b8b4f3e1aeb0650c589f05f094|GENERATED_AT=2026-11-13T08:48:36Z
 
 > Task :app:preBuild
 > Task :app:preDebugBuild
@@ -46,7 +46,6 @@ R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=298796325e57488393b1148937f7d5ea9c88dd2c0
 > Task :app:preDebugAndroidTestBuild SKIPPED
 > Task :app:processDebugAndroidTestManifest
 > Task :app:generateDebugAndroidTestBuildConfig
-> Task :app:processDebugManifestForPackage
 > Task :app:javaPreCompileDebugAndroidTest FROM-CACHE
 > Task :app:prepareRawUpstreamAndroidTestHarness
 > Task :app:checkDebugAndroidTestAarMetadata
@@ -73,15 +72,15 @@ Note: Some input files use unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
 1 warning
 
-> Task :app:bundleDebugClassesToCompileJar
 > Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:bundleDebugClassesToCompileJar
 > Task :app:generateDebugLintReportModel
 
 > Task :app:verifyFinalR967Semantics
-R967_SEMANTIC_IDENTITY_VERIFIED|27455b62a09dadbd1bad421f97d5c361f2827594d2e707954a8ead4d36d6f00c
+R967_SEMANTIC_IDENTITY_VERIFIED|e3cebcfd0a216726de21cfbf9718d48f8c9ef737a1cf6d9acd9e2c5ff894a498
 
 > Task :app:verifyFinalR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=298796325e57488393b1148937f7d5ea9c88dd2c0db7420141280fb49cd384a4|RESOURCE=d1e9dd80725fa1fd4d80c6eefd50c92a1c93e16b084821f1237ff49b38e402e1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=0e0b1859191524cefe191f8714be3820dc94dae7da380fbc07f072086bb7f03f|GENERATED_AT=2026-11-12T13:42:37Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=78af35aa3ce92d83a72cec89cb65dd04dacedfecd20278fc0f696dc2b7ac0a3e|RESOURCE=a3c9f96e5f0d01560cfdb527aafb83fc8c49945f76436995bf735cd96776b79a|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=42454c4ce4864da8d7980b998f310cac4898c9b8b4f3e1aeb0650c589f05f094|GENERATED_AT=2026-11-13T08:48:36Z
 
 > Task :app:compileDebugAndroidTestJavaWithJavac
 Note: Some input files use or override a deprecated API.
@@ -92,6 +91,13 @@ Note: Some input files use unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
 
 > Task :app:testDebugUnitTest
+
+R27QualityTest > h15MainlineRedLines FAILED
+    java.lang.AssertionError at R27QualityTest.java:174
+
+641 tests completed, 1 failed
+
+> Task :app:testDebugUnitTest FAILED
 > Task :app:generateDebugAndroidTestLintModel
 > Task :app:generateDebugUnitTestLintModel
 > Task :app:lintAnalyzeDebugAndroidTest
@@ -107,11 +113,20 @@ Lint found no new issues (and 51 errors filtered by baseline lint-baseline.xml)
 
 [Incubating] Problems report is available at: file:///home/runner/work/starcore-public-build/starcore-public-build/build/reports/problems/problems-report.html
 
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:testDebugUnitTest'.
+> There were failing tests. See the report at: file:///home/runner/work/starcore-public-build/starcore-public-build/app/build/reports/tests/testDebugUnitTest/index.html
+
+* Try:
+> Run with --scan to get full insights.
+
 Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
 
 You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
 
 For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 9m 19s
+BUILD FAILED in 9m 6s
 54 actionable tasks: 51 executed, 3 from cache

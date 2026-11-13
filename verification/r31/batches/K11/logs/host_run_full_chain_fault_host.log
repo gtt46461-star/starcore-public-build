@@ -1,4 +1,6 @@
-R31_HOST_DEPENDENCY_PROVENANCE {"androidSdk": {"path": "/usr/local/lib/android/sdk/platforms/android-36/android.jar", "sha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a"}, "classes": {"classTreeSha256": "61c9fac83c06f9b5250c3ac72e1963125aa0f72d0d18bc218bb1bb544142ba5a", "path": "/home/runner/work/starcore-public-build/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"}, "generatedResources": {"path": "/home/runner/work/starcore-public-build/starcore-public-build/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/processDebugResources/R.jar", "sha256": "ee74e9c8d95f2a1cb9d5477246207aac640b2e790edaaa495142f626318f4956"}, "sqliteJdbc": {"path": "/home/runner/.cache/r312-host/sqlite-jdbc-3.46.1.3.jar", "sha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa"}}
+R31_HOST_DEPENDENCY_PROVENANCE {"androidSdk": {"path": "/usr/local/lib/android/sdk/platforms/android-36/android.jar", "sha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a"}, "classes": {"classTreeSha256": "7776733b9c61fdbdba3a30b309a0f6168228ddb27780b6b612635b5e24d70855", "path": "/home/runner/work/starcore-public-build/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"}, "generatedResources": {"path": "/home/runner/work/starcore-public-build/starcore-public-build/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/processDebugResources/R.jar", "sha256": "ee74e9c8d95f2a1cb9d5477246207aac640b2e790edaaa495142f626318f4956"}, "sqliteJdbc": {"path": "/home/runner/.cache/r312-host/sqlite-jdbc-3.46.1.3.jar", "sha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa"}}
+Note: /home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
 /home/runner/work/starcore-public-build/starcore-public-build/tools/r31/host/R31OwnedRuntimeFixture.java:14: warning: Unsafe is internal proprietary API and may be removed in a future release
 import sun.misc.Unsafe;
                ^
@@ -10,12 +12,12 @@ import sun.misc.Unsafe;
                                               ^
 3 warnings
 CHAIN_DONE|checks=77|[F01_LOCK_CONTENTION two owners x24 commits, one writer, F03_STALE_FENCE/F09_LATE_COMMIT refused after production fenced retry: F01_WRITE_FAILED|operation=R31_FULL_CHAIN_LATE_COMMIT|category=STALE_OWNER|phase=END|commitOutcome=ROLLED_BACK, F02_SETTLEMENT_COMMIT_FAILURE F01_WRITE_FAILED|operation=R27_LIVE_PENDING_RESOLVE|category=BUG|phase=END|commitOutcome=ROLLED_BACK, F05_OUT_OF_ORDER/B03 settlement once per prediction after injected commit failure, F04_DISK_FULL/B05+B10 GC display-only; choice, certificate, draws, frozen kept, F10_DUPLICATE_CONSUME/B08+B09 one product per result; late label refused]
-HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=43809 task=r27-live
-HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=43835 task=r27-live
-HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=43861 task=r27-live
-HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=43887 task=r27-live
-HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=43915 task=r27-live
-HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=43941 task=r27-live
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=43877 task=r27-live
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=43903 task=r27-live
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=43929 task=r27-live
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=43955 task=r27-live
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=43981 task=r27-live
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=44007 task=r27-live
 R31_FULL_CHAIN_FAULT_HOST|{"android":"NOT_RUN","checks":525,"layer":"HOST_NATIVE_SQLITE_ONE_DB_ONE_COMMIT_NOT_ART_NOT_DEVICE","naturalQuality":"NOT_PROVEN","processDeath":[{"haltBeforeCommit":1,"halted":true},{"haltBeforeCommit":3,"halted":true},{"haltBeforeCommit":6,"halted":true},{"haltBeforeCommit":10,"halted":true},{"haltBeforeCommit":14,"halted":true},{"haltBeforeCommit":18,"halted":true},{"haltBeforeCommit":22,"halted":true}],"status":"PASS","uninterrupted":["F01_LOCK_CONTENTION two owners x24 commits, one writer","F03_STALE_FENCE/F09_LATE_COMMIT refused after production fenced retry: F01_WRITE_FAILED|operation=R31_FULL_CHAIN_LATE_COMMIT|category=STALE_OWNER|phase=END|commitOutcome=ROLLED_BACK","F02_SETTLEMENT_COMMIT_FAILURE F01_WRITE_FAILED|operation=R27_LIVE_PENDING_RESOLVE|category=BUG|phase=END|commitOutcome=ROLLED_BACK","F05_OUT_OF_ORDER/B03 settlement once per prediction after injected commit failure","F04_DISK_FULL/B05+B10 GC display-only; choice, certificate, draws, frozen kept","F10_DUPLICATE_CONSUME/B08+B09 one product per result; late label refused"]}
 
 R31_FULL_CHAIN_FAULT_HOST_PASS {"checks": 525, "scenarios": ["F01_LOCK_CONTENTION", "F02_PROCESS_DEATH", "F03_STALE_FENCE", "F04_DISK_FULL", "F05_OUT_OF_ORDER", "F09_LATE_COMMIT", "F10_DUPLICATE_CONSUME"], "kills": 7}
