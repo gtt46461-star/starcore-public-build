@@ -1,4 +1,4 @@
-name: STARCORE R31 fixed-code failure diagnostics
+name: R31 exact APK private recovery diagnosis
 on:
   push:
     branches: ['construction/r27-20261028']
@@ -7,63 +7,80 @@ permissions:
   contents: read
   actions: read
 jobs:
-  source-symbols-only:
+  diagnosis:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
           ref: 842a143cd5933936050f9c443535d1b83a5c89a1
-          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'cryptography>=41,<51'
       - uses: actions/download-artifact@v4
         with:
           github-token: ${{ github.token }}
-          repository: gtt46461-star/starcore-public-build
           run-id: 43387221638
-          name: r31v-emu-35
-          path: ${{ runner.temp }}/private-failure-input
-      - name: Emit only public source symbols and fixed error enums, never log lines or data
+          name: r31v-android-build
+          path: ${{ runner.temp }}/built
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools platforms;android-36 build-tools;36.0.0
+          log-accepted-android-sdk-licenses: false
+      - name: Verify existing APK bytes and signer before fresh execution
         run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/built"
+          sha256sum -c r31v/SHA256SUMS.txt > "$RUNNER_TEMP/apk-hash-check.txt"
+          cd "$GITHUB_WORKSPACE"
+          python3 -B tools/r31/verify_baseline.py --require-clean --apk "$(find "$RUNNER_TEMP/built/app/build/outputs/apk/debug" -name '*.apk' -print -quit)" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --expected-cert-sha256 d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7 --output "$RUNNER_TEMP/apk-identity.json" > "$RUNNER_TEMP/identity-output.txt"
+          git show addb9c3ac61d164ed561404286c6af28d6d81772:tools/r30-repair/probe_ui_report.py > "$RUNNER_TEMP/probe_ui_report.py"
+          echo "2eb3a2790ee177630a503c74bfa076685bfc223fdd160d8bb793778ebeef0d31  $RUNNER_TEMP/probe_ui_report.py" | sha256sum -c -
+          cat > "$RUNNER_TEMP/diagnose.sh" <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          adb wait-for-device
+          adb install -r -g "$(find "$RUNNER_TEMP/built/app/build/outputs/apk/debug" -name '*.apk' -print -quit)" > "$RUNNER_TEMP/install-app.txt" 2>&1
+          adb install -r -g "$(find "$RUNNER_TEMP/built/app/build/outputs/apk/androidTest/debug" -name '*.apk' -print -quit)" > "$RUNNER_TEMP/install-test.txt" 2>&1
+          python3 tools/r31/run_android_joint_protocols.py --out "$RUNNER_TEMP/joint" --sandbox-prefix r31jsondiag > "$RUNNER_TEMP/joint-output.txt" 2>&1
           python3 - <<'PY'
-          import os,pathlib,re,json
-          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'private-failure-input'
-          selectors={'delivery-and-live-service.txt':'delivery_protocol','foreground-kill_freeze-recover.txt':'freeze_foreground','background-kill_freeze-recover.txt':'freeze_background','background-service_stop-run.txt':'service_stop_background','background-service_stop-recover.txt':'service_stop_background_recovery','failure-logcat.txt':'ui_failure_public_stack_symbols'}
-          java=list(pathlib.Path('app/src').rglob('*.java'))
-          public_files={p.name for p in java}
-          public_text='\n'.join(p.read_text(errors='replace') for p in java)
-          public_tests=set(re.findall(r'public void ([A-Za-z0-9_]+)\(',public_text))
-          enums={'CENSUS_STALE','STORAGE_BUDGET_CENSUS_STALE','NO_FRESH_API_FETCH','NO_NEW_FUTURE_FREEZE','NO_NEW_FROZEN_SETTLEMENT','BUILD_IDENTITY_ERROR','SCHEMA_PENDING','LEGACY_RUNTIME_SCHEMA','DEDICATED_MIGRATION_OWNER_REQUIRED','MISSING_COLUMN','MISSING_OR_WRONG_OBJECT','F02_CURRENT_RECOVERY_TRANSACTION_FAILED','R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN','REPORT_ACK_NEVER_WRITTEN','REPORT_RESOURCE_WAIT','SCHEMA_READINESS','DEPENDENCY'}
-          enums.update(x for x in re.findall(r'"([A-Z][A-Z0-9_]{5,100})"',public_text))
-          enums.update(re.findall(r'\b[A-Z][A-Z0-9_]{5,100}\b',public_text))
-          enums.update({'R31_PHASE_BUDGET_PREPARE','R31_PHASE_BUDGET_INFER','R31_PHASE_BUDGET_COMMIT','R31_FIXED_PREDRAW_DEADLINE'})
-          public_schema=set(re.findall(r'\b(?:r26|r27|r29|r30|r31|r35|r36|su1|su2)_[a-z][a-z0-9_]+\b',public_text))
-          for p in sorted(root.rglob('*.txt')):
-              if p.name not in selectors:continue
-              s=p.read_text(errors='replace')
-              # Only a failing test's public method and public source call frames
-              # are output. No exception message, raw log line, value, private
-              # path, URL, report body, database row or credential can be emitted.
-              frames=[]
-              for cls,method,file,line in re.findall(r'at (com\.ethk3\.novaonepro\.[A-Za-z0-9_.$]+)\.([A-Za-z0-9_$]+)\(([A-Za-z0-9_]+\.java):(\d+)\)',s):
-                  if file in public_files:
-                      row=[cls,method,file,int(line)]
-                      if row not in frames:frames.append(row)
-              bad_tests=[]
-              for m in re.finditer(r'INSTRUMENTATION_STATUS: stack=',s):
-                  end=s.find('INSTRUMENTATION_STATUS_CODE:',m.start())
-                  block=s[m.start():end if end>=0 else len(s)]
-                  for name in re.findall(r'INSTRUMENTATION_STATUS: test=([A-Za-z0-9_]+)',block):
-                      if name in public_tests and name not in bad_tests:bad_tests.append(name)
-              # Only fixed stage identifiers and numeric elapsed/budget values
-              # from the explicit source-defined profiling record are emitted.
-              costs=re.findall(r'R31Q_PHASE_COST\|([A-Z][A-Z0-9_]{1,60})\|elapsedMs=([0-9]{1,12})\|budgetMs=([0-9]{1,12})\|(OK|OVER_BUDGET|FAILED)',s)
-              if costs:print(json.dumps({'protocol':selectors[p.name],'publicPhaseCosts':costs}),flush=True)
-              json_keys=set(re.findall(r'\.get(?:String|Long|Int|Double|Boolean|JSONObject|JSONArray)\("([A-Za-z][A-Za-z0-9_]*)"\)',public_text))
-              missing=set(re.findall(r'No value for ([A-Za-z][A-Za-z0-9_]*)',s))
-              print(json.dumps({'protocol':selectors[p.name],'missingPublicJsonKeys':sorted(json_keys.intersection(missing)),'nonfiniteJsonRejected':bool(re.search(r'Forbidden numeric value|not a finite double',s)),'publicReportFrames':[x for x in frames if 'Report' in x[2] or 'Json' in x[2]]}),flush=True)
-              tokens=set(re.findall(r'[A-Z][A-Z0-9_]{3,}',s))
-              # Schema identifiers are emitted only if they are already literal
-              # public repository identifiers and occur in a failure cause.
-              cause='\n'.join(x for x in s.splitlines() if 'SCHEMA_PENDING:' in x or 'Caused by:' in x)
-              schema=sorted(public_schema.intersection(re.findall(r'\b[a-z][a-z0-9_]+\b',cause)))
-              print(json.dumps({'protocol':selectors[p.name],'failedPublicTestMethods':bad_tests,'publicErrorEnums':sorted(tokens.intersection(enums)),'publicSchemaSymbols':schema,'publicSourceFrames':[x for x in frames if x[2] in {'AnalysisSingleFlightR36.java','V51RuntimeOrchestrator.java','V51RuntimeInputR36.java','AnalysisRequestStoreR36.java','CanonicalCommitGuardF01.java'}]+frames[:20]+frames[-20:]},sort_keys=True),flush=True)
+          import json,os
+          r=json.load(open(os.environ['RUNNER_TEMP']+'/joint/JOINT-ANDROID-RECEIPT.json'))
+          print('FRESH_EXACT_APK_GROUPS|'+json.dumps([{'name':x['name'],'status':x['status'],'observedTests':x.get('observedTests')} for x in r['groups']]))
           PY
+          bash tools/r30-repair/prepare_emulator.sh > "$RUNNER_TEMP/prepare.txt" 2>&1
+          set +e
+          python3 "$RUNNER_TEMP/probe_ui_report.py" --out "$RUNNER_TEMP/private-ui" > "$RUNNER_TEMP/private-ui-output.txt" 2>&1
+          result=$?
+          set -e
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'private-ui'/'safe-recovery-failure.json'
+          if p.exists(): print('PUBLIC_RECOVERY_SYMBOLS|'+json.dumps(json.loads(p.read_text()),sort_keys=True))
+          else: print('RECOVERY_SYMBOL_COLLECTOR_NOT_PRODUCED')
+          PY
+          echo "FRESH_EXACT_APK_UI_EXIT=$result"
+          exit "$result"
+          SH
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: bash "$RUNNER_TEMP/diagnose.sh"
