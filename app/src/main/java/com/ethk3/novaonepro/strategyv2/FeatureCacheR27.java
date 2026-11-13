@@ -60,7 +60,7 @@ public final class FeatureCacheR27 implements AutoCloseable {
         java.util.List<FeatureCacheR27> caches;
         synchronized(REGISTERED_R31){caches=new java.util.ArrayList<>(REGISTERED_R31.keySet());}
         boolean reuse="NORMAL".equals(memory.snapshot().get("pressure"));int trimmed=0;
-        Set<SharedFeatureStoreR31> stores=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<SharedFeatureStoreR31,Boolean>());
+        java.util.Set<SharedFeatureStoreR31> stores=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<SharedFeatureStoreR31,Boolean>());
         for(FeatureCacheR27 cache:caches)if(cache.memory==memory){
             // Optional admission reserves realtime headroom below the soft high
             // water. A NORMAL heap can therefore still be out of capacity.
