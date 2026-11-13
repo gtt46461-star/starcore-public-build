@@ -1,83 +1,159 @@
-name: STARCORE R31 visible construction source only
+name: STARCORE R31 exact-source build with existing R27 signer
 on:
   push:
     branches: ['construction/r27-20261028']
     paths: ['.github/r31-build-request.json', '.github/workflows/r31-build-r27.yml']
 permissions:
-  contents: write
+  contents: read
+  actions: read
 concurrency:
-  group: r31-visible-source-transfer
+  group: r31-exact-existing-signer-${{ github.sha }}
   cancel-in-progress: false
+env:
+  SDK_PACKAGES: "'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'"
 jobs:
-  transfer:
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 90
+    outputs:
+      source: ${{ steps.request.outputs.source }}
     steps:
       - uses: actions/checkout@v4
         with:
-          path: caller
-      - name: Bind the public source patch; no APK or test result is produced
+          sparse-checkout: .github/r31-build-request.json
+          persist-credentials: false
+      - name: Require exact current R31 source and existing signer
         id: request
         run: |
           python3 - <<'PY'
-          import base64,gzip,hashlib,json,os,pathlib,re
-          r=json.load(open('caller/.github/r31-build-request.json'))
+          import json,os
+          r=json.load(open('.github/r31-build-request.json'))
           assert r['sourceBranch']=='construction/r31-final-20261104'
-          assert r['status']=='WORK_IN_PROGRESS_SOURCE_ONLY_NOT_APK_NOT_ACCEPTANCE'
-          assert 1<=len(r['patchParts'])<=64
-          for key in ['base','tree','appTree','localSource']:assert re.fullmatch('[0-9a-f]{40}',r[key])
-          chunks=[]
-          for i,p in enumerate(r['patchParts']):
-            assert p['path']=='.github/r31-wip-patch/part-%03d.b64'%i
-            encoded=pathlib.Path('caller',p['path']).read_text(encoding='ascii')
-            assert 1<=len(encoded)<=16384 and len(encoded)==p['characters']
-            assert hashlib.sha256(encoded.encode('ascii')).hexdigest()==p['sha256']
-            chunks.append(encoded)
-          encoded=''.join(chunks)
-          data=base64.b64decode(encoded,validate=True)
-          assert hashlib.sha256(data).hexdigest()==r['patchGzipSha256']
-          patch=gzip.decompress(data);assert len(patch)<2000000
-          pathlib.Path('source.patch').write_bytes(patch)
-          with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('base='+r['base']+'\n')
-          print('WIP_SOURCE_TRANSFER_ONLY patchBytes='+str(len(patch)))
+          assert r['source']=='8e4160ebe20e220afd3d78c6df61ec198a3c202d'
+          assert r['mode']=='EXISTING_SIGNER_ONLY_NO_NEW_KEY'
+          assert r['expectedVersionCode']==577311021
+          assert r['expectedCertSha256']=='d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('source='+r['source']+'\n')
           PY
       - uses: actions/checkout@v4
         with:
-          ref: construction/r31-final-20261104
+          ref: ${{ steps.request.outputs.source }}
           fetch-depth: 0
-          path: source
-      - name: Apply only to the exact current application branch
-        working-directory: source
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+      - name: Restore original branch-scoped signer; never generate a key
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/r27-ci-temp-key
+          key: starcore-r27-ci-temp-signing-v1
+          fail-on-cache-miss: true
+      - name: Bind only the installed application's existing certificate
+        env:
+          DUOQU_SECRET: ${{ secrets.DUOQU_API_KEY }}
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "${{ steps.request.outputs.base }}"
-          git apply --check ../source.patch
-          git apply --index ../source.patch
-          python3 - <<'PY'
-          import json,subprocess
-          r=json.load(open('../caller/.github/r31-build-request.json'))
-          tree=subprocess.check_output(['git','write-tree'],text=True).strip()
-          assert tree==r['tree'],'EXACT_SOURCE_TREE_MISMATCH'
-          print('EXACT_WIP_TREE='+tree)
-          PY
-          git config user.name github-actions
-          git config user.email github-actions@users.noreply.github.com
-          BASE="${{ steps.request.outputs.base }}"
-          TREE=$(git write-tree)
-          COMMIT=$(git commit-tree "$TREE" -p "$BASE" -m 'wip(r31): publish actual cumulative construction sources; final gates and APK pending [skip ci]')
-          if git push origin "$COMMIT:refs/heads/construction/r31-final-20261104"; then
-            echo "WIP_FULL_SOURCE_COMMIT=$COMMIT"
-          else
-            git restore --source="$BASE" --staged --worktree -- .github/workflows/r31-gate.yml .github/workflows/r31-verification.yml .github/workflows/r31-publish-release.yml
-            python3 - <<'PY'
-          import json,subprocess
-          r=json.load(open('../caller/.github/r31-build-request.json'))
-          assert subprocess.check_output(['git','write-tree'],text=True).strip()==r['appTree'],'APP_ONLY_TREE_MISMATCH'
-          PY
-            APP_TREE=$(git write-tree)
-            APP_COMMIT=$(git commit-tree "$APP_TREE" -p "$BASE" -m 'wip(r31): visible actual application construction; workflow synchronization pending [skip ci]')
-            git push origin "$APP_COMMIT:refs/heads/construction/r31-final-20261104"
-            echo "WIP_APP_SOURCE_COMMIT=$APP_COMMIT"
-            echo "WIP_APP_TREE=$APP_TREE"
-          fi
-          echo 'WORK_IN_PROGRESS_NO_APK_NO_FULL_ACCEPTANCE_CLAIM'
+          K="$HOME/.starcore/r27-ci-temp-key"
+          test -f "$K/r27-ci.p12" && test -s "$K/pw"
+          pw=$(cat "$K/pw"); echo "::add-mask::$pw"
+          cert=$(keytool -exportcert -keystore "$K/r27-ci.p12" -storetype PKCS12 -alias starcore-r13 -storepass "$pw" | sha256sum | cut -c1-64)
+          test "$cert" = d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+          test -n "$DUOQU_SECRET"; echo "::add-mask::$DUOQU_SECRET"
+          { echo "R13_SIGNING_P12=$K/r27-ci.p12"; echo "R13_SIGNING_PASSWORD=$pw"; echo "R13_EXPECTED_CERT_SHA256=$cert"; echo "DUOQU_API_KEY=$DUOQU_SECRET"; } >> "$GITHUB_ENV"
+          mkdir -p r31v
+          echo "EXISTING_DEVICE_IDENTITY: installed R31 577311020 signer $cert" > r31v/signing.txt
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - run: eval sdkmanager $SDK_PACKAGES > /dev/null
+      - uses: actions/cache@v4
+        with:
+          path: ~/.gradle/wrapper/dists
+          key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+      - name: Check frozen product inputs; never rebind or substitute source
+        env:
+          EXPECTED_SOURCE: ${{ steps.request.outputs.source }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE"
+          git fetch --no-tags origin refs/heads/construction/r31-final-20261104:refs/remotes/origin/construction/r31-final-20261104
+          git merge-base --is-ancestor "$EXPECTED_SOURCE" refs/remotes/origin/construction/r31-final-20261104
+          python3 -B scripts/r967_semantic_identity.py --check
+          python3 -B scripts/r982_source_call_asset.py
+          python3 -B tools/r31/verify_baseline.py --require-clean --output r31v/source-baseline.json
+      - name: Compile and sign exact current product APKs
+        run: |
+          set -o pipefail
+          ./gradlew --no-daemon --max-workers=4 -Pr30Instrumentation=true :app:assembleRelease :app:assembleDebug :app:assembleDebugAndroidTest :app:verifyFinalR31BuildIdentity 2>&1 | tee r31v/assemble.log
+      - name: Verify actual signed APK identity and record exact bytes
+        run: |
+          set -euo pipefail
+          B="$ANDROID_HOME/build-tools/36.0.0"
+          for variant in release debug; do
+            apk=$(find "app/build/outputs/apk/$variant" -maxdepth 1 -name '*.apk' -print -quit)
+            test -n "$apk"
+            python3 -B tools/r31/verify_baseline.py --require-clean --apk "$apk" --apksigner "$B/apksigner" --aapt "$B/aapt" --expected-cert-sha256 "$R13_EXPECTED_CERT_SHA256" --output "r31v/$variant-identity.json"
+          done
+          for f in app/build/outputs/apk/release/*.apk app/build/outputs/apk/debug/*.apk app/build/outputs/apk/androidTest/debug/*.apk; do
+            n=$(basename "$f" .apk)
+            "$B/apksigner" verify --verbose --print-certs "$f" > "r31v/signature-$n.txt"
+            grep -F "$R13_EXPECTED_CERT_SHA256" "r31v/signature-$n.txt"
+            "$B/aapt" dump badging "$f" > "r31v/badging-$n.txt"
+          done
+          sha256sum app/build/outputs/apk/release/*.apk app/build/outputs/apk/debug/*.apk app/build/outputs/apk/androidTest/debug/*.apk > r31v/SHA256SUMS.txt
+          git rev-parse HEAD > r31v/source-commit.txt
+          git diff --exit-code
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31v-android-build
+          path: |
+            r31v/
+            app/build/outputs/apk/
+  instrumentation:
+    needs: build
+    if: github.event.inputs.instrumentation != 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [29, 34, 35]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.source }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31v-android-build
+          path: built
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: bash tools/r31/emulator_matrix.sh ${{ matrix.api }} "$(ls built/app/build/outputs/apk/debug/*.apk | head -1)" "$(ls built/app/build/outputs/apk/androidTest/debug/*.apk | head -1)" r31v/emu-${{ matrix.api }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31v-emu-${{ matrix.api }}
+          path: r31v/
