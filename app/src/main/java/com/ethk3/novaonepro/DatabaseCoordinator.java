@@ -95,8 +95,8 @@ public final class DatabaseCoordinator {
         registerR31(registry,WriteClass.RESEARCH_DATA,"SU1_LIVE_RECOVER","SU1_MAINLINE_HEAD_ADVANCE","SU1_MODEL_ABLATION_CHECKPOINT","SU1_OPEN_PRESELECTED_SEALED","SU1_OUTBOX_EFFECT_ACK","SU1_PAIRED_LOOK","SU1_SEED_POOL","SU1_TRANSITIVE_PINS");
         registerR31(registry,WriteClass.RESEARCH_DATA,"SU1_USER_MODE","SU2_CERT_LOOK","SU2_DIAGNOSIS","SU2_INCUMBENT_SEED","SU2_MAINLINE_CHOICE","SU2_MATRIX_AVAILABLE","SU2_MATRIX_GRADES");
         registerR31(registry,WriteClass.RETENTION,"CP12_HISTORY_ARCHIVE_PAGE","R31_FOUNDRY_RETENTION_SLICE","R31_MATRIX_RETENTION_SLICE","R31_STAGE_RETENTION_SLICE","R915_GENESIS_CAPACITY_PRUNE","R930_C06_ARCHIVE","R943_RESEARCH_STORAGE_RECLAIM","SU1_PREPARE_DAILY_ARCHIVE");
-        registerR31(registry,WriteClass.RETENTION,"SU1_VERIFIED_ARCHIVE_COMMIT");
-        registerR31(registry,WriteClass.TELEMETRY,"R923_POST_COMMIT_TELEMETRY","R926_TELEMETRY_EVENT_OUTBOX_RECOVERY");
+        registerR31(registry,WriteClass.RETENTION,"SU1_VERIFIED_ARCHIVE_COMMIT","R817_DRAW_RAW_PAYLOAD_COMPACT");
+        registerR31(registry,WriteClass.TELEMETRY,"R914_TELEMETRY_STATE","R923_POST_COMMIT_TELEMETRY","R926_TELEMETRY_EVENT_OUTBOX_RECOVERY");
         registerR31(registry,WriteClass.REPORT,"LONG_SUMMARY_AVAILABLE_R80","LONG_SUMMARY_R80","R30_DECISION_EXPLAIN","R907_SELECTED_EVIDENCE_ASYNC");
         OPERATION_REGISTRY_R31=Collections.unmodifiableMap(registry);
     }
@@ -834,7 +834,21 @@ public final class DatabaseCoordinator {
     }
 
     public <T> T runWrite(String operation, WriteCallable<T> task, T fallback) {
-        return runWrite(WriteContext.legacy(operation),task,fallback);
+        final WriteContext context=WriteContext.legacy(operation);
+        try{return runWrite(context,task,fallback);}
+        catch(WriteRejectedR31 rejected) {
+            // The legacy API promises a fallback for a body that never ran.
+            // Typed/F01 entry points continue to expose the exact rejection.
+            // An expected admission wait must not escape an old service thread
+            // as an uncaught exception and kill unrelated live ingestion.
+            if(!"ADMISSION".equals(rejected.phase)||rejected.commitOutcome!=CommitOutcome.ROLLED_BACK)throw rejected;
+            WriteFailureFrameF01 failure=WRITE_FAILURE_F01.get();if(failure!=null)failure.error=rejected;
+            AttemptR31 observed=ATTEMPT_R31.get();if(observed==null)observed=new AttemptR31();
+            observed.phase="ADMISSION";observed.outcome=CommitOutcome.ROLLED_BACK;
+            final AttemptR31 attempt=observed;final long started=TimeSourceR811.monoNowMs();
+            diagnosticR31(attempt,"RECORD_ADMISSION_REJECTION",()->recordError(context.operation,rejected,started));
+            return fallback;
+        }
     }
     public <T> T runWrite(WriteContext context, WriteCallable<T> task, T fallback) {
         if(task==null)return fallback;

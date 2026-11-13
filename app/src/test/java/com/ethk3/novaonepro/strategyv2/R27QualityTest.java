@@ -165,7 +165,7 @@ public final class R27QualityTest {
     static String restoreUnifiedSchemaBlocksR31(String source) {
         try {
             String review=new String(Files.readAllBytes(new File(R27TestSupport.root(),"verification/r31/unified-schema-review.json").toPath()),java.nio.charset.StandardCharsets.UTF_8);
-            assertEquals("Only the explicitly reviewed schema-only patch is allowed","7a24b33a4218284fcbbde98e381f2022c0ff8c4a8b270da09422272dfde10f31",StatsR27.sha256(review));
+            assertEquals("Only the explicitly reviewed schema-only patch is allowed","4b54094f96dd69a5de51c32325591aa28c22fab014aefe392daaa201771972f2",StatsR27.sha256(review));
             Map<String,Object> document=(Map<String,Object>)JsonR27.parse(review);
             List<Object> hunks=(List<Object>)document.get("hunks");
             for(int i=hunks.size()-1;i>=0;i--) {

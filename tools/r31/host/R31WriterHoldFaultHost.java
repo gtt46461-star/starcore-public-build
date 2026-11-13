@@ -89,6 +89,16 @@ public final class R31WriterHoldFaultHost {
         need(calls.get()==prior&&observation("capacityLoss")==0,"refused body did not run or lose observations");
         coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.DRAW_INGEST,"INJECTED_CRITICAL_SENTINEL"),tx->{tx.execSQL("INSERT INTO critical_sentinel VALUES(1)");return 1;});
         need(scalar("SELECT count(*) FROM critical_sentinel")==1,"Critical is still admitted");
+        AtomicInteger legacyBody=new AtomicInteger();long debt=observation("pending");
+        int fallback=coordinator.runWrite("INJECTED_LEGACY_RESEARCH_WAIT",tx->{legacyBody.incrementAndGet();tx.execSQL("UPDATE injected_counter SET n=n+10000");return 99;},-17);
+        need(fallback==-17&&legacyBody.get()==0,"legacy admission wait returns its declared fallback without running or crashing its service body");
+        need(observation("pending")==debt&&WriterHoldFaultsR31.deferResearch(),"legacy rejection does not drop or reset real evidence debt");
+        boolean typedRejected=false;try{coordinator.runWrite(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RESEARCH_DATA,"INJECTED_TYPED_RESEARCH_WAIT"),tx->{legacyBody.incrementAndGet();return 99;},-17);}catch(DatabaseCoordinator.WriteRejectedR31 expected){typedRejected="DEPENDENCY".equals(expected.category)&&expected.commitOutcome==DatabaseCoordinator.CommitOutcome.ROLLED_BACK;}
+        need(typedRejected&&legacyBody.get()==0,"typed direct entry retains its recoverable pre-body rejection");
+        int telemetry=coordinator.runWrite("R914_TELEMETRY_STATE",tx->{tx.execSQL("INSERT INTO critical_sentinel VALUES(2)");return 11;},-17);
+        need(telemetry==11&&scalar("SELECT count(*) FROM critical_sentinel WHERE id=2")==1,"actual legacy backfill telemetry remains admitted under real research debt");
+        int retention=coordinator.runWrite("R817_DRAW_RAW_PAYLOAD_COMPACT",tx->{tx.execSQL("INSERT INTO critical_sentinel VALUES(3)");return 12;},-17);
+        need(retention==12&&scalar("SELECT count(*) FROM critical_sentinel WHERE id=3")==1,"actual raw-payload retention operation has its own explicit class");
         need(WriterHoldFaultsR31.drainOne(store)&&!WriterHoldFaultsR31.deferResearch(),"actual durable delivery is the recovery condition");
         slow("resumed",calls);need(calls.get()==prior+1,"research really resumes without resetting task or exposure");
         drainAll();need(observation("capacityLoss")==0,"no dropped fault receipts under controlled research pressure");

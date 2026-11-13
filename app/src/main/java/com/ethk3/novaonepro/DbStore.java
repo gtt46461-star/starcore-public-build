@@ -1308,15 +1308,15 @@ public final class DbStore {
                             + ")");
 
             execMigrationDdlOnlyR31(db,
-                    "CREATE INDEX IF NOT EXISTS idx_learning_case_target ON "
+                    "CREATE INDEX IF NOT EXISTS idx_dbstore_learning_case_target ON "
                             + TABLE_LEARNING_CASE_LOG
                             + "(target_issue,position)");
             execMigrationDdlOnlyR31(db,
-                    "CREATE INDEX IF NOT EXISTS idx_learning_case_state ON "
+                    "CREATE INDEX IF NOT EXISTS idx_dbstore_learning_case_state ON "
                             + TABLE_LEARNING_CASE_LOG
                             + "(state_key,position)");
             execMigrationDdlOnlyR31(db,
-                    "CREATE INDEX IF NOT EXISTS idx_learning_case_task ON "
+                    "CREATE INDEX IF NOT EXISTS idx_dbstore_learning_case_task ON "
                             + TABLE_LEARNING_CASE_LOG
                             + "(task_key,segment_key)");
             execMigrationDdlOnlyR31(db,
@@ -1360,7 +1360,7 @@ public final class DbStore {
                             + ")");
 
             execMigrationDdlOnlyR31(db,
-                    "CREATE INDEX IF NOT EXISTS idx_runtime_profile_state ON "
+                    "CREATE INDEX IF NOT EXISTS idx_dbstore_runtime_profile_state ON "
                             + TABLE_RUNTIME_PROFILE_CACHE
                             + "(state_key,position)");
             execMigrationDdlOnlyR31(db,
@@ -1407,7 +1407,7 @@ public final class DbStore {
                             + ")");
 
             execMigrationDdlOnlyR31(db,
-                    "CREATE INDEX IF NOT EXISTS idx_state_number_state ON "
+                    "CREATE INDEX IF NOT EXISTS idx_dbstore_state_number_state ON "
                             + TABLE_STATE_NUMBER_PROFILE
                             + "(state_key,position)");
             execMigrationDdlOnlyR31(db,
@@ -13108,6 +13108,12 @@ public final class DbStore {
                             + "usable INTEGER DEFAULT 0"
                             + ")");
 
+            // A cold/older DbHelper may already own the smaller table. Index
+            // prerequisites must be repaired in this unit, before CREATE INDEX;
+            // the later optional-column group cannot unblock a failed index.
+            addColumnIfMissing(db,TABLE_TEACHER_SNAPSHOT,"created_at","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,TABLE_TEACHER_SNAPSHOT,"usable","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,TABLE_TEACHER_SNAPSHOT,"status","TEXT");
             execMigrationDdlOnlyR31(db,
                     "CREATE INDEX IF NOT EXISTS idx_teacher_snapshot_created ON "
                             + TABLE_TEACHER_SNAPSHOT
@@ -15765,6 +15771,16 @@ public final class DbStore {
             return;
         }
 
+        // Existing historical tables need not have the generic CREATE shape.
+        // Repair the original index prerequisites before the index-only unit.
+        addColumnIfMissing(db, table, "target_issue", "TEXT");
+        addColumnIfMissing(db, table, "state_key", "TEXT");
+        addColumnIfMissing(db, table, "position", "INTEGER DEFAULT 0");
+        addColumnIfMissing(db, table, "number", "INTEGER DEFAULT 0");
+        addColumnIfMissing(db, table, "rule_key", "TEXT");
+        addColumnIfMissing(db, table, "source_key", "TEXT");
+        addColumnIfMissing(db, table, "false_strong_key", "TEXT");
+        addColumnIfMissing(db, table, "updated_at", "INTEGER DEFAULT 0");
         addColumnIfMissing(db, table, "source_issue", "TEXT");
         addColumnIfMissing(db, table, "decision_id", "INTEGER DEFAULT 0");
         addColumnIfMissing(db, table, "trade_id", "INTEGER DEFAULT 0");

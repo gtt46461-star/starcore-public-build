@@ -32,7 +32,7 @@ public final class R30FaultMatrixTest {
         Map<String,Object> platform=ResearchPlatformStoreR929.schemaReadinessReportR31(store.readable());
         System.out.println("R31_FAULT_PLATFORM_STARTUP|db="+store.readable().getPath()+"|metadata="+JsonR27.write(platform));
         assertEquals("production startup bundle prerequisites before fault injection: "+platform,Boolean.TRUE,platform.get("ready"));
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R30_FAULT_FIXTURE_SCHEMA",db->{RuntimeSchemaR26.ensure(db);for(String sql:SqlStatementsSU1.SQL)db.execSQL(sql);StrategySchemaSU2.ensure(db);SchemaR27.ensure(db);db.execSQL("CREATE TABLE IF NOT EXISTS r30_fault_disk(id INTEGER PRIMARY KEY,payload BLOB)");return 0;});
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R30_FAULT_FIXTURE_SCHEMA",db->{RuntimeSchemaR26.ensure(db);R31FixtureSchemaOwners.installSu1WithinWriterR31(db);StrategySchemaSU2.ensure(db);SchemaR27.ensure(db);db.execSQL("CREATE TABLE IF NOT EXISTS r30_fault_disk(id INTEGER PRIMARY KEY,payload BLOB)");return 0;});
         assertEquals("fresh routed test database",0,n(store.readable(),"SELECT count(*) FROM draws"));
         ArrayList<Models.Draw> history=new ArrayList<>();long latest=System.currentTimeMillis();for(int i=1;i<=240;i++)history.add(draw(i,latest-(240-i)*60_000L));assertEquals(240,store.saveDraws(history));
         assertEquals("default real authority remains disabled","0",store.getState(RealAuthoritySU2.USER_SWITCH,"0"));

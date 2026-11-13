@@ -2,7 +2,7 @@
   "scope": "UF02_UF03_UF04_SCHEMA_ONLY_REVIEW_NO_PAYOUT_NO_DECISION_THRESHOLD_CHANGES",
   "baseCommit": "1a3c6463fb2cb3171c49ca6cded69de678483819",
   "baseSourceSha256": "20e8419ce3cd3734b8f8c5a86c6c10917f972f4643c4027ec3257eff7c85f170",
-  "reviewedSourceSha256": "dbbdb38112f70ea39a64bd5a8edc4e40fd2ba4f7dcae4a326b55c7233416fe19",
+  "reviewedSourceSha256": "e69f85d8195fbb7a4c51589b880cb1bdae249015cb38772ac788d06c32275011",
   "originalWholeFileRedlineSha256": "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",
   "hunks": [
     {
@@ -89,9 +89,9 @@
       "startLineBefore": 1281,
       "startLineAfter": 1306,
       "before": "                            + \"recent_hit_rate REAL DEFAULT 0,\"\n                            + \"saved INTEGER DEFAULT 0\"\n                            + \")\");\n\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_learning_case_target ON \"\n                            + TABLE_LEARNING_CASE_LOG\n                            + \"(target_issue,position)\");\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_learning_case_state ON \"\n                            + TABLE_LEARNING_CASE_LOG\n                            + \"(state_key,position)\");\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_learning_case_task ON \"\n                            + TABLE_LEARNING_CASE_LOG\n                            + \"(task_key,segment_key)\");\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_learning_case_created ON \"\n                            + TABLE_LEARNING_CASE_LOG\n                            + \"(created_at)\");\n        } catch (Throwable e) {\n        }\n    }\n\n    private void ensureRuntimeProfileCacheTable(SQLiteDatabase db) {\n",
-      "after": "                            + \"recent_hit_rate REAL DEFAULT 0,\"\n                            + \"saved INTEGER DEFAULT 0\"\n                            + \")\");\n\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_learning_case_target ON \"\n                            + TABLE_LEARNING_CASE_LOG\n                            + \"(target_issue,position)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_learning_case_state ON \"\n                            + TABLE_LEARNING_CASE_LOG\n                            + \"(state_key,position)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_learning_case_task ON \"\n                            + TABLE_LEARNING_CASE_LOG\n                            + \"(task_key,segment_key)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_learning_case_created ON \"\n                            + TABLE_LEARNING_CASE_LOG\n                            + \"(created_at)\");\n        } catch (Throwable e) {\n            LegacyDdlR31.failed(e);\n        }\n    }\n\n    private void ensureRuntimeProfileCacheTable(SQLiteDatabase db) {\n",
+      "after": "                            + \"recent_hit_rate REAL DEFAULT 0,\"\n                            + \"saved INTEGER DEFAULT 0\"\n                            + \")\");\n\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_dbstore_learning_case_target ON \"\n                            + TABLE_LEARNING_CASE_LOG\n                            + \"(target_issue,position)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_dbstore_learning_case_state ON \"\n                            + TABLE_LEARNING_CASE_LOG\n                            + \"(state_key,position)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_dbstore_learning_case_task ON \"\n                            + TABLE_LEARNING_CASE_LOG\n                            + \"(task_key,segment_key)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_learning_case_created ON \"\n                            + TABLE_LEARNING_CASE_LOG\n                            + \"(created_at)\");\n        } catch (Throwable e) {\n            LegacyDdlR31.failed(e);\n        }\n    }\n\n    private void ensureRuntimeProfileCacheTable(SQLiteDatabase db) {\n",
       "beforeSha256": "cf88d6affa109e576125b4068de1f2723b64dfc27ebe3ec2873f64ac16298d4c",
-      "afterSha256": "72d036d0da8e73561b74af9dace087bb660c2440c8d3a309aa19f3c2e2b29c47"
+      "afterSha256": "a16c7526d1040ab4e388959b862a22d7cb4ede26dbf1b1e62d1ffa1e247668bf"
     },
     {
       "startLineBefore": 1307,
@@ -105,9 +105,9 @@
       "startLineBefore": 1332,
       "startLineAfter": 1358,
       "before": "                            + \"updated_at INTEGER DEFAULT 0,\"\n                            + \"summary_text TEXT\"\n                            + \")\");\n\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_runtime_profile_state ON \"\n                            + TABLE_RUNTIME_PROFILE_CACHE\n                            + \"(state_key,position)\");\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_runtime_profile_score ON \"\n                            + TABLE_RUNTIME_PROFILE_CACHE\n                            + \"(profile_score DESC,state_confidence DESC)\");\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_runtime_profile_updated ON \"\n                            + TABLE_RUNTIME_PROFILE_CACHE\n                            + \"(updated_at)\");\n        } catch (Throwable e) {\n        }\n    }\n\n    private void ensureStateNumberProfileTable(SQLiteDatabase db) {\n",
-      "after": "                            + \"updated_at INTEGER DEFAULT 0,\"\n                            + \"summary_text TEXT\"\n                            + \")\");\n\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_runtime_profile_state ON \"\n                            + TABLE_RUNTIME_PROFILE_CACHE\n                            + \"(state_key,position)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_runtime_profile_score ON \"\n                            + TABLE_RUNTIME_PROFILE_CACHE\n                            + \"(profile_score DESC,state_confidence DESC)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_runtime_profile_updated ON \"\n                            + TABLE_RUNTIME_PROFILE_CACHE\n                            + \"(updated_at)\");\n        } catch (Throwable e) {\n            LegacyDdlR31.failed(e);\n        }\n    }\n\n    private void ensureStateNumberProfileTable(SQLiteDatabase db) {\n",
+      "after": "                            + \"updated_at INTEGER DEFAULT 0,\"\n                            + \"summary_text TEXT\"\n                            + \")\");\n\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_dbstore_runtime_profile_state ON \"\n                            + TABLE_RUNTIME_PROFILE_CACHE\n                            + \"(state_key,position)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_runtime_profile_score ON \"\n                            + TABLE_RUNTIME_PROFILE_CACHE\n                            + \"(profile_score DESC,state_confidence DESC)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_runtime_profile_updated ON \"\n                            + TABLE_RUNTIME_PROFILE_CACHE\n                            + \"(updated_at)\");\n        } catch (Throwable e) {\n            LegacyDdlR31.failed(e);\n        }\n    }\n\n    private void ensureStateNumberProfileTable(SQLiteDatabase db) {\n",
       "beforeSha256": "21d36973fa92a198cca4a9354ea93e9f3c83e365e5decd0c7329cc6154ebd5ac",
-      "afterSha256": "cbfff3033f9a22da82ee404d3d03309751272062a3f51b28638ac8aa18cbbecb"
+      "afterSha256": "87d6c799d84c61c97bcbcfc747e986b2e97b01b859962d2797a27c1cdb758a1c"
     },
     {
       "startLineBefore": 1354,
@@ -121,9 +121,9 @@
       "startLineBefore": 1378,
       "startLineAfter": 1405,
       "before": "                            + \"why_text TEXT,\"\n                            + \"updated_at INTEGER DEFAULT 0\"\n                            + \")\");\n\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_state_number_state ON \"\n                            + TABLE_STATE_NUMBER_PROFILE\n                            + \"(state_key,position)\");\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_state_number_number ON \"\n                            + TABLE_STATE_NUMBER_PROFILE\n                            + \"(position,number)\");\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_state_number_bias ON \"\n                            + TABLE_STATE_NUMBER_PROFILE\n                            + \"(number_bias DESC,confidence DESC)\");\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_state_number_updated ON \"\n                            + TABLE_STATE_NUMBER_PROFILE\n                            + \"(updated_at)\");\n        } catch (Throwable e) {\n        }\n    }\n\n    private void ensureAutoLearnCursorTable(SQLiteDatabase db) {\n",
-      "after": "                            + \"why_text TEXT,\"\n                            + \"updated_at INTEGER DEFAULT 0\"\n                            + \")\");\n\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_state_number_state ON \"\n                            + TABLE_STATE_NUMBER_PROFILE\n                            + \"(state_key,position)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_state_number_number ON \"\n                            + TABLE_STATE_NUMBER_PROFILE\n                            + \"(position,number)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_state_number_bias ON \"\n                            + TABLE_STATE_NUMBER_PROFILE\n                            + \"(number_bias DESC,confidence DESC)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_state_number_updated ON \"\n                            + TABLE_STATE_NUMBER_PROFILE\n                            + \"(updated_at)\");\n        } catch (Throwable e) {\n            LegacyDdlR31.failed(e);\n        }\n    }\n\n    private void ensureAutoLearnCursorTable(SQLiteDatabase db) {\n",
+      "after": "                            + \"why_text TEXT,\"\n                            + \"updated_at INTEGER DEFAULT 0\"\n                            + \")\");\n\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_dbstore_state_number_state ON \"\n                            + TABLE_STATE_NUMBER_PROFILE\n                            + \"(state_key,position)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_state_number_number ON \"\n                            + TABLE_STATE_NUMBER_PROFILE\n                            + \"(position,number)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_state_number_bias ON \"\n                            + TABLE_STATE_NUMBER_PROFILE\n                            + \"(number_bias DESC,confidence DESC)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_state_number_updated ON \"\n                            + TABLE_STATE_NUMBER_PROFILE\n                            + \"(updated_at)\");\n        } catch (Throwable e) {\n            LegacyDdlR31.failed(e);\n        }\n    }\n\n    private void ensureAutoLearnCursorTable(SQLiteDatabase db) {\n",
       "beforeSha256": "e9125fcece10afce0eaaa082ea3f59512aa717fcc23a2ab81e2a2a001f3a8e0f",
-      "afterSha256": "761746412db929ef392f09e26d4a7a826d1bda2e243bb9e8123c752cf12e0e8d"
+      "afterSha256": "998ec57278bb478ac44a87859d7b6dbdc1945695b43de715d4b51a12d94d5e13"
     },
     {
       "startLineBefore": 1404,
@@ -281,13 +281,13 @@
       "startLineBefore": 13065,
       "startLineAfter": 13107,
       "before": "                            + \"created_at INTEGER DEFAULT 0,\"\n                            + \"usable INTEGER DEFAULT 0\"\n                            + \")\");\n\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_teacher_snapshot_created ON \"\n                            + TABLE_TEACHER_SNAPSHOT\n                            + \"(created_at)\");\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_teacher_snapshot_usable ON \"\n                            + TABLE_TEACHER_SNAPSHOT\n                            + \"(usable,status)\");\n        } catch (Throwable e) {\n        }\n    }\n\n    private double calcFrequency(int window) {\n",
-      "after": "                            + \"created_at INTEGER DEFAULT 0,\"\n                            + \"usable INTEGER DEFAULT 0\"\n                            + \")\");\n\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_teacher_snapshot_created ON \"\n                            + TABLE_TEACHER_SNAPSHOT\n                            + \"(created_at)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_teacher_snapshot_usable ON \"\n                            + TABLE_TEACHER_SNAPSHOT\n                            + \"(usable,status)\");\n        } catch (Throwable e) {\n            LegacyDdlR31.failed(e);\n        }\n    }\n\n    private double calcFrequency(int window) {\n",
+      "after": "                            + \"created_at INTEGER DEFAULT 0,\"\n                            + \"usable INTEGER DEFAULT 0\"\n                            + \")\");\n\n            // A cold/older DbHelper may already own the smaller table. Index\n            // prerequisites must be repaired in this unit, before CREATE INDEX;\n            // the later optional-column group cannot unblock a failed index.\n            addColumnIfMissing(db,TABLE_TEACHER_SNAPSHOT,\"created_at\",\"INTEGER DEFAULT 0\");\n            addColumnIfMissing(db,TABLE_TEACHER_SNAPSHOT,\"usable\",\"INTEGER DEFAULT 0\");\n            addColumnIfMissing(db,TABLE_TEACHER_SNAPSHOT,\"status\",\"TEXT\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_teacher_snapshot_created ON \"\n                            + TABLE_TEACHER_SNAPSHOT\n                            + \"(created_at)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_teacher_snapshot_usable ON \"\n                            + TABLE_TEACHER_SNAPSHOT\n                            + \"(usable,status)\");\n        } catch (Throwable e) {\n            LegacyDdlR31.failed(e);\n        }\n    }\n\n    private double calcFrequency(int window) {\n",
       "beforeSha256": "0148445cdcb6289a466b8d74f0290ea3c4683083477253de17957287a68c29f9",
-      "afterSha256": "ca30b44380e5b47a8c963866de37d713646e70608c158ff090124086d0751009"
+      "afterSha256": "5f61fb530c445466a469a4b89973ba8a9eb86b4c38e9c2d2e401a72258b8a5d4"
     },
     {
       "startLineBefore": 15604,
-      "startLineAfter": 15647,
+      "startLineAfter": 15653,
       "before": "            SQLiteDatabase db = writable();\n            ensureV20CauseChainReady(db);\n            clearColumnCache();\n        } catch (Throwable e) {\n        }\n    }\n\n    private void ensureV20CauseChainReady(SQLiteDatabase db) {\n        if (db == null) {\n            return;\n        }\n\n",
       "after": "            SQLiteDatabase db = writable();\n            ensureV20CauseChainReady(db);\n            clearColumnCache();\n        } catch (Throwable e) {\n            LegacyDdlR31.failed(e);\n        }\n    }\n\n    private void ensureV20CauseChainReady(SQLiteDatabase db) {\n        if (!LegacyDdlR31.owned(db)) { requireRuntimeReadyReadOnlyR31(db); return; }\n        if (db == null) {\n            return;\n        }\n\n",
       "beforeSha256": "db17927f8c7d315925209e86ebf071b7ed0436a77bff78ee95ab2297247fb6aa",
@@ -295,7 +295,7 @@
     },
     {
       "startLineBefore": 15617,
-      "startLineAfter": 15662,
+      "startLineAfter": 15668,
       "before": "            ensureV20BaseTables(db);\n            ensureV20CommonColumns(db);\n            ensureV20Indexes(db);\n        } catch (Throwable e) {\n        }\n    }\n\n    private void ensureV20BaseTables(SQLiteDatabase db) {\n",
       "after": "            ensureV20BaseTables(db);\n            ensureV20CommonColumns(db);\n            ensureV20Indexes(db);\n        } catch (Throwable e) {\n            LegacyDdlR31.failed(e);\n        }\n    }\n\n    private void ensureV20BaseTables(SQLiteDatabase db) {\n",
       "beforeSha256": "f5b4c09eef56beee8f7ca1c1c2d6696e27f847ae19d28911f2f18e6b2de0b8e3",
@@ -303,7 +303,7 @@
     },
     {
       "startLineBefore": 15656,
-      "startLineAfter": 15702,
+      "startLineAfter": 15708,
       "before": "            return;\n        }\n\n        try {\n            db.execSQL(\n                    \"CREATE TABLE IF NOT EXISTS \"\n                            + table\n                            + \" (\"\n                            + \"_id INTEGER PRIMARY KEY AUTOINCREMENT,\"\n",
       "after": "            return;\n        }\n\n        try {\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE TABLE IF NOT EXISTS \"\n                            + table\n                            + \" (\"\n                            + \"_id INTEGER PRIMARY KEY AUTOINCREMENT,\"\n",
       "beforeSha256": "9409212a67e906e546f82e4afeedaee4c11a24f0972fe51ef4f85b4d6489bb64",
@@ -311,15 +311,23 @@
     },
     {
       "startLineBefore": 15679,
-      "startLineAfter": 15725,
+      "startLineAfter": 15731,
       "before": "                            + \"reason_text TEXT,\"\n                            + \"ext_json TEXT\"\n                            + \")\");\n        } catch (Throwable e) {\n        }\n    }\n\n    private void ensureV20CommonColumns(SQLiteDatabase db) {\n",
       "after": "                            + \"reason_text TEXT,\"\n                            + \"ext_json TEXT\"\n                            + \")\");\n        } catch (Throwable e) {\n            LegacyDdlR31.failed(e);\n        }\n    }\n\n    private void ensureV20CommonColumns(SQLiteDatabase db) {\n",
       "beforeSha256": "ab0064c63ff6a62036b4edfadfd7de17fa280acafeb91552c242f20f462fb623",
       "afterSha256": "ebacc59a41135536b4168f2a2ea43127adb2f1ce6e31634549abcf4267f9c77d"
     },
     {
+      "startLineBefore": 15717,
+      "startLineAfter": 15770,
+      "before": "        if (db == null || table == null || table.length() == 0) {\n            return;\n        }\n\n        addColumnIfMissing(db, table, \"source_issue\", \"TEXT\");\n        addColumnIfMissing(db, table, \"decision_id\", \"INTEGER DEFAULT 0\");\n        addColumnIfMissing(db, table, \"trade_id\", \"INTEGER DEFAULT 0\");\n\n",
+      "after": "        if (db == null || table == null || table.length() == 0) {\n            return;\n        }\n\n        // Existing historical tables need not have the generic CREATE shape.\n        // Repair the original index prerequisites before the index-only unit.\n        addColumnIfMissing(db, table, \"target_issue\", \"TEXT\");\n        addColumnIfMissing(db, table, \"state_key\", \"TEXT\");\n        addColumnIfMissing(db, table, \"position\", \"INTEGER DEFAULT 0\");\n        addColumnIfMissing(db, table, \"number\", \"INTEGER DEFAULT 0\");\n        addColumnIfMissing(db, table, \"rule_key\", \"TEXT\");\n        addColumnIfMissing(db, table, \"source_key\", \"TEXT\");\n        addColumnIfMissing(db, table, \"false_strong_key\", \"TEXT\");\n        addColumnIfMissing(db, table, \"updated_at\", \"INTEGER DEFAULT 0\");\n        addColumnIfMissing(db, table, \"source_issue\", \"TEXT\");\n        addColumnIfMissing(db, table, \"decision_id\", \"INTEGER DEFAULT 0\");\n        addColumnIfMissing(db, table, \"trade_id\", \"INTEGER DEFAULT 0\");\n\n",
+      "beforeSha256": "8eed46efa04a015e926c399c39c85077de4b926a80c4c6393de894aa2d51bb8c",
+      "afterSha256": "765a091b030c7fb6a2c3d410dcfda29e2ec903245a72e50ba87313156791fe69"
+    },
+    {
       "startLineBefore": 15914,
-      "startLineAfter": 15961,
+      "startLineAfter": 15977,
       "before": "            return;\n        }\n\n        try {\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_target ON \"\n                            + table\n                            + \"(target_issue)\");\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_state ON \"\n                            + table\n                            + \"(state_key,position)\");\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_pos_num ON \"\n                            + table\n                            + \"(position,number)\");\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_rank ON \"\n                            + table\n                            + \"(target_issue,rank_no)\");\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_rule ON \"\n                            + table\n                            + \"(rule_key,source_key,state_key)\");\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_false ON \"\n                            + table\n                            + \"(false_strong_key,frozen,freeze_level)\");\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_window_state ON \"\n                            + table\n                            + \"(window_state_key,position,feature_distance)\");\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_replay ON \"\n                            + table\n                            + \"(replay_key)\");\n            db.execSQL(\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_updated ON \"\n                            + table\n                            + \"(updated_at)\");\n        } catch (Throwable e) {\n        }\n    }\n\n    private void normalizeV20EvidenceCv(ContentValues cv, String table) {\n",
       "after": "            return;\n        }\n\n        try {\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_target ON \"\n                            + table\n                            + \"(target_issue)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_state ON \"\n                            + table\n                            + \"(state_key,position)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_pos_num ON \"\n                            + table\n                            + \"(position,number)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_rank ON \"\n                            + table\n                            + \"(target_issue,rank_no)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_rule ON \"\n                            + table\n                            + \"(rule_key,source_key,state_key)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_false ON \"\n                            + table\n                            + \"(false_strong_key,frozen,freeze_level)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_window_state ON \"\n                            + table\n                            + \"(window_state_key,position,feature_distance)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_replay ON \"\n                            + table\n                            + \"(replay_key)\");\n            execMigrationDdlOnlyR31(db,\n                    \"CREATE INDEX IF NOT EXISTS idx_\"\n                            + table\n                            + \"_updated ON \"\n                            + table\n                            + \"(updated_at)\");\n        } catch (Throwable e) {\n            LegacyDdlR31.failed(e);\n        }\n    }\n\n    private void normalizeV20EvidenceCv(ContentValues cv, String table) {\n",
       "beforeSha256": "6568de932db101839bfcbf03d41c28157a3c40d1725c65ece11fb88a425ebb20",
@@ -327,7 +335,7 @@
     },
     {
       "startLineBefore": 18274,
-      "startLineAfter": 18322,
+      "startLineAfter": 18338,
       "before": "            setState(\"b07_diagnosis_baseline_status\", \"READY_NO_SAMPLE_TRUTHFUL\");\n            setState(\"b07_diagnosis_baseline_at\", String.valueOf(now));\n            return \"READY_NO_SAMPLE_TRUTHFUL\";\n        } catch (Throwable e) {\n            String err = \"ERROR:\" + e.getClass().getSimpleName();\n            try {\n                setState(\"b07_diagnosis_baseline_status\", err);\n            } catch (Throwable ignore) {\n            }\n            return err;\n        }\n    }\n",
       "after": "            setState(\"b07_diagnosis_baseline_status\", \"READY_NO_SAMPLE_TRUTHFUL\");\n            setState(\"b07_diagnosis_baseline_at\", String.valueOf(now));\n            return \"READY_NO_SAMPLE_TRUTHFUL\";\n        } catch (Throwable e) {\n            LegacyDdlR31.failed(e);\n            String err = \"ERROR:\" + e.getClass().getSimpleName();\n            try {\n                setState(\"b07_diagnosis_baseline_status\", err);\n            } catch (Throwable ignore) {\n            LegacyDdlR31.failed(ignore);\n            }\n            return err;\n        }\n    }\n",
       "beforeSha256": "5f739c902bf3fd6bbae1a050d001f16ab523aa09cb4f46dc4a4849697223bb57",
@@ -335,7 +343,7 @@
     },
     {
       "startLineBefore": 18800,
-      "startLineAfter": 18850,
+      "startLineAfter": 18866,
       "before": "     * 链路修改升级V2存储接口。\n     * 只负责建列、保存、读取、聚合统计与账本保护；不计算概率、不救援BET、不新增BET。\n     */\n    private void ensureLinkModificationV2Ready(SQLiteDatabase db) {\n        if (db == null) return;\n        if (!coordinator.beginLinkSchemaEnsure()) return;\n        boolean ok = false;\n        try {\n            execQuiet(\n                    db,\n",
       "after": "     * 链路修改升级V2存储接口。\n     * 只负责建列、保存、读取、聚合统计与账本保护；不计算概率、不救援BET、不新增BET。\n     */\n    private void ensureLinkModificationV2Ready(SQLiteDatabase db) {\n        if (!LegacyDdlR31.owned(db)) { requireRuntimeReadyReadOnlyR31(db); return; }\n        if (db == null) return;\n        // Unit journal, not the old process boolean, owns strict replay.\n        boolean ok = false;\n        try {\n            execQuiet(\n                    db,\n",
       "beforeSha256": "cb04062ae0c0c56fbde003b23dbb4db4de203e06a96a8d8daee0271bc6ea4a94",
@@ -343,7 +351,7 @@
     },
     {
       "startLineBefore": 18992,
-      "startLineAfter": 19043,
+      "startLineAfter": 19059,
       "before": "    public void ensureLinkModificationV2TablesNow() {\n        try {\n            ensureLinkModificationV2Ready(writable());\n        } catch (Throwable e) {\n        }\n    }\n\n    public void saveFrequencyState(Models.FrequencyState x) {\n",
       "after": "    public void ensureLinkModificationV2TablesNow() {\n        try {\n            ensureLinkModificationV2Ready(writable());\n        } catch (Throwable e) {\n            LegacyDdlR31.failed(e);\n        }\n    }\n\n    public void saveFrequencyState(Models.FrequencyState x) {\n",
       "beforeSha256": "f71023c84d7ecea7f8d62d58587d5c3551f9ccfccbc7839a61609c70f5ee07c5",
@@ -351,7 +359,7 @@
     },
     {
       "startLineBefore": 20930,
-      "startLineAfter": 20982,
+      "startLineAfter": 20998,
       "before": "    }\n\n    /** The build-identity write must not trigger the full historical link-schema migration. */\n    private void ensureModuleRegistryR363(SQLiteDatabase db) {\n        if (db == null) throw new IllegalArgumentException(\"MODULE_REGISTRY_DB_NULL\");\n        db.execSQL(\n                \"CREATE TABLE IF NOT EXISTS \"\n                        + DbHelper.TABLE_V20_MODULE_REGISTRY\n                        + \" (module_name TEXT PRIMARY KEY)\");\n        addColumnIfMissing(db, DbHelper.TABLE_V20_MODULE_REGISTRY, \"version\", \"TEXT\");\n",
       "after": "    }\n\n    /** The build-identity write must not trigger the full historical link-schema migration. */\n    private void ensureModuleRegistryR363(SQLiteDatabase db) {\n        if (!LegacyDdlR31.owned(db)) { requireRuntimeReadyReadOnlyR31(db); return; }\n        if (db == null) throw new IllegalArgumentException(\"MODULE_REGISTRY_DB_NULL\");\n        execMigrationDdlOnlyR31(db,\n                \"CREATE TABLE IF NOT EXISTS \"\n                        + DbHelper.TABLE_V20_MODULE_REGISTRY\n                        + \" (module_name TEXT PRIMARY KEY)\");\n        addColumnIfMissing(db, DbHelper.TABLE_V20_MODULE_REGISTRY, \"version\", \"TEXT\");\n",
       "beforeSha256": "b131ea8b5acd6acdfd7e623dd0547d978ba5db2506f0df9d7419ebb620a426af",
@@ -359,11 +367,28 @@
     },
     {
       "startLineBefore": 21082,
-      "startLineAfter": 21135,
+      "startLineAfter": 21151,
       "before": "        }\n    }\n\n    public void ensureTianshuB03Storage() {\n        SQLiteDatabase db = writable();\n        DbHelper.ensureTianshuB03(db);\n        V51Repository.ensure(db);\n    }\n\n    public V51Repository.PersistReport persistTianshuB03Prediction(V51RuntimeResult result) {\n        ensureTianshuB03Storage();\n",
       "after": "        }\n    }\n\n    public void ensureTianshuB03Storage() {\n        V51Repository.requireBusinessSchemaR31(readable(), \"TIANSHU_B03\");\n    }\n\n    public V51Repository.PersistReport persistTianshuB03Prediction(V51RuntimeResult result) {\n        ensureTianshuB03Storage();\n",
       "beforeSha256": "df58667155a3094975fbda3944687e6585b7069314986e6e2954f4c1ed998f7a",
       "afterSha256": "3a4927face3cdd81ff65a31ab632946c90eb682b12db7b5bc7c98d3f66ff7193"
     }
-  ]
+  ],
+  "additionalSchemaReview": {
+    "sourceBefore": "8f639e4f95851f7dad3405f067e085040e5a44fc",
+    "methods": [
+      "ensureLearningCaseLogTable",
+      "ensureRuntimeProfileCacheTable",
+      "ensureStateNumberProfileTable",
+      "ensureTeacherSnapshotTable",
+      "ensureV20ColumnsForTable"
+    ],
+    "changes": [
+      "Preserve five original simple indexes and add separately named runtime composite indexes with their intended columns.",
+      "Add original teacher snapshot index prerequisites before index creation.",
+      "Add the original V20 generic index prerequisite column definitions before the index unit."
+    ],
+    "nonSchemaBytesUnchangedFromSourceBefore": true,
+    "nativeEvidence": "Actual DbStore runtime: 52 units / 2575 slices; no read-only audit DML; actual critical commit between slices. HOST only."
+  }
 }

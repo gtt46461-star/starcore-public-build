@@ -40,7 +40,7 @@ public final class R30DecisionChainAndroidTest {
         final String certificate=HashingSU1.text("R30_SYNTHETIC_CERTIFICATE_MECHANICS_ONLY");final ModelGenomeSU2 genome=FamilyRegistryR26.genome("F17").bindBirth(HashingSU1.text("R30_SYNTHETIC_SOURCE"),seq-1);
         final long deadline;
         Fixture()throws Exception {
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_R30_DECISION_SCHEMA",w->{RuntimeSchemaR26.ensure(w);for(String sql:SqlStatementsSU1.SQL)w.execSQL(sql);StrategySchemaSU2.ensure(w);SchemaR27.ensure(w);R30OriginalReceiptFixture.schema(w);return 0;});
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_R30_DECISION_SCHEMA",w->{RuntimeSchemaR26.ensure(w);R31FixtureSchemaOwners.installSu1WithinWriterR31(w);StrategySchemaSU2.ensure(w);SchemaR27.ensure(w);R30OriginalReceiptFixture.schema(w);return 0;});
             long latest=System.currentTimeMillis()-1000;
             for(int i=1;i<=240;i++){Models.Draw d=new Models.Draw();d.issue=String.format(Locale.ROOT,"20261031%04d",i);d.openTime=latest-(240-i)*60000L;d.fetchTime=d.openTime+500;for(int p=0;p<10;p++)d.numbers[p]=(p+i-1)%10+1;history.add(d);}
             assertEquals(240,store.saveDraws(history));deadline=TargetIssueResolver.predrawDeadlineWallR20261008(store.getLatestDraw());

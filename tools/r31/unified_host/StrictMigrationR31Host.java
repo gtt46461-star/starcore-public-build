@@ -66,6 +66,17 @@ public final class StrictMigrationR31Host {
             need(scalar(db,"SELECT count(*) FROM sqlite_master WHERE name='idx_v26_oos_one_action_target'")==0,"explicit old index retired");
             boolean refused=false;try{LegacyDdlR31.exec(db,"DROP INDEX IF EXISTS uf_sample_value");}catch(IllegalArgumentException expected){refused=true;}
             need(refused&&scalar(db,"SELECT count(*) FROM sqlite_master WHERE name='uf_sample_value'")==1,"unregistered DROP cannot remove a current index");
+            String exactPredicate="CREATE INDEX IF NOT EXISTS uf_exact_predicate ON protected_rows(value) WHERE value='Ready if not exists; X'";
+            db.execSQL(exactPredicate);
+            LegacyDdlR31.exec(db,exactPredicate);need(scalar(db,"SELECT count(*) FROM sqlite_master WHERE name='uf_exact_predicate'")==1,"exact literal-bearing predicate remains accepted");
+            for(String changed:new String[]{"ready if not exists; X","Ready if not exists;X","Ready if not exists X","Ready ; X"}){
+                boolean drift=false;try{LegacyDdlR31.exec(db,exactPredicate.replace("Ready if not exists; X",changed));}catch(IllegalStateException expected){drift=expected.getMessage().startsWith("LEGACY_DDL_DEFINITION_DRIFT:");}
+                need(drift,"literal case, whitespace, semicolon and IF NOT EXISTS text retain their SQL meaning: "+changed);
+            }
+            String escaped="CREATE INDEX IF NOT EXISTS uf_escaped_predicate ON protected_rows(value) WHERE value='Don''t Normalize'";
+            db.execSQL(escaped);LegacyDdlR31.exec(db,escaped);need(scalar(db,"SELECT count(*) FROM sqlite_master WHERE name='uf_escaped_predicate'")==1,"escaped quotes keep the original predicate valid");
+            boolean escapedDrift=false;try{LegacyDdlR31.exec(db,escaped.replace("Normalize","normalize"));}catch(IllegalStateException expected){escapedDrift=expected.getMessage().startsWith("LEGACY_DDL_DEFINITION_DRIFT:");}
+            need(escapedDrift,"escaped-quote literal case drift cannot match an existing index");
             db.execSQL("INSERT INTO uf_sample(id,value) VALUES(1,'KEEP')");
             db.execSQL("DROP INDEX uf_sample_value"); // fixture-only simulated old swallowed index failure
             db.execSQL("INSERT OR REPLACE INTO v57_schema_migration_journal_r926(domain,revision,step_id,status) VALUES('LEGACY',2,'FINAL_VERIFY','FAILED')");

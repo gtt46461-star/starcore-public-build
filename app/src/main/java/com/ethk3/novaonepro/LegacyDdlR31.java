@@ -101,7 +101,21 @@ final class LegacyDdlR31 {
         }
     }
     private static String normalize(String sql) {
-        return sql.toLowerCase(Locale.ROOT).replaceAll("(?i)if\\s+not\\s+exists","")
-                .replaceAll("[\\s\\\"`\\[\\];]","");
+        // Only layout and unquoted token case are insignificant. Quoted tokens
+        // are part of the canonical owner definition. Preserve them byte for
+        // byte, including SQLite's legacy double-quoted string fallback.
+        StringBuilder out=new StringBuilder();char quote=0;
+        for(int i=0;i<sql.length();i++) {
+            char value=sql.charAt(i);
+            if(quote!=0) {
+                out.append(value);
+                if(value==quote) {
+                    if(i+1<sql.length()&&sql.charAt(i+1)==quote)out.append(sql.charAt(++i));
+                    else quote=0;
+                }
+            } else if(value=='\''||value=='"'||value=='`'||value=='[') {quote=value=='['?']':value;out.append(value);}
+            else if(!Character.isWhitespace(value)&&value!=';')out.append(Character.toLowerCase(value));
+        }
+        return out.toString().replaceFirst("^(create(?:unique)?(?:index|trigger))ifnotexists","$1");
     }
 }

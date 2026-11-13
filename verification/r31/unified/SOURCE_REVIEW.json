@@ -31,11 +31,12 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
       "beforeReviewedSha256": "b4d711ff52d589f68150bc4d72f27b0bf38f78a880064c65e10dfdc889fe5a3b",
-      "afterSha256": "b4d711ff52d589f68150bc4d72f27b0bf38f78a880064c65e10dfdc889fe5a3b",
+      "afterSha256": "d6641a839d8ab9efdf87a01d6b642ac34bbf61036061966ad4f6443e9fa5385e",
       "role": "NUMERIC",
-      "rationale": "UF02/03/04: require the dedicated Legacy migration callback token and bind readiness to the owner-verified SQLite schema version; preserve write classes, fences, priorities and commit semantics.",
+      "rationale": "UF04 real-service crash repair: explicitly classify existing R914_TELEMETRY_STATE as TELEMETRY and R817_DRAW_RAW_PAYLOAD_COMPACT as RETENTION. The legacy fallback overload records and returns only a pre-body ADMISSION/ROLLED_BACK rejection; typed and F01 entry points keep their typed rejection. Actual native backlog/drain tests preserve 24/32 thresholds, critical admission, exact-once bodies and every pending receipt.",
       "baseSourceHead": "1a3c6463fb2cb3171c49ca6cded69de678483819",
-      "baseFileSha256": "3429c3b1bd9a496912c4df371fe4fd49862d949ff8f2ee2a7fbfda6928972bc1"
+      "baseFileSha256": "3429c3b1bd9a496912c4df371fe4fd49862d949ff8f2ee2a7fbfda6928972bc1",
+      "additionalSourceBefore": "8f639e4f95851f7dad3405f067e085040e5a44fc"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
@@ -48,12 +49,13 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
-      "beforeReviewedSha256": "ad1d9115d07babbd49b1fceeedde4745e8113008260c5742b2063e9cf3046b68",
-      "afterSha256": "dbbdb38112f70ea39a64bd5a8edc4e40fd2ba4f7dcae4a326b55c7233416fe19",
+      "beforeReviewedSha256": "dbbdb38112f70ea39a64bd5a8edc4e40fd2ba4f7dcae4a326b55c7233416fe19",
+      "afterSha256": "e69f85d8195fbb7a4c51589b880cb1bdae249015cb38772ac788d06c32275011",
       "role": "NUMERIC",
-      "rationale": "UF02/03/04: route legacy schema-only helpers to a dedicated asynchronous owner, strict single-DDL slices, read-only business readiness and durable drift replay; preserve numeric, DecisionGate, original REAL/PnL and threshold methods.",
+      "rationale": "UF02/03/04 actual runtime repair: retain all original business methods and the original whole-file 9edd4e0f redline. Add original teacher/V20 index prerequisite column definitions before index creation; preserve five original simple indexes and give the different runtime composite definitions unique names. Actual native production DbStore: 52 groups, 2575 bounded slices, intervening critical commits, zero read-only audit DML. No payout, DecisionGate, REAL or threshold change.",
       "baseSourceHead": "1a3c6463fb2cb3171c49ca6cded69de678483819",
-      "baseFileSha256": "20e8419ce3cd3734b8f8c5a86c6c10917f972f4643c4027ec3257eff7c85f170"
+      "baseFileSha256": "20e8419ce3cd3734b8f8c5a86c6c10917f972f4643c4027ec3257eff7c85f170",
+      "additionalSourceBefore": "8f639e4f95851f7dad3405f067e085040e5a44fc"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/EvidenceReachabilityR31.java",
@@ -66,12 +68,13 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/LegacyDdlR31.java",
-      "beforeReviewedSha256": "ef81c65f1be266a1d5fe3018a7708313a9524a1bd5a161d5ce0a078310f31727",
-      "afterSha256": "98047858b21f7f203f80256c5cbbd53c2b18a25f9823e284466de0e8cf6a3042",
+      "beforeReviewedSha256": "98047858b21f7f203f80256c5cbbd53c2b18a25f9823e284466de0e8cf6a3042",
+      "afterSha256": "d78803e69d718e36d7b9aa02ae9cf8c01752f2b7c501e72c5e02bdd1c4ad5217",
       "role": "NUMERIC",
-      "rationale": "UF03 Android cold-start repair: permit only the original DROP INDEX IF EXISTS idx_v26_oos_one_action_target retirement, with absence postcondition, read-only refusal and the existing one-DDL slice limit; every other DROP remains rejected.",
+      "rationale": "UF03 actual SQLite index-contract negative exposed lowercasing/whitespace/IF NOT EXISTS rewriting inside string literals. Normalize layout only outside quoted tokens and only the leading CREATE INDEX/TRIGGER optional clause. Preserve quoted tokens and escapes byte for byte, all registered DROP restrictions and one-DDL slices. Actual native literal drift negatives reject; original object, kill/restart and cold initializer cases remain.",
       "baseSourceHead": "1a3c6463fb2cb3171c49ca6cded69de678483819",
-      "baseFileSha256": null
+      "baseFileSha256": null,
+      "additionalSourceBefore": "8f639e4f95851f7dad3405f067e085040e5a44fc"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java",
