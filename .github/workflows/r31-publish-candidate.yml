@@ -7,7 +7,7 @@ permissions:
   contents: write
   actions: read
 concurrency:
-  group: r31-publish-candidate-8e4160eb
+  group: r31-publish-candidate-0124f5da
   cancel-in-progress: false
 jobs:
   publish:
@@ -16,9 +16,9 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: gtt46461-star/starcore-public-build
-      SOURCE: 8e4160ebe20e220afd3d78c6df61ec198a3c202d
-      SIGN_RUN: '43374763818'
-      CONTRACT_RUN: '43373100736'
+      SOURCE: 0124f5daa4fb296717c97b36a308f4d440d38457
+      SIGN_RUN: '43377916545'
+      CONTRACT_RUN: '43377821693'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -97,7 +97,7 @@ jobs:
           debug=next((built/'app/build/outputs/apk/debug').glob('*.apk'));digest=hashlib.sha256(debug.read_bytes()).hexdigest()
           for api in [29,34,35]:
               receipts=list((root/f'r31v-emu-{api}').rglob('EMU-UPGRADE-RECEIPT.json'));assert len(receipts)==1
-              r=json.loads(receipts[0].read_text());assert r['status']=='OBSERVED_PASS' and r['apkSha256']==digest and r['api']==api
+              r=json.loads(receipts[0].read_text());assert r['status']=='OBSERVED_PASS' and r['apkSha256']==digest and int(r['api'])==api
           PY
       - name: Build and reopen the itemized delivery ZIP
         run: |
@@ -119,7 +119,7 @@ jobs:
           python3 - "$D" <<'PY'
           import json,pathlib,sys,hashlib,os,shutil
           p=pathlib.Path(sys.argv[1]);d=json.loads((p/'R31_DELIVERY.json').read_text())
-          assert d['sourceCommit']=='8e4160ebe20e220afd3d78c6df61ec198a3c202d'
+          assert d['sourceCommit']=='0124f5daa4fb296717c97b36a308f4d440d38457'
           assert d['apk']['variant']=='release' and d['apk']['versionCode']==577311021 and d['overlayInstall']['overlayInstallKeepsData']
           assert d['layers']['L4_PHYSICAL_DEVICE_24H_72H']['status']=='NOT_RUN' and d['layers']['NATURAL_QUALITY']['status']=='NOT_PROVEN'
           original=next((pathlib.Path(os.environ['RUNNER_TEMP'])/'r31-final/stages/r31v-android-build/app/build/outputs/apk/release').glob('*.apk'))
@@ -129,7 +129,7 @@ jobs:
           (p/'RELEASE_NOTES.txt').write_text('STARCORE R31 engineering candidate. Exact source '+d['sourceCommit']+'. Same stated installed package/certificate and greater versionCode. Current HOST/unit and Android emulator checks passed. Physical user-device overlay, original device database, 24h/72h and natural predictive advantage remain NOT_RUN/NOT_PROVEN. APK export success does not imply every product capability is healthy.\n')
           PY
           (cd "$D" && sha256sum *.apk *.zip > DOWNLOAD_SHA256SUMS.txt)
-          tag=r31-engineering-577311021-8e4160ebe20e
+          tag=r31-engineering-577311021-0124f5daa4fb
           if gh release view "$tag" --repo "$REPO" >/dev/null 2>&1; then echo 'EXISTING_RELEASE_REFUSED_NO_OVERWRITE'; exit 1; fi
           gh release create "$tag" "$D"/*.apk "$D"/*.zip "$D"/DOWNLOAD_SHA256SUMS.txt "$D"/R31_DELIVERY.json "$D"/ACCEPTANCE_RESULTS.json "$D"/ACCEPTANCE_RESULTS.csv "$D"/RELEASE_NOTES.txt --repo "$REPO" --target "$SOURCE" --title 'STARCORE R31 577311021 engineering candidate' --notes-file "$D/RELEASE_NOTES.txt" --prerelease
       - uses: actions/upload-artifact@v4
@@ -137,23 +137,3 @@ jobs:
         with:
           name: r31-engineering-delivery
           path: ${{ runner.temp }}/r31-final/
-
-  diagnose-emulator:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          github-token: ${{ github.token }}
-          repository: gtt46461-star/starcore-public-build
-          run-id: 43374763818
-          pattern: r31v-emu-*
-          path: emulator-evidence
-      - name: Read current failed instrumentation outputs without rebuilding
-        run: |
-          python3 - <<'PY'
-          import pathlib
-          for p in sorted(pathlib.Path('emulator-evidence').rglob('*.txt')):
-              if p.name in ('restore-proof-process.txt','storage-diagnostic-process.txt'):
-                  print('CURRENT_EMULATOR_FAILURE_FILE:'+str(p),flush=True)
-                  print(p.read_text(errors='replace'),flush=True)
-          PY
