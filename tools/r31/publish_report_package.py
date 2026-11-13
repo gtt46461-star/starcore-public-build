@@ -39,7 +39,7 @@ def package(request_path, built, reports, out, tools):
         assert record['sourceCommit'] == source, 'REPORT_SOURCE_MISMATCH'
     assert result['result'] == ui['result'] == 'PASS', 'REPORT_NOT_ACCEPTED'
     assert result['probeExit'] == 0, 'REPORT_PROBE_FAILED'
-    assert int(result['runId']) == int(request['runId']), 'REPORT_RUN_MISMATCH'
+    assert int(result['runId']) == int(request.get('reportRunId', request['runId'])), 'REPORT_RUN_MISMATCH'
     assert result['apkSha256'] == request['sha256'], 'REPORT_APK_MISMATCH'
     assert result['scope'] == 'REPORT_GENERATION_COMPLETENESS_REAL_UI_SAF_ONLY'
     assert result['sameSignedApkReinstallPreservesReport'] is True
@@ -59,6 +59,8 @@ def package(request_path, built, reports, out, tools):
         assert result['failureUiExit'] == 0 and result['025To026OverlayMarkerPreserved'] is True
         assert phone_failure['existingEvidenceBytesPreserved'] is True and phone_failure['newDatabaseBackup'] is False
         assert len(phone_failure['entrances']) == 2 and all(v['correctRequest'] and v['ackReason'] and v['originalFailure'] and v['credentialsMasked'] and v['recoveryShare'] for v in phone_failure['entrances'])
+        if request.get('validationSourceCommit'):
+            assert result['validationSourceCommit'] == request['validationSourceCommit'], 'VALIDATION_SOURCE_MISMATCH'
     saf = ui['saf']
     assert saf['state'] == 'VERIFIED_READBACK' and saf['actualSystemPicker'] is True
     assert saf['sameAsPublishedZip'] is True
@@ -94,6 +96,13 @@ def package(request_path, built, reports, out, tools):
         'archiveScope': 'CURRENT_APPLICATION_ASSETS_AND_REPAIR_TOOLS; FULL_SEALED_PLANS_AND_HISTORICAL_AUDITS_AT_EXACT_REPOSITORY_SHA',
         'includedPaths': source_paths,
     }, indent=2) + '\n')
+    if request.get('validationSourceCommit'):
+        validation_source = request['validationSourceCommit']
+        assert re.fullmatch(r'[0-9a-f]{40}', validation_source)
+        subprocess.run(['git', 'diff', '--exit-code', source, validation_source, '--', 'app/src/main', 'app/build.gradle',
+                        'release/release_manifest.json', 'release/release_identity.properties'], check=True)
+        subprocess.run(['git', 'archive', '--format=zip', '--output=' + str((out / 'VALIDATION_AND_DELIVERY_SCRIPTS.zip').resolve()),
+                        validation_source, 'tools/r31', '.github/workflows/r31-report-publish.yml'], check=True)
     receipt = {
         'format': 'R31_REPORT_ONLY_DELIVERY_1', 'sourceCommit': source,
         'buildAndReportRunId': int(request['runId']), 'apk': dict(facts, deliveredAs=delivered.name),
@@ -106,6 +115,8 @@ def package(request_path, built, reports, out, tools):
     if phone_host is not None:
         receipt['phoneReportRepair'] = {'hostSyntheticLargeDatabase': phone_host, 'android14SyntheticAckHistory': phone_failure,
                                       '025To026OverlayMarkerPreserved': True, 'physicalV2353A': 'NOT_RUN'}
+        receipt['reportExecutionRunId'] = int(request.get('reportRunId', request['runId']))
+        receipt['validationSourceCommit'] = request.get('validationSourceCommit', source)
     (out / 'R31_REPORT_DELIVERY.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n')
     (out / 'README.txt').write_text('报告修复首包：安装同目录 APK 可覆盖 com.starcore.research.r13，保留数据。\n实际按钮→完整 ZIP→Android 系统选择器→保存回读、CRC/大小/SHA-256、同版签名覆盖安装通过（模拟器）。\n工程导出通过不代表全部业务健康。原机旧库、24/72 小时和自然质量待验；继续按原累计方案施工。\n')
     members = sorted(p for p in out.iterdir() if p.is_file())

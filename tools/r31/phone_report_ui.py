@@ -303,6 +303,13 @@ def main():
     expected_source = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
     before = acknowledgements()
     adb('shell', 'am', 'start', '-W', '-n', PKG + '/com.ethk3.novaonepro.MainActivity')
+    # The early-start counterexample remains a failed receipt. This explicit
+    # fixture warmup exercises completed check execution after normal startup;
+    # it does not change the app, initialize tables or manufacture business data.
+    startup_wait = int(os.environ.get('R31_REPORT_STARTUP_WAIT_SECONDS', '0'))
+    assert 0 <= startup_wait <= 240, 'STARTUP_FIXTURE_WAIT_BOUND'
+    for _ in range(startup_wait):
+        time.sleep(1)
     click_text('导出完整报告（含数据库和训练附件）', scrolls=45)
     capture('export-menu')
     # The production menu removes report cache only. This is the disposable CI
@@ -386,7 +393,7 @@ def main():
                'entry': 'MainActivity production export button and menu', 'jobId': job,
                'zipBytes': local.stat().st_size, 'zipSha256': digest, 'entryCount': len(names),
                'requiredNonemptyMembers': originals, 'researchSchemaReady': runtime.get('researchSchemaReady'), 'schemaStartupSummarySha256': hashlib.sha256(summary.encode()).hexdigest(),
-               'evidenceComplete': True, 'checksComplete': True, 'allChecksPassed': index['allChecksPassed'],
+               'evidenceComplete': True, 'checksComplete': True, 'allChecksPassed': index['allChecksPassed'], 'startupWarmupSeconds': startup_wait,
                'physicalDevice': 'NOT_RUN', 'user9656647680ByteDatabase': 'NOT_RUN', 'naturalQuality': 'NOT_PROVEN', 'scope':'REPORT_GENERATION_COMPLETENESS_AND_REAL_SAF_EXPORT_ONLY', 'saf':saf, 'businessAndAlgorithmHealth':'DEFERRED_BY_EXPLICIT_USER_SCOPE_NOT_PASSED'}
     (args.out / 'ui-report-acceptance.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n')
     print('R30_REAL_UI_EXPORT|PRODUCTION_BUTTON|READBACK_SHA_CRC_NONEMPTY_ZIP|REAL_SAF_VERIFIED|REPORT_ONLY_PASS', flush=True)
