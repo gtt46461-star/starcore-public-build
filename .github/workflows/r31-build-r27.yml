@@ -1,9 +1,9 @@
-name: STARCORE 024 report control repair signed APK and report export only
+name: STARCORE 025 report control repair signed APK and report export only
 permissions:
   contents: write
   actions: read
 concurrency:
-  group: r31-report-024-only
+  group: r31-report-025-only
   cancel-in-progress: false
 jobs:
   build:
@@ -12,10 +12,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: d6bdd2e26297608150d4050f93a80d18d979a3d5
+        ref: 0164241c32c29430749f8da0e9a03d22ae20347a
         fetch-depth: 0
     - name: Require exact source and release identity
-      run: 'test "$(git rev-parse HEAD)" = "d6bdd2e26297608150d4050f93a80d18d979a3d5"
+      run: 'test "$(git rev-parse HEAD)" = "0164241c32c29430749f8da0e9a03d22ae20347a"
 
         python3 - <<''PY''
 
@@ -25,7 +25,7 @@ jobs:
 
         assert r[''applicationId'']==''com.starcore.research.r13''
 
-        assert r[''versionCode'']==577311024
+        assert r[''versionCode'']==577311025
 
         PY
 
@@ -80,11 +80,11 @@ jobs:
 
         remote=$(git ls-remote origin refs/heads/construction/r31-final-20261104 | cut -f1)
 
-        test "$remote" = "d6bdd2e26297608150d4050f93a80d18d979a3d5" || { echo "SOURCE_ADVANCED_REVIEW_REQUIRED"; exit 1; }
+        test "$remote" = "0164241c32c29430749f8da0e9a03d22ae20347a" || { echo "SOURCE_ADVANCED_REVIEW_REQUIRED"; exit 1; }
 
         git add release/r982_source_calls.tsv.gz release/r982_source_calls.manifest.json
 
-        git -c user.name=github-actions -c user.email=github-actions@users.noreply.github.com commit -m ''build(r31): freeze actual 024 report recovery
+        git -c user.name=github-actions -c user.email=github-actions@users.noreply.github.com commit -m ''build(r31): freeze actual 025 report recovery
         compiled call inventory [skip ci]''
 
         git push origin HEAD:refs/heads/construction/r31-final-20261104
@@ -114,7 +114,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: r31-report-024-signed-build
+        name: r31-report-025-signed-build
         path: 'r31v/
 
           app/build/outputs/apk/release/'
@@ -135,7 +135,7 @@ jobs:
         fetch-depth: 1
     - uses: actions/download-artifact@v4
       with:
-        name: r31-report-024-signed-build
+        name: r31-report-025-signed-build
         path: built
     - name: Enable emulator acceleration
       run: 'echo ''KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"'' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -161,7 +161,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: r31-024-report-export-only
+        name: r31-025-report-export-only
         path: source/report-only-public/
         if-no-files-found: error
     needs: build

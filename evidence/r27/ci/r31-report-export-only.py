@@ -49,23 +49,21 @@ def hierarchy():
 def click_text(label, scrolls=0):
     size = re.findall(r'(\d+)x(\d+)', adb('shell', 'wm', 'size'))[-1]
     width, height = map(int, size)
-    for step in range(scrolls + 1):
+    deadline=time.monotonic()+25
+    step=0
+    while True:
         for node in hierarchy().iter('node'):
-            if node.get('text') != label or node.get('enabled') == 'false':
-                continue
-            points = list(map(int, re.findall(r'\d+', node.get('bounds', ''))))
-            if len(points) != 4:
-                continue
-            left, top, right, bottom = points
-            if right > left and bottom > top and 0 <= top < bottom <= height:
-                adb('shell', 'input', 'tap', str((left + right) // 2), str((top + bottom) // 2))
-                time.sleep(.5)
-                return
-        if step < scrolls:
-            adb('shell', 'input', 'swipe', str(width // 2), str(height * 85 // 100),
-                str(width // 2), str(height * 20 // 100), '250')
-            time.sleep(.25)
-    raise AssertionError('UI_TEXT_NOT_FOUND:' + label)
+            if node.get('text') != label or node.get('enabled') == 'false':continue
+            points=list(map(int,re.findall(r'\d+',node.get('bounds',''))))
+            if len(points)!=4:continue
+            left,top,right,bottom=points
+            if right>left and 0<=top<bottom<=height:
+                adb('shell','input','tap',str((left+right)//2),str((top+bottom)//2));time.sleep(.8);return
+        if step<scrolls:
+            adb('shell','input','swipe',str(width//2),str(height*85//100),str(width//2),str(height*20//100),'250');step+=1
+            time.sleep(.3)
+        elif time.monotonic()<deadline:time.sleep(.5)
+        else:raise AssertionError('UI_TEXT_NOT_FOUND:'+label)
 
 
 def acknowledgements():
@@ -397,6 +395,11 @@ def main():
 try:
     main()
 except BaseException:
+    try:
+        safe_liveness_snapshot('EXCEPTION')
+        safe_timeout_frames()
+    except Exception:
+        pass
     try:
         capture('failure')
         (args.out / 'failure-logcat.txt').write_text(adb('logcat', '-d', '-v', 'threadtime'))

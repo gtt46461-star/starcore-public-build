@@ -6,6 +6,8 @@ APK=$(find ../built/app/build/outputs/apk/release -maxdepth 1 -name "*.apk" -typ
 test -n "$APK"
 export R31_REPORT_APK_SHA=${R31_REPORT_APK_SHA:-$(sha256sum "$APK" | cut -d " " -f1)}
 adb install -r "$APK"
+# Disposable overlay setup: avoid the first-install notification prompt stealing the report-menu tap.
+adb shell pm grant com.starcore.research.r13 android.permission.POST_NOTIFICATIONS
 mkdir -p report-only-public "$RUNNER_TEMP/private-report"
 export R31_REPORT_PRIVATE="$RUNNER_TEMP/private-report"
 python3 - <<'PY'
@@ -34,6 +36,8 @@ for name in ['ui-report-acceptance.json','safe-recovery-failure.json','safe-repo
     if p.exists():
         (public/name).write_bytes(p.read_bytes())
 text=(private/'probe.log').read_text(errors='replace')
+r['notificationPermission']='GRANTED_ON_DISPOSABLE_EMULATOR_TO_MATCH_OVERLAY_STATE'
+r['publicUiTargets']=[label for label in ['导出完整报告（含数据库和训练附件）','清理旧报告并生成当前完整报告','一次保存完整ZIP文件'] if 'UI_TEXT_NOT_FOUND:'+label in text]
 r['publicFailureLabels']=sorted(set(re.findall(r'AssertionError: ([A-Z][A-Z0-9_]{3,80})',text)))
 r['exceptionClasses']=sorted(set(re.findall(r'^([A-Z][A-Za-z0-9]*(?:Error|Exception)):',text,re.M)))
 (public/'REPORT_ONLY_RESULT.json').write_text(json.dumps(r,ensure_ascii=False,indent=2)+'\n')
