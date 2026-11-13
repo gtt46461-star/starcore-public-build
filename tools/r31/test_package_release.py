@@ -49,6 +49,19 @@ class Package(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp())
 
+    def test_sdk_range_signer_label_and_conflicting_signers(self):
+        built = layout(self.tmp)
+        signature = next((built / 'r31v').glob('signature-*.txt'))
+        original = signature.read_text()
+        for label in ['Signer:', 'Signer (minSdkVersion=21, maxSdkVersion=2147483647):', 'Signer #1']:
+            signature.write_text(original.replace('Signer #1', label))
+            apk = built / 'app/build/outputs/apk/debug/app-debug.apk'
+            result = pr.verify_apk(apk, built / 'r31v/badging-app-debug.txt', signature, built / 'r31v/SHA256SUMS.txt', IDENT)
+            self.assertEqual(result['signerCertSha256'], CERT)
+        signature.write_text(original + 'Signer #2 certificate SHA-256 digest: ' + 'c' * 64 + '\n')
+        with self.assertRaisesRegex(pr.Refused, 'R31_APK_SIGNER_CERT_UNKNOWN'):
+            pr.verify_apk(apk, built / 'r31v/badging-app-debug.txt', signature, built / 'r31v/SHA256SUMS.txt', IDENT)
+
     def test_zip_integrity_member_digests_and_apk_signature_agree_with_the_receipt(self):
         z = pr.create_delivery(layout(self.tmp), receipt(self.tmp), self.tmp / 'out', IDENT)
         d = pr.verify_zip(z, IDENT)

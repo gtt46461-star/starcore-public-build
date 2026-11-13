@@ -20,7 +20,8 @@ def one(root, name):
 
 
 def digest(path):
-    return hashlib.file_digest(path.open('rb'), 'sha256').hexdigest()
+    with path.open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
 def package(request_path, built, reports, out, tools):
@@ -58,6 +59,7 @@ def package(request_path, built, reports, out, tools):
     signature = out / 'public-certificate.txt'
     badging = out / 'badging.txt'
     signature.write_bytes(subprocess.check_output([str(tools / 'apksigner'), 'verify', '--verbose', '--print-certs', str(apk)]))
+    print(signature.read_text(), flush=True)
     badging.write_bytes(subprocess.check_output([str(tools / 'aapt'), 'dump', 'badging', str(apk)]))
     ident = {'applicationId': 'com.starcore.research.r13', 'versionCode': str(request['versionCode']), 'versionName': request['versionName']}
     facts = verify_apk(apk, badging, signature, one(built, 'SHA256SUMS.txt'), ident)

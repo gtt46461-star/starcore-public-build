@@ -60,11 +60,14 @@ def verify_apk(apk, badging, signature, sums, ident):
     need(m.group(3) == ident['versionName'], 'R31_APK_VERSION_NAME_MISMATCH:' + m.group(3))
     s = Path(signature).read_text()
     need(re.search(r'^Verifies\s*$', s, re.M) is not None, 'R31_APK_SIGNATURE_NOT_VERIFIED')
-    cert = re.search(r'Signer #1 certificate SHA-256 digest: ([0-9a-f]{64})', s)
-    need(cert is not None, 'R31_APK_SIGNER_CERT_UNKNOWN')
+    # New build-tools include the signer's SDK range and a colon in this label.
+    # Parse only complete verified-signer lines, and reject different signers.
+    certs = sorted(set(v.lower() for v in re.findall(
+        r'^Signer(?: #[0-9]+)?(?: \([^\r\n]*\))?:? certificate SHA-256 digest: ([0-9a-fA-F]{64})\s*$', s, re.M)))
+    need(len(certs) == 1, 'R31_APK_SIGNER_CERT_UNKNOWN')
     schemes = sorted(set(re.findall(r'Verified using (v[0-9.]+) scheme[^:]*: true', s)))
     return {'file': Path(apk).name, 'sha256': digest, 'bytes': len(data), 'package': m.group(1), 'versionCode': int(m.group(2)),
-            'versionName': m.group(3), 'signerCertSha256': cert.group(1), 'signatureSchemes': schemes}
+            'versionName': m.group(3), 'signerCertSha256': certs[0], 'signatureSchemes': schemes}
 
 
 def _layers(verification):
