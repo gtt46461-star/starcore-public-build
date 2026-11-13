@@ -12,13 +12,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: abaf5bd42119f02433acac8207a926c520467a2f
+          ref: 842a143cd5933936050f9c443535d1b83a5c89a1
           persist-credentials: false
       - uses: actions/download-artifact@v4
         with:
           github-token: ${{ github.token }}
           repository: gtt46461-star/starcore-public-build
-          run-id: 43379857398
+          run-id: 43387221638
           name: r31v-emu-35
           path: ${{ runner.temp }}/private-failure-input
       - name: Emit only public source symbols and fixed error enums, never log lines or data
@@ -53,6 +53,10 @@ jobs:
                   block=s[m.start():end if end>=0 else len(s)]
                   for name in re.findall(r'INSTRUMENTATION_STATUS: test=([A-Za-z0-9_]+)',block):
                       if name in public_tests and name not in bad_tests:bad_tests.append(name)
+              # Only fixed stage identifiers and numeric elapsed/budget values
+              # from the explicit source-defined profiling record are emitted.
+              costs=re.findall(r'R31Q_PHASE_COST\|([A-Z][A-Z0-9_]{1,60})\|elapsedMs=([0-9]{1,12})\|budgetMs=([0-9]{1,12})\|(OK|OVER_BUDGET|FAILED)',s)
+              if costs:print(json.dumps({'protocol':selectors[p.name],'publicPhaseCosts':costs}),flush=True)
               tokens=set(re.findall(r'[A-Z][A-Z0-9_]{3,}',s))
               # Schema identifiers are emitted only if they are already literal
               # public repository identifiers and occur in a failure cause.
