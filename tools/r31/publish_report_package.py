@@ -49,6 +49,16 @@ def package(request_path, built, reports, out, tools):
     assert semantics['catalogResults'] == 96, 'REPORT_CHECK_SET'
     assert not semantics['incompleteChecks'] and not semantics['catalogErrors']
     assert ui['zipBytes'] > 0 and re.fullmatch(r'[0-9a-f]{64}', ui['zipSha256'])
+    phone_host = phone_failure = None
+    if int(request['versionCode']) >= 577311026:
+        phone_host = json.loads(one(built, 'HOST_PHONE_REPORT.json').read_text())
+        phone_failure = json.loads(one(reports, 'failure-ui-acceptance.json').read_text())
+        assert phone_host['sourceHead'] == phone_failure['sourceCommit'] == source, 'PHONE_REPAIR_SOURCE_MISMATCH'
+        assert phone_host['status'] == phone_failure['result'] == 'PASS', 'PHONE_REPAIR_NOT_ACCEPTED'
+        assert phone_host['fixture']['pages'] == 165824 and phone_host['snapshotBytes'] == 679215104
+        assert result['failureUiExit'] == 0 and result['025To026OverlayMarkerPreserved'] is True
+        assert phone_failure['existingEvidenceBytesPreserved'] is True and phone_failure['newDatabaseBackup'] is False
+        assert len(phone_failure['entrances']) == 2 and all(v['correctRequest'] and v['ackReason'] and v['originalFailure'] and v['credentialsMasked'] and v['recoveryShare'] for v in phone_failure['entrances'])
     saf = ui['saf']
     assert saf['state'] == 'VERIFIED_READBACK' and saf['actualSystemPicker'] is True
     assert saf['sameAsPublishedZip'] is True
@@ -69,11 +79,15 @@ def package(request_path, built, reports, out, tools):
     shutil.copyfile(apk, delivered)
     for path in [ui_path, semantics_path, one(reports, 'REPORT_ONLY_RESULT.json')]:
         shutil.copyfile(path, out / path.name)
+    if phone_host is not None:
+        for root, name in [(built, 'HOST_PHONE_REPORT.json'), (reports, 'failure-ui-acceptance.json')]:
+            shutil.copyfile(one(root, name), out / name)
     archive = out / 'SOURCE_AND_ASSETS.zip'
     source_paths = ['app/src', 'app/build.gradle', 'app/proguard-rules.pro', 'build.gradle',
                     'settings.gradle', 'gradle.properties', 'gradle', 'gradlew', 'gradlew.bat',
                     'scripts', 'tools/r31', 'tools/r312', 'tools/r30-repair', 'schema', 'release',
-                    'CURRENT_FINAL_PLAN.md', 'construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112']
+                    'CURRENT_FINAL_PLAN.md', 'construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112',
+                    'construction/repairs/R31_PHONE_REPORT_20261113']
     subprocess.run(['git', 'archive', '--format=zip', '--output=' + str(archive.resolve()), source, *source_paths], check=True)
     (out / 'SOURCE_REFERENCE.json').write_text(json.dumps({
         'sourceCommit': source, 'repository': 'https://github.com/gtt46461-star/starcore-public-build/tree/' + source,
@@ -89,6 +103,9 @@ def package(request_path, built, reports, out, tools):
         'businessAndAlgorithmHealth': 'DEFERRED_NOT_PASSED', 'wholeR31Closure': 'NOT_CLAIMED',
         'physicalDevice': 'NOT_RUN', 'originalDeviceDatabase': 'NOT_RUN', '24h': 'NOT_RUN', '72h': 'NOT_RUN', 'naturalQuality': 'NOT_PROVEN',
     }
+    if phone_host is not None:
+        receipt['phoneReportRepair'] = {'hostSyntheticLargeDatabase': phone_host, 'android14SyntheticAckHistory': phone_failure,
+                                      '025To026OverlayMarkerPreserved': True, 'physicalV2353A': 'NOT_RUN'}
     (out / 'R31_REPORT_DELIVERY.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n')
     (out / 'README.txt').write_text('报告修复首包：安装同目录 APK 可覆盖 com.starcore.research.r13，保留数据。\n实际按钮→完整 ZIP→Android 系统选择器→保存回读、CRC/大小/SHA-256、同版签名覆盖安装通过（模拟器）。\n工程导出通过不代表全部业务健康。原机旧库、24/72 小时和自然质量待验；继续按原累计方案施工。\n')
     members = sorted(p for p in out.iterdir() if p.is_file())
