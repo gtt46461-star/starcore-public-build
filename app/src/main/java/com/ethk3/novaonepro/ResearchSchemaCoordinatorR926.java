@@ -109,6 +109,7 @@ public final class ResearchSchemaCoordinatorR926 {
             boolean priorDomainReady = SchemaDomainCoordinatorR926.matches(db, contract);
             if (priorDomainReady && com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.readyOrderR79(db)
                     && LegacySettlementProofR79.ready(db)
+                    && SchemaDomainCoordinatorR926.matches(db,SchemaDomainCoordinatorR926.criticalContract())
                     && com.ethk3.novaonepro.r952.BoundAtomLifecycleR80.readyR80(db)
                     && MultiHorizonProbeR80.readyR80(db)
                     && com.ethk3.novaonepro.r952.LongScaleSummaryR80.ready(db)
@@ -269,7 +270,11 @@ public final class ResearchSchemaCoordinatorR926 {
 
     private static String nextAdditiveStep(SQLiteDatabase db) {
         if (!com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.readyOrderR79(db)) return "R79_MATRIX_READY_ORDER_V1";
-        if (!LegacySettlementProofR79.ready(db)) return "R79_LEGACY_ORIGINAL_PROOF_V1";
+        // An older installation can have every R79 object but the pre-fence
+        // Critical seal. Route it through the exact preimage migration before
+        // SU1 attempts its own authenticated draw-clock delta.
+        if (!LegacySettlementProofR79.ready(db)
+                || !SchemaDomainCoordinatorR926.matches(db,SchemaDomainCoordinatorR926.criticalContract())) return "R79_LEGACY_ORIGINAL_PROOF_V1";
         if (!com.ethk3.novaonepro.r952.BoundAtomLifecycleR80.readyR80(db)) return "R80_BOUND_ATOM_ORIGINAL_INPUT_V1";
         if (!MultiHorizonProbeR80.readyR80(db)) return "R80_MULTI_HORIZON_PROBE_V1";
         if (!com.ethk3.novaonepro.r952.LongScaleSummaryR80.ready(db)) return com.ethk3.novaonepro.r952.LongScaleSummaryR80.SCHEMA_STEP;

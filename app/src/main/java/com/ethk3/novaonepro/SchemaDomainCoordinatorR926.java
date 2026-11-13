@@ -563,6 +563,7 @@ public final class SchemaDomainCoordinatorR926 {
     /** Read-only cold-start barrier: generic Core repair must not authenticate unknown Research attachments. */
     public static void requireExistingResearchCriticalGuardsR31(SQLiteDatabase db){
         requireExistingR31Definitions(db,"R31_COLD_RUNTIME_BASE",com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.criticalBaseDefinitionsR31());
+        requireExistingR31Definitions(db,"R31_COLD_LEGACY_ASSET_AUDIT",LegacySettlementProofR79.criticalAuditFencesR31());
         requireExistingR31Definitions(db,"R31_COLD_LIVE_SOURCE_REVISION",com.ethk3.novaonepro.strategyv2.SchemaR27.sourceRevisionDefinitionsR31());
         com.ethk3.novaonepro.strategyv2.ResearchRetentionStoreR30.requireGuardDefinitionsR31(db,
                 com.ethk3.novaonepro.strategyv2.ResearchRetentionStoreR30.criticalProtectionTriggersR31(db),false);
@@ -575,6 +576,49 @@ public final class SchemaDomainCoordinatorR926 {
         String sourceShape=com.ethk3.novaonepro.strategyv2.ResearchSourceJournalR31.inspectUpgradeR31(db);
         if(!("EMPTY".equals(sourceShape)||"OLD_EXACT".equals(sourceShape)||"R31_V1_EXACT".equals(sourceShape)||"R31_EXACT".equals(sourceShape)))
             throw new DatabaseCoordinator.SchemaPendingR31("R31_COLD_SOURCE_GUARDS","UNKNOWN_DRAW_OR_HISTORY_TRIGGER_DEFINITION");
+    }
+
+    /** R79's six exact source fences and the Critical seal share the existing
+     * Research owner transaction. An older R31 installation may have committed
+     * these fences without its seal: only its exact authenticated preimage is
+     * accepted. Any unrelated drift or changed fence definition remains closed. */
+    static void migrateR31LegacyAssetAudit(SQLiteDatabase db,Step install) {
+        if(!db.inTransaction())throw new IllegalStateException("R31_LEGACY_ASSET_AUDIT_OWNER_REQUIRED");
+        ensureInfrastructure(db);
+        String[] definitions=LegacySettlementProofR79.criticalAuditFencesR31();
+        requireExistingR31Definitions(db,"R31_LEGACY_ASSET_AUDIT",definitions);
+        Set<String> delta=new HashSet<>();
+        for(String sql:definitions){
+            java.util.regex.Matcher name=java.util.regex.Pattern.compile("^CREATE TRIGGER IF NOT EXISTS ([A-Za-z0-9_]+) ").matcher(sql);
+            if(!name.find())throw new IllegalStateException("R31_LEGACY_ASSET_AUDIT_DECLARATION");
+            delta.add(name.group(1));
+        }
+        Contract critical=criticalContract();String reason=matchReason(db,critical);
+        boolean trusted=reason.startsWith("MATCH"),recoveredExactPreimage=false;
+        String before=fingerprint(db,critical),other=fingerprint(db,critical,false,null,delta);
+        if(!trusted&&!"STAMP_MISSING".equals(reason)){
+            String sealed=null;
+            try(Cursor row=db.rawQuery("SELECT fingerprint FROM "+TABLE_DOMAIN+" WHERE domain=? AND revision=? AND contract_hash=? AND state='READY'",
+                    new String[]{critical.domain,Integer.toString(critical.revision),critical.contractHash})){if(row.moveToFirst())sealed=row.getString(0);}
+            recoveredExactPreimage="FINGERPRINT_MISMATCH".equals(reason)&&other.equals(sealed);
+            if(!recoveredExactPreimage)throw new DatabaseCoordinator.SchemaPendingR31("R31_LEGACY_ASSET_AUDIT","UNTRUSTED_CRITICAL:"+reason);
+            before=sealed;
+        }
+        try{
+            install.run(db);requireExactR31Definitions(db,"R31_LEGACY_ASSET_AUDIT",definitions);
+            if(!other.equals(fingerprint(db,critical,false,null,delta)))throw new IllegalStateException("R31_LEGACY_ASSET_AUDIT_CHANGED_UNRELATED_CRITICAL_SCHEMA");
+            String after=fingerprint(db,critical);
+            if(recoveredExactPreimage||trusted&&!before.equals(after)){
+                long now=System.currentTimeMillis();
+                db.execSQL("INSERT OR IGNORE INTO "+TABLE_JOURNAL
+                                +"(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code)"
+                                +" VALUES(?,?,?,'COMPLETED',1,?,?,?,?,?, '')",
+                        new Object[]{critical.domain,critical.revision,"R31_LEGACY_ASSET_AUDIT_CUTOVER_V1",
+                                recoveredExactPreimage?"EXACT_PRE_R79_FENCE_PREIMAGE_RECOVERED":"EXACT_R79_SOURCE_FENCE_DELTA",before,after,now,now});
+                verifyAndStamp(db,critical);
+            }
+        }catch(RuntimeException failure){throw failure;}
+        catch(Exception failure){throw new IllegalStateException("R31_LEGACY_ASSET_AUDIT_MIGRATION_FAILED",failure);}
     }
 
     private static final java.util.regex.Pattern SU1_DRAW_CLOCK_R31=java.util.regex.Pattern.compile(

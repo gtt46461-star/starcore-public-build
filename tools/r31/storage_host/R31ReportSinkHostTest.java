@@ -134,6 +134,19 @@ public final class R31ReportSinkHostTest {
         try{ReportArchiveVerifierCP12.inside(normalized,"escape/member");throw new AssertionError("CHILD_SYMLINK_BYPASSED");}catch(IOException expected){}
         Files.delete(escaped.toPath());Files.delete(alias.toPath());
         System.out.println("R31_OPENED_SNAPSHOT_OWNER_ALIAS_PASS STRICT_UNTRUSTED_ROOT_AND_CHILD_SYMLINK_REFUSALS_RETAINED");
+        File summaryApp=new File(app,"summary-actual"),summaryFiles=new File(summaryApp,"files"),summaryAlias=new File(app,"summary-container-alias");summaryFiles.mkdirs();
+        Files.createSymbolicLink(summaryAlias.toPath(),summaryApp.toPath().toAbsolutePath());
+        File summary=ReportExportServiceCP4.successfulSummaryDestinationR31(new File(summaryAlias,"files"));
+        need(summary.equals(new File(summaryFiles,"r30/last_successful_report_summary.json").getCanonicalFile()),"SUCCESSFUL_SUMMARY_TRUSTED_CONTAINER_ALIAS_NOT_NORMALIZED");
+        File oldSummary=new File(new File(summaryAlias,"files"),"r30/last_successful_report_summary.json");
+        try{ReportJobJournalCP12.writeAtomic(oldSummary,"{\"scope\":\"HOST_SUMMARY_ALIAS_CONTROL\"}");throw new AssertionError("OLD_SUMMARY_ALIAS_COUNTEREXAMPLE_DID_NOT_FAIL");}catch(IOException expected){need("REPORT_JSON_PATH".equals(expected.getMessage()),"OLD_SUMMARY_ALIAS_FAILURE_CHANGED");}
+        String summaryBody="{\"scope\":\"HOST_SUMMARY_ALIAS_CONTROL\"}";ReportJobJournalCP12.writeAtomic(summary,summaryBody);
+        need(summaryBody.equals(ReportJobJournalCP12.readAtomic(summary,4096)),"CANONICAL_SUCCESSFUL_SUMMARY_NOT_DURABLE");
+        Files.delete(summary.toPath());Files.delete(summary.getParentFile().toPath());
+        Files.createSymbolicLink(new File(summaryFiles,"r30").toPath(),app.toPath().toAbsolutePath());
+        try{ReportExportServiceCP4.successfulSummaryDestinationR31(new File(summaryAlias,"files"));throw new AssertionError("SUCCESSFUL_SUMMARY_CHILD_SYMLINK_ADMITTED");}catch(IOException expected){}
+        Files.delete(new File(summaryFiles,"r30").toPath());Files.delete(summaryAlias.toPath());
+        System.out.println("R31_SUCCESSFUL_SUMMARY_CONTAINER_ALIAS_PASS CHILD_SYMLINK_REFUSED");
         try(Closeable host=ReportIoR31.hostFixture(app,budget);ReportJobJournalCP12 journal=ReportJobJournalCP12.tryClaim(new File(app,"files"))){
             ReportJobJournalCP12.Job job=new ReportJobJournalCP12.Job(id(31),id(131),id(931),"FULL_REPORT",System.currentTimeMillis());
             // Hold the actual bulk-admission OS lease. Initial job/control

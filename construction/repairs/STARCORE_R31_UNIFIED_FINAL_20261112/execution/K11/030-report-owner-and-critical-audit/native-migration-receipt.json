@@ -1,0 +1,119 @@
+{
+  "state": "PASS_HOST_NATIVE_ONLY",
+  "capturedAt": "2026-11-13T22:18:52.407634+00:00",
+  "sourceHead": "75614037ea7a79ed9d28509fd5f1accf9062b122",
+  "sources": {
+    "app/src/main/java/com/ethk3/novaonepro/LegacyDdlR31.java": "468c8f58cacb58a1a4f87bd124156988065b24a5597477c51c74163b87d96772",
+    "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java": "a676b2e411f6c61d3dcebb23fe8383245777d1ed86d4cafc183bc1d54ea65d09",
+    "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java": "e4ddbbf466948b72833696593242a7252611cf7b64cd442804f4b256ac85f80a",
+    "app/src/main/java/com/ethk3/novaonepro/DbHelper.java": "1c3b576e7360ca8a483589d3531e6d48fd34fb865691b39f89e76a68efce2565",
+    "app/src/main/java/com/ethk3/novaonepro/DbStore.java": "698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93",
+    "app/src/main/java/com/ethk3/novaonepro/LegacySettlementProofR79.java": "76c286198f79d77c87fdb1dabd303ad90cf6ed0d0cf4fbddb9230789f587f731",
+    "app/src/main/java/com/ethk3/novaonepro/ResearchSchemaCoordinatorR926.java": "977a88706a1070a4b7b61b32e1e703ae4b0cd896679c49baccd6a1da1596990d",
+    "tools/r31/unified_host/StrictMigrationR31Host.java": "cdd28d63cd10a1b02dc1c55c4228a6f4a626538328faa7bb0f7e6a0cd501b9b2",
+    "tools/r31/unified_host/ColdSchemaR31Host.java": "0374f8ed8a8012d0e2608c9380ac5c4babc2deb41bbdafe68f6ea029abdfe985",
+    "tools/r31/unified_host/RuntimeSchemaR31Host.java": "0347281d6a63bcbe28ae4fcdc40f5a29b430d358303463c4c374ec353e44e502",
+    "tools/r31/run_unified_migration_host.py": "425a967cec8c6fdee2b2dc7d1523a298073a32c06e48d990bcdf24d54ca80d05"
+  },
+  "commands": [
+    {
+      "command": [
+        "javac",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "-d",
+        "/tmp/r31-unified-migration-i_w4enpd/platform",
+        "/workspace/starcore-public-build/tools/r31/ddl_host/android/content/ContentValues.java",
+        "/workspace/starcore-public-build/tools/r31/ddl_host/android/database/Cursor.java",
+        "/workspace/starcore-public-build/tools/r31/ddl_host/android/database/sqlite/SQLiteDatabase.java",
+        "/workspace/starcore-public-build/tools/r31/ddl_host/android/database/sqlite/SQLiteOpenHelper.java",
+        "/workspace/starcore-public-build/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabaseLockedException.java",
+        "/workspace/starcore-public-build/tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java",
+        "/tmp/r31-unified-migration-i_w4enpd/Log.java",
+        "/tmp/r31-unified-migration-i_w4enpd/SystemClock.java"
+      ],
+      "exitCode": 0,
+      "log": "platform.log"
+    },
+    {
+      "command": [
+        "javac",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-unified-migration-i_w4enpd/platform:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "-d",
+        "/tmp/r31-unified-migration-i_w4enpd/production",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/LegacyDdlR31.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/LegacySettlementProofR79.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/ResearchSchemaCoordinatorR926.java"
+      ],
+      "exitCode": 0,
+      "log": "production.log"
+    },
+    {
+      "command": [
+        "javac",
+        "-cp",
+        "/tmp/r31-unified-migration-i_w4enpd/platform:/tmp/r31-unified-migration-i_w4enpd/production:/tmp/r31-unified-migration-i_w4enpd/test:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/host-cache/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.30/b5a4b6d16ab13e34a88fae84c35cd5d68cac922c/slf4j-api-1.7.30.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-unified-migration-i_w4enpd/test",
+        "/workspace/starcore-public-build/tools/r31/unified_host/StrictMigrationR31Host.java",
+        "/workspace/starcore-public-build/tools/r31/unified_host/ColdSchemaR31Host.java",
+        "/workspace/starcore-public-build/tools/r31/unified_host/RuntimeSchemaR31Host.java"
+      ],
+      "exitCode": 0,
+      "log": "host.log"
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx256m",
+        "-cp",
+        "/tmp/r31-unified-migration-i_w4enpd/platform:/tmp/r31-unified-migration-i_w4enpd/production:/tmp/r31-unified-migration-i_w4enpd/test:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/host-cache/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.30/b5a4b6d16ab13e34a88fae84c35cd5d68cac922c/slf4j-api-1.7.30.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.StrictMigrationR31Host",
+        "run",
+        "/tmp/r31-unified-migration-i_w4enpd/migration.db"
+      ],
+      "exitCode": 0,
+      "log": "run.log"
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx768m",
+        "-cp",
+        "/tmp/r31-unified-migration-i_w4enpd/platform:/tmp/r31-unified-migration-i_w4enpd/production:/tmp/r31-unified-migration-i_w4enpd/test:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/host-cache/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.30/b5a4b6d16ab13e34a88fae84c35cd5d68cac922c/slf4j-api-1.7.30.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.ColdSchemaR31Host",
+        "/tmp/r31-unified-migration-i_w4enpd/cold.db"
+      ],
+      "exitCode": 0,
+      "log": "cold.log"
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx768m",
+        "-cp",
+        "/tmp/r31-unified-migration-i_w4enpd/platform:/tmp/r31-unified-migration-i_w4enpd/production:/tmp/r31-unified-migration-i_w4enpd/test:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/host-cache/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.30/b5a4b6d16ab13e34a88fae84c35cd5d68cac922c/slf4j-api-1.7.30.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.RuntimeSchemaR31Host",
+        "/tmp/r31-unified-migration-i_w4enpd/runtime.db"
+      ],
+      "exitCode": 0,
+      "log": "runtime.log"
+    }
+  ],
+  "realKillRestart": true,
+  "criticalCommitsWhilePending": 1,
+  "sourceDb670MB": "NOT_RUN",
+  "Android": "NOT_RUN",
+  "physicalDevice": "NOT_RUN",
+  "24h": "NOT_RUN",
+  "72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN"
+}

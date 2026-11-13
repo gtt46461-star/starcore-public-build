@@ -1,0 +1,84 @@
+{
+  "format": "R31_030_TARGETED_REPAIR_RECEIPT_V1",
+  "capturedAt": "2026-11-13T22:20:49.317727+00:00",
+  "state": "TARGETED_SOURCE_PASS_FINAL_ANDROID_AND_SIGNED_RELEASE_PENDING",
+  "inputSourceCommit": "75614037ea7a79ed9d28509fd5f1accf9062b122",
+  "uncommittedSourceDuringTargetedExecution": true,
+  "versionCode": 577311030,
+  "versionName": "R31-UNIFIED-2026.11.13-030",
+  "sourceIdentityScope": "Bind the targeted production methods by the source hashes below; the clean final commit must run the engineering and actual Android release checks separately. No old full-suite PASS is imported.",
+  "diagnosedExistingApkSource": "e058a25b9fa52308188efef20528d46bcb1e708b",
+  "diagnosisRunId": 43511955602,
+  "observedReportFailure": {
+    "requestId": "b51d04b97abc4c386b4dac6a7273edd9bdc5350343298e11e32f39d2ee912a4f",
+    "secondsWithOnlyDurableIntent": [
+      30,
+      90,
+      150,
+      210,
+      270,
+      330
+    ],
+    "jobAndAckDuringThoseSamples": "ABSENT; no INDEXING formatter or report file exists",
+    "newUserKickWallMs": 1794606299246,
+    "sameOldRequestJobCreatedWallMs": 1794606299267,
+    "sameOldRequestReadyWallMs": 1794606318691,
+    "sameOldJobId": "b51d04b97abc4c386b4dac6a7273edd9bdc5350343298e11e32f39d2ee912a4f",
+    "rootCause": "A live diagnostic owner returned during the original bounded observer grace and stopped itself, leaving an allow-while-idle alarm as its sole retry; a later user kick immediately drained the original same request.",
+    "fix": "One coalesced retry on the existing control timer, with the already-foreground owner kept through the original five-second window and journal lease released; the durable alarm remains process-death fallback.",
+    "originalReportPollCeilingSeconds": 360,
+    "originalGraceMs": 5000
+  },
+  "independentRepairs": [
+    "R30 successful summary trusted Android container alias normalization; child symlinks still refused",
+    "R79 six exact Critical source fences installed with authenticated preimage, DDL, journal and seal in the same existing Research owner transaction; exact older unsealed preimage recovery; unknown drift and modified guard SQL refused",
+    "Existing R79 objects with a stale Critical seal are routed back to their original migration owner before SU1",
+    "Graph fixture invokes the real R26 to R27 migration owner in its namespace before original chart assertions; no business rows injected",
+    "Earlier committed harness corrections retain fresh request identity and prove real SIGKILL exits and stopped-generation DB/WAL/SHM copies"
+  ],
+  "targetedResults": {
+    "nativeStorageAndReportJUnit": 16,
+    "actualControlTimerCoalescedWake": "PASS_HOST_DISPATCH_ONLY_NOT_ANDROID",
+    "summaryAliasActualAtomicWriteReadbackAndChildSymlinkRefusal": "PASS_HOST",
+    "originalStrictMigrationAssertions": 61,
+    "originalColdInitializerAssertions": 41,
+    "actualLegacyUnits": 52,
+    "actualLegacySlices": 2575,
+    "actualR26R27SU1UnitsWithCriticalTrustAtEachBoundary": 265,
+    "r79FreshJournalRollbackExactOldPreimageAndUnknownDriftControls": "PASS_NATIVE_CRITICAL_DELTA_ONLY_NOT_FULL_RESEARCH_OWNER_OR_ANDROID",
+    "debugJavaReleaseJavaAndroidTestJava": "PASS_AGP_DEVELOPMENT_COMPILE_ONLY_NOT_RELEASE_PACKAGE",
+    "finalCleanCurrent648Plus72Gate": "PENDING_CURRENT_INVOCATION",
+    "actualAndroidJointAndSaf": "PENDING_NEW_APK"
+  },
+  "protected": [
+    "com.starcore.research.r13",
+    "original SQLite user_version 36 and Critical revision 6",
+    "original 56 function cards, 2 engineering cards and 20 repair cards",
+    "222 acceptance items and immutable original thresholds",
+    "single position fixed K=3 and unique REAL decision owner",
+    "no fake prediction, sample, zero, health, learning or natural-quality result"
+  ],
+  "physicalDevice": "NOT_RUN",
+  "originalHandsetDatabase": "NOT_RUN",
+  "24h": "NOT_RUN",
+  "72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "files": {
+    "existing-029-joint-diagnosis.json": "8139862d1ea746f03b8dd029b96ff9cf09579e5c3d0e87de31797bd11214c58d",
+    "native-report-receipt.json": "4184fb9f711b718cd82628a2e5968595398c9f6f5cbfea1218debbf4249cdee6",
+    "native-report-wake.log": "c65f069d0baef3cd3ec9b38a401428b2bc15736276907fc58a54683819f0e9e7",
+    "native-report-sinks.log": "9f5447a6de790595422d6fdcaf2b050e16feaf2c16807be2c5bcf0df815c3e8c",
+    "native-migration-receipt.json": "d72857bc924965f644c080aae88a78807929272f1d47d58c3e9b9874696ede19",
+    "native-migration-strict.log": "ff23f5cddcbd87c898750f939b86328b08f85ebb3e9e643c7e4c50dca7e654cd",
+    "native-migration-cold.log": "6829bc7415b1024d56a42e236aafe56703e6a38acd2f725ed9f4f9e688c767d1",
+    "native-migration-runtime.log": "06fc1eef87e913000ccf0371b24746ffa4081a3b20257193c98173ae0654c969",
+    "actual-debug-release-and-test-compile.log": "c433903bc40b2f359273519ecbfe2cc06501ab81413d8f3bcec6202c238f51c0",
+    "compiled-source-call-freeze.log": "60a57eabf4b6954c73f170fe34f1f58cdb8407b6c77128dd0e2ef76b19d39417"
+  },
+  "productionSources": {
+    "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java": "134d3cd8764760a5b90aab33e5df55cd919d85431204aca8fea0df77c31d88e2",
+    "app/src/main/java/com/ethk3/novaonepro/LegacySettlementProofR79.java": "76c286198f79d77c87fdb1dabd303ad90cf6ed0d0cf4fbddb9230789f587f731",
+    "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java": "e4ddbbf466948b72833696593242a7252611cf7b64cd442804f4b256ac85f80a",
+    "app/src/main/java/com/ethk3/novaonepro/ResearchSchemaCoordinatorR926.java": "977a88706a1070a4b7b61b32e1e703ae4b0cd896679c49baccd6a1da1596990d"
+  }
+}

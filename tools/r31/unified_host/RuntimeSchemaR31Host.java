@@ -10,11 +10,15 @@ import java.util.*;
 public final class RuntimeSchemaR31Host {
     static final class FaultDb extends SQLiteDatabase {
         boolean failCriticalJournal;
+        boolean failAuditJournal;
         FaultDb(Connection connection){super(connection);}
         @Override public void execSQL(String sql,Object[] args){
             if(failCriticalJournal&&sql.contains("INTO "+SchemaDomainCoordinatorR926.TABLE_JOURNAL)
                     &&args!=null&&args.length>2&&String.valueOf(args[2]).startsWith("R31_LEGACY_CRITICAL_DDL:"))
                 throw new android.database.sqlite.SQLiteException("INJECTED_LEGACY_CRITICAL_JOURNAL_FAILURE");
+            if(failAuditJournal&&sql.contains("INTO "+SchemaDomainCoordinatorR926.TABLE_JOURNAL)
+                    &&args!=null&&args.length>2&&"R31_LEGACY_ASSET_AUDIT_CUTOVER_V1".equals(args[2]))
+                throw new android.database.sqlite.SQLiteException("INJECTED_R79_CRITICAL_JOURNAL_FAILURE");
             super.execSQL(sql,args);
         }
     }
@@ -36,6 +40,34 @@ public final class RuntimeSchemaR31Host {
         SchemaDomainCoordinatorR926.runStep(db,c,"F02_SETTLEMENT_RECOVERY_AUDIT_V1",SettlementTaskStoreR36::ensureRepairAuditSchema);
         SchemaDomainCoordinatorR926.runStep(db,c,"CP12_CRITICAL_CANONICAL_REASON_V1",com.ethk3.novaonepro.r952.CanonicalSchemaCP12::installReasons);
         SchemaDomainCoordinatorR926.verifyAndStamp(db,c);
+    }
+    static void auditFreshControls(String path)throws Throwable{
+        try(FaultDb db=new FaultDb(DriverManager.getConnection("jdbc:sqlite:"+path))){
+            ColdSchemaR31Host.initialize(ColdSchemaR31Host.helper(),db);SchemaDomainCoordinatorR926.ensureInfrastructure(db);originalCritical(db);
+            SchemaDomainCoordinatorR926.Contract critical=SchemaDomainCoordinatorR926.criticalContract();
+            String before=SchemaDomainCoordinatorR926.fingerprint(db,critical);String[] fences=LegacySettlementProofR79.criticalAuditFencesR31();
+            db.failAuditJournal=true;db.beginTransaction();try{
+                try{SchemaDomainCoordinatorR926.migrateR31LegacyAssetAudit(db,x->{for(String sql:fences)x.execSQL(sql);});throw new AssertionError("R79 journal failure was not injected");}
+                catch(android.database.sqlite.SQLiteException expected){if(!expected.getMessage().contains("INJECTED_R79_CRITICAL_JOURNAL"))throw expected;}
+            }finally{db.endTransaction();db.failAuditJournal=false;}
+            if(!before.equals(SchemaDomainCoordinatorR926.fingerprint(db,critical))||!SchemaDomainCoordinatorR926.matches(db,critical))throw new AssertionError("R79 failed journal did not roll back its source fences");
+            db.beginTransaction();try{SchemaDomainCoordinatorR926.migrateR31LegacyAssetAudit(db,x->{for(String sql:fences)x.execSQL(sql);});db.setTransactionSuccessful();}finally{db.endTransaction();}
+            if(!SchemaDomainCoordinatorR926.matches(db,critical)||before.equals(SchemaDomainCoordinatorR926.fingerprint(db,critical)))throw new AssertionError("Fresh R79 fence delta did not preserve Critical trust");
+            db.execSQL("CREATE INDEX r31_unknown_audit_fixture ON draws(issue)");
+            db.beginTransaction();try{
+                try{SchemaDomainCoordinatorR926.migrateR31LegacyAssetAudit(db,x->{});throw new AssertionError("R79 accepted unrelated Critical drift");}
+                catch(DatabaseCoordinator.SchemaPendingR31 expected){if(!expected.getMessage().contains("UNTRUSTED_CRITICAL"))throw expected;}
+            }finally{db.endTransaction();}
+            if(SchemaDomainCoordinatorR926.matches(db,critical))throw new AssertionError("R79 authenticated unrelated Critical drift");
+            db.execSQL("DROP TRIGGER r80_asset_audit_fence_5_insert");db.execSQL("CREATE TRIGGER r80_asset_audit_fence_5_insert AFTER INSERT ON draws BEGIN SELECT 1; END");
+            db.beginTransaction();try{
+                try{SchemaDomainCoordinatorR926.migrateR31LegacyAssetAudit(db,x->{});throw new AssertionError("R79 accepted a changed known fence definition");}
+                catch(DatabaseCoordinator.SchemaPendingR31 expected){}
+            }finally{db.endTransaction();}
+            try{SchemaDomainCoordinatorR926.requireExistingResearchCriticalGuardsR31(db);throw new AssertionError("Cold initialization accepted changed R79 fence SQL");}
+            catch(DatabaseCoordinator.SchemaPendingR31 expected){}
+            System.out.println("R79_CRITICAL_FENCE_NATIVE_CONTROLS_PASS freshCutover=true journalFailureRollsBackFences=true retryResumes=true unrelatedDriftRefused=true changedFenceAndColdStartRefused=true scope=CRITICAL_DELTA_NOT_FULL_RESEARCH_OWNER_OR_ANDROID");
+        }
     }
     public static void main(String[] args)throws Throwable{
         Class.forName("org.sqlite.JDBC");
@@ -65,6 +97,22 @@ public final class RuntimeSchemaR31Host {
             if(!SchemaDomainCoordinatorR926.matches(db,critical))throw new AssertionError("Actual DbStore Legacy units invalidated the authenticated Critical startup stamp");
             db.beginTransaction();try{com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.ensure(db);db.setTransactionSuccessful();}finally{db.endTransaction();}
             if(!SchemaDomainCoordinatorR926.matches(db,critical))throw new AssertionError("Original research initialization lost Critical trust after Legacy readiness");
+            db.beginTransaction();try{com.ethk3.novaonepro.strategyv2.SchemaR27.ensure(db);db.setTransactionSuccessful();}finally{db.endTransaction();}
+            if(!SchemaDomainCoordinatorR926.matches(db,critical))throw new AssertionError("Original R27 initialization lost Critical trust after R26 readiness");
+            // Execute the old unguarded R79 statements as the actual failing
+            // counterexample, then recover only their authenticated preimage.
+            db.beginTransaction();try{for(String sql:LegacySettlementProofR79.criticalAuditFencesR31())db.execSQL(sql);db.setTransactionSuccessful();}finally{db.endTransaction();}
+            if(SchemaDomainCoordinatorR926.matches(db,critical))throw new AssertionError("Old R79 source-fence counterexample no longer reproduces");
+            db.beginTransaction();try{SchemaDomainCoordinatorR926.migrateR31LegacyAssetAudit(db,x->{});db.setTransactionSuccessful();}finally{db.endTransaction();}
+            if(!SchemaDomainCoordinatorR926.matches(db,critical))throw new AssertionError("Exact committed old R79 preimage was not recovered");
+            boolean su1Ready=false;int su1Units=0;
+            while(!su1Ready&&su1Units<1000){
+                su1Ready=com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.advance(db);
+                if(!SchemaDomainCoordinatorR926.matches(db,critical))throw new AssertionError("Actual SU1 unit invalidated Critical trust at unit "+su1Units);
+                su1Units++;
+            }
+            if(!su1Ready)throw new AssertionError("Actual SU1 owner did not converge after R26/R27 readiness");
+            System.out.println("ACTUAL_RESEARCH_SCHEMA_SEQUENCE_NATIVE_PASS R26_then_R27_then_SU1=true su1Units="+su1Units+" criticalTrustCheckedAfterEveryUnit=true scope=HOST_NOT_ANDROID");
             String first=SchemaDomainCoordinatorR926.fingerprint(db,critical);
             try(LegacyDdlR31.Scope slice=new LegacyDdlR31.Scope(db,false)){
                 LegacyDdlR31.exec(db,"ALTER TABLE draws ADD COLUMN r31_owned_fixture INTEGER NOT NULL DEFAULT 0");slice.check();
@@ -91,5 +139,6 @@ public final class RuntimeSchemaR31Host {
             System.out.println("ACTUAL_LEGACY_CRITICAL_CUTOVER_NATIVE_PASS originalDDLAndStampAtomic=true journalFailureRollsBackDDL=true retryResumes=true unrelatedDriftNeverRestamped=true");
             System.out.println("ACTUAL_DBSTORE_RUNTIME_SCHEMA_NATIVE_PASS units="+units.size()+" slices="+slices+" readOnlyAuditDml=0 criticalCommitsBetweenSlices="+(slices-1)+" scope=HOST_NOT_ANDROID");
         }
+        auditFreshControls(args[0]+".r79-fresh");
     }
 }

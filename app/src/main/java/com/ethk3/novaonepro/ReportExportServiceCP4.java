@@ -25,7 +25,7 @@ public final class ReportExportServiceCP4 extends Service {
     private static final AtomicLong USER_REQUEST_GENERATION=new AtomicLong();
     private ThreadPoolExecutor worker;private ScheduledExecutorService controlTimer;
     private final AtomicBoolean drainQueued=new AtomicBoolean(),destroyed=new AtomicBoolean();
-    private volatile ActiveControl control;private volatile Future<?> workerFuture;private volatile int lastStartId;
+    private volatile ActiveControl control;private volatile Future<?> workerFuture;private volatile ScheduledFuture<?> observationRetryR31;private volatile int lastStartId;
     private final Handler main=new Handler(Looper.getMainLooper());
 
     /** Metadata scope only. The enclosing ReportInputsLease remains the actual CAS file/GC pin. */
@@ -235,7 +235,7 @@ public final class ReportExportServiceCP4 extends Service {
         if(drainQueued.compareAndSet(false,true)){try{workerFuture=worker.submit(this::drain);}catch(RejectedExecutionException full){drainQueued.set(false);}}
         return START_REDELIVER_INTENT;}
     @Override public IBinder onBind(Intent intent){return null;}
-    @Override public void onDestroy(){destroyed.set(true);ActiveControl active=control;if(active!=null){active.stopR31("REPORT_PROCESS_SHUTDOWN",null);active.cancelReadR30();}ReportCatalogCP4.cancelActive();Future<?> future=workerFuture;if(future!=null)future.cancel(true);worker.shutdownNow();controlTimer.shutdownNow();super.onDestroy();}
+    @Override public void onDestroy(){destroyed.set(true);ScheduledFuture<?> preparation=observationRetryR31;if(preparation!=null)preparation.cancel(false);observationRetryR31=null;ActiveControl active=control;if(active!=null){active.stopR31("REPORT_PROCESS_SHUTDOWN",null);active.cancelReadR30();}ReportCatalogCP4.cancelActive();Future<?> future=workerFuture;if(future!=null)future.cancel(true);worker.shutdownNow();controlTimer.shutdownNow();super.onDestroy();}
     private void foreground(String text){NotificationManager manager=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         if(Build.VERSION.SDK_INT>=26)manager.createNotificationChannel(new NotificationChannel(CHANNEL,"STARCORE 检测导出",NotificationManager.IMPORTANCE_LOW));
         Notification.Builder builder=Build.VERSION.SDK_INT>=26?new Notification.Builder(this,CHANNEL):new Notification.Builder(this);
@@ -245,6 +245,7 @@ public final class ReportExportServiceCP4 extends Service {
     private void drain(){
         final int ownerStartId=lastStartId;
         String currentRequest="";
+        long observationDelayR31=0;
         try(ReportJobJournalCP12 journal=ReportJobJournalCP12.tryClaim(getFilesDir())) {
             if(journal==null)return;
             journal.reconcileAcknowledgementsR31();
@@ -262,6 +263,8 @@ public final class ReportExportServiceCP4 extends Service {
             requireDiagnosticProcess();ReportNativeCP4.loadForDiagnosticProcess(processName(),getPackageName());JSONObject request=null;
             if(job!=null&&isActive(job)){currentRequest=job.requestId;request=loadRequest(journal.root(),job.requestId);}
             else {request=nextRequest(journal.root());if(request==null)return;
+                long now=System.currentTimeMillis();
+                if(observationPreparationPendingR31(request,now)){observationDelayR31=Math.max(1L,5000L-(now-request.optLong("createdWallMs",0)));return;}
                 String requestId=request.getString("requestId"),mode=request.getString("mode");requireHash(requestId);
                 if(mode.equals("SAF_TRANSFER")){runSafRequest(request,journal.root());return;}
                 if(job!=null&&(job.stage.equals("READY_TO_SHARE")||job.stage.equals("RETENTION_READY"))&&job.requestId.equals(requestId)){ActiveControl ready=new ActiveControl(job,journal.root());try(ReportIoR31.Scope outputScope=ReportIoR31.bind(journal.directory(job),ready)){verifyReady(job,journal.directory(job),ready);enqueueCleanupR31(journal,job);journal.acknowledge(requestId,job);clearPending(journal.root(),request);}catch(Exception callback){if(!ready.validatedDeliveryR31)throw callback;android.util.Log.w("ReportExportCP12","Verified READY replay callback pending",callback);}finally{ready.releaseResourcesR31();}runCleanupR31(journal);return;}
@@ -463,7 +466,23 @@ public final class ReportExportServiceCP4 extends Service {
                 ReportRequestQueueCP12.remove(recovery.root(),currentRequest);
             }}catch(Exception recoveryFailure){android.util.Log.e("ReportExportCP12","report failure receipt recovery failed",recoveryFailure);}
         }android.util.Log.e("ReportExportCP12","report owner failed",error);}
-        finally{drainQueued.set(false);main.post(()->{if(lastStartId==ownerStartId){stopForeground(false);stopSelfResult(ownerStartId);}});if(!destroyed.get()){try{File root=requestRoot(this);long cleanupDelay=ReportCleanupR31.nextDelayMs(root);if(ReportRequestQueueCP12.head(root)!=null||ReportTaskControlR69.hasPending(root))scheduleResume("");else if(cleanupDelay>=0)scheduleResume("",cleanupDelay);}catch(Exception ignored){}}}
+        finally{
+            drainQueued.set(false);
+            boolean localObservationRetry=false;
+            if(!destroyed.get()&&observationDelayR31>0){
+                // The journal lease has closed. Keep the already-foreground
+                // owner alive for the original bounded observer window. OS
+                // allow-while-idle alarms can be quota-delayed after restore;
+                // they remain the process-death fallback, never the sole
+                // wakeup for a live five-second preparation interval.
+                try{scheduleResume("",observationDelayR31);}catch(RuntimeException alarm){android.util.Log.w("ReportExportCP12","Observation retry alarm unavailable; live owner retained",alarm);}
+                localObservationRetry=scheduleObservationRetryR31(observationDelayR31);
+            }
+            if(!localObservationRetry){
+                main.post(()->{if(lastStartId==ownerStartId){stopForeground(false);stopSelfResult(ownerStartId);}});
+                if(!destroyed.get()){try{File root=requestRoot(this);long cleanupDelay=ReportCleanupR31.nextDelayMs(root);if(ReportRequestQueueCP12.head(root)!=null||ReportTaskControlR69.hasPending(root))scheduleResume("");else if(cleanupDelay>=0)scheduleResume("",cleanupDelay);}catch(Exception ignored){}}
+            }
+        }
     }
     private void reserveDisk(ReportJobJournalCP12.Job job,ReportJobJournalCP12 journal,ActiveControl active)throws Exception {
         File source=getDatabasePath(AppConfig.DB_NAME);long raw=Math.addExact(source.length(),new File(source.getPath()+"-wal").length());
@@ -528,7 +547,7 @@ public final class ReportExportServiceCP4 extends Service {
             File candidate=new File(directory,"R30_SUCCESSFUL_SUMMARY_CANDIDATE.json");if(!candidate.isFile())return;
             java.util.Map<String,Object> summary=(java.util.Map<String,Object>)com.ethk3.novaonepro.strategyv2.JsonR27.parse(ReportJobJournalCP12.readAtomic(candidate,1024*1024));
             if(!job.jobId.equals(summary.get("jobId"))||!job.snapshotSha.equals(summary.get("snapshotSha256")))throw new IOException("R30_SUMMARY_PUBLISHED_IDENTITY");
-            File destination=new File(new File(getFilesDir(),"r30"),"last_successful_report_summary.json");
+            File destination=successfulSummaryDestinationR31(getFilesDir());
             if(destination.isFile()){
                 java.util.Map<String,Object> old=(java.util.Map<String,Object>)com.ethk3.novaonepro.strategyv2.JsonR27.parse(ReportJobJournalCP12.readAtomic(destination,1024*1024));
                 if(job.jobId.equals(old.get("jobId")))return;
@@ -538,11 +557,17 @@ public final class ReportExportServiceCP4 extends Service {
             ReportJobJournalCP12.writeAtomic(destination,com.ethk3.novaonepro.strategyv2.JsonR27.write(summary));
         }catch(Exception failure){android.util.Log.w("ReportExportCP12","Verified ZIP remains published; R30 summary persistence requires retry",failure);}
     }
+    /** Normalize the trusted Android container alias, retaining strict checks
+     * for every child of the owned files directory. */
+    static File successfulSummaryDestinationR31(File files)throws IOException {
+        File ownedFiles=ReportDirectoriesCP12.root(files).getParentFile();
+        return ReportArchiveVerifierCP12.inside(ownedFiles,"r30/last_successful_report_summary.json");
+    }
     private static boolean isActive(ReportJobJournalCP12.Job job){return !(job.stage.equals("READY_TO_SHARE")||job.stage.equals("RETENTION_READY")||job.stage.equals("CANCELLED")||job.stage.equals("FAILED"));}
     private static JSONObject loadRequest(File root,String id)throws Exception{return new JSONObject(ReportJobJournalCP12.readAtomic(new File(root,"requests/"+id+".json"),65536));}
     /** A fresh durable intent gives optional observers one bounded grace window.
-     * The owner returns immediately, releases its file lease, then its existing
-     * pending-FIFO alarm retries. No sleep, SQL or writer is held. Clock rollback
+     * The owner releases its file lease before its coalesced live retry; the
+     * pending-FIFO alarm remains the process-death fallback. No sleep, SQL or writer is held. Clock rollback
      * and process death cannot create an indefinite dependency on observers. */
     static boolean observationPreparationPendingR31(JSONObject request,long wallNow){
         if(!"FULL_REPORT".equals(request.optString("mode"))||!"UNKNOWN_NOT_COLLECTED".equals(request.optString("observationState")))return false;
@@ -551,8 +576,21 @@ public final class ReportExportServiceCP4 extends Service {
     }
     private static JSONObject nextRequest(File root)throws Exception{
         String id=ReportRequestQueueCP12.interactiveHead(root);if(id==null)id=ReportRequestQueueCP12.head(root);
-        if(id==null)return null;JSONObject request=loadRequest(root,id);
-        return observationPreparationPendingR31(request,System.currentTimeMillis())?null:request;
+        return id==null?null:loadRequest(root,id);
+    }
+    /** At most one live preparation timer; no journal, SQLite or input lease is held. */
+    synchronized boolean scheduleObservationRetryR31(long delayMs){
+        if(destroyed.get())return false;
+        if(observationRetryR31!=null&&!observationRetryR31.isDone())return true;
+        try{
+            observationRetryR31=controlTimer.schedule(()->{
+                synchronized(ReportExportServiceCP4.this){observationRetryR31=null;}
+                if(destroyed.get()||!drainQueued.compareAndSet(false,true))return;
+                try{workerFuture=worker.submit(this::drain);}
+                catch(RejectedExecutionException closed){drainQueued.set(false);android.util.Log.w("ReportExportCP12","Observation retry worker unavailable; durable alarm retained",closed);}
+            },Math.max(1L,Math.min(5000L,delayMs)),TimeUnit.MILLISECONDS);
+            return true;
+        }catch(RejectedExecutionException closed){android.util.Log.w("ReportExportCP12","Observation retry timer unavailable; durable alarm retained",closed);return false;}
     }
     private static void clearPending(File root,JSONObject request)throws Exception{ReportRequestQueueCP12.remove(root,request.getString("requestId"));}
     private void scheduleResume(String id){

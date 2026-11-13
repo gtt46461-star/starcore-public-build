@@ -6,7 +6,8 @@ ROOT=Path(__file__).resolve().parents[2]
 def main():
  p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);a=p.parse_args();out=a.out.resolve();out.mkdir(parents=True,exist_ok=False)
  source=ROOT/'app/src/main/java/com/ethk3/novaonepro';classes=Path(os.environ.get('R31_COMPILED_SUPPORT',ROOT/'app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes'));sdk=Path(os.environ['ANDROID_HOME'])/'platforms/android-36/android.jar';jdbc=Path(os.environ.get('SQLITE_JDBC','/tmp/r31-baseline-deps/sqlite-jdbc.jar'));slf=next(Path(os.environ['GRADLE_USER_HOME']).glob('caches/modules-2/files-2.1/org.slf4j/slf4j-api/*/*/*.jar'))
- sources=[source/(x+'.java') for x in ['LegacyDdlR31','LegacySchemaCoordinatorR926','SchemaDomainCoordinatorR926','DbHelper','DbStore']]
+ production_sources=[source/(x+'.java') for x in ['LegacyDdlR31','LegacySchemaCoordinatorR926','SchemaDomainCoordinatorR926','DbHelper','DbStore','LegacySettlementProofR79','ResearchSchemaCoordinatorR926']]
+ sources=list(production_sources)
  sources += [ROOT/'tools/r31/unified_host/StrictMigrationR31Host.java',ROOT/'tools/r31/unified_host/ColdSchemaR31Host.java',ROOT/'tools/r31/unified_host/RuntimeSchemaR31Host.java',Path(__file__).resolve()]
  hashes={str(x.relative_to(ROOT)):hashlib.sha256(x.read_bytes()).hexdigest() for x in sources};commands=[]
  def run(cmd,name):
@@ -20,7 +21,7 @@ def main():
   log=work/'Log.java';log.write_text('package android.util;public final class Log{public static int w(String a,String b){return 0;}public static int w(String a,String b,Throwable c){return 0;}}');shims.append(log)
   clock=work/'SystemClock.java';clock.write_text('package android.os;public final class SystemClock{public static long elapsedRealtime(){return System.nanoTime()/1000000;}public static long uptimeMillis(){return elapsedRealtime();}public static long currentThreadTimeMillis(){return elapsedRealtime();}}');shims.append(clock)
   run(['javac','-cp',os.pathsep.join(map(str,[sdk,classes])),'-d',platform,*shims],'platform.log')
-  run(['javac','-sourcepath','','-implicit:none','-cp',os.pathsep.join(map(str,[sdk,platform,classes])),'-d',production,*sources[:5]],'production.log')
+  run(['javac','-sourcepath','','-implicit:none','-cp',os.pathsep.join(map(str,[sdk,platform,classes])),'-d',production,*production_sources],'production.log')
   cp=os.pathsep.join(map(str,[platform,production,test,classes,jdbc,slf,sdk]))
   run(['javac','-cp',cp,'-d',test,ROOT/'tools/r31/unified_host/StrictMigrationR31Host.java',ROOT/'tools/r31/unified_host/ColdSchemaR31Host.java',ROOT/'tools/r31/unified_host/RuntimeSchemaR31Host.java'],'host.log')
   result=run(['java','-Xmx256m','-cp',cp,'com.ethk3.novaonepro.StrictMigrationR31Host','run',work/'migration.db'],'run.log');print(result)

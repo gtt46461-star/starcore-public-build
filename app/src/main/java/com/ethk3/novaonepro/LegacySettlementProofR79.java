@@ -157,8 +157,19 @@ public final class LegacySettlementProofR79 {
     }
 
     private LegacySettlementProofR79() {}
+    /** The original fences on draws and its retained dependency input attach
+     * to Critical. All other audit objects belong to the Research domain. */
+    static String[] criticalAuditFencesR31() {
+        java.util.ArrayList<String> definitions=new java.util.ArrayList<>();
+        for(java.util.Map.Entry<String,String> row:auditFences().entrySet())
+            if(row.getKey().matches("r80_asset_audit_fence_[56]_(insert|update|delete)"))definitions.add(row.getValue());
+        return definitions.toArray(new String[0]);
+    }
     static void schema(SQLiteDatabase db) {
         if(!db.inTransaction())throw new IllegalStateException("R79_LEGACY_SCHEMA_WRITER_REQUIRED");
+        SchemaDomainCoordinatorR926.migrateR31LegacyAssetAudit(db,LegacySettlementProofR79::installSchemaR31);
+    }
+    private static void installSchemaR31(SQLiteDatabase db) {
         for(String ddl:DDL)db.execSQL(ddl);
         for(String ddl:AUDIT_DDL)db.execSQL(ddl);
         for(String ddl:auditFences().values())db.execSQL(ddl);

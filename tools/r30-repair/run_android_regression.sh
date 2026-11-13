@@ -32,7 +32,14 @@ receipt={'sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],text=
 PY
 adb shell am force-stop "$app_id"
 adb logcat -c
-adb shell am instrument -w -r -e class com.ethk3.novaonepro.R30RepairChartsAndroidTest -e r30Sandbox "repair-chart-${GITHUB_RUN_ID:-local}" "$app_id.test/com.ethk3.novaonepro.R30FaultAndroidRunner" > "$out/workbench.txt" 2>&1
+chart_scope="repair-chart-${GITHUB_RUN_ID:-local}"
+# The existing signed test transport predates the R31 feedback dependency.
+# Run its actual additive R26 -> R27 migration owner in this same disposable
+# namespace before the unchanged 18-view assertions. No graph rows or READY
+# statuses are supplied by this prerequisite.
+adb shell am instrument -w -r -e class com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest#migrationIsAdditiveAndIdempotent -e r30Sandbox "$chart_scope" "$app_id.test/com.ethk3.novaonepro.R30FaultAndroidRunner" > "$out/workbench-schema-owner.txt" 2>&1
+grep -Fq 'OK (1 test' "$out/workbench-schema-owner.txt" || { cat "$out/workbench-schema-owner.txt"; exit 1; }
+adb shell am instrument -w -r -e class com.ethk3.novaonepro.R30RepairChartsAndroidTest -e r30Sandbox "$chart_scope" "$app_id.test/com.ethk3.novaonepro.R30FaultAndroidRunner" > "$out/workbench.txt" 2>&1
 adb logcat -d -v threadtime > "$out/workbench-logcat.txt"
 pull_status=0
 adb pull "/sdcard/Android/data/$app_id/files/r30-repair-chart-regression" "$out/workbench-screenshots" > "$out/workbench-pull.txt" 2>&1 || pull_status=$?

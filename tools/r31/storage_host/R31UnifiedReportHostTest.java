@@ -49,6 +49,40 @@ public final class R31UnifiedReportHostTest {
             System.out.println("ADMISSION_HELD");System.out.flush();System.in.read();
         }
     }
+    static void observationWakeControl(File files)throws Exception{
+        files.mkdirs();File root=ReportDirectoriesCP12.root(files);String request=id("HOST_OBSERVER_WAKE_WITH_NO_OS_ALARM");
+        JSONObject intent=new JSONObject().put("requestId",request).put("mode","FULL_REPORT").put("releaseHash",id("release")).put("createdWallMs",System.currentTimeMillis()-4500).put("observationState","UNKNOWN_NOT_COLLECTED");
+        ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+request+".json"),intent.toString());ReportRequestQueueCP12.reconcileRequestsR31(root);
+        try(ReportJobJournalCP12 first=ReportJobJournalCP12.tryClaim(files)){need(first!=null,"PREPARATION_OWNER_MISSING");need(first.current()==null,"PREPARATION_ALREADY_CREATED_JOB");}
+        ReportExportServiceCP4 owner=(ReportExportServiceCP4)service();AtomicBoolean destroyed=new AtomicBoolean(),queued=new AtomicBoolean();
+        java.util.concurrent.atomic.AtomicInteger submissions=new java.util.concurrent.atomic.AtomicInteger();
+        java.util.concurrent.atomic.AtomicReference<Throwable> failure=new java.util.concurrent.atomic.AtomicReference<>();
+        java.util.concurrent.CountDownLatch resumed=new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.ScheduledThreadPoolExecutor timer=new java.util.concurrent.ScheduledThreadPoolExecutor(1);
+        java.util.concurrent.ThreadPoolExecutor worker=new java.util.concurrent.ThreadPoolExecutor(1,1,0,java.util.concurrent.TimeUnit.MILLISECONDS,new java.util.concurrent.ArrayBlockingQueue<>(1)){
+            @Override public java.util.concurrent.Future<?> submit(Runnable originalDrain){
+                // HOST transport substitutes only the Android drain invocation.
+                // Reclaim the actual released file owner and its durable FIFO;
+                // this is wake dispatch, never a synthetic report acceptance.
+                submissions.incrementAndGet();java.util.concurrent.CompletableFuture<Void> done=new java.util.concurrent.CompletableFuture<>();
+                try(ReportJobJournalCP12 next=ReportJobJournalCP12.tryClaim(files)){
+                    need(next!=null,"OBSERVER_TIMER_RETAINED_JOURNAL_LEASE");need(request.equals(ReportRequestQueueCP12.head(root)),"WAKE_LOST_OR_REPLACED_DURABLE_REQUEST");
+                    ReportJobJournalCP12.Job job=next.recoverOrCreateR31(request,id("release"),"FULL_REPORT");next.acknowledge(request,job);
+                    need("UNKNOWN_NOT_COLLECTED".equals(new JSONObject(ReportJobJournalCP12.readAtomic(new File(root,"requests/"+request+".json"),65536)).getString("observationState")),"WAKE_MANUFACTURED_OBSERVATION");
+                    done.complete(null);
+                }catch(Throwable error){failure.set(error);done.completeExceptionally(error);}finally{resumed.countDown();}
+                return done;
+            }
+        };
+        set(owner,"destroyed",destroyed);set(owner,"drainQueued",queued);set(owner,"worker",worker);set(owner,"controlTimer",timer);
+        try{
+            for(int i=0;i<100;i++){need(owner.scheduleObservationRetryR31(500),"LIVE_PREPARATION_RETRY_NOT_ADMITTED");need(timer.getQueue().size()<=1,"OBSERVATION_TIMER_QUEUE_UNBOUNDED");}
+            need(resumed.await(3,java.util.concurrent.TimeUnit.SECONDS),"DURABLE_INTENT_WAITED_FOR_UNDELIVERED_OS_ALARM");
+            need(failure.get()==null,"WAKE_JOURNAL_RECLAIM_FAILED:"+failure.get());need(submissions.get()==1,"PREPARATION_WAKE_SUBMITTED_MULTIPLE_DRAINS");
+            destroyed.set(true);need(!owner.scheduleObservationRetryR31(1),"DESTROYED_REPORT_OWNER_RESTARTED_WORK");
+            System.out.println("R31_OBSERVER_WAKE_HOST_CONTROL_PASS actual_control_timer=true no_OS_alarm_delivery=true released_journal_reclaimed=true one_pending_timer=true same_durable_request=true unknown_observation_preserved=true scope=HOST_DISPATCH_NOT_ANDROID_SERVICE_OR_REPORT_ACCEPTANCE");
+        }finally{destroyed.set(true);timer.shutdownNow();worker.shutdownNow();}
+    }
     public static void main(String[] args)throws Exception {
         JSONObject recoveredObservation=ReportAttachmentClosureCP12.requestObservationR31(new JSONObject());
         need("UNKNOWN_NOT_COLLECTED".equals(recoveredObservation.getString("observationState")),"LOST_OPTIONAL_OBSERVER_NOT_UNKNOWN");
@@ -66,6 +100,7 @@ public final class R31UnifiedReportHostTest {
         need(!ReportExportServiceCP4.observationPreparationPendingR31(preparing,10000),"COLLECTED_OBSERVATION_UNNECESSARILY_WAITED");
         File app=new File(args[0]);if(args.length>1&&args[1].equals("hold")){heldAdmissionChild(app);return;}
         File files=new File(app,"files");files.mkdirs();android.app.Service.filesR31=files;
+        observationWakeControl(new File(app,"observer-wake/files"));
         StorageBudgetR31 budget=new StorageBudgetR31(app,new StorageBudgetR31.Config(256*MiB,256*MiB,1024,2*MiB,"HOST_UNIFIED_REPORT_FIXTURE"),f->2L<<30);
         ReportNativeCP4.loadForDiagnosticProcess("host:diagnostics","host");
         String request=id("durable-request"),release=id("release");File directory;String zipSha;ReportJobJournalCP12.Job job;
