@@ -40,9 +40,10 @@ public final class R31WriteOperationRegistryTest {
         assertEquals("unregistered production write operations", Collections.emptyList(), unregistered);
     }
     /** Pre-R31 isCriticalBusinessOperationR914 (5237b265), minus R914_DRAW_HISTORY_BATCH (B02-C01 step 3:
-     * catch-up history is a background slice), plus the explicit R26 LIVE_FREEZE writers. */
+     * catch-up history is a background slice), plus the explicit R26 LIVE_FREEZE writers and
+     * the one-row exact-current settlement recovery repaired after a real process-reopen failure. */
     private static final Set<String> CRITICAL_EXACT = new HashSet<>(Arrays.asList("R932_BUNDLE_CAPTURE", "R932_FREEZE_ONE_RESEARCH_CONSUMER",
-            "R925_FETCH_BEGIN", "R925_FETCH_PAYLOAD", "R925_FETCH_COMPLETE", "R26_INCUMBENT_FREEZE", "R26_LIVE_FREEZE"));
+            "R925_FETCH_BEGIN", "R925_FETCH_PAYLOAD", "R925_FETCH_COMPLETE", "R26_INCUMBENT_FREEZE", "R26_LIVE_FREEZE", "R911_SETTLEMENT_REOPEN_CURRENT_FAILED"));
     private static final String[] CRITICAL_PREFIX = {"R914_DRAW_SAVE_ATOMIC", "R914_SETTLEMENT_HANDOFF_CURRENT", "R36_CANONICAL", "R36_ANALYSIS",
             "R366_ANALYSIS", "R36_SETTLEMENT", "R811_SETTLEMENT_PROMOTE_CURRENT", "R909_SETTLEMENT_REOPEN_CURRENT", "R905_REOPEN_FALSE_NO_PREDRAW",
             "R820_SETTLEMENT", "R900_SETTLEMENT"};
@@ -67,5 +68,12 @@ public final class R31WriteOperationRegistryTest {
         assertFalse(unknown.registered);
         assertFalse("unknown priority is never treated as a critical writer", unknown.critical());
         assertEquals(DatabaseCoordinator.WriteClass.RESEARCH_DATA, unknown.writeClass);
+    }
+    @Test public void exactCurrentRecoveryCannotBeStarvedAsHistoricalResearch() {
+        DatabaseCoordinator.WriteContext current=DatabaseCoordinator.WriteContext.legacy("R911_SETTLEMENT_REOPEN_CURRENT_FAILED");
+        assertTrue(current.registered);assertTrue(current.critical());
+        assertEquals(DatabaseCoordinator.WriteClass.SETTLEMENT,current.writeClass);
+        assertFalse(DatabaseCoordinator.WriteContext.legacy("R914_REOPEN_RETRYABLE_FAILED_SETTLEMENTS").critical());
+        assertEquals(DatabaseCoordinator.WriteClass.TELEMETRY,DatabaseCoordinator.WriteContext.legacy("R31_BUILD_MODULE_REGISTRY").writeClass);
     }
 }

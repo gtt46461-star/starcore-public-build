@@ -958,13 +958,12 @@ public final class SettlementTaskStoreR36 {
     public static boolean reopenCurrentRecoverableFailedR911(
             final DbStore store, final String target) {
         if(store==null||!TargetIssueResolver.isValid(target))return false;
-        final RuntimeException[] cause=new RuntimeException[1];
-        Boolean result=store.coordinatorR36().runAtomicWrite("R911_SETTLEMENT_REOPEN_CURRENT_FAILED",db->{
-            try {return reopenRecoverableFailedWithinTransactionF02(db,1,System.currentTimeMillis(),target)==1;}
-            catch(RuntimeException bad){cause[0]=bad;throw bad;}
-        },null);
-        if(result==null)throw new IllegalStateException("F02_CURRENT_RECOVERY_TRANSACTION_FAILED|target="+target,cause[0]);
-        return result;
+        // Exact current target, at most one row: this is the original
+        // settlement lane, not historical Research work. Typed admission also
+        // preserves the real failure phase/cause instead of a null fallback.
+        return store.coordinatorR36().runAtomicWriteOrThrowF01(
+                DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.SETTLEMENT,"R911_SETTLEMENT_REOPEN_CURRENT_FAILED"),
+                db->reopenRecoverableFailedWithinTransactionF02(db,1,System.currentTimeMillis(),target)==1);
     }
 
     /** R909 targeted repair for the current exact issue; never scans history. */

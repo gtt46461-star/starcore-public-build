@@ -29,6 +29,9 @@ public final class RuntimeSchemaR31Host {
             if(!ready)throw new AssertionError("Actual DbStore runtime units did not converge");
             int before=SQLiteDatabase.trace.size();LegacySchemaCoordinatorR926.validateUnitsReadOnlyR31(db,units);
             if(mutations(before)!=0)throw new AssertionError("Read-only production unit audit performed "+mutations(before)+" DML mutations");
+            Method registry=DbStore.class.getDeclaredMethod("ensureModuleRegistryR363",SQLiteDatabase.class);registry.setAccessible(true);
+            before=SQLiteDatabase.trace.size();registry.invoke(store,db);
+            if(mutations(before)!=0||SQLiteDatabase.trace.subList(before,SQLiteDatabase.trace.size()).stream().anyMatch(x->x.matches("(?is).*\\b(CREATE|ALTER|DROP)\\b.*")))throw new AssertionError("Cold module identity readiness attempted a schema/data repair");
             if(scalar(db,"SELECT count(*) FROM app_state WHERE state_key='service_status' AND state_value='NATIVE_CRITICAL_COMMIT'")!=1)throw new AssertionError("Original app state lost");
             System.out.println("ACTUAL_DBSTORE_RUNTIME_SCHEMA_NATIVE_PASS units="+units.size()+" slices="+slices+" readOnlyAuditDml=0 criticalCommitsBetweenSlices="+(slices-1)+" scope=HOST_NOT_ANDROID");
         }

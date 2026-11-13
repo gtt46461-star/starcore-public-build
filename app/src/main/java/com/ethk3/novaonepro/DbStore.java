@@ -20981,7 +20981,7 @@ public final class DbStore {
 
     public void registerModuleBuildV20(String moduleName, String version, String detail) {
         if (moduleName == null || moduleName.length() == 0) return;
-        SQLiteDatabase db = writable();
+        coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.TELEMETRY,"R31_BUILD_MODULE_REGISTRY"),db->{
         ensureModuleRegistryR363(db);
         ContentValues cv = new ContentValues();
         cv.put("module_name", moduleName);
@@ -20990,7 +20990,10 @@ public final class DbStore {
         cv.put("status", AppConfig.ACTIVE_QUALITY_BUILD_VERSION.equals(version) ? "OK" : "MIXED");
         cv.put("detail", detail == null ? "" : detail);
         cv.put("registered_at", System.currentTimeMillis());
-        insertFiltered(db, DbHelper.TABLE_V20_MODULE_REGISTRY, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        if(db.insertWithOnConflict(DbHelper.TABLE_V20_MODULE_REGISTRY,null,cv,SQLiteDatabase.CONFLICT_REPLACE)<0)
+            throw new IllegalStateException("R31_BUILD_MODULE_REGISTRY_NOT_COMMITTED");
+        return 1;
+        });
         try {
             setState("module_build_" + moduleName, version == null ? "" : version);
         } catch (Throwable ignore) {
@@ -20999,7 +21002,15 @@ public final class DbStore {
 
     /** The build-identity write must not trigger the full historical link-schema migration. */
     private void ensureModuleRegistryR363(SQLiteDatabase db) {
-        if (!LegacyDdlR31.owned(db)) { requireRuntimeReadyReadOnlyR31(db); return; }
+        if (!LegacyDdlR31.owned(db)) {
+            // Build identity depends on this exact existing metadata object,
+            // not on every historical business table being re-audited after
+            // process death. Missing columns still request the sole owner;
+            // this read-side probe never repairs or stamps any schema.
+            try{DatabaseCoordinator.requireSchemaObjectsR31(db,"BUILD_MODULE_REGISTRY",new String[][]{{DbHelper.TABLE_V20_MODULE_REGISTRY,"module_name,version,cohort,status,detail,registered_at"}},new String[0][]);}
+            catch(DatabaseCoordinator.SchemaPendingR31 pending){requestLegacySchemaMigrationR31();throw pending;}
+            return;
+        }
         if (db == null) throw new IllegalArgumentException("MODULE_REGISTRY_DB_NULL");
         execMigrationDdlOnlyR31(db,
                 "CREATE TABLE IF NOT EXISTS "

@@ -16,12 +16,14 @@ final class ReportControlBudgetR31 {
     static boolean accepts(File root,File file)throws IOException {
         String relative=file.getCanonicalPath().substring(root.getCanonicalPath().length()+1);
         return relative.matches("requests/[0-9a-f]{64}(?:\\.ack)?\\.json")
+                || relative.matches("jobs/[0-9a-f]{64}/job\\.json")
                 || relative.matches("quarantine/[0-9a-f]{64}\\.json")
                 || relative.matches("cancel-commands/[0-9a-f]{64}\\.json")
                 || relative.matches("(?:request-queue|interactive-pending-r69|current-job|cancel)\\.json");
     }
     static Closeable admit(File root,File file,long bytes,StorageBudgetR31 budget)throws IOException {
         if(bytes<0||bytes>RECORD_LIMIT||!accepts(root,file))throw new IOException("REPORT_CONTROL_RECORD_BOUND");
+        if(file.exists()&&!file.isFile())throw new IOException("REPORT_CONTROL_TARGET_TYPE");
         long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(5);boolean entered=false;
         RandomAccessFile io=null;FileLock lease=null;
         try {
@@ -41,9 +43,20 @@ final class ReportControlBudgetR31 {
                 File directory=new File(root,name);if(!directory.exists())continue;
                 try(DirectoryCursorR31 cursor=DirectoryCursorR31.open(directory)) {
                     File child;while((child=cursor.next())!=null) {
-                        if(++entries>2048||!child.getAbsoluteFile().equals(child.getCanonicalFile())||!child.isFile())throw new IOException("REPORT_CONTROL_SCOPE");
-                        used=Math.addExact(used,accounted(child));
+                        if(++entries>2048||!child.getAbsoluteFile().equals(child.getCanonicalFile()))throw new IOException("REPORT_CONTROL_SCOPE");
+                        used=Math.addExact(used,accountedControlEntry(child));
                     }
+                }
+            }
+            // The job journal must be durable before its bulk workspace can
+            // be admitted. Charge only this fixed control record (and atomic
+            // backup/new versions), never report payloads, to the same existing
+            // metadata headroom and quota. Do not census bulk job directories.
+            File jobs=new File(root,"jobs");
+            if(jobs.exists())try(DirectoryCursorR31 cursor=DirectoryCursorR31.open(jobs)) {
+                File job;while((job=cursor.next())!=null) {
+                    if(++entries>2048||!job.getName().matches("[0-9a-f]{64}")||!job.getAbsoluteFile().equals(job.getCanonicalFile())||!job.isDirectory())throw new IOException("REPORT_CONTROL_SCOPE");
+                    for(String suffix:new String[]{"",".bak",".new"})used=Math.addExact(used,accounted(new File(job,"job.json"+suffix)));
                 }
             }
             for(String name:new String[]{"request-queue","interactive-pending-r69","current-job","cancel"})
@@ -66,5 +79,15 @@ final class ReportControlBudgetR31 {
         long allocated=StorageCensusSU2.allocatedBytes(file);
         // Block-rounded upper bound also covers host filesystems lacking st_blocks.
         return Math.max(Math.max(0L,allocated),Math.max(4096L,((file.length()+4095L)/4096L)*4096L));
+    }
+    private static long accountedControlEntry(File file)throws IOException {
+        if(file.isFile())return accounted(file);
+        // An empty wrong-type ACK remains unwritable, but its actual directory
+        // blocks must not poison a different job's durable READY journal.
+        // Unknown nonempty trees remain refused and are never traversed/deleted.
+        if(!file.isDirectory())throw new IOException("REPORT_CONTROL_SCOPE");
+        try(DirectoryCursorR31 cursor=DirectoryCursorR31.open(file)){if(cursor.next()!=null)throw new IOException("REPORT_CONTROL_SCOPE");}
+        long allocated=StorageCensusSU2.allocatedBytes(file);
+        return Math.max(4096L,Math.max(0L,allocated));
     }
 }

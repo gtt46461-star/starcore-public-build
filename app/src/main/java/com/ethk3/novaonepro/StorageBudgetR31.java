@@ -110,6 +110,15 @@ public final class StorageBudgetR31 {
         try{return measureOutside(scope);}catch(Rejected rejected){throw rejected.context(owner,fence,operation);}
     }
     public Reservation reserve(String owner,long fence,Category category,String relativeScope,long maximumGrowth,long maximumWritten,boolean transientWork)throws IOException{
+        long retryDeadline=System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(5);
+        for(int attempt=0;;attempt++)try{return reserveOnceR31(owner,fence,category,relativeScope,maximumGrowth,maximumWritten,transientWork);}
+        catch(Rejected stale){
+            // A generation race is detected before any grant is committed.
+            // Remeasure outside the OS lease; never reuse or accept that ticket.
+            if(!"CENSUS_STALE".equals(stale.reason)||attempt>=2||System.nanoTime()>=retryDeadline||Thread.currentThread().isInterrupted())throw stale;
+        }
+    }
+    private Reservation reserveOnceR31(String owner,long fence,Category category,String relativeScope,long maximumGrowth,long maximumWritten,boolean transientWork)throws IOException{
         if(owner==null||owner.isEmpty()||owner.length()>160||fence<0||category==null||maximumGrowth<1||maximumWritten<maximumGrowth)throw new IllegalArgumentException("STORAGE_RESERVATION");
         final File scope=inside(root,relativeScope);final String relative=scope.getPath().substring(root.getPath().length()+1);
         if(Thread.currentThread().isInterrupted())throw new Rejected("CANCELLED").context(owner,fence,"RESERVE");
@@ -157,6 +166,11 @@ public final class StorageBudgetR31 {
         }
         /** Reserve a measured next phase before materialization; no physical bytes are reclaimed here. */
         public synchronized void ensureAdditional(long futureBytes,long maximumWritten,boolean transientWork)throws IOException{
+            long retryDeadline=System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(5);
+            for(int attempt=0;;attempt++)try{ensureAdditionalOnceR31(futureBytes,maximumWritten,transientWork);return;}
+            catch(Rejected stale){if(!"CENSUS_STALE".equals(stale.reason)||attempt>=2||System.nanoTime()>=retryDeadline||Thread.currentThread().isInterrupted())throw stale;}
+        }
+        private void ensureAdditionalOnceR31(long futureBytes,long maximumWritten,boolean transientWork)throws IOException{
             if(closed)throw new Rejected("OWNER_CLOSED").context(owner,fence,"NEXT_PHASE");if(futureBytes<0||maximumWritten<0)throw new IllegalArgumentException("STORAGE_PHASE_BYTES");if(Thread.currentThread().isInterrupted())throw new Rejected("CANCELLED").context(owner,fence,"NEXT_PHASE");
             final CensusTicket ticket=measureOutsideContextR31(owner,fence,"NEXT_PHASE",null);
             owned("NEXT_PHASE",state->{ticket.validate(state);Row own=require(state);

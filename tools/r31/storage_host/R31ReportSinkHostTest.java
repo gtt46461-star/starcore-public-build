@@ -33,7 +33,18 @@ public final class R31ReportSinkHostTest {
     public static void main(String[] args)throws Exception{
         File app=new File(args[0]);app.mkdirs();StorageBudgetR31 budget=new StorageBudgetR31(app,new StorageBudgetR31.Config(128*MiB,128*MiB,1024,65536,"HOST_REPORT_SINK_CAPACITY_FIXTURE"),f->1024*MiB);
         try(Closeable host=ReportIoR31.hostFixture(app,budget);ReportJobJournalCP12 journal=ReportJobJournalCP12.tryClaim(new File(app,"files"))){
-            ReportJobJournalCP12.Job job=new ReportJobJournalCP12.Job(id(31),id(131),id(931),"FULL_REPORT",System.currentTimeMillis());journal.create(job);File directory=journal.directory(job);
+            ReportJobJournalCP12.Job job=new ReportJobJournalCP12.Job(id(31),id(131),id(931),"FULL_REPORT",System.currentTimeMillis());
+            // Hold the actual bulk-admission OS lease. Initial job/control
+            // durability must use the precharged, separately bounded metadata
+            // path rather than a racing whole-tree census before admission.
+            try(RandomAccessFile lockFile=new RandomAccessFile(new File(app,"files/r31-storage/admission.lock"),"rw");java.nio.channels.FileLock bulkLease=lockFile.getChannel().lock()){
+                journal.create(job);journal.checkpoint(job,System.currentTimeMillis());journal.acknowledge(job.requestId,job);
+                need(new File(journal.directory(job),"job.json").isFile(),"JOB_HEADER_NOT_DURABLE_WITH_BULK_COORDINATOR_BUSY");
+                need(!ReportControlBudgetR31.accepts(journal.root(),new File(journal.directory(job),"bulk.json")),"BULK_PAYLOAD_ENTERED_CONTROL_HEADROOM");
+                try(ReportIoR31.AtomicPermit denied=ReportIoR31.beforeAtomic(new File(journal.directory(job),"job.json"),65537)){throw new AssertionError("OVERSIZED_JOB_CONTROL_RECORD_ADMITTED");}
+                catch(IOException expected){need(expected.getMessage().equals("REPORT_CONTROL_RECORD_BOUND"),"ORIGINAL_CONTROL_RECORD_BOUND_LOST");}
+            }
+            File directory=journal.directory(job);
             File original=new File(app,"original-input.bin");try(OutputStream out=new FileOutputStream(original)){byte[] buffer=new byte[32768];new Random(31).nextBytes(buffer);for(int n=0;n<20;n++)out.write(buffer);}String inputSha=ReportArchiveCP4.hash(original);
             try(StorageBudgetR31.Reservation reservation=budget.reserve("sink-owner",1,StorageBudgetR31.Category.REPORT_WORKSPACE,"files/r981_reports/jobs/"+job.jobId,4*MiB,64*MiB,true)){
                 Owner owner=new Owner(reservation);try(ReportIoR31.Scope scope=ReportIoR31.bind(directory,owner)){

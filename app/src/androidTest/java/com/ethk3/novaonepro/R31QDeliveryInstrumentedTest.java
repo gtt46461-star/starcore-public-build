@@ -161,6 +161,16 @@ public final class R31QDeliveryInstrumentedTest {
                 if(heartbeat.getLastFetchSuccessAt()>started&&frozen>0&&settled>0)break;
                 Thread.sleep(500);
             }while(SystemClock.elapsedRealtime()<until);
+            // Read the actual production audit's bounded phase timings before
+            // any failing assertion. Emit only stage identifiers and numeric
+            // durations/budgets, never request IDs, rows or heartbeat contents.
+            try(Cursor costs=store.readable().rawQuery("SELECT stage_samples FROM "+RuntimeResourceAuditR927.TABLE+" ORDER BY started_at DESC LIMIT 3",null)){
+                java.util.regex.Pattern phase=java.util.regex.Pattern.compile("([A-Z][A-Z0-9_]{1,60}):([0-9]{1,12})/([0-9]{1,12}):(OK|OVER_BUDGET|FAILED)");
+                int records=0;while(costs.moveToNext()){
+                    java.util.regex.Matcher sample=phase.matcher(costs.getString(0)==null?"":costs.getString(0));
+                    while(sample.find()&&records++<120)System.out.println("R31Q_PHASE_COST|"+sample.group(1)+"|elapsedMs="+sample.group(2)+"|budgetMs="+sample.group(3)+"|"+sample.group(4));
+                }
+            }
             assertTrue("NO_FRESH_API_FETCH: "+heartbeat.detailedSummary(),heartbeat.getLastFetchSuccessAt()>started);
             assertTrue("NO_NEW_FUTURE_FREEZE: "+heartbeat.detailedSummary(),frozen>0);
             assertTrue("NO_NEW_FROZEN_SETTLEMENT: "+heartbeat.detailedSummary(),settled>0);

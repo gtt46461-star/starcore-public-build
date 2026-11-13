@@ -1,0 +1,59 @@
+{
+  "scope": "ACTUAL_EXPANDED_ANDROID_FAILURE_REPAIR_PENDING_NEW_APK_RUNTIME",
+  "failedSource": "abaf5bd42119f02433acac8207a926c520467a2f",
+  "failedAndroidRun": 43379857398,
+  "priorSameSourceFullEngineeringRun": 43379783599,
+  "priorSameSourceFullEngineering": "PASS_640_UNITS_AND_ALL_ACTIVE_HOSTS_NOT_NEW_REPAIR_PASS",
+  "productionChanges": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportControlBudgetR31.java",
+      "sha256": "640dbbfbd6e82e84617881083e7dddc52cb6b751144ca8e69a24d5b3715baea0"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportIoR31.java",
+      "sha256": "a890670bdf7cf46530d4103bfc6492fc870249791c008dab0d0979fe335200e4"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+      "sha256": "ba6a9902d70612b0f2197f5b4b59beafdc4d27743424d069038024cfd59d8b9b"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+      "sha256": "698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "sha256": "6e2a45b05fefbcb58cf09b008bc9c15610eb99b42c62099bbae368991c466659"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+      "sha256": "1f35a8cec198598a506a5621ca30b1ad6494cfa44f1e64e3d86aeb66f154e0b2"
+    }
+  ],
+  "reportFixes": [
+    "Job journal before bulk admission is charged to existing bounded metadata headroom, including atomic versions; no bulk payload bypass.",
+    "Actual granted workspace still pays for its own writes; an unwritable empty ACK directory is charged by allocated blocks, remains unwritable, and does not poison unrelated READY durability.",
+    "Only pre-commit CENSUS_STALE receives up to three completely fresh outside-lock measurements within the original five-second retry window; no stale ticket accepted."
+  ],
+  "restartFixes": [
+    "Module metadata readiness probes exact existing columns without waiting for unrelated historical migrations; missing objects still request the sole owner.",
+    "Module registry writes use typed telemetry through the sole writer and check the actual insert result.",
+    "One-row exact-current settlement recovery uses typed settlement admission; historical batch recovery stays Research and real error causes are retained."
+  ],
+  "currentReportHostReceipt": {
+    "path": "/tmp/r31-current-census-repair-ack-isolated/receipt.json",
+    "sha256": "3707ef72ca395528b8a13806d9bdf657c7e59c53751127133578f1708cd8cbc7",
+    "state": "PASS_NATIVE_HOST_ONLY"
+  },
+  "moduleOwnerReceipt": {
+    "path": "/tmp/r31-current-module-probe-repair/RECEIPT.json",
+    "sha256": "b38972a0a33f77f5fcfe25425cd09960ea7e44f5bcfc4d0653ace88f9dfffcae",
+    "state": "PASS_NATIVE_HOST_ONLY"
+  },
+  "remainingLiveFailure": "R31_PHASE_BUDGET_INFER observed on old source; retain original 1000/3000/1000 budgets, gather actual production stage_samples on next targeted emulator run",
+  "sourceThresholdsChanged": false,
+  "physicalDevice": "NOT_RUN",
+  "24h": "NOT_RUN",
+  "72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN"
+}

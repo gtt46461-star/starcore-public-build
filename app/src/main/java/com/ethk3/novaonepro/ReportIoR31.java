@@ -66,12 +66,17 @@ public final class ReportIoR31 {
     public static AtomicPermit beforeAtomic(File file,long bytes)throws IOException{
         if(bytes<0)throw new IllegalArgumentException("REPORT_ATOMIC_BYTES");
         for(File path:new File[]{file,new File(file.getPath()+".new"),new File(file.getPath()+".bak")})if(!path.getAbsoluteFile().equals(path.getCanonicalFile()))throw new IOException("REPORT_ATOMIC_SYMLINK");
+        // Once a bulk owner has actually obtained its grant, its own journal
+        // remains charged to that grant. A corrupt/unwritable optional ACK in
+        // the separate control scope must not prevent a verified READY commit.
+        ReportNativeCP4.Control owner=control(file,null);
+        if(owner!=null&&owner.hasDiskAdmissionR31()){owner.beforeOutputBytesR31(file,bytes);return new AtomicPermit(null,bytes);}
         File reportRoot=file.getParentFile();while(reportRoot!=null&&!reportRoot.getName().equals("r981_reports"))reportRoot=reportRoot.getParentFile();
         if(reportRoot!=null&&ReportControlBudgetR31.accepts(reportRoot,file)) {
             StorageBudgetR31 controlBudget=budget(dataRoot(file));
             if(controlBudget.controlHeadroomR31()>0)return new AtomicPermit(ReportControlBudgetR31.admit(reportRoot,file,bytes,controlBudget),bytes);
         }
-        ReportNativeCP4.Control owner=control(file,null);if(owner!=null){owner.beforeOutputBytesR31(file,bytes);return new AtomicPermit(null,bytes);}
+        if(owner!=null){owner.beforeOutputBytesR31(file,bytes);return new AtomicPermit(null,bytes);}
         File root=dataRoot(file);if(root==null)return new AtomicPermit(null,bytes);
         long maximum=Math.max(1,Math.addExact(bytes,ATOMIC_HEADROOM));StorageBudgetR31.Reservation reservation=budget(root).reserve("report-atomic:"+StorageBudgetR31.sha(file.getPath().getBytes(StandardCharsets.UTF_8)),0,StorageBudgetR31.Category.REPORT_WORKSPACE,relative(root,file),maximum,Math.multiplyExact(maximum,4),true);
         try{reservation.beforeChunk(bytes);return new AtomicPermit(reservation,bytes);}catch(IOException|RuntimeException|Error error){try{reservation.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
