@@ -27,14 +27,14 @@ jobs:
           assert summary['invocationId']=='dccb1eb0-87b0-4cf9-b39d-d4ac2cfb98f1'
           result={'source':summary['source_head'],'invocationId':summary['invocationId'],'runId':43336663168,'unit':summary['unit'],'failures':[],'failedHosts':[]}
           def identifier(value):return value if isinstance(value,str) and re.fullmatch('[A-Za-z0-9_.$ #()\\[\\],:-]{1,300}',value) else 'UNAVAILABLE'
-          def frames(text):return re.findall(r'at ((?:com[.]ethk3[.]novaonepro)[A-Za-z0-9_.$]+[(][A-Za-z0-9_.$: ]+[)])',text)[:60]
+          def frames(text):return re.findall(r'((?:com[.]ethk3[.]novaonepro)[A-Za-z0-9_.$]+[(][A-Za-z0-9_.$: /-]+[)])',text)[:60]
           codes=['AssertionError','FileNotFoundException','IllegalStateException','SqliteException','SQLiteException','NullPointerException','NO_SUCH_TABLE','no such table','no such column','RETIREMENT_MANIFEST','SOURCE_CHANGED','hash','mismatch','MISMATCH','EXPECTED','expected','BOOTSTRAP','SCHEMA','TRIGGER']
           for p in root.rglob('TEST-*.xml'):
               if p.stat().st_size>8000000:continue
               for case in ET.parse(p).getroot().iter('testcase'):
                   for failure in list(case.findall('failure'))+list(case.findall('error')):
                       raw=(failure.text or '')+' '+failure.get('message','')
-                      result['failures'].append({'class':identifier(case.get('classname')),'test':identifier(case.get('name')),'type':identifier(failure.get('type')),'sourceFrames':frames(raw),'memoryReasons':re.findall('RESOURCE_WAIT:MEMORY_[A-Z_]+',raw),'codes':[c for c in codes if c in raw],'xmlSha256':hashlib.sha256(p.read_bytes()).hexdigest()})
+                      result['failures'].append({'class':identifier(case.get('classname')),'test':identifier(case.get('name')),'type':identifier(failure.get('type')),'sourceFrames':frames(raw),'memoryReasons':re.findall('RESOURCE_WAIT:MEMORY_[A-Z_]+',raw),'leafAdmission':re.findall('R31_LEAF_ADMISSION kind=[a-z0-9_]{1,48} tp=[0-9]{1,2} a=[0-9]{1,8} b=[0-9]{1,8} rows=[0-9]{1,8}',raw),'codes':[c for c in codes if c in raw],'xmlSha256':hashlib.sha256(p.read_bytes()).hexdigest()})
           for host in summary.get('host',[]):
               if host.get('status')=='PASS':continue
               row={'id':identifier(host.get('id')),'status':identifier(host.get('status')),'exitCode':host.get('exit')}
