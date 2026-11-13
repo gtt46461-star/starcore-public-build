@@ -46,6 +46,17 @@ public final class R31RestoreProofInstrumentedTest {
             assertEquals("FAILED_OR_RECOVERY_REQUIRED",app.getSharedPreferences("r82_storage_maintenance",0).getString("phase",""));return;
         }Thread.sleep(100);}while(SystemClock.elapsedRealtime()<end);fail("RESTORE_DISPOSABLE_REFUSAL_NOT_OBSERVED");
     }
+    private static void drainSetupWriterEvidence(DbStore store)throws Exception {
+        // This offline fixture deliberately never starts Runtime/Health. Slow
+        // emulator migration can fill the real writer-observation queue. Use
+        // Health's actual durable consumer before the research-class setup
+        // write; never clear the queue or bypass its admission gate.
+        long end=SystemClock.elapsedRealtime()+120000;
+        while(WriterHoldFaultsR31.deferResearch()&&SystemClock.elapsedRealtime()<end){
+            WriterHoldFaultsR31.drainOne(store);Thread.sleep(20);
+        }
+        assertFalse("SETUP_WRITER_EVIDENCE_NOT_DURABLY_DRAINED: "+WriterHoldFaultsR31.snapshot(),WriterHoldFaultsR31.deferResearch());
+    }
     @Test public void independentRestoreBindsActualPidCloneAndCurrentBytesBeforeSeparateCleanup()throws Exception {
         Context app=app();DbStore store=new DbStore(app);ready(store);new ServiceHeartbeatStore(app).setUserEnabled(false);
         assertFalse("LIVE_RUNTIME_MUST_ALREADY_BE_STOPPED",AutoFetchService.isLifecycleActiveR82());
@@ -59,6 +70,7 @@ public final class R31RestoreProofInstrumentedTest {
         });
         Models.Draw latest=store.getLatestDraw(),draw=new Models.Draw();draw.issue=latest==null?"202610240001":TargetIssueResolver.next(latest.issue).targetIssue;draw.numbers=new int[]{1,2,3,4,5,6,7,8,9,10};draw.fetchTime=draw.openTime=System.currentTimeMillis();draw.rawJson="{\"scope\":\"SYNTHETIC_DISPOSABLE_RESTORE_CONTROL\"}";
         assertTrue("CONTROL_DRAW_NOT_PERSISTED",store.saveDraw(draw)>=0);assertTrue(SettlementTaskStoreR36.enqueueDraw(store,draw));
+        drainSetupWriterEvidence(store);
         store.coordinatorR36().runAtomicWriteOrThrowF01("R31_RESTORE_DISPOSABLE_ORPHAN",sql->{sql.execSQL("UPDATE "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" SET status='RUNNING',lease_owner='RESTORE_DISPOSABLE',lease_until=?,attempts=3 WHERE target_issue=?",new Object[]{System.currentTimeMillis()+3600000,draw.issue});return 1;});
         StorageMaintenanceServiceR82.request(app,false);await(app,"RESTORE_VERIFIED_BACKUP_RETAINED");
         assertTrue(backup.isFile());Properties first=StorageMaintenanceFileR82.read(receiptFile);

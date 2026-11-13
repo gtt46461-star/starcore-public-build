@@ -21,14 +21,18 @@ public final class StorageCheckpointServiceR31 extends Service {
         Messenger reply=message.replyTo;boolean device=message.getData().getBoolean("deviceProtected");
         if(!active.compareAndSet(false,true)){respond(reply,id,null,"ANOTHER_PASSIVE_OWNER_STILL_ACTIVE");return;}
         owner=id;cancelled.set(false);worker.execute(()->{
-            long[] result=null;String state="FAILED_OR_INCOMPLETE";long end=TimeSourceR811.monoNowMs()+40;
+            long[] result=null;String state="FAILED_OR_INCOMPLETE",failureCode="";long end=TimeSourceR811.monoNowMs()+40;
             try{
                 Context source=getApplicationContext();
                 if(device){
                     if(Build.VERSION.SDK_INT>=24)source=createDeviceProtectedStorageContext();
                     else{state="DEVICE_PROTECTED_STORAGE_UNAVAILABLE_BEFORE_API_24";return;}
                 }
-                File file=source.getDatabasePath(AppConfig.DB_NAME);
+                // Android releases can expose the app directory through a
+                // /data/data alias. Resolve our fixed application path before
+                // taking the lease; the native capability still rejects every
+                // caller-supplied alias or different database.
+                File file=source.getDatabasePath(AppConfig.DB_NAME).getCanonicalFile();
                 // Cancel only stale readers registered by their owners in this
                 // diagnostics process. An unknown main/other-process reader is
                 // never declared closed; SQLite's zero-wait result is authoritative.
@@ -37,8 +41,8 @@ public final class StorageCheckpointServiceR31 extends Service {
                     if(lease==null)state="SOURCE_OR_OFFLINE_LEASE_BUSY";
                     else{result=ReportNativeCP4.checkpointWalR31(source,file,0,Math.max(1,end-TimeSourceR811.monoNowMs()),lease,new ReportNativeCP4.Control(){public boolean shouldContinue(){return !cancelled.get()&&TimeSourceR811.monoNowMs()<end;}});state=resultStateR31(result);}
                 }
-            }catch(Exception failure){state=cancelled.get()?"CANCELLED_OWNER_NOT_SUCCESS":"NATIVE_OR_SOURCE_UNAVAILABLE";}
-            finally{owner="";active.set(false);respond(reply,id,result,state);}
+            }catch(Exception failure){state=cancelled.get()?"CANCELLED_OWNER_NOT_SUCCESS":"NATIVE_OR_SOURCE_UNAVAILABLE";failureCode=failure.getClass().getSimpleName()+":"+String.valueOf(failure.getMessage());if(failureCode.length()>512)failureCode=failureCode.substring(0,512);}
+            finally{owner="";active.set(false);respond(reply,id,result,state,failureCode);}
         });
     }});
     /** A successful NOOP probe, an empty WAL, cancellation and a copy-budget
@@ -51,7 +55,8 @@ public final class StorageCheckpointServiceR31 extends Service {
         if(values[7]!=1)return code==0?"PASSIVE_NOT_ATTEMPTED_NO_WAL":"PASSIVE_PRECHECK_NOT_EXECUTED";
         return code==0||code==5||code==6?"ACTUAL_PASSIVE_RESULT":"ACTUAL_PASSIVE_FAILED";
     }
-    private static void respond(Messenger target,String owner,long[] values,String state){try{Message reply=Message.obtain(null,RESULT);Bundle b=new Bundle();b.putString("owner",owner);b.putString("state",state);if(values!=null)b.putLongArray("result",values);reply.setData(b);target.send(reply);}catch(RemoteException gone){/* A dead client cannot make this executed operation a success receipt. */}}
+    private static void respond(Messenger target,String owner,long[] values,String state){respond(target,owner,values,state,"");}
+    private static void respond(Messenger target,String owner,long[] values,String state,String failureCode){try{Message reply=Message.obtain(null,RESULT);Bundle b=new Bundle();b.putString("owner",owner);b.putString("state",state);if(!failureCode.isEmpty())b.putString("failureCode",failureCode);if(values!=null)b.putLongArray("result",values);reply.setData(b);target.send(reply);}catch(RemoteException gone){/* A dead client cannot make this executed operation a success receipt. */}}
     @Override public IBinder onBind(Intent intent){return messenger.getBinder();}
     @Override public void onDestroy(){cancelled.set(true);worker.shutdown();super.onDestroy();}
 }
