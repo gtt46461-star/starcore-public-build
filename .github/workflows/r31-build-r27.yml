@@ -4,7 +4,7 @@ permissions:
   actions: read
 concurrency:
   group: r31-phone-report-026
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,10 +12,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: d44e10acbdd040faaeb1fc4deb1b0b67efac1bb1
+        ref: 3002e30d0ee8d5fe3a8795c2ed3b2f7040920f50
         fetch-depth: 0
     - name: Require exact source and release identity
-      run: 'test "$(git rev-parse HEAD)" = "d44e10acbdd040faaeb1fc4deb1b0b67efac1bb1"
+      run: 'test "$(git rev-parse HEAD)" = "3002e30d0ee8d5fe3a8795c2ed3b2f7040920f50"
 
         python3 - <<''PY''
 
@@ -125,7 +125,7 @@ jobs:
         path: ${{ runner.temp }}/phone-built/
         if-no-files-found: error
     outputs:
-      source: d44e10acbdd040faaeb1fc4deb1b0b67efac1bb1
+      source: 3002e30d0ee8d5fe3a8795c2ed3b2f7040920f50
       apk_sha: ${{ steps.apk.outputs.sha256 }}
   report:
     runs-on: ubuntu-latest
@@ -133,7 +133,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: d44e10acbdd040faaeb1fc4deb1b0b67efac1bb1
+        ref: 3002e30d0ee8d5fe3a8795c2ed3b2f7040920f50
         fetch-depth: 1
     - uses: actions/download-artifact@v4
       with:
