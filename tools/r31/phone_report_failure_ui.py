@@ -20,6 +20,7 @@ def main():
     assert ui.adb('shell', 'getprop', 'ro.build.version.sdk').strip() == '34', 'ANDROID14_REQUIRED'
     ui.adb('shell', 'am', 'force-stop', ui.PKG)
     preserved = ui.ROOT + '-saved-before-phone-fixture'
+    ui.adb('shell', 'mkdir', '-p', ui.ROOT)
     ui.adb('shell', f'test ! -e {preserved} && mv {ui.ROOT} {preserved}')
     uid = ui.adb('shell', 'stat', '-c', '%u', '/data/user/0/' + ui.PKG).strip()
     assert uid.isdigit(), 'APP_UID_REQUIRED'
@@ -66,7 +67,9 @@ def main():
         ui.adb('shell', 'am', 'start', '-W', '-n', ui.PKG + '/com.ethk3.novaonepro.MainActivity')
         results = []
         for entrance in ['查看上次导出失败详情', '取回上次报告或继续生成']:
+            print('PHONE_FAILURE_UI_STEP:OPEN_MENU:'+entrance, flush=True)
             ui.click_text('导出完整报告（含数据库和训练附件）', scrolls=45)
+            print('PHONE_FAILURE_UI_STEP:CHOOSE_ENTRY:'+entrance, flush=True)
             ui.click_text(entrance)
             end = time.monotonic() + 20
             while True:
@@ -81,7 +84,11 @@ def main():
             assert 'fixture-key-must-hide' not in text and 'fixture-token-must-hide' not in text, 'UI_CREDENTIALS_EXPOSED'
             assert '分享恢复诊断' in labels and '复制详情' in labels, 'RECOVERY_SHARE_OR_COPY_ENTRY_LOST'
             results.append(dict(entrance=entrance, correctRequest=True, ackReason=True, originalFailure=True, credentialsMasked=True, recoveryShare=True, copyUsesSameMaskedText=True))
+            print('PHONE_FAILURE_UI_STEP:COPY_MASKED_DETAIL:'+entrance, flush=True)
             ui.click_text('复制详情')
+            # Android 14 shows its clipboard preview above the bottom of the
+            # app. Let that system surface finish before the next menu tap.
+            time.sleep(8)
         for relative, expected_hash in original_hashes.items():
             actual = subprocess.check_output(['adb','exec-out','cat',ui.ROOT+'/'+relative])
             assert hashlib.sha256(actual).hexdigest() == expected_hash, 'RETRIEVAL_CHANGED_EXISTING_EVIDENCE'
@@ -96,4 +103,11 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception as failure:
+        message = str(failure)
+        for label in ['导出完整报告（含数据库和训练附件）', '查看上次导出失败详情', '取回上次报告或继续生成', '复制详情']:
+            if 'UI_TEXT_NOT_FOUND:'+label in message:
+                print('PHONE_FAILURE_UI_MISSING_TARGET:'+label, flush=True)
+        raise
