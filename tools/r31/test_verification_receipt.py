@@ -84,5 +84,33 @@ class Manifest(unittest.TestCase):
         self.assertNotIn('continue-on-error: true', wf)
 
 
+class AndroidOutputTransport(unittest.TestCase):
+    def setUp(self):
+        import android_delivery_protocol as protocol
+        self.verify = protocol.verify
+        fixture = ROOT / 'verification/r31/android-delivery-protocol'
+        self.instrumentation = (fixture / '027-instrumentation.txt').read_text()
+        self.logcat = (fixture / '027-logcat-test-events.txt').read_text()
+
+    def test_actual_027_markers_are_bound_to_their_test_in_logcat(self):
+        self.assertNotIn('FULL_REPORT_PUBLISHED|PROVIDER_READBACK_HASH_PASS', self.instrumentation)
+        result = self.verify(self.instrumentation, self.logcat)
+        self.assertTrue(result['passed'], result['problems'])
+        self.assertEqual(7, len(result['markers']))
+
+    def test_no_marker_skip_foreign_process_or_old_run_can_substitute(self):
+        variants = [
+            (self.instrumentation, self.logcat.replace('R31Q_ANDROID|REAL_API_FETCH', 'MISSING|REAL_API_FETCH')),
+            (self.instrumentation.replace('INSTRUMENTATION_STATUS_CODE: 0', 'INSTRUMENTATION_STATUS_CODE: -3', 1), self.logcat),
+            (self.instrumentation, self.logcat.replace('  2468  2503 I System.out:', '  9876  2503 I System.out:')),
+            (self.instrumentation, self.logcat + self.logcat),
+            (self.instrumentation, ''),
+            (self.instrumentation + self.instrumentation, self.logcat),
+            (self.instrumentation.replace('OK (7 tests)', 'FAILURES!!!'), self.logcat),
+        ]
+        for protocol, logcat in variants:
+            self.assertFalse(self.verify(protocol, logcat)['passed'])
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

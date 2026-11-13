@@ -14,16 +14,32 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Bind observation to the requested already-built APK
+        id: request
+        run: |
+          python3 - <<'PY'
+          import json,os,re,subprocess
+          r=json.load(open('release/R31_LIVE_PROFILE_REQUEST.json'))
+          source=r['sourceCommit'];digest=r['apkSha256']
+          assert re.fullmatch('[0-9a-f]{40}',source) and re.fullmatch('[0-9a-f]{64}',digest)
+          test_source=r.get('testSource',source);assert re.fullmatch('[0-9a-f]{40}',test_source)
+          subprocess.run(['git','merge-base','--is-ancestor',source,'HEAD'],check=True)
+          values={'buildRun':r['runId'],'artifact':r['artifact'],'supportRun':r.get('supportRunId',r['runId']),'supportArtifact':r.get('supportArtifact',r['artifact']),'source':source,'digest':digest,'testSource':test_source}
+          for key in ['buildRun','supportRun']:assert type(values[key]) is int and values[key]>0
+          for key in ['artifact','supportArtifact']:assert re.fullmatch('[A-Za-z0-9_.-]{1,160}',values[key])
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+              for key,value in values.items():out.write(key+'='+str(value)+'\n')
+          PY
       - uses: actions/download-artifact@v4
         with:
-          name: r31-report-025-signed-build
-          run-id: 43417298331
+          name: ${{ steps.request.outputs.artifact }}
+          run-id: ${{ steps.request.outputs.buildRun }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: built
       - uses: actions/download-artifact@v4
         with:
-          name: r31v-android-build
-          run-id: 43395922679
+          name: ${{ steps.request.outputs.supportArtifact }}
+          run-id: ${{ steps.request.outputs.supportRun }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: support
       - name: Enable emulator acceleration
@@ -32,6 +48,10 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - uses: reactivecircus/android-emulator-runner@v2
+        env:
+          R31_PROFILE_SOURCE: ${{ steps.request.outputs.source }}
+          R31_PROFILE_APK_SHA: ${{ steps.request.outputs.digest }}
+          R31_PROFILE_TEST_SOURCE: ${{ steps.request.outputs.testSource }}
         with:
           api-level: 34
           arch: x86_64
@@ -40,10 +60,21 @@ jobs:
           ram-size: 3072M
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
-          script: bash tools/r30-repair/prepare_emulator.sh && python3 -B tools/r31/profile_signed_release.py --built built --support support --out live-public
+          script: bash tools/r30-repair/prepare_emulator.sh && python3 -B tools/r31/profile_signed_release.py --built built --support support --out live-public --expected-source "$R31_PROFILE_SOURCE" --expected-apk-sha "$R31_PROFILE_APK_SHA" --test-source "$R31_PROFILE_TEST_SOURCE"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: r31-current-signed-live-profile
           path: live-public/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31-current-signed-apk
+          path: |
+            built/app/build/outputs/apk/release/*.apk
+            built/r31v/source-commit.txt
+            built/r31v/signature-*-release.txt
+            built/r31v/badging-*-release.txt
+            built/r31v/SHA256SUMS.txt
           if-no-files-found: error

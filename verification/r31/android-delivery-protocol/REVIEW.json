@@ -1,0 +1,61 @@
+{
+  "passed": true,
+  "problems": [],
+  "completedTests": [
+    "committedIntentSurvivesObserverDeathAndExportsExplicitUnknown",
+    "fullReportReachesPublishedZipAndProviderReadback",
+    "blockedOptionalObserversStayBoundedAndDoNotBlockTheNextRequest",
+    "legacyMigrationResumesAndAllowsCriticalCommitsBetweenUnits",
+    "firstSchemaProbeFailureStopsRemainingColumns",
+    "oldReadyStampCannotSkipTheNewAuditedMigrationPass",
+    "liveServiceFetchesFreezesAndSettlesNewFutureObservations"
+  ],
+  "markers": {
+    "committedIntentSurvivesObserverDeathAndExportsExplicitUnknown": {
+      "channel": "LOGCAT_SAME_TEST_PID_AND_LIFECYCLE",
+      "pid": 2468,
+      "record": "R31Q_ANDROID|DURABLE_INTENT_OBSERVER_DEATH|ACTUAL_SERVICE_ZIP_READBACK|UNKNOWN_PRESERVED_NO_FAKE_HEALTH|PASS"
+    },
+    "fullReportReachesPublishedZipAndProviderReadback": {
+      "channel": "LOGCAT_SAME_TEST_PID_AND_LIFECYCLE",
+      "pid": 2468,
+      "record": "R31Q_ANDROID|FULL_REPORT_PUBLISHED|PROVIDER_READBACK_HASH_PASS|BYTES=7766584|CHECKS_COMPLETE=false|HEALTH=false|NO_QUALITY_CLAIM|PASS"
+    },
+    "blockedOptionalObserversStayBoundedAndDoNotBlockTheNextRequest": {
+      "channel": "LOGCAT_SAME_TEST_PID_AND_LIFECYCLE",
+      "pid": 2468,
+      "record": "R31Q_ANDROID|OPTIONAL_OBSERVERS_BOUNDED_AT_TWO|TWELVE_ADDITIONAL_REQUESTS_EXPLICIT_UNKNOWN|PASS"
+    },
+    "legacyMigrationResumesAndAllowsCriticalCommitsBetweenUnits": {
+      "channel": "LOGCAT_SAME_TEST_PID_AND_LIFECYCLE",
+      "pid": 2468,
+      "record": "R31Q_ANDROID|LEGACY_READY|CRITICAL_COMMITS=1|WHILE_PENDING=0|INJECTED_NOT_NATURAL|PASS"
+    },
+    "firstSchemaProbeFailureStopsRemainingColumns": {
+      "channel": "LOGCAT_SAME_TEST_PID_AND_LIFECYCLE",
+      "pid": 2468,
+      "record": "R31Q_ANDROID|FAILED_PROBE_NOT_SWALLOWED|REMAINING_COLUMNS_NOT_EXECUTED|NO_REPEATED_BUSY_WAITS|PASS"
+    },
+    "oldReadyStampCannotSkipTheNewAuditedMigrationPass": {
+      "channel": "LOGCAT_SAME_TEST_PID_AND_LIFECYCLE",
+      "pid": 2468,
+      "record": "R31Q_ANDROID|OLD_READY_REAUDITED|LEGACY_MARKERS_PRESERVED|NEW_UNITS_DURABLE|PASS"
+    },
+    "liveServiceFetchesFreezesAndSettlesNewFutureObservations": {
+      "channel": "LOGCAT_SAME_TEST_PID_AND_LIFECYCLE",
+      "pid": 2468,
+      "record": "R31Q_ANDROID|REAL_API_FETCH_AND_NEW_FREEZE_SETTLEMENT|FROZEN=1|SETTLED=1|PIT_DEADLINE_VALID|NO_WIN_RATE_CLAIM|PASS"
+    }
+  },
+  "protocolSha256": "71653b29e7f87367a300ba13259e9ed72390d89ec3a376c3873686c19675c56b",
+  "logcatSha256": "dcab09c8d17303401d71236135e86bb1e75160a560d959d5c2a1107c209f6d3e",
+  "scope": "EXACT_INVOCATION_TEST_COMPLETION_AND_ORIGINAL_LOGCAT_MARKERS; NOT_SAF_OR_HANDSET_OR_NATURAL_QUALITY",
+  "buildRunId": 43484576602,
+  "sourceCommit": "477f6c9ce42b8ab0968a3b43351c1af3d6a752f7",
+  "installedReleaseSha256": "979fa72b25d91f5d8812ed8b8c13c47530f792637c2f9fbd2d21ed3b836a973d",
+  "result": "CURRENT_PARSER_REVIEW_OF_EXISTING_RAW_EXECUTION; ORIGINAL_CI_FAILURE_PRESERVED; NOT_A_NEW_ANDROID_INVOCATION",
+  "reportChecksComplete": false,
+  "reportAllChecksPassed": false,
+  "physicalDevice": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN"
+}

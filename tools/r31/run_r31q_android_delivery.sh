@@ -24,6 +24,8 @@ adb shell am instrument -w -r -e r30Sandbox "r31q-delivery-${GITHUB_RUN_ID:-loca
 adb logcat -d -v threadtime > "$out/logcat-private.txt"
 python3 - "$out" <<'PY'
 import hashlib,json,pathlib,re,sys
+sys.path.insert(0,'tools/r31')
+from android_delivery_protocol import verify
 out=pathlib.Path(sys.argv[1]);p=out/'logcat-private.txt'
 clean=re.sub(r'(?i)((?:api[_-]?key|password|token|key)\s*[=:]\s*)[^\s&,;]+',r'\1[REDACTED]',p.read_text(errors='replace'))
 clean=re.sub(r'(?i)Bearer\s+[^\s]+','Bearer [REDACTED]',clean)
@@ -31,7 +33,9 @@ clean=re.sub(r'(?i)Bearer\s+[^\s]+','Bearer [REDACTED]',clean)
 raw=(out/'delivery-protocol.txt').read_bytes();text=raw.decode(errors='replace')
 print(text[-16000:])
 found=re.search(r'OK \((\d+) tests?\)',text)
-ok=bool(found and int(found.group(1))==7 and 'FAILURES!!!' not in text and 'FULL_REPORT_PUBLISHED|PROVIDER_READBACK_HASH_PASS' in text and 'REAL_API_FETCH_AND_NEW_FREEZE_SETTLEMENT' in text and 'FAILED_PROBE_NOT_SWALLOWED' in text and 'OLD_READY_REAUDITED' in text and 'OPTIONAL_OBSERVERS_BOUNDED_AT_TWO' in text)
+transport=verify(text,clean)
+(out/'ANDROID_PROTOCOL_VERIFICATION.json').write_text(json.dumps(transport,indent=2)+'\n')
+ok=transport['passed']
 (out/'DELIVERY_REGRESSION.json').write_text(json.dumps({'status':'PASS_ANDROID_EMULATOR' if ok else 'FAIL','tests':int(found.group(1)) if found else None,'protocolSha256':hashlib.sha256(raw).hexdigest(),'installedReleaseSha256':(out/'installed-release-sha256.txt').read_text().strip(),'scope':'exact release APK; real Android main-process request, diagnostics Service, published ZIP semantics and Provider readback; real API freeze/settlement smoke; not handset, SAF picker or natural quality','handset':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN'},indent=2)+'\n')
 assert ok,'R31Q_REAL_SERVICE_EXPORT_REGRESSION_FAILED'
 PY
