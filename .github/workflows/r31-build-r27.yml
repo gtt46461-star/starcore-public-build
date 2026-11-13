@@ -1,695 +1,110 @@
-name: STARCORE R31 exact-source verification and live observation
+name: STARCORE R31 verified source transfer
 on:
   push:
     branches: ['construction/r27-20261028']
     paths: ['.github/r31-build-request.json', '.github/workflows/r31-build-r27.yml']
 permissions:
-  contents: read
+  contents: write
   actions: read
+concurrency:
+  group: r31-exact-source-transfer
+  cancel-in-progress: false
 jobs:
-  request:
+  transfer:
     runs-on: ubuntu-latest
-    outputs:
-      mode: ${{ steps.request.outputs.mode }}
-      build_run: ${{ steps.request.outputs.build_run }}
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
-          sparse-checkout: .github/r31-build-request.json
-          sparse-checkout-cone-mode: false
-      - id: request
+          path: caller
+      - name: Validate the source transfer, not an acceptance run
+        id: request
         run: |
           python3 - <<'PY'
-          import json,os
-          r=json.load(open('.github/r31-build-request.json'))
+          import base64,gzip,hashlib,json,os,pathlib,re
+          r=json.load(open('caller/.github/r31-build-request.json'))
           assert r['sourceBranch']=='construction/r31-final-20261104'
-          assert r['source']=='8f639e4f95851f7dad3405f067e085040e5a44fc'
           assert r['expectedVersionCode']==577311021
-          assert r['expectedVersionName']=='R31-REPAIR-2026.11.12-021'
-          assert r['mode'] in ['verify','live','overlay','diagnose']
-          if r['mode'] in ['live','overlay','diagnose']:assert str(r['buildRunId']).isdigit()
+          for k in ['base','tree']:assert re.fullmatch('[0-9a-f]{40}',r[k])
+          data=base64.b64decode(r['patchGzipBase64'],validate=True)
+          assert hashlib.sha256(data).hexdigest()==r['patchSha256']
+          patch=gzip.decompress(data);assert len(patch)<2000000
+          pathlib.Path('source.patch').write_bytes(patch)
           with open(os.environ['GITHUB_OUTPUT'],'a') as f:
-              f.write('mode='+r['mode']+'\n')
-              f.write('build_run='+str(r.get('buildRunId',''))+'\n')
-          print('PINNED_R31_SOURCE='+r['source']+' mode='+r['mode'])
+              f.write('base='+r['base']+'\n')
+          print('TRANSFER_ONLY_NO_ACCEPTANCE_CLAIM patchBytes='+str(len(patch)))
           PY
-  verify:
-    needs: request
-    if: needs.request.outputs.mode == 'verify'
-    uses: gtt46461-star/starcore-public-build/.github/workflows/r31-verification.yml@8f639e4f95851f7dad3405f067e085040e5a44fc
-    with:
-      source: 8f639e4f95851f7dad3405f067e085040e5a44fc
-    secrets: inherit
-  live:
-    needs: request
-    if: needs.request.outputs.mode == 'live' || needs.request.outputs.mode == 'diagnose'
-    runs-on: ubuntu-latest
-    timeout-minutes: 65
-    env:
-      DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
-    steps:
       - uses: actions/checkout@v4
         with:
-          sparse-checkout: .github/r31-build-request.json
-          sparse-checkout-cone-mode: false
-      - uses: actions/download-artifact@v4
-        with:
-          name: r31v-android-build
-          run-id: ${{ needs.request.outputs.build_run }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: built
-      - name: Bind the actual APK and the observer to the exact verified source
-        run: |
-          python3 - <<'PY'
-          import base64,hashlib,json,os,pathlib
-          r=json.load(open('.github/r31-build-request.json'))
-          root=pathlib.Path('built')
-          sources=list(root.rglob('source-commit.txt'));assert len(sources)==1
-          assert sources[0].read_text().strip()=='8f639e4f95851f7dad3405f067e085040e5a44fc'
-          apks=[p for p in root.rglob('*.apk') if p.parent.name=='debug' and 'androidTest' not in p.parts];assert len(apks)==1
-          apk=apks[0];sha=hashlib.sha256(apk.read_bytes()).hexdigest()
-          sums=list(root.rglob('SHA256SUMS.txt'));assert len(sums)==1
-          assert any(line.split()[0]==sha and line.split()[-1].endswith('/'+apk.name) for line in sums[0].read_text().splitlines())
-          code=base64.b64decode(r['scriptBase64'],validate=True)
-          assert hashlib.sha256(code).hexdigest()==r['scriptSha256']
-          (pathlib.Path(os.environ['RUNNER_TEMP'])/'r31_live_observation.py').write_bytes(code)
-          pathlib.Path('live').mkdir()
-          pathlib.Path('live/APK_BINDING.json').write_text(json.dumps({'source':'8f639e4f95851f7dad3405f067e085040e5a44fc','apkSha256':sha,'buildRunId':r['buildRunId'],'observerSha256':r['scriptSha256'],'layer':'DEBUG_LIVE_EMULATOR_NOT_PHONE_NOT_NATURAL_ADVANTAGE'},indent=2))
-          with open(os.environ['GITHUB_ENV'],'a') as f:f.write('LIVE_APP_APK='+str(apk.resolve())+'\n')
-          PY
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-      - uses: android-actions/setup-android@v3
-        with:
-          packages: platform-tools
-          log-accepted-android-sdk-licenses: false
-      - name: Enable emulator acceleration
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-      - uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 35
-          arch: x86_64
-          target: default
-          disable-animations: true
-          ram-size: 3072M
-          heap-size: 512M
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
-          script: python3 "$RUNNER_TEMP/r31_live_observation.py" --apk "$LIVE_APP_APK" --source 8f639e4f95851f7dad3405f067e085040e5a44fc --seconds 1200 --out live
-      - name: Project audited public status fields; raw database rows stay ephemeral
-        if: always()
-        run: |
-          python3 - live public-live <<'PY'
-          """An exhaustive public projection. Original DB rows, UI text and arbitrary
-          runtime strings are deliberately not copied to artifact or release output.
-          Only fixed statuses, bounded counts and public build/test digests leave CI.
-          """
-          import hashlib,json,pathlib,re,sys
-          root=pathlib.Path(sys.argv[1]);out=pathlib.Path(sys.argv[2]);out.mkdir(parents=True,exist_ok=True)
-          def read(name):
-           p=root/name
-           return json.loads(p.read_text()) if p.is_file() else {}
-          def fixed(value,allowed,default='UNAVAILABLE'):return value if value in allowed else default
-          def digest(value):return value if isinstance(value,str) and re.fullmatch('[0-9a-f]{64}',value) else None
-          def source(value):return value if value=='8f639e4f95851f7dad3405f067e085040e5a44fc' else None
-          def integer(value,maximum=10**15):return value if type(value)==int and 0<=value<=maximum else None
-          def write(name,value):
-           (out/name).write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n')
-           print('R31_PUBLIC_JSON='+json.dumps({'file':name,'value':value},ensure_ascii=False,separators=(',',':')))
-          b=read('APK_BINDING.json');binding={}
-          for key in ['source','sourceCommit']:
-           if key in b:binding[key]=source(b[key])
-          for key in ['apkSha256','newReleaseSha256','oldReleaseSha256','observerSha256']:
-           if key in b:binding[key]=digest(b[key])
-          binding['buildRunId']=integer(b.get('buildRunId'))
-          if 'apks' in b:binding['apks']=[{'sha256':digest(row.get('sha256'))} for row in b['apks'][:3]]
-          write('APK_BINDING.json',binding)
-          if root.name=='live':
-           d=read('LIVE_RECEIPT.json');t=d.get('tablesUi',{});z=d.get('safZip',{})
-           bindings=set()
-           for sample in d.get('samples',[])[:16]:
-            for database in sample.get('databases',[])[:2]:
-             link=database.get('r26ExactFeedbackForecastBinding',{})
-             if link.get('state')!='OBSERVED_EXACT_SHADOW_CHECKPOINT_CONSUMPTION':continue
-             for row in link.get('verified',[])[:32]:
-              if row.get('actualModelUpdateAndFutureSettlementVerified') is True:
-               bindings.add(tuple(str(row.get(k,'')) for k in ['eventId','policyHash','checkpointHash','targetOrdinal']))
-           exact_observed=bool(bindings) and d.get('forecastConsumesSpecificUpdatedModelPublication')=='OBSERVED_R26_SHADOW_SAME_CHECKPOINT_AND_TRAINING_RECEIPT'
-           receipt={'format':'R31_PUBLIC_LIVE_EXECUTION_1','sourceCommit':source(d.get('sourceCommit')),'runId':integer(int(d['runId'])) if str(d.get('runId','')).isdigit() else None,'apkSha256':digest(d.get('apkSha256')),'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_PARTIAL_NO_WHOLE_LOOP_CLAIM']),
-           'observed':{key:d.get('observed',{}).get(key) is True for key in ['newDraws','naturalClosedForecasts','feedbackAndConsumers','verifiedModelConsumer','followingForecasts']},
-           'safReadbackVerified':d.get('safReadbackVerified') is True,'safZip':{'sha256':digest(z.get('sha256')),'bytes':integer(z.get('bytes')),'reportHashVerified':z.get('reportHashVerified') is True,'crcVerified':z.get('crcVerified') is True},
-           'tablesUi':{'state':fixed(t.get('state'),['STARTED_NOT_PASS','OBSERVED_16_ACTUAL_READERS','OBSERVED_READ_FAILURES']),'reads':[]},
-           'forecastConsumesSpecificUpdatedModelPublication':'OBSERVED_R26_SHADOW_SAME_CHECKPOINT_AND_TRAINING_RECEIPT' if exact_observed else 'NOT_PROVEN_REQUIRES_ACTUAL_FORECAST_BINDING',
-           'r26ShadowModelBinding':{'observed':exact_observed,'verifiedUniqueBindings':len(bindings),'scope':'SHADOW_SAME_CHECKPOINT_ACTUAL_UPDATE_AND_FUTURE_SETTLEMENT; NO_REAL_OR_QUALITY_CLAIM'},
-           'observerPauseCount':len(d.get('observerPauses',[])),'physicalDevice':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsOrUiTextPublished':False}
-           for row in t.get('reads',[])[:16]:
-            identity=row.get('id');identity=identity if identity in ['T%02d'%i for i in range(1,17)] else None
-            receipt['tablesUi']['reads'].append({'id':identity,'actualStatus':fixed(row.get('actualStatus'),['READ_OK','EMPTY_NO_ROWS','READ_ERROR']),'shown':integer(row.get('shown'),20),'receiptSha256':digest(row.get('receiptSha256')),'uiPayloadSha256':digest(row.get('uiPayloadSha256'))})
-           # Fixed diagnostic codes reveal no exception messages, database rows or UI text.
-           def diagnostic(value):
-            text=str(value or '')
-            codes=['DISPOSABLE_EMULATOR_REQUIRED','PRODUCTION_START_UI_UNAVAILABLE','LIVE_APP_PROCESS_MISSING','REAL_APP_PROCESS_EXIT_TRANSPORT_VERIFIED','OBSERVER_ADB_TRANSPORT_UNAVAILABLE','OBSERVER_ADB_COMMAND_FAILED','OBSERVER_DB_SIZE_BOUND','CHARTS_BUTTON_UNAVAILABLE','WORKBENCH_BUTTON_UNAVAILABLE','TABLES_BUTTON_UNAVAILABLE','TABLE_READ_BUTTON_UNAVAILABLE','TABLE_ACTUAL_RENDER_NOT_OBSERVED','OLD_APPLICATION_DATABASE_NOT_OBSERVED','OBSERVED_OLD_DRAW_ORIGINAL_CHANGED']
-            for code in codes:
-             if code in text:return code
-            for kind in ['TimeoutExpired','ParseError','JSONDecodeError','BadZipFile','AssertionError','RuntimeError','OperationalError','IntegrityError']:
-             if text.startswith(kind+':'):return kind
-            return 'NONE' if not text else 'UNCLASSIFIED'
-           receipt['observerDiagnostic']=diagnostic(d.get('error'))
-           receipt['tablesUi']['diagnostic']=diagnostic(t.get('error'))
-           receipt['queryHealth']=[]
-           for sample in d.get('samples',[])[:16]:
-            for database in sample.get('databases',[])[:2]:
-             state={'queries':{}}
-             for key in ['newDraws','naturalClosedForecasts','feedbackAndConsumers','verifiedModelConsumer','followingForecasts','typedAuthority','schema']:
-              query=database.get('queries',{}).get(key,{})
-              state['queries'][key]={'state':fixed(query.get('state'),['READ_OK','UNAVAILABLE']),'boundedRowCount':len(query.get('rows',[])[:65])}
-             state['exactCheckpointState']=fixed(database.get('r26ExactFeedbackForecastBinding',{}).get('state'),['NOT_OBSERVED','OBSERVED_EXACT_SHADOW_CHECKPOINT_CONSUMPTION','UNAVAILABLE_OR_FAILED_VALIDATION'])
-             receipt['queryHealth'].append(state)
-           receipt['reportStates']=[{'stage':fixed(row.get('stage'),['REQUESTED','ENQUEUED','QUEUED','WAITING','WAITING_RESOURCE','CLAIMED','BACKUP','SNAPSHOT_DURABLE','INDEXING','INDEX_DURABLE','COMPRESSING','VERIFYING','READY_TO_SHARE','RETENTION_ENCODING','RETENTION_RECEIPT_DURABLE','RETENTION_READY','PAUSED','FAILED','CANCELLED']),'ackState':fixed(row.get('state'),['PENDING','VERIFIED_READBACK','FAILED','REQUESTED','READY']),'semanticVerification':fixed(row.get('semanticVerificationR31'),['ZIP_READBACK_VERIFIED'])} for row in d.get('reportStates',[])[:64]]
-           def error_codes(value):
-            text=str(value or '')
-            codes={'OUT_OF_MEMORY':'OutOfMemoryError','NO_SUCH_TABLE':'no such table','NO_SUCH_COLUMN':'no such column','SQLITE_BUSY':'locked','SQLITE_FULL':'database or disk is full','SCHEMA_PENDING':'SCHEMA_PENDING','DDL_NOT_ALLOWED':'R31_LEGACY','SOURCE_CHANGED':'SOURCE_CHANGED','STALE_OWNER':'STALE_OWNER','CANCELLED':'CancellationException','CAPACITY_WAIT':'CapacityWait'}
-            return [code for code,part in codes.items() if part in text]
-           def source_frames(value):
-            return re.findall(r'(?:at )?((?:com\.ethk3\.novaonepro)[A-Za-z0-9_.$]+\([A-Za-z0-9_.$: ]+\))',str(value or ''))[:120]
-           receipt['crashForPackage']=d.get('crashForPackage') is True
-           receipt['crashErrorCodes']=error_codes(d.get('crashPrivate'))
-           receipt['crashSourceFrames']=source_frames(d.get('crashPrivate'))
-           receipt['processMissingWithHealthyTransport']=d.get('processMissingWithHealthyTransport') is True
-           receipt['adbReconnectAttempts']=integer(d.get('adbReconnectAttempts',0),100)
-           receipt['nonStoppingSnapshots']=integer(d.get('nonStoppingSnapshots',0),100)
-           receipt['historicalProcessExitReasons']=[int(value) for value in re.findall(r'reason=(\d+)',str(d.get('exitInfoPrivate',''))) if 0<=int(value)<=32][:16]
-           receipt['runtimeHealthSamples']=[]
-           for sample in d.get('samples',[])[:16]:
-            for database in sample.get('databases',[])[:2]:
-             queries=database.get('queries',{});health={'schema':[],'tasks':[],'failedMigration':[],'runtimeFaults':[],'feedbackConsumerCounts':[]}
-             rows=queries.get('totalDrawCount',{}).get('rows',[]);health['totalDrawCount']=integer(rows[0][0]) if rows else None
-             for row in queries.get('schemaDiagnostics',{}).get('rows',[])[:32]:
-              health['schema'].append({'domain':fixed(row[0],['CRITICAL','RESEARCH','LEGACY'],'OTHER_DOMAIN'),'state':fixed(row[1],['READY','INITIALIZING','FAILED','PENDING','MIGRATING']),'cursorSha256':hashlib.sha256(str(row[2]).encode()).hexdigest(),'errorCodes':error_codes(row[3])})
-             for row in queries.get('taskDiagnostics',{}).get('rows',[])[:64]:
-              health['tasks'].append({'lane':fixed(row[0],['REALTIME','REPLAY','HEALTH','RESEARCH','BACKGROUND','GC'],'OTHER_LANE'),'state':fixed(row[1],['READY','RUNNING','WAITING','WAIT_DATA','WAIT_RESOURCE','BLOCKED','RETRY','DONE','FAILED','CANCELLED','STALE','PAUSED','HEALTHY','DEPENDENCY']),'reasonSha256':hashlib.sha256(str(row[2]).encode()).hexdigest(),'reasonCodes':error_codes(row[2]),'tasks':integer(row[3]),'actualSteps':integer(row[4]),'lastProgressWallMs':integer(row[5])})
-             for row in queries.get('failedMigrationDiagnostics',{}).get('rows',[])[:32]:
-              health['failedMigration'].append({'domain':fixed(row[0],['CRITICAL','RESEARCH','LEGACY'],'OTHER_DOMAIN'),'stepSha256':hashlib.sha256(str(row[1]).encode()).hexdigest(),'errorCodes':error_codes(row[2]),'attempt':integer(row[3])})
-             for row in queries.get('runtimeFaultDiagnostics',{}).get('rows',[])[:8]:
-              health['runtimeFaults'].append({'categorySha256':hashlib.sha256(str(row[0]).encode()).hexdigest(),'commitOutcome':fixed(row[1],['ROLLED_BACK','COMMITTED_DIAGNOSTIC_FAILED','UNKNOWN','COMMITTED']),'errorCodes':error_codes(row[2]),'sourceFrames':source_frames(row[3])[:12],'occurrences':integer(row[4])})
-             for row in queries.get('feedbackConsumerCounts',{}).get('rows',[])[:32]:health['feedbackConsumerCounts'].append({'scope':fixed(row[0],['REVEALED_LIVE_LABEL','REPLAY_TRAINING','HISTORICAL_TRAINING','FROZEN_FORECAST'],'OTHER_SCOPE'),'receipts':integer(row[1])})
-             receipt['runtimeHealthSamples'].append(health)
-           write('LIVE_RECEIPT.json',receipt)
-          elif root.name=='overlay':
-           d=read('RELEASE_OVERLAY.json');receipt={'format':'R31_PUBLIC_RELEASE_OVERLAY_1','sourceCommit':source(d.get('sourceCommit')),'oldApkSha256':digest(d.get('oldApkSha256')),'newApkSha256':digest(d.get('newApkSha256')),'fromVersionCode':577311020,'toVersionCode':577311021,'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_RELEASE_OVERLAY_AND_ORIGINAL_ROWS','OBSERVED_OVERLAY_ONLY_NO_OLD_DRAW_ROWS']),
-           'actualReleaseOverlayInstall':fixed(d.get('actualReleaseOverlayInstall'),['PASS']),'oldObservedRowsPreserved':d.get('oldObservedRowsPreserved') is True,'checks':[],
-           'trainedAssetMigration':'NOT_PROVEN_FRESH_VM_ASSET_SET_MAY_BE_EMPTY','physicalDevice':'NOT_RUN','old670MHandsetDatabase':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsPublished':False}
-           for row in d.get('checks',[])[:2]:receipt['checks'].append({'oldObservedRows':integer(row.get('oldObservedRows'),64),'preservedObservedRows':integer(row.get('preservedObservedRows'),64),'databaseIntegrity':fixed(row.get('databaseIntegrity'),['ok'])})
-           write('RELEASE_OVERLAY.json',receipt)
-          elif root.name=='faults':
-           d=read('RESULTS.json');receipt={'sourceCommit':source(d.get('sourceCommit')),'buildRunId':integer(d.get('buildRunId')),'physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawRuntimeLogsPublished':False}
-           for key in ['service6Exit','original14Exit','research12Exit','charts47Exit']:receipt[key]=integer(d.get(key),255)
-           write('RESULTS.json',receipt)
-           matrix={'sourceCommit':source(d.get('sourceCommit')),'original14':[],'research12':[],'chartScenarioCapture':{}}
-           original=read('original14/matrix.json')
-           for row in original.get('cells',[])[:14]:matrix['original14'].append({'fault':fixed(row.get('fault'),['fetch_timeout','draw_conflict','kill_settlement','kill_freeze','sqlite_full','clock_rollback','service_stop']),'visibility':fixed(row.get('visibility'),['foreground','background']),'mechanics':fixed(row.get('mechanics'),['ANDROID_EMULATOR_MECHANICS_PASS'])})
-           research=read('research12/research-fault-matrix.json')
-           for row in research.get('cells',[])[:12]:matrix['research12'].append({'stage':fixed(row.get('stage'),['analysis','consume']),'fault':fixed(row.get('fault'),['BUSY','FULL','CANCEL','KILL','CORRUPT','SOURCE_CHANGE']),'pass':row.get('pass') is True})
-           charts=read('charts47/repair-chart-acceptance.json')
-           for key in ['registeredObjects','displayScenarios','screenshots','originalObjects','researchViews']:matrix['chartScenarioCapture'][key]=integer(charts.get(key),10000)
-           artifacts=charts.get('artifacts',[]);matrix['chartScenarioCapture']['imageCount']=len(artifacts);matrix['chartScenarioCapture']['imageSha256']=[digest(row.get('sha256')) for row in artifacts[:200]]
-           write('MATRIX_CHECKS.json',matrix)
-           # Diagnose a failing test by class/method/line without copying exception
-           # messages, JSON payloads, SQL results, credentials or arbitrary UI strings.
-           frames=[]
-           for p in sorted(root.rglob('*.txt')):
-            if p.stat().st_size>8*1024*1024:continue
-            for line in p.read_text(errors='replace').splitlines():
-             match=re.search(r'^\s*at ((?:com\.ethk3\.novaonepro|org\.junit|android\.database)[A-Za-z0-9_.$]+\([A-Za-z0-9_.$: ]+\))\s*$',line)
-             if match and len(frames)<300:frames.append(match.group(1))
-           write('FAILURE_STACK_FRAMES.json',{'sourceCommit':source(d.get('sourceCommit')),'frames':frames,'exceptionMessagesAndDataOmitted':True})
-          else:raise SystemExit('UNKNOWN_PUBLIC_PROJECTION')
-          PY
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: r31-live-observation
-          path: public-live/
-
-  faults:
-    needs: request
-    if: needs.request.outputs.mode == 'live'
-    runs-on: ubuntu-latest
-    timeout-minutes: 70
-    env:
-      DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: 8f639e4f95851f7dad3405f067e085040e5a44fc
+          ref: construction/r31-final-20261104
           fetch-depth: 0
-      - uses: actions/download-artifact@v4
-        with:
-          name: r31v-android-build
-          run-id: ${{ needs.request.outputs.build_run }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: built
-      - name: Require the actual APKs from the exact source
-        run: |
-          python3 - <<'PY'
-          import hashlib,json,os,pathlib
-          root=pathlib.Path('built')
-          sources=list(root.rglob('source-commit.txt'));assert len(sources)==1
-          assert sources[0].read_text().strip()=='8f639e4f95851f7dad3405f067e085040e5a44fc'
-          sums=list(root.rglob('SHA256SUMS.txt'));assert len(sums)==1
-          originals=sums[0].read_text().splitlines()
-          apks=[p for p in root.rglob('*.apk') if p.parent.name=='debug' and 'androidTest' not in p.parts]
-          tests=[p for p in root.rglob('*.apk') if 'androidTest' in p.parts]
-          assert len(apks)==len(tests)==1
-          binding={'sourceCommit':sources[0].read_text().strip(),'buildRunId':${{ needs.request.outputs.build_run }},'apks':[]}
-          with open(os.environ['GITHUB_ENV'],'a') as env:
-              for name,p in [('FAULT_APP_APK',apks[0]),('FAULT_TEST_APK',tests[0])]:
-                  sha=hashlib.sha256(p.read_bytes()).hexdigest()
-                  assert any(line.split()[0]==sha and line.split()[-1].endswith('/'+p.name) for line in originals)
-                  binding['apks'].append({'file':p.name,'sha256':sha})
-                  env.write(name+'='+str(p.resolve())+'\n')
-          pathlib.Path('faults').mkdir()
-          pathlib.Path('faults/APK_BINDING.json').write_text(json.dumps(binding,indent=2))
-          PY
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-      - uses: android-actions/setup-android@v3
-        with:
-          packages: platform-tools
-          log-accepted-android-sdk-licenses: false
-      - name: Enable emulator acceleration
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-      - name: Prepare one shell for the complete original Android regressions
-        run: |
-          cat > "$RUNNER_TEMP/r31_actual_faults.sh" <<'SH'
-          set -uo pipefail
-          adb root
-          adb wait-for-device
-          adb install -r -g "$FAULT_APP_APK"
-          adb install -r -t -g "$FAULT_TEST_APK"
-          set +e
-          mkdir -p faults/service6
-          adb shell am instrument -w -r -e r30Sandbox "r31-current-service-${{ github.run_id }}" -e r31qRealService true -e class com.ethk3.novaonepro.R31QDeliveryInstrumentedTest com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner > faults/service6/instrumentation.txt 2>&1
-          service_rc=$?
-          grep -Fq "OK (6 tests)" faults/service6/instrumentation.txt || service_rc=1
-          bash tools/r30/run_fault_matrix.sh faults/original14 > faults/original14.log 2>&1
-          original_rc=$?
-          bash tools/r30-repair/run_research_fault_matrix.sh faults/research12 > faults/research12.log 2>&1
-          research_rc=$?
-          bash tools/r30-repair/run_android_regression.sh faults/charts47 > faults/charts47.log 2>&1
-          charts_rc=$?
-          python3 -c "import json,pathlib;pathlib.Path('faults/RESULTS.json').write_text(json.dumps({'sourceCommit':'8f639e4f95851f7dad3405f067e085040e5a44fc','buildRunId':${{ needs.request.outputs.build_run }},'service6Exit':$service_rc,'original14Exit':$original_rc,'research12Exit':$research_rc,'charts47Exit':$charts_rc,'physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN'},indent=2))"
-          test "$service_rc" -eq 0 -a "$original_rc" -eq 0 -a "$research_rc" -eq 0 -a "$charts_rc" -eq 0
-          SH
-      - uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 35
-          arch: x86_64
-          target: default
-          disable-animations: true
-          ram-size: 3072M
-          heap-size: 512M
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
-          script: bash "$RUNNER_TEMP/r31_actual_faults.sh"
-      - name: Redact credentials from actual fault receipts
-        if: always()
-        run: |
-          python3 - <<'PY'
-          import os,pathlib,re
-          key=os.environ.get('DUOQU_API_KEY','')
-          for private in pathlib.Path('faults').rglob('UI_EXPORTED_FULL_REPORT.zip'):private.unlink()
-          for p in pathlib.Path('faults').rglob('*'):
-              if not p.is_file() or p.suffix not in ('.json','.xml','.txt','.log','.tsv'):continue
-              s=p.read_text(errors='replace')
-              if key:s=s.replace(key,'[REDACTED]')
-              s=re.sub(r'(?i)([?&](?:key|token|secret|api_key|apikey)=)[^&\s"<>]+',r'\1[REDACTED]',s)
-              s=re.sub(r'(?i)Bearer\s+[^\s,;"}]+','Bearer [REDACTED]',s)
-              p.write_text(s)
-          PY
-      - name: Project audited public status fields; raw database rows stay ephemeral
-        if: always()
-        run: |
-          python3 - faults public-faults <<'PY'
-          """An exhaustive public projection. Original DB rows, UI text and arbitrary
-          runtime strings are deliberately not copied to artifact or release output.
-          Only fixed statuses, bounded counts and public build/test digests leave CI.
-          """
-          import hashlib,json,pathlib,re,sys
-          root=pathlib.Path(sys.argv[1]);out=pathlib.Path(sys.argv[2]);out.mkdir(parents=True,exist_ok=True)
-          def read(name):
-           p=root/name
-           return json.loads(p.read_text()) if p.is_file() else {}
-          def fixed(value,allowed,default='UNAVAILABLE'):return value if value in allowed else default
-          def digest(value):return value if isinstance(value,str) and re.fullmatch('[0-9a-f]{64}',value) else None
-          def source(value):return value if value=='8f639e4f95851f7dad3405f067e085040e5a44fc' else None
-          def integer(value,maximum=10**15):return value if type(value)==int and 0<=value<=maximum else None
-          def write(name,value):
-           (out/name).write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n')
-           print('R31_PUBLIC_JSON='+json.dumps({'file':name,'value':value},ensure_ascii=False,separators=(',',':')))
-          b=read('APK_BINDING.json');binding={}
-          for key in ['source','sourceCommit']:
-           if key in b:binding[key]=source(b[key])
-          for key in ['apkSha256','newReleaseSha256','oldReleaseSha256','observerSha256']:
-           if key in b:binding[key]=digest(b[key])
-          binding['buildRunId']=integer(b.get('buildRunId'))
-          if 'apks' in b:binding['apks']=[{'sha256':digest(row.get('sha256'))} for row in b['apks'][:3]]
-          write('APK_BINDING.json',binding)
-          if root.name=='live':
-           d=read('LIVE_RECEIPT.json');t=d.get('tablesUi',{});z=d.get('safZip',{})
-           bindings=set()
-           for sample in d.get('samples',[])[:16]:
-            for database in sample.get('databases',[])[:2]:
-             link=database.get('r26ExactFeedbackForecastBinding',{})
-             if link.get('state')!='OBSERVED_EXACT_SHADOW_CHECKPOINT_CONSUMPTION':continue
-             for row in link.get('verified',[])[:32]:
-              if row.get('actualModelUpdateAndFutureSettlementVerified') is True:
-               bindings.add(tuple(str(row.get(k,'')) for k in ['eventId','policyHash','checkpointHash','targetOrdinal']))
-           exact_observed=bool(bindings) and d.get('forecastConsumesSpecificUpdatedModelPublication')=='OBSERVED_R26_SHADOW_SAME_CHECKPOINT_AND_TRAINING_RECEIPT'
-           receipt={'format':'R31_PUBLIC_LIVE_EXECUTION_1','sourceCommit':source(d.get('sourceCommit')),'runId':integer(int(d['runId'])) if str(d.get('runId','')).isdigit() else None,'apkSha256':digest(d.get('apkSha256')),'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_PARTIAL_NO_WHOLE_LOOP_CLAIM']),
-           'observed':{key:d.get('observed',{}).get(key) is True for key in ['newDraws','naturalClosedForecasts','feedbackAndConsumers','verifiedModelConsumer','followingForecasts']},
-           'safReadbackVerified':d.get('safReadbackVerified') is True,'safZip':{'sha256':digest(z.get('sha256')),'bytes':integer(z.get('bytes')),'reportHashVerified':z.get('reportHashVerified') is True,'crcVerified':z.get('crcVerified') is True},
-           'tablesUi':{'state':fixed(t.get('state'),['STARTED_NOT_PASS','OBSERVED_16_ACTUAL_READERS','OBSERVED_READ_FAILURES']),'reads':[]},
-           'forecastConsumesSpecificUpdatedModelPublication':'OBSERVED_R26_SHADOW_SAME_CHECKPOINT_AND_TRAINING_RECEIPT' if exact_observed else 'NOT_PROVEN_REQUIRES_ACTUAL_FORECAST_BINDING',
-           'r26ShadowModelBinding':{'observed':exact_observed,'verifiedUniqueBindings':len(bindings),'scope':'SHADOW_SAME_CHECKPOINT_ACTUAL_UPDATE_AND_FUTURE_SETTLEMENT; NO_REAL_OR_QUALITY_CLAIM'},
-           'observerPauseCount':len(d.get('observerPauses',[])),'physicalDevice':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsOrUiTextPublished':False}
-           for row in t.get('reads',[])[:16]:
-            identity=row.get('id');identity=identity if identity in ['T%02d'%i for i in range(1,17)] else None
-            receipt['tablesUi']['reads'].append({'id':identity,'actualStatus':fixed(row.get('actualStatus'),['READ_OK','EMPTY_NO_ROWS','READ_ERROR']),'shown':integer(row.get('shown'),20),'receiptSha256':digest(row.get('receiptSha256')),'uiPayloadSha256':digest(row.get('uiPayloadSha256'))})
-           # Fixed diagnostic codes reveal no exception messages, database rows or UI text.
-           def diagnostic(value):
-            text=str(value or '')
-            codes=['DISPOSABLE_EMULATOR_REQUIRED','PRODUCTION_START_UI_UNAVAILABLE','LIVE_APP_PROCESS_MISSING','REAL_APP_PROCESS_EXIT_TRANSPORT_VERIFIED','OBSERVER_ADB_TRANSPORT_UNAVAILABLE','OBSERVER_ADB_COMMAND_FAILED','OBSERVER_DB_SIZE_BOUND','CHARTS_BUTTON_UNAVAILABLE','WORKBENCH_BUTTON_UNAVAILABLE','TABLES_BUTTON_UNAVAILABLE','TABLE_READ_BUTTON_UNAVAILABLE','TABLE_ACTUAL_RENDER_NOT_OBSERVED','OLD_APPLICATION_DATABASE_NOT_OBSERVED','OBSERVED_OLD_DRAW_ORIGINAL_CHANGED']
-            for code in codes:
-             if code in text:return code
-            for kind in ['TimeoutExpired','ParseError','JSONDecodeError','BadZipFile','AssertionError','RuntimeError','OperationalError','IntegrityError']:
-             if text.startswith(kind+':'):return kind
-            return 'NONE' if not text else 'UNCLASSIFIED'
-           receipt['observerDiagnostic']=diagnostic(d.get('error'))
-           receipt['tablesUi']['diagnostic']=diagnostic(t.get('error'))
-           receipt['queryHealth']=[]
-           for sample in d.get('samples',[])[:16]:
-            for database in sample.get('databases',[])[:2]:
-             state={'queries':{}}
-             for key in ['newDraws','naturalClosedForecasts','feedbackAndConsumers','verifiedModelConsumer','followingForecasts','typedAuthority','schema']:
-              query=database.get('queries',{}).get(key,{})
-              state['queries'][key]={'state':fixed(query.get('state'),['READ_OK','UNAVAILABLE']),'boundedRowCount':len(query.get('rows',[])[:65])}
-             state['exactCheckpointState']=fixed(database.get('r26ExactFeedbackForecastBinding',{}).get('state'),['NOT_OBSERVED','OBSERVED_EXACT_SHADOW_CHECKPOINT_CONSUMPTION','UNAVAILABLE_OR_FAILED_VALIDATION'])
-             receipt['queryHealth'].append(state)
-           receipt['reportStates']=[{'stage':fixed(row.get('stage'),['REQUESTED','ENQUEUED','QUEUED','WAITING','WAITING_RESOURCE','CLAIMED','BACKUP','SNAPSHOT_DURABLE','INDEXING','INDEX_DURABLE','COMPRESSING','VERIFYING','READY_TO_SHARE','RETENTION_ENCODING','RETENTION_RECEIPT_DURABLE','RETENTION_READY','PAUSED','FAILED','CANCELLED']),'ackState':fixed(row.get('state'),['PENDING','VERIFIED_READBACK','FAILED','REQUESTED','READY']),'semanticVerification':fixed(row.get('semanticVerificationR31'),['ZIP_READBACK_VERIFIED'])} for row in d.get('reportStates',[])[:64]]
-           def error_codes(value):
-            text=str(value or '')
-            codes={'OUT_OF_MEMORY':'OutOfMemoryError','NO_SUCH_TABLE':'no such table','NO_SUCH_COLUMN':'no such column','SQLITE_BUSY':'locked','SQLITE_FULL':'database or disk is full','SCHEMA_PENDING':'SCHEMA_PENDING','DDL_NOT_ALLOWED':'R31_LEGACY','SOURCE_CHANGED':'SOURCE_CHANGED','STALE_OWNER':'STALE_OWNER','CANCELLED':'CancellationException','CAPACITY_WAIT':'CapacityWait'}
-            return [code for code,part in codes.items() if part in text]
-           def source_frames(value):
-            return re.findall(r'(?:at )?((?:com\.ethk3\.novaonepro)[A-Za-z0-9_.$]+\([A-Za-z0-9_.$: ]+\))',str(value or ''))[:120]
-           receipt['crashForPackage']=d.get('crashForPackage') is True
-           receipt['crashErrorCodes']=error_codes(d.get('crashPrivate'))
-           receipt['crashSourceFrames']=source_frames(d.get('crashPrivate'))
-           receipt['processMissingWithHealthyTransport']=d.get('processMissingWithHealthyTransport') is True
-           receipt['adbReconnectAttempts']=integer(d.get('adbReconnectAttempts',0),100)
-           receipt['nonStoppingSnapshots']=integer(d.get('nonStoppingSnapshots',0),100)
-           receipt['historicalProcessExitReasons']=[int(value) for value in re.findall(r'reason=(\d+)',str(d.get('exitInfoPrivate',''))) if 0<=int(value)<=32][:16]
-           receipt['runtimeHealthSamples']=[]
-           for sample in d.get('samples',[])[:16]:
-            for database in sample.get('databases',[])[:2]:
-             queries=database.get('queries',{});health={'schema':[],'tasks':[],'failedMigration':[],'runtimeFaults':[],'feedbackConsumerCounts':[]}
-             rows=queries.get('totalDrawCount',{}).get('rows',[]);health['totalDrawCount']=integer(rows[0][0]) if rows else None
-             for row in queries.get('schemaDiagnostics',{}).get('rows',[])[:32]:
-              health['schema'].append({'domain':fixed(row[0],['CRITICAL','RESEARCH','LEGACY'],'OTHER_DOMAIN'),'state':fixed(row[1],['READY','INITIALIZING','FAILED','PENDING','MIGRATING']),'cursorSha256':hashlib.sha256(str(row[2]).encode()).hexdigest(),'errorCodes':error_codes(row[3])})
-             for row in queries.get('taskDiagnostics',{}).get('rows',[])[:64]:
-              health['tasks'].append({'lane':fixed(row[0],['REALTIME','REPLAY','HEALTH','RESEARCH','BACKGROUND','GC'],'OTHER_LANE'),'state':fixed(row[1],['READY','RUNNING','WAITING','WAIT_DATA','WAIT_RESOURCE','BLOCKED','RETRY','DONE','FAILED','CANCELLED','STALE','PAUSED','HEALTHY','DEPENDENCY']),'reasonSha256':hashlib.sha256(str(row[2]).encode()).hexdigest(),'reasonCodes':error_codes(row[2]),'tasks':integer(row[3]),'actualSteps':integer(row[4]),'lastProgressWallMs':integer(row[5])})
-             for row in queries.get('failedMigrationDiagnostics',{}).get('rows',[])[:32]:
-              health['failedMigration'].append({'domain':fixed(row[0],['CRITICAL','RESEARCH','LEGACY'],'OTHER_DOMAIN'),'stepSha256':hashlib.sha256(str(row[1]).encode()).hexdigest(),'errorCodes':error_codes(row[2]),'attempt':integer(row[3])})
-             for row in queries.get('runtimeFaultDiagnostics',{}).get('rows',[])[:8]:
-              health['runtimeFaults'].append({'categorySha256':hashlib.sha256(str(row[0]).encode()).hexdigest(),'commitOutcome':fixed(row[1],['ROLLED_BACK','COMMITTED_DIAGNOSTIC_FAILED','UNKNOWN','COMMITTED']),'errorCodes':error_codes(row[2]),'sourceFrames':source_frames(row[3])[:12],'occurrences':integer(row[4])})
-             for row in queries.get('feedbackConsumerCounts',{}).get('rows',[])[:32]:health['feedbackConsumerCounts'].append({'scope':fixed(row[0],['REVEALED_LIVE_LABEL','REPLAY_TRAINING','HISTORICAL_TRAINING','FROZEN_FORECAST'],'OTHER_SCOPE'),'receipts':integer(row[1])})
-             receipt['runtimeHealthSamples'].append(health)
-           write('LIVE_RECEIPT.json',receipt)
-          elif root.name=='overlay':
-           d=read('RELEASE_OVERLAY.json');receipt={'format':'R31_PUBLIC_RELEASE_OVERLAY_1','sourceCommit':source(d.get('sourceCommit')),'oldApkSha256':digest(d.get('oldApkSha256')),'newApkSha256':digest(d.get('newApkSha256')),'fromVersionCode':577311020,'toVersionCode':577311021,'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_RELEASE_OVERLAY_AND_ORIGINAL_ROWS','OBSERVED_OVERLAY_ONLY_NO_OLD_DRAW_ROWS']),
-           'actualReleaseOverlayInstall':fixed(d.get('actualReleaseOverlayInstall'),['PASS']),'oldObservedRowsPreserved':d.get('oldObservedRowsPreserved') is True,'checks':[],
-           'trainedAssetMigration':'NOT_PROVEN_FRESH_VM_ASSET_SET_MAY_BE_EMPTY','physicalDevice':'NOT_RUN','old670MHandsetDatabase':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsPublished':False}
-           for row in d.get('checks',[])[:2]:receipt['checks'].append({'oldObservedRows':integer(row.get('oldObservedRows'),64),'preservedObservedRows':integer(row.get('preservedObservedRows'),64),'databaseIntegrity':fixed(row.get('databaseIntegrity'),['ok'])})
-           write('RELEASE_OVERLAY.json',receipt)
-          elif root.name=='faults':
-           d=read('RESULTS.json');receipt={'sourceCommit':source(d.get('sourceCommit')),'buildRunId':integer(d.get('buildRunId')),'physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawRuntimeLogsPublished':False}
-           for key in ['service6Exit','original14Exit','research12Exit','charts47Exit']:receipt[key]=integer(d.get(key),255)
-           write('RESULTS.json',receipt)
-           matrix={'sourceCommit':source(d.get('sourceCommit')),'original14':[],'research12':[],'chartScenarioCapture':{}}
-           original=read('original14/matrix.json')
-           for row in original.get('cells',[])[:14]:matrix['original14'].append({'fault':fixed(row.get('fault'),['fetch_timeout','draw_conflict','kill_settlement','kill_freeze','sqlite_full','clock_rollback','service_stop']),'visibility':fixed(row.get('visibility'),['foreground','background']),'mechanics':fixed(row.get('mechanics'),['ANDROID_EMULATOR_MECHANICS_PASS'])})
-           research=read('research12/research-fault-matrix.json')
-           for row in research.get('cells',[])[:12]:matrix['research12'].append({'stage':fixed(row.get('stage'),['analysis','consume']),'fault':fixed(row.get('fault'),['BUSY','FULL','CANCEL','KILL','CORRUPT','SOURCE_CHANGE']),'pass':row.get('pass') is True})
-           charts=read('charts47/repair-chart-acceptance.json')
-           for key in ['registeredObjects','displayScenarios','screenshots','originalObjects','researchViews']:matrix['chartScenarioCapture'][key]=integer(charts.get(key),10000)
-           artifacts=charts.get('artifacts',[]);matrix['chartScenarioCapture']['imageCount']=len(artifacts);matrix['chartScenarioCapture']['imageSha256']=[digest(row.get('sha256')) for row in artifacts[:200]]
-           write('MATRIX_CHECKS.json',matrix)
-           # Diagnose a failing test by class/method/line without copying exception
-           # messages, JSON payloads, SQL results, credentials or arbitrary UI strings.
-           frames=[]
-           for p in sorted(root.rglob('*.txt')):
-            if p.stat().st_size>8*1024*1024:continue
-            for line in p.read_text(errors='replace').splitlines():
-             match=re.search(r'^\s*at ((?:com\.ethk3\.novaonepro|org\.junit|android\.database)[A-Za-z0-9_.$]+\([A-Za-z0-9_.$: ]+\))\s*$',line)
-             if match and len(frames)<300:frames.append(match.group(1))
-           write('FAILURE_STACK_FRAMES.json',{'sourceCommit':source(d.get('sourceCommit')),'frames':frames,'exceptionMessagesAndDataOmitted':True})
-          else:raise SystemExit('UNKNOWN_PUBLIC_PROJECTION')
-          PY
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: r31-current-original-faults-and-charts
-          path: public-faults/
-
-  release_overlay:
-    needs: request
-    if: needs.request.outputs.mode == 'live' || needs.request.outputs.mode == 'overlay'
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: .github/r31-build-request.json
-          sparse-checkout-cone-mode: false
-      - uses: actions/download-artifact@v4
-        with:
-          name: r31v-android-build
-          run-id: ${{ needs.request.outputs.build_run }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: built
-      - name: Bind both genuine release APKs and the observer
-        run: |
-          mkdir -p overlay
-          curl --fail --location --retry 2 --output "$RUNNER_TEMP/old-020.apk" https://github.com/gtt46461-star/starcore-public-build/releases/download/r31q-fix-577311020-5e05e6689f64/STARCORE-R31-EXISTING_R27-5e05e6689f64-release.apk
-          python3 - <<'PY'
-          import base64,hashlib,json,os,pathlib
-          r=json.load(open('.github/r31-build-request.json'));root=pathlib.Path('built')
-          sources=list(root.rglob('source-commit.txt'));assert len(sources)==1 and sources[0].read_text().strip()==r['source']
-          apks=[p for p in root.rglob('*.apk') if p.parent.name=='release'];assert len(apks)==1
-          apk=apks[0];sha=hashlib.sha256(apk.read_bytes()).hexdigest()
-          sums=list(root.rglob('SHA256SUMS.txt'));assert len(sums)==1
-          assert any(line.split()[0]==sha and line.split()[-1].endswith('/'+apk.name) for line in sums[0].read_text().splitlines())
-          old=pathlib.Path(os.environ['RUNNER_TEMP'])/'old-020.apk';assert hashlib.sha256(old.read_bytes()).hexdigest()=='271c4ce17f345306f80e9f686acdf68b0d1cf47c3da857fed811cc69feb1a4f8'
-          code=base64.b64decode(r['overlayScriptBase64'],validate=True);assert hashlib.sha256(code).hexdigest()==r['overlayScriptSha256']
-          (pathlib.Path(os.environ['RUNNER_TEMP'])/'r31_release_overlay.py').write_bytes(code)
-          pathlib.Path('overlay/APK_BINDING.json').write_text(json.dumps({'sourceCommit':r['source'],'buildRunId':r['buildRunId'],'newReleaseSha256':sha,'oldReleaseSha256':hashlib.sha256(old.read_bytes()).hexdigest(),'observerSha256':r['overlayScriptSha256']},indent=2))
-          with open(os.environ['GITHUB_ENV'],'a') as f:f.write('OVERLAY_RELEASE_APK='+str(apk.resolve())+'\n')
-          PY
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-      - uses: android-actions/setup-android@v3
-        with:
-          packages: platform-tools
-          log-accepted-android-sdk-licenses: false
-      - name: Verify the unchanged public signer of both release APKs
+          path: source
+      - name: Apply to the exact current R31 source
+        working-directory: source
         run: |
           set -euo pipefail
-          B=$(find "$ANDROID_HOME/build-tools" -mindepth 2 -maxdepth 2 -name apksigner | sort -V | tail -1)
-          test -n "$B"
-          "$B" verify --print-certs "$RUNNER_TEMP/old-020.apk" > overlay/old-certificate.txt
-          "$B" verify --print-certs "$OVERLAY_RELEASE_APK" > overlay/new-certificate.txt
-          for f in overlay/*-certificate.txt; do grep -q 'certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7' "$f"; done
-      - name: Enable emulator acceleration
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-      - name: Verify root after a bounded ADB reconnect handshake
-        run: |
-          cat > "$RUNNER_TEMP/r31_overlay_bootstrap.py" <<'PY'
-          import os,pathlib,subprocess,sys,time
-          def run(*args,timeout=60):
-              try:return subprocess.run(['adb',*args],capture_output=True,text=True,timeout=timeout)
-              except subprocess.TimeoutExpired:return None
-          ready=False
-          for attempt in range(1,4):
-              run('wait-for-device')
-              run('root',timeout=45)
-              run('wait-for-device')
-              uid=run('shell','id','-u');boot=run('shell','getprop','sys.boot_completed')
-              if uid and uid.returncode==0 and uid.stdout.strip()=='0' and boot and boot.returncode==0 and boot.stdout.strip()=='1':
-                  ready=True;print('R31_OVERLAY_BOOTSTRAP_ROOT_VERIFIED attempt='+str(attempt),flush=True);break
-              print('R31_OVERLAY_BOOTSTRAP_RECONNECT attempt='+str(attempt),flush=True)
-              run('reconnect');time.sleep(2)
-          if not ready:raise SystemExit('R31_OVERLAY_BOOTSTRAP_ROOT_UNAVAILABLE')
-          assert run('shell','getprop','ro.kernel.qemu').stdout.strip()=='1'
-          script=pathlib.Path(os.environ['RUNNER_TEMP'])/'r31_release_overlay.py'
-          raise SystemExit(subprocess.call([sys.executable,str(script),'--old',str(pathlib.Path(os.environ['RUNNER_TEMP'])/'old-020.apk'),'--new',os.environ['OVERLAY_RELEASE_APK'],'--out','overlay']))
-          PY
-      - uses: reactivecircus/android-emulator-runner@v2
+          test "$(git rev-parse HEAD)" = "${{ steps.request.outputs.base }}"
+          git apply --check ../source.patch
+          git apply --index ../source.patch
+          git -c user.name=github-actions -c user.email=github-actions@users.noreply.github.com commit -m 'build(r31): provisional call-index compilation, not an APK [skip ci]'
+      - uses: actions/setup-java@v4
         with:
-          api-level: 35
-          arch: x86_64
-          target: default
-          disable-animations: true
-          ram-size: 3072M
-          heap-size: 512M
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
-          script: python3 "$RUNNER_TEMP/r31_overlay_bootstrap.py"
-      - name: Project audited public status fields; raw database rows stay ephemeral
-        if: always()
-        run: |
-          python3 - overlay public-overlay <<'PY'
-          """An exhaustive public projection. Original DB rows, UI text and arbitrary
-          runtime strings are deliberately not copied to artifact or release output.
-          Only fixed statuses, bounded counts and public build/test digests leave CI.
-          """
-          import hashlib,json,pathlib,re,sys
-          root=pathlib.Path(sys.argv[1]);out=pathlib.Path(sys.argv[2]);out.mkdir(parents=True,exist_ok=True)
-          def read(name):
-           p=root/name
-           return json.loads(p.read_text()) if p.is_file() else {}
-          def fixed(value,allowed,default='UNAVAILABLE'):return value if value in allowed else default
-          def digest(value):return value if isinstance(value,str) and re.fullmatch('[0-9a-f]{64}',value) else None
-          def source(value):return value if value=='8f639e4f95851f7dad3405f067e085040e5a44fc' else None
-          def integer(value,maximum=10**15):return value if type(value)==int and 0<=value<=maximum else None
-          def write(name,value):
-           (out/name).write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n')
-           print('R31_PUBLIC_JSON='+json.dumps({'file':name,'value':value},ensure_ascii=False,separators=(',',':')))
-          b=read('APK_BINDING.json');binding={}
-          for key in ['source','sourceCommit']:
-           if key in b:binding[key]=source(b[key])
-          for key in ['apkSha256','newReleaseSha256','oldReleaseSha256','observerSha256']:
-           if key in b:binding[key]=digest(b[key])
-          binding['buildRunId']=integer(b.get('buildRunId'))
-          if 'apks' in b:binding['apks']=[{'sha256':digest(row.get('sha256'))} for row in b['apks'][:3]]
-          write('APK_BINDING.json',binding)
-          if root.name=='live':
-           d=read('LIVE_RECEIPT.json');t=d.get('tablesUi',{});z=d.get('safZip',{})
-           bindings=set()
-           for sample in d.get('samples',[])[:16]:
-            for database in sample.get('databases',[])[:2]:
-             link=database.get('r26ExactFeedbackForecastBinding',{})
-             if link.get('state')!='OBSERVED_EXACT_SHADOW_CHECKPOINT_CONSUMPTION':continue
-             for row in link.get('verified',[])[:32]:
-              if row.get('actualModelUpdateAndFutureSettlementVerified') is True:
-               bindings.add(tuple(str(row.get(k,'')) for k in ['eventId','policyHash','checkpointHash','targetOrdinal']))
-           exact_observed=bool(bindings) and d.get('forecastConsumesSpecificUpdatedModelPublication')=='OBSERVED_R26_SHADOW_SAME_CHECKPOINT_AND_TRAINING_RECEIPT'
-           receipt={'format':'R31_PUBLIC_LIVE_EXECUTION_1','sourceCommit':source(d.get('sourceCommit')),'runId':integer(int(d['runId'])) if str(d.get('runId','')).isdigit() else None,'apkSha256':digest(d.get('apkSha256')),'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_PARTIAL_NO_WHOLE_LOOP_CLAIM']),
-           'observed':{key:d.get('observed',{}).get(key) is True for key in ['newDraws','naturalClosedForecasts','feedbackAndConsumers','verifiedModelConsumer','followingForecasts']},
-           'safReadbackVerified':d.get('safReadbackVerified') is True,'safZip':{'sha256':digest(z.get('sha256')),'bytes':integer(z.get('bytes')),'reportHashVerified':z.get('reportHashVerified') is True,'crcVerified':z.get('crcVerified') is True},
-           'tablesUi':{'state':fixed(t.get('state'),['STARTED_NOT_PASS','OBSERVED_16_ACTUAL_READERS','OBSERVED_READ_FAILURES']),'reads':[]},
-           'forecastConsumesSpecificUpdatedModelPublication':'OBSERVED_R26_SHADOW_SAME_CHECKPOINT_AND_TRAINING_RECEIPT' if exact_observed else 'NOT_PROVEN_REQUIRES_ACTUAL_FORECAST_BINDING',
-           'r26ShadowModelBinding':{'observed':exact_observed,'verifiedUniqueBindings':len(bindings),'scope':'SHADOW_SAME_CHECKPOINT_ACTUAL_UPDATE_AND_FUTURE_SETTLEMENT; NO_REAL_OR_QUALITY_CLAIM'},
-           'observerPauseCount':len(d.get('observerPauses',[])),'physicalDevice':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsOrUiTextPublished':False}
-           for row in t.get('reads',[])[:16]:
-            identity=row.get('id');identity=identity if identity in ['T%02d'%i for i in range(1,17)] else None
-            receipt['tablesUi']['reads'].append({'id':identity,'actualStatus':fixed(row.get('actualStatus'),['READ_OK','EMPTY_NO_ROWS','READ_ERROR']),'shown':integer(row.get('shown'),20),'receiptSha256':digest(row.get('receiptSha256')),'uiPayloadSha256':digest(row.get('uiPayloadSha256'))})
-           # Fixed diagnostic codes reveal no exception messages, database rows or UI text.
-           def diagnostic(value):
-            text=str(value or '')
-            codes=['DISPOSABLE_EMULATOR_REQUIRED','PRODUCTION_START_UI_UNAVAILABLE','LIVE_APP_PROCESS_MISSING','REAL_APP_PROCESS_EXIT_TRANSPORT_VERIFIED','OBSERVER_ADB_TRANSPORT_UNAVAILABLE','OBSERVER_ADB_COMMAND_FAILED','OBSERVER_DB_SIZE_BOUND','CHARTS_BUTTON_UNAVAILABLE','WORKBENCH_BUTTON_UNAVAILABLE','TABLES_BUTTON_UNAVAILABLE','TABLE_READ_BUTTON_UNAVAILABLE','TABLE_ACTUAL_RENDER_NOT_OBSERVED','OLD_APPLICATION_DATABASE_NOT_OBSERVED','OBSERVED_OLD_DRAW_ORIGINAL_CHANGED']
-            for code in codes:
-             if code in text:return code
-            for kind in ['TimeoutExpired','ParseError','JSONDecodeError','BadZipFile','AssertionError','RuntimeError','OperationalError','IntegrityError']:
-             if text.startswith(kind+':'):return kind
-            return 'NONE' if not text else 'UNCLASSIFIED'
-           receipt['observerDiagnostic']=diagnostic(d.get('error'))
-           receipt['tablesUi']['diagnostic']=diagnostic(t.get('error'))
-           receipt['queryHealth']=[]
-           for sample in d.get('samples',[])[:16]:
-            for database in sample.get('databases',[])[:2]:
-             state={'queries':{}}
-             for key in ['newDraws','naturalClosedForecasts','feedbackAndConsumers','verifiedModelConsumer','followingForecasts','typedAuthority','schema']:
-              query=database.get('queries',{}).get(key,{})
-              state['queries'][key]={'state':fixed(query.get('state'),['READ_OK','UNAVAILABLE']),'boundedRowCount':len(query.get('rows',[])[:65])}
-             state['exactCheckpointState']=fixed(database.get('r26ExactFeedbackForecastBinding',{}).get('state'),['NOT_OBSERVED','OBSERVED_EXACT_SHADOW_CHECKPOINT_CONSUMPTION','UNAVAILABLE_OR_FAILED_VALIDATION'])
-             receipt['queryHealth'].append(state)
-           receipt['reportStates']=[{'stage':fixed(row.get('stage'),['REQUESTED','ENQUEUED','QUEUED','WAITING','WAITING_RESOURCE','CLAIMED','BACKUP','SNAPSHOT_DURABLE','INDEXING','INDEX_DURABLE','COMPRESSING','VERIFYING','READY_TO_SHARE','RETENTION_ENCODING','RETENTION_RECEIPT_DURABLE','RETENTION_READY','PAUSED','FAILED','CANCELLED']),'ackState':fixed(row.get('state'),['PENDING','VERIFIED_READBACK','FAILED','REQUESTED','READY']),'semanticVerification':fixed(row.get('semanticVerificationR31'),['ZIP_READBACK_VERIFIED'])} for row in d.get('reportStates',[])[:64]]
-           def error_codes(value):
-            text=str(value or '')
-            codes={'OUT_OF_MEMORY':'OutOfMemoryError','NO_SUCH_TABLE':'no such table','NO_SUCH_COLUMN':'no such column','SQLITE_BUSY':'locked','SQLITE_FULL':'database or disk is full','SCHEMA_PENDING':'SCHEMA_PENDING','DDL_NOT_ALLOWED':'R31_LEGACY','SOURCE_CHANGED':'SOURCE_CHANGED','STALE_OWNER':'STALE_OWNER','CANCELLED':'CancellationException','CAPACITY_WAIT':'CapacityWait'}
-            return [code for code,part in codes.items() if part in text]
-           def source_frames(value):
-            return re.findall(r'(?:at )?((?:com\.ethk3\.novaonepro)[A-Za-z0-9_.$]+\([A-Za-z0-9_.$: ]+\))',str(value or ''))[:120]
-           receipt['crashForPackage']=d.get('crashForPackage') is True
-           receipt['crashErrorCodes']=error_codes(d.get('crashPrivate'))
-           receipt['crashSourceFrames']=source_frames(d.get('crashPrivate'))
-           receipt['processMissingWithHealthyTransport']=d.get('processMissingWithHealthyTransport') is True
-           receipt['adbReconnectAttempts']=integer(d.get('adbReconnectAttempts',0),100)
-           receipt['nonStoppingSnapshots']=integer(d.get('nonStoppingSnapshots',0),100)
-           receipt['historicalProcessExitReasons']=[int(value) for value in re.findall(r'reason=(\d+)',str(d.get('exitInfoPrivate',''))) if 0<=int(value)<=32][:16]
-           receipt['runtimeHealthSamples']=[]
-           for sample in d.get('samples',[])[:16]:
-            for database in sample.get('databases',[])[:2]:
-             queries=database.get('queries',{});health={'schema':[],'tasks':[],'failedMigration':[],'runtimeFaults':[],'feedbackConsumerCounts':[]}
-             rows=queries.get('totalDrawCount',{}).get('rows',[]);health['totalDrawCount']=integer(rows[0][0]) if rows else None
-             for row in queries.get('schemaDiagnostics',{}).get('rows',[])[:32]:
-              health['schema'].append({'domain':fixed(row[0],['CRITICAL','RESEARCH','LEGACY'],'OTHER_DOMAIN'),'state':fixed(row[1],['READY','INITIALIZING','FAILED','PENDING','MIGRATING']),'cursorSha256':hashlib.sha256(str(row[2]).encode()).hexdigest(),'errorCodes':error_codes(row[3])})
-             for row in queries.get('taskDiagnostics',{}).get('rows',[])[:64]:
-              health['tasks'].append({'lane':fixed(row[0],['REALTIME','REPLAY','HEALTH','RESEARCH','BACKGROUND','GC'],'OTHER_LANE'),'state':fixed(row[1],['READY','RUNNING','WAITING','WAIT_DATA','WAIT_RESOURCE','BLOCKED','RETRY','DONE','FAILED','CANCELLED','STALE','PAUSED','HEALTHY','DEPENDENCY']),'reasonSha256':hashlib.sha256(str(row[2]).encode()).hexdigest(),'reasonCodes':error_codes(row[2]),'tasks':integer(row[3]),'actualSteps':integer(row[4]),'lastProgressWallMs':integer(row[5])})
-             for row in queries.get('failedMigrationDiagnostics',{}).get('rows',[])[:32]:
-              health['failedMigration'].append({'domain':fixed(row[0],['CRITICAL','RESEARCH','LEGACY'],'OTHER_DOMAIN'),'stepSha256':hashlib.sha256(str(row[1]).encode()).hexdigest(),'errorCodes':error_codes(row[2]),'attempt':integer(row[3])})
-             for row in queries.get('runtimeFaultDiagnostics',{}).get('rows',[])[:8]:
-              health['runtimeFaults'].append({'categorySha256':hashlib.sha256(str(row[0]).encode()).hexdigest(),'commitOutcome':fixed(row[1],['ROLLED_BACK','COMMITTED_DIAGNOSTIC_FAILED','UNKNOWN','COMMITTED']),'errorCodes':error_codes(row[2]),'sourceFrames':source_frames(row[3])[:12],'occurrences':integer(row[4])})
-             for row in queries.get('feedbackConsumerCounts',{}).get('rows',[])[:32]:health['feedbackConsumerCounts'].append({'scope':fixed(row[0],['REVEALED_LIVE_LABEL','REPLAY_TRAINING','HISTORICAL_TRAINING','FROZEN_FORECAST'],'OTHER_SCOPE'),'receipts':integer(row[1])})
-             receipt['runtimeHealthSamples'].append(health)
-           write('LIVE_RECEIPT.json',receipt)
-          elif root.name=='overlay':
-           d=read('RELEASE_OVERLAY.json');receipt={'format':'R31_PUBLIC_RELEASE_OVERLAY_1','sourceCommit':source(d.get('sourceCommit')),'oldApkSha256':digest(d.get('oldApkSha256')),'newApkSha256':digest(d.get('newApkSha256')),'fromVersionCode':577311020,'toVersionCode':577311021,'state':fixed(d.get('state'),['STARTED_NOT_PASS','FAILED_OR_INCOMPLETE','OBSERVED_RELEASE_OVERLAY_AND_ORIGINAL_ROWS','OBSERVED_OVERLAY_ONLY_NO_OLD_DRAW_ROWS']),
-           'actualReleaseOverlayInstall':fixed(d.get('actualReleaseOverlayInstall'),['PASS']),'oldObservedRowsPreserved':d.get('oldObservedRowsPreserved') is True,'checks':[],
-           'trainedAssetMigration':'NOT_PROVEN_FRESH_VM_ASSET_SET_MAY_BE_EMPTY','physicalDevice':'NOT_RUN','old670MHandsetDatabase':'NOT_RUN','24h':'NOT_RUN','72h':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawDatabaseRowsPublished':False}
-           for row in d.get('checks',[])[:2]:receipt['checks'].append({'oldObservedRows':integer(row.get('oldObservedRows'),64),'preservedObservedRows':integer(row.get('preservedObservedRows'),64),'databaseIntegrity':fixed(row.get('databaseIntegrity'),['ok'])})
-           write('RELEASE_OVERLAY.json',receipt)
-          elif root.name=='faults':
-           d=read('RESULTS.json');receipt={'sourceCommit':source(d.get('sourceCommit')),'buildRunId':integer(d.get('buildRunId')),'physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN','rawRuntimeLogsPublished':False}
-           for key in ['service6Exit','original14Exit','research12Exit','charts47Exit']:receipt[key]=integer(d.get(key),255)
-           write('RESULTS.json',receipt)
-           matrix={'sourceCommit':source(d.get('sourceCommit')),'original14':[],'research12':[],'chartScenarioCapture':{}}
-           original=read('original14/matrix.json')
-           for row in original.get('cells',[])[:14]:matrix['original14'].append({'fault':fixed(row.get('fault'),['fetch_timeout','draw_conflict','kill_settlement','kill_freeze','sqlite_full','clock_rollback','service_stop']),'visibility':fixed(row.get('visibility'),['foreground','background']),'mechanics':fixed(row.get('mechanics'),['ANDROID_EMULATOR_MECHANICS_PASS'])})
-           research=read('research12/research-fault-matrix.json')
-           for row in research.get('cells',[])[:12]:matrix['research12'].append({'stage':fixed(row.get('stage'),['analysis','consume']),'fault':fixed(row.get('fault'),['BUSY','FULL','CANCEL','KILL','CORRUPT','SOURCE_CHANGE']),'pass':row.get('pass') is True})
-           charts=read('charts47/repair-chart-acceptance.json')
-           for key in ['registeredObjects','displayScenarios','screenshots','originalObjects','researchViews']:matrix['chartScenarioCapture'][key]=integer(charts.get(key),10000)
-           artifacts=charts.get('artifacts',[]);matrix['chartScenarioCapture']['imageCount']=len(artifacts);matrix['chartScenarioCapture']['imageSha256']=[digest(row.get('sha256')) for row in artifacts[:200]]
-           write('MATRIX_CHECKS.json',matrix)
-           # Diagnose a failing test by class/method/line without copying exception
-           # messages, JSON payloads, SQL results, credentials or arbitrary UI strings.
-           frames=[]
-           for p in sorted(root.rglob('*.txt')):
-            if p.stat().st_size>8*1024*1024:continue
-            for line in p.read_text(errors='replace').splitlines():
-             match=re.search(r'^\s*at ((?:com\.ethk3\.novaonepro|org\.junit|android\.database)[A-Za-z0-9_.$]+\([A-Za-z0-9_.$: ]+\))\s*$',line)
-             if match and len(frames)<300:frames.append(match.group(1))
-           write('FAILURE_STACK_FRAMES.json',{'sourceCommit':source(d.get('sourceCommit')),'frames':frames,'exceptionMessagesAndDataOmitted':True})
-          else:raise SystemExit('UNKNOWN_PUBLIC_PROJECTION')
-          PY
-      - uses: actions/upload-artifact@v4
-        if: always()
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
         with:
-          name: r31-real-release-overlay
-          path: public-overlay/
-
-
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+      - uses: actions/cache@v4
+        with:
+          path: ~/.gradle/wrapper/dists
+          key: gradle-wrapper-${{ hashFiles('source/gradle/wrapper/gradle-wrapper.properties') }}
+      - name: Compile only to regenerate the byte-for-byte pinned call archive
+        working-directory: source
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          set -euo pipefail
+          # These exclusions belong only to this provisional index reconstruction.
+          # No test, APK or acceptance result is produced here. The final exact
+          # source runs the original complete gate and every release check.
+          ./gradlew --no-daemon -Pr312Development=true :app:compileDebugJavaWithJavac -x :app:generateR997ConstructionAssets -x :app:generateR967Semantics -x :app:verifyR967Semantics -x :app:verifyFinalR967Semantics 2>&1 | tail -n 100
+          python3 -B scripts/r982_source_call_asset.py --freeze --classes app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes
+      - name: Verify the entire tree and fast-forward only the R31 source branch
+        working-directory: source
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,json,pathlib,subprocess
+          r=json.load(open('../caller/.github/r31-build-request.json'))
+          assert hashlib.sha256(pathlib.Path('release/r982_source_calls.tsv.gz').read_bytes()).hexdigest()==r['archiveSha256'],'CALL_ARCHIVE_BYTES_DIFFER'
+          subprocess.run(['git','add','release/r982_source_calls.tsv.gz','release/r982_source_calls.manifest.json'],check=True)
+          tree=subprocess.check_output(['git','write-tree'],text=True).strip()
+          assert tree==r['tree'],'FULL_SOURCE_TREE_DIFFERS:'+tree
+          remote=subprocess.check_output(['git','ls-remote','origin','refs/heads/construction/r31-final-20261104'],text=True).split()[0]
+          assert remote==r['base'],'REMOTE_SOURCE_ADVANCED'
+          print('VERIFIED_FULL_TREE='+tree)
+          PY
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          BASE="${{ steps.request.outputs.base }}"
+          TREE=$(git write-tree)
+          COMMIT=$(git commit-tree "$TREE" -p "$BASE" -m 'fix(r31): integrate unified production repairs and current source verification [skip ci]')
+          if git push origin "$COMMIT:refs/heads/construction/r31-final-20261104"; then
+            echo "SOURCE_FULL_COMMIT=$COMMIT"
+          else
+            # Some Actions tokens cannot change workflow files. Transfer the app
+            # unchanged, then the authorized connector applies those three files.
+            git restore --source="$BASE" --staged --worktree -- .github/workflows/r31-gate.yml .github/workflows/r31-verification.yml .github/workflows/r31-publish-release.yml
+            APP_TREE=$(git write-tree)
+            APP_COMMIT=$(git commit-tree "$APP_TREE" -p "$BASE" -m 'fix(r31): transfer exact application source; workflow integration follows [skip ci]')
+            git push origin "$APP_COMMIT:refs/heads/construction/r31-final-20261104"
+            echo "SOURCE_APP_COMMIT=$APP_COMMIT"
+            echo "SOURCE_APP_TREE=$APP_TREE"
+          fi
+          echo "INDEX_TRANSFER_IS_NOT_AN_ENGINEERING_ACCEPTANCE_RESULT"
