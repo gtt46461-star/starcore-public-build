@@ -9,7 +9,7 @@ permissions:
   contents: write
   actions: read
 concurrency:
-  group: r31-final-029-1628f224031ae898d28f49425e1821c3a5aa7047
+  group: r31-final-029-e83dfad82f5b49949d03688e4a86003bc6b3d371
   cancel-in-progress: false
 env:
   SDK_PACKAGES: '''platforms;android-36'' ''build-tools;36.0.0'' ''ndk;28.2.13676358'' ''cmake;3.22.1'''
@@ -22,7 +22,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: 1628f224031ae898d28f49425e1821c3a5aa7047
+        ref: e83dfad82f5b49949d03688e4a86003bc6b3d371
         fetch-depth: 0
     - uses: actions/setup-java@v4
       with:
@@ -43,7 +43,7 @@ jobs:
         key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
     - name: Compile original production source and freeze its actual call inventory
       id: frozen
-      run: "set -euo pipefail\ntest \"$(git rev-parse HEAD)\" = \"1628f224031ae898d28f49425e1821c3a5aa7047\"\npython3 -B scripts/r967_semantic_identity.py\
+      run: "set -euo pipefail\ntest \"$(git rev-parse HEAD)\" = \"e83dfad82f5b49949d03688e4a86003bc6b3d371\"\npython3 -B scripts/r967_semantic_identity.py\
         \ --check\n./gradlew --no-daemon --max-workers=4 -Pr31InventoryBootstrap=true -Pr312Development=true :app:compileDebugJavaWithJavac\
         \ 2>&1 | tail -n 110\npython3 -B scripts/r982_source_call_asset.py --freeze --classes app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes\n\
         python3 -B scripts/r982_source_call_asset.py\npython3 -B scripts/r967_semantic_identity.py --check\npython3 - <<'PYCHECK'\n\
@@ -52,7 +52,7 @@ jobs:
         \ -- release/r982_source_calls.tsv.gz release/r982_source_calls.manifest.json; then\n  git config user.name \"STARCORE\
         \ CI\"\n  git config user.email \"starcore-ci@users.noreply.github.com\"\n  git add release/r982_source_calls.tsv.gz\
         \ release/r982_source_calls.manifest.json\n  git commit -m \"build(r31): freeze actual 029 cumulative production call\
-        \ inventory [skip ci]\"\n  git push origin HEAD:refs/heads/construction/r31-final-20261104 --force-with-lease=refs/heads/construction/r31-final-20261104:1628f224031ae898d28f49425e1821c3a5aa7047\n\
+        \ inventory [skip ci]\"\n  git push origin HEAD:refs/heads/construction/r31-final-20261104 --force-with-lease=refs/heads/construction/r31-final-20261104:e83dfad82f5b49949d03688e4a86003bc6b3d371\n\
         fi\necho \"source=$(git rev-parse HEAD)\" >> \"$GITHUB_OUTPUT\"\ngit rev-parse HEAD > \"$RUNNER_TEMP/r31-frozen-source.txt\"\
         \n"
     - uses: actions/upload-artifact@v4
@@ -109,6 +109,7 @@ jobs:
     needs:
     - baseline
     - freeze
+    - targeted_android
     runs-on: ubuntu-latest
     timeout-minutes: 150
     steps:
