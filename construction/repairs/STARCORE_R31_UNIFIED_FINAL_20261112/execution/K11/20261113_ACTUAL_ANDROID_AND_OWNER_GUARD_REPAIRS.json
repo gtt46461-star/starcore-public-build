@@ -1,0 +1,53 @@
+{
+  "scope": "ACTUAL_API29_PRODUCTION_ALIAS_AND_CURRENT_TEST_FAILURE_REPAIRS_PENDING_NEW_ANDROID_EXECUTION",
+  "failedSource": "e6d9a99782cdf7fe7f69efef67d673259dd71c1d",
+  "failedSignAndAndroidRun": 43395922679,
+  "failedEngineeringRun": 43395877630,
+  "production": {
+    "entry": "ReportExportServiceCP4.openCheckpointSourceR31/openKeepSourceR31 and ReportAttachmentClosureCP12.captureKeepOriginalsR31",
+    "cause": "API29 trusted application ancestor alias was compared against its canonical root as if the CAS child itself were an untrusted symlink",
+    "repair": "Normalize the already authorized pinned application root before appending fixed CAS/keep child names; retain actual child symlink rejection and exact object hash/readback checks",
+    "persistentProduct": "Actual full report ZIP and content-addressed checkpoint/keep originals; no original assets deleted",
+    "consumer": "Read-only report snapshot scoped CAS/keep readers, attachment copy/readback, provider and ZIP consumer",
+    "feedback": "Absent source stays typed dependency; unauthorized child symlink stays explicit failure; report publish and all-check health remain separate",
+    "reportFields": [
+      "source-manifest.json.checkpointCasSource",
+      "r31-keep-originals.jsonl",
+      "delivery/index.json.evidenceComplete/checksComplete/allChecksPassed"
+    ]
+  },
+  "harnessRepairs": [
+    "Actual chart Activity must share explicitly opted-in production main-process data root on disposable API35; previous empty sandbox was never a valid 100-cycle execution.",
+    "R30 write queue fixture initializes RuntimeSchemaR26 before SchemaR27 exactly as the original startup owner; feedback trigger dependencies are not replaced or stubbed.",
+    "Offline restore fixture installs exact original R26/R27 metadata owners before using Health durable writer-fault consumer; no queue is cleared or admission weakened.",
+    "Narrow DbStore module metadata review includes exact six-column pure probe and typed checked metadata insert; original whole-file 9edd4e0f redline and original negative controls remain, plus two new metadata tamper controls.",
+    "GC fixture now keeps pressure payload strongly reachable until the final safe callback immediately before the actual collector request, then genuinely releases garbage. Spontaneous earlier JVM GC cannot invalidate the intended forced-collection experiment. Actual 512MiB,120s interval, thresholds and all producer guards unchanged."
+  ],
+  "currentSourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java": "b6f12b5adfca9d122aa2cb8e89f2acc3b5b549d2e709db979b887e179457b3a9",
+    "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java": "c5f278d109935ff1b4ace6053eca0e62df04a14495a3f9eec0aa0736e7843d45",
+    "app/src/androidTest/java/com/ethk3/novaonepro/R31RestoreProofInstrumentedTest.java": "e99e850879c4d72d0f4f1099e8592efe5d61a1ee3a74a792ddef994d1bfa75bc",
+    "tools/r31/resource_recovery_host/ResourceRecoveryR31Host.java": "2128e7796a5240e0f32046855e78f1abe2ed3994aebcfb08cf7d7784987980e0",
+    "verification/r31/unified-schema-review.json": "c98b31346c426bac09bfb141899c8207f98b0e38ca599bf0fa43de1e900fb5b5"
+  },
+  "nativeHost": {
+    "cas": {
+      "path": "/tmp/r31-canonical-report-source-alias-complete-deps/RECEIPT.json",
+      "receiptSha256": "5bfd88f87cf5e017918d780b7a79f35c00fe13e5c47fb2bf8a60097b1767a837",
+      "status": "TARGETED_NATIVE_SCOPE_ASSERTIONS_COMPLETED_NOT_DEVICE",
+      "scope": "ACTUAL_SOURCE_SUBSET_NATIVE_HOST_NOT_ART_OR_APK"
+    },
+    "keep": {
+      "path": "/tmp/r31-canonical-keep-source-alias/RECEIPT.json",
+      "receiptSha256": "1b7e10262daaca635379029bf3aad93ea6209892fd4b354b0b97f89b7c854b4f",
+      "status": "TARGETED_NATIVE_SCOPE_ASSERTIONS_COMPLETED_NOT_DEVICE",
+      "scope": "ACTUAL_SOURCE_SUBSET_NATIVE_HOST_NOT_ART_OR_APK"
+    }
+  },
+  "newActualGcFixture": "RUNNING_REAL_120S_NOT_YET_PASS",
+  "currentH15Targeted": "PENDING_COMMIT_AND_RUN",
+  "physicalDevice": "NOT_RUN",
+  "24h": "NOT_RUN",
+  "72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN"
+}

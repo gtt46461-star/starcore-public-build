@@ -15,6 +15,11 @@ parser.add_argument("--classes",type=Path,required=True)
 parser.add_argument("--checkpoint-source",type=Path,default=ROOT/"app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java")
 args=parser.parse_args();out=args.out.resolve();out.mkdir(parents=True,exist_ok=False)
 sdk=Path(os.environ["ANDROID_HOME"])/"platforms/android-36/android.jar";jdbc=Path(os.environ.get("SQLITE_JDBC","/tmp/r31-baseline-deps/sqlite-jdbc.jar"))
+# Current Xerial JDBC uses its actual SLF4J dependency. Bind the Gradle-resolved
+# library explicitly instead of depending on a globally modified JDBC archive.
+logging=sorted(Path(os.environ["GRADLE_USER_HOME"]).glob("caches/modules-2/files-2.1/org.slf4j/slf4j-api/*/*/*.jar"))
+if not logging:raise SystemExit("REPORT_CAS_HOST_SLF4J_DEPENDENCY_MISSING")
+logging=logging[-1]
 def sha(path):
     if path.is_file():return hashlib.sha256(path.read_bytes()).hexdigest()
     value=hashlib.sha256()
@@ -22,6 +27,7 @@ def sha(path):
         value.update(str(child.relative_to(path)).encode());value.update(b"\0");value.update(hashlib.sha256(child.read_bytes()).digest())
     return value.hexdigest()
 receipt={"scope":"ACTUAL_EXPORT_STATIC_HELPER_REAL_CAS_AND_FILE_PINS_NATIVE_HOST_NOT_SERVICE_ART_NOT_DEVICE","sourceCapturedAt":datetime.datetime.now(datetime.timezone.utc).isoformat(),"head":subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip(),"classes":str(args.classes),"classesSha256":sha(args.classes),"androidJarSha256":sha(sdk),"sqliteJdbcSha256":sha(jdbc),"records":[],"status":"IN_PROGRESS"}
+receipt["slf4jApiSha256"]=sha(logging)
 environment=dict(os.environ);environment.pop("JAVA_TOOL_OPTIONS",None)
 def save(): (out/"RECEIPT.json").write_text(json.dumps(receipt,indent=2)+"\n")
 def run(command,label):
@@ -62,7 +68,7 @@ with tempfile.TemporaryDirectory(prefix="r31-report-cas-native-") as temporary:
     for source in sources:
         target=snapshot/source.name;target.write_bytes(source.read_bytes());captured.append(target);receipt["sourceSha256"][str(source)]=sha(target)
     run(["javac","-encoding","UTF-8","-sourcepath","","-implicit:none","-cp",os.pathsep.join(map(str,[args.classes,sdk])),"-d",production,*captured],"compile-actual-export-pin-checkpoint")
-    runtime=os.pathsep.join(map(str,[platform,production,test,args.classes,jdbc,sdk]));host=ROOT/"tools/r31/report_cas_host/R31ReportCasScopeHost.java";receipt["hostSourceSha256"]=sha(host)
+    runtime=os.pathsep.join(map(str,[platform,production,test,args.classes,jdbc,logging,sdk]));host=ROOT/"tools/r31/report_cas_host/R31ReportCasScopeHost.java";receipt["hostSourceSha256"]=sha(host)
     run(["javac","-encoding","UTF-8","-cp",runtime,"-d",test,host],"compile-native-scope-test")
     run(["java","-Xmx512m","-cp",runtime,"com.ethk3.novaonepro.R31ReportCasScopeHost",fixture,out],"actual-scope-read-cancel-concurrent")
     receipt["sourceClassesSha256"]={str(p.relative_to(production)):sha(p) for p in sorted(production.rglob("*.class"))};receipt["hostPlatformSourceSha256"]={str(p.relative_to(generated)):sha(p) for p in shims};receipt["sourceOriginsUnchanged"]=all(sha(Path(p))==value for p,value in receipt["sourceSha256"].items())

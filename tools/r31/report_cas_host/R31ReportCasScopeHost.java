@@ -65,6 +65,15 @@ public final class R31ReportCasScopeHost {
     }
     public static void main(String[] args)throws Exception{
         work=new File(args[0]);File output=new File(args[1]);Class.forName("org.sqlite.JDBC");files=new File(work,"app/files");Files.createDirectories(files.toPath());root=new File(files,"r26-checkpoints");CheckpointArtifactsR26 store=new CheckpointArtifactsR26(root);raw=new byte[131071];for(int i=0;i<raw.length;i++)raw[i]=(byte)(i*31+7);try(CheckpointArtifactsR26.Prepared saved=store.prepareState(stream->stream.write(raw))){reference=saved.reference();}
+        File alias=new File(work,"platform-root-alias");Files.createSymbolicLink(alias.toPath(),files.getParentFile().getCanonicalFile().toPath());
+        File aliasedFiles=new File(alias,"files");File aliasSnapshot=database("platform-alias");
+        try(ReportInputsLeaseCP12 pin=ReportInputsLeaseCP12.acquire(aliasedFiles);SQLiteDatabase db=open(aliasSnapshot);ReportExportServiceCP4.CheckpointSourceScopeR31 scope=ReportExportServiceCP4.openCheckpointSourceR31(db,aliasedFiles)){same(db);need("SCOPED_TO_PINNED_CAS_ROOT_OBJECTS_UNVERIFIED".equals(scope.state),"platform application-root alias rejected as a CAS-child symlink");}
+        File hostile=new File(work,"hostile/files");Files.createDirectories(hostile.toPath());Files.createSymbolicLink(new File(hostile,"r26-checkpoints").toPath(),root.toPath());
+        try(ReportInputsLeaseCP12 pin=ReportInputsLeaseCP12.acquire(hostile);SQLiteDatabase db=open(aliasSnapshot)){
+            boolean refused=false;try(ReportExportServiceCP4.CheckpointSourceScopeR31 ignored=ReportExportServiceCP4.openCheckpointSourceR31(db,hostile)){}catch(IOException expected){refused="REPORT_CHECKPOINT_SOURCE_SYMLINK".equals(expected.getMessage());}
+            need(refused,"untrusted CAS-child symlink accepted after platform alias repair");
+        }
+        record("platform-root-alias-accepted-real-cas-child-symlink-still-refused");
         ordinaryAndNested();missingAndConflict();exceptionAndSlots();corruptObject();cancellation();concurrent();
         Map<String,Object> result=new LinkedHashMap<>();result.put("scope","ACTUAL_EXPORT_STATIC_HELPER_REAL_SQLITE_READONLY_REAL_CAS_REAL_FILE_PIN_HOST_ONLY_NOT_SERVICE_ART_NOT_DEVICE");result.put("assertions",assertions.get());result.put("cases",cases);result.put("status","TARGETED_NATIVE_SCOPE_ASSERTIONS_COMPLETED");result.put("rawPayloadSha256",CheckpointArtifactsR26.sha(raw));result.put("rawPayloadBytes",raw.length);Files.write(new File(output,"RESULT.json").toPath(),(com.ethk3.novaonepro.strategyv2.JsonR27.write(result)+"\n").getBytes(StandardCharsets.UTF_8));System.out.println(com.ethk3.novaonepro.strategyv2.JsonR27.write(result));
     }

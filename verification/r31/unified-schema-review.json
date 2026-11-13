@@ -2,7 +2,7 @@
   "scope": "UF02_UF03_UF04_SCHEMA_ONLY_REVIEW_NO_PAYOUT_NO_DECISION_THRESHOLD_CHANGES",
   "baseCommit": "1a3c6463fb2cb3171c49ca6cded69de678483819",
   "baseSourceSha256": "20e8419ce3cd3734b8f8c5a86c6c10917f972f4643c4027ec3257eff7c85f170",
-  "reviewedSourceSha256": "e69f85d8195fbb7a4c51589b880cb1bdae249015cb38772ac788d06c32275011",
+  "reviewedSourceSha256": "698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93",
   "originalWholeFileRedlineSha256": "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",
   "hunks": [
     {
@@ -358,12 +358,21 @@
       "afterSha256": "3fd77cf54e2cd76cb3509787697219a24d8f475831ce23475ae5e01d8a13d54f"
     },
     {
+      "startLineBefore": 20982,
+      "startLineAfter": 20982,
+      "before": "    public void registerModuleBuildV20(String moduleName, String version, String detail) {\n        if (moduleName == null || moduleName.length() == 0) return;\n        SQLiteDatabase db = writable();\n        ensureModuleRegistryR363(db);\n        ContentValues cv = new ContentValues();\n        cv.put(\"module_name\", moduleName);\n        cv.put(\"version\", version == null ? \"\" : version);\n        cv.put(\"cohort\", AppConfig.ACTIVE_QUALITY_BUILD_COHORT);\n        cv.put(\"status\", AppConfig.ACTIVE_QUALITY_BUILD_VERSION.equals(version) ? \"OK\" : \"MIXED\");\n        cv.put(\"detail\", detail == null ? \"\" : detail);\n        cv.put(\"registered_at\", System.currentTimeMillis());\n        insertFiltered(db, DbHelper.TABLE_V20_MODULE_REGISTRY, cv, SQLiteDatabase.CONFLICT_REPLACE);\n",
+      "after": "    public void registerModuleBuildV20(String moduleName, String version, String detail) {\n        if (moduleName == null || moduleName.length() == 0) return;\n        coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.TELEMETRY,\"R31_BUILD_MODULE_REGISTRY\"),db->{\n        ensureModuleRegistryR363(db);\n        ContentValues cv = new ContentValues();\n        cv.put(\"module_name\", moduleName);\n        cv.put(\"version\", version == null ? \"\" : version);\n        cv.put(\"cohort\", AppConfig.ACTIVE_QUALITY_BUILD_COHORT);\n        cv.put(\"status\", AppConfig.ACTIVE_QUALITY_BUILD_VERSION.equals(version) ? \"OK\" : \"MIXED\");\n        cv.put(\"detail\", detail == null ? \"\" : detail);\n        cv.put(\"registered_at\", System.currentTimeMillis());\n        if(db.insertWithOnConflict(DbHelper.TABLE_V20_MODULE_REGISTRY,null,cv,SQLiteDatabase.CONFLICT_REPLACE)<0)\n            throw new IllegalStateException(\"R31_BUILD_MODULE_REGISTRY_NOT_COMMITTED\");\n        return 1;\n        });\n",
+      "beforeSha256": "1da85ed1d78ce51635f7cba51208cb236698d98b7aabf66836c98f44860728c0",
+      "afterSha256": "08e5a7e3f4f72a3935135f137227bc3dcb2784bf6cff428b82d298af6271b94c",
+      "reviewScope": "Exact build-module metadata writer only; original six values unchanged; sole typed TELEMETRY admission and checked insert receipt. No decision, payout, PnL, K3 or REAL code."
+    },
+    {
       "startLineBefore": 20930,
       "startLineAfter": 20998,
       "before": "    }\n\n    /** The build-identity write must not trigger the full historical link-schema migration. */\n    private void ensureModuleRegistryR363(SQLiteDatabase db) {\n        if (db == null) throw new IllegalArgumentException(\"MODULE_REGISTRY_DB_NULL\");\n        db.execSQL(\n                \"CREATE TABLE IF NOT EXISTS \"\n                        + DbHelper.TABLE_V20_MODULE_REGISTRY\n                        + \" (module_name TEXT PRIMARY KEY)\");\n        addColumnIfMissing(db, DbHelper.TABLE_V20_MODULE_REGISTRY, \"version\", \"TEXT\");\n",
-      "after": "    }\n\n    /** The build-identity write must not trigger the full historical link-schema migration. */\n    private void ensureModuleRegistryR363(SQLiteDatabase db) {\n        if (!LegacyDdlR31.owned(db)) { requireRuntimeReadyReadOnlyR31(db); return; }\n        if (db == null) throw new IllegalArgumentException(\"MODULE_REGISTRY_DB_NULL\");\n        execMigrationDdlOnlyR31(db,\n                \"CREATE TABLE IF NOT EXISTS \"\n                        + DbHelper.TABLE_V20_MODULE_REGISTRY\n                        + \" (module_name TEXT PRIMARY KEY)\");\n        addColumnIfMissing(db, DbHelper.TABLE_V20_MODULE_REGISTRY, \"version\", \"TEXT\");\n",
+      "after": "    }\n\n    /** The build-identity write must not trigger the full historical link-schema migration. */\n    private void ensureModuleRegistryR363(SQLiteDatabase db) {\n        if (!LegacyDdlR31.owned(db)) {\n            // Build identity depends on this exact existing metadata object,\n            // not on every historical business table being re-audited after\n            // process death. Missing columns still request the sole owner;\n            // this read-side probe never repairs or stamps any schema.\n            try{DatabaseCoordinator.requireSchemaObjectsR31(db,\"BUILD_MODULE_REGISTRY\",new String[][]{{DbHelper.TABLE_V20_MODULE_REGISTRY,\"module_name,version,cohort,status,detail,registered_at\"}},new String[0][]);}\n            catch(DatabaseCoordinator.SchemaPendingR31 pending){requestLegacySchemaMigrationR31();throw pending;}\n            return;\n        }\n        if (db == null) throw new IllegalArgumentException(\"MODULE_REGISTRY_DB_NULL\");\n        execMigrationDdlOnlyR31(db,\n                \"CREATE TABLE IF NOT EXISTS \"\n                        + DbHelper.TABLE_V20_MODULE_REGISTRY\n                        + \" (module_name TEXT PRIMARY KEY)\");\n        addColumnIfMissing(db, DbHelper.TABLE_V20_MODULE_REGISTRY, \"version\", \"TEXT\");\n",
       "beforeSha256": "b131ea8b5acd6acdfd7e623dd0547d978ba5db2506f0df9d7419ebb620a426af",
-      "afterSha256": "76ebbcc61cc2be76757a4699b6654bbb22e0aafb21ff06df85c3d6d3ef8f9c1d"
+      "afterSha256": "10c073e61ae6c024d8208a3c1702f2d0de8dc7204bbbcc5e14e423cf59bbbbb6"
     },
     {
       "startLineBefore": 21082,
@@ -390,5 +399,12 @@
     ],
     "nonSchemaBytesUnchangedFromSourceBefore": true,
     "nativeEvidence": "Actual DbStore runtime: 52 units / 2575 slices; no read-only audit DML; actual critical commit between slices. HOST only."
+  },
+  "coldModuleMetadataRepairReview": {
+    "sourceBefore": "abaf5bd42119f02433acac8207a926c520467a2f",
+    "scope": "Exact existing module table six-column read-only dependency probe and one typed metadata insert. Missing schema still requests sole owner; no DDL introduced into the business call.",
+    "originalWholeFileRedlinePreserved": "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",
+    "fullDbStoreComparisonRequired": true,
+    "negativeControls": "Existing illegal DDL and REAL/main-chain mutation checks plus explicit module probe tampering remain active."
   }
 }

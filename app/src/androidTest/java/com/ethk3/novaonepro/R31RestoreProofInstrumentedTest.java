@@ -59,6 +59,10 @@ public final class R31RestoreProofInstrumentedTest {
     }
     @Test public void independentRestoreBindsActualPidCloneAndCurrentBytesBeforeSeparateCleanup()throws Exception {
         Context app=app();DbStore store=new DbStore(app);ready(store);new ServiceHeartbeatStore(app).setUserEnabled(false);
+        // Offline restore starts no Runtime/Health worker. Install the exact
+        // original metadata owners in their production dependency order so
+        // Health's real durable drain can consume slow-setup writer evidence.
+        store.coordinatorR36().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R31_RESTORE_DISPOSABLE_FIXTURE"),sql->{RuntimeSchemaR26.ensure(sql);SchemaR27.ensure(sql);return 0;});
         assertFalse("LIVE_RUNTIME_MUST_ALREADY_BE_STOPPED",AutoFetchService.isLifecycleActiveR82());
         File db=app.getDatabasePath(AppConfig.DB_NAME),backup=new File(db.getPath()+".r82-original-backup"),receiptFile=new File(db.getPath()+".r82-backup-receipt");
         assertFalse("FRESH_DISPOSABLE_BACKUP_REQUIRED",backup.exists());assertFalse(receiptFile.exists());

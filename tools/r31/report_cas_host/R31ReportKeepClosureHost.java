@@ -139,6 +139,13 @@ public final class R31ReportKeepClosureHost {
     public static void main(String[] args)throws Exception{
         work=new File(args[0]);Files.createDirectories(work.toPath());files=new File(work,"app/files");root=new File(files,"r31-keep");Files.createDirectories(root.toPath());Class.forName("org.sqlite.JDBC");
         rawAndPagination();missingCorruptAndSchema();pinsReadOnlyCancelAndSymlinks();
+        File aliasDb=fixture("platform-alias",1,false),ownedFiles=files,alias=new File(work,"platform-root-alias");
+        Files.createSymbolicLink(alias.toPath(),files.getParentFile().getCanonicalFile().toPath());files=new File(alias,"files");
+        try(SQLiteDatabase snapshot=read(aliasDb);ReportInputsLeaseCP12 pin=ReportInputsLeaseCP12.acquire(files);KeepMigrationStoreR31.ReaderRootLease mapping=ReportExportServiceCP4.openKeepSourceR31(snapshot,files)){
+            JSONObject actual=capture(snapshot,"platform-alias",false,new StringWriter(),RUN);
+            need(actual.getLong("verifiedBodies")==1&&actual.getLong("unavailableBodies")==0,"platform root alias must retain exact keep originals and their live input pin");
+            need(KeepMigrationStoreR31.readOriginal(snapshot,ARCHIVE,1,"payload")!=null,"platform alias scoped reader must resolve actual complete keep body");
+        }finally{files=ownedFiles;}
         JSONObject receipt=new JSONObject().put("status","ACTUAL_NATIVE_KEEP_CLOSURE_CASES_COMPLETED").put("assertions",assertions).put("scope","REAL_ROW_CODEC_CAS_REGISTRY_DESCRIPTOR_GENERIC_COPY_READBACK_AND_INPUT_PIN; NOT_ANDROID_SERVICE_OR_SAF").put("physicalDevice","NOT_RUN").put("naturalQuality","NOT_PROVEN");
         Files.writeString(new File(args[1],"RESULT.json").toPath(),receipt.toString()+"\n");System.out.println(receipt.toString());
     }

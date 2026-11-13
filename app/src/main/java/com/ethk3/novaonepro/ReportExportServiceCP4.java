@@ -39,7 +39,10 @@ public final class ReportExportServiceCP4 extends Service {
     /** Caller supplies the same filesDir used by its enclosing FULL_REPORT input-pin resource. */
     static CheckpointSourceScopeR31 openCheckpointSourceR31(SQLiteDatabase snapshot,File pinnedFilesDir)throws IOException {
         if(!ReportInputsLeaseCP12.currentThreadHoldsInput(pinnedFilesDir))throw new IOException("REPORT_CHECKPOINT_INPUT_PIN_REQUIRED");
-        File checkpointDirectory=new File(pinnedFilesDir,"r26-checkpoints");
+        // Android API29 can supply /data/user/0 while the trusted application
+        // root resolves through /data/data. Normalize the already pinned root,
+        // then retain the strict no-symlink check on the actual CAS child.
+        File checkpointDirectory=new File(pinnedFilesDir.getCanonicalFile(),"r26-checkpoints");
         if(checkpointDirectory.exists()&&!checkpointDirectory.getCanonicalFile().equals(checkpointDirectory.getAbsoluteFile()))throw new IOException("REPORT_CHECKPOINT_SOURCE_SYMLINK");
         // Inline checkpoints can still be reported. A real reference without its source stays typed DEPENDENCY.
         if(!checkpointDirectory.isDirectory())return new CheckpointSourceScopeR31(null,"DEPENDENCY_CAS_SOURCE_DIRECTORY_UNAVAILABLE");
@@ -50,7 +53,7 @@ public final class ReportExportServiceCP4 extends Service {
      * when the immutable snapshot reader closes. */
     static com.ethk3.novaonepro.strategyv2.KeepMigrationStoreR31.ReaderRootLease openKeepSourceR31(SQLiteDatabase snapshot,File pinnedFilesDir)throws IOException {
         if(!ReportInputsLeaseCP12.currentThreadHoldsInput(pinnedFilesDir))throw new IOException("REPORT_KEEP_INPUT_PIN_REQUIRED");
-        File directory=new File(pinnedFilesDir,"r31-keep");
+        File directory=new File(pinnedFilesDir.getCanonicalFile(),"r31-keep");
         if(!directory.isDirectory())return null;
         if(!directory.getCanonicalFile().equals(directory.getAbsoluteFile()))throw new IOException("REPORT_KEEP_SOURCE_SYMLINK");
         return com.ethk3.novaonepro.strategyv2.KeepMigrationStoreR31.openReaderRoot(snapshot,directory);

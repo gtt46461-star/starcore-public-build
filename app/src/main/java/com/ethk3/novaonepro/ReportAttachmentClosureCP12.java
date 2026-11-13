@@ -198,7 +198,7 @@ public final class ReportAttachmentClosureCP12 {
         if(!ReportInputsLeaseCP12.currentThreadHoldsInput(files))throw new IOException("REPORT_KEEP_INPUT_PIN_REQUIRED");
         checkpoint(control);
         JSONObject result=new JSONObject().put("snapshotBound",true).put("readOnly",true).put("bodiesIncluded",!compact);
-        File metadata=new File(job,"r31-keep-originals.jsonl"),root=new File(files,"r31-keep");
+        File metadata=new File(job,"r31-keep-originals.jsonl"),root=new File(files.getCanonicalFile(),"r31-keep");
         if(root.exists()&&!root.getCanonicalFile().equals(root.getAbsoluteFile()))throw new IOException("REPORT_KEEP_SOURCE_SYMLINK");
         boolean anyRegistry=hasTable(snapshot,"r31_keep_original")||hasTable(snapshot,"r31_keep_checkpoint");
         boolean registered=com.ethk3.novaonepro.strategyv2.KeepMigrationStoreR31.ready(snapshot);

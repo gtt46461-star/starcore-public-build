@@ -165,7 +165,7 @@ public final class R27QualityTest {
     static String restoreUnifiedSchemaBlocksR31(String source) {
         try {
             String review=new String(Files.readAllBytes(new File(R27TestSupport.root(),"verification/r31/unified-schema-review.json").toPath()),java.nio.charset.StandardCharsets.UTF_8);
-            assertEquals("Only the explicitly reviewed schema-only patch is allowed","4b54094f96dd69a5de51c32325591aa28c22fab014aefe392daaa201771972f2",StatsR27.sha256(review));
+            assertEquals("Only the explicitly reviewed schema/metadata-only patch is allowed","c98b31346c426bac09bfb141899c8207f98b0e38ca599bf0fa43de1e900fb5b5",StatsR27.sha256(review));
             Map<String,Object> document=(Map<String,Object>)JsonR27.parse(review);
             List<Object> hunks=(List<Object>)document.get("hunks");
             for(int i=hunks.size()-1;i>=0;i--) {
@@ -265,6 +265,12 @@ public final class R27QualityTest {
                 String source=new String(bytes,java.nio.charset.StandardCharsets.UTF_8);
                 String baseline=new String(Files.readAllBytes(new File(root,"construction/STARCORE_R31_FINAL_20261104/baseline_source/"+f[0]).toPath()),java.nio.charset.StandardCharsets.UTF_8);
                 bytes=restoreR31DbSchemaSidecarsForH15(source,baseline).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                String illegalModuleProbe=source.replace("module_name,version,cohort,status,detail,registered_at","module_name,version,cohort,status,detail");
+                assertNotEquals(source,illegalModuleProbe);
+                assertThrows(AssertionError.class,()->restoreR31DbSchemaSidecarsForH15(illegalModuleProbe,baseline));
+                String illegalModuleWriter=source.replace("WriteClass.TELEMETRY,\"R31_BUILD_MODULE_REGISTRY\"","WriteClass.RESEARCH_DATA,\"R31_BUILD_MODULE_REGISTRY\"");
+                assertNotEquals(source,illegalModuleWriter);
+                assertThrows(AssertionError.class,()->restoreR31DbSchemaSidecarsForH15(illegalModuleWriter,baseline));
                 String illegalDdl=source.replace("LegacyDdlR31.exec(db,", "LegacyDdlR31.exec(db, /* unreviewed */");
                 assertNotEquals(source,illegalDdl);
                 assertThrows("Reviewed DDL blocks still reject arbitrary tampering",AssertionError.class,()->restoreR31DbSchemaSidecarsForH15(illegalDdl,baseline));

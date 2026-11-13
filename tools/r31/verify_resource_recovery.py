@@ -3,7 +3,7 @@
 from pathlib import Path
 from datetime import datetime,timezone
 import hashlib,json,os,shutil,subprocess,tempfile,concurrent.futures,re,time
-ROOT=Path(__file__).resolve().parents[2];SOURCE=ROOT/'app/src/main/java/com/ethk3/novaonepro/strategyv2';HOST=ROOT/'tools/r31/resource_recovery_host/ResourceRecoveryR31Host.java';TEST=ROOT/'app/src/test/java/com/ethk3/novaonepro/strategyv2/R31OptionalHeapRecoveryTest.java';OUT=ROOT/'verification/r31/p02/resource-recovery'
+ROOT=Path(__file__).resolve().parents[2];SOURCE=ROOT/'app/src/main/java/com/ethk3/novaonepro/strategyv2';HOST=ROOT/'tools/r31/resource_recovery_host/ResourceRecoveryR31Host.java';TEST=ROOT/'app/src/test/java/com/ethk3/novaonepro/strategyv2/R31OptionalHeapRecoveryTest.java';OUT=Path(os.environ.get('R31_RESOURCE_OUT',str(ROOT/'verification/r31/p02/resource-recovery')))
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main():
  OUT.mkdir(parents=True,exist_ok=True);work=Path(tempfile.mkdtemp(prefix='r31-real-resource-recovery-'));classes=work/'classes';classes.mkdir();gradle=Path(os.environ.get('GRADLE_USER_HOME',str(Path.home()/'.gradle')));local=Path('/workspace/starcore-environment/gradle-home');gradle=gradle if gradle.exists() else local

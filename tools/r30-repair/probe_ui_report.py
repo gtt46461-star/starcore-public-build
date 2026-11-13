@@ -148,20 +148,24 @@ def safe_report_semantics(archive, index):
     result = {'sourceCommit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
               'scope': 'PUBLIC_CHECK_IDENTIFIERS_AND_SOURCE_SYMBOLS_ONLY_NO_EVIDENCE_VALUES',
               'evidenceComplete': bool(index['evidenceComplete']), 'checksComplete': bool(index['checksComplete']),
-              'allChecksPassed': bool(index['allChecksPassed']), 'incompleteChecks': [], 'catalogErrors': []}
+              'allChecksPassed': bool(index['allChecksPassed']), 'catalogPages': 0, 'catalogResults': 0,
+              'incompleteChecks': [], 'catalogErrors': []}
     def symbols(text):
         return {'sourceEnums': sorted(codes.intersection(re.findall(r'\b[A-Z][A-Z0-9_]{2,80}\b', text)))[:80],
                 'missingPublicJsonKeys': sorted(keys.intersection(re.findall(r'No value for ([A-Za-z][A-Za-z0-9_]*)', text))),
                 'publicFrames': [list(row) for row in re.findall(
                     r'at (com\.ethk3\.novaonepro\.[A-Za-z0-9_.$]+)\.([A-Za-z0-9_$]+)\(([A-Za-z0-9_]+\.java):(\d+)\)', text) if row[2] in files][:30]}
     for entry in archive.infolist():
-        if not re.fullmatch(r'catalog/catalog-[0-9]+\.jsonl', entry.filename):
+        if not re.fullmatch(r'(?:catalog/)?catalog-[0-9]+\.jsonl', entry.filename):
             continue
+        result['catalogPages'] += 1
         assert entry.file_size <= 4 * 1024 * 1024, 'DIAGNOSTIC_CATALOG_PAGE_BOUND'
         with io.TextIOWrapper(archive.open(entry), encoding='utf-8') as rows:
             for line in rows:
                 assert len(line) <= 256 * 1024, 'DIAGNOSTIC_CATALOG_ROW_BOUND'
                 row = json.loads(line)
+                if row.get('kind') == 'check_result':
+                    result['catalogResults'] += 1
                 if row.get('kind') == 'check_result' and not row.get('completes_contract'):
                     check = row.get('id', '')
                     assert re.fullmatch(r'RSEC-[0-9]{3}', check), 'DIAGNOSTIC_PUBLIC_CHECK_ID'
@@ -169,8 +173,12 @@ def safe_report_semantics(archive, index):
                     for key in ('execution_state', 'domain_outcome', 'health'):
                         record[key] = row.get(key) if row.get(key) in codes else 'UNLISTED_DYNAMIC_OUTCOME'
                     result['incompleteChecks'].append(record)
-                if row.get('kind') == 'catalog_error':
-                    result['catalogErrors'].append(symbols(str(row.get('reason', '')) + '\n' + str(row.get('error_detail', ''))))
+                if row.get('kind') in ('catalog_error', 'table_error', 'index_error'):
+                    record = symbols(str(row.get('reason', '')) + '\n' + str(row.get('error_detail', '')))
+                    record['kind'] = row['kind']
+                    name = row.get('table', row.get('name', ''))
+                    record['publicObject'] = name if name and name in source else 'UNLISTED_OBJECT'
+                    result['catalogErrors'].append(record)
     (args.out / 'safe-report-semantics.json').write_text(json.dumps(result, indent=2) + '\n')
     print('R31_SAFE_REPORT_SEMANTICS|' + json.dumps(result, sort_keys=True), flush=True)
 

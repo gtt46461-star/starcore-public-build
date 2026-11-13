@@ -18,6 +18,9 @@ parser.add_argument("--overlay-classes",type=Path)
 parser.add_argument("--gc-root",type=Path,default=ROOT)
 args=parser.parse_args();out=args.out.resolve();out.mkdir(parents=True,exist_ok=False)
 sdk=Path(os.environ["ANDROID_HOME"])/"platforms/android-36/android.jar";jdbc=Path(os.environ.get("SQLITE_JDBC","/tmp/r31-baseline-deps/sqlite-jdbc.jar"))
+logging=sorted(Path(os.environ["GRADLE_USER_HOME"]).glob("caches/modules-2/files-2.1/org.slf4j/slf4j-api/*/*/*.jar"))
+if not logging:raise SystemExit("REPORT_KEEP_HOST_SLF4J_DEPENDENCY_MISSING")
+logging=logging[-1]
 def sha(path):
     if path.is_file():return hashlib.sha256(path.read_bytes()).hexdigest()
     value=hashlib.sha256()
@@ -28,6 +31,7 @@ extra_classes=([args.overlay_classes] if args.overlay_classes else [])+[args.cla
 runner_source=Path(__file__).resolve()
 runner_before=sha(runner_source)
 receipt={"scope":"ACTUAL_KEEP_CODEC_REGISTRY_DESCRIPTOR_GENERIC_COPY_INPUT_PIN_NATIVE_NOT_ANDROID_OR_SAF","sourceTreeMode":"SINGLE_CURRENT_SOURCE_TREE" if not args.overlay_classes and all(p.resolve()==ROOT for p in [args.export_root,args.keep_root,args.gc_root]) else "EXPLICIT_MIXED_SOURCE_PRECHECK_NOT_FINAL_GATE","runnerSha256":runner_before,"sourceCapturedAt":datetime.datetime.now(datetime.timezone.utc).isoformat(),"head":subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip(),"classes":str(args.classes),"classesSha256":sha(args.classes),"overlayClassesSha256":sha(args.overlay_classes) if args.overlay_classes else None,"androidJarSha256":sha(sdk),"sqliteJdbcSha256":sha(jdbc),"records":[],"status":"IN_PROGRESS"}
+receipt["slf4jApiSha256"]=sha(logging)
 environment=dict(os.environ);environment.pop("JAVA_TOOL_OPTIONS",None)
 def save(): (out/"RECEIPT.json").write_text(json.dumps(receipt,indent=2)+"\n")
 def run(command,label):
@@ -77,7 +81,7 @@ with tempfile.TemporaryDirectory(prefix="r31-report-keep-native-") as temporary:
     for source in sources:
         target=snapshot/source.name;target.write_bytes(source.read_bytes());captured.append(target);receipt["sourceSha256"][str(source)]=sha(target)
     run(["javac","-encoding","UTF-8","-sourcepath","","-implicit:none","-cp",os.pathsep.join(map(str,[*extra_classes,sdk])),"-d",production,*captured],"compile-actual-export-pin-keep-gc")
-    runtime=os.pathsep.join(map(str,[platform,production,test,*extra_classes,jdbc,sdk]));host=ROOT/"tools/r31/report_cas_host/R31ReportKeepClosureHost.java";receipt["hostSourceSha256"]=sha(host)
+    runtime=os.pathsep.join(map(str,[platform,production,test,*extra_classes,jdbc,logging,sdk]));host=ROOT/"tools/r31/report_cas_host/R31ReportKeepClosureHost.java";receipt["hostSourceSha256"]=sha(host)
     run(["javac","-encoding","UTF-8","-cp",runtime,"-d",test,host],"compile-native-scope-test")
     run(["java","-Xmx512m","-cp",runtime,"com.ethk3.novaonepro.R31ReportKeepClosureHost",fixture,out],"actual-keep-closure-readback-negative-cases")
     receipt["sourceClassesSha256"]={str(p.relative_to(production)):sha(p) for p in sorted(production.rglob("*.class"))};receipt["hostPlatformSourceSha256"]={str(p.relative_to(generated)):sha(p) for p in shims};receipt["sourceOriginsUnchanged"]=all(sha(Path(p))==value for p,value in receipt["sourceSha256"].items())
