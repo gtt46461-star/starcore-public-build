@@ -145,6 +145,48 @@ public final class R31QDeliveryInstrumentedTest {
         store.close();
     }
 
+    @Test public void committedIntentSurvivesObserverDeathAndExportsExplicitUnknown()throws Exception{
+        Context app=app();DbStore store=new DbStore(app);ready(store);
+        new ServiceHeartbeatStore(app).setUserEnabled(false);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(()->app.startActivity(new Intent(app,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)));
+        String request=com.ethk3.novaonepro.strategyv2.StatsR27.sha256(UUID.randomUUID().toString());
+        File root=ReportDirectoriesCP12.root(app.getFilesDir());
+        // Exact persisted production crash window, before observer enrichment or
+        // FIFO enqueue. No observation/health/zero values are manufactured.
+        JSONObject intent=new JSONObject().put("revision","REPORT_REQUEST_CP12_1").put("requestId",request)
+                .put("mode","FULL_REPORT").put("releaseHash",ReleaseManifestR926.MANIFEST_SHA256)
+                .put("createdWallMs",System.currentTimeMillis()).put("includeRawEvidence",false)
+                .put("observationState","UNKNOWN_NOT_COLLECTED");
+        ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+request+".json"),intent.toString());
+        Intent resume=new Intent(app,ReportExportServiceCP4.class).setAction(ReportExportServiceCP4.ACTION_RESUME);
+        if(android.os.Build.VERSION.SDK_INT>=26)app.startForegroundService(resume);else app.startService(resume);
+        File ack=new File(root,"requests/"+request+".ack.json");JSONObject state=null;
+        long until=SystemClock.elapsedRealtime()+360000L;
+        do{
+            if(ack.isFile()){
+                state=new JSONObject(ReportJobJournalCP12.readAtomic(ack,16384));String stage=state.optString("stage");
+                assertFalse("durable intent lost after observer death",stage.equals("FAILED")||stage.equals("CANCELLED"));
+                if(stage.equals("READY_TO_SHARE"))break;
+            }
+            Thread.sleep(250);
+        }while(SystemClock.elapsedRealtime()<until);
+        assertNotNull(state);assertEquals("READY_TO_SHARE",state.getString("stage"));
+        File job=ReportPublicationCP12.job(app.getFilesDir(),state.getString("jobId"));
+        assertTrue(ReportPublicationCP12.verifyPublishedZip(job,()->true));
+        try(java.util.zip.ZipFile zip=new java.util.zip.ZipFile(new File(job,"delivery/STARCORE_FULL_REPORT.zip"))){
+            try(InputStream in=zip.getInputStream(zip.getEntry("runtime-observation.json"))){
+                ByteArrayOutputStream bytes=new ByteArrayOutputStream();byte[] buffer=new byte[4096];int n;
+                while((n=in.read(buffer))!=-1){bytes.write(buffer,0,n);assertTrue(bytes.size()<=65536);}
+                JSONObject observation=new JSONObject(bytes.toString("UTF-8"));
+                assertEquals("UNKNOWN_NOT_COLLECTED",observation.getString("observationState"));
+                assertFalse(observation.has("researchSchemaReady"));assertFalse(observation.has("dbWaitMs"));
+            }
+        }
+        assertFalse("unavailable observer cannot make the report healthy",ReportPublicationCP12.delivery(job).getBoolean("allChecksPassed"));
+        store.close();
+        System.out.println("R31Q_ANDROID|DURABLE_INTENT_OBSERVER_DEATH|ACTUAL_SERVICE_ZIP_READBACK|UNKNOWN_PRESERVED_NO_FAKE_HEALTH|PASS");
+    }
+
     @Test public void liveServiceFetchesFreezesAndSettlesNewFutureObservations()throws Exception{
         Context app=app();DbStore store=new DbStore(app());ready(store);
         ServiceHeartbeatStore heartbeat=new ServiceHeartbeatStore(app);long started=System.currentTimeMillis();

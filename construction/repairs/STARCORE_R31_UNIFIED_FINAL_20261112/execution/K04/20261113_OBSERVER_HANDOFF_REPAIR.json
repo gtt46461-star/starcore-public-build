@@ -1,0 +1,45 @@
+{
+  "scope": "ACTUAL_UI_FAILURE_REPAIR_CURRENT_SOURCE_PENDING_ANDROID_EXECUTION",
+  "failedApkSource": "842a143cd5933936050f9c443535d1b83a5c89a1",
+  "freshExactApkDiagnosisRun": 43393453653,
+  "actualOriginalFailure": {
+    "publicKey": "observation",
+    "publicFrame": "ReportAttachmentClosureCP12.capture:35",
+    "originalFailureMemberSha256": "60597d20796b44320055d44be5dd685d5216273104bcc7d4e1f164295c90b2b0"
+  },
+  "producer": "ReportExportServiceCP4.requestExport persists a consumable minimal envelope before enqueue; optional data explicitly unavailable until sampled",
+  "persistentProduct": "requests/<requestId>.json plus immutable job runtime-observation.json and complete report ZIP",
+  "consumer": "nextRequest bounded 5000ms outside-lock grace, then attachment capture refreshes optional evidence from exact request/release identity and freezes by value",
+  "recovery": "Observer death, missing legacy envelope and wall-clock rollback do not prevent report recovery; malformed present evidence remains an explicit error",
+  "feedback": "Unavailable observer fields remain absent/UNKNOWN, never healthy or zero; allChecksPassed remains separate from ZIP publication",
+  "reportFields": [
+    "runtime-observation.json.observationState",
+    "runtime-observation.json.evidenceScope",
+    "catalog check_result execution_state/domain_outcome/health",
+    "delivery/index.json.evidenceComplete/checksComplete/allChecksPassed"
+  ],
+  "sources": {
+    "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java": "27990572eb479228b9fc12d8359fbf669036b8b17ed64e91e29c594a4b7a5e0d",
+    "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java": "4470366bc6fe87d47601ff6d3a3ac95678d8e1e9b36ca74c2d2a2797f102ec15",
+    "app/src/androidTest/java/com/ethk3/novaonepro/R31QDeliveryInstrumentedTest.java": "51fc39cbf1fb10ae770bdc42ea3878b99ec0ab797b873b6aac140b84dac9d05e",
+    "tools/r31/run_android_joint_protocols.py": "64ef715a5dc94225f2c079623396d6f250921835e1b4905af5fab1c14c71c088",
+    "tools/r31/storage_host/R31UnifiedReportHostTest.java": "5e729bfbbe0bb8b4426f5d6bf05897d5f4e43b0d22339c6e279fc2834a27cdd9"
+  },
+  "nativeHostReceipt": {
+    "path": "/tmp/r31-current-observer-handoff/receipt.json",
+    "sha256": "1956fef3efa41bfd9c1d2c5c9dd1f5423d7a13efc1e6f6dd017c2c89a98d050e",
+    "status": "PASS_NATIVE_HOST_ONLY"
+  },
+  "newAndroidRegression": "committedIntentSurvivesObserverDeathAndExportsExplicitUnknown; NOT_RUN_CURRENT_APK",
+  "unrelatedPreviouslyObservedApi35": {
+    "source": "842a143cd5933936050f9c443535d1b83a5c89a1",
+    "namedTests": 26,
+    "runtimeFaultCells": 14,
+    "researchFaultCells": 12,
+    "notCurrentSourceGreen": true
+  },
+  "physicalDevice": "NOT_RUN",
+  "24h": "NOT_RUN",
+  "72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN"
+}

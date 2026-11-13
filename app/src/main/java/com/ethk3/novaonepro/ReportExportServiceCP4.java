@@ -69,6 +69,15 @@ public final class ReportExportServiceCP4 extends Service {
             request.put("includeRawEvidence",includeRawEvidence);
             File root=requestRoot(app);
             request.put("submissionState","PERSISTED_WAITING_FOR_SERVICE");request.put("observationState","UNKNOWN_NOT_COLLECTED");
+            // This envelope is consumable before any optional observer runs.
+            // Only process-local atomic schema state is sampled here: no SQL,
+            // filesystem observer or business-writer acquisition is permitted.
+            JSONObject initialObservation=new JSONObject().put("observationState","UNKNOWN_NOT_COLLECTED")
+                    .put("sampleWallMs",System.currentTimeMillis()).put("sampleElapsedMs",SystemClock.elapsedRealtime())
+                    .put("pid",android.os.Process.myPid()).put("process",app.getPackageName());
+            DatabaseCoordinator initialCoordinator=DatabaseCoordinator.peek();
+            if(initialCoordinator!=null){initialObservation.put("researchSchemaReady",initialCoordinator.isR811ResearchSchemaReady());initialObservation.put("schemaStartupSummary",initialCoordinator.startupSchemaSummary());}
+            request.put("observation",initialObservation);
             synchronized(USER_REQUEST_GENERATION){
                 if(generation!=USER_REQUEST_GENERATION.get())throw new IOException("REPORT_SUPERSEDED_BY_USER");
                 ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+id+".json"),request.toString());durable=true;
@@ -110,6 +119,7 @@ public final class ReportExportServiceCP4 extends Service {
             observation.put("analysisDepth",pressure.analysisDepth).put("settlementDepth",pressure.settlementDepth)
                     .put("quietForMs",pressure.quietForMs).put("settlementExecutionActive",SettlementExecutionGateR819.isActive());
             request.put("observation",observation);
+            observation.put("observationState","COLLECTED_OUTSIDE_SQL_WATERMARK");
             request.put("observationState","COLLECTED_OUTSIDE_SQL_WATERMARK");
             synchronized(USER_REQUEST_GENERATION){
                 if(generation!=USER_REQUEST_GENERATION.get())throw new IOException("REPORT_SUPERSEDED_BY_USER");
@@ -316,7 +326,16 @@ public final class ReportExportServiceCP4 extends Service {
                     com.ethk3.novaonepro.strategyv2.KeepMigrationStoreR31.ReaderRootLease keepSource=openKeepSourceR31(copy,getFilesDir())) {
                     if(!copy.isReadOnly())throw new IOException("REPORT_READONLY_SNAPSHOT_REQUIRED");
                     if(ReportAttachmentClosureCP12.isComplete(directory,job.snapshotSha,active))ReportAttachmentClosureCP12.appendComplete(directory,members,active);
-                    else ReportAttachmentClosureCP12.capture(this,copy,directory,request,active,members,job.snapshotSha,job.snapshotBytes);
+                    else {
+                        // The initial intent may have been claimed before its
+                        // optional observers completed. Refresh only evidence;
+                        // preserve the claimed export mode/profile/identity.
+                        JSONObject latest=loadRequest(journal.root(),job.requestId);
+                        if(!job.requestId.equals(latest.getString("requestId"))||!job.releaseHash.equals(latest.getString("releaseHash")))throw new IOException("REPORT_REQUEST_OBSERVATION_IDENTITY");
+                        JSONObject frozenRequest=new JSONObject(request.toString());
+                        frozenRequest.put("observation",ReportAttachmentClosureCP12.requestObservationR31(latest));
+                        ReportAttachmentClosureCP12.capture(this,copy,directory,frozenRequest,active,members,job.snapshotSha,job.snapshotBytes);
+                    }
                     android.os.CancellationSignal cancellation=new android.os.CancellationSignal();
                     try(ReportReadContextCP4 ctx=new ReportReadContextCP4(copy,job.jobId,job.snapshotSha,job.snapshotWallMs,
                             new ReportReadContextCP4.RuntimeObservationCP4(ReportJobJournalCP12.readAtomic(new File(directory,"runtime-observation.json"),65536)),
@@ -516,7 +535,20 @@ public final class ReportExportServiceCP4 extends Service {
     }
     private static boolean isActive(ReportJobJournalCP12.Job job){return !(job.stage.equals("READY_TO_SHARE")||job.stage.equals("RETENTION_READY")||job.stage.equals("CANCELLED")||job.stage.equals("FAILED"));}
     private static JSONObject loadRequest(File root,String id)throws Exception{return new JSONObject(ReportJobJournalCP12.readAtomic(new File(root,"requests/"+id+".json"),65536));}
-    private static JSONObject nextRequest(File root)throws Exception{String id=ReportRequestQueueCP12.interactiveHead(root);if(id==null)id=ReportRequestQueueCP12.head(root);return id==null?null:loadRequest(root,id);}
+    /** A fresh durable intent gives optional observers one bounded grace window.
+     * The owner returns immediately, releases its file lease, then its existing
+     * pending-FIFO alarm retries. No sleep, SQL or writer is held. Clock rollback
+     * and process death cannot create an indefinite dependency on observers. */
+    static boolean observationPreparationPendingR31(JSONObject request,long wallNow){
+        if(!"FULL_REPORT".equals(request.optString("mode"))||!"UNKNOWN_NOT_COLLECTED".equals(request.optString("observationState")))return false;
+        long created=request.optLong("createdWallMs",0);
+        return created>0&&wallNow>=created&&wallNow-created<5000;
+    }
+    private static JSONObject nextRequest(File root)throws Exception{
+        String id=ReportRequestQueueCP12.interactiveHead(root);if(id==null)id=ReportRequestQueueCP12.head(root);
+        if(id==null)return null;JSONObject request=loadRequest(root,id);
+        return observationPreparationPendingR31(request,System.currentTimeMillis())?null:request;
+    }
     private static void clearPending(File root,JSONObject request)throws Exception{ReportRequestQueueCP12.remove(root,request.getString("requestId"));}
     private void scheduleResume(String id){
         scheduleResume(id,1000);

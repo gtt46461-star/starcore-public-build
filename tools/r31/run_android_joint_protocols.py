@@ -20,7 +20,7 @@ SUITES = [
     ('platform-startup-readiness', 3, ['com.ethk3.novaonepro.R31PlatformReadinessInstrumentedTest']),
     ('storage-diagnostic-process', 2, ['com.ethk3.novaonepro.R31StorageCheckpointAndroidTest']),
     ('restore-proof-process', 1, ['com.ethk3.novaonepro.R31RestoreProofInstrumentedTest']),
-    ('delivery-and-live-service', 6, ['com.ethk3.novaonepro.R31QDeliveryInstrumentedTest']),
+    ('delivery-and-live-service', 7, ['com.ethk3.novaonepro.R31QDeliveryInstrumentedTest']),
     ('ui-lifecycle-100', 1, ['com.ethk3.novaonepro.R31ChartLifecycleInstrumentedTest']),
 ]
 # Only these tests may use the disposable VM's real private directory: the

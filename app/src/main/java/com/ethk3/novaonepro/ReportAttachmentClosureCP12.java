@@ -20,6 +20,16 @@ public final class ReportAttachmentClosureCP12 {
     }
 
     private ReportAttachmentClosureCP12() {}
+    /** A committed intent can outlive its optional observer process. Missing is
+     * unavailable evidence, never a fabricated healthy/zero observation. */
+    static JSONObject requestObservationR31(JSONObject request)throws Exception {
+        Object value=request.opt("observation");
+        if(value==null||value==JSONObject.NULL)return new JSONObject()
+                .put("observationState","UNKNOWN_NOT_COLLECTED")
+                .put("evidenceScope","DURABLE_REQUEST_RECOVERED_WITHOUT_OPTIONAL_OBSERVATIONS");
+        if(!(value instanceof JSONObject))throw new IOException("REPORT_REQUEST_OBSERVATION_TYPE");
+        return new JSONObject(value.toString());
+    }
     public static void capture(Context context,SQLiteDatabase copy,File job,JSONObject request,
                                ReportNativeCP4.Control control,Writer members)throws Exception {
         capture(context,copy,job,request,control,members,ReportArchiveCP4.hash(new File(copy.getPath()),control),new File(copy.getPath()).length());
@@ -32,7 +42,8 @@ public final class ReportAttachmentClosureCP12 {
         if(!copy.isReadOnly())throw new IOException("REPORT_ATTACHMENT_READONLY_REQUIRED");Context app=context.getApplicationContext();
         File attachments=new File(job,"attachments");if(!attachments.isDirectory()&&!attachments.mkdir())throw new IOException("REPORT_ATTACHMENT_DIRECTORY");
         File plans=new File(job,"attachments-plan-"+UUID.randomUUID().toString().replace("-","")+".jsonl");
-        File observation=new File(job,"runtime-observation.json");ReportJobJournalCP12.writeAtomic(observation,request.getJSONObject("observation").toString());
+        JSONObject frozenObservation=requestObservationR31(request);
+        File observation=new File(job,"runtime-observation.json");ReportJobJournalCP12.writeAtomic(observation,frozenObservation.toString());
         ReportMemberPlanCP12.append(members,"runtime-observation.json",observation.getName(),ReportArchiveCP4.hash(observation,control),observation.length());
         String apkBefore=ReportArchiveCP4.hash(new File(app.getApplicationInfo().sourceDir),control);JSONObject source=new JSONObject();source.put("releaseSha256",request.getString("releaseHash"));source.put("apkSha256",apkBefore);source.put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26);source.put("sourceTreeSha256",SourceManifestR815.SOURCE_TREE_SHA256);source.put("generatedRuleSha256",ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);source.put("sourceIndexAsset",RuntimeChainDiagnosisR975.INDEX);
         BuildProvenanceR815.Snapshot runtimeIdentity=BuildProvenanceR815.lastSnapshot();if(runtimeIdentity!=null&&runtimeIdentity.valid&&apkBefore.equals(runtimeIdentity.apkSha256))source.put("signingCertificateSha256",runtimeIdentity.certSha256);else source.put("signingCertificateState","MATCHED_RUNTIME_FINGERPRINT_UNAVAILABLE");
@@ -52,7 +63,7 @@ public final class ReportAttachmentClosureCP12 {
         File seedEvidence=new File(job,"seed-bundle-observations.jsonl");
         source.put("installedSeedBundleSha256",V51ArtifactBundleManifest.BUNDLE_HASH);
         try(FileOutputStream fd=new FileOutputStream(plans);Writer out=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(plans,fd,control),StandardCharsets.UTF_8),8192)) {
-            org.json.JSONArray observations=request.getJSONObject("observation").optJSONArray("fullObservations");
+            org.json.JSONArray observations=frozenObservation.optJSONArray("fullObservations");
             if(observations!=null){if(observations.length()>ReportJobJournalCP12.MAX_FULL_OBSERVATIONS_R31)throw new IOException("REPORT_OBSERVATION_REFERENCE_BOUND");
                 for(int i=0;i<observations.length();i++){JSONObject ref=observations.getJSONObject(i);String key=ref.getString("key"),requestId=request.getString("requestId"),hash=ref.getString("sha256");
                     if(!key.matches("[A-Za-z][A-Za-z0-9]{0,63}")||!requestId.matches("[0-9a-f]{64}")||!ref.getString("path").equals("observations/"+requestId+"/"+key+".txt"))throw new IOException("REPORT_OBSERVATION_REFERENCE_PATH");requireHash(hash);

@@ -50,6 +50,20 @@ public final class R31UnifiedReportHostTest {
         }
     }
     public static void main(String[] args)throws Exception {
+        JSONObject recoveredObservation=ReportAttachmentClosureCP12.requestObservationR31(new JSONObject());
+        need("UNKNOWN_NOT_COLLECTED".equals(recoveredObservation.getString("observationState")),"LOST_OPTIONAL_OBSERVER_NOT_UNKNOWN");
+        need(!recoveredObservation.has("researchSchemaReady")&&!recoveredObservation.has("dbWaitMs"),"MISSING_OBSERVER_FABRICATED_HEALTH_OR_ZERO");
+        JSONObject originalObservation=new JSONObject().put("researchSchemaReady",false).put("dbWaitMs",37);
+        JSONObject frozenObservation=ReportAttachmentClosureCP12.requestObservationR31(new JSONObject().put("observation",originalObservation));
+        originalObservation.put("dbWaitMs",99);
+        need(!frozenObservation.getBoolean("researchSchemaReady")&&frozenObservation.getLong("dbWaitMs")==37,"OPTIONAL_OBSERVATION_NOT_FROZEN_BY_VALUE");
+        boolean malformedRefused=false;try{ReportAttachmentClosureCP12.requestObservationR31(new JSONObject().put("observation","damaged"));}catch(IOException expected){malformedRefused="REPORT_REQUEST_OBSERVATION_TYPE".equals(expected.getMessage());}
+        need(malformedRefused,"CORRUPT_OPTIONAL_OBSERVATION_ACCEPTED");
+        JSONObject preparing=new JSONObject().put("mode","FULL_REPORT").put("observationState","UNKNOWN_NOT_COLLECTED").put("createdWallMs",10000);
+        need(ReportExportServiceCP4.observationPreparationPendingR31(preparing,10000)&&ReportExportServiceCP4.observationPreparationPendingR31(preparing,14999),"OBSERVER_GRACE_NOT_BOUNDED");
+        need(!ReportExportServiceCP4.observationPreparationPendingR31(preparing,15000)&&!ReportExportServiceCP4.observationPreparationPendingR31(preparing,9999),"OBSERVER_DEATH_OR_CLOCK_ROLLBACK_DEADLOCK");
+        preparing.put("observationState","COLLECTED_OUTSIDE_SQL_WATERMARK");
+        need(!ReportExportServiceCP4.observationPreparationPendingR31(preparing,10000),"COLLECTED_OBSERVATION_UNNECESSARILY_WAITED");
         File app=new File(args[0]);if(args.length>1&&args[1].equals("hold")){heldAdmissionChild(app);return;}
         File files=new File(app,"files");files.mkdirs();android.app.Service.filesR31=files;
         StorageBudgetR31 budget=new StorageBudgetR31(app,new StorageBudgetR31.Config(256*MiB,256*MiB,1024,2*MiB,"HOST_UNIFIED_REPORT_FIXTURE"),f->2L<<30);
