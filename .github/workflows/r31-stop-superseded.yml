@@ -1,0 +1,17 @@
+name: STARCORE stop superseded 029 integration at observed UI lease failure
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-stop-superseded.yml']
+permissions:
+  contents: read
+  actions: write
+jobs:
+  stop:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          state=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/43499375099" --jq .status)
+          if [ "$state" != completed ]; then gh api --method POST "repos/$GITHUB_REPOSITORY/actions/runs/43499375099/cancel"; fi
