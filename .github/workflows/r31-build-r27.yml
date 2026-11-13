@@ -1,14 +1,16 @@
-name: STARCORE 028 final cumulative integration with original signer
+name: STARCORE 028 focused Critical Legacy restore verification
 on:
   push:
     branches: ['construction/r27-20261028']
-    paths: ['.github/workflows/r31-build-r27.yml', '.github/r31-build-request.json']
+    paths: ['.github/workflows/r31-build-r27.yml']
 permissions:
   contents: write
   actions: read
 concurrency:
-  group: r31-unified-028-current
+  group: r31-028-critical-targeted
   cancel-in-progress: false
+env:
+  SDK_PACKAGES: "'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'"
 jobs:
   freeze:
     runs-on: ubuntu-latest
@@ -18,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 595b1ffa2f5593a03cf3c0c28f34b7f9b979cc2e
+          ref: ca92244182ee5214b4fa71a77f8610e4d681444c
           fetch-depth: 0
       - uses: actions/setup-java@v4
         with:
@@ -41,7 +43,7 @@ jobs:
         id: frozen
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "595b1ffa2f5593a03cf3c0c28f34b7f9b979cc2e"
+          test "$(git rev-parse HEAD)" = "ca92244182ee5214b4fa71a77f8610e4d681444c"
           python3 -B scripts/r967_semantic_identity.py --check
           ./gradlew --no-daemon --max-workers=4 -Pr31InventoryBootstrap=true -Pr312Development=true :app:compileDebugJavaWithJavac 2>&1 | tail -n 110
           python3 -B scripts/r982_source_call_asset.py --freeze --classes app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes
@@ -58,7 +60,7 @@ jobs:
             git config user.email "starcore-ci@users.noreply.github.com"
             git add release/r982_source_calls.tsv.gz release/r982_source_calls.manifest.json
             git commit -m "build(r31): freeze actual 028 cumulative production call inventory [skip ci]"
-            git push origin HEAD:refs/heads/construction/r31-final-20261104 --force-with-lease=refs/heads/construction/r31-final-20261104:595b1ffa2f5593a03cf3c0c28f34b7f9b979cc2e
+            git push origin HEAD:refs/heads/construction/r31-final-20261104 --force-with-lease=refs/heads/construction/r31-final-20261104:ca92244182ee5214b4fa71a77f8610e4d681444c
           fi
           echo "source=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           git rev-parse HEAD > "$RUNNER_TEMP/r31-frozen-source.txt"
@@ -67,9 +69,134 @@ jobs:
         with:
           name: r31-028-compiled-inventory-source
           path: ${{ runner.temp }}/r31-frozen-source.txt
-  integrated:
+  build:
+    # Build the same frozen source while the cumulative gate runs. Delivery
+    # still requires both jobs and their current-invocation receipts below.
     needs: freeze
-    uses: gtt46461-star/starcore-public-build/.github/workflows/r31-verification.yml@595b1ffa2f5593a03cf3c0c28f34b7f9b979cc2e
-    with:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
       source: ${{ needs.freeze.outputs.source }}
-    secrets: inherit
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.freeze.outputs.source }}
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+      # The installed phone app (R30-REPAIR1, com.starcore.research.r13, versionCode 577311020) is signed with the
+      # R27 CI key d8d8cee7...; only that key gives an overlay install that keeps the phone's data.
+      - id: devicekey
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/r27-ci-temp-key
+          key: starcore-r27-ci-temp-signing-v1
+          fail-on-cache-miss: true
+      - name: Reuse the installed application's exact signing identity
+        env:
+          DUOQU_SECRET: ${{ secrets.DUOQU_API_KEY }}
+        run: |
+          set -euo pipefail
+          V="$RUNNER_TEMP/r31v"; mkdir -p "$V"
+          K="$HOME/.starcore/r27-ci-temp-key"
+          DEVICE_CERT=d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+          if [ -f "$K/r27-ci.p12" ] && [ -s "$K/pw" ]; then
+            pw=$(cat "$K/pw"); echo "::add-mask::$pw"
+            cert=$(keytool -exportcert -keystore "$K/r27-ci.p12" -storetype PKCS12 -alias starcore-r13 -storepass "$pw" | sha256sum | cut -c1-64)
+            [ "$cert" = "$DEVICE_CERT" ] || { echo "INSTALLED_SIGNER_MISMATCH $cert"; exit 1; }
+            { echo "R13_SIGNING_P12=$K/r27-ci.p12"; echo "R13_SIGNING_PASSWORD=$pw"; echo "R13_EXPECTED_CERT_SHA256=$cert"; echo "R31_SIGNING=EXISTING_DEVICE_IDENTITY"; } >> "$GITHUB_ENV"
+            echo "EXISTING_DEVICE_IDENTITY: installed R31 577311020 signer $cert" > "$V/signing.txt"
+          else
+            echo "NOT_AVAILABLE: installed signer private material was not restored; no replacement key is generated" > "$V/signing.txt"
+            exit 1
+          fi
+          if [ -n "$DUOQU_SECRET" ]; then echo "::add-mask::$DUOQU_SECRET"; echo "DUOQU_API_KEY=$DUOQU_SECRET" >> "$GITHUB_ENV"; else echo "RELEASE_API_SECRET_UNAVAILABLE"; exit 1; fi
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - run: eval sdkmanager $SDK_PACKAGES > /dev/null
+      - uses: actions/cache@v4
+        with:
+          path: ~/.gradle/wrapper/dists
+          key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+      - name: Gradle distribution (cached; fetched with retries; a download timeout is infrastructure, not a result)
+        run: for i in 1 2 3 4 5 6 7 8; do ./gradlew --no-daemon --version > /dev/null && exit 0; echo "gradle distribution attempt $i failed"; sleep $((i*45)); done; exit 1
+      - name: Require the source-call inventory frozen from these sources
+        run: python3 scripts/r982_source_call_asset.py
+      - name: Build the real APKs
+        run: |
+          set -o pipefail
+          REL=""
+          if [ "$R31_SIGNING" != "NOT_AVAILABLE" ] && [ -n "${DUOQU_API_KEY:-}" ]; then REL=":app:assembleRelease"; else echo "RELEASE_NOT_BUILT signing=$R31_SIGNING" >> "$RUNNER_TEMP/r31v/signing.txt"; fi
+          ./gradlew --no-daemon -Pr30Instrumentation=true :app:assembleDebug :app:assembleDebugAndroidTest $REL 2>&1 | tail -n 150
+      - name: Signature, badging and digests of what was built
+        run: |
+          B="$ANDROID_HOME/build-tools/36.0.0"
+          mkdir -p r31v && cp "$RUNNER_TEMP/r31v/signing.txt" r31v/signing.txt
+          for f in $(ls app/build/outputs/apk/*/*.apk app/build/outputs/apk/androidTest/*/*.apk 2>/dev/null); do
+            n=$(basename "$f" .apk)
+            "$B/apksigner" verify --verbose --print-certs "$f" > "r31v/signature-$n.txt" 2>&1
+            "$B/aapt" dump badging "$f" > "r31v/badging-$n.txt"
+          done
+          sha256sum app/build/outputs/apk/*/*.apk app/build/outputs/apk/androidTest/*/*.apk > r31v/SHA256SUMS.txt
+          git rev-parse HEAD > r31v/source-commit.txt
+          cat r31v/signing.txt r31v/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31v-android-build
+          path: |
+            r31v/
+            app/build/outputs/apk/
+  targeted_android:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [29, 35]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.source }}
+          fetch-depth: 0
+          path: source
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: harness
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31v-android-build
+          path: built
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: cd source && bash ../harness/.github/r31-critical-targeted.sh ../built ../selected-public
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31-028-critical-targeted-api-${{ matrix.api }}
+          path: selected-public/
+          if-no-files-found: error
