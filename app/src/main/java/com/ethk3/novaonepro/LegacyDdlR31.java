@@ -86,37 +86,28 @@ final class LegacyDdlR31 {
                 new IllegalStateException("LEGACY_DDL_FAILED",error);
     }
     private interface VerifiedDdlR31 { void verify(); }
-    private static boolean hasCriticalStampTableR31(SQLiteDatabase db){
-        try(Cursor row=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
-                new String[]{SchemaDomainCoordinatorR926.TABLE_DOMAIN})){return row.moveToFirst();}
-    }
     /** An original Legacy unit may add columns/indexes to a Critical table. Keep
      * that one verified statement and the already-authenticated stamp atomic.
      * A pre-existing mismatch is never re-stamped by this path. */
     private static void mutate(SQLiteDatabase db,String sql,VerifiedDdlR31 verified) {
         Scope scope=CURRENT.get();
         if(scope==null){db.execSQL(sql);verified.verify();return;}
-        boolean own=!db.inTransaction();
-        if(own)db.beginTransaction();
-        try{
-            SchemaDomainCoordinatorR926.Contract critical=SchemaDomainCoordinatorR926.criticalContract();
-            boolean trusted=hasCriticalStampTableR31(db)
-                    &&SchemaDomainCoordinatorR926.matchReason(db,critical).startsWith("MATCH");
-            String before=trusted?SchemaDomainCoordinatorR926.fingerprint(db,critical):"";
-            db.execSQL(sql);scope.statements++;verified.verify();
-            if(trusted){
-                String after=SchemaDomainCoordinatorR926.fingerprint(db,critical);
-                if(!before.equals(after)){
-                    long now=System.currentTimeMillis();
-                    db.execSQL("INSERT OR REPLACE INTO "+SchemaDomainCoordinatorR926.TABLE_JOURNAL
-                            +"(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code) VALUES(?,?,?,'COMPLETED',1,'EXACT_ORIGINAL_LEGACY_DDL',?,?,?,?, '')",
-                            new Object[]{critical.domain,critical.revision,"R31_LEGACY_CRITICAL_DDL:"+V51ChecksumEngine.sha256(sql),before,after,now,now});
-                    SchemaDomainCoordinatorR926.verifyAndStamp(db,critical);
-                }
+        Matcher create=CREATE.matcher(sql),alter=ALTER.matcher(sql);
+        String object,table;
+        if(alter.find()){object=table=alter.group(1);}
+        else if(create.find()){
+            object=create.group(2);table=object;
+            if(!"TABLE".equalsIgnoreCase(create.group(1))){
+                Matcher on=Pattern.compile("(?is)\\bON\\s+[\\\"`\\[]?([a-zA-Z0-9_]+)").matcher(sql);
+                if(!on.find())throw new IllegalArgumentException("LEGACY_DDL_TABLE_UNDECLARED");table=on.group(1);
             }
-            if(own)db.setTransactionSuccessful();
-        }finally{if(own)db.endTransaction();}
+        }else if(RETIRE_INDEX.matcher(sql).matches()){
+            object="idx_v26_oos_one_action_target";table="";
+            try(Cursor owner=db.rawQuery("SELECT tbl_name FROM sqlite_master WHERE type='index' AND name=?",new String[]{object})){if(owner.moveToFirst())table=owner.getString(0);}
+        }else throw new IllegalArgumentException("LEGACY_DDL_UNSUPPORTED:"+sql);
+        SchemaDomainCoordinatorR926.migrateLegacyDdlR31(db,sql,object,table,x->{db.execSQL(sql);scope.statements++;verified.verify();});
     }
+
     static void exec(SQLiteDatabase db,String sql) {
         Scope s=CURRENT.get();
         try {

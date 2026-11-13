@@ -11,7 +11,7 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
  private final java.util.Set<ReportTextCP12> renderers=new java.util.HashSet<>();
  private final java.util.Map<String,Object> memo=new java.util.HashMap<>();
  private java.io.Writer artifactManifest;private java.io.FileOutputStream artifactFd;
- private final SQLiteDatabase snapshot;private final String snapshotId,snapshotSha;private final long snapshotAt;private final CancellationSignal cancellation;
+ private final SQLiteDatabase snapshot;private final String snapshotId,snapshotSha;private final long snapshotAt;private final CancellationSignal cancellation;private final java.io.File snapshotDirectoryR31;
  public final RuntimeObservationCP4 runtime;public final SourceManifestCP4 source;private boolean closed;
  public static final class RuntimeObservationCP4 {public final String json;public RuntimeObservationCP4(String json){if(json==null||json.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>65536)throw new IllegalArgumentException("REPORT_OBSERVATION_BOUND");this.json=json;}}
  public static final class SourceManifestCP4 {public final String json;public SourceManifestCP4(String json){if(json==null||json.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>65536)throw new IllegalArgumentException("REPORT_SOURCE_BOUND");this.json=json;}}
@@ -19,6 +19,7 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
  public ReportReadContextCP4(SQLiteDatabase snapshot,String id,String hash,long at,RuntimeObservationCP4 observation,SourceManifestCP4 source,CancellationSignal cancellation,long javaBudgetBytes){
   if(snapshot==null||!snapshot.isReadOnly()||!snapshot.isOpen()||id==null||id.isEmpty()||hash==null||!hash.matches("[0-9a-f]{64}")||at<=0||observation==null||source==null||cancellation==null||javaBudgetBytes<3L*1024*1024)throw new IllegalArgumentException("REPORT_CONTEXT_IDENTITY");
   this.snapshot=snapshot;snapshotId=id;snapshotSha=hash;snapshotAt=at;runtime=observation;this.source=source;this.cancellation=cancellation;
+  snapshotDirectoryR31=openedSnapshotDirectoryR31(snapshot.getPath());
  }
  public String observationString(String key){try{Object value=new JSONObject(runtime.json).get(key);if(!(value instanceof String))throw new ReportReadFailureCP4("OBSERVATION_TYPE");return (String)value;}catch(JSONException missing){throw new ReportReadFailureCP4("OBSERVATION_UNAVAILABLE",missing);}}
  public long observationLong(String key){try{Object value=new JSONObject(runtime.json).get(key);if(!(value instanceof Number))throw new ReportReadFailureCP4("OBSERVATION_TYPE");return ((Number)value).longValue();}catch(JSONException missing){throw new ReportReadFailureCP4("OBSERVATION_UNAVAILABLE",missing);}}
@@ -70,7 +71,10 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
  public Double scalarDouble(String sql,String[] args){try(Cursor c=select(sql,args)){if(!c.moveToFirst())return null;if(c.getColumnCount()!=1)throw new ReportReadFailureCP4("REPORT_SCALAR_SHAPE");Double v=c.isNull(0)?null:c.getDouble(0);if(v!=null&&!Double.isFinite(v))throw new ReportReadFailureCP4("REPORT_NON_FINITE");if(c.moveToNext())throw new ReportReadFailureCP4("REPORT_SCALAR_MULTIPLE_ROWS");return v;}}
  public interface Factory<T>{T create();}
  public <T> T memo(String key,Factory<T> factory){checkpoint();Object value=memo.get(key);if(value==null){if(memo.size()>=32)throw new ReportReadFailureCP4("REPORT_MEMO_LIMIT");value=java.util.Objects.requireNonNull(factory.create());memo.put(key,value);}return (T)value;}
- public java.io.File jobDirectory(){return new java.io.File(snapshot.getPath()).getParentFile();}
+ /** Normalize the already opened read-only snapshot's owner, including Android's
+  * /data/data alias. Child artifact names and symlinks still use the strict verifier. */
+ static java.io.File openedSnapshotDirectoryR31(String path){try{java.io.File parent=new java.io.File(path).getCanonicalFile().getParentFile();if(parent==null)throw new java.io.IOException("SNAPSHOT_PARENT_MISSING");return parent;}catch(java.io.IOException failure){throw new ReportReadFailureCP4("REPORT_SNAPSHOT_PATH",failure);}}
+ public java.io.File jobDirectory(){return snapshotDirectoryR31;}
  public void recordTextArtifact(java.io.File file,String hash,long bytes)throws java.io.IOException{
   checkpoint();if(!file.getParentFile().equals(jobDirectory())||!file.getName().matches("report-text-[0-9a-f]{64}\\.txt"))throw new java.io.IOException("REPORT_RENDER_PATH");
   if(artifactManifest==null){artifactFd=new java.io.FileOutputStream(new java.io.File(jobDirectory(),"render-artifacts.jsonl"));artifactManifest=new java.io.OutputStreamWriter(ReportIoR31.protect(new java.io.File(jobDirectory(),"render-artifacts.jsonl"),artifactFd,null),java.nio.charset.StandardCharsets.UTF_8);}

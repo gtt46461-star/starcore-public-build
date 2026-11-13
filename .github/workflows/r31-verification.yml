@@ -11,6 +11,10 @@ on:
         description: Exact commit from construction/r31-final-20261104
         required: true
         type: string
+    secrets:
+      DUOQU_API_KEY:
+        description: Existing production fetch credential; only this secret is passed by the signer-scoped caller.
+        required: true
   # A new workflow is dispatchable only from the default branch, so the construction branch requests a run by
   # changing release/R31_VERIFICATION_REQUEST.md (or this file). Nothing else on the branch triggers it.
   push:
@@ -191,6 +195,10 @@ jobs:
           sha256sum app/build/outputs/apk/*/*.apk app/build/outputs/apk/androidTest/*/*.apk > r31v/SHA256SUMS.txt
           git rev-parse HEAD > r31v/source-commit.txt
           cat r31v/signing.txt r31v/SHA256SUMS.txt
+      - name: Verify the current production backup and report controls on the fixed large database
+        run: |
+          R31_PHONE_OUT="$RUNNER_TEMP/r31-current-large-report" bash tools/r31/run_phone_report_host.sh
+          cp "$RUNNER_TEMP/r31-current-large-report/receipt.json" r31v/HOST_PHONE_REPORT.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -278,7 +286,7 @@ jobs:
           name: r31v-priority-report-runtime
           path: r31v/
   artifact_receipt:
-    needs: [baseline, contracts, android_build, instrumentation]
+    needs: [baseline, contracts, android_build, instrumentation, priority_report_runtime]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -301,6 +309,7 @@ jobs:
           python3 -B $V --stage contracts --result "${{ needs.contracts.result }}" --junit stages/r31v-contracts/app/build/test-results/testDebugUnitTest --artifact stages/r31v-contracts/r31v/host-results.json --out receipt/stage-contracts.json
           python3 -B $V --stage android_build --result "${{ needs.android_build.result }}" --no-tests-expected --artifact stages/r31v-android-build/r31v/SHA256SUMS.txt --out receipt/stage-android_build.json
           python3 -B $V --stage instrumentation --result "${{ needs.instrumentation.result }}" --no-tests-expected --artifact stages/r31v-emu-29/emu-29/upgrade/EMU-UPGRADE-RECEIPT.json --artifact stages/r31v-emu-34/emu-34/upgrade/EMU-UPGRADE-RECEIPT.json --artifact stages/r31v-emu-35/emu-35/upgrade/EMU-UPGRADE-RECEIPT.json --out receipt/stage-instrumentation.json
+          python3 -B $V --stage priority_report_runtime --result "${{ needs.priority_report_runtime.result }}" --no-tests-expected --artifact stages/r31v-priority-report-runtime/priority-report-runtime/ANDROID_PROTOCOL_VERIFICATION.json --out receipt/stage-priority_report_runtime.json
           python3 -B $V --aggregate receipt --out receipt/R31_VERIFICATION_RECEIPT.json
           cat receipt/R31_VERIFICATION_RECEIPT.json
       - name: Delivery package from the real build output only

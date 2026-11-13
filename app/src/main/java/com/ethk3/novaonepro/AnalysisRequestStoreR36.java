@@ -603,11 +603,12 @@ public final class AnalysisRequestStoreR36 {
                                                 decision
                                                         == R36AnalysisLeasePolicyR365.Decision
                                                                 .RESUME_SAME_OWNER;
+                                        long leaseUntil = R36AnalysisLeasePolicyR365.leaseUntil(now, fixedDeadline);
                                         ContentValues cv = new ContentValues();
                                         cv.put("status", RUNNING);
                                         cv.put("started_at", resume ? row.startedAt : now);
                                         cv.put("lease_owner", owner);
-                                        cv.put("lease_until", now + AppConfig.R36_ANALYSIS_LEASE_MS);
+                                        cv.put("lease_until", leaseUntil);
                                         cv.put("attempts", row.attempts + (resume ? 0L : 1L));
                                         cv.put("next_attempt_at", 0L);
                                         cv.put("last_stage", resume ? "ANALYSIS_RESUMED" : "ANALYSIS_RUNNING");
@@ -672,7 +673,7 @@ public final class AnalysisRequestStoreR36 {
                                         return ClaimResult.claimed(
                                                 decision,
                                                 request,
-                                                now + AppConfig.R36_ANALYSIS_LEASE_MS,
+                                                leaseUntil,
                                                 row.attempts + (resume ? 0L : 1L));
                                     }
                                 },
@@ -708,7 +709,7 @@ public final class AnalysisRequestStoreR36 {
                                     public Boolean call(SQLiteDatabase db) {
                                         ContentValues cv = new ContentValues();
                                         cv.put("last_stage", safe(stage));
-                                        cv.put("lease_until", now + AppConfig.R36_ANALYSIS_LEASE_MS);
+                                        cv.put("lease_until", R36AnalysisLeasePolicyR365.leaseUntil(now, request.deadlineAt));
                                         cv.put("last_transition_at", now);
                                         return Boolean.valueOf(
                                                 db.update(

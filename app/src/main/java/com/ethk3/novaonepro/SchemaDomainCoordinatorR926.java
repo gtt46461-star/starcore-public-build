@@ -717,6 +717,38 @@ public final class SchemaDomainCoordinatorR926 {
         }
     }
 
+    /** One original Legacy DDL statement, its exact before/after proof and the
+     * Critical stamp share a commit. Never authenticate an already drifted
+     * layout: only the production owner's declared object may change. */
+    static void migrateLegacyDdlR31(SQLiteDatabase db,String sql,String object,String table,Step install) {
+        Contract critical=criticalContract();
+        Set<String> roots=new HashSet<>(Arrays.asList(critical.objects));
+        boolean affected=roots.contains(object)||roots.contains(table),own=!db.inTransaction();
+        try {
+            if(own)db.beginTransaction();
+            if(!affected){install.run(db);if(own)db.setTransactionSuccessful();return;}
+            ensureInfrastructure(db);
+            String reason=matchReason(db,critical);boolean trusted=reason.startsWith("MATCH");
+            if(!trusted&&!"STAMP_MISSING".equals(reason))throw new DatabaseCoordinator.SchemaPendingR31("R31_LEGACY_CRITICAL_DDL","UNTRUSTED_CRITICAL:"+reason);
+            Set<String> delta=Collections.singleton(object);
+            String before=fingerprint(db,critical),core=fingerprint(db,critical,false,null,delta);
+            install.run(db);
+            if(!core.equals(fingerprint(db,critical,false,null,delta)))throw new IllegalStateException("R31_LEGACY_DDL_CHANGED_UNDECLARED_CRITICAL_OBJECT");
+            String after=fingerprint(db,critical);
+            if(trusted&&!before.equals(after)) {
+                long now=System.currentTimeMillis();String statement=V51ChecksumEngine.sha256(sql);
+                db.execSQL("INSERT OR IGNORE INTO "+TABLE_JOURNAL
+                                +"(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code)"
+                                +" VALUES(?,?,?,'COMPLETED',1,?,?,?,?,?, '')",
+                        new Object[]{critical.domain,critical.revision,"R31_LEGACY_CRITICAL_DDL:"+statement,"EXACT_OWNER_DDL:"+statement,before,after,now,now});
+                verifyAndStamp(db,critical);
+            }
+            if(own)db.setTransactionSuccessful();
+        }catch(RuntimeException failure){throw failure;}
+        catch(Exception failure){throw new IllegalStateException("R31_LEGACY_CRITICAL_DDL_FAILED",failure);}
+        finally{if(own&&db.inTransaction())db.endTransaction();}
+    }
+
     public static Contract criticalContract() {
         return new Contract(
                 DOMAIN_CRITICAL,

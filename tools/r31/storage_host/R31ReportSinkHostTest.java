@@ -127,6 +127,13 @@ public final class R31ReportSinkHostTest {
         if(args.length==2&&"--control-metadata-only".equals(args[0])){controlMetadataHeadroom(new File(args[1]));return;}
         if(args.length==2&&"--active-output-only".equals(args[0])){activeOwnerBufferedOutput(new File(args[1]));return;}
         File app=new File(args[0]);app.mkdirs();controlMetadataHeadroom(new File(app,"control-metadata"));activeOwnerBufferedOutput(new File(app,"active-output"));StorageBudgetR31 budget=new StorageBudgetR31(app,new StorageBudgetR31.Config(128*MiB,128*MiB,1024,65536,"HOST_REPORT_SINK_CAPACITY_FIXTURE"),f->1024*MiB);
+        File real=new File(app,"files/alias-owner"),alias=new File(app,"files/source-alias");real.mkdirs();Files.createSymbolicLink(alias.toPath(),real.toPath().toAbsolutePath());
+        File normalized=ReportReadContextCP4.openedSnapshotDirectoryR31(new File(alias,"snapshot.db").getPath());need(normalized.equals(real.getCanonicalFile()),"OPENED_SNAPSHOT_OWNER_ALIAS_NOT_NORMALIZED");
+        try{ReportArchiveVerifierCP12.inside(alias,"member");throw new AssertionError("UNTRUSTED_ROOT_ALIAS_BYPASSED");}catch(IOException expected){}
+        File escaped=new File(normalized,"escape");Files.createSymbolicLink(escaped.toPath(),app.toPath().toAbsolutePath());
+        try{ReportArchiveVerifierCP12.inside(normalized,"escape/member");throw new AssertionError("CHILD_SYMLINK_BYPASSED");}catch(IOException expected){}
+        Files.delete(escaped.toPath());Files.delete(alias.toPath());
+        System.out.println("R31_OPENED_SNAPSHOT_OWNER_ALIAS_PASS STRICT_UNTRUSTED_ROOT_AND_CHILD_SYMLINK_REFUSALS_RETAINED");
         try(Closeable host=ReportIoR31.hostFixture(app,budget);ReportJobJournalCP12 journal=ReportJobJournalCP12.tryClaim(new File(app,"files"))){
             ReportJobJournalCP12.Job job=new ReportJobJournalCP12.Job(id(31),id(131),id(931),"FULL_REPORT",System.currentTimeMillis());
             // Hold the actual bulk-admission OS lease. Initial job/control

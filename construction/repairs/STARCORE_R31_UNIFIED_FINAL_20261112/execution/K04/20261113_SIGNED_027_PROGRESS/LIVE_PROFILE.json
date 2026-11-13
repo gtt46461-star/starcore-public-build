@@ -1,0 +1,501 @@
+{
+  "sourceCommit": "477f6c9ce42b8ab0968a3b43351c1af3d6a752f7",
+  "apkSha256": "979fa72b25d91f5d8812ed8b8c13c47530f792637c2f9fbd2d21ed3b836a973d",
+  "supportTestSource": "477f6c9ce42b8ab0968a3b43351c1af3d6a752f7",
+  "supportTestAndRunnerSourceUnchanged": true,
+  "scope": "EXACT_RELEASE_SERVICE_PHASE_AND_PERSISTENT_ERROR_DIAGNOSIS_NOT_ACCEPTANCE",
+  "physicalDevice": "NOT_RUN",
+  "24h": "NOT_RUN",
+  "72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "processExit": 0,
+  "testPassed": true,
+  "protocolOutputSha256": "2671eb983183a448afa272985976d667b330011632727bedd52ee4a469e72139",
+  "publicFailures": [],
+  "phaseSamples": [],
+  "databaseIntegrity": "ok",
+  "requests": [
+    {
+      "target_issue": "202611131145",
+      "base_issue": "202611131144",
+      "status": "RUNNING",
+      "attempts": 1,
+      "last_stage": "HISTORY_FROZEN",
+      "error_code": "",
+      "first_error_code": "",
+      "request_at": 1794596647683,
+      "deadline_at": 1794596703000,
+      "last_transition_at": 1794596647702
+    },
+    {
+      "target_issue": "202611131144",
+      "base_issue": "202611131143",
+      "status": "CANONICAL_COMMITTED",
+      "attempts": 2,
+      "last_stage": "CANONICAL_COMMITTED",
+      "error_code": "",
+      "first_error_code": "java.lang.IllegalStateException:R31_DEPENDENCY_HISTORY_BOOTSTRAP_PENDING|contiguous=1",
+      "request_at": 1794596591975,
+      "deadline_at": 1794596643000,
+      "last_transition_at": 1794596593999
+    }
+  ],
+  "frozenAndSettled": [
+    {
+      "target_issue": "202611131144",
+      "pre_draw_frozen": 1,
+      "commit_at": 1794596593999,
+      "deadline_at": 1794596643000,
+      "settled": 1,
+      "settled_at": 1794596647829,
+      "history_hash": "d9241404a417ca7405933c43035a744f9643c14d980f18d8cf1a888e56002376",
+      "snapshot_hash": "fb6fd3543cf34d146fe96d616b2d38087c954c19ad6b3719a33fe35c3637dcba"
+    }
+  ],
+  "events": [
+    {
+      "target_issue": "202611131145",
+      "event_type": "FROZEN",
+      "stage": "PIT_FROZEN",
+      "source": "V51RuntimeInputR36",
+      "created_at": 1794596647851
+    },
+    {
+      "target_issue": "202611131144",
+      "event_type": "RECOVERY",
+      "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+      "source": "RuntimeRecoveryR926",
+      "created_at": 1794596647841
+    },
+    {
+      "target_issue": "202611131144",
+      "event_type": "BATCH34_OUTCOME",
+      "stage": "POLICY_OUTCOME_FROZEN",
+      "source": "Batch34RuntimeRepositoryR930",
+      "created_at": 1794596647833
+    },
+    {
+      "target_issue": "202611131144",
+      "event_type": "LEARNING_PENDING",
+      "stage": "LEARNING_PENDING",
+      "source": "SettlementEngine",
+      "created_at": 1794596647831
+    },
+    {
+      "target_issue": "202611131144",
+      "event_type": "SETTLED",
+      "stage": "COMPLETED",
+      "source": "SettlementEngine",
+      "created_at": 1794596647830
+    },
+    {
+      "target_issue": "202611131145",
+      "event_type": "STARTED",
+      "stage": "RUNNING",
+      "source": "AutoFetchService",
+      "created_at": 1794596647740
+    },
+    {
+      "target_issue": "202611131145",
+      "event_type": "ACCEPTED",
+      "stage": "ACCEPTED",
+      "source": "AnalysisSingleFlightR36",
+      "created_at": 1794596647689
+    },
+    {
+      "target_issue": "202611131145",
+      "event_type": "REQUESTED",
+      "stage": "REQUESTED",
+      "source": "AnalysisRequestStoreR36",
+      "created_at": 1794596647684
+    },
+    {
+      "target_issue": "202611131144",
+      "event_type": "FETCH",
+      "stage": "CANONICAL_ACCEPTED",
+      "source": "DbStore.saveDraw",
+      "created_at": 1794596647681
+    },
+    {
+      "target_issue": "202611131144",
+      "event_type": "FETCH_CANONICAL_BINDING_R82",
+      "stage": "DRAW_COMMIT_LINKED",
+      "source": "DbStore.saveDraw/HistoryBatch",
+      "created_at": 1794596647680
+    },
+    {
+      "target_issue": "202611131144",
+      "event_type": "FETCH_BINDING_R82",
+      "stage": "PARSED_DRAW",
+      "source": "ApiClient.ApiParser",
+      "created_at": 1794596647677
+    },
+    {
+      "target_issue": "202611131144",
+      "event_type": "FETCH",
+      "stage": "HTTP_PAYLOAD_ACCEPTED",
+      "source": "FetchLedgerR925",
+      "created_at": 1794596647637
+    }
+  ],
+  "resources": [
+    {
+      "target_issue": "202611131145",
+      "status": "STARTED",
+      "elapsed_ms": -1,
+      "lock_wait_max_ms": 0,
+      "db_body_max_ms": 0,
+      "gc_count": -1,
+      "gc_time_ms": -1,
+      "stage_samples": "",
+      "reason": ""
+    },
+    {
+      "target_issue": "202611131144",
+      "status": "CANONICAL_COMMITTED",
+      "elapsed_ms": 852,
+      "lock_wait_max_ms": 23,
+      "db_body_max_ms": 16,
+      "gc_count": 16,
+      "gc_time_ms": 246,
+      "stage_samples": "OWNER_DISPATCH:3/0:OK;CP12INCLUSIVE_ONLY|OWNER_DISPATCH|PRE_SCOPE_WALL_ONLY;CP12EX1|OWNER_DISPATCH|3000000|-1|60|QUEUE;DURABLE_CLAIM:3/0:OK;CP12INCLUSIVE_ONLY|DURABLE_CLAIM|PRE_SCOPE_WALL_ONLY;REQUEST_TO_WORKER:1215/0:OK;CP12INCLUSIVE_ONLY|REQUEST_TO_WORKER|PRE_SCOPE_WALL_ONLY;CP12EX1|REQUEST_BEFORE_OWNER|1212000000|-1|60|QUEUE;PRE_HISTORY_METADATA:65/0:OK;CP12EX1|PRE_HISTORY_METADATA|64528404|2335503|60|SYNC;HISTORY:14/1000:OK;CP12EX1|HISTORY|14452306|3138093|60|SYNC;PIT_FREEZE_AND_BIND:8/0:OK;CP12EX1|PIT_FREEZE_AND_BIND|7228141|4407478|60|SYNC;MODEL_BUNDLE_OPEN_CP3:8/0:OK;CP12EX1|MODEL_BUNDLE_OPEN_CP3|8430919|6002381|60|SYNC;FEATURES_SUB:8/900:OK;CP12EX1|FEATURES_SUB|8200255|8179317|60|SYNC;STATE_SUB:9/700:OK;CP12EX1|STATE_SUB|9265608|9093928|60|SYNC;NUMBER_MODEL:16/600:OK;CP12EX1|NUMBER_MODEL|16308641|15671058|60|SYNC;ACTION_BUILD_FUNNEL_META_RANK:364/600:OK;CP12EX1|ACTION_BUILD_FUNNEL_META_RANK|364710916|346837314|60|SYNC;SELECTION_POLICY:129/300:OK;CP12EX1|SELECTION_POLICY|129345986|122749163|60|SYNC;DECISION_GATE:6/0:OK;CP12EX1|DECISION_GATE|6418024|6342753|60|SYNC;R36_COMPUTE:546/3000:OK;CP12EX1|R36_COMPUTE|4086679|4034042|60|SYNC;SNAPSHOT_STREAM:145/400:OK;CP12EX1|SNAPSHOT_STREAM|145281154|143232179|60|SYNC;DB_CANONICAL_WAIT:18/600:OK;CP12EX1|DB_CANONICAL_WAIT|18321702|15692905|60|SYNC;DBTX75|operation=R914_TELEMETRY_STATE_BATCH|owns=1|begin_ns=41600|body_ns=111487|end_ns=35277|outcome=COMMITTED;DBTX75|operation=R914_TELEMETRY_STATE_BATCH|owns=1|begin_ns=15396|body_ns=28221|end_ns=21121|outcome=COMMITTED;DBTX75|operation=R914_TELEMETRY_STATE_BATCH|owns=1|begin_ns=27163|body_ns=60683|end_ns=38487|outcome=COMMITTED;DBTX75|operation=R914_TELEMETRY_STATE_BATCH|owns=1|begin_ns=22575|body_ns=53706|end_ns=46478|outcome=COMMITTED;DBTX75|operation=R932_BUNDLE_CAPTURE|owns=1|begin_ns=69947|body_ns=5642126|end_ns=48612|outcome=COMMITTED;DBTX75|operation=R932_FREEZE_ONE_RESEARCH_CONSUMER|owns=1|begin_ns=25155|body_ns=250476|end_ns=19590|outcome=ROLLED_BACK;DBTX75|operation=R914_TELEMETRY_STATE_BATCH|owns=1|begin_ns=23779|body_ns=123496|end_ns=51538|outcome=COMMITTED;DBTX75|operation=R914_TELEMETRY_STATE_BATCH|owns=1|begin_ns=20782|body_ns=107458|end_ns=2903358|outcome=COMMITTED;DBTX75|operation=R932_DOMAIN_ROUTE|owns=1|begin_ns=66455|body_ns=507072|end_ns=93474|outcome=COMMITTED;DBTX75|operation=R30_DECISION_EXPLAIN|owns=1|begin_ns=22771|body_ns=204948|end_ns=20302|outcome=ROLLED_BACK;DBTX75|operation=R914_TELEMETRY_STATE_BATCH|owns=1|begin_ns=53064|body_ns=67155|end_ns=31749|outcome=COMMITTED;DBTX75|operation=R914_TELEMETRY_STATE_BATCH|owns=1|begin_ns=36606|body_ns=99224|end_ns=43201|outcome=COMMITTED;DBTX75|operation=R914_TELEMETRY_STATE_BATCH|owns=1|begin_ns=15418|body_ns=60405|end_ns=45952|outcome=COMMITTED;DBTX75|operation=R914_TELEMETRY_STATE_BATCH|owns=1|begin_ns=54561|body_ns=282428|end_ns=42755|outcome=COMMITTED;DBTX75|operation=R914_TELEMETRY_STATE_BATCH|owns=1|begin_ns=31019|body_ns=35575|end_ns=42212|outcome=COMMITTED;",
+      "reason": "R31_PHASES={\"committed\":true,\"fastFallback\":\"UNSUPPORTED_UNTIL_PREREGISTERED_QUALIFIED_IMPLEMENTATION\",\"fixedDeadlineMonoMs\":247850,\"phase\":\"PUBLISHED\",\"phaseDeadlineMonoMs\":199693,\"selectionMonoMs\":198154,\"sourceChoice\":\"FULL_REGISTERED_RUNTIME\",\"spans\":[{\"deadlineMonoMs\":199043,\"endedMonoMs\":198154,\"overBudget\":false,\"phase\":\"PREPARE\",\"startedMonoMs\":198043},{\"deadlineMonoMs\":201154,\"endedMonoMs\":198693,\"overBudget\":false,\"phase\":\"INFER\",\"startedMonoMs\":198154},{\"deadlineMonoMs\":199693,\"endedMonoMs\":198866,\"overBudget\":false,\"phase\":\"COMMIT\",\"startedMonoMs\":198693}]}|DURABLE|"
+    },
+    {
+      "target_issue": "202611131144",
+      "status": "NOT_COMMITTED",
+      "elapsed_ms": 89,
+      "lock_wait_max_ms": 21,
+      "db_body_max_ms": 29,
+      "gc_count": 0,
+      "gc_time_ms": 0,
+      "stage_samples": "OWNER_DISPATCH:11/0:OK;CP12INCLUSIVE_ONLY|OWNER_DISPATCH|PRE_SCOPE_WALL_ONLY;CP12EX1|OWNER_DISPATCH|11000000|-1|60|QUEUE;DURABLE_CLAIM:0/0:OK;CP12INCLUSIVE_ONLY|DURABLE_CLAIM|PRE_SCOPE_WALL_ONLY;REQUEST_TO_WORKER:15/0:OK;CP12INCLUSIVE_ONLY|REQUEST_TO_WORKER|PRE_SCOPE_WALL_ONLY;CP12EX1|REQUEST_BEFORE_OWNER|4000000|-1|60|QUEUE;PRE_HISTORY_METADATA:15/0:OK;CP12EX1|PRE_HISTORY_METADATA|15481644|3756081|60|SYNC;CP12EX_UNAVAILABLE|INCOMPLETE_SPANS|1;HISTORY:INTERRUPTED:69;DBTX75|operation=R914_TELEMETRY_STATE_BATCH|owns=1|begin_ns=14486|body_ns=67789|end_ns=25616|outcome=COMMITTED;DBTX75|operation=R914_TELEMETRY_STATE_BATCH|owns=1|begin_ns=12014|body_ns=66189|end_ns=25564|outcome=COMMITTED;DBTX75|operation=R914_TELEMETRY_STATE_BATCH|owns=1|begin_ns=24520|body_ns=47442|end_ns=42866|outcome=COMMITTED;DBTX75|operation=R914_TELEMETRY_STATE_BATCH|owns=1|begin_ns=20135|body_ns=43707|end_ns=111330|outcome=COMMITTED;DBTX75|operation=R914_TELEMETRY_STATE_BATCH|owns=1|begin_ns=54572|body_ns=111507|end_ns=28250|outcome=COMMITTED;DBTX75|operation=R914_TELEMETRY_STATE_BATCH|owns=1|begin_ns=26977|body_ns=101623|end_ns=253314|outcome=COMMITTED;",
+      "reason": "R31_PHASES={\"committed\":false,\"fastFallback\":\"UNSUPPORTED_UNTIL_PREREGISTERED_QUALIFIED_IMPLEMENTATION\",\"fixedDeadlineMonoMs\":247850,\"phase\":\"PREPARE\",\"phaseDeadlineMonoMs\":197841,\"selectionMonoMs\":null,\"sourceChoice\":\"FULL_REGISTERED_RUNTIME\",\"spans\":[]}|java.lang.IllegalStateException:R31_DEPENDENCY_HISTORY_BOOTSTRAP_PENDING|contiguous=1|"
+    }
+  ],
+  "draws": [
+    {
+      "issue": "202611131144",
+      "open_time": 1794596643000,
+      "fetch_time": 1794596647644,
+      "dirty": 0
+    },
+    {
+      "issue": "202611120463",
+      "open_time": 1794469383000,
+      "fetch_time": 1794596614211,
+      "dirty": 0
+    },
+    {
+      "issue": "202611120462",
+      "open_time": 1794469323000,
+      "fetch_time": 1794596614211,
+      "dirty": 0
+    },
+    {
+      "issue": "202611120461",
+      "open_time": 1794469263000,
+      "fetch_time": 1794596614211,
+      "dirty": 0
+    },
+    {
+      "issue": "202611120460",
+      "open_time": 1794469203000,
+      "fetch_time": 1794596614211,
+      "dirty": 0
+    },
+    {
+      "issue": "202611120459",
+      "open_time": 1794469143000,
+      "fetch_time": 1794596614211,
+      "dirty": 0
+    },
+    {
+      "issue": "202611120458",
+      "open_time": 1794469083000,
+      "fetch_time": 1794596614211,
+      "dirty": 0
+    },
+    {
+      "issue": "202611120457",
+      "open_time": 1794469023000,
+      "fetch_time": 1794596614211,
+      "dirty": 0
+    },
+    {
+      "issue": "202611120456",
+      "open_time": 1794468963000,
+      "fetch_time": 1794596614211,
+      "dirty": 0
+    },
+    {
+      "issue": "202611120455",
+      "open_time": 1794468903000,
+      "fetch_time": 1794596614211,
+      "dirty": 0
+    },
+    {
+      "issue": "202611120454",
+      "open_time": 1794468843000,
+      "fetch_time": 1794596614211,
+      "dirty": 0
+    },
+    {
+      "issue": "202611120453",
+      "open_time": 1794468783000,
+      "fetch_time": 1794596614212,
+      "dirty": 0
+    }
+  ],
+  "settlementTasks": [
+    {
+      "target_issue": "202611131144",
+      "status": "COMPLETED",
+      "attempts": 1,
+      "last_error": "",
+      "failure_class": "UNKNOWN",
+      "last_progress_at": 1794596647830,
+      "updated_at": 1794596647830
+    },
+    {
+      "target_issue": "202611120463",
+      "status": "PENDING",
+      "attempts": 0,
+      "last_error": "",
+      "failure_class": "",
+      "last_progress_at": 0,
+      "updated_at": 1794596616725
+    },
+    {
+      "target_issue": "202611120462",
+      "status": "PENDING",
+      "attempts": 0,
+      "last_error": "",
+      "failure_class": "",
+      "last_progress_at": 0,
+      "updated_at": 1794596616722
+    },
+    {
+      "target_issue": "202611120461",
+      "status": "PENDING",
+      "attempts": 0,
+      "last_error": "",
+      "failure_class": "",
+      "last_progress_at": 0,
+      "updated_at": 1794596616719
+    },
+    {
+      "target_issue": "202611120460",
+      "status": "PENDING",
+      "attempts": 0,
+      "last_error": "",
+      "failure_class": "",
+      "last_progress_at": 0,
+      "updated_at": 1794596616714
+    },
+    {
+      "target_issue": "202611120459",
+      "status": "PENDING",
+      "attempts": 0,
+      "last_error": "",
+      "failure_class": "",
+      "last_progress_at": 0,
+      "updated_at": 1794596616711
+    },
+    {
+      "target_issue": "202611120458",
+      "status": "PENDING",
+      "attempts": 0,
+      "last_error": "",
+      "failure_class": "",
+      "last_progress_at": 0,
+      "updated_at": 1794596616709
+    },
+    {
+      "target_issue": "202611120457",
+      "status": "PENDING",
+      "attempts": 0,
+      "last_error": "",
+      "failure_class": "",
+      "last_progress_at": 0,
+      "updated_at": 1794596616706
+    },
+    {
+      "target_issue": "202611120456",
+      "status": "PENDING",
+      "attempts": 0,
+      "last_error": "",
+      "failure_class": "",
+      "last_progress_at": 0,
+      "updated_at": 1794596616703
+    },
+    {
+      "target_issue": "202611120455",
+      "status": "PENDING",
+      "attempts": 0,
+      "last_error": "",
+      "failure_class": "",
+      "last_progress_at": 0,
+      "updated_at": 1794596616681
+    },
+    {
+      "target_issue": "202611120454",
+      "status": "PENDING",
+      "attempts": 0,
+      "last_error": "",
+      "failure_class": "",
+      "last_progress_at": 0,
+      "updated_at": 1794596616679
+    },
+    {
+      "target_issue": "202611120453",
+      "status": "PENDING",
+      "attempts": 0,
+      "last_error": "",
+      "failure_class": "",
+      "last_progress_at": 0,
+      "updated_at": 1794596616676
+    }
+  ],
+  "writerFaults": {
+    "state": "SCHEMA_UNAVAILABLE"
+  },
+  "researchTasks": {
+    "state": "SCHEMA_UNAVAILABLE"
+  },
+  "sampledSourceFrames": [
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:857)",
+      15
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:1149)",
+      13
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:937)",
+      13
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator$14.run(DatabaseCoordinator.java:1166)",
+      11
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:920)",
+      11
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:843)",
+      9
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator$13.call(DatabaseCoordinator.java:1151)",
+      8
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator$13.call(DatabaseCoordinator.java:1153)",
+      8
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator$15.run(DatabaseCoordinator.java:1189)",
+      6
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator.ensureRuntimeSchemaOnce(DatabaseCoordinator.java:724)",
+      6
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:833)",
+      6
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator$$ExternalSyntheticLambda0.call(D8$$SyntheticClass:0)",
+      5
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator.lambda$runWriteOrThrowF01$2(DatabaseCoordinator.java:843)",
+      5
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator.ensureR811ResearchSchemaOnce(DatabaseCoordinator.java:747)",
+      4
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:1012)",
+      3
+    ],
+    [
+      "com.ethk3.novaonepro.LegacyDdlR31.scopedFingerprint(LegacyDdlR31.java:68)",
+      3
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator$15.run(DatabaseCoordinator.java:1184)",
+      2
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator.openDdlHandleR31Q(DatabaseCoordinator.java:1247)",
+      2
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWrite(DatabaseCoordinator.java:1001)",
+      2
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWrite(DatabaseCoordinator.java:1005)",
+      2
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWrite(DatabaseCoordinator.java:1136)",
+      2
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:917)",
+      2
+    ],
+    [
+      "com.ethk3.novaonepro.LegacyDdlR31.scopedFingerprint(LegacyDdlR31.java:71)",
+      2
+    ],
+    [
+      "com.ethk3.novaonepro.AutoFetchService.postAnalysisForLatest(AutoFetchService.java:3256)",
+      1
+    ],
+    [
+      "com.ethk3.novaonepro.AutoFetchService.runAnalysisWatchdogOnce(AutoFetchService.java:5009)",
+      1
+    ],
+    [
+      "com.ethk3.novaonepro.AutoFetchService.runAnalysisWatchdogR36(AutoFetchService.java:5183)",
+      1
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator$$ExternalSyntheticLambda9.call(D8$$SyntheticClass:0)",
+      1
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator.lambda$atomicCallableF01$14(DatabaseCoordinator.java:1033)",
+      1
+    ],
+    [
+      "com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:1008)",
+      1
+    ],
+    [
+      "com.ethk3.novaonepro.LegacyDdlR31.exec(LegacyDdlR31.java:108)",
+      1
+    ],
+    [
+      "com.ethk3.novaonepro.LegacyDdlR31.exec(LegacyDdlR31.java:110)",
+      1
+    ],
+    [
+      "com.ethk3.novaonepro.LegacyDdlR31.present(LegacyDdlR31.java:151)",
+      1
+    ],
+    [
+      "com.ethk3.novaonepro.V51ChecksumEngine.sha256(V51ChecksumEngine.java:12)",
+      1
+    ]
+  ],
+  "stackSamplesRequested": 15
+}

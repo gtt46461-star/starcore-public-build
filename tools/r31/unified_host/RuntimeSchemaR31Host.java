@@ -12,7 +12,7 @@ public final class RuntimeSchemaR31Host {
         boolean failCriticalJournal;
         FaultDb(Connection connection){super(connection);}
         @Override public void execSQL(String sql,Object[] args){
-            if(failCriticalJournal&&sql.startsWith("INSERT OR REPLACE INTO "+SchemaDomainCoordinatorR926.TABLE_JOURNAL)
+            if(failCriticalJournal&&sql.contains("INTO "+SchemaDomainCoordinatorR926.TABLE_JOURNAL)
                     &&args!=null&&args.length>2&&String.valueOf(args[2]).startsWith("R31_LEGACY_CRITICAL_DDL:"))
                 throw new android.database.sqlite.SQLiteException("INJECTED_LEGACY_CRITICAL_JOURNAL_FAILURE");
             super.execSQL(sql,args);
@@ -83,7 +83,8 @@ public final class RuntimeSchemaR31Host {
             db.execSQL("CREATE INDEX r31_untrusted_fixture ON draws(issue)");
             String sealed;try(Cursor row=db.rawQuery("SELECT fingerprint FROM "+SchemaDomainCoordinatorR926.TABLE_DOMAIN+" WHERE domain='CRITICAL'",null)){if(!row.moveToFirst())throw new AssertionError("Missing original stamp");sealed=row.getString(0);}
             try(LegacyDdlR31.Scope slice=new LegacyDdlR31.Scope(db,false)){
-                LegacyDdlR31.exec(db,"ALTER TABLE draws ADD COLUMN r31_untrusted_fixture_probe INTEGER NOT NULL DEFAULT 0");slice.check();
+                try{LegacyDdlR31.exec(db,"ALTER TABLE draws ADD COLUMN r31_untrusted_fixture_probe INTEGER NOT NULL DEFAULT 0");throw new AssertionError("Existing unknown drift allowed another Critical mutation");}
+                catch(DatabaseCoordinator.SchemaPendingR31 expected){if(!expected.getMessage().contains("UNTRUSTED_CRITICAL:FINGERPRINT_MISMATCH"))throw expected;}
             }
             if(SchemaDomainCoordinatorR926.matches(db,critical))throw new AssertionError("Unknown Critical drift was authenticated by an unrelated Legacy DDL");
             try(Cursor row=db.rawQuery("SELECT fingerprint FROM "+SchemaDomainCoordinatorR926.TABLE_DOMAIN+" WHERE domain='CRITICAL'",null)){if(!row.moveToFirst()||!sealed.equals(row.getString(0)))throw new AssertionError("Untrusted stamp was replaced");}

@@ -12,7 +12,7 @@ from host_tool_support import dependencies, run as host_run, cursor_column_metad
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 MAIN = ROOT / "app/src/main/java/com/ethk3/novaonepro"
 CLASSES, SDK, RJAR, JDBC = dependencies(ROOT, require_resources=True)
-source_names = ["AutoFetchService", "DatabaseCoordinator", "SchemaDomainCoordinatorR926", "ApiClient", "FetchLedgerR925", "SettlementTaskStoreR36", "AnalysisSingleFlightR36", "AnalysisRequestStoreR36", "ServiceHeartbeatStore", "BootReceiver", "OosAfterDrawWriterR36"]
+source_names = ["AutoFetchService", "DatabaseCoordinator", "SchemaDomainCoordinatorR926", "ApiClient", "FetchLedgerR925", "SettlementTaskStoreR36", "AnalysisSingleFlightR36", "AnalysisRequestStoreR36", "R36AnalysisLeasePolicyR365", "ServiceHeartbeatStore", "BootReceiver", "OosAfterDrawWriterR36"]
 strategy_names = ["RuntimeSchemaR26", "RuntimeCoordinatorR26", "ResearchPoolR27", "SchemaR27", "FailureDispositionR31", "CooperativeContinuationR26", "MemoryBudgetR31", "BoundedResearchExecutorR31", "SharedFeatureStoreR31", "FeatureCacheR27", "PreparedTaskR30R1", "TaskContinuationR26", "ExecutionBudgetR26"]
 production_sources = [MAIN / (name + ".java") for name in source_names] + [MAIN / "strategyv2" / (name + ".java") for name in strategy_names]
 before = {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest() for path in production_sources}

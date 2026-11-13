@@ -24,7 +24,33 @@ def digest(path):
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
-def package(request_path, built, reports, out, tools):
+def cumulative_results(directory, request, source):
+    """Require the original full current invocation, including the real Android jobs."""
+    assert directory is not None, 'CUMULATIVE_VERIFICATION_REQUIRED'
+    acceptance = one(directory, 'ACCEPTANCE_RESULTS.json')
+    document = json.loads(acceptance.read_text())
+    identity = document['identity']
+    assert identity['source_head'] == source, 'CUMULATIVE_SOURCE_MISMATCH'
+    assert str(identity['runId']) == str(request['runId']), 'CUMULATIVE_RUN_MISMATCH'
+    assert identity['state'] == 'PASS_ENGINEERING_ONLY' and identity['exitCode'] == 0, 'CURRENT_ENGINEERING_FAILURE'
+    assert identity['inputsSha256'] == identity['inputsAfterSha256'], 'CUMULATIVE_INPUTS_CHANGED'
+    assert re.fullmatch('[0-9a-f]{64}', identity['inputsSha256']) and identity['invocationId'], 'CUMULATIVE_INVOCATION_REQUIRED'
+    assert len(document['items']) == 222 and len(document['cards']) == 58, 'CUMULATIVE_CARD_OR_ITEM_SET'
+    assert document['itemCounts'].get('PASS') == 189, 'ORIGINAL_LOCAL_ACCEPTANCE_NOT_PASSED'
+    verification_path = one(directory, 'R31_VERIFICATION_RECEIPT.json')
+    verification = json.loads(verification_path.read_text())
+    assert verification['format'] == 'R31_VERIFICATION_RECEIPT_V1' and verification['overall'] == 'PASS', 'CUMULATIVE_VERIFICATION_NOT_PASS'
+    for name in ['baseline', 'contracts', 'android_build', 'instrumentation', 'priority_report_runtime']:
+        assert verification['stages'].get(name, {}).get('status') == 'PASS', 'CURRENT_STAGE_NOT_PASS:' + name
+        assert verification['stages'][name].get('jobResult') == 'success', 'CURRENT_STAGE_DID_NOT_EXECUTE:' + name
+    files = [verification_path, acceptance, one(directory, 'ACCEPTANCE_RESULTS.csv')]
+    summary = {'sourceCommit': source, 'runId': int(request['runId']), 'cards': 58, 'items': 222,
+               'originalLocalAcceptancePassed': 189, 'currentStages': {name: row['status'] for name, row in verification['stages'].items()},
+               'physicalDevice': 'NOT_RUN', '24h': 'NOT_RUN', '72h': 'NOT_RUN', 'naturalQuality': 'NOT_PROVEN'}
+    return summary, files
+
+
+def package(request_path, built, reports, out, tools, verification=None):
     request = json.loads(request_path.read_text())
     source = request['sourceCommit']
     if not re.fullmatch(r'[0-9a-f]{40}', source):
@@ -56,7 +82,11 @@ def package(request_path, built, reports, out, tools):
         assert phone_host['sourceHead'] == phone_failure['sourceCommit'] == source, 'PHONE_REPAIR_SOURCE_MISMATCH'
         assert phone_host['status'] == phone_failure['result'] == 'PASS', 'PHONE_REPAIR_NOT_ACCEPTED'
         assert phone_host['fixture']['pages'] == 165824 and phone_host['snapshotBytes'] == 679215104
-        assert result['failureUiExit'] == 0 and result['025To026OverlayMarkerPreserved'] is True
+        assert result['failureUiExit'] == 0
+        if 'overlayMarkerPreserved' in result:
+            assert result['overlayMarkerPreserved'] is True and result['overlayFromVersionCode'] == 577311025
+        else:
+            assert result['025To026OverlayMarkerPreserved'] is True
         assert phone_failure['existingEvidenceBytesPreserved'] is True and phone_failure['newDatabaseBackup'] is False
         assert phone_failure['failedFullReportJobDirectoriesAbsent'] is True
         assert len(phone_failure['entrances']) == 2 and all(v['correctRequest'] and v['ackReason'] and v['originalFailure'] and v['credentialsMasked'] and v['recoveryShare'] for v in phone_failure['entrances'])
@@ -85,6 +115,11 @@ def package(request_path, built, reports, out, tools):
     if phone_host is not None:
         for root, name in [(built, 'HOST_PHONE_REPORT.json'), (reports, 'failure-ui-acceptance.json')]:
             shutil.copyfile(one(root, name), out / name)
+    engineering = None
+    if request.get('scope') == 'R31_CUMULATIVE_ENGINEERING_DELIVERY':
+        engineering, evidence = cumulative_results(verification, request, source)
+        for path in evidence:
+            shutil.copyfile(path, out / path.name)
     archive = out / 'SOURCE_AND_ASSETS.zip'
     source_paths = ['app/src', 'app/build.gradle', 'app/proguard-rules.pro', 'build.gradle',
                     'settings.gradle', 'gradle.properties', 'gradle', 'gradlew', 'gradlew.bat',
@@ -115,11 +150,21 @@ def package(request_path, built, reports, out, tools):
     }
     if phone_host is not None:
         receipt['phoneReportRepair'] = {'hostSyntheticLargeDatabase': phone_host, 'android14SyntheticAckHistory': phone_failure,
-                                      '025To026OverlayMarkerPreserved': True, 'physicalV2353A': 'NOT_RUN'}
+                                      'overlayMarkerPreserved': True, 'overlayFromVersionCode': 577311025,
+                                      'overlayToVersionCode': int(request['versionCode']), 'physicalV2353A': 'NOT_RUN'}
         receipt['reportExecutionRunId'] = int(request.get('reportRunId', request['runId']))
         receipt['validationSourceCommit'] = request.get('validationSourceCommit', source)
+    if engineering is not None:
+        receipt['format'] = 'R31_CUMULATIVE_ENGINEERING_DELIVERY_1'
+        receipt['scope'] = 'CUMULATIVE_R31_ENGINEERING_AND_EXACT_RELEASE_UI_SAF_EXPORT'
+        receipt['engineeringAcceptance'] = engineering
+        receipt.pop('buildAndReportRunId')
+        receipt['buildRunId'] = int(request['runId'])
+        receipt['businessAndAlgorithmHealth'] = 'REPORTS_ACTUAL_RUNTIME_DATA_UNKNOWN_AND_FAILURES;NATURAL_QUALITY_NOT_PROVEN'
     (out / 'R31_REPORT_DELIVERY.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n')
     (out / 'README.txt').write_text('报告修复首包：安装同目录 APK 可覆盖 com.starcore.research.r13，保留数据。\n实际按钮→完整 ZIP→Android 系统选择器→保存回读、CRC/大小/SHA-256、同版签名覆盖安装通过（模拟器）。\n工程导出通过不代表全部业务健康。原机旧库、24/72 小时和自然质量待验；继续按原累计方案施工。\n')
+    if engineering is not None:
+        (out / 'README.txt').write_text('R31累计施工交付包：安装同目录APK，沿用com.starcore.research.r13及原签名，递增版本，可覆盖安装保留数据。\n附完整源码与资产、56+2卡/222项验收、同次工程与Android29/34/35结果、真实按钮及系统选择器保存回读收据。\n原机旧库、24/72小时及自然质量保持NOT_RUN/NOT_PROVEN；报告如实保留未知、缺数据和健康失败。\n')
     members = sorted(p for p in out.iterdir() if p.is_file())
     (out / 'SHA256SUMS.txt').write_text(''.join(digest(p) + '  ' + p.name + '\n' for p in members))
     bundle = out / request['zipName']
@@ -142,5 +187,6 @@ if __name__ == '__main__':
     p.add_argument('--reports', type=Path, required=True)
     p.add_argument('--out', type=Path, required=True)
     p.add_argument('--build-tools', type=Path, required=True)
+    p.add_argument('--verification', type=Path)
     a = p.parse_args()
-    package(a.request, a.built, a.reports, a.out, a.build_tools)
+    package(a.request, a.built, a.reports, a.out, a.build_tools, a.verification)

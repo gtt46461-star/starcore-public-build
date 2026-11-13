@@ -28,6 +28,18 @@ public final class R36AnalysisLeasePolicyR365 {
 
     private R36AnalysisLeasePolicyR365() {}
 
+    /** A live owner renews within the immutable request window. Reserve half
+     * the remaining window for a fenced successor if that process dies just
+     * after its last pulse. The original 45-second lease is still the ceiling;
+     * neither this calculation nor takeover changes the draw deadline. */
+    public static long leaseUntil(long now, long deadlineAt) {
+        if (deadlineAt <= now) return deadlineAt;
+        long remaining = deadlineAt - now;
+        long duration = Math.min(AppConfig.R36_ANALYSIS_LEASE_MS,
+                Math.max(1L, remaining / 2L));
+        return now + duration;
+    }
+
     public static Decision decide(
             String status,
             long rowGeneration,

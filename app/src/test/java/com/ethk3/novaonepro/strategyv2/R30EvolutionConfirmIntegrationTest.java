@@ -39,7 +39,12 @@ public final class R30EvolutionConfirmIntegrationTest {
         f.set(loop,new EvalContextR27(ctx.cache,ctx.split,labels));
         ctx.close(); // Replacing the context ends its memo ownership; the shared cache remains live.
         AtomicInteger reserved = new AtomicInteger(); loop.ledger().setConfirmPersistence(r -> reserved.incrementAndGet());
-        loop.runGeneration();
+        try { loop.runGeneration(); }
+        catch(MemoryBudgetR31.CapacityWait wait) {
+            System.out.println("R31_CONFIRM_INTEGRATION_MEMORY_AT_FAILURE="+JsonR27.write(MemoryBudgetR31.processBudget().snapshot()));
+            System.out.println("R31_CONFIRM_INTEGRATION_OWNERS_AT_FAILURE="+MemoryBudgetR31.processBudget().explicitOwnerLeasesR31(64));
+            throw wait;
+        }
         assertEquals(0,reserved.get()); assertEquals(0,loop.ledger().exposures(ctx.split.holdoutBlock));
         assertNotNull(loop.pendingConfirmation); assertEquals("FROZEN_PENDING_EXTERNAL",((Map<?,?>)loop.lastRecord.get("holdout")).get("status"));
         }
@@ -55,6 +60,20 @@ public final class R30EvolutionConfirmIntegrationTest {
             assertEquals("R30_CONFIRM_DURING_EVOLUTION",assertThrows(IllegalStateException.class,() -> ReplayEvaluatorR27.run(loop.champion,ctx.cache,ctx.labels,1,0,ctx.split.holdoutTo)).getMessage());
             assertEquals(0,reserved.get());
         } finally { ReplayEvaluatorR27.leaveEvolutionR30(old); }
+        }
+    }
+
+    @Test public void forbiddenConfirmReadIsRejectedBeforeColdFeatureAdmissionUnderPressure() {
+        MemoryBudgetR31 memory=new MemoryBudgetR31(()->{long now=System.nanoTime();return new MemoryBudgetR31.Measurement(1,"pressure-fixture",1<<20,950000,-1,-1,-1,false,now,now);},new MemoryBudgetR31.Config());
+        ReplayDatasetR27 data=ReplayDatasetR27.synthetic(64,2241,new int[0]);
+        try(SharedFeatureStoreR31 shared=new SharedFeatureStoreR31(memory,4096);FeatureCacheR27 cache=new FeatureCacheR27(data,4,memory,shared)){
+            PolicySpecR27 spec=new PolicySpecR27(PolicyAstR27.op("zscore",PolicyAstR27.leaf("freq",1,32)),1,PolicySpecR27.Rule.ALWAYS,0,1,1,false,0,0,null);
+            Integer old=ReplayEvaluatorR27.enterEvolutionR30(32);
+            try{
+                assertEquals("R30_CONFIRM_DURING_EVOLUTION",assertThrows(IllegalStateException.class,()->ReplayEvaluatorR27.run(spec,cache,data.draws,1,0,64)).getMessage());
+                assertEquals("no forbidden input is computed",0,cache.computedLeaves());
+                assertEquals("no memory is reserved for forbidden input",0L,((Number)memory.snapshot().get("declaredJavaWorkingBytes")).longValue());
+            }finally{ReplayEvaluatorR27.leaveEvolutionR30(old);}
         }
     }
 

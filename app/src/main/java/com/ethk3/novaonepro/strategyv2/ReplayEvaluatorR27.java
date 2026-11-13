@@ -114,6 +114,7 @@ public final class ReplayEvaluatorR27 {
 
     /** Fits the softmax temperature on H_TRAIN rows by grid search on log-loss (bias held at zero). */
     public static double fitTemperature(PolicySpecR27 spec, double[] scores, int[][] labels, int trainFrom, int trainTo) {
+        checkEvolutionRangeR30(trainTo);
         try(PolicyAstR27.ScopedScoresR31 input=PolicyAstR27.ScopedScoresR31.legacy(scores)){return fitTemperatureScopedR31(spec,input,labels,trainFrom,trainTo);}
     }
     static double fitTemperatureScopedR31(PolicySpecR27 spec,PolicyAstR27.ScoreInputR31 scores,int[][] labels,int trainFrom,int trainTo){
@@ -136,6 +137,7 @@ public final class ReplayEvaluatorR27 {
 
     /** Full pass: rows [0,to) are processed online; outputs are recorded for rows [from,to). */
     public static Trace run(PolicySpecR27 spec, FeatureCacheR27 f, int[][] labels, double temperature, int from, int to) {
+        checkEvolutionRangeR30(to);
         try(PolicyAstR27.ScopedScoresR31 scores=PolicyAstR27.evalScopedR31(spec.ast,f,spec.position)){return runInputR31(spec,scores,f.data,labels,temperature,from,to,false);}
     }
 
@@ -143,6 +145,7 @@ public final class ReplayEvaluatorR27 {
         return run(spec,scores,data,labels,temperature,from,to,false);
     }
     private static Trace run(PolicySpecR27 spec, double[] scores, ReplayDatasetR27 data, int[][] labels, double temperature, int from, int to,boolean capture) {
+        checkEvolutionRangeR30(to);
         try(PolicyAstR27.ScopedScoresR31 input=PolicyAstR27.ScopedScoresR31.legacy(scores)){return runInputR31(spec,input,data,labels,temperature,from,to,capture);}
     }
     static Trace runScopedR31(PolicySpecR27 spec,PolicyAstR27.ScoreInputR31 scores,ReplayDatasetR27 data,int[][] labels,double temperature,int from,int to){return runInputR31(spec,scores,data,labels,temperature,from,to,false);}
@@ -210,6 +213,7 @@ public final class ReplayEvaluatorR27 {
      * at the target position in [0..9], then K3 (3 ints as doubles), then act (0/1). */
     public static double[] predictNext(PolicySpecR27 spec, FeatureCacheR27 withPlaceholder, double temperature) {
         int last = withPlaceholder.data.size() - 1;
+        checkEvolutionRangeR30(last+1);
         int[][] labels = withPlaceholder.data.draws;
         Trace tr;try(PolicyAstR27.ScopedScoresR31 scores=PolicyAstR27.evalRealtimeScopedR31(spec.ast,withPlaceholder,spec.position)){tr=runInputR31(spec,scores,withPlaceholder.data,labels,temperature,last,last+1,false);}
         double[] out = new double[14];

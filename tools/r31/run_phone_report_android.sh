@@ -9,7 +9,9 @@ bash tools/r30-repair/prepare_emulator.sh
 phone_apk=$(find "$phone_built" -name '*-release.apk' -type f)
 phone_old_apk=$(find "$phone_old" -name '*-release.apk' -type f)
 test -n "$phone_apk" && test -n "$phone_old_apk"
-test "$(cat "$phone_built/source-commit.txt")" = "$(git rev-parse HEAD)"
+phone_source_record="$phone_built/source-commit.txt"
+if [ ! -f "$phone_source_record" ]; then phone_source_record="$phone_built/r31v/source-commit.txt"; fi
+test "$(cat "$phone_source_record")" = "$(git rev-parse HEAD)"
 export R31_REPORT_APK_SHA=$(sha256sum "$phone_apk" | cut -d ' ' -f1)
 adb install -r "$phone_old_apk"
 adb shell mkdir -p /data/user/0/com.starcore.research.r13/files

@@ -44,6 +44,7 @@ def observe(built, support, out, source=SOURCE, apk_sha=APK_SHA, test_source=TES
     assert hashlib.sha256(run('adb', 'exec-out', 'cat', installed, timeout=90).stdout).hexdigest() == apk_sha
     run('adb', 'shell', 'pm', 'grant', PACKAGE, 'android.permission.POST_NOTIFICATIONS', check=False)
     run('adb', 'shell', 'am', 'force-stop', PACKAGE)
+    run('adb', 'logcat', '-c')
     result = {'sourceCommit': source, 'apkSha256': apk_sha, 'supportTestSource': test_source,
               'supportTestAndRunnerSourceUnchanged': True, 'scope': 'EXACT_RELEASE_SERVICE_PHASE_AND_PERSISTENT_ERROR_DIAGNOSIS_NOT_ACCEPTANCE',
               'physicalDevice': 'NOT_RUN', '24h': 'NOT_RUN', '72h': 'NOT_RUN', 'naturalQuality': 'NOT_PROVEN'}
@@ -69,11 +70,16 @@ def observe(built, support, out, source=SOURCE, apk_sha=APK_SHA, test_source=TES
             if process.poll() is None:
                 process.kill();process.wait();result['diagnosticObservationWindowClosed'] = True
         text = log.read_text(errors='replace')
+        # Android routes the test's System.out phase records to logcat on ART.
+        # This buffer was cleared immediately before this one invocation. Only
+        # explicit numeric phase records are copied into the public diagnosis.
+        logcat = run('adb', 'logcat', '-d', '-v', 'threadtime').stdout.decode(errors='replace')
+        phase_output = text + '\n' + '\n'.join(line for line in logcat.splitlines() if 'I System.out: R31Q_PHASE_COST|' in line)
         result['processExit'] = process.returncode
         result['testPassed'] = bool(re.search(r'OK \(1 tests?\)', text) and 'FAILURES!!!' not in text)
         result['protocolOutputSha256'] = hashlib.sha256(log.read_bytes()).hexdigest()
         result['publicFailures'] = sorted(set(re.findall(r'\b(?:NO_FRESH_API_FETCH|NO_NEW_FUTURE_FREEZE|NO_NEW_FROZEN_SETTLEMENT|LEGACY_NOT_READY|R31_PHASE_BUDGET_[A-Z]+)\b', text)))
-        result['phaseSamples'] = [list(x) for x in re.findall(r'R31Q_PHASE_COST\|([A-Z0-9_]+)\|elapsedMs=([0-9]+)\|budgetMs=([0-9]+)\|(OK|OVER_BUDGET|FAILED)', text)]
+        result['phaseSamples'] = [list(x) for x in re.findall(r'R31Q_PHASE_COST\|([A-Z0-9_]+)\|elapsedMs=([0-9]+)\|budgetMs=([0-9]+)\|(OK|OVER_BUDGET|FAILED)', phase_output)][:120]
         run('adb', 'shell', 'am', 'force-stop', PACKAGE)
         remote = '/data/user/0/' + PACKAGE + '/databases/binance_k3_nova_one_pro_v57.db'
         local = private / 'live.db'
@@ -88,15 +94,21 @@ def observe(built, support, out, source=SOURCE, apk_sha=APK_SHA, test_source=TES
                     'events': ('v57_runtime_event_r926', ['target_issue', 'event_type', 'stage', 'source', 'created_at']),
                     'resources': ('v57_attempt_resource_r927', ['target_issue', 'status', 'elapsed_ms', 'lock_wait_max_ms', 'db_body_max_ms', 'gc_count', 'gc_time_ms', 'stage_samples', 'reason']),
                     'draws': ('draws', ['issue', 'open_time', 'fetch_time', 'dirty']),
+                    'labels': ('v57_oos_label_r35', ['target_issue', 'base_issue', 'strict_oos', 'pre_draw_frozen', 'prediction_created_at', 'draw_open_time', 'settled_at', 'provenance_hash', 'record_hash', 'error_code']),
+                    'learningEvents': ('v57_runtime_event_r926', ['target_issue', 'event_type', 'stage', 'source', 'created_at'], "event_type='LEARNED'"),
+                    'schemaDomains': ('v57_schema_domain_r926', ['domain', 'revision', 'state', 'updated_at', 'error_code']),
+                    'schemaJournal': ('v57_schema_migration_journal_r926', ['domain', 'revision', 'step_id', 'status', 'attempt', 'cursor', 'started_at', 'completed_at', 'error_code']),
                     'settlementTasks': ('v57_settlement_task_r36', ['target_issue', 'status', 'attempts', 'last_error', 'failure_class', 'last_progress_at', 'updated_at']),
                     'writerFaults': ('r31_runtime_fault', ['operation', 'phase', 'category', 'commit_outcome', 'occurrences', 'first_wall_ms', 'last_wall_ms']),
                     'researchTasks': ('r26_task', ['task_id', 'status', 'wait_kind', 'blocked_reason', 'cursor', 'last_progress', 'last_served']),
                 }
-                for name, (table, allowed) in queries.items():
+                for name, query in queries.items():
+                    table, allowed, *condition = query
                     columns = {row[1] for row in db.execute('PRAGMA table_info(' + table + ')')}
                     selected = [c for c in allowed if c in columns]
                     if selected:
-                        rows = db.execute('SELECT ' + ','.join(selected) + ' FROM ' + table + ' ORDER BY rowid DESC LIMIT 12').fetchall()
+                        where = ' WHERE ' + condition[0] if condition else ''
+                        rows = db.execute('SELECT ' + ','.join(selected) + ' FROM ' + table + where + ' ORDER BY rowid DESC LIMIT 12').fetchall()
                         result[name] = [dict(zip(selected, row)) for row in rows]
                     else:
                         result[name] = {'state': 'SCHEMA_UNAVAILABLE'}

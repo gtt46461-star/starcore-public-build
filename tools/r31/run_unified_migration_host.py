@@ -18,6 +18,7 @@ def main():
   for x in [platform,production,test]:x.mkdir()
   shims=list((ROOT/'tools/r31/ddl_host').rglob('*.java'));shims.extend((ROOT/'tools/r29/qual_host/shim/android/database/sqlite').glob('SQLite*Exception.java'))
   log=work/'Log.java';log.write_text('package android.util;public final class Log{public static int w(String a,String b){return 0;}public static int w(String a,String b,Throwable c){return 0;}}');shims.append(log)
+  clock=work/'SystemClock.java';clock.write_text('package android.os;public final class SystemClock{public static long elapsedRealtime(){return System.nanoTime()/1000000;}public static long uptimeMillis(){return elapsedRealtime();}public static long currentThreadTimeMillis(){return elapsedRealtime();}}');shims.append(clock)
   run(['javac','-cp',os.pathsep.join(map(str,[sdk,classes])),'-d',platform,*shims],'platform.log')
   run(['javac','-sourcepath','','-implicit:none','-cp',os.pathsep.join(map(str,[sdk,platform,classes])),'-d',production,*sources[:5]],'production.log')
   cp=os.pathsep.join(map(str,[platform,production,test,classes,jdbc,slf,sdk]))

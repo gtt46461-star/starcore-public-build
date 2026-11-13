@@ -138,5 +138,40 @@ class Package(unittest.TestCase):
         self.assertTrue(d['deliverable'].endswith('.zip') or d['deliverable'].startswith('PENDING_CI'))
 
 
+class CumulativeDeliveryBoundary(unittest.TestCase):
+    def setUp(self):
+        from publish_report_package import cumulative_results
+        self.validate = cumulative_results
+        self.directory = Path(tempfile.mkdtemp())
+        self.acceptance = {'identity': {'source_head': COMMIT, 'runId': '123', 'invocationId': 'fresh-fixture',
+                            'state': 'PASS_ENGINEERING_ONLY', 'exitCode': 0, 'inputsSha256': 'c' * 64, 'inputsAfterSha256': 'c' * 64},
+                           'items': [{}] * 222, 'cards': [{}] * 58, 'itemCounts': {'PASS': 189}}
+        self.verification = {'format': 'R31_VERIFICATION_RECEIPT_V1', 'overall': 'PASS',
+                             'stages': {k: {'status': 'PASS', 'jobResult': 'success'} for k in ['baseline','contracts','android_build','instrumentation','priority_report_runtime']}}
+
+    def write(self, acceptance=None, verification=None):
+        (self.directory / 'ACCEPTANCE_RESULTS.json').write_text(json.dumps(acceptance or self.acceptance))
+        (self.directory / 'ACCEPTANCE_RESULTS.csv').write_text('fixture-only\n')
+        (self.directory / 'R31_VERIFICATION_RECEIPT.json').write_text(json.dumps(verification or self.verification))
+
+    def test_current_invocation_and_all_original_engineering_stages_are_required(self):
+        self.write()
+        summary, files = self.validate(self.directory, {'runId': 123}, COMMIT)
+        self.assertEqual(189, summary['originalLocalAcceptancePassed'])
+        self.assertEqual('NOT_PROVEN', summary['naturalQuality'])
+        self.assertEqual(3, len(files))
+
+    def test_old_source_run_skip_missing_stage_or_partial_set_cannot_publish(self):
+        for key, value in [('source_head', 'd'*40), ('runId', '122'), ('state', 'STARTED_NOT_PASS'), ('inputsAfterSha256', 'e'*64)]:
+            bad = json.loads(json.dumps(self.acceptance)); bad['identity'][key] = value; self.write(acceptance=bad)
+            with self.assertRaises(AssertionError): self.validate(self.directory, {'runId': 123}, COMMIT)
+        for key in ['instrumentation', 'priority_report_runtime']:
+            for field, value in [('status', 'NOT_RUN'), ('jobResult', 'skipped')]:
+                bad = json.loads(json.dumps(self.verification)); bad['stages'][key][field] = value; self.write(verification=bad)
+                with self.assertRaises(AssertionError): self.validate(self.directory, {'runId': 123}, COMMIT)
+        bad = json.loads(json.dumps(self.acceptance)); bad['items'].pop(); self.write(acceptance=bad)
+        with self.assertRaises(AssertionError): self.validate(self.directory, {'runId': 123}, COMMIT)
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

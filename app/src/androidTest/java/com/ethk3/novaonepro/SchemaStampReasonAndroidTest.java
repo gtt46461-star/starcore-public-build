@@ -33,7 +33,7 @@ public final class SchemaStampReasonAndroidTest {
             SchemaDomainCoordinatorR926.Contract c = SchemaDomainCoordinatorR926.criticalContract();
             loadOriginalCriticalSchema(db);
             SchemaDomainCoordinatorR926.ensureInfrastructure(db);
-            db.execSQL("CREATE TABLE r27_history_import(issue TEXT,ordinal INTEGER,numbers TEXT,status TEXT)");
+            db.execSQL("CREATE TABLE IF NOT EXISTS r27_history_import(issue TEXT,ordinal INTEGER,numbers TEXT,status TEXT)");
             for(String ddl:com.ethk3.novaonepro.strategyv2.ResearchSchemaR30R1.DDL)db.execSQL(ddl);
             db.execSQL("DROP TRIGGER IF EXISTS r30r1_pin_draws_insert");
             db.execSQL("DROP TRIGGER IF EXISTS r30r1_pin_draws_update");

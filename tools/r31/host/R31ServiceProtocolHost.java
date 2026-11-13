@@ -33,6 +33,7 @@ public final class R31ServiceProtocolHost {
         db.beginTransaction();try{
             RuntimeSchemaR26.ensure(db);for(String sql:SchemaR27.R31_WRITE_DDL)db.execSQL(sql);SchemaDomainCoordinatorR926.migrateR31TransportTiming(db);
             db.execSQL("CREATE TABLE app_state(state_key TEXT PRIMARY KEY,state_value TEXT,updated_at INTEGER)");
+            db.execSQL("CREATE TABLE "+DbHelper.TABLE_B03_TRANSACTION_AUDIT+"(idempotency_key TEXT PRIMARY KEY,operation TEXT,game_code TEXT,target_issue TEXT,transaction_hash TEXT,status TEXT,error_detail TEXT,created_at INTEGER)");
             db.execSQL("CREATE TABLE draws(issue TEXT PRIMARY KEY,open_time INTEGER,fetch_time INTEGER,first_seen_at INTEGER,draw_hash_v2 TEXT,n1 INTEGER,n2 INTEGER,n3 INTEGER,n4 INTEGER,n5 INTEGER,n6 INTEGER,n7 INTEGER,n8 INTEGER,n9 INTEGER,n10 INTEGER,dirty INTEGER)");
             db.execSQL("CREATE VIEW "+DrawDependencyInputCP12.SOURCE+" AS SELECT * FROM draws");
             db.execSQL("CREATE TABLE "+DbHelper.TABLE_R811_DRAW_CANONICAL+"(target_issue TEXT PRIMARY KEY,status TEXT,canonical_draw_hash TEXT)");
@@ -68,6 +69,31 @@ public final class R31ServiceProtocolHost {
         AnalysisRequestStoreR36.TransitionResult fault=requests.markRetry(request,"same-owner","actual bug",new IllegalStateException("ACTUAL_BUG"),now+1);
         need(fault.updated&&AnalysisRequestStoreR36.FAILED_TERMINAL.equals(fault.status),"actual faults still enforce the unchanged attempt limit");
         System.out.println("R31_ANALYSIS_TYPED_RETRY_HOST_PASS typed_waits_not_terminal=true original_error_and_attempts_preserved=true stale_owner_refused=true actual_fault_limit_unchanged=true");
+    }
+    private static void analysisLeaseRecovery(SQLiteDatabase db,DatabaseCoordinator coordinator) {
+        String table=DbHelper.TABLE_R36_ANALYSIS_REQUEST,base="202611041100",target="202611041101";
+        long now=System.currentTimeMillis();Models.Draw previous=draw(base);previous.openTime=now-1000;insertDraw(db,previous);
+        long deadline=previous.openTime+60000;String hash=V51ChecksumEngine.sha256("HOST_LEASE_RECOVERY");
+        db.execSQL("INSERT INTO "+table+" VALUES(?,?,'REQUESTED',1,?,?,0,0,'',0,0,'REQUESTED','','','',?,0,'','original-first-error',?)",new Object[]{base,target,now,deadline,hash,now});
+        AnalysisSingleFlightR36.Request request=new AnalysisSingleFlightR36.Request(base,target,1,now,deadline,"HOST_LEASE",hash,"");
+        AnalysisRequestStoreR36 requests=new AnalysisRequestStoreR36(new DbStore(db,coordinator));
+        AnalysisRequestStoreR36.ClaimResult first=requests.claimDetailed(request,"dead-owner",now);
+        need(first.claimed,"real durable request claim: "+first.code);
+        need(first.leaseUntil==R36AnalysisLeasePolicyR365.leaseUntil(now,deadline)&&first.leaseUntil<deadline,"claim reserves recovery time without extending fixed deadline");
+        long pulseAt=now+20000;need(requests.pulse(request,"SELECTION_POLICY","dead-owner",pulseAt),"actual live owner pulses");
+        long until=scalar(db,"SELECT lease_until FROM "+table+" WHERE target_issue='"+target+"'");
+        need(until==R36AnalysisLeasePolicyR365.leaseUntil(pulseAt,deadline)&&deadline-until>=19000,"late pulse cannot consume the successor's remaining immutable window");
+        AnalysisRequestStoreR36.ClaimResult early=requests.claimDetailed(request,"successor",until-1);
+        need(!early.claimed&&early.decision==R36AnalysisLeasePolicyR365.Decision.DEFER_ACTIVE_OWNER&&early.retryAt==until,"original owner lease is respected until its real expiry");
+        AnalysisRequestStoreR36.ClaimResult next=requests.claimDetailed(request,"successor",until);
+        need(next.claimed&&next.decision==R36AnalysisLeasePolicyR365.Decision.CLAIM_STALE_TAKEOVER,"takeover only after expiry: "+next.code);
+        need(!requests.pulse(request,"STALE_OWNER","dead-owner",until+1),"old owner cannot renew after takeover");
+        try(Cursor row=db.rawQuery("SELECT deadline_at,request_hash,generation,first_error_code,attempts FROM "+table+" WHERE target_issue=?",new String[]{target})){
+            need(row.moveToFirst()&&row.getLong(0)==deadline&&hash.equals(row.getString(1))&&row.getLong(2)==1&&"original-first-error".equals(row.getString(3))&&row.getLong(4)==2,"recovery preserves deadline, request/generation fence, first error and real attempt count");
+        }
+        need(R36AnalysisLeasePolicyR365.leaseUntil(now,now+120000)==now+AppConfig.R36_ANALYSIS_LEASE_MS,"original lease ceiling unchanged");
+        need(R36AnalysisLeasePolicyR365.leaseUntil(deadline+1,deadline)==deadline,"expired request cannot receive future lease");
+        System.out.println("R31_ANALYSIS_LEASE_RECOVERY_NATIVE_PASS actual_claim_and_pulse=true original_lease_respected=true immutable_deadline=true stale_owner_fenced=true lease_ceiling_unchanged=true synthetic_protocol_not_natural_quality=true");
     }
     private static void outboxAndSettlement(SQLiteDatabase db,DatabaseCoordinator coordinator)throws Exception{
         Models.Draw first=draw("202611040100"),second=draw("202611040101");
@@ -197,8 +223,8 @@ public final class R31ServiceProtocolHost {
     public static void main(String[] args)throws Exception{
         Class.forName("org.sqlite.JDBC");File path=new File(args[0]);ThreadPoolExecutor background=new ThreadPoolExecutor(1,1,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(32),r->{Thread t=new Thread(r,"HOST_EXISTING_WRITER_QUEUE");t.setDaemon(true);return t;},new ThreadPoolExecutor.AbortPolicy());
         try(Connection connection=DriverManager.getConnection("jdbc:sqlite:"+path.getPath())){
-            SQLiteDatabase db=new SQLiteDatabase(connection);schema(db);Field uf=Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);DatabaseCoordinator coordinator=(DatabaseCoordinator)((Unsafe)uf.get(null)).allocateInstance(DatabaseCoordinator.class);Field lf=DatabaseCoordinator.class.getDeclaredField("WRITE_LOCK_CP3");lf.setAccessible(true);set(coordinator,"writeLock",(ReentrantLock)lf.get(null));set(coordinator,"helper",new DbHelper(db));set(coordinator,"app",new android.app.Application(path));set(coordinator,"waitingWriters",new AtomicInteger());set(coordinator,"criticalBusinessWaitersR914",new AtomicInteger());set(coordinator,"backgroundWriter",background);
-            outboxAndSettlement(db,coordinator);ingestOrderingAndConflicts(db,coordinator);canonicalFirstAuthoritative(db,coordinator);everyOpportunityReachesTerminal(db,coordinator);analysisDependencyRetry(db,coordinator);transport(db,coordinator);R31ServiceHeartbeatHost.verify(path);
+            SQLiteDatabase db=new SQLiteDatabase(connection);schema(db);Field uf=Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);DatabaseCoordinator coordinator=(DatabaseCoordinator)((Unsafe)uf.get(null)).allocateInstance(DatabaseCoordinator.class);Field lf=DatabaseCoordinator.class.getDeclaredField("WRITE_LOCK_CP3");lf.setAccessible(true);set(coordinator,"writeLock",(ReentrantLock)lf.get(null));set(coordinator,"helper",new DbHelper(db));set(coordinator,"app",new android.app.Application(path));set(coordinator,"criticalSchemaReady",new AtomicBoolean(true));set(coordinator,"waitingWriters",new AtomicInteger());set(coordinator,"criticalBusinessWaitersR914",new AtomicInteger());set(coordinator,"backgroundWriter",background);
+            outboxAndSettlement(db,coordinator);ingestOrderingAndConflicts(db,coordinator);canonicalFirstAuthoritative(db,coordinator);everyOpportunityReachesTerminal(db,coordinator);analysisDependencyRetry(db,coordinator);analysisLeaseRecovery(db,coordinator);transport(db,coordinator);R31ServiceHeartbeatHost.verify(path);
             System.out.println("R31_SERVICE_PROTOCOL_HOST_PASS scope=actual_production_sources_native_SQLite_HTTP_loopback_adapters_NOT_ANDROID_NOT_DEVICE_NOT_MODEL_QUALITY");
         }finally{background.shutdownNow();}
     }

@@ -3,11 +3,11 @@ public final class BuildConfig {
     public static final boolean DEBUG = false;
     public static final String APPLICATION_ID = "com.starcore.research.r13";
     public static final String BUILD_TYPE = "release";
-    public static final int VERSION_CODE = 577311028;
-    public static final String VERSION_NAME = "R31-FINAL-ENGINEERING-2026.11.13-028";
+    public static final int VERSION_CODE = 577311029;
+    public static final String VERSION_NAME = "R31-UNIFIED-2026.11.13-029";
     public static final String DUOQU_API_KEY_A = "";
     public static final String DUOQU_API_KEY_B = "";
-    public static final String RELEASE_MANIFEST_SHA256 = "1ba8ebed23cfaba8e8e7f914fe6f664ed512ccd8f18eb0fdf15747bb3f4ff983";
+    public static final String RELEASE_MANIFEST_SHA256 = "bfd12838c7a778d73ad1fbce771454fe81668baace02dc86de00f85e274d315a";
     public static final int DB_USER_VERSION = 36;
     public static final int LEGACY_R906_SCHEMA_REVISION = 4;
     public static final String R925_SCHEMA_REVISION = "R925_SCHEMA_7";

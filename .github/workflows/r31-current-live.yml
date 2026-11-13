@@ -10,6 +10,12 @@ jobs:
   live:
     runs-on: ubuntu-latest
     timeout-minutes: 18
+    outputs:
+      source: ${{ steps.request.outputs.source }}
+      buildRun: ${{ steps.request.outputs.buildRun }}
+      artifact: ${{ steps.request.outputs.artifact }}
+      fullReport: ${{ steps.request.outputs.fullReport }}
+      digest: ${{ steps.request.outputs.digest }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,7 +30,7 @@ jobs:
           assert re.fullmatch('[0-9a-f]{40}',source) and re.fullmatch('[0-9a-f]{64}',digest)
           test_source=r.get('testSource',source);assert re.fullmatch('[0-9a-f]{40}',test_source)
           subprocess.run(['git','merge-base','--is-ancestor',source,'HEAD'],check=True)
-          values={'buildRun':r['runId'],'artifact':r['artifact'],'supportRun':r.get('supportRunId',r['runId']),'supportArtifact':r.get('supportArtifact',r['artifact']),'source':source,'digest':digest,'testSource':test_source}
+          values={'buildRun':r['runId'],'artifact':r['artifact'],'supportRun':r.get('supportRunId',r['runId']),'supportArtifact':r.get('supportArtifact',r['artifact']),'source':source,'digest':digest,'testSource':test_source,'fullReport':'true' if r.get('mode')=='REPORT_UI_SAF_AND_LIVE' else 'false'}
           for key in ['buildRun','supportRun']:assert type(values[key]) is int and values[key]>0
           for key in ['artifact','supportArtifact']:assert re.fullmatch('[A-Za-z0-9_.-]{1,160}',values[key])
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:
@@ -77,4 +83,55 @@ jobs:
             built/r31v/signature-*-release.txt
             built/r31v/badging-*-release.txt
             built/r31v/SHA256SUMS.txt
+          if-no-files-found: error
+  report_ui_saf:
+    needs: live
+    if: always() && needs.live.outputs.fullReport == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.live.outputs.source }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.live.outputs.artifact }}
+          run-id: ${{ needs.live.outputs.buildRun }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: built
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31-report-025-signed-build
+          run-id: 43417298331
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: old-025
+      - name: Prepare the exact source binding and emulator acceleration
+        run: |
+          test "$(git rev-parse HEAD)" = "$(cat built/r31v/source-commit.txt)"
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        env:
+          R31_REPORT_STARTUP_WAIT_SECONDS: '120'
+          R31_PROFILE_SOURCE: ${{ needs.live.outputs.source }}
+          R31_PROFILE_APK_SHA: ${{ needs.live.outputs.digest }}
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: bash tools/r31/run_final_runtime.sh built report-public old-025
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31-current-report-ui-saf
+          path: report-public/
           if-no-files-found: error
