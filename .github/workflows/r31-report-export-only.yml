@@ -1,74 +1,20 @@
-name: STARCORE 023 report export only
+name: Stop superseded full gate for report-only delivery
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-report-export-only.yml']
 permissions:
   contents: read
   actions: write
 jobs:
-  report:
+  scope:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
     steps:
-    - uses: actions/checkout@v4
-      with:
-        path: harness
-    - uses: actions/checkout@v4
-      with:
-        ref: c61d09a4f95055f2f95337f15fa83b284e8af693
-        path: source
-        fetch-depth: 1
-    - uses: actions/download-artifact@v4
-      with:
-        name: r31v-android-build
-        run-id: 43407606428
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        path: built
-    - name: Stop superseded broad acceptance after signed APK is secured
-      uses: actions/github-script@v7
-      with:
-        script: "const run = await github.rest.actions.getWorkflowRun({...context.repo, run_id: 43407606428});\nif (['queued','in_progress','waiting','requested','pending'].includes(run.data.status))\
-          \ {\n  await github.rest.actions.cancelWorkflowRun({...context.repo, run_id: 43407606428});\n  core.info('Superseded broad matrix cancelled at\
-          \ explicit report-only user scope. Existing results remain unchanged.');\n}\n"
-    - name: Verify already-built signed APK and source
-      working-directory: source
-      run: 'python3 - <<''PY''
-
-        import hashlib,json,pathlib
-
-        r=pathlib.Path(''../built'');apk=r/''app/build/outputs/apk/release/Starcore-Tianshu-R31-REPORT-RUNTIME-2026.11.13-023-release.apk''
-
-        assert hashlib.sha256(apk.read_bytes()).hexdigest()==''99153d61f03bf4fc8484bd421da3fdb1d35c9c0b15c5f46aea9db54bc58a29d5''
-
-        assert (r/''r31v/source-commit.txt'').read_text().strip()==''c61d09a4f95055f2f95337f15fa83b284e8af693''
-
-        assert ''d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'' in (r/''r31v/signature-Starcore-Tianshu-R31-REPORT-RUNTIME-2026.11.13-023-release.txt'').read_text()
-
-        assert "versionCode=''577311023''" in (r/''r31v/badging-Starcore-Tianshu-R31-REPORT-RUNTIME-2026.11.13-023-release.txt'').read_text()
-
-        PY
-
-        '
-    - name: Enable emulator acceleration
-      run: 'echo ''KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"'' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-
-        sudo udevadm control --reload-rules
-
-        sudo udevadm trigger --name-match=kvm
-
-        '
-    - uses: reactivecircus/android-emulator-runner@v2
-      with:
-        api-level: 34
-        arch: x86_64
-        target: default
-        disable-animations: true
-        ram-size: 3072M
-        heap-size: 512M
-        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
-        script: bash harness/evidence/r27/ci/r31-report-export-only.sh
-    - uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: r31-023-report-export-only
-        path: source/report-only-public/
-        if-no-files-found: error
-'on':
-  workflow_dispatch: null
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const id=43416087251;
+            const {data: run}=await github.rest.actions.getWorkflowRun({...context.repo,run_id:id});
+            if(run.head_sha!=='0164241c32c29430749f8da0e9a03d22ae20347a'||run.path!=='.github/workflows/r31-gate.yml')throw new Error('EXACT_SUPERSEDED_GATE_REQUIRED');
+            if(['in_progress','queued','waiting','requested','pending'].includes(run.status)) await github.rest.actions.cancelWorkflowRun({...context.repo,run_id:id});
+            core.info('Full construction gate deferred by explicit report-only user scope. Existing failures are not changed to pass. Signed 025 report build is untouched.');
