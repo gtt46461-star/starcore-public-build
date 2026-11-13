@@ -1,0 +1,27 @@
+R31_HOST_DEPENDENCY_PROVENANCE {"androidSdk": {"path": "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar", "sha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a"}, "classes": {"classTreeSha256": "428d2ea80f2b43b424d530afc05e66f1e5caca4561f3a535dbc23b579ac291b0", "path": "/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"}, "generatedResources": {"path": "/workspace/starcore-public-build/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/processDebugResources/R.jar", "sha256": "ee74e9c8d95f2a1cb9d5477246207aac640b2e790edaaa495142f626318f4956"}, "sqliteJdbc": {"path": "/home/agent/.cache/r312-host/sqlite-jdbc-3.46.1.3.jar", "sha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa"}}
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Note: /workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/workspace/starcore-public-build/tools/r31/host/R31OwnedRuntimeFixture.java:14: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/workspace/starcore-public-build/tools/r31/host/R31OwnedRuntimeFixture.java:30: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Field field = Unsafe.class.getDeclaredField("theUnsafe"); field.setAccessible(true);
+                      ^
+/workspace/starcore-public-build/tools/r31/host/R31OwnedRuntimeFixture.java:31: warning: Unsafe is internal proprietary API and may be removed in a future release
+        coordinator = (DatabaseCoordinator) ((Unsafe) field.get(null)).allocateInstance(DatabaseCoordinator.class);
+                                              ^
+3 warnings
+CHAIN_DONE|checks=77|[F01_LOCK_CONTENTION two owners x24 commits, one writer, F03_STALE_FENCE/F09_LATE_COMMIT refused after production fenced retry: F01_WRITE_FAILED|operation=R31_FULL_CHAIN_LATE_COMMIT|category=STALE_OWNER|phase=END|commitOutcome=ROLLED_BACK, F02_SETTLEMENT_COMMIT_FAILURE F01_WRITE_FAILED|operation=R27_LIVE_PENDING_RESOLVE|category=BUG|phase=END|commitOutcome=ROLLED_BACK, F05_OUT_OF_ORDER/B03 settlement once per prediction after injected commit failure, F04_DISK_FULL/B05+B10 GC display-only; choice, certificate, draws, frozen kept, F10_DUPLICATE_CONSUME/B08+B09 one product per result; late label refused]
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=152198 task=r27-live
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=152225 task=r27-live
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=152252 task=r27-live
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=152279 task=r27-live
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=152306 task=r27-live
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=152333 task=r27-live
+R31_FULL_CHAIN_FAULT_HOST|{"android":"NOT_RUN","checks":525,"layer":"HOST_NATIVE_SQLITE_ONE_DB_ONE_COMMIT_NOT_ART_NOT_DEVICE","naturalQuality":"NOT_PROVEN","processDeath":[{"haltBeforeCommit":1,"halted":true},{"haltBeforeCommit":3,"halted":true},{"haltBeforeCommit":6,"halted":true},{"haltBeforeCommit":10,"halted":true},{"haltBeforeCommit":14,"halted":true},{"haltBeforeCommit":18,"halted":true},{"haltBeforeCommit":22,"halted":true}],"status":"PASS","uninterrupted":["F01_LOCK_CONTENTION two owners x24 commits, one writer","F03_STALE_FENCE/F09_LATE_COMMIT refused after production fenced retry: F01_WRITE_FAILED|operation=R31_FULL_CHAIN_LATE_COMMIT|category=STALE_OWNER|phase=END|commitOutcome=ROLLED_BACK","F02_SETTLEMENT_COMMIT_FAILURE F01_WRITE_FAILED|operation=R27_LIVE_PENDING_RESOLVE|category=BUG|phase=END|commitOutcome=ROLLED_BACK","F05_OUT_OF_ORDER/B03 settlement once per prediction after injected commit failure","F04_DISK_FULL/B05+B10 GC display-only; choice, certificate, draws, frozen kept","F10_DUPLICATE_CONSUME/B08+B09 one product per result; late label refused"]}
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+
+R31_FULL_CHAIN_FAULT_HOST_PASS {"checks": 525, "scenarios": ["F01_LOCK_CONTENTION", "F02_PROCESS_DEATH", "F03_STALE_FENCE", "F04_DISK_FULL", "F05_OUT_OF_ORDER", "F09_LATE_COMMIT", "F10_DUPLICATE_CONSUME"], "kills": 7}

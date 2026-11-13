@@ -1,0 +1,236 @@
+{
+  "card": "R31-B02-C02",
+  "phase": "P02",
+  "status": "HOST_PASS_ROOT_ANDROID_INTEGRATION_PENDING",
+  "capturedAt": "2026-11-13T22:35:13.007542+00:00",
+  "sourceHead": "219155d68680d6f18581111addd73420d3b3fc4c",
+  "sourceDirty": true,
+  "assertions": 130,
+  "productionSourceSHA256": {
+    "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java": "e99d4124109e2f40ec5b437863b9af35a8ccae7c533a78e06e5e16c252ae2932",
+    "app/src/main/java/com/ethk3/novaonepro/V51Repository.java": "d53e3052ccb74c42ce6a41e6926771aee511331e09186a569fc730f26398f768",
+    "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR35.java": "092a4a2fbb92411b2bedc8ad26b52c7bf379fca2f3a0b29ae66d98b60464a475",
+    "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR35.java": "8c3e6a94ad67266ad23ffbbb0c56b15728f54745e7d384fc5281360040830744",
+    "app/src/main/java/com/ethk3/novaonepro/DbHelper.java": "1c3b576e7360ca8a483589d3531e6d48fd34fb865691b39f89e76a68efce2565",
+    "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java": "e4ddbbf466948b72833696593242a7252611cf7b64cd442804f4b256ac85f80a",
+    "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java": "d23b64aecc22df845214fc4c67436579e0bd0ce80e9e39eb57e80b80c52e4bac",
+    "app/src/main/java/com/ethk3/novaonepro/ApiClient.java": "e4161f4f3e76cf4b88fb7856cde5232e1ae8e8f87a85bda9f0975e44db9d3c7b",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java": "680637f7f9de0079fe0c29b6f3c6452b0bc99c731a2281bf724d9616ad1f4bd6",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java": "2b9384e18e245cf133a5b125577e42ae976bfe0257caee38e8d9eb49325e9cef",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java": "6030534c81198cf0bf61af19f7ff323c98ebc30e15eb2a94517daf26c907537c",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java": "e321c2b23acb18d0d59ddf3372db6a9b0ea4dbb71f24dc77bd26f843bcce788e"
+  },
+  "supportClasses": "/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+  "baselineCompiledNumericalClosure": "/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+  "supportReceipt": "ROOT_ANDROID_SUPPORT_CLASSES_NO_EXTRA_RECEIPT",
+  "hostJavaLauncher": "java",
+  "ownedSourceSHA256": {
+    "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java": "e99d4124109e2f40ec5b437863b9af35a8ccae7c533a78e06e5e16c252ae2932",
+    "app/src/main/java/com/ethk3/novaonepro/V51Repository.java": "d53e3052ccb74c42ce6a41e6926771aee511331e09186a569fc730f26398f768",
+    "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR35.java": "092a4a2fbb92411b2bedc8ad26b52c7bf379fca2f3a0b29ae66d98b60464a475",
+    "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR35.java": "8c3e6a94ad67266ad23ffbbb0c56b15728f54745e7d384fc5281360040830744",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java": "680637f7f9de0079fe0c29b6f3c6452b0bc99c731a2281bf724d9616ad1f4bd6"
+  },
+  "sqlTrace": {
+    "path": "SQL_API_CALLS.tsv",
+    "scope": "JAVA_SQLITE_API_CALLS_EXECUTED_ON_NATIVE_SQLITE_JDBC_WITH_HOST_PLATFORM_ADAPTERS_NOT_ANDROID_TRACE",
+    "businessStages": {
+      "BUSINESS_CERT_NO_AUTHORITY": {
+        "calls": 4,
+        "ddl": 0
+      },
+      "BUSINESS_CERT_SCHEMA_MISSING": {
+        "calls": 8,
+        "ddl": 0
+      },
+      "BUSINESS_CERT_REVOKE_READY": {
+        "calls": 19,
+        "ddl": 0
+      },
+      "BUSINESS_CERT_GUARD_DRIFT": {
+        "calls": 7,
+        "ddl": 0
+      },
+      "BUSINESS_TX_SCHEMA_MISSING": {
+        "calls": 1,
+        "ddl": 0
+      },
+      "BUSINESS_TX_READY": {
+        "calls": 10,
+        "ddl": 0
+      },
+      "BUSINESS_V51_PERSIST_CALLBACK": {
+        "calls": 25,
+        "ddl": 0
+      },
+      "BUSINESS_V51_PERSIST_REPLAY": {
+        "calls": 3,
+        "ddl": 0
+      },
+      "BUSINESS_V51_SETTLEMENT_CALLBACK": {
+        "calls": 140,
+        "ddl": 0
+      },
+      "BUSINESS_V51_SETTLEMENT_REPLAY": {
+        "calls": 3,
+        "ddl": 0
+      },
+      "BUSINESS_V51_MISSING_SCHEMA": {
+        "calls": 7,
+        "ddl": 0
+      },
+      "BUSINESS_R35_JOB_RETRY": {
+        "calls": 9,
+        "ddl": 0
+      },
+      "BUSINESS_R35_JOB_STALE_BUNDLE": {
+        "calls": 5,
+        "ddl": 0
+      },
+      "BUSINESS_R35_JOB_SCHEMA_MISSING": {
+        "calls": 4,
+        "ddl": 0
+      },
+      "BUSINESS_R35_HEALTH_RECORD_AND_SNAPSHOT": {
+        "calls": 11,
+        "ddl": 0
+      },
+      "BUSINESS_R35_HEALTH_SCHEMA_MISSING": {
+        "calls": 1,
+        "ddl": 0
+      },
+      "BUSINESS_R35_REJECT_R36_PROTOCOL_OWNER": {
+        "calls": 5,
+        "ddl": 0
+      }
+    },
+    "businessDDL": 0
+  },
+  "regressions": {
+    "originalCertificateRevocation": "PASS_FOUR_SOURCE_MODES_LATE_SU2_AND_ACTUAL_NEXT_READERS",
+    "originalRealAuthority": "PASS"
+  },
+  "commands": [
+    {
+      "command": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-nowarn",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "-d",
+        "/tmp/r31-runtime-ddl-0p7_f8io/platform",
+        "/workspace/starcore-public-build/tools/r31/ddl_host/android/content/ContentValues.java",
+        "/workspace/starcore-public-build/tools/r31/ddl_host/android/database/Cursor.java",
+        "/workspace/starcore-public-build/tools/r31/ddl_host/android/database/sqlite/SQLiteDatabase.java",
+        "/workspace/starcore-public-build/tools/r31/ddl_host/android/database/sqlite/SQLiteOpenHelper.java",
+        "/workspace/starcore-public-build/tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java",
+        "/tmp/r31-runtime-ddl-0p7_f8io/sources/android/content/Context.java",
+        "/tmp/r31-runtime-ddl-0p7_f8io/sources/android/app/Application.java",
+        "/tmp/r31-runtime-ddl-0p7_f8io/sources/android/os/SystemClock.java",
+        "/tmp/r31-runtime-ddl-0p7_f8io/sources/android/os/Looper.java",
+        "/tmp/r31-runtime-ddl-0p7_f8io/sources/android/util/Log.java",
+        "/tmp/r31-runtime-ddl-0p7_f8io/sources/com/ethk3/novaonepro/DbStore.java"
+      ],
+      "log": "platform-javac.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-nowarn",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "-d",
+        "/tmp/r31-runtime-ddl-0p7_f8io/production",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR35.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR35.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/ApiClient.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "/workspace/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java"
+      ],
+      "log": "production-javac.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-nowarn",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/tmp/r31-runtime-ddl-0p7_f8io/platform:/tmp/r31-runtime-ddl-0p7_f8io/production:/tmp/r31-runtime-ddl-0p7_f8io/test:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/home/agent/.cache/r312-host/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-runtime-ddl-0p7_f8io/test",
+        "/workspace/starcore-public-build/tools/r31/host/R31RuntimeDdlHost.java",
+        "/workspace/starcore-public-build/tools/r30/qual_host/CertificateRevocationR30HostTest.java",
+        "/workspace/starcore-public-build/tools/r30/qual_host/RealAuthorityR30HostTest.java"
+      ],
+      "log": "business-host-javac.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx768m",
+        "-cp",
+        "/tmp/r31-runtime-ddl-0p7_f8io/platform:/tmp/r31-runtime-ddl-0p7_f8io/production:/tmp/r31-runtime-ddl-0p7_f8io/test:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/home/agent/.cache/r312-host/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.R31RuntimeDdlHost",
+        "/tmp/r31-runtime-ddl-0p7_f8io/business.db",
+        "/workspace/starcore-public-build/verification/r31/p02/runtime-ddl-hotspots/SQL_API_CALLS.tsv"
+      ],
+      "log": "business-native.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx768m",
+        "-cp",
+        "/tmp/r31-runtime-ddl-0p7_f8io/platform:/tmp/r31-runtime-ddl-0p7_f8io/production:/tmp/r31-runtime-ddl-0p7_f8io/test:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/home/agent/.cache/r312-host/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.CertificateRevocationR30HostTest"
+      ],
+      "log": "original-revocation-native.log",
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx768m",
+        "-cp",
+        "/tmp/r31-runtime-ddl-0p7_f8io/platform:/tmp/r31-runtime-ddl-0p7_f8io/production:/tmp/r31-runtime-ddl-0p7_f8io/test:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-public-build/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/home/agent/.cache/r312-host/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.RealAuthorityR30HostTest"
+      ],
+      "log": "original-authority-native.log",
+      "exitCode": 0
+    }
+  ],
+  "android": "NOT_RUN",
+  "device": "NOT_RUN",
+  "continuous24h": "NOT_RUN",
+  "continuous72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "allApplicationRuntimeDDL": "NOT_ESTABLISHED",
+  "limitations": [
+    "Controlled SQL/frozen-bundle/authority fixtures are not natural prediction or Android timing evidence.",
+    "Only named traced business methods are covered; source audit identifies other remaining paths.",
+    "DbStore and its legacy mainchain runtime DDL are owned by another task.",
+    "The dormant R35 enqueue still cannot reconstruct a missing in-memory model result after restart; the actual R36 snapshot owner remains authoritative. These changes preserve its snapshot/lease columns and persistent retry markers."
+  ]
+}

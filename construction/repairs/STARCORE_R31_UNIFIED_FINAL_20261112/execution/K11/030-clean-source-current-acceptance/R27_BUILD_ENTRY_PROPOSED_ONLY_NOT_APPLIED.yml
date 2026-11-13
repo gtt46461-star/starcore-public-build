@@ -1,0 +1,18 @@
+name: STARCORE R31 030 exact source cumulative verification
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-build-r27.yml']
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: r31-final-030-219155d68680d6f18581111addd73420d3b3fc4c
+  cancel-in-progress: false
+jobs:
+  verify:
+    uses: gtt46461-star/starcore-public-build/.github/workflows/r31-verification.yml@219155d68680d6f18581111addd73420d3b3fc4c
+    with:
+      source: 219155d68680d6f18581111addd73420d3b3fc4c
+    secrets:
+      DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
