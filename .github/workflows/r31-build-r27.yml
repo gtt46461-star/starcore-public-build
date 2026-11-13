@@ -1,9 +1,9 @@
-name: STARCORE 025 report control repair signed APK and report export only
+name: STARCORE 026 phone report repair signed release and Android14
 permissions:
   contents: write
   actions: read
 concurrency:
-  group: r31-report-025-only
+  group: r31-phone-report-026
   cancel-in-progress: false
 jobs:
   build:
@@ -12,10 +12,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: 57d009075a8dfec43ace99e5ed6a04f3f57ae0ba
+        ref: d44e10acbdd040faaeb1fc4deb1b0b67efac1bb1
         fetch-depth: 0
     - name: Require exact source and release identity
-      run: 'test "$(git rev-parse HEAD)" = "57d009075a8dfec43ace99e5ed6a04f3f57ae0ba"
+      run: 'test "$(git rev-parse HEAD)" = "d44e10acbdd040faaeb1fc4deb1b0b67efac1bb1"
 
         python3 - <<''PY''
 
@@ -25,7 +25,7 @@ jobs:
 
         assert r[''applicationId'']==''com.starcore.research.r13''
 
-        assert r[''versionCode'']==577311025
+        assert r[''versionCode'']==577311026
 
         PY
 
@@ -48,13 +48,13 @@ jobs:
       env:
         DUOQU_SECRET: ${{ secrets.DUOQU_API_KEY }}
       run: "set -euo pipefail\nV=\"$RUNNER_TEMP/r31v\"; mkdir -p \"$V\"\nK=\"$HOME/.starcore/r27-ci-temp-key\"\nDEVICE_CERT=d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7\n\
-        if [ -f \"$K/r27-ci.p12\" ] && [ -s \"$K/pw\" ]; then\n  pw=$(cat \"$K/pw\"); echo \"::add-mask::$pw\"\n  cert=$(keytool -exportcert -keystore \"\
-        $K/r27-ci.p12\" -storetype PKCS12 -alias starcore-r13 -storepass \"$pw\" | sha256sum | cut -c1-64)\n  [ \"$cert\" = \"$DEVICE_CERT\" ] || { echo\
-        \ \"INSTALLED_SIGNER_MISMATCH $cert\"; exit 1; }\n  { echo \"R13_SIGNING_P12=$K/r27-ci.p12\"; echo \"R13_SIGNING_PASSWORD=$pw\"; echo \"R13_EXPECTED_CERT_SHA256=$cert\"\
-        ; echo \"R31_SIGNING=EXISTING_DEVICE_IDENTITY\"; } >> \"$GITHUB_ENV\"\n  echo \"EXISTING_DEVICE_IDENTITY: installed R31 577311020 signer $cert\"\
-        \ > \"$V/signing.txt\"\nelse\n  echo \"NOT_AVAILABLE: installed signer private material was not restored; no replacement key is generated\" > \"\
-        $V/signing.txt\"\n  exit 1\nfi\nif [ -n \"$DUOQU_SECRET\" ]; then echo \"::add-mask::$DUOQU_SECRET\"; echo \"DUOQU_API_KEY=$DUOQU_SECRET\" >> \"\
-        $GITHUB_ENV\"; else echo \"RELEASE_API_SECRET_UNAVAILABLE\"; exit 1; fi\n"
+        if [ -f \"$K/r27-ci.p12\" ] && [ -s \"$K/pw\" ]; then\n  pw=$(cat \"$K/pw\"); echo \"::add-mask::$pw\"\n  cert=$(keytool -exportcert -keystore\
+        \ \"$K/r27-ci.p12\" -storetype PKCS12 -alias starcore-r13 -storepass \"$pw\" | sha256sum | cut -c1-64)\n  [ \"$cert\" = \"$DEVICE_CERT\"\
+        \ ] || { echo \"INSTALLED_SIGNER_MISMATCH $cert\"; exit 1; }\n  { echo \"R13_SIGNING_P12=$K/r27-ci.p12\"; echo \"R13_SIGNING_PASSWORD=$pw\"\
+        ; echo \"R13_EXPECTED_CERT_SHA256=$cert\"; echo \"R31_SIGNING=EXISTING_DEVICE_IDENTITY\"; } >> \"$GITHUB_ENV\"\n  echo \"EXISTING_DEVICE_IDENTITY:\
+        \ installed R31 577311020 signer $cert\" > \"$V/signing.txt\"\nelse\n  echo \"NOT_AVAILABLE: installed signer private material was not\
+        \ restored; no replacement key is generated\" > \"$V/signing.txt\"\n  exit 1\nfi\nif [ -n \"$DUOQU_SECRET\" ]; then echo \"::add-mask::$DUOQU_SECRET\"\
+        ; echo \"DUOQU_API_KEY=$DUOQU_SECRET\" >> \"$GITHUB_ENV\"; else echo \"RELEASE_API_SECRET_UNAVAILABLE\"; exit 1; fi\n"
     - uses: android-actions/setup-android@v3
       with:
         packages: platform-tools
@@ -64,62 +64,68 @@ jobs:
       with:
         path: ~/.gradle/wrapper/dists
         key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
-    - name: Compile actual product classes for the provisional inventory only
+    - name: Compile exact current product and verify frozen inventory
       run: 'set -euo pipefail
 
-        ./gradlew --no-daemon -Pr312Development=true :app:compileDebugJavaWithJavac -x :app:generateR997ConstructionAssets -x :app:generateR967Semantics
-        -x :app:verifyR967Semantics -x :app:verifyFinalR967Semantics 2>&1 | tail -n 120
+        ./gradlew --no-daemon --max-workers=4 -Pr312Development=true :app:compileDebugJavaWithJavac 2>&1 | tail -n 100
 
-        python3 -B scripts/r982_source_call_asset.py --freeze --classes app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes
+        python3 -B scripts/r982_source_call_asset.py
 
         python3 -B scripts/r967_semantic_identity.py --check
 
         '
-    - name: Commit only the compiled inventory with a fast-forward lease
+    - name: Build signed release, lint and report-specific unit tests
       run: 'set -euo pipefail
 
-        remote=$(git ls-remote origin refs/heads/construction/r31-final-20261104 | cut -f1)
-
-        test "$remote" = "57d009075a8dfec43ace99e5ed6a04f3f57ae0ba" || { echo "SOURCE_ADVANCED_REVIEW_REQUIRED"; exit 1; }
-
-        git add release/r982_source_calls.tsv.gz release/r982_source_calls.manifest.json
-
-        git -c user.name=github-actions -c user.email=github-actions@users.noreply.github.com commit -m ''build(r31): freeze actual 025 report recovery
-        compiled call inventory [skip ci]''
-
-        git push origin HEAD:refs/heads/construction/r31-final-20261104
-
-        echo "FROZEN_SOURCE=$(git rev-parse HEAD)"
-
-        echo "THIS_IS_COMPILE_PROVENANCE_NOT_APK_OR_RUNTIME_ACCEPTANCE"
-
-
-        echo "source=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-        '
-      id: freeze
-    - name: Build the actual signed release APK only
-      run: 'set -euo pipefail
-
-        ./gradlew --no-daemon -Pr30Instrumentation=true :app:assembleRelease 2>&1 | tail -n 140
+        ./gradlew --no-daemon --max-workers=4 -Pr30Instrumentation=true :app:assembleRelease :app:lintRelease :app:testDebugUnitTest --tests "*R31ProductionReportTest"
+        --tests "*R31MetricReportTest" --tests "*R31WriterReportColumnsTest" --tests "*R30ReportSnapshotTest" 2>&1 | tail -n 140
 
         '
     - name: Signature, badging and digests of what was built
-      run: "B=\"$ANDROID_HOME/build-tools/36.0.0\"\nmkdir -p r31v && cp \"$RUNNER_TEMP/r31v/signing.txt\" r31v/signing.txt\nfor f in $(ls app/build/outputs/apk/release/*.apk\
-        \ 2>/dev/null); do\n  n=$(basename \"$f\" .apk)\n  \"$B/apksigner\" verify --verbose --print-certs \"$f\" > \"r31v/signature-$n.txt\" 2>&1\n  \"\
-        $B/aapt\" dump badging \"$f\" > \"r31v/badging-$n.txt\"\ndone\nsha256sum app/build/outputs/apk/release/*.apk > r31v/SHA256SUMS.txt\ngit rev-parse\
-        \ HEAD > r31v/source-commit.txt\ncat r31v/signing.txt r31v/SHA256SUMS.txt\n\napk=$(find app/build/outputs/apk/release -maxdepth 1 -name \"*.apk\"\
-        \ -type f)\nsha256sum \"$apk\" | cut -d \" \" -f1 | sed \"s/^/sha256=/\" >> \"$GITHUB_OUTPUT\"\n"
+      run: 'set -euo pipefail
+
+        B="$ANDROID_HOME/build-tools/36.0.0"
+
+        D="$RUNNER_TEMP/phone-built"; mkdir -p "$D"
+
+        cp app/build/outputs/apk/release/*.apk "$D/"
+
+        cp "$RUNNER_TEMP/r31v/signing.txt" "$D/"
+
+        git rev-parse HEAD > "$D/source-commit.txt"
+
+        APK=$(find "$D" -name ''*-release.apk'' -type f)
+
+        "$B/apksigner" verify --verbose --print-certs "$APK" > "$D/public-certificate.txt"
+
+        "$B/aapt" dump badging "$APK" > "$D/badging.txt"
+
+        sha256sum "$APK" > "$D/SHA256SUMS.txt"
+
+        sha256sum "$APK" | cut -d '' '' -f1 | sed ''s/^/sha256=/'' >> "$GITHUB_OUTPUT"
+
+        '
       id: apk
+    - name: Actual callbacks and 165824-page native backup regression
+      run: 'set -euo pipefail
+
+        export R31_PHONE_OUT="$RUNNER_TEMP/phone-host"
+
+        bash tools/r31/run_phone_report_host.sh > "$RUNNER_TEMP/phone-host.log" 2>&1 || { tail -n 60 "$RUNNER_TEMP/phone-host.log"; exit 1; }
+
+        cp "$R31_PHONE_OUT/receipt.json" "$RUNNER_TEMP/phone-built/HOST_PHONE_REPORT.json"
+
+        tail -n 2 "$RUNNER_TEMP/phone-host.log"
+
+        '
     - uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: r31-report-025-signed-build
-        path: 'r31v/
-
-          app/build/outputs/apk/release/'
+        name: r31-report-026-signed-build
+        path: ${{ runner.temp }}/phone-built/
+        if-no-files-found: error
     outputs:
-      source: ${{ steps.freeze.outputs.source }}
+      source: d44e10acbdd040faaeb1fc4deb1b0b67efac1bb1
       apk_sha: ${{ steps.apk.outputs.sha256 }}
   report:
     runs-on: ubuntu-latest
@@ -127,16 +133,18 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        path: harness
-    - uses: actions/checkout@v4
-      with:
-        ref: ${{ needs.build.outputs.source }}
-        path: source
+        ref: d44e10acbdd040faaeb1fc4deb1b0b67efac1bb1
         fetch-depth: 1
     - uses: actions/download-artifact@v4
       with:
-        name: r31-report-025-signed-build
+        name: r31-report-026-signed-build
         path: built
+    - uses: actions/download-artifact@v4
+      with:
+        name: r31-report-025-signed-build
+        run-id: 43417298331
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path: old025
     - name: Enable emulator acceleration
       run: 'echo ''KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"'' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
 
@@ -154,15 +162,12 @@ jobs:
         ram-size: 3072M
         heap-size: 512M
         emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
-        script: bash harness/evidence/r27/ci/r31-report-export-only.sh
-      env:
-        R31_REPORT_APK_SHA: ${{ needs.build.outputs.apk_sha }}
-        R31_REPORT_EXPECTED_SOURCE: ${{ needs.build.outputs.source }}
+        script: bash tools/r31/run_phone_report_android.sh built report-only-public old025
     - uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: r31-025-report-export-only
-        path: source/report-only-public/
+        name: r31-026-report-export-only
+        path: report-only-public/
         if-no-files-found: error
     needs: build
     permissions:
