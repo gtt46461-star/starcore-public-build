@@ -54,6 +54,8 @@ def main():
     assert len(required_hosts)>=72 and {r['id'] for r in summary['host'] if r['status']=='PASS'}==required_hosts, 'FULL_CURRENT_HOST_SUITE_NOT_PASS'
     verification = load(a.stages/'r31-verification-receipt','R31_VERIFICATION_RECEIPT.json')
     assert verification['overall'] == 'PASS' and all(v['status']=='PASS' for v in verification['stages'].values()), 'FINAL_CURRENT_ENGINEERING_STAGES_NOT_PASS'
+    required_stages={'baseline','contracts','android_build','instrumentation','priority_report_runtime','targeted_android','live_tables','report_saf'}
+    assert set(verification['stages'])==required_stages and all(v['jobResult']=='success' for v in verification['stages'].values()), 'FINAL_REQUIRED_STAGE_SET_MISSING'
     acceptance = load(a.stages/'r31-verification-receipt','ACCEPTANCE_RESULTS.json')
     assert acceptance['identity']['source_head'] == source and acceptance['identity']['state'] == 'PASS_ENGINEERING_ONLY', 'FINAL_CURRENT_INVOCATION_NOT_PASS'
     assert len(acceptance['items']) == 222 and len(acceptance['cards']) == 58, 'ORIGINAL_CARD_ITEM_SET_CHANGED'
@@ -72,7 +74,8 @@ def main():
     assert report['saf']['externalFileSha256']==report['zipSha256'], 'SAVED_REPORT_HASH_DIFFERS'
     assert report['sameSignedApkReinstallPreservesReport'] and report['overlayMarkerPreserved'], 'RELEASE_OVERLAY_RETENTION_NOT_OBSERVED'
     assert semantics['catalogResults']==96 and semantics['checksComplete'] and not semantics['incompleteChecks'], '96_CHECKS_NOT_COMPLETELY_EXECUTED'
-    assert failure_menu['result']=='PASS', 'BOTH_FAILURE_RECOVERY_ENTRANCES_NOT_PASS'
+    assert failure_menu['result']=='PASS' and failure_menu['sourceCommit']==source and failure_menu['existingEvidenceBytesPreserved'] and not failure_menu['newDatabaseBackup'] and failure_menu['failedFullReportJobDirectoriesAbsent'], 'BOTH_FAILURE_RECOVERY_ENTRANCES_NOT_PASS'
+    assert len(failure_menu['entrances'])==2 and all(all(row[k] for k in ['correctRequest','ackReason','originalFailure','credentialsMasked','recoveryShare','copyUsesSameMaskedText']) for row in failure_menu['entrances']), 'ACTUAL_FAILURE_MENU_OR_ORIGINAL_CAUSE_NOT_VERIFIED'
     live = {'sourceCommit':source,'apkSha256':priority['installedReleaseSha256'],'tests':priority['tests'],'status':priority['status'],'scope':'EXACT_RELEASE_SEVEN_PROTOCOLS_INCLUDING_ACTUAL_FUTURE_FREEZE_AND_FOLLOWING_SETTLEMENT; NOT_NATURAL_QUALITY'}
     tables = load(a.live,'TABLE_UI_READERS.json')
     transport = load(a.stages/'r31v-priority-report-runtime','ANDROID_PROTOCOL_VERIFICATION.json')
@@ -82,7 +85,7 @@ def main():
     selected=[]
     for api in [29,35]:
         r=load(a.stages/('r31-029-critical-targeted-api-'+str(api)),'SELECTED_ANDROID_RECEIPT.json')
-        assert r['sourceCommit']==source and r['apkSha256']==request['apkSha256'] and r['status']=='PASS_TARGETED_ANDROID_EMULATOR' and r['expectedTests']==5 and len(r['completedTests'])==5 and 'fullReportReachesPublishedZipAndProviderReadback' in r['completedTests'], 'CURRENT_READY_UI_LEASE_AND_RESTORE_CHECK_NOT_PASS'
+        assert r['sourceCommit']==source and r['apkSha256']==request['apkSha256'] and r['status']=='PASS_TARGETED_ANDROID_EMULATOR' and str(r['api'])==str(api) and r['expectedTests']==5 and len(r['completedTests'])==5 and 'fullReportReachesPublishedZipAndProviderReadback' in r['completedTests'], 'CURRENT_READY_UI_LEASE_AND_RESTORE_CHECK_NOT_PASS'
         selected.append(r)
     assert tables['sourceCommit']==source and tables['apkSha256']==request['apkSha256'] and tables['state']=='OBSERVED_16_ACTUAL_READERS'
     assert len(tables['reads'])==16 and {r['id'] for r in tables['reads']}=={'T%02d'%n for n in range(1,17)}
