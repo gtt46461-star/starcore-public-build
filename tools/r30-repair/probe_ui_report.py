@@ -73,6 +73,21 @@ def acknowledgements():
     return set(adb('shell', command).splitlines())
 
 
+def full_report_intents():
+    command = f"if [ -d {ROOT}/requests ]; then find {ROOT}/requests -maxdepth 1 -name '*.json' -type f; fi"
+    rows = {}
+    for path in adb('shell', command).splitlines():
+        if not re.fullmatch(re.escape(ROOT) + r'/requests/[a-f0-9]{64}\.json', path):
+            continue
+        try:
+            row = read_json(path)
+        except (RuntimeError, json.JSONDecodeError):
+            continue
+        if row.get('mode') == 'FULL_REPORT' and path.endswith('/' + str(row.get('requestId')) + '.json'):
+            rows[row['requestId']] = row
+    return rows
+
+
 def read_json(path):
     return json.loads(adb('shell', 'cat', path))
 
@@ -188,7 +203,10 @@ def main():
     assert adb('shell', 'getprop', 'ro.kernel.qemu').strip() == '1', 'EMULATOR_REQUIRED'
     assert adb('shell', 'id', '-u').strip() == '0', 'ROOTED_DISPOSABLE_EMULATOR_REQUIRED'
     expected_source = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
-    before = acknowledgements()
+    # A clear command legitimately writes a new CANCELLED ACK for an older
+    # unacknowledged request. Bind this click to its fresh durable intent,
+    # rather than treating every newly visible ACK as the new export.
+    before_intents = set(full_report_intents())
     adb('shell', 'am', 'start', '-W', '-n', PKG + '/com.ethk3.novaonepro.MainActivity')
     click_text('导出完整报告（含数据库和训练附件）', scrolls=45)
     capture('export-menu')
@@ -198,8 +216,15 @@ def main():
     deadline = time.monotonic() + 360
     last = None
     publication = None
+    selected_request = None
     while time.monotonic() < deadline:
-        for path in sorted(acknowledgements() - before):
+        if selected_request is None:
+            fresh = set(full_report_intents()) - before_intents
+            assert len(fresh) <= 1, 'UI_REPORT_FRESH_REQUEST_AMBIGUOUS'
+            if fresh:
+                selected_request = next(iter(fresh))
+        expected = f'{ROOT}/requests/{selected_request}.ack.json' if selected_request else None
+        for path in sorted(acknowledgements().intersection({expected}) if expected else set()):
             try:
                 state = read_json(path)
             except json.JSONDecodeError:

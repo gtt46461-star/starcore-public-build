@@ -1,0 +1,54 @@
+name: STARCORE exact existing APK joint report diagnosis
+on:
+  push:
+    branches: ['construction/r31-final-20261104']
+    paths: ['construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/execution/K11/REPORT_JOINT_DIAGNOSIS_REQUEST.json']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: request
+        run: |
+          python3 - <<'PY'
+          import json,re,os,subprocess
+          r=json.load(open('construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/execution/K11/REPORT_JOINT_DIAGNOSIS_REQUEST.json'))
+          assert re.fullmatch('[0-9a-f]{40}',r['sourceCommit'])
+          assert type(r['runId']) is int and r['runId']>0
+          assert re.fullmatch('[A-Za-z0-9_.-]+',r['artifact'])
+          subprocess.run(['git','merge-base','--is-ancestor',r['sourceCommit'],'HEAD'],check=True)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              for key in ['sourceCommit','runId','artifact']:f.write(key+'='+str(r[key])+'\n')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.request.outputs.artifact }}
+          run-id: ${{ steps.request.outputs.runId }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: built
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: bash tools/r30-repair/prepare_emulator.sh && python3 -B tools/r31/diagnose_report_joint.py --built built --out report-joint-public --source ${{ steps.request.outputs.sourceCommit }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31-existing-e058-report-joint-diagnosis
+          path: report-joint-public/

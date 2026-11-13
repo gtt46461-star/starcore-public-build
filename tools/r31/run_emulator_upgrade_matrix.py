@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """R31-B12-C01#A1b/#A2 on a disposable Android emulator (EMU layer; never a physical-device claim).
 
-Overlay-installs the built debug APK, kills the app process (run-as kill -9, i.e. a real process death) at several
+Overlay-installs the built debug APK, kills the app process on a rooted disposable emulator at several
 offsets during startup, relaunches, and records what is actually observed: the UI resumes, no crash, the database
 passes integrity_check, the Critical stamp is READY and - only if the runtime owner ran - the R31 upgrade journal
 phases are COMPLETED with attempt <= kills+1. A journal that never started (service not enabled by a user) is
@@ -25,6 +25,27 @@ def adb(*args, timeout=120, check=False):
 
 def pid():
     return adb('shell', 'pidof', PKG)
+
+
+def package_pids():
+    text = adb('shell', 'ps', '-A', '-o', 'PID,ARGS')
+    return [int(row.split()[0]) for row in text.splitlines()
+            if len(row.split()) >= 2 and row.split()[0].isdigit()
+            and (row.split()[1] == PKG or row.split()[1].startswith(PKG + ':'))]
+
+
+def stop_before_copy():
+    # Raw DB/WAL/SHM files must describe the same stopped writer generation.
+    # A successful adb copy of three live files is not a SQLite snapshot.
+    adb('shell', 'am', 'force-stop', PKG, check=True)
+    deadline = time.monotonic() + 5
+    while package_pids() and time.monotonic() < deadline:
+        time.sleep(.05)
+    remaining = package_pids()
+    if remaining:
+        raise RuntimeError('UPGRADE_CAPTURE_PACKAGE_PROCESS_STILL_ALIVE:' + str(remaining))
+    return {'method': 'SYSTEM_FORCE_STOP_THEN_ALL_PACKAGE_PIDS_GONE',
+            'remainingPids': remaining, 'rawFilesCopiedWhileWriterActive': False}
 
 
 def pull_db(target):
@@ -61,6 +82,8 @@ def main():
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     if adb('shell', 'getprop', 'ro.kernel.qemu') != '1':
         raise SystemExit('DISPOSABLE_ANDROID_EMULATOR_REQUIRED_NO_PHYSICAL_DEVICE_CLAIM')
+    if adb('shell', 'id', '-u') != '0':
+        raise SystemExit('ROOTED_DISPOSABLE_EMULATOR_REQUIRED_FOR_CONFIRMED_PROCESS_KILLS')
     receipt = {'scope': 'EMU_OVERLAY_INSTALL_KILL_RECOVERY_NOT_DEVICE_NOT_NATURAL', 'api': a.api, 'startedAt': dt.datetime.now(dt.timezone.utc).isoformat(),
                'apkSha256': hashlib.sha256(Path(a.apk).read_bytes()).hexdigest(), 'kills': [], 'physicalDevice': 'NOT_RUN'}
     adb('logcat', '-c')
@@ -69,15 +92,23 @@ def main():
     receipt['overlayInstall'] = adb('install', '-r', '-g', a.apk, timeout=600)  # overlay install of the same build over its own data
     for delay in (0.3, 0.8, 1.5, 3.0, 6.0):
         adb('shell', 'am', 'start', '-n', ACTIVITY); time.sleep(delay); p = pid()
-        killed = bool(p) and adb('shell', 'run-as', PKG, 'kill', '-9', p.split()[0]) == ''
+        if p and not all(value.isdigit() for value in p.split()):
+            raise RuntimeError('UPGRADE_PID_NOT_NUMERIC')
+        signal = subprocess.run(['adb','shell','kill','-9',*p.split()],capture_output=True,text=True,timeout=120) if p else None
         time.sleep(1.0)
-        receipt['kills'].append({'afterSeconds': delay, 'pid': p, 'killedByRunAs': killed, 'stillAlive': pid() == p and bool(p)})
+        still = bool(set(p.split()) & set(pid().split()))
+        receipt['kills'].append({'afterSeconds': delay, 'pid': p,
+                                 'method': 'ROOTED_DISPOSABLE_EMULATOR_SIGKILL',
+                                 'signalExitCode': None if signal is None else signal.returncode,
+                                 'oldPidExitConfirmed': signal is not None and signal.returncode == 0 and not still,
+                                 'stillAlive': still})
     adb('shell', 'am', 'start', '-W', '-n', ACTIVITY, timeout=120); time.sleep(20)
     resumed = adb('shell', 'dumpsys', 'activity', 'activities')
     receipt['uiResumed'] = PKG in '\n'.join(l for l in resumed.splitlines() if 'ResumedActivity' in l)
     receipt['processAlive'] = bool(pid())
     crash = adb('logcat', '-d', '-b', 'crash', '-v', 'threadtime')
     (out / 'crash.txt').write_text(crash); receipt['crashForPackage'] = PKG in crash
+    receipt['capture'] = stop_before_copy()
     facts = inspect(pull_db(out / 'db')); receipt['database'] = facts
     journal = facts.get('upgradeJournal') or {}
     if not journal:
@@ -88,7 +119,8 @@ def main():
     critical = (facts.get('stamps') or {}).get('CRITICAL')
     receipt['criticalStamp'] = critical or 'MISSING'
     observed = receipt['uiResumed'] and receipt['processAlive'] and not receipt['crashForPackage'] and facts.get('integrity') == 'ok'
-    receipt['status'] = 'OBSERVED_PASS' if observed and not str(receipt['upgradeJournal']).startswith('INCOMPLETE') else 'OBSERVED_FAIL'
+    observed = observed and critical == 'READY' and all(row['oldPidExitConfirmed'] for row in receipt['kills'])
+    receipt['status'] = 'OBSERVED_PASS' if observed and receipt['upgradeJournal'] == 'COMPLETED_AFTER_KILLS' else 'OBSERVED_FAIL'
     receipt['finishedAt'] = dt.datetime.now(dt.timezone.utc).isoformat()
     shutil.rmtree(out / 'db', ignore_errors=True)
     (out / 'EMU-UPGRADE-RECEIPT.json').write_text(json.dumps(receipt, indent=1, ensure_ascii=False) + '\n')
