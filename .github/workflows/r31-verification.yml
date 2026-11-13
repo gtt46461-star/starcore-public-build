@@ -113,7 +113,9 @@ jobs:
             app/build/test-results/testDebugUnitTest/
             app/build/reports/lint-results-debug.*
   android_build:
-    needs: [baseline, contracts]
+    # Build the same frozen source while the cumulative gate runs. Delivery
+    # still requires both jobs and their current-invocation receipts below.
+    needs: [baseline]
     runs-on: ubuntu-latest
     permissions:
       contents: read
