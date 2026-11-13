@@ -1,0 +1,53 @@
+name: STARCORE R31 report-only direct delivery
+on:
+  push:
+    branches: ['construction/r31-final-20261104']
+    paths: ['release/R31_REPORT_PUBLISH_REQUEST.json']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: request
+        run: |
+          python3 - <<'PY'
+          import json,os
+          r=json.load(open('release/R31_REPORT_PUBLISH_REQUEST.json'))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as o:
+              for k in ['runId','artifact','reportArtifact']:
+                  o.write(k+'='+str(r[k])+'\n')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.request.outputs.artifact }}
+          run-id: ${{ steps.request.outputs.runId }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: built
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.request.outputs.reportArtifact }}
+          run-id: ${{ steps.request.outputs.runId }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: reports
+      - name: Verify original signed APK and actual UI/SAF evidence
+        run: |
+          set -euo pipefail
+          B="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          python3 -B tools/r31/publish_report_package.py --request release/R31_REPORT_PUBLISH_REQUEST.json --built built --reports reports --out pub --build-tools "$B"
+      - name: Publish the accepted bytes as direct APK and ZIP downloads
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import json,pathlib,subprocess
+          r=json.load(open('release/R31_REPORT_PUBLISH_REQUEST.json'))
+          pathlib.Path('notes.txt').write_text(r['notes'])
+          subprocess.run(['gh','release','create',r['tag'],*map(str,pathlib.Path('pub').iterdir()),'--target',r['sourceCommit'],'--title',r['title'],'--notes-file','notes.txt'],check=True)
+          subprocess.run(['gh','release','view',r['tag'],'--json','assets','--jq','.assets[]|.name+" "+.url'],check=True)
+          PY
