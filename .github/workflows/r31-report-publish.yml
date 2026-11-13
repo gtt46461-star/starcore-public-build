@@ -39,7 +39,25 @@ jobs:
         run: |
           set -euo pipefail
           B="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
-          python3 -B tools/r31/publish_report_package.py --request release/R31_REPORT_PUBLISH_REQUEST.json --built built --reports reports --out pub --build-tools "$B"
+          python3 - <<'PY'
+          import hashlib,json,pathlib,re
+          request=json.load(open('release/R31_REPORT_PUBLISH_REQUEST.json'))
+          if request.get('sha256') == 'FROM_ACCEPTED_RELEASE_RECEIPT':
+              assert request['versionCode'] == 577311026
+              assert request['sourceCommit'] == '3002e30d0ee8d5fe3a8795c2ed3b2f7040920f50'
+              results=list(pathlib.Path('reports').rglob('REPORT_ONLY_RESULT.json'))
+              assert len(results)==1
+              result=json.loads(results[0].read_text())
+              assert result['result']=='PASS' and result['sourceCommit']==request['sourceCommit']
+              assert int(result['runId'])==int(request['runId'])
+              digest=result['apkSha256'];assert re.fullmatch('[a-f0-9]{64}',digest)
+              apks=list(pathlib.Path('built').rglob(request['builtApk']));assert len(apks)==1
+              with apks[0].open('rb') as stream:actual=hashlib.file_digest(stream,'sha256').hexdigest()
+              assert actual==digest
+              request['sha256']=digest
+          pathlib.Path('effective-report-request.json').write_text(json.dumps(request,ensure_ascii=False,indent=2)+'\n')
+          PY
+          python3 -B tools/r31/publish_report_package.py --request effective-report-request.json --built built --reports reports --out pub --build-tools "$B"
       - name: Publish the accepted bytes as direct APK and ZIP downloads
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
