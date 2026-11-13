@@ -75,7 +75,7 @@ public final class ReportExportServiceCP4 extends Service {
             }
             // Request publication is the durable intent. Queue/kick can be reconstructed
             // after process death; optional observations can never erase that intent.
-            try{ReportRequestQueueCP12.enqueue(root,id,"FULL_REPORT");kick(app,ACTION_EXPORT,id);
+            try{enqueueCommittedRequestR31(root,id,"FULL_REPORT",generation);kick(app,ACTION_EXPORT,id);
                 lastRequestOutcomeR31Q="KICKED|request="+id+"|at="+System.currentTimeMillis();
             }catch(Exception wait){lastRequestOutcomeR31Q="PERSISTED_WAITING_FOR_SERVICE|request="+id+"|"+describeR31Q(wait);}
             JSONObject observation=new JSONObject();observation.put("pid",android.os.Process.myPid());observation.put("sampleWallMs",System.currentTimeMillis());observation.put("sampleElapsedMs",SystemClock.elapsedRealtime());
@@ -111,7 +111,10 @@ public final class ReportExportServiceCP4 extends Service {
                     .put("quietForMs",pressure.quietForMs).put("settlementExecutionActive",SettlementExecutionGateR819.isActive());
             request.put("observation",observation);
             request.put("observationState","COLLECTED_OUTSIDE_SQL_WATERMARK");
-            ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+id+".json"),request.toString());
+            synchronized(USER_REQUEST_GENERATION){
+                if(generation!=USER_REQUEST_GENERATION.get())throw new IOException("REPORT_SUPERSEDED_BY_USER");
+                ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+id+".json"),request.toString());
+            }
         }catch(Throwable error){
             if(!durable)requestFailure(app,id,error);
             else {lastRequestOutcomeR31Q="PERSISTED_OBSERVATION_OR_KICK_PENDING|request="+id+"|"+describeR31Q(error);android.util.Log.w("ReportExportCP12","Optional request observation unavailable; durable export retained",error);}
@@ -174,6 +177,12 @@ public final class ReportExportServiceCP4 extends Service {
         synchronized(USER_REQUEST_GENERATION){
             if(generation!=USER_REQUEST_GENERATION.get())throw new IOException("REPORT_SUPERSEDED_BY_USER");
             ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+id+".json"),request.toString());ReportRequestQueueCP12.enqueue(root,id,mode);
+        }
+    }
+    private static void enqueueCommittedRequestR31(File root,String id,String mode,long generation)throws Exception {
+        synchronized(USER_REQUEST_GENERATION){
+            if(generation!=USER_REQUEST_GENERATION.get())throw new IOException("REPORT_SUPERSEDED_BY_USER");
+            ReportRequestQueueCP12.enqueue(root,id,mode);
         }
     }
     public static void resumeExport(Context context,String jobId)throws IOException {

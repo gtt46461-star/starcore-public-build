@@ -64,10 +64,33 @@ public final class ReportTaskControlR69 {
             ReportJobJournalCP12.Job job=readJob(directory);
             if("FULL_REPORT".equals(job.mode)&&(clear||active(job.stage)))requests.add(job.requestId);
         }
+        // A committed intent can outlive a failed enqueue/kick. It belongs to
+        // the user's stop operation even before the service creates its job.
+        // A terminal job/ACK remains authoritative; retention is never included.
+        int unreadableIntents=0;
+        for(File intent:DirectoryCursorR31.children(new File(root,"requests"),4096)) {
+            if(!intent.getName().matches("[0-9a-f]{64}\\.json"))continue;
+            String request=intent.getName().substring(0,64);
+            if(requests.contains(request)||ReportJobJournalCP12.findRequestR31(root,request)!=null)continue;
+            if(new File(root,"requests/"+request+".ack.json").exists())continue;
+            JSONObject row;
+            try {
+                row=new JSONObject(ReportJobJournalCP12.readAtomic(intent,65536));
+                if(!request.equals(row.getString("requestId")))throw new IOException("REPORT_CONTROL_INTENT_IDENTITY");
+                row.getString("mode");
+            } catch(IOException|org.json.JSONException invalid) {
+                unreadableIntents++;
+                android.util.Log.w("ReportControlR69","Unreadable request intent preserved: "+intent.getName(),invalid);
+                continue;
+            }
+            if(!"FULL_REPORT".equals(row.getString("mode"))&&!"SAF_TRANSFER".equals(row.getString("mode")))continue;
+            requests.add(request);
+            if(requests.size()>512)throw new IOException("REPORT_CONTROL_REQUEST_BOUND");
+        }
         if(requests.size()>512)throw new IOException("REPORT_CONTROL_REQUEST_BOUND");
         String command=RetentionArchiveProtocolCP12.sha(("REPORT_CONTROL_R69|"+UUID.randomUUID()).getBytes(java.nio.charset.StandardCharsets.UTF_8));
         JSONObject body=new JSONObject().put("id",command).put("clear",clear).put("requests",new JSONArray(requests))
-                .put("createdWallMs",System.currentTimeMillis());
+                .put("createdWallMs",System.currentTimeMillis()).put("unreadableIntentsPreserved",unreadableIntents);
         ReportJobJournalCP12.writeAtomic(path(root,"command-"+command+".json"),body.toString());
         for(String request:requests){id(request);File marker=path(root,"cancel-"+request+".json");JSONObject cancellation=new JSONObject().put("requestId",request);stampCancellationR30(cancellation,marker,requestedNanosR30);ReportJobJournalCP12.writeAtomic(marker,cancellation.toString());}
         return command;
@@ -133,7 +156,7 @@ public final class ReportTaskControlR69 {
                     if(stopPrivateR30)finishCancellationR30(root,directory,job);
                     if(clear){journal.forgetCurrent(job.jobId);if(!ReportPublicationCP12.discardByUser(directory))waiting=true;}
                 }
-                result.put("stage",waiting?"WAITING_FOR_READERS":"CONTROL_DONE").put("clear",clear).put("requests",requests.size());
+                result.put("stage",waiting?"WAITING_FOR_READERS":"CONTROL_DONE").put("clear",clear).put("requests",requests.size()).put("unreadableIntentsPreserved",body.optInt("unreadableIntentsPreserved",0));
                 ReportJobJournalCP12.writeAtomic(path(root,"status-"+control+".json"),result.toString());
                 if(!waiting){
                     if(!command.delete())throw new IOException("REPORT_CONTROL_COMMAND_CLEANUP");

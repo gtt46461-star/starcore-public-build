@@ -64,6 +64,13 @@ public final class R31UnifiedReportHostTest {
                 ReportRequestQueueCP12.enqueue(root,request,"FULL_REPORT");need((System.nanoTime()-began)/1_000_000<4000,"CONTROL_INTENT_WAITED_FOR_BULK_CENSUS");
             }finally{child.getOutputStream().close();need(child.waitFor(5,java.util.concurrent.TimeUnit.SECONDS),"CONTROL_CHILD_RELEASE");child.destroyForcibly();}
             ReportRequestQueueCP12.remove(root,request);ReportRequestQueueCP12.reconcileRequestsR31(root);need(request.equals(ReportRequestQueueCP12.head(root)),"DURABLE_INTENT_NOT_RECOVERED_WITHOUT_FIFO");
+            Field generationField=ReportExportServiceCP4.class.getDeclaredField("USER_REQUEST_GENERATION");generationField.setAccessible(true);
+            AtomicLong generation=(AtomicLong)generationField.get(null);long superseded=generation.getAndIncrement();
+            Method enqueue=ReportExportServiceCP4.class.getDeclaredMethod("enqueueCommittedRequestR31",File.class,String.class,String.class,long.class);enqueue.setAccessible(true);
+            String cancelledRequest=id("superseded-before-enqueue");
+            try{enqueue.invoke(null,root,cancelledRequest,"FULL_REPORT",superseded);throw new AssertionError("STOP_RACE_REQUEUED_OLD_GENERATION");}
+            catch(InvocationTargetException expected){need(expected.getCause() instanceof IOException&&expected.getCause().getMessage().contains("SUPERSEDED"),"STOP_RACE_LOST_CAUSE");}
+            need(!ReportRequestQueueCP12.pendingIds(root).contains(cancelledRequest),"STOP_RACE_MUTATED_FIFO");
             try(ReportJobJournalCP12 journal=ReportJobJournalCP12.tryClaim(files)){
                 job=journal.recoverOrCreateR31(request,release,"FULL_REPORT");directory=journal.directory(job);job.snapshotSha=id("HOST_DIAGNOSTIC_NO_RAW_DB");job.publishedDir="archive-1";job.publishedQuotaBytes=128*MiB;
                 StorageBudgetR31.Reservation reservation=budget.reserve("report:"+job.jobId,job.revision,StorageBudgetR31.Category.REPORT_WORKSPACE,"files/r981_reports/jobs/"+job.jobId,64*MiB,256*MiB,true);
@@ -72,9 +79,11 @@ public final class R31UnifiedReportHostTest {
                 try(ReportIoR31.Scope scope=ReportIoR31.bind(directory,control)){
                     ReportCatalogCP4.Result catalog=catalog(directory);Map<String,Object> document=document(job);
                     write(new File(directory,"R30_REPORT.json"),JsonR27.write(document));write(new File(directory,"R30_REPORT.md"),"HOST: insufficient evidence\n");write(new File(directory,"REPORT_DETAILS.txt"),"HOST synthetic transport, no executed product-check claim\n");write(new File(directory,"DIAGNOSTIC_SCOPE.json"),"{\"scope\":\"HOST_SYNTHETIC_NO_RAW_DB\"}");
+                    for(String name:new String[]{"R26_REPORT.json","R26_FROZEN_SURFACE.json","R26_POLICY_IDENTITIES.jsonl"})write(new File(directory,name),"{\"scope\":\"HOST_SYNTHETIC_TRANSPORT_ONLY\",\"status\":\"NOT_RUN\"}\n");
+                    for(String name:new String[]{"R27_REPORT.md","STORAGE_CENSUS.txt"})write(new File(directory,name),"HOST synthetic transport fixture; business evidence NOT_RUN\n");
                     ReportSemanticVerifierR31.writeReceipt(directory,document,catalog,job,false,control);job.semanticVerificationR31="REQUIRES_ZIP_READBACK";phases(journal,job);
                     File archive=new File(directory,job.publishedDir);archive.mkdir();try(ReportArchiveCP4 writer=new ReportArchiveCP4(archive,job.jobId,control)){
-                        SortedMap<String,File> members=new TreeMap<>();for(String name:new String[]{"R30_REPORT.json","R30_REPORT.md","REPORT_DETAILS.txt","DIAGNOSTIC_SCOPE.json",ReportSemanticVerifierR31.RECEIPT})members.put(name,new File(directory,name));
+                        SortedMap<String,File> members=new TreeMap<>();for(String name:new String[]{"R30_REPORT.json","R30_REPORT.md","REPORT_DETAILS.txt","DIAGNOSTIC_SCOPE.json","R26_REPORT.json","R26_FROZEN_SURFACE.json","R26_POLICY_IDENTITIES.jsonl","R27_REPORT.md","STORAGE_CENSUS.txt",ReportSemanticVerifierR31.RECEIPT})members.put(name,new File(directory,name));
                         for(File page:catalog.indexFiles)members.put(page.getName(),page);for(Map.Entry<String,File> member:members.entrySet())writer.add(member.getKey(),member.getValue(),4*MiB,control);writer.finish(true,false,"HOST_SYNTHETIC_TRANSPORT_NOT_BUSINESS_HEALTH");
                     }
                     File ack=new File(root,"requests/"+request+".ack.json");Files.delete(ack.toPath());Files.createDirectory(ack.toPath());AtomicBoolean immediateGrant=new AtomicBoolean();AtomicReference<Throwable> readerError=new AtomicReference<>();

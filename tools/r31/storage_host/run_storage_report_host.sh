@@ -14,7 +14,10 @@ product_classes=${CLASSES:-app/build/intermediates/javac/debug/compileDebugJavaW
 storage_sdk=${ANDROID_HOME:-${ANDROID_SDK_ROOT:?}}
 storage_junit=$(rg_files "$GRADLE_USER_HOME/caches/modules-2/files-2.1/junit/junit/4.13.2" '*.jar')
 storage_hamcrest=$(rg_files "$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3" '*.jar')
-storage_annotation=$(rg_files "$GRADLE_USER_HOME/caches/modules-2/files-2.1/androidx.annotation/annotation/1.3.0" '*.jar')
+storage_annotation=${R31_HOST_ANNOTATION_JAR:-}
+if [ -z "$storage_annotation" ]; then
+    storage_annotation=$(rg_files "$GRADLE_USER_HOME/caches/modules-2/files-2.1/androidx.annotation/annotation/1.3.0" '*.jar')
+fi
 test -n "$storage_annotation" && test -f "$storage_annotation"
 if [ -n "${REPORT_NATIVE_DIR:-}" ]; then
     storage_native=$REPORT_NATIVE_DIR
@@ -71,7 +74,7 @@ java -Xmx128m -Djava.library.path="$storage_native" -cp "$storage_out/drivers:$s
 java -Xmx128m -cp "$storage_out/drivers:$storage_cp" com.ethk3.novaonepro.R31ReportSinkHostTest "$storage_out/fixtures/sink-owner" > "$storage_out/report-sinks.log" 2>&1
 java -Xmx256m -Djava.library.path="$storage_native" -cp "$storage_out/drivers:$storage_cp" com.ethk3.novaonepro.R31UnifiedReportHostTest "$storage_out/fixtures/unified-owner" > "$storage_out/unified-report.log" 2>&1
 python3 - "$storage_out" "$product_classes" <<'PY'
-import sys,json,hashlib,subprocess,sqlite3,platform,re
+import sys,json,hashlib,subprocess,sqlite3,platform,re,os
 from pathlib import Path
 out=Path(sys.argv[1]);proof=out/'file-proofs';proof.mkdir();fixture=json.loads((out/'fixture-identity.json').read_text());source=out/'fixtures'/fixture['applicationId']/'databases'/fixture['db'];restored=out/'fixtures/restored.db'
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
@@ -93,5 +96,12 @@ junit=(out/'junit.log').read_text();count=int(re.search(r'OK \((\d+) tests\)',ju
 paths=[Path('app/src/main/java/com/ethk3/novaonepro')/(name+'.java') for name in ['DirectoryCursorR31','StorageBudgetR31','StorageLedgerR31','StorageCensusSU2','ReportIoR31','ReportControlBudgetR31','ReportSemanticVerifierR31','ReportPhaseBudgetR31','ReportCleanupR31','ReportBudgetSU2','ReportPublicationCP12','ReportExportServiceCP4','ReportInputsLeaseCP12','ReportArchiveCP4','ReportArchiveVerifierCP12','ReportNativeCP4','DiagnosticReportProviderR923','ReportAttachmentClosureCP12','ReportCatalogCP4','ReportDiagnosticEvidenceR64','ReportMemberPlanCP12','ReportReadContextCP4','ReportTextCP12','ReportJobJournalCP12','ReportRequestQueueCP12','ReportTaskControlR69','ServiceHeartbeatStore','BackgroundRuntimeCapabilityR811']]
 paths += [Path('app/src/main/cpp/report_native_cp4.c'),Path('app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java'),Path('app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java'),Path('app/src/test/java/com/ethk3/novaonepro/R31StorageGovernanceTest.java'),Path('app/src/test/java/com/ethk3/novaonepro/RepairStorageCensusR30Test.java'),*Path('tools/r31/storage_host').rglob('*'),Path('tools/r30/qual_host/ReportDeliveryR30HostTest.java')]
 receipt={'format':'R31_STORAGE_REPORT_HOST_RECEIPT_V1','status':'PASS','sourceHead':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'sourceDirty':bool(subprocess.check_output(['git','status','--porcelain'],text=True).strip()),'scope':'COMPILED_SOURCE_SUBSET_WITH_EXPLICIT_DEPENDENCY_CLASSPATH; REAL_HOST_FILES_PROCESSES_SQLITE_ZSTD_JNI; NOT_ANDROID_VM_OR_APK_OR_HANDSET_OR_NATURAL_QUALITY','dependencyClasses':sys.argv[2],'dependencyGate':'EXPLICIT_CLASSPATH_API_BINDING_ONLY; WHOLE_ANDROID_SOURCE_GATE_REQUIRED_SEPARATELY','hostArchitecture':platform.machine(),'junitTests':count,'crossPidOsLocksAndKilledOwner':'PASS','nativeBackupChunkAdmissionAndClosedResources':'PASS','nativeDeferredCacheCommitRegression':'PASS','publishedCleanupAndProtectedMissingRaw':'PASS','actualReportSinksAndDynamicPhaseAdmission':'PASS','actualServicePublishImmediateReadyGrantAndLostAckRecovery':'PASS_HOST_FRAMEWORK_TRANSPORT_ADAPTED','semanticZipReadback':'PASS_SYNTHETIC_CHECK_INPUTS_NOT_96_EXECUTED_BUSINESS_CHECKS','typedAdmissionFailures':'PASS','r30Zip20MiBSplitTamperCancelRegression':'PASS','restoredDatabase':{'sha256':sha(restored),'integrity':'ok','fixtureRows':768,'logicalSourceRowsEqual':True},'migration':'NO_NEW_SQL_SCHEMA; FILE_LEDGER_V1','device24h':'NOT_RUN','device72h':'NOT_RUN','original30GB':'UNAVAILABLE','allocatedMeasurement':'ANDROID_OS_STAT_PATH_COMPILED_NOT_RUN; native host Linux stat(st_blocks*512) actual; host Census reports UNKNOWN','fixtureClock':'CONTROLLED_RING_AND_RETRY_NOT_ELAPSED_RUNTIME','sourceSha256':{str(p):sha(p) for p in paths if p.is_file()},'compiledSubsetSha256':{str(p.relative_to(out/'product')):sha(p) for p in (out/'product').rglob('*.class')}}
+receipt['dependencyBuildScope']=os.environ.get('R31_HOST_DEPENDENCY_SCOPE','DEPENDENCY_CLASSPATH_ONLY; UNEXCLUDED_AGP_BUILD_REQUIRED_SEPARATELY')
+receipt['dependencyClassTrees']={}
+for entry in sys.argv[2].split(os.pathsep):
+    base=Path(entry);digest=hashlib.sha256();classes=0
+    for item in sorted(base.rglob('*.class')):
+        digest.update(str(item.relative_to(base)).encode());digest.update(b'\0');digest.update(hashlib.sha256(item.read_bytes()).digest());classes+=1
+    receipt['dependencyClassTrees'][entry]={'sha256':digest.hexdigest(),'classes':classes}
 (out/'receipt.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n');print('R31_STORAGE_REPORT_HOST|JUNIT='+str(count)+'|CROSS_PID_NATIVE_CLEANUP_R30_REGRESSION|PASS|NOT_ANDROID_OR_SOAK_OR_NATURAL')
 PY

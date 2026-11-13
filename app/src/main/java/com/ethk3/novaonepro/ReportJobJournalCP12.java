@@ -213,7 +213,18 @@ public final class ReportJobJournalCP12 implements Closeable {
      * Consumers still verify published.json, manifest and ZIP before opening it. */
     public static JSONObject authoritativeStateR31(File root,String request)throws Exception {
         Job job=findRequestR31(root,request);if(job==null)return null;
-        JSONObject value=new JSONObject();value.put("requestId",request);value.put("jobId",job.jobId);value.put("mode",job.mode);value.put("stage",job.stage);value.put("revision",job.revision);value.put("reason",job.lastReason);value.put("evidenceComplete",job.evidenceComplete);value.put("checksComplete",job.checksComplete);value.put("allChecksPassed",job.allChecksPassed);value.put("semanticVerificationR31",job.semanticVerificationR31);return value;
+        JSONObject value=new JSONObject();value.put("requestId",request);value.put("jobId",job.jobId);value.put("mode",job.mode);value.put("stage",job.stage);value.put("revision",job.revision);value.put("reason",job.lastReason);value.put("evidenceComplete",job.evidenceComplete);value.put("checksComplete",job.checksComplete);value.put("allChecksPassed",job.allChecksPassed);value.put("semanticVerificationR31",job.semanticVerificationR31);
+        // The UI prefers this authority over ACK. Preserve the independently
+        // durable recovery receipt even when both ACK writes were lost.
+        if(Stage.FAILED.name().equals(job.stage)) {
+            try { addRecoveryReceipt(root,request,value); }
+            catch(IOException|org.json.JSONException damaged) {
+                // A damaged optional recovery record must not hide the job's
+                // original failure or turn reattachment into a polling loop.
+                value.put("recoveryFailure",damaged.getClass().getSimpleName()+":"+String.valueOf(damaged.getMessage()));
+            }
+        }
+        return value;
     }
     public static Recovery recovery(Job j,boolean snapshotValid,boolean finishedManifest,boolean publishedValid) {
         Stage stage=Stage.valueOf(j.stage);

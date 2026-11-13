@@ -52,6 +52,26 @@ public final class R31ReportSinkHostTest {
             }
             ReportJobJournalCP12.writeAtomic(new File(journal.root(),"requests/"+job.requestId+".json"),"{\"includeRawEvidence\":false}");JSONObject recovery=ReportJobJournalCP12.writeFailureArtifact(journal.root(),job.requestId,new IOException("HOST_ORIGINAL_FAILURE"),job);need(!recovery.getBoolean("databaseIncluded"),"DIAGNOSTIC_RECOVERY_CLAIMED_DB");
             File recoveryDir=new File(journal.root(),"recovery/"+job.requestId),zip=new File(recoveryDir,recovery.getString("sha256")+".zip");need(zip.isFile()&&recovery.getString("sha256").equals(ReportArchiveCP4.hash(zip)),"RECOVERY_SHA");
+            job.lastReason="HOST_ORIGINAL_FAILURE";journal.transition(job,ReportJobJournalCP12.Stage.FAILED,System.currentTimeMillis());
+            File ack=new File(journal.root(),"requests/"+job.requestId+".ack.json");need(ack.delete(),"FAILURE_ACK_DELETE");
+            JSONObject authority=ReportJobJournalCP12.authoritativeStateR31(journal.root(),job.requestId);
+            need("FAILED".equals(authority.getString("stage"))&&"HOST_ORIGINAL_FAILURE".equals(authority.getString("reason")),"AUTHORITY_LOST_ORIGINAL_FAILURE");
+            need(recovery.getString("sha256").equals(authority.getJSONObject("recovery").getString("sha256")),"AUTHORITY_HID_RECOVERY_WITHOUT_ACK");
+            File recoveryReceipt=new File(recoveryDir,"receipt.json");String originalReceipt=ReportJobJournalCP12.readAtomic(recoveryReceipt,4096);
+            Files.write(recoveryReceipt.toPath(),"{BROKEN".getBytes(StandardCharsets.UTF_8));
+            JSONObject damaged=ReportJobJournalCP12.authoritativeStateR31(journal.root(),job.requestId);
+            need("FAILED".equals(damaged.getString("stage"))&&damaged.has("recoveryFailure")&&!damaged.has("recovery"),"DAMAGED_OPTIONAL_RECOVERY_HID_JOB_FAILURE");
+            Files.write(recoveryReceipt.toPath(),originalReceipt.getBytes(StandardCharsets.UTF_8));
+            String pending=id(132);File pendingIntent=new File(journal.root(),"requests/"+pending+".json");
+            ReportJobJournalCP12.writeAtomic(pendingIntent,new JSONObject().put("requestId",pending).put("mode","FULL_REPORT").put("createdWallMs",System.currentTimeMillis()).toString());
+            File orphanIntent=new File(journal.root(),"requests/"+id(133)+".json");ReportJobJournalCP12.writeAtomic(orphanIntent,"{BROKEN");
+            String stop=ReportTaskControlR69.request(new File(app,"files"),false);
+            need(ReportTaskControlR69.cancelled(journal.root(),pending,pending),"STOP_MISSED_DURABLE_INTENT_WITHOUT_FIFO_OR_JOB");
+            ReportTaskControlR69.applyPending(journal);
+            need("CONTROL_DONE".equals(ReportTaskControlR69.status(new File(app,"files"),stop).getString("stage")),"UNCLAIMED_INTENT_STOP_NOT_COMMITTED");
+            need(ReportTaskControlR69.status(new File(app,"files"),stop).getInt("unreadableIntentsPreserved")==1&&orphanIntent.isFile(),"CANCEL_REMOVED_OR_HID_UNREADABLE_INTENT");
+            ReportRequestQueueCP12.reconcileRequestsR31(journal.root());
+            need(!ReportRequestQueueCP12.pendingIds(journal.root()).contains(pending),"STOPPED_INTENT_REQUEUED_AFTER_RECONCILE");
             try(ReportIoR31.Artifact artifact=ReportIoR31.reserveArtifact(recoveryDir,MiB)){need(!ReportPublicationCP12.tryDeleteRecoveryR31(recoveryDir),"ACTIVE_RECOVERY_WRITER_NOT_LEASE_PROTECTED");}
             need(!ReportIoR31.currentThreadHasScope(),"RECOVERY_THREAD_LOCAL_OWNER_LEAKED");need(((List<?>)budget.snapshot().get("owners")).isEmpty(),"OUTPUT_GRANT_LEAKED_AFTER_FD_CLOSED");
             System.out.println("R31_REPORT_SINK_HOST|ATOMIC_DESCRIPTOR_COPY_CATALOG_PAGE_EXTERNAL_MERGE_RENDER_INVENTORY_ALL_CONSUME_REAL_DISK_ADMISSION|DENIAL_PRESERVES_ORIGINAL|EXACT_PHASE_GROWTH_CAP_DENIED|RECOVERY_ZIP_CRC_SHA_AND_ACTIVE_WRITER_PIN|SCOPES_CLOSED|HOST_SINK_CONTRACT_NOT_ANDROID_OR_96_CHECK_BUSINESS_PASS|PASS");
