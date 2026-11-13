@@ -10,6 +10,8 @@ import json
 import re
 import subprocess
 import time
+import tempfile
+import os
 import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
@@ -74,6 +76,56 @@ def read_json(path):
     return json.loads(adb('shell', 'cat', path))
 
 
+def safe_failure_symbols(ack_path, state):
+    """Read the original recovery cause locally; export public code symbols only.
+
+    No raw recovery archive, stack message, report data, private path, URL or
+    credentials are written to the diagnostic output or Actions console.
+    """
+    source = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+    java = list(Path('app/src').rglob('*.java'))
+    public_files = {p.name for p in java}
+    public_text = '\n'.join(p.read_text(errors='replace') for p in java)
+    public_keys = set(re.findall(r'"([A-Za-z][A-Za-z0-9_]{0,80})"', public_text))
+    request = ack_path.rsplit('/', 1)[-1].removesuffix('.ack.json')
+    assert re.fullmatch('[a-f0-9]{64}', request), 'DIAGNOSTIC_REQUEST_ID_INVALID'
+    result = {'sourceCommit': source, 'runId': os.environ.get('GITHUB_RUN_ID', 'LOCAL'),
+              'scope': 'PUBLIC_CODE_SYMBOLS_ONLY_NO_ORIGINAL_LOG_OR_REPORT_DATA',
+              'recoveryAvailable': False, 'publicSourceFrames': [], 'missingPublicJsonKeys': []}
+    original = str(state.get('recoveryFailure', ''))
+    try:
+        receipt = read_json(f'{ROOT}/recovery/{request}/receipt.json')
+        digest = receipt['sha256']
+        assert re.fullmatch('[a-f0-9]{64}', digest), 'DIAGNOSTIC_RECOVERY_ID_INVALID'
+        with tempfile.TemporaryDirectory(prefix='r31-private-recovery-') as private:
+            recovery = Path(private) / 'recovery.zip'
+            adb('pull', f'{ROOT}/recovery/{request}/{digest}.zip', str(recovery), timeout=90)
+            assert hashlib.sha256(recovery.read_bytes()).hexdigest() == digest, 'DIAGNOSTIC_RECOVERY_HASH_MISMATCH'
+            with zipfile.ZipFile(recovery) as archive:
+                entry = archive.getinfo('original-failure.txt')
+                assert entry.file_size <= 2 * 1024 * 1024, 'DIAGNOSTIC_STACK_BOUND'
+                raw = archive.read(entry)
+                original = raw.decode(errors='replace')
+                result['originalFailureMemberSha256'] = hashlib.sha256(raw).hexdigest()
+                result['recoveryAvailable'] = True
+    except Exception as unavailable:
+        # Class names only, never the exception's potentially sensitive message.
+        result['collectorFailureClass'] = type(unavailable).__name__
+    for cls, method, file, line in re.findall(
+            r'at (com\.ethk3\.novaonepro\.[A-Za-z0-9_.$]+)\.([A-Za-z0-9_$]+)\(([A-Za-z0-9_]+\.java):(\d+)\)', original):
+        if file in public_files:
+            row = [cls, method, file, int(line)]
+            if row not in result['publicSourceFrames'] and len(result['publicSourceFrames']) < 80:
+                result['publicSourceFrames'].append(row)
+    missing = set(re.findall(r'No value for ([A-Za-z][A-Za-z0-9_]*)', original))
+    missing.update(re.findall(r' at ([A-Za-z][A-Za-z0-9_]*) of type ', original))
+    result['missingPublicJsonKeys'] = sorted(public_keys.intersection(missing))
+    result['nonfiniteJsonRejected'] = bool(re.search(r'Forbidden numeric value|not a finite double', original))
+    result['jsonTypeMismatch'] = 'cannot be converted to' in original
+    (args.out / 'safe-recovery-failure.json').write_text(json.dumps(result, indent=2) + '\n')
+    print('R31_SAFE_UI_FAILURE|' + json.dumps(result, sort_keys=True), flush=True)
+
+
 def main():
     assert adb('get-serialno').strip().startswith('emulator-'), 'EMULATOR_REQUIRED'
     assert adb('shell', 'getprop', 'ro.kernel.qemu').strip() == '1', 'EMULATOR_REQUIRED'
@@ -101,6 +153,7 @@ def main():
                 print('R30_UI_REPORT_PROGRESS:' + ':'.join(progress), flush=True)
                 last = progress
             if stage in ('FAILED', 'CANCELLED'):
+                safe_failure_symbols(path, state)
                 raise AssertionError('UI_REPORT_FAILED:' + str(state.get('reason', stage)))
             if stage == 'READY_TO_SHARE':
                 job = state.get('jobId', '')

@@ -109,6 +109,18 @@ public final class R31UnifiedReportHostTest {
                 try{ReportSemanticVerifierR31.verifyDelivery(directory,recovered,()->true);throw new AssertionError("TAMPERED_SEMANTIC_RECEIPT_ACCEPTED");}catch(IOException expected){need(expected.getMessage().contains("SEMANTIC"),"ORIGINAL_SEMANTIC_FAILURE_LOST");}write(receipt,original);
                 ReportSemanticVerifierR31.verifyDelivery(directory,recovered,()->true);need(DirectoryCursorR31.children(new File(root,"jobs"),10).length==1,"ACK_RECOVERY_DUPLICATED_BACKUP_JOB");
             }
+            String clear=ReportTaskControlR69.request(files,true);
+            try(ReportJobJournalCP12 clearing=ReportJobJournalCP12.tryClaim(files)){
+                ReportTaskControlR69.applyPending(clearing);
+                need("CONTROL_DONE".equals(ReportTaskControlR69.status(files,clear).getString("stage")),"EXPLICIT_CLEAR_DID_NOT_FINISH");
+                String next=id("new-export-after-explicit-clear");
+                ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+next+".json"),new JSONObject().put("requestId",next).put("mode","FULL_REPORT").put("releaseHash",release).toString());
+                ReportRequestQueueCP12.enqueue(root,next,"FULL_REPORT");
+                clearing.reconcileAcknowledgementsR31();ReportRequestQueueCP12.reconcileRequestsR31(root);ReportTaskControlR69.applyPending(clearing);
+                ReportJobJournalCP12.Job fresh=clearing.recoverOrCreateR31(next,release,"FULL_REPORT");
+                need(next.equals(fresh.requestId)&&"FULL_REPORT".equals(fresh.mode)&&!job.jobId.equals(fresh.jobId),"CLEAR_RESTART_REUSED_OLD_OR_MALFORMED_JOB");
+                clearing.acknowledge(next,fresh);
+            }
         }
         System.out.println("UNIFIED_PRODUCTION_PUBLISH_HOST_PASS assertions="+assertions+" sameZip="+zipSha+" REAL_NATIVE_ARCHIVE_ZIP_ACK_OUTBOX_AND_IMMEDIATE_READY_CONSUMER; HOST_FRAMEWORK_TRANSPORT_ADAPTED; DEVICE_NOT_RUN; SYNTHETIC_CHECK_INPUTS_NOT_96_EXECUTED_BUSINESS_CHECKS");
     }
