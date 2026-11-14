@@ -54,7 +54,8 @@ def install(adb, private):
     assert adb('shell', 'ls', '-Zd', path).strip().split()[0] == label, 'R32_FIXTURE_DATABASE_SELINUX_CHANGED'
     FIXTURE_DETAILS['originalInodeOwnerModeAndSelinuxPreserved'] = True
     adb('shell', 'am', 'start', '-W', '-n', PKG + '/com.ethk3.novaonepro.MainActivity')
-    time.sleep(10)
+    # A restart has the same asynchronous schema/UI startup as a normal launch.
+    for _ in range(120): time.sleep(1)
     (private / 'controlled-checkpoint-gap.json').write_text(json.dumps({'scope': 'CONTROLLED_DISPOSABLE_EMULATOR_REFERENCE_TO_ABSENT_FILE_NOT_NATURAL_DATA', 'sourceTable': 'r31_gc_pin', 'pinId': PIN, 'missingHash': MISSING, **FIXTURE_DETAILS}) + '\n')
 
 

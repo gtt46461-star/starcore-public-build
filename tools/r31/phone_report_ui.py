@@ -11,6 +11,7 @@ import re
 import subprocess
 import time
 import tempfile
+import traceback
 import os
 import io
 import xml.etree.ElementTree as ET
@@ -40,10 +41,16 @@ def capture(label):
 
 def hierarchy():
     remote = '/sdcard/r30-ui-report.xml'
-    adb('shell', 'uiautomator', 'dump', remote)
-    text = adb('shell', 'cat', remote)
-    (args.out / 'last-ui.xml').write_text(text)
-    return ET.fromstring(text)
+    for attempt in range(3):
+        try:
+            adb('shell', 'uiautomator', 'dump', remote)
+            text = adb('shell', 'cat', remote)
+            tree = ET.fromstring(text)
+            (args.out / 'last-ui.xml').write_text(text)
+            return tree
+        except (RuntimeError, subprocess.TimeoutExpired, ET.ParseError):
+            if attempt == 2: raise
+            time.sleep(2)
 
 
 def click_text(label, scrolls=0):
@@ -432,7 +439,23 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except BaseException:
+    except BaseException as failure:
+        try:
+            known = {p.name for p in Path('tools/r31').rglob('*.py')}
+            frames = [{'file': Path(f.filename).name, 'line': f.lineno, 'function': f.name}
+                      for f in traceback.extract_tb(failure.__traceback__) if Path(f.filename).name in known]
+            diagnostic = {'exceptionClass': type(failure).__name__, 'publicPythonFrames': frames,
+                          'scope': 'PUBLIC_CODE_SYMBOLS_ONLY_NO_EXCEPTION_MESSAGES_OR_COMMAND_PATHS'}
+            if isinstance(failure, subprocess.TimeoutExpired):
+                diagnostic['timeoutSeconds'] = failure.timeout
+                command = failure.cmd if isinstance(failure.cmd, list) else []
+                allowed = {'adb','shell','uiautomator','dump','cat','ls','stat','pull','push','am','input','logcat'}
+                diagnostic['publicCommandTokens'] = [x for x in command[:4] if x in allowed]
+            code = re.match(r'(ADB_COMMAND_FAILED):([a-z-]+):', str(failure))
+            if code: diagnostic['adbFailure'] = {'code': code[1], 'verb': code[2]}
+            public = Path(os.environ['R31_PHONE_PUBLIC'])
+            (public / 'PYTHON_DIAGNOSTIC_R32.json').write_text(json.dumps(diagnostic,indent=2)+'\n')
+        except Exception: pass
         try:
             safe_liveness_snapshot('EXCEPTION')
             safe_timeout_frames()
