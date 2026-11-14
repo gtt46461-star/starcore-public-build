@@ -39,7 +39,7 @@ def install(adb, private):
         assert ddl in Path('app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java').read_text(), 'R32_FIXTURE_PRODUCTION_DDL_MISMATCH'
         db.execute(ddl)
         FIXTURE_DETAILS['registryCreatedByFixture'] = not bool(existing)
-        FIXTURE_DETAILS['registryPreparation'] = 'CONTROLLED_TEST_ONLY_PRODUCTION_DECLARATION_CREATE_IF_ABSENT' 
+        FIXTURE_DETAILS['registryPreparation'] = 'CONTROLLED_TEST_ONLY_PRODUCTION_DECLARATION_CREATE_IF_ABSENT'
         db.execute('PRAGMA wal_checkpoint(TRUNCATE)')
         db.execute('PRAGMA journal_mode=DELETE')
         db.execute('INSERT OR REPLACE INTO r31_gc_pin(pin_id,artifact_hash,root_kind) VALUES(?,?,?)', (PIN, MISSING, 'PERSISTED_REFERENCE'))
