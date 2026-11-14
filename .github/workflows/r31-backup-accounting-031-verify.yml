@@ -1,0 +1,67 @@
+name: STARCORE 031 exact APK report UI continuation
+'on':
+  push:
+    branches:
+    - construction/r27-20261028
+    paths:
+    - .github/workflows/r31-backup-accounting-031-verify.yml
+permissions:
+  contents: read
+  actions: read
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: 72ef64f6ee96dd7fb8e248948816f4b3da0b11d8
+        fetch-depth: 1
+    - uses: actions/checkout@v4
+      with:
+        ref: df7af9d4167b31c043a52fb3c61e9485c4fba064
+        path: harness
+        fetch-depth: 1
+    - uses: actions/download-artifact@v4
+      with:
+        name: r31-report-031-signed-build
+        path: built
+        run-id: 43539962725
+        github-token: ${{ github.token }}
+    - uses: actions/download-artifact@v4
+      with:
+        name: r31-report-025-signed-build
+        run-id: 43417298331
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path: old025
+    - name: Enable emulator acceleration
+      run: 'echo ''KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"'' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+
+        sudo udevadm control --reload-rules
+
+        sudo udevadm trigger --name-match=kvm
+
+        '
+    - uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 34
+        arch: x86_64
+        target: default
+        disable-animations: true
+        ram-size: 3072M
+        heap-size: 512M
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+        script: bash tools/r31/run_phone_report_android.sh built report-only-public old025
+      env:
+        R31_REPORT_STARTUP_WAIT_SECONDS: '120'
+        R31_PHONE_HARNESS_ROOT: ${{ github.workspace }}/harness
+        R31_PHONE_VALIDATION_SOURCE: df7af9d4167b31c043a52fb3c61e9485c4fba064
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: r31-031-report-export-verified-menu
+        path: report-only-public/
+        if-no-files-found: error
+    permissions:
+      contents: read
+      actions: read
