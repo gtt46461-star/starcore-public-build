@@ -9,6 +9,7 @@ from pathlib import Path
 PKG = 'com.starcore.research.r13'
 MISSING = format(32, '064x')
 PIN = 'R32_REPORT_MISSING_ARTIFACT_FIXTURE'
+FIXTURE_DETAILS = {}
 
 
 def install(adb, private):
@@ -33,7 +34,12 @@ def install(adb, private):
             adb('pull', remote, str(folder / (name + suffix)))
     assert local.is_file(), 'R32_FIXTURE_INITIAL_DATABASE_MISSING'
     with sqlite3.connect(local) as db:
-        assert db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='r31_gc_pin'").fetchone(), 'R32_FIXTURE_PIN_REGISTRY_NOT_READY'
+        existing = db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='r31_gc_pin'").fetchone()
+        ddl = 'CREATE TABLE IF NOT EXISTS r31_gc_pin(pin_id TEXT PRIMARY KEY,artifact_hash TEXT NOT NULL,root_kind TEXT NOT NULL)'
+        assert ddl in Path('app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java').read_text(), 'R32_FIXTURE_PRODUCTION_DDL_MISMATCH'
+        db.execute(ddl)
+        FIXTURE_DETAILS['registryCreatedByFixture'] = not bool(existing)
+        FIXTURE_DETAILS['registryPreparation'] = 'CONTROLLED_TEST_ONLY_PRODUCTION_DECLARATION_CREATE_IF_ABSENT' 
         db.execute('PRAGMA wal_checkpoint(TRUNCATE)')
         db.execute('PRAGMA journal_mode=DELETE')
         db.execute('INSERT OR REPLACE INTO r31_gc_pin(pin_id,artifact_hash,root_kind) VALUES(?,?,?)', (PIN, MISSING, 'PERSISTED_REFERENCE'))
@@ -44,7 +50,7 @@ def install(adb, private):
     adb('shell', f'chown {uid}:{uid} {staged} && chmod 600 {staged} && rm -f {path}-wal {path}-shm && mv {staged} {path}')
     adb('shell', 'am', 'start', '-W', '-n', PKG + '/com.ethk3.novaonepro.MainActivity')
     time.sleep(10)
-    (private / 'controlled-checkpoint-gap.json').write_text(json.dumps({'scope': 'CONTROLLED_DISPOSABLE_EMULATOR_REFERENCE_TO_ABSENT_FILE_NOT_NATURAL_DATA', 'sourceTable': 'r31_gc_pin', 'pinId': PIN, 'missingHash': MISSING}) + '\n')
+    (private / 'controlled-checkpoint-gap.json').write_text(json.dumps({'scope': 'CONTROLLED_DISPOSABLE_EMULATOR_REFERENCE_TO_ABSENT_FILE_NOT_NATURAL_DATA', 'sourceTable': 'r31_gc_pin', 'pinId': PIN, 'missingHash': MISSING, **FIXTURE_DETAILS}) + '\n')
 
 
 def verify(archive, source, index, out):
@@ -57,5 +63,5 @@ def verify(archive, source, index, out):
     assert len(missing) == 1 and missing[0]['availability'] == 'MISSING_OBJECT' and not missing[0]['bodyIncluded'], 'R32_MISSING_ORIGINAL_BODY_FABRICATED_OR_OMITTED'
     details = archive.read('REPORT_DETAILS.txt').decode()
     assert '原始检查点附件状态=' in details and 'CHECKPOINT_EVIDENCE_GAPS' in details, 'R32_HUMAN_GAP_EXPLANATION_MISSING'
-    receipt = {'scope': 'EXACT_SIGNED_ANDROID14_PRODUCTION_REPORT_WITH_CONTROLLED_MISSING_CHECKPOINT', 'result': 'PASS', 'missingHash': MISSING, 'missingObjects': audit['missingObjects'], 'sourceClosureVerified': False, 'allChecksPassed': False, 'diagnosticCompleted': bool(index['evidenceComplete'] and index['checksComplete']), 'rawBodyFabricated': False, 'metadataMemberSha256': hashlib.sha256(archive.read(audit['metadataMember'])).hexdigest()}
+    receipt = {'scope': 'EXACT_SIGNED_ANDROID14_PRODUCTION_REPORT_WITH_CONTROLLED_MISSING_CHECKPOINT', 'result': 'PASS', 'missingHash': MISSING, 'missingObjects': audit['missingObjects'], 'sourceClosureVerified': False, 'allChecksPassed': False, 'diagnosticCompleted': bool(index['evidenceComplete'] and index['checksComplete']), 'rawBodyFabricated': False, **FIXTURE_DETAILS, 'metadataMemberSha256': hashlib.sha256(archive.read(audit['metadataMember'])).hexdigest()}
     (out / 'R32_CHECKPOINT_GAP_PROOF.json').write_text(json.dumps(receipt, indent=2) + '\n')
