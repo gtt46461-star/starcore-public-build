@@ -83,6 +83,21 @@ public final class R31PhoneReportHostTest {
             try{enter(cancelled,"SNAPSHOT_HASH");throw new AssertionError("USER_CANCEL_IGNORED");}catch(InterruptedIOException expected){need("REPORT_USER_CANCEL".equals(expected.getMessage()),"USER_CANCEL_REASON_LOST");}finally{release(cancelled);}
             Object rejected=active(job,root);StorageBudgetR31.Reservation small=budget.reserve("undersized",99,StorageBudgetR31.Category.REPORT_WORKSPACE,"files/r981_reports/jobs/"+job.jobId,1,4,true);set(rejected,"storageReservationR31",small);set(rejected,"backupTargetR31",new File(directory,"reject.db"));
             try{((ReportNativeCP4.Control)rejected).beforeBackupChunk(8192);throw new AssertionError("REAL_CHUNK_ADMISSION_IGNORED");}catch(IOException expected){need(!((ReportNativeCP4.Control)rejected).shouldContinue()&&expected==get(rejected,"stopCauseR31"),"ADMISSION_ORIGINAL_CAUSE_LOST");}finally{release(rejected);}
+            // Reproduce the observed handset condition through the actual Service
+            // callbacks and real stat blocks. The fixture deliberately writes more
+            // blocks than its page hint; it does not claim to emulate phone F2FS.
+            Object allocation=active(job,root);File allocatedTarget=new File(directory,"allocation-delta-fixture.db");
+            StorageBudgetR31.Reservation allocatedGrant=budget.reserve("allocation-delta",100,StorageBudgetR31.Category.REPORT_WORKSPACE,"files/r981_reports/jobs/"+job.jobId,2*MiB,4*MiB,true);
+            set(allocation,"storageReservationR31",allocatedGrant);set(allocation,"backupTargetR31",allocatedTarget);ReportNativeCP4.Control allocationControl=(ReportNativeCP4.Control)allocation;
+            try{
+                allocationControl.beforeBackupChunk(8192);
+                try(FileOutputStream out=new FileOutputStream(allocatedTarget)){out.write(new byte[65536]);out.getFD().sync();}
+                long physical=StorageCensusSU2.allocatedBytes(allocatedTarget);need(physical>8192,"ALLOCATION_DELTA_COUNTEREXAMPLE_MISSING");
+                allocationControl.onBackupProgress(100,50,0);need(allocationControl.shouldContinue(),"PHYSICAL_DELTA_ABOVE_PAGE_HINT_ABORTED_BACKUP");
+                need((long)get(allocation,"backupChargeR31")==0,"ALLOCATION_DELTA_CHARGE_NOT_SETTLED");need(allocatedGrant.maximumGrowthBytes()==2*MiB,"ALLOCATION_DELTA_ENLARGED_OWNER_GRANT");
+                Map<?,?> owner=(Map<?,?>)((List<?>)budget.snapshot().get("owners")).get(0);need(((Number)owner.get("chargedWriteBytes")).longValue()==physical,"ALLOCATION_DELTA_NOT_CHARGED_IN_FULL");
+                allocationControl.onBackupProgress(100,50,0);need(allocationControl.shouldContinue(),"DUPLICATE_PROGRESS_RECONCILED_TWICE");
+            }finally{release(allocation);}
         }
         // Independent phone layout: only a retention job remains, both failed
         // FULL_REPORT ACKs and recovery ZIPs survive, failures/ never existed.

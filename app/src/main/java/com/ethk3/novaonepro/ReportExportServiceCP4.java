@@ -667,7 +667,7 @@ public final class ReportExportServiceCP4 extends Service {
             // BUSY/LOCKED retain the native bounded retry policy.
             if(nativeCode!=0&&nativeCode!=101&&nativeCode!=5&&nativeCode!=6)
                 stopR31("REPORT_BACKUP_FAILED|native="+nativeCode,new ReportNativeCP4.Failure("BACKUP",nativeCode));
-            if(storageReservationR31!=null&&backupChargeR31>0&&backupTargetR31!=null){try{long after=backupPhysicalR31();storageReservationR31.refundUnwritten(backupChargeR31,Math.max(0,after-backupBeforeR31));backupChargeR31=0;}catch(IOException|IllegalArgumentException|ArithmeticException failed){stopR31("REPORT_STORAGE_BUDGET_RECONCILIATION_FAILED",failed);}}
+            try{settleBackupChunkR31();}catch(IOException|IllegalArgumentException|ArithmeticException failed){stopR31("REPORT_STORAGE_BUDGET_RECONCILIATION_FAILED",failed);}
             long now=SystemClock.elapsedRealtime();
             try{JSONObject progress=new JSONObject();progress.put("stage","BACKUP");progress.put("totalPages",totalPages);progress.put("copiedPages",Math.max(0L,totalPages-remainingPages));progress.put("elapsedMs",Math.max(0L,now-stageStarted));progress.put("nativeCode",nativeCode);progress.put("sampledElapsedMs",now);
                 sampleR31(1,progress,now,nativeCode==101);
@@ -678,7 +678,18 @@ public final class ReportExportServiceCP4 extends Service {
                 long allocated=StorageCensusSU2.allocatedBytes(file);if(allocated<0)throw new IOException("REPORT_BACKUP_ALLOCATED_BYTES_UNKNOWN");bytes=Math.addExact(bytes,allocated);
             }return bytes;
         }
-        @Override public synchronized void beforeBackupChunk(long bytes)throws IOException{checkpoint();if(storageReservationR31==null)return;try{backupBeforeR31=backupPhysicalR31();storageReservationR31.beforeChunk(bytes);backupChargeR31=bytes;}catch(IOException|RuntimeException error){stopR31(classify(error),error);throw error;}}
+        private void settleBackupChunkR31()throws IOException{
+            if(storageReservationR31==null||backupChargeR31==0||backupTargetR31==null)return;
+            long after=backupPhysicalR31(),growth=Math.max(0,after-backupBeforeR31);
+            try{storageReservationR31.reconcileBackupChunk(backupChargeR31,growth);}
+            catch(IOException|IllegalArgumentException failed){throw new IOException("REPORT_BACKUP_ACCOUNTING|admitted="+backupChargeR31+"|before="+backupBeforeR31+"|after="+after+"|growth="+growth+"|reason="+(failed instanceof StorageBudgetR31.Rejected?((StorageBudgetR31.Rejected)failed).reason:failed.getClass().getSimpleName()),failed);}
+            backupChargeR31=0;
+        }
+        @Override public synchronized void beforeBackupChunk(long bytes)throws IOException{checkpoint();if(storageReservationR31==null)return;try{
+            // The native create/header grant has no matching progress callback.
+            // Settle it before replacing it with the first page-copy grant.
+            settleBackupChunkR31();backupBeforeR31=backupPhysicalR31();storageReservationR31.beforeChunk(bytes);backupChargeR31=bytes;
+        }catch(IOException|RuntimeException error){stopR31(classify(error),error);throw error;}}
         @Override public boolean hasDiskAdmissionR31(){return storageReservationR31!=null;}
         @Override public void beforeOutputBytesR31(File file,long bytes)throws IOException{if(storageReservationR31==null)throw new IOException("REPORT_DISK_ADMISSION_MISSING");if(!shouldContinue())throw new InterruptedIOException(stopReason);storageReservationR31.beforeChunk(bytes);}
         @Override public void reserveFutureBytesR31(long bytes)throws IOException{if(storageReservationR31==null)throw new IOException("REPORT_DISK_ADMISSION_MISSING");storageReservationR31.ensureAdditional(bytes,ReportPhaseBudgetR31.MAX_WRITTEN,true);job.temporaryReservationBytes=storageReservationR31.maximumGrowthBytes();}

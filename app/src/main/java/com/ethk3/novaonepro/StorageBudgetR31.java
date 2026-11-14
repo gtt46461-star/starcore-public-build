@@ -190,6 +190,26 @@ public final class StorageBudgetR31 {
             if(closed)throw new Rejected("OWNER_CLOSED").context(owner,fence,"REFUND_UNWRITTEN");if(admitted<0||actualGrowth<0||actualGrowth>admitted)throw new IllegalArgumentException("STORAGE_CHUNK_RECONCILIATION");
             owned("REFUND_UNWRITTEN",state->{Row row=require(state);long refund=admitted-actualGrowth;if(refund>row.charged-row.observedCharged)throw new Rejected("CHUNK_RECONCILIATION_ORDER");row.charged-=refund;writeState(state);return null;});
         }
+        /** A SQLite page estimate is not a filesystem allocation limit. Delayed
+         * allocation/preallocation can make one observed block delta larger.
+         * Account that delta against the ALREADY GRANTED owner envelope; never
+         * enlarge the envelope, clamp the delta, or forgive a failed admission. */
+        public synchronized void reconcileBackupChunk(long admitted,long actualGrowth)throws IOException{
+            if(closed||!lifetime.isValid())throw new Rejected("OWNER_CLOSED").context(owner,fence,"BACKUP_CHUNK");
+            if(admitted<0||actualGrowth<0)throw new IllegalArgumentException("STORAGE_CHUNK_RECONCILIATION");
+            if(actualGrowth<=admitted){refundUnwritten(admitted,actualGrowth);return;}
+            if(Thread.currentThread().isInterrupted())throw new Rejected("CANCELLED").context(owner,fence,"BACKUP_CHUNK");
+            final long measured=accountedScopeBytes(inside(root,scope));
+            owned("BACKUP_CHUNK",state->{Row row=require(state);long pending=row.charged-row.observedCharged;
+                if(admitted==0||admitted>pending)throw new Rejected("CHUNK_RECONCILIATION_ORDER");
+                long extra=actualGrowth-admitted,charged=add(row.charged,extra);
+                if(charged>row.writeBound)throw new Rejected("WRITE_BOUND_EXCEEDED");
+                long upper=add(Math.max(0,row.observed-row.baseline),add(pending,extra));
+                if(upper>row.bound||Math.max(0,measured-row.baseline)>row.bound)throw new Rejected("PHYSICAL_GROWTH_BOUND");
+                if(add(config.freeFloor,config.metadataHeadroom)>available())throw new Rejected("FREE_SPACE_RESERVE");
+                row.charged=charged;writeState(state);return null;
+            });
+        }
         public OutputStream wrap(File path,OutputStream target)throws IOException{
             File verified=path.getCanonicalFile(),allowed=inside(root,scope);if(!path.getAbsoluteFile().equals(verified)||(!verified.equals(allowed)&&!verified.getPath().startsWith(allowed.getPath()+File.separator)))throw new Rejected("OUTPUT_OUTSIDE_SCOPE").context(owner,fence,"OPEN_OUTPUT");
             return new FilterOutputStream(target){public void write(int value)throws IOException{beforeChunk(1);out.write(value);}public void write(byte[] bytes,int offset,int count)throws IOException{if(bytes==null||offset<0||count<0||offset>bytes.length-count)throw new IndexOutOfBoundsException();beforeChunk(count);out.write(bytes,offset,count);}};
