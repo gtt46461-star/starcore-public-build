@@ -310,7 +310,30 @@ def main():
     assert 0 <= startup_wait <= 240, 'STARTUP_FIXTURE_WAIT_BOUND'
     for _ in range(startup_wait):
         time.sleep(1)
-    click_text('导出完整报告（含数据库和训练附件）', scrolls=45)
+    # Re-read the real view tree after tapping. Live status cards can reflow
+    # between the hierarchy dump and the input event; a found label is not
+    # proof that its click opened the dialog. Never bypass the production UI.
+    opened = False
+    menu_label = '清理旧报告并生成当前完整报告'
+    menu_attempts = []
+    for attempt in range(4):
+        if attempt:
+            size = re.findall(r'(\d+)x(\d+)', adb('shell', 'wm', 'size'))[-1]
+            width, height = map(int, size)
+            for _ in range(3):
+                adb('shell', 'input', 'swipe', str(width//2), str(height//3), str(width//2), str(height*4//5), '250')
+        click_text('导出完整报告（含数据库和训练附件）', scrolls=45)
+        for _ in range(5):
+            labels = {n.get('text', '') for n in hierarchy().iter('node')}
+            if menu_label in labels:
+                opened = True
+                break
+            time.sleep(.5)
+        menu_attempts.append({'attempt': attempt+1, 'dialogMenuVisible': opened})
+        if opened:
+            break
+    (args.out / 'ui-menu-click-verification.json').write_text(json.dumps(menu_attempts)+'\n')
+    assert opened, 'REPORT_MENU_NOT_OPENED_AFTER_VERIFIED_RETRIES'
     capture('export-menu')
     # The production menu removes report cache only. This is the disposable CI
     # emulator, never the original phone or its protected database/backup files.
