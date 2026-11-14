@@ -132,6 +132,7 @@ def safe_failure_symbols(ack_path, state):
     result['missingPublicJsonKeys'] = sorted(public_keys.intersection(missing))
     result['nonfiniteJsonRejected'] = bool(re.search(r'Forbidden numeric value|not a finite double', original))
     result['jsonTypeMismatch'] = 'cannot be converted to' in original
+    result['nativeFailures'] = [{'stage': stage, 'code': int(code)} for stage, code in re.findall(r'REPORT_(BACKUP|COMPRESS|DECOMPRESS|ROW_OPEN|ROW_CELL|ROW_READ|ARCHIVE_DIRECTORY)_FAILED\|native=(-?[0-9]{1,10})', original)][:16]
     (args.out / 'safe-recovery-failure.json').write_text(json.dumps(result, indent=2) + '\n')
     print('R31_SAFE_UI_FAILURE|' + json.dumps(result, sort_keys=True), flush=True)
 

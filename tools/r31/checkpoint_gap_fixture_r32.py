@@ -24,8 +24,8 @@ def install(adb, private):
     absent = f'/data/user/0/{PKG}/files/r26-checkpoints/{MISSING}.bin'
     assert adb('shell', f'if [ ! -e {absent} ]; then echo MISSING; fi').strip() == 'MISSING', 'R32_FIXTURE_WOULD_DELETE_EXISTING_OBJECT'
     adb('shell', 'am', 'force-stop', PKG)
-    uid = adb('shell', 'stat', '-c', '%u', f'/data/user/0/{PKG}/files').strip()
-    assert uid.isdigit(), 'R32_FIXTURE_UID'
+    metadata = adb('shell', 'stat', '-c', '%u:%g:%a:%i', path).strip()
+    label = adb('shell', 'ls', '-Zd', path).strip().split()[0]
     folder = private / 'controlled-missing-checkpoint'; folder.mkdir()
     local = folder / name
     for suffix in ['', '-wal']:
@@ -47,7 +47,12 @@ def install(adb, private):
         assert db.execute('PRAGMA integrity_check').fetchall() == [('ok',)], 'R32_FIXTURE_DATABASE_INTEGRITY'
     staged = path + '.r32-fixture-new'
     adb('push', str(local), staged)
-    adb('shell', f'chown {uid}:{uid} {staged} && chmod 600 {staged} && rm -f {path}-wal {path}-shm && mv {staged} {path}')
+    # Write the coherent host-checkpointed bytes into the existing inode.
+    # Replacing it with an adb-created inode changes Android ownership/labels.
+    adb('shell', f'cat {staged} > {path} && rm -f {staged} {path}-wal {path}-shm && sync')
+    assert adb('shell', 'stat', '-c', '%u:%g:%a:%i', path).strip() == metadata, 'R32_FIXTURE_DATABASE_METADATA_CHANGED'
+    assert adb('shell', 'ls', '-Zd', path).strip().split()[0] == label, 'R32_FIXTURE_DATABASE_SELINUX_CHANGED'
+    FIXTURE_DETAILS['originalInodeOwnerModeAndSelinuxPreserved'] = True
     adb('shell', 'am', 'start', '-W', '-n', PKG + '/com.ethk3.novaonepro.MainActivity')
     time.sleep(10)
     (private / 'controlled-checkpoint-gap.json').write_text(json.dumps({'scope': 'CONTROLLED_DISPOSABLE_EMULATOR_REFERENCE_TO_ABSENT_FILE_NOT_NATURAL_DATA', 'sourceTable': 'r31_gc_pin', 'pinId': PIN, 'missingHash': MISSING, **FIXTURE_DETAILS}) + '\n')
