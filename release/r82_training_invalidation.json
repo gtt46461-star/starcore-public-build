@@ -275,6 +275,15 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
+      "after_role": "NUMERIC",
+      "after_sha256": "98831e5b9075fab6953f47ccb1cd7df96fa009a9e8593773646124399ae16163",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
       "after_role": "PRESENTATION",
       "after_sha256": "165122cc55fa61be882511487549d9591a7fa924ed349dcaf302ac71e4ea1ec8",
       "before_role": "PRESENTATION",
@@ -681,7 +690,7 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "c5f278d109935ff1b4ace6053eca0e62df04a14495a3f9eec0aa0736e7843d45",
+      "after_sha256": "91a266f597a4914225abbde133e2319ddc6a9d1db77c5f9bc05a9c2a18edc589",
       "before_role": "NUMERIC",
       "before_sha256": "1eae3bc0597be6dfd60274b8b8f30b20ab85c412ba0d6f32ef138c8476d07a8c",
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
@@ -699,7 +708,7 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "e4bfd3f422c248a7193ad7eb756d41e473f16d108f44a8d7d35cc9e0ae9fa29d",
+      "after_sha256": "b8eb557338817bb91c92e853627496c5c034ba7c08f255754dcbee6ece5fba59",
       "before_role": "NUMERIC",
       "before_sha256": "a1050003b7a2238cdc1d276c69242d27395b3ecd5837194c63b75ea815e4b957",
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
@@ -744,7 +753,7 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "c3a087912ee900e47976a9bf6727b654248bdc328c02543041b19a547c9717aa",
+      "after_sha256": "294601cf418571e7ee1eff2638239bb156983d1edce1b3546e3856ebb52ca7f5",
       "before_role": "NUMERIC",
       "before_sha256": "db380466ffa8b042269e4b543218c914692867445658fac824824de0a6893859",
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
@@ -771,7 +780,7 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "55595d09e040d8fb3ce0e4d9fe5edb2b014d1972c606a621e8fd31b02aea2197",
+      "after_sha256": "f3cd15391be7224dcac724601c7703b4b0df44ee9b6b34a9e00666a4a55dc8f4",
       "before_role": "NUMERIC",
       "before_sha256": "7eeeb9f1901a6160363f919ceeffe03efc940c0c30492ef530848338fb58df82",
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
@@ -5369,7 +5378,7 @@
       "reviewer": "Codex SU1 source integration"
     }
   ],
-  "current_controlled_roles_sha256": "e0a2c14e8ab8643d4472684f00f76ee2c0fb907a897834f359117deac03af57e",
+  "current_controlled_roles_sha256": "7179bd067215dcd9c6e037dca8dd971d8c0770c640e5cd206c929db6a9734338",
   "decision": "INVALIDATE_OLD_RULE",
   "new_role_reviews": [
     {
@@ -5437,6 +5446,12 @@
       "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
       "reviewer": "Codex SU1 source integration",
       "role": "PRESENTATION"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCompactionSU2.java",
@@ -8267,7 +8282,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "ff7b3f8db904435ea7ca57388d01500771c015952943e5a1f5b3a714cea6dbff",
+  "reviewed_input_provenance_sha256": "28ebc550055a55b0f11cadf4c0136a428a4f2b5d48b9f1d187718c8f5c88f468",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"
