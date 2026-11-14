@@ -1,0 +1,208 @@
+name: STARCORE 032 missing checkpoint diagnostic export repair
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: r31-report-missing-checkpoint-032
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: e4ba69331a36e6eb2a78cbaca9ca7e25e0035e7d
+        fetch-depth: 0
+    - name: Require exact source and release identity
+      run: 'test "$(git rev-parse HEAD)" = "e4ba69331a36e6eb2a78cbaca9ca7e25e0035e7d"
+
+        python3 - <<''PY''
+
+        import json
+
+        r=json.load(open(''release/release_manifest.json''))
+
+        assert r[''applicationId'']==''com.starcore.research.r13''
+
+        assert r[''versionCode'']==577311032
+
+        PY
+
+        '
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: '17'
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+    - id: devicekey
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/.starcore/r27-ci-temp-key
+        key: starcore-r27-ci-temp-signing-v1
+        fail-on-cache-miss: true
+    - name: Reuse the installed application's exact signing identity
+      env:
+        DUOQU_SECRET: ${{ secrets.DUOQU_API_KEY }}
+      run: "set -euo pipefail\nV=\"$RUNNER_TEMP/r31v\"; mkdir -p \"$V\"\nK=\"$HOME/.starcore/r27-ci-temp-key\"\nDEVICE_CERT=d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7\n\
+        if [ -f \"$K/r27-ci.p12\" ] && [ -s \"$K/pw\" ]; then\n  pw=$(cat \"$K/pw\"); echo \"::add-mask::$pw\"\n  cert=$(keytool -exportcert\
+        \ -keystore \"$K/r27-ci.p12\" -storetype PKCS12 -alias starcore-r13 -storepass \"$pw\" | sha256sum | cut -c1-64)\n  [ \"$cert\"\
+        \ = \"$DEVICE_CERT\" ] || { echo \"INSTALLED_SIGNER_MISMATCH $cert\"; exit 1; }\n  { echo \"R13_SIGNING_P12=$K/r27-ci.p12\"\
+        ; echo \"R13_SIGNING_PASSWORD=$pw\"; echo \"R13_EXPECTED_CERT_SHA256=$cert\"; echo \"R31_SIGNING=EXISTING_DEVICE_IDENTITY\"\
+        ; } >> \"$GITHUB_ENV\"\n  echo \"EXISTING_DEVICE_IDENTITY: installed R31 577311020 signer $cert\" > \"$V/signing.txt\"\nelse\n\
+        \  echo \"NOT_AVAILABLE: installed signer private material was not restored; no replacement key is generated\" > \"$V/signing.txt\"\
+        \n  exit 1\nfi\nif [ -n \"$DUOQU_SECRET\" ]; then echo \"::add-mask::$DUOQU_SECRET\"; echo \"DUOQU_API_KEY=$DUOQU_SECRET\" >>\
+        \ \"$GITHUB_ENV\"; else echo \"RELEASE_API_SECRET_UNAVAILABLE\"; exit 1; fi\n"
+    - uses: android-actions/setup-android@v3
+      with:
+        packages: platform-tools
+        log-accepted-android-sdk-licenses: false
+    - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+    - uses: actions/cache@v4
+      with:
+        path: ~/.gradle/wrapper/dists
+        key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+    - name: Bind reviewed repair and freeze the actual compiled call inventory
+      run: "set -euo pipefail\npython3 -B tools/r29/rebind_identity.py\npython3 - <<'CHECK'\nimport subprocess\nallowed={'release/research_dependencies_r967.json','release/r982_source_calls.tsv.gz','release/r982_source_calls.manifest.json','release/strategy_su1_reviewed_inputs.json','release/r82_training_invalidation.json','release/release_identity.properties','app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java','app/build/generated/r967/semantic_manifest.json','app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java','verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java'}\n\
+        actual=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())\nassert actual<=allowed, 'UNEXPECTED_FREEZE_MUTATION:'+str(actual-allowed)\n\
+        CHECK\nif ! git diff --quiet; then\n git add -u\n git -c user.name='STARCORE CI' -c user.email='starcore-ci@users.noreply.github.com'\
+        \ commit -m 'build(report): freeze 032 backup accounting source identity [skip ci]'\n git push origin HEAD:refs/heads/fix/r31-report-failure-evidence-20261114\n\
+        fi\n./gradlew --no-daemon --max-workers=4 -Pr31InventoryBootstrap=true -Pr312Development=true :app:compileDebugJavaWithJavac\
+        \ 2>&1 | tail -n 100\npython3 -B tools/r29/rebind_identity.py --classes app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes\n\
+        python3 -B scripts/r967_semantic_identity.py --check\npython3 - <<'CHECK'\nimport subprocess\nallowed={'release/research_dependencies_r967.json','release/r982_source_calls.tsv.gz','release/r982_source_calls.manifest.json','release/strategy_su1_reviewed_inputs.json','release/r82_training_invalidation.json','release/release_identity.properties','app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java','app/build/generated/r967/semantic_manifest.json','app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java','verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java'}\n\
+        actual=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())\nassert actual<=allowed, 'UNEXPECTED_FREEZE_MUTATION:'+str(actual-allowed)\n\
+        CHECK\nif ! git diff --quiet; then\n git add -u\n git -c user.name='STARCORE CI' -c user.email='starcore-ci@users.noreply.github.com'\
+        \ commit -m 'build(report): freeze 032 backup accounting source identity [skip ci]'\n git push origin HEAD:refs/heads/fix/r31-report-failure-evidence-20261114\n\
+        fi\necho \"source=$(git rev-parse HEAD)\" >> \"$GITHUB_OUTPUT\"\n"
+      id: frozen
+    - name: Build signed release, lint and report-specific unit tests
+      run: 'set -euo pipefail
+
+        ./gradlew --no-daemon --max-workers=4 -Pr30Instrumentation=true :app:assembleRelease :app:lintRelease :app:testDebugUnitTest
+        --tests "*R31ProductionReportTest" --tests "*R31MetricReportTest" --tests "*R31WriterReportColumnsTest" --tests "*R30ReportSnapshotTest"
+        --tests "*R31BackupAccountingTest" --tests "*R31StorageGovernanceTest" --tests "*R32FailureReceiptTest" --tests "*R32CheckpointReportAuditTest"
+        --tests "*R32CheckpointRawStrictTest" 2>&1 | tail -n 140
+
+        '
+    - name: Signature, badging and digests of what was built
+      run: 'set -euo pipefail
+
+        B="$ANDROID_HOME/build-tools/36.0.0"
+
+        D="$RUNNER_TEMP/phone-built"; mkdir -p "$D"
+
+        cp app/build/outputs/apk/release/*.apk "$D/"
+
+        cp "$RUNNER_TEMP/r31v/signing.txt" "$D/"
+
+        git rev-parse HEAD > "$D/source-commit.txt"
+
+        APK=$(find "$D" -name ''*-release.apk'' -type f)
+
+        "$B/apksigner" verify --verbose --print-certs "$APK" > "$D/public-certificate.txt"
+
+        "$B/aapt" dump badging "$APK" > "$D/badging.txt"
+
+        sha256sum "$APK" > "$D/SHA256SUMS.txt"
+
+        sha256sum "$APK" | cut -d '' '' -f1 | sed ''s/^/sha256=/'' >> "$GITHUB_OUTPUT"
+
+
+        python3 tools/r31/verify_baseline.py --require-clean --apk "$APK" --apksigner "$B/apksigner" --aapt "$B/aapt" --expected-cert-sha256
+        d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7 --output "$D/apk-identity.json"
+
+        '
+      id: apk
+    - name: Actual callbacks and 165824-page native backup regression
+      run: 'set -euo pipefail
+
+        export R31_PHONE_OUT="$RUNNER_TEMP/phone-host"
+
+        bash tools/r31/run_phone_report_host.sh > "$RUNNER_TEMP/phone-host.log" 2>&1 || { tail -n 60 "$RUNNER_TEMP/phone-host.log";
+        exit 1; }
+
+        cp "$R31_PHONE_OUT/receipt.json" "$RUNNER_TEMP/phone-built/HOST_PHONE_REPORT.json"
+
+        tail -n 2 "$RUNNER_TEMP/phone-host.log"
+
+        '
+    - name: Retain host diagnostics if the production callback regression fails
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: r31-report-032-host-diagnostics
+        path: ${{ runner.temp }}/phone-host.log
+        if-no-files-found: ignore
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: r31-report-032-signed-build
+        path: ${{ runner.temp }}/phone-built/
+        if-no-files-found: error
+    outputs:
+      source: ${{ steps.frozen.outputs.source }}
+      apk_sha: ${{ steps.apk.outputs.sha256 }}
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ needs.build.outputs.source }}
+        fetch-depth: 1
+    - uses: actions/download-artifact@v4
+      with:
+        name: r31-report-032-signed-build
+        path: built
+    - uses: actions/download-artifact@v4
+      with:
+        name: r31-report-025-signed-build
+        run-id: 43417298331
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path: old025
+    - name: Enable emulator acceleration
+      run: 'echo ''KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"'' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+
+        sudo udevadm control --reload-rules
+
+        sudo udevadm trigger --name-match=kvm
+
+        '
+    - uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 34
+        arch: x86_64
+        target: default
+        disable-animations: true
+        ram-size: 3072M
+        heap-size: 512M
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+        script: bash tools/r31/run_phone_report_android.sh built report-only-public old025
+      env:
+        R31_REPORT_STARTUP_WAIT_SECONDS: '120'
+        R32_INJECT_MISSING_CHECKPOINT: ${{ matrix.case == 'missing_checkpoint' && '1' || '0' }}
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: r31-032-report-export-${{ matrix.case }}
+        path: report-only-public/
+        if-no-files-found: error
+    needs: build
+    permissions:
+      contents: read
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        case:
+        - normal
+        - missing_checkpoint
+'on':
+  push:
+    branches:
+    - construction/r27-20261028
+    paths:
+    - .github/workflows/r31-report-missing-checkpoint-032.yml
