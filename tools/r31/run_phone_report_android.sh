@@ -39,7 +39,7 @@ private=Path(os.environ['R31_PHONE_PRIVATE']);public=Path(os.environ['R31_PHONE_
 result={'sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'apkSha256':os.environ['R31_REPORT_APK_SHA'],'runId':os.environ['GITHUB_RUN_ID'],'scope':'REPORT_GENERATION_COMPLETENESS_REAL_UI_SAF_ONLY','probeExit':int(sys.argv[1]),'result':'REPORT_PASS_REINSTALL_PENDING' if sys.argv[1]=='0' else 'FAIL','physicalDevice':'NOT_RUN','businessAndAlgorithmHealth':'DEFERRED_NOT_PASSED','rawReportsAndCredentials':'PRIVATE_NOT_PUBLISHED','overlayMarkerPreserved':True,'overlayFromVersionCode':577311025}
 result['validationSourceCommit']=os.environ.get('R31_PHONE_VALIDATION_SOURCE',result['sourceCommit'])
 result['startupWarmupSeconds']=int(os.environ.get('R31_REPORT_STARTUP_WAIT_SECONDS','0'))
-for name in ['ui-report-acceptance.json','safe-recovery-failure.json','safe-report-semantics.json','safe-report-liveness.json','safe-timeout-source-frames.json']:
+for name in ['ui-report-acceptance.json','safe-recovery-failure.json','safe-report-semantics.json','safe-report-liveness.json','safe-timeout-source-frames.json','R32_CHECKPOINT_GAP_PROOF.json']:
     path=private/name
     if path.is_file():(public/name).write_bytes(path.read_bytes())
 text=(private/'report-probe.log').read_text(errors='replace')

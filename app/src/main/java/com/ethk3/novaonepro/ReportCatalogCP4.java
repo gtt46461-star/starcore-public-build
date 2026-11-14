@@ -141,6 +141,7 @@ public final class ReportCatalogCP4 {
             out.write("以上三项含义不同。报告能完整导出，不代表功能全部完成，也不代表高胜率已获验证。\n");
             out.write("结构对象="+result.objects+"；数据表="+result.tables+"；数据行="+result.rows+"；检测项="+result.checks+"；未执行="+result.unevaluated+"；查询错误="+result.queryErrors+"\n");
             JSONObject source=new JSONObject(ReportJobJournalCP12.readAtomic(new File(job,"source-manifest.json"),65536));
+            JSONObject checkpointAudit=source.optJSONObject("r26CheckpointAuditR32");if(checkpointAudit!=null)out.write("原始检查点附件状态="+checkpointAudit.optString("state")+"；源证据闭包已核验="+checkpointAudit.optBoolean("sourceClosureVerified")+"；缺失="+checkpointAudit.optLong("missingObjects")+"；损坏="+checkpointAudit.optLong("corruptObjects")+"；无法读取="+checkpointAudit.optLong("unreadableObjects")+"；未核验="+checkpointAudit.optLong("byteVerificationNotRun")+"；逐项详情="+CheckpointReportAuditR32.MEMBER+"。这些缺口不等于健康或已修复。\n");
             boolean raw=source.optBoolean("rawEvidenceIncluded",false);
             out.write(raw?"完整原始证据：snapshot.db包含一致快照的全部表、全部行；关联训练输入、模型、保留归档、安装包和源码调用索引按清单收齐并校验。压缩无损，不裁剪数据。\n":"完整诊断：全部检测基于同一完整快照；包含全表结构与计数、完整研究元数据、运行证据、文件状态、源码调用索引及当前升级清单。原始数据库页与训练二进制留在原位置，另存备份不影响这些检查。逐项取证范围见DIAGNOSTIC_SCOPE.json；未运行、缺失与检查失败不代表通过。\n");
             out.write("完整主链：开奖→历史完整性→TargetIssue/PIT→原子/分子/矩阵→特征/研究/训练→验证/冻结/校准→Future-OOS/挑战者/证书→主链/PreDraw→DecisionGateEngine唯一REAL→SettlementEngine唯一结算→反馈/进化/融合→下一期。\n");
@@ -216,6 +217,10 @@ public final class ReportCatalogCP4 {
                     "snapshot_sha256",snapshotSha256,"raw_evidence_member",context.evidenceMemberR64(),
                     "consistency","SINGLE_IMMUTABLE_SNAPSHOT","count_scope","ALL_TABLES_IN_SQLITE_MASTER",
                     "raw_values_omitted_from_text",true));
+            try{
+                JSONObject audit=new JSONObject(context.sourceManifest().json).optJSONObject("r26CheckpointAuditR32");
+                if(audit!=null){out.line(obj("kind","source_checkpoint_attachment_audit","state",audit.optString("state"),"source_closure_verified",audit.optBoolean("sourceClosureVerified"),"metadata_member",CheckpointReportAuditR32.MEMBER));if(!audit.optBoolean("sourceClosureVerified"))allPassed=false;}
+            }catch(org.json.JSONException malformed){throw new IOException("REPORT_CHECKPOINT_AUDIT_MANIFEST_FORMAT",malformed);}
             try {
                 String previousType="",previousName="";
                 while(true) {

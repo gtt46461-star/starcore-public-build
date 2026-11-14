@@ -223,7 +223,7 @@ public final class ReportExportServiceCP4 extends Service {
             catch(Throwable second){lastRequestOutcomeR31Q=lastRequestOutcomeR31Q+"|minimalAckError="+describeR31Q(second);}
         }
     }
-    private static void requestFailureCP12(Context app,String id,Throwable error){try{JSONObject failure=new JSONObject();failure.put("requestId",id);failure.put("stage","FAILED");failure.put("reason",boundedReason(error.getClass().getSimpleName()+":"+String.valueOf(error.getMessage())));File root=requestRoot(app);try{failure.put("recovery",ReportJobJournalCP12.writeFailureArtifact(root,id,error));}catch(Exception unavailable){failure.put("recoveryFailure",boundedReason(unavailable.getClass().getSimpleName()+":"+unavailable.getMessage()));}ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+id+".ack.json"),failure.toString());}catch(Exception ignored){/* No success acknowledgement is generated. */}}
+    private static void requestFailureCP12(Context app,String id,Throwable error){try{JSONObject failure=new JSONObject();failure.put("requestId",id);failure.put("stage","FAILED");failure.put("reason",boundedReason(error.getClass().getSimpleName()+":"+String.valueOf(error.getMessage())));failure.put("failureDetailR32",ReportJobJournalCP12.boundedFailureR32(error,3072)).put("recoveryPublicationR32","PENDING");File root=requestRoot(app);File ack=new File(root,"requests/"+id+".ack.json");ReportJobJournalCP12.writeAtomic(ack,failure.toString());try{failure.put("recovery",ReportJobJournalCP12.writeFailureArtifact(root,id,error)).put("recoveryPublicationR32","READY");}catch(Exception unavailable){failure.put("recoveryPublicationR32","FAILED").put("recoveryFailureR32",ReportJobJournalCP12.boundedFailureR32(unavailable,512));}ReportJobJournalCP12.writeAtomic(ack,failure.toString());}catch(Exception ignored){/* No success acknowledgement is generated. */}}
     private static String id(String mode){return RetentionArchiveProtocolCP12.sha(("REPORT_CP12|"+ReleaseManifestR926.MANIFEST_SHA256+"|"+mode+"|"+UUID.randomUUID()).getBytes(StandardCharsets.UTF_8));}
     private static void requireHash(String value)throws IOException{if(value==null||!value.matches("[0-9a-f]{64}"))throw new IOException("REPORT_HASH");}
 
@@ -448,6 +448,7 @@ public final class ReportExportServiceCP4 extends Service {
                 Thread.interrupted();String reason=active.stopReason.isEmpty()?classify(error):active.stopReason;job.lastReason=reason;
                 Throwable original=active.stopCauseR31==null?error:active.stopCauseR31;
                 if(original!=error&&original.getSuppressed().length<8)original.addSuppressed(error);
+                ReportJobJournalCP12.rememberFailureR32(job,active.progressStageR31,original);
                 if(reason.equals("REPORT_USER_CANCEL")){
                     journal.transition(job,ReportJobJournalCP12.Stage.CANCELLED,System.currentTimeMillis());
                     try{ReportTaskControlR69.finishCancellationR30(journal.root(),journal.directory(job),job);}catch(Exception cleanup){job.lastReason="REPORT_CANCEL_CLEANUP_FAILED:"+cleanup.getClass().getSimpleName();journal.checkpoint(job,System.currentTimeMillis());android.util.Log.e("ReportExportCP12","cancelled job cleanup requires retry",cleanup);}
@@ -455,14 +456,19 @@ public final class ReportExportServiceCP4 extends Service {
                 else if(reason.equals("REPORT_REALTIME_PREEMPT")||reason.equals("REPORT_PROCESS_SHUTDOWN")||reason.equals("REPORT_WORKER_INTERRUPTED")){job.preemptions++;job.resumeStage=job.snapshotSha.isEmpty()?"BACKUP":"INDEXING";if(job.preemptions>30){job.lastReason="REPORT_PREEMPTION_LIMIT";journal.transition(job,ReportJobJournalCP12.Stage.FAILED,System.currentTimeMillis());}else{journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());scheduleResume(job.jobId);}}
                 else if(isRetryable(reason)&&++job.failureAttempts<30){job.resumeStage=job.snapshotSha.isEmpty()?"BACKUP":"INDEXING";journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());scheduleResume(job.jobId,Math.min(60000L,1000L<<Math.min(6,job.failureAttempts)));}
                 else {journal.transition(job,ReportJobJournalCP12.Stage.FAILED,System.currentTimeMillis());}
-                if(job.stage.equals("FAILED")&&job.mode.equals("FULL_REPORT"))try{ReportJobJournalCP12.writeFailureArtifact(journal.root(),job.requestId,original,job,active::recoveryCancelledR31);}catch(Exception unavailable){android.util.Log.e("ReportExportCP12","recovery evidence unavailable",unavailable);}
+                if(job.stage.equals("FAILED")&&job.mode.equals("FULL_REPORT")){
+                    job.recoveryPublicationR32="PENDING";journal.checkpoint(job,System.currentTimeMillis());
+                    try{ReportJobJournalCP12.writeFailureArtifact(journal.root(),job.requestId,original,job,active::recoveryCancelledR31);job.recoveryPublicationR32="READY";}
+                    catch(Exception unavailable){job.recoveryPublicationR32="FAILED";job.recoveryFailureR32=ReportJobJournalCP12.boundedFailureR32(unavailable,512);android.util.Log.e("ReportExportCP12","recovery evidence unavailable",unavailable);}
+                    journal.checkpoint(job,System.currentTimeMillis());
+                }
                 journal.acknowledge(job.requestId,job);
             } finally {active.releaseResourcesR31();control=null;runCleanupR31(journal);try{StorageLedgerR31.sampleIfDue(getFilesDir(),"REPORT_OWNER_RELEASED",job.jobId,true);}catch(IOException censusFailure){android.util.Log.w("ReportExportCP12","Storage sample incomplete",censusFailure);}}
         }catch(Throwable error){if(!currentRequest.isEmpty()){
             requestFailure(getApplicationContext(),currentRequest,error);
             try(ReportJobJournalCP12 recovery=ReportJobJournalCP12.tryClaim(getFilesDir())){if(recovery!=null){
                 ReportJobJournalCP12.Job failed=recovery.current();
-                if(failed!=null&&failed.requestId.equals(currentRequest)&&isActive(failed)){failed.lastReason=classify(error);recovery.transition(failed,ReportJobJournalCP12.Stage.FAILED,System.currentTimeMillis());recovery.acknowledge(currentRequest,failed);}
+                if(failed!=null&&failed.requestId.equals(currentRequest)&&isActive(failed)){failed.lastReason=classify(error);if(failed.failureDetailR32.isEmpty())ReportJobJournalCP12.rememberFailureR32(failed,failed.stage,error);recovery.transition(failed,ReportJobJournalCP12.Stage.FAILED,System.currentTimeMillis());recovery.acknowledge(currentRequest,failed);}
                 ReportRequestQueueCP12.remove(recovery.root(),currentRequest);
             }}catch(Exception recoveryFailure){android.util.Log.e("ReportExportCP12","report failure receipt recovery failed",recoveryFailure);}
         }android.util.Log.e("ReportExportCP12","report owner failed",error);}

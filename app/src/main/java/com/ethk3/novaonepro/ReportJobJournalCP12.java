@@ -62,6 +62,7 @@ public final class ReportJobJournalCP12 implements Closeable {
     public static final class Job {
         public final String jobId,requestId,releaseHash,mode;
         public String stage="CLAIMED",resumeStage="BACKUP",lastReason="",snapshotSha="",publishedDir="",manifestSha="";
+        public String failureDetailR32="",failurePhaseR32="",recoveryPublicationR32="",recoveryFailureR32="";
         public long revision,attempt,createdWallMs,updatedWallMs,snapshotWallMs,snapshotBytes,temporaryReservationBytes,publishedQuotaBytes;
         public int compressionAttempt,preemptions,failureAttempts;
         public boolean evidenceComplete,checksComplete,allChecksPassed;
@@ -76,7 +77,7 @@ public final class ReportJobJournalCP12 implements Closeable {
             o.put("stage",stage);o.put("resumeStage",resumeStage);o.put("lastReason",lastReason);o.put("snapshotSha",snapshotSha);o.put("publishedDir",publishedDir);o.put("manifestSha",manifestSha);
             o.put("revision",revision);o.put("attempt",attempt);o.put("createdWallMs",createdWallMs);o.put("updatedWallMs",updatedWallMs);o.put("snapshotWallMs",snapshotWallMs);o.put("snapshotBytes",snapshotBytes);
             o.put("temporaryReservationBytes",temporaryReservationBytes);o.put("publishedQuotaBytes",publishedQuotaBytes);o.put("compressionAttempt",compressionAttempt);o.put("preemptions",preemptions);o.put("failureAttempts",failureAttempts);
-            o.put("evidenceComplete",evidenceComplete);o.put("checksComplete",checksComplete);o.put("allChecksPassed",allChecksPassed);o.put("acknowledgedRevision",acknowledgedRevision);o.put("semanticVerificationR31",semanticVerificationR31);return o;
+            o.put("evidenceComplete",evidenceComplete);o.put("checksComplete",checksComplete);o.put("allChecksPassed",allChecksPassed);o.put("acknowledgedRevision",acknowledgedRevision);o.put("semanticVerificationR31",semanticVerificationR31);appendFailureR32(o,this);return o;
         }
         public static Job parse(String json)throws Exception {
           try {
@@ -91,6 +92,8 @@ public final class ReportJobJournalCP12 implements Closeable {
             j.evidenceComplete=o.getBoolean("evidenceComplete");j.checksComplete=o.getBoolean("checksComplete");j.allChecksPassed=o.getBoolean("allChecksPassed");
             j.acknowledgedRevision=o.optLong("acknowledgedRevision",-1L);
             j.semanticVerificationR31=o.optString("semanticVerificationR31","LEGACY_NO_SEMANTIC_RECEIPT");
+            j.failureDetailR32=o.optString("failureDetailR32","");j.failurePhaseR32=o.optString("failurePhaseR32","");j.recoveryPublicationR32=o.optString("recoveryPublicationR32","");j.recoveryFailureR32=o.optString("recoveryFailureR32","");
+            if(ReportIoR31.utf8Bytes(j.failureDetailR32)>3072||j.failurePhaseR32.length()>80||ReportIoR31.utf8Bytes(j.recoveryFailureR32)>512||!Arrays.asList("","PENDING","READY","FAILED").contains(j.recoveryPublicationR32))throw new IOException("REPORT_FAILURE_RECEIPT_BOUND");
             if(!java.util.Arrays.asList("LEGACY_NO_SEMANTIC_RECEIPT","REQUIRES_ZIP_READBACK","ZIP_READBACK_VERIFIED").contains(j.semanticVerificationR31))throw new IOException("REPORT_JOB_SEMANTIC_STATE");
             if(j.revision<0||j.attempt<0||j.compressionAttempt<0||j.preemptions<0||j.failureAttempts<0||j.snapshotBytes<0||j.temporaryReservationBytes<0||j.publishedQuotaBytes<0)throw new IOException("REPORT_JOB_RANGE");
             return j;
@@ -176,6 +179,7 @@ public final class ReportJobJournalCP12 implements Closeable {
         }
         JSONObject ack=new JSONObject();ack.put("requestId",requestId);ack.put("jobId",j.jobId);ack.put("mode",j.mode);ack.put("stage",j.stage);ack.put("revision",j.revision);ack.put("reason",j.lastReason);ack.put("createdWallMs",j.createdWallMs);ack.put("updatedWallMs",j.updatedWallMs);ack.put("resumeStage",j.resumeStage);ack.put("evidenceComplete",j.evidenceComplete);ack.put("checksComplete",j.checksComplete);ack.put("allChecksPassed",j.allChecksPassed);
         ack.put("semanticVerificationR31",j.semanticVerificationR31);
+        appendFailureR32(ack,j);
         addRecoveryReceipt(root,requestId,ack);writeAtomic(target,ack.toString());
         // Crash after ACK and before this receipt only causes an idempotent resend.
         j.acknowledgedRevision=j.revision;writeAtomic(new File(directory(j),"job.json"),j.json().toString());
@@ -220,6 +224,7 @@ public final class ReportJobJournalCP12 implements Closeable {
     public static JSONObject authoritativeStateR31(File root,String request)throws Exception {
         Job job=findRequestR31(root,request);if(job==null)return null;
         JSONObject value=new JSONObject();value.put("requestId",request);value.put("jobId",job.jobId);value.put("mode",job.mode);value.put("stage",job.stage);value.put("revision",job.revision);value.put("reason",job.lastReason);value.put("createdWallMs",job.createdWallMs);value.put("updatedWallMs",job.updatedWallMs);value.put("resumeStage",job.resumeStage);value.put("evidenceComplete",job.evidenceComplete);value.put("checksComplete",job.checksComplete);value.put("allChecksPassed",job.allChecksPassed);value.put("semanticVerificationR31",job.semanticVerificationR31);
+        appendFailureR32(value,job);
         // The UI prefers this authority over ACK. Preserve the independently
         // durable recovery receipt even when both ACK writes were lost.
         if(Stage.FAILED.name().equals(job.stage)) {
@@ -276,6 +281,29 @@ public final class ReportJobJournalCP12 implements Closeable {
         public final String text,requestId,recoverySha;
         FailureDetailR31(String text,String request,String sha){this.text=redactFailureR31(text);requestId=request;recoverySha=sha;}
     }
+    /** Persist the first useful cause with the terminal journal/ACK. A recovery
+     * ZIP is a separate publication and may not exist when the UI sees FAILED. */
+    public static void rememberFailureR32(Job job,String phase,Throwable error){
+        job.failureDetailR32=boundedFailureR32(error,3072);job.failurePhaseR32=phase==null?"UNKNOWN":phase.substring(0,Math.min(80,phase.length()));
+        job.recoveryPublicationR32="";job.recoveryFailureR32="";
+    }
+    static String boundedFailureR32(Throwable error,int maximum){
+        final StringBuilder text=new StringBuilder(8192);
+        Writer sink=new Writer(){public void write(char[] value,int start,int count){int n=Math.min(count,8192-text.length());if(n>0)text.append(value,start,n);}public void flush(){}public void close(){}};
+        PrintWriter writer=new PrintWriter(sink);error.printStackTrace(writer);writer.flush();
+        return utf8PrefixR32(redactFailureR31(text.toString()),maximum);
+    }
+    static String utf8PrefixR32(String value,int maximum){
+        int end=0,bytes=0;while(end<value.length()){
+            int cp=value.codePointAt(end),n=cp<=127?1:cp<=2047?2:cp<=65535?3:4;
+            if(bytes+n>maximum)break;bytes+=n;end+=Character.charCount(cp);
+        }return value.substring(0,end);
+    }
+    private static void appendFailureR32(JSONObject value,Job job)throws Exception{
+        if(!job.failureDetailR32.isEmpty())value.put("failureDetailR32",job.failureDetailR32).put("failurePhaseR32",job.failurePhaseR32).put("failureDetailBoundaryR32","BOUNDED_REDACTED_ORIGINAL_UTF8_PREFIX_3072");
+        if(!job.recoveryPublicationR32.isEmpty())value.put("recoveryPublicationR32",job.recoveryPublicationR32);
+        if(!job.recoveryFailureR32.isEmpty())value.put("recoveryFailureR32",job.recoveryFailureR32);
+    }
     public static String redactFailureR31(String text){
         String key=BuildConfig.DUOQU_API_KEY_A+BuildConfig.DUOQU_API_KEY_B;
         if(key.length()>=8)text=text.replace(key,"[REDACTED]");
@@ -289,7 +317,7 @@ public final class ReportJobJournalCP12 implements Closeable {
     public static FailureDetailR31 failureDetailR31(File root,JSONObject state)throws Exception {
         String request=state.getString("requestId");hash(request);
         if(!"FULL_REPORT".equals(state.getString("mode"))||!"FAILED".equals(state.getString("stage")))throw new IOException("REPORT_FAILURE_STATE_IDENTITY");
-        StringBuilder text=new StringBuilder("完整报告失败\nrequestId="+request+"\njobId="+state.optString("jobId","未领取")+"\n阶段="+state.getString("stage")+" / "+state.optString("resumeStage","未记录")+"\n原因="+state.optString("reason","UNKNOWN")+"\n");
+        StringBuilder text=new StringBuilder("完整报告失败\nrequestId="+request+"\njobId="+state.optString("jobId","未领取")+"\n阶段="+state.getString("stage")+" / "+state.optString("failurePhaseR32",state.optString("resumeStage","未记录"))+"\n原因="+state.optString("reason","UNKNOWN")+"\n");
         String share="";
         try{
             File directory=ReportArchiveVerifierCP12.inside(root,"recovery/"+request);
@@ -314,7 +342,14 @@ public final class ReportJobJournalCP12 implements Closeable {
                     text.append("\n原始异常（恢复包大小和 SHA-256 已核验）：\n").append(original);share=sha;
                 }
             }
-        }catch(Exception unavailable){text.append("\n原始异常不可用；保留以上任务回执原因。恢复包：").append(unavailable.getClass().getSimpleName()).append(':').append(unavailable.getMessage());}
+        }catch(Exception unavailable){
+            String inline=state.optString("failureDetailR32","");
+            if(!inline.isEmpty())text.append("\n原始异常（任务回执内保存的有界原文；不依赖恢复包）：\n").append(utf8PrefixR32(inline,3072));
+            else text.append("\n原始异常暂不可用；保留以上任务回执原因。");
+            text.append("\n恢复包状态=").append(state.optString("recoveryPublicationR32","尚未发布或不可用"));
+            if(state.has("recoveryFailureR32"))text.append("\n恢复包写入异常：").append(state.optString("recoveryFailureR32"));
+            text.append("\n恢复包读取：").append(unavailable.getClass().getSimpleName()).append(':').append(unavailable.getMessage());
+        }
         return new FailureDetailR31(text.toString(),request,share);
     }
     private static String recoveryTextR31(java.util.zip.ZipFile zip,String name,int maximum)throws IOException {

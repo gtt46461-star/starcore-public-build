@@ -73,11 +73,23 @@ public final class ReportAttachmentClosureCP12 {
                 }
             }
             File installed=new File(app.getApplicationInfo().sourceDir).getCanonicalFile();if(!installed.isFile())throw new IOException("REPORT_INSTALLED_APK_MISSING");source.put("installedApkBytes",installed.length());source.put("installedApkIncluded",!compact);if(!compact){descriptor(out,"installed-app.apk",apkBefore,installed.length(),"INSTALLED_APK",installed.getPath(),"");source.put("installedApkMember","installed-app.apk");}
-            File r26Root=new File(app.getFilesDir(),"r26-checkpoints").getCanonicalFile();
-            long r26Bytes=0;java.util.Set<String> r26Checkpoints=new com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26(r26Root).reachableHashes(com.ethk3.novaonepro.strategyv2.CheckpointReferencesR26.hashes(copy));
-            for(String hash:r26Checkpoints){checkpoint(control);File input=ReportArchiveVerifierCP12.inside(r26Root,hash+".bin");long size=input.length();if(!input.isFile()||size<1||size>com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.MAX_BYTES)throw new IOException("REPORT_R26_CHECKPOINT_MISSING_OR_INVALID:"+hash);r26Bytes=Math.addExact(r26Bytes,size);
-                if(!compact)descriptor(out,"r26-checkpoint-"+hash+".bin",hash,size,"R26_CHECKPOINT",input.getPath(),"");}
-            source.put("r26CheckpointObjects",r26Checkpoints.size()).put("r26CheckpointBytes",r26Bytes).put("r26CheckpointBodiesIncluded",!compact).put("r26CheckpointByteValidation",compact?"NOT_RUN_COMPACT_BYTE_BUDGET":"EACH_INCLUDED_BODY_SHA256_VERIFIED").put("r26CheckpointScope","Referenced complete states, durable replay outputs and retained parents of this exact SQLite snapshot; older historical states are not claimed");
+            File r26Root=new File(app.getFilesDir(),"r26-checkpoints");
+            java.util.Set<String> r26Roots=com.ethk3.novaonepro.strategyv2.CheckpointReferencesR26.hashes(copy);
+            if(compact){
+                File metadata=new File(job,CheckpointReportAuditR32.MEMBER);JSONObject audit;
+                try(FileOutputStream auditFd=new FileOutputStream(metadata);Writer auditOut=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(metadata,auditFd,control),StandardCharsets.UTF_8),8192)){
+                    audit=CheckpointReportAuditR32.observe(r26Root,r26Roots,auditOut,control::shouldContinue);auditOut.flush();auditFd.getFD().sync();
+                }
+                descriptor(out,metadata.getName(),ReportArchiveCP4.hash(metadata,control),metadata.length(),"FILE",metadata.getCanonicalPath(),new File(app.getFilesDir(),"r32-checkpoint-report-metadata.lock").getCanonicalPath());
+                source.put("r26CheckpointAuditR32",audit).put("r26CheckpointObjects",audit.getLong("observedObjects")).put("r26CheckpointBytes",audit.getLong("observedBytes"))
+                        .put("r26CheckpointBodiesIncluded",false).put("r26CheckpointByteValidation","BOUNDED_DIAGNOSTIC_AUDIT_SEE_MEMBER").put("r26CheckpointScope","Exact-snapshot references and observed availability; missing originals and unknown children are explicit evidence gaps, never repaired or exported bodies");
+            }else{
+                if(!r26Roots.isEmpty()&&!r26Root.isDirectory())throw new IOException("REPORT_RAW_CHECKPOINT_SOURCE_MISSING");
+                long r26Bytes=0;java.util.Set<String> r26Checkpoints=r26Roots.isEmpty()?java.util.Collections.emptySet():new com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26(r26Root).reachableHashes(r26Roots);
+                for(String hash:r26Checkpoints){checkpoint(control);File input=ReportArchiveVerifierCP12.inside(r26Root,hash+".bin");long size=input.length();if(!input.isFile()||size<1||size>com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.MAX_BYTES)throw new IOException("REPORT_R26_CHECKPOINT_MISSING_OR_INVALID:"+hash);r26Bytes=Math.addExact(r26Bytes,size);
+                    descriptor(out,"r26-checkpoint-"+hash+".bin",hash,size,"R26_CHECKPOINT",input.getPath(),"");}
+                source.put("r26CheckpointObjects",r26Checkpoints.size()).put("r26CheckpointBytes",r26Bytes).put("r26CheckpointBodiesIncluded",true).put("r26CheckpointByteValidation","EACH_INCLUDED_BODY_SHA256_VERIFIED").put("r26CheckpointScope","Referenced complete states, durable replay outputs and retained parents of this exact SQLite snapshot; older historical states are not claimed");
+            }
             source.put("keepOriginalsR31",captureKeepOriginalsR31(copy,app.getFilesDir(),job,out,control,compact));
             String last="";
             try(FileOutputStream seedFd=new FileOutputStream(seedEvidence);Writer seeds=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(seedEvidence,seedFd,control),StandardCharsets.UTF_8),8192)) {
