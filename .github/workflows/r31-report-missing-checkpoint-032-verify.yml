@@ -1,0 +1,71 @@
+name: STARCORE 032 exact APK missing checkpoint verification
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: r31-032-missing-checkpoint-exact-apk
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: 51667a1236742b9bee8e1a8903c26358727d7c81
+        fetch-depth: 1
+    - uses: actions/checkout@v4
+      with:
+        ref: 3a15bfa803f53927e0088a6e42310ad1cd039b6f
+        path: validation
+        fetch-depth: 1
+    - uses: actions/download-artifact@v4
+      with:
+        name: r31-report-032-signed-build
+        path: built
+        run-id: 43556844131
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/download-artifact@v4
+      with:
+        name: r31-report-025-signed-build
+        run-id: 43417298331
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path: old025
+    - name: Enable emulator acceleration
+      run: 'echo ''KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"'' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+
+        sudo udevadm control --reload-rules
+
+        sudo udevadm trigger --name-match=kvm
+
+        '
+    - uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 34
+        arch: x86_64
+        target: default
+        disable-animations: true
+        ram-size: 3072M
+        heap-size: 512M
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+        script: bash tools/r31/run_phone_report_android.sh built report-only-public old025
+      env:
+        R31_REPORT_STARTUP_WAIT_SECONDS: '120'
+        R32_INJECT_MISSING_CHECKPOINT: '1'
+        R31_PHONE_HARNESS_ROOT: validation
+        R31_PHONE_VALIDATION_SOURCE: 3a15bfa803f53927e0088a6e42310ad1cd039b6f
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: r31-032-missing-checkpoint-verified-fixture
+        path: report-only-public/
+        if-no-files-found: error
+    permissions:
+      contents: read
+      actions: read
+'on':
+  push:
+    branches:
+    - construction/r27-20261028
+    paths:
+    - .github/workflows/r31-report-missing-checkpoint-032-verify.yml
