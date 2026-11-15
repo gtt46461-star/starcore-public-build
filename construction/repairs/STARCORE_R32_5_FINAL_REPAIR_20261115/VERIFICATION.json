@@ -1,0 +1,879 @@
+{
+  "AndroidAPK": "NOT_BUILT",
+  "AndroidGradle": "NOT_RUN",
+  "acceptance_binding_execution": "BOUND_ENTRIES_AND_EXTERNAL_PROTOCOLS_DO_NOT_CONSTITUTE_222_SEMANTIC_PASSES",
+  "acceptance_originals_preserved": 222,
+  "baseline_remote_identity": "audit/r325/REMOTE_BASELINE_CHECK.json",
+  "binary_patches": "verification/PATCH_REPLAY.json",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "init",
+        "--quiet"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:10:47.127100+00:00",
+      "id": "baseline-git-init",
+      "log": "baseline-git-init.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "startedAt": "2026-11-15T13:10:47.118726+00:00"
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "--force",
+        "."
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:10:52.059825+00:00",
+      "id": "baseline-git-add",
+      "log": "baseline-git-add.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "startedAt": "2026-11-15T13:10:47.127413+00:00"
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "user.name=Staged Rehearsal",
+        "-c",
+        "user.email=rehearsal@example.invalid",
+        "commit",
+        "--quiet",
+        "-m",
+        "Local rehearsal snapshot of supplied baseline archive"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:10:52.125027+00:00",
+      "id": "baseline-git-commit",
+      "log": "baseline-git-commit.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "startedAt": "2026-11-15T13:10:52.060379+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/apply_batch.py",
+        "--package",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--batch",
+        "P1",
+        "--apply"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:10:54.951367+00:00",
+      "id": "P1-apply",
+      "log": "P1-apply.log",
+      "logSha256": "f92c69c065f0757a81f0347e9fb79f213ae29225e144d51fb9fb62214d2ce923",
+      "startedAt": "2026-11-15T13:10:52.128526+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/verify_stage_identity.py",
+        "--package",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--batch",
+        "P1",
+        "--generate"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:11:03.245891+00:00",
+      "id": "P1-identity",
+      "log": "P1-identity.log",
+      "logSha256": "3047cd6ee3546bda8420f75ac031aebc5f3bfa9431ab96688960fcb42f8014c6",
+      "startedAt": "2026-11-15T13:10:54.951967+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/compile_rehearsal.py",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--android-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/android.jar",
+        "--out",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P1-classes"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:11:17.767016+00:00",
+      "id": "P1-compile",
+      "log": "P1-compile.log",
+      "logSha256": "45ec289d3bf737f186098e5febd7c0ee2b5cac982edb9e1eefcdfb8c135c79d2",
+      "startedAt": "2026-11-15T13:11:03.246601+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree/tools/r32/p1_current/run_p1_current_host.py",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--classes",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P1-classes",
+        "--sdk",
+        "/workspace/scratch/ad838b054b73/toolchain/android.jar",
+        "--jdbc",
+        "/workspace/scratch/ad838b054b73/toolchain/sqlite-jdbc-3.46.1.3.jar",
+        "--slf4j",
+        "/workspace/scratch/ad838b054b73/toolchain/slf4j-api-2.0.13.jar",
+        "--out",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P1-host"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:11:25.266157+00:00",
+      "id": "P1-host",
+      "log": "P1-host.log",
+      "logSha256": "bb607ec9e775b0aab3a60c2f0acc0c3cc9d9d5d93ec1f8bd605d0b4047f68d71",
+      "startedAt": "2026-11-15T13:11:18.032809+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/apply_batch.py",
+        "--package",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--batch",
+        "P2",
+        "--apply"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:11:28.852107+00:00",
+      "id": "P2-apply",
+      "log": "P2-apply.log",
+      "logSha256": "d7af95cabff6ab2d31dded105e7db939103450138992c40ee8b5584fa0b8e5dc",
+      "startedAt": "2026-11-15T13:11:25.511189+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/verify_stage_identity.py",
+        "--package",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--batch",
+        "P2",
+        "--generate"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:11:37.331913+00:00",
+      "id": "P2-identity",
+      "log": "P2-identity.log",
+      "logSha256": "ebdf570802694bb02a52b3aac223268f380841cf8f3ede7e4b77828816b60da8",
+      "startedAt": "2026-11-15T13:11:28.857612+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/compile_rehearsal.py",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--android-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/android.jar",
+        "--out",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P2-classes"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:11:54.295833+00:00",
+      "id": "P2-compile",
+      "log": "P2-compile.log",
+      "logSha256": "731a1cbc3b38483a04ff078e28168ad719ef345e5770821758e17d92cef52665",
+      "startedAt": "2026-11-15T13:11:37.339966+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree/tools/r32/run_atomnet_recovery_host.py",
+        "--classes",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P2-classes",
+        "--android-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/android.jar",
+        "--sqlite-jdbc",
+        "/workspace/scratch/ad838b054b73/toolchain/sqlite-jdbc-3.46.1.3.jar",
+        "--slf4j-api",
+        "/workspace/scratch/ad838b054b73/toolchain/slf4j-api-2.0.13.jar",
+        "--out",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P2-host"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:11:58.963441+00:00",
+      "id": "P2-host",
+      "log": "P2-host.log",
+      "logSha256": "fde81bc81fbed0974177b7ddcf636e621439865aa35539b91e48fcd98d835ff8",
+      "startedAt": "2026-11-15T13:11:54.589660+00:00"
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree/tools/r325/archive_liveness/run_archive_liveness.py",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--classes",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P2-classes",
+        "--android-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/android.jar",
+        "--jdbc-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/sqlite-jdbc-3.46.1.3.jar",
+        "--slf4j-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/slf4j-api-2.0.13.jar",
+        "--out",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P2-archive-liveness"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:12:01.614638+00:00",
+      "id": "P2-archive-liveness",
+      "log": "P2-archive-liveness.log",
+      "logSha256": "6b7b0cecb2feb5971cbae99af642eb7562529bd514f42877af654d4910bcf67b",
+      "startedAt": "2026-11-15T13:11:58.970920+00:00"
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree/tools/r324/retention/run_retention_host.py",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--classes",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P2-classes",
+        "--android-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/android.jar",
+        "--jdbc-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/sqlite-jdbc-3.46.1.3.jar",
+        "--slf4j-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/slf4j-api-2.0.13.jar",
+        "--out",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P2-retention"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:12:04.142857+00:00",
+      "id": "P2-retention",
+      "log": "P2-retention.log",
+      "logSha256": "349f9d9f1d636d2948541defb5da74a0093e6a5ec9b1f3737c69e0b1f28fffc8",
+      "startedAt": "2026-11-15T13:12:01.616367+00:00"
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree/tools/r324/gc/run_gc_closure.py",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--classes",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P2-classes",
+        "--android-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/android.jar",
+        "--jdbc-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/sqlite-jdbc-3.46.1.3.jar",
+        "--slf4j-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/slf4j-api-2.0.13.jar",
+        "--out",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P2-gc"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:12:11.460745+00:00",
+      "id": "P2-gc",
+      "log": "P2-gc.log",
+      "logSha256": "2372f30b9769943431dccfd67eb09976bca4c1ec7dfa291c150935d015919973",
+      "startedAt": "2026-11-15T13:12:04.145103+00:00"
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree/tools/r324/retention/run_closure_host.py",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--classes",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P2-classes",
+        "--android-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/android.jar",
+        "--jdbc-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/sqlite-jdbc-3.46.1.3.jar",
+        "--slf4j-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/slf4j-api-2.0.13.jar",
+        "--json-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/json-20240303.jar",
+        "--out",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P2-closure"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:12:40.711415+00:00",
+      "id": "P2-closure",
+      "log": "P2-closure.log",
+      "logSha256": "b47ad2fd6101cc04fa6df8a99f08a8ef9d60bfbf7f60347d0fd4f1db4c8222d9",
+      "startedAt": "2026-11-15T13:12:11.464395+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/apply_batch.py",
+        "--package",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--batch",
+        "P3",
+        "--apply"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:12:43.612099+00:00",
+      "id": "P3-apply",
+      "log": "P3-apply.log",
+      "logSha256": "5b666d969c03cea8bc87f81b5a01c43862a89d07626134b3fe4348389437e561",
+      "startedAt": "2026-11-15T13:12:40.970563+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/verify_stage_identity.py",
+        "--package",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--batch",
+        "P3",
+        "--generate"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:12:52.249740+00:00",
+      "id": "P3-identity",
+      "log": "P3-identity.log",
+      "logSha256": "9ade7a84b27fe25ff32d91cea45f6a271a8308065f7c9538532a7acb7b95be13",
+      "startedAt": "2026-11-15T13:12:43.619248+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/compile_rehearsal.py",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--android-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/android.jar",
+        "--out",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P3-classes"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:13:11.853068+00:00",
+      "id": "P3-compile",
+      "log": "P3-compile.log",
+      "logSha256": "731a1cbc3b38483a04ff078e28168ad719ef345e5770821758e17d92cef52665",
+      "startedAt": "2026-11-15T13:12:52.252992+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree/tools/r32/run_mainline_host.py",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--classes",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P3-classes",
+        "--android-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/android.jar",
+        "--sqlite-jdbc",
+        "/workspace/scratch/ad838b054b73/toolchain/sqlite-jdbc-3.46.1.3.jar",
+        "--slf4j",
+        "/workspace/scratch/ad838b054b73/toolchain/slf4j-api-2.0.13.jar",
+        "--out",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P3-host"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:13:51.534847+00:00",
+      "id": "P3-host",
+      "log": "P3-host.log",
+      "logSha256": "8f1782a366f7dd733ae1558795cdee1ab50a47d24c094719d312c84fc2d1d8f0",
+      "startedAt": "2026-11-15T13:13:12.125850+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/apply_batch.py",
+        "--package",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--batch",
+        "P4",
+        "--apply"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:13:54.651523+00:00",
+      "id": "P4-apply",
+      "log": "P4-apply.log",
+      "logSha256": "b2655b53d76bc36ce4c9071853466566a4f7b46f493f3cc178300de64a282efe",
+      "startedAt": "2026-11-15T13:13:51.775831+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/verify_stage_identity.py",
+        "--package",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--batch",
+        "P4",
+        "--generate"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:14:02.849573+00:00",
+      "id": "P4-identity",
+      "log": "P4-identity.log",
+      "logSha256": "1a5124f9a36f41dc1c99a069f13ecd9db64f67794cc109ce3426ef90eb05da8b",
+      "startedAt": "2026-11-15T13:13:54.652428+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/compile_rehearsal.py",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--android-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/android.jar",
+        "--out",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P4-classes"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:14:20.049807+00:00",
+      "id": "P4-compile",
+      "log": "P4-compile.log",
+      "logSha256": "ffa614f1ca6374741669903724cb607c92e7d1f80fecae26ce3f46b351fd4bdc",
+      "startedAt": "2026-11-15T13:14:02.851039+00:00"
+    },
+    {
+      "argv": [
+        "bash",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree/tools/r33/report_audit/run_report_reaudit.sh"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:14:25.440499+00:00",
+      "id": "P4-host",
+      "log": "P4-host.log",
+      "logSha256": "d3ba3d0e3487ad8a7364da9272e337714482bd550841f685c810d1b5710418ef",
+      "startedAt": "2026-11-15T13:14:20.331337+00:00"
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree/tools/r324/diagnostic/run_diagnostic.py",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--out",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P4-diagnostic"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:14:27.932084+00:00",
+      "id": "P4-diagnostic",
+      "log": "P4-diagnostic.log",
+      "logSha256": "a992304247382f3f4696a4574c4a1e942d7b73d87d7e171d49e4a1f02496f791",
+      "startedAt": "2026-11-15T13:14:25.445873+00:00"
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree/tools/r325/diagnostic/run_q08_diagnostic.py",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--dependency-classes",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P4-classes",
+        "--android-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/android.jar",
+        "--sqlite-jdbc",
+        "/workspace/scratch/ad838b054b73/toolchain/sqlite-jdbc-3.46.1.3.jar",
+        "--slf4j-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/slf4j-api-2.0.13.jar",
+        "--out",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P4-q08-originals"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:14:32.276792+00:00",
+      "id": "P4-q08-originals",
+      "log": "P4-q08-originals.log",
+      "logSha256": "04c99bec1a31e0e4c6ad2a8f7df9a5131c74fa1d0f29523f79c8325a9f8ed2c1",
+      "startedAt": "2026-11-15T13:14:27.934400+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/apply_batch.py",
+        "--package",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--batch",
+        "P5",
+        "--apply"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:14:35.382004+00:00",
+      "id": "P5-apply",
+      "log": "P5-apply.log",
+      "logSha256": "b97806dbe250413e9f3e09deac92c2ec771e97c6ae9903b2b938be3ae601cf32",
+      "startedAt": "2026-11-15T13:14:32.544420+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/verify_stage_identity.py",
+        "--package",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--batch",
+        "P5",
+        "--generate"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:14:43.868340+00:00",
+      "id": "P5-identity",
+      "log": "P5-identity.log",
+      "logSha256": "ddd36bbe3a8cd1f558d45ccb05f4b69b347d17f2b2476e4da03499f32a102206",
+      "startedAt": "2026-11-15T13:14:35.384068+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/compile_rehearsal.py",
+        "--repo",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+        "--android-jar",
+        "/workspace/scratch/ad838b054b73/toolchain/android.jar",
+        "--out",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P5-classes"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:15:01.378141+00:00",
+      "id": "P5-compile",
+      "log": "P5-compile.log",
+      "logSha256": "ffa614f1ca6374741669903724cb607c92e7d1f80fecae26ce3f46b351fd4bdc",
+      "startedAt": "2026-11-15T13:14:43.872830+00:00"
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree/tools/r31/test_device_receipts.py"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:15:01.966857+00:00",
+      "id": "P5-device-tool-regression",
+      "log": "P5-device-tool-regression.log",
+      "logSha256": "b260a478c97a09aea093b0bdff66d4dad61c0dd64def400e2c92b8c9977c5afb",
+      "startedAt": "2026-11-15T13:15:01.650987+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/test_apply_batch.py"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:15:02.447356+00:00",
+      "id": "P5-apply-contract",
+      "log": "P5-apply-contract.log",
+      "logSha256": "03bceeb65da23d02cb1ca544fa2b8d5bfef56d45673ef6c1457d6ccfb848f01f",
+      "startedAt": "2026-11-15T13:15:01.967850+00:00"
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/test_inspect_resume.py"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:15:02.770310+00:00",
+      "id": "P5-resume-contract",
+      "log": "P5-resume-contract.log",
+      "logSha256": "2d9622ace558d47888a00dcd5a7077270c4d9ed4649d129f324d926623d846fe",
+      "startedAt": "2026-11-15T13:15:02.453816+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/test_release_contract.py",
+        "--baseline",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/exact-baseline"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/STARCORE_R32_5_FINAL_REPAIR_20261115",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:15:02.886668+00:00",
+      "id": "P5-release-contract",
+      "log": "P5-release-contract.log",
+      "logSha256": "8d268a7e13a32c3ceb3451bc9ecd804aa9cb16e126fb9952e2bb21430323e6ae",
+      "startedAt": "2026-11-15T13:15:02.771389+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree/scripts/r926_release_manifest.py",
+        "--check"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:15:02.920555+00:00",
+      "id": "P5-r926-check",
+      "log": "P5-r926-check.log",
+      "logSha256": "bbeaff992a28330e2daa2be24a9e1c04622d0398b4d36122495e3ada08f058e9",
+      "startedAt": "2026-11-15T13:15:02.888016+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree/scripts/r926_release_manifest.py",
+        "--drift-test"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:15:02.954417+00:00",
+      "id": "P5-r926-drift",
+      "log": "P5-r926-drift.log",
+      "logSha256": "feb3e9d41e03c6dff00867e066186996b8a401dd146140aa7693c84c8513835c",
+      "startedAt": "2026-11-15T13:15:02.921684+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree/scripts/r982_source_call_asset.py"
+      ],
+      "cwd": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/stage-worktree",
+      "exitCode": 0,
+      "finishedAt": "2026-11-15T13:15:03.220489+00:00",
+      "id": "P5-r982-check",
+      "log": "P5-r982-check.log",
+      "logSha256": "b83f0c16859d904d3e41fa9e01cd239913483fd2b70f48127a8d3751edc7db15",
+      "startedAt": "2026-11-15T13:15:02.955404+00:00"
+    }
+  ],
+  "counts": {
+    "actions": {
+      "ADD": 64,
+      "PRESERVE_REFERENCE": 192,
+      "REPLACE": 56
+    },
+    "actual_changed_paths": 120,
+    "baseline_production_java_files": 1308,
+    "batches": 5,
+    "binary_payload_paths": 1,
+    "candidate_production_java_files": 1321,
+    "counts_are_not_business_acceptance": true,
+    "historical_cards_preserved": 78,
+    "inherited_acceptances": 222,
+    "inherited_requirements": 1832,
+    "issue_file_binary_cards": 1,
+    "issue_file_cards_with_full_code": 408,
+    "joint_issues": 18,
+    "owned_file_paths": 312,
+    "per_batch": {
+      "P1": {
+        "actions": {
+          "ADD": 14,
+          "PRESERVE_REFERENCE": 32,
+          "REPLACE": 12
+        },
+        "files": 58,
+        "issues": 6
+      },
+      "P2": {
+        "actions": {
+          "ADD": 23,
+          "PRESERVE_REFERENCE": 107,
+          "REPLACE": 18
+        },
+        "files": 148,
+        "issues": 6
+      },
+      "P3": {
+        "actions": {
+          "ADD": 1,
+          "PRESERVE_REFERENCE": 20,
+          "REPLACE": 4
+        },
+        "files": 25,
+        "issues": 2
+      },
+      "P4": {
+        "actions": {
+          "ADD": 26,
+          "PRESERVE_REFERENCE": 18,
+          "REPLACE": 10
+        },
+        "files": 54,
+        "issues": 3
+      },
+      "P5": {
+        "actions": {
+          "PRESERVE_REFERENCE": 15,
+          "REPLACE": 12
+        },
+        "files": 27,
+        "issues": 1
+      }
+    },
+    "production_java_payloads": 231,
+    "restored_build_input_files": 1047,
+    "restored_numeric_fixtures": 48
+  },
+  "device24h": "NOT_RUN",
+  "device72h": "NOT_RUN",
+  "historical_verification": "reference/R32.4/verification; never imported as current PASS",
+  "manifest_sha256": "584f5d23e127b5e7bc98df5f377f8ecd9a021a5ff886e05fa5ef69c506af4aa7",
+  "naturalAssetQuality": "NOT_PROVEN",
+  "physicalDevice": "NOT_RUN",
+  "realActions": "NONE",
+  "requirement_originals_preserved": 1832,
+  "revision": "R32.5_FINAL_REPAIR_20261115",
+  "scope": "REPAIR_PLAN_AND_EXACT_CODE_PAYLOAD_DELIVERY; NOT FULL_SOFTWARE_OR_NATURAL_SIGNOFF",
+  "source_composition": "verification/COMPOSITION_RESULTS.json",
+  "staged_result": "verification/staged/RESULTS.json",
+  "stages": {
+    "P1": {
+      "assertions": 201,
+      "classesDirectory": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P1-classes",
+      "compiledClassCount": 4683,
+      "compiledClassManifestSha256": "b6b0b9f84e0ed7fb64ee591a998349fdce9fa895f78339b551049bc1e068bd09",
+      "finishedAt": "2026-11-15T13:11:25.510274+00:00",
+      "hostCases": [
+        {
+          "assertions": 119,
+          "id": "P1-quota",
+          "log": "quota.log",
+          "state": "PASS_HOST_CURRENT_PRODUCTION"
+        },
+        {
+          "assertions": 61,
+          "id": "P1-strict",
+          "log": "strict.log",
+          "state": "PASS_HOST_CURRENT_PRODUCTION"
+        },
+        {
+          "assertions": 12,
+          "id": "P1-completed-drift",
+          "log": "completed-drift.log",
+          "state": "PASS_HOST_CURRENT_PRODUCTION"
+        },
+        {
+          "assertions": 9,
+          "id": "P1-tail",
+          "log": "tail.log",
+          "state": "PASS_HOST_CURRENT_PRODUCTION"
+        }
+      ],
+      "hostState": "PASS_HOST_CURRENT_P1",
+      "productionJavaSources": 1309,
+      "receipt": "P1-host/RECEIPT.json",
+      "startedAt": "2026-11-15T13:10:52.128304+00:00",
+      "state": "PASS_DECLARED_STAGE_HOST_SCOPE",
+      "typecheck": "PASS_HOST_RESOURCE_DECLARATIONS_CURRENT_STAGE_SEMANTIC_GENERATION"
+    },
+    "P2": {
+      "assertions": 72,
+      "classesDirectory": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P2-classes",
+      "compiledClassCount": 4710,
+      "compiledClassManifestSha256": "d14605727e016812056bee37af69aa3dc6d61ef98afe7fcf14d439d67373f130",
+      "finishedAt": "2026-11-15T13:12:40.969474+00:00",
+      "hostState": "PASS",
+      "productionJavaSources": 1314,
+      "receipt": "P2-host/RECEIPT.json",
+      "scenarios": 20,
+      "startedAt": "2026-11-15T13:11:25.510747+00:00",
+      "state": "PASS_DECLARED_STAGE_HOST_SCOPE",
+      "typecheck": "PASS_HOST_RESOURCE_DECLARATIONS_CURRENT_STAGE_SEMANTIC_GENERATION"
+    },
+    "P3": {
+      "classesDirectory": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P3-classes",
+      "compiledClassCount": 4710,
+      "compiledClassManifestSha256": "4b92e1c66419d20acbcf27a9e31aaf6ffb639db85c64ffb30038cf15a9c28048",
+      "finishedAt": "2026-11-15T13:13:51.774824+00:00",
+      "hostState": "PASS_HOST_ACTUAL_PATH_NOT_ANDROID_OR_NATURAL",
+      "productionJavaSources": 1314,
+      "receipt": "P3-host/RECEIPT.json",
+      "startedAt": "2026-11-15T13:12:40.970078+00:00",
+      "state": "PASS_DECLARED_STAGE_HOST_SCOPE",
+      "typecheck": "PASS_HOST_RESOURCE_DECLARATIONS_CURRENT_STAGE_SEMANTIC_GENERATION"
+    },
+    "P4": {
+      "assertions": 37,
+      "classesDirectory": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P4-classes",
+      "compiledClassCount": 4719,
+      "compiledClassManifestSha256": "f6f9ccfda0341227418e59fc2a8e36c1894abd7ee6b51dc9d1bd381f16aff9b8",
+      "finishedAt": "2026-11-15T13:14:32.543171+00:00",
+      "hostState": "PASS",
+      "originalReportRerenders": 2,
+      "productionJavaSources": 1321,
+      "receipt": "P4-host/receipt.json",
+      "reportInputs": {
+        "report326_input.json": "95d57eea516460c4012604a8f6f1eb11a97fecf2136a1cc1082befb29761c3ef",
+        "report425_input.json": "2f5777abf574a0d42f781c9834fe306ca26ff45165d59e8661f6c5a6b5f9a7d1"
+      },
+      "startedAt": "2026-11-15T13:13:51.775432+00:00",
+      "state": "PASS_DECLARED_STAGE_HOST_SCOPE",
+      "typecheck": "PASS_HOST_RESOURCE_DECLARATIONS_CURRENT_STAGE_SEMANTIC_GENERATION"
+    },
+    "P5": {
+      "classesDirectory": "/workspace/scratch/ad838b054b73/audit/r325_staged_final/P5-classes",
+      "compiledClassCount": 4719,
+      "compiledClassManifestSha256": "33c8250aee080a048879a0bebec987300a1c0031ea5d32f91eb703f7c10ab541",
+      "finishedAt": "2026-11-15T13:15:03.461261+00:00",
+      "hostState": "PASS_PACKAGE_APPLY_RELEASE_AND_SOURCE_INDEX_CONTRACTS",
+      "productionJavaSources": 1321,
+      "startedAt": "2026-11-15T13:14:32.543883+00:00",
+      "state": "PASS_DECLARED_STAGE_HOST_SCOPE",
+      "typecheck": "PASS_HOST_RESOURCE_DECLARATIONS_CURRENT_STAGE_SEMANTIC_GENERATION"
+    }
+  },
+  "status": "PASS_DECLARED_SOURCE_AND_HOST_CONTRACTS",
+  "targeted_regressions": [
+    {
+      "id": "P2_ARCHIVE_LIVENESS",
+      "assertions": 41,
+      "receipt": "verification/staged/P2-archive-liveness/RECEIPT.json",
+      "scope": "production Java/native SQLite host; not Android scheduling"
+    },
+    {
+      "id": "P4_Q08_REPORT_AND_SQLITE",
+      "assertions": 60,
+      "receipt": "verification/staged/P4-q08-originals/RESULTS.json",
+      "scope": "42 production/report/unit/exit assertions and 18 native SQLite original-read assertions; not 120 scientific trial success"
+    },
+    {
+      "id": "P5_DEVICE_RECEIPT_TOOLS",
+      "tests": 30,
+      "receipt": "audit/r325/device_VERIFICATION.json",
+      "scope": "script/SQLite/mock ADB regression; not physical device"
+    }
+  ],
+  "object_map_receipt": "audit/report/OBJECT_ACTIONS_165_RECEIPT.json",
+  "host_rehearsal_instructions": "HOST_REHEARSAL.md"
+}

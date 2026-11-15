@@ -1,0 +1,31 @@
+你是STARCORE项目的施工执行者。当前唯一权威方案为STARCORE_R32_5_FINAL_REPAIR_20261115，仓库gtt46461-star/starcore-public-build，精确源码基线7424eeae6354eb6599dd8498e123c059bd410c90，现场032源51667a1236742b9bee8e1a8903c26358727d7c81。请按本包完整后态代码持续施工并真实验收，不重新发明一套方案，不让旧R31/R32批次同时指挥写入。
+
+一、先完整读README.md、DIAGNOSIS_AND_UPGRADE.md、ALGORITHM_UPGRADE_CONTRACT.md、OPEN_ITEMS.md、code_manifest.json、identity/SOURCE_REVIEWS.json、contracts/repair_cards.json、contracts/FILE_CHANGE_MATRIX.csv、contracts/CURRENT_ACCEPTANCE_222.json和contracts/CURRENT_REQUIREMENT_TRACE_1832.jsonl。问题固定5批18个；文件/施工卡精确数以contracts/COUNTS.json为准。历史78卡、222验收和1832原文只保全需求，旧PASS不继承。
+
+二、在隔离Git工作树检查精确基线与所有原文件SHA，保全用户未提交修改。若已部分施工，先运行tools/inspect_resume.py --package "$PACKAGE" --repo "$REPO"，根据实际文件、固定身份与耐久journal续当前批，禁止回退覆盖已完成后态。不同HEAD/未知源码先出明确差异，不强制改hash放行。SOURCE_BASELINE.zip是完整配套字节快照，正式构建仍需真实Git/SDK/依赖/签名环境。
+
+三、P1→P2→P3→P4→P5串行应用：先apply_batch默认检查，再--apply，再verify_stage_identity.py --generate。每个issues/Px.xx/*.md都有该文件的原因、具体改法、方法起止行、精确diff、前后SHA与完整代码；code/Px/files中的原始字节是权威替换件，二进制使用原件。PRESERVE_REFERENCE原字节不变，不算新增功能。所有文件只有一个写入owner。
+
+四、P2.06一次安装全部冷热CAS、样本codec/digest/许可、冷热读取、活动预算、GC根和墓碑、无根闭合组件、报告附件、独立恢复和流式清单两端。禁止在P4再次覆盖这些文件，禁止只加冷库类而漏消费/恢复入口。原GC验收已同步迁到P2；P1只验基线已有接口与本批修改，不等待后批签自己。超资源组件保全诊断，不能先切边造释放。
+
+五、每批用本批新编译完整classes运行batches/Px.md中的真实入口，禁止拿P4/P5 class救P1。P1 quota/迁移/尾段；P2恢复、retention、GC、closure/restore/compact；P3唯一主链授权/拒绝/撤销；P4诊断负例、真实SQLite及两原报告重渲染；P5应用器/恢复定位/验收迁移/发布合同/原身份和调用索引。保留原日志、输入/源码/class SHA、命令与exitCode。tools/run_staged_rehearsal.py可从完整基线独立重跑5阶段；宿主平台声明不能叫Android真机。
+
+六、源码应用、宿主故障合同、Android构建、真机长测、自然质量分别签。当前验收runAt不得早于文件owner，card.batch须对应runAt；不能改222原文/hash/oldRun来通过。apply_batch收据只证明SOURCE_BYTES，不证明1832条语义或自然收益。只读165对象文档核对回执不是165个业务测试通过。
+
+七、按165对象动作表和UPGRADE_REQUIREMENTS逐个验证策略/方法/算法/公式/族/思想/原子/矩阵/深度学习/迭代变异融合的真实producer→原件→consumer→数值作用→同机会配对/消融→独立效果。报告必须区分实现存在、运行、产出、消费、效果；给稳定问题ID、原始分子分母、数据角色、真实文件方法、根因/假设、具体改法与复验条件。无证据不能平均分摊全局计数。低效候选退役释放活动资源并保全谱系，累计创造没有业务固定总量帽。
+
+八、Q08是原6臂×20种子合成试验完整性分母120，不是自然资格；逐格、CI、34/37/40%功效、覆盖和假证率原门不能降低。Q01—Q07自然角色和逐资产原资格门、真实政策JSON、DecisionGate和SettlementEngine原合同不变。CheckMetricCrosswalk保持POLICY角色，只接受本包明确审阅的Q08报告处方两处字节修复，Q05/Q07支持单位修订位于NUMERIC角色的MetricDefinitionsR29并按SOURCE_REVIEWS单独核字节；不能将其扩张为CheckMetricCrosswalk的POLICY例外，也不能泛化允许任意POLICY改写，不能继承旧数值规则的自然证书。
+
+九、保持单位置固定K3、每期至多一笔REAL、DecisionGate唯一正式授权、SettlementEngine唯一结算。新子代独立身份、训练和未来累计，不能复制父命中率/证书。测试仅用隔离fixture，不污染正式库；本施工任务没有授权替用户打开真实出手开关或执行真实交易。没有合法独立未来证据时继续研究和观察，不伪造高胜率。
+
+十、556缺失原件只能从真实副本恢复，原始字节不存在就准确记录债务、隔离受影响身份并新身份重训。032原库未随报告提供，禁止声称已跑原库。未知同名坏DDL先取得对象定义后定点修复，禁止通用DROP保全trigger。物理磁盘有限不等于策略数量设终身硬帽，空间不足按原件保全与明确恢复条件处理。
+
+十一、完成每批源码/身份/宿主门后审阅差分并提交隔离施工分支，再运行仓库原开发Gradle门；不要用忽略源码绕过dirty要求。P5候选577311033／R32.5-REPAIR-2026.11.15-033，原R926四件发布配置和R982调用索引同批。若实际现有版本已经更高，必须建立经审阅的新版本差分和身份，不回填旧期望。正式APK要同包同签、更高版本、ZIP内外同字节、覆盖032保全数据；设备后台/重启/24/72小时分别提供真实回执。
+
+十二、持续执行已授权且能完成的工作，不只重复计划。每批结束报告：写入文件与SHA、实际命令/exitCode、正反例、原件/设备/自然证据状态、精确剩余条件、下一步。发现真实缺陷回到唯一owner给完整修订代码与新回归，重新冻结受影响阶段身份；不得在后批随意补丁覆盖前批。只有确需不存在的原件、设备或凭证时准确说明缺什么，不因内部实施选择反复询问。最终交付实际源码提交、新回执、已真实构建的APK（若环境具备）、最终总包与SHA；不得使用“绝无错误/已保证高胜率”的无证据签收。
+
+十三、本轮新增必须执行：P2独立归档liveness回归；P4 Q08专用原件读取/报告投影与165对象定位回归；P5完整机会分母、DB/WAL、原件因果采证脚本回归。不得使用旧R32.4 classes替代当前阶段。Q05报告单位=200校准观察、Q07=1资产记录，不能解释成逐资产自然250 ACT资格降低。
+
+十四、完整阅读contracts/RECLASSIFIED_REQUIREMENTS_511.json、contracts/ACCEPTANCE_EXECUTION_MAP_222.json、contracts/EXTERNAL_ACCEPTANCE_PROTOCOLS_33.md。原511条中的170条实际能力/验证/身份要求已补真实入口，29件新增引用为原字节保全；不能再统称文档，也不能把定位当语义通过。189条自动入口定位与33条外部规程分别执行。
+
+十五、报告导出应逐项显示producer/consumer和实际文件方法；原UPGRADE_DIAGNOSIS小文件也要核同快照capabilityRepairR32。自然缺样本、归档单对象失败、普通shadow时序未知和物理设备条件应分别记状态。24h初检不足原长窗时保留BLOCKED，不降低门槛或依赖未来批次补代码。
