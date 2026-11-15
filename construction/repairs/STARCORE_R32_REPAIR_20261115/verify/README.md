@@ -1,22 +1,38 @@
 # 自检与复验
 
-从该源码仓库的根目录执行以下命令。Python要求3.9以上，git需要能读取032应用提交；程序在临时目录应用补丁并逆序还原，仓库中的应用文件保持原版本。
+在含 032 源码对象的仓库根目录运行。结构检查使用 Python 3.9+ 与 Git，在临时目录重建原始文件。它验证五批、单文件写入归属、卡片与原文、编译方法引用、当前各表合同，并在原始 Git 对象上对五份补丁逐一正向应用和逆向恢复。
 
 ```bash
-python3 construction/repairs/STARCORE_R32_REPAIR_20261115/verify/verify_plan.py --repo .
+P=construction/repairs/STARCORE_R32_REPAIR_20261115/verify
+python3 "$P/verify_plan.py" --repo .
 ```
 
-本包附了两份032报告中的精简对象索引和实际Java测试入口。index_fixture.json 是后包的受限字段投影，不包含原机数据库、号码历史或完整私有附件。若已用正常Gradle构建得到打过P1至P4补丁的production classes，可用JDK17+编译以下两个宿主入口（Android SDK 36的android.jar用于Android类型解析）。
+从已应用 P1–P4 安卓补丁的生产 classes 运行三个宿主入口。CLASSES 替换为当前 Gradle 产生的实际目录。测试读取经裁减的 032 真机对象索引和两个阻断帧的字段。16 个 SQL 与过滤器由真实生产类重新导出，然后逐项对照计划。
 
 ```bash
 P=construction/repairs/STARCORE_R32_REPAIR_20261115/verify
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes
 SDK36="$ANDROID_HOME/platforms/android-36/android.jar"
 OUT=$(mktemp -d)
-javac -source 17 -target 17 -cp "$CLASSES:$SDK36" -d "$OUT" "$P/ConstructionProbe.java" "$P/SuffixProbe.java"
+javac -source 17 -target 17 -cp "$CLASSES:$SDK36" -d "$OUT" "$P/ConstructionProbe.java" "$P/SuffixProbe.java" "$P/FieldContractProbe.java"
 java -cp "$OUT:$CLASSES:$SDK36" com.ethk3.novaonepro.strategyv2.ConstructionProbe "$P/index_fixture.json" "$OUT/ddl.json"
 java -cp "$OUT:$CLASSES:$SDK36" com.ethk3.novaonepro.SuffixProbe
+java -cp "$OUT:$CLASSES:$SDK36" com.ethk3.novaonepro.strategyv2.FieldContractProbe "$P/index_fixture.json" "$OUT/sql.json" "$OUT/streak.json"
 python3 "$P/sqlite_probe.py" "$OUT/ddl.json"
+python3 "$P/verify_plan.py" --repo . --query-dump "$OUT/sql.json"
 ```
 
-本次实做包括隔离工作树4份补丁正向应用与反向还原、静态拓扑/所有权/继承范围自检、编译打补丁后的1309个生产Java文件、运行20项直接调用实际生产类的断言、SQLite按真实Hypothesis DDL执行故障/恢复。宿主编译采用Java 21的编译器、Java17 source/target和SDK36类型声明；BuildConfig、资源ID、构建来源字段及两种AndroidX注解在宿主用编译专用替身。测试没有使用或生成手机签名成品。SQLite用例调用实际表声明，迁移步骤用有针对性的旧表夹具重放，完整Android迁移调度仍需P1施工验证。自然命中、手机后台、24/72小时、032覆盖安装仍待实施后的设备数据。机器结果、日志与验证边界见RESULTS.json。
+P5.packaging 的宿主用例需要已应用 P5.patch 的打包器。两份原始现场 ZIP 由使用者持有时，可重算每一期、每张研究表和训练账的差异。字段复算只读原 ZIP，结果与已纳入方案的汇总逐字段匹配。
+
+```bash
+python3 "$P/delivery_probe.py" --repo .
+python3 "$P/check_field_exports.py" EARLIER_032.zip LATER_032.zip --verify-baseline
+```
+
+只有在 Android 测试设备或模拟器上完成实际升级，才会产生该设备的安装收据。使用测试专用串号，预先准备同签名的两份 APK 和可访问测试应用数据目录的 shell。以下步骤会在所选设备安装两份 APK 并创建保全标记。
+
+```bash
+python3 "$P/verify_overlay_032.py" --serial SERIAL --old OLD_032.apk --candidate NEW.apk --out overlay.json
+```
+
+本次主机使用 JDK 21、Java 17 源码及目标与 SDK36 类型声明，编译了候选补丁后的 1309 个生产 Java 文件。BuildConfig、资源 ID、构建来源及两种 AndroidX 注解采用宿主编译用声明，数值生成类来自该工程。三个 Java 入口执行 35 项断言，另有真实表声明的 SQLite 旧库回归、12 项发布身份及基线判断用例。五类反例专查循环、重复文件所有者、提前签收、未来读依赖与错误方法归属。本次结果见 [机器回执](RESULTS.json) 和 [宿主日志](HOST_PROBE.log)。今后的 Android 正式构建、完整旧库调度、上一版无损覆盖、后台 24/72 小时和自然未来质量各有独立取证要求，见 [现场交接](../guide/现场复验与批次交接.md)。

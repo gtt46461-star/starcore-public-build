@@ -21,6 +21,38 @@
       "app/src/main/java/com/ethk3/novaonepro/LegacyDdlR31.java",
       "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java",
       "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java"
+    ],
+    "sourceAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "owner": "P1",
+        "method": "continueLegacySliceR31",
+        "jvmOwner": "com/ethk3/novaonepro/DatabaseCoordinator",
+        "descriptor": "(Ljava/lang/Runnable;)V",
+        "line": 701,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "owner": "P1",
+        "method": "ensureLinkModificationV2Ready",
+        "jvmOwner": "com/ethk3/novaonepro/DbStore",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;)V",
+        "line": 18870,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+        "owner": "P1",
+        "method": "ensureLinkModificationV2Schema",
+        "jvmOwner": "com/ethk3/novaonepro/DbHelper",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;)V",
+        "line": 6457,
+        "kind": "java"
+      }
+    ],
+    "traceOnly": [
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java"
     ]
   },
   {
@@ -39,7 +71,37 @@
     "writes": [
       "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java"
-    ]
+    ],
+    "sourceAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+        "owner": "P1",
+        "method": "advanceWithinMigration",
+        "jvmOwner": "com/ethk3/novaonepro/LifecycleSchemaR31",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;)Lcom/ethk3/novaonepro/LifecycleSchemaR31$Result;",
+        "line": 122,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java",
+        "owner": "P1",
+        "method": "seedQuotaWithinMigrationR31",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/HypothesisStoreR31",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;)V",
+        "line": 44,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java",
+        "owner": "P1",
+        "method": "requireSchemaR31",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/HypothesisStoreR31",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;)V",
+        "line": 49,
+        "kind": "java"
+      }
+    ],
+    "traceOnly": []
   },
   {
     "id": "P1.03",
@@ -65,7 +127,55 @@
       "app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java",
       "app/src/main/java/com/ethk3/novaonepro/HistoryIntegrityVerifierR815.java",
       "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java"
-    ]
+    ],
+    "sourceAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "owner": "P1",
+        "method": "prepareAnalysisHistoryR364",
+        "jvmOwner": "com/ethk3/novaonepro/AutoFetchService",
+        "descriptor": "(Lcom/ethk3/novaonepro/AnalysisSingleFlightR36$Request;Lcom/ethk3/novaonepro/AnalysisRequestStoreR36;Lcom/ethk3/novaonepro/AnalysisSingleFlightR36$Lease;)Ljava/util/List;",
+        "line": 4008,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java",
+        "owner": "P1",
+        "method": "contiguousSuffixCount",
+        "jvmOwner": "com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364",
+        "descriptor": "(Ljava/util/List;Ljava/lang/String;)I",
+        "line": 39,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "owner": "P1",
+        "method": "scheduleQuickHistorySyncR71",
+        "jvmOwner": "com/ethk3/novaonepro/AutoFetchService",
+        "descriptor": "(Ljava/lang/String;)V",
+        "line": 10805,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "owner": "P1",
+        "method": "performQuickHistorySync",
+        "jvmOwner": "com/ethk3/novaonepro/AutoFetchService",
+        "descriptor": "(Ljava/lang/String;)Lcom/ethk3/novaonepro/Models$Draw;",
+        "line": 10819,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "owner": "P1",
+        "method": "saveDraws",
+        "jvmOwner": "com/ethk3/novaonepro/DbStore",
+        "descriptor": "(Ljava/util/List;)I",
+        "line": 2525,
+        "kind": "java"
+      }
+    ],
+    "traceOnly": []
   },
   {
     "id": "P1.04",
@@ -91,7 +201,37 @@
       "app/src/main/java/com/ethk3/novaonepro/RealtimePressureGateR811.java",
       "app/src/main/java/com/ethk3/novaonepro/LifecycleHealthR963.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
-    ]
+    ],
+    "sourceAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "owner": "P1",
+        "method": "reconcileResearchOwner",
+        "jvmOwner": "com/ethk3/novaonepro/AutoFetchService",
+        "descriptor": "(Ljava/lang/String;)V",
+        "line": 2430,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+        "owner": "P1",
+        "method": "drainOne",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;)Z",
+        "line": 135,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "owner": "P1",
+        "method": "runAtomicWriteOrThrowF01",
+        "jvmOwner": "com/ethk3/novaonepro/DatabaseCoordinator",
+        "descriptor": "(Lcom/ethk3/novaonepro/DatabaseCoordinator$WriteContext;Lcom/ethk3/novaonepro/DatabaseCoordinator$WriteCallable;)Ljava/lang/Object;",
+        "line": 1011,
+        "kind": "java"
+      }
+    ],
+    "traceOnly": []
   },
   {
     "id": "P1.05",
@@ -113,7 +253,46 @@
       "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
       "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
       "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java"
-    ]
+    ],
+    "sourceAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "owner": "P1",
+        "method": "saveApiResultDraws",
+        "jvmOwner": "com/ethk3/novaonepro/AutoFetchService",
+        "descriptor": "(Lcom/ethk3/novaonepro/Models$ApiResult;Ljava/lang/Runnable;)V",
+        "line": 3170,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+        "owner": "P1",
+        "method": "insertWithinTransaction",
+        "jvmOwner": "com/ethk3/novaonepro/CanonicalObservationWriterR36",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Lcom/ethk3/novaonepro/DatabaseCoordinator$TransactionContext;Lcom/ethk3/novaonepro/CanonicalObservationWriterR36$CanonicalRecord;)Lcom/ethk3/novaonepro/CanonicalObservationWriterR36$WriteResult;",
+        "line": 13,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+        "owner": "P1",
+        "method": "enqueueConfirmedWithinWrite",
+        "jvmOwner": "com/ethk3/novaonepro/SettlementTaskStoreR36",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Lcom/ethk3/novaonepro/Models$Draw;JLjava/lang/String;ILjava/lang/String;)V",
+        "line": 122,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "owner": "P1",
+        "method": "settleRealWithinTransactionR36",
+        "jvmOwner": "com/ethk3/novaonepro/SettlementEngine",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Lcom/ethk3/novaonepro/SettlementEngine$OwnerToken;Lcom/ethk3/novaonepro/Models$Draw;)Lcom/ethk3/novaonepro/SettlementEngine$RealSettlementR36;",
+        "line": 343,
+        "kind": "java"
+      }
+    ],
+    "traceOnly": []
   },
   {
     "id": "P1.06",
@@ -139,6 +318,56 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/KeepMigrationStoreR31.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
       "app/src/main/java/com/ethk3/novaonepro/ReportCleanupR31.java"
+    ],
+    "sourceAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
+        "owner": "P1",
+        "method": "prepareLease",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26",
+        "descriptor": "([B)Lcom/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26$Prepared;",
+        "line": 100,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
+        "owner": "P1",
+        "method": "verifyFileR31",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26",
+        "descriptor": "(Ljava/lang/String;)Lcom/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26$VerifiedFileR31;",
+        "line": 200,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java",
+        "owner": "P1",
+        "method": "admitReference",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31",
+        "descriptor": "(Ljava/lang/String;)V",
+        "line": 93,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/StorageGcR31.java",
+        "owner": "P1",
+        "method": "claim",
+        "jvmOwner": "com/ethk3/novaonepro/StorageGcR31",
+        "descriptor": "(Lcom/ethk3/novaonepro/StorageGcR31$Store;Ljava/lang/String;JI)Z",
+        "line": 30,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/StorageGcR31.java",
+        "owner": "P1",
+        "method": "completeUnlink",
+        "jvmOwner": "com/ethk3/novaonepro/StorageGcR31",
+        "descriptor": "(Lcom/ethk3/novaonepro/StorageGcR31$Store;Ljava/lang/String;J)J",
+        "line": 45,
+        "kind": "java"
+      }
+    ],
+    "traceOnly": [
+      "app/src/main/java/com/ethk3/novaonepro/StorageGcR31.java"
     ]
   },
   {
@@ -168,7 +397,37 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java"
-    ]
+    ],
+    "sourceAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "owner": "P2",
+        "method": "step",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/RuntimeR27$DatasetTask",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Worker;)Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Outcome;",
+        "line": 179,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "owner": "P2",
+        "method": "publishRecoveredReplayKnowledgeR31",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/RuntimeR27",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Worker;Lcom/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1$Pin;Ljava/lang/String;J)V",
+        "line": 233,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayKnowledgeStoreR31.java",
+        "owner": "P2",
+        "method": "appendR31",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/ReplayKnowledgeStoreR31",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27$Batch;Lcom/ethk3/novaonepro/strategyv2/ReplayDatasetR27;JLjava/lang/String;J)V",
+        "line": 18,
+        "kind": "java"
+      }
+    ],
+    "traceOnly": []
   },
   {
     "id": "P2.02",
@@ -201,7 +460,64 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/TrainingStepStoreR26.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java"
-    ]
+    ],
+    "sourceAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "owner": "P2",
+        "method": "step",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/RuntimeR27$AtomNetTask",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Worker;)Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Outcome;",
+        "line": 658,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "owner": "P2",
+        "method": "step",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/RuntimeR27;Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Worker;)Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Outcome;",
+        "line": 12,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+        "owner": "P2",
+        "method": "prepare",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Landroid/database/sqlite/SQLiteDatabase;Lcom/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27$Batch;Lcom/ethk3/novaonepro/strategyv2/AtomNetSessionR30;JLjava/lang/String;)Lcom/ethk3/novaonepro/strategyv2/AtomNetPublicationR31$Prepared;",
+        "line": 96,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "owner": "P2",
+        "method": "forecast",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/RuntimeR27;Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Worker;Lcom/ethk3/novaonepro/strategyv2/AtomNetSessionR30;Lcom/ethk3/novaonepro/strategyv2/ReplayDatasetR27;)V",
+        "line": 99,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TrainingStepStoreR26.java",
+        "owner": "P2",
+        "method": "capture",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/TrainingStepStoreR26",
+        "descriptor": "(Ljava/lang/String;Lcom/ethk3/novaonepro/strategyv2/ModelLiveSU2$Hub;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JJZLjava/lang/String;Ljava/lang/String;Ljava/util/Map;)Ljava/util/List;",
+        "line": 23,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TrainingStepStoreR26.java",
+        "owner": "P2",
+        "method": "record",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/TrainingStepStoreR26",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Ljava/util/List;Ljava/lang/String;)V",
+        "line": 30,
+        "kind": "java"
+      }
+    ],
+    "traceOnly": []
   },
   {
     "id": "P2.03",
@@ -232,7 +548,55 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelGenomeSU2.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java"
-    ]
+    ],
+    "sourceAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "owner": "P2",
+        "method": "step",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/FoundryCampaignR26",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Ljava/util/function/Supplier;Lcom/ethk3/novaonepro/strategyv2/BudgetTokenSU1;)J",
+        "line": 30,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmCandidateR26.java",
+        "owner": "P2",
+        "method": "prepareAbiR31",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/WarmCandidateR26",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;)Lcom/ethk3/novaonepro/strategyv2/WarmCandidateR26$PreparedAbiR31;",
+        "line": 25,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java",
+        "owner": "P2",
+        "method": "from",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/StructuralProposalR26",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/ModelGenomeSU2;Lcom/ethk3/novaonepro/strategyv2/ModelGenomeSU2$Member;)Ljava/util/List;",
+        "line": 20,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "owner": "P2",
+        "method": "publishBirthPreparedR31",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/FoundryCampaignR26",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Lcom/ethk3/novaonepro/strategyv2/ModelPublicationR31$Plan;)V",
+        "line": 119,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "owner": "P2",
+        "method": "finish",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/FoundryCampaignR26",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Ljava/util/function/Supplier;Ljava/lang/String;J)V",
+        "line": 148,
+        "kind": "java"
+      }
+    ],
+    "traceOnly": []
   },
   {
     "id": "P2.04",
@@ -265,6 +629,65 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/RegimeHypothesisR31.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java"
+    ],
+    "sourceAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "owner": "P2",
+        "method": "step",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/RuntimeR27$EvolutionTask",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Worker;)Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Outcome;",
+        "line": 249,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "owner": "P2",
+        "method": "step",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/EvolutionLoopR27",
+        "descriptor": "()V",
+        "line": 155,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "owner": "P2",
+        "method": "stepBirth",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/EvolutionLoopR27",
+        "descriptor": "()V",
+        "line": 200,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java",
+        "owner": "P2",
+        "method": "propose",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/ExpertProposalsR27",
+        "descriptor": "(Ljava/lang/String;Lcom/ethk3/novaonepro/strategyv2/IdeaFamilyR27$Context;Lcom/ethk3/novaonepro/strategyv2/StatsR27$SplitMix;)Ljava/util/List;",
+        "line": 30,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+        "owner": "P2",
+        "method": "check",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/BirthGateR27",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/PolicySpecR27;)Lcom/ethk3/novaonepro/strategyv2/BirthGateR27$Verdict;",
+        "line": 64,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java",
+        "owner": "P2",
+        "method": "support",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/FeatureCacheR27;IIII)Ljava/util/Map;",
+        "line": 30,
+        "kind": "java"
+      }
+    ],
+    "traceOnly": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
     ]
   },
   {
@@ -298,6 +721,57 @@
       "app/src/main/java/com/ethk3/novaonepro/MatrixSnapshotFeedbackR930.java",
       "app/src/main/java/com/ethk3/novaonepro/ResearchEvolutionStoreR930.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java"
+    ],
+    "sourceAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "owner": "P2",
+        "method": "step",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/RuntimeR27$MatrixProductionTask",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Worker;)Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Outcome;",
+        "line": 649,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+        "owner": "P2",
+        "method": "build",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1",
+        "descriptor": "(Ljava/lang/String;Lcom/ethk3/novaonepro/strategyv2/EvalContextR27;Lcom/ethk3/novaonepro/strategyv2/PolicySpecR27;J)Lcom/ethk3/novaonepro/strategyv2/MatrixTensorR30R1$Tensor;",
+        "line": 77,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedComponentStudyR30R1.java",
+        "owner": "P2",
+        "method": "evaluate",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/PairedComponentStudyR30R1",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/ResearchContractR30R1;Lcom/ethk3/novaonepro/strategyv2/PolicySpecR27;Ljava/lang/String;Lcom/ethk3/novaonepro/strategyv2/EvalContextR27;DIIJJ)Lcom/ethk3/novaonepro/strategyv2/PairedComponentStudyR30R1$Product;",
+        "line": 12,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "owner": "P2",
+        "method": "atomInputHashR31",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/AtomWorldR27",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/ReplayDatasetR27;Lcom/ethk3/novaonepro/strategyv2/SplitR27;[[D[[Z[I[IJ)Ljava/lang/String;",
+        "line": 93,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionOpsR27.java",
+        "owner": "P2",
+        "method": "fuse",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/FusionOpsR27",
+        "descriptor": "(Ljava/util/List;Lcom/ethk3/novaonepro/strategyv2/EvalContextR27;Lcom/ethk3/novaonepro/strategyv2/StatsR27$SplitMix;ILcom/ethk3/novaonepro/strategyv2/ResearchContextR30R1;)Lcom/ethk3/novaonepro/strategyv2/PolicySpecR27;",
+        "line": 17,
+        "kind": "java"
+      }
+    ],
+    "traceOnly": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionOpsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
     ]
   },
   {
@@ -329,7 +803,82 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java"
-    ]
+    ],
+    "sourceAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "owner": "P2",
+        "method": "stepGate",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/EvolutionLoopR27",
+        "descriptor": "()V",
+        "line": 252,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "owner": "P2",
+        "method": "stepReplay",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/EvolutionLoopR27",
+        "descriptor": "()V",
+        "line": 313,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "owner": "P2",
+        "method": "stepHalving",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/EvolutionLoopR27",
+        "descriptor": "()V",
+        "line": 417,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "owner": "P2",
+        "method": "stepHoldout",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/EvolutionLoopR27",
+        "descriptor": "()V",
+        "line": 512,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "owner": "P2",
+        "method": "stepRecord",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/EvolutionLoopR27",
+        "descriptor": "()V",
+        "line": 523,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "owner": "P2",
+        "method": "stepPromote",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/EvolutionLoopR27",
+        "descriptor": "()V",
+        "line": 547,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CreationBudgetR31.java",
+        "owner": "P2",
+        "method": "admit",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/CreationBudgetR31",
+        "descriptor": "(Ljava/lang/String;J)Z",
+        "line": 97,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+        "owner": "P2",
+        "method": "advance",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/ImprovementStoreR31",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Lcom/ethk3/novaonepro/strategyv2/ImprovementStoreR31$Writer;)Z",
+        "line": 143,
+        "kind": "java"
+      }
+    ],
+    "traceOnly": []
   },
   {
     "id": "P3.01",
@@ -360,6 +909,56 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationGapRepairR30R1.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceContractR31.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/GateV2R29.java"
+    ],
+    "sourceAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "owner": "P3",
+        "method": "qualify",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/LiveShadowsR27",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/RuntimeR27;Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Worker;J)J",
+        "line": 123,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+        "owner": "P3",
+        "method": "consume",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/QualificationInboxR29",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Lcom/ethk3/novaonepro/strategyv2/QualificationInboxR29$Commit;Ljava/lang/String;J)Lcom/ethk3/novaonepro/strategyv2/QualificationInboxR29$Pass;",
+        "line": 184,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "owner": "P3",
+        "method": "certify",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/LiveShadowsR27",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/RuntimeR27;Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Worker;J)J",
+        "line": 257,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "owner": "P3",
+        "method": "evaluate",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/CertificateGateR27",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/CertificateGateR27$Evidence;)Lcom/ethk3/novaonepro/strategyv2/CertificateGateR27$Verdict;",
+        "line": 32,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "owner": "P3",
+        "method": "choose",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/CertificateGateR27",
+        "descriptor": "(Ljava/util/List;)Ljava/lang/String;",
+        "line": 53,
+        "kind": "java"
+      }
+    ],
+    "traceOnly": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java"
     ]
   },
   {
@@ -395,6 +994,103 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineModelBindingR31.java",
       "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java"
+    ],
+    "sourceAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+        "owner": "P3",
+        "method": "authorizedChoice",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;J)Lcom/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31$Authorization;",
+        "line": 134,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+        "owner": "P3",
+        "method": "read",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;JJ)Lcom/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31$Authority;",
+        "line": 152,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "owner": "P1",
+        "method": "prepare",
+        "jvmOwner": "com/ethk3/novaonepro/CertifiedPredictionR974",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/V51Models$PredictionContext;[Lcom/ethk3/novaonepro/V51Models$PositionAction;Lcom/ethk3/novaonepro/AnalysisSingleFlightR36$Request;)Lcom/ethk3/novaonepro/CertifiedPredictionR974$Prepared;",
+        "line": 240,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+        "owner": "P3",
+        "method": "prepare",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/MainlineAdapterR31",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/V51Models$PredictionContext;[Lcom/ethk3/novaonepro/V51Models$PositionAction;Ljava/lang/String;Ljava/lang/String;)Lcom/ethk3/novaonepro/strategyv2/MainlineAdapterR31$Prepared;",
+        "line": 16,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "owner": "P1",
+        "method": "runR36",
+        "jvmOwner": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/V51RuntimeInputR36;Lcom/ethk3/novaonepro/AnalysisSingleFlightR36$Request;Lcom/ethk3/novaonepro/AnalysisSingleFlightR36$Lease;Lcom/ethk3/novaonepro/PredrawWakeLeaseR81;)Lcom/ethk3/novaonepro/V51RuntimeOrchestrator$OutcomeR36;",
+        "line": 25,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "owner": "P3",
+        "method": "decideV51B12",
+        "jvmOwner": "com/ethk3/novaonepro/DecisionGateEngine",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/V51CompiledActionContract;)Lcom/ethk3/novaonepro/V51Models$AuthorizedDecision;",
+        "line": 11244,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "owner": "P1",
+        "method": "beforeInsert",
+        "jvmOwner": "com/ethk3/novaonepro/CertifiedPredictionR974",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Landroid/database/sqlite/SQLiteDatabase;Lcom/ethk3/novaonepro/V51CompiledActionContract;)V",
+        "line": 360,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "owner": "P1",
+        "method": "insertAuthorizedTradeWithinCanonicalR915",
+        "jvmOwner": "com/ethk3/novaonepro/DbStore",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Lcom/ethk3/novaonepro/V51RuntimeResult;J)J",
+        "line": 5277,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "owner": "P1",
+        "method": "settleRealWithinTransactionR36",
+        "jvmOwner": "com/ethk3/novaonepro/SettlementEngine",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Lcom/ethk3/novaonepro/SettlementEngine$OwnerToken;Lcom/ethk3/novaonepro/Models$Draw;)Lcom/ethk3/novaonepro/SettlementEngine$RealSettlementR36;",
+        "line": 343,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+        "owner": "P3",
+        "method": "revokeWithin",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/CertificateRevocationR30",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+        "line": 87,
+        "kind": "java"
+      }
+    ],
+    "traceOnly": [
+      "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+      "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+      "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
     ]
   },
   {
@@ -432,7 +1128,46 @@
       "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
       "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java"
-    ]
+    ],
+    "sourceAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "owner": "P4",
+        "method": "buildProductionR31",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30",
+        "descriptor": "(Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;)Ljava/util/Map;",
+        "line": 40,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "owner": "P4",
+        "method": "chapters",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/ReportR29",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/ReportR27$R30Input;)Ljava/util/List;",
+        "line": 21,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "owner": "P4",
+        "method": "document",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/ReportR29",
+        "descriptor": "(Ljava/util/List;)Ljava/util/Map;",
+        "line": 68,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "owner": "P4",
+        "method": "drain",
+        "jvmOwner": "com/ethk3/novaonepro/ReportExportServiceCP4",
+        "descriptor": "()V",
+        "line": 246,
+        "kind": "java"
+      }
+    ],
+    "traceOnly": []
   },
   {
     "id": "P4.02",
@@ -463,6 +1198,56 @@
       "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java",
       "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java"
+    ],
+    "sourceAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
+        "owner": "P4",
+        "method": "load",
+        "jvmOwner": "com/ethk3/novaonepro/ResearchTablesActivityR31",
+        "descriptor": "()V",
+        "line": 29,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+        "owner": "P2",
+        "method": "page",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1",
+        "descriptor": "(Ljava/lang/String;Ljava/util/Map;JI)Lcom/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1$Page;",
+        "line": 34,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+        "owner": "P2",
+        "method": "readPageR31",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;Ljava/util/Map;JILandroid/os/CancellationSignal;)Ljava/util/Map;",
+        "line": 43,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+        "owner": "P4",
+        "method": "headlineSnapshotR30",
+        "jvmOwner": "com/ethk3/novaonepro/ChartsRepositoryR27",
+        "descriptor": "(Ljava/util/Map;)Lcom/ethk3/novaonepro/ResearchVisualDataR82$Panel;",
+        "line": 107,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java",
+        "owner": "P4",
+        "method": "report",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;)Ljava/util/Map;",
+        "line": 11,
+        "kind": "java"
+      }
+    ],
+    "traceOnly": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java"
     ]
   },
   {
@@ -494,7 +1279,73 @@
       "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
       "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
       "app/src/main/java/com/ethk3/novaonepro/ReportJsonWriterR31.java"
-    ]
+    ],
+    "sourceAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "owner": "P4",
+        "method": "requestExport",
+        "jvmOwner": "com/ethk3/novaonepro/ReportExportServiceCP4",
+        "descriptor": "(Landroid/content/Context;Lcom/ethk3/novaonepro/ReportExportServiceCP4$ExportMode;Z)Ljava/lang/String;",
+        "line": 67,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "owner": "P4",
+        "method": "drain",
+        "jvmOwner": "com/ethk3/novaonepro/ReportExportServiceCP4",
+        "descriptor": "()V",
+        "line": 246,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "owner": "P4",
+        "method": "publish",
+        "jvmOwner": "com/ethk3/novaonepro/ReportExportServiceCP4",
+        "descriptor": "(Lcom/ethk3/novaonepro/ReportJobJournalCP12$Job;Lcom/ethk3/novaonepro/ReportJobJournalCP12;Ljava/io/File;Ljava/io/File;Lcom/ethk3/novaonepro/ReportExportServiceCP4$ActiveControl;)V",
+        "line": 511,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+        "owner": "P4",
+        "method": "verify",
+        "jvmOwner": "com/ethk3/novaonepro/ReportArchiveVerifierCP12",
+        "descriptor": "(Ljava/io/File;Ljava/lang/String;Lcom/ethk3/novaonepro/ReportArchiveVerifierCP12$Decoder;Lcom/ethk3/novaonepro/ReportNativeCP4$Control;Lcom/ethk3/novaonepro/ReportArchiveVerifierCP12$PartVisitor;)Lcom/ethk3/novaonepro/ReportArchiveVerifierCP12$Receipt;",
+        "line": 30,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+        "owner": "P4",
+        "method": "writeZip",
+        "jvmOwner": "com/ethk3/novaonepro/ReportArchiveVerifierCP12",
+        "descriptor": "(Ljava/io/File;Ljava/io/File;Lcom/ethk3/novaonepro/ReportArchiveVerifierCP12$Decoder;Lcom/ethk3/novaonepro/ReportNativeCP4$Control;)V",
+        "line": 92,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+        "owner": "P4",
+        "method": "verifyPublishedZip",
+        "jvmOwner": "com/ethk3/novaonepro/ReportPublicationCP12",
+        "descriptor": "(Ljava/io/File;Lcom/ethk3/novaonepro/ReportNativeCP4$Control;)Z",
+        "line": 150,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "owner": "P4",
+        "method": "verifyReady",
+        "jvmOwner": "com/ethk3/novaonepro/ReportExportServiceCP4",
+        "descriptor": "(Lcom/ethk3/novaonepro/ReportJobJournalCP12$Job;Ljava/io/File;Lcom/ethk3/novaonepro/ReportExportServiceCP4$ActiveControl;)V",
+        "line": 539,
+        "kind": "java"
+      }
+    ],
+    "traceOnly": []
   },
   {
     "id": "P5.01",
@@ -507,7 +1358,17 @@
       "tools/r31/run_current_acceptance.py",
       "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
-      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java"
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "tools/r31/test_package_release.py",
+      ".github/workflows/r31-current-live.yml",
+      "tools/r31/run_final_runtime.sh",
+      "tools/r31/run_phone_report_android.sh",
+      ".github/workflows/r31-publish-release.yml",
+      ".github/workflows/r31-report-publish.yml",
+      "tools/r31/publish_report_package.py",
+      "tools/r31/run_emulator_upgrade_matrix.py",
+      "release/release_identity.properties",
+      "release/R31_REPORT_PUBLISH_REQUEST.json"
     ],
     "finding": "032对应源工程已有653单测通过；并没有由此得到24/72小时合格、真机质量或闭环运行证据。",
     "edit": "按正常入口构建，保留同包/同签名、数值ABI与版本迁移记录，versionCode高于032及仓库现有版本；clean安装+从032覆盖，无清数据，验证冷启/断网/重启/锁屏/导出/主链。输出APK和内含同字节APK的ZIP及SHA256、证书摘要、源码提交、设备/自然证据状态。",
@@ -524,7 +1385,34 @@
       ".github/workflows/r31-verification.yml",
       "tools/r31/package_release.py",
       "tools/r31/upgrade_matrix.py",
-      "tools/r31/run_current_acceptance.py"
-    ]
+      "tools/r31/run_current_acceptance.py",
+      "tools/r31/test_package_release.py",
+      ".github/workflows/r31-current-live.yml",
+      "tools/r31/run_final_runtime.sh",
+      "tools/r31/run_phone_report_android.sh",
+      ".github/workflows/r31-publish-release.yml",
+      ".github/workflows/r31-report-publish.yml",
+      "tools/r31/publish_report_package.py",
+      "tools/r31/run_emulator_upgrade_matrix.py",
+      "release/release_identity.properties",
+      "release/R31_REPORT_PUBLISH_REQUEST.json"
+    ],
+    "sourceAnchors": [
+      {
+        "path": "tools/r31/run_emulator_upgrade_matrix.py",
+        "owner": "P5",
+        "method": "main",
+        "line": 78,
+        "kind": "python"
+      },
+      {
+        "path": "tools/r31/package_release.py",
+        "owner": "P5",
+        "method": "main",
+        "line": 169,
+        "kind": "python"
+      }
+    ],
+    "traceOnly": []
   }
 ]

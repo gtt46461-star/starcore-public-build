@@ -18,16 +18,19 @@
   ],
   "planVerification": {
     "structural_checks": "PASS",
-    "negative_plan_mutations_rejected": 4,
+    "negative_plan_mutations_rejected": 5,
+    "production_anchor_bindings": 89,
+    "unique_owned_paths": 1377,
+    "registered_sql_compared": 16,
     "batches": 5,
     "repair_cards": 18,
     "original_and_unified_cards": 78,
     "items": 222,
     "source_files": 1308,
-    "patch_paths": 13,
+    "patch_paths": 14,
     "patch_round_trip": true
   },
-  "uniqueOwnedPaths": 1368,
+  "uniqueOwnedPaths": 1377,
   "batchLocalOriginalChecks": {
     "P1": 42,
     "P2": 76,
@@ -40,7 +43,8 @@
     "P1.patch": "6cd36a74b13c168b704e6945a0844b02721bdcd18507a684204a45241e6e201f",
     "P2.patch": "a91d3f043868b9efbd4bde177568fb24935b31e5de234b851ad3df61bdbe7b27",
     "P3.patch": "0a34f58a542104a73b733c6bd094e53418cd79e38a37f47faa1def5dc7d81045",
-    "P4.patch": "4532580ab81ced0b53617445a61a03e277d68fc35ea3de85fff5cbc54117593f"
+    "P4.patch": "61a6fa6eee327a11831ba12a1768769a785315bd4bc8b1a9b91c060ac0e1ead1",
+    "P5.patch": "eed27c2928a505b582b62a431646e958074830650ad7cbbcde9f2a588888ba51"
   },
   "java": {
     "originalProductionJava": 1308,
@@ -60,13 +64,30 @@
     "gradleApkBuild": "NOT_RUN_PLAN_DELIVERY"
   },
   "host": {
-    "assertionsExecuted": 20,
+    "assertionsExecuted": 35,
     "log": "HOST_PROBE.log",
     "input": "index_fixture.json",
     "sqlite": "PASS targeted partial table, original row and immutable hypothesis accounting; DDL emitted by real class",
-    "hypothesisDeclarationCount": 25
+    "hypothesisDeclarationCount": 25,
+    "packagingCases": 12,
+    "logicalQueriesCompared": 16,
+    "verifiedOriginalReportPair": "PASS, every newly observed issue and cover status compared in both original ZIPs",
+    "fieldComparison": "../ledger/field_032.json",
+    "streakProbabilityFor250IndependentActs": {
+      "0.3": 0.00046981894675575354,
+      "0.34": 0.004700246670405911,
+      "0.37": 0.017514441239608183,
+      "0.4": 0.049297222781024067,
+      "0.45": 0.16995756923340194,
+      "0.5": 0.37309511315275307
+    },
+    "androidUpgradeScript": "verify_overlay_032.py; not run on Android in this plan delivery"
   },
   "androidRuntime": "NOT_RUN_FOR_PROPOSED_PATCHES",
   "naturalQuality": "NOT_PROVEN",
-  "release": "PLAN_ONLY"
+  "release": "PLAN_ONLY",
+  "revision": "R32_FINAL_032_FIELD_REVIEW_20261115",
+  "earlierR32Draft": "97f2681b1463216403f241eff35f34e71ce54795",
+  "baselineSigningCertificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+  "baselineApkBytes": 29082161
 }

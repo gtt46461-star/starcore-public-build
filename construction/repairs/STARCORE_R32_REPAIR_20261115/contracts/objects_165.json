@@ -39,7 +39,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "稀疏跨位置滞后组。固定目标期，切掉跨位置边并保留本位置，检验组收缩后独立 SELECT 的概率损失、K3 动作和成本。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -82,7 +82,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "排列链相邻因子。将同一冻结图的相邻成对因子归零，保留一元项，检查合法排列边际和同期差。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -125,7 +125,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "类型化三元消息。屏蔽一种三元消息通路，保持参数预算，核验真实梯度、十位置输出及差值。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -168,7 +168,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "膨胀时间卷积。分别屏蔽长滞后卷积层与短滞后层，对同一序列做断点重置和未来输入扰动测试。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -211,7 +211,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "时间注意力。对过去可见行比较已学权重和均匀权重，延迟新特征一步并验证未来标签不改变旧输出。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -254,7 +254,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "选择性状态空间模型。分别冻结选择门与重置时序状态，跟踪梯度、代价及跨断期后的恢复值。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -297,7 +297,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "图结构 GRU。分别切图边和循环门，保持训练窗口及资源相同，对照独立期概率损失和行为变化。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -340,7 +340,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "因果 HMM 过滤。按原图变体切除状态转移记忆，比较过滤概率与重启前后状态。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -383,7 +383,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "显式时长半马尔可夫。固定发射分布，进行移除时长项的对照，按停留时长分层检查校准及稀疏支持。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -426,7 +426,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "在线变点。记录每次变点判断的可见数据末期，与冻结危害率的对照计算延迟、误报和换窗后损失。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -469,7 +469,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "仅历史片段检索。对每个被选邻居验证结束期早于目标，固定或打乱距离权重比较 SELECT 概率损失。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -512,7 +512,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "关系后缀自动机。比较有支持的状态分裂与退回父状态，列最小支持、失败片段和跨期预测差。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -555,7 +555,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "类型化符号公式。固定公式树逐叶消融，保留函数类型、系数和合法滞后，记录真正改变 K3 的子树。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -598,7 +598,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "共享状态宏。用相同单头特征比较共享宏启用与关闭，验证十位置共用状态重启后可复演。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -641,7 +641,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "单路集合风险。固定概率面比较风险评分与简单 top-3，记录 1200 个候选动作中最终一个位置和三个号码。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -684,7 +684,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "双路集合路由。比较原软路由、左右单路和固定等权，用同机会出手集合检查风险校准收益。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -727,7 +727,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "跨位置滞后一的排列读出。打乱源位置或切滞后项，验证输出仍是合法边际且选出的三号码可复算。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -770,7 +770,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "掩码自回归。保持已用号码约束，比较移除顺序依赖的较简模型；验证重复号码拒绝和边际归一。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -813,7 +813,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "CP 关系张量。按现有变体移除位置或状态模式，保持 AdaGrad 累积量可恢复，在相同训练步比较十位置损失。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -856,7 +856,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "因果状态片段。比较匹配检索、错配检索与过期记忆，核对检索只用旧片段和覆盖变化。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -899,7 +899,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "折扣关系统计。冻结折扣因子并打乱源位置，与边际频率配对，报告有效支持和真实增量更新。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -942,7 +942,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "冻结父代后的残差学习。固定父参数和分段边界，比较父单体、关闭残差门和子代，子代证据从零开始。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -985,7 +985,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.04",
-    "action": "FamilyRegistryR26 绑定具备真实 asset/teacher/state 哈希的教师与可执行适配器，记录学生预测与教师消融；教师缺失时仅隔离F23。",
+    "action": "教师蒸馏。先由 FamilyRegistryR26.bindLegacyTeacher 校验 asset、teacher、state 和 ABI，再对同输入比较学生与去教师学生。缺教师只挂起 F23。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -1028,7 +1028,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java#build",
     "alias_of": null,
     "card": "P2.02",
-    "action": "按本行实际模型和入口，持久化逐步训练的前后权重、样本可见水位和发布版本；比较移除该模型时的同目标K3误差。",
+    "action": "三模型组合。对 F01、F09、F11 各做单体和等权对照，再比较学习路由，记录权重、选择范围和同期净差。",
     "negative": "缺训练步或未消费权重，区分不可执行与缺乏样本。"
   },
   {
@@ -1071,8 +1071,8 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "追踪专家输出的处方、等待输入、执行器、child policy和验证结果；无可用成对对照时留空增益。",
-    "negative": "只写提案没有下游执行时标记未消费。"
+    "action": "逐条扰动 t 或 t 以后的标签，赛前输入哈希和当期动作应恒定；审计回执关联违规原件。",
+    "negative": "原登记为审计角色，只给审计回执记功。验收需能击穿一个已知反例。"
   },
   {
     "category": "capabilities",
@@ -1114,7 +1114,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "追踪专家输出的处方、等待输入、执行器、child policy和验证结果；无可用成对对照时留空增益。",
+    "action": "同一旧资产恢复模型和状态并重放，记录首次分歧，兼容声明通过后才可提出 warm 子代。",
     "negative": "只写提案没有下游执行时标记未消费。"
   },
   {
@@ -1157,7 +1157,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "追踪专家输出的处方、等待输入、执行器、child policy和验证结果；无可用成对对照时留空增益。",
+    "action": "在 DEV 登记短期窗口的出现与失效，SELECT 作同机会去窗口对照，未来只验证。",
     "negative": "只写提案没有下游执行时标记未消费。"
   },
   {
@@ -1200,7 +1200,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "追踪专家输出的处方、等待输入、执行器、child policy和验证结果；无可用成对对照时留空增益。",
+    "action": "固定不同尺度的特征终点，删除长窗复验，分开报告滞后与信号增量。",
     "negative": "只写提案没有下游执行时标记未消费。"
   },
   {
@@ -1243,7 +1243,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "追踪专家输出的处方、等待输入、执行器、child policy和验证结果；无可用成对对照时留空增益。",
+    "action": "切除跨位边并保持单位置边际，只有改变实际选择或损失才记录贡献。",
     "negative": "只写提案没有下游执行时标记未消费。"
   },
   {
@@ -1286,7 +1286,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "追踪专家输出的处方、等待输入、执行器、child policy和验证结果；无可用成对对照时留空增益。",
+    "action": "记录号码组围号及其合法支持，取消组结构重放，区分更窄覆盖和真实增益。",
     "negative": "只写提案没有下游执行时标记未消费。"
   },
   {
@@ -1329,7 +1329,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "追踪专家输出的处方、等待输入、执行器、child policy和验证结果；无可用成对对照时留空增益。",
+    "action": "将表示学习提案绑定可消费权重哈希，对相同输入移除表示分支，记预测差。",
     "negative": "只写提案没有下游执行时标记未消费。"
   },
   {
@@ -1372,7 +1372,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "追踪专家输出的处方、等待输入、执行器、child policy和验证结果；无可用成对对照时留空增益。",
+    "action": "产出可执行的类型化公式，拒绝改名与同构；完成首步数值训练再计有效出生。",
     "negative": "只写提案没有下游执行时标记未消费。"
   },
   {
@@ -1415,7 +1415,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "追踪专家输出的处方、等待输入、执行器、child policy和验证结果；无可用成对对照时留空增益。",
+    "action": "把具体失败簇绑定到父规则和拟替换节点，测试修复在独立段是否过度专门化。",
     "negative": "只写提案没有下游执行时标记未消费。"
   },
   {
@@ -1458,7 +1458,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "追踪专家输出的处方、等待输入、执行器、child policy和验证结果；无可用成对对照时留空增益。",
+    "action": "选择同时期且残差互补的双亲，缺父代时留原因，融合后与两个单亲配对。",
     "negative": "只写提案没有下游执行时标记未消费。"
   },
   {
@@ -1501,7 +1501,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "追踪专家输出的处方、等待输入、执行器、child policy和验证结果；无可用成对对照时留空增益。",
+    "action": "核对继承的参数与优化器 ABI，错版本只允许合规冷启，子代不得继承父胜率。",
     "negative": "只写提案没有下游执行时标记未消费。"
   },
   {
@@ -1544,7 +1544,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "追踪专家输出的处方、等待输入、执行器、child policy和验证结果；无可用成对对照时留空增益。",
+    "action": "从冻结概率重算校准和门控，与固定阈值比较覆盖、ECE、Brier 及机会损失。",
     "negative": "只写提案没有下游执行时标记未消费。"
   },
   {
@@ -1587,7 +1587,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "追踪专家输出的处方、等待输入、执行器、child policy和验证结果；无可用成对对照时留空增益。",
+    "action": "固定漂移触发点，检查分块损失、最差块和错误报警，并提出降权或退役的依据。",
     "negative": "只写提案没有下游执行时标记未消费。"
   },
   {
@@ -1630,8 +1630,8 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "追踪专家输出的处方、等待输入、执行器、child policy和验证结果；无可用成对对照时留空增益。",
-    "negative": "只写提案没有下游执行时标记未消费。"
+    "action": "按原资源与编译审计职责记录真实 CPU、内存和可执行 ABI；审计回执单独计数。",
+    "negative": "原登记为审计角色，只给审计回执记功。验收需能击穿一个已知反例。"
   },
   {
     "category": "capabilities",
@@ -1673,8 +1673,8 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "追踪专家输出的处方、等待输入、执行器、child policy和验证结果；无可用成对对照时留空增益。",
-    "negative": "只写提案没有下游执行时标记未消费。"
+    "action": "审计从资格原件到主链的冻结键，列撤销竞态和拒绝原因；只有 DecisionGate 可签 REAL。",
+    "negative": "原登记为审计角色，只给审计回执记功。验收需能击穿一个已知反例。"
   },
   {
     "category": "capabilities",
@@ -1716,8 +1716,8 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "追踪专家输出的处方、等待输入、执行器、child policy和验证结果；无可用成对对照时留空增益。",
-    "negative": "只写提案没有下游执行时标记未消费。"
+    "action": "冻结输入和复现实验版本，给首个阻塞、反例与保全原件；审计记录无需制造一个新子代。",
+    "negative": "原登记为审计角色，只给审计回执记功。验收需能击穿一个已知反例。"
   },
   {
     "category": "capabilities",
@@ -1759,7 +1759,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "预注册随机对照的种子和机会集，记录误报及配对下界，仅作负对照。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -1802,7 +1802,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "比较短长窗频率与同位置平滑频率，固定收缩规则后只在新窗口计分。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -1845,7 +1845,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "只用上次出现以前的遗漏序列，和无周期项的规则同机会比较。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -1888,7 +1888,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "冻结转移阶数，稀疏转移退回低阶，检验退回前后概率损失。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -1931,7 +1931,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "保留目标位置，打乱其他位置或切跨位边，检验非边际信息。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -1974,7 +1974,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "在同一概率面上开关排列约束，检查输出是否改变 K3 及校准。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -2017,7 +2017,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "固定状态切换和失效条件，按切换前后独立窗口核对延迟和误率。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -2060,7 +2060,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "历史候选片段的结束期先于 t，去掉相似检索后比较同目标损失。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -2103,7 +2103,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "只接受已发布的同 ABI 权重面，按 model_hash 找到调用后预测，与去表示模型对照。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -2146,7 +2146,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "记录类型化 AST、可用特征与滞后，等价表达式规范化去重，逐子树消融。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -2189,7 +2189,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "按时间冻结失败簇，对同一失败机制比较原父代和指定修复子树。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -2232,7 +2232,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "先验证双亲在同一期有互补误差，再与优良单亲和等权融合比较。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -2275,7 +2275,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "对旧资产重放冻结输入，核对语义 ABI 和输出，再登记新子代独立证据。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -2318,7 +2318,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "预注册出手分数阈值；分别报告全机会、共同出手、动作并集的质量与频率。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -2361,7 +2361,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "记录围号两个来源位置、号码集合、交集与投影规则；用单来源对照复验固定位置 K3。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -2404,7 +2404,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "只用两个截止于 t 以前的窗口，冻结差分符号与窗口长度，比较去差分基线。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -2447,7 +2447,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "以预登记的位置轮换顺序和固定位置作配对，分解覆盖变化与真实收益。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -2490,7 +2490,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "设置遗漏回补触发与失效期限，在相同遗漏长度桶对照简单频率，记录稀疏支持。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -2533,7 +2533,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "拆分邻号与原位转移贡献，打乱邻接关系后重新冻结并比较。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -2576,7 +2576,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "只用已揭晓期组合奇偶大小状态，在同支持数下比较去状态与平滑边际。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -2619,7 +2619,7 @@
     "entry": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java#propose",
     "alias_of": null,
     "card": "P2.04",
-    "action": "记录该思路生成的AST、操作、父子来源、配对选择集与行为变化；让失败归因驱动下一次可执行结构编辑。",
+    "action": "把条件发生、交集产生及不足而 HOLD 分别记账；条件在 t 以后出现不得改变已冻结结果。",
     "negative": "只改数值不改行为时不能记结构改进。"
   },
   {
@@ -7230,11 +7230,18 @@
       "schemaOwner": "SchemaR27 original writer; original data owners unchanged",
       "missingData": "NULL_OR_EMPTY_SOURCE_IS_UNKNOWN_NOT_ZERO_OR_EFFECTIVE",
       "displayLimitDoesNotLimitMachineSource": true,
-      "noNewPhysicalTable": true
+      "noNewPhysicalTable": true,
+      "historicalPlanSql": "SELECT run_id,dataset_hash,policy_hash,role,source_commit,source_revision,from_ordinal,through_ordinal,contract_hash,status,summary_json FROM r30r1_analysis_run ORDER BY recorded_at DESC,run_id",
+      "sourceSqlMethod": "ResearchTableAdaptersR30R1.query",
+      "allowedFilters": [
+        "dataset_hash",
+        "role"
+      ],
+      "queryChangedSinceOriginalTableDesign": false
     },
     "source": "采集/标签现有表与analysis_run",
     "entry": "训练合法性/复现",
-    "action": "以 数据与标签血缘 的源表运行物理SQL，对齐角色、输入哈希及时间窗。复核 训练合法性/复现 的消费证据。",
+    "action": "按 dataset_hash 和 role 连接训练运行水位，逐期拒绝晚到标签，报告第一处可见时间冲突。",
     "negative": "READ_OK和shown只证明查询；空点/拒绝原因和数值产物分开。"
   },
   {
@@ -7262,15 +7269,21 @@
       "source": "既有FeatureCache/输入样本",
       "frequency": "每不可变输入批",
       "consumer": "特征过滤与域外拒绝",
-      "physicalSql": "SELECT atom_id,dataset_hash,n_select,missing_rate,state,definition,computed_at FROM r27_atom_score ORDER BY atom_id",
+      "physicalSql": "SELECT atom_id,dataset_hash,n_select,missing_rate,state,definition,computed_at FROM r31_atom_score_visible ORDER BY atom_id",
       "schemaOwner": "SchemaR27 original writer; original data owners unchanged",
       "missingData": "NULL_OR_EMPTY_SOURCE_IS_UNKNOWN_NOT_ZERO_OR_EFFECTIVE",
       "displayLimitDoesNotLimitMachineSource": true,
-      "noNewPhysicalTable": true
+      "noNewPhysicalTable": true,
+      "historicalPlanSql": "SELECT atom_id,dataset_hash,n_select,missing_rate,state,definition,computed_at FROM r27_atom_score ORDER BY atom_id",
+      "sourceSqlMethod": "ResearchTableAdaptersR30R1.query",
+      "allowedFilters": [
+        "dataset_hash"
+      ],
+      "queryChangedSinceOriginalTableDesign": true
     },
     "source": "既有FeatureCache/输入样本",
     "entry": "特征过滤与域外拒绝",
-    "action": "以 样本特征支持域 的源表运行物理SQL，对齐角色、输入哈希及时间窗。复核 特征过滤与域外拒绝 的消费证据。",
+    "action": "核查 r31_atom_score_visible 已提交的评分版本与 n_select，缺失率过高的原子暂停供给，回放同一输入。",
     "negative": "READ_OK和shown只证明查询；空点/拒绝原因和数值产物分开。"
   },
   {
@@ -7302,11 +7315,15 @@
       "schemaOwner": "SchemaR27 original writer; original data owners unchanged",
       "missingData": "NULL_OR_EMPTY_SOURCE_IS_UNKNOWN_NOT_ZERO_OR_EFFECTIVE",
       "displayLimitDoesNotLimitMachineSource": true,
-      "noNewPhysicalTable": true
+      "noNewPhysicalTable": true,
+      "historicalPlanSql": "SELECT policy_hash,target_issue,target_ordinal,position,probabilities,frozen_at,deadline_at,hit,settled_at,'FUTURE_READ_ONLY' AS role FROM r27_live_frozen ORDER BY target_ordinal DESC,policy_hash",
+      "sourceSqlMethod": "ResearchTableAdaptersR30R1.query",
+      "allowedFilters": [],
+      "queryChangedSinceOriginalTableDesign": false
     },
     "source": "原predraw/冻结+标签只读join",
     "entry": "R01–R04",
-    "action": "以 事前预测与结构落地 的源表运行物理SQL，对齐角色、输入哈希及时间窗。复核 R01–R04 的消费证据。",
+    "action": "用 target_ordinal 对齐赛前 frozen_at、deadline_at 与开奖结算。按策略列缺失冻结和逾期，并保留只读未来角色。",
     "negative": "READ_OK和shown只证明查询；空点/拒绝原因和数值产物分开。"
   },
   {
@@ -7338,11 +7355,15 @@
       "schemaOwner": "SchemaR27 original writer; original data owners unchanged",
       "missingData": "NULL_OR_EMPTY_SOURCE_IS_UNKNOWN_NOT_ZERO_OR_EFFECTIVE",
       "displayLimitDoesNotLimitMachineSource": true,
-      "noNewPhysicalTable": true
+      "noNewPhysicalTable": true,
+      "historicalPlanSql": "SELECT run_id,measure_key,kind,parent_hash,from_ordinal,to_ordinal,payload_json FROM r30r1_research_measure WHERE kind IN ('FAILURE_PRESCRIPTION','FAILURE_MEMORY','STRUCTURE_FORECAST_ERROR') ORDER BY run_id,measure_key",
+      "sourceSqlMethod": "ResearchTableAdaptersR30R1.query",
+      "allowedFilters": [],
+      "queryChangedSinceOriginalTableDesign": false
     },
     "source": "既有failure与research_measure",
     "entry": "R02/R05/R17",
-    "action": "以 失败机制样本 的源表运行物理SQL，对齐角色、输入哈希及时间窗。复核 R02/R05/R17 的消费证据。",
+    "action": "把失败窗口绑定到具体 parent_hash、输出和误差，再登记可复验的修复操作，追踪下一次出生。",
     "negative": "READ_OK和shown只证明查询；空点/拒绝原因和数值产物分开。"
   },
   {
@@ -7374,11 +7395,15 @@
       "schemaOwner": "SchemaR27 original writer; original data owners unchanged",
       "missingData": "NULL_OR_EMPTY_SOURCE_IS_UNKNOWN_NOT_ZERO_OR_EFFECTIVE",
       "displayLimitDoesNotLimitMachineSource": true,
-      "noNewPhysicalTable": true
+      "noNewPhysicalTable": true,
+      "historicalPlanSql": "SELECT run_id,measure_key,parent_hash,from_ordinal,to_ordinal,evaluated_calendar_issues,mean_gain,lower95,upper95,payload_json FROM r30r1_research_measure WHERE kind='ATOM_PAIRED_GAIN' ORDER BY run_id,measure_key",
+      "sourceSqlMethod": "ResearchTableAdaptersR30R1.query",
+      "allowedFilters": [],
+      "queryChangedSinceOriginalTableDesign": false
     },
     "source": "research_measure(kind=ATOM_PAIRED_GAIN)",
     "entry": "测得移除处方",
-    "action": "以 原子配对贡献 的源表运行物理SQL，对齐角色、输入哈希及时间窗。复核 测得移除处方 的消费证据。",
+    "action": "在同一 SELECT 原始期比较保留或移除原子的增益与下界，无配对支持的原子返回等样本。",
     "negative": "READ_OK和shown只证明查询；空点/拒绝原因和数值产物分开。"
   },
   {
@@ -7410,11 +7435,15 @@
       "schemaOwner": "SchemaR27 original writer; original data owners unchanged",
       "missingData": "NULL_OR_EMPTY_SOURCE_IS_UNKNOWN_NOT_ZERO_OR_EFFECTIVE",
       "displayLimitDoesNotLimitMachineSource": true,
-      "noNewPhysicalTable": true
+      "noNewPhysicalTable": true,
+      "historicalPlanSql": "SELECT run_id,measure_key,parent_hash,payload_json FROM r30r1_research_measure WHERE kind='MOLECULE_SYNERGY' ORDER BY run_id,measure_key",
+      "sourceSqlMethod": "ResearchTableAdaptersR30R1.query",
+      "allowedFilters": [],
+      "queryChangedSinceOriginalTableDesign": false
     },
     "source": "research_measure(kind=MOLECULE_SYNERGY)",
     "entry": "R07组合/冗余修剪",
-    "action": "以 分子协同与复杂度 的源表运行物理SQL，对齐角色、输入哈希及时间窗。复核 R07组合/冗余修剪 的消费证据。",
+    "action": "从同一父程序提供两个合法加法组件，分别消融A、B及组合，记录配对分母、协同差和成本。",
     "negative": "READ_OK和shown只证明查询；空点/拒绝原因和数值产物分开。"
   },
   {
@@ -7446,11 +7475,17 @@
       "schemaOwner": "SchemaR27 original writer; original data owners unchanged",
       "missingData": "NULL_OR_EMPTY_SOURCE_IS_UNKNOWN_NOT_ZERO_OR_EFFECTIVE",
       "displayLimitDoesNotLimitMachineSource": true,
-      "noNewPhysicalTable": true
+      "noNewPhysicalTable": true,
+      "historicalPlanSql": "SELECT dataset_hash,probe_set_hash,signature,kept_policy,dropped_policy,stage,recorded_at FROM r30_behavior_dup ORDER BY recorded_at DESC,kept_policy,dropped_policy",
+      "sourceSqlMethod": "ResearchTableAdaptersR30R1.query",
+      "allowedFilters": [
+        "dataset_hash"
+      ],
+      "queryChangedSinceOriginalTableDesign": false
     },
     "source": "原family/genome+research_measure",
     "entry": "R08行为去重",
-    "action": "以 族与行为指纹 的源表运行物理SQL，对齐角色、输入哈希及时间窗。复核 R08行为去重 的消费证据。",
+    "action": "固定 dataset_hash 与 probe_set_hash，重演父子行为；同一签名合并来源，保留去重和释放槽的记录。",
     "negative": "READ_OK和shown只证明查询；空点/拒绝原因和数值产物分开。"
   },
   {
@@ -7482,11 +7517,15 @@
       "schemaOwner": "SchemaR27 original writer; original data owners unchanged",
       "missingData": "NULL_OR_EMPTY_SOURCE_IS_UNKNOWN_NOT_ZERO_OR_EFFECTIVE",
       "displayLimitDoesNotLimitMachineSource": true,
-      "noNewPhysicalTable": true
+      "noNewPhysicalTable": true,
+      "historicalPlanSql": "SELECT generation,expert,proposal_json,policy_hash,recorded_at FROM r27_expert_proposal ORDER BY generation DESC,expert",
+      "sourceSqlMethod": "ResearchTableAdaptersR30R1.query",
+      "allowedFilters": [],
+      "queryChangedSinceOriginalTableDesign": false
     },
     "source": "proposal+consume+原policy",
     "entry": "R05/R09",
-    "action": "以 专家到AST处方 的源表运行物理SQL，对齐角色、输入哈希及时间窗。复核 R05/R09 的消费证据。",
+    "action": "把专家、提案和出生后的可执行 policy_hash 对齐，统计真正被接纳、拒绝和待处理的提案。",
     "negative": "READ_OK和shown只证明查询；空点/拒绝原因和数值产物分开。"
   },
   {
@@ -7514,15 +7553,21 @@
       "source": "research_measure+原generation",
       "frequency": "每代真实提交",
       "consumer": "R10研究预算",
-      "physicalSql": "SELECT r.run_id,r.role,r.policy_hash,m.measure_key,m.kind,m.mean_gain,m.payload_json FROM r30r1_analysis_run r JOIN r30r1_research_measure m ON m.run_id=r.run_id WHERE m.kind IN ('OPERATOR_COST','PARENT_CHILD_GAIN','RESEARCH_BUDGET') ORDER BY r.recorded_at DESC,m.measure_key",
+      "physicalSql": "SELECT r.run_id,r.role,r.policy_hash,m.measure_key,m.kind,CASE m.kind WHEN 'OPERATOR_GAIN_COST' THEN 'PAIRED_TEN_CLASS_PROPER_GAIN_PER_ISSUE|AST_NODES' WHEN 'PARENT_CHILD_PAIRED' THEN 'FORMAL_READ_ONLY_VERDICT' WHEN 'RESEARCH_BUDGET' THEN 'SHARE_OF_RESEARCH_BUDGET'  ELSE 'HISTORICAL_UNIT_UNVERIFIED' END AS unit,CASE WHEN m.kind IN ('OPERATOR_GAIN_COST','PARENT_CHILD_PAIRED','RESEARCH_BUDGET') THEN 'CURRENT' ELSE 'HISTORICAL' END AS tier,m.mean_gain,m.payload_json FROM r30r1_analysis_run r JOIN r30r1_research_measure m ON m.run_id=r.run_id WHERE m.kind IN ('OPERATOR_GAIN_COST','PARENT_CHILD_PAIRED','RESEARCH_BUDGET','OPERATOR_COST','PARENT_CHILD_GAIN') ORDER BY r.recorded_at DESC,m.measure_key",
       "schemaOwner": "SchemaR27 original writer; original data owners unchanged",
       "missingData": "NULL_OR_EMPTY_SOURCE_IS_UNKNOWN_NOT_ZERO_OR_EFFECTIVE",
       "displayLimitDoesNotLimitMachineSource": true,
-      "noNewPhysicalTable": true
+      "noNewPhysicalTable": true,
+      "historicalPlanSql": "SELECT r.run_id,r.role,r.policy_hash,m.measure_key,m.kind,m.mean_gain,m.payload_json FROM r30r1_analysis_run r JOIN r30r1_research_measure m ON m.run_id=r.run_id WHERE m.kind IN ('OPERATOR_COST','PARENT_CHILD_GAIN','RESEARCH_BUDGET') ORDER BY r.recorded_at DESC,m.measure_key",
+      "sourceSqlMethod": "ResearchTableAdaptersR30R1.query",
+      "allowedFilters": [
+        "role"
+      ],
+      "queryChangedSinceOriginalTableDesign": true
     },
     "source": "research_measure+原generation",
     "entry": "R10研究预算",
-    "action": "以 算子与父子预算 的源表运行物理SQL，对齐角色、输入哈希及时间窗。复核 R10研究预算 的消费证据。",
+    "action": "按 role、kind、tier 读取 frame.points 和 unit，在同预算下比较算子净增益，再调整下一代份额。",
     "negative": "READ_OK和shown只证明查询；空点/拒绝原因和数值产物分开。"
   },
   {
@@ -7554,11 +7599,15 @@
       "schemaOwner": "SchemaR27 original writer; original data owners unchanged",
       "missingData": "NULL_OR_EMPTY_SOURCE_IS_UNKNOWN_NOT_ZERO_OR_EFFECTIVE",
       "displayLimitDoesNotLimitMachineSource": true,
-      "noNewPhysicalTable": true
+      "noNewPhysicalTable": true,
+      "historicalPlanSql": "SELECT run_id,measure_key,parent_hash,payload_json FROM r30r1_research_measure WHERE kind='FUSION_COMPLEMENTARITY' ORDER BY run_id,measure_key",
+      "sourceSqlMethod": "ResearchTableAdaptersR30R1.query",
+      "allowedFilters": [],
+      "queryChangedSinceOriginalTableDesign": false
     },
     "source": "原fusion+research_measure",
     "entry": "R12新身份融合",
-    "action": "以 融合互补证据 的源表运行物理SQL，对齐角色、输入哈希及时间窗。复核 R12新身份融合 的消费证据。",
+    "action": "提供同目标同角色的两个已冻结父策略，分别与子代、移除一方和均匀组合比较，写独立子代证据。",
     "negative": "READ_OK和shown只证明查询；空点/拒绝原因和数值产物分开。"
   },
   {
@@ -7590,11 +7639,15 @@
       "schemaOwner": "SchemaR27 original writer; original data owners unchanged",
       "missingData": "NULL_OR_EMPTY_SOURCE_IS_UNKNOWN_NOT_ZERO_OR_EFFECTIVE",
       "displayLimitDoesNotLimitMachineSource": true,
-      "noNewPhysicalTable": true
+      "noNewPhysicalTable": true,
+      "historicalPlanSql": "SELECT target_ordinal,position,model_hash,history_hash,probabilities,probability_hash,trained_through_ordinal,model_available_at,feature_through_ordinal,frozen_at,deadline_at FROM r30_model_surface ORDER BY target_ordinal DESC,position,model_hash",
+      "sourceSqlMethod": "ResearchTableAdaptersR30R1.query",
+      "allowedFilters": [],
+      "queryChangedSinceOriginalTableDesign": false
     },
     "source": "AtomNet/ModelSurface原表+run",
     "entry": "R14/R15",
-    "action": "以 神经训练与消费链 的源表运行物理SQL，对齐角色、输入哈希及时间窗。复核 R14/R15 的消费证据。",
+    "action": "追踪权重版本到逐位置 model_surface、训练水位和真实预测的同一模型哈希；追查缺失的位置与发布事务。",
     "negative": "READ_OK和shown只证明查询；空点/拒绝原因和数值产物分开。"
   },
   {
@@ -7626,11 +7679,15 @@
       "schemaOwner": "SchemaR27 original writer; original data owners unchanged",
       "missingData": "NULL_OR_EMPTY_SOURCE_IS_UNKNOWN_NOT_ZERO_OR_EFFECTIVE",
       "displayLimitDoesNotLimitMachineSource": true,
-      "noNewPhysicalTable": true
+      "noNewPhysicalTable": true,
+      "historicalPlanSql": "SELECT key AS policy_hash,payload_json,updated_at FROM r27_chart_cache WHERE panel_id='calibration-r30' ORDER BY key",
+      "sourceSqlMethod": "ResearchTableAdaptersR30R1.query",
+      "allowedFilters": [],
+      "queryChangedSinceOriginalTableDesign": false
     },
     "source": "原CalibrationRows与measure",
     "entry": "R13与门禁支持",
-    "action": "以 校准支持与风险 的源表运行物理SQL，对齐角色、输入哈希及时间窗。复核 R13与门禁支持 的消费证据。",
+    "action": "返回构成校准缓存的冻结概率和揭晓结果，按同机会重算分箱、ECE与支持数，错误缓存应失效。",
     "negative": "READ_OK和shown只证明查询；空点/拒绝原因和数值产物分开。"
   },
   {
@@ -7662,11 +7719,17 @@
       "schemaOwner": "SchemaR27 original writer; original data owners unchanged",
       "missingData": "NULL_OR_EMPTY_SOURCE_IS_UNKNOWN_NOT_ZERO_OR_EFFECTIVE",
       "displayLimitDoesNotLimitMachineSource": true,
-      "noNewPhysicalTable": true
+      "noNewPhysicalTable": true,
+      "historicalPlanSql": "SELECT task_key,policy_hash,dataset_hash,block_id,state,verified,registration_state,registration_experiment_id,packet_json,result_json,'FORMAL_READ_ONLY' AS role FROM r30_frozen_confirm ORDER BY created_at DESC,task_key",
+      "sourceSqlMethod": "ResearchTableAdaptersR30R1.query",
+      "allowedFilters": [
+        "dataset_hash"
+      ],
+      "queryChangedSinceOriginalTableDesign": false
     },
     "source": "原frozen_confirm/experiment/eprocess/certificate",
     "entry": "R11/R18只读与授证",
-    "action": "以 确认/未来/资格证据 的源表运行物理SQL，对齐角色、输入哈希及时间窗。复核 R11/R18只读与授证 的消费证据。",
+    "action": "核对锁定块、策略哈希与 registration_experiment_id；未通过确认和登记失败分别计数，保留未来统计角色。",
     "negative": "READ_OK和shown只证明查询；空点/拒绝原因和数值产物分开。"
   },
   {
@@ -7698,11 +7761,15 @@
       "schemaOwner": "SchemaR27 original writer; original data owners unchanged",
       "missingData": "NULL_OR_EMPTY_SOURCE_IS_UNKNOWN_NOT_ZERO_OR_EFFECTIVE",
       "displayLimitDoesNotLimitMachineSource": true,
-      "noNewPhysicalTable": true
+      "noNewPhysicalTable": true,
+      "historicalPlanSql": "SELECT p.*,t.lane,t.status,t.blocked_reason FROM r30r1_task_progress p LEFT JOIN r26_task t ON t.task_id=p.task_id ORDER BY p.task_id",
+      "sourceSqlMethod": "ResearchTableAdaptersR30R1.query",
+      "allowedFilters": [],
+      "queryChangedSinceOriginalTableDesign": false
     },
     "source": "task_progress+原调度遥测",
     "entry": "M11/M12/R16",
-    "action": "以 研究任务活性与公平 的源表运行物理SQL，对齐角色、输入哈希及时间窗。复核 M11/M12/R16 的消费证据。",
+    "action": "从最老待办查进展、lane及阻因，比较重启前后已提交游标，修复有输入而永久得不到服务的任务。",
     "negative": "READ_OK和shown只证明查询；空点/拒绝原因和数值产物分开。"
   },
   {
@@ -7734,11 +7801,15 @@
       "schemaOwner": "SchemaR27 original writer; original data owners unchanged",
       "missingData": "NULL_OR_EMPTY_SOURCE_IS_UNKNOWN_NOT_ZERO_OR_EFFECTIVE",
       "displayLimitDoesNotLimitMachineSource": true,
-      "noNewPhysicalTable": true
+      "noNewPhysicalTable": true,
+      "historicalPlanSql": "SELECT p.proposal_id,p.run_id,p.parent_hash,p.kind,p.payload_json,p.state,p.reason,c.child_policy_hash,c.source_generation,c.consumer_version,c.receipt_hash,c.consumed_at FROM r30r1_proposal p LEFT JOIN r30r1_consume c ON c.proposal_id=p.proposal_id ORDER BY p.created_at DESC,p.proposal_id",
+      "sourceSqlMethod": "ResearchTableAdaptersR30R1.query",
+      "allowedFilters": [],
+      "queryChangedSinceOriginalTableDesign": false
     },
     "source": "analysis_run/proposal/consume/chart_cache",
     "entry": "不留空心图/空心处方",
-    "action": "以 处方消费与增量效果 的源表运行物理SQL，对齐角色、输入哈希及时间窗。复核 不留空心图/空心处方 的消费证据。",
+    "action": "以 proposal_id 关联 consume.receipt_hash、child_policy_hash 和独立验证，给出未消费的具体阻因。",
     "negative": "READ_OK和shown只证明查询；空点/拒绝原因和数值产物分开。"
   },
   {
@@ -7770,11 +7841,15 @@
       "schemaOwner": "SchemaR27 original writer; original data owners unchanged",
       "missingData": "NULL_OR_EMPTY_SOURCE_IS_UNKNOWN_NOT_ZERO_OR_EFFECTIVE",
       "displayLimitDoesNotLimitMachineSource": true,
-      "noNewPhysicalTable": true
+      "noNewPhysicalTable": true,
+      "historicalPlanSql": "SELECT issue,decision_key,entry_point,original_allow,original_reason,certificate_active,items_json,source_json,recorded_at,'FORMAL_READ_ONLY' AS role FROM r30_decision_explain ORDER BY recorded_at DESC,issue",
+      "sourceSqlMethod": "ResearchTableAdaptersR30R1.query",
+      "allowedFilters": [],
+      "queryChangedSinceOriginalTableDesign": false
     },
     "source": "原唯一REAL/结算账本+消费链只读join",
     "entry": "R18最终效果；无真实赔付不计算经济盈利",
-    "action": "以 自然资产主链与资源成本 的源表运行物理SQL，对齐角色、输入哈希及时间窗。复核 R18最终效果；无真实赔付不计算经济盈利 的消费证据。",
+    "action": "从决策说明追到同一期权威冻结、trades 与结算，分别列真实出手和HOLD，缺结算保持未观察。",
     "negative": "READ_OK和shown只证明查询；空点/拒绝原因和数值产物分开。"
   }
 ]

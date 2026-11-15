@@ -1,4 +1,4 @@
-"""Validate plan structure, original source and four patch preimages. Never modifies a product checkout."""
+"""Validate plan structure, original source and the five patch preimages. Never modifies a product checkout."""
 import argparse, collections, copy, csv, gzip, hashlib, json, pathlib, re, subprocess, tempfile
 P=pathlib.Path(__file__).resolve().parents[1]
 def load(p):return json.loads((P/p).read_text())
@@ -20,10 +20,13 @@ def graph(batches,files,cards,items):
   check(not set(r['writes']).intersection(r['reads']),r['id']+' duplicate access')
   check(all(owners[f]==n for f in r['writes']),r['id']+' duplicate write owner')
   check(all(owners[f] in before[n] for f in r['reads']),r['id']+' needs later producer')
+  anchors=r['sourceAnchors']
+  check(bool(anchors) and all(owners.get(a['path'])==a['owner'] and a['owner'] in before[n]|{n} for a in anchors),r['id']+' bad source anchor or later producer')
+  check(set(r['traceOnly'])=={a['path'] for a in anchors}-set(r['files']),r['id']+' trace-only inventory')
  for r in items:
   check(set(r['requires'])<=before[r['run_at']],r['id']+' forward signoff')
  return order
-def main(repo):
+def main(repo,query_dump):
  batches=load('contracts/batches.json');files=load('ledger/file_owners.json');cards=load('contracts/repair_cards.json');items=load('ledger/acceptance_222.json')
  order=graph(batches,files,cards,items);check(order==['P1','P2','P3','P4','P5'],'batch list')
  def rejected(change):
@@ -35,6 +38,15 @@ def main(repo):
  rejected(lambda b,f,c,i:f.append(dict(f[0],owner='P5')))
  rejected(lambda b,f,c,i:i[0].update(run_at='P1',requires=['P4']))
  rejected(lambda b,f,c,i:c[0]['reads'].append(next(x['path'] for x in f if x['owner']=='P4')))
+ rejected(lambda b,f,c,i:c[0]['sourceAnchors'][0].update(owner='P5'))
+ with gzip.open(P/'ledger/current_methods.tsv.gz','rt',encoding='utf-8') as stream:
+  methods={(m['path'],m['jvm_owner'],m['method'],m['descriptor'],int(m['start_line'])) for m in csv.DictReader(stream,delimiter='\t')}
+ for c in cards:
+  for a in c['sourceAnchors']:
+   if a['kind']=='java':
+    check((a['path'],a['jvmOwner'],a['method'],a['descriptor'],a['line']) in methods,'mismatched compiled production anchor '+c['id'])
+   else:
+    check(a['kind']=='python','unknown anchor language')
  prior=load('prior/acceptance_items.json');lookup={x['item']:x for x in prior}
  check(len(items)==222 and len({i['original'] for i in items if lookup[i['id']]['kind']=='ORIGINAL_CARD'})==194 and len({i['original'] for i in items if lookup[i['id']]['kind']=='REPAIR_CARD'})==6 and set(lookup)=={r['id'] for r in items},'original acceptance lost')
  for i in items:
@@ -50,6 +62,15 @@ def main(repo):
  check(collections.Counter(x['category'] for x in objects)=={'capabilities':82,'matrices':20,'researchCharts':18,'legacyCharts':29,'logicalTables':16},'object groups')
  check(len(load('ledger/checks_96.json'))==96 and len(load('ledger/metrics_44.json'))==44,'metric count')
  check(all(x.get('action') and x.get('negative') and x.get('source') for x in objects),'missing per-object contract')
+ experiments=[o['action'] for o in objects if o['category']=='capabilities' and re.fullmatch('[FIE][0-9]{2}',o['id'])]
+ check(len(experiments)==len(set(experiments))==61,'missing per-family actions')
+ tables={o['id']:o['contract'] for o in objects if o['category']=='logicalTables'}
+ check({k for k,v in tables.items() if v['physicalSql']!=v['historicalPlanSql']}=={'T02','T09'},'032 table SQL revision lost')
+ if query_dump:
+  actual=json.loads(pathlib.Path(query_dump).read_text())
+  check(len(actual)==16 and set(tables)=={a['id'] for a in actual},'query IDs')
+  for a in actual:
+   check(tables[a['id']]['physicalSql']==a['sourceSql'] and tables[a['id']]['allowedFilters']==a['filters'],'production SQL/filter mismatch '+a['id'])
  patch_paths={}
  for path in sorted((P/'patches').glob('*.patch')):
   names=re.findall(r'^diff --git a/.+? b/(.+)$',path.read_text(),re.M)
@@ -60,25 +81,38 @@ def main(repo):
   repo=pathlib.Path(repo).resolve()
   def git(*args):return subprocess.check_output(['git','-C',str(repo),*args])
   source='51667a1236742b9bee8e1a8903c26358727d7c81'
-  snap={r.split('\t')[1]:r.split()[2] for r in git('ls-tree','-r',source,'--','app/src/main/java').decode().splitlines() if r.endswith('.java')}
+  tree={}
+  for rec in git('ls-tree','-r','-z',source).split(b'\0'):
+   if rec:
+    header,name=rec.split(b'\t',1)
+    tree[name.decode()]=header.split()[2].decode()
+  snap={n:h for n,h in tree.items() if n.startswith('app/src/main/java/') and n.endswith('.java')}
+  for c in cards:
+   for a in c['sourceAnchors']:
+    if a['kind']=='python':
+     lines=git('cat-file','blob',tree[a['path']]).decode().splitlines()
+     check(lines[a['line']-1].startswith('def '+a['method']+'('),'wrong Python entry '+a['path'])
   check(snap=={r['path']:r['git_blob'] for r in inventory},'wrong baseline')
   # Check ordered apply and reverse in a temporary directory using actual immutable Git blob content.
   with tempfile.TemporaryDirectory() as t:
    tmp=pathlib.Path(t)
    for n in patch_paths:
-    if n in snap:
-     p=tmp/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(git('cat-file','blob',snap[n]))
+    if n in tree:
+     p=tmp/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(git('cat-file','blob',tree[n]))
    def apply(path,*args):subprocess.run(['git','apply',*args,str(path.resolve())],cwd=tmp,check=True)
    patches=sorted((P/'patches').glob('P?.patch'))
    for path in patches:apply(path,'--check');apply(path)
    for path in reversed(patches):apply(path,'--reverse','--check');apply(path,'--reverse')
-   for n in patch_paths:check((tmp/n).read_bytes()==git('cat-file','blob',snap[n]) if n in snap else not (tmp/n).exists(),'round-trip mismatch')
+   for n in patch_paths:check((tmp/n).read_bytes()==git('cat-file','blob',tree[n]) if n in tree else not (tmp/n).exists(),'round-trip mismatch')
  for p in [P/'README.md',*(P/'guide').glob('*.md')]:
   for target in re.findall(r'\[[^\]\n]+\]\(([^)\n]+)\)',p.read_text()):
    if target.startswith(('http','#','<')):continue
    check((p.parent/target).is_file(),p.name+' bad link '+target)
  if (P/'MANIFEST.json').is_file():
-  for n,h in load('MANIFEST.json')['sha256_by_file'].items():check(sha((P/n).read_bytes())==h,'file hash '+n)
- print(json.dumps({'structural_checks':'PASS','negative_plan_mutations_rejected':4,'batches':len(batches),'repair_cards':len(cards),'original_and_unified_cards':len(mapped),'items':len(items),'source_files':len(inventory),'patch_paths':len(patch_paths),'patch_round_trip':bool(repo)},ensure_ascii=False))
+  hashes=load('MANIFEST.json')['sha256_by_file']
+  actual_files={f.relative_to(P).as_posix() for f in P.rglob('*') if f.is_file() and f.name!='MANIFEST.json' and '__pycache__' not in f.parts}
+  check(actual_files==set(hashes),'manifest coverage')
+  for n,h in hashes.items():check(sha((P/n).read_bytes())==h,'file hash '+n)
+ print(json.dumps({'structural_checks':'PASS','negative_plan_mutations_rejected':5,'production_anchor_bindings':sum(len(c['sourceAnchors']) for c in cards),'unique_owned_paths':len(files),'registered_sql_compared':16 if query_dump else 0,'batches':len(batches),'repair_cards':len(cards),'original_and_unified_cards':len(mapped),'items':len(items),'source_files':len(inventory),'patch_paths':len(patch_paths),'patch_round_trip':bool(repo)},ensure_ascii=False))
 if __name__=='__main__':
- parser=argparse.ArgumentParser();parser.add_argument('--repo');main(parser.parse_args().repo)
+ parser=argparse.ArgumentParser();parser.add_argument('--repo');parser.add_argument('--query-dump',help='JSON emitted by FieldContractProbe directly from production query definitions');args=parser.parse_args();main(args.repo,args.query_dump)
