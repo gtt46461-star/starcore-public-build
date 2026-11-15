@@ -28,7 +28,7 @@ public final class TypedFreezeRuntimeR31Fixture implements AutoCloseable {
         Field lock=DatabaseCoordinator.class.getDeclaredField("WRITE_LOCK_CP3");lock.setAccessible(true);set(coordinator,"writeLock",(ReentrantLock)lock.get(null));set(coordinator,"helper",helper);set(coordinator,"app",app);set(coordinator,"waitingWriters",new AtomicInteger());set(coordinator,"criticalBusinessWaitersR914",new AtomicInteger());
         store=(DbStore)unsafe.allocateInstance(DbStore.class);set(store,"coordinator",coordinator);set(store,"helper",helper);set(store,"researchAppCP12",app);set(store,"researchInputRootCP11",root.resolve("research-input-v2").toFile());set(store,"columnCache",new HashMap<String,HashSet<String>>());
         for(Field field:DbStore.class.getDeclaredFields())if(!Modifier.isStatic(field.getModifiers())&&field.getType()==ThreadLocal.class){field.setAccessible(true);field.set(store,new ThreadLocal<>());}
-        base="202611130501";targetOrdinal=TargetIssueResolver.sequenceOrdinalSU1(base)+1;target=TargetIssueResolver.fromSequenceOrdinalSU1(targetOrdinal);long now=System.currentTimeMillis();deadline=now+59_000;
+        base="202611130501";targetOrdinal=TargetIssueResolver.sequenceOrdinalSU1(base)+1;target=TargetIssueResolver.fromSequenceOrdinalSU1(targetOrdinal);long now=System.currentTimeMillis();
         transaction(()->{
             db.execSQL("CREATE TABLE draws(_id INTEGER PRIMARY KEY AUTOINCREMENT,issue TEXT UNIQUE,open_time INTEGER,first_seen_at INTEGER,dirty INTEGER,n1 INTEGER,n2 INTEGER,n3 INTEGER,n4 INTEGER,n5 INTEGER,n6 INTEGER,n7 INTEGER,n8 INTEGER,n9 INTEGER,n10 INTEGER)");
             db.execSQL("CREATE TABLE app_state(state_key TEXT PRIMARY KEY,state_value TEXT,updated_at INTEGER)");
@@ -57,9 +57,12 @@ public final class TypedFreezeRuntimeR31Fixture implements AutoCloseable {
             db.execSQL("INSERT INTO app_state VALUES(?,?,?)",new Object[]{BuildIdentity.STATE_STATUS,BuildIdentity.STATUS_OK,now});db.execSQL("INSERT INTO app_state VALUES(?,?,?)",new Object[]{RealAuthoritySU2.USER_SWITCH,"1",now});
             db.execSQL("INSERT OR REPLACE INTO r26_session(session_id,user_enabled,boot_id,state,heartbeat,actual_progress) VALUES(?,1,?,'RUNNING',?,0)",new Object[]{owner,IssueTimelineWriterR30.bootId(),now});
             db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism,status) VALUES('r27-live','R27','HOST_SYNTHETIC_TYPED_MECHANICS','READY')");
-            insertDraw(targetOrdinal-501,deadline-60_000-500*60_000L);
         });
         installLifecycleThroughActualOwner();
+        // Start the synthetic next-draw clock after real schema migration, not
+        // before 162 migration units. The production 60s deadline/PIT gate is unchanged.
+        deadline=System.currentTimeMillis()+59_000;
+        transaction(()->insertDraw(targetOrdinal-501,deadline-60_000-500*60_000L));
         runtime=new RuntimeR27(store,owner);worker=runtime.pool().new Worker(db,"typed-host");runtime.operatorAbi=Collections.singletonMap("freq",StatsR27.sha256("HOST_SYNTHETIC_OPERATOR_ABI"));runtime.operatorAbiHash=SemanticAbiR27.operatorSetHash(runtime.operatorAbi);
         PolicySpecR27 spec=new PolicySpecR27(PolicyAstR27.op("zscore",PolicyAstR27.leaf("freq",1,32)),3,PolicySpecR27.Rule.ALWAYS,0,1,1,false,.01,0,IdeaFamilyR27.meta("I09","R31_TEST_NAMESPACE",0,1,"HOST_SYNTHETIC_MECHANICS_NOT_NATURAL_QUALITY"));policy=spec.policyHash();
         String controlA=StatsR27.sha256("HOST_TYPED_CONTROL_I00"),controlB=StatsR27.sha256("HOST_TYPED_CONTROL_NULL");
@@ -78,7 +81,7 @@ public final class TypedFreezeRuntimeR31Fixture implements AutoCloseable {
         });
         owned(()->{
             for(int pass=0;pass<40&&StoreR27.readEprocess(db,policy).n<500;pass++){
-                QualificationInboxR29.consume(db,(op,batch)->{RuntimeR27.submit(worker,op,batch);return true;},"('ACTIVE','ACTIVE_REPAIR1')",targetOrdinal-1);
+                QualificationInboxR29.consume(db,(op,batch)->{drainFixtureHealthIfDeferred();RuntimeR27.submit(worker,op,batch);return true;},"('ACTIVE','ACTIVE_REPAIR1')",targetOrdinal-1);
             }return null;
         });
         SequentialQualificationR27.State state=StoreR27.readEprocess(db,policy);if(state.n!=500||!SequentialQualificationR27.QUALIFIED.equals(state.state)||QualificationInboxR29.blockedForCertificate(db,policy))throw new AssertionError("ACTUAL_SYNTHETIC_QUALIFICATION_NOT_READY:"+state.n+":"+state.state);
@@ -119,7 +122,22 @@ public final class TypedFreezeRuntimeR31Fixture implements AutoCloseable {
     }
     private void insertDraw(long ordinal,long opened){Object[] row=new Object[14];row[0]=TargetIssueResolver.fromSequenceOrdinalSU1(ordinal);row[1]=opened;row[2]=opened+1;row[3]=0;for(int p=0;p<10;p++)row[p+4]=p+1;db.execSQL("INSERT INTO draws(issue,open_time,first_seen_at,dirty,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",row);}
     private void frozen(String id,long ordinal,long opened,int hit,int first){double[] probabilities=new double[10];Arrays.fill(probabilities,.1);db.execSQL("INSERT INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at,hit,settled_at) VALUES(?,?,?,3,?,?,?,?,1,'FROZEN',?,?,?,?)",new Object[]{id,ordinal,TargetIssueResolver.fromSequenceOrdinalSU1(ordinal),StoreR27.pack(probabilities),first,first+1,first+2,opened-10_000,opened,hit,opened+1});}
+    /** Drive the existing Health callback in this service-free host fixture.
+     * The production 200ms observation and 24-event admission guard stay active. */
+    private void drainFixtureHealthIfDeferred(){
+        if(!WriterHoldFaultsR31.deferResearch())return;
+        long before=((Number)WriterHoldFaultsR31.snapshot().get("persistedFaultReceipts")).longValue();
+        for(int slice=0;slice<WriterHoldFaultsR31.MAX_PENDING&&WriterHoldFaultsR31.deferResearch();slice++){
+            WriterHoldFaultsR31.drainControlSliceR32(store);
+        }
+        Map<String,Object> after=WriterHoldFaultsR31.snapshot();
+        long persisted=((Number)after.get("persistedFaultReceipts")).longValue();
+        if(WriterHoldFaultsR31.deferResearch()||persisted<=before)throw new AssertionError("HOST_TYPED_HEALTH_DURABLE_DRAIN_NOT_READY:"+after);
+        if(scalar(db,"SELECT count(*) FROM r31_runtime_fault WHERE category='WRITER_HOLD'")<persisted-before)throw new AssertionError("HOST_TYPED_HEALTH_DRAIN_MISSING_REAL_ROWS");
+        System.out.println("TYPED_FIXTURE_ACTUAL_HEALTH_DRAIN persisted="+(persisted-before)+" pending="+after.get("pending")+" originalGuard200ms=true backpressureAt24=true productionThresholdsChanged=false");
+    }
     public <T>T owned(Callable<T> work)throws Exception{
+        drainFixtureHealthIfDeferred();
         claim=coordinator.runAtomicWriteOrThrowF01(RuntimeCoordinatorR26.controlContextR31("HOST_TYPED_ACTUAL_CLAIM"),tx->{RuntimeCoordinatorR26.Claim next=RuntimeCoordinatorR26.claimWithinR31(tx,"r27-live",owner,"R27",claim);if(next==null)throw new IllegalStateException("HOST_TYPED_CLAIM_NOT_ACQUIRED");RuntimeCoordinatorR26.requireFence(tx,next);return next;});
         RuntimeCoordinatorR26.bindBackgroundClaim(claim);try{return work.call();}finally{RuntimeCoordinatorR26.unbindBackgroundClaimR31();}
     }
