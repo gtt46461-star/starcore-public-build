@@ -1,0 +1,62 @@
+name: STARCORE R32.5.1 exact signed APK original 032 overlay verification
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-r3251-c1-overlay-retest.yml']
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: r3251-overlay-unchanged-apk-${{ github.sha }}
+  cancel-in-progress: false
+jobs:
+  exact_release_overlay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: f024c9e9d058e676b3fc26c64ed72186f2404366
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: r3251-C1-release-apk-9df4ba2ee35023f911a4de05569d2555b6416e47
+          run-id: 43776242409
+          github-token: ${{ github.token }}
+          path: built
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31-report-032-signed-build
+          run-id: 43556844131
+          github-token: ${{ github.token }}
+          path: original032
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        env:
+          R3251_DISPOSABLE_EMULATOR: '1'
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: python3 tools/r3251/verify_release_overlay.py --old-apk original032/Starcore-Tianshu-R31-REPORT-REPAIR-2026.11.14-032-release.apk --new-apk built/STARCORE-R32.5.1-C1-033-9df4ba2ee350-release.apk --expected-source 9df4ba2ee35023f911a4de05569d2555b6416e47 --expected-apk-sha256 eb5956d4103d71d56f99fe3856d5255c90908154c3cc4f8812aae9bb442831bd --out "${{ runner.temp }}/r3251-overlay-public"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r3251-C1-exact033-original032-overlay
+          path: ${{ runner.temp }}/r3251-overlay-public/
+          if-no-files-found: warn
