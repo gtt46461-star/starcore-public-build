@@ -1,0 +1,122 @@
+name: STARCORE R32.5.1 C1 exact construction build
+on:
+  push:
+    branches: ['construction/r3251-c1-20261115']
+    paths: ['.github/workflows/r3251-construction.yml', 'release/R3251_BUILD_REQUEST.json']
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: r3251-c1-${{ github.sha }}
+  cancel-in-progress: false
+jobs:
+  android_build:
+    if: github.repository == 'gtt46461-star/starcore-public-build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact new baseline, source and original strict identity gates
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git merge-base --is-ancestor 7424eeae6354eb6599dd8498e123c059bd410c90 HEAD
+          mkdir -p "$RUNNER_TEMP/r3251-ci"
+          python3 scripts/r967_semantic_identity.py --check > "$RUNNER_TEMP/r3251-ci/r967.log" 2>&1
+          python3 scripts/r926_release_manifest.py --check > "$RUNNER_TEMP/r3251-ci/r926.log" 2>&1
+          python3 scripts/r982_source_call_asset.py > "$RUNNER_TEMP/r3251-ci/r982.log" 2>&1
+          git rev-parse HEAD > "$RUNNER_TEMP/r3251-ci/source-commit.txt"
+          git rev-parse HEAD^{tree} > "$RUNNER_TEMP/r3251-ci/source-tree.txt"
+      - name: Restore only the existing installed signer
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/r27-ci-temp-key
+          key: starcore-r27-ci-temp-signing-v1
+          fail-on-cache-miss: true
+      - name: Require the installed certificate and existing API binding
+        env:
+          DUOQU_SECRET: ${{ secrets.DUOQU_API_KEY }}
+        run: |
+          set -euo pipefail
+          K="$HOME/.starcore/r27-ci-temp-key"
+          test -f "$K/r27-ci.p12" && test -s "$K/pw"
+          pw=$(cat "$K/pw"); echo "::add-mask::$pw"
+          cert=$(keytool -exportcert -keystore "$K/r27-ci.p12" -storetype PKCS12 -alias starcore-r13 -storepass "$pw" | sha256sum | cut -d' ' -f1)
+          if [ "$cert" != d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7 ]; then
+            echo "INSTALLED_SIGNER_MISMATCH $cert"; exit 1
+          fi
+          test -n "$DUOQU_SECRET" || { echo RELEASE_API_SECRET_UNAVAILABLE; exit 1; }
+          echo "::add-mask::$DUOQU_SECRET"
+          { echo "R13_SIGNING_P12=$K/r27-ci.p12"; echo "R13_SIGNING_PASSWORD=$pw"; echo "R13_EXPECTED_CERT_SHA256=$cert"; echo "DUOQU_API_KEY=$DUOQU_SECRET"; } >> "$GITHUB_ENV"
+          printf '%s\n' "EXISTING_DEVICE_CERTIFICATE=$cert" > "$RUNNER_TEMP/r3251-ci/signing-public.txt"
+      - name: Install the exact Android toolchain
+        run: |
+          set -euo pipefail
+          sdkmanager --licenses < <(yes) > /dev/null
+          sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > "$RUNNER_TEMP/r3251-ci/sdk-install.log" 2>&1
+          python3 -m pip install numpy==2.3.5 'cryptography>=41,<51'
+      - name: Original release, debug and instrumentation builds
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon --max-workers=4 -Pr30Instrumentation=true :app:assembleRelease :app:assembleDebug :app:assembleDebugAndroidTest > "$RUNNER_TEMP/r3251-ci/gradle-build.log" 2>&1
+      - name: Verify and package the actual release bytes
+        run: python3 tools/r3251/package_ci_candidate.py --out "$RUNNER_TEMP/r3251-ci"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r3251-C1-build-${{ github.sha }}
+          path: ${{ runner.temp }}/r3251-ci/
+          if-no-files-found: error
+  instrumentation:
+    needs: android_build
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [29, 34, 35]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: r3251-C1-build-${{ github.sha }}
+          path: built
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: bash tools/r31/emulator_matrix.sh ${{ matrix.api }} built/android-build/app-debug.apk built/android-build/app-debug-androidTest.apk "${{ runner.temp }}/r3251-emu-${{ matrix.api }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r3251-C1-emu-${{ matrix.api }}-${{ github.sha }}
+          path: ${{ runner.temp }}/r3251-emu-${{ matrix.api }}/

@@ -1,0 +1,36 @@
+{
+  "owner": "P5",
+  "scope": "SUPPLEMENTAL_DELIVERY_AUTOMATION_NOT_ADDITIONAL_PRODUCT_IMPLEMENTATION",
+  "original312PayloadPathsAndOwnersUnchanged": true,
+  "sourceIdentityInputsChanged": false,
+  "existingFourP5WorkflowBytesPreserved": true,
+  "reason": "User requested an actual same-signer build and accessible APK/ZIP delivery. Add an isolated-branch CI route using only the pre-existing installed signer cache and DUOQU binding. Preserve original R967/R926/R982 gates, fail on absent cache/binding or certificate mismatch, never create a replacement key. Install exact SDK components instead of the historical invalid tools package.",
+  "paths": [
+    {
+      "path": ".github/workflows/r3251-construction.yml",
+      "before_sha256": null,
+      "after_sha256": "adabc1a7516595ead3bf307f65439fbd6bee14c749447d0fff9561f0c42ad630",
+      "owner": "P5"
+    },
+    {
+      "path": "tools/r3251/package_ci_candidate.py",
+      "before_sha256": null,
+      "after_sha256": "4594c840b807c29783e4b9753d42af1950aef1b76dff476fc9697b527f636a80",
+      "owner": "P5"
+    },
+    {
+      "path": "release/R3251_BUILD_REQUEST.json",
+      "before_sha256": null,
+      "after_sha256": "cb242d85ce75e1b155aa6a9253ee6f8ff79c3c98fe1c0dc8fffb4df224c4faa7",
+      "owner": "P5"
+    }
+  ],
+  "validation": {
+    "yaml": "PASS_BASE_LOADER_STRUCTURE",
+    "bashBlocks": 6,
+    "bashSyntax": "PASS",
+    "pythonSyntax": "PASS",
+    "actualSigning": "PENDING_CURRENT_CI",
+    "actualApk": "NOT_BUILT_YET"
+  }
+}
