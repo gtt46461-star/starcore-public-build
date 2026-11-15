@@ -1,0 +1,12 @@
+{
+  "owner": "P2",
+  "path": "tools/r31/host/R31ServiceProtocolHost.java",
+  "before_sha256": "51dd45bbd5ca456bec6d055b165a2842c152c680c1911814188743e6a6911b0d",
+  "after_sha256": "27f240509d3a86f556a8b319c28d47824780173b9479d4833851847c2717b23f",
+  "scope": "SUPPLEMENTARY_LOOPBACK_HTTP_INPUT_FIXTURE_NOT_PRODUCTION_TIMING",
+  "reason": "The first cold HTTP request on the loaded host received both artificial chunks before its first body read when the fixture delayed only80ms. Provide a500ms controlled inter-chunk gap to exercise a real read before EOF; keep the original >=40ms first-read-vs-EOF assertion, ordering, durable clocks, cancellation, permit,429/backoff and all production deadline/PIT rules unchanged. This is a controlled loopback test input, not a device latency/SLO result.",
+  "productionCodeChanged": false,
+  "originalTimingAssertionMilliseconds": 40,
+  "controlledFixtureGapBeforeMilliseconds": 80,
+  "controlledFixtureGapAfterMilliseconds": 500
+}

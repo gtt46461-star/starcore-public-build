@@ -1,0 +1,514 @@
+{
+  "qualification_inheritance": false,
+  "release_version_review": {
+    "after": {
+      "versionCode": 577311033,
+      "versionName": "R32.5-REPAIR-2026.11.15-033"
+    },
+    "after_sha256": "2c7d5e050399fe20084f8e049109f60aff78bd84780b0588d7d5934a3251d2f5",
+    "allowed_fields": [
+      "versionCode",
+      "versionName"
+    ],
+    "batch": "P5",
+    "before": {
+      "versionCode": 577311032,
+      "versionName": "R31-REPORT-REPAIR-2026.11.14-032"
+    },
+    "before_sha256": "46eb0f682cc6ec799c02c69f7d47b7e89aa9016914c9a63b7a79129c2623a30c",
+    "path": "release/release_manifest.json",
+    "rationale": "原032基线保持；将尚未安装的033候选绑定为R32.5修复源码，沿用原R926四件生成器生成完整一致版本元数据，不将计划版本冒充APK交付。",
+    "reviewer": "R32.5 root exact version bundle review",
+    "schema": "R32_P5_RELEASE_VERSION_ONLY_V1"
+  },
+  "schema": "R32_EXPLICIT_SOURCE_REVIEWS_V1",
+  "source_head": "7424eeae6354eb6599dd8498e123c059bd410c90",
+  "source_reviews": [
+    {
+      "after_sha256": "32d121dc6b445223bdfdfddd91e2df0883aba56254700a27647a199de160919d",
+      "batch": "P1",
+      "before_sha256": "6c337f43b6318639dfa87907893b88c9a94ebc4694ebaf8d3a4791bcdf833ab0",
+      "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "rationale": "恢复尾段启动与故障排空的实际服务调用；网络读取和重活保持在writer外，及时冻结只用当时可见输入。锁屏、系统停止及24/72小时结果须另记实机证据。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "56846752eb611f84b1caca7752f06934f1040411117ec07221a648a95160da32",
+      "batch": "P2",
+      "before_sha256": "98831e5b9075fab6953f47ccb1cd7df96fa009a9e8593773646124399ae16163",
+      "path": "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
+      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "465e2b34b1610dde98a84157fd50f8e1538caf8ab5815ff13b5d27d94247a9cd",
+      "batch": "P1",
+      "before_sha256": "e99d4124109e2f40ec5b437863b9af35a8ccae7c533a78e06e5e16c252ae2932",
+      "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "rationale": "保留唯一写者和既有事务准入；登记准确owner/phase/根异常并在许可的writer事务排空，不能把ADMISSION和END统一改为可重试。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "3fd2823f256d79b30338e711ce42ea8fb5d94b41ad6fac205bcb701fbd64810e",
+      "batch": "P1",
+      "before_sha256": "698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93",
+      "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+      "rationale": "在旧link表创建目标索引之前幂等补target_issue、candidate_rank、candidate_key；不删除旧行、不虚构候选主键。重复非空键保持明确拒绝。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "3ffe4d47a3ae4a42b1c5e3840e7c64e88a238586b1a6498982cd7321a05c2e5b",
+      "batch": "P1",
+      "before_sha256": "a676b2e411f6c61d3dcebb23fe8383245777d1ed86d4cafc183bc1d54ea65d09",
+      "path": "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java",
+      "rationale": "发现COMPLETED单元的已提交对象定义漂移时，重开对应责任单元并保留原异常；不得静默重写目标SQL或通用DROP任意对象。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "24894b5dd5adaa33d45b218129ab9b8db8d1ce3d8d7ae8d507ec94ef26153f7e",
+      "batch": "P1",
+      "before_sha256": "42a51f9da2ef5cb4746adafc4b065355a6826cb30ba43e8cc52c4f198c6b29a1",
+      "path": "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+      "rationale": "由既有迁移owner调用真实quota分页恢复；修复空单例导致旧工厂无法准入，按真实四表字节与状态恢复计数，不用伪造0占用。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "769eaf2eb62a68fd32044a5f02f75dc3ecb9f137156d187a995530bf28162fb0",
+      "batch": "P1",
+      "before_sha256": null,
+      "path": "app/src/main/java/com/ethk3/novaonepro/PredrawTailRecoveryR32.java",
+      "rationale": "新增可重复执行的尾段归约器；按连续期号、封口/目标时钟与可见性约束决定可恢复尾段，不能用补采历史结果回填事前预测。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "d36cd492599209112d5cda850ea0c0d0e2cc52f6bdf67efcc86f2e1bba2e5877",
+      "batch": "P1",
+      "before_sha256": "2e4c2b92ae244e5ed3e358b54e69735a47818cadfb371b6feb459cc03adceba9",
+      "path": "app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java",
+      "rationale": "调整尾段恢复策略与正常分析历史入口一致；保留窗口和因果边界，既有未来标签隔离规则继续生效。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "0688b22a1533babb7cd30dfcac5b4522a04559821bd7f56006cfd4c609840f06",
+      "batch": "P5",
+      "before_sha256": "db9f2c5279f60acb236f5af0a5d390becb4f86d866528e6b5a1e466cb5a671b0",
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
+      "rationale": "以本轮完整后态生产源码重建发布元数据或静态调用索引，逐件字节绑定；不伪造实际调用覆盖，不继承旧训练规则或自然资格证书。",
+      "reviewer": "R32.5 root exact source review",
+      "role": "PROVENANCE"
+    },
+    {
+      "after_sha256": "6d6cc20b1bffc06bfc8eceaceefe813fd0f040d242724e0b3caaf01457e9afa4",
+      "batch": "P2",
+      "before_sha256": "91a266f597a4914225abbde133e2319ddc6a9d1db77c5f9bc05a9c2a18edc589",
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "f536264660713bb8706ca6f668bc9b8297edf0fe1881755aa9c2918bffe17c0a",
+      "batch": "P4",
+      "before_sha256": "294601cf418571e7ee1eff2638239bb156983d1edce1b3546e3856ebb52ca7f5",
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "rationale": "通过实际导出链输出新诊断及同快照对象证据，报告与严格RAW恢复包边界分开；缺失原件要明示，不能写成已恢复。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "910378be2b0fced36c87d9d7fdd999570a8e8f3563c933c50919c2cdb3d717b3",
+      "batch": "P2",
+      "before_sha256": "61cbf241b0c16716e8240e879103d4858c6e4b548997e2c298e7b91d67402847",
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportMemberPlanCP12.java",
+      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "0f841e117ffd37b3db217ca44be7e96293055cf2cddba950c582c4c59147024f",
+      "batch": "P4",
+      "before_sha256": "2ec273db83564cf29085b5c680ed4ac97d8858950ce5bdb66d3365afdfd543f0",
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+      "rationale": "逐个验证投影引用的source路径及SHA，拒绝悬空引用、被篡改目标和删referenceFormat绕过；兼容原格式但不能把新引用当任意文字放行。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "PRESENTATION"
+    },
+    {
+      "after_sha256": "299c53377b3a75819e73538ff6fcffa5315ff6574bade3f705b8bf4a97d46c3c",
+      "batch": "P2",
+      "before_sha256": "e4ddbbf466948b72833696593242a7252611cf7b64cd442804f4b256ac85f80a",
+      "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+      "rationale": "P2真实同域附件恢复修复：publication和sample_archive共用域的core证明必须扣除两表全部已声明附件。仅允许明确DDL、验证原stamp/core/journal，未知结构漂移仍拒绝；不继承旧数值资格。",
+      "reviewer": "Codex P2 owner correction with real JDBC failure evidence",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "8d0347370f896120f22c1fe85de5975e10896c38268e1d1b249eedb736e283db",
+      "batch": "P2",
+      "before_sha256": null,
+      "path": "app/src/main/java/com/ethk3/novaonepro/StorageRestoreAssetsR324.java",
+      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。 P2当前Gradle 659单测通过后发现UsableSpace建议告警；与原StorageLedgerR31/StorageMaintenanceFileR82一致，仅在实际物理容量准入方法注明保守预算的有意语义。保持全部free/reserve/溢出检查及失败保全，不计尚未释放缓存；不改全局lint基线、资格政策或任何运行语句。",
+      "reviewer": "Codex P2 physical-budget lint review",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "786a4bc349233e91dcd9549da79dc09caca857d6a07a3adc4b190ecd7df34860",
+      "batch": "P2",
+      "before_sha256": "393a269d5eb7c973924f2694ac910157136670f88ddaaebdbd1f1b2609e069b8",
+      "path": "app/src/main/java/com/ethk3/novaonepro/StorageRestoreBusinessProbeR31.java",
+      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "72c7a0bd76df7bff52274ff6830224dfbf69f26f5a7cede2ca327fd3a280618c",
+      "batch": "P2",
+      "before_sha256": "ab830bbdeeb43061960d6da148172cdfc727c22eea2e3b655ec7cbca749e29f9",
+      "path": "app/src/main/java/com/ethk3/novaonepro/StorageRestoreProbeServiceR31.java",
+      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "1ee94fce780abbc8cd5e8866582c9e86452da4b7ebe946ddb9c12736592b3d6c",
+      "batch": "P2",
+      "before_sha256": "44230311a21b3509684b667f408c88420b921fa145d031353d3cda8b500b98ac",
+      "path": "app/src/main/java/com/ethk3/novaonepro/StorageRestoreProofR31.java",
+      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "d8df77be1b214d8f6d3af9d5615bd82a6a44f228a8f3cd3806a1619eeb7da75d",
+      "batch": "P3",
+      "before_sha256": "935388c6d194747dc6e920e33ae94ca45801f2d7ffc193bef967c4e3e571fdf1",
+      "path": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+      "rationale": "消费当前冻结/候选/证书一致的选择，并在writer阶段再次核对权威；无法证明同一身份时保持拒绝，不用UI状态覆盖真实门。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "9148d2c78b36ca799c345f9ea02ee66227cc6b415e6abcd043a4b65739d1e8eb",
+      "batch": "P2",
+      "before_sha256": "c1ed94f1f2bdbd9f4bcb7970b2ca083dec3b4703bfa7fe510dce7bd6e00b273b",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+      "rationale": "新增表索引需要原迁移域落地，归档对象失败必须进入现有报告数据；schema修订升4；原迁移owner完整安装尝试表/索引；storageHealth输出归档状态和对象级故障；保留数据角色、独立未来资格和原审批门，不继承旧证书。",
+      "reviewer": "R32.5 independent source review and root integration",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "f4dc401d3a41c9ef97bfa314e9924b157f81b1b9a4c6cabef5045cdf9d0fdbf4",
+      "batch": "P2",
+      "before_sha256": "633da1ecf2fde2575943cc501c919347b88b1b1784ecc7d145a80e42f6724021",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+      "rationale": "旧发布归档异常位于冷启动恢复和训练之前，反复同错使整条学习任务停滞；移除归档前置；当前学习step直接执行合法恢复与训练；保留数据角色、独立未来资格和原审批门，不继承旧证书。",
+      "reviewer": "R32.5 independent source review and root integration",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "c9a66a684884a7bf4989f43db634ff2f586a3f1cc1c81b5f0d204c25d34a4ade",
+      "batch": "P2",
+      "before_sha256": null,
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSampleArchiveR324.java",
+      "rationale": "固定首个坏发布重复失败，缺持久对象重试及公平选择；新增持久attempt表和到期公平调度；先记尝试后IO；精确对象错误隔离；成功与退役同事务；原件保全；保留数据角色、独立未来资格和原审批门，不继承旧证书。",
+      "reviewer": "R32.5 independent source review and root integration",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "93ebb360eb9056f063e8fa760efdcdec9bd58dda0b336385fa075c048fb56c8d",
+      "batch": "P2",
+      "before_sha256": "90bec122c21faf20122e1a185de311068f60c4175e3c4592a6f2a8ee4429977e",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+      "rationale": "统一pending、phase与物化所需样本；训练中的完整已发布模型仍可读取，部分期参数不能冒充完整十位置推理面。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "5232d8c53065179f5793be4e88fdd93db676f57df3b68122a605a365546d80ec",
+      "batch": "P2",
+      "before_sha256": "dfb1db19e8b73b46f3cb436dbfaf7da978bde2201f0868a0cc2f9eca056ae721",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
+      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "65c3f833014c37e313b20625c52538ec239c835234740fc1b8ce285356beda30",
+      "batch": "P4",
+      "before_sha256": null,
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityRuntimeEvidenceR33.java",
+      "rationale": "新增精确F/E/I成员及policy关联的持久证据读者；精确分隔匹配避免F01/F010混淆；未知/不可归属单列，不把审计行当实验收益。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "ddafd81f83347ba76d79e7b5fad407a0f414650a394d1e9e0754e0462f8217e5",
+      "batch": "P3",
+      "before_sha256": "aae70dc0d2ac90808c258c09cbe244fd1358ad5f071fd260c59802c9bbd86f71",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "rationale": "增加负数、越界、非法值拒绝；保持原统计阈值、协议和自然未来资格门，不因无出手而调低要求。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "98a7f9976aa244df5150fdd159ce07b4d53e7ba0999ea9c93b300a89ea2e6bba",
+      "batch": "P4",
+      "before_sha256": "f3031e014ec260c5ea680a3b4f09d7c4711ac06ea5af3a436031ec3b3c88ca9c",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckMetricCrosswalkR31.java",
+      "rationale": "R32.4逐文件复核：报告数据角色、页边界及实际回执一致性修复；合成完整性不当作自然优势，原自然资格与真实主链门不变。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "POLICY"
+    },
+    {
+      "after_sha256": "0d08846d2698fe1cf86c4e5e645ac9db796a96666e0e06a7ec1a74609759faa7",
+      "batch": "P2",
+      "before_sha256": "5e3b70b661d841d9e0d6a6bfb2b6329c644aa0ea3adfdc6f8a778b75523492f3",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
+      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "dbfca9d83c187c42dc3ba45e2c10cfb33e73a13c0f9a0e9f29571c30b9e97923",
+      "batch": "P2",
+      "before_sha256": null,
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointClosureR324.java",
+      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。 P2当前Gradle 659单测通过后发现UsableSpace建议告警；与原StorageLedgerR31/StorageMaintenanceFileR82一致，仅在实际物理容量准入方法注明保守预算的有意语义。保持全部free/reserve/溢出检查及失败保全，不计尚未释放缓存；不改全局lint基线、资格政策或任何运行语句。",
+      "reviewer": "Codex P2 physical-budget lint review",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "918ad68cf470de8fbab6808dc23f6aae467c4bf0ca593f3004f293ec1d03f96b",
+      "batch": "P2",
+      "before_sha256": null,
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcReachabilityR324.java",
+      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "3562081607810240222c755fdeb568baba8678285cfa0321ac54d1809e7ec0cb",
+      "batch": "P2",
+      "before_sha256": "e32ffbbd706aff182a988d53cc69814450d793bd41363613fe1f2785fc5834b5",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java",
+      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "bdd83459debaa147fd0cb31877b494b66b09499187d0e552962700bfd029e174",
+      "batch": "P2",
+      "before_sha256": "10b6bfd2ab334e884bb92dc227c1c49b5419e49e6be8af951d9785adbd7fff01",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointReferencesR26.java",
+      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "21b987dcc4e1cd2597408ae5b8b59faef3eb7c7fd85637c30a215e4dbb3b6cda",
+      "batch": "P2",
+      "before_sha256": null,
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java",
+      "rationale": "P2原件缺失诊断修复：保留FileNotFoundException及原始cause，同时返回真实hot.bin和cold.c.gz路径并保持公开R26_ARTIFACT_UNAVAILABLE错误码；不制造缺失原件，不更改哈希或资格门。 P2当前Gradle 659单测通过后发现UsableSpace建议告警；与原StorageLedgerR31/StorageMaintenanceFileR82一致，仅在实际物理容量准入方法注明保守预算的有意语义。保持全部free/reserve/溢出检查及失败保全，不计尚未释放缓存；不改全局lint基线、资格政策或任何运行语句。",
+      "reviewer": "Codex P2 physical-budget lint review",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "783d74cc3b325912c9749d8fd05ec0c68164d6633559d3f0412e998baf3d79fb",
+      "batch": "P2",
+      "before_sha256": "46e899e6f4a789699328076be3f734c3b139a8d8fb5c947644c88820e82f75ef",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+      "rationale": "保留原campaign、数值ABI和不可变出生身份；补足可执行策略结构与实际工厂入口。旧50个ABI隔离候选不得翻成READY或继承权重/证书。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "f9623b74d75cc34967595aa5dd3c2893a8d457a6a4338f7f650eb23974cf4253",
+      "batch": "P1",
+      "before_sha256": "90b1880504daf4359d42436f0e6cc201485cdc3832388d663ebfcc624bb28448",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java",
+      "rationale": "在短事务内分页扫描四类旧资产，维护持久journal、UTF8计费、64行边界及完成后quota发布；journal畸形拒绝，断电后从已提交水位继续。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "915704b12522440b7696886affb69e3a2fefce5b7cd13608a5e94a00e2c76032",
+      "batch": "P3",
+      "before_sha256": "5742d576f78015190450a58556d9a0375790a6c89f54366f859565138d131b33",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+      "rationale": "当首选R27缺typed proof时仅允许已有完整合法SU2证据的精确候选作为备用；所有冻结与证书字段一致后仍走唯一DecisionGate。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "935b9dfd35c692d61e12d8ff4a1513abc2fdcd71e0e68dafa9054ac26d67dc0f",
+      "batch": "P4",
+      "before_sha256": "221ab4a210de210da60ebf143d9d48e956907626ea6acdaa549483c81ae70ba6",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricDefinitionsR29.java",
+      "rationale": "Q05 原目标为 200 个校准验证观察而通用定义强制 250；Q07 有效资产计数被误要求 250 个资产记录，分母单位混淆。；Q05 minimumSample=200 并明确校准观察单位；Q07 minimumSample=1 并明确被审查资产记录单位。逐资产 V1 MIN_ACTS=250、ECE≤0.04 及 Q01/03/04/05 原件门不变。；保留数据角色、独立未来资格和原审批门，不继承旧证书。",
+      "reviewer": "R32.5 independent source review and root integration",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "bd5229ae438731423bf43e8f94def2a909d3204c0eb11a4280f89044b91094fb",
+      "batch": "P4",
+      "before_sha256": "9444a29c3690d931004d6fb732a3823e3c7590536dd31ebb7e7a3ab40cdb8ba1",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+      "rationale": "Q08 与 M36 共用仅附加 sources 的分支，真实生产完成/失败/通过回执从未进入当前测量。；Q08 在 currentMeasurement 中直接调用 Q08ReportProjectionR325；M36 原逻辑保持。当前 R30/R31 共同指标链路、哈希回执与总体验收自动消费同一结果。；保留数据角色、独立未来资格和原审批门，不继承旧证书。 当前完整单测复核发现零样本的null值被新增finite校验错误优先归为INVALID。保留角色与原件先验，先明确0样本INSUFFICIENT且value=null，再拒绝有样本时null/NaN/Infinity；保留新Q08合成边界和全部自然原资格门，不以缺样本冒充测量0或降低250 ACT资格。",
+      "reviewer": "Codex P4 zero-sample and finite-value regression review",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "b9e509be68ac2523cc115406066d1e5ddef0ce1658c30c47d463395d5f7a122c",
+      "batch": "P4",
+      "before_sha256": null,
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/Q08EvidenceReaderR325.java",
+      "rationale": "原报告缺少稳定的 Q08 原始统计账读取入口，展示缓存不能替代独立验证原件。；新增仅 SELECT 的有界专用采集：原 r31-risk-contract-trial 最多 120 条/256 KiB、单格16 KiB；用第121条探测越界；r30/q08 固定主键最多256 KiB；工厂展示缓存维持16 KiB并明确引用状态。保留原始字符串、集合hash、来源和分次读取范围。；保留数据角色、独立未来资格和原审批门，不继承旧证书。",
+      "reviewer": "R32.5 independent source review and root integration",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "9ee4b526ab38e2abb53171ceb4e4dcff21e8f8069ccbcc0b6be87fd4c23536de",
+      "batch": "P4",
+      "before_sha256": null,
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/Q08ReportProjectionR325.java",
+      "rationale": "没有当前源码、注册合同绑定、原试验集合完整性和原统计判断的联合报告消费者；120计数或缓存PASS易被误作资格。；新增只读适配器，核对原登记/状态hash、源码、binding、protocol、120个唯一臂种子原记录及集合摘要、失败数、原CP上界≤0.15及功效下界≥0.70、原34/37/40%功效和20空信号试验。缺证/混合水位/错hash拒签；原撤销与失败保留；既有统计验证通过才映射SYNTHETIC报告PASS。；保留数据角色、独立未来资格和原审批门，不继承旧证书。",
+      "reviewer": "R32.5 independent source review and root integration",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "f7c8a705a7caab17023a1f7f874ea043ec0c4b737a65b4f51cd56cbcfeda0a50",
+      "batch": "P4",
+      "before_sha256": null,
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+      "rationale": "P2 新增对象级归档隔离后，旧摘要仅展示原 capacity 对象，缺少明确的维护退化处方与独立任务对照，容易把归档失败误读成全部训练失败。；实际独立UPGRADE出口中29个legacyCharts对象sourceFile/sourceMethod为空，原源定位不完整。；展示 r27-atomnet 与 r27-atomnet-archive 两个任务；从 archiveMaintenance 原字段映射 DEGRADED_ARCHIVE_ONLY 与对象计数，CLAIMED不冒报故障；保留最多16条原失败例与 attempts/nextAttemptAt，并给出按 publicationId 修复和重试核验步骤。；由真实ChartRegistryR31的四类legacy group固定定位已有生产者与消费者文件方法，保留原状态并明确位置不等于运行；JSON/Markdown两出口均展示source及consumer。；保留数据角色、独立未来资格和原审批门，不继承旧证书。",
+      "reviewer": "R32.5 independent source review and root integration",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "f6c8e8cdcbd35b4ebd2eb097b928b4542683a27a49c30e359f3d96795f9457e2",
+      "batch": "P4",
+      "before_sha256": null,
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportAssessmentR33.java",
+      "rationale": "R32.4逐文件复核：报告数据角色、页边界及实际回执一致性修复；合成完整性不当作自然优势，原自然资格与真实主链门不变。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "19990904c68229ff190cb4d925ee2478d682cfab63974076675afc02b9f0871f",
+      "batch": "P4",
+      "before_sha256": "d420060adab40bae0e803321afbbe293193cf168a713b059eabc4002010d4932",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportChartsR30.java",
+      "rationale": "图表只输出消费所需数值与可校验证据引用，避免每张图嵌套全对象/全指标；保留无数据、阻断、采样角色和原件身份。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "3a2040ee53eedcf1261a455d6fd22557a4c319654f0472d29bc0e86917e87a02",
+      "batch": "P4",
+      "before_sha256": null,
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportEvidenceProjectionR33.java",
+      "rationale": "新增确定性证据投影，重复索引/指标只放精确source路径与SHA；根部保留完整44指标及唯一对象索引，图表只保留实际所需有界数值。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "db1e206be830780c4ee31d5f62c39371142d31d52e3c22477fef12ad4abd64aa",
+      "batch": "P4",
+      "before_sha256": "58ffe7e2f91975d29a46b8c7adea84943a1ac87d19086b96f25346e179abe385",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+      "rationale": "建立唯一权威完整对象索引，保留82能力、20矩阵和表/图身份；把运行证据与静态登记分列，消费和效果缺证据时保持未观察。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "83357ad8449f129a43830fa5254e818b0752ee516d71c0cce9fd6b52d9b2d3c4",
+      "batch": "P4",
+      "before_sha256": "6a3f3a021c20908b87afbcc29f60d9298430423b52fcec263e1140f422a98af0",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+      "rationale": "统一JSON/Markdown章节与证据投影；替换写死的总状态、自然质量、设备状态；完整事实、水印及原始指标值/状态/分母保持。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "cfa0db79747a2b7ac5cbd9ca8a21b76c86fc6a18b015952bec0642320e357a8f",
+      "batch": "P4",
+      "before_sha256": "8b1c2727602b1f8b80f44985176c865b68ddaa31e1b787eb52d3eafa712ac382",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "rationale": "通用 runtimeCaches 仅最近 64 行且单格 16 KiB，完整 Q08 原结果会被挤出或成为引用；只修 evaluator 无法打通真实上游。；在原 lifecycleEvidenceR31 采集后同 P4 接入 Q08EvidenceReaderR325.capture，使用同一只读连接和取消信号；按固定主键与原注册 binding 采集原件。；保留数据角色、独立未来资格和原审批门，不继承旧证书。",
+      "reviewer": "R32.5 independent source review and root integration",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "c2b675fc46d735a3c00e7284a5e135c632117a87b0e11abe40b0d753b5f371a1",
+      "batch": "P4",
+      "before_sha256": null,
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAuditR32.java",
+      "rationale": "R32.4逐文件复核：报告数据角色、页边界及实际回执一致性修复；合成完整性不当作自然优势，原自然资格与真实主链门不变。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "570beaf16b53da500aa73b0fdb8bff4d4d691f66af8d25d651a8e75c880c352b",
+      "batch": "P2",
+      "before_sha256": "e7edb435ca6749a7af14cde853d819f16f91024c4a862adecc0032fae1af03b9",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTaskRegistryR30R1.java",
+      "rationale": "新增独立任务必须登记工作单位，不能冒记训练样本；在ADDITIONAL登记非训练POLICY工作单位，保留原57任务；保留数据角色、独立未来资格和原审批门，不继承旧证书。",
+      "reviewer": "R32.5 independent source review and root integration",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "a3a25f4483f282584a5292fcdd0f703d219a117fc35fcc7743227b768172461f",
+      "batch": "P2",
+      "before_sha256": "554cac3699a935cd1c9cb293bcaeaf178f399e94f549c47fd1ea9576bdd51d6d",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "rationale": "归档与学习共用任务故障预算、owner及取消草稿路径；注册独立归档task，并使其取消不影响学习草稿；归档继续使用原调度/fence/单写队列；保留数据角色、独立未来资格和原审批门，不继承旧证书。",
+      "reviewer": "R32.5 independent source review and root integration",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "1c55521f016d38cddd78ca4c1ae35d0d92f382846b75eea9c7d3b3c6a5097eda",
+      "batch": "P2",
+      "before_sha256": "f144d21892646ff98f3c73c1e6dac91f4bfcfa83c0bd1b58285d9565ad09ae82",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java",
+      "rationale": "让结构提案进入实际可执行AST与正常候选出生；结构身份、输入角色、父代谱系和预算必须一致，命名数量不当作有效多样性。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "1826b8748925ec53a5208f8cb812ca4df26ca16bb986065bfb7f94e53b109f8f",
+      "batch": "P1",
+      "before_sha256": "49b5950386413ba065d70b2a8c4afcd52fd14c3bcba3cbc7aa30f4a3438a773f",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+      "rationale": "给异常保存阶段、owner、根因和可排空队列；故障记录也须遵守唯一写者，不在失败事务里二次嵌套写库。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "role": "NUMERIC"
+    },
+    {
+      "after_sha256": "fc7f1fe9623c41e3e5971b81d221282f4012237862f5f715d8316d552d850715",
+      "batch": "P5",
+      "before_sha256": "fbd807fbc38fc3d08e8e1842d009cefe4f2721a45cdf2346e713635216d6ee03",
+      "path": "release/r982_source_calls.manifest.json",
+      "rationale": "P5索引由当前1321生产文件的新编译结果生成，随P4零样本诊断顺序修复更新真实源码SHA和JVM调用；P1/P2/P3身份保持，原R982逐文件严格检查不变，静态索引不称运行覆盖。",
+      "reviewer": "Codex P5 original R982 generator after P4 zero-sample owner fix",
+      "role": "PROVENANCE"
+    },
+    {
+      "after_sha256": "5371bc63cee3eed9b65232e74ae703604efe0a439aa5197e0f3bd87ef4977f25",
+      "batch": "P5",
+      "before_sha256": "3711440ba3a2010648ec52584b5f6ec545b272a479b1899c1d1c7bf293d8ab42",
+      "path": "release/r982_source_calls.tsv.gz",
+      "rationale": "P5索引由当前1321生产文件的新编译结果生成，随P4零样本诊断顺序修复更新真实源码SHA和JVM调用；P1/P2/P3身份保持，原R982逐文件严格检查不变，静态索引不称运行覆盖。",
+      "reviewer": "Codex P5 original R982 generator after P4 zero-sample owner fix",
+      "role": "PROVENANCE"
+    }
+  ]
+}

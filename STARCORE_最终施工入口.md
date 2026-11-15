@@ -1,5 +1,7 @@
-# STARCORE 施工入口
+# 当前唯一返修施工方案
 
-[打开当前 R32.1 方案、完整下载与 Codex 提示词](CURRENT_FINAL_PLAN.md)。请在 `construction/r31-final-20261104` 按 P1 至 P5 顺序施工。每批在自己的生产入口取证并验收。
+当前修订：STARCORE_R32_4_FINAL_REPAIR_20261115。精确生产基线7424eeae6354eb6599dd8498e123c059bd410c90；现场032源51667a1236742b9bee8e1a8903c26358727d7c81。
 
-[R31.1 至 R31.4 的原文与本轮验收归属](https://github.com/gtt46461-star/starcore-public-build/blob/b703131a228c20c992a9d220b7e4a9e6de8f8130/construction/repairs/STARCORE_R32_REPAIR_20261115/guide/field-closure.md)
+方案入口：https://github.com/gtt46461-star/starcore-public-build/tree/main/construction/repairs/STARCORE_R32_4_FINAL_REPAIR_20261115
+
+先取完整总包，读取START_HERE.html、CODEX_PROMPT.txt和code_manifest.json。5批18问题，人工文件唯一owner；按P1→P5固定身份顺序施工，恢复时先inspect_resume。源码快照中的历史R31/R32材料只保全需求，不提供第二套当前批次命令。完整候选源码及宿主回执不是正式APK、实机全功能或自然高胜率的签收。

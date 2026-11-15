@@ -1,0 +1,11 @@
+{
+  "owner": "P3",
+  "path": "tools/r31/run_typed_mainline_host.py",
+  "parentManifestSha256": "bf974ca23de7d8f5a6ee2d51bb1fcdf1a4d9ad8e3aa4c9c9168216ab7e7bb457",
+  "before_sha256": "df9d2d21285a4ab01abed9dc8aefabd70cc0871219fce05333da4cd3e0b863b1",
+  "after_sha256": "a12ae8181a76fe739240a74ce9c4c5965083d85772477c3c8a6dd8de358b6bf7",
+  "reason": "The P2 shared SQLite JDBC adapter now supplies the real delete method. Remove the duplicate temporary declaration in the P3 query adapter; every mainline authorization/refusal/revocation assertion and actual business source is unchanged. Require exactly one shared delete ABI before injecting query adapters; missing or duplicate interfaces are explicitly refused.",
+  "controlledProductBytesChanged": false,
+  "stageIdentityInputsChanged": false,
+  "originalClosedJournalsEdited": false
+}
