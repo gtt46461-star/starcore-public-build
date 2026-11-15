@@ -1,0 +1,9 @@
+import hashlib,json,os,subprocess
+from pathlib import Path
+from run_step import REPO,ROOT,SDK,sha
+out=ROOT/'P4-focused-report-unit-fixedcwd';out.mkdir(exist_ok=False);classes=ROOT/'P4-classes';source=REPO/'app/src/test/java/com/ethk3/novaonepro/strategyv2/R31MetricReportTest.java';gradle=Path('/workspace/starcore-environment/gradle-home/caches');mock=list(gradle.glob('8.14.6/transforms/*/transformed/android.jar'));assert len(mock)==1,mock;junit=next(gradle.glob('modules-2/files-2.1/junit/junit/4.13.2/*/junit-4.13.2.jar'));hamcrest=next(gradle.glob('modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/*/hamcrest-core-1.3.jar'));tests=out/'tests';tests.mkdir();tool=Path('/workspace/starcore-environment/tools/jdk-17.0.17+10/bin');cp=os.pathsep.join(map(str,[tests,classes,mock[0],junit,hamcrest]));before={str(p.relative_to(classes)):sha(p) for p in classes.rglob('*.class')};commands=[]
+for name,argv in [('compile',[tool/'javac','-sourcepath','','-implicit:none','-cp',cp,'-d',tests,source]),('run',[tool/'java','-Xmx512m','-cp',cp,'org.junit.runner.JUnitCore','com.ethk3.novaonepro.strategyv2.R31MetricReportTest'])]:
+ with (out/(name+'.log')).open('xb') as log:r=subprocess.run(list(map(str,argv)),cwd=REPO/'app' if name=='run' else REPO,stdout=log,stderr=subprocess.STDOUT)
+ commands.append(dict(command=list(map(str,argv)),exitCode=r.returncode));assert r.returncode==0,(name,(out/(name+'.log')).read_text()[-6000:])
+assert before=={str(p.relative_to(classes)):sha(p) for p in classes.rglob('*.class')}
+(out/'RECEIPT.json').write_text(json.dumps(dict(scope='CURRENT_P4_FULL_PRODUCTION_CLASSES_AND_GRADLE_MOCKABLE_ANDROID_COMPONENT_JUNIT_NOT_ANDROID_RUNTIME',sourceSha256=sha(source),mockableAndroidSha256=sha(mock[0]),originalCompileSdkSha256=sha(SDK),junitSha256=sha(junit),hamcrestSha256=sha(hamcrest),classManifestUnchanged=True,commands=commands,naturalQuality='NOT_PROVEN'),indent=2)+'\n');print((out/'run.log').read_text())
