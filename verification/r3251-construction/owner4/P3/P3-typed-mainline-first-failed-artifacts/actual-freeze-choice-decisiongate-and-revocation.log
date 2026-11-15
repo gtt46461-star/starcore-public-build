@@ -1,0 +1,24 @@
+TYPED_MAINLINE_LIFECYCLE_UPGRADE_PASS actualMigrationUnits=162 originalReadyDomainsPreserved=true unknownAttachment=REFUSED directDdlOrManualRestamp=false
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+Exception in thread "main" com.ethk3.novaonepro.DatabaseCoordinator$WriteRejectedR31: F01_WRITE_FAILED|operation=R27_R29_QUAL_CONSUME|category=DEPENDENCY|phase=ADMISSION|commitOutcome=ROLLED_BACK
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:878)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runIdempotentAtomicWriteR31(DatabaseCoordinator.java:1083)
+	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.lambda$submit$4(ResearchWriteQueueR27.java:162)
+	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.submitAttemptR31(ResearchWriteQueueR27.java:178)
+	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.submit(ResearchWriteQueueR27.java:159)
+	at com.ethk3.novaonepro.strategyv2.RuntimeR27.lambda$submit$1(RuntimeR27.java:188)
+	at com.ethk3.novaonepro.strategyv2.CommitEnvelopeR30R1.attempt(CommitEnvelopeR30R1.java:17)
+	at com.ethk3.novaonepro.strategyv2.RuntimeR27.submit(RuntimeR27.java:187)
+	at com.ethk3.novaonepro.strategyv2.RuntimeR27.submit(RuntimeR27.java:164)
+	at com.ethk3.novaonepro.strategyv2.RuntimeR27.submit(RuntimeR27.java:161)
+	at com.ethk3.novaonepro.strategyv2.TypedFreezeRuntimeR31Fixture.lambda$new$2(TypedFreezeRuntimeR31Fixture.java:81)
+	at com.ethk3.novaonepro.strategyv2.QualificationInboxR29.consume(QualificationInboxR29.java:226)
+	at com.ethk3.novaonepro.strategyv2.TypedFreezeRuntimeR31Fixture.lambda$new$3(TypedFreezeRuntimeR31Fixture.java:81)
+	at com.ethk3.novaonepro.strategyv2.TypedFreezeRuntimeR31Fixture.owned(TypedFreezeRuntimeR31Fixture.java:124)
+	at com.ethk3.novaonepro.strategyv2.TypedFreezeRuntimeR31Fixture.<init>(TypedFreezeRuntimeR31Fixture.java:79)
+	at com.ethk3.novaonepro.TypedMainlineR31Host.main(TypedMainlineR31Host.java:54)
+Caused by: java.lang.IllegalStateException: R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN
+	... 16 more

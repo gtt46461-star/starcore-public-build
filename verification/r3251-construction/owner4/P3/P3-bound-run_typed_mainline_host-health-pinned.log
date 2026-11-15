@@ -1,0 +1,39 @@
+compile-current-production exit=0
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Note: /workspace/starcore-r3251-P3-hostfix/app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+compile-native-platform-query-adapter exit=0
+compile-current-path-fixture exit=0
+actual-freeze-choice-decisiongate-and-revocation exit=1
+TYPED_MAINLINE_LIFECYCLE_UPGRADE_PASS actualMigrationUnits=162 originalReadyDomainsPreserved=true unknownAttachment=REFUSED directDdlOrManualRestamp=false
+TYPED_FIXTURE_ACTUAL_HEALTH_DRAIN persisted=9 pending=23 originalGuard200ms=true backpressureAt24=true productionThresholdsChanged=false
+TYPED_MAINLINE_QUERY_PLAN_PASS actualIndexes=5 exactProductionPredicates=true
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+Exception in thread "main" java.lang.AssertionError: ACTUAL_LIVE_TASK_DID_NOT_PUBLISH_TYPED_FREEZE
+	at com.ethk3.novaonepro.strategyv2.TypedFreezeRuntimeR31Fixture.certifyAndFreeze(TypedFreezeRuntimeR31Fixture.java:143)
+	at com.ethk3.novaonepro.TypedMainlineR31Host.main(TypedMainlineR31Host.java:56)
+
+Traceback (most recent call last):
+  File "/workspace/starcore-r3251-P3-hostfix/tools/r31/run_typed_mainline_host.py", line 79, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/starcore-r3251-P3-hostfix/tools/r31/run_typed_mainline_host.py", line 66, in main
+    run(['java','-Xmx768m','-cp',cp,'com.ethk3.novaonepro.TypedMainlineR31Host',out/'execution'],'actual-freeze-choice-decisiongate-and-revocation')
+  File "/workspace/starcore-r3251-P3-hostfix/tools/r31/run_typed_mainline_host.py", line 30, in run
+    if r.returncode:print((r.stdout+r.stderr)[-9000:]);r.check_returncode()
+                                                       ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 502, in check_returncode
+    raise CalledProcessError(self.returncode, self.args, self.stdout,
+subprocess.CalledProcessError: Command '['java', '-Xmx768m', '-cp', '/tmp/r31-typed-mainline-es0rvok9/product:/tmp/r31-typed-mainline-es0rvok9/adapter/platform:/tmp/r31-typed-mainline-es0rvok9/tests:/workspace/starcore-r3251-P3-final/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/tmp/r32-mainline-env-hdw32vp4/gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/local/explicit/slf4j-api.jar:/tmp/r32-mainline-env-hdw32vp4/sdk/platforms/android-36/android.jar', 'com.ethk3.novaonepro.TypedMainlineR31Host', '/workspace/starcore-r3251-evidence/owner4/P3-host-health-pinned/execution']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "/workspace/starcore-r3251-P3-hostfix/tools/r32/run_mainline_host.py", line 66, in <module>
+    main()
+  File "/workspace/starcore-r3251-P3-hostfix/tools/r32/run_mainline_host.py", line 56, in main
+    subprocess.run([sys.executable, str(runner), '--classes', str(classes),
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/workspace/starcore-environment/venv/bin/python3', '/workspace/starcore-r3251-P3-hostfix/tools/r31/run_typed_mainline_host.py', '--classes', '/workspace/starcore-r3251-P3-final/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes', '--out', '/workspace/starcore-r3251-evidence/owner4/P3-host-health-pinned']' returned non-zero exit status 1.
