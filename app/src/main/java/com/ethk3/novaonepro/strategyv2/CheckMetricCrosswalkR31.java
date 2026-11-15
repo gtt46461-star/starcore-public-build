@@ -173,7 +173,7 @@ public final class CheckMetricCrosswalkR31 {
         m("Q05","校准与BSS","QUALITY","INSUFFICIENT","NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION","B10/B12","CalibrationR30：等质量ECE、BSS、支持覆盖（与等宽ECE并列）","ECE目标≤0.04；样本≥200且支持箱覆盖质量≥90%；不要求5个非空箱；BSS、区间、支持范围如实报告"),
         m("Q06","进化提升","QUALITY","INSUFFICIENT","NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION","B07/B12","父子配对差单侧95%下界","有效区间下界>0才计验证改善"),
         m("Q07","有效资产产量","QUALITY","RECORDED_UNVALIDATED","NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION","B10/B12","ACTIVE 证书资产数","目标≥1，继续寻找多个互补资产；0必须如实"),
-        m("Q08","空信号与优势检出力","QUALITY","INSUFFICIENT","NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION","B07/B12","R30SequentialNullSimTest 空信号/功效 + NullEvolutionR27","报告误授证率及CI、34/37/40%信号功效，不以一次模拟签收")
+        m("Q08","空信号与优势检出力","QUALITY","INSUFFICIENT","REGISTERED_SYNTHETIC_FULL_FACTORY_6_ARMS_20_SEEDS_WITH_CI_AND_ORIGINAL_CONTROLS","B07/B12","R30SequentialNullSimTest 空信号/功效 + NullEvolutionR27","报告误授证率及CI、34/37/40%信号功效，不以一次模拟签收")
     ));
     public static List<Check> checks() { return CHECKS; }
     public static List<Metric> definitions() { return METRICS; }
@@ -185,7 +185,8 @@ public final class CheckMetricCrosswalkR31 {
         if (s.isEmpty()) out.add("NO_SUPPORTING_CHECK:" + x.requiredEvidence);
         boolean runtime = false; for (Check k : s) runtime |= k.scope != Scope.STRUCTURE && k.scope != Scope.INDEX;
         if (!runtime && !x.quality()) out.add("STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT");
-        if (x.quality()) out.add("NATURAL_QUALITY_NEEDS:" + x.requiredEvidence);
+        if ("Q08".equals(x.id)) out.add("SYNTHETIC_PROTOCOL_NEEDS:" + x.requiredEvidence);
+        else if (x.quality()) out.add("NATURAL_QUALITY_NEEDS:" + x.requiredEvidence);
         if (x.deviceRequired()) out.add("DEVICE_NEEDS:" + x.requiredEvidence);
         return Collections.unmodifiableList(out);
     }

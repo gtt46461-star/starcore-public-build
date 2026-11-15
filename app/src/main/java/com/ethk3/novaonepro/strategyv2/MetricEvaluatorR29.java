@@ -115,7 +115,7 @@ public final class MetricEvaluatorR29 {
     static void observed(Map<String,Object> r,Object value,Object numerator,Object denominator,long samples,String population,String status,String reason){
         r.put("value",value);r.put("numerator",numerator);r.put("denominator",denominator);r.put("sampleCount",samples<0?null:samples);r.put("population",population);r.put("status",status);r.put("missingReason",reason);
     }
-    static void source(ReportR27.R30Input in,Map<String,Object> r,String... keys){Map<String,Object> sources=new LinkedHashMap<>();for(String key:keys)sources.put(key,in.data.containsKey(key)?in.data.get(key):in.facts.get(key));r.put("observations",sources);}
+    static void source(ReportR27.R30Input in,Map<String,Object> r,String... keys){Map<String,Object> sources=new LinkedHashMap<>();for(String key:keys){Object value=in.data.containsKey(key)?in.data.get(key):in.facts.get(key);sources.put(key,"objectIndex".equals(key)&&value instanceof Map?ReportEvidenceProjectionR33.reference("/objectIndex",value):value);}r.put("observations",sources);}
     static String zeroState(Number value){return value==null?"INSUFFICIENT":value.doubleValue()>0?"FAIL":"RECORDED_UNVALIDATED";}
     static void currentMeasurement(ReportR27.R30Input in,String id,Map<String,Object> r){
         switch(id){
@@ -163,7 +163,8 @@ public final class MetricEvaluatorR29 {
             }
             case "M32":crossSourceMeasurementR31(in,r);break;
             case "M35":source(in,r,"revocations","revocationEvents");break;
-            case "M36":case "Q08":source(in,r,"syntheticControl","factoryCapabilityExperiment");r.put("role","SYNTHETIC");r.put("missingReason","原合成对照与完整创造工厂实验的多轮功效区间分别验收；缺失或未完成不算通过，合成不计入自然质量");break;
+            case "Q08":Q08ReportProjectionR325.apply(in,r);break;
+            case "M36":source(in,r,"syntheticControl","factoryCapabilityExperiment");r.put("role","SYNTHETIC");r.put("missingReason","原合成对照与完整创造工厂实验的多轮功效区间分别验收；缺失或未完成不算通过，合成不计入自然质量");break;
             case "Q01": {
                 Number hits=number(in.facts.get("futureHits")),acts=number(in.facts.get("futureActs"));source(in,r,"qualification");
                 if(hits!=null&&acts!=null&&acts.longValue()>0)observed(r,hits.doubleValue()/acts.doubleValue(),hits,acts,acts.longValue(),"ACTIVE_EXPERIMENT_FUTURE_ACT_ROWS_NOT_INDEPENDENT_ISSUES","DESCRIPTIVE_ONLY","多策略重叠期不能合并为独立样本或证明自然质量；按每个预登记策略原件验证Q01");break;
@@ -218,9 +219,12 @@ public final class MetricEvaluatorR29 {
     public static Map<String,Object> evaluateR31(Map<String,Object> def, MeasurementR31 m) {
         Map<String,Object> r = new LinkedHashMap<>(); String id = String.valueOf(def.get("id")); long min = ((Number) def.get("minimumSample")).longValue();
         r.put("id", id); r.put("version", def.get("version")); r.put("denominator", def.get("denominator")); r.put("minimumSample", min);
+        r.put("role",m==null?null:m.role);r.put("diagnosticRoleRevision",def.get("diagnosticRoleRevision"));
         String status; Object value = null; Object coverage = null;
         if (m == null || m.receiptHash == null || !m.receiptHash.matches("[0-9a-f]{64}")) status = "UNKNOWN_SOURCE_MISSING";
-        else if ("QUALITY".equals(def.get("kind")) && !"NATURAL_FUTURE".equals(m.role)) status = "NOT_PROVEN_NOT_NATURAL_ROLE";
+        else if("Q08".equals(id)&&!"SYNTHETIC".equals(m.role)) status="NOT_PROVEN_NOT_SYNTHETIC_ROLE";
+        else if (!"Q08".equals(id)&&"QUALITY".equals(def.get("kind")) && !"NATURAL_FUTURE".equals(m.role)) status = "NOT_PROVEN_NOT_NATURAL_ROLE";
+        else if(m.value==null||!Double.isFinite(m.value))status="INVALID_NONFINITE_OR_MISSING_VALUE";
         else if (m.samples <= 0) { status = "INSUFFICIENT_ZERO_SAMPLES"; coverage = 0.0; }
         else { coverage = Math.min(1.0, m.samples / (double) min); value = m.value; status = m.samples < min ? "INSUFFICIENT_BELOW_MINIMUM_SAMPLE" : m.met ? "PASS" : "FAIL"; }
         r.put("status", status); r.put("value", value); r.put("coverage", coverage); r.put("samples", m == null ? null : (Object) m.samples); r.put("receiptHash", m == null ? null : m.receiptHash);

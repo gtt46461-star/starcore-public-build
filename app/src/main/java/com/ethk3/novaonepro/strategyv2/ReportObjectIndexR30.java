@@ -38,9 +38,15 @@ public final class ReportObjectIndexR30 {
     /** Production facts, original source references and six independent lifecycle layers. */
     public static Map<String,Object> buildProductionR31(Map<String,Object> facts,Map<String,Object> watermark,Map<String,Object> data) {
         Map<String,Object> out=build(facts,watermark,data);List<Object> entries=new ArrayList<>();
+        Map<String,Map<?,?>> runtime=CapabilityRuntimeEvidenceR33.index(data.get("capabilityRuntimeEvidenceR33"));
+        Map<String,Map<String,Object>> canonicalMatrices=new LinkedHashMap<>();for(Object original:list(map(out.get("matrices")).get("objects"))){Map<String,Object> matrix=map(original);canonicalMatrices.put(String.valueOf(matrix.get("id")),matrix);}
+        out.put("runtimeEvidenceR33",data.get("capabilityRuntimeEvidenceR33"));
         for(String category:new String[]{"legacyCharts","researchCharts","matrices","capabilities"}) {
             for(Object raw:list(map(out.get(category)).get("objects"))) {
                 Map<String,Object> row=map(raw);String id=String.valueOf(row.get("objectId")),kind=String.valueOf(row.get("objectKind"));
+                if(kind.equals("CAPABILITY")&&runtime.containsKey(id))row.put("runtimeEvidenceR33",runtime.get(id));
+                if(kind.equals("CAPABILITY")&&id.equals("ATOMNET")){Map<String,Object> modelCounters=new LinkedHashMap<>();for(String key:new String[]{"atomnetPublishedModels","atomnetConsumedPublishedModels","atomnetConsumedModels"})modelCounters.put(key,facts.get(key));Map<String,Object> neural=map(map(data.get("neuralTraining")).get("payload"));for(String key:new String[]{"materializedSamples","trainingSamplesProcessed","onlineSamples","publicationReady","consumable"})modelCounters.put(key,neural.get(key));Map<String,Object> modelEvidence=new LinkedHashMap<>();modelEvidence.put("id",id);modelEvidence.put("counters",modelCounters);modelEvidence.put("sourceStatus","NAMED_ATOMNET_SOURCES; MISSING_VALUES_REMAIN_NULL");modelEvidence.put("counterScope","PUBLICATION_AND_FORECAST_HASH_JOIN; TRAINING_FIELDS_ARE_PERSISTED_CACHE_OBSERVATIONS_NOT_WEIGHT_RECOMPUTATION");row.put("runtimeEvidenceR33",modelEvidence);Number p=number(facts.get("atomnetPublishedModels")),c=number(facts.get("atomnetConsumedPublishedModels"));row.put("produced",p==null?null:p.longValue()>0);row.put("consumed",c==null?null:c.longValue()>0);}
+                if(kind.equals("CAPABILITY")&&id.startsWith("MATRIX:")){Map<String,Object> original=canonicalMatrices.get(id.substring(7));if(original!=null){Map<String,Object> alias=new LinkedHashMap<>();alias.put("id",id);alias.put("canonicalObjectReference","R30_REPORT.json#/objectIndex/matrices/objects[objectId="+id.substring(7)+"]");alias.put("canonicalReference",ReportEvidenceProjectionR33.reference("/objectIndex/matrices/objects[objectId="+id.substring(7)+"]",original));alias.put("counterScope","ALIAS_OF_CANONICAL_MATRIX_NOT_AN_ADDITIONAL_PRODUCER");alias.put("retainedCount",original.get("retainedCount"));row.put("runtimeEvidenceR33",alias);for(String key:new String[]{"inputAvailable","produced","consumed"})row.put(key,original.get(key));}}
                 Number current=number(row.get("currentSourceProducedFrames"));Map<String,Object> reference=map(row.get("runtimeReference"));
                 Boolean committed=current==null?null:current.longValue()>0?Boolean.TRUE:null;
                 if(reference.get("latestOriginalHash") instanceof String&&String.valueOf(reference.get("latestOriginalHash")).matches("[0-9a-f]{64}"))committed=Boolean.TRUE;
@@ -49,7 +55,7 @@ public final class ReportObjectIndexR30 {
                 String card=kind.equals("MATRIX")?"R31-B08-C01":kind.equals("RESEARCH_CHART")?"R31-B08-C04":kind.equals("CAPABILITY")?"R31-B07-C01":"R31-B09-C01";
                 // A stored frame or object count does not establish finite values or an advantage.
                 Map<String,Object> layers=layersR31(new ObjectFactsR31(id,kind,card,implemented,null,committed,null,consumed,null,true));
-                layers.put("sourceSnapshot",watermark);layers.put("originalReference",reference);layers.put("inputAvailable",row.get("inputAvailable"));layers.put("deployment",row.get("callable"));
+                layers.put("sourceSnapshot",ReportEvidenceProjectionR33.snapshot(watermark));layers.put("originalReference",reference);layers.put("inputAvailable",row.get("inputAvailable"));layers.put("deployment",row.get("callable"));
                 row.put("lifecycleR31",layers);entries.add(layers);
             }
         }

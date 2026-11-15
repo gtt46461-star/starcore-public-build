@@ -392,7 +392,8 @@ public final class ReportExportServiceCP4 extends Service {
                     java.util.Map<String,Object> r31Document=com.ethk3.novaonepro.strategyv2.ReportR29.document(r30Chapters);
                     ReportSemanticVerifierR31.validateDocument(r31Document,job);
                     try(java.io.Writer w=new java.io.BufferedWriter(new java.io.OutputStreamWriter(active.protectOutput(r30Json,new java.io.FileOutputStream(r30Json)),StandardCharsets.UTF_8),16384)){ReportJsonWriterR31.write(r31Document,w);}
-                    try(java.io.Writer w=new java.io.BufferedWriter(new java.io.OutputStreamWriter(active.protectOutput(r30Markdown,new java.io.FileOutputStream(r30Markdown)),StandardCharsets.UTF_8),16384)){ReportJsonWriterR31.markdownR30(r30Chapters,w);}
+                    @SuppressWarnings("unchecked") java.util.List<java.util.Map<String,Object>> r33ExportChapters=(java.util.List<java.util.Map<String,Object>>)r31Document.get("chapters");
+                    try(java.io.Writer w=new java.io.BufferedWriter(new java.io.OutputStreamWriter(active.protectOutput(r30Markdown,new java.io.FileOutputStream(r30Markdown)),StandardCharsets.UTF_8),16384)){ReportJsonWriterR31.markdownR30(r33ExportChapters,w);}
                     ReportMemberPlanCP12.append(members,r30Json.getName(),r30Json.getName(),ReportArchiveCP4.hash(r30Json,active),r30Json.length());
                     ReportMemberPlanCP12.append(members,r30Markdown.getName(),r30Markdown.getName(),ReportArchiveCP4.hash(r30Markdown,active),r30Markdown.length());
                     File r31Receipt=ReportSemanticVerifierR31.writeReceipt(directory,r31Document,catalog,job,request.optBoolean("includeRawEvidence",false),active);
@@ -408,6 +409,9 @@ public final class ReportExportServiceCP4 extends Service {
                     try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r26Surface,new java.io.FileOutputStream(r26Surface)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.FrozenSurfaceStoreR26.exportJson(copy));}
                     ReportMemberPlanCP12.append(members,r26Surface.getName(),r26Surface.getName(),ReportArchiveCP4.hash(r26Surface,active),r26Surface.length());
                     String[] su2Diagnosis=com.ethk3.novaonepro.strategyv2.DiagnosisStoreSU2.report(copy);
+                    @SuppressWarnings("unchecked")
+                    java.util.Map<String,Object> repairDetail = (java.util.Map<String,Object>) r30Chapters.get(11).get("capabilityRepairR32");
+                    su2Diagnosis = com.ethk3.novaonepro.strategyv2.RepairDiagnosisR32.attach(su2Diagnosis, repairDetail);
                     for(int su2i=0;su2i<2;su2i++){File diag=new File(directory,su2i==0?"UPGRADE_DIAGNOSIS.md":"UPGRADE_DIAGNOSIS.json");
                         try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(diag,new java.io.FileOutputStream(diag)),StandardCharsets.UTF_8)){w.write(su2Diagnosis[su2i]);}
                         ReportMemberPlanCP12.append(members,diag.getName(),diag.getName(),ReportArchiveCP4.hash(diag,active),diag.length());}

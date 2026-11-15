@@ -6,14 +6,20 @@ public final class RepairReportFactsR30Test {
     static Map<String,Object> m(Object... v){Map<String,Object> m=new LinkedHashMap<>();for(int i=0;i<v.length;i+=2)m.put((String)v[i],v[i+1]);return m;}
     static ReportR27.R30Input input(Map<String,Object> facts,Map<String,Object> data,List<String> errors){return new ReportR27.R30Input(facts,m("sourceCommit","SYNTHETIC_TEST_SOURCE","factsReadAt",1000L),data,errors);}
     static Map<String,Object> metric(ReportR27.R30Input in,String id){for(Map<String,Object> x:in.metricResults)if(id.equals(x.get("metricId")))return x;throw new AssertionError(id);}
-    @Test public void sameMetricObjectIsUsedByAllChaptersAndCharts(){
+    static void sameProjection(ReportR27.R30Input input,Map<?,?> row){
+        Map<String,Object> original=metric(input,String.valueOf(row.get("metricId")));
+        for(String key:new String[]{"metricId","value","status","sampleCount","numerator","denominator","role","population"})assertEquals(key,original.get(key),row.get(key));
+        assertEquals("R30_REPORT.json#/metricResults[metricId="+row.get("metricId")+"]",row.get("evidenceRef"));
+        assertEquals(StatsR27.sha256(JsonR27.write(original)),row.get("evidenceSha256"));
+    }
+    @Test public void oneRootMetricAndExactValueProjectionsAreUsedByAllChaptersAndCharts(){
         ReportR27.R30Input in=input(m("futureActs",10L,"futureHits",3L,"activeCertificates",0L,"realRows",0L,"behaviorDuplicates",4L),m(),Collections.emptyList());
         assertEquals(44,in.metricResults.size());assertEquals(0.3,((Number)metric(in,"Q01").get("value")).doubleValue(),0);
         assertEquals(10L,metric(in,"Q01").get("denominator"));assertEquals("DESCRIPTIVE_ONLY",metric(in,"Q01").get("status"));assertEquals("NOT_DEPLOYED",metric(in,"Q02").get("status"));
         List<Map<String,Object>> chapters=ReportR29.fromSnapshotR30(in);assertEquals(12,chapters.size());
-        int projections=0;for(Map<String,Object> chapter:chapters)for(Object raw:(List<?>)chapter.get("metricResults")){Map<?,?> row=(Map<?,?>)raw;assertSame(metric(in,(String)row.get("metricId")),raw);projections++;}assertTrue(projections>44);
-        for(Map<String,Object> chart:ReportChartsR30.panels(in))assertSame(in.metricResults,chart.get("metricResults"));
-        assertSame(in.metricResults,ReportR29.document(chapters).get("metricResults"));
+        int projections=0;for(Map<String,Object> chapter:chapters)for(Object raw:(List<?>)chapter.get("metricResults")){sameProjection(in,(Map<?,?>)raw);projections++;}assertTrue(projections>44);
+        for(Map<String,Object> chart:ReportChartsR30.panels(in))for(Object raw:(List<?>)chart.get("metricResults"))sameProjection(in,(Map<?,?>)raw);
+        Map<String,Object> document=ReportR29.document(chapters);assertSame(in.metricResults,document.get("metricResults"));ReportEvidenceProjectionR33.validateDocument(document);
         try{metric(in,"Q01").put("value",0.99);fail("metric mutable");}catch(UnsupportedOperationException expected){}
         for(Map<String,Object> row:in.metricResults){assertEquals(MetricDefinitionsR29.R31_VERSION,row.get("definitionVersion"));assertTrue(((List<?>)row.get("repairCardIds")).get(0).toString().startsWith("FR-"));}
     }

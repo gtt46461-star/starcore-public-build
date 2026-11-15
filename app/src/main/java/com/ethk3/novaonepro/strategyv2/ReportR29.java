@@ -41,10 +41,16 @@ public final class ReportR29 {
         String[] chapterMetrics={"Q01 Q02 Q03 Q04 Q07","M19 M21 M22 M27 M29 Q06","M03 M04 M05 M06 M07 M10","M11 M12 M13 M14","M08 M09 M18 M19 M27","M20 M24 M26 Q05","M23 M25","M28 M30 M35 Q03 Q07","M01 M02 M20 M34","M21 M22 M31 M36 Q06 Q08","M15 M16 M17","M01 M02 M17 M31 M32 M33 M34 Q01 Q02 Q03 Q04 Q05 Q06 Q07 Q08"};
         for(int i=0;i<chapters.size();i++){
             List<Map<String,Object>> projected=new ArrayList<>();for(Map<String,Object> metric:input.metricResults)if((" "+chapterMetrics[i]+" ").contains(" "+metric.get("metricId")+" "))projected.add(metric);
-            chapters.get(i).put("metricResults",java.util.Collections.unmodifiableList(projected));chapters.get(i).put("metricRegistryVersion",MetricDefinitionsR29.R31_VERSION);
+            chapters.get(i).put("metricResults",ReportEvidenceProjectionR33.metrics(projected));chapters.get(i).put("metricPayloadScope","VALUE_PROJECTION; FULL_EVIDENCE_IN_R30_REPORT.json#/metricResults");chapters.get(i).put("metricRegistryVersion",MetricDefinitionsR29.R31_VERSION);
         }
         chapters.get(11).put("allMetricResults",input.metricResults);
         chapters.get(11).put("objectIndex",input.data.get("objectIndex"));
+        Map<String,Object> repair = RepairDiagnosisR32.build(input.data.get("objectIndex"));
+        repair.put("operatingSummary", RepairDiagnosisR32.operatingSummaryR32(chapters));
+        java.util.Map<String,Object> assessment=ReportAssessmentR33.evaluate(input.metricResults,input.errors);
+        for(java.util.Map<String,Object> chapter:chapters){chapter.put("naturalQuality",((java.util.Map<?,?>)assessment.get("naturalQuality")).get("status"));chapter.put("physicalDevice",((java.util.Map<?,?>)assessment.get("physicalDevice")).get("status"));}
+        chapters.get(11).put("evidenceAssessmentR33",assessment);
+        chapters.get(11).put("capabilityRepairR32", repair);
         chapters.get(11).put("researchTables",input.data.get("researchTablesR31"));
         // The chapter projections are curated views. Keep every bounded source
         // captured by the production snapshot as well: newly wired fetch,
@@ -65,15 +71,18 @@ public final class ReportR29 {
     }
     /** JSON and Markdown receive this same chapter list, never independently reload their metrics. */
     public static Map<String,Object> document(List<Map<String,Object>> chapters){
-        Map<String,Object> out=new LinkedHashMap<>();out.put("schemaVersion","R30_REPORT_1");out.put("chapters",chapters);out.put("expectedChapters",12);out.put("exportedChapters",chapters.size());
+        Map<String,Object> out=new LinkedHashMap<>();out.put("schemaVersion","R30_REPORT_1");out.put("chapters",ReportEvidenceProjectionR33.chapters(chapters,chapters.size()<12?null:chapters.get(11).get("objectIndex"),chapters.size()<12?null:chapters.get(11).get("allMetricResults")));out.put("expectedChapters",12);out.put("exportedChapters",chapters.size());
         out.put("snapshotWatermark",chapters.isEmpty()?null:chapters.get(0).get("snapshotWatermark"));out.put("reportConsistencyConflicts",chapters.isEmpty()?null:chapters.get(0).get("reportConsistencyConflicts"));
         out.put("diagnosis",chapters.size()<12?null:chapters.get(11).get("diagnosis"));
         out.put("metricRegistryVersion",MetricDefinitionsR29.R31_VERSION);out.put("metricResults",chapters.size()<12?null:chapters.get(11).get("allMetricResults"));
         out.put("objectIndex",chapters.size()<12?null:chapters.get(11).get("objectIndex"));out.put("previousReportComparison",chapters.size()<12?null:chapters.get(11).get("previousReportComparison"));
         out.put("researchTables",chapters.size()<12?null:chapters.get(11).get("researchTables"));
         out.put("lifecycleEvidenceR31",chapters.size()<12?null:chapters.get(11).get("lifecycleEvidenceR31"));
+        out.put("capabilityRepairPath","chapters[11].capabilityRepairR32");
         out.put("completeEvidencePath","chapters[11].completeSnapshotEvidenceR31");
-        out.put("overallAcceptance","INCOMPLETE");out.put("naturalQuality","INSUFFICIENT");out.put("physicalDevice","NOT_RUN");out.put("legacyDetails",java.util.Arrays.asList("R26_REPORT.json","R27_REPORT.md","snapshot.db"));return out;
+        out.put("referenceFormat",ReportEvidenceProjectionR33.FORMAT);
+        java.util.Map<String,Object> assessment=ReportAssessmentR33.evaluate(out.get("metricResults"),chapters.isEmpty()?null:chapters.get(0).get("sourceErrors"));
+        out.put("evidenceAssessmentR33",assessment);out.put("overallAcceptance",assessment.get("overallAcceptance"));out.put("naturalQuality",((java.util.Map<?,?>)assessment.get("naturalQuality")).get("status"));out.put("physicalDevice",((java.util.Map<?,?>)assessment.get("physicalDevice")).get("status"));out.put("legacyDetails",java.util.Arrays.asList("R26_REPORT.json","R27_REPORT.md","snapshot.db"));return out;
     }
     public static Map<String,Object> chapter(SQLiteDatabase db) {
         Map<String,Object> out=new LinkedHashMap<>(), snapshot=new LinkedHashMap<>();
