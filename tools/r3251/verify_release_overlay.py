@@ -5,7 +5,7 @@ The old APK creates its own database. It is never edited by this probe. A separa
 private SQLite file provides a nonempty installer-preservation witness. Raw app
 databases remain in private scratch, outside the uploaded public receipt folder.
 """
-import argparse,datetime,hashlib,json,os,re,sqlite3,subprocess,tempfile,time,uuid
+import argparse,datetime,hashlib,json,os,re,sqlite3,subprocess,tempfile,time,uuid,zipfile
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -17,6 +17,7 @@ OLD_SHA='876f26e81114acfa3d2fa2d023b2e36309bec6dde3ef32f0e87c562b48d165ac'
 def digest(data):return hashlib.sha256(data).hexdigest()
 def now():return datetime.datetime.now(datetime.timezone.utc).isoformat()
 def redact(text):
+ text=re.sub(r'(?i)Bearer\s+[^\s,;\"\'}]+','Bearer [REDACTED]',text)
  return re.sub(r'(?i)((?:api[_-]?key|authorization|password|token|secret)[\"\']?\s*[=:]\s*[\"\']?)[^\s,;\"\'}]+',r'\1[REDACTED]',text)
 def command(argv,timeout=180,required=True):
  result=subprocess.run(list(map(str,argv)),capture_output=True,timeout=timeout)
@@ -25,7 +26,7 @@ def command(argv,timeout=180,required=True):
  return result
 def adb(*args,**kwargs):return command(['adb',*args],**kwargs)
 def text(*args,**kwargs):return adb(*args,**kwargs).stdout.decode(errors='replace').strip()
-def installed(output):return bool(output.splitlines()) and output.splitlines()[-1]=='Success' and 'Failure [' not in output
+def install_succeeded(output):return bool(output.splitlines()) and output.splitlines()[-1]=='Success' and 'Failure [' not in output
 
 def snapshot(folder):
  text('shell','am','force-stop',PKG)
@@ -67,8 +68,10 @@ def inspect(path):
 def main():
  parser=argparse.ArgumentParser(description=__doc__)
  parser.add_argument('--old-apk',required=True,type=Path);parser.add_argument('--new-apk',required=True,type=Path);parser.add_argument('--out',required=True,type=Path)
+ parser.add_argument('--expected-source');parser.add_argument('--expected-apk-sha256')
  args=parser.parse_args();out=args.out.resolve();out.mkdir(parents=True,exist_ok=False)
- receipt=dict(scope='ACTUAL_ORIGINAL_032_TO_033_RELEASE_EMULATOR_OVERLAY',startedAt=now(),sourceCommit=command(['git','rev-parse','HEAD']).stdout.decode().strip(),state='RUNNING',physicalUserDatabase='NOT_AVAILABLE_NOT_CLAIMED',physicalDevice='NOT_RUN',physical24h='NOT_RUN',physical72h='NOT_RUN',naturalQuality='NOT_PROVEN')
+ validation_source=command(['git','rev-parse','HEAD']).stdout.decode().strip()
+ receipt=dict(scope='ACTUAL_ORIGINAL_032_TO_033_RELEASE_EMULATOR_OVERLAY',startedAt=now(),validationSourceCommit=validation_source,state='RUNNING',physicalUserDatabase='NOT_AVAILABLE_NOT_CLAIMED',physicalDevice='NOT_RUN',physical24h='NOT_RUN',physical72h='NOT_RUN',naturalQuality='NOT_PROVEN')
  def save():(out/'RELEASE_OVERLAY.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
  save()
  try:
@@ -80,6 +83,11 @@ def main():
   assert adb('shell','pm','path',PKG,required=False).returncode!=0 or not text('shell','pm','path',PKG,required=False),'FRESH_EMULATOR_REQUIRED'
   receipt.update(api=int(text('shell','getprop','ro.build.version.sdk')),serial=text('get-serialno'),oldApkSha256=digest(args.old_apk.read_bytes()),newApkSha256=digest(args.new_apk.read_bytes()))
   assert receipt['oldApkSha256']==OLD_SHA,'ORIGINAL_032_APK_MISMATCH'
+  if args.expected_apk_sha256:assert receipt['newApkSha256']==args.expected_apk_sha256,'EXACT_SIGNED_033_APK_MISMATCH'
+  with zipfile.ZipFile(args.new_apk) as archive:embedded=json.loads(archive.read('assets/diagnostics/build-identity-r31.json'))
+  expected_source=args.expected_source or validation_source
+  assert re.fullmatch(r'[0-9a-f]{40}',expected_source) and embedded['source_commit']==expected_source and embedded['source_dirty'] is False,'EXACT_CLEAN_BUILD_SOURCE_MISMATCH'
+  receipt.update(sourceCommit=embedded['source_commit'],sourceTree=embedded['source_tree'],embeddedSourceDirty=False)
   sdk=Path(os.environ['ANDROID_HOME'])/'build-tools/36.0.0';identities=[]
   for label,path in [('old',args.old_apk),('new',args.new_apk)]:
    cert=command([sdk/'apksigner','verify','--verbose','--print-certs',path]).stdout.decode()
@@ -89,7 +97,7 @@ def main():
    identities.append(int(match[2]));(out/(label+'-certificate.txt')).write_text(cert)
   assert identities==[577311032,577311033],'EXPECTED_REAL_032_TO_033_UPGRADE'
   receipt.update(certificateSha256=CERT,oldVersionCode=identities[0],newVersionCode=identities[1],samePackage=True,sameSignature=True,higherVersionCode=True)
-  install=text('install','-r',args.old_apk,timeout=600);assert installed(install),install
+  install=text('install','-r',args.old_apk,timeout=600);assert install_succeeded(install),install
   (out/'install-original032.txt').write_text(install+'\n')
   if receipt['api']>=33:adb('shell','pm','grant',PKG,'android.permission.POST_NOTIFICATIONS')
   start=text('shell','am','start','-W','-n',PKG+'/com.ethk3.novaonepro.MainActivity');assert 'Error:' not in start
@@ -106,11 +114,11 @@ def main():
    marker_sha=digest(marker.read_bytes());remote_marker='/data/user/0/'+PKG+'/files/r3251-overlay-probe.sqlite'
    text('shell','mkdir','-p','/data/user/0/'+PKG+'/files');text('push',marker,remote_marker)
    old_uid=text('shell','dumpsys','package',PKG);old_uid=re.search(r'\buserId=(\d+)',old_uid);assert old_uid
-   install=text('install','-r',args.new_apk,timeout=600);assert installed(install),install
+   install=text('install','-r',args.new_apk,timeout=600);assert install_succeeded(install),install
    (out/'install-release033.txt').write_text(install+'\n')
    assert digest(adb('exec-out','cat',remote_marker).stdout)==marker_sha,'PRIVATE_SQLITE_WITNESS_LOST_DURING_UPGRADE'
-   installed=text('shell','pm','path',PKG).splitlines();assert len(installed)==1
-   assert digest(adb('exec-out','cat',installed[0].removeprefix('package:')).stdout)==receipt['newApkSha256'],'DELIVERED_RELEASE_NOT_ACTUALLY_INSTALLED'
+   installed_paths=text('shell','pm','path',PKG).splitlines();assert len(installed_paths)==1
+   assert digest(adb('exec-out','cat',installed_paths[0].removeprefix('package:')).stdout)==receipt['newApkSha256'],'DELIVERED_RELEASE_NOT_ACTUALLY_INSTALLED'
    new_uid=re.search(r'\buserId=(\d+)',text('shell','dumpsys','package',PKG));assert new_uid and new_uid[1]==old_uid[1],'APPLICATION_UID_CHANGED'
    start=text('shell','am','start','-W','-n',PKG+'/com.ethk3.novaonepro.MainActivity');assert 'Error:' not in start
    time.sleep(35)
@@ -124,7 +132,7 @@ def main():
     preserved=len(value['rows'] & current['rows']);assert preserved==len(value['rows']),'OBSERVED_OLD_BUSINESS_ROWS_LOST'
     comparisons.append(dict(table=name,oldObservedRows=value['count'],newObservedRows=current['count'],preservedOldRowHashes=preserved,columns=value['columns'],zeroRowsAreNotNonemptyBusinessEvidence=value['count']==0))
    assert digest(adb('exec-out','cat',remote_marker).stdout)==marker_sha
-   install=text('install','-r',args.new_apk,timeout=600);assert installed(install),install
+   install=text('install','-r',args.new_apk,timeout=600);assert install_succeeded(install),install
    assert digest(adb('exec-out','cat',remote_marker).stdout)==marker_sha,'SAME_RELEASE_REINSTALL_LOST_PRIVATE_SQLITE'
    receipt['reinstallDatabaseCapture']=snapshot(private/'reinstalled');re_facts,re_rows=inspect(private/'reinstalled'/DB)
    assert all(name in re_rows and value['rows']<=re_rows[name]['rows'] for name,value in new_rows.items()),'SAME_RELEASE_REINSTALL_LOST_OBSERVED_ROWS'
