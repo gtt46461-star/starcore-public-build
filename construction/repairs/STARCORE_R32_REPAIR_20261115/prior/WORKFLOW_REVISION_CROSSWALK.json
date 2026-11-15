@@ -1,0 +1,48 @@
+{
+  "scope": "CUMULATIVE_WORKFLOW_PURPOSE_MAPPING_NOT_APPLICATION_CARD_REMOVAL",
+  "mapping": [
+    {
+      "old": "R312-S00-C01",
+      "purpose": "闸门工具、HOST注册与CI兜底",
+      "new": [
+        "UF01",
+        "UF18"
+      ],
+      "rule": "保留身份/覆盖目的；不复活开工前全绿阻断"
+    },
+    {
+      "old": "R312-S00-C02",
+      "purpose": "在制品盘点与唯一候选源码",
+      "new": [
+        "UF01"
+      ],
+      "rule": "保留在制品，不回滚到旧main"
+    },
+    {
+      "old": "R312-S01-C01",
+      "purpose": "Certificate指纹真实修复",
+      "new": [
+        "R31-ENG-01",
+        "UF03"
+      ],
+      "rule": "原卡不变，篡改反例仍拒绝"
+    },
+    {
+      "old": "R312-S01-C02",
+      "purpose": "内存准入相容",
+      "new": [
+        "R31-ENG-02"
+      ],
+      "rule": "原512MiB和阈值，不加堆掩盖泄漏"
+    },
+    {
+      "old": "R312-S01-C03",
+      "purpose": "全量基线及发布绿化",
+      "new": [
+        "UF18",
+        "UF20"
+      ],
+      "rule": "批末棘轮、最终工程清零；不得用旧摘要或跳过集成"
+    }
+  ]
+}

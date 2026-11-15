@@ -1,0 +1,114 @@
+[
+  {
+    "id": "T01",
+    "baseline_sql": "SELECT run_id,dataset_hash,policy_hash,role,source_commit,source_revision,from_ordinal,through_ordinal,contract_hash,status,summary_json FROM r30r1_analysis_run ORDER BY recorded_at DESC,run_id",
+    "operation": "修改逻辑合同与分页；保留原物理表，不复制数据",
+    "defect": "需验证角色、单位、source版本、全量分母与分页",
+    "acceptance": "现有schema可prepare；合法fixture可查询、错role/缺源明确状态；页面操作不写业务数据"
+  },
+  {
+    "id": "T02",
+    "baseline_sql": "SELECT atom_id,dataset_hash,n_select,missing_rate,state,definition,computed_at FROM r27_atom_score ORDER BY atom_id",
+    "operation": "修改逻辑合同与分页；保留原物理表，不复制数据",
+    "defect": "需验证角色、单位、source版本、全量分母与分页",
+    "acceptance": "现有schema可prepare；合法fixture可查询、错role/缺源明确状态；页面操作不写业务数据"
+  },
+  {
+    "id": "T03",
+    "baseline_sql": "SELECT policy_hash,target_issue,target_ordinal,position,probabilities,frozen_at,deadline_at,hit,settled_at,'FUTURE_READ_ONLY' AS role FROM r27_live_frozen ORDER BY target_ordinal DESC,policy_hash",
+    "operation": "修改逻辑合同与分页；保留原物理表，不复制数据",
+    "defect": "需验证角色、单位、source版本、全量分母与分页",
+    "acceptance": "现有schema可prepare；合法fixture可查询、错role/缺源明确状态；页面操作不写业务数据"
+  },
+  {
+    "id": "T04",
+    "baseline_sql": "SELECT run_id,measure_key,kind,parent_hash,from_ordinal,to_ordinal,payload_json FROM r30r1_research_measure WHERE kind IN ('FAILURE_PRESCRIPTION','FAILURE_MEMORY','STRUCTURE_FORECAST_ERROR') ORDER BY run_id,measure_key",
+    "operation": "修改逻辑合同与分页；保留原物理表，不复制数据",
+    "defect": "需验证角色、单位、source版本、全量分母与分页",
+    "acceptance": "现有schema可prepare；合法fixture可查询、错role/缺源明确状态；页面操作不写业务数据"
+  },
+  {
+    "id": "T05",
+    "baseline_sql": "SELECT run_id,measure_key,parent_hash,from_ordinal,to_ordinal,evaluated_calendar_issues,mean_gain,lower95,upper95,payload_json FROM r30r1_research_measure WHERE kind='ATOM_PAIRED_GAIN' ORDER BY run_id,measure_key",
+    "operation": "修改逻辑合同与分页；保留原物理表，不复制数据",
+    "defect": "需验证角色、单位、source版本、全量分母与分页",
+    "acceptance": "现有schema可prepare；合法fixture可查询、错role/缺源明确状态；页面操作不写业务数据"
+  },
+  {
+    "id": "T06",
+    "baseline_sql": "SELECT run_id,measure_key,parent_hash,payload_json FROM r30r1_research_measure WHERE kind='MOLECULE_SYNERGY' ORDER BY run_id,measure_key",
+    "operation": "修改逻辑合同与分页；保留原物理表，不复制数据",
+    "defect": "需验证角色、单位、source版本、全量分母与分页",
+    "acceptance": "现有schema可prepare；合法fixture可查询、错role/缺源明确状态；页面操作不写业务数据"
+  },
+  {
+    "id": "T07",
+    "baseline_sql": "SELECT dataset_hash,probe_set_hash,signature,kept_policy,dropped_policy,stage,recorded_at FROM r30_behavior_dup ORDER BY recorded_at DESC,kept_policy,dropped_policy",
+    "operation": "修改逻辑合同与分页；保留原物理表，不复制数据",
+    "defect": "需验证角色、单位、source版本、全量分母与分页",
+    "acceptance": "现有schema可prepare；合法fixture可查询、错role/缺源明确状态；页面操作不写业务数据"
+  },
+  {
+    "id": "T08",
+    "baseline_sql": "SELECT generation,expert,proposal_json,policy_hash,recorded_at FROM r27_expert_proposal ORDER BY generation DESC,expert",
+    "operation": "修改逻辑合同与分页；保留原物理表，不复制数据",
+    "defect": "需验证角色、单位、source版本、全量分母与分页",
+    "acceptance": "现有schema可prepare；合法fixture可查询、错role/缺源明确状态；页面操作不写业务数据"
+  },
+  {
+    "id": "T09",
+    "baseline_sql": "SELECT r.run_id,r.role,r.policy_hash,m.measure_key,m.kind,m.mean_gain,m.payload_json FROM r30r1_analysis_run r JOIN r30r1_research_measure m ON m.run_id=r.run_id WHERE m.kind IN ('OPERATOR_COST','PARENT_CHILD_GAIN','RESEARCH_BUDGET') ORDER BY r.recorded_at DESC,m.measure_key",
+    "operation": "修改逻辑合同与分页；保留原物理表，不复制数据",
+    "defect": "T09缺OPERATOR_GAIN_COST；即使补kind，观测产物顶层mean_gain仍null，实际对象级值位于payload_json.frame.points，必须typed投影",
+    "acceptance": "现有schema可prepare；合法fixture可查询、错role/缺源明确状态；页面操作不写业务数据"
+  },
+  {
+    "id": "T10",
+    "baseline_sql": "SELECT run_id,measure_key,parent_hash,payload_json FROM r30r1_research_measure WHERE kind='FUSION_COMPLEMENTARITY' ORDER BY run_id,measure_key",
+    "operation": "修改逻辑合同与分页；保留原物理表，不复制数据",
+    "defect": "需验证角色、单位、source版本、全量分母与分页",
+    "acceptance": "现有schema可prepare；合法fixture可查询、错role/缺源明确状态；页面操作不写业务数据"
+  },
+  {
+    "id": "T11",
+    "baseline_sql": "SELECT target_ordinal,position,model_hash,history_hash,probabilities,probability_hash,trained_through_ordinal,model_available_at,feature_through_ordinal,frozen_at,deadline_at FROM r30_model_surface ORDER BY target_ordinal DESC,position,model_hash",
+    "operation": "修改逻辑合同与分页；保留原物理表，不复制数据",
+    "defect": "需验证角色、单位、source版本、全量分母与分页",
+    "acceptance": "现有schema可prepare；合法fixture可查询、错role/缺源明确状态；页面操作不写业务数据"
+  },
+  {
+    "id": "T12",
+    "baseline_sql": "SELECT key AS policy_hash,payload_json,updated_at FROM r27_chart_cache WHERE panel_id='calibration-r30' ORDER BY key",
+    "operation": "修改逻辑合同与分页；保留原物理表，不复制数据",
+    "defect": "需验证角色、单位、source版本、全量分母与分页",
+    "acceptance": "现有schema可prepare；合法fixture可查询、错role/缺源明确状态；页面操作不写业务数据"
+  },
+  {
+    "id": "T13",
+    "baseline_sql": "SELECT task_key,policy_hash,dataset_hash,block_id,state,verified,registration_state,registration_experiment_id,packet_json,result_json,'FORMAL_READ_ONLY' AS role FROM r30_frozen_confirm ORDER BY created_at DESC,task_key",
+    "operation": "修改逻辑合同与分页；保留原物理表，不复制数据",
+    "defect": "需验证角色、单位、source版本、全量分母与分页",
+    "acceptance": "现有schema可prepare；合法fixture可查询、错role/缺源明确状态；页面操作不写业务数据"
+  },
+  {
+    "id": "T14",
+    "baseline_sql": "SELECT p.*,t.lane,t.status,t.blocked_reason FROM r30r1_task_progress p LEFT JOIN r26_task t ON t.task_id=p.task_id ORDER BY p.task_id",
+    "operation": "修改逻辑合同与分页；保留原物理表，不复制数据",
+    "defect": "需验证角色、单位、source版本、全量分母与分页",
+    "acceptance": "现有schema可prepare；合法fixture可查询、错role/缺源明确状态；页面操作不写业务数据"
+  },
+  {
+    "id": "T15",
+    "baseline_sql": "SELECT p.proposal_id,p.run_id,p.parent_hash,p.kind,p.payload_json,p.state,p.reason,c.child_policy_hash,c.source_generation,c.consumer_version,c.receipt_hash,c.consumed_at FROM r30r1_proposal p LEFT JOIN r30r1_consume c ON c.proposal_id=p.proposal_id ORDER BY p.created_at DESC,p.proposal_id",
+    "operation": "修改逻辑合同与分页；保留原物理表，不复制数据",
+    "defect": "需验证角色、单位、source版本、全量分母与分页",
+    "acceptance": "现有schema可prepare；合法fixture可查询、错role/缺源明确状态；页面操作不写业务数据"
+  },
+  {
+    "id": "T16",
+    "baseline_sql": "SELECT issue,decision_key,entry_point,original_allow,original_reason,certificate_active,items_json,source_json,recorded_at,'FORMAL_READ_ONLY' AS role FROM r30_decision_explain ORDER BY recorded_at DESC,issue",
+    "operation": "修改逻辑合同与分页；保留原物理表，不复制数据",
+    "defect": "需验证角色、单位、source版本、全量分母与分页",
+    "acceptance": "现有schema可prepare；合法fixture可查询、错role/缺源明确状态；页面操作不写业务数据"
+  }
+]

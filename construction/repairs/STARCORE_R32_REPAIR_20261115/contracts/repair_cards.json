@@ -1,0 +1,530 @@
+[
+  {
+    "id": "P1.01",
+    "title": "旧库三列与两个迁移入口",
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+      "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+      "app/src/main/java/com/ethk3/novaonepro/LegacyDdlR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java",
+      "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java"
+    ],
+    "finding": "032 旧库快照的 link candidate 表只有部分列。helper 已加三列，store owner 在索引前漏了同一组三列。旧库累计尝试 394→589。",
+    "edit": "按 P1.patch 在实际严格迁移 owner 先补 target_issue、candidate_rank、candidate_key，再创建唯一索引；检查 table_info/index_info、触发器声明及已存在重复键。在同一事务重算单元后置条件。",
+    "atomic": "禁止删旧行或虚构 key；合法 NULL 按旧语义保留；重复非空键先列出不可合并的冲突并停在本单元；业务读者不得顺手建表。",
+    "test": "重放仅含 snapshot_key 的旧表、三列分别已存在、错误索引、多条NULL、重复非空键；中断两次恢复，行数/原行摘要不变，有且只有一条完成收据。",
+    "batch": "P1",
+    "reads": [],
+    "writes": [
+      "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+      "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+      "app/src/main/java/com/ethk3/novaonepro/LegacyDdlR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java",
+      "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java"
+    ]
+  },
+  {
+    "id": "P1.02",
+    "title": "铸造配额与生命周期迁移",
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java"
+    ],
+    "finding": "foundry-su2 两次都在 408/4119，QUOTA_MISSING。表存在，单例无行。生命周期其他对象 66→130 时它仍未被初始化。",
+    "edit": "P1.patch 在实际迁移事务，检查领域所附对象以及全部 hypothesis DDL 精确匹配，调用原 seedQuotaWithinMigrationR31 后立即 requireSchema；仅返回该子单元的进展。",
+    "atomic": "现有子表有数据且无记账，隔离并从可信账本恢复，禁止填零。其他域继续各自迁移。保持 FoundryCampaignR26.step 业务入口只读。",
+    "test": "空旧库用正常 migration 调度跑到工厂第一笔可提交事务；已有单例重放不改值；旧行无配额/异常触发器必须拒绝。不得把全域标 COMPLETE。",
+    "batch": "P1",
+    "reads": [],
+    "writes": [
+      "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java"
+    ]
+  },
+  {
+    "id": "P1.03",
+    "title": "实时尾段、下一期预冻结",
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java",
+      "app/src/main/java/com/ethk3/novaonepro/HistoryIntegrityVerifierR815.java",
+      "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java"
+    ],
+    "finding": "5000行历史中该时点仅2期连续；门槛12。通用 R914_DRAW_HISTORY_BATCH 按研究写者准入；出现53条带积压原因的新延迟事件。",
+    "edit": "P1.patch 保持当前开奖结果优先落库，在快速回补的已持久化回调仅提升当前 base 之前连续12期；用原日界算法，排除目标及以后，核对冲突后按现有至多8行的事务写入；普通回补照旧。补做 quick 合并丢掉更新 target、provider 缺最新或跨日重试的本批测试，丢单时保存最后未完成目标并在本 handler 去重重投。",
+    "atomic": "取、写、冻结分别校验目标与截止时间；补档行始终走 BACKLOG 结算；不能给已开奖补写赛前决策。任何写失败在唯一 owner 下重读；不扩大批量历史的优先级。",
+    "test": "输入乱序、跨日、缺中间期、冲突开奖、已过截止、相同页两次。检查 target 只用此前可见数据、发生真实 B04 冻结或留下准确错过原因。模拟后包覆盖变化并量P95和分母。",
+    "batch": "P1",
+    "reads": [],
+    "writes": [
+      "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java",
+      "app/src/main/java/com/ethk3/novaonepro/HistoryIntegrityVerifierR815.java",
+      "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java"
+    ]
+  },
+  {
+    "id": "P1.04",
+    "title": "写者故障回执、服务调度与后台",
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "app/src/main/java/com/ethk3/novaonepro/RealtimePressureGateR811.java",
+      "app/src/main/java/com/ethk3/novaonepro/LifecycleHealthR963.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+    ],
+    "finding": "写者积压使历史和研究被退让。报告进程的 pending=0 无法说明主进程故障队列已排干。窗口内54957个应唤醒时槽中实际唤醒141次。",
+    "edit": "P1.patch 使主进程控制 tick 先排故障再触发旧库迁移；每次最多4笔、单笔独立提交，第二笔起检查40ms及关键工作，失败保留队头。补上持久化进程/boot/session、oldest事件、phase、到期时刻、下次尝试；从 provider 请求/响应→commit/冻结逐段计时。",
+    "atomic": "一个 writer、一个有效 owner/fence；取消后先确认旧 continuation 结束；不能新增并发替身。手动停止、系统限制、屏灭、重启分列；开启的研究会话不以充电为条件。",
+    "test": "在END前/后杀进程，ACK未记、控制线程被阻、重复快照、时钟跳变、屏灭各跑一次；短切片不可抢占处按真实超预算计；对齐同进程的排队、落库和受阻变化。",
+    "batch": "P1",
+    "reads": [],
+    "writes": [
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "app/src/main/java/com/ethk3/novaonepro/RealtimePressureGateR811.java",
+      "app/src/main/java/com/ethk3/novaonepro/LifecycleHealthR963.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+    ]
+  },
+  {
+    "id": "P1.05",
+    "title": "冻结、结算、训练事件的因果关系",
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java"
+    ],
+    "finding": "58个新增开奖中51个无及时赛前终态，仅7个补上影子结算。迟到未来标签不可追溯伪造。",
+    "edit": "以已确认 draw 的唯一 issue/来源摘要入账，按原冻结ID派发结算和独立合法学习事件；分别持久化数据可见时刻、freezeAt、openedAt、settledAt；都以事务提交为准。匹配不到冻结单列原因，旧已冻结单重试按唯一键重放。",
+    "atomic": "用户停止/无网/抓取空/迟到/写失败分列；SHADOW、REAL、历史训练与未来观察口径分开。回调重复不能重复写收益或训练。",
+    "test": "同期开两个回调、后台恢复、杀于结算后ACK前、旧历史覆盖；一次收益、每个合法训练事件至多一次且可补；主链资格接口沿用现有签名。",
+    "batch": "P1",
+    "reads": [],
+    "writes": [
+      "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java"
+    ]
+  },
+  {
+    "id": "P1.06",
+    "title": "存储和缺失 checkpoint 可恢复",
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/KeepMigrationStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportCleanupR31.java"
+    ],
+    "finding": "后包仍缺556个历史对象，另有未核验项；物理体积约2.96GB，含受保护备份。恢复读取不到文件会影响训练或导出。",
+    "edit": "根清单包含当前模型、祖先、候选、证书、待结算冻结、出报告的读租约；逐引用 verify SHA/大小、来源恢复，分离 ABSENT/CORRUPT/UNVERIFIED、标识受影响的策略。事务外枚举/复制/校验，事务内代数 CAS 后移除无引用副本，清单、WAL、缓存和外部备份各预算。",
+    "atomic": "仅清除可再生数据或已证实同内容的无引用副本。关键原件缺且无备份时保留债务，不生成空确认。5000期热窗口与受保护档案不同。",
+    "test": "准备→替换→确认任一阶段中断可恢复；旧URI无权限、磁盘满、空引用图、大对象均明确状态。出包实测磁盘和堆/PSS各自增长曲线。",
+    "batch": "P1",
+    "reads": [],
+    "writes": [
+      "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/KeepMigrationStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportCleanupR31.java"
+    ]
+  },
+  {
+    "id": "P2.01",
+    "title": "恢复回放知识并解除下游等待",
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayKnowledgeStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java"
+    ],
+    "finding": "r27-replay-dataset 两个时点都为3步/3597847，一次END回滚后一次ADMISSION回滚；evolution停4步/13。另有源码风险，恢复缓存绑定可能在 evoData 已发布后抛出。",
+    "edit": "P2.patch 在私有缓存绑定历史模型之后才提交知识、再发布已就绪缓存；失败释放私有缓存。逐层保留 retryable admission / END rollback / committed ACK lost 的事务证据。只用当前 pin+revision+ABI 读回恢复，同一已提交收据不制造新训练步。",
+    "atomic": "prepare 在锁外，事务内短 CAS 核对 pin、owner/fence、撤销、generation。会话重启先还原同一pin，缺 knownAt 显式限制历史角色。",
+    "test": "用持久提交的 pin 冷启动，依次注入准入、END、绑定、ACK故障；一旦writer恢复，下游能拿到同一缓存并真的计算。分别比对optimizer/游标/状态哈希。",
+    "batch": "P2",
+    "reads": [
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java"
+    ],
+    "writes": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayKnowledgeStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java"
+    ]
+  },
+  {
+    "id": "P2.02",
+    "title": "事件驱动的历史训练与 AtomNet 十位置",
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/TrainingStepStoreR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java"
+    ],
+    "finding": "有历史3453个梯度记录、714个统计记录；AtomNet材料2640→3150，完整训练/已发布权重/在线消费仍0。反馈增长也存在 NOT_MODEL_TRAINING。",
+    "edit": "合法开奖每期入唯一事件，分模型、位置保存可恢复水位；先用旧参数预测，标签到达后再更新，记录 loss、样本数、optimizer、weightBefore/After；十位置一致的 epoch 发布一次不可变模型。让真实预测消费者记录已读权重ID与输出摘要。",
+    "atomic": "共享上游的样本ID只算一次；同标签不能训练两次；父进程关闭或保护预算等待均保留水位。残差与数值梯度分账，热历史回放不得记自然未来。",
+    "test": "固定样本重启续训数值等价，乱序、标签尚未知、缺位置7、zero-gradient、同模型旧缓存都不得冒领“已发布已消费”。再用真实事件检查滞后。",
+    "batch": "P2",
+    "reads": [
+      "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java"
+    ],
+    "writes": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/TrainingStepStoreR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java"
+    ]
+  },
+  {
+    "id": "P2.03",
+    "title": "旧候选保全、下一轮出生与无总量上限",
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmCandidateR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelGenomeSU2.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java"
+    ],
+    "finding": "旧50个候选指纹、游标和验证数不变；均是 BLOCKED_WARM_NUMERICAL_ABI_PRESERVED。没有本区间新策略出生凭据。",
+    "edit": "用原 warm 归档和明确的数值兼容声明保留旧对象；合法 warm fork 需要更新数据和独立新ID，不兼容保留原件、以当前ABI冷启合法种子。P2.patch 将父代长期固定的前几个供体改为同快照可重复、跨期轮换的异机制供体；新子代注册 sourceHash/parent/结构/算子/代号。",
+    "atomic": "无限的是生命周期累计可创造的策略数；活跃槽、单代算力、单次写入和证据容量沿用预算；没有额度时进入可恢复队列，清退后继续出生。重跑同一输入幂等。模型模板及改名不计新策略。",
+    "test": "跨多个campaign，使用足够新数据；验证有可执行、可重建、去重后的出生记录和后续首个真正训练步。用同一输入重放不增数，旧50不丢，垃圾释放槽后继续多轮。",
+    "batch": "P2",
+    "reads": [
+      "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java"
+    ],
+    "writes": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmCandidateR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelGenomeSU2.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java"
+    ]
+  },
+  {
+    "id": "P2.04",
+    "title": "思路族、策略族、失败假设和短期窗口",
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchHypothesisR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RegimeHypothesisR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java"
+    ],
+    "finding": "4个旧SU1策略、24个旧专家提案不能说明现版产生了新品。82能力中F23教师缺绑定。",
+    "edit": "从连续失误按位置/状态分解校准、覆盖、窗口漂移；每项形成可证伪假设、对应 typed AST 编辑和禁用条件。保留多位置多号交集作对照，同期比较去窗口、去交集、延迟一个窗口。只把有效的因果短期状态送入下一期单位置固定K3生成。教师缺源仅挂本支，其他家族继续。",
+    "atomic": "不同语法同一决策签名去重；只在DEV学结构与参数、SELECT排位；锁定留出后才评价。缺数据不得补齐成可预测信号。",
+    "test": "输入常量、洗牌、含弱结构三组；固定预算测发现率与假阳性；打印每个族输入、操作、artifact及淘汰原因；拒绝读取当前标签或使用未来窗口。",
+    "batch": "P2",
+    "reads": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java"
+    ],
+    "writes": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchHypothesisR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RegimeHypothesisR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java"
+    ]
+  },
+  {
+    "id": "P2.05",
+    "title": "原子、矩阵、实质变异与融合",
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/DerivedAtomR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedComponentStudyR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/MatrixSnapshotFeedbackR930.java",
+      "app/src/main/java/com/ethk3/novaonepro/ResearchEvolutionStoreR930.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/DbStore.java"
+    ],
+    "finding": "20种矩阵均无保留原件，T06/T10有空点阻断，T15缺消费。结构尝试10、行为新颖0。",
+    "edit": "原子登记输入列、lag、位置、量纲、可见时间、支持数及失效场景。矩阵按kind独立物化，带shape/axis/role/target/ABI/inputHash。通过已有typed消费者引用，记录不同输入实际改变的权重/掩码/候选。组合两个合法组件，同目标父代才可做融合。",
+    "atomic": "子代须有真实变换、双亲（如适用）、子程序、行为签名和独立训练证据；变异/融合/参数微调分别记；缺学生矩阵不阻塞可用教师或其他kind。",
+    "test": "逐种矩阵实施原件读回，错轴/错期/错role/缺教师负例；移除原子、矩阵、一个父亲观察输出差与配对损失；不能把存储/可视化算成算法使用。",
+    "batch": "P2",
+    "reads": [
+      "app/src/main/java/com/ethk3/novaonepro/DbStore.java"
+    ],
+    "writes": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/DerivedAtomR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedComponentStudyR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/MatrixSnapshotFeedbackR930.java",
+      "app/src/main/java/com/ethk3/novaonepro/ResearchEvolutionStoreR930.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java"
+    ]
+  },
+  {
+    "id": "P2.06",
+    "title": "训练筛劣、淘汰与代际证据",
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CreationBudgetR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EliteArchiveR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java"
+    ],
+    "finding": "50次尝试中行为新颖/接受/改进验证均0。现有最高历史胜率不足以判断优劣。",
+    "edit": "滚动DEV按历史快速淘汰无效/重复/成本过高，SELECT比较固定父代及简单基线；维护同机会动作并集/交集、时间块与成本；预算随可复查净增益、误报和漂移反馈。失败子代指向原因与下一次可执行操作。冷门机制保留有限可重试探索。",
+    "atomic": "保全父子摘要、失败原因和冻结祖先；退役是关闭后续训练/选择，物理删除仅限已证实无引用的可再生负载。代号来自谱系增量；只有相同冻结测试上的可信改进可记强化。",
+    "test": "多代小容量循环下活动集有界、总birth继续上升。空集、同构、功效不足、漂移和成本过高均走独立路径；对抗不断试错挑高分，留出不可反复调参。",
+    "batch": "P2",
+    "reads": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java"
+    ],
+    "writes": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CreationBudgetR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EliteArchiveR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java"
+    ]
+  },
+  {
+    "id": "P3.01",
+    "title": "冻结的未来观察和资格",
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationGapRepairR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceContractR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/GateV2R29.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java"
+    ],
+    "finding": "新旧包未来策略/有效未来出手/证书均为0。高胜率、稳定性无法从历史数推定。",
+    "edit": "策略、版本、截止点、角色、动作和停止规则先登记；机会记 ACT/HOLD/MISSED，开奖后唯一结算；候选变了新建证据段。P3.patch 拒绝非法分母、负校准误差、越界最差块率、负连败；沿用全部 R27_GATE_V1 条件。",
+    "atomic": "旧120/长期69120研究机会与正式资格250次有效未来出手分开；任何候选不能继承父命中。序贯检验及同机会对照保持原权威。",
+    "test": "构造249/250、命中/出手错误、门槛边界、伪造过期、错误ABI/负对照；一次允许的测试证书和多条拒绝原因。测试数据不得进入正式账本。",
+    "batch": "P3",
+    "reads": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java"
+    ],
+    "writes": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationGapRepairR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceContractR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/GateV2R29.java"
+    ]
+  },
+  {
+    "id": "P3.02",
+    "title": "真实主链消费、每期唯一和撤销",
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineModelBindingR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java"
+    ],
+    "finding": "主链、证书和REAL均无当前记录；不能靠打开开关解决。",
+    "edit": "在现在的策略选择入口读取 ACTIVE/未过期/同ABI 的资格及模型；重新核对冻结时刻同事务唯一策略，记录证书、策略版本、位置与K3、decisionId；沿已存在结算消费回执关联。真实出手后持续校准/漂移监控，在下次冻结前撤销已失效资格。",
+    "atomic": "单位置固定K=3，每期最多一条REAL；证书未达时写明HOLD并保留影子。约15%频率是目标，不能补单。撤销竞态不得改写已冻结历史，SHADOW不能计真实胜率。",
+    "test": "两证同分、过期瞬间、重复回调、两线程争同一期、撤销与冻结相撞；用确定性fixture跑正常入口到结算。自然证书、真实频率、效果单列并等待实测。",
+    "batch": "P3",
+    "reads": [
+      "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java"
+    ],
+    "writes": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineModelBindingR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java"
+    ]
+  },
+  {
+    "id": "P4.01",
+    "title": "逐对象的诊断、处方和可读出口",
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java"
+    ],
+    "finding": "原96项已执行且44指标在册，但16条诊断规则8条证据不足、1条未知；旧UPGRADE文件存在空处方，用户无法知道该改谁。",
+    "edit": "P4.patch 在第12章加同一只读快照的165个分类条目，在 UPGRADE_DIAGNOSIS.md/json 附上同一对象处方。按 contracts 和 ledger 补齐每行的文件/方法、原始值/来源、上次对比、首个阻点、上下游、实验、下次触发。原对象谱系、旧章与44指标继续保留。",
+    "atomic": "失败、缺测、无输入、未消费、无优势分别输出，0须有查得的分母。投影只取小字段；新增对象、缺ID、重ID须明确覆盖差异；来源冲突并列显示，禁止将read_ok解释成有效。",
+    "test": "用032两份快照恢复或授权脱敏fixture，检查每组ID、同一watermark与数值JSON/MD相同；F23、T06/10/15、AtomNet、无REAL均有具体处方，非空套话判失败。",
+    "batch": "P4",
+    "reads": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java"
+    ],
+    "writes": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java"
+    ]
+  },
+  {
+    "id": "P4.02",
+    "title": "16张研究表、47个面板和消费者",
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+      "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedComponentStudyR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java"
+    ],
+    "finding": "18张研究图缺当前源帧/消费，29旧图设备有效性未知。16表只有8表出行，部分行为阻断占位。",
+    "edit": "按 ledger 的源SQL、生产者、消费者及逐项情形恢复生产帧和版本关联。研究页面通过业务只读投影展示同目标父子收益、命中区间、校准、机会频率、漂移和失败原因。查明每个表是否纯展示或被算法读取；真实消费者在P2既有调用点留收据。",
+    "atomic": "图表缓存不能决定主链或成为算法真值；缺点位与零值分开。慢查询限时分页，用户离开取消；新旧版本不得混画。",
+    "test": "每个ID单独用已知行/空/错版本/分页/取消测试；8张有行逐表回读，T06/10空点不给成功。对18研究图检查同源消费ID和移除输入效果。",
+    "batch": "P4",
+    "reads": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedComponentStudyR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java"
+    ],
+    "writes": [
+      "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+      "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java"
+    ]
+  },
+  {
+    "id": "P4.03",
+    "title": "快照、完整导出、恢复与附件",
+    "files": [
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportJsonWriterR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportCleanupR31.java"
+    ],
+    "finding": "本轮两份导出成功；历史曾在BACKUP读缺失checkpoint而失败。主JSON和MD展开体积很大。",
+    "edit": "沿正常导出入口实现 requestId 幂等、ACK outbox、固定snapshot、附件租约、逐文件hash/大小、同目录临时写和原子发布、用户保存后回读。大型行集走可分页附件，正文保留准确分母及定位；导出可取消、断点恢复。",
+    "atomic": "可选历史缺件标示缺失/受影响模型；必需附件缺失不能签 COMPLETE，按对象恢复重跑，保留首个原因/阶段和用户可复制错误。导出进程不得把自身遥测当主进程。",
+    "test": "准备中/发布后ACK前进程死亡、原件消失、文件满、取消、重复点击、URI回读失败。成品解压、逐件hash与根引用闭包匹配，ZIP和原机事件可追。",
+    "batch": "P4",
+    "reads": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportCleanupR31.java"
+    ],
+    "writes": [
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportJsonWriterR31.java"
+    ]
+  },
+  {
+    "id": "P5.01",
+    "title": "集成故障、升级和签名交付",
+    "files": [
+      "app/build.gradle",
+      ".github/workflows/r31-verification.yml",
+      "tools/r31/package_release.py",
+      "tools/r31/upgrade_matrix.py",
+      "tools/r31/run_current_acceptance.py",
+      "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java"
+    ],
+    "finding": "032对应源工程已有653单测通过；并没有由此得到24/72小时合格、真机质量或闭环运行证据。",
+    "edit": "按正常入口构建，保留同包/同签名、数值ABI与版本迁移记录，versionCode高于032及仓库现有版本；clean安装+从032覆盖，无清数据，验证冷启/断网/重启/锁屏/导出/主链。输出APK和内含同字节APK的ZIP及SHA256、证书摘要、源码提交、设备/自然证据状态。",
+    "atomic": "每批只运行受改路径的最短回归；完整联测集中一次同提交运行，失败按首个失败定位最小修复集；release签收严格执行原DEVICE规则。外部原机不可用时可以产测试交付，但发布状态明确留空或待验。",
+    "test": "验证当前SHA的Gradle、关键host/Android路径、apksigner、安装升级、ZIP读回。24h/72h实测与自然样本单列；条件未到不冒领。",
+    "batch": "P5",
+    "reads": [
+      "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java"
+    ],
+    "writes": [
+      "app/build.gradle",
+      ".github/workflows/r31-verification.yml",
+      "tools/r31/package_release.py",
+      "tools/r31/upgrade_matrix.py",
+      "tools/r31/run_current_acceptance.py"
+    ]
+  }
+]

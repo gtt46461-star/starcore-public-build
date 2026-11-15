@@ -1,0 +1,137 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
+index fb8161dba019a92e032bbdf2f67047f5f62c4600..aa2329a5e440af7765d22483e218053088bdd0e6 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
+@@ -408,6 +408,9 @@ public final class ReportExportServiceCP4 extends Service {
+                     try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r26Surface,new java.io.FileOutputStream(r26Surface)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.FrozenSurfaceStoreR26.exportJson(copy));}
+                     ReportMemberPlanCP12.append(members,r26Surface.getName(),r26Surface.getName(),ReportArchiveCP4.hash(r26Surface,active),r26Surface.length());
+                     String[] su2Diagnosis=com.ethk3.novaonepro.strategyv2.DiagnosisStoreSU2.report(copy);
++                    @SuppressWarnings("unchecked")
++                    java.util.Map<String,Object> repairDetail = (java.util.Map<String,Object>) r30Chapters.get(11).get("capabilityRepairR32");
++                    su2Diagnosis = com.ethk3.novaonepro.strategyv2.RepairDiagnosisR32.attach(su2Diagnosis, repairDetail);
+                     for(int su2i=0;su2i<2;su2i++){File diag=new File(directory,su2i==0?"UPGRADE_DIAGNOSIS.md":"UPGRADE_DIAGNOSIS.json");
+                         try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(diag,new java.io.FileOutputStream(diag)),StandardCharsets.UTF_8)){w.write(su2Diagnosis[su2i]);}
+                         ReportMemberPlanCP12.append(members,diag.getName(),diag.getName(),ReportArchiveCP4.hash(diag,active),diag.length());}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..29d5d0e00034170c07c091db8e628211f8853c2d
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java
+@@ -0,0 +1,97 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import java.util.*;
++
++/** Projects the exported snapshot. No database writes, second snapshot or chart payload copies. */
++public final class RepairDiagnosisR32 {
++    private RepairDiagnosisR32() {}
++    private static final String[] GROUPS = {"capabilities","matrices","researchCharts","legacyCharts","logicalTables"};
++    private static final int[] COUNTS = {82,20,18,29,16};
++    private static Map<?,?> map(Object x) { return x instanceof Map ? (Map<?,?>) x : Collections.emptyMap(); }
++    private static boolean yes(Object x) { return Boolean.TRUE.equals(x) || "YES".equals(x); }
++    private static String small(Object x) {
++        if (!(x instanceof String)) return "";
++        String s = (String) x;
++        return s.substring(0, Math.min(s.length(), 320));
++    }
++    private static String instruction(String group, String id, Map<?,?> x) {
++        if ("F23".equals(id)) return "先验证绑定的教师、冻结输入期号、ABI、输出张量与消费回执。缺任一项时仅隔离本家族。";
++        if ("ATOMNET".equals(id)) return "核对十位置同一epoch、optimizer、非零更新及权重哈希。完成一轮后回读发布的模型，再追踪在线预测的模型引用。";
++        if ("T06".equals(id) || "T10".equals(id)) return "分别提供两个可用组件或同目标父策略，核对配对分母和消融差。空点记录为缺输入。";
++        if ("T15".equals(id)) return "从 proposal_id 追踪到实际执行的算子、child_hash 和同期反事实。记录拒绝理由或消费事务。";
++        if (group.equals("matrices") || id.startsWith("MATRIX:")) return "写入带role、目标期、可见时间、版本、shape及artifact hash的矩阵；沿本行消费者重演并移除矩阵比较输出。";
++        if (group.equals("researchCharts")) return "按本行measure生产同源frame，经所列算法消费者记录inputHash与输出差；显示同目标配对数及不确定性。";
++        if (group.equals("legacyCharts")) return "对照本行source的只读查询，记录分页、空集、取消、快照版本与新鲜度；展示用途和数据范围。";
++        if (group.equals("logicalTables")) return "按逻辑表合同提供合法角色、查询实参、分页和源版本；核实至少一条业务读者回执或明确仅供展示。";
++        if (id.startsWith("I")) return "回读思路族生成的typed AST、父代和变异算子；在固定DEV探针重放行为，再以SELECT同机会比较。";
++        if (id.startsWith("E")) return "记录专家输入残差、可执行提案、实际生成的子代和下游接受或拒绝原因；冻结消融对照。";
++        return "以本行实现类重演一个训练步，核对输入、前后状态哈希、checkpoint和下游预测；用同机会父代及消融对照。";
++    }
++    private static String nextCheck(String group, String id) {
++        if (id.equals("F23")) return "FamilyRegistryR26.build(F23)与教师绑定回执";
++        if (id.equals("ATOMNET")) return "AtomNetRuntimeR30.step → AtomNetPublicationR31 → ModelSurfaceStoreR30 的发布/消费";
++        if (group.equals("matrices") || id.startsWith("MATRIX:")) return "按本行producerMethod/algorithmConsumer比较原始矩阵与消融";
++        if (id.equals("T06") || id.equals("T10")) return "PairedComponentStudyR30R1：同目标两个组件/父代";
++        if (id.equals("T15")) return "ResearchObservatoryR30R1：处方、child与消费引用";
++        if (group.equals("researchCharts") || group.equals("legacyCharts")) return "ChartsRepositoryR27 / ReportObjectIndexR30：核对同快照的版本、源行及消费";
++        if (group.equals("logicalTables")) return "ResearchTablesActivityR31 与原表的只读查询、角色及业务消费者";
++        return id.startsWith("I") ? "EvolutionLoopR27 与 BirthGateR27：出生、行为判重和配对验证"
++                : id.startsWith("E") ? "ExpertProposalsR27：提案与下游出生的关联"
++                : "FoundryCampaignR26.step：当前家族训练、checkpoint和消费者";
++    }
++    public static Map<String,Object> build(Object index) {
++        Map<?,?> source = map(index);
++        List<Map<String,Object>> rows = new ArrayList<>();
++        List<String> gaps = new ArrayList<>();
++        for (int n=0; n<GROUPS.length; n++) {
++            String group = GROUPS[n];
++            Map<?,?> section = map(source.get(group));
++            Object raw = section.get("objects");
++            List<?> objects = raw instanceof List ? (List<?>)raw : Collections.emptyList();
++            Set<String> ids = new HashSet<>();
++            if (objects.size()!=COUNTS[n]) gaps.add(group+" expected="+COUNTS[n]+" captured="+objects.size());
++            for (Object entry : objects.subList(0,Math.min(objects.size(),COUNTS[n]))) {
++                Map<?,?> x = map(entry), life = map(x.get("lifecycleR31"));
++                String id = small(x.get("id"));
++                if (id.isEmpty() || !ids.add(id)) { gaps.add(group+" missing/duplicate id="+id); continue; }
++                Map<String,Object> row = new LinkedHashMap<>();
++                row.put("id",id); row.put("group",group);
++                for (String k : new String[]{"implemented","inputAvailable","produced","consumed","effective","retainedCount","shown","currentSourceProducedFrames","actualSourceConsumptionReceipts"})
++                    row.put(k,x.get(k));
++                for (String k : new String[]{"entryClass","implementationClass","entryMethod","producerClass","producerMethod","consumerClass","consumer","algorithmConsumer","source","measure","notProducedReason","executionBlockedReason","status","verification"})
++                    if (x.get(k) instanceof String) row.put(k,small(x.get(k)));
++                row.put("ran",life.get("ran"));
++                row.put("verificationEntry",nextCheck(group,id));
++                row.put("sourceSnapshot",source.get("sourceSnapshot"));
++                String stage;
++                if (group.equals("logicalTables")) stage = "READ_PROJECTION_ONLY";
++                else if (Boolean.FALSE.equals(x.get("callable"))) stage="BINDING_UNAVAILABLE";
++                else if (Boolean.FALSE.equals(x.get("inputAvailable"))) stage="INPUT_UNAVAILABLE";
++                else if (!yes(x.get("produced"))) stage=Boolean.FALSE.equals(x.get("produced"))?"NO_RECORDED_OUTPUT":"OUTPUT_UNKNOWN";
++                else if (!yes(x.get("consumed"))) stage=Boolean.FALSE.equals(x.get("consumed"))?"NO_RECORDED_CONSUMPTION":"CONSUMPTION_UNKNOWN";
++                else stage=yes(x.get("effective"))?"RECHECK_PAIRED_EVIDENCE":"PAIRED_EFFECT_UNPROVEN";
++                row.put("firstKnownGap",stage); row.put("nextAction",instruction(group,id,x));
++                rows.add(row);
++            }
++        }
++        Map<String,Object> out = new LinkedHashMap<>();
++        out.put("version","R32_CAPABILITY_DIAGNOSIS_V1"); out.put("sourceCommit",source.get("sourceCommit"));
++        out.put("sourceSnapshot",source.get("sourceSnapshot")); out.put("rows",rows); out.put("coverageGaps",gaps);
++        return out;
++    }
++    public static String[] attach(String[] legacy, Map<String,Object> detail) {
++        Map<String,Object> json = new LinkedHashMap<>();
++        Object parsed = JsonR27.parse(legacy[1]);
++        if (!(parsed instanceof Map)) throw new IllegalArgumentException("R32_LEGACY_DIAGNOSIS_SHAPE");
++        for (Map.Entry<?,?> e: ((Map<?,?>)parsed).entrySet()) json.put(String.valueOf(e.getKey()),e.getValue());
++        json.put("capabilityRepairR32",detail);
++        StringBuilder md = new StringBuilder().append("\n\n## 能力逐项诊断与下一步核验\n");
++        md.append("\n对象清单缺项：").append(detail.get("coverageGaps")).append('\n');
++        for (Object entry : (List<?>)detail.get("rows")) {
++            Map<?,?> row = map(entry);
++            md.append("\n- ").append(row.get("group")).append('/').append(row.get("id")).append(" · ")
++              .append(row.get("firstKnownGap")).append(" · ").append(row.get("nextAction")).append(" · ").append(row.get("verificationEntry"));
++        }
++        return new String[]{md.append("\n\n").append(legacy[0]).toString(),JsonR27.write(json)};
++    }
++}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java
+index 6fcb5c83e6a432c4a0d6668fd9d30667c98d7e9e..953a2e336b7761bb85ee65b574242604ef1e0264 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java
+@@ -45,6 +45,7 @@ public final class ReportR29 {
+         }
+         chapters.get(11).put("allMetricResults",input.metricResults);
+         chapters.get(11).put("objectIndex",input.data.get("objectIndex"));
++        chapters.get(11).put("capabilityRepairR32", RepairDiagnosisR32.build(input.data.get("objectIndex")));
+         chapters.get(11).put("researchTables",input.data.get("researchTablesR31"));
+         // The chapter projections are curated views. Keep every bounded source
+         // captured by the production snapshot as well: newly wired fetch,
+@@ -72,6 +73,7 @@ public final class ReportR29 {
+         out.put("objectIndex",chapters.size()<12?null:chapters.get(11).get("objectIndex"));out.put("previousReportComparison",chapters.size()<12?null:chapters.get(11).get("previousReportComparison"));
+         out.put("researchTables",chapters.size()<12?null:chapters.get(11).get("researchTables"));
+         out.put("lifecycleEvidenceR31",chapters.size()<12?null:chapters.get(11).get("lifecycleEvidenceR31"));
++        out.put("capabilityRepairPath","chapters[11].capabilityRepairR32");
+         out.put("completeEvidencePath","chapters[11].completeSnapshotEvidenceR31");
+         out.put("overallAcceptance","INCOMPLETE");out.put("naturalQuality","INSUFFICIENT");out.put("physicalDevice","NOT_RUN");out.put("legacyDetails",java.util.Arrays.asList("R26_REPORT.json","R27_REPORT.md","snapshot.db"));return out;
+     }

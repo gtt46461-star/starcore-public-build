@@ -1,0 +1,72 @@
+{
+  "scope": "DESIGN_AND_PATCH_HOST_VALIDATION_ONLY",
+  "baselineApp": "51667a1236742b9bee8e1a8903c26358727d7c81",
+  "baselineConstruction": "944ffcd089b6bba1d3d2fdd389e386bdf51bc4c7",
+  "apkVersionCode": 577311032,
+  "apkSha256": "876f26e81114acfa3d2fa2d023b2e36309bec6dde3ef32f0e87c562b48d165ac",
+  "deviceExportPackageHashes": [
+    {
+      "name": "STARCORE-32614314904282382075c157c18e222c633fb81091e.zip",
+      "sha256": "b41d2ddfd62c9041351850973188fabeeb4eaca461579165ade2610e01441736",
+      "bytes": 15212317
+    },
+    {
+      "name": "STARCORE-425bdaed925b5ff67c99847a3dc8e30bea959dd27d8.zip",
+      "sha256": "0ebba01fb6df9e3954ab38bd15fcfe2f382bfe908b2215a2e6231799f7c10487",
+      "bytes": 15561142
+    }
+  ],
+  "planVerification": {
+    "structural_checks": "PASS",
+    "negative_plan_mutations_rejected": 4,
+    "batches": 5,
+    "repair_cards": 18,
+    "original_and_unified_cards": 78,
+    "items": 222,
+    "source_files": 1308,
+    "patch_paths": 13,
+    "patch_round_trip": true
+  },
+  "uniqueOwnedPaths": 1368,
+  "batchLocalOriginalChecks": {
+    "P1": 42,
+    "P2": 76,
+    "P3": 22,
+    "P4": 35,
+    "P5": 14
+  },
+  "futureDependentConstructionSignoffs": 0,
+  "patchMap": {
+    "P1.patch": "6cd36a74b13c168b704e6945a0844b02721bdcd18507a684204a45241e6e201f",
+    "P2.patch": "a91d3f043868b9efbd4bde177568fb24935b31e5de234b851ad3df61bdbe7b27",
+    "P3.patch": "0a34f58a542104a73b733c6bd094e53418cd79e38a37f47faa1def5dc7d81045",
+    "P4.patch": "4532580ab81ced0b53617445a61a03e277d68fc35ea3de85fff5cbc54117593f"
+  },
+  "java": {
+    "originalProductionJava": 1308,
+    "patchedProductionJava": 1309,
+    "compiler": "JDK 21 javac -source 17 -target 17",
+    "SDK36_reference_jar_sha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a",
+    "exitCode": 0,
+    "warnings": 11,
+    "hostOnlyGeneratedOrStubbedDeclarations": [
+      "BuildConfig",
+      "R",
+      "BuildSourceIdentityCP12",
+      "RequiresApi",
+      "ChecksSdkIntAtLeast"
+    ],
+    "trackedGeneratedNumericalClass": "ResearchSemanticsGeneratedR967.java from source repository; production ABI regeneration remains required at actual build",
+    "gradleApkBuild": "NOT_RUN_PLAN_DELIVERY"
+  },
+  "host": {
+    "assertionsExecuted": 20,
+    "log": "HOST_PROBE.log",
+    "input": "index_fixture.json",
+    "sqlite": "PASS targeted partial table, original row and immutable hypothesis accounting; DDL emitted by real class",
+    "hypothesisDeclarationCount": 25
+  },
+  "androidRuntime": "NOT_RUN_FOR_PROPOSED_PATCHES",
+  "naturalQuality": "NOT_PROVEN",
+  "release": "PLAN_ONLY"
+}
