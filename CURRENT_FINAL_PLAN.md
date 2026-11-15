@@ -1,15 +1,19 @@
-# STARCORE R31 统一最终施工入口
+# STARCORE 当前施工方案 · R32.1
 
-R31.1/.2/.3/.4为同一累计功能方案的施工控制修订。当前唯一统合版本：**STARCORE_R31_UNIFIED_FINAL_20261112**，保留原56+2卡、194条原验收、222项现验收及原阈值；沿用31.4的11批和31.3先施工后批末验收。
+2026 年 11 月 15 日。请在 `construction/r31-final-20261104` 施工，从该分支最新源码接续。方案固定在 `b703131a228c20c992a9d220b7e4a9e6de8f8130`，032 安装版本为 `577311032`，对应生产源码 `51667a1236742b9bee8e1a8903c26358727d7c81`。
 
-- [最终施工方案](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/FINAL_CONSTRUCTION_PLAN.md)
-- [最新版源码58卡落实情况：已实现、缺口、返修及待验证](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/CURRENT_SOURCE_STATUS_58.md)
-- [Codex完整施工提示词](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/CODEX_CONSTRUCTION_PROMPT.txt)
-- [20张代码返修卡](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/REPAIR_CARDS_20.json) · [功能保全证明](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/repairs/STARCORE_R31_UNIFIED_FINAL_20261112/PLAN_PRESERVATION_PROOF.json)
-- [原31.4完整方案](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/STARCORE_R31_FINAL_20261104/README.md) · [执行状态](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/r31/NEXT_ACTION.json)
+- [完整方案与 032 手机现场诊断](https://github.com/gtt46461-star/starcore-public-build/blob/b703131a228c20c992a9d220b7e4a9e6de8f8130/construction/repairs/STARCORE_R32_REPAIR_20261115/README.md)
+- [直接下载完整方案 ZIP](https://raw.githubusercontent.com/gtt46461-star/starcore-public-build/b703131a228c20c992a9d220b7e4a9e6de8f8130/construction/repairs/STARCORE_R32_REPAIR_20261115.zip)
+- [复制完整 Codex 施工提示词](https://github.com/gtt46461-star/starcore-public-build/blob/b703131a228c20c992a9d220b7e4a9e6de8f8130/construction/repairs/STARCORE_R32_REPAIR_20261115/CODEX_PROMPT.txt)
+- [五批 18 张逐文件施工卡](https://github.com/gtt46461-star/starcore-public-build/blob/b703131a228c20c992a9d220b7e4a9e6de8f8130/construction/repairs/STARCORE_R32_REPAIR_20261115/guide/五批逐项施工.md)
+- [R31.1 至 R31.4 的保全、两套资格协议与 34 项验收归属调整](https://github.com/gtt46461-star/starcore-public-build/blob/b703131a228c20c992a9d220b7e4a9e6de8f8130/construction/repairs/STARCORE_R32_REPAIR_20261115/guide/field-closure.md)
+- [家族、原子、矩阵、图表与研究表的逐项诊断](https://github.com/gtt46461-star/starcore-public-build/blob/b703131a228c20c992a9d220b7e4a9e6de8f8130/construction/repairs/STARCORE_R32_REPAIR_20261115/guide/能力与研究表逐项.md)
+- [检测报告字段和修复处方](https://github.com/gtt46461-star/starcore-public-build/blob/b703131a228c20c992a9d220b7e4a9e6de8f8130/construction/repairs/STARCORE_R32_REPAIR_20261115/guide/检测报告字段合同.md)
+- [候选补丁的适用范围及各批尚需实现的工作](https://github.com/gtt46461-star/starcore-public-build/blob/b703131a228c20c992a9d220b7e4a9e6de8f8130/construction/repairs/STARCORE_R32_REPAIR_20261115/patches/README.md)
+- [源码复演、自检结果与实测范围](https://github.com/gtt46461-star/starcore-public-build/blob/b703131a228c20c992a9d220b7e4a9e6de8f8130/construction/repairs/STARCORE_R32_REPAIR_20261115/verify/RESULTS.json)
 
-最新应用源码分支为construction/r31-final-20261104，main只是索引。当前已保存的源码检查点762de13d为未完成工程状态，不能拿旧K01—K11 LOCAL收据、helper测试、类存在、心跳或文件生成成功宣称全部功能正常。当前原机APK577311020不是本轮返修成品。
+五批依次处理旧库与实时链路、持续训练和创造、资格与正式出手、诊断与导出、同签名覆盖安装及成品交付。189 项本地验收由各批分别承担 31、58、22、63、15 项。另有 8 项模拟器、24 项设备和 1 项自然表现验收，分别记录相应实测证据。
 
-源码审阅确认部分owner/fence、隔离/恢复、研究健康及历史训练实现真实存在，需要保留。已定位业务同步DDL/迁移完成条件、报告请求/ACK/发布恢复、新报告/研究/生命周期/主链辅助API的生产接线缺口，逐项见58卡现状与20张返修卡。继续真实代码施工、集成、故障验收和同签名APK交付，禁止只更新文档、版本号或旧PASS。
+ZIP 共 75 个文件，2,151,210 字节。SHA-256 为 `c64b753d46d56f18b49a02b490aabb8ac8103251310468428a81a934ec0997dc`。已在宿主环境复验源码补丁。新版 APK、设备长期运行和自然未来成绩由施工后分别交付。
 
-方案完整保存不等于软件已完成。DEVICE、原机670MB旧库、24/72小时与自然质量无实测时如实列NOT_RUN/NOT_PROVEN。
+[施工分支](https://github.com/gtt46461-star/starcore-public-build/tree/construction/r31-final-20261104) · [此前 R31 统一方案入口](https://github.com/gtt46461-star/starcore-public-build/blob/a79a1f7ee71032b7b4e6bf39ec12cc781b232962/CURRENT_FINAL_PLAN.md)

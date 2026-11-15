@@ -1,11 +1,5 @@
-# STARCORE R31.3 最终施工入口
+# STARCORE 施工入口
 
-> **2026-11-07 R31.4：批次已合并为11批（K01→K11）**，在各原阶段内相邻合并，卡片、验收原文、阈值、棘轮规则不变；对照表见施工分支 [docs/17_R31.4批次合并说明.md](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/STARCORE_R31_FINAL_20261104/docs/17_R31.4批次合并说明.md)。K01已关门，当前开放批次K02。
->
-> **2026-11-07 接续（先读）**：卡住的原因与修复、每批“改代码→重钉→推送→CI回写→close”流程，见施工分支 [construction/r31/R31_3_接续施工说明.md](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r31-final-20261104/construction/r31/R31_3_接续施工说明.md)。当前开放批次 K02。
+[打开当前 R32.1 方案、完整下载与 Codex 提示词](CURRENT_FINAL_PLAN.md)。请在 `construction/r31-final-20261104` 按 P1 至 P5 顺序施工。每批在自己的生产入口取证并验收。
 
-当前唯一入口：[CURRENT_FINAL_PLAN.md](CURRENT_FINAL_PLAN.md)。
-
-完整方案位于[construction/STARCORE_R31_FINAL_20261104](construction/STARCORE_R31_FINAL_20261104/README.md)，版本R31.3-CONSTRUCTION-20261105。按`batches/K01.md`到`batches/K21.md`的序号逐批施工：先改代码，批末用`tools/r31_gate.py close`棘轮关门。
-
-保留全部56卡原文和原阈值；方案修订不表示软件返修完成。R31.1/R31.2控制文件归档于construction/archives，原R31保存在construction/archives/STARCORE_R31_FINAL_20261104。
+[R31.1 至 R31.4 的原文与本轮验收归属](https://github.com/gtt46461-star/starcore-public-build/blob/b703131a228c20c992a9d220b7e4a9e6de8f8130/construction/repairs/STARCORE_R32_REPAIR_20261115/guide/field-closure.md)
