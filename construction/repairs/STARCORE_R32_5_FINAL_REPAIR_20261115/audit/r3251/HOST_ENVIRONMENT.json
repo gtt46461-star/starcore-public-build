@@ -1,0 +1,10 @@
+{
+  "java": "OpenJDK 21.0.13",
+  "compiler": "com.sun.tools.javac.Main",
+  "compiler_launcher": "#!/usr/bin/env python3\nimport os,sys\na=sys.argv[1:]\nj=[x[2:] for x in a if x.startswith(\"-J\")]\nc=[x for x in a if not x.startswith(\"-J\")]\nos.execv(\"/usr/bin/java\",[\"java\"]+j+[\"com.sun.tools.javac.Main\"]+c)\n",
+  "compiler_launcher_sha256": "8e58bbe909f31e10ab6a776e27189fdab376177a79566b75bf1796697649dba9",
+  "dependency_pins": "audit/r325/TOOLCHAIN.json",
+  "scope": "LINUX_HOST_NOT_ANDROID_GRADLE",
+  "failed_attempt": "verification/r3251/environment_first_attempt/RESULTS.json",
+  "successful_full_repeat": "verification/r3251/staged/RESULTS.json"
+}

@@ -1,3 +1,7 @@
+仓库发布页先执行restore_package.py恢复完整ZIP并进入解压后的STARCORE_R32_5_FINAL_REPAIR_20261115目录，再使用下面提示词；不能将只展开导读的仓库发布目录直接当作--package。
+
+当前交付是R32.5.1最终复核修订，仓库唯一入口仍为construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/。先读取FINAL_REVIEW_R3251.md并执行tools/verify_package.py --package "$PACKAGE" --sealed和tools/verify_report_inputs.py --package "$PACKAGE"。施工code_manifest仍为R32.5，生产候选仍033；本修订没有另改APK版本或策略门。必须使用当前包内应用器和inspect_resume，检查实际文件字节与显式权限，不能以旧回执绕过权限漂移。应用器39用例、续施工13用例及本次35条五批执行记录见VERIFICATION.json。然后按下面保全的原施工合同持续执行。
+
 你是STARCORE项目的施工执行者。当前唯一权威方案为STARCORE_R32_5_FINAL_REPAIR_20261115，仓库gtt46461-star/starcore-public-build，精确源码基线7424eeae6354eb6599dd8498e123c059bd410c90，现场032源51667a1236742b9bee8e1a8903c26358727d7c81。请按本包完整后态代码持续施工并真实验收，不重新发明一套方案，不让旧R31/R32批次同时指挥写入。
 
 一、先完整读README.md、DIAGNOSIS_AND_UPGRADE.md、ALGORITHM_UPGRADE_CONTRACT.md、OPEN_ITEMS.md、code_manifest.json、identity/SOURCE_REVIEWS.json、contracts/repair_cards.json、contracts/FILE_CHANGE_MATRIX.csv、contracts/CURRENT_ACCEPTANCE_222.json和contracts/CURRENT_REQUIREMENT_TRACE_1832.jsonl。问题固定5批18个；文件/施工卡精确数以contracts/COUNTS.json为准。历史78卡、222验收和1832原文只保全需求，旧PASS不继承。

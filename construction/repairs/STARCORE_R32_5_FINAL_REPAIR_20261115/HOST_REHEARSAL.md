@@ -1,3 +1,7 @@
+# R32.5.1 当前五批复验入口
+
+本次35条命令与回执位于[verification/r3251/staged/RESULTS.json](verification/r3251/staged/RESULTS.json)，当前工具同时检查显式POSIX权限；原R32.5记录只保全为历史记录。新增权限/恢复回归已并入同一run_staged_rehearsal入口，39个应用器及13个续施工用例不能代替222条业务验收。可先运行tools/verify_report_inputs.py重新核两份输入来源。
+
 # R32.5 五批独立宿主复演
 
 此入口从包内精确 `SOURCE_BASELINE.zip` 新建独立工作树，顺序应用 P1—P5，每批重新生成身份、编译当前阶段生产 Java，并运行该阶段声明的宿主合同。它不改现有软件工作树。正式 Android/Gradle、签名 APK、物理设备长测及自然资产效果仍按各自原验收执行。

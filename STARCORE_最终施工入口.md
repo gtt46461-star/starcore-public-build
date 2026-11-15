@@ -1,5 +1,3 @@
-# STARCORE 施工入口
+# STARCORE 当前施工入口
 
-[打开当前 R32.1 方案、完整下载与 Codex 提示词](CURRENT_FINAL_PLAN.md)。请在 `construction/r31-final-20261104` 按 P1 至 P5 顺序施工。每批在自己的生产入口取证并验收。
-
-[R31.1 至 R31.4 的原文与本轮验收归属](https://github.com/gtt46461-star/starcore-public-build/blob/b703131a228c20c992a9d220b7e4a9e6de8f8130/construction/repairs/STARCORE_R32_REPAIR_20261115/guide/field-closure.md)
+当前唯一交付修订为 **R32.5.1**，请读取 [CURRENT_FINAL_PLAN.md](CURRENT_FINAL_PLAN.md)。方案代码为R32.5/033，完整总包、当前复核与全部恢复说明从该入口取得。旧版本只保全原需求与历史证据。
