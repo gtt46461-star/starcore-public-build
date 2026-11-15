@@ -80,7 +80,26 @@ public final class MainlineBridgeSU2 {
         // first candidate, chosen by logE × calibration quality. The intent is still only a request: the single
         // DecisionGateEngine decides REAL under its unchanged rules (≤1 REAL per issue, no chase/doubling).
         Intent r27 = r27Intent(db, seq);
-        if (r27 != null) return r27;
+        if (r27 != null && r27.real) return r27;
+        Intent selective = selectiveIntentR32(db, seq);
+        if (r27 == null) return selective;
+        if (selective == null || !selective.real) return r27;
+        String candidate = CertificateSU2.PREFIX + selective.genomeKey;
+        ProjectionR30 proof = projectionR30(db, seq, System.currentTimeMillis(), candidate);
+        return preferVerifiedR32(r27, selective, proof);
+    }
+
+    static Intent preferVerifiedR32(Intent r27, Intent selective, ProjectionR30 proof) {
+        if (r27.real || proof == null || selective == null || !selective.real) return r27;
+        boolean exact = (CertificateSU2.PREFIX + selective.genomeKey).equals(proof.candidate)
+                && ("CERTIFIED:" + proof.certificate).equals(selective.gate)
+                && Boolean.TRUE.equals(proof.certificateActive) && Boolean.TRUE.equals(proof.freezeComplete)
+                && Boolean.TRUE.equals(proof.modelAvailable) && Boolean.TRUE.equals(proof.selectorConfirmed)
+                && Boolean.TRUE.equals(proof.actRuleFired);
+        return exact ? selective : r27;
+    }
+
+    private static Intent selectiveIntentR32(SQLiteDatabase db, long seq) {
         if (!StrategySchemaSU2.ready(db)) return null;
         String member = ModelStoreSU2.currentChoice(db, seq);
         // SU2 members and the XI incumbent use this lane (XI's frozen pick IS the mainline pick when IPM keeps it);
