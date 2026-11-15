@@ -1,0 +1,5 @@
+#!/usr/bin/python3
+import os,sys
+vm=[x[2:] for x in sys.argv[1:] if x.startswith('-J')]
+args=[x for x in sys.argv[1:] if not x.startswith('-J')]
+os.execvp('java',['java',*vm,'-m','jdk.compiler/com.sun.tools.javac.Main',*args])

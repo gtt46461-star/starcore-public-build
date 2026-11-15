@@ -1,0 +1,76 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
++++ b/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
+@@ -2429,6 +2429,9 @@
+     private void reconcileResearchOwner(String reason){
+         if(!running||userRequestedStopV5||store==null||!isServiceUserEnabledV5())return;
+         long mono=android.os.SystemClock.elapsedRealtime();if(mono-lastResearchControlElapsedR31<5000L)return;lastResearchControlElapsedR31=mono;
++        // Recovery derives its merged target from committed draws on every tick.
++        // It must run even when migration/research initialization later fails.
++        reconcilePredrawTailRecoveryR32();
+         // This existing off-main control lane runs while R26/R27 are still
+         // initializing. Fault delivery cannot depend on the research pool whose
+         // writes are waiting for these exact durable receipts.
+@@ -2443,6 +2446,24 @@
+         }
+         try{heartbeatStateV8().setPendingSettlementCount(SettlementTaskStoreR36.pendingCountR31(store));}
+         catch(RuntimeException unknown){Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(unknown);if(fatal!=null)throw fatal;heartbeatStateV8().setPendingSettlementCount(-1);}
++    }
++
++    /** Independent of a successful latest callback. The DB head is the durable
++     * intent, so a restart cannot lose it and a newer issue supersedes an old
++     * target without racing two stored task records. Existing backfill CAS and
++     * cooldown coalesce requests; this controller never performs network IO. */
++    private void reconcilePredrawTailRecoveryR32() {
++        try {
++            Models.Draw head = store.getLatestDraw();
++            PredrawTailRecoveryR32.Intent recovery = PredrawTailRecoveryR32.reconstruct(
++                    head, head == null ? java.util.Collections.<Models.Draw>emptyList()
++                            : store.getRecentDraws(R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY));
++            if (recovery.requestHistory) scheduleQuickHistorySyncR71(recovery.reason);
++        } catch (RuntimeException failure) {
++            Error fatal = com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failure);
++            if (fatal != null) throw fatal;
++            CrashRecorder.recordCaught(getApplicationContext(), failure, "R32_TAIL_RECOVERY_CONTROL");
++        }
+     }
+ 
+     private void startWorkR3610OffMain() {
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/PredrawTailRecoveryR32.java
+@@ -0,0 +1,36 @@
++package com.ethk3.novaonepro;
++
++import java.util.List;
++
++/** Reconstructs a level-triggered recovery intent from the committed draw head.
++ * No callback, process-local target or telemetry row is the source of truth.
++ * Restart and a newer draw naturally replace the desired target. This class
++ * requests history only; normal PIT/deadline and settlement owners remain final. */
++public final class PredrawTailRecoveryR32 {
++    private PredrawTailRecoveryR32() {}
++
++    public static final class Intent {
++        public final boolean requestHistory;
++        public final String baseIssue, targetIssue, reason;
++        public final int contiguousRows;
++        private Intent(boolean requestHistory,String baseIssue,String targetIssue,
++                       int contiguousRows,String reason) {
++            this.requestHistory=requestHistory;this.baseIssue=baseIssue;
++            this.targetIssue=targetIssue;this.contiguousRows=contiguousRows;this.reason=reason;
++        }
++    }
++
++    public static Intent reconstruct(Models.Draw committedHead,List<Models.Draw> recent) {
++        if(committedHead==null||!committedHead.isValid()
++                ||!TargetIssueResolver.isValid(committedHead.issue))
++            return new Intent(true,"","",0,"R32_TAIL_RECOVERY_NO_DURABLE_HEAD");
++        TargetIssueResolver.Resolution next=TargetIssueResolver.next(committedHead.issue);
++        if(!next.valid)return new Intent(true,committedHead.issue,"",0,
++                "R32_TAIL_RECOVERY_INVALID_TARGET");
++        int count=R36AnalysisHistoryPolicyR364.contiguousSuffixCount(recent,committedHead.issue);
++        boolean needed=count<R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY;
++        return new Intent(needed,committedHead.issue,next.targetIssue,count,
++                needed?"R32_TAIL_RECOVERY_FOR:"+next.targetIssue+"|suffix="+count
++                        :"R32_TAIL_READY:"+next.targetIssue);
++    }
++}

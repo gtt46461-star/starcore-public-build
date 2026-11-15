@@ -1,0 +1,1455 @@
+{
+  "scope": "EXACT_SOURCE_NUMERIC_CONTINUATION_ONLY_NO_CERTIFICATE_MIGRATION",
+  "reviewed_input_provenance_sha256": "59d7f691290e0541c2491a03c2bc27b72af91b2b39f69bd376e62e1ec77dd361",
+  "runtime_contract_sha256": "fb7e18a7c135df68dca1e1b4f3ea5f64a6bbd21a7f789467bd244ea8b7db3705",
+  "predecessors": [
+    {
+      "baseline_file": "release/r65_semantic_baseline.json",
+      "baseline_manifest_sha256": "02e2c3730a2e60f2635995e8c8fad93e6d0e31091c0e1b61d527883a5b17ce87",
+      "predecessor_training_rule_sha256": "233fbf6bf3b2313d56576c9c0a7953323a76d0e5f6a3d9fc6297b88f98648e09",
+      "reviewed_numeric_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+          "before_sha256": "6728997faff63e365735779f670b8bfa5c93fefa719f5e10fa38df201375df72",
+          "after_sha256": "e48a7c689100ecc726930a0bb76e7a93ac55c0140a2d8ae1930aaac9dee01a82",
+          "rationale": "R72: Recover authentic frozen late outcomes exactly once without changing/replaying the newer VM head. Chronological update formula and DEV training implementation unchanged; verified late/duplicate/next-label regression. No inherited certificate authority."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ApiTransportGovernanceEngine.java",
+          "before_sha256": "73cfe3e8739ed2ecaad08740ae22dd662fa85d820a66926beab4ed19957401dd",
+          "after_sha256": "b84e1e38cab9bdc96f9a812820825f5ad70b2ce17d47fe74646aed9e25c436b7",
+          "rationale": "R71: Old but well-formed HTTP payload remains rejected and triggers failover, while not tripping transport outage backoff. Real transport/schema failures still trip the circuit."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AssetGenesisEngineR915.java",
+          "before_sha256": "005719e4433bfc3136fb0a5284b4f802a9590e1c81b248513cc9eee5869edb54",
+          "after_sha256": "1feda8a59db70f0033a96de1bc035892113c842908615f2804c9173daf9c0168",
+          "rationale": "R72: Settle valid late frozen labels without rewinding state; chronological VM update unchanged. Verified both ordering directions and repeated calls; no certificate created."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "before_sha256": "5018a389bf8d949028d3746f36ed5fd5891fffc83343dcc14a3a3f17faafe40d",
+          "after_sha256": "4d543317dc851224f74cfecf9b1dbc705ba1deba729ed80058b934bc5121a7cb",
+          "rationale": "R70: Move Android memory-callback persistence onto the existing guard handler; bounded retention retries, independent quiet reclaim and one coalesced research continuation on the existing handler. No score, loss, label, model, gate or certificate change. R71: Dispatch next analysis and current settlement immediately after durable draw, before telemetry/history. Batch receipt writes; move fallback to existing serial backfill handler; remove aggregate statistics from polling status. No score, label, target deadline or numerical rule change. R72: New target broadcasts bypass same-target tick limiter. Sole clock, DecisionGate and settlement owners retained; no reflected target or numerical change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/BusinessReconcilerR36.java",
+          "before_sha256": "ec22d0271797d41b3b65b8963f770a2a2a2f1e039d84be3ea7872e5ad22cdd31",
+          "after_sha256": "d55d22571a9e5a607153981069685aad730e7ad6a56bd06b109e01dc3a0809b1",
+          "rationale": "R70: Retry only documented request-write deadline/lock contention through the existing watchdog; keep immutable target deadline, settlement queue and fatal integrity errors."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/CompiledActionContract.java",
+          "before_sha256": "83c62780449b2f8c02b43ebddef19271d552ad4db7ea4581caf0c298dfffbd2a",
+          "after_sha256": "c4e1fec6897e49b38453834fbd8615679bc157714847c6f6ffead3a9586f5b7d",
+          "rationale": "R70: Retire prior-target cached contracts and counters with the existing new-target reset. No durable authorization, immutable record or settlement changed."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/CountdownClock.java",
+          "before_sha256": "b6340df596efa4a72236c215592685541d854a9b3789aa2b8731b0e24a38d825",
+          "after_sha256": "bc2a23386ece6bcd13134c2b43431fc97b24045c3ef4a9bbdd6add4a4b1ca6df",
+          "rationale": "R72: Read-only same-process current anchor for resume; monotonic fetch interval. Target resolver, durable draw and model semantics unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+          "before_sha256": "bcd5f37662e55b1a86197a1c68205558acada336774b7528befdbcc95f233677",
+          "after_sha256": "585e0f9ff1fa60498b26be4fde00c0fbcc245ba2a2dc95d3a116f63458c3bfd4",
+          "rationale": "R72: Optional draw archives use existing fair table cursor; same exact generation, archive proof, references and deletion predicates. No label or numeric change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "before_sha256": "840f9673bfac5bf3cce646336f74c94f6a337436470944359f53de9e74e2261f",
+          "after_sha256": "06a201edcc996c6a90884455aba81f07cc51dcc6556b27822b105e0ed47c16a3",
+          "rationale": "Recognize existing cooperative scopes as research for writer priority, including CP12 names; no numeric changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
+          "before_sha256": "cb8b9cedee4444d2a58db994b3486cf40de25eeddccbf5539ff0403f934cfa23",
+          "after_sha256": "3ccd36a573681396896d03f9712568b2828bb4f670ffef57534f9ce60742676d",
+          "rationale": "R68: Move existing database health read to a background worker; error rendering and lifecycle guard only. Shared DB ownership and numeric code unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+          "before_sha256": "4d0f7332933ec321d657482abe2bd9e994dee34de96734e45f913dc0adfda453",
+          "after_sha256": "745570db2eff825bc1a6d1883a01afd2844334421c622402320789711103d229",
+          "rationale": "R71: Fixed indexed read-only UI state keys and cached display summaries instead of per-second teacher/profile counts. Canonical writers, models and full diagnostics unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DrawPollingReplayR67.java",
+          "before_sha256": "",
+          "after_sha256": "6cd0959223764bac8082326740ded8f96f654fd48e6a427ded2e4b1dcd518b10",
+          "rationale": "Read-only duplicate poll admission. Changed/conflicting draws keep canonical writer; identical confirmed values do not retrain or alter features."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java",
+          "before_sha256": "cf1060b9161657e4711fbef5277c92cdd163239cb048bfd745c35f6103e4ecfd",
+          "after_sha256": "8a18139bafc969bbbd343abf824e363db43760e087f1cd65d2f7eac90c7b4839",
+          "rationale": "R70: Raise capture execution slice from an admission-cost estimate to 400ms inside the existing 1200ms/preemption bound. Unchanged PIT, model scoring, transaction atomicity and future-only capture. R72: Reserved capture uses remaining enclosing deadline minus commit margin, retaining preemption/PIT/model and transaction checks. No postdraw capture or retrospective probability."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/LanePolicyCompiler.java",
+          "before_sha256": "2b6459c31926955fa41c1ece0ce3fe15d70d8f314112d0c3e0b7fb01088820b3",
+          "after_sha256": "24e2fc0eb5237cfd32410b136089fb0b1e8d3d4c6b626e2c12042245a16da240",
+          "rationale": "R70: Retire prior-target process cache entries when the sole DecisionGate starts a new issue; same-target reset behavior and all numerical functions unchanged. Future in-flight target entries preserved."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelLearningActivity.java",
+          "before_sha256": "2d0370f5ffd864aecc2bb3c4a76f325b585b5a8c0f78618a7d7b6c9719b4face",
+          "after_sha256": "2d57d765791b9f3dcc28edb0c39da16562ab3d14226ad17af85f5fd6783b915c",
+          "rationale": "R68: Lazy-open DbStore on the existing serial background handler; encompass model status in error handling. Import and rollback retain their original owners and authorization."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+          "before_sha256": "453fd1ac37e5e5f8b56677cc686a57bac2d661f933b4c780e8aeb17bdac1f726",
+          "after_sha256": "5236f4dccf69d89bede6b690a5dea84da113d1ac8db3f7c2a051194a82812449",
+          "rationale": "R68: Use ZIP deflate level 6; existing lossless per-member SHA, byte count and CRC readback stay enforced."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+          "before_sha256": "3d53a35acbefed37e253afdff2bc70b7c0c35fa9bd1b1371a53aa47f50735c2d",
+          "after_sha256": "11f8fd19dce4db45542e2e1bca86599c54dddd0b555c13d0d4a38b10894cd13a",
+          "rationale": "R68: Reuse the owner-verified immutable snapshot hash instead of hashing the same private file twice. Resume still verifies SHA and size; no live database mutations."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+          "before_sha256": "aff0e860f9b187c1d2acb7a1cd19cbfc435d519f5eed5323d38bdc7d26c9350f",
+          "after_sha256": "a1050003b7a2238cdc1d276c69242d27395b3ecd5837194c63b75ea815e4b957",
+          "rationale": "R68: Clarify diagnostic versus raw backup coverage; same 96 evaluation handlers, no health or qualification thresholds changed."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+          "before_sha256": "8a76c1a0f628007be8991db017e00eff7b644ee97312d6a82b7101225c77c298",
+          "after_sha256": "41464a2cc6d5610b964ca8213096151b78c03cac7d8d9c169a7e51758832123a",
+          "rationale": "R70: Include calibration model and failure metadata in a read-only report; no training or qualification side effects."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "before_sha256": "ee577095efcff80ba08b1ed4aee4dfbc7880dc45077fdaac9c1c03e5b3c1cd00",
+          "after_sha256": "d28a244e4654ed906ecfa977b65aca48fd37a1bd454f60184cdcd9b01b38f66a",
+          "rationale": "R70: Timestamp the immutable snapshot immediately after backup before hash I/O. Diagnostic freshness only. R71: Bind diagnostic timestamp before native backup pins the immutable read snapshot. No evidence or training data modified. R72: Preserve STALE_PAGE and ARCHIVE error codes in diagnostic ACK; no data or numeric change. R73: Reuse an exact generation-checked, hash-verified private retention snapshot; recover a fully reverified immutable reply after crash. FULL_REPORT still takes its own fresh complete snapshot. No statistical or mainline decision changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+          "before_sha256": "62a3e0b1e7295913fa1466187079bf865f083f595f2a069adfe4fd4394072940",
+          "after_sha256": "7eeeb9f1901a6160363f919ceeffe03efc940c0c30492ef530848338fb58df82",
+          "rationale": "R69: Expose owner-lock check and explicit current-report pointer detach for deletion; no business state mutation."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+          "before_sha256": "ff0fa63fb965d7778bcf37704c0e556aade685c79b234b7cbff7b36ce58b1e51",
+          "after_sha256": "89361bf6c0e1ace0627bf596a4f5c3ca824886afd5fc538184f63cd2980eecda",
+          "rationale": "R69: Explicit user deletion bypasses soft share grants but respects live reader locks; detached private report deletion can resume after a crash. No model/database/external-file deletion."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportRequestQueueCP12.java",
+          "before_sha256": "a511e3209a0d82393fba4c0a32b85e7982aedcbe1aca206488fd26604aff9298",
+          "after_sha256": "7b0bc6eacb85d2df1d671606a2551710714f65ea86897d1a3aa157fb342a34a0",
+          "rationale": "R69: Exact-ID removal and interactive selection retain all deferred retention requests and FIFO metadata; no learning owner changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportTaskControlR69.java",
+          "before_sha256": "",
+          "after_sha256": "d63b80dfb22bee8c80e3407b2929b641a81a5f2e1fac59f0f5f0f8e8997ce384",
+          "rationale": "R69: Durable report-only cancellation and explicit deletion under the existing sole report owner. Cancel queued exports and SAF; preserve database, model and retention state and external saved files."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchCaptureQueueR946.java",
+          "before_sha256": "3a4ad469e542f6743c66fa18e8d5e259f8145b1a28551a098cffa979977700db",
+          "after_sha256": "37e60067de11a93c91e2b48d85d0422aaba28ea23718b1f0a77cdd16fabfb38f",
+          "rationale": "R70: Recover due calibration reservations and reviewed predecessor learning runs; do not close a target with an uncommitted reservation. No evidence migration or postdraw fill."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java",
+          "before_sha256": "cbfd4332710c4347cbfdde17335fc7f9de740aa0588e2ca7a65b783bc38df587",
+          "after_sha256": "26a2a8cf834efb42ceb1f08ff6fda24f6eb6cb8a51bc7338a0cd556995ec7222",
+          "rationale": "Reserve receipt time and fair hot-lane service; same durable tasks and numerical owners."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchLifecycleR932.java",
+          "before_sha256": "be05bb6c6a3e79c412370cba55264dc65e2cf794b56b531f27836aa58d198c61",
+          "after_sha256": "ecb7bfb2e30534daddb78f6353db9d4780a3f67221a6a435652e00b86a7d948a",
+          "rationale": "Online labels no longer overwrite certificate-owned lifecycle state; no frozen evidence, policy or numeric changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java",
+          "before_sha256": "c7ae96419b5eefe1daf47de363742e2e235907312419549909acefcbc38b1b5d",
+          "after_sha256": "053f20a1e7850a386f25c22ceeb5f1e38662ad183e7cf5da40781db10da03084",
+          "rationale": "R72: Cache only committed idempotent DDL by SQLite schema_version using the existing audited cache. Active bundle, certificate checks, revocation, promotion and numeric decisions unchanged; rollback/schema-change tests protect readiness."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPopulationR966.java",
+          "before_sha256": "a4ea8f0dd359829fdf304ee821510a90cd600b5b1ab5925cb474beea1a6d256a",
+          "after_sha256": "54047dcd6e3b623b016fe5366d0f235f90444d259703872309616f3ed9ab6899",
+          "rationale": "R72: Completed DEV child may replace only its own zero-update/zero-Future parent with proxy records. Programs, pending labels and lineage retained; formal/calibration/elite/certificate protection remains. Resource retirement is not quality promotion."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPredrawCaptureR923.java",
+          "before_sha256": "159cb24a140fbafd246c0201a1ccbc812fdf892bde11816cc6f7b348b296a865",
+          "after_sha256": "90ec15096032ed73d789e17fe89a5c0cdee3880cca2524807f28c102430337b2",
+          "rationale": "R70: Serve already-admitted consecutive prospective capture before atom discovery on the same bounded owner. All model and data-role rules retained."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPredrawSettlementPumpR908.java",
+          "before_sha256": "cddca231b87ff16224d959b91517903970f49d0d5143202dd94a5e7f8a1a66ac",
+          "after_sha256": "743ead358dbe58cdc3718f2bac17bcca3c1535fcb96f527900887517a4db0948",
+          "rationale": "R72: Durable circular issue scan cannot stall behind an invalid first page. Existing exact settlement owners retained; no outcome acknowledged by scan cursor."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkBudgetR927.java",
+          "before_sha256": "3e261a645ca0daa0dc715092b1c2d097c9f70d0f12e61e0c013d46cfc8ffdf5a",
+          "after_sha256": "46954fadfb351ee49d67d33ccfee2e73b20409a754f77d897e09f5ae0842fe35",
+          "rationale": "Only bounded lease bookkeeping after cooperative cancellation; original deadline restored; no numerical publication."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveIoCP12.java",
+          "before_sha256": "323e37a1ce7b6dee9684b91e260f332132b4f68520ff96c1809930d89ffae481",
+          "after_sha256": "f0f0cd2010a298e3b65669cfe0049960a9f1657ad3b01dfaf9b89b09541ce4b2",
+          "rationale": "R73: Bound native SQLite at 32 MiB because full installed schema exceeds 4 MiB; buffer output without changing SCROW bytes. Reuse verified snapshot and independently reverify existing immutable receipts. Deletion/generation/predicate guards unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotCacheR73.java",
+          "before_sha256": "",
+          "after_sha256": "cc1b7c27774619a8e3c2f19a7a1875c5951f3923da0276397a182e1382b3f14f",
+          "rationale": "R73: Sole diagnostics journal owner caches exactly one immutable native backup for at most 256 uses/10 minutes. Revalidate table schema and every requested generation; stale copy refreshed; source remains read-only. Writer independently checks live generation and eligibility. No score, label, policy or certificate changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotRowsCP7.java",
+          "before_sha256": "430c0e9dfc9fb440d9f6dc110c9252ac39b98f606481f7f0bfb089075f24074a",
+          "after_sha256": "773ef503a0b415105d506e08ee69b86543223b14d89bbd53ac3c7fff709022f6",
+          "rationale": "R73: Permit re-opening an already hash-verified private immutable copy only with an in-process unforgeable proof and unchanged file stamp; process restart hashes again. Same selected row reader, typed values and SCROW proof."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java",
+          "before_sha256": "c05324164bae4b41733176a2bb81a47a7e8ea7424a959fd95bee7d36dcee9554",
+          "after_sha256": "2b45f27fe4850178fcc1ce85077d856cf91a3b63b024ff4bc2752fb412d96fb1",
+          "rationale": "R68: Rebuild only absent or mismatched projection watermarks within the same bounded issue set. Replays original immutable events with unchanged reducer; no event fabrication, rank changes or numerical training changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "before_sha256": "a81f69e5fc95a577e06c3a3a3e697f22c421c79775bd9a662223db1ceb8e1889",
+          "after_sha256": "390fa3527d03ffc26ee4c4f81733d45c577a43bbab3829f3ce0735402dd19b7b",
+          "rationale": "Clear stale error detail on fetch success; diagnostic change only. R71: Read-only current-target, settlement, OOS and timestamp predicate for the UI badge; never grants authority."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageReclaimR943.java",
+          "before_sha256": "49ab6af381e4ea1e98bfe5002d7c3bf79e066e4addbf42eb53946187ac8f2d0b",
+          "after_sha256": "50098684f05dda50c97b3f7e967839153907ed2078f4cc7f6738d36c22bed351",
+          "rationale": "R70: Allow quiet checkpoint/reclaim when critical owners are idle; retry contended attempts without a false completed timestamp. No logical deletion changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/AtomCatalogImportCP12.java",
+          "before_sha256": "05df369ad7c7c624707d44577e20445bacb356f17f596327d0c8a130c791f184",
+          "after_sha256": "46fa153748f9befe6b203be595a1aab1d5567fef4f3d5b8f96ea570208d1d61f",
+          "rationale": "96-row pages preserve pinned rows, full SHA and cursor CAS; same 64KiB and 250ms compute bounds; no atom semantic change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentInputCP9.java",
+          "before_sha256": "ed67e3982e9a66d51cff01b0a5be17f7e4ebca57f733d031e8528b9509d824a9",
+          "after_sha256": "1a92a86044d3967175aedf279819dbf9c5f7188e1e251e9151974b3791a3a1f8",
+          "rationale": "R72: Buffer authenticated SCDEV input/output below digest. R71/current bytes and SHA256 identical on 5000 rows, corruption/trailing/truncation rejection and lease release checked."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+          "before_sha256": "62533062ea0c123c608a00c04b5b9b207803601f6db9406c85ee7ac38365d17b",
+          "after_sha256": "9024356a015e0d2c01297452c8b23578a4d7455a94686254e4327af822429365",
+          "rationale": "R72: Read only history suffix selected by unchanged protocol; exact window equivalence tested. Stop feature computation before writer deadline, retaining immutable committed pages and same numerical inputs."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+          "before_sha256": "2ff0ec421c30ea30ce985436d04f898bcec3b7e35f6cf66a51fbf88d81d1a78f",
+          "after_sha256": "3eb22fb3ee1e4972cbf37be9ec278dfc7dc7a5d2ffe64ecbecf8cab56f13d40a",
+          "rationale": "Release unchanged action lease after preemption; proposal, parent, mutation and fusion formulas unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+          "before_sha256": "34e6274d6682170f326c9d44d04012d4affc4ea4cc616317e1391942ea584e50",
+          "after_sha256": "6a59787ce240c0ef7801c36f46eac1d3f320442100727130c9db69bb67a9c104",
+          "rationale": "R72: Remove repeated hot-path schema calls after migration; checkpoint proposal before insufficient remaining preparation time. Same AST, pinned source, registration and training protocol."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+          "before_sha256": "d033b4f07b8543c9370b5428c1891b023fd8d512a0026de9ac60bb5b4ef7c424",
+          "after_sha256": "82e04e842e14c6652441b8015b27c4b91ca652c61dc0a15ac9ad64178d5923a8",
+          "rationale": "Use remaining compute slice across original six-slot order; no model/feature/loss changes. R72: Use available bounded 850ms lane quantum for TRAIN/EVOLVE/IMPORT with 75ms commit margin. Same durable six-slot wheel and owner implementations."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchOutboxR952.java",
+          "before_sha256": "c805f2a7d13b59ba4aa62be77c22bbd2eb495d54fd76571fc8d094e89f4d3b73",
+          "after_sha256": "e77f7eab213185d81eca4fb50d5f3588f81401ff7132d41511a6e636c33b5995",
+          "rationale": "Lease-only release after preemption; remove in-memory claim only after successful durable commit."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+          "before_sha256": "eea8a1027ca96911495b600beab1170150f8c3e051e7c3d3e6801352d4385093",
+          "after_sha256": "670d735f602be288a726a9732eba455c31f809efa6bbb36ccc1de3c340308c54",
+          "rationale": "Spend the same bounded TRAIN quantum across up to 12 persisted rotating subslots; each task owns its own transaction, input, cursor and lease. Model update, freeze and numerical kernels are unchanged."
+        },
+        {
+          "path": "scripts/r967_semantic_identity.py",
+          "before_sha256": "c3d3c7db38f75e84e6d9cb2cea088a88e59419ad10c570bb4152d864529b2e48",
+          "after_sha256": "e90c1b350d0791043758711d92ca1710f56e43eeffa3e5d033b070764759763b",
+          "rationale": "R70: Finite exact reviewed R65-R69 development continuation only. Same numerical functions and policy; no certificate or future-evidence inheritance. R71: Finite exact source-reviewed numerical continuation of R65-R70 only; no certificate or prospective evidence inheritance. R72: Finite exact-source reviewed R65-R71 DEV continuation. Policy hash must match. No certificate or prospective-evidence migration. R73: Finite reviewed R65-R72 DEV-only numeric continuation. Exact byte and policy equality review required. No certificate or Future evidence migration."
+        }
+      ]
+    },
+    {
+      "baseline_file": "release/r66_semantic_baseline.json",
+      "baseline_manifest_sha256": "dd3d3dd62ddde24077d11f2d357a9b3458f1adba3fe5a4eba61a6dc7c14dda10",
+      "predecessor_training_rule_sha256": "04dcbeb86d5a92e3ea600425f8ee21b682e922d36945994ead611e9cefd377f8",
+      "reviewed_numeric_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+          "before_sha256": "6728997faff63e365735779f670b8bfa5c93fefa719f5e10fa38df201375df72",
+          "after_sha256": "e48a7c689100ecc726930a0bb76e7a93ac55c0140a2d8ae1930aaac9dee01a82",
+          "rationale": "R72: Recover authentic frozen late outcomes exactly once without changing/replaying the newer VM head. Chronological update formula and DEV training implementation unchanged; verified late/duplicate/next-label regression. No inherited certificate authority."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ApiTransportGovernanceEngine.java",
+          "before_sha256": "73cfe3e8739ed2ecaad08740ae22dd662fa85d820a66926beab4ed19957401dd",
+          "after_sha256": "b84e1e38cab9bdc96f9a812820825f5ad70b2ce17d47fe74646aed9e25c436b7",
+          "rationale": "R71: Old but well-formed HTTP payload remains rejected and triggers failover, while not tripping transport outage backoff. Real transport/schema failures still trip the circuit."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AssetGenesisEngineR915.java",
+          "before_sha256": "005719e4433bfc3136fb0a5284b4f802a9590e1c81b248513cc9eee5869edb54",
+          "after_sha256": "1feda8a59db70f0033a96de1bc035892113c842908615f2804c9173daf9c0168",
+          "rationale": "R72: Settle valid late frozen labels without rewinding state; chronological VM update unchanged. Verified both ordering directions and repeated calls; no certificate created."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "before_sha256": "26940e25f90dec340b8ccfb4476165e068515446c67740e62486ebfcd8525ba4",
+          "after_sha256": "4d543317dc851224f74cfecf9b1dbc705ba1deba729ed80058b934bc5121a7cb",
+          "rationale": "R70: Move Android memory-callback persistence onto the existing guard handler; bounded retention retries, independent quiet reclaim and one coalesced research continuation on the existing handler. No score, loss, label, model, gate or certificate change. R71: Dispatch next analysis and current settlement immediately after durable draw, before telemetry/history. Batch receipt writes; move fallback to existing serial backfill handler; remove aggregate statistics from polling status. No score, label, target deadline or numerical rule change. R72: New target broadcasts bypass same-target tick limiter. Sole clock, DecisionGate and settlement owners retained; no reflected target or numerical change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/BusinessReconcilerR36.java",
+          "before_sha256": "ec22d0271797d41b3b65b8963f770a2a2a2f1e039d84be3ea7872e5ad22cdd31",
+          "after_sha256": "d55d22571a9e5a607153981069685aad730e7ad6a56bd06b109e01dc3a0809b1",
+          "rationale": "R70: Retry only documented request-write deadline/lock contention through the existing watchdog; keep immutable target deadline, settlement queue and fatal integrity errors."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/CompiledActionContract.java",
+          "before_sha256": "83c62780449b2f8c02b43ebddef19271d552ad4db7ea4581caf0c298dfffbd2a",
+          "after_sha256": "c4e1fec6897e49b38453834fbd8615679bc157714847c6f6ffead3a9586f5b7d",
+          "rationale": "R70: Retire prior-target cached contracts and counters with the existing new-target reset. No durable authorization, immutable record or settlement changed."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/CountdownClock.java",
+          "before_sha256": "b6340df596efa4a72236c215592685541d854a9b3789aa2b8731b0e24a38d825",
+          "after_sha256": "bc2a23386ece6bcd13134c2b43431fc97b24045c3ef4a9bbdd6add4a4b1ca6df",
+          "rationale": "R72: Read-only same-process current anchor for resume; monotonic fetch interval. Target resolver, durable draw and model semantics unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+          "before_sha256": "bcd5f37662e55b1a86197a1c68205558acada336774b7528befdbcc95f233677",
+          "after_sha256": "585e0f9ff1fa60498b26be4fde00c0fbcc245ba2a2dc95d3a116f63458c3bfd4",
+          "rationale": "R72: Optional draw archives use existing fair table cursor; same exact generation, archive proof, references and deletion predicates. No label or numeric change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "before_sha256": "840f9673bfac5bf3cce646336f74c94f6a337436470944359f53de9e74e2261f",
+          "after_sha256": "06a201edcc996c6a90884455aba81f07cc51dcc6556b27822b105e0ed47c16a3",
+          "rationale": "Recognize existing cooperative scopes as research for writer priority, including CP12 names; no numeric changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
+          "before_sha256": "cb8b9cedee4444d2a58db994b3486cf40de25eeddccbf5539ff0403f934cfa23",
+          "after_sha256": "3ccd36a573681396896d03f9712568b2828bb4f670ffef57534f9ce60742676d",
+          "rationale": "R68: Move existing database health read to a background worker; error rendering and lifecycle guard only. Shared DB ownership and numeric code unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+          "before_sha256": "4d0f7332933ec321d657482abe2bd9e994dee34de96734e45f913dc0adfda453",
+          "after_sha256": "745570db2eff825bc1a6d1883a01afd2844334421c622402320789711103d229",
+          "rationale": "R71: Fixed indexed read-only UI state keys and cached display summaries instead of per-second teacher/profile counts. Canonical writers, models and full diagnostics unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DrawPollingReplayR67.java",
+          "before_sha256": "",
+          "after_sha256": "6cd0959223764bac8082326740ded8f96f654fd48e6a427ded2e4b1dcd518b10",
+          "rationale": "Read-only duplicate poll admission. Changed/conflicting draws keep canonical writer; identical confirmed values do not retrain or alter features."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java",
+          "before_sha256": "cf1060b9161657e4711fbef5277c92cdd163239cb048bfd745c35f6103e4ecfd",
+          "after_sha256": "8a18139bafc969bbbd343abf824e363db43760e087f1cd65d2f7eac90c7b4839",
+          "rationale": "R70: Raise capture execution slice from an admission-cost estimate to 400ms inside the existing 1200ms/preemption bound. Unchanged PIT, model scoring, transaction atomicity and future-only capture. R72: Reserved capture uses remaining enclosing deadline minus commit margin, retaining preemption/PIT/model and transaction checks. No postdraw capture or retrospective probability."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/LanePolicyCompiler.java",
+          "before_sha256": "2b6459c31926955fa41c1ece0ce3fe15d70d8f314112d0c3e0b7fb01088820b3",
+          "after_sha256": "24e2fc0eb5237cfd32410b136089fb0b1e8d3d4c6b626e2c12042245a16da240",
+          "rationale": "R70: Retire prior-target process cache entries when the sole DecisionGate starts a new issue; same-target reset behavior and all numerical functions unchanged. Future in-flight target entries preserved."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelLearningActivity.java",
+          "before_sha256": "2d0370f5ffd864aecc2bb3c4a76f325b585b5a8c0f78618a7d7b6c9719b4face",
+          "after_sha256": "2d57d765791b9f3dcc28edb0c39da16562ab3d14226ad17af85f5fd6783b915c",
+          "rationale": "R68: Lazy-open DbStore on the existing serial background handler; encompass model status in error handling. Import and rollback retain their original owners and authorization."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+          "before_sha256": "453fd1ac37e5e5f8b56677cc686a57bac2d661f933b4c780e8aeb17bdac1f726",
+          "after_sha256": "5236f4dccf69d89bede6b690a5dea84da113d1ac8db3f7c2a051194a82812449",
+          "rationale": "R68: Use ZIP deflate level 6; existing lossless per-member SHA, byte count and CRC readback stay enforced."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+          "before_sha256": "3d53a35acbefed37e253afdff2bc70b7c0c35fa9bd1b1371a53aa47f50735c2d",
+          "after_sha256": "11f8fd19dce4db45542e2e1bca86599c54dddd0b555c13d0d4a38b10894cd13a",
+          "rationale": "R68: Reuse the owner-verified immutable snapshot hash instead of hashing the same private file twice. Resume still verifies SHA and size; no live database mutations."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+          "before_sha256": "604106de8a57c9d25a682075b4da7e123d2138c2e6e922632430a1675a657507",
+          "after_sha256": "a1050003b7a2238cdc1d276c69242d27395b3ecd5837194c63b75ea815e4b957",
+          "rationale": "R68: Clarify diagnostic versus raw backup coverage; same 96 evaluation handlers, no health or qualification thresholds changed."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+          "before_sha256": "e468339c4b3099878f78cc609e6d74149dd029261dd19d3bf83a4401d216667a",
+          "after_sha256": "41464a2cc6d5610b964ca8213096151b78c03cac7d8d9c169a7e51758832123a",
+          "rationale": "R70: Include calibration model and failure metadata in a read-only report; no training or qualification side effects."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "before_sha256": "ee577095efcff80ba08b1ed4aee4dfbc7880dc45077fdaac9c1c03e5b3c1cd00",
+          "after_sha256": "d28a244e4654ed906ecfa977b65aca48fd37a1bd454f60184cdcd9b01b38f66a",
+          "rationale": "R70: Timestamp the immutable snapshot immediately after backup before hash I/O. Diagnostic freshness only. R71: Bind diagnostic timestamp before native backup pins the immutable read snapshot. No evidence or training data modified. R72: Preserve STALE_PAGE and ARCHIVE error codes in diagnostic ACK; no data or numeric change. R73: Reuse an exact generation-checked, hash-verified private retention snapshot; recover a fully reverified immutable reply after crash. FULL_REPORT still takes its own fresh complete snapshot. No statistical or mainline decision changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+          "before_sha256": "62a3e0b1e7295913fa1466187079bf865f083f595f2a069adfe4fd4394072940",
+          "after_sha256": "7eeeb9f1901a6160363f919ceeffe03efc940c0c30492ef530848338fb58df82",
+          "rationale": "R69: Expose owner-lock check and explicit current-report pointer detach for deletion; no business state mutation."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+          "before_sha256": "ff0fa63fb965d7778bcf37704c0e556aade685c79b234b7cbff7b36ce58b1e51",
+          "after_sha256": "89361bf6c0e1ace0627bf596a4f5c3ca824886afd5fc538184f63cd2980eecda",
+          "rationale": "R69: Explicit user deletion bypasses soft share grants but respects live reader locks; detached private report deletion can resume after a crash. No model/database/external-file deletion."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportRequestQueueCP12.java",
+          "before_sha256": "a511e3209a0d82393fba4c0a32b85e7982aedcbe1aca206488fd26604aff9298",
+          "after_sha256": "7b0bc6eacb85d2df1d671606a2551710714f65ea86897d1a3aa157fb342a34a0",
+          "rationale": "R69: Exact-ID removal and interactive selection retain all deferred retention requests and FIFO metadata; no learning owner changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportTaskControlR69.java",
+          "before_sha256": "",
+          "after_sha256": "d63b80dfb22bee8c80e3407b2929b641a81a5f2e1fac59f0f5f0f8e8997ce384",
+          "rationale": "R69: Durable report-only cancellation and explicit deletion under the existing sole report owner. Cancel queued exports and SAF; preserve database, model and retention state and external saved files."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchCaptureQueueR946.java",
+          "before_sha256": "3a4ad469e542f6743c66fa18e8d5e259f8145b1a28551a098cffa979977700db",
+          "after_sha256": "37e60067de11a93c91e2b48d85d0422aaba28ea23718b1f0a77cdd16fabfb38f",
+          "rationale": "R70: Recover due calibration reservations and reviewed predecessor learning runs; do not close a target with an uncommitted reservation. No evidence migration or postdraw fill."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java",
+          "before_sha256": "c7ae96419b5eefe1daf47de363742e2e235907312419549909acefcbc38b1b5d",
+          "after_sha256": "053f20a1e7850a386f25c22ceeb5f1e38662ad183e7cf5da40781db10da03084",
+          "rationale": "R72: Cache only committed idempotent DDL by SQLite schema_version using the existing audited cache. Active bundle, certificate checks, revocation, promotion and numeric decisions unchanged; rollback/schema-change tests protect readiness."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPopulationR966.java",
+          "before_sha256": "a4ea8f0dd359829fdf304ee821510a90cd600b5b1ab5925cb474beea1a6d256a",
+          "after_sha256": "54047dcd6e3b623b016fe5366d0f235f90444d259703872309616f3ed9ab6899",
+          "rationale": "R72: Completed DEV child may replace only its own zero-update/zero-Future parent with proxy records. Programs, pending labels and lineage retained; formal/calibration/elite/certificate protection remains. Resource retirement is not quality promotion."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPredrawCaptureR923.java",
+          "before_sha256": "159cb24a140fbafd246c0201a1ccbc812fdf892bde11816cc6f7b348b296a865",
+          "after_sha256": "90ec15096032ed73d789e17fe89a5c0cdee3880cca2524807f28c102430337b2",
+          "rationale": "R70: Serve already-admitted consecutive prospective capture before atom discovery on the same bounded owner. All model and data-role rules retained."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPredrawSettlementPumpR908.java",
+          "before_sha256": "cddca231b87ff16224d959b91517903970f49d0d5143202dd94a5e7f8a1a66ac",
+          "after_sha256": "743ead358dbe58cdc3718f2bac17bcca3c1535fcb96f527900887517a4db0948",
+          "rationale": "R72: Durable circular issue scan cannot stall behind an invalid first page. Existing exact settlement owners retained; no outcome acknowledged by scan cursor."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkBudgetR927.java",
+          "before_sha256": "8fb0808f9c2ce2ed58a5ffe78c99f052f2fd1d9c4ac01e85f15bbf395f691a93",
+          "after_sha256": "46954fadfb351ee49d67d33ccfee2e73b20409a754f77d897e09f5ae0842fe35",
+          "rationale": "Only bounded lease bookkeeping after cooperative cancellation; original deadline restored; no numerical publication."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveIoCP12.java",
+          "before_sha256": "323e37a1ce7b6dee9684b91e260f332132b4f68520ff96c1809930d89ffae481",
+          "after_sha256": "f0f0cd2010a298e3b65669cfe0049960a9f1657ad3b01dfaf9b89b09541ce4b2",
+          "rationale": "R73: Bound native SQLite at 32 MiB because full installed schema exceeds 4 MiB; buffer output without changing SCROW bytes. Reuse verified snapshot and independently reverify existing immutable receipts. Deletion/generation/predicate guards unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotCacheR73.java",
+          "before_sha256": "",
+          "after_sha256": "cc1b7c27774619a8e3c2f19a7a1875c5951f3923da0276397a182e1382b3f14f",
+          "rationale": "R73: Sole diagnostics journal owner caches exactly one immutable native backup for at most 256 uses/10 minutes. Revalidate table schema and every requested generation; stale copy refreshed; source remains read-only. Writer independently checks live generation and eligibility. No score, label, policy or certificate changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotRowsCP7.java",
+          "before_sha256": "430c0e9dfc9fb440d9f6dc110c9252ac39b98f606481f7f0bfb089075f24074a",
+          "after_sha256": "773ef503a0b415105d506e08ee69b86543223b14d89bbd53ac3c7fff709022f6",
+          "rationale": "R73: Permit re-opening an already hash-verified private immutable copy only with an in-process unforgeable proof and unchanged file stamp; process restart hashes again. Same selected row reader, typed values and SCROW proof."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java",
+          "before_sha256": "c05324164bae4b41733176a2bb81a47a7e8ea7424a959fd95bee7d36dcee9554",
+          "after_sha256": "2b45f27fe4850178fcc1ce85077d856cf91a3b63b024ff4bc2752fb412d96fb1",
+          "rationale": "R68: Rebuild only absent or mismatched projection watermarks within the same bounded issue set. Replays original immutable events with unchanged reducer; no event fabrication, rank changes or numerical training changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "before_sha256": "a81f69e5fc95a577e06c3a3a3e697f22c421c79775bd9a662223db1ceb8e1889",
+          "after_sha256": "390fa3527d03ffc26ee4c4f81733d45c577a43bbab3829f3ce0735402dd19b7b",
+          "rationale": "Clear stale error detail on fetch success; diagnostic change only. R71: Read-only current-target, settlement, OOS and timestamp predicate for the UI badge; never grants authority."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageReclaimR943.java",
+          "before_sha256": "49ab6af381e4ea1e98bfe5002d7c3bf79e066e4addbf42eb53946187ac8f2d0b",
+          "after_sha256": "50098684f05dda50c97b3f7e967839153907ed2078f4cc7f6738d36c22bed351",
+          "rationale": "R70: Allow quiet checkpoint/reclaim when critical owners are idle; retry contended attempts without a false completed timestamp. No logical deletion changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/AtomCatalogImportCP12.java",
+          "before_sha256": "05df369ad7c7c624707d44577e20445bacb356f17f596327d0c8a130c791f184",
+          "after_sha256": "46fa153748f9befe6b203be595a1aab1d5567fef4f3d5b8f96ea570208d1d61f",
+          "rationale": "96-row pages preserve pinned rows, full SHA and cursor CAS; same 64KiB and 250ms compute bounds; no atom semantic change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentInputCP9.java",
+          "before_sha256": "ed67e3982e9a66d51cff01b0a5be17f7e4ebca57f733d031e8528b9509d824a9",
+          "after_sha256": "1a92a86044d3967175aedf279819dbf9c5f7188e1e251e9151974b3791a3a1f8",
+          "rationale": "R72: Buffer authenticated SCDEV input/output below digest. R71/current bytes and SHA256 identical on 5000 rows, corruption/trailing/truncation rejection and lease release checked."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+          "before_sha256": "62533062ea0c123c608a00c04b5b9b207803601f6db9406c85ee7ac38365d17b",
+          "after_sha256": "9024356a015e0d2c01297452c8b23578a4d7455a94686254e4327af822429365",
+          "rationale": "R72: Read only history suffix selected by unchanged protocol; exact window equivalence tested. Stop feature computation before writer deadline, retaining immutable committed pages and same numerical inputs."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+          "before_sha256": "34e6274d6682170f326c9d44d04012d4affc4ea4cc616317e1391942ea584e50",
+          "after_sha256": "6a59787ce240c0ef7801c36f46eac1d3f320442100727130c9db69bb67a9c104",
+          "rationale": "R72: Remove repeated hot-path schema calls after migration; checkpoint proposal before insufficient remaining preparation time. Same AST, pinned source, registration and training protocol."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+          "before_sha256": "8bd1bdac8c51715f372326bfb6579d538058623039987c96d4331308d30eb092",
+          "after_sha256": "82e04e842e14c6652441b8015b27c4b91ca652c61dc0a15ac9ad64178d5923a8",
+          "rationale": "R72: Use available bounded 850ms lane quantum for TRAIN/EVOLVE/IMPORT with 75ms commit margin. Same durable six-slot wheel and owner implementations."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+          "before_sha256": "128d50d0da9f97ba4a678da42b2879bc179947708b97470dbe22daa603d51cd1",
+          "after_sha256": "670d735f602be288a726a9732eba455c31f809efa6bbb36ccc1de3c340308c54",
+          "rationale": "Spend the same bounded TRAIN quantum across up to 12 persisted rotating subslots; each task owns its own transaction, input, cursor and lease. Model update, freeze and numerical kernels are unchanged."
+        },
+        {
+          "path": "scripts/r967_semantic_identity.py",
+          "before_sha256": "c966fe7ee883aa2bdebdb0d6e90ec87bd3700f8035f77a03aa4822658979a63c",
+          "after_sha256": "e90c1b350d0791043758711d92ca1710f56e43eeffa3e5d033b070764759763b",
+          "rationale": "R70: Finite exact reviewed R65-R69 development continuation only. Same numerical functions and policy; no certificate or future-evidence inheritance. R71: Finite exact source-reviewed numerical continuation of R65-R70 only; no certificate or prospective evidence inheritance. R72: Finite exact-source reviewed R65-R71 DEV continuation. Policy hash must match. No certificate or prospective-evidence migration. R73: Finite reviewed R65-R72 DEV-only numeric continuation. Exact byte and policy equality review required. No certificate or Future evidence migration."
+        }
+      ]
+    },
+    {
+      "baseline_file": "release/r67_semantic_baseline.json",
+      "baseline_manifest_sha256": "b9e5f0168b9807fbcd8dff12817dc1d0768fedd5b2198c4135dedde252da84d9",
+      "predecessor_training_rule_sha256": "a0d0c0be9e9e1bf0ea99130a2962ea7f591cb53de7d5ff686b51e9efd7fc5f12",
+      "reviewed_numeric_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+          "before_sha256": "6728997faff63e365735779f670b8bfa5c93fefa719f5e10fa38df201375df72",
+          "after_sha256": "e48a7c689100ecc726930a0bb76e7a93ac55c0140a2d8ae1930aaac9dee01a82",
+          "rationale": "R72: Recover authentic frozen late outcomes exactly once without changing/replaying the newer VM head. Chronological update formula and DEV training implementation unchanged; verified late/duplicate/next-label regression. No inherited certificate authority."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ApiTransportGovernanceEngine.java",
+          "before_sha256": "73cfe3e8739ed2ecaad08740ae22dd662fa85d820a66926beab4ed19957401dd",
+          "after_sha256": "b84e1e38cab9bdc96f9a812820825f5ad70b2ce17d47fe74646aed9e25c436b7",
+          "rationale": "R71: Old but well-formed HTTP payload remains rejected and triggers failover, while not tripping transport outage backoff. Real transport/schema failures still trip the circuit."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AssetGenesisEngineR915.java",
+          "before_sha256": "005719e4433bfc3136fb0a5284b4f802a9590e1c81b248513cc9eee5869edb54",
+          "after_sha256": "1feda8a59db70f0033a96de1bc035892113c842908615f2804c9173daf9c0168",
+          "rationale": "R72: Settle valid late frozen labels without rewinding state; chronological VM update unchanged. Verified both ordering directions and repeated calls; no certificate created."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "before_sha256": "28deed7085ab53fc46e2d64035d0409d2be6d9af0ac7745aa4656b541f5c27b7",
+          "after_sha256": "4d543317dc851224f74cfecf9b1dbc705ba1deba729ed80058b934bc5121a7cb",
+          "rationale": "R70: Move Android memory-callback persistence onto the existing guard handler; bounded retention retries, independent quiet reclaim and one coalesced research continuation on the existing handler. No score, loss, label, model, gate or certificate change. R71: Dispatch next analysis and current settlement immediately after durable draw, before telemetry/history. Batch receipt writes; move fallback to existing serial backfill handler; remove aggregate statistics from polling status. No score, label, target deadline or numerical rule change. R72: New target broadcasts bypass same-target tick limiter. Sole clock, DecisionGate and settlement owners retained; no reflected target or numerical change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/BusinessReconcilerR36.java",
+          "before_sha256": "ec22d0271797d41b3b65b8963f770a2a2a2f1e039d84be3ea7872e5ad22cdd31",
+          "after_sha256": "d55d22571a9e5a607153981069685aad730e7ad6a56bd06b109e01dc3a0809b1",
+          "rationale": "R70: Retry only documented request-write deadline/lock contention through the existing watchdog; keep immutable target deadline, settlement queue and fatal integrity errors."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/CompiledActionContract.java",
+          "before_sha256": "83c62780449b2f8c02b43ebddef19271d552ad4db7ea4581caf0c298dfffbd2a",
+          "after_sha256": "c4e1fec6897e49b38453834fbd8615679bc157714847c6f6ffead3a9586f5b7d",
+          "rationale": "R70: Retire prior-target cached contracts and counters with the existing new-target reset. No durable authorization, immutable record or settlement changed."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/CountdownClock.java",
+          "before_sha256": "b6340df596efa4a72236c215592685541d854a9b3789aa2b8731b0e24a38d825",
+          "after_sha256": "bc2a23386ece6bcd13134c2b43431fc97b24045c3ef4a9bbdd6add4a4b1ca6df",
+          "rationale": "R72: Read-only same-process current anchor for resume; monotonic fetch interval. Target resolver, durable draw and model semantics unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+          "before_sha256": "bcd5f37662e55b1a86197a1c68205558acada336774b7528befdbcc95f233677",
+          "after_sha256": "585e0f9ff1fa60498b26be4fde00c0fbcc245ba2a2dc95d3a116f63458c3bfd4",
+          "rationale": "R72: Optional draw archives use existing fair table cursor; same exact generation, archive proof, references and deletion predicates. No label or numeric change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
+          "before_sha256": "cb8b9cedee4444d2a58db994b3486cf40de25eeddccbf5539ff0403f934cfa23",
+          "after_sha256": "3ccd36a573681396896d03f9712568b2828bb4f670ffef57534f9ce60742676d",
+          "rationale": "R68: Move existing database health read to a background worker; error rendering and lifecycle guard only. Shared DB ownership and numeric code unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+          "before_sha256": "4d0f7332933ec321d657482abe2bd9e994dee34de96734e45f913dc0adfda453",
+          "after_sha256": "745570db2eff825bc1a6d1883a01afd2844334421c622402320789711103d229",
+          "rationale": "R71: Fixed indexed read-only UI state keys and cached display summaries instead of per-second teacher/profile counts. Canonical writers, models and full diagnostics unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java",
+          "before_sha256": "cf1060b9161657e4711fbef5277c92cdd163239cb048bfd745c35f6103e4ecfd",
+          "after_sha256": "8a18139bafc969bbbd343abf824e363db43760e087f1cd65d2f7eac90c7b4839",
+          "rationale": "R70: Raise capture execution slice from an admission-cost estimate to 400ms inside the existing 1200ms/preemption bound. Unchanged PIT, model scoring, transaction atomicity and future-only capture. R72: Reserved capture uses remaining enclosing deadline minus commit margin, retaining preemption/PIT/model and transaction checks. No postdraw capture or retrospective probability."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/LanePolicyCompiler.java",
+          "before_sha256": "2b6459c31926955fa41c1ece0ce3fe15d70d8f314112d0c3e0b7fb01088820b3",
+          "after_sha256": "24e2fc0eb5237cfd32410b136089fb0b1e8d3d4c6b626e2c12042245a16da240",
+          "rationale": "R70: Retire prior-target process cache entries when the sole DecisionGate starts a new issue; same-target reset behavior and all numerical functions unchanged. Future in-flight target entries preserved."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelLearningActivity.java",
+          "before_sha256": "2d0370f5ffd864aecc2bb3c4a76f325b585b5a8c0f78618a7d7b6c9719b4face",
+          "after_sha256": "2d57d765791b9f3dcc28edb0c39da16562ab3d14226ad17af85f5fd6783b915c",
+          "rationale": "R68: Lazy-open DbStore on the existing serial background handler; encompass model status in error handling. Import and rollback retain their original owners and authorization."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+          "before_sha256": "453fd1ac37e5e5f8b56677cc686a57bac2d661f933b4c780e8aeb17bdac1f726",
+          "after_sha256": "5236f4dccf69d89bede6b690a5dea84da113d1ac8db3f7c2a051194a82812449",
+          "rationale": "R68: Use ZIP deflate level 6; existing lossless per-member SHA, byte count and CRC readback stay enforced."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+          "before_sha256": "3d53a35acbefed37e253afdff2bc70b7c0c35fa9bd1b1371a53aa47f50735c2d",
+          "after_sha256": "11f8fd19dce4db45542e2e1bca86599c54dddd0b555c13d0d4a38b10894cd13a",
+          "rationale": "R68: Reuse the owner-verified immutable snapshot hash instead of hashing the same private file twice. Resume still verifies SHA and size; no live database mutations."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+          "before_sha256": "cbcf50f8fff4776c8bd589142b4fb6489a435c4042bc89309cb0ee62666324f7",
+          "after_sha256": "a1050003b7a2238cdc1d276c69242d27395b3ecd5837194c63b75ea815e4b957",
+          "rationale": "R68: Clarify diagnostic versus raw backup coverage; same 96 evaluation handlers, no health or qualification thresholds changed."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+          "before_sha256": "e468339c4b3099878f78cc609e6d74149dd029261dd19d3bf83a4401d216667a",
+          "after_sha256": "41464a2cc6d5610b964ca8213096151b78c03cac7d8d9c169a7e51758832123a",
+          "rationale": "R70: Include calibration model and failure metadata in a read-only report; no training or qualification side effects."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "before_sha256": "69770ae932f32ff2ddcbd50a9c9b42fe2ad9fc5a153d63831608bba5e1c77ff7",
+          "after_sha256": "d28a244e4654ed906ecfa977b65aca48fd37a1bd454f60184cdcd9b01b38f66a",
+          "rationale": "R70: Timestamp the immutable snapshot immediately after backup before hash I/O. Diagnostic freshness only. R71: Bind diagnostic timestamp before native backup pins the immutable read snapshot. No evidence or training data modified. R72: Preserve STALE_PAGE and ARCHIVE error codes in diagnostic ACK; no data or numeric change. R73: Reuse an exact generation-checked, hash-verified private retention snapshot; recover a fully reverified immutable reply after crash. FULL_REPORT still takes its own fresh complete snapshot. No statistical or mainline decision changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+          "before_sha256": "62a3e0b1e7295913fa1466187079bf865f083f595f2a069adfe4fd4394072940",
+          "after_sha256": "7eeeb9f1901a6160363f919ceeffe03efc940c0c30492ef530848338fb58df82",
+          "rationale": "R69: Expose owner-lock check and explicit current-report pointer detach for deletion; no business state mutation."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+          "before_sha256": "ff0fa63fb965d7778bcf37704c0e556aade685c79b234b7cbff7b36ce58b1e51",
+          "after_sha256": "89361bf6c0e1ace0627bf596a4f5c3ca824886afd5fc538184f63cd2980eecda",
+          "rationale": "R69: Explicit user deletion bypasses soft share grants but respects live reader locks; detached private report deletion can resume after a crash. No model/database/external-file deletion."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportRequestQueueCP12.java",
+          "before_sha256": "a511e3209a0d82393fba4c0a32b85e7982aedcbe1aca206488fd26604aff9298",
+          "after_sha256": "7b0bc6eacb85d2df1d671606a2551710714f65ea86897d1a3aa157fb342a34a0",
+          "rationale": "R69: Exact-ID removal and interactive selection retain all deferred retention requests and FIFO metadata; no learning owner changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportTaskControlR69.java",
+          "before_sha256": "",
+          "after_sha256": "d63b80dfb22bee8c80e3407b2929b641a81a5f2e1fac59f0f5f0f8e8997ce384",
+          "rationale": "R69: Durable report-only cancellation and explicit deletion under the existing sole report owner. Cancel queued exports and SAF; preserve database, model and retention state and external saved files."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchCaptureQueueR946.java",
+          "before_sha256": "3a4ad469e542f6743c66fa18e8d5e259f8145b1a28551a098cffa979977700db",
+          "after_sha256": "37e60067de11a93c91e2b48d85d0422aaba28ea23718b1f0a77cdd16fabfb38f",
+          "rationale": "R70: Recover due calibration reservations and reviewed predecessor learning runs; do not close a target with an uncommitted reservation. No evidence migration or postdraw fill."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java",
+          "before_sha256": "c7ae96419b5eefe1daf47de363742e2e235907312419549909acefcbc38b1b5d",
+          "after_sha256": "053f20a1e7850a386f25c22ceeb5f1e38662ad183e7cf5da40781db10da03084",
+          "rationale": "R72: Cache only committed idempotent DDL by SQLite schema_version using the existing audited cache. Active bundle, certificate checks, revocation, promotion and numeric decisions unchanged; rollback/schema-change tests protect readiness."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPopulationR966.java",
+          "before_sha256": "a4ea8f0dd359829fdf304ee821510a90cd600b5b1ab5925cb474beea1a6d256a",
+          "after_sha256": "54047dcd6e3b623b016fe5366d0f235f90444d259703872309616f3ed9ab6899",
+          "rationale": "R72: Completed DEV child may replace only its own zero-update/zero-Future parent with proxy records. Programs, pending labels and lineage retained; formal/calibration/elite/certificate protection remains. Resource retirement is not quality promotion."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPredrawCaptureR923.java",
+          "before_sha256": "159cb24a140fbafd246c0201a1ccbc812fdf892bde11816cc6f7b348b296a865",
+          "after_sha256": "90ec15096032ed73d789e17fe89a5c0cdee3880cca2524807f28c102430337b2",
+          "rationale": "R70: Serve already-admitted consecutive prospective capture before atom discovery on the same bounded owner. All model and data-role rules retained."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPredrawSettlementPumpR908.java",
+          "before_sha256": "cddca231b87ff16224d959b91517903970f49d0d5143202dd94a5e7f8a1a66ac",
+          "after_sha256": "743ead358dbe58cdc3718f2bac17bcca3c1535fcb96f527900887517a4db0948",
+          "rationale": "R72: Durable circular issue scan cannot stall behind an invalid first page. Existing exact settlement owners retained; no outcome acknowledged by scan cursor."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveIoCP12.java",
+          "before_sha256": "323e37a1ce7b6dee9684b91e260f332132b4f68520ff96c1809930d89ffae481",
+          "after_sha256": "f0f0cd2010a298e3b65669cfe0049960a9f1657ad3b01dfaf9b89b09541ce4b2",
+          "rationale": "R73: Bound native SQLite at 32 MiB because full installed schema exceeds 4 MiB; buffer output without changing SCROW bytes. Reuse verified snapshot and independently reverify existing immutable receipts. Deletion/generation/predicate guards unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotCacheR73.java",
+          "before_sha256": "",
+          "after_sha256": "cc1b7c27774619a8e3c2f19a7a1875c5951f3923da0276397a182e1382b3f14f",
+          "rationale": "R73: Sole diagnostics journal owner caches exactly one immutable native backup for at most 256 uses/10 minutes. Revalidate table schema and every requested generation; stale copy refreshed; source remains read-only. Writer independently checks live generation and eligibility. No score, label, policy or certificate changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotRowsCP7.java",
+          "before_sha256": "430c0e9dfc9fb440d9f6dc110c9252ac39b98f606481f7f0bfb089075f24074a",
+          "after_sha256": "773ef503a0b415105d506e08ee69b86543223b14d89bbd53ac3c7fff709022f6",
+          "rationale": "R73: Permit re-opening an already hash-verified private immutable copy only with an in-process unforgeable proof and unchanged file stamp; process restart hashes again. Same selected row reader, typed values and SCROW proof."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java",
+          "before_sha256": "c05324164bae4b41733176a2bb81a47a7e8ea7424a959fd95bee7d36dcee9554",
+          "after_sha256": "2b45f27fe4850178fcc1ce85077d856cf91a3b63b024ff4bc2752fb412d96fb1",
+          "rationale": "R68: Rebuild only absent or mismatched projection watermarks within the same bounded issue set. Replays original immutable events with unchanged reducer; no event fabrication, rank changes or numerical training changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "before_sha256": "6bb0040dc3b718f9a3346c7863832cd0d25b0a43e9ad13c2382d59f3d227245d",
+          "after_sha256": "390fa3527d03ffc26ee4c4f81733d45c577a43bbab3829f3ce0735402dd19b7b",
+          "rationale": "Clear stale error detail on fetch success; diagnostic change only. R71: Read-only current-target, settlement, OOS and timestamp predicate for the UI badge; never grants authority."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageReclaimR943.java",
+          "before_sha256": "49ab6af381e4ea1e98bfe5002d7c3bf79e066e4addbf42eb53946187ac8f2d0b",
+          "after_sha256": "50098684f05dda50c97b3f7e967839153907ed2078f4cc7f6738d36c22bed351",
+          "rationale": "R70: Allow quiet checkpoint/reclaim when critical owners are idle; retry contended attempts without a false completed timestamp. No logical deletion changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentInputCP9.java",
+          "before_sha256": "ed67e3982e9a66d51cff01b0a5be17f7e4ebca57f733d031e8528b9509d824a9",
+          "after_sha256": "1a92a86044d3967175aedf279819dbf9c5f7188e1e251e9151974b3791a3a1f8",
+          "rationale": "R72: Buffer authenticated SCDEV input/output below digest. R71/current bytes and SHA256 identical on 5000 rows, corruption/trailing/truncation rejection and lease release checked."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+          "before_sha256": "62533062ea0c123c608a00c04b5b9b207803601f6db9406c85ee7ac38365d17b",
+          "after_sha256": "9024356a015e0d2c01297452c8b23578a4d7455a94686254e4327af822429365",
+          "rationale": "R72: Read only history suffix selected by unchanged protocol; exact window equivalence tested. Stop feature computation before writer deadline, retaining immutable committed pages and same numerical inputs."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+          "before_sha256": "34e6274d6682170f326c9d44d04012d4affc4ea4cc616317e1391942ea584e50",
+          "after_sha256": "6a59787ce240c0ef7801c36f46eac1d3f320442100727130c9db69bb67a9c104",
+          "rationale": "R72: Remove repeated hot-path schema calls after migration; checkpoint proposal before insufficient remaining preparation time. Same AST, pinned source, registration and training protocol."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+          "before_sha256": "8bd1bdac8c51715f372326bfb6579d538058623039987c96d4331308d30eb092",
+          "after_sha256": "82e04e842e14c6652441b8015b27c4b91ca652c61dc0a15ac9ad64178d5923a8",
+          "rationale": "R72: Use available bounded 850ms lane quantum for TRAIN/EVOLVE/IMPORT with 75ms commit margin. Same durable six-slot wheel and owner implementations."
+        },
+        {
+          "path": "scripts/r967_semantic_identity.py",
+          "before_sha256": "b072c6b888510b65c0b7e1a0069e5c1ac925a485540127a900a99496f0b8e24d",
+          "after_sha256": "e90c1b350d0791043758711d92ca1710f56e43eeffa3e5d033b070764759763b",
+          "rationale": "R70: Finite exact reviewed R65-R69 development continuation only. Same numerical functions and policy; no certificate or future-evidence inheritance. R71: Finite exact source-reviewed numerical continuation of R65-R70 only; no certificate or prospective evidence inheritance. R72: Finite exact-source reviewed R65-R71 DEV continuation. Policy hash must match. No certificate or prospective-evidence migration. R73: Finite reviewed R65-R72 DEV-only numeric continuation. Exact byte and policy equality review required. No certificate or Future evidence migration."
+        }
+      ]
+    },
+    {
+      "baseline_file": "release/r68_semantic_baseline.json",
+      "baseline_manifest_sha256": "18c94d375ef421a819deae9c082cce87a6e2b4546787f7d86807c74a29591ed4",
+      "predecessor_training_rule_sha256": "6bf2b2699723abef499c8305eacb4079ad0bbb348864588551255faa6211b91c",
+      "reviewed_numeric_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+          "before_sha256": "6728997faff63e365735779f670b8bfa5c93fefa719f5e10fa38df201375df72",
+          "after_sha256": "e48a7c689100ecc726930a0bb76e7a93ac55c0140a2d8ae1930aaac9dee01a82",
+          "rationale": "R72: Recover authentic frozen late outcomes exactly once without changing/replaying the newer VM head. Chronological update formula and DEV training implementation unchanged; verified late/duplicate/next-label regression. No inherited certificate authority."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ApiTransportGovernanceEngine.java",
+          "before_sha256": "73cfe3e8739ed2ecaad08740ae22dd662fa85d820a66926beab4ed19957401dd",
+          "after_sha256": "b84e1e38cab9bdc96f9a812820825f5ad70b2ce17d47fe74646aed9e25c436b7",
+          "rationale": "R71: Old but well-formed HTTP payload remains rejected and triggers failover, while not tripping transport outage backoff. Real transport/schema failures still trip the circuit."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AssetGenesisEngineR915.java",
+          "before_sha256": "005719e4433bfc3136fb0a5284b4f802a9590e1c81b248513cc9eee5869edb54",
+          "after_sha256": "1feda8a59db70f0033a96de1bc035892113c842908615f2804c9173daf9c0168",
+          "rationale": "R72: Settle valid late frozen labels without rewinding state; chronological VM update unchanged. Verified both ordering directions and repeated calls; no certificate created."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "before_sha256": "28deed7085ab53fc46e2d64035d0409d2be6d9af0ac7745aa4656b541f5c27b7",
+          "after_sha256": "4d543317dc851224f74cfecf9b1dbc705ba1deba729ed80058b934bc5121a7cb",
+          "rationale": "R70: Move Android memory-callback persistence onto the existing guard handler; bounded retention retries, independent quiet reclaim and one coalesced research continuation on the existing handler. No score, loss, label, model, gate or certificate change. R71: Dispatch next analysis and current settlement immediately after durable draw, before telemetry/history. Batch receipt writes; move fallback to existing serial backfill handler; remove aggregate statistics from polling status. No score, label, target deadline or numerical rule change. R72: New target broadcasts bypass same-target tick limiter. Sole clock, DecisionGate and settlement owners retained; no reflected target or numerical change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/BusinessReconcilerR36.java",
+          "before_sha256": "ec22d0271797d41b3b65b8963f770a2a2a2f1e039d84be3ea7872e5ad22cdd31",
+          "after_sha256": "d55d22571a9e5a607153981069685aad730e7ad6a56bd06b109e01dc3a0809b1",
+          "rationale": "R70: Retry only documented request-write deadline/lock contention through the existing watchdog; keep immutable target deadline, settlement queue and fatal integrity errors."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/CompiledActionContract.java",
+          "before_sha256": "83c62780449b2f8c02b43ebddef19271d552ad4db7ea4581caf0c298dfffbd2a",
+          "after_sha256": "c4e1fec6897e49b38453834fbd8615679bc157714847c6f6ffead3a9586f5b7d",
+          "rationale": "R70: Retire prior-target cached contracts and counters with the existing new-target reset. No durable authorization, immutable record or settlement changed."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/CountdownClock.java",
+          "before_sha256": "b6340df596efa4a72236c215592685541d854a9b3789aa2b8731b0e24a38d825",
+          "after_sha256": "bc2a23386ece6bcd13134c2b43431fc97b24045c3ef4a9bbdd6add4a4b1ca6df",
+          "rationale": "R72: Read-only same-process current anchor for resume; monotonic fetch interval. Target resolver, durable draw and model semantics unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+          "before_sha256": "bcd5f37662e55b1a86197a1c68205558acada336774b7528befdbcc95f233677",
+          "after_sha256": "585e0f9ff1fa60498b26be4fde00c0fbcc245ba2a2dc95d3a116f63458c3bfd4",
+          "rationale": "R72: Optional draw archives use existing fair table cursor; same exact generation, archive proof, references and deletion predicates. No label or numeric change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+          "before_sha256": "4d0f7332933ec321d657482abe2bd9e994dee34de96734e45f913dc0adfda453",
+          "after_sha256": "745570db2eff825bc1a6d1883a01afd2844334421c622402320789711103d229",
+          "rationale": "R71: Fixed indexed read-only UI state keys and cached display summaries instead of per-second teacher/profile counts. Canonical writers, models and full diagnostics unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java",
+          "before_sha256": "cf1060b9161657e4711fbef5277c92cdd163239cb048bfd745c35f6103e4ecfd",
+          "after_sha256": "8a18139bafc969bbbd343abf824e363db43760e087f1cd65d2f7eac90c7b4839",
+          "rationale": "R70: Raise capture execution slice from an admission-cost estimate to 400ms inside the existing 1200ms/preemption bound. Unchanged PIT, model scoring, transaction atomicity and future-only capture. R72: Reserved capture uses remaining enclosing deadline minus commit margin, retaining preemption/PIT/model and transaction checks. No postdraw capture or retrospective probability."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/LanePolicyCompiler.java",
+          "before_sha256": "2b6459c31926955fa41c1ece0ce3fe15d70d8f314112d0c3e0b7fb01088820b3",
+          "after_sha256": "24e2fc0eb5237cfd32410b136089fb0b1e8d3d4c6b626e2c12042245a16da240",
+          "rationale": "R70: Retire prior-target process cache entries when the sole DecisionGate starts a new issue; same-target reset behavior and all numerical functions unchanged. Future in-flight target entries preserved."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+          "before_sha256": "8398374733b3e0782e35e6a8111cc2edd6f5d6c2e8c64bf5724da3e64a51b79a",
+          "after_sha256": "41464a2cc6d5610b964ca8213096151b78c03cac7d8d9c169a7e51758832123a",
+          "rationale": "R70: Include calibration model and failure metadata in a read-only report; no training or qualification side effects."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "before_sha256": "8452f75bbf870624be91462902ef64128ef9223ce848a74f26c3ff195def6b88",
+          "after_sha256": "d28a244e4654ed906ecfa977b65aca48fd37a1bd454f60184cdcd9b01b38f66a",
+          "rationale": "R70: Timestamp the immutable snapshot immediately after backup before hash I/O. Diagnostic freshness only. R71: Bind diagnostic timestamp before native backup pins the immutable read snapshot. No evidence or training data modified. R72: Preserve STALE_PAGE and ARCHIVE error codes in diagnostic ACK; no data or numeric change. R73: Reuse an exact generation-checked, hash-verified private retention snapshot; recover a fully reverified immutable reply after crash. FULL_REPORT still takes its own fresh complete snapshot. No statistical or mainline decision changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+          "before_sha256": "62a3e0b1e7295913fa1466187079bf865f083f595f2a069adfe4fd4394072940",
+          "after_sha256": "7eeeb9f1901a6160363f919ceeffe03efc940c0c30492ef530848338fb58df82",
+          "rationale": "R69: Expose owner-lock check and explicit current-report pointer detach for deletion; no business state mutation."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+          "before_sha256": "4b4ae27b143b9c97ff1e1b101cc119d4c1cd3f397cc4e2a5c9c86575eadacc0d",
+          "after_sha256": "89361bf6c0e1ace0627bf596a4f5c3ca824886afd5fc538184f63cd2980eecda",
+          "rationale": "R69: Explicit user deletion bypasses soft share grants but respects live reader locks; detached private report deletion can resume after a crash. No model/database/external-file deletion."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportRequestQueueCP12.java",
+          "before_sha256": "a511e3209a0d82393fba4c0a32b85e7982aedcbe1aca206488fd26604aff9298",
+          "after_sha256": "7b0bc6eacb85d2df1d671606a2551710714f65ea86897d1a3aa157fb342a34a0",
+          "rationale": "R69: Exact-ID removal and interactive selection retain all deferred retention requests and FIFO metadata; no learning owner changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportTaskControlR69.java",
+          "before_sha256": "",
+          "after_sha256": "d63b80dfb22bee8c80e3407b2929b641a81a5f2e1fac59f0f5f0f8e8997ce384",
+          "rationale": "R69: Durable report-only cancellation and explicit deletion under the existing sole report owner. Cancel queued exports and SAF; preserve database, model and retention state and external saved files."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchCaptureQueueR946.java",
+          "before_sha256": "3a4ad469e542f6743c66fa18e8d5e259f8145b1a28551a098cffa979977700db",
+          "after_sha256": "37e60067de11a93c91e2b48d85d0422aaba28ea23718b1f0a77cdd16fabfb38f",
+          "rationale": "R70: Recover due calibration reservations and reviewed predecessor learning runs; do not close a target with an uncommitted reservation. No evidence migration or postdraw fill."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java",
+          "before_sha256": "c7ae96419b5eefe1daf47de363742e2e235907312419549909acefcbc38b1b5d",
+          "after_sha256": "053f20a1e7850a386f25c22ceeb5f1e38662ad183e7cf5da40781db10da03084",
+          "rationale": "R72: Cache only committed idempotent DDL by SQLite schema_version using the existing audited cache. Active bundle, certificate checks, revocation, promotion and numeric decisions unchanged; rollback/schema-change tests protect readiness."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPopulationR966.java",
+          "before_sha256": "a4ea8f0dd359829fdf304ee821510a90cd600b5b1ab5925cb474beea1a6d256a",
+          "after_sha256": "54047dcd6e3b623b016fe5366d0f235f90444d259703872309616f3ed9ab6899",
+          "rationale": "R72: Completed DEV child may replace only its own zero-update/zero-Future parent with proxy records. Programs, pending labels and lineage retained; formal/calibration/elite/certificate protection remains. Resource retirement is not quality promotion."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPredrawCaptureR923.java",
+          "before_sha256": "159cb24a140fbafd246c0201a1ccbc812fdf892bde11816cc6f7b348b296a865",
+          "after_sha256": "90ec15096032ed73d789e17fe89a5c0cdee3880cca2524807f28c102430337b2",
+          "rationale": "R70: Serve already-admitted consecutive prospective capture before atom discovery on the same bounded owner. All model and data-role rules retained."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPredrawSettlementPumpR908.java",
+          "before_sha256": "cddca231b87ff16224d959b91517903970f49d0d5143202dd94a5e7f8a1a66ac",
+          "after_sha256": "743ead358dbe58cdc3718f2bac17bcca3c1535fcb96f527900887517a4db0948",
+          "rationale": "R72: Durable circular issue scan cannot stall behind an invalid first page. Existing exact settlement owners retained; no outcome acknowledged by scan cursor."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveIoCP12.java",
+          "before_sha256": "323e37a1ce7b6dee9684b91e260f332132b4f68520ff96c1809930d89ffae481",
+          "after_sha256": "f0f0cd2010a298e3b65669cfe0049960a9f1657ad3b01dfaf9b89b09541ce4b2",
+          "rationale": "R73: Bound native SQLite at 32 MiB because full installed schema exceeds 4 MiB; buffer output without changing SCROW bytes. Reuse verified snapshot and independently reverify existing immutable receipts. Deletion/generation/predicate guards unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotCacheR73.java",
+          "before_sha256": "",
+          "after_sha256": "cc1b7c27774619a8e3c2f19a7a1875c5951f3923da0276397a182e1382b3f14f",
+          "rationale": "R73: Sole diagnostics journal owner caches exactly one immutable native backup for at most 256 uses/10 minutes. Revalidate table schema and every requested generation; stale copy refreshed; source remains read-only. Writer independently checks live generation and eligibility. No score, label, policy or certificate changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotRowsCP7.java",
+          "before_sha256": "430c0e9dfc9fb440d9f6dc110c9252ac39b98f606481f7f0bfb089075f24074a",
+          "after_sha256": "773ef503a0b415105d506e08ee69b86543223b14d89bbd53ac3c7fff709022f6",
+          "rationale": "R73: Permit re-opening an already hash-verified private immutable copy only with an in-process unforgeable proof and unchanged file stamp; process restart hashes again. Same selected row reader, typed values and SCROW proof."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "before_sha256": "6bb0040dc3b718f9a3346c7863832cd0d25b0a43e9ad13c2382d59f3d227245d",
+          "after_sha256": "390fa3527d03ffc26ee4c4f81733d45c577a43bbab3829f3ce0735402dd19b7b",
+          "rationale": "Clear stale error detail on fetch success; diagnostic change only. R71: Read-only current-target, settlement, OOS and timestamp predicate for the UI badge; never grants authority."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageReclaimR943.java",
+          "before_sha256": "49ab6af381e4ea1e98bfe5002d7c3bf79e066e4addbf42eb53946187ac8f2d0b",
+          "after_sha256": "50098684f05dda50c97b3f7e967839153907ed2078f4cc7f6738d36c22bed351",
+          "rationale": "R70: Allow quiet checkpoint/reclaim when critical owners are idle; retry contended attempts without a false completed timestamp. No logical deletion changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentInputCP9.java",
+          "before_sha256": "ed67e3982e9a66d51cff01b0a5be17f7e4ebca57f733d031e8528b9509d824a9",
+          "after_sha256": "1a92a86044d3967175aedf279819dbf9c5f7188e1e251e9151974b3791a3a1f8",
+          "rationale": "R72: Buffer authenticated SCDEV input/output below digest. R71/current bytes and SHA256 identical on 5000 rows, corruption/trailing/truncation rejection and lease release checked."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+          "before_sha256": "62533062ea0c123c608a00c04b5b9b207803601f6db9406c85ee7ac38365d17b",
+          "after_sha256": "9024356a015e0d2c01297452c8b23578a4d7455a94686254e4327af822429365",
+          "rationale": "R72: Read only history suffix selected by unchanged protocol; exact window equivalence tested. Stop feature computation before writer deadline, retaining immutable committed pages and same numerical inputs."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+          "before_sha256": "34e6274d6682170f326c9d44d04012d4affc4ea4cc616317e1391942ea584e50",
+          "after_sha256": "6a59787ce240c0ef7801c36f46eac1d3f320442100727130c9db69bb67a9c104",
+          "rationale": "R72: Remove repeated hot-path schema calls after migration; checkpoint proposal before insufficient remaining preparation time. Same AST, pinned source, registration and training protocol."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+          "before_sha256": "8bd1bdac8c51715f372326bfb6579d538058623039987c96d4331308d30eb092",
+          "after_sha256": "82e04e842e14c6652441b8015b27c4b91ca652c61dc0a15ac9ad64178d5923a8",
+          "rationale": "R72: Use available bounded 850ms lane quantum for TRAIN/EVOLVE/IMPORT with 75ms commit margin. Same durable six-slot wheel and owner implementations."
+        },
+        {
+          "path": "scripts/r967_semantic_identity.py",
+          "before_sha256": "76375b2a50487c645226eded4cafa51fedb1563fb5d9d137b5cadd4c0a952352",
+          "after_sha256": "e90c1b350d0791043758711d92ca1710f56e43eeffa3e5d033b070764759763b",
+          "rationale": "R70: Finite exact reviewed R65-R69 development continuation only. Same numerical functions and policy; no certificate or future-evidence inheritance. R71: Finite exact source-reviewed numerical continuation of R65-R70 only; no certificate or prospective evidence inheritance. R72: Finite exact-source reviewed R65-R71 DEV continuation. Policy hash must match. No certificate or prospective-evidence migration. R73: Finite reviewed R65-R72 DEV-only numeric continuation. Exact byte and policy equality review required. No certificate or Future evidence migration."
+        }
+      ]
+    },
+    {
+      "baseline_file": "release/r69_semantic_baseline.json",
+      "baseline_manifest_sha256": "7265b21e6acad771b984f9b1f77e4a314cb828c29f703526e1ac00376bbcadf1",
+      "predecessor_training_rule_sha256": "f760443c676bc3a6cbae7a7388d6622a217a6b8af1da80ae5792403df49379fe",
+      "reviewed_numeric_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+          "before_sha256": "6728997faff63e365735779f670b8bfa5c93fefa719f5e10fa38df201375df72",
+          "after_sha256": "e48a7c689100ecc726930a0bb76e7a93ac55c0140a2d8ae1930aaac9dee01a82",
+          "rationale": "R72: Recover authentic frozen late outcomes exactly once without changing/replaying the newer VM head. Chronological update formula and DEV training implementation unchanged; verified late/duplicate/next-label regression. No inherited certificate authority."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ApiTransportGovernanceEngine.java",
+          "before_sha256": "73cfe3e8739ed2ecaad08740ae22dd662fa85d820a66926beab4ed19957401dd",
+          "after_sha256": "b84e1e38cab9bdc96f9a812820825f5ad70b2ce17d47fe74646aed9e25c436b7",
+          "rationale": "R71: Old but well-formed HTTP payload remains rejected and triggers failover, while not tripping transport outage backoff. Real transport/schema failures still trip the circuit."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AssetGenesisEngineR915.java",
+          "before_sha256": "005719e4433bfc3136fb0a5284b4f802a9590e1c81b248513cc9eee5869edb54",
+          "after_sha256": "1feda8a59db70f0033a96de1bc035892113c842908615f2804c9173daf9c0168",
+          "rationale": "R72: Settle valid late frozen labels without rewinding state; chronological VM update unchanged. Verified both ordering directions and repeated calls; no certificate created."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "before_sha256": "28deed7085ab53fc46e2d64035d0409d2be6d9af0ac7745aa4656b541f5c27b7",
+          "after_sha256": "4d543317dc851224f74cfecf9b1dbc705ba1deba729ed80058b934bc5121a7cb",
+          "rationale": "R70: Move Android memory-callback persistence onto the existing guard handler; bounded retention retries, independent quiet reclaim and one coalesced research continuation on the existing handler. No score, loss, label, model, gate or certificate change. R71: Dispatch next analysis and current settlement immediately after durable draw, before telemetry/history. Batch receipt writes; move fallback to existing serial backfill handler; remove aggregate statistics from polling status. No score, label, target deadline or numerical rule change. R72: New target broadcasts bypass same-target tick limiter. Sole clock, DecisionGate and settlement owners retained; no reflected target or numerical change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/BusinessReconcilerR36.java",
+          "before_sha256": "ec22d0271797d41b3b65b8963f770a2a2a2f1e039d84be3ea7872e5ad22cdd31",
+          "after_sha256": "d55d22571a9e5a607153981069685aad730e7ad6a56bd06b109e01dc3a0809b1",
+          "rationale": "R70: Retry only documented request-write deadline/lock contention through the existing watchdog; keep immutable target deadline, settlement queue and fatal integrity errors."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/CompiledActionContract.java",
+          "before_sha256": "83c62780449b2f8c02b43ebddef19271d552ad4db7ea4581caf0c298dfffbd2a",
+          "after_sha256": "c4e1fec6897e49b38453834fbd8615679bc157714847c6f6ffead3a9586f5b7d",
+          "rationale": "R70: Retire prior-target cached contracts and counters with the existing new-target reset. No durable authorization, immutable record or settlement changed."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/CountdownClock.java",
+          "before_sha256": "b6340df596efa4a72236c215592685541d854a9b3789aa2b8731b0e24a38d825",
+          "after_sha256": "bc2a23386ece6bcd13134c2b43431fc97b24045c3ef4a9bbdd6add4a4b1ca6df",
+          "rationale": "R72: Read-only same-process current anchor for resume; monotonic fetch interval. Target resolver, durable draw and model semantics unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+          "before_sha256": "bcd5f37662e55b1a86197a1c68205558acada336774b7528befdbcc95f233677",
+          "after_sha256": "585e0f9ff1fa60498b26be4fde00c0fbcc245ba2a2dc95d3a116f63458c3bfd4",
+          "rationale": "R72: Optional draw archives use existing fair table cursor; same exact generation, archive proof, references and deletion predicates. No label or numeric change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+          "before_sha256": "4d0f7332933ec321d657482abe2bd9e994dee34de96734e45f913dc0adfda453",
+          "after_sha256": "745570db2eff825bc1a6d1883a01afd2844334421c622402320789711103d229",
+          "rationale": "R71: Fixed indexed read-only UI state keys and cached display summaries instead of per-second teacher/profile counts. Canonical writers, models and full diagnostics unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java",
+          "before_sha256": "cf1060b9161657e4711fbef5277c92cdd163239cb048bfd745c35f6103e4ecfd",
+          "after_sha256": "8a18139bafc969bbbd343abf824e363db43760e087f1cd65d2f7eac90c7b4839",
+          "rationale": "R70: Raise capture execution slice from an admission-cost estimate to 400ms inside the existing 1200ms/preemption bound. Unchanged PIT, model scoring, transaction atomicity and future-only capture. R72: Reserved capture uses remaining enclosing deadline minus commit margin, retaining preemption/PIT/model and transaction checks. No postdraw capture or retrospective probability."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/LanePolicyCompiler.java",
+          "before_sha256": "2b6459c31926955fa41c1ece0ce3fe15d70d8f314112d0c3e0b7fb01088820b3",
+          "after_sha256": "24e2fc0eb5237cfd32410b136089fb0b1e8d3d4c6b626e2c12042245a16da240",
+          "rationale": "R70: Retire prior-target process cache entries when the sole DecisionGate starts a new issue; same-target reset behavior and all numerical functions unchanged. Future in-flight target entries preserved."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+          "before_sha256": "8398374733b3e0782e35e6a8111cc2edd6f5d6c2e8c64bf5724da3e64a51b79a",
+          "after_sha256": "41464a2cc6d5610b964ca8213096151b78c03cac7d8d9c169a7e51758832123a",
+          "rationale": "R70: Include calibration model and failure metadata in a read-only report; no training or qualification side effects."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "before_sha256": "150350a83a116655cd61bbb91a14efaaf474a30b24e9dbeec94486ca864fbe14",
+          "after_sha256": "d28a244e4654ed906ecfa977b65aca48fd37a1bd454f60184cdcd9b01b38f66a",
+          "rationale": "R70: Timestamp the immutable snapshot immediately after backup before hash I/O. Diagnostic freshness only. R71: Bind diagnostic timestamp before native backup pins the immutable read snapshot. No evidence or training data modified. R72: Preserve STALE_PAGE and ARCHIVE error codes in diagnostic ACK; no data or numeric change. R73: Reuse an exact generation-checked, hash-verified private retention snapshot; recover a fully reverified immutable reply after crash. FULL_REPORT still takes its own fresh complete snapshot. No statistical or mainline decision changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchCaptureQueueR946.java",
+          "before_sha256": "3a4ad469e542f6743c66fa18e8d5e259f8145b1a28551a098cffa979977700db",
+          "after_sha256": "37e60067de11a93c91e2b48d85d0422aaba28ea23718b1f0a77cdd16fabfb38f",
+          "rationale": "R70: Recover due calibration reservations and reviewed predecessor learning runs; do not close a target with an uncommitted reservation. No evidence migration or postdraw fill."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java",
+          "before_sha256": "c7ae96419b5eefe1daf47de363742e2e235907312419549909acefcbc38b1b5d",
+          "after_sha256": "053f20a1e7850a386f25c22ceeb5f1e38662ad183e7cf5da40781db10da03084",
+          "rationale": "R72: Cache only committed idempotent DDL by SQLite schema_version using the existing audited cache. Active bundle, certificate checks, revocation, promotion and numeric decisions unchanged; rollback/schema-change tests protect readiness."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPopulationR966.java",
+          "before_sha256": "a4ea8f0dd359829fdf304ee821510a90cd600b5b1ab5925cb474beea1a6d256a",
+          "after_sha256": "54047dcd6e3b623b016fe5366d0f235f90444d259703872309616f3ed9ab6899",
+          "rationale": "R72: Completed DEV child may replace only its own zero-update/zero-Future parent with proxy records. Programs, pending labels and lineage retained; formal/calibration/elite/certificate protection remains. Resource retirement is not quality promotion."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPredrawCaptureR923.java",
+          "before_sha256": "159cb24a140fbafd246c0201a1ccbc812fdf892bde11816cc6f7b348b296a865",
+          "after_sha256": "90ec15096032ed73d789e17fe89a5c0cdee3880cca2524807f28c102430337b2",
+          "rationale": "R70: Serve already-admitted consecutive prospective capture before atom discovery on the same bounded owner. All model and data-role rules retained."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPredrawSettlementPumpR908.java",
+          "before_sha256": "cddca231b87ff16224d959b91517903970f49d0d5143202dd94a5e7f8a1a66ac",
+          "after_sha256": "743ead358dbe58cdc3718f2bac17bcca3c1535fcb96f527900887517a4db0948",
+          "rationale": "R72: Durable circular issue scan cannot stall behind an invalid first page. Existing exact settlement owners retained; no outcome acknowledged by scan cursor."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveIoCP12.java",
+          "before_sha256": "323e37a1ce7b6dee9684b91e260f332132b4f68520ff96c1809930d89ffae481",
+          "after_sha256": "f0f0cd2010a298e3b65669cfe0049960a9f1657ad3b01dfaf9b89b09541ce4b2",
+          "rationale": "R73: Bound native SQLite at 32 MiB because full installed schema exceeds 4 MiB; buffer output without changing SCROW bytes. Reuse verified snapshot and independently reverify existing immutable receipts. Deletion/generation/predicate guards unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotCacheR73.java",
+          "before_sha256": "",
+          "after_sha256": "cc1b7c27774619a8e3c2f19a7a1875c5951f3923da0276397a182e1382b3f14f",
+          "rationale": "R73: Sole diagnostics journal owner caches exactly one immutable native backup for at most 256 uses/10 minutes. Revalidate table schema and every requested generation; stale copy refreshed; source remains read-only. Writer independently checks live generation and eligibility. No score, label, policy or certificate changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotRowsCP7.java",
+          "before_sha256": "430c0e9dfc9fb440d9f6dc110c9252ac39b98f606481f7f0bfb089075f24074a",
+          "after_sha256": "773ef503a0b415105d506e08ee69b86543223b14d89bbd53ac3c7fff709022f6",
+          "rationale": "R73: Permit re-opening an already hash-verified private immutable copy only with an in-process unforgeable proof and unchanged file stamp; process restart hashes again. Same selected row reader, typed values and SCROW proof."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "before_sha256": "6bb0040dc3b718f9a3346c7863832cd0d25b0a43e9ad13c2382d59f3d227245d",
+          "after_sha256": "390fa3527d03ffc26ee4c4f81733d45c577a43bbab3829f3ce0735402dd19b7b",
+          "rationale": "Clear stale error detail on fetch success; diagnostic change only. R71: Read-only current-target, settlement, OOS and timestamp predicate for the UI badge; never grants authority."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageReclaimR943.java",
+          "before_sha256": "49ab6af381e4ea1e98bfe5002d7c3bf79e066e4addbf42eb53946187ac8f2d0b",
+          "after_sha256": "50098684f05dda50c97b3f7e967839153907ed2078f4cc7f6738d36c22bed351",
+          "rationale": "R70: Allow quiet checkpoint/reclaim when critical owners are idle; retry contended attempts without a false completed timestamp. No logical deletion changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentInputCP9.java",
+          "before_sha256": "ed67e3982e9a66d51cff01b0a5be17f7e4ebca57f733d031e8528b9509d824a9",
+          "after_sha256": "1a92a86044d3967175aedf279819dbf9c5f7188e1e251e9151974b3791a3a1f8",
+          "rationale": "R72: Buffer authenticated SCDEV input/output below digest. R71/current bytes and SHA256 identical on 5000 rows, corruption/trailing/truncation rejection and lease release checked."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+          "before_sha256": "62533062ea0c123c608a00c04b5b9b207803601f6db9406c85ee7ac38365d17b",
+          "after_sha256": "9024356a015e0d2c01297452c8b23578a4d7455a94686254e4327af822429365",
+          "rationale": "R72: Read only history suffix selected by unchanged protocol; exact window equivalence tested. Stop feature computation before writer deadline, retaining immutable committed pages and same numerical inputs."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+          "before_sha256": "34e6274d6682170f326c9d44d04012d4affc4ea4cc616317e1391942ea584e50",
+          "after_sha256": "6a59787ce240c0ef7801c36f46eac1d3f320442100727130c9db69bb67a9c104",
+          "rationale": "R72: Remove repeated hot-path schema calls after migration; checkpoint proposal before insufficient remaining preparation time. Same AST, pinned source, registration and training protocol."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+          "before_sha256": "8bd1bdac8c51715f372326bfb6579d538058623039987c96d4331308d30eb092",
+          "after_sha256": "82e04e842e14c6652441b8015b27c4b91ca652c61dc0a15ac9ad64178d5923a8",
+          "rationale": "R72: Use available bounded 850ms lane quantum for TRAIN/EVOLVE/IMPORT with 75ms commit margin. Same durable six-slot wheel and owner implementations."
+        },
+        {
+          "path": "scripts/r967_semantic_identity.py",
+          "before_sha256": "50a7643797c6985e06f993e9ed5c31bf08c31ed6e4dcee6e2714a965849c9864",
+          "after_sha256": "e90c1b350d0791043758711d92ca1710f56e43eeffa3e5d033b070764759763b",
+          "rationale": "R70: Finite exact reviewed R65-R69 development continuation only. Same numerical functions and policy; no certificate or future-evidence inheritance. R71: Finite exact source-reviewed numerical continuation of R65-R70 only; no certificate or prospective evidence inheritance. R72: Finite exact-source reviewed R65-R71 DEV continuation. Policy hash must match. No certificate or prospective-evidence migration. R73: Finite reviewed R65-R72 DEV-only numeric continuation. Exact byte and policy equality review required. No certificate or Future evidence migration."
+        }
+      ]
+    },
+    {
+      "baseline_file": "release/r70_semantic_baseline.json",
+      "baseline_manifest_sha256": "4339c1630832dac991100b8937c2ea988d421279563185f628c1940de4a815a0",
+      "predecessor_training_rule_sha256": "b343d46328e587f99eac719c38a495bc41334c9a6b34916e523ce7bc8df13e9e",
+      "reviewed_numeric_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+          "before_sha256": "6728997faff63e365735779f670b8bfa5c93fefa719f5e10fa38df201375df72",
+          "after_sha256": "e48a7c689100ecc726930a0bb76e7a93ac55c0140a2d8ae1930aaac9dee01a82",
+          "rationale": "R72: Recover authentic frozen late outcomes exactly once without changing/replaying the newer VM head. Chronological update formula and DEV training implementation unchanged; verified late/duplicate/next-label regression. No inherited certificate authority."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ApiTransportGovernanceEngine.java",
+          "before_sha256": "73cfe3e8739ed2ecaad08740ae22dd662fa85d820a66926beab4ed19957401dd",
+          "after_sha256": "b84e1e38cab9bdc96f9a812820825f5ad70b2ce17d47fe74646aed9e25c436b7",
+          "rationale": "R71: Old but well-formed HTTP payload remains rejected and triggers failover, while not tripping transport outage backoff. Real transport/schema failures still trip the circuit."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AssetGenesisEngineR915.java",
+          "before_sha256": "005719e4433bfc3136fb0a5284b4f802a9590e1c81b248513cc9eee5869edb54",
+          "after_sha256": "1feda8a59db70f0033a96de1bc035892113c842908615f2804c9173daf9c0168",
+          "rationale": "R72: Settle valid late frozen labels without rewinding state; chronological VM update unchanged. Verified both ordering directions and repeated calls; no certificate created."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "before_sha256": "e3a14cea611723898dba5145cae00c6f7a3513f1640f3d2ffc276e0948418a71",
+          "after_sha256": "4d543317dc851224f74cfecf9b1dbc705ba1deba729ed80058b934bc5121a7cb",
+          "rationale": "R71: Dispatch next analysis and current settlement immediately after durable draw, before telemetry/history. Batch receipt writes; move fallback to existing serial backfill handler; remove aggregate statistics from polling status. No score, label, target deadline or numerical rule change. R72: New target broadcasts bypass same-target tick limiter. Sole clock, DecisionGate and settlement owners retained; no reflected target or numerical change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/CountdownClock.java",
+          "before_sha256": "b6340df596efa4a72236c215592685541d854a9b3789aa2b8731b0e24a38d825",
+          "after_sha256": "bc2a23386ece6bcd13134c2b43431fc97b24045c3ef4a9bbdd6add4a4b1ca6df",
+          "rationale": "R72: Read-only same-process current anchor for resume; monotonic fetch interval. Target resolver, durable draw and model semantics unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+          "before_sha256": "bcd5f37662e55b1a86197a1c68205558acada336774b7528befdbcc95f233677",
+          "after_sha256": "585e0f9ff1fa60498b26be4fde00c0fbcc245ba2a2dc95d3a116f63458c3bfd4",
+          "rationale": "R72: Optional draw archives use existing fair table cursor; same exact generation, archive proof, references and deletion predicates. No label or numeric change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+          "before_sha256": "4d0f7332933ec321d657482abe2bd9e994dee34de96734e45f913dc0adfda453",
+          "after_sha256": "745570db2eff825bc1a6d1883a01afd2844334421c622402320789711103d229",
+          "rationale": "R71: Fixed indexed read-only UI state keys and cached display summaries instead of per-second teacher/profile counts. Canonical writers, models and full diagnostics unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java",
+          "before_sha256": "14bb92312362be9bb7325266971e33c56e9f0fdd46ff8e68d76e78a8b09b1fef",
+          "after_sha256": "8a18139bafc969bbbd343abf824e363db43760e087f1cd65d2f7eac90c7b4839",
+          "rationale": "R72: Reserved capture uses remaining enclosing deadline minus commit margin, retaining preemption/PIT/model and transaction checks. No postdraw capture or retrospective probability."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "before_sha256": "a32fad124765d29e26163848e1d1dd24f499ed0947a86e2ac440c8dddb886359",
+          "after_sha256": "d28a244e4654ed906ecfa977b65aca48fd37a1bd454f60184cdcd9b01b38f66a",
+          "rationale": "R71: Bind diagnostic timestamp before native backup pins the immutable read snapshot. No evidence or training data modified. R72: Preserve STALE_PAGE and ARCHIVE error codes in diagnostic ACK; no data or numeric change. R73: Reuse an exact generation-checked, hash-verified private retention snapshot; recover a fully reverified immutable reply after crash. FULL_REPORT still takes its own fresh complete snapshot. No statistical or mainline decision changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java",
+          "before_sha256": "c7ae96419b5eefe1daf47de363742e2e235907312419549909acefcbc38b1b5d",
+          "after_sha256": "053f20a1e7850a386f25c22ceeb5f1e38662ad183e7cf5da40781db10da03084",
+          "rationale": "R72: Cache only committed idempotent DDL by SQLite schema_version using the existing audited cache. Active bundle, certificate checks, revocation, promotion and numeric decisions unchanged; rollback/schema-change tests protect readiness."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPopulationR966.java",
+          "before_sha256": "a4ea8f0dd359829fdf304ee821510a90cd600b5b1ab5925cb474beea1a6d256a",
+          "after_sha256": "54047dcd6e3b623b016fe5366d0f235f90444d259703872309616f3ed9ab6899",
+          "rationale": "R72: Completed DEV child may replace only its own zero-update/zero-Future parent with proxy records. Programs, pending labels and lineage retained; formal/calibration/elite/certificate protection remains. Resource retirement is not quality promotion."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPredrawSettlementPumpR908.java",
+          "before_sha256": "cddca231b87ff16224d959b91517903970f49d0d5143202dd94a5e7f8a1a66ac",
+          "after_sha256": "743ead358dbe58cdc3718f2bac17bcca3c1535fcb96f527900887517a4db0948",
+          "rationale": "R72: Durable circular issue scan cannot stall behind an invalid first page. Existing exact settlement owners retained; no outcome acknowledged by scan cursor."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveIoCP12.java",
+          "before_sha256": "323e37a1ce7b6dee9684b91e260f332132b4f68520ff96c1809930d89ffae481",
+          "after_sha256": "f0f0cd2010a298e3b65669cfe0049960a9f1657ad3b01dfaf9b89b09541ce4b2",
+          "rationale": "R73: Bound native SQLite at 32 MiB because full installed schema exceeds 4 MiB; buffer output without changing SCROW bytes. Reuse verified snapshot and independently reverify existing immutable receipts. Deletion/generation/predicate guards unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotCacheR73.java",
+          "before_sha256": "",
+          "after_sha256": "cc1b7c27774619a8e3c2f19a7a1875c5951f3923da0276397a182e1382b3f14f",
+          "rationale": "R73: Sole diagnostics journal owner caches exactly one immutable native backup for at most 256 uses/10 minutes. Revalidate table schema and every requested generation; stale copy refreshed; source remains read-only. Writer independently checks live generation and eligibility. No score, label, policy or certificate changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotRowsCP7.java",
+          "before_sha256": "430c0e9dfc9fb440d9f6dc110c9252ac39b98f606481f7f0bfb089075f24074a",
+          "after_sha256": "773ef503a0b415105d506e08ee69b86543223b14d89bbd53ac3c7fff709022f6",
+          "rationale": "R73: Permit re-opening an already hash-verified private immutable copy only with an in-process unforgeable proof and unchanged file stamp; process restart hashes again. Same selected row reader, typed values and SCROW proof."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "before_sha256": "6bb0040dc3b718f9a3346c7863832cd0d25b0a43e9ad13c2382d59f3d227245d",
+          "after_sha256": "390fa3527d03ffc26ee4c4f81733d45c577a43bbab3829f3ce0735402dd19b7b",
+          "rationale": "R71: Read-only current-target, settlement, OOS and timestamp predicate for the UI badge; never grants authority."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentInputCP9.java",
+          "before_sha256": "ed67e3982e9a66d51cff01b0a5be17f7e4ebca57f733d031e8528b9509d824a9",
+          "after_sha256": "1a92a86044d3967175aedf279819dbf9c5f7188e1e251e9151974b3791a3a1f8",
+          "rationale": "R72: Buffer authenticated SCDEV input/output below digest. R71/current bytes and SHA256 identical on 5000 rows, corruption/trailing/truncation rejection and lease release checked."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+          "before_sha256": "62533062ea0c123c608a00c04b5b9b207803601f6db9406c85ee7ac38365d17b",
+          "after_sha256": "9024356a015e0d2c01297452c8b23578a4d7455a94686254e4327af822429365",
+          "rationale": "R72: Read only history suffix selected by unchanged protocol; exact window equivalence tested. Stop feature computation before writer deadline, retaining immutable committed pages and same numerical inputs."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+          "before_sha256": "34e6274d6682170f326c9d44d04012d4affc4ea4cc616317e1391942ea584e50",
+          "after_sha256": "6a59787ce240c0ef7801c36f46eac1d3f320442100727130c9db69bb67a9c104",
+          "rationale": "R72: Remove repeated hot-path schema calls after migration; checkpoint proposal before insufficient remaining preparation time. Same AST, pinned source, registration and training protocol."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+          "before_sha256": "8bd1bdac8c51715f372326bfb6579d538058623039987c96d4331308d30eb092",
+          "after_sha256": "82e04e842e14c6652441b8015b27c4b91ca652c61dc0a15ac9ad64178d5923a8",
+          "rationale": "R72: Use available bounded 850ms lane quantum for TRAIN/EVOLVE/IMPORT with 75ms commit margin. Same durable six-slot wheel and owner implementations."
+        },
+        {
+          "path": "scripts/r967_semantic_identity.py",
+          "before_sha256": "106f8ca6889d2230c9fc4cb80950fa382212aed8892fb970cb1cb056c628dfed",
+          "after_sha256": "e90c1b350d0791043758711d92ca1710f56e43eeffa3e5d033b070764759763b",
+          "rationale": "R71: Finite exact source-reviewed numerical continuation of R65-R70 only; no certificate or prospective evidence inheritance. R72: Finite exact-source reviewed R65-R71 DEV continuation. Policy hash must match. No certificate or prospective-evidence migration. R73: Finite reviewed R65-R72 DEV-only numeric continuation. Exact byte and policy equality review required. No certificate or Future evidence migration."
+        }
+      ]
+    },
+    {
+      "baseline_file": "release/r71_semantic_baseline.json",
+      "baseline_manifest_sha256": "b11d9da690c07d023144dfd351d2a1af9ef93877fc89f4ab570e6216e6795488",
+      "predecessor_training_rule_sha256": "cd78558d046303687d7d9eb42839a785b809e604070eef914c41539c36eb558b",
+      "reviewed_numeric_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+          "before_sha256": "6728997faff63e365735779f670b8bfa5c93fefa719f5e10fa38df201375df72",
+          "after_sha256": "e48a7c689100ecc726930a0bb76e7a93ac55c0140a2d8ae1930aaac9dee01a82",
+          "rationale": "R72: Recover authentic frozen late outcomes exactly once without changing/replaying the newer VM head. Chronological update formula and DEV training implementation unchanged; verified late/duplicate/next-label regression. No inherited certificate authority."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AssetGenesisEngineR915.java",
+          "before_sha256": "005719e4433bfc3136fb0a5284b4f802a9590e1c81b248513cc9eee5869edb54",
+          "after_sha256": "1feda8a59db70f0033a96de1bc035892113c842908615f2804c9173daf9c0168",
+          "rationale": "R72: Settle valid late frozen labels without rewinding state; chronological VM update unchanged. Verified both ordering directions and repeated calls; no certificate created."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "before_sha256": "f57a9c28214a169a69ef4316ce56c614870aeb010665455ce2dcaaf58f62c0ad",
+          "after_sha256": "4d543317dc851224f74cfecf9b1dbc705ba1deba729ed80058b934bc5121a7cb",
+          "rationale": "R72: New target broadcasts bypass same-target tick limiter. Sole clock, DecisionGate and settlement owners retained; no reflected target or numerical change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/CountdownClock.java",
+          "before_sha256": "b6340df596efa4a72236c215592685541d854a9b3789aa2b8731b0e24a38d825",
+          "after_sha256": "bc2a23386ece6bcd13134c2b43431fc97b24045c3ef4a9bbdd6add4a4b1ca6df",
+          "rationale": "R72: Read-only same-process current anchor for resume; monotonic fetch interval. Target resolver, durable draw and model semantics unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+          "before_sha256": "bcd5f37662e55b1a86197a1c68205558acada336774b7528befdbcc95f233677",
+          "after_sha256": "585e0f9ff1fa60498b26be4fde00c0fbcc245ba2a2dc95d3a116f63458c3bfd4",
+          "rationale": "R72: Optional draw archives use existing fair table cursor; same exact generation, archive proof, references and deletion predicates. No label or numeric change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java",
+          "before_sha256": "14bb92312362be9bb7325266971e33c56e9f0fdd46ff8e68d76e78a8b09b1fef",
+          "after_sha256": "8a18139bafc969bbbd343abf824e363db43760e087f1cd65d2f7eac90c7b4839",
+          "rationale": "R72: Reserved capture uses remaining enclosing deadline minus commit margin, retaining preemption/PIT/model and transaction checks. No postdraw capture or retrospective probability."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "before_sha256": "c934ceb5c27dad07cb2964b46baad28619703cfa8c857382e7301b37e2807296",
+          "after_sha256": "d28a244e4654ed906ecfa977b65aca48fd37a1bd454f60184cdcd9b01b38f66a",
+          "rationale": "R72: Preserve STALE_PAGE and ARCHIVE error codes in diagnostic ACK; no data or numeric change. R73: Reuse an exact generation-checked, hash-verified private retention snapshot; recover a fully reverified immutable reply after crash. FULL_REPORT still takes its own fresh complete snapshot. No statistical or mainline decision changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java",
+          "before_sha256": "c7ae96419b5eefe1daf47de363742e2e235907312419549909acefcbc38b1b5d",
+          "after_sha256": "053f20a1e7850a386f25c22ceeb5f1e38662ad183e7cf5da40781db10da03084",
+          "rationale": "R72: Cache only committed idempotent DDL by SQLite schema_version using the existing audited cache. Active bundle, certificate checks, revocation, promotion and numeric decisions unchanged; rollback/schema-change tests protect readiness."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPopulationR966.java",
+          "before_sha256": "a4ea8f0dd359829fdf304ee821510a90cd600b5b1ab5925cb474beea1a6d256a",
+          "after_sha256": "54047dcd6e3b623b016fe5366d0f235f90444d259703872309616f3ed9ab6899",
+          "rationale": "R72: Completed DEV child may replace only its own zero-update/zero-Future parent with proxy records. Programs, pending labels and lineage retained; formal/calibration/elite/certificate protection remains. Resource retirement is not quality promotion."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPredrawSettlementPumpR908.java",
+          "before_sha256": "cddca231b87ff16224d959b91517903970f49d0d5143202dd94a5e7f8a1a66ac",
+          "after_sha256": "743ead358dbe58cdc3718f2bac17bcca3c1535fcb96f527900887517a4db0948",
+          "rationale": "R72: Durable circular issue scan cannot stall behind an invalid first page. Existing exact settlement owners retained; no outcome acknowledged by scan cursor."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveIoCP12.java",
+          "before_sha256": "323e37a1ce7b6dee9684b91e260f332132b4f68520ff96c1809930d89ffae481",
+          "after_sha256": "f0f0cd2010a298e3b65669cfe0049960a9f1657ad3b01dfaf9b89b09541ce4b2",
+          "rationale": "R73: Bound native SQLite at 32 MiB because full installed schema exceeds 4 MiB; buffer output without changing SCROW bytes. Reuse verified snapshot and independently reverify existing immutable receipts. Deletion/generation/predicate guards unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotCacheR73.java",
+          "before_sha256": "",
+          "after_sha256": "cc1b7c27774619a8e3c2f19a7a1875c5951f3923da0276397a182e1382b3f14f",
+          "rationale": "R73: Sole diagnostics journal owner caches exactly one immutable native backup for at most 256 uses/10 minutes. Revalidate table schema and every requested generation; stale copy refreshed; source remains read-only. Writer independently checks live generation and eligibility. No score, label, policy or certificate changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotRowsCP7.java",
+          "before_sha256": "430c0e9dfc9fb440d9f6dc110c9252ac39b98f606481f7f0bfb089075f24074a",
+          "after_sha256": "773ef503a0b415105d506e08ee69b86543223b14d89bbd53ac3c7fff709022f6",
+          "rationale": "R73: Permit re-opening an already hash-verified private immutable copy only with an in-process unforgeable proof and unchanged file stamp; process restart hashes again. Same selected row reader, typed values and SCROW proof."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentInputCP9.java",
+          "before_sha256": "ed67e3982e9a66d51cff01b0a5be17f7e4ebca57f733d031e8528b9509d824a9",
+          "after_sha256": "1a92a86044d3967175aedf279819dbf9c5f7188e1e251e9151974b3791a3a1f8",
+          "rationale": "R72: Buffer authenticated SCDEV input/output below digest. R71/current bytes and SHA256 identical on 5000 rows, corruption/trailing/truncation rejection and lease release checked."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+          "before_sha256": "62533062ea0c123c608a00c04b5b9b207803601f6db9406c85ee7ac38365d17b",
+          "after_sha256": "9024356a015e0d2c01297452c8b23578a4d7455a94686254e4327af822429365",
+          "rationale": "R72: Read only history suffix selected by unchanged protocol; exact window equivalence tested. Stop feature computation before writer deadline, retaining immutable committed pages and same numerical inputs."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+          "before_sha256": "34e6274d6682170f326c9d44d04012d4affc4ea4cc616317e1391942ea584e50",
+          "after_sha256": "6a59787ce240c0ef7801c36f46eac1d3f320442100727130c9db69bb67a9c104",
+          "rationale": "R72: Remove repeated hot-path schema calls after migration; checkpoint proposal before insufficient remaining preparation time. Same AST, pinned source, registration and training protocol."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+          "before_sha256": "8bd1bdac8c51715f372326bfb6579d538058623039987c96d4331308d30eb092",
+          "after_sha256": "82e04e842e14c6652441b8015b27c4b91ca652c61dc0a15ac9ad64178d5923a8",
+          "rationale": "R72: Use available bounded 850ms lane quantum for TRAIN/EVOLVE/IMPORT with 75ms commit margin. Same durable six-slot wheel and owner implementations."
+        },
+        {
+          "path": "scripts/r967_semantic_identity.py",
+          "before_sha256": "88ed689dcf049d7fb8410dcd4b712f6b2cfacb2020bb26032f116abcda4bb8b3",
+          "after_sha256": "e90c1b350d0791043758711d92ca1710f56e43eeffa3e5d033b070764759763b",
+          "rationale": "R72: Finite exact-source reviewed R65-R71 DEV continuation. Policy hash must match. No certificate or prospective-evidence migration. R73: Finite reviewed R65-R72 DEV-only numeric continuation. Exact byte and policy equality review required. No certificate or Future evidence migration."
+        }
+      ]
+    },
+    {
+      "baseline_file": "release/r72_semantic_baseline.json",
+      "baseline_manifest_sha256": "8ebde2289757783f57a3b54d5d50042f549510ce92c80dd3a4a6770d54a7eef5",
+      "predecessor_training_rule_sha256": "e1be0d5fb9254223a11967cffb0d6860125f4ffde461780911a604db62fe30d5",
+      "reviewed_numeric_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "before_sha256": "ba4cd970092ed9fba1b5798da5330f716bf0069ac8bb4bca4d4cdc3a18f1fd89",
+          "after_sha256": "d28a244e4654ed906ecfa977b65aca48fd37a1bd454f60184cdcd9b01b38f66a",
+          "rationale": "R73: Reuse an exact generation-checked, hash-verified private retention snapshot; recover a fully reverified immutable reply after crash. FULL_REPORT still takes its own fresh complete snapshot. No statistical or mainline decision changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveIoCP12.java",
+          "before_sha256": "323e37a1ce7b6dee9684b91e260f332132b4f68520ff96c1809930d89ffae481",
+          "after_sha256": "f0f0cd2010a298e3b65669cfe0049960a9f1657ad3b01dfaf9b89b09541ce4b2",
+          "rationale": "R73: Bound native SQLite at 32 MiB because full installed schema exceeds 4 MiB; buffer output without changing SCROW bytes. Reuse verified snapshot and independently reverify existing immutable receipts. Deletion/generation/predicate guards unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotCacheR73.java",
+          "before_sha256": "",
+          "after_sha256": "cc1b7c27774619a8e3c2f19a7a1875c5951f3923da0276397a182e1382b3f14f",
+          "rationale": "R73: Sole diagnostics journal owner caches exactly one immutable native backup for at most 256 uses/10 minutes. Revalidate table schema and every requested generation; stale copy refreshed; source remains read-only. Writer independently checks live generation and eligibility. No score, label, policy or certificate changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotRowsCP7.java",
+          "before_sha256": "430c0e9dfc9fb440d9f6dc110c9252ac39b98f606481f7f0bfb089075f24074a",
+          "after_sha256": "773ef503a0b415105d506e08ee69b86543223b14d89bbd53ac3c7fff709022f6",
+          "rationale": "R73: Permit re-opening an already hash-verified private immutable copy only with an in-process unforgeable proof and unchanged file stamp; process restart hashes again. Same selected row reader, typed values and SCROW proof."
+        },
+        {
+          "path": "scripts/r967_semantic_identity.py",
+          "before_sha256": "c9f7e2f9d2d6f277d6c826865f76f58064eba2e8051ad1f00e9b4fe7ad9fb5c5",
+          "after_sha256": "e90c1b350d0791043758711d92ca1710f56e43eeffa3e5d033b070764759763b",
+          "rationale": "R73: Finite reviewed R65-R72 DEV-only numeric continuation. Exact byte and policy equality review required. No certificate or Future evidence migration."
+        }
+      ]
+    }
+  ]
+}

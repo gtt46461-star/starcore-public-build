@@ -1,0 +1,89 @@
+# app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchHypothesisR31.java
+
+问题归属：P2.04；唯一文件写入批次：P2
+
+源码动作：PRESERVE_REFERENCE
+
+基线SHA-256：07365499fbe13283d5d4e78a24416f923d01c2a2fc920071bf36ab419348e73a
+
+后态SHA-256：07365499fbe13283d5d4e78a24416f923d01c2a2fc920071bf36ab419348e73a
+
+[完整可查看后态代码](../../code/P2/files/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchHypothesisR31.java)
+
+[本批精确补丁](../../patches/P2.patch)
+
+## 当前问题
+4个旧SU1策略、24个旧专家提案不能说明现版产生了新品。82能力中F23教师缺绑定。
+
+## 本文件历史要求与修改合同
+
+```json
+{
+  "old_card": "R31-B07-C06",
+  "action": "ADD",
+  "before": "建议新增类，未实现。",
+  "after": "typed 假设与失败归因 registry，保存来源/组件/机制/适用域/反证/预算/配对协议；结果回流开发信用，正式证据不继承。",
+  "anchor": [
+    {
+      "old_request": "fromFailure",
+      "method": "fromFailure",
+      "line": "62",
+      "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/ResearchHypothesisR31$Failure;)Lcom/ethk3/novaonepro/strategyv2/ResearchHypothesisR31$Hypothesis;"
+    },
+    {
+      "old_request": "register",
+      "method": "register",
+      "line": "103",
+      "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/ResearchHypothesisR31$Hypothesis;)Lcom/ethk3/novaonepro/strategyv2/ResearchHypothesisR31$Hypothesis;"
+    },
+    {
+      "old_request": "dispatch",
+      "method": "dispatch",
+      "line": "106",
+      "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/ResearchHypothesisR31$Hypothesis;)Ljava/lang/String;"
+    },
+    {
+      "old_request": "recordOutcome",
+      "method": "recordOutcome",
+      "line": "108",
+      "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/ResearchHypothesisR31$Hypothesis;Ljava/lang/String;Ljava/lang/String;D)Z"
+    },
+    {
+      "old_request": "recordOutcome",
+      "method": "recordOutcome",
+      "line": "110",
+      "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/ResearchHypothesisR31$Hypothesis;Ljava/lang/String;Ljava/lang/String;DD)Z"
+    }
+  ]
+}
+```
+
+```json
+{
+  "old_card": "UF13",
+  "diagnosis": [
+    "FailureDirectedResearch仍先用F08/F17选子代，再追加假设metadata，component为空；dispatch/recordOutcome及Regime辅助逻辑未发现生产调用。"
+  ],
+  "implementation": [
+    "按真实失败证据在birth之前路由typed可执行adapter；有component证据才使用component假设；不支持的机制明确UNSUPPORTED。",
+    "连接实际Regime检测/窗口/路由/结构构建并持久化状态，保留原父代对照、fence、游标事务、家族与专家能力。",
+    "研究健康用已提交cursor/产物/反馈衡量，attempt、RUNNING、owner代数不当成进展。",
+    "子代独立训练/选择/确认/未来证据；outcome credit幂等写入，不继承父证书。",
+    "recoverOneR31的恢复控制异常必须分类并独立记录原因/次数，不得吞RuntimeException后显示健康；保留已有生产owner/fence、隔离、历史训练及AtomNet消费保护。"
+  ]
+}
+```
+
+## 方法锚点
+
+[]
+
+## 本批验证
+
+输入常量、洗牌、含弱结构三组；固定预算测发现率与假阳性；打印每个族输入、操作、artifact及淘汰原因；拒绝读取当前标签或使用未来窗口。
+
+## 代码状态
+
+EXISTING_SOURCE_DELIVERED_NOT_NEW_IMPLEMENTATION
+
+保全文件交付完整源码，不能因为文件随包提供便将尚未取得的业务证据签收。

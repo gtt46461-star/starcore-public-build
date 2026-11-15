@@ -1,0 +1,103 @@
+{
+  "status": "PASS_NATIVE_SQLITE_HOST_ONLY",
+  "assertions": 12,
+  "negativeControl": "BASELINE_FAILS_OWNER_REARM_ASSERTION",
+  "Android": "NOT_RUN",
+  "device": "NOT_RUN",
+  "scope": "existing completed-unit audit definition drift is invalidated; exact index reconstruction NOT_IMPLEMENTED",
+  "sources": {
+    "/workspace/scratch/df4bb27677d3/candidate/app/src/main/java/com/ethk3/novaonepro/LegacyDdlR31.java": "468c8f58cacb58a1a4f87bd124156988065b24a5597477c51c74163b87d96772",
+    "/workspace/scratch/df4bb27677d3/candidate/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java": "e4ddbbf466948b72833696593242a7252611cf7b64cd442804f4b256ac85f80a",
+    "/workspace/scratch/df4bb27677d3/contributions/ddl/full/app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java": "3ffe4d47a3ae4a42b1c5e3840e7c64e88a238586b1a6498982cd7321a05c2e5b"
+  },
+  "commands": [
+    {
+      "command": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/scratch/e2d683069298/android-36.jar:/workspace/scratch/df4bb27677d3/verification/classes",
+        "-d",
+        "/workspace/scratch/df4bb27677d3/contributions/ddl/verification/platform",
+        "/workspace/scratch/df4bb27677d3/candidate/tools/r31/ddl_host/android/database/Cursor.java",
+        "/workspace/scratch/df4bb27677d3/candidate/tools/r31/ddl_host/android/content/ContentValues.java",
+        "/workspace/scratch/df4bb27677d3/candidate/tools/r31/ddl_host/android/database/sqlite/SQLiteDatabase.java",
+        "/workspace/scratch/df4bb27677d3/candidate/tools/r31/ddl_host/android/database/sqlite/SQLiteOpenHelper.java",
+        "/workspace/scratch/df4bb27677d3/candidate/tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java",
+        "/workspace/scratch/df4bb27677d3/candidate/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabaseLockedException.java"
+      ],
+      "exitCode": 0,
+      "log": "platform.log"
+    },
+    {
+      "command": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/scratch/e2d683069298/android-36.jar:/workspace/scratch/df4bb27677d3/contributions/ddl/verification/platform:/workspace/scratch/df4bb27677d3/verification/classes",
+        "-d",
+        "/workspace/scratch/df4bb27677d3/contributions/ddl/verification/production",
+        "/workspace/scratch/df4bb27677d3/candidate/app/src/main/java/com/ethk3/novaonepro/LegacyDdlR31.java",
+        "/workspace/scratch/df4bb27677d3/candidate/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+        "/workspace/scratch/df4bb27677d3/contributions/ddl/full/app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java"
+      ],
+      "exitCode": 0,
+      "log": "production.log"
+    },
+    {
+      "command": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-cp",
+        "/workspace/scratch/df4bb27677d3/contributions/ddl/verification/platform:/workspace/scratch/df4bb27677d3/contributions/ddl/verification/production:/workspace/scratch/df4bb27677d3/contributions/ddl/verification/tests:/workspace/scratch/df4bb27677d3/verification/classes:/workspace/scratch/df4bb27677d3/contributions/qualification/deps/sqlite-jdbc.jar:/workspace/scratch/df4bb27677d3/contributions/ddl/deps/slf4j-api.jar:/workspace/scratch/e2d683069298/android-36.jar",
+        "-d",
+        "/workspace/scratch/df4bb27677d3/contributions/ddl/verification/tests",
+        "/workspace/scratch/df4bb27677d3/contributions/ddl/tests/CompletedDriftR32Host.java"
+      ],
+      "exitCode": 0,
+      "log": "testcompile.log"
+    },
+    {
+      "command": [
+        "java",
+        "-cp",
+        "/workspace/scratch/df4bb27677d3/contributions/ddl/verification/platform:/workspace/scratch/df4bb27677d3/contributions/ddl/verification/production:/workspace/scratch/df4bb27677d3/contributions/ddl/verification/tests:/workspace/scratch/df4bb27677d3/verification/classes:/workspace/scratch/df4bb27677d3/contributions/qualification/deps/sqlite-jdbc.jar:/workspace/scratch/df4bb27677d3/contributions/ddl/deps/slf4j-api.jar:/workspace/scratch/e2d683069298/android-36.jar",
+        "com.ethk3.novaonepro.CompletedDriftR32Host",
+        "/workspace/scratch/df4bb27677d3/contributions/ddl/verification/case.db"
+      ],
+      "exitCode": 0,
+      "log": "run.log"
+    },
+    {
+      "command": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/workspace/scratch/e2d683069298/android-36.jar:/workspace/scratch/df4bb27677d3/contributions/ddl/verification/platform:/workspace/scratch/df4bb27677d3/verification/classes",
+        "-d",
+        "/workspace/scratch/df4bb27677d3/contributions/ddl/verification/negative",
+        "/workspace/scratch/df4bb27677d3/candidate/app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java"
+      ],
+      "exitCode": 0,
+      "log": "negativecompile.log"
+    }
+  ],
+  "existingStrictMigrationRegression": {
+    "status": "PASS",
+    "log": "strict.log"
+  }
+}

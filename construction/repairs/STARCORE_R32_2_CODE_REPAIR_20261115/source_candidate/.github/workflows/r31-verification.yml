@@ -1,0 +1,327 @@
+# R31-B12-C02 unified verification: baseline -> contracts -> android_build -> instrumentation -> artifact_receipt.
+# Every stage really runs or is reported NOT_RUN (GitHub needs.<job>.result skipped/cancelled/absent). A stage is PASS
+# only with executed tests and no failure; skips are listed by name (tools/r31/verification_receipt.py).
+# The instrumentation job is the EMU layer (disposable emulators API 29/34/35). No physical device and no natural-quality
+# claim is ever produced here. The existing gate (.github/workflows/r31-gate.yml) is unchanged and still required.
+name: STARCORE R31 verification
+on:
+  workflow_call:
+    inputs:
+      source:
+        description: Exact commit from construction/r31-final-20261104
+        required: true
+        type: string
+    secrets:
+      DUOQU_API_KEY:
+        description: Existing production fetch credential; only this secret is passed by the signer-scoped caller.
+        required: true
+  # A new workflow is dispatchable only from the default branch, so the construction branch requests a run by
+  # changing release/R31_VERIFICATION_REQUEST.md (or this file). Nothing else on the branch triggers it.
+  push:
+    branches: ['construction/r31-final-20261104']
+    paths: ['release/R31_VERIFICATION_REQUEST.md', '.github/workflows/r31-verification.yml']
+  workflow_dispatch:
+    inputs:
+      instrumentation:
+        description: Run the emulator matrix (true/false)
+        required: false
+        default: 'true'
+permissions:
+  contents: read
+concurrency:
+  group: r31-verification-${{ inputs.source || github.sha }}
+  cancel-in-progress: false
+env:
+  R31_EXPECTED_SOURCE: ${{ inputs.source || github.sha }}
+  SDK_PACKAGES: "'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'"
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+      - name: Identity, baseline and manifest checks
+        run: |
+          set -o pipefail
+          mkdir -p r31v
+          test "$(git rev-parse HEAD)" = "$R31_EXPECTED_SOURCE"
+          git fetch --no-tags origin refs/heads/construction/r31-final-20261104:refs/remotes/origin/construction/r31-final-20261104
+          git merge-base --is-ancestor "$R31_EXPECTED_SOURCE" refs/remotes/origin/construction/r31-final-20261104
+          git rev-parse HEAD > r31v/source-commit.txt
+          python3 -B scripts/r967_semantic_identity.py --check | tee r31v/r967.txt
+          python3 -B tools/r31/test_verify_baseline.py 2>&1 | tail -n 20 | tee r31v/test_verify_baseline.txt
+          python3 -B tools/r31/verify_baseline.py --identity-only > r31v/baseline.json
+          python3 -B tools/r31/verification_receipt.py --check-manifest | tee r31v/manifest-check.json
+          python3 -B tools/r31/test_verification_receipt.py 2>&1 | tail -n 20 | tee r31v/verification-receipt-selftest.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31v-baseline
+          path: r31v/
+  contracts:
+    needs: baseline
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - run: eval sdkmanager $SDK_PACKAGES > /dev/null
+      - uses: actions/cache@v4
+        with:
+          path: ~/.gradle/wrapper/dists
+          key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+      - name: Gradle distribution (cached; fetched with retries; a download timeout is infrastructure, not a result)
+        run: for i in 1 2 3 4 5 6 7 8; do ./gradlew --no-daemon --version > /dev/null && exit 0; echo "gradle distribution attempt $i failed"; sleep $((i*45)); done; exit 1
+      - name: Current invocation of the complete cumulative engineering gate
+        run: |
+          mkdir -p r31v
+          export R31_INVOCATION_ID=$(python3 -c 'import uuid;print(uuid.uuid4())')
+          set +e
+          python3 -B tools/r31/run_current_acceptance.py --batch K11 --out "$RUNNER_TEMP/r31-current"
+          gate_exit=$?
+          set -e
+          cp -a "$RUNNER_TEMP/r31-current" r31v/current
+          python3 - <<'PYHOST'
+          import json
+          s=json.load(open('r31v/current/BUILD_SUMMARY.json'))
+          json.dump({h['id']:h['status'] for h in s['host']},open('r31v/host-results.json','w'),indent=1)
+          PYHOST
+          exit "$gate_exit"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31v-contracts
+          path: |
+            r31v/
+            app/build/test-results/testDebugUnitTest/
+            app/build/reports/lint-results-debug.*
+  android_build:
+    # Build the same frozen source while the cumulative gate runs. Delivery
+    # still requires both jobs and their current-invocation receipts below.
+    needs: [baseline]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+      # The installed phone app (R30-REPAIR1, com.starcore.research.r13, versionCode 577311020) is signed with the
+      # R27 CI key d8d8cee7...; only that key gives an overlay install that keeps the phone's data.
+      - id: devicekey
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/r27-ci-temp-key
+          key: starcore-r27-ci-temp-signing-v1
+          fail-on-cache-miss: true
+      - name: Reuse the installed application's exact signing identity
+        env:
+          DUOQU_SECRET: ${{ secrets.DUOQU_API_KEY }}
+        run: |
+          set -euo pipefail
+          V="$RUNNER_TEMP/r31v"; mkdir -p "$V"
+          K="$HOME/.starcore/r27-ci-temp-key"
+          DEVICE_CERT=d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+          if [ -f "$K/r27-ci.p12" ] && [ -s "$K/pw" ]; then
+            pw=$(cat "$K/pw"); echo "::add-mask::$pw"
+            cert=$(keytool -exportcert -keystore "$K/r27-ci.p12" -storetype PKCS12 -alias starcore-r13 -storepass "$pw" | sha256sum | cut -c1-64)
+            [ "$cert" = "$DEVICE_CERT" ] || { echo "INSTALLED_SIGNER_MISMATCH $cert"; exit 1; }
+            { echo "R13_SIGNING_P12=$K/r27-ci.p12"; echo "R13_SIGNING_PASSWORD=$pw"; echo "R13_EXPECTED_CERT_SHA256=$cert"; echo "R31_SIGNING=EXISTING_DEVICE_IDENTITY"; } >> "$GITHUB_ENV"
+            echo "EXISTING_DEVICE_IDENTITY: installed R31 577311020 signer $cert" > "$V/signing.txt"
+          else
+            echo "NOT_AVAILABLE: installed signer private material was not restored; no replacement key is generated" > "$V/signing.txt"
+            exit 1
+          fi
+          if [ -n "$DUOQU_SECRET" ]; then echo "::add-mask::$DUOQU_SECRET"; echo "DUOQU_API_KEY=$DUOQU_SECRET" >> "$GITHUB_ENV"; else echo "RELEASE_API_SECRET_UNAVAILABLE"; exit 1; fi
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - run: eval sdkmanager $SDK_PACKAGES > /dev/null
+      - uses: actions/cache@v4
+        with:
+          path: ~/.gradle/wrapper/dists
+          key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+      - name: Gradle distribution (cached; fetched with retries; a download timeout is infrastructure, not a result)
+        run: for i in 1 2 3 4 5 6 7 8; do ./gradlew --no-daemon --version > /dev/null && exit 0; echo "gradle distribution attempt $i failed"; sleep $((i*45)); done; exit 1
+      - name: Require the source-call inventory frozen from these sources
+        run: python3 scripts/r982_source_call_asset.py
+      - name: Build the real APKs
+        run: |
+          set -o pipefail
+          REL=""
+          if [ "$R31_SIGNING" != "NOT_AVAILABLE" ] && [ -n "${DUOQU_API_KEY:-}" ]; then REL=":app:assembleRelease"; else echo "RELEASE_NOT_BUILT signing=$R31_SIGNING" >> "$RUNNER_TEMP/r31v/signing.txt"; fi
+          ./gradlew --no-daemon -Pr30Instrumentation=true :app:assembleDebug :app:assembleDebugAndroidTest $REL 2>&1 | tail -n 150
+      - name: Signature, badging and digests of what was built
+        run: |
+          B="$ANDROID_HOME/build-tools/36.0.0"
+          mkdir -p r31v && cp "$RUNNER_TEMP/r31v/signing.txt" r31v/signing.txt
+          for f in $(ls app/build/outputs/apk/*/*.apk app/build/outputs/apk/androidTest/*/*.apk 2>/dev/null); do
+            n=$(basename "$f" .apk)
+            "$B/apksigner" verify --verbose --print-certs "$f" > "r31v/signature-$n.txt" 2>&1
+            "$B/aapt" dump badging "$f" > "r31v/badging-$n.txt"
+          done
+          sha256sum app/build/outputs/apk/*/*.apk app/build/outputs/apk/androidTest/*/*.apk > r31v/SHA256SUMS.txt
+          git rev-parse HEAD > r31v/source-commit.txt
+          cat r31v/signing.txt r31v/SHA256SUMS.txt
+      - name: Verify the current production backup and report controls on the fixed large database
+        run: |
+          R31_PHONE_OUT="$RUNNER_TEMP/r31-current-large-report" bash tools/r31/run_phone_report_host.sh
+          cp "$RUNNER_TEMP/r31-current-large-report/receipt.json" r31v/HOST_PHONE_REPORT.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31v-android-build
+          path: |
+            r31v/
+            app/build/outputs/apk/
+  instrumentation:
+    needs: android_build
+    if: github.event.inputs.instrumentation != 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [29, 34, 35]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31v-android-build
+          path: built
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: bash tools/r31/emulator_matrix.sh ${{ matrix.api }} "$(ls built/app/build/outputs/apk/debug/*.apk | head -1)" "$(ls built/app/build/outputs/apk/androidTest/debug/*.apk | head -1)" r31v/emu-${{ matrix.api }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31v-emu-${{ matrix.api }}
+          path: r31v/
+  priority_report_runtime:
+    # User-prioritized real report and live-chain evidence, independent of the
+    # longer original fault/upgrade matrices. It never substitutes their results.
+    needs: android_build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31v-android-build
+          path: built
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: bash tools/r31/run_r31q_android_delivery.sh built r31v/priority-report-runtime
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31v-priority-report-runtime
+          path: r31v/
+  artifact_receipt:
+    needs: [baseline, contracts, android_build, instrumentation, priority_report_runtime]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          path: stages
+      - name: Stage receipts from what actually ran
+        run: |
+          mkdir -p receipt
+          V=tools/r31/verification_receipt.py
+          python3 -B $V --stage baseline --result "${{ needs.baseline.result }}" --no-tests-expected --artifact stages/r31v-baseline/baseline.json --out receipt/stage-baseline.json
+          python3 -B $V --stage contracts --result "${{ needs.contracts.result }}" --junit stages/r31v-contracts/app/build/test-results/testDebugUnitTest --artifact stages/r31v-contracts/r31v/host-results.json --out receipt/stage-contracts.json
+          python3 -B $V --stage android_build --result "${{ needs.android_build.result }}" --no-tests-expected --artifact stages/r31v-android-build/r31v/SHA256SUMS.txt --out receipt/stage-android_build.json
+          python3 -B $V --stage instrumentation --result "${{ needs.instrumentation.result }}" --no-tests-expected --artifact stages/r31v-emu-29/emu-29/upgrade/EMU-UPGRADE-RECEIPT.json --artifact stages/r31v-emu-34/emu-34/upgrade/EMU-UPGRADE-RECEIPT.json --artifact stages/r31v-emu-35/emu-35/upgrade/EMU-UPGRADE-RECEIPT.json --out receipt/stage-instrumentation.json
+          python3 -B $V --stage priority_report_runtime --result "${{ needs.priority_report_runtime.result }}" --no-tests-expected --artifact stages/r31v-priority-report-runtime/priority-report-runtime/ANDROID_PROTOCOL_VERIFICATION.json --out receipt/stage-priority_report_runtime.json
+          python3 -B $V --aggregate receipt --out receipt/R31_VERIFICATION_RECEIPT.json
+          cat receipt/R31_VERIFICATION_RECEIPT.json
+      - name: Delivery package from the real build output only
+        if: needs.android_build.result == 'success'
+        run: |
+          python3 -B tools/r31/unified_acceptance_report.py --summary stages/r31v-contracts/r31v/current/BUILD_SUMMARY.json --out receipt/acceptance
+          python3 -B tools/r31/package_release.py create --built stages/r31v-android-build --verification receipt/R31_VERIFICATION_RECEIPT.json --acceptance receipt/acceptance --out delivery
+          cat delivery/R31_DELIVERY.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31-verification-receipt
+          path: |
+            receipt/
+            delivery/

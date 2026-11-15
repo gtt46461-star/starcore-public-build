@@ -1,0 +1,244 @@
+[
+  {
+    "file": "/workspace/scratch/df4bb27677d3/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+    "sha256": "c1ed94f1f2bdbd9f4bcb7970b2ca083dec3b4703bfa7fe510dce7bd6e00b273b",
+    "relevantLines": [
+      {
+        "line": 17,
+        "text": "\"CREATE TABLE IF NOT EXISTS r31_atomnet_publication(publication_id TEXT PRIMARY KEY,operator_version TEXT NOT NULL,owner TEXT NOT NULL,dataset_hash TEXT NOT NULL,previous_state_hash TEXT NOT NULL,state_hash TEXT NOT NULL,state_ref BLOB NOT NULL,model_hash TEXT,weights_hash TEXT,weights_ref BLOB,model_available_at INTEGER,through_ordinal INTEGER NOT NULL,materialized_samples INTEGER NOT NULL,first_sample INTEGER NOT NULL,sample_count INTEGER NOT NULL,sample_bytes INTEGER NOT NULL,sample_digest TEXT NOT NULL,dataset_ref BLOB,dataset_payload_hash TEXT,status TEXT NOT NULL CHECK(status IN ('PREPARED','PUBLISHED')),created_at INTEGER NOT NULL,published_at INTEGER)\","
+      },
+      {
+        "line": 18,
+        "text": "\"CREATE TABLE IF NOT EXISTS r31_atomnet_sample_stage(publication_id TEXT NOT NULL,sample_index INTEGER NOT NULL,issue TEXT NOT NULL,position INTEGER NOT NULL,features BLOB NOT NULL,hit INTEGER NOT NULL,number_class INTEGER NOT NULL,payload_hash TEXT NOT NULL,PRIMARY KEY(publication_id,sample_index))\","
+      },
+      {
+        "line": 19,
+        "text": "\"CREATE INDEX IF NOT EXISTS r31_atomnet_publication_samples ON r31_atomnet_publication(dataset_hash,status,first_sample)\","
+      },
+      {
+        "line": 20,
+        "text": "\"CREATE TRIGGER IF NOT EXISTS r31_atomnet_stage_no_update BEFORE UPDATE ON r31_atomnet_sample_stage BEGIN SELECT RAISE(ABORT,'R31_ATOM_SAMPLE_IMMUTABLE'); END\","
+      },
+      {
+        "line": 21,
+        "text": "\"CREATE TRIGGER IF NOT EXISTS r31_atomnet_stage_published_no_delete BEFORE DELETE ON r31_atomnet_sample_stage BEGIN SELECT RAISE(ABORT,'R31_ATOM_PUBLISHED_SAMPLE_PROTECTED'); END\""
+      },
+      {
+        "line": 24,
+        "text": "{\"r31_atomnet_publication\",\"publication_id,operator_version,owner,dataset_hash,previous_state_hash,state_hash,state_ref,model_hash,weights_hash,weights_ref,model_available_at,through_ordinal,materialized_samples,first_sample,sample_count,sample_bytes,sample_digest,dataset_ref,dataset_payload_hash,status,created_at,published_at\"},"
+      },
+      {
+        "line": 25,
+        "text": "{\"r31_atomnet_sample_stage\",\"publication_id,sample_index,issue,position,features,hit,number_class,payload_hash\"}"
+      },
+      {
+        "line": 29,
+        "text": "public static String[][] schemaObjectsR31(){return new String[][]{{\"table\",\"r31_atomnet_publication\"},{\"table\",\"r31_atomnet_sample_stage\"},{\"index\",\"r31_atomnet_publication_samples\"},{\"trigger\",\"r31_atomnet_stage_no_update\"},{\"trigger\",\"r31_atomnet_stage_published_no_delete\"}};}"
+      },
+      {
+        "line": 30,
+        "text": "public static void requireReady(SQLiteDatabase db){DatabaseCoordinator.requireSchemaObjectsR31(db,\"R31_ATOMNET_PUBLICATION\",TABLES,new String[][]{{\"index\",\"r31_atomnet_publication_samples\"},{\"trigger\",\"r31_atomnet_stage_no_update\"},{\"trigger\",\"r31_atomnet_stage_published_no_delete\"}});}"
+      },
+      {
+        "line": 44,
+        "text": "try(Cursor parent=ro.rawQuery(\"SELECT materialized_samples,dataset_hash FROM r31_atomnet_publication WHERE owner=? AND state_hash=? AND status='PUBLISHED' LIMIT 1\",new String[]{AtomNetSessionR30.OWNER,hash})){if(parent.moveToFirst()){if(!dataset.equals(parent.getString(1))||parent.getLong(0)<0)throw new IllegalStateException(\"R31_ATOM_PARENT_BINDING\");return parent.getLong(0);}}"
+      },
+      {
+        "line": 68,
+        "text": "byte[] encoded=state.encode();if(encoded.length>state.serializedBoundR31())throw new IllegalStateException(\"R31_ATOM_SOURCE_BOUND_DRIFT\");stateHash=StatsR27.sha256(encoded);id=HashingSU1.fields(VERSION,AtomNetSessionR30.OWNER,datasetHash,previousStateHash,stateHash,sampleDigest);long publicationAt=now;try(Cursor prior=ro.rawQuery(\"SELECT created_at FROM r31_atomnet_publication WHERE publication_id=?\",new String[]{id})){if(prior.moveToFirst())publicationAt=prior.getLong(0);}this.now=publicationAt;if(this.now<=0)throw new IllegalStateException(\"R31_ATOM_MANIFEST_CREATED_AT\");"
+      },
+      {
+        "line": 76,
+        "text": "manifest.guardBefore(db->{requireReady(db);try(Cursor old=db.rawQuery(\"SELECT state_hash,sample_digest,sample_count FROM r31_atomnet_publication WHERE publication_id=?\",new String[]{id})){if(old.moveToFirst()){if(!stateHash.equals(old.getString(0))||!sampleDigest.equals(old.getString(1))||samples.size()!=old.getInt(2))throw new IllegalStateException(\"R31_ATOM_MANIFEST_CONFLICT\");return 0;}}"
+      },
+      {
+        "line": 77,
+        "text": "try(Cursor capacity=db.rawQuery(\"SELECT count(*),coalesce(sum(sample_count),0),coalesce(sum(sample_bytes),0) FROM r31_atomnet_publication\",null)){if(!capacity.moveToFirst()||capacity.getLong(0)>=4096||capacity.getLong(1)+samples.size()>100000||capacity.getLong(2)+sampleBytes>MAX_RESERVED_SAMPLE_BYTES)throw new Dependency(\"STORAGE_CAPACITY_DEBT_PREPARED_AND_PUBLISHED_EVIDENCE_PROTECTED\");}return 0;});"
+      },
+      {
+        "line": 78,
+        "text": "manifest.add(\"INSERT OR IGNORE INTO r31_atomnet_publication VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'PREPARED',?,NULL)\",id,VERSION,AtomNetSessionR30.OWNER,datasetHash,previousStateHash,stateHash,stateRef,model==null?null:model.modelHash,model==null?null:model.weightsHash,modelRef,model==null?null:model.availableAt,through,materialized,first,samples.size(),sampleBytes,sampleDigest,datasetRef,datasetPayloadHash,now);result.add(manifest);"
+      },
+      {
+        "line": 80,
+        "text": "for(SampleRow row:samples){long next=row.bytes()+id.length()+row.hash.length();if(next>MAX_STAGE_BINDS)throw new IllegalArgumentException(\"R31_ATOM_SINGLE_SAMPLE_BIND_BOUND\");if(current==null||count>=MAX_STAGE_ROWS||bytes+next>MAX_STAGE_BINDS){current=new ResearchWriteQueueR27.Batch();result.add(current);bytes=0;count=0;}current.add(\"INSERT OR IGNORE INTO r31_atomnet_sample_stage VALUES(?,?,?,?,?,?,?,?)\",id,row.index,row.issue,row.position,row.features,row.hit,row.number,row.hash);bytes+=next;count++;}"
+      },
+      {
+        "line": 84,
+        "text": "public void verifyPrepared(SQLiteDatabase ro){requireReady(ro);if(!stateHash.equals(StatsR27.sha256(CheckpointArtifactsR26.resolveSerializedR31(ro,stateRef))))throw new IllegalStateException(\"R31_ATOM_STAGED_STATE_CHECKSUM\");if(model!=null&&!model.weightsHash.equals(StatsR27.sha256(CheckpointArtifactsR26.resolveSerializedR31(ro,modelRef))))throw new IllegalStateException(\"R31_ATOM_STAGED_MODEL_CHECKSUM\");if(datasetRef!=null&&!datasetPayloadHash.equals(StatsR27.sha256(CheckpointArtifactsR26.resolveSerializedR31(ro,datasetRef))))throw new IllegalStateException(\"R31_ATOM_STAGED_DATASET_CHECKSUM\");StringBuilder hashes=new StringBuilder(VERSION);int count=0;try(Cursor c=ro.rawQuery(\"SELECT sample_index,issue,position,features,hit,number_class,payload_hash FROM r31_atomnet_sample_stage WHERE publication_id=? ORDER BY sample_index\",new String[]{id})){while(c.moveToNext()){String actual=sampleHash(new Object[]{datasetHash,c.getInt(0),c.getString(1),c.getInt(2),c.getBlob(3),c.getInt(4),c.getInt(5)});if(count>=samples.size()||c.getInt(0)!=first+count||!samples.get(count).hash.equals(actual)||!actual.equals(c.getString(6)))throw new IllegalStateException(\"R31_ATOM_SAMPLE_STAGING_MISMATCH\");hashes.append('|').append(actual);count++;}}if(count!=samples.size()||!sampleDigest.equals(StatsR27.sha256(hashes.toString())))throw new Dependency(\"SAMPLE_STAGING_INCOMPLETE\");}"
+      },
+      {
+        "line": 87,
+        "text": "try(Cursor manifest=db.rawQuery(\"SELECT state_hash,sample_digest,sample_count,state_ref,model_hash,weights_ref,model_available_at,through_ordinal,materialized_samples,previous_state_hash,dataset_hash,dataset_ref,dataset_payload_hash FROM r31_atomnet_publication WHERE publication_id=?\",new String[]{id})){if(!manifest.moveToFirst()||!stateHash.equals(manifest.getString(0))||!sampleDigest.equals(manifest.getString(1))||samples.size()!=manifest.getInt(2)||!Arrays.equals(stateRef,manifest.getBlob(3))||!Objects.equals(model==null?null:model.modelHash,manifest.getString(4))||!Arrays.equals(modelRef,manifest.getBlob(5))||model!=null&&model.availableAt!=manifest.getLong(6)||through!=manifest.getLong(7)||materialized!=manifest.getLong(8)||!previousStateHash.equals(manifest.getString(9))||!datasetHash.equals(manifest.getString(10))||!Arrays.equals(datasetRef,manifest.getBlob(11))||!Objects.equals(datasetPayloadHash,manifest.getString(12)))return -1;}"
+      },
+      {
+        "line": 88,
+        "text": "try(Cursor count=db.rawQuery(\"SELECT count(*) FROM r31_atomnet_sample_stage WHERE publication_id=?\",new String[]{id})){if(!count.moveToFirst()||count.getInt(0)!=samples.size())return -1;}return 0;});"
+      },
+      {
+        "line": 91,
+        "text": "if(model!=null)control.add(\"INSERT OR IGNORE INTO r30_model_artifact VALUES(?,?,?,?,?)\",model.modelHash,AtomNetSessionR30.ABI,modelRef,through,now);"
+      },
+      {
+        "line": 92,
+        "text": "control.add(\"UPDATE r31_atomnet_publication SET status='PUBLISHED',published_at=coalesce(published_at,CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)) WHERE publication_id=?\",id);return control;"
+      }
+    ]
+  },
+  {
+    "file": "/workspace/scratch/df4bb27677d3/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
+    "sha256": "dfb1db19e8b73b46f3cb436dbfaf7da978bde2201f0868a0cc2f9eca056ae721",
+    "relevantLines": [
+      {
+        "line": 53,
+        "text": "for(int i:unique){if(at>1)sql.append(',');sql.append('?');args[at++]=Integer.toString(i);}sql.append(')');if(publishedSource){sql.append(\" UNION ALL SELECT s.sample_index,s.issue,s.position,s.features,s.hit,s.number_class,s.payload_hash FROM r31_atomnet_sample_stage s JOIN r31_atomnet_publication p ON p.publication_id=s.publication_id WHERE p.dataset_hash=? AND p.status='PUBLISHED' AND s.sample_index IN (\").append(slots).append(')');args[at++]=session.datasetHash;for(int i:unique)args[at++]=Integer.toString(i);}"
+      },
+      {
+        "line": 78,
+        "text": "if(!state.ready())return null;if(publicationSchemaPresentR31(ro))try(Cursor c=ro.rawQuery(\"SELECT p.model_hash,p.weights_ref,p.through_ordinal,p.model_available_at FROM r31_atomnet_publication p JOIN r29_model_checkpoint c ON c.state_hash=p.state_hash AND c.owner=? WHERE p.status='PUBLISHED' ORDER BY p.published_at DESC LIMIT 1\",new String[]{AtomNetSessionR30.OWNER})){if(c.moveToFirst())return ModelSurfaceProviderR30.FrozenModelRef.archived(ro,c.getString(0),c.getBlob(1),c.getLong(2),c.getLong(3));}"
+      },
+      {
+        "line": 82,
+        "text": "private static boolean publicationSchemaPresentR31(SQLiteDatabase ro){try(Cursor c=ro.rawQuery(\"SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('r31_atomnet_publication','r31_atomnet_sample_stage')\",null)){return c.moveToFirst()&&c.getInt(0)==2;}}"
+      }
+    ]
+  },
+  {
+    "file": "/workspace/scratch/df4bb27677d3/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineModelBindingR31.java",
+    "sha256": "f39a07ded734efb95d6c350f297a0e53b6c46fe14f4561714ba1a4e359953029",
+    "relevantLines": [
+      {
+        "line": 28,
+        "text": "try(Cursor c=db.rawQuery(\"SELECT publication_id,state_hash,weights_hash,through_ordinal,model_available_at,published_at FROM r31_atomnet_publication WHERE model_hash=? AND weights_hash=? AND status='PUBLISHED' ORDER BY published_at DESC,publication_id LIMIT 1\",new String[]{model.modelHash,model.weightsHash})) {"
+      },
+      {
+        "line": 49,
+        "text": "try(Cursor c=db.rawQuery(\"SELECT 1 FROM r31_atomnet_publication WHERE publication_id=? AND state_hash=? AND model_hash=? AND weights_hash=? AND status='PUBLISHED'\",new String[]{String.valueOf(binding.get(\"publicationId\")),String.valueOf(binding.get(\"learnerStateHash\")),String.valueOf(binding.get(\"modelHash\")),String.valueOf(binding.get(\"weightsHash\"))})){return c.moveToFirst();}"
+      }
+    ]
+  },
+  {
+    "file": "/workspace/scratch/df4bb27677d3/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointReferencesR26.java",
+    "sha256": "10b6bfd2ab334e884bb92dc227c1c49b5419e49e6be8af951d9785adbd7fff01",
+    "relevantLines": [
+      {
+        "line": 35,
+        "text": "Map<String,String> columns=new LinkedHashMap<>();columns.put(\"r29_model_checkpoint\",\"artifact\");columns.put(\"r29_legacy_model_checkpoint\",\"artifact\");columns.put(\"r30_model_artifact\",\"weights\");columns.put(\"r30_atomnet_dataset\",\"payload\");"
+      },
+      {
+        "line": 38,
+        "text": "if(table(db,\"r31_atomnet_publication\"))for(String column:new String[]{\"state_ref\",\"weights_ref\",\"dataset_ref\"})artifactColumnR31(db,refs,\"r31_atomnet_publication\",column,true);"
+      }
+    ]
+  },
+  {
+    "file": "/workspace/scratch/df4bb27677d3/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java",
+    "sha256": "e32ffbbd706aff182a988d53cc69814450d793bd41363613fe1f2785fc5834b5",
+    "relevantLines": [
+      {
+        "line": 12,
+        "text": "public static final int MAX_NODES=16384, PAGE=64;"
+      },
+      {
+        "line": 41,
+        "text": "roots.put(\"r29_model_checkpoint\",new String[]{\"artifact\"});roots.put(\"r29_legacy_model_checkpoint\",new String[]{\"artifact\"});roots.put(\"r30_model_artifact\",new String[]{\"weights\"});roots.put(\"r30_atomnet_dataset\",new String[]{\"payload\"});"
+      },
+      {
+        "line": 42,
+        "text": "roots.put(\"r31_atomnet_publication\",new String[]{\"state_ref\",\"weights_ref\",\"dataset_ref\"});"
+      },
+      {
+        "line": 45,
+        "text": "for(String table:new String[]{\"r29_model_checkpoint\",\"r29_legacy_model_checkpoint\",\"r30_model_artifact\",\"r30_atomnet_dataset\"})roots.put(\"r30_keep_\"+table,roots.get(table));"
+      }
+    ]
+  },
+  {
+    "file": "/workspace/scratch/df4bb27677d3/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
+    "sha256": "1a41dd4edb2c218567d428bd02197d387567245d4ce2612283b5bccc95c652f7",
+    "relevantLines": [
+      {
+        "line": 12,
+        "text": "public static final List<String> PROTECTED_TABLES=Collections.unmodifiableList(Arrays.asList("
+      },
+      {
+        "line": 15,
+        "text": "\"r30_confirm_read\",\"r30_frozen_confirm\",\"r30_model_artifact\",\"r30_model_surface\",\"r30_model_call\",\"r30_decision_explain\",\"r30_decision_mismatch\",\"r30_certificate_revocation_event\",\"r30_revoked_policy\",\"r30_revoked_certificate\","
+      },
+      {
+        "line": 27,
+        "text": "expiry=\"NONE_DEFAULT_DENY\";replay=original?\"ORIGINAL_ROWS_REQUIRED_NO_SUMMARY_SUBSTITUTE\":\"SUMMARY_ONLY_AFTER_CONSUMERS_MIGRATED\";"
+      },
+      {
+        "line": 29,
+        "text": "readerCoverage=table.equals(KeepMismatchReferenceR31.SOURCE)?KeepMismatchReferenceR31.READER_CONTRACT:table.equals(\"r26_candidate\")?\"WarmPublicationR31.complete-original-check;CheckpointReferencesR26;report full-original attachments\":table.equals(\"r27_live_frozen\")?\"QualificationGapRepairR30R1.original predraw restoration;report full-original attachments\":table.equals(\"r29_model_checkpoint\")||table.equals(\"r29_legacy_model_checkpoint\")||table.equals(\"r30_model_artifact\")?\"CheckpointReferencesR26.original checkpoint roots;report full-original attachments\":\"UNVERIFIED_READER_SET_DEFAULT_DENY\";"
+      },
+      {
+        "line": 36,
+        "text": "public static boolean deletableByAgeR31(String table){return false;}"
+      }
+    ]
+  },
+  {
+    "file": "/workspace/scratch/df4bb27677d3/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/KeepMigrationR31.java",
+    "sha256": "9b653b49a3585df5159fd164c1184c8833dca082fee8e244005200fe87bb24ba",
+    "relevantLines": []
+  },
+  {
+    "file": "/workspace/scratch/df4bb27677d3/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/KeepMigrationStoreR31.java",
+    "sha256": "5f8597a943a9ef595af02a5397218eb6e96253b104b781152e461a4c8fc6a1f9",
+    "relevantLines": []
+  },
+  {
+    "file": "/workspace/scratch/df4bb27677d3/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/KeepArchiveRetirementR31.java",
+    "sha256": "2448643faa0b28467fc46e0c25f584537447c7b5db026cfa0914874c5af39d93",
+    "relevantLines": [
+      {
+        "line": 18,
+        "text": "\"CREATE TABLE IF NOT EXISTS r31_keep_row_retirement(archive_table TEXT NOT NULL,row_id INTEGER NOT NULL,row_hash TEXT NOT NULL,retired_at INTEGER NOT NULL,authority_hash TEXT NOT NULL,reader_contract_hash TEXT NOT NULL,sqlite_rows_removed INTEGER NOT NULL CHECK(sqlite_rows_removed=1),physical_bytes_released INTEGER NOT NULL CHECK(physical_bytes_released=0),PRIMARY KEY(archive_table,row_id))\","
+      },
+      {
+        "line": 23,
+        "text": "public static boolean eligible(String source){return ResearchRetentionR30.PROTECTED_TABLES.contains(source)&&!source.equals(KeepMismatchReferenceR31.SOURCE);}"
+      }
+    ]
+  },
+  {
+    "file": "/workspace/scratch/df4bb27677d3/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointScratchGcR31.java",
+    "sha256": "a1f9c872c297ee69b297dc3ee52aff6f0a210ec1467cc86ac613410ea89a438c",
+    "relevantLines": [
+      {
+        "line": 13,
+        "text": "* DELETING. Canonical hash.bin files are never considered by this owner. */"
+      }
+    ]
+  },
+  {
+    "file": "/workspace/scratch/df4bb27677d3/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplayStudyR30R1.java",
+    "sha256": "83a9ab0da576f9864c4b5f1aa53207c36dcee8814e0158afd51e967aee642695",
+    "relevantLines": [
+      {
+        "line": 6,
+        "text": "static ModelSurfaceProviderR30.FrozenModelRef previous(SQLiteDatabase db,ModelSurfaceProviderR30.FrozenModelRef current,long target,long now){try(Cursor q=db.rawQuery(\"SELECT model_hash,weights,trained_through_ordinal,available_at FROM r30_model_artifact WHERE feature_abi=? AND model_hash<>? AND trained_through_ordinal<? AND available_at<=? ORDER BY available_at DESC,model_hash LIMIT 1\",new String[]{AtomNetSessionR30.ABI,current.modelHash,String.valueOf(target),String.valueOf(Math.min(now,current.availableAt))})){if(!q.moveToFirst())return null;try{return ModelSurfaceProviderR30.FrozenModelRef.archived(db,q.getString(0),q.getBlob(1),q.getLong(2),q.getLong(3));}catch(ModelSurfaceProviderR30.Blocked|IllegalArgumentException invalid){invalidPreviousReferences.incrementAndGet();previousFailureType=invalid.getClass().getSimpleName();return null;}}}"
+      }
+    ]
+  },
+  {
+    "file": "/workspace/scratch/df4bb27677d3/starcore/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+    "sha256": "6bd7d7215d0b5f06c2408ae40390c157614274d5d7f6b8fb778ede19b1112a48",
+    "relevantLines": [
+      {
+        "line": 12,
+        "text": "\"CREATE TABLE IF NOT EXISTS r30_model_artifact(model_hash TEXT PRIMARY KEY,feature_abi TEXT NOT NULL,weights BLOB NOT NULL,trained_through_ordinal INTEGER NOT NULL,available_at INTEGER NOT NULL)\","
+      },
+      {
+        "line": 18,
+        "text": "if(ref!=null)b.add(\"INSERT OR IGNORE INTO r30_model_artifact VALUES(?,?,?,?,?)\",ref.modelHash,AtomNetSessionR30.ABI,ref.storedWeightsR31(),ref.trainedThroughOrdinal,ref.availableAt);"
+      },
+      {
+        "line": 30,
+        "text": "try(Cursor c=ro.rawQuery(\"SELECT s.target_ordinal,s.position,s.model_hash,s.history_hash,s.probabilities,s.probability_hash,s.trained_through_ordinal,s.model_available_at,s.feature_through_ordinal,s.feature_available_at,s.prepared_at,s.frozen_at,s.deadline_at,a.feature_abi,a.weights,a.trained_through_ordinal,a.available_at FROM r30_model_surface s JOIN r30_model_artifact a ON a.model_hash=s.model_hash WHERE s.target_ordinal>=? AND s.target_ordinal<=? ORDER BY s.frozen_at ASC\",new String[]{Long.toString(data.ordinals[0]),Long.toString(data.ordinals[data.size()-1])})){"
+      }
+    ]
+  }
+]

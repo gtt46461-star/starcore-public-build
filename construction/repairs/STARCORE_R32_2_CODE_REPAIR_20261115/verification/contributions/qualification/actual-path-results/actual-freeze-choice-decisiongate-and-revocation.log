@@ -1,0 +1,14 @@
+SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+Exception in thread "main" java.lang.NoSuchMethodError: 'int android.database.sqlite.SQLiteDatabase.delete(java.lang.String, java.lang.String, java.lang.String[])'
+	at com.ethk3.novaonepro.strategyv2.HypothesisStoreR31.recoverQuotaSliceR32(HypothesisStoreR31.java:116)
+	at com.ethk3.novaonepro.LifecycleSchemaR31.advanceWithinMigration(LifecycleSchemaR31.java:138)
+	at com.ethk3.novaonepro.DatabaseCoordinator.lambda$atomicCallableF01$14(DatabaseCoordinator.java:1033)
+	at com.ethk3.novaonepro.DatabaseCoordinator.lambda$runWriteOrThrowF01$2(DatabaseCoordinator.java:843)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:937)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:843)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:1012)
+	at com.ethk3.novaonepro.strategyv2.TypedFreezeRuntimeR31Fixture.installLifecycleThroughActualOwner(TypedFreezeRuntimeR31Fixture.java:104)
+	at com.ethk3.novaonepro.strategyv2.TypedFreezeRuntimeR31Fixture.<init>(TypedFreezeRuntimeR31Fixture.java:62)
+	at com.ethk3.novaonepro.TypedMainlineR31Host.main(TypedMainlineR31Host.java:54)

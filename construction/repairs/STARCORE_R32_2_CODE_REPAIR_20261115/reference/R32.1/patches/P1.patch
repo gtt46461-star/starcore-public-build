@@ -1,0 +1,355 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java b/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
+index 1208a91bc566b6d44ff7ff4ca92aed2656c52f44..0bca7be39b1bf10d04bf10b812340ce491a34582 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
++++ b/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
+@@ -2429,11 +2429,11 @@ public final class AutoFetchService extends Service {
+     private void reconcileResearchOwner(String reason){
+         if(!running||userRequestedStopV5||store==null||!isServiceUserEnabledV5())return;
+         long mono=android.os.SystemClock.elapsedRealtime();if(mono-lastResearchControlElapsedR31<5000L)return;lastResearchControlElapsedR31=mono;
+-        store.requestLegacySchemaMigrationR31();
+         // This existing off-main control lane runs while R26/R27 are still
+         // initializing. Fault delivery cannot depend on the research pool whose
+         // writes are waiting for these exact durable receipts.
+-        com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.drainOne(store);
++        com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.drainControlSliceR32(store);
++        store.requestLegacySchemaMigrationR31();
+         ensureContinuousRuntimeR26();
+         com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26 owner=continuousRuntimeR26;
+         if(owner!=null){
+@@ -3167,6 +3167,11 @@ public final class AutoFetchService extends Service {
+     }
+ 
+     private void saveApiResultDraws(Models.ApiResult result, Runnable durableLatestConsumerR57) {
++        saveApiResultDraws(result, durableLatestConsumerR57, false);
++    }
++
++    private void saveApiResultDraws(Models.ApiResult result, Runnable durableLatestConsumerR57,
++                                    boolean historyPage) {
+         if (result == null || store == null) {
+             return;
+         }
+@@ -3191,6 +3196,18 @@ public final class AutoFetchService extends Service {
+                 if (durableLatestConsumerR57 != null) durableLatestConsumerR57.run();
+             }
+             if (result.draws != null && !result.draws.isEmpty()) {
++                if (historyPage) {
++                    try {
++                        Models.Draw base = store.getLatestDraw();
++                        if (base != null && base.isValid()) {
++                            String target = AppConfig.nextIssueText(base.issue);
++                            if (store.savePredrawSuffixR32(result.draws, target) > 0)
++                                postAnalysisForLatest("R32_PREDRAW_SUFFIX_RECHECK", true);
++                        }
++                    } catch (RuntimeException failure) {
++                        recordCriticalCatchR926("R32_PREDRAW_SUFFIX_RETRY", "", failure);
++                    }
++                }
+                 try {
+                     ArrayList<Models.Draw> changed = new ArrayList<Models.Draw>();
+                     for(Models.Draw draw:result.draws) {
+@@ -10878,7 +10895,7 @@ public final class AutoFetchService extends Service {
+                 final Models.ApiResult pageR71=r;
+                 saveApiResultDraws(r,new Runnable(){@Override public void run(){
+                     handleLatestDrawAfterSave(getAuthoritativeLatest(pageR71.latestDraw),previousR71,false,"R71_HISTORY_LATEST_FIRST");
+-                }});
++                }}, true);
+                 inserted = parseInt(store.getState("draw_save_inserted","0"),0);
+                 persistProviderFreshnessR3611("QUICK_HISTORY");
+                 if (r.apiLine != null && r.apiLine.length() > 0) {
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java b/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
+index f9a8e5e68fe15d1452c8cf98845f672f02cc8732..8e215d30fd62bb346ea269ad1c10cde6ecd72c24 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
+@@ -57,7 +57,7 @@ public final class DatabaseCoordinator {
+     public static final Map<String,WriteClass> OPERATION_REGISTRY_R31;
+     static {
+         LinkedHashMap<String,WriteClass> registry=new LinkedHashMap<>();
+-        registerR31(registry,WriteClass.DRAW_INGEST,"R914_DRAW_SAVE_ATOMIC*","R925_FETCH_BEGIN","R925_FETCH_PAYLOAD","R925_FETCH_COMPLETE");
++        registerR31(registry,WriteClass.DRAW_INGEST,"R32_PREDRAW_SUFFIX","R914_DRAW_SAVE_ATOMIC*","R925_FETCH_BEGIN","R925_FETCH_PAYLOAD","R925_FETCH_COMPLETE");
+         registerR31(registry,WriteClass.LIVE_FREEZE,"R932_DOMAIN_ROUTE","R932_BUNDLE_CAPTURE","R932_FREEZE_ONE_RESEARCH_CONSUMER","R36_CANONICAL*","R36_ANALYSIS*","R366_ANALYSIS*","R26_INCUMBENT_FREEZE","R26_LIVE_FREEZE");
+         registerR31(registry,WriteClass.SETTLEMENT,"R911_SETTLEMENT_CURRENT_SOLE_OWNER_RECOVER","R915_SETTLEMENT_CURRENT_NORMALIZE_AND_CLAIM","R919_TERMINALIZE_AUDITED_NO_PREDRAW","R911_SETTLEMENT_REOPEN_CURRENT_FAILED","R914_SETTLEMENT_HANDOFF_CURRENT*","R36_SETTLEMENT*","R811_SETTLEMENT_PROMOTE_CURRENT*","R909_SETTLEMENT_REOPEN_CURRENT*","R905_REOPEN_FALSE_NO_PREDRAW*","R820_SETTLEMENT*","R900_SETTLEMENT*");
+         registerR31(registry,WriteClass.RESEARCH_CONTROL,"R30_PREPARED_TASK_CLAIM","R27_TASK_RECEIPT","R27_TASK_RETRY","R27_PRIORITY_CLAIM","R26_TASK_CLAIM","R26_TASK_RECEIPT","R26_SESSION_STATUS","R26_SESSION_STOP");
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DbStore.java b/app/src/main/java/com/ethk3/novaonepro/DbStore.java
+index bfd2dd27903a4d99a6c71b88307d0e4f51d8986c..21d7c059563e72d96573f0dc77d92929dc3d9f01 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DbStore.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DbStore.java
+@@ -2522,7 +2522,36 @@ public final class DbStore {
+     }
+ 
+     public int saveDraws(List<Models.Draw> draws) {
+-        if (draws == null || draws.size() == 0) return 0;
++        return saveHistoryPageR32(draws, null);
++    }
++
++    int savePredrawSuffixR32(List<Models.Draw> page, String target) {
++        Models.Draw latest = getLatestDraw();
++        if (latest == null || !latest.isValid()
++                || !AppConfig.nextIssueText(latest.issue).equals(target)) return 0;
++        final int needed = R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY;
++        if (R36AnalysisHistoryPolicyR364.contiguousSuffixCount(getRecentDraws(needed), latest.issue) >= needed)
++            return 0;
++        List<Models.Draw> suffix = R36AnalysisHistoryPolicyR364.bootstrapSuffixR32(page, latest.issue);
++        if (suffix.isEmpty()) return 0;
++        for (Models.Draw candidate : suffix) {
++            Models.Draw current = getDrawByIssue(candidate.issue);
++            if (current != null && current.isValid()
++                    && !java.util.Arrays.equals(current.numbers, candidate.numbers))
++                throw new IllegalStateException("R32_SUFFIX_REQUIRES_SOURCE_RECONCILIATION|" + candidate.issue);
++        }
++        int inserted = saveHistoryPageR32(suffix, latest.issue);
++        if (inserted == 0 || R36AnalysisHistoryPolicyR364.contiguousSuffixCount(getRecentDraws(needed), latest.issue) < needed)
++            return 0;
++        return inserted;
++    }
++
++    private int saveHistoryPageR32(List<Models.Draw> draws, final String bootstrapBase) {
++        final boolean bootstrap = bootstrapBase != null;
++        if (draws == null || draws.isEmpty()) return 0;
++        if (bootstrap && draws.size() > R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY)
++            throw new IllegalArgumentException("R32_SUFFIX_BOUND");
++        final String operation = bootstrap ? "R32_PREDRAW_SUFFIX" : "R914_DRAW_HISTORY_BATCH";
+         final ArrayList<Models.Draw> valid = new ArrayList<Models.Draw>();
+         for (int i = 0; i < draws.size(); i++) {
+             Models.Draw draw = draws.get(i);
+@@ -2540,13 +2569,21 @@ public final class DbStore {
+             final Integer saved;
+             try {
+                 saved = coordinator.runWriteOrThrowF01(
+-                    "R914_DRAW_HISTORY_BATCH",
++                    operation,
+                     new DatabaseCoordinator.WriteCallable<Integer>() {
+                         @Override public Integer call(SQLiteDatabase db) {
+                             boolean owns = !db.inTransaction();
+                             if (owns) db.beginTransaction();
+                             int count = 0;
+                             try {
++                                if (bootstrap) {
++                                    try (Cursor head = db.rawQuery("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1", null)) {
++                                        if (!head.moveToFirst() || !bootstrapBase.equals(head.getString(0))) {
++                                            if (owns) db.setTransactionSuccessful();
++                                            return 0;
++                                        }
++                                    }
++                                }
+                                 for (int i = 0; i < batch.size(); i++) {
+                                     Models.Draw draw = batch.get(i);
+                                     FetchLedgerR925.observeDrawWithinR82(db,draw);
+@@ -2558,7 +2595,7 @@ public final class DbStore {
+                                             db, draw, System.currentTimeMillis(),
+                                             SettlementTaskStoreR36.BACKLOG,
+                                             SettlementTaskStoreR36.PRIORITY_BACKLOG,
+-                                            "R914_DRAW_HISTORY_BATCH");
++                                            operation);
+                                 }
+                                 if (owns) db.setTransactionSuccessful();
+                                 return Integer.valueOf(count);
+@@ -2576,6 +2613,7 @@ public final class DbStore {
+             inserted += saved.intValue();
+             if (RealtimePressureGateR811.hasActiveCriticalWork()) Thread.yield();
+         }
++        if (bootstrap) return inserted; // regular history owner retains rolling maintenance
+         coordinator.runWrite(
+                 "R914_DRAW_HISTORY_TRIM",
+                 new DatabaseCoordinator.WriteRunnable() {
+@@ -18983,6 +19021,10 @@ public final class DbStore {
+                     };
+             for (int i = 0; i < decisionLike.length; i++)
+                 addColumnArray(db, decisionLike[i], linkModificationV2ColumnDefs());
++            // The migration owner can resume from a table containing only snapshot_key.
++            addColumnArray(db, TABLE_V20_LINK_CANDIDATE_SNAPSHOT, new String[] {
++                "target_issue TEXT", "candidate_rank INTEGER DEFAULT 0", "candidate_key TEXT"
++            });
+             execQuiet(
+                     db,
+                     "CREATE INDEX IF NOT EXISTS idx_store_v20_layer_issue ON "
+diff --git a/app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java b/app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java
+index c7215034ba1a37e3305fb1343274a59b8d494675..53d42daaf9b0a909477ded78508ab1861801776c 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java
++++ b/app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java
+@@ -126,8 +126,31 @@ public final class LifecycleSchemaR31 {
+             if(GapReferenceR31.advanceCutoverWithinMigrationR31(db))return new Result(true,true,"KEEP_GAP_REFERENCE_CUTOVER");
+             return new Result(true,false,"COMPLETE");
+         }
++        if (infrastructure(db) && missingHypothesisQuotaR32(db)) {
++            List<Definition> all = definitions(db);
++            requireDeclaredAttachments(db, all);
++            List<Definition> objects = definitions(HypothesisStoreR31.ddlR31());
++            boolean installed = true;
++            for (Definition object : objects) {
++                if (!object.present(db)) installed = false;
++            }
++            if (installed) {
++                if (!HypothesisStoreR31.recoverQuotaSliceR32(db))
++                    return new Result(false, true, "HYPOTHESIS_QUOTA_RECOUNT_PAGE");
++                HypothesisStoreR31.requireSchemaR31(db);
++                return new Result(false, true, "HYPOTHESIS_QUOTA_INITIALIZED");
++            }
++        }
+         return advance(db,definitions(db),tx->{HypothesisStoreR31.seedQuotaWithinMigrationR31(tx);if(startupSourcePresentR31(tx))StartupCheckpointIdentityR31.seedWithinMigrationR31(tx);ImprovementStoreR31.seedWithinMigrationR31(tx);});
+     }
++    private static boolean missingHypothesisQuotaR32(SQLiteDatabase db) {
++        try (Cursor table = db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r31_hypothesis_quota'", null)) {
++            if (!table.moveToFirst()) return false;
++        }
++        try (Cursor row = db.rawQuery("SELECT 1 FROM r31_hypothesis_quota WHERE singleton=1", null)) {
++            return !row.moveToFirst();
++        }
++    }
+     interface Initializer {void run(SQLiteDatabase db);}
+     static Result advance(SQLiteDatabase db,List<Definition> all,Initializer initialize)throws Exception{
+         if(!db.inTransaction())throw new IllegalStateException("R31_LIFECYCLE_MIGRATION_WRITER_REQUIRED");
+diff --git a/app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java b/app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java
+index 25488afc64ee8ff74de9ad1acd3914366fe3d932..64e187e269d63550dfc49ae98de4e163eb4edcab 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java
++++ b/app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java
+@@ -30,6 +30,20 @@ public final class R36AnalysisHistoryPolicyR364 {
+         return validRows < MIN_LIVE_HISTORY;
+     }
+ 
++    static List<Models.Draw> bootstrapSuffixR32(List<Models.Draw> page, String base) {
++        if (page == null || !TargetIssueResolver.isValid(base)) return java.util.Collections.emptyList();
++        java.util.ArrayList<Models.Draw> window = new java.util.ArrayList<>();
++        for (Models.Draw draw : page) {
++            if (draw == null || !draw.isValid() || !TargetIssueResolver.isValid(draw.issue)) continue;
++            int distance = TargetIssueResolver.distance(draw.issue, base);
++            if (distance >= 0 && distance < MIN_LIVE_HISTORY) window.add(draw);
++        }
++        HistoryIntegrityVerifierR815.Result verified = HistoryIntegrityVerifierR815.verifyAscending(window);
++        if (verified.hasHardConflict() || !base.equals(verified.maxIssue)
++                || verified.contiguousSuffix != MIN_LIVE_HISTORY) return java.util.Collections.emptyList();
++        return verified.contiguousSuffixAscending();
++    }
++
+     public static boolean usable(int validRows) {
+         return validRows >= MIN_LIVE_HISTORY;
+     }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java
+index 5b8c52b68304cfaf24cb4b8585bcc622e24be50c..aba1788d76d8494f1367fecb4097f063afee1752 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java
+@@ -28,12 +28,103 @@ public final class HypothesisStoreR31 {
+             sql.add("CREATE TRIGGER IF NOT EXISTS "+table+"_insert BEFORE INSERT ON "+table+" WHEN EXISTS(SELECT 1 FROM "+table+" WHERE "+match+") BEGIN SELECT CASE WHEN EXISTS(SELECT 1 FROM "+table+" WHERE "+match+" AND "+equal+") THEN RAISE(IGNORE) ELSE RAISE(ABORT,'R31_HYPOTHESIS_ORIGINAL_CONFLICT') END; END");
+             for(String action:new String[]{"UPDATE","DELETE"})sql.add("CREATE TRIGGER IF NOT EXISTS "+table+"_"+action.toLowerCase(Locale.ROOT)+" BEFORE "+action+" ON "+table+" BEGIN SELECT RAISE(ABORT,'R31_HYPOTHESIS_ORIGINAL_IMMUTABLE'); END");
+             String key=table.equals(REG)?"hypothesis_id=NEW.hypothesis_id":table.equals(TRACE)?"campaign_id=NEW.campaign_id AND policy_hash=NEW.policy_hash AND sample_index=NEW.sample_index":"campaign_id=NEW.campaign_id AND child_policy=NEW.child_policy";
+-            String cost=table.equals(REG)||table.equals(OUT)?"(1024+length(CAST(NEW.payload AS BLOB)))":"1024";
++            String cost=logicalChargeR32(table,"NEW.");
+             sql.add("CREATE TRIGGER IF NOT EXISTS "+table+"_admit BEFORE INSERT ON "+table+" WHEN NOT EXISTS(SELECT 1 FROM "+table+" WHERE "+key+") BEGIN SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM "+QUOTA+" WHERE singleton=1 AND logical_bytes+"+cost+"<=268435456) THEN RAISE(ABORT,'R31_HYPOTHESIS_PROTECTED_STORAGE_WAIT') END; END");
+             sql.add("CREATE TRIGGER IF NOT EXISTS "+table+"_account AFTER INSERT ON "+table+" BEGIN UPDATE "+QUOTA+" SET logical_bytes=logical_bytes+"+cost+" WHERE singleton=1; END");
+         }
+         return sql.toArray(new String[0]);
+     }
++    private static final String RECOUNT_KEY = "r32_hypothesis_quota_recount_v1";
++    private static final String[] CHARGE_TABLES = {REG, BIND, TRACE, OUT};
++    private static final String[][] CHARGE_KEYS = {
++            {"rowid"}, {"campaign_id", "child_policy"}, {"campaign_id", "policy_hash", "sample_index"},
++            {"campaign_id", "child_policy"}
++    };
++    private static final int RECOUNT_PAGE = 64;
++
++    private static String logicalChargeR32(String table, String prefix) {
++        return table.equals(REG) || table.equals(OUT)
++                ? "(1024+length(CAST(" + prefix + "payload AS BLOB)))" : "1024";
++    }
++
++    // Scalar comparisons also run on SQLite versions preceding row-value comparisons.
++    static String quotaPageR32(int stage, boolean resume) {
++        String[] keys = CHARGE_KEYS[stage];
++        String keyList = String.join(",", keys);
++        StringJoiner branches = new StringJoiner(" OR ");
++        if (resume) {
++            for (int part = 0; part < keys.length; part++) {
++                StringJoiner term = new StringJoiner(" AND ");
++                for (int i = 0; i < part; i++) term.add(keys[i] + "=?");
++                term.add(keys[part] + ">?");
++                branches.add("(" + term + ")");
++            }
++        }
++        String table = CHARGE_TABLES[stage];
++        return "SELECT " + keyList + "," + logicalChargeR32(table, "") + " FROM " + table
++                + (resume ? " WHERE " + keys[0] + ">=? AND (" + branches + ")" : "")
++                + " ORDER BY " + keyList + " LIMIT " + RECOUNT_PAGE;
++    }
++
++    static String[] quotaPageArgsR32(List<?> last) {
++        if (last.isEmpty()) return null;
++        List<String> args = new ArrayList<>();
++        args.add((String)last.get(0));
++        for (int n = 1; n <= last.size(); n++)
++            for (int i = 0; i < n; i++) args.add((String)last.get(i));
++        return args.toArray(new String[0]);
++    }
++
++    /** Caller has checked every hypothesis table/trigger definition in this migration transaction.
++     * With the singleton missing, the original admission triggers refuse all new keys. Existing rows
++     * are immutable. The cursor and running sum therefore remain valid across committed slices. */
++    public static boolean recoverQuotaSliceR32(SQLiteDatabase db) {
++        writer(db);
++        int stage = 0;
++        long used = 0;
++        List<?> last = Collections.emptyList();
++        try (Cursor row = db.rawQuery("SELECT state_value FROM app_state WHERE state_key=?", new String[]{RECOUNT_KEY})) {
++            if (row.moveToFirst()) {
++                List<?> saved = (List<?>)JsonR27.parse(row.getString(0));
++                if (saved.size() != 4 || !Objects.equals(saved.get(3), StatsR27.sha256(JsonR27.write(saved.subList(0,3)))))
++                    throw new IllegalStateException("R32_QUOTA_RECOUNT_JOURNAL");
++                stage = ((Number)saved.get(0)).intValue();
++                used = ((Number)saved.get(1)).longValue();
++                last = (List<?>)saved.get(2);
++                if (stage < 0 || stage >= CHARGE_TABLES.length || used < 0 || used > 268435456L
++                        || (!last.isEmpty() && last.size() != CHARGE_KEYS[stage].length))
++                    throw new IllegalStateException("R32_QUOTA_RECOUNT_RANGE");
++            }
++        }
++        // Empty tables advance within this same slice. At most one page of actual data is read.
++        while (stage < CHARGE_TABLES.length) {
++            List<String> next = new ArrayList<>();
++            int count = 0;
++            try (Cursor row = db.rawQuery(quotaPageR32(stage, !last.isEmpty()), quotaPageArgsR32(last))) {
++                while (row.moveToNext()) {
++                    next.clear();
++                    for (int i = 0; i < CHARGE_KEYS[stage].length; i++) next.add(row.getString(i));
++                    used = Math.addExact(used, row.getLong(CHARGE_KEYS[stage].length));
++                    count++;
++                }
++            }
++            if (used > 268435456L) throw new IllegalStateException("R32_HYPOTHESIS_PROTECTED_BYTES_OVER_LIMIT:" + used);
++            last = next;
++            if (count < RECOUNT_PAGE) { stage++; last = Collections.emptyList(); }
++            if (stage == CHARGE_TABLES.length) {
++                db.execSQL("INSERT INTO " + QUOTA + "(singleton,logical_bytes) VALUES(1,?)", new Object[]{used});
++                db.delete("app_state","state_key=?",new String[]{RECOUNT_KEY});
++                return true;
++            }
++            if (count > 0) break;
++        }
++        List<Object> state = new ArrayList<>(Arrays.asList(stage, used, last));
++        state.add(StatsR27.sha256(JsonR27.write(state)));
++        db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)",
++                new Object[]{RECOUNT_KEY,JsonR27.write(state),System.currentTimeMillis()});
++        return false;
++    }
++
+     /** Called exclusively by the journalled schema owner, never by business code. */
+     public static void installWithinMigrationR31(SQLiteDatabase db){
+         writer(db);for(String sql:ddlR31())db.execSQL(sql);
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java
+index eb7810d3553b302e01000e9da654d766dfd2ecda..b4abaa8ac30ccbd36b5ca6a28ecdd711611566bc 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java
+@@ -131,6 +131,16 @@ public final class WriterHoldFaultsR31 {
+     }
+ 
+     /** One bounded receipt per actual Health dispatch. Failed/ambiguous delivery retains its event and lease. */
++    /** Use the existing controller and per-event fenced writer, never hold the queue across events. */
++    public static void drainControlSliceR32(DbStore store) {
++        long started = android.os.SystemClock.elapsedRealtime();
++        for (int i = 0; i < 4; i++) {
++            if (i > 0 && (!deferResearch() || android.os.SystemClock.elapsedRealtime() - started >= 40
++                    || com.ethk3.novaonepro.RealtimePressureGateR811.hasActiveCriticalWork())) return;
++            if (!drainOne(store)) return;
++        }
++    }
++
+     public static boolean drainOne(DbStore store) {
+         if (!DRAINING.compareAndSet(false, true)) return false;
+         try {

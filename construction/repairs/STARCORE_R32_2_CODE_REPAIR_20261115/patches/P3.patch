@@ -1,0 +1,171 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java b/app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java
+--- a/app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java
++++ b/app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java
+@@ -159,7 +159,11 @@
+             }
+             else if(su2!=null&&su2.real){com.ethk3.novaonepro.strategyv2.CertificateSU2.Authority a2=com.ethk3.novaonepro.strategyv2.CertificateSU2.read(store.readable(),su2.genomeKey,System.currentTimeMillis());
+                 if(a2!=null){consumer="INVENTED_ALGORITHM";candidate=a2.candidate();structure=a2.program;certificate=a2.certificate;roster.append("|SU2_EXACT:").append(a2.certificate);}}
+-            else if(su2!=null)roster.append(su2.memberId.startsWith("R27:")?"|R27_SHADOW_ONLY:":"|SU2_SHADOW_ONLY:").append(su2.gate);
++            else if (su2 != null) {
++                String reason = (su2.memberId.startsWith("R27:") ? "R27_SHADOW_ONLY:" : "SU2_SHADOW_ONLY:") + su2.gate;
++                roster.append('|').append(reason);
++                rejections.add(new String[]{su2.memberId, "", reason});
++            }
+         }
+         if(consumer.isEmpty()&&rejections.isEmpty()){
+             String latest="NO_CERTIFICATE_RECORD";
+@@ -185,6 +189,18 @@
+             if(com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.candidate(candidate)){
+                 com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.Authority typed=currentR27ChoiceR31(store.readable(),candidate,null,certificate,target);
+                 return typed==null?"NO_VALID_CERTIFICATE|raw=R27_TYPED_FREEZE_PROOF_INVALID_OR_REVOKED":"FROZEN_CERTIFIED_CHOICE|candidate="+candidate+"|certificate="+certificate+"|choice="+typed.choiceId+"|freeze="+typed.proofHash+"|authority=R27_GATE_V1_TYPED_FREEZE";
++            }
++            if (candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX)) {
++                com.ethk3.novaonepro.strategyv2.CertificateSU2.Authority a =
++                        currentSu2ChoiceR30(store.readable(), candidate, null, certificate);
++                return "FROZEN_CHOICE_RECORDED|lane=SU2|candidate=" + candidate + "|certificate=" + certificate
++                        + "|currentCertificate=" + (a == null ? "NOT_ACTIVE_OR_REBOUND" : "ACTIVE");
++            }
++            if (candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU1.PREFIX)) {
++                com.ethk3.novaonepro.strategyv2.CertificateSU1.Authority a =
++                        com.ethk3.novaonepro.strategyv2.CertificateSU1.read(store.readable(), certificate, System.currentTimeMillis(), true);
++                return "FROZEN_CHOICE_RECORDED|lane=SU1|candidate=" + candidate + "|certificate=" + certificate
++                        + "|currentCertificate=" + (a != null && candidate.equals(a.candidate()) ? "ACTIVE" : "NOT_ACTIVE_OR_REBOUND");
+             }
+             try(Cursor cert=store.readable().rawQuery("SELECT state,reason FROM "+ResearchPlatformStoreR929.TABLE_CERTIFICATE+" WHERE certificate_hash=?",new String[]{certificate})){
+                 if(cert.moveToFirst()&&"ACTIVE".equals(cert.getString(0)))return "FROZEN_CERTIFIED_CHOICE|candidate="+candidate+"|certificate="+certificate
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java
+@@ -31,13 +31,13 @@
+     public static Verdict evaluate(Evidence e) {
+         Map<String, Object> g = new LinkedHashMap<>(); List<String> fail = new ArrayList<>();
+         gate(g, fail, "gateVersion", GATE_VERSION.equals(e.gateVersion), e.gateVersion);
+-        double hr = e.acts == 0 ? Double.NaN : e.hits / (double) e.acts;
++        double hr = e.acts <= 0 || e.hits < 0 || e.hits > e.acts ? Double.NaN : e.hits / (double) e.acts;
+         gate(g, fail, "sequentialTest", SequentialQualificationR27.QUALIFIED.equals(e.sequentialState), e.sequentialState);
+         gate(g, fail, "hitRate>=0.34", Double.isFinite(hr) && hr >= MIN_HR, hr);
+         gate(g, fail, "futureActs>=250", e.acts >= MIN_ACTS, e.acts);
+-        gate(g, fail, "ece<=0.04", Double.isFinite(e.ece) && e.ece <= MAX_ECE, e.ece);
+-        gate(g, fail, "worst720Block>=0.26", Double.isFinite(e.worstBlock) && e.worstBlock >= MIN_WORST_BLOCK, e.worstBlock);
+-        gate(g, fail, "losingStreak<=6", e.maxLosingStreak <= MAX_LOSS_STREAK, e.maxLosingStreak);
++        gate(g, fail, "ece<=0.04", Double.isFinite(e.ece) && e.ece >= 0 && e.ece <= MAX_ECE, e.ece);
++        gate(g, fail, "worst720Block>=0.26", Double.isFinite(e.worstBlock) && e.worstBlock >= MIN_WORST_BLOCK && e.worstBlock <= 1, e.worstBlock);
++        gate(g, fail, "losingStreak<=6", e.maxLosingStreak >= 0 && e.maxLosingStreak <= MAX_LOSS_STREAK, e.maxLosingStreak);
+         gate(g, fail, "semanticAbiEquivalent", e.abiEquivalent, e.abiEquivalent);
+         gate(g, fail, "betterThanI00", Double.isFinite(e.pairedLcbVsI00) && e.pairedLcbVsI00 > 0, e.pairedLcbVsI00);
+         gate(g, fail, "betterThanShuffledControl", Double.isFinite(e.pairedLcbVsNull) && e.pairedLcbVsNull > 0, e.pairedLcbVsNull);
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java
+@@ -80,7 +80,26 @@
+         // first candidate, chosen by logE × calibration quality. The intent is still only a request: the single
+         // DecisionGateEngine decides REAL under its unchanged rules (≤1 REAL per issue, no chase/doubling).
+         Intent r27 = r27Intent(db, seq);
+-        if (r27 != null) return r27;
++        if (r27 != null && r27.real) return r27;
++        Intent selective = selectiveIntentR32(db, seq);
++        if (r27 == null) return selective;
++        if (selective == null || !selective.real) return r27;
++        String candidate = CertificateSU2.PREFIX + selective.genomeKey;
++        ProjectionR30 proof = projectionR30(db, seq, System.currentTimeMillis(), candidate);
++        return preferVerifiedR32(r27, selective, proof);
++    }
++
++    static Intent preferVerifiedR32(Intent r27, Intent selective, ProjectionR30 proof) {
++        if (r27.real || proof == null || selective == null || !selective.real) return r27;
++        boolean exact = (CertificateSU2.PREFIX + selective.genomeKey).equals(proof.candidate)
++                && ("CERTIFIED:" + proof.certificate).equals(selective.gate)
++                && Boolean.TRUE.equals(proof.certificateActive) && Boolean.TRUE.equals(proof.freezeComplete)
++                && Boolean.TRUE.equals(proof.modelAvailable) && Boolean.TRUE.equals(proof.selectorConfirmed)
++                && Boolean.TRUE.equals(proof.actRuleFired);
++        return exact ? selective : r27;
++    }
++
++    private static Intent selectiveIntentR32(SQLiteDatabase db, long seq) {
+         if (!StrategySchemaSU2.ready(db)) return null;
+         String member = ModelStoreSU2.currentChoice(db, seq);
+         // SU2 members and the XI incumbent use this lane (XI's frozen pick IS the mainline pick when IPM keeps it);
+diff --git a/tools/r31/run_typed_mainline_host.py b/tools/r31/run_typed_mainline_host.py
+--- a/tools/r31/run_typed_mainline_host.py
++++ b/tools/r31/run_typed_mainline_host.py
+@@ -50,7 +50,8 @@
+    (platform/'com/ethk3/novaonepro/DbStore.class').unlink()
+    cursor=work/'adapter/sources/android/database/Cursor.java';code=cursor.read_text().replace('    void close();','    default int getColumnIndex(String name){for(int i=0;i<getColumnCount();i++)if(name.equals(getColumnName(i)))return i;return -1;}\n    default int getColumnIndexOrThrow(String name){int i=getColumnIndex(name);if(i<0)throw new IllegalArgumentException("HOST_COLUMN_MISSING:"+name);return i;}\n    void close();');cursor.write_text(code)
+    sqlite=work/'adapter/sources/android/database/sqlite/SQLiteDatabase.java';code=sqlite.read_text();at=code.index('    static final class Rows')
+-   code=code[:at]+'''    public Cursor query(String table,String[] columns,String selection,String[] args,String group,String having,String order,String limit){String sql="SELECT "+(columns==null?"*":String.join(",",columns))+" FROM "+table+(selection==null?"":" WHERE "+selection)+(group==null?"":" GROUP BY "+group)+(having==null?"":" HAVING "+having)+(order==null?"":" ORDER BY "+order)+(limit==null?"":" LIMIT "+limit);return rawQuery(sql,args);}
++   code=code[:at]+'''    public int delete(String table,String where,String[] args){String sql="DELETE FROM "+table+(where==null?"":" WHERE "+where);try(java.sql.PreparedStatement p=jdbc.prepareStatement(sql)){if(args!=null)for(int i=0;i<args.length;i++){if(args[i]==null)throw new IllegalArgumentException("HOST_DELETE_NULL_BIND");p.setString(i+1,args[i]);}return p.executeUpdate();}catch(java.sql.SQLException failure){throw new SQLiteException(failure.getMessage());}}
++    public Cursor query(String table,String[] columns,String selection,String[] args,String group,String having,String order,String limit){String sql="SELECT "+(columns==null?"*":String.join(",",columns))+" FROM "+table+(selection==null?"":" WHERE "+selection)+(group==null?"":" GROUP BY "+group)+(having==null?"":" HAVING "+having)+(order==null?"":" ORDER BY "+order)+(limit==null?"":" LIMIT "+limit);return rawQuery(sql,args);}
+     public Cursor query(String table,String[] columns,String selection,String[] args,String group,String having,String order){return query(table,columns,selection,args,group,having,order,null);}
+     public long insertWithOnConflict(String table,String nullColumn,android.content.ContentValues values,int conflict){java.util.List<String> columns=new java.util.ArrayList<>();java.util.List<Object> args=new java.util.ArrayList<>();for(java.util.Map.Entry<String,Object> e:values.valueSet()){columns.add(e.getKey());args.add(e.getValue());}execSQL("INSERT "+(conflict==5?"OR REPLACE ":conflict==4?"OR IGNORE ":"")+"INTO "+table+"("+String.join(",",columns)+") VALUES("+String.join(",",java.util.Collections.nCopies(columns.size(),"?"))+")",args.toArray());try(Cursor c=rawQuery("SELECT last_insert_rowid()",null)){return c.moveToFirst()?c.getLong(0):-1;}}
+     public long insertOrThrow(String table,String nullColumn,android.content.ContentValues values){return insertWithOnConflict(table,nullColumn,values,0);}
+diff --git a/tools/r32/run_mainline_host.py b/tools/r32/run_mainline_host.py
+new file mode 100644
+--- /dev/null
++++ b/tools/r32/run_mainline_host.py
+@@ -0,0 +1,66 @@
++#!/usr/bin/env python3
++"""Run the existing production mainline HOST fixture with explicit dependencies.
++
++This creates only disposable compiler/SDK/cache aliases. It does not install
++anything, sign an APK, create production certificates, or claim natural quality.
++"""
++import argparse
++import json
++import os
++from pathlib import Path
++import shutil
++import subprocess
++import sys
++import tempfile
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--repo', type=Path, required=True)
++    parser.add_argument('--classes', type=Path, required=True)
++    parser.add_argument('--android-jar', type=Path, required=True)
++    parser.add_argument('--sqlite-jdbc', type=Path, required=True)
++    parser.add_argument('--slf4j', type=Path, required=True)
++    parser.add_argument('--out', type=Path, required=True)
++    args = parser.parse_args()
++    repo, classes, sdk, jdbc, slf = [path.resolve() for path in
++                                  (args.repo, args.classes, args.android_jar,
++                                   args.sqlite_jdbc, args.slf4j)]
++    runner = repo / 'tools/r31/run_typed_mainline_host.py'
++    for path in (runner, sdk, jdbc, slf):
++        if not path.is_file():
++            parser.error('Required file missing: ' + str(path))
++    if not classes.exists():
++        parser.error('Compiled production classes missing: ' + str(classes))
++    if not shutil.which('java'):
++        parser.error('A Java 17+ JDK runtime is required')
++    with tempfile.TemporaryDirectory(prefix='r32-mainline-env-') as temporary:
++        work = Path(temporary)
++        platform = work / 'sdk/platforms/android-36/android.jar'
++        api = work / 'gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/local/explicit/slf4j-api.jar'
++        for target, source in ((platform, sdk), (api, slf)):
++            target.parent.mkdir(parents=True, exist_ok=True)
++            target.symlink_to(source)
++        compiler = work / 'bin/javac'
++        compiler.parent.mkdir()
++        compiler.write_text('#!' + sys.executable + '\n'
++            'import os,sys\n'
++            'vm=[x[2:] for x in sys.argv[1:] if x.startswith("-J")]\n'
++            'args=[x for x in sys.argv[1:] if not x.startswith("-J")]\n'
++            'os.execvp("java",["java",*vm,"-m","jdk.compiler/com.sun.tools.javac.Main",*args])\n')
++        compiler.chmod(0o700)
++        env = os.environ.copy()
++        env.update(ANDROID_HOME=str(work / 'sdk'), SQLITE_JDBC=str(jdbc),
++                   GRADLE_USER_HOME=str(work / 'gradle'),
++                   PATH=str(compiler.parent) + os.pathsep + env.get('PATH', ''))
++        subprocess.run([sys.executable, str(runner), '--classes', str(classes),
++                        '--out', str(args.out.resolve())], cwd=repo, env=env, check=True)
++    receipt_path = args.out.resolve() / 'RECEIPT.json'
++    receipt = json.loads(receipt_path.read_text())
++    if receipt.get('status') != 'PASS_HOST_ACTUAL_PATH_NOT_ANDROID_OR_NATURAL':
++        raise RuntimeError('Mainline fixture did not produce the exact HOST pass state')
++    print('HOST_MAINLINE_ACTUAL_PATH_PASS receipt=' + str(receipt_path))
++
++
++if __name__ == '__main__':
++    main()

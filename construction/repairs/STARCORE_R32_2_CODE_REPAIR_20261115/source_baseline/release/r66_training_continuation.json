@@ -1,0 +1,80 @@
+{
+  "scope": "EXACT_SOURCE_NUMERIC_CONTINUATION_ONLY_NO_CERTIFICATE_MIGRATION",
+  "reviewed_input_provenance_sha256": "9a2447e11d1c8184249400f33a2791b440cd0e7dc654e3365a94864796f58e0c",
+  "runtime_contract_sha256": "fb7e18a7c135df68dca1e1b4f3ea5f64a6bbd21a7f789467bd244ea8b7db3705",
+  "predecessors": [
+    {
+      "baseline_file": "release/r65_semantic_baseline.json",
+      "baseline_manifest_sha256": "02e2c3730a2e60f2635995e8c8fad93e6d0e31091c0e1b61d527883a5b17ce87",
+      "predecessor_training_rule_sha256": "233fbf6bf3b2313d56576c9c0a7953323a76d0e5f6a3d9fc6297b88f98648e09",
+      "reviewed_numeric_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "before_sha256": "5018a389bf8d949028d3746f36ed5fd5891fffc83343dcc14a3a3f17faafe40d",
+          "after_sha256": "26940e25f90dec340b8ccfb4476165e068515446c67740e62486ebfcd8525ba4",
+          "rationale": "Independent heartbeat posts to same research Handler with atomic deduplication; no algorithm or dynamic target changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+          "before_sha256": "aff0e860f9b187c1d2acb7a1cd19cbfc435d519f5eed5323d38bdc7d26c9350f",
+          "after_sha256": "604106de8a57c9d25a682075b4da7e123d2138c2e6e922632430a1675a657507",
+          "rationale": "Report description only; no numerical or product state writes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+          "before_sha256": "8a76c1a0f628007be8991db017e00eff7b644ee97312d6a82b7101225c77c298",
+          "after_sha256": "e468339c4b3099878f78cc609e6d74149dd029261dd19d3bf83a4401d216667a",
+          "rationale": "Read-only snapshot export expands selected metadata from sampled to all rows; no model training/inference code."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java",
+          "before_sha256": "cbfd4332710c4347cbfdde17335fc7f9de740aa0588e2ca7a65b783bc38df587",
+          "after_sha256": "26a2a8cf834efb42ceb1f08ff6fda24f6eb6cb8a51bc7338a0cd556995ec7222",
+          "rationale": "Reserve receipt time and fair hot-lane service; same durable tasks and numerical owners."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchLifecycleR932.java",
+          "before_sha256": "be05bb6c6a3e79c412370cba55264dc65e2cf794b56b531f27836aa58d198c61",
+          "after_sha256": "ecb7bfb2e30534daddb78f6353db9d4780a3f67221a6a435652e00b86a7d948a",
+          "rationale": "Online labels no longer overwrite certificate-owned lifecycle state; no frozen evidence, policy or numeric changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkBudgetR927.java",
+          "before_sha256": "3e261a645ca0daa0dc715092b1c2d097c9f70d0f12e61e0c013d46cfc8ffdf5a",
+          "after_sha256": "8fb0808f9c2ce2ed58a5ffe78c99f052f2fd1d9c4ac01e85f15bbf395f691a93",
+          "rationale": "Only bounded lease bookkeeping after cooperative cancellation; original deadline restored; no numerical publication."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+          "before_sha256": "2ff0ec421c30ea30ce985436d04f898bcec3b7e35f6cf66a51fbf88d81d1a78f",
+          "after_sha256": "3eb22fb3ee1e4972cbf37be9ec278dfc7dc7a5d2ffe64ecbecf8cab56f13d40a",
+          "rationale": "Release unchanged action lease after preemption; proposal, parent, mutation and fusion formulas unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+          "before_sha256": "d033b4f07b8543c9370b5428c1891b023fd8d512a0026de9ac60bb5b4ef7c424",
+          "after_sha256": "8bd1bdac8c51715f372326bfb6579d538058623039987c96d4331308d30eb092",
+          "rationale": "Use remaining compute slice across original six-slot order; no model/feature/loss changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchOutboxR952.java",
+          "before_sha256": "c805f2a7d13b59ba4aa62be77c22bbd2eb495d54fd76571fc8d094e89f4d3b73",
+          "after_sha256": "e77f7eab213185d81eca4fb50d5f3588f81401ff7132d41511a6e636c33b5995",
+          "rationale": "Lease-only release after preemption; remove in-memory claim only after successful durable commit."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+          "before_sha256": "eea8a1027ca96911495b600beab1170150f8c3e051e7c3d3e6801352d4385093",
+          "after_sha256": "128d50d0da9f97ba4a678da42b2879bc179947708b97470dbe22daa603d51cd1",
+          "rationale": "Release same task cursor after preemption; numeric and artifact methods unchanged."
+        },
+        {
+          "path": "scripts/r967_semantic_identity.py",
+          "before_sha256": "c3d3c7db38f75e84e6d9cb2cea088a88e59419ad10c570bb4152d864529b2e48",
+          "after_sha256": "c966fe7ee883aa2bdebdb0d6e90ec87bd3700f8035f77a03aa4822658979a63c",
+          "rationale": "Finite exact R65 source baseline, unchanged policy and runtime, reviewed control-only diffs. Does not admit other versions or migrate certificates/evidence."
+        }
+      ]
+    }
+  ]
+}

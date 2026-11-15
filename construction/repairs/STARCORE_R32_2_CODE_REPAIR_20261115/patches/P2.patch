@@ -1,0 +1,298 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java
+@@ -11,7 +11,12 @@
+     static ResearchPoolR27.Outcome step(RuntimeR27 rt,ResearchPoolR27.Worker w)throws Exception{
+         AtomNetPublicationR31.requireReady(w.ro);
+         AtomNetSessionR30 saved=rt.atomSessionR30;
+-        if(saved!=null)OnlineResearchWindowR30R1.register(w,saved.datasetHash);
++        if(saved!=null){
++            OnlineResearchWindowR30R1.register(w,saved.datasetHash);
++            // Forecast before a training slice can yield, using only the last committed complete model.
++            // Partial positions and validation do not prevent this independent read-only consumer.
++            if(forecastModelR32(rt,saved)!=null)forecast(rt,w,saved,StoreR27.loadDataset(w.ro,AtomReplayR27.HISTORY+64));
++        }
+         if(saved==null){
+             // Cold start: a published checkpoint may be a file reference. Register this database's owned
+             // checkpoint directory first instead of relying on another module having called forStore earlier.
+@@ -75,7 +80,7 @@
+             try{RuntimeR27.submit(w,"ATOMNET_R30_SLICE",publication.publicationBatch(b,next),false,publication.id);}catch(IllegalStateException changed){if(QualificationInboxR29.precondition(changed))return ResearchPoolR27.Outcome.idle("DEPENDENCY(NEURAL_SOURCE_CHANGED_PREPARED_RETRY)",saved.trainer.onlineSteps,-1);throw changed;}
+             rt.publishAtomStateR31(next,publication.model);
+         }
+-        if(next.ready())forecast(rt,w,next,StoreR27.loadDataset(w.ro,AtomReplayR27.HISTORY+64));
++        if(forecastModelR32(rt,next)!=null)forecast(rt,w,next,StoreR27.loadDataset(w.ro,AtomReplayR27.HISTORY+64));
+         return ResearchPoolR27.Outcome.progress(n,++rt.atomUnitsR30);
+         }
+     }
+@@ -93,12 +98,17 @@
+             if(c.moveToFirst()){double p=c.getDouble(0);batch.add("INSERT OR IGNORE INTO r27_brier_pair VALUES(?,?,?,?,?,?,?,?)",issue,"FUTURE",model,p,.3,hit,(.3-hit)*(.3-hit)-(p-hit)*(p-hit),now);}
+         }
+     }
++    static ModelSurfaceProviderR30.FrozenModelRef forecastModelR32(RuntimeR27 rt,AtomNetSessionR30 state){
++        RuntimeR27.AtomPublicationR30 publication=rt.atomPublicationR30;
++        return publication==null||publication.state!=state?null:publication.model;
++    }
+     static void forecast(RuntimeR27 rt,ResearchPoolR27.Worker w,AtomNetSessionR30 state,ReplayDatasetR27 recent)throws Exception{
+-        // R31-B06-C03: the consumer is the shared ten-position model. Positions 1..9 of an issue are partial
+-        // updates; only a complete issue (all ten positions committed) may be frozen and consumed.
+-        if(!state.ready()||!state.partialIssue.isEmpty()||recent.size()<AtomReplayR27.MIN_ROWS)return;
++        // Only a model published after a complete issue may be consumed. The learner can independently be
++        // training positions 1..9 or validating; its mutable network and watermark are not prediction inputs.
++        ModelSurfaceProviderR30.FrozenModelRef modelRef=forecastModelR32(rt,state);
++        if(modelRef==null||recent.size()<AtomReplayR27.MIN_ROWS)return;
+         long targetOrdinal=recent.ordinals[recent.size()-1]+1,deadline=RuntimeR27.latestOpen(w.ro)+60_000L;
+-        if(state.trainedThroughOrdinal()>=targetOrdinal||System.currentTimeMillis()>=deadline-LiveShadowsR27.FREEZE_MARGIN_MS)return;
++        if(modelRef.trainedThroughOrdinal>=targetOrdinal||System.currentTimeMillis()>=deadline-LiveShadowsR27.FREEZE_MARGIN_MS)return;
+         String target=TargetIssueResolver.fromSequenceOrdinalSU1(targetOrdinal);
+         try(Cursor c=w.ro.rawQuery("SELECT count(*) FROM r30_atomnet_forecast WHERE target_issue=?",new String[]{target})){if(c.moveToFirst()&&c.getLong(0)==10)return;}
+         long revision=SchemaR27.liveSourceRevision(w.ro),schema=SchemaR27.liveSourceSchemaVersion(w.ro);
+@@ -107,26 +117,34 @@
+         if(recent.size()==0||recent.ordinals[recent.size()-1]+1!=targetOrdinal)return;
+         ReplayDatasetR27 slot=recent.append(new ReplayDatasetR27.Row(target,targetOrdinal,new int[]{1,2,3,4,5,6,7,8,9,10}));
+         AtomReplayR27.Frame frame=AtomReplayR27.build(slot,slot.size()-1,slot.size());
+-        RuntimeR27.AtomPublicationR30 publication=rt.atomPublicationR30;if(publication==null||publication.state!=state||publication.model==null||!state.consumableR31())return; // R31-B06-C03: forecasts only from a complete ten-position model
+-        ModelSurfaceProviderR30.FrozenModelRef modelRef=publication.model;
++        if(forecastModelR32(rt,state)!=modelRef)return; // do not mix two committed publications
++        AtomNetR27 frozenNet=AtomNetR27.decode(modelRef.weights());
++        boolean completeCurrent=state.consumableR31()&&modelRef.trainedThroughOrdinal==state.trainedThroughOrdinal()
++                &&modelRef.weightsHash.equals(StatsR27.sha256(state.trainer.net.encode()));
+         String modelHash=modelRef.modelHash;long at=System.currentTimeMillis();ResearchWriteQueueR27.Batch batch=new ResearchWriteQueueR27.Batch();
+         OnlineResearchWindowR30R1.Window researchWindow=OnlineResearchWindowR30R1.find(w.ro,state.datasetHash,targetOrdinal);
+         ModelSurfaceProviderR30.FrozenModelRef previous=researchWindow==null?null:ModelReplayStudyR30R1.previous(w.ro,modelRef,targetOrdinal,at);
+         for(int i=0;i<10;i++){
+             if(frame.values[i]==null) return;
+             double[] x=AtomNetR27.positionedInput(AtomReplayR27.features(frame.values[i],frame.present[i],true),i+1);
+-            AtomNetR27.Out prediction=state.trainer.net.forward(x,null);
++            AtomNetR27.Out prediction=frozenNet.forward(x,null);
+             long preparedAt=System.currentTimeMillis();
+             ModelSurfaceProviderR30.Pit pit=new ModelSurfaceProviderR30.Pit(targetOrdinal,recent.ordinals[recent.size()-1],i+1,ModelSurfaceProviderR30.historyHash(slot,slot.size()-1),x,preparedAt,preparedAt,preparedAt,deadline);
+             ModelSurfaceProviderR30.Surface surface=ModelSurfaceProviderR30.predict(pit,modelRef);
+             ModelReplayStudyR30R1.append(batch,researchWindow,pit,surface,previous);
+             ModelSurfaceStoreR30.surface(batch,surface,i==0?modelRef:null);
+             List<Object> p=new ArrayList<>();for(double value:surface.probabilities())p.add(value);
+-            batch.add("INSERT OR IGNORE INTO r30_atomnet_forecast VALUES(?,?,?,?,?,?,?,?)",target,i+1,modelHash,state.trainedThroughOrdinal(),JsonR27.write(p),prediction.pHit,at,deadline);
++            batch.add("INSERT OR IGNORE INTO r30_atomnet_forecast VALUES(?,?,?,?,?,?,?,?)",target,i+1,modelHash,modelRef.trainedThroughOrdinal,JsonR27.write(p),prediction.pHit,at,deadline);
+             if(i+1==(int)Math.floorMod(targetOrdinal,10L)+1){
+                 batch.add("INSERT OR IGNORE INTO r27_atomnet_pending VALUES(?,?,?,?,?)",target,"ATOMNET",prediction.pHit,at,deadline);
+-                batch.add("INSERT OR IGNORE INTO r27_atomnet_pending VALUES(?,?,?,?,?)",target,"FTRL",state.ftrl.predict(Arrays.copyOf(x,7)),at,deadline);
+-                for(String model:new String[]{"ATOMNET","FTRL"})batch.add("INSERT OR IGNORE INTO r29_atomnet_forecast VALUES(?,?,?,?,?,?,?)",target,model,modelHash,state.trainedThrough(),AtomNetSessionR30.ABI,at,deadline);
++                // FTRL has no immutable prior reference. Never bind its partially updated draft to the old
++                // AtomNet publication. It remains eligible at a complete, matching learner boundary.
++                String trainedThrough=TargetIssueResolver.fromSequenceOrdinalSU1(modelRef.trainedThroughOrdinal);
++                batch.add("INSERT OR IGNORE INTO r29_atomnet_forecast VALUES(?,?,?,?,?,?,?)",target,"ATOMNET",modelHash,trainedThrough,AtomNetSessionR30.ABI,at,deadline);
++                if(completeCurrent){
++                    batch.add("INSERT OR IGNORE INTO r27_atomnet_pending VALUES(?,?,?,?,?)",target,"FTRL",state.ftrl.predict(Arrays.copyOf(x,7)),at,deadline);
++                    batch.add("INSERT OR IGNORE INTO r29_atomnet_forecast VALUES(?,?,?,?,?,?,?)",target,"FTRL",modelHash,trainedThrough,AtomNetSessionR30.ABI,at,deadline);
++                }
+             }
+         }
+         final String sourceIssue=recent.issues[recent.size()-1];
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java
+@@ -46,7 +46,7 @@
+             for(ModelGenomeSU2 seed:seeds){ModelGenomeSU2 bound=seed.bindBirth(hash,through);proposals.add(new StructuralProposalR26.Proposal(bound,"","REGISTERED_SEED","REGISTERED_SEED"));List<StructuralProposalR26.Proposal> graphChildren=StructuralProposalR26.mechanismChildren(bound);if(!graphChildren.isEmpty()){proposals.add(graphChildren.get(0));if(bound.members.get(0).kind.equals("R26F20"))proposals.addAll(graphChildren.subList(1,graphChildren.size()));if(bound.members.size()==1&&(bound.members.get(0).kind.equals("R26F01")||bound.members.get(0).kind.equals("R26F02")||bound.members.get(0).kind.equals("R26F08")))proposals.add(graphChildren.get(1));}}
+             // Preserve actual saved parents; do not inherit their hits or qualification.
+             List<ModelGenomeSU2> parents=savedParents(r);
+-            for(int i=0;i<parents.size();i++)for(StructuralProposalR26.Proposal proposal:StructuralProposalR26.from(parents.get(i),seeds.get(i%seeds.size()).members.get(0)))proposals.add(new StructuralProposalR26.Proposal(proposal.genome.bindBirth(hash,through),proposal.parent,proposal.operation,proposal.category));
++            for(int i=0;i<parents.size();i++)for(StructuralProposalR26.Proposal proposal:StructuralProposalR26.from(parents.get(i),StructuralProposalR26.complementR32(parents.get(i), seeds, through, i)))proposals.add(new StructuralProposalR26.Proposal(proposal.genome.bindBirth(hash,through),proposal.parent,proposal.operation,proposal.category));
+             final List<FailureDirectedResearchR26.Batch> failureResearch;try{failureResearch=FailureDirectedResearchR26.select(r,hash,through,s.draws.length);}catch(org.json.JSONException malformed){throw new IOException("R26_FAILURE_RESEARCH_METADATA",malformed);}for(FailureDirectedResearchR26.Batch batch:failureResearch)proposals.addAll(batch.proposals);
+             final String id=campaign;final byte[] frozen=snapshotBytes;final long source=through;
+             if(EventFrameBuilderSU1.generation(r)!=snapshotGeneration)throw new IOException("R31_FOUNDRY_SOURCE_CHANGED_DURING_PREPARE");
+@@ -144,14 +144,68 @@
+         try(Cursor c=store.readable().rawQuery("SELECT campaign_id,policy_hash FROM r26_candidate WHERE "+old+" AND (state IS NULL OR length(state)=0 OR EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=r26_candidate.policy_hash)) ORDER BY campaign_id,policy_hash LIMIT 8",null)){while(c.moveToNext())rows.add(new String[]{c.getString(0),c.getString(1)});}
+         if(rows.isEmpty())return;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R31_FOUNDRY_RETENTION_SLICE",db->{RuntimeCoordinatorR26.requireFence(db,claim);for(String[] row:rows)db.execSQL("DELETE FROM r26_candidate WHERE campaign_id=? AND policy_hash=? AND "+old+" AND (state IS NULL OR length(state)=0 OR EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=r26_candidate.policy_hash))",row);db.execSQL("DELETE FROM r26_foundry WHERE campaign_id IN (SELECT f.campaign_id FROM r26_foundry f WHERE f.status<>'RUNNING' AND NOT EXISTS(SELECT 1 FROM r26_candidate c WHERE c.campaign_id=f.campaign_id) AND f.campaign_id NOT IN (SELECT campaign_id FROM r26_foundry ORDER BY created_at DESC LIMIT 2) ORDER BY f.created_at,f.campaign_id LIMIT 2)");RuntimeCoordinatorR26.requireFence(db,claim);return 0;});
+     }
++    static final class HistoryRankR32 implements Comparable<HistoryRankR32> {
++        final String key;
++        final double lower;
++        final int support;
++        HistoryRankR32(String key, int devHits, int devActs, int selectHits, int selectActs) {
++            if (key == null || devActs <= 0 || selectActs <= 0 || devHits < 0 || devHits > devActs
++                    || selectHits < 0 || selectHits > selectActs)
++                throw new IllegalArgumentException("R32_HISTORY_RANK_COUNTS");
++            this.key = key;
++            this.lower = Math.min(StatsR27.wilson(devHits, devActs, StatsR27.Z95)[0],
++                                  StatsR27.wilson(selectHits, selectActs, StatsR27.Z95)[0]);
++            this.support = Math.min(devActs, selectActs);
++        }
++        @Override public int compareTo(HistoryRankR32 other) {
++            int order = Double.compare(other.lower, lower);
++            if (order == 0) order = Integer.compare(other.support, support);
++            return order == 0 ? key.compareTo(other.key) : order;
++        }
++    }
++
++    private static final class HistoryParentR32 {
++        final ModelGenomeSU2 genome;
++        final double devRate, selectRate;
++        HistoryParentR32(ModelGenomeSU2 genome, double devRate, double selectRate) {
++            this.genome = genome;
++            this.devRate = devRate;
++            this.selectRate = selectRate;
++        }
++    }
++
+     private static void finish(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,String campaign,long through){
+-        List<ModelEvolutionSU2.Ranked> best=new ArrayList<>();List<double[]> scores=new ArrayList<>();
+-        try(Cursor c=store.readable().rawQuery("SELECT canonical_text,dev_n,dev_k,val_n,val_k FROM r26_candidate WHERE campaign_id=? AND status='DONE' ORDER BY CASE WHEN val_n>0 THEN 1.0*val_k/val_n ELSE -1 END DESC,policy_hash LIMIT 3",new String[]{campaign})){while(c.moveToNext()){ModelGenomeSU2 g=ModelGenomeSU2.parse(c.getString(0));best.add(new ModelEvolutionSU2.Ranked(g,"R26_RESEARCH_SELECTION","","EXPOSED_HISTORY; NOT A QUALITY CERTIFICATE"));scores.add(new double[]{c.getInt(1)==0?-1:c.getDouble(2)/c.getInt(1),c.getInt(3)==0?-1:c.getDouble(4)/c.getInt(3)});}}
++        SortedMap<HistoryRankR32, HistoryParentR32> best = new TreeMap<>();
++        String query = "SELECT policy_hash,canonical_text,dev_n,dev_k,val_n,val_k FROM r26_candidate "
++                + "WHERE campaign_id=? AND status='DONE' AND dev_n>0 AND val_n>0 "
++                + "AND dev_k BETWEEN 0 AND dev_n AND val_k BETWEEN 0 AND val_n";
++        try (Cursor c = store.readable().rawQuery(query, new String[]{campaign})) {
++            while (c.moveToNext()) {
++                ExecutionBudgetR26.poll();
++                int dev = c.getInt(2), devHits = c.getInt(3), select = c.getInt(4), hits = c.getInt(5);
++                HistoryRankR32 key = new HistoryRankR32(c.getString(0), devHits, dev, hits, select);
++                if (best.size() == 3 && key.compareTo(best.lastKey()) >= 0) continue;
++                ModelGenomeSU2 genome = ModelGenomeSU2.parse(c.getString(1));
++                if (!genome.key().equals(key.key)) throw new IllegalStateException("R32_PARENT_IDENTITY");
++                if (StructuralProposalR26.control(genome)) continue;
++                best.put(key, new HistoryParentR32(genome, devHits / (double)dev, hits / (double)select));
++                if (best.size() > 3) best.remove(best.lastKey());
++            }
++        }
+         SQLiteDatabase r=store.readable();String sourceHash;try(Cursor c=r.rawQuery("SELECT snapshot_hash FROM r26_foundry WHERE campaign_id=?",new String[]{campaign})){if(!c.moveToFirst())throw new IllegalStateException("R31_FOUNDRY_FINISH_SOURCE_MISSING");sourceHash=c.getString(0);}
+         long publicationGeneration=EventFrameBuilderSU1.generation(r);String publicationId="FOUNDRY_FINISH:"+campaign+":"+publicationGeneration;ModelPublicationR31.Plan plan;
+         try{plan=ModelPublicationR31.existing(r,publicationId);}catch(IOException invalid){throw new IllegalStateException("R31_FOUNDRY_PLAN_RECOVERY",invalid);}
+         try{if(plan==null){plan=new ModelPublicationR31.Plan(publicationId,"FOUNDRY_FINISH",sourceHash,publicationGeneration,-1,System.currentTimeMillis());plan.put("FOUNDRY_FINISH",campaign,campaign,HypothesisStoreR31.prepareOutcomesR31(r,campaign));
+-            for(int i=0;i<best.size();i++){ModelEvolutionSU2.Ranked x=best.get(i);ModelStoreSU2.prepareGenomeR31(plan,x,campaign,through,scores.get(i)[0],scores.get(i)[1],"RESEARCH");try(Cursor c=r.rawQuery("SELECT attempt_id FROM r26_evolution WHERE campaign_id=? AND policy_hash=? ORDER BY attempt_id",new String[]{campaign,x.g.key()})){while(c.moveToNext())plan.put("ACCEPTED",c.getString(0),c.getString(0),x.g.key());}}
++            for (HistoryParentR32 parent : best.values()) {
++                ModelEvolutionSU2.Ranked pick = new ModelEvolutionSU2.Ranked(parent.genome, "R26_RESEARCH_SELECTION",
++                        "", "EXPOSED_HISTORY_DEV_SELECT_MIN_WILSON_R32; RESEARCH_ONLY");
++                ModelStoreSU2.prepareGenomeR31(plan, pick, campaign, through, parent.devRate, parent.selectRate, "RESEARCH");
++                String key = parent.genome.key();
++                try (Cursor c = r.rawQuery("SELECT attempt_id FROM r26_evolution WHERE campaign_id=? AND policy_hash=? ORDER BY attempt_id",
++                        new String[]{campaign, key})) {
++                    while (c.moveToNext()) plan.put("ACCEPTED", c.getString(0), c.getString(0), key);
++                }
++            }
+         }
+         ModelPublicationR31.stageAndPublish(store,claims.get(),plan);
+         }catch(IOException invalid){throw new IllegalStateException("R31_FOUNDRY_FINISH_RECOVERY",invalid);}finally{if(plan!=null)plan.close();}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java
+@@ -48,9 +48,11 @@
+         // R31-B06-C03: the durable checkpoint advances every position (resume), but consumers only see a model whose
+         // ten positions of an issue are all committed. A partial issue keeps the previous complete model (or none).
+         ModelSurfaceProviderR30.FrozenModelRef consumable = persisted;
+-        if (persisted != null && !state.consumableR31()) {
++        if (!state.consumableR31()) {
+             AtomPublicationR30 prior = atomPublicationR30;
+-            consumable = prior == null ? null : prior.model;
++            // Validation phases have no new persisted inference model. Keep only the already committed,
++            // complete model from this learner's dataset; neither draft weights nor a different input run qualify.
++            consumable = prior == null || !prior.state.datasetHash.equals(state.datasetHash) ? null : prior.model;
+         }
+         atomPublicationR30 = new AtomPublicationR30(state, consumable);
+         atomSessionR30 = state;
+@@ -182,7 +184,23 @@
+             if(cur==null){
+                 String savedHash=null;
+                 try(Cursor x=w.ro.rawQuery("SELECT dataset_hash FROM r27_evolution_cursor WHERE loop IN (?,?) ORDER BY CASE loop WHEN ? THEN 0 ELSE 1 END LIMIT 1",new String[]{LOOP,"MAIN",LOOP})){if(x.moveToFirst())savedHash=x.getString(0);}
+-                if(savedHash!=null){ResearchInputPinR30R1.Pin pin=ResearchInputPinR30R1.loadCurrent(w.ro,savedHash);if(pin!=null){publishRecoveredReplayKnowledgeR31(w,pin,"RECOVERED_COMMITTED_PIN",-1);evoData=pin.data;evoCache=featureCacheR31(pin.data,48);ModelSurfaceStoreR30.bindHistorical(w.ro,evoCache);return ResearchPoolR27.Outcome.progress(1,pin.data.ordinals[pin.data.size()-1]);}}
++                if (savedHash != null) {
++                    ResearchInputPinR30R1.Pin pin = ResearchInputPinR30R1.loadCurrent(w.ro, savedHash);
++                    if (pin != null) {
++                        FeatureCacheR27 recovered = featureCacheR31(pin.data, 48);
++                        boolean published = false;
++                        try {
++                            ModelSurfaceStoreR30.bindHistorical(w.ro, recovered);
++                            publishRecoveredReplayKnowledgeR31(w, pin, "RECOVERED_COMMITTED_PIN", -1);
++                            evoData = pin.data;
++                            evoCache = recovered;
++                            published = true;
++                            return ResearchPoolR27.Outcome.progress(1, pin.data.ordinals[pin.data.size() - 1]);
++                        } finally {
++                            if (!published) recovered.close();
++                        }
++                    }
++                }
+             }
+ 
+             if (cur != null && !ResearchInputPinR30R1.invalid(w.ro,cur.datasetHash) && latestOrd - cur.ordinals[cur.size() - 1] < REFRESH_NEW_ROWS) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", cur.ordinals[cur.size() - 1], latestOrd);
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java
+@@ -16,6 +16,24 @@
+         return PolicyIdentityR26.sha256(PolicyIdentityR26.canonical(Arrays.asList(members,g.pool,g.sink)));
+     }
+     private static ModelGenomeSU2 copy(ModelGenomeSU2 p,List<ModelGenomeSU2.Member> members,String pool){return new ModelGenomeSU2(members,pool,p.sink,p.gate,p.coverage,p.metaC,p.calibrated);}
++    // Rotate real executable donor mechanisms over frozen campaigns. Retries on the
++    // same snapshot reproduce the same genome. Family coverage here grants no fitness.
++    static ModelGenomeSU2.Member complementR32(ModelGenomeSU2 parent, List<ModelGenomeSU2> seeds,
++                                               long through, int parentIndex) {
++        if (seeds.isEmpty()) throw new IllegalArgumentException("R32_NO_REGISTERED_SEEDS");
++        Set<String> present = new HashSet<>();
++        for (ModelGenomeSU2.Member member : parent.members) present.add(member.kind);
++        SortedMap<String, ModelGenomeSU2.Member> donors = new TreeMap<>();
++        for (ModelGenomeSU2 seed : seeds) {
++            for (ModelGenomeSU2.Member member : seed.members) {
++                if (!present.contains(member.kind)) donors.putIfAbsent(member.kind, member);
++            }
++        }
++        if (donors.isEmpty()) return seeds.get(parentIndex % seeds.size()).members.get(0);
++        List<ModelGenomeSU2.Member> ordered = new ArrayList<>(donors.values());
++        return ordered.get((int) Math.floorMod(through + parentIndex, (long) ordered.size()));
++    }
++
+     public static List<Proposal> from(ModelGenomeSU2 parent,ModelGenomeSU2.Member complementary){
+         if(WarmModelSeedR26.has(parent))return Collections.emptyList();
+         List<Proposal> out=new ArrayList<>();ModelGenomeSU2 base=copy(parent,parent.members,parent.pool);
+diff --git a/app/src/test/java/com/ethk3/novaonepro/strategyv2/R32PublishedModelDuringTrainingTest.java b/app/src/test/java/com/ethk3/novaonepro/strategyv2/R32PublishedModelDuringTrainingTest.java
+new file mode 100644
+--- /dev/null
++++ b/app/src/test/java/com/ethk3/novaonepro/strategyv2/R32PublishedModelDuringTrainingTest.java
+@@ -0,0 +1,50 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import static org.junit.Assert.*;
++import java.lang.reflect.Field;
++import org.junit.Test;
++
++/** Exercises real committed-publication selection while a private learner advances. No quality claims. */
++public final class R32PublishedModelDuringTrainingTest {
++    private static RuntimeR27 runtime() throws Exception {
++        Class<?> type=Class.forName("sun.misc.Unsafe");
++        Field f=type.getDeclaredField("theUnsafe");f.setAccessible(true);
++        return (RuntimeR27)type.getMethod("allocateInstance",Class.class).invoke(f.get(null),RuntimeR27.class);
++    }
++    private static AtomNetSessionR30 ready(String dataset){
++        AtomNetSessionR30 s=new AtomNetSessionR30(dataset,"000000000999",999,12,80,40,20);
++        s.phase="ONLINE";s.completeIssue=s.observedThrough;s.onlineObservedOrdinal=999;return s;
++    }
++    private static ModelSurfaceProviderR30.FrozenModelRef frozen(AtomNetSessionR30 s){
++        return new ModelSurfaceProviderR30.FrozenModelRef(s.trainer.net.encode(),s.trainedThroughOrdinal(),1700000000000L);
++    }
++    @Test public void partialTrainingKeepsExactPreviousPublicationAndPredictions() throws Exception {
++        RuntimeR27 rt=runtime();AtomNetSessionR30 s=ready("dataset");
++        ModelSurfaceProviderR30.FrozenModelRef complete=frozen(s);rt.publishAtomStateR31(s,complete);
++        double[] x=AtomNetR27.positionedInput(new double[]{.2,.7},1);
++        double before=AtomNetR27.decode(complete.weights()).forward(x,null).pHit;
++        s.online(new AtomNetTrainerR27.Sample(x,1,0,AtomNetSessionR30.eventKey("000000001000",1)),"000000001000",1000,1);
++        rt.publishAtomStateR31(s,frozen(s));
++        assertFalse(s.consumableR31());assertSame(complete,AtomNetRuntimeR30.forecastModelR32(rt,s));
++        assertEquals(999,AtomNetRuntimeR30.forecastModelR32(rt,s).trainedThroughOrdinal);
++        assertNotEquals(complete.weightsHash,StatsR27.sha256(s.trainer.net.encode()));
++        assertEquals(before,AtomNetR27.decode(AtomNetRuntimeR30.forecastModelR32(rt,s).weights()).forward(x,null).pHit,0);
++    }
++    @Test public void validationRetainsPreviousCompleteModelWithoutPublishingDraft() throws Exception {
++        RuntimeR27 rt=runtime();AtomNetSessionR30 s=ready("dataset");
++        ModelSurfaceProviderR30.FrozenModelRef complete=frozen(s);rt.publishAtomStateR31(s,complete);
++        s.phase="EVAL_ONLINE_DEVELOPMENT_VALIDATION";rt.publishAtomStateR31(s,null);
++        assertFalse(s.ready());assertSame(complete,AtomNetRuntimeR30.forecastModelR32(rt,s));
++        assertNull("a stale state cannot bind to a current publication",AtomNetRuntimeR30.forecastModelR32(rt,ready("dataset")));
++    }
++    @Test public void differentDatasetNeverBorrowsPreviousInferenceModel() throws Exception {
++        RuntimeR27 rt=runtime();AtomNetSessionR30 old=ready("old");rt.publishAtomStateR31(old,frozen(old));
++        AtomNetSessionR30 next=ready("new");next.phase="TRAIN";rt.publishAtomStateR31(next,null);
++        assertNull(AtomNetRuntimeR30.forecastModelR32(rt,next));
++    }
++    @Test public void coldStartInPartialOrValidationStateStillFailsClosed() throws Exception {
++        RuntimeR27 rt=runtime();AtomNetSessionR30 s=ready("dataset");s.partialIssue="000000001000";s.nextPosition=2;
++        rt.publishAtomStateR31(s,frozen(s));assertNull(AtomNetRuntimeR30.forecastModelR32(rt,s));
++        s.phase="EVAL_ONLINE_DEVELOPMENT_VALIDATION";rt.publishAtomStateR31(s,null);assertNull(AtomNetRuntimeR30.forecastModelR32(rt,s));
++    }
++}

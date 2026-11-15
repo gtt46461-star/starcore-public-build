@@ -1,0 +1,81 @@
+--- a/tools/r31/run_typed_mainline_host.py
++++ b/tools/r31/run_typed_mainline_host.py
+@@ -50,7 +50,8 @@
+    (platform/'com/ethk3/novaonepro/DbStore.class').unlink()
+    cursor=work/'adapter/sources/android/database/Cursor.java';code=cursor.read_text().replace('    void close();','    default int getColumnIndex(String name){for(int i=0;i<getColumnCount();i++)if(name.equals(getColumnName(i)))return i;return -1;}\n    default int getColumnIndexOrThrow(String name){int i=getColumnIndex(name);if(i<0)throw new IllegalArgumentException("HOST_COLUMN_MISSING:"+name);return i;}\n    void close();');cursor.write_text(code)
+    sqlite=work/'adapter/sources/android/database/sqlite/SQLiteDatabase.java';code=sqlite.read_text();at=code.index('    static final class Rows')
+-   code=code[:at]+'''    public Cursor query(String table,String[] columns,String selection,String[] args,String group,String having,String order,String limit){String sql="SELECT "+(columns==null?"*":String.join(",",columns))+" FROM "+table+(selection==null?"":" WHERE "+selection)+(group==null?"":" GROUP BY "+group)+(having==null?"":" HAVING "+having)+(order==null?"":" ORDER BY "+order)+(limit==null?"":" LIMIT "+limit);return rawQuery(sql,args);}
++   code=code[:at]+'''    public int delete(String table,String where,String[] args){String sql="DELETE FROM "+table+(where==null?"":" WHERE "+where);try(java.sql.PreparedStatement p=jdbc.prepareStatement(sql)){if(args!=null)for(int i=0;i<args.length;i++){if(args[i]==null)throw new IllegalArgumentException("HOST_DELETE_NULL_BIND");p.setString(i+1,args[i]);}return p.executeUpdate();}catch(java.sql.SQLException failure){throw new SQLiteException(failure.getMessage());}}
++    public Cursor query(String table,String[] columns,String selection,String[] args,String group,String having,String order,String limit){String sql="SELECT "+(columns==null?"*":String.join(",",columns))+" FROM "+table+(selection==null?"":" WHERE "+selection)+(group==null?"":" GROUP BY "+group)+(having==null?"":" HAVING "+having)+(order==null?"":" ORDER BY "+order)+(limit==null?"":" LIMIT "+limit);return rawQuery(sql,args);}
+     public Cursor query(String table,String[] columns,String selection,String[] args,String group,String having,String order){return query(table,columns,selection,args,group,having,order,null);}
+     public long insertWithOnConflict(String table,String nullColumn,android.content.ContentValues values,int conflict){java.util.List<String> columns=new java.util.ArrayList<>();java.util.List<Object> args=new java.util.ArrayList<>();for(java.util.Map.Entry<String,Object> e:values.valueSet()){columns.add(e.getKey());args.add(e.getValue());}execSQL("INSERT "+(conflict==5?"OR REPLACE ":conflict==4?"OR IGNORE ":"")+"INTO "+table+"("+String.join(",",columns)+") VALUES("+String.join(",",java.util.Collections.nCopies(columns.size(),"?"))+")",args.toArray());try(Cursor c=rawQuery("SELECT last_insert_rowid()",null)){return c.moveToFirst()?c.getLong(0):-1;}}
+     public long insertOrThrow(String table,String nullColumn,android.content.ContentValues values){return insertWithOnConflict(table,nullColumn,values,0);}
+--- /dev/null
++++ b/tools/r32/run_mainline_host.py
+@@ -0,0 +1,66 @@
++#!/usr/bin/env python3
++"""Run the existing production mainline HOST fixture with explicit dependencies.
++
++This creates only disposable compiler/SDK/cache aliases. It does not install
++anything, sign an APK, create production certificates, or claim natural quality.
++"""
++import argparse
++import json
++import os
++from pathlib import Path
++import shutil
++import subprocess
++import sys
++import tempfile
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--repo', type=Path, required=True)
++    parser.add_argument('--classes', type=Path, required=True)
++    parser.add_argument('--android-jar', type=Path, required=True)
++    parser.add_argument('--sqlite-jdbc', type=Path, required=True)
++    parser.add_argument('--slf4j', type=Path, required=True)
++    parser.add_argument('--out', type=Path, required=True)
++    args = parser.parse_args()
++    repo, classes, sdk, jdbc, slf = [path.resolve() for path in
++                                  (args.repo, args.classes, args.android_jar,
++                                   args.sqlite_jdbc, args.slf4j)]
++    runner = repo / 'tools/r31/run_typed_mainline_host.py'
++    for path in (runner, sdk, jdbc, slf):
++        if not path.is_file():
++            parser.error('Required file missing: ' + str(path))
++    if not classes.exists():
++        parser.error('Compiled production classes missing: ' + str(classes))
++    if not shutil.which('java'):
++        parser.error('A Java 17+ JDK runtime is required')
++    with tempfile.TemporaryDirectory(prefix='r32-mainline-env-') as temporary:
++        work = Path(temporary)
++        platform = work / 'sdk/platforms/android-36/android.jar'
++        api = work / 'gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/local/explicit/slf4j-api.jar'
++        for target, source in ((platform, sdk), (api, slf)):
++            target.parent.mkdir(parents=True, exist_ok=True)
++            target.symlink_to(source)
++        compiler = work / 'bin/javac'
++        compiler.parent.mkdir()
++        compiler.write_text('#!' + sys.executable + '\n'
++            'import os,sys\n'
++            'vm=[x[2:] for x in sys.argv[1:] if x.startswith("-J")]\n'
++            'args=[x for x in sys.argv[1:] if not x.startswith("-J")]\n'
++            'os.execvp("java",["java",*vm,"-m","jdk.compiler/com.sun.tools.javac.Main",*args])\n')
++        compiler.chmod(0o700)
++        env = os.environ.copy()
++        env.update(ANDROID_HOME=str(work / 'sdk'), SQLITE_JDBC=str(jdbc),
++                   GRADLE_USER_HOME=str(work / 'gradle'),
++                   PATH=str(compiler.parent) + os.pathsep + env.get('PATH', ''))
++        subprocess.run([sys.executable, str(runner), '--classes', str(classes),
++                        '--out', str(args.out.resolve())], cwd=repo, env=env, check=True)
++    receipt_path = args.out.resolve() / 'RECEIPT.json'
++    receipt = json.loads(receipt_path.read_text())
++    if receipt.get('status') != 'PASS_HOST_ACTUAL_PATH_NOT_ANDROID_OR_NATURAL':
++        raise RuntimeError('Mainline fixture did not produce the exact HOST pass state')
++    print('HOST_MAINLINE_ACTUAL_PATH_PASS receipt=' + str(receipt_path))
++
++
++if __name__ == '__main__':
++    main()

@@ -1,0 +1,2301 @@
+{
+  "schema_version": 1,
+  "scope": "R32_1_DECLARED_WRITE_CODE_DELIVERY_AND_EVIDENCE_AUDIT_ONLY",
+  "rules": {
+    "baseline_source_copy_counts_as_implementation": false,
+    "patch_presence_proves_complete_feature": false,
+    "nonempty_test_description_counts_as_execution": false,
+    "structural_dag_proves_runtime_closure": false
+  },
+  "structural_errors": [],
+  "declared_unique_write_paths": 112,
+  "candidate_patch_paths": 17,
+  "unverified_declared_write_paths": 112,
+  "without_candidate_patch": 95,
+  "by_batch": [
+    {
+      "batch": "P1",
+      "declared_write_paths": 25,
+      "patch_paths": 7,
+      "without_candidate_code": 18,
+      "verified_paths": 0
+    },
+    {
+      "batch": "P2",
+      "declared_write_paths": 36,
+      "patch_paths": 3,
+      "without_candidate_code": 33,
+      "verified_paths": 0
+    },
+    {
+      "batch": "P3",
+      "declared_write_paths": 18,
+      "patch_paths": 3,
+      "without_candidate_code": 15,
+      "verified_paths": 0
+    },
+    {
+      "batch": "P4",
+      "declared_write_paths": 18,
+      "patch_paths": 3,
+      "without_candidate_code": 15,
+      "verified_paths": 0
+    },
+    {
+      "batch": "P5",
+      "declared_write_paths": 15,
+      "patch_paths": 1,
+      "without_candidate_code": 14,
+      "verified_paths": 0
+    }
+  ],
+  "code_complete": false,
+  "android_gradle_apk": "NOT_RUN_PLAN_DELIVERY",
+  "android_runtime": "NOT_RUN_FOR_PROPOSED_PATCHES",
+  "natural_quality": "NOT_PROVEN",
+  "caveat": "This audit describes R32.1's patch delivery, not 95 missing implementations. Existing source can already implement some or all requirements. A path without patch preserves existing source; its remaining scope has not been adjudicated here. A path with patch can still have unfinished behavior outside its hunks. Per-file proof absence is not evidence of product failure.",
+  "files": [
+    {
+      "path": ".github/workflows/r31-current-live.yml",
+      "batch": "P5",
+      "cards": [
+        "P5.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "e2ce39f36fdd844454f4e19f6c7227427e496dd3a6e4b1d37115fba83119ecf1",
+      "current_source_sha256": null,
+      "baseline_source_exists": false,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": ".github/workflows/r31-publish-release.yml",
+      "batch": "P5",
+      "cards": [
+        "P5.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "dc93249a7c1b543005f6ceab39ad6d3ca1d11317bfeaec9d78cd6826350f598a",
+      "current_source_sha256": null,
+      "baseline_source_exists": false,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": ".github/workflows/r31-report-publish.yml",
+      "batch": "P5",
+      "cards": [
+        "P5.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "8979877087d3224cda0a003e60aec0a50405ecbc1dbc2fa6a4686c5c623f7667",
+      "current_source_sha256": null,
+      "baseline_source_exists": false,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": ".github/workflows/r31-verification.yml",
+      "batch": "P5",
+      "cards": [
+        "P5.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "7c36d7b466a1e3f8fd880145b123e5f471807532f1d329de5214c4df869a9462",
+      "current_source_sha256": null,
+      "baseline_source_exists": false,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/build.gradle",
+      "batch": "P5",
+      "cards": [
+        "P5.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "ec2e7ef785dd39f61deb45a5f8967a659f8b0feb48d0fef91d4d583c52b2da17",
+      "current_source_sha256": "ec2e7ef785dd39f61deb45a5f8967a659f8b0feb48d0fef91d4d583c52b2da17",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "batch": "P1",
+      "cards": [
+        "P1.03",
+        "P1.04",
+        "P1.05"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "6c337f43b6318639dfa87907893b88c9a94ebc4694ebaf8d3a4791bcdf833ab0",
+      "current_source_sha256": "6c337f43b6318639dfa87907893b88c9a94ebc4694ebaf8d3a4791bcdf833ab0",
+      "baseline_source_exists": true,
+      "candidate_code": {
+        "patch": "patches/P1.patch",
+        "patch_sha256": "d766a0ade03a4996b627b206c54c4c297ebf8e2c7cfab227486c75304069c214",
+        "owner": "P1",
+        "preimage_blob_prefix": "1208a91bc566b6d44ff7ff4ca92aed2656c52f44",
+        "postimage_blob_prefix": "0bca7be39b1bf10d04bf10b812340ce491a34582",
+        "hunks": [
+          "@@ -2429,11 +2429,11 @@ public final class AutoFetchService extends Service {",
+          "@@ -3167,6 +3167,11 @@ public final class AutoFetchService extends Service {",
+          "@@ -3191,6 +3196,18 @@ public final class AutoFetchService extends Service {",
+          "@@ -10878,7 +10895,7 @@ public final class AutoFetchService extends Service {"
+        ],
+        "added_lines": 20,
+        "deleted_lines": 3,
+        "is_new_file": false
+      },
+      "code_coverage_state": "R32_1_CANDIDATE_PATCH_PRESENT_PARTIAL_SCOPE",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+      "batch": "P1",
+      "cards": [
+        "P1.05"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "75bb8de541d26dfc2de52e423f79cb1cf1e8e5a98b2b4b036df6bcf40f425b73",
+      "current_source_sha256": "75bb8de541d26dfc2de52e423f79cb1cf1e8e5a98b2b4b036df6bcf40f425b73",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+      "batch": "P3",
+      "cards": [
+        "P3.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "5fa2632ba02b4008420fab98d2ea539ffa7cffbf2b2bd330f261c96b05555c2b",
+      "current_source_sha256": "5fa2632ba02b4008420fab98d2ea539ffa7cffbf2b2bd330f261c96b05555c2b",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java",
+      "batch": "P4",
+      "cards": [
+        "P4.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "40a88e9871901ec56940c0ce21013c6cce7dda36ef8e2638eb5957db07ad2da5",
+      "current_source_sha256": "40a88e9871901ec56940c0ce21013c6cce7dda36ef8e2638eb5957db07ad2da5",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+      "batch": "P4",
+      "cards": [
+        "P4.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "28e727962f4fc56a5768de57aee128d8e98eefd7984fab25feb2992d442dba03",
+      "current_source_sha256": "28e727962f4fc56a5768de57aee128d8e98eefd7984fab25feb2992d442dba03",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+      "batch": "P4",
+      "cards": [
+        "P4.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "13d33c4c6cdbf80c49de7563c831c9bbe932d5a31ddc4cc2a8dd58b52cd0f0fb",
+      "current_source_sha256": "13d33c4c6cdbf80c49de7563c831c9bbe932d5a31ddc4cc2a8dd58b52cd0f0fb",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "batch": "P1",
+      "cards": [
+        "P1.03",
+        "P1.04"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "e99d4124109e2f40ec5b437863b9af35a8ccae7c533a78e06e5e16c252ae2932",
+      "current_source_sha256": "e99d4124109e2f40ec5b437863b9af35a8ccae7c533a78e06e5e16c252ae2932",
+      "baseline_source_exists": true,
+      "candidate_code": {
+        "patch": "patches/P1.patch",
+        "patch_sha256": "d766a0ade03a4996b627b206c54c4c297ebf8e2c7cfab227486c75304069c214",
+        "owner": "P1",
+        "preimage_blob_prefix": "f9a8e5e68fe15d1452c8cf98845f672f02cc8732",
+        "postimage_blob_prefix": "8e215d30fd62bb346ea269ad1c10cde6ecd72c24",
+        "hunks": [
+          "@@ -57,7 +57,7 @@ public final class DatabaseCoordinator {"
+        ],
+        "added_lines": 1,
+        "deleted_lines": 1,
+        "is_new_file": false
+      },
+      "code_coverage_state": "R32_1_CANDIDATE_PATCH_PRESENT_PARTIAL_SCOPE",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+      "batch": "P1",
+      "cards": [
+        "P1.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "1c3b576e7360ca8a483589d3531e6d48fd34fb865691b39f89e76a68efce2565",
+      "current_source_sha256": "1c3b576e7360ca8a483589d3531e6d48fd34fb865691b39f89e76a68efce2565",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+      "batch": "P1",
+      "cards": [
+        "P1.01",
+        "P1.03"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93",
+      "current_source_sha256": "698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93",
+      "baseline_source_exists": true,
+      "candidate_code": {
+        "patch": "patches/P1.patch",
+        "patch_sha256": "d766a0ade03a4996b627b206c54c4c297ebf8e2c7cfab227486c75304069c214",
+        "owner": "P1",
+        "preimage_blob_prefix": "bfd2dd27903a4d99a6c71b88307d0e4f51d8986c",
+        "postimage_blob_prefix": "21d7c059563e72d96573f0dc77d92929dc3d9f01",
+        "hunks": [
+          "@@ -2522,7 +2522,36 @@ public final class DbStore {",
+          "@@ -2540,13 +2569,21 @@ public final class DbStore {",
+          "@@ -2558,7 +2595,7 @@ public final class DbStore {",
+          "@@ -2576,6 +2613,7 @@ public final class DbStore {",
+          "@@ -18983,6 +19021,10 @@ public final class DbStore {"
+        ],
+        "added_lines": 45,
+        "deleted_lines": 3,
+        "is_new_file": false
+      },
+      "code_coverage_state": "R32_1_CANDIDATE_PATCH_PRESENT_PARTIAL_SCOPE",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "batch": "P3",
+      "cards": [
+        "P3.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "160d2203723ad2bb12c0165b98524bf400b2566861a0e86a978810fb6e4837d0",
+      "current_source_sha256": "160d2203723ad2bb12c0165b98524bf400b2566861a0e86a978810fb6e4837d0",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/HistoryIntegrityVerifierR815.java",
+      "batch": "P1",
+      "cards": [
+        "P1.03"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "6918d3ef086ef7ae214b9d7f7878f3f962da63f2fbbbeff3d9fcb14adeadb1f0",
+      "current_source_sha256": "6918d3ef086ef7ae214b9d7f7878f3f962da63f2fbbbeff3d9fcb14adeadb1f0",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/LegacyDdlR31.java",
+      "batch": "P1",
+      "cards": [
+        "P1.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "468c8f58cacb58a1a4f87bd124156988065b24a5597477c51c74163b87d96772",
+      "current_source_sha256": "468c8f58cacb58a1a4f87bd124156988065b24a5597477c51c74163b87d96772",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java",
+      "batch": "P1",
+      "cards": [
+        "P1.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "a676b2e411f6c61d3dcebb23fe8383245777d1ed86d4cafc183bc1d54ea65d09",
+      "current_source_sha256": "a676b2e411f6c61d3dcebb23fe8383245777d1ed86d4cafc183bc1d54ea65d09",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/LifecycleHealthR963.java",
+      "batch": "P1",
+      "cards": [
+        "P1.04"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "5a116d64b467be010bb72ddb163fce2cfc95fec0bedb61d2cd42d7e5adcf4061",
+      "current_source_sha256": "5a116d64b467be010bb72ddb163fce2cfc95fec0bedb61d2cd42d7e5adcf4061",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+      "batch": "P1",
+      "cards": [
+        "P1.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "42a51f9da2ef5cb4746adafc4b065355a6826cb30ba43e8cc52c4f198c6b29a1",
+      "current_source_sha256": "42a51f9da2ef5cb4746adafc4b065355a6826cb30ba43e8cc52c4f198c6b29a1",
+      "baseline_source_exists": true,
+      "candidate_code": {
+        "patch": "patches/P1.patch",
+        "patch_sha256": "d766a0ade03a4996b627b206c54c4c297ebf8e2c7cfab227486c75304069c214",
+        "owner": "P1",
+        "preimage_blob_prefix": "c7215034ba1a37e3305fb1343274a59b8d494675",
+        "postimage_blob_prefix": "53d42daaf9b0a909477ded78508ab1861801776c",
+        "hunks": [
+          "@@ -126,8 +126,31 @@ public final class LifecycleSchemaR31 {"
+        ],
+        "added_lines": 23,
+        "deleted_lines": 0,
+        "is_new_file": false
+      },
+      "code_coverage_state": "R32_1_CANDIDATE_PATCH_PRESENT_PARTIAL_SCOPE",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/MatrixSnapshotFeedbackR930.java",
+      "batch": "P2",
+      "cards": [
+        "P2.05"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "f597d4cc2f8db49864cae75320e569c0cb24978655fb6935f7417a27835e108a",
+      "current_source_sha256": "f597d4cc2f8db49864cae75320e569c0cb24978655fb6935f7417a27835e108a",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java",
+      "batch": "P1",
+      "cards": [
+        "P1.03"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "2e4c2b92ae244e5ed3e358b54e69735a47818cadfb371b6feb459cc03adceba9",
+      "current_source_sha256": "2e4c2b92ae244e5ed3e358b54e69735a47818cadfb371b6feb459cc03adceba9",
+      "baseline_source_exists": true,
+      "candidate_code": {
+        "patch": "patches/P1.patch",
+        "patch_sha256": "d766a0ade03a4996b627b206c54c4c297ebf8e2c7cfab227486c75304069c214",
+        "owner": "P1",
+        "preimage_blob_prefix": "25488afc64ee8ff74de9ad1acd3914366fe3d932",
+        "postimage_blob_prefix": "64e187e269d63550dfc49ae98de4e163eb4edcab",
+        "hunks": [
+          "@@ -30,6 +30,20 @@ public final class R36AnalysisHistoryPolicyR364 {"
+        ],
+        "added_lines": 14,
+        "deleted_lines": 0,
+        "is_new_file": false
+      },
+      "code_coverage_state": "R32_1_CANDIDATE_PATCH_PRESENT_PARTIAL_SCOPE",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/RealtimePressureGateR811.java",
+      "batch": "P1",
+      "cards": [
+        "P1.04"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "b306cabb79519524b55addef239b37dcbedd289c6cab2ba81040cf488e872104",
+      "current_source_sha256": "b306cabb79519524b55addef239b37dcbedd289c6cab2ba81040cf488e872104",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+      "batch": "P4",
+      "cards": [
+        "P4.03"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "1940e04b39891bbad187561ad3ab53279d77d462c2f0cb52451ff4dbaf2421e9",
+      "current_source_sha256": "1940e04b39891bbad187561ad3ab53279d77d462c2f0cb52451ff4dbaf2421e9",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+      "batch": "P4",
+      "cards": [
+        "P4.03"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "91a266f597a4914225abbde133e2319ddc6a9d1db77c5f9bc05a9c2a18edc589",
+      "current_source_sha256": "91a266f597a4914225abbde133e2319ddc6a9d1db77c5f9bc05a9c2a18edc589",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportCleanupR31.java",
+      "batch": "P1",
+      "cards": [
+        "P1.06"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "f26afd19f4fd441389570a5dc3decd34697ab37bced693a28854e0196657d859",
+      "current_source_sha256": "f26afd19f4fd441389570a5dc3decd34697ab37bced693a28854e0196657d859",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "batch": "P4",
+      "cards": [
+        "P4.01",
+        "P4.03"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "294601cf418571e7ee1eff2638239bb156983d1edce1b3546e3856ebb52ca7f5",
+      "current_source_sha256": "294601cf418571e7ee1eff2638239bb156983d1edce1b3546e3856ebb52ca7f5",
+      "baseline_source_exists": true,
+      "candidate_code": {
+        "patch": "patches/P4.patch",
+        "patch_sha256": "08acc885c89edd0d538232597cbc40c8dc3078aa17f4c6212e9038d673bc09aa",
+        "owner": "P4",
+        "preimage_blob_prefix": "fb8161dba019a92e032bbdf2f67047f5f62c4600",
+        "postimage_blob_prefix": "aa2329a5e440af7765d22483e218053088bdd0e6",
+        "hunks": [
+          "@@ -408,6 +408,9 @@ public final class ReportExportServiceCP4 extends Service {"
+        ],
+        "added_lines": 3,
+        "deleted_lines": 0,
+        "is_new_file": false
+      },
+      "code_coverage_state": "R32_1_CANDIDATE_PATCH_PRESENT_PARTIAL_SCOPE",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+      "batch": "P4",
+      "cards": [
+        "P4.03"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "f3cd15391be7224dcac724601c7703b4b0df44ee9b6b34a9e00666a4a55dc8f4",
+      "current_source_sha256": "f3cd15391be7224dcac724601c7703b4b0df44ee9b6b34a9e00666a4a55dc8f4",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportJsonWriterR31.java",
+      "batch": "P4",
+      "cards": [
+        "P4.03"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "d77fc58e68d29006fa8636a6fa88223ff565ad03f6385ced6a19eb6b16d02f7e",
+      "current_source_sha256": "d77fc58e68d29006fa8636a6fa88223ff565ad03f6385ced6a19eb6b16d02f7e",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+      "batch": "P4",
+      "cards": [
+        "P4.03"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "11c43a1694605886d033822a304665684f5094b27a091327b2e86271a94bf684",
+      "current_source_sha256": "11c43a1694605886d033822a304665684f5094b27a091327b2e86271a94bf684",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+      "batch": "P4",
+      "cards": [
+        "P4.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "2ec273db83564cf29085b5c680ed4ac97d8858950ce5bdb66d3365afdfd543f0",
+      "current_source_sha256": "2ec273db83564cf29085b5c680ed4ac97d8858950ce5bdb66d3365afdfd543f0",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchEvolutionStoreR930.java",
+      "batch": "P2",
+      "cards": [
+        "P2.05"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "586f25f22c17be6d22a49113732d7955906740711c5fb0c0a37603609f9623a2",
+      "current_source_sha256": "586f25f22c17be6d22a49113732d7955906740711c5fb0c0a37603609f9623a2",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
+      "batch": "P4",
+      "cards": [
+        "P4.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "ef4ebeadf03d1a4d46407b4325490d082f05c1c34ef2866f8811aa984d3c5fd5",
+      "current_source_sha256": "ef4ebeadf03d1a4d46407b4325490d082f05c1c34ef2866f8811aa984d3c5fd5",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+      "batch": "P1",
+      "cards": [
+        "P1.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "e4ddbbf466948b72833696593242a7252611cf7b64cd442804f4b256ac85f80a",
+      "current_source_sha256": "e4ddbbf466948b72833696593242a7252611cf7b64cd442804f4b256ac85f80a",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+      "batch": "P1",
+      "cards": [
+        "P1.05"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "bffca6af2f7a704fee78d475d5ec71e012b8c30148891c52d7f7dd982d8dd5b8",
+      "current_source_sha256": "bffca6af2f7a704fee78d475d5ec71e012b8c30148891c52d7f7dd982d8dd5b8",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+      "batch": "P1",
+      "cards": [
+        "P1.05"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "1f35a8cec198598a506a5621ca30b1ad6494cfa44f1e64e3d86aeb66f154e0b2",
+      "current_source_sha256": "1f35a8cec198598a506a5621ca30b1ad6494cfa44f1e64e3d86aeb66f154e0b2",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+      "batch": "P1",
+      "cards": [
+        "P1.06"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "41b38dc595678079a99ca9f306f70dad8f859b3409fee30caf32fd396c6dba60",
+      "current_source_sha256": "41b38dc595678079a99ca9f306f70dad8f859b3409fee30caf32fd396c6dba60",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java",
+      "batch": "P1",
+      "cards": [
+        "P1.03"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "9cbe4bdc9463bab5a3928612b5fa80d78199f3809ad626f0ee932a0947795303",
+      "current_source_sha256": "9cbe4bdc9463bab5a3928612b5fa80d78199f3809ad626f0ee932a0947795303",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+      "batch": "P3",
+      "cards": [
+        "P3.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "935388c6d194747dc6e920e33ae94ca45801f2d7ffc193bef967c4e3e571fdf1",
+      "current_source_sha256": "935388c6d194747dc6e920e33ae94ca45801f2d7ffc193bef967c4e3e571fdf1",
+      "baseline_source_exists": true,
+      "candidate_code": {
+        "patch": "patches/P3.patch",
+        "patch_sha256": "760d630c26deaedb983cff8e8d7f6221924d683aeddd56e77edc11ef7ee1d20c",
+        "owner": "P3",
+        "preimage_blob_prefix": "18826e9698e4b438fe0ce741f67c9f1f048d4358",
+        "postimage_blob_prefix": "bd1a4555e425761b411e564c23c007d690240ec1",
+        "hunks": [
+          "@@ -159,7 +159,11 @@ public final class UnifiedResearchChoiceR932 {",
+          "@@ -186,6 +190,18 @@ public final class UnifiedResearchChoiceR932 {"
+        ],
+        "added_lines": 17,
+        "deleted_lines": 1,
+        "is_new_file": false
+      },
+      "code_coverage_state": "R32_1_CANDIDATE_PATCH_PRESENT_PARTIAL_SCOPE",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+      "batch": "P2",
+      "cards": [
+        "P2.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "c1ed94f1f2bdbd9f4bcb7970b2ca083dec3b4703bfa7fe510dce7bd6e00b273b",
+      "current_source_sha256": "c1ed94f1f2bdbd9f4bcb7970b2ca083dec3b4703bfa7fe510dce7bd6e00b273b",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+      "batch": "P2",
+      "cards": [
+        "P2.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "633da1ecf2fde2575943cc501c919347b88b1b1784ecc7d145a80e42f6724021",
+      "current_source_sha256": "633da1ecf2fde2575943cc501c919347b88b1b1784ecc7d145a80e42f6724021",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+      "batch": "P2",
+      "cards": [
+        "P2.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "90bec122c21faf20122e1a185de311068f60c4175e3c4592a6f2a8ee4429977e",
+      "current_source_sha256": "90bec122c21faf20122e1a185de311068f60c4175e3c4592a6f2a8ee4429977e",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java",
+      "batch": "P2",
+      "cards": [
+        "P2.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "8d6dfdd60bfd960ab6d00bc0103e98a73249f957819fd91098db2901f0e73a67",
+      "current_source_sha256": "8d6dfdd60bfd960ab6d00bc0103e98a73249f957819fd91098db2901f0e73a67",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+      "batch": "P2",
+      "cards": [
+        "P2.05"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "714bebf005bba4eecfee5f6f9634b7c9bae1eed8ae6278111995127bd4dbbc58",
+      "current_source_sha256": "714bebf005bba4eecfee5f6f9634b7c9bae1eed8ae6278111995127bd4dbbc58",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+      "batch": "P2",
+      "cards": [
+        "P2.04"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "c334cb9fbb19fcc89dc8d6ade1ee00060b89c0503f3af1fc93b77a37d7f081ca",
+      "current_source_sha256": "c334cb9fbb19fcc89dc8d6ade1ee00060b89c0503f3af1fc93b77a37d7f081ca",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "batch": "P3",
+      "cards": [
+        "P3.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "aae70dc0d2ac90808c258c09cbe244fd1358ad5f071fd260c59802c9bbd86f71",
+      "current_source_sha256": "aae70dc0d2ac90808c258c09cbe244fd1358ad5f071fd260c59802c9bbd86f71",
+      "baseline_source_exists": true,
+      "candidate_code": {
+        "patch": "patches/P3.patch",
+        "patch_sha256": "760d630c26deaedb983cff8e8d7f6221924d683aeddd56e77edc11ef7ee1d20c",
+        "owner": "P3",
+        "preimage_blob_prefix": "141288c463248269df17cfea3843fb039b1e7a30",
+        "postimage_blob_prefix": "e8064907eabf6e291c80dc22c742ead6700eca81",
+        "hunks": [
+          "@@ -31,13 +31,13 @@ public final class CertificateGateR27 {"
+        ],
+        "added_lines": 4,
+        "deleted_lines": 4,
+        "is_new_file": false
+      },
+      "code_coverage_state": "R32_1_CANDIDATE_PATCH_PRESENT_PARTIAL_SCOPE",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+      "batch": "P3",
+      "cards": [
+        "P3.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "680637f7f9de0079fe0c29b6f3c6452b0bc99c731a2281bf724d9616ad1f4bd6",
+      "current_source_sha256": "680637f7f9de0079fe0c29b6f3c6452b0bc99c731a2281bf724d9616ad1f4bd6",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
+      "batch": "P3",
+      "cards": [
+        "P3.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "3581e95b502da707502d4b8ceb0f6135e6bfa6062d82eaa0ba94ba14df87e245",
+      "current_source_sha256": "3581e95b502da707502d4b8ceb0f6135e6bfa6062d82eaa0ba94ba14df87e245",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
+      "batch": "P1",
+      "cards": [
+        "P1.06"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "5e3b70b661d841d9e0d6a6bfb2b6329c644aa0ea3adfdc6f8a778b75523492f3",
+      "current_source_sha256": "5e3b70b661d841d9e0d6a6bfb2b6329c644aa0ea3adfdc6f8a778b75523492f3",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java",
+      "batch": "P1",
+      "cards": [
+        "P1.06"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "e32ffbbd706aff182a988d53cc69814450d793bd41363613fe1f2785fc5834b5",
+      "current_source_sha256": "e32ffbbd706aff182a988d53cc69814450d793bd41363613fe1f2785fc5834b5",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CreationBudgetR31.java",
+      "batch": "P2",
+      "cards": [
+        "P2.06"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "1ed06713f39ab0e17721dbf042db884d6ed6993a4bbeae6b9d745f5b81bfc127",
+      "current_source_sha256": "1ed06713f39ab0e17721dbf042db884d6ed6993a4bbeae6b9d745f5b81bfc127",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DerivedAtomR27.java",
+      "batch": "P2",
+      "cards": [
+        "P2.05"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "45df63220343373bc22a66336be1e27290162cfb2767a56a546b2e0340e59a9a",
+      "current_source_sha256": "45df63220343373bc22a66336be1e27290162cfb2767a56a546b2e0340e59a9a",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+      "batch": "P4",
+      "cards": [
+        "P4.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "90624e78b67571c73784281a80b8330f74761da0bc5d30522d74ec6e9f529150",
+      "current_source_sha256": "90624e78b67571c73784281a80b8330f74761da0bc5d30522d74ec6e9f529150",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EliteArchiveR27.java",
+      "batch": "P2",
+      "cards": [
+        "P2.06"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "a778e728bf18512aeb0a4de372650b3afad78aed702590f40d7202e941839b6d",
+      "current_source_sha256": "a778e728bf18512aeb0a4de372650b3afad78aed702590f40d7202e941839b6d",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceContractR31.java",
+      "batch": "P3",
+      "cards": [
+        "P3.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "fbe2e547d1290b3044076eacb43879ef5348ccbd82af6db1fc3ffad1347ead5e",
+      "current_source_sha256": "fbe2e547d1290b3044076eacb43879ef5348ccbd82af6db1fc3ffad1347ead5e",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+      "batch": "P2",
+      "cards": [
+        "P2.04",
+        "P2.06"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "fc9bc3a73e8370201bbbbedef694c6b29a4e52d254cebc1d229558db14097e36",
+      "current_source_sha256": "fc9bc3a73e8370201bbbbedef694c6b29a4e52d254cebc1d229558db14097e36",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java",
+      "batch": "P2",
+      "cards": [
+        "P2.04"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "040ae2a4aa4aae7a34e1635c124264575e688df5c6dfbe60cdc1746c09d915b1",
+      "current_source_sha256": "040ae2a4aa4aae7a34e1635c124264575e688df5c6dfbe60cdc1746c09d915b1",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+      "batch": "P2",
+      "cards": [
+        "P2.06"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "7252af2aae4cce1ba432f3da8618ba8a6cb5e72062437606cb24f0095ad839b6",
+      "current_source_sha256": "7252af2aae4cce1ba432f3da8618ba8a6cb5e72062437606cb24f0095ad839b6",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
+      "batch": "P2",
+      "cards": [
+        "P2.04"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "ac25dd45fbc1bf6f5d29ae0a0158c907497176d9bf01f28df79de5e769ea8119",
+      "current_source_sha256": "ac25dd45fbc1bf6f5d29ae0a0158c907497176d9bf01f28df79de5e769ea8119",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+      "batch": "P2",
+      "cards": [
+        "P2.03",
+        "P2.06"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "46e899e6f4a789699328076be3f734c3b139a8d8fb5c947644c88820e82f75ef",
+      "current_source_sha256": "46e899e6f4a789699328076be3f734c3b139a8d8fb5c947644c88820e82f75ef",
+      "baseline_source_exists": true,
+      "candidate_code": {
+        "patch": "patches/P2.patch",
+        "patch_sha256": "b4085b600ba43db6e0234aa2305d31bf5728e2f3de952d7e470d78cb7147149f",
+        "owner": "P2",
+        "preimage_blob_prefix": "ff179d3b6399d34a729d5101990e8cd318556222",
+        "postimage_blob_prefix": "5a3f12714c2a369415e2708aa763cf5225bc5a4c",
+        "hunks": [
+          "@@ -46,7 +46,7 @@ public final class FoundryCampaignR26 {",
+          "@@ -144,14 +144,68 @@ public final class FoundryCampaignR26 {"
+        ],
+        "added_lines": 58,
+        "deleted_lines": 4,
+        "is_new_file": false
+      },
+      "code_coverage_state": "R32_1_CANDIDATE_PATCH_PRESENT_PARTIAL_SCOPE",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/GateV2R29.java",
+      "batch": "P3",
+      "cards": [
+        "P3.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "29d3650434d9cec975d57666f7330e373d2cc2227fac3869977f750d5d86e29a",
+      "current_source_sha256": "29d3650434d9cec975d57666f7330e373d2cc2227fac3869977f750d5d86e29a",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java",
+      "batch": "P1",
+      "cards": [
+        "P1.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "90b1880504daf4359d42436f0e6cc201485cdc3832388d663ebfcc624bb28448",
+      "current_source_sha256": "90b1880504daf4359d42436f0e6cc201485cdc3832388d663ebfcc624bb28448",
+      "baseline_source_exists": true,
+      "candidate_code": {
+        "patch": "patches/P1.patch",
+        "patch_sha256": "d766a0ade03a4996b627b206c54c4c297ebf8e2c7cfab227486c75304069c214",
+        "owner": "P1",
+        "preimage_blob_prefix": "5b8c52b68304cfaf24cb4b8585bcc622e24be50c",
+        "postimage_blob_prefix": "aba1788d76d8494f1367fecb4097f063afee1752",
+        "hunks": [
+          "@@ -28,12 +28,103 @@ public final class HypothesisStoreR31 {"
+        ],
+        "added_lines": 92,
+        "deleted_lines": 1,
+        "is_new_file": false
+      },
+      "code_coverage_state": "R32_1_CANDIDATE_PATCH_PRESENT_PARTIAL_SCOPE",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
+      "batch": "P2",
+      "cards": [
+        "P2.04"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "154a206d6bacfcaef127de70b50282b0ab62dbf216bb5f82958f7661d682ee98",
+      "current_source_sha256": "154a206d6bacfcaef127de70b50282b0ab62dbf216bb5f82958f7661d682ee98",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+      "batch": "P2",
+      "cards": [
+        "P2.06"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "ee8e5096624c2936a0cb285f098fbb7ee73343f6f4e1df508ea93252f79b5909",
+      "current_source_sha256": "ee8e5096624c2936a0cb285f098fbb7ee73343f6f4e1df508ea93252f79b5909",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/KeepMigrationStoreR31.java",
+      "batch": "P1",
+      "cards": [
+        "P1.06"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "5f8597a943a9ef595af02a5397218eb6e96253b104b781152e461a4c8fc6a1f9",
+      "current_source_sha256": "5f8597a943a9ef595af02a5397218eb6e96253b104b781152e461a4c8fc6a1f9",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "batch": "P3",
+      "cards": [
+        "P3.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "674f9463026b5cfb5870cb487415e53081ef2200b827fcf9fd2728fee1574a2f",
+      "current_source_sha256": "674f9463026b5cfb5870cb487415e53081ef2200b827fcf9fd2728fee1574a2f",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "batch": "P3",
+      "cards": [
+        "P3.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "41ed776b4b81654361fd300ad3173677a92905f73783b64d579c67a7ed936136",
+      "current_source_sha256": "41ed776b4b81654361fd300ad3173677a92905f73783b64d579c67a7ed936136",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+      "batch": "P3",
+      "cards": [
+        "P3.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "5742d576f78015190450a58556d9a0375790a6c89f54366f859565138d131b33",
+      "current_source_sha256": "5742d576f78015190450a58556d9a0375790a6c89f54366f859565138d131b33",
+      "baseline_source_exists": true,
+      "candidate_code": {
+        "patch": "patches/P3.patch",
+        "patch_sha256": "760d630c26deaedb983cff8e8d7f6221924d683aeddd56e77edc11ef7ee1d20c",
+        "owner": "P3",
+        "preimage_blob_prefix": "affac9294201c8dbd0db2e6309c3e11603e3d55e",
+        "postimage_blob_prefix": "96500460eeebc6b7d3d8eaf1e06dd9e02673d1f9",
+        "hunks": [
+          "@@ -80,7 +80,26 @@ public final class MainlineBridgeSU2 {"
+        ],
+        "added_lines": 20,
+        "deleted_lines": 1,
+        "is_new_file": false
+      },
+      "code_coverage_state": "R32_1_CANDIDATE_PATCH_PRESENT_PARTIAL_SCOPE",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+      "batch": "P3",
+      "cards": [
+        "P3.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "adbeee428cbc2b7a0fcfbc32dc3b159dcd90609ccf0142213a52864ba091879b",
+      "current_source_sha256": "adbeee428cbc2b7a0fcfbc32dc3b159dcd90609ccf0142213a52864ba091879b",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "batch": "P3",
+      "cards": [
+        "P3.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "94cd2c48dd8acd66fec5cd70a63b2316d1efc15bdaa24c4ff0d1e4cdc4328e53",
+      "current_source_sha256": "94cd2c48dd8acd66fec5cd70a63b2316d1efc15bdaa24c4ff0d1e4cdc4328e53",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineModelBindingR31.java",
+      "batch": "P3",
+      "cards": [
+        "P3.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "f39a07ded734efb95d6c350f297a0e53b6c46fe14f4561714ba1a4e359953029",
+      "current_source_sha256": "f39a07ded734efb95d6c350f297a0e53b6c46fe14f4561714ba1a4e359953029",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR30.java",
+      "batch": "P2",
+      "cards": [
+        "P2.05"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "f0c00876e882076d7c3da0e97444f26376969651a1e3cec5d2bd7085d38b5d5a",
+      "current_source_sha256": "f0c00876e882076d7c3da0e97444f26376969651a1e3cec5d2bd7085d38b5d5a",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java",
+      "batch": "P4",
+      "cards": [
+        "P4.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "2a73699c1b4bc6ac3c0ece6f9c82448d2888678306c2e2da7504e42009987b16",
+      "current_source_sha256": "2a73699c1b4bc6ac3c0ece6f9c82448d2888678306c2e2da7504e42009987b16",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+      "batch": "P2",
+      "cards": [
+        "P2.05"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "04365b49d1a79225fa006cddfac080de5150e9865a98f7e476a0e789f4bc965e",
+      "current_source_sha256": "04365b49d1a79225fa006cddfac080de5150e9865a98f7e476a0e789f4bc965e",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+      "batch": "P1",
+      "cards": [
+        "P1.06"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "d17ac21e6cfee02b06e3ad07ce2ec195649f6c2e91056c9b58ad97a5e6d32aa0",
+      "current_source_sha256": "d17ac21e6cfee02b06e3ad07ce2ec195649f6c2e91056c9b58ad97a5e6d32aa0",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
+      "batch": "P2",
+      "cards": [
+        "P2.06"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "acc11a888c0ed34fc3525095c41de115b6849a16f9dfd1ee340150313768c1f8",
+      "current_source_sha256": "acc11a888c0ed34fc3525095c41de115b6849a16f9dfd1ee340150313768c1f8",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelGenomeSU2.java",
+      "batch": "P2",
+      "cards": [
+        "P2.03"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "9f35c88571c3617c50549be63ad05f999114df1be1497c8f48c5b636d4c4d069",
+      "current_source_sha256": "9f35c88571c3617c50549be63ad05f999114df1be1497c8f48c5b636d4c4d069",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java",
+      "batch": "P2",
+      "cards": [
+        "P2.03"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "e540ca4f04bc3161cd4bc3c43610ee7799c6b1fca56f0104a9eb1ebc9b85499a",
+      "current_source_sha256": "e540ca4f04bc3161cd4bc3c43610ee7799c6b1fca56f0104a9eb1ebc9b85499a",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+      "batch": "P2",
+      "cards": [
+        "P2.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "6bd7d7215d0b5f06c2408ae40390c157614274d5d7f6b8fb778ede19b1112a48",
+      "current_source_sha256": "6bd7d7215d0b5f06c2408ae40390c157614274d5d7f6b8fb778ede19b1112a48",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedComponentStudyR30R1.java",
+      "batch": "P2",
+      "cards": [
+        "P2.05"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "3dc691769aa48a8ce9334faf926dad2db0d8c05aaa9ecd6301ee66d2f63928fe",
+      "current_source_sha256": "3dc691769aa48a8ce9334faf926dad2db0d8c05aaa9ecd6301ee66d2f63928fe",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationGapRepairR30R1.java",
+      "batch": "P3",
+      "cards": [
+        "P3.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "db0b38ede36e07905ca83a5d2c59a97cc24d52de1b5f8bb0700d8665cffa8e55",
+      "current_source_sha256": "db0b38ede36e07905ca83a5d2c59a97cc24d52de1b5f8bb0700d8665cffa8e55",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+      "batch": "P3",
+      "cards": [
+        "P3.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "b5fdf7a667257b910aca30dc4b9e23dae82167410ebcfe75e95d35e84cfb9831",
+      "current_source_sha256": "b5fdf7a667257b910aca30dc4b9e23dae82167410ebcfe75e95d35e84cfb9831",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationWindowR26.java",
+      "batch": "P3",
+      "cards": [
+        "P3.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "feccc8ebe32f9ab4ff951ac8b6dc4dcd43f6980e5c34215175e7de7b4353f962",
+      "current_source_sha256": "feccc8ebe32f9ab4ff951ac8b6dc4dcd43f6980e5c34215175e7de7b4353f962",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RegimeHypothesisR31.java",
+      "batch": "P2",
+      "cards": [
+        "P2.04"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "cce43a2218a596696e3fe2fb4151f2c4dde83f3a09f558ffa90f9b8a7fe24068",
+      "current_source_sha256": "cce43a2218a596696e3fe2fb4151f2c4dde83f3a09f558ffa90f9b8a7fe24068",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+      "batch": "P4",
+      "cards": [
+        "P4.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": null,
+      "current_source_sha256": null,
+      "baseline_source_exists": false,
+      "candidate_code": {
+        "patch": "patches/P4.patch",
+        "patch_sha256": "08acc885c89edd0d538232597cbc40c8dc3078aa17f4c6212e9038d673bc09aa",
+        "owner": "P4",
+        "preimage_blob_prefix": "0000000000000000000000000000000000000000",
+        "postimage_blob_prefix": "b298e1b2e6b258fbdf82eb7b3ed815c0c4c1b181",
+        "hunks": [
+          "@@ -0,0 +1,379 @@"
+        ],
+        "added_lines": 379,
+        "deleted_lines": 0,
+        "is_new_file": true
+      },
+      "code_coverage_state": "R32_1_CANDIDATE_PATCH_PRESENT_PARTIAL_SCOPE",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayKnowledgeStoreR31.java",
+      "batch": "P2",
+      "cards": [
+        "P2.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "8cca8e76e1ac1b036994da9d3e453a562d48458b16cb0202d0285bd79bb7c999",
+      "current_source_sha256": "8cca8e76e1ac1b036994da9d3e453a562d48458b16cb0202d0285bd79bb7c999",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+      "batch": "P4",
+      "cards": [
+        "P4.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "58ffe7e2f91975d29a46b8c7adea84943a1ac87d19086b96f25346e179abe385",
+      "current_source_sha256": "58ffe7e2f91975d29a46b8c7adea84943a1ac87d19086b96f25346e179abe385",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+      "batch": "P4",
+      "cards": [
+        "P4.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "d4093176a9c78910d9af7db52d0dc743cd7d41af3c028835ee93a6046ed08ce4",
+      "current_source_sha256": "d4093176a9c78910d9af7db52d0dc743cd7d41af3c028835ee93a6046ed08ce4",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+      "batch": "P4",
+      "cards": [
+        "P4.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "6a3f3a021c20908b87afbcc29f60d9298430423b52fcec263e1140f422a98af0",
+      "current_source_sha256": "6a3f3a021c20908b87afbcc29f60d9298430423b52fcec263e1140f422a98af0",
+      "baseline_source_exists": true,
+      "candidate_code": {
+        "patch": "patches/P4.patch",
+        "patch_sha256": "08acc885c89edd0d538232597cbc40c8dc3078aa17f4c6212e9038d673bc09aa",
+        "owner": "P4",
+        "preimage_blob_prefix": "6fcb5c83e6a432c4a0d6668fd9d30667c98d7e9e",
+        "postimage_blob_prefix": "d5f078fee23d15cc2e04f33b8dbfb41fdf4a01f3",
+        "hunks": [
+          "@@ -45,6 +45,9 @@ public final class ReportR29 {",
+          "@@ -72,6 +75,7 @@ public final class ReportR29 {"
+        ],
+        "added_lines": 4,
+        "deleted_lines": 0,
+        "is_new_file": false
+      },
+      "code_coverage_state": "R32_1_CANDIDATE_PATCH_PRESENT_PARTIAL_SCOPE",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "batch": "P4",
+      "cards": [
+        "P4.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "8b1c2727602b1f8b80f44985176c865b68ddaa31e1b787eb52d3eafa712ac382",
+      "current_source_sha256": "8b1c2727602b1f8b80f44985176c865b68ddaa31e1b787eb52d3eafa712ac382",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchHypothesisR31.java",
+      "batch": "P2",
+      "cards": [
+        "P2.04"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "07365499fbe13283d5d4e78a24416f923d01c2a2fc920071bf36ab419348e73a",
+      "current_source_sha256": "07365499fbe13283d5d4e78a24416f923d01c2a2fc920071bf36ab419348e73a",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+      "batch": "P2",
+      "cards": [
+        "P2.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "c68e5505bc59998087d3b6b13c6882fa286354880a9ec53b09a68aa4108fd929",
+      "current_source_sha256": "c68e5505bc59998087d3b6b13c6882fa286354880a9ec53b09a68aa4108fd929",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "batch": "P2",
+      "cards": [
+        "P2.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "76787ed0332dd352fa99b8d4b1ffa42207174375626071580aaab0b36ee3caaa",
+      "current_source_sha256": "76787ed0332dd352fa99b8d4b1ffa42207174375626071580aaab0b36ee3caaa",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+      "batch": "P2",
+      "cards": [
+        "P2.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "edb385b55b7bacd99ebc323d481a7b4bbd0444a0501bb568b1542c127d0af0ea",
+      "current_source_sha256": "edb385b55b7bacd99ebc323d481a7b4bbd0444a0501bb568b1542c127d0af0ea",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "batch": "P1",
+      "cards": [
+        "P1.04"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "10519dacde8ebcfec2fe28b9158f7a35e6704529121ae660f05cf767de2b3da5",
+      "current_source_sha256": "10519dacde8ebcfec2fe28b9158f7a35e6704529121ae660f05cf767de2b3da5",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "batch": "P2",
+      "cards": [
+        "P2.01",
+        "P2.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "554cac3699a935cd1c9cb293bcaeaf178f399e94f549c47fd1ea9576bdd51d6d",
+      "current_source_sha256": "554cac3699a935cd1c9cb293bcaeaf178f399e94f549c47fd1ea9576bdd51d6d",
+      "baseline_source_exists": true,
+      "candidate_code": {
+        "patch": "patches/P2.patch",
+        "patch_sha256": "b4085b600ba43db6e0234aa2305d31bf5728e2f3de952d7e470d78cb7147149f",
+        "owner": "P2",
+        "preimage_blob_prefix": "51c22540a583476d763884671b54805943a8f694",
+        "postimage_blob_prefix": "ea739ee9b63eaa2daa5b6ab55bf6fab2aa9cdd18",
+        "hunks": [
+          "@@ -182,7 +182,23 @@ public final class RuntimeR27 implements AutoCloseable {"
+        ],
+        "added_lines": 17,
+        "deleted_lines": 1,
+        "is_new_file": false
+      },
+      "code_coverage_state": "R32_1_CANDIDATE_PATCH_PRESENT_PARTIAL_SCOPE",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+      "batch": "P3",
+      "cards": [
+        "P3.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "d57ab300362353aed8bcedff531c42b260bbb9627a841fe193dab7d60e5aad56",
+      "current_source_sha256": "d57ab300362353aed8bcedff531c42b260bbb9627a841fe193dab7d60e5aad56",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java",
+      "batch": "P2",
+      "cards": [
+        "P2.04"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "22123d4d15e6ebdcdc5f57f376e065a6ace9416b7345ee57aee73d44dfa6878d",
+      "current_source_sha256": "22123d4d15e6ebdcdc5f57f376e065a6ace9416b7345ee57aee73d44dfa6878d",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java",
+      "batch": "P2",
+      "cards": [
+        "P2.03",
+        "P2.05"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "f144d21892646ff98f3c73c1e6dac91f4bfcfa83c0bd1b58285d9565ad09ae82",
+      "current_source_sha256": "f144d21892646ff98f3c73c1e6dac91f4bfcfa83c0bd1b58285d9565ad09ae82",
+      "baseline_source_exists": true,
+      "candidate_code": {
+        "patch": "patches/P2.patch",
+        "patch_sha256": "b4085b600ba43db6e0234aa2305d31bf5728e2f3de952d7e470d78cb7147149f",
+        "owner": "P2",
+        "preimage_blob_prefix": "c4ef91e06afccd01c7c20c6d0f5b0c2384acdac7",
+        "postimage_blob_prefix": "70d5d8b29eb8566be04f0db124a11aba8a29c2de",
+        "hunks": [
+          "@@ -16,6 +16,24 @@ public final class StructuralProposalR26 {"
+        ],
+        "added_lines": 18,
+        "deleted_lines": 0,
+        "is_new_file": false
+      },
+      "code_coverage_state": "R32_1_CANDIDATE_PATCH_PRESENT_PARTIAL_SCOPE",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TrainingStepStoreR26.java",
+      "batch": "P2",
+      "cards": [
+        "P2.02"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "d24c0da1a68bd37b075679951dd4b9feb07b1217733c1e86e9abefbec6c3dfe1",
+      "current_source_sha256": "d24c0da1a68bd37b075679951dd4b9feb07b1217733c1e86e9abefbec6c3dfe1",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmCandidateR26.java",
+      "batch": "P2",
+      "cards": [
+        "P2.03"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "58ba100f208b88478a85407181ca53a506b7849916153923981b6c375c6a3a0a",
+      "current_source_sha256": "58ba100f208b88478a85407181ca53a506b7849916153923981b6c375c6a3a0a",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+      "batch": "P1",
+      "cards": [
+        "P1.04"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "49b5950386413ba065d70b2a8c4afcd52fd14c3bcba3cbc7aa30f4a3438a773f",
+      "current_source_sha256": "49b5950386413ba065d70b2a8c4afcd52fd14c3bcba3cbc7aa30f4a3438a773f",
+      "baseline_source_exists": true,
+      "candidate_code": {
+        "patch": "patches/P1.patch",
+        "patch_sha256": "d766a0ade03a4996b627b206c54c4c297ebf8e2c7cfab227486c75304069c214",
+        "owner": "P1",
+        "preimage_blob_prefix": "eb7810d3553b302e01000e9da654d766dfd2ecda",
+        "postimage_blob_prefix": "b4abaa8ac30ccbd36b5ca6a28ecdd711611566bc",
+        "hunks": [
+          "@@ -131,6 +131,16 @@ public final class WriterHoldFaultsR31 {"
+        ],
+        "added_lines": 10,
+        "deleted_lines": 0,
+        "is_new_file": false
+      },
+      "code_coverage_state": "R32_1_CANDIDATE_PATCH_PRESENT_PARTIAL_SCOPE",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "release/R31_REPORT_PUBLISH_REQUEST.json",
+      "batch": "P5",
+      "cards": [
+        "P5.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": null,
+      "current_source_sha256": "1709ee8e9081ef66edaab50c57f0622ea503c83d099225bc65e5fbdb5941a689",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "release/release_identity.properties",
+      "batch": "P5",
+      "cards": [
+        "P5.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": null,
+      "current_source_sha256": "86fcced855326b1c91859d71666fb8dbcb39eefbb3c9841b71533a136bff29db",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "tools/r31/package_release.py",
+      "batch": "P5",
+      "cards": [
+        "P5.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "91e42438f28e8ba48aa4ac16249d2f5d52568df4fd875facb443eab1474fac76",
+      "current_source_sha256": "91e42438f28e8ba48aa4ac16249d2f5d52568df4fd875facb443eab1474fac76",
+      "baseline_source_exists": true,
+      "candidate_code": {
+        "patch": "patches/P5.patch",
+        "patch_sha256": "eed27c2928a505b582b62a431646e958074830650ad7cbbcde9f2a588888ba51",
+        "owner": "P5",
+        "preimage_blob_prefix": "2c48ffc651e7bcc540085b7feeae34cdd3e6b999",
+        "postimage_blob_prefix": "575412fac7d1378e6d14eb36e0d82ac1fc2894fb",
+        "hunks": [
+          "@@ -20,6 +20,11 @@ IDENTITY = ROOT / 'release/release_identity.properties'",
+          "@@ -73,8 +78,11 @@ def verify_apk(apk, badging, signature, sums, ident):",
+          "@@ -101,8 +109,10 @@ def create_delivery(built, verification_path, out, ident=None, acceptance_dir=No",
+          "@@ -120,7 +130,7 @@ def create_delivery(built, verification_path, out, ident=None, acceptance_dir=No"
+        ],
+        "added_lines": 14,
+        "deleted_lines": 4,
+        "is_new_file": false
+      },
+      "code_coverage_state": "R32_1_CANDIDATE_PATCH_PRESENT_PARTIAL_SCOPE",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "tools/r31/publish_report_package.py",
+      "batch": "P5",
+      "cards": [
+        "P5.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "77a2cf04a47fe72a57c7dabd10e0b77233ec9d77b44ab415aa72cbaf2d9ce321",
+      "current_source_sha256": "77a2cf04a47fe72a57c7dabd10e0b77233ec9d77b44ab415aa72cbaf2d9ce321",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "tools/r31/run_current_acceptance.py",
+      "batch": "P5",
+      "cards": [
+        "P5.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "16044d5a980f983cb6cc2955e0b6ba54304e67e68e189ef823415310625de84a",
+      "current_source_sha256": "16044d5a980f983cb6cc2955e0b6ba54304e67e68e189ef823415310625de84a",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "tools/r31/run_emulator_upgrade_matrix.py",
+      "batch": "P5",
+      "cards": [
+        "P5.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "176dc8d62d56bb546bb2dfe15f9032e6ee10798b411cfd48a56ffc25a98cf784",
+      "current_source_sha256": "176dc8d62d56bb546bb2dfe15f9032e6ee10798b411cfd48a56ffc25a98cf784",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "tools/r31/run_final_runtime.sh",
+      "batch": "P5",
+      "cards": [
+        "P5.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "5019b3a8f80c0aa1d64471be1272e6a179b35090e92209386405a1e2e6089548",
+      "current_source_sha256": "5019b3a8f80c0aa1d64471be1272e6a179b35090e92209386405a1e2e6089548",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "tools/r31/run_phone_report_android.sh",
+      "batch": "P5",
+      "cards": [
+        "P5.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "e9c845986b202b4c8c00047b2c36b34e6c4b0a33189c0694427937cfdada1de0",
+      "current_source_sha256": "e9c845986b202b4c8c00047b2c36b34e6c4b0a33189c0694427937cfdada1de0",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "tools/r31/test_package_release.py",
+      "batch": "P5",
+      "cards": [
+        "P5.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "8060f1e37941512dd6709cdc886eb86c89da39ffa4958508701b657552b60ad2",
+      "current_source_sha256": "8060f1e37941512dd6709cdc886eb86c89da39ffa4958508701b657552b60ad2",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    },
+    {
+      "path": "tools/r31/upgrade_matrix.py",
+      "batch": "P5",
+      "cards": [
+        "P5.01"
+      ],
+      "declared_action": "WRITE",
+      "baseline_sha256": "4809a67602bc1a48dc7474db6c15b84ea4a9dadd443f45e9d4f47bf135715e50",
+      "current_source_sha256": "4809a67602bc1a48dc7474db6c15b84ea4a9dadd443f45e9d4f47bf135715e50",
+      "baseline_source_exists": true,
+      "candidate_code": null,
+      "code_coverage_state": "R32_1_EXISTING_SOURCE_PRESERVED_REMAINING_SCOPE_UNASSESSED",
+      "implementation_state": "NOT_VERIFIED",
+      "test_state": "NO_PER_PATH_EXECUTION_RECEIPT",
+      "proof_failures": [
+        "no explicit per-file implementation/reuse proof"
+      ]
+    }
+  ]
+}

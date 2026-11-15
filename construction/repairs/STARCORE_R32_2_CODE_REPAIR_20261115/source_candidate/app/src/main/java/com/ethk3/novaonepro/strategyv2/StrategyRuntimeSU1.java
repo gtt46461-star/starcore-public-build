@@ -1,0 +1,34 @@
+package com.ethk3.novaonepro.strategyv2;
+
+import android.util.Log;
+import com.ethk3.novaonepro.*;
+
+/** Optional research boundary. Failures are diagnosed and the durable pending ledger is retained. */
+public final class StrategyRuntimeSU1 {
+    private StrategyRuntimeSU1() {}
+    public static void failure(DbStore store,String phase,RuntimeException failure){
+        Log.w("STARCORE_SU1",phase,failure);
+        try{if(StrategySchemaSU1.ready(store.readable()))store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_HEALTH",db->{StrategyRepositorySU1.health(db,phase,"CATEGORY="+ResearchFailureSU1.observe(failure).category+"|CODE="+ResearchFailureSU1.observe(failure).code+"|"+DiagnosticsSU1.cause(failure,1400),0);return 0;});}
+        catch(RuntimeException unavailable){Log.w("STARCORE_SU1","health receipt deferred",unavailable);}
+    }
+    public static void capture(DbStore store,String target){
+        if(StrategySchemaSU1.ready(store.readable())&&StrategyRepositorySU1.exists(store.readable(),"SELECT 1 FROM su1_runtime_control WHERE singleton=1 AND mode='DISABLED' AND reason='USER_CONTROL'"))return;
+        try{LiveShadowLoopSU1.capture(store,target);EvidenceLoopSU1.capture(store,target);}catch(BudgetTokenSU1.Yield yield){failure(store,"PREDRAW_YIELD",yield);}
+        catch(RuntimeException failed){failure(store,"PREDRAW_FAILED",failed);}
+        try{LivePoolR26.capture(store,target);}catch(RuntimeException failed){failure(store,"R26_PREDRAW_FAILED",failed);}
+        // R13-P06: every SU2 strategy decides every period (act or not); frozen before open
+        try{ModelLiveLoopSU2.capture(store,target);}catch(RuntimeException failed){failure(store,"SU2_PREDRAW_FAILED",failed);}
+    }
+    public static void completed(DbStore store,Models.Draw draw,String hash,long completedAt){
+        if(!StrategySchemaSU1.ready(store.readable()))return;
+        try{if(StrategySchemaSU1.ready(store.readable()))store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_COMPLETED_BRIDGE",db->{int live=LiveShadowLoopSU1.settleWithin(db,draw,hash,completedAt);
+            // R13-P06: same owner transaction - every SU2 decision of this period is labelled, then models train
+            try{live+=ModelLiveLoopSU2.settleWithin(db,draw,completedAt);}catch(java.io.IOException checkpoint){throw new IllegalStateException("SU2_CHECKPOINT",checkpoint);}
+            return live+EvidenceLoopSU1.settleWithin(db,draw,hash,completedAt);});
+            IncumbentLoopSU2.scheduleAfterSettlement(store,draw.issue);   // R13-P03: incumbent decision for the next target
+        }
+        catch(RuntimeException failed){failure(store,"SETTLEMENT_PENDING_RECOVERY",failed);}
+        try{long deadline=System.nanoTime()+150000000L;for(int i=0;i<32&&System.nanoTime()<deadline;i++){if(SettlementExecutionGateR819.isActive()||RealtimePressureGateR811.isUnderPressure()||!ResearchFeedbackSU1.drainOne(store))break;}}
+        catch(RuntimeException pending){failure(store,"FEEDBACK_PENDING_RECOVERY",pending);}
+    }
+}

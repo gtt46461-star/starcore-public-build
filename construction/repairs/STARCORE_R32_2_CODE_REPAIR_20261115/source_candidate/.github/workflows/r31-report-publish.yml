@@ -1,0 +1,100 @@
+name: STARCORE R31 report-only direct delivery
+'on':
+  push:
+    branches:
+    - construction/r31-final-20261104
+    paths:
+    - release/R31_REPORT_PUBLISH_REQUEST.json
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - id: request
+      run: |
+        python3 - <<'PYREQUEST'
+        import json,os,re
+        r=json.load(open('release/R31_REPORT_PUBLISH_REQUEST.json'))
+        r['reportRunId']=r.get('reportRunId',r['runId'])
+        r['verificationRunId']=r.get('verificationRunId',r['runId'])
+        r['verificationArtifact']=r.get('verificationArtifact','r31-verification-receipt')
+        for key in ['runId','reportRunId','verificationRunId']:assert str(r[key]).isdigit()
+        for key in ['artifact','reportArtifact','verificationArtifact']:assert re.fullmatch('[A-Za-z0-9_.-]{1,160}',r[key])
+        r['cumulative']='true' if r.get('scope')=='R31_CUMULATIVE_ENGINEERING_DELIVERY' else 'false'
+        with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+            for key in ['runId','reportRunId','artifact','reportArtifact','verificationRunId','verificationArtifact','cumulative']:
+                out.write(key+'='+str(r[key])+'\n')
+        PYREQUEST
+    - uses: actions/download-artifact@v4
+      with:
+        name: ${{ steps.request.outputs.artifact }}
+        run-id: ${{ steps.request.outputs.runId }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path: built
+    - uses: actions/download-artifact@v4
+      with:
+        name: ${{ steps.request.outputs.reportArtifact }}
+        run-id: ${{ steps.request.outputs.reportRunId }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path: reports
+    - uses: actions/download-artifact@v4
+      if: steps.request.outputs.cumulative == 'true'
+      with:
+        name: ${{ steps.request.outputs.verificationArtifact }}
+        run-id: ${{ steps.request.outputs.verificationRunId }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path: verification
+    - name: Verify original signed APK and actual UI/SAF evidence
+      run: |
+        set -euo pipefail
+        B="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+        python3 - <<'PY'
+        import hashlib,json,pathlib,re
+        request=json.load(open('release/R31_REPORT_PUBLISH_REQUEST.json'))
+        if request.get('sha256') == 'FROM_ACCEPTED_RELEASE_RECEIPT':
+            assert request['versionCode'] == 577311026
+            assert request['sourceCommit'] == '3002e30d0ee8d5fe3a8795c2ed3b2f7040920f50'
+            results=list(pathlib.Path('reports').rglob('REPORT_ONLY_RESULT.json'))
+            assert len(results)==1
+            result=json.loads(results[0].read_text())
+            assert result['result']=='PASS' and result['sourceCommit']==request['sourceCommit']
+            assert int(result['runId'])==int(request.get('reportRunId',request['runId']))
+            digest=result['apkSha256'];assert re.fullmatch('[a-f0-9]{64}',digest)
+            apks=list(pathlib.Path('built').rglob(request['builtApk']));assert len(apks)==1
+            with apks[0].open('rb') as stream:actual=hashlib.file_digest(stream,'sha256').hexdigest()
+            assert actual==digest
+            request['sha256']=digest
+        pathlib.Path('effective-report-request.json').write_text(json.dumps(request,ensure_ascii=False,indent=2)+'\n')
+        PY
+        python3 -B tools/r31/publish_report_package.py --request effective-report-request.json --built built --reports reports --out pub --build-tools "$B" --verification verification
+    - name: Publish the accepted bytes as direct APK and ZIP downloads
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        python3 - <<'PY'
+        import json,os,pathlib,shutil,subprocess
+        r=json.load(open('release/R31_REPORT_PUBLISH_REQUEST.json'))
+        pathlib.Path('notes.txt').write_text(r['notes'])
+        publication=subprocess.run(['gh','release','create',r['tag'],*map(str,pathlib.Path('pub').iterdir()),'--target',r['sourceCommit'],'--title',r['title'],'--notes-file','notes.txt'])
+        if publication.returncode == 0:
+            subprocess.run(['gh','release','view',r['tag'],'--json','assets','--jq','.assets[]|.name+" "+.url'],check=True)
+        else:
+            # Match the existing final publisher's immutable delivery-branch fallback.
+            branch='delivery/'+r['tag']
+            folder=pathlib.Path(os.environ['RUNNER_TEMP'])/'report-delivery'
+            shutil.copytree('pub',folder)
+            def git(*args): subprocess.run(['git',*args],cwd=folder,check=True)
+            git('init','-q');git('checkout','-q','-b',branch);git('add','-A')
+            git('-c','user.name=github-actions','-c','user.email=github-actions@users.noreply.github.com','commit','-q','-m','delivery: verified report release '+r['sourceCommit'])
+            # The checkout's scoped credentials apply through its existing repository config.
+            git('config','include.path',str(pathlib.Path('.git/config').resolve()))
+            git('push','-q','https://github.com/'+os.environ['GITHUB_REPOSITORY']+'.git','HEAD:refs/heads/'+branch)
+            for name in [r['apk'],r['zipName'],'R31_REPORT_DELIVERY.json','PACKAGE_SHA256.txt']:
+                print('https://github.com/'+os.environ['GITHUB_REPOSITORY']+'/raw/refs/heads/'+branch+'/'+name)
+        PY

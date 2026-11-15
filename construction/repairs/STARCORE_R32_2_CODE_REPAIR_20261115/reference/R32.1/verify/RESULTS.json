@@ -1,0 +1,138 @@
+{
+  "scope": "DESIGN_AND_PATCH_HOST_VALIDATION_ONLY",
+  "baselineApp": "51667a1236742b9bee8e1a8903c26358727d7c81",
+  "baselineConstruction": "944ffcd089b6bba1d3d2fdd389e386bdf51bc4c7",
+  "apkVersionCode": 577311032,
+  "apkSha256": "876f26e81114acfa3d2fa2d023b2e36309bec6dde3ef32f0e87c562b48d165ac",
+  "deviceExportPackageHashes": [
+    {
+      "name": "STARCORE-32614314904282382075c157c18e222c633fb81091e.zip",
+      "sha256": "b41d2ddfd62c9041351850973188fabeeb4eaca461579165ade2610e01441736",
+      "bytes": 15212317
+    },
+    {
+      "name": "STARCORE-425bdaed925b5ff67c99847a3dc8e30bea959dd27d8.zip",
+      "sha256": "0ebba01fb6df9e3954ab38bd15fcfe2f382bfe908b2215a2e6231799f7c10487",
+      "bytes": 15561142
+    }
+  ],
+  "planVerification": {
+    "structural_checks": "PASS",
+    "negative_plan_mutations_rejected": 5,
+    "production_anchor_bindings": 102,
+    "unique_owned_paths": 1377,
+    "registered_sql_compared": 16,
+    "batches": 5,
+    "repair_cards": 18,
+    "original_and_unified_cards": 78,
+    "items": 222,
+    "source_files": 1308,
+    "patch_paths": 17,
+    "patch_round_trip": true
+  },
+  "uniqueOwnedPaths": 1377,
+  "batchLocalOriginalChecks": {
+    "P1": 31,
+    "P2": 58,
+    "P3": 22,
+    "P4": 63,
+    "P5": 15
+  },
+  "futureDependentConstructionSignoffs": 0,
+  "patchMap": {
+    "P1.patch": "d766a0ade03a4996b627b206c54c4c297ebf8e2c7cfab227486c75304069c214",
+    "P2.patch": "b4085b600ba43db6e0234aa2305d31bf5728e2f3de952d7e470d78cb7147149f",
+    "P3.patch": "760d630c26deaedb983cff8e8d7f6221924d683aeddd56e77edc11ef7ee1d20c",
+    "P4.patch": "08acc885c89edd0d538232597cbc40c8dc3078aa17f4c6212e9038d673bc09aa",
+    "P5.patch": "eed27c2928a505b582b62a431646e958074830650ad7cbbcde9f2a588888ba51"
+  },
+  "java": {
+    "originalProductionJava": 1308,
+    "patchedProductionJava": 1309,
+    "compiler": "JDK 21 javac -source 17 -target 17",
+    "SDK36_reference_jar_sha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a",
+    "exitCode": 0,
+    "warnings": 11,
+    "hostOnlyGeneratedOrStubbedDeclarations": [
+      "BuildConfig",
+      "R",
+      "BuildSourceIdentityCP12",
+      "RequiresApi",
+      "ChecksSdkIntAtLeast"
+    ],
+    "trackedGeneratedNumericalClass": "ResearchSemanticsGeneratedR967.java from source repository; production ABI regeneration remains required at actual build",
+    "gradleApkBuild": "NOT_RUN_PLAN_DELIVERY",
+    "rehearsal": "compile_rehearsal.py, host-only Android type declarations; 11 original-source warnings in the rehearsal"
+  },
+  "host": {
+    "assertionsExecuted": 66,
+    "log": "HOST_PROBE.log",
+    "input": "index_fixture.json",
+    "sqlite": "PASS targeted partial table, original row and immutable hypothesis accounting; DDL emitted by real class",
+    "hypothesisDeclarationCount": 25,
+    "packagingCases": 12,
+    "logicalQueriesCompared": 16,
+    "verifiedOriginalReportPair": "PASS, every newly observed issue and cover status compared in both original ZIPs",
+    "fieldComparison": "../ledger/field_032.json",
+    "streakProbabilityFor250IndependentActs": {
+      "0.3": 0.00046981894675575354,
+      "0.34": 0.004700246670405911,
+      "0.37": 0.017514441239608183,
+      "0.4": 0.049297222781024067,
+      "0.45": 0.16995756923340194,
+      "0.5": 0.37309511315275307
+    },
+    "androidUpgradeScript": "verify_overlay_032.py; not run on Android in this plan delivery",
+    "originalJavaAssertions": 35,
+    "newJavaAssertions": 31,
+    "continuationFixture": "summary_fixture_032.json",
+    "quotaRecount": {
+      "productionSqliteDeclarations": 25,
+      "tables": 4,
+      "originalRowsPerTable": 131,
+      "totalOldRows": 524,
+      "pageLimit": 64,
+      "hostSqliteAssertions": 20,
+      "pageSizesPerTable": [
+        64,
+        64,
+        3
+      ],
+      "exactTriggerTotalRestored": true
+    },
+    "sampledSameBuild": {
+      "retainedDraws": 32,
+      "retainedSettledPredraw": 32,
+      "fourNegativeChecks": true,
+      "androidUpgradeProven": false
+    }
+  },
+  "androidRuntime": "NOT_RUN_FOR_PROPOSED_PATCHES",
+  "naturalQuality": "NOT_PROVEN",
+  "release": "PLAN_ONLY",
+  "revision": "R32.1_032_SOURCE_AND_ACCEPTANCE_REVIEW_20261115",
+  "earlierR32Draft": "97f2681b1463216403f241eff35f34e71ce54795",
+  "baselineSigningCertificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+  "baselineApkBytes": 29082161,
+  "supersedesPlanCommit": "75d7b905540947ef1761b3a15e10fafac95fc9d1",
+  "qualificationProtocols": [
+    "R27_GATE_V1",
+    "R26_PREREGISTERED_AGGREGATE_LCB_V3"
+  ],
+  "receiptMeaning": "Source rehearsal and deterministic host observations only. Actual Android upgrade, device longevity and natural future results are separate evidence tiers.",
+  "semanticVerification": {
+    "accepted": 222,
+    "productionCases": 18,
+    "reassignedOriginalClauses": 34,
+    "localByBatch": {
+      "P1": 31,
+      "P2": 58,
+      "P3": 22,
+      "P4": 63,
+      "P5": 15
+    },
+    "semanticNegativeMutationsRejected": 4
+  },
+  "testCommands": "README.md",
+  "fieldPairVerified": true
+}

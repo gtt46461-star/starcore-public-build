@@ -1,0 +1,117 @@
+# R31 construction gate CI fallback (installed as .github/workflows/r31-gate.yml on construction/r31-final-20261104).
+# Runs the same full build as `r31_gate.py build` and uploads BUILD_SUMMARY.json; then locally:
+#   git pull; r31_gate.py close --batch Kxx   (the job commits BUILD_SUMMARY.json back to the branch)
+# No emulator, no signing, no release identity freeze. Evidence-only pushes do not trigger it.
+# SDK setup copies r30.yml (setup-android with explicit packages; without them sdkmanager fails on 'tools').
+name: STARCORE R31 construction gate
+on:
+  push:
+    branches: ['construction/r31-final-20261104']
+    paths-ignore: ['construction/**', 'verification/**', '**/*.md', 'release/R31_PUBLISH_REQUEST.json', 'release/R31_REPORT_PUBLISH_REQUEST.json', 'release/R31_LIVE_PROFILE_REQUEST.json', 'release/R31_DELIVERY.json']
+  workflow_dispatch:
+    inputs:
+      batch:
+        description: Batch id (default = open batch)
+        required: false
+permissions:
+  contents: write
+concurrency:
+  group: r31-gate-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+      - uses: actions/cache@v4
+        with:
+          path: ~/.gradle/wrapper/dists
+          key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+      - name: Gradle distribution (cached; fetched with retries; a download timeout is infrastructure, not a result)
+        run: for i in 1 2 3 4 5 6 7 8; do ./gradlew --no-daemon --version > /dev/null && exit 0; echo "gradle distribution attempt $i failed"; sleep $((i*45)); done; exit 1
+      - name: Gate build
+        run: |
+          G=construction/STARCORE_R31_FINAL_20261104/tools/r31_gate.py
+          BATCH="${{ github.event.inputs.batch }}"
+          if [ -z "$BATCH" ]; then BATCH=$(python3 $G status | python3 -c 'import json,sys; print(json.load(sys.stdin).get("open_batch") or "K11")'); fi
+          # Once K11 is closed, later source repairs still need the full suite.
+          # This refreshes build evidence only; historical receipts are not rewritten.
+          echo "BATCH=$BATCH" >> "$GITHUB_ENV"
+          # Logs committed by an earlier (possibly cancelled) run are rewritten during this build. Untrack them first,
+          # otherwise a partial log equal to Gradle's fixed banner flips source_dirty between configuration and check.
+          git rm -r -q --cached --ignore-unmatch "verification/r31/batches/$BATCH/logs" || true
+          R31_INVOCATION_ID=$(python3 -c 'import uuid;print(uuid.uuid4())')
+          export R31_INVOCATION_ID
+          echo "R31_INVOCATION_ID=$R31_INVOCATION_ID" >> "$GITHUB_ENV"
+          set +e
+          python3 -B tools/r31/run_current_acceptance.py --batch "$BATCH"
+          current_build_exit=$?
+          set -e
+          L=verification/r31/batches/$BATCH/logs/gradle.log
+          if [ -f "$L" ]; then
+            { echo '### gradle failures'; echo '```'; grep -n -A12 -E "What went wrong|FAILED$" "$L" | head -150; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+            grep -n -A12 -E "What went wrong" "$L" | head -80 || true
+          fi
+          S=verification/r31/batches/$BATCH/BUILD_SUMMARY.json
+          if [ -f "$S" ]; then
+            python3 - "$S" <<'PY'
+          import json, sys
+          s = json.load(open(sys.argv[1]))
+          for k, v in sorted(s["tests"].items()):
+              if v["status"] != "PASS": print("R31_FAILED_TEST", k, v["status"], v["message"][:300])
+          for h in s["host_failed"]: print("R31_FAILED_HOST", h)
+          PY
+            for h in $(python3 -c "import json;print(' '.join(json.load(open('$S'))['host_failed']))"); do
+              echo "== host_$h.log (tail)"; tail -40 "verification/r31/batches/$BATCH/logs/host_$h.log" || true
+            done
+          fi
+          # The job result must describe this build, never an old green summary.
+          python3 - "$S" "$GITHUB_SHA" "$R31_INVOCATION_ID" "$current_build_exit" <<'PYRESULT'
+          import json,sys,os
+          s=json.load(open(sys.argv[1]))
+          assert s['source_head']==sys.argv[2], 'STALE_BUILD_SUMMARY'
+          assert s['invocationId']==sys.argv[3] and s['runId']==os.environ['GITHUB_RUN_ID'], 'STALE_INVOCATION'
+          assert sys.argv[4]=='0' and s['exitCode']==0, 'CURRENT_COMMAND_FAILED'
+          assert s['state']=='PASS_ENGINEERING_ONLY' and not s['problems'], s['problems']
+          assert s['gradle']['state']=='PASS', s['gradle']
+          assert s['unit']['tests']>0 and s['unit']['failures']==s['unit']['errors']==0, s['unit']
+          assert not s['host_failed'], s['host_failed']
+          PYRESULT
+      - name: Commit build summary back to the branch
+        if: always()
+        run: |
+          git config user.name  "r31-gate-ci"
+          git config user.email "r31-gate-ci@users.noreply.github.com"
+          git add -f "verification/r31/batches/$BATCH"
+          git commit -q -m "evidence(r31/$BATCH): CI build summary for ${GITHUB_SHA::12} [skip ci]" || exit 0
+          # HOST tools rewrite tracked receipts under verification/r31/p0x; they are not batch evidence.
+          git stash -q --include-untracked || true
+          for i in 1 2 3 4 5; do
+            # A superseded run may already have committed this batch's logs; this run's evidence wins.
+            git pull -q --rebase -X theirs origin "$GITHUB_REF_NAME" && git push -q origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            git rebase --abort 2>/dev/null || true
+            sleep 15
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r31-gate-${{ env.BATCH }}-${{ github.sha }}
+          path: verification/r31/batches/
+          retention-days: 30

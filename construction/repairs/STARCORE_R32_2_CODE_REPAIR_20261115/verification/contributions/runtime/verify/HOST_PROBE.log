@@ -1,0 +1,10 @@
+PASS empty durable DB requests sole history lane
+PASS gapped durable tail reconstructs next target without callback
+PASS new process with identical committed rows reconstructs same intent
+PASS new durable head supersedes old target
+PASS exact minimum suffix ends recovery
+PASS twelve scattered rows do not masquerade as continuous suffix
+PASS conflicting provider rows retain recovery instead of certifying readiness
+PASS cross-day latest target follows production resolver
+PASS reconstruction does not mutate supplied evidence
+PASS_COUNT=9

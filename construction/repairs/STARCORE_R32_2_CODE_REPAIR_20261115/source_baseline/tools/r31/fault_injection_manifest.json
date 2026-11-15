@@ -1,0 +1,53 @@
+{
+ "format": "R31_FAULT_INJECTION_MANIFEST_V1",
+ "card": "R31-B12-C02",
+ "rule": "Every scenario names the exact injection, the invariants it must keep and the tests that execute it. executed_by entries are HOST_SUITE ids (HOST:<id>) or JUnit ids (pkg.Class#method); tools/r31/verification_receipt.py --check-manifest refuses an id that does not exist. HOST is native SQLite, never ART; the android column stays NOT_RUN until r31-verification.yml instrumentation actually runs it.",
+ "invariants": {
+  "NO_DUPLICATE_OWNER_COMMIT": "r31_commit_receipt and every owner artifact are unique per task/owner/fence/chunk; a superseded owner lands nothing",
+  "NO_DUPLICATE_SETTLEMENT": "a frozen prediction is settled once; settled_at never moves on re-entry",
+  "NO_OUT_OF_RANGE_PREDICTION": "position and numbers in 1..10, distinct, probabilities present, hit in {-2,-1,0,1}",
+  "NO_PROTECTED_ASSET_DELETION": "draws, certificates, frozen predictions, mainline choice and its legacy projection are never deleted by GC, retry or migration",
+  "RESUME_EQUALS_UNINTERRUPTED": "after a kill the resumed run reaches the state of the uninterrupted run with no step applied twice"
+ },
+ "scenarios": [
+  {"id": "F01_LOCK_CONTENTION", "fault": "two owners on two connections commit concurrently through the sole writer",
+   "injection": "R31FullChainFaultHost.contention: 2 threads x 24 owned commits; SQLite busy_timeout; DatabaseCoordinator static writer lock",
+   "invariants": ["NO_DUPLICATE_OWNER_COMMIT"], "executed_by": ["HOST:run_full_chain_fault_host", "HOST:run_write_protocol_host"], "android": "NOT_RUN"},
+  {"id": "F02_PROCESS_DEATH", "fault": "JVM halt (no finally, no commit) immediately before a native COMMIT / at every upgrade cut point",
+   "injection": "R31FullChainFaultHost child JVM halts before commit k in {1,3,6,10,14,18,22}; upgrade_matrix halts at every durable cut point",
+   "invariants": ["NO_DUPLICATE_OWNER_COMMIT", "NO_DUPLICATE_SETTLEMENT", "NO_PROTECTED_ASSET_DELETION", "RESUME_EQUALS_UNINTERRUPTED"],
+   "executed_by": ["HOST:run_full_chain_fault_host", "HOST:run_upgrade_matrix_host", "HOST:run_evolution_publication_host"], "android": "NOT_RUN"},
+  {"id": "F03_STALE_FENCE", "fault": "an owner superseded by the production fenced retry keeps running",
+   "injection": "R31FullChainFaultHost.staleLateCommit: ResearchPoolR27.retry then requireFence with the old claim",
+   "invariants": ["NO_DUPLICATE_OWNER_COMMIT"], "executed_by": ["HOST:run_full_chain_fault_host", "HOST:run_task_runtime_host"], "android": "NOT_RUN"},
+  {"id": "F04_DISK_FULL", "fault": "SQLITE_FULL at commit / usable space below the upgrade floor",
+   "injection": "GC commit throws 'database or disk is full' before COMMIT; upgrade DiskProbe returns 1 byte",
+   "invariants": ["NO_PROTECTED_ASSET_DELETION", "RESUME_EQUALS_UNINTERRUPTED"], "executed_by": ["HOST:run_full_chain_fault_host", "HOST:run_upgrade_matrix_host"], "android": "NOT_RUN"},
+  {"id": "F05_OUT_OF_ORDER", "fault": "later draws arrive before earlier ones; settlement re-entered",
+   "injection": "R31FullChainFaultHost.settlement: targets 4,3 then 1,2; injected failed settlement commit; two extra passes",
+   "invariants": ["NO_DUPLICATE_SETTLEMENT", "NO_OUT_OF_RANGE_PREDICTION"], "executed_by": ["HOST:run_full_chain_fault_host"], "android": "NOT_RUN"},
+  {"id": "F06_CLOCK_JUMP", "fault": "24h wall/elapsed clock jump while tasks are quarantined",
+   "injection": "R31TaskRuntimeHost.clockJumpReleasesOnePerSecond",
+   "invariants": ["NO_DUPLICATE_OWNER_COMMIT"], "executed_by": ["HOST:run_task_runtime_host"], "android": "NOT_RUN"},
+  {"id": "F07_CHART_TIMEOUT", "fault": "one chart panel times out or fails while the page loads",
+   "injection": "R31ChartRegistryTest: one blocked panel exceeds its budget while the others load in budget; R31ChartPageHost: oversized/broken/wrong-ABI frames and a draw-input read failure stay isolated to their panel",
+   "invariants": ["NO_PROTECTED_ASSET_DELETION"], "executed_by": ["com.ethk3.novaonepro.R31ChartRegistryTest#oneBlockedOrMalformedPanelLeavesTheOthersInBudget", "HOST:r30repair_chart_page"], "android": "NOT_RUN"},
+  {"id": "F08_TRAINING_RESUME", "fault": "training/evolution interrupted mid-slice and resumed",
+   "injection": "verify_memory resume mode; verify_continuation slice kill/resume",
+   "invariants": ["RESUME_EQUALS_UNINTERRUPTED"], "executed_by": ["HOST:verify_memory", "HOST:verify_continuation"], "android": "NOT_RUN"},
+  {"id": "F09_LATE_COMMIT", "fault": "a commit prepared under an old fence arrives after takeover",
+   "injection": "R31FullChainFaultHost.staleLateCommit late INSERT with the superseded claim",
+   "invariants": ["NO_DUPLICATE_OWNER_COMMIT"], "executed_by": ["HOST:run_full_chain_fault_host", "HOST:run_writer_hold_fault_host"], "android": "NOT_RUN"},
+  {"id": "F10_DUPLICATE_CONSUME", "fault": "a research result is consumed again after a restart; a late label arrives",
+   "injection": "R31FullChainFaultHost.productConsumption two rounds plus every kill/resume",
+   "invariants": ["RESUME_EQUALS_UNINTERRUPTED"], "executed_by": ["HOST:run_full_chain_fault_host", "com.ethk3.novaonepro.strategyv2.R31ResearchResultContractTest#lateLabelsWrongAbiRevisionParentAndRepeatedConsumptionAreRefused"], "android": "NOT_RUN"}
+ ],
+ "combinations": {
+  "B01+B02": "owner claim/fence + immutable write protocol (F01, F03, F09)",
+  "B03+feedback": "settlement with out-of-order draws and failed commit (F05, F02)",
+  "B05+B10": "DISPLAY-only GC + persistent mainline choice (F04)",
+  "B08+B09": "research product + consumer (F10)",
+  "shared": "all four run on one database file and one source commit in R31FullChainFaultHost; the process-death cases reopen that same file"
+ },
+ "android_matrix": {"workflow": ".github/workflows/r31-verification.yml", "job": "instrumentation", "api_levels": [29, 35], "items": ["R31-B12-C01#A1b", "R31-B12-C01#A2", "R31-B12-C02#A3b"]}
+}

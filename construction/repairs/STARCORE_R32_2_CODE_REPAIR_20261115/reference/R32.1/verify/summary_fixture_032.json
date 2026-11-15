@@ -1,0 +1,148 @@
+[
+  {
+    "input": "STARCORE-32614314904282382075c157c18e222c633fb81091e.zip",
+    "expectedPrepared": 2640,
+    "chapters": [
+      {
+        "sectionId": "R30_04",
+        "data": {
+          "tasks": [
+            {
+              "task_id": "foundry-su2",
+              "steps": 408,
+              "cursor": 4119,
+              "status": "BLOCKED",
+              "blocked_reason": "SchemaPendingR31:SCHEMA_PENDING:R31_HYPOTHESIS_STORE_1:QUOTA_MISSING"
+            },
+            {
+              "task_id": "r27-replay-dataset",
+              "steps": 3,
+              "cursor": 3597847,
+              "status": "RUNNING",
+              "blocked_reason": "DEPENDENCY:category=DEPENDENCY;cause=WriteRejectedR31:F01_WRITE_FAILED|operation=R27_REPLAY_KNOWLEDGE_RECOVERY|category=DEPENDENCY|phase=END|commitOutcome=ROLLED_BACK;fingerprint=32b7a9b1500cb4bc99a8e74b5d5d7510a2c7284df124386b9947482255a8cb00;operation=R27_REPLAY_KNOWLEDGE_RECOVERY;commit=ROLLED_BACK"
+            },
+            {
+              "task_id": "r27-evolution",
+              "steps": 4,
+              "cursor": 13,
+              "status": "BLOCKED",
+              "blocked_reason": "DEPENDENCY:DEPENDENCY(DEPENDENCY(r27-replay-dataset))"
+            }
+          ]
+        }
+      },
+      {
+        "sectionId": "R30_01",
+        "commonMetrics": {
+          "activeCertificates": 0,
+          "evolutionAttempts": 50,
+          "futureActs": 0,
+          "futureHits": 0,
+          "futurePeriods": 0,
+          "independentFutureIssues": 0,
+          "policyObjects": 0,
+          "qualifiedExperiments": 0
+        }
+      },
+      {
+        "sectionId": "R30_06",
+        "data": {
+          "neuralTraining": {
+            "payload": {
+              "materializedSamples": 2640,
+              "trainingSamplesProcessed": 0,
+              "onlineSamples": 0,
+              "completeTrainedThroughOrdinal": null,
+              "publicationReady": false,
+              "consumable": false
+            }
+          }
+        }
+      }
+    ],
+    "legacy": {
+      "findings": [
+        {
+          "code": "S4",
+          "scope": "",
+          "severity": "P2",
+          "value": 0.0,
+          "prescription": ""
+        }
+      ]
+    }
+  },
+  {
+    "input": "STARCORE-425bdaed925b5ff67c99847a3dc8e30bea959dd27d8.zip",
+    "expectedPrepared": 3150,
+    "chapters": [
+      {
+        "sectionId": "R30_04",
+        "data": {
+          "tasks": [
+            {
+              "task_id": "foundry-su2",
+              "steps": 408,
+              "cursor": 4119,
+              "status": "BLOCKED",
+              "blocked_reason": "SchemaPendingR31:SCHEMA_PENDING:R31_HYPOTHESIS_STORE_1:QUOTA_MISSING"
+            },
+            {
+              "task_id": "r27-replay-dataset",
+              "steps": 3,
+              "cursor": 3597847,
+              "status": "BLOCKED",
+              "blocked_reason": "DEPENDENCY:category=DEPENDENCY;cause=WriteRejectedR31:F01_WRITE_FAILED|operation=R27_REPLAY_KNOWLEDGE_RECOVERY|category=DEPENDENCY|phase=ADMISSION|commitOutcome=ROLLED_BACK;fingerprint=ccb287110f82d3af476d05d24f7bdfe13f9e527fd2858de71e8f9e6c45a2a2cb;operation=R27_REPLAY_KNOWLEDGE_RECOVERY;commit=ROLLED_BACK"
+            },
+            {
+              "task_id": "r27-evolution",
+              "steps": 4,
+              "cursor": 13,
+              "status": "BLOCKED",
+              "blocked_reason": "DEPENDENCY:DEPENDENCY(DEPENDENCY(r27-replay-dataset))"
+            }
+          ]
+        }
+      },
+      {
+        "sectionId": "R30_01",
+        "commonMetrics": {
+          "activeCertificates": 0,
+          "evolutionAttempts": 50,
+          "futureActs": 0,
+          "futureHits": 0,
+          "futurePeriods": 0,
+          "independentFutureIssues": 0,
+          "policyObjects": 0,
+          "qualifiedExperiments": 0
+        }
+      },
+      {
+        "sectionId": "R30_06",
+        "data": {
+          "neuralTraining": {
+            "payload": {
+              "materializedSamples": 3150,
+              "trainingSamplesProcessed": 0,
+              "onlineSamples": 0,
+              "completeTrainedThroughOrdinal": null,
+              "publicationReady": false,
+              "consumable": false
+            }
+          }
+        }
+      }
+    ],
+    "legacy": {
+      "findings": [
+        {
+          "code": "S4",
+          "scope": "",
+          "severity": "P2",
+          "value": 0.0,
+          "prescription": ""
+        }
+      ]
+    }
+  }
+]

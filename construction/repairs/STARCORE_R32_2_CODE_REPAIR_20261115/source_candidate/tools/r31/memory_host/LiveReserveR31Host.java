@@ -1,0 +1,18 @@
+package com.ethk3.novaonepro.strategyv2;
+
+import java.util.*;
+
+/** Actual JVM heap pressure from a registered, strongly held owner; no forced collection or Probe substitution. */
+public final class LiveReserveR31Host {
+    private static void require(boolean ok,String message){if(!ok)throw new AssertionError(message);}
+    @SuppressWarnings("unchecked") public static void main(String[] args){
+        MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();long max=Runtime.getRuntime().maxMemory();require(max==512L*1024*1024,"requires unchanged 512m default maximum");int payload=(int)(max*.64);MemoryBudgetR31.Admission held=memory.tryAcquire("host-registered-pressure-owner",MemoryBudgetR31.Kind.CHECKPOINT,payload,()->false);require(held.acquired(),"pressure owner must be admitted before allocation");byte[] pressure=new byte[payload];pressure[0]=7;pressure[payload-1]=11;held.lease.allocatedPrimitiveArrayR31(pressure);
+        FeatureCacheR27 cache=new FeatureCacheR27(ReplayDatasetR27.synthetic(5000,3188,null));PolicyAstR27.Node ast=PolicyAstR27.op("zscore",PolicyAstR27.leaf("freqnb",1,32));PolicySpecR27 spec=new PolicySpecR27(ast,1,PolicySpecR27.Rule.ALWAYS,0,.15,1,false,.01,.001,null);Map<String,Object> out=new LinkedHashMap<>();
+        try{memory.sample();Map<String,Object> before=memory.snapshot();long heap=((Number)before.get("heapUsedBytes")).longValue();require(heap>max*.60&&heap<max*.75,"held real heap must exhaust optional headroom without reaching high water");
+            String wait=null;try(PolicyAstR27.ScopedScoresR31 ignored=PolicyAstR27.evalScopedR31(ast,cache,1)){throw new AssertionError("research must not spend reserved realtime bytes");}catch(MemoryBudgetR31.CapacityWait expected){wait=expected.reason.name();require(expected.reason==MemoryBudgetR31.WaitReason.DECLARED_CAPACITY,"actual optional capacity reason");}
+            double[] forecast=ReplayEvaluatorR27.predictNext(spec,cache,1);double sum=0;for(int i=0;i<10;i++){require(Double.isFinite(forecast[i]),"live probabilities must exist");sum+=forecast[i];}require(Math.abs(sum-1)<1e-9,"probability normalization");require(forecast[10]!=forecast[11]&&forecast[11]!=forecast[12]&&forecast[10]!=forecast[12],"live K3 must remain distinct");memory.sample();Map<String,Object> live=memory.snapshot();Map<String,Object> kinds=(Map<String,Object>)live.get("declaredByKind");require(((Number)kinds.get("REALTIME")).longValue()>=4*400000L,"cold shared leaf, two raw dependencies and output scratch must all use explicit realtime reserve");require(pressure[0]==7&&pressure[payload-1]==11,"pressure owner must still actually hold its input");
+            cache.trimUnusedR31();try(PolicyAstR27.ScopedScoresR31 ignored=PolicyAstR27.evalScopedR31(ast,cache,1)){throw new AssertionError("live critical context leaked into history");}catch(MemoryBudgetR31.CapacityWait expected){require(expected.reason==MemoryBudgetR31.WaitReason.DECLARED_CAPACITY,"history remains optional after live scope exits");}
+            out.put("scope","HOST_REAL_DEFAULT_RUNTIME_PROBE_REAL_HEAP_PRESSURE_NOT_DEVICE_OR_QUALITY");out.put("maxHeapBytes",max);out.put("registeredPressurePayloadBytes",payload);out.put("before",before);out.put("optionalWait",wait);out.put("live",live);out.put("prediction",forecast);out.put("criticalContextRestored",true);out.put("forcedGc",false);out.put("inputRole","SYNTHETIC_ENGINEERING_FAULT_INJECTION");out.put("naturalQuality","NOT_EVALUATED");out.put("releaseMeaning","OWNER_CLOSE_NOT_MEASURED_HEAP_FREE");
+        }finally{cache.close();held.lease.close();}memory.sample();out.put("afterOwnerClose",memory.snapshot());System.out.println(JsonR27.write(out));
+    }
+}

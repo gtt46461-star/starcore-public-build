@@ -1,0 +1,221 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java
+@@ -224,6 +224,7 @@
+                     row.put("sourceFile",javaFile("com.ethk3.novaonepro.strategyv2.ResearchTableAdaptersR30R1"));
+                     row.put("sourceMethod","readPageR31");
+                     row.put("registeredSqlHash",StatsR27.sha256(ResearchTableAdaptersR30R1.query(id)));
++                    row.put("pageEvidenceAudit",ResearchTableAuditR32.audit(id,x));
+                 } else {
+                     String path = javaFile(x.get("producerClass"));
+                     if (path.isEmpty()) path = javaFile(x.get("entryClass"));
+@@ -245,12 +246,52 @@
+                 else if (!yes(x.get("consumed"))) stage=Boolean.FALSE.equals(x.get("consumed"))?"NO_RECORDED_CONSUMPTION":"CONSUMPTION_UNKNOWN";
+                 else stage=yes(x.get("effective"))?"RECHECK_PAIRED_EVIDENCE":"PAIRED_EFFECT_UNPROVEN";
+                 row.put("firstKnownGap",stage); row.put("nextAction",instruction(group,id,x));
++                Map<String,Object> evidence = new LinkedHashMap<>();
++                evidence.put("sourceObjectSha256", StatsR27.sha256(JsonR27.write(x)));
++                evidence.put("sourceReference", "chapters[11].objectIndex."+group+".objects[id="+id+"]");
++                evidence.put("sourceSnapshot",source.get("sourceSnapshot"));
++                evidence.put("sourceCommit",source.get("sourceCommit"));
++                evidence.put("rootCauseStatus","UNCONFIRMED_REPLAY_REQUIRED");
++                evidence.put("observationScope",group.equals("logicalTables")?"EXPORTED_BOUNDED_PAGE":"SAME_REPORT_SNAPSHOT_OBJECT");
++                evidence.put("firstObservedGap",stage);
++                List<String> missing = new ArrayList<>();
++                for (String k : new String[]{"inputAvailable","produced","consumed","effective"})
++                    if (x.get(k)==null) missing.add(k);
++                evidence.put("unobservedFields",missing);
++                Map<String,Object> effect = new LinkedHashMap<>();
++                effect.put("status","PAIRED_ORIGINAL_NOT_ATTACHED_TO_OBJECT");
++                effect.put("estimate",null); effect.put("lower95",null); effect.put("upper95",null);
++                effect.put("pairedCalendarIssues",null); effect.put("before",null); effect.put("after",null);
++                effect.put("reason","本对象索引未附同目标配对原件，不能由产出、消费计数或图形反推提升；逻辑表页原数值另在pageEvidenceAudit中核验。");
++                evidence.put("effectComparison",effect);
++                row.put("evidenceContract",evidence);
++                row.put("diagnosisSourceFile",group.equals("logicalTables")
++                    ? javaFile("com.ethk3.novaonepro.strategyv2.ResearchTableAuditR32")
++                    : javaFile("com.ethk3.novaonepro.strategyv2.RepairDiagnosisR32"));
++                row.put("diagnosisSourceMethod",group.equals("logicalTables")?"audit/inspect":"build/instruction");
+                 rows.add(row);
+             }
+-            for (String id : expected) if (!ids.contains(id)) markGap(gaps,group+" missing="+id);
++            for (String id : expected) if (!ids.contains(id)) {
++                markGap(gaps,group+" missing="+id);
++                Map<String,Object> absent = new LinkedHashMap<>();
++                absent.put("id",id); absent.put("group",group);
++                absent.put("firstKnownGap","SOURCE_OBJECT_MISSING");
++                for (String k : new String[]{"implemented","callable","inputAvailable","produced","consumed","effective"}) absent.put(k,null);
++                absent.put("nextAction","本快照未载入该登记对象，先恢复ReportObjectIndexR30的原对象采集，再执行："+instruction(group,id,Collections.emptyMap()));
++                absent.put("verificationEntry",nextCheck(group,id));
++                absent.put("sourceFile",javaFile("com.ethk3.novaonepro.strategyv2.ReportObjectIndexR30"));
++                absent.put("sourceMethod","buildProductionR31");
++                Map<String,Object> missingEvidence = new LinkedHashMap<>();
++                missingEvidence.put("sourceObjectSha256",null);missingEvidence.put("sourceSnapshot",source.get("sourceSnapshot"));
++                missingEvidence.put("sourceCommit",source.get("sourceCommit"));missingEvidence.put("rootCauseStatus","SOURCE_ABSENT_UNCONFIRMED");
++                missingEvidence.put("observationScope","REGISTERED_OBJECT_WITHOUT_SOURCE_OBJECT");missingEvidence.put("unobservedFields",Arrays.asList("implemented","callable","inputAvailable","produced","consumed","effective"));
++                absent.put("evidenceContract",missingEvidence);
++                if (group.equals("logicalTables")) absent.put("pageEvidenceAudit",ResearchTableAuditR32.audit(id,Collections.emptyMap()));
++                rows.add(absent);
++            }
+         }
+         Map<String,Object> out = new LinkedHashMap<>();
+-        out.put("version","R32_CAPABILITY_DIAGNOSIS_V2"); out.put("sourceCommit",source.get("sourceCommit"));
++        out.put("version","R32_CAPABILITY_DIAGNOSIS_V3"); out.put("sourceCommit",source.get("sourceCommit"));
+         out.put("sourceSnapshot",source.get("sourceSnapshot")); out.put("rows",rows); out.put("coverageGaps",gaps);
+         return out;
+     }
+@@ -369,6 +410,16 @@
+             Map<?,?> row = map(entry);
+             md.append("\n- ").append(row.get("group")).append('/').append(row.get("id")).append(" · ")
+               .append(row.get("firstKnownGap")).append(" · ").append(row.get("nextAction")).append(" · ").append(row.get("verificationEntry"));
++            Map<?,?> evidenceContract = map(row.get("evidenceContract"));
++            md.append(" · 原件hash=").append(evidenceContract.get("sourceObjectSha256"))
++              .append(" · 原因状态=").append(evidenceContract.get("rootCauseStatus"));
++            Map<?,?> pageAudit = map(row.get("pageEvidenceAudit"));
++            if (!pageAudit.isEmpty()) {
++                md.append(" · 页内审计=").append(pageAudit.get("status"))
++                  .append(" · 页分母=").append(pageAudit.get("denominator"))
++                  .append(" · 问题计数=").append(JsonR27.write(pageAudit.get("observationCounts")))
++                  .append(" · 首个观察=").append(JsonR27.write(pageAudit.get("firstObservation")));
++            }
+             for (String field : new String[]{"shown","retainedCount","currentSourceProducedFrames","actualSourceConsumptionReceipts","frameReasons","reason","receiptSha256","sourceFile","sourceMethod"}) {
+                 Object evidence = row.get(field);
+                 if (evidence != null) md.append(" · ").append(field).append("=").append(String.valueOf(evidence).replace('\n',' ').replace('\r',' '));
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAuditR32.java
+@@ -0,0 +1,136 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import java.util.*;
++
++/** Read-only audit of the exact bounded logical-table page exported from the report snapshot.
++ * These observations never grant strategy qualification, mutate a model, or infer a full-source denominator. */
++public final class ResearchTableAuditR32 {
++    private ResearchTableAuditR32() {}
++    private static Map<?,?> map(Object value) { return value instanceof Map ? (Map<?,?>)value : Collections.emptyMap(); }
++    private static String str(Object value) { return value instanceof String ? (String)value : ""; }
++    private static Double number(Object value) {
++        if (!(value instanceof Number)) return null;
++        double n=((Number)value).doubleValue(); return Double.isFinite(n) ? n : null;
++    }
++    private static boolean nonempty(Object value) { return value instanceof String && !((String)value).trim().isEmpty(); }
++    private static boolean yes(Object value) { return Boolean.TRUE.equals(value) || value instanceof Number && ((Number)value).longValue()==1 || "YES".equals(value); }
++    private static final class Scan {
++        final Map<String,Long> counts=new LinkedHashMap<>();
++        final List<Object> examples=new ArrayList<>();
++        long rows,invalid,blocked,unobserved;
++        void add(String code,String severity,int row,String sourceHash,String action) {
++            counts.put(code,counts.getOrDefault(code,0L)+1);
++            if ("INVALID".equals(severity)) invalid++;
++            if ("BLOCKED".equals(severity)) blocked++;
++            if ("UNOBSERVED".equals(severity)) unobserved++;
++            if (examples.size()<16) {
++                Map<String,Object> detail=new LinkedHashMap<>();
++                detail.put("code",code);detail.put("severity",severity);detail.put("pageRow",row);
++                detail.put("sourceRowSha256",sourceHash);detail.put("nextAction",action);
++                examples.add(detail);
++            }
++        }
++    }
++    private static void temporal(Map<?,?> r,String earlier,String later,Scan scan,int row,String hash,boolean strict) {
++        Double a=number(r.get(earlier)),b=number(r.get(later));
++        if(a==null||b==null) {scan.add("TEMPORAL_FIELDS_UNAVAILABLE:"+earlier+":"+later,"UNOBSERVED",row,hash,"回读同一原表行补齐可见时间；缺值不按零推导PIT通过。");return;}
++        if(strict?a>=b:a>b) scan.add("TEMPORAL_ORDER_VIOLATION:"+earlier+":"+later,"INVALID",row,hash,"隔离本行，不用于晋升；按冻结、标签可见和发布事务逐键复演。");
++    }
++    private static Map<?,?> payload(Map<?,?> r,String field,Scan scan,int row,String hash) {
++        String raw=str(r.get(field));
++        if(raw.isEmpty()) {scan.add("PAYLOAD_UNAVAILABLE:"+field,"UNOBSERVED",row,hash,"回读原始有界分析产物；不能用页面行数代替数值原件。");return Collections.emptyMap();}
++        if(raw.length()>262144) {scan.add("PAYLOAD_AUDIT_BUDGET:"+field,"UNOBSERVED",row,hash,"按原表分页检查原件；本诊断不复制超预算载荷。");return Collections.emptyMap();}
++        try {
++            Object value=JsonR27.parse(raw);
++            if(!(value instanceof Map)) throw new IllegalArgumentException("OBJECT_REQUIRED");
++            return map(value);
++        } catch(RuntimeException malformed) {scan.add("PAYLOAD_MALFORMED:"+field,"INVALID",row,hash,"保全坏原件并核对生产者序列化；不得清空为成功或零值。");return Collections.emptyMap();}
++    }
++    private static void frame(Map<?,?> r,Scan scan,int row,String hash) {
++        Map<?,?> root=payload(r,"payload_json",scan,row,hash),frame=map(root.get("frame"));
++        if(frame.isEmpty()) {if(!root.isEmpty())scan.add("FRAME_UNAVAILABLE","UNOBSERVED",row,hash,"按当前measure版本回读frame结构与生产者；旧结构保留历史标签。");return;}
++        if("BLOCKED_DEPENDENCY".equals(frame.get("status"))) scan.add("FRAME_BLOCKED_DEPENDENCY","BLOCKED",row,hash,"读取frame.reason，先补齐同目标父代或组件；阻断帧不能记融合或协同已生效。");
++        else if(!(frame.get("points") instanceof List)||((List<?>)frame.get("points")).isEmpty()) scan.add("FRAME_WITHOUT_POINTS","UNOBSERVED",row,hash,"核对可执行输入、配对分母和算法输出；空frame只计运行回执。");
++    }
++    private static void inspect(String id,Map<?,?> r,Scan scan,int row,String hash) {
++        switch(id) {
++            case "T01":
++                temporal(r,"from_ordinal","through_ordinal",scan,row,hash,false);
++                if(!nonempty(r.get("dataset_hash"))||!nonempty(r.get("role")))scan.add("DATASET_OR_ROLE_UNAVAILABLE","UNOBSERVED",row,hash,"补齐run的dataset_hash和角色后联查训练水位与特征血缘。");
++                String state=str(r.get("status"));
++                if(state.contains("FAIL")||state.contains("BLOCK"))scan.add("ANALYSIS_RUN_NOT_COMPLETED","BLOCKED",row,hash,"按run_id回读summary_json与任务停点，只重试未提交的分析段。");
++                break;
++            case "T02":
++                Double missing=number(r.get("missing_rate")),n=number(r.get("n_select"));
++                if(missing!=null&&(missing<0||missing>1)||n!=null&&n<0)scan.add("ATOM_SUPPORT_VALUE_INVALID","INVALID",row,hash,"修复原子评分生产者数值及支持分母，失效对应缓存再复算。");
++                if(n==null||n==0)scan.add("ATOM_SELECT_SUPPORT_UNAVAILABLE","UNOBSERVED",row,hash,"等待独立SELECT原始期，先重放评分游标；不得把无支持原子评为高质量。");
++                break;
++            case "T03":
++                temporal(r,"frozen_at","deadline_at",scan,row,hash,false);
++                if(number(r.get("settled_at"))==null)scan.add("FROZEN_NOT_SETTLED","UNOBSERVED",row,hash,"按target_issue追踪开奖与唯一结算任务；待结算不进入命中率分母。");
++                break;
++            case "T04":
++                if(!nonempty(r.get("parent_hash")))scan.add("FAILURE_PARENT_UNAVAILABLE","UNOBSERVED",row,hash,"把失败窗口、实际父代和错误输出绑定后再生成修复处方。");
++                payload(r,"payload_json",scan,row,hash);
++                break;
++            case "T05":
++                Double lower=number(r.get("lower95")),upper=number(r.get("upper95")),mean=number(r.get("mean_gain")),support=number(r.get("evaluated_calendar_issues"));
++                if(lower!=null&&upper!=null&&(lower>upper||mean!=null&&(mean<lower||mean>upper)))scan.add("PAIRED_INTERVAL_INVALID","INVALID",row,hash,"按同机会原始配对重算均值、区间和聚类单位，保全错误版本。");
++                if(support==null||support<=0)scan.add("PAIRED_SUPPORT_UNAVAILABLE","UNOBSERVED",row,hash,"补齐同目标原始期与消融配对，缺分母不估计收益。");
++                if(lower!=null&&lower<=0)scan.add("PAIRED_ADVANTAGE_UNPROVEN","OBSERVED",row,hash,"保留负结果，按失败机制选择新结构；本页区间不授资格。");
++                break;
++            case "T06":case "T09":case "T10": frame(r,scan,row,hash);break;
++            case "T07":
++                if(nonempty(r.get("kept_policy"))&&Objects.equals(r.get("kept_policy"),r.get("dropped_policy")))scan.add("DEDUP_SELF_DROP","INVALID",row,hash,"修复行为去重事务，禁止资产删除自身并复验引用保护。");
++                break;
++            case "T08":
++                if(!nonempty(r.get("policy_hash")))scan.add("EXPERT_PROPOSAL_WITHOUT_CHILD","UNOBSERVED",row,hash,"按generation与expert追到出生接受或拒绝回执；提案不能记为有效子代。");
++                break;
++            case "T11":
++                temporal(r,"trained_through_ordinal","target_ordinal",scan,row,hash,true);
++                temporal(r,"feature_through_ordinal","target_ordinal",scan,row,hash,true);
++                temporal(r,"model_available_at","frozen_at",scan,row,hash,false);
++                temporal(r,"frozen_at","deadline_at",scan,row,hash,false);
++                if(!nonempty(r.get("model_hash")))scan.add("CONSUMED_MODEL_HASH_UNAVAILABLE","UNOBSERVED",row,hash,"沿权重发布原件、ModelSurface与概率hash查同一模型的真实消费。");
++                break;
++            case "T12":payload(r,"payload_json",scan,row,hash);break;
++            case "T13":
++                if(!yes(r.get("verified")))scan.add("CONFIRMATION_NOT_VERIFIED","UNOBSERVED",row,hash,"回读task_key的锁定块和result_json；未验证样本不授证。");
++                if("REGISTERED".equals(r.get("registration_state"))&&!nonempty(r.get("registration_experiment_id")))scan.add("REGISTERED_EXPERIMENT_REFERENCE_MISSING","INVALID",row,hash,"回读注册事务与实验唯一键，禁止孤立登记状态进入主链。");
++                break;
++            case "T14":
++                if(nonempty(r.get("blocked_reason")))scan.add("TASK_BLOCKED_REASON_RECORDED","BLOCKED",row,hash,"按task_id读取blocked_reason与已提交游标，补前置输入后从游标耐久重投。");
++                break;
++            case "T15":
++                if(!nonempty(r.get("receipt_hash")))scan.add("PROPOSAL_CONSUMPTION_NOT_RECORDED","UNOBSERVED",row,hash,"按proposal_id查接受/拒绝；只有child_policy_hash与receipt_hash落账才记消费。");
++                else if(!nonempty(r.get("child_policy_hash")))scan.add("CONSUMPTION_CHILD_REFERENCE_MISSING","INVALID",row,hash,"回读consume事务与受保护子代，恢复引用后复验训练接线。");
++                break;
++            case "T16":
++                if(yes(r.get("original_allow"))&&!yes(r.get("certificate_active")))scan.add("ALLOW_WITHOUT_ACTIVE_CERTIFICATE_RECHECK_GATE","OBSERVED",row,hash,"沿decision_key查最终Gate与trades；original_allow不是REAL签收，不把本观察直接认定重复出手。");
++                break;
++            default:scan.add("UNKNOWN_TABLE_ID","UNOBSERVED",row,hash,"先登记逻辑表字段合同与审计语义。");
++        }
++    }
++    public static Map<String,Object> audit(String id,Object pageObject) {
++        Map<?,?> page=map(pageObject);Scan scan=new Scan();
++        Object value=page.get("rows");List<?> rows=value instanceof List?(List<?>)value:Collections.emptyList();
++        List<Object> hashes=new ArrayList<>();
++        for(int i=0;i<Math.min(rows.size(),200);i++) {
++            Map<?,?> r=map(rows.get(i));String hash;
++            try {hash=StatsR27.sha256(JsonR27.write(r));}
++            catch(RuntimeException invalid) {scan.add("ROW_NOT_CANONICAL_JSON","INVALID",i,null,"回读同一原表行，修复非有限数或不支持的序列化类型。");continue;}
++            hashes.add(hash);scan.rows++;inspect(id,r,scan,i,hash);
++        }
++        Map<String,Object> out=new LinkedHashMap<>();
++        out.put("version","R32_RESEARCH_TABLE_PAGE_AUDIT_1");out.put("id",id);out.put("readStatus",page.get("status"));
++        out.put("scope","EXPORTED_PAGE_ONLY_NOT_FULL_SOURCE_OR_QUALIFICATION");out.put("denominator",scan.rows);
++        out.put("sourcePageReceiptSha256",page.get("receiptSha256"));out.put("sourcePageOffset",page.get("offset"));
++        out.put("sourcePageHasMore",page.get("hasMore"));out.put("sourceRowsSha256",StatsR27.sha256(JsonR27.write(hashes)));
++        long observations=0;for(Long count:scan.counts.values())observations+=count;
++        out.put("observationCounts",scan.counts);out.put("examples",scan.examples);out.put("examplesOmitted",Math.max(0L,observations-scan.examples.size()));
++        String status=!"READ_OK".equals(page.get("status"))?"PAGE_NOT_READABLE":scan.invalid>0?"PAGE_INVARIANT_VIOLATION":scan.blocked>0?"PAGE_HAS_RECORDED_BLOCKER":scan.unobserved>0?"PAGE_EVIDENCE_INCOMPLETE":"PAGE_CHECKS_CLEAR_EFFECT_NOT_PROVEN";
++        out.put("status",status);out.put("confidence","DIRECT_PAGE_OBSERVATIONS_ROOT_CAUSE_UNCONFIRMED");
++        out.put("firstObservation",scan.examples.isEmpty()?null:scan.examples.get(0));
++        out.put("qualityGateEffect","NONE_READ_ONLY");return Collections.unmodifiableMap(out);
++    }
++}

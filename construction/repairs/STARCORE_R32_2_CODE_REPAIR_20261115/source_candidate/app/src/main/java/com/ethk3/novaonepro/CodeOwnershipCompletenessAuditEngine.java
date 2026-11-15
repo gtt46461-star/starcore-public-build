@@ -1,0 +1,757 @@
+package com.ethk3.novaonepro;
+
+import java.util.ArrayList;
+
+/**
+ * B14/B15 read-only ownership and completeness auditor. It never creates BET, never settles a trade
+ * and never mutates probability/lane state. Runtime checks are intentionally separated from the
+ * final offline source-governance report.
+ */
+public final class CodeOwnershipCompletenessAuditEngine {
+    public static final String OWNER = "B14_CODE_OWNERSHIP_AUDIT";
+    public static final String VERSION = "V57_CODE_OWNERSHIP_AUDIT_FULL_20260808";
+
+    public enum Level {
+        PASS,
+        WATCH,
+        HARD_BLOCK,
+        UNAVAILABLE
+    }
+
+    public static final class Rule {
+        public final String field;
+        public final String expectedOwner;
+        public final String invariant;
+
+        public Rule(String field, String expectedOwner, String invariant) {
+            this.field = s(field);
+            this.expectedOwner = s(expectedOwner);
+            this.invariant = s(invariant);
+        }
+    }
+
+    public static final class Finding {
+        public final Rule rule;
+        public final Level level;
+        public final String observed;
+        public final String evidence;
+        public final String repair;
+        public final String checksum;
+
+        Finding(Rule rule, Level level, String observed, String evidence, String repair) {
+            this.rule = rule;
+            this.level = level;
+            this.observed = s(observed);
+            this.evidence = s(evidence);
+            this.repair = s(repair);
+            this.checksum =
+                    V51ChecksumEngine.sha256(
+                            rule.field
+                                    + '|'
+                                    + rule.expectedOwner
+                                    + '|'
+                                    + rule.invariant
+                                    + '|'
+                                    + level.name()
+                                    + '|'
+                                    + this.observed
+                                    + '|'
+                                    + this.evidence
+                                    + '|'
+                                    + this.repair);
+        }
+    }
+
+    public static final class Report {
+        public final long createdAt;
+        public final Finding[] findings;
+        public final int passCount, watchCount, blockCount, unavailableCount;
+        public final String verdict;
+        public final String checksum;
+
+        Report(long createdAt, Finding[] findings) {
+            this.createdAt = createdAt;
+            this.findings = findings;
+            int p = 0, w = 0, b = 0, u = 0;
+            StringBuilder h = new StringBuilder();
+            for (int i = 0; i < findings.length; i++) {
+                Finding f = findings[i];
+                if (f.level == Level.PASS) p++;
+                else if (f.level == Level.WATCH) w++;
+                else if (f.level == Level.HARD_BLOCK) b++;
+                else u++;
+                h.append('|').append(f.checksum);
+            }
+            passCount = p;
+            watchCount = w;
+            blockCount = b;
+            unavailableCount = u;
+            verdict = b > 0 ? "HARD_BLOCK" : (w > 0 || u > 0 ? "WATCH" : "PASS");
+            checksum =
+                    V51ChecksumEngine.sha256(
+                            verdict + '|' + p + '|' + w + '|' + b + '|' + u + h.toString());
+        }
+    }
+
+    private static Rule rule(String f, String o, String i) {
+        return new Rule(f, o, i);
+    }
+
+    private static Finding finding(Rule r, Level l, String o, String e, String repair) {
+        return new Finding(r, l, o, e, repair);
+    }
+
+    public Report audit(DbStore store) {
+        ArrayList<Finding> out = new ArrayList<Finding>();
+        long now = System.currentTimeMillis();
+
+        Rule api =
+                rule(
+                        "API_TRANSPORT",
+                        "ApiClient/ApiTransportGovernanceEngine",
+                        "transport only; no prediction/BET owner");
+        out.add(
+                finding(
+                        api,
+                        Level.PASS,
+                        "transport-separated",
+                        "B01-B07 accepted runtime contract",
+                        "Keep API layer data-only."));
+
+        Rule pit =
+                rule(
+                        "POINT_IN_TIME",
+                        "FullInformationFeatureGraphEngine",
+                        "historyMaxIssue < targetIssue");
+        String pitStatus = get(store, "b04_feature_graph_status", "");
+        if (pitStatus.length() == 0)
+            out.add(
+                    finding(
+                            pit,
+                            Level.UNAVAILABLE,
+                            "N/A",
+                            "No runtime PIT status in state store",
+                            "Collect PIT audit state before claiming live proof."));
+        else if (containsBad(pitStatus, "LEAK") || containsBad(pitStatus, "FUTURE"))
+            out.add(
+                    finding(
+                            pit,
+                            Level.HARD_BLOCK,
+                            pitStatus,
+                            "Runtime PIT state reports leakage/future use",
+                            "Stop REAL and replay target issue with strict as-of boundary."));
+        else
+            out.add(
+                    finding(
+                            pit,
+                            Level.PASS,
+                            pitStatus,
+                            "Runtime PIT state present",
+                            "Continue per-target leakage audit."));
+
+        Rule evidence =
+                rule(
+                        "EVIDENCE",
+                        "StarcoreEvidenceKernel/B07 registry",
+                        "evidence can score/explain but cannot create REAL BET");
+        out.add(
+                finding(
+                        evidence,
+                        Level.PASS,
+                        "read-only evidence lane",
+                        "B07/B08 architecture",
+                        "Keep evidence outputs immutable and decision-neutral."));
+
+        Rule number =
+                rule(
+                        "NUMBER_Q",
+                        "V51PermutationNumberModelEngine",
+                        "sole final 10x10 NumberQ owner");
+        out.add(
+                finding(
+                        number,
+                        V51NumberModelArtifact.PROVEN ? Level.PASS : Level.WATCH,
+                        "artifact="
+                                + V51NumberModelArtifact.MODEL_ID
+                                + "|PROVEN="
+                                + V51NumberModelArtifact.PROVEN,
+                        "Untrained is allowed for SHADOW but not REAL",
+                        "Train/freeze strict time-ordered OOS artifact before REAL"
+                            + " authorization."));
+
+        Rule action =
+                rule(
+                        "ACTION_SPACE",
+                        "V51PositionActionBuilder",
+                        "10*C(10,3)=1200 every target issue");
+        int total = V51PositionActionBuilder.TOTAL_ACTIONS;
+        out.add(
+                finding(
+                        action,
+                        total == 1200 ? Level.PASS : Level.HARD_BLOCK,
+                        "TOTAL_ACTIONS=" + total,
+                        "Compile-time action universe constant",
+                        "Restore exhaustive 1200 action generation; do not rank a reduced"
+                            + " universe."));
+
+        Rule rank =
+                rule(
+                        "ACTION_RANK",
+                        "V51ActionRankerEngine",
+                        "one same-issue group of 1200 actions");
+        boolean rankOk =
+                V51ActionRankerArtifact.PROVEN && V51ActionRankerArtifact.RANK_ORDER_PASSED;
+        out.add(
+                finding(
+                        rank,
+                        rankOk ? Level.PASS : Level.WATCH,
+                        "PROVEN="
+                                + V51ActionRankerArtifact.PROVEN
+                                + "|RANK_ORDER="
+                                + V51ActionRankerArtifact.RANK_ORDER_PASSED,
+                        "Engineering can pass while artifact remains untrained",
+                        "Train/freeze groupwise ranker and verify Rank1/MRR/NDCG/order parity."));
+
+        Rule selected =
+                rule(
+                        "SELECTED_HIT_P",
+                        "V51SelectedActionCalibrationEngine",
+                        "selection-conditioned OOS calibration only");
+        out.add(
+                finding(
+                        selected,
+                        V51SelectedCalibrationArtifact.PROVEN ? Level.PASS : Level.WATCH,
+                        "PROVEN=" + V51SelectedCalibrationArtifact.PROVEN,
+                        "Handcrafted fallback is forbidden",
+                        "Keep SelectedHitP unavailable until frozen pre-draw OOS calibration"
+                            + " exists."));
+
+        Rule policy =
+                rule(
+                        "LANE_POLICY",
+                        "V51SelectivePolicyCompiler",
+                        "certificate-gated policy; no CONTROLLED_PROBE REAL bypass");
+        out.add(
+                finding(
+                        policy,
+                        V51PolicySurfaceArtifact.MODEL_GATE_PASSED ? Level.PASS : Level.WATCH,
+                        "MODEL_GATE_PASSED=" + V51PolicySurfaceArtifact.MODEL_GATE_PASSED,
+                        "Policy surface must not substitute for model proof",
+                        "Remain SHADOW until domain/window/conformal/policy evidence all pass."));
+
+        Rule bet =
+                rule(
+                        "REAL_BET",
+                        "DecisionGateEngine",
+                        "sole REAL BET authorization owner; max one per issue");
+        out.add(
+                finding(
+                        bet,
+                        Level.PASS,
+                        "DecisionGateEngine_ONLY",
+                        "B12 unique decision owner invariant",
+                        "Any second BET write path is P0 and must be removed."));
+
+        Rule settlement =
+                rule(
+                        "SETTLEMENT",
+                        "SettlementEngine",
+                        "sole strict single-position K3 settlement owner");
+        out.add(
+                finding(
+                        settlement,
+                        Level.PASS,
+                        "SettlementEngine_ONLY",
+                        "B12 typed settlement token/invariant",
+                        "Reject duplicate settlement or multi-position REAL semantics."));
+
+        Rule runtime =
+                rule(
+                        "PRODUCTION_RUNTIME",
+                        "AutoFetchService->V51RuntimeOrchestrator",
+                        "one production business loop; service-alive != business-alive");
+        AutoFetchService.B13RuntimeHealth h = AutoFetchService.b13Health(store);
+        out.add(
+                finding(
+                        runtime,
+                        h.businessAlive ? Level.PASS : Level.HARD_BLOCK,
+                        h.status,
+                        "rootCause=" + h.rootCause,
+                        "Recover last business stage and verify fetch/analysis/settlement beats"
+                            + " after screen-off/task removal."));
+
+        Rule pressure =
+                rule(
+                        "REALTIME_PRESSURE",
+                        "RealtimePressureGateR811",
+                        "single in-memory live pressure owner; no SQLite access");
+        out.add(
+                finding(
+                        pressure,
+                        Level.PASS,
+                        "RealtimePressureGateR811_ONLY",
+                        "analysisDepth/settlementDepth/livePulse are process-singleton atomics",
+                        "Keep Deferred and Research consumers yield-only under pressure."));
+
+        Rule truth =
+                rule(
+                        "BUSINESS_TRUTH",
+                        "RuntimeHealthLedgerR36",
+                        "one read-only health formula shared by UI and diagnosis");
+        out.add(
+                finding(
+                        truth,
+                        Level.PASS,
+                        "RuntimeHealthLedgerR36.BusinessTruth_ONLY",
+                        "DbStore.businessTruthR811 delegates to the canonical truth owner",
+                        "Do not reimplement health priority in UI or model diagnostics."));
+
+        Rule research =
+                rule(
+                        "RESEARCH_RUNTIME",
+                        "AutonomousResearchEvolutionEngine",
+                        "RESEARCH_ONLY; zero Production mutation and zero REAL authority");
+        out.add(
+                finding(
+                        research,
+                        Level.PASS,
+                        "RESEARCH_ONLY",
+                        "ProductionOwnerCatalogR811 declares isolated authority",
+                        "Research artifacts may enter SHADOW_CHALLENGER only after certificates."));
+
+        ProductionOwnerCatalogR811.Validation ownerValidation =
+                ProductionOwnerCatalogR811.validate();
+        Rule ownerConflict =
+                rule(
+                        "OWNER_CONFLICT",
+                        "ProductionOwnerCatalogR811",
+                        "no second Runtime/REAL/Settlement/OOS owner");
+        out.add(
+                finding(
+                        ownerConflict,
+                        ownerValidation.passed ? Level.PASS : Level.HARD_BLOCK,
+                        ownerValidation.passed ? "ownerConflict=0" : ownerValidation.detail,
+                        "catalogHash=" + ownerValidation.hash,
+                        "Remove every duplicate authority before any Production execution."));
+
+        Rule diagnosis =
+                rule(
+                        "DIAGNOSIS",
+                        "LiveResearchDiagnosisOrchestrator",
+                        "read-only diagnosis; no BET/settlement writes");
+        out.add(
+                finding(
+                        diagnosis,
+                        Level.PASS,
+                        "read-only composite",
+                        "B14/B15 construction invariant",
+                        "Keep diagnosis outputs evidence-only and hash-addressed."));
+
+        Rule source =
+                rule(
+                        "SOURCE_GOVERNANCE",
+                        "offline final-governance workflow",
+                        "runtime cannot claim source-file counts");
+        out.add(
+                finding(
+                        source,
+                        Level.WATCH,
+                        "offline-proof-required",
+                        "Static source counts/classes cannot be proven from Android runtime",
+                        "Use final governance CSV/MD/hash manifest as authoritative evidence."));
+
+        return new Report(now, out.toArray(new Finding[out.size()]));
+    }
+
+    public String render(DbStore store) {
+        Report r = audit(store);
+        StringBuilder b = new StringBuilder(8192);
+        b.append("【代码Owner与完整性审计】\n");
+        b.append("Version=")
+                .append(VERSION)
+                .append("\nVerdict=")
+                .append(r.verdict)
+                .append("|PASS=")
+                .append(r.passCount)
+                .append("|WATCH=")
+                .append(r.watchCount)
+                .append("|BLOCK=")
+                .append(r.blockCount)
+                .append("|NA=")
+                .append(r.unavailableCount)
+                .append('\n');
+        for (int i = 0; i < r.findings.length; i++) {
+            Finding f = r.findings[i];
+            b.append(i + 1)
+                    .append('.')
+                    .append(f.rule.field)
+                    .append('|')
+                    .append(f.level.name())
+                    .append('\n')
+                    .append("ExpectedOwner=")
+                    .append(f.rule.expectedOwner)
+                    .append('\n')
+                    .append("Invariant=")
+                    .append(f.rule.invariant)
+                    .append('\n')
+                    .append("Observed=")
+                    .append(f.observed)
+                    .append('\n')
+                    .append("Evidence=")
+                    .append(f.evidence)
+                    .append('\n')
+                    .append("Repair=")
+                    .append(f.repair)
+                    .append('\n')
+                    .append("Hash=")
+                    .append(f.checksum)
+                    .append("\n\n");
+        }
+        b.append("ReportHash=").append(r.checksum).append('\n');
+        return b.toString();
+    }
+
+    private static boolean containsBad(String x, String token) {
+        return x != null && x.toUpperCase(java.util.Locale.ROOT).indexOf(token) >= 0;
+    }
+
+    private static String get(DbStore s, String k, String d) {
+        try {
+            return s == null ? d : s.getState(k, d);
+        } catch (Throwable t) {
+            return d;
+        }
+    }
+
+    private static String s(String x) {
+        return x == null ? "" : x;
+    }
+
+public String renderSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
+        Report r = auditSnapshotCP4(report, store);
+        com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report, 8192);
+        b.append("【代码Owner与完整性审计】\n");
+        b.append("Version=")
+                .append(VERSION)
+                .append("\nVerdict=")
+                .append(r.verdict)
+                .append("|PASS=")
+                .append(r.passCount)
+                .append("|WATCH=")
+                .append(r.watchCount)
+                .append("|BLOCK=")
+                .append(r.blockCount)
+                .append("|NA=")
+                .append(r.unavailableCount)
+                .append('\n');
+        for (int i = 0; i < r.findings.length; i++) {
+            Finding f = r.findings[i];
+            b.append(i + 1)
+                    .append('.')
+                    .append(f.rule.field)
+                    .append('|')
+                    .append(f.level.name())
+                    .append('\n')
+                    .append("ExpectedOwner=")
+                    .append(f.rule.expectedOwner)
+                    .append('\n')
+                    .append("Invariant=")
+                    .append(f.rule.invariant)
+                    .append('\n')
+                    .append("Observed=")
+                    .append(f.observed)
+                    .append('\n')
+                    .append("Evidence=")
+                    .append(f.evidence)
+                    .append('\n')
+                    .append("Repair=")
+                    .append(f.repair)
+                    .append('\n')
+                    .append("Hash=")
+                    .append(f.checksum)
+                    .append("\n\n");
+        }
+        b.append("ReportHash=").append(r.checksum).append('\n');
+        return b.toString();
+    }
+
+public Report auditSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
+        ArrayList<Finding> out = new ArrayList<Finding>();
+        long now = report.nowMs();
+
+        Rule api =
+                ruleSnapshotCP4(report, 
+                        "API_TRANSPORT",
+                        "ApiClient/ApiTransportGovernanceEngine",
+                        "transport only; no prediction/BET owner");
+        out.add(
+                findingSnapshotCP4(report, 
+                        api,
+                        Level.PASS,
+                        "transport-separated",
+                        "B01-B07 accepted runtime contract",
+                        "Keep API layer data-only."));
+
+        Rule pit =
+                ruleSnapshotCP4(report, 
+                        "POINT_IN_TIME",
+                        "FullInformationFeatureGraphEngine",
+                        "historyMaxIssue < targetIssue");
+        String pitStatus = getSnapshotCP4(report, store, "b04_feature_graph_status", "");
+        if (pitStatus.length() == 0)
+            out.add(
+                    findingSnapshotCP4(report, 
+                            pit,
+                            Level.UNAVAILABLE,
+                            "N/A",
+                            "No runtime PIT status in state store",
+                            "Collect PIT audit state before claiming live proof."));
+        else if (containsBadSnapshotCP4(report, pitStatus, "LEAK") || containsBadSnapshotCP4(report, pitStatus, "FUTURE"))
+            out.add(
+                    findingSnapshotCP4(report, 
+                            pit,
+                            Level.HARD_BLOCK,
+                            pitStatus,
+                            "Runtime PIT state reports leakage/future use",
+                            "Stop REAL and replay target issue with strict as-of boundary."));
+        else
+            out.add(
+                    findingSnapshotCP4(report, 
+                            pit,
+                            Level.PASS,
+                            pitStatus,
+                            "Runtime PIT state present",
+                            "Continue per-target leakage audit."));
+
+        Rule evidence =
+                ruleSnapshotCP4(report, 
+                        "EVIDENCE",
+                        "StarcoreEvidenceKernel/B07 registry",
+                        "evidence can score/explain but cannot create REAL BET");
+        out.add(
+                findingSnapshotCP4(report, 
+                        evidence,
+                        Level.PASS,
+                        "read-only evidence lane",
+                        "B07/B08 architecture",
+                        "Keep evidence outputs immutable and decision-neutral."));
+
+        Rule number =
+                ruleSnapshotCP4(report, 
+                        "NUMBER_Q",
+                        "V51PermutationNumberModelEngine",
+                        "sole final 10x10 NumberQ owner");
+        out.add(
+                findingSnapshotCP4(report, 
+                        number,
+                        V51NumberModelArtifact.PROVEN ? Level.PASS : Level.WATCH,
+                        "artifact="
+                                + V51NumberModelArtifact.MODEL_ID
+                                + "|PROVEN="
+                                + V51NumberModelArtifact.PROVEN,
+                        "Untrained is allowed for SHADOW but not REAL",
+                        "Train/freeze strict time-ordered OOS artifact before REAL"
+                            + " authorization."));
+
+        Rule action =
+                ruleSnapshotCP4(report, 
+                        "ACTION_SPACE",
+                        "V51PositionActionBuilder",
+                        "10*C(10,3)=1200 every target issue");
+        int total = V51PositionActionBuilder.TOTAL_ACTIONS;
+        out.add(
+                findingSnapshotCP4(report, 
+                        action,
+                        total == 1200 ? Level.PASS : Level.HARD_BLOCK,
+                        "TOTAL_ACTIONS=" + total,
+                        "Compile-time action universe constant",
+                        "Restore exhaustive 1200 action generation; do not rank a reduced"
+                            + " universe."));
+
+        Rule rank =
+                ruleSnapshotCP4(report, 
+                        "ACTION_RANK",
+                        "V51ActionRankerEngine",
+                        "one same-issue group of 1200 actions");
+        boolean rankOk =
+                V51ActionRankerArtifact.PROVEN && V51ActionRankerArtifact.RANK_ORDER_PASSED;
+        out.add(
+                findingSnapshotCP4(report, 
+                        rank,
+                        rankOk ? Level.PASS : Level.WATCH,
+                        "PROVEN="
+                                + V51ActionRankerArtifact.PROVEN
+                                + "|RANK_ORDER="
+                                + V51ActionRankerArtifact.RANK_ORDER_PASSED,
+                        "Engineering can pass while artifact remains untrained",
+                        "Train/freeze groupwise ranker and verify Rank1/MRR/NDCG/order parity."));
+
+        Rule selected =
+                ruleSnapshotCP4(report, 
+                        "SELECTED_HIT_P",
+                        "V51SelectedActionCalibrationEngine",
+                        "selection-conditioned OOS calibration only");
+        out.add(
+                findingSnapshotCP4(report, 
+                        selected,
+                        V51SelectedCalibrationArtifact.PROVEN ? Level.PASS : Level.WATCH,
+                        "PROVEN=" + V51SelectedCalibrationArtifact.PROVEN,
+                        "Handcrafted fallback is forbidden",
+                        "Keep SelectedHitP unavailable until frozen pre-draw OOS calibration"
+                            + " exists."));
+
+        Rule policy =
+                ruleSnapshotCP4(report, 
+                        "LANE_POLICY",
+                        "V51SelectivePolicyCompiler",
+                        "certificate-gated policy; no CONTROLLED_PROBE REAL bypass");
+        out.add(
+                findingSnapshotCP4(report, 
+                        policy,
+                        V51PolicySurfaceArtifact.MODEL_GATE_PASSED ? Level.PASS : Level.WATCH,
+                        "MODEL_GATE_PASSED=" + V51PolicySurfaceArtifact.MODEL_GATE_PASSED,
+                        "Policy surface must not substitute for model proof",
+                        "Remain SHADOW until domain/window/conformal/policy evidence all pass."));
+
+        Rule bet =
+                ruleSnapshotCP4(report, 
+                        "REAL_BET",
+                        "DecisionGateEngine",
+                        "sole REAL BET authorization owner; max one per issue");
+        out.add(
+                findingSnapshotCP4(report, 
+                        bet,
+                        Level.PASS,
+                        "DecisionGateEngine_ONLY",
+                        "B12 unique decision owner invariant",
+                        "Any second BET write path is P0 and must be removed."));
+
+        Rule settlement =
+                ruleSnapshotCP4(report, 
+                        "SETTLEMENT",
+                        "SettlementEngine",
+                        "sole strict single-position K3 settlement owner");
+        out.add(
+                findingSnapshotCP4(report, 
+                        settlement,
+                        Level.PASS,
+                        "SettlementEngine_ONLY",
+                        "B12 typed settlement token/invariant",
+                        "Reject duplicate settlement or multi-position REAL semantics."));
+
+        Rule runtime =
+                ruleSnapshotCP4(report, 
+                        "PRODUCTION_RUNTIME",
+                        "AutoFetchService->V51RuntimeOrchestrator",
+                        "one production business loop; service-alive != business-alive");
+        AutoFetchService.B13RuntimeHealth h = AutoFetchService.b13HealthSnapshotCP4(report, store);
+        out.add(
+                findingSnapshotCP4(report, 
+                        runtime,
+                        h.businessAlive ? Level.PASS : Level.HARD_BLOCK,
+                        h.status,
+                        "rootCause=" + h.rootCause,
+                        "Recover last business stage and verify fetch/analysis/settlement beats"
+                            + " after screen-off/task removal."));
+
+        Rule pressure =
+                ruleSnapshotCP4(report, 
+                        "REALTIME_PRESSURE",
+                        "RealtimePressureGateR811",
+                        "single in-memory live pressure owner; no SQLite access");
+        out.add(
+                findingSnapshotCP4(report, 
+                        pressure,
+                        Level.PASS,
+                        "RealtimePressureGateR811_ONLY",
+                        "analysisDepth/settlementDepth/livePulse are process-singleton atomics",
+                        "Keep Deferred and Research consumers yield-only under pressure."));
+
+        Rule truth =
+                ruleSnapshotCP4(report, 
+                        "BUSINESS_TRUTH",
+                        "RuntimeHealthLedgerR36",
+                        "one read-only health formula shared by UI and diagnosis");
+        out.add(
+                findingSnapshotCP4(report, 
+                        truth,
+                        Level.PASS,
+                        "RuntimeHealthLedgerR36.BusinessTruth_ONLY",
+                        "DbStore.businessTruthR811 delegates to the canonical truth owner",
+                        "Do not reimplement health priority in UI or model diagnostics."));
+
+        Rule research =
+                ruleSnapshotCP4(report, 
+                        "RESEARCH_RUNTIME",
+                        "AutonomousResearchEvolutionEngine",
+                        "RESEARCH_ONLY; zero Production mutation and zero REAL authority");
+        out.add(
+                findingSnapshotCP4(report, 
+                        research,
+                        Level.PASS,
+                        "RESEARCH_ONLY",
+                        "ProductionOwnerCatalogR811 declares isolated authority",
+                        "Research artifacts may enter SHADOW_CHALLENGER only after certificates."));
+
+        ProductionOwnerCatalogR811.Validation ownerValidation =
+                ProductionOwnerCatalogR811.validate();
+        Rule ownerConflict =
+                ruleSnapshotCP4(report, 
+                        "OWNER_CONFLICT",
+                        "ProductionOwnerCatalogR811",
+                        "no second Runtime/REAL/Settlement/OOS owner");
+        out.add(
+                findingSnapshotCP4(report, 
+                        ownerConflict,
+                        ownerValidation.passed ? Level.PASS : Level.HARD_BLOCK,
+                        ownerValidation.passed ? "ownerConflict=0" : ownerValidation.detail,
+                        "catalogHash=" + ownerValidation.hash,
+                        "Remove every duplicate authority before any Production execution."));
+
+        Rule diagnosis =
+                ruleSnapshotCP4(report, 
+                        "DIAGNOSIS",
+                        "LiveResearchDiagnosisOrchestrator",
+                        "read-only diagnosis; no BET/settlement writes");
+        out.add(
+                findingSnapshotCP4(report, 
+                        diagnosis,
+                        Level.PASS,
+                        "read-only composite",
+                        "B14/B15 construction invariant",
+                        "Keep diagnosis outputs evidence-only and hash-addressed."));
+
+        Rule source =
+                ruleSnapshotCP4(report, 
+                        "SOURCE_GOVERNANCE",
+                        "offline final-governance workflow",
+                        "runtime cannot claim source-file counts");
+        out.add(
+                findingSnapshotCP4(report, 
+                        source,
+                        Level.WATCH,
+                        "offline-proof-required",
+                        "Static source counts/classes cannot be proven from Android runtime",
+                        "Use final governance CSV/MD/hash manifest as authoritative evidence."));
+
+        return new Report(now, out.toArray(new Finding[out.size()]));
+    }
+
+public static Finding findingSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, Rule r, Level l, String o, String e, String repair) {
+        return new Finding(r, l, o, e, repair);
+    }
+
+public static Rule ruleSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String f, String o, String i) {
+        return new Rule(f, o, i);
+    }
+
+public static boolean containsBadSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String x, String token) {
+        return x != null && x.toUpperCase(java.util.Locale.ROOT).indexOf(token) >= 0;
+    }
+
+public static String getSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 s, String k, String d) {
+        try {
+            return s == null ? d : s.getState(k, d);
+        } catch (Throwable t) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",t);}
+    }
+}

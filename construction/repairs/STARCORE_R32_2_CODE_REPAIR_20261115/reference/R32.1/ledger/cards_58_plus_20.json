@@ -1,0 +1,1346 @@
+[
+  {
+    "id": "R31-B00-C01",
+    "title": "固定报告对应源码和安装身份，继承1832要求与299历史卡",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P5": [
+        "app/build.gradle",
+        "tools/r31/verify_baseline.py"
+      ]
+    },
+    "local_integration": "P5",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P5"
+  },
+  {
+    "id": "R31-B00-C02",
+    "title": "采集完整原因链和实际提交回执，纠正隔离数量口径",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+      ],
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B01-C01",
+    "title": "统一瞬时等待、取消、依赖和真实故障分类",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java"
+      ],
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P2"
+  },
+  {
+    "id": "R31-B01-C02",
+    "title": "领取、提交、回执全部使用同一owner/fence并消除旧prepared状态",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedTaskR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+      ],
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P2"
+  },
+  {
+    "id": "R31-B01-C03",
+    "title": "有限隔离、半开探测与任务级恢复",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java"
+      ],
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B01-C04",
+    "title": "可中断计算与关闭流程有界，禁止超时后并发替身",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedTaskR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/IncumbentLoopSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/XiIncumbentSU2.java"
+      ],
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P2"
+  },
+  {
+    "id": "R31-B02-C01",
+    "title": "写优先级显式化，消除R30操作名漏分",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java"
+      ],
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B02-C02",
+    "title": "数值计算和DDL退出短事务，分片在owner层完成",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java"
+      ],
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P2"
+  },
+  {
+    "id": "R31-B02-C03",
+    "title": "区分实际提交与提交后诊断失败，防重复训练/结算",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java"
+      ],
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B03-C01",
+    "title": "抓取与当期入库优先，历史回补不挡下一期准备",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P1"
+  },
+  {
+    "id": "R31-B03-C02",
+    "title": "冻结只有一个权威提交，快通道不能覆盖已冻结记录",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P1"
+  },
+  {
+    "id": "R31-B03-C03",
+    "title": "结算、反馈与训练事件解耦，漏冻结不能让研究饿死",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B04-C01",
+    "title": "进程内研究健康与服务心跳分离，恢复精确到任务或池",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B04-C02",
+    "title": "后台能力按实际系统限制验收，保留主动会话持续研究",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/AndroidManifest.xml",
+        "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
+        "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimePowerLeaseR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B05-C01",
+    "title": "连续存储普查与准确口径",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageLedgerR31.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B05-C02",
+    "title": "所有增长来源写前预算准入",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P3"
+  },
+  {
+    "id": "R31-B05-C03",
+    "title": "报告当前作业清理闭环与全物理配额",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java"
+      ],
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B05-C04",
+    "title": "keep保护机制迁为有界证据生命周期",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P1"
+  },
+  {
+    "id": "R31-B05-C05",
+    "title": "有效资产根引用闭包GC",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/EvidenceReachabilityR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageGcR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P1"
+  },
+  {
+    "id": "R31-B05-C06",
+    "title": "CAS归档STALE_PAGE有界恢复",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+        "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveIoCP12.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P1"
+  },
+  {
+    "id": "R31-B05-C07",
+    "title": "事件、revision与高基数诊断表有界化",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java",
+        "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+        "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P1"
+  },
+  {
+    "id": "R31-B05-C08",
+    "title": "业务混用chart cache先迁权威再清理",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java"
+      ],
+      "P3": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java"
+      ]
+    },
+    "local_integration": "P3",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B05-C09",
+    "title": "WAL与可重用页回收不阻塞实时链",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageCheckpointR31.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P1"
+  },
+  {
+    "id": "R31-B05-C10",
+    "title": "旧库重建与备份删除恢复证明",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
+        "app/src/main/java/com/ethk3/novaonepro/SourceReadLeaseR82.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P1"
+  },
+  {
+    "id": "R31-B05-C11",
+    "title": "Java堆/native/PSS与缓存队列有界治理",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExecutionBudgetR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/BoundedResearchExecutorR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SharedFeatureStoreR31.java"
+      ],
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java"
+      ],
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B06-C01",
+    "title": "保留历史训练并统一冻结输入、角色和数据修订",
+    "theme": "P2",
+    "paths_by_owner": {
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B06-C02",
+    "title": "回放增量化与模型、优化器、游标共同提交",
+    "theme": "P2",
+    "paths_by_owner": {
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyGenerationR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayCheckpointR31.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P2"
+  },
+  {
+    "id": "R31-B06-C03",
+    "title": "AtomNet 十位置完整训练水位与真实发布消费证明",
+    "theme": "P2",
+    "paths_by_owner": {
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B07-C01",
+    "title": "保留真实家族与算子并建立执行归属清单",
+    "theme": "P2",
+    "paths_by_owner": {
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelFoundryJobSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveLoopSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertWorkshopR26.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B07-C02",
+    "title": "有限 typed AST、前置解析预算与因果行为去重",
+    "theme": "P2",
+    "paths_by_owner": {
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicySpecR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P2"
+  },
+  {
+    "id": "R31-B07-C03",
+    "title": "以真实增益和成本驱动的有限创造预算",
+    "theme": "P2",
+    "paths_by_owner": {
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P2"
+  },
+  {
+    "id": "R31-B07-C04",
+    "title": "父子同机会比较、嵌套时间验证和诚实代际提升",
+    "theme": "P2",
+    "paths_by_owner": {
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedReplayRunnerR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P3"
+  },
+  {
+    "id": "R31-B07-C05",
+    "title": "完整工厂检出力、无信号误报与自然数据证据分开验收",
+    "theme": "P2",
+    "paths_by_owner": {
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCapabilityExperimentR31.java"
+      ],
+      "P3": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java"
+      ]
+    },
+    "local_integration": "P3",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P3"
+  },
+  {
+    "id": "R31-B07-C06",
+    "title": "失败归因、短期状态与多位置结构的实质能力升级",
+    "theme": "P2",
+    "paths_by_owner": {
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DirectedResearchPolicyR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchHypothesisR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RegimeHypothesisR31.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P2"
+  },
+  {
+    "id": "R31-B08-C01",
+    "title": "矩阵缺学生依赖隔离与按 kind 持续推进",
+    "theme": "P2",
+    "paths_by_owner": {
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B08-C02",
+    "title": "研究矩阵到公式的 typed 来源与消费闭环",
+    "theme": "P2",
+    "paths_by_owner": {
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixEvidenceR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B08-C03",
+    "title": "扩展配对子树、家族和融合研究且不混用置信区间",
+    "theme": "P2",
+    "paths_by_owner": {
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedReplayRunnerR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGainR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyCheckpointR31.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B08-C04",
+    "title": "研究产物与消费者接成可验证数值合同",
+    "theme": "P2",
+    "paths_by_owner": {
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P2"
+  },
+  {
+    "id": "R31-B08-C05",
+    "title": "修复T09枚举错配并验收16个逻辑研究表",
+    "theme": "P2",
+    "paths_by_owner": {
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchMeasureKindR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchMeasureProjectionR31.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B09-C01",
+    "title": "以稳定ID统一47个实际面板合同",
+    "theme": "P4",
+    "paths_by_owner": {
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B09-C02",
+    "title": "隔离慢图读取与生命周期取消",
+    "theme": "P4",
+    "paths_by_owner": {
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B09-C03",
+    "title": "缓存投影限额与业务真值隔离",
+    "theme": "P4",
+    "paths_by_owner": {
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchFrameBoundR30R1.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B09-C04",
+    "title": "前向榜、校准图、资金图统一证据口径",
+    "theme": "P4",
+    "paths_by_owner": {
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B09-C05",
+    "title": "47图与16逻辑表设备回归证据",
+    "theme": "P4",
+    "paths_by_owner": {
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B10-C01",
+    "title": "主链选择从图表缓存迁移到唯一 typed 权威表",
+    "theme": "P3",
+    "paths_by_owner": {
+      "P3": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterSU2.java"
+      ]
+    },
+    "local_integration": "P3",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P3"
+  },
+  {
+    "id": "R31-B10-C02",
+    "title": "审计资格功效与连续败绩风险并版本化新合同",
+    "theme": "P3",
+    "paths_by_owner": {
+      "P3": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/GateV2R29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceContractR31.java"
+      ]
+    },
+    "local_integration": "P3",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P3"
+  },
+  {
+    "id": "R31-B10-C03",
+    "title": "合理出手频率、唯一未来证据与撤销闭环",
+    "theme": "P3",
+    "paths_by_owner": {
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicySpecR27.java"
+      ],
+      "P3": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java"
+      ]
+    },
+    "local_integration": "P3",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B11-C01",
+    "title": "逐项接齐44指标及设备证据导入",
+    "theme": "P4",
+    "paths_by_owner": {
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricDefinitionsR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B11-C02",
+    "title": "报告区分已存在、已运行、已消费与有效",
+    "theme": "P4",
+    "paths_by_owner": {
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B11-C03",
+    "title": "有界报告与可取回证据附件",
+    "theme": "P4",
+    "paths_by_owner": {
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportChartsR30.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B11-C04",
+    "title": "建立96检查与44指标的显式交叉账",
+    "theme": "P4",
+    "paths_by_owner": {
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricDefinitionsR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckMetricCrosswalkR31.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P4"
+  },
+  {
+    "id": "R31-B12-C01",
+    "title": "覆盖安装与迁移可恢复性联合验收",
+    "theme": "P5",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java"
+      ],
+      "P5": [
+        "tools/r31/upgrade_matrix.py"
+      ]
+    },
+    "local_integration": "P5",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P5"
+  },
+  {
+    "id": "R31-B12-C02",
+    "title": "统一CI、故障注入与跨批次不可回归测试",
+    "theme": "P5",
+    "paths_by_owner": {
+      "P5": [
+        ".github/workflows/r31-verification.yml",
+        "tools/r31/fault_injection_manifest.json"
+      ]
+    },
+    "local_integration": "P5",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P5"
+  },
+  {
+    "id": "R31-B12-C03",
+    "title": "24h初测、72h全链与长期容量验证",
+    "theme": "P5",
+    "paths_by_owner": {
+      "P5": [
+        "tools/r31/collect_device_receipts.py",
+        "tools/r31/accept_device_receipts.py"
+      ]
+    },
+    "local_integration": "P5",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "R31-B12-C04",
+    "title": "受控退役与大型文件渐进拆分",
+    "theme": "P5",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java"
+      ],
+      "P5": [
+        "tools/r31/retirement_manifest.json"
+      ]
+    },
+    "local_integration": "P5",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P5"
+  },
+  {
+    "id": "R31-B12-C05",
+    "title": "唯一成品发布收据和APK压缩包交付",
+    "theme": "P5",
+    "paths_by_owner": {
+      "P5": [
+        "tools/r31/package_release.py",
+        "release/R31_DELIVERY.json"
+      ]
+    },
+    "local_integration": "P5",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/cards.json",
+    "last_local_clause": "P5"
+  },
+  {
+    "id": "R31-ENG-01",
+    "title": "修复启动Certificate关键域指纹失配（随B02-C02同批）",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java"
+      ],
+      "P3": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java"
+      ]
+    },
+    "local_integration": "P3",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/repair_cards.json",
+    "last_local_clause": "P3"
+  },
+  {
+    "id": "R31-ENG-02",
+    "title": "内存准入在制品与既有研究测试相容（不加堆、不改阈值）",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/BoundedResearchExecutorR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SharedFeatureStoreR31.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/repair_cards.json",
+    "last_local_clause": "P5"
+  },
+  {
+    "id": "UF01",
+    "title": "唯一源码、修订合并、真实完成状态",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "construction/r31/NEXT_ACTION.json"
+      ],
+      "P5": [
+        "CURRENT_FINAL_PLAN.md",
+        "tools/r31/verify_baseline.py"
+      ]
+    },
+    "local_integration": "P5",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF02",
+    "title": "业务路径零DDL，迁移只由唯一owner执行",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF03",
+    "title": "严格DDL、单元后置条件与失败自动重放",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+        "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java",
+        "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF04",
+    "title": "真正短迁移切片与关键写者进展",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageCheckpointR31.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF05",
+    "title": "存储普查与准入临界区分离",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java"
+      ],
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportIoR31.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF06",
+    "title": "最小请求先持久化，再采可选证据",
+    "theme": "P4",
+    "paths_by_owner": {
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportRequestQueueCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF07",
+    "title": "ACK outbox、READY重连与同一报告恢复",
+    "theme": "P4",
+    "paths_by_owner": {
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF08",
+    "title": "发布可分享的原子边界与租约竞争",
+    "theme": "P4",
+    "paths_by_owner": {
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportIoR31.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF09",
+    "title": "证据生命周期生产接线、孤儿恢复与有界清理",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/EvidenceReachabilityR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageGcR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/KeepMigrationR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java"
+      ],
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF10",
+    "title": "R31指标、对象状态和真实跨源冲突进入生产报告",
+    "theme": "P4",
+    "paths_by_owner": {
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckMetricCrosswalkR31.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF11",
+    "title": "完整报告语义、附件闭包及保存回读",
+    "theme": "P4",
+    "paths_by_owner": {
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/DiagnosticReportProviderR923.java",
+        "app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF12",
+    "title": "抓取—下一期冻结—结算—训练事件闭环",
+    "theme": "P1",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+      ]
+    },
+    "local_integration": "P1",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF13",
+    "title": "研究进展、可执行失败假设与regime接入",
+    "theme": "P2",
+    "paths_by_owner": {
+      "P1": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+      ],
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchHypothesisR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RegimeHypothesisR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF14",
+    "title": "完整创造工厂实验而非四程序演示",
+    "theme": "P2",
+    "paths_by_owner": {
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCapabilityExperimentR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java"
+      ]
+    },
+    "local_integration": "P2",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF15",
+    "title": "图表新鲜度、ABI、取消和健康口径",
+    "theme": "P4",
+    "paths_by_owner": {
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF16",
+    "title": "16逻辑表实际读者与T09对象数值投影",
+    "theme": "P4",
+    "paths_by_owner": {
+      "P2": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchMeasureProjectionR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java"
+      ],
+      "P4": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java"
+      ]
+    },
+    "local_integration": "P4",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF17",
+    "title": "主链资格、真实选择与撤销闭环",
+    "theme": "P3",
+    "paths_by_owner": {
+      "P3": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationWindowR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceContractR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java"
+      ]
+    },
+    "local_integration": "P3",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF18",
+    "title": "统一CI、同次运行结果与低消耗施工",
+    "theme": "P5",
+    "paths_by_owner": {
+      "P5": [
+        ".github/workflows/r31-gate.yml",
+        ".github/workflows/r31-verification.yml",
+        ".github/workflows/r31-build-r27.yml",
+        "tools/r31/verification_receipt.py",
+        "construction/r31/HOST_SUITE.json"
+      ]
+    },
+    "local_integration": "P5",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF19",
+    "title": "旧库、后台、故障与真机时长分层",
+    "theme": "P5",
+    "paths_by_owner": {
+      "P5": [
+        "tools/r31/collect_device_receipts.py",
+        "tools/r31/accept_device_receipts.py",
+        "tools/r31/run_r31q_android_delivery.sh"
+      ]
+    },
+    "local_integration": "P5",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  },
+  {
+    "id": "UF20",
+    "title": "同签名成品APK与可核对交付",
+    "theme": "P5",
+    "paths_by_owner": {
+      "P5": [
+        "release/release_manifest.json",
+        "tools/r31/package_release.py",
+        "release/R31_DELIVERY.json"
+      ]
+    },
+    "local_integration": "P5",
+    "old_id_is_lineage_only": true,
+    "procedure_source": "prior/REPAIR_CARDS_20.json",
+    "last_local_clause": null
+  }
+]

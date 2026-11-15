@@ -1,0 +1,17 @@
+{
+  "id": "P1.01.DDL-AUDIT-REARM",
+  "owner": "P1",
+  "paths": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java",
+      "beforeSha256": "a676b2e411f6c61d3dcebb23fe8383245777d1ed86d4cafc183bc1d54ea65d09",
+      "afterSha256": "3ffe4d47a3ae4a42b1c5e3840e7c64e88a238586b1a6498982cd7321a05c2e5b",
+      "full": "full/app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java"
+    }
+  ],
+  "scope": "P1-P5 candidate overlay incremental fix",
+  "behavior": "Wrong-definition runtime audit failure re-arms exactly responsible completed unit, persists first error, then refuses; does not rewrite/drop index or business data",
+  "test": "verification_complete/RESULTS.json",
+  "remaining": "Exact mismatched-index rebuilding is not implemented and requires a registered per-index restore contract; migration stays fail-closed until definition is corrected.",
+  "negativeBaselineSha256": "a676b2e411f6c61d3dcebb23fe8383245777d1ed86d4cafc183bc1d54ea65d09"
+}

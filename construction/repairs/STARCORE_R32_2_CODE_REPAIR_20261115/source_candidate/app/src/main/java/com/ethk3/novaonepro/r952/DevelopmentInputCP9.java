@@ -1,0 +1,103 @@
+package com.ethk3.novaonepro.r952;
+import com.ethk3.novaonepro.Models;
+import com.ethk3.novaonepro.TargetIssueResolver;
+import com.ethk3.novaonepro.V51ChecksumEngine;
+import java.io.*;import java.nio.charset.StandardCharsets;import java.security.*;import java.util.*;
+
+/** SCDEV1 exact bytes, bounded parser and PIT projection. No queue or database authority.
+ * File publication/shared locking belongs to the existing Registry caller. */
+public final class DevelopmentInputCP9 {
+ private DevelopmentInputCP9(){}
+ public static final int MAX_BYTES=8<<20,MAX_HEADER=65536,MAX_ROWS=5000;
+ public static final long RETAINED_BUDGET=2L<<20;
+ public static final class Header {
+  public final String canonical,hash,game,build,sourceManifestHash,scheduleRevision;
+  public Header(String json){
+   need(json!=null&&json.length()<=MAX_HEADER,"SCDEV_HEADER_SIZE");byte[] bytes=json.getBytes(StandardCharsets.UTF_8);need(bytes.length<=MAX_HEADER,"SCDEV_HEADER_SIZE");
+   Map<String,Object> h=StrictCanonicalJson.readContextObject(json);CandidateAstR952.keys(h,"revision","game","build","sourceManifestHash","scheduleRevision","bindings");
+   need("SCDEV1".equals(h.get("revision")),"SCDEV_REVISION");canonical=StrictCanonicalJson.writeContext(h);need(canonical.equals(json),"SCDEV_CANONICAL_HEADER");
+   game=shortText(h,"game");build=shortText(h,"build");scheduleRevision=shortText(h,"scheduleRevision");sourceManifestHash=shortText(h,"sourceManifestHash");need(isHash(sourceManifestHash),"SCDEV_SOURCE_HASH");
+   List<?> bindings=CandidateAstR952.array(h.get("bindings"));need(bindings.size()<=64,"SCDEV_BINDING_COUNT");String previous=null;
+   for(Object value:bindings){Map<String,Object> b=CandidateAstR952.object(value);CandidateAstR952.keys(b,"kind","hash","byteCount");String kind=shortText(b,"kind"),hash=shortText(b,"hash");need(kind.matches("[A-Z][A-Z0-9_]{0,63}")&&isHash(hash),"SCDEV_BINDING_ID");int n=CandidateAstR952.integer(b,"byteCount");need(n>0&&n<=MAX_BYTES,"SCDEV_BINDING_BYTES");String key=kind+'|'+hash;need(previous==null||previous.compareTo(key)<0,"SCDEV_BINDING_ORDER");previous=key;}
+   hash=V51ChecksumEngine.sha256(canonical);
+  }
+ }
+ public static final class Input implements AutoCloseable {
+  public final Header header;public final String inputHash;public final long byteCount;
+  private String[] issues;private long[] openTimes;private byte[] numbers;private final MemoryBudgetCP4.Lease lease;private boolean closed;
+  private Input(Header header,String hash,long bytes,String[] issues,long[] openTimes,byte[] numbers,MemoryBudgetCP4.Lease lease){this.header=header;inputHash=hash;byteCount=bytes;this.issues=issues;this.openTimes=openTimes;this.numbers=numbers;this.lease=lease;}
+  public int rowCount(){open();return issues.length;}
+  public String issue(int i){open();return issues[i];}
+  public int actual(int i,int position){open();need(position>=1&&position<=10,"SCDEV_POSITION");return numbers[i*10+position-1]&255;}
+  public long openTime(int i){open();return openTimes[i];}
+  /** Returned rows never include target index. At most 5000 compact Draw projections,
+   * caller must reserve their transient memory separately and release after graph capture. */
+  public List<Models.Draw> historyBefore(int targetIndex,int requested){
+   open();need(targetIndex>=20&&targetIndex<issues.length&&requested>=20&&requested<=5000,"SCDEV_PIT_RANGE");
+   int from=Math.max(0,targetIndex-requested);List<Models.Draw> out=new ArrayList<>(targetIndex-from);
+   for(int i=from;i<targetIndex;i++){Models.Draw d=new Models.Draw();d.issue=issues[i];d.openTime=openTimes[i];d.fetchTime=openTimes[i];for(int p=0;p<10;p++)d.numbers[p]=numbers[i*10+p]&255;out.add(d);}return Collections.unmodifiableList(out);
+  }
+  public Split split(int requiredHistory){open();return new Split(issues.length,requiredHistory);}
+  private void open(){need(!closed,"SCDEV_CLOSED");}
+  public synchronized void close(){if(!closed){closed=true;issues=null;openTimes=null;numbers=null;lease.close();}}
+ }
+ public static final class Split {
+  public final int history,trainFirst,trainEnd,embargo,validationFirst,validationEnd,trainN;
+  private Split(int n,int required){need(required>=0&&required<=5000,"SCDEV_REQUIRED_HISTORY");history=Math.max(20,required);trainN=Math.min(1200,n-history-121);need(trainN>=300,"WAIT_HISTORY");trainEnd=n-121;trainFirst=trainEnd-trainN;embargo=trainEnd;validationFirst=trainEnd+1;validationEnd=n;need(trainFirst>=history&&validationEnd-validationFirst==120,"SCDEV_SPLIT");}
+ }
+ /** InputStream remains caller-owned. No read-all, JSONObject tree of history or live DB fallback. */
+ public static Input read(InputStream source,long expectedBytes,String expectedHash,Header expectedHeader,MemoryBudgetCP4 budget)throws IOException {
+  need(source!=null&&expectedHeader!=null&&budget!=null&&expectedBytes>0&&expectedBytes<=MAX_BYTES&&isHash(expectedHash),"SCDEV_READ_CONTRACT");
+  MemoryBudgetCP4.Lease reservation=budget.acquire(RETAINED_BUDGET);
+  try {
+   // R72: primitive decoding must not issue one disk read per byte. Keep the
+   // buffer below both digests and inspect its tail, so read-ahead cannot hide
+   // trailing bytes or change the authenticated SCDEV1 representation.
+   InputStream buffered=new BufferedInputStream(source,32768);
+   HashInput stream=new HashInput(buffered,expectedBytes);DataInputStream in=new DataInputStream(stream);
+   byte[] magic=new byte[6];in.readFully(magic);need(Arrays.equals(magic,"SCDEV1".getBytes(StandardCharsets.US_ASCII))&&in.readUnsignedShort()==1,"SCDEV_MAGIC");
+   int headerN=in.readInt();need(headerN>0&&headerN<=MAX_HEADER&&headerN<=expectedBytes-48,"SCDEV_HEADER_SIZE");byte[] bytes=new byte[headerN];in.readFully(bytes);String json=new String(bytes,StandardCharsets.UTF_8);need(Arrays.equals(bytes,json.getBytes(StandardCharsets.UTF_8)),"SCDEV_HEADER_UTF8");Header header=new Header(json);need(header.canonical.equals(expectedHeader.canonical),"SCDEV_HEADER_IDENTITY");
+   int n=in.readInt();need(n>=1&&n<=MAX_ROWS&&(long)n*52<=expectedBytes-stream.count-32,"SCDEV_ROW_COUNT");
+   String[] issues=new String[n];long[] times=new long[n];byte[] numbers=new byte[n*10];
+   for(int i=0;i<n;i++) {
+    int len=in.readUnsignedByte();need(len>0&&len<=32,"SCDEV_ISSUE_LENGTH");byte[] issueBytes=new byte[len];in.readFully(issueBytes);String issue=new String(issueBytes,StandardCharsets.US_ASCII);need(Arrays.equals(issueBytes,issue.getBytes(StandardCharsets.US_ASCII))&&TargetIssueResolver.isValid(issue),"SCDEV_ISSUE");
+    if(i>0)need(TargetIssueResolver.exact(issues[i-1],issue).valid,"SCDEV_SEQUENCE_GAP");issues[i]=issue;times[i]=in.readLong();need(times[i]>0&&(i==0||times[i]>times[i-1]),"SCDEV_DRAW_TIME");
+    int seen=0;for(int p=0;p<10;p++){int v=in.readUnsignedByte();need(v>=1&&v<=10&&(seen&(1<<(v-1)))==0,"SCDEV_DRAW_PERMUTATION");seen|=1<<(v-1);numbers[i*10+p]=(byte)v;}
+    byte[] rowHash=new byte[32];in.readFully(rowHash);need(MessageDigest.isEqual(rowHash,drawDigest(issue,times[i],numbers,i*10)),"SCDEV_DRAW_HASH");
+   }
+   byte[] bodyHash=stream.body.digest();stream.hashBody=false;byte[] tail=new byte[32];in.readFully(tail);need(MessageDigest.isEqual(bodyHash,tail),"SCDEV_BODY_HASH");
+   need(stream.count==expectedBytes&&buffered.read()==-1,"SCDEV_TRAILING_OR_LENGTH");String actual=hex(stream.all.digest());need(actual.equals(expectedHash),"SCDEV_INPUT_HASH");
+   return new Input(header,actual,expectedBytes,issues,times,numbers,reservation);
+  }catch(IOException|RuntimeException|Error error){reservation.close();throw error;}
+ }
+ /** Producer emits the same format and hashes; flush/fsync/atomic rename are caller obligations. */
+ public static Receipt write(OutputStream destination,Header header,List<Models.Draw> oldest)throws IOException {
+  need(destination!=null&&header!=null&&oldest!=null&&oldest.size()>=1&&oldest.size()<=MAX_ROWS,"SCDEV_WRITE_CONTRACT");
+  // Caller retains ownership; flush reaches its bounded CAS stream before fsync.
+  HashOutput stream=new HashOutput(new BufferedOutputStream(destination,32768));DataOutputStream out=new DataOutputStream(stream);out.writeBytes("SCDEV1");out.writeShort(1);byte[] h=header.canonical.getBytes(StandardCharsets.UTF_8);out.writeInt(h.length);out.write(h);out.writeInt(oldest.size());String previous=null;long previousTime=0;
+  for(Models.Draw d:oldest){need(d!=null&&d.isValid()&&d.dirty==0&&TargetIssueResolver.isValid(d.issue)&&d.openTime>previousTime,"SCDEV_DRAW");need(previous==null||TargetIssueResolver.exact(previous,d.issue).valid,"SCDEV_SEQUENCE_GAP");previous=d.issue;previousTime=d.openTime;
+   byte[] issue=d.issue.getBytes(StandardCharsets.US_ASCII);need(issue.length<=32,"SCDEV_ISSUE_LENGTH");out.writeByte(issue.length);out.write(issue);out.writeLong(d.openTime);byte[] numbers=new byte[10];int seen=0;for(int p=0;p<10;p++){int v=d.numbers[p];need(v>=1&&v<=10&&(seen&(1<<(v-1)))==0,"SCDEV_DRAW_PERMUTATION");seen|=1<<(v-1);numbers[p]=(byte)v;out.writeByte(v);}out.write(drawDigest(d.issue,d.openTime,numbers,0));
+  }
+  byte[] bodyHash=stream.body.digest();stream.hashBody=false;out.write(bodyHash);out.flush();return new Receipt(hex(stream.all.digest()),stream.count,oldest.size(),header.hash);
+ }
+ public static final class Receipt {public final String inputHash,headerHash;public final long byteCount;public final int rows;private Receipt(String h,long bytes,int n,String header){inputHash=h;byteCount=bytes;rows=n;headerHash=header;}}
+ private static byte[] drawDigest(String issue,long time,byte[] numbers,int offset)throws IOException{ByteArrayOutputStream b=new ByteArrayOutputStream(80);DataOutputStream o=new DataOutputStream(b);o.writeBytes("SCDRAW1");byte[] is=issue.getBytes(StandardCharsets.US_ASCII);o.writeByte(is.length);o.write(is);o.writeLong(time);o.write(numbers,offset,10);return sha().digest(b.toByteArray());}
+ private static final class HashInput extends InputStream {
+  final InputStream delegate;final long limit;final MessageDigest all=sha(),body=sha();long count;boolean hashBody=true;
+  HashInput(InputStream in,long n){delegate=in;limit=n;}
+  public int read()throws IOException{need(count<limit,"SCDEV_EOF_BOUND");int v=delegate.read();if(v>=0){count++;all.update((byte)v);if(hashBody)body.update((byte)v);}return v;}
+  public int read(byte[] b,int off,int len)throws IOException{if(len==0)return 0;need(len<=limit-count,"SCDEV_EOF_BOUND");int n=delegate.read(b,off,len);if(n>0){count+=n;all.update(b,off,n);if(hashBody)body.update(b,off,n);}return n;}
+ }
+ private static final class HashOutput extends OutputStream {
+  final OutputStream delegate;final MessageDigest all=sha(),body=sha();long count;boolean hashBody=true;
+  HashOutput(OutputStream out){delegate=out;}
+  public void write(int b)throws IOException{need(count<MAX_BYTES,"SCDEV_FILE_LIMIT");delegate.write(b);all.update((byte)b);if(hashBody)body.update((byte)b);count++;}
+  public void write(byte[] b,int off,int len)throws IOException{need(len<=MAX_BYTES-count,"SCDEV_FILE_LIMIT");delegate.write(b,off,len);all.update(b,off,len);if(hashBody)body.update(b,off,len);count+=len;}
+  public void flush()throws IOException{delegate.flush();}
+ }
+ private static String shortText(Map<String,Object> obj,String key){String x=CandidateAstR952.str(obj,key);need(!x.isEmpty()&&x.length()<=256,"SCDEV_HEADER_TEXT");return x;}
+ private static boolean isHash(String x){return x!=null&&x.matches("[0-9a-f]{64}");}
+ private static MessageDigest sha(){try{return MessageDigest.getInstance("SHA-256");}catch(NoSuchAlgorithmException e){throw new AssertionError(e);}}
+ private static String hex(byte[] a){StringBuilder b=new StringBuilder(64);for(byte x:a)b.append(Character.forDigit((x&255)>>>4,16)).append(Character.forDigit(x&15,16));return b.toString();}
+ private static void need(boolean b,String message){if(!b)throw new IllegalArgumentException(message);}
+}

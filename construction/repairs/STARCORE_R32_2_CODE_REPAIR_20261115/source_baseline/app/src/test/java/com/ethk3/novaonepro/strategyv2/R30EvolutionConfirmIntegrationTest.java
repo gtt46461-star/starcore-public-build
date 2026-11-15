@@ -1,0 +1,138 @@
+package com.ethk3.novaonepro.strategyv2;
+
+import static org.junit.Assert.*;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.Test;
+
+/** Actual evolution phase, frozen confirmation, and once-only evidence reuse. */
+public final class R30EvolutionConfirmIntegrationTest {
+    // R31-ENG-02#A2: every test returns all explicit-owner memory leases it opened (production APIs only).
+    private int r31LeasesBeforeTest;
+    @org.junit.Before public void r31OutstandingLeaseGuardBefore(){FeatureCacheR27.trimRegisteredCachesR31();r31LeasesBeforeTest=MemoryBudgetR31.processBudget().explicitOwnerLeaseCountR31();}
+    @org.junit.After public void r31OutstandingLeaseGuardAfter(){
+        FeatureCacheR27.trimRegisteredCachesR31();MemoryBudgetR31 memory=MemoryBudgetR31.processBudget();int after=memory.explicitOwnerLeaseCountR31();
+        org.junit.Assert.assertTrue("R31_OUTSTANDING_LEASES before="+r31LeasesBeforeTest+" after="+after+" owners="+memory.explicitOwnerLeasesR31(64),after<=r31LeasesBeforeTest);
+    }
+    static final class MemoryEvidence implements FrozenConfirmationR30.Evidence {
+        final Map<String,ReplayEvaluatorR27.Trace> traces = new HashMap<>();
+        public ReplayEvaluatorR27.Trace load(FrozenConfirmationR30.Task task, FrozenConfirmationR30.Policy p) { return traces.get(p.experimentId+"|"+task.datasetHash+"|"+task.block); }
+        public void save(FrozenConfirmationR30.Task task, FrozenConfirmationR30.Policy p, ReplayEvaluatorR27.Trace trace) { traces.put(p.experimentId+"|"+task.datasetHash+"|"+task.block,trace); }
+    }
+    static EvolutionLoopR27 evolution() {
+        ReplayDatasetR27 data = ReplayDatasetR27.synthetic(3000,42,new int[0]);
+        EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.nullControl = false; cfg.births = 24; cfg.minPerFamily = 1;
+        EvolutionLoopR27 loop = new EvolutionLoopR27(cfg,new FeatureCacheR27(data),new R27BirthGateTest.Recorder(),() -> 0L);
+        assertTrue(loop.context().split.holdoutAvailable);
+        loop.champion = new PolicySpecR27(PolicyAstR27.op("zscore",PolicyAstR27.leaf("freq",1,32)),1,PolicySpecR27.Rule.MARGIN,0.01,0,1,false,0.02,0.01,
+                IdeaFamilyR27.meta("I01","BIRTH",0,1,"confirmation fixture"));
+        loop.championTau = 1; return loop;
+    }
+
+    @Test public void actualEvolutionCanRunWithUnreadableConfirmLabels() throws Exception {
+        EvolutionLoopR27 loop = evolution();
+        try (FeatureCacheR27 ownedCache = loop.context().cache; EvolutionLoopR27 ownedLoop = loop) {
+        EvalContextR27 ctx = loop.context(); int[][] labels = ctx.data.draws.clone();
+        for (int t = ctx.split.selectTo; t < labels.length; t++) labels[t] = null;
+        Field f = EvolutionLoopR27.class.getDeclaredField("ctx"); f.setAccessible(true);
+        f.set(loop,new EvalContextR27(ctx.cache,ctx.split,labels));
+        ctx.close(); // Replacing the context ends its memo ownership; the shared cache remains live.
+        AtomicInteger reserved = new AtomicInteger(); loop.ledger().setConfirmPersistence(r -> reserved.incrementAndGet());
+        try { loop.runGeneration(); }
+        catch(MemoryBudgetR31.CapacityWait wait) {
+            System.out.println("R31_CONFIRM_INTEGRATION_MEMORY_AT_FAILURE="+JsonR27.write(MemoryBudgetR31.processBudget().snapshot()));
+            System.out.println("R31_CONFIRM_INTEGRATION_OWNERS_AT_FAILURE="+MemoryBudgetR31.processBudget().explicitOwnerLeasesR31(64));
+            throw wait;
+        }
+        assertEquals(0,reserved.get()); assertEquals(0,loop.ledger().exposures(ctx.split.holdoutBlock));
+        assertNotNull(loop.pendingConfirmation); assertEquals("FROZEN_PENDING_EXTERNAL",((Map<?,?>)loop.lastRecord.get("holdout")).get("status"));
+        }
+    }
+
+    @Test public void roleAndLowLevelReadsAreRejectedBeforeAnyReservationDuringEvolution() {
+        EvolutionLoopR27 loop = evolution();
+        try (FeatureCacheR27 ownedCache = loop.context().cache; EvolutionLoopR27 ownedLoop = loop) {
+        EvalContextR27 ctx = loop.context(); AtomicInteger reserved = new AtomicInteger();
+        loop.ledger().setConfirmPersistence(r -> reserved.incrementAndGet()); Integer old = ReplayEvaluatorR27.enterEvolutionR30(ctx.split.selectTo);
+        try {
+            assertEquals("R30_CONFIRM_DURING_EVOLUTION",assertThrows(IllegalStateException.class,() -> ctx.holdoutTrace(loop.champion,1,loop.ledger())).getMessage());
+            assertEquals("R30_CONFIRM_DURING_EVOLUTION",assertThrows(IllegalStateException.class,() -> ReplayEvaluatorR27.run(loop.champion,ctx.cache,ctx.labels,1,0,ctx.split.holdoutTo)).getMessage());
+            assertEquals(0,reserved.get());
+        } finally { ReplayEvaluatorR27.leaveEvolutionR30(old); }
+        }
+    }
+
+    @Test public void forbiddenConfirmReadIsRejectedBeforeColdFeatureAdmissionUnderPressure() {
+        MemoryBudgetR31 memory=new MemoryBudgetR31(()->{long now=System.nanoTime();return new MemoryBudgetR31.Measurement(1,"pressure-fixture",1<<20,950000,-1,-1,-1,false,now,now);},new MemoryBudgetR31.Config());
+        ReplayDatasetR27 data=ReplayDatasetR27.synthetic(64,2241,new int[0]);
+        try(SharedFeatureStoreR31 shared=new SharedFeatureStoreR31(memory,4096);FeatureCacheR27 cache=new FeatureCacheR27(data,4,memory,shared)){
+            PolicySpecR27 spec=new PolicySpecR27(PolicyAstR27.op("zscore",PolicyAstR27.leaf("freq",1,32)),1,PolicySpecR27.Rule.ALWAYS,0,1,1,false,0,0,null);
+            Integer old=ReplayEvaluatorR27.enterEvolutionR30(32);
+            try{
+                assertEquals("R30_CONFIRM_DURING_EVOLUTION",assertThrows(IllegalStateException.class,()->ReplayEvaluatorR27.run(spec,cache,data.draws,1,0,64)).getMessage());
+                assertEquals("no forbidden input is computed",0,cache.computedLeaves());
+                assertEquals("no memory is reserved for forbidden input",0L,((Number)memory.snapshot().get("declaredJavaWorkingBytes")).longValue());
+            }finally{ReplayEvaluatorR27.leaveEvolutionR30(old);}
+        }
+    }
+
+    @Test public void productionFreezeDoesNotReadAndIndependentStageCommitsBeforeScoring() {
+        EvolutionLoopR27 loop = evolution();
+        try (FeatureCacheR27 ownedCache = loop.context().cache; EvolutionLoopR27 ownedLoop = loop) {
+        loop.ledger().setConfirmPersistence(r -> { throw new IllegalStateException("INJECTED_RESERVATION_FAILURE"); });
+        loop.stepHoldout(); assertNotNull(loop.pendingConfirmation); MemoryEvidence evidence = new MemoryEvidence();
+        assertEquals("INJECTED_RESERVATION_FAILURE",assertThrows(IllegalStateException.class,() ->
+                FrozenConfirmationR30.evaluate(loop.pendingConfirmation,loop.context(),loop.ledger(),evidence)).getMessage());
+        assertTrue(evidence.traces.isEmpty());
+        AtomicInteger reserved = new AtomicInteger(); loop.ledger().setConfirmPersistence(r -> reserved.incrementAndGet());
+        FrozenConfirmationR30.Result result = FrozenConfirmationR30.evaluate(loop.pendingConfirmation,loop.context(),loop.ledger(),new FrozenConfirmationR30.Evidence() {
+            public ReplayEvaluatorR27.Trace load(FrozenConfirmationR30.Task t, FrozenConfirmationR30.Policy p) { return null; }
+            public void save(FrozenConfirmationR30.Task t, FrozenConfirmationR30.Policy p, ReplayEvaluatorR27.Trace trace) {
+                assertEquals(1,reserved.get()); assertTrue(loop.ledger().confirmed(p.experimentId,t.datasetHash,t.block)); assertEquals(t.to,trace.to);
+            }
+        });
+        assertEquals(1,reserved.get()); assertTrue(result.report.get("championHoldout") instanceof Map);
+        }
+    }
+
+    @Test public void frozenParametersAndControlsCannotBeChangedByLaterEvolution() {
+        EvolutionLoopR27 loop = evolution();
+        try (FeatureCacheR27 ownedCache = loop.context().cache; EvolutionLoopR27 ownedLoop = loop) {
+        loop.stepHoldout(); FrozenConfirmationR30.Task task = loop.pendingConfirmation;
+        String text = task.json(), spec = task.champion.spec().canonical();
+        loop.champion.ast.kids[0].ints[0] = 10; loop.championTau = 7;
+        PolicySpecR27 borrowed = task.champion.spec(); borrowed.ast.kids[0].ints[0] = 9;
+        assertEquals(text,task.json()); assertEquals(spec,task.champion.spec().canonical());
+        assertEquals(text,FrozenConfirmationR30.Task.parse(text).json()); assertEquals(1,task.champion.temperature,0);
+        }
+    }
+
+    @Test public void cachedConfirmationIsReusableButConsumedEvidenceCannotBeReopened() {
+        EvolutionLoopR27 loop = evolution();
+        try (FeatureCacheR27 ownedCache = loop.context().cache; EvolutionLoopR27 ownedLoop = loop) {
+        loop.stepHoldout(); MemoryEvidence evidence = new MemoryEvidence();
+        AtomicInteger reserved = new AtomicInteger(); loop.ledger().setConfirmPersistence(r -> reserved.incrementAndGet());
+        FrozenConfirmationR30.Result a = FrozenConfirmationR30.evaluate(loop.pendingConfirmation,loop.context(),loop.ledger(),evidence);
+        EvalContextR27 ctx = loop.context(); int[][] labels = ctx.labels.clone();
+        for (int t = ctx.split.selectTo; t < labels.length; t++) labels[t] = null;
+        try (EvalContextR27 poisoned = new EvalContextR27(ctx.cache,ctx.split,labels)) {
+        FrozenConfirmationR30.Result b = FrozenConfirmationR30.evaluate(loop.pendingConfirmation,poisoned,loop.ledger(),evidence);
+        assertEquals(a.json(),b.json()); assertEquals(1,reserved.get()); evidence.traces.clear();
+        assertTrue(assertThrows(IllegalStateException.class,() -> FrozenConfirmationR30.evaluate(loop.pendingConfirmation,poisoned,loop.ledger(),evidence)).getMessage().startsWith(HoldoutLedgerR27.CONFIRM_REUSED));
+        }
+        }
+    }
+
+    @Test public void identicalControlProgramsKeepTheirOwnFrozenLabelViewAndBudget() {
+        EvolutionLoopR27 loop = evolution();
+        try (FeatureCacheR27 ownedCache = loop.context().cache; EvolutionLoopR27 ownedLoop = loop) {
+        loop.cfg.nullControl = true; loop.i00Champion = loop.champion; loop.i00Tau = 1;
+        loop.nullEvolution.champion = loop.champion; loop.nullEvolution.championTau = 1; loop.nullEvolution.lastSeed = 17;
+        loop.stepHoldout(); FrozenConfirmationR30.Task task = loop.pendingConfirmation;
+        MemoryEvidence evidence = new MemoryEvidence(); FrozenConfirmationR30.Result result = FrozenConfirmationR30.evaluate(task,loop.context(),loop.ledger(),evidence);
+        assertFalse(result.verified); assertEquals(3,evidence.traces.size()); assertEquals(1,loop.ledger().exposures(task.block)); assertEquals(2,loop.ledger().controlExposures(task.block));
+        assertNotEquals(task.champion.experimentId,task.i00.experimentId); assertNotEquals(task.i00.experimentId,task.nullPolicy.experimentId);
+        }
+    }
+}

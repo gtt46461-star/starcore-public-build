@@ -1,0 +1,50 @@
+diff --git a/tools/r31/package_release.py b/tools/r31/package_release.py
+--- a/tools/r31/package_release.py
++++ b/tools/r31/package_release.py
+@@ -19,6 +19,11 @@
+ # The phone's installed build (device report of the R31 plan: R30-REPAIR1) and its signer, the R27 CI key.
+ INSTALLED = {'package': 'com.starcore.research.r13', 'versionCode': 577311020, 'versionName': 'R31-CHECKPOINT-P01-2026.11.12-020',
+              'signerCertSha256': 'd8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'}
++
++# Existing 020-based receipts remain reproducible. Compare builds after the 032 field release with that release.
++FIELD_032 = dict(INSTALLED, versionCode=577311032, versionName='R31-REPORT-REPAIR-2026.11.14-032',
++                 apkSha256='876f26e81114acfa3d2fa2d023b2e36309bec6dde3ef32f0e87c562b48d165ac')
++
+ 
+ 
+ class Refused(Exception):
+@@ -73,8 +78,11 @@
+ def _layers(verification):
+     stages = verification.get('stages', {})
+     def st(name): return stages.get(name, {}).get('status', 'NOT_RUN')
++    contracts, baseline = st('contracts'), st('baseline')
++    # A PASS for either stage cannot erase an absent or failed prerequisite.
++    engineering = baseline if contracts == 'PASS' else contracts
+     return {
+-        'L2_ENGINEERING_HOST_AND_UNIT': {'status': 'PASS' if st('contracts') == 'PASS' and st('baseline') == 'PASS' else st('contracts'),
++        'L2_ENGINEERING_HOST_AND_UNIT': {'status': engineering,
+                                          'evidence': 'r31-verification contracts + baseline stages; construction gate RECEIPT K01..K11'},
+         'L3_ANDROID_EMULATOR': {'status': st('instrumentation') if st('instrumentation') != 'PASS' else 'PASS_EMULATOR_ONLY',
+                                 'evidence': 'instrumentation stage (API 29/35 disposable emulators); not a device'},
+@@ -101,8 +109,10 @@
+         apk = apks[0]; stem = apk.stem
+         facts = verify_apk(apk, r31v / ('badging-%s.txt' % stem), r31v / ('signature-%s.txt' % stem), r31v / 'SHA256SUMS.txt', ident)
+         label = 'OFFICIAL' if official else ('OVERLAY-INSTALL-R27-IDENTITY' if device else 'DEBUG-NOT-OFFICIAL')
+-        overlay = {'installed': INSTALLED, 'sameSigner': facts['signerCertSha256'] == INSTALLED['signerCertSha256'],
+-                   'samePackage': facts['package'] == INSTALLED['package'], 'versionCodeHigher': facts['versionCode'] > INSTALLED['versionCode']}
++        installed = FIELD_032 if facts['versionCode'] > FIELD_032['versionCode'] else INSTALLED
++        overlay = {'installed': installed, 'sameSigner': facts['signerCertSha256'] == installed['signerCertSha256'],
++                   'samePackage': facts['package'] == installed['package'], 'versionCodeHigher': facts['versionCode'] > installed['versionCode']}
++        overlay['scope'] = 'STATIC_PACKAGE_SIGNER_VERSION_COMPATIBILITY'
+         overlay['overlayInstallKeepsData'] = overlay['sameSigner'] and overlay['samePackage'] and overlay['versionCodeHigher']
+         need(not device or overlay['overlayInstallKeepsData'], 'R31_DELIVERY_DEVICE_IDENTITY_NOT_OVERLAY_COMPATIBLE')
+         name = 'STARCORE-R31-%s-%s-%s' % (facts['versionName'], label, commit[:12])
+@@ -120,7 +130,7 @@
+         members = {name + '.apk': apk.read_bytes(), 'R31_DELIVERY.json': (json.dumps(delivery, indent=1, ensure_ascii=False) + '\n').encode(),
+                    'R31_VERIFICATION_RECEIPT.json': Path(verification_path).read_bytes(),
+                    'README.txt': ('安装 %s.apk（%s）。工程通过与自然质量分栏：自然优势 NOT_PROVEN；真机 24h/72h NOT_RUN。\n' % (name,
+-                       'official signing' if official else ('与手机已装 R31 577311020 同包名同签名（R27 CI 证书 d8d8cee7…），versionCode 更高，可直接覆盖安装并保留数据；不是正式 R13 签名' if overlay['overlayInstallKeepsData'] else 'debug key, not the official identity; cannot overlay the installed app'))).encode()}
++                       'official signing' if official else ('与基线版本 %s 同包同签且版本更高，设备数据保留以覆盖安装实测回执为准' % installed['versionCode'] if overlay['overlayInstallKeepsData'] else 'debug key, not the official identity; cannot overlay the installed app'))).encode()}
+         if acceptance_dir is not None:
+             acceptance_dir=Path(acceptance_dir)
+             need((acceptance_dir/'ACCEPTANCE_RESULTS.json').is_file() and (acceptance_dir/'ACCEPTANCE_RESULTS.csv').is_file(),'R31_DELIVERY_ITEMIZED_ACCEPTANCE_MISSING')

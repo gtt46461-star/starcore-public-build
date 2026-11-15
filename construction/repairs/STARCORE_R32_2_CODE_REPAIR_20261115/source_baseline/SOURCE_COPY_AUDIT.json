@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "source_files_verified": 4809,
+  "source_bytes": 134485122,
+  "source_git_blob_mismatches": 0,
+  "archive_members_scanned": 347,
+  "actual_secrets_detected": 0,
+  "reviewed_false_positives": {
+    "documentation_placeholders": 2,
+    "shell_variable_or_command_references": 3,
+    "synthetic_test_password": 1
+  },
+  "validation": {
+    "catalog_identity": "PASS atoms=25350 seeds=4200",
+    "r967_semantic_identity": "PASS 742bd34d35f2a2419bc74c7b9e299d65f45b629c09ba36716683231407ebec78",
+    "source_call_archive": "PASS bytes=30801252 sha256=51e49a2c04fb37d320a5b2d6afe366f7048e3d46bfc6dc060340c2ce89127a86"
+  },
+  "excluded": [
+    "private signing files and actual credentials",
+    "APK/AAB",
+    "private Git history",
+    "historical build output and duplicated before-snapshots",
+    "construction plan packages"
+  ],
+  "migration_changes": [
+    "expanded .gitignore credential exclusions",
+    "gradlew executable mode",
+    "archive historical workflow YAML under ci/legacy-workflows",
+    "README and manual Debug build workflow"
+  ],
+  "software_acceptance": "No claim of new APK build, device verification, or C024 lint resolution"
+}

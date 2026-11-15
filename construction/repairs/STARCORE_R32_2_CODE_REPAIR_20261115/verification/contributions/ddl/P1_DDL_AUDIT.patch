@@ -1,0 +1,27 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java b/app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java
+--- a/app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java
++++ b/app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java
+@@ -51,6 +51,23 @@
+             } catch(LegacyDdlR31.Pending drift) {
+                 SchemaDomainCoordinatorR926.invalidateStepR31(db,c,prefix+unit.getKey(),drift.getMessage());
+                 return false;
++            } catch(RuntimeException drift) {
++                // A same-name index/trigger with the wrong definition throws a
++                // strict failure, not Pending. Its old COMPLETED row must not
++                // survive that failed postcondition and hide the owning unit.
++                // Preserve the actual error; do not acquire DROP authority or
++                // rewrite historical data to make this audit appear healthy.
++                Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(drift);
++                if(fatal!=null)throw fatal;
++                try {
++                    SchemaDomainCoordinatorR926.invalidateStepR31(db,c,prefix+unit.getKey(),
++                            DatabaseCoordinator.describeCauseChain(drift,1800));
++                } catch(RuntimeException receiptFailure) {
++                    Error receiptFatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(receiptFailure);
++                    if(receiptFatal!=null)throw receiptFatal;
++                    drift.addSuppressed(receiptFailure);
++                }
++                throw drift;
+             }
+         }
+         return true;
