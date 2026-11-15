@@ -1,0 +1,17 @@
+PASS actual_stream_copy_exceeds_16384_files
+PASS uncommitted_cold_preparation_is_not_a_restore_asset
+PASS stream_manifest_verifies_every_copied_body_and_totals
+PASS actual_restore_consumer_reads_more_than_16384_generic_blob_roots
+PASS restore_closure_does_not_mutate_source_database
+PASS copied_cold_original_resolves_without_hot_recreation
+PASS truncated_stream_manifest_cannot_pass_restore
+PASS changed_cold_body_rejected_by_stream_manifest
+PASS interrupted_copy_never_reports_complete
+PASS symlink_source_not_followed_during_private_copy
+PASS stream_workspace_cleanup_removes_more_than_16384_files
+PASS private_cleanup_preserves_all_original_source_tiers
+RESTORE_ASSETS_ASSERTIONS=12
+ACTUAL_COPIED_FILES=17011
+SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.

@@ -130,8 +130,12 @@ public final class AtomNetSessionR30 {
         r.put("trainingSamplesProcessed",pretrainSamples);r.put("trainingMs",trainingMs);r.put("epoch",(long)epoch);r.put("phaseOffset",(long)offset);
         r.put("onlineSamples",trainer.onlineSteps);r.put("completeIssue",completeIssue);r.put("partialIssue",partialIssue);r.put("nextPosition",(long)nextPosition);
         r.put("trainedThrough",completeIssue.isEmpty()?observedThrough:trainedThrough());r.put("trainedThroughOrdinal",trainedThroughOrdinal());
-        int materializeEnd=com.ethk3.novaonepro.AtomReplayR27.MIN_ROWS+(trainCount+selectCount+holdoutCount)/10;
+        int materializeEnd=com.ethk3.novaonepro.AtomReplayR27.MIN_ROWS+(trainCount+selectCount)/10;
         r.put("displayPhase",cachePeriod<materializeEnd?"MATERIALIZE":phase);
+        r.put("materializationRequiredSamples",(long)trainCount+selectCount);
+        r.put("materializationScope","TRAIN_AND_SELECT_ONLY;EXISTING_HOLDOUT_ROWS_RETAINED_NOT_READ_BY_OPTIMIZER");
+        r.put("formalHoldoutDatasetSampleCount",holdoutCount);
+        r.put("legacyMaterializedFormalHoldoutRows",Math.max(0L,materializedSamples-trainCount-selectCount));
         r.put("inputBoundary",observedThrough);r.put("legacyTrainedThroughIsInputBoundary",completeIssue.isEmpty());
         r.put("weightsTrainedThrough",ready()?trainedThrough():null);
         r.put("weightsTrainedThroughOrdinal",ready()?trainedThroughOrdinal():null);

@@ -11,13 +11,28 @@ public final class AtomNetRuntimeR30 {
     static ResearchPoolR27.Outcome step(RuntimeR27 rt,ResearchPoolR27.Worker w)throws Exception{
         AtomNetPublicationR31.requireReady(w.ro);
         AtomNetSessionR30 saved=rt.atomSessionR30;
-        if(saved!=null)OnlineResearchWindowR30R1.register(w,saved.datasetHash);
+        if(saved!=null){
+            OnlineResearchWindowR30R1.register(w,saved.datasetHash);
+            // Forecast before a training slice can yield, using only the last committed complete model.
+            // Partial positions and validation do not prevent this independent read-only consumer.
+            if(forecastModelR32(rt,saved)!=null)forecast(rt,w,saved,StoreR27.loadDataset(w.ro,AtomReplayR27.HISTORY+64));
+        }
+        // R32.5 archive maintenance has its own fenced task; an old damaged segment
+        // must not become a prerequisite for restoring or training this learner.
         if(saved==null){
             // Cold start: a published checkpoint may be a file reference. Register this database's owned
             // checkpoint directory first instead of relying on another module having called forStore earlier.
             CheckpointArtifactsR26.forStore(w.store());
+            String restoringHead=AtomNetPublicationR31.currentStateHash(w.ro);
             saved=AtomNetStoreR30.restore(w.ro);
-            if(saved!=null){rt.atomDataR30=AtomNetStoreR30.dataset(w.ro,saved.datasetHash);rt.publishAtomStateR31(saved,AtomNetStoreR30.publicationModelR31(w.ro,saved));return ResearchPoolR27.Outcome.progress(1,saved.units);}
+            if(saved!=null){
+                ReplayDatasetR27 restoredData=AtomNetStoreR30.dataset(w.ro,saved.datasetHash);
+                ModelSurfaceProviderR30.FrozenModelRef restoredModel=AtomNetStoreR30.publicationModelR31(w.ro,saved);
+                if(!restoringHead.equals(AtomNetPublicationR31.currentStateHash(w.ro)))
+                    return ResearchPoolR27.Outcome.idle("COLD_ATOMNET_SOURCE_CHANGED_RETRY",0,-1);
+                rt.atomDataR30=restoredData;rt.restoreAtomStateR32(saved,restoredModel);
+                return ResearchPoolR27.Outcome.progress(1,saved.units);
+            }
             ReplayDatasetR27 d=rt.evoData;if(d==null)return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-replay-dataset)",0,-1);
             SplitR27 split=SplitR27.of(d,null);int first=AtomReplayR27.MIN_ROWS;
             int train=Math.max(0,split.trainTo-first)*10,select=(split.selectTo-Math.max(first,split.selectFrom))*10,hold=(split.holdoutTo-Math.max(first,split.holdoutFrom))*10;
@@ -38,7 +53,10 @@ public final class AtomNetRuntimeR30 {
         // Copy before computing: no failed/cancelled write can mutate the committed/published learner.
         byte[] previous=saved.encode();AtomNetSessionR30 next=AtomNetSessionR30.decode(previous,StatsR27.sha256(previous));
         ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();long now=System.currentTimeMillis();int n=0;ModelReplayStudyR30R1.ReplayDecision replayDecision=null;
-        int end=AtomReplayR27.MIN_ROWS+(next.trainCount+next.selectCount+next.holdoutCount)/10;
+        // Formal confirmation labels never enter the optimizer. Materializing their unused
+        // feature rows used to delay the first gradient without supplying a consumer.
+        // Existing original holdout rows remain intact; new work stops at SELECT.
+        int end=AtomReplayR27.MIN_ROWS+(next.trainCount+next.selectCount)/10;
         if(next.cachePeriod<end){
             long begin=System.nanoTime();int from=next.cachePeriod;
             while(next.cachePeriod<end&&next.cachePeriod<from+12){
@@ -75,7 +93,7 @@ public final class AtomNetRuntimeR30 {
             try{RuntimeR27.submit(w,"ATOMNET_R30_SLICE",publication.publicationBatch(b,next),false,publication.id);}catch(IllegalStateException changed){if(QualificationInboxR29.precondition(changed))return ResearchPoolR27.Outcome.idle("DEPENDENCY(NEURAL_SOURCE_CHANGED_PREPARED_RETRY)",saved.trainer.onlineSteps,-1);throw changed;}
             rt.publishAtomStateR31(next,publication.model);
         }
-        if(next.ready())forecast(rt,w,next,StoreR27.loadDataset(w.ro,AtomReplayR27.HISTORY+64));
+        if(forecastModelR32(rt,next)!=null)forecast(rt,w,next,StoreR27.loadDataset(w.ro,AtomReplayR27.HISTORY+64));
         return ResearchPoolR27.Outcome.progress(n,++rt.atomUnitsR30);
         }
     }
@@ -93,12 +111,17 @@ public final class AtomNetRuntimeR30 {
             if(c.moveToFirst()){double p=c.getDouble(0);batch.add("INSERT OR IGNORE INTO r27_brier_pair VALUES(?,?,?,?,?,?,?,?)",issue,"FUTURE",model,p,.3,hit,(.3-hit)*(.3-hit)-(p-hit)*(p-hit),now);}
         }
     }
+    static ModelSurfaceProviderR30.FrozenModelRef forecastModelR32(RuntimeR27 rt,AtomNetSessionR30 state){
+        RuntimeR27.AtomPublicationR30 publication=rt.atomPublicationR30;
+        return publication==null||publication.state!=state?null:publication.model;
+    }
     static void forecast(RuntimeR27 rt,ResearchPoolR27.Worker w,AtomNetSessionR30 state,ReplayDatasetR27 recent)throws Exception{
-        // R31-B06-C03: the consumer is the shared ten-position model. Positions 1..9 of an issue are partial
-        // updates; only a complete issue (all ten positions committed) may be frozen and consumed.
-        if(!state.ready()||!state.partialIssue.isEmpty()||recent.size()<AtomReplayR27.MIN_ROWS)return;
+        // Only a model published after a complete issue may be consumed. The learner can independently be
+        // training positions 1..9 or validating; its mutable network and watermark are not prediction inputs.
+        ModelSurfaceProviderR30.FrozenModelRef modelRef=forecastModelR32(rt,state);
+        if(modelRef==null||recent.size()<AtomReplayR27.MIN_ROWS)return;
         long targetOrdinal=recent.ordinals[recent.size()-1]+1,deadline=RuntimeR27.latestOpen(w.ro)+60_000L;
-        if(state.trainedThroughOrdinal()>=targetOrdinal||System.currentTimeMillis()>=deadline-LiveShadowsR27.FREEZE_MARGIN_MS)return;
+        if(modelRef.trainedThroughOrdinal>=targetOrdinal||System.currentTimeMillis()>=deadline-LiveShadowsR27.FREEZE_MARGIN_MS)return;
         String target=TargetIssueResolver.fromSequenceOrdinalSU1(targetOrdinal);
         try(Cursor c=w.ro.rawQuery("SELECT count(*) FROM r30_atomnet_forecast WHERE target_issue=?",new String[]{target})){if(c.moveToFirst()&&c.getLong(0)==10)return;}
         long revision=SchemaR27.liveSourceRevision(w.ro),schema=SchemaR27.liveSourceSchemaVersion(w.ro);
@@ -107,26 +130,34 @@ public final class AtomNetRuntimeR30 {
         if(recent.size()==0||recent.ordinals[recent.size()-1]+1!=targetOrdinal)return;
         ReplayDatasetR27 slot=recent.append(new ReplayDatasetR27.Row(target,targetOrdinal,new int[]{1,2,3,4,5,6,7,8,9,10}));
         AtomReplayR27.Frame frame=AtomReplayR27.build(slot,slot.size()-1,slot.size());
-        RuntimeR27.AtomPublicationR30 publication=rt.atomPublicationR30;if(publication==null||publication.state!=state||publication.model==null||!state.consumableR31())return; // R31-B06-C03: forecasts only from a complete ten-position model
-        ModelSurfaceProviderR30.FrozenModelRef modelRef=publication.model;
+        if(forecastModelR32(rt,state)!=modelRef)return; // do not mix two committed publications
+        AtomNetR27 frozenNet=AtomNetR27.decode(modelRef.weights());
+        boolean completeCurrent=state.consumableR31()&&modelRef.trainedThroughOrdinal==state.trainedThroughOrdinal()
+                &&modelRef.weightsHash.equals(StatsR27.sha256(state.trainer.net.encode()));
         String modelHash=modelRef.modelHash;long at=System.currentTimeMillis();ResearchWriteQueueR27.Batch batch=new ResearchWriteQueueR27.Batch();
         OnlineResearchWindowR30R1.Window researchWindow=OnlineResearchWindowR30R1.find(w.ro,state.datasetHash,targetOrdinal);
         ModelSurfaceProviderR30.FrozenModelRef previous=researchWindow==null?null:ModelReplayStudyR30R1.previous(w.ro,modelRef,targetOrdinal,at);
         for(int i=0;i<10;i++){
             if(frame.values[i]==null) return;
             double[] x=AtomNetR27.positionedInput(AtomReplayR27.features(frame.values[i],frame.present[i],true),i+1);
-            AtomNetR27.Out prediction=state.trainer.net.forward(x,null);
+            AtomNetR27.Out prediction=frozenNet.forward(x,null);
             long preparedAt=System.currentTimeMillis();
             ModelSurfaceProviderR30.Pit pit=new ModelSurfaceProviderR30.Pit(targetOrdinal,recent.ordinals[recent.size()-1],i+1,ModelSurfaceProviderR30.historyHash(slot,slot.size()-1),x,preparedAt,preparedAt,preparedAt,deadline);
             ModelSurfaceProviderR30.Surface surface=ModelSurfaceProviderR30.predict(pit,modelRef);
             ModelReplayStudyR30R1.append(batch,researchWindow,pit,surface,previous);
             ModelSurfaceStoreR30.surface(batch,surface,i==0?modelRef:null);
             List<Object> p=new ArrayList<>();for(double value:surface.probabilities())p.add(value);
-            batch.add("INSERT OR IGNORE INTO r30_atomnet_forecast VALUES(?,?,?,?,?,?,?,?)",target,i+1,modelHash,state.trainedThroughOrdinal(),JsonR27.write(p),prediction.pHit,at,deadline);
+            batch.add("INSERT OR IGNORE INTO r30_atomnet_forecast VALUES(?,?,?,?,?,?,?,?)",target,i+1,modelHash,modelRef.trainedThroughOrdinal,JsonR27.write(p),prediction.pHit,at,deadline);
             if(i+1==(int)Math.floorMod(targetOrdinal,10L)+1){
                 batch.add("INSERT OR IGNORE INTO r27_atomnet_pending VALUES(?,?,?,?,?)",target,"ATOMNET",prediction.pHit,at,deadline);
-                batch.add("INSERT OR IGNORE INTO r27_atomnet_pending VALUES(?,?,?,?,?)",target,"FTRL",state.ftrl.predict(Arrays.copyOf(x,7)),at,deadline);
-                for(String model:new String[]{"ATOMNET","FTRL"})batch.add("INSERT OR IGNORE INTO r29_atomnet_forecast VALUES(?,?,?,?,?,?,?)",target,model,modelHash,state.trainedThrough(),AtomNetSessionR30.ABI,at,deadline);
+                // FTRL has no immutable prior reference. Never bind its partially updated draft to the old
+                // AtomNet publication. It remains eligible at a complete, matching learner boundary.
+                String trainedThrough=TargetIssueResolver.fromSequenceOrdinalSU1(modelRef.trainedThroughOrdinal);
+                batch.add("INSERT OR IGNORE INTO r29_atomnet_forecast VALUES(?,?,?,?,?,?,?)",target,"ATOMNET",modelHash,trainedThrough,AtomNetSessionR30.ABI,at,deadline);
+                if(completeCurrent){
+                    batch.add("INSERT OR IGNORE INTO r27_atomnet_pending VALUES(?,?,?,?,?)",target,"FTRL",state.ftrl.predict(Arrays.copyOf(x,7)),at,deadline);
+                    batch.add("INSERT OR IGNORE INTO r29_atomnet_forecast VALUES(?,?,?,?,?,?,?)",target,"FTRL",modelHash,trainedThrough,AtomNetSessionR30.ABI,at,deadline);
+                }
             }
         }
         final String sourceIssue=recent.issues[recent.size()-1];

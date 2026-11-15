@@ -1,0 +1,158 @@
+{
+  "status": "PASS_HOST_INVARIANTS_ONLY",
+  "scope": "PRODUCTION_JAVA_CODEC_GUARDS_AND_READERS_ON_LINUX_NATIVE_SQLITE_HOST",
+  "startedAtUtc": "2026-11-15T16:00:28.872086+00:00",
+  "productionOverrides": [],
+  "androidDevice": "NOT_RUN",
+  "processKillOnAndroid": "NOT_RUN",
+  "soak": "NOT_RUN",
+  "futureWinRate": "NOT_EVALUATED",
+  "commands": [
+    {
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/workspace/starcore-r3251-evidence/P2-classes:/workspace/starcore-r3251-toolchain/android.jar",
+        "-d",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform_sources/android/content/Context.java",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform_sources/android/app/Application.java",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform_sources/android/os/SystemClock.java",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform_sources/android/os/Debug.java",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform_sources/android/os/Process.java",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform_sources/android/os/Looper.java",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform_sources/android/util/Log.java",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform_sources/android/content/res/AssetManager.java",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform_sources/android/os/Build.java",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform_sources/android/database/sqlite/SQLiteOpenHelper.java",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform_sources/android/system/ErrnoException.java",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform_sources/android/system/OsConstants.java",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform_sources/android/system/Os.java",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform_sources/android/database/Cursor.java",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform_sources/android/database/sqlite/SQLiteDatabase.java",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform_sources/android/database/sqlite/SQLiteDatabaseLockedException.java",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform_sources/android/database/sqlite/SQLiteException.java"
+      ],
+      "log": "platform_compile.log",
+      "exitCode": 0
+    },
+    {
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/workspace/starcore-r3251-evidence/P2-retention/platform:/workspace/starcore-r3251-evidence/P2-classes:/workspace/starcore-r3251-toolchain/android.jar:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-r3251-toolchain/slf4j-api-2.0.13.jar",
+        "-d",
+        "/workspace/starcore-r3251-evidence/P2-retention/tests",
+        "/workspace/starcore-r3251-P2/tools/r324/retention/ColdCheckpointR324HostTest.java",
+        "/workspace/starcore-r3251-P2/tools/r324/retention/AtomNetArchiveR324NativeHostTest.java"
+      ],
+      "log": "test_compile.log",
+      "exitCode": 0
+    },
+    {
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/starcore-r3251-evidence/P2-retention/tests:/workspace/starcore-r3251-evidence/P2-retention/platform:/workspace/starcore-r3251-evidence/P2-classes:/workspace/starcore-r3251-toolchain/android.jar:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-r3251-toolchain/slf4j-api-2.0.13.jar",
+        "com.ethk3.novaonepro.strategyv2.ColdCheckpointR324HostTest",
+        "/workspace/starcore-r3251-evidence/P2-retention"
+      ],
+      "log": "cold_host.log",
+      "exitCode": 0
+    },
+    {
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/starcore-r3251-evidence/P2-retention/tests:/workspace/starcore-r3251-evidence/P2-retention/platform:/workspace/starcore-r3251-evidence/P2-classes:/workspace/starcore-r3251-toolchain/android.jar:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-r3251-toolchain/slf4j-api-2.0.13.jar",
+        "com.ethk3.novaonepro.strategyv2.AtomNetArchiveR324NativeHostTest",
+        "/workspace/starcore-r3251-evidence/P2-retention"
+      ],
+      "log": "sample_native_host.log",
+      "exitCode": 0
+    }
+  ],
+  "transactionBoundary": "Native SQLite rollback and exact production trigger DDL; host drives retirement statements, not Android Worker scheduling",
+  "dependencies": {
+    "androidSdk": {
+      "sha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a",
+      "filename": "android.jar"
+    },
+    "sqliteJdbc": {
+      "sha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa",
+      "filename": "sqlite-jdbc-3.46.1.3.jar"
+    },
+    "slf4jApi": {
+      "sha256": "e7c2a48e8515ba1f49fa637d57b4e2f590b3f5bd97407ac699c3aa5efb1204a9",
+      "filename": "slf4j-api-2.0.13.jar"
+    }
+  },
+  "actualBusinessClassSha256": {
+    "com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.class": "dbb905cfeebc9571aa3f765da7944fdac7c0d463148bdf5c26c8ef121ccbab63",
+    "com/ethk3/novaonepro/strategyv2/AtomNetSampleArchiveR324.class": "82d651385a67cc97d8ac90207d85a792145617f3a4ae5893aa1ab5ce22d102cd",
+    "com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.class": "dac996441d624ef5033d74b8d6ad9a99ae00d2ef1505afe7779f5110aca608db",
+    "com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.class": "a837c75a26f7345c3e1a2a53db8dc97fa067580aafa99a4737c0e5dcdb53347c",
+    "com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.class": "3f753b2d51e70df6379fba727a5d51279dce32f9781f599e8b6fb0b1906dd970",
+    "com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.class": "a2425a47812ecc051a65943b121d56800c27f1f706c7272febe2e009c115985b",
+    "com/ethk3/novaonepro/strategyv2/CheckpointReferencesR26.class": "8651dcc5bb30d7e185cbbae6c28b90de09d290368b7a24608fb34084268a1c1d",
+    "com/ethk3/novaonepro/SchemaDomainCoordinatorR926.class": "c1666bb5d87c1afc7cb9f1719d8fb6291707df54bd8305b9114cfcd2a7cf9cc2",
+    "com/ethk3/novaonepro/ReportAttachmentClosureCP12.class": "0384e9b3d09a8b7377a60a0ded22ad0f97433adb6fb4bce298fb27bdc4747515",
+    "com/ethk3/novaonepro/CheckpointReportAuditR32.class": "f7d32e0df483e74f0dda3e7531532b036890baa4b8bfe1dcbb7000e45e40abd1",
+    "com/ethk3/novaonepro/StorageRestoreProofR31.class": "edae10d7242d18924113e933e4d9b23a9ae0cc728e8d2ae20a48dfd7ea193867"
+  },
+  "productionSourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java": "3cb27ccd10d9264c439e3864d9df9eae7318869e99f7bc49f43dd09ea9cdf958",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSampleArchiveR324.java": "c9a66a684884a7bf4989f43db634ff2f586a3f1cc1c81b5f0d204c25d34a4ade",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java": "9148d2c78b36ca799c345f9ea02ee66227cc6b415e6abcd043a4b65739d1e8eb",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java": "5232d8c53065179f5793be4e88fdd93db676f57df3b68122a605a365546d80ec",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java": "0d08846d2698fe1cf86c4e5e645ac9db796a96666e0e06a7ec1a74609759faa7",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java": "3562081607810240222c755fdeb568baba8678285cfa0321ac54d1809e7ec0cb",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointReferencesR26.java": "bdd83459debaa147fd0cb31877b494b66b09499187d0e552962700bfd029e174",
+    "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java": "70350a540cdc5cd7c3bd8a98dc15f338253371fe53d8d5a47cb9cc4bb8bb197f",
+    "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java": "6d6cc20b1bffc06bfc8eceaceefe813fd0f040d242724e0b3caaf01457e9afa4",
+    "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java": "56846752eb611f84b1caca7752f06934f1040411117ec07221a648a95160da32",
+    "app/src/main/java/com/ethk3/novaonepro/StorageRestoreProofR31.java": "1ee94fce780abbc8cd5e8866582c9e86452da4b7ebe946ddb9c12736592b3d6c"
+  },
+  "platformSourceSha256": {
+    "platform_sources/android/content/Context.java": "2444e77b4f312a084cf746ffb701491aab4f8d7ebd53c6cc273c2b0d6fc7dcce",
+    "platform_sources/android/app/Application.java": "3e733572c5cb88b07ddc2ef6c8b2dc323a569d35334e495a3a9f6efd9d61c3c7",
+    "platform_sources/android/os/SystemClock.java": "6ae44d4d47f55003e6bf32111d0ba4cbe62bb8059599ab562a720f4696997726",
+    "platform_sources/android/os/Debug.java": "8caad0476cfff2bcb6af944554dd7fcf3b5e608203d73a0a1051a0b32a8f6f34",
+    "platform_sources/android/os/Process.java": "e5f8969f566d4a174612039acb489d0dd4113acf8577e611a1cb46f6bdfc0b7c",
+    "platform_sources/android/os/Looper.java": "cb537e9dcf0d839bc5496b141013ce2776bfa85311be9d8edd2ceaa67d2e07ca",
+    "platform_sources/android/util/Log.java": "250fdc7266144ced9c510ab5193950b2c2f793d6f7c3b89d944af47242044bd8",
+    "platform_sources/android/content/res/AssetManager.java": "54ccc37f255ec0e6864f2313690d3a3cb8a56973c483ab906aee6aa62fba6c7d",
+    "platform_sources/android/os/Build.java": "71cc17082a9a4892ed61c2f42b42f014f062aeb5e4543b1b856d989d232500fe",
+    "platform_sources/android/database/sqlite/SQLiteOpenHelper.java": "7e4e3d093423b1e8eb88d1cc1dfb70cc8d78044f373fbe8ea9fb3ed30ca5d6a3",
+    "platform_sources/android/system/ErrnoException.java": "2897159873aea588d87f5a49297e69f540647371499276d9b1a0794922b6c345",
+    "platform_sources/android/system/OsConstants.java": "587805077a7d10be1a04d6f0788b448142e8264846796790d3b05dd425397e91",
+    "platform_sources/android/system/Os.java": "8821db81c7c3138d78fd21ae2b617b5d7b59c344313d8fa4abaf2784f4d279ca",
+    "platform_sources/android/database/Cursor.java": "6b9a5cbe6f98ad2d040fcda6c72fbc0ad5ff50fdacd66a333d76ae1154e6cb46",
+    "platform_sources/android/database/sqlite/SQLiteDatabase.java": "82330256976f113facc9ce01b3d27fd1a3358a4e8ed3d95ed49884d4a13c416f",
+    "platform_sources/android/database/sqlite/SQLiteDatabaseLockedException.java": "e17afce73f98be731b31a7d19f895a6df48c90b4f12362a1b5e5b463566a74c9",
+    "platform_sources/android/database/sqlite/SQLiteException.java": "878df09b56099f50a5cd75f2d94a9c0f11d1b49ce9c3cc36e5c66101b47c4b88"
+  },
+  "testSourceSha256": {
+    "ColdCheckpointR324HostTest.java": "4053cf4b170cba9c24979cea3cd4a5d385e824f7b9232b16cfbf3fdbdbec6704",
+    "AtomNetArchiveR324NativeHostTest.java": "32b424990c60f2712b3d1ebeca5b447ab3656d1221d32e606d1ee618535d52fd"
+  },
+  "coldFilesystemAssertions": 47,
+  "nativeSqliteSampleAssertions": 58,
+  "completedAtUtc": "2026-11-15T16:00:32.864425+00:00"
+}

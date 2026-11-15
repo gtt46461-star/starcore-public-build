@@ -36,8 +36,17 @@ public final class StorageRestoreProbeServiceR31 extends Service {
                 if(!nonce.equals(original.getProperty("nonce"))||!BuildConfig.SOURCE_COMMIT_R26.equals(original.getProperty("source"))||Integer.parseInt(original.getProperty("parent_pid"))==Process.myPid())throw new IOException("RESTORE_PROCESS_REQUEST_IDENTITY");
                 File clone=new File(root,"databases/"+AppConfig.DB_NAME);
                 if(!original.getProperty("clone_sha256").equals(StorageMaintenanceFileR82.sha256(clone)))throw new IOException("RESTORE_CLONE_INITIAL_BYTES");
-                File assetFile=new File(root,"asset-manifest.properties");if(!original.getProperty("asset_manifest_sha256").equals(StorageMaintenanceFileR82.sha256(assetFile)))throw new IOException("RESTORE_ASSET_MANIFEST_CHANGED");
-                Properties assets=StorageMaintenanceFileR82.read(assetFile);for(String path:assets.stringPropertyNames()){File file=StorageRestoreProofR31.child(root,path);if(!(StorageMaintenanceFileR82.sha256(file)+":"+file.length()).equals(assets.getProperty(path)))throw new IOException("RESTORE_ASSET_BYTES_CHANGED");}
+                String assetFormat=original.getProperty("asset_manifest_format","");
+                File assetFile=new File(root,assetFormat.isEmpty()?"asset-manifest.properties":StorageRestoreAssetsR324.MEMBER);
+                if(!original.getProperty("asset_manifest_sha256").equals(StorageRestoreAssetsR324.hash(assetFile)))throw new IOException("RESTORE_ASSET_MANIFEST_CHANGED");
+                if(StorageRestoreAssetsR324.FORMAT.equals(assetFormat)){
+                    StorageRestoreAssetsR324.Totals assets=StorageRestoreAssetsR324.verify(root,assetFile);
+                    if(assets.files!=Long.parseLong(original.getProperty("asset_files"))||assets.bytes!=Long.parseLong(original.getProperty("asset_bytes")))throw new IOException("RESTORE_ASSET_MANIFEST_TOTALS");
+                }else if(assetFormat.isEmpty()){
+                    // Older authenticated requests used a bounded Properties manifest.
+                    if(assetFile.length()>(16L<<20))throw new IOException("RESTORE_LEGACY_ASSET_MANIFEST_BOUND");
+                    Properties assets=StorageMaintenanceFileR82.read(assetFile);for(String path:assets.stringPropertyNames()){File file=StorageRestoreProofR31.child(root,path);if(!(StorageRestoreAssetsR324.hash(file)+":"+file.length()).equals(assets.getProperty(path)))throw new IOException("RESTORE_ASSET_BYTES_CHANGED");}
+                }else throw new IOException("RESTORE_ASSET_MANIFEST_UNKNOWN_FORMAT");
                 Properties proof;
                 try(SQLiteDatabase read=SQLiteDatabase.openDatabase(clone.getPath(),null,SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS)){
                     proof=StorageRestoreBusinessProbeR31.inventory(read,original.getProperty("native_full_compare"),original.getProperty("asset_manifest_sha256"));

@@ -184,7 +184,7 @@ public final class SchemaDomainCoordinatorR926 {
     }
     private static String publicationAttachmentTableR31(SQLiteDatabase db,String sql){
         if(R31_MAINLINE_PUBLICATION_LOOKUP.equals(sql))return "r31_atomnet_publication";
-        for(String table:new String[]{"r31_atomnet_publication","r31_model_publication_item"})if(sql!=null&&sql.startsWith("CREATE TRIGGER IF NOT EXISTS \"r31_gc_ref_"+table+"_")&&publicationAttachmentsR31(db,table).containsValue(sql))return table;return null;
+        for(String table:new String[]{"r31_atomnet_publication","r324_atomnet_sample_archive","r31_model_publication_item"})if(sql!=null&&sql.startsWith("CREATE TRIGGER IF NOT EXISTS \"r31_gc_ref_"+table+"_")&&publicationAttachmentsR31(db,table).containsValue(sql))return table;return null;
     }
     public static boolean isR31PublicationAttachment(SQLiteDatabase db,String sql){return publicationAttachmentTableR31(db,sql)!=null;}
     /** Exact GC reference guards and the one query index may attach to these
@@ -195,7 +195,7 @@ public final class SchemaDomainCoordinatorR926 {
     public static void installR31PublicationAttachment(SQLiteDatabase db,String sql){
         if(!db.inTransaction())throw new IllegalStateException("R31_PUBLICATION_ATTACHMENT_MIGRATION_WRITER_REQUIRED");
         String table=publicationAttachmentTableR31(db,sql);if(table==null)throw new IllegalArgumentException("R31_PUBLICATION_ATTACHMENT_UNDECLARED");
-        Contract contract="r31_atomnet_publication".equals(table)?r31AtomNetPublicationContract():r31ModelPublicationContract();
+        Contract contract=("r31_atomnet_publication".equals(table)||"r324_atomnet_sample_archive".equals(table))?r31AtomNetPublicationContract():r31ModelPublicationContract();
         java.util.Map<String,String> known=publicationAttachmentsR31(db,table);String manifest=V51ChecksumEngine.sha256(known.toString()),step="R31_EXACT_LIFECYCLE_CORE:"+manifest;
         String sealed=null;try(Cursor c=db.rawQuery("SELECT fingerprint FROM "+TABLE_DOMAIN+" WHERE domain=? AND revision=? AND contract_hash=? AND state='READY'",new String[]{contract.domain,Integer.toString(contract.revision),contract.contractHash})){if(c.moveToFirst())sealed=c.getString(0);}
         if(sealed==null)throw new DatabaseCoordinator.SchemaPendingR31("R31_PUBLICATION_ATTACHMENT","AUTHENTICATED_PRIOR_DOMAIN_REQUIRED:"+contract.domain);

@@ -41,19 +41,37 @@ public final class RuntimeR27 implements AutoCloseable {
     volatile AtomPublicationR30 atomPublicationR30;
     void publishAtomStateR30(AtomNetSessionR30 state){ModelSurfaceProviderR30.FrozenModelRef ref=state.ready()?new ModelSurfaceProviderR30.FrozenModelRef(state.trainer.net.encode(),state.trainedThroughOrdinal(),System.currentTimeMillis()):null;atomPublicationR30=new AtomPublicationR30(state,ref);atomSessionR30=state;}
     void publishAtomStateR31(AtomNetSessionR30 state, ModelSurfaceProviderR30.FrozenModelRef persisted) {
-        if (state == null || state.ready() != (persisted != null)
-                || (persisted != null && (persisted.trainedThroughOrdinal != state.trainedThroughOrdinal()
-                || !persisted.weightsHash.equals(StatsR27.sha256(state.trainer.net.encode())))))
+        if(state==null)throw new IllegalArgumentException("R31_ATOM_PUBLICATION_STATE_REQUIRED");
+        // V2 publishes new inference weights only at complete issue boundaries.
+        // Legacy callers may still supply a matching partial model; it is checked
+        // for consistency but never becomes an inference input.
+        if(state.consumableR31()&&persisted==null||persisted!=null&&(!state.ready()
+                ||persisted.trainedThroughOrdinal!=state.trainedThroughOrdinal()
+                ||!persisted.weightsHash.equals(StatsR27.sha256(state.trainer.net.encode()))))
             throw new IllegalArgumentException("R31_ATOM_PUBLICATION_STATE_MISMATCH");
-        // R31-B06-C03: the durable checkpoint advances every position (resume), but consumers only see a model whose
-        // ten positions of an issue are all committed. A partial issue keeps the previous complete model (or none).
-        ModelSurfaceProviderR30.FrozenModelRef consumable = persisted;
-        if (persisted != null && !state.consumableR31()) {
-            AtomPublicationR30 prior = atomPublicationR30;
-            consumable = prior == null ? null : prior.model;
+        ModelSurfaceProviderR30.FrozenModelRef consumable=state.consumableR31()?persisted:null;
+        if(!state.consumableR31()){
+            AtomPublicationR30 prior=atomPublicationR30;
+            consumable=prior==null||!prior.state.datasetHash.equals(state.datasetHash)?null:prior.model;
         }
-        atomPublicationR30 = new AtomPublicationR30(state, consumable);
-        atomSessionR30 = state;
+        atomPublicationR30=new AtomPublicationR30(state,consumable);
+        atomSessionR30=state;
+    }
+    /** Cold-start only. The store has already decoded and verified the original
+     * complete publication and its exact weights; keep it while resuming a newer
+     * partial optimizer checkpoint or a validation phase. */
+    void restoreAtomStateR32(AtomNetSessionR30 state,ModelSurfaceProviderR30.FrozenModelRef recovered){
+        if(state==null)throw new IllegalArgumentException("R32_ATOM_RESTORE_STATE_REQUIRED");
+        if(recovered!=null){
+            if(state.completeIssue.isEmpty()||recovered.trainedThroughOrdinal>TargetIssueResolver.sequenceOrdinalSU1(state.completeIssue)
+                    ||recovered.trainedThroughOrdinal<state.observedThroughOrdinal)
+                throw new IllegalArgumentException("R32_ATOM_RESTORE_MODEL_AFTER_COMPLETE_WATERMARK");
+            if(state.consumableR31()&&recovered.trainedThroughOrdinal==state.trainedThroughOrdinal()
+                    &&!recovered.weightsHash.equals(StatsR27.sha256(state.trainer.net.encode())))
+                throw new IllegalArgumentException("R32_ATOM_RESTORE_CURRENT_WEIGHTS_MISMATCH");
+        }
+        atomPublicationR30=new AtomPublicationR30(state,recovered);
+        atomSessionR30=state;
     }
     volatile AtomNetSessionR30 atomSessionR30; ReplayDatasetR27 atomDataR30; long atomUnitsR30;
 
@@ -65,7 +83,7 @@ public final class RuntimeR27 implements AutoCloseable {
         CooperativeContinuationR26.threadStartHook = () -> android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         pool = new ResearchPoolR27(store, session, ResearchPoolR27.defaultThreads());
         pool.register(new DatasetTask()); pool.register(new LiveTask()); pool.register(new EvolutionTask()); pool.register(new AbiTask());
-        pool.register(new AtomsTask()); pool.register(new AtomNetTask()); pool.register(new CalibrationTask()); pool.register(new ChartTask());
+        pool.register(new AtomsTask()); pool.register(new AtomNetTask()); pool.register(new AtomNetArchiveTask()); pool.register(new CalibrationTask()); pool.register(new ChartTask());
         healthTaskR31=new HealthTask();
         pool.register(new ObservatoryTask()); pool.register(new ResearchStudyTask()); pool.register(new MatrixProductionTask()); pool.register(new LegacyExportTask()); pool.register(healthTaskR31);
         active = this;
@@ -120,6 +138,8 @@ public final class RuntimeR27 implements AutoCloseable {
                 atomSessionR30=null;atomDataR30=null;atomUnitsR30=0;
                 atomNet=null;atomFtrl=null;atomNetDataset="";atomTrainedThrough="";
                 // atomPublicationR30 remains the last immutable committed prediction reference.
+                break;
+            case "r27-atomnet-archive": // independent durable per-publication archive attempts
                 break;
             case "r27-calibration":calibrationIndexR30=0;break;
             case "r27-replay-dataset": // immutable dataset references are published only after commit
@@ -182,7 +202,23 @@ public final class RuntimeR27 implements AutoCloseable {
             if(cur==null){
                 String savedHash=null;
                 try(Cursor x=w.ro.rawQuery("SELECT dataset_hash FROM r27_evolution_cursor WHERE loop IN (?,?) ORDER BY CASE loop WHEN ? THEN 0 ELSE 1 END LIMIT 1",new String[]{LOOP,"MAIN",LOOP})){if(x.moveToFirst())savedHash=x.getString(0);}
-                if(savedHash!=null){ResearchInputPinR30R1.Pin pin=ResearchInputPinR30R1.loadCurrent(w.ro,savedHash);if(pin!=null){publishRecoveredReplayKnowledgeR31(w,pin,"RECOVERED_COMMITTED_PIN",-1);evoData=pin.data;evoCache=featureCacheR31(pin.data,48);ModelSurfaceStoreR30.bindHistorical(w.ro,evoCache);return ResearchPoolR27.Outcome.progress(1,pin.data.ordinals[pin.data.size()-1]);}}
+                if (savedHash != null) {
+                    ResearchInputPinR30R1.Pin pin = ResearchInputPinR30R1.loadCurrent(w.ro, savedHash);
+                    if (pin != null) {
+                        FeatureCacheR27 recovered = featureCacheR31(pin.data, 48);
+                        boolean published = false;
+                        try {
+                            ModelSurfaceStoreR30.bindHistorical(w.ro, recovered);
+                            publishRecoveredReplayKnowledgeR31(w, pin, "RECOVERED_COMMITTED_PIN", -1);
+                            evoData = pin.data;
+                            evoCache = recovered;
+                            published = true;
+                            return ResearchPoolR27.Outcome.progress(1, pin.data.ordinals[pin.data.size() - 1]);
+                        } finally {
+                            if (!published) recovered.close();
+                        }
+                    }
+                }
             }
 
             if (cur != null && !ResearchInputPinR30R1.invalid(w.ro,cur.datasetHash) && latestOrd - cur.ordinals[cur.size() - 1] < REFRESH_NEW_ROWS) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", cur.ordinals[cur.size() - 1], latestOrd);
@@ -652,6 +688,10 @@ public final class RuntimeR27 implements AutoCloseable {
     final class AtomsTask implements ResearchPoolR27.Task {
         public String id() { return "r27-atoms"; }
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception { return AtomWorldR27.atomsStep(RuntimeR27.this, w); }
+    }
+    final class AtomNetArchiveTask implements ResearchPoolR27.Task {
+        public String id() { return "r27-atomnet-archive"; }
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception { return AtomNetSampleArchiveR324.maintenance(w); }
     }
     final class AtomNetTask implements ResearchPoolR27.Task {
         public String id() { return "r27-atomnet"; }

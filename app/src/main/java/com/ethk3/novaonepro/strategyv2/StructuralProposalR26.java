@@ -16,6 +16,24 @@ public final class StructuralProposalR26 {
         return PolicyIdentityR26.sha256(PolicyIdentityR26.canonical(Arrays.asList(members,g.pool,g.sink)));
     }
     private static ModelGenomeSU2 copy(ModelGenomeSU2 p,List<ModelGenomeSU2.Member> members,String pool){return new ModelGenomeSU2(members,pool,p.sink,p.gate,p.coverage,p.metaC,p.calibrated);}
+    // Rotate real executable donor mechanisms over frozen campaigns. Retries on the
+    // same snapshot reproduce the same genome. Family coverage here grants no fitness.
+    static ModelGenomeSU2.Member complementR32(ModelGenomeSU2 parent, List<ModelGenomeSU2> seeds,
+                                               long through, int parentIndex) {
+        if (seeds.isEmpty()) throw new IllegalArgumentException("R32_NO_REGISTERED_SEEDS");
+        Set<String> present = new HashSet<>();
+        for (ModelGenomeSU2.Member member : parent.members) present.add(member.kind);
+        SortedMap<String, ModelGenomeSU2.Member> donors = new TreeMap<>();
+        for (ModelGenomeSU2 seed : seeds) {
+            for (ModelGenomeSU2.Member member : seed.members) {
+                if (!present.contains(member.kind)) donors.putIfAbsent(member.kind, member);
+            }
+        }
+        if (donors.isEmpty()) return seeds.get(parentIndex % seeds.size()).members.get(0);
+        List<ModelGenomeSU2.Member> ordered = new ArrayList<>(donors.values());
+        return ordered.get((int) Math.floorMod(through + parentIndex, (long) ordered.size()));
+    }
+
     public static List<Proposal> from(ModelGenomeSU2 parent,ModelGenomeSU2.Member complementary){
         if(WarmModelSeedR26.has(parent))return Collections.emptyList();
         List<Proposal> out=new ArrayList<>();ModelGenomeSU2 base=copy(parent,parent.members,parent.pool);

@@ -27,22 +27,13 @@ final class StorageRestoreProofR31 {
         if(root.exists()||!new File(root,"databases").mkdirs()||!new File(root,"files").mkdirs())throw new IOException("RESTORE_EXCLUSIVE_WORKSPACE_REQUIRED");
         File clone=new File(root,"databases/"+AppConfig.DB_NAME);String activeHash=StorageMaintenanceFileR82.sha256(active);
         String fullCopy=StorageMaintenanceFileR82.prepareRestoreCopyR31(active,clone),cloneHash=StorageMaintenanceFileR82.sha256(clone);
-        Properties assets=new Properties();long[] used={0,0};File originalRoot=active.getParentFile().getParentFile();
-        for(String path:new String[]{"files/r26-checkpoints","files/r31-keep","files/model-bundles-r929","files/trusted-model-key-r932.der","files/r31-history-inputs","files/research-input-v2","databases/su1-archives"})copyTree(originalRoot,root,path,assets,used,0);
-        File assetFile=new File(root,"asset-manifest.properties");StorageMaintenanceFileR82.write(assetFile,assets);
-        Properties request=new Properties();request.setProperty("nonce",nonce);request.setProperty("source",source);request.setProperty("parent_pid",Integer.toString(parentPid));request.setProperty("active_sha256",activeHash);request.setProperty("clone_sha256",cloneHash);request.setProperty("native_full_compare",fullCopy);request.setProperty("asset_manifest_sha256",StorageMaintenanceFileR82.sha256(assetFile));request.setProperty("asset_files",Long.toString(used[1]));request.setProperty("asset_bytes",Long.toString(used[0]));
+        File originalRoot=active.getParentFile().getParentFile();
+        StorageRestoreAssetsR324.Totals assets=StorageRestoreAssetsR324.copy(originalRoot,root,new String[]{"files/r26-checkpoints","files/r26-checkpoints-cold-r324","files/r31-keep","files/model-bundles-r929","files/trusted-model-key-r932.der","files/r31-history-inputs","files/research-input-v2","databases/su1-archives"});
+        File assetFile=new File(root,StorageRestoreAssetsR324.MEMBER);
+        Properties request=new Properties();request.setProperty("nonce",nonce);request.setProperty("source",source);request.setProperty("parent_pid",Integer.toString(parentPid));request.setProperty("active_sha256",activeHash);request.setProperty("clone_sha256",cloneHash);request.setProperty("native_full_compare",fullCopy);request.setProperty("asset_manifest_sha256",StorageRestoreAssetsR324.hash(assetFile));request.setProperty("asset_manifest_format",StorageRestoreAssetsR324.FORMAT);request.setProperty("asset_files",Long.toString(assets.files));request.setProperty("asset_bytes",Long.toString(assets.bytes));
         File requestFile=new File(root,"request.properties");StorageMaintenanceFileR82.write(requestFile,request);
         if(!activeHash.equals(StorageMaintenanceFileR82.sha256(active)))throw new IOException("RESTORE_ACTIVE_CHANGED_AFTER_PREPARATION");
         return new Session(active,root,clone,nonce,activeHash,cloneHash,parentPid,requestFile,new File(root,"result.properties"),StorageMaintenanceFileR82.sha256(requestFile));
-    }
-    private static void copyTree(File original,File copy,String relative,Properties manifest,long[] used,int depth)throws IOException {
-        File source=child(original,relative);if(!source.exists())return;if(depth>16)throw new IOException("WAIT_RESTORE_ASSET_DEPTH");
-        File target=child(copy,relative);
-        if(source.isDirectory()){if(!target.mkdirs()&&!target.isDirectory())throw new IOException("RESTORE_ASSET_DIRECTORY");String[] names=source.list();if(names==null||names.length>16384)throw new IOException("WAIT_RESTORE_ASSET_ENUMERATION_BOUND");Arrays.sort(names);for(String name:names)copyTree(original,copy,relative+"/"+name,manifest,used,depth+1);return;}
-        if(!source.isFile()||++used[1]>16384||(used[0]=Math.addExact(used[0],source.length()))>(1L<<30))throw new IOException("WAIT_RESTORE_ASSET_BOUND");
-        if(StorageMaintenanceFileR82.availableRestoreBytesR31(target.getParentFile())<source.length()+(64L<<20))throw new IOException("WAIT_RESTORE_ASSET_DISK_CAPACITY");
-        String hash=StorageMaintenanceFileR82.sha256(source);try(InputStream in=new FileInputStream(source);FileOutputStream out=new FileOutputStream(target)){byte[] b=new byte[65536];for(int n;(n=in.read(b))!=-1;)out.write(b,0,n);out.getFD().sync();}
-        if(!hash.equals(StorageMaintenanceFileR82.sha256(source))||!hash.equals(StorageMaintenanceFileR82.sha256(target)))throw new IOException("RESTORE_ASSET_CHANGED");manifest.setProperty(relative,hash+":"+source.length());
     }
     static void authenticateCallback(Session s,String nonce,int observedBoundPid,String resultHash)throws IOException {
         if(!s.nonce.equals(nonce)||observedBoundPid<=0||observedBoundPid==s.parentPid||resultHash==null||!resultHash.matches("[0-9a-f]{64}"))throw new IOException("RESTORE_PROBE_CALLER_IDENTITY");
@@ -65,13 +56,8 @@ final class StorageRestoreProofR31 {
      * The original backup is handled solely by the separate user action. */
     static boolean discardVerifiedWorkspace(Session session)throws IOException {
         if(!session.recorded)throw new IOException("RESTORE_DURABLE_RECEIPT_REQUIRED_BEFORE_WORKSPACE_RELEASE");
-        boolean removed=removePrivateTree(session.root,session.root,new int[]{0},0);
+        boolean removed=StorageRestoreAssetsR324.removePrivateTree(session.root,session.root,0);
         if(removed)session.root.getParentFile().delete();return removed;
-    }
-    private static boolean removePrivateTree(File root,File file,int[] count,int depth)throws IOException {
-        if(++count[0]>20000||depth>20||!file.getAbsoluteFile().equals(file.getCanonicalFile())||(!file.equals(root)&&!file.getPath().startsWith(root.getPath()+File.separator)))throw new IOException("RESTORE_WORKSPACE_RELEASE_BOUND");
-        if(file.isDirectory()){File[] children=file.listFiles();if(children==null||children.length>16384)throw new IOException("RESTORE_WORKSPACE_RELEASE_ENUMERATION");for(File child:children)if(!removePrivateTree(root,child,count,depth+1))return false;}
-        return !file.exists()||file.delete();
     }
     static String receiptRefusal(Properties p){
         if(!METHOD.equals(p.getProperty("restore_method")))return "REFUSED_UNAUTHENTICATED_RESTORE_COLLECTOR";

@@ -19,7 +19,7 @@ public final class CheckpointGcStoreR31 implements StorageGcR31.Store {
         "CREATE TABLE IF NOT EXISTS r31_gc_publication(publication_id TEXT PRIMARY KEY,manifest_hash TEXT NOT NULL,reference_count INTEGER NOT NULL CHECK(reference_count BETWEEN 0 AND 64),status TEXT NOT NULL CHECK(status IN ('PINNED','PUBLISHED')),registered_at INTEGER NOT NULL)"
     };
     public static final String[] DDL;
-    static {List<String> all=new ArrayList<>(Arrays.asList(CORE_DDL));Collections.addAll(all,CheckpointScratchGcR31.ddlR31());DDL=all.toArray(new String[0]);}
+    static {List<String> all=new ArrayList<>(Arrays.asList(CORE_DDL));all.add(CheckpointGcReachabilityR324.PHYSICAL_DDL);all.add(CheckpointGcReachabilityR324.EDGE_INDEX_DDL);all.add(CheckpointGcReachabilityR324.COMPONENT_DDL);all.add(CheckpointGcReachabilityR324.COMPONENT_INDEX_DDL);Collections.addAll(all,CheckpointScratchGcR31.ddlR31());DDL=all.toArray(new String[0]);}
     private final SQLiteDatabase db;
     private final Map<String,EvidenceReachabilityR31.RootKind> currentRoots;
     public CheckpointGcStoreR31(SQLiteDatabase db,Map<String,EvidenceReachabilityR31.RootKind> roots){
@@ -29,7 +29,7 @@ public final class CheckpointGcStoreR31 implements StorageGcR31.Store {
     private static void hash(String hash){if(hash==null||!hash.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("R31_GC_ARTIFACT_HASH");}
     private int changes(){try(Cursor c=db.rawQuery("SELECT changes()",null)){if(!c.moveToFirst())throw new IllegalStateException("R31_GC_CHANGES_UNKNOWN");return c.getInt(0);}}
     public static boolean ready(SQLiteDatabase db){
-        try(Cursor c=db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('r31_gc_artifact','r31_gc_edge','r31_gc_pin','r31_gc_receipt','r31_gc_status','r31_gc_publication')",null)){return c.moveToFirst()&&c.getInt(0)==6&&CheckpointScratchGcR31.ready(db);}
+        try(Cursor c=db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('r31_gc_artifact','r31_gc_edge','r31_gc_pin','r31_gc_receipt','r31_gc_status','r31_gc_publication')",null)){return c.moveToFirst()&&c.getInt(0)==6&&CheckpointScratchGcR31.ready(db)&&CheckpointGcReachabilityR324.ready(db);}
     }
     /** Each statement is installed separately by the migration owner, never by a business caller.
      * The same writer serializes a new reference and a GC claim even for legacy publishers. */
@@ -41,6 +41,7 @@ public final class CheckpointGcStoreR31 implements StorageGcR31.Store {
         roots.put("r29_model_checkpoint",new String[]{"artifact"});roots.put("r29_legacy_model_checkpoint",new String[]{"artifact"});roots.put("r30_model_artifact",new String[]{"weights"});roots.put("r30_atomnet_dataset",new String[]{"payload"});
         roots.put("r31_atomnet_publication",new String[]{"state_ref","weights_ref","dataset_ref"});
         roots.put("r26_checkpoint_artifact",new String[]{"artifact_hash"});
+        roots.put("r324_atomnet_sample_archive",new String[]{"archive_ref"});
         String[] stagedColumns=new String[16];for(int i=0;i<16;i++)stagedColumns[i]="c"+i;roots.put("r31_model_publication_item",stagedColumns);
         for(String table:new String[]{"r29_model_checkpoint","r29_legacy_model_checkpoint","r30_model_artifact","r30_atomnet_dataset"})roots.put("r30_keep_"+table,roots.get(table));
         for(Map.Entry<String,String[]> root:roots.entrySet()){
@@ -73,7 +74,7 @@ public final class CheckpointGcStoreR31 implements StorageGcR31.Store {
      * A DELETED content identity may be published again only after its new file was verified. */
     public void registerVerified(String artifact,long bytes,long modified,Set<String> children,long at){
         writer();hash(artifact);if(bytes<1||bytes>CheckpointArtifactsR26.MAX_BYTES||children.size()>MAX_NODES)throw new IllegalArgumentException("R31_GC_VERIFIED_FILE_BOUND");
-        StorageGcR31.State prior=state(artifact);if(prior==StorageGcR31.State.DELETING)throw new IllegalStateException("R31_GC_PREPARED_ARTIFACT_DELETING");
+        StorageGcR31.State prior=state(artifact);if(prior==StorageGcR31.State.DELETED&&CheckpointGcReachabilityR324.componentBusy(db,artifact))throw new IllegalStateException("DEPENDENCY:R324_GC_COMPONENT_RETIREMENT_PENDING");if(prior==StorageGcR31.State.DELETING)throw new IllegalStateException("R31_GC_PREPARED_ARTIFACT_DELETING");
         if(prior==null)db.execSQL("INSERT INTO r31_gc_artifact VALUES(?,?,?,'LIVE',0,?)",new Object[]{artifact,bytes,modified,at});
         else if(prior==StorageGcR31.State.DELETED){db.execSQL("UPDATE r31_gc_artifact SET state='LIVE',version=version+1,bytes=?,modified_at=?,verified_at=? WHERE artifact_hash=? AND state='DELETED'",new Object[]{bytes,modified,at,artifact});if(changes()!=1)throw new IllegalStateException("R31_GC_REVIVE_CAS");}
         else if(bytes(artifact)!=bytes)throw new IllegalStateException("R31_GC_VERIFIED_SIZE_CHANGED");
@@ -124,7 +125,7 @@ public final class CheckpointGcStoreR31 implements StorageGcR31.Store {
     public void detach(String artifact){writer();hash(artifact);if(state(artifact)!=StorageGcR31.State.DELETING)throw new IllegalStateException("R31_GC_DETACH_WITHOUT_CLAIM");db.execSQL("DELETE FROM r31_gc_edge WHERE from_hash=? OR to_hash=?",new Object[]{artifact,artifact});}
     public void receipt(String artifact,String phase){
         writer();hash(artifact);if(!Arrays.asList("CLAIMED_DELETING","TOMBSTONE_RETRY","UNLINKED").contains(phase))throw new IllegalArgumentException("R31_GC_RECEIPT_PHASE");
-        long version=version(artifact),size=bytes(artifact);db.execSQL("INSERT OR IGNORE INTO r31_gc_receipt(artifact_hash,phase,version,bytes,updated_at) VALUES(?,?,?,?,?)",new Object[]{artifact,phase,version,size,System.currentTimeMillis()});
+        long version=version(artifact),size=CheckpointGcReachabilityR324.physicalClaim(db,artifact,version,bytes(artifact));db.execSQL("INSERT OR IGNORE INTO r31_gc_receipt(artifact_hash,phase,version,bytes,updated_at) VALUES(?,?,?,?,?)",new Object[]{artifact,phase,version,size,System.currentTimeMillis()});
         db.execSQL("UPDATE r31_gc_receipt SET phase=?,version=?,bytes=?,retry_count=retry_count+?,released_bytes=CASE WHEN ?='UNLINKED' AND version<>? THEN released_bytes+? ELSE released_bytes END,updated_at=? WHERE artifact_hash=?",new Object[]{phase,version,size,phase.equals("TOMBSTONE_RETRY")?1:0,phase,version,size,System.currentTimeMillis(),artifact});
     }
     public Map<String,EvidenceReachabilityR31.RootKind> roots(){
@@ -141,6 +142,10 @@ public final class CheckpointGcStoreR31 implements StorageGcR31.Store {
     public static List<String> deleting(SQLiteDatabase db){List<String> result=new ArrayList<>();try(Cursor c=db.rawQuery("SELECT artifact_hash FROM r31_gc_artifact WHERE state='DELETING' ORDER BY artifact_hash LIMIT "+PAGE,null)){while(c.moveToNext())result.add(c.getString(0));}return result;}
     public static Map<String,long[]> inventory(SQLiteDatabase db){
         Map<String,long[]> result=new HashMap<>();try(Cursor c=db.rawQuery("SELECT artifact_hash,bytes,modified_at FROM r31_gc_artifact WHERE state='LIVE' LIMIT "+(MAX_NODES+1),null)){while(c.moveToNext()){result.put(c.getString(0),new long[]{c.getLong(1),c.getLong(2)});if(result.size()>MAX_NODES)throw new IllegalStateException("R31_GC_ARTIFACT_BOUND");}}return result;
+    }
+    /** One point lookup, never an all-history map on the live GC path. */
+    public static long[] inventoryRowR324(SQLiteDatabase db,String artifact){
+        hash(artifact);try(Cursor c=db.rawQuery("SELECT bytes,modified_at FROM r31_gc_artifact WHERE artifact_hash=? AND state='LIVE'",new String[]{artifact})){return c.moveToFirst()?new long[]{c.getLong(0),c.getLong(1)}:null;}
     }
     /** Report reader: bounded aggregate facts only; no census, DDL, filesystem IO or GC. */
     public static Map<String,Object> report(SQLiteDatabase db){

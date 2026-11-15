@@ -51,7 +51,7 @@ public final class ReportMemberPlanCP12 {
         if(depth>3)throw new IOException("REPORT_SORT_CLEANUP_DEPTH");
         if(!file.getAbsoluteFile().equals(file.getCanonicalFile()))throw new IOException("REPORT_SORT_CLEANUP_PATH");
         if(!file.exists())return;
-        if(file.isDirectory()){File[] children=DirectoryCursorR31.children(file,1024);for(File child:children)removeGenerated(child,depth+1);}
+        if(file.isDirectory())try(DirectoryCursorR31 children=DirectoryCursorR31.open(file)){File child;while((child=children.next())!=null)removeGenerated(child,depth+1);}
         if(!file.delete())throw new IOException("REPORT_SORT_CLEANUP_REMOVE");
     }
     private static void merge(File a,File b,File target,ReportNativeCP4.Control control)throws Exception {
@@ -63,6 +63,6 @@ public final class ReportMemberPlanCP12 {
     }
     private static String key(String line){try{String name=new JSONObject(line).getString("name");if(!name.matches("[A-Za-z0-9_.-]{1,120}"))throw new IllegalArgumentException("REPORT_SORT_NAME");return name;}catch(Exception bad){throw new IllegalArgumentException("REPORT_SORT_RECORD",bad);}}
     private static File run(File root,int pass,long ordinal)throws IOException{File dir=new File(root,"pass-"+pass+"/bucket-"+(ordinal/1024));if(!dir.isDirectory()&&!dir.mkdirs())throw new IOException("REPORT_SORT_BUCKET");return new File(dir,"run-"+ordinal+".jsonl");}
-    private static boolean removeEmpty(File dir)throws IOException{File[] entries=DirectoryCursorR31.children(dir,1024);for(File entry:entries){if(!entry.isDirectory()||!removeEmpty(entry))return false;}return dir.delete();}
+    private static boolean removeEmpty(File dir)throws IOException{try(DirectoryCursorR31 entries=DirectoryCursorR31.open(dir)){File entry;while((entry=entries.next())!=null){if(!entry.isDirectory()||!removeEmpty(entry))return false;}}return dir.delete();}
     private static void check(ReportNativeCP4.Control control)throws IOException{if(Thread.currentThread().isInterrupted()||!control.shouldContinue())throw new InterruptedIOException("REPORT_CANCELLED");}
 }
