@@ -159,7 +159,11 @@ public final class UnifiedResearchChoiceR932 {
             }
             else if(su2!=null&&su2.real){com.ethk3.novaonepro.strategyv2.CertificateSU2.Authority a2=com.ethk3.novaonepro.strategyv2.CertificateSU2.read(store.readable(),su2.genomeKey,System.currentTimeMillis());
                 if(a2!=null){consumer="INVENTED_ALGORITHM";candidate=a2.candidate();structure=a2.program;certificate=a2.certificate;roster.append("|SU2_EXACT:").append(a2.certificate);}}
-            else if(su2!=null)roster.append(su2.memberId.startsWith("R27:")?"|R27_SHADOW_ONLY:":"|SU2_SHADOW_ONLY:").append(su2.gate);
+            else if (su2 != null) {
+                String reason = (su2.memberId.startsWith("R27:") ? "R27_SHADOW_ONLY:" : "SU2_SHADOW_ONLY:") + su2.gate;
+                roster.append('|').append(reason);
+                rejections.add(new String[]{su2.memberId, "", reason});
+            }
         }
         if(consumer.isEmpty()&&rejections.isEmpty()){
             String latest="NO_CERTIFICATE_RECORD";
@@ -185,6 +189,18 @@ public final class UnifiedResearchChoiceR932 {
             if(com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.candidate(candidate)){
                 com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.Authority typed=currentR27ChoiceR31(store.readable(),candidate,null,certificate,target);
                 return typed==null?"NO_VALID_CERTIFICATE|raw=R27_TYPED_FREEZE_PROOF_INVALID_OR_REVOKED":"FROZEN_CERTIFIED_CHOICE|candidate="+candidate+"|certificate="+certificate+"|choice="+typed.choiceId+"|freeze="+typed.proofHash+"|authority=R27_GATE_V1_TYPED_FREEZE";
+            }
+            if (candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX)) {
+                com.ethk3.novaonepro.strategyv2.CertificateSU2.Authority a =
+                        currentSu2ChoiceR30(store.readable(), candidate, null, certificate);
+                return "FROZEN_CHOICE_RECORDED|lane=SU2|candidate=" + candidate + "|certificate=" + certificate
+                        + "|currentCertificate=" + (a == null ? "NOT_ACTIVE_OR_REBOUND" : "ACTIVE");
+            }
+            if (candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU1.PREFIX)) {
+                com.ethk3.novaonepro.strategyv2.CertificateSU1.Authority a =
+                        com.ethk3.novaonepro.strategyv2.CertificateSU1.read(store.readable(), certificate, System.currentTimeMillis(), true);
+                return "FROZEN_CHOICE_RECORDED|lane=SU1|candidate=" + candidate + "|certificate=" + certificate
+                        + "|currentCertificate=" + (a != null && candidate.equals(a.candidate()) ? "ACTIVE" : "NOT_ACTIVE_OR_REBOUND");
             }
             try(Cursor cert=store.readable().rawQuery("SELECT state,reason FROM "+ResearchPlatformStoreR929.TABLE_CERTIFICATE+" WHERE certificate_hash=?",new String[]{certificate})){
                 if(cert.moveToFirst()&&"ACTIVE".equals(cert.getString(0)))return "FROZEN_CERTIFIED_CHOICE|candidate="+candidate+"|certificate="+certificate

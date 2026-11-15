@@ -31,13 +31,13 @@ public final class CertificateGateR27 {
     public static Verdict evaluate(Evidence e) {
         Map<String, Object> g = new LinkedHashMap<>(); List<String> fail = new ArrayList<>();
         gate(g, fail, "gateVersion", GATE_VERSION.equals(e.gateVersion), e.gateVersion);
-        double hr = e.acts == 0 ? Double.NaN : e.hits / (double) e.acts;
+        double hr = e.acts <= 0 || e.hits < 0 || e.hits > e.acts ? Double.NaN : e.hits / (double) e.acts;
         gate(g, fail, "sequentialTest", SequentialQualificationR27.QUALIFIED.equals(e.sequentialState), e.sequentialState);
         gate(g, fail, "hitRate>=0.34", Double.isFinite(hr) && hr >= MIN_HR, hr);
         gate(g, fail, "futureActs>=250", e.acts >= MIN_ACTS, e.acts);
-        gate(g, fail, "ece<=0.04", Double.isFinite(e.ece) && e.ece <= MAX_ECE, e.ece);
-        gate(g, fail, "worst720Block>=0.26", Double.isFinite(e.worstBlock) && e.worstBlock >= MIN_WORST_BLOCK, e.worstBlock);
-        gate(g, fail, "losingStreak<=6", e.maxLosingStreak <= MAX_LOSS_STREAK, e.maxLosingStreak);
+        gate(g, fail, "ece<=0.04", Double.isFinite(e.ece) && e.ece >= 0 && e.ece <= MAX_ECE, e.ece);
+        gate(g, fail, "worst720Block>=0.26", Double.isFinite(e.worstBlock) && e.worstBlock >= MIN_WORST_BLOCK && e.worstBlock <= 1, e.worstBlock);
+        gate(g, fail, "losingStreak<=6", e.maxLosingStreak >= 0 && e.maxLosingStreak <= MAX_LOSS_STREAK, e.maxLosingStreak);
         gate(g, fail, "semanticAbiEquivalent", e.abiEquivalent, e.abiEquivalent);
         gate(g, fail, "betterThanI00", Double.isFinite(e.pairedLcbVsI00) && e.pairedLcbVsI00 > 0, e.pairedLcbVsI00);
         gate(g, fail, "betterThanShuffledControl", Double.isFinite(e.pairedLcbVsNull) && e.pairedLcbVsNull > 0, e.pairedLcbVsNull);

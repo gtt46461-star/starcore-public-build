@@ -1,0 +1,29 @@
+compile-current-production exit=0
+Note: /workspace/starcore-r3251-P3-owner2/app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+compile-native-platform-query-adapter exit=1
+/tmp/r31-typed-mainline-hwvgxft5/adapter/sources/android/database/sqlite/SQLiteDatabase.java:63: error: method delete(String,String,String[]) is already defined in class SQLiteDatabase
+    public int delete(String table,String where,String[] args){String sql="DELETE FROM "+table+(where==null?"":" WHERE "+where);try(java.sql.PreparedStatement p=jdbc.prepareStatement(sql)){if(args!=null)for(int i=0;i<args.length;i++){if(args[i]==null)throw new IllegalArgumentException("HOST_DELETE_NULL_BIND");p.setString(i+1,args[i]);}return p.executeUpdate();}catch(java.sql.SQLException failure){throw new SQLiteException(failure.getMessage());}}
+               ^
+1 error
+
+Traceback (most recent call last):
+  File "/workspace/starcore-r3251-P3-owner2/tools/r31/run_typed_mainline_host.py", line 79, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/starcore-r3251-P3-owner2/tools/r31/run_typed_mainline_host.py", line 62, in main
+    run(['javac','-cp',os.pathsep.join(map(str,[platform,sdk])),'-d',platform,cursor,values,sqlite,utils,*json_sources],'compile-native-platform-query-adapter')
+  File "/workspace/starcore-r3251-P3-owner2/tools/r31/run_typed_mainline_host.py", line 30, in run
+    if r.returncode:print((r.stdout+r.stderr)[-9000:]);r.check_returncode()
+                                                       ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 502, in check_returncode
+    raise CalledProcessError(self.returncode, self.args, self.stdout,
+subprocess.CalledProcessError: Command '['javac', '-cp', '/tmp/r31-typed-mainline-hwvgxft5/adapter/platform:/tmp/r32-mainline-env-5y4k5jiw/sdk/platforms/android-36/android.jar', '-d', '/tmp/r31-typed-mainline-hwvgxft5/adapter/platform', '/tmp/r31-typed-mainline-hwvgxft5/adapter/sources/android/database/Cursor.java', '/tmp/r31-typed-mainline-hwvgxft5/adapter/sources/android/content/ContentValues.java', '/tmp/r31-typed-mainline-hwvgxft5/adapter/sources/android/database/sqlite/SQLiteDatabase.java', '/tmp/r31-typed-mainline-hwvgxft5/adapter/sources/android/database/DatabaseUtils.java', '/workspace/starcore-r3251-P3-owner2/verification/r932/android-json/org/json/JSON.java', '/workspace/starcore-r3251-P3-owner2/verification/r932/android-json/org/json/JSONArray.java', '/workspace/starcore-r3251-P3-owner2/verification/r932/android-json/org/json/JSONException.java', '/workspace/starcore-r3251-P3-owner2/verification/r932/android-json/org/json/JSONObject.java', '/workspace/starcore-r3251-P3-owner2/verification/r932/android-json/org/json/JSONStringer.java', '/workspace/starcore-r3251-P3-owner2/verification/r932/android-json/org/json/JSONTokener.java', '/workspace/starcore-r3251-P3-owner2/verification/r932/android-json/org/json/NonNull.java', '/workspace/starcore-r3251-P3-owner2/verification/r932/android-json/org/json/Nullable.java', '/workspace/starcore-r3251-P3-owner2/verification/r932/android-json/org/json/UnsupportedAppUsage.java']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "/workspace/starcore-r3251-P3-owner2/tools/r32/run_mainline_host.py", line 66, in <module>
+    main()
+  File "/workspace/starcore-r3251-P3-owner2/tools/r32/run_mainline_host.py", line 56, in main
+    subprocess.run([sys.executable, str(runner), '--classes', str(classes),
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3', '/workspace/starcore-r3251-P3-owner2/tools/r31/run_typed_mainline_host.py', '--classes', '/workspace/starcore-r3251-evidence/owner2/P3-classes', '--out', '/workspace/starcore-r3251-evidence/owner2/P3-host']' returned non-zero exit status 1.

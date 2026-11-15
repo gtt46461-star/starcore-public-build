@@ -1,0 +1,4 @@
+/tmp/r31-typed-mainline-hwvgxft5/adapter/sources/android/database/sqlite/SQLiteDatabase.java:63: error: method delete(String,String,String[]) is already defined in class SQLiteDatabase
+    public int delete(String table,String where,String[] args){String sql="DELETE FROM "+table+(where==null?"":" WHERE "+where);try(java.sql.PreparedStatement p=jdbc.prepareStatement(sql)){if(args!=null)for(int i=0;i<args.length;i++){if(args[i]==null)throw new IllegalArgumentException("HOST_DELETE_NULL_BIND");p.setString(i+1,args[i]);}return p.executeUpdate();}catch(java.sql.SQLException failure){throw new SQLiteException(failure.getMessage());}}
+               ^
+1 error
