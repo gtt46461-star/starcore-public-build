@@ -1,0 +1,710 @@
+[
+  {
+    "id": "P1.01",
+    "batch": "P1",
+    "entry": "进程冷启后由 coordinator 运行 legacy slice",
+    "input": "复制032缺列库，固定原有行及唯一键清单",
+    "assertion": "运行迁移两次，重启后读table_info/index_info及原行hash",
+    "negative": "重复非空键、索引仅名称相同、事务中杀进程",
+    "receipt": "DDL、原行摘要、schema receipt及首个冲突键",
+    "existingAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "method": "continueLegacySliceR31",
+        "line": 701
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "method": "ensureLinkModificationV2Ready",
+        "line": 18870
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+        "method": "ensureLinkModificationV2Schema",
+        "line": 6457
+      }
+    ]
+  },
+  {
+    "id": "P1.02",
+    "batch": "P1",
+    "entry": "生命周期迁移 tick，随后从正常任务进入工厂",
+    "input": "四表全空、已有账、旧四表有行无单例三种旧库",
+    "assertion": "逐页恢复，复算字节，验证工厂通过 schema 前置并实际提交",
+    "negative": "恰满64、复合键跨页、错触发器、重算期间业务写、断电",
+    "receipt": "每页游标、字节账、首笔工厂事务ID",
+    "existingAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+        "method": "advanceWithinMigration",
+        "line": 122
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java",
+        "method": "seedQuotaWithinMigrationR31",
+        "line": 44
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java",
+        "method": "requireSchemaR31",
+        "line": 49
+      }
+    ]
+  },
+  {
+    "id": "P1.03",
+    "batch": "P1",
+    "entry": "AutoFetchService抓取及历史页回调",
+    "input": "当前尾段2/12，含重复、乱序、跨日原开奖",
+    "assertion": "合并quick/bulk且无latest回调时重建严格12期PIT输入，在下一个合法截止前冻结或给原因",
+    "negative": "第一页缺中间期、provider冲突、写者内head前移、迟到",
+    "receipt": "来源可见时间、真实head、target、8行每片及冻结hash",
+    "existingAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "method": "prepareAnalysisHistoryR364",
+        "line": 4008
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java",
+        "method": "contiguousSuffixCount",
+        "line": 39
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "method": "scheduleQuickHistorySyncR71",
+        "line": 10805
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "method": "performQuickHistorySync",
+        "line": 10819
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "method": "saveDraws",
+        "line": 2525
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "method": "saveApiResultDraws",
+        "line": 3170
+      }
+    ]
+  },
+  {
+    "id": "P1.04",
+    "batch": "P1",
+    "entry": "主进程控制tick与已有前台服务调度",
+    "input": "复现写者故障队列、并发研究、长持锁、大量后台唤醒缺口",
+    "assertion": "按fence排队头；分开读取前台服务存活、主进程实际写入和冻结",
+    "negative": "第二次drain失败、重启、重复start、OS限制",
+    "receipt": "boot/session、队头年龄、事务phase、时延分母",
+    "existingAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "method": "reconcileResearchOwner",
+        "line": 2430
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+        "method": "drainOne",
+        "line": 135
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "method": "runAtomicWriteOrThrowF01",
+        "line": 1011
+      }
+    ]
+  },
+  {
+    "id": "P1.05",
+    "batch": "P1",
+    "entry": "正式服务开奖回调接现有冻结和结算事务",
+    "input": "同一期提交重复、乱序揭晓，另有未冻结目标",
+    "assertion": "每个原冻结只结算一次，带同一eventId递交训练；缺冻结也可形成开奖训练事件",
+    "negative": "提交成功但ACK丢、发生冲突、事后补冻结",
+    "receipt": "冻结记录、结算原件、事件键、可重读的游标",
+    "existingAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "method": "saveApiResultDraws",
+        "line": 3170
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+        "method": "insertWithinTransaction",
+        "line": 13
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+        "method": "enqueueConfirmedWithinWrite",
+        "line": 122
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "method": "settleRealWithinTransactionR36",
+        "line": 343
+      }
+    ]
+  },
+  {
+    "id": "P1.06",
+    "batch": "P1",
+    "entry": "正常checkpoint读取、预算、回收与恢复",
+    "input": "已保护、缺失或损坏CAS和可回收副本共存",
+    "assertion": "校验SHA和大小，能恢复的回读后恢复引用；其余按根列受影响资产并保全上次正常状态",
+    "negative": "GC与读租约竞争、ENOSPC、rename后杀进程、备份原件缺失",
+    "receipt": "根、租约、清单、回读哈希、实际释放字节",
+    "existingAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
+        "method": "prepareLease",
+        "line": 100
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
+        "method": "verifyFileR31",
+        "line": 200
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java",
+        "method": "admitReference",
+        "line": 93
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/StorageGcR31.java",
+        "method": "claim",
+        "line": 30
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/StorageGcR31.java",
+        "method": "completeUnlink",
+        "line": 45
+      }
+    ]
+  },
+  {
+    "id": "P2.01",
+    "batch": "P2",
+    "entry": "调度器正常领取 replay task",
+    "input": "用032旧回放游标、固定输入与对应权重或明确缺件",
+    "assertion": "重启沿提交点重放一回合，重新打开模型并复用同一数值状态",
+    "negative": "准入拒绝、提交后回执丢失、END回滚、pin失效",
+    "receipt": "fence、事务phase、样本游标、checkpoint及下一次真实推进",
+    "existingAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "method": "step",
+        "line": 179
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "method": "publishRecoveredReplayKnowledgeR31",
+        "line": 233
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayKnowledgeStoreR31.java",
+        "method": "appendR31",
+        "line": 18
+      }
+    ]
+  },
+  {
+    "id": "P2.02",
+    "batch": "P2",
+    "entry": "训练任务消费正常结算事件，AtomNet正常发布",
+    "input": "固定已揭晓序列、可产生非零梯度的十位置输入",
+    "assertion": "现有优化器逐位更新，十位置完成后发布；常规预测读该权重",
+    "negative": "第1到9位置重启、重复100次、源修订、全零梯度",
+    "receipt": "输入、旧预测、loss、optimizer step、前后模型及消费hash",
+    "existingAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "method": "step",
+        "line": 658
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "method": "step",
+        "line": 12
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+        "method": "prepare",
+        "line": 96
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "method": "forecast",
+        "line": 99
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TrainingStepStoreR26.java",
+        "method": "capture",
+        "line": 23
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TrainingStepStoreR26.java",
+        "method": "record",
+        "line": 30
+      }
+    ]
+  },
+  {
+    "id": "P2.03",
+    "batch": "P2",
+    "entry": "FoundryCampaignR26.step 领取下一轮",
+    "input": "旧ABI冻结候选、一个可兼容候选和新预算槽",
+    "assertion": "保全旧策略并给兼容重放结果；通过出生门的新子代有可执行程序和独立账",
+    "negative": "同构改名、仅换阈值不改行为、坏模型、发布前重启",
+    "receipt": "父/供体、program、ABI、样本角色、真实出生和预算收据",
+    "existingAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "method": "step",
+        "line": 30
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmCandidateR26.java",
+        "method": "prepareAbiR31",
+        "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java",
+        "method": "from",
+        "line": 20
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "method": "publishBirthPreparedR31",
+        "line": 119
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "method": "finish",
+        "line": 148
+      }
+    ]
+  },
+  {
+    "id": "P2.04",
+    "batch": "P2",
+    "entry": "进化任务以失败原件调用思路和专家",
+    "input": "固定零信号、带结构、变点、弱支持数据，预登记同预算",
+    "assertion": "失败机制引出不同提案，短期窗口只用当时可知信息，并能投影单位置K3/HOLD",
+    "negative": "偷读标签、倒序未来、同一策略换名、教师缺失",
+    "receipt": "每族状态、支持机会、误报、提案来源、输入与输出摘要",
+    "existingAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "method": "step",
+        "line": 249
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "method": "step",
+        "line": 155
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "method": "stepBirth",
+        "line": 200
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java",
+        "method": "propose",
+        "line": 30
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+        "method": "check",
+        "line": 64
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java",
+        "method": "support",
+        "line": 30
+      }
+    ]
+  },
+  {
+    "id": "P2.05",
+    "batch": "P2",
+    "entry": "矩阵研究任务和子代算子读取生产原件",
+    "input": "20种注册矩阵按对象喂正/负例，原子、双亲和同PIT窗口",
+    "assertion": "移除一个真实来源，读到可测的预测差或无增益结论；融合须双亲对照",
+    "negative": "错轴、错role、NaN、未绑定学生、同父伪融",
+    "receipt": "矩阵版本、消费receipt、行为差、损失及父A/父B对照",
+    "existingAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "method": "step",
+        "line": 649
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+        "method": "build",
+        "line": 77
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedComponentStudyR30R1.java",
+        "method": "evaluate",
+        "line": 12
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "method": "atomInputHashR31",
+        "line": 93
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionOpsR27.java",
+        "method": "fuse",
+        "line": 17
+      }
+    ]
+  },
+  {
+    "id": "P2.06",
+    "batch": "P2",
+    "entry": "工厂finish、进化选择和精英退役",
+    "input": "同预算比较1/1与稳定父母，含低效、高成本和受保护祖先",
+    "assertion": "跨代保留可复验父母；低效者退出繁殖，释放可释放的槽和字节并能再出生",
+    "negative": "空DEV、SELECT坍塌、同分、负控、受保护原件压力",
+    "receipt": "两段分子分母、排名、费用、同机会差、退役和新一轮收据",
+    "existingAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "method": "stepGate",
+        "line": 252
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "method": "stepReplay",
+        "line": 313
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "method": "stepHalving",
+        "line": 417
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "method": "stepHoldout",
+        "line": 512
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "method": "stepRecord",
+        "line": 523
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "method": "stepPromote",
+        "line": 547
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CreationBudgetR31.java",
+        "method": "admit",
+        "line": 97
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+        "method": "advance",
+        "line": 143
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "method": "finish",
+        "line": 148
+      }
+    ]
+  },
+  {
+    "id": "P3.01",
+    "batch": "P3",
+    "entry": "R27资格任务、SU2维护及事务内签证",
+    "input": "独立测试库预登记两套协议的时间窗口和冻结序列",
+    "assertion": "从各自证据账重算，满足全部边界才签同策略同ABI证书",
+    "negative": "249/250、未满SU2窗口、缺标签、校准不足、撤证、重复look",
+    "receipt": "协议、出生时间、后置证据摘要、look预算、证书键及拒绝理由",
+    "existingAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "method": "qualify",
+        "line": 123
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+        "method": "consume",
+        "line": 184
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "method": "certify",
+        "line": 257
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "method": "evaluate",
+        "line": 32
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "method": "choose",
+        "line": 53
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
+        "method": "maintainPolicy",
+        "line": 58
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
+        "method": "issueWithin",
+        "line": 109
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationWindowR26.java",
+        "method": "completed",
+        "line": 14
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceBlockR26.java",
+        "method": "evaluate",
+        "line": 53
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "method": "freeze",
+        "line": 154
+      }
+    ]
+  },
+  {
+    "id": "P3.02",
+    "batch": "P3",
+    "entry": "统一选择→DecisionGate→冻结→SettlementEngine",
+    "input": "隔离授权测试库，同目标同时有影子R27和有效SU2，另测已认证R27",
+    "assertion": "按原优先和证书读源选择一次并结算一次；拒绝时继续影子",
+    "negative": "用户开关关闭、证书串号、撤销竞态、旧目标已冻结、重复揭晓",
+    "receipt": "全部候选及拒绝原因、选择、原始冻结和唯一真实角色结算",
+    "existingAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+        "method": "authorizedChoice",
+        "line": 134
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+        "method": "read",
+        "line": 152
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "method": "prepare",
+        "line": 240
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+        "method": "prepare",
+        "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "method": "runR36",
+        "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "method": "decideV51B12",
+        "line": 11244
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "method": "beforeInsert",
+        "line": 360
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "method": "insertAuthorizedTradeWithinCanonicalR915",
+        "line": 5277
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "method": "settleRealWithinTransactionR36",
+        "line": 343
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+        "method": "revokeWithin",
+        "line": 87
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+        "method": "prepareChoiceCP12",
+        "line": 109
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+        "method": "currentChoiceReasonCP12",
+        "line": 180
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+        "method": "freeze",
+        "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+        "method": "intent",
+        "line": 82
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+        "method": "projectionR30",
+        "line": 117
+      }
+    ]
+  },
+  {
+    "id": "P4.01",
+    "batch": "P4",
+    "entry": "正常报告服务生成12章及两个升级诊断出口",
+    "input": "两份032数据与已施工的有/无有效产物、消费、增益的例子",
+    "assertion": "各对象指出卡点、证据和修法。独立未来分母为零则无命中率；S4字段空仍有人读处方",
+    "negative": "快照混用、数据源缺失、仅残差增长、未知冒充0",
+    "receipt": "JSON/Markdown同快照、对象及证据路径、步骤、分母、验收目标",
+    "existingAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "method": "buildProductionR31",
+        "line": 40
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "method": "chapters",
+        "line": 21
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "method": "document",
+        "line": 68
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "method": "drain",
+        "line": 246
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+        "method": "report",
+        "line": 81
+      }
+    ]
+  },
+  {
+    "id": "P4.02",
+    "batch": "P4",
+    "entry": "正常图表界面和ResearchTablesActivity加载器",
+    "input": "47图、16表原SQL；T06、T09、T10、T15含阻断、空值、成本未知",
+    "assertion": "从每个展示点追到原件与研究消费者；数据缺失显示原因，缓存可删再建",
+    "negative": "过期查询覆盖新页面、删UI缓存、错role、分母混淆",
+    "receipt": "图点/表键→run→输入/策略→对照结果与真实消费",
+    "existingAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
+        "method": "load",
+        "line": 29
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+        "method": "page",
+        "line": 34
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+        "method": "readPageR31",
+        "line": 43
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+        "method": "headlineSnapshotR30",
+        "line": 107
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java",
+        "method": "report",
+        "line": 11
+      }
+    ]
+  },
+  {
+    "id": "P4.03",
+    "batch": "P4",
+    "entry": "从应用完整导出入口到系统保存后重新打开",
+    "input": "含缺失checkpoint、已恢复CAS、可取消和超预算附件的实际形状",
+    "assertion": "记录第一失败阶段；文件关闭后逐项核验清单和用户所得ZIP，恢复只读取原件",
+    "negative": "备份中文件消失、重启、保存被取消、磁盘不足、摘要错",
+    "receipt": "job、snapshot、stage、异常因果、成员hash、最终目标文件回读",
+    "existingAnchors": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "method": "requestExport",
+        "line": 67
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "method": "drain",
+        "line": 246
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "method": "publish",
+        "line": 511
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+        "method": "verify",
+        "line": 30
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+        "method": "writeZip",
+        "line": 92
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+        "method": "verifyPublishedZip",
+        "line": 150
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "method": "verifyReady",
+        "line": 539
+      }
+    ]
+  },
+  {
+    "id": "P5.01",
+    "batch": "P5",
+    "entry": "正式工作流构建签名APK、032覆盖安装与下载",
+    "input": "SHA确定的032、同包同签名更高版本候选、含旧业务数据的测试设备",
+    "assertion": "装后读取APK字节、抽验32+32旧记录且模型/证书另重放；发布ZIP再下载比SHA",
+    "negative": "改行、丢行、错签、同版本、CI失败标绿、只返回旧APK",
+    "receipt": "source commit、设备、签名、版本、覆盖收据、APK与ZIP哈希、正式下载地址",
+    "existingAnchors": [
+      {
+        "path": "tools/r31/run_emulator_upgrade_matrix.py",
+        "method": "main",
+        "line": 78
+      },
+      {
+        "path": "tools/r31/package_release.py",
+        "method": "main",
+        "line": 169
+      }
+    ]
+  }
+]

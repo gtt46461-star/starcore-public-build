@@ -63,9 +63,9 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java"
     ],
     "finding": "foundry-su2 两次都在 408/4119，QUOTA_MISSING。表存在，单例无行。生命周期其他对象 66→130 时它仍未被初始化。",
-    "edit": "P1.patch 在实际迁移事务，检查领域所附对象以及全部 hypothesis DDL 精确匹配，调用原 seedQuotaWithinMigrationR31 后立即 requireSchema；仅返回该子单元的进展。",
-    "atomic": "现有子表有数据且无记账，隔离并从可信账本恢复，禁止填零。其他域继续各自迁移。保持 FoundryCampaignR26.step 业务入口只读。",
-    "test": "空旧库用正常 migration 调度跑到工厂第一笔可提交事务；已有单例重放不改值；旧行无配额/异常触发器必须拒绝。不得把全域标 COMPLETE。",
+    "edit": "在 LifecycleSchemaR31.advanceWithinMigration 内先核对假设表和全部触发器的精确定义；由 HypothesisStoreR31.recoverQuotaSliceR32 计算旧行原始计费，四表全空时同事务初始化。四表有数据时每事务最多64行，以原主键续页，最后一页把精确字节与完成状态一起提交。业务调用保持 requireSchemaR31 只读。",
+    "atomic": "重算期间原准入触发器拒绝新增，更新/删除触发器保护原件。游标、累计字节及摘要写同事务的 app_state；错触发器、坏游标或超过保护上限记录精确错误，保留原行；其它可运行任务独立推进。",
+    "test": "空库首个可用工厂事务；有旧行删配额（多字节payload、三列复合键、恰好64及跨页）后重启；断在提交前后各一次，最后重算值等于原触发器账，重复插入不加费；原件被篡改或触发器缺失不得给出零配额。",
     "batch": "P1",
     "reads": [],
     "writes": [
@@ -115,7 +115,7 @@
       "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java"
     ],
     "finding": "5000行历史中该时点仅2期连续；门槛12。通用 R914_DRAW_HISTORY_BATCH 按研究写者准入；出现53条带积压原因的新延迟事件。",
-    "edit": "P1.patch 保持当前开奖结果优先落库，在快速回补的已持久化回调仅提升当前 base 之前连续12期；用原日界算法，排除目标及以后，核对冲突后按现有至多8行的事务写入；普通回补照旧。补做 quick 合并丢掉更新 target、provider 缺最新或跨日重试的本批测试，丢单时保存最后未完成目标并在本 handler 去重重投。",
+    "edit": "在 saveApiResultDraws 的历史页入口提取独立修尾段任务；不依赖 quick 文本原因或最新开奖记录回调。先调度现有最新开奖，写者每片重读当前 head、截止与目标前12期，仅提升无冲突的已知连续前缀，沿用每片至多8行；普通历史仍走原回补。须补齐合并期间的持久目标、服务重启重投和不同来源冲突回执。",
     "atomic": "取、写、冻结分别校验目标与截止时间；补档行始终走 BACKLOG 结算；不能给已开奖补写赛前决策。任何写失败在唯一 owner 下重读；不扩大批量历史的优先级。",
     "test": "输入乱序、跨日、缺中间期、冲突开奖、已过截止、相同页两次。检查 target 只用此前可见数据、发生真实 B04 冻结或留下准确错过原因。模拟后包覆盖变化并量P95和分母。",
     "batch": "P1",
@@ -172,6 +172,15 @@
         "jvmOwner": "com/ethk3/novaonepro/DbStore",
         "descriptor": "(Ljava/util/List;)I",
         "line": 2525,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "owner": "P1",
+        "method": "saveApiResultDraws",
+        "jvmOwner": "com/ethk3/novaonepro/AutoFetchService",
+        "descriptor": "(Lcom/ethk3/novaonepro/Models$ApiResult;Ljava/lang/Runnable;)V",
+        "line": 3170,
         "kind": "java"
       }
     ],
@@ -785,12 +794,13 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
-      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java"
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java"
     ],
     "finding": "50次尝试中行为新颖/接受/改进验证均0。现有最高历史胜率不足以判断优劣。",
-    "edit": "滚动DEV按历史快速淘汰无效/重复/成本过高，SELECT比较固定父代及简单基线；维护同机会动作并集/交集、时间块与成本；预算随可复查净增益、误报和漂移反馈。失败子代指向原因与下一次可执行操作。冷门机制保留有限可重试探索。",
+    "edit": "在 FoundryCampaignR26.finish 保留 DEV、SELECT 两段，用两段描述性 Wilson 下界的较小值排历史父代，平分看较小支持与不可变策略键；排除受控消融对象，至多保留三个待选排名对象。保留另外两份独立账记录长期同机会配对与未来资格。CreationBudgetR31 只控制同时活跃资源。对低效候选停止排程、撤出亲本池，证据保全后回收预算。",
     "atomic": "保全父子摘要、失败原因和冻结祖先；退役是关闭后续训练/选择，物理删除仅限已证实无引用的可再生负载。代号来自谱系增量；只有相同冻结测试上的可信改进可记强化。",
-    "test": "多代小容量循环下活动集有界、总birth继续上升。空集、同构、功效不足、漂移和成本过高均走独立路径；对抗不断试错挑高分，留出不可反复调参。",
+    "test": "1/1与40/100、跨段崩溃、平分、缺样本均可重放；负控不能当亲本。相同预算测亲本选中的净效应、宽度、计算成本、最差窗口、代际增量。已知弱者退休过程中杀进程，历史证据仍可回读；释放的可用槽能创建具有独立样本账的下一代。",
     "batch": "P2",
     "reads": [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
@@ -802,7 +812,8 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
-      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java"
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java"
     ],
     "sourceAnchors": [
       {
@@ -876,6 +887,15 @@
         "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Lcom/ethk3/novaonepro/strategyv2/ImprovementStoreR31$Writer;)Z",
         "line": 143,
         "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "owner": "P2",
+        "method": "finish",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/FoundryCampaignR26",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Ljava/util/function/Supplier;Ljava/lang/String;J)V",
+        "line": 148,
+        "kind": "java"
       }
     ],
     "traceOnly": []
@@ -891,16 +911,21 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceContractR31.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/GateV2R29.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
-      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java"
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationWindowR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceBlockR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java"
     ],
     "finding": "新旧包未来策略/有效未来出手/证书均为0。高胜率、稳定性无法从历史数推定。",
-    "edit": "策略、版本、截止点、角色、动作和停止规则先登记；机会记 ACT/HOLD/MISSED，开奖后唯一结算；候选变了新建证据段。P3.patch 拒绝非法分母、负校准误差、越界最差块率、负连败；沿用全部 R27_GATE_V1 条件。",
-    "atomic": "旧120/长期69120研究机会与正式资格250次有效未来出手分开；任何候选不能继承父命中。序贯检验及同机会对照保持原权威。",
-    "test": "构造249/250、命中/出手错误、门槛边界、伪造过期、错误ABI/负对照；一次允许的测试证书和多条拒绝原因。测试数据不得进入正式账本。",
+    "edit": "分别保全 R27_GATE_V1 和 R26_PREREGISTERED_AGGREGATE_LCB_V3 的输入、机会日历、分母和证书表。R27 保留实际序贯登记，通过250笔未来出手等既有条件。SU2 从 QualificationWindowR26.completed 到 CertificateSU2.issueWithin 复核69120个机会的四段原始聚合、配对及后段校准。见修订指南的双路对照。分别核对数据完整性与同策略版本，二者不能互签。",
+    "atomic": "120可用于旧观察或校准子段的既定口径；R27以未来有效出手计、SU2以机会日历及其内实际出手分别计。热库5000期外保留可验证资格聚合、证书及引用根；不借父代、重复窗口或旧ABI扩大独立样本。",
+    "test": "两套门各测刚低于/等于/刚超过边界，以及缺标签、错ABI、撤销与错策略。完成窗口、校准与正式签发全部使用同一不可变证据。保留真实032零证书作负例；工程正例仅用独立测试账。",
     "batch": "P3",
     "reads": [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
-      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java"
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceBlockR26.java"
     ],
     "writes": [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
@@ -908,7 +933,10 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationGapRepairR30R1.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceContractR31.java",
-      "app/src/main/java/com/ethk3/novaonepro/strategyv2/GateV2R29.java"
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/GateV2R29.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationWindowR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java"
     ],
     "sourceAnchors": [
       {
@@ -955,11 +983,54 @@
         "descriptor": "(Ljava/util/List;)Ljava/lang/String;",
         "line": 53,
         "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
+        "owner": "P3",
+        "method": "maintainPolicy",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/CertificateSU2",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Ljava/lang/String;J)Ljava/lang/String;",
+        "line": 58,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
+        "owner": "P3",
+        "method": "issueWithin",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/CertificateSU2",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;Ljava/lang/String;Lcom/ethk3/novaonepro/strategyv2/QualificationWindowR26$Window;Ljava/lang/String;J)Z",
+        "line": 109,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationWindowR26.java",
+        "owner": "P3",
+        "method": "completed",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/QualificationWindowR26",
+        "descriptor": "(JJ)Lcom/ethk3/novaonepro/strategyv2/QualificationWindowR26$Window;",
+        "line": 14,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceBlockR26.java",
+        "owner": "P2",
+        "method": "evaluate",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/EvidenceBlockR26",
+        "descriptor": "([Lcom/ethk3/novaonepro/strategyv2/EvidenceBlockR26;IDZ)Lcom/ethk3/novaonepro/strategyv2/SelectiveEvidenceSU2$Verdict;",
+        "line": 53,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "owner": "P3",
+        "method": "freeze",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/LiveShadowsR27",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/RuntimeR27;Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Worker;Ljava/lang/String;JJLjava/lang/String;Z)J",
+        "line": 154,
+        "kind": "java"
       }
     ],
-    "traceOnly": [
-      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java"
-    ]
+    "traceOnly": []
   },
   {
     "id": "P3.02",
@@ -974,12 +1045,15 @@
       "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
       "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
       "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
-      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java"
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+      "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+      "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java"
     ],
-    "finding": "主链、证书和REAL均无当前记录；不能靠打开开关解决。",
-    "edit": "在现在的策略选择入口读取 ACTIVE/未过期/同ABI 的资格及模型；重新核对冻结时刻同事务唯一策略，记录证书、策略版本、位置与K3、decisionId；沿已存在结算消费回执关联。真实出手后持续校准/漂移监控，在下次冻结前撤销已失效资格。",
+    "finding": "真实032的独立未来、当前证书及REAL均为0。源码另有并发候选遗漏风险：影子R27会先于已证实SU2返回，且旧理由解析会将SU2带到通用证书表。两份现场报告无法证明当时遇到双候选。",
+    "edit": "同批修 MainlineBridgeSU2.intent 与 UnifiedResearchChoiceR932 的选择/原因读取；保留前置 R958、SU1 及正式 R27 的原优先级。已有不可变目标选择先复用；首次选择时同策略、同证书、有效冻结、模型存在、选择器确认且ACT的SU2才可越过影子R27。走现有 DecisionGateEngine 的最终授权，原账唯一结算。读取R27、SU1、SU2各自权威资格来源并记录用户真实开关状态。",
     "atomic": "单位置固定K=3，每期最多一条REAL；证书未达时写明HOLD并保留影子。约15%频率是目标，不能补单。撤销竞态不得改写已冻结历史，SHADOW不能计真实胜率。",
-    "test": "两证同分、过期瞬间、重复回调、两线程争同一期、撤销与冻结相撞；用确定性fixture跑正常入口到结算。自然证书、真实频率、效果单列并等待实测。",
+    "test": "同目标并发给出影子R27及有证SU2，在用户授权的测试库内经正常冻结/结算恰一次；交换顺序、R27已认证、候选ID错、证书撤销、未授权、模型缺失、重复回调、截止后再次选择均验证原始行和拒绝原因。",
     "batch": "P3",
     "reads": [
       "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
@@ -993,7 +1067,10 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineModelBindingR31.java",
       "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
-      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java"
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+      "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+      "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java"
     ],
     "sourceAnchors": [
       {
@@ -1016,7 +1093,7 @@
       },
       {
         "path": "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
-        "owner": "P1",
+        "owner": "P3",
         "method": "prepare",
         "jvmOwner": "com/ethk3/novaonepro/CertifiedPredictionR974",
         "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/V51Models$PredictionContext;[Lcom/ethk3/novaonepro/V51Models$PositionAction;Lcom/ethk3/novaonepro/AnalysisSingleFlightR36$Request;)Lcom/ethk3/novaonepro/CertifiedPredictionR974$Prepared;",
@@ -1052,7 +1129,7 @@
       },
       {
         "path": "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
-        "owner": "P1",
+        "owner": "P3",
         "method": "beforeInsert",
         "jvmOwner": "com/ethk3/novaonepro/CertifiedPredictionR974",
         "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Landroid/database/sqlite/SQLiteDatabase;Lcom/ethk3/novaonepro/V51CompiledActionContract;)V",
@@ -1085,10 +1162,54 @@
         "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
         "line": 87,
         "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+        "owner": "P3",
+        "method": "prepareChoiceCP12",
+        "jvmOwner": "com/ethk3/novaonepro/UnifiedResearchChoiceR932",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Ljava/lang/String;Ljava/lang/String;)Lcom/ethk3/novaonepro/UnifiedResearchChoiceR932$PreparedChoiceCP12;",
+        "line": 109,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+        "owner": "P3",
+        "method": "currentChoiceReasonCP12",
+        "jvmOwner": "com/ethk3/novaonepro/UnifiedResearchChoiceR932",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Ljava/lang/String;)Ljava/lang/String;",
+        "line": 180,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+        "owner": "P3",
+        "method": "freeze",
+        "jvmOwner": "com/ethk3/novaonepro/UnifiedResearchChoiceR932",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Ljava/lang/String;)Z",
+        "line": 16,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+        "owner": "P3",
+        "method": "intent",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;J)Lcom/ethk3/novaonepro/strategyv2/MainlineBridgeSU2$Intent;",
+        "line": 82,
+        "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+        "owner": "P3",
+        "method": "projectionR30",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;JJLjava/lang/String;)Lcom/ethk3/novaonepro/strategyv2/MainlineBridgeSU2$ProjectionR30;",
+        "line": 117,
+        "kind": "java"
       }
     ],
     "traceOnly": [
-      "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
       "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
       "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
     ]
@@ -1107,10 +1228,11 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
       "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
-      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java"
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java"
     ],
     "finding": "原96项已执行且44指标在册，但16条诊断规则8条证据不足、1条未知；旧UPGRADE文件存在空处方，用户无法知道该改谁。",
-    "edit": "P4.patch 在第12章加同一只读快照的165个分类条目，在 UPGRADE_DIAGNOSIS.md/json 附上同一对象处方。按 contracts 和 ledger 补齐每行的文件/方法、原始值/来源、上次对比、首个阻点、上下游、实验、下次触发。原对象谱系、旧章与44指标继续保留。",
+    "edit": "ReportR29 第12章与完整导出的 UPGRADE_DIAGNOSIS.json / .md 共同使用 RepairDiagnosisR32 的对象行和 operatingSummaryR32。以本快照 R30_01、R30_04、R30_06 三章中的实际来源字段为准；列独立未来分母、工厂阻点、AtomNet材料/训练/发布和可核验的下一步。旧 DiagnosisStoreSU2 空S4处方另附人读解释和复验条件，保留原字段机器语义；后续填充每行的真实最近运行、输入产物消费链及同机会实验。",
     "atomic": "失败、缺测、无输入、未消费、无优势分别输出，0须有查得的分母。投影只取小字段；新增对象、缺ID、重ID须明确覆盖差异；来源冲突并列显示，禁止将read_ok解释成有效。",
     "test": "用032两份快照恢复或授权脱敏fixture，检查每组ID、同一watermark与数值JSON/MD相同；F23、T06/10/15、AtomNet、无REAL均有具体处方，非空套话判失败。",
     "batch": "P4",
@@ -1127,7 +1249,8 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
       "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
-      "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java"
+      "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java"
     ],
     "sourceAnchors": [
       {
@@ -1165,6 +1288,15 @@
         "descriptor": "()V",
         "line": 246,
         "kind": "java"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+        "owner": "P4",
+        "method": "report",
+        "jvmOwner": "com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;)[Ljava/lang/String;",
+        "line": 81,
+        "kind": "java"
       }
     ],
     "traceOnly": []
@@ -1180,7 +1312,8 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedComponentStudyR30R1.java",
-      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java"
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java"
     ],
     "finding": "18张研究图缺当前源帧/消费，29旧图设备有效性未知。16表只有8表出行，部分行为阻断占位。",
     "edit": "按 ledger 的源SQL、生产者、消费者及逐项情形恢复生产帧和版本关联。研究页面通过业务只读投影展示同目标父子收益、命中区间、校准、机会频率、漂移和失败原因。查明每个表是否纯展示或被算法读取；真实消费者在P2既有调用点留收据。",
@@ -1190,7 +1323,8 @@
     "reads": [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedComponentStudyR30R1.java",
-      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java"
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java"
     ],
     "writes": [
       "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
@@ -1246,9 +1380,7 @@
         "kind": "java"
       }
     ],
-    "traceOnly": [
-      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java"
-    ]
+    "traceOnly": []
   },
   {
     "id": "P4.03",
@@ -1373,7 +1505,7 @@
     "finding": "032对应源工程已有653单测通过；并没有由此得到24/72小时合格、真机质量或闭环运行证据。",
     "edit": "按正常入口构建，保留同包/同签名、数值ABI与版本迁移记录，versionCode高于032及仓库现有版本；clean安装+从032覆盖，无清数据，验证冷启/断网/重启/锁屏/导出/主链。输出APK和内含同字节APK的ZIP及SHA256、证书摘要、源码提交、设备/自然证据状态。",
     "atomic": "每批只运行受改路径的最短回归；完整联测集中一次同提交运行，失败按首个失败定位最小修复集；release签收严格执行原DEVICE规则。外部原机不可用时可以产测试交付，但发布状态明确留空或待验。",
-    "test": "验证当前SHA的Gradle、关键host/Android路径、apksigner、安装升级、ZIP读回。24h/72h实测与自然样本单列；条件未到不冒领。",
+    "test": "验证当前SHA的Gradle、关键host/Android路径、apksigner、安装升级、ZIP读回。24h/72h实测与自然样本单列；条件未到不冒领。 加跑 verify/check_upgrade_rows.py：先固定032的32个开奖和32个已结算冻结，再对照候选导出与真机装前装后字节收据，另对模型/证书/CAS原件跨升级分别重放。",
     "batch": "P5",
     "reads": [
       "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",

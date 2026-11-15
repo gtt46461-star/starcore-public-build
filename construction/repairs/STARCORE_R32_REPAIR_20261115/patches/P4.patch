@@ -14,10 +14,10 @@ index fb8161dba019a92e032bbdf2f67047f5f62c4600..aa2329a5e440af7765d22483e2180530
                          ReportMemberPlanCP12.append(members,diag.getName(),diag.getName(),ReportArchiveCP4.hash(diag,active),diag.length());}
 diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..560d209cc5487d283d2d24873e4606269a92af1d
+index 0000000000000000000000000000000000000000..b298e1b2e6b258fbdf82eb7b3ed815c0c4c1b181
 --- /dev/null
 +++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java
-@@ -0,0 +1,277 @@
+@@ -0,0 +1,379 @@
 +package com.ethk3.novaonepro.strategyv2;
 +
 +import java.util.*;
@@ -274,6 +274,92 @@ index 0000000000000000000000000000000000000000..560d209cc5487d283d2d24873e460626
 +        out.put("sourceSnapshot",source.get("sourceSnapshot")); out.put("rows",rows); out.put("coverageGaps",gaps);
 +        return out;
 +    }
++    private static Map<?,?> chapter(List<? extends Map<?,?>> chapters, String id) {
++        for (Map<?,?> entry : chapters) {
++            if (id.equals(entry.get("sectionId"))) return entry;
++        }
++        return Collections.emptyMap();
++    }
++
++    private static Map<String,Object> fields(Map<?,?> input, String... keys) {
++        Map<String,Object> output = new LinkedHashMap<>();
++        for (String key : keys) output.put(key, input.get(key));
++        return output;
++    }
++
++    static Map<String,Object> operatingSummaryR32(List<? extends Map<?,?>> chapters) {
++        Map<?,?> quality = map(chapter(chapters, "R30_01").get("commonMetrics"));
++        Map<?,?> runtime = map(chapter(chapters, "R30_04").get("data"));
++        Map<?,?> models = map(chapter(chapters, "R30_06").get("data"));
++        Map<?,?> neural = map(map(models.get("neuralTraining")).get("payload"));
++        Map<String,Object> result = new LinkedHashMap<>();
++        Map<String,Object> future = fields(quality, "policyObjects", "evolutionAttempts", "qualifiedExperiments",
++                "independentFutureIssues", "futureActs", "futureHits", "activeCertificates");
++        Object acts = quality.get("futureActs"), hits = quality.get("futureHits");
++        Double hitRate = null;
++        String status = "COUNTS_UNAVAILABLE_OR_INVALID";
++        if (acts instanceof Number && hits instanceof Number) {
++            double n = ((Number)acts).doubleValue(), h = ((Number)hits).doubleValue();
++            if (Double.isFinite(n) && Double.isFinite(h) && n == Math.rint(n) && h == Math.rint(h)
++                    && n >= 0 && h >= 0 && h <= n) {
++                status = n == 0 ? "NO_SETTLED_FUTURE_ACT" : "OBSERVED_FUTURE_ONLY";
++                if (n > 0) hitRate = h / n;
++            }
++        }
++        future.put("futureHitRate", hitRate);
++        future.put("rateStatus", status);
++        result.put("independentFuture", future);
++        result.put("atomNet", fields(neural, "materializedSamples", "trainingSamplesProcessed", "onlineSamples",
++                "completeTrainedThroughOrdinal", "publicationReady", "consumable"));
++        Map<String,Object> tasks = new LinkedHashMap<>();
++        for (String wanted : new String[]{"foundry-su2", "r27-replay-dataset", "r27-evolution"}) {
++            Map<String,Object> fact = null;
++            if (runtime.get("tasks") instanceof List) {
++                for (Object item : (List<?>)runtime.get("tasks")) {
++                    Map<?,?> task = map(item);
++                    if (wanted.equals(task.get("task_id"))) {
++                        fact = fields(task, "task_id", "steps", "cursor", "status", "blocked_reason");
++                        if (fact.get("blocked_reason") instanceof String)
++                            fact.put("blocked_reason", small(fact.get("blocked_reason")));
++                        break;
++                    }
++                }
++            }
++            tasks.put(wanted, fact);
++        }
++        result.put("tasks", tasks);
++        Map<?,?> foundry = map(tasks.get("foundry-su2"));
++        boolean missingQuota = String.valueOf(foundry.get("blocked_reason")).contains("QUOTA_MISSING");
++        result.put("foundryRepair", missingQuota
++                ? "LifecycleSchemaR31.advanceWithinMigration，核对四张假设表、触发器和已占字节，迁移事务补齐配额后重试 FoundryCampaignR26.step。核对新候选出生、首个训练游标和重启后的状态。"
++                : "按 foundry-su2 的任务回执读取最新停点，追踪同一策略从出生到 SELECT 和未来登记的第一处缺件。");
++        result.put("qualityCheck", "按策略和资格协议查原始未来账、证书选择、真实冻结与结算。这里的未来样本和 REAL 结算分开计数。");
++        return result;
++    }
++
++    private static List<Map<String,Object>> explainLegacyFindings(Map<String,Object> json) {
++        List<Map<String,Object>> result = new ArrayList<>();
++        if (!(json.get("findings") instanceof List)) return result;
++        for (Object entry : (List<?>)json.get("findings")) {
++            Map<?,?> original = map(entry);
++            String code = small(original.get("code"));
++            Map<String,Object> row = fields(original, "code", "scope", "severity", "value", "prescription");
++            if ("S4".equals(code)) {
++                row.put("meaning", DiagnosisTextSU2.T.get("F.S4.title"));
++                row.put("nextAction", DiagnosisTextSU2.T.get("F.S4.action"));
++                row.put("verify", "在下一预登记窗口核对重拟合次数、两半方向及支持数，保留每个位置的原始对照和未通过结果。");
++            } else {
++                row.put("meaning", DiagnosisTextSU2.T.get("F." + code + ".title"));
++                row.put("nextAction", small(original.get("prescription")).isEmpty()
++                        ? "按诊断码回读同一快照的升级诊断正文、生成方法和试验原件，标记尚待核实的原因。"
++                        : small(original.get("prescription")));
++                row.put("verify", "按原码和策略版本，回读对应窗口和可重放的独立证据。");
++            }
++            result.add(row);
++        }
++        return result;
++    }
++
 +    public static String[] attach(String[] legacy, Map<String,Object> detail) {
 +        Map<String,Object> json = new LinkedHashMap<>();
 +        Object parsed = JsonR27.parse(legacy[1]);
@@ -281,6 +367,22 @@ index 0000000000000000000000000000000000000000..560d209cc5487d283d2d24873e460626
 +        for (Map.Entry<?,?> e: ((Map<?,?>)parsed).entrySet()) json.put(String.valueOf(e.getKey()),e.getValue());
 +        json.put("capabilityRepairR32",detail);
 +        StringBuilder md = new StringBuilder().append("\n\n## 能力逐项诊断与下一步核验\n");
++        List<Map<String,Object>> explanations = explainLegacyFindings(json);
++        json.put("legacyFindingExplanationsR32", explanations);
++        if (detail.get("operatingSummary") instanceof Map) {
++            Map<?,?> summary = map(detail.get("operatingSummary"));
++            Map<?,?> q = map(summary.get("independentFuture")), n = map(summary.get("atomNet"));
++            md.append("\n独立未来出手 / 命中 / 有效证书  ").append(q.get("futureActs")).append(" / ")
++              .append(q.get("futureHits")).append(" / ").append(q.get("activeCertificates"));
++            md.append("\n十位置网络已备样本 / 实训样本 / 完整发布  ").append(n.get("materializedSamples"))
++              .append(" / ").append(n.get("trainingSamplesProcessed")).append(" / ").append(n.get("publicationReady"));
++            for (Map.Entry<?,?> e : map(summary.get("tasks")).entrySet())
++                md.append("\n- ").append(e.getKey()).append("  ").append(JsonR27.write(e.getValue()));
++            md.append("\n").append(summary.get("foundryRepair")).append("\n").append(summary.get("qualityCheck")).append("\n");
++        }
++        for (Map<?,?> finding : explanations)
++            md.append("\n- ").append(finding.get("code")).append("  ").append(finding.get("nextAction"))
++              .append("  ").append(finding.get("verify"));
 +        md.append("\n对象清单缺项：").append(detail.get("coverageGaps")).append('\n');
 +        md.append("快照 ").append(detail.get("sourceSnapshot")).append("，源码 ").append(detail.get("sourceCommit")).append('\n');
 +        for (Object entry : (List<?>)detail.get("rows")) {
@@ -296,18 +398,20 @@ index 0000000000000000000000000000000000000000..560d209cc5487d283d2d24873e460626
 +    }
 +}
 diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java
-index 6fcb5c83e6a432c4a0d6668fd9d30667c98d7e9e..953a2e336b7761bb85ee65b574242604ef1e0264 100644
+index 6fcb5c83e6a432c4a0d6668fd9d30667c98d7e9e..d5f078fee23d15cc2e04f33b8dbfb41fdf4a01f3 100644
 --- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java
 +++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java
-@@ -45,6 +45,7 @@ public final class ReportR29 {
+@@ -45,6 +45,9 @@ public final class ReportR29 {
          }
          chapters.get(11).put("allMetricResults",input.metricResults);
          chapters.get(11).put("objectIndex",input.data.get("objectIndex"));
-+        chapters.get(11).put("capabilityRepairR32", RepairDiagnosisR32.build(input.data.get("objectIndex")));
++        Map<String,Object> repair = RepairDiagnosisR32.build(input.data.get("objectIndex"));
++        repair.put("operatingSummary", RepairDiagnosisR32.operatingSummaryR32(chapters));
++        chapters.get(11).put("capabilityRepairR32", repair);
          chapters.get(11).put("researchTables",input.data.get("researchTablesR31"));
          // The chapter projections are curated views. Keep every bounded source
          // captured by the production snapshot as well: newly wired fetch,
-@@ -72,6 +73,7 @@ public final class ReportR29 {
+@@ -72,6 +75,7 @@ public final class ReportR29 {
          out.put("objectIndex",chapters.size()<12?null:chapters.get(11).get("objectIndex"));out.put("previousReportComparison",chapters.size()<12?null:chapters.get(11).get("previousReportComparison"));
          out.put("researchTables",chapters.size()<12?null:chapters.get(11).get("researchTables"));
          out.put("lifecycleEvidenceR31",chapters.size()<12?null:chapters.get(11).get("lifecycleEvidenceR31"));

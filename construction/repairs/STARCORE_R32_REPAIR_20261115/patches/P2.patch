@@ -1,5 +1,5 @@
 diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java
-index ff179d3b6399d34a729d5101990e8cd318556222..b689905302427ce5d0a20ec65393dd56ea40f95a 100644
+index ff179d3b6399d34a729d5101990e8cd318556222..5a3f12714c2a369415e2708aa763cf5225bc5a4c 100644
 --- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java
 +++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java
 @@ -46,7 +46,7 @@ public final class FoundryCampaignR26 {
@@ -11,6 +11,78 @@ index ff179d3b6399d34a729d5101990e8cd318556222..b689905302427ce5d0a20ec65393dd56
              final List<FailureDirectedResearchR26.Batch> failureResearch;try{failureResearch=FailureDirectedResearchR26.select(r,hash,through,s.draws.length);}catch(org.json.JSONException malformed){throw new IOException("R26_FAILURE_RESEARCH_METADATA",malformed);}for(FailureDirectedResearchR26.Batch batch:failureResearch)proposals.addAll(batch.proposals);
              final String id=campaign;final byte[] frozen=snapshotBytes;final long source=through;
              if(EventFrameBuilderSU1.generation(r)!=snapshotGeneration)throw new IOException("R31_FOUNDRY_SOURCE_CHANGED_DURING_PREPARE");
+@@ -144,14 +144,68 @@ public final class FoundryCampaignR26 {
+         try(Cursor c=store.readable().rawQuery("SELECT campaign_id,policy_hash FROM r26_candidate WHERE "+old+" AND (state IS NULL OR length(state)=0 OR EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=r26_candidate.policy_hash)) ORDER BY campaign_id,policy_hash LIMIT 8",null)){while(c.moveToNext())rows.add(new String[]{c.getString(0),c.getString(1)});}
+         if(rows.isEmpty())return;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R31_FOUNDRY_RETENTION_SLICE",db->{RuntimeCoordinatorR26.requireFence(db,claim);for(String[] row:rows)db.execSQL("DELETE FROM r26_candidate WHERE campaign_id=? AND policy_hash=? AND "+old+" AND (state IS NULL OR length(state)=0 OR EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=r26_candidate.policy_hash))",row);db.execSQL("DELETE FROM r26_foundry WHERE campaign_id IN (SELECT f.campaign_id FROM r26_foundry f WHERE f.status<>'RUNNING' AND NOT EXISTS(SELECT 1 FROM r26_candidate c WHERE c.campaign_id=f.campaign_id) AND f.campaign_id NOT IN (SELECT campaign_id FROM r26_foundry ORDER BY created_at DESC LIMIT 2) ORDER BY f.created_at,f.campaign_id LIMIT 2)");RuntimeCoordinatorR26.requireFence(db,claim);return 0;});
+     }
++    static final class HistoryRankR32 implements Comparable<HistoryRankR32> {
++        final String key;
++        final double lower;
++        final int support;
++        HistoryRankR32(String key, int devHits, int devActs, int selectHits, int selectActs) {
++            if (key == null || devActs <= 0 || selectActs <= 0 || devHits < 0 || devHits > devActs
++                    || selectHits < 0 || selectHits > selectActs)
++                throw new IllegalArgumentException("R32_HISTORY_RANK_COUNTS");
++            this.key = key;
++            this.lower = Math.min(StatsR27.wilson(devHits, devActs, StatsR27.Z95)[0],
++                                  StatsR27.wilson(selectHits, selectActs, StatsR27.Z95)[0]);
++            this.support = Math.min(devActs, selectActs);
++        }
++        @Override public int compareTo(HistoryRankR32 other) {
++            int order = Double.compare(other.lower, lower);
++            if (order == 0) order = Integer.compare(other.support, support);
++            return order == 0 ? key.compareTo(other.key) : order;
++        }
++    }
++
++    private static final class HistoryParentR32 {
++        final ModelGenomeSU2 genome;
++        final double devRate, selectRate;
++        HistoryParentR32(ModelGenomeSU2 genome, double devRate, double selectRate) {
++            this.genome = genome;
++            this.devRate = devRate;
++            this.selectRate = selectRate;
++        }
++    }
++
+     private static void finish(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,String campaign,long through){
+-        List<ModelEvolutionSU2.Ranked> best=new ArrayList<>();List<double[]> scores=new ArrayList<>();
+-        try(Cursor c=store.readable().rawQuery("SELECT canonical_text,dev_n,dev_k,val_n,val_k FROM r26_candidate WHERE campaign_id=? AND status='DONE' ORDER BY CASE WHEN val_n>0 THEN 1.0*val_k/val_n ELSE -1 END DESC,policy_hash LIMIT 3",new String[]{campaign})){while(c.moveToNext()){ModelGenomeSU2 g=ModelGenomeSU2.parse(c.getString(0));best.add(new ModelEvolutionSU2.Ranked(g,"R26_RESEARCH_SELECTION","","EXPOSED_HISTORY; NOT A QUALITY CERTIFICATE"));scores.add(new double[]{c.getInt(1)==0?-1:c.getDouble(2)/c.getInt(1),c.getInt(3)==0?-1:c.getDouble(4)/c.getInt(3)});}}
++        SortedMap<HistoryRankR32, HistoryParentR32> best = new TreeMap<>();
++        String query = "SELECT policy_hash,canonical_text,dev_n,dev_k,val_n,val_k FROM r26_candidate "
++                + "WHERE campaign_id=? AND status='DONE' AND dev_n>0 AND val_n>0 "
++                + "AND dev_k BETWEEN 0 AND dev_n AND val_k BETWEEN 0 AND val_n";
++        try (Cursor c = store.readable().rawQuery(query, new String[]{campaign})) {
++            while (c.moveToNext()) {
++                ExecutionBudgetR26.poll();
++                int dev = c.getInt(2), devHits = c.getInt(3), select = c.getInt(4), hits = c.getInt(5);
++                HistoryRankR32 key = new HistoryRankR32(c.getString(0), devHits, dev, hits, select);
++                if (best.size() == 3 && key.compareTo(best.lastKey()) >= 0) continue;
++                ModelGenomeSU2 genome = ModelGenomeSU2.parse(c.getString(1));
++                if (!genome.key().equals(key.key)) throw new IllegalStateException("R32_PARENT_IDENTITY");
++                if (StructuralProposalR26.control(genome)) continue;
++                best.put(key, new HistoryParentR32(genome, devHits / (double)dev, hits / (double)select));
++                if (best.size() > 3) best.remove(best.lastKey());
++            }
++        }
+         SQLiteDatabase r=store.readable();String sourceHash;try(Cursor c=r.rawQuery("SELECT snapshot_hash FROM r26_foundry WHERE campaign_id=?",new String[]{campaign})){if(!c.moveToFirst())throw new IllegalStateException("R31_FOUNDRY_FINISH_SOURCE_MISSING");sourceHash=c.getString(0);}
+         long publicationGeneration=EventFrameBuilderSU1.generation(r);String publicationId="FOUNDRY_FINISH:"+campaign+":"+publicationGeneration;ModelPublicationR31.Plan plan;
+         try{plan=ModelPublicationR31.existing(r,publicationId);}catch(IOException invalid){throw new IllegalStateException("R31_FOUNDRY_PLAN_RECOVERY",invalid);}
+         try{if(plan==null){plan=new ModelPublicationR31.Plan(publicationId,"FOUNDRY_FINISH",sourceHash,publicationGeneration,-1,System.currentTimeMillis());plan.put("FOUNDRY_FINISH",campaign,campaign,HypothesisStoreR31.prepareOutcomesR31(r,campaign));
+-            for(int i=0;i<best.size();i++){ModelEvolutionSU2.Ranked x=best.get(i);ModelStoreSU2.prepareGenomeR31(plan,x,campaign,through,scores.get(i)[0],scores.get(i)[1],"RESEARCH");try(Cursor c=r.rawQuery("SELECT attempt_id FROM r26_evolution WHERE campaign_id=? AND policy_hash=? ORDER BY attempt_id",new String[]{campaign,x.g.key()})){while(c.moveToNext())plan.put("ACCEPTED",c.getString(0),c.getString(0),x.g.key());}}
++            for (HistoryParentR32 parent : best.values()) {
++                ModelEvolutionSU2.Ranked pick = new ModelEvolutionSU2.Ranked(parent.genome, "R26_RESEARCH_SELECTION",
++                        "", "EXPOSED_HISTORY_DEV_SELECT_MIN_WILSON_R32; RESEARCH_ONLY");
++                ModelStoreSU2.prepareGenomeR31(plan, pick, campaign, through, parent.devRate, parent.selectRate, "RESEARCH");
++                String key = parent.genome.key();
++                try (Cursor c = r.rawQuery("SELECT attempt_id FROM r26_evolution WHERE campaign_id=? AND policy_hash=? ORDER BY attempt_id",
++                        new String[]{campaign, key})) {
++                    while (c.moveToNext()) plan.put("ACCEPTED", c.getString(0), c.getString(0), key);
++                }
++            }
+         }
+         ModelPublicationR31.stageAndPublish(store,claims.get(),plan);
+         }catch(IOException invalid){throw new IllegalStateException("R31_FOUNDRY_FINISH_RECOVERY",invalid);}finally{if(plan!=null)plan.close();}
 diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java
 index 51c22540a583476d763884671b54805943a8f694..ea739ee9b63eaa2daa5b6ab55bf6fab2aa9cdd18 100644
 --- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java
