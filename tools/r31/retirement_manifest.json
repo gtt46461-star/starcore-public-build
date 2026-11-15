@@ -329,9 +329,9 @@
   }
  ],
  "dbstore": {
-  "source_sha256": "698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93",
-  "method_declarations": 776,
-  "distinct_names": 735,
+  "source_sha256": "3fd2823f256d79b30338e711ce42ea8fb5d94b41ad6fac205bcb701fbd64810e",
+  "method_declarations": 778,
+  "distinct_names": 737,
   "no_external_caller": [
    "DbStore",
    "addColumnArray",
@@ -843,6 +843,7 @@
    "saveFalseStrongFreeze",
    "saveFullCandidateScan",
    "saveFullCandidateScans",
+   "saveHistoryPageR32",
    "saveLearningSnapshot",
    "saveMainChainCandidateSnapshot",
    "saveModelWeight",
@@ -1783,6 +1784,26 @@
      "com/ethk3/novaonepro/HistoricalDrawImportEngine.java"
     ],
     "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "savePredrawSuffixR32",
+    "callers": 1,
+    "caller_files": [
+     "com/ethk3/novaonepro/AutoFetchService.java"
+    ],
+    "tables": [],
+    "writes": false,
+    "dynamic": false
+   },
+   {
+    "name": "saveHistoryPageR32",
+    "callers": 0,
+    "caller_files": [],
+    "tables": [
+     "draws"
+    ],
     "writes": false,
     "dynamic": false
    },

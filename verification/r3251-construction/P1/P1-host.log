@@ -1,0 +1,13 @@
+HYPOTHESIS_QUOTA_NATIVE_PASS assertions=119 committedSlices=10 rolledBackSlices=8 maxDataRowsPerSlice=64 realKillRestart=true
+STRICT_MIGRATION_NATIVE_PASS assertions=61 during=1 realKillRestart=true
+R32_COMPLETED_DRIFT_HOST_PASS assertions=12
+PASS empty durable DB requests sole history lane
+PASS gapped durable tail reconstructs next target without callback
+PASS new process with identical committed rows reconstructs same intent
+PASS new durable head supersedes old target
+PASS exact minimum suffix ends recovery
+PASS twelve scattered rows do not masquerade as continuous suffix
+PASS conflicting provider rows retain recovery instead of certifying readiness
+PASS cross-day latest target follows production resolver
+PASS reconstruction does not mutate supplied evidence
+PASS_COUNT=9

@@ -131,6 +131,16 @@ public final class WriterHoldFaultsR31 {
     }
 
     /** One bounded receipt per actual Health dispatch. Failed/ambiguous delivery retains its event and lease. */
+    /** Use the existing controller and per-event fenced writer, never hold the queue across events. */
+    public static void drainControlSliceR32(DbStore store) {
+        long started = android.os.SystemClock.elapsedRealtime();
+        for (int i = 0; i < 4; i++) {
+            if (i > 0 && (!deferResearch() || android.os.SystemClock.elapsedRealtime() - started >= 40
+                    || com.ethk3.novaonepro.RealtimePressureGateR811.hasActiveCriticalWork())) return;
+            if (!drainOne(store)) return;
+        }
+    }
+
     public static boolean drainOne(DbStore store) {
         if (!DRAINING.compareAndSet(false, true)) return false;
         try {

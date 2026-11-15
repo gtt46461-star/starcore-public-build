@@ -1,0 +1,34 @@
+{
+  "schema": "R32_CURRENT_P1_HOST_ACCEPTANCE_BINDINGS_V1",
+  "batch": "P1",
+  "future_batch_dependencies": [],
+  "runner": "run_p1_current_host.py",
+  "required_arguments": ["repo", "classes", "sdk", "jdbc", "slf4j", "out"],
+  "support_classes_contract": "COMPILE_SAME_P1_CHECKOUT; INPUT_CLASS_MANIFEST_RECORDED; ACTUAL_TARGET_CLASSES_RECOMPILED_FIRST",
+  "bindings": [
+    {
+      "issue": "P1.01",
+      "cases": ["P1-strict", "P1-completed-drift"],
+      "expected_assertions": 73,
+      "source_owners": ["LegacyDdlR31.java", "LegacySchemaCoordinatorR926.java", "SchemaDomainCoordinatorR926.java"],
+      "receipt_fields": ["targetSources", "adapters", "testSources", "dependencies", "commands", "cases"]
+    },
+    {
+      "issue": "P1.02",
+      "cases": ["P1-quota"],
+      "expected_assertions": 119,
+      "source_owners": ["strategyv2/HypothesisStoreR31.java"],
+      "production_methods": ["recoverQuotaSliceR32", "requireSchemaR31", "canAdmitResearchR31", "seedQuotaWithinMigrationR31"],
+      "expected_properties": ["four_tables_326_original_rows", "64_row_maximum_page", "real_process_kill_and_restart", "rollback_and_reopen_each_page", "UTF8_logical_accounting", "corrupt_journal_refusal", "original_row_preservation", "idempotent_seed_and_replay", "admission_reopens_only_after_commit"]
+    },
+    {
+      "issue": "P1.03",
+      "cases": ["P1-tail"],
+      "expected_assertions": 9,
+      "source_owners": ["PredrawTailRecoveryR32.java", "TargetIssueResolver.java", "R36AnalysisHistoryPolicyR364.java"],
+      "production_methods": ["reconstruct", "sequenceOrdinalSU1", "fromSequenceOrdinalSU1"]
+    }
+  ],
+  "complete_batch_business_signoff": false,
+  "excluded_claims": ["Android_Gradle_build", "device_database_replay", "P1.04-P1.06", "full_service_scheduling", "natural_strategy_quality"]
+}

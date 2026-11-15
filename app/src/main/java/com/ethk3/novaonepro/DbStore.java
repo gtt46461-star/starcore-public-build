@@ -2522,7 +2522,36 @@ public final class DbStore {
     }
 
     public int saveDraws(List<Models.Draw> draws) {
-        if (draws == null || draws.size() == 0) return 0;
+        return saveHistoryPageR32(draws, null);
+    }
+
+    int savePredrawSuffixR32(List<Models.Draw> page, String target) {
+        Models.Draw latest = getLatestDraw();
+        if (latest == null || !latest.isValid()
+                || !AppConfig.nextIssueText(latest.issue).equals(target)) return 0;
+        final int needed = R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY;
+        if (R36AnalysisHistoryPolicyR364.contiguousSuffixCount(getRecentDraws(needed), latest.issue) >= needed)
+            return 0;
+        List<Models.Draw> suffix = R36AnalysisHistoryPolicyR364.bootstrapSuffixR32(page, latest.issue);
+        if (suffix.isEmpty()) return 0;
+        for (Models.Draw candidate : suffix) {
+            Models.Draw current = getDrawByIssue(candidate.issue);
+            if (current != null && current.isValid()
+                    && !java.util.Arrays.equals(current.numbers, candidate.numbers))
+                throw new IllegalStateException("R32_SUFFIX_REQUIRES_SOURCE_RECONCILIATION|" + candidate.issue);
+        }
+        int inserted = saveHistoryPageR32(suffix, latest.issue);
+        if (inserted == 0 || R36AnalysisHistoryPolicyR364.contiguousSuffixCount(getRecentDraws(needed), latest.issue) < needed)
+            return 0;
+        return inserted;
+    }
+
+    private int saveHistoryPageR32(List<Models.Draw> draws, final String bootstrapBase) {
+        final boolean bootstrap = bootstrapBase != null;
+        if (draws == null || draws.isEmpty()) return 0;
+        if (bootstrap && draws.size() > R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY)
+            throw new IllegalArgumentException("R32_SUFFIX_BOUND");
+        final String operation = bootstrap ? "R32_PREDRAW_SUFFIX" : "R914_DRAW_HISTORY_BATCH";
         final ArrayList<Models.Draw> valid = new ArrayList<Models.Draw>();
         for (int i = 0; i < draws.size(); i++) {
             Models.Draw draw = draws.get(i);
@@ -2540,13 +2569,21 @@ public final class DbStore {
             final Integer saved;
             try {
                 saved = coordinator.runWriteOrThrowF01(
-                    "R914_DRAW_HISTORY_BATCH",
+                    operation,
                     new DatabaseCoordinator.WriteCallable<Integer>() {
                         @Override public Integer call(SQLiteDatabase db) {
                             boolean owns = !db.inTransaction();
                             if (owns) db.beginTransaction();
                             int count = 0;
                             try {
+                                if (bootstrap) {
+                                    try (Cursor head = db.rawQuery("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1", null)) {
+                                        if (!head.moveToFirst() || !bootstrapBase.equals(head.getString(0))) {
+                                            if (owns) db.setTransactionSuccessful();
+                                            return 0;
+                                        }
+                                    }
+                                }
                                 for (int i = 0; i < batch.size(); i++) {
                                     Models.Draw draw = batch.get(i);
                                     FetchLedgerR925.observeDrawWithinR82(db,draw);
@@ -2558,7 +2595,7 @@ public final class DbStore {
                                             db, draw, System.currentTimeMillis(),
                                             SettlementTaskStoreR36.BACKLOG,
                                             SettlementTaskStoreR36.PRIORITY_BACKLOG,
-                                            "R914_DRAW_HISTORY_BATCH");
+                                            operation);
                                 }
                                 if (owns) db.setTransactionSuccessful();
                                 return Integer.valueOf(count);
@@ -2576,6 +2613,7 @@ public final class DbStore {
             inserted += saved.intValue();
             if (RealtimePressureGateR811.hasActiveCriticalWork()) Thread.yield();
         }
+        if (bootstrap) return inserted; // regular history owner retains rolling maintenance
         coordinator.runWrite(
                 "R914_DRAW_HISTORY_TRIM",
                 new DatabaseCoordinator.WriteRunnable() {
@@ -18983,6 +19021,10 @@ public final class DbStore {
                     };
             for (int i = 0; i < decisionLike.length; i++)
                 addColumnArray(db, decisionLike[i], linkModificationV2ColumnDefs());
+            // The migration owner can resume from a table containing only snapshot_key.
+            addColumnArray(db, TABLE_V20_LINK_CANDIDATE_SNAPSHOT, new String[] {
+                "target_issue TEXT", "candidate_rank INTEGER DEFAULT 0", "candidate_key TEXT"
+            });
             execQuiet(
                     db,
                     "CREATE INDEX IF NOT EXISTS idx_store_v20_layer_issue ON "

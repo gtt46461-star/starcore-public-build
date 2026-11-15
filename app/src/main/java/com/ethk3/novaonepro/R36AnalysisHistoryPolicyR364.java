@@ -30,6 +30,20 @@ public final class R36AnalysisHistoryPolicyR364 {
         return validRows < MIN_LIVE_HISTORY;
     }
 
+    static List<Models.Draw> bootstrapSuffixR32(List<Models.Draw> page, String base) {
+        if (page == null || !TargetIssueResolver.isValid(base)) return java.util.Collections.emptyList();
+        java.util.ArrayList<Models.Draw> window = new java.util.ArrayList<>();
+        for (Models.Draw draw : page) {
+            if (draw == null || !draw.isValid() || !TargetIssueResolver.isValid(draw.issue)) continue;
+            int distance = TargetIssueResolver.distance(draw.issue, base);
+            if (distance >= 0 && distance < MIN_LIVE_HISTORY) window.add(draw);
+        }
+        HistoryIntegrityVerifierR815.Result verified = HistoryIntegrityVerifierR815.verifyAscending(window);
+        if (verified.hasHardConflict() || !base.equals(verified.maxIssue)
+                || verified.contiguousSuffix != MIN_LIVE_HISTORY) return java.util.Collections.emptyList();
+        return verified.contiguousSuffixAscending();
+    }
+
     public static boolean usable(int validRows) {
         return validRows >= MIN_LIVE_HISTORY;
     }

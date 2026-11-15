@@ -119,14 +119,37 @@ public final class R31RetirementManifestTest {
         assertEquals(47, ChartRegistryR31.ids().size());
         // DbStore: mapped, not cut; the coverage map is the current source
         @SuppressWarnings("unchecked") Map<String, Object> db = (Map<String, Object>) m.get("dbstore");
+        requireCurrentDbStoreCoverageR32(db, Files.readAllBytes(MAIN.resolve("com/ethk3/novaonepro/DbStore.java")));
+    }
+
+    static void requireCurrentDbStoreCoverageR32(Map<String,Object> db,byte[] source)throws Exception {
         assertEquals("DEFERRED_TARGET_SELECTION_AFTER_COVERAGE", db.get("status")); assertEquals(Collections.emptyList(), db.get("removed_by_this_card"));
-        byte[] source = Files.readAllBytes(MAIN.resolve("com/ethk3/novaonepro/DbStore.java"));
         StringBuilder hex = new StringBuilder(); for (byte b : MessageDigest.getInstance("SHA-256").digest(source)) hex.append(String.format(Locale.ROOT, "%02x", b & 0xff));
         assertEquals("DbStore changed after its coverage map was built (regenerate and re-review)", db.get("source_sha256"), hex.toString());
         Pattern method = Pattern.compile("^    (?:(?:public|private|protected|static|synchronized|final)\\s+)*[\\w<>\\[\\],.?]+(?:<[^>]*>)?\\s+(\\w+)\\s*\\(");
-        int declarations = 0; for (String line : new String(source, StandardCharsets.UTF_8).split("\n", -1)) { Matcher x = method.matcher(line); if (x.find() && !Arrays.asList("if", "for", "while", "switch", "catch", "return", "new", "else", "synchronized").contains(x.group(1))) declarations++; }
-        assertEquals("every DbStore method is in the coverage map", ((Number) db.get("method_declarations")).intValue(), declarations);
-        assertEquals(declarations, list(db, "methods").size());
+        List<String> names=new ArrayList<>();
+        for (String line : new String(source, StandardCharsets.UTF_8).split("\n", -1)) { Matcher x = method.matcher(line); if (x.find() && !Arrays.asList("if", "for", "while", "switch", "catch", "return", "new", "else", "synchronized").contains(x.group(1))) names.add(x.group(1)); }
+        assertEquals("every DbStore method is in the coverage map", ((Number) db.get("method_declarations")).intValue(), names.size());
+        List<String> recorded=new ArrayList<>();for(Map<String,Object> row:list(db,"methods"))recorded.add(String.valueOf(row.get("name")));
+        assertEquals("coverage order and method names match actual declarations",names,recorded);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test public void changedCoverageBytesAndMissingMethodsAreRejected()throws Exception {
+        Map<String,Object> db=(Map<String,Object>)manifest().get("dbstore");
+        byte[] source=Files.readAllBytes(MAIN.resolve("com/ethk3/novaonepro/DbStore.java"));
+        requireCurrentDbStoreCoverageR32(db,source);
+        Map<String,Object> stale=new LinkedHashMap<>(db);stale.put("source_sha256","698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93");
+        assertNotEquals(db.get("source_sha256"),stale.get("source_sha256"));
+        assertThrows("Pre-R32 coverage cannot certify R32 bytes",AssertionError.class,()->requireCurrentDbStoreCoverageR32(stale,source));
+        Map<String,Object> missing=new LinkedHashMap<>(db);List<Map<String,Object>> rows=new ArrayList<>(list(db,"methods"));rows.remove(0);missing.put("methods",rows);
+        assertThrows("Missing methods cannot be omitted from the map",AssertionError.class,()->requireCurrentDbStoreCoverageR32(missing,source));
+        Map<String,Object> duplicate=new LinkedHashMap<>(db);List<Map<String,Object>> copied=new ArrayList<>(list(db,"methods"));copied.set(0,copied.get(1));duplicate.put("methods",copied);
+        assertThrows("Equal count cannot conceal a duplicate or renamed method",AssertionError.class,()->requireCurrentDbStoreCoverageR32(duplicate,source));
+        Map<String,Object> removed=new LinkedHashMap<>(db);removed.put("removed_by_this_card",Collections.singletonList("saveDraws"));
+        assertThrows("No removal authority is added",AssertionError.class,()->requireCurrentDbStoreCoverageR32(removed,source));
+        byte[] changed=source.clone();changed[changed.length-1]^=1;
+        assertThrows("Any source-byte drift invalidates the map",AssertionError.class,()->requireCurrentDbStoreCoverageR32(db,changed));
     }
 
     static boolean registered(String table) { try { RetentionTableRegistryCP12.require(table); return true; } catch (IllegalArgumentException missing) { return false; } }

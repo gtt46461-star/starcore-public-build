@@ -28,12 +28,103 @@ public final class HypothesisStoreR31 {
             sql.add("CREATE TRIGGER IF NOT EXISTS "+table+"_insert BEFORE INSERT ON "+table+" WHEN EXISTS(SELECT 1 FROM "+table+" WHERE "+match+") BEGIN SELECT CASE WHEN EXISTS(SELECT 1 FROM "+table+" WHERE "+match+" AND "+equal+") THEN RAISE(IGNORE) ELSE RAISE(ABORT,'R31_HYPOTHESIS_ORIGINAL_CONFLICT') END; END");
             for(String action:new String[]{"UPDATE","DELETE"})sql.add("CREATE TRIGGER IF NOT EXISTS "+table+"_"+action.toLowerCase(Locale.ROOT)+" BEFORE "+action+" ON "+table+" BEGIN SELECT RAISE(ABORT,'R31_HYPOTHESIS_ORIGINAL_IMMUTABLE'); END");
             String key=table.equals(REG)?"hypothesis_id=NEW.hypothesis_id":table.equals(TRACE)?"campaign_id=NEW.campaign_id AND policy_hash=NEW.policy_hash AND sample_index=NEW.sample_index":"campaign_id=NEW.campaign_id AND child_policy=NEW.child_policy";
-            String cost=table.equals(REG)||table.equals(OUT)?"(1024+length(CAST(NEW.payload AS BLOB)))":"1024";
+            String cost=logicalChargeR32(table,"NEW.");
             sql.add("CREATE TRIGGER IF NOT EXISTS "+table+"_admit BEFORE INSERT ON "+table+" WHEN NOT EXISTS(SELECT 1 FROM "+table+" WHERE "+key+") BEGIN SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM "+QUOTA+" WHERE singleton=1 AND logical_bytes+"+cost+"<=268435456) THEN RAISE(ABORT,'R31_HYPOTHESIS_PROTECTED_STORAGE_WAIT') END; END");
             sql.add("CREATE TRIGGER IF NOT EXISTS "+table+"_account AFTER INSERT ON "+table+" BEGIN UPDATE "+QUOTA+" SET logical_bytes=logical_bytes+"+cost+" WHERE singleton=1; END");
         }
         return sql.toArray(new String[0]);
     }
+    private static final String RECOUNT_KEY = "r32_hypothesis_quota_recount_v1";
+    private static final String[] CHARGE_TABLES = {REG, BIND, TRACE, OUT};
+    private static final String[][] CHARGE_KEYS = {
+            {"rowid"}, {"campaign_id", "child_policy"}, {"campaign_id", "policy_hash", "sample_index"},
+            {"campaign_id", "child_policy"}
+    };
+    private static final int RECOUNT_PAGE = 64;
+
+    private static String logicalChargeR32(String table, String prefix) {
+        return table.equals(REG) || table.equals(OUT)
+                ? "(1024+length(CAST(" + prefix + "payload AS BLOB)))" : "1024";
+    }
+
+    // Scalar comparisons also run on SQLite versions preceding row-value comparisons.
+    static String quotaPageR32(int stage, boolean resume) {
+        String[] keys = CHARGE_KEYS[stage];
+        String keyList = String.join(",", keys);
+        StringJoiner branches = new StringJoiner(" OR ");
+        if (resume) {
+            for (int part = 0; part < keys.length; part++) {
+                StringJoiner term = new StringJoiner(" AND ");
+                for (int i = 0; i < part; i++) term.add(keys[i] + "=?");
+                term.add(keys[part] + ">?");
+                branches.add("(" + term + ")");
+            }
+        }
+        String table = CHARGE_TABLES[stage];
+        return "SELECT " + keyList + "," + logicalChargeR32(table, "") + " FROM " + table
+                + (resume ? " WHERE " + keys[0] + ">=? AND (" + branches + ")" : "")
+                + " ORDER BY " + keyList + " LIMIT " + RECOUNT_PAGE;
+    }
+
+    static String[] quotaPageArgsR32(List<?> last) {
+        if (last.isEmpty()) return null;
+        List<String> args = new ArrayList<>();
+        args.add((String)last.get(0));
+        for (int n = 1; n <= last.size(); n++)
+            for (int i = 0; i < n; i++) args.add((String)last.get(i));
+        return args.toArray(new String[0]);
+    }
+
+    /** Caller has checked every hypothesis table/trigger definition in this migration transaction.
+     * With the singleton missing, the original admission triggers refuse all new keys. Existing rows
+     * are immutable. The cursor and running sum therefore remain valid across committed slices. */
+    public static boolean recoverQuotaSliceR32(SQLiteDatabase db) {
+        writer(db);
+        int stage = 0;
+        long used = 0;
+        List<?> last = Collections.emptyList();
+        try (Cursor row = db.rawQuery("SELECT state_value FROM app_state WHERE state_key=?", new String[]{RECOUNT_KEY})) {
+            if (row.moveToFirst()) {
+                List<?> saved = (List<?>)JsonR27.parse(row.getString(0));
+                if (saved.size() != 4 || !Objects.equals(saved.get(3), StatsR27.sha256(JsonR27.write(saved.subList(0,3)))))
+                    throw new IllegalStateException("R32_QUOTA_RECOUNT_JOURNAL");
+                stage = ((Number)saved.get(0)).intValue();
+                used = ((Number)saved.get(1)).longValue();
+                last = (List<?>)saved.get(2);
+                if (stage < 0 || stage >= CHARGE_TABLES.length || used < 0 || used > 268435456L
+                        || (!last.isEmpty() && last.size() != CHARGE_KEYS[stage].length))
+                    throw new IllegalStateException("R32_QUOTA_RECOUNT_RANGE");
+            }
+        }
+        // Empty tables advance within this same slice. At most one page of actual data is read.
+        while (stage < CHARGE_TABLES.length) {
+            List<String> next = new ArrayList<>();
+            int count = 0;
+            try (Cursor row = db.rawQuery(quotaPageR32(stage, !last.isEmpty()), quotaPageArgsR32(last))) {
+                while (row.moveToNext()) {
+                    next.clear();
+                    for (int i = 0; i < CHARGE_KEYS[stage].length; i++) next.add(row.getString(i));
+                    used = Math.addExact(used, row.getLong(CHARGE_KEYS[stage].length));
+                    count++;
+                }
+            }
+            if (used > 268435456L) throw new IllegalStateException("R32_HYPOTHESIS_PROTECTED_BYTES_OVER_LIMIT:" + used);
+            last = next;
+            if (count < RECOUNT_PAGE) { stage++; last = Collections.emptyList(); }
+            if (stage == CHARGE_TABLES.length) {
+                db.execSQL("INSERT INTO " + QUOTA + "(singleton,logical_bytes) VALUES(1,?)", new Object[]{used});
+                db.delete("app_state","state_key=?",new String[]{RECOUNT_KEY});
+                return true;
+            }
+            if (count > 0) break;
+        }
+        List<Object> state = new ArrayList<>(Arrays.asList(stage, used, last));
+        state.add(StatsR27.sha256(JsonR27.write(state)));
+        db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)",
+                new Object[]{RECOUNT_KEY,JsonR27.write(state),System.currentTimeMillis()});
+        return false;
+    }
+
     /** Called exclusively by the journalled schema owner, never by business code. */
     public static void installWithinMigrationR31(SQLiteDatabase db){
         writer(db);for(String sql:ddlR31())db.execSQL(sql);

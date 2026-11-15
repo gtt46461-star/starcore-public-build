@@ -2429,11 +2429,14 @@ public final class AutoFetchService extends Service {
     private void reconcileResearchOwner(String reason){
         if(!running||userRequestedStopV5||store==null||!isServiceUserEnabledV5())return;
         long mono=android.os.SystemClock.elapsedRealtime();if(mono-lastResearchControlElapsedR31<5000L)return;lastResearchControlElapsedR31=mono;
-        store.requestLegacySchemaMigrationR31();
+        // Recovery derives its merged target from committed draws on every tick.
+        // It must run even when migration/research initialization later fails.
+        reconcilePredrawTailRecoveryR32();
         // This existing off-main control lane runs while R26/R27 are still
         // initializing. Fault delivery cannot depend on the research pool whose
         // writes are waiting for these exact durable receipts.
-        com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.drainOne(store);
+        com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.drainControlSliceR32(store);
+        store.requestLegacySchemaMigrationR31();
         ensureContinuousRuntimeR26();
         com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26 owner=continuousRuntimeR26;
         if(owner!=null){
@@ -2443,6 +2446,24 @@ public final class AutoFetchService extends Service {
         }
         try{heartbeatStateV8().setPendingSettlementCount(SettlementTaskStoreR36.pendingCountR31(store));}
         catch(RuntimeException unknown){Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(unknown);if(fatal!=null)throw fatal;heartbeatStateV8().setPendingSettlementCount(-1);}
+    }
+
+    /** Independent of a successful latest callback. The DB head is the durable
+     * intent, so a restart cannot lose it and a newer issue supersedes an old
+     * target without racing two stored task records. Existing backfill CAS and
+     * cooldown coalesce requests; this controller never performs network IO. */
+    private void reconcilePredrawTailRecoveryR32() {
+        try {
+            Models.Draw head = store.getLatestDraw();
+            PredrawTailRecoveryR32.Intent recovery = PredrawTailRecoveryR32.reconstruct(
+                    head, head == null ? java.util.Collections.<Models.Draw>emptyList()
+                            : store.getRecentDraws(R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY));
+            if (recovery.requestHistory) scheduleQuickHistorySyncR71(recovery.reason);
+        } catch (RuntimeException failure) {
+            Error fatal = com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failure);
+            if (fatal != null) throw fatal;
+            CrashRecorder.recordCaught(getApplicationContext(), failure, "R32_TAIL_RECOVERY_CONTROL");
+        }
     }
 
     private void startWorkR3610OffMain() {
@@ -3167,6 +3188,11 @@ public final class AutoFetchService extends Service {
     }
 
     private void saveApiResultDraws(Models.ApiResult result, Runnable durableLatestConsumerR57) {
+        saveApiResultDraws(result, durableLatestConsumerR57, false);
+    }
+
+    private void saveApiResultDraws(Models.ApiResult result, Runnable durableLatestConsumerR57,
+                                    boolean historyPage) {
         if (result == null || store == null) {
             return;
         }
@@ -3191,6 +3217,18 @@ public final class AutoFetchService extends Service {
                 if (durableLatestConsumerR57 != null) durableLatestConsumerR57.run();
             }
             if (result.draws != null && !result.draws.isEmpty()) {
+                if (historyPage) {
+                    try {
+                        Models.Draw base = store.getLatestDraw();
+                        if (base != null && base.isValid()) {
+                            String target = AppConfig.nextIssueText(base.issue);
+                            if (store.savePredrawSuffixR32(result.draws, target) > 0)
+                                postAnalysisForLatest("R32_PREDRAW_SUFFIX_RECHECK", true);
+                        }
+                    } catch (RuntimeException failure) {
+                        recordCriticalCatchR926("R32_PREDRAW_SUFFIX_RETRY", "", failure);
+                    }
+                }
                 try {
                     ArrayList<Models.Draw> changed = new ArrayList<Models.Draw>();
                     for(Models.Draw draw:result.draws) {
@@ -10878,7 +10916,7 @@ public final class AutoFetchService extends Service {
                 final Models.ApiResult pageR71=r;
                 saveApiResultDraws(r,new Runnable(){@Override public void run(){
                     handleLatestDrawAfterSave(getAuthoritativeLatest(pageR71.latestDraw),previousR71,false,"R71_HISTORY_LATEST_FIRST");
-                }});
+                }}, true);
                 inserted = parseInt(store.getState("draw_save_inserted","0"),0);
                 persistProviderFreshnessR3611("QUICK_HISTORY");
                 if (r.apiLine != null && r.apiLine.length() > 0) {

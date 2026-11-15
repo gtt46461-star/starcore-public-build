@@ -126,7 +126,30 @@ public final class LifecycleSchemaR31 {
             if(GapReferenceR31.advanceCutoverWithinMigrationR31(db))return new Result(true,true,"KEEP_GAP_REFERENCE_CUTOVER");
             return new Result(true,false,"COMPLETE");
         }
+        if (infrastructure(db) && missingHypothesisQuotaR32(db)) {
+            List<Definition> all = definitions(db);
+            requireDeclaredAttachments(db, all);
+            List<Definition> objects = definitions(HypothesisStoreR31.ddlR31());
+            boolean installed = true;
+            for (Definition object : objects) {
+                if (!object.present(db)) installed = false;
+            }
+            if (installed) {
+                if (!HypothesisStoreR31.recoverQuotaSliceR32(db))
+                    return new Result(false, true, "HYPOTHESIS_QUOTA_RECOUNT_PAGE");
+                HypothesisStoreR31.requireSchemaR31(db);
+                return new Result(false, true, "HYPOTHESIS_QUOTA_INITIALIZED");
+            }
+        }
         return advance(db,definitions(db),tx->{HypothesisStoreR31.seedQuotaWithinMigrationR31(tx);if(startupSourcePresentR31(tx))StartupCheckpointIdentityR31.seedWithinMigrationR31(tx);ImprovementStoreR31.seedWithinMigrationR31(tx);});
+    }
+    private static boolean missingHypothesisQuotaR32(SQLiteDatabase db) {
+        try (Cursor table = db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r31_hypothesis_quota'", null)) {
+            if (!table.moveToFirst()) return false;
+        }
+        try (Cursor row = db.rawQuery("SELECT 1 FROM r31_hypothesis_quota WHERE singleton=1", null)) {
+            return !row.moveToFirst();
+        }
     }
     interface Initializer {void run(SQLiteDatabase db);}
     static Result advance(SQLiteDatabase db,List<Definition> all,Initializer initialize)throws Exception{

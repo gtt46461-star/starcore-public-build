@@ -178,7 +178,42 @@ public final class R27QualityTest {
         }catch(java.io.IOException failure){throw new AssertionError("Schema review original missing",failure);}
     }
 
+    /** R32 P1 only: reverse the five exact reviewed history/schema hunks before
+     * the existing R31/R30 normalization. The original 9edd whole-owner anchor
+     * stays unchanged, so no outside mainline byte receives an exemption. */
+    static String restoreR32ReviewedDbStoreForH15(String source) {
+        try {
+            String review=new String(Files.readAllBytes(new File(R27TestSupport.root(),
+                    "verification/r32/p1_dbstore_review.json").toPath()),java.nio.charset.StandardCharsets.UTF_8);
+            return restoreR32ReviewedDbStoreForH15(source,review);
+        }catch(java.io.IOException missing){throw new AssertionError("R32 exact review missing",missing);}
+    }
+    @SuppressWarnings("unchecked")
+    static String restoreR32ReviewedDbStoreForH15(String source,String review) {
+        assertEquals("Only the separately reviewed R32 patch bytes are permitted",
+                "7d578668c125cbf5ce7ca99bfef909e99fdc9f127a6825ea006201587232e980",StatsR27.sha256(review));
+        Map<String,Object> document=(Map<String,Object>)JsonR27.parse(review);
+        assertEquals("R32_P1_DBSTORE_EXACT_REVIEW_V1",document.get("schema"));
+        assertEquals("P1",document.get("owner"));
+        assertEquals("app/src/main/java/com/ethk3/novaonepro/DbStore.java",document.get("path"));
+        assertEquals("698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93",document.get("beforeSha256"));
+        assertEquals("3fd2823f256d79b30338e711ce42ea8fb5d94b41ad6fac205bcb701fbd64810e",document.get("afterSha256"));
+        assertEquals("9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",document.get("originalMainlineAnchorSha256"));
+        List<Object> hunks=(List<Object>)document.get("hunks");assertEquals(5,hunks.size());
+        for(int i=hunks.size()-1;i>=0;i--){
+            Map<String,Object> hunk=(Map<String,Object>)hunks.get(i);
+            String after=(String)hunk.get("after"),before=(String)hunk.get("before");
+            assertEquals(hunk.get("afterSha256"),StatsR27.sha256(after));
+            assertEquals(hunk.get("beforeSha256"),StatsR27.sha256(before));
+            int at=source.indexOf(after);assertTrue("Exact R32 hunk missing/tampered: "+hunk.get("id"),at>=0);
+            assertEquals("R32 hunk must be unique",at,source.lastIndexOf(after));
+            source=source.substring(0,at)+before+source.substring(at+after.length());
+        }
+        return source;
+    }
+
     static String restoreR31DbSchemaSidecarsForH15(String source,String baseline) {
+        source=restoreR32ReviewedDbStoreForH15(source);
         source=restoreUnifiedSchemaBlocksR31(source);
         assertEquals("Original DbStore fixture must itself retain the old owner identity",
                 "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",
@@ -229,6 +264,37 @@ public final class R27QualityTest {
      * matched language/output while avoiding one recursive regex frame per source character. */
     static String stripJavaStringsR31(String source) {
         return source.replaceAll("\"(?:[^\"\\\\]|\\\\.)*+\"", "\"\"");
+    }
+
+    @Test public void h15R32ExactReviewRejectsUnregisteredChanges() throws Exception {
+        File root=R27TestSupport.root();
+        String source=new String(Files.readAllBytes(new File(root,"app/src/main/java/com/ethk3/novaonepro/DbStore.java").toPath()),java.nio.charset.StandardCharsets.UTF_8);
+        String baseline=new String(Files.readAllBytes(new File(root,"construction/STARCORE_R31_FINAL_20261104/baseline_source/app/src/main/java/com/ethk3/novaonepro/DbStore.java").toPath()),java.nio.charset.StandardCharsets.UTF_8);
+        assertEquals("Exact R32 reversal preserves the entire pre-R32 current owner",
+                "698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93",StatsR27.sha256(restoreR32ReviewedDbStoreForH15(source)));
+        assertEquals("The old whole-mainline anchor remains the final authority",
+                "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",StatsR27.sha256(restoreR31DbSchemaSidecarsForH15(source,baseline)));
+        String[][] mutations={
+                {"if (bootstrap && draws.size() > R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY)","if (bootstrap && draws.size() >= R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY)"},
+                {"!bootstrapBase.equals(head.getString(0))","false /* unreviewed stale-head admission */"},
+                {"\"candidate_rank INTEGER DEFAULT 0\", \"candidate_key TEXT\"","\"candidate_rank INTEGER DEFAULT 1\", \"candidate_key TEXT\""}
+        };
+        for(String[] mutation:mutations){
+            String changed=source.replace(mutation[0],mutation[1]);assertNotEquals(source,changed);
+            assertThrows("Reviewed R32 blocks cannot conceal a changed predicate/column",AssertionError.class,
+                    ()->restoreR32ReviewedDbStoreForH15(changed));
+        }
+        String changedPnl=source.replace("dcv.put(\"pnl\", t.pnl);","dcv.put(\"pnl\", t.pnl + 1);");
+        assertNotEquals(source,changedPnl);
+        assertNotEquals("Outside-patch payout changes still fail the original owner hash",
+                "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",StatsR27.sha256(restoreR31DbSchemaSidecarsForH15(changedPnl,baseline)));
+        String review=new String(Files.readAllBytes(new File(root,"verification/r32/p1_dbstore_review.json").toPath()),java.nio.charset.StandardCharsets.UTF_8);
+        assertThrows("Review metadata cannot be silently resealed",AssertionError.class,
+                ()->restoreR32ReviewedDbStoreForH15(source,review+" "));
+        @SuppressWarnings("unchecked") Map<String,Object> metadata=(Map<String,Object>)JsonR27.parse(review);
+        @SuppressWarnings("unchecked") Map<String,Object> first=(Map<String,Object>)((List<?>)metadata.get("hunks")).get(0);
+        assertThrows("A repeated approved hunk is not another permitted edit",AssertionError.class,
+                ()->restoreR32ReviewedDbStoreForH15(source+first.get("after")));
     }
 
     @Test public void h15MainlineRedLines() throws Exception {
