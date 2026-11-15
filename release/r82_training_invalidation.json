@@ -1320,12 +1320,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "3e2d671d483297f54df8c6f6c770fec62c8f3d164951562f90ce65e64327c008",
+      "after_sha256": "8d0347370f896120f22c1fe85de5975e10896c38268e1d1b249eedb736e283db",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/StorageRestoreAssetsR324.java",
-      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
-      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
+      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。 P2当前Gradle 659单测通过后发现UsableSpace建议告警；与原StorageLedgerR31/StorageMaintenanceFileR82一致，仅在实际物理容量准入方法注明保守预算的有意语义。保持全部free/reserve/溢出检查及失败保全，不计尚未释放缓存；不改全局lint基线、资格政策或任何运行语句。",
+      "reviewer": "Codex P2 physical-budget lint review"
     },
     {
       "after_role": "NUMERIC",
@@ -2031,12 +2031,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "09c23d31349c755dbc9aa4685dbb88b194723c5532d2f13eccaa5e76fc449f24",
+      "after_sha256": "dbfca9d83c187c42dc3ba45e2c10cfb33e73a13c0f9a0e9f29571c30b9e97923",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointClosureR324.java",
-      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
-      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
+      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。 P2当前Gradle 659单测通过后发现UsableSpace建议告警；与原StorageLedgerR31/StorageMaintenanceFileR82一致，仅在实际物理容量准入方法注明保守预算的有意语义。保持全部free/reserve/溢出检查及失败保全，不计尚未释放缓存；不改全局lint基线、资格政策或任何运行语句。",
+      "reviewer": "Codex P2 physical-budget lint review"
     },
     {
       "after_role": "NUMERIC",
@@ -2112,12 +2112,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "312c312b2d7d8e9d02bd18362bf8428dfa974fd7cbe27480017249cf59ca5c4f",
+      "after_sha256": "21b987dcc4e1cd2597408ae5b8b59faef3eb7c7fd85637c30a215e4dbb3b6cda",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java",
-      "rationale": "P2原件缺失诊断修复：保留FileNotFoundException及原始cause，同时返回真实hot.bin和cold.c.gz路径并保持公开R26_ARTIFACT_UNAVAILABLE错误码；不制造缺失原件，不更改哈希或资格门。",
-      "reviewer": "Codex P2 owner correction with real JDBC failure evidence"
+      "rationale": "P2原件缺失诊断修复：保留FileNotFoundException及原始cause，同时返回真实hot.bin和cold.c.gz路径并保持公开R26_ARTIFACT_UNAVAILABLE错误码；不制造缺失原件，不更改哈希或资格门。 P2当前Gradle 659单测通过后发现UsableSpace建议告警；与原StorageLedgerR31/StorageMaintenanceFileR82一致，仅在实际物理容量准入方法注明保守预算的有意语义。保持全部free/reserve/溢出检查及失败保全，不计尚未释放缓存；不改全局lint基线、资格政策或任何运行语句。",
+      "reviewer": "Codex P2 physical-budget lint review"
     },
     {
       "after_role": "NUMERIC",
@@ -5776,8 +5776,8 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/StorageRestoreAssetsR324.java",
-      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
-      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。 P2当前Gradle 659单测通过后发现UsableSpace建议告警；与原StorageLedgerR31/StorageMaintenanceFileR82一致，仅在实际物理容量准入方法注明保守预算的有意语义。保持全部free/reserve/溢出检查及失败保全，不计尚未释放缓存；不改全局lint基线、资格政策或任何运行语句。",
+      "reviewer": "Codex P2 physical-budget lint review",
       "role": "NUMERIC"
     },
     {
@@ -6112,8 +6112,8 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointClosureR324.java",
-      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
-      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。 P2当前Gradle 659单测通过后发现UsableSpace建议告警；与原StorageLedgerR31/StorageMaintenanceFileR82一致，仅在实际物理容量准入方法注明保守预算的有意语义。保持全部free/reserve/溢出检查及失败保全，不计尚未释放缓存；不改全局lint基线、资格政策或任何运行语句。",
+      "reviewer": "Codex P2 physical-budget lint review",
       "role": "NUMERIC"
     },
     {
@@ -6166,8 +6166,8 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java",
-      "rationale": "P2原件缺失诊断修复：保留FileNotFoundException及原始cause，同时返回真实hot.bin和cold.c.gz路径并保持公开R26_ARTIFACT_UNAVAILABLE错误码；不制造缺失原件，不更改哈希或资格门。",
-      "reviewer": "Codex P2 owner correction with real JDBC failure evidence",
+      "rationale": "P2原件缺失诊断修复：保留FileNotFoundException及原始cause，同时返回真实hot.bin和cold.c.gz路径并保持公开R26_ARTIFACT_UNAVAILABLE错误码；不制造缺失原件，不更改哈希或资格门。 P2当前Gradle 659单测通过后发现UsableSpace建议告警；与原StorageLedgerR31/StorageMaintenanceFileR82一致，仅在实际物理容量准入方法注明保守预算的有意语义。保持全部free/reserve/溢出检查及失败保全，不计尚未释放缓存；不改全局lint基线、资格政策或任何运行语句。",
+      "reviewer": "Codex P2 physical-budget lint review",
       "role": "NUMERIC"
     },
     {
@@ -8381,7 +8381,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "6b4a07ae1c4fdb02143a67aeb506b47366ff41e94c89a7cbcf5c7d8797f41fa0",
+  "reviewed_input_provenance_sha256": "3efbd81ce5ccdec3f62490983031e6b24d2caec3e1291d22b464973abb3dcc66",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

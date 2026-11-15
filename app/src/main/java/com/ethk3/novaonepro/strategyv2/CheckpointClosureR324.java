@@ -50,6 +50,8 @@ public final class CheckpointClosureR324 implements AutoCloseable {
     private void configure(String sql){try(Cursor c=index.rawQuery(sql,null)){c.moveToFirst();}}
     private long pragma(String sql){try(Cursor c=index.rawQuery(sql,null)){return c.moveToFirst()?c.getLong(0):0;}}
     private void limitPages()throws IOException {long actual=pragma("PRAGMA max_page_count="+capacityPages);if(actual!=capacityPages)throw new IOException("R324_CLOSURE_INDEX_CEILING");}
+    // Admit only currently usable physical bytes; reclaimable cache is not an allocation or released reserve.
+    @android.annotation.SuppressLint("UsableSpace")
     private void grow(long pages)throws IOException {
         check();long extra=Math.multiplyExact(pages-capacityPages,(long)PAGE_BYTES);if(extra<=0)return;
         // The index has no rollback/WAL sidecars (journal_mode=OFF). Its bounded

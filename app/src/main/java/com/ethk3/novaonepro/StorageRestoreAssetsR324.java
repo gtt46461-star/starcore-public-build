@@ -34,6 +34,8 @@ final class StorageRestoreAssetsR324 {
         }
         sync(destination);return totals;
     }
+    // Admit only currently usable physical bytes; reclaimable cache is not an allocation or released reserve.
+    @android.annotation.SuppressLint("UsableSpace")
     private static void copyTree(File original,File destination,String relative,DataOutputStream manifest,Totals totals,int depth)throws IOException {
         check();if(relative.equals("files/r26-checkpoints-cold-r324/prepare"))return;
         File source=child(original,relative);if(!source.exists())return;if(depth>16)throw new IOException("WAIT_RESTORE_ASSET_DEPTH");File target=child(destination,relative);

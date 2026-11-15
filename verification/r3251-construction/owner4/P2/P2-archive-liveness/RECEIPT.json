@@ -1,0 +1,129 @@
+{
+  "status": "PASS_HOST_PRODUCTION_ARCHIVE_LIVENESS_ONLY",
+  "scope": "ACTUAL_PRODUCTION_JAVA_AND_NATIVE_SQLITE_WITH_ANDROID_BOUNDARY_ADAPTERS",
+  "AndroidWorkerScheduling": "NOT_RUN",
+  "AndroidBuild": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED",
+  "productionBusinessStubs": [],
+  "commands": [
+    {
+      "id": "platform_compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/workspace/starcore-r3251-evidence/owner4/P2-classes:/workspace/starcore-r3251-toolchain/android.jar",
+        "-d",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform_sources/android/content/Context.java",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform_sources/android/app/Application.java",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform_sources/android/os/SystemClock.java",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform_sources/android/os/Debug.java",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform_sources/android/os/Process.java",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform_sources/android/os/Looper.java",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform_sources/android/util/Log.java",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform_sources/android/content/res/AssetManager.java",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform_sources/android/os/Build.java",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform_sources/android/database/sqlite/SQLiteOpenHelper.java",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform_sources/android/system/ErrnoException.java",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform_sources/android/system/OsConstants.java",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform_sources/android/system/Os.java",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform_sources/android/database/Cursor.java",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform_sources/android/database/sqlite/SQLiteDatabase.java",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform_sources/android/database/sqlite/SQLiteDatabaseLockedException.java",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform_sources/android/database/sqlite/SQLiteException.java"
+      ],
+      "exitCode": 0,
+      "log": "platform_compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "test_compile",
+      "argv": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform:/workspace/starcore-r3251-evidence/owner4/P2-classes:/workspace/starcore-r3251-toolchain/android.jar:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-r3251-toolchain/slf4j-api-2.0.13.jar",
+        "-d",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/tests",
+        "/workspace/starcore-r3251-P2-final/tools/r325/archive_liveness/ArchiveLivenessFixtureR325.java",
+        "/workspace/starcore-r3251-P2-final/tools/r325/archive_liveness/AtomNetArchiveR325HostTest.java"
+      ],
+      "exitCode": 0,
+      "log": "test_compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "fixed_production_run",
+      "argv": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/tests:/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness/platform:/workspace/starcore-r3251-evidence/owner4/P2-classes:/workspace/starcore-r3251-toolchain/android.jar:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-r3251-toolchain/slf4j-api-2.0.13.jar",
+        "com.ethk3.novaonepro.strategyv2.AtomNetArchiveR325HostTest",
+        "/workspace/starcore-r3251-evidence/owner4/P2-archive-liveness"
+      ],
+      "exitCode": 0,
+      "log": "fixed_production_run.log",
+      "sha256": "be14a92cc98687e64020e243d503225279338128093e4071cdf81805e6d0e4e0"
+    }
+  ],
+  "startedAt": "2026-11-15T17:26:11.229866+00:00",
+  "dependencies": {
+    "android.jar": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a",
+    "sqlite-jdbc-3.46.1.3.jar": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa",
+    "slf4j-api-2.0.13.jar": "e7c2a48e8515ba1f49fa637d57b4e2f590b3f5bd97407ac699c3aa5efb1204a9"
+  },
+  "productionSourceSha256": {
+    "AtomNetSampleArchiveR324": "c9a66a684884a7bf4989f43db634ff2f586a3f1cc1c81b5f0d204c25d34a4ade",
+    "AtomNetRuntimeR30": "f4dc401d3a41c9ef97bfa314e9924b157f81b1b9a4c6cabef5045cdf9d0fdbf4",
+    "AtomNetPublicationR31": "9148d2c78b36ca799c345f9ea02ee66227cc6b415e6abcd043a4b65739d1e8eb",
+    "RuntimeR27": "a3a25f4483f282584a5292fcdd0f703d219a117fc35fcc7743227b768172461f",
+    "ResearchTaskRegistryR30R1": "570beaf16b53da500aa73b0fdb8bff4d4d691f66af8d25d651a8e75c880c352b"
+  },
+  "productionClassSha256": {
+    "AtomNetSampleArchiveR324": "82d651385a67cc97d8ac90207d85a792145617f3a4ae5893aa1ab5ce22d102cd",
+    "AtomNetRuntimeR30": "580f2cb4d67c110c9464c7ba1ea0ab3e21a0ca62a82388d99e4a1c8f15b2a4be",
+    "AtomNetPublicationR31": "dac996441d624ef5033d74b8d6ad9a99ae00d2ef1505afe7779f5110aca608db",
+    "RuntimeR27": "899ac83de96f442dfffc5dc39bfb6790759355bfb57ebc78f71fbfcee85c6525",
+    "ResearchTaskRegistryR30R1": "32fe539d1e50f42887c6a9a2a5d83aad27061c6dffcaaaab781389fc0e591d76"
+  },
+  "platformSourceSha256": {
+    "platform_sources/android/content/Context.java": "2444e77b4f312a084cf746ffb701491aab4f8d7ebd53c6cc273c2b0d6fc7dcce",
+    "platform_sources/android/app/Application.java": "3e733572c5cb88b07ddc2ef6c8b2dc323a569d35334e495a3a9f6efd9d61c3c7",
+    "platform_sources/android/os/SystemClock.java": "6ae44d4d47f55003e6bf32111d0ba4cbe62bb8059599ab562a720f4696997726",
+    "platform_sources/android/os/Debug.java": "8caad0476cfff2bcb6af944554dd7fcf3b5e608203d73a0a1051a0b32a8f6f34",
+    "platform_sources/android/os/Process.java": "e5f8969f566d4a174612039acb489d0dd4113acf8577e611a1cb46f6bdfc0b7c",
+    "platform_sources/android/os/Looper.java": "cb537e9dcf0d839bc5496b141013ce2776bfa85311be9d8edd2ceaa67d2e07ca",
+    "platform_sources/android/util/Log.java": "250fdc7266144ced9c510ab5193950b2c2f793d6f7c3b89d944af47242044bd8",
+    "platform_sources/android/content/res/AssetManager.java": "54ccc37f255ec0e6864f2313690d3a3cb8a56973c483ab906aee6aa62fba6c7d",
+    "platform_sources/android/os/Build.java": "71cc17082a9a4892ed61c2f42b42f014f062aeb5e4543b1b856d989d232500fe",
+    "platform_sources/android/database/sqlite/SQLiteOpenHelper.java": "7e4e3d093423b1e8eb88d1cc1dfb70cc8d78044f373fbe8ea9fb3ed30ca5d6a3",
+    "platform_sources/android/system/ErrnoException.java": "2897159873aea588d87f5a49297e69f540647371499276d9b1a0794922b6c345",
+    "platform_sources/android/system/OsConstants.java": "587805077a7d10be1a04d6f0788b448142e8264846796790d3b05dd425397e91",
+    "platform_sources/android/system/Os.java": "8821db81c7c3138d78fd21ae2b617b5d7b59c344313d8fa4abaf2784f4d279ca",
+    "platform_sources/android/database/Cursor.java": "6b9a5cbe6f98ad2d040fcda6c72fbc0ad5ff50fdacd66a333d76ae1154e6cb46",
+    "platform_sources/android/database/sqlite/SQLiteDatabase.java": "f75578f1c92799d0400860eb06775006982e5dadf76451da814c11d60ae10db1",
+    "platform_sources/android/database/sqlite/SQLiteDatabaseLockedException.java": "e17afce73f98be731b31a7d19f895a6df48c90b4f12362a1b5e5b463566a74c9",
+    "platform_sources/android/database/sqlite/SQLiteException.java": "878df09b56099f50a5cd75f2d94a9c0f11d1b49ce9c3cc36e5c66101b47c4b88"
+  },
+  "testSourceSha256": {
+    "ArchiveLivenessFixtureR325.java": "85c89cff3ba4d1ed4e6fee7d99a0bb58ec69d4ef375116d6c61c6a57cba8cbcf",
+    "AtomNetArchiveR325HostTest.java": "112e9ecd3a5c20cb60da9ddd57303446b880923ad61913b6c50ca7c8dd71e182"
+  },
+  "assertions": 41,
+  "baselineCounterexample": "NOT_RUN_IN_THIS_INVOCATION",
+  "completedAt": "2026-11-15T17:26:21.166923+00:00"
+}

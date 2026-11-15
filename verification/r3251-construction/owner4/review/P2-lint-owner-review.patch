@@ -1,0 +1,39 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/StorageRestoreAssetsR324.java b/app/src/main/java/com/ethk3/novaonepro/StorageRestoreAssetsR324.java
+index 1fac5be4..a475b2ae 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/StorageRestoreAssetsR324.java
++++ b/app/src/main/java/com/ethk3/novaonepro/StorageRestoreAssetsR324.java
+@@ -34,6 +34,8 @@ final class StorageRestoreAssetsR324 {
+         }
+         sync(destination);return totals;
+     }
++    // Admit only currently usable physical bytes; reclaimable cache is not an allocation or released reserve.
++    @android.annotation.SuppressLint("UsableSpace")
+     private static void copyTree(File original,File destination,String relative,DataOutputStream manifest,Totals totals,int depth)throws IOException {
+         check();if(relative.equals("files/r26-checkpoints-cold-r324/prepare"))return;
+         File source=child(original,relative);if(!source.exists())return;if(depth>16)throw new IOException("WAIT_RESTORE_ASSET_DEPTH");File target=child(destination,relative);
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointClosureR324.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointClosureR324.java
+index b32d2fb9..cbf5be86 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointClosureR324.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointClosureR324.java
+@@ -50,6 +50,8 @@ public final class CheckpointClosureR324 implements AutoCloseable {
+     private void configure(String sql){try(Cursor c=index.rawQuery(sql,null)){c.moveToFirst();}}
+     private long pragma(String sql){try(Cursor c=index.rawQuery(sql,null)){return c.moveToFirst()?c.getLong(0):0;}}
+     private void limitPages()throws IOException {long actual=pragma("PRAGMA max_page_count="+capacityPages);if(actual!=capacityPages)throw new IOException("R324_CLOSURE_INDEX_CEILING");}
++    // Admit only currently usable physical bytes; reclaimable cache is not an allocation or released reserve.
++    @android.annotation.SuppressLint("UsableSpace")
+     private void grow(long pages)throws IOException {
+         check();long extra=Math.multiplyExact(pages-capacityPages,(long)PAGE_BYTES);if(extra<=0)return;
+         // The index has no rollback/WAL sidecars (journal_mode=OFF). Its bounded
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java
+index cfbaa60b..ae29a17e 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java
+@@ -123,6 +123,8 @@ public final class ColdCheckpointR324 {
+     private static void verifyCold(File file,String hash)throws IOException {try(InputStream in=openCold(file,hash)){byte[] buffer=new byte[32768];while(in.read(buffer)!=-1)if(Thread.currentThread().isInterrupted())throw new InterruptedIOException("R324_COLD_VERIFY_CANCELLED");}}
+     public static Archived archive(File root,String hash,DirectorySync sync)throws IOException {return archive(root,hash,sync,NO_FAULT);}
+     /** Failure injection is package visible and used by the real fault/restore test. */
++    // Admit only currently usable physical bytes; reclaimable cache is not an allocation or released reserve.
++    @android.annotation.SuppressLint("UsableSpace")
+     static Archived archive(File root,String hash,DirectorySync sync,FaultHook fault)throws IOException {
+         File hot=hotFile(root,hash),cold=coldFile(root,hash);if(!hot.isFile()){verifyCold(cold,hash);return new Archived(0,cold.length(),false);}
+         long bytes=hot.length(),modified=hot.lastModified();if(bytes<1||bytes>MAX_RAW)throw new IOException("R324_COLD_SOURCE_SIZE");

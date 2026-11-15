@@ -123,6 +123,8 @@ public final class ColdCheckpointR324 {
     private static void verifyCold(File file,String hash)throws IOException {try(InputStream in=openCold(file,hash)){byte[] buffer=new byte[32768];while(in.read(buffer)!=-1)if(Thread.currentThread().isInterrupted())throw new InterruptedIOException("R324_COLD_VERIFY_CANCELLED");}}
     public static Archived archive(File root,String hash,DirectorySync sync)throws IOException {return archive(root,hash,sync,NO_FAULT);}
     /** Failure injection is package visible and used by the real fault/restore test. */
+    // Admit only currently usable physical bytes; reclaimable cache is not an allocation or released reserve.
+    @android.annotation.SuppressLint("UsableSpace")
     static Archived archive(File root,String hash,DirectorySync sync,FaultHook fault)throws IOException {
         File hot=hotFile(root,hash),cold=coldFile(root,hash);if(!hot.isFile()){verifyCold(cold,hash);return new Archived(0,cold.length(),false);}
         long bytes=hot.length(),modified=hot.lastModified();if(bytes<1||bytes>MAX_RAW)throw new IOException("R324_COLD_SOURCE_SIZE");

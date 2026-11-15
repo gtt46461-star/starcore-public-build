@@ -39,8 +39,9 @@ public final class R31RuntimeHealthHost {
     static void facts()throws Exception{
         reset();RuntimeCoordinatorR26.RuntimeHealthSnapshot snapshot=capture();
         need(ResearchTaskRegistryR30R1.ENTRIES.size()==57,"all 57 original owners retained");
-        need(ResearchTaskRegistryR30R1.ADDITIONAL.keySet().equals(new java.util.HashSet<>(java.util.Arrays.asList("lifecycle-schema","r27-matrices-r1","r27-study-r1","r27-observatory-r1"))),"all four cumulative additional owners retained");
-        need(snapshot.tasksImmutable.size()==61,"all 57 original and 4 additional owners captured");
+        need(ResearchTaskRegistryR30R1.ADDITIONAL.keySet().equals(new java.util.HashSet<>(java.util.Arrays.asList("lifecycle-schema","r27-matrices-r1","r27-study-r1","r27-observatory-r1","r27-atomnet-archive"))),"all original additional owners and the new policy archive owner retained");
+        need(snapshot.tasksImmutable.size()==62,"all 57 original and 5 additional owners captured");
+        need(ResearchTaskRegistryR30R1.require("r27-atomnet-archive").unit==TaskProgressR30R1.Unit.POLICY&&!ResearchTaskRegistryR30R1.require("r27-atomnet-archive").training,"archive policy maintenance is not numerical training");
         for(String id:ResearchTaskRegistryR30R1.all().keySet())need(id.equals(task(snapshot,id).get("taskId")),"actual health row for "+id);
         need(snapshot.pendingKnown&&snapshot.pending==0,"known idle inputs are zero");need(snapshot.researchHealth.equals("IDLE_WAITING_INPUT"),"all current fixture owners idle");
         need(snapshot.lastArtifactHash!=null&&!snapshot.lastArtifactHash.contains("r27-health"),"time ticks do not supply model/artifact freshness");
@@ -48,7 +49,7 @@ public final class R31RuntimeHealthHost {
         try{snapshot.tasksImmutable.clear();throw new AssertionError("mutable task list");}catch(UnsupportedOperationException expected){checks++;}
         try{snapshot.tasksImmutable.get(0).put("state","PASS");throw new AssertionError("mutable task fact");}catch(UnsupportedOperationException expected){checks++;}
         db.execSQL("UPDATE r26_task SET status='QUARANTINED' WHERE task_id LIKE 'r27-%'");
-        for(int tick=0;tick<2;tick++){snapshot=capture();need(snapshot.quarantined==13&&snapshot.researchHealth.equals("DEGRADED"),"13 isolated R27 tasks degrade independently of healthy owner heartbeat tick="+tick);}
+        for(int tick=0;tick<2;tick++){snapshot=capture();need(snapshot.quarantined==14&&snapshot.researchHealth.equals("DEGRADED"),"14 isolated R27 tasks degrade independently of healthy owner heartbeat tick="+tick);}
         reset();db.execSQL("UPDATE r30r1_task_progress SET pending=NULL WHERE task_id='kernel'");snapshot=capture();need(!snapshot.pendingKnown&&snapshot.pending==null&&snapshot.unknownTaskCount==1,"NULL pending is unknown, never manufactured zero");need(task(snapshot,"kernel").get("state").equals("UNKNOWN"),"NULL owner pending explicit unknown");
         db.execSQL("UPDATE r30r1_task_progress SET owner_version='OLD_ABI',pending=0 WHERE task_id='kernel'");snapshot=capture();need(task(snapshot,"kernel").get("sourceFailure").equals("NO_CURRENT_TYPED_PROGRESS_OR_WORK_UNIT_MISMATCH"),"old ABI does not become current progress");
         reset();db.execSQL("UPDATE r30r1_task_progress SET pending=3,last_commit_clock_ordinal=?,artifact_identity='HOST_OLD_KERNEL' WHERE task_id='kernel'",new Object[]{LATEST-6});db.execSQL("UPDATE r30r1_task_progress SET updated_at=9999999,artifact_identity='HOST_NEW_OTHER_TASK' WHERE task_id='feedback'");snapshot=capture();need(snapshot.stalled==1&&snapshot.researchHealth.equals("STALLED"),"fresh other task cannot hide stalled pending kernel");need(task(snapshot,"kernel").get("state").equals("STALLED"),"per-task committed clock lag >= five periods");
@@ -64,7 +65,7 @@ public final class R31RuntimeHealthHost {
         db.execSQL("ALTER TABLE draws RENAME TO host_absent_draw_source");snapshot=capture();need(snapshot.researchHealth.equals("UNKNOWN")&&snapshot.reason.startsWith("HEALTH_SOURCE_UNAVAILABLE"),"missing source table reports query failure separately");db.execSQL("ALTER TABLE host_absent_draw_source RENAME TO draws");
         reset();db.execSQL("UPDATE r26_task SET blocked_reason=? WHERE task_id='kernel'",new Object[]{"x".repeat(10000)});snapshot=capture();need(task(snapshot,"kernel").get("blockedReason").toString().length()<=256,"text fields bounded in SQL before health DTO materialization");
         for(int i=0;i<70;i++)db.execSQL("INSERT INTO r26_task(task_id,status,owner) VALUES(?,'READY',?)",new Object[]{"zzz-host-unregistered-"+i,OWNER});snapshot=capture();need(snapshot.tasksImmutable.size()==128&&snapshot.researchHealth.equals("UNKNOWN")&&snapshot.reason.equals("TASK_CATALOG_EXCEEDS_128_ROW_BOUND"),"catalog overflow is explicit unknown and cannot bypass row byte estimate");
-        System.out.println("R31_HEALTH_SQL_NATIVE_HOST_PASS singleQuery=true quarantine13=DEGRADED unknownNotZero=true perTaskStall=true dependencyResourceDistinct=true cappedRows=128");
+        System.out.println("R31_HEALTH_SQL_NATIVE_HOST_PASS singleQuery=true quarantine14=DEGRADED unknownNotZero=true perTaskStall=true dependencyResourceDistinct=true cappedRows=128");
     }
     static RuntimeCoordinatorR26 coordinator(CountDownLatch stop)throws Exception{
         RuntimeCoordinatorR26 runtime=(RuntimeCoordinatorR26)unsafe.allocateInstance(RuntimeCoordinatorR26.class);Thread thread=new Thread(()->{try{stop.await();}catch(InterruptedException ignored){}},"HOST_ALIVE_OWNER_THREAD");thread.setDaemon(true);thread.start();

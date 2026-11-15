@@ -1,0 +1,38 @@
+/workspace/starcore-r3251-P2-ownerfix/app/lint-baseline.xml: Hint: 51 errors were filtered out because they are listed in the baseline file, lint-baseline.xml [LintBaseline]
+/workspace/starcore-r3251-P2-ownerfix/app/lint-baseline.xml: Hint: 7 errors/warnings were listed in the baseline file (lint-baseline.xml) but not found in the project; perhaps they have been fixed? Another possible explanation is that lint recently stopped analyzing (and including results from) dependent projects by default. You can turn this back on with android.lintOptions.checkDependencies=true. Unmatched issue types: SetTextI18n (7) [LintBaselineFixed]
+
+   Explanation for issues of type "LintBaselineFixed":
+   If a lint baseline describes a problem which is no longer reported, then
+   the problem has either been fixed, or perhaps the issue type has been
+   disabled. In any case, the entry can be removed from the baseline (such
+   that if the issue is reintroduced at some point, lint will complain rather
+   than just silently starting to match the old baseline entry again.)
+
+/workspace/starcore-r3251-P2-ownerfix/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointClosureR324.java:57: Error: Consider also using StorageManager#getAllocatableBytes and allocateBytes which will consider clearable cached data [UsableSpace]
+        long envelope=Math.addExact(extra,65536);if(directory.getUsableSpace()<Math.addExact(envelope,FREE_RESERVE))throw new IOException("R324_CLOSURE_DISK_CAPACITY");
+                                                              ~~~~~~~~~~~~~~
+/workspace/starcore-r3251-P2-ownerfix/app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java:138: Error: Consider also using StorageManager#getAllocatableBytes and allocateBytes which will consider clearable cached data [UsableSpace]
+                long needed=bytes+Math.min(bytes/8+65536,4L<<20)+FREE_RESERVE;if(shard.getUsableSpace()<needed)throw new IOException("R324_COLD_DISK_RESERVE");
+                                                                                       ~~~~~~~~~~~~~~
+/workspace/starcore-r3251-P2-ownerfix/app/src/main/java/com/ethk3/novaonepro/StorageRestoreAssetsR324.java:45: Error: Consider also using StorageManager#getAllocatableBytes and allocateBytes which will consider clearable cached data [UsableSpace]
+        long bytes=source.length(),modified=source.lastModified();if(target.getParentFile().getUsableSpace()<Math.addExact(bytes,FREE_RESERVE))throw new IOException("WAIT_RESTORE_ASSET_DISK_CAPACITY");
+                                                                                            ~~~~~~~~~~~~~~
+
+   Explanation for issues of type "UsableSpace":
+   When you need to allocate disk space for large files, consider using the
+   new allocateBytes(FileDescriptor, long) API, which will automatically clear
+   cached files belonging to other apps (as needed) to meet your request.
+
+   When deciding if the device has enough disk space to hold your new data,
+   call getAllocatableBytes(UUID) instead of using getUsableSpace(), since the
+   former will consider any cached data that the system is willing to clear on
+   your behalf.
+
+   Note that these methods require API level 26. If your app is running on
+   older devices, you will probably need to use both APIs, conditionally
+   switching on Build.VERSION.SDK_INT. Lint only looks in the same compilation
+   unit to see if you are already using both APIs, so if it warns even though
+   you are already using the new API, consider moving the calls to the same
+   file or suppressing the warning.
+
+3 errors (and 51 errors filtered by baseline lint-baseline.xml)
