@@ -1,0 +1,20 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/workspace/starcore-r3251-P2/app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java:116: error: cannot find symbol
+                db.delete("app_state","state_key=?",new String[]{RECOUNT_KEY});
+                  ^
+  symbol:   method delete(String,String,String[])
+  location: variable db of type SQLiteDatabase
+Note: /workspace/starcore-r3251-P2/tools/r31/unified_host/HypothesisStoreR31Host.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+1 error
+Traceback (most recent call last):
+  File "/workspace/starcore-r3251-P2/tools/r31/run_hypothesis_store_host.py", line 36, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/starcore-r3251-P2/tools/r31/run_hypothesis_store_host.py", line 31, in main
+    receipt['executed'].append({'name':name,'exitCode':run.returncode});print(run.stdout+run.stderr,end='');(out/'RECEIPT.json').write_text(json.dumps(receipt,indent=2)+'\n');run.check_returncode()
+                                                                                                                                                                               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 502, in check_returncode
+    raise CalledProcessError(self.returncode, self.args, self.stdout,
+subprocess.CalledProcessError: Command '['javac', '-encoding', 'UTF-8', '-cp', '/tmp/r31-hypothesis-y7gsnd77/product:/tmp/r31-hypothesis-y7gsnd77/platform:/workspace/starcore-r3251-P2/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar', '-d', '/tmp/r31-hypothesis-y7gsnd77/product', '/workspace/starcore-r3251-P2/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchHypothesisR31.java', '/workspace/starcore-r3251-P2/app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java', '/workspace/starcore-r3251-P2/app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java', '/workspace/starcore-r3251-P2/app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java', '/workspace/starcore-r3251-P2/tools/r31/unified_host/HypothesisStoreR31Host.java']' returned non-zero exit status 1.

@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/workspace/starcore-r3251-P2-ownerfix/tools/r31/run_restore_proof_host.py", line 65, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/starcore-r3251-P2-ownerfix/tools/r31/run_restore_proof_host.py", line 53, in main
+    run(['java','-Xmx512m','-Djava.library.path='+str(native),'-cp',runtime,'com.ethk3.novaonepro.R31RestoreProofHost','parent',out/'fixture'],'native-process.log')
+  File "/workspace/starcore-r3251-P2-ownerfix/tools/r31/run_restore_proof_host.py", line 26, in run
+    with (out/log).open('w') as f:subprocess.run(list(map(str,cmd)),cwd=cwd,stdout=f,stderr=subprocess.STDOUT,check=True)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['java', '-Xmx512m', '-Djava.library.path=/workspace/starcore-r3251-evidence/owner1/fixture-precheck-restore/native', '-cp', '/workspace/starcore-r3251-evidence/owner1/fixture-precheck-restore/drivers:/workspace/starcore-r3251-evidence/owner1/fixture-precheck-restore/shim:/workspace/starcore-r3251-evidence/owner1/fixture-precheck-restore/production:/workspace/starcore-r3251-P2/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/starcore-environment/gradle-home/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar', 'com.ethk3.novaonepro.R31RestoreProofHost', 'parent', '/workspace/starcore-r3251-evidence/owner1/fixture-precheck-restore/fixture']' returned non-zero exit status 1.

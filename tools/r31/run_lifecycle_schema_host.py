@@ -31,7 +31,7 @@ def main():
    'GapReferenceR31':'public static final String[] DDL={};public static String[] guardDefinitionsR31(android.database.sqlite.SQLiteDatabase db){return new String[0];}public static boolean advanceCutoverWithinMigrationR31(android.database.sqlite.SQLiteDatabase db){return false;}',
    'KeepArchiveRetirementR31':'public static final String[] DDL={};public static String[] guardDefinitionsR31(android.database.sqlite.SQLiteDatabase db){return new String[0];}public static boolean advanceWithinMigrationR31(android.database.sqlite.SQLiteDatabase db){return false;}',
    'CheckpointGcStoreR31':'public static final String[] DDL={};public static String[] referenceGuards(android.database.sqlite.SQLiteDatabase db){return new String[0];}',
-   'HypothesisStoreR31':'public static String[] ddlR31(){return new String[0];}public static void requireSchemaR31(android.database.sqlite.SQLiteDatabase db){}public static void seedQuotaWithinMigrationR31(android.database.sqlite.SQLiteDatabase db){}'}
+   'HypothesisStoreR31':'public static String[] ddlR31(){return new String[0];}public static void requireSchemaR31(android.database.sqlite.SQLiteDatabase db){}public static void seedQuotaWithinMigrationR31(android.database.sqlite.SQLiteDatabase db){}public static boolean recoverQuotaSliceR32(android.database.sqlite.SQLiteDatabase db){throw new AssertionError("DECLARATION_ONLY_FIXTURE_MUST_NOT_RECOVER_QUOTA");}'}
   adapters=[]
   for name,body in fixtures.items():
    path=work/(name+'.java');path.write_text('package com.ethk3.novaonepro.strategyv2;public final class '+name+'{'+body+'}');adapters.append(path)

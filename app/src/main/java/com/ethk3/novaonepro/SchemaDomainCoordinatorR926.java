@@ -196,7 +196,16 @@ public final class SchemaDomainCoordinatorR926 {
         if(!db.inTransaction())throw new IllegalStateException("R31_PUBLICATION_ATTACHMENT_MIGRATION_WRITER_REQUIRED");
         String table=publicationAttachmentTableR31(db,sql);if(table==null)throw new IllegalArgumentException("R31_PUBLICATION_ATTACHMENT_UNDECLARED");
         Contract contract=("r31_atomnet_publication".equals(table)||"r324_atomnet_sample_archive".equals(table))?r31AtomNetPublicationContract():r31ModelPublicationContract();
-        java.util.Map<String,String> known=publicationAttachmentsR31(db,table);String manifest=V51ChecksumEngine.sha256(known.toString()),step="R31_EXACT_LIFECYCLE_CORE:"+manifest;
+        java.util.Map<String,String> known=new java.util.TreeMap<>(publicationAttachmentsR31(db,table));
+        if("r31_atomnet_publication".equals(table)||"r324_atomnet_sample_archive".equals(table)) {
+            // Both tables belong to the same authenticated publication domain.
+            // Its core must exclude the complete declared attachment set, so
+            // either table's missing guard/index can be repaired after the
+            // other table's exact attachments have already been installed.
+            known.putAll(publicationAttachmentsR31(db,"r31_atomnet_publication"));
+            known.putAll(publicationAttachmentsR31(db,"r324_atomnet_sample_archive"));
+        }
+        String manifest=V51ChecksumEngine.sha256(known.toString()),step="R31_EXACT_LIFECYCLE_CORE:"+manifest;
         String sealed=null;try(Cursor c=db.rawQuery("SELECT fingerprint FROM "+TABLE_DOMAIN+" WHERE domain=? AND revision=? AND contract_hash=? AND state='READY'",new String[]{contract.domain,Integer.toString(contract.revision),contract.contractHash})){if(c.moveToFirst())sealed=c.getString(0);}
         if(sealed==null)throw new DatabaseCoordinator.SchemaPendingR31("R31_PUBLICATION_ATTACHMENT","AUTHENTICATED_PRIOR_DOMAIN_REQUIRED:"+contract.domain);
         // Definitions are checked even when the completed proof already exists.

@@ -36,6 +36,7 @@ public final class GapRuntimeEntryR31Host {
         try(Db db=new Db(DriverManager.getConnection("jdbc:sqlite:"+path))){
             // All source shapes below come from the actual production declarations.
             SchemaDomainCoordinatorR926.ensureInfrastructure(db);
+            db.execSQL("CREATE TABLE app_state(state_key TEXT PRIMARY KEY,state_value TEXT,updated_at INTEGER NOT NULL DEFAULT 0)");
             for(String ddl:RuntimeSchemaR26.DDL)if(ddl.startsWith("CREATE TABLE IF NOT EXISTS r26_gap_receipt(")||ddl.startsWith("CREATE TABLE IF NOT EXISTS r26_task(")||ddl.startsWith("CREATE TABLE IF NOT EXISTS r26_session("))db.execSQL(ddl);
             for(String ddl:SchemaR27.DDL)if(ddl.startsWith("CREATE TABLE IF NOT EXISTS r31_task_lease(")||ddl.startsWith("CREATE TABLE IF NOT EXISTS r27_chart_cache("))db.execSQL(ddl);
             for(String ddl:SchemaR27.R31_WRITE_DDL)db.execSQL(ddl);

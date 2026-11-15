@@ -1,0 +1,45 @@
+{
+  "schema": "R32_READ_ONLY_RESUME_STATUS_V1",
+  "status": "STAGE_BYTES_MATCH",
+  "scope": "SOURCE_BYTES_DECLARED_MODES_AND_DURABLE_TRANSACTION_ONLY",
+  "manifest_sha256": "bf974ca23de7d8f5a6ee2d51bb1fcdf1a4d9ad8e3aa4c9c9168216ab7e7bb457",
+  "plan_revision": "R32.5.1-C1-P2-OWNER2",
+  "furthest_matching_source_batch": "P2",
+  "byte_equivalent_stage_matches": [
+    "P2"
+  ],
+  "resume_batch": null,
+  "next_source_batch": "P3",
+  "verify_current_batch_before_advancing": "P2",
+  "current_batch_contract": "batches/P2.md",
+  "pending_source_files_for_identified_batch": 0,
+  "transaction_state": null,
+  "source_receipts": {
+    "P1": "ABSENT",
+    "P2": "STALE_OR_DIFFERENT_SCOPE_NOT_EVIDENCE",
+    "P3": "ABSENT",
+    "P4": "ABSENT",
+    "P5": "ABSENT"
+  },
+  "commands": [
+    {
+      "purpose": "REGENERATE_AND_VERIFY_CURRENT_STAGE_BEFORE_TESTS",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/starcore-r3251-owner-revision/tools/verify_stage_identity.py",
+        "--package",
+        "/workspace/starcore-r3251-owner-revision",
+        "--repo",
+        "/workspace/starcore-r3251-P2-ownerfix",
+        "--batch",
+        "P2",
+        "--generate"
+      ]
+    }
+  ],
+  "next_step": "Run the identified current-stage identity and batch regression contract. Advance only after recording its actual result; old receipts do not sign new business acceptance.",
+  "writes_performed": 0,
+  "business_acceptance": "NOT_EVALUATED",
+  "android_device_status": "NOT_EVALUATED",
+  "natural_quality": "NOT_EVALUATED"
+}

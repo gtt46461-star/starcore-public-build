@@ -4405,7 +4405,7 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java",
-      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
+      "rationale": "P2原件缺失诊断修复：保留FileNotFoundException及原始cause，同时返回真实hot.bin和cold.c.gz路径并保持公开R26_ARTIFACT_UNAVAILABLE错误码；不制造缺失原件，不更改哈希或资格门。",
       "role": "NUMERIC"
     },
     {

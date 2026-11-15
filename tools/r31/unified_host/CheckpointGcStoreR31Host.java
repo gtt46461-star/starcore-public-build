@@ -93,11 +93,12 @@ public final class CheckpointGcStoreR31Host {
             // Real manifest+chunk production codec, not a metadata-only helper.
             byte[] raw=new byte[70000];new Random(123).nextBytes(raw);byte[] manifest;
             try(CheckpointArtifactsR26.Prepared chunked=f.cas.prepareState(out->out.write(raw))){manifest=chunked.reference();f.root(CheckpointArtifactsR26.referenceHash(manifest));}
-            ok(f.prune()>=bytes.length,"unrooted prior incarnation retired while manifest lives");
+            long retired=0;for(int slice=0;slice<4&&f.metadata().state(hash)!=StorageGcR31.State.DELETED;slice++)retired+=f.prune();
+            ok(retired>=bytes.length&&f.metadata().state(hash)==StorageGcR31.State.DELETED,"unrooted prior incarnation retired by bounded cursor wrap while manifest lives");
             ok(f.scalar("SELECT released_bytes FROM r31_gc_receipt WHERE artifact_hash='"+hash+"'")==2L*bytes.length,"new verified incarnation contributes its actual released bytes once");
             ok(Arrays.equals(raw,f.cas.openState(manifest).readAllBytes()),"rooted manifest retains real readable chunk closure");
             String missing=h("missing never verified");f.root(missing);Path prior=f.files.resolve("count");long count=Files.list(f.files).count();
-            try{f.prune();throw new AssertionError("unknown root allowed deletion");}catch(IllegalStateException expected){ok(expected.getMessage().contains("ROOT_NOT_LIVE_OR_UNREGISTERED"),"unknown root preserves all artifacts");}catch(FileNotFoundException expected){ok(true,"unknown root without an actual file preserves all artifacts");}
+            try{f.prune();throw new AssertionError("unknown root allowed deletion");}catch(IllegalStateException expected){ok(expected.getMessage().contains("ROOT_NOT_LIVE_OR_UNREGISTERED")||expected.getMessage().equals("R324_GC_ROOT_METADATA_INCOMPLETE:"+missing),"unknown root preserves all artifacts: "+expected.getMessage());}catch(FileNotFoundException expected){ok(true,"unknown root without an actual file preserves all artifacts");}
             ok(Files.list(f.files).count()==count,"unknown root did not unlink any file");
         }
     }
@@ -152,17 +153,19 @@ public final class CheckpointGcStoreR31Host {
             ok(f.prune()==0&&Files.exists(f.file(h("pending warm state")))&&Files.exists(f.file(h("pending warm initializer"))),"reopened GC preserves both warm artifacts "+boundary);
         }
     }
-    static void missingRootPreservesAll(Path base)throws Exception {
-        try(Fixture f=new Fixture(base.resolve("missing-root"))){String root=h("missing original"),orphan=h("still existing orphan");
-            try(CheckpointArtifactsR26.Prepared p=f.cas.prepareLease("missing original".getBytes(java.nio.charset.StandardCharsets.UTF_8));CheckpointArtifactsR26.Prepared q=f.cas.prepareLease("still existing orphan".getBytes(java.nio.charset.StandardCharsets.UTF_8))){f.root(root);}
-            Files.delete(f.file(root));try{f.prune();throw new AssertionError("missing rooted file permitted GC");}catch(IOException expected){ok(true,"actual missing root blocks before any claim");}
-            ok(Files.exists(f.file(orphan))&&f.metadata().state(orphan)==StorageGcR31.State.LIVE,"missing root does not claim or unlink other originals");
+    static void missingKnownRootPreservesReferences(Path base)throws Exception {
+        try(Fixture f=new Fixture(base.resolve("missing-root"))){String root,orphan=h("still existing orphan");Set<String> children;byte[] raw=new byte[70000];new Random(324).nextBytes(raw);
+            try(CheckpointArtifactsR26.Prepared p=f.cas.prepareState(out->out.write(raw));CheckpointArtifactsR26.Prepared q=f.cas.prepareLease("still existing orphan".getBytes(java.nio.charset.StandardCharsets.UTF_8))){root=CheckpointArtifactsR26.referenceHash(p.reference());children=ChunkedCheckpointR26.children(f.cas.resolve(p.reference()));f.root(root);}
+            Files.delete(f.file(root));long released=0;for(int slice=0;slice<4&&f.metadata().state(orphan)!=StorageGcR31.State.DELETED;slice++)released+=f.prune();
+            ok(f.metadata().state(root)==StorageGcR31.State.LIVE&&!Files.exists(f.file(root)),"known missing root evidence remains registered and is not fabricated");
+            for(String child:children)ok(Files.exists(f.file(child))&&f.metadata().state(child)==StorageGcR31.State.LIVE,"immutable known root edges protect every surviving child");
+            ok(f.metadata().state(orphan)==StorageGcR31.State.DELETED&&released=="still existing orphan".getBytes(java.nio.charset.StandardCharsets.UTF_8).length,"only the unrelated verified orphan is reclaimed under bounded cursor slices");
         }
     }
     public static void main(String[] args)throws Exception {
         if(args.length>0&&args[0].equals("child")){killChild(Path.of(args[1]),args[2]);return;}
         if(args.length>0&&args[0].equals("publication-child")){publicationChild(Path.of(args[1]),args[2]);return;}
-        Path base=Path.of(args[0]);Files.createDirectories(base);metadataContracts(base);actualFiles(base);killRecovery(base,"after-claim");killRecovery(base,"after-unlink");publicationContracts(base);publicationRecovery(base,"before-publication-commit");publicationRecovery(base,"after-publication-commit");missingRootPreservesAll(base);
+        Path base=Path.of(args[0]);Files.createDirectories(base);metadataContracts(base);actualFiles(base);killRecovery(base,"after-claim");killRecovery(base,"after-unlink");publicationContracts(base);publicationRecovery(base,"before-publication-commit");publicationRecovery(base,"after-publication-commit");missingKnownRootPreservesReferences(base);
         System.out.println("GC_NATIVE_PRODUCTION_PROTOCOL_PASS assertions="+checks+" writerTransactions="+transactions+" realProcessKillBoundaries=4 actualFilesAndNativeSqlite=true AndroidService=NOT_RUN fullModelPublicationProjection=NOT_INFERRED_FROM_PROTOCOL_FIXTURE naturalQuality=NOT_PROVEN");
     }
 }

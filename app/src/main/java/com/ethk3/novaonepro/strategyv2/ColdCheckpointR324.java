@@ -40,7 +40,15 @@ public final class ColdCheckpointR324 {
         if(bytes<1||bytes>MAX_RAW||modified<0||!hash.equals(stored))throw new IOException("R324_COLD_HEADER_IDENTITY");
         return new Header(bytes,modified);
     }
-    private static Header coldHeader(File root,String hash)throws IOException {try(DataInputStream in=new DataInputStream(new BufferedInputStream(new FileInputStream(coldFile(root,hash))))){return header(in,hash);}}
+    private static FileNotFoundException unavailableOriginal(File hot,File cold,FileNotFoundException cause) {
+        FileNotFoundException failure=new FileNotFoundException("R26_ARTIFACT_UNAVAILABLE|R324_CHECKPOINT_ORIGINAL_UNAVAILABLE|hot="+hot+"|cold="+cold+"|cause="+cause.getMessage());
+        failure.initCause(cause);return failure;
+    }
+    private static Header coldHeader(File root,String hash)throws IOException {
+        File cold=coldFile(root,hash);
+        try(DataInputStream in=new DataInputStream(new BufferedInputStream(new FileInputStream(cold)))){return header(in,hash);}
+        catch(FileNotFoundException missing){throw unavailableOriginal(hotFile(root,hash),cold,missing);}
+    }
     public static boolean exists(File root,String hash)throws IOException {return hotFile(root,hash).isFile()||coldFile(root,hash).isFile();}
     public static boolean isCold(File root,String hash)throws IOException {return !hotFile(root,hash).isFile()&&coldFile(root,hash).isFile();}
     public static long rawSize(File root,String hash)throws IOException {
@@ -103,7 +111,9 @@ public final class ColdCheckpointR324 {
     public static InputStream open(File root,String hash)throws IOException {
         File hot=hotFile(root,hash);
         if(hot.isFile())try{return new VerifiedInput(new FileInputStream(hot),rawSize(root,hash),hash);}catch(FileNotFoundException moved){/* Cold publication precedes hot unlink. */}
-        return openCold(coldFile(root,hash),hash);
+        File cold=coldFile(root,hash);
+        try{return openCold(cold,hash);}
+        catch(FileNotFoundException missing){throw unavailableOriginal(hot,cold,missing);}
     }
     public static byte[] read(File root,String hash)throws IOException {
         long size=rawSize(root,hash);ByteArrayOutputStream bytes=new ByteArrayOutputStream((int)size);

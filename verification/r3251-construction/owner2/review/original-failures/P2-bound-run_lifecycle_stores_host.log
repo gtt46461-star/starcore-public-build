@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/workspace/starcore-r3251-P2/tools/r31/run_lifecycle_stores_host.py", line 55, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/starcore-r3251-P2/tools/r31/run_lifecycle_stores_host.py", line 48, in main
+    result=run(['java','-Xmx512m','-cp',cp,'com.ethk3.novaonepro.LifecycleStoresR31Host',work/'owner.db'],'run.log')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/starcore-r3251-P2/tools/r31/run_lifecycle_stores_host.py", line 38, in run
+    if r.returncode:raise RuntimeError(name+'\n'+(r.stdout+r.stderr)[-5000:])
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: run.log
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+Exception in thread "main" android.database.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (no such table: app_state)
+	at android.database.sqlite.SQLiteDatabase.rawQuery(SQLiteDatabase.java:19)
+	at com.ethk3.novaonepro.strategyv2.HypothesisStoreR31.recoverQuotaSliceR32(HypothesisStoreR31.java:86)
+	at com.ethk3.novaonepro.LifecycleSchemaR31.advanceWithinMigration(LifecycleSchemaR31.java:138)
+	at com.ethk3.novaonepro.LifecycleStoresR31Host.unit(LifecycleStoresR31Host.java:23)
+	at com.ethk3.novaonepro.LifecycleStoresR31Host.main(LifecycleStoresR31Host.java:61)
+

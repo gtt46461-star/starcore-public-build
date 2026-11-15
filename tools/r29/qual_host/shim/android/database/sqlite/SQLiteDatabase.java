@@ -20,6 +20,12 @@ public class SQLiteDatabase {
             p.execute();
         } catch (java.sql.SQLException e) { throw new SQLiteException(e.getMessage()); }
     }
+    public int delete(String table,String where,String[] args) {
+        try(PreparedStatement p=jdbc.prepareStatement("DELETE FROM "+table+(where==null?"":" WHERE "+where))) {
+            if(args!=null)for(int i=0;i<args.length;i++)p.setString(i+1,args[i]);
+            return p.executeUpdate();
+        }catch(java.sql.SQLException e){throw new SQLiteException(e.getMessage());}
+    }
     public Cursor rawQuery(String sql, String[] args) {
         // SQLiteProgram.bindAllArgsAsStrings calls bindString even for an IS ?
         // predicate. Android rejects null instead of binding JDBC SQL NULL.

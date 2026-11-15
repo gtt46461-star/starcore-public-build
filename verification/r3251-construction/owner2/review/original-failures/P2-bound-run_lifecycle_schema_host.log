@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/workspace/starcore-r3251-P2/tools/r31/run_lifecycle_schema_host.py", line 45, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/starcore-r3251-P2/tools/r31/run_lifecycle_schema_host.py", line 39, in main
+    run(['javac','-sourcepath','','-implicit:none','-cp',os.pathsep.join(map(str,[sdk,platform,production,test,classes,jdbc,slf])),'-d',production,*sources[:3],*adapters],'production.log')
+  File "/workspace/starcore-r3251-P2/tools/r31/run_lifecycle_schema_host.py", line 16, in run
+    if r.returncode:raise RuntimeError(name+'\n'+(r.stdout+r.stderr)[-5000:])
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: production.log
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/workspace/starcore-r3251-P2/app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java:138: error: cannot find symbol
+                if (!HypothesisStoreR31.recoverQuotaSliceR32(db))
+                                       ^
+  symbol:   method recoverQuotaSliceR32(SQLiteDatabase)
+  location: class HypothesisStoreR31
+1 error
+

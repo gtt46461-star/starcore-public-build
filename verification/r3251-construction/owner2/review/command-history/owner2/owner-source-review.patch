@@ -1,0 +1,419 @@
+diff --git a/app/build/generated/r967/semantic_manifest.json b/app/build/generated/r967/semantic_manifest.json
+index fcafe2ba..760080b5 100644
+--- a/app/build/generated/r967/semantic_manifest.json
++++ b/app/build/generated/r967/semantic_manifest.json
+@@ -1,12 +1,12 @@
+ {
+   "revision": "R967_SEMANTIC_BUILD_V1",
+-  "training_rule_sha256": "ec7e2b95fbd8adf152fee133f7464f4b5fa5cb2b57a91ee4cb51b77811a61c48",
++  "training_rule_sha256": "2b4ace979da69b75868535ed6388c5bf3b4bdf4a550b79cac5af393707a405b2",
+   "policy_hash": "04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8",
+   "policy_json": "{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}",
+-  "manifest_sha256": "2fce2d727d9b7e697ea53f8e6307a9f8f211fbb56f1368f419d489b6914efb48",
++  "manifest_sha256": "9e19b4a196638e2ef45545d6c8fc6f7e306f7687a54a953cc9ebc6c1132ec254",
+   "controlled_file_count": 1510,
+   "numeric_dependency_count": 1370,
+-  "source_provenance_sha256": "9c5b8bdd47ef26f545f30b076f2683734dc435e211e6170798bc83ceebd462e9",
++  "source_provenance_sha256": "099f508ec13d5aa2004eac002415bb6d891d421392f0225cdbbfcbdf89797fe2",
+   "dependencies": [
+     [
+       "app/build.gradle",
+@@ -5051,7 +5051,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java",
+       "NUMERIC",
+-      "3cb27ccd10d9264c439e3864d9df9eae7318869e99f7bc49f43dd09ea9cdf958"
++      "8a314aec8475dfb953a0b77263dad330a71941d0a4d7a5af0154487d34ce0db4"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/CommitEnvelopeR30R1.java",
+@@ -6861,6 +6861,6 @@
+   ],
+   "compatible_predecessor_rule_sha256": "",
+   "compatible_predecessor_rules_sha256": [],
+-  "continuation_proof_sha256": "a31024f073d9046cceef60fbd46c764971a87c04ecdc151a4bad85b9a4f982dc",
++  "continuation_proof_sha256": "f2944d257d9070edf74993af88f8640d147b2ec08ad7c56c461e2ec931efd83e",
+   "compatibility_scope": "DEV_ONLY; historical_evidence_and_certificate_compatibility_NOT_GRANTED"
+ }
+diff --git a/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java b/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
+index 558a530d..da18d904 100644
+--- a/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
++++ b/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
+@@ -1,13 +1,13 @@
+ package com.ethk3.novaonepro;
+ /** Build-generated. Never edit; no authorization is implied. */
+ public final class ResearchSemanticsGeneratedR967 {
+-    public static final String TRAINING_RULE_SHA256=runtimeValue("ec7e2b95fbd8adf152fee133f7464f4b5fa5cb2b57a91ee4cb51b77811a61c48");
++    public static final String TRAINING_RULE_SHA256=runtimeValue("2b4ace979da69b75868535ed6388c5bf3b4bdf4a550b79cac5af393707a405b2");
+     public static final String POLICY_HASH=runtimeValue("04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8");
+     public static final String POLICY_JSON=runtimeValue("{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}");
+-    public static final String DEPENDENCY_MANIFEST_SHA256=runtimeValue("2fce2d727d9b7e697ea53f8e6307a9f8f211fbb56f1368f419d489b6914efb48");
++    public static final String DEPENDENCY_MANIFEST_SHA256=runtimeValue("9e19b4a196638e2ef45545d6c8fc6f7e306f7687a54a953cc9ebc6c1132ec254");
+     public static final String COMPATIBLE_PREDECESSOR_RULE_SHA256=runtimeValue("");
+     public static final String COMPATIBLE_PREDECESSOR_RULES_SHA256=runtimeValue("");
+-    public static final String CONTINUATION_PROOF_SHA256=runtimeValue("a31024f073d9046cceef60fbd46c764971a87c04ecdc151a4bad85b9a4f982dc");
++    public static final String CONTINUATION_PROOF_SHA256=runtimeValue("f2944d257d9070edf74993af88f8640d147b2ec08ad7c56c461e2ec931efd83e");
+     private static String runtimeValue(String value){return value;}
+     private ResearchSemanticsGeneratedR967(){}
+ }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java b/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java
+index b3eae624..e86eef55 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java
++++ b/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java
+@@ -196,7 +196,16 @@ public final class SchemaDomainCoordinatorR926 {
+         if(!db.inTransaction())throw new IllegalStateException("R31_PUBLICATION_ATTACHMENT_MIGRATION_WRITER_REQUIRED");
+         String table=publicationAttachmentTableR31(db,sql);if(table==null)throw new IllegalArgumentException("R31_PUBLICATION_ATTACHMENT_UNDECLARED");
+         Contract contract=("r31_atomnet_publication".equals(table)||"r324_atomnet_sample_archive".equals(table))?r31AtomNetPublicationContract():r31ModelPublicationContract();
+-        java.util.Map<String,String> known=publicationAttachmentsR31(db,table);String manifest=V51ChecksumEngine.sha256(known.toString()),step="R31_EXACT_LIFECYCLE_CORE:"+manifest;
++        java.util.Map<String,String> known=new java.util.TreeMap<>(publicationAttachmentsR31(db,table));
++        if("r31_atomnet_publication".equals(table)||"r324_atomnet_sample_archive".equals(table)) {
++            // Both tables belong to the same authenticated publication domain.
++            // Its core must exclude the complete declared attachment set, so
++            // either table's missing guard/index can be repaired after the
++            // other table's exact attachments have already been installed.
++            known.putAll(publicationAttachmentsR31(db,"r31_atomnet_publication"));
++            known.putAll(publicationAttachmentsR31(db,"r324_atomnet_sample_archive"));
++        }
++        String manifest=V51ChecksumEngine.sha256(known.toString()),step="R31_EXACT_LIFECYCLE_CORE:"+manifest;
+         String sealed=null;try(Cursor c=db.rawQuery("SELECT fingerprint FROM "+TABLE_DOMAIN+" WHERE domain=? AND revision=? AND contract_hash=? AND state='READY'",new String[]{contract.domain,Integer.toString(contract.revision),contract.contractHash})){if(c.moveToFirst())sealed=c.getString(0);}
+         if(sealed==null)throw new DatabaseCoordinator.SchemaPendingR31("R31_PUBLICATION_ATTACHMENT","AUTHENTICATED_PRIOR_DOMAIN_REQUIRED:"+contract.domain);
+         // Definitions are checked even when the completed proof already exists.
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java
+index 26874c98..cfbaa60b 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java
+@@ -40,7 +40,15 @@ public final class ColdCheckpointR324 {
+         if(bytes<1||bytes>MAX_RAW||modified<0||!hash.equals(stored))throw new IOException("R324_COLD_HEADER_IDENTITY");
+         return new Header(bytes,modified);
+     }
+-    private static Header coldHeader(File root,String hash)throws IOException {try(DataInputStream in=new DataInputStream(new BufferedInputStream(new FileInputStream(coldFile(root,hash))))){return header(in,hash);}}
++    private static FileNotFoundException unavailableOriginal(File hot,File cold,FileNotFoundException cause) {
++        FileNotFoundException failure=new FileNotFoundException("R26_ARTIFACT_UNAVAILABLE|R324_CHECKPOINT_ORIGINAL_UNAVAILABLE|hot="+hot+"|cold="+cold+"|cause="+cause.getMessage());
++        failure.initCause(cause);return failure;
++    }
++    private static Header coldHeader(File root,String hash)throws IOException {
++        File cold=coldFile(root,hash);
++        try(DataInputStream in=new DataInputStream(new BufferedInputStream(new FileInputStream(cold)))){return header(in,hash);}
++        catch(FileNotFoundException missing){throw unavailableOriginal(hotFile(root,hash),cold,missing);}
++    }
+     public static boolean exists(File root,String hash)throws IOException {return hotFile(root,hash).isFile()||coldFile(root,hash).isFile();}
+     public static boolean isCold(File root,String hash)throws IOException {return !hotFile(root,hash).isFile()&&coldFile(root,hash).isFile();}
+     public static long rawSize(File root,String hash)throws IOException {
+@@ -103,7 +111,9 @@ public final class ColdCheckpointR324 {
+     public static InputStream open(File root,String hash)throws IOException {
+         File hot=hotFile(root,hash);
+         if(hot.isFile())try{return new VerifiedInput(new FileInputStream(hot),rawSize(root,hash),hash);}catch(FileNotFoundException moved){/* Cold publication precedes hot unlink. */}
+-        return openCold(coldFile(root,hash),hash);
++        File cold=coldFile(root,hash);
++        try{return openCold(cold,hash);}
++        catch(FileNotFoundException missing){throw unavailableOriginal(hot,cold,missing);}
+     }
+     public static byte[] read(File root,String hash)throws IOException {
+         long size=rawSize(root,hash);ByteArrayOutputStream bytes=new ByteArrayOutputStream((int)size);
+diff --git a/app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairTaskProgressR30Test.java b/app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairTaskProgressR30Test.java
+index c57e7c48..64eb8e26 100644
+--- a/app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairTaskProgressR30Test.java
++++ b/app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairTaskProgressR30Test.java
+@@ -14,12 +14,14 @@ public final class RepairTaskProgressR30Test {
+     }
+     @SuppressWarnings("unchecked") @Test public void all57OwnersAppearAndMissingFactsCannotProduceZeroM12(){
+         Map<String,Object> result=TaskProgressR30R1.summarize(Collections.emptyList(),Collections.emptyList(),1200);
+-        assertEquals(61,((List<?>)result.get("tasks")).size());Map<String,Object> summary=(Map<String,Object>)result.get("summary");
+-        assertEquals(61L,summary.get("unknown"));assertEquals(57,summary.get("originalEntrances"));assertEquals(4,summary.get("additionalRepairTasks"));assertNull(summary.get("m12"));assertNull(summary.get("oldestBacklogIssues"));
++        assertEquals(62,((List<?>)result.get("tasks")).size());Map<String,Object> summary=(Map<String,Object>)result.get("summary");
++        assertEquals(62L,summary.get("unknown"));assertEquals(57,summary.get("originalEntrances"));assertEquals(5,summary.get("additionalRepairTasks"));assertNull(summary.get("m12"));assertNull(summary.get("oldestBacklogIssues"));
+         Set<String> original=new HashSet<>(Arrays.asList(("schema schema-base kernel shadow-recover evidence-recover evidence-quality sealed-planner calibration su1-certificate su2-mainline su2-certificate qualification aggregate-evidence feedback seed-incumbent incumbent-forecast archive diagnosis daily-close legacy-generation foundry-su2 foundry-su1 ablation campaign-audit legacy-replay live-model-training artifact-retention warm-candidates publish-models live-forecast-preparation retention r27-replay-dataset r27-evolution r27-live r27-atoms r27-atomnet r27-abi r27-calibration r27-legacy-export r27-chart-cache r27-health").split(" ")));
+         for(int i=1;i<=16;i++)original.add(String.format(Locale.ROOT,"expert-E%02d",i));
+         assertEquals(57,original.size());assertEquals(original,ResearchTaskRegistryR30R1.ENTRIES.keySet());
+-        assertEquals(new HashSet<>(Arrays.asList("r27-matrices-r1","r27-study-r1","r27-observatory-r1","lifecycle-schema")),ResearchTaskRegistryR30R1.ADDITIONAL.keySet());
++        assertEquals(new HashSet<>(Arrays.asList("r27-matrices-r1","r27-study-r1","r27-observatory-r1","lifecycle-schema","r27-atomnet-archive")),ResearchTaskRegistryR30R1.ADDITIONAL.keySet());
++        assertEquals(TaskProgressR30R1.Unit.POLICY,ResearchTaskRegistryR30R1.require("r27-atomnet-archive").unit);
++        assertFalse(ResearchTaskRegistryR30R1.require("r27-atomnet-archive").training);
+         assertEquals(TaskProgressR30R1.Unit.PHASE,ResearchTaskRegistryR30R1.require("lifecycle-schema").unit);
+         assertFalse(ResearchTaskRegistryR30R1.require("lifecycle-schema").training);
+         assertEquals(TaskProgressR30R1.Unit.PHASE,ResearchTaskRegistryR30R1.require("r27-evolution").unit);
+diff --git a/release/r82_training_invalidation.json b/release/r82_training_invalidation.json
+index 79b9d6c6..748fc544 100644
+--- a/release/r82_training_invalidation.json
++++ b/release/r82_training_invalidation.json
+@@ -2112,12 +2112,12 @@
+     },
+     {
+       "after_role": "NUMERIC",
+-      "after_sha256": "3cb27ccd10d9264c439e3864d9df9eae7318869e99f7bc49f43dd09ea9cdf958",
++      "after_sha256": "8a314aec8475dfb953a0b77263dad330a71941d0a4d7a5af0154487d34ce0db4",
+       "before_role": "",
+       "before_sha256": "",
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java",
+-      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
+-      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
++      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。 Owner revision: preserve both original hot .bin and cold lookup paths and the original FileNotFoundException cause. The unchanged strict RAW/GC test failed on the original package; no missing bytes are accepted, no qualifier or policy changes.",
++      "reviewer": "Codex P2 owner integration review 2026-11-15"
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -6166,8 +6166,8 @@
+     },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java",
+-      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
+-      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
++      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。 Owner revision: preserve both original hot .bin and cold lookup paths and the original FileNotFoundException cause. The unchanged strict RAW/GC test failed on the original package; no missing bytes are accepted, no qualifier or policy changes.",
++      "reviewer": "Codex P2 owner integration review 2026-11-15",
+       "role": "NUMERIC"
+     },
+     {
+@@ -8381,7 +8381,7 @@
+   ],
+   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
+   "predecessors": [],
+-  "reviewed_input_provenance_sha256": "9c5b8bdd47ef26f545f30b076f2683734dc435e211e6170798bc83ceebd462e9",
++  "reviewed_input_provenance_sha256": "099f508ec13d5aa2004eac002415bb6d891d421392f0225cdbbfcbdf89797fe2",
+   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
+   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
+   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"
+diff --git a/release/research_dependencies_r967.json b/release/research_dependencies_r967.json
+index 4ee3d8c5..5b578fed 100644
+--- a/release/research_dependencies_r967.json
++++ b/release/research_dependencies_r967.json
+@@ -4405,7 +4405,7 @@
+     },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java",
+-      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
++      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。 Owner revision: preserve both original hot .bin and cold lookup paths and the original FileNotFoundException cause. The unchanged strict RAW/GC test failed on the original package; no missing bytes are accepted, no qualifier or policy changes.",
+       "role": "NUMERIC"
+     },
+     {
+diff --git a/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java b/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java
+index 9df59544..56a39485 100644
+--- a/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java
++++ b/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java
+@@ -20,6 +20,12 @@ public class SQLiteDatabase {
+             p.execute();
+         } catch (java.sql.SQLException e) { throw new SQLiteException(e.getMessage()); }
+     }
++    public int delete(String table,String where,String[] args) {
++        try(PreparedStatement p=jdbc.prepareStatement("DELETE FROM "+table+(where==null?"":" WHERE "+where))) {
++            if(args!=null)for(int i=0;i<args.length;i++)p.setString(i+1,args[i]);
++            return p.executeUpdate();
++        }catch(java.sql.SQLException e){throw new SQLiteException(e.getMessage());}
++    }
+     public Cursor rawQuery(String sql, String[] args) {
+         // SQLiteProgram.bindAllArgsAsStrings calls bindString even for an IS ?
+         // predicate. Android rejects null instead of binding JDBC SQL NULL.
+diff --git a/tools/r31/run_lifecycle_schema_host.py b/tools/r31/run_lifecycle_schema_host.py
+index f52a1ead..29e3be26 100644
+--- a/tools/r31/run_lifecycle_schema_host.py
++++ b/tools/r31/run_lifecycle_schema_host.py
+@@ -31,7 +31,7 @@ def main():
+    'GapReferenceR31':'public static final String[] DDL={};public static String[] guardDefinitionsR31(android.database.sqlite.SQLiteDatabase db){return new String[0];}public static boolean advanceCutoverWithinMigrationR31(android.database.sqlite.SQLiteDatabase db){return false;}',
+    'KeepArchiveRetirementR31':'public static final String[] DDL={};public static String[] guardDefinitionsR31(android.database.sqlite.SQLiteDatabase db){return new String[0];}public static boolean advanceWithinMigrationR31(android.database.sqlite.SQLiteDatabase db){return false;}',
+    'CheckpointGcStoreR31':'public static final String[] DDL={};public static String[] referenceGuards(android.database.sqlite.SQLiteDatabase db){return new String[0];}',
+-   'HypothesisStoreR31':'public static String[] ddlR31(){return new String[0];}public static void requireSchemaR31(android.database.sqlite.SQLiteDatabase db){}public static void seedQuotaWithinMigrationR31(android.database.sqlite.SQLiteDatabase db){}'}
++   'HypothesisStoreR31':'public static String[] ddlR31(){return new String[0];}public static void requireSchemaR31(android.database.sqlite.SQLiteDatabase db){}public static void seedQuotaWithinMigrationR31(android.database.sqlite.SQLiteDatabase db){}public static boolean recoverQuotaSliceR32(android.database.sqlite.SQLiteDatabase db){throw new AssertionError("DECLARATION_ONLY_FIXTURE_MUST_NOT_RECOVER_QUOTA");}'}
+   adapters=[]
+   for name,body in fixtures.items():
+    path=work/(name+'.java');path.write_text('package com.ethk3.novaonepro.strategyv2;public final class '+name+'{'+body+'}');adapters.append(path)
+diff --git a/tools/r31/run_restore_proof_host.py b/tools/r31/run_restore_proof_host.py
+index 0dd1896f..2b2a024a 100644
+--- a/tools/r31/run_restore_proof_host.py
++++ b/tools/r31/run_restore_proof_host.py
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env python3
+ """B05-C10 actual native copy/process/consumer controls. Android/Binder stay NOT_RUN."""
+-import argparse,hashlib,json,os,pathlib,subprocess,sys,tempfile
++import argparse,hashlib,importlib.util,json,os,pathlib,subprocess,sys,tempfile
+ root=pathlib.Path(__file__).resolve().parents[2]
+ def sha(p):return hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()
+ def classpath_identity(path):
+@@ -16,11 +16,11 @@ def main():
+  p=argparse.ArgumentParser();p.add_argument('--output',type=pathlib.Path);p.add_argument('--native-dir',type=pathlib.Path);a=p.parse_args();out=(a.output or pathlib.Path(tempfile.mkdtemp(prefix='r31-restore-proof-host-'))).resolve();out.mkdir(parents=True,exist_ok=True)
+  sdk=pathlib.Path(os.environ['ANDROID_HOME'])/'platforms/android-36/android.jar';classes=pathlib.Path(os.environ.get('R31_HOST_CLASSES',root/'app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes'));jdbc=pathlib.Path(os.environ.get('SQLITE_JDBC','/tmp/r31-baseline-deps/sqlite-jdbc.jar'));gradle=pathlib.Path(os.environ['GRADLE_USER_HOME'])
+  junit=next(gradle.rglob('junit-4.13.2.jar'));hamcrest=next(gradle.rglob('hamcrest-core-1.3.jar'));source=root/'app/src/main/java/com/ethk3/novaonepro'
+- names=['DatabaseCoordinator','StorageMaintenanceFileR82','StorageMaintenanceServiceR82','StorageRestoreProofR31','StorageRestoreProbeServiceR31','StorageRestoreBusinessProbeR31','StorageCheckpointR31','ModelBundleManagerR929','ModelBundleRuntimeR932','SettlementTaskStoreR36']
++ names=['DatabaseCoordinator','StorageMaintenanceFileR82','StorageMaintenanceServiceR82','StorageRestoreProofR31','StorageRestoreAssetsR324','StorageRestoreProbeServiceR31','StorageRestoreBusinessProbeR31','StorageCheckpointR31','ModelBundleManagerR929','ModelBundleRuntimeR932','SettlementTaskStoreR36']
+  names += ['strategyv2/'+s for s in ['ResearchContextR30R1','ResearchResultContractR31','ResearchConsumptionStoreR31','ResearchStoreR30R1','EvolutionLoopR27','CheckpointArtifactsR26','ChunkedCheckpointR26','AtomNetSessionR30','AtomNetR27','ModelArtifactR29','LiveStateR26','LegacyReplayStateR26','ExpertExperimentR26','ReplayWorkspaceR26','CampaignStateSU1','ArchiveStoreSU1','KeepMigrationStoreR31','KeepMigrationR31']]
+  production=[source/(n+'.java') for n in names];test=[root/'tools/r31/storage_host/R31RestoreProofHost.java',root/'app/src/test/java/com/ethk3/novaonepro/R31StorageCheckpointRebuildTest.java']
+  original_platform=[*sorted((root/'tools/r29/qual_host/shim').rglob('*.java')),root/'tools/r31/storage_host/platform/android/os/SystemClock.java',root/'tools/r31/storage_host/platform/android/os/StatFs.java']
+- inputs=production+test+original_platform+[root/'app/src/androidTest/java/com/ethk3/novaonepro/R31RestoreProofInstrumentedTest.java',pathlib.Path(__file__).resolve(),root/'app/src/main/cpp/storage_maintenance_r82.inc'];before={str(f.relative_to(root)):sha(f) for f in inputs};(out/'source-before.json').write_text(json.dumps(before,indent=2)+'\n')
++ inputs=production+test+original_platform+[root/'app/src/androidTest/java/com/ethk3/novaonepro/R31RestoreProofInstrumentedTest.java',pathlib.Path(__file__).resolve(),root/'tools/r31/run_atomnet_publication_host.py',root/'tools/r31/run_task_runtime_host.py',root/'app/src/main/cpp/storage_maintenance_r82.inc'];before={str(f.relative_to(root)):sha(f) for f in inputs};(out/'source-before.json').write_text(json.dumps(before,indent=2)+'\n')
+  support_before=classpath_identity(classes);libraries_before=file_identities([sdk,jdbc,junit,hamcrest]);(out/'compiled-support-before.json').write_text(json.dumps({'compiledSupport':support_before,'runtimeLibraries':libraries_before},indent=2)+'\n')
+  def run(cmd,log,cwd=root):
+   with (out/log).open('w') as f:subprocess.run(list(map(str,cmd)),cwd=cwd,stdout=f,stderr=subprocess.STDOUT,check=True)
+@@ -35,12 +35,14 @@ def main():
+  native_receipt=json.loads((native/'receipt.json').read_text());native_receipt_sha=sha(native/'receipt.json');assert all(sha(root/f['path'])==f['sha256'] for f in native_receipt['source_files']);assert sha(native/'libstarcore_report_cp4.so')==native_receipt['library_sha256']
+  shim=out/'shim';compiled=out/'production';drivers=out/'drivers';generated=out/'platform-source'
+  for d in [shim,compiled,drivers,generated]:d.mkdir(exist_ok=True)
++ spec=importlib.util.spec_from_file_location('restore_native_platform',root/'tools/r31/run_atomnet_publication_host.py');adapter=importlib.util.module_from_spec(spec);spec.loader.exec_module(adapter);native_platform=adapter.platform_sources()
+  platform=[]
+  for f in (root/'tools/r29/qual_host/shim').rglob('*.java'):
+   target=generated/f.relative_to(root/'tools/r29/qual_host/shim');target.parent.mkdir(parents=True,exist_ok=True);s=f.read_text()
+-  if f.name=='SQLiteDatabase.java':s=s.replace('public final Connection jdbc;','public final Connection jdbc;\n    public String getPath(){try(java.sql.Statement s=jdbc.createStatement();java.sql.ResultSet r=s.executeQuery("PRAGMA database_list")){while(r.next())if("main".equals(r.getString(2)))return r.getString(3);throw new IllegalStateException("HOST_DB_PATH");}catch(java.sql.SQLException e){throw new SQLiteException(e.getMessage());}}')
++  if f.name=='SQLiteDatabase.java':s=native_platform['android/database/sqlite/SQLiteDatabase.java']
+   target.write_text(s);platform.append(target)
+  adapters={'android/util/Log.java':'package android.util;public final class Log{public static int w(String t,String v){return 0;}public static int w(String t,String v,Throwable e){return 0;}public static int e(String t,String v){return 0;}}','android/os/Build.java':'package android.os;public final class Build{public static final class VERSION{public static final int SDK_INT=35;}}'}
++ adapters.update({name:body for name,body in native_platform.items() if name.startswith('android/system/')})
+  for name,text in adapters.items():f=generated/name;f.parent.mkdir(parents=True,exist_ok=True);f.write_text(text);platform.append(f)
+  platform.append(root/'tools/r31/storage_host/platform/android/os/SystemClock.java')
+  platform.append(root/'tools/r31/storage_host/platform/android/os/StatFs.java')
+diff --git a/tools/r31/storage_host/R31RestoreProofHost.java b/tools/r31/storage_host/R31RestoreProofHost.java
+index 5728f98d..304e633d 100644
+--- a/tools/r31/storage_host/R31RestoreProofHost.java
++++ b/tools/r31/storage_host/R31RestoreProofHost.java
+@@ -30,12 +30,13 @@ public final class R31RestoreProofHost {
+     static void keepControls(File base)throws Exception {
+         File original=new File(base,"source"),copy=new File(base,"copy");original.mkdirs();copy.mkdirs();
+         try(Connection connection=DriverManager.getConnection("jdbc:sqlite:"+new File(base,"keep.db"))){SQLiteDatabase db=new SQLiteDatabase(connection);need(StorageRestoreBusinessProbeR31.verifyKeepReferences(db,new File(copy,"files"))==0,"KEEP_ABSENT_REGISTRY_OLD_SCHEMA_COMPATIBLE");keepFixture(db,new File(original,"files"),67);
+-            Method copier=StorageRestoreProofR31.class.getDeclaredMethod("copyTree",File.class,File.class,String.class,Properties.class,long[].class,int.class);copier.setAccessible(true);Properties manifest=new Properties();long[] used={0,0};copier.invoke(null,original,copy,"files/r31-keep",manifest,used,0);need(used[1]==67&&manifest.size()==67,"REAL_KEEP_TREE_COPIED_WITH_BYTE_HASH_MANIFEST");need(StorageRestoreBusinessProbeR31.verifyKeepReferences(db,new File(copy,"files"))==67,"KEEP_ALL_67_ORIGINALS_ALL_FOUR_STATES_READ_BEYOND_FIRST_64_PAGE");
++            StorageRestoreAssetsR324.Totals used=StorageRestoreAssetsR324.copy(original,copy,new String[]{"files/r31-keep"});need(used.files==67&&StorageRestoreAssetsR324.verify(copy,new File(copy,StorageRestoreAssetsR324.MEMBER)).files==67,"REAL_KEEP_TREE_COPIED_WITH_BYTE_HASH_STREAM_MANIFEST");need(StorageRestoreBusinessProbeR31.verifyKeepReferences(db,new File(copy,"files"))==67,"KEEP_ALL_67_ORIGINALS_ALL_FOUR_STATES_READ_BEYOND_FIRST_64_PAGE");
+             String hash;try(Cursor c=db.rawQuery("SELECT row_hash FROM r31_keep_original ORDER BY row_hash LIMIT 1",null)){need(c.moveToFirst(),"KEEP_REAL_REGISTERED_ORIGINAL");hash=c.getString(0);}File file=new File(copy,"files/r31-keep/"+hash+".row");byte[] bytes=Files.readAllBytes(file.toPath());need(file.delete(),"KEEP_CONTROL_MISSING_FILE");refuse(()->StorageRestoreBusinessProbeR31.verifyKeepReferences(db,new File(copy,"files")),"ARTIFACT_MISSING_OR_BYTES");Files.write(file.toPath(),bytes);
+             byte[] damaged=bytes.clone();damaged[damaged.length-1]^=1;Files.write(file.toPath(),damaged);refuse(()->StorageRestoreBusinessProbeR31.verifyKeepReferences(db,new File(copy,"files")),"RESTORE_KEEP_ARTIFACT_HASH");Files.write(file.toPath(),bytes);
+             db.execSQL("DROP INDEX idx_r31_keep_original_hash");refuse(()->StorageRestoreBusinessProbeR31.verifyKeepReferences(db,new File(copy,"files")),"KEEP_SCHEMA_UNKNOWN");db.execSQL(KeepMigrationStoreR31.DDL[3]);
+             db.execSQL("UPDATE r31_keep_original SET row_hash='' WHERE row_hash=?",new Object[]{hash});refuse(()->StorageRestoreBusinessProbeR31.verifyKeepReferences(db,new File(copy,"files")),"KEEP_REGISTRY_IDENTITY");db.execSQL("UPDATE r31_keep_original SET row_hash=? WHERE row_hash=''",new Object[]{hash});need(StorageRestoreBusinessProbeR31.verifyKeepReferences(db,new File(copy,"files"))==67,"KEEP_VALID_ORIGINALS_RECOVER_AFTER_CONTROLS");
+-            for(long[] budget:new long[][]{{1L<<30,0},{0,16384}})try{copier.invoke(null,original,new File(base,"budget"+budget[1]),"files/r31-keep",new Properties(),budget,0);throw new AssertionError("KEEP_COPY_BUDGET_WEAKENED");}catch(InvocationTargetException rejected){need(rejected.getCause() instanceof IOException&&rejected.getCause().getMessage().equals("WAIT_RESTORE_ASSET_BOUND"),"ORIGINAL_ONE_GIB_AND_16384_FILE_BUDGETS_RETAINED");}
++            File unsafe=new File(base,"unsafe");unsafe.mkdirs();refuse(()->StorageRestoreAssetsR324.copy(original,unsafe,new String[]{"../escape"}),"RESTORE_ASSET_PATH");
++            File cancelled=new File(base,"cancelled");cancelled.mkdirs();Thread.currentThread().interrupt();try{refuse(()->StorageRestoreAssetsR324.copy(original,cancelled,new String[]{"files/r31-keep"}),"RESTORE_ASSET_CANCELLED");}finally{Thread.interrupted();}
+         }
+         try(Connection partial=DriverManager.getConnection("jdbc:sqlite:"+new File(base,"partial.db"))){SQLiteDatabase db=new SQLiteDatabase(partial);db.execSQL(KeepMigrationStoreR31.DDL[0]);refuse(()->StorageRestoreBusinessProbeR31.verifyKeepReferences(db,new File(copy,"files")),"KEEP_SCHEMA_PARTIAL");}
+         System.out.println("R31_RESTORE_KEEP_NATIVE_PASS assertions="+checks+" originalFiles=67 states=4 pageSize=64 copy=ACTUAL_PRODUCTION_COPY_TREE consumer=ACTUAL_SNAPSHOT_PAGE_AND_COMPLETE_CODEC scope=CONTROLLED_NATIVE_SQLITE_NOT_ANDROID");
+@@ -44,7 +45,7 @@ public final class R31RestoreProofHost {
+         Properties request=StorageMaintenanceFileR82.read(new File(root,"request.properties"));File clone=new File(root,"databases/"+AppConfig.DB_NAME);need(request.getProperty("clone_sha256").equals(StorageMaintenanceFileR82.sha256(clone)),"CHILD_EXACT_INITIAL_CLONE_BYTES");
+         try(Connection connection=DriverManager.getConnection("jdbc:sqlite:"+clone)){
+             SQLiteDatabase db=new SQLiteDatabase(connection);Properties proof=StorageRestoreBusinessProbeR31.inventory(db,request.getProperty("native_full_compare"),request.getProperty("asset_manifest_sha256"));
+-            int models=StorageRestoreBusinessProbeR31.verifyModels(db,new File(root,"files")),refs=StorageRestoreBusinessProbeR31.verifyReferences(db,new File(root,"files"));need(models==5,"REAL_POLICY_AND_LEARNER_DECODED");need(refs==69,"REAL_R26_AND_67_KEEP_CAS_REFERENCE_READ");need(scalar(db,"SELECT rowid FROM locator_fixture WHERE key='fixture'")==7919,"ORIGINAL_INTRINSIC_ROWID_RESTORED");need(scalar(db,"SELECT length(payload) FROM locator_fixture WHERE key='fixture'")==16384,"ORIGINAL_BLOB_RESTORED");
++            long models=StorageRestoreBusinessProbeR31.verifyModels(db,new File(root,"files")),refs=StorageRestoreBusinessProbeR31.verifyReferences(db,new File(root,"files"));need(models==5,"REAL_POLICY_AND_LEARNER_DECODED");need(refs==69,"REAL_R26_AND_67_KEEP_CAS_REFERENCE_READ");need(scalar(db,"SELECT rowid FROM locator_fixture WHERE key='fixture'")==7919,"ORIGINAL_INTRINSIC_ROWID_RESTORED");need(scalar(db,"SELECT length(payload) FROM locator_fixture WHERE key='fixture'")==16384,"ORIGINAL_BLOB_RESTORED");
+             proof.setProperty("restore_model_load","PASS:ACTUAL_NATIVE_HOST_MODEL_DECODERS:5");proof.setProperty("restore_reference_closure","PASS:ACTUAL_NATIVE_HOST_REFERENCE_READERS:69");proof.setProperty("restore_blob_and_locators","PASS:ACTUAL_NATIVE_FULL_TYPED_COMPARE");proof.setProperty("restore_pending_settlement_evidence","NOT_RUN_ANDROID_STARTUP");proof.setProperty("restore_startup_recovery","NOT_RUN_ANDROID_STARTUP");proof.setProperty("restore_method","HOST_SEPARATE_JVM_CONTROL_NOT_ANDROID");proof.setProperty("restore_nonce",request.getProperty("nonce"));proof.setProperty("restore_parent_pid",request.getProperty("parent_pid"));proof.setProperty("restore_probe_pid",Long.toString(ProcessHandle.current().pid()));proof.setProperty("restore_source_commit",request.getProperty("source"));proof.setProperty("restore_request_sha256",StorageMaintenanceFileR82.sha256(new File(root,"request.properties")));proof.setProperty("restore_active_sha256",request.getProperty("active_sha256"));proof.setProperty("restore_clone_sha256",request.getProperty("clone_sha256"));StorageMaintenanceFileR82.write(new File(root,"result.properties"),proof);
+         }
+         System.out.println("R31_RESTORE_CHILD_NATIVE_CONSUMERS_PASS pid="+ProcessHandle.current().pid()+" models=5 refs=69 AndroidStartup=NOT_RUN Binder=NOT_RUN");
+diff --git a/tools/r31/unified_host/CheckpointGcStoreR31Host.java b/tools/r31/unified_host/CheckpointGcStoreR31Host.java
+index 9ef8503e..825ee126 100644
+--- a/tools/r31/unified_host/CheckpointGcStoreR31Host.java
++++ b/tools/r31/unified_host/CheckpointGcStoreR31Host.java
+@@ -93,11 +93,12 @@ public final class CheckpointGcStoreR31Host {
+             // Real manifest+chunk production codec, not a metadata-only helper.
+             byte[] raw=new byte[70000];new Random(123).nextBytes(raw);byte[] manifest;
+             try(CheckpointArtifactsR26.Prepared chunked=f.cas.prepareState(out->out.write(raw))){manifest=chunked.reference();f.root(CheckpointArtifactsR26.referenceHash(manifest));}
+-            ok(f.prune()>=bytes.length,"unrooted prior incarnation retired while manifest lives");
++            long retired=0;for(int slice=0;slice<4&&f.metadata().state(hash)!=StorageGcR31.State.DELETED;slice++)retired+=f.prune();
++            ok(retired>=bytes.length&&f.metadata().state(hash)==StorageGcR31.State.DELETED,"unrooted prior incarnation retired by bounded cursor wrap while manifest lives");
+             ok(f.scalar("SELECT released_bytes FROM r31_gc_receipt WHERE artifact_hash='"+hash+"'")==2L*bytes.length,"new verified incarnation contributes its actual released bytes once");
+             ok(Arrays.equals(raw,f.cas.openState(manifest).readAllBytes()),"rooted manifest retains real readable chunk closure");
+             String missing=h("missing never verified");f.root(missing);Path prior=f.files.resolve("count");long count=Files.list(f.files).count();
+-            try{f.prune();throw new AssertionError("unknown root allowed deletion");}catch(IllegalStateException expected){ok(expected.getMessage().contains("ROOT_NOT_LIVE_OR_UNREGISTERED"),"unknown root preserves all artifacts");}catch(FileNotFoundException expected){ok(true,"unknown root without an actual file preserves all artifacts");}
++            try{f.prune();throw new AssertionError("unknown root allowed deletion");}catch(IllegalStateException expected){ok(expected.getMessage().contains("ROOT_NOT_LIVE_OR_UNREGISTERED")||expected.getMessage().equals("R324_GC_ROOT_METADATA_INCOMPLETE:"+missing),"unknown root preserves all artifacts: "+expected.getMessage());}catch(FileNotFoundException expected){ok(true,"unknown root without an actual file preserves all artifacts");}
+             ok(Files.list(f.files).count()==count,"unknown root did not unlink any file");
+         }
+     }
+@@ -152,17 +153,19 @@ public final class CheckpointGcStoreR31Host {
+             ok(f.prune()==0&&Files.exists(f.file(h("pending warm state")))&&Files.exists(f.file(h("pending warm initializer"))),"reopened GC preserves both warm artifacts "+boundary);
+         }
+     }
+-    static void missingRootPreservesAll(Path base)throws Exception {
+-        try(Fixture f=new Fixture(base.resolve("missing-root"))){String root=h("missing original"),orphan=h("still existing orphan");
+-            try(CheckpointArtifactsR26.Prepared p=f.cas.prepareLease("missing original".getBytes(java.nio.charset.StandardCharsets.UTF_8));CheckpointArtifactsR26.Prepared q=f.cas.prepareLease("still existing orphan".getBytes(java.nio.charset.StandardCharsets.UTF_8))){f.root(root);}
+-            Files.delete(f.file(root));try{f.prune();throw new AssertionError("missing rooted file permitted GC");}catch(IOException expected){ok(true,"actual missing root blocks before any claim");}
+-            ok(Files.exists(f.file(orphan))&&f.metadata().state(orphan)==StorageGcR31.State.LIVE,"missing root does not claim or unlink other originals");
++    static void missingKnownRootPreservesReferences(Path base)throws Exception {
++        try(Fixture f=new Fixture(base.resolve("missing-root"))){String root,orphan=h("still existing orphan");Set<String> children;byte[] raw=new byte[70000];new Random(324).nextBytes(raw);
++            try(CheckpointArtifactsR26.Prepared p=f.cas.prepareState(out->out.write(raw));CheckpointArtifactsR26.Prepared q=f.cas.prepareLease("still existing orphan".getBytes(java.nio.charset.StandardCharsets.UTF_8))){root=CheckpointArtifactsR26.referenceHash(p.reference());children=ChunkedCheckpointR26.children(f.cas.resolve(p.reference()));f.root(root);}
++            Files.delete(f.file(root));long released=0;for(int slice=0;slice<4&&f.metadata().state(orphan)!=StorageGcR31.State.DELETED;slice++)released+=f.prune();
++            ok(f.metadata().state(root)==StorageGcR31.State.LIVE&&!Files.exists(f.file(root)),"known missing root evidence remains registered and is not fabricated");
++            for(String child:children)ok(Files.exists(f.file(child))&&f.metadata().state(child)==StorageGcR31.State.LIVE,"immutable known root edges protect every surviving child");
++            ok(f.metadata().state(orphan)==StorageGcR31.State.DELETED&&released=="still existing orphan".getBytes(java.nio.charset.StandardCharsets.UTF_8).length,"only the unrelated verified orphan is reclaimed under bounded cursor slices");
+         }
+     }
+     public static void main(String[] args)throws Exception {
+         if(args.length>0&&args[0].equals("child")){killChild(Path.of(args[1]),args[2]);return;}
+         if(args.length>0&&args[0].equals("publication-child")){publicationChild(Path.of(args[1]),args[2]);return;}
+-        Path base=Path.of(args[0]);Files.createDirectories(base);metadataContracts(base);actualFiles(base);killRecovery(base,"after-claim");killRecovery(base,"after-unlink");publicationContracts(base);publicationRecovery(base,"before-publication-commit");publicationRecovery(base,"after-publication-commit");missingRootPreservesAll(base);
++        Path base=Path.of(args[0]);Files.createDirectories(base);metadataContracts(base);actualFiles(base);killRecovery(base,"after-claim");killRecovery(base,"after-unlink");publicationContracts(base);publicationRecovery(base,"before-publication-commit");publicationRecovery(base,"after-publication-commit");missingKnownRootPreservesReferences(base);
+         System.out.println("GC_NATIVE_PRODUCTION_PROTOCOL_PASS assertions="+checks+" writerTransactions="+transactions+" realProcessKillBoundaries=4 actualFilesAndNativeSqlite=true AndroidService=NOT_RUN fullModelPublicationProjection=NOT_INFERRED_FROM_PROTOCOL_FIXTURE naturalQuality=NOT_PROVEN");
+     }
+ }
+diff --git a/tools/r31/unified_host/GapRuntimeEntryR31Host.java b/tools/r31/unified_host/GapRuntimeEntryR31Host.java
+index 6e37a52b..5a886c68 100644
+--- a/tools/r31/unified_host/GapRuntimeEntryR31Host.java
++++ b/tools/r31/unified_host/GapRuntimeEntryR31Host.java
+@@ -36,6 +36,7 @@ public final class GapRuntimeEntryR31Host {
+         try(Db db=new Db(DriverManager.getConnection("jdbc:sqlite:"+path))){
+             // All source shapes below come from the actual production declarations.
+             SchemaDomainCoordinatorR926.ensureInfrastructure(db);
++            db.execSQL("CREATE TABLE app_state(state_key TEXT PRIMARY KEY,state_value TEXT,updated_at INTEGER NOT NULL DEFAULT 0)");
+             for(String ddl:RuntimeSchemaR26.DDL)if(ddl.startsWith("CREATE TABLE IF NOT EXISTS r26_gap_receipt(")||ddl.startsWith("CREATE TABLE IF NOT EXISTS r26_task(")||ddl.startsWith("CREATE TABLE IF NOT EXISTS r26_session("))db.execSQL(ddl);
+             for(String ddl:SchemaR27.DDL)if(ddl.startsWith("CREATE TABLE IF NOT EXISTS r31_task_lease(")||ddl.startsWith("CREATE TABLE IF NOT EXISTS r27_chart_cache("))db.execSQL(ddl);
+             for(String ddl:SchemaR27.R31_WRITE_DDL)db.execSQL(ddl);
+diff --git a/tools/r31/unified_host/LifecycleStoresR31Host.java b/tools/r31/unified_host/LifecycleStoresR31Host.java
+index e73b001e..f60b5172 100644
+--- a/tools/r31/unified_host/LifecycleStoresR31Host.java
++++ b/tools/r31/unified_host/LifecycleStoresR31Host.java
+@@ -44,6 +44,7 @@ public final class LifecycleStoresR31Host {
+         Class.forName("org.sqlite.JDBC");File path=new File(args[0]);
+         try(Db db=new Db(DriverManager.getConnection("jdbc:sqlite:"+path))){
+             SchemaDomainCoordinatorR926.ensureInfrastructure(db);
++            db.execSQL("CREATE TABLE app_state(state_key TEXT PRIMARY KEY,state_value TEXT,updated_at INTEGER NOT NULL DEFAULT 0)");
+             db.execSQL(ModelArtifactR29.DDL);
+             for(String ddl:StrategySchemaSU2.DDL)if(ddl.startsWith("CREATE TABLE IF NOT EXISTS su2_evolution_state("))db.execSQL(ddl);
+             for(String ddl:SchemaR27.DDL)if(ddl.startsWith("CREATE TABLE IF NOT EXISTS r27_chart_cache("))db.execSQL(ddl);
+@@ -93,7 +94,8 @@ public final class LifecycleStoresR31Host {
+             int generic=KeepArchiveRetirementR31.guardDefinitionsR31(db).length,gc=CheckpointGcStoreR31.referenceGuards(db).length;
+             int gap=GapReferenceR31.guardDefinitionsR31(db).length;
+             int objects=StartupCheckpointIdentityR31.ddlR31().length+GapReferenceR31.DDL.length+gap+KeepMigrationStoreR31.DDL.length+KeepMismatchReferenceR31.DDL.length+KeepArchiveRetirementR31.DDL.length+MainlineFreezeProofR31.DDL.length+CheckpointGcStoreR31.DDL.length+HypothesisStoreR31.ddlR31().length+gc+KeepMismatchReferenceR31.cutoverDefinitionsR31(db).length+generic;
+-            need(generic==57&&gc==86&&gap==3&&GapReferenceR31.DDL.length==5&&objects<=256,"actual full declared inventory stays under original 256 bound: "+objects);
++            need(generic==57&&gc==88&&gap==3&&GapReferenceR31.DDL.length==5&&objects<=256,"actual full declared inventory stays under original 256 bound: "+objects+" generic="+generic+" gc="+gc+" gap="+gap+" gapDdl="+GapReferenceR31.DDL.length);
++            need(scalar(db,"SELECT count(*) FROM sqlite_master WHERE type='trigger' AND name IN ('r31_gc_ref_r324_atomnet_sample_archive_archive_ref_insert','r31_gc_ref_r324_atomnet_sample_archive_archive_ref_update')")==2,"both new sample archive reference guards are installed");
+             need(SchemaDomainCoordinatorR926.matches(db,SchemaDomainCoordinatorR926.r31MainlineChoiceContract()),"exact lifecycle lookup index delta preserves authenticated P05 domain");
+             db.execSQL("DROP INDEX idx_r31_mainline_choice_fence");need(!LifecycleSchemaR31.ready(db),"missing owned lookup index invalidates lifecycle READY");finish(db);need(SchemaDomainCoordinatorR926.matches(db,SchemaDomainCoordinatorR926.r31MainlineChoiceContract()),"missing exact lookup index is recovered with authenticated prior presence state");
+             db.execSQL("CREATE INDEX foreign_mainline_lookup ON r31_mainline_choice(status)");db.execSQL("DROP INDEX idx_r31_mainline_choice_fence");boolean unknownLookup=false;try{unit(db);}catch(DatabaseCoordinator.SchemaPendingR31 expected){unknownLookup=true;}need(unknownLookup,"known missing index cannot launder an unknown mainline attachment");need(scalar(db,"SELECT count(*) FROM sqlite_master WHERE name='idx_r31_mainline_choice_fence'")==0,"unknown attachment refusal rolls back known-index install");db.execSQL("DROP INDEX foreign_mainline_lookup");finish(db);need(SchemaDomainCoordinatorR926.matches(db,SchemaDomainCoordinatorR926.r31MainlineChoiceContract()),"exact owner remains recoverable after unknown attachment removed");
+diff --git a/tools/r324/retention/ColdCheckpointR324HostTest.java b/tools/r324/retention/ColdCheckpointR324HostTest.java
+index dd2ef20e..04fb42ce 100644
+--- a/tools/r324/retention/ColdCheckpointR324HostTest.java
++++ b/tools/r324/retention/ColdCheckpointR324HostTest.java
+@@ -42,6 +42,10 @@ public final class ColdCheckpointR324HostTest {
+         File truncated=root(parent,"truncated");hot(truncated,hash,bytes);ColdCheckpointR324.archive(truncated,hash,SYNC);try(RandomAccessFile a=new RandomAccessFile(ColdCheckpointR324.coldFile(truncated,hash),"rw")){a.setLength(10);}fails(()->ColdCheckpointR324.rawSize(truncated,hash),"truncated_header_rejected");
+         File mismatch=root(parent,"mismatch");hot(mismatch,hash,random);fails(()->ColdCheckpointR324.archive(mismatch,hash,SYNC),"wrong_original_hash_not_archived");check(ColdCheckpointR324.hotFile(mismatch,hash).exists(),"wrong_original_not_deleted");
+         File missing=root(parent,"missing");fails(()->ColdCheckpointR324.read(missing,hash),"missing_original_not_fabricated");check(!ColdCheckpointR324.directory(missing).exists(),"read_does_not_create_missing_archive");
++        try{ColdCheckpointR324.rawSize(missing,hash);throw new AssertionError("missing size accepted");}
++        catch(FileNotFoundException failure){check(failure.getMessage().contains(ColdCheckpointR324.hotFile(missing,hash).getPath())&&failure.getMessage().contains(ColdCheckpointR324.coldFile(missing,hash).getPath()),"missing_size_preserves_hot_and_cold_original_paths");check(failure.getCause() instanceof FileNotFoundException,"missing_size_preserves_original_cause");check(failure.getMessage().startsWith("R26_ARTIFACT_UNAVAILABLE|"),"missing_original_retains_legacy_artifact_error_identity");}
++        try(InputStream ignored=ColdCheckpointR324.open(missing,hash)){throw new AssertionError("missing stream accepted");}
++        catch(FileNotFoundException failure){check(failure.getMessage().contains(ColdCheckpointR324.hotFile(missing,hash).getPath())&&failure.getMessage().contains(ColdCheckpointR324.coldFile(missing,hash).getPath()),"missing_stream_preserves_hot_and_cold_original_paths");check(failure.getCause() instanceof FileNotFoundException,"missing_stream_preserves_original_cause");}
+         File symlink=root(parent,"symlink");Path target=parent.resolve("external.bin");Files.write(target,bytes);Files.createSymbolicLink(new File(symlink,hash+".bin").toPath(),target);fails(()->ColdCheckpointR324.read(symlink,hash),"symlink_read_refused");fails(()->ColdCheckpointR324.archive(symlink,hash,SYNC),"symlink_archive_refused");check(Files.exists(target),"external_file_preserved");
+         fails(()->ColdCheckpointR324.open(first,"../bad"),"invalid_identity_refused");
+         long physical=ColdCheckpointR324.physicalBytes(first,hash);check(physical==result.coldBytes,"physical_census_uses_compressed_size");
+diff --git a/verification/r31/p01/atomnet-publication/AtomPublicationConsumerHost.java b/verification/r31/p01/atomnet-publication/AtomPublicationConsumerHost.java
+index 4120cb10..87b183bc 100644
+--- a/verification/r31/p01/atomnet-publication/AtomPublicationConsumerHost.java
++++ b/verification/r31/p01/atomnet-publication/AtomPublicationConsumerHost.java
+@@ -20,15 +20,16 @@ public final class AtomPublicationConsumerHost {
+   ReplayDatasetR27 online=AtomPublicationNativeHost.prefixData(161);int row=160;AtomReplayR27.Frame frame=AtomReplayR27.build(online,row,row+1);double[] x=AtomNetR27.positionedInput(AtomReplayR27.features(frame.values[0],frame.present[0],true),1);parent=AtomNetPublicationR31.currentStateHash(AtomPublicationNativeHost.db);
+   try(MemoryBudgetR31.Lease work=AtomNetPublicationR31.workReservationR31(restored)){restored.online(new AtomNetTrainerR27.Sample(x,frame.hit[0],frame.actual[0]-1,AtomNetSessionR30.eventKey(online.issues[row],1)),online.issues[row],online.ordinals[row],1);publish(restored,parent,"ATOMNET_PARTIAL_POSITION_PUBLICATION");}
+   state=AtomNetStoreR30.restore(AtomPublicationNativeHost.db);need(state.nextPosition==2&&state.partialIssue.equals(online.issues[row]),"partial issue and next position survive real restore");ModelSurfaceProviderR30.FrozenModelRef current=AtomNetStoreR30.publicationModelR31(AtomPublicationNativeHost.db,state);
+-  ModelSurfaceProviderR30.FrozenModelRef previous=ModelReplayStudyR30R1.previous(AtomPublicationNativeHost.db,current,state.trainedThroughOrdinal()+1,System.currentTimeMillis());need(previous!=null&&previous.modelHash.equals(old.modelHash)&&Arrays.equals(previous.weights(),old.weights()),"actual previous-model reader resolves original stored ref");
++  need(current!=null&&current.modelHash.equals(old.modelHash)&&Arrays.equals(current.weights(),old.weights()),"partial optimizer restores the earlier complete original model");
+   // R31-B06-C03: a partially trained shared ten-position model is never consumed; all ten positions must commit first.
+-  {RuntimeR27 partialRuntime=new RuntimeR27(AtomPublicationNativeHost.store,"HOST_PARTIAL_CONSUMER");partialRuntime.publishAtomStateR31(state,current);
++  {RuntimeR27 partialRuntime=new RuntimeR27(AtomPublicationNativeHost.store,"HOST_PARTIAL_CONSUMER");partialRuntime.restoreAtomStateR32(state,current);
+    long partialTarget=online.ordinals[online.size()-1]+1;ReplayDatasetR27 partialSlot=online.append(new ReplayDatasetR27.Row(TargetIssueResolver.fromSequenceOrdinalSU1(partialTarget),partialTarget,new int[]{1,2,3,4,5,6,7,8,9,10}));
+-   try(FeatureCacheR27 partialCache=new FeatureCacheR27(partialSlot)){ModelSurfaceStoreR30.Prepared blocked=ModelSurfaceStoreR30.prepareLive(partialRuntime,partialRuntime.pool().new Worker(AtomPublicationNativeHost.db,"HOST_PARTIAL_INPUT"),partialCache,System.currentTimeMillis()+60000);need(blocked.rows.isEmpty()&&blocked.blocked.size()==10,"partial issue is never consumed as a ten-position model");}
++   try(FeatureCacheR27 partialCache=new FeatureCacheR27(partialSlot)){ModelSurfaceStoreR30.Prepared complete=ModelSurfaceStoreR30.prepareLive(partialRuntime,partialRuntime.pool().new Worker(AtomPublicationNativeHost.db,"HOST_PARTIAL_INPUT"),partialCache,System.currentTimeMillis()+60000);need(complete.rows.size()==10&&complete.blocked.isEmpty(),"earlier complete model remains consumable while the optimizer has a partial issue");for(ModelSurfaceProviderR30.Surface surface:complete.rows.values())need(old.modelHash.equals(surface.modelHash),"partial optimizer weights are never consumed as a ten-position model");}
+    finally{partialRuntime.close();need(partialRuntime.pool().awaitResourcesTerminatedR31(2000),"partial consumer pool exits");need(partialRuntime.releaseTerminatedCachesR31(),"partial consumer cache close after pool termination");}}
+   for(int position=2;position<=10;position++){String before=AtomNetPublicationR31.currentStateHash(AtomPublicationNativeHost.db);double[] xp=AtomNetR27.positionedInput(AtomReplayR27.features(frame.values[position-1],frame.present[position-1],true),position);
+    try(MemoryBudgetR31.Lease work=AtomNetPublicationR31.workReservationR31(state)){state.online(new AtomNetTrainerR27.Sample(xp,frame.hit[position-1],frame.actual[position-1]-1,AtomNetSessionR30.eventKey(online.issues[row],position)),online.issues[row],online.ordinals[row],position);publish(state,before,"ATOMNET_POSITION_"+position+"_PUBLICATION");}}
+   state=AtomNetStoreR30.restore(AtomPublicationNativeHost.db);need(state.nextPosition==1&&state.partialIssue.isEmpty()&&state.completeIssue.equals(online.issues[row])&&state.consumableR31(),"tenth committed position completes the issue after real restore");current=AtomNetStoreR30.publicationModelR31(AtomPublicationNativeHost.db,state);
++  ModelSurfaceProviderR30.FrozenModelRef previous=ModelReplayStudyR30R1.previous(AtomPublicationNativeHost.db,current,state.trainedThroughOrdinal()+1,System.currentTimeMillis());need(previous!=null&&previous.modelHash.equals(old.modelHash)&&Arrays.equals(previous.weights(),old.weights()),"actual previous-model reader resolves original stored ref after the next complete publication");
+   long target=online.ordinals[online.size()-1]+1;String issue=TargetIssueResolver.fromSequenceOrdinalSU1(target);ReplayDatasetR27 slot=online.append(new ReplayDatasetR27.Row(issue,target,new int[]{1,2,3,4,5,6,7,8,9,10}));RuntimeR27 runtime=new RuntimeR27(AtomPublicationNativeHost.store,"HOST_MODEL_CONSUMER");runtime.publishAtomStateR31(state,current);
+   try(FeatureCacheR27 cache=new FeatureCacheR27(slot)){
+    ModelSurfaceStoreR30.Prepared live=ModelSurfaceStoreR30.prepareLive(runtime,runtime.pool().new Worker(AtomPublicationNativeHost.db,"HOST_MODEL_INPUT"),cache,System.currentTimeMillis()+60000);need(live.rows.size()==10,"actual live model consumer produces all ten surfaces");ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();int i=0;for(ModelSurfaceProviderR30.Surface s:live.rows.values())ModelSurfaceStoreR30.surface(b,s,i++==0?current:null);
+diff --git a/verification/r31/p01/atomnet-publication/AtomPublicationNativeHost.java b/verification/r31/p01/atomnet-publication/AtomPublicationNativeHost.java
+index c857ee0d..ab721b1f 100644
+--- a/verification/r31/p01/atomnet-publication/AtomPublicationNativeHost.java
++++ b/verification/r31/p01/atomnet-publication/AtomPublicationNativeHost.java
+@@ -18,7 +18,7 @@ public final class AtomPublicationNativeHost {
+  static ResearchWriteQueueR27.ImmutableBatch frozen(String op,ResearchWriteQueueR27.Batch b,String key,long sequence){ResearchWriteQueueR27.ImmutableBatch p=b.prepareR31(op,key,claim.task,claim.owner,claim.fence,"ATOM_HOST_INPUT",sequence,AtomNetPublicationR31.VERSION);need(!p.overInitialBudget,"actual prepared batch within initial SQL/bind budget:"+op);need(!p.containsDdl,"no DDL in business batch");Map<String,Object> row=new LinkedHashMap<>();row.put("operation",op);row.put("ops",p.opCount);row.put("bindBytes",p.bindBytes);batches.add(row);return p;}
+  static DatabaseCoordinator.CommitResultR31<Integer> submit(String op,ResearchWriteQueueR27.ImmutableBatch p){return coordinator.runIdempotentAtomicWriteR31(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RESEARCH_DATA,"R27_"+op),p.identityR31,tx->{ResearchWriteQueueR27.execute(tx,p,op);return 1;},0);}
+  static void stage(AtomNetPublicationR31.Prepared p){int i=0;for(ResearchWriteQueueR27.Batch b:p.stagingBatches()){submit("ATOMNET_R31_STAGE_"+i,frozen("ATOMNET_R31_STAGE_"+i,b,p.id+":stage:"+i,i));i++;}}
+- static ReplayDatasetR27 data()throws Exception{return prefixData(160);}static ReplayDatasetR27 prefixData(int count)throws Exception{ReplayDatasetR27 corpus=R27TestSupport.csv(200);List<ReplayDatasetR27.Row> rows=new ArrayList<>();for(int i=0;i<count;i++)rows.add(new ReplayDatasetR27.Row(corpus.issues[i],corpus.ordinals[i],corpus.draws[i]));return ReplayDatasetR27.of(rows);}static AtomNetSessionR30 initial(ReplayDatasetR27 d){return new AtomNetSessionR30(d.datasetHash,d.issues[159],d.ordinals[159],7+AtomReplayR27.eligible().length+10,800,400,160);}
++ static ReplayDatasetR27 data()throws Exception{return prefixData(160);}static ReplayDatasetR27 prefixData(int count)throws Exception{ReplayDatasetR27 corpus=R27TestSupport.csv(200);List<ReplayDatasetR27.Row> rows=new ArrayList<>();for(int i=0;i<count;i++)rows.add(new ReplayDatasetR27.Row(corpus.issues[i],TargetIssueResolver.sequenceOrdinalSU1(corpus.issues[i]),corpus.draws[i]));return ReplayDatasetR27.of(rows);}static AtomNetSessionR30 initial(ReplayDatasetR27 d){return new AtomNetSessionR30(d.datasetHash,d.issues[159],d.ordinals[159],7+AtomReplayR27.eligible().length+10,800,400,160);}
+  static AtomNetSessionR30 init(ReplayDatasetR27 d)throws Exception{AtomNetSessionR30 s=initial(d);ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();AtomNetStoreR30.dataset(b,d,System.currentTimeMillis());try(MemoryBudgetR31.Lease work=AtomNetPublicationR31.workReservationR31(s);AtomNetPublicationR31.Prepared p=AtomNetPublicationR31.prepare(store,db,b,s,System.currentTimeMillis(),"")){stage(p);p.verifyPrepared(db);submit("ATOMNET_R30_INIT",frozen("ATOMNET_R30_INIT",p.publicationBatch(b,s),p.id+":final",99));}return s;}
+  static AtomNetSessionR30 materialize(ReplayDatasetR27 d,ResearchWriteQueueR27.Batch b)throws Exception{AtomNetSessionR30 s=AtomNetStoreR30.restore(db);int from=s.cachePeriod,end=AtomReplayR27.MIN_ROWS+(s.trainCount+s.selectCount+s.holdoutCount)/10,added=0;for(int t=from;t<Math.min(end,from+12);t++){AtomReplayR27.Frame f=AtomReplayR27.build(d,t,t+1);for(int p=0;p<10;p++){double[] x=AtomNetR27.positionedInput(AtomReplayR27.features(f.values[p],f.present[p],true),p+1);AtomNetStoreR30.sample(b,s.datasetHash,(t-AtomReplayR27.MIN_ROWS)*10+p,d.issues[t],p+1,x,f.hit[p],f.actual[p]-1);added++;}s.cachePeriod++;}s.materializedSamples+=added;return s;}
+  static void full()throws Exception{

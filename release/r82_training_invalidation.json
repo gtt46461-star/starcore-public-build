@@ -1122,12 +1122,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "70350a540cdc5cd7c3bd8a98dc15f338253371fe53d8d5a47cb9cc4bb8bb197f",
+      "after_sha256": "299c53377b3a75819e73538ff6fcffa5315ff6574bade3f705b8bf4a97d46c3c",
       "before_role": "NUMERIC",
       "before_sha256": "1fe1ae6ad5ec799cea0900ebb828b1dc36cfbcf1c4b12761d753ec91dfcc237c",
       "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
-      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
-      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
+      "rationale": "P2真实同域附件恢复修复：publication和sample_archive共用域的core证明必须扣除两表全部已声明附件。仅允许明确DDL、验证原stamp/core/journal，未知结构漂移仍拒绝；不继承旧数值资格。",
+      "reviewer": "Codex P2 owner correction with real JDBC failure evidence"
     },
     {
       "after_role": "NUMERIC",
@@ -2112,12 +2112,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "3cb27ccd10d9264c439e3864d9df9eae7318869e99f7bc49f43dd09ea9cdf958",
+      "after_sha256": "312c312b2d7d8e9d02bd18362bf8428dfa974fd7cbe27480017249cf59ca5c4f",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java",
-      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
-      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
+      "rationale": "P2原件缺失诊断修复：保留FileNotFoundException及原始cause，同时返回真实hot.bin和cold.c.gz路径并保持公开R26_ARTIFACT_UNAVAILABLE错误码；不制造缺失原件，不更改哈希或资格门。",
+      "reviewer": "Codex P2 owner correction with real JDBC failure evidence"
     },
     {
       "after_role": "NUMERIC",
@@ -6166,8 +6166,8 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdCheckpointR324.java",
-      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
-      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+      "rationale": "P2原件缺失诊断修复：保留FileNotFoundException及原始cause，同时返回真实hot.bin和cold.c.gz路径并保持公开R26_ARTIFACT_UNAVAILABLE错误码；不制造缺失原件，不更改哈希或资格门。",
+      "reviewer": "Codex P2 owner correction with real JDBC failure evidence",
       "role": "NUMERIC"
     },
     {
@@ -8381,7 +8381,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "9c5b8bdd47ef26f545f30b076f2683734dc435e211e6170798bc83ceebd462e9",
+  "reviewed_input_provenance_sha256": "6b4a07ae1c4fdb02143a67aeb506b47366ff41e94c89a7cbcf5c7d8797f41fa0",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """B05-C10 actual native copy/process/consumer controls. Android/Binder stay NOT_RUN."""
-import argparse,hashlib,json,os,pathlib,subprocess,sys,tempfile
+import argparse,hashlib,importlib.util,json,os,pathlib,subprocess,sys,tempfile
 root=pathlib.Path(__file__).resolve().parents[2]
 def sha(p):return hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()
 def classpath_identity(path):
@@ -16,11 +16,11 @@ def main():
  p=argparse.ArgumentParser();p.add_argument('--output',type=pathlib.Path);p.add_argument('--native-dir',type=pathlib.Path);a=p.parse_args();out=(a.output or pathlib.Path(tempfile.mkdtemp(prefix='r31-restore-proof-host-'))).resolve();out.mkdir(parents=True,exist_ok=True)
  sdk=pathlib.Path(os.environ['ANDROID_HOME'])/'platforms/android-36/android.jar';classes=pathlib.Path(os.environ.get('R31_HOST_CLASSES',root/'app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes'));jdbc=pathlib.Path(os.environ.get('SQLITE_JDBC','/tmp/r31-baseline-deps/sqlite-jdbc.jar'));gradle=pathlib.Path(os.environ['GRADLE_USER_HOME'])
  junit=next(gradle.rglob('junit-4.13.2.jar'));hamcrest=next(gradle.rglob('hamcrest-core-1.3.jar'));source=root/'app/src/main/java/com/ethk3/novaonepro'
- names=['DatabaseCoordinator','StorageMaintenanceFileR82','StorageMaintenanceServiceR82','StorageRestoreProofR31','StorageRestoreProbeServiceR31','StorageRestoreBusinessProbeR31','StorageCheckpointR31','ModelBundleManagerR929','ModelBundleRuntimeR932','SettlementTaskStoreR36']
+ names=['DatabaseCoordinator','StorageMaintenanceFileR82','StorageMaintenanceServiceR82','StorageRestoreProofR31','StorageRestoreAssetsR324','StorageRestoreProbeServiceR31','StorageRestoreBusinessProbeR31','StorageCheckpointR31','ModelBundleManagerR929','ModelBundleRuntimeR932','SettlementTaskStoreR36']
  names += ['strategyv2/'+s for s in ['ResearchContextR30R1','ResearchResultContractR31','ResearchConsumptionStoreR31','ResearchStoreR30R1','EvolutionLoopR27','CheckpointArtifactsR26','ChunkedCheckpointR26','AtomNetSessionR30','AtomNetR27','ModelArtifactR29','LiveStateR26','LegacyReplayStateR26','ExpertExperimentR26','ReplayWorkspaceR26','CampaignStateSU1','ArchiveStoreSU1','KeepMigrationStoreR31','KeepMigrationR31']]
  production=[source/(n+'.java') for n in names];test=[root/'tools/r31/storage_host/R31RestoreProofHost.java',root/'app/src/test/java/com/ethk3/novaonepro/R31StorageCheckpointRebuildTest.java']
  original_platform=[*sorted((root/'tools/r29/qual_host/shim').rglob('*.java')),root/'tools/r31/storage_host/platform/android/os/SystemClock.java',root/'tools/r31/storage_host/platform/android/os/StatFs.java']
- inputs=production+test+original_platform+[root/'app/src/androidTest/java/com/ethk3/novaonepro/R31RestoreProofInstrumentedTest.java',pathlib.Path(__file__).resolve(),root/'app/src/main/cpp/storage_maintenance_r82.inc'];before={str(f.relative_to(root)):sha(f) for f in inputs};(out/'source-before.json').write_text(json.dumps(before,indent=2)+'\n')
+ inputs=production+test+original_platform+[root/'app/src/androidTest/java/com/ethk3/novaonepro/R31RestoreProofInstrumentedTest.java',pathlib.Path(__file__).resolve(),root/'tools/r31/run_atomnet_publication_host.py',root/'tools/r31/run_task_runtime_host.py',root/'app/src/main/cpp/storage_maintenance_r82.inc'];before={str(f.relative_to(root)):sha(f) for f in inputs};(out/'source-before.json').write_text(json.dumps(before,indent=2)+'\n')
  support_before=classpath_identity(classes);libraries_before=file_identities([sdk,jdbc,junit,hamcrest]);(out/'compiled-support-before.json').write_text(json.dumps({'compiledSupport':support_before,'runtimeLibraries':libraries_before},indent=2)+'\n')
  def run(cmd,log,cwd=root):
   with (out/log).open('w') as f:subprocess.run(list(map(str,cmd)),cwd=cwd,stdout=f,stderr=subprocess.STDOUT,check=True)
@@ -35,12 +35,14 @@ def main():
  native_receipt=json.loads((native/'receipt.json').read_text());native_receipt_sha=sha(native/'receipt.json');assert all(sha(root/f['path'])==f['sha256'] for f in native_receipt['source_files']);assert sha(native/'libstarcore_report_cp4.so')==native_receipt['library_sha256']
  shim=out/'shim';compiled=out/'production';drivers=out/'drivers';generated=out/'platform-source'
  for d in [shim,compiled,drivers,generated]:d.mkdir(exist_ok=True)
+ spec=importlib.util.spec_from_file_location('restore_native_platform',root/'tools/r31/run_atomnet_publication_host.py');adapter=importlib.util.module_from_spec(spec);spec.loader.exec_module(adapter);native_platform=adapter.platform_sources()
  platform=[]
  for f in (root/'tools/r29/qual_host/shim').rglob('*.java'):
   target=generated/f.relative_to(root/'tools/r29/qual_host/shim');target.parent.mkdir(parents=True,exist_ok=True);s=f.read_text()
-  if f.name=='SQLiteDatabase.java':s=s.replace('public final Connection jdbc;','public final Connection jdbc;\n    public String getPath(){try(java.sql.Statement s=jdbc.createStatement();java.sql.ResultSet r=s.executeQuery("PRAGMA database_list")){while(r.next())if("main".equals(r.getString(2)))return r.getString(3);throw new IllegalStateException("HOST_DB_PATH");}catch(java.sql.SQLException e){throw new SQLiteException(e.getMessage());}}')
+  if f.name=='SQLiteDatabase.java':s=native_platform['android/database/sqlite/SQLiteDatabase.java']
   target.write_text(s);platform.append(target)
  adapters={'android/util/Log.java':'package android.util;public final class Log{public static int w(String t,String v){return 0;}public static int w(String t,String v,Throwable e){return 0;}public static int e(String t,String v){return 0;}}','android/os/Build.java':'package android.os;public final class Build{public static final class VERSION{public static final int SDK_INT=35;}}'}
+ adapters.update({name:body for name,body in native_platform.items() if name.startswith('android/system/')})
  for name,text in adapters.items():f=generated/name;f.parent.mkdir(parents=True,exist_ok=True);f.write_text(text);platform.append(f)
  platform.append(root/'tools/r31/storage_host/platform/android/os/SystemClock.java')
  platform.append(root/'tools/r31/storage_host/platform/android/os/StatFs.java')
