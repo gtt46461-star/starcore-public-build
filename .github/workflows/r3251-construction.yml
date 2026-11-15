@@ -1,5 +1,14 @@
 name: STARCORE R32.5.1 C1 exact construction build
 on:
+  workflow_call:
+    inputs:
+      source:
+        description: Exact source built using the caller branch's existing installed signer
+        required: true
+        type: string
+    secrets:
+      DUOQU_API_KEY:
+        required: false
   push:
     branches: ['construction/r3251-c1-ownerfix-20261115']
     paths: ['.github/workflows/r3251-construction.yml', 'release/R3251_BUILD_REQUEST.json']
@@ -7,8 +16,10 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: r3251-c1-${{ github.sha }}
+  group: r3251-c1-${{ inputs.source || github.sha }}
   cancel-in-progress: false
+env:
+  R3251_SOURCE: ${{ inputs.source || github.sha }}
 jobs:
   android_build:
     if: github.repository == 'gtt46461-star/starcore-public-build'
@@ -17,6 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ env.R3251_SOURCE }}
           fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-java@v4
@@ -29,7 +41,7 @@ jobs:
       - name: Exact new baseline, source and original strict identity gates
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$R3251_SOURCE"
           git merge-base --is-ancestor 7424eeae6354eb6599dd8498e123c059bd410c90 HEAD
           mkdir -p "$RUNNER_TEMP/r3251-ci"
           python3 scripts/r967_semantic_identity.py --check > "$RUNNER_TEMP/r3251-ci/r967.log" 2>&1
@@ -43,25 +55,21 @@ jobs:
           path: ~/.starcore/r27-ci-temp-key
           key: starcore-r27-ci-temp-signing-v1
           fail-on-cache-miss: true
+      - name: Obtain the original 032 APK for exact identity and overlay checks
+        uses: actions/download-artifact@v4
+        with:
+          name: r31-report-032-signed-build
+          run-id: 43556844131
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/original032
       - name: Require the installed certificate and existing API binding
         env:
-          DUOQU_SECRET: ${{ secrets.DUOQU_API_KEY }}
-        run: |
-          set -euo pipefail
-          K="$HOME/.starcore/r27-ci-temp-key"
-          test -f "$K/r27-ci.p12" && test -s "$K/pw"
-          pw=$(cat "$K/pw"); echo "::add-mask::$pw"
-          cert=$(keytool -exportcert -keystore "$K/r27-ci.p12" -storetype PKCS12 -alias starcore-r13 -storepass "$pw" | sha256sum | cut -d' ' -f1)
-          if [ "$cert" != d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7 ]; then
-            echo "INSTALLED_SIGNER_MISMATCH $cert"; exit 1
-          fi
-          test -n "$DUOQU_SECRET" || { echo RELEASE_API_SECRET_UNAVAILABLE; exit 1; }
-          echo "::add-mask::$DUOQU_SECRET"
-          { echo "R13_SIGNING_P12=$K/r27-ci.p12"; echo "R13_SIGNING_PASSWORD=$pw"; echo "R13_EXPECTED_CERT_SHA256=$cert"; echo "DUOQU_API_KEY=$DUOQU_SECRET"; } >> "$GITHUB_ENV"
-          printf '%s\n' "EXISTING_DEVICE_CERTIFICATE=$cert" > "$RUNNER_TEMP/r3251-ci/signing-public.txt"
+          DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+        run: python3 tools/r3251/prepare_existing_signer.py
       - name: Install the exact Android toolchain
         run: |
           set -euo pipefail
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
           sdkmanager --licenses < <(yes) > /dev/null
           sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > "$RUNNER_TEMP/r3251-ci/sdk-install.log" 2>&1
           python3 -m pip install numpy==2.3.5 'cryptography>=41,<51'
@@ -70,28 +78,43 @@ jobs:
           set -euo pipefail
           ./gradlew --no-daemon --max-workers=4 -Pr30Instrumentation=true :app:assembleRelease :app:assembleDebug :app:assembleDebugAndroidTest > "$RUNNER_TEMP/r3251-ci/gradle-build.log" 2>&1
       - name: Verify and package the actual release bytes
-        run: python3 tools/r3251/package_ci_candidate.py --out "$RUNNER_TEMP/r3251-ci"
+        run: python3 tools/r3251/package_ci_candidate.py --out "$RUNNER_TEMP/r3251-ci" --baseline-apk "$R3251_BASELINE_APK"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: r3251-C1-build-${{ github.sha }}
+          name: r3251-C1-build-diagnostics-${{ env.R3251_SOURCE }}
+          path: |
+            ${{ runner.temp }}/r3251-ci/*.log
+            ${{ runner.temp }}/r3251-ci/source-*.txt
+            ${{ runner.temp }}/r3251-ci/signing-public.json
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r3251-C1-build-${{ env.R3251_SOURCE }}
           path: ${{ runner.temp }}/r3251-ci/
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: r3251-C1-release-apk-${{ github.sha }}
+          name: r3251-C1-release-apk-${{ env.R3251_SOURCE }}
           path: ${{ runner.temp }}/r3251-ci/STARCORE-*-release.apk
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: r3251-C1-release-receipts-${{ github.sha }}
+          name: r3251-C1-release-receipts-${{ env.R3251_SOURCE }}
           path: |
             ${{ runner.temp }}/r3251-ci/DELIVERY.json
             ${{ runner.temp }}/r3251-ci/SHA256SUMS.txt
             ${{ runner.temp }}/r3251-ci/public-certificate.txt
             ${{ runner.temp }}/r3251-ci/badging.txt
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: r3251-C1-android-support-${{ env.R3251_SOURCE }}
+          path: ${{ runner.temp }}/r3251-ci/android-build/
           if-no-files-found: error
   instrumentation:
     needs: android_build
@@ -104,6 +127,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ env.R3251_SOURCE }}
           persist-credentials: false
       - uses: actions/setup-java@v4
         with:
@@ -114,8 +138,8 @@ jobs:
           python-version: '3.12'
       - uses: actions/download-artifact@v4
         with:
-          name: r3251-C1-build-${{ github.sha }}
-          path: built
+          name: r3251-C1-android-support-${{ env.R3251_SOURCE }}
+          path: built/android-build
       - name: Enable emulator acceleration
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -134,5 +158,54 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: r3251-C1-emu-${{ matrix.api }}-${{ github.sha }}
+          name: r3251-C1-emu-${{ matrix.api }}-${{ env.R3251_SOURCE }}
           path: ${{ runner.temp }}/r3251-emu-${{ matrix.api }}/
+  release_overlay:
+    needs: android_build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.R3251_SOURCE }}
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: r3251-C1-release-apk-${{ env.R3251_SOURCE }}
+          path: built
+      - uses: actions/download-artifact@v4
+        with:
+          name: r31-report-032-signed-build
+          run-id: 43556844131
+          github-token: ${{ github.token }}
+          path: original032
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        env:
+          R3251_DISPOSABLE_EMULATOR: '1'
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: python3 tools/r3251/verify_release_overlay.py --old-apk original032/Starcore-Tianshu-R31-REPORT-REPAIR-2026.11.14-032-release.apk --new-apk built/STARCORE-R32.5.1-C1-033-*-release.apk --out "${{ runner.temp }}/r3251-overlay-public"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r3251-C1-release-overlay-${{ env.R3251_SOURCE }}
+          path: ${{ runner.temp }}/r3251-overlay-public/
+          if-no-files-found: warn
