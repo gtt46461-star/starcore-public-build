@@ -1,0 +1,1 @@
+package com.ethk3.novaonepro.strategyv2;public final class CertificateGateR27{public static final String GATE_VERSION="R27_GATE_V1";}

@@ -1,0 +1,318 @@
+{
+  "format": "R32_4_DIAGNOSTIC_HOST_RUN_V1",
+  "repo": "/workspace/starcore-r3251-P4-final",
+  "overlay": null,
+  "runner": "/workspace/starcore-r3251-P4-final/tools/r324/diagnostic/run_diagnostic.py",
+  "runnerSha256": "3f5de3d07e0609289cf3c75098271e92fe5f8aa822566f96a6dd07786dc0ca8b",
+  "scope": "HOST_BOUNDARY_ASSERTIONS_ON_LISTED_REAL_PRODUCTION_SOURCES; SOURCE_TARGET_17; NOT_ANDROID_OR_NATURAL_QUALITY",
+  "expectedAssertions": 51,
+  "suites": [
+    {
+      "name": "page",
+      "expectedAssertions": 20,
+      "inputs": [
+        {
+          "kind": "production",
+          "originalPath": "/workspace/starcore-r3251-P4-final/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAuditR32.java",
+          "relativePath": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAuditR32.java",
+          "sha256": "c2b675fc46d735a3c00e7284a5e135c632117a87b0e11abe40b0d753b5f371a1",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/page/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAuditR32.java",
+          "bytes": 16370
+        },
+        {
+          "kind": "production",
+          "originalPath": "/workspace/starcore-r3251-P4-final/app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java",
+          "relativePath": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java",
+          "sha256": "a7b4645a2247af79c2db75389f7c1c044bf31d20cb0b100fe4b2fa09bdfd9daa",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/page/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java",
+          "bytes": 4484
+        },
+        {
+          "kind": "production",
+          "originalPath": "/workspace/starcore-r3251-P4-final/app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java",
+          "relativePath": "app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java",
+          "sha256": "35fce88a64f2f5bc1a88f863d0d3cf632179943873b3500b9a54e3fd1101159a",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/page/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java",
+          "bytes": 5410
+        },
+        {
+          "kind": "test",
+          "originalPath": "/workspace/starcore-r3251-P4-final/tools/r324/diagnostic/tests/PageAuditBoundaryProbe.java",
+          "relativePath": "PageAuditBoundaryProbe.java",
+          "sha256": "a7b3fddddd397339c5402b10810610968aa3ffebb7e1e068a5c620108c44f6f8",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/page/sources/test/PageAuditBoundaryProbe.java",
+          "bytes": 4192
+        }
+      ],
+      "compile": {
+        "command": [
+          "/usr/lib/jvm/java-21-openjdk-amd64/bin/java",
+          "-m",
+          "jdk.compiler/com.sun.tools.javac.Main",
+          "-source",
+          "17",
+          "-target",
+          "17",
+          "-encoding",
+          "UTF-8",
+          "-classpath",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/page/empty_source_and_class_path",
+          "-sourcepath",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/page/empty_source_and_class_path",
+          "-d",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/page/classes",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/page/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAuditR32.java",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/page/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/page/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/page/sources/test/PageAuditBoundaryProbe.java"
+        ],
+        "startedAtUtc": "2026-11-15T17:46:00.021295+00:00",
+        "exitCode": 0,
+        "timedOut": false,
+        "log": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/page/compile.log",
+        "logSha256": "e6719c4e7b4d72693fd71e32dd4c25cf4475c27a9e38f3ed822ef1a327375b1b",
+        "output": "warning: [options] system modules path not set in conjunction with -source 17\n1 warning\n"
+      },
+      "actualProductionMethodsUnderTest": [
+        "ResearchTableAuditR32.audit/inspect/yes/knownId"
+      ],
+      "test": {
+        "command": [
+          "/usr/lib/jvm/java-21-openjdk-amd64/bin/java",
+          "-cp",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/page/classes",
+          "com.ethk3.novaonepro.strategyv2.PageAuditBoundaryProbe"
+        ],
+        "startedAtUtc": "2026-11-15T17:46:02.054992+00:00",
+        "exitCode": 0,
+        "timedOut": false,
+        "log": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/page/test.log",
+        "logSha256": "4a429a384d3cb1b3cec4a01e34199f221527c2b6bf39a4e41c119d58cdddc97f",
+        "output": "RESULT checks=20 failures=0\n"
+      },
+      "observedAssertions": 20,
+      "observedFailures": 0,
+      "passed": true
+    },
+    {
+      "name": "assessment",
+      "expectedAssertions": 31,
+      "inputs": [
+        {
+          "kind": "production",
+          "originalPath": "/workspace/starcore-r3251-P4-final/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportAssessmentR33.java",
+          "relativePath": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportAssessmentR33.java",
+          "sha256": "f6c8e8cdcbd35b4ebd2eb097b928b4542683a27a49c30e359f3d96795f9457e2",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportAssessmentR33.java",
+          "bytes": 6868
+        },
+        {
+          "kind": "production",
+          "originalPath": "/workspace/starcore-r3251-P4-final/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckMetricCrosswalkR31.java",
+          "relativePath": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckMetricCrosswalkR31.java",
+          "sha256": "98a7f9976aa244df5150fdd159ce07b4d53e7ba0999ea9c93b300a89ea2e6bba",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckMetricCrosswalkR31.java",
+          "bytes": 23348
+        },
+        {
+          "kind": "production",
+          "originalPath": "/workspace/starcore-r3251-P4-final/app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricDefinitionsR29.java",
+          "relativePath": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricDefinitionsR29.java",
+          "sha256": "935b9dfd35c692d61e12d8ff4a1513abc2fdcd71e0e68dafa9054ac26d67dc0f",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricDefinitionsR29.java",
+          "bytes": 43862
+        },
+        {
+          "kind": "production",
+          "originalPath": "/workspace/starcore-r3251-P4-final/app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+          "relativePath": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+          "sha256": "bd5229ae438731423bf43e8f94def2a909d3204c0eb11a4280f89044b91094fb",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+          "bytes": 31270
+        },
+        {
+          "kind": "production",
+          "originalPath": "/workspace/starcore-r3251-P4-final/app/src/main/java/com/ethk3/novaonepro/strategyv2/Q08ReportProjectionR325.java",
+          "relativePath": "app/src/main/java/com/ethk3/novaonepro/strategyv2/Q08ReportProjectionR325.java",
+          "sha256": "9ee4b526ab38e2abb53171ceb4e4dcff21e8f8069ccbcc0b6be87fd4c23536de",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/Q08ReportProjectionR325.java",
+          "bytes": 20269
+        },
+        {
+          "kind": "production",
+          "originalPath": "/workspace/starcore-r3251-P4-final/app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java",
+          "relativePath": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java",
+          "sha256": "a7b4645a2247af79c2db75389f7c1c044bf31d20cb0b100fe4b2fa09bdfd9daa",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java",
+          "bytes": 4484
+        },
+        {
+          "kind": "production",
+          "originalPath": "/workspace/starcore-r3251-P4-final/app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java",
+          "relativePath": "app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java",
+          "sha256": "35fce88a64f2f5bc1a88f863d0d3cf632179943873b3500b9a54e3fd1101159a",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java",
+          "bytes": 5410
+        },
+        {
+          "kind": "test",
+          "originalPath": "/workspace/starcore-r3251-P4-final/tools/r324/diagnostic/tests/AssessmentBoundaryProbe.java",
+          "relativePath": "AssessmentBoundaryProbe.java",
+          "sha256": "e0eb589a32eb0c081536b99a62b3d86e9b1f0a1fb6820b97ab8c0ea5caa71b06",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/test/AssessmentBoundaryProbe.java",
+          "bytes": 5664
+        },
+        {
+          "kind": "compile_only",
+          "originalPath": "/workspace/starcore-r3251-P4-final/tools/r324/diagnostic/stubs/CertificateGateR27.java",
+          "relativePath": "CertificateGateR27.java",
+          "sha256": "d6dbb4084d5702ac9971eff4259794944df824a351cc121af7dda7653672ff56",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/compile_only/CertificateGateR27.java",
+          "bytes": 133
+        },
+        {
+          "kind": "compile_only",
+          "originalPath": "/workspace/starcore-r3251-P4-final/tools/r324/diagnostic/stubs/DiagnosisRulesR30.java",
+          "relativePath": "DiagnosisRulesR30.java",
+          "sha256": "57d4f8a79e29db312331844b3924f3fda3c367a5f8b9ebadaa9ade849ac98f3f",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/compile_only/DiagnosisRulesR30.java",
+          "bytes": 270
+        },
+        {
+          "kind": "compile_only",
+          "originalPath": "/workspace/starcore-r3251-P4-final/tools/r324/diagnostic/stubs/IssueTimelineR30.java",
+          "relativePath": "IssueTimelineR30.java",
+          "sha256": "813b3ba01b15dff716cc8821ba596623f567cbdf3355abe4586c7c376a870127",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/compile_only/IssueTimelineR30.java",
+          "bytes": 458
+        },
+        {
+          "kind": "compile_only",
+          "originalPath": "/workspace/starcore-r3251-P4-final/tools/r324/diagnostic/stubs/MetricCardMapR29.java",
+          "relativePath": "MetricCardMapR29.java",
+          "sha256": "fd8aac01f6a656fad9be976c6c30313ee3635230d3a6e482aa86f85f9397a020",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/compile_only/MetricCardMapR29.java",
+          "bytes": 122
+        },
+        {
+          "kind": "compile_only",
+          "originalPath": "/workspace/starcore-r3251-P4-final/tools/r324/diagnostic/stubs/ReportEvidenceProjectionR33.java",
+          "relativePath": "ReportEvidenceProjectionR33.java",
+          "sha256": "f471422ac2208860ade30b4d4b7d829ff62d1aec00aaa52357054f38738258e0",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/compile_only/ReportEvidenceProjectionR33.java",
+          "bytes": 200
+        },
+        {
+          "kind": "compile_only",
+          "originalPath": "/workspace/starcore-r3251-P4-final/tools/r324/diagnostic/stubs/ReportR27.java",
+          "relativePath": "ReportR27.java",
+          "sha256": "bcaa38465465c520f958916f12c732099d945e0fc71810d1441a665c7b741b5b",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/compile_only/ReportR27.java",
+          "bytes": 387
+        },
+        {
+          "kind": "compile_only",
+          "originalPath": "/workspace/starcore-r3251-P4-final/tools/r324/diagnostic/stubs/ReportR29.java",
+          "relativePath": "ReportR29.java",
+          "sha256": "ccdb918804a110068200906c0c771027826dc0dff1747efb9bf846e0395d3bc0",
+          "compiledSnapshot": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/compile_only/ReportR29.java",
+          "bytes": 254
+        }
+      ],
+      "compile": {
+        "command": [
+          "/usr/lib/jvm/java-21-openjdk-amd64/bin/java",
+          "-m",
+          "jdk.compiler/com.sun.tools.javac.Main",
+          "-source",
+          "17",
+          "-target",
+          "17",
+          "-encoding",
+          "UTF-8",
+          "-classpath",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/empty_source_and_class_path",
+          "-sourcepath",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/empty_source_and_class_path",
+          "-d",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/classes",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportAssessmentR33.java",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckMetricCrosswalkR31.java",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricDefinitionsR29.java",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/Q08ReportProjectionR325.java",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/production/app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/test/AssessmentBoundaryProbe.java",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/compile_only/CertificateGateR27.java",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/compile_only/DiagnosisRulesR30.java",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/compile_only/IssueTimelineR30.java",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/compile_only/MetricCardMapR29.java",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/compile_only/ReportEvidenceProjectionR33.java",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/compile_only/ReportR27.java",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/compile_only/ReportR29.java"
+        ],
+        "startedAtUtc": "2026-11-15T17:46:02.237726+00:00",
+        "exitCode": 0,
+        "timedOut": false,
+        "log": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/compile.log",
+        "logSha256": "a22c9f8c608990ea02cc9f8a01b6ab5665e23937f6ed678f6b9d6261041b1825",
+        "output": "warning: [options] system modules path not set in conjunction with -source 17\nNote: /workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/sources/test/AssessmentBoundaryProbe.java uses unchecked or unsafe operations.\nNote: Recompile with -Xlint:unchecked for details.\n1 warning\n"
+      },
+      "actualProductionMethodsUnderTest": [
+        "ReportAssessmentR33.evaluate/verifiedPass/group",
+        "MetricDefinitionsR29.r31Definitions",
+        "CheckMetricCrosswalkR31.metric/uncoveredConditions",
+        "MetricEvaluatorR29.evaluateR31"
+      ],
+      "test": {
+        "command": [
+          "/usr/lib/jvm/java-21-openjdk-amd64/bin/java",
+          "-cp",
+          "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/classes",
+          "com.ethk3.novaonepro.strategyv2.AssessmentBoundaryProbe"
+        ],
+        "startedAtUtc": "2026-11-15T17:46:05.959403+00:00",
+        "exitCode": 0,
+        "timedOut": false,
+        "log": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/assessment/test.log",
+        "logSha256": "6474c7297e25a66cdfc07c9599f53c9f02280dd65d2b88cf9c617d8fe3007510",
+        "output": "RESULT checks=31 failures=0\n"
+      },
+      "observedAssertions": 31,
+      "observedFailures": 0,
+      "passed": true
+    }
+  ],
+  "inputRepositoryMutatedByRunner": false,
+  "naturalQuality": "NOT_PROVEN",
+  "realAuthorizationGranted": false,
+  "compileOnlyDeclarations": [
+    "CertificateGateR27.java",
+    "DiagnosisRulesR30.java",
+    "IssueTimelineR30.java",
+    "MetricCardMapR29.java",
+    "ReportEvidenceProjectionR33.java",
+    "ReportR27.java",
+    "ReportR29.java"
+  ],
+  "compileOnlyDeclarationsBoundary": "Unrelated report, timeline and gate APIs are declarations/adapters only; their real implementation is not verified by this suite.",
+  "javaVersion": {
+    "command": [
+      "/usr/lib/jvm/java-21-openjdk-amd64/bin/java",
+      "-version"
+    ],
+    "startedAtUtc": "2026-11-15T17:45:59.952375+00:00",
+    "exitCode": 0,
+    "timedOut": false,
+    "log": "/workspace/starcore-r3251-evidence/owner4/P4-diagnostic/java_version.log",
+    "logSha256": "bf61371a588e139353579c26bedbc9693004380fe8e053aa012cb6f7d2c43f20",
+    "output": "openjdk version \"21.0.12.1\" 2026-08-18\nOpenJDK Runtime Environment (build 21.0.12.1+1-1-deb13u1-Debian)\nOpenJDK 64-Bit Server VM (build 21.0.12.1+1-1-deb13u1-Debian, mixed mode, sharing)\n"
+  },
+  "inputChangesObservedDuringRun": [],
+  "actualAssertions": 51,
+  "actualFailedAssertions": 0,
+  "verdict": "HOST_ASSERTIONS_PASSED",
+  "exitCode": 0,
+  "finishedAtUtc": "2026-11-15T17:46:06.423501+00:00"
+}

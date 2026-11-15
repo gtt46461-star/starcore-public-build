@@ -31,13 +31,19 @@ public final class R31MetricReportTest {
     }
     @Test public void everyMetricHasMissingZeroFailureAndSufficientFixturesAndNaturalShortageIsReported() {
         for (Map<String, Object> d : MetricDefinitionsR29.r31Definitions()) {
-            String id = String.valueOf(d.get("id")); boolean quality = "QUALITY".equals(d.get("kind")); String role = quality ? "NATURAL_FUTURE" : "ENGINEERING_RUNTIME"; long min = ((Number) d.get("minimumSample")).longValue();
+            String id = String.valueOf(d.get("id")); boolean quality = "QUALITY".equals(d.get("kind")), synthetic = "Q08".equals(id); String role = synthetic ? "SYNTHETIC" : quality ? "NATURAL_FUTURE" : "ENGINEERING_RUNTIME"; long min = ((Number) d.get("minimumSample")).longValue();
+            assertEquals(id, "Q05".equals(id) ? 200L : "Q07".equals(id) ? 1L : synthetic ? 120L : quality ? 250L : 1L, min);
             assertEquals(id, "UNKNOWN_SOURCE_MISSING", MetricEvaluatorR29.evaluateR31(d, new MetricEvaluatorR29.MeasurementR31(null, role, 10, 1.0, true)).get("status"));
             assertEquals(id, "INSUFFICIENT_ZERO_SAMPLES", MetricEvaluatorR29.evaluateR31(d, new MetricEvaluatorR29.MeasurementR31(sha(id), role, 0, null, false)).get("status"));
+            Map<String,Object> zero = MetricEvaluatorR29.evaluateR31(d, new MetricEvaluatorR29.MeasurementR31(sha(id), role, 0, null, false)); assertNull(id, zero.get("value")); assertEquals(id, 0.0, ((Number)zero.get("coverage")).doubleValue(), 0.0);
+            for (Double invalid : new Double[]{null, Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY}) assertEquals(id, "INVALID_NONFINITE_OR_MISSING_VALUE", MetricEvaluatorR29.evaluateR31(d, new MetricEvaluatorR29.MeasurementR31(sha(id), role, min, invalid, true)).get("status"));
             assertEquals(id, "FAIL", MetricEvaluatorR29.evaluateR31(d, new MetricEvaluatorR29.MeasurementR31(sha(id), role, min, .1, false)).get("status"));
             assertEquals(id, "PASS", MetricEvaluatorR29.evaluateR31(d, new MetricEvaluatorR29.MeasurementR31(sha(id), role, min, .9, true)).get("status"));
-            if (quality) {
-                assertEquals(id, "INSUFFICIENT_BELOW_MINIMUM_SAMPLE", MetricEvaluatorR29.evaluateR31(d, new MetricEvaluatorR29.MeasurementR31(sha(id), role, 72, .28, false)).get("status"));
+            if (min > 1) assertEquals(id, "INSUFFICIENT_BELOW_MINIMUM_SAMPLE", MetricEvaluatorR29.evaluateR31(d, new MetricEvaluatorR29.MeasurementR31(sha(id), role, min - 1, .28, false)).get("status"));
+            if (synthetic) {
+                assertEquals(Boolean.FALSE, d.get("naturalQualityEligible"));
+                assertEquals("Q08 requires original synthetic trials rather than natural periods", "NOT_PROVEN_NOT_SYNTHETIC_ROLE", MetricEvaluatorR29.evaluateR31(d, new MetricEvaluatorR29.MeasurementR31(sha(id), "NATURAL_FUTURE", 5000, .9, true)).get("status"));
+            } else if (quality) {
                 assertEquals("synthetic or engineering evidence never proves natural quality", "NOT_PROVEN_NOT_NATURAL_ROLE", MetricEvaluatorR29.evaluateR31(d, new MetricEvaluatorR29.MeasurementR31(sha(id), "SYNTHETIC", 5000, .9, true)).get("status"));
             }
         }

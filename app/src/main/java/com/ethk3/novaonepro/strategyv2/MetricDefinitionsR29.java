@@ -25,6 +25,29 @@ public final class MetricDefinitionsR29 {
             d.put("id",x.id);d.put("version",R31_VERSION);d.put("name",x.name);d.put("kind",x.kind);d.put("owner","MetricEvaluatorR29.evaluateR31");d.put("collectionSource",x.source);
             boolean quality=x.quality();d.put("numerator",quality?"QUALIFYING_NATURAL_OUTCOMES_IN_WINDOW":"MEASURED_EVENTS_MEETING_TARGET");d.put("denominator",quality?"REGISTERED_ELIGIBLE_OPPORTUNITIES_IN_WINDOW":"MEASURED_EVENTS_IN_SCOPE");
             d.put("role",quality?"NATURAL_FUTURE_ONLY":"ENGINEERING_RUNTIME");d.put("window",quality?"PREREGISTERED_FUTURE_WINDOW":"CURRENT_REPORT_SNAPSHOT");d.put("minimumSample",(long)(quality?250:1));
+            if("Q05".equals(x.id)) {
+                d.put("diagnosticSupportRevision","R32_5_REPORT_UNIT_1");
+                d.put("numerator","WEIGHTED_CALIBRATION_ERROR_ON_FROZEN_VALIDATION_OBSERVATIONS");
+                d.put("denominator","FIXED_CALIBRATOR_SAME_TARGET_AND_ACT_CONDITION_VALIDATION_OBSERVATIONS");
+                d.put("sampleUnit","CALIBRATION_VALIDATION_OBSERVATIONS");d.put("minimumSample",200L);
+                d.put("minimumSampleScope","ORIGINAL_Q05_REPORT_SUPPORT_200_AND_SUPPORTED_BIN_COVERAGE_GE_90_PERCENT; NOT_A_CHANGE_TO_PER_ASSET_V1_MIN_ACTS_250_OR_ECE_LE_0.04");
+            }
+            if("Q07".equals(x.id)) {
+                d.put("diagnosticSupportRevision","R32_5_REPORT_UNIT_1");
+                d.put("numerator","CURRENT_ORIGINAL_V1_ACTIVE_CERTIFICATES_REQUIRING_INDEPENDENT_ASSET_AUDIT");
+                d.put("denominator","QUALIFIED_EXPERIMENT_RECORDS_INSPECTED_IN_THIS_SNAPSHOT");
+                d.put("sampleUnit","ASSET_QUALIFICATION_RECORDS_NOT_FUTURE_ACT_PERIODS");d.put("minimumSample",1L);
+                d.put("minimumSampleScope","ONE_INSPECTED_ASSET_RECORD_IS_REPORT_SUPPORT_ONLY; Q01_Q03_Q04_Q05_AND_ORIGINAL_V1_GATES_STILL_REQUIRED_PER_ASSET; ACTIVE_COUNT_ALONE_IS_RECORDED_UNVALIDATED");
+            }
+            if("Q08".equals(x.id)) {
+                d.put("diagnosticRoleRevision","R32_4_Q08_SYNTHETIC_TRIALS_1");
+                d.put("numerator","COMPLETED_VALIDATED_SYNTHETIC_TRIAL_RECORDS");
+                d.put("denominator","REGISTERED_SYNTHETIC_ARM_SEED_PAIRS_6_X_20");
+                d.put("role","SYNTHETIC_ONLY");d.put("window","PREREGISTERED_COMPLETE_SYNTHETIC_PROTOCOL");
+                d.put("minimumSample",120L);
+                d.put("minimumSampleScope","120_ORIGINAL_TRIAL_RECORDS_IS_COMPLETENESS_ONLY; PER_ARM_20_SEEDS_AND_NULL_FALSE_ALARM_CI_SIGNAL_POWER_CI_MUST_PASS_THE_ORIGINAL_REGISTERED_PROTOCOL; NOT_120_NATURAL_PERIODS");
+                d.put("naturalQualityEligible",false);
+            }
             d.put("missingPolicy","UNKNOWN_NOT_ZERO");d.put("target",x.target);d.put("requiredEvidence",x.requiredEvidence);d.put("cards",x.batch);
             java.util.List<Object> checks=new java.util.ArrayList<>();for(CheckMetricCrosswalkR31.Check k:CheckMetricCrosswalkR31.supportingChecks(x.id))checks.add(k.id);d.put("supportingChecks",checks);
             d.put("uncoveredConditions",new java.util.ArrayList<Object>(CheckMetricCrosswalkR31.uncoveredConditions(x.id)));d.put("r30Definition",old==null?null:old.get("definition"));out.add(d);

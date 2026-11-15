@@ -69,6 +69,8 @@ public final class ReportSemanticVerifierR31 {
                 map(complete.get("facts"));map(complete.get("sources"));list(complete.get("sourceErrors"));
             }
         }
+        // Preserve structural error ownership before checking exact shared evidence references.
+        try{ReportEvidenceProjectionR33.validateDocument(document);}catch(RuntimeException invalid){throw new IOException("REPORT_SEMANTIC_REFERENCE_INVALID:"+invalid.getMessage(),invalid);}
     }
     private static void combine(byte[] total,String name,String hash)throws Exception {
         byte[] value=MessageDigest.getInstance("SHA-256").digest((name+"\u0000"+hash).getBytes(StandardCharsets.UTF_8));
