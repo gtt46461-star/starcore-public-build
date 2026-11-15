@@ -64,7 +64,7 @@ case "$id" in
   run_full_chain_fault_host) exec python3 tools/r31/run_full_chain_fault_host.py --out "$OUT" ;;
   r31_verification_receipt_selftest) exec python3 tools/r31/test_verification_receipt.py ;;
   r31_package_release_selftest) exec python3 tools/r31/test_package_release.py ;;
-  r31_retirement_manifest_check) exec python3 tools/r31/retirement_inventory.py --check ;;
+  r31_retirement_manifest_check) if [ -f release/r3251_retirement_inventory.json ]; then exec python3 tools/r3251/current_retirement_inventory.py --check; else exec python3 tools/r31/retirement_inventory.py --check; fi ;;
   r31_device_receipts_selftest) exec python3 tools/r31/test_device_receipts.py ;;
   r30repair_*) exec python3 "tools/r30-repair/run_${id#r30repair_}_host.py" ;;
   *) echo "R312_HOST_UNKNOWN_ENTRY:$id"; exit 2 ;;

@@ -1,0 +1,18 @@
+{
+  "id": "P5-retirement-corruption-refusal",
+  "argv": [
+    "python3",
+    "-c",
+    "import subprocess,json;from pathlib import Path;p=subprocess.run([\"python3\",\"tools/r3251/current_retirement_inventory.py\",\"--check\",\"--manifest\",\"/workspace/starcore-r3251-evidence/owner4/P5-retirement-negative.json\"],capture_output=True,text=True);Path(\"/workspace/starcore-r3251-evidence/owner4/P5-retirement-corruption-subcommand.json\").write_text(json.dumps({\"expectedExitCode\":1,\"actualExitCode\":p.returncode,\"stdout\":p.stdout,\"stderr\":p.stderr},indent=2)+\"\\n\");assert p.returncode==1,p.stdout+p.stderr;print(\"FORGED_DATA_DROP_INVENTORY_REFUSED_ORIGINAL_P1_UNTOUCHED\")"
+  ],
+  "cwd": "/workspace/starcore-r3251-P5-final",
+  "startedAt": "2026-11-15T18:32:15.721334+00:00",
+  "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+  "sourceCommit": "a2efd722b3d7266c6fc87ae267a3547ef7712bd1",
+  "sourceTree": "ac7d2cededff3cf09cbaa969726039ef4459678c",
+  "status": "PASS_COMMAND",
+  "log": "P5-retirement-corruption-refusal.log",
+  "exitCode": 0,
+  "finishedAt": "2026-11-15T18:33:34.756896+00:00",
+  "logSha256": "134e2072a77cdde28320764de9f3ad6f2b9e562ac8aa5ddc708b53827ea0c5d7"
+}
