@@ -1,0 +1,17 @@
+name: STARCORE R32.5.1 C1 existing-signer APK and actual 032 overlay
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-r3251-c1-signed.yml']
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: r3251-existing-signer-${{ github.sha }}
+  cancel-in-progress: false
+jobs:
+  exact_source:
+    uses: gtt46461-star/starcore-public-build/.github/workflows/r3251-construction.yml@9df4ba2ee35023f911a4de05569d2555b6416e47
+    with:
+      source: 9df4ba2ee35023f911a4de05569d2555b6416e47
+    secrets: inherit
