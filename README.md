@@ -1,4 +1,8 @@
-> **当前应用源码：[`construction/r29-20261029`](https://github.com/gtt46461-star/starcore-public-build/tree/construction/r29-20261029)**；方案为 [R29.1](CURRENT_FINAL_PLAN.md)，施工及未验收项见 [R29 账本](construction/r29/STATUS.md)。checkpoint06 为修复和恢复验证检查点，尚未完成11批/52卡/44指标，不能称为已验证高胜率成品。main仅发布方案，不能从其中的旧应用源码构建最新版本。下文保留历史 R13/R26 发布说明。
+> **当前施工使用 [STARCORE R32.1](CURRENT_FINAL_PLAN.md)。** Android 工程分支为 [construction/r31-final-20261104](https://github.com/gtt46461-star/starcore-public-build/tree/construction/r31-final-20261104)。[下载方案 ZIP](https://raw.githubusercontent.com/gtt46461-star/starcore-public-build/b703131a228c20c992a9d220b7e4a9e6de8f8130/construction/repairs/STARCORE_R32_REPAIR_20261115.zip) · [复制 Codex 提示词](https://github.com/gtt46461-star/starcore-public-build/blob/b703131a228c20c992a9d220b7e4a9e6de8f8130/construction/repairs/STARCORE_R32_REPAIR_20261115/CODEX_PROMPT.txt)。
+
+## 历史发布记录
+
+R29.1 的源码与检查点见 [R29 施工账本](construction/r29/STATUS.md)。以下保留 R13 与 R26 的发布记录。
 
 # 星核创研 R13 · 公有独立版
 
