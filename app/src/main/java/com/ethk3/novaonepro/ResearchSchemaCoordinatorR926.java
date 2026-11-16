@@ -107,7 +107,7 @@ public final class ResearchSchemaCoordinatorR926 {
         synchronized (LOCK) {
             SchemaDomainCoordinatorR926.Contract contract = SchemaDomainCoordinatorR926.researchContract();
             boolean priorDomainReady = SchemaDomainCoordinatorR926.matches(db, contract);
-            if (priorDomainReady && com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.readyOrderR79(db)
+            if (priorDomainReady && extensionReady(db)
                     && LegacySettlementProofR79.ready(db)
                     && SchemaDomainCoordinatorR926.matches(db,SchemaDomainCoordinatorR926.criticalContract())
                     && com.ethk3.novaonepro.r952.BoundAtomLifecycleR80.readyR80(db)
@@ -129,6 +129,22 @@ public final class ResearchSchemaCoordinatorR926 {
             try {
                 state = "INITIALIZING"; error = ""; failureCause=null;
                 if (priorDomainReady) {
+                    // A valid core seal can precede the complete R952 extension.
+                    // Keep the original sole migration owner and its durable child
+                    // receipts; commit one original unit and its refreshed core seal
+                    // together. Publish readiness only after the committed extension
+                    // predicate succeeds on the next callback.
+                    if (!extensionReady(db)) {
+                        cursor = "R952_EXTENSION";
+                        db.beginTransaction();
+                        try {
+                            if (com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.advanceR64(db))
+                                SchemaDomainCoordinatorR926.runStep(db, contract, "R952_EXTENSION", x -> {});
+                            SchemaDomainCoordinatorR926.verifyAndStamp(db, contract);
+                            db.setTransactionSuccessful();
+                        } finally { db.endTransaction(); }
+                        return false;
+                    }
                     // Preserve the prior READY baseline and its completed journals. Exactly one
                     // additive helper commits per writer callback; its DDL, journal and updated
                     // baseline fingerprint commit together, so restart never replays old units.
@@ -195,6 +211,15 @@ public final class ResearchSchemaCoordinatorR926 {
                 return false;
             }
         }
+    }
+
+    /** Read durable completion outside a transaction; the R952 transaction cache is
+     * intentionally unavailable here and cannot serve as a startup predicate. */
+    private static boolean extensionReady(SQLiteDatabase db) {
+        return SchemaDomainCoordinatorR926.stepComplete(db,
+                SchemaDomainCoordinatorR926.researchContract(), "R952_EXTENSION")
+                && com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.readyOrderR79(db)
+                && ChampionProbabilityEvidenceR82.installed(db);
     }
 
     public static boolean ensureToReady(DatabaseCoordinator owner, int maxSteps) {
