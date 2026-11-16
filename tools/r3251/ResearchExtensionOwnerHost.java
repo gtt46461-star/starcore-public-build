@@ -142,19 +142,32 @@ public final class ResearchExtensionOwnerHost {
         if(!sealed.equals(criticalSeal(db)))throw new AssertionError("CHANGED_CP8_TRIGGER_WAS_RESTAMPED");
         db.execSQL("DROP TRIGGER "+name);db.execSQL(original);resume(owner,db);
 
-        // Exact cold preimage from the original onCreate owner, in this
-        // disposable fixture only. Reopen the original boundary unit 42.
-        db.execSQL("DROP TRIGGER trg_b03_draw_quarantine_no_delete");db.execSQL(originalGuard);
+        // The original CP4 unit 48 ends with a DROP whose CREATE starts unit
+        // 54. Re-execution must commit both statements and retain a valid seal.
+        unsealExtensionFixture(db,"R64_CP4_DDL_48");
+        if(advance(owner,db)||!SchemaDomainCoordinatorR926.stepComplete(db,contract,"R64_CP4_DDL_48")
+                ||!SchemaDomainCoordinatorR926.matches(db,SchemaDomainCoordinatorR926.criticalContract()))
+            throw new AssertionError("BOUNDARY_CP4_PAIR_DID_NOT_COMMIT_WITH_VALID_CRITICAL_SEAL");
+        resume(owner,db);
+
+        // Reopen one actual CP8 unit with its declared trigger absent. The
+        // fixture stamps this exact preimage, then fails the new cutover receipt.
+        java.lang.reflect.Field cp8Field=com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.class.getDeclaredField("CP8_DDL");
+        cp8Field.setAccessible(true);String[] cp8=(String[])cp8Field.get(null);int index=-1;
+        for(int i=0;i<cp8.length;i++)if(cp8[i].trim().equals(definition)){index=i;break;}
+        if(index<0)throw new AssertionError("DECLARED_CP8_UNIT_NOT_FOUND");
+        String faultUnit="R64_CP8_DDL_"+(index/6*6);
+        db.execSQL("DROP TRIGGER "+name);
         SchemaDomainCoordinatorR926.verifyAndStamp(db,SchemaDomainCoordinatorR926.criticalContract());
-        sealed=criticalSeal(db);unsealExtensionFixture(db,"R64_CP4_DDL_42");
+        sealed=criticalSeal(db);unsealExtensionFixture(db,faultUnit);
         NestedDatabase.failCutoverJournal=true;
         try {
             if(advance(owner,db)||!ResearchSchemaCoordinatorR926.summary().contains("INJECTED_ORIGINAL_RESEARCH_CUTOVER_JOURNAL_FAILURE"))
-                throw new AssertionError("CUTOVER_JOURNAL_FAILURE_NOT_PRESERVED");
+                throw new AssertionError("CUTOVER_JOURNAL_FAILURE_NOT_PRESERVED:"+ResearchSchemaCoordinatorR926.summary());
         } finally {NestedDatabase.failCutoverJournal=false;}
-        if(!originalGuard.equals(sql(db,"trg_b03_draw_quarantine_no_delete"))||!sealed.equals(criticalSeal(db)))
+        if(sql(db,name)!=null||!sealed.equals(criticalSeal(db)))
             throw new AssertionError("CUTOVER_JOURNAL_FAILURE_DID_NOT_ROLL_BACK_GUARD_AND_SEAL");
-        if(SchemaDomainCoordinatorR926.stepComplete(db,contract,"R64_CP4_DDL_42"))
+        if(SchemaDomainCoordinatorR926.stepComplete(db,contract,faultUnit))
             throw new AssertionError("FAILED_CUTOVER_LEFT_COMPLETED_CHILD");
         resume(owner,db);
         System.out.println("R3251_COMPLETE_RESEARCH_OWNER_NATIVE_PASS callbacks=" + callbacks
