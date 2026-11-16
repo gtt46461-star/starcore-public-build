@@ -1,19 +1,13 @@
-# R32.5.1-C1 033 正式签名 APK
+R32.5.1-C1 033 正式签名成品
 
-本 APK 已用原 032 安装证书签名，包名不变，versionCode 从 577311032 增至 577311033。API34 上已实测原签名 032→033 覆盖安装及 033 同版重装，安装字节、UID 和实际测试数据库保全通过。此证据不代替用户原真机数据库验证。请使用系统覆盖安装，保留应用数据。
+APK 为原032同包同签、versionCode577311033。系统覆盖安装并保留应用数据。实际API34原032→033覆盖及同版重装、旧draws行/UID/SQLite完整性保全通过；不冒充原用户大数据库验证。REAL未开启。
 
-冻结构建源码：`bb7b49bbcc9266bad548ec37e71403256fc06a4d`。APK SHA-256 见 SHA256SUMS.txt。私钥、口令和实际数据库均未放入本交付分支。
+五批源码工程检查通过：3291项单元测试零失败零跳过、55次分批HOST执行、编译/测试编译/Lint通过。Android29、34和35的原完整矩阵流程通过；35首轮一次未来冻结失败，原组及完整流程复验均通过，原失败保留且根因未被武断宣称消除。正式APK是Release，不是Debug。
 
-P1 已通过 655 项单元测试，P2—P5 每批已通过 659 项单元测试及当前源码编译、测试编译和 Lint。Android29、34 完整矩阵通过；Android35 首轮仅一个未来冻结断言失败；原七项交付协议已按原 360000ms 限制全部复验通过，原失败保留，完整原矩阵正在复跑。33 条外部协议、222 条完整业务验收、真机24/72小时与自然质量另列，不宣称全部通过。REAL 开关未被开启。
+本ZIP内APK与独立下载APK完全同字节。DELIVERY.json记录精确APK源码bb7b49bbcc9266bad548ec37e71403256fc06a4d及冻结证据提交。ZIP_CONTENTS_SHA256.json逐个核对成员。
 
-当前交付包括实际 APK 与身份回执，完整证据 ZIP 在收尾核对后补入同一分支。
+222条逐ID账本不以组级PASS代签完整条款；未命中的F01-F10 Android联合格、未审阅完整语义、原用户032 DB/WAL/SHM与556checkpoint、真机24/72小时及独立自然质量均保留缺项。165对象的源码存在不等于已证实独立自然效果。不称全部业务验收完成。
 
-源码 bundle 已附，前置为原精确基线。先克隆本仓库并取得基线后执行：
+源代码已在GitHub独立施工分支推送；完整权威源码按上述bb7b49bb提交取得。source/BUILD_INPUTS_FROM_EXACT_BASELINE.patch在evidence目录内供审阅。另附独立源码bundle，以7424eeae6354eb6599dd8498e123c059bd410c90为前置，不内嵌本ZIP。签名私钥、口令、API值和原始应用数据库均不在本包。
 
-```bash
-git bundle verify STARCORE-R3251-C1-bb7b49bb-source.bundle
-git fetch STARCORE-R3251-C1-bb7b49bb-source.bundle refs/heads/construction/r3251-c1-attachment-final-20261116
-git switch --detach bb7b49bbcc9266bad548ec37e71403256fc06a4d
-```
-
-bundle 中四个批次工程验收 ref 保留当批实际源码和回执；APK 编译提交固定为 bb7b49bb。
+[下载 APK](./STARCORE-R32.5.1-C1-033-release.apk) · [下载同字节 APK 与证据 ZIP](./STARCORE-R32.5.1-C1-033-APK-AND-EVIDENCE.zip) · [SHA-256](./SHA256SUMS.txt)
