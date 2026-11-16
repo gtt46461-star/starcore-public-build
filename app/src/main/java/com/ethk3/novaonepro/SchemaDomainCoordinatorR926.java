@@ -632,6 +632,116 @@ public final class SchemaDomainCoordinatorR926 {
 
     private static final java.util.regex.Pattern SU1_DRAW_CLOCK_R31=java.util.regex.Pattern.compile(
             "^CREATE TRIGGER IF NOT EXISTS (su1_draw_(?:insert|update|delete)_clock) AFTER (?:INSERT|UPDATE|DELETE) ON draws\\b");
+    /** Authenticate original extension attachments and exact CP4 guard replacements.
+     * Called inside its existing migration transaction; no unknown drift is restamped. */
+    public static void migrateR3251ResearchAttachments(SQLiteDatabase db,String[] definitions,
+            String[] replacements,Step install) {
+        if(!db.inTransaction())throw new IllegalStateException("R3251_RESEARCH_ATTACHMENT_OWNER_REQUIRED");
+        ensureInfrastructure(db);
+        Contract critical=criticalContract();
+        Set<String> roots=new HashSet<>(Arrays.asList(critical.objects));
+        Set<String> delta=new HashSet<>();
+        java.util.regex.Pattern declaration=java.util.regex.Pattern.compile(
+                "^CREATE TRIGGER IF NOT EXISTS (cp8_[A-Za-z0-9_]+)\\s+(?:BEFORE|AFTER)\\s+(?:INSERT|UPDATE|DELETE)\\s+ON\\s+\"?([A-Za-z0-9_]+)\"?(?:\\s|$)");
+        for(String expected:definitions){
+            java.util.regex.Matcher named=declaration.matcher(expected);
+            if(!named.find()||!roots.contains(named.group(2))||!delta.add(named.group(1)))
+                throw new IllegalArgumentException("R3251_RESEARCH_ATTACHMENT_DECLARATION");
+        }
+        requireR3251ResearchAttachmentDefinitions(db,definitions,declaration);
+        java.util.Map<String,String> exactReplacements=new java.util.HashMap<>();
+        java.util.regex.Pattern replacementDeclaration=java.util.regex.Pattern.compile(
+                "^CREATE TRIGGER(?: IF NOT EXISTS)? ([A-Za-z0-9_]+)\\s+(?:BEFORE|AFTER)\\s+(?:INSERT|UPDATE|DELETE)\\s+ON\\s+\"?([A-Za-z0-9_]+)\"?(?:\\s|$)");
+        for(String expected:replacements){
+            java.util.regex.Matcher named=replacementDeclaration.matcher(expected);
+            if(!named.find()||!roots.contains(named.group(2))
+                    ||exactReplacements.put(named.group(1),normalizedTriggerR31(expected))!=null)
+                throw new IllegalArgumentException("R3251_RESEARCH_REPLACEMENT_DECLARATION");
+        }
+        String reason=matchReason(db,critical),before=fingerprint(db,critical);
+        boolean trusted=reason.startsWith("MATCH"),recovered=false;
+        String core=fingerprint(db,critical,false,null,delta);
+        java.util.Map<String,String[]> beforeObjects=criticalObjectsForDeltaR3251(db,critical);
+        if(!trusted&&!"STAMP_MISSING".equals(reason)){
+            String sealed=null;
+            try(Cursor row=db.rawQuery("SELECT fingerprint FROM "+TABLE_DOMAIN
+                    +" WHERE domain=? AND revision=? AND contract_hash=? AND state='READY'",
+                    new String[]{critical.domain,Integer.toString(critical.revision),critical.contractHash})){
+                if(row.moveToFirst())sealed=row.getString(0);
+            }
+            recovered="FINGERPRINT_MISMATCH".equals(reason)&&core.equals(sealed);
+            if(!recovered)throw new DatabaseCoordinator.SchemaPendingR31(
+                    "R3251_RESEARCH_ATTACHMENT","UNTRUSTED_CRITICAL:"+reason);
+            before=sealed;
+        }
+        try{
+            install.run(db);
+            requireR3251ResearchAttachmentDefinitions(db,definitions,declaration);
+            // The sole original extension owner also installs declared guards
+            // outside CP8. Existing objects stay exact, except for the original
+            // CP4 guard replacements whose complete definitions are declared.
+            requireAdditiveCriticalAttachmentsR3251(beforeObjects,
+                    criticalObjectsForDeltaR3251(db,critical),roots,exactReplacements);
+            String after=fingerprint(db,critical);
+            if(recovered||trusted&&!before.equals(after)){
+                long now=System.currentTimeMillis();
+                db.execSQL("INSERT OR IGNORE INTO "+TABLE_JOURNAL
+                                +"(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code)"
+                                +" VALUES(?,?,?,'COMPLETED',1,'EXACT_ORIGINAL_CP8_ATTACHMENT_DELTA',?,?,?,?, '')",
+                        new Object[]{critical.domain,critical.revision,"R3251_RESEARCH_ATTACHMENT_CUTOVER_V1:"+after,
+                                before,after,now,now});
+                verifyAndStamp(db,critical);
+            }
+        }catch(RuntimeException failure){throw failure;}
+        catch(Exception failure){throw new IllegalStateException("R3251_RESEARCH_ATTACHMENT_MIGRATION_FAILED",failure);}
+    }
+
+    private static void requireR3251ResearchAttachmentDefinitions(SQLiteDatabase db,String[] definitions,
+            java.util.regex.Pattern declaration){
+        for(String expected:definitions){
+            java.util.regex.Matcher named=declaration.matcher(expected);
+            if(!named.find())throw new IllegalArgumentException("R3251_RESEARCH_ATTACHMENT_DECLARATION");
+            try(Cursor row=db.rawQuery("SELECT type,sql FROM sqlite_master WHERE name=?",new String[]{named.group(1)})){
+                if(row.moveToFirst()&&(!"trigger".equals(row.getString(0))
+                        ||!normalizedTriggerR31(expected).equals(normalizedTriggerR31(row.getString(1)))))
+                    throw new DatabaseCoordinator.SchemaPendingR31("R3251_RESEARCH_ATTACHMENT",
+                            "UNKNOWN_TRIGGER_DEFINITION:"+named.group(1));
+            }
+        }
+    }
+
+    private static java.util.Map<String,String[]> criticalObjectsForDeltaR3251(SQLiteDatabase db,Contract contract){
+        Set<String> roots=new HashSet<>(Arrays.asList(contract.objects));
+        java.util.Map<String,String[]> objects=new java.util.LinkedHashMap<>();
+        try(Cursor row=db.rawQuery("SELECT type,name,tbl_name,sql FROM sqlite_master ORDER BY type,name",null)){
+            while(row.moveToNext()){
+                String type=safe(row.getString(0)),name=safe(row.getString(1)),table=safe(row.getString(2));
+                if(roots.contains(name)||roots.contains(table))
+                    objects.put(type+'|'+name,new String[]{type,name,table,safe(row.getString(3))});
+            }
+        }
+        return objects;
+    }
+
+    private static void requireAdditiveCriticalAttachmentsR3251(java.util.Map<String,String[]> before,
+            java.util.Map<String,String[]> after,Set<String> roots,java.util.Map<String,String> exactReplacements){
+        for(java.util.Map.Entry<String,String[]> row:before.entrySet()){
+            String[] prior=row.getValue(),current=after.get(row.getKey());
+            if(Arrays.equals(prior,current))continue;
+            boolean exactOriginalReplacement=current!=null&&"trigger".equals(prior[0])
+                    &&"trigger".equals(current[0])&&prior[1].equals(current[1])&&prior[2].equals(current[2])
+                    &&normalizedTriggerR31(current[3]).equals(exactReplacements.get(current[1]));
+            if(!exactOriginalReplacement)
+                throw new IllegalStateException("R3251_RESEARCH_ATTACHMENT_CHANGED_EXISTING_CRITICAL_OBJECT");
+        }
+        for(java.util.Map.Entry<String,String[]> row:after.entrySet()){
+            if(before.containsKey(row.getKey()))continue;
+            String[] value=row.getValue();
+            if(!("trigger".equals(value[0])||"index".equals(value[0]))||!roots.contains(value[2]))
+                throw new IllegalStateException("R3251_RESEARCH_ATTACHMENT_NON_ADDITIVE_CRITICAL_DELTA");
+        }
+    }
+
     private static String normalizedTriggerR31(String sql){
         return sql==null?"":sql.replace(" IF NOT EXISTS "," ").trim().replaceAll(";\\s*$","").replaceAll("\\s+"," ");
     }
