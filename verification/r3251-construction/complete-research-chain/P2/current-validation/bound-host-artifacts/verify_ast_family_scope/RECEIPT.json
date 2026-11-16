@@ -1,0 +1,101 @@
+{
+  "status": "ACTUAL_ANDROID_COMPILED_AST_CONSUMER_HOST_PASS",
+  "capturedAt": "2026-11-16T04:03:38.078196+00:00",
+  "scope": "ACTUAL_ANDROID_BYTECODE_ON_HOST_JVM_NOT_ANDROID_DEVICE_OR_NATURAL_QUALITY",
+  "phase": "P02",
+  "card": "R31-B05-C11",
+  "supportJar": "/workspace/starcore-r3251-P2-attachment-owner/app/build/intermediates/runtime_app_classes_jar/debug/bundleDebugClassesToRuntimeJar/classes.jar",
+  "supportJarSha256": "b37e3cc31dd6d6efee87447acd3e3758bfc4f6a7bef476feeeeb7aa1a55f5033",
+  "compiledProductionClassSha256": {
+    "PolicyAstR27": "05a7b13a276381c028b625b30efd6aa954a29d98a4a35839150843a4b43f3469",
+    "FeatureCacheR27": "6b5c3aebfff3fbe395fe4a4ec513f7c8979706241b70a5989cde55c121acf5a2",
+    "ReplayEvaluatorR27": "472317983ebad0669e45970fe2d9a659fc20e7596eba40599f413851747a1fa3",
+    "MemoryBudgetR31": "fcf50fd5d5deb5bcf610d9bbc70483eb3ed3ce7d3cc63665012fea23756e8361"
+  },
+  "observedMainPolicySourceSha256": "5740813af81c0b1a3e927e21b51dd781c060a304852102df10dcd5e6c37c2078",
+  "sourceSnapshot": "PolicyAstR27.java.source.snapshot",
+  "sourceSnapshotMatchesMainAtEnd": true,
+  "toolSourceSha256": {
+    "tools/r31/ast_family_scope_host/AstFamilyScopeR31Host.java": "bc0b864d8c8ef3fa8a4c02521a2200d1093a82a102d283f2c0b6b18230b0e990",
+    "tools/r31/verify_ast_family_scope.py": "80f61a89ee30daddcf602000e5cbb7d2819e12e90ffbf5ad7313f9456f54fe4b"
+  },
+  "sourceAndArtifactStableDuringRun": true,
+  "compiledProductionOverlay": false,
+  "interfaceChain": [
+    "ReplayEvaluatorR27.predictNext",
+    "PolicyAstR27.evalRealtimeScopedR31 -> evalScopedR31 critical=true",
+    "actual bytecode consumes iload_3 at FeatureCacheR27.familyIntoR31(II[DZ)V",
+    "cold model/matrix/row-checkpoint admissions have REALTIME leases",
+    "critical ThreadLocal restored on success, real token exception and real worker completion"
+  ],
+  "assertions": 144,
+  "actualMaximumHeapBytes": 536870912,
+  "actualHeapUsedBeforeConsumersBytes": 346328096,
+  "registeredStronglyHeldPayloadBytes": 343597383,
+  "historyRefusals": [
+    "before live",
+    "after live",
+    "after exception",
+    "concurrent with actual live critical scope",
+    "after concurrent live"
+  ],
+  "historyReachesActualModelConstructor": true,
+  "exception": "ACTUAL_BUDGET_TOKEN_YIELD_IN_MODEL_UPDATE; actual model body exits; pending output unpublished; retry equals healthy output",
+  "threadIsolation": "one actual live producer held in its real token checkpoint while another thread history reaches MODEL admission and is refused",
+  "probeSubstitution": false,
+  "collectorRequested": false,
+  "mutableCriticalFlagInjected": false,
+  "warmScratchReused": "two real previously admitted scopes let history reach model admission beyond scratch",
+  "releaseEvidence": "actual completed scope and executor termination then owner close; no claim of physical heap free",
+  "initialHarnessFailure": {
+    "log": "initial-harness-k3-index.stderr.log",
+    "cause": "harness first assumed UI1..10 rather than existing ReplayEvaluator raw0..9 indices; corrected to actual API; no production or workload changed"
+  },
+  "commands": [
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javap",
+        "-p",
+        "-c",
+        "-s",
+        "-classpath",
+        "/workspace/starcore-r3251-P2-attachment-owner/app/build/intermediates/runtime_app_classes_jar/debug/bundleDebugClassesToRuntimeJar/classes.jar",
+        "com.ethk3.novaonepro.strategyv2.PolicyAstR27"
+      ],
+      "exitCode": 0,
+      "log": "actual-policy-javap.txt",
+      "stderrLog": "actual-policy-javap.txt.stderr.log"
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+        "-cp",
+        "/workspace/starcore-r3251-P2-attachment-owner/app/build/intermediates/runtime_app_classes_jar/debug/bundleDebugClassesToRuntimeJar/classes.jar",
+        "-d",
+        "/tmp/r31-actual-ast-family-scope-xzyryziy",
+        "/workspace/starcore-r3251-P2-attachment-owner/tools/r31/ast_family_scope_host/AstFamilyScopeR31Host.java"
+      ],
+      "exitCode": 0,
+      "log": "compile.log",
+      "stderrLog": "compile.log.stderr.log"
+    },
+    {
+      "command": [
+        "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-actual-ast-family-scope-xzyryziy:/workspace/starcore-r3251-P2-attachment-owner/app/build/intermediates/runtime_app_classes_jar/debug/bundleDebugClassesToRuntimeJar/classes.jar",
+        "com.ethk3.novaonepro.strategyv2.AstFamilyScopeR31Host"
+      ],
+      "exitCode": 0,
+      "log": "actual-consumer.json",
+      "stderrLog": "actual-consumer.json.stderr.log"
+    }
+  ],
+  "work": "/tmp/r31-actual-ast-family-scope-xzyryziy",
+  "productionFilesModified": false,
+  "androidDevice": "NOT_RUN",
+  "continuous24h": "NOT_RUN",
+  "continuous72h": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED"
+}
