@@ -27,6 +27,10 @@ def command(argv,timeout=180,required=True):
 def adb(*args,**kwargs):return command(['adb',*args],**kwargs)
 def text(*args,**kwargs):return adb(*args,**kwargs).stdout.decode(errors='replace').strip()
 def install_succeeded(output):return bool(output.splitlines()) and output.splitlines()[-1]=='Success' and 'Failure [' not in output
+def application_data_uid():
+ value=text('shell','stat','-c','%u','/data/user/0/'+PKG)
+ assert value.isdigit() and int(value)>=10000,'APPLICATION_DATA_DIRECTORY_UID_NOT_OBSERVED'
+ return value
 
 def snapshot(folder):
  text('shell','am','force-stop',PKG)
@@ -108,18 +112,21 @@ def main():
   with tempfile.TemporaryDirectory(prefix='r3251-release-overlay-private-',dir=os.environ.get('RUNNER_TEMP')) as temporary:
    private=Path(temporary);receipt['oldDatabaseCapture']=snapshot(private/'old')
    old_facts,old_rows=inspect(private/'old'/DB);receipt['oldDatabase']=old_facts
+   receipt['oldObservedBusinessRows']={name:value['count'] for name,value in old_rows.items()}
    marker=private/'overlay-probe.sqlite';nonce=uuid.uuid4().hex
    with sqlite3.connect(marker) as witness:
     witness.execute('CREATE TABLE overlay_witness(id INTEGER PRIMARY KEY,nonce TEXT NOT NULL)');witness.execute('INSERT INTO overlay_witness VALUES(1,?)',(nonce,))
    marker_sha=digest(marker.read_bytes());remote_marker='/data/user/0/'+PKG+'/files/r3251-overlay-probe.sqlite'
    text('shell','mkdir','-p','/data/user/0/'+PKG+'/files');text('push',marker,remote_marker)
-   old_uid=text('shell','dumpsys','package',PKG);old_uid=re.search(r'\buserId=(\d+)',old_uid);assert old_uid
+   old_uid=application_data_uid();receipt['oldApplicationDataUid']=int(old_uid)
+   text('shell','chown',old_uid+':'+old_uid,remote_marker)
    install=text('install','-r',args.new_apk,timeout=600);assert install_succeeded(install),install
    (out/'install-release033.txt').write_text(install+'\n')
    assert digest(adb('exec-out','cat',remote_marker).stdout)==marker_sha,'PRIVATE_SQLITE_WITNESS_LOST_DURING_UPGRADE'
    installed_paths=text('shell','pm','path',PKG).splitlines();assert len(installed_paths)==1
    assert digest(adb('exec-out','cat',installed_paths[0].removeprefix('package:')).stdout)==receipt['newApkSha256'],'DELIVERED_RELEASE_NOT_ACTUALLY_INSTALLED'
-   new_uid=re.search(r'\buserId=(\d+)',text('shell','dumpsys','package',PKG));assert new_uid and new_uid[1]==old_uid[1],'APPLICATION_UID_CHANGED'
+   new_uid=application_data_uid();assert new_uid==old_uid,'APPLICATION_UID_CHANGED'
+   receipt['newApplicationDataUid']=int(new_uid)
    start=text('shell','am','start','-W','-n',PKG+'/com.ethk3.novaonepro.MainActivity');assert 'Error:' not in start
    time.sleep(35)
    assert text('shell','pidof',PKG),'UPGRADED_APPLICATION_NOT_ALIVE'
