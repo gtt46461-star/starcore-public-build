@@ -18,6 +18,7 @@ def main():
     names = ['LegacyDdlR31', 'LegacySchemaCoordinatorR926', 'SchemaDomainCoordinatorR926',
              'DbHelper', 'DbStore', 'LegacySettlementProofR79', 'ResearchSchemaCoordinatorR926']
     sources = [production / (name + '.java') for name in names]
+    sources.append(production / 'r952/ResearchMigrationRegistryR952.java')
     fixture = ROOT / 'tools/r31/unified_host/RuntimeSchemaR31Host.java'
     supplemental = ROOT / 'tools/r3251/ResearchExtensionOwnerHost.java'
     all_inputs = sources + [fixture, supplemental, Path(__file__).resolve()]
@@ -35,6 +36,16 @@ def main():
         work = Path(temporary); platform = work / 'platform'; current = work / 'production'; test = work / 'test'
         for path in [platform, current, test]: path.mkdir()
         shims = list((ROOT / 'tools/r31/ddl_host').rglob('*.java'))
+        original_cursor = ROOT / 'tools/r31/ddl_host/android/database/Cursor.java'
+        cursor = work / 'Cursor.java'
+        cursor_source = original_cursor.read_text()
+        anchor_cursor = '    boolean moveToNext();'
+        assert cursor_source.count(anchor_cursor) == 1
+        cursor.write_text(cursor_source.replace(anchor_cursor,
+            '    default int getColumnIndexOrThrow(String name){int column=getColumnIndex(name);'
+            'if(column<0)throw new IllegalArgumentException("column not found: "+name);return column;}\n'
+            + anchor_cursor))
+        shims = [p for p in shims if p != original_cursor] + [cursor]
         shims += list((ROOT / 'tools/r29/qual_host/shim/android/database/sqlite').glob('SQLite*Exception.java'))
         log = work / 'Log.java'
         log.write_text('package android.util;public final class Log{public static int w(String a,String b){return 0;}public static int w(String a,String b,Throwable c){return 0;}}')
@@ -44,10 +55,21 @@ def main():
         run(['javac', '-cp', os.pathsep.join(map(str, [sdk, args.classes])), '-d', platform, *shims], 'platform.log')
         run(['javac', '-sourcepath', '', '-implicit:none', '-cp', os.pathsep.join(map(str, [sdk, platform, args.classes])), '-d', current, *sources], 'production.log')
         original = fixture.read_text()
-        anchor = '            String first=SchemaDomainCoordinatorR926.fingerprint(db,critical);'
+        anchor = '            // Execute the old unguarded R79 statements as the actual failing'
         assert original.count(anchor) == 1
         wrapped = work / 'RuntimeSchemaR31Host.java'
-        wrapped.write_text(original.replace(anchor, '            ResearchExtensionOwnerHost.run(db);\n' + anchor))
+        cold = 'ColdSchemaR31Host.initialize(helper,db);SchemaDomainCoordinatorR926.ensureInfrastructure(db);'
+        assert original.count(cold) == 1
+        # The older runtime-only fixture starts at ensureSchema, omitting the
+        # original onCreate V49/V50 owners required by the complete extension.
+        original = original.replace('static final class FaultDb extends SQLiteDatabase {',
+                                    'static final class FaultDb extends ResearchExtensionOwnerHost.NestedDatabase {')
+        original = original.replace(cold, 'db.beginTransaction();try{helper.onCreate(db);db.setTransactionSuccessful();}finally{db.endTransaction();}SchemaDomainCoordinatorR926.ensureInfrastructure(db);')
+        # The older fixture's remaining section deliberately installs dangling
+        # R79 fences as a separate failure counterexample. Keep that test intact
+        # in its original runner; begin this full-owner test before that mutation.
+        wrapped.write_text(original[:original.index(anchor)]
+                           + '            ResearchExtensionOwnerHost.run(db);\n        }\n    }\n}\n')
         cp = os.pathsep.join(map(str, [platform, current, test, args.classes, jdbc, slf, sdk]))
         run(['javac', '-cp', cp, '-d', test, ROOT / 'tools/r31/unified_host/ColdSchemaR31Host.java', wrapped, supplemental], 'fixture.log')
         output = run(['java', '-Xmx768m', '-cp', cp, 'com.ethk3.novaonepro.RuntimeSchemaR31Host', work / 'runtime.db'], 'run.log')

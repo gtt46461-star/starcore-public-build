@@ -122,6 +122,7 @@ jobs:
     timeout-minutes: 100
     env:
       R3251_REPORT_STARTUP_WAIT_SECONDS: '180'
+      R3251_REPORT_START_SERVICE: '1'
     strategy:
       fail-fast: false
       matrix:
@@ -138,6 +139,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Exact read-only Android schema observer toolchain
+        run: |
+          set -euo pipefail
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+          sdkmanager --licenses < <(yes) > /dev/null
+          sdkmanager 'platforms;android-36' 'build-tools;36.0.0' > "$RUNNER_TEMP/r3251-observer-sdk.log" 2>&1
       - uses: actions/download-artifact@v4
         with:
           name: r3251-C1-android-support-${{ env.R3251_SOURCE }}

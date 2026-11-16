@@ -208,6 +208,21 @@ def main():
     # rather than treating every newly visible ACK as the new export.
     before_intents = set(full_report_intents())
     adb('shell', 'am', 'start', '-W', '-n', PKG + '/com.ethk3.novaonepro.MainActivity')
+    # The preceding real-service delivery tests deliberately leave UserEnabled
+    # false. Exercise the actual user Start action for this READY-state report;
+    # do not edit preferences/SQL or touch the separate REAL authorization switch.
+    start_service = os.environ.get('R3251_REPORT_START_SERVICE', '0') == '1'
+    schema_observer = None
+    if start_service:
+        import importlib.util
+        module_path=Path('tools/r3251/report_schema_observer.py')
+        spec=importlib.util.spec_from_file_location('readonly_report_schema_observer',module_path)
+        schema_observer=importlib.util.module_from_spec(spec);spec.loader.exec_module(schema_observer)
+        observer_path=schema_observer.prepare(args.out)
+        schema_observer.wait(args.out,observer_path,require_ready=False,seconds=30)
+        click_text('启动服务', scrolls=8)
+        capture('service-start-request')
+        schema_observer.wait(args.out,observer_path,require_ready=True,seconds=1200)
     # Cold initialization runs through the production scheduler. The earlier
     # immediate-export failures remain evidence; this fixture waits without
     # injecting tables, changing service controls, or weakening READY assertions.
@@ -290,6 +305,7 @@ def main():
                'entry': 'MainActivity production export button and menu', 'jobId': job,
                'zipBytes': local.stat().st_size, 'zipSha256': digest, 'entryCount': len(names),
                'startupWarmupSeconds': startup_wait,
+               'serviceStartViaActualUi': start_service,
                'requiredNonemptyMembers': originals, 'researchSchemaReady': True, 'schemaStartupSummary': summary,
                'evidenceComplete': True, 'checksComplete': True, 'allChecksPassed': index['allChecksPassed'],
                'physicalDevice': 'NOT_RUN', 'user9656647680ByteDatabase': 'NOT_RUN', 'naturalQuality': 'NOT_PROVEN'}
